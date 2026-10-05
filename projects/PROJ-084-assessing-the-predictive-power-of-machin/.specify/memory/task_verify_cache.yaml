@@ -1,27 +1,27 @@
-T008b:
+T001a:
   c: false
-  h: cbeb1affafccfa75318f48fae2ef51b2d6cb91d58a981bd5f61908b84758afa5
-  r: "The repository lacks the required `specs/001-assess-ml-predictive-power/contracts/output.schema.yaml`\
-    \ file, and the provided `validators.py` does not load or enforce that external\
-    \ schema (it defines its own Pydantic models and the validation function is truncated).\
-    \ Consequently the task\u2019s core requirement is not met."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided showing that the required directories (`code/`, `data/raw/`,
+    `data/processed/`, `data/results/`, `tests/`) actually exist on disk; the claim
+    is unsubstantiated. The implementer must create these directories (e.g., via `mkdir
+    -p`) and provide a listing or screenshot confirming their presence.
+T007b:
+  c: false
+  h: 41f602be03ef7b61a6c26c6a1e9651d21ece662c548846fb0a5d196a4d74131b
+  r: The repository lacks the required `specs/001-assess-ml-predictive-power/contracts/dataset.schema.yaml`
+    file, so the validator cannot actually load the schema. Moreover, `code/utils/validators.py`
+    is truncated, contains syntax errors (e.g., `raise FileNotFoundEr`) and does not
+    define the `validate_dataset_schema` function that the verification command expects.
+    These issues prevent the task from being fulfilled.
 T010:
   c: false
-  h: c89a4fbc5e950779256dd9479265be93c29648b94004401cbdea67b141097a79
-  r: The repository contains a partially implemented `code/preprocessing/scaffold.py`,
-    but it never reads `data/processed/cleaned_reactions.parquet` nor writes `data/processed/scaffold_groups.parquet`.
-    Moreover, the required output column should be named `scaffold_id`, while the
-    script creates a column called `murcko_scaffold`. The input parquet file and the
-    expected output file are both missing.
-T014:
-  c: false
-  h: b3213c2a4ee78c0e4213cec2cce20ff40d897e0465d3d7f0949e03d43b9c4c30
-  r: The repository lacks the required `data/raw/uspto_raw.parquet` and `data/results/download_checksum.txt`
-    files, so the script cannot perform the checksum verification or load the data.
-    Moreover, `sanitize.py` is truncated (ends abruptly in `verify_checksum`) and
-    does not show the implementation of the RDKit cleaning steps or the output of
-    sanitized SMILES. Both the necessary inputs and the full processing logic are
-    missing.
+  h: 99ddaf5c78959bc30a8ed17afce5774413327911d15089cd4257b875baf70176
+  r: The repository lacks the required input `data/processed/cleaned_reactions.parquet`
+    and the expected outputs `data/processed/scaffold_groups.parquet` and `data/results/scaffold_generation_log.txt`.
+    Moreover, `scaffold.py` creates a column named `murcko_scaffold` instead of the
+    mandated `scaffold_id`, and the script does not contain code to read the input,
+    write the parquet file, or log the unique scaffold count. These essential pieces
+    are missing, so the task is not fulfilled.
 T015:
   c: false
   h: aac6c9aceaec1a160f3fd2327763aa1fb9be9f77bae7c35b9e46d1b2aad1d301
@@ -30,14 +30,50 @@ T015:
     \ reading `YIELD_RANGE_STRATEGY` from `config.py` or implementing the midpoint\
     \ vs. exclude logic and logging it to the report. Consequently the task\u2019\
     s core requirements are not satisfied."
-T027b:
+T016:
   c: false
-  h: ef01497be22832321c9b419fe468426dced4ee9702445cdbee55a4f7af5dea33
-  r: "The provided `memory_profiler.py` is truncated (the `wrapper` function ends\
-    \ abruptly with an incomplete line) and does not contain the logic to write the\
-    \ log and JSON files, nor does it wrap the T017, T024, and T025 steps. Additionally,\
-    \ the required output files `data/results/memory_profile.log` and `data/results/runtime_profile.json`\
-    \ are missing. The task\u2019s core requirements are therefore not satisfied."
+  h: 43517991f8268b2d67ea88b08425ac41c0446ecd81d6d82fec1402612c955630
+  r: "The repository contains `code/preprocessing/fingerprints.py`, but it never writes\
+    \ the required `data/results/fingerprint_dimensions.log` (it logs to `fingerprint_processing.log`\
+    \ instead) nor computes and records a SHA256 checksum in `data/results/checksums.json`.\
+    \ Both of those files are missing, so the task\u2019s logging and checksum requirements\
+    \ are not satisfied. The next implementer must add code to log the ECFP and MACCS\
+    \ bit lengths to the specified log file and generate the checksum entry in `checksums.json`."
+T017:
+  c: false
+  h: 2a124bfa64b2abe7a9e8254eb38ba458ee6936a66ab8607721dc086e71213de7
+  r: "The required `data/processed/cleaned_reactions.parquet` file is missing, as\
+    \ are the schema file (`dataset.schema.yaml`), the `data/results/checksums.json`\
+    \ file, and any evidence of the orchestration script, batched loading, or checksum\
+    \ validation. Consequently the task\u2019s core outputs and validation steps are\
+    \ not present."
+T019:
+  c: false
+  h: 8b7fd16ec91acbfee56678f5760704d53e113d034b6fe3caaba89e6782c447da
+  r: "The provided `download.py` is incomplete and does not fully implement the required\
+    \ behavior: it never checks the DOI against the dataset source, never writes the\
+    \ SHA\u2011256 checksum or row\u2011count logs to the specified files, and the\
+    \ logging handler writes to a different filename (`download.log`). Moreover, the\
+    \ expected output files (`uspto_raw.parquet`, `download_checksum.txt`, `download_log.txt`)\
+    \ are absent. The script therefore does not satisfy the task requirements."
+T022b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No preprocessing script, fingerprint generation code, or any dataset files are\
+    \ present, and there is no implementation of a \u201Cstrict scaffold\u2011based\
+    \ split\u201D as required by task T022b. The only material provided is a high\u2011\
+    level feature specification and user stories, which do not constitute the concrete\
+    \ artifact the task demands. The implementer must add the actual code (e.g., a\
+    \ Python module that performs scaffold\u2011based splitting of the USPTO dataset)\
+    \ and the resulting split files or documentation proving it works."
+T027a:
+  c: false
+  h: a0bc2b984bcb6735bf196eeb29fd7c854471697abcf2cee9dabfdcf72d720d7c
+  r: "The provided `memory_profiler.py` is truncated (ends mid\u2011statement) and\
+    \ does not show any code that writes the profiling data to `data/results/memory_profile_<task_name>.log`\
+    \ or to `data/results/runtime_profile.json`. Moreover, the `runtime_profile.json`\
+    \ file is absent from the repository. Consequently, the required output files\
+    \ and complete, thread\u2011safe logging logic are missing."
 T030:
   c: false
   h: ab39ea1f432ee4ca454e13511e907ff980817575b515b77a35d4e27d9bd2625b

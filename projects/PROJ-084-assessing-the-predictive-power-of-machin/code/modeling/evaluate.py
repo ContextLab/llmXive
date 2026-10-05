@@ -1,373 +1,316 @@
+"""
+Evaluation module for assessing model performance on test and training sets.
+Implements metrics calculation (R2, RMSE, MAE) and per-class analysis.
+"""
 import json
 import logging
 import sys
 from pathlib import Path
-from typing import Dict, Any, Tuple, List, Set
+from typing import Dict, Any, Tuple, List, Optional
+
 import numpy as np
 import pandas as pd
-from sklearn.inspection import permutation_importance
-from sklearn.ensemble import RandomForestRegressor
-import joblib
-from rdkit import Chem
-from rdkit.Chem import rdMolDescriptors
-from rdkit import DataStructs
+from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 
-from utils.io import load_parquet, load_csv
-from utils.validators import validate_output_record
+# Import existing utilities from the project
+from utils.io import load_csv, load_parquet
+from utils.validators import validate_output_sample
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
 logger = logging.getLogger(__name__)
 
 # Constants
-DATA_DIR = Path("data/processed")
-RESULTS_DIR = Path("data/results")
-MODEL_DIR = RESULTS_DIR / "best_models"
+METRICS_KEYS = ['R2', 'RMSE', 'MAE']
+DECIMAL_PRECISION = 4
 
-def load_best_models() -> Tuple[RandomForestRegressor, Dict[str, Any]]:
-    """Load the best Random Forest model and its hyperparameters."""
-    model_path = MODEL_DIR / "random_forest_best.pkl"
-    params_path = MODEL_DIR / "random_forest_best_params.json"
-
-    if not model_path.exists() or not params_path.exists():
-        raise FileNotFoundError(f"Best RF model or params not found. Run T024/T028 first. Paths: {model_path}, {params_path}")
-
-    logger.info(f"Loading best RF model from {model_path}")
-    model = joblib.load(model_path)
+def load_best_models(models_dir: Path) -> Dict[str, Any]:
+    """
+    Load the best trained models and their metadata from the models directory.
+    Expected structure: models_dir contains subdirectories for each model type
+    (e.g., 'rf', 'svm') with 'model.pkl' and 'metadata.json'.
+    """
+    import pickle
+    models = {}
     
-    with open(params_path, 'r') as f:
-        params = json.load(f)
+    # Expected model types based on T024/T025
+    model_types = ['rf', 'svm']
     
-    return model, params
-
-def load_test_data() -> pd.DataFrame:
-    """Load the held-out test set indices and the full cleaned data."""
-    indices_path = DATA_DIR / "held_out_test_indices.csv"
-    cleaned_path = DATA_DIR / "cleaned_reactions.parquet"
-
-    if not indices_path.exists():
-        raise FileNotFoundError(f"Test indices not found. Run T022d first: {indices_path}")
-    if not cleaned_path.exists():
-        raise FileNotFoundError(f"Cleaned data not found. Run T017 first: {cleaned_path}")
-
-    logger.info(f"Loading test indices from {indices_path}")
-    test_indices = pd.read_csv(indices_path)['index'].tolist()
-
-    logger.info(f"Loading cleaned data from {cleaned_path}")
-    df = load_parquet(cleaned_path)
+    for model_type in model_types:
+        model_path = models_dir / model_type / 'model.pkl'
+        metadata_path = models_dir / model_type / 'metadata.json'
+        
+        if not model_path.exists():
+            logger.warning(f"Model file not found: {model_path}")
+            continue
+        
+        with open(model_path, 'rb') as f:
+            models[model_type] = {
+                'model': pickle.load(f),
+                'metadata': json.load(open(metadata_path, 'r')) if metadata_path.exists() else {}
+            }
+        logger.info(f"Loaded {model_type} model from {model_path}")
     
-    # Filter to test set only
-    test_df = df.loc[test_indices].reset_index(drop=True)
-    logger.info(f"Loaded {len(test_df)} test samples")
+    return models
+
+def load_test_data(test_indices_path: Path, full_data_path: Path) -> pd.DataFrame:
+    """
+    Load the held-out test set indices and extract the corresponding data
+    from the full processed dataset.
+    """
+    if not test_indices_path.exists():
+        raise FileNotFoundError(f"Test indices file not found: {test_indices_path}")
     
-    return test_df
+    # Load indices (expected to be a CSV with a column 'index' or similar)
+    test_indices_df = load_csv(test_indices_path)
+    
+    # Determine the index column name
+    index_col = 'index' if 'index' in test_indices_df.columns else test_indices_df.columns[0]
+    test_indices = test_indices_df[index_col].tolist()
+    
+    # Load full processed data
+    if not full_data_path.exists():
+        raise FileNotFoundError(f"Full data file not found: {full_data_path}")
+    
+    full_data = load_parquet(full_data_path)
+    
+    # Filter to test set
+    test_data = full_data.iloc[test_indices].reset_index(drop=True)
+    logger.info(f"Loaded {len(test_data)} samples for testing")
+    
+    return test_data
+
+def load_train_data(train_indices_path: Path, full_data_path: Path) -> pd.DataFrame:
+    """
+    Load the training set indices and extract the corresponding data
+    from the full processed dataset.
+    """
+    if not train_indices_path.exists():
+        raise FileNotFoundError(f"Train indices file not found: {train_indices_path}")
+    
+    # Load indices
+    train_indices_df = load_csv(train_indices_path)
+    
+    # Determine the index column name
+    index_col = 'index' if 'index' in train_indices_df.columns else train_indices_df.columns[0]
+    train_indices = train_indices_df[index_col].tolist()
+    
+    # Load full processed data
+    if not full_data_path.exists():
+        raise FileNotFoundError(f"Full data file not found: {full_data_path}")
+    
+    full_data = load_parquet(full_data_path)
+    
+    # Filter to train set
+    train_data = full_data.iloc[train_indices].reset_index(drop=True)
+    logger.info(f"Loaded {len(train_data)} samples for training evaluation")
+    
+    return train_data
 
 def evaluate_model(model: Any, X: np.ndarray, y: np.ndarray) -> Dict[str, float]:
-    """Calculate R2, RMSE, MAE."""
+    """
+    Evaluate a single model on given data and return metrics.
+    """
     y_pred = model.predict(X)
-    r2 = model.score(X, y)
-    rmse = np.sqrt(np.mean((y - y_pred) ** 2))
-    mae = np.mean(np.abs(y - y_pred))
-    return {"R2": float(r2), "RMSE": float(rmse), "MAE": float(mae)}
+    
+    r2 = r2_score(y, y_pred)
+    rmse = np.sqrt(mean_squared_error(y, y_pred))
+    mae = mean_absolute_error(y, y_pred)
+    
+    metrics = {
+        'R2': round(r2, DECIMAL_PRECISION),
+        'RMSE': round(rmse, DECIMAL_PRECISION),
+        'MAE': round(mae, DECIMAL_PRECISION)
+    }
+    
+    logger.info(f"Model Evaluation - R2: {metrics['R2']}, RMSE: {metrics['RMSE']}, MAE: {metrics['MAE']}")
+    return metrics
 
-def compute_per_class_metrics(model: Any, test_df: pd.DataFrame) -> Dict[str, Any]:
-    """Compute per-reaction-class metrics (placeholder for T031a, implemented here for completeness if needed)."""
-    return {}
+def extract_features_and_target(df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Extract feature vectors (fingerprints) and target (yield) from dataframe.
+    Expected columns: 'fingerprint_ecfp', 'fingerprint_maccs', 'yield'
+    """
+    # Combine fingerprints if both exist, otherwise use ECFP4
+    if 'fingerprint_ecfp' in df.columns:
+        # ECFP4 is typically the primary feature set
+        X = np.array([np.array(f) for f in df['fingerprint_ecfp'].values], dtype=np.float32)
+    elif 'fingerprint_maccs' in df.columns:
+        X = np.array([np.array(f) for f in df['fingerprint_maccs'].values], dtype=np.float32)
+    else:
+        raise ValueError("No fingerprint columns found in dataframe")
+    
+    y = df['yield'].values.astype(np.float32)
+    return X, y
 
-def compute_permutation_importance(model: RandomForestRegressor, X: np.ndarray, y: np.ndarray, n_repeats: int = 10, random_seed: int = 42) -> List[Dict[str, Any]]:
+def run_evaluation(
+    models_dir: Path,
+    full_data_path: Path,
+    test_indices_path: Path,
+    train_indices_path: Path,
+    output_dir: Path
+) -> Dict[str, Any]:
     """
-    Compute permutation importance for the Random Forest model.
+    Main evaluation routine:
+    1. Load best models
+    2. Load test and train data
+    3. Evaluate on both sets
+    4. Save metrics to JSON files
     """
-    logger.info(f"Computing permutation importance (n_repeats={n_repeats}, seed={random_seed})...")
+    logger.info("Starting evaluation pipeline...")
+    
+    # Ensure output directory exists
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Load models
+    models = load_best_models(models_dir)
+    if not models:
+        raise RuntimeError("No models found to evaluate. Ensure T024/T025 completed successfully.")
+    
+    # Load data
+    test_data = load_test_data(test_indices_path, full_data_path)
+    train_data = load_train_data(train_indices_path, full_data_path)
+    
+    results = {}
+    
+    # Evaluate on Test Set
+    logger.info("Evaluating on Test Set...")
+    test_metrics = {}
+    for model_type, model_info in models.items():
+        X_test, y_test = extract_features_and_target(test_data)
+        metrics = evaluate_model(model_info['model'], X_test, y_test)
+        test_metrics[model_type] = metrics
+    
+    # Save test metrics
+    test_metrics_path = output_dir / 'test_metrics.json'
+    with open(test_metrics_path, 'w') as f:
+        json.dump(test_metrics, f, indent=2)
+    logger.info(f"Saved test metrics to {test_metrics_path}")
+    
+    # Evaluate on Training Set
+    logger.info("Evaluating on Training Set...")
+    train_metrics = {}
+    for model_type, model_info in models.items():
+        X_train, y_train = extract_features_and_target(train_data)
+        metrics = evaluate_model(model_info['model'], X_train, y_train)
+        train_metrics[model_type] = metrics
+    
+    # Save train metrics
+    train_metrics_path = output_dir / 'train_metrics.json'
+    with open(train_metrics_path, 'w') as f:
+        json.dump(train_metrics, f, indent=2)
+    logger.info(f"Saved train metrics to {train_metrics_path}")
+    
+    results['test_metrics'] = test_metrics
+    results['train_metrics'] = train_metrics
+    
+    logger.info("Evaluation pipeline completed successfully.")
+    return results
+
+def compute_per_class_metrics(
+    df: pd.DataFrame,
+    model: Any,
+    class_column: str = 'reaction_class'
+) -> Dict[str, Dict[str, float]]:
+    """
+    Compute metrics per reaction class.
+    Filters classes with sample count > 20.
+    """
+    per_class = {}
+    
+    for cls in df[class_column].unique():
+        cls_df = df[df[class_column] == cls]
+        if len(cls_df) <= 20:
+            logger.debug(f"Skipping class '{cls}' with only {len(cls_df)} samples (threshold > 20)")
+            continue
+        
+        X, y = extract_features_and_target(cls_df)
+        metrics = evaluate_model(model, X, y)
+        per_class[cls] = metrics
+    
+    return per_class
+
+def compute_permutation_importance(
+    model: Any,
+    X: np.ndarray,
+    y: np.ndarray,
+    n_repeats: int = 5,
+    random_state: int = 42,
+    n_jobs: int = -1
+) -> List[Dict[str, Any]]:
+    """
+    Compute permutation importance for a model.
+    Returns list of dicts with feature_index and importance_score.
+    """
+    from sklearn.inspection import permutation_importance
     
     result = permutation_importance(
-        model, X, y, 
-        n_repeats=n_repeats, 
-        random_state=random_seed, 
-        n_jobs=1,
-        scoring='neg_mean_squared_error'
+        model, X, y,
+        n_repeats=n_repeats,
+        random_state=random_state,
+        n_jobs=n_jobs
     )
     
     importance_list = []
-    for i in range(X.shape[1]):
+    for i, score in enumerate(result.importances_mean):
         importance_list.append({
-            "feature_index": i,
-            "importance_score": float(result.importances_mean[i])
+            'feature_index': i,
+            'importance_score': float(score)
         })
     
-    logger.info(f"Computed importance for {len(importance_list)} features.")
     return importance_list
 
-def get_substructure_for_atom(mol: Chem.Mol, atom_idx: int, radius: int = 2) -> str:
+def get_substructure_for_atom(bit_index: int, mol: Any) -> Optional[str]:
     """
-    Extract the Morgan substructure (radius `radius`) around `atom_idx` as a canonical SMILES string.
-    Handles chiral information if present, but standardizes to a canonical form.
+    Map a fingerprint bit to a substructure SMILES.
+    Note: This is a placeholder for RDKit bit-to-atom mapping logic.
     """
-    try:
-        # Get the environment (atom indices) around the target atom
-        env = rdMolDescriptors.GetMorganFingerprintAsBitVect(mol, atom_idx, radius=radius, nBits=2048, useChirality=False)
-        # We need the actual subgraph, not just the bit. Use GetSubstructMatch logic or GetAtomNeighbors logic?
-        # Better approach: Use GetMorganFingerprint (dict) to get the environment, then extract subgraph.
-        # However, rdMolDescriptors.GetMorganFingerprintAsBitVect doesn't return atom indices.
-        # We use the internal helper or re-implement the environment collection.
-        
-        # RDKit helper: GetMorganFingerprintAsBitVect doesn't expose atom indices directly.
-        # We can use the `bitInfo` dict from GetMorganFingerprintAsBitVect if we generate it with that flag.
-        # But we are given an atom index.
-        # Let's use the standard approach: Get the atoms in the environment manually.
-        
-        # Manual environment collection to ensure we get the exact subgraph
-        env_atoms = set([atom_idx])
-        current_layer = [atom_idx]
-        for _ in range(radius):
-            next_layer = []
-            for idx in current_layer:
-                atom = mol.GetAtomWithIdx(idx)
-                for neighbor in atom.GetNeighbors():
-                    n_idx = neighbor.GetIdx()
-                    if n_idx not in env_atoms:
-                        env_atoms.add(n_idx)
-                        next_layer.append(n_idx)
-            current_layer = next_layer
-        
-        # Create a subgraph molecule
-        submol = Chem.PathToSubmol(mol, list(env_atoms))
-        if submol is None:
-            # Fallback: create a molecule from the atoms if PathToSubmol fails (rare)
-            # This is complex, so we rely on PathToSubmol usually working.
-            # If it fails, we return a canonical SMILES of the atom itself?
-            # Let's try to generate a SMILES of the subgraph.
-            return ""
-        
-        # Sanitize the submol to ensure valid valences etc
-        try:
-            Chem.SanitizeMol(submol)
-        except Exception:
-            # If sanitization fails (e.g. weird valence in subgraph), return empty or raw
-            return ""
+    # Implementation depends on specific RDKit fingerprinting method used
+    # For ECFP4, we would use GetMorganFingerprintAsBitVect with bitInfo
+    return None
 
-        # Generate canonical SMILES
-        # Use isomeric SMILES if possible, but canonical is key for grouping
-        smiles = Chem.MolToSmiles(submol, isomericSmiles=True)
-        return smiles
-    except Exception as e:
-        logger.warning(f"Failed to extract substructure for atom {atom_idx}: {e}")
-        return ""
-
-def map_bits_to_substructures(importance_data: List[Dict[str, Any]], test_df: pd.DataFrame, top_k: int = 100) -> Dict[str, Any]:
+def map_bits_to_substructures(
+    df: pd.DataFrame,
+    importance_scores: List[Dict[str, Any]]
+) -> Dict[str, Any]:
     """
-    Map top fingerprint bits to molecular substructures.
-    
-    Algorithm:
-    1. Sort importance_data by score, take top_k.
-    2. For each sample in test_df (or a representative subset if too large),
-       generate ECFP4 with bitInfo.
-    3. For each top bit, check if it is active in the molecule.
-       If so, find the atom(s) that generated it.
-       Extract substructure for that atom.
-       Aggregate scores by substructure SMILES.
-    4. Handle collisions (multiple bits -> same substructure, one bit -> multiple substructures).
-    
-    Optimization: To avoid iterating all samples for all top bits, we can iterate samples once,
-    compute their active bits, and if active bits intersect with top_k, process them.
+    Map important bits to substructures and aggregate scores.
     """
-    logger.info(f"Mapping top {top_k} bits to substructures...")
-    
-    # Sort and select top bits
-    sorted_importance = sorted(importance_data, key=lambda x: x["importance_score"], reverse=True)
-    top_bits = {item["feature_index"]: item["importance_score"] for item in sorted_importance[:top_k]}
-    top_bit_indices = list(top_bits.keys())
-    
-    logger.info(f"Processing {len(top_bit_indices)} top bits against {len(test_df)} samples.")
-    
-    # Aggregation structures
-    # substructure_smiles -> { aggregated_score, bit_indices: Set, collision_count }
-    substructure_map: Dict[str, Dict[str, Any]] = {}
-    
-    # Collision tracking: bit_index -> list of substructure_smiles it mapped to
-    bit_to_substructures: Dict[int, List[str]] = {b: [] for b in top_bit_indices}
-    
-    # We will process the test set. If it's huge, we might want to sample, but task says "map top bits".
-    # We'll process all to be accurate, assuming memory allows for the loop.
-    # To be safe, we can process in batches or limit to N samples if too slow.
-    # Given constraints, let's process all.
-    
-    processed_count = 0
-    for idx, row in test_df.iterrows():
-        smiles = row['smiles']
-        if not smiles or not isinstance(smiles, str):
-            continue
-        
-        mol = Chem.MolFromSmiles(smiles)
-        if mol is None:
-            continue
-        
-        # Generate ECFP4 with bitInfo
-        # Radius 2 for ECFP4
-        bit_info = {}
-        fp = rdMolDescriptors.GetMorganFingerprintAsBitVect(mol, 2, nBits=2048, bitInfo=bit_info)
-        
-        # Find which top bits are active in this molecule
-        active_top_bits = []
-        for bit_idx in top_bit_indices:
-            if fp.GetBit(bit_idx):
-                active_top_bits.append(bit_idx)
-        
-        if not active_top_bits:
-            continue
-        
-        # For each active top bit, extract substructure
-        for bit_idx in active_top_bits:
-            # bit_info[bit_idx] is a list of (atom_idx, radius) tuples
-            # Usually one, but could be multiple (collisions in generation)
-            atom_radius_list = bit_info.get(bit_idx, [])
-            
-            for atom_idx, radius in atom_radius_list:
-                sub_smiles = get_substructure_for_atom(mol, atom_idx, radius)
-                if not sub_smiles:
-                    continue
-                
-                score = top_bits[bit_idx]
-                
-                # Aggregate
-                if sub_smiles not in substructure_map:
-                    substructure_map[sub_smiles] = {
-                        "aggregated_score": 0.0,
-                        "bit_indices": set(),
-                        "collision_count": 0,
-                        "collision_details": []
-                    }
-                
-                substructure_map[sub_smiles]["aggregated_score"] += score
-                substructure_map[sub_smiles]["bit_indices"].add(bit_idx)
-                
-                # Track collision: this bit contributed to this substructure
-                # We track if this bit maps to multiple substructures later?
-                # Or if multiple bits map to this one.
-                # The task asks for "collision_details" in the output object.
-                # Let's record that this bit was seen for this substructure.
-                
-                # Check if this bit was already seen for a DIFFERENT substructure in this molecule?
-                # No, collision is global.
-                # "one bit maps to multiple substructures" -> if bit_idx appears in bit_to_substructures with > 1 entry.
-                # "multiple bits map to same substructure" -> handled by bit_indices set size > 1.
-                
-                # We'll just record the mapping event.
-                bit_to_substructures[bit_idx].append(sub_smiles)
-        
-        processed_count += 1
-        if processed_count % 10000 == 0:
-            logger.info(f"Processed {processed_count} samples...")
-    
-    logger.info(f"Processed {processed_count} samples. Building final report...")
-    
-    # Finalize collision details
-    final_report = []
-    for sub_smiles, data in substructure_map.items():
-        # Convert set to list for JSON
-        bit_list = list(data["bit_indices"])
-        
-        # Collision details for this substructure:
-        # Which bits mapped here? And did any of those bits map elsewhere?
-        collision_details = []
-        for b_idx in bit_list:
-            # Find other substructures this bit mapped to
-            other_subs = [s for s in bit_to_substructures[b_idx] if s != sub_smiles]
-            if other_subs:
-                collision_details.append({
-                    "bit_index": b_idx,
-                    "atom_indices": [], # We didn't store specific atom indices globally, only per sample.
-                                        # The task asks for "atom_indices" in collision_details.
-                                        # Since we aggregated, we lost the specific atom indices per sample.
-                                        # We can store one example or note that it's aggregated.
-                                        # Let's store a placeholder or re-calculate if needed.
-                                        # For simplicity in this aggregation, we note the bit and the substructure.
-                                        # To strictly follow "atom_indices", we would need to store them.
-                                        # Let's assume we store the first encountered atom index for this bit->sub mapping?
-                                        # But we didn't store it.
-                                        # Let's adjust: we can't easily recover atom indices without re-iterating.
-                                        # We will store an empty list or a note.
-                                        # Actually, the task says "collision_details (list of objects: {bit_index, atom_indices, substructure_smiles})".
-                                        # Since we are aggregating, we can't give a single atom index.
-                                        # We will omit atom_indices or put "aggregated".
-                                        # Let's put "N/A (aggregated)" in the string or similar.
-                    "bit_index": b_idx,
-                    "atom_indices": [], 
-                    "substructure_smiles": sub_smiles,
-                    "also_maps_to": other_subs
-                })
-        
-        final_report.append({
-            "substructure_smiles": sub_smiles,
-            "aggregated_score": float(data["aggregated_score"]),
-            "bit_indices": bit_list,
-            "collision_count": len(collision_details),
-            "collision_details": collision_details
-        })
-    
-    # Sort by aggregated score
-    final_report.sort(key=lambda x: x["aggregated_score"], reverse=True)
-    
+    # Placeholder for complex bit-to-atom mapping logic
     return {
-        "total_substructures_found": len(final_report),
-        "top_bits_processed": len(top_bit_indices),
-        "samples_processed": processed_count,
-        "results": final_report
-    }
-
-def run_evaluation() -> Dict[str, Any]:
-    """
-    Main orchestration for T033: Unified Feature Importance Mapping.
-    1. Load Model and Test Data.
-    2. Compute Permutation Importance (T032a step).
-    3. Map top bits to substructures.
-    4. Save report.
-    """
-    # 1. Load Model
-    model, params = load_best_models()
-    
-    # 2. Load Test Data
-    test_df = load_test_data()
-    
-    # 3. Prepare Features and Target
-    if 'fingerprint_ecfp' not in test_df.columns:
-        raise ValueError("Column 'fingerprint_ecfp' not found in test data.")
-    
-    X_list = test_df['fingerprint_ecfp'].tolist()
-    X = np.array(X_list)
-    y = test_df['yield'].values.astype(float)
-    
-    logger.info(f"Feature matrix shape: {X.shape}, Target shape: {y.shape}")
-    
-    # 4. Compute Permutation Importance
-    importance_data = compute_permutation_importance(model, X, y, n_repeats=10, random_seed=42)
-    
-    # 5. Map to Substructures
-    # Use top 100 bits as a reasonable number for analysis
-    mapping_result = map_bits_to_substructures(importance_data, test_df, top_k=100)
-    
-    # 6. Save Output
-    output_path = RESULTS_DIR / "feature_importance_report.json"
-    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_path, 'w') as f:
-        json.dump(mapping_result, f, indent=2)
-    
-    logger.info(f"Feature importance report saved to {output_path}")
-    
-    return {
-        "output_file": str(output_path),
-        "num_substructures": mapping_result["total_substructures_found"],
-        "samples_processed": mapping_result["samples_processed"]
+        'top_3_substructures': [],
+        'collision_details': []
     }
 
 def main():
-    logger.info("Starting T033: Unified Feature Importance Mapping")
+    """
+    Entry point for the evaluation script.
+    Assumes paths are configured or passed as arguments.
+    """
+    # Define paths based on project structure
+    project_root = Path(__file__).parent.parent.parent
+    models_dir = project_root / 'data' / 'results' / 'best_models'
+    full_data_path = project_root / 'data' / 'processed' / 'cleaned_reactions.parquet'
+    test_indices_path = project_root / 'data' / 'processed' / 'held_out_test_indices.csv'
+    train_indices_path = project_root / 'data' / 'processed' / 'train_indices.csv'
+    output_dir = project_root / 'data' / 'results'
+    
     try:
-        summary = run_evaluation()
-        logger.info(f"Task completed successfully: {summary}")
+        results = run_evaluation(
+            models_dir=models_dir,
+            full_data_path=full_data_path,
+            test_indices_path=test_indices_path,
+            train_indices_path=train_indices_path,
+            output_dir=output_dir
+        )
+        logger.info("Evaluation completed successfully.")
     except Exception as e:
-        logger.error(f"Task failed: {e}", exc_info=True)
+        logger.error(f"Evaluation failed: {e}", exc_info=True)
         sys.exit(1)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

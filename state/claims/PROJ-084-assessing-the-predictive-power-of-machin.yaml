@@ -2982,3 +2982,168 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-29T06:05:06Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: ECFP fingerprint vector length is 2048 bits
+  claim_id: c_7b130d91
+  context: 'Create specs/001-assess-ml-predictive-power/contracts/dataset.schema.yaml
+    defining fields: smiles (string, non-null), yield (float, 0.0-100.0), reaction_class
+    (string), fingerprint_ecfp (list of boolean, length 2048), fingerprint_maccs (list
+    of boolean, length 167).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'fingerprint_ecfp: list of boolean, length 2048'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T23:52:18Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: MACCS key fingerprint length is 167 bits
+  claim_id: c_459cb206
+  context: 'Create specs/001-assess-ml-predictive-power/contracts/dataset.schema.yaml
+    defining fields: smiles (string, non-null), yield (float, 0.0-100.0), reaction_class
+    (string), fingerprint_ecfp (list of boolean, length 2048), fingerprint_maccs (list
+    of boolean, length 167).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'fingerprint_maccs: list of boolean, length 167'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T23:52:36Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Data split ratios are 70% train, 15% validation, 15% test
+  claim_id: c_9ed1386c
+  context: 'Assign all members of a scaffold group to the same split (train/val/test)
+    using split ratios defined in config.py (Train: 0.7, Val:, Test: 0.15).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Train: 0.7, Val: 0.15, Test: 0.15'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T23:52:59Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: High-yield threshold defined as 90th percentile of validation set yields
+  claim_id: c_0cd6853f
+  context: Identify high-yield reactions in the Validation set using the quantile
+    0.90 threshold (this matches the definition of 'high-yield' in SC-003).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: high-yield reactions defined as upper tail of the distribution at quantile
+    0.90
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T23:53:43Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: High-yield reaction frequency threshold is 0.80
+  claim_id: c_e285d011
+  context: Determine pass_fail_status based on whether frequency > 0.80.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: frequency > 0.80
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T23:53:43Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Permutation importance repeats set to 5
+  claim_id: c_780874f0
+  context: 'Compute permutation importance for Random RF. Parameters: n_repeats=5,
+    random_state=42, n_jobs=-1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: n_repeats=5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T23:54:08Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Permutation importance random state set to 42
+  claim_id: c_e95eb972
+  context: 'Compute permutation importance for Random RF. Parameters: n_repeats=5,
+    random_state=42, n_jobs=-1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: random_state=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T23:55:18Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Per-reaction-class metrics filtered for classes with sample count greater
+    than 20
+  claim_id: c_1213e706
+  context: Filter classes with sample count n > 20.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Per-reaction-class_metrics_filtered_for_classes_with_sample
+  kind: magnitude
+  raw_text: sample count n > 20
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T23:56:16Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Bond order change threshold for reaction center identification is 1.0
+  claim_id: c_31bb8d74
+  context: Select all bonds where the absolute difference is >= 1.0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: absolute difference is >= 1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T23:56:52Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Test metrics R2, RMSE, and MAE output with 4 decimal places
+  claim_id: c_eb2f626a
+  context: Output data/results/test_metrics.json with keys R2 (float, 4 decimals),
+    RMSE (float, 4 decimals), MAE (float, 4 decimals).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: metrics output with 4 decimal places
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T23:57:15Z'

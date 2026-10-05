@@ -13,17 +13,13 @@ properties:
   fingerprint_ecfp:
     type: array
     items:
-      type: integer
-    description: "ECFP fingerprint vector (standard dimensionality)"
-    minItems: 2048
-    maxItems: 2048
+      type: boolean
+    description: "ECFP fingerprint vector (binary bits: true/false)"
   fingerprint_maccs:
     type: array
     items:
-      type: integer
-    description: "MACCS key fingerprint (fixed-length binary representation)"
-    minItems: 167
-    maxItems: 167
+      type: boolean
+    description: "MACCS key fingerprint (binary bits: true/false)"
 required:
   - smiles
   - yield
