@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project investigates the correlation between initial semantic uncertainty (entropy) of hidden states in iterative refinement models and their convergence trajectories on code generation tasks. The technical approach involves: (1) extracting semantic entropy via AST-based clustering of $N=10$ samples per input; (2) tracking convergence trajectories for $k \in \{1, 2, 3\}$ loops on HumanEval/MBPP; (3) performing survival analysis (Kaplan-Meier) to handle censored data; (4) simulating a dynamic router via ordinal logistic regression; and (5) conducting robustness checks (Holm-Bonferroni, sensitivity sweeps). The implementation runs on a GPU escape hatch (Kaggle) due to the large-scale model requirements., adhering to the project's compute constraints.
+This project investigates the correlation between initial semantic uncertainty (entropy) of hidden states in iterative refinement models and their convergence trajectories on code generation tasks. The technical approach involves: (1) extracting semantic entropy via AST-based clustering of $N=10$ samples per input; (2) tracking convergence trajectories for $k \in \{,, 3\}$ loops on HumanEval/MBPP; (3) performing survival analysis (Kaplan-Meier) to handle censored data; (4) simulating a dynamic router via ordinal logistic regression; and (5) conducting robustness checks (Holm-Bonferroni, sensitivity sweeps). The implementation runs on a GPU escape hatch (Kaggle) due to the large-scale model requirements., adhering to the project's compute constraints.
 
 ## Technical Context
 
