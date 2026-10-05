@@ -1,57 +1,73 @@
-# Schema for simulation_results.csv output
-# Generated for PROJ-332: Influence of Network Topology on Thermal Conductivity
-# This schema defines the exact columns and types expected in data/processed/simulation_results.csv
+# Schema for simulation_result.csv output
+# Generated for PROJ-332-exploring-the-influence-of-network-topol
+# Matches FR-009 and T004c requirements
 
 type: object
-description: "Schema for a single row of simulation results from the nanowire network thermal conductivity study"
+description: >-
+  Schema defining the structure of the simulation results CSV file.
+  Each row represents a batch of simulations at a specific connectivity level.
+
 properties:
   seed:
     type: integer
-    description: "Random seed used for the simulation run"
+    description: Random seed used for the simulation batch
+    
   N:
     type: integer
-    description: "Number of nodes in the generated network"
+    description: Number of nodes in the network graph
+    
   p:
     type: number
     format: float
-    description: "Connection probability (edge probability) used in graph generation"
+    description: Connection probability (0.0 to 1.0)
+    
   avg_degree:
     type: number
     format: float
-    description: "Calculated average degree of the generated network"
+    description: Average node degree across the batch
+    
   conductivity:
     type: number
     format: float
-    description: "Effective thermal conductivity in W/(m·K)"
+    description: Effective thermal conductivity in W/(m·K)
+    
   connectivity_probability:
     type: number
     format: float
-    description: "Fraction of generated graphs that were connected (batch metric)"
+    description: Fraction of graphs in the batch that are fully connected (0.0 to 1.0)
+    # Replaces percolation_flag as per FR-009 correction
+    
   percolation_threshold:
     type: number
     format: float
-    description: "Calculated percolation threshold (degree at which P(connected)=0.50)"
+    description: Detected percolation threshold (inflection point where P(connected)=0.5)
+    
   convergence_rate:
     type: number
     format: float
-    description: "Rate at which the solver converged (iterations or residual metric)"
+    description: Rate at which conductivity estimates converged (if applicable)
+    
   pilot_variance:
     type: number
     format: float
-    description: "Variance of conductivity from the pilot study (N=10) in W²/(m²·K²)"
+    description: Variance observed in the pilot study (N=10) in W²/(m²·K²)
+    
   required_sample_size:
     type: integer
-    description: "Calculated required sample size based on pilot variance and power analysis"
+    description: Calculated required sample size based on pilot variance
+    
   final_sample_size:
     type: integer
-    description: "Actual number of simulations run for this batch (may be adjusted)"
+    description: Actual number of simulations run for this batch
+    
   adjustment_triggered:
     type: boolean
-    description: "Whether dynamic sample size adjustment was triggered"
+    description: Whether dynamic sample size adjustment was triggered
+    
   adjustment_reason:
     type: string
-    description: "Text explanation for any sample size adjustment (e.g., 'High pilot variance detected')"
-
+    description: Explanation for sample size adjustment (e.g., "High variance detected")
+    
 required:
   - seed
   - N

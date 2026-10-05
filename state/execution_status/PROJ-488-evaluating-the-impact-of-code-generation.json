@@ -6,14 +6,14 @@
     "data/metrics/statistical_analysis_results.json"
   ],
   "failures": [
-    "python code/data_ingestion.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-488-evaluating-the-impact-of-code-generation/code/data_ingestion.py\", line 42, in <module>\n    logger = setup_logger(\"data_ingestion\", log_file=\"data/ingestion.log\")\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: setup_logger() got an unexpected keyword argument 'log_file'",
-    "python code/metric_extraction.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-488-evaluating-the-impact-of-code-generation/code/metric_extraction.py\", line 25, in <module>\n    from radon.mi import mi_visit\nModuleNotFoundError: No module named 'radon.mi'\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-488-evaluating-the-impact-of-code-generation/code/metric_extraction.py\", line 27, in <module>\n    raise ImportError(\nImportErro"
+    "python code/data_ingestion.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-488-evaluating-the-impact-of-code-generation/code/data_ingestion.py\", line 26, in <module>\n    logger = setup_logger(\"data_ingestion\", log_file=\"data/ingestion.log\")\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-488-evaluating-the-impact-of-code-generation/code/logging_config.py\", line 108, in setup_logger\n    logger.parameters['log_file'] = log_file\n    ~~~~~~~~~~~~~~~~~^^^^^^^^",
+    "python code/metric_extraction.py -> rc=1\n    Error: Input file not found: data/processed/filtered_snippets.json"
   ],
-  "fix_rounds": 11,
+  "fix_rounds": 12,
   "model_tier": 0,
-  "total_attempts": 11,
+  "total_attempts": 12,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-09-14T08:38:19Z"
+  "updated_at": "2026-10-05T13:21:54Z"
 }

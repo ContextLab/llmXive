@@ -1,12 +1,12 @@
 status: none
-intent: pip install huggingface datasets CodeSearchNet Python and CodeParrot CodeGen
+intent: CodeSearchNet CodeParrot CodeGen HumanEval MBPP dataset download via HuggingFace
   python package dataset
 required_fields:
-- code
+- function_code
 - language
-- function_name
-- filename
-- metadata
-cache_key: c5900ccb7924b30c718f688ce3b6b487ec5e553d7b24b73692398de090b1ffd1
-searched_at: '2026-09-14T08:39:17.909446+00:00'
+- source_type
+- metadata_id
+- raw_text
+cache_key: bd95e8580c208ab20f161030faaca0ccf8415a7d07dbbfd3893ed7185cc65d44
+searched_at: '2026-10-05T13:22:50.866937+00:00'
 retry_count: 1

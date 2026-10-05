@@ -64,7 +64,7 @@
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q801455
   verified_at: '2026-08-29T10:54:22.397517Z'
-- artifact_hash: 4d74b2eab76f42d05c6690bae7c03f6f56bdd13136001dd65c7cf8451f29cf6f
+- artifact_hash: dd21041ea0f1fd22b941436ea7205fa6b3f376d5104b57ffbd04adf13a05498c
   artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/spec.md
   cite_id: c-001
   cited_authors: []
@@ -74,8 +74,8 @@
   value: https://www.wikidata.org/wiki/Q801455
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q801455
-  verified_at: '2026-09-24T03:40:20.658637Z'
-- artifact_hash: 4d74b2eab76f42d05c6690bae7c03f6f56bdd13136001dd65c7cf8451f29cf6f
+  verified_at: '2026-10-05T12:39:25.929597Z'
+- artifact_hash: dd21041ea0f1fd22b941436ea7205fa6b3f376d5104b57ffbd04adf13a05498c
   artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/spec.md
   cite_id: c-002
   cited_authors: []
@@ -85,8 +85,8 @@
   value: https://huggingface.co/datasets/voices-in-the-wild/2M
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/voices-in-the-wild/2M
-  verified_at: '2026-09-24T03:40:20.658637Z'
-- artifact_hash: 4d74b2eab76f42d05c6690bae7c03f6f56bdd13136001dd65c7cf8451f29cf6f
+  verified_at: '2026-10-05T12:39:25.929597Z'
+- artifact_hash: dd21041ea0f1fd22b941436ea7205fa6b3f376d5104b57ffbd04adf13a05498c
   artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/spec.md
   cite_id: c-003
   cited_authors: []
@@ -98,8 +98,8 @@
   value: https://github.com/microsoft/DNS-Challenge
   verification_status: pending
   verified_against_url: https://github.com/microsoft/DNS-Challenge
-  verified_at: '2026-09-24T03:40:20.658637Z'
-- artifact_hash: 4d74b2eab76f42d05c6690bae7c03f6f56bdd13136001dd65c7cf8451f29cf6f
+  verified_at: '2026-10-05T12:39:25.929597Z'
+- artifact_hash: dd21041ea0f1fd22b941436ea7205fa6b3f376d5104b57ffbd04adf13a05498c
   artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/spec.md
   cite_id: c-004
   cited_authors: []
@@ -109,4 +109,4 @@
   value: 10.5281/zenodo.1234567
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1234567
-  verified_at: '2026-09-24T03:40:20.658637Z'
+  verified_at: '2026-10-05T12:39:25.929597Z'

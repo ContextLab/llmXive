@@ -19,22 +19,15 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/data_ingestion.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-488-evaluating-the-impact-of-code-generation/code/data_ingestion.py", line 42, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-488-evaluating-the-impact-of-code-generation/code/data_ingestion.py", line 26, in <module>
     logger = setup_logger("data_ingestion", log_file="data/ingestion.log")
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: setup_logger() got an unexpected keyword argument 'log_file'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-488-evaluating-the-impact-of-code-generation/code/logging_config.py", line 108, in setup_logger
+    logger.parameters['log_file'] = log_file
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+TypeError: 'function' object does not support item assignment
 - python code/metric_extraction.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-488-evaluating-the-impact-of-code-generation/code/metric_extraction.py", line 25, in <module>
-    from radon.mi import mi_visit
-ModuleNotFoundError: No module named 'radon.mi'
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-488-evaluating-the-impact-of-code-generation/code/metric_extraction.py", line 27, in <module>
-    raise ImportError(
-ImportError: ERROR: radon library is not installed. Please install it via pip install radon.
+    Error: Input file not found: data/processed/filtered_snippets.json
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -44,101 +37,39 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `setup_logger` — defined in `code/logging_config.py`; called 14 way(s):
+### `setup_logger` — defined in `code/pilot_study.py`; called 21 way(s):
 
-- code/data_ingestion.py: logger = setup_logger("data_ingestion", log_file="data/ingestion.log")
-- code/visualization.py: logger = setup_logger("visualization", "visualization")
-- code/logging_config.py: return setup_logger(name)
-- code/snippet_counter.py: logger = setup_logger("snippet_counter")
-- code/metric_aggregation.py: logger = setup_logger('metric_aggregation', level=logging.INFO)
+- code/ast_validation.py: logger = setup_logger(logger_name or "ast_validation", level=logging.INFO)
+- code/data_filtering.py: setup_logger(level=logging.INFO)
+- code/metric_validation.py: return setup_logger("metric_validation", log_file)
+- code/main.py: logger = setup_logger(
 - code/pilot_study.py: logger = setup_logger()
 - code/sensitivity_analysis.py: logger = setup_logger(__name__, level=logging.INFO)
-- code/main.py: logger = setup_logger(
+- code/logging_config.py: - setup_logger("name")
+- code/logging_config.py: - setup_logger("name", "suffix")
+- code/logging_config.py: - setup_logger("name", log_file="path")
+- code/logging_config.py: - setup_logger("name", level=logging.INFO)
+- code/logging_config.py: - setup_logger()
+- code/logging_config.py: - setup_logger(level=logging.INFO)
+- code/logging_config.py: # Handle the case where the first arg is a level (if called as setup_logger(level=...))
+- code/logging_config.py: logger = setup_logger("test_logger", log_file="data/test.log")
+- code/data_ingestion.py: logger = setup_logger("data_ingestion", log_file="data/ingestion.log")
 - code/length_filtering.py: logger = setup_logger("length_filtering", "data/logs/length_filtering.log")
 - code/guideline_generator.py: return setup_logger("guideline_generator", "guideline_generator")
-- code/data_filtering.py: setup_logger(level=logging.INFO)
-- code/ast_validation.py: logger = setup_logger(logger_name or "ast_validation", level=logging.INFO)
-- code/metric_validation.py: return setup_logger("metric_validation", log_file)
+- code/metric_aggregation.py: logger = setup_logger('metric_aggregation', level=logging.INFO)
+- code/visualization.py: logger = setup_logger("visualization", "visualization")
+- code/snippet_counter.py: logger = setup_logger("snippet_counter")
 - code/cliffs_delta_analysis.py: logger = setup_logger("cliffs_delta", level=logging.INFO)
 
-Make `setup_logger` in `code/logging_config.py` accept ALL of the above.
+Make `setup_logger` in `code/pilot_study.py` accept ALL of the above.
 
-## ✅ KNOWN-GOOD REFERENCE — a fully tolerant logging module
+## ⚠ CROSS-SCRIPT DATA CONTRACT — make the PRODUCER write what consumers read
 
-`code/logging_config.py` keeps breaking across rounds because it mixes the stdlib `logging` module (whose `Logger.log(level, msg)` needs an INTEGER level and has no `to_json`) with a custom `LogEntry`. That hybrid can never satisfy all callers. Replace the contents of `code/logging_config.py` with the self-contained reference below — it ALREADY defines every symbol callers need (`get_logger`, `log_operation`, `ReproducibilityLogger`, `LogEntry`), returns a `LogEntry` (with `.to_json()`) from direct `log_operation(...)` calls, supports `@log_operation`, and resolves any `.info`/`.debug`/`.warning` via `__getattr__`. Do NOT reach for the stdlib `logging` module again. Adjust only if a call site listed above needs a field it lacks.
+One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a file: a CONSUMER requires column/key names (or a file) that the PRODUCER did not write. The traceback you saw shows only the CONSUMER's EXPECTATION — never the producer's ACTUAL output — which is why this keeps failing. Below is the REAL schema each producer wrote on disk (read from the actual file) versus what the consumers require. Pick ONE canonical schema and make the **PRODUCER** write exactly the columns/keys the consumers read (preferred when one producer feeds several consumers), editing the producer IN PLACE. Do NOT fake or stub the data.
 
-```python
-"""Reproducibility logging — fully tolerant; raises on nothing."""
-from __future__ import annotations
+**This list is CUMULATIVE across every fix round** — keep satisfying a contract you already fixed while you fix the rest; do not drop a column merely because it is absent from this round's traceback.
 
-import functools
-import json
-from dataclasses import asdict, dataclass, field
-from datetime import datetime
-from typing import Any
+### `data/processed/filtered_snippets.json`
 
-
-@dataclass
-class LogEntry:
-    operation: str = ""
-    parameters: dict = field(default_factory=dict)
-    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
-
-    def to_json(self) -> str:
-        return json.dumps(asdict(self), ensure_ascii=False, default=str)
-
-
-class ReproducibilityLogger:
-    """Accepts ANY call shape and never raises.
-
-    Do NOT subclass or delegate to the stdlib ``logging`` module: its
-    ``log(level, msg)`` needs an integer level and has no ``to_json`` — that is
-    exactly what keeps breaking. This logger is self-contained.
-    """
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        self.name = args[0] if args else kwargs.get("name", "reproducibility")
-        self.entries: list = []
-
-    def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
-        op = args[0] if args else kwargs.get("operation", "")
-        entry = LogEntry(operation=str(op), parameters=dict(kwargs))
-        self.entries.append(entry)
-        return entry
-
-    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
-    def __getattr__(self, name: str):
-        def _noop(*args: Any, **kwargs: Any) -> None:
-            return None
-        return _noop
-
-
-_GLOBAL_LOGGER: "ReproducibilityLogger | None" = None
-
-
-def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
-    global _GLOBAL_LOGGER
-    if _GLOBAL_LOGGER is None:
-        _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
-    return _GLOBAL_LOGGER
-
-
-def log_operation(*args: Any, **kwargs: Any) -> Any:
-    """Dual-purpose: a decorator (@log_operation) OR a direct logging call.
-
-    The direct-call path ALWAYS returns a LogEntry (callers use .to_json());
-    decorator use returns the wrapped function. Never return a bare function
-    from the direct-call path.
-    """
-    if len(args) == 1 and callable(args[0]) and not kwargs:
-        func = args[0]
-
-        @functools.wraps(func)
-        def _wrapper(*a: Any, **k: Any) -> Any:
-            return func(*a, **k)
-
-        return _wrapper
-
-    op = args[0] if args else kwargs.pop("operation", "operation")
-    return get_logger().log(op, **kwargs)
-```
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/metric_extraction.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/processed/filtered_snippets.json`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/metric_extraction.py`.
