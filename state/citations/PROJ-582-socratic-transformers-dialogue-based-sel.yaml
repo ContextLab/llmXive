@@ -1,11 +1,66 @@
-- artifact_hash: 2b70a1b70a062e6d54b9766b03a1ca5fbfaa3a75dd8774c6ccbbad1e1f841e25
+- artifact_hash: 13c6c1e4640ac3453ba70251bee65b47570e31f2a68518cc728e413a24b7d6da
   artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: "GitHub - openai/grade-school-math \xB7 GitHub"
+  fetched_title: "openai/gsm8k \xB7 Datasets at Hugging Face"
   kind: url
-  value: https://github.com/openai/grade-school-math
+  value: https://huggingface.co/datasets/openai/gsm8k`
   verification_status: pending
-  verified_against_url: https://github.com/openai/grade-school-math
-  verified_at: '2026-09-23T16:00:07.517340Z'
+  verified_against_url: https://huggingface.co/datasets/openai/gsm8k
+  verified_at: '2026-10-05T21:45:35.281191Z'
+- artifact_hash: 13c6c1e4640ac3453ba70251bee65b47570e31f2a68518cc728e413a24b7d6da
+  artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "HuggingFaceH4/MATH-500 \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/HuggingFaceH4/MATH-500`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/HuggingFaceH4/MATH-500
+  verified_at: '2026-10-05T21:45:35.281191Z'
+- artifact_hash: 13c6c1e4640ac3453ba70251bee65b47570e31f2a68518cc728e413a24b7d6da
+  artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: "cais/mmlu \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/cais/mmlu`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/cais/mmlu
+  verified_at: '2026-10-05T21:45:35.281191Z'
+- artifact_hash: 8ced83044457ed30151a75ee2237afb6245e147e489e17fedafcccb31164b560
+  artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/data-model.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "openai/gsm8k \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/openai/gsm8k`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/openai/gsm8k
+  verified_at: '2026-10-05T21:45:52.544089Z'
+- artifact_hash: 8ced83044457ed30151a75ee2237afb6245e147e489e17fedafcccb31164b560
+  artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/data-model.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "HuggingFaceH4/MATH-500 \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/HuggingFaceH4/MATH-500`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/HuggingFaceH4/MATH-500
+  verified_at: '2026-10-05T21:45:52.544089Z'
+- artifact_hash: 8ced83044457ed30151a75ee2237afb6245e147e489e17fedafcccb31164b560
+  artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/data-model.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: "cais/mmlu \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/cais/mmlu`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/cais/mmlu
+  verified_at: '2026-10-05T21:45:52.544089Z'

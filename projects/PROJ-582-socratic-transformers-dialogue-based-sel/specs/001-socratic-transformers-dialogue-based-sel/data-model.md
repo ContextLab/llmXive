@@ -1,89 +1,105 @@
-# Data Model: Socratic Transformers (PROJ-582)
+# Data Model: Socratic Transformers
 
-## Overview
+## 1. Overview
 
-This document defines the data schemas for the Socratic Transformers project. All data artifacts must conform to these schemas to ensure reproducibility and integrity.
+This document defines the data schemas for the Socratic Transformers project. All data is stored in JSONL format for streaming compatibility. Checksums (SHA-256) are recorded for every file in `data/`.
 
-## Raw Data
+## 2. Raw Data Schema
 
-### GSM8K Test Set
-- **Source**: `openai/gsm8k` (split: `test`)
-- **Format**: Parquet
+### 2.1 GSM8K (Source)
+- **Source**: `https://huggingface.co/datasets/openai/gsm8k`
+- **Format**: Parquet (converted to JSONL for processing)
 - **Fields**:
-    - `question`: string (The math problem)
-    - `answer`: string (The ground truth solution)
+  - `question`: `string` (The math problem)
+  - `answer`: `string` (The ground truth solution with steps)
 
-### MATH-500 Test Set
-- **Source**: `HuggingFaceH4/MATH-500` (split: `test`)
+### 2.2 MATH-500 (Evaluation)
+- **Source**: `https://huggingface.co/datasets/HuggingFaceH4/MATH-500`
 - **Format**: JSONL
 - **Fields**:
-    - `problem`: string (The math problem)
-    - `solution`: string (The ground truth solution)
+  - `problem`: `string`
+  - `solution`: `string`
+  - `level`: `string` (optional)
+  - `type`: `string` (optional)
 
-## Processed Data (Generated Tuples)
+### 2.3 MMLU-STEM (Evaluation)
+- **Source**: `https://huggingface.co/datasets/cais/mmlu`
+- **Format**: JSONL
+- **Fields**:
+  - `question`: `string`
+  - `choices`: `array[string]`
+  - `answer`: `string` (index of correct choice)
 
-### Static Tuples (Condition C)
-- **File**: `data/processed/static.parquet`
+## 3. Processed Data Schema
+
+### 3.1 Static Tuples (Augmented)
+- **Path**: `data/processed/static_tuples.jsonl`
 - **Schema**:
-    - `id`: string (Unique identifier)
-    - `question`: string
-    - `answer`: string
-    - `source_dataset`: string ("gsm8k" or "math")
+  ```yaml
+  question: string
+  initial_answer: string
+  critique: string # Neutral placeholder, same token length as typical critique
+  revised_answer: string # Same as initial_answer
+  condition: "static"
+  quality_score: float # 1.0 (always passes)
+  ```
 
-### Dialogue Tuples (Condition A - Selection)
-- **File**: `data/processed/dialogue.parquet`
-- **Schema**: **SSoT**: `dialogue_tuple.schema.yaml`
-    - `sample_id`: string (Unique UUID)
-    - `condition`: string ("socratic")
-    - `question`: string
-    - `initial_answer`: string (Model-generated)
-    - `critique`: string (Adversarial critique identifying errors)
-    - `revised_answer`: string (Model-generated revision)
-    - `critique_quality_score`: float (0.0-1.0, from validation step)
-    - `is_degenerate`: boolean
-    - `is_verified`: boolean
-    - `metadata`: object (seed, threshold, model_version)
+### 3.2 Dialogue Tuples (Selection Condition)
+- **Path**: `data/processed/dialogue_tuples.jsonl`
+- **Schema**:
+  ```yaml
+  question: string
+  initial_answer: string
+  critique: string
+  revised_answer: string
+  condition: "selection"
+  quality_score: float # 0.0 to 1.0, output of quality gate
+  is_correct_initial: boolean # True if initial answer was correct
+  ```
 
-### Ablation Tuples (Condition B - Neutral)
-- **File**: `data/processed/ablation.parquet`
-- **Schema**: **SSoT**: `dialogue_tuple.schema.yaml`
-    - `sample_id`: string (Unique UUID)
-    - `condition`: string ("ablation")
-    - `question`: string
-    - `initial_answer`: string
-    - `critique`: string (Semantically coherent neutral text)
-    - `revised_answer`: string
-    - `critique_quality_score`: float (0.0-1.0)
-    - `is_degenerate`: boolean
-    - `is_verified`: boolean
-    - `metadata`: object
+### 3.3 Ablation Tuples (Ablation Condition)
+- **Path**: `data/processed/ablation_tuples.jsonl`
+- **Schema**:
+  ```yaml
+  question: string
+  initial_answer: string
+  critique: string # Shuffled version of selection critique, same token count
+  revised_answer: string
+  condition: "ablation"
+  quality_score: float
+  token_count: integer # Exact token count of the critique
+  ```
 
-## Results Data
+## 4. Results Schema
 
-### Evaluation Results
-- **File**: `data/results.csv`
-- **Schema**: **SSoT**: `evaluation_result.schema.yaml`
-    - `run_id`: string (Unique UUID)
-    - `condition`: string ("selection", "ablation", "static")
-    - `seed`: int
-    - `benchmark`: string ("gsm8k_test", "math_test")
-    - `accuracy`: float
-    - `total_samples`: int
-    - `correct_samples`: int
-    - `runtime_seconds`: float
+### 4.1 Evaluation Metrics
+- **Path**: `data/results/metrics.json`
+- **Schema**:
+  ```yaml
+  run_id: string
+  condition: string
+  dataset: string
+  accuracy: float
+  count: int
+  seed: int
+  ```
 
-### Statistical Analysis
-- **File**: `data/analysis.json`
-- **Schema**: **SSoT**: `stats_schema.schema.yaml`
-    - `comparison`: string (e.g., "selection_vs_ablation")
-    - `t_statistic`: float
-    - `p_value`: float
-    - `p_value_corrected`: float
-    - `significant`: boolean (after Bonferroni correction)
+### 4.2 Statistical Tests
+- **Path**: `data/results/statistics.json`
+- **Schema**:
+  ```yaml
+  test_type: string # e.g., "independent_t_test"
+  comparison: string # e.g., "selection_vs_ablation"
+  statistic: float
+  p_value: float
+  corrected_p_value: float # Bonferroni corrected
+  significant: boolean
+  effect_size: float # Cohen's d
+  ```
 
-## Data Hygiene Rules
+## 5. Data Hygiene Rules
 
-1.  **Checksums**: All raw files in `data/raw/` must have a corresponding `.sha256` file.
-2.  **Immutability**: Raw files are never modified. Derived files are written to new paths.
-3.  **Validation**: `verify_datasets.py` must run before any training step to ensure schema compliance (Principle III).
-4.  **PII**: No personally identifiable information is allowed. All data is synthetic or public benchmark data.
+1.  **Immutability**: Raw data files in `data/raw` are never modified.
+2.  **Checksums**: Every file in `data/` has a corresponding SHA-256 hash stored in `state/artifact_hashes.yaml`.
+3.  **Derivation**: Any transformation (e.g., generating critiques) must produce a new file with a new hash.
+4.  **PII**: No personally identifiable information is allowed. GSM8K, MATH, and MMLU are synthetic/academic and PII-free.

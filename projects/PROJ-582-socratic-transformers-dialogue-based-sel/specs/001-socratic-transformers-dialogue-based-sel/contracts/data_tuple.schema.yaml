@@ -8,7 +8,7 @@ properties:
     description: "Unique identifier for the tuple."
   source:
     type: "string"
-    enum: ["gsm8k", "math"]
+    enum: ["gsm8k", "math", "mmlu"]
     description: "Source dataset."
   question:
     type: "string"
@@ -21,10 +21,10 @@ properties:
     description: "The revised answer after critique."
   critique:
     type: "string"
-    description: "The critique text (adversarial or neutral)."
+    description: "The critique text (adversarial, neutral, or shuffled)."
   critique_type:
     type: "string"
-    enum: ["logical_contradiction", "unsupported_assumption", "calculation_error", "neutral_critique"]
+    enum: ["logical_contradiction", "unsupported_assumption", "calculation_error", "neutral_critique", "no_error"]
     description: "Type of critique applied."
   quality_score:
     type: "number"
@@ -34,9 +34,13 @@ properties:
   token_count:
     type: "integer"
     description: "Token count of the critique (for Ablation condition)."
-  complexity_score:
-    type: "number"
-    description: "Syntactic complexity score (for Ablation condition)."
+  is_correct_initial:
+    type: "boolean"
+    description: "True if the initial answer was correct (for Selection condition)."
+  condition:
+    type: "string"
+    enum: ["static", "selection", "ablation"]
+    description: "The experimental condition."
 required:
   - "id"
   - "source"
@@ -45,4 +49,5 @@ required:
   - "revised_answer"
   - "critique"
   - "critique_type"
+  - "condition"
 additionalProperties: false

@@ -1,82 +1,62 @@
-# Quickstart: Socratic Transformers (PROJ-582)
+# Quickstart: Socratic Transformers
 
-## Prerequisites
+## 1. Prerequisites
 
-- Python 3.11+
-- Git
-- 7GB+ RAM (CPU-only) or access to Kaggle GPU (for fallback)
+-   Python 3.11+
+-   Git
+-   (Optional) Kaggle CLI for GPU offload (if CPU fails)
 
-## Installation
+## 2. Installation
 
-1.  **Clone the repository**:
+1.  **Clone and Setup**:
     ```bash
     git clone <repo-url>
     cd projects/PROJ-582-socratic-transformers-dialogue-based-sel/code
-    ```
-
-2.  **Create virtual environment**:
-    ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install dependencies**:
-    ```bash
     pip install -r requirements.txt
     ```
 
-## Usage
+2.  **Dependencies**:
+    -   `transformers`, `peft`, `bitsandbytes`, `datasets`, `scikit-learn`, `accelerate`.
 
-### 1. Download & Verify Data
-Download GSM8K and MATH datasets and verify checksums.
+## 3. Running the Pipeline
+
+### Step 1: Data Generation
+Download GSM8K and generate the three conditions (Static, Selection, Ablation).
 ```bash
-python src/data/download.py
-python src/data/verify_datasets.py
+python -m src.data.generator --config src/utils/config.yaml
+```
+*Output*: `data/processed/static_tuples.jsonl`, `dialogue_tuples.jsonl`, `ablation_tuples.jsonl`.
+
+### Step 2: Fine-Tuning
+Train the model on each condition. The script auto-detects OOM and offloads to Kaggle if necessary. **Runs multiple independent seeds per condition.**
+```bash
+python -m src.model.trainer --condition selection --seeds 5
+python -m src.model.trainer --condition ablation --seeds 5
+python -m src.model.trainer --condition static --seeds 5
 ```
 
-### 2. Generate Training Data
-Generate Static, Dialogue, and Ablation tuples.
+### Step 3: Evaluation
+Evaluate on GSM8K test, MATH-500, and MMLU-STEM.
 ```bash
-# Generate Static (Condition C)
-python src/data/generate_dialogue.py --mode static
-
-# Generate Dialogue (Condition A)
-python src/data/generate_dialogue.py --mode dialogue
-
-# Generate Ablation (Condition B)
-python src/data/generate_dialogue.py --mode ablation
-```
-*Note: The `dialogue` mode includes a quality filter. Expect some tuples to be discarded.*
-
-### 3. Train Models
-Fine-tune models for each condition.
-```bash
-# Train Condition A (Selection)
-python src/train/run_training.py --condition selection
-
-# Train Condition B (Ablation)
-python src/train/run_training.py --condition ablation
-
-# Train Condition C (Static)
-python src/train/run_training.py --condition static
-```
-*Note: If CPU OOM occurs, the script will attempt to fallback to a smaller model or signal for GPU offload (FR-008).*
-
-### 4. Evaluate & Analyze
-Run benchmarks and statistical tests.
-```bash
-python src/eval/evaluate.py
-```
-Output: `data/results.csv` and `data/analysis.json`.
-
-## Running Tests
-
-```bash
-pytest tests/ -v
+python -m src.eval.metrics --conditions selection ablation static
 ```
 
-## Troubleshooting
+### Step 4: Analysis
+Run statistical tests (Independent t-tests with Bonferroni correction).
+```bash
+python -m src.eval.stats --input data/results/metrics.json
+```
 
-- **OOM Error**: Reduce `batch_size` in `src/utils/config.py` to 1. Ensure 4-bit quantization is enabled.
-- **Slow Training**: If training exceeds 6 hours on CPU, the pipeline will signal for GPU offload (Kaggle).
-- **Data Mismatch**: Ensure `verify_datasets.py` passes before generating data.
+## 4. Reproducibility
+
+-   **Seeds**: All random seeds are pinned in `src/utils/config.yaml`.
+-   **Data**: Raw datasets are fetched via `datasets.load_dataset` on every run.
+-   **Checksums**: Verify data integrity with `python -m src.utils.io verify`.
+
+## 5. Troubleshooting
+
+-   **OOM Error**: If the training script fails with `CUDA out of memory` or `exit code 137`, it will automatically attempt to offload to a Kaggle GPU instance. Ensure your Kaggle account is linked if running locally.
+-   **Dataset Download**: Ensure internet access. If behind a proxy, set `HF_DATASETS_OFFLINE=0`.
+-   **Timeout**: If a run exceeds a predefined time threshold, it will be terminated. Check logs for "TIMEOUT" message.

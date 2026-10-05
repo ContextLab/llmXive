@@ -18,7 +18,7 @@ properties:
           description: "Name of the condition."
         dataset:
           type: "string"
-          description: "Dataset used for evaluation (e.g., 'gsm8k_test')."
+          description: "Dataset used for evaluation (e.g., 'gsm8k_test', 'mmlu_stem')."
         accuracy:
           type: "number"
           minimum: 0.0
@@ -31,11 +31,15 @@ properties:
         loss:
           type: "number"
           description: "Final training loss (if applicable)."
+        seed:
+          type: "integer"
+          description: "Random seed used for this run."
       required:
         - "name"
         - "dataset"
         - "accuracy"
         - "samples"
+        - "seed"
   statistical_analysis:
     type: "object"
     description: "Results of statistical tests comparing conditions."
@@ -43,9 +47,15 @@ properties:
       comparison_a_vs_b:
         type: "object"
         properties:
+          test_type:
+            type: "string"
+            enum: ["independent_t_test", "anova"]
           p_value:
             type: "number"
-            description: "P-value for Selection vs. Ablation (Independent T-Test)."
+            description: "P-value for Selection vs. Ablation."
+          p_value_corrected:
+            type: "number"
+            description: "Bonferroni corrected p-value."
           effect_size_cohen_d:
             type: "number"
             description: "Cohen's d effect size."
@@ -55,9 +65,15 @@ properties:
       comparison_a_vs_c:
         type: "object"
         properties:
+          test_type:
+            type: "string"
+            enum: ["independent_t_test", "anova"]
           p_value:
             type: "number"
-            description: "P-value for Selection vs. Static (Independent T-Test)."
+            description: "P-value for Selection vs. Static."
+          p_value_corrected:
+            type: "number"
+            description: "Bonferroni corrected p-value."
           effect_size_cohen_d:
             type: "number"
             description: "Cohen's d effect size."

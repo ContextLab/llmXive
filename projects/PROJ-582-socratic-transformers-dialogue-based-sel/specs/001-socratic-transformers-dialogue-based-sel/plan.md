@@ -1,37 +1,39 @@
-# Implementation Plan: Socratic Transformers (PROJ-582)
+# Implementation Plan: Socratic Transformers (Negative Selection on Belief)
 
-**Branch**: `582-socratic-transformers` | **Date**: 2026-06-29 | **Spec**: `spec.md`
-**Input**: Feature specification from `specs/582-socratic-transformers/spec.md`
+**Branch**: `582-socratic-transformers` | **Date**: 2026-06-29 | **Spec**: `specs/582-socratic-transformers/spec.md`
+**Input**: Feature specification from `/specs/582-socratic-transformers/spec.md`
 
 ## Summary
 
-This plan implements a research pipeline to test whether **negative selection on belief** (adversarial critique) improves reasoning in language models more than static training or neutral feedback. The system generates three data conditions (Static, Dialogue/Socratic, Ablation) from GSM8K and MATH datasets, fine-tunes a quantized base model using LoRA under strict CPU constraints, and performs statistical analysis comparing accuracy across conditions. The approach strictly adheres to the "selectionist" framing (Krakauer) rather than "self-teaching," treating the critique as an evolutionary pressure filter rather than a pedagogical instruction.
+This plan implements a selectionist mechanism to improve LLM reasoning by applying **negative selection on belief**. Rather than "teaching" the model correct answers, the system generates multiple reasoning paths, subjects them to adversarial critique (identifying logical contradictions), and fine-tunes the model to reject (avoid) the belief space associated with failed outputs. The implementation adheres to strict CPU-first constraints (Low-bit quantization, LoRA) and uses GSM8K and MATH datasets to generate Static, Dialogue (Selection), and Ablation (Neutral Critique) training sets. Statistical analysis (Independent Samples t-tests with Bonferroni correction) will compare the three conditions across multiple independent runs to isolate the effect of the adversarial signal.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `transformers`, `peft`, `bitsandbytes` (CPU fallback), `datasets`, `scikit-learn`, `pandas`, `pytest`, `ruff`, `pyyaml`.  
-**Storage**: Local filesystem (`data/`, `artifacts/`); no external DB.  
-**Testing**: `pytest` (unit, integration, contract).  
-**Target Platform**: Linux (GitHub Actions Free Tier: limited vCPU, constrained RAM, and limited Disk).  
-**Project Type**: Research pipeline / CLI.  
-**Performance Goals**: Fit within 6h runtime per job; memory < 7GB (4-bit quantization); OOM fallback to smaller models or CPU-only inference.  
-**Constraints**: No local GPU; strict reproducibility (random seeds); no gated data access.  
-**Scale/Scope**: A range of generated dialogue tuples per condition; fine-tuning on a substantial corpus of examples (sampled if necessary).
+**Primary Dependencies**: `datasets` (Hugging Face), `transformers` (v4.40+), `peft` (LoRA), `bitsandbytes` (4-bit quantization), `scikit-learn` (stats), `accelerate` (CPU/Device management), `pytest` (testing).  
+**Storage**: Local filesystem (`data/raw`, `data/processed`, `data/results`) with checksums; no external DB.  
+**Testing**: `pytest` with unit tests for data generation logic and integration tests using a **deterministic small-scale subset** of GSM8K to ensure reproducibility.  
+**Target Platform**: Linux (GitHub Actions Free Tier: Multiple CPU, substantial RAM, GB Disk) with a GPU escape hatch (Kaggle) for the actual fine-tuning step if the model size exceeds CPU RAM.  
+**Project Type**: Computational Research / ML Pipeline.  
+**Performance Goals**: Complete data generation and fine-tuning within 6 hours on CPU (scaled) or 9 hours on Kaggle GPU.  
+**Constraints**: Must run on free-tier CI; no external API keys; strict memory limits (limited RAM); Low-bit quantization mandatory for base model.  
+**Scale/Scope**: A variable number of examples per condition (scaled to fit memory), fine-tuning on a small subset (e.g., -2GB of data) to ensure feasibility. **5 independent training runs (seeds)** per condition for statistical power.
+
+> **Note on Compute**: The plan assumes a CPU-first approach for data generation and statistical analysis. The fine-tuning step (US2) is the only component that may require the GPU escape hatch (Kaggle) if the base model (e.g., LlamaB-4bit) exceeds 7GB RAM even with quantization. If the CPU run fails with OOM (exit code or "CUDA out of memory"), the runner will automatically offload to Kaggle.
 
 ## Constitution Check
 
-*GATE: Must pass before initial research. Re-check after design.*
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Evidence/Plan |
+| Principle | Compliance Status | Action / Rationale |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | `requirements.txt` pins versions. Random seeds are set in all generators. Datasets fetched via `datasets.load_dataset` from verified URLs. |
-| **II. Verified Accuracy** | **PASS** | All dataset URLs in `research.md` are from the verified block. No external citations added without source. |
-| **III. Data Hygiene** | **PASS** | `data/download.py` computes SHA-256 checksums. `data/` contains only raw (unchanged) and derived (versioned) files. **No manual data population** (Task T060 removed). All data derived programmatically. `pytest` validates schema compliance per Principle III. |
-| **IV. Single Source of Truth** | **PASS** | All metrics in `paper/` trace to `data/results.csv` (validated against `evaluation_result.schema.yaml`). No hand-typed numbers. `ruff` enforces code style for reproducibility (Principle V). |
-| **V. Versioning Discipline** | **PASS** | Artifacts hashed in `state/`. `updated_at` timestamps managed by runner. `ruff` enforces code style for reproducibility. |
-| **VI. Evaluation Integrity** | **PASS** | Test sets (GSM8K test, MATH test) are strictly separated from training data generation via explicit filtering in `generate_dialogue.py`. No leakage. |
-| **VII. Adversarial Quality** | **PASS** | `generate_dialogue.py` includes a validation step to discard trivial/non-adversarial tuples (Critique length < 20 tokens OR Semantic similarity > 0.85) before saving. |
+| **I. Reproducibility** | **Compliant** | All seeds pinned in `code/`; datasets fetched via `datasets.load_dataset` from verified URLs; no manual intervention. Integration tests use deterministic small-scale data. |
+| **II. Verified Accuracy** | **Compliant** | All dataset URLs (GSM8K, MATH, MMLU) are from the verified block; no invented citations. |
+| **III. Data Hygiene** | **Compliant** | Raw data preserved; derivations (Static/Dialogue/Ablation tuples) written to new files with checksums recorded in `state/`. |
+| **IV. Single Source of Truth** | **Compliant** | All results trace to `data/results`; no hand-typed statistics in the paper. |
+| **V. Versioning Discipline** | **Compliant** | Content hashes used for artifacts; `updated_at` timestamp updated on changes. |
+| **VI. Evaluation Integrity** | **Compliant** | Held-out benchmarks (GSM8K test, MMLU, MATH) strictly separated from training data generation. |
+| **VII. Adversarial Dialogue Quality** | **Compliant** | A quality gate (T091 equivalent) will be implemented to discard trivial/neutral critiques before training. Logic: length > 20 tokens, no repetition (BLEU < 0.8), and revised answer differs from initial (unless "No error" noted). |
 
 ## Project Structure
 
@@ -43,17 +45,11 @@ specs/582-socratic-transformers/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
-    ├── data_tuple.schema.yaml       # SSoT for generated tuples (FR-001, FR-002)
-    ├── dataset.schema.yaml          # SSoT for raw datasets (FR-001)
-    ├── dialogue.schema.yaml         # SSoT for dialogue tuples (FR-002)
-    ├── dialogue_schema.schema.yaml  # Legacy/Alternative (Deprecated)
-    ├── dialogue_tuple.schema.yaml   # SSoT for dialogue tuples (Unified)
-    ├── evaluation_metrics.schema.yaml # SSoT for aggregated metrics (FR-006)
-    ├── evaluation_result.schema.yaml # SSoT for evaluation results (FR-006)
-    ├── evaluation_schema.schema.yaml # Legacy/Alternative (Deprecated)
-    ├── result.schema.yaml           # Deprecated (Removed in favor of evaluation_result)
-    └── stats_schema.schema.yaml     # SSoT for statistical tests (FR-006)
+├── contracts/           # Phase 1 output
+│   ├── data_tuple.schema.yaml
+│   ├── evaluation_metrics.schema.yaml
+│   └── ...
+└── tasks.md             # Phase 2 output (generated later)
 ```
 
 ### Source Code (repository root)
@@ -62,65 +58,47 @@ specs/582-socratic-transformers/
 projects/PROJ-582-socratic-transformers-dialogue-based-sel/
 ├── code/
 │   ├── src/
+│   │   ├── __init__.py
 │   │   ├── data/
-│   │   │   ├── download.py          # Fetch & checksum GSM8K/MATH
-│   │   │   ├── verify_datasets.py   # Validate checksums & schema (Principle III)
-│   │   │   └── generate_dialogue.py # Create Static, Dialogue, Ablation tuples (FR-001, FR-002)
-│   │   ├── utils/
-│   │   │   ├── config.py            # Config keys (CRITIC_MODEL_ID, etc.)
-│   │   │   ├── logging.py           # JSON line logging (Principle III)
-│   │   │   ├── metrics.py           # Accuracy, loss, Brier score (FR-006)
-│   │   │   └── model_loader.py      # 4-bit quantization loader
-│   │   ├── train/
-│   │   │   └── run_training.py      # LoRA fine-tuning for A, B, C conditions
-│   │   └── eval/
-│   │       └── evaluate.py          # Run benchmarks & statistical tests (FR-006)
+│   │   │   ├── __init__.py
+│   │   │   ├── loader.py          # Downloads GSM8K/MATH/MMLU
+│   │   │   ├── generator.py       # Creates Static/Dialogue/Ablation tuples
+│   │   │   └── quality_gate.py    # Validates adversarial content
+│   │   ├── model/
+│   │   │   ├── __init__.py
+│   │   │   ├── trainer.py         # LoRA fine-tuning (CPU/GPU aware)
+│   │   │   └── quantizer.py       # 4-bit loading logic
+│   │   ├── eval/
+│   │   │   ├── __init__.py
+│   │   │   └── metrics.py         # Accuracy, t-tests, Bonferroni
+│   │   └── utils/
+│   │       ├── config.py          # Seeds, model IDs, paths
+│   │       └── io.py              # Checksumming, JSONL handling
 │   ├── tests/
-│   │   ├── contract/                # Schema validation tests (Principle III)
 │   │   ├── unit/
-│   │   │   ├── test_metrics.py
-│   │   │   └── test_logging.py
+│   │   │   └── test_generator.py
 │   │   └── integration/
-│   │       └── test_pipeline.py
+│   │       └── test_training.py
 │   ├── requirements.txt
-│   ├── pyproject.toml
-│   └── ruff.toml
+│   └── run_pipeline.sh            # Entry point
 ├── data/
-│   ├── raw/                         # Downloaded datasets (checksummed)
-│   └── processed/                   # Generated tuples (Static, Dialogue, Ablation)
+│   ├── raw/                       # Downloaded datasets (checksummed)
+│   ├── processed/                 # Generated tuples (Static/Dialogue/Ablation)
+│   └── results/                   # Evaluation metrics, logs
 └── state/
-    └── projects/PROJ-582-...yaml    # Artifact hashes & timestamps
+    └── projects/PROJ-582-.../
+        └── artifact_hashes.yaml   # Checksums for all data
 ```
 
-**Structure Decision**: Single project structure (`code/`) to minimize overhead. `src/` follows standard modular separation (data, utils, train, eval). `tests/` mirrors `src/` for contract and unit testing.
-
-## Schema Traceability
-
-The following schemas map directly to Functional Requirements:
-
-| Schema File | Functional Requirement(s) | Description |
-| :--- | :--- | :--- |
-| `data_tuple.schema.yaml` | FR-001, FR-002 | Unified SSoT for generated tuples (Static, Dialogue, Ablation). |
-| `dataset.schema.yaml` | FR-001 | Raw dataset structure (GSM8K, MATH). |
-| `dialogue_tuple.schema.yaml` | FR-001, FR-002 | **SSoT** for dialogue tuples (Unified). |
-| `evaluation_result.schema.yaml` | FR-006 | SSoT for evaluation results (accuracy, runtime). |
-| `stats_schema.schema.yaml` | FR-006 | SSoT for statistical test outputs (t-stat, p-value). |
-| `evaluation_metrics.schema.yaml` | FR-006 | Aggregated metrics for reporting. |
+**Structure Decision**: Single project structure (`code/src`) is selected to minimize overhead. The `data` directory is strictly read-only for raw data and write-only for processed results to satisfy Data Hygiene. The `state` directory tracks hashes for reproducibility.
 
 ## Complexity Tracking
 
-> **No violations found.** The scope is strictly limited to FR-001 through FR-008. Tasks addressing external reviewer personas (Turing, Rockmore, Kahneman) that were not in the spec (specifically T064, T065, T066, T067, T068) have been **explicitly deferred** or removed from the immediate implementation plan to prevent scope creep. The plan focuses on the core mechanism: **Negative Selection vs. Static vs. Ablation**. Manual data population tasks (T060) have been removed in favor of programmatic derivation.
-
-## FR-008 Implementation (OOM Fallback)
-
-FR-008 is implemented in **Phase 2: Training** via `src/train/run_training.py`.
-- **Mechanism**: The script attempts to load the model with 4-bit quantization. If an `OutOfMemoryError` occurs, it catches the exception, logs the event, and attempts to reload with a smaller model (e.g., `TinyLlama` instead of `Phi-3`) or reduces the batch size to 1.
-- **Verification**: A unit test `test_oom_fallback` verifies that the fallback logic triggers and the script continues without crashing.
-- **Reference**: See `src/train/run_training.py` -> `try/except` block around `load_model`.
-
-## Data Separation Mechanism
-
-To satisfy Constitution Principle VI (Evaluation Integrity), the `generate_dialogue.py` script enforces strict separation:
-1.  **Input Filtering**: The script loads the full GSM8K/MATH datasets but immediately filters out any examples present in the `test` split IDs used for evaluation.
-2.  **Generation Scope**: Dialogue generation is restricted to the `train` or `validation` splits only.
-3.  **Verification**: A pre-training check (`verify_datasets.py`) confirms that no example IDs from the evaluation set appear in the generated `data/processed/` files.
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+| :--- | :--- | :--- |
+| **GPU Escape Hatch** | Low-bit quantization of large-scale models on constrained RAM is feasible., but LoRA fine-tuning activation memory may exceed limits. | Pure CPU fine-tuning might OOM or take >24h. The Kaggle offload (triggered by exit code 137 or "CUDA out of memory") is the only honest path to results. |
+| **Ablation Condition** | Required to isolate the effect of *content* vs. *token length*. | A simple "Static vs. Selection" comparison cannot rule out that the extra tokens in the dialogue (critique) are the cause of improvement. |
+| **Quality Gate** | Prevents "degenerate generation" (trivial critiques) from polluting training data. | Without a gate, the model might learn to ignore noise, confounding the "negative selection" hypothesis. |
+| **Multiple Runs** | Required for statistical power (t-test). | A single run per condition yields a single scalar, making a t-test impossible. Multiple runs per condition ensure a distribution. |
+| **Balanced Sampling** | Required to prevent confounding by sample size. | If Selection yields fewer valid tuples, the comparison is confounded. Regeneration ensures equal N. |
+| **Hard Timeout** | Required by FR-008 to prevent infinite loops. | Without a timeout, a stuck process could exceed the 6h CI limit. |

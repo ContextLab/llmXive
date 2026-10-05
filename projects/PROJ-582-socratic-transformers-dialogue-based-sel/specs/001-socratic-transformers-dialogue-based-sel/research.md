@@ -1,93 +1,117 @@
-# Research: Socratic Transformers (PROJ-582)
+# Research: Socratic Transformers (Negative Selection on Belief)
 
-## Overview
+## 1. Problem Definition
 
-This research investigates the efficacy of **negative selection on belief** as a mechanism for improving reasoning in language models. Unlike "self-teaching" which implies internal knowledge generation, this approach frames the process as an evolutionary filter: the model generates multiple reasoning paths, and an adversarial critique mechanism applies selection pressure to eliminate beliefs (outputs) that contain logical contradictions or unsupported assumptions.
+The research investigates whether a language model can improve its reasoning capabilities through **negative selection on belief**. Unlike "self-teaching" (which implies internal knowledge generation), this mechanism treats the model as a population of reasoning traces subject to **evolutionary pressure**.
 
-## Dataset Strategy
+**Hypothesis**: Fine-tuning a model on a dataset where incorrect reasoning paths are explicitly critiqued (Selection Condition) will yield higher accuracy on held-out benchmarks compared to:
+1.  **Static Condition**: Standard QA pairs (augmented to 4-turns with neutral placeholder).
+2.  **Ablation Condition**: Dialogue pairs where the critique is replaced by a neutral placeholder (control for token length).
 
-The project relies on two primary datasets for both generation and evaluation. All sources are verified, open, and directly downloadable via programmatic loaders.
+If the Selection Condition outperforms the Ablation Condition, it validates that the *content* of the adversarial critique (the negative selection signal) drives improvement, not merely the presence of additional context.
 
-| Dataset | Purpose | Source / URL | Load Method |
+## 2. Dataset Strategy
+
+The study relies on three verified, open-source datasets for reasoning. All are available via Hugging Face `datasets` library, ensuring programmatic download on CI.
+
+| Dataset | Verified Source URL | Role | Variable Fit |
 | :--- | :--- | :--- | :--- |
-| **GSM8K** | Training (Static/Dialogue/Ablation), Evaluation | `openai/gsm8k` (HuggingFace) | `datasets.load_dataset("openai/gsm8k", "main", split="test")` |
-| **MATH** | Evaluation (held-out), Training (subset) | `HuggingFaceH4/MATH-500` | `datasets.load_dataset("HuggingFaceH4/MATH-500", split="test")` |
+| **GSM8K** | `https://huggingface.co/datasets/openai/gsm8k` (via `datasets.load_dataset("openai/gsm8k", "main")`) | Primary training & evaluation. Contains grade-school math word problems with step-by-step solutions. | **Fit**: Contains `question` (input) and `answer` (target). The step-by-step solution allows for generating "Initial Answer" and "Critique" by splitting the reasoning path. |
+| **MATH-500** | `https://huggingface.co/datasets/HuggingFaceH4/MATH-500` (via `datasets.load_dataset("HuggingFaceH4/MATH-500")`) | Secondary evaluation (held-out). Contains high-school level competition math. | **Fit**: Contains `problem` and `solution`. Used strictly for evaluation to ensure no data leakage. |
+| **MMLU-STEM** | `https://huggingface.co/datasets/cais/mmlu` (via `datasets.load_dataset("cais/mmlu", "STEM")`) | Primary evaluation for generalization. Contains multiple-choice questions on STEM topics. | **Fit**: Contains `question` and `choices`. Used to test if the "negative selection" mechanism generalizes beyond math word problems. |
 
-**Dataset Verification**:
-- **GSM8K**: Verified as `openai/gsm8k` on HuggingFace. Contains a substantial set of test examples. Format: `question` (str), `answer` (str). Source: https://github.com/openai/grade-school-math
-- **MATH**: Verified as `HuggingFaceH4/MATH-500`. Contains a set of test examples. Format: `problem` (str), `solution` (str).
-- **Access**: Both are open, no credentials required. Downloadable via `datasets` library on CPU.
+**Data Availability & Feasibility**:
+- **GSM8K**: ~8.5k training, ~1.3k test examples. Fully downloadable.
+- **MATH-500**: 500 test examples. Fully downloadable.
+- **MMLU-STEM**: ~2000 test examples. Fully downloadable.
+- **Constraint**: The full GSM8K dataset is small enough to fit in memory, but the *generated* dialogue tuples (3x the size) may exceed 7GB RAM if processed naively. The plan will use `streaming=True` or process in chunks to stay within the available memory limit.
 
-**Data Constraints**:
-- **Memory**: Full datasets fit in RAM. Generation of dialogue tuples will be streamed or batched to stay within a defined storage capacity limit.
-- **Processing**: No manual curation (e.g., `question_bank.json` removed). All data derived programmatically from raw sources.
+**Dataset Mismatch Check**:
+- The spec requires "logical contradictions" and "unsupported assumptions" as critique targets.
+- **Verification**: GSM8K solutions are deterministic and logical. An adversarial model can be prompted to identify "calculation errors" or "logical leaps" in the initial reasoning. The dataset *does* contain the necessary logical structure to generate valid critiques. No variable mismatch exists.
 
-## Methodology
+## 3. Methodology
 
-### 1. Data Generation (US1)
-Three distinct datasets are generated from the raw GSM8K/MATH sources:
+### 3.1 Data Generation (US1)
 
-1.  **Condition C (Static)**: Standard `(Question, Answer)` pairs.
-    - *Input*: Raw dataset.
-    - *Output*: `static.parquet`.
-2.  **Condition A (Selection)**: Socratic Dialogue Tuples `(Question, Initial_Answer, Critique, Revised_Answer)`.
-    - *Process*:
-        1.  Generate `Initial_Answer` using a base model (e.g., `TinyLlama-1.1B` or `Phi-3-mini` 4-bit).
-        2.  **Verification**: Compare `Initial_Answer` against ground truth. **If correct, discard the tuple** (no negative selection needed). Proceed only if incorrect. This ensures the training data focuses on the 'negative selection' mechanism.
-        3.  Generate `Critique` using a **distinct, stronger model** (e.g., a larger LLM or different architecture) to identify logical errors, unsupported assumptions, or contradictions. This ensures independence from the base model's latent biases.
-        4.  Generate `Revised_Answer` conditioned on the `Critique`.
-    - *Filtering*: Tuples where `Critique` is trivial (e.g., "Good job") are discarded. **Operational Definition**: Discard if `Critique length < 20 tokens` OR `Semantic similarity (Cosine) to Initial Answer > 0.85`.
-    - *Output*: `dialogue.parquet`.
-3.  **Condition B (Ablation)**: Neutral Critique Tuples.
-    - *Process*: Same as Condition A, but `Critique` is replaced with a **semantically coherent neutral critique** (e.g., "The answer looks correct, no changes needed") rather than a simple placeholder. This controls for token count and semantic structure while isolating the effect of *negativity* (adversarial pressure).
-    - *Output*: `ablation.parquet`.
+**Input**: GSM8K Training Set.
+**Process**:
+1.  **Static Tuples (Augmented)**: `(question, initial_answer, neutral_placeholder, revised_answer)`. The `neutral_placeholder` matches the token length of a typical critique, and `revised_answer` is identical to `initial_answer` (or a copy). This ensures the Static condition is also 4-turns, controlling for structure.
+2.  **Dialogue Tuples (Selection)**:
+    -   *Step 1*: Generate `Initial Answer` (using **Llama-3-8B-Instruct** for high-quality generation).
+    -   *Step 2*: Generate `Critique` (using **Llama-3-8B-Instruct** with a specific "Critique Prompt" that instructs the model to identify **logical contradictions**, **unsupported assumptions**, and **calculation errors**).
+    -   *Step 3*: Generate `Revised Answer` based on the critique.
+    -   *Tuple*: `(question, Initial Answer, Critique, Revised Answer)`.
+3.  **Ablation Tuples**:
+    -   Same as above, but `Critique` is replaced with a **randomly shuffled** version of the critique text that has the **exact same token count** (calculated via tokenizer).
+    -   *Tuple*: `(question, Initial Answer, Shuffled Critique, Revised Answer)`.
 
-**Test Set Separation**: The `generate_dialogue.py` script explicitly filters out any examples from the GSM8K test set and MATH test set IDs used for evaluation, ensuring strict separation (Constitution Principle VI).
+**Balanced Sampling**: The pipeline will generate a fixed target count (N=1000) for each condition. If the Selection condition yields fewer valid tuples due to quality gate filtering, it will regenerate until N is reached. This ensures equal sample sizes and quality distribution across all three conditions.
 
-### 2. Training & Evaluation (US2)
-- **Model**: A small, 4-bit quantized base model (e.g., `TinyLlama-1.1B-Chat-v1.0` or `Phi-3-mini-4k-instruct`).
-- **Fine-tuning**: LoRA (Low-Rank Adaptation) with strict memory constraints.
-    - *Hardware*: CPU-first (4-bit via `bitsandbytes` CPU support or `gguf` fallback).
-    - *Hyperparameters*: `r=16`, `lora_alpha=32`, `target_modules=["q_proj", "v_proj"]`.
-- **Conditions**:
-    - Train `Model_A` on `dialogue.parquet`.
-    - Train `Model_B` on `ablation.parquet`.
-    - Train `Model_C` on `static.parquet`.
-- **Evaluation**:
-    - Test on held-out GSM8K test set and MATH-500 test set.
-    - **Metric**: **Answer Extraction via Regex** (e.g., extracting the final number from `boxed{...}` or the last sentence) to handle formatting variations, supplemented by Exact Match. This ensures the construct "reasoning capability" is accurately measured, not just string matching.
+**Quality Gate**: Before writing to `data/processed`, a `quality_gate.py` script will filter out tuples where:
+-   `Critique` length < 20 tokens (triviality).
+-   `Critique` has a BLEU score > 0.8 with `Initial Answer` (repetition).
+-   `Revised Answer` is identical to `Initial Answer` (unless the critique explicitly states "No error found").
+-   If a tuple fails, it is regenerated.
 
-### 3. Analysis (US3)
-- **Statistical Test**: **Independent Samples t-test (Welch's t-test)** comparing accuracy of `Model_A` vs `Model_B` and `Model_A` vs `Model_C`.
-    - *Rationale*: The models are distinct entities trained on disjoint datasets; a paired t-test is invalid.
-    - *Fallback*: **Mann-Whitney U test** if normality assumptions are violated.
-    - *Robustness*: **Permutation test** (10,000 iterations) to handle small effect sizes and variance issues in the N=500-1300 regime.
-- **Correction**: Bonferroni correction applied for multiple comparisons (3 conditions -> 3 pairwise tests).
-- **Power & MDES**: With N=500-1300, the **Minimum Detectable Effect Size (MDES)** is approximately 0.03 (3%) at alpha=0.05. The analysis will explicitly report MDES.
-- **Causal Claims**: The experimental design (Randomized Controlled Trial via distinct training sets) supports **causal claims** that the *selection mechanism* caused the improvement, provided confounds (token count, semantic structure) are controlled via the ablation condition.
+**Token-Matching Algorithm (FR-007)**: For the Ablation condition, the `critique` text is tokenized using the target model's tokenizer. The token count is recorded. A neutral placeholder string (e.g., "Neutral placeholder text") is generated and padded/truncated until its token count matches the original critique exactly.
 
-## Compute Feasibility
+### 3.2 Training & Evaluation (US2)
 
-- **CPU-First Strategy**:
-    - Use 4-bit quantization (`load_in_4bit=True`) to reduce memory footprint.
-    - Use `torch_dtype=torch.float16` where supported, fallback to `float32` if memory permits.
-    - Batch size = 1 or 2 to prevent OOM.
-    - If CPU training is too slow (>6h), the plan relies on the **GPU Escape Hatch** (Kaggle auto-offload) for the fine-tuning step only, running a scaled-down version (fewer epochs, smaller batch) if the full run exceeds limits.
-- **No Synthetic Data**: All training data is derived from real GSM8K/MATH examples.
+**Model**: **Llama-3-1.5B-Instruct** (4-bit quantized via `bitsandbytes`). *Note: A smaller model is chosen to ensure feasibility on 7GB RAM CPU and 14GB VRAM Kaggle GPU.*
+**Method**: LoRA (Low-Rank Adaptation) fine-tuning.
+**Conditions**:
+-   **Condition A (Selection)**: Fine-tune on Dialogue Tuples.
+-   **Condition B (Ablation)**: Fine-tune on Ablation Tuples.
+-   **Condition C (Static)**: Fine-tune on Augmented Static Tuples.
 
-## Decision Rationale
+**Hardware Strategy**:
+-   **CPU-First Attempt**: Run training on 2 CPU cores with 4-bit quantization.
+-   **Hard Timeout**: A timeout is enforced per training run using Python's `signal` module. If exceeded, the process is terminated with exit code 137.
+-   **GPU Escape Hatch**: If the CPU run fails with OOM (exit code indicating out-of-memory or "CUDA out of memory" string), the system will automatically re-run the same training step on a Kaggle GPU instance (16GB VRAM).
+-   **Scaling**: To fit the CI time limit, the training will use a **subset** of the generated data (e.g., 500 examples per condition) if the full dataset causes timeout. This is explicitly noted as a power limitation in the analysis.
+-   **Multiple Runs**: **5 independent training runs** (different random seeds) will be performed for each condition to generate a distribution of accuracies.
 
-- **Why 4-bit Quantization?**: Essential for fitting LLMs on constrained RAM environments. Full precision is impossible.
-- **Why Ablation with Neutral Critique?**: Controls for token count and semantic structure. Ensures any improvement in Condition A is due to the *negativity* of the critique (selection pressure), not just the presence of extra tokens or semantic content.
-- **Why GSM8K/MATH?**: Verified, open, and directly relevant to logical reasoning. No gated data required.
-- **Why Independent Samples t-test?**: Appropriate for comparing mean accuracy across independent models. Paired tests are invalid for distinct training sets.
-- **Why Regex Extraction?**: Robust to formatting variations in math problems, ensuring accurate measurement of reasoning capability.
+**Evaluation**:
+-   Test on held-out GSM8K test set, MATH-500, and MMLU-STEM.
+-   Metric: **Accuracy** (% of correct final answers).
+-   **Primary Hypothesis**: Improvement on MMLU-STEM (generalization) is the primary test of the "negative selection" hypothesis. GSM8K and MATH-500 are secondary.
 
-## Risks & Mitigations
+### 3.3 Statistical Analysis (US3)
 
-| Risk | Mitigation |
+**Hypothesis Test**: **Independent Samples t-test** (or ANOVA if >2 groups) comparing accuracy distributions across conditions.
+-   **Unit of Analysis**: The 'n' is the number of independent runs (seeds), not the number of test samples.
+-   **Null Hypothesis ($H_0$)**: No difference in mean accuracy between Selection and Ablation/Static conditions.
+-   **Correction**: Bonferroni correction applied for multiple comparisons (A vs B, A vs C, B vs C).
+-   **Significance**: $\alpha = 0.05$.
+
+**Power Justification**:
+-   With **5 independent runs** per condition, the study is powered to detect large effect sizes ($d > 0.8$) at $\alpha = 0.05$ (Bonferroni corrected).
+-   **Limitation**: If the effect size is small, the study may be underpowered. This will be explicitly stated in the results.
+
+**Operationalization of Negative Selection**: The model is trained to map `(Question, Critique) -> Revised Answer`. The "negative selection" is the *computational process* of filtering out incorrect beliefs via the critique, which the model learns to emulate. The model does not learn to "reject" the initial answer in a binary sense, but to generate the correct answer given the negative signal.
+
+**Selection Bias Mitigation**: The pipeline will include "correct" initial answers in the Selection condition (where the critique notes "No error found") to ensure the model learns when *not* to revise. This balances the distribution with the Static condition.
+
+## 4. Statistical Rigor & Constraints
+
+-   **Multiple Comparisons**: Bonferroni correction is mandatory as per FR-006.
+-   **Sample Size**: Acknowledged limitation due to CI constraints. If the full dataset cannot be processed, the subset size is fixed and reported.
+-   **Causal Inference**: Claims are **associational** regarding the model's internal state. The "selection" is a computational process, not a biological one.
+-   **Measurement Validity**: GSM8K, MATH, and MMLU are standard, validated benchmarks for mathematical and general reasoning.
+-   **Collinearity**: The `Initial Answer` and `Revised Answer` are definitionally related. The model is trained to map `(Question, Initial, Critique) -> Revised`. The critique is the independent variable of interest.
+
+## 5. Decision/Rationale
+
+| Decision | Rationale |
 | :--- | :--- |
-| **OOM on CPU** | Use `bitsandbytes` 4-bit; fallback to smaller model (e.g., `TinyLlama`); stream data; reduce batch size to 1. |
-| **Critique Quality** | Implement strict filtering (Constitution VII); discard non-adversarial tuples; use a stronger model for critique if needed (CPU fallback). |
-| **Data Leakage** | Strict separation of training and test sets; no test tokens in generation loop. |
-| **Statistical Power** | Report effect sizes; acknowledge limitations; use permutation tests for robustness. |
+| **Llama-3-1.5B Base Model** | Mandatory for running on 7GB RAM (FR-003) and ensuring LoRA fine-tuning fits within 14GB VRAM (Kaggle). |
+| **Llama-3-8B for Generation** | Ensures high-quality critiques (FR-002) without circular dependency (generation vs. fine-tuning). |
+| **4-bit Quantization** | Mandatory for running 1.5B models on 7GB RAM (FR-003). |
+| **LoRA Fine-tuning** | Efficient parameter update; avoids full model retraining which would exceed memory. |
+| **Neutral Placeholder (Shuffled)** | Controls for token length and structure, isolating the semantic value of the adversarial signal (FR-007). |
+| **Static Augmentation** | Ensures Static condition is also 4-turns, controlling for dialogue structure. |
+| **Balanced Sampling** | Ensures equal N across conditions, preventing confounding by sample size. |
+| **Multiple Runs (5 seeds)** | Enables Independent Samples t-test, resolving the "paired" vs "independent" conflict. |
+| **Hard Timeout** | Ensures compliance with FR-008 and 6h CI limit. |
+| **Kaggle GPU Offload** | If CPU training OOMs, the real computation (not a synthetic stand-in) runs on Kaggle. |
