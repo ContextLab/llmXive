@@ -36,13 +36,6 @@ T015c:
     \ shown portion of the script is truncated before the validation logic that would\
     \ generate and save the report. Without the JSON report present (or evidence it\
     \ is created), the task\u2019s output requirement is not satisfied."
-T015d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact for the \u201Czero scaffold overlap\u201D report (the required SC\u2011\
-    002 gate) is present or referenced; there is no file, data, or document on disk\
-    \ demonstrating that a hard pass/fail scaffold\u2011overlap check was generated.\
-    \ Consequently the task\u2019s core deliverable is missing."
 T017:
   c: false
   h: 3f8e2cfde9c9327a791d6c7a887fefd3af145315540f271c7eb63d08b86c4594

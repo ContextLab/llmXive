@@ -1,0 +1,17 @@
+{
+  "project_id": "PROJ-030-predicting-crystal-structures-from-molec",
+  "ok": false,
+  "reason": "",
+  "artifacts": [],
+  "failures": [],
+  "fix_rounds": 0,
+  "model_tier": 0,
+  "offload": {
+    "status": "running",
+    "kernel_ref": "jeremy9/llmxive-proj-030-predicting-crystal-structures-fro",
+    "submitted_at": "2026-10-05T08:31:44Z",
+    "reason": "",
+    "evidence": []
+  },
+  "updated_at": "2026-10-05T08:31:50Z"
+}
