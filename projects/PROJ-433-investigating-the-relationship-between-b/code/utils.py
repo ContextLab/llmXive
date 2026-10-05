@@ -1,5 +1,5 @@
 """
-Utility functions for the Brain Network Dynamics project.
+Utility functions for logging, RNG, and QC.
 """
 import logging
 import os
@@ -10,61 +10,60 @@ from typing import Tuple, Optional
 
 # Configuration
 DATA_ROOT = Path("data")
-LOG_PREPROCESS = DATA_ROOT / "preprocess_log.txt"
-LOG_ANALYSIS = DATA_ROOT / "analysis_log.txt"
+LOG_FILE_PREPROCESS = DATA_ROOT / "preprocess_log.txt"
+LOG_FILE_ANALYSIS = DATA_ROOT / "analysis_log.txt"
 
-def setup_logger(name: str = "pipeline_logger", log_file: Optional[Path] = None) -> logging.Logger:
+def setup_logger(name: str = "llmXive", log_file: Optional[Path] = None) -> logging.Logger:
     """
-    Setup a logger that writes to a specific file and console.
-    
+    Set up a logger that writes to both console and a file.
+
     Args:
-        name: Name of the logger.
-        log_file: Path to the log file. If None, defaults to preprocess_log.txt.
-    
+        name (str): Logger name.
+        log_file (Path, optional): Path to log file. Defaults to preprocess_log.txt.
+
     Returns:
-        logging.Logger: Configured logger instance.
+        logging.Logger: Configured logger.
     """
-    if log_file is None:
-        log_file = LOG_PREPROCESS
-    
-    # Ensure data directory exists
-    DATA_ROOT.mkdir(parents=True, exist_ok=True)
-    
     logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
-    
-    # Avoid adding handlers multiple times if called repeatedly
     if logger.handlers:
         return logger
-    
-    # File handler
-    fh = logging.FileHandler(log_file, mode='a')
-    fh.setLevel(logging.INFO)
-    
-    # Console handler
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
-    
-    # Formatter with ISO timestamp
+
+    logger.setLevel(logging.DEBUG)
+
+    # Formatter
     formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%dT%H:%M:%S'
+        '[%(asctime)s] %(levelname)s: %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
     )
-    fh.setFormatter(formatter)
-    ch.setFormatter(formatter)
+
+    # File handler (if specified, otherwise default)
+    if log_file is None:
+        log_file = LOG_FILE_PREPROCESS
     
-    logger.addHandler(fh)
-    logger.addHandler(ch)
+    # Ensure directory exists
+    log_file.parent.mkdir(parents=True, exist_ok=True)
     
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(formatter)
+
+    # Console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(formatter)
+
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+
     return logger
 
 def get_seeded_rng(seed: int = 42) -> np.random.Generator:
     """
-    Create a numpy random generator with a fixed seed for reproducibility.
-    
+    Get a numpy random generator with a fixed seed.
+
     Args:
-        seed: Integer seed for the random number generator.
-    
+        seed (int): Random seed.
+
     Returns:
         np.random.Generator: Seeded random number generator.
     """
@@ -72,28 +71,24 @@ def get_seeded_rng(seed: int = 42) -> np.random.Generator:
 
 def check_fd(fd_value: float, threshold: float = 0.5) -> bool:
     """
-    Check if a Framewise Displacement (FD) value is within acceptable limits.
-    
+    Check if FD value is within acceptable limits.
+
     Args:
-        fd_value: The FD value to check.
-        threshold: The maximum allowed FD value (default 0.5mm).
-    
+        fd_value (float): Framewise Displacement value.
+        threshold (float): Threshold for exclusion.
+
     Returns:
         bool: True if FD is acceptable (<= threshold), False otherwise.
     """
     return fd_value <= threshold
 
-def log_exclusion(reason: str, subject_id: str, log_file: Optional[Path] = None) -> None:
+def log_exclusion(reason: str, subject_id: str) -> None:
     """
-    Log an exclusion event for a subject.
-    
+    Log an exclusion event.
+
     Args:
-        reason: The reason for exclusion.
-        subject_id: The ID of the excluded subject.
-        log_file: Path to the log file. If None, defaults to analysis_log.txt.
+        reason (str): Reason for exclusion.
+        subject_id (str): Subject ID.
     """
-    if log_file is None:
-        log_file = LOG_ANALYSIS
-    
-    logger = setup_logger(log_file=log_file)
-    logger.warning(f"Subject {subject_id} excluded: {reason}")
+    logger = setup_logger()
+    logger.warning(f"Exclusion logged: {subject_id}, reason: {reason}")

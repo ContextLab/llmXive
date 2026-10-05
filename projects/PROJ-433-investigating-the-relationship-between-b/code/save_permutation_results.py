@@ -1,132 +1,149 @@
-"""
-Task T034: Save permutation test raw results and null distribution data.
-
-This script runs the permutation test logic from code/analysis.py and saves:
-1. The raw results (observed statistic, permutation p-value, etc.)
-2. The full null distribution data to a TSV file.
-"""
 import os
 import logging
 import numpy as np
 import pandas as pd
 from pathlib import Path
-
-# Import from existing API surface
 from analysis import load_metrics_and_behavioral_data, run_permutation_test, calculate_permutation_p_value
 from utils import setup_logger, get_seeded_rng
 
 def save_permutation_results(
-    output_path: str = "data/results/permutation_results.tsv",
-    n_permutations: int = 5000,
-    seed: int = 42
+    subject_ids: list,
+    transition_counts: np.ndarray,
+    dsst_scores: np.ndarray,
+    observed_coef: float,
+    null_distribution: np.ndarray,
+    p_value: float,
+    output_path: Path,
+    logger: logging.Logger
 ) -> None:
     """
-    Executes the permutation test and saves the raw results and null distribution.
+    Save permutation test raw results and null distribution data to a TSV file.
+
+    The output file `data/results/permutation_results.tsv` will contain:
+    1. A summary row with observed statistics and p-value.
+    2. Rows for each permutation shuffle (index, shuffled_coef).
 
     Args:
+        subject_ids: List of subject identifiers (for metadata).
+        transition_counts: Array of reconfigurability metrics.
+        dsst_scores: Array of DSST scores.
+        observed_coef: The Spearman correlation coefficient from real data.
+        null_distribution: Array of correlation coefficients from shuffled data.
+        p_value: The calculated permutation p-value.
         output_path: Path to the output TSV file.
-        n_permutations: Number of permutations to run.
-        seed: Random seed for reproducibility.
+        logger: Logger instance for logging progress.
     """
-    logger = setup_logger("analysis")
-    logger.info(f"Starting permutation test with {n_permutations} permutations.")
+    if not output_path.parent.exists():
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Created output directory: {output_path.parent}")
 
-    # Load data
-    # This function is expected to return (metrics_array, dsst_array, subject_ids)
-    # based on the context of previous tasks (T025, T032).
-    try:
-        metrics, dsst_scores, subject_ids = load_metrics_and_behavioral_data()
-    except Exception as e:
-        logger.error(f"Failed to load data: {e}")
-        # Fail loudly as per constraints
-        raise RuntimeError("Data loading failed. Cannot proceed with permutation test.") from e
+    # Prepare summary data
+    summary_data = {
+        "metric": "transition_count_vs_D SST",
+        "n_subjects": len(subject_ids),
+        "observed_coef": observed_coef,
+        "p_value": p_value,
+        "n_permutations": len(null_distribution),
+        "mean_null_coef": float(np.mean(null_distribution)),
+        "std_null_coef": float(np.std(null_distribution)),
+        "min_null_coef": float(np.min(null_distribution)),
+        "max_null_coef": float(np.max(null_distribution))
+    }
 
-    if len(metrics) == 0 or len(dsst_scores) == 0:
-        logger.warning("No valid data found for permutation test.")
-        # Create an empty result file to indicate completion with no data
-        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-        pd.DataFrame(columns=["metric_pair", "observed_stat", "null_mean", "null_std", "p_value_perm", "n_permutations"]).to_csv(output_path, sep="\t", index=False)
-        return
-
-    # Run permutation test
-    # run_permutation_test returns (observed_stat, null_distribution, p_value)
-    # We assume the function signature matches the logic in T032/T033
-    observed_stat, null_distribution, p_val_perm = run_permutation_test(
-        metrics, dsst_scores, n_permutations=n_permutations, seed=seed
-    )
-
-    logger.info(f"Permutation test complete. Observed stat: {observed_stat:.4f}, P-value: {p_val_perm:.4f}")
-
-    # Prepare results DataFrame
-    # Structure: One row for the summary, or one row per permutation?
-    # The task asks for "raw results and null distribution data".
-    # Best practice for TSV:
-    # Option A: Summary row + null distribution rows.
-    # Option B: Two files.
-    # Given the single path constraint, we will save the Null Distribution as the main body
-    # and include the observed stat in the metadata or as a separate header row if possible,
-    # but standard TSV is usually uniform.
-    # Let's create a file where the first row is the observed stats summary,
-    # and subsequent rows are the null distribution samples.
-    # However, a cleaner approach for "raw results" often implies the distribution.
-    # Let's save a file with columns: [sample_id, null_value, is_observed]
-    # And include the observed stat in the metadata or as a specific row.
-    # Actually, the most useful format for downstream analysis is:
-    # Row 0: Summary (Observed Stat, P-val, etc.)
-    # Rows 1..N: Null distribution values.
-    # But TSV parsers might choke on mixed types if not careful.
-    # Let's go with a standard format:
-    # Columns: 'type', 'value', 'metadata'
-    # type='observed', value=stat, metadata=p_val
-    # type='null', value=sample, metadata=sample_id
-
-    # Alternative: Save two logical sections.
-    # Let's stick to a clean DataFrame where we store the null distribution
-    # and append the observed stat as a specific row or save it as a separate metadata file?
-    # The task says "Save ... to `data/results/permutation_results.tsv`".
-    # We will save the null distribution values and the observed statistic.
-
-    results_data = []
-
-    # Add observed result
-    results_data.append({
-        "type": "observed",
-        "value": observed_stat,
-        "p_value": p_val_perm,
-        "n_permutations": n_permutations,
-        "seed": seed
-    })
-
-    # Add null distribution
-    for i, val in enumerate(null_distribution):
-        results_data.append({
-            "type": "null",
-            "value": float(val),
-            "p_value": None,
-            "n_permutations": None,
-            "seed": None,
-            "index": i
+    # Prepare permutation data
+    perm_data = []
+    for i, coef in enumerate(null_distribution):
+        perm_data.append({
+            "shuffle_index": i,
+            "shuffled_coef": float(coef)
         })
 
-    df = pd.DataFrame(results_data)
+    # Create DataFrame for permutations
+    df_perm = pd.DataFrame(perm_data)
 
-    # Ensure output directory exists
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
+    # Create DataFrame for summary (single row)
+    df_summary = pd.DataFrame([summary_data])
 
-    # Save to TSV
-    df.to_csv(output_path, sep="\t", index=False)
+    # Write to TSV
+    # We write the summary first, then the permutation data.
+    # To keep it as a single TSV as requested, we'll use a comment header for summary
+    # or just append them. The requirement says "raw results and null distribution data".
+    # A common format is to have the summary as the first few rows (commented or not)
+    # followed by the data. Let's write the summary as the first block.
+
+    with open(output_path, 'w') as f:
+        f.write("# Permutation Test Summary\n")
+        df_summary.to_csv(f, sep='\t', index=False)
+        f.write("\n# Null Distribution (Shuffled Coefficients)\n")
+        df_perm.to_csv(f, sep='\t', index=False)
+
     logger.info(f"Saved permutation results to {output_path}")
 
 def main():
-    """Entry point for the script."""
-    logger = setup_logger("analysis")
+    """
+    Main entry point to run permutation test and save results.
+    """
+    logger = setup_logger("analysis_log")
+    logger.info("Starting permutation results generation (T034).")
+
+    # Load data
     try:
-        save_permutation_results()
-        logger.info("Task T034 completed successfully.")
-    except Exception as e:
-        logger.error(f"Task T034 failed: {e}")
+        subjects, transition_counts, dsst_scores = load_metrics_and_behavioral_data()
+        logger.info(f"Loaded data for {len(subjects)} subjects.")
+    except FileNotFoundError as e:
+        logger.error(f"Data files not found: {e}")
         raise
+
+    if len(transition_counts) == 0 or len(dsst_scores) == 0:
+        logger.warning("No data available for permutation test.")
+        return
+
+    # Run permutation test
+    # Assuming run_permutation_test returns (null_distribution, p_value, observed_coef)
+    # We need to ensure the function signature matches what's in analysis.py
+    # Based on T032/T033 context, we call the function and get results.
+    
+    # Re-compute observed correlation for the summary
+    from scipy.stats import spearmanr
+    observed_coef, _ = spearmanr(transition_counts, dsst_scores)
+
+    # Run the test
+    # We assume run_permutation_test takes the arrays and returns the distribution and p-value
+    # If the existing analysis.py function has a different signature, we adapt here.
+    # Based on T033, calculate_permutation_p_value is used.
+    
+    # Let's assume run_permutation_test returns (null_dist, p_val)
+    # and we already have observed_coef.
+    # If the function signature in analysis.py is different, we must match it.
+    # The API surface says: run_permutation_test, calculate_permutation_p_value
+    # Let's assume run_permutation_test does the shuffling and returns the distribution.
+    
+    null_distribution, p_value = run_permutation_test(
+        transition_counts, 
+        dsst_scores, 
+        n_permutations=1000, 
+        seed=42,
+        logger=logger
+    )
+
+    logger.info(f"Permutation test complete. Observed coef: {observed_coef:.4f}, p-value: {p_value:.4f}")
+
+    # Define output path
+    output_path = Path("data/results/permutation_results.tsv")
+
+    # Save results
+    save_permutation_results(
+        subject_ids=[s.id for s in subjects],
+        transition_counts=transition_counts,
+        dsst_scores=dsst_scores,
+        observed_coef=observed_coef,
+        null_distribution=null_distribution,
+        p_value=p_value,
+        output_path=output_path,
+        logger=logger
+    )
+
+    logger.info("T034 completed successfully.")
 
 if __name__ == "__main__":
     main()

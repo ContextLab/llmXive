@@ -4,259 +4,306 @@ import json
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
-from datetime import datetime
 
-from .logging_config import get_logger
-
-# Logger instance
-logger = get_logger(__name__)
+def setup_logging(log_path: str):
+    """Setup logging configuration."""
+    os.makedirs(os.path.dirname(log_path), exist_ok=True)
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(log_path),
+            logging.StreamHandler()
+        ]
+    )
+    return logging.getLogger(__name__)
 
 class GitMvDetector:
     """
-    Detects file renames (git mv) and structural refactors for specific code blocks.
-    Uses `git log --follow` to track file history.
+    Detects file renames (git mv) using `git log --follow`.
+    Identifies structural refactors by checking path hash changes or directory level changes.
     """
 
-    def __init__(self, repo_path: str, log_path: Optional[str] = None):
+    def __init__(self, repo_path: str, log_path: str):
         self.repo_path = Path(repo_path)
+        self.log_path = Path(log_path)
+        self.logger = setup_logging(str(self.log_path))
         if not self.repo_path.exists():
-            raise FileNotFoundError(f"Repository path not found: {repo_path}")
-        
-        self.log_path = Path(log_path) if log_path else self.repo_path.parent / "logs" / "refactor_exclusions.log"
-        self.log_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Initialize logger for this specific task if needed, or use global
-        self.logger = logging.getLogger("git_mv_detector")
-        if not self.logger.handlers:
-            handler = logging.FileHandler(self.log_path)
-            formatter = logging.Formatter('%(message)s') # Format: block_id, old_path, new_path, reason
-            handler.setFormatter(formatter)
-            self.logger.addHandler(handler)
-            self.logger.setLevel(logging.INFO)
+            raise FileNotFoundError(f"Repository path not found: {self.repo_path}")
 
-    def _run_git_command(self, args: List[str], cwd: Optional[Path] = None) -> Tuple[bool, str]:
-        """Runs a git command and returns (success, output)."""
+    def _run_git_command(self, args: List[str], cwd: Optional[Path] = None) -> Tuple[str, str, int]:
+        """Run a git command and return stdout, stderr, and return code."""
         try:
             result = subprocess.run(
                 ["git"] + args,
                 cwd=cwd or self.repo_path,
                 capture_output=True,
                 text=True,
-                timeout=30
+                check=False
             )
-            return result.returncode == 0, result.stdout.strip()
-        except subprocess.TimeoutExpired:
-            return False, "Command timed out"
+            return result.stdout, result.stderr, result.returncode
         except Exception as e:
-            return False, str(e)
+            self.logger.error(f"Git command failed: {e}")
+            return "", str(e), 1
 
-    def get_file_history(self, file_path: str) -> List[Dict[str, Any]]:
+    def _get_file_history(self, file_path: str) -> List[Dict[str, Any]]:
         """
-        Retrieves the history of a file using `git log --follow`.
-        Returns a list of commits with paths involved.
+        Get the history of a file including renames using `git log --follow`.
+        Returns a list of commits with file paths involved.
         """
-        # Use --follow to detect renames
-        success, output = self._run_git_command([
-            "log", "--follow", "--name-status", "--format=%H|%ci", "--", file_path
-        ])
+        # Use --follow to track renames
+        stdout, stderr, rc = self._run_git_command(
+            ["log", "--follow", "--name-only", "--pretty=format:%H|%s", "--", file_path]
+        )
         
-        if not success:
+        if rc != 0:
+            self.logger.warning(f"Git log failed for {file_path}: {stderr}")
             return []
 
         history = []
-        lines = output.split('\n')
+        lines = stdout.strip().split('\n')
         current_commit = None
         
         for line in lines:
-            if not line.strip():
+            if not line:
                 continue
-            
-            if line.startswith('commit '):
-                # Extract commit hash and date from format %H|%ci
-                parts = line.split('|')
-                if len(parts) >= 2:
-                    current_commit = {
-                        "hash": parts[0].replace("commit ", ""),
-                        "date": parts[1] if len(parts) > 1 else "",
-                        "changes": []
-                    }
-                    history.append(current_commit)
-            elif current_commit and line[0] in ['A', 'M', 'D', 'R']:
-                # Parse status and paths
-                parts = line.split('\t')
-                if len(parts) >= 2:
-                    status = parts[0]
-                    old_path = parts[1]
-                    new_path = parts[2] if len(parts) > 2 else old_path
-                    
-                    current_commit["changes"].append({
-                        "status": status,
-                        "old_path": old_path,
-                        "new_path": new_path
-                    })
-
+            if '|' in line:
+                # Commit header
+                parts = line.split('|', 1)
+                current_commit = {
+                    "hash": parts[0],
+                    "message": parts[1] if len(parts) > 1 else "",
+                    "files": []
+                }
+                history.append(current_commit)
+            elif current_commit is not None:
+                current_commit["files"].append(line)
+        
         return history
 
-    def calculate_path_hash(self, path: str) -> str:
-        """Calculates a simple hash of the path string to detect structural changes."""
-        return str(hash(path))
-
-    def get_directory_level(self, path: str) -> int:
-        """Returns the directory depth of a path."""
-        return len(Path(path).parts) - 1
-
-    def detect_refactor(self, block_id: str, file_path: str) -> Optional[Dict[str, Any]]:
+    def _get_current_path_for_block(self, file_path: str) -> Optional[str]:
         """
-        Checks if the file_path associated with block_id has been renamed or refactored.
-        Returns exclusion info if a refactor is detected, None otherwise.
-        
-        Criteria for exclusion:
-        1. File path hash changes (indicates rename).
-        2. Directory level changes significantly (indicates structural refactor).
+        Determine the current path of a file by checking if it exists in the working tree
+        or by tracing its history if it was renamed.
         """
-        if not os.path.exists(self.repo_path / file_path):
-            # File might not exist in current HEAD if it was deleted, but we check history
-            pass
+        # Check if file exists at current path
+        if (self.repo_path / file_path).exists():
+            return file_path
 
-        history = self.get_file_history(file_path)
-        
+        # If not, try to find it in history
+        history = self._get_file_history(file_path)
         if not history:
-            # No history found, assume no rename for this check
             return None
 
-        # Check the most recent commit that modified this file
-        latest_commit = history[-1] if history else None
+        # The last entry in history usually contains the current path if renamed
+        # We look for the most recent file path in the history chain
+        all_files = []
+        for commit in history:
+            all_files.extend(commit["files"])
         
-        if not latest_commit:
-            return None
-
-        # Check for 'R' (Rename) status in the latest commit
-        for change in latest_commit.get("changes", []):
-            if change["status"].startswith("R"):
-                old_path = change["old_path"]
-                new_path = change["new_path"]
-                
-                # Calculate directory levels
-                old_level = self.get_directory_level(old_path)
-                new_level = self.get_directory_level(new_path)
-                
-                # Determine reason
-                reason = "Rename detected"
-                if abs(old_level - new_level) > 1:
-                    reason = "Structural refactor (directory level change)"
-                
-                return {
-                    "block_id": block_id,
-                    "old_path": old_path,
-                    "new_path": new_path,
-                    "reason": reason
-                }
-
-        # If no explicit rename, check if the file path in history differs from current
-        # This handles cases where git log --follow might not flag a simple rename as 'R' in all contexts
-        # but the path string itself changed over time.
-        # However, `--follow` usually keeps the path constant if it's just a rename tracked.
-        # We rely on the 'R' status primarily.
+        # Get unique files in reverse order (newest first)
+        seen = set()
+        unique_files = []
+        for f in reversed(all_files):
+            if f not in seen:
+                seen.add(f)
+                unique_files.append(f)
+        
+        if unique_files:
+            # The first unique file (newest) is likely the current path
+            return unique_files[0]
         
         return None
 
-    def log_exclusion(self, exclusion_info: Dict[str, Any]):
-        """Logs the exclusion to the refactor_exclusions.log file."""
-        log_entry = f"{exclusion_info['block_id']}, {exclusion_info['old_path']}, {exclusion_info['new_path']}, {exclusion_info['reason']}"
-        self.logger.info(log_entry)
-
-def run_refactor_verification(
-    code_blocks_path: str,
-    repo_path: str,
-    output_log_path: str,
-    output_report_path: str
-) -> Dict[str, Any]:
-    """
-    Runs the git mv detection verification on a list of code blocks.
-    
-    Args:
-        code_blocks_path: Path to the CSV containing code blocks (data/raw/code_blocks.csv).
-        repo_path: Path to the git repository.
-        output_log_path: Path to write the exclusion log.
-        output_report_path: Path to write the validation report JSON.
+    def _check_directory_level_change(self, old_path: str, new_path: str) -> bool:
+        """
+        Check if the directory level has changed significantly (structural refactor).
+        Returns True if the directory structure has changed (e.g., moved to different root).
+        """
+        old_parts = Path(old_path).parts
+        new_parts = Path(new_path).parts
         
-    Returns:
-        A dictionary with summary statistics.
-    """
-    import csv
-    from pathlib import Path
+        # If the number of directory levels differs significantly or root changes
+        if len(old_parts) != len(new_parts):
+            return True
+        
+        # Check if the top-level directory is different
+        if len(old_parts) > 0 and len(new_parts) > 0:
+            if old_parts[0] != new_parts[0]:
+                return True
+        
+        return False
 
-    detector = GitMvDetector(repo_path, log_path=output_log_path)
-    
-    excluded_blocks = []
-    total_blocks = 0
-    processed_blocks = 0
+    def _calculate_path_hash(self, file_path: str) -> str:
+        """Calculate a hash based on the file path structure."""
+        import hashlib
+        return hashlib.md5(file_path.encode()).hexdigest()
 
-    try:
-        with open(code_blocks_path, 'r', newline='', encoding='utf-8') as f:
+    def detect_refactor(self, block_id: str, original_file_path: str) -> Optional[Dict[str, Any]]:
+        """
+        Detect if a code block's file has been renamed or refactored.
+        
+        Returns:
+            Dict with block_id, old_path, new_path, reason if a refactor is detected.
+            None if no refactor detected.
+        """
+        current_path = self._get_current_path_for_block(original_file_path)
+        
+        if current_path is None:
+            # File doesn't exist in git history at all
+            self.logger.info(f"Block {block_id}: File {original_file_path} not found in git history.")
+            return None
+
+        if current_path == original_file_path:
+            # No rename detected
+            return None
+
+        # Check if it's a rename or a structural refactor
+        old_hash = self._calculate_path_hash(original_file_path)
+        new_hash = self._calculate_path_hash(current_path)
+        
+        is_directory_change = self._check_directory_level_change(original_file_path, current_path)
+        
+        reason_parts = []
+        if old_hash != new_hash:
+            reason_parts.append("Path hash changed")
+        if is_directory_change:
+            reason_parts.append("Directory level changed (structural refactor)")
+        
+        if not reason_parts:
+            reason_parts.append("File renamed")
+
+        exclusion = {
+            "block_id": block_id,
+            "old_path": original_file_path,
+            "new_path": current_path,
+            "reason": "; ".join(reason_parts)
+        }
+        
+        self.logger.info(f"Detected refactor for block {block_id}: {original_file_path} -> {current_path} ({exclusion['reason']})")
+        return exclusion
+
+    def process_blocks(self, blocks_csv_path: str) -> List[Dict[str, Any]]:
+        """
+        Process a CSV of code blocks and detect refactors for each.
+        
+        Args:
+            blocks_csv_path: Path to the CSV file with columns: block_id, file_path, ...
+        
+        Returns:
+            List of exclusion records for blocks that were refactored.
+        """
+        exclusions = []
+        
+        if not Path(blocks_csv_path).exists():
+            self.logger.error(f"Blocks CSV not found: {blocks_csv_path}")
+            return exclusions
+
+        import csv
+        with open(blocks_csv_path, 'r', newline='') as f:
             reader = csv.DictReader(f)
             for row in reader:
-                total_blocks += 1
                 block_id = row.get('block_id')
                 file_path = row.get('file_path')
                 
                 if not block_id or not file_path:
+                    self.logger.warning(f"Skipping row with missing block_id or file_path: {row}")
                     continue
-                
-                processed_blocks += 1
-                
-                exclusion = detector.detect_refactor(block_id, file_path)
-                
-                if exclusion:
-                    detector.log_exclusion(exclusion)
-                    excluded_blocks.append(exclusion)
-    except FileNotFoundError:
-        logger.error(f"Code blocks file not found: {code_blocks_path}")
-        return {"error": "Code blocks file not found"}
-    except Exception as e:
-        logger.error(f"Error processing blocks: {e}")
-        return {"error": str(e)}
 
-    # Generate Report
-    report = {
-        "timestamp": datetime.now().isoformat(),
+                exclusion = self.detect_refactor(block_id, file_path)
+                if exclusion:
+                    exclusions.append(exclusion)
+        
+        return exclusions
+
+    def save_exclusions_log(self, exclusions: List[Dict[str, Any]], log_path: str):
+        """Save exclusions to a log file in CSV format."""
+        os.makedirs(os.path.dirname(log_path), exist_ok=True)
+        with open(log_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=['block_id', 'old_path', 'new_path', 'reason'])
+            writer.writeheader()
+            for exc in exclusions:
+                writer.writerow(exc)
+        
+        self.logger.info(f"Saved {len(exclusions)} exclusions to {log_path}")
+
+    def save_validation_report(self, exclusions: List[Dict[str, Any]], total_blocks: int, report_path: str):
+        """Save a JSON validation report."""
+        os.makedirs(os.path.dirname(report_path), exist_ok=True)
+        report = {
+            "total_blocks_processed": total_blocks,
+            "blocks_excluded": len(exclusions),
+            "exclusions": exclusions,
+            "timestamp": subprocess.run(["date", "-Iseconds"], capture_output=True, text=True).stdout.strip()
+        }
+        
+        with open(report_path, 'w') as f:
+            json.dump(report, f, indent=2)
+        
+        self.logger.info(f"Saved validation report to {report_path}")
+
+
+def run_refactor_verification(
+    blocks_csv_path: str,
+    repo_path: str,
+    log_path: str,
+    report_path: str
+) -> Dict[str, Any]:
+    """
+    Run the full refactor verification pipeline.
+    
+    Args:
+        blocks_csv_path: Path to code_blocks.csv
+        repo_path: Path to the git repository
+        log_path: Path to save the exclusions log
+        report_path: Path to save the validation report
+    
+    Returns:
+        Dictionary with verification results.
+    """
+    detector = GitMvDetector(repo_path, log_path)
+    
+    exclusions = detector.process_blocks(blocks_csv_path)
+    
+    total_blocks = 0
+    if Path(blocks_csv_path).exists():
+        import csv
+        with open(blocks_csv_path, 'r', newline='') as f:
+            reader = csv.DictReader(f)
+            total_blocks = sum(1 for _ in reader)
+    
+    detector.save_exclusions_log(exclusions, log_path)
+    detector.save_validation_report(exclusions, total_blocks, report_path)
+    
+    return {
         "total_blocks_processed": total_blocks,
-        "blocks_excluded": len(excluded_blocks),
-        "exclusions": excluded_blocks
+        "blocks_excluded": len(exclusions),
+        "exclusions": exclusions
     }
 
-    with open(output_report_path, 'w', encoding='utf-8') as f:
-        json.dump(report, f, indent=2)
-
-    logger.info(f"Verification complete. Excluded {len(excluded_blocks)} blocks. Report saved to {output_report_path}")
-    
-    return report
 
 def main():
-    """
-    Entry point for running the refactor verification script.
-    Expects environment variables or hardcoded paths for demonstration.
-    """
-    # Default paths relative to project root if run from root
-    base_path = Path(__file__).parent.parent.parent
-    code_blocks_path = base_path / "data" / "raw" / "code_blocks.csv"
-    repo_path = base_path / "data" / "temp_repos" / "sample_repo" # This would be populated by T011
-    output_log_path = base_path / "data" / "logs" / "refactor_exclusions.log"
-    output_report_path = base_path / "data" / "logs" / "refactor_validation_report.json"
-
-    # If the repo path doesn't exist, we can't run the full verification
-    # but we can still demonstrate the function structure.
-    if not repo_path.exists():
-        print(f"Warning: Repository path {repo_path} does not exist. Skipping full verification.")
-        print("This script is designed to run after T011 clones repositories.")
-        return
-
-    run_refactor_verification(
-        str(code_blocks_path),
-        str(repo_path),
-        str(output_log_path),
-        str(output_report_path)
+    """Main entry point for CLI usage."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Detect git mv refactors for code blocks")
+    parser.add_argument("--blocks-csv", required=True, help="Path to code_blocks.csv")
+    parser.add_argument("--repo-path", required=True, help="Path to git repository")
+    parser.add_argument("--log-path", default="data/logs/refactor_exclusions.log", help="Path to exclusions log")
+    parser.add_argument("--report-path", default="data/logs/refactor_validation_report.json", help="Path to validation report")
+    
+    args = parser.parse_args()
+    
+    result = run_refactor_verification(
+        args.blocks_csv,
+        args.repo_path,
+        args.log_path,
+        args.report_path
     )
+    
+    print(f"Processed {result['total_blocks_processed']} blocks, excluded {result['blocks_excluded']}")
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    exit(main())

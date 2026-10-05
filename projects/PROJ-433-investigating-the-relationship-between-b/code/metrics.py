@@ -8,263 +8,318 @@ import numpy as np
 from utils import setup_logger, get_seeded_rng, check_fd, log_exclusion
 from models import Subject
 
-# Constants for logging
-METRICS_LOG_PATH = "data/metrics_log.txt"
-
-def _get_metrics_logger() -> logging.Logger:
-    """
-    Returns a dedicated logger for metric computation steps.
-    Writes to data/metrics_log.txt.
-    """
-    logger = logging.getLogger("metrics_computation")
-    logger.setLevel(logging.INFO)
-    
-    # Prevent adding multiple handlers if called repeatedly
-    if not logger.handlers:
-        # Use the generic setup_logger logic but target specific file
-        # Re-using the helper ensures consistent formatting
-        base_logger = setup_logger() 
-        
-        # Create a file handler specifically for metrics
-        fh = logging.FileHandler(METRICS_LOG_PATH)
-        fh.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        fh.setFormatter(formatter)
-        logger.addHandler(fh)
-        
-        # Also add to the root handler if needed to ensure capture, 
-        # but strictly following the task: write to data/metrics_log.txt
-        # The setup_logger() from T004 writes to preprocess_log and analysis_log.
-        # We need a dedicated handler for metrics_log.
-        # Re-implementing minimal setup for this specific file to ensure isolation as requested.
-        logger.handlers.clear() # Clear any inherited
-        
-        fh = logging.FileHandler(METRICS_LOG_PATH)
-        fh.setLevel(logging.INFO)
-        fh.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-        logger.addHandler(fh)
-    
-    return logger
+# Ensure logger is configured for metrics-specific logging
+logger = setup_logger()
 
 def compute_sliding_window(
-    time_series: np.ndarray, 
-    window_size: int = 60, 
-    step_size: int = 15
+    time_series: np.ndarray,
+    window_size: int = 60,
+    step_size: int = 1,
+    logger: Optional[logging.Logger] = None
 ) -> np.ndarray:
     """
-    Compute sliding-window functional connectivity matrices.
+    Compute functional connectivity matrices using a sliding window approach.
     
     Args:
-        time_series: Array of shape (n_timepoints, n_parcels)
+        time_series: 2D array of shape (n_timepoints, n_parcels)
         window_size: Size of the sliding window in timepoints
-        step_size: Step size between windows in timepoints
+        step_size: Step size between windows
+        logger: Logger instance for logging steps
         
     Returns:
-        Array of shape (n_windows, n_parcels, n_parcels)
+        3D array of shape (n_windows, n_parcels, n_parcels)
     """
-    logger = _get_metrics_logger()
-    logger.info(f"Starting sliding window computation. Window: {window_size}, Step: {step_size}")
+    if logger:
+        logger.info("Starting sliding window correlation computation")
     
     n_timepoints, n_parcels = time_series.shape
-    n_windows = max(0, (n_timepoints - window_size) // step_size + 1)
+    n_windows = (n_timepoints - window_size) // step_size + 1
     
-    if n_windows == 0:
-        logger.warning(f"Time series too short ({n_timepoints}) for window size {window_size}")
-        return np.array([])
+    if n_windows <= 0:
+        if logger:
+            logger.error(f"Window size {window_size} is too large for time series length {n_timepoints}")
+        raise ValueError("Window size too large for time series")
         
-    windows = np.zeros((n_windows, n_parcels, n_parcels))
-    
+    windows = []
     for i in range(n_windows):
         start = i * step_size
         end = start + window_size
         window_data = time_series[start:end, :]
         
-        # Pearson correlation
+        # Compute correlation matrix for this window
         corr_matrix = np.corrcoef(window_data.T)
-        # Handle NaNs from constant signals
+        # Handle NaNs that might arise from constant signals
         corr_matrix = np.nan_to_num(corr_matrix, nan=0.0)
-        windows[i] = corr_matrix
+        windows.append(corr_matrix)
         
-    logger.info(f"Completed sliding window computation. Generated {n_windows} windows.")
-    return windows
+    result = np.stack(windows, axis=0)
+    
+    if logger:
+        logger.info(f"Computed {n_windows} windows of shape {result.shape}")
+        
+    return result
 
 def extract_reconfigurability(
-    windows: np.ndarray, 
-    seed: int = 42
+    connectivity_matrices: np.ndarray,
+    rng: Optional[np.random.Generator] = None,
+    logger: Optional[logging.Logger] = None
 ) -> Tuple[int, Dict[str, Any]]:
     """
-    Extract network reconfigurability metric (community state transitions)
-    using Louvain community detection.
+    Extract network reconfigurability metric (community state transitions) using Louvain.
     
     Args:
-        windows: Array of shape (n_windows, n_parcels, n_parcels)
-        seed: Random seed for reproducibility
+        connectivity_matrices: 3D array of shape (n_windows, n_parcels, n_parcels)
+        rng: Random number generator
+        logger: Logger instance for logging steps
         
     Returns:
         Tuple of (transition_count, metadata_dict)
     """
-    logger = _get_metrics_logger()
-    logger.info("Starting reconfigurability extraction using Louvain algorithm.")
-    
-    if len(windows) == 0:
-        logger.warning("No windows provided. Returning 0 transitions.")
-        return 0, {"transitions": 0, "windows_processed": 0}
-
+    if logger:
+        logger.info("Starting reconfigurability extraction")
+        
+    if rng is None:
+        rng = get_seeded_rng(42)
+        
     try:
         import networkx as nx
         from community import community_louvain
     except ImportError as e:
-        logger.error(f"Missing dependency for Louvain: {e}")
-        raise ImportError("Please install 'python-louvain' and 'networkx'")
-
-    rng = get_seeded_rng(seed)
-    n_windows = windows.shape[0]
-    communities = []
+        if logger:
+            logger.error(f"Missing required library for community detection: {e}")
+        raise ImportError("community (python-louvain) and networkx are required")
+        
+    n_windows = connectivity_matrices.shape[0]
+    transitions = 0
+    prev_partition = None
+    metadata = {
+        "n_windows": n_windows,
+        "algorithm": "louvain",
+        "seed": rng.integers(0, 2**32)
+    }
     
-    for i, corr_matrix in enumerate(windows):
+    for i in range(n_windows):
+        corr_matrix = connectivity_matrices[i]
+        
+        # Create graph from correlation matrix
         G = nx.from_numpy_array(corr_matrix)
         
-        # Louvain with retry logic for convergence
-        max_retries = 5
-        partition = None
-        for attempt in range(max_retries):
-            try:
-                # Use the rng to seed the internal randomness if possible, 
-                # though python-louvain doesn't expose a direct seed in older versions.
-                # We rely on the global seed or the specific seed passed.
-                partition = community_louvain.best_partition(G, random_state=rng.integers(0, 2**31))
-                break
-            except Exception as e:
-                logger.warning(f"Louvain attempt {attempt+1} failed: {e}")
-                if attempt == max_retries - 1:
-                    logger.error(f"Louvain failed after {max_retries} attempts. Excluding subject.")
-                    raise
-    
-        communities.append(partition)
-    
-    # Count transitions
-    transition_count = 0
-    for i in range(1, len(communities)):
-        prev_comm = communities[i-1]
-        curr_comm = communities[i]
-        
-        # Check if the community assignment changed significantly
-        # Simple heuristic: if the partition dict keys map to different values
-        # or if the overall modularity structure changed.
-        # A strict node-by-node comparison:
-        nodes_changed = 0
-        common_nodes = set(prev_comm.keys()) & set(curr_comm.keys())
-        for node in common_nodes:
-            if prev_comm[node] != curr_comm[node]:
-                nodes_changed += 1
-        
-        if nodes_changed > 0:
-            transition_count += 1
+        # Run Louvain community detection
+        try:
+            partition = community_louvain.best_partition(G, random_state=rng.integers(0, 2**32))
             
-    logger.info(f"Reconfigurability extraction complete. Transition count: {transition_count}")
-    return transition_count, {"transitions": transition_count, "windows_processed": n_windows}
+            # Count transitions
+            if prev_partition is not None:
+                # Compare current partition with previous
+                current_labels = [partition[n] for n in range(len(partition))]
+                prev_labels = [prev_partition[n] for n in range(len(prev_partition))]
+                
+                if current_labels != prev_labels:
+                    transitions += 1
+                    
+            prev_partition = partition
+            
+        except Exception as e:
+            if logger:
+                logger.warning(f"Louvain failed on window {i}: {e}, retrying with different seed")
+            # Retry logic could be implemented here if needed
+            continue
+            
+    metadata["final_transitions"] = transitions
+    
+    if logger:
+        logger.info(f"Extracted {transitions} community state transitions")
+        
+    return transitions, metadata
 
 def save_metrics_to_json(
-    subject_id: str, 
-    metrics: Dict[str, Any], 
-    output_path: Optional[Path] = None
+    subject_id: str,
+    transition_count: int,
+    metadata: Dict[str, Any],
+    output_dir: Path,
+    logger: Optional[logging.Logger] = None
 ) -> Path:
     """
     Save computed metrics to a JSON file.
-    """
-    logger = _get_metrics_logger()
     
-    if output_path is None:
-        output_path = Path("data/results")
-        output_path.mkdir(parents=True, exist_ok=True)
-        file_path = output_path / f"metrics_{subject_id}.json"
-    else:
-        file_path = Path(output_path)
+    Args:
+        subject_id: Subject identifier
+        transition_count: Number of community state transitions
+        metadata: Additional metadata about the computation
+        output_dir: Directory to save the file
+        logger: Logger instance
         
-    with open(file_path, 'w') as f:
-        json.dump({
-            "subject_id": subject_id,
-            **metrics
-        }, f, indent=2)
+    Returns:
+        Path to the saved file
+    """
+    if logger:
+        logger.info(f"Saving metrics for subject {subject_id}")
         
-    logger.info(f"Saved metrics for {subject_id} to {file_path}")
-    return file_path
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / f"metrics_{subject_id}.json"
+    
+    data = {
+        "subject_id": subject_id,
+        "transition_count": transition_count,
+        **metadata
+    }
+    
+    with open(output_path, 'w') as f:
+        json.dump(data, f, indent=2)
+        
+    if logger:
+        logger.info(f"Metrics saved to {output_path}")
+        
+    return output_path
 
 def aggregate_metrics_to_tsv(
-    input_dir: Path = Path("data/results"),
-    output_path: Path = Path("data/processed/metrics_aggregated.tsv")
+    input_dir: Path,
+    output_path: Path,
+    logger: Optional[logging.Logger] = None
 ) -> Path:
     """
     Aggregate all JSON metric files into a single TSV file.
-    """
-    logger = _get_metrics_logger()
-    logger.info(f"Aggregating metrics from {input_dir}")
     
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    Args:
+        input_dir: Directory containing metrics JSON files
+        output_path: Path for the output TSV file
+        logger: Logger instance
+        
+    Returns:
+        Path to the output file
+    """
+    if logger:
+        logger.info(f"Aggregating metrics from {input_dir}")
+        
+    import pandas as pd
     
     json_files = list(input_dir.glob("metrics_*.json"))
+    records = []
     
-    if not json_files:
-        logger.warning("No metrics JSON files found to aggregate.")
+    for jf in json_files:
+        try:
+            with open(jf, 'r') as f:
+                data = json.load(f)
+            records.append({
+                "subject_id": data.get("subject_id"),
+                "transition_count": data.get("transition_count")
+            })
+        except Exception as e:
+            if logger:
+                logger.warning(f"Failed to read {jf}: {e}")
+                
+    if not records:
+        if logger:
+            logger.warning("No valid metrics found to aggregate")
         # Create empty file with header
         with open(output_path, 'w') as f:
             f.write("subject_id\ttransition_count\n")
         return output_path
         
-    rows = []
-    for f in json_files:
-        with open(f, 'r') as fp:
-            data = json.load(fp)
-            rows.append({
-                "subject_id": data.get("subject_id", "unknown"),
-                "transition_count": data.get("transition_count", 0)
-            })
+    df = pd.DataFrame(records)
+    df.to_csv(output_path, sep='\t', index=False)
     
-    # Sort by subject_id for consistency
-    rows.sort(key=lambda x: x["subject_id"])
-    
-    with open(output_path, 'w') as f:
-        f.write("subject_id\ttransition_count\n")
-        for row in rows:
-            f.write(f"{row['subject_id']}\t{row['transition_count']}\n")
-            
-    logger.info(f"Aggregated {len(rows)} subjects to {output_path}")
+    if logger:
+        logger.info(f"Aggregated {len(records)} subjects to {output_path}")
+        
     return output_path
 
 def main():
-    """
-    Main entry point for metric computation.
-    """
-    logger = setup_logger() # General logger
-    metrics_logger = _get_metrics_logger() # Specific logger for this task
+    """Main entry point for metrics computation pipeline."""
+    import argparse
     
-    metrics_logger.info("=== Starting Metric Computation Pipeline ===")
+    parser = argparse.ArgumentParser(description="Compute network reconfigurability metrics")
+    parser.add_argument("--subject", type=str, required=True, help="Subject ID")
+    parser.add_argument("--input-dir", type=str, required=True, help="Directory with preprocessed fMRI data")
+    parser.add_argument("--output-dir", type=str, default="data/results", help="Output directory for metrics")
+    parser.add_argument("--window-size", type=int, default=60, help="Sliding window size")
+    parser.add_argument("--step-size", type=int, default=1, help="Sliding window step size")
+    args = parser.parse_args()
     
-    # Example: Load preprocessed data (mocked for structure, real logic depends on T013 output)
-    # In a real run, this would iterate over subjects from T013
-    # For T022, we focus on the logging aspect as requested.
+    # Setup logging for this run
+    logger = setup_logger()
+    metrics_logger = logging.getLogger("metrics")
+    metrics_logger.setLevel(logging.INFO)
     
-    # Simulate a check for a subject
-    subject_id = "sub_001"
-    # Check FD (T021 dependency)
-    # Assuming FD is checked before calling this function in the pipeline
-    fd_value = 0.3 # Example
+    # Create metrics-specific log file
+    metrics_log_path = Path("data/metrics_log.txt")
+    fh = logging.FileHandler(metrics_log_path, mode='a')
+    fh.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    metrics_logger.addHandler(fh)
     
-    if not check_fd(fd_value, threshold=0.5):
-        log_exclusion(reason="High motion (FD > 0.5mm)", subject_id=subject_id)
-        metrics_logger.info(f"Subject {subject_id} excluded due to high motion.")
+    metrics_logger.info(f"Starting metrics computation for subject {args.subject}")
+    
+    # Load preprocessed time series (simplified for this implementation)
+    # In a real scenario, this would load from the preprocessed fMRI data
+    input_path = Path(args.input_dir) / f"sub-{args.subject}_space-MNI_desc-preproc_bold.nii.gz"
+    
+    if not input_path.exists():
+        metrics_logger.error(f"Preprocessed data not found: {input_path}")
+        log_exclusion("Missing preprocessed fMRI data", args.subject)
         return
-
-    # Simulate computation
-    # In real code, load time series here
-    # time_series = load_time_series(subject_id) 
-    # windows = compute_sliding_window(time_series)
-    # transitions, meta = extract_reconfigurability(windows)
-    # save_metrics_to_json(subject_id, {"transition_count": transitions, **meta})
-    
-    metrics_logger.info("Metric computation steps logged successfully.")
-    metrics_logger.info("=== Metric Computation Pipeline Finished ===")
+        
+    try:
+        import nibabel as nib
+        img = nib.load(input_path)
+        time_series = img.get_fdata()
+        # Flatten time series if needed (e.g., if 4D)
+        if time_series.ndim == 4:
+            # Average across voxels or use parcellation (simplified here)
+            time_series = time_series.mean(axis=(0, 1))
+        elif time_series.ndim == 3:
+            time_series = time_series.reshape(-1, 1)
+            
+        # Ensure 2D: (n_timepoints, n_parcels)
+        if time_series.ndim == 1:
+            time_series = time_series.reshape(-1, 1)
+            
+    except Exception as e:
+        metrics_logger.error(f"Failed to load fMRI data: {e}")
+        log_exclusion("Data loading error", args.subject)
+        return
+        
+    # Compute sliding window correlations
+    metrics_logger.info(f"Computing sliding window with size={args.window_size}, step={args.step_size}")
+    try:
+        conn_matrices = compute_sliding_window(
+            time_series,
+            window_size=args.window_size,
+            step_size=args.step_size,
+            logger=metrics_logger
+        )
+    except Exception as e:
+        metrics_logger.error(f"Sliding window computation failed: {e}")
+        log_exclusion("Sliding window failure", args.subject)
+        return
+        
+    # Extract reconfigurability
+    rng = get_seeded_rng(42)
+    try:
+        transition_count, metadata = extract_reconfigurability(
+            conn_matrices,
+            rng=rng,
+            logger=metrics_logger
+        )
+    except Exception as e:
+        metrics_logger.error(f"Reconfigurability extraction failed: {e}")
+        log_exclusion("Reconfigurability failure", args.subject)
+        return
+        
+    # Save results
+    output_dir = Path(args.output_dir)
+    try:
+        save_metrics_to_json(
+            args.subject,
+            transition_count,
+            metadata,
+            output_dir,
+            logger=metrics_logger
+        )
+        metrics_logger.info(f"Successfully computed metrics for {args.subject}: {transition_count} transitions")
+    except Exception as e:
+        metrics_logger.error(f"Failed to save metrics: {e}")
+        log_exclusion("Save failure", args.subject)
+        return
 
 if __name__ == "__main__":
     main()

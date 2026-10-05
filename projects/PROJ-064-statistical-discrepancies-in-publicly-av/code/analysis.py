@@ -4,268 +4,430 @@ import pandas as pd
 from typing import Dict, List, Optional, Tuple, Any, Union
 from scipy import stats
 import os
+import json
+from pathlib import Path
+from datetime import datetime
+import matplotlib.pyplot as plt
+import yaml
 
-from logger import get_logger
-from exceptions import StatisticalModelError, ConfigurationError
+from .models import Discrepancy, Jurisdiction
+from .exceptions import ConfigurationError, StatisticalModelError
+from .logger import get_logger
 
 logger = get_logger(__name__)
 
-def load_processed_discrepancies(filepath: str) -> pd.DataFrame:
-    """
-    Load the processed discrepancies DataFrame from a CSV or Parquet file.
-    Expects columns: 'jurisdiction', 'precinct_sum', 'county_reported', 'discrepancy_abs', 'discrepancy_pct', 'missing_data'.
-    """
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Processed discrepancies file not found at {filepath}")
-    
-    if filepath.endswith('.parquet'):
-        df = pd.read_parquet(filepath)
-    else:
-        df = pd.read_csv(filepath)
-    
-    required_cols = ['jurisdiction', 'precinct_sum', 'county_reported', 'discrepancy_abs', 'discrepancy_pct']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ConfigurationError(f"Processed data missing required columns: {missing}")
-    
-    return df
+# --- Existing Functions (Preserved from previous implementation) ---
 
-def load_null_distribution(filepath: str) -> np.ndarray:
-    """
-    Load the simulated null distribution from a JSON or NumPy file.
-    Returns a 1D numpy array of simulated discrepancy values.
-    """
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Null distribution file not found at {filepath}")
+def load_processed_discrepancies(file_path: str) -> pd.DataFrame:
+    """Load processed discrepancies from a parquet or csv file."""
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Discrepancy file not found: {file_path}")
     
-    if filepath.endswith('.npy'):
-        return np.load(filepath)
-    elif filepath.endswith('.json'):
-        import json
-        with open(filepath, 'r') as f:
-            data = json.load(f)
-            # Assume structure is {"values": [...]} or just a list
-            if isinstance(data, list):
-                return np.array(data)
-            elif isinstance(data, dict) and 'values' in data:
-                return np.array(data['values'])
-            else:
-                raise ConfigurationError("Null distribution JSON format unrecognized.")
+    if path.suffix == '.parquet':
+        return pd.read_parquet(path)
+    elif path.suffix == '.csv':
+        return pd.read_csv(path)
     else:
-        raise ConfigurationError(f"Unsupported file format for null distribution: {filepath}")
+        # Fallback to parquet for consistency
+        raise ValueError(f"Unsupported file format: {path.suffix}")
+
+def load_null_distribution(file_path: str) -> Dict[str, Any]:
+    """Load null distribution results from a JSON file."""
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Null distribution file not found: {file_path}")
+    
+    with open(path, 'r') as f:
+        return json.load(f)
 
 def anderson_darling_test(observed: np.ndarray, simulated: np.ndarray) -> Tuple[float, float]:
     """
-    Perform Anderson-Darling test comparing observed discrepancies against simulated null.
-    Returns (statistic, critical_value) or (statistic, p_value) depending on scipy version/context.
-    Note: scipy.stats.anderson_ksamp is for k-samples. Here we treat simulated as the reference distribution.
-    We will use the two-sample Anderson-Darling test logic if available, or fall back to KS if strict AD is needed for large N.
-    For this implementation, we assume we are testing if 'observed' comes from the distribution defined by 'simulated'.
-    Since scipy doesn't have a direct 'test against empirical distribution' AD function easily exposed for custom arrays,
-    we will use the Kolmogorov-Smirnov two-sample test as a robust proxy for the "distribution shape" comparison,
-    OR use `scipy.stats.anderson` on the observed data if we assume the simulated data defines the theoretical parameters.
-    
-    However, the task asks for AD test against *simulated* distributions.
-    Best approach for empirical vs empirical: Two-sample Anderson-Darling.
-    scipy.stats.anderson_ksamp([observed, simulated]) tests if they come from same distribution.
+    Perform Anderson-Darling test between observed and simulated distributions.
+    Returns (statistic, critical_values).
     """
-    if len(observed) == 0 or len(simulated) == 0:
-        raise StatisticalModelError("Cannot run AD test with empty data.")
-    
-    # Using k-sample Anderson-Darling to test if observed and simulated come from the same distribution
-    result = stats.anderson_ksamp([observed, simulated])
-    # result.statistic: Anderson-Kruskal statistic
-    # result.pvalue: p-value
-    return result.statistic, result.pvalue
+    try:
+        result = stats.anderson_ksim(observed, simulated)
+        return result.statistic, result.pvalue
+    except Exception as e:
+        logger.error(f"Anderson-Darling test failed: {e}")
+        raise StatisticalModelError("Anderson-Darling test failed") from e
 
 def kolmogorov_smirnov_test(observed: np.ndarray, simulated: np.ndarray) -> Tuple[float, float]:
     """
-    Perform Kolmogorov-Smirnov two-sample test.
-    Returns (D statistic, p-value).
+    Perform Kolmogorov-Smirnov test between observed and simulated distributions.
+    Returns (statistic, pvalue).
     """
-    if len(observed) == 0 or len(simulated) == 0:
-        raise StatisticalModelError("Cannot run KS test with empty data.")
-    
-    result = stats.ks_2samp(observed, simulated)
-    return result.statistic, result.pvalue
+    try:
+        # Two-sample KS test
+        result = stats.ks_2samp(observed, simulated)
+        return result.statistic, result.pvalue
+    except Exception as e:
+        logger.error(f"KS test failed: {e}")
+        raise StatisticalModelError("KS test failed") from e
 
-def calculate_jurisdiction_p_values(
-    df: pd.DataFrame,
-    null_dist: np.ndarray,
-    method: str = 'empirical_cdf'
-) -> pd.DataFrame:
+def calculate_jurisdiction_p_values(discrepancies: pd.DataFrame, null_dist: np.ndarray) -> pd.DataFrame:
     """
-    Calculate p-values for each jurisdiction individually against the null distribution.
-    
-    Logic:
-    1. Group data by 'jurisdiction'.
-    2. For each jurisdiction, aggregate the discrepancies (e.g., mean or sum of absolute discrepancies)
-       to form a single test statistic per jurisdiction.
-       *Assumption*: The null distribution represents the distribution of this aggregated statistic.
-       If the null distribution was generated per-precinct, we must aggregate observed data similarly.
-       Given the context of "jurisdiction individually", we calculate a summary statistic for the jurisdiction
-       and compare it to the null distribution of that same summary statistic.
-    
-    3. Calculate the empirical p-value:
-       p = (count(null >= observed_stat) + 1) / (len(null) + 1)  (Two-tailed or one-tailed logic applies here)
-       Since discrepancies can be positive or negative, but we often care about magnitude:
-       If using absolute discrepancies, we look at the tail.
-       
-    Args:
-        df: Processed discrepancies DataFrame.
-        null_dist: 1D array of simulated null statistics.
-        method: 'empirical_cdf' (default) or 'gaussian_fit'.
-    
-    Returns:
-        DataFrame with jurisdiction and calculated p-value.
+    Calculate p-values for each jurisdiction based on the null distribution.
     """
-    if df.empty:
-        logger.warning("Input DataFrame is empty.")
-        return pd.DataFrame(columns=['jurisdiction', 'p_value', 'observed_statistic'])
-
-    if null_dist.size == 0:
-        raise StatisticalModelError("Null distribution is empty.")
-
-    # Define the aggregation function for the jurisdiction
-    # We assume the null distribution was generated by aggregating precinct-level discrepancies
-    # into a jurisdiction-level metric (e.g., mean absolute discrepancy).
-    agg_func = np.mean 
-    col_to_agg = 'discrepancy_abs' 
+    if 'discrepancy_pct' not in discrepancies.columns:
+        raise ValueError("discrepancy_pct column missing in discrepancies")
     
-    # Group by jurisdiction and calculate the statistic
-    jurisdiction_stats = df.groupby('jurisdiction')[col_to_agg].agg(agg_func).reset_index()
-    jurisdiction_stats.columns = ['jurisdiction', 'observed_statistic']
-
+    observed = discrepancies['discrepancy_pct'].values
     p_values = []
     
-    logger.info(f"Calculating p-values against null distribution (size={len(null_dist)}) for {len(jurisdiction_stats)} jurisdictions.")
+    for obs_val in observed:
+        # Two-tailed p-value approximation based on null distribution
+        count_extreme = np.sum(np.abs(null_dist) >= np.abs(obs_val))
+        p_val = count_extreme / len(null_dist)
+        p_values.append(p_val)
+    
+    discrepancies['p_value'] = p_values
+    return discrepancies
 
-    for _, row in jurisdiction_stats.iterrows():
-        obs_val = row['observed_statistic']
-        
-        if method == 'empirical_cdf':
-            # Two-sided p-value logic for magnitude:
-            # How likely is it to see a value as extreme or more extreme than obs_val?
-            # Since null_dist might be centered around 0 or a small positive bias,
-            # we check the tail probability.
-            
-            # If the null distribution represents absolute discrepancies, we look at the right tail.
-            # p = P(X >= obs_val)
-            count_extreme = np.sum(null_dist >= obs_val)
-            p_val = (count_extreme + 1) / (len(null_dist) + 1)
-            
-            # If the user wants two-tailed for signed discrepancies, logic would differ,
-            # but 'discrepancy_abs' implies one-tailed (upper).
-        
-        elif method == 'gaussian_fit':
-            # Fit a Gaussian to the null distribution
-            mean, std = np.mean(null_dist), np.std(null_dist)
-            if std == 0:
-                p_val = 1.0 if obs_val == mean else 0.0
-            else:
-                z = (obs_val - mean) / std
-                # Survival function for one-tailed
-                p_val = stats.norm.sf(abs(z))
-        else:
-            raise ConfigurationError(f"Unknown p-value method: {method}")
-        
-        p_values.append({
-            'jurisdiction': row['jurisdiction'],
-            'observed_statistic': obs_val,
-            'p_value': p_val
-        })
+def calculate_vif_for_predictors(df: pd.DataFrame, predictors: List[str]) -> Dict[str, float]:
+    """
+    Calculate Variance Inflation Factor for given predictors.
+    """
+    if not predictors:
+        return {}
+    
+    # Ensure all predictors exist
+    available = [p for p in predictors if p in df.columns]
+    if len(available) < 2:
+        return {p: 1.0 for p in predictors} # No collinearity possible with < 2 vars
 
-    result_df = pd.DataFrame(p_values)
-    return result_df
+    from scipy.linalg import inv
+    
+    # Simple VIF calculation: VIF_j = 1 / (1 - R_j^2)
+    # where R_j^2 is the R-squared of regressing predictor j on all other predictors
+    vifs = {}
+    X = df[available].values
+    
+    for i, col_name in enumerate(available):
+        y = X[:, i]
+        X_other = np.delete(X, i, axis=1)
+        
+        # Add intercept
+        X_other_with_intercept = np.ones((X_other.shape[0], X_other.shape[1] + 1))
+        X_other_with_intercept[:, 1:] = X_other
+        
+        try:
+            # OLS: beta = (X'X)^-1 X'y
+            XtX = X_other_with_intercept.T @ X_other_with_intercept
+            if np.linalg.det(XtX) == 0:
+                vifs[col_name] = float('inf')
+                continue
+            
+            beta = np.linalg.solve(XtX, X_other_with_intercept.T @ y)
+            y_pred = X_other_with_intercept @ beta
+            
+            ss_res = np.sum((y - y_pred) ** 2)
+            ss_tot = np.sum((y - np.mean(y)) ** 2)
+            r_squared = 1 - (ss_res / ss_tot)
+            
+            vif = 1 / (1 - r_squared) if r_squared < 1 else float('inf')
+            vifs[col_name] = vif
+        except np.linalg.LinAlgError:
+            vifs[col_name] = float('inf')
+    
+    return vifs
+
+# --- NEW: Sensitivity Analysis Implementation ---
+
+def load_sensitivity_thresholds(config_path: str) -> Dict[str, Any]:
+    """
+    Load sensitivity thresholds from a YAML configuration file.
+    Expected structure:
+    primary_threshold: 0.005 (0.5%)
+    sweep_thresholds: [0.0001, 0.0005, 0.001] (0.01%, 0.05%, 0.1%)
+    """
+    path = Path(config_path)
+    if not path.exists():
+        # Create default if missing, but log warning
+        logger.warning(f"Config {config_path} not found. Using defaults.")
+        return {
+            "primary_threshold": 0.005,
+            "sweep_thresholds": [0.0001, 0.0005, 0.001]
+        }
+    
+    with open(path, 'r') as f:
+        config = yaml.safe_load(f)
+    
+    # Validate required keys
+    if "primary_threshold" not in config:
+        raise ConfigurationError("primary_threshold missing in sensitivity config")
+    if "sweep_thresholds" not in config:
+        raise ConfigurationError("sweep_thresholds missing in sensitivity config")
+        
+    return config
+
+def run_sensitivity_analysis(
+    discrepancies: pd.DataFrame,
+    null_dist_nb: np.ndarray,
+    null_dist_perm: np.ndarray,
+    thresholds: Dict[str, Any]
+) -> Dict[str, Any]:
+    """
+    Run sensitivity analysis comparing Negative Binomial and Permutation models
+    across different thresholds.
+    
+    Returns a dictionary containing:
+    - primary_results: Results at primary threshold
+    - sweep_results: Results across sweep thresholds
+    - stability_metrics: Variation in flagged counts
+    """
+    primary_thresh = thresholds['primary_threshold']
+    sweep_threshes = thresholds['sweep_thresholds']
+    
+    results = {
+        "primary_threshold": primary_thresh,
+        "sweep_thresholds": sweep_threshes,
+        "primary_results": {},
+        "sweep_results": {
+            "nb_model": [],
+            "perm_model": []
+        },
+        "stability_metrics": {}
+    }
+
+    # Helper to count flagged jurisdictions
+    def count_flagged(df: pd.DataFrame, thresh: float, col: str = 'p_value') -> int:
+        return int((df[col] < thresh).sum())
+
+    # --- 1. Primary Threshold Analysis ---
+    logger.info(f"Running analysis at primary threshold: {primary_thresh}")
+    
+    # Calculate p-values for both models (assuming we have pre-calculated p-values or do it here)
+    # For this task, we assume discrepancies has 'p_value_nb' and 'p_value_perm' columns 
+    # OR we calculate them on the fly if not present.
+    # Since the task says "Compare NB vs Perm", we need to run the test logic.
+    
+    # If columns don't exist, we calculate them now based on the null distributions provided
+    if 'p_value_nb' not in discrepancies.columns:
+        obs_vals = discrepancies['discrepancy_pct'].values
+        p_vals_nb = []
+        for obs in obs_vals:
+            count = np.sum(np.abs(null_dist_nb) >= np.abs(obs))
+            p_vals_nb.append(count / len(null_dist_nb))
+        discrepancies['p_value_nb'] = p_vals_nb
+
+    if 'p_value_perm' not in discrepancies.columns:
+        obs_vals = discrepancies['discrepancy_pct'].values
+        p_vals_perm = []
+        for obs in obs_vals:
+            count = np.sum(np.abs(null_dist_perm) >= np.abs(obs))
+            p_vals_perm.append(count / len(null_dist_perm))
+        discrepancies['p_value_perm'] = p_vals_perm
+
+    # Primary Counts
+    nb_primary_flagged = count_flagged(discrepancies, primary_thresh, 'p_value_nb')
+    perm_primary_flagged = count_flagged(discrepancies, primary_thresh, 'p_value_perm')
+    
+    results["primary_results"] = {
+        "threshold": primary_thresh,
+        "nb_flagged_count": nb_primary_flagged,
+        "perm_flagged_count": perm_primary_flagged,
+        "total_jurisdictions": len(discrepancies)
+    }
+
+    # --- 2. Sensitivity Sweep ---
+    logger.info(f"Running sensitivity sweep across {len(sweep_threshes)} thresholds")
+    
+    nb_sweep_data = []
+    perm_sweep_data = []
+    
+    for thresh in sweep_threshes:
+        nb_count = count_flagged(discrepancies, thresh, 'p_value_nb')
+        perm_count = count_flagged(discrepancies, thresh, 'p_value_perm')
+        
+        nb_sweep_data.append({"threshold": thresh, "flagged": nb_count})
+        perm_sweep_data.append({"threshold": thresh, "flagged": perm_count})
+    
+    results["sweep_results"]["nb_model"] = nb_sweep_data
+    results["sweep_results"]["perm_model"] = perm_sweep_data
+
+    # --- 3. Stability Metrics ---
+    # Calculate variation (standard deviation of flagged counts) across sweep
+    nb_counts = [d['flagged'] for d in nb_sweep_data]
+    perm_counts = [d['flagged'] for d in perm_sweep_data]
+    
+    results["stability_metrics"] = {
+        "nb_std_variation": float(np.std(nb_counts)) if nb_counts else 0.0,
+        "perm_std_variation": float(np.std(perm_counts)) if perm_counts else 0.0,
+        "nb_range": [min(nb_counts), max(nb_counts)] if nb_counts else [0, 0],
+        "perm_range": [min(perm_counts), max(perm_counts)] if perm_counts else [0, 0]
+    }
+
+    return results
+
+def generate_sensitivity_report(
+    analysis_results: Dict[str, Any],
+    output_path: str
+) -> None:
+    """
+    Generate a markdown report documenting the sensitivity analysis.
+    """
+    report_lines = [
+        "# Sensitivity Analysis Report",
+        "",
+        f"**Generated:** {datetime.now().isoformat()}",
+        "",
+        "## Overview",
+        "This report details the variation in flagged jurisdictions across different significance thresholds, comparing the Negative Binomial (NB) and Permutation null models.",
+        "",
+        f"## Primary Threshold ({analysis_results['primary_threshold']:.4f})",
+        "",
+        f"- **NB Model Flagged:** {analysis_results['primary_results']['nb_flagged_count']}",
+        f"- **Permutation Model Flagged:** {analysis_results['primary_results']['perm_flagged_count']}",
+        f"- **Total Jurisdictions:** {analysis_results['primary_results']['total_jurisdictions']}",
+        "",
+        "## Sensitivity Sweep",
+        "",
+        "### Negative Binomial Model",
+        "| Threshold | Flagged Count |",
+        "|-----------|---------------|"
+    ]
+    
+    for item in analysis_results['sweep_results']['nb_model']:
+        report_lines.append(f"| {item['threshold']:.5f} | {item['flagged']} |")
+    
+    report_lines.extend([
+        "",
+        "### Permutation Model",
+        "| Threshold | Flagged Count |",
+        "|-----------|---------------|"
+    ])
+    
+    for item in analysis_results['sweep_results']['perm_model']:
+        report_lines.append(f"| {item['threshold']:.5f} | {item['flagged']} |")
+    
+    report_lines.extend([
+        "",
+        "## Stability Metrics",
+        "",
+        f"- **NB Model Std Dev:** {analysis_results['stability_metrics']['nb_std_variation']:.2f}",
+        f"- **Permutation Model Std Dev:** {analysis_results['stability_metrics']['perm_std_variation']:.2f}",
+        f"- **NB Range:** {analysis_results['stability_metrics']['nb_range']}",
+        f"- **Permutation Range:** {analysis_results['stability_metrics']['perm_range']}",
+        "",
+        "## Conclusion",
+        "The analysis compares the stability of flagged anomalies under varying significance thresholds. A high standard deviation indicates that the number of flagged jurisdictions is highly sensitive to the chosen threshold, suggesting potential instability in the detection of statistical discrepancies.",
+        ""
+    ])
+    
+    with open(output_path, 'w') as f:
+        f.write('\n'.join(report_lines))
+
+def generate_stability_plot(
+    analysis_results: Dict[str, Any],
+    output_path: str
+) -> None:
+    """
+    Generate a plot showing the stability of flagged counts across thresholds.
+    """
+    plt.figure(figsize=(10, 6))
+    
+    nb_thresholds = [d['threshold'] for d in analysis_results['sweep_results']['nb_model']]
+    nb_counts = [d['flagged'] for d in analysis_results['sweep_results']['nb_model']]
+    
+    perm_thresholds = [d['threshold'] for d in analysis_results['sweep_results']['perm_model']]
+    perm_counts = [d['flagged'] for d in analysis_results['sweep_results']['perm_model']]
+    
+    plt.plot(nb_thresholds, nb_counts, marker='o', label='Negative Binomial', color='blue')
+    plt.plot(perm_thresholds, perm_counts, marker='s', label='Permutation', color='red')
+    
+    plt.xlabel('Threshold (p-value)')
+    plt.ylabel('Number of Flagged Jurisdictions')
+    plt.title('Sensitivity Analysis: Flagged Jurisdictions vs Threshold')
+    plt.xscale('log') # Log scale for thresholds usually better for p-values
+    plt.legend()
+    plt.grid(True, which="both", ls="-", alpha=0.2)
+    
+    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    plt.close()
+    logger.info(f"Stability plot saved to {output_path}")
 
 def run_analysis(
-    processed_data_path: str,
-    null_distribution_path: str,
-    output_path: str
-) -> pd.DataFrame:
+    discrepancies: pd.DataFrame,
+    null_dist_nb: np.ndarray,
+    null_dist_perm: np.ndarray,
+    config_path: str,
+    output_dir: str
+) -> Dict[str, Any]:
     """
-    Orchestrates the full analysis: loading data, running tests, calculating p-values, and saving results.
+    Main function to orchestrate sensitivity analysis and reporting.
     """
-    logger.info(f"Starting analysis with processed data: {processed_data_path}")
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    # Load data
-    df = load_processed_discrepancies(processed_data_path)
-    null_dist = load_null_distribution(null_distribution_path)
+    logger.info("Starting Sensitivity Analysis")
     
-    # Global tests
-    observed_vals = df['discrepancy_abs'].values
-    ad_stat, ad_p = anderson_darling_test(observed_vals, null_dist)
-    ks_stat, ks_p = kolmogorov_smirnov_test(observed_vals, null_dist)
+    # 1. Load Thresholds
+    thresholds = load_sensitivity_thresholds(config_path)
     
-    logger.info(f"Global AD Test: stat={ad_stat:.4f}, p={ad_p:.4f}")
-    logger.info(f"Global KS Test: stat={ks_stat:.4f}, p={ks_p:.4f}")
+    # 2. Run Analysis
+    results = run_sensitivity_analysis(discrepancies, null_dist_nb, null_dist_perm, thresholds)
     
-    # Jurisdiction-level p-values
-    jurisdiction_results = calculate_jurisdiction_p_values(df, null_dist)
+    # 3. Generate Reports
+    report_path = output_dir / "sensitivity_report.md"
+    generate_sensitivity_report(results, str(report_path))
     
-    # Save results
-    os.makedirs(os.path.dirname(output_path) if os.path.dirname(output_path) else '.', exist_ok=True)
-    jurisdiction_results.to_csv(output_path, index=False)
-    logger.info(f"Jurisdiction p-values saved to {output_path}")
+    plot_path = output_dir / "stability_plot.png"
+    generate_stability_plot(results, str(plot_path))
     
-    return jurisdiction_results
-
-def calculate_vif_for_predictors(df: pd.DataFrame, predictor_cols: List[str]) -> Dict[str, float]:
-    """
-    Calculate Variance Inflation Factor (VIF) for given predictors.
-    SC-006: If predictors exist, check VIF > 5.
-    """
-    if not predictor_cols or len(predictor_cols) < 2:
-        logger.info("Not enough predictors to calculate VIF.")
-        return {}
+    # 4. Save Results JSON
+    json_path = output_dir / "sensitivity_results.json"
+    with open(json_path, 'w') as f:
+        json.dump(results, f, indent=2)
     
-    from statsmodels.stats.outliers_influence import variance_inflation_factor
-    from statsmodels.tools.tools import add_constant
-    
-    # Filter to available columns
-    available_cols = [c for c in predictor_cols if c in df.columns]
-    if len(available_cols) < 2:
-        logger.warning(f"Only {len(available_cols)} predictors found in data. Cannot calculate VIF.")
-        return {}
-    
-    X = df[available_cols]
-    X = add_constant(X)
-    
-    vif_data = {}
-    for i, col in enumerate(available_cols):
-        vif = variance_inflation_factor(X.values, i+1) # +1 because of constant
-        vif_data[col] = vif
-        if vif > 5:
-            logger.warning(f"High VIF detected for {col}: {vif:.2f}")
-    
-    return vif_data
+    logger.info(f"Sensitivity analysis complete. Report: {report_path}, Plot: {plot_path}")
+    return results
 
 def main():
+    """
+    CLI Entry point for Sensitivity Analysis.
+    Usage: python code/analysis.py --input data/processed/analysis_results.json --config config/sensitivity_thresholds.yaml --output-dir data/processed/
+    """
     import argparse
-    parser = argparse.ArgumentParser(description="Run statistical analysis on election discrepancies.")
-    parser.add_argument("--processed-data", required=True, help="Path to processed discrepancies CSV")
-    parser.add_argument("--null-dist", required=True, help="Path to null distribution JSON/NPY")
-    parser.add_argument("--output", required=True, help="Path to save jurisdiction p-values CSV")
-    parser.add_argument("--method", default="empirical_cdf", choices=["empirical_cdf", "gaussian_fit"], help="Method for p-value calculation")
+    
+    parser = argparse.ArgumentParser(description="Run Sensitivity Analysis")
+    parser.add_argument('--input', type=str, required=True, help="Path to processed discrepancies (parquet/csv)")
+    parser.add_argument('--null-nb', type=str, required=True, help="Path to NB null distribution JSON")
+    parser.add_argument('--null-perm', type=str, required=True, help="Path to Permutation null distribution JSON")
+    parser.add_argument('--config', type=str, default='config/sensitivity_thresholds.yaml', help="Path to sensitivity config")
+    parser.add_argument('--output-dir', type=str, default='data/processed', help="Output directory for reports")
     
     args = parser.parse_args()
     
     # Setup logging
-    setup_logger = get_logger(__name__)
-    setup_logger.info("Running main analysis pipeline.")
+    setup_logging()
     
-    # We need to call the run_analysis function which uses the specific method
-    # But run_analysis doesn't take method arg. Let's adapt or call calculate directly.
-    # Re-implementing main to be flexible:
-    
-    df = load_processed_discrepancies(args.processed_data)
-    null_dist = load_null_distribution(args.null_dist)
-    
-    results = calculate_jurisdiction_p_values(df, null_dist, method=args.method)
-    
-    os.makedirs(os.path.dirname(args.output) if os.path.dirname(args.output) else '.', exist_ok=True)
-    results.to_csv(args.output, index=False)
-    print(f"Analysis complete. Results saved to {args.output}")
+    try:
+        # Load Data
+        logger.info(f"Loading discrepancies from {args.input}")
+        discrepancies = load_processed_discrepancies(args.input)
+        
+        logger.info(f"Loading NB null distribution from {args.null_nb}")
+        nb_data = load_null_distribution(args.null_nb)
+        # Assuming the JSON has a key 'samples' or 'distribution'
+        null_dist_nb = np.array(nb_data.get('distribution', nb_data.get('samples', [])))
+        
+        logger.info(f"Loading Perm null distribution from {args.null_perm}")
+        perm_data = load_null_distribution(args.null_perm)
+        null_dist_perm = np.array(perm_data.get('distribution', perm_data.get('samples', [])))
+        
+        if len(null_dist_nb) == 0 or len(null_dist_perm) == 0:
+            raise ValueError("Null distributions are empty. Check input files.")
+        
+        # Run Analysis
+        results = run_analysis(discrepancies, null_dist_nb, null_dist_perm, args.config, args.output_dir)
+        
+        print(f"Analysis complete. Results saved to {args.output_dir}")
+        
+    except Exception as e:
+        logger.error(f"Analysis failed: {e}", exc_info=True)
+        raise
 
 if __name__ == "__main__":
     main()

@@ -1,91 +1,89 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: HCP Dataset Schema
-description: Schema for the raw and processed HCP fMRI and behavioral dataset artifacts.
+$schema: http://json-schema.org/draft-07/schema#
+title: Dataset Schema
+description: Schema for HCP fMRI and behavioral datasets downloaded and stored in data/raw/
 type: object
-required:
-  - metadata
-  - subjects
 properties:
-  metadata:
-    type: object
-    required:
-      - version
-      - source
-      - download_date
-      - checksums
-    properties:
-      version:
-        type: string
-        description: Schema version (e.g., "1.0.0")
-      source:
-        type: string
-        description: Original data source (e.g., "HCP 1200 Release")
-      download_date:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of download
-      checksums:
-        type: object
-        description: MD5 or SHA256 checksums for raw files
-        additionalProperties:
-          type: string
+  dataset_id:
+    type: string
+    description: Unique identifier for the dataset version (e.g., "HCP_1200_Release_2")
+  source_url:
+    type: string
+    format: uri
+    description: Original URL from which the dataset was downloaded
+  download_timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when the dataset was downloaded
   subjects:
     type: array
     items:
       type: object
+      properties:
+        subject_id:
+          type: string
+          description: HCP subject ID (e.g., "100307")
+        fMRI_paths:
+          type: object
+          properties:
+            resting_state_1:
+              type: string
+              format: uri
+              description: Path to first resting-state fMRI NIfTI file (relative to data/raw/)
+            resting_state_2:
+              type: string
+              format: uri
+              description: Path to second resting-state fMRI NIfTI file
+            task_mfag:
+              type: string
+              format: uri
+              description: Path to task-based fMRI file if available
+          required:
+            - resting_state_1
+        behavioral_data:
+          type: object
+          properties:
+            dsst_score:
+              type: number
+              description: Digit Symbol Substitution Test score
+            other_metrics:
+              type: object
+              additionalProperties: true
+              description: Additional behavioral metrics
+          required:
+            - dsst_score
+        checksums:
+          type: object
+          properties:
+            md5:
+              type: string
+              pattern: "^[a-f0-9]{32}$"
+              description: MD5 checksum of the downloaded archive
+            sha256:
+              type: string
+              pattern: "^[a-f0-9]{64}$"
+              description: SHA256 checksum of the downloaded archive
+          required:
+            - md5
       required:
         - subject_id
         - fMRI_paths
         - behavioral_data
-      properties:
-        subject_id:
-          type: string
-          description: Unique subject identifier (e.g., "100307")
-        fMRI_paths:
-          type: object
-          required:
-            - resting_state_rh
-            - resting_state_lh
-          properties:
-            resting_state_rh:
-              type: string
-              format: uri
-              description: Path to right hemisphere fMRI NIfTI file
-            resting_state_lh:
-              type: string
-              format: uri
-              description: Path to left hemisphere fMRI NIfTI file
-            task_data:
-              type: array
-              items:
-                type: string
-                format: uri
-              description: Optional list of task-based fMRI file paths
-        behavioral_data:
-          type: object
-          required:
-            - DSST_score
-          properties:
-            DSST_score:
-              type: number
-              description: Digit Symbol Substitution Test score
-            age:
-              type: integer
-              description: Age in years
-            sex:
-              type: string
-              enum: ["Male", "Female"]
-            education:
-              type: integer
-              description: Years of education
-        qc_metrics:
-          type: object
-          properties:
-            fd_mean:
-              type: number
-            fd_max:
-              type: number
-            motion_excluded:
-              type: boolean
-              description: True if subject was excluded due to motion
-additionalProperties: false
+        - checksums
+  metadata:
+    type: object
+    properties:
+      total_subjects:
+        type: integer
+        minimum: 1
+      download_version:
+        type: string
+      notes:
+        type: string
+    required:
+      - total_subjects
+required:
+  - dataset_id
+  - source_url
+  - download_timestamp
+  - subjects
+  - metadata

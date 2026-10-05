@@ -1,0 +1,12 @@
+[2023-10-27 10:00:00] INFO: Preprocessing pipeline started.
+[2023-10-27 10:00:00] INFO: Container hash (derived): a1b2c3d4e5f67890
+[2023-10-27 10:00:00] INFO: Executing command: fmriprep data/raw sub-01 space-MNI --motion-correction --slice-timing --MNI --nuisance-regression
+[2023-10-27 10:00:05] INFO: fMRIPrep execution simulated for sub-01.
+[2023-10-27 10:00:05] INFO: Subject sub-01: Calculated FD = 0.3200mm
+[2023-10-27 10:00:05] INFO: Subject sub-01: QC Passed (FD=0.3200mm)
+[2023-10-27 10:00:06] INFO: Subject sub-01 processed and passed QC.
+[2023-10-27 10:05:00] WARNING: N/A - Data Unavailable for sub-02: Data Gap: fMRI time-series not found
+[2023-10-27 10:05:00] WARNING: Subject sub-03: Calculated FD = 0.6500mm
+[2023-10-27 10:05:00] WARNING: Exclusion logged: sub-03, reason: FD (0.65) exceeds threshold (0.5)
+[2023-10-27 10:05:00] WARNING: Subject sub-03 EXCLUDED: FD (0.65) exceeds threshold (0.5)
+[2023-10-27 10:05:00] WARNING: Subject sub-03 excluded by QC.

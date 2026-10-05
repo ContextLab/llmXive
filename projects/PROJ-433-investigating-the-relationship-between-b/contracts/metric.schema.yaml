@@ -1,69 +1,87 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: Network Reconfigurability Metric Schema
-description: Schema for computed network reconfigurability metrics per subject.
+$schema: http://json-schema.org/draft-07/schema#
+title: Metric Schema
+description: Schema for network reconfigurability metrics computed per subject
 type: object
-required:
-  - subject_id
-  - metrics
-  - computation_details
 properties:
   subject_id:
     type: string
-    description: Unique subject identifier matching dataset.schema.yaml
+    description: HCP subject ID corresponding to the computed metrics
+  computation_timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when metrics were computed
+  parameters:
+    type: object
+    description: Parameters used for metric computation
+    properties:
+      window_size:
+        type: integer
+        minimum: 1
+        description: Sliding window size in timepoints
+      step_size:
+        type: integer
+        minimum: 1
+        description: Step size between windows in timepoints
+      community_detection_algorithm:
+        type: string
+        enum:
+          - louvain
+          - leiden
+        description: Algorithm used for community detection
+      random_seed:
+        type: integer
+        description: Random seed used for reproducibility
+    required:
+      - window_size
+      - step_size
+      - community_detection_algorithm
+      - random_seed
   metrics:
     type: object
-    required:
-      - transition_count
-      - modularity
     properties:
       transition_count:
         type: integer
         minimum: 0
-        description: Number of community state transitions detected
-      modularity:
+        description: Number of community state transitions observed
+      transition_rate:
         type: number
-        description: Average modularity score across windows
-      dwell_time:
+        minimum: 0.0
+        maximum: 1.0
+        description: Rate of transitions per window
+      community_stability:
         type: number
-        description: Average dwell time in each community state
-      flexibility:
+        minimum: 0.0
+        maximum: 1.0
+        description: Measure of community stability over time
+      modularity_q:
         type: number
-        description: Average node flexibility metric
-  computation_details:
-    type: object
+        description: Modularity Q value from community detection
     required:
-      - window_size
-      - step_size
-      - algorithm
-      - seed
+      - transition_count
+  qc_metrics:
+    type: object
     properties:
-      window_size:
+      framewise_displacement:
+        type: number
+        minimum: 0.0
+        description: Mean framewise displacement for this subject
+      excluded_windows:
         type: integer
-        description: Sliding window size in TRs
-      step_size:
-        type: integer
-        description: Step size in TRs
-      algorithm:
-        type: string
-        enum: ["louvain", "leiden"]
-        description: Community detection algorithm used
-      seed:
-        type: integer
-        description: Random seed used for reproducibility
-      n_iterations:
-        type: integer
-        description: Number of Louvain iterations performed
+        minimum: 0
+        description: Number of windows excluded due to motion artifacts
       convergence_status:
         type: string
-        enum: ["converged", "max_iter_reached", "failed"]
-        description: Convergence status of the algorithm
-  qc_status:
-    type: object
-    properties:
-      motion_excluded:
-        type: boolean
-      fd_mean:
-        type: number
-      exclusion_reason:
-        type: string
-additionalProperties: false
+        enum:
+          - converged
+          - failed_max_iter
+          - failed_retry_limit
+        description: Status of community detection algorithm convergence
+    required:
+      - framewise_displacement
+      - convergence_status
+required:
+  - subject_id
+  - computation_timestamp
+  - parameters
+  - metrics
+  - qc_metrics

@@ -75,14 +75,31 @@ def check_dataset_status(dataset_name: str) -> Dict[str, Any]:
     dataset_path = RAW_DATA_DIR / dataset_name
     
     if not dataset_path.exists():
+        logger.warning(f"Dataset status check: {dataset_name} not found at {dataset_path}")
         return {
             'status': 'MISSING',
             'path': str(dataset_path),
             'reason': 'Dataset directory does not exist'
         }
     
+    logger.info(f"Dataset status check: {dataset_name} found at {dataset_path}")
     return {
         'status': 'PRESENT',
         'path': str(dataset_path),
         'reason': 'Dataset directory exists'
     }
+
+def log_download_start(subject_id: str, url: str) -> None:
+    """Log the start of a download operation."""
+    logger = setup_logger()
+    logger.info(f"Starting download for subject {subject_id} from {url}")
+
+def log_download_complete(subject_id: str, file_path: Path) -> None:
+    """Log the successful completion of a download."""
+    logger = setup_logger()
+    logger.info(f"Download completed for subject {subject_id}: {file_path}")
+
+def log_download_failure(subject_id: str, error: str) -> None:
+    """Log a download failure."""
+    logger = setup_logger()
+    logger.error(f"Download failed for subject {subject_id}: {error}")

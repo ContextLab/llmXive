@@ -1,97 +1,68 @@
-# Environment Configuration Setup
+# Environment Configuration Guide
 
-This document describes how to configure environment variables for the Statistical Analysis of Sentiment Drift project.
+This project uses environment variables to manage sensitive API keys and tokens.
+Follow the steps below to configure your local environment.
 
-## Prerequisites
+## 1. Create the Environment File
 
-- Python 3.11+
-- Virtual environment activated (see `T003` setup instructions)
+1. Locate the `code/.env.example` file in the project root.
+2. Copy it to a new file named `.env` in the same directory:
+ ```bash
+ cp code/.env.example.env
+ ```
+ *Note: Depending on your project structure, the example might be in the root. Adjust the path if necessary.*
 
-## API Keys Required
+3. Open `.env` in a text editor and replace the placeholder values with your actual API keys.
+
+## 2. Required Variables
 
 ### FRED API Key (Required)
+The Federal Reserve Economic Data (FRED) API key is required to fetch macroeconomic data.
 
-The Federal Reserve Economic Data (FRED) API is used to fetch macroeconomic indicators.
+- **Variable Name**: `FRED_API_KEY`
+- **How to get it**:
+ 1. Visit [https://fred.stlouisfed.org/docs/api/api_key.html](https://fred.stlouisfed.org/docs/api/api_key.html).
+ 2. Register for a free account if you don't have one.
+ 3. Generate an API key.
+- **Usage**: Paste the key into the `.env` file.
 
-1. Go to [FRED API Registration](https://fred.stlouisfed.org/docs/api/api_key.html)
-2. Register with your email address
-3. Copy your API key
+## 3. Optional Variables
 
 ### HuggingFace Token (Optional)
+Required if you plan to download specific models or datasets from HuggingFace that require authentication.
 
-Used for accessing HuggingFace datasets and models.
-
-1. Go to [HuggingFace Settings](https://huggingface.co/settings/tokens)
-2. Create a new token with `read` permissions
-3. Copy your token
+- **Variable Name**: `HF_TOKEN`
+- **How to get it**:
+ 1. Visit [https://huggingface.co/settings/tokens](https://huggingface.co/settings/tokens).
+ 2. Create a new token with read permissions.
+- **Usage**: Paste the token into the `.env` file.
 
 ### GDELT API Key (Optional)
+Required for accessing GDELT data if the specific endpoint used requires authentication (though many GDELT endpoints are open).
 
-GDELT typically doesn't require an API key for basic access, but some advanced features may require one.
+- **Variable Name**: `GDELT_API_KEY`
+- **How to get it**: Check the [GDELT Documentation](http://api.gdeltproject.org/api/v2/doc/doc) for current requirements.
+- **Usage**: Paste the key into the `.env` file.
 
-## Configuration Steps
+## 4. Verification
 
-1. **Copy the example environment file**:
- ```bash
- cp.env.example.env
- ```
+After setting up your `.env` file, you can verify the configuration by running the configuration script:
 
-2. **Edit the `.env` file** with your actual API keys:
- ```bash
- nano.env
- # or
- vim.env
- ```
+```bash
+cd code
+python config.py
+```
 
- Replace the placeholder values:
- ```
- FRED_API_KEY=your_actual_fred_key
- HF_TOKEN=your_actual_hf_token
- GDELT_API_KEY=your_actual_gdelt_key
- ```
+Expected output:
+```text
+Checking environment configuration...
+✓.env file loaded successfully.
+✓ FRED_API_KEY is configured.
+✓ Environment validation complete.
+```
 
-3. **Verify the configuration**:
- ```bash
- python code/config.py
- ```
+## 5. Security Note
 
- Expected output if successful:
- ```
- Loading environment configuration...
- ✓ Loaded environment from /path/to/project/.env
- ✓ Environment validation passed
- FRED_API_KEY: ********** (set)
- HF_TOKEN: ********** (set)
- GDELT_API_KEY: not set (optional)
- ```
-
-## Security Notes
-
-- **Never commit `.env` files to version control**
-- The `.env` file is already listed in `.gitignore`
-- Use environment variables for sensitive data, never hardcode credentials
-- If you accidentally commit a `.env` file, remove it immediately from git history
-
-## Troubleshooting
-
-### "Required environment variables are missing"
-
-This error occurs when `FRED_API_KEY` is not set. Create or update your `.env` file with a valid FRED API key.
-
-### "No.env file found"
-
-Ensure you copied `.env.example` to `.env` in the project root directory.
-
-### API rate limits
-
-If you encounter rate limit errors, consider:
-- Reducing the frequency of API calls
-- Implementing caching for frequently accessed data
-- Contacting the service providers for higher rate limits
-
-## Related Tasks
-
-- `T007`: Setup environment configuration management
-- `T008`: Create data ingestion skeleton with FRED and HuggingFace clients
-- `T016`: Implement FRED data fetcher
-- `T017`: Implement GDELT sentiment fetcher
+The `.env` file contains sensitive credentials. **Never commit this file to version control.**
+The project includes a `.gitignore` rule to prevent accidental commits of `.env`.
+Always use `code/.env.example` as the template for new environments.

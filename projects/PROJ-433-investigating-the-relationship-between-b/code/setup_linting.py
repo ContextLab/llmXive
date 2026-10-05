@@ -1,7 +1,6 @@
 """
-Script to initialize linting and formatting configuration.
-This script ensures that pyproject.toml contains the necessary
-configurations for Black and Ruff, and installs the tools if missing.
+Setup script to configure and verify linting (ruff) and formatting (black) tools.
+This script ensures configuration files exist and runs initial checks.
 """
 import os
 import sys
@@ -9,99 +8,107 @@ import subprocess
 from pathlib import Path
 
 def ensure_config_exists():
-    """Ensure pyproject.toml exists with correct configuration."""
+    """Ensure pyproject.toml exists with ruff/black configuration."""
     root = Path(__file__).parent.parent
     config_file = root / "pyproject.toml"
 
     if not config_file.exists():
-        print("Error: pyproject.toml not found in project root.")
-        print("Please run this script from the project root or ensure the file exists.")
-        sys.exit(1)
-
-    content = config_file.read_text()
-
-    # Basic validation checks
-    required_sections = ["[tool.black]", "[tool.ruff]", "[tool.pytest.ini_options]"]
-    missing = []
-    for section in required_sections:
-        if section not in content:
-            missing.append(section)
-
-    if missing:
-        print(f"Warning: Missing sections in pyproject.toml: {missing}")
-        print("Please update pyproject.toml manually or regenerate it.")
+        print("ERROR: pyproject.toml not found in project root.")
+        print("Please run the setup task that creates the project structure and config.")
         return False
+
+    # Basic validation: check if [tool.ruff] and [tool.black] sections exist
+    content = config_file.read_text()
+    if "[tool.ruff]" not in content:
+        print("WARNING: [tool.ruff] section missing in pyproject.toml. Attempting to append defaults...")
+        with open(config_file, "a") as f:
+            f.write("\n[tool.ruff]\ntarget-version = 'py311'\nline-length = 88\nselect = ['E', 'W', 'F', 'I']\n")
+        print("Added default ruff config. Please review pyproject.toml.")
     
-    print("pyproject.toml validation passed.")
+    if "[tool.black]" not in content:
+        print("WARNING: [tool.black] section missing in pyproject.toml. Attempting to append defaults...")
+        with open(config_file, "a") as f:
+            f.write("\n[tool.black]\nline-length = 88\ntarget-version = ['py311']\n")
+        print("Added default black config. Please review pyproject.toml.")
+
     return True
 
 def install_tools():
     """Install ruff and black if not present."""
-    print("Checking for linting tools...")
-    
-    tools = [
-        ("ruff", "ruff"),
-        ("black", "black")
-    ]
-
-    for pkg, cmd in tools:
-        try:
-            subprocess.run([sys.executable, "-m", "pip", "show", pkg], 
-                           capture_output=True, check=True)
-            print(f"✓ {pkg} is installed.")
-        except subprocess.CalledProcessError:
-            print(f"Installing {pkg}...")
-            subprocess.run([sys.executable, "-m", "pip", "install", pkg], check=True)
-            print(f"✓ {pkg} installed.")
+    print("Checking/Installing linting tools...")
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "ruff", "black"])
+        print("Tools installed successfully.")
+        return True
+    except subprocess.CalledProcessError:
+        print("ERROR: Failed to install linting tools. Please check pip environment.")
+        return False
 
 def run_format_check():
-    """Run a dry-run check to ensure config is valid."""
-    print("\nRunning format check (dry run)...")
+    """Run black --check to verify formatting."""
+    print("Running Black format check...")
     try:
-        subprocess.run(
-            [sys.executable, "-m", "black", "--check", "--diff", "code/"],
-            check=False,
+        # Check all .py files in the code directory
+        result = subprocess.run(
+            ["black", "--check", "--diff", "code/"],
             capture_output=True,
             text=True
         )
-        # We don't fail here, just report status
-        print("Black configuration is valid.")
+        if result.returncode == 0:
+            print("✓ All files are formatted correctly.")
+            return True
+        else:
+            print("✗ Formatting issues found. Run 'black code/' to fix.")
+            print(result.stdout)
+            print(result.stderr)
+            return False
     except FileNotFoundError:
-        print("Black not found in PATH, skipping check.")
+        print("ERROR: 'black' command not found. Ensure it is installed.")
+        return False
 
 def run_lint_check():
-    """Run a dry-run check to ensure ruff config is valid."""
-    print("Running lint check (dry run)...")
+    """Run ruff to verify linting rules."""
+    print("Running Ruff lint check...")
     try:
-        subprocess.run(
-            [sys.executable, "-m", "ruff", "check", "code/"],
-            check=False,
+        result = subprocess.run(
+            ["ruff", "check", "code/"],
             capture_output=True,
             text=True
         )
-        print("Ruff configuration is valid.")
+        if result.returncode == 0:
+            print("✓ No linting issues found.")
+            return True
+        else:
+            print("✗ Linting issues found.")
+            print(result.stdout)
+            print(result.stderr)
+            return False
     except FileNotFoundError:
-        print("Ruff not found in PATH, skipping check.")
+        print("ERROR: 'ruff' command not found. Ensure it is installed.")
+        return False
 
 def main():
-    print("=== Linting & Formatting Setup ===")
-    root = Path(__file__).parent.parent
+    """Main entry point for setup_linting."""
+    print("--- Setting up Linting and Formatting ---")
     
-    # 1. Ensure config file exists and is valid
     if not ensure_config_exists():
-        print("Configuration validation failed. Please fix pyproject.toml.")
-        sys.exit(1)
+        return 1
 
-    # 2. Install tools
-    install_tools()
+    if not install_tools():
+        return 1
 
-    # 3. Run checks to verify configuration
-    run_format_check()
-    run_lint_check()
+    # Optional: Run checks immediately to verify setup
+    # Note: In a CI environment, these might be separate steps.
+    # Here we run them to confirm the configuration works.
+    format_ok = run_format_check()
+    lint_ok = run_lint_check()
 
-    print("\n=== Setup Complete ===")
-    print("To format code: python -m black code/")
-    print("To lint code:   python -m ruff check code/")
+    if format_ok and lint_ok:
+        print("\n✓ Linting and Formatting setup complete.")
+        return 0
+    else:
+        print("\n⚠ Setup complete, but checks found issues. Please fix them.")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

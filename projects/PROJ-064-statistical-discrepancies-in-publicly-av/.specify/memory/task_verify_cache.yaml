@@ -6,3 +6,20 @@ T029:
     Carlo loop or chunked\u2011processing logic that would produce the 10,000\u2011\
     iteration simulation and write the JSON file. Both the artifact and its behavior\
     \ are missing."
+T035:
+  c: false
+  h: d9bf204075980b2e9bc612c103f77d2476a0d2d71b1408fededfd69106124617
+  r: "The required artifact `data/processed/collinearity_report.json` does not exist,\
+    \ and the provided `code/analysis.py` contains no implementation for checking\
+    \ the config for \u201Cpopulation density\u201D or \u201Cprecinct size\u201D,\
+    \ computing VIF values, or writing the JSON report. The task\u2019s core functionality\
+    \ is therefore missing."
+T039:
+  c: false
+  h: 44484243f62f914a3f8aea2dec6aa94b3d7b19a1380ac67dc9205299ce85d321
+  r: "The repository contains a `config/sensitivity_thresholds.yaml` file, but `code/analysis.py`\
+    \ does not show any implementation that loads these thresholds, runs a sensitivity\
+    \ sweep, compares Negative Binomial vs. Permutation models, or writes a unified\
+    \ report/plot. Moreover, the required output files `data/processed/results.json`\
+    \ and `data/processed/sensitivity_report.md` are absent. The task\u2019s core\
+    \ requirements are therefore not satisfied."

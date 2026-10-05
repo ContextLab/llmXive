@@ -1,6 +1,7 @@
 """
-Module: 02_metric_edge_case_handler.py
-Purpose: Handle edge cases in metric extraction, specifically repo deletion/private status.
+Module: 02_metric_edge_case_handler
+Purpose: Handle edge cases in longitudinal metric extraction, specifically
+         repository deletion or privacy changes during the analysis window.
 """
 import os
 import sys
@@ -8,164 +9,197 @@ import csv
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-import time
 
-# Import existing utilities
+# Import from existing API surface
 from utils.github_client import GitHubClient, RepositoryNotFoundError, GitHubClientError
-from utils.logging_config import get_logger
+from utils.logging_config import get_logger, setup_logging
 
 # Constants
 LOG_PATH = Path("data/logs")
-METRICS_PATH = Path("data/processed")
-REPO_DELETION_LOG = LOG_PATH / "repo_deletion.log"
-METRICS_OUTPUT = METRICS_PATH / "metrics_longitudinal.csv"
+METRICS_PATH = Path("data/processed/metrics_longitudinal.csv")
+DELETION_LOG_PATH = LOG_PATH / "repo_deletion.log"
+
 
 def setup_output_directories():
-    """Ensure required directories exist."""
+    """Ensure all required output directories exist."""
     LOG_PATH.mkdir(parents=True, exist_ok=True)
-    METRICS_PATH.mkdir(parents=True, exist_ok=True)
+    METRICS_PATH.parent.mkdir(parents=True, exist_ok=True)
+
 
 def load_metrics_longitudinal() -> List[Dict[str, Any]]:
-    """Load metrics_longitudinal.csv if it exists."""
-    if not METRICS_OUTPUT.exists():
+    """
+    Load the metrics_longitudinal.csv file.
+    Returns a list of dictionaries representing rows.
+    """
+    if not METRICS_PATH.exists():
+        logging.error(f"Metrics file not found: {METRICS_PATH}")
         return []
-    
+
     rows = []
-    with open(METRICS_OUTPUT, 'r', newline='', encoding='utf-8') as f:
+    with open(METRICS_PATH, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
             rows.append(row)
     return rows
 
+
 def save_metrics_longitudinal(metrics: List[Dict[str, Any]]):
-    """Save updated metrics_longitudinal.csv."""
+    """
+    Save the updated metrics_longitudinal.csv file.
+    Preserves the original schema and order.
+    """
     if not metrics:
-        # Write empty file with headers if no data
-        fieldnames = ['block_id', 'latency_days', 'issue_id', 'lines_added', 'lines_deleted', 'window_start', 'window_end', 'repo_name']
-        with open(METRICS_OUTPUT, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
+        logging.warning("No metrics to save.")
         return
 
-    # Determine fieldnames from first row
     fieldnames = list(metrics[0].keys())
-    with open(METRICS_OUTPUT, 'w', newline='', encoding='utf-8') as f:
+    with open(METRICS_PATH, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(metrics)
 
-def save_exclusions_log(log_path: Path, entries: List[Dict[str, str]]):
-    """Save exclusion log entries."""
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(log_path, 'a', encoding='utf-8') as f:
-        for entry in entries:
-            # Format: repo_name, reason, timestamp
-            line = f"{entry['repo_name']},{entry['reason']},{entry['timestamp']}\n"
-            f.write(line)
 
-def handle_repo_deletion(metrics: List[Dict[str, Any]], github_client: GitHubClient) -> List[Dict[str, Any]]:
+def save_exclusions_log(deleted_repos: List[Dict[str, Any]]):
     """
-    Check if repos for each metric entry are still accessible.
-    If a repo returns 404 (not found) or is private/deleted, exclude it from analysis.
+    Save the list of deleted/private repositories to the deletion log.
+    Format: pair_id, repo_url, reason (404/forbidden)
+    """
+    with open(DELETION_LOG_PATH, 'a', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        # Write header if file is empty
+        if f.tell() == 0:
+            writer.writerow(['pair_id', 'repo_url', 'reason'])
+        
+        for item in deleted_repos:
+            writer.writerow([item['pair_id'], item['repo_url'], item['reason']])
+
+
+def handle_repo_deletion(repo_url: str, pair_id: str, logger: logging.Logger) -> bool:
+    """
+    Check if a repository is accessible.
     
     Args:
-        metrics: List of metric dictionaries
-        github_client: Initialized GitHubClient instance
+        repo_url: The GitHub URL of the repository.
+        pair_id: The ID of the matched pair for logging.
+        logger: Logger instance.
     
     Returns:
-        Filtered list of metrics excluding deleted/private repos
+        True if the repo is accessible, False if it is deleted/private.
     """
-    valid_metrics = []
-    excluded_entries = []
-    timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-    
-    # Group metrics by repo to minimize API calls
-    repo_check_cache = {}
-    
-    for metric in metrics:
-        repo_name = metric.get('repo_name')
-        if not repo_name:
-            # If repo_name is missing, we cannot verify, so keep for now (or exclude if strict)
-            # For safety, we keep it but log a warning
-            logging.warning(f"Missing repo_name for block_id {metric.get('block_id')}, keeping for manual review.")
-            valid_metrics.append(metric)
-            continue
+    try:
+        # Extract owner and repo name from URL
+        # Expected format: https://github.com/owner/repo.git or similar
+        parts = repo_url.rstrip('.git').split('/')
+        if len(parts) < 2:
+            logger.warning(f"Invalid repo URL format: {repo_url}")
+            return False
         
-        # Check cache first
-        if repo_name in repo_check_cache:
-            is_valid = repo_check_cache[repo_name]
-        else:
-            try:
-                # Attempt to fetch repo metadata to verify existence
-                # This will raise RepositoryNotFoundError if 404
-                repo_info = github_client.get_repo_info(repo_name)
-                is_valid = True
-            except RepositoryNotFoundError:
-                is_valid = False
-                excluded_entries.append({
-                    'repo_name': repo_name,
-                    'reason': 'Repository not found (404) or deleted',
-                    'timestamp': timestamp
-                })
-            except GitHubClientError as e:
-                # Handle other GitHub errors (rate limit, auth, etc.)
-                logging.error(f"GitHub API error for {repo_name}: {e}")
-                # If we can't verify due to API error, we keep the data but log
-                valid_metrics.append(metric)
-                continue
+        owner = parts[-2]
+        repo = parts[-1]
         
-        repo_check_cache[repo_name] = is_valid
+        client = GitHubClient()
+        # Check existence. The GitHubClient handles rate limiting and auth.
+        # We assume the client has a method to check repo existence or we can try to fetch metadata.
+        # Since the API surface shows GitHubClient, we'll try to access it.
+        # If the specific method isn't exposed in the summary, we rely on the client's internal logic
+        # to raise RepositoryNotFoundError or similar.
         
-        if is_valid:
-            valid_metrics.append(metric)
-        # else: excluded (already logged)
-    
-    # Save deletion log
-    if excluded_entries:
-        save_exclusions_log(REPO_DELETION_LOG, excluded_entries)
-        logging.info(f"Excluded {len(excluded_entries)} entries due to repo deletion/private status. Log: {REPO_DELETION_LOG}")
-    
-    return valid_metrics
+        # Attempt to get repo info to verify existence
+        # Note: The API surface says GitHubClient exists. We assume it has a way to check.
+        # If it doesn't have a specific 'exists' method, we might need to call a generic 'get_repo'
+        # and catch the error.
+        try:
+            client.get_repo(owner, repo)
+            return True
+        except RepositoryNotFoundError:
+            logger.info(f"Repository not found (404): {repo_url} (Pair: {pair_id})")
+            return False
+        except GitHubClientError as e:
+            # Handle other GitHub API errors (e.g., 403 Forbidden for private repos)
+            logger.info(f"Repository inaccessible (Error: {e}): {repo_url} (Pair: {pair_id})")
+            return False
+            
+    except Exception as e:
+        logger.error(f"Unexpected error checking repo {repo_url}: {e}")
+        # If we can't verify, we might conservatively exclude it to be safe,
+        # or log and keep it. The task says "Gracefully exclude... with 404 handling".
+        # We'll log it as inaccessible.
+        logger.warning(f"Treating repo {repo_url} as inaccessible due to error.")
+        return False
+
 
 def run_edge_case_handling():
-    """Main entry point for handling edge cases in metrics."""
+    """
+    Main pipeline for handling repository deletion/private status.
+    
+    1. Load metrics_longitudinal.csv.
+    2. Iterate through rows, checking repo accessibility.
+    3. If a repo is deleted/private (404/403), mark it for removal.
+    4. Log removed rows to data/logs/repo_deletion.log.
+    5. Save the cleaned metrics to data/processed/metrics_longitudinal.csv.
+    """
+    setup_logging()
+    logger = get_logger("edge_case_handler")
+    logger.info("Starting edge case handling for repository deletions.")
+    
     setup_output_directories()
-    logger = get_logger(__name__)
-    logger.info("Starting edge case handling for metric extraction (T024)...")
     
-    # Initialize GitHub client
-    try:
-        github_client = GitHubClient()
-    except Exception as e:
-        logger.error(f"Failed to initialize GitHub client: {e}")
-        # If we can't check repos, we proceed with existing data but log warning
-        logger.warning("Proceeding without repo deletion check due to GitHub client initialization failure.")
-        return
-    
-    # Load existing metrics
     metrics = load_metrics_longitudinal()
-    logger.info(f"Loaded {len(metrics)} metric entries from {METRICS_OUTPUT}")
-    
     if not metrics:
-        logger.info("No metrics to process. Exiting.")
+        logger.warning("No metrics found to process. Exiting.")
         return
     
-    # Handle repo deletion
-    valid_metrics = handle_repo_deletion(metrics, github_client)
+    logger.info(f"Loaded {len(metrics)} metrics rows.")
     
-    # Save updated metrics
-    save_metrics_longitudinal(valid_metrics)
-    logger.info(f"Saved {len(valid_metrics)} valid metric entries to {METRICS_OUTPUT}")
+    valid_metrics = []
+    deleted_repos = []
     
-    deleted_count = len(metrics) - len(valid_metrics)
-    if deleted_count > 0:
-        logger.info(f"Removed {deleted_count} entries due to repo deletion/private status.")
+    # We need to track unique repos to avoid redundant API calls if multiple pairs are from the same repo
+    # However, the task implies checking per pair or per repo. 
+    # Let's group by repo_url to minimize calls.
+    repo_status_cache = {}
+    
+    for row in metrics:
+        repo_url = row.get('repo_url')
+        pair_id = row.get('pair_id')
+        
+        if not repo_url:
+            logger.warning(f"Row {pair_id} missing repo_url. Keeping for now.")
+            valid_metrics.append(row)
+            continue
+        
+        if repo_url not in repo_status_cache:
+            is_accessible = handle_repo_deletion(repo_url, pair_id, logger)
+            repo_status_cache[repo_url] = is_accessible
+        else:
+            is_accessible = repo_status_cache[repo_url]
+        
+        if is_accessible:
+            valid_metrics.append(row)
+        else:
+            deleted_repos.append({
+                'pair_id': pair_id,
+                'repo_url': repo_url,
+                'reason': '404/Forbidden'
+            })
+    
+    # Save the deletion log
+    if deleted_repos:
+        save_exclusions_log(deleted_repos)
+        logger.info(f"Logged {len(deleted_repos)} deleted/private repositories.")
     else:
-        logger.info("No repos were deleted or private.")
+        logger.info("No deleted or private repositories found.")
+    
+    # Save the updated metrics
+    save_metrics_longitudinal(valid_metrics)
+    logger.info(f"Saved {len(valid_metrics)} valid metrics rows.")
+    logger.info("Edge case handling complete.")
+
 
 def main():
-    """CLI entry point."""
+    """Entry point for the script."""
     run_edge_case_handling()
+
 
 if __name__ == "__main__":
     main()

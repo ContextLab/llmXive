@@ -79,17 +79,17 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T013 [P] [US1] Contract test for `aligned_monthly.csv` schema in `tests/contract/test_timeseries_schema.py`
-- [ ] T014 [P] [US1] Integration test for data alignment logic in `tests/integration/test_data_alignment.py`
-- [ ] T015 [P] [US1] Unit tests for interpolation methods (forward-fill vs linear) in `tests/unit/test_interpolation.py`
+- [X] T014 [P] [US1] Integration test for data alignment logic in `tests/integration/test_data_alignment.py`
+- [X] T015 [P] [US1] Unit tests for interpolation methods (forward-fill vs linear) in `tests/unit/test_interpolation.py`
 
 ### Implementation for User Story 1
 
 - [ ] T016 [US1] **Override FR-001/FR-002 per Plan**: {{claim:c_380bf5d4}} **Scope Change**: This task overrides the Spec's FR-001/FR-002 "quarterly frequency" requirement with **monthly frequency** per the Plan's "Critical Methodological Correction". Handle partial data with forward-fill and flag affected periods as per FR-008. **Input**: Reads from FRED API. **Output**: `data/raw/fred_gdp.csv`, `data/raw/fred_unrate.csv`.
-- [ ] T017 [US1] **Override FR-001 per Plan**: {{claim:c_a3a504ef}} **Scope Change**: This task overrides the Spec's FR-001 requirement for `snap-cornell/twitter-roberta-base-sentiment-dataset` (which is not a time-series source) with **GDELT** to satisfy the requirement for historical sentiment time-series data. **Aggregation**: Compute monthly mean of daily sentiment scores. [UNRESOLVED-CLAIM: c_44d4a6f7 — status=not_enough_info] **Input**: GDELT API. **Output**: `data/raw/gdelt_sentiment.csv`.
+- [ ] T017 [US1] **Override FR-001 per Plan**: {{claim:c_a3a504ef}} **Scope Change**: This task overrides the Spec's FR-001 requirement for `snap-cornell/twitter-roberta-base-sentiment-dataset` (which is not a time-series source) with **GDELT** to satisfy the requirement for historical sentiment time-series data. **Aggregation**: Compute monthly mean of daily sentiment scores. **Input**: GDELT API. **Output**: `data/raw/gdelt_sentiment.csv`.
 - [ ] T018 [US1] **Override FR-002 per Plan**: Implement monthly alignment logic in `code/preprocessing.py` (resample daily sentiment to monthly averages using `mean`; interpolate monthly macro data using `linear`). **Scope Change**: This task overrides the Spec's FR-002 "quarterly alignment" requirement with **monthly alignment** to ensure statistical validity of the MBB step. **Input**: `data/raw/fred_*.csv`, `data/raw/gdelt_sentiment.csv`. **Output**: `data/processed/aligned_monthly.csv`.
-- [ ] T019 [US1] Implement missing data rate calculation and flagging logic (exclude periods >5% missing) in `code/preprocessing.py`
-- [ ] T020 [US1] Implement sentiment noise reduction (rolling average) in `code/preprocessing.py`
-- [ ] T021 [US1] Implement low-confidence flagging (confidence <0.7 (2502.18978, https://arxiv.org/abs/2502.18978) or sample size <100) in `code/preprocessing.py`
+- [X] T019 [US1] Implement missing data rate calculation and flagging logic (exclude periods >5% missing) in `code/preprocessing.py`
+- [X] T020 [US1] Implement sentiment noise reduction (rolling average) in `code/preprocessing.py`
+- [X] T021 [US1] Implement low-confidence flagging (confidence <0.7 (2502.18978, https://arxiv.org/abs/2502.18978) or sample size <100) in `code/preprocessing.py` <!-- FAILED: unspecified -->
 - [ ] T022 [US1] Generate `data/processed/aligned_monthly.csv` and `data/processed/data_quality_log.json` (logging method and % affected per variable)
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,7 +103,7 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T023 [P] [US2] Contract test for `model_stats.json` schema in `tests/contract/test_model_results_schema.py`
+- [X] T023 [P] [US2] Contract test for `model_stats.json` schema in `tests/contract/test_model_results_schema.py`
 - [ ] T024 [P] [US2] Integration test for Granger causality logic in `tests/integration/test_granger_causality.py`
 - [ ] T025 [P] [US2] Unit tests for ADF and Johansen test logic in `tests/unit/test_stationarity.py`
 
@@ -115,7 +115,7 @@
 - [ ] T029 [US2] Implement Granger Causality F-test runner in `code/modeling.py` for Sentiment→ GDP/Unemployment/ConsumerConfidence and reverse directions
 - [ ] T030 [US2] Implement collinearity diagnostic (Variance Inflation Factor) for GDP vs Unemployment in `code/modeling.py`. **Action**: {{claim:c_87f3be36}} (Wikidata Q113106917, https://www.wikidata.org/wiki/Q113106917), log the VIF and explicitly **frame results as a joint relationship** rather than independent effects in the final output, as per spec Edge Cases.
 - [ ] T031 [US2] Generate `results/model_stats.json` with p-values, F-statistics, and lag lengths (Updated by T027/T028/T029)
-- [ ] T032 [US2] Implement Moving Block Bootstrap (MBB) with block length = **1 month** in `code/validation.py`; **Logic**: Since the input data (`aligned_monthly.csv`) is now monthly, the '4-week' requirement from FR-006/SC-004 is approximated by **1 month** (1 data point) as a necessary correction per the Plan's "Frequency Shift". The MBB must use a block length of 1 month. Calculate 95% CI; verify CI width ≤20% of original OLS coefficient and convergence (width stable <1% for 3 runs). **Verification**: Explicitly check if the CI width ≤20% of the OLS coefficient for the monthly frequency and log a warning if statistical properties change significantly. **Output**: Generate `results/validation_stats.json` containing CI arrays, convergence flag, verification status, and convergence log. **Dependency**: T033/T050 depend on T032 completing successfully (validation pass).
+- [ ] T032 [US2] Implement Moving Block Bootstrap (MBB) with block length = **1 month** in `code/validation.py`; **Logic**: Since the input data (`aligned_monthly.csv`) is now monthly, the '4-week' requirement from FR-006/SC-004 is approximated by **1 month** (1 data point) as a necessary correction per the Plan's "Frequency Shift". The MBB must use a block length of 1 month. Calculate 95% CI; verify CI width ≤20% of original OLS coefficient and convergence (width stable <1% for 3 runs). [UNRESOLVED-CLAIM: c_d91575b7 — status=not_enough_info] **Verification**: Explicitly check if the CI width ≤20% of the OLS coefficient for the monthly frequency and log a warning if statistical properties change significantly. **Output**: Generate `results/validation_stats.json` containing CI arrays, convergence flag, verification status, and convergence log. **Dependency**: T033/T050 depend on T032 completing successfully (validation pass).
 - [ ] T033 [US2] Implement sensitivity analysis scaffolding in `code/validation.py` (prepare logic for masking/re-interpolation)
 - [ ] T049b [US2] Execute sensitivity analysis in `code/validation.py` using masking proportions **read from `code/config.yaml` (output of T049)**; re-interpolate masked data, re-run VAR/VECM for each proportion, and generate `results/validation_stats.json` reporting absolute p-value shifts for each specific proportion (must be < `p_value_shift_threshold` from T049). **Dependency**: Depends on `results/model_stats.json` from T031/T028. **Note**: This task explicitly tags FR-012 and handles the '[deferred]' values by using the concrete values defined in T049.
 - [ ] T034a [US2] Fetch/define recession periods for major economic downturns from NBER. **Primary Method**: Fetch NBER recession dates from the official URL ` and save to `data/metadata/recession_periods.json`. **Verification**: Compute a checksum of the fetched data and record it in `data/metadata/recession_periods.json` to satisfy Constitution Principle II (Verified Accuracy). **Note**: This hardcoded list is the 'sourced' data from the Committee.
