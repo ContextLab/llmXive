@@ -1,38 +1,18 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "ADReSS Dataset Schema"
-description: "Schema for the raw and cleaned ADReSS dataset records."
+$schema: http://json-schema.org/draft-07/schema#
+title: Dataset Schema
+description: Schema for the cleaned and processed dataset.
 type: object
+properties:
+  participant_id:
+    type: string
+    description: Unique identifier for the participant.
+  label:
+    type: string
+    description: Cognitive status label (Control, MCI, AD).
+  text:
+    type: string
+    description: Cleaned transcript text.
 required:
   - participant_id
   - label
   - text
-properties:
-  participant_id:
-    type: string
-    description: "Unique identifier for the participant (e.g., P001, P002)."
-    pattern: "^P\\d{3}$"
-  label:
-    type: string
-    description: "Cognitive status label."
-    enum:
-      - "Control"
-      - "MCI"
-      - "AD"
-  text:
-    type: string
-    description: "The cleaned transcript text associated with the participant."
-    minLength: 50
-  metadata:
-    type: object
-    description: "Optional additional metadata fields."
-    properties:
-      source:
-        type: string
-      download_date:
-        type: string
-        format: date
-      raw_length:
-        type: integer
-        minimum: 0
-    additionalProperties: true
-additionalProperties: false

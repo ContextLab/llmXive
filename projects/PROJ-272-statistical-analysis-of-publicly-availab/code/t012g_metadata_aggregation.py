@@ -1,94 +1,128 @@
 """
 T012g: Metadata Aggregation
-Merges data/results/metadata_partial_e.json and data/results/metadata_partial_h.json
-into the final data/results/metadata.json.
 
-This is the ONLY task that writes to the final metadata.json.
+Implements function aggregate_metadata() to merge:
+- data/results/raw_record_count.json
+- data/results/group_counts.json
+- data/interim/exclusions.log
+
+Calculates valid_label_proportion and writes to data/results/metadata.json.
 """
 import json
 import logging
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 from config import get_path
 
 # Configure logging
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def load_json_file(file_path: Path) -> Dict[str, Any]:
-    """Load a JSON file and return its contents as a dictionary."""
+    """Load a JSON file and return its contents."""
+    if not file_path.exists():
+        raise FileNotFoundError(f"Required file not found: {file_path}")
+    
+    with open(file_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+def count_valid_lines_from_exclusions_log(exclusions_log_path: Path) -> int:
+    """
+    Count the number of records excluded based on the exclusions log.
+    The log format is expected to be: 'participant_id|reason_code'
+    We count the number of lines to determine excluded records.
+    """
+    if not exclusions_log_path.exists():
+        logger.warning(f"Exclusions log not found at {exclusions_log_path}. Assuming 0 exclusions.")
+        return 0
+    
+    excluded_count = 0
+    with open(exclusions_log_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                excluded_count += 1
+    return excluded_count
+
+def merge_metadata_files() -> Dict[str, Any]:
+    """
+    Merge metadata from raw_record_count.json, group_counts.json, and exclusions.log.
+    Calculate valid_label_proportion and return the aggregated metadata.
+    """
+    # Define paths
+    raw_count_path = get_path("data/results/raw_record_count.json")
+    group_counts_path = get_path("data/results/group_counts.json")
+    exclusions_log_path = get_path("data/interim/exclusions.log")
+    
+    # Load raw record count
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        logger.error(f"Required input file not found: {file_path}")
-        raise
-    except json.JSONDecodeError as e:
-        logger.error(f"Invalid JSON in {file_path}: {e}")
+        raw_count_data = load_json_file(raw_count_path)
+        raw_count = raw_count_data.get("raw_count", 0)
+    except FileNotFoundError as e:
+        logger.error(f"Failed to load raw record count: {e}")
         raise
 
-def merge_metadata_files(
-    partial_e_path: Path,
-    partial_h_path: Path,
-    output_path: Path
-) -> Dict[str, Any]:
-    """
-    Merge two metadata dictionaries into one.
-    
-    Args:
-        partial_e_path: Path to metadata_partial_e.json (low power warnings, group counts)
-        partial_h_path: Path to metadata_partial_h.json (valid label proportion)
-        output_path: Path to write the final metadata.json
-    
-    Returns:
-        The merged dictionary.
-    """
-    logger.info(f"Loading metadata from {partial_e_path}")
-    metadata_e = load_json_file(partial_e_path)
-    
-    logger.info(f"Loading metadata from {partial_h_path}")
-    metadata_h = load_json_file(partial_h_path)
-    
-    # Merge dictionaries. 
-    # We assume keys do not conflict based on task descriptions:
-    # - metadata_partial_e contains: low_power, group_counts
-    # - metadata_partial_h contains: valid_label_proportion
-    merged_metadata = {**metadata_e, **metadata_h}
-    
-    logger.info(f"Writing merged metadata to {output_path}")
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(merged_metadata, f, indent=2)
-    
-    logger.info("Metadata aggregation complete.")
-    return merged_metadata
+    # Load group counts
+    try:
+        group_counts_data = load_json_file(group_counts_path)
+        group_counts = {
+            "Control": group_counts_data.get("Control", 0),
+            "MCI": group_counts_data.get("MCI", 0),
+            "AD": group_counts_data.get("AD", 0)
+        }
+    except FileNotFoundError as e:
+        logger.error(f"Failed to load group counts: {e}")
+        raise
 
-def main():
-    """Main entry point for T012g."""
-    # Define paths relative to project root
-    project_root = Path(__file__).resolve().parent.parent
+    # Count exclusions from log
+    excluded_count = count_valid_lines_from_exclusions_log(exclusions_log_path)
     
-    # Input paths
-    partial_e_path = get_path(project_root, "data/results/metadata_partial_e.json")
-    partial_h_path = get_path(project_root, "data/results/metadata_partial_h.json")
+    # Calculate filtered count (raw - excluded)
+    filtered_count = raw_count - excluded_count
     
-    # Output path
-    output_path = get_path(project_root, "data/results/metadata.json")
+    # Calculate valid_label_proportion
+    # This is the proportion of raw records that made it through filtering
+    if raw_count > 0:
+        valid_label_proportion = filtered_count / raw_count
+    else:
+        valid_label_proportion = 0.0
     
-    # Ensure output directory exists
+    # Aggregate metadata
+    aggregated_metadata = {
+        "raw_count": raw_count,
+        "filtered_count": filtered_count,
+        "valid_label_proportion": valid_label_proportion,
+        "group_counts": group_counts
+    }
+    
+    return aggregated_metadata
+
+def save_metadata(metadata: Dict[str, Any], output_path: Path) -> None:
+    """Save the aggregated metadata to a JSON file."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(metadata, f, indent=2)
+    logger.info(f"Metadata saved to {output_path}")
+
+def main() -> None:
+    """Main entry point for T012g metadata aggregation."""
+    logger.info("Starting metadata aggregation (T012g)")
     
     try:
-        merged = merge_metadata_files(partial_e_path, partial_h_path, output_path)
-        logger.info(f"Successfully merged metadata. Output: {output_path}")
-        logger.debug(f"Merged content: {merged}")
+        # Merge metadata files
+        metadata = merge_metadata_files()
+        
+        # Define output path
+        output_path = get_path("data/results/metadata.json")
+        
+        # Save metadata
+        save_metadata(metadata, output_path)
+        
+        logger.info("Metadata aggregation completed successfully")
     except Exception as e:
-        logger.error(f"Failed to aggregate metadata: {e}")
+        logger.error(f"Metadata aggregation failed: {e}")
         raise
 
 if __name__ == "__main__":
-    # Setup basic logging if not already configured
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
     main()

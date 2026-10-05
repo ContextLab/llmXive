@@ -1,40 +1,45 @@
-T001a:
+T001d:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listing or file system evidence was provided showing that the required
-    folders (`data/raw`, `data/interim`, `data/results`, `data/processed`, `code`,
-    `tests/unit`, `tests/contract`, `tests/integration`, `specs/001-statistical-cognitive-decline/contracts`)
-    actually exist. Without concrete proof of the created structure, the task cannot
-    be considered completed.
+  h: 575396a91258595db399d866cf86ddb39c5614c9caf890867b01c387b7af47a0
+  r: "The `pyproject.toml` correctly contains the Black and Ruff configurations, but\
+    \ the required `.pre-commit-config.yaml` file is absent, so the pre\u2011commit\
+    \ hooks (detect\u2011secrets, black, ruff) have not been configured as stipulated."
 T011:
-  c: true
-  h: 54e5b0c380482230af6e089a86427233e14f5881a893bbd9302f9f1c483c3cf9
-  r: "The repository contains `tests/contract/test_schemas.py`, which implements the\
-    \ required schema validation for `data/interim/cleaned_adress.csv` and asserts\
-    \ that `data/results/metadata.json` includes a `valid_label_proportion` key with\
-    \ a float value between 0 and 1. The test file is non\u2011empty and matches the\
-    \ specification."
-T012b:
   c: false
-  h: d3901cfa59ea46a91bacdc45028118c01dc6db721201e32f3fdb03db57b98c59
-  r: "The required output file `data/results/raw_record_count.json` does not exist,\
-    \ and the provided `code/ingestion.py` excerpt shows no implementation of a function\
-    \ that counts raw records and writes the JSON with the specified schema. Consequently\
-    \ the task\u2019s core requirement is unmet."
+  h: 63577b8fe604bd129ec17694b4b3d3f6c18d31681b46be505764aa7fc0b69bc4
+  r: The test file `tests/contract/test_schemas.py` is present, but the required data
+    artifacts `data/interim/cleaned_adress.csv`, `data/results/metadata.json`, and
+    the referenced `dataset.schema.yaml` are missing, so the contract validation cannot
+    actually be performed. The missing files must be created with the appropriate
+    schema/content for the task to be complete.
 T012c:
   c: false
   h: c279ae8cac5f0d583df90180e266c3903e3efbf827f12ce6a8048f829636f5a5
   r: The required artifact `data/ingestion_amendment.log` does not exist, so no documentation
     of FR-001 satisfaction or DementiaBank exclusion is present. The implementer must
     create the log file with the specified entries.
+T012g:
+  c: false
+  h: 79ec3642b1d673786cf991b6b8986598873e6a70b8d516f0ab0bf0e70a85a77b
+  r: The repository lacks the required input files (`data/results/raw_record_count.json`,
+    `data/results/group_counts.json`, `data/interim/exclusions.log`) and the expected
+    output file (`data/results/metadata.json`). Moreover, `code/ingestion.py` does
+    not contain an implementation of the `aggregate_metadata()` function as specified.
+    The task therefore remains unfinished.
 T014:
   c: false
-  h: 11d257e05e2f7ccdde00cea853ae61f789312666127a66ab8fa01562edf4c005
-  r: "The provided `code/ingestion.py` snippet does not show any implementation of\
-    \ record filtering (label null or text length\u202F<\u202F50 words) nor logging\
-    \ of excluded records to `data/interim/exclusions.log`. Moreover, the `exclusions.log`\
-    \ file is missing entirely. The required filtering logic and log artifact are\
-    \ therefore absent."
+  h: b8b368ac695c2d27eca0c88e019212ef6db29fd1d45884ba9aa0118c1564e002
+  r: The provided `code/ingestion.py` contains only a patched `DataSourceConfig` class
+    and no `filter_records()` implementation, and the required `data/interim/exclusions.log`
+    file does not exist. Both the function and the exclusion log are missing, so the
+    task is not satisfied.
+T016:
+  c: false
+  h: 35b6a45a6b1d85190e328a377b412ce841148cadfb09aac585822b89c9adb2c2
+  r: The repository lacks the required `data/interim/cleaned_adress.csv` file, and
+    the provided `code/ingestion.py` excerpt does not show an implementation of a
+    `create_cleaned_dataset()` function that writes this CSV. Consequently, the core
+    deliverable of the task is absent.
 T024:
   c: false
   h: 3b0bae8be11da3f49aac8f222570108f7df33a154496800c70df360a01f37241

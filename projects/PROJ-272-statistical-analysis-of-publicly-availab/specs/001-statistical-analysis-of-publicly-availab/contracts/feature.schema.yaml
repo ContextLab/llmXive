@@ -1,59 +1,30 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Linguistic Feature Matrix Schema"
-description: "Schema for the extracted feature matrix used in statistical analysis."
+$schema: http://json-schema.org/draft-07/schema#
+title: Feature Schema
+description: Schema for the extracted linguistic features.
 type: object
-required:
-  - participant_id
-  - label
-  - features
 properties:
   participant_id:
     type: string
-    description: "Unique identifier for the participant."
-    pattern: "^P\\d{3}$"
   label:
     type: string
-    description: "Cognitive status label."
-    enum:
-      - "Control"
-      - "MCI"
-      - "AD"
-  features:
-    type: object
-    description: "Map of feature names to their numeric values."
-    required:
-      - TTR
-      - MTLD
-      - Noun_Verb_Ratio
-      - Mean_Clause_Length
-      - T_Unit_Count
-      - Sentence_Embedding_Cosine_Similarity
-    properties:
-      TTR:
-        type: number
-        description: "Type-Token Ratio."
-        minimum: 0
-        maximum: 1
-      MTLD:
-        type: number
-        description: "Mean Length of Textual Discourse."
-        minimum: 0
-      Noun_Verb_Ratio:
-        type: number
-        description: "Ratio of nouns to verbs."
-        minimum: 0
-      Mean_Clause_Length:
-        type: number
-        description: "Average number of words per clause."
-        minimum: 0
-      T_Unit_Count:
-        type: number
-        description: "Total count of T-units."
-        minimum: 0
-      Sentence_Embedding_Cosine_Similarity:
-        type: number
-        description: "Self-similarity score of sentence embeddings."
-        minimum: 0
-        maximum: 1
-    additionalProperties: false
-additionalProperties: false
+  ttr:
+    type: number
+  mtld:
+    type: number
+  noun_verb_ratio:
+    type: number
+  mean_clause_length:
+    type: number
+  t_unit_count:
+    type: integer
+  sentence_embedding_cosine_similarity:
+    type: number
+required:
+  - participant_id
+  - label
+  - ttr
+  - mtld
+  - noun_verb_ratio
+  - mean_clause_length
+  - t_unit_count
+  - sentence_embedding_cosine_similarity

@@ -1,98 +1,89 @@
-"""
-code/config.py
-Configuration management for paths, seeds, and data sources.
-"""
 import os
 import random
 from pathlib import Path
 from typing import Any, Dict, Optional
 import numpy as np
 import yaml
+import logging
 
-# Project Root
-PROJECT_ROOT = Path(__file__).parent.parent
+# Global configuration
+_SEED = 42
+_PATHS = {
+    "data_raw": "data/raw",
+    "data_interim": "data/interim",
+    "data_results": "data/results",
+    "data_processed": "data/processed",
+    "code": "code",
+    "tests": "tests",
+    "specs": "specs/001-statistical-cognitive-decline"
+}
 
-def get_path(relative_path: str) -> Path:
-    """
-    Resolves a relative path to an absolute path within the project root.
-    """
-    return PROJECT_ROOT / relative_path
+# Statistical thresholds
+COLLINEARITY_TOLERANCE = 1e-5
+MIN_GROUP_SIZE_FOR_KFOLD = 5
 
-def ensure_dirs(path: Path) -> None:
-    """
-    Ensures that the directory for the given path exists.
-    """
-    path.parent.mkdir(parents=True, exist_ok=True)
+# Dataset configuration
+DATASET_SOURCE = "ADReSS"
+CANONICAL_URL = "https://github.com/cococogsci/ADReSS-M/raw/main/ADReSS_M.zip"
+MIRROR_URL = "https://zenodo.org/record/1234567/files/ADReSS_M.zip"
+EXPECTED_ADRESS_SHA256 = "placeholder_checksum"
 
-def set_seed(seed: int = 42) -> None:
-    """
-    Sets random seeds for reproducibility.
-    """
+def set_seed(seed: int):
+    global _SEED
+    _SEED = seed
     random.seed(seed)
     np.random.seed(seed)
 
 def get_seed() -> int:
-    """
-    Returns the current random seed.
-    """
-    return 42
+    return _SEED
+
+def get_path(key: str) -> str:
+    return _PATHS.get(key, key)
+
+def ensure_dirs():
+    for path in _PATHS.values():
+        os.makedirs(path, exist_ok=True)
 
 def get_device() -> str:
-    """
-    Returns the device to use (CPU only per constraints).
-    """
     return "cpu"
 
 def get_max_workers() -> int:
-    """
-    Returns the maximum number of workers for parallel tasks.
-    """
-    return os.cpu_count() or 1
+    return 4
 
 class DataSourceConfig:
-    """
-    Configuration for data sources.
-    """
-    def __init__(self, dataset_source: str = "ADReSS", canonical_url: str = "", mirror_url: str = ""):
-        self.dataset_source = dataset_source
-        self.canonical_url = canonical_url
-        self.mirror_url = mirror_url
-        self.source = dataset_source
+    """Configuration for data sources with tolerant attribute access."""
+    def __init__(self):
+        self.source = DATASET_SOURCE
+        self.canonical_url = CANONICAL_URL
+        self.mirror_url = MIRROR_URL
+        self.expected_sha256 = EXPECTED_ADRESS_SHA256
 
     def __getattr__(self, name):
-        # Tolerate unknown attribute access
+        # Tolerant logger-style fallback for any unknown attribute
         def _noop(*args, **kwargs):
             return None
         return _noop
 
 class ModelConfig:
-    """
-    Configuration for models.
-    """
     def __init__(self):
-        self.cpu_only = True
-        self.max_memory_gb = 7
+        self.embedding_model = "sentence-transformers/all-MiniLM-L6-v2"
+        self.batch_size = 32
+        self.max_workers = get_max_workers()
 
-def save_config(config: Dict[str, Any], path: Path) -> None:
-    """
-    Saves configuration to a YAML file.
-    """
-    ensure_dirs(path)
+def save_config(path: str, config: Dict[str, Any]):
     with open(path, 'w') as f:
         yaml.dump(config, f)
 
-def load_config(path: Path) -> Dict[str, Any]:
-    """
-    Loads configuration from a YAML file.
-    """
-    if path.exists():
-        with open(path, 'r') as f:
-            return yaml.load(f, Loader=yaml.SafeLoader)
-    return {}
+def load_config(path: str) -> Dict[str, Any]:
+    with open(path, 'r') as f:
+        return yaml.safe_load(f)
 
-def get_logger(name: str):
-    """
-    Returns a logger instance.
-    """
-    import logging
-    return logging.getLogger(name)
+def get_logger(name: str) -> logging.Logger:
+    logger = logging.getLogger(name)
+    if not logger.handlers:
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        logger.setLevel(logging.INFO)
+    return logger
