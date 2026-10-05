@@ -1,1 +1,1 @@
-# llmXive test package
+# LLMXive Carbon Footprint Project - Tests Package

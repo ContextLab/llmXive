@@ -2,77 +2,37 @@
 
 ## Overview
 
-This document defines the data structures, schemas, and relationships used throughout the project. All data artifacts are stored in `data/` and validated against the schemas in `contracts/`.
+This document defines the data entities, schemas, and relationships used in the carbon footprint measurement pipeline. All data is stored in JSON/CSV formats to ensure portability and reproducibility.
 
-## Entity Definitions
+## Entities
 
 ### 1. Prompt
 A text input from the CodeXGLUE dataset.
-- **Attributes**:
-  - `prompt_id`: Unique identifier (string).
-  - `text`: The raw prompt text (string).
-  - `source`: Dataset name (string, e.g., "code_x_glue").
+- **Fields**: `prompt_id` (str), `text` (str), `source` (str).
 
 ### 2. Generation
-The code output produced by an LLM.
-- **Attributes**:
-  - `prompt_id`: Foreign key to Prompt.
-  - `model_id`: Identifier of the model used (e.g., "gpt2-medium").
-  - `generated_code`: The generated code string.
-  - `loc_count`: Number of lines of code (integer).
-  - `success`: Boolean indicating if generation was valid.
+The code output produced by the LLM.
+- **Fields**: `generation_id` (str), `prompt_id` (str), `model_used` (str), `generated_code` (str), `status` (str: "success" | "failed").
 
 ### 3. EmissionRecord
-A record of energy consumption and emissions for a single inference.
-- **Attributes**:
-  - `prompt_id`: Foreign key to Prompt.
-  - `model_id`: Identifier of the model used.
-  - `energy_kWh`: Energy consumed (float).
-  - `co2_kg`: CO₂ equivalent emitted (float).
-  - `device`: Device used (e.g., "cpu").
-  - `region_factor`: The regional emission factor used (float).
+The core entity containing energy and emission metrics.
+- **Fields**: `record_id` (str), `prompt_id` (str), `model_used` (str), `energy_kWh` (float), `co2_kg` (float), `loc_count` (int), `co2_per_loc` (float).
 
 ### 4. HumanBaseline
-Static data mapping prompts to estimated human development time.
-- **Attributes**:
-  - `prompt_id`: Foreign key to Prompt.
-  - `time_minutes`: Estimated time in minutes (float).
-  - `source`: Citation of the literature used for synthesis (string).
+A static configuration representing the human developer's carbon footprint.
+- **Fields**: `baseline_id` (str), `estimated_time_minutes` (float), `power_draw_w` (float), `emission_factor` (float), `co2_kg` (float), `co2_per_loc` (float).
 
-### 5. PairedEmission
-The joined dataset for statistical analysis.
-- **Attributes**:
-  - `prompt_id`: Primary key.
-  - `llm_co2_per_loc`: Emissions per LOC for LLM (float).
-  - `human_co2_per_loc`: Emissions per LOC for Human (float).
-  - `diff`: Difference (LLM - Human) (float).
-  - `valid`: Boolean (true if both LOC > 0).
-
-### 6. StatisticalResult
-The output of the statistical test.
-- **Attributes**:
-  - `test_type`: "overlap_analysis" or "t-test".
-  - `statistic`: Test statistic value (float).
-  - `p_value`: P-value (float).
-  - `effect_size`: Cohen's d or rank-biserial (float).
-  - `ci_lower`: Lower bound of 95% CI for mean difference (float).
-  - `ci_upper`: Upper bound of 95% CI for mean difference (float).
-  - `shapiro_p`: P-value from normality test (float).
-  - `model_id`: Which model this result applies to.
-  - `overlap_status`: "overlap" or "no_overlap" (for overlap analysis).
+### 5. AnalysisResult
+The output of the statistical comparison.
+- **Fields**: `analysis_id` (str), `model_used` (str), `llm_mean_co2` (float), `human_co2` (float), `overlap_percentage` (float), `direction` (str: "higher" | "lower" | "mixed"), `sensitivity_range` (dict).
 
 ## Data Flow
 
-1. **Download**: `Prompt` data is fetched and stored in `data/raw/prompts.json`.
-2. **Inference**: `Generation` and `EmissionRecord` data are generated and stored in `data/processed/inference_results.json`.
-3. **Baseline**: `HumanBaseline` data is loaded from `data/raw/human_baseline_times.json`.
-4. **Normalization**: `PairedEmission` data is created in `data/processed/paired_emissions.csv`.
-5. **Sensitivity**: `sensitivity_analysis.csv` is created with Low/Med/High power draw scenarios.
-6. **Analysis**: `StatisticalResult` is computed and stored in `data/outputs/stats_summary.json`.
-7. **Report**: Final report is generated in `data/outputs/report.md`.
+1. **Raw Data**: `data/raw/codexglue_sample.json` (Prompts)
+2. **Inference Output**: `data/processed/llm_inference_results.json` (Generations + Energy)
+3. **Normalized Data**: `data/processed/emissions_per_loc.csv` (Combined LLM + Human)
+4. **Final Analysis**: `data/processed/statistical_analysis.json` (Results)
 
-## File Formats
+## Schema Definitions (Contracts)
 
-- **JSON**: Used for structured records (prompts, inference results, stats).
-- **CSV**: Used for paired emissions and sensitivity analysis for easy inspection and plotting.
-- **Markdown**: Used for the final report.
+The following schemas are defined in `contracts/` to validate data integrity.

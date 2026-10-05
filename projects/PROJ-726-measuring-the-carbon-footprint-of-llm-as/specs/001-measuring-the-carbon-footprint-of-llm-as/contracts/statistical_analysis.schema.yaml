@@ -1,0 +1,95 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StatisticalAnalysis Schema"
+description: "Schema for the final statistical analysis results (One-Sample t-test / Wilcoxon)."
+type: object
+properties:
+  analysis_id:
+    type: string
+    description: "Unique identifier for the analysis run."
+  model_used:
+    type: string
+    description: "Model used for the analysis (e.g., 'gpt2-medium')."
+  test_type:
+    type: string
+    description: "Type of test performed ('t-test' or 'wilcoxon')."
+    enum:
+      - "t-test"
+      - "wilcoxon"
+  statistic:
+    type: number
+    description: "The test statistic value (t or W)."
+  p_value:
+    type: number
+    description: "The p-value of the test."
+    minimum: 0
+    maximum: 1
+  effect_size:
+    type: number
+    description: "The effect size (Cohen's d or rank-biserial)."
+  ci_lower:
+    type: number
+    description: "Lower bound of the 95% confidence interval for the mean difference."
+  ci_upper:
+    type: number
+    description: "Upper bound of the 95% confidence interval for the mean difference."
+  shapiro_p:
+    type: number
+    description: "P-value from the Shapiro-Wilk normality test."
+  significant:
+    type: boolean
+    description: "Whether the result is statistically significant (p < 0.05)."
+  direction:
+    type: string
+    description: "Direction of the effect (higher/lower)."
+    enum:
+      - "higher"
+      - "lower"
+  sensitivity_analysis:
+    type: object
+    description: "Results from sensitivity analysis on power draw."
+    properties:
+      low_power:
+        type: object
+        properties:
+          power_draw_w:
+            type: number
+          p_value:
+            type: number
+          significant:
+            type: boolean
+      medium_power:
+        type: object
+        properties:
+          power_draw_w:
+            type: number
+          p_value:
+            type: number
+          significant:
+            type: boolean
+      high_power:
+        type: object
+        properties:
+          power_draw_w:
+            type: number
+          p_value:
+            type: number
+          significant:
+            type: boolean
+    required:
+      - low_power
+      - medium_power
+      - high_power
+required:
+  - "analysis_id"
+  - "model_used"
+  - "test_type"
+  - "statistic"
+  - "p_value"
+  - "effect_size"
+  - "ci_lower"
+  - "ci_upper"
+  - "shapiro_p"
+  - "significant"
+  - "direction"
+  - "sensitivity_analysis"
+additionalProperties: false

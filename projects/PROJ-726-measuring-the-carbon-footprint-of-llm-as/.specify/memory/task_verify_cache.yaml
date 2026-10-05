@@ -1,16 +1,11 @@
-T012:
+T011:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `run_inference.py` file or modifications are presented, and there is no evidence\
-    \ of added error\u2011handling logic, logging of CodeCarbon failures, or prompt\u2011\
-    skipping behavior. The required artifact is missing, so the task is not satisfied."
-T015:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, test files, or documentation were presented showing that validation\
-    \ logic was added to filter out failed or empty\u2011string code generations,\
-    \ nor any test coverage confirming this behavior. The required artifact (implementation\
-    \ and its tests) is missing."
+  r: No `run_inference.py` (or equivalent script) was provided showing the inference
+    loop wrapped by `codecarbon.EmissionsTracker` with CPU configuration. Without
+    the actual file or code snippet, we cannot confirm that the required wrapping
+    was implemented. The missing artifact must be added and demonstrated to satisfy
+    the task.
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

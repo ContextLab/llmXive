@@ -184,217 +184,293 @@
   updated_at: '2026-09-27T01:07:54Z'
 - artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
   attempts: 1
-  canonical: Nosek et al. 2002 or IEEE TSE 2020 average coding time used as human
-    baseline source
-  claim_id: c_413227df
-  context: 'If the 2025 paper data is inaccessible, DO NOT FAIL. Instead, execute
-    the Synthesized Baseline Protocol using specific literature values: Source: ''Nosek
-    et al., 2002'' or ''IEEE TSE 2020 average coding time'' for ''average extended
-    duration per prompt'' (in minutes).'
+  canonical: sample up to 200 prompts with seed 42
+  claim_id: c_03b52ca9
+  context: T004 Implement download_data.py to fetch CodeXGLUE Python code-generation
+    subset via HuggingFace datasets library. MUST sample up to 200 prompts using random
+    sampling with seed=42.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: 'Source: ''Nosek et al., 2002'' or ''IEEE TSE 2020 average coding time''
-    for ''average extended duration per prompt'' (in minutes).'
+  raw_text: MUST sample up to 200 prompts using random sampling with seed=42.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-10-05T01:51:06Z'
+  updated_at: '2026-10-05T02:38:41Z'
 - artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
   attempts: 1
-  canonical: CodeXGLUE Python code-generation subset sampled up to 200 prompts
-  claim_id: c_c5d4f0d9
-  context: Implement 'download_data.py' to fetch CodeXGLUE Python code-generation
-    subset via HuggingFace 'datasets' library. MUST sample up to 200 prompts.
+  canonical: call datasets.set_seed(42) for deterministic reproducibility
+  claim_id: c_c4437449
+  context: T004 ... MUST explicitly call datasets.set_seed(42) and use a generator
+    parameter in the sampling function to ensure deterministic reproducibility across
+    library versions.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: MUST sample up to 200 prompts.
+  raw_text: MUST explicitly call datasets.set_seed(42) and use a generator parameter
+    in the sampling function to ensure deterministic reproducibility across library
+    versions.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-10-05T01:52:00Z'
+  updated_at: '2026-10-05T02:38:58Z'
 - artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
   attempts: 1
-  canonical: Sample size of 200 prompts for CodeXGLUE Python code-generation subset
-  claim_id: c_9760c0fc
-  context: Implement download_data.py to fetch CodeXGLUE Python code-generation subset
-    via HuggingFace datasets library. MUST sample up to 200 prompts.
+  canonical: load openai-community/gpt2-medium in torch.float32 on CPU
+  claim_id: c_48941005
+  context: 'T010 [US1] Implement run_inference.py to load openai-community/gpt2-medium
+    (HuggingFace ID: openai-community/gpt2-medium) in default precision (torch.float32)
+    on CPU.'
   evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: MUST sample up to 200 prompts.
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Load_openai-community/gpt2-medium_in_torch.float32_on_CPU
+  kind: entity_fact
+  raw_text: 'MUST load openai-community/gpt2-medium (HuggingFace ID: openai-community/gpt2-medium)
+    in default precision (torch.float32) on CPU.'
   resolved_value: null
-  resolver: resolve_numeric_or_citation
+  resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-10-05T01:56:37Z'
+  updated_at: '2026-10-05T02:39:17Z'
 - artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
   attempts: 1
-  canonical: 'Literature sources for average coding time: Nosek et al. 2002 or IEEE
-    TSE 2020'
-  claim_id: c_d59a57c3
-  context: 'If the 2025 paper data is inaccessible, DO NOT FAIL. Instead, execute
-    the Synthesized Baseline Protocol using specific literature values: Source: ''Nosek
-    et al., 2002'' or ''IEEE TSE 2020 average coding time'' for ''average extended
-    duration per prompt'' (in minutes).'
+  canonical: pass torch_dtype=torch.float32 to from_pretrained
+  claim_id: c_f7f4ff34
+  context: T010 ... MUST explicitly pass torch_dtype=torch.float32 to the from_pretrained
+    call to ensure deterministic precision.
   evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Source: ''Nosek et al., 2002'' or ''IEEE TSE 2020 average coding time''
-    for ''average extended duration per prompt'' (in minutes).'
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pass_torch_dtype%3Dtorch.float32_to_from_pretrained
+  kind: entity_fact
+  raw_text: MUST explicitly pass torch_dtype=torch.float32 to the from_pretrained
+    call to ensure deterministic precision.
   resolved_value: null
-  resolver: resolve_numeric_or_citation
+  resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-10-05T01:56:37Z'
+  updated_at: '2026-10-05T02:39:37Z'
 - artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
   attempts: 1
-  canonical: Extract raw developer time from 2025 comparative analysis paper
-  claim_id: c_b4580541
-  context: Task T005 Implement validate_baseline.py to validate human baseline data
-    against the 2025 comparative analysis paper. MUST attempt to extract raw developer
-    time (minutes) from the 2025 paper (Table X, Section Y).
+  canonical: compare llm_co2_per_loc vs human_co2_per_loc as paired samples
+  claim_id: c_8a14520e
+  context: T031 [US3] Implement Paired-samples t-test (or Wilcoxon Signed-Rank) in
+    statistical_analysis.py. MUST compare llm_co2_per_loc vs human_co2_per_loc as
+    paired samples.
   evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: MUST attempt to extract raw developer time (minutes) from the 2025 paper
-    (Table X, Section Y).
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compare_llm_co2_per_loc_vs_human_co2_per_loc_as_paired_sampl
+  kind: entity_fact
+  raw_text: MUST compare llm_co2_per_loc vs human_co2_per_loc as paired samples.
   resolved_value: null
-  resolver: resolve_numeric_or_citation
+  resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-10-05T01:59:39Z'
+  updated_at: '2026-10-05T02:40:04Z'
 - artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
   attempts: 1
-  canonical: Use Nosek et al. 2002 or IEEE TSE 2020 for average coding time baseline
-  claim_id: c_8a160698
-  context: 'If the 2025 paper data is inaccessible, DO NOT FAIL. Instead, execute
-    the Synthesized Baseline Protocol using specific literature values: Source: ''Nosek
-    et al., 2002'' or ''IEEE TSE 2020 average coding time'' for ''average extended
-    duration per prompt'' (in minutes).'
+  canonical: calculate test statistic, p-value, and effect size for t-test or Wilcoxon
+  claim_id: c_2758a8ee
+  context: T031 ... MUST calculate the test statistic, p-value, and effect size (Cohen's
+    d if t-test; rank-biserial if Wilcoxon).
   evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Source: ''Nosek et al., 2002'' or ''IEEE TSE 2020 average coding time''
-    for ''average extended duration per prompt'' (in minutes).'
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_test_statistic,_p-value,_and_effect_size_for_t-tes
+  kind: entity_fact
+  raw_text: MUST calculate the test statistic, p-value, and effect size (Cohen's d
+    if t-test; rank-biserial if Wilcoxon).
   resolved_value: null
-  resolver: resolve_numeric_or_citation
+  resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-10-05T01:59:39Z'
+  updated_at: '2026-10-05T02:41:56Z'
 - artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
   attempts: 1
-  canonical: Sample up to 200 prompts from CodeXGLUE
-  claim_id: c_387a10a7
-  context: Implement download_data.py to fetch CodeXGLUE Python code-generation subset
-    via HuggingFace datasets library. MUST sample up to 200 prompts.
+  canonical: generate stability assessment artifact with mean differences and effect
+    sizes for low, medium, and high power models
+  claim_id: c_66545f07
+  context: T024 [US3] Perform Sensitivity Analysis ... MUST generate a stability assessment
+    artifact (data/outputs/stability_assessment.json) containing the consistency result
+    (stable if mean difference and effect size are consistent), the specific mean
+    differences and effect sizes for each power model, and the explicit stability
+    flag.
   evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: MUST sample up to 200 prompts.
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_stability_assessment_artifact_with_mean_differences
+  kind: entity_fact
+  raw_text: MUST generate a stability assessment artifact (data/outputs/stability_assessment.json)
+    containing the consistency result, the specific mean differences and effect sizes
+    for each power model, and the explicit stability flag.
   resolved_value: null
-  resolver: resolve_numeric_or_citation
+  resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-10-05T02:04:07Z'
+  updated_at: '2026-10-05T02:42:22Z'
 - artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
   attempts: 1
-  canonical: Use Nosek et al. 2002 or IEEE TSE 2020 average coding time as human baseline
-    source
-  claim_id: c_67f66dda
-  context: 'If the 2025 paper data is inaccessible, DO NOT FAIL. Instead, execute
-    the Synthesized Baseline Protocol using specific literature values: Source: ''Nosek
-    et al., 2002'' or ''IEEE TSE 2020 average coding time'' for ''average extended
-    duration per prompt'' (in minutes).'
+  canonical: stability assessment output schema with low, med, high mean_diff and
+    effect_size fields
+  claim_id: c_586fb536
+  context: 'T024 ... Output schema: {"low_mean_diff": float, "med_mean_diff": float,
+    "high_mean_diff": float, "low_effect_size": float, "med_effect_size": float, "high_effect_size":
+    float, "mean_diff_stable": bool, "effect_size_stable": bool, "stable": bool, "conclusion":
+    "string"}.'
   evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Source: ''Nosek et al., 2002'' or ''IEEE TSE 2020 average coding time''
-    for ''average extended duration per prompt'' (in minutes).'
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stability_assessment_output_schema_with_low,_med,_high_mean
+  kind: entity_fact
+  raw_text: 'Output schema: {"low_mean_diff": float, "med_mean_diff": float, "high_mean_diff":
+    float, "low_effect_size": float, "med_effect_size": float, "high_effect_size":
+    float, "mean_diff_stable": bool, "effect_size_stable": bool, "stable": bool, "conclusion":
+    "string"}.'
   resolved_value: null
-  resolver: resolve_numeric_or_citation
+  resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-10-05T02:04:07Z'
+  updated_at: '2026-10-05T02:42:41Z'
 - artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
   attempts: 1
-  canonical: Calculate 95% confidence interval for LLM co2_per_loc mean
-  claim_id: c_0d94d63d
-  context: 'PRIMARY METHOD: Distribution Overlap Analysis. MUST calculate the 95%
-    Confidence Interval (CI) for the LLM co2_per_loc mean.'
+  canonical: Sample 200 CodeXGLUE prompts with seed 42
+  claim_id: c_654cdf2c
+  context: T004 Implement download_data.py to fetch CodeXGLUE Python code-generation
+    subset via HuggingFace datasets library. MUST sample up to 200 prompts using random
+    sampling with seed=42.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: MUST calculate the 95% Confidence Interval (CI) for the LLM co2_per_loc
-    mean.
+  raw_text: MUST sample up to 200 prompts using random sampling with seed=42.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-10-05T02:04:07Z'
+  updated_at: '2026-10-05T02:47:53Z'
 - artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
   attempts: 1
-  canonical: Nosek et al. 2002 or IEEE TSE 2020 cited for average coding time baseline
-  claim_id: c_3acca7bc
-  context: 'If the 2025 paper data is inaccessible, DO NOT FAIL. Instead, execute
-    the Synthesized Baseline Protocol using specific literature values: Source: ''Nosek
-    et al., 2002'' or ''IEEE TSE 2020 average coding time'' for ''average extended
-    duration per prompt'' (in minutes).'
+  canonical: Call datasets.set_seed(42) for deterministic reproducibility
+  claim_id: c_66a06881
+  context: T004 Implement download_data.py... MUST explicitly call datasets.set_seed(42)
+    and use a generator parameter in the sampling function to ensure deterministic
+    reproducibility across library versions.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: 'Source: ''Nosek et al., 2002'' or ''IEEE TSE 2020 average coding time''
-    for ''average extended duration per prompt'' (in minutes).'
+  raw_text: MUST explicitly call datasets.set_seed(42) and use a generator parameter
+    in the sampling function to ensure deterministic reproducibility across library
+    versions.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-10-05T02:06:46Z'
+  updated_at: '2026-10-05T02:47:53Z'
 - artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
   attempts: 1
-  canonical: CodeXGLUE Python code-generation subset sampled up to 200 prompts
-  claim_id: c_f2f48d01
-  context: Implement download_data.py to fetch CodeXGLUE Python code-generation subset
-    via HuggingFace datasets library. MUST sample up to 200 prompts. MUST log the
-    specific reason for sample size reduction if N < 200.
+  canonical: Output generated code string in result JSON for LOC counting
+  claim_id: c_27beb017
+  context: T010 [US1] Implement run_inference.py to load openai-community/gpt2-medium...
+    MUST output the generated code string in the result JSON to allow LOC counting.
   evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: MUST sample up to 200 prompts.
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_generated_code_string_in_result_JSON_for_LOC_counting
+  kind: entity_fact
+  raw_text: MUST output the generated code string in the result JSON to allow LOC
+    counting.
   resolved_value: null
-  resolver: resolve_numeric_or_citation
+  resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-10-05T02:06:46Z'
+  updated_at: '2026-10-05T02:48:16Z'
 - artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
   attempts: 1
-  canonical: 95% Confidence Interval calculated for LLM co2_per_loc mean
-  claim_id: c_21354b78
-  context: 'PRIMARY METHOD: Distribution Overlap Analysis. MUST calculate the 95%
-    Confidence Interval (CI) for the LLM co2_per_loc mean. MUST define the Human Theoretical
-    Range (Low, Medium, High) based on power models.'
+  canonical: Skip energy tracking for code failing syntax validation
+  claim_id: c_83cca464
+  context: T010 [US1] Implement run_inference.py... MUST skip energy tracking for
+    any code that fails the syntax validation from T010b.
   evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: MUST calculate the 95% Confidence Interval (CI) for the LLM co2_per_loc
-    mean.
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Skip_energy_tracking_for_code_failing_syntax_validation
+  kind: entity_fact
+  raw_text: MUST skip energy tracking for any code that fails the syntax validation
+    from T010b.
   resolved_value: null
-  resolver: resolve_numeric_or_citation
+  resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-10-05T02:06:46Z'
+  updated_at: '2026-10-05T02:48:45Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: Include full generated_code string in JSON for LOC verification
+  claim_id: c_cc89414e
+  context: T014 [US1] Generate data/processed/llm_inference_results.json containing...
+    MUST include the full generated_code string in the JSON to support downstream
+    LOC verification.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Include_full_generated_code_string_in_JSON_for_LOC_verificat
+  kind: entity_fact
+  raw_text: MUST include the full generated_code string in the JSON to support downstream
+    LOC verification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T02:49:09Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: Compare llm_co2_per_loc vs human_co2_per_loc as paired samples
+  claim_id: c_24f8cf04
+  context: T031 [US3] Implement Paired-samples t-test (or Wilcoxon Signed-Rank)...
+    MUST compare llm_co2_per_loc vs human_co2_per_loc as paired samples.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compare_llm_co2_per_loc_vs_human_co2_per_loc_as_paired_sampl
+  kind: entity_fact
+  raw_text: MUST compare llm_co2_per_loc vs human_co2_per_loc as paired samples.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T02:49:10Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: Calculate test statistic, p-value, and effect size (Cohen's d or rank-biserial)
+  claim_id: c_2faaf417
+  context: T031 [US3] Implement Paired-samples t-test... MUST calculate the test statistic,
+    p-value, and effect size (Cohen's d if t-test; rank-biserial if Wilcoxon).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_test_statistic,_p-value,_and_effect_size_(Cohen%27s
+  kind: entity_fact
+  raw_text: MUST calculate the test statistic, p-value, and effect size (Cohen's d
+    if t-test; rank-biserial if Wilcoxon).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T02:49:12Z'

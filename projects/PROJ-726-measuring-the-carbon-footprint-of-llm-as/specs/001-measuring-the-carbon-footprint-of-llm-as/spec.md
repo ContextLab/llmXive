@@ -9,7 +9,7 @@
 
 ### User Story 1 - LLM Inference & Energy Instrumentation (Priority: P1)
 
-The system MUST execute a code generation task using a lightweight open-source model (GPT-2-medium) on a CPU-only environment and simultaneously record the energy consumption and carbon emissions using the CodeCarbon library.
+The system MUST execute a code generation task using a lightweight open-source model on a CPU-only environment and simultaneously record the energy consumption and carbon emissions using the CodeCarbon library.
 
 **Why this priority**: This is the core data generation step for the experimental condition (LLM-assisted). Without this, no comparison can be made. It establishes the primary metric (CO₂-eq) for the "LLM" arm of the study.
 
@@ -24,7 +24,7 @@ The system MUST execute a code generation task using a lightweight open-source m
 
 ### User Story 2 - Human Baseline Estimation & Normalization (Priority: P2)
 
-The system MUST calculate the estimated carbon footprint for human-written code by converting reported developer time (from the 2025 comparative analysis paper) into energy usage using a standard CPU power model, then normalize both LLM and human emissions per Line of Code (LOC).
+The system MUST calculate the estimated carbon footprint for human-written code by converting reported developer time (from the comparative analysis paper) into energy usage using a standard CPU power model, then normalize both LLM and human emissions per Line of Code (LOC).
 
 **Why this priority**: This establishes the control condition (human-assisted). It allows the study to answer the research question by providing the denominator for the comparison.
 

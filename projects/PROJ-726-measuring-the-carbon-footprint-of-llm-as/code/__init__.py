@@ -1,1 +1,1 @@
-# llmXive research-implementer code package
+# LLMXive Carbon Footprint Project - Code Package

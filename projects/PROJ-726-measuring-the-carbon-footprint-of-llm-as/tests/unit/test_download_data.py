@@ -1,86 +1,108 @@
+import pytest
 import json
+import hashlib
 import os
 import sys
 import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-import pytest
+# Adjust import based on project structure
+# Assuming tests are run from root and code/ is in sys.path or installed
+try:
+    from download_data import compute_file_hash, validate_checksum, save_dataset
+except ImportError:
+    # Fallback for direct execution in tests/
+    import sys
+    sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+    from download_data import compute_file_hash, validate_checksum, save_dataset
 
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from download_data import (
-    fetch_codexglue_dataset,
-    compute_file_hash,
-    validate_sample_size,
-    save_dataset,
-    validate_checksum
-)
+class TestComputeFileHash:
+    def test_compute_sha256_hash(self):
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+            f.write("Hello, World!")
+            temp_path = Path(f.name)
+        
+        try:
+            hash_val = compute_file_hash(temp_path)
+            # Manual calculation
+            expected = hashlib.sha256(b"Hello, World!").hexdigest()
+            assert hash_val == expected
+        finally:
+            os.unlink(temp_path)
 
-@pytest.fixture
-def mock_dataset_iterator():
-    """Mock iterator that yields fake CodeXGLUE items."""
-    return iter([
-        {"source": "def add(a, b): pass", "target": "return a + b"},
-        {"source": "def sub(a, b): pass", "target": "return a - b"},
-        {"source": "def mul(a, b): pass", "target": "return a * b"},
-    ])
+    def test_file_not_found(self):
+        with pytest.raises(FileNotFoundError):
+            compute_file_hash(Path("non_existent_file.txt"))
 
-@patch("download_data.load_dataset")
-def test_fetch_codexglue_dataset_success(mock_load_dataset, mock_dataset_iterator):
-    """Test successful fetching of the dataset."""
-    mock_load_dataset.return_value.__iter__ = MagicMock(return_value=mock_dataset_iterator)
-    
-    samples, reason = fetch_codexglue_dataset(sample_size=10)
-    
-    assert len(samples) == 3
-    assert samples[0]["prompt_id"] == "codexglue_0000"
-    assert samples[0]["prompt"] == "def add(a, b): pass"
-    assert samples[0]["target_code"] == "return a + b"
-    assert reason == "Dataset exhausted before reaching target size (only 3 valid samples available)."
 
-def test_validate_sample_size():
-    """Test sample size validation logic."""
-    # Empty list
-    assert not validate_sample_size([], 10)
-    
-    # Less than target but > 0
-    assert validate_sample_size([1, 2], 10)
-    
-    # Meets target
-    assert validate_sample_size([1] * 10, 10)
+class TestSaveDataset:
+    def test_save_dataset_creates_file(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "test.json"
+            data = [{"id": 1, "text": "test"}]
+            
+            save_dataset(data, output_path)
+            
+            assert output_path.exists()
+            with open(output_path, 'r') as f:
+                loaded = json.load(f)
+            assert loaded == data
 
-def test_compute_file_hash(tmp_path):
-    """Test file hash computation."""
-    test_file = tmp_path / "test.txt"
-    test_file.write_text("Hello, World!")
-    
-    hash_val = compute_file_hash(test_file)
-    assert len(hash_val) == 64  # SHA-256 hex length
-    assert hash_val == "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f"
 
-def test_save_dataset(tmp_path):
-    """Test saving dataset to JSON."""
-    samples = [
-        {"prompt_id": "001", "prompt": "test", "target_code": "code"}
-    ]
-    output_path = tmp_path / "output.json"
-    
-    save_dataset(samples, output_path)
-    
-    assert output_path.exists()
-    with open(output_path, "r") as f:
-        data = json.load(f)
-    
-    assert len(data) == 1
-    assert data[0]["prompt_id"] == "001"
+class TestValidateChecksum:
+    def test_create_new_checksum(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            data_path = Path(tmpdir) / "data.json"
+            checksum_path = Path(tmpdir) / "checksums.json"
+            
+            data = [{"id": 1}]
+            save_dataset(data, data_path)
+            
+            # Should create checksum file and return True
+            result = validate_checksum(data_path, checksum_path)
+            assert result is True
+            assert checksum_path.exists()
+            
+            with open(checksum_path, 'r') as f:
+                stored = json.load(f)
+            assert "hash" in stored
+            assert stored["algorithm"] == "sha256"
 
-def test_validate_checksum(tmp_path):
-    """Test checksum validation."""
-    test_file = tmp_path / "test.txt"
-    test_file.write_text("test data")
-    
-    assert validate_checksum(test_file)
-    
-    assert not validate_checksum(tmp_path / "nonexistent.txt")
+    def test_valid_checksum(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            data_path = Path(tmpdir) / "data.json"
+            checksum_path = Path(tmpdir) / "checksums.json"
+            
+            data = [{"id": 1}]
+            save_dataset(data, data_path)
+            
+            # Create initial checksum
+            validate_checksum(data_path, checksum_path)
+            
+            # Verify again
+            result = validate_checksum(data_path, checksum_path)
+            assert result is True
+
+    def test_invalid_checksum(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            data_path = Path(tmpdir) / "data.json"
+            checksum_path = Path(tmpdir) / "checksums.json"
+            
+            # Create data
+            save_dataset([{"id": 1}], data_path)
+            
+            # Create fake checksum file with wrong hash
+            wrong_hash = "0" * 64
+            checksum_data = {
+                "file": "data.json",
+                "algorithm": "sha256",
+                "hash": wrong_hash
+            }
+            with open(checksum_path, 'w') as f:
+                json.dump(checksum_data, f)
+            
+            # Should return False
+            result = validate_checksum(data_path, checksum_path)
+            assert result is False

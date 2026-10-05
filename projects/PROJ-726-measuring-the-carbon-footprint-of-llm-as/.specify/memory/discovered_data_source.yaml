@@ -1,0 +1,12 @@
+status: none
+intent: CodeXGLUE Python code generation dataset HuggingFace datasets library human
+  baseline time estimates dataset python package dataset
+required_fields:
+- id
+- prompt
+- reference_code
+- language
+- estimated_time_minutes
+cache_key: b55b449d5307c77ef3cfa1864768ea40673202307d3356b128e942cd120afa9f
+searched_at: '2026-10-05T02:17:07.494031+00:00'
+retry_count: 1

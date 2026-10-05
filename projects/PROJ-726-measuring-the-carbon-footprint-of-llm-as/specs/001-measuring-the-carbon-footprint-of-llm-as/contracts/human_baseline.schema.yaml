@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "HumanBaseline Schema"
+description: "Schema for the synthesized human baseline configuration."
+type: "object"
+properties:
+  baseline_id:
+    type: "string"
+    description: "Unique identifier for the baseline."
+  estimated_time_minutes:
+    type: "number"
+    description: "Estimated developer time in minutes (verified: approximate magnitude)."
+  power_draw_w:
+    type: "number"
+    description: "Power draw of the developer's machine in Watts."
+  emission_factor:
+    type: "number"
+    description: "Regional CO2 emission factor (kg CO2/kWh)."
+  co2_kg:
+    type: "number"
+    description: "Calculated total CO2 for the task."
+  co2_per_loc:
+    type: "number"
+    description: "Calculated CO2 per line of code (assuming average LOC)."
+required:
+  - "baseline_id"
+  - "estimated_time_minutes"
+  - "power_draw_w"
+  - "emission_factor"
+  - "co2_kg"
+  - "co2_per_loc"
+additionalProperties: false
