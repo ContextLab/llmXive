@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-09T10:29:01.850414Z'
-current_stage: planned
+current_stage: tasked
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-485-predicting-alloy-phase-diagrams-from-com
-last_run_id: c964d52e-25db-4daa-b356-1312765bfac2
+last_run_id: e31f28c1-770a-420c-a2ce-f4b218bc872f
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-485-predicting-alloy-phase-diagrams-from-com/specs/001-predicting-alloy-phase-diagrams-from-com
 title: Predicting Alloy Phase Diagrams from Compositional Data with Machine Learning
-updated_at: '2026-10-01T08:48:57.821077Z'
+updated_at: '2026-10-05T14:26:54.872837Z'
