@@ -2,57 +2,83 @@
 
 ## Overview
 
-This document defines the data schema and flow for the robustness evaluation pipeline. All data is stored in JSON/Parquet formats to ensure reproducibility and machine readability.
+This document defines the data structures, schemas, and relationships used throughout the research pipeline. All data is stored in JSON/Parquet formats to ensure reproducibility and ease of analysis.
 
-## Entities
+## Raw Data Sources
 
-### 1. Task
-A single programming problem from HumanEval.
-- `task_id`: Unique identifier (e.g., "HumanEval/0").
-- `prompt`: Original prompt string.
-- `canonical_solution`: Reference solution (unused for inference, used for validation).
-- `test`: Test suite string.
-- `entry_point`: Function name to call.
+### HumanEval Tasks
+- **Source**: `openai/openai_humaneval`
+- **Format**: Parquet (converted to JSON for processing)
+- **Key Fields**: `task_id`, `prompt`, `canonical_solution`, `test`, `entry_point`
 
-### 2. PerturbationCandidate
-A generated variant of a task prompt.
-- `task_id`: Foreign key to Task.
-- `perturbation_type`: One of `synonym`, `typo`, `rephrase`.
-- `perturbed_prompt`: The modified text.
-- `similarity_score`: Float (0.0–1.0) from semantic validator.
-- `is_valid`: Boolean (True if score > 0.95).
-- `seed`: Random seed used for generation (for reproducibility).
+## Processed Data Structures
 
-### 3. InferenceResult
-The outcome of running the model on a prompt.
-- `task_id`: Foreign key.
-- `prompt_type`: `original` or `perturbed`.
-- `perturbation_type`: Null for original, otherwise the type.
-- `generated_code`: The code string output by the model.
-- `generation_time`: Seconds.
-- `pass`: Boolean (True if tests pass).
-- `error_type`: One of `syntax`, `logic`, `timeout`, `oom`, `none`.
-- `confidence_score`: Float (model's internal confidence, if available).
-- `execution_environment`: String (`CPU` or `GPU`). **New**: Added to track hardware confound.
+### 1. Perturbation Candidates (Raw)
+Contains all generated perturbation attempts before semantic filtering.
+- **File**: `data/processed/perturbation_candidates_raw.json`
+- **Schema**: `contracts/perturbation_schema.yaml`
+- **Content**: All generated variants with their raw similarity scores.
 
-### 4. AnalysisResult
-Aggregated metrics for the final report.
-- `metric_name`: e.g., "pass@1_original", "pass@1_synonym".
-- `value`: Float.
-- `n_samples`: Integer.
-- `statistic`: e.g., "p_value", "odds_ratio", "variance_component".
+### 2. Perturbation Candidates (Validated)
+Subset of raw candidates with `similarity_score > 0.95`.
+- **File**: `data/processed/perturbation_candidates_validated.json`
+- **Schema**: `contracts/perturbation_schema.yaml` (with `is_valid: true`)
+- **Content**: High-fidelity perturbations used for primary analysis.
+
+### 3. Inference Logs
+Results of code generation and execution.
+- **File**: `data/processed/inference_logs.json`
+- **Schema**: `contracts/execution_result.schema.yaml`
+- **Content**: Pass/fail outcomes, error types, execution times, and model configurations.
+
+### 4. Calibration Report
+Final statistical results and sensitivity analysis.
+- **File**: `data/processed/calibration_report.json`
+- **Schema**: `contracts/calibration_schema.yaml`
+- **Content**: Aggregated pass rates, statistical test results (CMH, Mixed-Effects), sensitivity analysis, and metadata. This is the **primary deliverable** of the analysis phase.
+
+### 5. Halt Report
+Runtime logs and error reports.
+- **File**: `data/logs/halt_report.json`
+- **Content**: Summary of runtime errors (OOM, timeouts), fallback triggers, and resource usage logs.
+
+## Entity Relationships
+
+```mermaid
+erDiagram
+    TASK ||--o{ PERTURBATION : generates
+    PERTURBATION ||--|| VALIDATION : validated_by
+    PERTURBATION ||--|| INFERENCE : processed_by
+    INFERENCE ||--|| RESULT : yields
+    TASK ||--o{ RESULT : aggregates
+```
+
+- **TASK**: The base programming problem (a set of instances).
+- **PERTURBATION**: A modified version of a task prompt (up to 3 per task).
+- **VALIDATION**: The semantic similarity check (score, pass/fail).
+- **INFERENCE**: The LLM generation and sandbox execution event.
+- **RESULT**: The pass/fail outcome and error classification.
 
 ## Data Flow
 
-1.  **Raw Data**: `data/raw/humaneval.parquet` (Downloaded from HF).
-2.  **Perturbation Raw**: `data/processed/perturbation_candidates_raw.json` (All generated candidates with scores).
-3.  **Perturbation Filtered**: `data/processed/perturbation_candidates.json` (Candidates with score > 0.95).
-4.  **Inference Logs**: `data/processed/inference_logs.json` (Model outputs and execution results).
-5.  **Mixed Effects Results**: `data/processed/mixed_effects_results.json` (Variance components and coefficients).
-6.  **Final Results**: `data/processed/results.csv` (Aggregated statistics for analysis).
+1.  **Download**: `data/raw/humaneval.parquet` → `code/data/download.py`
+2.  **Perturb**: `TASK` → `code/data/perturbation.py` → `PERTURBATION` (Raw)
+    -   *Write Step*: `perturbation.py` writes `data/processed/perturbation_candidates_raw.json`.
+    -   *Filter Step*: `perturbation.py` applies similarity threshold.
+    -   *Write Step*: `perturbation.py` writes `data/processed/perturbation_candidates_validated.json`.
+    -   *Halt Step*: `perturbation.py` logs any critical failures or resource exhaustion to `data/logs/halt_report.json`.
+3.  **Infer**: `PERTURBATION` (Validated) → `code/model/inference.py` → `INFERENCE`
+    -   *Logic*: `inference.py` attempts StarCoder2-3B-4bit. If OOM, falls back to `starcoder2-1b`.
+    -   *Logic*: Enforces a configurable timeout per generation and execution.
+    -   *Write Step*: `inference.py` writes `data/processed/inference_logs.json`.
+4.  **Analyze**: `INFERENCE` → `code/analysis/statistics.py` → `RESULT` (Calibration Report)
+    -   *Logic*: `statistics.py` calculates pass@1, runs CMH, Mixed-Effects, and sensitivity analysis.
+    -   *Write Step*: `statistics.py` writes `data/processed/calibration_report.json`.
 
-## Constraints
+## Integrity Constraints
 
-- **Immutability**: Raw data files are never modified. Derivations create new files.
-- **Checksums**: All files in `data/raw/` must have a corresponding SHA-256 hash recorded in `state/`.
-- **PII**: No Personally Identifiable Information is present in HumanEval or generated code.
+-   **Uniqueness**: `task_id` + `perturbation_id` must be unique in `inference_logs.json`.
+-   **Completeness**: All 164 original tasks must appear in `inference_logs.json`.
+-   **Consistency**: `similarity_score` must be between 0.0 and 1.0.
+-   **Immutability**: Raw data files are never modified; derivations create new files.
+-   **Deliverable**: `data/processed/calibration_report.json` must exist and be valid JSON upon pipeline completion.

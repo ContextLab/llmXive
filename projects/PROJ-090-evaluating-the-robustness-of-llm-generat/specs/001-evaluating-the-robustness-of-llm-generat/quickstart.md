@@ -3,73 +3,63 @@
 ## Prerequisites
 
 - Python 3.11+
-- GB RAM available (for CPU inference)
-- Sufficient disk space
-- Access to HuggingFace Hub (for dataset and model download)
+- Sufficient RAM (required for 4-bit quantized model)
+- vCPUs (minimum)
+- Internet access (for dataset/model download)
 
 ## Installation
 
-1.  **Clone the repository** and navigate to the project directory.
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *Note: `bitsandbytes` is required for 4-bit quantization. If using CPU, ensure the CPU-only version is installed or the library is configured for CPU.*
+1. **Clone the repository** and navigate to the project directory.
+ ```bash
+ git clone <repo-url>
+ cd projects/PROJ-090-evaluating-the-robustness-of-llm-generat
+ ```
 
-## Data Download
+2. **Create a virtual environment** and install dependencies.
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ pip install -r code/requirements.txt
+ ```
 
-Run the data download script to fetch HumanEval:
-```bash
-python code/data/download.py
-```
-This will save the dataset to `data/raw/humaneval.parquet`.
+3. **Verify dataset access** (optional but recommended).
+ ```bash
+ python -c "import datasets; d = datasets.load_dataset('openai/openai_humaneval', split='test'); print(f'Loaded {len(d)} tasks')"
+ ```
 
 ## Running the Pipeline
 
-The pipeline is executed in stages. You can run the full pipeline or individual stages.
+The pipeline is executed via the main script. It performs all steps: download, perturb, validate, infer, and analyze.
 
-### 1. Generate Perturbations
 ```bash
-python code/data/perturbation.py --output data/processed/perturbation_candidates_raw.json
-```
-This generates candidates and scores them.
-
-### 2. Filter Perturbations
-```bash
-python code/data/filter.py --input data/processed/perturbation_candidates_raw.json --threshold 0.95 --output data/processed/perturbation_candidates.json
+python code/main.py
 ```
 
-### 3. Run Inference
-```bash
-python code/model/inference.py --input data/processed/perturbation_candidates.json --output data/processed/inference_logs.json
-```
-*Note: This step may take several hours. If it fails due to OOM, the system will attempt to offload to a GPU (if configured).*
+### Expected Output
 
-### 4. Analyze Results
-```bash
-python code/analysis/stats.py --input data/processed/inference_logs.json --output data/processed/results.csv
-```
+Upon successful completion, the following files will be generated in the `data/processed/` directory:
 
-## Verification
+- `perturbation_candidates_raw.json`: All generated variants.
+- `perturbation_candidates_validated.json`: High-fidelity variants (>0.95 similarity).
+- `inference_logs.json`: Execution results (pass/fail/timeout).
+- `calibration_report.json`: Final statistical analysis and sensitivity report.
 
-To verify the pipeline:
-1.  Check that `data/processed/inference_logs.json` exists and contains entries for `original` and `perturbed` prompts.
-2.  Run the unit tests:
-    ```bash
-    pytest tests/unit/
-    ```
-3.  Run the integration test:
-    ```bash
-    pytest tests/integration/
-    ```
+### Logs
+
+Runtime logs and error reports are stored in `data/logs/`:
+- `halt_report.json`: Summary of runtime errors (OOM, timeouts), including fallback triggers.
+
+## Reproducing Results
+
+To reproduce results exactly:
+
+1. Ensure `code/utils/seeds.py` has the global seed set (default: `42`).
+2. Delete any existing `data/processed/` files to force re-download and re-computation.
+3. Run `python code/main.py` again.
 
 ## Troubleshooting
 
-- **OOM Error**: If you encounter Out-Of-Memory errors, ensure you are using the 4-bit quantized model. If the issue persists, the system is designed to offload to a GPU.
-- **Timeout Errors**: The sandbox has a timeout. If code execution is slow, it will be logged as a timeout error.
-- **Semantic Similarity**: If no perturbations pass a high-confidence threshold, the raw log will be empty. Check the `similarity_score` distribution in `perturbation_candidates_raw.json`.
+- **OOM Error**: If the model fails to load, check RAM usage. Low-bit quantization should keep usage within a resource-constrained memory budget. If it exceeds, the pipeline will automatically fallback to `starcoder2-1b`. If the fallback also fails, check `data/logs/halt_report.json` for details.
+- **Timeout**: If the pipeline exceeds an acceptable duration threshold, check network speed for model downloads. The StarCoder model is of a size suitable for standard consumer hardware deployment. The budget includes fallback time.
+- **Dataset Error**: If `openai/openai_humaneval` fails to load, verify internet connectivity. The verified URL is `.
+- **Missing Output Files**: If `data/processed/calibration_report.json` is missing, the statistical analysis step failed. Check `code/analysis/statistics.py` and the `data/logs/halt_report.json` for errors.

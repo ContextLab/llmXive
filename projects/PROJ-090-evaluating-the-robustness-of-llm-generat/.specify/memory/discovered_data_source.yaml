@@ -1,19 +1,14 @@
 status: verified
 kind: pypi_package
 ref: datasets
-access_python: 'import datasets
+access_python: 'import datasets as ds
 
 
-  ds_dict = datasets.load_dataset("openai/openai_humaneval")
+  data = ds.load_dataset("openai/openai_humaneval", split="test")
 
-  total_records = sum(len(split) for split in ds_dict.values())
+  print(f"RECORDS={len(data)}")
 
-  print(f"RECORDS={total_records}")
-
-
-  first_split = next(iter(ds_dict.values()))
-
-  print("FIELDS=" + ",".join(first_split.column_names))'
+  print("FIELDS=" + ",".join(data.column_names))'
 record_count: 164
 sample_fields:
 - task_id
@@ -28,6 +23,6 @@ required_fields:
 - canonical_solution
 - test
 - entry_point
-intent: download HumanEval dataset from HuggingFace Datasets with sentence-transformers
-  model python package dataset
-cache_key: 3dee0ede6b1c5a08d4f203d548a4a5333c2a44ed2d3fb4ed66e1d066d660da1f
+intent: download HumanEval dataset from HuggingFace Datasets openai_humaneval python
+  package dataset
+cache_key: f735ea81a319e08bf191804cc4417038d2160459f47b0521c3d012640284899b
