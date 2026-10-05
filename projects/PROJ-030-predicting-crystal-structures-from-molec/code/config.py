@@ -1,236 +1,178 @@
 """
-Configuration management for the Crystal Structure Prediction pipeline.
+Configuration management for the Crystal Structure Prediction project.
 
-This module centralizes all project paths, random seeds, and hyperparameters.
-It provides functions to resolve absolute and relative paths based on the
-project root, ensuring consistent artifact locations across different environments.
+Handles paths, seeds, and runtime configuration.
 """
 
 import os
 import json
+import random
+import numpy as np
 from pathlib import Path
-from typing import Dict, Any, Optional, Union
+from typing import Dict, Any, Optional, Union, List, Callable
 
-# --- Project Root Resolution ---
-# The project root is the directory containing 'code/', 'data/', 'tests/', etc.
-# We detect it by looking for the standard directory structure.
-_PROJECT_ROOT: Optional[Path] = None
+# Project Root
+PROJECT_ROOT = Path(__file__).parent.parent
 
-def _resolve_project_root() -> Path:
-    """
-    Dynamically resolve the project root directory.
-    Looks for the standard 'code' directory relative to the current file.
-    """
-    global _PROJECT_ROOT
-    if _PROJECT_ROOT is not None:
-        return _PROJECT_ROOT
+# Directories
+DATA_DIR = PROJECT_ROOT / "data"
+PROCESSED_DIR = DATA_DIR / "processed"
+RESULTS_DIR = DATA_DIR / "results"
+VALIDATION_DIR = DATA_DIR / "validation"
+MODELS_DIR = DATA_DIR / "models"
+LOGS_DIR = PROJECT_ROOT / "logs"
+FIGURES_DIR = DATA_DIR / "figures"
+CODE_DIR = PROJECT_ROOT / "code"
+TESTS_DIR = PROJECT_ROOT / "tests"
+SPECS_DIR = PROJECT_ROOT / "specs"
+RAW_DIR = DATA_DIR / "raw"
 
-    # Start from this file's location
-    current_file = Path(__file__).resolve()
-    
-    # Try to find 'code' directory going up the tree
-    # Standard structure: <root>/code/config.py
-    if current_file.parent.name == 'code':
-        _PROJECT_ROOT = current_file.parent.parent
-    else:
-        # Fallback: assume current working directory if structure is non-standard
-        # or if running from a different context
-        _PROJECT_ROOT = Path.cwd()
-        
-    # Verify the root contains expected directories
-    if not (_PROJECT_ROOT / 'code').exists():
-        # If we can't find 'code', we might be in a flat structure or misconfigured
-        # For robustness, we assume the current directory is the root
-        pass 
-        
-    return _PROJECT_ROOT
+# Seeds
+DEFAULT_SEED = 42
 
 def get_project_root() -> Path:
-    """Returns the resolved project root path."""
-    return _resolve_project_root()
+    """Returns the project root directory."""
+    return PROJECT_ROOT
 
-# --- Path Resolution Helpers ---
+def get_path_absolute(*parts: Union[str, Path]) -> Path:
+    """Returns an absolute path constructed from parts."""
+    return PROJECT_ROOT / Path(*parts)
 
-def get_path_absolute(relative_path: Union[str, Path]) -> Path:
-    """
-    Resolves a relative path (relative to project root) to an absolute Path.
-    
-    Args:
-        relative_path: Path string or object relative to the project root.
-        
-    Returns:
-        Absolute Path object.
-    """
-    root = get_project_root()
-    return (root / relative_path).resolve()
+def get_path_relative(*parts: Union[str, Path]) -> Path:
+    """Returns a path relative to the project root."""
+    return Path(*parts)
 
-def get_path_relative(absolute_path: Union[str, Path]) -> Path:
-    """
-    Resolves an absolute path to a path relative to the project root.
-    
-    Args:
-        absolute_path: Absolute Path object or string.
-        
-    Returns:
-        Path relative to the project root.
-    """
-    root = get_project_root()
-    abs_p = Path(absolute_path).resolve()
-    try:
-        return abs_p.relative_to(root)
-    except ValueError:
-        # If the path is not under the project root, return the absolute path
-        # or raise an error depending on strictness requirements.
-        # Here we return the absolute path to avoid crashes, but log a warning.
-        return abs_p
-
-def ensure_directory(path: Union[str, Path]) -> Path:
-    """
-    Ensures the directory at the given path exists, creating it if necessary.
-    
-    Args:
-        path: Path to the directory.
-        
-    Returns:
-        The Path object for the directory.
-    """
+def ensure_directory(path: Union[str, Path]) -> None:
+    """Creates a directory if it does not exist."""
     p = Path(path)
-    if not p.is_absolute():
-        p = get_path_absolute(p)
     p.mkdir(parents=True, exist_ok=True)
-    return p
 
-# --- Configuration Constants ---
+def get_path_data(subpath: Optional[str] = None) -> Path:
+    """Returns the data directory or a subpath within it."""
+    if subpath:
+        return DATA_DIR / subpath
+    return DATA_DIR
 
-# Random Seeds
-RANDOM_SEED: int = 42
-Numpy_SEED: int = 42
-PyTorch_SEED: int = 42  # If applicable later
+def get_path_processed_data(filename: Optional[str] = None) -> Path:
+    """
+    Returns the processed data directory or a specific file within it.
+    
+    This function has been updated to accept an optional filename argument
+    to satisfy the API contract required by multiple scripts (split.py, 
+    validate_split.py, interpret.py, etc.).
+    
+    Args:
+        filename: Optional filename to append to the processed directory.
+                  If None, returns the directory path.
+    
+    Returns:
+        Path: The path to the directory or the specific file.
+    """
+    if filename is None:
+        return PROCESSED_DIR
+    return PROCESSED_DIR / filename
 
-# Hyperparameters
-HYPERPARAMETERS: Dict[str, Any] = {
-    "model": {
-        "random_forest": {
-            "n_estimators": 200,
-            "max_depth": 20,
-            "min_samples_split": 5,
-            "min_samples_leaf": 2,
-            "max_features": "sqrt",
-            "n_jobs": -1
-        },
-        "gradient_boosting": {
-            "n_estimators": 150,
-            "max_depth": 10,
-            "learning_rate": 0.1,
-            "subsample": 0.8,
-            "random_state": RANDOM_SEED
-        },
-        "ridge_regression": {
-            "alpha": 1.0,
-            "solver": "auto"
-        }
-    },
-    "training": {
-        "batch_size": 64,
-        "timeout_seconds": 3600,  # 1 hour default timeout
-        "max_samples_subset": 2000  # For timeout enforcement (FR-007)
-    },
-    "fingerprint": {
-        "radius": 2,  # ECFP4
-        "n_bits": 2048,
-        "min_path": 1,
-        "max_path": 7
-    },
-    "split": {
-        "test_size": 0.2,
-        "val_size": 0.1,
-        "rare_space_group_threshold": 20
-    }
-}
+def get_path_results(filename: Optional[str] = None) -> Path:
+    """Returns the results directory or a specific file within it."""
+    if filename is None:
+        return RESULTS_DIR
+    return RESULTS_DIR / filename
 
-# Target Sample Sizes (from Power Analysis T006b)
-TARGET_SAMPLE_SIZE: int = 500  # Target scaffolds
+def get_path_validation(filename: Optional[str] = None) -> Path:
+    """Returns the validation directory or a specific file within it."""
+    if filename is None:
+        return VALIDATION_DIR
+    return VALIDATION_DIR / filename
 
-# --- Path Definitions (Lazy Evaluation) ---
-# We define functions to get paths to ensure they are resolved at runtime
-# in case the project root changes or is set dynamically.
+def get_path_models(filename: Optional[str] = None) -> Path:
+    """Returns the models directory or a specific file within it."""
+    if filename is None:
+        return MODELS_DIR
+    return MODELS_DIR / filename
 
-def get_path_data() -> Path:
-    return get_path_absolute("data")
+def get_path_logs(filename: Optional[str] = None) -> Path:
+    """Returns the logs directory or a specific file within it."""
+    if filename is None:
+        return LOGS_DIR
+    return LOGS_DIR / filename
 
-def get_path_processed_data() -> Path:
-    return get_path_absolute("data/processed")
+def get_path_figures(filename: Optional[str] = None) -> Path:
+    """Returns the figures directory or a specific file within it."""
+    if filename is None:
+        return FIGURES_DIR
+    return FIGURES_DIR / filename
 
-def get_path_results() -> Path:
-    return get_path_absolute("data/results")
+def get_path_code(filename: Optional[str] = None) -> Path:
+    """Returns the code directory or a specific file within it."""
+    if filename is None:
+        return CODE_DIR
+    return CODE_DIR / filename
 
-def get_path_validation() -> Path:
-    return get_path_absolute("data/validation")
+def get_path_tests(filename: Optional[str] = None) -> Path:
+    """Returns the tests directory or a specific file within it."""
+    if filename is None:
+        return TESTS_DIR
+    return TESTS_DIR / filename
 
-def get_path_models() -> Path:
-    return get_path_absolute("data/models")
+def get_path_specs(filename: Optional[str] = None) -> Path:
+    """Returns the specs directory or a specific file within it."""
+    if filename is None:
+        return SPECS_DIR
+    return SPECS_DIR / filename
 
-def get_path_logs() -> Path:
-    return get_path_absolute("logs")
-
-def get_path_figures() -> Path:
-    return get_path_absolute("figures")
-
-def get_path_code() -> Path:
-    return get_path_absolute("code")
-
-def get_path_tests() -> Path:
-    return get_path_absolute("tests")
-
-def get_path_specs() -> Path:
-    return get_path_absolute("specs")
-
-# Specific Artifact Paths
-PATH_POLYMORPHIC_DATASET = get_path_absolute("data/processed/polymorphic_dataset.csv")
-PATH_CRYSTAL_DATASET = get_path_absolute("data/processed/crystal_dataset.csv")
-PATH_SPLIT_INDICES = get_path_absolute("data/processed/split_indices.json")
-PATH_RF_MODEL = get_path_absolute("data/models/rf_model.pkl")
-PATH_GB_MODEL = get_path_absolute("data/models/gb_model.pkl")
-PATH_RIDGE_MODEL = get_path_absolute("data/models/ridge_model.pkl")
-PATH_METRICS = get_path_absolute("data/results/model_metrics.json")
-PATH_LOG_FILE = get_path_absolute("logs/pipeline.log")
-
-# --- Configuration Dictionary ---
+def get_path_raw_data(filename: Optional[str] = None) -> Path:
+    """Returns the raw data directory or a specific file within it."""
+    if filename is None:
+        return RAW_DIR
+    return RAW_DIR / filename
 
 def get_config_dict() -> Dict[str, Any]:
-    """
-    Returns a dictionary representation of the current configuration.
-    Useful for logging, saving configs, or passing to other modules.
-    """
+    """Returns a dictionary of the current configuration."""
     return {
-        "paths": {
-            "project_root": str(get_project_root()),
-            "data": str(get_path_data()),
-            "processed": str(get_path_processed_data()),
-            "results": str(get_path_results()),
-            "models": str(get_path_models()),
-            "logs": str(get_path_logs()),
-            "figures": str(get_path_figures())
-        },
-        "seeds": {
-            "random": RANDOM_SEED,
-            "numpy": Numpy_SEED,
-            "pytorch": PyTorch_SEED
-        },
-        "hyperparameters": HYPERPARAMETERS,
-        "targets": {
-            "sample_size": TARGET_SAMPLE_SIZE
-        }
+        "project_root": str(PROJECT_ROOT),
+        "data_dir": str(DATA_DIR),
+        "processed_dir": str(PROCESSED_DIR),
+        "results_dir": str(RESULTS_DIR),
+        "validation_dir": str(VALIDATION_DIR),
+        "models_dir": str(MODELS_DIR),
+        "logs_dir": str(LOGS_DIR),
+        "figures_dir": str(FIGURES_DIR),
+        "seed": DEFAULT_SEED
     }
 
-# --- Main / CLI ---
+def set_seed(seed: int = DEFAULT_SEED) -> None:
+    """Sets the random seed for reproducibility."""
+    random.seed(seed)
+    np.random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+
+def load_runtime_config() -> Dict[str, Any]:
+    """Loads the runtime configuration from data/results/runtime_config.json."""
+    runtime_config_path = RESULTS_DIR / "runtime_config.json"
+    if runtime_config_path.exists():
+        with open(runtime_config_path, 'r') as f:
+            return json.load(f)
+    return {}
+
+def save_runtime_config(config: Dict[str, Any]) -> None:
+    """Saves the runtime configuration to data/results/runtime_config.json."""
+    ensure_directory(RESULTS_DIR)
+    runtime_config_path = RESULTS_DIR / "runtime_config.json"
+    with open(runtime_config_path, 'w') as f:
+        json.dump(config, f, indent=4)
+
+def create_parser() -> Any:
+    """Creates an argument parser for the CLI."""
+    import argparse
+    parser = argparse.ArgumentParser(description="Crystal Structure Prediction Pipeline")
+    parser.add_argument("--seed", type=int, default=DEFAULT_SEED, help="Random seed")
+    parser.add_argument("--sample-size", type=int, default=None, help="Sample size for testing")
+    return parser
 
 def main():
-    """
-    CLI entry point to print current configuration.
-    """
-    config = get_config_dict()
-    print(json.dumps(config, indent=2))
+    """Main entry point for config module (for testing)."""
+    print("Configuration loaded successfully.")
+    print(get_config_dict())
 
 if __name__ == "__main__":
     main()

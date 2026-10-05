@@ -4,313 +4,338 @@ import json
 import logging
 import traceback
 import time
+import signal
 from pathlib import Path
-from typing import Dict, Any, List, Tuple, Optional
-
+from typing import Dict, Any, List, Optional, Tuple
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.linear_model import Ridge
-from sklearn.metrics import r2_score, mean_absolute_error
-from sklearn.externals import joblib
+from sklearn.metrics import accuracy_score, f1_score, r2_score, mean_absolute_error
+from sklearn.model_selection import cross_val_score
+import joblib
 
-# Project imports based on API surface
-from config import get_path_absolute, get_path_results, ensure_directory
-from ingestion.models import ModelMetrics
-from exceptions import DownloadError, MemoryErrorHandled
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+from config import (
+    get_path_data, get_path_results, get_path_models,
+    get_path_processed_data, load_runtime_config
 )
-logger = logging.getLogger(__name__)
+from logging_config import get_logger, log_event
+from modeling.timeout_handler import enforce_timeout, log_timeout_action, calculate_optimized_trees
 
-def load_split_indices(split_path: str) -> Dict[str, List[int]]:
+logger = get_logger(__name__)
+
+# --- Timeouts and Signals ---
+
+class TimeoutError(Exception):
+    pass
+
+def timeout_handler(signum, frame):
+    raise TimeoutError("Training timeout exceeded")
+
+# --- Data Loading Helpers ---
+
+def load_split_indices(split_file: str = "split_indices.json") -> Dict[str, List[int]]:
     """Load split indices from JSON file."""
-    if not os.path.exists(split_path):
-        raise FileNotFoundError(f"Split indices file not found: {split_path}")
-    with open(split_path, 'r') as f:
+    path = Path(get_path_processed_data()) / split_file
+    if not path.exists():
+        raise FileNotFoundError(f"Split indices file not found: {path}")
+    with open(path, 'r') as f:
         return json.load(f)
 
-def load_dataset(dataset_path: str) -> pd.DataFrame:
-    """Load the processed dataset."""
-    if not os.path.exists(dataset_path):
-        raise FileNotFoundError(f"Dataset file not found: {dataset_path}")
-    return pd.read_csv(dataset_path)
+def load_dataset(dataset_file: str = "grouped_dataset.csv") -> pd.DataFrame:
+    """Load the preprocessed dataset."""
+    path = Path(get_path_processed_data()) / dataset_file
+    if not path.exists():
+        raise FileNotFoundError(f"Dataset file not found: {path}")
+    return pd.read_csv(path)
 
-def extract_features_targets(df: pd.DataFrame, target_col: str, feature_cols: List[str]) -> Tuple[np.ndarray, np.ndarray]:
-    """Extract features and targets from dataframe."""
-    X = df[feature_cols].values
+def extract_features_targets(df: pd.DataFrame, target_col: str) -> Tuple[np.ndarray, np.ndarray]:
+    """Extract features (fingerprints) and targets from DataFrame."""
+    # Features are assumed to be columns starting with 'fp_' or similar, or we parse a 'fingerprints' column
+    # Based on typical pipeline, let's assume a 'fingerprints' column contains lists/arrays, or individual bit columns
+    # For robustness, we look for a column named 'fingerprints' and explode it, or use all numeric columns except targets
+    if 'fingerprints' in df.columns:
+        # Assuming fingerprints are stored as string representation of list or array
+        # Or potentially already exploded into separate columns?
+        # Let's assume a column 'fingerprints' holds the list/array
+        X = np.vstack(df['fingerprints'].values)
+    else:
+        # Fallback: assume all numeric columns except target are features
+        feature_cols = [c for c in df.columns if c not in [target_col] and df[c].dtype in [np.float64, np.int64]]
+        X = df[feature_cols].values
+
     y = df[target_col].values
     return X, y
 
-def train_random_forest(X_train: np.ndarray, y_train: np.ndarray, n_estimators: int = 100) -> RandomForestRegressor:
-    """Train a Random Forest regressor."""
-    logger.info(f"Training Random Forest with {n_estimators} estimators...")
-    model = RandomForestRegressor(n_estimators=n_estimators, random_state=42, n_jobs=-1)
-    model.fit(X_train, y_train)
-    return model
+# --- Model Training Functions ---
 
-def train_gradient_boosting(X_train: np.ndarray, y_train: np.ndarray, n_estimators: int = 100) -> GradientBoostingRegressor:
-    """Train a Gradient Boosting regressor."""
-    logger.info(f"Training Gradient Boosting with {n_estimators} estimators...")
-    model = GradientBoostingRegressor(n_estimators=n_estimators, random_state=42)
-    model.fit(X_train, y_train)
-    return model
+def train_random_forest(X: np.ndarray, y: np.ndarray, timeout_seconds: int = 21600, n_estimators: Optional[int] = None) -> RandomForestClassifier:
+    """Train a Random Forest classifier."""
+    if n_estimators is None:
+        n_estimators = calculate_optimized_trees(X.shape[0])
+    logger.info(f"Training Random Forest with {n_estimators} trees...")
 
-def train_ridge_regression(X_train: np.ndarray, y_train: np.ndarray, alpha: float = 1.0) -> Ridge:
+    model = RandomForestClassifier(n_estimators=n_estimators, random_state=42, n_jobs=-1)
+
+    def run_training():
+        return model.fit(X, y)
+
+    return enforce_timeout(run_training, timeout_seconds, "RandomForest")
+
+def train_gradient_boosting(X: np.ndarray, y: np.ndarray, timeout_seconds: int = 21600) -> GradientBoostingClassifier:
+    """Train a Gradient Boosting classifier."""
+    logger.info("Training Gradient Boosting...")
+    model = GradientBoostingClassifier(n_estimators=100, random_state=42)
+
+    def run_training():
+        return model.fit(X, y)
+
+    return enforce_timeout(run_training, timeout_seconds, "GradientBoosting")
+
+def train_ridge_regression(X: np.ndarray, y: np.ndarray, timeout_seconds: int = 21600) -> Ridge:
     """Train a Ridge Regression model."""
     logger.info("Training Ridge Regression...")
-    model = Ridge(alpha=alpha, random_state=42)
-    model.fit(X_train, y_train)
-    return model
+    model = Ridge(random_state=42)
 
-def save_model(model: Any, model_path: str) -> None:
-    """Save a trained model to disk."""
-    ensure_directory(model_path)
-    joblib.dump(model, model_path)
-    logger.info(f"Model saved to {model_path}")
+    def run_training():
+        return model.fit(X, y)
 
-def calculate_molecular_weight_baseline(df: pd.DataFrame, target_col: str, feature_col: str = 'molecular_weight') -> Dict[str, float]:
+    return enforce_timeout(run_training, timeout_seconds, "Ridge")
+
+def save_model(model, path: str):
+    """Save model to disk."""
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    joblib.dump(model, path)
+    logger.info(f"Model saved to {path}")
+
+# --- Baseline Calculations ---
+
+def calculate_molecular_weight_baseline(X: np.ndarray, y: np.ndarray, df: pd.DataFrame) -> Dict[str, float]:
     """
-    Calculate baseline metrics using Molecular Weight as the sole predictor for Lattice Parameters.
-    
-    This implements a simple baseline where the prediction for a sample is its own molecular weight
-    (or a scaled version). For this implementation, we assume a direct linear relationship:
-    Prediction = Molecular Weight.
-    
-    If the target is 'Lattice Parameters' (which might be a string representation or a specific column),
-    we ensure we are comparing numeric values.
-    
-    Args:
-        df: The dataset dataframe.
-        target_col: The name of the target column (e.g., 'lattice_volume' or similar).
-        feature_col: The name of the molecular weight column.
-        
-    Returns:
-        Dictionary with 'r2' and 'mae' metrics.
+    Calculate Molecular Weight baseline for regression target (Lattice Parameters).
+    Since MW is a property of the molecule (row), we use it as the predictor.
+    We assume 'molecular_weight' column exists in df.
     """
-    if feature_col not in df.columns:
-        logger.warning(f"Feature column '{feature_col}' not found. Cannot calculate MW baseline.")
-        return {'r2': 0.0, 'mae': float('inf'), 'status': 'failed', 'reason': f"Column {feature_col} missing"}
+    if 'molecular_weight' not in df.columns:
+        logger.warning("Molecular Weight column not found. Skipping MW baseline.")
+        return {"status": "skipped", "reason": "molecular_weight column missing"}
 
-    if target_col not in df.columns:
-        logger.warning(f"Target column '{target_col}' not found. Cannot calculate MW baseline.")
-        return {'r2': 0.0, 'mae': float('inf'), 'status': 'failed', 'reason': f"Column {target_col} missing"}
-
-    # Clean data: drop rows with NaN in MW or Target
-    clean_df = df[[feature_col, target_col]].dropna()
+    mw = df['molecular_weight'].values
+    # Simple baseline: predict mean MW for all? Or use MW directly?
+    # The task says "Molecular Weight baseline regression logic".
+    # Usually, this means predicting the target using MW as the single feature.
+    # But if it's a baseline, it might just be predicting the mean of Y.
+    # Let's interpret as: Predict Y using MW (single feature regression).
+    # However, standard "baseline" often implies a trivial predictor (mean).
+    # Let's calculate the R2 of a model that just predicts the mean of Y (trivial baseline)
+    # AND potentially a simple linear model using MW if the spec implies MW is the feature.
+    # Given the phrasing "Molecular Weight baseline", it likely means using MW as the predictor.
     
-    if len(clean_df) == 0:
-        return {'r2': 0.0, 'mae': float('inf'), 'status': 'failed', 'reason': "No valid data rows"}
-
-    X = clean_df[feature_col].values
-    y = clean_df[target_col].values
-
-    # Baseline strategy: Predict y using X directly (Identity mapping or simple linear fit)
-    # For a true "baseline" often we just predict the mean of y, but the task specifies
-    # "Molecular Weight baseline regression", implying MW is the predictor.
-    # We will perform a simple linear regression (slope=1, intercept=0) as a naive physics-informed baseline,
-    # or fit a Ridge(0) to see how much MW explains variance.
-    # Let's fit a simple Ridge with alpha=0 (equivalent to OLS with no regularization) to measure 
-    # how well MW *predicts* the target, which is the baseline performance.
+    # Let's implement: Predict Y using MW as the single feature.
+    # We need to reshape MW for sklearn
+    mw_reshaped = mw.reshape(-1, 1)
     
-    # However, a "baseline" usually implies a simple heuristic. 
-    # Heuristic 1: Predict mean of y.
-    # Heuristic 2: Predict y = MW * k.
-    # Let's fit a Ridge model with MW as the single feature to get the best possible R2/MAE for MW.
-    
-    X_reshaped = X.reshape(-1, 1)
-    model = Ridge(alpha=0.0) # No regularization to see max fit
-    model.fit(X_reshaped, y)
-    
-    y_pred = model.predict(X_reshaped)
+    baseline_model = Ridge()
+    baseline_model.fit(mw_reshaped, y)
+    y_pred = baseline_model.predict(mw_reshaped)
     
     r2 = r2_score(y, y_pred)
     mae = mean_absolute_error(y, y_pred)
     
-    logger.info(f"Molecular Weight Baseline - R2: {r2:.4f}, MAE: {mae:.4f}, Coeff: {model.coef_[0]:.4f}")
-    
     return {
-        'r2': float(r2),
-        'mae': float(mae),
-        'coefficient': float(model.coef_[0]),
-        'intercept': float(model.intercept_),
-        'status': 'success',
-        'method': 'Ridge(alpha=0) with Molecular Weight as sole feature'
+        "baseline_type": "molecular_weight_regression",
+        "r2": float(r2),
+        "mae": float(mae),
+        "description": "Ridge regression using Molecular Weight as single feature"
     }
 
-def calculate_majority_class_baseline(df: pd.DataFrame, target_col: str) -> Dict[str, Any]:
+def calculate_molecular_weight_baseline_from_df(df: pd.DataFrame, target_col: str = "lattice_parameters") -> Dict[str, float]:
     """
-    Calculate majority class baseline for classification tasks.
+    Wrapper to calculate MW baseline specifically for the regression target.
+    Assumes 'lattice_parameters' is the target.
+    """
+    # Extract features (MW) and target (Lattice Params)
+    if 'molecular_weight' not in df.columns:
+        return {"status": "skipped", "reason": "molecular_weight column missing"}
     
-    Args:
-        df: The dataset dataframe.
-        target_col: The name of the target column.
-        
-    Returns:
-        Dictionary with accuracy and distribution metrics.
+    X = df['molecular_weight'].values.reshape(-1, 1)
+    # Parse lattice parameters if it's a string representation of a list/array
+    # Or if it's already numeric? Assuming it might be a string or needs parsing.
+    # For now, assuming y is numeric or can be cast.
+    # If lattice_parameters is a complex target (e.g. multiple params), this baseline might be ill-defined.
+    # Let's assume target is a single numeric value or we are predicting the first parameter.
+    # If the target is a string like "[1.2, 3.4]", we need to parse it.
+    # Given the ambiguity, let's assume the target column is numeric for this baseline.
+    
+    y = df[target_col]
+    if isinstance(y.iloc[0], str):
+        # Try to parse as list and take first element, or mean?
+        # This is risky. Let's assume the dataset builder already flattened this to a single numeric target for regression.
+        # If not, we skip.
+        logger.error(f"Target column {target_col} contains strings. Cannot compute simple MW baseline.")
+        return {"status": "skipped", "reason": "target column is not numeric"}
+    
+    y = y.values
+    
+    baseline_model = Ridge()
+    baseline_model.fit(X, y)
+    y_pred = baseline_model.predict(X)
+    
+    r2 = r2_score(y, y_pred)
+    mae = mean_absolute_error(y, y_pred)
+    
+    return {
+        "baseline_type": "molecular_weight_regression",
+        "r2": float(r2),
+        "mae": float(mae),
+        "description": "Ridge regression using Molecular Weight as single feature"
+    }
+
+def calculate_majority_class_baseline(df: pd.DataFrame, target_col: str = "space_group") -> Dict[str, Any]:
+    """
+    Calculate Majority Class baseline for classification target (Space Group).
+    Returns the accuracy of predicting the most frequent class for all samples.
     """
     if target_col not in df.columns:
-        return {'accuracy': 0.0, 'status': 'failed', 'reason': f"Column {target_col} missing"}
-
-    # Only proceed if target is categorical
-    if not pd.api.types.is_categorical_dtype(df[target_col]) and not pd.api.types.is_object_dtype(df[target_col]):
-        # Check if it's numeric but discrete (like space group numbers)
-        try:
-            # If it's numeric, we still treat it as classes for this baseline
-            pass
-        except:
-            return {'accuracy': 0.0, 'status': 'skipped', 'reason': 'Target is not categorical'}
-
-    # For the full dataset, the majority class accuracy is the frequency of the most common class
-    value_counts = df[target_col].value_counts()
-    if len(value_counts) == 0:
-        return {'accuracy': 0.0, 'status': 'failed', 'reason': 'No data'}
-        
+        logger.error(f"Target column {target_col} not found in dataset.")
+        return {"status": "error", "reason": f"column {target_col} missing"}
+    
+    y = df[target_col]
+    value_counts = y.value_counts()
+    majority_class = value_counts.index[0]
     majority_count = value_counts.iloc[0]
-    total_count = len(df)
-    accuracy = majority_count / total_count
+    total_count = len(y)
+    
+    # Predict majority class for all
+    y_pred = [majority_class] * total_count
+    
+    accuracy = accuracy_score(y, y_pred)
+    f1 = f1_score(y, y_pred, average='macro', zero_division=0)
     
     return {
-        'accuracy': float(accuracy),
-        'majority_class': str(value_counts.index[0]),
-        'majority_count': int(majority_count),
-        'total_samples': int(total_count),
-        'status': 'success'
+        "baseline_type": "majority_class",
+        "target": target_col,
+        "majority_class": str(majority_class),
+        "majority_count": int(majority_count),
+        "total_samples": int(total_count),
+        "accuracy": float(accuracy),
+        "macro_f1": float(f1),
+        "description": f"Predicting the majority class '{majority_class}' for all samples"
     }
 
-def evaluate_model(model: Any, X_test: np.ndarray, y_test: np.ndarray, model_name: str) -> Dict[str, float]:
-    """Evaluate a model and return metrics."""
+def evaluate_model(model, X_test, y_test, model_type: str) -> Dict[str, float]:
+    """Evaluate a model on test data."""
     y_pred = model.predict(X_test)
-    r2 = r2_score(y_test, y_pred)
-    mae = mean_absolute_error(y_test, y_pred)
-    logger.info(f"{model_name} - R2: {r2:.4f}, MAE: {mae:.4f}")
-    return {'r2': float(r2), 'mae': float(mae)}
+    
+    metrics = {}
+    if model_type == "classifier":
+        metrics["accuracy"] = float(accuracy_score(y_test, y_pred))
+        metrics["macro_f1"] = float(f1_score(y_test, y_pred, average='macro', zero_division=0))
+    elif model_type == "regressor":
+        metrics["r2"] = float(r2_score(y_test, y_pred))
+        metrics["mae"] = float(mean_absolute_error(y_test, y_pred))
+    
+    return metrics
 
 def main():
     """
-    Main entry point for training models and calculating baselines.
-    This function specifically implements T017 (MW Baseline) and T017b (Majority Baseline)
-    as part of the training pipeline.
+    Main entry point for training and baseline calculation.
+    Handles both Space Group (classification) and Lattice Parameters (regression) targets.
+    Specifically implements T017b: Majority Class Baseline for Space Group.
     """
-    # Paths
-    dataset_path = get_path_absolute("data/processed/grouped_dataset.csv")
-    split_path = get_path_absolute("data/processed/split_indices.json")
-    results_dir = get_path_results()
-    ensure_directory(results_dir)
+    logger.info("Starting training and baseline calculation pipeline.")
     
-    mw_baseline_path = get_path_absolute("data/results/mw_baseline_metrics.json")
-    majority_baseline_path = get_path_absolute("data/results/majority_class_baseline_metrics.json")
-
-    logger.info("Starting training and baseline calculation...")
-
+    # Load runtime config for device and timeout
+    runtime_config = load_runtime_config()
+    device = runtime_config.get("training_device", "cpu")
+    timeout_seconds = 21600 # 6 hours default, or from config
+    
+    # Load data
     try:
-        # Load Data
-        logger.info(f"Loading dataset from {dataset_path}")
-        df = load_dataset(dataset_path)
-        
-        logger.info(f"Loading split indices from {split_path}")
-        splits = load_split_indices(split_path)
-        
-        train_idx = splits['train']
-        test_idx = splits['test']
-        
-        df_train = df.iloc[train_idx]
-        df_test = df.iloc[test_idx]
-
-        # Define targets and features
-        # Assuming 'molecular_weight' is in the dataset from T011/T012
-        # Assuming lattice parameters are in a column named 'lattice_volume' or similar.
-        # The task specifies 'Lattice Parameters' as the target.
-        # We will look for a column that represents lattice volume/parameters.
-        # If the column is a string representation, we might need to parse it, but assuming numeric for now.
-        
-        # Check for common lattice columns
-        possible_lattice_cols = ['lattice_volume', 'lattice_parameters', 'volume']
-        target_col = None
-        for col in possible_lattice_cols:
-            if col in df.columns:
-                target_col = col
-                break
-        
-        if not target_col:
-            # Fallback: try to find a column with 'lattice' in the name
-            lattice_cols = [c for c in df.columns if 'lattice' in c.lower()]
-            if lattice_cols:
-                target_col = lattice_cols[0]
-            else:
-                raise ValueError("Could not identify Lattice Parameters target column in dataset.")
-
-        feature_cols = [c for c in df.columns if c.startswith('fingerprint_') or c == 'molecular_weight']
-        
-        if 'molecular_weight' not in feature_cols:
-            raise ValueError("Molecular Weight column not found in features.")
-
-        # --- T017: Molecular Weight Baseline for Regression (Lattice Parameters) ---
-        logger.info("Calculating Molecular Weight Baseline for Lattice Parameters...")
-        mw_metrics = calculate_molecular_weight_baseline(df_test, target_col, 'molecular_weight')
-        
-        with open(mw_baseline_path, 'w') as f:
-            json.dump(mw_metrics, f, indent=2)
-        logger.info(f"Molecular Weight baseline metrics saved to {mw_baseline_path}")
-
-        # --- T017b: Majority Class Baseline for Classification (Space Group) ---
-        logger.info("Calculating Majority Class Baseline for Space Group...")
-        if 'space_group' in df.columns:
-            majority_metrics = calculate_majority_class_baseline(df_test, 'space_group')
-            with open(majority_baseline_path, 'w') as f:
-                json.dump(majority_metrics, f, indent=2)
-            logger.info(f"Majority class baseline metrics saved to {majority_baseline_path}")
-        else:
-            logger.warning("Space Group column not found. Skipping majority class baseline.")
-            with open(majority_baseline_path, 'w') as f:
-                json.dump({'status': 'skipped', 'reason': 'Space Group column missing'}, f)
-
-        # --- Train Full Models (T016 continuation) ---
-        # Extract features and targets for full training
-        X_train, y_train = extract_features_targets(df_train, target_col, feature_cols)
-        X_test, y_test = extract_features_targets(df_test, target_col, feature_cols)
-
-        # Train models
-        rf_model = train_random_forest(X_train, y_train)
-        gb_model = train_gradient_boosting(X_train, y_train)
-        ridge_model = train_ridge_regression(X_train, y_train)
-
-        # Save models
-        models_dir = get_path_absolute("data/models")
-        ensure_directory(models_dir)
-        save_model(rf_model, get_path_absolute("data/models/rf_model.pkl"))
-        save_model(gb_model, get_path_absolute("data/models/gb_model.pkl"))
-        save_model(ridge_model, get_path_absolute("data/models/ridge_model.pkl"))
-
-        # Evaluate models
-        rf_metrics = evaluate_model(rf_model, X_test, y_test, "RandomForest")
-        gb_metrics = evaluate_model(gb_model, X_test, y_test, "GradientBoosting")
-        ridge_metrics = evaluate_model(ridge_model, X_test, y_test, "Ridge")
-
-        # Save full metrics (partial implementation for T019 context)
-        full_metrics = {
-            'random_forest': rf_metrics,
-            'gradient_boosting': gb_metrics,
-            'ridge_regression': ridge_metrics,
-            'baselines': {
-                'molecular_weight': mw_metrics,
-                'majority_class': majority_metrics if 'space_group' in df.columns else None
-            }
-        }
-        
-        metrics_path = get_path_absolute("data/results/model_metrics.json")
-        with open(metrics_path, 'w') as f:
-            json.dump(full_metrics, f, indent=2)
-        
-        logger.info("Training and evaluation complete.")
-
-    except Exception as e:
-        logger.error(f"Error during training/baseline calculation: {e}")
-        traceback.print_exc()
+        split_indices = load_split_indices()
+        dataset = load_dataset("grouped_dataset.csv")
+    except FileNotFoundError as e:
+        logger.error(f"Data loading failed: {e}")
         sys.exit(1)
+    
+    # Separate indices
+    train_idx = split_indices.get("train", [])
+    test_idx = split_indices.get("test", [])
+    
+    df_train = dataset.iloc[train_idx]
+    df_test = dataset.iloc[test_idx]
+    
+    # --- 1. Majority Class Baseline (T017b) ---
+    logger.info("Calculating Majority Class Baseline for Space Group...")
+    majority_baseline = calculate_majority_class_baseline(df_test, target_col="space_group")
+    
+    # Save Majority Class Baseline Metrics
+    majority_output_path = Path(get_path_results()) / "majority_class_baseline_metrics.json"
+    os.makedirs(majority_output_path.parent, exist_ok=True)
+    with open(majority_output_path, 'w') as f:
+        json.dump(majority_baseline, f, indent=2)
+    logger.info(f"Majority Class Baseline saved to {majority_output_path}")
+    
+    # --- 2. Molecular Weight Baseline (T017) ---
+    # Assuming 'lattice_parameters' is the regression target
+    logger.info("Calculating Molecular Weight Baseline for Lattice Parameters...")
+    mw_baseline = calculate_molecular_weight_baseline_from_df(df_test, target_col="lattice_parameters")
+    
+    mw_output_path = Path(get_path_results()) / "mw_baseline_metrics.json"
+    with open(mw_output_path, 'w') as f:
+        json.dump(mw_baseline, f, indent=2)
+    logger.info(f"MW Baseline saved to {mw_output_path}")
+    
+    # --- 3. Train Models (T016 continuation) ---
+    # Extract features for Space Group (Classification)
+    X_train_sg, y_train_sg = extract_features_targets(df_train, "space_group")
+    X_test_sg, y_test_sg = extract_features_targets(df_test, "space_group")
+    
+    # Train RF and GB for Space Group
+    rf_model_sg = train_random_forest(X_train_sg, y_train_sg, timeout_seconds)
+    gb_model_sg = train_gradient_boosting(X_train_sg, y_train_sg, timeout_seconds)
+    
+    # Evaluate
+    rf_metrics_sg = evaluate_model(rf_model_sg, X_test_sg, y_test_sg, "classifier")
+    gb_metrics_sg = evaluate_model(gb_model_sg, X_test_sg, y_test_sg, "classifier")
+    
+    # Save Models
+    save_model(rf_model_sg, str(Path(get_path_models()) / "rf_model_sg.pkl"))
+    save_model(gb_model_sg, str(Path(get_path_models()) / "gb_model_sg.pkl"))
+    
+    # Extract features for Lattice Parameters (Regression)
+    # Assuming we have a specific target column for regression
+    X_train_lp, y_train_lp = extract_features_targets(df_train, "lattice_parameters")
+    X_test_lp, y_test_lp = extract_features_targets(df_test, "lattice_parameters")
+    
+    # Train Ridge for Lattice Parameters
+    ridge_model_lp = train_ridge_regression(X_train_lp, y_train_lp, timeout_seconds)
+    
+    # Evaluate
+    ridge_metrics_lp = evaluate_model(ridge_model_lp, X_test_lp, y_test_lp, "regressor")
+    
+    # Save Model
+    save_model(ridge_model_lp, str(Path(get_path_models()) / "ridge_model_lp.pkl"))
+    
+    # --- 4. Aggregate Metrics (Partial for T019) ---
+    final_metrics = {
+        "space_group": {
+            "rf": rf_metrics_sg,
+            "gb": gb_metrics_sg,
+            "majority_baseline": majority_baseline
+        },
+        "lattice_parameters": {
+            "ridge": ridge_metrics_lp,
+            "mw_baseline": mw_baseline
+        }
+    }
+    
+    metrics_output_path = Path(get_path_results()) / "model_metrics_partial.json"
+    with open(metrics_output_path, 'w') as f:
+        json.dump(final_metrics, f, indent=2)
+    logger.info(f"Partial model metrics saved to {metrics_output_path}")
+    
+    logger.info("Training and baseline calculation completed successfully.")
 
 if __name__ == "__main__":
     main()

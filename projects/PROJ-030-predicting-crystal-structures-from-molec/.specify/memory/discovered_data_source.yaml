@@ -1,16 +1,19 @@
 status: none
-intent: Crystallography Open Database organic subset download CIF python package dataset
+intent: download Crystallography Open Database organic subset HuggingFace python package
+  dataset
 required_fields:
-- COD_ID
 - SMILES
-- ECFP4_2048bit
+- ECFP4_fingerprint
+- Space_Group
 - a
 - b
 - c
 - alpha
 - beta
 - gamma
-- space_group
-cache_key: 769e56baa4a52108ff0ffd973e30172d384873a1932a97acf529f3b53882cab9
-searched_at: '2026-09-21T12:45:55.140707+00:00'
+- Molecular_weight
+- atom_counts
+- metal_content_ratio
+cache_key: 6bc656f44f7b14f4138e1da1c27dc7c70beb9aeac924d951d1eb30c76edbda0c
+searched_at: '2026-10-05T09:03:12.054725+00:00'
 retry_count: 1

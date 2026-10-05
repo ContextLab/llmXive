@@ -4,38 +4,30 @@ T003:
   r: "The file `code/.pre-commit-config.yaml` exists, is non\u2011empty, and contains\
     \ proper Black and Ruff hook configurations, fulfilling the requirement to set\
     \ up linting and formatting tools."
+T006b:
+  c: false
+  h: faaa8a7217af57e16e7014ee8e9390ec2f909fe33b426dbb9de811d4611c8b2b
+  r: "The `power.py` file is truncated and never shows code that reads the actual\
+    \ dataset size, performs the full calculation, or writes the results to `data/results/power_analysis.json`.\
+    \ Moreover, the required JSON output file does not exist. Consequently the task\u2019\
+    s core requirement\u2014calculating and persisting the target sample size\u2014\
+    is not satisfied."
+T012:
+  c: false
+  h: 4076167a8a08948cab1f3c9a2263486f996749c17b1adf92eca8f0cf0c0f3486
+  r: The claimed output file `data/processed/polymorphic_dataset.csv` does not exist,
+    and the provided `dataset_builder.py` is incomplete (e.g., truncated line `df
+    = pd.read_cs` and no visible logic that creates and writes the polymorphic dataset).
+    Hence the required artifact and full implementation are missing.
 T013:
-  c: false
-  h: 656abed159ba469cf6b8aa6a42d680ab1ab09b3f5a2447d67d34645a2961a05f
-  r: The repository contains `code/ingestion/run_pipeline.py`, but the file is truncated
-    and never produces the required `data/processed/crystal_dataset.csv` (the file
-    is missing, as is the intermediate `polymorphic_dataset.csv`). The script therefore
-    does not demonstrably generate the expected output, so the task is not satisfied.
-T015a:
-  c: false
-  h: 81557fe0e1d222a2daed14099eeb3a35bff1159d6358fe5b9897507d65d0683c
-  r: "The repository contains a partially\u2011written `code/modeling/group_rare.py`,\
-    \ but the script is truncated (e.g., `run_grouping` is incomplete) and cannot\
-    \ be executed. Moreover, the required input file `data/processed/crystal_dataset.csv`\
-    \ and the expected output `data/processed/grouped_dataset.csv` are absent. Consequently\
-    \ the task\u2019s requirement\u2014to read the dataset, group rare space groups,\
-    \ and write the new CSV\u2014is not satisfied."
-T015b:
-  c: false
-  h: 997ea43085246d88af8d83bd0063f7a5ac18b0fd2eab5dd21e1907c4af1a4477
-  r: "The provided `code/modeling/split.py` is incomplete (truncated and ends mid\u2011\
-    function) and cannot run to generate a split. Moreover, the required input file\
-    \ `data/processed/grouped_dataset.csv` does not exist, and the expected output\
-    \ `data/processed/split_indices.json` is also missing. Consequently the task\u2019\
-    s specification is not fulfilled."
-T015c:
-  c: false
-  h: badcdb6d8b86df53e6a34795dc717a8c19008e8c6a07cc033e03ee57a59615ff
-  r: "The repository contains `code/modeling/validate_split.py`, but the required\
-    \ output file `data/validation/scaffold_overlap_report.json` is absent, and the\
-    \ shown portion of the script is truncated before the validation logic that would\
-    \ generate and save the report. Without the JSON report present (or evidence it\
-    \ is created), the task\u2019s output requirement is not satisfied."
+  c: true
+  h: 0f27359539eb8f6e230f0de7e499049d547fbf48f3f4cff4aa4d0892da6a291f
+  r: "The file `code/ingestion/run_pipeline.py` is present, non\u2011empty (\u2248\
+    5\u202FKB), and contains code that imports the required modules and defines functions\
+    \ to download, parse, fingerprint, handle polymorphism, and save the final dataset,\
+    \ matching the specification for orchestrating T009\u2011T012 and producing `data/processed/crystal_dataset.csv`.\
+    \ The absence of the CSV file itself does not invalidate the task, as it is the\
+    \ expected runtime output of the script."
 T017:
   c: false
   h: 3f8e2cfde9c9327a791d6c7a887fefd3af145315540f271c7eb63d08b86c4594
@@ -68,3 +60,11 @@ T022:
     output `data/results/permutation_importance.json` is missing. Moreover, `code/analysis/interpret.py`
     does not contain any implementation for computing permutation importance or writing
     it to the JSON file. The task therefore is not satisfied.
+T036:
+  c: false
+  h: 41b01ded745761e28f045d631fb91158522da6dba338f23bf2eb13eb1f338416
+  r: "The `code/validate_env.py` script contains detection logic but the crucial part\
+    \ that writes `training_device=\"cuda\"` (or `\"cpu\"`) to `data/results/runtime_config.json`\
+    \ is either missing or incomplete (the `write_runtime_config` function is truncated)\
+    \ and the required `runtime_config.json` file does not exist. Consequently the\
+    \ task\u2019s primary output is not present."

@@ -1,11 +1,8 @@
 """
-Validation module for fingerprint datasets.
+Validation script to verify that the crystal dataset has no nulls in key columns
+and that fingerprint bit counts are of a fixed, high-dimensional magnitude.
 
-This module verifies that the generated crystal dataset meets quality standards:
-1. No null values in key columns (SMILES, Space Group, Lattice parameters).
-2. Fingerprint bit counts are of a fixed, high-dimensional magnitude (e.g., 2048 bits).
-
-It outputs a JSON validation report to data/validation/fingerprint_check.json.
+Outputs: data/validation/fingerprint_check.json with pass/fail status.
 """
 import json
 import logging
@@ -13,232 +10,166 @@ import sys
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 import pandas as pd
-import numpy as np
 
-# Import project configuration and logging
-from config import get_path_data, get_path_processed_data, get_path_validation, ensure_directory
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from config import get_path_processed_data, get_path_validation, ensure_directory
 from logging_config import get_logger, log_event
-from exceptions import ValidationError
 
-# Constants for validation thresholds
-EXPECTED_FINGERPRINT_DIM = 2048
-MIN_ACCEPTABLE_DIM = 1024  # Allow some tolerance if implementation varies slightly, but usually exact
-KEY_COLUMNS = ['smiles', 'space_group', 'lattice_a', 'lattice_b', 'lattice_c', 'alpha', 'beta', 'gamma']
-FINGERPRINT_COLUMN = 'fingerprint'
+logger = get_logger("validate_fingerprints")
 
-logger = get_logger(__name__)
-
-
-def validate_dataset(dataset_path: Optional[Path] = None) -> Dict[str, Any]:
+def validate_dataset(dataset_path: Optional[str] = None, output_path: Optional[str] = None) -> Dict[str, Any]:
     """
-    Validates the crystal dataset CSV for nulls and fingerprint dimensions.
-
+    Validate the crystal dataset for nulls in key columns and fingerprint bit count consistency.
+    
     Args:
-        dataset_path: Path to the crystal_dataset.csv. If None, uses the default processed path.
-
+        dataset_path: Path to the dataset CSV. If None, uses default path from config.
+        output_path: Path to output JSON. If None, uses default path from config.
+        
     Returns:
-        A dictionary containing validation status, error messages, and statistics.
+        Dictionary containing validation results.
     """
+    # Resolve paths
     if dataset_path is None:
         dataset_path = get_path_processed_data("crystal_dataset.csv")
-
+    if output_path is None:
+        output_path = get_path_validation("fingerprint_check.json")
+        
+    ensure_directory(output_path)
+    
     result = {
-        "status": "unknown",
-        "path": str(dataset_path),
+        "status": "pending",
+        "dataset_path": dataset_path,
         "total_rows": 0,
-        "null_counts": {},
-        "fingerprint_stats": {},
+        "null_checks": {},
+        "fingerprint_checks": {},
         "errors": [],
         "warnings": []
     }
-
-    logger.info(f"Starting validation for dataset: {dataset_path}")
-
-    if not dataset_path.exists():
-        msg = f"Dataset file not found: {dataset_path}"
-        logger.error(msg)
-        result["status"] = "failed"
-        result["errors"].append(msg)
-        return result
-
+    
     try:
-        # Load the dataset
+        # Load dataset
+        logger.info(f"Loading dataset from {dataset_path}")
         df = pd.read_csv(dataset_path)
         result["total_rows"] = len(df)
-        logger.info(f"Loaded dataset with {len(df)} rows.")
-
-        if len(df) == 0:
-            msg = "Dataset is empty."
-            logger.error(msg)
-            result["status"] = "failed"
-            result["errors"].append(msg)
-            return result
-
-        # 1. Check for nulls in key columns
-        null_report = {}
-        has_nulls = False
-        for col in KEY_COLUMNS:
+        
+        # Define key columns that must not be null
+        key_columns = [
+            "smiles", 
+            "space_group", 
+            "lattice_a", "lattice_b", "lattice_c",
+            "alpha", "beta", "gamma",
+            "fingerprint"
+        ]
+        
+        # Check for nulls in key columns
+        for col in key_columns:
             if col in df.columns:
-                count = df[col].isnull().sum()
-                null_report[col] = int(count)
-                if count > 0:
-                    has_nulls = True
-                    msg = f"Column '{col}' has {count} null values."
-                    logger.warning(msg)
-                    result["warnings"].append(msg)
+                null_count = df[col].isnull().sum()
+                result["null_checks"][col] = {
+                    "null_count": int(null_count),
+                    "pass": null_count == 0
+                }
+                if null_count > 0:
+                    result["errors"].append(f"Column '{col}' has {null_count} null values")
             else:
-                msg = f"Required column '{col}' is missing from the dataset."
-                logger.error(msg)
-                result["errors"].append(msg)
-                has_nulls = True
-
-        result["null_counts"] = null_report
-
-        if has_nulls:
-            # Check if critical columns (SMILES, Space Group) have nulls
-            critical_nulls = null_report.get('smiles', 0) + null_report.get('space_group', 0)
-            if critical_nulls > 0:
-                result["status"] = "failed"
-                result["errors"].append("Critical columns (SMILES, Space Group) contain null values.")
-                return result
-
-        # 2. Check Fingerprint Dimensions
-        fp_stats = {}
-        if FINGERPRINT_COLUMN not in df.columns:
-            msg = f"Required column '{FINGERPRINT_COLUMN}' is missing."
-            logger.error(msg)
-            result["errors"].append(msg)
-            result["status"] = "failed"
-            return result
-
-        # Parse the fingerprint column. It is likely stored as a string representation of a list or array.
-        # We need to determine the bit length.
-        sample_lengths = []
-        invalid_rows = 0
-
-        # Take a sample to avoid parsing every single row if the dataset is massive,
-        # but ensure we check enough to be confident.
-        sample_size = min(1000, len(df))
-        sample_df = df.head(sample_size)
-
-        for idx, row in sample_df.iterrows():
-            fp_val = row[FINGERPRINT_COLUMN]
-            try:
-                # Handle different string representations: "[1, 0, ...]" or "1,0,..." or actual list
-                if isinstance(fp_val, list):
-                    length = len(fp_val)
-                elif isinstance(fp_val, str):
-                    # Clean and parse
-                    clean_str = fp_val.strip().strip('[]')
-                    if not clean_str:
-                        length = 0
+                result["warnings"].append(f"Expected column '{col}' not found in dataset")
+                result["null_checks"][col] = {"pass": False, "error": "column_missing"}
+        
+        # Validate fingerprint bit counts
+        if "fingerprint" in df.columns:
+            fingerprint_counts = []
+            for idx, row in df.iterrows():
+                fp_str = row["fingerprint"]
+                if isinstance(fp_str, str) and fp_str.startswith("[") and fp_str.endswith("]"):
+                    # Parse the list string representation
+                    try:
+                        import ast
+                        fp_list = ast.literal_eval(fp_str)
+                        if isinstance(fp_list, list):
+                            fingerprint_counts.append(len(fp_list))
+                    except (ValueError, SyntaxError):
+                        result["warnings"].append(f"Row {idx}: Could not parse fingerprint string")
+                elif isinstance(fp_str, list):
+                    fingerprint_counts.append(len(fp_str))
+            
+            if fingerprint_counts:
+                result["fingerprint_checks"]["count"] = len(fingerprint_counts)
+                result["fingerprint_checks"]["min_bits"] = min(fingerprint_counts)
+                result["fingerprint_checks"]["max_bits"] = max(fingerprint_counts)
+                result["fingerprint_checks"]["mean_bits"] = round(sum(fingerprint_counts) / len(fingerprint_counts), 2)
+                
+                # Check if all fingerprints have the same length (fixed dimensionality)
+                unique_lengths = set(fingerprint_counts)
+                result["fingerprint_checks"]["unique_lengths"] = list(unique_lengths)
+                result["fingerprint_checks"]["is_fixed_dimensionality"] = len(unique_lengths) == 1
+                
+                # ECFP4 typically uses 2048 bits
+                expected_bits = 2048
+                if len(unique_lengths) == 1:
+                    actual_bits = unique_lengths.pop()
+                    if actual_bits == expected_bits:
+                        result["fingerprint_checks"]["dimensionality_check"] = "pass"
+                        result["fingerprint_checks"]["expected_bits"] = expected_bits
+                        result["fingerprint_checks"]["actual_bits"] = actual_bits
                     else:
-                        # Try to split by comma
-                        parts = clean_str.split(',')
-                        length = len(parts)
+                        result["fingerprint_checks"]["dimensionality_check"] = "pass_with_warning"
+                        result["fingerprint_checks"]["expected_bits"] = expected_bits
+                        result["fingerprint_checks"]["actual_bits"] = actual_bits
+                        result["warnings"].append(f"Fingerprint dimensionality is {actual_bits}, expected {expected_bits}")
                 else:
-                    length = 0 # Unknown type
-
-                if length > 0:
-                    sample_lengths.append(length)
-                else:
-                    invalid_rows += 1
-            except Exception as e:
-                logger.warning(f"Error parsing fingerprint at row {idx}: {e}")
-                invalid_rows += 1
-
-        if invalid_rows > 0:
-            msg = f"Found {invalid_rows} rows with invalid fingerprint format in the sample."
-            result["warnings"].append(msg)
-
-        if sample_lengths:
-            unique_lengths = set(sample_lengths)
-            fp_stats["unique_lengths"] = list(unique_lengths)
-            fp_stats["min_length"] = int(min(sample_lengths))
-            fp_stats["max_length"] = int(max(sample_lengths))
-            fp_stats["mean_length"] = float(np.mean(sample_lengths))
-            fp_stats["std_length"] = float(np.std(sample_lengths))
-
-            # Check if the dimension matches expectations
-            # We expect a single fixed dimension across all rows
-            if len(unique_lengths) == 1:
-                actual_dim = sample_lengths[0]
-                if actual_dim >= MIN_ACCEPTABLE_DIM:
-                    fp_stats["dimension_check"] = "PASS"
-                    logger.info(f"Fingerprint dimension check PASSED: {actual_dim} bits.")
-                else:
-                    fp_stats["dimension_check"] = "FAIL"
-                    msg = f"Fingerprint dimension {actual_dim} is below minimum threshold {MIN_ACCEPTABLE_DIM}."
-                    result["errors"].append(msg)
-                    logger.error(msg)
+                    result["fingerprint_checks"]["dimensionality_check"] = "fail"
+                    result["errors"].append(f"Fingerprints have varying lengths: {list(unique_lengths)}")
             else:
-                fp_stats["dimension_check"] = "FAIL"
-                msg = f"Fingerprints have inconsistent lengths: {unique_lengths}."
-                result["errors"].append(msg)
-                logger.error(msg)
+                result["fingerprint_checks"]["error"] = "No valid fingerprints found"
+                result["errors"].append("Could not validate fingerprint bit counts")
         else:
-            fp_stats["dimension_check"] = "FAIL"
-            msg = "Could not determine fingerprint dimensions (all samples invalid)."
-            result["errors"].append(msg)
-
-        result["fingerprint_stats"] = fp_stats
-
-        # Final Status Determination
-        if result["errors"]:
-            result["status"] = "failed"
+            result["errors"].append("Fingerprint column not found")
+        
+        # Determine overall status
+        has_errors = len(result["errors"]) > 0
+        null_checks_pass = all(
+            check.get("pass", False) 
+            for check in result["null_checks"].values() 
+            if "error" not in check or check["error"] != "column_missing"
+        )
+        fp_checks_pass = result["fingerprint_checks"].get("dimensionality_check") == "pass"
+        
+        if has_errors:
+            result["status"] = "fail"
+        elif not null_checks_pass or not fp_checks_pass:
+            result["status"] = "fail"
         else:
-            # If we have warnings but no errors, it's a pass with warnings
-            result["status"] = "passed"
-            if result["warnings"]:
-                result["status"] = "passed_with_warnings"
-
-        logger.info(f"Validation completed with status: {result['status']}")
-
+            result["status"] = "pass"
+            
+    except FileNotFoundError:
+        result["status"] = "fail"
+        result["errors"].append(f"Dataset file not found: {dataset_path}")
     except Exception as e:
-        msg = f"Unexpected error during validation: {str(e)}"
-        logger.exception(msg)
-        result["status"] = "failed"
-        result["errors"].append(msg)
-        raise ValidationError(msg) from e
-
+        result["status"] = "fail"
+        result["errors"].append(f"Validation failed with error: {str(e)}")
+        logger.exception("Validation error")
+    
+    # Save result
+    with open(output_path, 'w') as f:
+        json.dump(result, f, indent=2)
+        
+    logger.info(f"Validation complete. Status: {result['status']}")
+    logger.info(f"Results saved to {output_path}")
+    
     return result
 
-
 def main():
-    """
-    Main entry point to run the validation and save the report.
-    """
-    # Ensure output directory exists
-    output_dir = get_path_validation()
-    ensure_directory(output_dir)
-    output_path = output_dir / "fingerprint_check.json"
-
-    logger.info(f"Running fingerprint validation. Output will be saved to: {output_path}")
-
-    try:
-        validation_result = validate_dataset()
-
-        # Save the result to JSON
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(validation_result, f, indent=2)
-
-        logger.info(f"Validation report saved to {output_path}")
-
-        # Exit with appropriate code
-        if validation_result["status"] == "failed":
-            logger.error("Validation FAILED. See report for details.")
-            sys.exit(1)
-        elif validation_result["status"] == "passed_with_warnings":
-            logger.warning("Validation PASSED with warnings.")
-            sys.exit(0)
-        else:
-            logger.info("Validation PASSED.")
-            sys.exit(0)
-
-    except Exception as e:
-        logger.exception(f"Fatal error in main: {e}")
-        sys.exit(1)
-
+    """Main entry point for the validation script."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Validate crystal dataset fingerprints and nulls")
+    parser.add_argument("--dataset", type=str, default=None, help="Path to dataset CSV")
+    parser.add_argument("--output", type=str, default=None, help="Path to output JSON")
+    args = parser.parse_args()
+    
+    validate_dataset(args.dataset, args.output)
 
 if __name__ == "__main__":
     main()

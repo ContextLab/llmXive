@@ -1,17 +1,24 @@
 {
   "project_id": "PROJ-030-predicting-crystal-structures-from-molec",
   "ok": false,
-  "reason": "",
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/error_handling.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026. It does NOT     return synthetic data or a placeholder.     \"\"\u2026\u201d; 7 command(s) failed: python code/ingestion/load_cod.py --output data/raw/cod_organic_subset.parquet (rc=1); python code/ingestion/parse_cif.py --input data/raw/cod_organic_subset.parquet --output data/processed/crystal_molecules.parquet (rc=1); python code/modeling/split.py --input data/processed/crystal_molecules.parquet --output_dir data/splits (rc=1); 12 declared deliverable(s) absent: data/processed/crystal_dataset.csv; data/processed/grouped_dataset.csv; data/processed/polymorphic_dataset.csv",
   "artifacts": [],
-  "failures": [],
-  "fix_rounds": 0,
+  "failures": [
+    "python code/ingestion/load_cod.py --output data/raw/cod_organic_subset.parquet -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec/code/ingestion/load_cod.py\", line 25, in <module>\n    from exceptions import DownloadError\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec/code/exceptions.py\", line 38, in <module>\n    class ValidationError(Exception):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec/",
+    "python code/ingestion/parse_cif.py --input data/raw/cod_organic_subset.parquet --output data/processed/crystal_molecules.parquet -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec/code/ingestion/parse_cif.py\", line 38, in <module>\n    from error_handling import handle_memory_error, safe_process_item\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec/code/error_handling.py\", line 19, in <module>\n    from exceptions import DownloadError, MemoryErrorHa",
+    "python code/modeling/split.py --input data/processed/crystal_molecules.parquet --output_dir data/splits -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec/code/modeling/split.py\", line 342, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec/code/modeling/split.py\", line 309, in main\n    input_file = get_path_processed_data(\"grouped_dataset.csv\")\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: get_pat",
+    "python code/modeling/train.py --train data/splits/train.parquet --test data/splits/test.parquet --output data/results/model_metrics.json -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec/code/modeling/train.py\", line 15, in <module>\n    from sklearn.externals import joblib\nImportError: cannot import name 'joblib' from 'sklearn.externals' (/home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec/code/.venv/lib/python3.11/site-packages/sklearn/externals/__init__.p",
+    "python code/analysis/interpret.py --model_path data/results/model_metrics.json --data data/splits/train.parquet --output data/results/feature_importance.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec/code/analysis/interpret.py\", line 273, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec/code/analysis/interpret.py\", line 193, in main\n    dataset_path = get_path_processed_data(\"crystal_dataset.csv\")\n                   ",
+    "python -m pytest tests/unit/test_ingestion.py -v -> rc=4\n    ============================= test session starts ==============================\nplatform linux -- Python 3.11.16, pytest-9.1.1, pluggy-1.6.0 -- /home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec/code/.venv/bin/python\ncachedir: .pytest_cache\nrootdir: /home/runner/work/llmXive/llmXive\nconfigfile: pyproject.toml\nplugins: anyio-4.15.1\ncollecting ... collected 0 items\n\n============================ no tests ran in 0.00s =============================\n\nERROR: file or directory not found: tests/unit/",
+    "python -m pytest tests/integration/test_full_pipeline.py --sample-size 100 -> rc=4\n    ERROR: usage: python -m pytest [options] [file_or_dir] [file_or_dir] [...]\npython -m pytest: error: unrecognized arguments: --sample-size 100\n  inifile: /home/runner/work/llmXive/llmXive/pyproject.toml\n  rootdir: /home/runner/work/llmXive/llmXive"
+  ],
+  "fix_rounds": 1,
   "model_tier": 0,
-  "offload": {
-    "status": "running",
-    "kernel_ref": "jeremy9/llmxive-proj-030-predicting-crystal-structures-fro",
-    "submitted_at": "2026-10-05T08:31:44Z",
-    "reason": "",
-    "evidence": []
-  },
-  "updated_at": "2026-10-05T08:31:50Z"
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "compute_env",
+  "evidence": [
+    "python code/ingestion/parse_cif.py --input data/raw/cod_organic_subset.parquet --output data/processed/crystal_molecules.parquet"
+  ],
+  "updated_at": "2026-10-05T08:56:07Z"
 }

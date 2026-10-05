@@ -9,8 +9,11 @@ constraint (no synthetic fallbacks).
 
 import os
 import sys
+import json
+import argparse
 from pathlib import Path
 from typing import Iterator, Dict, Any, Optional
+import logging
 
 # Project root import handling for execution
 _project_root = Path(__file__).resolve().parents[2]
@@ -20,7 +23,7 @@ if str(_project_root) not in sys.path:
 from datasets import load_dataset
 from huggingface_hub import login
 
-from config import get_path_absolute
+from config import get_path_absolute, ensure_directory
 from environment_config import get_hf_token, validate_hf_environment
 from exceptions import DownloadError
 from logging_config import get_logger, log_event
@@ -30,11 +33,6 @@ logger = get_logger(__name__)
 
 DATASET_NAME = "crystallography-open-database/organic"
 # The 'organic' subset is the specific configuration/subset requested.
-# In HuggingFace datasets, this is often the 'config' name or a filter.
-# We attempt to load the dataset with the 'organic' configuration if available,
-# otherwise we load the full dataset and filter programmatically if needed.
-# Based on the task description, we assume a specific split or config exists.
-# If the dataset has a 'organic' config, we use it.
 DATASET_CONFIG = "organic"
 
 def stream_cod_organic() -> Iterator[Dict[str, Any]]:
@@ -82,9 +80,7 @@ def stream_cod_organic() -> Iterator[Dict[str, Any]]:
         )
     except Exception as e:
         logger.error(f"Failed to load dataset {DATASET_NAME} with config {DATASET_CONFIG}: {e}")
-        # Fallback: Try loading without specific config if the named config fails,
-        # but strictly speaking, the task asks for the 'organic' subset.
-        # If the specific config doesn't exist, we must fail loudly as per constraints.
+        # Fail loudly: do not fall back to synthetic data
         raise DownloadError(f"Could not access the organic subset of {DATASET_NAME}. "
                             f"Ensure the dataset and configuration '{DATASET_CONFIG}' exist. "
                             f"Original error: {e}") from e
@@ -95,9 +91,7 @@ def stream_cod_organic() -> Iterator[Dict[str, Any]]:
     count = 0
     for record in dataset:
         # The task mentions enforcing the <500MB organic filter.
-        # If the dataset config 'organic' already represents this, we just yield.
-        # If we need to filter by file size or specific criteria, we do it here.
-        # Assuming the 'organic' config is the correct pre-filtered subset.
+        # The 'organic' config is assumed to be the pre-filtered subset.
         # If the record contains a 'size' or similar field, we could check it.
         # For now, we assume the dataset loader handles the subset.
         yield record
@@ -109,24 +103,68 @@ def stream_cod_organic() -> Iterator[Dict[str, Any]]:
 
 def main():
     """
-    Main entry point for testing the stream.
-    Reads a small sample and prints metadata to verify connectivity and schema.
+    Main entry point for the script.
+    Streams the COD organic dataset and writes the first N records to a Parquet file
+    to verify the pipeline works and produces the required output artifact.
+    
+    Usage:
+        python code/ingestion/load_cod.py --output data/raw/cod_organic_subset.parquet
     """
-    logger.info("Starting COD Organic Stream Test (Main)")
+    parser = argparse.ArgumentParser(description="Stream COD Organic dataset to Parquet")
+    parser.add_argument(
+        "--output", 
+        type=str, 
+        default="data/raw/cod_organic_subset.parquet",
+        help="Path to the output Parquet file (relative to project root)"
+    )
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=100,
+        help="Maximum number of records to stream and write (for testing)"
+    )
+    args = parser.parse_args()
+
+    logger.info(f"Starting COD Organic Stream to: {args.output}")
+    
+    # Ensure output directory exists
+    output_path = Path(args.output)
+    ensure_directory(output_path.parent)
+    
+    # We need to import pandas here to write parquet, but only if needed
+    # to avoid hard dependency if not used, though it's likely in requirements.
+    try:
+        import pandas as pd
+    except ImportError:
+        logger.error("pandas is required to write Parquet files. Please install it.")
+        raise
+
     try:
         stream = stream_cod_organic()
-        sample_count = 0
-        for record in stream:
-            sample_count += 1
-            if sample_count == 1:
-                logger.info(f"First record keys: {list(record.keys())}")
-                logger.info(f"First record sample (truncated): {str(record)[:500]}...")
-            if sample_count >= 10:
+        records = []
+        
+        for i, record in enumerate(stream):
+            if i >= args.limit:
+                logger.info(f"Limit reached ({args.limit} records). Stopping stream.")
                 break
+            records.append(record)
+            if (i + 1) % 100 == 0:
+                logger.info(f"Collected {i + 1} records...")
+
+        if not records:
+            logger.warning("No records were streamed. The dataset might be empty or filtered out.")
+            # Still create an empty file with schema if possible, or fail.
+            # For now, we raise an error if we expected data but got none.
+            raise DownloadError("Stream produced 0 records. Check dataset availability.")
+
+        # Convert to DataFrame
+        df = pd.DataFrame(records)
         
-        logger.info(f"Successfully sampled {sample_count} records from the stream.")
-        print(f"SUCCESS: Streamed {sample_count} records.")
-        
+        # Write to Parquet
+        df.to_parquet(output_path, index=False)
+        logger.info(f"Successfully wrote {len(df)} records to {output_path}")
+        print(f"SUCCESS: Wrote {len(df)} records to {output_path}")
+
     except DownloadError as de:
         logger.error(f"Download error: {de}")
         print(f"FAILED: {de}")
