@@ -1,0 +1,59 @@
+- artifact_path: projects/PROJ-231-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
+  attempts: 1
+  canonical: LOO jackknife runs N iterations for N ensemble members
+  claim_id: c_ef987f40
+  context: The procedure runs exactly $N$ iterations, where $N$ is the total number
+    of ensemble members (Task T028a). In each iteration $i$, the $i$-th model is removed
+    from the dataset, and the fPCA is re-executed on the remaining $N-1$ models.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/LOO_jackknife_runs_N_iterations_for_N_ensemble_members
+  kind: entity_fact
+  raw_text: The LOO Jackknife procedure runs exactly N iterations, where N is the
+    total number of ensemble members.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T14:00:53Z'
+- artifact_path: projects/PROJ-231-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
+  attempts: 1
+  canonical: climate ensembles have 30 to 50 models
+  claim_id: c_a01b1b28
+  context: "Small Sample Correction: Climate ensembles often have a limited number\
+    \ of models ($N \approx 30-50$). LOO is the most efficient way to estimate the\
+    \ variance of the estimator in small-sample regimes without introducing the additional\
+    \ variance of random resampling."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Climate ensembles often have a limited number of models (N approximately
+    30-50).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T14:01:16Z'
+- artifact_path: projects/PROJ-231-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
+  attempts: 1
+  canonical: analysis used real CMIP6 data from sungduk/wip_cmip6 Hugging Face repository
+  claim_id: c_478d1b9d
+  context: 'Real Data Source: All analysis is performed on real CMIP6 data downloaded
+    from the `sungduk/wip_cmip6` Hugging Face dataset repository. No synthetic or
+    placeholder data is used.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_used_real_CMIP6_data_from_sungduk/wip_cmip6_Hugging
+  kind: entity_fact
+  raw_text: All analysis is performed on real CMIP6 data downloaded from the sungduk/wip_cmip6
+    Hugging Face dataset repository.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T14:01:42Z'

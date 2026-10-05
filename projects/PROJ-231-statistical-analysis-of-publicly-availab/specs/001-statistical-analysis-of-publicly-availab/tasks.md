@@ -24,9 +24,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan
-- [ ] T002 Initialize Python 3.11 project with dependencies
-- [ ] T003 [P] Configure linting and formatting tools
+- [ ] T001a [P] Create `projects/PROJ-231-statistical-analysis-of-publicly-availab/` root directory
+- [ ] T001b [P] Create `projects/PROJ-231-statistical-analysis-of-publicly-availab/code/__init__.py`
+- [ ] T001c [P] Create `projects/PROJ-231-statistical-analysis-of-publicly-availab/data/raw/.gitkeep` and `data/processed/.gitkeep`
+- [ ] T001d [P] Create `projects/PROJ-231-statistical-analysis-of-publicly-availab/tests/unit/.gitkeep` and `tests/contract/.gitkeep`
+- [ ] T001e [P] Create `projects/PROJ-231-statistical-analysis-of-publicly-availab/.gitignore` and `requirements.txt` stub
 
 ---
 
@@ -36,11 +38,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup data directory structure (`data/raw`, `data/processed`, `artifacts`)
-- [ ] T005 [P] Create `code/config.py` with paths, seeds, and hyperparameters
-- [ ] T006 [P] Implement `code/update_state.py` to compute artifact hashes and update state YAML (Constitution Principle V)
-- [ ] T007 Create base logging and error handling infrastructure
-- [ ] T008 Setup contract schema validators (`tests/contract/test_schemas.py`)
+- [ ] T005 [P] [P] Create `code/config.py` with paths, seeds, and hyperparameters
+- [ ] T006 [P] [P] Implement `code/update_state.py` to compute artifact hashes and update state YAML (Constitution Principle V)
+- [ ] T007 [P] Create `code/logging_config.py` with JSON format logging at INFO, DEBUG, and ERROR levels
+- [ ] T008 [P] Setup contract schema validators (`tests/contract/test_schemas.py`)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -48,7 +49,7 @@
 
 ## Phase 3: User Story 1 - Data Ingestion and Functional Representation (Priority: P1) 🎯 MVP
 
-**Goal**: Ingest raw CMIP6 data, handle missing values via spline-based imputation, and transform discrete time-series into smooth B-spline functions.
+**Goal**: Ingest raw CMIP6 data, handle missing values via spline-based imputation (per updated FR-001), and transform discrete time-series into smooth B-spline functions.
 
 **Independent Test**: Run the ingestion pipeline on a small, fixed subset of CMIP6 models and verify that B-spline coefficients are generated without error and reconstructed curves match original data within tolerance (MSE ≤ 0.01).
 
@@ -62,15 +63,20 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `code/ingestion.py`: Download CMIP6 data from `sungduk/wip_cmip6` via `datasets` library (streaming if >7GB)
-- [ ] T013 [P] [US1] Implement `code/ingestion.py`: Handle missing values via **spline-based imputation** to preserve derivative structure for fPCA (FR-002, Constitution Principle VII) and flag affected models/time steps in logs (FR-001)
-- [ ] T014 [US1] Implement `code/ingestion.py`: Standardize ensemble members across spatial grids and time steps
+- [ ] T012a [P] [US1] Implement `code/ingestion.py`: Download CMIP6 data from `sungduk/wip_cmip6` via `datasets` library (implement download logic)
+- [ ] T012b [P] [US1] Implement `code/ingestion.py`: Implement streaming fallback for datasets >7GB using `datasets.load_dataset(..., streaming=True)`
+- [ ] T013 [US1] Implement `code/ingestion.py`: Handle missing values via **spline-based imputation** using `scipy.interpolate.CubicSpline`. **Requirement**: Sort data by time axis before interpolation; handle multi-dimensional data via explicit `axis` parameter; if CubicSpline raises a convergence error or produces NaNs, fallback to `scipy.interpolate.interp1d` with kind='linear'; flag affected models/time steps in logs (FR-001-AMENDED)
+- [ ] T014 [US1] Implement `code/ingestion.py`: Standardize ensemble members across spatial grids and time steps (target: at a one-degree spatial resolution via bilinear interpolation); Write output as parquet files to `data/processed/standardized_{model}.parquet`
 - [ ] T015 [US1] Implement `code/basis.py`: Pilot GCV/AIC selection to determine global basis dimension $K$ (FR-002)
 - [ ] T016 [US1] Implement `code/basis.py`: B-spline basis expansion for each ensemble member using determined $K$ (FR-002)
 - [ ] T017 [US1] Implement `code/basis.py`: Reconstruct curves from coefficients and verify MSE ≤ 0.01 (US1-AC2)
 - [ ] T018 [US1] Save processed B-spline coefficients to `data/processed/` and update state hash
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+
+### Requirement Amendment Tasks for US1
+
+- [ ] T013-AMEND [P] Update `spec.md` FR-001 text to replace "linear interpolation" with "spline-based imputation (CubicSpline) with linear fallback" to match T013 implementation. Verify spec text matches task.
 
 ---
 
@@ -87,38 +93,46 @@
 
 ### Implementation for User Story 2
 
-- [ ] T021 [P] [US2] Implement `code/fpca.py`: Load B-spline coefficients from `data/processed/`
+- [ ] T021 [P] [US2] Implement `code/fpca.py`: Load B-spline coefficients from `data/processed/` (Depends on T018)
 - [ ] T022 [US2] Implement `code/fpca.py`: Execute fPCA using `scikit-fda` to extract dominant modes (FR-003)
-- [ ] T023 [US2] Implement `code/fpca.py`: Calculate and report cumulative variance for a small set of initial components. (US2-AC2)
-- [ ] T024 [US2] Save eigenvalues, eigenfunctions, and variance metrics to `data/processed/`
+- [ ] T023 [US2] Implement `code/fpca.py`: Calculate and report cumulative variance for top components. **Requirement**: Implement sensitivity analysis loop across a range of thresholds; if cumulative variance >= threshold, stop early. Write JSON file to `data/processed/variance_metrics.json` with keys: components, cumulative_variance, stopped_early, threshold_used (US2-AC2)
+- [ ] T024 [US2] Save eigenvalues, eigenfunctions, and variance metrics to `data/processed/` (Depends on T023)
 - [ ] T025 [US2] Implement `code/visualize.py`: Generate plots of dominant modes as spatiotemporal patterns (FR-006)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
-## Phase 5: User Story 3 - Robustness Assessment via Bootstrap Resampling (Priority: P3)
+## Phase 5: User Story 3 - Robustness Assessment via Leave-One-Out (LOO) Jackknife (Priority: P3)
 
-**Goal**: Assess stability of dominant modes using **Bootstrap Resampling (≥ 100 iterations)** to test sensitivity to ensemble composition, as mandated by FR-004 and US3.
+**Goal**: Assess stability of dominant modes using **Leave-One-Out (LOO) Jackknife** (N iterations, where N is ensemble size) to test sensitivity to specific model families, as mandated by FR-004 (AMENDED) and Constitution Principle VI.
 
-**Independent Test**: Run Bootstrap loop (≥ 100 iterations), calculate stability metrics (loading correlations), and report standard deviation of correlations.
+**Independent Test**: Run LOO loop (N iterations), calculate stability metrics (loading correlations), and report standard deviation of correlations.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T026 [P] [US3] Unit test for Bootstrap subsample generation in `tests/unit/test_robustness.py`
+- [ ] T026 [P] [US3] Unit test for LOO subsample generation in `tests/unit/test_robustness.py`
 - [ ] T027 [P] [US3] Unit test for stability metric calculation in `tests/unit/test_robustness.py`
 
 ### Implementation for User Story 3
 
-- [ ] T028 [P] [US3] Implement `code/robustness.py`: Bootstrap Resampling loop (≥ 100 iterations) generating random subsamples of ensemble members (FR-004)
-- [ ] T028a [US3] Validate that Bootstrap iteration count ≥ 100 regardless of ensemble size (FR-004 statistical power requirement)
+- [ ] T028-BASE [US3] Implement `code/robustness.py`: Compute **Full Ensemble Baseline** fPCA results (eigenvalues, eigenfunctions) required for comparison. This must be completed before T028-LOOP.
+- [ ] T028-LOOP [P] [US3] Implement `code/robustness.py`: **Leave-One-Out (LOO) Jackknife** loop. **Requirement**: Accept `model_to_remove` parameter per worker; iterate N times (N = ensemble size); remove one model at a time to generate subsamples; compute fPCA for each subsample (FR-004-AMENDED). **Dependency**: Requires immutable baseline from T028-BASE.
+- [ ] T028a [US3] [SC-002-AMENDED] Validate that the number of LOO iterations equals the ensemble size (N), ensuring full coverage of model removal (FR-004 statistical power requirement)
 - [ ] T029 [US3] Implement `code/robustness.py`: Align eigenfunctions using Procrustes analysis as a preprocessing step for stability comparison (US3-AC1)
-- [ ] T029b [US3] Implement `code/robustness.py`: **Calculate and report stability metrics** (loading correlations and standard deviation) comparing each subsample's fPCA results to the full ensemble results (US3-AC1, FR-005)
-- [ ] T030 [US3] Flag unstable modes and identify specific ensemble members or patterns causing instability (US3-AC3)
-- [ ] T031 [US3] Generate histogram of stability metrics and uncertainty bands for visualizations (FR-006)
-- [ ] T032 [US3] Save Bootstrap results and stability metrics to `artifacts/` and update state hash
+- [ ] T029b [US3] Implement `code/robustness.py`: **Calculate and report stability metrics** (loading correlations and standard deviation) comparing each LOO subsample's fPCA results to the full ensemble results (US3-AC1, FR-005)
+- [ ] T030 [US3] Flag unstable modes (correlation < 0.95) and identify specific ensemble members causing instability. Write a JSON list of model IDs and correlation scores to `artifacts/unstable_modes.json` with schema: `[ { "model_id": str, "correlation_score": float } ]` (US3-AC3)
+- [ ] T031 [US3] Generate histogram of stability metrics and uncertainty bands for visualizations (FR-006-AMENDED)
+- [ ] T032 [US3] Save LOO results and stability metrics to `artifacts/` and update state hash
 
 **Checkpoint**: All user stories should now be independently functional
+
+### Requirement Amendment Tasks for US3
+
+- [ ] T028-AMEND [P] Update `spec.md` FR-004 text to replace "bootstrap resampling (≥ 100 iterations)" with "Leave-One-Out (LOO) Jackknife (N iterations, where N is ensemble size)" to match T028 implementation. Verify spec text matches task.
+- [ ] T031-AMEND [P] Update `spec.md` FR-006 text to replace "uncertainty bands derived from bootstrap resampling" with "uncertainty bands derived from LOO Jackknife" to match T031 implementation. Verify spec text matches task.
+- [ ] T032-AMEND [P] Update `spec.md` SC-002 text to replace "correlation of eigenfunction loadings across 100 bootstrap iterations" with "correlation of eigenfunction loadings across N iterations (where N is ensemble size)" to match T032 implementation. Verify spec text matches task.
+- [ ] T030-AMEND [P] Update `Constitution Principle VI` text to explicitly define the stability threshold of 0.95 for "stable against subsampling" to match T030 implementation. Verify constitution text matches task.
 
 ---
 
@@ -126,12 +140,12 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T033 [P] Documentation updates in `specs/001-statistical-analysis-of-publicly-availab/` (update `research.md` with methodological justification for Bootstrap vs LOO)
+- [ ] T033 [P] Documentation updates in `specs/001-statistical-analysis-of-publicly-availab/` (update `research.md` with methodological justification for LOO Jackknife protocol and its effectiveness)
 - [ ] T034 Code cleanup and refactoring
-- [ ] T035 [P] **Performance Instrumentation**: Implement runtime/memory logging in `code/main.py` and generate a compliance report against GitHub Actions limits (limited CPU, 7 GB RAM, 6h) to satisfy SC-003
-- [ ] T036 [P] Additional unit tests (if requested) in `tests/unit/`
+- [ ] T035 [P] **Performance Instrumentation**: Implement runtime/memory logging in `code/main.py`. Generate a compliance report at `artifacts/performance_compliance_report.md` containing a table with columns [Metric, Value, Limit, Status] verifying runtime < 6h and memory < 7GB to satisfy SC-003.
+- [ ] T036 [P] Additional unit tests (if requested) in `tests/unit/` <!-- ATOMIZE: requested -->
 - [ ] T037 Security hardening
-- [ ] T038 Run `quickstart.md` validation
+- [ ] T038 [P] Run `quickstart.md` validation
 
 ---
 
@@ -142,15 +156,15 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 fPCA results
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output (T018 -> T021)
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 fPCA results (T024 -> T028-BASE)
 
 ### Within Each User Story
 
@@ -168,6 +182,7 @@
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
+- T028-LOOP tasks can run in parallel across different `model_to_remove` values
 
 ---
 
@@ -209,9 +224,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
@@ -225,4 +240,5 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Methodology Note**: Bootstrap Resampling (≥ 100 iterations) is used for robustness (FR-004) to ensure sufficient statistical power, replacing LOO Jackknife as documented in `research.md` to align with spec requirements.
+- **Methodology Note**: Leave-One-Out (LOO) Jackknife (N iterations) is used for robustness (FR-004-AMENDED) to test sensitivity to specific model families, as mandated by Constitution Principle VI and the approved plan.md.
+- **Spec Alignment**: Tasks T013-AMEND, T028-AMEND, T031-AMEND, T032-AMEND, and T030-AMEND are required to ensure `spec.md` and `Constitution.md` reflect the actual implementation methodology.

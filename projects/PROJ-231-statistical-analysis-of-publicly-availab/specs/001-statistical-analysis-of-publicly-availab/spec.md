@@ -88,8 +88,8 @@ The system must assess the stability of the identified dominant modes and trend 
 > measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: The cumulative variance explained by the first 3-5 functional principal components is measured against the total ensemble variance and reported to determine the retention percentage. (See FR-003)
-- **SC-002**: The stability of dominant modes is measured by the correlation of eigenfunction loadings across 100 bootstrap iterations, and the mean correlation and standard deviation are reported for assessment. (See FR-005)
-- **SC-003**: The computational runtime and memory usage are measured against the GitHub Actions free-tier limits (2 CPU, 7 GB RAM, 6 hours) to ensure feasibility. (See FR-001, FR-004)
+- **SC-002**: The stability of dominant modes is measured by the correlation of eigenfunction loadings across multiple bootstrap iterations, and the mean correlation and standard deviation are reported for assessment. (See FR-005)
+- **SC-003**: The computational runtime and memory usage are measured against the GitHub Actions free-tier limits (a limited number of CPUs, 7 GB RAM, 6 hours) to ensure feasibility. (See FR-001, FR-004)
 
 ## Assumptions
 

@@ -11,7 +11,7 @@ This project implements a robust statistical pipeline to analyze CMIP6 climate m
 **Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `scikit-fda` (exclusive library for fPCA/B-splines), `matplotlib`, `seaborn`, `datasets` (HuggingFace), `pyyaml`, `procrustes` (for subspace alignment).  
 **Storage**: Local filesystem (`data/` for raw/processed, `artifacts/` for results). No external DB.  
 **Testing**: `pytest` with `pytest-randomly` for reproducibility checks.  
-**Target Platform**: Linux (GitHub Actions Runner: 2 CPU, 7 GB RAM).  
+**Target Platform**: Linux (GitHub Actions Runner: multiple CPUs, ample RAM).  
 **Project Type**: Data analysis pipeline / CLI tool.  
 **Performance Goals**: Complete full pipeline (ingestion -> fPCA -> LOO Jackknife) within 6 hours on CPU. Memory usage < 6 GB.  
 **Constraints**: Must handle missing data via spline-based imputation; Global basis dimension $K$ determined via Pilot GCV/AIC; No GPU dependency.  

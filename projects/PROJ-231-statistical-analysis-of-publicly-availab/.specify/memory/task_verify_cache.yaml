@@ -1,0 +1,64 @@
+T023:
+  c: false
+  h: e9427d418909c8857caafb71c0b938c410076a4b38e481a9e2a162c7ff1408a7
+  r: "The `data/processed/variance_metrics.json` file does not exist, and the provided\
+    \ `code/fpca.py` is truncated (e.g., the `explained_variance_ratio` line is incomplete)\
+    \ with no visible logic that computes cumulative variance, stops at \u2265\u202F\
+    80\u202F%, or writes the results to the required JSON file. The required functionality\
+    \ is therefore missing."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of files containing eigenvalues, eigenfunctions, or variance metrics
+    was presented in `data/processed/`; the implementer did not provide the required
+    saved outputs, so the task is not satisfied.
+T028a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, test results, or documentation were provided that demonstrate the number\
+    \ of Leave\u2011One\u2011Out (LOO) iterations matches the ensemble size\u202F\
+    N. The required artifact (e.g., a script, log, or report confirming this validation)\
+    \ is missing, so the task is not satisfied."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim references an output file `artifacts/unstable_modes.json`, but no such
+    file or its contents were provided for review. Consequently, there is no evidence
+    that unstable modes were flagged, correlated, or that specific ensemble members
+    causing instability were identified. The required artifact is missing.
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No histogram image, data file, or code generating the histogram of stability
+    metrics with uncertainty bands was provided; the only content is the task description
+    and specification excerpt, which does not constitute the required artifact. The
+    implementer must supply the actual visualization (or the script that creates it)
+    to satisfy the requirement.
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No files or code were presented that actually write LOO (Leave\u2011One\u2011\
+    Out) results or stability metrics into an `artifacts/` directory, nor any evidence\
+    \ that a state hash was updated. The required output artifacts are missing, so\
+    \ the task is not satisfied."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `research.md` file (or any updated documentation) in the `specs/001-statistical-analysis-of-publicly-availab/`
+    directory is provided, nor any content showing methodological justification for
+    the LOO Jackknife protocol. The required artifact is missing, so the task is not
+    satisfied.
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer supplied only the feature specification for climate model analysis
+    and no actual code, refactoring changes, or cleanup artifacts. There is no evidence
+    of any files modified, linting reports, test results, or documentation updates
+    that would demonstrate that code cleanup and refactoring were performed. The required
+    deliverables for task T034 are missing.
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of any files under `tests/unit/` was provided; the implementer did
+    not supply the additional unit test code required by task T036. The artifact is
+    missing, so the requirement is not satisfied.

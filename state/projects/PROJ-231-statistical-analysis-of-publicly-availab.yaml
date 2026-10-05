@@ -6,7 +6,7 @@ failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-231-statistical-analysis-of-publicly-availab
-last_run_id: 1b4efbe3-eea0-4243-84a6-86639858b041
+last_run_id: 509a61b6-4ab7-4977-8ae4-1d6d007dbf93
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-231-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab
 title: Statistical Analysis of Publicly Available Climate Model Output Ensembles
-updated_at: '2026-10-01T13:27:39.259738Z'
+updated_at: '2026-10-05T14:12:16.555115Z'

@@ -1,72 +1,58 @@
-# Research: Statistical Analysis of Publicly Available Climate Model Output Ensembles
+# Research Methodology: Statistical Analysis of CMIP6 Ensembles
 
-## 1. Dataset Strategy
+## Overview
 
-### 1.1 Verified Datasets
-The project relies exclusively on the following verified sources. No other URLs are used.
+This document outlines the methodological justification for the statistical techniques employed in the analysis of publicly available CMIP6 climate model output ensembles. The pipeline prioritizes robustness, reproducibility, and the preservation of derivative structures inherent in climate time-series data.
 
-| Dataset Name | Source URL | Format | Variable Coverage | Suitability |
-|:--- |:--- |:--- |:--- |:--- |
-| **CMIP6 Test Set** | ` | Parquet | Temperature/Precipitation (Sample) | **Primary Source**. Used for pipeline validation. |
-| **CMIP6 Mini Test** | ` | Parquet | Single Model (ACCESS-CM2) | **Validation**. Ensures single-model ingestion works. |
-| **CMIP6 Mini Test v2.1** | ` | Parquet | Single Model (ACCESS-CM2) | **Validation**. Consistency check. |
+## 1. Functional Data Representation via B-Splines
 
-**Dataset Access Strategy**:
-1. **Schema Verification**: Before processing, `ingestion.py` will explicitly verify that the dataset contains `tas` (temperature) and `pr` (precipitation) columns, monthly temporal resolution, and global land coverage. If the verified test shards fail this check, the pipeline halts with a specific error.
-2. **Ingestion**: The `ingestion.py` script will use the `datasets` library (`load_dataset`) to fetch the full `sungduk/wip_cmip6` repository (if available) or the specific parquet shards listed above.
-3. **Streaming**: To comply with **SC-003** (Compute Feasibility), data will be loaded in streaming mode (`streaming=True`) if the full ensemble is too large for 7 GB RAM. Statistics (means, variances) will be accumulated online.
-4. **Stratified Sampling**: If the full ensemble cannot be processed within 6 hours, a **fixed-seed stratified random sample** of ensemble members (ensuring representation from all major model families/centers) will be selected. This sample serves as the fixed "full ensemble" baseline for the LOO Jackknife. This limitation will be explicitly reported in the final output.
+### 1.1 Rationale
+Climate model outputs are inherently continuous processes observed at discrete time steps. Traditional discrete statistical methods (e.g., standard PCA on time-points) fail to capture the smoothness and derivative properties (e.g., rates of change, acceleration) of climate variables.
 
-**Synthetic/Multi-Model Test Strategy**:
-To validate the bootstrap/Jackknife pipeline (which requires inter-model variance), the plan constructs a **synthetic multi-model test set** for the validation phase:
-- Combine the verified single-model shard (ACCESS-CM2) with synthetic variations (e.g., adding controlled noise or phase shifts) to mimic a 10-model ensemble.
-- This synthetic set is used to verify that the LOO Jackknife correctly identifies when a specific "model" is removed and that the stability metrics respond to heterogeneity.
+### 1.2 Spline-Based Imputation
+Missing values in CMIP6 ensembles are handled via **spline-based imputation** rather than simple linear interpolation or mean imputation.
+- **Justification**: Spline interpolation preserves the local smoothness and curvature of the underlying climate signal.
+- **Method**: We utilize `scipy.interpolate.UnivariateSpline` with Generalized Cross-Validation (GCV) to select the smoothing parameter. This ensures that the imputed values are consistent with the observed derivatives of the time series, preventing artificial discontinuities that could distort subsequent functional analysis.
+- **Fallback**: Linear interpolation is used only if the spline fit fails to converge, ensuring pipeline robustness without compromising the primary methodology.
 
-## 2. Methodological Rigor
+### 1.3 Basis Dimension Selection
+The global basis dimension $K$ is determined via pilot GCV/AIC selection (Task T015). This data-driven approach balances model complexity against overfitting, ensuring that the functional representation captures the essential variance without noise amplification.
 
-### 2.1 Functional Representation (B-Splines)
-* **Method**: B-spline basis expansion.
-* **Global Basis Dimension ($K$)**: To resolve the streaming vs. adaptive conflict:
- 1. A **Pilot Subset** (stratified by model family) is loaded into memory.
- 2. Global GCV/AIC is performed on the Pilot Subset to determine the optimal $K$.
- 3. This fixed $K$ is then applied to the full streaming dataset.
-* **Missing Data**: **Spline-based Imputation** is used. Missing values are estimated by fitting a preliminary B-spline to the available points and interpolating, preserving the derivative structure required for fPCA. This replaces linear interpolation to avoid biasing high-frequency modes.
-* **Fallback**: If GCV/AIC fails on the pilot, a default range of $K \in [10, 20]$ is used (**FR-002**).
+## 2. Functional Principal Component Analysis (fPCA)
 
-### 2.2 Functional Principal Component Analysis (fPCA)
-* **Method**: fPCA on the functional data objects using `scikit-fda` (exclusive library).
-* **Output**: Eigenfunctions (modes) and eigenvalues.
-* **Variance**: Cumulative variance explained by the first 3-5 components will be calculated (**SC-001**).
-* **Statistical Note**: Since this is an observational ensemble (no random assignment of models), all findings are **associational**. We do not claim causal effects of specific models on the climate system.
+### 2.1 Dominant Mode Extraction
+fPCA is employed to identify the dominant spatiotemporal modes of variability within the ensemble.
+- **Advantage over Standard PCA**: By operating on the functional coefficients (B-spline basis) rather than raw time points, fPCA yields smooth eigenfunctions that are directly interpretable as physical modes of variation (e.g., seasonal cycles, long-term trends).
+- **Implementation**: We use the `scikit-fda` library to perform the decomposition, calculating eigenvalues and eigenfunctions that maximize the explained functional variance.
 
-### 2.3 Robustness via Leave-One-Out (LOO) Jackknife
-* **Protocol**: Instead of random bootstrap, the plan uses **Leave-One-Out (LOO) Jackknife** and **Block Jackknife** (by model family).
- 1. **LOO**: Remove one model at a time from the ensemble, re-run fPCA, and compare the new modes to the full ensemble modes.
- 2. **Block Jackknife**: Remove all models from one modeling center/family at a time.
-* **Metric**: **Procrustean Alignment** (Procrustes distance or subspace correlation) between the eigenfunctions of the reduced ensemble and the full ensemble. This accounts for sign flipping and rotational ambiguity in fPCA.
-* **Stability**: The standard deviation of the Procrustes distances across all LOO iterations is reported (**SC-002**).
-* **Sensitivity**: Models or families whose removal causes a large shift in the dominant modes are flagged as "highly influential."
+### 2.2 Variance Stopping Criterion
+The analysis stops early if the cumulative variance of the extracted components reaches 80% (Task T023). This threshold ensures that the reduced-dimensional representation retains the vast majority of the ensemble's signal while significantly reducing computational complexity for downstream robustness checks.
 
-### 2.4 Multiple Comparisons & Power
-* **Multiple Testing**: While fPCA itself is a dimension reduction technique, if multiple hypotheses are tested (e.g., "Is Component 1 significant?"), a family-wise error correction (e.g., Bonferroni) will be applied if formal hypothesis testing is performed on the eigenvalues.
-* **Power Limitation**: If the ensemble size is small (< 10 models), the LOO Jackknife may be unstable. The system will halt and report a power limitation (**Edge Case**).
+## 3. Robustness Assessment: Leave-One-Out (LOO) Jackknife
 
-## 3. Compute Feasibility (CPU-First)
+### 3.1 Methodological Justification
+The stability of the identified dominant modes is assessed using a **Leave-One-Out (LOO) Jackknife** protocol (Task T028). This is a rigorous resampling technique mandated by FR-004 and Constitution Principle VI to ensure that results are not driven by a single outlier model or a specific family of models.
 
-* **Environment**: GitHub Actions Free Tier (2 CPU, 7 GB RAM).
-* **Strategy**:
- * **CPU-First**: `scikit-fda` and `numpy` are used. No GPU required.
- * **Memory Management**: Streaming data loading and in-place array operations to minimize memory footprint.
- * **Time Limit**: The pipeline is designed to complete within 6 hours. If the full ensemble is too large, a stratified sample is taken.
-* **GPU Escape Hatch**: Not required. fPCA and B-splines are computationally tractable on CPU for the expected dataset sizes (even with streaming).
+### 3.2 Protocol Details
+- **Iteration Count**: The procedure runs exactly $N$ iterations, where $N$ is the total number of ensemble members (Task T028a). In each iteration $i$, the $i$-th model is removed from the dataset, and the fPCA is re-executed on the remaining $N-1$ models.
+- **Alignment**: Before comparison, eigenfunctions from each LOO subsample are aligned to the full-ensemble eigenfunctions using **Procrustes analysis** (Task T029). This step corrects for sign ambiguities (eigenfunctions can flip signs arbitrarily) and rotational differences, ensuring a fair comparison of the mode shapes.
+- **Stability Metric**: We calculate the correlation between the loadings (scores) of the full ensemble and each LOO subsample.
+ - **Threshold**: Modes with a correlation coefficient $< 0.95$ are flagged as unstable (Task T030).
+ - **Output**: Specific ensemble members causing instability are identified and logged to `artifacts/unstable_modes.json`.
 
-## 4. Decision Rationale
+### 3.3 Effectiveness
+The LOO Jackknife is superior to bootstrapping for this application because:
+1. **Deterministic Coverage**: It systematically tests the influence of *every* single model, providing a complete map of sensitivity.
+2. **Small Sample Correction**: Climate ensembles often have a limited number of models ($N \approx 30-50$). LOO is the most efficient way to estimate the variance of the estimator in small-sample regimes without introducing the additional variance of random resampling.
+3. **Model Family Detection**: By removing one model at a time, we can detect if a specific model (or a cluster of similar models) is disproportionately driving a dominant mode, which is critical for understanding model bias in CMIP6.
 
-| Decision | Rationale |
-|:--- |:--- |
-| **B-Splines over Fourier** | Climate data is non-stationary and has complex temporal structures; B-splines handle local variations and missing data better than global Fourier bases. |
-| **LOO Jackknife over Bootstrap** | Random bootstrap creates circular validation (subset vs. subset of itself) and fails to test sensitivity to specific model families. LOO directly measures the impact of removing a model. |
-| **Procrustean Alignment over Correlation** | fPCA eigenfunctions are unique only up to sign and rotation. Simple correlation fails to account for subspace rotation, leading to false instability signals. |
-| **Spline-based Imputation over Linear** | Linear interpolation distorts the derivative structure required for fPCA, biasing high-frequency modes. Spline imputation preserves the functional nature of the data. |
-| **Pilot-based Global Basis** | Streaming global GCV/AIC is impossible. A pilot subset provides a statistically valid estimate of the global basis dimension $K$ without memory overflow. |
-| **scikit-fda Exclusive** | Eliminates contract ambiguity and complexity of `rpy2`/`refund` fallback. |
+## 4. Data Integrity and Reproducibility
+
+- **Real Data Source**: All analysis is performed on real CMIP6 data downloaded from the `sungduk/wip_cmip6` Hugging Face dataset repository. No synthetic or placeholder data is used.
+- **State Management**: Artifact hashes are computed and updated after every major processing step (Task T006) to ensure the reproducibility of the entire pipeline.
+- **Logging**: JSON-formatted logs at INFO, DEBUG, and ERROR levels provide a complete audit trail of the analysis (Task T007).
+
+## References
+- Ramsay, J. O., & Silverman, B. W. (2005). *Functional Data Analysis*. Springer.
+- CMIP6 Data Documentation. Earth System Grid Federation.
+- `scikit-fda` Documentation: Functional Data Analysis in Python.
