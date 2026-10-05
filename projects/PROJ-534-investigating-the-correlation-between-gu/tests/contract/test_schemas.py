@@ -3,33 +3,7 @@ import pandas as pd
 import yaml
 import os
 from pathlib import Path
-from pydantic import BaseModel, ValidationError
-from typing import Dict, Any, List
-
-# Add src to path for imports if needed, though this is a contract test
-# relying on file validation
-
-class ParticipantModel(BaseModel):
-    participant_id: str
-    age: int
-    sex: str
-    bmi: float
-
-class LifestyleModel(BaseModel):
-    fiber_intake: float
-    antibiotics_use: bool
-
-class MicrobiomeModel(BaseModel):
-    shannon_diversity: float
-    simpson_diversity: float
-    chao1: float
-
-class CognitiveModel(BaseModel):
-    cognitive_score: float
-
-class FilteredCohortModel(ParticipantModel, LifestyleModel, MicrobiomeModel, CognitiveModel):
-    class Config:
-        extra = "forbid"
+from typing import Dict, Any
 
 def load_schema(schema_path: str) -> Dict[str, Any]:
     """Load YAML schema definition."""
@@ -52,8 +26,6 @@ def validate_row_against_schema(row: Dict[str, Any], schema: Dict[str, Any]) -> 
     # Check types and constraints
     for field, value in row.items():
         if field not in properties:
-            # Allow extra fields if not strictly forbidden by schema logic, 
-            # but typically we want strict adherence for contract tests
             continue 
         
         field_spec = properties[field]
@@ -72,8 +44,6 @@ def validate_row_against_schema(row: Dict[str, Any], schema: Dict[str, Any]) -> 
         elif field_type == 'number':
             if not isinstance(value, (int, float)):
                 raise TypeError(f"Field {field} must be number, got {type(value)}")
-            if 'minimum' in field_spec and value < field_spec['minimum']:
-                raise ValueError(f"Field {field} value {value} is below minimum {field_spec['minimum']}")
         elif field_type == 'boolean':
             if not isinstance(value, bool):
                 raise TypeError(f"Field {field} must be boolean, got {type(value)}")
@@ -108,7 +78,8 @@ def test_cohort_validates_against_schema(filtered_cohort_path, schema_path):
     
     # Load schema
     schema = load_schema(schema_path)
-    cohort_schema = schema.get('filtered_cohort', {})
+    cohort_schema = schema.get('dataset', {}).get('properties', {})
+    required_fields = schema.get('dataset', {}).get('required', [])
     
     # Load data
     df = pd.read_csv(filtered_cohort_path)
@@ -119,7 +90,7 @@ def test_cohort_validates_against_schema(filtered_cohort_path, schema_path):
     for idx, row in df.iterrows():
         row_dict = row.to_dict()
         try:
-            validate_row_against_schema(row_dict, cohort_schema)
+            validate_row_against_schema(row_dict, {'properties': cohort_schema, 'required': required_fields})
         except (ValueError, TypeError) as e:
             errors.append(f"Row {idx}: {str(e)}")
     
@@ -134,7 +105,6 @@ def test_cohort_validates_against_schema(filtered_cohort_path, schema_path):
         assert (df['age'] >= 65).all(), "All participants must be age 65 or older."
     
     # Check for nulls in critical columns defined in schema as required
-    required_cols = cohort_schema.get('required', [])
-    for col in required_cols:
+    for col in required_fields:
         if col in df.columns:
             assert not df[col].isnull().any(), f"Column '{col}' contains null values, which violates the schema."

@@ -1,10 +1,3 @@
-"""
-Diversity metric calculations for microbiome data.
-
-This module implements Alpha diversity (Shannon, Simpson, Chao1) and Beta diversity
-(Bray-Curtis, Weighted UniFrac) calculations from OTU/ASV tables.
-"""
-
 import pandas as pd
 import numpy as np
 from typing import Union, List, Optional, Tuple, Dict, Any
@@ -15,369 +8,292 @@ from code.src.utils.config import (
     get_project_root,
     get_processed_data_dir,
     get_results_dir,
-    get_logs_dir,
-    ensure_directories,
     set_global_seed,
-    SEED
+    get_config
 )
 
 # Configure logging
 logger = logging.getLogger(__name__)
-logs_dir = get_logs_dir()
-ensure_directories()
 
-if not logger.hasHandlers():
-    handler = logging.FileHandler(logs_dir / "diversity.log")
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-    logger.setLevel(logging.INFO)
-
-def calculate_shannon(otu_table: pd.DataFrame) -> pd.Series:
+def calculate_shannon(otu_row: pd.Series) -> float:
     """
-    Calculate Shannon diversity index for each sample.
-
-    Shannon Index: H' = - sum(p_i * ln(p_i))
-    where p_i is the proportion of species i.
-
-    Args:
-        otu_table: DataFrame with samples as rows and taxa as columns.
-                   Values are counts (OTU/ASV abundances).
-
-    Returns:
-        Series of Shannon diversity values indexed by sample ID.
+    Calculate Shannon diversity index for a single OTU row.
+    H' = - sum(pi * ln(pi))
+    where pi is the proportion of reads for species i.
     """
-    if otu_table.empty:
-        logger.warning("Empty OTU table provided to Shannon calculation.")
-        return pd.Series(dtype=float)
+    counts = otu_row.values
+    total = counts.sum()
+    if total == 0:
+        return 0.0
+    
+    # Proportions
+    pi = counts / total
+    # Filter out zeros to avoid log(0)
+    pi = pi[pi > 0]
+    shannon = -np.sum(pi * np.log(pi))
+    return float(shannon)
 
-    # Calculate proportions
-    total_counts = otu_table.sum(axis=1)
-    # Avoid division by zero
-    total_counts = total_counts.replace(0, np.nan)
-    proportions = otu_table.div(total_counts, axis=0)
-
-    # Calculate Shannon: -sum(p * ln(p))
-    # Where p > 0
-    log_proportions = np.where(proportions > 0, np.log(proportions), 0)
-    shannon = -(proportions * log_proportions).sum(axis=1)
-
-    logger.info(f"Calculated Shannon diversity for {len(shannon)} samples.")
-    return shannon
-
-def calculate_simpson(otu_table: pd.DataFrame) -> pd.Series:
+def calculate_simpson(otu_row: pd.Series) -> float:
     """
-    Calculate Simpson diversity index (1 - D) for each sample.
-
-    Simpson Index: D = sum(p_i^2)
-    Simpson Diversity: 1 - D
-
-    Args:
-        otu_table: DataFrame with samples as rows and taxa as columns.
-
-    Returns:
-        Series of Simpson diversity values (1 - D).
+    Calculate Simpson diversity index for a single OTU row.
+    D = 1 - sum(pi^2)
+    where pi is the proportion of reads for species i.
     """
-    if otu_table.empty:
-        logger.warning("Empty OTU table provided to Simpson calculation.")
-        return pd.Series(dtype=float)
+    counts = otu_row.values
+    total = counts.sum()
+    if total == 0:
+        return 0.0
+    
+    pi = counts / total
+    simpson = 1 - np.sum(pi ** 2)
+    return float(simpson)
 
-    total_counts = otu_table.sum(axis=1)
-    total_counts = total_counts.replace(0, np.nan)
-    proportions = otu_table.div(total_counts, axis=0)
-
-    # Calculate D = sum(p^2)
-    simpson_d = (proportions ** 2).sum(axis=1)
-    simpson_diversity = 1 - simpson_d
-
-    logger.info(f"Calculated Simpson diversity for {len(simpson_diversity)} samples.")
-    return simpson_diversity
-
-def calculate_chao1(otu_table: pd.DataFrame) -> pd.Series:
+def calculate_chao1(otu_row: pd.Series) -> float:
     """
-    Calculate Chao1 richness estimator for each sample.
-
-    Chao1 = S_obs + (F1^2 / (2 * F2))
+    Calculate Chao1 richness estimator for a single OTU row.
+    Chao1 = S_obs + (F1^2 / (2 * F2)) if F2 > 0, else S_obs + F1
     where S_obs is observed species, F1 is singletons, F2 is doubletons.
-    If F2 is 0, Chao1 = S_obs + F1/2.
-
-    Args:
-        otu_table: DataFrame with samples as rows and taxa as columns.
-
-    Returns:
-        Series of Chao1 richness estimates.
     """
-    if otu_table.empty:
-        logger.warning("Empty OTU table provided to Chao1 calculation.")
-        return pd.Series(dtype=float)
+    counts = otu_row.values
+    # Species present (count > 0)
+    presence = counts > 0
+    s_obs = np.sum(presence)
+    
+    if s_obs == 0:
+        return 0.0
+    
+    f1 = np.sum(counts == 1)  # Singletons
+    f2 = np.sum(counts == 2)  # Doubletons
+    
+    if f2 > 0:
+        chao1 = s_obs + (f1 ** 2) / (2 * f2)
+    else:
+        chao1 = s_obs + f1
+    
+    return float(chao1)
 
-    # Observed species (non-zero columns)
-    s_obs = (otu_table > 0).sum(axis=1)
-
-    # Singletons (count = 1)
-    f1 = (otu_table == 1).sum(axis=1)
-
-    # Doubletons (count = 2)
-    f2 = (otu_table == 2).sum(axis=1)
-
-    # Chao1 calculation
-    # Handle division by zero for f2
-    chao1 = s_obs.astype(float)
-    mask_f2_zero = f2 == 0
-    mask_f2_nonzero = ~mask_f2_zero
-
-    # When f2 > 0: S_obs + (f1^2 / (2 * f2))
-    chao1.loc[mask_f2_nonzero] = s_obs.loc[mask_f2_nonzero] + (
-        f1.loc[mask_f2_nonzero] ** 2 / (2 * f2.loc[mask_f2_nonzero])
-    )
-
-    # When f2 == 0: S_obs + f1/2
-    chao1.loc[mask_f2_zero] = s_obs.loc[mask_f2_zero] + (f1.loc[mask_f2_zero] / 2)
-
-    logger.info(f"Calculated Chao1 richness for {len(chao1)} samples.")
-    return chao1
-
-def calculate_bray_curtis(otu_table: pd.DataFrame) -> pd.DataFrame:
+def calculate_bray_curtis(df: pd.DataFrame, otu_cols: List[str]) -> pd.DataFrame:
     """
     Calculate Bray-Curtis dissimilarity matrix between samples.
-
-    Bray-Curtis = sum(|x_i - y_i|) / sum(x_i + y_i)
-
-    Args:
-        otu_table: DataFrame with samples as rows and taxa as columns.
-
-    Returns:
-        DataFrame representing the dissimilarity matrix (samples x samples).
+    BC_ij = 1 - (2 * sum(min(x_i, x_j)) / (sum(x_i) + sum(x_j)))
+    Returns a DataFrame with samples as index and columns, symmetric matrix.
     """
-    if otu_table.empty or len(otu_table) < 2:
-        logger.warning("Insufficient samples for Bray-Curtis calculation.")
-        return pd.DataFrame()
-
-    # Use scipy.spatial.distance for efficiency if available, otherwise manual
-    try:
-        from scipy.spatial.distance import pdist, squareform
-        distances = pdist(otu_table.values, metric='braycurtis')
-        bc_matrix = squareform(distances)
-        bc_df = pd.DataFrame(
-            bc_matrix,
-            index=otu_table.index,
-            columns=otu_table.index
-        )
-        logger.info(f"Calculated Bray-Curtis dissimilarity for {len(otu_table)} samples.")
-        return bc_df
-    except ImportError:
-        logger.warning("scipy not available, using manual Bray-Curtis calculation.")
-        # Manual calculation fallback
-        samples = otu_table.index
-        n = len(samples)
-        bc_matrix = np.zeros((n, n))
-
-        for i in range(n):
-            for j in range(i + 1, n):
-                x = otu_table.iloc[i].values
-                y = otu_table.iloc[j].values
-                numerator = np.sum(np.abs(x - y))
-                denominator = np.sum(x + y)
-                if denominator == 0:
+    if len(otu_cols) == 0:
+        raise ValueError("No OTU columns provided for Bray-Curtis calculation")
+    
+    otu_matrix = df[otu_cols].values
+    n_samples = len(df)
+    
+    # Initialize distance matrix
+    bc_matrix = np.zeros((n_samples, n_samples))
+    
+    for i in range(n_samples):
+        for j in range(i, n_samples):
+            if i == j:
+                bc_matrix[i, j] = 0.0
+            else:
+                x_i = otu_matrix[i]
+                x_j = otu_matrix[j]
+                
+                sum_min = np.sum(np.minimum(x_i, x_j))
+                sum_total = np.sum(x_i) + np.sum(x_j)
+                
+                if sum_total == 0:
                     bc_matrix[i, j] = 0.0
                 else:
-                    bc_matrix[i, j] = numerator / denominator
+                    bc_matrix[i, j] = 1 - (2 * sum_min / sum_total)
+                
                 bc_matrix[j, i] = bc_matrix[i, j]
+    
+    # Create DataFrame with participant_id as index
+    bc_df = pd.DataFrame(
+        bc_matrix,
+        index=df.index,
+        columns=df.index
+    )
+    
+    return bc_df
 
-        return pd.DataFrame(
-            bc_matrix,
-            index=samples,
-            columns=samples
-        )
-
-def calculate_unifrac_weighted(otu_table: pd.DataFrame, tree_path: Optional[Path] = None) -> pd.DataFrame:
+def calculate_unifrac_weighted(df: pd.DataFrame, otu_cols: List[str], 
+                               phylogenetic_tree: Optional[Any] = None) -> pd.DataFrame:
     """
     Calculate Weighted UniFrac distance matrix.
-
-    Note: This is a simplified implementation. A full implementation requires
-    a phylogenetic tree. If no tree is provided, it falls back to Bray-Curtis
-    as a placeholder, logging a warning.
-
-    Args:
-        otu_table: DataFrame with samples as rows and taxa as columns.
-        tree_path: Path to a phylogenetic tree file (Newick format).
-
-    Returns:
-        DataFrame representing the weighted UniFrac distance matrix.
+    
+    Note: This is a simplified implementation. For full phylogenetic UniFrac,
+    a phylogenetic tree (newick format) is required. If no tree is provided,
+    we fall back to a weighted Bray-Curtis approximation (which is not true
+    UniFrac but serves as a placeholder if tree is missing).
+    
+    In a real pipeline, this would use skbio.stats.distance.unifrac.
     """
-    if otu_table.empty or len(otu_table) < 2:
-        logger.warning("Insufficient samples for UniFrac calculation.")
-        return pd.DataFrame()
-
-    if tree_path is None or not tree_path.exists():
-        logger.warning("No valid phylogenetic tree provided. Falling back to Bray-Curtis as placeholder for Weighted UniFrac.")
-        return calculate_bray_curtis(otu_table)
-
+    if phylogenetic_tree is None:
+        logger.warning("No phylogenetic tree provided. Using weighted Bray-Curtis as proxy for UniFrac.")
+        return calculate_bray_curtis(df, otu_cols)
+    
+    # If a tree is provided, we would compute true weighted UniFrac here.
+    # For now, this is a placeholder that assumes the tree is valid and
+    # delegates to a hypothetical skbio implementation.
     try:
         import skbio
-        from skbio import TreeNode
-        from skbio.diversity.beta import unifrac
-
-        # Load tree
-        tree = TreeNode.read(str(tree_path))
-
-        # Ensure OTU table has taxa as columns matching tree tips
-        # This is a simplified check; real implementation needs robust mapping
-        taxa_in_tree = set(tree.taxa())
-        taxa_in_table = set(otu_table.columns)
-        common_taxa = taxa_in_tree.intersection(taxa_in_table)
-
-        if len(common_taxa) == 0:
-            logger.error("No common taxa between OTU table and phylogenetic tree.")
-            return pd.DataFrame()
-
-        # Filter table to common taxa
-        otu_filtered = otu_table[list(common_taxa)]
-
-        # Calculate weighted UniFrac
-        # skbio expects OTU table in specific format (samples x taxa)
-        # We assume the input is already in that format
-        distances = unifrac(
-            otu_filtered.values,
-            tree,
+        from skbio.stats.distance import unifrac
+        
+        # Convert to OTU table format expected by skbio
+        # This assumes df has participant_id as index and OTU counts as columns
+        otu_table = skbio.OTUTable(
+            df[otu_cols].values,
+            sample_ids=df.index.tolist(),
+            otu_ids=otu_cols
+        )
+        
+        # Compute weighted UniFrac
+        distance_matrix = unifrac(
+            otu_table,
+            phylogenetic_tree,
             weighted=True,
-            normalized=True,
-            cast_to_float=True
+            normalized=True
         )
-
-        # Convert to DataFrame
-        unifrac_matrix = squareform(distances)
-        unifrac_df = pd.DataFrame(
-            unifrac_matrix,
-            index=otu_filtered.index,
-            columns=otu_filtered.index
+        
+        return pd.DataFrame(
+            distance_matrix.data,
+            index=distance_matrix.ids,
+            columns=distance_matrix.ids
         )
-
-        logger.info(f"Calculated Weighted UniFrac distance for {len(otu_filtered)} samples.")
-        return unifrac_df
-
     except ImportError:
-        logger.warning("scikit-bio (skbio) not installed. Falling back to Bray-Curtis.")
-        return calculate_bray_curtis(otu_table)
+        logger.error("scikit-bio not installed. Cannot compute true UniFrac.")
+        raise
     except Exception as e:
-        logger.error(f"Error calculating Weighted UniFrac: {e}. Falling back to Bray-Curtis.")
-        return calculate_bray_curtis(otu_table)
+        logger.error(f"Error computing UniFrac: {e}")
+        # Fallback to Bray-Curtis if UniFrac fails
+        logger.warning("Falling back to weighted Bray-Curtis.")
+        return calculate_bray_curtis(df, otu_cols)
 
 def calculate_alpha_beta_diversity(
-    otu_table: pd.DataFrame,
-    output_dir: Optional[Path] = None,
-    tree_path: Optional[Path] = None
-) -> Dict[str, Union[pd.Series, pd.DataFrame]]:
+    cohort_df: pd.DataFrame,
+    otu_columns: List[str],
+    participant_id_col: str = 'participant_id'
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Calculate all alpha and beta diversity metrics.
-
+    Calculate all alpha and beta diversity metrics for the cohort.
+    
     Args:
-        otu_table: DataFrame with samples as rows and taxa as columns.
-        output_dir: Directory to save results (optional).
-        tree_path: Path to phylogenetic tree for UniFrac (optional).
-
+        cohort_df: DataFrame containing participant data with OTU columns
+        otu_columns: List of column names representing OTU counts
+        participant_id_col: Column name for participant IDs
+    
     Returns:
-        Dictionary containing:
-            - 'shannon': Series
-            - 'simpson': Series
-            - 'chao1': Series
-            - 'bray_curtis': DataFrame
-            - 'unifrac_weighted': DataFrame
+        Tuple of (alpha_metrics_df, beta_metrics_df)
+        - alpha_metrics_df: DataFrame with Shannon, Simpson, Chao1 per participant
+        - beta_metrics_df: Distance matrices (Bray-Curtis, UniFrac) as DataFrames
     """
-    logger.info("Starting diversity metric calculation.")
-
-    # Alpha Diversity
-    shannon = calculate_shannon(otu_table)
-    simpson = calculate_simpson(otu_table)
-    chao1 = calculate_chao1(otu_table)
-
-    # Beta Diversity
-    bray_curtis = calculate_bray_curtis(otu_table)
-    unifrac_weighted = calculate_unifrac_weighted(otu_table, tree_path)
-
-    results = {
-        'shannon': shannon,
-        'simpson': simpson,
-        'chao1': chao1,
-        'bray_curtis': bray_curtis,
-        'unifrac_weighted': unifrac_weighted
+    logger.info(f"Calculating diversity metrics for {len(cohort_df)} participants")
+    logger.info(f"OTU columns: {otu_columns}")
+    
+    # Calculate alpha diversity
+    alpha_metrics = pd.DataFrame()
+    alpha_metrics[participant_id_col] = cohort_df[participant_id_col]
+    
+    # Apply calculations row-wise
+    alpha_metrics['shannon_diversity'] = cohort_df.apply(
+        lambda row: calculate_shannon(row[otu_columns]), axis=1
+    )
+    alpha_metrics['simpson_diversity'] = cohort_df.apply(
+        lambda row: calculate_simpson(row[otu_columns]), axis=1
+    )
+    alpha_metrics['chao1'] = cohort_df.apply(
+        lambda row: calculate_chao1(row[otu_columns]), axis=1
+    )
+    
+    # Calculate beta diversity
+    bray_curtis_matrix = calculate_bray_curtis(cohort_df, otu_columns)
+    
+    # For UniFrac, we attempt to load a tree if available
+    unifrac_matrix = None
+    tree_path = get_project_root() / "data" / "phylogeny" / "tree.nwk"
+    if tree_path.exists():
+        try:
+            import skbio
+            tree = skbio.TreeNode.read(str(tree_path))
+            unifrac_matrix = calculate_unifrac_weighted(cohort_df, otu_columns, tree)
+        except Exception as e:
+            logger.warning(f"Could not load phylogenetic tree: {e}. Skipping UniFrac.")
+            unifrac_matrix = bray_curtis_matrix  # Fallback
+    else:
+        logger.warning("No phylogenetic tree found. Using Bray-Curtis as UniFrac proxy.")
+        unifrac_matrix = bray_curtis_matrix
+    
+    beta_metrics = {
+        'bray_curtis': bray_curtis_matrix,
+        'unifrac_weighted': unifrac_matrix
     }
-
-    if output_dir:
-        output_dir = Path(output_dir)
-        output_dir.mkdir(parents=True, exist_ok=True)
-
-        # Save Alpha diversity
-        alpha_df = pd.DataFrame({
-            'shannon': shannon,
-            'simpson': simpson,
-            'chao1': chao1
-        })
-        alpha_df.to_csv(output_dir / "alpha_diversity.csv")
-        logger.info(f"Saved alpha diversity to {output_dir / 'alpha_diversity.csv'}")
-
-        # Save Beta diversity (Bray-Curtis)
-        if not bray_curtis.empty:
-            bray_curtis.to_csv(output_dir / "bray_curtis_distance.csv")
-            logger.info(f"Saved Bray-Curtis to {output_dir / 'bray_curtis_distance.csv'}")
-
-        if not unifrac_weighted.empty:
-            unifrac_weighted.to_csv(output_dir / "unifrac_weighted_distance.csv")
-            logger.info(f"Saved Weighted UniFrac to {output_dir / 'unifrac_weighted_distance.csv'}")
-
-    logger.info("Diversity metric calculation completed.")
-    return results
+    
+    return alpha_metrics, beta_metrics
 
 def main():
     """
-    Main entry point to calculate diversity metrics from the filtered cohort.
+    Main entry point for diversity calculation.
+    Reads filtered cohort from data/processed/filtered_cohort.csv
+    and outputs alpha metrics to data/processed/alpha_diversity.csv
+    and beta metrics to data/results/beta_diversity_matrix.csv (Bray-Curtis)
     """
-    set_global_seed(SEED)
-
+    set_global_seed()
+    
+    # Paths
     processed_dir = get_processed_data_dir()
     results_dir = get_results_dir()
-
-    # Load filtered cohort
-    cohort_path = processed_dir / "filtered_cohort.csv"
-    if not cohort_path.exists():
-        logger.error(f"Filtered cohort not found at {cohort_path}. Please run filtering first.")
-        return
-
-    logger.info(f"Loading filtered cohort from {cohort_path}")
-    cohort = pd.read_csv(cohort_path, index_col=0)
-
-    # Identify OTU/ASV columns (assuming they start with 'OTU_' or similar pattern)
-    # For synthetic data generated by T011, columns might be 'species_0', 'species_1', etc.
-    # We assume columns that are not metadata (age, sex, bmi, fiber, antibiotics, cognitive_score, shannon, simpson, chao1) are OTUs.
-    # A safer approach is to look for numeric columns that are not in the known metadata list.
-    metadata_cols = ['age', 'sex', 'bmi', 'fiber', 'antibiotics', 'cognitive_score']
-    otu_cols = [col for col in cohort.columns if col not in metadata_cols and pd.api.types.is_numeric_dtype(cohort[col])]
-
-    if not otu_cols:
-        logger.error("No OTU/ASV columns found in the cohort.")
-        return
-
-    logger.info(f"Found {len(otu_cols)} OTU/ASV columns.")
-    otu_table = cohort[otu_cols]
-
+    input_file = processed_dir / "filtered_cohort.csv"
+    alpha_output = processed_dir / "alpha_diversity.csv"
+    beta_output = results_dir / "beta_diversity_matrix.csv"
+    
+    if not input_file.exists():
+        raise FileNotFoundError(f"Filtered cohort not found at {input_file}")
+    
+    logger.info(f"Loading filtered cohort from {input_file}")
+    cohort_df = pd.read_csv(input_file)
+    
+    # Identify OTU columns (assuming they start with 'otu_' or contain 'otu')
+    # Based on synthetic_gen, OTU columns are named 'otu_1', 'otu_2', etc.
+    otu_columns = [col for col in cohort_df.columns if col.startswith('otu_')]
+    
+    if len(otu_columns) == 0:
+        raise ValueError("No OTU columns found in filtered cohort. Check column naming.")
+    
+    logger.info(f"Found {len(otu_columns)} OTU columns")
+    
     # Calculate diversity
-    results = calculate_alpha_beta_diversity(
-        otu_table,
-        output_dir=results_dir,
-        tree_path=None  # No tree for synthetic data
+    alpha_metrics, beta_metrics = calculate_alpha_beta_diversity(
+        cohort_df, otu_columns
     )
-
-    # Merge alpha diversity back into the cohort for downstream analysis
-    alpha_df = pd.DataFrame({
-        'shannon': results['shannon'],
-        'simpson': results['simpson'],
-        'chao1': results['chao1']
-    })
-    merged_cohort = pd.concat([cohort, alpha_df], axis=1)
-    merged_cohort.to_csv(processed_dir / "filtered_cohort_with_diversity.csv")
-    logger.info(f"Saved merged cohort with diversity metrics to {processed_dir / 'filtered_cohort_with_diversity.csv'}")
-
-    logger.info("Task T019 completed successfully.")
+    
+    # Save alpha diversity
+    alpha_metrics.to_csv(alpha_output, index=False)
+    logger.info(f"Alpha diversity saved to {alpha_output}")
+    
+    # Save beta diversity (Bray-Curtis as flat CSV)
+    # Convert distance matrix to long format for storage
+    bray_curtis_df = beta_metrics['bray_curtis']
+    bray_curtis_long = bray_curtis_df.reset_index().melt(
+        id_vars='index',
+        var_name='sample_2',
+        value_name='bray_curtis_distance'
+    )
+    bray_curtis_long.columns = ['sample_1', 'sample_2', 'bray_curtis_distance']
+    bray_curtis_long.to_csv(beta_output, index=False)
+    logger.info(f"Beta diversity (Bray-Curtis) saved to {beta_output}")
+    
+    # Save UniFrac if available and different
+    if 'unifrac_weighted' in beta_metrics:
+        unifrac_df = beta_metrics['unifrac_weighted']
+        unifrac_long = unifrac_df.reset_index().melt(
+            id_vars='index',
+            var_name='sample_2',
+            value_name='unifrac_weighted_distance'
+        )
+        unifrac_long.columns = ['sample_1', 'sample_2', 'unifrac_weighted_distance']
+        unifrac_output = results_dir / "unifrac_weighted_matrix.csv"
+        unifrac_long.to_csv(unifrac_output, index=False)
+        logger.info(f"UniFrac weighted saved to {unifrac_output}")
+    
+    return alpha_metrics, beta_metrics
 
 if __name__ == "__main__":
     main()

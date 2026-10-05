@@ -4,65 +4,41 @@ import logging
 from pathlib import Path
 import pytest
 
-# Add the project root to sys.path to allow imports from 'code' package
-# The project root is the parent of the 'code' directory
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+# Configure logging for tests to avoid silent failures
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 
-# Import config to ensure paths are set up correctly
-from code.src.utils.config import setup_logging, ensure_directories
-
-def pytest_configure(config):
-    """Configure pytest markers and logging."""
-    config.addinivalue_line(
-        "markers", "unit: mark test as a unit test"
-    )
-    config.addinivalue_line(
-        "markers", "integration: mark test as an integration test"
-    )
-    config.addinivalue_line(
-        "markers", "contract: mark test as a contract test"
-    )
-    config.addinivalue_line(
-        "markers", "slow: mark test as slow running"
-    )
-
-@pytest.fixture(scope="session", autouse=True)
-def setup_test_environment():
-    """
-    Session-scoped fixture to set up the test environment.
-    Ensures directories exist and logging is configured.
-    """
-    # Ensure all necessary directories exist
-    ensure_directories()
-    
-    # Configure logging for tests
-    # This uses the same logger setup as the main application
-    setup_logging()
-    
-    # Log test start
-    logger = logging.getLogger(__name__)
-    logger.info("Test environment setup complete.")
-    
-    yield
-    
-    logger.info("Test session finished.")
+@pytest.fixture(scope="session")
+def project_root():
+    """Return the project root directory."""
+    # Assuming the project structure is code/ at the root of the repo
+    # and tests are inside code/tests/
+    current_file = Path(__file__).resolve()
+    code_root = current_file.parent.parent
+    return code_root
 
 @pytest.fixture
-def sample_data_dir(tmp_path):
-    """
-    Fixture providing a temporary directory for test data.
-    """
-    data_dir = tmp_path / "data"
-    data_dir.mkdir()
+def sample_data_dir(project_root):
+    """Return a path to a sample data directory for testing."""
+    data_dir = project_root / "data" / "raw"
+    if not data_dir.exists():
+        data_dir.mkdir(parents=True, exist_ok=True)
     return data_dir
 
 @pytest.fixture
-def sample_output_dir(tmp_path):
-    """
-    Fixture providing a temporary directory for test outputs.
-    """
-    output_dir = tmp_path / "output"
-    output_dir.mkdir()
+def sample_output_dir(project_root):
+    """Return a temporary output directory for test artifacts."""
+    output_dir = project_root / "data" / "processed"
+    if not output_dir.exists():
+        output_dir.mkdir(parents=True, exist_ok=True)
     return output_dir
+
+@pytest.fixture(autouse=True)
+def add_project_root_to_path(project_root):
+    """Add project root to sys.path to ensure imports work."""
+    sys.path.insert(0, str(project_root))
+    yield
+    if str(project_root) in sys.path:
+        sys.path.remove(str(project_root))

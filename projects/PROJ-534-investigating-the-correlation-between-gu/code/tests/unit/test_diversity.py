@@ -1,7 +1,3 @@
-"""
-Unit tests for diversity metric calculations in src/analysis/diversity.py.
-"""
-
 import pytest
 import pandas as pd
 import numpy as np
@@ -9,13 +5,11 @@ from pathlib import Path
 import tempfile
 import os
 
-# Import the functions to test
 from code.src.analysis.diversity import (
     calculate_shannon,
     calculate_simpson,
     calculate_chao1,
     calculate_bray_curtis,
-    calculate_unifrac_weighted,
     calculate_alpha_beta_diversity
 )
 
@@ -23,167 +17,152 @@ from code.src.analysis.diversity import (
 def sample_otu_table():
     """Create a sample OTU table for testing."""
     data = {
-        'species_A': [10, 5, 0, 20],
-        'species_B': [5, 10, 5, 0],
-        'species_C': [0, 5, 10, 5],
-        'species_D': [5, 0, 5, 10]
+        'participant_id': ['P001', 'P002', 'P003'],
+        'otu_1': [10, 5, 0],
+        'otu_2': [5, 10, 0],
+        'otu_3': [0, 0, 15]
     }
-    index = ['sample_1', 'sample_2', 'sample_3', 'sample_4']
-    return pd.DataFrame(data, index=index)
+    return pd.DataFrame(data)
 
 @pytest.fixture
 def empty_otu_table():
     """Create an empty OTU table."""
-    return pd.DataFrame()
+    data = {
+        'participant_id': ['P001'],
+        'otu_1': [0],
+        'otu_2': [0]
+    }
+    return pd.DataFrame(data)
 
 @pytest.fixture
 def single_species_table():
-    """Create a table with only one species (zero diversity)."""
+    """Create a table with only one species present."""
     data = {
-        'species_A': [10, 20, 30]
+        'participant_id': ['P001'],
+        'otu_1': [100],
+        'otu_2': [0],
+        'otu_3': [0]
     }
-    index = ['sample_1', 'sample_2', 'sample_3']
-    return pd.DataFrame(data, index=index)
+    return pd.DataFrame(data)
 
 class TestAlphaDiversity:
-    def test_calculate_shannon_normal_data(self, sample_otu_table):
-        """Test Shannon calculation on normal data."""
-        result = calculate_shannon(sample_otu_table)
-        assert len(result) == 4
-        assert all(result >= 0), "Shannon index must be non-negative"
-        # Sample 1 has equal distribution (20 total, 5 each) -> max diversity
-        # Sample 3 has unequal distribution -> lower diversity
-        assert result['sample_1'] > result['sample_3']
+    def test_calculate_shannon_basic(self):
+        """Test Shannon diversity calculation with known values."""
+        # Equal abundance: 10, 10, 10 -> Shannon = ln(3) ≈ 1.0986
+        otu_row = pd.Series([10, 10, 10])
+        result = calculate_shannon(otu_row)
+        expected = np.log(3)
+        assert np.isclose(result, expected, rtol=1e-5)
 
-    def test_calculate_shannon_empty_table(self, empty_otu_table):
-        """Test Shannon calculation on empty table."""
-        result = calculate_shannon(empty_otu_table)
-        assert len(result) == 0
+    def test_calculate_shannon_zero(self):
+        """Test Shannon diversity with all zeros."""
+        otu_row = pd.Series([0, 0, 0])
+        result = calculate_shannon(otu_row)
+        assert result == 0.0
 
-    def test_calculate_shannon_single_species(self, single_species_table):
-        """Test Shannon calculation on single species (should be 0)."""
-        result = calculate_shannon(single_species_table)
-        # Shannon for single species is 0
-        assert all(result == 0), "Shannon index for single species should be 0"
+    def test_calculate_simpson_basic(self):
+        """Test Simpson diversity calculation."""
+        # Equal abundance: 10, 10, 10 -> Simpson = 1 - 3*(1/3)^2 = 1 - 1/3 = 0.6667
+        otu_row = pd.Series([10, 10, 10])
+        result = calculate_simpson(otu_row)
+        expected = 1 - (1/3)
+        assert np.isclose(result, expected, rtol=1e-5)
 
-    def test_calculate_simpson_normal_data(self, sample_otu_table):
-        """Test Simpson calculation on normal data."""
-        result = calculate_simpson(sample_otu_table)
-        assert len(result) == 4
-        assert all(result >= 0) and all(result <= 1), "Simpson diversity (1-D) must be between 0 and 1"
+    def test_calculate_simpson_zero(self):
+        """Test Simpson diversity with all zeros."""
+        otu_row = pd.Series([0, 0, 0])
+        result = calculate_simpson(otu_row)
+        assert result == 0.0
 
-    def test_calculate_simpson_empty_table(self, empty_otu_table):
-        """Test Simpson calculation on empty table."""
-        result = calculate_simpson(empty_otu_table)
-        assert len(result) == 0
+    def test_calculate_chao1_with_doubletons(self):
+        """Test Chao1 with singletons and doubletons."""
+        # S_obs = 3, F1 = 1, F2 = 1 -> Chao1 = 3 + (1^2)/(2*1) = 3.5
+        otu_row = pd.Series([1, 2, 10])  # 1 singleton, 1 doubleton, 1 abundant
+        result = calculate_chao1(otu_row)
+        expected = 3.5
+        assert np.isclose(result, expected, rtol=1e-5)
 
-    def test_calculate_simpson_single_species(self, single_species_table):
-        """Test Simpson calculation on single species (should be 0)."""
-        result = calculate_simpson(single_species_table)
-        assert all(result == 0), "Simpson diversity for single species should be 0"
-
-    def test_calculate_chao1_normal_data(self, sample_otu_table):
-        """Test Chao1 calculation on normal data."""
-        result = calculate_chao1(sample_otu_table)
-        assert len(result) == 4
-        assert all(result >= 0), "Chao1 richness must be non-negative"
-        # Chao1 should be at least the observed species count
-        observed = (sample_otu_table > 0).sum(axis=1)
-        assert all(result >= observed), "Chao1 should be >= observed species"
-
-    def test_calculate_chao1_empty_table(self, empty_otu_table):
-        """Test Chao1 calculation on empty table."""
-        result = calculate_chao1(empty_otu_table)
-        assert len(result) == 0
-
-    def test_calculate_chao1_singletons_doubletons(self):
-        """Test Chao1 with specific singleton/doubleton counts."""
-        # Create a table with known F1 and F2
-        data = {
-            'sp1': [1, 0, 0],
-            'sp2': [1, 0, 0],
-            'sp3': [2, 0, 0],
-            'sp4': [2, 0, 0],
-            'sp5': [3, 0, 0]
-        }
-        df = pd.DataFrame(data, index=['s1', 's2', 's3'])
-        # s1: F1=2, F2=2 -> Chao1 = 5 + (4 / 4) = 6
-        result = calculate_chao1(df)
-        assert result['s1'] == 6.0
+    def test_calculate_chao1_no_doubletons(self):
+        """Test Chao1 when no doubletons exist."""
+        # S_obs = 2, F1 = 2, F2 = 0 -> Chao1 = 2 + 2 = 4
+        otu_row = pd.Series([1, 1, 0])
+        result = calculate_chao1(otu_row)
+        expected = 4.0
+        assert np.isclose(result, expected, rtol=1e-5)
 
 class TestBetaDiversity:
-    def test_calculate_bray_curtis_normal_data(self, sample_otu_table):
-        """Test Bray-Curtis calculation."""
-        result = calculate_bray_curtis(sample_otu_table)
-        assert result.shape == (4, 4)
-        assert all(result.values >= 0) and all(result.values <= 1)
-        # Diagonal should be 0 (distance to self)
-        assert all(np.diag(result.values) == 0)
-
-    def test_calculate_bray_curtis_empty_table(self, empty_otu_table):
-        """Test Bray-Curtis on empty table."""
-        result = calculate_bray_curtis(empty_otu_table)
-        assert result.empty
-
-    def test_calculate_bray_curtis_identical_samples(self):
+    def test_calculate_bray_curtis_identical(self):
         """Test Bray-Curtis with identical samples (should be 0)."""
-        data = {
-            'sp1': [10, 10],
-            'sp2': [5, 5]
-        }
-        df = pd.DataFrame(data, index=['s1', 's2'])
-        result = calculate_bray_curtis(df)
-        assert result['s1']['s2'] == 0.0
+        df = pd.DataFrame({
+            'otu_1': [10, 10],
+            'otu_2': [5, 5]
+        })
+        bc_matrix = calculate_bray_curtis(df, ['otu_1', 'otu_2'])
+        assert bc_matrix.iloc[0, 0] == 0.0
+        assert bc_matrix.iloc[1, 1] == 0.0
 
-    def test_calculate_unifrac_weighted_no_tree(self, sample_otu_table):
-        """Test UniFrac without a tree (should fallback to Bray-Curtis)."""
-        result = calculate_unifrac_weighted(sample_otu_table, tree_path=None)
-        # Should return a Bray-Curtis-like matrix
-        assert result.shape == (4, 4)
-        assert all(result.values >= 0)
+    def test_calculate_bray_curtis_completely_different(self):
+        """Test Bray-Curtis with completely non-overlapping samples."""
+        df = pd.DataFrame({
+            'otu_1': [10, 0],
+            'otu_2': [0, 10]
+        })
+        bc_matrix = calculate_bray_curtis(df, ['otu_1', 'otu_2'])
+        # BC = 1 - (2*0)/(10+10) = 1.0
+        assert np.isclose(bc_matrix.iloc[0, 1], 1.0, rtol=1e-5)
 
-    def test_calculate_unifrac_weighted_missing_tree(self, sample_otu_table):
-        """Test UniFrac with a non-existent tree path."""
-        fake_path = Path("/nonexistent/tree.nwk")
-        result = calculate_unifrac_weighted(sample_otu_table, tree_path=fake_path)
-        assert result.shape == (4, 4)
+    def test_calculate_bray_curtis_symmetric(self):
+        """Test that Bray-Curtis matrix is symmetric."""
+        df = pd.DataFrame({
+            'otu_1': [10, 5],
+            'otu_2': [5, 10]
+        })
+        bc_matrix = calculate_bray_curtis(df, ['otu_1', 'otu_2'])
+        assert np.isclose(bc_matrix.iloc[0, 1], bc_matrix.iloc[1, 0], rtol=1e-5)
 
 class TestIntegration:
-    def test_calculate_alpha_beta_diversity(self, sample_otu_table, tmp_path):
-        """Test the full pipeline of diversity calculation."""
-        results = calculate_alpha_beta_diversity(
+    def test_calculate_alpha_beta_diversity(self, sample_otu_table):
+        """Test full alpha and beta diversity calculation pipeline."""
+        alpha_metrics, beta_metrics = calculate_alpha_beta_diversity(
             sample_otu_table,
-            output_dir=tmp_path,
-            tree_path=None
+            ['otu_1', 'otu_2', 'otu_3']
         )
+        
+        # Check alpha metrics
+        assert 'shannon_diversity' in alpha_metrics.columns
+        assert 'simpson_diversity' in alpha_metrics.columns
+        assert 'chao1' in alpha_metrics.columns
+        assert len(alpha_metrics) == 3
+        
+        # Check beta metrics
+        assert 'bray_curtis' in beta_metrics
+        assert 'unifrac_weighted' in beta_metrics
+        
+        # Check dimensions
+        assert beta_metrics['bray_curtis'].shape == (3, 3)
+        assert beta_metrics['unifrac_weighted'].shape == (3, 3)
 
-        assert 'shannon' in results
-        assert 'simpson' in results
-        assert 'chao1' in results
-        assert 'bray_curtis' in results
-        assert 'unifrac_weighted' in results
+    def test_calculate_alpha_beta_diversity_empty(self, empty_otu_table):
+        """Test diversity calculation with empty OTU table."""
+        alpha_metrics, beta_metrics = calculate_alpha_beta_diversity(
+            empty_otu_table,
+            ['otu_1', 'otu_2']
+        )
+        
+        # Should handle zeros gracefully
+        assert alpha_metrics['shannon_diversity'].iloc[0] == 0.0
+        assert alpha_metrics['simpson_diversity'].iloc[0] == 0.0
 
-        # Check files were created
-        assert (tmp_path / "alpha_diversity.csv").exists()
-        assert (tmp_path / "bray_curtis_distance.csv").exists()
-        # UniFrac fallback creates the same file as Bray-Curtis in this test context
-        # or we check if it exists if not empty
-        if not results['unifrac_weighted'].empty:
-            assert (tmp_path / "unifrac_weighted_distance.csv").exists()
-
-    def test_diversity_with_zero_variance(self):
-        """Test diversity calculation with zero variance (constant counts)."""
-        data = {
-            'sp1': [10, 10, 10],
-            'sp2': [10, 10, 10]
-        }
-        df = pd.DataFrame(data, index=['s1', 's2', 's3'])
-        shannon = calculate_shannon(df)
-        # If all counts are equal, diversity is max for that richness
-        # But if only 1 species has non-zero, diversity is 0
-        # Here we have 2 species, equal counts -> non-zero diversity
-        assert all(shannon > 0)
-
-        simpson = calculate_simpson(df)
-        assert all(simpson > 0)
-        assert all(simpson < 1)
+    def test_calculate_alpha_beta_diversity_single_species(self, single_species_table):
+        """Test diversity calculation with single species."""
+        alpha_metrics, beta_metrics = calculate_alpha_beta_diversity(
+            single_species_table,
+            ['otu_1', 'otu_2', 'otu_3']
+        )
+        
+        # Single species: Shannon = 0, Simpson = 0
+        assert alpha_metrics['shannon_diversity'].iloc[0] == 0.0
+        assert alpha_metrics['simpson_diversity'].iloc[0] == 0.0
+        # Chao1 = S_obs + F1 = 1 + 0 = 1 (if no singletons) or 1 + 1 = 2 (if singleton)
+        # In this case: [100, 0, 0] -> S_obs=1, F1=0, F2=0 -> Chao1 = 1
+        assert alpha_metrics['chao1'].iloc[0] == 1.0

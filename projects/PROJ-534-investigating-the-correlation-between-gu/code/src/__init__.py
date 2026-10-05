@@ -1,1 +1,1 @@
-# Source package initialization
+# Source package for PROJ-534

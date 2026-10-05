@@ -1,377 +1,281 @@
-"""
-Correlation analysis module for gut microbiome and cognitive flexibility data.
-
-Implements Pearson/Spearman correlation with auto-switch logic based on data
-distribution characteristics, and applies Benjamini-Hochberg FDR correction.
-"""
 import logging
 import sys
 from pathlib import Path
 from typing import Tuple, Dict, Any, Optional, List, Union
 import pandas as pd
 import numpy as np
-from scipy import stats
+import statsmodels.api as sm
+from statsmodels.stats.multitest import multipletests
 
-# Configure logging
 logger = logging.getLogger(__name__)
 
-def calculate_skewness(data: Union[pd.Series, np.ndarray]) -> float:
-    """
-    Calculate the skewness of a dataset.
-    
-    Args:
-        data: Input data series or array.
-        
-    Returns:
-        Skewness value.
-    """
-    if isinstance(data, pd.Series):
-        data = data.dropna()
-    return float(stats.skew(data))
+def calculate_skewness(series: pd.Series) -> float:
+    """Calculate skewness of a series."""
+    return series.skew()
 
-def shapiro_wilk_test(data: Union[pd.Series, np.ndarray]) -> Tuple[float, float]:
-    """
-    Perform Shapiro-Wilk test for normality.
-    
-    Args:
-        data: Input data series or array.
-        
-    Returns:
-        Tuple of (statistic, p-value).
-    """
-    if isinstance(data, pd.Series):
-        data = data.dropna()
-    statistic, p_value = stats.shapiro(data)
-    return float(statistic), float(p_value)
+def shapiro_wilk_test(series: pd.Series) -> Tuple[float, float]:
+    """Perform Shapiro-Wilk test for normality."""
+    if len(series) < 3:
+        return 0.0, 1.0
+    stat, p_value = sm.stats.shapiro(series.dropna())
+    return float(stat), float(p_value)
 
-def should_switch_to_spearman(data_x: Union[pd.Series, np.ndarray], 
-                              data_y: Union[pd.Series, np.ndarray],
-                            skewness_threshold: float = 1.0,
-                            shapiro_p_threshold: float = 0.05) -> bool:
+def should_switch_to_spearman(series_x: pd.Series, series_y: pd.Series) -> bool:
     """
     Determine if Spearman correlation should be used instead of Pearson.
-    
-    Logic: Switch to Spearman if:
-    - Skewness of either variable > threshold, OR
-    - Shapiro-Wilk p-value < threshold (non-normal)
-    
-    Args:
-        data_x: First variable.
-        data_y: Second variable.
-        skewness_threshold: Skewness threshold for switch.
-        shapiro_p_threshold: P-value threshold for normality test.
-        
-    Returns:
-        True if Spearman should be used, False otherwise.
+    Switch if skewness > 1.0 or Shapiro-Wilk p < 0.05 for either variable.
     """
-    x_clean = pd.Series(data_x).dropna()
-    y_clean = pd.Series(data_y).dropna()
+    skew_x = calculate_skewness(series_x)
+    skew_y = calculate_skewness(series_y)
     
-    # Check skewness
-    skew_x = calculate_skewness(x_clean)
-    skew_y = calculate_skewness(y_clean)
-    
-    if abs(skew_x) > skewness_threshold or abs(skew_y) > skewness_threshold:
-        logger.info(f"Skewness threshold exceeded: X={skew_x:.3f}, Y={skew_y:.3f}")
+    if abs(skew_x) > 1.0 or abs(skew_y) > 1.0:
+        logger.info(f"High skewness detected (x: {skew_x:.2f}, y: {skew_y:.2f}). Switching to Spearman.")
         return True
-    
-    # Check normality via Shapiro-Wilk
-    # Note: Shapiro-Wilk has a sample size limit (typically < 5000)
-    # For larger datasets, we'll use a subset or rely on skewness
-    sample_size = min(len(x_clean), len(y_clean), 5000)
-    if sample_size > 3:  # Minimum requirement for Shapiro-Wilk
-        x_sample = x_clean.iloc[:sample_size]
-        y_sample = y_clean.iloc[:sample_size]
         
-        _, p_x = shapiro_wilk_test(x_sample)
-        _, p_y = shapiro_wilk_test(y_sample)
-        
-        if p_x < shapiro_p_threshold or p_y < shapiro_p_threshold:
-            logger.info(f"Normality test failed (p < {shapiro_p_threshold}): X p={p_x:.4f}, Y p={p_y:.4f}")
-            return True
+    stat_x, p_x = shapiro_wilk_test(series_x)
+    stat_y, p_y = shapiro_wilk_test(series_y)
     
+    if p_x < 0.05 or p_y < 0.05:
+        logger.info(f"Non-normal distribution detected (p_x: {p_x:.4f}, p_y: {p_y:.4f}). Switching to Spearman.")
+        return True
+        
     return False
 
-def pearson_correlation_with_ci(data_x: Union[pd.Series, np.ndarray],
-                                data_y: Union[pd.Series, np.ndarray],
-                                confidence_level: float = 0.95) -> Dict[str, Any]:
-    """
-    Calculate Pearson correlation coefficient with confidence interval.
+def pearson_correlation_with_ci(series_x: pd.Series, series_y: pd.Series) -> Dict[str, float]:
+    """Calculate Pearson correlation with confidence interval."""
+    valid_mask = series_x.notna() & series_y.notna()
+    x = series_x[valid_mask]
+    y = series_y[valid_mask]
     
-    Args:
-        data_x: First variable.
-        data_y: Second variable.
-        confidence_level: Confidence level for CI (default 0.95).
+    if len(x) < 3:
+        return {"correlation": np.nan, "p_value": np.nan, "ci_lower": np.nan, "ci_upper": np.nan}
         
-    Returns:
-        Dictionary with correlation, p-value, and confidence interval.
-    """
-    x_clean = pd.Series(data_x).dropna()
-    y_clean = pd.Series(data_y).dropna()
-    
-    # Align indices
-    common_idx = x_clean.index.intersection(y_clean.index)
-    x_aligned = x_clean.loc[common_idx]
-    y_aligned = y_clean.loc[common_idx]
-    
-    if len(x_aligned) < 3:
-        raise ValueError("Insufficient data points for correlation calculation")
-    
-    # Calculate Pearson correlation
-    r, p_value = stats.pearsonr(x_aligned, y_aligned)
-    
-    # Calculate confidence interval using Fisher's z-transformation
-    n = len(x_aligned)
-    z = np.arctanh(r)  # Fisher transformation
-    se_z = 1.0 / np.sqrt(n - 3)
-    
-    z_lower = z - stats.norm.inv(confidence_level / 2 + 0.5) * se_z
-    z_upper = z + stats.norm.inv(confidence_level / 2 + 0.5) * se_z
-    
-    ci_lower = np.tanh(z_lower)
-    ci_upper = np.tanh(z_upper)
+    corr, p_value = sm.stats.pearsonr(x, y)
+    n = len(x)
+    # Fisher transformation for CI
+    z = 0.5 * np.log((1 + corr) / (1 - corr + 1e-10))
+    se = 1 / np.sqrt(n - 3)
+    z_lower = z - 1.96 * se
+    z_upper = z + 1.96 * se
+    ci_lower = (np.exp(2 * z_lower) - 1) / (np.exp(2 * z_lower) + 1)
+    ci_upper = (np.exp(2 * z_upper) - 1) / (np.exp(2 * z_upper) + 1)
     
     return {
-        "correlation_coefficient": float(r),
+        "correlation": float(corr),
         "p_value": float(p_value),
-        "confidence_interval": [float(ci_lower), float(ci_upper)],
-        "method": "pearson"
+        "ci_lower": float(ci_lower),
+        "ci_upper": float(ci_upper)
     }
 
-def spearman_correlation_with_ci(data_x: Union[pd.Series, np.ndarray],
-                                 data_y: Union[pd.Series, np.ndarray],
-                                 confidence_level: float = 0.95) -> Dict[str, Any]:
-    """
-    Calculate Spearman rank correlation coefficient with confidence interval.
+def spearman_correlation_with_ci(series_x: pd.Series, series_y: pd.Series) -> Dict[str, float]:
+    """Calculate Spearman correlation with confidence interval (approximate)."""
+    valid_mask = series_x.notna() & series_y.notna()
+    x = series_x[valid_mask]
+    y = series_y[valid_mask]
     
-    Note: CI calculation for Spearman is approximate (using bootstrap or
-    Fisher transformation on ranks). Here we use Fisher transformation
-    on the rank-transformed data as an approximation.
-    
-    Args:
-        data_x: First variable.
-        data_y: Second variable.
-        confidence_level: Confidence level for CI (default 0.95).
+    if len(x) < 3:
+        return {"correlation": np.nan, "p_value": np.nan, "ci_lower": np.nan, "ci_upper": np.nan}
         
-    Returns:
-        Dictionary with correlation, p-value, and confidence interval.
-    """
-    x_clean = pd.Series(data_x).dropna()
-    y_clean = pd.Series(data_y).dropna()
-    
-    # Align indices
-    common_idx = x_clean.index.intersection(y_clean.index)
-    x_aligned = x_clean.loc[common_idx]
-    y_aligned = y_clean.loc[common_idx]
-    
-    if len(x_aligned) < 3:
-        raise ValueError("Insufficient data points for correlation calculation")
-    
-    # Calculate Spearman correlation
-    r, p_value = stats.spearmanr(x_aligned, y_aligned)
-    
-    # Calculate confidence interval using Fisher's z-transformation
-    # (approximation for Spearman)
-    n = len(x_aligned)
-    z = np.arctanh(r)  # Fisher transformation
-    se_z = 1.0 / np.sqrt(n - 3)
-    
-    z_lower = z - stats.norm.inv(confidence_level / 2 + 0.5) * se_z
-    z_upper = z + stats.norm.inv(confidence_level / 2 + 0.5) * se_z
-    
-    ci_lower = np.tanh(z_lower)
-    ci_upper = np.tanh(z_upper)
+    corr, p_value = sm.stats.spearmanr(x, y)
+    n = len(x)
+    # Approximate CI using Fisher transformation
+    z = 0.5 * np.log((1 + corr) / (1 - corr + 1e-10))
+    se = 1 / np.sqrt(n - 3)
+    z_lower = z - 1.96 * se
+    z_upper = z + 1.96 * se
+    ci_lower = (np.exp(2 * z_lower) - 1) / (np.exp(2 * z_lower) + 1)
+    ci_upper = (np.exp(2 * z_upper) - 1) / (np.exp(2 * z_upper) + 1)
     
     return {
-        "correlation_coefficient": float(r),
+        "correlation": float(corr),
         "p_value": float(p_value),
-        "confidence_interval": [float(ci_lower), float(ci_upper)],
-        "method": "spearman"
+        "ci_lower": float(ci_lower),
+        "ci_upper": float(ci_upper)
     }
 
-def apply_benjamini_hochberg(p_values: List[float], alpha: float = 0.05) -> List[float]:
-    """
-    Apply Benjamini-Hochberg procedure for FDR correction.
-    
-    Args:
-        p_values: List of raw p-values.
-        alpha: Significance level (default 0.05).
-        
-    Returns:
-        List of adjusted p-values.
-    """
+def apply_benjamini_hochberg(p_values: List[float]) -> List[float]:
+    """Apply Benjamini-Hochberg correction to a list of p-values."""
     if not p_values:
         return []
-    
     n = len(p_values)
-    sorted_indices = np.argsort(p_values)
-    sorted_p = np.array(p_values)[sorted_indices]
+    sorted_indices = sorted(range(n), key=lambda i: p_values[i])
+    sorted_p = [p_values[i] for i in sorted_indices]
     
-    # Calculate adjusted p-values
-    adjusted_p = np.zeros(n)
-    for i in range(n):
-        # BH adjusted p-value calculation
+    corrected = [0.0] * n
+    prev_corrected = 1.0
+    
+    for i in range(n - 1, -1, -1):
         rank = i + 1
-        adjusted_p[i] = min(1.0, (n / rank) * sorted_p[i])
-    
-    # Ensure monotonicity (adjusted p-values should not decrease with rank)
-    for i in range(n - 2, -1, -1):
-        adjusted_p[i] = min(adjusted_p[i], adjusted_p[i + 1])
-    
-    # Restore original order
-    final_adjusted_p = np.zeros(n)
-    final_adjusted_p[sorted_indices] = adjusted_p
-    
-    return [float(p) for p in final_adjusted_p]
+        adjusted = sorted_p[i] * n / rank
+        corrected_val = min(adjusted, prev_corrected)
+        corrected_val = min(corrected_val, 1.0)
+        corrected[sorted_indices[i]] = corrected_val
+        prev_corrected = corrected_val
+        
+    return corrected
 
-def run_correlation_analysis(data_x: Union[pd.Series, np.ndarray],
-                             data_y: Union[pd.Series, np.ndarray],
-                             alpha: float = 0.05,
-                             skewness_threshold: float = 1.0,
-                             shapiro_p_threshold: float = 0.05,
-                             confidence_level: float = 0.95) -> Dict[str, Any]:
+def run_regression_analysis(df: pd.DataFrame, 
+                            dependent_var: str, 
+                            independent_vars: List[str], 
+                            include_intercept: bool = True) -> Dict[str, Any]:
     """
-    Run correlation analysis with auto-switch logic and FDR correction.
+    Run a linear regression analysis.
     
     Args:
-        data_x: First variable.
-        data_y: Second variable.
-        alpha: Significance level for FDR.
-        skewness_threshold: Skewness threshold for method selection.
-        shapiro_p_threshold: P-value threshold for normality test.
-        confidence_level: Confidence level for CI.
+        df: DataFrame containing the data
+        dependent_var: Name of the dependent variable
+        independent_vars: List of independent variable names
+        include_intercept: Whether to include an intercept term
         
     Returns:
-        Dictionary with correlation results and method used.
+        Dictionary with regression results
     """
-    # Determine method
-    use_spearman = should_switch_to_spearman(
-        data_x, data_y, skewness_threshold, shapiro_p_threshold
-    )
+    # Handle missing values
+    cols = [dependent_var] + independent_vars
+    valid_df = df[cols].dropna()
     
-    if use_spearman:
-        logger.info("Switching to Spearman correlation due to distribution characteristics")
-        result = spearman_correlation_with_ci(data_x, data_y, confidence_level)
+    if len(valid_df) < 3:
+        logger.warning("Insufficient data for regression analysis.")
+        return {
+            "r_squared": np.nan,
+            "coefficients": {},
+            "p_values": {},
+            "model": None
+        }
+        
+    y = valid_df[dependent_var].values
+    X = valid_df[independent_vars].values
+    
+    if include_intercept:
+        X = sm.add_constant(X)
+        
+    model = sm.OLS(y, X).fit()
+    
+    coefficients = {}
+    p_values = {}
+    
+    for i, var in enumerate(independent_vars):
+        idx = i + 1 if include_intercept else i
+        coefficients[var] = float(model.params[idx])
+        p_values[var] = float(model.pvalues[idx])
+        
+    if include_intercept:
+        coefficients['intercept'] = float(model.params[0])
+        
+    return {
+        "r_squared": float(model.rsquared),
+        "coefficients": coefficients,
+        "p_values": p_values,
+        "model": model
+    }
+
+def run_multiple_regressions(df: pd.DataFrame, 
+                             dependent_var: str, 
+                             diversity_var: str, 
+                             covariates: List[str]) -> Dict[str, Any]:
+    """
+    Run multiple regression models:
+    1. Baseline model: Cognitive ~ Covariates only
+    2. Full model: Cognitive ~ Diversity + Covariates
+    
+    Calculates delta R-squared (Full - Baseline).
+    
+    Args:
+        df: DataFrame containing the data
+        dependent_var: Name of the dependent variable (e.g., cognitive_flexibility_score)
+        diversity_var: Name of the diversity metric variable
+        covariates: List of covariate names
+        
+    Returns:
+        Dictionary with results from both models and delta R-squared
+    """
+    logger.info(f"Running multiple regression analysis for {dependent_var} ~ {diversity_var} + {covariates}")
+    
+    # Baseline model: Cognitive ~ Covariates only
+    baseline_vars = covariates
+    baseline_result = run_regression_analysis(df, dependent_var, baseline_vars)
+    baseline_r_squared = baseline_result.get("r_squared", np.nan)
+    
+    # Full model: Cognitive ~ Diversity + Covariates
+    full_vars = [diversity_var] + covariates
+    full_result = run_regression_analysis(df, dependent_var, full_vars)
+    full_r_squared = full_result.get("r_squared", np.nan)
+    
+    # Calculate delta R-squared
+    delta_r_squared = np.nan
+    if not np.isnan(baseline_r_squared) and not np.isnan(full_r_squared):
+        delta_r_squared = full_r_squared - baseline_r_squared
+        logger.info(f"Baseline R²: {baseline_r_squared:.4f}, Full R²: {full_r_squared:.4f}, Delta R²: {delta_r_squared:.4f}")
     else:
-        logger.info("Using Pearson correlation (data appears normally distributed)")
-        result = pearson_correlation_with_ci(data_x, data_y, confidence_level)
-    
-    # Apply FDR correction (single p-value, but included for consistency)
-    adjusted_p = apply_benjamini_hochberg([result["p_value"]], alpha)[0]
-    
-    result["adjusted_p_value"] = float(adjusted_p)
-    result["method_used"] = "spearman" if use_spearman else "pearson"
-    
-    return result
-
-def run_multiple_correlations(df: pd.DataFrame,
-                              x_columns: List[str],
-                              y_column: str,
-                              alpha: float = 0.05,
-                              skewness_threshold: float = 1.0,
-                              shapiro_p_threshold: float = 0.05,
-                              confidence_level: float = 0.95) -> List[Dict[str, Any]]:
-    """
-    Run correlation analysis for multiple X variables against one Y variable.
-    
-    Args:
-        df: DataFrame containing all variables.
-        x_columns: List of column names for X variables.
-        y_column: Column name for Y variable.
-        alpha: Significance level for FDR.
-        skewness_threshold: Skewness threshold for method selection.
-        shapiro_p_threshold: P-value threshold for normality test.
-        confidence_level: Confidence level for CI.
+        logger.warning("Could not calculate delta R-squared due to missing values.")
         
-    Returns:
-        List of correlation result dictionaries.
-    """
-    results = []
-    p_values = []
-    
-    # First pass: collect all raw p-values
-    for col in x_columns:
-        if col not in df.columns:
-            logger.warning(f"Column {col} not found in DataFrame, skipping")
-            continue
-        
-        if y_column not in df.columns:
-            logger.error(f"Y column {y_column} not found in DataFrame")
-            continue
-        
-        result = run_correlation_analysis(
-            df[col], df[y_column], alpha, skewness_threshold, 
-            shapiro_p_threshold, confidence_level
-        )
-        results.append({
-            "variable_x": col,
-            "variable_y": y_column,
-            **result
-        })
-        p_values.append(result["p_value"])
-    
-    # Second pass: apply FDR correction to all p-values
-    adjusted_p_values = apply_benjamini_hochberg(p_values, alpha)
-    
-    # Update results with adjusted p-values
-    for i, result in enumerate(results):
-        result["adjusted_p_value"] = float(adjusted_p_values[i])
-    
-    return results
+    return {
+        "baseline_model": {
+            "r_squared": baseline_r_squared,
+            "coefficients": baseline_result.get("coefficients", {}),
+            "p_values": baseline_result.get("p_values", {})
+        },
+        "full_model": {
+            "r_squared": full_r_squared,
+            "coefficients": full_result.get("coefficients", {}),
+            "p_values": full_result.get("p_values", {})
+        },
+        "delta_r_squared": float(delta_r_squared) if not np.isnan(delta_r_squared) else None
+    }
 
 def main():
-    """
-    Main function to demonstrate correlation analysis on filtered cohort data.
-    """
+    """Main entry point for running correlation analysis."""
     from code.src.utils.config import get_processed_data_dir, get_results_dir, setup_logging
+    import json
     
     setup_logging()
+    logger.info("Starting correlation analysis pipeline.")
     
     processed_dir = get_processed_data_dir()
     results_dir = get_results_dir()
     
-    input_file = processed_dir / "filtered_cohort.csv"
-    output_file = results_dir / "correlation_results.json"
-    
-    if not input_file.exists():
-        logger.error(f"Input file not found: {input_file}")
-        sys.exit(1)
-    
     # Load filtered cohort
-    df = pd.read_csv(input_file)
-    
-    # Define alpha diversity metrics to correlate with cognitive flexibility
-    alpha_metrics = ["shannon_diversity", "simpson_diversity", "chao1"]
-    cognitive_col = "cognitive_flexibility_score"
-    
-    # Verify columns exist
-    missing_cols = [col for col in alpha_metrics + [cognitive_col] if col not in df.columns]
-    if missing_cols:
-        logger.error(f"Missing required columns: {missing_cols}")
+    cohort_path = processed_dir / "filtered_cohort.csv"
+    if not cohort_path.exists():
+        logger.error(f"Filtered cohort file not found: {cohort_path}")
         sys.exit(1)
+        
+    df = pd.read_csv(cohort_path)
+    logger.info(f"Loaded {len(df)} records from {cohort_path}")
     
-    # Run correlation analysis
-    logger.info(f"Running correlation analysis on {len(df)} participants")
-    results = run_multiple_correlations(
-        df, alpha_metrics, cognitive_col, alpha=0.05
-    )
+    # Define covariates as per spec FR-002
+    covariates = ['age', 'sex', 'bmi', 'dietary_fiber_intake', 'antibiotic_use_history']
+    dependent_var = 'cognitive_flexibility_score'
+    
+    # Diversity metrics to analyze
+    diversity_metrics = ['shannon_diversity', 'simpson_diversity', 'chao1']
+    
+    results = {}
+    
+    for metric in diversity_metrics:
+        if metric not in df.columns:
+            logger.warning(f"Diversity metric {metric} not found in dataset. Skipping.")
+            continue
+            
+        logger.info(f"Analyzing {metric}")
+        
+        # Run regression analysis
+        regression_results = run_multiple_regressions(df, dependent_var, metric, covariates)
+        
+        results[metric] = {
+            "baseline_r_squared": regression_results["baseline_model"]["r_squared"],
+            "full_r_squared": regression_results["full_model"]["r_squared"],
+            "delta_r_squared": regression_results["delta_r_squared"],
+            "full_model_coefficients": regression_results["full_model"]["coefficients"],
+            "full_model_p_values": regression_results["full_model"]["p_values"]
+        }
     
     # Save results
-    import json
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_file, "w") as f:
+    output_path = results_dir / "correlation_results.json"
+    with open(output_path, 'w') as f:
         json.dump(results, f, indent=2)
-    
-    logger.info(f"Correlation results saved to {output_file}")
-    
-    # Print summary
-    logger.info("\nCorrelation Summary:")
-    logger.info("-" * 60)
-    for res in results:
-        sig = "***" if res["adjusted_p_value"] < 0.05 else ""
-        logger.info(f"{res['variable_x']}: r={res['correlation_coefficient']:.3f}, "
-                   f"p={res['p_value']:.4f}, adj_p={res['adjusted_p_value']:.4f} {sig}")
-    
+        
+    logger.info(f"Results saved to {output_path}")
     return results
 
 if __name__ == "__main__":

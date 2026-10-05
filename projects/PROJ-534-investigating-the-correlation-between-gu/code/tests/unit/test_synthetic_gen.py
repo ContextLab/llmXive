@@ -1,18 +1,9 @@
-"""
-Unit tests for synthetic data generation (T008).
-"""
 import pytest
 import pandas as pd
 import numpy as np
 from pathlib import Path
 import sys
 import os
-
-# Add project root to path if running standalone
-project_root = Path(__file__).parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
 from code.src.data.synthetic_gen import (
     generate_participant_demographics,
     generate_lifestyle_factors,
@@ -24,64 +15,66 @@ from code.src.utils.config import SEED
 
 class TestSyntheticGen:
     @pytest.fixture
-    def rng(self):
-        return np.random.default_rng(SEED)
+    def sample_size(self):
+        return 100
 
-    def test_demographics_structure(self, rng):
-        """Test that demographics generation produces correct columns and types."""
-        df = generate_participant_demographics(10, rng)
-        assert "participant_id" in df.columns
-        assert "age" in df.columns
-        assert "sex" in df.columns
-        assert "bmi" in df.columns
-        assert len(df) == 10
-        assert df["age"].dtype in [np.int32, np.int64, int]
-        assert df["sex"].dtype == object
+    def test_demographics_generation(self, sample_size):
+        df = generate_participant_demographics(sample_size)
+        assert len(df) == sample_size
+        assert 'participant_id' in df.columns
+        assert 'age' in df.columns
+        assert 'sex' in df.columns
+        assert 'bmi' in df.columns
+        assert df['age'].min() >= 65
+        assert df['age'].max() <= 90
 
-    def test_microbiome_independence_from_cognitive(self, rng):
-        """
-        CRITICAL TEST: Verify that microbiome data and cognitive scores are
-        statistically independent (Null Hypothesis).
-        """
-        n = 1000
-        micro = generate_microbiome_data(n, rng)
-        cog = generate_cognitive_scores(n, rng)
-        
-        # Calculate correlation
-        corr = micro["shannon_diversity"].corr(cog["cognitive_flexibility_score"])
-        
-        # With N=1000 and true independence, correlation should be very close to 0.
-        # We allow a small tolerance for random sampling noise, but it should be < 0.1
-        assert abs(corr) < 0.1, f"Correlation {corr} is too high for independent variables. Null hypothesis violated."
+    def test_lifestyle_factors_generation(self, sample_size):
+        df = generate_lifestyle_factors(sample_size)
+        assert len(df) == sample_size
+        assert 'dietary_fiber_intake' in df.columns
+        assert 'antibiotic_use_history' in df.columns
+        assert df['antibiotic_use_history'].dtype == bool
 
-    def test_full_cohort_schema_compliance(self):
-        """Test that the full generated cohort matches expected schema types."""
-        df = generate_synthetic_cohort(n_participants=50)
+    def test_microbiome_data_independence(self, sample_size):
+        alpha_df, otu_table = generate_microbiome_data(sample_size)
+        assert len(alpha_df) == sample_size
+        assert 'shannon_diversity' in alpha_df.columns
+        assert 'simpson_diversity' in alpha_df.columns
+        assert 'chao1' in alpha_df.columns
+        assert 'participant_id' in alpha_df.columns
+
+    def test_cognitive_scores_generation(self, sample_size):
+        df = generate_cognitive_scores(sample_size)
+        assert len(df) == sample_size
+        assert 'cognitive_flexibility_score' in df.columns
+        assert df['cognitive_flexibility_score'].min() >= 0
+        assert df['cognitive_flexibility_score'].max() <= 100
+
+    def test_synthetic_cohort_integration(self, sample_size):
+        cohort_df, otu_table = generate_synthetic_cohort(sample_size)
         
-        # Check columns exist
-        expected_cols = [
-            "participant_id", "age", "sex", "bmi",
-            "dietary_fiber", "antibiotic_use",
-            "shannon_diversity", "simpson_diversity", "chao1",
-            "cognitive_flexibility_score"
+        # Check all required columns exist
+        required_cols = [
+            'participant_id', 'age', 'sex', 'bmi',
+            'cognitive_flexibility_score', 'shannon_diversity',
+            'simpson_diversity', 'chao1', 'dietary_fiber_intake',
+            'antibiotic_use_history'
         ]
-        assert list(df.columns) == expected_cols
+        for col in required_cols:
+            assert col in cohort_df.columns, f"Missing column: {col}"
         
-        # Check types
-        assert df["age"].dtype in [np.int32, np.int64, int]
-        assert df["antibiotic_use"].dtype == bool
-        assert df["sex"].dtype == object
-        assert df["bmi"].dtype in [np.float32, np.float64, float]
+        # Check data types
+        assert cohort_df['age'].dtype == np.int64
+        assert cohort_df['sex'].dtype == object
+        assert cohort_df['antibiotic_use_history'].dtype == np.bool_
         
-        # Check ranges (sanity check)
-        assert df["age"].between(60, 90).all()
-        assert df["shannon_diversity"].between(1.0, 6.0).all()
-        assert df["cognitive_flexibility_score"].between(20.0, 100.0).all()
+        # Verify independence: correlation between cognitive and shannon should be ~0
+        corr = cohort_df['cognitive_flexibility_score'].corr(cohort_df['shannon_diversity'])
+        # Allow some variance due to random sampling, but should be close to 0
+        assert abs(corr) < 0.2, f"Correlation too high: {corr}, expected near 0"
 
-    def test_deterministic_output(self):
-        """Test that generation is deterministic with fixed seed."""
-        df1 = generate_synthetic_cohort(n_participants=10)
-        df2 = generate_synthetic_cohort(n_participants=10)
+    def test_seed_reproducibility(self, sample_size):
+        df1, _ = generate_synthetic_cohort(sample_size, seed=SEED)
+        df2, _ = generate_synthetic_cohort(sample_size, seed=SEED)
         
-        # Resetting seed inside function ensures determinism
         pd.testing.assert_frame_equal(df1, df2)

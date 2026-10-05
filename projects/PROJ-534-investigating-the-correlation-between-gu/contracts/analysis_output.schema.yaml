@@ -1,51 +1,47 @@
 # Analysis Output Schema
-# Defines the structure for statistical analysis results (correlation, regression, etc.)
-# Used by T021 to validate data before saving to data/results/correlation_results.json
-# and by T025 for contract testing.
+# Defines the structure for correlation and regression analysis results
+# as required by Task T004.
 
 entity: AnalysisResult
-description: |
-  Represents a single statistical test result from the correlation or regression analysis.
-  Includes both raw statistics and corrected values (e.g., Benjamini-Hochberg adjusted p-values).
+description: "Schema for storing statistical analysis results including correlations and regressions."
 fields:
   - name: test_type
     type: str
-    description: Type of statistical test performed (e.g., 'pearson', 'spearman', 'linear_regression', 'permanova')
+    description: "Type of statistical test performed (e.g., 'pearson', 'spearman', 'linear_regression')."
     required: true
+    
   - name: metric_name
     type: str
-    description: Name of the specific diversity metric or variable being tested (e.g., 'shannon_diversity', 'simpson_diversity')
+    description: "Name of the diversity metric or variable being analyzed (e.g., 'shannon_diversity', 'simpson_diversity')."
     required: true
+    
   - name: correlation_coefficient
     type: float
-    description: The primary effect size (Pearson/Spearman r, or regression beta). Can be negative.
+    description: "The calculated correlation coefficient (r) or regression beta coefficient."
     required: true
+    
   - name: p_value
     type: float
-    description: Raw p-value from the statistical test.
+    description: "The unadjusted p-value for the test statistic."
     required: true
+    
   - name: adjusted_p_value
     type: float
-    description: P-value adjusted for multiple comparisons (e.g., Benjamini-Hochberg).
+    description: "The Benjamini-Hochberg adjusted p-value for multiple comparison correction."
     required: true
+    
   - name: confidence_interval
     type: array[float, float]
-    description: Two-element array representing the lower and upper bounds of the confidence interval (default 95%).
+    description: "Two-element array representing the lower and upper bounds of the confidence interval (e.g., [0.025, 0.975])."
     required: true
-    min_items: 2
-    max_items: 2
+    
   - name: r_squared
     type: float
-    description: Coefficient of determination. For simple correlation, this is r^2. For regression, model R^2.
+    description: "The coefficient of determination (R²) for regression models. For pure correlation tests, this may be null or the square of the correlation coefficient."
     required: true
-    nullable: false
-    default: 0.0
-constraints:
-  - p_value >= 0.0 and p_value <= 1.0
-  - adjusted_p_value >= 0.0 and adjusted_p_value <= 1.0
-  - correlation_coefficient >= -1.0 and correlation_coefficient <= 1.0 (for correlation tests)
-  - r_squared >= 0.0 and r_squared <= 1.0
-usage:
-  - T021: Save results to data/results/correlation_results.json
-  - T025: Contract test validation
-  - T018/T019: Output structure for analysis modules
+    
+validation_rules:
+  - rule: "correlation_coefficient must be between -1.0 and 1.0 for correlation tests."
+  - rule: "p_value and adjusted_p_value must be between 0.0 and 1.0."
+  - rule: "confidence_interval must have exactly 2 elements where lower < upper."
+  - rule: "r_squared must be between 0.0 and 1.0."

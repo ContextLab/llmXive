@@ -1,199 +1,173 @@
-"""
-Synthetic data generation for the Gut Microbiome and Cognitive Flexibility study.
-
-This module generates a synthetic dataset where cognitive flexibility scores and
-microbiome diversity metrics are statistically independent (Null Hypothesis).
-All data types strictly adhere to contracts/dataset.schema.yaml.
-"""
 import os
 import numpy as np
 import pandas as pd
 from pathlib import Path
 from typing import Tuple, List, Dict, Any
 import logging
+from code.src.utils.config import (
+    get_raw_data_dir,
+    get_project_root,
+    ensure_directories,
+    set_global_seed,
+    SEED
+)
 
-from code.src.utils.config import SEED, DATA_DIR, RAW_DATA_DIR, ensure_directories, set_global_seed
-
-# Configure logger
 logger = logging.getLogger(__name__)
 
-def generate_participant_demographics(n_participants: int, rng: np.random.Generator) -> pd.DataFrame:
-    """
-    Generate participant demographics: participant_id, age, sex, bmi.
+def generate_participant_demographics(n_participants: int, seed: int = SEED) -> pd.DataFrame:
+    """Generate participant demographic data."""
+    set_global_seed(seed)
     
-    Args:
-        n_participants: Number of participants to generate.
-        rng: NumPy random generator for reproducibility.
-        
-    Returns:
-        DataFrame with demographic columns.
-    """
-    logger.info(f"Generating demographics for {n_participants} participants.")
+    participant_ids = [f"P{str(i).zfill(5)}" for i in range(n_participants)]
     
-    ids = [f"PID_{i:05d}" for i in range(n_participants)]
+    # Age: Normal distribution centered around 70, min 65, max 90
+    ages = np.random.normal(loc=72, scale=5, size=n_participants)
+    ages = np.clip(ages, 65, 90).astype(int)
     
-    # Age: Normal distribution centered at 70 (aging cohort), clipped to realistic bounds
-    ages = rng.normal(loc=70, scale=6, size=n_participants)
-    ages = np.clip(ages, 60, 90).astype(int)
+    # Sex: Equal distribution
+    sexes = np.random.choice(['male', 'female', 'other'], size=n_participants, p=[0.45, 0.45, 0.1])
     
-    # Sex: Binary, 50/50 split
-    sexes = rng.choice(["M", "F"], size=n_participants)
+    # BMI: Normal distribution, mean 26, std 4
+    bmis = np.random.normal(loc=26, scale=4, size=n_participants)
+    bmis = np.clip(bmis, 18, 45)
     
-    # BMI: Normal distribution, clipped to realistic bounds
-    bmis = rng.normal(loc=26.5, scale=3.5, size=n_participants)
-    bmis = np.clip(bmis, 18.5, 45.0).astype(float)
+    df = pd.DataFrame({
+        'participant_id': participant_ids,
+        'age': ages,
+        'sex': sexes,
+        'bmi': bmis
+    })
+    
+    return df
+
+def generate_lifestyle_factors(n_participants: int, seed: int = SEED) -> pd.DataFrame:
+    """Generate lifestyle factor data."""
+    set_global_seed(seed)
+    
+    # Dietary fiber intake: Normal distribution, mean 25g, std 10g
+    fiber_intake = np.random.normal(loc=25, scale=10, size=n_participants)
+    fiber_intake = np.clip(fiber_intake, 5, 60)
+    
+    # Antibiotic use history: Binary, ~20% prevalence
+    antibiotic_use = np.random.choice([True, False], size=n_participants, p=[0.2, 0.8])
     
     return pd.DataFrame({
-        "participant_id": ids,
-        "age": ages,
-        "sex": sexes,
-        "bmi": bmis
+        'dietary_fiber_intake': fiber_intake,
+        'antibiotic_use_history': antibiotic_use
     })
 
-def generate_lifestyle_factors(n_participants: int, rng: np.random.Generator) -> pd.DataFrame:
+def generate_microbiome_data(n_participants: int, n_otus: int = 100, seed: int = SEED) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Generate synthetic microbiome data with independent diversity metrics.
+    
+    Creates Shannon, Simpson, and Chao1 indices as independent normal variables
+    to ensure no correlation with cognitive scores in the null hypothesis.
     """
-    Generate lifestyle factors: dietary_fiber, antibiotic_use.
+    set_global_seed(seed)
     
-    Args:
-        n_participants: Number of participants.
-        rng: NumPy random generator.
-        
-    Returns:
-        DataFrame with lifestyle columns.
+    participant_ids = [f"P{str(i).zfill(5)}" for i in range(n_participants)]
+    
+    # Generate alpha diversity metrics as independent normal distributions
+    # These are explicitly independent of cognitive scores
+    shannon_diversity = np.random.normal(loc=3.5, scale=0.8, size=n_participants)
+    simpson_diversity = np.random.normal(loc=0.85, scale=0.1, size=n_participants)
+    chao1 = np.random.normal(loc=45, scale=15, size=n_participants)
+    
+    # Ensure positive values
+    shannon_diversity = np.clip(shannon_diversity, 1.0, 6.0)
+    simpson_diversity = np.clip(simpson_diversity, 0.5, 0.99)
+    chao1 = np.clip(chao1, 10, 100)
+    
+    alpha_df = pd.DataFrame({
+        'participant_id': participant_ids,
+        'shannon_diversity': shannon_diversity,
+        'simpson_diversity': simpson_diversity,
+        'chao1': chao1
+    })
+    
+    # Generate OTU table (sparse count matrix)
+    otu_counts = np.random.poisson(lam=50, size=(n_participants, n_otus))
+    otu_df = pd.DataFrame(
+        otu_counts,
+        columns=[f"OTU_{str(i).zfill(5)}" for i in range(n_otus)],
+        index=participant_ids
+    )
+    otu_df.index.name = 'participant_id'
+    
+    return alpha_df, otu_df
+
+def generate_cognitive_scores(n_participants: int, seed: int = SEED) -> pd.DataFrame:
+    """Generate cognitive flexibility scores as independent normal distribution.
+    
+    This score is generated independently from microbiome metrics to satisfy
+    the null hypothesis requirement (no correlation).
     """
-    logger.info("Generating lifestyle factors.")
+    set_global_seed(seed)
     
-    # Dietary fiber (g/day): Normal distribution
-    dietary_fiber = rng.normal(loc=25.0, scale=8.0, size=n_participants)
-    dietary_fiber = np.clip(dietary_fiber, 5.0, 60.0).astype(float)
+    participant_ids = [f"P{str(i).zfill(5)}" for i in range(n_participants)]
     
-    # Antibiotic use (bool): Bernoulli trial (approx 20% recent use)
-    antibiotic_use = rng.choice([False, True], size=n_participants, p=[0.8, 0.2])
+    # Cognitive flexibility score: Normal distribution, mean 50, std 15
+    # Independent from microbiome data
+    cognitive_scores = np.random.normal(loc=50, scale=15, size=n_participants)
+    cognitive_scores = np.clip(cognitive_scores, 0, 100)
     
     return pd.DataFrame({
-        "dietary_fiber": dietary_fiber,
-        "antibiotic_use": antibiotic_use
+        'participant_id': participant_ids,
+        'cognitive_flexibility_score': cognitive_scores
     })
 
-def generate_microbiome_data(n_participants: int, rng: np.random.Generator) -> pd.DataFrame:
-    """
-    Generate microbiome alpha diversity metrics.
+def generate_synthetic_cohort(n_participants: int = 500, seed: int = SEED) -> pd.DataFrame:
+    """Generate the complete synthetic cohort by merging all data sources."""
+    set_global_seed(seed)
     
-    CRITICAL: These are generated INDEPENDENTLY of cognitive scores to satisfy the Null Hypothesis.
+    logger.info(f"Generating synthetic cohort with {n_participants} participants")
     
-    Args:
-        n_participants: Number of participants.
-        rng: NumPy random generator.
-        
-    Returns:
-        DataFrame with diversity metrics.
-    """
-    logger.info("Generating microbiome diversity metrics (Independent of cognitive scores).")
+    demographics = generate_participant_demographics(n_participants, seed)
+    lifestyle = generate_lifestyle_factors(n_participants, seed)
+    alpha_diversity, otu_table = generate_microbiome_data(n_participants, seed)
+    cognitive = generate_cognitive_scores(n_participants, seed)
     
-    # Shannon Diversity: Normal distribution, typical range 2.5 - 4.5
-    shannon = rng.normal(loc=3.5, scale=0.6, size=n_participants)
-    shannon = np.clip(shannon, 1.0, 6.0).astype(float)
-    
-    # Simpson Diversity: Beta distribution or Normal approximation, range 0-1
-    simpson = rng.normal(loc=0.85, scale=0.08, size=n_participants)
-    simpson = np.clip(simpson, 0.4, 0.99).astype(float)
-    
-    # Chao1: Normal distribution, related to richness
-    chao1 = rng.normal(loc=150.0, scale=40.0, size=n_participants)
-    chao1 = np.clip(chao1, 50.0, 300.0).astype(float)
-    
-    return pd.DataFrame({
-        "shannon_diversity": shannon,
-        "simpson_diversity": simpson,
-        "chao1": chao1
-    })
-
-def generate_cognitive_scores(n_participants: int, rng: np.random.Generator) -> pd.DataFrame:
-    """
-    Generate cognitive flexibility scores.
-    
-    CRITICAL: Generated INDEPENDENTLY of microbiome metrics. No correlation is introduced.
-    
-    Args:
-        n_participants: Number of participants.
-        rng: NumPy random generator.
-        
-    Returns:
-        DataFrame with cognitive scores.
-    """
-    logger.info("Generating cognitive flexibility scores (Independent of microbiome).")
-    
-    # Cognitive Flexibility Score: Normal distribution, typical range 0-100
-    # Mean slightly lower for older cohort
-    cognitive_scores = rng.normal(loc=65.0, scale=12.0, size=n_participants)
-    cognitive_scores = np.clip(cognitive_scores, 20.0, 100.0).astype(float)
-    
-    return pd.DataFrame({
-        "cognitive_flexibility_score": cognitive_scores
-    })
-
-def generate_synthetic_cohort(n_participants: int = 500) -> pd.DataFrame:
-    """
-    Generate the full synthetic cohort dataset.
-    
-    This function orchestrates the generation of all components and merges them.
-    The resulting dataset satisfies the Null Hypothesis: microbiome diversity
-    and cognitive flexibility are statistically independent.
-    
-    Args:
-        n_participants: Total number of participants to generate.
-        
-    Returns:
-        Complete DataFrame matching contracts/dataset.schema.yaml.
-    """
-    logger.info(f"Starting synthetic cohort generation with N={n_participants}.")
-    set_global_seed(SEED)
-    rng = np.random.default_rng(SEED)
-    
-    # Generate components
-    demographics = generate_participant_demographics(n_participants, rng)
-    lifestyle = generate_lifestyle_factors(n_participants, rng)
-    microbiome = generate_microbiome_data(n_participants, rng)
-    cognitive = generate_cognitive_scores(n_participants, rng)
-    
-    # Merge all dataframes on index (aligned generation)
-    cohort = pd.concat([demographics, lifestyle, microbiome, cognitive], axis=1)
+    # Merge all dataframes
+    merged = demographics.merge(lifestyle, left_index=True, right_index=True)
+    merged = merged.merge(alpha_diversity, on='participant_id')
+    merged = merged.merge(cognitive, on='participant_id')
     
     # Ensure correct data types as per schema
-    cohort["participant_id"] = cohort["participant_id"].astype(str)
-    cohort["age"] = cohort["age"].astype(int)
-    cohort["sex"] = cohort["sex"].astype(str)
-    cohort["bmi"] = cohort["bmi"].astype(float)
-    cohort["dietary_fiber"] = cohort["dietary_fiber"].astype(float)
-    cohort["antibiotic_use"] = cohort["antibiotic_use"].astype(bool)
-    cohort["shannon_diversity"] = cohort["shannon_diversity"].astype(float)
-    cohort["simpson_diversity"] = cohort["simpson_diversity"].astype(float)
-    cohort["chao1"] = cohort["chao1"].astype(float)
-    cohort["cognitive_flexibility_score"] = cohort["cognitive_flexibility_score"].astype(float)
+    merged['participant_id'] = merged['participant_id'].astype(str)
+    merged['age'] = merged['age'].astype(int)
+    merged['sex'] = merged['sex'].astype(str)
+    merged['bmi'] = merged['bmi'].astype(float)
+    merged['cognitive_flexibility_score'] = merged['cognitive_flexibility_score'].astype(float)
+    merged['shannon_diversity'] = merged['shannon_diversity'].astype(float)
+    merged['simpson_diversity'] = merged['simpson_diversity'].astype(float)
+    merged['chao1'] = merged['chao1'].astype(float)
+    merged['dietary_fiber_intake'] = merged['dietary_fiber_intake'].astype(float)
+    merged['antibiotic_use_history'] = merged['antibiotic_use_history'].astype(bool)
     
-    logger.info(f"Synthetic cohort generated successfully with {len(cohort)} rows.")
-    return cohort
+    logger.info("Synthetic cohort generation complete")
+    return merged, otu_table
 
 def main():
-    """
-    Main entry point for synthetic data generation.
-    Generates data and saves to data/raw/synthetic_data.csv.
-    """
-    # Ensure directories exist
+    """Main entry point to generate synthetic data and save to disk."""
     ensure_directories()
+    set_global_seed(SEED)
     
-    output_path = RAW_DATA_DIR / "synthetic_data.csv"
+    logger.info("Starting synthetic data generation")
     
-    # Generate data
-    cohort = generate_synthetic_cohort(n_participants=500)
+    # Generate cohort
+    cohort_df, otu_table = generate_synthetic_cohort(n_participants=500)
     
-    # Save to CSV
-    cohort.to_csv(output_path, index=False)
-    logger.info(f"Synthetic data saved to {output_path}")
+    # Save CSV
+    csv_path = get_raw_data_dir() / "synthetic_data.csv"
+    cohort_df.to_csv(csv_path, index=False)
+    logger.info(f"Saved synthetic data to {csv_path}")
     
-    # Log a quick verification of independence
-    corr = cohort["shannon_diversity"].corr(cohort["cognitive_flexibility_score"])
-    logger.info(f"Verification: Correlation between Shannon and Cognitive Score: {corr:.4f} (Expected ~0.0)")
+    # Save OTU table as BIOM-like format (TSV for simplicity, can be converted)
+    biom_path = get_raw_data_dir() / "feature_table.biom"
+    otu_table.to_csv(biom_path, sep='\t')
+    logger.info(f"Saved feature table to {biom_path}")
+    
+    logger.info("Synthetic data generation completed successfully")
+    return csv_path, biom_path
 
 if __name__ == "__main__":
     main()

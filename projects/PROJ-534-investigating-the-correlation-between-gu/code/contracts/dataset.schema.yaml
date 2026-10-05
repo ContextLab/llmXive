@@ -1,47 +1,49 @@
-entity: Dataset
-fields:
-  participant_id:
-    type: str
-    description: Unique participant identifier (Primary Key)
-    required: true
-  age:
-    type: int
-    description: Age of participant
-    constraints:
-      min: 0
-    required: true
-  sex:
-    type: str
-    description: Sex of participant
-    enum:
-      - "Male"
-      - "Female"
-    required: true
-  bmi:
-    type: float
-    description: Body Mass Index
-    required: true
-  cognitive_flexibility_score:
-    type: float
-    description: Score from cognitive flexibility assessment
-    required: true
-  shannon_diversity:
-    type: float
-    description: Shannon diversity index
-    required: true
-  simpson_diversity:
-    type: float
-    description: Simpson diversity index
-    required: true
-  chao1:
-    type: float
-    description: Chao1 richness estimator
-    required: true
-  dietary_fiber:
-    type: float
-    description: Daily dietary fiber intake
-    required: true
-  antibiotic_use:
-    type: bool
-    description: Recent antibiotic use flag
-    required: true
+dataset:
+  name: filtered_cohort
+  description: Cohort filtered for age >= 65 with complete data for analysis.
+  properties:
+    participant_id:
+      type: string
+      description: Unique identifier for the participant.
+    age:
+      type: integer
+      minimum: 0
+      description: Age of the participant in years.
+    sex:
+      type: string
+      enum:
+        - "M"
+        - "F"
+      description: Biological sex of the participant.
+    bmi:
+      type: number
+      description: Body Mass Index.
+    cognitive_flexibility_score:
+      type: number
+      description: Score from cognitive flexibility assessment.
+    shannon_diversity:
+      type: number
+      description: Shannon diversity index of gut microbiome.
+    simpson_diversity:
+      type: number
+      description: Simpson diversity index of gut microbiome.
+    chao1:
+      type: number
+      description: Chao1 richness estimator.
+    dietary_fiber_intake:
+      type: number
+      description: Daily dietary fiber intake in grams.
+    antibiotic_use_history:
+      type: boolean
+      description: Whether the participant has a history of antibiotic use.
+  required:
+    - participant_id
+    - age
+    - sex
+    - bmi
+    - cognitive_flexibility_score
+    - shannon_diversity
+    - simpson_diversity
+    - chao1
+    - dietary_fiber_intake
+    - antibiotic_use_history

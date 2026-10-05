@@ -1,11 +1,3 @@
-"""
-Ingestion module for loading and merging synthetic microbiome and cognitive data.
-
-This module implements User Story 1 (T010):
-- Load synthetic 16S rRNA sequencing data and linked cognitive assessment data
-- Merge on participant_id
-- Validate output against dataset schema
-"""
 import os
 import pandas as pd
 from pathlib import Path
@@ -14,257 +6,194 @@ import sys
 from typing import Tuple, Optional
 
 from code.src.utils.config import (
-    SEED, 
-    DATA_DIR, 
-    RAW_DATA_DIR, 
-    LOGS_DIR, 
-    ensure_directories, 
-    set_global_seed,
+    get_project_root,
     get_raw_data_dir,
-    get_project_root
+    get_processed_data_dir,
+    ensure_directories,
+    setup_logging
 )
-from code.src.utils.validation import (
-    load_schema, 
-    validate_dataframe_against_schema
-)
+from code.src.utils.validation import load_schema, validate_dataframe_against_schema
 
-# Setup logging
+# Initialize logger for this module
 logger = logging.getLogger(__name__)
 
-def load_microbiome_data(data_path: Optional[Path] = None) -> pd.DataFrame:
+def load_microbiome_data(raw_data_dir: Path) -> pd.DataFrame:
     """
-    Load microbiome data from the raw data directory.
+    Load 16S rRNA sequencing data (synthetic) from the raw data directory.
     
     Args:
-        data_path: Optional path to the microbiome data file. If None, uses
-                  the default path from config (data/raw/synthetic_data.csv).
-    
+        raw_data_dir: Path to the raw data directory.
+        
     Returns:
-        pd.DataFrame: DataFrame containing microbiome and participant data.
-    
-    Raises:
-        FileNotFoundError: If the data file does not exist.
-        ValueError: If the data file is empty or malformed.
+        DataFrame containing microbiome data with participant_id and OTU counts.
     """
-    if data_path is None:
-        data_path = get_raw_data_dir() / "synthetic_data.csv"
+    file_path = raw_data_dir / "synthetic_data.csv"
     
-    if not data_path.exists():
-        raise FileNotFoundError(f"Microbiome data file not found at: {data_path}")
+    if not file_path.exists():
+        raise FileNotFoundError(f"Microbiome data file not found: {file_path}")
     
-    logger.info(f"Loading microbiome data from: {data_path}")
+    logger.info(f"Loading microbiome data from {file_path}")
+    df = pd.read_csv(file_path)
     
-    try:
-        df = pd.read_csv(data_path)
-    except Exception as e:
-        raise ValueError(f"Failed to read CSV file: {e}")
-    
-    if df.empty:
-        raise ValueError("Loaded microbiome data is empty")
-    
-    logger.info(f"Loaded {len(df)} rows of microbiome data")
+    # Ensure participant_id is string for consistent merging
+    if 'participant_id' in df.columns:
+        df['participant_id'] = df['participant_id'].astype(str)
+        
     return df
 
-def load_cognitive_data(data_path: Optional[Path] = None) -> pd.DataFrame:
+def load_cognitive_data(raw_data_dir: Path) -> pd.DataFrame:
     """
-    Load cognitive assessment data from the raw data directory.
+    Load linked cognitive assessment data from the raw data directory.
     
-    In this synthetic setup, cognitive data is already merged with microbiome
-    data in the same file. This function serves as a placeholder for future
-    real-world scenarios where cognitive data might be in a separate file.
+    Note: In this synthetic setup, cognitive data is merged with microbiome
+    data in a single file. This function loads the same file but returns
+    only the cognitive-related columns for clarity.
     
     Args:
-        data_path: Optional path to the cognitive data file.
-    
+        raw_data_dir: Path to the raw data directory.
+        
     Returns:
-        pd.DataFrame: DataFrame containing cognitive assessment data.
+        DataFrame containing cognitive assessment data.
     """
-    # For synthetic data, cognitive data is in the same file as microbiome data
-    # This function returns the same data but conceptually represents
-    # loading cognitive assessments separately
-    if data_path is None:
-        data_path = get_raw_data_dir() / "synthetic_data.csv"
+    file_path = raw_data_dir / "synthetic_data.csv"
     
-    logger.info(f"Loading cognitive data from: {data_path}")
+    if not file_path.exists():
+        raise FileNotFoundError(f"Cognitive data file not found: {file_path}")
     
-    # In a real scenario, we would load a separate file here
-    # For now, we return the same data structure
-    return load_microbiome_data(data_path)
+    logger.info(f"Loading cognitive data from {file_path}")
+    df = pd.read_csv(file_path)
+    
+    # Ensure participant_id is string for consistent merging
+    if 'participant_id' in df.columns:
+        df['participant_id'] = df['participant_id'].astype(str)
+        
+    return df
 
-def merge_datasets(
-    microbiome_df: pd.DataFrame, 
-    cognitive_df: pd.DataFrame,
-    key: str = "participant_id"
-) -> pd.DataFrame:
+def merge_datasets(microbiome_df: pd.DataFrame, cognitive_df: pd.DataFrame) -> pd.DataFrame:
     """
     Merge microbiome and cognitive datasets on participant_id.
     
     Args:
         microbiome_df: DataFrame containing microbiome data.
         cognitive_df: DataFrame containing cognitive assessment data.
-        key: The column name to merge on (default: "participant_id").
-    
+        
     Returns:
-        pd.DataFrame: Merged DataFrame containing both microbiome and cognitive data.
-    
+        Merged DataFrame with both microbiome and cognitive data.
+        
     Raises:
-        ValueError: If the merge key is not found in both DataFrames.
+        ValueError: If merge fails or required columns are missing.
     """
-    if key not in microbiome_df.columns:
-        raise ValueError(f"Merge key '{key}' not found in microbiome data")
-    if key not in cognitive_df.columns:
-        raise ValueError(f"Merge key '{key}' not found in cognitive data")
+    required_cols = ['participant_id']
     
-    logger.info(f"Merging datasets on key: {key}")
+    for df_name, df in [("Microbiome", microbiome_df), ("Cognitive", cognitive_df)]:
+        for col in required_cols:
+            if col not in df.columns:
+                raise ValueError(f"{df_name} data missing required column: {col}")
     
-    # Perform inner join to ensure only participants with both data types are included
+    logger.info(f"Merging datasets on 'participant_id'. Microbiome rows: {len(microbiome_df)}, Cognitive rows: {len(cognitive_df)}")
+    
     merged_df = pd.merge(
-        microbiome_df, 
-        cognitive_df, 
-        on=key, 
+        microbiome_df,
+        cognitive_df,
+        on='participant_id',
         how='inner',
         suffixes=('_microbiome', '_cognitive')
     )
     
-    logger.info(f"Merged dataset contains {len(merged_df)} participants")
+    logger.info(f"Merged dataset contains {len(merged_df)} rows")
+    
+    # Remove duplicate columns if any (e.g., if both files had identical columns)
+    merged_df = merged_df.loc[:, ~merged_df.columns.duplicated()]
+    
     return merged_df
 
-def ingest_synthetic_cohort(
-    data_path: Optional[Path] = None,
-    schema_path: Optional[Path] = None
-) -> pd.DataFrame:
+def ingest_synthetic_cohort() -> pd.DataFrame:
     """
-    Ingest the synthetic cohort by loading and merging data, then validating.
-    
-    This is the main entry point for T010. It:
-    1. Loads synthetic microbiome data
-    2. Loads cognitive data (in synthetic case, same file)
-    3. Merges on participant_id
-    4. Validates against the dataset schema
-    
-    Args:
-        data_path: Optional path to the synthetic data file.
-        schema_path: Optional path to the schema file. If None, uses default.
+    Main ingestion function: loads synthetic 16S and cognitive data, merges them,
+    and validates against the dataset schema.
     
     Returns:
-        pd.DataFrame: Validated merged cohort DataFrame.
-    
-    Raises:
-        FileNotFoundError: If required files do not exist.
-        ValueError: If validation fails.
+        Validated DataFrame containing the merged synthetic cohort.
     """
-    if data_path is None:
-        data_path = get_raw_data_dir() / "synthetic_data.csv"
-    
-    if schema_path is None:
-        schema_path = get_project_root() / "contracts" / "dataset.schema.yaml"
+    raw_data_dir = get_raw_data_dir()
+    ensure_directories()
     
     logger.info("Starting synthetic cohort ingestion")
     
-    # Load data
-    microbiome_df = load_microbiome_data(data_path)
-    cognitive_df = load_cognitive_data(data_path)
-    
-    # Merge datasets
-    merged_df = merge_datasets(microbiome_df, cognitive_df)
-    
-    # Validate against schema
-    logger.info(f"Validating merged data against schema: {schema_path}")
-    
-    if not schema_path.exists():
-        logger.warning(f"Schema file not found at {schema_path}, skipping validation")
-        return merged_df
-    
-    schema = load_schema(schema_path)
-    
     try:
+        microbiome_df = load_microbiome_data(raw_data_dir)
+        cognitive_df = load_cognitive_data(raw_data_dir)
+        
+        merged_df = merge_datasets(microbiome_df, cognitive_df)
+        
+        # Load schema for validation
+        schema = load_schema("dataset")
+        
+        # Validate merged dataset against schema
         validation_errors = validate_dataframe_against_schema(merged_df, schema)
+        
         if validation_errors:
-            error_msg = "\n".join(validation_errors)
-            raise ValueError(f"Schema validation failed:\n{error_msg}")
-        logger.info("Schema validation passed successfully")
-    except Exception as e:
-        logger.error(f"Validation error: {e}")
+            error_msg = "Schema validation failed:\n" + "\n".join(validation_errors)
+            logger.error(error_msg)
+            raise ValueError(error_msg)
+        
+        logger.info("Ingestion completed successfully. Dataset validated against schema.")
+        return merged_df
+        
+    except FileNotFoundError as e:
+        logger.error(f"Data file not found during ingestion: {e}")
         raise
-    
-    return merged_df
+    except ValueError as e:
+        logger.error(f"Validation error during ingestion: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error during ingestion: {e}")
+        raise
 
-def save_merged_cohort(
-    df: pd.DataFrame, 
-    output_path: Optional[Path] = None
-) -> Path:
+def save_merged_cohort(df: pd.DataFrame, output_path: Optional[Path] = None) -> Path:
     """
-    Save the merged cohort to a CSV file.
+    Save the merged cohort DataFrame to a CSV file.
     
     Args:
-        df: The merged cohort DataFrame to save.
-        output_path: Optional path for the output file. If None, uses
-                    default path (data/processed/merged_cohort.csv).
-    
+        df: The merged DataFrame to save.
+        output_path: Optional specific path to save to. If None, uses default processed path.
+        
     Returns:
-        Path: The path where the file was saved.
-    
-    Raises:
-        IOError: If the file cannot be written.
+        Path to the saved file.
     """
     if output_path is None:
-        output_path = get_project_root() / "data" / "processed" / "merged_cohort.csv"
+        processed_dir = get_processed_data_dir()
+        output_path = processed_dir / "merged_cohort.csv"
     
-    # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    logger.info(f"Saving merged cohort to: {output_path}")
+    logger.info(f"Saving merged cohort to {output_path}")
+    df.to_csv(output_path, index=False)
     
-    try:
-        df.to_csv(output_path, index=False)
-        logger.info(f"Saved {len(df)} rows to {output_path}")
-    except Exception as e:
-        raise IOError(f"Failed to save merged cohort: {e}")
-    
+    logger.info(f"Saved {len(df)} rows to {output_path}")
     return output_path
 
 def main():
     """
-    Main entry point for the ingestion script.
-    
-    This function:
-    1. Sets up logging
-    2. Ensures directories exist
-    3. Sets global seed
-    4. Ingests the synthetic cohort
-    5. Validates the output
-    6. Saves the merged cohort
+    Entry point for the ingestion script.
+    Loads, merges, validates, and saves the synthetic cohort.
     """
-    # Setup
-    set_global_seed(SEED)
-    ensure_directories()
-    
-    # Configure logging
-    log_file = LOGS_DIR / "ingestion.log"
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.FileHandler(log_file),
-            logging.StreamHandler(sys.stdout)
-        ]
-    )
-    
-    logger.info("Starting synthetic cohort ingestion pipeline")
+    setup_logging()
+    logger.info("=== Starting Data Ingestion Pipeline ===")
     
     try:
-        # Ingest data
-        merged_cohort = ingest_synthetic_cohort()
+        # Ingest and validate
+        cohort_df = ingest_synthetic_cohort()
         
-        # Save results
-        output_path = save_merged_cohort(merged_cohort)
+        # Save to processed directory
+        output_file = save_merged_cohort(cohort_df)
         
-        logger.info(f"Ingestion pipeline completed successfully. Output: {output_path}")
-        return merged_cohort, output_path
+        logger.info(f"=== Ingestion Complete. Output: {output_file} ===")
+        return cohort_df, output_file
         
     except Exception as e:
-        logger.error(f"Ingestion pipeline failed: {e}")
-        raise
+        logger.critical(f"Ingestion pipeline failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

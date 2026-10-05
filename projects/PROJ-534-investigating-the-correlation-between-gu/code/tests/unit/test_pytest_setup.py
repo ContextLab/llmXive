@@ -1,36 +1,32 @@
 """
-Basic sanity checks for the pytest configuration and directory structure.
+Unit tests to verify the pytest configuration and directory structure.
 """
 import pytest
 import os
 from pathlib import Path
 
-def test_project_root_accessible():
-    """Verify that the project root is accessible from tests."""
-    # The test runner should be invoked from the 'code' directory
-    # or the PYTHONPATH should be set such that 'code' is importable.
-    project_root = Path(__file__).parent.parent.parent
-    assert project_root.exists(), "Project root directory does not exist"
-    assert (project_root / "pytest.ini").exists(), "pytest.ini not found in project root"
+def test_project_root_accessible(project_root):
+    """Verify that the project root fixture returns a valid Path."""
+    assert isinstance(project_root, Path)
+    assert project_root.exists()
+    # Check for expected subdirectories
+    assert (project_root / "src").exists(), "src directory missing"
+    assert (project_root / "tests").exists(), "tests directory missing"
+    assert (project_root / "data").exists(), "data directory missing"
 
-def test_required_directories_exist():
-    """Verify that the required test directory structure exists."""
-    base = Path(__file__).parent.parent
-    required_dirs = [
-        "unit",
-        "integration",
-        "contract"
-    ]
-    for d in required_dirs:
-        dir_path = base / d
-        assert dir_path.exists(), f"Directory {d} missing in tests/"
-        assert (dir_path / "__init__.py").exists(), f"Missing __init__.py in {d}/"
+def test_required_directories_exist(project_root):
+    """Verify that required data directories exist or can be created."""
+    data_dirs = ["raw", "processed", "results"]
+    for d in data_dirs:
+        dir_path = project_root / "data" / d
+        assert dir_path.exists() or dir_path.mkdir(parents=True, exist_ok=True), \
+            f"Could not ensure existence of {dir_path}"
 
-def test_imports_from_src_work():
-    """Verify that imports from src modules work correctly."""
+def test_imports_from_src_work(project_root):
+    """Verify that imports from the src module work correctly."""
     try:
+        # Attempt to import a known module from the config
         from code.src.utils.config import get_project_root
-        from code.src.data.filtering import filter_cohort
-        from code.src.analysis.correlation import calculate_skewness
+        assert callable(get_project_root)
     except ImportError as e:
-        pytest.fail(f"Failed to import from src modules: {e}")
+        pytest.fail(f"Import from src failed: {e}")
