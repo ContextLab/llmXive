@@ -71,7 +71,7 @@
 - [X] T004 [P] Implement `src/bias_pipeline/utils.py`: Logging, error handling, and `streaming_repo_iterator` for memory-efficient repo processing (respecting GB RAM limit)
 - [X] T005 [P] Implement `src/bias_pipeline/config.py`: Load `state/projects/PROJ-059-automated-detection-of-algorithmic-bias-.yaml` and define `CITATION_TITLE_OVERLAP_THRESHOLD`
 - [ ] T006 [P] Create `data/` directory structure: `mkdir -p data/raw data/processed data/validation`
-- [ ] T007 [P] Implement `src/bias_pipeline/lexicon.py`: Load curated demographic lexicon from `data/raw/lexicon.csv` OR fetch from ` (if URL fails, use hardcoded fallback list: `['bias', 'stereotype', 'discrimination', 'minority', 'privileged', 'marginalized']`). **Depends on: T005**
+- [ ] T007 [P] Implement `src/bias_pipeline/lexicon.py`: Load curated demographic lexicon from `data/raw/lexicon.csv` OR fetch from `https://raw.githubusercontent.com/...` (if URL fails, use hardcoded fallback list: `['bias', 'stereotype', 'discrimination', 'minority', 'privileged', 'marginalized']`). **Depends on: T005**
 - [X] T008 [P] Implement `src/bias_pipeline/independence_checker.py`: String-hash comparison logic for synthetic data vs code tokens (FR-015)
 - [ ] T009 Implement `src/bias_pipeline/error_handler.py`: Generic error handling wrapper for pipeline execution (Edge Cases). **Note: This task is NOT [P] and must complete before T043a/b/c.**
 - [ ] T043a [P] **US1 Integration**: Implement `import error_handler` in `src/bias_pipeline/extractor.py` and wrap `parse_ast_tree`, `match_lexicon`, `analyze_sentiment` with `error_handler.handle_error` (Edge Cases). **Depends on: T009**
