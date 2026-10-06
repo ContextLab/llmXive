@@ -13,7 +13,7 @@ This project implements a statistical analysis pipeline to evaluate whether **Pu
 2. Execute the **Linear Regression with VIF diagnostics** as a **Spec-Compliance Step** to satisfy FR-010.
 3. In the final report, present the regression results but explicitly frame the interpretation with the caveat that complexity is a mediator, ensuring findings are not over-interpreted as causal effects of code origin alone.
 
-The approach involves loading a verified GitHub PR dataset, classifying PRs using commit message heuristics, computing code complexity metrics, and performing the required statistical tests with family-wise error correction. All analysis is designed to run on CPU-only CI (2 cores, 7 GB RAM) within 6 hours.
+The approach involves loading a verified GitHub PR dataset, classifying PRs using commit message heuristics, computing code complexity metrics, and performing the required statistical tests with family-wise error correction. All analysis is designed to run on CPU-only CI (Multiple cores, 7 GB RAM) within 6 hours.
 
 ## Technical Context
 
