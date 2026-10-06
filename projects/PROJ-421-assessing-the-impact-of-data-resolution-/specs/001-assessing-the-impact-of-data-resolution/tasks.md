@@ -153,7 +153,7 @@
 
 ## Phase 5.5: MAUP & Topological Narrative Analysis (Review Revision)
 
-**Goal**: Address the "Modifiable Areal Unit Problem" (MAUP) not just as a statistical nuisance, but as a fundamental narrative limit. Explicitly analyze phase transitions and the "story" of aggregation.
+**Goal**: Address the "Modifiable Areal Unit Problem" (MAUP) not just as a statistical nuisance, but as a fundamental narrative limit. Explicitly analyze phase transitions and the "story" of aggregation as requested by reviewer Dan Rockmore.
 
 - [ ] T042 [P] [US3] [Rev] Implement `code/analysis.py::compute_topological_features` to calculate non-linear metrics beyond Moran's I (e.g., Euler characteristic, cluster count, perimeter-area fractal dimension) for each resolution level. **Rationale**: To detect "phase transitions" where the nature of the pattern changes, as suggested by the reviewer. **Input**: `data/derived/` rasters. **Output**: `data/results/topological_metrics.csv`. **Prerequisite**: T014.
 - [ ] T043 [US3] [Rev] Implement `code/visualization.py::plot_maup_narrative` to generate a composite visualization overlaying the Power Curve (from T028) with the Topological Metrics (from T042). **Goal**: Visually identify if the drop in statistical power correlates with a topological phase transition (e.g., sudden drop in cluster count) rather than a smooth linear decay. **Output**: `data/results/maup_narrative_plot.png`. **Prerequisite**: T028, T042.
