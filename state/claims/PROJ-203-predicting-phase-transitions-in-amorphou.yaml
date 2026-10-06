@@ -3118,3 +3118,364 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-01T21:57:32Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/docs/README.md
+  attempts: 1
+  canonical: Pilot study executed on 24 compositions
+  claim_id: c_057d0b26
+  context: Key Features section describing the Pilot Study scope.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Executed on a stratified sample of 24 compositions (N=24) to validate
+    the pipeline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T04:35:56Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/docs/reports/interpretability_report.md
+  attempts: 1
+  canonical: Analysis based on SHAP values, LOO jackknife stability estimates, and
+    Bonferroni-corrected statistical tests
+  claim_id: c_459099aa
+  context: This report identifies structural descriptors that universally predict
+    the glass transition temperature (Tg) across different chemical families (Oxide,
+    Sulfide, Organic) versus those that are specific to a single family. Analysis
+    is based on SHAP values, Leave-One-Out (LOO) jackknife stability estimates, and
+    Bonferroni-corrected statistical tests of rank differences.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_based_on_SHAP_values,_LOO_jackknife_stability_estim
+  kind: entity_fact
+  raw_text: Analysis is based on SHAP values, Leave-One-Out (LOO) jackknife stability
+    estimates, and Bonferroni-corrected statistical tests of rank differences.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T04:45:31Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/docs/reports/interpretability_report.md
+  attempts: 1
+  canonical: 2 universal predictors found
+  claim_id: c_1bd75350
+  context: 'Key Findings - Universal Predictors Found: 2 - Family-Specific Drivers
+    Identified: 4 total instances'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Universal Predictors Found: 2'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T04:45:38Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/docs/reports/interpretability_report.md
+  attempts: 1
+  canonical: 4 family-specific drivers identified
+  claim_id: c_2719680e
+  context: 'Key Findings - Universal Predictors Found: 2 - Family-Specific Drivers
+    Identified: 4 total instances'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Family-Specific Drivers Identified: 4 total instances'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T04:45:44Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/docs/reports/interpretability_report.md
+  attempts: 1
+  canonical: coordination_numbers is a top predictor for Oxide Family
+  claim_id: c_a81b48c3
+  context: Oxide Family - coordination_numbers
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Coordination_numbers_is_a_top_predictor_for_Oxide_Family
+  kind: entity_fact
+  raw_text: coordination_numbers is a top predictor for the Oxide Family
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T04:45:54Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/docs/reports/interpretability_report.md
+  attempts: 1
+  canonical: density is a top predictor for Sulfide Family
+  claim_id: c_daff765d
+  context: Sulfide Family - density
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Density_is_a_top_predictor_for_Sulfide_Family
+  kind: entity_fact
+  raw_text: density is a top predictor for the Sulfide Family
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T04:46:02Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/docs/reports/interpretability_report.md
+  attempts: 1
+  canonical: molecular_weight and coordination_numbers are top predictors for Organic
+    Family
+  claim_id: c_3ca4b213
+  context: Organic Family - molecular_weight - coordination_numbers
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Molecular_weight_and_coordination_numbers_are_top_predictors
+  kind: entity_fact
+  raw_text: molecular_weight and coordination_numbers are top predictors for the Organic
+    Family
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T04:46:12Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/docs/reports/interpretability_report.md
+  attempts: 1
+  canonical: rdf_peak_pos mean rank 1.20 (95% CI 0.85-1.55) in Oxide family
+  claim_id: c_e42eadfa
+  context: Table 3.1 LOO Jackknife Stability (95% CI) shows rdf_peak_pos for Oxide
+    with Mean Rank 1.20, 95% CI Lower 0.85, 95% CI Upper 1.55
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For rdf_peak_pos in the Oxide family, the mean rank is 1.20 with a 95%
+    CI of 0.85 to 1.55
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T04:46:14Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/docs/reports/interpretability_report.md
+  attempts: 1
+  canonical: rdf_peak_pos mean rank 1.10 (95% CI 0.70-1.50) in Sulfide family
+  claim_id: c_c506a79a
+  context: Table 3.1 LOO Jackknife Stability (95% CI) shows rdf_peak_pos for Sulfide
+    with Mean Rank 1.10, 95% CI Lower 0.70, 95% CI Upper 1.50
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For rdf_peak_pos in the Sulfide family, the mean rank is 1.10 with a 95%
+    CI of 0.70 to 1.50
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T04:46:17Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/docs/reports/interpretability_report.md
+  attempts: 1
+  canonical: rdf_peak_pos mean rank 1.30 (95% CI 0.90-1.70) in Organic family
+  claim_id: c_6b19c68e
+  context: Table 3.1 LOO Jackknife Stability (95% CI) shows rdf_peak_pos for Organic
+    with Mean Rank 1.30, 95% CI Lower 0.90, 95% CI Upper 1.70
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For rdf_peak_pos in the Organic family, the mean rank is 1.30 with a 95%
+    CI of 0.90 to 1.70
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T04:46:20Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/docs/reports/interpretability_report.md
+  attempts: 1
+  canonical: bond_angle_variance mean rank 2.10 (95% CI 1.60-2.60) in Oxide family
+  claim_id: c_31c43779
+  context: Table 3.1 LOO Jackknife Stability (95% CI) shows bond_angle_variance for
+    Oxide with Mean Rank 2.10, 95% CI Lower 1.60, 95% CI Upper 2.60
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For bond_angle_variance in the Oxide family, the mean rank is 2.10 with
+    a 95% CI of 1.60 to 2.60
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T04:46:22Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/docs/reports/interpretability_report.md
+  attempts: 1
+  canonical: bond_angle_variance mean rank 2.05 (95% CI 1.55-2.55) in Sulfide family
+  claim_id: c_5694759a
+  context: Table 3.1 LOO Jackknife Stability (95% CI) shows bond_angle_variance for
+    Sulfide with Mean Rank 2.05, 95% CI Lower 1.55, 95% CI Upper 2.55
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For bond_angle_variance in the Sulfide family, the mean rank is 2.05 with
+    a 95% CI of 1.55 to 2.55
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T04:46:25Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/docs/reports/interpretability_report.md
+  attempts: 1
+  canonical: bond_angle_variance mean rank 2.20 (95% CI 1.70-2.70) in Organic family
+  claim_id: c_89623429
+  context: Table 3.1 LOO Jackknife Stability (95% CI) shows bond_angle_variance for
+    Organic with Mean Rank 2.20, 95% CI Lower 1.70, 95% CI Upper 2.70
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For bond_angle_variance in the Organic family, the mean rank is 2.20 with
+    a 95% CI of 1.70 to 2.70
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T04:49:49Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/docs/reports/interpretability_report.md
+  attempts: 1
+  canonical: coordination_numbers mean rank 3.50 (95% CI 2.80-4.20) in Oxide family
+  claim_id: c_34a5d406
+  context: Table 3.1 LOO Jackknife Stability (95% CI) shows coordination_numbers for
+    Oxide with Mean Rank 3.50, 95% CI Lower 2.80, 95% CI Upper 4.20
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For coordination_numbers in the Oxide family, the mean rank is 3.50 with
+    a 95% CI of 2.80 to 4.20
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T04:49:59Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/docs/reports/interpretability_report.md
+  attempts: 1
+  canonical: coordination_numbers mean rank 3.10 (95% CI 2.40-3.80) in Organic family
+  claim_id: c_c87f2cea
+  context: Table 3.1 LOO Jackknife Stability (95% CI) shows coordination_numbers for
+    Organic with Mean Rank 3.10, 95% CI Lower 2.40, 95% CI Upper 3.80
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For coordination_numbers in the Organic family, the mean rank is 3.10
+    with a 95% CI of 2.40 to 3.80
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T04:50:07Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/docs/reports/interpretability_report.md
+  attempts: 1
+  canonical: density mean rank 3.20 (95% CI 2.50-3.90) in Sulfide family
+  claim_id: c_55885d65
+  context: Table 3.1 LOO Jackknife Stability (95% CI) shows density for Sulfide with
+    Mean Rank 3.20, 95% CI Lower 2.50, 95% CI Upper 3.90
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For density in the Sulfide family, the mean rank is 3.20 with a 95% CI
+    of 2.50 to 3.90
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T04:50:10Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/docs/reports/interpretability_report.md
+  attempts: 1
+  canonical: molecular_weight mean rank 3.40 (95% CI 2.70-4.10) in Organic family
+  claim_id: c_e61ad91f
+  context: Table 3.1 LOO Jackknife Stability (95% CI) shows molecular_weight for Organic
+    with Mean Rank 3.40, 95% CI Lower 2.70, 95% CI Upper 4.10
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For molecular_weight in the Organic family, the mean rank is 3.40 with
+    a 95% CI of 2.70 to 4.10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T04:50:14Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/docs/reports/interpretability_report.md
+  attempts: 1
+  canonical: coordination_numbers p-value 0.0320 for Oxide-Organic rank difference
+  claim_id: c_020eedf5
+  context: Table 3.2 Bonferroni-Corrected P-Values shows coordination_numbers for
+    Oxide-Organic with P-Value 0.0320 and Significant? Yes
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni-corrected p-value for coordination_numbers rank difference
+    between Oxide and Organic families is 0.0320
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T04:50:18Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/docs/reports/interpretability_report.md
+  attempts: 1
+  canonical: density p-value 0.0410 for Sulfide-Organic rank difference
+  claim_id: c_27a93a1a
+  context: Table 3.2 Bonferroni-Corrected P-Values shows density for Sulfide-Organic
+    with P-Value 0.0410 and Significant? Yes
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni-corrected p-value for density rank difference between Sulfide
+    and Organic families is 0.0410
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T04:50:21Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/docs/reports/interpretability_report.md
+  attempts: 1
+  canonical: molecular_weight p-value 0.0450 for Oxide-Organic rank difference
+  claim_id: c_4a7547ee
+  context: Table 3.2 Bonferroni-Corrected P-Values shows molecular_weight for Oxide-Organic
+    with P-Value 0.0450 and Significant? Yes
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni-corrected p-value for molecular_weight rank difference
+    between Oxide and Organic families is 0.0450
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T04:50:24Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/docs/reports/interpretability_report.md
+  attempts: 1
+  canonical: Final dataset contained 24 compositions
+  claim_id: c_67c29dc1
+  context: 'Methodology - Data Source: Final dataset (data/processed/final_dataset.parquet)
+    with N=24 compositions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The final dataset contained N=24 compositions
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T04:50:31Z'

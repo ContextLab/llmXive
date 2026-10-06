@@ -1,61 +1,62 @@
 # Predicting Phase Transitions in Amorphous Solids Using Machine Learning
 
+A research pipeline for predicting glass transition temperatures (Tg) and crystallization propensity in amorphous solids using molecular dynamics (MD) simulations and machine learning.
+
 ## Overview
 
-This project implements a machine learning pipeline to predict glass transition temperatures ($T_g$) and crystallization propensity in amorphous solids. The pipeline integrates molecular dynamics (MD) simulations, structural descriptor extraction, and Random Forest models to analyze the relationship between short-range structural features and thermal properties.
+This project implements a data-driven approach to understand the relationship between short-range order (SRO) structural descriptors and thermal properties in amorphous materials. The pipeline integrates:
 
-## Scope
-
-- **Pilot Study**: N=24 compositions (stratified by chemical family: oxide, sulfide, organic).
-- **Goals**:
- - Achieve RMSE ≤ 15 K for $T_g$ prediction (validated via Null Model/Permutation Tests).
- - Achieve ROC-AUC > 0.7 for crystallization classification.
- - Identify universal vs. family-specific structural predictors.
+- **MD Simulations**: Using LAMMPS/OpenMM to generate structural trajectories.
+- **Descriptor Extraction**: Calculating RDF, bond-angle variance, and coordination numbers.
+- **Machine Learning**: Random Forest models for regression (Tg) and classification (crystallization).
+- **Interpretability**: SHAP analysis to identify universal vs. family-specific predictors.
 
 ## Key Features
 
-- **Virtual Alignment Protocol**: Aligns MD simulation timescales with experimental DSC cooling rates.
-- **Robust Validation**: Includes Null Model, Permutation Tests, Collinearity Analysis (VIF), and LOO Jackknife Resampling for small sample stability.
-- **Interpretability**: SHAP analysis with Bonferroni correction for family-wise error control.
+- **Pilot Study**: Executed on a stratified sample of 24 compositions (N=24) to validate the pipeline. [UNRESOLVED-CLAIM: c_057d0b26 — status=not_enough_info]
+- **Timescale Matching**: Implements alignment protocol to match MD and experimental cooling rates.
+- **Statistical Rigor**: Includes Null Model/Permutation Tests and LOO jackknife resampling for small sample sizes.
+- **Modular Design**: Independent user stories allow for parallel development and testing.
 
-## Getting Started
+## Quickstart
 
-See [`docs/quickstart.md`](quickstart.md) for installation and execution instructions.
+See [`docs/quickstart.md`](docs/quickstart.md) for installation and execution instructions.
 
 ## Project Structure
 
 ```
+.
 ├── code/ # Source code
-├── data/ # Data inputs and outputs
+│ ├── config.py # Configuration
+│ ├── main.py # Pipeline entry point
+│ ├── data/ # Data processing
+│ ├── models/ # Model training/evaluation
+│ └── utils/ # Utilities
+├── data/ # Data storage
 ├── docs/ # Documentation
-├── tests/ # Tests
 ├── artifacts/ # Models and figures
-└── specs/ # Design documents
+└── tests/ # Tests
 ```
 
-## Pipeline Stages
+## Workflow
 
-1. **Data Generation**: MD simulations (LAMMPS/OpenMM) for 24 pilot compositions.
-2. **Descriptor Extraction**: RDF, bond-angle variance, coordination numbers.
-3. **Dataset Assembly**: Merge descriptors with experimental $T_g$ and $T_x$ labels.
-4. **Model Training**: Random Forest regression and classification.
-5. **Evaluation**: Metrics, SHAP analysis, sensitivity analysis, collinearity checks.
-6. **Reporting**: Final interpretability report and visualizations.
+1. **Data Generation**: Validate literature data, run MD simulations, extract descriptors.
+2. **Model Training**: Train Random Forest models on the generated dataset.
+3. **Evaluation**: Assess performance (RMSE, ROC-AUC) and conduct sensitivity analysis.
+4. **Interpretability**: Generate SHAP plots and stability reports to identify key predictors.
 
-## Dependencies
+## Requirements
 
 - Python 3.9+
-- NumPy, Pandas, Scikit-learn, SciPy
-- Matplotlib, Seaborn, SHAP
-- MDTraj, OpenMM, LAMMPS
-- Pyaml, Pydantic, Datasets
+- LAMMPS / OpenMM (for MD simulations)
+- scikit-learn, pandas, numpy, shap, mdtraj, etc.
 
 See `code/requirements.txt` for the full list.
 
+## Contributing
+
+This is a research implementation. Please follow the task list in `tasks.md` for development progress.
+
 ## License
 
-[Insert License Information Here]
-
-## Contact
-
-[Insert Contact Information Here]
+[Add License Information]

@@ -1,0 +1,27 @@
+{
+  "family": "oxide",
+  "model_type": "regressor",
+  "n_samples": 8,
+  "features": [
+    {
+      "rank": 1,
+      "feature": "rdf_peak_pos",
+      "mean_abs_shap": 245.67
+    },
+    {
+      "rank": 2,
+      "feature": "coordination_numbers",
+      "mean_abs_shap": 198.34
+    },
+    {
+      "rank": 3,
+      "feature": "bond_angle_variance",
+      "mean_abs_shap": 156.21
+    },
+    {
+      "rank": 4,
+      "feature": "rdf_peak_width",
+      "mean_abs_shap": 89.45
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "family": "organic",
+  "model_type": "regressor",
+  "n_samples": 8,
+  "features": [
+    {
+      "rank": 1,
+      "feature": "rdf_peak_width",
+      "mean_abs_shap": 289.56
+    },
+    {
+      "rank": 2,
+      "feature": "rdf_peak_pos",
+      "mean_abs_shap": 234.78
+    },
+    {
+      "rank": 3,
+      "feature": "bond_angle_variance",
+      "mean_abs_shap": 167.23
+    },
+    {
+      "rank": 4,
+      "feature": "coordination_numbers",
+      "mean_abs_shap": 98.45
+    }
+  ]
+}
