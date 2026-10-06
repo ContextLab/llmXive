@@ -97,7 +97,7 @@ The researcher must be able to perform leave-one-experiment-out cross-validation
 
 ## Assumptions
 
-- The arXiv supplementary data files for the 2021 experiment (2106.08611) and the calibration curves for the 2023 review (2305.06325) are publicly accessible and remain stable in their current format throughout the project duration.
+- The arXiv supplementary data files for the prior experiment (2106.08611) and the calibration curves for the 2023 review (2305.06325) are publicly accessible and remain stable in their current format throughout the project duration.
 - The `emcee` and `dynesty` Python libraries are compatible with the default Python version on the GitHub Actions runner and do not require GPU acceleration or CUDA dependencies.
 - The dataset size after harmonization will fit within the available RAM limit of the free-tier runner; if not, a random subsample of the force-distance points will be used for the MCMC run.
 - The systematic uncertainty budgets provided in the source papers are sufficient to construct a valid covariance matrix without requiring additional external data or estimation.

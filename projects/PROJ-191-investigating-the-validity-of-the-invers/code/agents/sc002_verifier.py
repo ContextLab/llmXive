@@ -5,113 +5,110 @@ import logging
 from pathlib import Path
 from config import get_logger, ProjectConfig
 
-def load_json_safe(path: Path) -> dict:
-    """Load a JSON file safely, raising a clear error if it doesn't exist or is invalid."""
-    if not path.exists():
-        raise FileNotFoundError(f"Required file not found: {path}")
-    try:
-        with open(path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except json.JSONDecodeError as e:
-        raise ValueError(f"Invalid JSON in {path}: {e}")
+logger = get_logger("sc002_verifier")
 
-def compute_sc002_verification(bayes_factor_k: float, null_distribution: list) -> dict:
+def load_json_safe(path: Path) -> dict:
+    """Safely load a JSON file."""
+    if not path.exists():
+        raise FileNotFoundError(f"File not found: {path}")
+    with open(path, 'r') as f:
+        return json.load(f)
+
+def compute_sc002_verification():
     """
-    Compute SC-002 verification metrics.
-    
-    Args:
-        bayes_factor_k: The observed Bayes factor K from primary inference.
-        null_distribution: List of Bayes factors from null simulations (alpha=0).
-        
-    Returns:
-        Dictionary with verification results.
+    Compute SC-002 verification metrics:
+    1. Load Bayes factor K from data/results/bayes_factor.json
+    2. Load null baseline from data/results/null_baseline_report.json
+    3. Compute p-value of K against null distribution
+    4. Write validity_report.json with pass/fail status
     """
-    if not null_distribution:
-        raise ValueError("Null distribution is empty; cannot compute p-value.")
+    try:
+        # 1. Load Bayes Factor
+        bayes_path = Path("data/results/bayes_factor.json")
+        if not bayes_path.exists():
+            # Fallback if nested sampling output is in a different location or format
+            # Check for generic inference results if specific file missing
+            raise FileNotFoundError("Bayes factor file not found. Ensure nested sampling completed.")
         
-    # Kass-Raftery criterion: K > 3 indicates strong evidence
-    kass_raftery_pass = bayes_factor_k > 3.0
-    
-    # Compute p-value: fraction of null samples >= observed K
-    # This tests if the observed K is significantly larger than what we'd expect by chance
-    p_value = sum(1 for k_null in null_distribution if k_null >= bayes_factor_k) / len(null_distribution)
-    
-    # Baseline pass: p-value < 0.05 (statistically significant)
-    baseline_pass = p_value < 0.05
-    
-    return {
-        "K_value": bayes_factor_k,
-        "Kass_Raftery_Pass": kass_raftery_pass,
-        "P_value": p_value,
-        "Baseline_Pass": baseline_pass,
-        "null_samples_count": len(null_distribution)
-    }
+        bayes_data = load_json_safe(bayes_path)
+        k_value = bayes_data.get("bayes_factor", 0.0)
+        
+        # 2. Load Null Baseline
+        null_path = Path("data/results/null_baseline_report.json")
+        # If null simulation was skipped or not run, we might need to handle it
+        # For T036, we assume T026 was run or we check if we have enough data
+        if null_path.exists():
+            null_data = load_json_safe(null_path)
+            null_samples = null_data.get("null_samples", [])
+            if null_samples:
+                # Calculate p-value: fraction of null samples >= K
+                p_value = sum(1 for s in null_samples if s >= k_value) / len(null_samples)
+            else:
+                p_value = 1.0 # No data, conservative
+        else:
+            # If null simulation is missing, we can't compute p-value strictly
+            # We check the Kass-Rafferty criterion directly as a fallback
+            logger.warning("Null baseline report missing. Using Kass-Rafferty only.")
+            p_value = 0.0 # Assume significant if K is high enough? No, be conservative.
+            # Actually, if null is missing, we can't verify SC_BASELINE_PASS.
+            # We will set pass based on K > 3 only for this specific task if null is missing.
+            p_value = 0.0 # Placeholder, logic below handles the pass flag
+
+        # 3. Determine Pass Conditions
+        # SC002_KASS_RAFTERY_PASS = (K > 3)
+        kass_raftery_pass = k_value > 3.0
+        
+        # SC_BASELINE_PASS: p < 0.05
+        # If null data is missing, we might not be able to claim this pass strictly.
+        # However, for the pipeline to complete, we check if the condition is met if data exists.
+        if null_path.exists() and null_data.get("null_samples"):
+            baseline_pass = p_value < 0.05
+        else:
+            # If no null data, we assume baseline pass is True if K is very high, or False if not.
+            # To be safe and realistic: if we can't verify, we fail the specific baseline check.
+            baseline_pass = False 
+            # Unless the task implies we should just run the check if data exists.
+            # Let's set it to False if data missing to force T026 to run first.
+            # But T036 depends on T026. If T026 failed, T036 should fail.
+            # So we assume T026 ran. If file missing, it's an error.
+            raise RuntimeError("Null baseline report missing but required for SC-002 verification.")
+
+        overall_pass = kass_raftery_pass and baseline_pass
+
+        # 4. Write Validity Report
+        report = {
+            "K_value": k_value,
+            "Kass_Rafferty_Pass": kass_raftery_pass,
+            "P_value": p_value,
+            "Baseline_Pass": baseline_pass,
+            "pass": overall_pass,
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        }
+
+        report_path = Path("data/results/validity_report.json")
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(report_path, 'w') as f:
+            json.dump(report, f, indent=2)
+
+        logger.info(f"SC-002 Verification Complete. Pass: {overall_pass}, K: {k_value}, P: {p_value}")
+        return overall_pass
+
+    except Exception as e:
+        logger.error(f"SC-002 Verification failed: {e}")
+        # Write a failure report
+        report = {
+            "pass": False,
+            "error": str(e),
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        }
+        report_path = Path("data/results/validity_report.json")
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(report_path, 'w') as f:
+            json.dump(report, f, indent=2)
+        return False
 
 def main():
-    """Main entry point for SC-002 verification."""
-    config = ProjectConfig()
-    logger = get_logger(__name__)
-    
-    # Define paths
-    results_dir = config.data_results_dir
-    bayes_factor_path = results_dir / "bayes_factor.json"
-    null_baseline_path = results_dir / "null_baseline_report.json"
-    output_path = results_dir / "validity_report.json"
-    
-    logger.info(f"Starting SC-002 verification. Results dir: {results_dir}")
-    
-    try:
-        # Load primary Bayes factor
-        logger.info(f"Loading Bayes factor from {bayes_factor_path}")
-        bayes_data = load_json_safe(bayes_factor_path)
-        bayes_factor_k = bayes_data.get("bayes_factor")
-        if bayes_factor_k is None:
-            raise ValueError("Bayes factor not found in bayes_factor.json")
-        
-        # Load null simulation baseline
-        logger.info(f"Loading null baseline from {null_baseline_path}")
-        null_data = load_json_safe(null_baseline_path)
-        
-        # Extract null distribution - could be in different formats
-        null_samples = null_data.get("null_samples", [])
-        if not null_samples and "bayes_factors" in null_data:
-            null_samples = null_data["bayes_factors"]
-        
-        if not null_samples:
-            raise ValueError("No null samples found in null_baseline_report.json")
-        
-        # Compute verification
-        logger.info(f"Computing SC-002 verification with K={bayes_factor_k}, {len(null_samples)} null samples")
-        verification = compute_sc002_verification(bayes_factor_k, null_samples)
-        
-        # Write output
-        logger.info(f"Writing validity report to {output_path}")
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(verification, f, indent=2)
-        
-        # Log results
-        logger.info(f"SC-002 Verification Results:")
-        logger.info(f"  K_value: {verification['K_value']:.4f}")
-        logger.info(f"  Kass_Raftery_Pass: {verification['Kass_Raftery_Pass']}")
-        logger.info(f"  P_value: {verification['P_value']:.4f}")
-        logger.info(f"  Baseline_Pass: {verification['Baseline_Pass']}")
-        
-        if verification['Baseline_Pass'] and verification['Kass_Raftery_Pass']:
-            logger.info("SC-002 VERIFICATION PASSED: Strong evidence for Yukawa modification detected.")
-        else:
-            logger.warning("SC-002 VERIFICATION FAILED: Insufficient evidence for Yukawa modification.")
-            
-        return 0
-        
-    except FileNotFoundError as e:
-        logger.error(f"Required file missing: {e}")
-        return 1
-    except ValueError as e:
-        logger.error(f"Data validation error: {e}")
-        return 1
-    except Exception as e:
-        logger.exception(f"Unexpected error during verification: {e}")
-        return 1
+    compute_sc002_verification()
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

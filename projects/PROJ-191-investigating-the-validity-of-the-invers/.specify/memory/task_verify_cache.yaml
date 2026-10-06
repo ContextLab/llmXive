@@ -6,45 +6,21 @@ T001:
     \ with all the specified sub\u2011directories actually exists. The implementer\
     \ must supply concrete proof that the `mkdir -p \u2026` command was run and the\
     \ full hierarchy is present."
-T003:
+T002:
   c: false
-  h: 5f9c42fc9c94f5615e54b84878c1bcc639b167505b380c10b573444537dd7989
-  r: "The `pyproject.toml` correctly contains `[tool.black]` and `[tool.ruff]` sections,\
-    \ but the required `.ruff.toml` file is missing from the repository. Without this\
-    \ file the task\u2019s first sub\u2011requirement (\u201Ccreating `.ruff.toml`\u201D\
-    ) is not satisfied."
-T022:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or module implementing the log\u2011likelihood function with\
-    \ full covariance and Cholesky decomposition is present in the provided evidence.\
-    \ The required artifact (e.g., a Python function or file) is missing, so the task\u2019\
-    s requirement cannot be confirmed as satisfied."
-T025#1:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, notebook, or result files were provided that implement the\
-    \ injection\u2011recovery test, generate simulated data with a known non\u2011\
-    zero\u202F\u03B1, run the Bayesian inference, and demonstrate that the injected\
-    \ \u03B1 lies within the 95\u202F% credible interval. The required artifact is\
-    \ missing, so the task is not satisfied."
+  h: 89b90d7687d79231f5843da22f677a5ac286bc4067fa3b39ff0e588dc64e677f
+  r: The required file `projects/PROJ-191-investigating-the-validity-of-the-invers/code/requirements.txt`
+    does not exist, so the Python project has not been initialized at the specified
+    location nor are the pinned dependencies written there. The existing `code/requirements.txt`
+    is in the wrong directory.
 T031:
   c: false
-  h: 21b21ca0a1c8bbd1c4ff5cf2c1a72cf46a3bb5a3613fd1cefacba7627f75861e
-  r: The repository contains `code/robustness/uncertainty.py`, but the file never
-    reads `data/processed/inflation_factor.json` (the file is missing) and the implementation
-    for applying the factor, recomputing the Bayes factor, and logging the negligible
-    change is absent or truncated. The required JSON file and the full test logic
-    are not present.
-T032:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or documentation implementing parallel execution of the robustness\u2011\
-    analysis iterations with `multiprocessing` was provided; the evidence section\
-    \ contains no artifact to inspect, so the requirement cannot be verified as met.\
-    \ The next implementer must add the actual implementation (e.g., a Python module\
-    \ or function that launches robustness runs in parallel using the `multiprocessing`\
-    \ library) and include it in the repository."
+  h: 5ebdcaee46ca1fc6c68a9024fa5ea982f15c73a2b712e49685cd995bbb724298
+  r: "The provided `uncertainty.py` is truncated and does not show the logic that\
+    \ applies the inflation factor to the covariance matrix, re\u2011runs inference,\
+    \ or checks the Bayes\u2011factor change. Moreover, the required `data/processed/config.json`\
+    \ file is missing, so the script cannot read the `INFLATION_FACTOR` as specified.\
+    \ The task therefore remains unfinished."
 T033:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -53,17 +29,11 @@ T033:
     \ robustness iterations, the resulting CV percentage, and the appropriate log/warning)\
     \ is absent. The implementer must supply the implementation and its output to\
     \ satisfy the task."
-T036:
+T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No pipeline execution logs, output files, or the updated `state/projects/PROJ-191...yaml`\
-    \ are present. The claim lacks any concrete artifact demonstrating that the end\u2011\
-    to\u2011end validation was run and that the YAML file was correctly modified."
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data files, or result artifacts (e.g., the data\u2011harmonization\
-    \ script and CSV/JSON output, the MCMC/inference script and posterior samples,\
-    \ or the robustness analysis outputs) are present for inspection. Without these\
-    \ concrete files the required user stories cannot be verified, so the task is\
-    \ not genuinely completed."
+  r: "No code, benchmark logs, or documentation showing a tuned Cholesky implementation\
+    \ or runtime\u2011threshold logic were provided. The artifact required to demonstrate\
+    \ that likelihood evaluation speed was optimized (e.g., modified likelihood function,\
+    \ performance comparison before/after, or a script that triggers tuning when a\
+    \ threshold is exceeded) is missing."

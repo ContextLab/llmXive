@@ -1,56 +1,47 @@
 """
-Project initialization script for PROJ-191.
-Creates the virtual environment and installs pinned dependencies.
+Environment setup script for PROJ-191.
+Initializes the Python project environment by installing pinned dependencies.
 """
 import os
 import subprocess
 import sys
 from pathlib import Path
+import logging
+
+from config import get_logger, setup_logging
 
 def main():
+    """
+    Main entry point for environment setup.
+    1. Verifies the requirements.txt exists in the code directory.
+    2. Installs dependencies using pip.
+    """
+    # Initialize logging
+    log = get_logger(__name__)
+    
     project_root = Path(__file__).parent.parent
     code_dir = project_root / "code"
-    venv_dir = project_root / ".venv"
-    requirements_file = code_dir / "requirements.txt"
+    requirements_path = code_dir / "requirements.txt"
 
-    if not requirements_file.exists():
-        print(f"Error: requirements.txt not found at {requirements_file}")
+    if not requirements_path.exists():
+        log.error(f"requirements.txt not found at {requirements_path}")
         sys.exit(1)
 
-    print(f"Initializing Python environment in {venv_dir}...")
+    log.info(f"Found requirements.txt at {requirements_path}")
+    log.info("Installing dependencies...")
 
-    # Create virtual environment
-    if not venv_dir.exists():
-        subprocess.run(
-            [sys.executable, "-m", "venv", str(venv_dir)],
-            check=True
+    try:
+        # Run pip install in the current environment
+        # Use sys.executable to ensure we install into the correct python env
+        subprocess.check_call(
+            [sys.executable, "-m", "pip", "install", "-r", str(requirements_path)],
+            cwd=code_dir
         )
-        print("Virtual environment created.")
-    else:
-        print("Virtual environment already exists.")
-
-    # Determine the path to the python executable in the venv
-    python_exe = venv_dir / "bin" / "python" if os.name != "nt" else venv_dir / "Scripts" / "python.exe"
-
-    # Upgrade pip
-    subprocess.run(
-        [str(python_exe), "-m", "pip", "install", "--upgrade", "pip"],
-        check=True
-    )
-    print("Pip upgraded.")
-
-    # Install dependencies
-    print(f"Installing dependencies from {requirements_file}...")
-    subprocess.run(
-        [str(python_exe), "-m", "pip", "install", "-r", str(requirements_file)],
-        check=True
-    )
-    print("Dependencies installed successfully.")
-    print(f"\nTo activate the environment, run:")
-    if os.name == "nt":
-        print(f"  {venv_dir}\\Scripts\\activate")
-    else:
-        print(f"  source {venv_dir}/bin/activate")
+        log.info("Dependencies installed successfully.")
+    except subprocess.CalledProcessError as e:
+        log.error(f"Failed to install dependencies: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
+    setup_logging()
     main()
