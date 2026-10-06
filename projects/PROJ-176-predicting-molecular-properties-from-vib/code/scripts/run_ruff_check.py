@@ -1,9 +1,11 @@
 """
-Script to run ruff static analysis on the codebase and fix issues.
+Script to run ruff static analysis and formatting on the codebase.
 
-This script executes 'ruff check' on the code/ directory. If issues are found,
-it attempts to auto-fix them using 'ruff check --fix'. It reports the final
-status and writes a summary to the results directory.
+This script executes `ruff check --fix` to fix all reported issues
+and `ruff format` to ensure consistent code style.
+
+Usage:
+    python code/scripts/run_ruff_check.py
 """
 import subprocess
 import sys
@@ -12,139 +14,136 @@ from pathlib import Path
 import json
 from datetime import datetime
 
-def run_ruff_check(code_dir: Path, fix: bool = False) -> tuple[int, str, str]:
-    """
-    Run ruff check on the specified directory.
-    
-    Args:
-        code_dir: Path to the code directory to check
-        fix: If True, attempt to auto-fix issues
-        
-    Returns:
-        Tuple of (exit_code, stdout, stderr)
-    """
-    cmd = [sys.executable, "-m", "ruff", "check", str(code_dir)]
-    if fix:
-        cmd.append("--fix")
-    
-    try:
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            check=False
-        )
-        return result.returncode, result.stdout, result.stderr
-    except FileNotFoundError:
-        return -1, "", "Error: ruff is not installed. Please install it via 'pip install ruff'."
-    except Exception as e:
-        return -1, "", f"Error running ruff: {str(e)}"
 
-def run_ruff_format(code_dir: Path) -> tuple[int, str, str]:
+def run_ruff_check(code_dir: Path) -> bool:
     """
-    Run ruff format on the specified directory.
+    Run ruff check --fix on the code directory.
     
     Args:
-        code_dir: Path to the code directory to format
+        code_dir: Path to the code directory to check.
         
     Returns:
-        Tuple of (exit_code, stdout, stderr)
+        True if ruff check --fix completed successfully (exit code 0),
+        False otherwise.
     """
-    cmd = [sys.executable, "-m", "ruff", "format", str(code_dir)]
+    print(f"Running ruff check --fix on {code_dir}...")
     
     try:
         result = subprocess.run(
-            cmd,
+            ["ruff", "check", "--fix", str(code_dir)],
             capture_output=True,
             text=True,
-            check=False
+            timeout=300  # 5 minute timeout
         )
-        return result.returncode, result.stdout, result.stderr
+        
+        if result.stdout:
+            print("Ruff check output:")
+            print(result.stdout)
+        
+        if result.stderr:
+            print("Ruff check errors:")
+            print(result.stderr)
+        
+        if result.returncode == 0:
+            print("✓ Ruff check passed: No issues found or all issues fixed.")
+            return True
+        else:
+            print(f"✗ Ruff check failed with exit code {result.returncode}")
+            print("Some issues could not be fixed automatically. Please fix manually.")
+            return False
+            
+    except subprocess.TimeoutExpired:
+        print("✗ Ruff check timed out after 5 minutes")
+        return False
     except FileNotFoundError:
-        return -1, "", "Error: ruff is not installed. Please install it via 'pip install ruff'."
+        print("✗ Ruff is not installed. Please install it via: pip install ruff")
+        return False
     except Exception as e:
-        return -1, "", f"Error running ruff format: {str(e)}"
+        print(f"✗ Error running ruff check: {e}")
+        return False
+
+
+def run_ruff_format(code_dir: Path) -> bool:
+    """
+    Run ruff format on the code directory.
+    
+    Args:
+        code_dir: Path to the code directory to format.
+        
+    Returns:
+        True if ruff format completed successfully (exit code 0),
+        False otherwise.
+    """
+    print(f"Running ruff format on {code_dir}...")
+    
+    try:
+        result = subprocess.run(
+            ["ruff", "format", str(code_dir)],
+            capture_output=True,
+            text=True,
+            timeout=300  # 5 minute timeout
+        )
+        
+        if result.stdout:
+            print("Ruff format output:")
+            print(result.stdout)
+        
+        if result.stderr:
+            print("Ruff format errors:")
+            print(result.stderr)
+        
+        if result.returncode == 0:
+            print("✓ Ruff format completed successfully.")
+            return True
+        else:
+            print(f"✗ Ruff format failed with exit code {result.returncode}")
+            return False
+            
+    except subprocess.TimeoutExpired:
+        print("✗ Ruff format timed out after 5 minutes")
+        return False
+    except FileNotFoundError:
+        print("✗ Ruff is not installed. Please install it via: pip install ruff")
+        return False
+    except Exception as e:
+        print(f"✗ Error running ruff format: {e}")
+        return False
+
 
 def main():
     """Main entry point for the ruff check script."""
-    project_root = Path(__file__).resolve().parent.parent.parent
+    # Determine the code directory (relative to this script)
+    script_path = Path(__file__).resolve()
+    project_root = script_path.parent.parent
     code_dir = project_root / "code"
-    results_dir = project_root / "results"
     
     if not code_dir.exists():
-        print(f"Error: code directory not found at {code_dir}")
+        print(f"✗ Code directory not found: {code_dir}")
         sys.exit(1)
     
-    results_dir.mkdir(parents=True, exist_ok=True)
-    report_path = results_dir / "ruff_check_report.json"
+    print("=" * 60)
+    print("Running Static Analysis and Formatting")
+    print("=" * 60)
     
-    print(f"Running ruff check on {code_dir}...")
+    # Run ruff check --fix
+    check_success = run_ruff_check(code_dir)
     
-    # First run: check without fixing to see initial state
-    exit_code, stdout, stderr = run_ruff_check(code_dir, fix=False)
+    # Run ruff format
+    format_success = run_ruff_format(code_dir)
     
-    if exit_code != 0:
-        print("Ruff found issues. Attempting to auto-fix...")
-        # Run with --fix
-        exit_code_fixed, stdout_fixed, stderr_fixed = run_ruff_check(code_dir, fix=True)
-        
-        if exit_code_fixed != 0:
-            print(f"Ruff still found {exit_code_fixed} issues after auto-fix.")
-            print("Remaining issues:")
-            print(stdout_fixed)
-            if stderr_fixed:
-                print("Errors:")
-                print(stderr_fixed)
-            
-            # Write report even if issues remain
-            report = {
-                "timestamp": datetime.now().isoformat(),
-                "status": "issues_remaining",
-                "issues_count": exit_code_fixed,
-                "output": stdout_fixed,
-                "errors": stderr_fixed
-            }
-        else:
-            print("All auto-fixable issues have been resolved.")
-            report = {
-                "timestamp": datetime.now().isoformat(),
-                "status": "fixed",
-                "issues_count": 0,
-                "output": stdout_fixed,
-                "errors": stderr_fixed
-            }
-    else:
-        print("No issues found by ruff.")
-        report = {
-            "timestamp": datetime.now().isoformat(),
-            "status": "clean",
-            "issues_count": 0,
-            "output": stdout,
-            "errors": stderr
-        }
+    print("=" * 60)
+    print("Summary:")
+    print(f"  Ruff check --fix: {'PASSED' if check_success else 'FAILED'}")
+    print(f"  Ruff format: {'PASSED' if format_success else 'FAILED'}")
+    print("=" * 60)
     
-    # Write report
-    with open(report_path, "w") as f:
-        json.dump(report, f, indent=2)
-    
-    print(f"Ruff check report written to {report_path}")
-    
-    # Also run format to ensure consistent style
-    print("\nRunning ruff format...")
-    exit_code_fmt, stdout_fmt, stderr_fmt = run_ruff_format(code_dir)
-    
-    if exit_code_fmt == 0:
-        print("Format check passed.")
-    else:
-        print(f"Format issues found or errors occurred: {stderr_fmt}")
-    
-    # Final status
-    if report["status"] == "clean" or report["status"] == "fixed":
-        print("\nStatic analysis complete. Code is clean or has been fixed.")
+    if check_success and format_success:
+        print("✓ All static analysis and formatting tasks completed successfully.")
         sys.exit(0)
     else:
-        print("\nStatic analysis complete. Some issues could not be auto-fixed.")
+        print("✗ Some tasks failed. Please review the output above.")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

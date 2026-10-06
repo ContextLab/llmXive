@@ -1,85 +1,66 @@
-%YAML 1.2
----
-# Schema for the trained model checkpoint artifact
-# Generated for task T008
-# This file defines the structure expected for the model checkpoint
-# saved by code/models/trainer.py.
-
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Molecular Property CNN Model Checkpoint"
-description: >
-  Schema for the PyTorch model checkpoint containing weights, optimizer state,
-  and training metadata.
-
+schema_version: "1.0.0"
+description: "Schema for model checkpoint and prediction outputs"
 type: object
 required:
-  - model_state_dict
-  - optimizer_state_dict
-  - training_metadata
-  - architecture_config
-
+  - model_info
+  - predictions
 properties:
-  model_state_dict:
+  model_info:
     type: object
-    description: "State dictionary of the trained MolecularPropertyCNN model."
-    # Note: The actual keys depend on the specific model architecture (cnn_1d.py)
-
-  optimizer_state_dict:
-    type: object
-    description: "State dictionary of the optimizer (Adam)."
-
-  training_metadata:
-    type: object
-    description: "Metadata regarding the training run."
     required:
-      - best_val_loss
-      - epochs_trained
-      - early_stopping_patience
-      - timestamp
-      - seed
+      - architecture
+      - hyperparameters
+      - training_seed
+      - checkpoint_hash
     properties:
-      best_val_loss:
-        type: number
-        description: "The lowest validation loss achieved during training."
-      epochs_trained:
-        type: integer
-        description: "Total number of epochs the model was trained for."
-      early_stopping_patience:
-        type: integer
-        description: "Patience parameter used for early stopping."
-      timestamp:
+      architecture:
         type: string
-        format: date-time
-        description: "ISO 8601 timestamp of when the checkpoint was saved."
-      seed:
+        description: "Model architecture name (e.g., CNN_1D_Molecular)"
+      hyperparameters:
+        type: object
+        properties:
+          kernel_sizes:
+            type: array
+            items:
+              type: integer
+            description: "Kernel sizes for convolutional blocks"
+          filters:
+            type: integer
+            description: "Number of filters per block"
+          learning_rate:
+            type: number
+          patience:
+            type: integer
+            description: "Early stopping patience"
+      training_seed:
         type: integer
-        description: "Random seed used for reproducibility."
-
-  architecture_config:
+        description: "Random seed used for training"
+      checkpoint_hash:
+        type: string
+        description: "SHA-256 hash of the saved checkpoint file"
+  predictions:
     type: object
-    description: "Configuration used to instantiate the model."
     required:
-      - input_dim
-      - kernel_sizes
-      - num_filters
-      - num_heads
+      - dipole_moment
+      - polarizability
+      - homo_lumo_gap
+      - inference_time
     properties:
-      input_dim:
-        type: integer
-        description: "Input dimension (number of wavenumber points)."
-      kernel_sizes:
-        type: array
-        items:
-          type: integer
-        description: "List of kernel sizes for convolutional blocks (e.g., [9, 7, 5])."
-      num_filters:
-        type: integer
-        description: "Number of filters per convolutional block."
-      num_heads:
-        type: integer
-        description: "Number of regression heads (should be 3)."
-      loss_weights:
+      dipole_moment:
         type: array
         items:
           type: number
-        description: "Weights for the weighted sum of losses from each head."
+        description: "Predicted dipole moments"
+      polarizability:
+        type: array
+        items:
+          type: number
+        description: "Predicted polarizabilities"
+      homo_lumo_gap:
+        type: array
+        items:
+          type: number
+        description: "Predicted HOMO-LUMO gaps"
+      inference_time:
+        type: number
+        description: "Total inference time in seconds"

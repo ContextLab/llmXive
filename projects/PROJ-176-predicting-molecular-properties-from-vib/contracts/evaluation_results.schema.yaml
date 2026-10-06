@@ -1,184 +1,132 @@
-%YAML 1.2
----
-# Schema for the evaluation results artifact
-# Generated for task T008
-# This file defines the structure for results/evaluation_metrics.json
-# and results/predictions_test.npz.
-
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Model Evaluation Results"
-description: >
-  Schema for the JSON report containing metrics, statistical tests, and
-  validation status for the trained model.
-
+schema_version: "1.0.0"
+description: "Schema for evaluation metrics and statistical test results"
 type: object
 required:
-  - metadata
-  - metrics
+  - summary
+  - metrics_by_property
   - statistical_tests
-  - validation_status
-
 properties:
-  metadata:
+  summary:
     type: object
-    description: "Metadata about the evaluation run."
     required:
-      - model_checkpoint_path
-      - test_dataset_path
+      - dataset_size
+      - model_used
       - evaluation_timestamp
-      - evaluation_script_version
     properties:
-      model_checkpoint_path:
+      dataset_size:
+        type: integer
+        description: "Number of samples in the evaluation set"
+      model_used:
         type: string
-        description: "Relative path to the model checkpoint used."
-      test_dataset_path:
-        type: string
-        description: "Relative path to the test dataset used."
+        description: "Identifier for the model checkpoint used"
       evaluation_timestamp:
         type: string
         format: date-time
-        description: "ISO 8601 timestamp of the evaluation."
-      evaluation_script_version:
-        type: string
-        description: "Version or commit hash of the evaluation script."
-
-  metrics:
+  metrics_by_property:
     type: object
-    description: "Performance metrics per property."
     required:
-      - dipole
+      - dipole_moment
       - polarizability
-      - homol_gap
+      - homo_lumo_gap
     properties:
-      dipole:
-        $ref: "#/$defs/property_metrics"
+      dipole_moment:
+        type: object
+        required:
+          - mae
+          - r2
+          - p_value_ttest
+          - bias_pass
+        properties:
+          mae:
+            type: number
+            description: "Mean Absolute Error"
+          r2:
+            type: number
+            description: "Coefficient of Determination"
+          p_value_ttest:
+            type: number
+            description: "P-value from paired t-test for mean error = 0"
+          bias_pass:
+            type: boolean
+            description: "True if p-value < 0.01 (indicates systematic bias)"
       polarizability:
-        $ref: "#/$defs/property_metrics"
-      homol_gap:
-        $ref: "#/$defs/property_metrics"
-
+        type: object
+        required:
+          - mae
+          - r2
+          - p_value_ttest
+          - bias_pass
+        properties:
+          mae:
+            type: number
+          r2:
+            type: number
+          p_value_ttest:
+            type: number
+          bias_pass:
+            type: boolean
+      homo_lumo_gap:
+        type: object
+        required:
+          - mae
+          - r2
+          - p_value_ttest
+          - bias_pass
+        properties:
+          mae:
+            type: number
+          r2:
+            type: number
+          p_value_ttest:
+            type: number
+          bias_pass:
+            type: boolean
   statistical_tests:
     type: object
-    description: "Results of statistical significance tests."
     required:
-      - paired_ttest
-      - tost_equivalence
+      - tost_results
       - hotellings_t2
     properties:
-      paired_ttest:
+      tost_results:
         type: object
-        description: "Paired t-test results for systematic bias (mean error = 0)."
-        required:
-          - dipole
-          - polarizability
-          - homol_gap
+        description: "Results of Two One-Sided Tests for equivalence"
         properties:
-          dipole:
-            $ref: "#/$defs/ttest_result"
+          dipole_moment:
+            type: object
+            properties:
+              p_value_low:
+                type: number
+              p_value_high:
+                type: number
+              equivalence_passed:
+                type: boolean
           polarizability:
-            $ref: "#/$defs/ttest_result"
-          homol_gap:
-            $ref: "#/$defs/ttest_result"
-      tost_equivalence:
-        type: object
-        description: "TOST equivalence test results."
-        properties:
-          dipole:
-            $ref: "#/$defs/tost_result"
-          polarizability:
-            $ref: "#/$defs/tost_result"
-          homol_gap:
-            $ref: "#/$defs/tost_result"
+            type: object
+            properties:
+              p_value_low:
+                type: number
+              p_value_high:
+                type: number
+              equivalence_passed:
+                type: boolean
+          homo_lumo_gap:
+            type: object
+            properties:
+              p_value_low:
+                type: number
+              p_value_high:
+                type: number
+              equivalence_passed:
+                type: boolean
       hotellings_t2:
         type: object
-        description: "Hotelling's T² test results for multivariate bias."
+        description: "Hotelling's T-squared test results for multivariate bias"
         properties:
           statistic:
             type: number
           p_value:
             type: number
-          is_significant:
+          degrees_of_freedom:
+            type: integer
+          bias_detected:
             type: boolean
-
-  validation_status:
-    type: object
-    description: "Overall validation status based on thresholds."
-    required:
-      - bias_check_passed
-      - overall_pass
-    properties:
-      bias_check_passed:
-        type: boolean
-        description: "True if all p-values from paired t-tests are >= 0.01 (no systematic bias)."
-      overall_pass:
-        type: boolean
-        description: "True if all validation criteria are met."
-
-  predictions:
-    type: object
-    description: "Optional reference to the predictions file."
-    properties:
-      file_path:
-        type: string
-        description: "Path to results/predictions_test.npz."
-      format:
-        type: string
-        enum: ["npz"]
-      contents:
-        type: array
-        items:
-          type: string
-        description: "Keys expected in the npz file: 'true', 'pred', 'molecule_ids'."
-
-$defs:
-  property_metrics:
-    type: object
-    required:
-      - mae
-      - r2
-      - p_value
-      - bias_pass_fail
-    properties:
-      mae:
-        type: number
-        description: "Mean Absolute Error."
-      r2:
-        type: number
-        description: "Coefficient of Determination (R²)."
-      p_value:
-        type: number
-        description: "P-value from the paired t-test."
-      bias_pass_fail:
-        type: string
-        enum: ["pass", "fail"]
-        description: "Result of the bias check (pass if p >= 0.01)."
-
-  ttest_result:
-    type: object
-    required:
-      - statistic
-      - p_value
-      - is_significant
-    properties:
-      statistic:
-        type: number
-      p_value:
-        type: number
-      is_significant:
-        type: boolean
-        description: "True if p < 0.01 (indicates systematic bias)."
-
-  tost_result:
-    type: object
-    required:
-      - p_value_low
-      - p_value_high
-      - is_equivalent
-    properties:
-      p_value_low:
-        type: number
-      p_value_high:
-        type: number
-      is_equivalent:
-        type: boolean
-        description: "True if both p-values are < 0.05 (equivalence established)."

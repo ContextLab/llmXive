@@ -1,3 +1,3 @@
 """
-Test suite for the molecular properties project.
+Test suite for the molecular property prediction pipeline.
 """

@@ -1,114 +1,86 @@
-%YAML 1.2
----
-# Schema for the aligned and preprocessed dataset artifact
-# Generated for task T008
-# This file defines the structure and types for data/preprocessed/aligned_data.npz
-# and associated metadata.
-
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Molecular Vibrational Spectra Dataset"
-description: >
-  Schema for the dataset resulting from the alignment of QM9 and IR-spectra
-  datasets, followed by preprocessing (interpolation, smoothing, normalization).
-
+schema_version: "1.0.0"
+description: "Schema for the aligned molecular dataset (QM9 + IR Spectra)"
 type: object
 required:
   - metadata
   - data
-
 properties:
   metadata:
     type: object
-    description: "Metadata describing the dataset creation process."
     required:
       - source_qm9
       - source_ir
       - alignment_key
-      - preprocessing_steps
       - creation_timestamp
-      - sample_count
-      - spectral_range
+      - total_samples
+      - filtered_count
+      - grid_range
+      - grid_spacing
     properties:
       source_qm9:
         type: string
-        description: "Identifier or version of the QM9 dataset used."
+        description: "Identifier for the QM9 dataset version used"
       source_ir:
         type: string
-        description: "Identifier or version of the IR-spectra dataset used."
+        description: "Identifier for the IR spectra dataset version used"
       alignment_key:
         type: string
-        description: "The key used for joining datasets (e.g., 'InChIKey')."
-      preprocessing_steps:
-        type: array
-        items:
-          type: string
-        description: "Ordered list of preprocessing steps applied."
+        description: "Key used for alignment (e.g., InChIKey)"
       creation_timestamp:
         type: string
         format: date-time
-        description: "ISO 8601 timestamp of when the dataset was created."
-      sample_count:
+        description: "ISO 8601 timestamp of dataset creation"
+      total_samples:
         type: integer
-        minimum: 1
-        description: "Total number of molecules in the aligned dataset."
-      spectral_range:
-        type: object
-        description: "Wavenumber range of the spectra."
-        required:
-          - min_cm1
-          - max_cm1
-          - step_cm1
-        properties:
-          min_cm1:
-            type: integer
-            description: "Minimum wavenumber in cm⁻¹."
-          max_cm1:
-            type: integer
-            description: "Maximum wavenumber in cm⁻¹."
-          step_cm1:
-            type: integer
-            description: "Spacing between wavenumber points in cm⁻¹."
-
-  data:
-    type: object
-    description: "The actual data arrays stored in the .npz file."
-    required:
-      - InChIKeys
-      - wavenumbers
-      - spectra
-      - dipole_moment
-      - polarizability
-      - homol_gap
-    properties:
-      InChIKeys:
-        type: array
-        items:
-          type: string
-        description: "List of InChIKeys for the aligned molecules."
-      wavenumbers:
+        minimum: 0
+        description: "Total number of aligned molecules"
+      filtered_count:
+        type: integer
+        minimum: 0
+        description: "Number of samples discarded due to missing properties"
+      grid_range:
         type: array
         items:
           type: number
-        description: "1D array of wavenumber values (cm⁻¹)."
+        minItems: 2
+        maxItems: 2
+        description: "[min_wavenumber, max_wavenumber] in cm^-1"
+      grid_spacing:
+        type: number
+        description: "Spacing between wavenumber points in cm^-1"
+  data:
+    type: object
+    required:
+      - InChIKey
+      - spectra
+      - dipole_moment
+      - polarizability
+      - homo_lumo_gap
+    properties:
+      InChIKey:
+        type: array
+        items:
+          type: string
+        description: "Unique molecular identifier"
       spectra:
         type: array
         items:
           type: array
           items:
             type: number
-        description: "2D array of normalized IR spectra (N_samples x N_wavenumbers)."
+        description: "Normalized IR spectra (N_samples x N_grid_points)"
       dipole_moment:
         type: array
         items:
           type: number
-        description: "1D array of dipole moment values (Debye)."
+        description: "Dipole moment values in Debye"
       polarizability:
         type: array
         items:
           type: number
-        description: "1D array of polarizability values (Å³)."
-      homol_gap:
+        description: "Polarizability values in Angstrom^3"
+      homo_lumo_gap:
         type: array
         items:
           type: number
-        description: "1D array of HOMO-LUMO gap values (eV)."
+        description: "HOMO-LUMO gap values in eV"

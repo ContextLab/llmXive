@@ -90,14 +90,14 @@ description: "Task list template for feature implementation"
 - [X] T013 [US1] Implement `code/data/download.py` to fetch QM9 and IR-spectra from verified URLs (datasets.load_dataset or direct URL)
 - [X] T019 [P] [US1] Perform Coverage Audit (KS-test) comparing property distributions between **raw QM9 (from T013)** and the **aligned subset (from T014)** to detect selection bias. **CRITICAL: This MUST run BEFORE T014 (Filtering) and can run in parallel with T013.** Log warning if p < 0.05; Write coverage audit results to `results/coverage_audit.json` with schema: `{p_value, statistic, method, sample_size}`. **Depends on T013.**
 - [X] T014 [US1] Implement `code/data/preprocess.py` to perform the full pipeline:
-  1. **Alignment**: Inner join on `InChIKey` and log discarded count.
-  2. **Validation**: **Assert** that the final aligned molecule count is **≥ 129,000**. If not, raise a hard error and exit (FR-001).
-  3. **Interpolation**: Interpolate spectra to a fixed wavenumber grid covering **400–4000 cm⁻¹** with **1 cm⁻¹ spacing** (FR-002, Constitution Principle VI).
-  4. **Smoothing**: Apply Gaussian smoothing (σ = 2 cm⁻¹).
-  5. **Normalization**: Normalize to unit area.
-  6. **Filtering**: Filter molecules missing dipole, polarizability, or HOMO-LUMO gap; log the count of discarded samples.
-  7. **Save**: Write final aligned `.npz` to `data/preprocessed/`.
-  8. **Logging**: Write structured logs for download size, mismatch count, and final counts to `logs/data_ingestion.log`. **Depends on T013.**
+ 1. **Alignment**: Inner join on `InChIKey` and log discarded count.
+ 2. **Validation**: **Assert** that the final aligned molecule count is **≥ 129,000**. If not, raise a hard error and exit (FR-001).
+ 3. **Interpolation**: Interpolate spectra to a fixed wavenumber grid covering **400–4000 cm⁻¹** with **1 cm⁻¹ spacing** (FR-002, Constitution Principle VI).
+ 4. **Smoothing**: Apply Gaussian smoothing (σ = 2 cm⁻¹).
+ 5. **Normalization**: Normalize to unit area.
+ 6. **Filtering**: Filter molecules missing dipole, polarizability, or HOMO-LUMO gap; log the count of discarded samples.
+ 7. **Save**: Write final aligned `.npz` to `data/preprocessed/`.
+ 8. **Logging**: Write structured logs for download size, mismatch count, and final counts to `logs/data_ingestion.log`. **Depends on T013.**
 
 - [X] T016 [US1] Add `code/main.py` subcommand logic to orchestrate download -> coverage audit -> preprocess -> save `.npz`
 
@@ -187,7 +187,7 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T042 [P] Documentation updates in `specs/001-predicting-molecular-properties-from-vib/quickstart.md`: Add a section on data download commands, preprocessing steps, and a table of hyperparameters (lr, patience, kernel sizes). **CRITICAL: This task MUST verify the generation of all required artifacts: `logs/data_ingestion.log`, `results/profile_report.txt`, `results/runtime_verification.json`, and `results/evaluation_metrics.json` as part of the final deliverable checklist.**
+- [ ] T042 [P] Documentation updates in `specs/001-predicting-molecular-properties-from-vib/quickstart.md`: Add a section on data download commands, preprocessing steps, and a table of hyperparameters (lr, patience, kernel sizes). **CRITICAL: This task MUST verify the generation of all required artifacts: `logs/data_ingestion.log`, `results/profile_report.txt`, `results/runtime_verification.json`, and `results/evaluation_metrics.json` as part of the final deliverable checklist.** <!-- FAILED: unspecified -->
 - [ ] T043 [P] Run static analysis (`ruff check --fix`) on `code/` and fix all reported issues. **Explicitly run `ruff check --fix` and ensure exit code 0.**
 - [X] T044 [P] Profile `code/main.py` with `cProfile`, identify top memory bottlenecks, and optimize dataset loading to reduce peak RAM usage to ≤ 7 GB RAM; generate `results/profile_report.txt` and `results/memory_log.txt`
 - [ ] T046 [P] Run `tests/` suite to verify all acceptance scenarios. **Explicitly run `pytest -v --cov` and ensure exit code 0.**
