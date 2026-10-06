@@ -33,9 +33,31 @@ T005:
     \ is present in the provided artifacts; the only evidence relates to unrelated\
     \ scan and reporting scripts, not to generating or validating the required LEP\
     \ exclusion data schema. Consequently the task\u2019s core deliverable is missing."
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided only high\u2011level user stories and testing criteria;\
+    \ there is no file, code snippet, or documentation defining a `RelicLookupTable`\
+    \ schema as required by task\u202FT006. Consequently the essential artifact (the\
+    \ schema definition) is missing."
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: "No `ParameterPoint` schema definition was found in the provided evidence; there\
     \ is no code, JSON/YAML schema file, or documentation snippet that defines the\
     \ required data structure, so the task\u2019s deliverable is missing."
+T011:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, module, or test file implementing the thermal averaging of\
+    \ the Sommerfeld factor over a Maxwell\u2011Boltzmann distribution is present;\
+    \ the evidence provided contains only the task description and user\u2011story\
+    \ specifications, with no concrete artifact to verify. The required implementation\
+    \ is therefore missing."
+T012:
+  c: false
+  h: 61e0bc92480bca5b65b61e00da6bcdb459ac8ada966d953f64009ba89ab4fc29
+  r: The repository contains `code/physics/relic_reference.py`, but the required output
+    file `data/relic_reference_benchmarks.csv` is absent, so the benchmark data generation
+    step is not fulfilled. The missing CSV must be created by the solver for the task
+    to be complete.

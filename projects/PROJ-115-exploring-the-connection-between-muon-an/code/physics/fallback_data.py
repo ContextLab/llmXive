@@ -1,61 +1,71 @@
+"""
+Fallback data sources for physics constants and experimental limits.
+Used when real-time data fetching fails or for reproducibility.
+"""
 import numpy as np
 from typing import Dict, Tuple, List
 
-"""
-Fallback data sources for Planck, Xenon1T, and LEP.
-These provide verified, hardcoded constants and limits when real-time fetching
-is not possible or to ensure reproducibility.
-"""
+# Planck 2018 results (from Planck Collaboration VI 2020)
+# Omega_m h^2 = 0.1430 +/- 0.0011
+# H0 = 67.36 +/- 0.54 km/s/Mpc
+PLANCK_2018_CONSTANTS = {
+    "Omega_m_h2": 0.1430,
+    "Omega_m_h2_uncertainty": 0.0011,
+    "H0": 67.36,
+    "H0_uncertainty": 0.54,
+    "Omega_b_h2": 0.02237,
+    "sigma_8": 0.8111,
+    "source": "Planck 2018 Final Results (Planck Collaboration VI, 2020)",
+    "doi": "10.1051/0004-6361/201833910"
+}
+
+# Xenon1T 2018 Spin-Independent Cross-Section Limits
+# Approximated from Fig. 2 of "Dark Matter Search Results from a One Ton-Year Exposure of XENON1T"
+# Values represent the exclusion curve (m_DM [GeV] vs sigma_SI [cm^2])
+XENON1T_LIMITS = [
+    (10.0, 1.1e-45),
+    (20.0, 3.5e-46),
+    (30.0, 1.5e-46),
+    (40.0, 8.0e-47),
+    (50.0, 5.0e-47),
+    (60.0, 3.5e-47),
+    (70.0, 2.5e-47),
+    (80.0, 2.0e-47),
+    (90.0, 1.6e-47),
+    (100.0, 1.4e-47),
+    (200.0, 8.0e-48),
+    (500.0, 4.5e-48),
+    (1000.0, 3.0e-48),
+    (2000.0, 2.5e-48),
+    (5000.0, 2.2e-48),
+    (10000.0, 2.0e-48)
+]
+
+# LEP Chargino/Neutralino Limits (approximated from PDG 2024)
+# For vector portal dark matter, LEP limits are typically on the kinetic mixing parameter epsilon
+# or the dark photon mass. These are approximate exclusion boundaries.
+LEP_LIMITS = [
+    # (m_V [MeV], epsilon_max)
+    (10.0, 1.5e-3),
+    (20.0, 8.0e-4),
+    (50.0, 3.0e-4),
+    (100.0, 1.5e-4),
+    (200.0, 8.0e-5),
+    (500.0, 3.0e-5),
+    (1000.0, 1.5e-5),
+    (2000.0, 8.0e-6),
+    (5000.0, 3.0e-6),
+    (10000.0, 1.5e-6)
+]
 
 def get_planck_constants() -> Dict[str, float]:
-    """
-    Returns standard Planck 2018 cosmological parameters.
-    Source: Planck Collaboration, A&A 641, A6 (2020).
-    """
-    return {
-        "h": 0.674,          # Hubble constant parameter h = H0 / 100 km/s/Mpc
-        "Omega_c_h2": 0.120, # Physical density of cold dark matter
-        "Omega_b_h2": 0.022, # Physical density of baryons
-        "sigma_8": 0.811,    # Amplitude of matter fluctuations
-        "n_s": 0.965         # Scalar spectral index
-    }
+    """Return Planck 2018 cosmological constants."""
+    return PLANCK_2018_CONSTANTS.copy()
 
-def get_xenon1t_limits() -> Tuple[np.ndarray, np.ndarray]:
-    """
-    Returns hardcoded Xenon1T spin-independent cross-section limits.
-    These values are approximated from the exclusion curve in Phys. Rev. D 99, 042001 (2019).
-    Format: (mass_GeV, sigma_SI_cm2)
-    
-    Note: In a production environment, these would be loaded from a CSV/Parquet file
-    downloaded from the Xenon1T collaboration's public data release.
-    """
-    # Approximate points from the Xenon1T 2018/2019 exclusion curve
-    # Mass in GeV, Cross-section in cm^2
-    masses = np.array([
-        1.0, 2.0, 5.0, 10.0, 20.0, 50.0, 100.0, 200.0, 500.0, 1000.0, 5000.0
-    ])
-    # Logarithmic interpolation of the limit curve (approximate)
-    # These are order-of-magnitude estimates for the purpose of the fallback
-    sigma_limits = np.array([
-        1.0e-40, 4.0e-41, 2.0e-42, 6.0e-43, 2.0e-43, 1.5e-43, 2.0e-44, 3.0e-44, 1.0e-44, 5.0e-45, 2.0e-45
-    ])
-    return masses, sigma_limits
+def get_xenon1t_limits() -> List[Tuple[float, float]]:
+    """Return Xenon1T 2018 spin-independent cross-section limits."""
+    return XENON1T_LIMITS.copy()
 
-def get_lep_limits() -> Tuple[np.ndarray, np.ndarray]:
-    """
-    Returns hardcoded LEP exclusion limits for dark matter mediators.
-    Source: LEP Working Group for Higgs Boson Searches, Phys. Lett. B 565 (2003) 61-75.
-    Format: (mass_GeV, cross_section_pb)
-    
-    Note: These are simplified limits for the vector mediator channel.
-    Real implementation should parse the full LEP combined limits.
-    """
-    # Approximate LEP limits for a vector mediator
-    masses = np.array([
-        10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0
-    ])
-    # Cross-section limits in pb (approximate)
-    sigma_limits = np.array([
-        100.0, 50.0, 20.0, 10.0, 5.0, 2.0, 1.0, 0.5, 0.2, 0.1
-    ])
-    return masses, sigma_limits
+def get_lep_limits() -> List[Tuple[float, float]]:
+    """Return LEP exclusion limits for dark photon parameters."""
+    return LEP_LIMITS.copy()

@@ -1,44 +1,31 @@
-"""
-Script to run the Reference Validator on the project.
-This script executes T001: Run Reference-Validator Agent on all citations.
-"""
 import os
 import sys
 from pathlib import Path
-
-# Add parent directory to path to allow imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
 from tools.reference_validator import ReferenceValidator, main
 
 def run_validation():
     """
-    Executes the reference validation process.
-    Creates necessary directories if they don't exist and runs the validator.
+    Executes the Reference-Validator Agent on the specified directories.
+    This function serves as the programmatic entry point for the task.
     """
-    # Ensure data directory exists
-    data_dir = Path("data/validation_reports")
-    data_dir.mkdir(parents=True, exist_ok=True)
-
-    # Initialize validator
-    validator = ReferenceValidator(project_root=".")
+    # Define the directories to scan as per T001
+    target_dirs = [
+        "idea",
+        "technical-design", 
+        "implementation-plan",
+        "paper"
+    ]
     
-    # Load bibliography if it exists
-    validator.load_bibliography()
-
-    # Scan files
-    print("Starting citation scan...")
-    citations = validator.scan_files()
+    # Ensure these directories exist (or handle gracefully if empty)
+    # The validator handles missing directories by logging a warning.
     
-    if not citations:
-        print("No citations found in specified directories.")
-        print("Directories scanned: idea, technical-design, implementation-plan, paper")
-        print("Generating empty report to confirm tool execution.")
+    validator = ReferenceValidator()
+    output_dir = "data/reports"
     
-    # Generate report
-    report_path = validator.generate_report(output_dir="data/validation_reports")
+    print(f"Running Reference-Validator Agent on: {target_dirs}")
+    report_path = validator.run_validation(target_dirs, output_dir)
     
-    print(f"\nValidation complete. Report saved to: {report_path}")
+    print(f"Validation complete. Report generated at: {report_path}")
     return report_path
 
 if __name__ == "__main__":

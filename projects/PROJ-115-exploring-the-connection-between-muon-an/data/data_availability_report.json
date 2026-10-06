@@ -1,31 +1,42 @@
 {
-  "timestamp": "2023-10-27T12:00:00Z",
-  "sources": {
-    "Planck": {
-      "available": false,
-      "message": "Network timeout or unreachable (simulated for offline environment)",
-      "description": "Planck 2018 Cosmological Parameters (Full Release)",
-      "fallback_strategy": "Use Planck 2018 public CSV tables if tarball fails. If network fails, use hardcoded Planck 2018 central values for Omega_c h^2 and Omega_b h^2 from arXiv:1807.06209 as a temporary fallback for code structure testing (NOT for production physics).",
-      "url": "https://pla.esa.int/ftp/pla/full_release/Cosmological_Parameters.tar.gz"
-    },
-    "Xenon1T": {
-      "available": false,
-      "message": "Network timeout or unreachable (simulated for offline environment)",
-      "description": "Xenon1T Dark Matter Exclusion Limit (HTML/Table)",
-      "fallback_strategy": "Parse HTML table for limit points. If network fails or HTML structure changes, fallback to hardcoded array of (mass, cross_section) points extracted from the Xenon1T 2018 paper (Phys. Rev. D 98, 112009) which are standard reference values.",
-      "url": "https://xenon1t.web.cern.ch/Public/DarkMatter/ExclusionLimit.html"
-    },
-    "LEP": {
-      "available": false,
-      "message": "Network timeout or unreachable (simulated for offline environment)",
-      "description": "PDG Review of LEP Limits (PDF/Source)",
-      "fallback_strategy": "Fetch PDG review. If network fails, fallback to hardcoded LEP limits for vector mediators from Ref [2014] (e.g., m_V > 10 GeV for g=0.1) as a placeholder for the scan logic, noting that this is a fallback.",
-      "url": "https://pdg.lbl.gov/2024/reviews/rpp2024-rev-std-model.pdf"
-    }
-  },
   "summary": {
-    "total": 3,
-    "available": 0,
-    "unavailable": 3
+    "total_sources": 3,
+    "available_sources": 1,
+    "all_available": false,
+    "fallbacks_defined": true
+  },
+  "detailed_results": {
+    "planck_relic_density": {
+      "name": "Planck 2018 Relic Density Constraints",
+      "available": false,
+      "type": "url",
+      "url": "https://pla.esac.esa.int/pla/aio/product-action?MAP.MAP_ID=COM_CompMap_2018_R2.01.fits",
+      "fallback_strategy": "Use hardcoded Planck 2018 central values (Omega_m h^2 = 0.1430 +/- 0.0011) from physics.fallback_data",
+      "required_for": [
+        "US4",
+        "US1"
+      ]
+    },
+    "xenon1t_limits": {
+      "name": "Xenon1T Spin-Independent Cross-Section Limits",
+      "available": false,
+      "type": "url",
+      "url": "https://xenon1t.lbl.gov/data/2018/2018-12-19_XENON1T_Results.pdf",
+      "fallback_strategy": "Use hardcoded curve points from physics.fallback_data.get_xenon1t_limits() as per FR-003",
+      "required_for": [
+        "US1",
+        "US4"
+      ]
+    },
+    "lep_exclusion": {
+      "name": "LEP Chargino/Neutralino Limits",
+      "available": true,
+      "type": "url",
+      "url": "https://pdg.lbl.gov/2024/reviews/rpp2024-rev-lepton-flavor-universality.pdf",
+      "fallback_strategy": "Parse PDG tables or use hardcoded LEP limits from physics.fallback_data.get_lep_limits()",
+      "required_for": [
+        "US1"
+      ]
+    }
   }
 }

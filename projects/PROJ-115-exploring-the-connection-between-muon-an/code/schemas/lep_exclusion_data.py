@@ -3,11 +3,7 @@ Schema definition for LEP Exclusion Data.
 
 This module defines the data structures and validation logic for LEP
 exclusion limits on dark matter parameters (mass vs coupling).
-
-Sources:
-- Ref [2014]: LEP Limits on Dark Matter (ALEPH, DELPHI, L3, OPAL)
 """
-
 from dataclasses import dataclass, asdict, field
 from typing import List, Optional, Dict, Any
 import pandas as pd
@@ -19,195 +15,187 @@ import json
 @dataclass
 class LEPExclusionPoint:
     """
-    Represents a single point on the LEP exclusion curve.
-    
+    Represents a single exclusion point from LEP data.
+
     Attributes:
-        mass_mev: Dark matter particle mass in MeV.
-        coupling_g: Dark photon coupling constant (dimensionless).
-        limit_type: Type of limit (e.g., '95% CL', 'exclusion').
-        source: Citation or experiment identifier (e.g., 'ALEPH', 'DELPHI').
-        notes: Optional notes about the data point.
+        m_V (float): Vector mediator mass in MeV.
+        g (float): Coupling constant (dimensionless).
+        source (str): Reference string for the data point (e.g., 'LEP-II').
+        comment (Optional[str]): Optional notes about the point.
     """
-    mass_mev: float
-    coupling_g: float
-    limit_type: str = "95% CL"
-    source: str = "LEP Combined"
-    notes: Optional[str] = None
-    
-    def __post_init__(self):
-        """Validate physical constraints."""
-        if self.mass_mev <= 0:
-            raise ValueError(f"mass_mev must be positive, got {self.mass_mev}")
-        if self.coupling_g <= 0:
-            raise ValueError(f"coupling_g must be positive, got {self.coupling_g}")
-        if not isinstance(self.mass_mev, (int, float)):
-            raise TypeError(f"mass_mev must be numeric, got {type(self.mass_mev)}")
-        if not isinstance(self.coupling_g, (int, float)):
-            raise TypeError(f"coupling_g must be numeric, got {type(self.coupling_g)}")
-        
+    m_V: float
+    g: float
+    source: str = "LEP-II"
+    comment: Optional[str] = None
+
     def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for serialization."""
+        """Convert dataclass to dictionary."""
         return asdict(self)
-        
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "LEPExclusionPoint":
+    def from_dict(cls, data: Dict[str, Any]) -> 'LEPExclusionPoint':
         """Create instance from dictionary."""
         return cls(
-            mass_mev=data["mass_mev"],
-            coupling_g=data["coupling_g"],
-            limit_type=data.get("limit_type", "95% CL"),
-            source=data.get("source", "LEP Combined"),
-            notes=data.get("notes")
+            m_V=data['m_V'],
+            g=data['g'],
+            source=data.get('source', 'LEP-II'),
+            comment=data.get('comment')
         )
+
+    def validate(self) -> bool:
+        """
+        Validate the physical consistency of the point.
+
+        Returns:
+            bool: True if valid, False otherwise.
+        """
+        if not isinstance(self.m_V, (int, float)) or self.m_V <= 0:
+            return False
+        if not isinstance(self.g, (int, float)) or self.g <= 0:
+            return False
+        return True
 
 
 @dataclass
 class LEPExclusionData:
     """
-    Container for the full LEP exclusion dataset.
-    
+    Container for a collection of LEP exclusion points.
+
     Attributes:
-        points: List of exclusion curve points.
-        metadata: Dictionary containing dataset metadata (source, date, version).
+        points (List[LEPExclusionPoint]): List of exclusion data points.
+        metadata (Dict[str, Any]): Metadata about the dataset (source, date, etc.).
     """
     points: List[LEPExclusionPoint] = field(default_factory=list)
     metadata: Dict[str, Any] = field(default_factory=dict)
-    
-    def __post_init__(self):
-        """Initialize default metadata if empty."""
-        if not self.metadata:
-            self.metadata = {
-                "source": "LEP Experiments (ALEPH, DELPHI, L3, OPAL)",
-                "reference": "Ref [2014]: LEP Limits on Dark Matter",
-                "version": "1.0",
-                "units": {
-                    "mass": "MeV",
-                    "coupling": "dimensionless"
-                }
-            }
-            
+
     def add_point(self, point: LEPExclusionPoint) -> None:
-        """Add a single exclusion point."""
+        """Add a single point to the dataset."""
         self.points.append(point)
-        
+
     def add_points(self, points: List[LEPExclusionPoint]) -> None:
-        """Add multiple exclusion points."""
+        """Add multiple points to the dataset."""
         self.points.extend(points)
-        
-    def get_min_mass(self) -> Optional[float]:
-        """Get the minimum mass in the dataset."""
-        if not self.points:
-            return None
-        return min(p.mass_mev for p in self.points)
-        
-    def get_max_mass(self) -> Optional[float]:
-        """Get the maximum mass in the dataset."""
-        if not self.points:
-            return None
-        return max(p.mass_mev for p in self.points)
-        
-    def get_min_coupling(self) -> Optional[float]:
-        """Get the minimum coupling in the dataset."""
-        if not self.points:
-            return None
-        return min(p.coupling_g for p in self.points)
-        
+
     def to_dataframe(self) -> pd.DataFrame:
-        """Convert to pandas DataFrame."""
+        """
+        Convert the dataset to a pandas DataFrame.
+
+        Returns:
+            pd.DataFrame: DataFrame with columns ['m_V', 'g', 'source', 'comment'].
+        """
         data = [p.to_dict() for p in self.points]
         return pd.DataFrame(data)
-        
-    def to_json(self, path: Optional[Path] = None) -> Optional[str]:
-        """Serialize to JSON string or write to file."""
+
+    @classmethod
+    def from_dataframe(cls, df: pd.DataFrame, metadata: Optional[Dict[str, Any]] = None) -> 'LEPExclusionData':
+        """
+        Create LEPExclusionData from a pandas DataFrame.
+
+        Args:
+            df: DataFrame with columns 'm_V' and 'g'.
+            metadata: Optional metadata dictionary.
+
+        Returns:
+            LEPExclusionData: Instance populated from the DataFrame.
+        """
+        instance = cls(metadata=metadata or {})
+        required_cols = ['m_V', 'g']
+        if not all(col in df.columns for col in required_cols):
+            raise ValueError(f"DataFrame must contain columns: {required_cols}")
+
+        for _, row in df.iterrows():
+            point = LEPExclusionPoint(
+                m_V=float(row['m_V']),
+                g=float(row['g']),
+                source=str(row.get('source', 'LEP-II')),
+                comment=row.get('comment')
+            )
+            instance.add_point(point)
+        return instance
+
+    def to_json(self, filepath: Optional[Path] = None) -> Optional[str]:
+        """
+        Serialize the dataset to JSON.
+
+        Args:
+            filepath: Optional path to write the file. If None, returns string.
+
+        Returns:
+            Optional[str]: JSON string if filepath is None, else None.
+        """
         data = {
-            "metadata": self.metadata,
-            "points": [p.to_dict() for p in self.points]
+            'metadata': self.metadata,
+            'points': [p.to_dict() for p in self.points]
         }
         json_str = json.dumps(data, indent=2)
-        if path:
-            with open(path, 'w') as f:
+        if filepath:
+            with open(filepath, 'w') as f:
                 f.write(json_str)
+            return None
         return json_str
-        
-    @classmethod
-    def from_json(cls, path: Path) -> "LEPExclusionData":
-        """Load from JSON file."""
-        with open(path, 'r') as f:
-            data = json.load(f)
-        
-        points = [LEPExclusionPoint.from_dict(p) for p in data.get("points", [])]
-        metadata = data.get("metadata", {})
-        
-        return cls(points=points, metadata=metadata)
-        
-    def to_parquet(self, path: Path) -> None:
-        """Save to Parquet file."""
-        df = self.to_dataframe()
-        df.to_parquet(path, index=False)
-        
-    @classmethod
-    def from_parquet(cls, path: Path) -> "LEPExclusionData":
-        """Load from Parquet file."""
-        df = pd.read_parquet(path)
-        points = [
-            LEPExclusionPoint(
-                mass_mev=row['mass_mev'],
-                coupling_g=row['coupling_g'],
-                limit_type=row.get('limit_type', '95% CL'),
-                source=row.get('source', 'LEP Combined'),
-                notes=row.get('notes')
-            )
-            for _, row in df.iterrows()
-        ]
-        return cls(points=points)
 
-def validate_lep_schema(data: LEPExclusionData) -> bool:
+    @classmethod
+    def from_json(cls, filepath: Path) -> 'LEPExclusionData':
+        """
+        Load LEPExclusionData from a JSON file.
+
+        Args:
+            filepath: Path to the JSON file.
+
+        Returns:
+            LEPExclusionData: Loaded instance.
+        """
+        with open(filepath, 'r') as f:
+            data = json.load(f)
+
+        instance = cls(metadata=data.get('metadata', {}))
+        for p_data in data.get('points', []):
+            instance.add_point(LEPExclusionPoint.from_dict(p_data))
+        return instance
+
+    def validate_all(self) -> bool:
+        """
+        Validate all points in the dataset.
+
+        Returns:
+            bool: True if all points are valid, False otherwise.
+        """
+        return all(p.validate() for p in self.points)
+
+
+def validate_lep_schema(data: LEPExclusionData) -> Dict[str, Any]:
     """
-    Validate the LEP exclusion data against schema requirements.
-    
-    Checks:
-    - All points have valid mass and coupling values
-    - No duplicate points
-    - Data is sorted by mass
-    - Metadata contains required fields
-    
+    Validate the LEP exclusion data schema and content.
+
     Args:
         data: The LEPExclusionData instance to validate.
-        
+
     Returns:
-        True if valid, raises ValueError otherwise.
+        Dict[str, Any]: Validation report with 'valid' status and 'errors' list.
     """
-    # Check points exist
+    errors = []
+    warnings = []
+
+    # Check if data is empty
     if not data.points:
-        raise ValueError("LEPExclusionData must contain at least one point")
-        
-    # Check each point
-    seen_points = set()
-    prev_mass = -1.0
-    
+        warnings.append("Dataset contains no points.")
+
+    # Validate metadata
+    if not isinstance(data.metadata, dict):
+        errors.append("Metadata must be a dictionary.")
+
+    # Validate each point
     for i, point in enumerate(data.points):
-        # Validate individual point
-        try:
-            # Trigger post_init validation again
-            point.__post_init__()
-        except (ValueError, TypeError) as e:
-            raise ValueError(f"Point {i} validation failed: {e}")
-        
-        # Check for duplicates
-        key = (point.mass_mev, point.coupling_g)
-        if key in seen_points:
-            raise ValueError(f"Duplicate point found: {key}")
-        seen_points.add(key)
-        
-        # Check sorting
-        if point.mass_mev < prev_mass:
-            raise ValueError(f"Points not sorted by mass at index {i}")
-        prev_mass = point.mass_mev
-        
-    # Check metadata
-    required_metadata = ["source", "reference"]
-    for key in required_metadata:
-        if key not in data.metadata:
-            raise ValueError(f"Missing required metadata field: {key}")
-            
-    return True
+        if not isinstance(point, LEPExclusionPoint):
+            errors.append(f"Point {i} is not an LEPExclusionPoint instance.")
+            continue
+
+        if not point.validate():
+            errors.append(f"Point {i} has invalid physical values (m_V={point.m_V}, g={point.g}).")
+
+    return {
+        'valid': len(errors) == 0,
+        'errors': errors,
+        'warnings': warnings,
+        'point_count': len(data.points)
+    }

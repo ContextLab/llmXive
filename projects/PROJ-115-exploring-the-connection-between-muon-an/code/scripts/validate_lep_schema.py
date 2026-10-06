@@ -1,10 +1,10 @@
 """
-Script to generate sample LEP exclusion data and validate the schema.
+Script to generate sample LEP data and validate the LEP_Exclusion_Data schema.
 
-This script demonstrates the usage of the LEPExclusionData schema
-and performs validation checks.
+This script demonstrates the schema usage by generating a sample dataset
+and running validation checks. It also saves the sample data to disk
+for reference.
 """
-
 import sys
 import os
 import numpy as np
@@ -12,151 +12,102 @@ import pandas as pd
 from pathlib import Path
 from schemas.lep_exclusion_data import LEPExclusionData, LEPExclusionPoint, validate_lep_schema
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
 
 def generate_sample_lep_data() -> LEPExclusionData:
     """
-    Generate sample LEP exclusion data points.
-    
-    This creates a realistic set of exclusion points based on
-    typical LEP limits for dark matter models.
-    
+    Generate a sample LEP exclusion dataset.
+
+    This creates a mock dataset mimicking the structure of real LEP
+    exclusion limits (mass vs coupling). The values are illustrative
+    and not real experimental data.
+
     Returns:
-        LEPExclusionData instance with sample points.
+        LEPExclusionData: A populated dataset instance.
     """
-    # Generate sample data mimicking LEP exclusion curves
-    # Mass range: 10 MeV to 500 MeV
-    # Coupling range: 1e-5 to 1e-2
-    
+    # Create a mock exclusion curve: lower coupling for higher mass
+    # Typical LEP limits: m_V > 100 MeV, g < 10^-3
     points = []
-    
-    # Lower mass region (steep curve)
-    masses_low = np.linspace(10, 50, 15)
-    couplings_low = 1e-2 * np.exp(-0.1 * (masses_low - 10))
-    for m, c in zip(masses_low, couplings_low):
-        points.append(LEPExclusionPoint(
-            mass_mev=m,
-            coupling_g=c,
-            limit_type="95% CL",
-            source="LEP Combined"
-        ))
-        
-    # Mid mass region (flatter)
-    masses_mid = np.linspace(50, 200, 20)
-    couplings_mid = 5e-3 * np.ones_like(masses_mid)
-    for m, c in zip(masses_mid, couplings_mid):
-        points.append(LEPExclusionPoint(
-            mass_mev=m,
-            coupling_g=c,
-            limit_type="95% CL",
-            source="LEP Combined"
-        ))
-        
-    # High mass region (rising)
-    masses_high = np.linspace(200, 500, 15)
-    couplings_high = 5e-3 * np.exp(0.005 * (masses_high - 200))
-    for m, c in zip(masses_high, couplings_high):
-        points.append(LEPExclusionPoint(
-            mass_mev=m,
-            coupling_g=c,
-            limit_type="95% CL",
-            source="LEP Combined"
-        ))
-    
-    # Sort by mass to ensure valid schema
-    points.sort(key=lambda p: p.mass_mev)
-    
-    data = LEPExclusionData(points=points)
-    data.metadata.update({
-        "generated_by": "validate_lep_schema.py",
-        "description": "Sample LEP exclusion data for schema validation"
-    })
-    
+
+    # Simulate a simple exclusion boundary
+    m_V_values = [100.0, 150.0, 200.0, 250.0, 300.0, 400.0, 500.0, 600.0, 800.0, 1000.0]
+    g_values = [5.0e-3, 3.0e-3, 2.0e-3, 1.5e-3, 1.2e-3, 0.8e-3, 0.6e-3, 0.5e-3, 0.3e-3, 0.2e-3]
+
+    for m_v, g in zip(m_V_values, g_values):
+        point = LEPExclusionPoint(
+            m_V=m_v,
+            g=g,
+            source="LEP-II (Mock)",
+            comment="Sample exclusion point for schema validation"
+        )
+        points.append(point)
+
+    data = LEPExclusionData(
+        points=points,
+        metadata={
+            "source": "Simulated for schema validation",
+            "description": "Mock LEP exclusion limits",
+            "units": {"m_V": "MeV", "g": "dimensionless"}
+        }
+    )
     return data
 
+
 def main():
-    """Main execution function."""
-    print("=" * 60)
-    print("LEP Exclusion Data Schema Validation")
-    print("=" * 60)
-    
+    """Main entry point for the schema validation script."""
+    print("=== LEP Exclusion Data Schema Validation ===")
+
     # Generate sample data
     print("\n1. Generating sample LEP exclusion data...")
-    try:
-        lep_data = generate_sample_lep_data()
-        print(f"   Generated {len(lep_data.points)} data points")
-        print(f"   Mass range: {lep_data.get_min_mass():.1f} - {lep_data.get_max_mass():.1f} MeV")
-        print(f"   Coupling range: {lep_data.get_min_coupling():.2e} - {max(p.coupling_g for p in lep_data.points):.2e}")
-    except Exception as e:
-        print(f"   ERROR: Failed to generate data: {e}")
-        return 1
-        
-    # Validate schema
-    print("\n2. Validating schema...")
-    try:
-        validate_lep_schema(lep_data)
-        print("   ✓ Schema validation PASSED")
-    except ValueError as e:
-        print(f"   ✗ Schema validation FAILED: {e}")
-        return 1
-        
-    # Test DataFrame conversion
-    print("\n3. Testing DataFrame conversion...")
-    try:
-        df = lep_data.to_dataframe()
-        print(f"   ✓ DataFrame created: {df.shape[0]} rows, {df.shape[1]} columns")
-        print(f"   Columns: {list(df.columns)}")
-    except Exception as e:
-        print(f"   ERROR: DataFrame conversion failed: {e}")
-        return 1
-        
-    # Test JSON serialization
-    print("\n4. Testing JSON serialization...")
-    try:
-        json_str = lep_data.to_json()
-        print(f"   ✓ JSON serialization successful ({len(json_str)} bytes)")
-        
-        # Test round-trip
-        from schemas.lep_exclusion_data import LEPExclusionData
-        lep_data_loaded = LEPExclusionData.from_json(Path("lep_sample.json"))
-        # Re-generate for comparison since we can't write to disk in this env
-        print("   ✓ JSON round-trip logic verified")
-    except Exception as e:
-        print(f"   ERROR: JSON serialization failed: {e}")
-        return 1
-        
-    # Test Parquet conversion
-    print("\n5. Testing Parquet conversion...")
-    try:
-        # Create a temporary path (in-memory simulation)
-        test_path = Path("lep_sample.parquet")
-        lep_data.to_parquet(test_path)
-        print(f"   ✓ Parquet file created: {test_path}")
-        
-        # Load back
-        lep_data_loaded = LEPExclusionData.from_parquet(test_path)
-        print(f"   ✓ Parquet round-trip successful: {len(lep_data_loaded.points)} points")
-        
-        # Cleanup
-        if test_path.exists():
-            test_path.unlink()
-            print("   ✓ Temporary file cleaned up")
-    except Exception as e:
-        print(f"   ERROR: Parquet conversion failed: {e}")
-        return 1
-        
-    # Summary
-    print("\n" + "=" * 60)
-    print("VALIDATION SUMMARY")
-    print("=" * 60)
-    print("✓ All schema validations PASSED")
-    print("✓ Data generation successful")
-    print("✓ Serialization (JSON/Parquet) working")
-    print("✓ Round-trip conversion verified")
-    print("\nThe LEP_Exclusion_Data schema is ready for use.")
-    
-    return 0
+    sample_data = generate_sample_lep_data()
+    print(f"   Generated {len(sample_data.points)} points.")
+
+    # Validate the schema
+    print("\n2. Validating schema and content...")
+    validation_result = validate_lep_schema(sample_data)
+
+    if validation_result['valid']:
+        print("   ✅ Validation PASSED.")
+    else:
+        print("   ❌ Validation FAILED.")
+        for error in validation_result['errors']:
+            print(f"      - {error}")
+
+    if validation_result['warnings']:
+        print("   ⚠️  Warnings:")
+        for warning in validation_result['warnings']:
+            print(f"      - {warning}")
+
+    # Convert to DataFrame and display
+    print("\n3. Converting to DataFrame...")
+    df = sample_data.to_dataframe()
+    print(df.head())
+
+    # Save to disk
+    output_dir = Path("data")
+    output_dir.mkdir(exist_ok=True)
+    output_path = output_dir / "sample_lep_exclusion.json"
+
+    print(f"\n4. Saving sample data to {output_path}...")
+    sample_data.to_json(output_path)
+    print("   Saved successfully.")
+
+    # Load back and verify
+    print("\n5. Loading data back from JSON...")
+    loaded_data = LEPExclusionData.from_json(output_path)
+    print(f"   Loaded {len(loaded_data.points)} points.")
+
+    # Final check
+    final_validation = validate_lep_schema(loaded_data)
+    if final_validation['valid']:
+        print("   ✅ Round-trip validation PASSED.")
+    else:
+        print("   ❌ Round-trip validation FAILED.")
+        for error in final_validation['errors']:
+            print(f"      - {error}")
+
+    print("\n=== Schema Validation Complete ===")
+    return 0 if validation_result['valid'] else 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

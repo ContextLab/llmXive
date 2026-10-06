@@ -1,12 +1,14 @@
 """
-Schema definitions for the Relic Lookup Table.
+Schema definitions for the Relic Density Lookup Table.
 
-This module defines the data structures for pre-computed relic density
-lookup tables used to accelerate the main scan pipeline. The tables
-are generated using the Hulthen approximation for Sommerfeld enhancement
-and stored in a structured format for fast interpolation.
+This module defines the data structures for storing pre-computed relic density
+values based on the Hulthen potential approximation (Sommerfeld enhancement).
+These tables are used to accelerate the parameter scan by avoiding repeated
+numerical integration.
 
-Plan 1.2 Implementation: Define RelicLookupTable schema.
+Structure:
+  - RelicLookupTableEntry: A single row in the lookup table.
+  - RelicLookupTable: The container for all entries, with validation and I/O.
 """
 
 import math
@@ -16,30 +18,29 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-
 @dataclass
 class RelicLookupTableEntry:
     """
     Represents a single entry in the relic density lookup table.
 
     Attributes:
-        m_dm: Dark matter particle mass in MeV.
-        m_v: Vector mediator mass in MeV.
+        m_dm_MeV: Dark matter mass in MeV.
+        m_V_MeV: Vector mediator mass in MeV.
         g: Coupling constant (dimensionless).
-        omega_dm_h2: Computed relic density parameter (Ω_dm * h^2).
-        method: String identifier for the calculation method (e.g., 'Hulthen', 'Numerov').
-        is_valid: Boolean flag indicating if the calculation converged successfully.
-        error_estimate: Optional float for estimated numerical error.
-        timestamp: Optional string for generation timestamp.
+        Omega_h2: Calculated relic density (Ωh²).
+        regime: String flag indicating the physics regime:
+                - "perturbative": Standard perturbative calculation.
+                - "non-perturbative": Sommerfeld enhancement is significant.
+                - "bound_state": Bound state formation effects included (if applicable).
+                - "undefined": Parameters outside valid range.
+        error_estimate: Optional float estimating numerical uncertainty (0.0 if exact).
     """
-    m_dm: float
-    m_v: float
+    m_dm_MeV: float
+    m_V_MeV: float
     g: float
-    omega_dm_h2: float
-    method: str = "Hulthen"
-    is_valid: bool = True
-    error_estimate: Optional[float] = None
-    timestamp: Optional[str] = None
+    Omega_h2: float
+    regime: str = "perturbative"
+    error_estimate: float = 0.0
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert the entry to a dictionary for serialization."""
@@ -50,149 +51,169 @@ class RelicLookupTableEntry:
         """Create an entry from a dictionary."""
         return cls(**data)
 
-    def validate(self) -> bool:
-        """
-        Validates the physical and numerical consistency of the entry.
-
-        Returns:
-            bool: True if the entry is valid, False otherwise.
-        """
-        # Physical constraints
-        if self.m_dm <= 0 or self.m_v <= 0 or self.g <= 0:
-            return False
-
-        # Relic density must be non-negative
-        if self.omega_dm_h2 < 0:
-            return False
-
-        # If marked invalid, it should not be used
-        if not self.is_valid:
-            return False
-
-        return True
-
-
 @dataclass
 class RelicLookupTable:
     """
-    Container for a complete Relic Lookup Table.
+    Container for the full relic density lookup table.
 
-    This class manages a collection of RelicLookupTableEntry objects,
-    providing methods for validation, serialization, and file I/O.
+    Provides methods to validate the table structure, save to CSV/Parquet,
+    and load from existing files.
 
     Attributes:
-        entries: List of lookup table entries.
-        metadata: Dictionary for table metadata (generation date, parameters, etc.).
+        entries: List of RelicLookupTableEntry objects.
+        metadata: Dictionary for versioning, generation parameters, and provenance.
     """
     entries: List[RelicLookupTableEntry]
-    metadata: Dict[str, Any] = None
+    metadata: Dict[str, Any]
 
-    def __post_init__(self):
-        if self.metadata is None:
-            self.metadata = {}
-        self.metadata.setdefault("version", "1.0")
-        self.metadata.setdefault("entry_count", len(self.entries))
-
-    def add_entry(self, entry: RelicLookupTableEntry):
-        """Add a new entry to the table."""
-        self.entries.append(entry)
-        self.metadata["entry_count"] = len(self.entries)
-
-    def to_dataframe(self) -> pd.DataFrame:
+    def validate(self) -> bool:
         """
-        Convert the lookup table to a pandas DataFrame.
+        Validates the integrity of the lookup table.
+
+        Checks:
+          - No duplicate (m_dm, m_V, g) tuples.
+          - All physical parameters are positive.
+          - Omega_h2 is non-negative.
+          - Regime is one of the allowed values.
 
         Returns:
-            pd.DataFrame: DataFrame containing all entries.
+            True if valid, raises ValueError otherwise.
         """
+        seen_keys = set()
+        allowed_regimes = {"perturbative", "non-perturbative", "bound_state", "undefined"}
+
+        for i, entry in enumerate(self.entries):
+            # Check for duplicates
+            key = (entry.m_dm_MeV, entry.m_V_MeV, entry.g)
+            if key in seen_keys:
+                raise ValueError(f"Duplicate entry found at index {i}: {key}")
+            seen_keys.add(key)
+
+            # Physical constraints
+            if entry.m_dm_MeV <= 0:
+                raise ValueError(f"Invalid DM mass at index {i}: {entry.m_dm_MeV}")
+            if entry.m_V_MeV <= 0:
+                raise ValueError(f"Invalid Mediator mass at index {i}: {entry.m_V_MeV}")
+            if entry.g <= 0:
+                raise ValueError(f"Invalid coupling at index {i}: {entry.g}")
+            if entry.Omega_h2 < 0:
+                raise ValueError(f"Negative relic density at index {i}: {entry.Omega_h2}")
+            if entry.regime not in allowed_regimes:
+                raise ValueError(f"Invalid regime at index {i}: {entry.regime}")
+
+        return True
+
+    def to_dataframe(self) -> pd.DataFrame:
+        """Convert the table to a pandas DataFrame."""
         data = [entry.to_dict() for entry in self.entries]
         return pd.DataFrame(data)
 
-    @classmethod
-    def from_dataframe(cls, df: pd.DataFrame, metadata: Optional[Dict[str, Any]] = None) -> 'RelicLookupTable':
+    def save_csv(self, filepath: Path) -> None:
         """
-        Create a RelicLookupTable from a pandas DataFrame.
-
-        Args:
-            df: DataFrame with columns matching RelicLookupTableEntry fields.
-            metadata: Optional metadata dictionary.
-
-        Returns:
-            RelicLookupTable: New instance.
-        """
-        entries = []
-        for _, row in df.iterrows():
-            entry_dict = row.to_dict()
-            # Handle potential NaNs or None values gracefully
-            if pd.isna(entry_dict.get('error_estimate')):
-                entry_dict['error_estimate'] = None
-            if pd.isna(entry_dict.get('timestamp')):
-                entry_dict['timestamp'] = None
-            entries.append(RelicLookupTableEntry(**entry_dict))
-        
-        return cls(entries=entries, metadata=metadata or {})
-
-    def save_to_csv(self, filepath: str | Path):
-        """
-        Save the lookup table to a CSV file.
+        Saves the lookup table to a CSV file.
 
         Args:
             filepath: Path to the output CSV file.
         """
-        path = Path(filepath)
-        path.parent.mkdir(parents=True, exist_ok=True)
+        self.validate()
         df = self.to_dataframe()
-        df.to_csv(path, index=False)
+        # Save metadata as comments or a separate JSON sidecar if needed
+        # For now, standard CSV with headers
+        df.to_csv(filepath, index=False)
+
+    def save_parquet(self, filepath: Path) -> None:
+        """
+        Saves the lookup table to a Parquet file for efficient I/O.
+
+        Args:
+            filepath: Path to the output Parquet file.
+        """
+        self.validate()
+        df = self.to_dataframe()
+        df.to_parquet(filepath, index=False)
 
     @classmethod
-    def load_from_csv(cls, filepath: str | Path) -> 'RelicLookupTable':
+    def load_csv(cls, filepath: Path) -> 'RelicLookupTable':
         """
-        Load a lookup table from a CSV file.
+        Loads a lookup table from a CSV file.
 
         Args:
             filepath: Path to the input CSV file.
 
         Returns:
-            RelicLookupTable: Loaded instance.
+            A RelicLookupTable instance.
         """
-        path = Path(filepath)
-        if not path.exists():
-            raise FileNotFoundError(f"Lookup table file not found: {path}")
-        
-        df = pd.read_csv(path)
-        return cls.from_dataframe(df, metadata={"source_file": str(path)})
+        if not filepath.exists():
+            raise FileNotFoundError(f"Lookup table file not found: {filepath}")
 
-    def validate_all(self) -> bool:
+        df = pd.read_csv(filepath)
+        entries = []
+        for _, row in df.iterrows():
+            entry = RelicLookupTableEntry(
+                m_dm_MeV=float(row['m_dm_MeV']),
+                m_V_MeV=float(row['m_V_MeV']),
+                g=float(row['g']),
+                Omega_h2=float(row['Omega_h2']),
+                regime=str(row['regime']),
+                error_estimate=float(row.get('error_estimate', 0.0))
+            )
+            entries.append(entry)
+
+        return cls(entries=entries, metadata={"source": str(filepath), "format": "csv"})
+
+    @classmethod
+    def load_parquet(cls, filepath: Path) -> 'RelicLookupTable':
         """
-        Validate all entries in the table.
+        Loads a lookup table from a Parquet file.
+
+        Args:
+            filepath: Path to the input Parquet file.
 
         Returns:
-            bool: True if all entries are valid, False otherwise.
+            A RelicLookupTable instance.
         """
-        return all(entry.validate() for entry in self.entries)
+        if not filepath.exists():
+            raise FileNotFoundError(f"Lookup table file not found: {filepath}")
 
+        df = pd.read_parquet(filepath)
+        entries = []
+        for _, row in df.iterrows():
+            entry = RelicLookupTableEntry(
+                m_dm_MeV=float(row['m_dm_MeV']),
+                m_V_MeV=float(row['m_V_MeV']),
+                g=float(row['g']),
+                Omega_h2=float(row['Omega_h2']),
+                regime=str(row['regime']),
+                error_estimate=float(row.get('error_estimate', 0.0))
+            )
+            entries.append(entry)
+
+        return cls(entries=entries, metadata={"source": str(filepath), "format": "parquet"})
 
 def validate_entry(entry: RelicLookupTableEntry) -> bool:
     """
-    Standalone function to validate a single entry.
+    Validates a single entry.
 
     Args:
         entry: The entry to validate.
 
     Returns:
-        bool: True if valid, False otherwise.
+        True if valid, raises ValueError otherwise.
     """
-    return entry.validate()
-
+    if entry.m_dm_MeV <= 0 or entry.m_V_MeV <= 0 or entry.g <= 0:
+        raise ValueError("Physical parameters must be positive.")
+    if entry.Omega_h2 < 0:
+        raise ValueError("Relic density must be non-negative.")
+    return True
 
 def validate_table(table: RelicLookupTable) -> bool:
     """
-    Standalone function to validate an entire table.
+    Validates the entire table structure.
 
     Args:
         table: The table to validate.
 
     Returns:
-        bool: True if all entries are valid, False otherwise.
+        True if valid, raises ValueError otherwise.
     """
-    return table.validate_all()
+    return table.validate()

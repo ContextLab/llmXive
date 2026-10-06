@@ -6,135 +6,163 @@ from typing import List, Optional
 import pandas as pd
 import numpy as np
 
-from utils.config import get_processed_path, get_research_path, get_random_seed
+# Import logging configuration from existing utils
 from utils.logging_config import get_logger
 
-logger = get_logger(__name__)
-
-def load_merged_data() -> pd.DataFrame:
+def load_merged_data(input_path: str) -> pd.DataFrame:
     """
-    Load the merged dataset from the previous step (T011d).
-    Expected input: data/processed/cleared.csv
+    Load the merged dataset from the specified CSV file.
+    
+    Args:
+        input_path: Path to the input CSV file.
+        
+    Returns:
+        pandas DataFrame containing the merged data.
+        
+    Raises:
+        FileNotFoundError: If the input file does not exist.
+        ValueError: If the file is empty or unreadable.
     """
-    input_path = get_processed_path("cleared.csv")
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input file not found: {input_path}. "
-                                "Ensure T011d (Merge Microbiome and Serology) has completed successfully.")
+    path = Path(input_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
     
-    logger.info(f"Loading merged data from {input_path}")
-    df = pd.read_csv(input_path)
-    
-    if 'subject_id' not in df.columns:
-        raise ValueError("Input data must contain 'subject_id' column.")
-    
-    logger.info(f"Loaded {len(df)} rows and {len(df.columns)} columns")
+    df = pd.read_csv(path)
+    if df.empty:
+        raise ValueError(f"Input file is empty: {input_path}")
+        
     return df
 
-def identify_taxa_columns(df: pd.DataFrame) -> List[str]:
+def identify_taxa_columns(df: pd.DataFrame, exclude_cols: Optional[List[str]] = None) -> List[str]:
     """
-    Identify columns that represent taxon abundances.
-    We exclude non-taxon columns: subject_id, titer_baseline, titer_post, 
-    and any other non-numeric or metadata columns.
+    Identify microbiome taxon columns in the DataFrame.
+    
+    Excludes specified columns (default: subject_id and titer columns).
+    Assumes taxon columns are numeric.
+    
+    Args:
+        df: Input DataFrame.
+        exclude_cols: List of column names to exclude.
+        
+    Returns:
+        List of taxon column names.
     """
-    exclude_cols = ['subject_id', 'titer_baseline', 'titer_post']
-    # Also exclude any columns that are clearly metadata or identifiers
-    # based on common naming conventions if necessary, but for now
-    # we assume all numeric columns not in exclude_cols are taxa.
+    if exclude_cols is None:
+        exclude_cols = ['subject_id', 'titer_baseline', 'titer_post']
     
-    taxa_cols = []
-    for col in df.columns:
-        if col in exclude_cols:
-            continue
-        # Check if column is numeric
-        if pd.api.types.is_numeric_dtype(df[col]):
-            taxa_cols.append(col)
-        else:
-            # If it's not numeric, it might be a string identifier or metadata
-            # We should log a warning if we encounter unexpected non-numeric columns
-            logger.warning(f"Non-numeric column '{col}' found and excluded from taxa columns.")
+    # Get all numeric columns that are not in the exclude list
+    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+    taxa_cols = [col for col in numeric_cols if col not in exclude_cols]
     
-    if not taxa_cols:
-        raise ValueError("No taxon columns found in the dataset. "
-                         "Ensure the input data contains numeric abundance columns.")
-    
-    logger.info(f"Identified {len(taxa_cols)} taxon columns: {taxa_cols[:5]}...")
     return taxa_cols
 
 def normalize_to_relative_abundance(df: pd.DataFrame, taxa_cols: List[str]) -> pd.DataFrame:
     """
-    Normalize microbiome data to relative abundance.
-    For each row, divide each taxon abundance by the sum of all taxon abundances.
-    This ensures that the sum of relative abundances for each subject is 1.0.
+    Normalize microbiome taxon abundances to relative abundance (sum=1 per row).
+    
+    Args:
+        df: Input DataFrame.
+        taxa_cols: List of taxon column names to normalize.
+        
+    Returns:
+        DataFrame with normalized taxon abundances.
+        
+    Raises:
+        ValueError: If row sums are zero for any subject.
     """
+    # Create a copy to avoid modifying the original
     df_normalized = df.copy()
     
-    # Calculate the sum of taxon abundances for each subject (row-wise sum)
+    # Calculate row sums for taxon columns
     row_sums = df_normalized[taxa_cols].sum(axis=1)
     
-    # Check for zero sums (subjects with no abundance data)
-    zero_sum_mask = row_sums == 0
-    if zero_sum_mask.any():
-        num_zeros = zero_sum_mask.sum()
-        logger.warning(f"Found {num_zeros} subjects with zero total abundance. "
-                       "These will result in NaN relative abundances and should be handled.")
+    # Check for zero sums (which would cause division by zero)
+    if (row_sums == 0).any():
+        zero_sum_mask = row_sums == 0
+        raise ValueError(
+            f"Found {zero_sum_mask.sum()} subjects with zero total abundance. "
+            "Cannot normalize to relative abundance."
+        )
     
-    # Normalize: divide each taxon column by the row sum
-    # Use np.where or direct division; direct division will produce NaN for zero sums
+    # Normalize each taxon column by the row sum
     for col in taxa_cols:
         df_normalized[col] = df_normalized[col] / row_sums
     
     # Verification: Assert that the sum of taxon columns for each row is 1.0 (within tolerance)
-    # We skip rows with zero sums (they will be NaN)
-    valid_rows = ~row_sums.isna() & (row_sums > 0)
-    if valid_rows.any():
-        row_sums_after = df_normalized.loc[valid_rows, taxa_cols].sum(axis=1)
-        if not np.allclose(row_sums_after, 1.0, rtol=1e-5):
-            logger.error("Normalization verification failed: row sums are not 1.0 after normalization.")
-            # We do not raise an error here to allow the pipeline to proceed, but log the issue
-            # In a strict environment, this might be a failure condition
-        else:
-            logger.info("Normalization verification passed: all non-zero rows sum to 1.0.")
+    verification_sums = df_normalized[taxa_cols].sum(axis=1)
+    if not np.allclose(verification_sums, 1.0, rtol=1e-5):
+        raise AssertionError(
+            f"Normalization verification failed. "
+            f"Row sums are not 1.0. Min: {verification_sums.min()}, Max: {verification_sums.max()}"
+        )
     
     return df_normalized
 
-def write_updated_dataset(df: pd.DataFrame, output_path: Path) -> None:
+def write_updated_dataset(df: pd.DataFrame, output_path: str) -> None:
     """
-    Write the normalized dataset to the specified output path.
-    Expected output: data/processed/cleared_norm.csv
-    """
-    if not os.exists(os.dirname(output_path)):
-        os.makedirs(os.dirname(output_path), exist_ok=True)
+    Write the updated dataset to a CSV file.
     
-    logger.info(f"Writing normalized data to {output_path}")
-    df.to_csv(output_path, index=False)
-    logger.info(f"Successfully wrote {len(df)} rows to {output_path}")
+    Args:
+        df: DataFrame to write.
+        output_path: Path to the output CSV file.
+    """
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output_file, index=False)
+    logging.info(f"Normalized dataset written to: {output_path}")
 
-def run_normalization_pipeline() -> None:
+def run_normalization_pipeline(input_path: str, output_path: str) -> pd.DataFrame:
     """
-    Main pipeline function to orchestrate the normalization steps.
+    Run the full normalization pipeline: load, identify taxa, normalize, and save.
+    
+    Args:
+        input_path: Path to the input CSV file.
+        output_path: Path to the output CSV file.
+        
+    Returns:
+        The normalized DataFrame.
     """
-    logger.info("Starting Relative Abundance Normalization Pipeline (T020b)")
+    logger = get_logger(__name__)
+    logger.info(f"Starting normalization pipeline for: {input_path}")
     
-    # Step 1: Load data
-    df = load_merged_data()
+    # Load data
+    df = load_merged_data(input_path)
+    logger.info(f"Loaded {len(df)} rows from {input_path}")
     
-    # Step 2: Identify taxon columns
+    # Identify taxon columns
     taxa_cols = identify_taxa_columns(df)
+    logger.info(f"Identified {len(taxa_cols)} taxon columns for normalization")
     
-    # Step 3: Normalize to relative abundance
+    if len(taxa_cols) == 0:
+        raise ValueError("No taxon columns found in the dataset.")
+    
+    # Normalize
     df_normalized = normalize_to_relative_abundance(df, taxa_cols)
+    logger.info("Normalization completed successfully")
     
-    # Step 4: Write output
-    output_path = get_processed_path("cleared_norm.csv")
+    # Write output
     write_updated_dataset(df_normalized, output_path)
     
-    logger.info("Normalization pipeline completed successfully.")
+    return df_normalized
 
-def main() -> None:
-    """
-    Entry point for the script.
-    """
-    run_normalization_pipeline()
+def main():
+    """Main entry point for the normalization script."""
+    # Define paths relative to project root
+    input_file = "data/processed/cleared.csv"
+    output_file = "data/processed/cleared_norm.csv"
+    
+    # Set up logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    
+    try:
+        run_normalization_pipeline(input_file, output_file)
+        logging.info("Normalization pipeline completed successfully.")
+    except Exception as e:
+        logging.error(f"Normalization pipeline failed: {str(e)}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

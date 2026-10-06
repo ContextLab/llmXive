@@ -7,4 +7,3 @@ requests
 biom-format
 python-dotenv
 statsmodels
-psutil

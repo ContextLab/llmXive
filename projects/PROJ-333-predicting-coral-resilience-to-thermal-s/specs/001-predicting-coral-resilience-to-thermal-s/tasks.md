@@ -57,14 +57,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 [P] Create `code/config.py` defining all project constants: paths (`data/raw`, `data/processed`), NCBI BioProject ID, RAM thresholds (`MAX_RAM_GB = 7`), and `MIN_SAMPLES_FOR_FILTER`.
+- [X] T004a [P] Create `code/config.py` defining all project constants: paths (`data/raw`, `data/processed`), NCBI BioProject ID (placeholder), RAM thresholds (`MAX_RAM_GB = 7`), and `MIN_SAMPLES_FOR_FILTER`.
  - **MUST set `MIN_COUNT_THRESHOLD = 10`** as a **temporary placeholder** to satisfy Constitution Check VII (Uniform Filtering) for the build system.
- - **MUST include a code comment** referencing the provisional nature: `# MIN_COUNT_THRESHOLD=10 is a temporary placeholder. Research phase MUST update this value before T020 runs, or the pipeline will fail.`
- - **MUST include a code comment** referencing the formal amendment: `# BioProject ID updated via T004b (Plan Amendment). Original PRJNA292777 in spec.md superseded by plan PRJNA321023.`
+ - **MUST include a code comment** referencing the provisional nature: `# MIN_COUNT_THRESHOLD=10 is a temporary placeholder. Research phase MUST update this value via T020b before final analysis.`
 - [X] T004b [P] **Formal Plan Amendment Record**: Create `specs/001-coral-resilience-prediction/amendments.md` to document the change from PRJNA292777 to PRJNA321023.
  - **MUST create a formal amendment record** with ID `AMEND-001`, date, and description: "Updated BioProject ID to PRJNA321023 per Plan.md Summary. Spec.md is the frozen SSoT; this document records the plan-level deviation for implementation."
  - **MUST NOT** modify `spec.md` directly in this task; `spec.md` is frozen. The record documents the required change for implementation.
- - **Content**: Must explicitly state: "AMEND-001: BioProject ID changed from PRJNA to PRJNA per Plan.md Summary."
+ - **Content**: Must explicitly state: "AMEND-001: BioProject ID changed from PRJNA to PRJNA321023 per Plan.md Summary."
  - **Output**: `specs/001-coral-resilience-prediction/amendments.md`.
 - [X] T004c [P] [DEPENDS: T004b] **Update Configuration**: Update `code/config.py` to set `BIOPROJECT_ID = "PRJNA321023"` explicitly, ensuring the code uses the correct ID referenced in T004b.
 - [X] T005 [P] Implement logging infrastructure in `code/utils/logging.py` to track memory usage (RSS) and execution time
@@ -75,19 +74,24 @@
 - [X] T009b [P] Document the **strategy for deferring empirical filtering thresholds** in `specs/001-coral-resilience-prediction/technical-design/threshold_strategy.md`.
  - **MUST use exact file path**: `specs/001-coral-resilience-prediction/technical-design/threshold_strategy.md`.
  - **MUST include sections**: "Decision Process" (how thresholds are chosen), "Impact on Success Criteria" (SC-002, SC-003), "Final Value Determination Date".
- - **MUST state** that the final numeric values will be determined during the research phase and recorded in `config.py` before T020 runs.
+ - **MUST state** that the final numeric values will be determined during the research phase and recorded in `config.py` before T020b runs.
  - **MUST align the "Final Value Determination Date"** with the metric generation phase in Task T028c.
  - **MUST include example content structure**: e.g., "Decision Process: Review literature for Acropora millepora expression variance. Impact: Lower threshold may increase false positives; higher may miss weak signals."
 - [ ] T011 [P] Create integration test scaffolding in `tests/integration/` using mock small FASTQ files to verify pipeline flow without downloading real data.
  - **MUST generate mock FASTQ files** (e.g., `mock_sample_1.fastq.gz`, `mock_sample_2.fastq.gz`) with realistic headers and random sequences as part of this task's deliverable.
  - **Output**: `tests/integration/data/mock_fastq/` containing mock files.
+- [X] T014b [US1] [DEPENDS: T004c] **BioProject to SRR Mapping**: Implement `code/ingest.py` (or a new `code/mapping.py`) to resolve the BioProject ID (PRJNA321023) to a list of SRA Accession IDs (SRR) using Entrez Direct (`esearch`/`efetch`).
+ - **MUST extract** `SRR_ID`, `Run_ID`, `Sample_ID`, `treatment` (if available), `sequencing_lane`, and `run_date` from the SRA RunInfo XML or metadata.
+ - **MUST save** the parsed list to `data/raw/srr_list.json`.
+ - **MUST fail** if no SRR IDs are found for the BioProject.
+ - **Output**: `data/raw/srr_list.json`.
 - [X] T018 [US1] [FR-001] [SC-001] **Download and Verify Reference Transcriptome**: Download *Acropora millepora* reference transcriptome (NCBI RefSeq) to `data/raw/reference/`.
  - **MUST fetch the official SHA256 checksum** from the NCBI RefSeq FTP manifest for assembly GCF_000163615.2 using the URL: `ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/other/assembly_summary_refseq.txt` (filter for GCF_000163615.2) or use a pre-validated hash from `research.md` if available.
  - **MUST verify** the downloaded file against the checksum.
  - **MUST fail immediately** if the checksum does not match (external verification).
  - **MUST index** the verified reference for Salmon using `salmon index`.
  - **Output**: `data/raw/reference/index/` and `data/raw/reference/checksum.json`.
- - **Note**: T018 is resource-intensive; it runs in parallel with T015 (FASTQ download) but MUST complete before T019 (Quantification). The note "MUST run AFTER T015" in previous versions was incorrect; T018 and T015 are independent producers for T019.
+ - **Note**: T018 is resource-intensive; it runs in parallel with T015 (FASTQ download) but MUST complete before T019 (Quantification). The assembly ID GCF_000163615.2 is authorized by Plan.md Section "Technical Context", not by AMEND-001 (which only covers BioProject ID).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -111,16 +115,24 @@
 
 ### Implementation for User Story 1
 
-- [X] T015 [US1] Implement `code/ingest.py`: Download FASTQ files from NCBI SRA using `fasterq-dump` (SRA Toolkit) for project **PRJNA321023** (per T004c) with `--split-files --gzip` and exponential backoff retry logic with a bounded maximum number of retries; save to `data/raw/PRJNA321023/*.fastq.gz` and log status to `data/raw/download_log.json`
-- [X] T016 [US1] [DEPENDS: T015] Implement `code/ingest.py`: Generate SHA256 checksums for downloaded files, fetch the **canonical reference hash** from the NCBI manifest (as per T018 logic), and compare against it; **fail immediately** if mismatch to prevent T017 execution.
- - **MUST NOT** just verify self-consistency; must verify against external source.
- - **Output**: `data/raw/checksums.json` (with reference hash and computed hash).
-- [X] T017 [US1] [DEPENDS: T016] Implement `code/ingest.py`: Parse phenotype metadata, map sample IDs to treatment conditions (Heat vs. Control), and exclude samples with missing treatment status (logging warnings); only process files verified in T016
+- [X] T015 [US1] [DEPENDS: T014b] Implement `code/ingest.py`: Download FASTQ files from NCBI SRA using `fasterq-dump` (SRA Toolkit) for each SRR ID listed in `data/raw/srr_list.json` (generated by T014b) with `--split-files --gzip` and exponential backoff retry logic with a bounded maximum number of retries; save to `data/raw/PRJNA321023/*.fastq.gz` and log status to `data/raw/download_log.json`.
+ - **MUST NOT** attempt to download using the BioProject ID directly; must use the SRR list from T014b.
+- [X] T016 [US1] [DEPENDS: T015, T014b] Implement `code/ingest.py`: Generate SHA256 checksums for downloaded files.
+ - **MUST attempt** to fetch the "canonical reference hash" from the NCBI manifest for the specific SRR ID.
+ - **MUST handle missing manifests gracefully**: If the external manifest hash is unavailable, compute the local SHA256, log a "LOCAL_CHECKSUM_ONLY" warning, and proceed. Do NOT fail the pipeline.
+ - **MUST fail immediately** if the external manifest hash exists and does not match the computed hash.
+ - **Output**: `data/raw/checksums.json` (with reference hash if available, computed hash, and status).
+- [X] T017 [US1] [DEPENDS: T016] Implement `code/ingest.py`: Parse phenotype metadata, map sample IDs to treatment conditions (Heat vs. Control), and exclude samples with missing treatment status (logging warnings); only process files verified in T016.
+ - **MUST use** the `treatment` field from `data/raw/srr_list.json` (T014b) if available, or the phenotype CSV.
 - [X] T019 [US1] [DEPENDS: T016, T018] Implement `code/quant.py`: Stream FASTQ files against reference index (from T018) using Salmon (CPU mode) with command `salmon quant -i <index_path> -l A -r <fastq_path> -o <output_dir> --validateMappings --memGb <allocated_memory>`; generate individual `quant.sf` files to `data/processed/quant/<sample_id>/`; enforce memory-mapped processing to stay within available system RAM limits.
 - [X] T019b [US1] [DEPENDS: T019] Implement `code/quant.py`: Aggregate individual `quant.sf` files into a single count matrix (`data/processed/count_matrix.csv`) required for downstream filtering and DGE analysis
-- [X] T020 [US1] [DEPENDS: T019b] Implement `code/quant.py`: Filter expression matrix using `config.MIN_COUNT_THRESHOLD` (provisional value 10 from T004) in >= `config.MIN_SAMPLES_FOR_FILTER` samples.
- - **MUST use the provisional config value** defined in T004.
- - **MUST fail** if `config.MIN_COUNT_THRESHOLD` has not been updated by the research phase (check for a flag or error if value is still 10).
+- [X] T020b [US1] [DEPENDS: T009b] **Update Threshold**: Implement `code/quant.py` (or a config update script) to update `config.MIN_COUNT_THRESHOLD` from the placeholder (10) to a research-derived value.
+ - **MUST read** the strategy from `specs/001-coral-resilience-prediction/technical-design/threshold_strategy.md`.
+ - **MUST update** `code/config.py` with the new value if a valid research value is found.
+ - **MUST be executed before T020** if the research phase is complete; otherwise, T020 proceeds with the placeholder.
+ - **Output**: Updated `code/config.py`.
+- [X] T020 [US1] [DEPENDS: T019b, T020b] Implement `code/quant.py`: Filter expression matrix using `config.MIN_COUNT_THRESHOLD` in >= `config.MIN_SAMPLES_FOR_FILTER` samples.
+ - **MUST NOT fail** if `config.MIN_COUNT_THRESHOLD` is still the placeholder value (10). Instead, MUST log a WARNING: "Using placeholder threshold (10). Research phase update required for final results." and proceed.
  - Document the applied filter in `data/processed/filter_log.md`.
 - [X] T021 [US1] Add validation step to verify output expression matrix contains only valid samples and log total file size
 
@@ -141,11 +153,11 @@
 
 ### Implementation for User Story 2
 
-- [X] T023b [US2] [DEPENDS: T019b] **Batch Effect Detection & Design Logic**: Implement `code/batch_detection.R` to:
+- [X] T023b [US2] [DEPENDS: T014b] **Batch Effect Detection & Design Logic**: Implement `code/batch_detection.R` to:
  - Load count matrix from `data/processed/count_matrix.csv` (T019b).
  - Perform **internal VST** (variance stabilizing transformation) on the count matrix to determine design.
  - Perform `prcomp` on the variance-stabilized data.
- - Check if the first principal component (PC1) correlates strongly (r > 0.7) with sequencing lane or date (if inferable).
+ - Check if the first principal component (PC1) correlates strongly (r > 0.7) with `sequencing_lane` or `run_date` (extracted from `data/raw/srr_list.json` by T014b).
  - If batch metadata exists: Set design formula `~ batch + condition`.
  - If no batch metadata but PC1 correlates with a hidden factor: Set design `~ condition` and log "Potential Batch Confounding".
  - If no batch metadata and no correlation: Set design `~ condition`.
@@ -157,14 +169,17 @@
 - [X] T026 [US2] Implement `code/dge_analysis.R`: Apply Benjamini-Hochberg correction to p-values to generate FDR column. Save results to `data/processed/dge_results.csv`.
 - [X] T027 [US2] Implement `code/dge_analysis.R`: Annotate output results table with metadata header stating "Associational Study - No Causal Claims". **Ensure this label is propagated to the final `results/report.md` and `enrichment_report.md`**.
 - [X] T028a [US2] [DEPENDS: T025] **Calculate Null Expectation**: Load `dds` object from T025. Use DESeq2's `results(dds, independentFiltering=TRUE)` to obtain the summary of the null model. Calculate the theoretical expected count of significant genes under the null hypothesis: `expected_count = total_genes * significance_threshold`. Save this value to `data/processed/null_expectation.json` (single float value).
-- [X] T028b [US2] [SC-002] [DEPENDS: T026, T028a, T028c] **Validate Statistical Rigor**: Read observed significant count from `dge_results.csv` (T026) and expected count from `null_expectation.json` (T028a). **Read the specific metric values from `sc002_metrics.json` (T028c)**.
+- [X] T028b [US2] [SC-002] [DEPENDS: T026, T028a] **Validate Statistical Rigor**: Read observed significant count from `dge_results.csv` (T026) and expected count from `null_expectation.json` (T028a).
+ - **MUST use a Chi-Square Goodness-of-Fit Test** to compare the observed count against the expected count (Poisson-like distribution).
+ - **MUST calculate** the Chi-Square statistic and p-value.
  - **MUST check** if `observed > expected` AND `p < 0.05` (for the comparison test).
- - **MUST use a one-sided Binomial Test** to calculate the p-value for the comparison of observed vs. expected counts.
  - Generate histogram of raw p-values saved to `data/processed/pvalue_distribution.png`.
- - **MUST append the specific 'observed' and 'expected' values** and the validation status (PASS/FAIL based on observed > expected AND p < 0.05) to `data/processed/validation_report.md`.
-- [X] T028c [US2] [DEPENDS: T026, T028a] **Record Success Criteria Metrics**: Generate `data/processed/sc002_metrics.json` containing:
+ - **MUST append the specific 'observed', 'expected', 'chi_square_statistic', 'p_value' values** and the validation status (PASS/FAIL based on observed > expected AND p < 0.05) to `data/processed/validation_report.md`.
+- [X] T028c [US2] [DEPENDS: T028b] **Record Success Criteria Metrics**: Generate `data/processed/sc002_metrics.json` containing:
  - `observed_significant_count` (float)
  - `expected_significant_count` (float)
+ - `chi_square_statistic` (float)
+ - `p_value` (float)
  - `comparison_result` (string: "PASS" or "FAIL")
  - **MUST output** these specific values as evidence for SC-002.
 - [X] T028d [US2] [DEPENDS: T026] **Assert FDR Threshold**: Calculate the final False Discovery Rate (FDR) of the reported significant hits (FDR <= 0.05).
@@ -323,4 +338,11 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All tasks must respect the constrained RAM limit and runtime on CPU-only runners. No GPU or 8-bit quantization allowed.
 - **Data Integrity**: All tasks must use real data from the specified NCBI BioProject (PRJNA321023, per T004b/T004c). No synthetic data generation is permitted.
-- **Deferral of Empirics**: Thresholds (counts, samples) are deferred to the research phase and must not be hardcoded as final values in implementation tasks, but a provisional value (10) is used for execution (T004).
+- **Deferral of Empirics**: Thresholds (counts, samples) are deferred to the research phase and must not be hardcoded as final values in implementation tasks, but a provisional value (10) is used for execution (T004a). T020b updates this if research is complete.
+- **Revision Concern**: The "Associational Study" disclaimer is now explicitly enforced in T027, T035, and T035c to ensure FR-006 compliance across all outputs.
+- **Revision Concern**: The batch effect detection logic (T023b) is now mandatory before DGE execution to address potential construct validity issues identified in the plan.
+- **Revision Concern**: The null expectation calculation (T028a) and validation (T028b) are explicitly defined to satisfy SC-002 with a Chi-Square test rather than a Binomial test.
+- **Revision Concern**: T014b (SRR Mapping) is now a strict prerequisite for T015 (Download) and T016 (Checksum) to ensure correct SRR IDs are used.
+- **Revision Concern**: T016 now handles missing external checksums gracefully by falling back to local checksums with a warning.
+- **Revision Concern**: T020 no longer fails on placeholder values; it warns and proceeds, ensuring the pipeline can run even if research is incomplete.
+- **Revision Concern**: T028b and T028c dependency order is corrected to T028b -> T028c to avoid circular dependency.

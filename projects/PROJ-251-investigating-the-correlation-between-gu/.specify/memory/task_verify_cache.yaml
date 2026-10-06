@@ -28,21 +28,6 @@ T020a:
     \ lacks any actual artifact (code, results, or documentation) demonstrating that\
     \ the microbiome data were CLR\u2011transformed, correlations computed, or p\u2011\
     values corrected. The required deliverables are missing, so the task is not satisfied."
-T021:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, notebook, or data file was provided that demonstrates the titers\
-    \ have been log\u2011transformed and that limits of detection (LOD) are handled\
-    \ as required. Without any artifact to inspect, the claim cannot be verified.\
-    \ The next implementer must supply the actual implementation (e.g., a Python/R\
-    \ script) and/or resulting dataset showing the transformed titer values and LOD\
-    \ handling."
-T025:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact (e.g., log file, report, or measurement output) was provided to\
-    \ demonstrate that SC-004\u2019s outcome was measured and recorded; the only evidence\
-    \ is the task description itself. The required deliverable is missing."
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -51,15 +36,6 @@ T032:
     \ correlation table with raw and Benjamini\u2011Hochberg adjusted p\u2011values,\
     \ Shannon diversity calculations, or any evidence of the required outputs. Consequently\
     \ the task\u2019s core deliverables are missing."
-T032a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No ingestion script, validation logs, correlation analysis output, or predictive\
-    \ modeling code/results were provided. The required artifacts (e.g., a script\
-    \ that filters the OTU tables, a CSV of the cleaned dataset, correlation tables\
-    \ with CLR\u2011transformed data and Benjamini\u2011Hochberg adjusted p\u2011\
-    values, and a trained Random Forest model with nested cross\u2011validation metrics)\
-    \ are missing, so the task is not satisfied."
 T034d:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -67,13 +43,6 @@ T034d:
     \ cross\u2011validation model outputs were supplied. The required artifacts (code,\
     \ CSV results, statistical tables, or figures) are missing, so the task\u2019\
     s requirements are not demonstrably met."
-T036a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, log file, notebook, or report containing the computed confusion matrix,\
-    \ precision, recall, or F1\u2011score for the high/low responder classification\
-    \ was provided. The claim lacks any concrete artifact demonstrating that these\
-    \ metrics were calculated and recorded."
 T036b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
