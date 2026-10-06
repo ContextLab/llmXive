@@ -1,15 +1,9 @@
 """
-Wrapper script to execute the R-based preprocessing pipeline (preprocess.R).
+Wrapper script to invoke preprocess.R for Seurat-based QC and normalization.
 
-This script handles:
-1. Argument parsing for input raw data paths and output directory.
-2. Validation of the R environment and dependencies.
-3. Execution of preprocess.R via subprocess.
-4. Verification of output .h5ad files.
-5. Logging of success/failure.
-
-Usage:
-    python code/preprocess.py --input data/raw/ --output data/processed/
+This script calls the R script `preprocess.R` via subprocess, ensuring that
+the R environment is available, and verifies that the expected `.h5ad` output
+files are generated.
 """
 import argparse
 import logging
@@ -21,182 +15,170 @@ from pathlib import Path
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('logs/preprocess.log')
-    ]
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger(__name__)
 
-def check_r_environment():
-    """Verify that R and required packages are available."""
+def check_r_environment() -> bool:
+    """Verify that R and Seurat are available in the system environment."""
     logger.info("Checking R environment...")
-    
-    # Check if R is installed
     try:
+        # Check R executable
         result = subprocess.run(
-            ['R', '--version'],
-            capture_output=True,
-            text=True,
-            timeout=10
+            ["R", "--version"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=True
         )
-        if result.returncode != 0:
-            logger.error("R is not installed or not in PATH.")
-            return False
-        logger.info(f"R version found: {result.stdout.split(chr(10))[0]}")
-    except FileNotFoundError:
-        logger.error("R executable not found. Please install R.")
-        return False
-    except subprocess.TimeoutExpired:
-        logger.error("R version check timed out.")
-        return False
+        logger.info(f"R version found: {result.stdout.decode().strip().split(chr(10))[0]}")
 
-    # Check for Seurat (via Rscript)
-    try:
+        # Check Seurat package
         result = subprocess.run(
-            ['Rscript', '-e', 'if (!requireNamespace("Seurat", quietly = TRUE)) quit(status=1)'],
-            capture_output=True,
-            text=True,
-            timeout=30
+            ["Rscript", "-e", "if (!requireNamespace('Seurat', quietly=TRUE)) stop('Seurat not installed')"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=True
         )
-        if result.returncode != 0:
-            logger.error("Seurat package is not installed in R.")
-            logger.error("stderr: " + result.stderr)
-            return False
-        logger.info("Seurat package found.")
+        logger.info("Seurat package is installed.")
+        return True
+    except subprocess.CalledProcessError as e:
+        logger.error(f"R environment check failed: {e.stderr.decode().strip()}")
+        return False
     except FileNotFoundError:
-        logger.error("Rscript executable not found.")
-        return False
-    except subprocess.TimeoutExpired:
-        logger.error("Seurat check timed out.")
+        logger.error("R executable not found in PATH. Please install R.")
         return False
 
-    # Check for reticulate (needed for Python-Anndata interop if used in R)
-    try:
-        result = subprocess.run(
-            ['Rscript', '-e', 'if (!requireNamespace("reticulate", quietly = TRUE)) quit(status=1)'],
-            capture_output=True,
-            text=True,
-            timeout=30
-        )
-        if result.returncode != 0:
-            logger.warning("reticulate package not found. This may be required for some Anndata operations.")
-            # Not strictly failing here as preprocess.R might not use it, but good to know
-        else:
-            logger.info("reticulate package found.")
-    except FileNotFoundError:
-        logger.error("Rscript executable not found.")
-        return False
-    except subprocess.TimeoutExpired:
-        logger.error("reticulate check timed out.")
-        return False
+def run_r_preprocessing(input_path: Path, output_path: Path) -> bool:
+    """
+    Execute preprocess.R via subprocess.
 
-    return True
+    Args:
+        input_path: Path to the input raw count matrix (e.g., .mtx or .h5 from download_data.py)
+        output_path: Desired output path for the processed .h5ad file.
 
-def run_r_preprocessing(input_dir, output_dir, r_script_path):
-    """Execute the R preprocessing script."""
-    logger.info(f"Starting R preprocessing: Input={input_dir}, Output={output_dir}")
-    
-    # Validate paths
-    if not os.path.isdir(input_dir):
-        logger.error(f"Input directory does not exist: {input_dir}")
+    Returns:
+        True if the R script runs successfully, False otherwise.
+    """
+    logger.info(f"Running R preprocessing for {input_path}...")
+
+    if not input_path.exists():
+        logger.error(f"Input file not found: {input_path}")
         return False
 
     # Ensure output directory exists
-    os.makedirs(output_dir, exist_ok=True)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Check if R script exists
-    if not os.path.isfile(r_script_path):
+    # Construct command
+    # Note: We assume preprocess.R is in the same directory as this script or in code/
+    script_dir = Path(__file__).resolve().parent
+    r_script_path = script_dir / "preprocess.R"
+
+    if not r_script_path.exists():
         logger.error(f"R script not found: {r_script_path}")
         return False
 
-    # Construct command
     cmd = [
-        'Rscript',
-        r_script_path,
-        '--input', input_dir,
-        '--output', output_dir
+        "Rscript",
+        str(r_script_path),
+        "--input", str(input_path),
+        "--output", str(output_path)
     ]
 
-    logger.info(f"Executing command: {' '.join(cmd)}")
+    logger.info(f"Executing: {' '.join(cmd)}")
 
     try:
-        # Run the R script
-        process = subprocess.run(
+        result = subprocess.run(
             cmd,
-            capture_output=False,  # Stream output to see progress
-            text=True,
-            timeout=3600  # 1 hour timeout for preprocessing
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
         )
+        # Log R output for debugging
+        if result.stdout:
+            logger.info("R Script Output:\n" + result.stdout)
+        if result.stderr:
+            logger.info("R Script Errors/Warnings:\n" + result.stderr)
 
-        if process.returncode != 0:
-            logger.error(f"R preprocessing script failed with return code {process.returncode}")
-            return False
-
-        logger.info("R preprocessing script completed successfully.")
         return True
-
-    except subprocess.TimeoutExpired:
-        logger.error("R preprocessing script timed out after 1 hour.")
+    except subprocess.CalledProcessError as e:
+        logger.error(f"R script execution failed with return code {e.returncode}")
+        if e.stdout:
+            logger.error(f"STDOUT: {e.stdout}")
+        if e.stderr:
+            logger.error(f"STDERR: {e.stderr}")
         return False
-    except Exception as e:
-        logger.error(f"Error executing R script: {str(e)}")
-        return False
-
-def verify_outputs(output_dir, expected_extensions=['.h5ad']):
-    """Verify that output files were created."""
-    logger.info(f"Verifying outputs in {output_dir}...")
-    
-    output_files = list(Path(output_dir).rglob('*'))
-    h5ad_files = [f for f in output_files if f.suffix in expected_extensions]
-    
-    if not h5ad_files:
-        logger.error(f"No {expected_extensions} files found in {output_dir}")
+    except FileNotFoundError:
+        logger.error("Rscript executable not found. Ensure R is installed and in PATH.")
         return False
 
-    logger.info(f"Found {len(h5ad_files)} output files:")
-    for f in h5ad_files:
-        logger.info(f"  - {f}")
-        if f.stat().st_size == 0:
-            logger.error(f"Output file is empty: {f}")
-            return False
+def verify_outputs(output_path: Path) -> bool:
+    """
+    Verify that the expected .h5ad output file exists and is non-empty.
 
-    return True
+    Args:
+        output_path: Path to the expected output file.
+
+    Returns:
+        True if the file exists and has size > 0, False otherwise.
+    """
+    if output_path.exists() and output_path.stat().st_size > 0:
+        logger.info(f"Verification passed: Output file created at {output_path}")
+        return True
+    else:
+        logger.error(f"Verification failed: Output file missing or empty at {output_path}")
+        return False
 
 def main():
-    parser = argparse.ArgumentParser(description='Wrapper for R-based single-cell preprocessing')
-    parser.add_argument('--input', type=str, required=True, help='Path to input directory containing raw data')
-    parser.add_argument('--output', type=str, required=True, help='Path to output directory for processed .h5ad files')
-    parser.add_argument('--script', type=str, default='code/preprocess.R', help='Path to the R preprocessing script')
-    
+    """Main entry point for the preprocessing wrapper."""
+    parser = argparse.ArgumentParser(
+        description="Wrapper to run preprocess.R for Seurat QC and normalization."
+    )
+    parser.add_argument(
+        "--input",
+        type=str,
+        required=True,
+        help="Path to the input raw data file (e.g., data/raw/GSE136103_counts.mtx)"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        required=True,
+        help="Path for the output .h5ad file (e.g., data/processed/GSE136103_processed.h5ad)"
+    )
+    parser.add_argument(
+        "--check-only",
+        action="store_true",
+        help="Only check R environment and exit"
+    )
+
     args = parser.parse_args()
 
-    # Ensure logs directory exists
-    Path('logs').mkdir(exist_ok=True)
-
-    logger.info("=" * 60)
-    logger.info("Starting Preprocessing Pipeline Wrapper")
-    logger.info("=" * 60)
+    input_path = Path(args.input)
+    output_path = Path(args.output)
 
     # Step 1: Check R environment
     if not check_r_environment():
         logger.error("R environment check failed. Aborting.")
         sys.exit(1)
 
+    if args.check_only:
+        logger.info("Environment check passed. Exiting.")
+        sys.exit(0)
+
     # Step 2: Run R preprocessing
-    if not run_r_preprocessing(args.input, args.output, args.script):
-        logger.error("R preprocessing failed. Aborting.")
+    success = run_r_preprocessing(input_path, output_path)
+    if not success:
+        logger.error("Preprocessing failed.")
         sys.exit(1)
 
     # Step 3: Verify outputs
-    if not verify_outputs(args.output):
-        logger.error("Output verification failed. Aborting.")
+    if not verify_outputs(output_path):
+        logger.error("Output verification failed.")
         sys.exit(1)
 
-    logger.info("=" * 60)
-    logger.info("Preprocessing Pipeline Completed Successfully")
-    logger.info("=" * 60)
+    logger.info("Preprocessing completed successfully.")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

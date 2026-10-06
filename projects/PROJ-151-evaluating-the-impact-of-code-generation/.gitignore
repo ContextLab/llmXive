@@ -1,4 +1,11 @@
-# Python
+# Data directories (raw, processed, generated, validation)
+data/
+data/raw/
+data/processed/
+data/generated/
+data/validation/
+
+# Python cache
 __pycache__/
 *.py[cod]
 *$py.class
@@ -17,43 +24,26 @@ sdist/
 var/
 wheels/
 *.egg-info/
-.installed.cfg
 *.egg
-MANIFEST
 
-# Virtual Environments
+# Virtual environments
 venv/
 ENV/
 env/
-.venv
+.env
 
-# IDEs
+# IDE and editor files
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 
-# OS
+# OS files
 .DS_Store
 Thumbs.db
 
-# Project Data (Raw, Processed, Generated, Validation)
-data/
-!data/.gitkeep
-
-# Logs and Temporary Files
+# Logs and temporary files
 *.log
-.cache/
-.pytest_cache/
-.mypy_cache/
-
-# Jupyter Notebooks
-.ipynb_checkpoints/
-
-# Environment Variables (if used locally)
-.env
-.env.local
-
-# State and Checksums (optional, keep if version controlled, else uncomment)
-# state.yaml
+tmp/
+temp/

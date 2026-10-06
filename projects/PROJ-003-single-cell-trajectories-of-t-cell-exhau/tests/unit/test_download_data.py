@@ -1,97 +1,149 @@
-"""
-Unit tests for download_data.py logic.
-
-These tests verify the logic of ID mapping and directory handling without
-actually performing network downloads (which would be slow and flaky in unit tests).
-"""
+import unittest
+from unittest.mock import patch, MagicMock, Mock
+import subprocess
 import os
-import pytest
-from pathlib import Path
 import sys
+from pathlib import Path
 import tempfile
-import shutil
+import json
 
-# Import the module logic we want to test
-# We need to import the functions defined in download_data.py
-# Since it's a script, we might need to exec or import it as a module if it's in the path.
-# For this test, we assume the code is importable or we test the logic directly.
+# Add the code directory to the path for imports
+code_dir = Path(__file__).resolve().parent.parent.parent / "code"
+sys.path.insert(0, str(code_dir))
 
-# To avoid importing the whole script which might run main() or have side effects,
-# we will import specific functions if they were refactored, or test the logic
-# by patching subprocess calls.
+from download_data import check_sra_toolkit, get_sra_ids_for_gse, download_sra, TARGET_GSE_IDS
 
-# Let's assume we import the module. If it has side effects on import, we'd need to refactor.
-# Given the constraints, we will test the helper logic by importing the file.
-
-sys.path.insert(0, str(Path(__file__).parent.parent))
-import download_data
-
-class TestSRAIdMapping:
-    def test_get_sra_ids_known_gse(self):
-        """Test that known GSE IDs return the expected SRR IDs."""
-        # GSE136103 is in our hardcoded fallback
-        srrs = download_data.get_sra_ids_for_gse("GSE136103")
-        assert len(srrs) > 0
-        assert "SRR10036988" in srrs
+class TestCheckSraToolkit(unittest.TestCase):
+    @patch('subprocess.run')
+    def test_sra_toolkit_installed(self, mock_run):
+        # Mock successful runs for both prefetch and fasterq-dump
+        mock_run.side_effect = [
+            MagicMock(returncode=0), # prefetch
+            MagicMock(returncode=0)  # fasterq-dump
+        ]
         
-    def test_get_sra_ids_unknown_gse(self):
-        """Test that unknown GSE IDs raise an error if EDirect is not available."""
-        # We mock shutil.which to pretend EDirect is not installed
-        import shutil
-        original_which = shutil.which
-        
-        def mock_which(cmd):
-            if cmd == "esearch":
-                return None
-            return original_which(cmd)
-        
-        shutil.which = mock_which
-        try:
-            with pytest.raises(RuntimeError, match="Could not retrieve SRA IDs"):
-                download_data.get_sra_ids_for_gse("GSE999999")
-        finally:
-            shutil.which = original_which
+        result = check_sra_toolkit()
+        self.assertTrue(result)
+        self.assertEqual(mock_run.call_count, 2)
 
-class TestDirectorySetup:
-    def test_create_output_dir(self):
-        """Test that the output directory is created if it doesn't exist."""
+    @patch('subprocess.run')
+    def test_sra_toolkit_not_found(self, mock_run):
+        # Mock FileNotFoundError
+        mock_run.side_effect = FileNotFoundError("Command not found")
+        
+        result = check_sra_toolkit()
+        self.assertFalse(result)
+
+    @patch('subprocess.run')
+    def test_sra_toolkit_non_zero_exit(self, mock_run):
+        # Mock non-zero exit code
+        mock_run.side_effect = [
+            MagicMock(returncode=1), # prefetch fails
+            MagicMock(returncode=0)
+        ]
+        
+        result = check_sra_toolkit()
+        self.assertFalse(result)
+
+class TestGetSraIdsForGse(unittest.TestCase):
+    @patch('subprocess.run')
+    def test_valid_gse_response(self, mock_run):
+        # Mock XML response with SRA IDs
+        xml_response = """<?xml version="1.0" encoding="UTF-8"?>
+        <eSearchResult>
+            <Count>2</Count>
+            <RetMax>2</RetStart>0</RetStart>
+            <IdList>
+                <Id>SRR123456</Id>
+                <Id>SRR789012</Id>
+            </IdList>
+        </eSearchResult>"""
+        
+        mock_run.return_value = MagicMock(
+            stdout=xml_response,
+            stderr="",
+            returncode=0
+        )
+        
+        ids = get_sra_ids_for_gse("GSE136103")
+        self.assertEqual(len(ids), 2)
+        self.assertIn("SRR123456", ids)
+        self.assertIn("SRR789012", ids)
+
+    @patch('subprocess.run')
+    def test_empty_response(self, mock_run):
+        # Mock empty response
+        mock_run.return_value = MagicMock(
+            stdout="",
+            stderr="",
+            returncode=0
+        )
+        
+        ids = get_sra_ids_for_gse("GSE999999")
+        self.assertEqual(ids, [])
+
+    @patch('subprocess.run')
+    def test_timeout_error(self, mock_run):
+        # Mock timeout
+        mock_run.side_effect = subprocess.TimeoutExpired(cmd="test", timeout=60)
+        
+        ids = get_sra_ids_for_gse("GSE136103")
+        self.assertEqual(ids, [])
+
+class TestDownloadSra(unittest.TestCase):
+    @patch('subprocess.run')
+    @patch('pathlib.Path.mkdir')
+    @patch('pathlib.Path.glob')
+    def test_download_success(self, mock_glob, mock_mkdir, mock_run):
+        # Setup mocks
+        mock_mkdir.return_value = None
+        mock_glob.return_value = [Path("mock/SRR123456.fastq")]
+        mock_run.return_value = MagicMock(
+            returncode=0,
+            stdout="",
+            stderr=""
+        )
+        
         with tempfile.TemporaryDirectory() as tmpdir:
-            target = Path(tmpdir) / "new_dir"
-            assert not target.exists()
-            
-            # Simulate the logic from main()
-            target.mkdir(parents=True, exist_ok=True)
-            
-            assert target.exists()
-            assert target.is_dir()
+            output_dir = Path(tmpdir)
+            result = download_sra("SRR123456", output_dir)
+            self.assertTrue(result)
+            mock_run.assert_called_once()
 
-class TestSRAToolkitCheck:
-    def test_check_sra_toolkit_missing(self):
-        """Test that check_sra_toolkit raises if commands are missing."""
-        import shutil
-        original_which = shutil.which
+    @patch('subprocess.run')
+    @patch('pathlib.Path.mkdir')
+    @patch('pathlib.Path.glob')
+    def test_download_failure_no_files(self, mock_glob, mock_mkdir, mock_run):
+        # Setup mocks
+        mock_mkdir.return_value = None
+        mock_glob.return_value = [] # No files found
+        mock_run.return_value = MagicMock(
+            returncode=0,
+            stdout="",
+            stderr=""
+        )
         
-        def mock_which(cmd):
-            return None # Pretend nothing is installed
-        
-        shutil.which = mock_which
-        try:
-            with pytest.raises(RuntimeError, match="Command 'prefetch' not found"):
-                download_data.check_sra_toolkit()
-        finally:
-            shutil.which = original_which
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_dir = Path(tmpdir)
+            result = download_sra("SRR123456", output_dir)
+            self.assertFalse(result)
 
-    def test_check_sra_toolkit_present(self):
-        """Test that check_sra_toolkit passes if commands exist."""
-        # We can't easily mock 'which' to return valid paths for system tools
-        # in a portable way without knowing the environment, so we trust the
-        # logic. If this runs in an environment with SRA Toolkit, it passes.
-        # If not, it fails, which is expected behavior for the test environment.
-        # We will skip this test if we are not in a real environment to avoid
-        # false negatives in CI.
-        try:
-            download_data.check_sra_toolkit()
-        except RuntimeError:
-            # If it fails, it's because we are in a test env without SRA.
-            # This is acceptable for unit testing logic.
-            pytest.skip("SRA Toolkit not installed in this environment")
+    @patch('subprocess.run')
+    @patch('pathlib.Path.mkdir')
+    def test_download_failure_called_process(self, mock_mkdir, mock_run):
+        # Setup mocks
+        mock_mkdir.return_value = None
+        mock_run.side_effect = subprocess.CalledProcessError(1, "cmd", stderr="Error")
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_dir = Path(tmpdir)
+            result = download_sra("SRR123456", output_dir)
+            self.assertFalse(result)
+
+class TestTargetDatasets(unittest.TestCase):
+    def test_target_gse_ids(self):
+        expected = ["GSE136103", "GSE127465", "GSE111075", "GSE138852"]
+        self.assertEqual(TARGET_GSE_IDS, expected)
+
+if __name__ == '__main__':
+    unittest.main()

@@ -354,22 +354,6 @@
   updated_at: '2026-07-25T20:58:43Z'
 - artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/specs/001-single-cell-trajectories-of-t-cell-exhau/tasks.md
   attempts: 1
-  canonical: System performs 1000 bootstrap iterations
-  claim_id: c_9d603255
-  context: 'Independent Test: The system performs 1000 bootstrap iterations, calculates
-    enrichment p-values < 0.01, and generates a final report with a heatmap.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The system performs 1000 bootstrap iterations.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-25T20:58:43Z'
-- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/specs/001-single-cell-trajectories-of-t-cell-exhau/tasks.md
-  attempts: 1
   canonical: Enrichment p-values < 0.01
   claim_id: c_72b1e948
   context: 'Independent Test: The system performs 1000 bootstrap iterations, calculates
@@ -648,3 +632,166 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-27T02:09:46Z'
+- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/specs/001-single-cell-trajectories-of-t-cell-exhau/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time on GSE136103 is 45 minutes on CPU
+  claim_id: c_86843d45
+  context: 'Independent Test: The pipeline executes end-to-end on GSE136103 within
+    45 minutes on CPU, producing a valid `.h5ad` file with velocity vectors and pseudotime
+    values.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline executes end-to-end on GSE136103 within 45 minutes on CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T15:42:45Z'
+- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/specs/001-single-cell-trajectories-of-t-cell-exhau/tasks.md
+  attempts: 2
+  canonical: System performs 1000 bootstrap iterations
+  claim_id: c_9d603255
+  context: 'Independent Test: The system performs 1000 bootstrap iterations, calculates
+    enrichment p-values < 0.01, and generates a final report with a heatmap.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system performs 1000 bootstrap iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T15:43:15Z'
+- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/specs/001-single-cell-trajectories-of-t-cell-exhau/tasks.md
+  attempts: 1
+  canonical: Enrichment p-values are less than 0.01
+  claim_id: c_aaca0e3e
+  context: 'Independent Test: The system performs 1000 bootstrap iterations, calculates
+    enrichment p-values < 0.01, and generates a final report with a heatmap.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Enrichment_p-values_are_less_than_0.01
+  kind: magnitude
+  raw_text: The system calculates enrichment p-values < 0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T15:43:48Z'
+- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/specs/001-single-cell-trajectories-of-t-cell-exhau/tasks.md
+  attempts: 1
+  canonical: Branch points identified when divergence exceeds 2.0 standard deviations
+    above null mean
+  claim_id: c_36ebba2c
+  context: 'Implement `forkpoint.py` divergence calculation: Compare velocity vectors
+    against the null distribution (T020a) to identify branch points where divergence
+    > 2.0 SD above null mean (FR-004).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Divergence is calculated to identify branch points where divergence >
+    2.0 SD above null mean.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T15:43:48Z'
+- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/specs/001-single-cell-trajectories-of-t-cell-exhau/tasks.md
+  attempts: 1
+  canonical: Branch points with divergence less than 1.5 standard deviations are excluded
+  claim_id: c_6462cc1d
+  context: Add filtering logic to exclude branch points with divergence < 1.5 SD (flag
+    as 'low_confidence') (Edge Case)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Branch_points_with_divergence_less_than_1.5_standard_deviati
+  kind: magnitude
+  raw_text: Filtering logic excludes branch points with divergence < 1.5 SD.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T15:44:20Z'
+- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/specs/001-single-cell-trajectories-of-t-cell-exhau/tasks.md
+  attempts: 1
+  canonical: Output genes have differential timing greater than 0.1 pseudotime units
+  claim_id: c_65283bac
+  context: Implement filtering logic to ensure the output list contains genes with
+    differential timing > 0.1 pseudotime units.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_genes_have_differential_timing_greater_than_0.1_pseud
+  kind: magnitude
+  raw_text: Filtering logic ensures output genes have differential timing > 0.1 pseudotime
+    units.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T15:44:54Z'
+- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/specs/001-single-cell-trajectories-of-t-cell-exhau/tasks.md
+  attempts: 1
+  canonical: Datasets with fewer than 1000 cells are skipped
+  claim_id: c_f052c7c4
+  context: 'Implement logic to skip datasets with <1000 cells: log warning, mark dataset
+    as skipped in `results/status.json`.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Datasets_with_fewer_than_1000_cells_are_skipped
+  kind: magnitude
+  raw_text: The system skips datasets with <1000 cells.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T15:45:35Z'
+- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/specs/001-single-cell-trajectories-of-t-cell-exhau/tasks.md
+  attempts: 1
+  canonical: Cells with more than 20% mitochondrial reads are removed
+  claim_id: c_6c42bdd4
+  context: 'Unit test for mitochondrial read filtering logic in `tests/unit/test_preprocess.py`.
+    Verification: Assert that cells with >20% mitochondrial reads are removed.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cells_with_more_than_20%25_mitochondrial_reads_are_removed
+  kind: magnitude
+  raw_text: Cells with >20% mitochondrial reads are removed.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T15:46:10Z'
+- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/specs/001-single-cell-trajectories-of-t-cell-exhau/tasks.md
+  attempts: 1
+  canonical: Pipeline tested on GSE136103, GSE127465, GSE111075, and GSE138852
+  claim_id: c_0897748c
+  context: 'Goal: Download four specific public scRNA-seq datasets, preprocess them
+    to remove low-quality cells, and run scVelo to generate RNA velocity and pseudotime
+    orderings independently for each dataset.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_tested_on_GSE136103,_GSE127465,_GSE111075,_and_GSE1
+  kind: entity_fact
+  raw_text: 'The pipeline is tested on four specific public scRNA-seq datasets: GSE136103,
+    GSE127465, GSE111075, GSE138852.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T15:46:43Z'

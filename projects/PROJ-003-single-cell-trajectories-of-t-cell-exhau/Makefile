@@ -1,24 +1,33 @@
-.PHONY: lint format check-format test clean
+.PHONY: lint format check install-dev clean
 
-# Lint code using ruff
+# Install development dependencies
+install-dev:
+	pip install -e ".[dev]"
+
+# Run linter (ruff)
 lint:
-	ruff check code/ tests/
+	ruff check .
 
-# Format code using black
+# Fix lint issues automatically
+lint-fix:
+	ruff check --fix .
+
+# Format code (black)
 format:
-	black code/ tests/
+	black .
 
-# Check formatting without modifying files
-check-format:
-	black --check code/ tests/
+# Run both lint and format
+check: lint format
 
-# Run all tests
-test:
-	pytest tests/
-
-# Clean up generated files
+# Clean python cache
 clean:
 	find . -type d -name "__pycache__" -exec rm -r {} +
 	find . -type f -name "*.pyc" -delete
 	find . -type f -name "*.pyo" -delete
-	rm -rf .pytest_cache .ruff_cache htmlcov/ .coverage
+	find . -type f -name "*.pyd" -delete
+	find . -type f -name "PDB" -delete
+	rm -rf .pytest_cache .ruff_cache htmlcov .coverage
+
+# Run tests
+test:
+	pytest tests/ -v --cov=code --cov-report=xml

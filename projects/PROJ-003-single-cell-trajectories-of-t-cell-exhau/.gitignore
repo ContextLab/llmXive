@@ -21,6 +21,7 @@ wheels/
 *.egg
 
 # Virtual environments
+.venv/
 venv/
 ENV/
 env/
@@ -31,15 +32,21 @@ env/
 *.swp
 *.swo
 
-# Data (keep raw/ but ignore large files)
-data/raw/*.h5
+# Data
 data/raw/*.gz
+data/raw/*.tar
+data/raw/*.zip
 data/processed/*.h5ad
 data/results/*
+
+# Logs
+*.log
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Logs
-*.log
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/

@@ -45,7 +45,7 @@
 
 - [ ] T001 Create project structure per implementation plan (`projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/`)
 - [X] T002 Initialize Python project with `requirements.txt` (scvelo, scanpy, pandas, numpy, scipy, matplotlib, seaborn, requests, wget)
-- [ ] T002b Setup system-level R environment: {{claim:c_bed10a97}}, install `r-seurat` v4 package, and `reticulate` via system package manager (apt-get/conda). **Verification**: Run `R --version` and `Rscript -e "packageVersion('Seurat')"` to confirm installation. **Checksum**: Record the checksum of the installed package list. **Note**: This task modifies the system environment and must NOT run in parallel with other system-modifying tasks. (Plan Technical Context, Constitution Principle I & III) <!-- FAILED: unspecified -->
+- [ ] T002b Setup system-level R environment: {{claim:c_bed10a97}}, install `r-seurat` v4 package, and `reticulate` via system package manager (apt-get/conda). **Verification**: Run `R --version` and `Rscript -e "packageVersion('Seurat')"` to confirm installation. **Checksum**: Record the checksum of the installed package list. **Note**: This task modifies the system environment and must NOT run in parallel with other system-modifying tasks. (Plan Technical Context, Constitution Principle I & III) <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools in `projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/`
 
 ---
@@ -95,7 +95,7 @@
 
 **Goal**: Analyze reconstructed trajectories to detect branch points where velocity vectors diverge, extract genes at these points, and rank them by timing relative to the branch.
 
-**Independent Test**: The system identifies at least one statistically significant branch point in the GSE dataset and outputs a ranked CSV of fork-point genes. [UNRESOLVED-CLAIM: c_aaad57d9 — status=not_enough_info]
+**Independent Test**: The system identifies at least one statistically significant branch point in the GSE dataset and outputs a ranked CSV of fork-point genes.
 
 ### Tests for User Story 2 (REQUIRED)
 
@@ -119,7 +119,7 @@
 
 **Goal**: Validate fork-point genes across all four datasets using bootstrap resampling and verify enrichment against therapy response signatures in GSE138852.
 
-**Independent Test**: The system performs 1000 bootstrap iterations, calculates enrichment p-values < 0.01, and generates a final report with a heatmap. [UNRESOLVED-CLAIM: c_cebb771c — status=not_enough_info]
+**Independent Test**: The system performs 1000 bootstrap iterations, calculates enrichment p-values < 0.01, and generates a final report with a heatmap.
 
 ### Tests for User Story 3 (REQUIRED)
 

@@ -4,9 +4,18 @@ import sys
 import time
 from pathlib import Path
 import shutil
+import logging
+import json
 
-# Define the target datasets based on the task description
-GSE_IDS = [
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# Target datasets as per FR-001 (corrected GSE IDs)
+TARGET_GSE_IDS = [
     "GSE136103",
     "GSE127465",
     "GSE111075",
@@ -15,175 +24,211 @@ GSE_IDS = [
 
 def check_sra_toolkit() -> bool:
     """
-    Checks if SRA Toolkit (prefetch) is installed and accessible.
-    Returns True if available, False otherwise.
+    Verify that SRA Toolkit is installed and accessible.
+    Checks for 'prefetch' and 'fasterq-dump' commands.
     """
     try:
+        # Check prefetch
         result = subprocess.run(
             ["prefetch", "--help"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
             timeout=10
         )
-        return result.returncode == 0
+        if result.returncode != 0:
+            logger.error("prefetch command returned non-zero exit code.")
+            return False
+
+        # Check fasterq-dump
+        result = subprocess.run(
+            ["fasterq-dump", "--help"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=10
+        )
+        if result.returncode != 0:
+            logger.error("fasterq-dump command returned non-zero exit code.")
+            return False
+
+        logger.info("SRA Toolkit verification successful.")
+        return True
     except FileNotFoundError:
+        logger.error("SRA Toolkit commands (prefetch, fasterq-dump) not found in PATH.")
         return False
     except subprocess.TimeoutExpired:
+        logger.error("SRA Toolkit command timed out during verification.")
         return False
 
-def get_sra_ids_for_gse(gse_id: str) -> list[str]:
+def get_sra_ids_for_gse(gse_id: str) -> list:
     """
-    Retrieves the list of SRA run IDs associated with a specific GEO accession (GSE).
-    Uses `esearch` and `efetch` from Entrez Direct (or similar tools if available).
-    If Entrez tools are not found, it attempts to parse the GEO web page or
-    falls back to a known mapping if the dataset is standard.
+    Fetch SRA accession IDs associated with a GSE accession using eutils.
+    Returns a list of SRA IDs (e.g., SRRxxxxxx).
+    """
+    logger.info(f"Fetching SRA IDs for GSE: {gse_id}")
     
-    NOTE: For robustness in this specific project context, we attempt to use
-    the `esearch` command which is part of the Entrez Direct suite often
-    installed alongside or alongside SRA toolkit environments. If that fails,
-    we raise an error to prevent silent failure.
-    """
-    # Standard command to fetch SRA runs from a GSE using Entrez Direct
-    # esearch -db gds -query "GSE136103" | elink -target sra | efetch -format runinfo
-    # However, a more direct way for GSE -> SRR is via the GEO2R or specific GEO queries.
-    # We will use a robust approach: search GDS for the GSE and link to SRA.
+    # Use esearch and efetch to map GSE to SRA
+    # Command: esearch -db gds -query <GSE> | efetch -format docsum | xtract -pattern DocumentSummary -element SRA
+    # Note: GSE maps to GEO (gds/gene), but SRA runs are often linked via BioProject or direct GSE->SRA mapping in some contexts.
+    # A more robust approach for GSE -> SRR:
+    # 1. esearch -db sra -query <GSE>[accession]
+    # This often works if the GSE is directly linked in SRA metadata.
     
     cmd = [
-        "esearch", "-db", "gds", "-query", gse_id,
-        "|", "elink", "-target", "sra",
-        "|", "efetch", "-format", "runinfo"
+        "esearch", "-db", "sra", "-query", f"{gse_id}[accession]"
     ]
-    # Since subprocess doesn't handle pipes in a single list easily without shell=True,
-    # and shell=True is risky, we will use a simpler direct fetch if possible or
-    # a Python-based approach using `requests` if Entrez CLI is missing.
     
-    # Fallback to a known mapping for these specific well-known datasets if CLI tools are missing,
-    # as these are standard reference datasets.
-    # This ensures the script works without requiring a full Entrez Direct installation
-    # which might be heavy, while still being "real" data logic.
-    
-    known_mappings = {
-        "GSE136103": ["SRR9990584", "SRR9990585", "SRR9990586", "SRR9990587", "SRR9990588", "SRR9990589"],
-        "GSE127465": ["SRR8263401", "SRR8263402", "SRR8263403", "SRR8263404", "SRR8263405"],
-        "GSE111075": ["SRR6403606", "SRR6403607", "SRR6403608", "SRR6403609", "SRR6403610"],
-        "GSE138852": ["SRR10309325", "SRR10309326", "SRR10309327", "SRR10309328", "SRR10309329"]
-    }
-
-    if gse_id in known_mappings:
-        return known_mappings[gse_id]
-    
-    # Attempt dynamic fetch if not in known list
     try:
-        # Try using esearch if available
-        import requests
-        # NCBI E-utilities URL for fetching SRA runs from GSE
-        # This is a more robust programmatic way without shell pipes
-        url = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gds&term={gse_id}&retmode=json&rettype=text"
-        # Note: The direct GSE->SRR mapping via E-utilities is complex.
-        # Given the constraints and the "real data" requirement, relying on the
-        # known mapping for these specific, well-documented datasets is the most
-        # reliable programmatic path that doesn't depend on external CLI tools
-        # that might not be in the PATH (like `esearch`).
-        # If this were a generic tool, we would implement the full Entrez workflow.
-        # For this specific task, the mapping is verified real data.
-        return [] 
-    except Exception:
-        return []
-
-def download_sra(srr_id: str, output_dir: Path) -> bool:
-    """
-    Downloads a single SRA run using the `prefetch` command from SRA Toolkit.
-    Returns True if successful, False otherwise.
-    """
-    output_path = output_dir / f"{srr_id}.sra"
-    if output_path.exists():
-        print(f"  Skipping {srr_id}: already exists at {output_path}")
-        return True
-
-    print(f"  Downloading {srr_id}...")
-    try:
-        # Run prefetch
-        cmd = ["prefetch", srr_id]
-        # Set environment for output directory if needed, but prefetch usually defaults to current
-        # We change to output_dir to ensure file lands there
-        old_cwd = os.getcwd()
-        os.chdir(str(output_dir))
-        
-        result = subprocess.run(
+        search_proc = subprocess.run(
             cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            timeout=3600  # 1 hour timeout per file
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=60
         )
         
-        os.chdir(old_cwd)
-        
-        if result.returncode == 0:
-            print(f"  Successfully downloaded {srr_id}")
-            return True
-        else:
-            print(f"  Failed to download {srr_id}: {result.stderr.decode()}")
-            return False
+        if not search_proc.stdout.strip():
+            logger.warning(f"No direct SRA accession found for GSE {gse_id} via direct query. Trying alternative method.")
+            # Alternative: Try fetching from BioProject if direct fails, but for simplicity in this script,
+            # we assume the direct query or the GSE is known to map to SRRs via the GSE metadata.
+            # If esearch returns nothing, we might need to parse the GSE summary.
+            # However, standard practice for 'download_data' in this context often assumes
+            # the user provides the SRR list or the GSE maps directly.
+            # Let's try a more specific query: GSE136103[SRA]
+            cmd = [
+                "esearch", "-db", "sra", "-query", f"{gse_id}[SRA]"
+            ]
+            search_proc = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                check=True,
+                timeout=60
+            )
+
+        if not search_proc.stdout.strip():
+            logger.error(f"Could not retrieve any SRA IDs for {gse_id}.")
+            return []
+
+        # Parse the XML output to get IDs
+        # The output is XML containing <Id> tags
+        import xml.etree.ElementTree as ET
+        try:
+            root = ET.fromstring(search_proc.stdout)
+            ids = [elem.text for elem in root.findall('.//Id')]
+            if not ids:
+                logger.warning(f"Found no <Id> elements in XML for {gse_id}.")
+                return []
+            logger.info(f"Found {len(ids)} SRA IDs for {gse_id}: {ids[:5]}...")
+            return ids
+        except ET.ParseError:
+            logger.error("Failed to parse XML response from eutils.")
+            return []
+
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Error searching SRA for {gse_id}: {e}")
+        return []
     except subprocess.TimeoutExpired:
-        print(f"  Timeout downloading {srr_id}")
+        logger.error(f"Timeout searching SRA for {gse_id}.")
+        return []
+
+def download_sra(sra_id: str, output_dir: Path) -> bool:
+    """
+    Download and convert SRA data to FASTQ using fasterq-dump.
+    Returns True on success, False on failure.
+    """
+    logger.info(f"Starting download for {sra_id}...")
+    
+    # Ensure output directory exists
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Define output paths
+    # fasterq-dump outputs .fastq files. We will name them <SRA_ID>.fastq
+    # If multiple files (paired), it might output _1.fastq and _2.fastq
+    fastq_path = output_dir / f"{sra_id}.fastq"
+    
+    cmd = [
+        "fasterq-dump",
+        "--outdir", str(output_dir),
+        "--split-files", # Handles paired end if present
+        "--skip-technical",
+        "--read-filter", "pass",
+        sra_id
+    ]
+    
+    try:
+        result = subprocess.run(
+            cmd,
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=7200 # 2 hours timeout per dataset
+        )
+        
+        # Check if files were created
+        files = list(output_dir.glob(f"{sra_id}*.fastq*"))
+        if not files:
+            logger.error(f"fasterq-dump finished but no files found for {sra_id}.")
+            return False
+        
+        logger.info(f"Successfully downloaded {sra_id}. Files: {[f.name for f in files]}")
+        return True
+
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Download failed for {sra_id}: {e.stderr}")
         return False
-    except FileNotFoundError:
-        print(f"  Error: 'prefetch' command not found. Ensure SRA Toolkit is installed.")
+    except subprocess.TimeoutExpired:
+        logger.error(f"Download timed out for {sra_id}.")
         return False
 
 def main():
     """
-    Main entry point to download all specified GSE datasets.
+    Main entry point to download raw count matrices (FASTQ) for specified GSE datasets.
     """
-    # Determine project root (assuming script is in code/)
-    script_dir = Path(__file__).resolve().parent
-    project_root = script_dir.parent
-    data_raw_dir = project_root / "data" / "raw"
-    
-    # Ensure output directory exists
-    data_raw_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Check prerequisites
+    # 1. Check prerequisites
     if not check_sra_toolkit():
-        print("ERROR: SRA Toolkit (prefetch) is not installed or not in PATH.")
-        print("Please run T004a (install_sra_toolkit.py) first.")
+        logger.critical("SRA Toolkit is not properly installed or configured. Aborting.")
         sys.exit(1)
+
+    # 2. Setup output directory
+    project_root = Path(__file__).resolve().parent.parent
+    raw_data_dir = project_root / "data" / "raw"
+    raw_data_dir.mkdir(parents=True, exist_ok=True)
     
-    print(f"Starting download of {len(GSE_IDS)} datasets to {data_raw_dir}")
+    logger.info(f"Output directory set to: {raw_data_dir}")
+
+    # 3. Process each GSE
+    status_log = []
     
-    total_downloaded = 0
-    total_failed = 0
-    
-    for gse_id in GSE_IDS:
-        print(f"\nProcessing {gse_id}...")
-        srr_ids = get_sra_ids_for_gse(gse_id)
+    for gse in TARGET_GSE_IDS:
+        logger.info(f"Processing GSE: {gse}")
         
-        if not srr_ids:
-            print(f"  WARNING: No SRA IDs found for {gse_id}. Skipping.")
-            total_failed += 1
+        # Fetch SRA IDs
+        sra_ids = get_sra_ids_for_gse(gse)
+        
+        if not sra_ids:
+            logger.warning(f"No SRA IDs found for {gse}. Skipping.")
+            status_log.append({"gse": gse, "status": "skipped", "reason": "No SRA IDs found"})
             continue
         
-        print(f"  Found {len(srr_ids)} runs: {srr_ids}")
-        
-        for srr_id in srr_ids:
-            success = download_sra(srr_id, data_raw_dir)
-            if success:
-                total_downloaded += 1
+        success_count = 0
+        for sra_id in sra_ids:
+            if download_sra(sra_id, raw_data_dir):
+                success_count += 1
             else:
-                total_failed += 1
-                # Optional: Decide whether to stop on first failure or continue
-                # For robustness, we continue to download others if one fails.
+                logger.error(f"Failed to download {sra_id}.")
+        
+        if success_count > 0:
+            status_log.append({"gse": gse, "status": "success", "files_downloaded": success_count})
+        else:
+            status_log.append({"gse": gse, "status": "failed", "reason": "No files downloaded"})
+
+    # 4. Write status log
+    status_file = raw_data_dir / "download_status.json"
+    with open(status_file, "w") as f:
+        json.dump(status_log, f, indent=2)
     
-    print(f"\n--- Download Summary ---")
-    print(f"Total Runs Attempted: {total_downloaded + total_failed}")
-    print(f"Successful: {total_downloaded}")
-    print(f"Failed: {total_failed}")
-    
-    if total_failed > 0:
-        print("WARNING: Some downloads failed. Check logs above.")
-        sys.exit(1)
-    else:
-        print("All downloads completed successfully.")
+    logger.info(f"Download process complete. Status written to {status_file}")
 
 if __name__ == "__main__":
     main()

@@ -4,3 +4,4 @@ A separate model checked the artifacts you produced for the tasks below and judg
 
 - **T001** — No directory structure was presented; the required folders (`code/`, `data/raw/`, `data/processed/`, `data/generated/`, `data/validation/`, `tests/`) are not shown to exist or contain any files. The implementer provided no artifact confirming the tree was created.
 - **T003** — No `.gitignore` file was presented in the evidence, and there is no indication that a file containing rules to ignore `data/` (including its subfolders) and `__pycache__` actually exists or has the correct entries. The required artifact is missing.
+- **T005** — declared artifact(s) missing/empty/invalid: state.yaml

@@ -1,5 +1,4 @@
-# Data directory placeholder
-# This directory is managed by the pipeline.
-# Raw data will be downloaded to data/raw/
-# Processed data to data/processed/
-# Results to data/results/
+# This directory structure is managed by the pipeline
+# data/raw/ - Raw downloaded data
+# data/processed/ - Normalized and QC-filtered data
+# data/results/ - Final analysis outputs

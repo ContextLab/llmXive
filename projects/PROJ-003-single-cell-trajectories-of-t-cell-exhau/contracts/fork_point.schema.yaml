@@ -1,78 +1,95 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Fork-Point Genes Output Schema
-description: >
-  Schema defining the output structure for fork-point genes identified
-  during trajectory analysis. This schema is used by `forkpoint.py` (T020b, T022)
-  and validated by integration tests (T020).
+description: |
+  Schema defining the output structure for fork-point genes identified during
+  trajectory analysis. These are genes exhibiting significant differential timing
+  at branch points in T-cell exhaustion trajectories.
 type: object
 required:
-  - fork_points
+  - fork_point_genes
+  - metadata
 properties:
-  fork_points:
+  fork_point_genes:
     type: array
-    description: >
-      List of detected fork points, each containing genes ranked by timing
-      relative to the branch point.
+    description: List of genes identified at fork points with their associated metadata.
     items:
       type: object
       required:
+        - gene_symbol
         - branch_id
+        - timing_rank
         - divergence_score
-        - genes
+        - confidence_level
       properties:
+        gene_symbol:
+          type: string
+          description: Standard gene symbol (e.g., HGNC symbol).
+          minLength: 1
         branch_id:
           type: string
-          description: >
-            Unique identifier for the branch point (e.g., "GSE136103_branch_1").
-            Format: {dataset_id}_branch_{rank}.
-          pattern: "^[A-Z0-9]+_branch_[0-9]+$"
+          description: Unique identifier for the branch point where this gene is relevant.
+          minLength: 1
+        timing_rank:
+          type: integer
+          description: |
+            Ranking of the gene's timing relative to the branch point.
+            1 indicates the earliest expression change relative to the branch.
+            Higher numbers indicate later changes.
+          minimum: 1
         divergence_score:
           type: number
-          description: >
-            Statistical significance of the fork point, measured as
-            standard deviations above the null distribution mean.
-            Values > 2.0 are considered significant (T021).
-            Values between 1.5 and 2.0 are flagged as 'low_confidence' (T023).
+          description: |
+            Statistical divergence score (Z-score) indicating how far the velocity
+            vector field diverges from the null distribution at this branch point.
+            Scores > 2.0 are considered significant branch points.
           minimum: 0.0
-        genes:
-          type: array
-          description: >
-            List of genes associated with this fork point, ranked by
-            their timing relative to the branch (earliest first).
-          items:
-            type: object
-            required:
-              - gene_symbol
-              - timing_rank
-              - timing_pseudotime
-              - confidence_flag
-            properties:
-              gene_symbol:
-                type: string
-                description: Official gene symbol (e.g., "CD38", "TCF7").
-                minLength: 1
-              timing_rank:
-                type: integer
-                description: >
-                  Rank of the gene's timing relative to the branch point.
-                  1 indicates the earliest change in expression.
-                minimum: 1
-              timing_pseudotime:
-                type: number
-                description: >
-                  Pseudotime value at which the gene's expression changes
-                  significantly relative to the branch. Must differ from
-                  the branch pseudotime by > 0.1 units (T024).
-                minimum: 0.0
-              confidence_flag:
-                type: string
-                enum:
-                  - high_confidence
-                  - low_confidence
-                description: >
-                  Confidence level based on divergence score.
-                  'low_confidence' if divergence < 2.0 SD (T023).
-                  'high_confidence' if divergence >= 2.0 SD.
-            additionalProperties: false
+        confidence_level:
+          type: string
+          enum:
+            - high_confidence
+            - low_confidence
+          description: |
+            Confidence classification based on divergence thresholds.
+            'high_confidence' if divergence > 2.0 SD above null mean.
+            'low_confidence' if 1.5 < divergence <= 2.0 SD.
       additionalProperties: false
+  metadata:
+    type: object
+    required:
+      - dataset_id
+      - analysis_timestamp
+      - total_branch_points
+      - total_genes_reported
+    properties:
+      dataset_id:
+        type: string
+        description: Identifier of the dataset this analysis was performed on (e.g., GSE136103).
+      analysis_timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of when the analysis was generated.
+      total_branch_points:
+        type: integer
+        description: Total number of branch points detected in the trajectory.
+        minimum: 0
+      total_genes_reported:
+        type: integer
+        description: Total number of genes reported in the fork_point_genes list.
+        minimum: 0
+      parameters:
+        type: object
+        description: Parameters used for the fork-point detection.
+        properties:
+          divergence_threshold_high:
+            type: number
+            description: Threshold for high confidence (default 2.0).
+          divergence_threshold_low:
+            type: number
+            description: Threshold for low confidence (default 1.5).
+          null_model_type:
+            type: string
+            description: Type of null model used (e.g., 'rotation_based').
+      notes:
+        type: string
+        description: Optional notes about the analysis or data quality.
 additionalProperties: false

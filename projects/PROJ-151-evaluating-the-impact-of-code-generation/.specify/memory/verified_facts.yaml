@@ -1,5 +1,6 @@
-'|analysi code effect fit implement linear mixed model py':
-  quote: linear mixed-effects model
-  source_id: Q120282163
-  url: https://www.wikidata.org/wiki/Q120282163
-  value: linear mixed-effects model
+'|fallback sample size target':
+  quote: S. M. Fleischer ,200 L. S. Fleming,201 E. Floden,18 H. Fong,115 J. A. Font
+    ,138, 139 F. Fontinele-Nunes,18 C. Foo,1
+  source_id: '2509.07352'
+  url: https://arxiv.org/abs/2509.07352
+  value: '200'

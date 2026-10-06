@@ -1,40 +1,63 @@
 # Single-Cell Trajectories of T-Cell Exhaustion
 
+Automated pipeline for reconstructing T-cell exhaustion trajectories from scRNA-seq data.
+
+## Prerequisites
+
+- Python 3.9+
+- R 4.3+ (with Seurat v4)
+- SRA Toolkit
+
 ## Setup
 
-1. Create a virtual environment:
+1. Install dependencies:
  ```bash
- python -m venv.venv
- source.venv/bin/activate
+ pip install -e ".[dev]"
  ```
 
-2. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
-
-3. Install pre-commit hooks:
+2. Configure pre-commit hooks:
  ```bash
  pre-commit install
  ```
 
+## Development
+
+### Linting & Formatting
+
+Run linter:
+```bash
+make lint
+```
+
+Run formatter:
+```bash
+make format
+```
+
+Run both:
+```bash
+make check
+```
+
+### Testing
+
+```bash
+make test
+```
+
+## Project Structure
+
+```
+projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/
+├── code/ # Pipeline scripts
+├── data/ # Data directories (raw, processed, results)
+├── tests/ # Test suite
+├── config.yaml # Configuration file
+├── pyproject.toml # Project metadata and tool configs
+├── requirements.txt # Runtime dependencies
+└── Makefile # Build automation
+```
+
 ## Usage
 
-Run the pipeline:
-```bash
-python code/download_data.py
-python code/preprocess.py
-python code/velocity.py
-```
-
-## Configuration
-
-Linting and formatting are configured via:
-- `pyproject.toml`: Black and Ruff settings
-- `.pre-commit-config.yaml`: Pre-commit hooks
-
-Run manually:
-```bash
-ruff check code/
-black code/
-```
+See `quickstart.md` for detailed usage instructions.
