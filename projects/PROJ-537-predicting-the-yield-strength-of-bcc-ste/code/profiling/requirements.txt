@@ -1,0 +1,4 @@
+# Additional dependencies for profiling and optimization
+psutil>=5.9.0
+pyarrow>=10.0.0
+fastparquet>=0.8.0

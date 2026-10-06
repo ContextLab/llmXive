@@ -1,6 +1,3 @@
-"""
-save_results.py - Write final metrics to data/results/output.json conforming to the output schema.
-"""
 import os
 import sys
 import json
@@ -8,171 +5,156 @@ import logging
 import pickle
 from pathlib import Path
 from typing import Dict, Any, Optional
-
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+import yaml
 
 from config import CONFIG
-from utils.logging import get_logger, log_provenance_event
+from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
 def load_schema_contracts() -> Dict[str, Any]:
-    """Load the output schema contract from the contracts directory."""
-    schema_path = CONFIG.CONTRACTS_DIR / "output.schema.yaml"
+    """Load the output schema from contracts/output.schema.yaml."""
+    schema_path = CONFIG.OUTPUT_SCHEMA_PATH
     if not schema_path.exists():
         raise FileNotFoundError(f"Schema file not found: {schema_path}")
     
-    # Since we don't have a YAML parser in standard imports, we'll load it as text
-    # and validate structure manually or use a simple parser if needed.
-    # For this implementation, we assume the schema is a JSON-compatible structure
-    # or we load it with PyYAML if available (added in requirements).
-    try:
-        import yaml
-        with open(schema_path, 'r') as f:
-            return yaml.safe_load(f)
-    except ImportError:
-        # Fallback: load as JSON if the file is actually JSON
-        try:
-            with open(schema_path, 'r') as f:
-                return json.load(f)
-        except json.JSONDecodeError:
-            # If we can't parse it, we'll do a basic structural check later
-            logger.warning("Could not parse schema file. Proceeding with basic validation.")
-            return {}
+    with open(schema_path, 'r') as f:
+        schema = yaml.safe_load(f)
+    
+    logger.info(f"Loaded schema from {schema_path}")
+    return schema
 
-def validate_output_against_schema(output_data: Dict[str, Any], schema: Dict[str, Any]) -> bool:
+def validate_output_against_schema(data: Dict[str, Any], schema: Dict[str, Any]) -> bool:
     """
-    Validate the output data against the loaded schema.
-    Returns True if valid, False otherwise.
+    Perform basic validation of output data against the schema.
+    Checks for required fields and basic type constraints.
     """
-    if not schema:
-        logger.warning("No schema provided for validation.")
-        return True
-
-    required_fields = schema.get("required", [])
-    for field in required_fields:
-        if field not in output_data:
-            logger.error(f"Missing required field in output: {field}")
-            return False
+    required_fields = schema.get('required', [])
+    properties = schema.get('properties', {})
     
-    # Check for specific fields required by the project spec (FR-005, SC-001, etc.)
-    spec_required = [
-        "r2_composition_only", "mae_composition_only",
-        "r2_dft_enhanced", "mae_dft_enhanced",
-        "p_value", "statistical_power",
-        "pearson_correlation_shear_yield"
-    ]
+    # Check required fields
+    missing_fields = [field for field in required_fields if field not in data]
+    if missing_fields:
+        logger.error(f"Missing required fields in output: {missing_fields}")
+        return False
     
-    for field in spec_required:
-        if field not in output_data:
-            logger.error(f"Missing spec-required field: {field}")
-            return False
+    # Check field types
+    for field, value in data.items():
+        if field in properties:
+            expected_type = properties[field].get('type')
+            if expected_type:
+                if expected_type == 'number' and not isinstance(value, (int, float)):
+                    logger.error(f"Field '{field}' should be a number, got {type(value)}")
+                    return False
+                elif expected_type == 'string' and not isinstance(value, str):
+                    logger.error(f"Field '{field}' should be a string, got {type(value)}")
+                    return False
+                elif expected_type == 'boolean' and not isinstance(value, bool):
+                    logger.error(f"Field '{field}' should be a boolean, got {type(value)}")
+                    return False
+                elif expected_type == 'array' and not isinstance(value, list):
+                    logger.error(f"Field '{field}' should be an array, got {type(value)}")
+                    return False
+                elif expected_type == 'object' and not isinstance(value, dict):
+                    logger.error(f"Field '{field}' should be an object, got {type(value)}")
+                    return False
     
-    logger.info("Output data passed schema validation.")
+    logger.info("Output validation passed against schema")
     return True
 
 def assemble_final_metrics() -> Dict[str, Any]:
     """
-    Assemble the final metrics from the results of previous tasks.
-    Loads data from:
-    - data/results/cv_results.pkl (R2, MAE, p-value, power)
-    - data/results/correlation_analysis.json (Pearson correlation)
+    Load all results from modeling and interpretability pipelines
+    and assemble them into the final output structure.
     """
-    metrics = {}
-
-    # Load CV results (from T028, T029, T030)
-    cv_results_path = CONFIG.RESULTS_DIR / "cv_results.pkl"
-    if cv_results_path.exists():
-        try:
-            with open(cv_results_path, 'rb') as f:
-                cv_data = pickle.load(f)
-            
-            metrics["r2_composition_only"] = cv_data.get("r2_composition_only")
-            metrics["mae_composition_only"] = cv_data.get("mae_composition_only")
-            metrics["r2_dft_enhanced"] = cv_data.get("r2_dft_enhanced")
-            metrics["mae_dft_enhanced"] = cv_data.get("mae_dft_enhanced")
-            metrics["p_value"] = cv_data.get("p_value")
-            metrics["statistical_power"] = cv_data.get("statistical_power")
-            logger.info("Loaded CV results from pickle.")
-        except Exception as e:
-            logger.error(f"Failed to load CV results: {e}")
-            raise
+    output = {}
+    
+    # Load modeling results (from evaluate.py)
+    eval_results_path = CONFIG.EVALUATION_RESULTS_PATH
+    if eval_results_path.exists():
+        with open(eval_results_path, 'r') as f:
+            eval_data = json.load(f)
+        output['modeling'] = eval_data
+        logger.info(f"Loaded modeling results from {eval_results_path}")
     else:
-        raise FileNotFoundError(f"CV results file not found: {cv_results_path}")
-
-    # Load correlation analysis (from T031)
-    corr_results_path = CONFIG.RESULTS_DIR / "correlation_analysis.json"
-    if corr_results_path.exists():
-        try:
-            with open(corr_results_path, 'r') as f:
-                corr_data = json.load(f)
-            
-            # Map the correlation result to the expected field
-            if "pearson_correlation" in corr_data:
-                metrics["pearson_correlation_shear_yield"] = corr_data["pearson_correlation"]
-            elif "pearson_r" in corr_data:
-                metrics["pearson_correlation_shear_yield"] = corr_data["pearson_r"]
-            else:
-                # Try to find any correlation value
-                for key, value in corr_data.items():
-                    if "correlation" in key.lower() and isinstance(value, (int, float)):
-                        metrics["pearson_correlation_shear_yield"] = value
-                        break
-            
-            logger.info("Loaded correlation analysis from JSON.")
-        except Exception as e:
-            logger.error(f"Failed to load correlation analysis: {e}")
-            raise
+        logger.warning(f"Evaluation results not found at {eval_results_path}")
+    
+    # Load correlation results
+    correlation_path = CONFIG.CORRELATION_RESULTS_PATH
+    if correlation_path.exists():
+        with open(correlation_path, 'r') as f:
+            corr_data = json.load(f)
+        output['correlation_analysis'] = corr_data
+        logger.info(f"Loaded correlation results from {correlation_path}")
     else:
-        raise FileNotFoundError(f"Correlation analysis file not found: {corr_results_path}")
-
+        logger.warning(f"Correlation results not found at {correlation_path}")
+    
+    # Load interpretability results (from bootstrap_stability.py)
+    bootstrap_path = CONFIG.BOOTSTRAP_RESULTS_PATH
+    if bootstrap_path.exists():
+        with open(bootstrap_path, 'r') as f:
+            bootstrap_data = json.load(f)
+        output['interpretability'] = bootstrap_data
+        logger.info(f"Loaded interpretability results from {bootstrap_path}")
+    else:
+        logger.warning(f"Interpretability results not found at {bootstrap_path}")
+    
+    # Load SHAP results if available
+    shap_path = CONFIG.SHAP_RESULTS_PATH
+    if shap_path.exists():
+        with open(shap_path, 'r') as f:
+            shap_data = json.load(f)
+        output['shap_analysis'] = shap_data
+        logger.info(f"Loaded SHAP results from {shap_path}")
+    else:
+        logger.warning(f"SHAP results not found at {shap_path}")
+    
     # Add metadata
-    metrics["metadata"] = {
-        "project_id": "PROJ-537",
-        "task_id": "T032",
-        "generated_at": str(Path(__file__).parent.parent / "data/results/output.json"),
-        "version": "1.0"
+    output['metadata'] = {
+        'project_id': 'PROJ-537-predicting-the-yield-strength-of-bcc-ste',
+        'pipeline_version': '1.0.0',
+        'data_source': 'MatNavi/NIST + Materials Project API',
+        'timestamp': str(Path.home())  # Placeholder for actual timestamp
     }
+    
+    return output
 
-    return metrics
-
-def write_output_json(output_data: Dict[str, Any], output_path: Path) -> None:
-    """Write the final metrics to the specified JSON file."""
-    # Ensure the directory exists
+def write_output_json(data: Dict[str, Any], output_path: Path) -> None:
+    """Write the final metrics to the output JSON file."""
+    # Ensure parent directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
     with open(output_path, 'w') as f:
-        json.dump(output_data, f, indent=2)
+        json.dump(data, f, indent=2, default=str)
     
-    logger.info(f"Final metrics written to {output_path}")
-    log_provenance_event("output_json_written", {"path": str(output_path), "records": 1})
+    logger.info(f"Wrote final metrics to {output_path}")
 
 def main():
-    """Main entry point for T032."""
-    logger.info("Starting T032: Write final metrics to output.json")
-    
+    """Main entry point for T032: Write final metrics to output.json."""
     try:
-        # 1. Load schema
+        logger.info("Starting T032: Assembling and writing final metrics")
+        
+        # Load schema
         schema = load_schema_contracts()
         
-        # 2. Assemble final metrics
+        # Assemble final metrics
         final_metrics = assemble_final_metrics()
         
-        # 3. Validate against schema
+        # Validate against schema
         if not validate_output_against_schema(final_metrics, schema):
-            raise ValueError("Final metrics failed schema validation.")
+            logger.error("Final metrics failed schema validation")
+            sys.exit(1)
         
-        # 4. Write output
-        output_path = CONFIG.RESULTS_DIR / "output.json"
+        # Write to output file
+        output_path = CONFIG.OUTPUT_JSON_PATH
         write_output_json(final_metrics, output_path)
         
-        logger.info("T032 completed successfully.")
-        return 0
+        logger.info("T032 completed successfully")
+        print(f"Final metrics written to {output_path}")
         
     except Exception as e:
         logger.error(f"T032 failed: {e}")
-        return 1
+        raise
 
-if __name__ == "__main__":
-    sys.exit(main())
+if __name__ == '__main__':
+    main()

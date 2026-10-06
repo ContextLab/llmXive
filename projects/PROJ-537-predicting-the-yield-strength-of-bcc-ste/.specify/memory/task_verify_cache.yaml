@@ -1,28 +1,40 @@
-T001:
+T039:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listings or file system snapshots were provided, so there is no\
-    \ evidence that any of the required folders (`code/`, `data/`, `data/raw/`, `data/intermediate/`,\
-    \ `data/processed/`, `data/provenance/`, `data/results/`, `tests/`, `tests/unit/`,\
-    \ `tests/integration/`, `tests/contract/`) actually exist. The implementer must\
-    \ supply a view of the project tree or confirmation that these directories have\
-    \ been created and are non\u2011empty."
-T003:
+  r: No code, script, function, test, or output file was provided that implements
+    the required logic to compute the standard deviation of key DFT descriptors across
+    the 10 bootstrapped samples from T038 and to produce the `is_stable` boolean.
+    The necessary artifact is missing, so the task is not satisfied.
+T040:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., .flake8, pyproject.toml,
-    setup.cfg, or similar) were presented for the `code/` directory, so there is no
-    evidence that flake8 and black have been set up. The required artifacts are missing.
-T004:
+  r: No SHAP summary or stability distribution plots were provided, nor any files
+    under `data/results/` showing such figures. The required output artifacts are
+    missing, so the task is not satisfied.
+T042:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No git\u2011hook files, configuration, or documentation were provided; the claim\
-    \ contains no artifact showing a pre\u2011commit hook that checks seeds or imports.\
-    \ The required setup for Git hooks is missing entirely."
-T020:
+  r: "No updated\u202FREADME.md file was provided; there is no evidence that installation\
+    \ instructions, usage examples, or data source citations were added. The required\
+    \ documentation artifact is missing, so the task is not satisfied."
+T044:
   c: false
-  h: 55802bd5235bbd845ddfa73837a30357d29f02e19b85cda68998cae81368c346
-  r: The required file `state/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste.yaml`
-    does not exist in the repository, so no artifact hashes could have been added.
-    The task cannot be considered completed until this YAML file is present and updated
-    with the appropriate hashes.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code or refactoring artifacts are present; the implementer provided no files,\
+    \ diffs, or documentation showing that any code cleanup or readability improvements\
+    \ were made for the yield\u2011strength prediction project. Consequently, the\
+    \ required deliverable is missing."
+T045:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No profiling logs, benchmark results, or any evidence of memory/CPU optimizations\
+    \ are provided, nor any demonstration that the pipeline now runs in under 6\u202F\
+    hours on a 2\u2011core machine. The implementer\u2019s artifacts only discuss\
+    \ data merging and modeling, not the required performance profiling and optimization."
+T046:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No merged CSV, logs, or test output files are present to demonstrate that the\
+    \ data integration script was executed, that at least 20 valid rows were produced,\
+    \ or that the end\u2011to\u2011end pipeline (including model training and evaluation)\
+    \ was run. Without these artifacts the claim cannot be verified."

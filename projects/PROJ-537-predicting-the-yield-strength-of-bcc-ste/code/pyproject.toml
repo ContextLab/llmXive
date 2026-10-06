@@ -3,10 +3,10 @@ requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-bcc-yield-strength"
+name = "llmxive-bcc-yield"
 version = "0.1.0"
-description = "Predicting the Yield Strength of BCC Steels from Compositional Data and DFT"
-requires-python = ">=3.9"
+description = "Predicting Yield Strength of BCC Steels"
+requires-python = ">=3.8"
 dependencies = [
     "pandas",
     "scikit-learn",
@@ -19,36 +19,48 @@ dependencies = [
     "flake8",
     "black",
     "isort",
-    "pytest-cov",
+    "scipy"
 ]
 
 [tool.black]
 line-length = 88
-target-version = ['py39', 'py310', 'py311']
+target-version = ['py38']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
 
 [tool.isort]
 profile = "black"
 line_length = 88
-known_first_party = ["config", "utils", "ingestion", "modeling", "interpretability"]
-skip = [".git", ".venv", "venv", "__pycache__", "build", "dist"]
+skip = [
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".tox",
+    ".venv",
+    "_build",
+    "buck-out",
+    "build",
+    "dist"
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning"
+]

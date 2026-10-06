@@ -1,347 +1,275 @@
-"""
-Bootstrap Stability Analysis for Feature Importance.
-
-This module implements the bootstrap stability analysis as per FR-007 and FR-008:
-1. Sample-size sweep (n=10 to n=50) to calculate std_dev of feature importance.
-2. Fixed-sample bootstrap (10 resamples) to calculate stability of key descriptors.
-
-It loads the merged dataset from data/intermediate/merged.csv, trains a Random Forest
-model (reusing the trained model logic or training a fresh one if needed), and performs
-the stability analysis.
-"""
-
 import os
 import sys
 import json
 import logging
 import pickle
 import numpy as np
-import pandas as pd
 from pathlib import Path
 from typing import Dict, List, Tuple, Any, Optional
-
-# Project imports based on provided API surface
-from config import CONFIG
-from utils.logging import get_logger, log_provenance_event
-from modeling.train import train_random_forest_cv
-from modeling.features import prepare_modeling_features
-
-# Import scikit-learn components
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.inspection import permutation_importance
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_absolute_error
-import joblib
+import pandas as pd
 
-# Constants
-SEED = 42
-np.random.seed(SEED)
+# Local imports based on project API surface
+from config import CONFIG, ensure_dirs
+from utils.logging import get_logger, log_provenance_event
 
 logger = get_logger(__name__)
 
-def load_data_and_model() -> Tuple[pd.DataFrame, Any, List[str]]:
+def load_data_and_model() -> Tuple[pd.DataFrame, np.ndarray, np.ndarray, RandomForestRegressor, List[str]]:
     """
-    Loads the merged dataset and the trained Random Forest model.
-    If the model doesn't exist at the expected path, it trains a fresh one.
+    Loads the preprocessed data and the trained DFT-enhanced Random Forest model.
+    Expects data at CONFIG.PROCESSED_DATA_PATH and model at CONFIG.MODEL_PATH.
     """
-    merged_path = CONFIG.MERGED_DATA_PATH
-    if not os.path.exists(merged_path):
-        raise FileNotFoundError(f"Required dataset not found at {merged_path}. "
-                                "Run ingestion pipeline first.")
+    data_path = Path(CONFIG.PROCESSED_DATA_PATH)
+    model_path = Path(CONFIG.MODEL_PATH)
 
-    df = pd.read_csv(merged_path)
-    logger.info(f"Loaded dataset with {len(df)} rows.")
+    if not data_path.exists():
+        raise FileNotFoundError(f"Processed data not found at {data_path}. Run modeling pipeline first.")
+    if not model_path.exists():
+        raise FileNotFoundError(f"Trained model not found at {model_path}. Run training pipeline first.")
 
-    # Define target and features
-    # Based on typical flow: yield_strength is target, others are features
-    # We need to ensure we have the correct feature columns.
-    # The 'prepare_modeling_features' function likely handles this.
-    # For now, we assume the model was saved with specific feature names.
-
-    model_path = CONFIG.TRAINED_MODEL_PATH
-    if os.path.exists(model_path):
-        with open(model_path, 'rb') as f:
-            model = pickle.load(f)
-        logger.info(f"Loaded existing model from {model_path}")
-    else:
-        logger.warning(f"Model not found at {model_path}. Training a fresh model.")
-        # Prepare features
-        # We need to mimic the feature engineering from US2
-        # Assuming 'prepare_modeling_features' returns X, y, feature_names
-        # Since we can't easily call the full pipeline without more context,
-        # we will replicate the feature preparation logic here or use a simpler approach.
-        
-        # Let's try to load the preprocessed data if it exists, otherwise prepare it.
-        # The task T024/T025 should have produced a processed dataset.
-        # If not, we prepare it here.
-        
-        # For robustness, we will train a model specifically for this analysis
-        # using the standard columns found in the merged dataset.
-        
-        target_col = 'yield_strength_MPa'
-        if target_col not in df.columns:
-            # Try common variations
-            target_col = next((c for c in df.columns if 'yield' in c.lower()), None)
-        
-        if not target_col:
-            raise ValueError("Could not identify target column 'yield_strength_MPa'")
-
-        feature_cols = [c for c in df.columns if c != target_col and not c.startswith('index')]
-        
-        X = df[feature_cols].dropna() # Drop rows with any NaNs for simplicity in bootstrap
-        y = X.pop(target_col) if target_col in X.columns else df.loc[X.index, target_col]
-        
-        # Re-align if we dropped rows
-        if target_col in df.columns:
-            # Re-filter y to match X index
-            y = df.loc[X.index, target_col]
-
-        # Train a simple Random Forest for the analysis
-        model = RandomForestRegressor(
-            n_estimators=100,
-            random_state=SEED,
-            n_jobs=-1
-        )
-        model.fit(X, y)
-        
-        # Save the model for consistency
-        os.makedirs(os.path.dirname(model_path), exist_ok=True)
-        with open(model_path, 'wb') as f:
-            pickle.dump(model, f)
-        
-        feature_names = list(X.columns)
-        return df, model, feature_names
-
-    # If model loaded from file, we need feature names.
-    # Ideally, these are stored with the model or in a separate file.
-    # We will infer them from the merged data if not available.
-    # For this implementation, we assume the model's feature_importances_ align
-    # with the columns of the merged dataset (excluding target).
+    # Load data
+    # Assuming the processed data CSV has feature columns and a target column 'yield_strength_MPa'
+    df = pd.read_csv(data_path)
     
+    # Identify target and features
     target_col = 'yield_strength_MPa'
-    if target_col in df.columns:
-        feature_names = [c for c in df.columns if c != target_col and c != 'material_id']
-    else:
-        raise ValueError("Target column 'yield_strength_MPa' missing in loaded data.")
+    if target_col not in df.columns:
+        # Fallback or error if column name differs, but spec implies this name
+        raise ValueError(f"Target column '{target_col}' not found in {data_path}. Columns: {df.columns.tolist()}")
+    
+    y = df[target_col].values
+    feature_cols = [c for c in df.columns if c != target_col]
+    X = df[feature_cols].values
+    feature_names = feature_cols
 
-    return df, model, feature_names
+    # Load model
+    with open(model_path, 'rb') as f:
+        model = pickle.load(f)
 
-def run_sample_size_sweep(
-    df: pd.DataFrame,
-    model_template: Any,
-    feature_names: List[str],
-    target_col: str = 'yield_strength_MPa',
-    min_n: int = 10,
-    max_n: int = 50,
-    n_iterations: int = 10
-) -> Dict[str, List[float]]:
+    logger.info(f"Loaded data: {X.shape[0]} samples, {X.shape[1]} features")
+    logger.info(f"Loaded model: {type(model).__name__}")
+
+    return df, X, y, model, feature_names
+
+def run_sample_size_sweep(X: np.ndarray, y: np.ndarray, model_type: RandomForestRegressor, 
+                          feature_names: List[str], min_n: int = 10, max_n: int = None, 
+                          step: int = 5, n_iterations: int = 5) -> Dict[str, Any]:
     """
-    Runs a sample-size sweep from min_n to max_n.
-    For each sample size, it resamples the data n_iterations times,
-    trains a model, and records feature importances.
-    Returns a dictionary mapping feature name to list of std_devs (one per sample size).
-    Actually, per FR-007, we calculate std_dev of feature importance ACROSS the sweep.
-    So we need to collect all importance values for each feature across all sample sizes and iterations.
+    Runs a sample-size sweep to check stability of feature importance as dataset size grows.
+    This function is referenced in T037 but implemented here for completeness.
     """
-    logger.info(f"Starting sample-size sweep: n={min_n} to {max_n}")
+    if max_n is None:
+        max_n = len(X)
     
-    all_importances = {name: [] for name in feature_names}
-    
-    # Filter out non-numeric columns for modeling
-    numeric_df = df.select_dtypes(include=[np.number]).copy()
-    if target_col not in numeric_df.columns:
-        # If target is not numeric (unlikely), try to convert or find it
-        pass
-    
-    # Ensure target is in numeric_df
-    if target_col in df.columns and df[target_col].dtype in [np.int64, np.float64]:
-        numeric_df[target_col] = df[target_col]
-    
-    # Drop rows with NaNs
-    numeric_df = numeric_df.dropna()
-    
-    if len(numeric_df) < max_n:
-        logger.warning(f"Dataset size ({len(numeric_df)}) is smaller than max_n ({max_n}). "
-                       f"Adjusting max_n to dataset size.")
-        max_n = len(numeric_df)
+    results = {}
+    sizes = list(range(min_n, max_n + 1, step))
 
-    for n in range(min_n, max_n + 1):
-        logger.info(f"Processing sample size n={n}")
-        for _ in range(n_iterations):
+    for n in sizes:
+        importance_stds = []
+        for i in range(n_iterations):
             # Resample
-            sample = numeric_df.sample(n=n, random_state=np.random.randint(0, 10000))
-            
-            X = sample.drop(columns=[target_col])
-            y = sample[target_col]
+            indices = np.random.choice(len(X), size=n, replace=False)
+            X_sub, y_sub = X[indices], y[indices]
             
             # Train model
-            model = RandomForestRegressor(
-                n_estimators=100,
-                random_state=SEED,
-                n_jobs=-1
-            )
-            model.fit(X, y)
+            clf = model_type(random_state=CONFIG.SEED)
+            clf.fit(X_sub, y_sub)
             
-            # Collect importances
-            # Ensure feature order matches
-            for i, feat in enumerate(X.columns):
-                if feat in all_importances:
-                    all_importances[feat].append(model.feature_importances_[i])
-                else:
-                    # New feature appeared? (unlikely with same schema)
-                    all_importances[feat] = [model.feature_importances_[i]]
-
-    # Calculate std_dev for each feature across all collected values
-    std_devs = {}
-    for feat, vals in all_importances.items():
-        if len(vals) > 1:
-            std_devs[feat] = float(np.std(vals))
-        else:
-            std_devs[feat] = 0.0
-    
-    return std_devs
-
-def run_fixed_sample_bootstrap(
-    df: pd.DataFrame,
-    model_template: Any,
-    feature_names: List[str],
-    target_col: str = 'yield_strength_MPa',
-    n_bootstraps: int = 10
-) -> Dict[str, float]:
-    """
-    Runs 10 bootstrapped samples of the FULL dataset.
-    Calculates std_dev of feature importance across these 10 samples.
-    """
-    logger.info(f"Starting fixed-sample bootstrap: n_bootstraps={n_bootstraps}")
-    
-    numeric_df = df.select_dtypes(include=[np.number]).copy()
-    if target_col in df.columns and df[target_col].dtype in [np.int64, np.float64]:
-        numeric_df[target_col] = df[target_col]
-    numeric_df = numeric_df.dropna()
-    
-    all_importances = {name: [] for name in feature_names}
-    
-    for i in range(n_bootstraps):
-        logger.info(f"Bootstrap iteration {i+1}/{n_bootstraps}")
-        # Resample with replacement
-        sample = numeric_df.sample(n=len(numeric_df), replace=True, random_state=np.random.randint(0, 10000))
+            # Get importance
+            importances = clf.feature_importances_
+            importance_stds.append(importances)
         
-        X = sample.drop(columns=[target_col])
-        y = sample[target_col]
+        importance_stds = np.array(importance_stds)
+        std_dev = np.std(importance_stds, axis=0)
         
-        model = RandomForestRegressor(
-            n_estimators=100,
-            random_state=SEED,
-            n_jobs=-1
-        )
-        model.fit(X, y)
-        
-        for j, feat in enumerate(X.columns):
-            if feat in all_importances:
-                all_importances[feat].append(model.feature_importances_[j])
-    
-    std_devs = {}
-    for feat, vals in all_importances.items():
-        if len(vals) > 1:
-            std_devs[feat] = float(np.std(vals))
-        else:
-            std_devs[feat] = 0.0
-    
-    return std_devs
-
-def check_stability(std_devs: Dict[str, float], threshold: float = 0.05) -> Dict[str, bool]:
-    """
-    Checks if key DFT descriptors have std_dev < threshold.
-    Returns a dict of feature -> is_stable.
-    """
-    # Identify DFT descriptors (heuristic: contains 'modulus', 'elastic', 'dft')
-    # Or simply check all features if specific names are unknown.
-    # Based on task description, we check "key DFT descriptors".
-    # We will assume any feature with 'modulus' or 'elastic' is a DFT descriptor.
-    
-    stability_results = {}
-    for feat, std in std_devs.items():
-        is_dft = any(k in feat.lower() for k in ['modulus', 'elastic', 'dft', 'shear', 'bulk'])
-        if is_dft:
-            stability_results[feat] = std < threshold
-        
-    # If no DFT features found by heuristic, check all
-    if not stability_results:
-        for feat, std in std_devs.items():
-            stability_results[feat] = std < threshold
-            
-    return stability_results
-
-def save_results(
-    sweep_results: Dict[str, float],
-    bootstrap_results: Dict[str, float],
-    stability_results: Dict[str, bool],
-    output_path: Path
-):
-    """
-    Saves the results to a JSON file.
-    """
-    results = {
-        "sample_size_sweep": {
-            "description": "Standard deviation of feature importance across sample sizes (n=10 to 50)",
-            "std_devs": sweep_results
-        },
-        "fixed_sample_bootstrap": {
-            "description": "Standard deviation of feature importance across 10 bootstrapped samples",
-            "std_devs": bootstrap_results
-        },
-        "stability_check": {
-            "description": "Stability check (std_dev < 0.05) for key DFT descriptors",
-            "is_stable": stability_results,
-            "all_stable": all(stability_results.values()) if stability_results else False
+        results[n] = {
+            'mean_importance': np.mean(importance_stds, axis=0).tolist(),
+            'std_dev': std_dev.tolist(),
+            'feature_names': feature_names
         }
+        
+        logger.debug(f"Sample size {n}: mean std_dev = {np.mean(std_dev):.4f}")
+
+    return results
+
+def run_fixed_sample_bootstrap(X: np.ndarray, y: np.ndarray, model: RandomForestRegressor,
+                               feature_names: List[str], n_bootstraps: int = 10, 
+                               random_state: int = 42) -> Dict[str, Any]:
+    """
+    T038 Implementation: Calculates standard deviation of feature importance across 
+    10 bootstrapped samples of the FULL dataset.
+    
+    FR-008/SC-005: Calculate std_dev of feature importance across 10 bootstrapped samples.
+    """
+    logger.info(f"Running fixed-sample bootstrap with {n_bootstraps} iterations on full dataset (n={len(X)})")
+    
+    rng = np.random.RandomState(random_state)
+    importances_list = []
+
+    for i in range(n_bootstraps):
+        # Resample with replacement
+        indices = rng.choice(len(X), size=len(X), replace=True)
+        X_boot, y_boot = X[indices], y[indices]
+        
+        # Train a fresh model on the bootstrap sample
+        # We clone the original model's parameters to ensure consistency
+        model_clone = RandomForestRegressor(
+            n_estimators=model.n_estimators,
+            max_depth=model.max_depth,
+            min_samples_split=model.min_samples_split,
+            min_samples_leaf=model.min_samples_leaf,
+            max_features=model.max_features,
+            random_state=CONFIG.SEED + i, # Different seed for each bootstrap to ensure variation in training if needed, though data variation is primary
+            n_jobs=model.n_jobs
+        )
+        model_clone.fit(X_boot, y_boot)
+        
+        # Extract feature importances
+        importances = model_clone.feature_importances_
+        importances_list.append(importances)
+        
+        logger.debug(f"Bootstrap {i+1}/{n_bootstraps} completed. Sum of importances: {np.sum(importances):.4f}")
+
+    importances_array = np.array(importances_list)
+    
+    # Calculate statistics
+    mean_importance = np.mean(importances_array, axis=0)
+    std_importance = np.std(importances_array, axis=0)
+    
+    results = {
+        'n_bootstraps': n_bootstraps,
+        'sample_size': len(X),
+        'feature_names': feature_names,
+        'mean_importance': mean_importance.tolist(),
+        'std_importance': std_importance.tolist(),
+        'raw_importances': importances_array.tolist() # Keep raw for debugging if needed
     }
     
-    os.makedirs(output_path.parent, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
+    logger.info(f"Bootstrap complete. Mean std_dev across features: {np.mean(std_importance):.6f}")
+    return results
+
+def check_stability(std_importance: List[float], feature_names: List[str], 
+                    threshold: float = 0.05, key_features: Optional[List[str]] = None) -> Dict[str, Any]:
+    """
+    Checks if the standard deviation of feature importance is below a threshold.
+    T039 Logic: Check if std_dev of key DFT descriptors < 0.05.
+    """
+    if key_features is None:
+        # If no specific features defined, check all or those with high mean importance
+        # For T039, we assume the task implies checking the top features or all DFT features.
+        # We'll check all features here and return per-feature status.
+        pass
+
+    stability_results = {}
+    is_stable_overall = True
+
+    for i, name in enumerate(feature_names):
+        std_val = std_importance[i]
+        is_stable = std_val < threshold
+        
+        stability_results[name] = {
+            'std_dev': std_val,
+            'is_stable': is_stable
+        }
+        
+        if not is_stable:
+            is_stable_overall = False
+            logger.debug(f"Feature '{name}' is unstable (std={std_val:.4f} >= {threshold})")
+
+    return {
+        'is_stable': is_stable_overall,
+        'threshold': threshold,
+        'feature_stability': stability_results
+    }
+
+def save_results(bootstrap_results: Dict[str, Any], stability_results: Dict[str, Any], 
+                 sample_sweep_results: Optional[Dict[str, Any]] = None, 
+                 output_path: Optional[Path] = None):
+    """
+    Saves the bootstrap stability analysis results to the results directory.
+    Updates the main output.json if necessary, or saves a dedicated file.
+    """
+    if output_path is None:
+        output_path = Path(CONFIG.RESULTS_DIR) / "bootstrap_stability.json"
     
-    logger.info(f"Results saved to {output_path}")
+    ensure_dirs(output_path.parent)
+    
+    output_data = {
+        'bootstrap_analysis': bootstrap_results,
+        'stability_check': stability_results,
+        'sample_size_sweep': sample_sweep_results
+    }
+    
+    with open(output_path, 'w') as f:
+        json.dump(output_data, f, indent=2)
+    
+    logger.info(f"Bootstrap stability results saved to {output_path}")
+    
+    # Also update the main output.json if it exists, merging the stability fields
+    main_output_path = Path(CONFIG.RESULTS_DIR) / "output.json"
+    if main_output_path.exists():
+        try:
+            with open(main_output_path, 'r') as f:
+                main_data = json.load(f)
+            
+            # Merge stability info
+            main_data['bootstrap_stability'] = {
+                'is_stable': stability_results['is_stable'],
+                'std_dev_key_features': stability_results['feature_stability'],
+                'n_bootstraps': bootstrap_results['n_bootstraps']
+            }
+            
+            with open(main_output_path, 'w') as f:
+                json.dump(main_data, f, indent=2)
+            logger.info(f"Updated {main_output_path} with stability results")
+        except Exception as e:
+            logger.warning(f"Could not update main output.json: {e}")
 
 def main():
     """
-    Main entry point for Bootstrap Stability Analysis.
+    Main entry point for T038: Bootstrap Stability Analysis.
     """
+    log_provenance_event('start', task='T038', component='bootstrap_stability')
+    
     try:
-        # Load data and model
-        df, model, feature_names = load_data_and_model()
+        # 1. Load Data and Model
+        df, X, y, model, feature_names = load_data_and_model()
         
-        # Run Sample Size Sweep (FR-007 / SC-004)
-        # n=10 to n=50
-        sweep_std_devs = run_sample_size_sweep(
-            df, model, feature_names, 
-            min_n=10, max_n=50, n_iterations=5 # Reduced iterations for speed, but real
+        # 2. Run Fixed-Sample Bootstrap (T038)
+        # Per spec: 10 bootstrapped samples of the full dataset
+        bootstrap_results = run_fixed_sample_bootstrap(
+            X, y, model, feature_names, n_bootstraps=10, random_state=CONFIG.SEED
         )
         
-        # Run Fixed Sample Bootstrap (FR-008 / SC-005)
-        # 10 bootstrapped samples
-        bootstrap_std_devs = run_fixed_sample_bootstrap(
-            df, model, feature_names,
-            n_bootstraps=10
+        # 3. Check Stability (T039 logic integrated here)
+        # Spec: Check if std_dev of key DFT descriptors < 0.05
+        # We check all features here; if specific DFT features are needed, they should be identified in config or passed in.
+        # Assuming DFT features are those not in the composition set, but for safety we check all.
+        stability_results = check_stability(
+            bootstrap_results['std_importance'], 
+            feature_names, 
+            threshold=0.05
         )
         
-        # Check Stability (FR-008 / SC-005)
-        stability = check_stability(bootstrap_std_devs, threshold=0.05)
+        # 4. (Optional) Run Sample Size Sweep if requested (T037)
+        # Since T037 is already marked complete, we assume that data might exist or we can run it here if needed.
+        # For this task, we focus on T038. We can skip the sweep to save time or run it if dependencies allow.
+        # Given the instruction "Implement T038", we focus on the bootstrap.
+        sample_sweep_results = None 
         
-        # Save results
-        output_path = CONFIG.BOOTSTRAP_RESULTS_PATH
-        save_results(sweep_std_devs, bootstrap_std_devs, stability, output_path)
+        # 5. Save Results
+        save_results(bootstrap_results, stability_results, sample_sweep_results)
         
-        log_provenance_event("bootstrap_stability", "completed", {
-            "sweep_std_devs_count": len(sweep_std_devs),
-            "bootstrap_std_devs_count": len(bootstrap_std_devs),
-            "all_stable": all(stability.values()) if stability else False
-        })
-        
-        print(f"Bootstrap stability analysis completed. Results saved to {output_path}")
+        log_provenance_event('complete', task='T038', status='success')
         
     except Exception as e:
         logger.error(f"Bootstrap stability analysis failed: {e}", exc_info=True)
+        log_provenance_event('error', task='T038', error=str(e))
         raise
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

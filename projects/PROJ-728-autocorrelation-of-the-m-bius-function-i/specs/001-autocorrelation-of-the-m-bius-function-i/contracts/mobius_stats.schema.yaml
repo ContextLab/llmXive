@@ -1,0 +1,56 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Autocorrelation Statistics Schema
+description: Schema for the autocorrelation_stats.csv output file.
+type: object
+properties:
+  interval_start:
+    type: integer
+    description: "Starting index k of the window in the Möbius sequence."
+    minimum: 1
+  interval_length:
+    type: integer
+    description: "Length L of the window."
+    enum: [1000, 10000, 100000]
+  lag:
+    type: integer
+    description: "Lag h (1 <= h <= L/2)."
+    minimum: 1
+  autocorrelation:
+    type: number
+    description: "Observed normalized autocorrelation value."
+    minimum: -1.0
+    maximum: 1.0
+  p_value:
+    type: number
+    description: "Two-sided p-value from the 1,000-permutation test."
+    minimum: 0.0
+    maximum: 1.0
+  ci_lower:
+    type: number
+    description: "2.5th percentile of the null distribution."
+    minimum: -1.0
+    maximum: 1.0
+  ci_upper:
+    type: number
+    description: "97.5th percentile of the null distribution."
+    minimum: -1.0
+    maximum: 1.0
+  zero_count:
+    type: integer
+    description: "Number of zeros in the specific window."
+    minimum: 0
+  sensitivity_flag:
+    type: string
+    description: "Status of sensitivity analysis."
+    enum: ["stable", "sensitive", "not_applicable"]
+required:
+  - interval_start
+  - interval_length
+  - lag
+  - autocorrelation
+  - p_value
+  - ci_lower
+  - ci_upper
+  - zero_count
+  - sensitivity_flag
+additionalProperties: false

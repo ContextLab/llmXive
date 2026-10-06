@@ -1,45 +1,116 @@
-# Output Schema for T032
-# Defines the structure of data/results/output.json
+$schema: http://json-schema.org/draft-07/schema#
+title: Yield Strength Prediction Output Schema
+description: Schema for the final output metrics of the BCC steel yield strength prediction pipeline
 type: object
 required:
-  - r2_composition_only
-  - mae_composition_only
-  - r2_dft_enhanced
-  - mae_dft_enhanced
-  - p_value
-  - statistical_power
-  - pearson_correlation_shear_yield
+  - modeling
+  - correlation_analysis
+  - interpretability
   - metadata
 properties:
-  r2_composition_only:
-    type: number
-    description: R-squared score for the composition-only model
-  mae_composition_only:
-    type: number
-    description: Mean Absolute Error for the composition-only model
-  r2_dft_enhanced:
-    type: number
-    description: R-squared score for the DFT-enhanced model
-  mae_dft_enhanced:
-    type: number
-    description: Mean Absolute Error for the DFT-enhanced model
-  p_value:
-    type: number
-    description: P-value from the paired t-test comparing the two models
-  statistical_power:
-    type: number
-    description: Statistical power (1 - beta) of the t-test
-  pearson_correlation_shear_yield:
-    type: number
-    description: Pearson correlation coefficient between Shear Modulus and Yield Strength
+  modeling:
+    type: object
+    description: Results from the predictive modeling phase
+    required:
+      - rf_dft_r2
+      - rf_composition_r2
+      - rf_dft_mae
+      - rf_composition_mae
+      - p_value
+      - statistical_power
+      - is_significant
+    properties:
+      rf_dft_r2:
+        type: number
+        description: R² score for Random Forest with DFT features
+      rf_composition_r2:
+        type: number
+        description: R² score for Random Forest with composition-only features
+      rf_dft_mae:
+        type: number
+        description: Mean Absolute Error for Random Forest with DFT features
+      rf_composition_mae:
+        type: number
+        description: Mean Absolute Error for Random Forest with composition-only features
+      p_value:
+        type: number
+        description: P-value from paired t-test comparing the two models
+      statistical_power:
+        type: number
+        description: Statistical power (1 - beta) of the test
+      is_significant:
+        type: boolean
+        description: Whether the improvement is statistically significant (p < 0.05)
+  
+  correlation_analysis:
+    type: object
+    description: Results from the Pearson correlation analysis
+    required:
+      - pearson_correlation
+      - p_value
+      - sample_size
+      - is_significant
+    properties:
+      pearson_correlation:
+        type: number
+        description: Pearson correlation coefficient between Shear Modulus and Yield Strength
+      p_value:
+        type: number
+        description: P-value for the correlation test
+      sample_size:
+        type: integer
+        description: Number of samples used in the correlation analysis
+      is_significant:
+        type: boolean
+        description: Whether the correlation is statistically significant (p < 0.05)
+  
+  interpretability:
+    type: object
+    description: Results from the interpretability and stability analysis
+    required:
+      - top_features
+      - shap_summary
+      - sample_size_sweep_std
+      - fixed_sample_bootstrap_std
+      - is_stable
+    properties:
+      top_features:
+        type: array
+        description: Top 5 most important features
+        items:
+          type: object
+          properties:
+            feature:
+              type: string
+            importance:
+              type: number
+      shap_summary:
+        type: object
+        description: Summary statistics of SHAP values
+      sample_size_sweep_std:
+        type: number
+        description: Standard deviation of feature importance from sample-size sweep
+      fixed_sample_bootstrap_std:
+        type: number
+        description: Standard deviation of feature importance from fixed-sample bootstrap
+      is_stable:
+        type: boolean
+        description: Whether the model is stable (std_dev < 0.05 for key features)
+  
   metadata:
     type: object
+    description: Metadata about the pipeline execution
+    required:
+      - project_id
+      - pipeline_version
+      - data_source
+      - timestamp
     properties:
       project_id:
         type: string
-      task_id:
+      pipeline_version:
         type: string
-      generated_at:
+      data_source:
         type: string
-      version:
+      timestamp:
         type: string

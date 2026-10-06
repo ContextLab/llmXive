@@ -43,22 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/`. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
-- [ ] T002 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/code/`.
-- [ ] T003 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/data/`.
-- [ ] T004 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/tests/`. <!-- ATOMIZE: requested -->
-- [ ] T005 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion`. <!-- FAILED: unspecified -->
-- [ ] T006 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/code/analysis`.
-- [ ] T007 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/code/utils`.
-- [ ] T008 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/data/raw`.
-- [ ] T009 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/data/processed`.
-- [ ] T010 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/data/artifacts`.
-- [ ] T011 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/tests/unit`.
-- [ ] T012 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/tests/integration`. <!-- FAILED: unspecified -->
-- [X] T013 Create file `projects/PROJ-505-exploring-the-statistical-relationship-b/code/__init__.py`.
-- [X] T014 Create file `projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/__init__.py`.
-- [X] T015 Create file `projects/PROJ-505-exploring-the-statistical-relationship-b/code/analysis/__init__.py`.
-- [X] T016 Create file `projects/PROJ-505-exploring-the-statistical-relationship-b/code/utils/__init__.py`.
+- [ ] T001 Create project directory structure: Run a setup script to create `projects/PROJ-505-exploring-the-statistical-relationship-b/` and all subdirectories (`code/`, `data/`, `tests/`, `code/ingestion`, `code/analysis`, `code/utils`, `data/raw`, `data/processed`, `data/artifacts`, `tests/unit`, `tests/integration`). **Verification**: Execute `test -d projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion && echo 'OK'` for each directory. <!-- ATOMIZE: Consolidated from T001-T012 -->
 
 ---
 
@@ -87,11 +72,13 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 1
 
-- [X] T021 [US1] Implement `code/ingestion/generate_synthetic_data.py`: Create a multi-year hourly dataset mimicking ACE/WIND composition and NOAA indices distributions (seeded for reproducibility). **This task must be completed BEFORE T022 and T023 as they depend on this generator for fallback logic.** <!-- FAILED: unspecified -->
-- [X] T022 [US1] Implement `code/ingestion/download_ace.py`: Attempt fetch from CDAWeb; if failed, trigger synthetic generation using T021. **Crucially, label all output artifacts as 'synthetic' ONLY if the fallback is used.**
-- [X] T023 [US1] Implement `code/ingestion/download_noaa.py`: Attempt fetch from NOAA Dst/Kp archives; if failed, trigger synthetic generation using T021. **Crucially, label all output artifacts as 'synthetic' ONLY if the fallback is used.**
-- [X] T024 [US1] Implement `code/ingestion/align.py`: Merge real/synthetic sources, handle data gaps (>6h) via interpolation/flagging, resample to a regular hourly median, apply epsilon floor for zero-velocity/IMF ratios, and **handle instrument version transitions (e.g., ACE SWICS vs. SWICS-2) by applying calibration offsets IF available, ELSE treat them as separate cohorts**. **Include a memory check during processing; if usage > 6GB, log a warning and defer chunked processing to a future phase.**
-- [ ] T025 [US1] Add validation logic to ensure temporal offset ≤ 30 minutes and monotonically increasing timestamps (integrated into T024).
+- [ ] T021a [US1] Implement `code/ingestion/generate_synthetic_data.py` (Data Logic): Create the core logic to generate a multi-year hourly dataset mimicking ACE/WIND composition and NOAA indices distributions. **Verification**: Unit test `tests/unit/test_synthetic.py::test_distributions` confirms realistic ranges and no NaNs.
+- [ ] T021b [US1] Implement `code/ingestion/generate_synthetic_data.py` (Seeding): Implement random seed pinning and reproducibility logic. **Verification**: Unit test `tests/unit/test_synthetic.py::test_reproducibility` confirms identical output for same seed.
+- [ ] T021c [US1] Implement `code/ingestion/generate_synthetic_data.py` (Output): Implement writing logic to `data/processed/synthetic_aligned.parquet`. **Verification**: Unit test `tests/unit/test_synthetic.py::test_output_format` confirms file schema.
+- [ ] T022 [US1] Implement `code/ingestion/download_ace.py`: Attempt fetch from CDAWeb. **Logic**: Do NOT catch exceptions silently. If fetch fails, raise `ConnectionError` with a clear message. The execution stage will catch this and trigger the fallback generator (T021). **Verification**: Unit test `tests/unit/test_download.py::test_no_fallback_on_network_error` confirms exception is raised, not suppressed.
+- [ ] T023 [US1] Implement `code/ingestion/download_noaa.py`: Attempt fetch from NOAA Dst/Kp archives. **Logic**: Do NOT catch exceptions silently. If fetch fails, raise `ConnectionError` with a clear message. The execution stage will catch this and trigger the fallback generator (T021). **Verification**: Unit test `tests/unit/test_download.py::test_no_fallback_on_network_error` confirms exception is raised, not suppressed.
+- [ ] T024 [US1] Implement `code/ingestion/align.py`: Merge real/synthetic sources (orchestrated by execution stage). Handle data gaps (>6h) via interpolation/flagging, resample to a regular hourly median, apply epsilon floor for zero-velocity/IMF ratios, and handle instrument version transitions. **Memory Constraint**: Monitor memory usage; if > 6GB, `raise MemoryError` immediately (do not defer). **Verification**: Unit test `tests/unit/test_align.py::test_offset_limit` confirms temporal offset ≤ 30 minutes. Unit test `tests/unit/test_align.py::test_memory_limit` confirms `MemoryError` on threshold.
+- [ ] T043 [US1] Verification: Ensure `download_ace.py` and `download_noaa.py` do not silently catch exceptions. **Verification**: Run `pytest tests/unit/test_download.py::test_no_fallback_on_network_error` and confirm pass.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -108,14 +95,15 @@ Examples of foundational tasks (adjust based on your project):
 
 **Goal**: Perform multivariate linear regression to assess if composition ratios (O/Fe, He/H, C/O) provide independent predictive power for Dst/Kp beyond bulk coupling functions.
 
-**Independent Test**: Run the regression module and verify output includes coefficient tables, p-values, and ΔR² between baseline (coupling functions) and full (coupling + composition) models.
+**Independent Test**: Run the regression module and verify output includes coefficient tables, p-values, and ΔR² between baseline (coupling functions only) and full (coupling + composition) models.
 
 ### Implementation for User Story 2
 
 - [X] T028 [US2] Implement `code/analysis/coupling_functions.py`: Derive Akasofu epsilon, Newell function, and other bulk-parameter coupling functions from aligned data.
-- [X] T029 [US2] Implement `code/analysis/regression.py`: Fit baseline model (coupling functions only) and full model (coupling + composition ratios); calculate coefficients, p-values, and VIF; **explicitly flag and output a warning artifact for any predictor with VIF ≥ 5**. **Prerequisite: T024 (align.py) must be complete.**
-- [X] T030 [US2] Implement `code/analysis/cross_validation.py`: Perform 5-fold cross-validation to assess out-of-sample R² for both models and calculate ΔR². **Prerequisite: T029 (regression.py) must be complete.**
-- [ ] T031 [US2] Integrate regression results into `data/artifacts/` (CSV/JSON outputs with model metrics).
+- [X] T029 [US2] Implement `code/analysis/regression.py`: Fit baseline model (coupling functions only) and full model (coupling + composition ratios); calculate coefficients, p-values, and VIF; **explicitly flag and output a warning artifact for any predictor with VIF ≥ 5**. **Prerequisite: T024 (align.py) must be complete.** **Failure Propagation**: If T024 raises `MemoryError`, this task must fail with a clear error message indicating the dependency failure. **Pre-computation**: Verify aligned dataset is loaded and contains no NaNs in target/predictor columns; raise descriptive error if found. **Verification**: Unit test `tests/unit/test_regression.py::test_nan_detection_raises_error`.
+- [X] T030 [US2] Implement `code/analysis/cross_validation.py`: Perform k-fold cross-validation to assess out-of-sample R² for both models and calculate ΔR². **Prerequisite: T029 (regression.py) must be complete.**
+- [ ] T031 [US2] Integrate regression results into `data/artifacts/`. **Output**: `data/artifacts/regression_results.csv` (columns: `model_type`, `coefficient`, `std_err`, `p_value`, `vif`) and `data/artifacts/model_metrics.json` (keys: `baseline_r2`, `full_r2`, `delta_r2`, `cv_r2_baseline`, `cv_r2_full`). **Verification**: Integration test `tests/integration/test_regression.py::test_regression_artifacts_exist`.
+- [ ] T044 [US2] Add a pre-computation check in `code/analysis/regression.py`: Verify that the aligned dataset from T024 is fully loaded and contains no NaN values in the target columns (Dst, Kp) or predictor columns before fitting the model. If NaNs are present, raise a descriptive error citing the specific column and row count, rather than relying on `statsmodels` to drop rows silently. **Verification**: Unit test `tests/unit/test_regression.py::test_nan_detection_raises_error`.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -134,9 +122,10 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 3
 
-- [X] T034 [US3] Implement `code/analysis/permutation_test.py`: Execute block permutation test (minimum 1,000 iterations, 24h blocks) to generate null distributions for composition coefficients. **Logic: Continue iterating until p-value standard error < 0.001 (calculated as sqrt(p*(1-p)/N) where p is the running estimate of the p-value and N is the current iteration count) OR N reaches [deferred]. Calculate and output the [deferred] percentile range (2.5th/97.5th) of the null distribution.** **Prerequisite: T029 (regression.py) must be complete.**
-- [X] T035 [US3] Implement `code/analysis/sensitivity.py`: Sweep significance thresholds across a range of conventional levels, including 0.01, 0.05, and 0.10. **Explicitly apply Benjamini-Hochberg FDR correction to the 6 hypothesis tests (O/Fe-Dst, O/Fe-Kp, He/H-Dst, He/H-Kp, C/O-Dst, C/O-Kp).** Report variation in significant predictors. **Prerequisite: T029 (regression.py) must be complete.**
-- [X] T036 [US3] Implement final reporting logic in `code/main.py`: Aggregate all results, **explicitly label data as 'synthetic' ONLY if the fallback was triggered**, and generate summary artifacts (CSV/JSON) for review.
+- [X] T034 [US3] Implement `code/analysis/permutation_test.py`: Execute block permutation test (minimum 1,000 iterations, 24h blocks, **max [deferred] iterations**) to generate null distributions for composition coefficients. **Logic**: Continue iterating until p-value standard error < 0.001 (calculated as sqrt(p*(1-p)/N)) OR N reaches [deferred]. Calculate and output the percentile range of the null distribution. Log final iteration count and stability status. **Prerequisite: T029 (regression.py) must be complete.**
+- [X] T035 [US3] Implement `code/analysis/sensitivity.py`: Sweep significance thresholds across a range of standard levels (e.g., 0.05, 0.10).. **Explicitly apply Benjamini-Hochberg FDR correction to the 6 hypothesis tests (O/Fe-Dst, O/Fe-Kp, He/H-Dst, He/H-Kp, C/O-Dst, C/O-Kp)**. **Output**: `data/artifacts/fdr_results.csv` (columns: `hypothesis`, `raw_p`, `fdr_p`, `significant`). Report variation in significant predictors. **Prerequisite: T029 (regression.py) must be complete.**
+- [X] T036 [US3] Implement final reporting logic in `code/main.py`: Aggregate all results. **Data Provenance**: Since real data sources are unavailable per Plan.md, explicitly label data as 'Synthetic' in the final report. **Verification**: Check `data/artifacts/final_report.json` contains `source_type: "Synthetic"`.
+- [ ] T046 [US3] Update `code/main.py` to include a "Data Provenance" section in the final report output. **Output**: Append a JSON block to `data/artifacts/final_report.json` with keys `source_type` (value: "Synthetic" for this project instance due to data gap) and `fetch_attempts` (list of attempted URLs and their failure status). **Verification**: Check `data/artifacts/final_report.json` contains the expected JSON structure.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -154,7 +143,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T039 [P] Documentation updates in `README.md` (explicitly state data gap and synthetic nature if fallback used).
 - [X] T040 [P] Refactor `code/analysis/regression.py` to reduce cyclomatic complexity to < 10.
 - [X] T041 [P] Refactor `code/analysis/permutation_test.py` to reduce cyclomatic complexity to < 10.
-- [ ] T042 [P] Run quickstart.md validation. <!-- FAILED: unspecified -->
+- [ ] T042 [P] Run quickstart.md validation. **Definition**: Execute `./quickstart.sh` and verify exit code 0. **Verification**: Check `exit_code == 0`.
 
 ---
 
@@ -171,9 +160,9 @@ Examples of foundational tasks (adjust based on your project):
 
 ### User Story Dependencies
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2). **Internal Dependency: T022 and T023 depend on T021.**
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2). **Dependency: Depends on T024 (US1) output.**
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2). **Dependency: Depends on T029 (US2) model output.**
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2). **Internal Dependency**: T022 and T023 are independent of T021; T024 orchestrates their output.
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2). **Dependency**: Depends on T024 (US1) output.
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2). **Dependency**: Depends on T029 (US2) model output.
 
 ### Within Each User Story
 
@@ -202,7 +191,7 @@ Task: "Unit test for data alignment logic in tests/unit/test_ingestion.py"
 Task: "Unit test for synthetic data generator in tests/unit/test_synthetic.py"
 
 # Launch all models for User Story 1 together:
-Task: "Implement code/ingestion/generate_synthetic_data.py (T021)"
+Task: "Implement code/ingestion/generate_synthetic_data.py (T021a, T021b, T021c)"
 Task: "Implement code/ingestion/download_ace.py (T022)"
 Task: "Implement code/ingestion/download_noaa.py (T023)"
 ```
@@ -215,7 +204,7 @@ Task: "Implement code/ingestion/download_noaa.py (T023)"
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (Ensure T021 is done before T022/T023)
+3. Complete Phase 3: User Story 1 (Ensure T021a-c are done before T022/T023/T024)
 4. **STOP and VALIDATE**: Test User Story 1 independently
 5. Deploy/demo if ready
 
@@ -233,7 +222,7 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
- - Developer A: User Story 1 (T021 first, then T022/T023)
+ - Developer A: User Story 1 (T021a-c, T022, T023, T024)
  - Developer B: User Story 2 (T028, T029, T030)
  - Developer C: User Story 3 (T034, T035)
 3. Stories complete and integrate independently
@@ -249,4 +238,5 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Note**: All data used in this pipeline is synthetic due to unavailability of verified real-world ACE SWICS and NOAA Dst/Kp sources. Scientific hypothesis testing is not possible; only pipeline validation is achieved. All output artifacts MUST be explicitly labeled as 'synthetic' ONLY when the fallback is triggered. The pipeline is designed to handle real data per FR-001/002 if available.
+- **Critical Note**: All data used in this pipeline is synthetic due to unavailability of verified real-world ACE SWICS and NOAA Dst/Kp sources. Scientific hypothesis testing is not possible; only pipeline validation is achieved. All output artifacts MUST be explicitly labeled as 'synthetic' in the final report. The pipeline is designed to handle real data per FR-001/002 if available, but will raise exceptions and log failures if real fetch is attempted and fails.
+- **Data Integrity Rule**: The ingestion scripts (T022, T023) must NOT silently fall back to synthetic data on network failure. They must raise an exception to allow the execution stage to identify the real data gap. Synthetic generation is a distinct, logged step only invoked after explicit failure of real fetch attempts.

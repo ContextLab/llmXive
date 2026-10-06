@@ -11,7 +11,7 @@
 
 The approach involves:
 1.  **Data Gap Handling**: Attempting to fetch real data from CDAWeb/NOAA (expected to fail or return incomplete data).
-2.  **Synthetic Data Generation**: Creating a 20-year hourly dataset with realistic bulk parameters and composition ratios to validate the pipeline.
+2.  **Synthetic Data Generation**: Creating a multi-year hourly dataset with realistic bulk parameters and composition ratios to validate the pipeline.
 3.  **Statistical Analysis**: Performing multivariate regression, -fold cross-validation, and block permutation tests on the synthetic data to ensure the pipeline correctly identifies signals (if injected) or null results.
 4.  **Reporting**: Explicitly documenting the data gap and the limitations of the findings.
 
@@ -127,6 +127,6 @@ projects/PROJ-505-exploring-the-statistical-relationship-b/
 ## Compute Feasibility
 
 * **Data Size**: 20 years of hourly data $\approx [deferred]$ rows. This fits easily in 7GB RAM.
-*   **Compute**: Linear regression and permutation tests (A sufficient number of iterations) on 175k rows are CPU-tractable. No GPU required.
+*   **Compute**: Linear regression and permutation tests (A sufficient number of iterations) on large-scale datasets are CPU-tractable. No GPU required.
 *   **Runtime**: Estimated < 1 hour on a standard CPU.
 *   **Subsampling**: Not required for the 20-year hourly dataset. Subsampling is only a contingency for future higher-resolution data or if the synthetic generator produces excessive data.

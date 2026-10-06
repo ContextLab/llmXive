@@ -88,7 +88,7 @@
 - [X] T016 [US1] Implement `code/ingestion/merge_and_filter.py` to handle range values (e.g., "200-250") by taking midpoints and flagging uncertainty
 - [ ] T017 [US1] Write the final merged dataset to `data/intermediate/merged.csv` and verify row count ≥ 20; raise `ERR_INSUFFICIENT_DATA` if not
 - [X] T018 [US1] Add logging for API queries and failures to `data/provenance/dft_queries.jsonl`
-- [ ] T019 [US1] Generate `data/provenance/checksums.txt` for all raw and intermediate files
+- [X] T019 [US1] Generate `data/provenance/checksums.txt` for all raw and intermediate files
 - [ ] T020 [US1] Update `state/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste.yaml` with artifact hashes
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -116,7 +116,7 @@
 - [X] T028 [US2] Implement `code/modeling/evaluate.py` to calculate R² and MAE for both models
 - [X] T029 [US2] Implement `code/modeling/evaluate.py` to perform **paired t-test** on fold-wise errors and calculate p-value (per spec FR-005/SC-003; overrides plan.md's Wilcoxon mention)
 - [X] T030 [US2] Implement `code/modeling/evaluate.py` to calculate statistical power (1 - beta) based on the t-test effect size and report if < 0.8 (FR-009/SC-008)
-- [ ] T031 [US2] Calculate and report Pearson correlation between Shear Modulus and Yield Strength (SC-001, FR-005) using `data/intermediate/merged.csv` as input and write to `output.json`
+- [ ] T031 [US2] Calculate and report Pearson correlation between Shear Modulus and Yield Strength (SC-001, FR-005) using `data/intermediate/merged.csv` as input and write to `output.json` <!-- FAILED: unspecified -->
 - [ ] T032 [US2] Write final metrics to `data/results/output.json` conforming to `contracts/output.schema.yaml`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -139,7 +139,7 @@
 - [X] T035 [US3] Implement `code/interpretability/shap_analysis.py` to calculate TreeSHAP values for the DFT-enhanced model
 - [X] T036 [US3] Implement `code/interpretability/shap_analysis.py` to generate permutation importance rankings (highlighting DFT descriptors)
 - [X] T037 [US3] Implement `code/interpretability/bootstrap_stability.py` to run **Bootstrap Stability analysis by re-sampling the REAL dataset** with a **sample-size sweep (n=10 to n=50)** and calculate standard deviation of feature importance across the sweep (FR-007/SC-004)
-- [ ] T038 [US3] Implement `code/interpretability/bootstrap_stability.py` to calculate standard deviation of feature importance across **10 bootstrapped samples** of the full dataset (FR-008/SC-005)
+- [X] T038 [US3] Implement `code/interpretability/bootstrap_stability.py` to calculate standard deviation of feature importance across **10 bootstrapped samples** of the full dataset (FR-008/SC-005)
 - [ ] T039 [US3] Implement logic to check if std_dev of key DFT descriptors < 0.05 across the 10 bootstrapped samples (from T038) and report `is_stable` boolean (FR-008/SC-005)
 - [ ] T040 [US3] Generate plots (SHAP summary, stability distribution) and save to `data/results/`
 - [ ] T041 [US3] Update `data/results/output.json` with all Success Criteria: SC-001, SC-002, SC-003, SC-004, SC-005, SC-006, SC-007, SC-008
@@ -153,7 +153,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T042 [P] Update `README.md` with installation instructions, usage examples, and data sources
-- [ ] T043 [P] Update `docs/api.md` with function signatures for `code/ingestion/`, `code/modeling/`, and `code/interpretability/`
+- [X] T043 [P] Update `docs/api.md` with function signatures for `code/ingestion/`, `code/modeling/`, and `code/interpretability/`
 - [ ] T044 Code cleanup and refactoring for readability
 - [ ] T045 Profile pipeline execution and optimize memory/CPU usage to ensure < 6h runtime on 2 CPU cores
 - [ ] T046 [P] Run full pipeline end-to-end integration test

@@ -1,18 +1,16 @@
-"""
-Setup script to create the required project directory structure.
-Creates all directories specified in tasks.md for the llmXive pipeline.
-"""
 import os
 import sys
 from pathlib import Path
+from config import ensure_dirs
 
 def create_directories():
     """
-    Create the standard project directory structure.
-    Returns a list of created paths.
+    Create the standard project directory structure for llmXive.
+    Ensures all required folders exist under the project root.
     """
-    # Base directories as defined in tasks.md T001
-    base_dirs = [
+    project_root = Path(__file__).resolve().parent.parent
+    
+    directories = [
         "code",
         "data",
         "data/raw",
@@ -23,36 +21,37 @@ def create_directories():
         "tests",
         "tests/unit",
         "tests/integration",
-        "tests/contract"
+        "tests/contract",
     ]
-
-    created = []
-    root = Path(".")
-
-    for dir_path in base_dirs:
-        full_path = root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created.append(str(full_path))
-            print(f"Created directory: {full_path}")
+    
+    created_count = 0
+    for dir_name in directories:
+        dir_path = project_root / dir_name
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            created_count += 1
         else:
-            # Verify it's actually a directory
-            if not full_path.is_dir():
-                raise RuntimeError(f"Path exists but is not a directory: {full_path}")
-            created.append(str(full_path))
-
-    return created
+            # Ensure it's actually a directory, not a file
+            if not dir_path.is_dir():
+                raise RuntimeError(f"Path exists but is not a directory: {dir_path}")
+    
+    print(f"Directory setup complete. Created {created_count} new directories.")
+    return True
 
 def main():
     """Entry point for directory creation."""
-    print("Initializing project directory structure for PROJ-537...")
     try:
-        created_dirs = create_directories()
-        print(f"\nSuccessfully created/verified {len(created_dirs)} directories.")
-        print("Structure ready for pipeline execution.")
-        return 0
+        # Ensure config directories exist first if not already done
+        # This script relies on config.py being present
+        success = create_directories()
+        if success:
+            print("SUCCESS: All project directories created.")
+            return 0
+        else:
+            print("ERROR: Directory creation failed.")
+            return 1
     except Exception as e:
-        print(f"Error creating directories: {e}", file=sys.stderr)
+        print(f"ERROR: {e}")
         return 1
 
 if __name__ == "__main__":
