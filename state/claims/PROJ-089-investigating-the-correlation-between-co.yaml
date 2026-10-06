@@ -3356,24 +3356,6 @@
   updated_at: '2026-10-01T18:25:04Z'
 - artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
   attempts: 1
-  canonical: Peak memory usage limit is 7GB
-  claim_id: c_07b52c16
-  context: 'Success Criteria: Peak memory usage < 7GB as measured by code/utils.py
-    memory monitor (aligned with Plan''s 7GB limit).'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_limit_is_7GB
-  kind: entity_fact
-  raw_text: Peak memory usage must be < 7GB as measured by the memory monitor.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-10-01T18:25:27Z'
-- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
-  attempts: 1
   canonical: Batch processing queue maxsize is 100
   claim_id: c_636343c9
   context: 'Action: Use queue.Queue with maxsize=100.'
@@ -3670,3 +3652,498 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-01T18:39:06Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Study uses Raw Metrics and Meta-analysis of Fisher-transformed r coefficients
+    with avg_loc as covariate
+  claim_id: c_4f9f43fd
+  context: This study uses Raw Metrics (total_lines_changed, debt_score) as the primary
+    analysis, with avg_loc as a covariate in a Meta-analysis of Fisher-transformed
+    r coefficients, strictly adhering to Spec FR-001 and FR-006.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_uses_Raw_Metrics_and_Meta-analysis_of_Fisher-transform
+  kind: entity_fact
+  raw_text: The study uses Raw Metrics (total_lines_changed, debt_score) as the primary
+    analysis, with avg_loc as a covariate in a Meta-analysis of Fisher-transformed
+    r coefficients.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T01:52:58Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Semgrep version 1.30.0 used for static analysis
+  claim_id: c_66b53cf4
+  context: 'Action: Run semgrep==1.30.0 on ALL files (Python, Java, JS, TS, Go, Rust).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Semgrep version 1.30.0 is used for static analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T01:53:28Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: 'Python debt_score calculation formula: Sum(Cyclomatic Complexity) +
+    (100 - Maintainability Index)'
+  claim_id: c_bbcaaa9c
+  context: 'For Python: debt_score = Sum(Cyclomatic Complexity from Semgrep) + (100
+    - Maintainability Index from Semgrep).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For Python files, debt_score is calculated as the sum of Cyclomatic Complexity
+    from Semgrep plus (100 minus Maintainability Index from Semgrep).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T01:53:43Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: 'Java/JS/TS/Go/Rust debt_score calculation formula: Sum(Code Smells +
+    Cyclomatic Complexity)'
+  claim_id: c_449d470c
+  context: 'For Java, JS, TS, Go, Rust: debt_score = Sum(Code Smells + Cyclomatic
+    Complexity) as reported by Semgrep.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Java/JS/TS/Go/Rust_debt_score_calculation_formula:_Sum(Code
+  kind: entity_fact
+  raw_text: For Java, JS, TS, Go, and Rust files, debt_score is the sum of Code Smells
+    and Cyclomatic Complexity as reported by Semgrep.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T01:54:15Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds are 5, 10, and 20
+  claim_id: c_32eeae7f
+  context: 'Sensitivity analysis thresholds strictly limited to the fixed set of values:
+    5, 10, and 20.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fixed set of thresholds for sensitivity analysis is 5, 10, and 20
+    lines of code.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T01:54:42Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: 'Pinned repository list: psf/requests, tensorflow/tensorflow, vuejs/vue,
+    django/django, pallets/flask'
+  claim_id: c_371f8115
+  context: 'Hardcoded List: If data/raw/repos_metadata.csv is missing, create it using
+    the following verified list of public repos: psf/requests, tensorflow/tensorflow,
+    vuejs/vue, django/django, pallets/flask.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pinned_repository_list:_psf/requests,_tensorflow/tensorflow,
+  kind: entity_fact
+  raw_text: The pinned list of repositories for the study includes psf/requests, tensorflow/tensorflow,
+    vuejs/vue, django/django, and pallets/flask.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T01:55:06Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 2
+  canonical: Peak memory usage limit is 7GB
+  claim_id: c_07b52c16
+  context: 'Success Criteria: Peak memory usage < 7GB as measured by code/utils.py
+    memory monitor (aligned with Plan''s 7GB limit).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_limit_is_7GB
+  kind: entity_fact
+  raw_text: Peak memory usage must be < 7GB as measured by the memory monitor.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T01:55:26Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Meta-analysis uses inverse-variance weighted method for Fisher's Z coefficients
+  claim_id: c_fc1c96bd
+  context: 'Inverse-variance weighted meta-analysis: z_combined = np.sum(z / se**2)
+    / np.sum(1 / se**2).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Meta-analysis_uses_inverse-variance_weighted_method_for_Fish
+  kind: entity_fact
+  raw_text: The meta-analysis uses inverse-variance weighted method to combine Fisher's
+    Z transformed correlation coefficients.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T01:57:26Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Correlation analysis controls for avg_loc using pingouin.partial_corr
+  claim_id: c_f40206fb
+  context: Control for avg_loc using pingouin.partial_corr (X=churn, Y=debt, covariates=[avg_loc]).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Correlation_analysis_controls_for_avg_loc_using_pingouin.par
+  kind: entity_fact
+  raw_text: The correlation analysis controls for avg_loc using pingouin.partial_corr.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T01:57:48Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: VIF threshold for warning is 5
+  claim_id: c_fb01dfce
+  context: If any VIF > 5, log warning.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_threshold_for_warning_is_5
+  kind: magnitude
+  raw_text: A Variance Inflation Factor (VIF) greater than 5 triggers a warning in
+    the analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T01:58:44Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Correlation coefficient |r| >= 0.3 flagged as moderate
+  claim_id: c_fd4d55f1
+  context: 'Logic: Flag |r| >= 0.3 as ''moderate''.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Correlation_coefficient_%7Cr%7C_%3E=_0.3_flagged_as_moderate
+  kind: magnitude
+  raw_text: A correlation coefficient absolute value greater than or equal to 0.3
+    is flagged as 'moderate'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T01:59:24Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Repo cloning retry limit is 3
+  claim_id: c_00cd57f1
+  context: 'Action: Wrap the cloning logic in a for loop with a maximum of 3 retries.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The retry logic for repo cloning attempts a maximum of 3 retries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T01:59:50Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Memory monitor logs usage every 60 seconds
+  claim_id: c_8d1a24e9
+  context: Add a memory monitor in code/utils.py that logs current memory usage every
+    60 seconds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The memory monitor logs current memory usage every 60 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T02:00:08Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Semgrep validation checks for GitHub star count > 5000
+  claim_id: c_5e0e3e9d
+  context: 'Primary Check: Attempt to fetch GitHub star count for Semgrep via API.
+    If stars > 5000, log ''PASS''.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Semgrep_validation_checks_for_GitHub_star_count_%3E_5000
+  kind: magnitude
+  raw_text: The tool validation for Semgrep includes a check for GitHub star count
+    greater than 5000.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T02:01:03Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Study uses raw metrics total_lines_changed and debt_score with avg_loc
+    covariate in Fisher-transformed meta-analysis
+  claim_id: c_c9f0f3c5
+  context: Phase 0 task T040 instructs to update plan.md to replace Density Metrics
+    claims with Raw Metrics and Meta-analysis approach.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_uses_raw_metrics_total_lines_changed_and_debt_score_wi
+  kind: entity_fact
+  raw_text: This study uses Raw Metrics (total_lines_changed, debt_score) as the primary
+    analysis, with avg_loc as a covariate in a Meta-analysis of Fisher-transformed
+    r coefficients.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T02:02:50Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds are 5, 10, and 20
+  claim_id: c_395ed130
+  context: Task T015b and T022 specify that the function run_correlation_analysis
+    filters data for avg_loc >= threshold using the fixed set of values {5, 10, 20}.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fixed set of sensitivity analysis thresholds is 5, 10, and 20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T02:05:24Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Semgrep version 1.30.0 used for static analysis
+  claim_id: c_98fe3e55
+  context: Task T014 specifies running semgrep==1.30.0 on all supported language files.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study uses semgrep version 1.30.0 for static analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T02:05:29Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Pipeline execution timeout is 6 hours
+  claim_id: c_8aba272d
+  context: Task T007b and T043 specify implementing a hard timeout where the pipeline
+    raises TimeoutError or SystemExit if execution exceeds 6 hours (360 minutes).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline execution has a configurable timeout of 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T02:05:33Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Pipeline memory limit is 7GB
+  claim_id: c_924d41ea
+  context: Task T033b and T044 specify refactoring code to ensure peak memory usage
+    stays under 7GB, with a shutdown trigger at 6.5GB.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_memory_limit_is_7GB
+  kind: entity_fact
+  raw_text: The memory limit for the pipeline is 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T02:05:44Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Pinned repository list includes psf/requests, tensorflow/tensorflow,
+    vuejs/vue, django/django, pallets/flask
+  claim_id: c_909a5575
+  context: Task T010 and T042 define a hardcoded list of public repos to use if the
+    metadata CSV is missing.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pinned_repository_list_includes_psf/requests,_tensorflow/ten
+  kind: entity_fact
+  raw_text: The pinned list of repositories includes psf/requests, tensorflow/tensorflow,
+    vuejs/vue, django/django, and pallets/flask.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T02:05:49Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Supported languages for static analysis are Python, Java, JS, TS, Go,
+    Rust
+  claim_id: c_d9586028
+  context: Task T014 lists the languages to be analyzed by Semgrep.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Supported_languages_for_static_analysis_are_Python,_Java,_JS
+  kind: entity_fact
+  raw_text: Python, Java, JS, TS, Go, and Rust are the supported languages for static
+    analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T02:06:03Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: 'Python debt_score formula: Sum(Cyclomatic Complexity) + (100 - Maintainability
+    Index)'
+  claim_id: c_c6dd3395
+  context: Task T014 specifies the calculation logic for debt_score for Python files.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For Python files, debt_score is calculated as the sum of Cyclomatic Complexity
+    plus (100 minus Maintainability Index).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T02:06:06Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: 'Non-Python debt_score formula: Sum(Code Smells + Cyclomatic Complexity)'
+  claim_id: c_fdfdf519
+  context: Task T014 specifies the calculation logic for debt_score for Java, JS,
+    TS, Go, and Rust files.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Non-Python_debt_score_formula:_Sum(Code_Smells_%2B_Cyclomatic
+  kind: entity_fact
+  raw_text: For Java, JS, TS, Go, and Rust files, debt_score is calculated as the
+    sum of Code Smells and Cyclomatic Complexity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T02:06:14Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: VIF warning threshold is 5
+  claim_id: c_c82456d2
+  context: Task T018 states that if any VIF > 5, a warning should be logged.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The variance inflation factor (VIF) threshold for warning is 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T02:09:42Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Correlation |r| >= 0.3 flagged as moderate
+  claim_id: c_2a6ab955
+  context: Task T028a specifies the logic for flagging significance in the summary
+    report.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Correlation_%7Cr%7C_%3E=_0.3_flagged_as_moderate
+  kind: magnitude
+  raw_text: Correlation coefficients with an absolute value greater than or equal
+    to 0.3 are flagged as moderate.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T02:09:44Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Repo cloning max retries is 3
+  claim_id: c_a85d88bc
+  context: Task T045 specifies implementing a retry mechanism with a maximum of 3
+    retries for pydriller cloning.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline supports a maximum of 3 retries for repo cloning.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T02:12:03Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Batch size is 100 repos
+  claim_id: c_e139121f
+  context: Task T034 specifies using queue.Queue with maxsize=100 and a batch size
+    of 100 repos.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The batch size for processing is 100 repos.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T02:12:11Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Memory monitor logs usage every 60 seconds
+  claim_id: c_827c9586
+  context: Task T044 specifies adding a memory monitor that logs usage every 60 seconds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The memory monitor logs current memory usage every 60 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T02:12:12Z'

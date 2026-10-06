@@ -1,12 +1,21 @@
 T007b:
   c: false
-  h: 31a8a4bda9c87de927a6572e556d26b8bd4eab90235377df9872012ff413d33a
-  r: "The provided `code/main.py` does not define the required stubs `run_extraction(...)\
-    \ -> pd.DataFrame`, `run_analysis(...) -> dict`, and `run_reporting(...) -> None`;\
-    \ it merely imports them from other modules. Additionally, the log file `data/logs/pipeline.log`\
-    \ is absent, so the total execution time is never recorded in the required format.\
-    \ The timeout logic is present but not demonstrated to be invoked with the 6\u2011\
-    hour limit. These missing pieces must be added for the task to be considered complete."
+  h: ed85f4d97774618e540531dc53ede8be8fe386ae4efdb071e4b77f7ddce983f8
+  r: "The provided `code/main.py` does not define the required stubs `run_extraction`,\
+    \ `run_analysis`, and `run_reporting`; it instead imports them from other modules.\
+    \ The timeout fallback uses a custom thread loop instead of `threading.Timer`,\
+    \ and there is no code that logs the total execution time in the required `TOTAL_TIME:\
+    \ {duration}s` format (the log file is missing). These omissions mean the task\u2019\
+    s specifications are not met."
+T007c:
+  c: false
+  h: ed85f4d97774618e540531dc53ede8be8fe386ae4efdb071e4b77f7ddce983f8
+  r: "The provided `code/main.py` shows timeout handling and writes \u201CTIMEOUT:\u201D\
+    \ entries to `data/logs/pipeline.log`, but there is no visible try/except block\
+    \ around repository processing, nor any logging of repository\u2011specific errors\
+    \ in the required `ERROR: {repo_id}: {message}` format. Additionally, the `data/logs/pipeline.log`\
+    \ file does not exist, indicating that error logging is not set up. The task\u2019\
+    s error\u2011handling wrapper is therefore not implemented."
 T007d:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
