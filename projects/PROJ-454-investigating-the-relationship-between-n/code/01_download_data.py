@@ -1,294 +1,261 @@
+"""
+T012a: Implement data download pipeline for OpenNeuro datasets.
+
+Fetches ds000030 and ds000273 using huggingface_hub.
+Validates variable fit (wcst_perseverative_errors) and saves parquet files with checksums.
+"""
 import os
 import sys
 import hashlib
 import json
 import logging
 from pathlib import Path
+from typing import List, Dict, Any, Optional
 import pandas as pd
-import requests
-from typing import List, Dict, Any, Optional, Tuple
 
-# Add parent directory to path for imports if running as script
-if 'code' not in sys.path:
-    sys.path.insert(0, str(Path(__file__).parent))
+# Add parent to path for imports if running as script
+if str(Path(__file__).resolve().parent.parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from utils.logging_config import get_logger, setup_data_flow_logger
-from utils.resource_monitor import get_memory_usage_gb, get_disk_usage_gb, check_resource_limits, log_resource_snapshot
-from config import Config, load_config_from_env
-
-# Configure logging
-logger = get_logger("download_data")
+from huggingface_hub import HfApi, hf_hub_download, list_repo_files
+from config import get_config, get_dataset_ids
+from utils.logging_config import setup_data_flow_logger, log_data_transition, log_exclusion_reason
+from utils.resource_monitor import check_resource_limits, log_resource_snapshot
 
 def setup_logger(name: str) -> logging.Logger:
-    """Setup a logger for the download module."""
-    return get_logger(name)
+    """Setup logger for this module."""
+    return setup_data_flow_logger(name)
 
-def calculate_file_checksum(file_path: Path, algorithm: str = 'sha256') -> str:
-    """Calculate the checksum of a file."""
-    hash_func = hashlib.new(algorithm)
-    with open(file_path, 'rb') as f:
-        for chunk in iter(lambda: f.read(8192), b''):
-            hash_func.update(chunk)
-    return hash_func.hexdigest()
+def calculate_file_checksum(file_path: Path, algorithm: str = "sha256") -> str:
+    """Calculate SHA256 checksum of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(chunk)
+    return sha256_hash.hexdigest()
 
-def fetch_dataset_metadata(dataset_id: str) -> Dict[str, Any]:
-    """
-    Fetch metadata for an OpenNeuro dataset.
-    Uses the OpenNeuro GraphQL API.
-    """
-    url = "https://api.openneuro.org/graphql"
-    query = """
-    query GetDataset($datasetId: ID!) {
-      dataset(id: $datasetId) {
-        id
-        description {
-          Name
-          Authors
-          Version
-          License
-          ReferencesAndLinks
-          Funding
-          HowToAcknowledge
-          EthicsApprovals
-        }
-        summary {
-          subjects
-          subjectMetadata {
-            participantId
-            age
-            sex
-            group
-          }
-          tasks
-          modalities
-          totalSessions
-          totalFiles
-          size
-        }
-        issues {
-          severity
-          code
-          reason
-        }
-      }
-    }
-    """
-    variables = {"datasetId": dataset_id}
-    
+def fetch_dataset_metadata(api: HfApi, dataset_id: str) -> Dict[str, Any]:
+    """Fetch metadata for a specific dataset."""
     try:
-        response = requests.post(url, json={"query": query, "variables": variables}, timeout=30)
-        response.raise_for_status()
-        data = response.json()
-        if 'errors' in data:
-            raise Exception(f"GraphQL errors: {data['errors']}")
-        return data['data']['dataset']
-    except requests.RequestException as e:
-        logger.error(f"Failed to fetch metadata for {dataset_id}: {e}")
-        raise
-
-def verify_variable_fit(metadata: Dict[str, Any], required_vars: List[str], min_age: int = 50) -> Tuple[bool, str]:
-    """
-    Verify that the dataset metadata contains the required variables and age criteria.
-    Specifically checks for 'wcst_perseverative_errors' and 'age >= 50' in subjectMetadata.
-    """
-    subject_metadata = metadata.get('summary', {}).get('subjectMetadata', [])
-    
-    if not subject_metadata:
-        return False, "No subject metadata found in dataset summary."
-
-    # Check for age >= 50
-    has_valid_age = False
-    for subject in subject_metadata:
-        age = subject.get('age')
-        if age is not None and age >= min_age:
-            has_valid_age = True
-            break
-
-    if not has_valid_age:
-        return False, f"No subjects found with age >= {min_age}."
-
-    # Note: The actual variable 'wcst_perseverative_errors' is typically in behavioral files,
-    # not the high-level summary metadata. We check the summary for general availability 
-    # and rely on the subsequent extraction step (T012b) to strictly validate the column.
-    # However, we can check if 'beh' (behavioral) files are present or tasks that imply WCST.
-    # For this check, we assume the dataset ID provided is known to have the variable,
-    # but we log a warning if we can't confirm it from the summary.
-    
-    # Since OpenNeuro summary doesn't list column names, we verify the dataset ID context.
-    # If the task requires a hard stop here based on column name, it must be done 
-    # after downloading the behavioral file (which T012b does).
-    # Here we confirm the dataset structure supports the study type.
-    
-    tasks = metadata.get('summary', {}).get('tasks', [])
-    # WCST is often associated with cognitive flexibility tasks. 
-    # We assume the dataset ID is correct per the task description (ds003104 etc).
-    
-    return True, "Variable fit verified (Age >= 50 confirmed)."
-
-def download_dataset_files(dataset_id: str, output_dir: Path, config: Config) -> List[Path]:
-    """
-    Download dataset files from OpenNeuro.
-    Uses the OpenNeuro API to get file locations and downloads them.
-    For large datasets, we download specific behavioral files to save space/time.
-    """
-    # Get file listing via GraphQL
-    url = "https://api.openneuro.org/graphql"
-    query = """
-    query GetFiles($datasetId: ID!) {
-      dataset(id: $datasetId) {
-        files {
-          id
-          filename
-          size
-          urls
+        # List files to ensure dataset exists and get structure
+        files = list_repo_files(dataset_id, repo_type="dataset")
+        return {
+            "id": dataset_id,
+            "exists": True,
+            "file_count": len(files),
+            "files": files[:50]  # Limit for logging
         }
-      }
-    }
-    """
-    variables = {"datasetId": dataset_id}
-    
-    try:
-        response = requests.post(url, json={"query": query, "variables": variables}, timeout=30)
-        response.raise_for_status()
-        data = response.json()
-        if 'errors' in data:
-            raise Exception(f"GraphQL errors: {data['errors']}")
-        
-        files = data['data']['dataset']['files']
-    except requests.RequestException as e:
-        logger.error(f"Failed to fetch file list for {dataset_id}: {e}")
-        raise
-
-    # Filter for behavioral files (tsv/json) or specific tasks if known
-    # For ds003104, we need the behavioral data.
-    # We will download the entire dataset structure but prioritize small files for this task
-    # or use the dandi/openneuro downloader logic if available. 
-    # Since we cannot rely on external heavy tools, we use direct HTTP.
-    
-    # OpenNeuro files often have direct URLs in the 'urls' field or we need to construct them.
-    # The API returns 'urls' which are usually CDN links.
-    
-    downloaded_files = []
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Limit download for this task to behavioral data to avoid 7GB+ download in CI
-    # We look for 'sub-*/beh/' or 'participants.tsv'
-    target_patterns = ['participants.tsv', 'sub-', '/beh/']
-    
-    for file_info in files:
-        filename = file_info['filename']
-        # Check if this is a behavioral file or participant info
-        if any(p in filename for p in target_patterns) or filename.endswith('.tsv') or filename.endswith('.json'):
-            # Check resource limits before downloading
-            check_resource_limits()
-            log_resource_snapshot()
-            
-            file_url = file_info['urls'][0] if file_info['urls'] else None
-            if not file_url:
-                logger.warning(f"No URL for {filename}")
-                continue
-            
-            local_path = output_dir / filename
-            local_path.parent.mkdir(parents=True, exist_ok=True)
-            
-            logger.info(f"Downloading {filename} from {file_url[:50]}...")
-            try:
-                with requests.get(file_url, stream=True, timeout=60) as r:
-                    r.raise_for_status()
-                    with open(local_path, 'wb') as f:
-                        for chunk in r.iter_content(chunk_size=8192):
-                            f.write(chunk)
-                downloaded_files.append(local_path)
-                logger.info(f"Downloaded {filename}")
-            except Exception as e:
-                logger.error(f"Failed to download {filename}: {e}")
-                # Continue with other files, but log failure
-                if local_path.exists():
-                    local_path.unlink()
-    
-    if not downloaded_files:
-        raise RuntimeError("No relevant files downloaded. Check dataset ID and filters.")
-        
-    return downloaded_files
-
-def save_metadata_and_checksums(dataset_id: str, downloaded_files: List[Path], output_dir: Path):
-    """Save metadata and checksums for the downloaded dataset."""
-    metadata_path = output_dir / f"{dataset_id}_metadata.json"
-    checksums_path = output_dir / f"{dataset_id}_checksums.json"
-    
-    # Re-fetch metadata to save it
-    try:
-        metadata = fetch_dataset_metadata(dataset_id)
-        with open(metadata_path, 'w') as f:
-            json.dump(metadata, f, indent=2)
     except Exception as e:
-        logger.warning(f"Could not save metadata: {e}")
+        log_exclusion_reason(f"Dataset {dataset_id} not accessible: {str(e)}")
+        return {
+            "id": dataset_id,
+            "exists": False,
+            "error": str(e)
+        }
+
+def verify_variable_fit(df: pd.DataFrame, dataset_id: str, target_column: str = "wcst_perseverative_errors") -> bool:
+    """
+    Verify that the required behavioral variable exists in the dataset.
+    Returns True if column exists and has valid data, False otherwise.
+    """
+    if target_column not in df.columns:
+        log_exclusion_reason(
+            f"Dataset {dataset_id} excluded: Missing required column '{target_column}'"
+        )
+        return False
     
-    checksums = {}
-    for file_path in downloaded_files:
-        checksums[file_path.name] = calculate_file_checksum(file_path)
+    # Check for valid data (non-null, numeric)
+    if df[target_column].isnull().all():
+        log_exclusion_reason(
+            f"Dataset {dataset_id} excluded: Column '{target_column}' contains only null values"
+        )
+        return False
     
-    with open(checksums_path, 'w') as f:
-        json.dump(checksums, f, indent=2)
+    return True
+
+def download_dataset_files(
+    dataset_id: str, 
+    output_dir: Path, 
+    config: Any,
+    logger: logging.Logger
+) -> Optional[Path]:
+    """
+    Download dataset files from HuggingFace Hub.
+    Returns path to downloaded parquet file or None if failed.
+    """
+    logger.info(f"Processing dataset: {dataset_id}")
     
-    logger.info(f"Saved metadata and checksums to {output_dir}")
+    # Check resource limits before download
+    check_resource_limits()
+    
+    try:
+        # Use huggingface_hub to download specific files
+        # For OpenNeuro datasets, we typically need to download specific behavioral files
+        # or the entire dataset structure. We'll target the TSV/CSV files containing behavioral data.
+        
+        api = HfApi()
+        
+        # List files to find behavioral data
+        all_files = list_repo_files(dataset_id, repo_type="dataset")
+        
+        # Look for common behavioral data files
+        behavioral_patterns = [
+            "behav*.tsv", "behav*.csv", "participants.tsv", 
+            "participants.csv", "*task*.tsv", "*task*.csv",
+            "phenotype*.tsv", "phenotype*.csv"
+        ]
+        
+        target_files = []
+        for pattern in behavioral_patterns:
+            for file in all_files:
+                if pattern.lower() in file.lower():
+                    target_files.append(file)
+        
+        if not target_files:
+            # Fallback: try to download any TSV/CSV file
+            for file in all_files:
+                if file.endswith(('.tsv', '.csv')):
+                    target_files.append(file)
+                    if len(target_files) >= 3:  # Limit to first 3
+                        break
+        
+        if not target_files:
+            log_exclusion_reason(f"No behavioral data files found in {dataset_id}")
+            return None
+        
+        # Download files
+        downloaded_paths = []
+        for file_path in target_files:
+            local_path = hf_hub_download(
+                repo_id=dataset_id,
+                filename=file_path,
+                repo_type="dataset",
+                cache_dir=str(output_dir / "cache"),
+                local_dir=str(output_dir / dataset_id)
+            )
+            downloaded_paths.append(Path(local_path))
+        
+        # Combine into single parquet file for processing
+        dfs = []
+        for path in downloaded_paths:
+            try:
+                if path.suffix == '.tsv':
+                  df = pd.read_csv(path, sep='\t')
+                elif path.suffix == '.csv':
+                  df = pd.read_csv(path)
+                else:
+                  continue
+                
+                # Add dataset ID column
+                df['dataset_id'] = dataset_id
+                dfs.append(df)
+                
+            except Exception as e:
+                logger.warning(f"Could not read {path}: {e}")
+                continue
+        
+        if not dfs:
+            log_exclusion_reason(f"Could not parse any data files from {dataset_id}")
+            return None
+        
+        # Combine and save
+        combined_df = pd.concat(dfs, ignore_index=True)
+        
+        # Verify variable fit
+        if not verify_variable_fit(combined_df, dataset_id):
+            return None
+        
+        # Save as parquet
+        output_file = output_dir / f"{dataset_id}_behavioral.parquet"
+        combined_df.to_parquet(output_file, index=False)
+        
+        # Calculate checksum
+        checksum = calculate_file_checksum(output_file)
+        
+        # Log data transition
+        log_data_transition(
+            source=f"HuggingFace/{dataset_id}",
+            destination=str(output_file),
+            record_count=len(combined_df),
+            checksum=checksum
+        )
+        
+        logger.info(f"Successfully downloaded and saved {dataset_id} to {output_file}")
+        return output_file
+        
+    except Exception as e:
+        logger.error(f"Failed to download dataset {dataset_id}: {e}")
+        log_exclusion_reason(f"Download failed for {dataset_id}: {str(e)}")
+        return None
+
+def save_metadata_and_checksums(
+    results: List[Dict[str, Any]], 
+    output_path: Path
+):
+    """Save download metadata and checksums to JSON."""
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
 
 def main():
-    """Main entry point for the data download task."""
-    logger.info("Starting data download task T012")
+    """Main entry point for data download pipeline."""
+    logger = setup_logger("download_data")
+    logger.info("Starting data download pipeline (T012a)")
     
     # Load configuration
-    try:
-        config = load_config_from_env()
-    except Exception as e:
-        logger.error(f"Failed to load config: {e}")
-        # Fallback defaults if env not set, but ideally this fails loudly
-        config = Config(
-            openneuro_dataset_ids=["ds003104"], # Default to the known dataset
-            min_age=50,
-            output_dir="data/raw"
-        )
+    config = get_config()
+    dataset_ids = get_dataset_ids()
     
-    output_dir = Path(config.output_dir)
+    if not dataset_ids:
+        logger.error("No dataset IDs found in configuration")
+        sys.exit(1)
+    
+    # Ensure output directory exists
+    output_dir = Path("data/raw")
     output_dir.mkdir(parents=True, exist_ok=True)
     
-    datasets_to_process = config.openneuro_dataset_ids
-    required_vars = ['wcst_perseverative_errors']
+    results = []
+    successful_downloads = 0
     
-    all_downloaded_files = []
-    
-    for dataset_id in datasets_to_process:
-        logger.info(f"Processing dataset: {dataset_id}")
+    for dataset_id in dataset_ids:
+        logger.info(f"Processing {dataset_id}")
         
-        # Fetch and verify metadata
-        try:
-            metadata = fetch_dataset_metadata(dataset_id)
-            is_valid, message = verify_variable_fit(metadata, required_vars, config.min_age)
-            
-            if not is_valid:
-                logger.error(f"Dataset {dataset_id} failed variable fit check: {message}")
-                # Per task: "Verify variable fit". If it fails, we should log it.
-                # The task says "Check metadata...". If the metadata doesn't support it,
-                # we might skip or error. Given T012b depends on this, we must ensure
-                # the dataset is suitable. If it fails here, we cannot proceed to T012b.
-                # We will raise an error to halt the pipeline for this dataset.
-                raise RuntimeError(f"Variable fit check failed for {dataset_id}: {message}")
-                
-            logger.info(f"Dataset {dataset_id} passed variable fit check: {message}")
-            
-            # Download files
-            downloaded_files = download_dataset_files(dataset_id, output_dir / dataset_id, config)
-            all_downloaded_files.extend(downloaded_files)
-            
-            # Save metadata and checksums
-            save_metadata_and_checksums(dataset_id, downloaded_files, output_dir / dataset_id)
-            
-        except Exception as e:
-            logger.error(f"Failed to process dataset {dataset_id}: {e}")
-            raise
+        # Fetch metadata
+        metadata = fetch_dataset_metadata(HfApi(), dataset_id)
+        
+        if not metadata.get("exists"):
+            results.append(metadata)
+            continue
+        
+        # Download and process
+        output_path = download_dataset_files(dataset_id, output_dir, config, logger)
+        
+        if output_path:
+            successful_downloads += 1
+            results.append({
+                "dataset_id": dataset_id,
+                "status": "success",
+                "output_file": str(output_path),
+                "checksum": calculate_file_checksum(output_path)
+            })
+        else:
+            results.append({
+                "dataset_id": dataset_id,
+                "status": "failed",
+                "reason": "Variable fit check failed or download error"
+            })
     
-    logger.info(f"T012 Complete. Downloaded {len(all_downloaded_files)} files.")
-    return all_downloaded_files
+    # Save metadata
+    metadata_path = output_dir / "download_metadata.json"
+    save_metadata_and_checksums(results, metadata_path)
+    
+    logger.info(f"Download pipeline complete. Success: {successful_downloads}/{len(dataset_ids)}")
+    
+    # Final resource check
+    log_resource_snapshot()
+    
+    if successful_downloads == 0:
+        logger.error("No datasets were successfully downloaded")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

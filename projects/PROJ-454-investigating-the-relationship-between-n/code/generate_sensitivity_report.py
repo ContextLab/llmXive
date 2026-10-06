@@ -1,13 +1,17 @@
 """
 T029: Generate sensitivity_report.json comparing results across exclusion scenarios and threshold sweeps.
 
-Input:
+Inputs:
   - data/processed/sensitivity_exclusion_results.csv
   - data/processed/sensitivity_threshold_results.csv
 Output:
   - data/processed/sensitivity_report.json
 
-Required fields in JSON: scenario, r_value, p_value, n_excluded.
+Required fields in report:
+  - scenario
+  - r_value
+  - p_value
+  - n_excluded
 """
 import os
 import sys
@@ -16,103 +20,158 @@ import logging
 import pandas as pd
 from pathlib import Path
 
-# Add project root to path to allow imports from utils
+# Add project root to path for imports if running from code/
 project_root = Path(__file__).resolve().parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+sys.path.insert(0, str(project_root))
 
 from utils.logging_config import setup_general_logger
 
-def load_sensitivity_data(filepath: Path) -> pd.DataFrame:
-    """Load a CSV file and return as DataFrame."""
-    if not filepath.exists():
-        raise FileNotFoundError(f"Required input file not found: {filepath}")
-    return pd.read_csv(filepath)
+def setup_logger(name):
+    return setup_general_logger(name)
 
-def build_report(exclusion_df: pd.DataFrame, threshold_df: pd.DataFrame) -> list:
+def load_sensitivity_data(logger):
     """
-    Combine exclusion and threshold results into the required report format.
+    Load the sensitivity analysis results from CSV files.
     
-    Expected columns in exclusion_df: scenario, r_value, p_value, n_excluded (and others)
-    Expected columns in threshold_df: scenario, r_value, p_value, n_excluded (and others)
-    
-    Returns a list of dictionaries, each representing one row of results.
+    Returns:
+        tuple: (exclusion_df, threshold_df)
     """
-    report_data = []
+    data_path = project_root / "data" / "processed"
+    
+    exclusion_file = data_path / "sensitivity_exclusion_results.csv"
+    threshold_file = data_path / "sensitivity_threshold_results.csv"
+    
+    if not exclusion_file.exists():
+        logger.error(f"Exclusion results file not found: {exclusion_file}")
+        raise FileNotFoundError(f"Missing file: {exclusion_file}")
+    
+    if not threshold_file.exists():
+        logger.error(f"Threshold results file not found: {exclusion_file}")
+        raise FileNotFoundError(f"Missing file: {threshold_file}")
+    
+    exclusion_df = pd.read_csv(exclusion_file)
+    threshold_df = pd.read_csv(threshold_file)
+    
+    logger.info(f"Loaded {len(exclusion_df)} exclusion scenarios")
+    logger.info(f"Loaded {len(threshold_df)} threshold sweep results")
+    
+    return exclusion_df, threshold_df
 
-    # Process exclusion results
-    if not exclusion_df.empty:
-        # Ensure required columns exist, fill with 0 or NaN if missing
-        for col in ['scenario', 'r_value', 'p_value', 'n_excluded']:
-            if col not in exclusion_df.columns:
-                exclusion_df[col] = 0 if col == 'n_excluded' else None
+def build_report(exclusion_df, threshold_df, logger):
+    """
+    Construct the sensitivity report dictionary.
+    
+    The report compares results across exclusion scenarios and threshold sweeps.
+    Each entry must contain: scenario, r_value, p_value, n_excluded.
+    
+    Args:
+        exclusion_df: DataFrame from sensitivity_exclusion_results.csv
+        threshold_df: DataFrame from sensitivity_threshold_results.csv
+        logger: Logger instance
         
-        for _, row in exclusion_df.iterrows():
-          report_data.append({
-              "scenario": str(row.get('scenario', 'unknown')),
-              "r_value": float(row['r_value']) if pd.notna(row['r_value']) else None,
-              "p_value": float(row['p_value']) if pd.notna(row['p_value']) else None,
-              "n_excluded": int(row['n_excluded']) if pd.notna(row['n_excluded']) else 0
-          })
-
-    # Process threshold results
-    if not threshold_df.empty:
-        for col in ['scenario', 'r_value', 'p_value', 'n_excluded']:
-            if col not in threshold_df.columns:
-                threshold_df[col] = 0 if col == 'n_excluded' else None
-
-        for _, row in threshold_df.iterrows():
-          report_data.append({
-              "scenario": str(row.get('scenario', 'unknown')),
-              "r_value": float(row['r_value']) if pd.notna(row['r_value']) else None,
-              "p_value": float(row['p_value']) if pd.notna(row['p_value']) else None,
-              "n_excluded": int(row['n_excluded']) if pd.notna(row['n_excluded']) else 0
-          })
-
-    return report_data
+    Returns:
+        dict: The sensitivity report structure
+    """
+    report = {
+        "summary": {
+            "total_exclusion_scenarios": len(exclusion_df),
+            "total_threshold_scenarios": len(threshold_df),
+            "analysis_type": "sensitivity_analysis",
+            "methodology": "OLS regression with FDR correction across exclusion and threshold variations"
+        },
+        "exclusion_scenarios": [],
+        "threshold_scenarios": []
+    }
+    
+    # Process exclusion scenarios
+    # Expected columns: scenario_name, r_value, p_value, n_excluded, n_total, metric_name
+    for _, row in exclusion_df.iterrows():
+        scenario_entry = {
+            "scenario": row.get("scenario_name", row.get("scenario", "unknown")),
+            "r_value": float(row["r_value"]) if pd.notna(row["r_value"]) else None,
+            "p_value": float(row["p_value"]) if pd.notna(row["p_value"]) else None,
+            "n_excluded": int(row["n_excluded"]) if pd.notna(row["n_excluded"]) else 0,
+            "n_total": int(row.get("n_total", 0)),
+            "metric": row.get("metric_name", row.get("metric", "all")),
+            "description": row.get("description", "")
+        }
+        report["exclusion_scenarios"].append(scenario_entry)
+    
+    # Process threshold sweep scenarios
+    # Expected columns: scenario_name, threshold_type, threshold_value, r_value, p_value, n_excluded
+    for _, row in threshold_df.iterrows():
+        scenario_entry = {
+            "scenario": row.get("scenario_name", row.get("scenario", "unknown")),
+            "threshold_type": row.get("threshold_type", "unknown"),
+            "threshold_value": float(row["threshold_value"]) if pd.notna(row["threshold_value"]) else None,
+            "r_value": float(row["r_value"]) if pd.notna(row["r_value"]) else None,
+            "p_value": float(row["p_value"]) if pd.notna(row["p_value"]) else None,
+            "n_excluded": int(row["n_excluded"]) if pd.notna(row["n_excluded"]) else 0,
+            "n_total": int(row.get("n_total", 0)),
+            "metric": row.get("metric_name", row.get("metric", "all")),
+            "description": row.get("description", "")
+        }
+        report["threshold_scenarios"].append(scenario_entry)
+    
+    # Add comparison summary
+    if len(exclusion_df) > 0 and len(threshold_df) > 0:
+        # Calculate stability metrics
+        exclusion_r_values = [e["r_value"] for e in report["exclusion_scenarios"] if e["r_value"] is not None]
+        threshold_r_values = [t["r_value"] for t in report["threshold_scenarios"] if t["r_value"] is not None]
+        
+        if exclusion_r_values:
+            report["comparison"] = {
+                "exclusion_r_range": {
+                    "min": min(exclusion_r_values),
+                    "max": max(exclusion_r_values),
+                    "mean": sum(exclusion_r_values) / len(exclusion_r_values)
+                },
+                "threshold_r_range": {
+                    "min": min(threshold_r_values),
+                    "max": max(threshold_r_values),
+                    "mean": sum(threshold_r_values) / len(threshold_r_values)
+                },
+                "stability_note": "Lower variance indicates more robust findings across scenarios"
+            }
+        else:
+            report["comparison"] = {
+                "stability_note": "No valid r-values found in sensitivity analysis"
+            }
+    
+    logger.info(f"Built report with {len(report['exclusion_scenarios'])} exclusion and {len(report['threshold_scenarios'])} threshold scenarios")
+    
+    return report
 
 def main():
-    logger = setup_general_logger("generate_sensitivity_report")
-    logger.info("Starting sensitivity report generation (T029).")
-
-    # Define paths relative to project root
-    data_dir = project_root / "data" / "processed"
-    exclusion_input = data_dir / "sensitivity_exclusion_results.csv"
-    threshold_input = data_dir / "sensitivity_threshold_results.csv"
-    output_file = data_dir / "sensitivity_report.json"
-
-    # Verify inputs exist
-    if not exclusion_input.exists():
-        logger.error(f"Input file missing: {exclusion_input}")
-        sys.exit(1)
-    if not threshold_input.exists():
-        logger.error(f"Input file missing: {threshold_input}")
-        sys.exit(1)
-
+    """Main entry point for generating the sensitivity report."""
+    logger = setup_logger("generate_sensitivity_report")
+    logger.info("Starting sensitivity report generation (T029)")
+    
     try:
         # Load data
-        logger.info(f"Loading {exclusion_input}")
-        exclusion_df = load_sensitivity_data(exclusion_input)
-        logger.info(f"Loaded {len(exclusion_df)} rows from exclusion results.")
-
-        logger.info(f"Loading {threshold_input}")
-        threshold_df = load_sensitivity_data(threshold_input)
-        logger.info(f"Loaded {len(threshold_df)} rows from threshold results.")
-
+        exclusion_df, threshold_df = load_sensitivity_data(logger)
+        
         # Build report
-        report_data = build_report(exclusion_df, threshold_df)
-
-        # Write output
-        logger.info(f"Writing report to {output_file}")
-        with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(report_data, f, indent=2)
-
-        logger.info(f"Sensitivity report successfully generated: {output_file}")
-        logger.info(f"Total records in report: {len(report_data)}")
-
+        report = build_report(exclusion_df, threshold_df, logger)
+        
+        # Save report
+        output_path = project_root / "data" / "processed" / "sensitivity_report.json"
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(report, f, indent=2, ensure_ascii=False)
+        
+        logger.info(f"Sensitivity report saved to: {output_path}")
+        logger.info(f"Report contains {report['summary']['total_exclusion_scenarios']} exclusion scenarios and {report['summary']['total_threshold_scenarios']} threshold scenarios")
+        
+        return 0
+        
+    except FileNotFoundError as e:
+        logger.error(f"Missing required input file: {e}")
+        return 1
     except Exception as e:
-        logger.error(f"Error generating sensitivity report: {e}", exc_info=True)
-        sys.exit(1)
+        logger.error(f"Error generating sensitivity report: {str(e)}", exc_info=True)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

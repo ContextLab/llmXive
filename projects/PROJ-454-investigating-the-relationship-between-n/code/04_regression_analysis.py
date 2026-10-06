@@ -4,261 +4,301 @@ import logging
 import pandas as pd
 import numpy as np
 from pathlib import Path
+from typing import List, Dict, Tuple, Any
+from statsmodels.regression.linear_model import OLS
+from statsmodels.tools import add_constant
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+import json
 
-# Import utilities from existing API surface
+# Local imports matching API surface
 from utils.logging_config import setup_data_flow_logger, get_logger
 from utils.stats_utils import (
-    calculate_vif,
-    check_multicollinearity,
-    fit_ols_model,
-    fdr_benjamini_hochberg,
-    bonferroni_correction,
+    calculate_vif, 
+    fit_ols_model, 
+    fdr_benjamini_hochberg, 
     calculate_partial_r,
-    classify_effect_size,
-    run_regression_with_fdr
+    classify_effect_size
 )
-from utils.resource_monitor import get_memory_usage_gb, check_resource_limits
-from config import get_vif_threshold, get_fdr_method
+from utils.resource_monitor import get_memory_usage_gb, check_resource_limits, log_resource_snapshot
+from config import get_config
 
-def setup_logger(name):
-    logger = logging.getLogger(name)
-    if not logger.handlers:
-        handler = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-        logger.setLevel(logging.INFO)
-    return logger
+def setup_logger(name: str) -> logging.Logger:
+    """Setup a logger for this module."""
+    return setup_data_flow_logger(name)
 
-def load_data(ols_results_path):
-    """Load the OLS regression results CSV."""
-    if not os.path.exists(ols_results_path):
-        raise FileNotFoundError(f"Input file not found: {ols_results_path}")
-    logger.info(f"Loading OLS results from {ols_results_path}")
-    df = pd.read_csv(ols_results_path)
-    return df
+logger = setup_logger(__name__)
 
-def prepare_features(df):
+def load_data() -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Prepare features for VIF calculation and conditional re-running.
-    Returns a DataFrame ready for VIF calculation.
+    Load entropy metrics and behavioral scores.
+    Returns:
+        Tuple of (entropy_df, behavioral_df)
     """
-    # Identify predictor columns (exclude dependent variable and metadata)
-    # Assuming the OLS output has columns: 'predictor', 'p_value', 'r_value', 'metric_type', 'frequency_band', etc.
-    # We need to reconstruct the design matrix or check VIF based on the unique predictors used in the OLS.
-    # Since the input is the *results* of OLS, we need to know which predictors were used.
-    # The task implies we need to check VIF for the *predictors in the OLS model*.
-    # The OLS model predictors are: Entropy metrics (Sample/ApEn) + Covariates (Age, Education, etc.).
-    # However, the input `correlation_results_ols.csv` likely contains one row per test (e.g., "Theta_SampleEntropy vs WCST").
-    # To calculate VIF, we need the correlation matrix of the *independent variables* used in the full model.
-    # Since we don't have the raw data here (only results), we must assume the OLS was run on a dataset where
-    # we can re-calculate VIF or the file contains necessary correlation info.
-    #
-    # Correction: The task says "Calculate VIF for all predictors in OLS model first".
-    # The OLS model predictors are: [Entropy_Metric, Age, Education, Task_Accuracy, Neuro_Cond, Medication].
-    # But the input is `correlation_results_ols.csv`. This file likely contains the results of running OLS
-    # for each Entropy metric (Sample/ApEn) against WCST.
-    # To check VIF, we need the correlation between predictors.
-    #
-    # Strategy:
-    # 1. Load the raw behavioral and entropy data to compute VIF correctly?
-    #    The task says Input: `data/processed/correlation_results_ols.csv`.
-    #    This implies we might need to infer VIF from the results or the file structure implies
-    #    we should have access to the underlying data.
-    #    However, strictly following "Input: ...ols.csv", we might need to assume the VIF check
-    #    was already done or we need to load the underlying data to compute it.
-    #
-    # Let's re-read the task: "Input: data/processed/correlation_results_ols.csv".
-    # If the OLS results file doesn't contain the raw data, we cannot calculate VIF from it alone.
-    # However, the task description implies the script `04_regression_analysis.py` is responsible
-    # for the whole flow. It likely has access to the raw data paths.
-    #
-    # Let's assume the script loads the necessary data (entropy + behavioral) to compute VIF,
-    # then uses the OLS results to decide whether to re-run (drop ApEn).
-    #
-    # Actually, the task says: "1. Calculate VIF for all predictors in OLS model first. 2. If VIF > 5, drop ApEn and re-run OLS".
-    # This implies the OLS results in `correlation_results_ols.csv` might be the result of a run that *didn't* check VIF yet,
-    # or we need to check VIF on the *set of predictors* used.
-    #
-    # Let's assume the standard flow:
-    # We need to load the underlying data (entropy_metrics.csv and behavioral_scores.csv) to compute VIF.
-    # The `correlation_results_ols.csv` is the output of the *previous* step (T020a) which ran OLS.
-    # If T020a ran OLS with both Sample and ApEn, and VIF is high, we need to drop ApEn and re-run.
-    #
-    # So, we need to load the raw data to compute VIF.
-    #
-    # Let's add logic to load the underlying data if needed.
-    return df
+    config = get_config()
+    entropy_path = Path(config['data_processed_dir']) / "entropy_metrics.csv"
+    behavioral_path = Path(config['data_processed_dir']) / "behavioral_scores.csv"
 
-def run_vif_check_and_fdr(ols_results_path, entropy_data_path, behavioral_data_path, output_fdr_path):
+    if not entropy_path.exists():
+        raise FileNotFoundError(f"Entropy metrics not found at {entropy_path}. Run T015 first.")
+    if not behavioral_path.exists():
+        raise FileNotFoundError(f"Behavioral scores not found at {behavioral_path}. Run T012c first.")
+
+    entropy_df = pd.read_csv(entropy_path)
+    behavioral_df = pd.read_csv(behavioral_path)
+
+    # Merge on participant_id
+    merged = pd.merge(entropy_df, behavioral_df, on='participant_id', how='inner')
+    logger.info(f"Loaded {len(merged)} participants for regression analysis.")
+    return merged
+
+def prepare_features(data: pd.DataFrame, config: Dict[str, Any]) -> pd.DataFrame:
     """
-    1. Load underlying data to calculate VIF for predictors (Entropy + Covariates).
-    2. If VIF > 5 for any predictor involving ApEn, drop ApEn and re-run OLS (simulated here by filtering).
-    3. Apply Benjamini-Hochberg FDR correction to the p-values.
-    4. Save results.
+    Prepare features for OLS regression.
+    - Selects entropy columns (Sample and Approximate) for all bands.
+    - Adds covariates: Age, Education, Task Accuracy, Neurological Condition, Medication Use.
+    - Handles missing values by dropping rows.
     """
-    logger = setup_logger("T021_FDR")
+    # Identify entropy columns (assuming naming convention: {metric}_{band})
+    # Based on T015 output: SampleEntropy_Delta, SampleEntropy_Theta, etc.
+    entropy_cols = [col for col in data.columns if 'Entropy' in col]
     
-    # Load OLS results
-    ols_df = load_data(ols_results_path)
+    # Define covariates based on T020a spec
+    covariates = ['age', 'education_years', 'task_accuracy', 'neurological_condition', 'medication_use']
     
-    # Load underlying data to compute VIF
-    # We need to check the correlation between predictors.
-    # Predictors: Entropy (Sample, ApEn), Age, Education, Accuracy, Neuro, Med
-    # We need to load the combined dataset to compute VIF.
+    # Check presence
+    missing_covs = [c for c in covariates if c not in data.columns]
+    if missing_covs:
+        logger.warning(f"Missing covariates in data: {missing_covs}. Dropping them.")
+        covariates = [c for c in covariates if c in data.columns]
     
+    feature_cols = entropy_cols + covariates
+    
+    # Drop rows with NaN in any feature or target
+    # Target is wcst_perseverative_errors (from T012b validation)
+    target_col = 'wcst_perseverative_errors'
+    if target_col not in data.columns:
+        raise ValueError(f"Target column '{target_col}' not found in data.")
+    
+    clean_data = data[feature_cols + [target_col]].dropna()
+    logger.info(f"Prepared {len(clean_data)} rows for regression after dropping NaNs.")
+    return clean_data
+
+def run_ols_for_metric(data: pd.DataFrame, metric_col: str, target_col: str) -> Dict[str, Any]:
+    """
+    Run a single OLS regression for one entropy metric against target.
+    Returns a dict with results or None if VIF check fails for this specific run context.
+    """
+    predictors = [c for c in data.columns if c != target_col]
+    X = add_constant(data[predictors])
+    y = data[target_col]
+
     try:
-        entropy_df = pd.read_csv(entropy_data_path)
-        behavioral_df = pd.read_csv(behavioral_data_path)
+        model = OLS(y, X).fit()
+        partial_r = calculate_partial_r(model, metric_col)
+        p_val = model.pvalues[metric_col]
+        coef = model.params[metric_col]
         
-        # Merge to get full predictor set
-        # Assuming a common 'subject_id' or similar key
-        # If keys don't match, we might need to adjust.
-        # Let's assume 'participant_id' or 'subject_id' is the key.
-        # We'll try common keys.
-        key = None
-        for k in ['subject_id', 'participant_id', 'id']:
-            if k in entropy_df.columns and k in behavioral_df.columns:
-                key = k
-                break
-        
-        if key is None:
-            # Fallback: assume index or first column
-            logger.warning("No common key found, attempting to merge on index or first column.")
-            # For VIF, we need the actual data. If we can't merge, we can't compute VIF.
-            # We will assume the OLS results file contains a summary or we must re-run.
-            # But the task says "Calculate VIF... first".
-            # Let's assume the data is available and keys match.
-            raise ValueError("Could not find common key to merge entropy and behavioral data for VIF calculation.")
-        
-        combined_df = pd.merge(entropy_df, behavioral_df, on=key, how='inner')
-        
-        # Identify predictor columns
-        # We need columns that represent the independent variables.
-        # Assuming the entropy data has columns like 'Delta_SampleEntropy', 'Delta_ApproximateEntropy', etc.
-        # And behavioral has 'Age', 'Education', etc.
-        
-        # Heuristic: Select numeric columns that are likely predictors
-        # Exclude target variable (WCST errors) and entropy metrics themselves if they are the dependent?
-        # No, in the OLS, Entropy is the predictor? Or WCST is the predictor?
-        # Task: "Multiple Linear Regression (OLS) between Entropy metrics and WCST errors".
-        # Usually: WCST ~ Entropy + Covariates.
-        # So Entropy is a predictor.
-        
-        # Let's select columns that are not the target (WCST) and not the ID.
-        # We need to identify which columns are Entropy metrics.
-        entropy_cols = [c for c in combined_df.columns if 'Entropy' in c or 'Approximate' in c]
-        covariate_cols = [c for c in combined_df.columns if c in ['Age', 'Education', 'Task_Accuracy', 'Neurological_Condition', 'Medication']]
-        
-        predictors = entropy_cols + covariate_cols
-        
-        # Filter for numeric columns
-        predictors = [c for c in predictors if c in combined_df.columns and combined_df[c].dtype in ['float64', 'int64', 'float32', 'int32']]
-        
-        if len(predictors) < 2:
-            logger.warning("Not enough predictors to calculate VIF. Skipping VIF check.")
-            vif_data = None
-        else:
-            # Calculate VIF
-            vif_data = calculate_vif(combined_df[predictors])
-            logger.info(f"VIF Calculation completed. Max VIF: {vif_data['VIF'].max():.2f}")
-            
-            # Check if ApEn is involved and VIF > 5
-            # Find ApEn columns
-            apen_cols = [c for c in vif_data['feature'] if 'Approximate' in c or 'ApEn' in c]
-            max_vif_apen = 0
-            if apen_cols:
-                apen_vifs = vif_data[vif_data['feature'].isin(apen_cols)]['VIF']
-                if not apen_vifs.empty:
-                    max_vif_apen = apen_vifs.max()
-            
-            if max_vif_apen > 5.0:
-                logger.warning(f"VIF for Approximate Entropy ({max_vif_apen:.2f}) > 5. Dropping ApEn from analysis.")
-                # Filter the OLS results to remove ApEn rows
-                # Assume 'predictor' or 'metric_type' column identifies ApEn
-                apen_keywords = ['Approximate', 'ApEn']
-                mask = ~ols_df['predictor'].str.contains('|'.join(apen_keywords), na=False, case=False)
-                ols_df = ols_df[mask]
-                logger.info(f"Filtered out {len(ols_df) - len(ols_df)} ApEn rows due to multicollinearity.")
-            else:
-                logger.info(f"VIF for ApEn ({max_vif_apen:.2f}) is acceptable (< 5). Keeping all metrics.")
-        
+        return {
+            "metric": metric_col,
+            "coefficient": coef,
+            "p_value": p_val,
+            "partial_r": partial_r,
+            "n": len(y),
+            "r_squared": model.rsquared
+        }
     except Exception as e:
-        logger.error(f"Error during VIF calculation: {e}. Proceeding with original OLS results.")
-        # If we can't calculate VIF, we proceed with the existing OLS results.
-        # This is a fail-safe, but ideally we have the data.
-    
-    # Apply FDR Correction
-    # Input: ols_df with p-values
-    # We need to apply Benjamini-Hochberg to the p-values.
-    # The task says: "Apply FDR to remaining tests (5 bands × remaining metrics)".
-    # We assume the p-values are in a column named 'p_value'.
-    
-    if 'p_value' not in ols_df.columns:
-        logger.error("Column 'p_value' not found in OLS results. Cannot apply FDR.")
-        raise KeyError("Missing 'p_value' column in input data.")
-    
-    # Filter out non-significant or invalid p-values? No, apply to all.
-    p_values = ols_df['p_value'].values
-    
-    # Apply FDR
-    corrected_pvalues, rejected = fdr_benjamini_hochberg(p_values, alpha=0.05)
-    
-    # Add results to dataframe
-    ols_df['p_value_fdr'] = corrected_pvalues
-    ols_df['is_significant_fdr'] = rejected
-    
-    # Calculate effect sizes if not present
-    if 'partial_r' not in ols_df.columns:
-        # We would need raw data for this, but assuming it's in the OLS results or we skip.
-        # If the OLS results file has r_value, we can use that.
-        pass
-    
-    # Save results
-    os.makedirs(os.path.dirname(output_fdr_path), exist_ok=True)
-    ols_df.to_csv(output_fdr_path, index=False)
-    logger.info(f"FDR corrected results saved to {output_fdr_path}")
-    
-    return ols_df
+        logger.error(f"OLS failed for {metric_col}: {e}")
+        return None
 
-def save_results(df, output_path):
-    """Save the final FDR-corrected results."""
-    df.to_csv(output_path, index=False)
-    logger.info(f"Results saved to {output_path}")
+def run_vif_check_and_fdr(data: pd.DataFrame, target_col: str, snr_threshold: float = 5.0, artifact_threshold: float = 10.0) -> pd.DataFrame:
+    """
+    Core logic for T020a + T021 + T028 sensitivity sweep.
+    
+    1. Calculates VIF for all predictors.
+    2. If VIF > 5 for any Approximate Entropy metric, drops ALL Approximate Entropy metrics.
+    3. Runs OLS for remaining metrics.
+    4. Applies FDR correction to p-values.
+    5. Returns a DataFrame of results.
+    
+    Parameters:
+        snr_threshold: The SNR threshold (in dB) used for this run.
+        artifact_threshold: The artifact threshold used for this run.
+    """
+    # Filter data by thresholds if columns exist (simulating the exclusion logic from T016/T014)
+    # Note: In a full pipeline, this data would already be filtered. 
+    # Here we apply the threshold filter dynamically for the sensitivity sweep.
+    filtered_data = data.copy()
+    
+    # If SNR column exists, filter
+    if 'snr_db' in filtered_data.columns:
+        filtered_data = filtered_data[filtered_data['snr_db'] >= snr_threshold]
+    
+    # If artifact column exists (e.g., artifact_score), filter
+    if 'artifact_score' in filtered_data.columns:
+        filtered_data = filtered_data[filtered_data['artifact_score'] <= artifact_threshold]
+
+    if len(filtered_data) < 10:
+        logger.warning(f"Insufficient data points ({len(filtered_data)}) for regression with current thresholds.")
+        return pd.DataFrame()
+
+    # Identify entropy metrics
+    entropy_cols = [col for col in filtered_data.columns if 'Entropy' in col]
+    
+    # VIF Check (T021 Logic)
+    # We check VIF on the full set of predictors first
+    predictors = [c for c in filtered_data.columns if c != target_col]
+    X_vif = add_constant(filtered_data[predictors])
+    
+    vif_results = calculate_vif(X_vif)
+    logger.info(f"VIF Check Results: {vif_results}")
+    
+    # Check if any Approximate Entropy metric has VIF > 5
+    apen_cols = [c for c in entropy_cols if 'Approximate' in c]
+    high_vif_apen = False
+    for col in apen_cols:
+        if col in vif_results:
+            if vif_results[col] > 5.0:
+                high_vif_apen = True
+                logger.warning(f"VIF for {col} is {vif_results[col]:.2f} > 5. Dropping all Approximate Entropy metrics.")
+                break
+    
+    # If high VIF found, drop ApEn columns
+    if high_vif_apen:
+        final_predictors = [c for c in predictors if 'Approximate' not in c]
+    else:
+        final_predictors = predictors
+
+    # Re-run OLS with reduced set if needed
+    X = add_constant(filtered_data[final_predictors])
+    y = filtered_data[target_col]
+    
+    if len(X) < 2:
+        return pd.DataFrame()
+
+    try:
+        model = OLS(y, X).fit()
+    except Exception as e:
+        logger.error(f"OLS fitting failed with reduced predictors: {e}")
+        return pd.DataFrame()
+
+    # Extract results for each metric in the final set
+    results = []
+    metrics_in_model = [c for c in final_predictors if 'Entropy' in c]
+    
+    for metric in metrics_in_model:
+        p_val = model.pvalues[metric]
+        coef = model.params[metric]
+        partial_r = calculate_partial_r(model, metric)
+        effect_class = classify_effect_size(partial_r)
+        
+        results.append({
+            "metric": metric,
+            "coefficient": coef,
+            "p_value": p_val,
+            "partial_r": partial_r,
+            "effect_size_class": effect_class,
+            "n": len(y),
+            "snr_threshold": snr_threshold,
+            "artifact_threshold": artifact_threshold
+        })
+
+    if not results:
+        return pd.DataFrame()
+
+    results_df = pd.DataFrame(results)
+
+    # FDR Correction (T021)
+    # Apply FDR to p-values within this specific regression run
+    if len(results_df) > 0:
+        corrected_p = fdr_benjamini_hochberg(results_df['p_value'].values)
+        results_df['p_value_fdr'] = corrected_p
+    
+    return results_df
+
+def save_results(results_df: pd.DataFrame, output_path: Path):
+    """Save results to CSV."""
+    if results_df.empty:
+        logger.warning("No results to save.")
+        return
+    results_df.to_csv(output_path, index=False)
+    logger.info(f"Saved results to {output_path}")
 
 def main():
-    logger = setup_logger("04_regression_analysis_main")
+    """
+    Main entry point for T028: Threshold Sensitivity Sweep.
     
-    # Paths
-    base_dir = Path("data/processed")
-    ols_input = base_dir / "correlation_results_ols.csv"
-    entropy_input = base_dir / "entropy_metrics.csv"
-    behavioral_input = base_dir / "behavioral_scores.csv"
-    fdr_output = base_dir / "correlation_results_fdr.csv"
+    This function implements an iterative loop that re-runs the ENTIRE regression pipeline
+    (T020a + T021 logic) for each offset value of:
+    1. Artifact rejection threshold
+    2. SNR threshold
     
-    # Check resource limits
-    if not check_resource_limits():
-        logger.error("Resource limits exceeded. Aborting.")
-        sys.exit(1)
+    Output: data/processed/sensitivity_threshold_results.csv
+    """
+    config = get_config()
+    base_snr = config.get('SNR_THRESHOLD', 5.0)
+    base_artifact = config.get('ARTIFACT_THRESHOLD', 10.0) # Assuming a default or config value
     
-    # Check if input exists
-    if not ols_input.exists():
-        logger.error(f"Input file not found: {ols_input}")
-        logger.error("Please run T020a (OLS Regression) first to generate correlation_results_ols.csv")
-        sys.exit(1)
+    # Define sweep values (Offsets from baseline as per T028 description)
+    # Offsets: 0.0, 0.05, 0.1 (interpreted as relative offsets or absolute steps)
+    # Given the units (dB for SNR, arbitrary units for artifact), we interpret these as absolute offsets 
+    # or relative multipliers. The spec says "Offsets from baseline".
+    # We will use absolute offsets: -0.1, 0.0, +0.1 to cover the range {0.0, 0.05, 0.1} as steps?
+    # Actually, T028 says: "Sweep Values: Artifact rejection threshold: Offsets from baseline. SNR threshold: Offsets from baseline."
+    # And "Implement an iterative loop... for each offset value".
+    # Let's define offsets as: [-0.1, 0.0, 0.1] relative to the base threshold.
+    offsets = [-0.1, 0.0, 0.1] 
     
-    # Run VIF check and FDR
+    # If the spec meant specific values {0.0, 0.05, 0.1} as the offsets themselves:
+    # offsets = [0.0, 0.05, 0.1]
+    # We will use the latter interpretation to match the "Sweep Values" description exactly.
+    offsets = [0.0, 0.05, 0.1]
+
+    all_results = []
+    target_col = 'wcst_perseverative_errors'
+
+    # Load base data
     try:
-        run_vif_check_and_fdr(
-            ols_results_path=str(ols_input),
-            entropy_data_path=str(entropy_input),
-            behavioral_data_path=str(behavioral_input),
-            output_fdr_path=str(fdr_output)
+        full_data = load_data()
+    except FileNotFoundError as e:
+        logger.error(f"Cannot run sensitivity sweep: {e}")
+        return
+
+    logger.info(f"Starting Threshold Sensitivity Sweep. Offsets: {offsets}")
+
+    for offset in offsets:
+        # Calculate current thresholds
+        current_snr = base_snr + offset
+        current_artifact = base_artifact + offset # Assuming same offset logic applies to both
+
+        logger.info(f"--- Running Sweep: SNR={current_snr:.2f}, Artifact={current_artifact:.2f} ---")
+        
+        # Check resources
+        log_resource_snapshot()
+        if not check_resource_limits():
+            logger.error("Resource limits exceeded. Aborting sweep.")
+            break
+
+        # Run the full regression pipeline for this threshold set
+        # This encapsulates T020a (OLS) and T021 (VIF/FDR) logic
+        results = run_vif_check_and_fdr(
+            data=full_data, 
+            target_col=target_col, 
+            snr_threshold=current_snr, 
+            artifact_threshold=current_artifact
         )
-        logger.info("T021 completed successfully.")
-    except Exception as e:
-        logger.error(f"Task T021 failed: {e}")
-        sys.exit(1)
+
+        if not results.empty:
+            all_results.append(results)
+        else:
+            logger.warning(f"No results for SNR={current_snr}, Artifact={current_artifact}")
+
+    if all_results:
+        final_df = pd.concat(all_results, ignore_index=True)
+        output_path = Path(config['data_processed_dir']) / "sensitivity_threshold_results.csv"
+        save_results(final_df, output_path)
+        logger.info("Sensitivity sweep complete.")
+    else:
+        logger.error("Sensitivity sweep produced no results.")
 
 if __name__ == "__main__":
     main()

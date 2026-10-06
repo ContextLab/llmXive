@@ -1,6 +1,6 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "OpenNeuro Dataset Metadata Schema"
-description: "Schema for validating dataset metadata fetched from OpenNeuro API"
+$schema: http://json-schema.org/draft-07/schema#
+title: OpenNeuro Dataset Metadata Schema
+description: Schema for validating OpenNeuro dataset metadata downloaded and processed in the pipeline.
 type: object
 required:
   - id
@@ -9,8 +9,8 @@ required:
 properties:
   id:
     type: string
-    description: "OpenNeuro dataset identifier (e.g., ds003104)"
-    pattern: "^ds\\d+$"
+    pattern: "^ds\\d{6}$"
+    description: OpenNeuro dataset identifier (e.g., ds003104)
   description:
     type: object
     required:
@@ -18,18 +18,18 @@ properties:
     properties:
       Name:
         type: string
-        description: "Human-readable name of the dataset"
+        description: Dataset name
       Authors:
         type: array
         items:
           type: string
-        description: "List of dataset authors"
+        description: List of author names
       License:
         type: string
-        description: "Dataset license"
+        description: Dataset license (e.g., CC0)
       HEDVersion:
         type: string
-        description: "HED tag version if applicable"
+        description: HED schema version if applicable
   summary:
     type: object
     required:
@@ -37,14 +37,15 @@ properties:
       - subjectMetadata
       - tasks
       - modalities
+      - size
+      - totalFiles
     properties:
       subjects:
         type: integer
-        minimum: 0
-        description: "Total number of subjects"
+        minimum: 1
+        description: Total number of subjects
       subjectMetadata:
         type: array
-        description: "Metadata for individual subjects"
         items:
           type: object
           required:
@@ -52,42 +53,42 @@ properties:
           properties:
             participantId:
               type: string
-              description: "Subject identifier (e.g., sub-01)"
+              pattern: "^sub-[a-zA-Z0-9]+$"
+              description: Participant identifier (BIDS format)
             age:
               type: integer
               minimum: 0
-              description: "Age of the participant"
+              description: Participant age in years
             sex:
               type: string
-              enum: ["M", "F", "U"]
-              description: "Sex of the participant"
-            neurologicalCondition:
+              enum: ["M", "F", "O"]
+              description: Sex of participant (M/F/O)
+            handedness:
               type: string
-              description: "Optional neurological condition"
-            education:
-              type: string
-              description: "Education level"
-            medication:
-              type: array
-              items:
-                type: string
-              description: "List of medications"
+              enum: ["R", "L", "A"]
+              description: Handedness (Right/Left/Ambidextrous)
+            neurological_condition:
+              type: boolean
+              description: Whether participant has a neurological condition
+            medication_use:
+              type: boolean
+              description: Whether participant is on medication affecting neural activity
       tasks:
         type: array
-        description: "List of tasks performed in the dataset"
         items:
           type: string
+        description: List of task names included in the dataset
       modalities:
         type: array
-        description: "List of data modalities (e.g., eeg, meg)"
         items:
           type: string
+        description: List of data modalities (e.g., eeg, meg, nirs)
       size:
         type: integer
         minimum: 0
-        description: "Total size in bytes"
+        description: Total dataset size in bytes
       totalFiles:
         type: integer
-        minimum: 0
-        description: "Total number of files"
-additionalProperties: false
+        minimum: 1
+        description: Total number of files in the dataset
+additionalProperties: true

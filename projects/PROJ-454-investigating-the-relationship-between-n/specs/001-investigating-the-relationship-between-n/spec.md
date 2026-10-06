@@ -72,7 +72,7 @@ Researcher conducts sensitivity analyses excluding participants with neurologica
 - **FR-004**: System MUST perform partial Pearson correlation between entropy metrics and WCST perseverative errors controlling for age, education, and task accuracy (derived from a separate attention task) as covariates (See US-2)
 - **FR-005**: System MUST apply Benjamini-Hochberg False Discovery Rate (FDR) correction for multiple comparisons across Multiple hypothesis tests (multiple frequency bands × entropy measures) with α ≤ 0.05 (See US-2)
 - **FR-006**: System MUST conduct sensitivity analysis excluding participants with neurological conditions or medication use affecting EEG measures (See US-3)
-- **FR-007**: System MUST perform threshold sensitivity sweep over {, 0.05, 0.1} absolute difference for any decision cutoffs and report the variation in correlation coefficients (r) and p-values across the sweep (See US-3)
+- **FR-007**: System MUST perform threshold sensitivity sweep over a range of absolute difference values for any decision cutoffs and report the variation in correlation coefficients (r) and p-values across the sweep (See US-3)
 - **FR-008**: System MUST run all computations on CPU-only hardware (GitHub Actions ubuntu-latest runner) with ≤7 GB RAM and ≤14 GB disk usage (via streaming/chunked processing), completing within 6 hours (See US-1, US-2, US-3)
 - **FR-009**: System MUST frame all findings as associational (not causal) given the observational study design without random assignment (See US-2)
 - **FR-010**: System MUST verify dataset-variable fit by confirming OpenNeuro datasets contain all required variables (entropy predictors, cognitive flexibility outcomes, age/education covariates) before analysis begins (See US-1)

@@ -1,47 +1,48 @@
-T013:
+T010:
+  c: false
+  h: 3aeab5872fbb9e87375f35dc128475ea91f68cf63c47091ffe5b6a0d79b8571f
+  r: The test file `tests/contract/test_dataset_schema.py` is present, but the required
+    schema file `dataset.schema.yaml` does not exist at the expected path, causing
+    the test fixture to fail and the contract test to be unusable. The missing schema
+    artifact must be added for the task to be satisfied.
+T014:
+  c: false
+  h: 301ccf93bf99bb39abfcccee29d1ec8136e41ac8d15beb04cba6c6903142c398
+  r: "The provided `code/02_preprocess_eeg.py` does not show any implementation of\
+    \ the median SNR calculation, noise\u2011band power extraction, NaN/Inf handling,\
+    \ or JSON output generation. Moreover, the required output file `data/processed/snr_metrics.json`\
+    \ is absent. The task\u2019s core functionality and expected artifact are therefore\
+    \ not present."
+T016:
+  c: false
+  h: 71d791a7390d153599d5b8a7b77e3e5c2c962f72142a5a1cca7bbefd7c5d031d
+  r: "The repository lacks the required `data/processed/snr_metrics.json` and the\
+    \ generated `data/processed/exclusion_log.csv`. Moreover, the provided `code/02_preprocess_eeg.py`\
+    \ (truncated) does not contain any implementation of the specified data\u2011\
+    quality checks (duration <\u202F60\u202Fs, >\u202F20\u202F% corrupted segments,\
+    \ or SNR\u202F<\u202F5\u202FdB) nor does it reference the SNR calculation from\
+    \ T014. These essential artifacts and logic are missing."
+T023:
+  c: false
+  h: e3152a28b55f39f02613fd8b1392215bd47592ee72105d2eca21737383a432b4
+  r: "The required input file `data/processed/correlation_results_fdr.csv` does not\
+    \ exist, and the expected output `data/processed/effect_sizes.json` is also missing.\
+    \ Consequently the script cannot compute or store the partial\u2011r effect sizes\
+    \ as specified."
+T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No preprocessing script, configuration, or generated epoched data files are\
-    \ present in `data/processed/`. The required implementation (band\u2011pass, notch,\
-    \ bad\u2011channel interpolation, ICA cleaning, and 2\u2011second epoching) and\
-    \ its output are missing, so the task is not satisfied."
-T015:
+  r: "No `logs/methodology_notes.md` file was provided, nor any excerpt showing the\
+    \ required explicit \u201CAssociational\u201D disclaimer and covariate control\
+    \ summary. Without the actual markdown output, we cannot verify that the task\u2019\
+    s deliverable exists or meets the specification. The next implementer must create\
+    \ the `logs/methodology_notes.md` file containing the disclaimer and summary as\
+    \ described."
+T027:
   c: false
-  h: 428248c095067a3f1efa2fb481807bb797277b736bface6b33a4006ee8b2de88
-  r: "The `code/compute_entropy.py` file is incomplete (truncated before the core\
-    \ loop finishes and there is no code that writes `entropy_metrics.csv`). Moreover,\
-    \ the required output file `data/processed/entropy_metrics.csv` does not exist.\
-    \ The task\u2019s primary output is therefore missing."
-T017:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `logs/resource_usage.log` file or of added resource\u2011\
-    monitoring calls in `02_preprocess_eeg.py` and `03_compute_entropy.py` was provided;\
-    \ without these artifacts we cannot verify that RAM usage is limited to <7\u202F\
-    GB. The implementer must supply the modified scripts and the generated log file."
-T018:
-  c: false
-  h: 4b41345cc53cd9cd2faf74c34f71e85c32ea3ecce35295cf73a728b4430b6904
-  r: The `tests/contract/test_correlation_schema.py` file is present but truncated
-    (the last test definition is incomplete) and the required `correlation_results.schema.yaml`
-    file does not exist, causing the test to be skipped. Both a complete contract
-    test and the actual schema file are missing.
-T020a:
-  c: false
-  h: 776f3f7a7fbd4074640a492c216aef7ad52d66cd9f1c4b2a6aaea06414b602eb
-  r: "The repository contains a partially written `code/04_regression_analysis.py`\
-    \ that does not implement the required OLS regression (it only outlines loading\
-    \ results and VIF handling, and the file is truncated). Moreover, the essential\
-    \ input files `data/processed/entropy_metrics.csv`, `data/processed/behavioral_scores.csv`,\
-    \ and the expected output `data/processed/correlation_results_ols.csv` are all\
-    \ absent. Consequently, the task\u2019s functional and data requirements are not\
-    \ met."
-T021:
-  c: false
-  h: 5579baf69340ff016a7f36ce857a00e3874450a2a473149e6691c7a3d9c0db5f
-  r: "The repository lacks the required `data/processed/correlation_results_ols.csv`\
-    \ and the resulting `data/processed/correlation_results_fdr.csv`, so the pipeline\
-    \ cannot be run or verified. Moreover, the provided `code/04_regression_analysis.py`\
-    \ is truncated and does not contain the full implementation of VIF checking, conditional\
-    \ dropping of Approximate Entropy, re\u2011running OLS, or writing the FDR\u2011\
-    corrected results. Both the necessary data files and a complete script are missing."
+  h: d4176b2b8616d93132282eaa2a5600e30b6a96d6e30b8ffa5879f20098d122a4
+  r: The repository lacks the required input files (`data/processed/entropy_metrics.csv`,
+    `data/processed/behavioral_scores.csv`) and the expected output file (`data/processed/sensitivity_exclusion_results.csv`).
+    Moreover, the provided `code/04_regression_analysis.py` is truncated and does
+    not contain a complete implementation of the sensitivity analysis or the full
+    regression pipeline. The task therefore remains unfinished.

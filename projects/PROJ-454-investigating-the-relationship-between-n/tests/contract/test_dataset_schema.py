@@ -11,7 +11,7 @@ SCHEMA_PATH = Path(__file__).parent.parent.parent / "specs" / "001-neural-entrop
 @pytest.fixture
 def schema():
     if not SCHEMA_PATH.exists():
-        pytest.skip(f"Schema file not found at {SCHEMA_PATH}")
+        pytest.fail(f"Schema file not found at {SCHEMA_PATH}. Ensure T007 or T010 has created the schema.")
     with open(SCHEMA_PATH, 'r') as f:
         return yaml.safe_load(f)
 
@@ -66,10 +66,122 @@ def test_dataset_schema_rejects_invalid(schema, invalid_dataset_metadata):
 
 def test_dataset_id_format(schema):
     """Contract test: Ensure dataset ID follows dsXXXXXX pattern."""
-    valid_id = {"id": "ds003104", "description": {"Name": "Test"}, "summary": {"subjects": 1, "subjectMetadata": [{"participantId": "sub-01"}], "tasks": [], "modalities": []}}
-    invalid_id = {"id": "dataset_123", "description": {"Name": "Test"}, "summary": {"subjects": 1, "subjectMetadata": [{"participantId": "sub-01"}], "tasks": [], "modalities": []}}
+    valid_id = {
+        "id": "ds003104",
+        "description": {"Name": "Test"},
+        "summary": {
+            "subjects": 1,
+            "subjectMetadata": [{"participantId": "sub-01"}],
+            "tasks": [],
+            "modalities": [],
+            "size": 100,
+            "totalFiles": 1
+        }
+    }
+    invalid_id = {
+        "id": "dataset_123",
+        "description": {"Name": "Test"},
+        "summary": {
+            "subjects": 1,
+            "subjectMetadata": [{"participantId": "sub-01"}],
+            "tasks": [],
+            "modalities": [],
+            "size": 100,
+            "totalFiles": 1
+        }
+    }
     
     validate(instance=valid_id, schema=schema)
     
     with pytest.raises(ValidationError):
         validate(instance=invalid_id, schema=schema)
+
+def test_subject_metadata_validation(schema):
+    """Contract test: Ensure subject metadata validates correctly."""
+    valid_subject = {
+        "id": "ds003104",
+        "description": {"Name": "Test"},
+        "summary": {
+            "subjects": 1,
+            "subjectMetadata": [
+                {
+                    "participantId": "sub-01",
+                    "age": 50,
+                    "sex": "M",
+                    "handedness": "R"
+                }
+            ],
+            "tasks": ["rest"],
+            "modalities": ["eeg"],
+            "size": 100,
+            "totalFiles": 1
+        }
+    }
+    invalid_subject = {
+        "id": "ds003104",
+        "description": {"Name": "Test"},
+        "summary": {
+            "subjects": 1,
+            "subjectMetadata": [
+                {
+                    "participantId": "sub-01",
+                    "age": "fifty", # Should be integer
+                    "sex": "M",
+                    "handedness": "R"
+                }
+            ],
+            "tasks": ["rest"],
+            "modalities": ["eeg"],
+            "size": 100,
+            "totalFiles": 1
+        }
+    }
+
+    validate(instance=valid_subject, schema=schema)
+    
+    with pytest.raises(ValidationError):
+        validate(instance=invalid_subject, schema=schema)
+
+def test_required_fields_enforcement(schema):
+    """Contract test: Ensure required fields are enforced."""
+    partial_data = {
+        "id": "ds003104",
+        "description": {"Name": "Test"},
+        # Missing summary
+    }
+    with pytest.raises(ValidationError):
+        validate(instance=partial_data, schema=schema)
+
+def test_subject_age_type(schema):
+    """Contract test: Ensure age is an integer."""
+    data = {
+        "id": "ds003104",
+        "description": {"Name": "Test"},
+        "summary": {
+            "subjects": 1,
+            "subjectMetadata": [{"participantId": "sub-01", "age": 25.5}], # Float not allowed
+            "tasks": [],
+            "modalities": [],
+            "size": 100,
+            "totalFiles": 1
+        }
+    }
+    with pytest.raises(ValidationError):
+        validate(instance=data, schema=schema)
+
+def test_sex_enum(schema):
+    """Contract test: Ensure sex is one of M, F, O."""
+    data = {
+        "id": "ds003104",
+        "description": {"Name": "Test"},
+        "summary": {
+            "subjects": 1,
+            "subjectMetadata": [{"participantId": "sub-01", "age": 25, "sex": "Unknown"}],
+            "tasks": [],
+            "modalities": [],
+            "size": 100,
+            "totalFiles": 1
+        }
+    }
+    with pytest.raises(ValidationError):
+        validate(instance=data, schema=schema)

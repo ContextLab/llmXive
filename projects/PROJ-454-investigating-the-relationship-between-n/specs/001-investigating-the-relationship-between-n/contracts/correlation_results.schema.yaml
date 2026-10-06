@@ -1,84 +1,97 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Correlation Results Schema
-description: Schema for OLS regression results with FDR correction and effect sizes from the neural entropy and cognitive flexibility study.
+description: >
+  Schema for OLS regression results between neural entropy metrics and WCST perseverative errors,
+  including covariates, effect sizes, and FDR-corrected p-values.
 type: object
 required:
-  - subject_id
-  - entropy_metric
-  - frequency_band
-  - model_type
-  - coefficient
-  - std_error
-  - t_statistic
-  - p_value
-  - p_value_fdr
-  - partial_r
-  - effect_size_category
-  - n_observations
-  - r_squared
-  - covariates
-  - vif_scores
-  - exclusion_reasons
+  - results
+  - metadata
 properties:
-  subject_id:
-    type: string
-    description: Unique identifier for the participant (e.g., 'sub-001', 'sub-002').
-  entropy_metric:
-    type: string
-    description: The entropy metric used (e.g., 'SampleEntropy', 'ApproximateEntropy').
-  frequency_band:
-    type: string
-    description: The EEG frequency band analyzed (e.g., 'Delta', 'Theta', 'Alpha', 'Beta', 'Gamma').
-  model_type:
-    type: string
-    description: Type of statistical model used (e.g., 'OLS').
-  coefficient:
-    type: number
-    description: The regression coefficient (beta) for the entropy metric.
-  std_error:
-    type: number
-    description: Standard error of the coefficient.
-  t_statistic:
-    type: number
-    description: T-statistic for the coefficient.
-  p_value:
-    type: number
-    description: Raw p-value from the regression.
-  p_value_fdr:
-    type: number
-    description: Benjamini-Hochberg FDR-corrected p-value.
-  partial_r:
-    type: number
-    description: Partial correlation coefficient.
-  effect_size_category:
-    type: string
-    description: Classification of effect size (e.g., 'Small', 'Medium', 'Large', 'Negligible').
-    enum:
-      - Negligible
-      - Small
-      - Medium
-      - Large
-  n_observations:
-    type: integer
-    description: Number of observations used in the model.
-  r_squared:
-    type: number
-    description: R-squared value of the model.
-  covariates:
-    type: object
-    description: Dictionary of covariate names and their coefficients.
-    additionalProperties:
-      type: number
-  vif_scores:
-    type: object
-    description: Variance Inflation Factor scores for predictors.
-    additionalProperties:
-      type: number
-  exclusion_reasons:
+  results:
     type: array
-    description: List of reasons if this subject was excluded from specific analyses.
+    description: List of regression coefficients for each predictor
     items:
-      type: string
-  methodology_notes:
-    type: string
-    description: Notes on methodology (e.g., 'Associational study', 'FDR correction applied').
+      type: object
+      required:
+        - predictor
+        - band
+        - metric
+        - coef
+        - std_err
+        - p_value
+        - p_value_fdr
+        - vif
+        - partial_r
+        - effect_size_class
+      properties:
+        predictor:
+          type: string
+          description: Name of the predictor variable (e.g., 'sample_entropy_theta')
+        band:
+          type: string
+          enum: [delta, theta, alpha, beta, gamma]
+          description: Frequency band of the entropy metric
+        metric:
+          type: string
+          enum: [sample_entropy, approximate_entropy]
+          description: Entropy metric type
+        coef:
+          type: number
+          description: Regression coefficient (beta weight)
+        std_err:
+          type: number
+          description: Standard error of the coefficient
+        p_value:
+          type: number
+          description: Raw p-value from the t-test
+        p_value_fdr:
+          type: number
+          description: Benjamini-Hochberg FDR-corrected p-value
+        vif:
+          type: number
+          description: Variance Inflation Factor for this predictor
+        partial_r:
+          type: number
+          description: Partial correlation coefficient
+        effect_size_class:
+          type: string
+          enum: [negligible, small, medium, large]
+          description: Classification based on |partial_r| thresholds
+        significant:
+          type: boolean
+          description: True if p_value_fdr < 0.05
+  metadata:
+    type: object
+    required:
+      - model_formula
+      - n_observations
+      - n_predictors
+      - fdr_method
+      - vif_threshold
+      - ap_en_dropped
+      - timestamp
+    properties:
+      model_formula:
+        type: string
+        description: The OLS formula string used
+      n_observations:
+        type: integer
+        description: Number of participants included in the model
+      n_predictors:
+        type: integer
+        description: Number of predictors in the final model
+      fdr_method:
+        type: string
+        description: Method used for FDR correction (e.g., 'benjamini_hochberg')
+      vif_threshold:
+        type: number
+        description: VIF threshold used for multicollinearity check
+      ap_en_dropped:
+        type: boolean
+        description: Whether Approximate Entropy was dropped due to VIF > 5
+      timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of when the analysis was run
+additionalProperties: false
