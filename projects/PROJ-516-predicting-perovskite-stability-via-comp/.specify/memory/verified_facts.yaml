@@ -1,13 +1,5 @@
-'|methodology nist note propagation reference technical uncertainty':
-  quote: 'The most commonly used procedure for calculating measurement uncertainty
-    is described in the "Guide to the Expression of Uncertainty in Measurement" (GUM)
-    published by ISO. A derived work is for example the National Institute of Standards
-    and Technology (NIST) Technical Note 1297, "Guidelines for Evaluating and Expressing
-    the Uncertainty of NIST Measurement Results", and the Eurachem/Citac publication
-    "Quantifying Uncertainty in Analytical Measurement". The uncertainty of the result
-    of a measurement generally consists of several components. The components are
-    regarded as random variables, and may be grouped into two categories according
-    to the method used to estimate their numerical values:'
-  source_id: Uncertainty
-  url: https://en.wikipedia.org/wiki/Uncertainty
-  value: '1297'
+'|descriptor flagged true vif':
+  quote: 'P1533: Q113107166'
+  source_id: Q113106917
+  url: https://www.wikidata.org/wiki/Q113106917
+  value: '33'

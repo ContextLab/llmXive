@@ -1,9 +1,8 @@
 """
-Variance Inflation Factor (VIF) Calculator for Perovskite Descriptors.
+Variance Inflation Factor (VIF) Calculator for Perovskite Stability Descriptors.
 
-Computes VIF for all descriptor features to identify multicollinearity.
-Reads from data/processed/descriptors_filtered.csv and writes the report
-to data/processed/vif_report.csv.
+Computes VIF for all numeric descriptor columns in the dataset to detect
+multicollinearity. Writes a report to data/processed/vif_report.csv.
 """
 
 import logging
@@ -13,102 +12,93 @@ from typing import List, Dict, Tuple, Optional
 
 import numpy as np
 import pandas as pd
-from scipy import stats
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    stream=sys.stdout
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-INPUT_PATH = Path("data/processed/descriptors_filtered.csv")
+# Constants
+INPUT_PATH = Path("data/processed/descriptors_v1.csv")
 OUTPUT_PATH = Path("data/processed/vif_report.csv")
-VIF_THRESHOLD = 5.0
+VIF_THRESHOLD = 5.0  # Threshold for flagging high multicollinearity
 
-def calculate_vif(df: pd.DataFrame, feature_names: List[str]) -> pd.Series:
+def calculate_vif(data: pd.DataFrame, feature_cols: List[str]) -> Dict[str, float]:
     """
-    Calculate Variance Inflation Factor (VIF) for each feature.
-
-    VIF_i = 1 / (1 - R^2_i) where R^2_i is the coefficient of determination
-    when feature i is regressed against all other features.
+    Calculate VIF for each feature in the dataframe.
 
     Args:
-        df: DataFrame containing the features.
-        feature_names: List of column names to compute VIF for.
+        data: DataFrame containing the features.
+        feature_cols: List of column names to calculate VIF for.
 
     Returns:
-        pd.Series: VIF values indexed by feature name.
+        Dictionary mapping feature names to their VIF values.
     """
-    logger.info(f"Calculating VIF for {len(feature_names)} features...")
+    # Ensure we have a numeric subset
+    X = data[feature_cols].copy()
+    
+    # Handle constant columns (VIF is undefined for constant columns)
+    # Replace constant columns with NaN temporarily for calculation, then handle
+    for col in X.columns:
+        if X[col].std() == 0:
+            logger.warning(f"Column {col} is constant. VIF is undefined. Setting to NaN.")
+            X[col] = np.nan
 
-    # Select only numeric columns for VIF calculation
-    X = df[feature_names].copy()
+    # Drop rows with any NaN (from constant columns or missing data)
+    # Note: In a real production pipeline, we might want to handle this more gracefully
+    # by imputing or excluding specific rows, but for VIF calculation, we need complete cases.
+    X_complete = X.dropna()
 
-    # Remove constant columns (VIF is undefined for constants)
-    constant_cols = [col for col in X.columns if X[col].std() == 0]
-    if constant_cols:
-        logger.warning(f"Removing constant columns: {constant_cols}")
-        X = X.drop(columns=constant_cols)
+    if len(X_complete) < X.shape[0]:
+        logger.warning(f"Dropped {X.shape[0] - len(X_complete)} rows due to NaN values during VIF calculation.")
+
+    if len(X_complete) < 2:
+        raise ValueError("Not enough data points to calculate VIF (need at least 2).")
 
     vif_results = {}
-
-    for i, col in enumerate(X.columns):
-        # Regress col against all other columns
-        y = X[col]
-        X_other = X.drop(columns=[col])
-
-        # Fit linear regression
-        # Add intercept
-        X_other_with_intercept = X_other.copy()
-        X_other_with_intercept['intercept'] = 1.0
-
+    for i, col in enumerate(X_complete.columns):
         try:
-            # Use least squares: beta = (X^T X)^-1 X^T y
-            # We need R^2 from this regression
-            model = stats.linregress(X_other_with_intercept.values, y.values)
-            # Note: linregress only works for single predictor.
-            # For multiple predictors, we use numpy.linalg.lstsq
-            pass
-        except Exception:
-            pass
-
-        # Use numpy for multiple regression
-        try:
-            # Add intercept column
-            X_design = np.column_stack([np.ones(len(X_other)), X_other.values])
-            coeffs, residuals, rank, s = np.linalg.lstsq(X_design, y.values, rcond=None)
-
-            if len(y) > X_design.shape[1]:
-                # Calculate R^2
-                y_pred = X_design @ coeffs
-                ss_res = np.sum((y.values - y_pred) ** 2)
-                ss_tot = np.sum((y.values - np.mean(y.values)) ** 2)
-
+            # Calculate VIF: VIF = 1 / (1 - R^2) where R^2 is from regressing col against all other cols
+            # We use a simple linear regression approach to compute R^2 manually to avoid statsmodels dependency issues
+            # if statsmodels is not available, though the task implies it might be.
+            # However, to be robust and avoid external dependencies beyond standard sklearn/pandas/numpy:
+            # R^2 for feature i regressed on others:
+            y = X_complete.iloc[:, i].values
+            X_other = X_complete.drop(X_complete.columns[i], axis=1).values
+            
+            # Add intercept
+            X_other_with_intercept = np.column_stack([np.ones(X_other.shape[0]), X_other])
+            
+            # Solve least squares: beta = (X'X)^-1 X'y
+            try:
+                beta = np.linalg.lstsq(X_other_with_intercept, y, rcond=None)[0]
+                y_pred = X_other_with_intercept @ beta
+                
+                ss_res = np.sum((y - y_pred) ** 2)
+                ss_tot = np.sum((y - np.mean(y)) ** 2)
+                
                 if ss_tot == 0:
                     r_squared = 0.0
                 else:
-                    r_squared = 1.0 - (ss_res / ss_tot)
-
-                # VIF = 1 / (1 - R^2)
+                    r_squared = 1 - (ss_res / ss_tot)
+                
+                # Avoid division by zero if R^2 is exactly 1 (perfect collinearity)
                 if r_squared >= 1.0:
-                    vif_value = float('inf')
+                    vif = float('inf')
                 else:
-                    vif_value = 1.0 / (1.0 - r_squared)
-            else:
-                vif_value = float('inf')
-
-        except np.linalg.LinAlgError:
-            logger.warning(f"Singularity detected for {col}, VIF undefined (inf)")
-            vif_value = float('inf')
+                    vif = 1.0 / (1.0 - r_squared)
+                
+                vif_results[col] = vif
+            except np.linalg.LinAlgError:
+                # Singular matrix, likely perfect collinearity
+                vif_results[col] = float('inf')
         except Exception as e:
             logger.error(f"Error calculating VIF for {col}: {e}")
-            vif_value = float('nan')
+            vif_results[col] = np.nan
 
-        vif_results[col] = vif_value
-
-    return pd.Series(vif_results)
+    return vif_results
 
 def run_vif_diagnostic(
     input_path: Path = INPUT_PATH,
@@ -116,75 +106,83 @@ def run_vif_diagnostic(
     threshold: float = VIF_THRESHOLD
 ) -> pd.DataFrame:
     """
-    Run the full VIF diagnostic pipeline.
-
-    1. Load the filtered descriptor dataset.
-    2. Identify numeric descriptor columns.
-    3. Calculate VIF for each.
-    4. Flag features with VIF > threshold.
-    5. Write the report to disk.
+    Run VIF diagnostic on the dataset and write the report.
 
     Args:
-        input_path: Path to the input CSV.
-        output_path: Path to the output CSV report.
-        threshold: VIF threshold for flagging (default 5.0).
+        input_path: Path to the input CSV file.
+        output_path: Path to write the VIF report CSV.
+        threshold: VIF threshold above which a feature is flagged.
 
     Returns:
         DataFrame containing the VIF report.
     """
-    logger.info(f"Loading data from {input_path}...")
+    logger.info(f"Loading data from {input_path}")
+    
     if not input_path.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")
 
     df = pd.read_csv(input_path)
-    logger.info(f"Loaded {len(df)} rows, {len(df.columns)} columns.")
+    
+    # Identify numeric descriptor columns (exclude non-numeric and target columns)
+    # We need to be careful to select only the feature columns used for regression
+    # Based on T014e, the descriptors are:
+    # atomic_fraction_A, atomic_fraction_B, atomic_fraction_X,
+    # weighted_ionic_radius, weighted_electronegativity, weighted_formation_enthalpy,
+    # first_ionization_energy, variance_ionic_radius, variance_electronegativity
+    # Plus potentially 'T_d' (target) and 'total_uncertainty' (weight) and categorical fields.
+    
+    exclude_cols = ['formula', 'T_d', 'total_uncertainty', 'perovskite_family', 
+                    'instrument_model', 'manufacturer', 'precision_source']
+                    
+    feature_cols = [col for col in df.columns if col not in exclude_cols and pd.api.types.is_numeric_dtype(df[col])]
+    
+    if not feature_cols:
+        raise ValueError("No numeric feature columns found for VIF calculation.")
+    
+    logger.info(f"Calculating VIF for {len(feature_cols)} features: {feature_cols}")
 
-    # Identify descriptor columns (exclude target and metadata)
-    exclude_cols = {'formula', 'T_d', 'total_uncertainty', 'perovskite_family',
-                    'instrument_model', 'manufacturer', 'source', 'precision_source'}
-    descriptor_cols = [col for col in df.columns if col not in exclude_cols and np.issubdtype(df[col].dtype, np.number)]
-
-    if not descriptor_cols:
-        raise ValueError("No numeric descriptor columns found in the dataset.")
-
-    logger.info(f"Computing VIF for {len(descriptor_cols)} descriptors: {descriptor_cols}")
-
-    vif_series = calculate_vif(df, descriptor_cols)
+    vif_results = calculate_vif(df, feature_cols)
 
     # Create report DataFrame
-    report_df = pd.DataFrame({
-        'descriptor': vif_series.index,
-        'vif_value': vif_series.values,
-        'flagged': vif_series.values > threshold
-    })
+    report_data = []
+    for col, vif_val in vif_results.items():
+        # Handle infinity for flagging
+        is_flagged = False
+        if np.isinf(vif_val) or (not np.isnan(vif_val) and vif_val > threshold):
+            is_flagged = True
+        
+        report_data.append({
+            'descriptor': col,
+            'vif_value': vif_val,
+            'flagged': is_flagged
+        })
 
-    # Sort by VIF descending
-    report_df = report_df.sort_values(by='vif_value', ascending=False).reset_index(drop=True)
+    report_df = pd.DataFrame(report_data)
+    
+    # Sort by VIF value descending (handling inf and nan)
+    # Replace inf with a large number for sorting, then restore
+    sort_vals = report_df['vif_value'].replace([np.inf, -np.inf], np.nan).fillna(-1)
+    report_df = report_df.iloc[sort_vals.argsort()[::-1]].reset_index(drop=True)
 
-    # Write to disk
+    # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    logger.info(f"Writing VIF report to {output_path}")
     report_df.to_csv(output_path, index=False)
-    logger.info(f"VIF report written to {output_path}")
-
+    
     # Log summary
     flagged_count = report_df['flagged'].sum()
-    logger.info(f"Found {flagged_count} features with VIF > {threshold}.")
-
+    logger.info(f"VIF calculation complete. {flagged_count} features flagged (VIF > {threshold}).")
+    
     return report_df
 
 def main():
-    """Entry point for the VIF calculator script."""
+    """Main entry point for the VIF calculator script."""
     try:
         run_vif_diagnostic()
-        logger.info("VIF calculation completed successfully.")
-    except FileNotFoundError as e:
-        logger.error(f"File error: {e}")
-        sys.exit(1)
-    except ValueError as e:
-        logger.error(f"Data error: {e}")
-        sys.exit(1)
+        logger.info("VIF diagnostic completed successfully.")
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
+        logger.error(f"VIF diagnostic failed: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

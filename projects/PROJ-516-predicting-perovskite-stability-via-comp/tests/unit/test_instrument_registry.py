@@ -1,40 +1,132 @@
 """
-Unit tests for instrument_registry.py (T049).
+Unit tests for the instrument_registry module.
 """
-import pytest
+
 import os
-import sys
-from pathlib import Path
 import tempfile
+import logging
+from pathlib import Path
+import pytest
 
-# Add project root to path
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Add parent directory to path for imports
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from code.utils.instrument_registry import get_precision, reload_registry, _registry, DEFAULT_PRECISION_CELSIUS
+from utils.instrument_registry import (
+    get_precision,
+    reload_registry,
+    get_registry_details,
+    generate_missing_instrumentation_report,
+    DEFAULT_PRECISION
+)
 
-def test_known_instrument():
-    """Test that a known instrument returns the correct precision."""
-    reload_registry()
-    # TA Instruments Q500 is in the default registry
-    prec = get_precision("TA Instruments Q500")
-    assert prec == 0.1, f"Expected 0.1, got {prec}"
+logging.basicConfig(level=logging.WARNING)
 
-def test_unknown_instrument():
-    """Test that an unknown instrument returns the default precision."""
-    reload_registry()
-    prec = get_precision("Unknown Model XYZ")
-    assert prec == DEFAULT_PRECISION_CELSIUS, f"Expected {DEFAULT_PRECISION_CELSIUS}, got {prec}"
 
-def test_none_instrument():
-    """Test that None instrument returns the default precision."""
-    reload_registry()
-    prec = get_precision(None)
-    assert prec == DEFAULT_PRECISION_CELSIUS, f"Expected {DEFAULT_PRECISION_CELSIUS}, got {prec}"
+@pytest.fixture
+def temp_registry_csv(tmp_path):
+    """Create a temporary CSV registry file for testing."""
+    csv_content = """instrument_model,manufacturer,precision_celsius
+    Q50,TA Instruments,1.0
+    TGA/DSC 1,Mettler Toledo,2.5
+    Pyris 1 TGA,PerkinElmer,1.5
+    """
+    csv_file = tmp_path / "test_registry.csv"
+    csv_file.write_text(csv_content)
+    return csv_file
 
-def test_case_insensitivity():
+
+def test_get_precision_known_instrument(temp_registry_csv):
+    """Test lookup of a known instrument model."""
+    # Temporarily override the global registry path for testing
+    import utils.instrument_registry as reg_module
+    original_path = reg_module.REGISTRY_FILE
+    reg_module.REGISTRY_FILE = temp_registry_path = temp_registry_csv
+
+    try:
+        reload_registry()
+        precision = get_precision("Q50")
+        assert precision == 1.0, f"Expected 1.0, got {precision}"
+    finally:
+        reg_module.REGISTRY_FILE = original_path
+        reload_registry()  # Reset
+
+
+def test_get_precision_unknown_instrument(temp_registry_csv):
+    """Test lookup of an unknown instrument model falls back to default."""
+    import utils.instrument_registry as reg_module
+    original_path = reg_module.REGISTRY_FILE
+    reg_module.REGISTRY_FILE = temp_registry_path = temp_registry_csv
+
+    try:
+        reload_registry()
+        precision = get_precision("Unknown Model XYZ")
+        assert precision == DEFAULT_PRECISION, f"Expected {DEFAULT_PRECISION}, got {precision}"
+    finally:
+        reg_module.REGISTRY_FILE = original_path
+        reload_registry()
+
+
+def test_get_precision_case_insensitive(temp_registry_csv):
     """Test that lookup is case-insensitive."""
-    reload_registry()
-    prec1 = get_precision("TA Instruments Q500")
-    prec2 = get_precision("ta instruments q500")
-    assert prec1 == prec2, "Lookup should be case-insensitive"
+    import utils.instrument_registry as reg_module
+    original_path = reg_module.REGISTRY_FILE
+    reg_module.REGISTRY_FILE = temp_registry_path = temp_registry_csv
+
+    try:
+        reload_registry()
+        precision_upper = get_precision("Q50")
+        precision_lower = get_precision("q50")
+        precision_mixed = get_precision("Q50")
+        assert precision_upper == precision_lower == precision_mixed == 1.0
+    finally:
+        reg_module.REGISTRY_FILE = original_path
+        reload_registry()
+
+
+def test_get_precision_empty_string(temp_registry_csv):
+    """Test that empty string returns default precision."""
+    import utils.instrument_registry as reg_module
+    original_path = reg_module.REGISTRY_FILE
+    reg_module.REGISTRY_FILE = temp_registry_path = temp_registry_csv
+
+    try:
+        reload_registry()
+        precision = get_precision("")
+        assert precision == DEFAULT_PRECISION
+    finally:
+        reg_module.REGISTRY_FILE = original_path
+        reload_registry()
+
+
+def test_get_precision_missing_file():
+    """Test behavior when registry file is missing."""
+    import utils.instrument_registry as reg_module
+    original_path = reg_module.REGISTRY_FILE
+    non_existent = Path("/non/existent/path.csv")
+    reg_module.REGISTRY_FILE = non_existent
+
+    try:
+        reload_registry()
+        precision = get_precision("Any Model")
+        assert precision == DEFAULT_PRECISION
+    finally:
+        reg_module.REGISTRY_FILE = original_path
+        reload_registry()
+
+
+def test_get_registry_details(temp_registry_csv):
+    """Test that registry details are populated correctly."""
+    import utils.instrument_registry as reg_module
+    original_path = reg_module.REGISTRY_FILE
+    reg_module.REGISTRY_FILE = temp_registry_path = temp_registry_csv
+
+    try:
+        reload_registry()
+        details = get_registry_details()
+        assert len(details) == 3
+        assert details[0]['instrument_model'] == 'Q50'
+        assert details[0]['precision_celsius'] == 1.0
+    finally:
+        reg_module.REGISTRY_FILE = original_path
+        reload_registry()
