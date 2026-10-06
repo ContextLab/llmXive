@@ -1,7 +1,7 @@
 # Feature Specification: llmXive follow-up: extending "Translation as a Bridging Action"
 
 **Feature Branch**: `001-llmxive-follow-up`  
-**Created**: 2026-09-03  
+**Created**: 2026-09-30  
 **Status**: Draft  
 **Input**: User description: "llmXive follow-up: extending Translation as a Bridging Action: Transferring Manipulation Skills fro"
 
@@ -110,7 +110,7 @@ A researcher needs to statistically validate that the translation-only model's p
 - **Assumption about data source**: The PyBullet physics engine is assumed to be sufficient for generating realistic rigid-body dynamics where translation trajectories implicitly contain signals related to tipping and slippage, even without explicit force sensors.
 - **Assumption about compute constraints**: The 6-hour time limit and 7GB RAM limit on the GitHub Actions free-tier are sufficient for training a <10M parameter Transformer on ≥ 5,000 episodes; if not, the batch size or sequence length will be reduced to fit.
 - **Assumption about methodological framing**: Since the data is generated from a simulation (no random assignment of physical laws), all findings regarding the relationship between translation and stability will be framed as associational, not causal.
-- **Assumption about threshold justification**: The tipping angle (15°) and slippage distance (0.02m) thresholds are fixed constants based on standard rigid-body stability criteria. The sensitivity analysis (FR-009) simulates sensor noise by injecting Gaussian noise (σ=0.5°) into the computed angle to test robustness.
+- **Assumption about threshold justification**: The tipping angle and slippage distance thresholds are fixed constants based on standard rigid-body stability criteria. The sensitivity analysis (FR-009) simulates sensor noise by injecting Gaussian noise (σ=0.5°) into the computed angle to test robustness.
 - **Assumption about multiplicity**: As only one primary hypothesis (translation sufficiency) is being tested against two baselines, the requirement is that both McNemar comparisons must yield p < 0.05.
 - **Assumption about measurement validity**: The "success" and "failure" labels derived from simulation physics metrics are assumed to be valid proxies for real-world stability, acknowledging that sim-to-real transfer may introduce a domain gap not addressed in this specific scope.
 - **Assumption about baseline definition**: The baselines for statistical comparison are defined as (1) a Geometry-Only classifier, (2) a Random-Translation classifier, and (3) a Class Prior predictor, to ensure valid statistical comparison via McNemar's test.

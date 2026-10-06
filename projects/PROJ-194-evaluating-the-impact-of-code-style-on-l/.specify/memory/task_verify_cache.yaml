@@ -34,8 +34,49 @@ T011:
     \ The task\u2019s core artifact is missing."
 T022:
   c: false
-  h: 0505d6f06d640c9616d59577f48a388fb18cf9d8e348f18c2241d8b7f9339faa
-  r: The required `code/mutation/generator.py` file does not exist, and the input
-    data file `data/derived/variants.json` as well as the expected output `data/derived/mutated.json`
-    are missing. Consequently no code is present to load, clone, mutate, and save
-    the variants as specified.
+  h: 20031caa8a508fd6623ff6ac130d15efcfa4fd358f2594ac30f70d7a9107fb1e
+  r: "The repository lacks the required input file `data/derived/variants.json` and\
+    \ the output file `data/derived/mutated.json`. Moreover, `code/mutation/generator.py`\
+    \ is truncated (the mutation loop and saving logic are missing) and imports a\
+    \ `mutate_variant` function that does not exist in `code/mutation/mutator.py`.\
+    \ Consequently the implementation does not fulfill the task\u2019s specifications."
+T022a:
+  c: false
+  h: f94c8be7326937346ee20a2d6464126fec7785a624aff9c30a0c378ff6fac197
+  r: "The provided `code/evaluate/dataset_balancer.py` is truncated (ends mid\u2011\
+    line) and thus does not contain a complete implementation, and the required input\
+    \ files `data/derived/baseline.json`, `data/derived/mutated.json` and the output\
+    \ `data/derived/balanced_dataset.csv` are all missing. Consequently the task\u2019\
+    s specifications are not met."
+T026:
+  c: false
+  h: 4cdec0bdc2f085bb64f3107733cc011858dd2a210b2de6fb5531cab60206fbea
+  r: "The provided `code/evaluate/runner.py` is only partially shown and does not\
+    \ contain the full logic for executing the three LLM tasks, tagging `is_semantic_opacity`,\
+    \ logging mutation types, or writing the required `results/metrics_raw.csv` file.\
+    \ Moreover, the `results/metrics_raw.csv` file is absent from the repository.\
+    \ The implementation therefore does not meet the task\u2019s specifications."
+T030:
+  c: false
+  h: dfeaacc173bbe43ffa33bcc83a78795fa4eb74d950b0b8b0eb16a3991bb9c563
+  r: "The required file `code/analyze/normality_check.py` is missing, and the provided\
+    \ test `tests/unit/test_normality.py` does not import or exercise any functions\
+    \ from that module\u2014it only calls `scipy.stats.shapiro` directly. Hence the\
+    \ unit test does not verify the implementation in the specified location."
+T031:
+  c: true
+  h: 801cf86ae764255f340758168e081d2031000e880ecb09ba2e2da9b89e8290f8
+  r: "The repository contains a non\u2011empty `tests/unit/test_mixed_effects.py`\
+    \ file (\u22486.9\u202FKB) that defines unit tests checking that `select_model_type`\
+    \ returns \u201Clmm\u201D for continuous metrics and \u201Cglmm\u201D for binary\
+    \ metrics, including case\u2011insensitivity and error handling. This fulfills\
+    \ the task\u2019s requirement for a unit test verifying model selection logic."
+T032:
+  c: false
+  h: a4dcd67b2d3065fac7c101c1604e40f04e46079c69ce61b682f097b0dc3dbfd4
+  r: The test file `tests/unit/test_report_gen.py` exists, but the module it is supposed
+    to test (`code/analyze/report_gen.py`) is missing, and the test falls back to
+    mock implementations instead of exercising real code. The required implementation
+    file must be added (with `apply_bonferroni_correction` and `calculate_bonferroni_threshold`)
+    and the test should import and verify those real functions. Additionally, ensure
+    the test file is complete (no truncation).

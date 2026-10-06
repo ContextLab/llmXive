@@ -4,262 +4,157 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional
-import logging
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
-
-def load_processed_data(input_path: str = "data/processed/ingredient_pairs_with_labels.csv") -> pd.DataFrame:
+def load_processed_data(input_path: str) -> pd.DataFrame:
     """
-    Load the processed dataset containing predictors and labels.
-    
-    Args:
-        input_path: Path to the CSV file containing processed data.
-        
-    Returns:
-        DataFrame with predictors and labels.
-        
-    Raises:
-        FileNotFoundError: If the input file does not exist.
+    Load the final processed dataset containing predictors.
+    Expects 'data/processed/ingredient_pairs.csv' as per pipeline output.
     """
     if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input file not found: {input_path}. "
-                                "Ensure T019 (Compatibility Labels) has been completed.")
+        raise FileNotFoundError(f"Processed data file not found: {input_path}")
     
     df = pd.read_csv(input_path)
-    logger.info(f"Loaded {len(df)} rows from {input_path}")
+    
+    # Ensure required columns exist
+    required_cols = ['log_co_occurrence', 'flavor_similarity', 'functional_role']
+    missing = [col for col in required_cols if col not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required predictor columns: {missing}")
+    
     return df
 
-def calculate_vif(df: pd.DataFrame, predictor_cols: List[str]) -> Dict[str, float]:
+def calculate_vif(df: pd.DataFrame, predictors: List[str]) -> Dict[str, float]:
     """
-    Calculate Variance Inflation Factors (VIF) for a set of predictors.
-    
-    VIF measures how much the variance of an estimated regression coefficient 
-    increases if your predictors are correlated.
-    
-    Formula: VIF_j = 1 / (1 - R_j^2)
-    where R_j^2 is the R-squared value when predictor j is regressed on all other predictors.
+    Calculate Variance Inflation Factors for a set of predictors.
     
     Args:
-        df: DataFrame containing the predictors.
-        predictor_cols: List of column names to calculate VIF for.
+        df: DataFrame containing the predictor variables.
+        predictors: List of column names to calculate VIF for.
         
     Returns:
-        Dictionary mapping predictor names to their VIF values.
-        
-    Raises:
-        ValueError: If any predictor has zero variance or if there are insufficient samples.
+        Dictionary mapping predictor name to its VIF score.
     """
-    if len(predictor_cols) == 0:
-        raise ValueError("At least one predictor column must be provided.")
-        
-    # Check for zero variance columns
-    for col in predictor_cols:
-        if col not in df.columns:
-            raise ValueError(f"Column '{col}' not found in DataFrame.")
-        if df[col].var() == 0:
-            raise ValueError(f"Column '{col}' has zero variance. VIF cannot be calculated.")
+    # Select only the predictor columns
+    X = df[predictors].copy()
     
-    vif_results = {}
+    # Handle categorical variables by encoding if necessary
+    # Assuming functional_role is already encoded as numeric in previous steps
+    # If not, we would need to handle it, but based on T014b output schema, 
+    # it should be numeric or we need to map it.
+    # For safety, let's ensure all are numeric
+    for col in X.columns:
+        if X[col].dtype == 'object':
+            # Map to numeric if it's a categorical string
+            unique_vals = X[col].unique()
+            mapping = {val: idx for idx, val in enumerate(unique_vals)}
+            X[col] = X[col].map(mapping)
     
-    # Handle categorical variables by creating dummy variables if necessary
-    # For functional_role, we assume it's already encoded or we create dummies
-    df_temp = df.copy()
+    # Add a constant for the intercept if needed, though VIF is usually calculated
+    # on the centered matrix. statsmodels VIF function expects the design matrix.
+    # We calculate VIF for each column in X.
     
-    # Identify categorical columns in predictor_cols
-    categorical_cols = []
-    for col in predictor_cols:
-        if df_temp[col].dtype == 'object' or df_temp[col].dtype.name == 'category':
-            categorical_cols.append(col)
+    vif_data = {}
+    for i, col in enumerate(X.columns):
+        # VIF for a variable is calculated using the other variables as predictors
+        # statsmodels variance_inflation_factor takes the whole matrix and column index
+        try:
+            vif = variance_inflation_factor(X.values, i)
+            vif_data[col] = float(vif)
+        except Exception as e:
+            # If calculation fails (e.g., perfect collinearity), record as infinity
+            vif_data[col] = float('inf')
     
-    # Create dummy variables for categorical predictors
-    if categorical_cols:
-        df_temp = pd.get_dummies(df_temp, columns=categorical_cols, drop_first=True)
-    
-    # Ensure we have numeric columns only for VIF calculation
-    numeric_predictors = [col for col in df_temp.columns if col in predictor_cols or 
-                          any(col.startswith(c + '_') for c in categorical_cols)]
-    
-    # Filter to only the predictors we care about (and their dummies)
-    relevant_cols = []
-    for col in predictor_cols:
-        if col in df_temp.columns:
-            relevant_cols.append(col)
-        else:
-            # Check if this is a categorical column that got dummied
-            dummies = [c for c in df_temp.columns if c.startswith(col + '_')]
-            relevant_cols.extend(dummies)
-    
-    if len(relevant_cols) == 0:
-        raise ValueError("No valid numeric predictors found for VIF calculation.")
-    
-    # Calculate VIF for each predictor
-    for i, col in enumerate(relevant_cols):
-        # Create design matrix X for regression: col ~ other predictors
-        y = df_temp[col]
-        X = df_temp.drop(columns=[col])
-        
-        # Add intercept
-        X_with_intercept = sm.add_constant(X)
-        
-        # Fit OLS regression
-        model = sm.OLS(y, X_with_intercept).fit()
-        
-        # Calculate VIF: 1 / (1 - R^2)
-        r_squared = model.rsquared
-        vif = 1 / (1 - r_squared) if (1 - r_squared) > 1e-10 else np.inf
-        
-        vif_results[col] = vif
-        logger.info(f"VIF for {col}: {vif:.4f} (R^2 = {r_squared:.4f})")
-    
-    return vif_results
+    return vif_data
 
-def drop_high_vif_predictors(vif_results: Dict[str, float], threshold: float = 5.0) -> List[str]:
+def drop_high_vif_predictors(vif_scores: Dict[str, float], threshold: float = 5.0) -> List[str]:
     """
     Identify predictors with VIF above a threshold.
     
     Args:
-        vif_results: Dictionary of VIF values.
-        threshold: VIF threshold above which predictors are considered problematic.
+        vif_scores: Dictionary of VIF scores.
+        threshold: VIF threshold for concern (default 5.0).
         
     Returns:
         List of predictor names with VIF > threshold.
     """
-    high_vif = [col for col, vif in vif_results.items() if vif > threshold]
-    if high_vif:
-        logger.warning(f"High VIF detected (> {threshold}): {high_vif}")
-    else:
-        logger.info(f"No predictors exceed VIF threshold of {threshold}")
-    return high_vif
+    return [name for name, score in vif_scores.items() if score > threshold]
 
-def perform_likelihood_ratio_test() -> Dict[str, float]:
+def perform_likelihood_ratio_test():
     """
-    Placeholder for Likelihood Ratio Test (to be implemented in T024b).
-    
-    Returns:
-        Empty dict indicating this test is not part of T023.
+    Placeholder for LRT. This task (T023) is specifically for VIF.
+    LRT is handled in T024b_LRT_Execution.
     """
-    logger.info("Likelihood Ratio Test is scheduled for T024b")
-    return {}
+    pass
 
-def post_hoc_power_validation() -> Dict[str, float]:
+def post_hoc_power_validation():
     """
-    Placeholder for post-hoc power validation (to be implemented in T025).
-    
-    Returns:
-        Empty dict indicating this validation is not part of T023.
+    Placeholder for power validation.
     """
-    logger.info("Post-hoc power validation is scheduled for T025")
-    return {}
+    pass
 
-def resolve_multicollinearity_and_retest(df: pd.DataFrame, 
-                                         predictor_cols: List[str],
-                                         vif_threshold: float = 5.0) -> Tuple[Dict[str, float], List[str]]:
+def resolve_multicollinearity_and_retest(data_path: str, output_path: str, threshold: float = 5.0):
     """
-    Identify and remove high VIF predictors, then recalculate VIF.
-    
-    Args:
-        df: DataFrame with predictors.
-        predictor_cols: Initial list of predictors.
-        vif_threshold: VIF threshold for removal.
-        
-    Returns:
-        Tuple of (final_vif_results, removed_predictors)
+    Main orchestration function for VIF calculation and reporting.
+    Reads processed data, calculates VIF, and writes results to JSON.
     """
-    removed = []
-    current_cols = predictor_cols.copy()
+    # Load data
+    df = load_processed_data(data_path)
     
-    while True:
-        vif_results = calculate_vif(df, current_cols)
-        high_vif = drop_high_vif_predictors(vif_results, vif_threshold)
-        
-        if not high_vif:
-            break
-        
-        # Remove the predictor with the highest VIF
-        worst_col = max(high_vif, key=lambda x: vif_results[x])
-        removed.append(worst_col)
-        current_cols.remove(worst_col)
-        logger.info(f"Removed {worst_col} (VIF = {vif_results[worst_col]:.2f}) due to multicollinearity")
+    # Define predictors based on T023 description
+    predictors = ['log_co_occurrence', 'flavor_similarity', 'functional_role']
     
-    final_vif = calculate_vif(df, current_cols)
-    return final_vif, removed
+    # Calculate VIF
+    vif_scores = calculate_vif(df, predictors)
+    
+    # Prepare output
+    output_data = {
+        "predictors": predictors,
+        "vif_scores": vif_scores,
+        "high_vif_predictors": drop_high_vif_predictors(vif_scores, threshold),
+        "threshold": threshold,
+        "status": "completed"
+    }
+    
+    # Ensure output directory exists
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    
+    # Write results
+    with open(output_path, 'w') as f:
+        json.dump(output_data, f, indent=2)
+    
+    return output_data
 
 def main():
     """
-    Main function to execute VIF calculation task (T023).
-    
-    This function:
-    1. Loads the processed ingredient pairs dataset.
-    2. Calculates VIF for all predictors (log_co_occurrence, flavor_similarity, functional_role).
-    3. Saves the VIF scores to data/logs/vif_scores.json.
+    Entry point for T023 execution.
     """
-    logger.info("Starting VIF Calculation (Task T023)")
+    # Default paths based on project structure
+    input_data_path = "data/processed/ingredient_pairs.csv"
+    output_log_path = "data/logs/vif_scores.json"
     
-    # Define paths
-    input_path = "data/processed/ingredient_pairs_with_labels.csv"
-    output_dir = Path("data/logs")
-    output_path = output_dir / "vif_scores.json"
-    
-    # Ensure output directory exists
-    output_dir.mkdir(parents=True, exist_ok=True)
+    print(f"Starting VIF Calculation (T023)...")
+    print(f"Input: {input_data_path}")
+    print(f"Output: {output_log_path}")
     
     try:
-        # Load data
-        df = load_processed_data(input_path)
-        
-        # Define predictors based on task description
-        # Note: functional_role might be categorical, so we handle it appropriately
-        predictor_cols = ['log_co_occurrence', 'flavor_similarity', 'functional_role']
-        
-        # Verify all predictors exist
-        missing = [col for col in predictor_cols if col not in df.columns]
-        if missing:
-            raise ValueError(f"Missing required predictor columns: {missing}. "
-                             "Ensure T018 (Imputation) has been completed correctly.")
-        
-        logger.info(f"Calculating VIF for predictors: {predictor_cols}")
-        
-        # Calculate VIF
-        vif_results = calculate_vif(df, predictor_cols)
-        
-        # Identify high VIF predictors
-        high_vif_predictors = drop_high_vif_predictors(vif_results, threshold=5.0)
-        
-        # Prepare results
-        results = {
-            "vif_scores": vif_results,
-            "high_vif_predictors": high_vif_predictors,
-            "threshold": 5.0,
-            "total_samples": len(df),
-            "predictor_count": len(predictor_cols),
-            "status": "completed"
-        }
-        
-        # Save results
-        with open(output_path, 'w') as f:
-            json.dump(results, f, indent=2)
-        
-        logger.info(f"VIF calculation complete. Results saved to {output_path}")
-        logger.info(f"VIF Scores: {vif_results}")
-        
-        if high_vif_predictors:
-            logger.warning(f"High VIF detected for: {high_vif_predictors}. "
-                         "Consider removing these predictors or using regularization.")
-        
-        return results
-        
+        result = resolve_multicollinearity_and_retest(
+            data_path=input_data_path,
+            output_path=output_log_path
+        )
+        print(f"VIF Calculation completed successfully.")
+        print(f"VIF Scores: {result['vif_scores']}")
+        if result['high_vif_predictors']:
+            print(f"Warning: High VIF detected for: {result['high_vif_predictors']}")
+        else:
+            print("No high VIF predictors detected.")
     except FileNotFoundError as e:
-        logger.error(f"Data file not found: {e}")
-        raise
-    except ValueError as e:
-        logger.error(f"Validation error: {e}")
+        print(f"Error: {e}")
+        print("Ensure that T018 (Imputation & Bias Check) has completed and produced data/processed/ingredient_pairs.csv")
         raise
     except Exception as e:
-        logger.error(f"Unexpected error during VIF calculation: {e}")
+        print(f"Unexpected error during VIF calculation: {e}")
         raise
 
 if __name__ == "__main__":
-    import statsmodels.api as sm  # Import here to avoid issues if not needed
     main()

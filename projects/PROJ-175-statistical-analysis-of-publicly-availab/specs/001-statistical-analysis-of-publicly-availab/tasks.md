@@ -77,11 +77,11 @@
  in "<unicode string>", line 33, column 3:
  e disdisa.
  ^) -->
-- [ ] T016b Embedding Similarity: **DEPENDS ON**: T012d_ratification_gate, T007b. **Action**: Read `data/amendment_log.json`. If `methodology` is "Correlational Analysis", use `sentence-transformers/all-MiniLM-L6-v2` for Recipe dataset visual/text embeddings. Input: `data/processed/normalized_ingredients.csv`. **Constraint**: If `methodology` is "Causal Independence", SKIP this task. **Output**: `data/processed/similarity_scores_embedding.parquet`.
+- [ ] T016b Embedding Similarity: **DEPENDS ON**: T012d_ratification_gate, T007b. **Action**: Read `data/amendment_log.json`. If `methodology` is "Correlational Analysis", use `sentence-transformers/all-MiniLM-L6-v2` for Recipe dataset visual/text embeddings. Input: `data/processed/normalized_ingredients.csv`. **Constraint**: If `methodology` is "Causal Independence", SKIP this task. **Output**: `data/processed/similarity_scores_embedding.parquet`. <!-- ATOMIZE: requested -->
 - [ ] T017 Functional Role Validation: **DEPENDS ON**: T014b, T015. **Action**: Ensure functional role is not correlated with co-occurrence frequency. If proxy, apply circularity correction. **Output**: `data/processed/functional_roles_validated.parquet`. <!-- ATOMIZE: requested -->
 - [ ] T017_validate_role_independence [P] Role Independence Audit: **DEPENDS ON**: T014b, T015. **Action**: Calculate Pearson correlation between `functional_role` (encoded) and `log_co_occurrence`. If $r > 0.1$, log warning and flag for manual review. **Output**: `data/logs/role_independence_audit.json`.
 - [ ] T018 Imputation & Bias Check: Handle missing values in embeddings, similarity scores, and functional roles. **DEPENDS ON**: T016a, T016b, T017. **Action**: Impute missing similarity scores with 0. Log exclusion counts. **Constraint**: Select the correct similarity file (`similarity_scores_chemical.parquet` or `similarity_scores_embedding.parquet`) based on `data/amendment_log.json`. **Output**: `data/processed/ingredient_pairs.csv` (final dataset for modeling).
-- [~] T019a Compatibility Labels (Independent): **DEPENDS ON**: T018, T013a, T012d_ratification_gate, T007b. **Action**:
+- [ ] T019a Compatibility Labels (Independent): **DEPENDS ON**: T018, T013a, T012d_ratification_gate, T007b. **Action**:
  1. Read `data/amendment_log.json`. Verify `status`="RATIFIED".
  2. If `proxy_source` is null: Use Counterfactual Recipe Generation dataset labels. Verify `independent_sensory_compatibility` or `rating` column exists.
  **Output**: `data/processed/ingredient_pairs_with_labels.csv`. **Constraint**: Fails if independent data is missing and amendment is not ratified.
@@ -104,7 +104,7 @@
 - [ ] T024b_LRT_Execution [P] Execute Likelihood-Ratio Test: **DEPENDS ON**: T023, T024_methodology_decision. **Logic**: Read `data/logs/methodology_flag.json`. If `use_lrt` is true, perform LRT against null model (frequency only). If `use_lrt` is false, SKIP. **Output**: `data/logs/lrt_results.json`. **Constraint**: Only runs if independent data is available.
 - [ ] T024b_partial [P] Partial Correlation Analysis: **DEPENDS ON**: T023, T024_methodology_decision. **Logic**: Read `data/logs/methodology_flag.json`. If `use_partial_corr` is true, use `pingouin.partial_corr`. Inputs: `data/processed/ingredient_pairs.csv`. **Output**: `data/logs/partial_corr.json`.
 - [ ] T024d_metric Model Comparison Metric: **DEPENDS ON**: T024b_LRT_Execution, T024b_partial, T024_methodology_decision. **Action**: Extract the key metric (LRT p-value or partial correlation coefficient) for the report. **Output**: `data/logs/model_metric.json`.
-- [ ] T304 [US2] Refine Bayesian Priors for Proxy Data: **DEPENDS ON**: T012d_ratification_gate. **Action**: Adjust PyMC model priors to be more conservative (wider) if the proxy path is active, reflecting the higher uncertainty of derived labels. **Output**: `code/models/bayesian.py` (updated) and `data/logs/prior_config.json`.
+- [X] T304 [US2] Refine Bayesian Priors for Proxy Data: **DEPENDS ON**: T012d_ratification_gate. **Action**: Adjust PyMC model priors to be more conservative (wider) if the proxy path is active, reflecting the higher uncertainty of derived labels. **Output**: `code/models/bayesian.py` (updated) and `data/logs/prior_config.json`.
 - [ ] T025 Hierarchical Bayesian Model Fit: **DEPENDS ON**: T024_methodology_decision, T304. **Action**: Use PyMC with NUTS on stratified subset. Read `data/amendment_log.json`; if `methodology` == "Correlational Analysis", load conservative priors from T304 output. **Output**: `data/logs/bayesian_results.json`.
 
 **Checkpoint**: User Story 1 & 2 functional.
@@ -113,7 +113,7 @@
 
 ## Phase 4: User Story 3 – Evaluation and Reporting (Priority: P3)
 
-- [ ] T029 Evaluation Metrics: Calculate AUC, precision, recall. **DEPENDS ON**: T025. **Action**: Evaluate on held-out test set. **Output**: `data/logs/evaluation_metrics.csv`.
+- [ ] T029 Evaluation Metrics: Calculate AUC, precision, recall. **DEPENDS ON**: T025. **Action**: Evaluate on held-out test set. **Output**: `data/logs/evaluation_metrics.csv`. <!-- FAILED: unspecified -->
 - [ ] T030b_hypothesis_test [P] Hypothesis Test: **DEPENDS ON**: T029. **Action**: Perform statistical test (e.g., DeLong's test or bootstrap) for AUC delta ≥ 0.05 (or amended criterion). **Output**: `data/logs/hypothesis_test.json` with `p_value`, `delta`, `significant`: bool.
 - [ ] T030 Calibration Plot: Generate calibration plot. **DEPENDS ON**: T029. **Action**: Plot predicted vs. actual probabilities. **Output**: `docs/calibration_plot.png`.
 - [ ] T031 Final Report Generation: Generate final report. **DEPENDS ON**: T024d_metric, T030b_hypothesis_test, T030. **Action**: Compare full model vs. baseline. Test hypothesis. Include leakage-adjusted threshold if Correlational. **Output**: `docs/final_report.md`.

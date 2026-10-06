@@ -1,36 +1,81 @@
-name: IngredientPair
-description: Schema for ingredient pair data used in statistical analysis
-version: 1.0.0
-fields:
-  - name: IngredientPair
-    description: A pair of ingredients with their relationship metrics
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "IngredientPair Dataset Schema"
+description: "Schema for the dataset containing ingredient pairs and their attributes for substitution prediction."
+type: "object"
+properties:
+  ingredient_id:
+    type: "string"
+    description: "Unique identifier for the ingredient pair."
+    minLength: 1
+  log_co_occurrence:
+    type: "number"
+    description: "Log-transformed co-occurrence frequency of the ingredient pair, with epsilon smoothing for zero counts."
+    minimum: -10.0
+    maximum: 10.0
+  flavor_similarity:
+    type: "number"
+    description: "Recipe1M embedding cosine similarity"
+    computed_from: "sentence-transformers/all-MiniLM-L6-v2"
+    proxy_source: "Recipe1M"
+    minimum: -1.0
+    maximum: 1.0
+  functional_role:
+    type: "string"
+    description: "Functional role of the ingredient (primary, secondary, garnish)."
+    enum:
+      - "primary"
+      - "secondary"
+      - "garnish"
+  compatibility_label:
+    type: "integer"
+    description: "Binary label indicating compatibility (1 = compatible, 0 = not compatible)."
+    enum:
+      - 0
+      - 1
+required:
+  - ingredient_id
+  - log_co_occurrence
+  - flavor_similarity
+  - functional_role
+  - compatibility_label
+additionalProperties: false
+definitions:
+  IngredientPair:
+    type: "object"
     properties:
       ingredient_id:
-        type: str
-        description: Unique identifier for the ingredient pair (e.g., 'ing1_ing2')
-        required: true
+        type: "string"
+        description: "Unique identifier for the ingredient pair."
+        minLength: 1
       log_co_occurrence:
-        type: float
-        description: Log-transformed co-occurrence frequency of the ingredient pair
-        required: true
+        type: "number"
+        description: "Log-transformed co-occurrence frequency of the ingredient pair, with epsilon smoothing for zero counts."
+        minimum: -10.0
+        maximum: 10.0
       flavor_similarity:
-        type: float
-        description: FlavorDB chemical vectors
-        source: FlavorDB chemical matrix
-        required: true
+        type: "number"
+        description: "Recipe1M embedding cosine similarity"
+        computed_from: "sentence-transformers/all-MiniLM-L6-v2"
+        proxy_source: "Recipe1M"
+        minimum: -1.0
+        maximum: 1.0
       functional_role:
-        type: str
-        description: Functional role of the first ingredient (primary, secondary, garnish)
+        type: "string"
+        description: "Functional role of the ingredient (primary, secondary, garnish)."
         enum:
-          - primary
-          - secondary
-          - garnish
-        required: true
+          - "primary"
+          - "secondary"
+          - "garnish"
       compatibility_label:
-        type: int
-        description: Binary compatibility label (1 = compatible, 0 = not compatible)
-        required: true
-metadata:
-  created_by: T007a_schema_dataset
-  updated_by: T007b
-  last_updated: 2024-01-01T00:00:00Z
+        type: "integer"
+        description: "Binary label indicating compatibility (1 = compatible, 0 = not compatible)."
+        enum:
+          - 0
+          - 1
+    required:
+      - ingredient_id
+      - log_co_occurrence
+      - flavor_similarity
+      - functional_role
+      - compatibility_label
+    additionalProperties: false

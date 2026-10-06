@@ -5,164 +5,238 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 
-def load_epsilon_config(config_path: str = "data/processed/epsilon_config.json") -> float:
-    """Load the epsilon smoothing value from config, defaulting to 1e-9."""
-    try:
+def load_epsilon_config():
+    """Load epsilon configuration for log smoothing."""
+    config_path = Path("data/processed/epsilon_config.json")
+    if config_path.exists():
         with open(config_path, 'r') as f:
-            config = json.load(f)
-            return config.get('epsilon', 1e-9)
-    except FileNotFoundError:
-        return 1e-9
+            return json.load(f)
+    return {"epsilon": 1e-6}
 
-def load_ingredient_pairs(input_path: str = "data/processed/normalized_ingredients.csv") -> pd.DataFrame:
-    """Load the normalized ingredient pairs dataset."""
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Ingredient pairs file not found: {input_path}")
-    return pd.read_csv(input_path)
-
-def build_cooccurrence_matrix(df: pd.DataFrame, epsilon: float = 1e-9) -> pd.DataFrame:
+def load_ingredient_pairs():
     """
-    Construct the global co-occurrence matrix C from the ingredient pairs dataframe.
+    Load the normalized ingredient pairs with functional roles.
+    This expects the output of T014a and T014b to be merged.
+    Since T018 (imputation) hasn't run yet, we look for the raw processed pairs
+    or reconstruct from normalized ingredients and functional roles if needed.
     
-    The input dataframe is expected to have columns:
-    - 'recipe_id': Identifier for the recipe
-    - 'ingredient_id': Identifier for the ingredient (canonical)
+    For this specific task T015, we assume the existence of a consolidated
+    ingredient list that T014a produced, or we read from the raw recipe stream
+    if the processed file is missing (as indicated by execution failures).
     
-    Returns a DataFrame where rows and columns are ingredient_ids, 
-    and values are log(1 + count) + epsilon.
+    However, based on the API surface and task dependencies:
+    T015 depends on T014a (normalized_ingredients.csv) and T014b (functional_roles.csv).
+    But to build a co-occurrence matrix, we need the RECIPE data (which ingredients appear together).
+    
+    Re-reading tasks.md:
+    "T015 Co-occurrence Matrix: Construct global co-occurrence matrix C. ... Count pairs (i, j) in recipes."
+    
+    The raw recipe data is in data/raw/recipe1m_processed.parquet (from T013a).
+    We must stream or load this, normalize the ingredients using the T014a mapping,
+    and then count pairs.
+    
+    Let's check if T013a produced the file. If not, we fail loudly.
     """
-    if df.empty:
-        raise ValueError("Input dataframe is empty; cannot build co-occurrence matrix.")
+    recipe_path = Path("data/raw/recipe1m_processed.parquet")
+    if not recipe_path.exists():
+        raise FileNotFoundError(
+            f"Raw recipe data not found at {recipe_path}. "
+            "Run T013a (Stream & Validate Recipe1M) first."
+        )
     
-    required_cols = ['recipe_id', 'ingredient_id']
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns in input data: {missing_cols}")
+    # Load the processed recipe data
+    # Depending on the size, we might need to stream or load in chunks.
+    # For now, assuming it fits or is a sample as per T013b power analysis.
+    try:
+        df = pd.read_parquet(recipe_path)
+    except Exception as e:
+        raise RuntimeError(f"Failed to load recipe data: {e}")
     
-    # Count co-occurrences: For each recipe, generate all unique pairs (i, j)
-    # We count undirected pairs (i, j) where i != j.
-    # We use a dictionary to accumulate counts to avoid memory explosion with large sparse matrices
-    # before converting to DataFrame.
-    
-    co_occurrence_counts = {}
-    
-    recipes = df['recipe_id'].unique()
-    
-    # To optimize, we can group by recipe_id first
-    grouped = df.groupby('recipe_id')['ingredient_id'].apply(list)
-    
-    for ingredients in grouped:
-        if len(ingredients) < 2:
-            continue
-        # Generate unique pairs
-        unique_ingredients = list(set(ingredients))
-        n = len(unique_ingredients)
-        for i in range(n):
-            for j in range(i + 1, n):
-                ing_a = unique_ingredients[i]
-                ing_b = unique_ingredients[j]
-                # Normalize order to ensure (a, b) is same as (b, a)
-                if ing_a > ing_b:
-                    ing_a, ing_b = ing_b, ing_a
-                
-                pair = (ing_a, ing_b)
-                co_occurrence_counts[pair] = co_occurrence_counts.get(pair, 0) + 1
-    
-    # Convert to DataFrame
-    if not co_occurrence_counts:
-        # Return empty matrix if no pairs found
-        return pd.DataFrame()
-    
-    pairs = list(co_occurrence_counts.keys())
-    counts = list(co_occurrence_counts.values())
-    
-    df_pairs = pd.DataFrame(pairs, columns=['ingredient_1', 'ingredient_2'])
-    df_pairs['count'] = counts
-    
-    # Pivot to matrix form (sparse-friendly, but we'll make dense for small/medium or use sparse if needed)
-    # Since we need to output a parquet, we can keep it in long form or pivot.
-    # The task asks for a "matrix C". Usually, a matrix implies a square 2D structure.
-    # However, for large N, a long-form table is often more practical for storage.
-    # We will pivot to a square matrix if the number of unique ingredients is reasonable (< 5000),
-    # otherwise we keep it in long form but named "co_occurrence_matrix" conceptually.
-    # Given Recipe1M scale, a full dense matrix is likely too big. We will output a long-form
-    # representation which is the standard way to store sparse co-occurrence data in parquet.
-    
-    # Let's pivot to wide form only if feasible, else keep long.
-    # To be safe and strictly follow "matrix", we create a square matrix only for the ingredients present.
-    # If too many unique ingredients, we fall back to long form but label it as the matrix representation.
-    
-    all_ingredients = sorted(set(df_pairs['ingredient_1']).union(set(df_pairs['ingredient_2'])))
-    n_ingredients = len(all_ingredients)
-    
-    # Heuristic: if > 2000 ingredients, keep long form to avoid OOM, as dense matrix would be 2000x2000 floats (32MB) which is fine,
-    # but 10k x 10k is 800MB. Recipe1M has many ingredients. Let's cap at 5000.
-    if n_ingredients <= 5000:
-        # Create square matrix
-        matrix = np.zeros((n_ingredients, n_ingredients), dtype=np.float64)
-        ing_to_idx = {ing: idx for idx, ing in enumerate(all_ingredients)}
-        
-        for _, row in df_pairs.iterrows():
-            i = ing_to_idx[row['ingredient_1']]
-            j = ing_to_idx[row['ingredient_2']]
-            val = row['count']
-            matrix[i, j] = val
-            matrix[j, i] = val
-        
-        df_matrix = pd.DataFrame(matrix, index=all_ingredients, columns=all_ingredients)
-        # Apply log transform with epsilon smoothing
-        df_matrix = np.log1p(df_matrix) + epsilon
-        # Ensure diagonal is epsilon (or log(1)+eps = 0+eps) if we assume self-cooccurrence is 0 or 1?
-        # Usually diagonal is 0 or 1. We'll set diagonal to epsilon to avoid log(0) if we assumed 0 count.
-        np.fill_diagonal(df_matrix.values, epsilon) 
-        return df_matrix
+    # Ensure we have the columns needed. 
+    # T013a should have ensured 'rating' is present if proxy, but for co-occurrence we need 'ingredients'.
+    if 'ingredients' not in df.columns:
+        # Try common variations
+        if 'ingredient_list' in df.columns:
+            ingredients_col = 'ingredient_list'
+        elif 'ingredient_names' in df.columns:
+            ingredients_col = 'ingredient_names'
+        else:
+            raise ValueError(
+                f"Recipe data must contain an 'ingredients' column. "
+                f"Found columns: {df.columns.tolist()}"
+            )
     else:
-        # Keep long form but apply log transform
-        df_pairs['log_count'] = np.log1p(df_pairs['count']) + epsilon
-        # Symmetrize by creating both (a,b) and (b,a) if needed for downstream matrix ops,
-        # but usually long form is sufficient. We'll output the symmetric long form.
-        df_long = pd.concat([
-            df_pairs[['ingredient_1', 'ingredient_2', 'log_count']],
-            df_pairs.rename(columns={'ingredient_1': 'ingredient_2', 'ingredient_2': 'ingredient_1'})[['ingredient_1', 'ingredient_2', 'log_count']]
-        ])
-        return df_long
-
-def save_output(df: pd.DataFrame, output_path: str = "data/processed/co_occurrence_matrix.parquet") -> None:
-    """Save the co-occurrence matrix (or long-form representation) to parquet."""
-    output_dir = os.path.dirname(output_path)
-    if output_dir and not os.path.exists(output_dir):
-        os.makedirs(output_dir, exist_ok=True)
+        ingredients_col = 'ingredients'
     
-    df.to_parquet(output_path, index=True)
-    print(f"Co-occurrence matrix saved to {output_path}")
+    # Load the normalized ingredient mapping from T014a
+    normalized_path = Path("data/processed/normalized_ingredients.csv")
+    if not normalized_path.exists():
+        raise FileNotFoundError(
+            f"Normalized ingredient mapping not found at {normalized_path}. "
+            "Run T014a (Normalize Ingredients) first."
+        )
+    
+    norm_df = pd.read_csv(normalized_path)
+    # Expected columns: ingredient_id, canonical_name, frequency
+    if 'canonical_name' not in norm_df.columns or 'ingredient_id' not in norm_df.columns:
+        raise ValueError("normalized_ingredients.csv must have 'canonical_name' and 'ingredient_id' columns.")
+    
+    # Create a mapping from canonical_name to ingredient_id
+    # Handle potential duplicates by taking the first or aggregating (though T014a should handle this)
+    name_to_id = norm_df.set_index('canonical_name')['ingredient_id'].to_dict()
+    
+    # Map ingredients in the recipe dataframe
+    def normalize_ingredient_list(ing_list):
+        if isinstance(ing_list, str):
+            # If it's a string representation of a list, try to parse
+            try:
+                ing_list = eval(ing_list)
+            except:
+                return []
+        if not isinstance(ing_list, list):
+            return []
+        
+        normalized_ids = []
+        for ing in ing_list:
+            # Normalize the ingredient name (lowercase, strip)
+            canonical = ing.lower().strip() if isinstance(ing, str) else str(ing).lower().strip()
+            if canonical in name_to_id:
+                normalized_ids.append(name_to_id[canonical])
+            else:
+                # If not found, we might need to normalize it ourselves using Levenshtein if T014a missed it
+                # But for now, we skip unknowns to avoid polluting the matrix with noise.
+                # In a real scenario, T014a should have covered all.
+                pass
+        return normalized_ids
+    
+    # Apply normalization
+    df['normalized_ingredient_ids'] = df[ingredients_col].apply(normalize_ingredient_list)
+    
+    return df
+
+def build_cooccurrence_matrix(recipe_df):
+    """
+    Build the global co-occurrence matrix C from the recipe dataframe.
+    C[i, j] = count of recipes containing both ingredient i and j.
+    """
+    # Extract all unique ingredient IDs
+    all_ids = set()
+    for ids in recipe_df['normalized_ingredient_ids']:
+        all_ids.update(ids)
+    
+    id_list = sorted(list(all_ids))
+    id_to_idx = {id_val: idx for idx, id_val in enumerate(id_list)}
+    n = len(id_list)
+    
+    # Initialize matrix
+    # Using a sparse matrix approach first to save memory, then converting to dense if needed
+    # But for a co-occurrence matrix of ingredients, it might be dense if many ingredients co-occur.
+    # Let's use a dictionary to count pairs first.
+    pair_counts = {}
+    
+    for ids in recipe_df['normalized_ingredient_ids']:
+        if len(ids) < 2:
+            continue
+        # Sort to avoid double counting (i, j) and (j, i)
+        unique_ids = sorted(list(set(ids)))
+        for i in range(len(unique_ids)):
+            for j in range(i + 1, len(unique_ids)):
+                pair = (unique_ids[i], unique_ids[j])
+                pair_counts[pair] = pair_counts.get(pair, 0) + 1
+    
+    # Create the matrix
+    co_occurrence = np.zeros((n, n), dtype=np.int64)
+    
+    for (id1, id2), count in pair_counts.items():
+        idx1 = id_to_idx[id1]
+        idx2 = id_to_idx[id2]
+        co_occurrence[idx1, idx2] = count
+        co_occurrence[idx2, idx1] = count
+    
+    # Diagonal: count of recipes containing the ingredient (self-co-occurrence)
+    # We can compute this from the recipe_df
+    id_counts = {}
+    for ids in recipe_df['normalized_ingredient_ids']:
+        for id_val in ids:
+            id_counts[id_val] = id_counts.get(id_val, 0) + 1
+    
+    for id_val, count in id_counts.items():
+        idx = id_to_idx[id_val]
+        co_occurrence[idx, idx] = count
+    
+    # Create a DataFrame for easier handling
+    co_occurrence_df = pd.DataFrame(
+        co_occurrence,
+        index=id_list,
+        columns=id_list
+    )
+    
+    # Store the ID mapping for later use
+    mapping_df = pd.DataFrame({
+        'ingredient_id': id_list,
+        'index': range(n)
+    })
+    
+    return co_occurrence_df, mapping_df
+
+def save_output(co_occurrence_df, mapping_df, output_path, epsilon_config):
+    """
+    Save the co-occurrence matrix to a parquet file with log-transform and epsilon smoothing.
+    Output: data/processed/co_occurrence_matrix.parquet
+    """
+    # Apply log-transform with epsilon smoothing: log(C + epsilon)
+    epsilon = epsilon_config.get('epsilon', 1e-6)
+    log_co_occurrence = np.log(co_occurrence_df + epsilon)
+    
+    # Save the log-transformed matrix
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    log_co_occurrence.to_parquet(output_file, index=True)
+    
+    # Save the mapping as well
+    mapping_path = output_file.parent / "co_occurrence_mapping.csv"
+    mapping_df.to_csv(mapping_path, index=False)
+    
+    # Save the config used
+    config_path = output_file.parent / "co_occurrence_config.json"
+    with open(config_path, 'w') as f:
+        json.dump(epsilon_config, f, indent=2)
+    
+    return output_file
 
 def main():
-    """Main entry point for T015."""
-    # Paths
-    input_path = "data/processed/normalized_ingredients.csv"
-    output_path = "data/processed/co_occurrence_matrix.parquet"
-    config_path = "data/processed/epsilon_config.json"
+    """
+    Main function to execute T015: Co-occurrence Matrix construction.
+    """
+    print("Starting T015: Co-occurrence Matrix construction...")
     
-    # Load config
-    epsilon = load_epsilon_config(config_path)
-    print(f"Loaded epsilon: {epsilon}")
+    # Load configuration
+    epsilon_config = load_epsilon_config()
     
     # Load data
     try:
-        df = load_ingredient_pairs(input_path)
-        print(f"Loaded {len(df)} ingredient entries.")
+        recipe_df = load_ingredient_pairs()
+        print(f"Loaded {len(recipe_df)} recipes.")
     except FileNotFoundError as e:
         print(f"Error: {e}")
         sys.exit(1)
     
     # Build matrix
     print("Building co-occurrence matrix...")
-    matrix_df = build_cooccurrence_matrix(df, epsilon)
-    print(f"Matrix shape: {matrix_df.shape if hasattr(matrix_df, 'shape') else 'Long form with ' + str(len(matrix_df)) + ' rows'}")
+    co_occurrence_df, mapping_df = build_cooccurrence_matrix(recipe_df)
+    print(f"Matrix shape: {co_occurrence_df.shape}")
     
-    # Save
-    save_output(matrix_df, output_path)
-    print("Task T015 completed successfully.")
+    # Save output
+    output_path = "data/processed/co_occurrence_matrix.parquet"
+    try:
+        save_output(co_occurrence_df, mapping_df, output_path, epsilon_config)
+        print(f"Successfully saved co-occurrence matrix to {output_path}")
+    except Exception as e:
+        print(f"Error saving output: {e}")
+        sys.exit(1)
+    
+    print("T015 completed successfully.")
 
 if __name__ == "__main__":
     main()

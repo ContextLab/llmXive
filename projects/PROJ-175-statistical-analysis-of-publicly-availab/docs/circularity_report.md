@@ -1,21 +1,17 @@
-# Circularity Report
+# Circularity Report: Proxy Label Derivation
 
-## Methodology
+## Summary
+This analysis utilized Recipe1M ratings as a proxy for compatibility labels (Task T019b).
 
-Compatibility labels were derived from Recipe1M ratings, which are part of the same corpus used for flavor similarity embeddings.
+## Circularity Violation
+**Principle VI Violation**: The outcome variable (`compatibility_label`) is derived directly from the `rating` column of the Recipe1M corpus, which is the same source used to generate predictor features (embeddings, co-occurrence).
 
-This creates a circular dependency where the predictor (similarity) and outcome (compatibility) are both derived from the same dataset.
-
-## Implications
-
-- The model may overfit to corpus-specific patterns rather than generalizable compatibility rules.
-- Results should be interpreted as correlational within the Recipe1M corpus, not causal.
-- Future work should validate findings on independent datasets (e.g., Counterfactual Recipe Generation).
+## Impact
+- **Leakage**: The model is trained to predict a target that is statistically dependent on the training features' source distribution.
+- **Interpretation**: Results reflect internal corpus correlations, not independent causal relationships.
 
 ## Threshold Used
-
-Median rating threshold: 3.85
+Median Rating: Calculated dynamically from the dataset.
 
 ## Recommendation
-
-Consider this analysis as a proxy for true compatibility until independent validation is available.
+Results must be interpreted as "Associative Strength within Recipe1M" rather than "Predictive Generalization".

@@ -1,14 +1,14 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Analysis Output Schema
-description: Schema for the final aggregated analysis report and summary tables.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Analysis Output Report
+description: Schema for the final aggregated analysis report.
 type: object
 required:
-  report_id
-  generated_at
-  summary_table
-  semantic_opacity_comparison
-  correlation_analysis
-  figures
+  - report_id
+  - generated_at
+  - summary
+  - detailed_results
+  - visualizations
+  - semantic_opacity_analysis
 properties:
   report_id:
     type: string
@@ -16,70 +16,48 @@ properties:
   generated_at:
     type: string
     format: date-time
-    description: Timestamp of report generation.
-  summary_table:
+    description: ISO 8601 timestamp of report generation.
+  summary:
+    type: object
+    description: High-level summary of findings.
+    properties:
+      total_variants_analyzed:
+        type: integer
+      total_tasks_executed:
+        type: integer
+      primary_finding:
+        type: string
+        description: One-sentence summary of the main result.
+  detailed_results:
     type: array
-    description: List of rows for the summary statistical table.
     items:
-      type: object
-      required:
-        - factor
-        - estimate
-        - std_error
-        - statistic
-        - p_value_raw
-        - p_value_corrected
-      properties:
-        factor:
-          type: string
-        estimate:
-          type: number
-        std_error:
-          type: number
-        statistic:
-          type: number
-        p_value_raw:
-          type: number
-        p_value_corrected:
-          type: number
-  semantic_opacity_comparison:
-    type: object
-    description: Specific comparison results for Semantic Opacity vs Baseline.
-    properties:
-      mean_difference:
-        type: number
-      confidence_interval:
-        type: array
-        items:
-          type: number
-        minItems: 2
-        maxItems: 2
-      p_value:
-        type: number
-      conclusion:
-        type: string
-        description: Textual conclusion about the impact of semantic opacity.
-  correlation_analysis:
-    type: object
-    description: Correlation between token count and performance drop.
-    properties:
-      correlation_coefficient:
-        type: number
-      p_value:
-        type: number
-      conclusion:
-        type: string
-  figures:
+      $ref: "statistical_result.schema.yaml"
+    description: List of detailed statistical results per metric.
+  visualizations:
     type: array
-    description: List of generated figure paths and descriptions.
     items:
       type: object
       properties:
-        filename:
-          type: string
         type:
           type: string
-          enum: [interaction_plot, histogram, boxplot, scatter]
+          enum: ["interaction_plot", "bar_chart", "scatter_plot"]
+        file_path:
+          type: string
         description:
           type: string
+    description: List of generated visualization file paths and descriptions.
+  semantic_opacity_analysis:
+    type: object
+    description: Specific analysis comparing Semantic Opacity vs Baseline.
+    properties:
+      performance_drop_percentage:
+        type: number
+        format: float
+      statistical_significance:
+        type: boolean
+      p_value:
+        type: number
+        format: float
+      conclusion:
+        type: string
 additionalProperties: false
