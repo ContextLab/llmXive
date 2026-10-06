@@ -17,7 +17,7 @@ This feature implements a rigorous validation of the "Static Approximation" hypo
 **Project Type**: Computational Research / Algorithmic Benchmarking  
 **Performance Goals**: Complete tracing and benchmarking of 100 images (with on-the-fly aggregation) in ≤ 6 hours on CPU; memory usage < 7GB via batching and streaming.  
 **Constraints**: No GPU available on primary runner; strict adherence to open datasets; FID calculation must use CPU-optimized Inception.  
-**Scale/Scope**: ImageNet validation images (sampled for tracing), 500 images per seed for benchmarking (N=5 seeds), A fixed number of timesteps, SiT-XL/ model (approx. large-scale params, float16 for memory fit).
+**Scale/Scope**: ImageNet validation images (sampled for tracing), A sufficient number of images per seed for benchmarking (N=5 seeds), A fixed number of timesteps, SiT-XL/ model (approx. large-scale params, float16 for memory fit).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

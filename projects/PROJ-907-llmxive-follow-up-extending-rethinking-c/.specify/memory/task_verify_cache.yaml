@@ -1,11 +1,3 @@
-T011:
-  c: false
-  h: 16e3990d9a344bd3955d216af9160447c25fb8173d8d95d7e0396a6ce80dcbbe
-  r: "The required output files (`data/routing_cache/routing_aggregated.npy`, `data/results/memory_profile_raw.jsonl`,\
-    \ `data/results/tracing_log.jsonl`) are absent, and the provided `tracing.py`\
-    \ contains placeholder logic that simulates routing weights instead of actually\
-    \ extracting them from the SiT\u2011XL/2 model. The implementation does not fulfill\
-    \ the specified data collection, batching, memory\u2011guard, and logging requirements."
 T012:
   c: false
   h: c9d9394f55796f89b498566626194d9cb301259dfb523f4bd2f79cdefc3dfda3

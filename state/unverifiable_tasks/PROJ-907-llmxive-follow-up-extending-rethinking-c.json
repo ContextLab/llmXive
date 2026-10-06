@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-907-llmxive-follow-up-extending-rethinking-c",
+  "tasks": [
+    {
+      "task_key": "T011",
+      "reject_count": 1,
+      "last_reason": "The provided `tracing.py` ends with a placeholder comment and does not contain the full logic to load the model, run inference, capture routing tensors, enforce memory guards, or write the required `.npy` and log files. Moreover, the expected output artifacts (`data/routing_cache/routing_aggregated.npy`, `data/results/memory_profile_raw.jsonl`, `data/results/tracing_log.jsonl`) are absent. The task therefore remains unfinished.",
+      "first_seen": "2026-10-06T03:02:58.774213+00:00",
+      "last_seen": "2026-10-06T03:02:58.774213+00:00"
+    }
+  ],
+  "updated_at": "2026-10-06T03:02:58.774213+00:00"
+}
