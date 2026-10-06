@@ -1,5 +1,6 @@
 """
 EntropyRouter module for mapping semantic entropy to rotation matrix indices.
+Implements robust clamping and outlier handling as per US2 requirements.
 """
 import json
 import logging
@@ -14,6 +15,7 @@ class EntropyRouter:
     """
     Maps prompt semantic entropy scores to pre-optimized rotation matrix indices.
     Uses boundaries derived from clustering to determine the optimal matrix.
+    Handles out-of-range values via clamping and proxy failures via static fallback.
     """
     
     def __init__(self, clustering_report_path: str, config: Optional[Config] = None):
@@ -32,6 +34,25 @@ class EntropyRouter:
         if not self.boundaries:
             raise ValueError("No valid boundaries found in clustering report. Router cannot function.")
         
+        # Ensure we have matrices for every boundary interval
+        # If boundaries has N items, we expect N+1 matrices (regions)
+        # If the report has exactly N matrices for N boundaries, we adjust logic to N-1 or pad.
+        # Standard clustering output: N boundaries define N+1 clusters.
+        # We assume the clustering report is consistent: len(matrices) == len(boundaries) + 1
+        
+        if len(self.matrices) != len(self.boundaries) + 1:
+            logger.warning(f"Matrix count ({len(self.matrices)}) does not match boundary intervals ({len(self.boundaries) + 1}). "
+                         f"Truncating or padding to match. Using {min(len(self.matrices), len(self.boundaries) + 1)} matrices.")
+            # Clamp matrices to expected count
+            expected = len(self.boundaries) + 1
+            if len(self.matrices) > expected:
+                self.matrices = self.matrices[:expected]
+            else:
+                # Pad with the last matrix if we have too few
+                last_matrix = self.matrices[-1]
+                while len(self.matrices) < expected:
+                    self.matrices.append(last_matrix)
+        
         logger.info(f"EntropyRouter initialized with {len(self.boundaries)} boundaries and {len(self.matrices)} matrices.")
 
     def _load_report(self, path: str) -> Dict[str, Any]:
@@ -49,10 +70,6 @@ class EntropyRouter:
         Extracts the sorted entropy boundaries from the report.
         Assumes the report contains a 'boundaries' key or similar structure.
         """
-        # The clustering report structure from T022 is expected to have:
-        # { "layers": ..., "subsets": ..., "boundaries": [list of floats], "matrices": [...] }
-        # If the structure is nested, adjust accordingly.
-        
         raw_boundaries = self.report.get('boundaries', [])
         
         # Filter and sort
@@ -67,8 +84,10 @@ class EntropyRouter:
         
         Logic:
         - If entropy < min_boundary -> Index 0
-        - If entropy > max_boundary -> Index N-1
+        - If entropy > max_boundary -> Index N-1 (last matrix)
         - Otherwise -> Find the interval containing the score.
+        
+        Handles outliers by clamping to the nearest valid index.
         
         Args:
             entropy_score: The computed semantic entropy.
@@ -77,53 +96,60 @@ class EntropyRouter:
             The index of the rotation matrix to use.
         """
         if not self.boundaries:
-            # Fallback to median/first if no boundaries (should not happen)
+            # Fallback to first matrix if no boundaries (should not happen due to init check)
             return 0
         
-        # Clamp to range
         min_ent = self.boundaries[0]
         max_ent = self.boundaries[-1]
         
+        # Clamp out-of-range values
         if entropy_score <= min_ent:
             return 0
         if entropy_score >= max_ent:
-            return len(self.boundaries) - 1
+            return len(self.boundaries) # Index corresponding to the last interval
         
         # Binary search for the interval
         # boundaries = [b0, b1, b2, ...]
-        # Interval 0: (-inf, b0] -> Matrix 0
-        # Interval 1: (b0, b1] -> Matrix 1
+        # Region 0: score <= b0 -> Matrix 0
+        # Region 1: b0 < score <= b1 -> Matrix 1
         # ...
-        # Interval N: (bN-1, inf) -> Matrix N
+        # Region N: score > bN-1 -> Matrix N
         
-        # Using np.searchsorted:
-        # indices = np.searchsorted(boundaries, score, side='right')
-        # If score is 0.5 and boundaries=[0.4, 0.6], searchsorted returns 1 (index 1)
-        # We want matrix index = index - 1? No.
-        # Let's define:
-        # boundaries = [b1, b2, ..., bk] (k boundaries) -> k+1 regions
-        # Region 0: score <= b1 -> Matrix 0
-        # Region 1: b1 < score <= b2 -> Matrix 1
+        # np.searchsorted returns the index where the element would be inserted to maintain order.
+        # side='right' means if the element is equal to an existing value, it goes after.
+        # Example: boundaries = [1.0, 2.0, 3.0]
+        # score = 0.5 -> idx=0 (Matrix 0)
+        # score = 1.0 -> idx=1 (Matrix 1)  <-- Boundary case: score == b0 goes to next region?
+        # Let's verify the logic:
+        # If boundaries are split points, usually:
+        # Interval 0: (-inf, b0]
+        # Interval 1: (b0, b1]
         # ...
-        # Region k: score > bk -> Matrix k
+        # If score == b0, it falls in Interval 1? Or Interval 0?
+        # The previous implementation used 'right', meaning score <= b0 -> idx=1? No.
+        # searchsorted([1, 2], 0.5) -> 0.
+        # searchsorted([1, 2], 1.0) -> 1 (because side='right', 1.0 is after 1? No, 1.0 == 1, right means after).
+        # So if score == b0, it returns 1.
+        # This implies:
+        # score <= b0 -> 0? No, 0.5 < 1.0 -> 0.
+        # 1.0 == 1.0 -> 1.
+        # So the region (b_{i-1}, b_i] maps to index i.
+        # Region 0: (-inf, b0] -> Index 0?
+        # If score = 0.5 ( < 1.0), returns 0. Correct.
+        # If score = 1.0 (== 1.0), returns 1. Correct (Region 1).
+        # So the index returned by searchsorted IS the matrix index.
         
         idx = np.searchsorted(self.boundaries, entropy_score, side='right')
         
         # Ensure index is within valid matrix range
-        # If we have k boundaries, we have k+1 matrices (0 to k)
-        max_idx = len(self.boundaries) # This is the count of matrices if we have k boundaries?
-        # Wait, if boundaries = [b1, b2], we have 3 regions: <=b1, (b1,b2], >b2.
-        # So indices 0, 1, 2.
-        # searchsorted returns 0, 1, 2.
-        # So the index returned IS the matrix index.
+        # We have len(boundaries) + 1 matrices.
+        # Max valid index is len(boundaries).
+        # searchsorted returns values in [0, len(boundaries)].
+        # So no need to clamp if logic holds, but safe to clamp.
         
-        # Clamp to number of matrices available
-        num_matrices = len(self.matrices)
-        # If num_matrices != len(boundaries) + 1, we have a mismatch.
-        # We assume the clustering report is consistent.
-        
-        if idx >= num_matrices:
-            idx = num_matrices - 1
+        max_idx = len(self.boundaries)
+        if idx > max_idx:
+            idx = max_idx
         
         return int(idx)
 
@@ -132,6 +158,23 @@ class EntropyRouter:
         if 0 <= index < len(self.matrices):
             return self.matrices[index]
         raise IndexError(f"Matrix index {index} out of range [0, {len(self.matrices)-1}]")
+
+    def route_with_fallback(self, entropy_score: float) -> Tuple[int, bool]:
+        """
+        Routes with a fallback mechanism for invalid scores or errors.
+        
+        Args:
+            entropy_score: The computed semantic entropy.
+            
+        Returns:
+            Tuple of (matrix_index, was_fallback_used)
+        """
+        try:
+            idx = self.route(entropy_score)
+            return idx, False
+        except Exception as e:
+            logger.warning(f"Router failed for entropy {entropy_score}: {e}. Using fallback index 0.")
+            return 0, True
 
 def main():
     """Entry point for testing the router."""

@@ -1,11 +1,21 @@
 """
-Timing module for measuring wall-clock inference time for static and dynamic quantization methods.
+code/evaluation/timing.py
+Implements wall-clock inference timing for Static vs Dynamic rotation methods.
 
-This module provides utilities to benchmark the inference time of the W2A4 engine
-under both static rotation baseline and dynamic router configurations.
+This module orchestrates the timing experiment:
+1. Loads prompts from the diverse set (data/processed/diverse_prompts.csv).
+2. Runs inference using the Static Baseline (T011) and records time.
+3. Runs inference using the Dynamic Router (T024/T025) and records time.
+4. Computes statistics (mean, std, overhead %) and saves to data/processed/timing_results.json.
 
-Artifacts:
-    - data/processed/timing_results.json: Contains timing statistics for both methods.
+Dependencies:
+- code/config.py
+- code/quantization/static_baseline.py
+- code/quantization/w2a4_engine.py
+- code/analysis/router.py
+- code/analysis/load_matrices.py
+- code/models/flux_wan_loader.py
+- code/utils/gpu_offload.py
 """
 
 import os
@@ -14,307 +24,284 @@ import json
 import time
 import logging
 import csv
+import torch
+import numpy as np
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any
 
-import torch
-import numpy as np
+# Project imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-# Project imports matching the API surface
 from config import Config
-from quantization.w2a4_engine import W2A4Engine
 from quantization.static_baseline import StaticRotationBaseline
+from quantization.w2a4_engine import W2A4Engine
 from analysis.router import EntropyRouter
+from analysis.load_matrices import MatrixLoader
 from models.flux_wan_loader import ModelLoader
-from models.dit_wrapper import DiTWrapper
+from utils.gpu_offload import check_gpu_availability, GPUOffloadError
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler("logs/timing_run.log", mode='a')
+    ]
 )
 logger = logging.getLogger(__name__)
 
-config = Config()
+# Constants
+WARMUP_ITERATIONS = 2
+TIMING_ITERATIONS = 10
 
-def load_prompts_for_timing(csv_path: str, max_samples: Optional[int] = None) -> List[str]:
+def load_prompts_for_timing(config: Config) -> List[Dict[str, Any]]:
     """
-    Load prompts from a CSV file for timing benchmarks.
+    Loads a subset of prompts for timing analysis from diverse_prompts.csv.
+    Uses a fixed seed for reproducibility if the file is large.
+    """
+    prompts_path = config.PROMPTS_PATH
+    if not os.path.exists(prompts_path):
+        raise FileNotFoundError(f"Prompts file not found: {prompts_path}")
     
-    Args:
-        csv_path: Path to the CSV file containing prompts.
-        max_samples: Maximum number of prompts to load (None for all).
-        
-    Returns:
-        List of prompt strings.
-    """
     prompts = []
-    path = Path(csv_path)
+    logger.info(f"Loading prompts from {prompts_path}")
     
-    if not path.exists():
-        raise FileNotFoundError(f"Prompts file not found: {csv_path}")
-        
-    with open(path, 'r', encoding='utf-8') as f:
+    with open(prompts_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            # Assuming 'prompt' or 'caption' column exists
-            prompt = row.get('prompt') or row.get('caption')
-            if prompt:
-                prompts.append(prompt)
-                if max_samples and len(prompts) >= max_samples:
-                    break
-                    
+            if 'caption' in row and row['caption'] and len(row['caption'].strip()) > 0:
+                prompts.append({
+                    'id': row.get('id', 'unknown'),
+                    'caption': row['caption'],
+                    'source': row.get('source', 'unknown')
+                })
+    
     if not prompts:
-        raise ValueError(f"No prompts found in {csv_path}")
-        
-    logger.info(f"Loaded {len(prompts)} prompts from {csv_path}")
-    return prompts
+        raise ValueError("No valid prompts found in the dataset.")
+    
+    # Limit to a manageable number for timing (e.g., 20) to fit within wall-clock budget
+    # but ensure it's enough for statistical significance
+    limit = min(len(prompts), config.TIMING_PROMPT_COUNT)
+    logger.info(f"Using {limit} prompts for timing analysis (total available: {len(prompts)})")
+    
+    return prompts[:limit]
 
 def run_static_inference(
-    model: DiTWrapper,
-    prompts: List[str],
-    config: Config,
-    num_iterations: int = 1
+    prompts: List[Dict[str, Any]],
+    model_loader: ModelLoader,
+    baseline: StaticRotationBaseline,
+    config: Config
 ) -> List[float]:
     """
-    Run inference with static rotation baseline and measure timing.
-    
-    Args:
-        model: The DiT model wrapper.
-        prompts: List of prompts to generate images from.
-        config: Configuration object.
-        num_iterations: Number of iterations per prompt for averaging.
-        
-    Returns:
-        List of timing measurements (in seconds).
+    Runs inference using the Static Rotation Baseline and measures wall-clock time.
+    Returns a list of execution times (in seconds) for each prompt.
     """
-    logger.info("Starting static baseline inference timing...")
-    timings = []
+    logger.info("Starting Static Baseline Inference Timing")
+    times = []
     
-    baseline = StaticRotationBaseline(config)
-    engine = W2A4Engine(config, baseline)
+    device = config.DEVICE
+    logger.info(f"Running on device: {device}")
     
-    device = config.device
+    # Warmup
+    logger.info(f"Running {WARMUP_ITERATIONS} warmup iterations...")
+    for _ in range(WARMUP_ITERATIONS):
+        # Use a dummy prompt for warmup to ensure model is loaded and hooks are ready
+        _ = model_loader.generate_single(prompt="warmup test", device=device)
     
-    for i, prompt in enumerate(prompts):
-        logger.info(f"Static inference [{i+1}/{len(prompts)}]: {prompt[:50]}...")
+    # Timing loop
+    for i, p in enumerate(prompts):
+        logger.info(f"Static Inference [{i+1}/{len(prompts)}]: {p['id']}")
+        start = time.perf_counter()
         
-        iteration_times = []
-        for it in range(num_iterations):
-            start_time = time.perf_counter()
+        try:
+            # Generate image using static baseline
+            # The DiTWrapper handles the generation loop and activation capture
+            # We assume the baseline is already configured with the static matrix
+            model_loader.set_quantization_engine(baseline)
+            _ = model_loader.generate_single(prompt=p['caption'], device=device)
             
-            try:
-                # Run generation with static rotation
-                # Note: We use a dummy generation to measure timing without full image synthesis
-                # In a real scenario, this would call the actual generation pipeline
-                with torch.no_grad():
-                    # Simulate the forward pass timing
-                    # This is a placeholder for the actual generation call
-                    # that would be in run_quantization_validation.py
-                    _ = engine.quantize_and_forward(prompt, dummy_mode=True)
-                    
-                elapsed = time.perf_counter() - start_time
-                iteration_times.append(elapsed)
-                
-            except Exception as e:
-                logger.error(f"Error during static inference for prompt {i}: {e}")
-                raise
-        
-        avg_time = sum(iteration_times) / len(iteration_times)
-        timings.append(avg_time)
-        logger.info(f"  Average time: {avg_time:.4f}s")
-        
-    return timings
+            elapsed = time.perf_counter() - start
+            times.append(elapsed)
+            logger.info(f"  -> Completed in {elapsed:.4f}s")
+            
+        except Exception as e:
+            logger.error(f"Error during static inference for {p['id']}: {e}")
+            # If GPU fails, we should not continue silently
+            if "cuda" in str(device).lower() or "gpu" in str(device).lower():
+                raise GPUOffloadError(f"GPU failure during static inference: {e}")
+            raise
+    
+    return times
 
 def run_dynamic_inference(
-    model: DiTWrapper,
-    prompts: List[str],
-    config: Config,
-    clustering_report_path: str,
-    num_iterations: int = 1
+    prompts: List[Dict[str, Any]],
+    model_loader: ModelLoader,
+    router: EntropyRouter,
+    matrices_loader: MatrixLoader,
+    config: Config
 ) -> List[float]:
     """
-    Run inference with dynamic rotation router and measure timing.
-    
-    Args:
-        model: The DiT model wrapper.
-        prompts: List of prompts to generate images from.
-        config: Configuration object.
-        clustering_report_path: Path to the clustering report JSON.
-        num_iterations: Number of iterations per prompt for averaging.
-        
-    Returns:
-        List of timing measurements (in seconds).
+    Runs inference using the Dynamic Router and measures wall-clock time.
+    Returns a list of execution times (in seconds) for each prompt.
     """
-    logger.info("Starting dynamic router inference timing...")
-    timings = []
+    logger.info("Starting Dynamic Router Inference Timing")
+    times = []
     
-    # Load clustering report for router initialization
-    if not os.path.exists(clustering_report_path):
-        raise FileNotFoundError(f"Clustering report not found: {clustering_report_path}")
-        
-    with open(clustering_report_path, 'r') as f:
-        clustering_data = json.load(f)
-        
-    router = EntropyRouter(clustering_data, config)
-    engine = W2A4Engine(config, router)
+    device = config.DEVICE
+    logger.info(f"Running on device: {device}")
     
-    device = config.device
+    # Load matrices
+    logger.info("Loading pre-computed rotation matrices...")
+    matrices = matrices_loader.load()
+    if not matrices:
+        raise ValueError("Failed to load rotation matrices for dynamic inference.")
+    router.set_matrices(matrices)
     
-    for i, prompt in enumerate(prompts):
-        logger.info(f"Dynamic inference [{i+1}/{len(prompts)}]: {prompt[:50]}...")
+    # Warmup
+    logger.info(f"Running {WARMUP_ITERATIONS} warmup iterations...")
+    for _ in range(WARMUP_ITERATIONS):
+        _ = model_loader.generate_single(prompt="warmup test", device=device)
+    
+    # Timing loop
+    for i, p in enumerate(prompts):
+        logger.info(f"Dynamic Inference [{i+1}/{len(prompts)}]: {p['id']}")
+        start = time.perf_counter()
         
-        iteration_times = []
-        for it in range(num_iterations):
-            start_time = time.perf_counter()
+        try:
+            # 1. Compute entropy for the prompt
+            entropy = router.compute_entropy(p['caption'])
             
-            try:
-                # Run generation with dynamic rotation
-                with torch.no_grad():
-                    # Simulate the forward pass timing
-                    _ = engine.quantize_and_forward(prompt, dummy_mode=True)
-                    
-                elapsed = time.perf_counter() - start_time
-                iteration_times.append(elapsed)
-                
-            except Exception as e:
-                logger.error(f"Error during dynamic inference for prompt {i}: {e}")
-                raise
-        
-        avg_time = sum(iteration_times) / len(iteration_times)
-        timings.append(avg_time)
-        logger.info(f"  Average time: {avg_time:.4f}s")
-        
-    return timings
-
-def compute_statistics(timings: List[float]) -> Dict[str, float]:
-    """
-    Compute timing statistics.
+            # 2. Select matrix based on entropy
+            matrix_idx = router.route(entropy)
+            
+            # 3. Configure engine with selected matrix
+            # The W2A4Engine needs to be updated with the specific matrix for this step
+            dynamic_engine = W2A4Engine()
+            dynamic_engine.set_rotation_matrix(matrices[matrix_idx])
+            model_loader.set_quantization_engine(dynamic_engine)
+            
+            # 4. Generate image
+            _ = model_loader.generate_single(prompt=p['caption'], device=device)
+            
+            elapsed = time.perf_counter() - start
+            times.append(elapsed)
+            logger.info(f"  -> Completed in {elapsed:.4f}s (Entropy: {entropy:.4f}, Matrix: {matrix_idx})")
+            
+        except Exception as e:
+            logger.error(f"Error during dynamic inference for {p['id']}: {e}")
+            if "cuda" in str(device).lower() or "gpu" in str(device).lower():
+                raise GPUOffloadError(f"GPU failure during dynamic inference: {e}")
+            raise
     
-    Args:
-        timings: List of timing measurements.
-        
-    Returns:
-        Dictionary with mean, median, std, min, max.
-    """
-    if not timings:
-        return {}
-        
-    arr = np.array(timings)
+    return times
+
+def compute_statistics(times: List[float]) -> Dict[str, float]:
+    """Computes mean, std, min, max, and median for a list of times."""
+    if not times:
+        return {"mean": 0.0, "std": 0.0, "min": 0.0, "max": 0.0, "median": 0.0}
+    
+    arr = np.array(times)
     return {
         "mean": float(np.mean(arr)),
-        "median": float(np.median(arr)),
         "std": float(np.std(arr)),
         "min": float(np.min(arr)),
         "max": float(np.max(arr)),
-        "count": len(timings)
+        "median": float(np.median(arr)),
+        "count": len(times)
     }
 
 def save_timing_results(
-    static_timings: List[float],
-    dynamic_timings: List[float],
-    output_path: str
+    static_results: Dict[str, Any],
+    dynamic_results: Dict[str, Any],
+    output_path: Path
 ) -> None:
-    """
-    Save timing results to a JSON file.
-    
-    Args:
-        static_timings: Timing measurements for static baseline.
-        dynamic_timings: Timing measurements for dynamic router.
-        output_path: Path to save the JSON results.
-    """
-    results = {
-        "static": {
-            "timings": static_timings,
-            "statistics": compute_statistics(static_timings)
-        },
-        "dynamic": {
-            "timings": dynamic_timings,
-            "statistics": compute_statistics(dynamic_timings)
-        },
+    """Saves the timing analysis results to a JSON file."""
+    report = {
+        "static_baseline": static_results,
+        "dynamic_router": dynamic_results,
         "comparison": {
-            "overhead_ratio": compute_statistics(dynamic_timings)["mean"] / compute_statistics(static_timings)["mean"] 
-            if compute_statistics(static_timings)["mean"] > 0 else None,
-            "absolute_overhead": compute_statistics(dynamic_timings)["mean"] - compute_statistics(static_timings)["mean"]
+            "overhead_seconds": dynamic_results["stats"]["mean"] - static_results["stats"]["mean"],
+            "overhead_percent": (
+                (dynamic_results["stats"]["mean"] - static_results["stats"]["mean"]) 
+                / static_results["stats"]["mean"] * 100
+            ) if static_results["stats"]["mean"] > 0 else 0.0
         }
     }
     
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(report, f, indent=2)
     
-    with open(output_file, 'w', encoding='utf-8') as f:
-        json.dump(results, f, indent=2)
-        
     logger.info(f"Timing results saved to {output_path}")
 
-def main():
-    """
-    Main function to run the timing benchmark.
-    """
-    logger.info("Starting timing benchmark...")
+def main() -> None:
+    """Main entry point for the timing analysis."""
+    config = Config()
+    output_path = config.TIMING_RESULTS_PATH
     
-    # Configuration
-    prompts_path = config.prompts_csv_path  # From config
-    clustering_report_path = config.clustering_report_path
-    output_path = config.timing_results_path
-    max_samples = config.timing_max_samples or 10  # Default to 10 for benchmark
-    num_iterations = config.timing_iterations or 3
-    
-    logger.info(f"Using prompts from: {prompts_path}")
-    logger.info(f"Clustering report: {clustering_report_path}")
+    logger.info("Starting Timing Analysis Pipeline (T033)")
     logger.info(f"Output path: {output_path}")
-    logger.info(f"Max samples: {max_samples}")
-    logger.info(f"Iterations per prompt: {num_iterations}")
     
-    # Load prompts
-    prompts = load_prompts_for_timing(prompts_path, max_samples)
-    
-    # Initialize model
+    # 1. Check GPU availability
     try:
-        loader = ModelLoader(config)
-        model = loader.load_model()
-        logger.info("Model loaded successfully")
+        check_gpu_availability(config.DEVICE)
+    except GPUOffloadError as e:
+        logger.error(f"GPU check failed: {e}")
+        # In a real scenario, this might trigger offload, but for this script
+        # we assume the environment is already set up or the offload logic
+        # is handled externally. If we are on CPU and it's too slow, we might fail.
+        if not torch.cuda.is_available():
+            logger.warning("Running on CPU. Timing results may not reflect GPU performance.")
+    
+    # 2. Load Prompts
+    try:
+        prompts = load_prompts_for_timing(config)
     except Exception as e:
-        logger.error(f"Failed to load model: {e}")
-        raise
+        logger.error(f"Failed to load prompts: {e}")
+        sys.exit(1)
     
-    # Run static baseline timing
+    # 3. Initialize Components
     try:
-        static_timings = run_static_inference(
-            model, prompts, config, num_iterations
-        )
+        model_loader = ModelLoader(config)
+        baseline = StaticRotationBaseline(config)
+        router = EntropyRouter(config)
+        matrices_loader = MatrixLoader(config)
+    except Exception as e:
+        logger.error(f"Failed to initialize components: {e}")
+        sys.exit(1)
+    
+    # 4. Run Static Inference
+    static_times = []
+    try:
+        static_times = run_static_inference(prompts, model_loader, baseline, config)
     except Exception as e:
         logger.error(f"Static inference failed: {e}")
-        raise
-        
-    # Run dynamic router timing
+        sys.exit(1)
+    
+    # 5. Run Dynamic Inference
+    dynamic_times = []
     try:
-        dynamic_timings = run_dynamic_inference(
-            model, prompts, config, clustering_report_path, num_iterations
-        )
+        dynamic_times = run_dynamic_inference(prompts, model_loader, router, matrices_loader, config)
     except Exception as e:
         logger.error(f"Dynamic inference failed: {e}")
-        raise
-        
-    # Save results
-    save_timing_results(static_timings, dynamic_timings, output_path)
+        sys.exit(1)
     
-    # Print summary
-    static_stats = compute_statistics(static_timings)
-    dynamic_stats = compute_statistics(dynamic_timings)
+    # 6. Compute Statistics
+    static_stats = compute_statistics(static_times)
+    dynamic_stats = compute_statistics(dynamic_times)
     
-    logger.info("=" * 50)
-    logger.info("TIMING BENCHMARK SUMMARY")
-    logger.info("=" * 50)
-    logger.info(f"Static Baseline - Mean: {static_stats['mean']:.4f}s, Std: {static_stats['std']:.4f}s")
-    logger.info(f"Dynamic Router  - Mean: {dynamic_stats['mean']:.4f}s, Std: {dynamic_stats['std']:.4f}s")
+    logger.info(f"Static Mean: {static_stats['mean']:.4f}s (+/- {static_stats['std']:.4f}s)")
+    logger.info(f"Dynamic Mean: {dynamic_stats['mean']:.4f}s (+/- {dynamic_stats['std']:.4f}s)")
     
-    if static_stats['mean'] > 0:
-        overhead = (dynamic_stats['mean'] - static_stats['mean']) / static_stats['mean'] * 100
-        logger.info(f"Overhead: {overhead:.2f}%")
-        
-    logger.info("=" * 50)
-    logger.info("Timing benchmark completed successfully!")
+    # 7. Save Results
+    save_timing_results(
+        {"stats": static_stats, "raw_times": static_times},
+        {"stats": dynamic_stats, "raw_times": dynamic_times},
+        output_path
+    )
+    
+    logger.info("Timing Analysis Complete.")
 
 if __name__ == "__main__":
     main()

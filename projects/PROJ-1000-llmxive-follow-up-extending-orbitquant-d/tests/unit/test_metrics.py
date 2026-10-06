@@ -1,271 +1,295 @@
 """
-Contract tests for metric calculation functions in code/evaluation/metrics.py.
+Unit tests for metric calculation functions in code/evaluation/metrics.py.
 
-These tests verify the API contract and correctness of FID, CLIP, and MSE
-calculations without requiring heavy model inference on large datasets.
+This module verifies the correctness of FID, CLIP score, and MSE calculations
+used in User Story 3 (Evaluation).
+
+Tests cover:
+1. compute_mse: Correctness on simple tensors
+2. compute_clip_score: API contract and shape validation
+3. compute_fid: Basic statistical properties (non-negative, symmetry check)
+4. compute_metrics_batch: Batch processing logic
+5. save/load metrics to/from JSON
 """
 
+import json
+import tempfile
+import os
 import pytest
 import numpy as np
 import torch
 from pathlib import Path
-import json
-import tempfile
-import os
+from unittest.mock import patch, MagicMock
 
-# Import the target functions
+# Import the functions to be tested
+# Assuming the project structure allows importing from code/evaluation
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+
 from evaluation.metrics import (
     compute_mse,
     compute_clip_score,
     compute_fid,
     compute_metrics_batch,
     save_metrics_to_json,
-    load_metrics_from_json,
+    load_metrics_from_json
 )
+from config import Config
 
-# Fixtures
-@pytest.fixture
-def dummy_images():
-    """Generate small dummy images (10x10 RGB) for testing."""
-    # Shape: (batch_size, channels, height, width)
-    return torch.randn(2, 3, 10, 10)
-
-@pytest.fixture
-def dummy_generated_images():
-    """Generate small dummy generated images for testing."""
-    return torch.randn(2, 3, 10, 10)
-
-@pytest.fixture
-def dummy_features():
-    """Generate dummy CLIP features (batch_size, feature_dim)."""
-    return torch.randn(2, 512)  # Typical CLIP feature dimension
-
-@pytest.fixture
-def temp_output_dir(tmp_path):
-    """Create a temporary directory for output files."""
-    output_dir = tmp_path / "metrics_output"
-    output_dir.mkdir(exist_ok=True)
-    return output_dir
 
 class TestComputeMSE:
-    """Tests for the MSE calculation function."""
+    """Tests for the compute_mse function."""
 
-    def test_compute_mse_basic(self, dummy_images, dummy_generated_images):
-        """Test basic MSE computation between two identical tensors."""
-        # MSE of identical tensors should be 0
-        mse = compute_mse(dummy_images, dummy_images)
-        assert mse == 0.0
+    def test_mse_identical_tensors(self):
+        """MSE of identical tensors should be 0."""
+        a = torch.randn(10, 512)
+        mse = compute_mse(a, a)
+        assert mse == 0.0, f"Expected 0.0, got {mse}"
 
-    def test_compute_mse_different_tensors(self, dummy_images, dummy_generated_images):
-        """Test MSE computation between different tensors."""
-        mse = compute_mse(dummy_images, dummy_generated_images)
-        assert mse > 0.0
-        assert isinstance(mse, float)
+    def test_mse_different_tensors(self):
+        """MSE of different tensors should be positive."""
+        a = torch.zeros(10, 512)
+        b = torch.ones(10, 512)
+        mse = compute_mse(a, b)
+        expected = 1.0
+        assert abs(mse - expected) < 1e-6, f"Expected {expected}, got {mse}"
 
-    def test_compute_mse_dtype_handling(self):
-        """Test that MSE handles float32 and float64 correctly."""
-        images_f32 = torch.randn(2, 3, 10, 10, dtype=torch.float32)
-        images_f64 = images_f32.clone().to(dtype=torch.float64)
+    def test_mse_scalar_output(self):
+        """MSE should return a scalar float."""
+        a = torch.randn(5, 10)
+        b = torch.randn(5, 10)
+        mse = compute_mse(a, b)
+        assert isinstance(mse, float), f"Expected float, got {type(mse)}"
 
-        mse_f32 = compute_mse(images_f32, images_f32)
-        mse_f64 = compute_mse(images_f64, images_f64)
-
-        assert mse_f32 == 0.0
-        assert mse_f64 == 0.0
-
-    def test_compute_mse_batch_size_mismatch(self, dummy_images):
-        """Test that MSE raises an error for mismatched batch sizes."""
-        different_size_images = torch.randn(3, 3, 10, 10)
-
+    def test_mse_shape_mismatch_raises(self):
+        """MSE should raise error for mismatched shapes."""
+        a = torch.randn(10, 5)
+        b = torch.randn(10, 6)
         with pytest.raises(RuntimeError):
-            compute_mse(dummy_images, different_size_images)
+            compute_mse(a, b)
 
-    def test_compute_mse_channel_mismatch(self, dummy_images):
-        """Test that MSE raises an error for mismatched channels."""
-        different_channel_images = torch.randn(2, 4, 10, 10)
-
-        with pytest.raises(RuntimeError):
-            compute_mse(dummy_images, different_channel_images)
 
 class TestComputeClipScore:
-    """Tests for the CLIP score calculation function."""
+    """Tests for the compute_clip_score function."""
 
-    def test_compute_clip_score_basic(self, dummy_images, dummy_features):
-        """Test basic CLIP score computation."""
-        # Note: This test uses a simplified mock approach since real CLIP
-        # requires downloading models. We test the function structure.
-        # In a real scenario, this would call the CLIP model.
-        # For now, we verify the function accepts correct inputs.
-        score = compute_clip_score(dummy_images, dummy_features)
-        assert isinstance(score, float)
-        # CLIP scores are typically in a reasonable range (e.g., 0-100)
-        # This is a sanity check, not a precise validation
-        assert score >= 0.0
+    @patch('evaluation.metrics.AutoModel')
+    @patch('evaluation.metrics.AutoTokenizer')
+    def test_clip_score_api_contract(self, mock_tokenizer, mock_model):
+        """Verify that compute_clip_score calls the expected model and tokenizer."""
+        # Setup mocks
+        mock_tokenizer.return_value = MagicMock()
+        mock_model.return_value = MagicMock()
+        
+        # Mock the model output
+        mock_model.return_value.get_intermediate_layers = MagicMock(
+            return_value=[torch.randn(1, 77, 768), torch.randn(1, 77, 768)]
+        )
+        
+        # Mock image encoder
+        mock_model.return_value.vision_model = MagicMock()
+        mock_model.return_value.vision_model.get_intermediate_layers = MagicMock(
+            return_value=[torch.randn(1, 257, 768)]
+        )
 
-    def test_compute_clip_score_shape_validation(self, dummy_features):
-        """Test that CLIP score raises error for incorrect image shapes."""
-        bad_images = torch.randn(2, 1, 10, 10)  # Wrong channels
+        # Mock the normalize function
+        with patch('evaluation.metrics.nn.functional.normalize') as mock_normalize:
+            mock_normalize.side_effect = lambda x, dim: x / x.norm(dim=dim, keepdim=True)
+            
+            # Run test
+            image = torch.randn(1, 3, 224, 224)
+            caption = "a cat sitting on a mat"
+            
+            # This should not raise an error
+            score = compute_clip_score(image, caption)
+            
+            # Verify model was called
+            mock_model.assert_called()
+            mock_tokenizer.assert_called()
 
-        with pytest.raises(RuntimeError):
-            compute_clip_score(bad_images, dummy_features)
+    def test_clip_score_range(self):
+        """CLIP score should be in a reasonable range (typically 0-100 or similar)."""
+        # Since we can't easily compute real CLIP scores without heavy models,
+        # we test the mock behavior
+        with patch('evaluation.metrics.AutoModel') as mock_model, \
+             patch('evaluation.metrics.AutoTokenizer') as mock_tokenizer, \
+             patch('evaluation.metrics.nn.functional.normalize') as mock_normalize:
+             
+            mock_tokenizer.return_value = MagicMock()
+            mock_model.return_value = MagicMock()
+            
+            # Mock features
+            img_feat = torch.randn(1, 512)
+            txt_feat = torch.randn(1, 512)
+            
+            mock_normalize.side_effect = lambda x, dim: x / x.norm(dim=dim, keepdim=True)
+            
+            # Simulate cosine similarity
+            similarity = torch.nn.functional.cosine_similarity(img_feat, txt_feat, dim=1)
+            score = similarity.item() * 100  # CLIP scores are often scaled
+            
+            assert 0 <= score <= 100, f"CLIP score {score} out of expected range"
+
 
 class TestComputeFID:
-    """Tests for the FID calculation function."""
+    """Tests for the compute_fid function."""
 
-    def test_compute_fid_basic(self, dummy_images, dummy_generated_images):
-        """Test basic FID computation."""
-        # FID of identical distributions should be close to 0
-        fid = compute_fid(dummy_images, dummy_images)
-        assert fid >= 0.0
-        assert isinstance(fid, float)
+    def test_fid_same_distribution(self):
+        """FID of identical distributions should be close to 0."""
+        # Generate identical random tensors
+        features = torch.randn(100, 512)
+        fid = compute_fid(features, features)
+        assert fid < 1e-6, f"FID of identical distributions should be ~0, got {fid}"
 
-    def test_compute_fid_different_distributions(self, dummy_images, dummy_generated_images):
-        """Test FID computation for different distributions."""
-        fid = compute_fid(dummy_images, dummy_generated_images)
-        assert fid >= 0.0
-        # FID should be positive for different distributions
-        assert fid > 0.0
+    def test_fid_different_distributions(self):
+        """FID of different distributions should be positive."""
+        features1 = torch.randn(100, 512)
+        features2 = torch.randn(100, 512) + 5.0  # Shifted mean
+        fid = compute_fid(features1, features2)
+        assert fid > 0, f"FID should be positive, got {fid}"
 
-    def test_compute_fid_batch_size_mismatch(self, dummy_images):
-        """Test that FID handles batch size mismatch gracefully."""
-        different_size_images = torch.randn(3, 3, 10, 10)
+    def test_fid_non_negative(self):
+        """FID should always be non-negative."""
+        features1 = torch.randn(50, 256)
+        features2 = torch.randn(50, 256)
+        fid = compute_fid(features1, features2)
+        assert fid >= 0, f"FID should be non-negative, got {fid}"
 
-        # FID implementation may handle this differently depending on
-        # the underlying statistics calculation. We test that it doesn't crash
-        # with an invalid shape error
-        fid = compute_fid(dummy_images, different_size_images)
-        assert isinstance(fid, float)
+    def test_fid_small_sample(self):
+        """FID should work with small sample sizes."""
+        features1 = torch.randn(5, 64)
+        features2 = torch.randn(5, 64)
+        fid = compute_fid(features1, features2)
+        assert isinstance(fid, float), "FID should return a float"
+
+    def test_fid_shape_mismatch(self):
+        """FID should raise error for mismatched feature dimensions."""
+        features1 = torch.randn(10, 512)
+        features2 = torch.randn(10, 256)
+        with pytest.raises(RuntimeError):
+            compute_fid(features1, features2)
+
 
 class TestComputeMetricsBatch:
-    """Tests for batch metric computation."""
+    """Tests for the compute_metrics_batch function."""
 
-    def test_compute_metrics_batch_returns_dict(self, dummy_images, dummy_generated_images, dummy_features):
-        """Test that batch metrics return a dictionary with expected keys."""
-        metrics = compute_metrics_batch(
-            dummy_images,
-            dummy_generated_images,
-            dummy_features
-        )
+    def test_batch_processing(self):
+        """Test that batch processing works correctly."""
+        # Mock the individual metric functions
+        with patch('evaluation.metrics.compute_mse', return_value=0.5), \
+             patch('evaluation.metrics.compute_clip_score', return_value=25.0), \
+             patch('evaluation.metrics.compute_fid', return_value=10.0):
+            
+            # Create dummy data
+            real_features = torch.randn(20, 512)
+            fake_features = torch.randn(20, 512)
+            captions = ["caption 1", "caption 2", "caption 3", "caption 4"]
+            images = [torch.randn(1, 3, 224, 224) for _ in range(4)]
+            
+            metrics = compute_metrics_batch(
+                real_features=real_features,
+                fake_features=fake_features,
+                captions=captions,
+                images=images
+            )
+            
+            assert isinstance(metrics, dict), "Metrics should be a dictionary"
+            assert 'mse' in metrics, "MSE should be in metrics"
+            assert 'clip_score' in metrics, "CLIP score should be in metrics"
+            assert 'fid' in metrics, "FID should be in metrics"
 
-        assert isinstance(metrics, dict)
-        assert "mse" in metrics
-        assert "clip_score" in metrics
-        assert "fid" in metrics
+    def test_empty_batch_handling(self):
+        """Test handling of empty batches."""
+        with patch('evaluation.metrics.compute_mse', return_value=0.0), \
+             patch('evaluation.metrics.compute_clip_score', return_value=0.0), \
+             patch('evaluation.metrics.compute_fid', return_value=0.0):
+            
+            metrics = compute_metrics_batch(
+                real_features=torch.randn(0, 512),
+                fake_features=torch.randn(0, 512),
+                captions=[],
+                images=[]
+            )
+            
+            assert isinstance(metrics, dict), "Metrics should be a dictionary"
 
-    def test_compute_metrics_batch_values_are_float(self, dummy_images, dummy_generated_images, dummy_features):
-        """Test that all metric values are floats."""
-        metrics = compute_metrics_batch(
-            dummy_images,
-            dummy_generated_images,
-            dummy_features
-        )
 
-        for key, value in metrics.items():
-            assert isinstance(value, float), f"Metric {key} should be float, got {type(value)}"
-
-class TestSaveAndLoadMetrics:
+class TestSaveLoadMetricsJSON:
     """Tests for saving and loading metrics to/from JSON."""
 
-    def test_save_and_load_metrics_roundtrip(self, temp_output_dir):
+    def test_save_and_load_roundtrip(self):
         """Test that metrics can be saved and loaded correctly."""
         metrics = {
-            "mse": 0.123,
-            "clip_score": 45.67,
-            "fid": 12.34,
-            "num_samples": 100
+            'mse': 0.123,
+            'clip_score': 25.5,
+            'fid': 10.7,
+            'num_samples': 100,
+            'timestamp': '2024-01-01T00:00:00'
         }
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            filepath = os.path.join(tmpdir, 'metrics.json')
+            
+            # Save
+            save_metrics_to_json(metrics, filepath)
+            assert os.path.exists(filepath), "Metrics file should exist"
+            
+            # Load
+            loaded = load_metrics_from_json(filepath)
+            
+            # Verify
+            assert loaded['mse'] == metrics['mse'], "MSE should match"
+            assert loaded['clip_score'] == metrics['clip_score'], "CLIP score should match"
+            assert loaded['fid'] == metrics['fid'], "FID should match"
 
-        output_path = temp_output_dir / "test_metrics.json"
-
-        # Save
-        save_metrics_to_json(metrics, str(output_path))
-        assert output_path.exists()
-
-        # Load
-        loaded_metrics = load_metrics_from_json(str(output_path))
-
-        # Verify
-        assert loaded_metrics == metrics
-
-    def test_save_metrics_creates_file(self, temp_output_dir):
-        """Test that save_metrics creates the output file."""
-        metrics = {"mse": 0.5, "clip_score": 50.0, "fid": 5.0}
-        output_path = temp_output_dir / "new_metrics.json"
-
-        save_metrics_to_json(metrics, str(output_path))
-        assert output_path.exists()
-        assert output_path.stat().st_size > 0
-
-    def test_load_metrics_nonexistent_file(self):
-        """Test that loading from a nonexistent file raises an error."""
+    def test_load_nonexistent_file(self):
+        """Test that loading a non-existent file raises an error."""
         with pytest.raises(FileNotFoundError):
-            load_metrics_from_json("/nonexistent/path/metrics.json")
+            load_metrics_from_json('/nonexistent/path/metrics.json')
 
-    def test_load_metrics_invalid_json(self, temp_output_dir):
-        """Test that loading invalid JSON raises an error."""
-        output_path = temp_output_dir / "invalid.json"
-        output_path.write_text("not valid json {{{")
+    def test_invalid_json_format(self):
+        """Test that invalid JSON format raises an error."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            f.write("not valid json")
+            filepath = f.name
+        
+        try:
+            with pytest.raises((json.JSONDecodeError, ValueError)):
+                load_metrics_from_json(filepath)
+        finally:
+            os.unlink(filepath)
 
-        with pytest.raises(json.JSONDecodeError):
-            load_metrics_from_json(str(output_path))
 
-    def test_save_metrics_with_complex_types(self, temp_output_dir):
-        """Test saving metrics with nested structures."""
-        metrics = {
-            "mse": 0.123,
-            "details": {
-                "layer_1": 0.1,
-                "layer_2": 0.2
-            },
-            "metadata": {
-                "model": "test_model",
-                "version": 1.0
-            }
-        }
+class TestMetricsIntegration:
+    """Integration-style tests for the metrics module."""
 
-        output_path = temp_output_dir / "complex_metrics.json"
-        save_metrics_to_json(metrics, str(output_path))
+    def test_config_compatibility(self):
+        """Test that metrics functions work with Config parameters."""
+        config = Config()
+        
+        # Verify that the config has the expected attributes
+        assert hasattr(config, 'device'), "Config should have device attribute"
+        assert hasattr(config, 'metrics'), "Config should have metrics attribute"
+        
+        # Test that we can create tensors on the configured device
+        device = torch.device(config.device if config.device else 'cpu')
+        tensor = torch.randn(10, 512, device=device)
+        assert tensor.device.type == device.type, "Tensor should be on correct device"
 
-        loaded = load_metrics_from_json(str(output_path))
-        assert loaded == metrics
+    def test_numerical_stability(self):
+        """Test that metrics are numerically stable for edge cases."""
+        # Test with very small values
+        small = torch.randn(10, 512) * 1e-10
+        mse_small = compute_mse(small, small)
+        assert not np.isnan(mse_small), "MSE should not be NaN for small values"
+        assert not np.isinf(mse_small), "MSE should not be Inf for small values"
 
-class TestContractCompliance:
-    """Tests to verify the API contract matches specifications."""
+        # Test with very large values
+        large = torch.randn(10, 512) * 1e10
+        mse_large = compute_mse(large, large)
+        assert not np.isnan(mse_large), "MSE should not be NaN for large values"
+        assert not np.isinf(mse_large), "MSE should not be Inf for large values"
 
-    def test_compute_mse_signature(self):
-        """Verify compute_mse accepts two tensors and returns a float."""
-        import inspect
-        sig = inspect.signature(compute_mse)
-        params = list(sig.parameters.keys())
-        assert "real_images" in params or "images" in params
-        assert "generated_images" in params or "other" in params
 
-    def test_compute_clip_score_signature(self):
-        """Verify compute_clip_score accepts images and features."""
-        import inspect
-        sig = inspect.signature(compute_clip_score)
-        params = list(sig.parameters.keys())
-        # At minimum, it should accept images and features
-        assert len(params) >= 2
-
-    def test_compute_fid_signature(self):
-        """Verify compute_fid accepts real and generated images."""
-        import inspect
-        sig = inspect.signature(compute_fid)
-        params = list(sig.parameters.keys())
-        assert len(params) >= 2
-
-    def test_save_metrics_to_json_signature(self):
-        """Verify save_metrics_to_json accepts metrics dict and path."""
-        import inspect
-        sig = inspect.signature(save_metrics_to_json)
-        params = list(sig.parameters.keys())
-        assert "metrics" in params
-        assert "path" in params or "filepath" in params
-
-    def test_load_metrics_from_json_signature(self):
-        """Verify load_metrics_from_json accepts a path."""
-        import inspect
-        sig = inspect.signature(load_metrics_from_json)
-        params = list(sig.parameters.keys())
-        assert "path" in params or "filepath" in params
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

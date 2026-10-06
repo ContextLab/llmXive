@@ -7,7 +7,7 @@ This script runs the validation checks defined in T023a (validate_clustering)
 and T023b (validate_correlation).
 
 Logic:
-1. Run T023a: Validate `data/processed/clustering_report.json`.
+1. Run T023a: Validate `data/processed/clustering_report.json` (if it exists).
 2. Run T023b: Validate `data/processed/correlation_results.json` (p-value < 0.05).
 3. If either fails, log error and exit with non-zero status (HALT).
 4. If both pass, log success and exit with zero status (PROCEED to Phase 4).
@@ -46,10 +46,13 @@ def run_validation_gate():
     logger.info("=" * 60)
     
     # Step 1: Validate Clustering Report (T023a)
+    # Note: T023a validates the existence and structure of clustering_report.json.
+    # If the file does not exist yet (as it might not be generated until Phase 4),
+    # the validator should handle this gracefully (e.g., return True with a warning,
+    # or return False if strict existence is required). Based on T023a description,
+    # it verifies if the file exists and contains required keys.
     logger.info("Step 1: Validating clustering report (T023a)...")
     try:
-        # The T023a script's main function handles the logic and returns a boolean
-        # or raises an exception on failure. We call it directly.
         clustering_valid = validate_clustering_main()
         if not clustering_valid:
             logger.error("Validation FAILED: Clustering report structure or content is invalid.")
@@ -60,9 +63,9 @@ def run_validation_gate():
         return False
     
     # Step 2: Validate Correlation Results (T023b)
+    # CRITICAL: This is the blocking gate. p-value must be < 0.05.
     logger.info("Step 2: Validating correlation results (T023b)...")
     try:
-        # The T023b script's main function handles the logic and returns a boolean
         correlation_valid = validate_correlation_main()
         if not correlation_valid:
             logger.error("Validation FAILED: Correlation results are invalid or p-value >= 0.05.")

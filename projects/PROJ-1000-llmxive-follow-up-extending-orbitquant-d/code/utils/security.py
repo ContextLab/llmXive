@@ -5,281 +5,236 @@ import logging
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Tuple
 
-from config import Config
-
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Define the state directory and hash file path relative to project root
+# Assuming the script runs from the project root or code/ directory
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+STATE_DIR = PROJECT_ROOT / "state"
+HASH_FILE_PATH = STATE_DIR / "artifact_hashes.json"
+
+class SecurityError(Exception):
+    """Custom exception for security validation failures."""
+    pass
 
 class SecurityManager:
     """
-    Security hardening utility for file path sanitization and artifact integrity verification.
-    
-    Implements:
-    1. Path sanitization to prevent directory traversal attacks.
-    2. SHA-256 checksum validation against a manifest file.
+    Manages security hardening tasks:
+    1. Sanitizes file paths to prevent directory traversal.
+    2. Validates model checksums against a known hash manifest.
     """
 
-    def __init__(self, config: Config):
-        self.config = config
-        self.state_dir = config.state_dir
-        self.hashes_file = self.state_dir / "artifact_hashes.json"
-        
-        # Ensure state directory exists
-        self.state_dir.mkdir(parents=True, exist_ok=True)
+    def __init__(self, state_dir: Optional[Path] = None, hash_file: Optional[Path] = None):
+        self.state_dir = state_dir or STATE_DIR
+        self.hash_file = hash_file or HASH_FILE_PATH
+        self._hashes: Dict[str, str] = {}
+        self._load_hashes()
 
-    def sanitize_path(self, input_path: str, base_dir: Optional[Path] = None) -> Path:
+    def _load_hashes(self) -> None:
+        """Load the artifact hashes from the JSON file."""
+        if not self.hash_file.exists():
+            logger.warning(f"Hash manifest not found at {self.hash_file}. Creating empty manifest.")
+            self.state_dir.mkdir(parents=True, exist_ok=True)
+            self._hashes = {}
+            self._save_hashes()
+            return
+
+        try:
+            with open(self.hash_file, 'r', encoding='utf-8') as f:
+                self._hashes = json.load(f)
+            logger.info(f"Loaded {len(self._hashes)} artifact hashes from {self.hash_file}")
+        except json.JSONDecodeError as e:
+            raise SecurityError(f"Failed to parse hash manifest {self.hash_file}: {e}")
+        except Exception as e:
+            raise SecurityError(f"Failed to load hash manifest {self.hash_file}: {e}")
+
+    def _save_hashes(self) -> None:
+        """Save the current hash dictionary to the JSON file."""
+        self.state_dir.mkdir(parents=True, exist_ok=True)
+        with open(self.hash_file, 'w', encoding='utf-8') as f:
+            json.dump(self._hashes, f, indent=2)
+
+    def sanitize_path(self, base_path: Path, user_input: str) -> Path:
         """
-        Sanitize an input path to prevent directory traversal attacks.
+        Sanitize a user-provided path string to prevent directory traversal attacks.
+        Ensures the resolved path is strictly within the base_path.
         
         Args:
-            input_path: The raw user-provided path string.
-            base_dir: The base directory that the path must resolve within.
-                      If None, uses the project root or config data_dir.
+            base_path: The allowed root directory.
+            user_input: The user-provided path string (e.g., from config or CLI).
         
         Returns:
-            A resolved, safe Path object.
+            The resolved, safe Path object.
         
         Raises:
-            ValueError: If the resolved path escapes the allowed base directory.
+            SecurityError: If the resolved path escapes the base_path.
         """
-        if base_dir is None:
-            base_dir = self.config.project_root
-
-        # Resolve the base directory to an absolute path
-        base_dir = base_dir.resolve()
-
+        if not base_path.is_absolute():
+            base_path = base_path.resolve()
+        
         # Construct the candidate path
-        # We join base_dir with the input path, then resolve to handle '..' and symlinks
-        candidate = (base_dir / input_path).resolve()
-
-        # Check if the candidate is strictly inside the base directory
-        # We use os.path.commonpath to handle edge cases with symlinks and relative paths
+        candidate = base_path / user_input
+        
+        # Resolve to handle symlinks, .., etc.
         try:
-            common = os.path.commonpath([str(base_dir), str(candidate)])
-            if common != str(base_dir):
-                raise ValueError(
-                    f"Path traversal detected: '{input_path}' resolves to '{candidate}' "
-                    f"which is outside the allowed base directory '{base_dir}'."
-                )
-        except ValueError as e:
-            # If commonpath raises ValueError (different drives on Windows), it's a traversal
-            if "path is on mount" in str(e) or "path is on drive" in str(e):
-                raise ValueError(
-                    f"Path traversal detected: '{input_path}' resolves to a different drive/mount."
-                )
-            raise
+            resolved = candidate.resolve()
+        except Exception as e:
+            raise SecurityError(f"Path resolution failed for {user_input}: {e}")
+        
+        # Ensure the resolved path starts with the base path
+        try:
+            resolved.relative_to(base_path)
+        except ValueError:
+            raise SecurityError(
+                f"Security violation: Path '{user_input}' resolves to '{resolved}' "
+                f"which is outside the allowed base path '{base_path}'."
+            )
+        
+        logger.debug(f"Path sanitized: {user_input} -> {resolved}")
+        return resolved
 
-        return candidate
-
-    def compute_hash(self, file_path: Path) -> str:
+    def compute_file_hash(self, file_path: Path, algorithm: str = 'sha256') -> str:
         """
-        Compute the SHA-256 hash of a file.
+        Compute the cryptographic hash of a file.
         
         Args:
             file_path: Path to the file to hash.
+            algorithm: Hash algorithm (default 'sha256').
         
         Returns:
-            Hexadecimal string of the SHA-256 hash.
+            Hexadecimal string of the hash.
         
         Raises:
             FileNotFoundError: If the file does not exist.
-            PermissionError: If the file cannot be read.
+            SecurityError: If hashing fails.
         """
         if not file_path.exists():
             raise FileNotFoundError(f"File not found for hashing: {file_path}")
         
-        sha256_hash = hashlib.sha256()
-        with open(file_path, "rb") as f:
-            # Read in chunks to handle large files (e.g., model weights)
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        
-        return sha256_hash.hexdigest()
-
-    def load_manifest(self) -> Dict[str, str]:
-        """
-        Load the artifact hash manifest from disk.
-        
-        Returns:
-            Dictionary mapping relative file paths to their expected SHA-256 hashes.
-        """
-        if not self.hashes_file.exists():
-            logger.warning(f"Hash manifest not found at {self.hashes_file}. Initializing empty manifest.")
-            return {}
-        
         try:
-            with open(self.hashes_file, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except json.JSONDecodeError:
-            logger.error(f"Hash manifest at {self.hashes_file} is corrupted. Resetting.")
-            return {}
+            hasher = hashlib.new(algorithm)
+            with open(file_path, 'rb') as f:
+                # Read in chunks to handle large files
+                for chunk in iter(lambda: f.read(8192), b''):
+                    hasher.update(chunk)
+            return hasher.hexdigest()
+        except Exception as e:
+            raise SecurityError(f"Failed to compute hash for {file_path}: {e}")
 
-    def save_manifest(self, manifest: Dict[str, str]) -> None:
+    def validate_model_checksum(self, model_path: Path, artifact_id: Optional[str] = None) -> bool:
         """
-        Save the artifact hash manifest to disk.
+        Validate a model file's checksum against the stored hash in state/artifact_hashes.json.
         
         Args:
-            manifest: Dictionary mapping relative file paths to SHA-256 hashes.
-        """
-        with open(self.hashes_file, "w", encoding="utf-8") as f:
-            json.dump(manifest, f, indent=2)
-            f.write("\n")
-
-    def validate_artifact(self, file_path: Path, relative_path: Optional[str] = None) -> bool:
-        """
-        Validate a file's integrity against the manifest.
-        
-        Args:
-            file_path: Absolute path to the file to validate.
-            relative_path: The key used in the manifest. If None, uses the relative path
-                           from the project root.
+            model_path: Path to the model file to validate.
+            artifact_id: Optional explicit ID to look up in the manifest.
+                        If None, the filename (stem) is used as the ID.
         
         Returns:
-            True if validation passes.
+            True if the checksum matches.
         
         Raises:
-            ValueError: If the hash does not match.
-            FileNotFoundError: If the file or manifest is missing and cannot be recovered.
+            SecurityError: If the checksum does NOT match.
+            FileNotFoundError: If the hash manifest is missing the entry.
         """
-        # Sanitize and resolve the path first
-        safe_path = self.sanitize_path(str(file_path))
+        if not model_path.exists():
+            raise FileNotFoundError(f"Model file not found: {model_path}")
         
-        if not safe_path.exists():
-            raise FileNotFoundError(f"Artifact not found for validation: {safe_path}")
-
-        if relative_path is None:
-            try:
-                relative_path = str(safe_path.relative_to(self.config.project_root))
-            except ValueError:
-                # File is outside project root, which is a security violation
-                raise ValueError(f"Artifact '{safe_path}' is outside project root.")
-
-        manifest = self.load_manifest()
-        expected_hash = manifest.get(relative_path)
-
-        if expected_hash is None:
-            # If the file is new and not in manifest, we could choose to fail or add it.
-            # For hardening, we fail loudly if a critical file is missing from the manifest.
-            # However, for initial setup, we might need to generate the manifest.
-            # Here we assume the manifest should exist for validated artifacts.
-            raise ValueError(
-                f"Artifact '{relative_path}' not found in manifest. "
-                f"Run 'generate_hashes' to update the manifest or check file path."
+        # Determine the artifact ID
+        if artifact_id is None:
+            artifact_id = model_path.name
+        
+        if artifact_id not in self._hashes:
+            raise FileNotFoundError(
+                f"Hash entry not found for artifact '{artifact_id}' in {self.hash_file}. "
+                "Cannot validate checksum."
             )
-
-        actual_hash = self.compute_hash(safe_path)
-
+        
+        expected_hash = self._hashes[artifact_id]
+        actual_hash = self.compute_file_hash(model_path)
+        
         if actual_hash != expected_hash:
-            raise ValueError(
-                f"Integrity check failed for '{relative_path}'.\n"
+            raise SecurityError(
+                f"CHECKSUM MISMATCH for '{artifact_id}' ({model_path}).\n"
                 f"Expected: {expected_hash}\n"
-                f"Actual:   {actual_hash}"
+                f"Actual:   {actual_hash}\n"
+                "Refusing to load potentially corrupted or tampered model."
             )
-
-        logger.info(f"Artifact '{relative_path}' validated successfully.")
+        
+        logger.info(f"Checksum validated successfully for '{artifact_id}'.")
         return True
 
-    def register_artifact(self, file_path: Path) -> str:
+    def register_model_hash(self, model_path: Path, artifact_id: Optional[str] = None) -> None:
         """
-        Compute hash and register/update it in the manifest.
+        Compute and register a model's hash into the manifest.
+        Use this after downloading or generating a new model file.
         
         Args:
-            file_path: Path to the file to register.
-        
-        Returns:
-            The computed hash.
+            model_path: Path to the model file.
+            artifact_id: Optional ID. Defaults to filename.
         """
-        safe_path = self.sanitize_path(str(file_path))
-        relative_path = str(safe_path.relative_to(self.config.project_root))
+        if artifact_id is None:
+            artifact_id = model_path.name
         
-        actual_hash = self.compute_hash(safe_path)
+        if not model_path.exists():
+            raise FileNotFoundError(f"Cannot register hash for missing file: {model_path}")
         
-        manifest = self.load_manifest()
-        manifest[relative_path] = actual_hash
-        self.save_manifest(manifest)
-        
-        logger.info(f"Registered artifact '{relative_path}' with hash {actual_hash}")
-        return actual_hash
-
-    def validate_all_artifacts(self) -> List[Tuple[str, bool]]:
-        """
-        Validate all artifacts listed in the manifest.
-        
-        Returns:
-            List of tuples (relative_path, is_valid).
-        """
-        manifest = self.load_manifest()
-        results = []
-        
-        for rel_path, expected_hash in manifest.items():
-            full_path = self.config.project_root / rel_path
-            try:
-                self.validate_artifact(full_path, rel_path)
-                results.append((rel_path, True))
-            except Exception as e:
-                logger.error(f"Validation failed for '{rel_path}': {e}")
-                results.append((rel_path, False))
-        
-        return results
+        hash_value = self.compute_file_hash(model_path)
+        self._hashes[artifact_id] = hash_value
+        self._save_hashes()
+        logger.info(f"Registered hash for '{artifact_id}': {hash_value}")
 
 def main():
     """
-    Command-line interface for security hardening operations.
-    
+    CLI entry point for security validation tasks.
     Usage:
-      python code/utils/security.py validate <file_path>
-      python code/utils/security.py register <file_path>
-      python code/utils/security.py validate_all
+      python -m code.utils.security --validate <path_to_model> [--id <artifact_id>]
+      python -m code.utils.security --register <path_to_model> [--id <artifact_id>]
+      python -m code.utils.security --sanitize <base_dir> <user_path>
     """
-    import sys
+    import argparse
     
-    config = Config()
-    security = SecurityManager(config)
+    parser = argparse.ArgumentParser(description="Security Hardening Utilities")
+    subparsers = parser.add_subparsers(dest="command", help="Command to execute")
     
-    if len(sys.argv) < 2:
-        print("Usage: python code/utils/security.py <command> [args]")
-        print("Commands: validate <path>, register <path>, validate_all")
-        sys.exit(1)
+    # Validate command
+    validate_parser = subparsers.add_parser("validate", help="Validate model checksum")
+    validate_parser.add_argument("model_path", type=str, help="Path to model file")
+    validate_parser.add_argument("--id", type=str, default=None, help="Artifact ID in manifest")
     
-    command = sys.argv[1]
+    # Register command
+    register_parser = subparsers.add_parser("register", help="Register model checksum")
+    register_parser.add_argument("model_path", type=str, help="Path to model file")
+    register_parser.add_argument("--id", type=str, default=None, help="Artifact ID in manifest")
     
-    if command == "validate":
-        if len(sys.argv) < 3:
-            print("Error: Missing file path argument")
-            sys.exit(1)
-        file_path = Path(sys.argv[2])
-        try:
-            security.validate_artifact(file_path)
-            print(f"Validation passed for {file_path}")
-        except Exception as e:
-            print(f"Validation failed: {e}")
-            sys.exit(1)
-            
-    elif command == "register":
-        if len(sys.argv) < 3:
-            print("Error: Missing file path argument")
-            sys.exit(1)
-        file_path = Path(sys.argv[2])
-        try:
-            security.register_artifact(file_path)
-            print(f"Registered {file_path}")
-        except Exception as e:
-            print(f"Registration failed: {e}")
-            sys.exit(1)
-            
-    elif command == "validate_all":
-        results = security.validate_all_artifacts()
-        failed = [r[0] for r in results if not r[1]]
-        if failed:
-            print(f"Validation failed for {len(failed)} artifacts:")
-            for f in failed:
-                print(f"  - {f}")
-            sys.exit(1)
+    # Sanitize command
+    sanitize_parser = subparsers.add_parser("sanitize", help="Sanitize a path")
+    sanitize_parser.add_argument("base_dir", type=str, help="Base directory")
+    sanitize_parser.add_argument("user_path", type=str, help="User input path")
+    
+    args = parser.parse_args()
+    manager = SecurityManager()
+    
+    try:
+        if args.command == "validate":
+            manager.validate_model_checksum(Path(args.model_path), args.id)
+            print("VALIDATION PASSED")
+        elif args.command == "register":
+            manager.register_model_hash(Path(args.model_path), args.id)
+            print("REGISTRATION COMPLETE")
+        elif args.command == "sanitize":
+            safe_path = manager.sanitize_path(Path(args.base_dir), args.user_path)
+            print(f"SAFE PATH: {safe_path}")
         else:
-            print(f"All {len(results)} artifacts validated successfully.")
-            
-    else:
-        print(f"Unknown command: {command}")
-        sys.exit(1)
+            parser.print_help()
+    except SecurityError as e:
+        logger.error(f"SECURITY ERROR: {e}")
+        exit(1)
+    except FileNotFoundError as e:
+        logger.error(f"FILE ERROR: {e}")
+        exit(1)
 
 if __name__ == "__main__":
     main()

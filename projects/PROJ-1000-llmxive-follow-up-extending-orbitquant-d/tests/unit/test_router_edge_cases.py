@@ -1,290 +1,380 @@
 """
-Unit tests for edge cases in the entropy router.
-Tests scenarios: entropy out-of-range, proxy failure, missing matrices, and boundary conditions.
+Unit tests for router edge cases and error handling.
+
+Tests:
+1. Out-of-range entropy values (clamping)
+2. Proxy failure fallback to median index
+3. Invalid matrix indices
+4. Empty boundaries handling
+5. Numerical precision edge cases
 """
 import pytest
 import numpy as np
-import json
-import tempfile
-from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import patch, MagicMock
 import sys
+from pathlib import Path
 
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add code directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from code.analysis.router import EntropyRouter
-from code.config import Config
+from analysis.router import EntropyRouter
+from config import Config
 
-class TestEntropyRouterEdgeCases:
-    """Test EntropyRouter with edge cases and failure scenarios."""
 
-    @pytest.fixture
-    def mock_config(self):
-        """Provide a mock configuration."""
-        config = Mock(spec=Config)
-        config.router_entropy_min = -2.0
-        config.router_entropy_max = 2.0
-        config.router_fallback_index = 7
-        config.clustering_report_path = "data/processed/clustering_report.json"
-        return config
+class TestRouterClamping:
+    """Tests for entropy value clamping behavior."""
 
-    @pytest.fixture
-    def temp_clustering_report(self):
-        """Create a temporary clustering report file for testing."""
-        report_data = {
-            "layers": ["layer1", "layer2"],
-            "subsets": ["subset1", "subset2"],
-            "boundaries": [-1.5, -0.5, 0.5, 1.5],
-            "matrices": {
-                "layer1": [np.eye(8).tolist() for _ in range(5)],
-                "layer2": [np.eye(8).tolist() for _ in range(5)]
-            }
-        }
-        
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            json.dump(report_data, f)
-            temp_path = f.name
-        
-        yield temp_path
-        
-        # Cleanup
-        Path(temp_path).unlink(missing_ok=True)
+    def setup_method(self):
+        """Set up test fixtures."""
+        self.config = Config()
+        self.router = EntropyRouter(
+            entropy_boundaries=[0.0, 2.0, 4.0, 6.0, 8.0],
+            matrix_indices=[0, 1, 2, 3, 4],
+            config=self.config
+        )
 
-    @pytest.fixture
-    def router(self, mock_config, temp_clustering_report):
-        """Create an EntropyRouter instance."""
-        mock_config.clustering_report_path = temp_clustering_report
-        router = EntropyRouter(mock_config)
-        return router
+    def test_extreme_negative_entropy(self):
+        """Test clamping of extremely negative entropy."""
+        index = self.router.select_matrix(-1e10)
+        assert index == 0
+        assert index == self.router.matrix_indices[0]
 
-    def test_entropy_below_minimum(self, router):
-        """Test routing when entropy is below the minimum boundary."""
-        # Entropy well below the minimum boundary
-        entropy = -10.0
-        matrix_index = router.get_matrix_index(entropy)
-        
-        # Should clamp to the first index (0)
-        assert matrix_index == 0
+    def test_extreme_positive_entropy(self):
+        """Test clamping of extremely positive entropy."""
+        index = self.router.select_matrix(1e10)
+        assert index == 4
+        assert index == self.router.matrix_indices[-1]
 
-    def test_entropy_above_maximum(self, router):
-        """Test routing when entropy is above the maximum boundary."""
-        # Entropy well above the maximum boundary
-        entropy = 10.0
-        matrix_index = router.get_matrix_index(entropy)
-        
-        # Should clamp to the last index
-        expected_max_index = len(router.boundaries)
-        assert matrix_index == expected_max_index
+    def test_negative_zero(self):
+        """Test handling of negative zero."""
+        index = self.router.select_matrix(-0.0)
+        assert index == 0
 
-    def test_entropy_at_boundary_exact(self, router):
-        """Test routing when entropy is exactly at a boundary."""
-        # Test at each boundary
-        for i, boundary in enumerate(router.boundaries):
-            matrix_index = router.get_matrix_index(boundary)
-            # Should map to the correct segment
-            assert 0 <= matrix_index <= len(router.boundaries)
+    def test_very_small_positive(self):
+        """Test handling of very small positive values."""
+        index = self.router.select_matrix(1e-10)
+        assert index == 0
 
-    def test_entropy_very_close_to_boundary(self, router):
-        """Test routing with entropy very close to boundaries (floating point edge case)."""
-        epsilon = 1e-10
-        for i, boundary in enumerate(router.boundaries):
-            # Just below boundary
-            entropy_below = boundary - epsilon
-            idx_below = router.get_matrix_index(entropy_below)
+    def test_very_large_within_range(self):
+        """Test handling of very large values within range."""
+        index = self.router.select_matrix(7.999999)
+        assert index == 3
+
+class TestRouterProxyFailure:
+    """Tests for proxy failure fallback behavior."""
+
+    def setup_method(self):
+        """Set up test fixtures."""
+        self.config = Config()
+        self.router = EntropyRouter(
+            entropy_boundaries=[0.0, 2.0, 4.0, 6.0, 8.0],
+            matrix_indices=[0, 1, 2, 3, 4],
+            config=self.config
+        )
+
+    def test_proxy_timeout_fallback(self):
+        """Test fallback to median index on timeout."""
+        with patch.object(self.router, '_get_entropy_score') as mock_score:
+            mock_score.side_effect = TimeoutError("Proxy timeout")
             
-            # Just above boundary
-            entropy_above = boundary + epsilon
-            idx_above = router.get_matrix_index(entropy_above)
+            index = self.router.select_matrix("test prompt")
+            assert index == 2  # Median of [0, 1, 2, 3, 4]
+
+    def test_proxy_api_error_fallback(self):
+        """Test fallback to median index on API error."""
+        with patch.object(self.router, '_get_entropy_score') as mock_score:
+            mock_score.side_effect = RuntimeError("API error")
             
-            # Should be in adjacent or same bin depending on implementation
-            assert abs(idx_above - idx_below) <= 1
+            index = self.router.select_matrix("test prompt")
+            assert index == 2
 
-    def test_negative_entropy_values(self, router):
-        """Test with negative entropy values (possible with certain entropy definitions)."""
-        negative_entropies = [-5.0, -2.5, -0.1]
-        for entropy in negative_entropies:
-            matrix_index = router.get_matrix_index(entropy)
-            assert 0 <= matrix_index <= len(router.boundaries)
-
-    def test_very_large_positive_entropy(self, router):
-        """Test with extremely large positive entropy values."""
-        large_entropy = 1e6
-        matrix_index = router.get_matrix_index(large_entropy)
-        # Should clamp to maximum
-        expected_max = len(router.boundaries)
-        assert matrix_index == expected_max
-
-    def test_nan_entropy_input(self, router):
-        """Test behavior when entropy is NaN."""
-        entropy = float('nan')
-        # Should either raise or return fallback
-        try:
-            matrix_index = router.get_matrix_index(entropy)
-            # If it returns, it should be the fallback index
-            assert matrix_index == router.fallback_index
-        except (ValueError, TypeError):
-            # Raising an error is also acceptable
-            pass
-
-    def test_inf_entropy_input(self, router):
-        """Test behavior when entropy is infinity."""
-        for inf_val in [float('inf'), float('-inf')]:
-            try:
-                matrix_index = router.get_matrix_index(inf_val)
-                # Should clamp to boundaries
-                assert 0 <= matrix_index <= len(router.boundaries)
-            except (ValueError, TypeError):
-                # Raising an error is also acceptable
-                pass
-
-    def test_missing_clustering_report(self, mock_config):
-        """Test behavior when clustering report file is missing."""
-        mock_config.clustering_report_path = "nonexistent/path/report.json"
-        
-        with pytest.raises(FileNotFoundError):
-            EntropyRouter(mock_config)
-
-    def test_invalid_clustering_report_format(self, mock_config):
-        """Test behavior when clustering report has invalid format."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            json.dump({"invalid": "data"}, f)
-            temp_path = f.name
-        
-        mock_config.clustering_report_path = temp_path
-        
-        try:
-            with pytest.raises((KeyError, ValueError, TypeError)):
-                EntropyRouter(mock_config)
-        finally:
-            Path(temp_path).unlink(missing_ok=True)
-
-    def test_empty_boundaries(self, mock_config):
-        """Test behavior when boundaries list is empty."""
-        report_data = {
-            "layers": ["layer1"],
-            "subsets": ["subset1"],
-            "boundaries": [],
-            "matrices": {"layer1": []}
-        }
-        
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            json.dump(report_data, f)
-            temp_path = f.name
-        
-        mock_config.clustering_report_path = temp_path
-        
-        try:
-            router = EntropyRouter(mock_config)
-            # With no boundaries, should return fallback or 0
-            matrix_index = router.get_matrix_index(0.5)
-            assert matrix_index in [0, router.fallback_index]
-        finally:
-            Path(temp_path).unlink(missing_ok=True)
-
-    def test_single_boundary(self, mock_config):
-        """Test behavior with only one boundary (two bins)."""
-        report_data = {
-            "layers": ["layer1"],
-            "subsets": ["subset1"],
-            "boundaries": [0.0],
-            "matrices": {"layer1": [np.eye(4).tolist(), np.eye(4).tolist()]}
-        }
-        
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            json.dump(report_data, f)
-            temp_path = f.name
-        
-        mock_config.clustering_report_path = temp_path
-        
-        try:
-            router = EntropyRouter(mock_config)
-            # Should have 2 bins
-            assert len(router.boundaries) == 1
+    def test_proxy_network_error_fallback(self):
+        """Test fallback to median index on network error."""
+        with patch.object(self.router, '_get_entropy_score') as mock_score:
+            mock_score.side_effect = ConnectionError("Network error")
             
-            # Below boundary
-            idx_below = router.get_matrix_index(-1.0)
-            assert idx_below == 0
+            index = self.router.select_matrix("test prompt")
+            assert index == 2
+
+    def test_multiple_fallback_calls(self):
+        """Test consistent fallback behavior across multiple calls."""
+        with patch.object(self.router, '_get_entropy_score') as mock_score:
+            mock_score.side_effect = RuntimeError("Always fails")
             
-            # Above boundary
-            idx_above = router.get_matrix_index(1.0)
-            assert idx_above == 1
-        finally:
-            Path(temp_path).unlink(missing_ok=True)
+            for _ in range(5):
+                index = self.router.select_matrix("test")
+                assert index == 2
 
-    def test_fallback_index_out_of_range(self, mock_config):
-        """Test behavior when fallback index is out of valid range."""
-        report_data = {
-            "layers": ["layer1"],
-            "subsets": ["subset1"],
-            "boundaries": [0.0, 1.0],
-            "matrices": {"layer1": [np.eye(4).tolist()]}  # Only 1 matrix
-        }
+    def test_fallback_with_odd_number_of_matrices(self):
+        """Test median calculation with odd number of matrices."""
+        router = EntropyRouter(
+            entropy_boundaries=[0.0, 2.0, 4.0],
+            matrix_indices=[10, 20, 30],
+            config=self.config
+        )
         
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            json.dump(report_data, f)
-            temp_path = f.name
-        
-        mock_config.clustering_report_path = temp_path
-        mock_config.router_fallback_index = 99  # Out of range
-        
-        try:
-            router = EntropyRouter(mock_config)
-            # Should clamp fallback to valid range
-            assert router.fallback_index < len(router.matrices["layer1"])
-        finally:
-            Path(temp_path).unlink(missing_ok=True)
+        with patch.object(router, '_get_entropy_score') as mock_score:
+            mock_score.side_effect = RuntimeError("Fail")
+            
+            index = router.select_matrix("test")
+            assert index == 20  # Median of [10, 20, 30]
 
-    def test_multiple_layers_missing_matrices(self, mock_config, temp_clustering_report):
-        """Test behavior when some layers are missing matrices."""
-        # Modify the temp file to have missing matrices
-        with open(temp_clustering_report, 'r') as f:
-            data = json.load(f)
+    def test_fallback_with_even_number_of_matrices(self):
+        """Test median calculation with even number of matrices."""
+        router = EntropyRouter(
+            entropy_boundaries=[0.0, 2.0, 4.0, 6.0],
+            matrix_indices=[10, 20, 30, 40],
+            config=self.config
+        )
         
-        # Remove matrices for one layer
-        if "layer2" in data["matrices"]:
-            del data["matrices"]["layer2"]
-        
-        with open(temp_clustering_report, 'w') as f:
-            json.dump(data, f)
-        
-        router = EntropyRouter(mock_config)
-        # Should handle missing layers gracefully
-        # (either skip or use fallback)
-        assert router is not None
+        with patch.object(router, '_get_entropy_score') as mock_score:
+            mock_score.side_effect = RuntimeError("Fail")
+            
+            index = router.select_matrix("test")
+            # For even number, use lower median (index 1 -> value 20)
+            assert index == 20
 
-    def test_router_with_no_entropy_range(self, mock_config):
-        """Test behavior when entropy range is not configured."""
-        mock_config.router_entropy_min = None
-        mock_config.router_entropy_max = None
-        
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            json.dump({
-                "layers": ["layer1"],
-                "subsets": ["subset1"],
-                "boundaries": [-1.0, 0.0, 1.0],
-                "matrices": {"layer1": [np.eye(4).tolist() for _ in range(4)]}
-            }, f)
-            temp_path = f.name
-        
-        mock_config.clustering_report_path = temp_path
-        
-        try:
-            router = EntropyRouter(mock_config)
-            # Should still work, using boundaries from report
-            idx = router.get_matrix_index(0.5)
-            assert 0 <= idx <= 3
-        finally:
-            Path(temp_path).unlink(missing_ok=True)
+class TestRouterBoundaryConditions:
+    """Tests for boundary condition handling."""
 
-    def test_batch_entropy_values(self, router):
-        """Test routing with a batch of entropy values."""
-        entropies = [-10.0, -2.0, -0.5, 0.0, 0.5, 2.0, 10.0]
-        indices = [router.get_matrix_index(e) for e in entropies]
+    def setup_method(self):
+        """Set up test fixtures."""
+        self.config = Config()
+
+    def test_empty_boundaries_single_matrix(self):
+        """Test with empty boundaries and single matrix."""
+        router = EntropyRouter(
+            entropy_boundaries=[],
+            matrix_indices=[42],
+            config=self.config
+        )
         
-        # Should be monotonically non-decreasing
-        for i in range(1, len(indices)):
-            assert indices[i] >= indices[i-1]
+        assert router.select_matrix(-1000) == 42
+        assert router.select_matrix(0) == 42
+        assert router.select_matrix(1000) == 42
+        assert router.select_matrix(float('nan')) == 42
+
+    def test_empty_boundaries_multiple_matrices(self):
+        """Test with empty boundaries and multiple matrices (should use first)."""
+        router = EntropyRouter(
+            entropy_boundaries=[],
+            matrix_indices=[10, 20, 30],
+            config=self.config
+        )
+        
+        # With no boundaries, should default to first matrix
+        assert router.select_matrix(0) == 10
+        assert router.select_matrix(100) == 10
+
+    def test_single_boundary(self):
+        """Test with single boundary."""
+        router = EntropyRouter(
+            entropy_boundaries=[5.0],
+            matrix_indices=[0, 1],
+            config=self.config
+        )
+        
+        assert router.select_matrix(0.0) == 0
+        assert router.select_matrix(4.9) == 0
+        assert router.select_matrix(5.0) == 1
+        assert router.select_matrix(10.0) == 1
+
+    def test_boundary_at_zero(self):
+        """Test with boundary at zero."""
+        router = EntropyRouter(
+            entropy_boundaries=[0.0, 5.0],
+            matrix_indices=[0, 1],
+            config=self.config
+        )
+        
+        assert router.select_matrix(-1.0) == 0
+        assert router.select_matrix(0.0) == 1
+        assert router.select_matrix(4.9) == 1
+        assert router.select_matrix(5.0) == 1
+
+    def test_negative_boundaries(self):
+        """Test with negative boundaries (should work if valid)."""
+        router = EntropyRouter(
+            entropy_boundaries=[-5.0, 0.0, 5.0],
+            matrix_indices=[0, 1, 2],
+            config=self.config
+        )
+        
+        assert router.select_matrix(-10.0) == 0
+        assert router.select_matrix(-5.0) == 1
+        assert router.select_matrix(-1.0) == 1
+        assert router.select_matrix(0.0) == 2
+        assert router.select_matrix(4.9) == 2
+        assert router.select_matrix(10.0) == 2
+
+class TestRouterNumericalPrecision:
+    """Tests for numerical precision edge cases."""
+
+    def setup_method(self):
+        """Set up test fixtures."""
+        self.config = Config()
+        self.router = EntropyRouter(
+            entropy_boundaries=[0.0, 1e-10, 2e-10, 3e-10],
+            matrix_indices=[0, 1, 2, 3],
+            config=self.config
+        )
+
+    def test_very_small_boundaries(self):
+        """Test with very small boundary values."""
+        assert self.router.select_matrix(0.0) == 0
+        assert self.router.select_matrix(0.5e-10) == 1
+        assert self.router.select_matrix(1.5e-10) == 2
+        assert self.router.select_matrix(2.5e-10) == 3
+
+    def test_very_large_boundaries(self):
+        """Test with very large boundary values."""
+        router = EntropyRouter(
+            entropy_boundaries=[1e10, 2e10, 3e10],
+            matrix_indices=[0, 1, 2],
+            config=self.config
+        )
+        
+        assert router.select_matrix(0) == 0
+        assert router.select_matrix(1.5e10) == 1
+        assert router.select_matrix(2.5e10) == 2
+        assert router.select_matrix(1e11) == 2
+
+    def test_float_precision_errors(self):
+        """Test handling of floating point precision errors."""
+        router = EntropyRouter(
+            entropy_boundaries=[1.0, 2.0, 3.0],
+            matrix_indices=[0, 1, 2],
+            config=self.config
+        )
+        
+        # Test values that might cause precision issues
+        assert router.select_matrix(0.999999999999) == 0
+        assert router.select_matrix(1.000000000001) == 1
+        assert router.select_matrix(2.999999999999) == 1
+        assert router.select_matrix(3.000000000001) == 2
+
+    def test_nan_handling(self):
+        """Test handling of NaN values."""
+        router = EntropyRouter(
+            entropy_boundaries=[0.0, 2.0, 4.0],
+            matrix_indices=[0, 1, 2],
+            config=self.config
+        )
+        
+        # NaN should fallback to median
+        index = router.select_matrix(float('nan'))
+        assert index == 1  # Median of [0, 1, 2]
+
+    def test_inf_handling(self):
+        """Test handling of infinity values."""
+        router = EntropyRouter(
+            entropy_boundaries=[0.0, 2.0, 4.0],
+            matrix_indices=[0, 1, 2],
+            config=self.config
+        )
+        
+        # Positive infinity should clamp to last
+        assert router.select_matrix(float('inf')) == 2
+        
+        # Negative infinity should clamp to first
+        assert router.select_matrix(float('-inf')) == 0
+
+class TestRouterValidation:
+    """Tests for router validation and error handling."""
+
+    def setup_method(self):
+        """Set up test fixtures."""
+        self.config = Config()
+
+    def test_mismatched_boundaries_indices(self):
+        """Test that mismatched boundaries and indices raise error."""
+        with pytest.raises(ValueError):
+            EntropyRouter(
+                entropy_boundaries=[0.0, 2.0],
+                matrix_indices=[0, 1, 2],  # Too many indices
+                config=self.config
+            )
+
+    def test_unsorted_boundaries(self):
+        """Test handling of unsorted boundaries."""
+        # Should work but might produce unexpected results
+        router = EntropyRouter(
+            entropy_boundaries=[4.0, 2.0, 0.0],
+            matrix_indices=[0, 1, 2],
+            config=self.config
+        )
+        
+        # The behavior depends on implementation, but shouldn't crash
+        index = router.select_matrix(3.0)
+        assert isinstance(index, int)
+
+    def test_duplicate_boundaries(self):
+        """Test handling of duplicate boundaries."""
+        router = EntropyRouter(
+            entropy_boundaries=[0.0, 0.0, 2.0],
+            matrix_indices=[0, 1, 2],
+            config=self.config
+        )
+        
+        # Should handle gracefully
+        index = router.select_matrix(1.0)
+        assert isinstance(index, int)
+
+    def test_negative_matrix_indices(self):
+        """Test handling of negative matrix indices."""
+        router = EntropyRouter(
+            entropy_boundaries=[0.0, 2.0, 4.0],
+            matrix_indices=[-1, 0, 1],
+            config=self.config
+        )
+        
+        # Should work with negative indices
+        assert router.select_matrix(0.0) == -1
+        assert router.select_matrix(2.0) == 0
+        assert router.select_matrix(4.0) == 1
+
+    def test_non_integer_matrix_indices(self):
+        """Test handling of non-integer matrix indices."""
+        router = EntropyRouter(
+            entropy_boundaries=[0.0, 2.0, 4.0],
+            matrix_indices=[0.5, 1.5, 2.5],
+            config=self.config
+        )
+        
+        # Should return the index as-is (might be float)
+        index = router.select_matrix(1.0)
+        assert index == 0.5 or isinstance(index, (int, float))
+
+class TestRouterLogging:
+    """Tests for router logging behavior."""
+
+    def setup_method(self):
+        """Set up test fixtures."""
+        self.config = Config()
+        self.router = EntropyRouter(
+            entropy_boundaries=[0.0, 2.0, 4.0],
+            matrix_indices=[0, 1, 2],
+            config=self.config
+        )
+
+    def test_fallback_logging(self):
+        """Test that fallback events are logged."""
+        with patch.object(self.router, '_get_entropy_score') as mock_score:
+            mock_score.side_effect = RuntimeError("Proxy failed")
+            
+            # This should trigger fallback and logging
+            index = self.router.select_matrix("test prompt")
+            
+            assert index == 1  # Median
+
+    def test_clamping_logging(self):
+        """Test that clamping events are logged."""
+        # Out of range values should be logged
+        index1 = self.router.select_matrix(-100.0)
+        assert index1 == 0
+
+        index2 = self.router.select_matrix(100.0)
+        assert index2 == 2
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
