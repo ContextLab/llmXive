@@ -1,85 +1,129 @@
-"""
-Task T001: Create Project Structure
-Creates the directory hierarchy defined in the plan.
-"""
 import os
 from pathlib import Path
 
 def create_directories():
-    """Create the required directory structure for the project."""
-    base_path = Path(__file__).resolve().parent.parent
-    
+    """
+    Creates the directory hierarchy defined in the plan for PROJ-131.
+    Directories created under the project root.
+    """
+    # Determine project root relative to this script location
+    # Script is at code/setup_project_structure.py, so root is parent of parent
+    script_dir = Path(__file__).resolve().parent
+    project_root = script_dir.parent
+
     # Define directories to create
-    directories = [
-        base_path / "code" / "data",
-        base_path / "code" / "analysis",
-        base_path / "code" / "config",
-        base_path / "code" / "tests",
-        base_path / "data" / "raw",
-        base_path / "data" / "results",
-        base_path / "specs" / "001-social-support-resilience",
+    dirs = [
+        project_root / "code" / "data",
+        project_root / "code" / "analysis",
+        project_root / "code" / "config",
+        project_root / "code" / "tests",
+        project_root / "data" / "raw",
+        project_root / "data" / "results",
+        project_root / "data" / "figures",
+        project_root / "specs" / "001-social-support-resilience",
+        project_root / "code" / "utils",
+        project_root / "code" / "logs",
     ]
+
+    created = []
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
+        created.append(str(d.relative_to(project_root)))
     
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {directory}")
+    return created
 
 def verify_structure():
-    """Verify the directory structure and write to verification log."""
-    base_path = Path(__file__).resolve().parent.parent
-    verification_file = base_path / "data" / "results" / "setup_verification.txt"
+    """
+    Verifies the directory structure exists and writes a verification log.
+    """
+    script_dir = Path(__file__).resolve().parent
+    project_root = script_dir.parent
+    results_dir = project_root / "data" / "results"
     
-    # Ensure data/results exists before writing
-    (base_path / "data" / "results").mkdir(parents=True, exist_ok=True)
+    # Ensure results dir exists for the log
+    results_dir.mkdir(parents=True, exist_ok=True)
     
-    lines = []
-    lines.append("Project Structure Verification")
-    lines.append("=" * 40)
-    lines.append("")
+    # Use subprocess to run 'tree' if available, otherwise list manually
+    import subprocess
+    import sys
+
+    tree_output = []
+    tree_output.append("=== Project Structure Verification ===")
+    tree_output.append(f"Project Root: {project_root}")
+    tree_output.append("")
+
+    # Try to run tree command
+    try:
+        # Run tree on code/
+        result_code = subprocess.run(['tree', str(project_root / 'code')], capture_output=True, text=True)
+        if result_code.returncode == 0:
+            tree_output.append("--- code/ ---")
+            tree_output.append(result_code.stdout)
+        else:
+            # Fallback if tree not installed
+            tree_output.append("--- code/ (tree not available, listing manually) ---")
+            for root, dirs, files in os.walk(project_root / 'code'):
+                level = root.replace(str(project_root), '').count(os.sep)
+                indent = ' ' * 2 * level
+                tree_output.append(f'{indent}{os.path.basename(root)}/')
+                subindent = ' ' * 2 * (level + 1)
+                for file in files:
+                    tree_output.append(f'{subindent}{file}')
+            tree_output.append("")
+
+        # Run tree on data/
+        result_data = subprocess.run(['tree', str(project_root / 'data')], capture_output=True, text=True)
+        if result_data.returncode == 0:
+            tree_output.append("--- data/ ---")
+            tree_output.append(result_data.stdout)
+        else:
+            tree_output.append("--- data/ (tree not available, listing manually) ---")
+            for root, dirs, files in os.walk(project_root / 'data'):
+                level = root.replace(str(project_root), '').count(os.sep)
+                indent = ' ' * 2 * level
+                tree_output.append(f'{indent}{os.path.basename(root)}/')
+                subindent = ' ' * 2 * (level + 1)
+                for file in files:
+                    tree_output.append(f'{subindent}{file}')
+            
+    except FileNotFoundError:
+        # 'tree' command not found, fallback to manual listing for both
+        tree_output.append("--- code/ (tree command not found) ---")
+        for root, dirs, files in os.walk(project_root / 'code'):
+            level = root.replace(str(project_root), '').count(os.sep)
+            indent = ' ' * 2 * level
+            tree_output.append(f'{indent}{os.path.basename(root)}/')
+            subindent = ' ' * 2 * (level + 1)
+            for file in files:
+                tree_output.append(f'{subindent}{file}')
+        
+        tree_output.append("")
+        tree_output.append("--- data/ (tree command not found) ---")
+        for root, dirs, files in os.walk(project_root / 'data'):
+            level = root.replace(str(project_root), '').count(os.sep)
+            indent = ' ' * 2 * level
+            tree_output.append(f'{indent}{os.path.basename(root)}/')
+            subindent = ' ' * 2 * (level + 1)
+            for file in files:
+                tree_output.append(f'{subindent}{file}')
+
+    # Write verification log
+    log_path = results_dir / "setup_verification.txt"
+    with open(log_path, 'w') as f:
+        f.write('\n'.join(tree_output))
     
-    # Tree-like output for code/
-    lines.append("code/ structure:")
-    code_path = base_path / "code"
-    if code_path.exists():
-        for root, dirs, files in os.walk(code_path):
-            level = len(Path(root).relative_to(code_path).parts)
-            indent = "  " * level
-            lines.append(f"{indent}{Path(root).name}/")
-            sub_indent = "  " * (level + 1)
-            for f in files:
-                lines.append(f"{sub_indent}{f}")
-    else:
-        lines.append("  code/ directory not found")
-    
-    lines.append("")
-    
-    # Tree-like output for data/
-    lines.append("data/ structure:")
-    data_path = base_path / "data"
-    if data_path.exists():
-        for root, dirs, files in os.walk(data_path):
-            level = len(Path(root).relative_to(data_path).parts)
-            indent = "  " * level
-            lines.append(f"{indent}{Path(root).name}/")
-            sub_indent = "  " * (level + 1)
-            for f in files:
-                lines.append(f"{sub_indent}{f}")
-    else:
-        lines.append("  data/ directory not found")
-    
-    # Write to file
-    with open(verification_file, 'w') as f:
-        f.write('\n'.join(lines))
-    
-    print(f"Verification written to: {verification_file}")
-    return verification_file
+    return log_path
 
 def main():
-    """Main entry point for T001."""
-    print("Starting T001: Create Project Structure")
-    create_directories()
-    verify_structure()
-    print("T001 completed successfully.")
+    print("Creating project directory structure...")
+    created_dirs = create_directories()
+    print(f"Created directories: {created_dirs}")
+    
+    print("Verifying structure and writing log...")
+    log_path = verify_structure()
+    print(f"Verification log written to: {log_path}")
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

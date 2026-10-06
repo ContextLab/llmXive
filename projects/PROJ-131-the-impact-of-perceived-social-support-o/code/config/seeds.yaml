@@ -1,5 +1,9 @@
-# Reproducibility Configuration
-# This file defines the random seed used for all stochastic operations
-# in the pipeline (imputation, bootstrapping, sampling) to ensure
-# results are exactly reproducible across runs.
+# Reproducibility Configuration for PROJ-131
+# This file defines the random seeds used across the pipeline
+# to ensure all stochastic operations (imputation, bootstrapping, sampling)
+# are fully reproducible.
+#
+# Source: Plan 'Revised Approach' - Single-Dataset Analysis
+# Constraint: All random operations must use this seed.
+
 random_seed: 42

@@ -1,96 +1,56 @@
-"""
-Logging infrastructure for the llmXive automated science pipeline.
-
-This module initializes a logger that writes to `data/results/pipeline_run.log`.
-All subsequent tasks (T012-T017) must use this logger to ensure consistent
-logging across the pipeline.
-"""
-
 import logging
 import sys
 from pathlib import Path
 from typing import Optional
 
-# Global logger instance
-_logger: Optional[logging.Logger] = None
+_logger_instance = None
 
 def setup_logging(log_file: Optional[str] = None, level: int = logging.INFO) -> logging.Logger:
     """
-    Initialize the pipeline logger.
-
-    Args:
-        log_file: Path to the log file. Defaults to 'data/results/pipeline_run.log'.
-        level: Logging level (e.g., logging.INFO, logging.DEBUG).
-
-    Returns:
-        The configured logger instance.
-
-    Raises:
-        RuntimeError: If the log directory cannot be created.
+    Set up logging to both console and a file if specified.
+    Returns the root logger.
     """
-    global _logger
+    global _logger_instance
 
-    if _logger is not None:
-        return _logger
+    if _logger_instance is not None:
+        return _logger_instance
 
-    # Determine log file path
-    if log_file is None:
-        # Use project root relative path
-        project_root = Path(__file__).parent.parent.parent
-        log_file = project_root / "data" / "results" / "pipeline_run.log"
-    else:
-        log_file = Path(log_file)
+    logger = logging.getLogger()
+    logger.setLevel(level)
 
-    # Ensure log directory exists
-    log_file.parent.mkdir(parents=True, exist_ok=True)
+    # Clear existing handlers
+    logger.handlers = []
 
-    # Create logger
-    _logger = logging.getLogger("pipeline")
-    _logger.setLevel(level)
-
-    # Remove existing handlers to avoid duplicates
-    _logger.handlers.clear()
-
-    # Create file handler
-    file_handler = logging.FileHandler(log_file, mode='w')
-    file_handler.setLevel(level)
-
-    # Create console handler
+    # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(level)
+    console_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    console_handler.setFormatter(console_formatter)
+    logger.addHandler(console_handler)
 
-    # Create formatter
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
-    file_handler.setFormatter(formatter)
-    console_handler.setFormatter(formatter)
+    # File handler if specified
+    if log_file:
+        log_path = Path(log_file)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(level)
+        file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        file_handler.setFormatter(file_formatter)
+        logger.addHandler(file_handler)
 
-    # Add handlers to logger
-    _logger.addHandler(file_handler)
-    _logger.addHandler(console_handler)
+    _logger_instance = logger
+    return logger
 
-    _logger.info(f"Logging initialized. Log file: {log_file}")
-
-    return _logger
-
-def get_logger() -> logging.Logger:
+def get_logger(name: Optional[str] = None) -> logging.Logger:
     """
-    Get the global logger instance.
-
-    If the logger has not been initialized, this will raise a RuntimeError.
-    Callers should ensure setup_logging() is called before get_logger().
-
-    Returns:
-        The configured logger instance.
-
-    Raises:
-        RuntimeError: If the logger has not been initialized.
+    Get a logger instance. If setup_logging hasn't been called, it will set it up.
     """
-    global _logger
-    if _logger is None:
-        raise RuntimeError(
-            "Logger not initialized. Call setup_logging() before get_logger()."
-        )
-    return _logger
+    if _logger_instance is None:
+        # Default log file path relative to project root
+        project_root = Path(__file__).parent.parent.parent
+        log_file = project_root / "data" / "results" / "pipeline_run.log"
+        setup_logging(str(log_file))
+
+    if name:
+        return logging.getLogger(name)
+    return _logger_instance

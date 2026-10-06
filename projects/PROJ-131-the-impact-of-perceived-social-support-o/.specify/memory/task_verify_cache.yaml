@@ -17,6 +17,13 @@ T003:
     exists with the required entries (`data/raw/`, `data/results/`, `__pycache__/`,
     `*.pyc`). The implementer must supply the actual `.gitignore` file containing
     those patterns.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `main_pipeline.py` (or any code snippet) was provided, so there is no evidence\
+    \ that an entry\u2011point script was created or that it orchestrates the modular\
+    \ steps as required. The task remains undone until the file exists with the appropriate\
+    \ skeleton logic."
 T013a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -84,15 +91,6 @@ T028:
     \ coefficients from the baseline run (T020) and from each sensitivity analysis,\
     \ nor a computed table of their shifts, was provided. The implementer\u2019s response\
     \ contains only the task description and project spec, without the required output."
-T070b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer did not provide any dataset, code output, or inspection result\
-    \ showing that the loaded dataset from T070a\u2011Verify contains a `platform`\
-    \ column. Without an artifact to examine, the requirement cannot be confirmed.\
-    \ The missing evidence is a concrete verification (e.g., printed column list,\
-    \ DataFrame head, or script output) demonstrating the presence of the `platform`\
-    \ column."
 T072a:
   c: true
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

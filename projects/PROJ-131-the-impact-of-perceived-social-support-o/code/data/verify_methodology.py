@@ -3,121 +3,139 @@ import sys
 import logging
 from pathlib import Path
 import json
-
-# Ensure the code directory is in the path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
 from utils.logger import get_logger
 
 def find_section_5(file_path: Path) -> str:
     """
-    Reads the spec file and extracts the content of Section 5 (Methodological Notes).
-    Returns the raw text of the section or an empty string if not found.
+    Locates Section 5 'Methodological Notes' in the spec.md file.
+    Returns the content of the section or an empty string if not found.
     """
     if not file_path.exists():
         raise FileNotFoundError(f"Spec file not found: {file_path}")
 
-    with open(file_path, 'r', encoding='utf-8') as f:
-        content = f.read()
+    content = file_path.read_text(encoding='utf-8')
+    lines = content.splitlines()
 
-    lines = content.split('\n')
     section_start = -1
     section_end = len(lines)
 
-    # Heuristic: Find line starting with "## Methodological Notes" or "## 5. Methodological Notes"
+    # Look for Section 5 header
     for i, line in enumerate(lines):
-        if line.strip().startswith("## Methodological Notes") or (line.strip().startswith("## 5.") and "Methodological Notes" in line):
+        if line.strip().startswith("## 5. Methodological Notes") or \
+           line.strip().startswith("# 5. Methodological Notes") or \
+           line.strip().startswith("5. Methodological Notes"):
             section_start = i
             break
 
     if section_start == -1:
+        # Try a more flexible search for "Methodological Notes"
+        for i, line in enumerate(lines):
+            if "Methodological Notes" in line:
+                section_start = i
+                break
+
+    if section_start == -1:
         return ""
 
-    # Find the next section (##) to determine the end of Section 5
+    # Find the next section header (## or #) to determine end
     for i in range(section_start + 1, len(lines)):
-        if lines[i].strip().startswith("## ") and not lines[i].strip().startswith("###"):
+        if lines[i].strip().startswith("##") or lines[i].strip().startswith("#"):
             section_end = i
             break
 
-    return '\n'.join(lines[section_start:section_end])
+    return "\n".join(lines[section_start:section_end])
 
-def verify_alignment(section_text: str) -> dict:
+def verify_alignment(section_content: str, logger: logging.Logger) -> bool:
     """
-    Verifies that Section 5 contains the 'Revised Approach' text
-    and that 'Synthetic Cohort' is mentioned ONLY in the context of rejection.
+    Verifies that Section 5 contains the 'Revised Approach' rationale
+    and handles 'Synthetic Cohort' correctly (only in rejection context).
     """
-    result = {
-        "aligned": True,
-        "issues": [],
-        "has_revised_approach": False,
-        "has_synthetic_cohort": False,
-        "synthetic_cohort_in_rejection_context": True
-    }
+    is_aligned = True
 
-    if not section_text:
-        result["aligned"] = False
-        result["issues"].append("Section 5 not found or empty.")
-        return result
-
-    # Check for "Revised Approach"
-    if "Revised Approach" in section_text or "single-dataset" in section_text.lower():
-        result["has_revised_approach"] = True
+    # 1. Check for "Revised Approach" rationale
+    if "Revised Approach" not in section_content:
+        logger.error("ERROR: 'Revised Approach' text not found in Section 5.")
+        is_aligned = False
     else:
-        result["has_revised_approach"] = False
-        result["issues"].append("Missing 'Revised Approach' or 'single-dataset' rationale.")
-        result["aligned"] = False
+        logger.info("INFO: 'Revised Approach' rationale found in Section 5.")
 
-    # Check for "Synthetic Cohort"
-    if "Synthetic Cohort" in section_text:
-        result["has_synthetic_cohort"] = True
-        # Check if it appears in a rejection context
-        # Look for patterns like "rejected", "invalid", "removed", "deprecated" near the phrase
-        lines = section_text.split('\n')
-        valid_context_found = False
-        for line in lines:
-            if "Synthetic Cohort" in line:
-                lower_line = line.lower()
-                if any(keyword in lower_line for keyword in ["rejected", "invalid", "removed", "deprecated", "excluded", "not used"]):
-                    valid_context_found = True
-                    break
-        
-        if not valid_context_found:
-            result["synthetic_cohort_in_rejection_context"] = False
-            result["issues"].append("'Synthetic Cohort' found but not clearly in a rejection context.")
-            result["aligned"] = False
-    else:
-        # If not found at all, that's also acceptable per the spec (it might be completely removed)
-        # But the task says "mentioned ONLY in the context of rejection", so absence is fine if Revised Approach is there.
-        pass
+    # 2. Check for "Synthetic Cohort" usage
+    # It should ONLY appear in the context of rejection.
+    # We check if it appears outside of rejection keywords.
+    rejection_keywords = ["Rejection", "Invalid", "Removed", "Deprecated", "Excluded", "Not used", "Rejected"]
+    lines = section_content.splitlines()
 
-    return result
+    found_synthetic = False
+    found_in_rejection = False
+
+    for line in lines:
+        if "Synthetic Cohort" in line:
+            found_synthetic = True
+            # Check if any rejection keyword is in the same line or nearby context
+            # A simple heuristic: if the line contains rejection keywords, it's likely okay
+            # If the line is a positive proposal (e.g., "We will use..."), it's bad.
+            if any(kw in line for kw in rejection_keywords):
+                found_in_rejection = True
+            else:
+                # Check surrounding lines for rejection context
+                # (Simple check: look at previous 2 lines)
+                idx = lines.index(line)
+                context = " ".join(lines[max(0, idx-2):idx+1])
+                if any(kw in context for kw in rejection_keywords):
+                    found_in_rejection = True
+                else:
+                    logger.error(f"ERROR: 'Synthetic Cohort' found outside of rejection context: {line.strip()}")
+                    is_aligned = False
+
+    if found_synthetic and not found_in_rejection:
+        logger.error("ERROR: 'Synthetic Cohort' mentioned but not in a rejection context.")
+        is_aligned = False
+    elif found_synthetic and found_in_rejection:
+        logger.info("INFO: 'Synthetic Cohort' mentioned only in rejection context.")
+    elif not found_synthetic:
+        logger.info("INFO: 'Synthetic Cohort' not mentioned (acceptable if fully removed).")
+
+    return is_aligned
 
 def main():
+    """
+    Main entry point for verifying Methodological Notes alignment.
+    """
     logger = get_logger(__name__)
-    spec_path = Path("specs/001-social-support-resilience/spec.md")
+    logger.info("Starting Methodological Notes Alignment Verification (T074a)...")
+
+    # Determine project root
+    project_root = Path(__file__).resolve().parent.parent.parent
+    spec_path = project_root / "specs" / "001-social-support-resilience" / "spec.md"
 
     if not spec_path.exists():
-        logger.error(f"Spec file not found at {spec_path}")
+        logger.error(f"ERROR: Spec file not found at {spec_path}")
         sys.exit(1)
 
-    logger.info(f"Verifying alignment for {spec_path}")
-    section_text = find_section_5(spec_path)
-    alignment_result = verify_alignment(section_text)
+    try:
+        section_content = find_section_5(spec_path)
+        if not section_content:
+            logger.error("ERROR: Could not find Section 5 'Methodological Notes' in spec.md")
+            sys.exit(1)
 
-    # Log results
-    if alignment_result["aligned"]:
-        logger.info("INFO: Methodological Notes verified.")
-        logger.info("Spec is aligned with the Plan's Revised Approach.")
-        sys.exit(0)
-    else:
-        logger.error("ERROR: Methodological Notes mismatch.")
-        for issue in alignment_result["issues"]:
-            logger.error(f"  - {issue}")
-        logger.error("Triggering T074b (Repair) to update the spec.")
-        # We do not exit with error code here because the task description implies
-        # that if verification fails, we should trigger the repair logic.
-        # However, for a standalone script, we usually exit 1 on failure.
-        # The pipeline orchestration will catch this and run the repair.
+        is_aligned = verify_alignment(section_content, logger)
+
+        if is_aligned:
+            logger.info("INFO: Methodological Notes verified. Alignment confirmed.")
+            # Write success log
+            log_path = project_root / "data" / "results" / "methodology_verification.log"
+            log_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(log_path, 'w') as f:
+                f.write("INFO: Methodological Notes verified. Alignment confirmed.\n")
+                f.write("Section 5 contains 'Revised Approach' rationale.\n")
+                f.write("'Synthetic Cohort' is handled correctly (rejected/deprecated).\n")
+            sys.exit(0)
+        else:
+            logger.error("ERROR: Methodological Notes mismatch. Manual intervention required.")
+            sys.exit(1)
+
+    except Exception as e:
+        logger.error(f"ERROR: Verification failed with exception: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

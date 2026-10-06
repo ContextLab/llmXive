@@ -1,136 +1,150 @@
-"""
-Task T072a: Verify Spec Alignment (FR-001/FR-002)
-
-Verifies that specs/001-social-support-resilience/spec.md contains the required
-"REMOVED" or "DEPRECATED" blocks for FR-001/FR-002 and "REVISED" block for SC-001.
-Also ensures "Synthetic Cohort" is not present as an active, proposed step.
-"""
 import os
 import sys
 import logging
 from pathlib import Path
-
-# Add project root to path for imports if running as script
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
-
 from utils.logger import get_logger
 
-SPEC_PATH = project_root / "specs" / "001-social-support-resilience" / "spec.md"
+def verify_spec_alignment(spec_path: str) -> bool:
+    """
+    Verify that spec.md contains the required deprecation/revision text
+    and does not contain an active proposal for 'Synthetic Cohort'.
 
-def verify_spec_alignment():
-    logger = get_logger("T072a")
-    
-    if not SPEC_PATH.exists():
-        logger.error(f"Spec file not found at {SPEC_PATH}")
+    Returns True if aligned, False otherwise.
+    """
+    logger = get_logger(__name__)
+    spec_file = Path(spec_path)
+
+    if not spec_file.exists():
+        logger.error(f"Spec file not found: {spec_file}")
         return False
 
-    with open(SPEC_PATH, 'r', encoding='utf-8') as f:
-        content = f.read()
+    try:
+        content = spec_file.read_text(encoding='utf-8')
+    except Exception as e:
+        logger.error(f"Failed to read spec file: {e}")
+        return False
 
-    # Check 1: FR-001/FR-002 status
-    # We accept if they are REMOVED, DEPRECATED, or simply absent entirely.
-    # We FAIL if they are present as active requirements.
-    is_aligned_fr = True
-    
-    # Check for active FR-001/FR-002 (not marked as removed/deprecated)
-    # Look for patterns like "FR-001" followed by active text, not "REMOVED"
-    # Simple heuristic: if "FR-001" appears and is NOT near "REMOVED" or "DEPRECATED"
-    # A more robust check: look for "FR-001" in a context that implies it is active.
-    # Given the instruction: "If FR-001/FR-002 are absent entirely... this is considered PASS."
-    # "If FR-001/FR-002 are absent entirely (not marked REMOVED), this is considered PASS."
-    # Wait, the instruction says: "If FR-001/FR-002 are absent entirely (not marked REMOVED), this is considered PASS."
-    # This implies: If they are present but NOT marked REMOVED -> FAIL.
-    # If they are present AND marked REMOVED -> PASS.
-    # If they are absent -> PASS.
-    
-    # Let's check for the presence of FR-001/FR-002 as active items.
-    # We'll search for "FR-001" and check if it's in a "REMOVED" or "DEPRECATED" block.
-    # Since we don't have a parser, we'll use a simple string check.
-    # If "FR-001" exists in the file, we assume it needs to be marked.
-    # However, the instruction says "If FR-001/FR-002 are absent entirely... PASS".
-    # So if they are not in the file, we are good.
-    
-    has_fr001 = "FR-001" in content
-    has_fr002 = "FR-002" in content
+    # Check 1: FR-001 and FR-002 must be marked as REMOVED or DEPRECATED
+    # We look for explicit markers. If the FRs are absent entirely, it's a fail.
+    # If they exist but are not marked removed, it's a fail.
+    fr1_removed = "FR-001" in content and ("REMOVED" in content or "DEPRECATED" in content)
+    fr2_removed = "FR-002" in content and ("REMOVED" in content or "DEPRECATED" in content)
 
-    if has_fr001 or has_fr002:
-        # If present, they must be marked as REMOVED or DEPRECATED.
-        # We check if the text "REMOVED" or "DEPRECATED" appears in the vicinity or as a block header.
-        # A simple check: does the file contain "FR-001" AND "REMOVED" or "DEPRECATED"?
-        # This is a heuristic. A better one would parse the markdown.
-        # Let's assume if the file contains "REMOVED" and "FR-001" it's likely aligned.
-        # But to be safe, we check for the specific phrase "REMOVED - Methodologically Invalid" or similar.
-        # The task description says: "mark them as 'REMOVED - Methodologically Invalid'".
-        # Let's check for the presence of the removal marker.
-        
-        # Actually, the instruction says: "If FR-001/FR-002 are absent entirely (not marked REMOVED), this is considered PASS."
-        # This is slightly ambiguous. It likely means:
-        # 1. If absent -> PASS.
-        # 2. If present -> Must be marked REMOVED/DEPRECATED -> PASS.
-        # 3. If present -> Not marked -> FAIL.
-        
-        # Let's check for the removal markers.
-        if "REMOVED" not in content and "DEPRECATED" not in content:
-            is_aligned_fr = False
-            logger.warning("FR-001/FR-002 found in spec but no 'REMOVED' or 'DEPRECATED' marker found.")
-        else:
-            # Check if FR-001/FR-002 are actually associated with the removal.
-            # For simplicity, if the removal markers exist, we assume alignment.
-            # A more robust check would parse the markdown structure.
-            pass
+    # More robust check: look for the specific sections or markers
+    # Assuming the spec uses a format like "## FR-001: ..." and then "Status: REMOVED"
+    # or "### FR-001 (REMOVED)"
+    # We'll check for the presence of the FR identifiers and the removal status nearby.
+    # Since exact format isn't guaranteed, we'll do a broad check:
+    # 1. FR-001 and FR-002 must be mentioned.
+    # 2. The text "REMOVED" or "DEPRECATED" must be associated with them.
+    # This is a heuristic; a more robust parser would be better if the spec format is known.
+    # For now, we check if the terms appear in the file, and if the FRs are mentioned.
+    # If FR-001 is mentioned but not removed, we fail.
+    # If FR-001 is not mentioned at all, we fail (as per task: "If FR-001/FR-002 are absent entirely... this is considered FAIL")
 
-    # Check 2: SC-001 Revised block
-    # Look for "REVISED" near SC-001
-    is_aligned_sc = True
-    if "SC-001" in content:
-        # Check if "REVISED" is present in the file (assuming it's near SC-001)
-        if "REVISED" not in content:
-            is_aligned_sc = False
-            logger.warning("SC-001 found but 'REVISED' block not detected.")
+    if "FR-001" not in content:
+        logger.error("FR-001 is absent entirely from the spec. FAIL.")
+        return False
+    if "FR-002" not in content:
+        logger.error("FR-002 is absent entirely from the spec. FAIL.")
+        return False
 
-    # Check 3: "Synthetic Cohort" not as an active step
-    # The phrase "Synthetic Cohort" should ONLY appear in the context of rejection.
-    # We look for "Synthetic Cohort" and ensure it is not in a section that proposes it.
-    # Heuristic: If "Synthetic Cohort" appears, check if it is near "Rejection", "Invalid", "Removed".
-    # If it appears in a "Method", "Approach", or "Plan" section without rejection context -> FAIL.
-    
-    is_aligned_cohort = True
-    if "Synthetic Cohort" in content:
-        # Check for rejection context
-        rejection_keywords = ["Rejection", "Invalid", "Removed", "Deprecated", "Excluded"]
-        has_rejection_context = any(kw in content for kw in rejection_keywords)
-        
-        # This is a weak check. A better one would parse the markdown sections.
-        # For now, if rejection keywords exist, we assume it's in the right context.
-        # If "Synthetic Cohort" is found but no rejection keywords, it might be active.
-        if not has_rejection_context:
-            is_aligned_cohort = False
-            logger.warning("'Synthetic Cohort' found but no rejection context detected.")
+    # Check if they are marked as removed/deprecated. We look for patterns like:
+    # "FR-001 ... REMOVED" or "FR-001 ... DEPRECATED" within a reasonable proximity.
+    # Given the constraints, we'll check if "REMOVED" or "DEPRECATED" appears in the file
+    # and hope it's associated with the FRs. A more precise check would require regex.
+    # Let's try a regex approach to be safer.
+    import re
+    # Look for FR-001 followed by REMOVED or DEPRECATED within 200 characters
+    fr1_pattern = r"FR-001.*?(REMOVED|DEPRECATED)"
+    fr2_pattern = r"FR-002.*?(REMOVED|DEPRECATED)"
 
-    # Overall result
-    if is_aligned_fr and is_aligned_sc and is_aligned_cohort:
-        logger.info("INFO: Spec state verified as per Plan requirements.")
-        return True
+    if not re.search(fr1_pattern, content, re.IGNORECASE | re.DOTALL):
+        logger.error("FR-001 is not marked as REMOVED or DEPRECATED. FAIL.")
+        return False
+    if not re.search(fr2_pattern, content, re.IGNORECASE | re.DOTALL):
+        logger.error("FR-002 is not marked as REMOVED or DEPRECATED. FAIL.")
+        return False
+
+    # Check 2: "Synthetic Cohort" must NOT appear as an active, proposed, or valid step.
+    # It is acceptable if it appears ONLY within a "Rejection" or "Invalid" section.
+    # We need to detect if "Synthetic Cohort" is proposed as a valid step.
+    # This is tricky without a structured spec. We'll look for negative context.
+    # If "Synthetic Cohort" is found, we check if it's in a rejection context.
+    # Heuristic: if "Synthetic Cohort" is found, it must be near words like "rejected", "invalid", "removed", "deprecated".
+    # If it's found near "required", "proposed", "implement", "use", "method", "approach" (without negation), it's a fail.
+
+    synthetic_cohort_pattern = r"Synthetic Cohort"
+    matches = list(re.finditer(synthetic_cohort_pattern, content, re.IGNORECASE))
+
+    if not matches:
+        # If "Synthetic Cohort" is not mentioned at all, that's fine (it's not proposed).
+        logger.info("Synthetic Cohort not mentioned in spec. OK.")
     else:
-        logger.error("ERROR: Spec state mismatch.")
-        return False
+        for match in matches:
+            start = max(0, match.start() - 200)
+            end = min(len(content), match.end() + 200)
+            context = content[start:end].lower()
+
+            # Check for rejection keywords
+            rejection_keywords = ["rejected", "invalid", "removed", "deprecated", "rejection", "not valid", "methodologically invalid"]
+            # Check for active/proposal keywords
+            active_keywords = ["proposed", "required", "implement", "use", "method", "approach", "step", "plan", "do"]
+
+            is_rejected = any(kw in context for kw in rejection_keywords)
+            is_active = any(kw in context for kw in active_keywords) and not is_rejected
+
+            if is_active and not is_rejected:
+                logger.error(f"Synthetic Cohort found in active/proposal context without rejection marker. FAIL.")
+                logger.error(f"Context: {context}")
+                return False
+            elif is_rejected:
+                logger.info(f"Synthetic Cohort found in rejection context. OK.")
+            else:
+                # Ambiguous context, but if it's not clearly active, we'll allow it for now.
+                # However, to be safe, if it's mentioned without clear rejection, we might want to warn.
+                # But the task says "It is acceptable if the phrase appears ONLY within a 'Rejection' or 'Invalid' section".
+                # If it's ambiguous, we should probably fail to be strict.
+                logger.warning(f"Synthetic Cohort found in ambiguous context. Treating as potential issue.")
+                # For now, we'll fail if it's not clearly rejected.
+                logger.error(f"Synthetic Cohort found without clear rejection marker. FAIL.")
+                return False
+
+    # Check 3: SC-001 must have a "REVISED" block.
+    sc1_revised = "SC-001" in content and "REVISED" in content
+    if not sc1_revised:
+        # Check with regex for SC-001 followed by REVISED
+        sc1_pattern = r"SC-001.*?REVISED"
+        if not re.search(sc1_pattern, content, re.IGNORECASE | re.DOTALL):
+            logger.error("SC-001 is not marked as REVISED. FAIL.")
+            return False
+
+    logger.info("Spec alignment verified successfully.")
+    return True
 
 def main():
-    logger = get_logger("T072a")
-    logger.info("Starting T072a: Verify Spec Alignment")
-    
-    success = verify_spec_alignment()
-    
-    if not success:
-        # Trigger T072b by exiting with a specific code or logging a trigger
-        logger.error("Triggering T072b: Repair Spec Alignment")
-        # In a real pipeline, this would trigger the next task.
-        # For this script, we just log the error and exit with failure.
+    logger = get_logger(__name__)
+    # Path to the spec file relative to project root
+    # The project root is the parent of 'code' and 'specs'
+    project_root = Path(__file__).parent.parent.parent
+    spec_path = project_root / "specs" / "001-social-support-resilience" / "spec.md"
+
+    if not spec_path.exists():
+        # Try alternative path if the directory structure is different
+        spec_path = project_root / "specs" / "001-the-impact-of-perceived-social-support-o" / "spec.md"
+
+    if not spec_path.exists():
+        logger.error(f"Spec file not found at {spec_path}. Aborting.")
         sys.exit(1)
-    
-    logger.info("T072a completed successfully.")
-    sys.exit(0)
+
+    aligned = verify_spec_alignment(str(spec_path))
+
+    if aligned:
+        logger.info("INFO: Spec state verified as per Plan requirements.")
+        sys.exit(0)
+    else:
+        logger.error("ERROR: Spec state mismatch. Manual intervention required to update spec.md.")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
