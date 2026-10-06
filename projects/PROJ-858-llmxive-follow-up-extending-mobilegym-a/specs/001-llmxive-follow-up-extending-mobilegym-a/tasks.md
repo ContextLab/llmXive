@@ -110,7 +110,7 @@
 - [X] T025 [US2] Implement state transition detection logic in `code/scheduler/state_coverage.py`
 - [X] T026 [US2] Implement parallel rollout aggregation logic to merge vectors safely in `code/scheduler/state_coverage.py`
 - [X] T027 [US2] Add error handling to skip malformed JSON rollouts without crashing the batch in `code/scheduler/state_coverage.py`
-- [ ] T028 [US2] Write aggregated coverage vectors to `data/processed/coverage_vectors.json` with checksums
+- [X] T028 [US2] Write aggregated coverage vectors to `data/processed/coverage_vectors.json` with checksums
 - [ ] T029 [US2] Generate the 'held-out test set' containing state variables NOT present in the training-time State Coverage Vector to satisfy FR-005 transfer evaluation requirements.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
@@ -156,7 +156,7 @@
 - [X] T039 [US4] Implement `code/analysis/sensitivity.py` to compute **Pearson correlation coefficient (r)** between the **scalar count (sum of 1s) derived from the binary State Coverage Vector** and success rate on a held-out validation set.
 - [ ] T040 [US4] Implement logic to flag "Invalid Proxy" if r < 0.3 and recommend expanding variable set
 - [ ] T041 [US4] Implement "Proxy Validated" logging if r ≥ 0.5
-- [ ] T042 [US4] Generate sensitivity analysis report in `data/processed/sensitivity_report.md`
+- [X] T042 [US4] Generate sensitivity analysis report in `data/processed/sensitivity_report.md`
 
 ### Tests for User Story 4 (OPTIONAL - only if tests requested) ⚠️
 

@@ -109,8 +109,8 @@ description: "Task list for Evaluating the Impact of Code Comment Style on Maint
 - [X] T007a [P] Implement `src/code/metrics.py`: `calc_readability()` using `textstat.flesch_kincaid_grade` on extracted comments; handle empty comment sets by returning 0.0 and log event.
 - [X] T007b [P] Implement `src/code/metrics.py`: `calc_sentiment()` using `TextBlob` polarity on extracted comments; handle empty comment sets by returning 0.0 and log event.
 - [X] T007c [P] Implement `src/code/metrics.py`: `calc_churn()` using `git log --numstat` to calculate total lines changed per commit; aggregate to repository level.
-- [ ] T007d [P] Implement `src/code/metrics.py`: `calc_quality_rate()` using `pylint` on sampled commits; calculate ratio of commits with error-level warnings; validate against `data/manual_labels.csv` (global stratified sample N=50) and calculate 95% CI for accuracy.
-- [ ] T007e [P] Implement `src/code/metrics.py`: `generate_manual_labels()` - Create a script to generate `data/manual_labels.csv` by stratified sampling a representative subset of commits from the 500 repos, manually labeling them as 'bug_fix' or 'not_bug_fix' (simulated via commit message keywords for automation), and saving the ground truth.
+- [X] T007d [P] Implement `src/code/metrics.py`: `calc_quality_rate()` using `pylint` on sampled commits; calculate ratio of commits with error-level warnings; validate against `data/manual_labels.csv` (global stratified sample N=50) and calculate 95% CI for accuracy.
+- [X] T007e [P] Implement `src/code/metrics.py`: `generate_manual_labels()` - Create a script to generate `data/manual_labels.csv` by stratified sampling a representative subset of commits from the 500 repos, manually labeling them as 'bug_fix' or 'not_bug_fix' (simulated via commit message keywords for automation), and saving the ground truth.
 - [X] T008a [P] Implement `src/code/analysis.py`: `run_regression()`: Implement Multiple Linear Regression (MLR) with robust standard errors (using `statsmodels` or `scikit-learn` with `White` covariance) to model maintainability vs. comment metrics, controlling for age, LOC, and complexity. (Note: Negative Binomial/Beta are prohibited by Constitution Principle VII).
 - [X] T008b [P] Implement `src/code/analysis.py`: `apply_fdr_correction()`: Implement Benjamini-Hochberg FDR correction on p-values from multiple hypothesis tests.
 - [X] T008c [P] Implement `src/code/analysis.py`: `run_sensitivity()`: Implement sensitivity analysis sweeping thresholds over a range of small values for exploratory purposes only; ensure final report uses fixed p < 0.05.
@@ -159,7 +159,7 @@ description: "Task list for Evaluating the Impact of Code Comment Style on Maint
 - [X] T022 [P] [US2] Implement `src/code/metrics.py` `calc_readability()`: Use `textstat.flesch_kincaid_grade` on extracted comments; validate against known string "This is a simple test." (target 65.3 ± 0.1).
 - [X] T023 [P] [US2] Implement `src/code/metrics.py` `calc_sentiment()`: Use `TextBlob` polarity on extracted comments; validate against known string.
 - [X] T024 [US2] Implement `src/code/metrics.py` `calc_churn()`: Parse `git log --numstat` for lines changed per commit; aggregate to repository level; validate against manual spot-check.
-- [ ] T025 [US2] Implement `src/code/metrics.py` `calc_quality_rate()`: Sample commits using `CommitSampler`; run `pylint` for error-level warnings; calculate ratio; validate against `data/manual_labels.csv` (global stratified sample N=50) and compute 95% CI.
+- [X] T025 [US2] Implement `src/code/metrics.py` `calc_quality_rate()`: Sample commits using `CommitSampler`; run `pylint` for error-level warnings; calculate ratio; validate against `data/manual_labels.csv` (global stratified sample N=50) and compute 95% CI.
 - [X] T026 [US2] Implement `src/code/utils.py` memory stream processing: Ensure `MemoryMonitor` (T004c) is active during metric aggregation to stay within acceptable RAM limits.
 - [ ] T027 [US2] Aggregate metrics: Combine readability, sentiment, density, churn, bug_fix_rate, and complexity into `data/processed/metrics.csv` with precision ≥2 decimal places. (Note: This task depends on T021 and T021b; NOT parallel).
 
@@ -183,12 +183,12 @@ description: "Task list for Evaluating the Impact of Code Comment Style on Maint
 
 - [X] T030 [P] [US3] Implement `src/code/analysis.py` `run_regression()`: Model maintainability vs. comment metrics using Multiple Linear Regression with robust standard errors (Constitution Principle VII), controlling for age, LOC, and cyclomatic complexity (T006b).
 - [X] T031 [P] [US3] Implement `src/code/analysis.py` `apply_fdr_correction()`: Apply Benjamini-Hochberg FDR correction to p-values; output corrected p-values.
-- [ ] T032 [P] [US3] Implement `src/code/analysis.py` `run_sensitivity()`: Sweep significance thresholds over {0.01, 0.05, 0.1} for exploratory analysis; record rate variations; ensure final report uses fixed p < 0.05.
+- [X] T032 [P] [US3] Implement `src/code/analysis.py` `run_sensitivity()`: Sweep significance thresholds over {0.01, 0.05, 0.1} for exploratory analysis; record rate variations; ensure final report uses fixed p < 0.05.
 - [ ] T032b [US3] Generate sensitivity report: Create `data/processed/sensitivity_report.json` containing the results of the threshold sweep.
 - [ ] T033 [US3] Implement report generation: Ensure `is_significant` boolean, p-values, and R² values in `data/processed/analysis_results.json` meet SC-003. (Note: Depends on T030, T031, T032; NOT parallel).
-- [ ] T033b [US3] Create report template: Create `docs/report.md` with placeholders for findings, ensuring associational framing.
+- [X] T033b [US3] Create report template: Create `docs/report.md` with placeholders for findings, ensuring associational framing.
 - [ ] T034 [US3] Enforce associational framing (FR-008): Update `analysis.py` report generation function to replace causal verbs (e.g., "causes") with correlational verbs (e.g., "is associated with") and append a disclaimer to all report sections.
-- [ ] T035 [US3] Add timing and memory usage checks: Create `tests/integration/test_resource_limits.py` and add `@timeit` decorator to `run_pipeline` to verify acceptable runtime and memory limits (FR-012, FR-011).
+- [X] T035 [US3] Add timing and memory usage checks: Create `tests/integration/test_resource_limits.py` and add `@timeit` decorator to `run_pipeline` to verify acceptable runtime and memory limits (FR-012, FR-011).
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 

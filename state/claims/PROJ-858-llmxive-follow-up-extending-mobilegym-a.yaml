@@ -124,3 +124,138 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-13T01:56:48Z'
+- artifact_path: projects/PROJ-858-llmxive-follow-up-extending-mobilegym-a/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: Pearson correlation r is 0.8723
+  claim_id: c_63a1a2f0
+  context: Summary section of the Sensitivity Analysis Report.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Pearson Correlation (r): 0.8723'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T01:01:55Z'
+- artifact_path: projects/PROJ-858-llmxive-follow-up-extending-mobilegym-a/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: Sample size is 50
+  claim_id: c_0c11aca3
+  context: Summary section of the Sensitivity Analysis Report.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Sample Size: 50'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T01:02:36Z'
+- artifact_path: projects/PROJ-858-llmxive-follow-up-extending-mobilegym-a/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: Pearson correlation of 0.8723
+  claim_id: c_7c65400f
+  context: Correlation Analysis section reporting statistical metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Pearson Correlation (r): 0.8723'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T01:03:58Z'
+- artifact_path: projects/PROJ-858-llmxive-follow-up-extending-mobilegym-a/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: P-value of 0.000123
+  claim_id: c_7d91889c
+  context: Correlation Analysis section reporting statistical metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'P-value: 0.000123'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T01:04:18Z'
+- artifact_path: projects/PROJ-858-llmxive-follow-up-extending-mobilegym-a/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: Sample size of 50
+  claim_id: c_b922e89c
+  context: Correlation Analysis section reporting statistical metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Sample Size: 50'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T01:04:18Z'
+- artifact_path: projects/PROJ-858-llmxive-follow-up-extending-mobilegym-a/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: Mean scalar value of 12.4
+  claim_id: c_400c5715
+  context: Statistical Summary section reporting descriptive statistics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Mean Scalar Value: 12.4000'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T01:04:46Z'
+- artifact_path: projects/PROJ-858-llmxive-follow-up-extending-mobilegym-a/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: Standard deviation of scalar values of 3.2
+  claim_id: c_64e7917c
+  context: Statistical Summary section reporting descriptive statistics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Std Dev Scalar: 3.2000'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T01:05:16Z'
+- artifact_path: projects/PROJ-858-llmxive-follow-up-extending-mobilegym-a/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: Mean success rate of 0.78
+  claim_id: c_2a2a827f
+  context: Statistical Summary section reporting descriptive statistics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Mean Success Rate: 0.7800'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T01:05:51Z'
+- artifact_path: projects/PROJ-858-llmxive-follow-up-extending-mobilegym-a/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: Standard deviation of success rate of 0.15
+  claim_id: c_f78c3700
+  context: Statistical Summary section reporting descriptive statistics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Std Dev Success Rate: 0.1500'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T01:06:12Z'

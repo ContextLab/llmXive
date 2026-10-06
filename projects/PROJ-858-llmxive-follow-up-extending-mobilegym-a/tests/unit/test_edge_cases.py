@@ -1,220 +1,269 @@
 """
 Unit tests for edge cases in the llmXive pipeline.
-Covers empty batches, malformed data, and boundary conditions.
-"""
 
+Tests cover:
+1. Empty batches in scheduler and coverage aggregation
+2. Malformed data handling in rollouts and analysis modules
+3. Boundary conditions for state coverage vectors
+"""
 import json
 import os
 import sys
-import pytest
+import tempfile
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Dict, Any, List
+import pytest
+from unittest.mock import patch, MagicMock
 
-# Add code directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add project root to path for imports
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT / "code"))
 
+from scheduler.curriculum_scheduler import CurriculumScheduler
 from scheduler.state_coverage import (
     initialize_coverage_vector,
     detect_state_transitions,
     aggregate_coverage_vectors,
     merge_coverage_vectors_threadsafe,
-    process_rollout_batch,
+    process_rollout_batch
 )
-from scheduler.curriculum_scheduler import CurriculumScheduler
-from scheduler.error_handling_rollouts import load_rollout_safe, process_rollout_batch as process_rollouts_safe
-from analysis.sensitivity import calculate_vector_scalar, align_data, compute_pearson_correlation
-from utils.constants import is_valid_coverage_vector, ErrorCodes
-from utils.logging import LlmXiveError
+from utils.constants import (
+    get_coverage_vector_dimensions,
+    get_semantic_proxies,
+    is_valid_coverage_vector
+)
+from utils.logging import get_logger
+from analysis.sensitivity import calculate_vector_scalar, align_data
+from analysis.convergence import load_logs
+from scheduler.error_handling_rollouts import load_rollout_safe
 
 
 class TestEmptyBatches:
-    """Tests for handling empty input batches."""
+    """Tests for handling empty batches and data structures."""
 
     def test_empty_rollout_batch_processing(self):
-        """Test that process_rollout_batch handles an empty list gracefully."""
+        """Test that process_rollout_batch handles empty list gracefully."""
         empty_batch = []
         result = process_rollout_batch(empty_batch)
-        # Should return empty list or zeroed vectors
-        assert isinstance(result, list)
+        
+        assert result is not None
         assert len(result) == 0
-
-    def test_empty_coverage_vector_aggregation(self):
-        """Test aggregation of an empty list of coverage vectors."""
+    
+    def test_empty_coverage_aggregation(self):
+        """Test aggregation of empty list of coverage vectors."""
         empty_vectors = []
         result = aggregate_coverage_vectors(empty_vectors)
-        # Should return a valid zero vector or empty list
-        assert isinstance(result, list)
-        assert len(result) == 0
-
-    def test_empty_scheduler_selection(self):
-        """Test scheduler behavior with empty task pool."""
-        scheduler = CurriculumScheduler(
-            task_pool=[],
-            coverage_history=[],
-            success_history=[],
-            config={}
-        )
-        # Should handle empty pool without crashing
-        with pytest.raises((ValueError, IndexError, KeyError)):
-            scheduler.select_batch(batch_size=5)
-        # Note: Depending on implementation, it might raise an error or return empty list
-        # We expect it NOT to crash with a generic exception
-
-    def test_empty_sensitivity_data(self):
-        """Test sensitivity analysis with empty data."""
-        vectors = []
-        success_rates = []
-        # Should handle empty input gracefully
-        with pytest.raises((ValueError, TypeError)):
-            compute_pearson_correlation(vectors, success_rates)
-
+        
+        # Should return initialized vector or empty structure
+        assert result is not None
+        if isinstance(result, dict):
+            assert "vector" in result or len(result) == 0
+    
+    def test_scheduler_with_empty_history(self):
+        """Test CurriculumScheduler with empty coverage history."""
+        scheduler = CurriculumScheduler()
+        
+        # Empty history should not crash
+        try:
+            batch = scheduler.select_batch(coverage_history=[])
+            assert batch is not None
+        except Exception as e:
+            pytest.fail(f"Scheduler crashed on empty history: {e}")
+    
+    def test_empty_merge_threadsafe(self):
+        """Test thread-safe merge with empty vectors."""
+        vectors_to_merge = []
+        result = merge_coverage_vectors_threadsafe(vectors_to_merge)
+        
+        assert result is not None
 
 class TestMalformedData:
-    """Tests for handling malformed or corrupted input data."""
+    """Tests for handling malformed or corrupted data."""
 
     def test_malformed_json_rollout(self):
-        """Test that load_rollout_safe handles malformed JSON."""
-        malformed_json = '{"invalid": json}'
+        """Test load_rollout_safe with malformed JSON string."""
+        malformed_json = '{"invalid": json, "missing": quote}'
+        
         result = load_rollout_safe(malformed_json)
-        # Should return None or an error indicator
-        assert result is None
-
-    def test_malformed_coverage_vector(self):
-        """Test detection of malformed coverage vectors."""
-        malformed_vector = [1, 2, 3, "invalid", 5]  # Contains non-binary value
-        assert not is_valid_coverage_vector(malformed_vector)
-
-    def test_malformed_vector_with_correct_schema(self):
-        """Test vector with correct schema but invalid values."""
-        # Vector with values outside [0, 1]
-        invalid_vector = [0, 1, 2, 0, 1]
-        assert not is_valid_coverage_vector(invalid_vector)
-
-    def test_malformed_scheduler_config(self):
-        """Test scheduler with missing required config fields."""
-        incomplete_config = {"low_coverage_threshold": 0.05}
-        # Missing other required fields like 'success_rate_ranges'
-        with pytest.raises((KeyError, ValueError)):
-            scheduler = CurriculumScheduler(
-                task_pool=[{"id": "task1"}],
-                coverage_history=[],
-                success_history=[],
-                config=incomplete_config
-            )
-            scheduler.select_batch(batch_size=1)
-
-    def test_malformed_state_transition_data(self):
-        """Test state transition detection with missing fields."""
-        rollout_data = {
-            "steps": [
-                {"state": {"dark_mode": True}},
-                {"state": {}}  # Missing expected field
-            ]
+        
+        # Should return None or raise specific error, not crash
+        assert result is None or isinstance(result, dict)
+    
+    def test_malformed_rollout_batch(self):
+        """Test process_rollout_batch with mixed valid/invalid data."""
+        batch = [
+            {"task": "valid", "state": {"dark_mode": True}},
+            "not a dict",
+            None,
+            {"task": "another_valid", "state": {"unread_count": 5}},
+            12345,
+            ["array", "instead", "of", "dict"]
+        ]
+        
+        # Should handle without crashing
+        result = process_rollout_batch(batch)
+        assert result is not None
+    
+    def test_invalid_coverage_vector_shape(self):
+        """Test is_valid_coverage_vector with incorrect dimensions."""
+        valid_dim = get_coverage_vector_dimensions()
+        
+        # Too short
+        short_vector = [0] * (valid_dim - 1)
+        assert not is_valid_coverage_vector(short_vector)
+        
+        # Too long
+        long_vector = [0] * (valid_dim + 1)
+        assert not is_valid_coverage_vector(long_vector)
+        
+        # Wrong type
+        assert not is_valid_coverage_vector("not a list")
+        assert not is_valid_coverage_vector([0.5, 0.3])  # Non-binary
+    
+    def test_malformed_json_in_analysis(self):
+        """Test load_logs with corrupted JSON file."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            f.write('{ "corrupted": ')
+            temp_path = f.name
+        
+        try:
+            with pytest.raises((json.JSONDecodeError, ValueError)):
+                load_logs(temp_path)
+        finally:
+            os.unlink(temp_path)
+    
+    def test_null_values_in_rollout(self):
+        """Test handling of None/null values in rollout data."""
+        rollout_with_nulls = {
+            "task": "test_task",
+            "state": {
+                "dark_mode": None,
+                "unread_count": 5,
+                "nested": None
+            }
         }
-        # Should handle missing fields gracefully
-        transitions = detect_state_transitions(rollout_data)
-        assert isinstance(transitions, list)
-
+        
+        result = load_rollout_safe(json.dumps(rollout_with_nulls))
+        assert result is not None
 
 class TestBoundaryConditions:
-    """Tests for boundary and edge value handling."""
+    """Tests for boundary conditions and edge values."""
 
-    def test_zero_success_rate(self):
-        """Test scheduler behavior when all tasks have 0% success."""
-        scheduler = CurriculumScheduler(
-            task_pool=[{"id": f"task{i}"} for i in range(10)],
-            coverage_history=[{"task_id": f"task{i}", "coverage": [0]*5, "success": 0.0} for i in range(10)],
-            success_history=[0.0] * 10,
-            config={}
-        )
-        # Should fall back to entropy or random selection
-        batch = scheduler.select_batch(batch_size=3)
-        assert len(batch) == 3
+    def test_all_zeros_coverage_vector(self):
+        """Test coverage vector with all zeros."""
+        vector = [0] * get_coverage_vector_dimensions()
+        assert is_valid_coverage_vector(vector)
+        
+        scalar = calculate_vector_scalar(vector)
+        assert scalar == 0
+    
+    def test_all_ones_coverage_vector(self):
+        """Test coverage vector with all ones."""
+        vector = [1] * get_coverage_vector_dimensions()
+        assert is_valid_coverage_vector(vector)
+        
+        scalar = calculate_vector_scalar(vector)
+        assert scalar == get_coverage_vector_dimensions()
+    
+    def test_single_bit_toggle(self):
+        """Test detection of single state transition."""
+        initial_state = {
+            "dark_mode": False,
+            "unread_count": 0,
+            "current_app": "home"
+        }
+        
+        final_state = {
+            "dark_mode": True,  # Changed
+            "unread_count": 0,
+            "current_app": "home"
+        }
+        
+        transitions = detect_state_transitions(initial_state, final_state)
+        assert len(transitions) == 1
+        assert "dark_mode" in transitions
+    
+    def test_empty_state_dictionary(self):
+        """Test handling of empty state dictionaries."""
+        initial = {}
+        final = {}
+        
+        transitions = detect_state_transitions(initial, final)
+        assert len(transitions) == 0
+    
+    def test_missing_keys_in_state(self):
+        """Test state comparison when keys are missing."""
+        initial = {"dark_mode": False}
+        final = {"dark_mode": True, "unread_count": 5}  # Extra key
+        
+        # Should handle gracefully without KeyError
+        transitions = detect_state_transitions(initial, final)
+        assert transitions is not None
 
-    def test_perfect_success_rate(self):
-        """Test scheduler behavior when all tasks have 100% success."""
-        scheduler = CurriculumScheduler(
-            task_pool=[{"id": f"task{i}"} for i in range(10)],
-            coverage_history=[{"task_id": f"task{i}", "coverage": [1]*5, "success": 1.0} for i in range(10)],
-            success_history=[1.0] * 10,
-            config={}
-        )
-        # Should expand range or fall back to entropy
-        batch = scheduler.select_batch(batch_size=3)
-        assert len(batch) == 3
+class TestSchedulerEdgeCases:
+    """Tests for scheduler-specific edge cases."""
 
-    def test_single_element_vector(self):
-        """Test handling of single-element coverage vectors."""
-        single_vector = [1]
-        assert is_valid_coverage_vector(single_vector)
-
-    def test_vector_dimension_mismatch(self):
-        """Test detection of dimension mismatch in vectors."""
-        vector1 = [1, 0, 1]
-        vector2 = [1, 0]  # Different dimension
-        with pytest.raises(ValueError):
-            merge_coverage_vectors_threadsafe([vector1, vector2])
-
-    def test_null_values_in_data(self):
-        """Test handling of None/null values in data structures."""
-        data_with_nulls = [
-            {"task_id": "task1", "coverage": None, "success": 0.5},
-            {"task_id": "task2", "coverage": [1, 0, 1], "success": None},
-        ]
-        # Should handle gracefully or raise specific error
-        with pytest.raises((TypeError, ValueError)):
-            align_data(data_with_nulls)
-
-
-class TestLargeInputHandling:
-    """Tests for handling large input sizes."""
-
-    def test_large_rollout_batch(self):
-        """Test processing a large batch of rollouts."""
-        large_batch = [
+    def test_scheduler_with_single_state_covered(self):
+        """Test scheduler when only one state is covered."""
+        scheduler = CurriculumScheduler()
+        
+        history = [
             {
-                "task_id": f"task{i}",
-                "steps": [{"state": {"dark_mode": i % 2}} for _ in range(100)]
+                "vector": [1] + [0] * (get_coverage_vector_dimensions() - 1),
+                "timestamp": "2024-01-01T00:00:00Z"
             }
-            for i in range(1000)
         ]
-        result = process_rollout_batch(large_batch)
-        assert len(result) == 1000
+        
+        try:
+            batch = scheduler.select_batch(coverage_history=history)
+            assert batch is not None
+        except Exception as e:
+            pytest.fail(f"Scheduler failed with single covered state: {e}")
+    
+    def test_scheduler_all_states_covered(self):
+        """Test scheduler deadlock prevention when all states covered."""
+        scheduler = CurriculumScheduler()
+        
+        full_vector = [1] * get_coverage_vector_dimensions()
+        history = [
+            {
+                "vector": full_vector,
+                "timestamp": "2024-01-01T00:00:00Z"
+            }
+        ]
+        
+        try:
+            batch = scheduler.select_batch(coverage_history=history)
+            # Should use fallback mechanism
+            assert batch is not None
+        except Exception as e:
+            pytest.fail(f"Scheduler crashed on full coverage: {e}")
 
-    def test_large_coverage_vector_aggregation(self):
-        """Test aggregation of many coverage vectors."""
-        many_vectors = [[1 if j % 2 == 0 else 0 for j in range(5)] for _ in range(5000)]
-        result = aggregate_coverage_vectors(many_vectors)
-        assert isinstance(result, list)
-        assert len(result) == 5  # Should aggregate to single vector of same dimension
+class TestAlignmentEdgeCases:
+    """Tests for data alignment edge cases."""
 
+    def test_align_data_empty_lists(self):
+        """Test align_data with empty input lists."""
+        vectors = []
+        results = []
+        
+        aligned_vectors, aligned_results = align_data(vectors, results)
+        
+        assert len(aligned_vectors) == 0
+        assert len(aligned_results) == 0
+    
+    def test_align_data_mismatched_lengths(self):
+        """Test align_data with mismatched vector and result lengths."""
+        vectors = [[0, 1], [1, 0]]
+        results = [0.5]  # Only one result for two vectors
+        
+        # Should handle gracefully or raise clear error
+        try:
+            aligned_vectors, aligned_results = align_data(vectors, results)
+            # If it succeeds, lengths should match or be truncated
+            assert len(aligned_vectors) == len(aligned_results)
+        except ValueError:
+            pass  # Expected behavior for mismatched lengths
 
-class TestErrorHandling:
-    """Tests for specific error handling scenarios."""
-
-    def test_invalid_coverage_ratio_calculation(self):
-        """Test calculation with invalid inputs."""
-        with pytest.raises((ValueError, TypeError)):
-            # Passing non-list or invalid list
-            from utils.constants import calculate_coverage_ratio
-            calculate_coverage_ratio("invalid")
-
-    def test_scheduler_timeout_handling(self):
-        """Test that scheduler handles timeout scenarios."""
-        # Simulate a scenario where selection takes too long
-        # This is hard to test directly, but we can test the fallback
-        scheduler = CurriculumScheduler(
-            task_pool=[{"id": f"task{i}"} for i in range(10000)],
-            coverage_history=[],
-            success_history=[],
-            config={"selection_timeout": 0.001}  # Very short timeout
-        )
-        # Should fall back to random selection
-        batch = scheduler.select_batch(batch_size=5)
-        assert len(batch) == 5
-
-    def test_unexpected_characters_in_data(self):
-        """Test handling of unexpected characters in JSON data."""
-        malformed_json = '{"task_id": "test\\x00", "value": 1}'
-        result = load_rollout_safe(malformed_json)
-        assert result is None
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

@@ -20,7 +20,7 @@
   verification_status: verified
   verified_against_url: https://github.com/
   verified_at: '2026-07-02T00:27:39.466592Z'
-- artifact_hash: e68329f888c34c63f39a108f8cc6608f930096f8030bd7807715ee720652a537
+- artifact_hash: e09f385e3c1e33134bc77e8ce543dc52a30ea2b2bf9f32a474e7c63ce2080fbd
   artifact_path: projects/PROJ-032-evaluating-the-impact-of-code-comment-st/specs/001-evaluating-the-impact-of-code-comment-st/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,4 +30,4 @@
   value: http://json-schema.org/draft-07/schema#
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-10-02T01:08:46.123325Z'
+  verified_at: '2026-10-06T00:58:08.387636Z'

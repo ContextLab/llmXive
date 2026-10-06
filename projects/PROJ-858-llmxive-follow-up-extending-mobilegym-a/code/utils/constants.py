@@ -89,6 +89,10 @@ def _load_schema_constants() -> None:
     This function reads the contracts/coverage.schema.yaml file and populates
     the global _SEMANTIC_PROXIES and _VECTOR_DIMENSIONS variables.
     It is called lazily by get_semantic_proxies() and get_coverage_vector_dimensions().
+    
+    Raises:
+        FileNotFoundError: If the schema file is missing.
+        ValueError: If the schema is malformed or empty.
     """
     global _SEMANTIC_PROXIES, _VECTOR_DIMENSIONS
     
@@ -125,7 +129,7 @@ def _load_schema_constants() -> None:
                     proxy_name = proxy_name[1:-1]
                 proxies.append(proxy_name)
             elif stripped and not stripped.startswith('#') and not stripped.startswith('-'):
-                # End of the list section
+                # End of the list section (encountered a new top-level key)
                 break
     
     # Extract vector_dimensions
@@ -148,6 +152,7 @@ def _load_schema_constants() -> None:
     if len(proxies) != dimensions:
         # Log a warning but proceed, using the actual count from proxies
         # This handles cases where the dimension count might be outdated
+        # In a strict production environment, we might raise here.
         pass
     
     _SEMANTIC_PROXIES = proxies

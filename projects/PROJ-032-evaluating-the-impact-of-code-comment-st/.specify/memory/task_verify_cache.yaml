@@ -12,27 +12,6 @@ T007e:
     disk, failing the existence requirement. Additionally, the provided `src/code/metrics.py`
     file is truncated and does not contain the `generate_manual_labels()` function
     or the logic to perform stratified sampling and save the ground truth.
-T015b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code artifact showing a modified `clone_batch` function with retry and skip\
-    \ logic (or corresponding tests/logs) was provided. Without the actual implementation\
-    \ or evidence that errors are logged and processing continues, the requirement\
-    \ cannot be confirmed. The next implementer must add and expose the updated `clone_batch`\
-    \ code (and optionally tests) demonstrating the retry\u2011on\u2011failure behavior."
-T015c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code artifact for `clone_batch` was provided, and there is no evidence that
-    a check for empty git history was added or that exclusions are logged. The required
-    implementation and logging are missing.
-T016:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `logs/acquisition_stats.json` file or its contents were provided; thus there
-    is no evidence that the required JSON logging of success rate, excluded repos
-    count, and total valid clones was added. The implementer must create this file
-    with the specified statistics.
 T025:
   c: false
   h: 4f305f314e8f50e45aac0e8ac7dadf2d615759cc4fbd0533c2b1aa2fb6d34b21
@@ -46,3 +25,11 @@ T027:
   r: "The required output file `data/processed/metrics.csv` does not exist, so the\
     \ aggregation of the specified metrics cannot be verified. The task\u2019s core\
     \ deliverable is missing."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `analysis.py` file or diff was provided showing the replacement of
+    causal verbs with correlational verbs and the addition of a disclaimer to every
+    report section. Without the actual code changes, we cannot confirm the required
+    modifications were made. The implementer must supply the modified `analysis.py`
+    (or a patch) demonstrating the verb substitution and disclaimer insertion.

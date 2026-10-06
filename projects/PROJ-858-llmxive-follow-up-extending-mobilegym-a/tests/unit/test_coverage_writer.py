@@ -1,5 +1,5 @@
 """
-Unit tests for coverage_writer module (T028)
+Unit tests for coverage_writer module.
 """
 import json
 import os
@@ -7,117 +7,113 @@ import tempfile
 from pathlib import Path
 import pytest
 
-# Import the module under test
-from code.scheduler.coverage_writer import (
+from scheduler.coverage_writer import (
+    load_aggregated_vectors,
     write_coverage_vectors,
     calculate_file_checksum,
-    update_checksum_file,
-    load_aggregated_vectors
+    update_checksum_file
 )
-from code.utils.constants import get_semantic_proxies, get_coverage_vector_dimensions
 
 
 class TestCoverageWriter:
-    """Tests for the coverage writer functionality."""
-
-    def test_write_coverage_vectors_creates_file(self, tmp_path):
-        """Test that write_coverage_vectors creates the output file."""
-        output_path = str(tmp_path / "coverage_vectors.json")
-        test_vectors = [
-            {
-                "task_id": "task_001",
-                "vector": [1, 0, 1, 0, 1],
-                "timestamp": "2024-01-01T00:00:00Z"
-            }
-        ]
-        
-        result_path = write_coverage_vectors(test_vectors, output_path)
-        
-        assert os.path.exists(result_path)
-        assert result_path == output_path
-        
-        with open(result_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-        
-        assert "metadata" in data
-        assert "vectors" in data
-        assert len(data["vectors"]) == 1
-
-    def test_write_coverage_vectors_includes_metadata(self, tmp_path):
-        """Test that metadata is correctly included in output."""
-        output_path = str(tmp_path / "coverage_vectors.json")
-        test_vectors = []
-        
-        write_coverage_vectors(test_vectors, output_path)
-        
-        with open(output_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-        
-        assert "generated_at" in data["metadata"]
-        assert "vector_dimensions" in data["metadata"]
-        assert "semantic_proxies" in data["metadata"]
-        assert data["metadata"]["vector_dimensions"] == get_coverage_vector_dimensions()
-        assert data["metadata"]["semantic_proxies"] == get_semantic_proxies()
+    """Tests for coverage writer functionality."""
 
     def test_calculate_file_checksum(self, tmp_path):
-        """Test SHA-256 checksum calculation."""
+        """Test checksum calculation for a known file."""
         test_file = tmp_path / "test.txt"
         test_content = b"Hello, World!"
         test_file.write_bytes(test_content)
         
         checksum = calculate_file_checksum(str(test_file))
         
-        # Verify it's a valid SHA-256 hex string (64 chars)
-        assert len(checksum) == 64
-        assert all(c in '0123456789abcdef' for c in checksum)
+        # SHA-256 of "Hello, World!"
+        expected = "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f"
+        assert checksum == expected
+
+    def test_write_coverage_vectors(self, tmp_path):
+        """Test writing coverage vectors to JSON file."""
+        test_vectors = [
+            {"id": "task_1", "vector": [1, 0, 1, 0], "metadata": {"steps": 100}},
+            {"id": "task_2", "vector": [0, 1, 1, 1], "metadata": {"steps": 150}}
+        ]
+        
+        output_path = str(tmp_path / "coverage_vectors.json")
+        
+        result_path = write_coverage_vectors(test_vectors, output_path)
+        
+        assert os.path.exists(result_path)
+        
+        with open(result_path, 'r') as f:
+            data = json.load(f)
+        
+        assert "metadata" in data
+        assert "vectors" in data
+        assert len(data["vectors"]) == 2
+        assert data["vectors"][0]["id"] == "task_1"
+        assert data["vectors"][0]["vector"] == [1, 0, 1, 0]
+
+    def test_write_coverage_vectors_creates_directory(self, tmp_path):
+        """Test that write_coverage_vectors creates parent directories."""
+        test_vectors = [{"id": "test", "vector": [1, 0]}]
+        
+        output_path = str(tmp_path / "subdir" / "coverage.json")
+        
+        result_path = write_coverage_vectors(test_vectors, output_path)
+        
+        assert os.path.exists(result_path)
 
     def test_update_checksum_file(self, tmp_path):
-        """Test updating the checksums file."""
-        # Create a test data file
-        data_file = tmp_path / "data.json"
-        data_file.write_text(json.dumps({"test": "data"}))
+        """Test updating the checksum registry file."""
+        test_file = tmp_path / "test_artifact.json"
+        test_file.write_text('{"test": "data"}')
         
-        checksum_file = tmp_path / ".checksums.txt"
+        checksum_file = tmp_path / "checksums.txt"
         
-        update_checksum_file(str(data_file), str(checksum_file))
+        update_checksum_file(str(test_file), str(checksum_file))
         
         assert checksum_file.exists()
-        content = checksum_file.read_text()
         
-        # Should contain the checksum and filename
-        assert len(content.split()[0]) == 64  # Checksum length
-        assert "data.json" in content
+        with open(checksum_file, 'r') as f:
+            content = f.read()
+        
+        assert "test_artifact.json" in content
+        assert calculate_file_checksum(str(test_file))[:16] in content
 
     def test_load_aggregated_vectors_from_file(self, tmp_path):
-        """Test loading vectors from a JSON file."""
-        input_file = tmp_path / "aggregated.json"
-        test_data = [
-            {"task_id": "t1", "vector": [1, 0]},
-            {"task_id": "t2", "vector": [0, 1]}
-        ]
-        input_file.write_text(json.dumps(test_data))
+        """Test loading vectors from a specified file."""
+        test_data = {
+            "vectors": [
+                {"id": "loaded_1", "vector": [1, 1, 0]},
+                {"id": "loaded_2", "vector": [0, 0, 1]}
+            ]
+        }
         
-        result = load_aggregated_vectors(str(input_file))
+        source_file = tmp_path / "source.json"
+        with open(source_file, 'w') as f:
+            json.dump(test_data, f)
         
-        assert len(result) == 2
-        assert result[0]["task_id"] == "t1"
+        vectors = load_aggregated_vectors(str(source_file))
+        
+        assert len(vectors) == 2
+        assert vectors[0]["id"] == "loaded_1"
 
-    def test_load_aggregated_vectors_empty_when_missing(self, tmp_path):
-        """Test that missing file returns empty list."""
-        result = load_aggregated_vectors(str(tmp_path / "nonexistent.json"))
-        assert result == []
+    def test_load_aggregated_vectors_missing_file_raises(self, tmp_path):
+        """Test that missing source file raises FileNotFoundError."""
+        with pytest.raises(FileNotFoundError):
+            load_aggregated_vectors(str(tmp_path / "nonexistent.json"))
 
-    def test_write_coverage_vectors_multiple_vectors(self, tmp_path):
-        """Test writing multiple vectors."""
-        output_path = str(tmp_path / "coverage_vectors.json")
-        test_vectors = [
-            {"task_id": f"task_{i}", "vector": [i % 2] * 5}
-            for i in range(10)
-        ]
+    def test_write_coverage_vectors_includes_metadata(self, tmp_path):
+        """Test that written file includes proper metadata."""
+        test_vectors = [{"id": "meta_test", "vector": [1, 0, 1]}]
+        output_path = str(tmp_path / "meta_test.json")
         
         write_coverage_vectors(test_vectors, output_path)
         
-        with open(output_path, 'r', encoding='utf-8') as f:
+        with open(output_path, 'r') as f:
             data = json.load(f)
         
-        assert len(data["vectors"]) == 10
+        assert "metadata" in data
+        assert "generated_at" in data["metadata"]
+        assert "total_vectors" in data["metadata"]
+        assert data["metadata"]["total_vectors"] == 1
+        assert data["metadata"]["version"] == "1.0"

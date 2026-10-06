@@ -1,3 +1,8 @@
+"""
+Module to generate manual labels for bug fix detection.
+This script creates data/manual_labels.csv by stratified sampling commits
+from available repositories and labeling them based on commit message heuristics.
+"""
 import os
 import csv
 import random
@@ -5,172 +10,224 @@ import logging
 import subprocess
 from pathlib import Path
 from typing import List, Dict, Tuple, Optional
-from collections import defaultdict
 
 from utils import configure_logging
 
-# Configure logging
-logger = configure_logging(log_path="logs/manual_labels.log")
+# Setup logging
+logger = configure_logging(log_path="logs/manual_labels_generator.log")
 
-def get_repos_with_git_history(base_dir: str) -> List[Path]:
+# Heuristic keywords for bug fix detection
+BUG_FIX_KEYWORDS = [
+    'fix', 'bug', 'issue', 'error', 'patch', 'hotfix', 'resolve',
+    'crash', 'failure', 'exception', 'defect', 'correct', 'repair'
+]
+
+NOT_BUG_KEYWORDS = [
+    'feat', 'feature', 'add', 'new', 'enhance', 'improve', 'refactor',
+    'docs', 'documentation', 'style', 'format', 'test', 'chore', 'build'
+]
+
+def get_repos_with_git_history() -> List[Path]:
     """
-    Scan the base directory for cloned repositories that have a valid .git folder.
-    Returns a list of Path objects pointing to the repo roots.
+    Scan data/raw/ for directories that contain a .git folder.
+    Returns a list of Path objects pointing to valid repositories.
     """
-    base_path = Path(base_dir)
-    if not base_path.exists():
-        logger.error(f"Base directory {base_dir} does not exist.")
+    raw_data_dir = Path("data/raw")
+    if not raw_data_dir.exists():
+        logger.warning(f"Directory {raw_data_dir} does not exist. No repos found.")
         return []
 
     repos = []
-    for item in base_path.iterdir():
+    for item in raw_data_dir.iterdir():
         if item.is_dir() and (item / ".git").exists():
             repos.append(item)
-    
-    logger.info(f"Found {len(repos)} repositories with valid git history in {base_dir}")
+
+    logger.info(f"Found {len(repos)} repositories with git history in {raw_data_dir}")
     return repos
 
-def get_commits_for_repo(repo_path: Path, n_samples: int = 20) -> List[str]:
+def get_commits_for_repo(repo_path: Path, max_commits: int = 100) -> List[Dict]:
     """
-    Retrieve a list of commit hashes for a given repository.
-    Uses 'git log' to fetch commits.
+    Retrieve commit hashes and messages from a repository.
+    Returns a list of dicts with 'hash' and 'message' keys.
     """
     try:
-        result = subprocess.run(
-            ["git", "log", "--pretty=format:%H", "-n", str(n_samples * 2)],
-            cwd=str(repo_path),
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        commits = result.stdout.strip().split('\n')
-        # Deduplicate just in case
-        commits = list(dict.fromkeys(commits))
-        return commits[:n_samples]
+        # Get commit hash and subject line
+        cmd = [
+            "git", "-C", str(repo_path), "log",
+            "--pretty=format:%H|%s",
+            "-n", str(max_commits)
+        ]
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        
+        commits = []
+        for line in result.stdout.splitlines():
+            if '|' in line:
+                parts = line.split('|', 1)
+                if len(parts) == 2:
+                    commits.append({
+                        'hash': parts[0],
+                        'message': parts[1]
+                    })
+        
+        logger.debug(f"Retrieved {len(commits)} commits from {repo_path.name}")
+        return commits
     except subprocess.CalledProcessError as e:
-        logger.warning(f"Failed to get commits for {repo_path}: {e}")
+        logger.error(f"Failed to get commits from {repo_path}: {e}")
         return []
 
-def is_bug_fix_heuristic(commit_msg: str) -> bool:
+def is_bug_fix_heuristic(message: str) -> Tuple[bool, str]:
     """
-    Heuristic to determine if a commit is a bug fix based on message content.
-    This is used as a proxy for 'manual' labeling in an automated pipeline.
+    Determine if a commit is likely a bug fix based on message content.
+    Returns (is_bug_fix, label_source).
     """
-    if not commit_msg:
-        return False
+    msg_lower = message.lower()
     
-    msg_lower = commit_msg.lower()
-    bug_indicators = [
-        "fix", "bug", "issue", "crash", "error", "exception", 
-        "patch", "resolve", "correct", "repair"
-    ]
+    # Check for explicit bug fix indicators
+    for keyword in BUG_FIX_KEYWORDS:
+        if keyword in msg_lower:
+            # Ensure it's not negated (simple check)
+            if 'not ' + keyword not in msg_lower:
+                return True, "keyword_match"
     
-    for indicator in bug_indicators:
-        if indicator in msg_lower:
-            return True
-    return False
+    # Check for feature/enhancement indicators to explicitly mark as not bug fix
+    for keyword in NOT_BUG_KEYWORDS:
+        if keyword in msg_lower:
+            # Common prefixes for these keywords
+            if msg_lower.startswith(keyword) or msg_lower.startswith(f"{keyword}:"):
+                return False, "feature_keyword"
+    
+    # Default to not a bug fix if no clear indicators
+    return False, "default"
 
-def stratified_sample_commits(repos: List[Path], total_target: int = 50) -> List[Tuple[str, str, str]]:
+def stratified_sample_commits(
+    all_commits: List[Dict], 
+    sample_size: int = 50, 
+    seed: int = 42
+) -> List[Dict]:
     """
-    Perform stratified sampling of commits across repositories.
-    Returns a list of tuples: (repo_id, commit_hash, label).
+    Perform stratified sampling on commits based on their heuristic label.
+    Ensures a representative mix of bug_fix and not_bug_fix commits.
     """
-    samples_per_repo = max(1, total_target // len(repos)) if repos else 0
-    all_samples = []
+    random.seed(seed)
     
-    # We need to fetch the commit message to apply the heuristic
-    # We will sample more initially and then filter/adjust if needed
-    # But for simplicity, we sample N per repo, label them, and take the first T total.
+    # Classify all commits first
+    classified = []
+    for commit in all_commits:
+        is_bug, _ = is_bug_fix_heuristic(commit['message'])
+        classified.append({
+            **commit,
+            'is_bug': is_bug
+        })
     
-    for repo_path in repos:
-        repo_id = repo_path.name
-        commits = get_commits_for_repo(repo_path, n_samples=samples_per_repo + 5)
-        
+    # Separate by class
+    bug_fixes = [c for c in classified if c['is_bug']]
+    not_bug_fixes = [c for c in classified if not c['is_bug']]
+    
+    logger.info(f"Initial pool: {len(bug_fixes)} bug fixes, {len(not_bug_fixes)} not bug fixes")
+    
+    # Calculate sample sizes proportionally
+    total = len(classified)
+    if total == 0:
+        return []
+    
+    # Ensure we don't sample more than available
+    n_bug = min(int(sample_size * len(bug_fixes) / total), len(bug_fixes))
+    n_not_bug = sample_size - n_bug
+    
+    # Adjust if n_not_bug exceeds available
+    if n_not_bug > len(not_bug_fixes):
+        n_not_bug = len(not_bug_fixes)
+        n_bug = min(sample_size - n_not_bug, len(bug_fixes))
+    
+    # Sample from each group
+    sampled_bug = random.sample(bug_fixes, n_bug) if n_bug > 0 else []
+    sampled_not_bug = random.sample(not_bug_fixes, n_not_bug) if n_not_bug > 0 else []
+    
+    sampled = sampled_bug + sampled_not_bug
+    random.shuffle(sampled)
+    
+    logger.info(f"Sampled {len(sampled)} commits: {len(sampled_bug)} bug fixes, {len(sampled_not_bug)} not bug fixes")
+    return sampled
+
+def generate_labels(repos: List[Path], target_sample_size: int = 50) -> List[Dict]:
+    """
+    Generate labeled dataset from all repositories.
+    Collects commits, applies heuristic, and performs stratified sampling.
+    """
+    all_commits = []
+    
+    for repo in repos:
+        commits = get_commits_for_repo(repo)
         for commit in commits:
-            try:
-                # Get commit message
-                msg_result = subprocess.run(
-                    ["git", "log", "-1", "--pretty=%B", commit],
-                    cwd=str(repo_path),
-                    capture_output=True,
-                    text=True,
-                    check=True
-                )
-                msg = msg_result.stdout.strip().split('\n')[0] # First line
-                label = "bug_fix" if is_bug_fix_heuristic(msg) else "not_bug_fix"
-                all_samples.append((repo_id, commit, label))
-            except subprocess.CalledProcessError:
-                continue
-        
-        if len(all_samples) >= total_target:
-            break
+            commit['repo_id'] = repo.name
+            all_commits.append(commit)
     
-    # Shuffle to mix repos and labels
-    random.shuffle(all_samples)
-    return all_samples[:total_target]
+    if len(all_commits) == 0:
+        logger.error("No commits found across all repositories.")
+        return []
+    
+    logger.info(f"Total commits collected: {len(all_commits)}")
+    
+    # Perform stratified sampling
+    sampled_commits = stratified_sample_commits(all_commits, target_sample_size)
+    
+    # Generate final labels
+    labeled_data = []
+    for commit in sampled_commits:
+        is_bug, source = is_bug_fix_heuristic(commit['message'])
+        labeled_data.append({
+            'repo_id': commit['repo_id'],
+            'commit_hash': commit['hash'],
+            'commit_message': commit['message'],
+            'label': 'bug_fix' if is_bug else 'not_bug_fix',
+            'label_source': source
+        })
+    
+    return labeled_data
 
-def generate_labels(base_dir: str, output_path: str, target_count: int = 50):
+def save_labels(labeled_data: List[Dict], output_path: str = "data/manual_labels.csv") -> None:
     """
-    Main function to generate the manual_labels.csv file.
-    1. Finds repos.
-    2. Samples commits.
-    3. Applies heuristic labeling.
-    4. Saves to CSV.
+    Save labeled data to CSV file.
     """
-    repos = get_repos_with_git_history(base_dir)
-    if not repos:
-        logger.error("No repositories found to sample from.")
+    if not labeled_data:
+        logger.warning("No data to save.")
         return
-
-    logger.info(f"Starting stratified sampling for {target_count} labels...")
-    samples = stratified_sample_commits(repos, total_target=target_count)
     
-    if not samples:
-        logger.error("No samples could be generated.")
-        return
-
-    # Ensure output directory exists
-    output_path_obj = Path(output_path)
-    output_path_obj.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(["repo_id", "commit_hash", "label", "reason"])
-        
-        for repo_id, commit, label in samples:
-            # Reason is derived from the heuristic check
-            reason = "heuristic_bug_fix" if label == "bug_fix" else "heuristic_non_bug"
-            writer.writerow([repo_id, commit, label, reason])
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
     
-    logger.info(f"Successfully generated {len(samples)} labels at {output_path}")
-
-def save_labels(samples: List[Tuple[str, str, str]], output_path: str):
-    """
-    Helper to save pre-computed samples to CSV.
-    """
-    output_path_obj = Path(output_path)
-    output_path_obj.parent.mkdir(parents=True, exist_ok=True)
+    fieldnames = ['repo_id', 'commit_hash', 'commit_message', 'label', 'label_source']
     
-    with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(["repo_id", "commit_hash", "label", "reason"])
-        for repo_id, commit, label in samples:
-            reason = "heuristic_bug_fix" if label == "bug_fix" else "heuristic_non_bug"
-            writer.writerow([repo_id, commit, label, reason])
+    with open(output_file, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(labeled_data)
+    
+    logger.info(f"Saved {len(labeled_data)} labeled commits to {output_path}")
 
 def main():
     """
-    Entry point for the script.
+    Main entry point for generating manual labels.
     """
-    logger.info("Starting Manual Labels Generation Pipeline")
+    logger.info("Starting manual label generation...")
     
-    # Configuration
-    raw_data_dir = "data/raw"
-    output_file = "data/manual_labels.csv"
-    target_samples = 50
+    # Get repositories
+    repos = get_repos_with_git_history()
+    if not repos:
+        logger.error("No repositories found. Aborting.")
+        return
     
-    generate_labels(raw_data_dir, output_file, target_samples)
-    logger.info("Manual Labels Generation Pipeline Complete")
+    # Generate labels
+    labeled_data = generate_labels(repos, target_sample_size=50)
+    
+    if not labeled_data:
+        logger.error("Failed to generate any labels.")
+        return
+    
+    # Save to CSV
+    save_labels(labeled_data)
+    
+    logger.info("Manual label generation completed successfully.")
 
 if __name__ == "__main__":
     main()

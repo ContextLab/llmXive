@@ -3,45 +3,58 @@ import json
 import logging
 from pathlib import Path
 from typing import Dict, Any, List
-
 from utils import configure_logging
 
-def count_valid_repos(data_dir: str = "data/raw") -> int:
+def count_valid_repos(data_raw_dir: str = "data/raw") -> int:
     """
-    Count the number of valid repositories in the data/raw directory.
-    A valid repo is defined as a directory containing a .git folder.
+    Count the number of directories in data_raw_dir that contain a .git folder.
+    Returns the count of valid clones with git history.
     """
-    raw_dir = Path(data_dir)
-    if not raw_dir.exists():
+    raw_path = Path(data_raw_dir)
+    if not raw_path.exists():
+        logging.warning(f"Directory {data_raw_dir} does not exist. Returning 0 valid repos.")
         return 0
 
-    count = 0
-    for item in raw_dir.iterdir():
-        if item.is_dir() and (item / ".git").exists():
-            count += 1
-    return count
+    valid_count = 0
+    for item in raw_path.iterdir():
+        if item.is_dir():
+            git_dir = item / ".git"
+            if git_dir.exists() and git_dir.is_dir():
+                valid_count += 1
+            else:
+                # Check for .git file (worktree case) or empty dir
+                if item.is_dir() and not list(item.glob("*")):
+                    continue
+                if not git_dir.exists():
+                    logging.debug(f"Repo {item.name} has no .git directory. Excluded.")
+    
+    return valid_count
 
 def estimate_excluded_count(candidates_file: str = "data/raw/candidates.json", valid_count: int = 0) -> int:
     """
-    Estimate the number of excluded repos by comparing total candidates to valid clones.
-    If the candidates file doesn't exist, return 0.
+    Estimate the number of excluded repos by comparing the total candidate list
+    against the count of valid repos found on disk.
     """
     candidates_path = Path(candidates_file)
     if not candidates_path.exists():
+        logging.warning(f"Candidates file {candidates_file} not found. Cannot estimate exclusions.")
         return 0
-
+    
     try:
         with open(candidates_path, 'r', encoding='utf-8') as f:
             candidates = json.load(f)
-        total_candidates = len(candidates)
-        return max(0, total_candidates - valid_count)
-    except (json.JSONDecodeError, TypeError):
+        total_candidates = len(candidates) if isinstance(candidates, list) else 0
+    except (json.JSONDecodeError, IOError) as e:
+        logging.error(f"Failed to read candidates file: {e}")
         return 0
+
+    excluded = total_candidates - valid_count
+    return max(0, excluded)
 
 def calculate_success_rate(valid_count: int, total_candidates: int) -> float:
     """
-    Calculate the success rate of cloning.
-    Returns 0.0 if total_candidates is 0 to avoid division by zero.
+    Calculate the success rate as valid_count / total_candidates.
+    Returns 0.0 if total_candidates is 0.
     """
     if total_candidates == 0:
         return 0.0
@@ -49,51 +62,66 @@ def calculate_success_rate(valid_count: int, total_candidates: int) -> float:
 
 def main():
     """
-    Main entry point to generate acquisition statistics.
-    Reads candidates, counts valid repos, and writes stats to logs/acquisition_stats.json.
+    Main entry point to generate acquisition_stats.json.
+    Reads from data/raw/ and data/raw/candidates.json to compute stats.
+    Outputs to logs/acquisition_stats.json.
     """
-    # Configure logging
+    # Setup logging
     logger = configure_logging(log_path="logs/pipeline.log")
-    logger.info("Starting acquisition stats generation (T016).")
+    logger.info("Starting acquisition stats generation for T016.")
 
-    # Define paths
-    data_dir = "data/raw"
+    data_raw_dir = "data/raw"
     candidates_file = "data/raw/candidates.json"
     output_file = "logs/acquisition_stats.json"
 
     # Ensure logs directory exists
     Path("logs").mkdir(parents=True, exist_ok=True)
 
-    # Gather metrics
-    valid_count = count_valid_repos(data_dir)
+    # 1. Count valid repos
+    valid_count = count_valid_repos(data_raw_dir)
+    logger.info(f"Found {valid_count} valid repositories with git history.")
+
+    # 2. Estimate excluded count
+    excluded_count = estimate_excluded_count(candidates_file, valid_count)
+    logger.info(f"Estimated excluded repositories: {excluded_count}.")
+
+    # 3. Calculate success rate
+    # We need total candidates to calculate rate. If candidates file is missing, 
+    # we might infer total from excluded + valid, but better to read candidates.
+    candidates_path = Path(candidates_file)
+    total_candidates = valid_count + excluded_count if candidates_path.exists() else 0
     
-    # We need the total candidates to calculate exclusions and success rate.
-    # If the candidates file exists, we use it. Otherwise, we assume the valid count
-    # is the total (since we have no list of failures) or 0 if no valid repos found.
-    try:
-        with open(candidates_file, 'r', encoding='utf-8') as f:
-            candidates = json.load(f)
-        total_candidates = len(candidates)
-    except (FileNotFoundError, json.JSONDecodeError):
-        logger.warning(f"Candidates file not found or invalid at {candidates_file}. Assuming total candidates = valid count.")
-        total_candidates = valid_count
+    # Re-read candidates to get exact total if file exists
+    if candidates_path.exists():
+        try:
+            with open(candidates_path, 'r', encoding='utf-8') as f:
+                candidates = json.load(f)
+            total_candidates = len(candidates) if isinstance(candidates, list) else valid_count
+        except Exception:
+            pass
 
-    excluded_count = max(0, total_candidates - valid_count)
     success_rate = calculate_success_rate(valid_count, total_candidates)
+    logger.info(f"Success rate: {success_rate:.4f} ({valid_count}/{total_candidates}).")
 
+    # 4. Compile stats
     stats = {
         "total_candidates": total_candidates,
         "valid_clones": valid_count,
-        "excluded_repos": excluded_count,
-        "success_rate": round(success_rate, 4)
+        "excluded_count": excluded_count,
+        "success_rate": success_rate,
+        "status": "completed"
     }
 
-    # Write output
-    with open(output_file, 'w', encoding='utf-8') as f:
-        json.dump(stats, f, indent=2)
+    # 5. Write output
+    try:
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump(stats, f, indent=2)
+        logger.info(f"Successfully wrote acquisition stats to {output_file}")
+    except IOError as e:
+        logger.error(f"Failed to write stats file: {e}")
+        raise
 
-    logger.info(f"Acquisition stats written to {output_file}: {stats}")
-    print(json.dumps(stats, indent=2))
+    return stats
 
 if __name__ == "__main__":
     main()
