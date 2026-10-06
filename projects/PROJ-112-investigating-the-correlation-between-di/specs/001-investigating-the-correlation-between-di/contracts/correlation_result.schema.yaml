@@ -1,14 +1,17 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Correlation Result Schema"
-description: "Schema for MaAsLin2 association analysis output (Continuous Fiber)."
+description: "Schema for Spearman ρ association analysis output (Primary Metric)."
 type: object
 properties:
   taxon:
     type: string
     description: "Taxon identifier (e.g., g__Bacteroides)."
-  effect_size:
+  spearman_rho:
     type: number
-    description: "Beta coefficient of the association (continuous fiber)."
+    description: "Spearman correlation coefficient. Rounded to 3 decimal places."
+  spearman_se:
+    type: number
+    description: "Standard Error of Spearman ρ (via Fisher Z). Rounded to 3 decimal places."
   raw_p_value:
     type: number
     minimum: 0.0
@@ -19,12 +22,12 @@ properties:
     minimum: 0.0
     maximum: 1.0
     description: "Benjamini-Hochberg adjusted q-value."
-  standard_error:
-    type: number
-    description: "Standard error of the effect size."
   significant:
     type: boolean
     description: "True if q_value < 0.05."
+  beta_coefficient:
+    type: number
+    description: "Beta coefficient (Linear Regression) on CLR data. Rounded to 3 decimal places. (Secondary metric)."
   cohort:
     type: string
     enum:
@@ -37,11 +40,12 @@ properties:
     description: "SHA256 hash of (cohort + original_id) for traceability."
 required:
   - taxon
-  - effect_size
+  - spearman_rho
+  - spearman_se
   - raw_p_value
   - q_value
-  - standard_error
   - significant
+  - beta_coefficient
   - cohort
   - sample_id
 additionalProperties: false

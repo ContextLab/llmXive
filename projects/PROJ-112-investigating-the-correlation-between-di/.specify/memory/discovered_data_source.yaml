@@ -1,14 +1,14 @@
 status: none
-intent: American Gut Qiita 10160 UK Biobank fiber dataset python package dataset
+intent: American Gut Project UK Biobank 16S rRNA fiber openmicrobiome human_gut_microbiome
+  huggingface python package dataset
 required_fields:
 - sample_id
-- otu_counts
+- otu_table_or_asv_counts
 - fiber_intake_g_per_day
-- age_years
+- age
 - bmi
 - antibiotic_use
-- sex
-- total_reads
-cache_key: 13cef2f651bb888b47025c8bbdf8d1aef7d274877ce156e9a66af5e6628c0920
-searched_at: '2026-10-02T10:36:41.241210+00:00'
+- sequencing_depth_reads
+cache_key: 6e0f01398d079c3821315d001475f2bd78176e1bd2ce1b2915349eae72b373c1
+searched_at: '2026-10-06T19:37:03.006187+00:00'
 retry_count: 1

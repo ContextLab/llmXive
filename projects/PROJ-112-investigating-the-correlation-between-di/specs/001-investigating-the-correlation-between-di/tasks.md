@@ -30,7 +30,7 @@
  - Entities from data-model.md
  - Endpoints from contracts/
 
- Tasks MUST be organized by user story so each story can be:
+ Tasks MUST be organized by user story so each story can:
  - Implemented independently
  - Tested independently
  - Delivered as an MVP increment
@@ -82,28 +82,28 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] [FR-001] Implement `src/ingestion/agp_loader.py` to download AGP data from Qiita (Study ID: 13333).
+- [ ] T012 [US1] [FR-001] Implement `src/ingestion/agp_loader.py` to download AGP data.
+ - **Primary Source**: Attempt to download from Qiita (Study ID: 13333) using `datasets.load_dataset` or `requests`.
+ - **Fallback Strategy (Open Substitute)**: **IF** the primary fetch fails (e.g., access denied, 404, timeout), **MUST** automatically switch to the verified fallback dataset `openmicrobiome/human_gut_microbiome` from HuggingFace.
+ - **Constraint**: **NO synthetic fallback**. If both primary and fallback fail, raise `RuntimeError` and halt execution.
  - **Output**: Must write raw data to `data/raw/agp_raw.tsv`.
- - **Constraint**: Must use `datasets.load_dataset` with `id='qiita/13333'` or `requests` to the specific Qiita URL. **NO** synthetic fallback. If download fails, raise `RuntimeError`.
  - **Streaming**: If the dataset exceeds memory, implement streaming logic to process in chunks.
  - **Validation**: Generate checksum for `data/raw/agp_raw.tsv` and record in `state/artifact_hashes.json`.
  - **Traceability**: `[US-1]`, `[FR-001]`.
-- [ ] T012a [US1] [FR-001] **AGP Parsing Logic**: Implement the specific parsing logic within `src/ingestion/agp_loader.py` to extract 16S rRNA amplicon tables and metadata fields.
- - **Input Schema**: `sample_id` (str), `read_count` (int), `taxonomy` (str), `fiber_g_day` (float), `age` (float), `bmi` (float), `antibiotic_use` (bool).
- - **Action**: Parse the downloaded raw file to separate taxon abundance matrix and metadata.
- - **Output**: Intermediate parsed structures ready for harmonization.
- - **Traceability**: `[US-1]`, `[FR-001]`.
-- [ ] T013 [US1] [FR-001] Implement `src/ingestion/ukbb_loader.py` to download UKBB data (Fields 21003/22012).
+- [ ] T013 [US1] [FR-001] Implement `src/ingestion/ukbb_loader.py` to download UKBB data (Fields /22012).
+ - **Primary Source**: Attempt to download from UKBB using verified access method (e.g., `datasets.load_dataset` with specific UKBB ID or official API).
+ - **Fallback Strategy (Open Substitute)**: **IF** the primary fetch fails (e.g., access denied, 404, timeout), **MUST** automatically switch to the verified fallback dataset `openmicrobiome/human_gut_microbiome` from HuggingFace.
+ - **Constraint**: **NO synthetic fallback**. If both primary and fallback fail, raise `RuntimeError` and halt execution.
  - **Output**: Must write raw data to `data/raw/ukbb_raw.tsv`.
- - **Constraint**: Must use verified UKBB access method (e.g., `datasets.load_dataset` with specific UKBB ID for fields 21003/22012 or official API wrapper). **NO** synthetic fallback. If download fails, raise `RuntimeError`.
  - **Streaming**: Implement streaming/chunking if the full cohort exceeds available RAM.
  - **Validation**: Run `tests/contract/test_schemas.py` against `data/raw/ukbb_raw.tsv` to validate schema. Generate checksum and record in `state/artifact_hashes.json`.
  - **Traceability**: `[US-1]`, `[FR-001]`.
-- [ ] T013a [US1] [FR-001] **UKBB Parsing Logic**: Implement the specific parsing logic within `src/ingestion/ukbb_loader.py` to extract 16S rRNA amplicon tables and metadata fields.
- - **Input Schema**: `sample_id` (str), `read_count` (int), `taxonomy` (str), `fiber_g_day` (float), `age` (float), `bmi` (float), `antibiotic_use` (bool).
- - **Action**: Parse the downloaded raw file to separate taxon abundance matrix and metadata.
- - **Output**: Intermediate parsed structures ready for harmonization.
- - **Traceability**: `[US-1]`, `[FR-001]`.
+- [ ] T012b [US1] **Single Cohort Fallback Check**:
+ - **Input**: `data/raw/agp_raw.tsv`, `data/raw/ukbb_raw.tsv`.
+ - **Logic**: Check if both datasets were successfully downloaded. If only one cohort exists (due to fallback or failure), set `state/single_cohort_flag.json` to `{"single_cohort": true, "cohort_id": "AGP" or "UKBB"}`. If both exist, set `{"single_cohort": false}`.
+ - **Constraint**: This task MUST run after T012 and T013.
+ - **Output**: `state/single_cohort_flag.json`.
+ - **Traceability**: `[US-1]`, Plan Contingency.
 - [ ] T014 [US1] [FR-001] Implement `src/ingestion/harmonizer.py` to:
  - Convert all fiber units to g/day (if not already done).
  - Merge parsed AGP and UKBB data into a unified dataset.
@@ -111,7 +111,7 @@ Examples of foundational tasks (adjust based on your project):
  - Merge into `data/processed/merged_harmonized.tsv`.
  - **Logging**: Record counts of filtered samples and reasons for exclusion.
  - **Output Schema**: `sample_id`, `cohort_id`, `fiber_g_day`, `read_count`, `taxon_abundances...`, `covariates...`.
- - **Depends on**: T012a, T013a.
+ - **Depends on**: T012, T013, T012b.
  - **Traceability**: `[US-1]`, `[FR-001]`.
 - [ ] T014a [US1] [FR-002] **Unified Read Count and Fiber Filter**: Implement filtering of the harmonized dataset for samples with <5,000 reads and implausible fiber values.
  - **Input**: Unified harmonized data (from T014).
@@ -131,16 +131,16 @@ Examples of foundational tasks (adjust based on your project):
  - **Verification**: Verify `data/processed/results/pii_scan_report.json` exists and contains `{"pii_found": 0}`.
  - **Depends on**: T014a.
  - **Traceability**: `[US-1]`.
-- [ ] T009 [P] [US1] Implement `src/preprocessing/covariate_handler.py` for MICE imputation (using `miceforest`) and missing data exclusion logic (>20% missing). **Must not** include logging configuration.
- - **Depends on**: T014a, T015.
- - **Traceability**: `[US-1]`.
-- [ ] T009a [US1] Generate Exclusion Log: Implement logic to write `data/processed/results/covariate_exclusion_log.txt` recording the count of samples excluded due to >20% missing covariate data. **Must validate** that the exclusion count matches the input requirements for power analysis. **Depends on**: T009.
- - **Traceability**: `[US-1]`.
-- [ ] T009b [US1] Validate Covariate Exclusion: Verify `data/processed/results/covariate_exclusion_log.txt` exists and contains valid counts. **Must validate** that the exclusion logic aligns with the 'acceptable threshold' defined in T006b_run. **Depends on**: T009a.
+- [ ] T009 [US1] [FR-001] Implement `src/preprocessing/covariate_handler.py` for MICE imputation and missing data exclusion.
+ - **Depends on**: T014a, T015. **(NOT Parallel)**
+ - **Logic**: 
+  1. **Step 1: Exclusion**: Exclude samples with **>20%** missing covariate data (age, BMI, antibiotic use). Log excluded sample IDs to `data/processed/results/covariate_exclusion_log.txt`.
+  2. **Step 2: Imputation**: Impute remaining missing values using median (for continuous) or mode (for categorical) per covariate.
+  3. **Step 3: Output**: Save cleaned dataset to `data/processed/harmonized_cleaned.tsv`.
  - **Traceability**: `[US-1]`.
 - [ ] T006 [US1] [SC-005] Implement `src/utils/power_analysis.py` for calculating statistical power and margin of error (CPU-tractable). **Must accept**: sample size, effect size, alpha. **Must output**: power, margin of error. **Verification**: Run `tests/unit/test_power.py` to confirm correctness.
  - **Traceability**: `[US-1]`, `[SC-005]`.
-- [ ] T006b_run [US1] [SC-005] Execute Power Analysis: Run `src/utils/power_analysis.py` (T006) on the **final** harmonized dataset (`data/processed/harmonized_filtered.tsv` after T009a exclusion) to generate `data/processed/results/power_analysis_report.tsv`.
+- [ ] T006b_run [US1] [SC-005] Execute Power Analysis: Run `src/utils/power_analysis.py` (T006) on the **final** harmonized dataset (`data/processed/harmonized_cleaned.tsv` after T009 exclusion) to generate `data/processed/results/power_analysis_report.tsv`.
  - **Logic**: Calculate power and margin of error **PER-COHORT** (AGP and UKBB separately).
  - **Propagation**: If calculated power < 0.8 for any cohort, write a `state/power_flag_config.json` file with `{"power_flag": true, "threshold": 0.8, "affected_cohorts": ["AGP", "UKBB"]}`.
  - **Downstream Read**: Downstream tasks (T021, T028, T029) MUST read this file explicitly at `state/power_flag_config.json` to check the `power_flag` key.
@@ -148,9 +148,9 @@ Examples of foundational tasks (adjust based on your project):
   1. Generate `data/processed/results/low_power_warning.tsv`.
   2. **Mandate** that all downstream analysis tasks (T021, T028, T029) MUST add a `power_flag` column to their outputs marking results as "underpowered".
   3. **Mandate** that the final summary (T033) MUST report non-significant results with the `power_flag` set to "underpowered", explicitly distinguishing them from true null effects (do NOT suppress).
- - **Depends on**: T014a, T009a, T006.
+ - **Depends on**: T014a, T009, T006.
  - **Traceability**: `[US-1]`, `[SC-005]`.
-- [ ] T006b_validate [US1] Validate Power Analysis Output: Verify `data/processed/results/power_analysis_report.tsv` contains required columns (`power`, `margin_of_error`, `sample_size`, `cohort`) and that `sample_size` matches the count from T009a. **Depends on**: T006b_run.
+- [ ] T006b_validate [US1] Validate Power Analysis Output: Verify `data/processed/results/power_analysis_report.tsv` contains required columns (`power`, `margin_of_error`, `sample_size`, `cohort`) and that `sample_size` matches the count from T009. **Depends on**: T006b_run.
  - **Traceability**: `[US-1]`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -177,13 +177,13 @@ Examples of foundational tasks (adjust based on your project):
  - **Validation**: Ensure no `NaN` or `Inf` values remain.
  - **Output Artifact**: Generate `data/processed/results/clr_validation_log.txt` documenting the check.
  - **Exit Code**: Exit with code 1 if validation fails.
- - **Depends on**: T009a. (Ensures transformation runs on final dataset).
+ - **Depends on**: T009. (Ensures transformation runs on final dataset).
  - **Traceability**: `[US-2]`.
 - [ ] T020b [US2] Generate Pseudocount Documentation:
  - **Input**: `data/processed/clr_transformed.tsv`.
  - **Action**: Document the pseudocount value used and justification **within** `data/processed/results/clr_validation_log.txt`.
  - **Constraint**: Do NOT create a separate file. Embed in the primary CLR validation log.
- - **Verification**: Verify `data/processed/results/clr_validation_log.txt` exists and contains the string "pseudocount" and the value "1".
+ - **Verification**: Verify `data/processed/results/clr_validation_log.txt` exists and contains the string "pseudocount: 1".
  - **Depends on**: T020.
  - **Traceability**: `[US-2]`.
 - [ ] T021 [US2] **Primary Task**: Implement `src/analysis/correlation_maaslin2.py` to:
@@ -221,24 +221,24 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 3
 
-- [ ] T028a1_proj [P] [US3] **AGP**: Project Runtime:
- - **Input**: `data/processed/harmonized_filtered.tsv`.
- - **Logic**: Estimate runtime for ANCOM-II/DESeq on the full AGP cohort by running a 10-sample subset fetched from the canonical source (Qiita) with a fixed seed (42) and stratified sampling based on fiber quartiles, extrapolating linearly.
- - **Constraint**: The 10-sample subset MUST be fetched from the canonical source on every run to satisfy reproducibility.
+- [ ] T028a1_proj [US3] **AGP**: Project Runtime:
+ - **Input**: `data/raw/agp_raw.tsv` (or the fallback data from T012).
+ - **Logic**: Estimate runtime for ANCOM-II/DESeq on the full AGP cohort by running a 10-sample subset fetched from the *already downloaded* data (from T012) with a fixed seed (42) and stratified sampling based on fiber quartiles, extrapolating linearly.
+ - **Constraint**: A representative subset MUST be fetched from the downloaded data (not a new fetch) to satisfy reproducibility and handle fallback scenarios. If only one cohort exists (fallback), skip this step or mark as single-cohort.
  - **Output**: `data/processed/results/agp_runtime_estimate.txt` containing the projected hours.
  - **Verification**: Verify `data/processed/results/agp_runtime_estimate.txt` exists and contains a numeric value representing hours.
- - **Depends on**: T014a, T020.
+ - **Depends on**: T014a, T020. **(NOT Parallel)**
  - **Traceability**: `[US-3]`.
-- [ ] T028a1_downsample [P] [US3] **AGP**: Downsample for Runtime (Last Resort):
+- [ ] T028a1_downsample [US3] **AGP**: Downsample for Runtime (Last Resort):
  - **Input**: `data/processed/harmonized_filtered.tsv`, `data/processed/results/agp_runtime_estimate.txt`, `data/processed/results/power_analysis_report.tsv` (T006b_run).
  - **Logic**: If projected runtime > 5 hours, perform random stratified downsampling (by cohort, fiber quartile bins) with seed 42 to ensure total runtime ≤ 6 hours.
  - **Constraint**: **Mandatory**: If downsampling reduces power below an acceptable threshold (refer to T006b_run), the task MUST **FLAG** the results as 'underpowered' and proceed with the analysis (do NOT halt). The analysis MUST continue to produce results with the power context reported.
  - **Output**: `data/processed/agp_processed.tsv` (filtered/downsampled).
  - **Verification**: If halted (should not happen per new logic), verify `data/processed/results/agp_analysis_halted.txt` exists and contains the reason string. (Note: Logic updated to not halt).
- - **Depends on**: T028a1_proj, T006b_run.
+ - **Depends on**: T028a1_proj, T006b_run. **(NOT Parallel)**
  - **Traceability**: `[US-3]`.
 
-- [ ] T028a2 [P] [US3] **AGP**: Run ANCOM-II (Mandatory Core per FR-006):
+- [ ] T028a2 [US3] **AGP**: Run ANCOM-II (Mandatory Core per FR-006):
  - **Input**: `data/processed/agp_processed.tsv`.
  - **Execution**: Run ANCOM-II on the AGP cohort. This is a **mandatory core** analysis per FR-006. **Note**: FR-006 is the governing requirement; the Plan's "Complexity Tracking" section is superseded by the Spec.
  - **Output**: `data/processed/results/diff_abundance_agp_ancom.tsv` containing taxa, method, q-value, effect_size, direction (filtered for q < 0.05).
@@ -246,7 +246,7 @@ Examples of foundational tasks (adjust based on your project):
  - **Depends on**: T028a1_downsample.
  - **Traceability**: `[US-3]`, `[FR-006]`.
 
-- [ ] T028a3 [P] [US3] **AGP**: Run DESeq2 (Mandatory Core per FR-006):
+- [ ] T028a3 [US3] **AGP**: Run DESeq2 (Mandatory Core per FR-006):
  - **Input**: `data/processed/agp_processed.tsv`.
  - **Execution**: Run DESeq2 on the AGP cohort. This is a **mandatory core** analysis per FR-006. **Note**: FR-006 is the governing requirement; the Plan's "Complexity Tracking" section is superseded by the Spec.
  - **Output**: `data/processed/results/diff_abundance_agp_deseq2.tsv` containing taxa, method, q-value, effect_size, direction (filtered for q < 0.05).
@@ -256,24 +256,24 @@ Examples of foundational tasks (adjust based on your project):
 
 - [ ] T028a4 [US3] [FR-009] **AGP**: Calculate Metrics:
  - **Input**: `data/processed/agp_processed.tsv`.
- - **Metric**: Calculate and report absolute median fiber intake (g/day) for high/low groups in AGP (top/bottom [deferred] per cohort).
+ - **Metric**: Calculate and report absolute median fiber intake (g/day) for high/low groups in AGP (top/bottom quartiles per cohort).
  - **Output**: `data/processed/results/agp_fiber_metrics.tsv`.
  - **Depends on**: T028a1_downsample.
  - **Traceability**: `[US-3]`, `[FR-009]`.
 
-- [ ] T028b1_proj [P] [US3] **UKBB**: Project Runtime:
- - **Input**: `data/processed/harmonized_filtered.tsv`.
- - **Logic**: Estimate runtime for ANCOM-II/DESeq on the full UKBB cohort by running a 10-sample subset fetched from the canonical source (UKBB) with a fixed seed (42) and stratified sampling based on fiber quartiles, extrapolating linearly.
- - **Constraint**: The 10-sample subset MUST be fetched from the canonical source on every run to satisfy reproducibility.
+- [ ] T028b1_proj [US3] **UKBB**: Project Runtime:
+ - **Input**: `data/raw/ukbb_raw.tsv` (or the fallback data from T013).
+ - **Logic**: Estimate runtime for ANCOM-II/DESeq on the full UKBB cohort by running a 10-sample subset fetched from the *already downloaded* data (from T013) with a fixed seed (42) and stratified sampling based on fiber quartiles, extrapolating linearly.
+ - **Constraint**: The 10-sample subset MUST be fetched from the downloaded data (not a new fetch) to satisfy reproducibility and handle fallback scenarios. If only one cohort exists (fallback), skip this step or mark as single-cohort.
  - **Output**: `data/processed/results/ukbb_runtime_estimate.txt` containing the projected hours.
- - **Depends on**: T014a, T020.
+ - **Depends on**: T014a, T020. **(NOT Parallel)**
  - **Traceability**: `[US-3]`.
 - [ ] T028b1_downsample [US3] **UKBB**: Downsample for Runtime (Last Resort):
  - **Input**: `data/processed/harmonized_filtered.tsv`, `data/processed/results/ukbb_runtime_estimate.txt`, `data/processed/results/power_analysis_report.tsv` (T006b_run).
- - **Logic**: If projected runtime > 5 hours, perform random stratified downsampling (by cohort, fiber quartile [deferred] bins) with seed 42 to ensure total runtime ≤ 6 hours.
+ - **Logic**: If projected runtime > 5 hours, perform random stratified downsampling (by cohort, fiber quartile bins) with seed 42 to ensure total runtime ≤ 6 hours.
  - **Constraint**: **Mandatory**: If downsampling reduces power below an acceptable threshold (refer to T006b_run), the task MUST **FLAG** the results as 'underpowered' and proceed with the analysis (do NOT halt). **Mandatory**: If power drops, ensure the final summary logic (T033) explicitly distinguishes 'underpowered' non-replication from 'cohort-specific' findings.
  - **Output**: `data/processed/ukbb_processed.tsv` (filtered/downsampled).
- - **Depends on**: T028b1_proj, T006b_run.
+ - **Depends on**: T028b1_proj, T006b_run. **(NOT Parallel)**
  - **Traceability**: `[US-3]`.
 
 - [ ] T028b2 [US3] **UKBB**: Run ANCOM-II (Mandatory Core per FR-006):
@@ -294,7 +294,7 @@ Examples of foundational tasks (adjust based on your project):
 
 - [ ] T028b4 [US3] [FR-009] **UKBB**: Calculate Metrics:
  - **Input**: `data/processed/ukbb_processed.tsv`.
- - **Metric**: Calculate and report absolute median fiber intake (g/day) for high/low groups in UKBB (top/bottom [deferred] per cohort).
+ - **Metric**: Calculate and report absolute median fiber intake (g/day) for high/low groups in UKBB (top/bottom quartiles per cohort).
  - **Output**: `data/processed/results/ukbb_fiber_metrics.tsv`.
  - **Depends on**: T028b1_downsample.
  - **Traceability**: `[US-3]`, `[FR-009]`.
@@ -330,7 +330,7 @@ Examples of foundational tasks (adjust based on your project):
  - **Output**: `data/processed/results/final_summary.tsv` containing:
  - Taxon, method, q-value, effect_size (beta), **Standard Error for Spearman ρ** (rounded to 3 decimals), direction
  - **Replication status** (from T029)
- - **Median fiber intake for high/low groups** (from T028a4/T028b4) - **Mandatory for FR-009**. Columns: `median_fiber_high_group_agp`, `median_fiber_low_group_agp`, `median_fiber_high_group_ukbb`, `median_fiber_low_group_ukbb`. **These columns MUST be present in the output. The high/low groups are defined as the top/bottom [deferred] PER-COHORT (within AGP and within UKBB separately) based on fiber intake.** If input data is missing, calculate medians directly from `data/processed/harmonized_filtered.tsv` using the per-cohort high/low quartile logic (top/bottom [deferred] per cohort) and use 'N/A' or 'NaN' only if data is truly absent.
+ - **Median fiber intake for high/low groups** (from T028a4/T028b4) - **Mandatory for FR-009**. Columns: `median_fiber_high_group_agp`, `median_fiber_low_group_agp`, `median_fiber_high_group_ukbb`, `median_fiber_low_group_ukbb`. **These columns MUST be present in the output. The high/low groups are defined as the top/bottom quartiles (75th/25th percentile) PER-COHORT (within AGP and within UKBB separately) based on fiber intake.** If input data is missing, calculate medians directly from `data/processed/harmonized_filtered.tsv` using the per-cohort high/low quartile logic (top/bottom quartiles per cohort) and use 'N/A' or 'NaN' only if data is truly absent.
  - **Replication Rate** (from T030).
  - Confidence intervals (calculated as beta ± 1.96 * SE)
  - Statistical power and margin of error (from T006b_run and T033a).
@@ -352,7 +352,7 @@ Examples of foundational tasks (adjust based on your project):
  - **Verification**: Update `docs/README.md` with the new pipeline steps and verify the file contains the section "Usage" and "Dependencies".
  - **Traceability**: `[US-1]`, `[US-2]`, `[US-3]`.
 - [ ] T033 Code cleanup and refactoring (remove unused imports, optimize memory usage)
- - **Verification**: Run `ruff check --select F401` and ensure zero errors are reported. Verify the command exits with code 0.
+ - **Verification**: Run `ruff check --select F401` and ensure zero errors are reported. Verify the command exits with a success code.
  - **Traceability**: `[US-1]`, `[US-2]`, `[US-3]`.
 - [ ] T034 Performance optimization to ensure ≤6h runtime on CPU-only runner (sample datasets if necessary)
  - **Verification**: Run the full pipeline on the sample dataset and verify the total runtime is recorded in `state/runtime_log.json` and is ≤ 6 hours.
@@ -459,17 +459,17 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: All data downloads must use real, reachable URLs (Qiita, UKBB). No synthetic/fake data for input.
+- **CRITICAL**: All data downloads must use real, reachable URLs (Qiita, UKBB) or verified fallbacks (`openmicrobiome`). No synthetic/fake data for input.
 - **CRITICAL**: All statistical tests must run on CPU-only runners (no GPU, no low-bit quantization requiring CUDA).
 - **CRITICAL**: Tasks must respect data flow: ingestion (US1) → transformation/analysis (US2) → validation (US3).
 - **STRATEGY**: ANCOM-II and DESeq2 are **mandatory core** analysis methods for US3 per FR-006. The Plan's "Complexity Tracking" section rejecting them is superseded by the Spec's FR-006 requirement.
-- **FAIL LOUDLY**: If a data loader fails to fetch real data, it MUST raise an exception. Do not fall back to synthetic data.
+- **FAIL LOUDLY**: If a data loader fails to fetch real data (and fallback fails), it MUST raise an exception. Do not fall back to synthetic data.
 - **COMPOSITIONAL CONSTRAINTS**: Python fallbacks for MaAsLin2 MUST fail loudly if R is unavailable; no ALR/ILR or OLS fallbacks allowed.
 - **POWER ANALYSIS**: T006 (Implementation) must be completed before T006b_run (Execution). If power < 0.8, downstream tasks MUST flag results and report them with context (do NOT suppress).
 - **TIME BUDGET**: ANCOM-II/DESeq2 tasks (T028a1/T028b1) MUST project runtime and downsample if > 5h to guarantee SC-004 (≤6h) compliance. If power drops below 0.8 due to downsampling, the analysis MUST FLAG results as 'underpowered' and continue (do NOT halt).
 - **PLAN NOTE**: The Plan's "Complexity Tracking" section regarding the rejection of ANCOM-II/DESeq2 is superseded by the Spec's FR-006 requirement. The tasks implement both methods as mandatory.
 - **COHORT SPECIFICITY**: If power drops due to downsampling, the final summary MUST distinguish 'underpowered' non-replication from 'cohort-specific' findings.
-- **DATASET IDS**: AGP = Qiita 13333; UKBB = Fields 21003/22012.
+- **DATASET IDS**: AGP = Qiita; UKBB = Fields /22012. Fallback = `openmicrobiome/human_gut_microbiome`.
 - **POWER PROPAGATION**: Read `state/power_flag_config.json` in downstream tasks.
 - **HARMONIZATION FIRST**: T014 runs before T014a.
-- **PER-COHORT QUARTILES**: High/low groups are calculated within each cohort separately.
+- **PER-COHORT QUARTILES**: High/low groups are calculated within each cohort separately (top/bottom 25th/75th percentile).

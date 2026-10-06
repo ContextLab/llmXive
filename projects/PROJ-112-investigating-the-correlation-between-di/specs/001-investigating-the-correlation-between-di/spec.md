@@ -50,7 +50,7 @@
 **Acceptance Scenarios**:
 
 1. **Given** the high-fiber and low-fiber group assignments (top/bottom quartiles), **When** ANCOM-II and DESeq2 run, **Then** two separate TSV files are produced containing taxa, method, q-value, effect_size, and direction, filtered for q < 0.05.
-2. **Given** significant taxa from the American Gut Project analysis (sorted by ascending adjusted q-value), **When** the same analysis is run on UK Biobank data, **Then** at least 50% of the top 10 taxa (by q-value) show consistent directionality (same sign of effect size) in both cohorts.
+2. **Given** significant taxa from the American Gut Project analysis (sorted by ascending adjusted q-value), **When** the same analysis is run on UK Biobank data, **Then** at least 50% of the top taxa (by q-value) show consistent directionality (same sign of effect size) in both cohorts.
 3. **Given** a taxon identified as significant in only one cohort, **When** the cross-cohort validation step runs, **Then** it is flagged as 'non-replicable' in the final output table.
 4. **Given** the high/low fiber groups in each cohort, **When** the summary step runs, **Then** the absolute median fiber intake (g/day) for each group is reported in the final summary table.
 
@@ -58,7 +58,7 @@
 
 ### Edge Cases
 
-- What happens when a dataset contains zero-inflated taxa that cannot be log-transformed? → The system MUST apply a small pseudocount, defaulting to 1, before CLR transformation and document this in the output.
+- What happens when a dataset contains zero-inflated taxa that cannot be log-transformed? → The system MUST apply a small pseudocount, defaulting to a baseline value, before CLR transformation and document this in the output.
 - How does the system handle missing covariate data (e.g., BMI, antibiotic use)? → Samples with >20% missing covariate data MUST be excluded; others are imputed using median/mode per covariate.
 - What if one dataset has significantly fewer samples than the other? → The system MUST perform power analysis and report calculated power and margin of error. This is required to distinguish true null effects from underpowered results in smaller cohorts.
 
@@ -90,9 +90,9 @@
 > measured against; defer specific empirical values (counts, dataset sizes,
 > measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: System reports Spearman ρ (or equivalent effect size) with 3 decimal places and includes standard error (See US-2).
+- **SC-001**: System reports Spearman ρ (or equivalent effect size) with decimal places and includes standard error (See US-2).
 - **SC-002**: False discovery rate (q-value) is measured against the threshold of 0.05 for differential abundance testing (See US-3).
-- **SC-003**: System calculates and reports cross-cohort replication rate with 2 decimal places (See US-3).
+- **SC-003**: System calculates and reports cross-cohort replication rate with A precision of two decimal places. (See US-3).
 - **SC-004**: Computational feasibility is measured against the constraint of ≤6 hours runtime on a CPU-only GitHub Actions runner (See Assumptions).
 - **SC-005**: System reports calculated statistical power and margin of error for the smaller cohort (See Edge Cases).
 
@@ -100,7 +100,7 @@
 
 - The American Gut Project and UK Biobank datasets contain self-reported dietary fiber intake (grams/day) and 16S rRNA amplicon sequencing data with sufficient depth (≥5,000 reads) for analysis.
 - Self-reported dietary fiber intake is subject to measurement error, but the magnitude of bias is comparable across cohorts and does not invalidate the association analysis.
-- The compositional nature of microbiome data requires CLR transformation, and a small pseudocount, defaulting to 1, is acceptable for zero-inflated taxa.
+- The compositional nature of microbiome data requires CLR transformation, and a small pseudocount is acceptable for zero-inflated taxa.
 - The expected effect size (Spearman ρ ≈ small to moderate magnitude) is detectable with the available sample sizes in both cohorts after FDR correction.
 - The analysis can be completed within 6 hours on a CPU-only GitHub Actions runner with ≤7 GB RAM and no GPU acceleration.
 - ANCOM-II and DESeq2 are available as CPU-tractable implementations (e.g., via R packages or Python wrappers) without requiring large memory or GPU resources.

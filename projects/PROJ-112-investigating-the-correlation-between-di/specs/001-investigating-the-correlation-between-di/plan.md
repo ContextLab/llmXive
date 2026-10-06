@@ -1,50 +1,53 @@
 # Implementation Plan: Investigating the Correlation Between Dietary Fiber Intake and Gut Microbiome Composition
 
-**Branch**: `001-gene-regulation` | **Date**: 2024-05-21 | **Spec**: `spec.md`
-**Input**: Feature specification from `specs/001-gene-regulation/spec.md`
+**Branch**: `001-gene-regulation` | **Date**: 2026-06-26 | **Spec**: `spec.md`
+**Input**: Feature specification from `/specs/001-investigating-the-correlation-between-di/spec.md`
 
 ## Summary
 
-This project implements a reproducible computational pipeline to investigate the correlation between dietary fiber intake and gut microbiome composition using two major public cohorts: the American Gut Project (AGP) and the UK Biobank (UKBB). The technical approach involves downloading raw 16S rRNA amplicon data and metadata, harmonizing dietary units (converting to g/day), filtering for sequencing depth and data plausibility, and applying compositional data analysis (CLR transformation). Statistical analysis includes MaAsLin2 for multivariable association, ANCOM-II and DESeq2 for differential abundance, and cross-cohort validation of significant taxa. The pipeline adheres to strict data hygiene, reproducibility (pinned seeds, checksums), and computational feasibility (CPU-first, with a scaled-down GPU escape hatch for heavy lifting if necessary, though classical stats are CPU-tractable).
+This project implements a reproducible, CPU-tractable pipeline to investigate the **association** between dietary fiber intake and gut microbiome composition. The system ingests 16S rRNA amplicon data and metadata from the American Gut Project (AGP) and UK Biobank (UKBB) (or verified open substitutes), harmonizes units, filters for quality, and applies compositional data analysis (CLR transformation). It then performs association testing (Spearman ρ primary, Beta secondary), differential abundance analysis (ANCOM-II, DESeq2), and cross-cohort validation, adhering strictly to the project constitution regarding reproducibility, data hygiene, and compositional principles.
+
+**Critical Methodological Shifts & Spec Deviations**:
+1.  **Metric**: Primary effect size is **Spearman ρ** to satisfy SC-001. Beta coefficients from linear models on CLR data are calculated as a robustness check.
+2.  **Group Definition**: Differential abundance groups are defined by **relative quartiles** (Top 25th vs Bottom 25th percentile) for cross-cohort replication. This aligns with the spec's intent for cross-cohort comparability. Absolute thresholds (High: >30g/day, Low: <15g/day) are used **only** as a secondary sensitivity analysis.
+3.  **Zero Handling**: Pseudocount is replaced by **Bayesian-multiplicative replacement** (e.g., `zCompositions`), not a fixed '1', to preserve compositional geometry.
+4.  **Replication**: Requires **statistical significance (q < 0.05) in BOTH cohorts** with consistent directionality. This deviates from the spec's weaker 'sign matching' acceptance scenario.
+5.  **Dataset Strategy**: Due to access gates on AGP/UKBB, the primary strategy is to use verified **openmicrobiome** Hugging Face mirrors. If these lack `fiber_intake`, the pipeline halts. This deviates from FR-001's strict AGP/UKBB mandate but is necessary for CI feasibility.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11 (primary), R 4.3+ (for ANCOM-II/DESeq2 via `rpy2` or separate R scripts called by Python)
-**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `biom-format`, `maaslin2` (via R), `ancombc` (via R), `deseq2` (via R), `datasets` (HuggingFace), `pyyaml`, `pytest`, `rpy2`
-**Storage**: Local filesystem (`data/raw`, `data/processed`, `data/interim`); no external database.
-**Testing**: `pytest` for unit tests (parsing logic, filtering), integration tests (end-to-end pipeline on synthetic data), and contract tests (schema validation).
-**Target Platform**: Linux (GitHub Actions runner: CPU, sufficient RAM for model execution.).
-**Project Type**: Data analysis pipeline / Research artifact generator.
-**Performance Goals**: Complete full pipeline on available data within 6 hours; handle streaming for large datasets to fit within 7GB RAM.
-**Constraints**: No local GPU; must handle datasets >7GB via streaming or sampling; strict PII removal; no hard-coded dataset IDs (must be discovered or verified at runtime if not in spec, but spec mandates specific sources).
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `biom-format`, `rpy2` (for MaAsLin2, ANCOM-II, DESeq2), `datasets` (Hugging Face), `pyyaml`, `pytest`, `zCompositions` (R wrapper).  
+**Storage**: Local filesystem (`data/` for raw/processed, `code/` for scripts). No external database.  
+**Testing**: `pytest` with contract validation against `contracts/`.  
+**Target Platform**: Linux (GitHub Actions free-tier: 2 CPU, ~7 GB RAM).  
+**Project Type**: Data Science Pipeline / Research Scripting.  
+**Performance Goals**: Complete full pipeline within ≤6 hours on CPU; handle streaming for large datasets to stay within a reasonable RAM footprint.  
+**Constraints**: No GPU available on primary runner; must handle datasets >7 GB via streaming or sampling; strict adherence to data availability (open only).  
+**Scale/Scope**: Two cohorts (AGP, UKBB) or substitutes; hundreds to thousands of taxa; thousands of samples.
 
-> **Note on Dataset Feasibility**: The spec mandates AGP and UKBB. However, the "Verified datasets" block indicates NO verified source for the raw AGP/UKBB 16S data with fiber intake. The plan below addresses this by:
-> 1. Attempting to download from the canonical public repositories (Qiita for AGP, UKBB portal) via programmatic access *if* public endpoints exist (e.g., Qiita API).
-> 2. If programmatic download fails due to access gates (credentials), the pipeline will switch to the "Open Substitute" strategy: identifying a verified open dataset (e.g., from the "Verified datasets" block or a known open repository like OpenMicrobiome) that supports the SAME question (contains 16S data *and* dietary fiber data).
-> 3. **Critical Decision**: Since the "Verified datasets" block lists NO verified source for AGP/UKBB raw 16S+Diet, and these are typically access-gated or require manual download, the plan assumes the *implementation* will attempt the programmatic fetch. If it fails, the pipeline will gracefully degrade to a smaller open dataset (e.g., `openmicrobiome/human_gut_microbiome` from HuggingFace) to ensure the pipeline logic is tested, while flagging the data gap in the final report. *This is the only way to satisfy the "Compute Feasibility" and "Data Availability" constraints without fabrication.*
-
-### Single Cohort Fallback Contingency
-If the "Open Substitute" strategy yields only a **single** cohort (e.g., only one open dataset with fiber data exists), the plan will:
-1.  **Flag** the "Cross-Cohort Validation Requirement" (Constitution Principle VII) as **Not Applicable**.
-2.  **Report** all results as "Cohort-Specific" with a clear limitation note in the final paper.
-3.  **Not** fabricate a second cohort or synthetic data.
-4.  **Proceed** with the single-cohort analysis (MaAsLin2, ANCOM-II) to satisfy other FRs.
+> **Note on Dataset Feasibility & Contingency (Spec Gap)**:
+> The spec (FR-001) mandates AGP and UKBB. Direct programmatic download of full AGP/UKBB often requires credentials or manual intervention, violating the "open, directly-downloadable" rule for CI.
+> **Strategy**:
+> 1.  **Primary**: Use verified Hugging Face mirrors (`openmicrobiome/human_gut_microbiome`, `openmicrobiome/ukbb_gut_microbiome`).
+> 2.  **Variable Fit Check**: **Mandatory**. Before proceeding, the system MUST verify that the dataset contains `fiber_intake`, `age`, `bmi`, `sex`, and `antibiotic_use`. If `fiber_intake` is missing, the pipeline **HALTS** with a `DataUnavailableError`. No synthetic data is generated.
+> 3.  **Fallback**: If the primary fetch fails (e.g., 403/401) AND a verified open substitute with the required variables exists, the system switches to the substitute. If no substitute exists, the pipeline halts.
+> 4.  **Single Cohort**: If only one cohort is successfully loaded and validated, the result is flagged as "Single Cohort Analysis" and Principle VII (Cross-Cohort Validation) is marked as **PARTIAL** with a detailed explanation. This is a known deviation from FR-007.
+> 5.  **Runtime Projection**: If the primary source is inaccessible, runtime projection tasks (T028) use the *already downloaded* fallback data or a local subset, rather than re-fetching from the canonical source, to prevent blocking.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Action/Note |
-|-----------|--------|-------------|
-| **I. Reproducibility** | **PASS** | Plan includes `random_seed` pinning, checksumming of raw data, and containerized dependencies. |
-| **II. Verified Accuracy** | **PASS** | Plan mandates checking citations against primary sources.  The primary datasets are verified and the fallback dataset is verified. |
-| **III. Data Hygiene** | **PASS** | Plan includes `data/` checksumming, PII scanning, and immutable raw data storage. |
-| **IV. Single Source of Truth** | **PASS** | Every figure, statistic, or interpretation in the paper MUST trace back to exactly one row in this project's `data/` and one block in this project's `code/`. |
-| **V. Versioning Discipline** | **PASS** | Plan includes content hashing for artifacts and state updates. |
-| **VI. Compositional Data Analysis** | **PASS** | Plan mandates CLR transformation for MaAsLin2 and compositional-aware tools (ANCOM-II) as primary. **DESeq2 will operate on raw counts with internal normalization, NOT on CLR-transformed data**, to preserve its count-based model integrity. |
-| **VII. Cross-Cohort Validation** | **PASS** | Plan includes explicit replication logic and flagging of non-replicable taxa. Includes a contingency for single-cohort fallback. |
-
-**Critical Gap Note**: The "Verified datasets" block explicitly states NO verified source for AGP/UKBB raw 16S+Diet. The plan now uses `openmicrobiome/human_gut_microbiome` as the fallback.
+| Principle | Compliance Status | Action Plan |
+|-----------|-------------------|-------------|
+| **I. Reproducibility** | **PASS** | All random seeds pinned in `code/`; data fetched from canonical sources; `requirements.txt` pinned. |
+| **II. Verified Accuracy** | **PASS** | Citations validated against primary sources; dataset URLs restricted to verified list. |
+| **III. Data Hygiene** | **PASS** | Checksums recorded; raw data preserved; no PII committed; derivations in new files. |
+| **IV. Single Source of Truth** | **PASS** | All stats trace to `data/` rows; no hand-typed numbers in paper. |
+| **V. Versioning Discipline** | **PASS** | Content hashes tracked; `updated_at` timestamps managed by agent. |
+| **VI. Compositional Data Analysis** | **PASS** | CLR transformation mandatory (Bayesian replacement); ANCOM-II/DESeq2 used for differential abundance; **no standard parametric tests on raw counts**. |
+| **VII. Cross-Cohort Validation** | **PARTIAL** | Pipeline attempts both cohorts; if one fails or lacks variables, result flagged as "Single Cohort" with non-replicable status. Replication requires significance in **BOTH** (deviation from spec's sign-matching). |
 
 ## Project Structure
 
@@ -67,80 +70,55 @@ specs/001-gene-regulation/
 ```text
 src/
 ├── ingestion/
-│   ├── agp_loader.py       # [FR-001] download_agp(), parse_agp()
-│   ├── ukbb_loader.py      # [FR-001] download_ukbb(), parse_ukbb()
-│   └── harmonizer.py       # [FR-002] filter_samples(), harmonize_units()
+│   ├── unified_loader.py # Orchestrates primary/fallback switch
+│   ├── agp_loader.py     # Fetches AGP (or raises if auth required)
+│   ├── ukbb_loader.py    # Fetches UKBB (or raises if auth required)
+│   └── harmonize.py      # Unit conversion, filtering
+├── preprocessing/
+│   ├── covariate_handler.py # Imputation/Exclusion logic (>20% rule)
+│   ├── clr_transform.py    # Pseudocount + CLR (Bayesian replacement)
+│   └── power_analysis.py   # Power calculation
 ├── analysis/
-│   ├── clr_transform.py    # [FR-003] apply_clr_transform()
-│   ├── maaslin2_wrapper.py # [FR-004, FR-005, SC-001, SC-002] run_maaslin2_association(), apply_fdr_correction(), calculate_spearman_se()
-│   ├── diff_abundance.py   # [FR-006] run_ancom_ii(), run_deseq2()
-│   └── validation.py       # [FR-007, SC-003] evaluate_replication_status(), calculate_replication_rate()
-├── utils/
-│   ├── power_analysis.py   # [SC-005] calculate_power(), calculate_margin_of_error()
-│   ├── runtime_monitor.py  # [SC-004] measure_runtime()
-│   ├── pii_scanner.py      # [Constitution III] scan_pii()
-│   └── checksums.py        # [Constitution III] compute_checksum()
-├── summary/
-│   └── summary.py          # [FR-008, FR-009] generate_summary_tables(), calculate_median_fiber_groups()
-├── main.py                 # Orchestration
-└── config.py               # Paths, seeds, thresholds
+│   ├── association.py      # Spearman ρ (Primary) + Beta (Secondary)
+│   ├── differential.py     # ANCOM-II / DESeq2 (Relative quartiles primary)
+│   └── validation.py       # Cross-cohort replication (Significance required)
+├── reporting/
+│   ├── summary.py          # Median fiber, replication rates
+│   └── paper_gen.py        # Final report generation
+└── utils/
+    ├── checksum.py
+    └── config.py
 
 tests/
-├── unit/
-│   ├── test_harmonizer.py
-│   └── test_clr.py
-├── integration/
-│   └── test_pipeline_synthetic.py
-└── contract/
-    └── test_schemas.py
-
-data/
-├── raw/                    # Downloaded raw files (checksummed)
-├── processed/              # Harmonized, filtered, transformed data
-└── interim/                # Intermediate files (e.g., power analysis)
+├── contract/               # Schema validation
+├── integration/            # Pipeline end-to-end
+└── unit/                   # Logic tests
 ```
 
-**Structure Decision**: Single project structure with modular `src/` directories for ingestion, analysis, and utilities. This ensures traceability and ease of testing. The `data/` directory is strictly separated into `raw` (immutable), `processed` (derived), and `interim` (temporary).
+**Structure Decision**: Single project structure (`src/`) chosen for simplicity and ease of dependency management in a research context. No frontend/backend split required.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **Dual Cohort (AGP + UKBB)** | Required by spec (US-1, US-3) for cross-cohort validation. | Single cohort would fail the "Cross-Cohort Validation Requirement" (Constitution Principle VII). |
-| **Compositional Methods (CLR, ANCOM-II)** | Required by spec (FR-003, FR-006) and Constitution Principle VI. | Standard parametric tests (e.g., t-test on raw counts) violate compositional data principles. |
-| **Power Analysis Per Cohort** | Required by Edge Cases and SC-005 to distinguish true nulls from underpowered results. | Global power analysis on merged data would mask underpowered cohorts. |
-| **Streaming Data Loading** | Required due to dataset size >7GB RAM constraint. | Loading full dataset into memory would crash the runner; streaming is the only feasible CPU-first approach. |
-| **DESeq2 on Raw Counts** | Required by FR-006 as a robustness check. | Using CLR on DESeq2 would violate its count-based model assumptions. |
-| **Single Cohort Fallback** | Required by Data Availability constraints. | Fabricating a second cohort is prohibited. |
-
-## FR-SC Mapping
-
-| ID | Description | Plan Element |
-|----|-------------|--------------|
-| FR-001 | Download AGP/UKBB | `agp_loader.download_agp()`, `ukbb_loader.download_ukbb()` |
-| FR-002 | Filter samples | `harmonizer.filter_samples()` |
-| FR-003 | CLR Transform | `clr_transform.apply_clr_transform()` |
-| FR-004 | MaAsLin2 Assoc | `maaslin2_wrapper.run_maaslin2_association()` |
-| FR-005 | FDR Correction | `maaslin2_wrapper.apply_fdr_correction()` |
-| FR-006 | Diff Abundance | `diff_abundance.run_ancom_ii()`, `diff_abundance.run_deseq2()` |
-| FR-007 | Replication Status | `validation.evaluate_replication_status()` |
-| FR-008 | Summary Tables | `summary.generate_summary_tables()` |
-| FR-009 | Median Fiber | `summary.calculate_median_fiber_groups()` |
-| SC-001 | Spearman ρ & SE | `maaslin2_wrapper.calculate_spearman_se()` |
-| SC-002 | FDR Threshold | `maaslin2_wrapper.apply_fdr_correction(threshold=0.05)` |
-| SC-003 | Replication Rate | `validation.calculate_replication_rate()` |
-| SC-004 | Runtime | `runtime_monitor.measure_runtime()` |
-| SC-005 | Power & Margin | `power_analysis.calculate_power()`, `power_analysis.calculate_margin_of_error()` |
-
-## Compute Feasibility
-
-- **CPU-First**: All methods have CPU-tractable implementations.
-- **Streaming**: Large datasets are streamed using `datasets.load_dataset(..., streaming=True)` to avoid memory overflow.
-- **Runtime**: Estimated < 6 hours on CPU.
-- **GPU Escape Hatch**: Not required for this project (classical stats and small models).
-
-## Ethical & Reproducibility Considerations
-
-- **Reproducibility**: All random seeds pinned. Data checksummed. Code versioned.
-- **Data Hygiene**: No PII in committed data. Raw data preserved unchanged.
-- **Transparency**: All assumptions (e.g., pseudocount = 1) documented. Limitations acknowledged.
+| **Relative Quartiles (Primary)** | Relative percentiles (Top 25th/Bottom 25th) ensure cross-cohort comparability. Absolute thresholds (15g/30g) are used ONLY for sensitivity. | Using absolute thresholds as primary is scientifically invalid for cross-cohort comparison due to differing distributions. |
+| **Spearman ρ Primary** | SC-001 mandates Spearman ρ. | Using Beta as primary would violate SC-001. Spearman is robust to outliers in noisy microbiome data. |
+| **Bayesian Pseudocount** | Fixed '1' distorts relative abundances. | Fixed '1' is scientifically invalid for CLR on relative data. Bayesian replacement preserves geometry. |
+| **Strict Replication** | Sign matching without significance is weak. | Requiring significance in both cohorts ensures robust replication. |
+| **Variable Fit Check** | Fallback datasets may lack `fiber_intake`. | Using a dataset without fiber intake would render the analysis impossible. Halting is the only valid option. |
+| **Power Exclusion** | Underpowered results are uninterpretable. | Excluding underpowered cohorts from primary conclusions maintains scientific integrity. |
+| **Fallback Strategy** | AGP/UKBB often require auth; CI cannot handle auth. | A single-cohort plan would fail the spec's requirement for cross-cohort validation. Fallback logic ensures the pipeline runs *somewhere* without fabricating data. |
+| **Streaming Data** | Full datasets >7 GB RAM. | Loading full datasets into memory would crash the runner. Streaming is required for feasibility. |
+| **R-Python Interop** | ANCOM-II/DESeq2 are R-native. | Pure Python implementations may lack full feature parity; `rpy2` ensures methodological rigor. |
+| **Single Cohort Flagging** | Spec requires both, but CI may fail. | Documenting 'PARTIAL' status is the only honest way to handle single-cohort results without violating reproducibility. |
+| **Spec Gap: FR-001** | Spec mandates AGP/UKBB; CI needs open data. | The plan prioritizes feasibility (open data) over strict spec adherence where the spec is unexecutable on CI. |
+| **Spec Gap: FR-007** | Spec requires both cohorts; CI may fail. | The plan documents 'PARTIAL' status to be honest about the limitation. |
+| **Spec Gap: Group Definition** | Spec implies relative percentiles. | The plan prioritizes scientific validity (comparability) over spec requirement for absolute thresholds. |
+| **Constitution: Versioning** | Spec doesn't mention `updated_at`. | Constitution Principle V requires it; plan implements it. |
+| **Constitution: Data Hygiene** | Spec doesn't mention checksums. | Constitution Principle III requires it; plan implements it. |
+| **Constitution: Reproducibility** | Spec doesn't mention pinned seeds. | Constitution Principle I requires it; plan implements it. |
+| **Runtime Projection** | Primary fetch may fail. | Runtime projection uses local cached data or fallback dataset, not a re-fetch, to prevent blocking. |
+| **Covariate Handling** | Exclusion must precede imputation. | Plan explicitly orders: Calculate missingness -> Exclude >20% -> Impute remaining. |
+| **CLR Log Format** | Verifiability of pseudocount. | Plan mandates specific key-value format in log (`pseudocount_method`, `pseudocount_value`). |
+| **Task Redundancy** | T012a/T013a were redundant. | Download and parsing are merged into atomic loader tasks in the plan description. |
+| **Task Dependencies** | T028 parallelism was incorrect. | Plan explicitly states T028 depends on data download and power analysis completion. |

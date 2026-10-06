@@ -1,83 +1,83 @@
 # Data Model: Investigating the Correlation Between Dietary Fiber Intake and Gut Microbiome Composition
 
-## Key Entities & Attributes
+## Entity Relationship Overview
 
-### 1. Sample
-Represents an individual participant.
-- `sample_id`: Unique identifier (string).
-- `cohort`: Source dataset (AGP or UKBB).
-- `fiber_intake_g_day`: Dietary fiber intake in grams/day (float).
-- `sequencing_depth`: Number of sequencing reads (int).
-- `age`: Age in years (float).
-- `sex`: Sex (string: "M", "F", "Other").
-- `bmi`: Body Mass Index (float).
-- `antibiotic_use`: Antibiotic use in last 3 months (boolean).
-- `batch`: Sequencing batch ID (string).
-- `missing_covariate_pct`: Percentage of missing covariates (float).
-- `excluded_reason`: Reason for exclusion (string, if applicable).
-
-### 2. Taxon
-Represents a bacterial taxon (e.g., genus, species).
-- `taxon_id`: Unique identifier (string, e.g., "Genus_Bacteroides").
-- `taxonomic_level`: Level (e.g., "Genus", "Species").
-- `abundance_raw`: Raw count (int).
-- `abundance_relative`: Relative abundance (float, 0-1).
-- `clr_value`: CLR-transformed value (float).
-- `pseudocount_applied`: Boolean (true if pseudocount was added).
-
-### 3. Association Result
-Result of MaAsLin2 analysis.
-- `taxon_id`: Reference to Taxon.
-- `sample_id`: Reference to Sample (for cohort context).
-- `cohort`: AGP or UKBB.
-- `effect_size`: Beta coefficient of the association (continuous fiber).
-- `p_value`: Raw p-value.
-- `q_value`: Adjusted q-value.
-- `standard_error`: Standard error of the effect size.
-- `significant`: Boolean (q < 0.05).
-
-### 4. Differential Abundance Result
-Result of ANCOM-II or DESeq2.
-- `taxon_id`: Reference to Taxon.
-- `cohort`: AGP or UKBB.
-- `method`: "ANCOM-II" or "DESeq2".
-- `effect_size`: Log-fold change or similar (float).
-- `q_value`: Adjusted q-value.
-- `direction`: "up" or "down".
-- `significant`: Boolean (q < 0.05).
-
-### 5. Cross-Cohort Validation
-Replication status of significant findings.
-- `taxon_id`: Reference to Taxon.
-- `agp_significant`: Boolean.
-- `ukbb_significant`: Boolean.
-- `agp_direction`: "up" or "down" (if significant).
-- `ukbb_direction`: "up" or "down" (if significant).
-- `replication_status`: "Replicated", "Non-Replicable", or "Cohort-Specific".
-- `agp_q_value`: q-value from AGP.
-- `ukbb_q_value`: q-value from UKBB.
-
-### 6. Power Analysis
-- `cohort`: AGP or UKBB.
-- `sample_size`: Number of samples after filtering.
-- `effect_size_detected`: Minimum detectable effect size.
-- `power`: Calculated power (float).
-- `margin_of_error`: Margin of error (float).
-- `power_flag`: "Sufficient" (power >= 0.8) or "Insufficient".
+The system processes three primary data states:
+1.  **Raw Data**: Downloaded 16S tables and metadata (unstructured/semi-structured).
+2.  **Harmonized Data**: Unified CSV/TSV with consistent units, filtered samples, and imputed covariates.
+3.  **Analysis Data**: CLR-transformed taxon matrix and associated metadata.
+4.  **Results Data**: Association tables, differential abundance results, and replication flags.
 
 ## Data Flow
 
-1. **Raw Data**: Downloaded from AGP/UKBB (or open substitute) → `data/raw/`.
-2. **Harmonized Data**: Filtered, unit-converted, covariates imputed → `data/processed/harmonized.tsv`.
-3. **Transformed Data**: CLR-transformed abundances → `data/processed/clr_transformed.tsv`.
-4. **Analysis Results**: Association and differential abundance results → `data/processed/association_results.tsv`, `data/processed/diff_abundance_results.tsv`.
-5. **Validation Results**: Cross-cohort replication status → `data/processed/validation_results.tsv`.
-6. **Summary**: Final summary tables (median fiber, power) → `data/processed/summary.tsv`.
+```mermaid
+graph TD
+    A[Raw AGP/UKBB] -->|Download & Parse| B(Raw Tables)
+    B -->|Filter & Harmonize| C[Harmonized CSV]
+    C -->|Exclude >20% Missing| D[Cleaned Data]
+    D -->|Impute Remaining| E[Imputed Data]
+    E -->|CLR Transform (Bayesian)| F[Analysis Matrix]
+    F -->|Spearman ρ (Primary)| G[Association Results]
+    F -->|ANCOM-II/DESeq2| H[Differential Results]
+    G & H -->|Cross-Cohort Check (Significance)| I[Final Report]
+```
 
-## Constraints & Validations
+## Data Definitions
 
-- **Fiber Intake**: Must be between 0 and 200 g/day.
-- **Sequencing Depth**: Must be >= 5,000 reads.
-- **Missing Covariates**: Samples with >20% missing covariates excluded.
-- **PII**: No PII allowed in `data/processed` or `data/interim`.
-- **Checksums**: All raw files must have a recorded checksum.
+### 1. Harmonized Sample Record
+*Input to analysis phase*
+
+| Field | Type | Description | Source |
+| :--- | :--- | :--- | :--- |
+| `sample_id` | string | Unique identifier | AGP/UKBB ID |
+| `fiber_intake_g` | float | Daily fiber intake in grams | Metadata (harmonized) |
+| `age` | float | Age in years | Metadata (imputed) |
+| `sex` | string | 'M' or 'F' | Metadata (imputed) |
+| `bmi` | float | Body Mass Index | Metadata (imputed) |
+| `antibiotic_use` | string | 'Yes'/'No' | Metadata (imputed) |
+| `read_depth` | int | Total sequencing reads | 16S Table |
+| `cohort` | string | 'AGP' or 'UKBB' | Source label |
+
+### 2. Taxon Abundance Matrix
+*Compositional data*
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `sample_id` | string | Foreign key to Harmonized Sample |
+| `taxon_id` | string | Taxonomic identifier (e.g., Genus_Species) |
+| `relative_abundance` | float | Raw relative abundance (0-1) |
+| `clr_value` | float | Centered Log-Ratio transformed value (using Bayesian replacement) |
+
+### 3. Association Result
+*Output of Spearman ρ Analysis*
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `taxon_id` | string | Taxon identifier |
+| `spearman_rho` | float | **Spearman correlation coefficient**. **Rounded to 3 decimal places**. |
+| `spearman_se` | float | Standard Error of Spearman ρ (via Fisher Z). **Rounded to 3 decimal places**. |
+| `p_value` | float | Raw p-value |
+| `q_value` | float | FDR-adjusted q-value |
+| `significant` | bool | `q_value < 0.05` |
+| `beta_coefficient` | float | **Beta coefficient** (Linear Regression) on CLR data. Rounded to 3 decimal places. (Secondary metric). |
+
+### 4. Differential Abundance Result
+*Output of ANCOM-II / DESeq2*
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `taxon_id` | string | Taxon identifier |
+| `method` | string | 'ANCOM-II' or 'DESeq2' |
+| `q_value` | float | Adjusted p-value |
+| `effect_size` | float | Log-fold change or W-statistic |
+| `direction` | string | 'Positive' or 'Negative' |
+| `replicated` | bool | **True** only if significant (q < 0.05) in **BOTH** cohorts AND direction matches. |
+
+## Constraints & Validation
+
+- **Fiber Intake**: Must be `0 <= value <= 200`.
+- **Read Depth**: Must be `>= 5000`.
+- **Missing Covariates**: Samples with `>20%` missing covariates are **excluded** before imputation.
+- **CLR**: `clr_value` is undefined for zero counts without replacement; **Bayesian replacement** must be applied.
+- **Replication**: `replicated` flag is only `True` if `q_value < 0.05` in **both** cohorts and `direction` matches.
+- **Thresholds**: High-fiber group defined as **Top 25th percentile**; Low-fiber as **Bottom 25th percentile** for primary analysis. Absolute thresholds (>30g/<15g) are secondary only.

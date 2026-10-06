@@ -1,47 +1,33 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Validation Summary Schema"
-description: "Schema for Cross-Cohort Validation of continuous associations."
+title: "Differential Abundance Schema"
+description: "Schema for ANCOM-II and DESeq2 results."
 type: object
 properties:
-  taxon:
+  taxon_id:
     type: string
-    description: "Taxon identifier."
-  cohort_agp_beta:
+    description: "Taxonomic identifier."
+  method:
+    type: string
+    enum: ["ANCOM-II", "DESeq2"]
+    description: "Method used for analysis."
+  q_value:
     type: number
-    description: "Beta coefficient from AGP analysis."
-  cohort_ukbb_beta:
+    description: "Adjusted p-value."
+  effect_size:
     type: number
-    description: "Beta coefficient from UKBB analysis."
-  direction_agp:
+    description: "Log-fold change or W-statistic."
+  direction:
     type: string
-    enum:
-      - "positive"
-      - "negative"
-      - "null"
-    description: "Direction of association in AGP."
-  direction_ukbb:
-    type: string
-    enum:
-      - "positive"
-      - "negative"
-      - "null"
-    description: "Direction of association in UKBB."
-  replicable:
+    enum: ["Positive", "Negative"]
+    description: "Direction of the effect."
+  replicated:
     type: boolean
-    description: "True if direction is consistent and both are significant."
-  q_value_agp:
-    type: number
-    description: "Q-value from AGP."
-  q_value_ukbb:
-    type: number
-    description: "Q-value from UKBB."
+    description: "True if significant (q < 0.05) in BOTH cohorts with same direction."
 required:
-  - taxon
-  - cohort_agp_beta
-  - cohort_ukbb_beta
-  - direction_agp
-  - direction_ukbb
-  - replicable
-  - q_value_agp
-  - q_value_ukbb
+  - taxon_id
+  - method
+  - q_value
+  - effect_size
+  - direction
+  - replicated
 additionalProperties: false
