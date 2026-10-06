@@ -1,4 +1,9 @@
+# Output Schema for llmXive APPO Follow-up Project
+# Defines the structure for ReasoningTrace, BranchingScore, and CorrelationResult
+# Used for validation of generated data artifacts
+
 ReasoningTrace:
+  description: "A complete reasoning trace for a single task, including tokenized steps and associated scores."
   type: object
   required:
     - task_id
@@ -8,20 +13,31 @@ ReasoningTrace:
   properties:
     task_id:
       type: string
+      description: "Unique identifier for the task (e.g., GSM8K or MATH task ID)."
+      minLength: 1
     tokens:
       type: array
+      description: "List of token strings representing the reasoning trace."
       items:
         type: string
     static_scores:
       type: array
+      description: "List of static branching scores (KL divergence) for each token position."
       items:
         type: number
+        format: float
+        minimum: 0.0
+        description: "Non-negative float representing KL divergence."
     dynamic_scores:
       type: array
+      description: "List of dynamic branching scores (cumulative reward) for each token position."
       items:
         type: number
+        format: float
+        description: "Float representing cumulative binary reward or likelihood gain."
 
 BranchingScore:
+  description: "A single branching score entry at a specific decision point in a trace."
   type: object
   required:
     - task_id
@@ -31,15 +47,25 @@ BranchingScore:
   properties:
     task_id:
       type: string
+      description: "Unique identifier for the task."
+      minLength: 1
     position:
       type: integer
+      description: "The token position (0-indexed) where this score applies."
+      minimum: 0
     score:
       type: number
+      format: float
+      description: "The calculated branching score value."
     type:
       type: string
-      enum: [static, dynamic]
+      enum:
+        - static
+        - dynamic
+      description: "The type of score: 'static' for KL divergence, 'dynamic' for APPO rollout reward."
 
 CorrelationResult:
+  description: "Statistical correlation results between static and dynamic scores."
   type: object
   required:
     - pearson
@@ -50,13 +76,28 @@ CorrelationResult:
   properties:
     pearson:
       type: number
+      format: float
+      description: "Pearson correlation coefficient."
+      minimum: -1.0
+      maximum: 1.0
     spearman:
       type: number
+      format: float
+      description: "Spearman rank correlation coefficient."
+      minimum: -1.0
+      maximum: 1.0
     p_value:
       type: number
+      format: float
+      description: "P-value from the correlation significance test."
+      minimum: 0.0
+      maximum: 1.0
     seeds:
       type: array
+      description: "List of random seeds used for the permutation test."
       items:
         type: integer
+      minItems: 1
     inconclusive_flag:
       type: boolean
+      description: "True if the permutation test did not meet the minimum iteration count or timed out."

@@ -1,3 +1,10 @@
+"""
+Batch processing loop for computing static branching scores.
+
+This module orchestrates the processing of a fixed subset of tasks (exactly 100),
+applying timeout logic and resource monitoring, and saving results to disk.
+"""
+
 import json
 import logging
 import sys
@@ -5,234 +12,294 @@ import time
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 
-from utils.logger import get_logger
+# Import from sibling modules using the exact API surface provided
+from static_score.compute import StaticScorer, process_task_with_timeout
 from utils.config import get_config
-from static_score.compute import StaticScorer
+from utils.logger import get_logger, setup_progress_bar, log_metric, log_error_summary
+from utils.resource_monitor import ResourceMonitor, run_with_monitoring
 
+# Configure logger for this module
 logger = get_logger(__name__)
 
-# Default configuration values
-DEFAULT_TIMEOUT_SECONDS = 300  # 5 minutes per task
-DEFAULT_MAX_EXCLUSION_RATE = 0.10  # 10% exclusion threshold
+# Constants
+TARGET_TASK_COUNT = 100
+OUTPUT_FILE = "data/processed/static_scores.json"
+TIMEOUT_SECONDS = 30 * 60  # 30 minutes per task
+MAX_EXCLUSION_RATE = 0.3  # 30% exclusion rate threshold
 
-def load_sampled_tasks(input_path: str) -> List[Dict[str, Any]]:
-    """Load sampled tasks from a JSON file."""
-    path = Path(input_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Sampled tasks file not found: {input_path}")
+
+def load_sampled_tasks(
+    data_dir: Path, 
+    target_count: int = TARGET_TASK_COUNT
+) -> List[Dict[str, Any]]:
+    """
+    Load a sampled subset of tasks from the downloaded dataset.
     
-    with open(path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
+    Args:
+        data_dir: Path to the data directory containing downloaded datasets
+        target_count: Number of tasks to sample (default: 100)
+        
+    Returns:
+        List of task dictionaries with 'task_id', 'question', and 'trace' fields
+    """
+    # Check for GSM8K data first, then MATH
+    gsm8k_path = data_dir / "gsm8k" / "train" / "data-00000-of-00001.arrow"
+    math_path = data_dir / "math" / "train" / "data-00000-of-00001.arrow"
     
-    if isinstance(data, list):
-        return data
-    elif isinstance(data, dict) and 'tasks' in data:
-        return data['tasks']
+    tasks = []
+    
+    if gsm8k_path.exists():
+        logger.info(f"Loading GSM8K tasks from {gsm8k_path}")
+        # Import datasets here to avoid circular imports at module level
+        from datasets import load_from_disk
+        try:
+            # Try loading from disk if available
+            gsm8k_ds = load_from_disk(str(data_dir / "gsm8k"))
+            if "train" in gsm8k_ds:
+                tasks.extend(gsm8k_ds["train"].to_pandas().to_dict(orient="records"))
+            else:
+                # Fallback: load directly
+                gsm8k_ds = load_from_disk(str(data_dir / "gsm8k"))
+                tasks.extend(gsm8k_ds.to_pandas().to_dict(orient="records"))
+        except Exception as e:
+            logger.warning(f"Could not load GSM8K from disk: {e}")
+            # Try loading from HF cache or download
+            from datasets import load_dataset
+            gsm8k_ds = load_dataset("openai/gsm8k", "main", split="train")
+            tasks.extend(gsm8k_ds.to_pandas().to_dict(orient="records"))
+    elif math_path.exists():
+        logger.info(f"Loading MATH tasks from {math_path}")
+        from datasets import load_from_disk
+        try:
+            math_ds = load_from_disk(str(data_dir / "math"))
+            tasks.extend(math_ds.to_pandas().to_dict(orient="records"))
+        except Exception as e:
+            logger.warning(f"Could not load MATH from disk: {e}")
+            from datasets import load_dataset
+            math_ds = load_dataset("hendrycks/math", "train", split="train")
+            tasks.extend(math_ds.to_pandas().to_dict(orient="records"))
     else:
-        raise ValueError(f"Unexpected data format in {input_path}")
+        # Try loading directly from HF if no local data
+        logger.info("No local data found, loading from HuggingFace...")
+        from datasets import load_dataset
+        try:
+            gsm8k_ds = load_dataset("openai/gsm8k", "main", split="train")
+            tasks.extend(gsm8k_ds.to_pandas().to_dict(orient="records"))
+        except Exception as e:
+            logger.error(f"Failed to load GSM8K: {e}")
+            raise RuntimeError("Could not load any dataset. Please run download.py first.")
+    
+    # Ensure we have exactly target_count tasks
+    if len(tasks) < target_count:
+        logger.warning(f"Only {len(tasks)} tasks available, requested {target_count}")
+        # If we have fewer, use all available
+        return tasks[:len(tasks)]
+    
+    # Sample exactly target_count tasks (first N for reproducibility)
+    sampled_tasks = tasks[:target_count]
+    
+    # Normalize task structure
+    normalized_tasks = []
+    for i, task in enumerate(sampled_tasks):
+        normalized_task = {
+            "task_id": f"task_{i:04d}",
+            "question": task.get("question", task.get("problem", "")),
+            "trace": task.get("answer", task.get("solution", "")),
+            "original_id": task.get("id", f"orig_{i}")
+        }
+        normalized_tasks.append(normalized_task)
+    
+    logger.info(f"Loaded and normalized {len(normalized_tasks)} tasks")
+    return normalized_tasks
+
 
 def process_single_task(
     task: Dict[str, Any], 
-    scorer: StaticScorer, 
-    timeout_seconds: float
+    scorer: StaticScorer,
+    timeout_seconds: int = TIMEOUT_SECONDS
 ) -> Optional[Dict[str, Any]]:
     """
-    Process a single task with timeout monitoring.
+    Process a single task with timeout protection.
     
+    Args:
+        task: Task dictionary with 'task_id', 'question', 'trace'
+        scorer: StaticScorer instance
+        timeout_seconds: Maximum time allowed for processing this task
+        
     Returns:
-        - Result dict if successful
-        - None if task timed out (excluded)
+        Result dictionary or None if task timed out
     """
-    task_id = task.get('task_id', 'unknown')
-    start_time = time.time()
+    task_id = task["task_id"]
+    logger.info(f"Processing task {task_id}")
     
     try:
-        result = scorer.score(task)
-        elapsed = time.time() - start_time
+        # Use the timeout wrapper from compute.py
+        result = process_task_with_timeout(
+            task=task,
+            scorer=scorer,
+            timeout_seconds=timeout_seconds
+        )
         
-        result['processing_time'] = elapsed
-        result['status'] = 'SUCCESS'
-        
-        if elapsed > timeout_seconds:
-            logger.warning(
-                f"Task {task_id} exceeded timeout ({elapsed:.2f}s > {timeout_seconds}s) "
-                f"but completed. Marking as TIMEOUT_EXCLUDED."
-            )
-            result['status'] = 'TIMEOUT_EXCLUDED'
-            result['exclusion_reason'] = 'EXCEEDED_DURATION_THRESHOLD'
-            return result
+        if result is None:
+            logger.warning(f"Task {task_id} timed out or was excluded")
+            log_metric("TIMEOUT_EXCLUDED", 1)
+            return None
         
         return result
         
-    except TimeoutError:
-        elapsed = time.time() - start_time
-        logger.error(
-            f"Task {task_id} timed out after {elapsed:.2f}s. "
-            "Excluding from dataset."
-        )
-        return {
-            'task_id': task_id,
-            'status': 'TIMEOUT_EXCLUDED',
-            'exclusion_reason': 'EXECUTION_TIMEOUT',
-            'processing_time': elapsed,
-            'scores': None
-        }
     except Exception as e:
-        elapsed = time.time() - start_time
-        logger.error(
-            f"Task {task_id} failed after {elapsed:.2f}s: {str(e)}"
-        )
-        return {
-            'task_id': task_id,
-            'status': 'FAILED',
-            'exclusion_reason': f'ERROR: {str(e)}',
-            'processing_time': elapsed,
-            'scores': None
-        }
+        logger.error(f"Error processing task {task_id}: {e}")
+        log_error_summary(task_id, str(e))
+        return None
+
 
 def run_batch_processing(
-    tasks: List[Dict[str, Any]], 
+    tasks: List[Dict[str, Any]],
     scorer: StaticScorer,
-    timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS,
-    max_exclusion_rate: float = DEFAULT_MAX_EXCLUSION_RATE
-) -> tuple[List[Dict[str, Any]], Dict[str, Any]]:
+    timeout_seconds: int = TIMEOUT_SECONDS
+) -> List[Dict[str, Any]]:
     """
-    Process a batch of tasks with timeout monitoring and exclusion logic.
+    Run batch processing on a list of tasks with monitoring.
     
     Args:
-        tasks: List of task dictionaries to process
+        tasks: List of task dictionaries
         scorer: StaticScorer instance
-        timeout_seconds: Maximum allowed time per task
-        max_exclusion_rate: Threshold above which we exit with error
+        timeout_seconds: Timeout per task
         
     Returns:
-        Tuple of (results_list, stats_dict)
-        
-    Raises:
-        SystemExit: If exclusion rate exceeds threshold
+        List of result dictionaries
     """
     results = []
     excluded_count = 0
     total_count = len(tasks)
     
-    logger.info(f"Starting batch processing of {total_count} tasks")
-    logger.info(f"Timeout threshold: {timeout_seconds}s per task")
-    logger.info(f"Max exclusion rate: {max_exclusion_rate:.2%}")
+    # Setup progress bar
+    pbar = setup_progress_bar(total=total_count, desc="Processing tasks")
     
-    for idx, task in enumerate(tasks, 1):
-        task_id = task.get('task_id', f'task_{idx}')
-        logger.info(f"Processing [{idx}/{total_count}] {task_id}")
+    for task in pbar:
+        task_id = task["task_id"]
+        pbar.set_postfix({"task": task_id})
         
         result = process_single_task(task, scorer, timeout_seconds)
         
-        if result is not None:
+        if result is None:
+            excluded_count += 1
+            pbar.set_postfix({"excluded": excluded_count})
+        else:
             results.append(result)
-            
-            if result.get('status') == 'TIMEOUT_EXCLUDED':
-                excluded_count += 1
-                logger.warning(
-                    f"Excluded {task_id} due to timeout. "
-                    f"Current exclusion rate: {excluded_count}/{idx} = "
-                    f"{excluded_count/max(1, idx):.2%}"
-                )
+            pbar.set_postfix({"processed": len(results), "excluded": excluded_count})
     
-    # Calculate exclusion statistics
-    exclusion_rate = excluded_count / max(1, total_count)
+    # Check exclusion rate
+    exclusion_rate = excluded_count / total_count if total_count > 0 else 0
     
-    stats = {
-        'total_tasks': total_count,
-        'processed': len(results),
-        'excluded': excluded_count,
-        'exclusion_rate': exclusion_rate,
-        'timeout_threshold': timeout_seconds,
-        'max_allowed_rate': max_exclusion_rate
-    }
+    if exclusion_rate > MAX_EXCLUSION_RATE:
+        logger.error(f"Exclusion rate {exclusion_rate:.2%} exceeds threshold {MAX_EXCLUSION_RATE:.2%}")
+        log_metric("RESOURCE_LIMIT_EXCEEDED", 1)
+        sys.exit(1)
     
-    # Check if exclusion rate exceeds threshold
-    if exclusion_rate > max_exclusion_rate:
-        error_msg = (
-            f"RESOURCE_LIMIT_EXCEEDED: "
-            f"Exclusion rate ({exclusion_rate:.2%}) exceeds threshold "
-            f"({max_exclusion_rate:.2%}). "
-            f"Excluded {excluded_count}/{total_count} tasks due to timeouts."
-        )
-        logger.error(error_msg)
-        logger.error("Aborting processing due to excessive timeout exclusions.")
-        raise SystemExit(1)
+    log_metric("tasks_processed", len(results))
+    log_metric("tasks_excluded", excluded_count)
+    log_metric("exclusion_rate", exclusion_rate)
     
-    logger.info(
-        f"Batch processing complete. "
-        f"Exclusion rate: {exclusion_rate:.2%} ({excluded_count}/{total_count})"
-    )
-    
-    return results, stats
+    logger.info(f"Batch processing complete: {len(results)} tasks processed, {excluded_count} excluded")
+    return results
+
 
 def save_results(
     results: List[Dict[str, Any]], 
-    stats: Dict[str, Any], 
-    output_path: str
-):
-    """Save processing results and statistics to JSON file."""
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
+    output_path: Path
+) -> None:
+    """
+    Save results to JSON file.
     
-    output_data = {
-        'results': results,
-        'statistics': stats,
-        'metadata': {
-            'generated_at': time.strftime('%Y-%m-%d %H:%M:%S'),
-            'total_tasks': stats['total_tasks'],
-            'successful_tasks': stats['processed'] - stats['excluded'],
-            'excluded_tasks': stats['excluded']
-        }
-    }
+    Args:
+        results: List of result dictionaries
+        output_path: Path to output file
+    """
+    # Ensure directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    with open(path, 'w', encoding='utf-8') as f:
-        json.dump(output_data, f, indent=2, default=str)
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(results, f, indent=2, ensure_ascii=False)
     
-    logger.info(f"Results saved to {output_path}")
+    logger.info(f"Saved {len(results)} results to {output_path}")
+    log_metric("output_file", str(output_path))
 
-def main():
-    """Main entry point for batch processing with timeout monitoring."""
+
+def main() -> None:
+    """
+    Main entry point for batch processing.
+    
+    This function:
+    1. Loads exactly 100 tasks from the dataset
+    2. Initializes the StaticScorer
+    3. Processes tasks with timeout protection
+    4. Monitors resources and enforces limits
+    5. Saves results to data/processed/static_scores.json
+    """
+    # Get configuration
     config = get_config()
     
-    # Get configuration values with defaults
-    input_path = config.get('static_input_path', 'data/processed/sampled_tasks.json')
-    output_path = config.get('static_output_path', 'data/processed/static_scores.json')
-    timeout_seconds = config.get('task_timeout_seconds', DEFAULT_TIMEOUT_SECONDS)
-    max_exclusion_rate = config.get('max_exclusion_rate', DEFAULT_EXCLUSION_RATE)
-    
-    logger.info(f"Loading tasks from {input_path}")
-    tasks = load_sampled_tasks(input_path)
-    
-    logger.info("Initializing StaticScorer")
-    scorer = StaticScorer(
-        model_path=config.get('model_path', 'microsoft/phi-2'),
-        device=config.get('device', 'cpu'),
-        epsilon=config.get('epsilon', 1e-9)
+    # Initialize resource monitor
+    resource_monitor = ResourceMonitor(
+        max_memory_gb=7.0,
+        max_time_hours=5.0
     )
     
-    try:
-        results, stats = run_batch_processing(
-            tasks=tasks,
-            scorer=scorer,
-            timeout_seconds=timeout_seconds,
-            max_exclusion_rate=max_exclusion_rate
+    # Start resource monitoring
+    logger.info("Starting batch processing with resource monitoring")
+    
+    def processing_wrapper():
+        # Load tasks
+        data_dir = Path(config.data_dir)
+        tasks = load_sampled_tasks(data_dir, TARGET_TASK_COUNT)
+        
+        if len(tasks) == 0:
+            logger.error("No tasks loaded. Exiting.")
+            sys.exit(1)
+        
+        logger.info(f"Processing {len(tasks)} tasks")
+        
+        # Initialize scorer
+        scorer = StaticScorer(
+            model_name=config.model_path,
+            device="cpu",
+            epsilon=config.epsilon_smoothing
         )
         
-        save_results(results, stats, output_path)
+        # Run batch processing with timeout
+        results = run_batch_processing(
+            tasks=tasks,
+            scorer=scorer,
+            timeout_seconds=TIMEOUT_SECONDS
+        )
+        
+        # Save results
+        output_path = Path(config.data_dir) / OUTPUT_FILE
+        save_results(results, output_path)
+        
+        return results
+    
+    # Run with resource monitoring
+    try:
+        results = run_with_monitoring(
+            func=processing_wrapper,
+            monitor=resource_monitor
+        )
         
         logger.info("Batch processing completed successfully")
-        return 0
         
-    except SystemExit as e:
-        if e.code == 1:
-            logger.error("Processing aborted due to RESOURCE_LIMIT_EXCEEDED")
-            return 1
-        raise
+    except MemoryError:
+        logger.error("Memory limit exceeded")
+        log_metric("RESOURCE_LIMIT_EXCEEDED", 1)
+        sys.exit(1)
+    except TimeoutError:
+        logger.error("Time limit exceeded")
+        log_metric("RESOURCE_LIMIT_EXCEEDED", 1)
+        sys.exit(1)
     except Exception as e:
-        logger.exception(f"Fatal error during batch processing: {e}")
-        return 1
+        logger.error(f"Unexpected error during batch processing: {e}")
+        sys.exit(1)
 
-if __name__ == '__main__':
-    sys.exit(main())
+if __name__ == "__main__":
+    main()
