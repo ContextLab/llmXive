@@ -1,112 +1,191 @@
-import os
-import sys
+import pytest
 import pandas as pd
 import numpy as np
-import pytest
+import sys
 from pathlib import Path
 
-# Add parent to path for imports if needed, though direct import works in project root
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
 
 from ingest import archard_normalization
 
-def test_k_calculation():
-    """
-    Test K calculation using Archard's law.
-    V = K * (F * L) / H  =>  K = (V * H) / (F * L)
-    """
-    # Create a mock dataframe with known values
-    # V=10, H=100, F=10, L=10 => K = (10 * 100) / (10 * 10) = 10
-    data = {
-        'wear_rate': [10.0],
-        'hardness': [100.0],
-        'contact_load': [10.0],
-        'sliding_speed': [10.0],
-        'pulse_duration': [100.0],
-        'power': [50.0],
-        'scanning_speed': [20.0],
-        'pattern_geometry': ['grid'],
-        'elastic_modulus': [200.0]
-    }
-    df = pd.DataFrame(data)
-    
-    result = archard_normalization(df)
-    
-    assert 'normalization_method' in result.columns
-    assert 'K' in result.columns
-    
-    assert result.loc[0, 'normalization_method'] == 'normalized'
-    expected_K = (10.0 * 100.0) / (10.0 * 10.0)
-    assert np.isclose(result.loc[0, 'K'], expected_K)
-    
-    # Test missing contact_load -> should be 'raw'
-    data_missing = {
-        'wear_rate': [10.0],
-        'hardness': [100.0],
-        'contact_load': [np.nan],
-        'sliding_speed': [10.0],
-        'pulse_duration': [100.0],
-        'power': [50.0],
-        'scanning_speed': [20.0],
-        'pattern_geometry': ['grid'],
-        'elastic_modulus': [200.0]
-    }
-    df_missing = pd.DataFrame(data_missing)
-    result_missing = archard_normalization(df_missing)
-    
-    assert result_missing.loc[0, 'normalization_method'] == 'raw'
-    assert np.isnan(result_missing.loc[0, 'K'])
+class TestKCalculation:
+    """Test suite for T013c: Archard Normalization"""
 
-def test_raw_records_handling():
-    """
-    Test that records with missing normalization inputs are flagged as 'raw'.
-    """
-    data = {
-        'wear_rate': [10.0, 20.0],
-        'hardness': [100.0, 100.0],
-        'contact_load': [10.0, np.nan],
-        'sliding_speed': [10.0, 10.0],
-        'pulse_duration': [100.0, 100.0],
-        'power': [50.0, 50.0],
-        'scanning_speed': [20.0, 20.0],
-        'pattern_geometry': ['grid', 'grid'],
-        'elastic_modulus': [200.0, 200.0]
-    }
-    df = pd.DataFrame(data)
-    
-    result = archard_normalization(df)
-    
-    assert result.loc[0, 'normalization_method'] == 'normalized'
-    assert result.loc[1, 'normalization_method'] == 'raw'
-    assert np.isnan(result.loc[1, 'K'])
+    def test_k_calculation_basic(self):
+        """Test basic K calculation with valid inputs."""
+        data = {
+            'pulse_duration': [10.0],
+            'power': [100.0],
+            'scanning_speed': [50.0],
+            'pattern_geometry': ['grid'],
+            'hardness': [500.0],
+            'elastic_modulus': [200.0],
+            'wear_rate': [10.0],       # Volume V
+            'density': [7.8],          # g/cm3
+            'geometry': ['flat'],
+            'contact_load': [10.0],    # N
+            'sliding_speed': [100.0]   # mm/s
+        }
+        df = pd.DataFrame(data)
+        
+        result = archard_normalization(df)
+        
+        assert 'wear_coefficient_K' in result.columns
+        assert 'normalization_method' in result.columns
+        
+        # K = (V * H) / (F_N * L) = (10 * 500) / (10 * 100) = 5000 / 1000 = 5.0
+        expected_k = 5.0
+        assert np.isclose(result['wear_coefficient_K'].iloc[0], expected_k)
+        assert result['normalization_method'].iloc[0] == 'normalized'
 
-def test_exclude_predictors():
-    """
-    Verify that contact_load and sliding_speed are not added as features
-    (they are used for normalization, not prediction).
-    The function should not drop them from the DF, but the task description
-    says 'EXCLUDE ... from the predictor feature set when the target is K'.
-    This test verifies they remain in the DF but are not used to calculate K
-    (which is done by the formula).
-    The main check is that the K calculation doesn't depend on them as features,
-    but as normalization constants. The DF structure is preserved.
-    """
-    data = {
-        'wear_rate': [10.0],
-        'hardness': [100.0],
-        'contact_load': [10.0],
-        'sliding_speed': [10.0],
-        'pulse_duration': [100.0],
-        'power': [50.0],
-        'scanning_speed': [20.0],
-        'pattern_geometry': ['grid'],
-        'elastic_modulus': [200.0]
-    }
-    df = pd.DataFrame(data)
-    result = archard_normalization(df)
-    
-    # Columns should be preserved
-    assert 'contact_load' in result.columns
-    assert 'sliding_speed' in result.columns
-    # K is calculated
-    assert not np.isnan(result.loc[0, 'K'])
+    def test_missing_contact_load_flagged_raw(self):
+        """Test that missing contact_load results in 'raw' flag."""
+        data = {
+            'pulse_duration': [10.0],
+            'power': [100.0],
+            'scanning_speed': [50.0],
+            'pattern_geometry': ['grid'],
+            'hardness': [500.0],
+            'elastic_modulus': [200.0],
+            'wear_rate': [10.0],
+            'density': [7.8],
+            'geometry': ['flat'],
+            'contact_load': [np.nan],  # Missing
+            'sliding_speed': [100.0]
+        }
+        df = pd.DataFrame(data)
+        
+        result = archard_normalization(df)
+        
+        assert pd.isna(result['wear_coefficient_K'].iloc[0])
+        assert result['normalization_method'].iloc[0] == 'raw'
+
+    def test_missing_sliding_speed_flagged_raw(self):
+        """Test that missing sliding_speed results in 'raw' flag."""
+        data = {
+            'pulse_duration': [10.0],
+            'power': [100.0],
+            'scanning_speed': [50.0],
+            'pattern_geometry': ['grid'],
+            'hardness': [500.0],
+            'elastic_modulus': [200.0],
+            'wear_rate': [10.0],
+            'density': [7.8],
+            'geometry': ['flat'],
+            'contact_load': [10.0],
+            'sliding_speed': [np.nan]  # Missing
+        }
+        df = pd.DataFrame(data)
+        
+        result = archard_normalization(df)
+        
+        assert pd.isna(result['wear_coefficient_K'].iloc[0])
+        assert result['normalization_method'].iloc[0] == 'raw'
+
+    def test_zero_load_handling(self):
+        """Test that zero contact_load results in 'raw' flag (division by zero)."""
+        data = {
+            'pulse_duration': [10.0],
+            'power': [100.0],
+            'scanning_speed': [50.0],
+            'pattern_geometry': ['grid'],
+            'hardness': [500.0],
+            'elastic_modulus': [200.0],
+            'wear_rate': [10.0],
+            'density': [7.8],
+            'geometry': ['flat'],
+            'contact_load': [0.0],     # Zero
+            'sliding_speed': [100.0]
+        }
+        df = pd.DataFrame(data)
+        
+        result = archard_normalization(df)
+        
+        # Should be NaN and flagged raw
+        assert pd.isna(result['wear_coefficient_K'].iloc[0])
+        assert result['normalization_method'].iloc[0] == 'raw'
+
+    def test_missing_required_predictors_unchanged(self):
+        """Test that records missing required predictors (from T012) are not re-added."""
+        # T012 should have dropped these, but if they exist, K calc should handle them gracefully
+        # or they should be 'raw' if required for K.
+        # Here we test that if a required predictor for K (like hardness) is missing, it's 'raw'.
+        data = {
+            'pulse_duration': [10.0],
+            'power': [100.0],
+            'scanning_speed': [50.0],
+            'pattern_geometry': ['grid'],
+            'hardness': [np.nan],      # Missing hardness
+            'elastic_modulus': [200.0],
+            'wear_rate': [10.0],
+            'density': [7.8],
+            'geometry': ['flat'],
+            'contact_load': [10.0],
+            'sliding_speed': [100.0]
+        }
+        df = pd.DataFrame(data)
+        
+        result = archard_normalization(df)
+        
+        assert pd.isna(result['wear_coefficient_K'].iloc[0])
+        assert result['normalization_method'].iloc[0] == 'raw'
+
+    def test_mixed_records(self):
+        """Test a DataFrame with a mix of normalized and raw records."""
+        data = {
+            'pulse_duration': [10.0, 20.0, 30.0],
+            'power': [100.0, 200.0, 300.0],
+            'scanning_speed': [50.0, 60.0, 70.0],
+            'pattern_geometry': ['grid', 'line', 'dot'],
+            'hardness': [500.0, 600.0, 700.0],
+            'elastic_modulus': [200.0, 210.0, 220.0],
+            'wear_rate': [10.0, 20.0, 30.0],
+            'density': [7.8, 7.9, 8.0],
+            'geometry': ['flat', 'flat', 'flat'],
+            'contact_load': [10.0, np.nan, 20.0], # Row 1 missing load
+            'sliding_speed': [100.0, 100.0, np.nan] # Row 2 missing speed
+        }
+        df = pd.DataFrame(data)
+        
+        result = archard_normalization(df)
+        
+        # Row 0: Valid -> normalized
+        assert result['normalization_method'].iloc[0] == 'normalized'
+        # Row 1: Missing load -> raw
+        assert result['normalization_method'].iloc[1] == 'raw'
+        # Row 2: Missing speed -> raw
+        assert result['normalization_method'].iloc[2] == 'raw'
+
+    def test_excludes_contact_load_from_predictors_logic(self):
+        """Verify that contact_load and sliding_speed are used for K but not added as K predictors."""
+        # This is a logic check. The function calculates K using them, but the resulting
+        # DataFrame should have K as the target, and the original columns remain.
+        # The "exclusion" is for the MODELING phase (predictors), not the calculation.
+        # The task says "explicitly EXCLUDE ... from the predictor feature set when the target is K".
+        # This function produces the target K. The exclusion happens when selecting features for ML.
+        # We verify that K is calculated and the columns exist.
+        data = {
+            'pulse_duration': [10.0],
+            'power': [100.0],
+            'scanning_speed': [50.0],
+            'pattern_geometry': ['grid'],
+            'hardness': [500.0],
+            'elastic_modulus': [200.0],
+            'wear_rate': [10.0],
+            'density': [7.8],
+            'geometry': ['flat'],
+            'contact_load': [10.0],
+            'sliding_speed': [100.0]
+        }
+        df = pd.DataFrame(data)
+        
+        result = archard_normalization(df)
+        
+        assert 'wear_coefficient_K' in result.columns
+        assert 'contact_load' in result.columns
+        assert 'sliding_speed' in result.columns
+        assert result['normalization_method'].iloc[0] == 'normalized'
+        # The exclusion is a modeling constraint, not a data removal here.
+        # But we confirm K is computed.

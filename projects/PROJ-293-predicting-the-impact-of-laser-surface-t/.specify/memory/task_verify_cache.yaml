@@ -23,20 +23,52 @@ T009b:
     \ the specified columns, at least 150 rows, and appropriate missing values."
 T012:
   c: false
-  h: aa27b47f769a7a1e7b70140ae0b613fbe5df39febba61ecacb69022fbd1ebad0
-  r: The `handle_missing_values` function is implemented and matches the test expectations,
-    but the pipeline never writes the filtered DataFrame to `data/processed/aggregated_dropped.csv`,
-    the required output file is absent, and there is no code or test confirming that
-    the `normalization_method` column is not present. These missing artifacts mean
-    the task is not fully satisfied.
+  h: 174c1c4e528bbae70344f7e76498274c4609b559f90568be3effcc91f0115bc2
+  r: "The repository lacks a `handle_missing_values` implementation in `code/ingest.py`\
+    \ (the shown code only defines `count_records` and related helpers). The required\
+    \ output file `data/processed/aggregated_dropped.csv` does not exist, and the\
+    \ unit test `tests/unit/test_ingest.py::test_missing_predictor_handling` is not\
+    \ present in the test suite (the provided tests focus on threshold logic). Consequently\
+    \ the task\u2019s specifications are not satisfied."
 T013c:
   c: false
-  h: 5667fac55acbd1e8faf4ea957a79627b9ec02d90b5d7ac6137c1ec14ee06d327
-  r: The `archard_normalization` function in `code/ingest.py` is truncated and not
-    fully implemented, so it does not compute K, set the `normalization_method` flag,
-    or write the required `data/processed/aggregated_clean.csv`. Additionally, the
-    input file `data/processed/aggregated_dropped.csv` and the expected output CSV
-    are absent. The task therefore remains unfinished.
+  h: 18dfc26d1f7705063a2147e35449c8f00e2b033ba5505e0d9d35e2a93a31e433
+  r: "The `code/ingest.py` file shown does not contain an `archard_normalization`\
+    \ implementation (the excerpt ends before any such function), and the required\
+    \ output files `data/processed/aggregated_dropped.csv` and `data/processed/aggregated_clean.csv`\
+    \ are missing. Consequently the task\u2019s core functionality and expected artifacts\
+    \ are not present."
+T014:
+  c: false
+  h: 3bc705a27cffee1353a9f488c50505349359e9a38b3cd5bd70ee9119ca2707ce
+  r: "The repository\u2019s `code/ingest.py` does not contain a `split_dataset` implementation\
+    \ (the shown excerpt ends before any such function) and the required output artifacts\
+    \ (`data/processed/normalized_only.csv`, `raw_only.csv`, `split_summary.json`)\
+    \ are absent. Consequently the task\u2019s core functionality and expected files\
+    \ are not provided."
+T014b:
+  c: false
+  h: 602d5ceb31d12f8e3c6ea6e89a0dc5fc4b4b2301ac86f816c0123c3722560bbb
+  r: The repository lacks a `split_test_set` function in `code/ingest.py`, the required
+    source file `data/processed/normalized_only.csv` does not exist, and the expected
+    outputs `data/processed/test_split.csv` and `state/test_split_indices.npy` are
+    missing. Consequently the unit test `test_held_out_indices` cannot be satisfied.
+T016a:
+  c: false
+  h: 126d1bf2a3f5ec7acd8bed864418fe5137e703f8cfa3d056ee36529ef2048bc2
+  r: "The repository contains a `count_records` implementation, but the required output\
+    \ file `data/processed/record_counts.json` does not exist, and the test `test_record_counts_schema`\
+    \ is not present (the only test shown checks threshold logic). Consequently the\
+    \ task\u2019s output artifact and verification step are missing."
+T016b:
+  c: false
+  h: e600712e5fb6a638537693360ff117ddca578a39de079058280ad4ad8bd1f6c4
+  r: "The repository lacks a `compare_thresholds` implementation in `code/ingest.py`\
+    \ (the file is truncated and does not show such a function), the required `data/processed/threshold_check.json`\
+    \ output file is missing, and the existing `reports/pre_check.json` contains a\
+    \ PASS status rather than the expected failure log with `status: 'failed'` and\
+    \ `reason: 'insufficient_data'`. Consequently the task\u2019s behavior and output\
+    \ artifacts are not satisfied."
 T019:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

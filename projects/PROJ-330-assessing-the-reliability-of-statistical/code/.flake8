@@ -7,9 +7,12 @@ exclude =
     build,
     dist,
     .eggs,
-    *.egg-info
+    *.egg-info,
+    venv,
+    .venv,
+    .tox
 per-file-ignores =
-    # Allow unused imports in __init__.py if we add one later
+    # Allow unused imports in __init__.py for re-exports
     code/src/__init__.py: F401
-    # Tests can have longer lines for fixtures sometimes
-    code/tests/*: E501
+    # Allow unused imports in tests for fixtures
+    code/tests/*.py: F401

@@ -119,7 +119,7 @@ expected alphabetic or numeric character, but found '*'
 - [X] T022 [US2] Implement `code/src/permutation.py` to shuffle sample labels within batch groups and recompute Wald statistics using fixed dispersions from T021 artifact (AUTHORIZED by T021a)
 - [X] T023 [US2] Implement `code/src/permutation.py` dynamic iteration logic: estimate time per iter, cap at 6h, fallback to min 100 iterations with "low-confidence" flag
 - [X] T024b [US2] Implement `code/src/metrics.py` to compare parametric vs. empirical p-values: **KS test to verify p-value > 0.05** (correcting spec SC-002) and generate Bland-Altman plot
-- [~] T024c [US2] Update `plan.md`/`spec.md` with Spec Correction #2 (KS threshold: D < 0.05 -> p-value > 0.05)
+- [ ] T024c [US2] Update `plan.md`/`spec.md` with Spec Correction #2 (KS threshold: D < 0.05 -> p-value > 0.05)
 - [X] T024 [US2] Implement `code/src/metrics.py` to calculate and report p-value inflation metrics (median absolute deviation)
 - [X] T025 [US2] Add Benjamini-Hochberg correction to all reported p-values in `code/src/metrics.py` (per FR-008)
 - [X] T026 [US2] Implement `code/src/report.py` to visualize the Bland-Altman plot and save to `artifacts/`
@@ -154,7 +154,7 @@ expected alphabetic or numeric character, but found '*'
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T032 [P] Documentation updates in `code/README.md` and `specs/001-assess-significance-reliability/quickstart.md`
+- [X] T032 [P] Documentation updates in `code/README.md` and `specs/001-assess-significance-reliability/quickstart.md`
 - [ ] T033 Code cleanup and refactoring for memory efficiency (ensure <6GB usage)
 - [ ] T034 Performance optimization: verify permutation loop overhead is minimal
 - [ ] T035 [P] Run `specs/001-assess-significance-reliability/quickstart.md` validation

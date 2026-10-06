@@ -1,8 +1,10 @@
-opencv-python
-numpy
-pandas
-scipy
-pytest
-pyyaml
+opencv-python>=4.8.0
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.11.0
+pytest>=7.4.0
+pyyaml>=6.0
+ruff>=0.1.0
+black>=23.0.0
 datasets>=2.14.0
-aiohttp>=3.8.0
+tomli>=2.0.0; python_version < "3.11"

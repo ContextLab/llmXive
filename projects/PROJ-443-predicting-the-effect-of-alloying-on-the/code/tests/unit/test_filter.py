@@ -1,6 +1,7 @@
 """
-Unit tests for the HEA sample filtering logic in src/data/filter.py.
+Unit tests for the HEA sample filtering logic.
 """
+
 import pytest
 import pandas as pd
 import numpy as np
@@ -8,248 +9,213 @@ from pathlib import Path
 import sys
 import os
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add the project root to the path if not already present
+project_root = Path(__file__).resolve().parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-from src.data.filter import count_principal_elements, filter_hea_samples
+from src.data.filter import count_principal_elements, filter_hea_samples, MIN_PRINCIPAL_ELEMENTS, MIN_COMPOSITION_THRESHOLD
 
 
 class TestCountPrincipalElements:
     """Tests for the count_principal_elements function."""
 
-    def test_count_five_elements_above_threshold(self):
+    def test_count_with_five_principal_elements(self):
         """Test counting 5 elements above threshold."""
         data = {
-            'composition_Fe': 0.2,
-            'composition_Co': 0.2,
-            'composition_Ni': 0.2,
-            'composition_Cr': 0.2,
-            'composition_Mn': 0.2,
-            'composition_Al': 0.0
+            'element_Fe': 0.20,
+            'element_Cr': 0.20,
+            'element_Ni': 0.20,
+            'element_Mn': 0.20,
+            'element_Al': 0.20,
+            'element_Cu': 0.00
         }
         row = pd.Series(data)
-        composition_cols = [col for col in data.keys() if col.startswith('composition_')]
+        composition_cols = [c for c in data.keys() if c.startswith('element_')]
         
-        count = count_principal_elements(row, composition_cols, threshold=0.01)
-        
+        count = count_principal_elements(row, composition_cols, threshold=0.05)
         assert count == 5
 
-    def test_count_three_elements_above_threshold(self):
-        """Test counting 3 elements above threshold."""
+    def test_count_with_four_principal_elements(self):
+        """Test counting 4 elements above threshold."""
         data = {
-            'composition_Fe': 0.33,
-            'composition_Co': 0.33,
-            'composition_Ni': 0.33,
-            'composition_Cr': 0.01,
-            'composition_Mn': 0.0
+            'element_Fe': 0.25,
+            'element_Cr': 0.25,
+            'element_Ni': 0.25,
+            'element_Mn': 0.25,
+            'element_Al': 0.00,
+            'element_Cu': 0.00
         }
         row = pd.Series(data)
-        composition_cols = [col for col in data.keys() if col.startswith('composition_')]
+        composition_cols = [c for c in data.keys() if c.startswith('element_')]
         
-        count = count_principal_elements(row, composition_cols, threshold=0.01)
-        
-        assert count == 3
-
-    def test_count_zero_elements_above_threshold(self):
-        """Test counting 0 elements above threshold."""
-        data = {
-            'composition_Fe': 0.005,
-            'composition_Co': 0.005,
-            'composition_Ni': 0.005
-        }
-        row = pd.Series(data)
-        composition_cols = [col for col in data.keys() if col.startswith('composition_')]
-        
-        count = count_principal_elements(row, composition_cols, threshold=0.01)
-        
-        assert count == 0
-
-    def test_count_with_empty_columns(self):
-        """Test counting with empty composition columns list."""
-        row = pd.Series({'composition_Fe': 0.5})
-        
-        count = count_principal_elements(row, [], threshold=0.01)
-        
-        assert count == 0
-
-    def test_count_with_higher_threshold(self):
-        """Test counting with a higher threshold."""
-        data = {
-            'composition_Fe': 0.25,
-            'composition_Co': 0.25,
-            'composition_Ni': 0.25,
-            'composition_Cr': 0.20,
-            'composition_Mn': 0.05
-        }
-        row = pd.Series(data)
-        composition_cols = [col for col in data.keys() if col.startswith('composition_')]
-        
-        # With threshold 0.1, only 4 should count
-        count = count_principal_elements(row, composition_cols, threshold=0.1)
-        
+        count = count_principal_elements(row, composition_cols, threshold=0.05)
         assert count == 4
+
+    def test_count_with_nan_values(self):
+        """Test handling of NaN values in composition."""
+        data = {
+            'element_Fe': 0.20,
+            'element_Cr': np.nan,
+            'element_Ni': 0.20,
+            'element_Mn': 0.20,
+            'element_Al': 0.20,
+        }
+        row = pd.Series(data)
+        composition_cols = [c for c in data.keys() if c.startswith('element_')]
+        
+        count = count_principal_elements(row, composition_cols, threshold=0.05)
+        # NaN should be treated as 0, so 4 elements
+        assert count == 4
+
+    def test_count_with_zero_threshold(self):
+        """Test with threshold of 0.0 (all non-zero elements count)."""
+        data = {
+            'element_Fe': 0.20,
+            'element_Cr': 0.00,
+            'element_Ni': 0.01,
+            'element_Mn': 0.00,
+            'element_Al': 0.79,
+        }
+        row = pd.Series(data)
+        composition_cols = [c for c in data.keys() if c.startswith('element_')]
+        
+        count = count_principal_elements(row, composition_cols, threshold=0.0)
+        assert count == 3
 
 
 class TestFilterHEASamples:
     """Tests for the filter_hea_samples function."""
 
     def setup_method(self):
-        """Set up test fixtures."""
-        self.composition_cols = [
-            'composition_Fe', 'composition_Co', 'composition_Ni',
-            'composition_Cr', 'composition_Mn', 'composition_Al'
-        ]
+        """Set up test data."""
+        self.composition_cols = ['element_Fe', 'element_Cr', 'element_Ni', 'element_Mn', 'element_Al', 'element_Cu']
         
-        # Create a sample DataFrame
-        self.df = pd.DataFrame([
-            # 5 elements, valid BM
-            {**{col: 0.2 for col in self.composition_cols[:5]}, 'composition_Al': 0.0, 'bulk_modulus': 150.0, 'id': 1},
-            # 4 elements, valid BM (should be filtered)
-            {**{col: 0.25 for col in self.composition_cols[:4]}, 'composition_Mn': 0.0, 'composition_Al': 0.0, 'bulk_modulus': 160.0, 'id': 2},
-            # 6 elements, valid BM
-            {**{col: 0.166 for col in self.composition_cols}, 'bulk_modulus': 170.0, 'id': 3},
-            # 5 elements, NaN BM (should be filtered)
-            {**{col: 0.2 for col in self.composition_cols[:5]}, 'composition_Al': 0.0, 'bulk_modulus': np.nan, 'id': 4},
-            # 5 elements, zero BM (should be filtered)
-            {**{col: 0.2 for col in self.composition_cols[:5]}, 'composition_Al': 0.0, 'bulk_modulus': 0.0, 'id': 5},
-            # 5 elements, negative BM (should be filtered)
-            {**{col: 0.2 for col in self.composition_cols[:5]}, 'composition_Al': 0.0, 'bulk_modulus': -10.0, 'id': 6},
-            # 5 elements, valid BM
-            {**{col: 0.2 for col in self.composition_cols[:5]}, 'composition_Al': 0.0, 'bulk_modulus': 180.0, 'id': 7},
-        ])
+        self.valid_data = pd.DataFrame({
+            'element_Fe': [0.20, 0.25, 0.15, 0.20, 0.20],
+            'element_Cr': [0.20, 0.25, 0.15, 0.20, 0.20],
+            'element_Ni': [0.20, 0.25, 0.15, 0.20, 0.20],
+            'element_Mn': [0.20, 0.25, 0.15, 0.20, 0.20],
+            'element_Al': [0.20, 0.00, 0.40, 0.20, 0.20],
+            'element_Cu': [0.00, 0.00, 0.00, 0.00, 0.00],
+            'Bulk_Modulus': [150.0, 160.0, 140.0, 155.0, 145.0],
+            'sample_id': [1, 2, 3, 4, 5]
+        })
+        
+        self.invalid_bulk_modulus_data = pd.DataFrame({
+            'element_Fe': [0.20, 0.25, 0.15, 0.20, 0.20],
+            'element_Cr': [0.20, 0.25, 0.15, 0.20, 0.20],
+            'element_Ni': [0.20, 0.25, 0.15, 0.20, 0.20],
+            'element_Mn': [0.20, 0.25, 0.15, 0.20, 0.20],
+            'element_Al': [0.20, 0.00, 0.40, 0.20, 0.20],
+            'element_Cu': [0.00, 0.00, 0.00, 0.00, 0.00],
+            'Bulk_Modulus': [150.0, np.nan, 140.0, -10.0, 145.0],
+            'sample_id': [1, 2, 3, 4, 5]
+        })
+        
+        self.low_element_count_data = pd.DataFrame({
+            'element_Fe': [0.50, 0.25, 0.15, 0.20, 0.20],
+            'element_Cr': [0.50, 0.25, 0.15, 0.20, 0.20],
+            'element_Ni': [0.00, 0.25, 0.15, 0.20, 0.20],
+            'element_Mn': [0.00, 0.25, 0.15, 0.20, 0.20],
+            'element_Al': [0.00, 0.00, 0.40, 0.20, 0.20],
+            'element_Cu': [0.00, 0.00, 0.00, 0.00, 0.00],
+            'Bulk_Modulus': [150.0, 160.0, 140.0, 155.0, 145.0],
+            'sample_id': [1, 2, 3, 4, 5]
+        })
 
-    def test_filter_retains_samples_with_5_elements_and_valid_bm(self):
-        """Test that samples with ≥5 elements and valid BM are retained."""
+    def test_filter_all_valid(self):
+        """Test filtering with all valid samples."""
         filtered_df, stats = filter_hea_samples(
-            self.df,
-            composition_columns=self.composition_cols,
-            bulk_modulus_column='bulk_modulus',
-            min_elements=5
+            self.valid_data,
+            min_elements=5,
+            composition_threshold=0.05
         )
         
-        # Should retain ids 1, 3, 7
+        assert len(filtered_df) == 5
+        assert stats['total_input'] == 5
+        assert stats['total_output'] == 5
+        assert stats['dropped_by_bulk_modulus'] == 0
+        assert stats['dropped_by_elements'] == 0
+
+    def test_filter_invalid_bulk_modulus(self):
+        """Test filtering removes samples with invalid Bulk Modulus."""
+        filtered_df, stats = filter_hea_samples(
+            self.invalid_bulk_modulus_data,
+            min_elements=5,
+            composition_threshold=0.05
+        )
+        
+        # Should keep samples 1, 3, 5 (indices 0, 2, 4)
         assert len(filtered_df) == 3
-        assert set(filtered_df['id'].tolist()) == {1, 3, 7}
+        assert stats['total_input'] == 5
+        assert stats['total_output'] == 3
+        assert stats['dropped_by_bulk_modulus'] == 2
+        assert stats['dropped_by_elements'] == 0
         
-        assert stats['initial_count'] == 7
-        assert stats['final_count'] == 3
-        assert stats['removed_by_element_count'] == 1  # id 2
-        assert stats['removed_by_bulk_modulus'] == 3    # ids 4, 5, 6
+        # Check specific sample IDs
+        assert 2 not in filtered_df['sample_id'].values
+        assert 4 not in filtered_df['sample_id'].values
 
-    def test_filter_removes_samples_with_less_than_5_elements(self):
-        """Test that samples with <5 elements are removed."""
+    def test_filter_low_element_count(self):
+        """Test filtering removes samples with < 5 principal elements."""
         filtered_df, stats = filter_hea_samples(
-            self.df,
-            composition_columns=self.composition_cols,
-            bulk_modulus_column='bulk_modulus',
-            min_elements=5
+            self.low_element_count_data,
+            min_elements=5,
+            composition_threshold=0.05
         )
         
-        # id 2 has only 4 elements, should be removed
-        assert 2 not in filtered_df['id'].tolist()
-
-    def test_filter_removes_samples_with_nan_bulk_modulus(self):
-        """Test that samples with NaN Bulk Modulus are removed."""
-        filtered_df, stats = filter_hea_samples(
-            self.df,
-            composition_columns=self.composition_cols,
-            bulk_modulus_column='bulk_modulus',
-            min_elements=5
-        )
+        # Sample 1 has only 2 elements >= 0.05, Sample 2 has 4
+        # Samples 3, 4, 5 have 5 elements >= 0.05
+        assert len(filtered_df) == 3
+        assert stats['total_input'] == 5
+        assert stats['total_output'] == 3
+        assert stats['dropped_by_bulk_modulus'] == 0
+        assert stats['dropped_by_elements'] == 2
         
-        # id 4 has NaN BM, should be removed
-        assert 4 not in filtered_df['id'].tolist()
-
-    def test_filter_removes_samples_with_zero_or_negative_bulk_modulus(self):
-        """Test that samples with zero or negative Bulk Modulus are removed."""
-        filtered_df, stats = filter_hea_samples(
-            self.df,
-            composition_columns=self.composition_cols,
-            bulk_modulus_column='bulk_modulus',
-            min_elements=5
-        )
-        
-        # ids 5 and 6 have invalid BM, should be removed
-        assert 5 not in filtered_df['id'].tolist()
-        assert 6 not in filtered_df['id'].tolist()
+        # Check specific sample IDs
+        assert 1 not in filtered_df['sample_id'].values
+        assert 2 not in filtered_df['sample_id'].values
 
     def test_filter_empty_dataframe(self):
         """Test filtering an empty DataFrame."""
-        empty_df = pd.DataFrame(columns=self.composition_cols + ['bulk_modulus'])
-        
+        empty_df = pd.DataFrame(columns=self.composition_cols + ['Bulk_Modulus', 'sample_id'])
         filtered_df, stats = filter_hea_samples(
             empty_df,
-            composition_columns=self.composition_cols,
-            bulk_modulus_column='bulk_modulus',
-            min_elements=5
-        )
-        
-        assert len(filtered_df) == 0
-        assert stats['initial_count'] == 0
-        assert stats['final_count'] == 0
-
-    def test_filter_all_samples_removed(self):
-        """Test when all samples are filtered out."""
-        df_all_invalid = pd.DataFrame([
-            {'composition_Fe': 0.5, 'composition_Co': 0.5, 'bulk_modulus': 150.0},
-            {'composition_Fe': 0.5, 'composition_Co': 0.5, 'bulk_modulus': np.nan},
-        ])
-        
-        filtered_df, stats = filter_hea_samples(
-            df_all_invalid,
-            composition_columns=['composition_Fe', 'composition_Co'],
-            bulk_modulus_column='bulk_modulus',
-            min_elements=5
-        )
-        
-        assert len(filtered_df) == 0
-        assert stats['final_count'] == 0
-        assert stats['removed_by_element_count'] == 2
-
-    def test_custom_min_elements(self):
-        """Test with custom min_elements parameter."""
-        # With min_elements=4, id 2 should be retained
-        filtered_df, stats = filter_hea_samples(
-            self.df,
-            composition_columns=self.composition_cols,
-            bulk_modulus_column='bulk_modulus',
-            min_elements=4
-        )
-        
-        # Should retain ids 1, 2, 3, 7 (id 2 has 4 elements now)
-        assert len(filtered_df) == 4
-        assert 2 in filtered_df['id'].tolist()
-
-    def test_custom_min_bulk_modulus(self):
-        """Test with custom min_bulk_modulus parameter."""
-        # With min_bulk_modulus=165, ids 1 and 2 (if retained) should be removed
-        filtered_df, stats = filter_hea_samples(
-            self.df,
-            composition_columns=self.composition_cols,
-            bulk_modulus_column='bulk_modulus',
             min_elements=5,
-            min_bulk_modulus=165.0
+            composition_threshold=0.05
         )
         
-        # Should retain only ids 3 (170) and 7 (180)
-        assert len(filtered_df) == 2
-        assert set(filtered_df['id'].tolist()) == {3, 7}
+        assert len(filtered_df) == 0
+        assert stats['total_input'] == 0
+        assert stats['total_output'] == 0
 
-    def test_statistics_accuracy(self):
-        """Test that statistics are calculated correctly."""
+    def test_filter_with_custom_threshold(self):
+        """Test filtering with a custom composition threshold."""
+        # With threshold 0.1, sample 3 (0.15, 0.15, 0.15, 0.15, 0.40) has 5 elements
+        # Sample 4 (0.20, 0.20, 0.20, 0.20, 0.20) has 5 elements
+        # Sample 5 (0.20, 0.20, 0.20, 0.20, 0.20) has 5 elements
+        # Sample 1 (0.50, 0.50, 0.00, 0.00, 0.00) has 2 elements
+        # Sample 2 (0.25, 0.25, 0.25, 0.25, 0.00) has 4 elements
+        
         filtered_df, stats = filter_hea_samples(
-            self.df,
-            composition_columns=self.composition_cols,
-            bulk_modulus_column='bulk_modulus',
-            min_elements=5
+            self.low_element_count_data,
+            min_elements=5,
+            composition_threshold=0.1
         )
         
-        assert stats['initial_count'] == 7
-        assert stats['final_count'] == 3
-        assert stats['removed_by_element_count'] == 1
-        assert stats['removed_by_bulk_modulus'] == 3
-        assert stats['removed_by_nan_bulk_modulus'] == 1
-        assert stats['removed_by_low_bulk_modulus'] == 2
-        assert stats['min_elements_applied'] == 5
-        assert stats['min_bulk_modulus_applied'] == 0.0
-        assert stats['min_threshold_applied'] == 0.01
+        assert len(filtered_df) == 3
+        assert stats['dropped_by_elements'] == 2
+
+    def test_filter_missing_bulk_modulus_column(self):
+        """Test filtering when Bulk Modulus column is missing."""
+        df_no_bm = self.valid_data.drop(columns=['Bulk_Modulus'])
+        filtered_df, stats = filter_hea_samples(
+            df_no_bm,
+            min_elements=5,
+            composition_threshold=0.05
+        )
+        
+        # Should keep all samples since BM filter is skipped
+        assert len(filtered_df) == 5
+        assert stats['dropped_by_bulk_modulus'] == 0

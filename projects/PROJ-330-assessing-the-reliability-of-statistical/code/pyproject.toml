@@ -17,7 +17,7 @@ dependencies = [
     "requests",
     "tqdm",
     "statsmodels",
-    "scipy",
+    "scipy"
 ]
 
 [project.optional-dependencies]
@@ -25,7 +25,7 @@ dev = [
     "flake8",
     "black",
     "pytest",
-    "pytest-cov",
+    "pytest-cov"
 ]
 
 [tool.black]
@@ -46,8 +46,26 @@ exclude = '''
 )/
 '''
 
+[tool.isort]
+profile = "black"
+line_length = 88
+
 [tool.pytest.ini_options]
 testpaths = ["code/tests"]
 python_files = ["test_*.py"]
+python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
+
+[tool.coverage.run]
+source = ["code/src"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:"
+]

@@ -1,3 +1,7 @@
+"""
+Preprocessing module for genomic data.
+Filters zero-count genes and handles missing batch metadata.
+"""
 import os
 import random
 import numpy as np
@@ -5,49 +9,52 @@ import pandas as pd
 from pathlib import Path
 from typing import Optional, List, Dict, Tuple, Any
 
-from src.config import RANDOM_SEED, ensure_directories
+def filter_zero_count_genes(count_matrix: pd.DataFrame, threshold: int = 1) -> pd.DataFrame:
+    """Filter out genes with zero counts across all samples."""
+    return count_matrix.loc[(count_matrix > 0).sum(axis=1) >= threshold]
 
-def filter_zero_count_genes(counts_df: pd.DataFrame, min_samples: int = 1) -> pd.DataFrame:
-    """Filter out genes that have zero counts across all samples."""
-    return counts_df.loc[(counts_df > 0).sum(axis=1) >= min_samples]
-
-def stratify_samples(counts_df: pd.DataFrame, metadata: Optional[pd.DataFrame], 
-                     n_splits: int = 5, batch_column: str = "batch") -> List[pd.DataFrame]:
+def stratify_samples(
+    metadata: pd.DataFrame,
+    n_subsets: int = 5,
+    batch_column: Optional[str] = None
+) -> Dict[str, pd.DataFrame]:
     """
-    Stratify samples into subsets. If batch metadata is missing, use random stratification.
+    Stratify samples into subsets.
+    If batch_column is missing or None, fallback to random stratification.
     """
-    random.seed(RANDOM_SEED)
-    np.random.seed(RANDOM_SEED)
-    
-    samples = counts_df.index.tolist()
-    
-    if metadata is not None and batch_column in metadata.columns:
-        # Stratify by batch if available
-        batches = metadata[batch_column].unique()
-        subsets = []
-        for i in range(n_splits):
-            # Simple round-robin assignment for demonstration
-            subset_samples = [s for idx, s in enumerate(samples) if idx % n_splits == i]
-            subsets.append(counts_df.loc[subset_samples])
+    if batch_column and batch_column in metadata.columns:
+        # Stratified by batch
+        grouped = metadata.groupby(batch_column)
+        subsets = {f"subset_{i}": group.iloc[i::n_subsets] for i in range(n_subsets) for _, group in grouped}
     else:
-        # Random stratification fallback
-        random.shuffle(samples)
-        subsets = []
-        for i in range(n_splits):
-            subset_samples = [s for idx, s in enumerate(samples) if idx % n_splits == i]
-            subsets.append(counts_df.loc[subset_samples])
+        # Random fallback
+        indices = metadata.index.tolist()
+        random.shuffle(indices)
+        subsets = {}
+        for i in range(n_subsets):
+            subsets[f"subset_{i}"] = metadata.iloc[indices[i::n_subsets]]
     
     return subsets
 
-def preprocess_dataset(counts_path: Path, metadata_path: Optional[Path] = None) -> Tuple[pd.DataFrame, Optional[pd.DataFrame]]:
-    """Load and preprocess a dataset."""
-    ensure_directories()
-    counts_df = pd.read_csv(counts_path, index_col=0)
-    metadata_df = None
-    if metadata_path and metadata_path.exists():
-        metadata_df = pd.read_csv(metadata_path, index_col=0)
-    return counts_df, metadata_df
+def preprocess_dataset(
+    count_matrix: pd.DataFrame,
+    metadata: Optional[pd.DataFrame] = None,
+    batch_column: Optional[str] = None,
+    n_subsets: int = 5
+) -> Tuple[pd.DataFrame, Dict[str, pd.DataFrame]]:
+    """
+    Full preprocessing pipeline: filter genes and stratify samples.
+    """
+    filtered_matrix = filter_zero_count_genes(count_matrix)
+    
+    if metadata is not None:
+        subsets = stratify_samples(metadata, n_subsets, batch_column)
+    else:
+        # Create dummy index if no metadata
+        subsets = {f"subset_{i}": pd.DataFrame(index=filtered_matrix.columns) for i in range(n_subsets)}
+    
+    return filtered_matrix, subsets
 
 def main():
-    """Entry point for preprocessing module."""
+    """CLI entry point for preprocessing (placeholder for future expansion)."""
     pass

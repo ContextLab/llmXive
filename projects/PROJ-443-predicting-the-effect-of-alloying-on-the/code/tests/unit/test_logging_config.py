@@ -1,7 +1,9 @@
 """
 Unit tests for the logging configuration module.
-"""
 
+Tests cover log level conversion, logging setup, logger retrieval,
+and configuration state management.
+"""
 import pytest
 import logging
 import sys
@@ -9,9 +11,7 @@ import tempfile
 from pathlib import Path
 import os
 
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
-
+# Import the module under test
 from src.utils.logging_config import (
     get_log_level,
     setup_logging,
@@ -19,181 +19,203 @@ from src.utils.logging_config import (
     configure_module_logging,
     is_logging_initialized,
     get_current_config,
-    init_default_logging
+    init_default_logging,
+    LOG_LEVELS,
+    _logging_initialized,
+    _current_config,
 )
 
-
 class TestGetLogLevel:
-    """Tests for get_log_level function."""
+    """Tests for the get_log_level function."""
 
-    def test_valid_log_levels(self):
-        """Test that valid log levels return correct constants."""
-        assert get_log_level('DEBUG') == logging.DEBUG
-        assert get_log_level('INFO') == logging.INFO
-        assert get_log_level('WARNING') == logging.WARNING
-        assert get_log_level('ERROR') == logging.ERROR
-        assert get_log_level('CRITICAL') == logging.CRITICAL
+    def test_valid_levels(self):
+        """Test that valid log level strings return correct constants."""
+        assert get_log_level("DEBUG") == logging.DEBUG
+        assert get_log_level("INFO") == logging.INFO
+        assert get_log_level("WARNING") == logging.WARNING
+        assert get_log_level("ERROR") == logging.ERROR
+        assert get_log_level("CRITICAL") == logging.CRITICAL
 
-    def test_case_insensitivity(self):
-        """Test that log level names are case-insensitive."""
-        assert get_log_level('debug') == logging.DEBUG
-        assert get_log_level('Info') == logging.INFO
-        assert get_log_level('WARNING') == logging.WARNING
+    def test_case_insensitive(self):
+        """Test that log level strings are case-insensitive."""
+        assert get_log_level("debug") == logging.DEBUG
+        assert get_log_level("Info") == logging.INFO
+        assert get_log_level("WARNING") == logging.WARNING
 
-    def test_invalid_log_level(self):
-        """Test that invalid log level raises ValueError."""
+    def test_invalid_level(self):
+        """Test that invalid log level strings raise ValueError."""
         with pytest.raises(ValueError, match="Invalid log level"):
-            get_log_level('INVALID_LEVEL')
-
+            get_log_level("INVALID")
+        
+        with pytest.raises(ValueError):
+            get_log_level("")
 
 class TestSetupLogging:
-    """Tests for setup_logging function."""
+    """Tests for the setup_logging function."""
 
-    def test_setup_logging_creates_handlers(self, tmp_path):
-        """Test that setup_logging creates the expected handlers."""
-        log_file = tmp_path / "test.log"
-        config = setup_logging(
-            log_file=log_file,
-            level='INFO',
-            console_output=True,
-            file_output=True
-        )
+    def test_basic_setup(self):
+        """Test basic logging setup with default parameters."""
+        # Reset state before test
+        from src.utils import logging_config
+        logging_config._logging_initialized = False
+        logging_config._current_config = None
+        
+        setup_logging(level="INFO")
+        
+        assert is_logging_initialized()
+        config = get_current_config()
+        assert config["level"] == "INFO"
+        assert config["console_output"] is True
+        assert config["file_output"] is False
 
-        assert config['level'] == 'INFO'
-        assert config['console_output'] is True
-        assert config['file_output'] is True
-        assert config['handlers_count'] >= 2  # At least console and file
-        assert log_file.exists()
+    def test_file_output(self):
+        """Test logging setup with file output."""
+        from src.utils import logging_config
+        logging_config._logging_initialized = False
+        logging_config._current_config = None
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            log_file = Path(tmpdir) / "test.log"
+            setup_logging(
+                level="DEBUG",
+                log_file=log_file,
+                file_output=True
+            )
+            
+            assert is_logging_initialized()
+            config = get_current_config()
+            assert config["file_output"] is True
+            assert log_file.exists()
 
-    def test_setup_logging_no_file(self, tmp_path):
-        """Test setup_logging with file_output=False."""
-        config = setup_logging(
-            log_file=None,
-            level='DEBUG',
-            console_output=True,
-            file_output=False
-        )
+    def test_custom_format(self):
+        """Test logging setup with custom format."""
+        from src.utils import logging_config
+        logging_config._logging_initialized = False
+        logging_config._current_config = None
+        
+        custom_format = "%(levelname)s: %(message)s"
+        setup_logging(format_str=custom_format)
+        
+        config = get_current_config()
+        assert config["format"] == custom_format
 
-        assert config['file_output'] is False
-        assert config['handlers_count'] == 1  # Only console
-
-    def test_setup_logging_no_console(self, tmp_path):
-        """Test setup_logging with console_output=False."""
-        log_file = tmp_path / "test.log"
-        config = setup_logging(
-            log_file=log_file,
-            level='WARNING',
-            console_output=False,
-            file_output=True
-        )
-
-        assert config['console_output'] is False
-        assert config['handlers_count'] == 1  # Only file
-
-    def test_setup_logging_creates_directory(self, tmp_path):
-        """Test that setup_logging creates parent directories for log file."""
-        nested_log_file = tmp_path / "subdir" / "nested" / "test.log"
-        config = setup_logging(
-            log_file=nested_log_file,
-            level='INFO',
-            console_output=False,
-            file_output=True
-        )
-
-        assert nested_log_file.exists()
-        assert nested_log_file.parent.exists()
-
+    def test_no_console_output(self):
+        """Test logging setup without console output."""
+        from src.utils import logging_config
+        logging_config._logging_initialized = False
+        logging_config._current_config = None
+        
+        setup_logging(console_output=False, file_output=False)
+        
+        root_logger = logging.getLogger()
+        assert len(root_logger.handlers) == 0
 
 class TestGetLogger:
-    """Tests for get_logger function."""
+    """Tests for the get_logger function."""
 
-    def test_get_logger_returns_logger(self):
-        """Test that get_logger returns a logger instance."""
+    def test_get_root_logger(self):
+        """Test getting the root logger."""
         logger = get_logger()
-        assert isinstance(logger, logging.Logger)
-        assert logger.name == 'root'
+        assert logger.name == "root"
 
-    def test_get_logger_with_name(self):
-        """Test that get_logger with name returns named logger."""
-        logger = get_logger('test.module')
-        assert isinstance(logger, logging.Logger)
-        assert logger.name == 'test.module'
+    def test_get_named_logger(self):
+        """Test getting a named logger."""
+        logger = get_logger("test_module")
+        assert logger.name == "test_module"
 
-    def test_get_logger_inherits_level(self, tmp_path):
-        """Test that child logger inherits level from root."""
-        setup_logging(
-            log_file=tmp_path / "test.log",
-            level='WARNING',
-            console_output=False,
-            file_output=False
-        )
+    def test_logger_reuse(self):
+        """Test that the same logger is returned on multiple calls."""
+        logger1 = get_logger("reused_module")
+        logger2 = get_logger("reused_module")
+        assert logger1 is logger2
 
-        child_logger = get_logger('child')
-        assert child_logger.level == logging.WARNING
-
+    def test_auto_initialization(self):
+        """Test that get_logger initializes logging if not already done."""
+        from src.utils import logging_config
+        logging_config._logging_initialized = False
+        logging_config._current_config = None
+        
+        logger = get_logger("auto_init")
+        
+        assert is_logging_initialized()
 
 class TestConfigureModuleLogging:
-    """Tests for configure_module_logging function."""
+    """Tests for the configure_module_logging function."""
 
-    def test_configure_module_logging(self, tmp_path):
-        """Test configuring logging for a specific module."""
-        setup_logging(
-            log_file=tmp_path / "test.log",
-            level='INFO',
-            console_output=False,
-            file_output=False
-        )
+    def test_module_logger_creation(self):
+        """Test creating a module-specific logger."""
+        logger = configure_module_logging("test.module")
+        assert logger.name == "test.module"
 
-        logger = configure_module_logging('src.data.fetch', level='DEBUG')
-        assert logger.name == 'src.data.fetch'
+    def test_level_override(self):
+        """Test setting a specific log level for a module."""
+        logger = configure_module_logging("level_test", level="DEBUG")
         assert logger.level == logging.DEBUG
 
-    def test_configure_module_logging_no_level(self, tmp_path):
-        """Test configuring module logging without level override."""
-        setup_logging(
-            log_file=tmp_path / "test.log",
-            level='ERROR',
-            console_output=False,
-            file_output=False
-        )
-
-        logger = configure_module_logging('src.model.train')
-        assert logger.level == logging.NOTSET  # Inherits from root
-
+    def test_propagate_false(self):
+        """Test disabling propagation for a module logger."""
+        logger = configure_module_logging("no_propagate", propagate=False)
+        assert logger.propagate is False
 
 class TestLoggingState:
-    """Tests for logging state functions."""
+    """Tests for logging state management functions."""
 
-    def test_is_logging_initialized_before_setup(self):
-        """Test is_logging_initialized returns False before setup."""
-        # Reset state by importing fresh (in real scenario, this would be handled differently)
-        # For this test, we assume a fresh environment
-        # Note: This test might need adjustment depending on test isolation
-        pass  # Skip as state management is complex in tests
+    def test_is_logging_initialized(self):
+        """Test the is_logging_initialized function."""
+        from src.utils import logging_config
+        logging_config._logging_initialized = False
+        
+        assert is_logging_initialized() is False
+        
+        setup_logging()
+        assert is_logging_initialized() is True
 
-    def test_get_current_config(self, tmp_path):
-        """Test that get_current_config returns valid configuration."""
-        setup_logging(
-            log_file=tmp_path / "test.log",
-            level='WARNING',
-            console_output=True,
-            file_output=True
-        )
-
+    def test_get_current_config(self):
+        """Test getting the current configuration."""
+        from src.utils import logging_config
+        logging_config._logging_initialized = False
+        logging_config._current_config = None
+        
+        assert get_current_config() is None
+        
+        setup_logging(level="WARNING")
         config = get_current_config()
-        assert 'level' in config
-        assert 'console_output' in config
-        assert 'file_output' in config
-        assert 'initialized_at' in config
+        assert config is not None
+        assert "level" in config
+        assert config["level"] == "WARNING"
 
+    def test_config_is_copy(self):
+        """Test that get_current_config returns a copy, not the original."""
+        setup_logging(level="INFO")
+        config1 = get_current_config()
+        config1["test"] = "modified"
+        config2 = get_current_config()
+        assert "test" not in config2
 
 class TestInitDefaultLogging:
-    """Tests for init_default_logging function."""
+    """Tests for the init_default_logging function."""
 
-    def test_init_default_logging(self, tmp_path):
-        """Test default logging initialization."""
-        config = init_default_logging(project_root=tmp_path)
+    def test_initializes_once(self):
+        """Test that init_default_logging only initializes once."""
+        from src.utils import logging_config
+        logging_config._logging_initialized = False
+        logging_config._current_config = None
+        
+        init_default_logging()
+        first_config = get_current_config()
+        
+        init_default_logging()  # Call again
+        second_config = get_current_config()
+        
+        # Should be the same config object
+        assert first_config["timestamp"] == second_config["timestamp"]
 
-        assert config['level'] == 'INFO'
-        assert config['console_output'] is True
-        assert config['file_output'] is True
+    def test_default_level_is_info(self):
+        """Test that default initialization uses INFO level."""
+        from src.utils import logging_config
+        logging_config._logging_initialized = False
+        logging_config._current_config = None
+        
+        init_default_logging()
+        config = get_current_config()
+        assert config["level"] == "INFO"

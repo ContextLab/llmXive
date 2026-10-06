@@ -1,178 +1,205 @@
-import pytest
-import json
-from pathlib import Path
-import tempfile
+"""
+Unit tests for research file validation (T039a).
+"""
 import os
+import sys
+import json
+import tempfile
+from pathlib import Path
+import pytest
 
-# Import the module under test
-from verify_research import parse_research_md, validate_research_file
+# Add code directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-class TestResearchValidation:
-    """Unit tests for research.md validation logic."""
+from verify_research import (
+    parse_research_md,
+    check_static_urls,
+    validate_research_file,
+    DYNAMIC_SEARCH_PATTERNS,
+    STATIC_URL_PATTERNS
+)
 
-    @pytest.fixture
-    def temp_research_file(self, tmp_path):
-        """Create a temporary research.md file for testing."""
-        file_path = tmp_path / "research.md"
-        return file_path
-
-    def test_parse_static_urls(self, temp_research_file):
-        """Test parsing of static, verified URLs."""
-        content = """
-        # Research Data Sources
-
-        ## OpenML Dataset
-        https://openml.org/api/v1/data/12345
-
-        ## HuggingFace Dataset
-        https://huggingface.co/datasets/example/lst-wear
-
-        ## GitHub Raw File
-        https://github.com/example/repo/blob/main/data.csv
+class TestParseResearchMd:
+    """Tests for parse_research_md function."""
+    
+    def test_parse_existing_file(self, tmp_path):
+        """Test parsing a valid research.md file."""
+        # Create test file
+        test_content = """
+        ### Data Sources
+        OpenML: https://www.openml.org/d/123
+        HuggingFace: dataset_id = 'face-shape-rule-set'
+        
+        ### Literature
+        Paper 1: https://doi.org/10.1234/test
         """
-        temp_research_file.write_text(content)
+        test_file = tmp_path / "research.md"
+        test_file.write_text(test_content)
+        
+        # Parse and verify
+        result = parse_research_md(test_file)
+        
+        assert result['file_path'] == str(test_file)
+        assert result['file_size'] == len(test_content)
+        assert 'Data Sources' in result['sections']
+        assert 'Literature' in result['sections']
+        assert 'raw_content' in result
+    
+    def test_parse_missing_file(self, tmp_path):
+        """Test parsing a missing file raises error."""
+        missing_file = tmp_path / "nonexistent.md"
+        
+        with pytest.raises(FileNotFoundError):
+            parse_research_md(missing_file)
 
-        result = parse_research_md(temp_research_file)
-
-        assert result["summary"]["total_sources"] == 3
-        assert result["summary"]["static_sources"] == 3
-        assert result["summary"]["unverified_sources"] == 0
-        assert not result["dynamic_logic_found"]
-
-    def test_parse_dynamic_logic_detection(self, temp_research_file):
+class TestCheckStaticUrls:
+    """Tests for check_static_urls function."""
+    
+    def test_detect_static_urls(self):
+        """Test detection of static URLs."""
+        content = """
+        OpenML: https://www.openml.org/d/123
+        HuggingFace: dataset_id = 'face-shape-rule-set'
+        Paper: https://doi.org/10.1234/test
+        """
+        
+        is_valid, static_urls, dynamic_patterns = check_static_urls(content)
+        
+        assert is_valid is True
+        assert len(static_urls) == 3
+        assert len(dynamic_patterns) == 0
+    
+    def test_detect_dynamic_search(self):
         """Test detection of dynamic search logic."""
         content = """
-        # Research Data Sources
-
-        ## Dynamic Search
-        https://example.com/search?q=laser+wear
-
-        ## TODO Placeholder
-        https://example.com/TODO/dataset
-
-        ## Template Literal
-        https://example.com/datasets/${dataset_id}
+        # Dynamic search
+        results = api.search(query="laser texturing")
+        data = engine.find(pattern="wear_*")
         """
-        temp_research_file.write_text(content)
-
-        result = parse_research_md(temp_research_file)
-
-        assert result["dynamic_logic_found"] is True
-        assert len(result["validation_errors"]) >= 3
-
-    def test_parse_mixed_content(self, temp_research_file):
-        """Test parsing of mixed static and dynamic content."""
+        
+        is_valid, static_urls, dynamic_patterns = check_static_urls(content)
+        
+        assert is_valid is False
+        assert len(static_urls) == 0
+        assert len(dynamic_patterns) > 0
+    
+    def test_mixed_content(self):
+        """Test content with both static and dynamic elements."""
         content = """
-        # Research Data Sources
-
-        ## Static Source
-        https://openml.org/api/v1/data/67890
-
-        ## Dynamic Source
-        https://example.com/search?q=test
-
-        ## Another Static Source
-        https://doi.org/10.1234/example
+        Static: https://www.openml.org/d/123
+        Dynamic: results = api.search(query="test")
+        Static: dataset_id = 'face-shape-rule-set'
         """
-        temp_research_file.write_text(content)
+        
+        is_valid, static_urls, dynamic_patterns = check_static_urls(content)
+        
+        assert is_valid is False  # Dynamic logic present
+        assert len(static_urls) == 2
+        assert len(dynamic_patterns) == 1
 
-        result = parse_research_md(temp_research_file)
-
-        assert result["summary"]["total_sources"] == 3
-        assert result["summary"]["static_sources"] == 2
-        assert result["summary"]["unverified_sources"] == 1
-        assert result["dynamic_logic_found"] is True
-
-    def test_missing_file_raises_error(self, temp_research_file):
-        """Test that missing file raises appropriate error."""
-        temp_research_file.unlink()  # Remove the file
-
-        with pytest.raises(FileNotFoundError):
-            parse_research_md(temp_research_file)
-
-    def test_validation_report_structure(self, temp_research_file):
-        """Test that validation report has expected structure."""
-        content = """
+class TestValidateResearchFile:
+    """Tests for validate_research_file function."""
+    
+    def test_validate_valid_file(self, tmp_path):
+        """Test validation of a compliant research.md file."""
+        # Create valid research.md
+        valid_content = """
         # Research Data Sources
-        https://openml.org/api/v1/data/11111
+        
+        ### OpenML
+        Dataset ID: 12345
+        URL: https://www.openml.org/d/12345
+        
+        ### HuggingFace
+        dataset_id = 'face-shape-rule-set'
+        URL: https://huggingface.co/datasets/face-shape-rule-set
+        
+        ### Literature
+        Paper 1: https://doi.org/10.1234/test-paper
         """
-        temp_research_file.write_text(content)
-
-        result = parse_research_md(temp_research_file)
-
-        # Check required keys
-        assert "file_path" in result
-        assert "total_lines" in result
-        assert "data_sources" in result
-        assert "dynamic_logic_found" in result
-        assert "validation_errors" in result
-        assert "warnings" in result
-        assert "summary" in result
-
-        # Check summary structure
-        summary = result["summary"]
-        assert "total_sources" in summary
-        assert "static_sources" in summary
-        assert "unverified_sources" in summary
-        assert "dynamic_issues" in summary
-        assert "warnings_count" in summary
-
-    def test_doi_and_arxiv_parsing(self, temp_research_file):
-        """Test parsing of DOI and arXiv references."""
-        content = """
+        
+        research_file = tmp_path / "research.md"
+        research_file.write_text(valid_content)
+        
+        # Validate
+        results = validate_research_file(research_file)
+        
+        assert results['validation_passed'] is True
+        assert results['static_urls_count'] > 0
+        assert results['dynamic_patterns_found'] == 0
+        assert results['validation_details']['meets_constitution_ii'] is True
+    
+    def test_validate_invalid_file(self, tmp_path):
+        """Test validation of a non-compliant research.md file."""
+        # Create invalid research.md with dynamic search
+        invalid_content = """
         # Research Data Sources
-
-        ## DOI Reference
-        doi:10.1016/j.wear.2023.123456
-
-        ## arXiv Reference
-        arxiv.org/abs/2301.12345
+        
+        ### Dynamic Search
+        results = api.search(query="laser wear")
+        data = browse_database("wear_data")
         """
-        temp_research_file.write_text(content)
+        
+        research_file = tmp_path / "research.md"
+        research_file.write_text(invalid_content)
+        
+        # Validate
+        results = validate_research_file(research_file)
+        
+        assert results['validation_passed'] is False
+        assert results['dynamic_patterns_found'] > 0
+        assert results['validation_details']['meets_constitution_ii'] is False
 
-        result = parse_research_md(temp_research_file)
-
-        # Both should be detected
-        assert result["summary"]["total_sources"] == 2
-        # DOIs are static, arXiv URLs might not match our pattern depending on format
-        assert result["summary"]["static_sources"] >= 1
-
-    def test_empty_file(self, temp_research_file):
-        """Test parsing of empty file."""
-        temp_research_file.write_text("")
-
-        result = parse_research_md(temp_research_file)
-
-        assert result["summary"]["total_sources"] == 0
-        assert not result["dynamic_logic_found"]
-        assert result["summary"]["dynamic_issues"] == 0
-
-    def test_validation_output_file_creation(self, temp_research_file):
-        """Test that validation creates output file."""
-        content = """
+class TestIntegration:
+    """Integration tests for the validation pipeline."""
+    
+    def test_full_validation_flow(self, tmp_path, tmp_path_factory):
+        """Test the complete validation flow including output file generation."""
+        # Create valid research.md
+        valid_content = """
         # Research Data Sources
-        https://openml.org/api/v1/data/99999
+        
+        ### OpenML
+        Dataset ID: 12345
+        URL: https://www.openml.org/d/12345
+        
+        ### HuggingFace
+        dataset_id = 'face-shape-rule-set'
         """
-        temp_research_file.write_text(content)
+        
+        # Set up directories
+        specs_dir = tmp_path / "specs" / "001-predict-lst-wear"
+        specs_dir.mkdir(parents=True)
+        research_file = specs_dir / "research.md"
+        research_file.write_text(valid_content)
+        
+        state_dir = tmp_path / "state"
+        state_dir.mkdir()
+        output_file = state_dir / "research_validation.json"
+        
+        # Change to temp directory to simulate project root
+        original_cwd = os.getcwd()
+        os.chdir(tmp_path)
+        
+        try:
+            # Run validation
+            from verify_research import validate_research_file, save_validation_results
+            
+            results = validate_research_file(research_file)
+            save_validation_results(results, output_file)
+            
+            # Verify output file exists and is valid JSON
+            assert output_file.exists()
+            
+            with open(output_file, 'r') as f:
+                saved_results = json.load(f)
+            
+            assert saved_results['validation_passed'] is True
+            assert saved_results['static_urls_count'] > 0
+            assert saved_results['dynamic_patterns_found'] == 0
+            
+        finally:
+            os.chdir(original_cwd)
 
-        # Create temp output path
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "test_validation.json"
-
-            # Temporarily override OUTPUT_PATH
-            import verify_research
-            original_output = verify_research.OUTPUT_PATH
-            verify_research.OUTPUT_PATH = output_path
-
-            try:
-                result = validate_research_file(temp_research_file)
-
-                assert output_path.exists()
-
-                with open(output_path, 'r') as f:
-                    saved_result = json.load(f)
-
-                assert "summary" in saved_result
-                assert saved_result["summary"]["total_sources"] == 1
-            finally:
-                verify_research.OUTPUT_PATH = original_output
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

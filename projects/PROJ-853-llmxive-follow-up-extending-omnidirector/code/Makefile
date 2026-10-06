@@ -1,21 +1,34 @@
 .PHONY: lint format test clean
 
+# Lint the codebase using ruff
 lint:
-	@echo "Running linters..."
-	@./scripts/lint.sh
+	cd code && ruff check .
 
+# Format the codebase using black
 format:
-	@echo "Running formatters..."
-	@./scripts/format.sh
+	cd code && black .
 
+# Run unit tests
 test:
-	@echo "Running tests..."
-	pytest code/tests/
+	cd code && pytest tests/unit -v
 
+# Run all tests (unit + integration)
+test-all:
+	cd code && pytest tests/ -v
+
+# Clean up generated files
 clean:
-	@echo "Cleaning build artifacts..."
-	find . -type d -name "__pycache__" -exec rm -rf {} +
-	find . -type f -name "*.pyc" -delete
-	find . -type f -name "*.pyo" -delete
-	find . -type d -name ".pytest_cache" -exec rm -rf {} +
-	find . -type d -name ".mypy_cache" -exec rm -rf {} +
+	rm -rf code/__pycache__
+	rm -rf code/tests/__pycache__
+	rm -rf .pytest_cache
+	rm -rf dist
+	rm -rf build
+	rm -rf *.egg-info
+
+# Check formatting and linting status (fail if not clean)
+check:
+	cd code && black --check . && ruff check .
+
+# Install dependencies
+install:
+	pip install -r requirements.txt

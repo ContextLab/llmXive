@@ -65,14 +65,14 @@ The researcher MUST be able to evaluate the trained models on a hold-out test se
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download and parse the ChEMBL Release 33 dataset via FTP, filtering specifically for entries with experimental measurements for oral bioavailability, apparent permeability (Papp), or clearance. (See US-001)
+- **FR-001**: System MUST download and parse the ChEMBL dataset via FTP, filtering specifically for entries with experimental measurements for oral bioavailability, apparent permeability (Papp), or clearance. (See US-001)
 - **FR-002**: System MUST sanitize molecular structures using RDKit to remove salts, correct non-standard valences, and exclude molecules with missing target variables or invalid chemical structures. (See US-001)
 - **FR-003**: System MUST calculate a defined set of 2D molecular descriptors (TPSA, logP, MW, rotatable bonds, H-bond donors/acceptors, ring count) for every retained molecule. (See US-002)
-- **FR-004**: System MUST split the processed dataset into a training set and a hold-out test set using stratified sampling by target variable and a fixed random seed of 42. (See US-002)
+- **FR-004**: System MUST split the processed dataset into a training set and a hold-out test set using stratified sampling by target variable and a fixed random seed. (See US-002)
 - **FR-005**: System MUST fit both a Linear Regression model and a Random Forest model to predict the experimental outcome from the descriptor set, ensuring the Random Forest does not exceed memory limits on a 2-core CPU runner. (See US-002)
 - **FR-006**: System MUST evaluate model performance on the hold-out set using Root Mean Squared Error (RMSE) and Pearson correlation coefficient (r). (See US-003)
 - **FR-007**: System MUST generate a scatter plot of predicted vs. experimental values and a bar chart of feature importances, saving them as PNG files. (See US-003)
-- **FR-008**: System MUST limit the dataset size to a computationally feasible subset via stratified random sampling to ensure the entire pipeline completes within the 6-hour, 7GB RAM, 2 CPU core limit of the GitHub Actions runner. (See US-002, US-003)
+- **FR-008**: System MUST limit the dataset size to a computationally feasible subset via stratified random sampling to ensure the entire pipeline completes within the resource constraints of the GitHub Actions runner. (See US-002, US-003)
 - **FR-009**: System MUST handle duplicate SMILES entries by retaining the entry with the most recent assay date; if dates match, the system MUST average the conflicting experimental values. (See US-001)
 
 ### Key Entities

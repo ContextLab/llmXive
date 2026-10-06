@@ -5,229 +5,229 @@ import logging
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 import pandas as pd
-import numpy as np
 
-from config.loader import load_schema_map
-from seed import ensure_seed_set
-from logging_config import get_logger, raise_on_missing_data
+from logging_config import setup_logging, get_logger, raise_on_missing_data
+from hygiene import calculate_md5, update_artifact_hash, save_artifact_hashes
 
+# Initialize logger
 logger = get_logger(__name__)
 
-def fetch_sources(research_md_path: str) -> pd.DataFrame:
-    """
-    Fetches data from OpenML, HuggingFace, and literature supplements
-    using URLs defined in research.md.
-    If real data fetch fails, check for mock data.
-    """
-    # Placeholder for real data fetching logic
-    # Replace with actual API calls to OpenML, HuggingFace, etc.
-    # For now, check for mock data
-    mock_data_path = "data/raw/mock_lst_data.csv"
-    if os.path.exists(mock_data_path):
-        logger.info("Using mock data from %s", mock_data_path)
-        df = pd.read_csv(mock_data_path)
-        return df
-    else:
-        logger.error("Real data fetch failed and mock data not found.")
-        raise ValueError("Real data fetch failed. Mock data not available.")
+# Constants for paths
+DATA_PROCESSED_DIR = Path("data/processed")
+REPORTS_DIR = Path("reports")
+RECORD_COUNTS_PATH = DATA_PROCESSED_DIR / "record_counts.json"
+THRESHOLD_CHECK_PATH = DATA_PROCESSED_DIR / "threshold_check.json"
+PRE_CHECK_PATH = REPORTS_DIR / "pre_check.json"
 
-def apply_schema_mapping(df: pd.DataFrame, schema_map_path: str) -> pd.DataFrame:
+def count_records(input_file: Optional[Path] = None) -> Dict[str, int]:
     """
-    Maps source columns to canonical columns using schema_map.json.
-    """
-    schema_map = load_schema_map(schema_map_path)
-    df = df.rename(columns=schema_map)
-    return df
-
-def handle_missing_values(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Drops records with missing required predictors.
-    RETAIN records where ONLY 'contact_load' or 'sliding_speed' are missing.
-    DROP records where any of the required predictors are missing.
+    Calculate total record count, split into normalized_count and raw_count.
     
-    Required predictors:
-    - pulse_duration
-    - power
-    - scanning_speed
-    - pattern_geometry
-    - hardness
-    - elastic_modulus
-    
-    Optional predictors (missing allowed):
-    - contact_load
-    - sliding_speed
-    
-    Returns:
-        pd.DataFrame: Filtered DataFrame with missing required predictors removed.
-    """
-    required_predictors = [
-        'pulse_duration', 
-        'power', 
-        'scanning_speed', 
-        'pattern_geometry', 
-        'hardness', 
-        'elastic_modulus'
-    ]
-    
-    # Verify required columns exist in the dataframe
-    missing_cols = [col for col in required_predictors if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns in dataset: {missing_cols}")
-    
-    # Drop rows where ANY of the required predictors are missing
-    # This automatically retains rows where only contact_load or sliding_speed are missing
-    initial_count = len(df)
-    df_clean = df.dropna(subset=required_predictors)
-    final_count = len(df_clean)
-    
-    dropped_count = initial_count - final_count
-    logger.info(
-        "Dropped %d records with missing required predictors. "
-        "Retained %d records. Original count: %d.",
-        dropped_count, final_count, initial_count
-    )
-    
-    return df_clean
-
-def archard_normalization(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Computes wear coefficient K using Archard's law (FR-009).
-    
-    Archard's Law: V = K * (F * L) / H
-    Where:
-    - V: Wear volume (derived from wear_rate)
-    - K: Wear coefficient (target)
-    - F: Contact load
-    - L: Sliding distance (derived from sliding_speed * time)
-    - H: Hardness (HV)
-    
-    Rearranged for K:
-    K = (V * H) / (F * L)
-    
-    This function:
-    1. Checks for required inputs: wear_rate, hardness, contact_load, sliding_speed.
-    2. Computes K for records where all inputs are present.
-    3. Flags records with missing inputs as 'raw'.
-    4. Flags computed records as 'normalized'.
-    5. Explicitly EXCLUDES 'contact_load' and 'sliding_speed' from the predictor feature set
-       when the target is K (they are used for normalization, not prediction).
+    Reads 'data/processed/aggregated_clean.csv' (produced by T013c) which must contain
+    the 'normalization_method' column.
     
     Args:
-        df: DataFrame containing processed LST data (from T012).
-    
-    Returns:
-        DataFrame with added 'K' column (if computed) and 'normalization_method' column.
-    """
-    df = df.copy()
-    
-    # Required columns for Archard normalization
-    required_for_normalization = ['wear_rate', 'hardness', 'contact_load', 'sliding_speed']
-    missing_req_cols = [col for col in required_for_normalization if col not in df.columns]
-    
-    if missing_req_cols:
-        logger.warning(
-            "Missing required columns for Archard normalization: %s. "
-            "All records will be flagged as 'raw'.",
-            missing_req_cols
-        )
-        df['normalization_method'] = 'raw'
-        # Ensure K column exists but is NaN
-        if 'K' not in df.columns:
-            df['K'] = np.nan
-        return df
-
-    # Identify rows with all required inputs
-    mask_complete = df[required_for_normalization].notna().all(axis=1)
-    
-    # Initialize normalization method column
-    df['normalization_method'] = 'raw'
-    
-    # Compute K for complete records
-    # V = wear_rate (assuming it's already volume or converted in T013b)
-    # If wear_rate is linear/mass, T013b should have converted it to Volume.
-    # We assume T013b has already handled unit conversion to Volume.
-    # K = (V * H) / (F * L)
-    # Note: sliding_speed is speed, not distance. We assume time is normalized or
-    # the 'wear_rate' provided is already volume per unit distance/load.
-    # Standard Archard: V = K * (F * L) / H  => K = (V * H) / (F * L)
-    # If input 'wear_rate' is Volume (V), and 'sliding_speed' is used as L (distance),
-    # we need to be careful. Usually L = speed * time.
-    # Assuming the dataset provides 'wear_rate' as Volume and 'sliding_speed' as effective distance
-    # or that the normalization factor accounts for time.
-    # For this implementation, we treat 'sliding_speed' as the distance term L in the denominator
-    # or assume the provided wear_rate is normalized per unit distance.
-    # Given the task description, we compute K = (wear_rate * hardness) / (contact_load * sliding_speed)
-    # This assumes wear_rate is Volume (V).
-    
-    valid_indices = df.index[mask_complete]
-    
-    for idx in valid_indices:
-        row = df.loc[idx]
-        V = row['wear_rate']
-        H = row['hardness']
-        F = row['contact_load']
-        L = row['sliding_speed']
+        input_file: Optional path to the input CSV. Defaults to AGGREGATED_CLEAN_PATH.
         
-        if F > 0 and L > 0:
-            K = (V * H) / (F * L)
-            df.loc[idx, 'K'] = K
-            df.loc[idx, 'normalization_method'] = 'normalized'
-        else:
-            # Prevent division by zero
-            df.loc[idx, 'K'] = np.nan
-            df.loc[idx, 'normalization_method'] = 'raw'
+    Returns:
+        Dict with keys: 'normalized_count', 'raw_count', 'total_count'.
+        
+    Raises:
+        FileNotFoundError: If the input file does not exist.
+        ValueError: If the 'normalization_method' column is missing.
+    """
+    input_file = Path(input_file) if input_file else DATA_PROCESSED_DIR / "aggregated_clean.csv"
     
-    # Mark records that were not complete as 'raw' (already set by default)
-    # Ensure K is NaN for 'raw' records
-    df.loc[df['normalization_method'] == 'raw', 'K'] = np.nan
+    if not input_file.exists():
+        raise FileNotFoundError(f"Input file not found: {input_file}")
+        
+    logger.info(f"Reading input file: {input_file}")
+    df = pd.read_csv(input_file)
     
-    logger.info(
-        "Archard normalization complete. "
-        "Normalized records: %d, Raw records: %d",
-        (df['normalization_method'] == 'normalized').sum(),
-        (df['normalization_method'] == 'raw').sum()
-    )
+    if 'normalization_method' not in df.columns:
+        raise ValueError(
+            f"Missing required column 'normalization_method' in {input_file}. "
+            "Ensure T013c (archard_normalization) has been run successfully."
+        )
+        
+    # Count based on normalization_method flag
+    # 'normalized' -> normalized_count
+    # 'raw' -> raw_count
+    normalized_count = int((df['normalization_method'] == 'normalized').sum())
+    raw_count = int((df['normalization_method'] == 'raw').sum())
+    total_count = len(df)
     
-    return df
+    counts = {
+        "normalized_count": normalized_count,
+        "raw_count": raw_count,
+        "total_count": total_count
+    }
+    
+    logger.info(f"Record counts calculated: {counts}")
+    return counts
+
+def save_record_counts(counts: Dict[str, int], output_path: Optional[Path] = None) -> None:
+    """
+    Save record counts to a JSON file.
+    
+    Args:
+        counts: Dictionary containing the counts.
+        output_path: Optional path for the output JSON. Defaults to RECORD_COUNTS_PATH.
+    """
+    if output_path is None:
+        output_path = RECORD_COUNTS_PATH
+        
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w') as f:
+        json.dump(counts, f, indent=2)
+        
+    logger.info(f"Record counts saved to: {output_path}")
+    
+    # Update hygiene hashes if hygiene module is active
+    try:
+        update_artifact_hash(output_path)
+        save_artifact_hashes()
+    except Exception as e:
+        logger.warning(f"Could not update artifact hashes: {e}")
+
+def compare_thresholds(counts: Dict[str, int]) -> Tuple[Dict[str, Any], int]:
+    """
+    Compare normalized_count against defined thresholds and determine study scope.
+    
+    Thresholds (SC-006, SC-004):
+    - normalized_count < 100: status='failed', reason='insufficient_data', exit_code=1
+    - 100 <= normalized_count < 300: study_scope='pilot_study', exit_code=2
+    - normalized_count >= 300: study_scope='full_study', exit_code=0
+    
+    Args:
+        counts: Dictionary containing 'normalized_count', 'raw_count', 'total_count'.
+        
+    Returns:
+        Tuple of (result_dict, exit_code).
+        result_dict contains: status, reason (if failed), study_scope, normalized_count.
+    """
+    normalized_count = counts.get('normalized_count', 0)
+    
+    if normalized_count < 100:
+        result = {
+            "status": "failed",
+            "reason": "insufficient_data",
+            "normalized_count": normalized_count
+        }
+        exit_code = 1
+        logger.warning(f"Threshold check failed: normalized_count ({normalized_count}) < 100")
+    elif 100 <= normalized_count < 300:
+        result = {
+            "status": "success",
+            "study_scope": "pilot_study",
+            "normalized_count": normalized_count
+        }
+        exit_code = 2
+        logger.info(f"Threshold check passed (pilot): normalized_count ({normalized_count}) is in [100, 300)")
+    else:
+        result = {
+            "status": "success",
+            "study_scope": "full_study",
+            "normalized_count": normalized_count
+        }
+        exit_code = 0
+        logger.info(f"Threshold check passed (full): normalized_count ({normalized_count}) >= 300")
+        
+    return result, exit_code
+
+def save_threshold_check(result: Dict[str, Any], output_path: Optional[Path] = None) -> None:
+    """
+    Save threshold check result to a JSON file.
+    
+    Args:
+        result: Dictionary containing the threshold check result.
+        output_path: Optional path for the output JSON. Defaults to THRESHOLD_CHECK_PATH.
+    """
+    if output_path is None:
+        output_path = THRESHOLD_CHECK_PATH
+        
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w') as f:
+        json.dump(result, f, indent=2)
+        
+    logger.info(f"Threshold check saved to: {output_path}")
+    
+    try:
+        update_artifact_hash(output_path)
+        save_artifact_hashes()
+    except Exception as e:
+        logger.warning(f"Could not update artifact hashes: {e}")
+
+def save_pre_check(result: Dict[str, Any], output_path: Optional[Path] = None) -> None:
+    """
+    Save pre-check result (specifically for failure cases) to reports/pre_check.json.
+    
+    Args:
+        result: Dictionary containing the pre-check result.
+        output_path: Optional path for the output JSON. Defaults to PRE_CHECK_PATH.
+    """
+    if output_path is None:
+        output_path = PRE_CHECK_PATH
+        
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w') as f:
+        json.dump(result, f, indent=2)
+        
+    logger.info(f"Pre-check saved to: {output_path}")
 
 def main():
     """
-    Main function for T013c: Archard Normalization.
-    Reads aggregated_dropped.csv, computes K, flags records, and saves aggregated_clean.csv.
+    Main entry point for T016b.
+    1. Loads record counts from data/processed/record_counts.json.
+    2. Compares normalized_count against thresholds.
+    3. Writes data/processed/threshold_check.json.
+    4. If failed (count < 100), writes reports/pre_check.json and exits with code 1.
+    5. If pilot (100 <= count < 300), exits with code 2.
+    6. If full study (count >= 300), exits with code 0.
     """
-    ensure_seed_set()
-    input_path = "data/processed/aggregated_dropped.csv"
-    output_path = "data/processed/aggregated_clean.csv"
+    setup_logging()
+    logger.info("Starting T016b: compare_thresholds")
     
-    # Ensure output directory exists
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-
     try:
-        # Load data
-        df = pd.read_csv(input_path)
-        logger.info("Loaded %d records from %s", len(df), input_path)
+        # Ensure input file exists (T016a output)
+        if not RECORD_COUNTS_PATH.exists():
+            raise FileNotFoundError(
+                f"Required input file missing: {RECORD_COUNTS_PATH}. "
+                "Please ensure T016a (count_records) has completed successfully."
+            )
         
-        # Perform Archard Normalization
-        df_clean = archard_normalization(df)
+        # Load record counts
+        with open(RECORD_COUNTS_PATH, 'r') as f:
+            counts = json.load(f)
         
-        # Save output
-        df_clean.to_csv(output_path, index=False)
-        logger.info("Data saved to %s", output_path)
+        logger.info(f"Loaded record counts: {counts}")
         
-        # Log summary
-        logger.info("Final record count: %d", len(df_clean))
-        logger.info(
-            "Normalized: %d, Raw: %d",
-            (df_clean['normalization_method'] == 'normalized').sum(),
-            (df_clean['normalization_method'] == 'raw').sum()
-        )
+        # Compare thresholds
+        result, exit_code = compare_thresholds(counts)
+        
+        # Save threshold check result
+        save_threshold_check(result)
+        
+        # If failed, write pre_check.json and exit
+        if exit_code == 1:
+            save_pre_check(result)
+            logger.error(f"T016b failed: insufficient data. Exit code: {exit_code}")
+            return exit_code
+        
+        # If pilot, exit with code 2
+        if exit_code == 2:
+            logger.warning(f"T016b completed as pilot study. Exit code: {exit_code}")
+            return exit_code
+        
+        logger.info("T016b completed successfully (full study).")
+        return 0
         
     except Exception as e:
-        logger.error("Archard normalization failed: %s", e)
+        logger.error(f"T016b failed: {e}")
         raise
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

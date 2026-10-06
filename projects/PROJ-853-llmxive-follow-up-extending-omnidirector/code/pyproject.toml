@@ -1,41 +1,82 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "llmxive-omnidirector"
 version = "0.1.0"
-description = "OmniDirector: General Multi-Shot Camera Cloning without Cross-Paired D"
+description = "OmniDirector: General Multi-Shot Camera Cloning Pipeline"
 requires-python = ">=3.11"
 dependencies = [
-    "opencv-python",
-    "numpy",
-    "pandas",
-    "scipy",
-    "pytest",
-    "pyyaml",
+    "opencv-python>=4.8.0",
+    "numpy>=1.24.0",
+    "pandas>=2.0.0",
+    "scipy>=1.11.0",
+    "pytest>=7.4.0",
+    "pyyaml>=6.0",
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "datasets>=2.14.0",
 ]
 
 [tool.black]
-line-length = 88
+line-length = 100
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-    | data
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
-pythonpath = ["."]
-addopts = "-v --tb=short"
+testpaths = ["code/tests"]
+pythonpath = ["code"]
+addopts = "-v --strict-markers"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["code*"]
+exclude = ["code.tests*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["code"]
+
+[tool.ruff.lint]
+select = [
+    "E", "F", "W", "I", "N", "UP", "ANN", "B", "C4", "SIM", "T20"
+]
+ignore = [
+    "E501",
+    "ANN001",
+    "ANN201",
+    "B905",
+]
+exclude = [
+    "__pycache__",
+    ".venv",
+    "data",
+    "build",
+    "dist",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"code/tests/*" = ["ANN", "T20"]
+"code/create_structure.py" = ["T201"]
+"code/config.py" = ["ANN001", "ANN201"]

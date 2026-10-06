@@ -5,56 +5,81 @@ from pathlib import Path
 
 def main():
     """
-    Creates the project directory structure and generates a manifest verifying existence.
+    Creates the required project directory structure and generates a manifest file
+    verifying the existence of all directories.
+    
+    Directories created:
+    - code/
+    - data/
+    - tests/
+    - state/
+    - models/
+    - data/raw/
+    - data/processed/
+    - reports/
+    
+    Output:
+    - state/structure_manifest.json
     """
     # Define the required directories relative to the project root
-    base_dirs = [
+    base_dir = Path(".")
+    required_dirs = [
         "code",
         "data",
         "tests",
         "state",
-        "reports",
         "models",
         "data/raw",
-        "data/processed"
+        "data/processed",
+        "reports"
     ]
 
-    project_root = Path(".")
-  
     created_dirs = []
     missing_dirs = []
 
-    for dir_name in base_dirs:
-        full_path = project_root / dir_name
+    for dir_path in required_dirs:
+        full_path = base_dir / dir_path
         try:
             full_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(str(full_path))
-        except OSError as e:
-            missing_dirs.append({"path": str(full_path), "error": str(e)})
+            created_dirs.append(dir_path)
+            print(f"Created/Verified directory: {dir_path}")
+        except Exception as e:
+            missing_dirs.append({"path": dir_path, "error": str(e)})
+            print(f"Failed to create directory {dir_path}: {e}", file=sys.stderr)
 
     # Generate the manifest
     manifest = {
         "status": "success" if not missing_dirs else "partial_failure",
-        "created_directories": created_dirs,
-        "failed_directories": missing_dirs,
-        "total_created": len(created_dirs),
-        "total_failed": len(missing_dirs)
+        "timestamp": str(Path("state").parent / "state" / "manifest_timestamp_placeholder"), # Placeholder for actual timestamp logic if needed, but simple string is fine
+        "directories": {
+            "created": created_dirs,
+            "failed": missing_dirs
+        },
+        "verification": {
+            "total_required": len(required_dirs),
+            "total_created": len(created_dirs),
+            "all_exist": all(d.exists() for d in [base_dir / d for d in created_dirs])
+        }
     }
 
-    manifest_path = project_root / "state" / "structure_manifest.json"
-    with open(manifest_path, "w", encoding="utf-8") as f:
-        json.dump(manifest, f, indent=2)
+    # Ensure state directory exists before writing manifest
+    state_dir = base_dir / "state"
+    state_dir.mkdir(parents=True, exist_ok=True)
 
-    print(f"Project structure created. Manifest written to {manifest_path}")
-    print(f"Directories created: {len(created_dirs)}")
+    manifest_path = state_dir / "structure_manifest.json"
     
+    try:
+        with open(manifest_path, 'w', encoding='utf-8') as f:
+            json.dump(manifest, f, indent=2)
+        print(f"Manifest written to: {manifest_path}")
+    except Exception as e:
+        print(f"Failed to write manifest: {e}", file=sys.stderr)
+        sys.exit(1)
+
     if missing_dirs:
-        print(f"Failed to create: {len(missing_dirs)}")
-        for m in missing_dirs:
-            print(f"  - {m['path']}: {m['error']}")
-        return 1
+        sys.exit(1)
     
-    return 0
+    sys.exit(0)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

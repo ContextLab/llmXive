@@ -1,212 +1,250 @@
 """
-Logging configuration and utilities for the HEA Elastic Modulus project.
+Logging configuration and utility functions for the HEA Elastic Modulus project.
 
-This module provides a centralized logging setup to ensure consistent
-logging across all project components. It supports:
-- Configurable log levels (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-- File and console output
-- Timestamped log entries
-- Thread-safe logging operations
+Provides a centralized logging setup that ensures consistent formatting,
+log levels, and output destinations across all modules.
 """
-
 import logging
 import sys
 from pathlib import Path
 from typing import Optional, Dict
 from datetime import datetime
-
+import os
 
 # Global state to track initialization
 _logging_initialized: bool = False
-_current_config: Dict = {}
+_current_config: Optional[Dict[str, str]] = None
 _logger_instance: Optional[logging.Logger] = None
 
+# Default log format
+DEFAULT_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+DEFAULT_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+
+# Log levels mapping
+LOG_LEVELS = {
+    "DEBUG": logging.DEBUG,
+    "INFO": logging.INFO,
+    "WARNING": logging.WARNING,
+    "ERROR": logging.ERROR,
+    "CRITICAL": logging.CRITICAL,
+}
 
 def get_log_level(level_str: str) -> int:
     """
     Convert a string log level to the corresponding logging constant.
-
+    
     Args:
-        level_str: String representation of log level (e.g., 'DEBUG', 'INFO')
-
+        level_str: String representation of log level (e.g., 'INFO', 'DEBUG')
+        
     Returns:
-        The corresponding logging level constant
-
+        The corresponding logging constant (e.g., logging.INFO)
+        
     Raises:
-        ValueError: If the log level string is invalid
+        ValueError: If the level string is not recognized
     """
-    level_map = {
-        'DEBUG': logging.DEBUG,
-        'INFO': logging.INFO,
-        'WARNING': logging.WARNING,
-        'ERROR': logging.ERROR,
-        'CRITICAL': logging.CRITICAL,
-    }
-    level_upper = level_str.upper()
-    if level_upper not in level_map:
-        raise ValueError(f"Invalid log level: {level_str}. Must be one of {list(level_map.keys())}")
-    return level_map[level_upper]
-
+    level_str = level_str.upper()
+    if level_str in LOG_LEVELS:
+        return LOG_LEVELS[level_str]
+    raise ValueError(f"Invalid log level: {level_str}. Valid levels: {list(LOG_LEVELS.keys())}")
 
 def setup_logging(
+    level: Optional[str] = None,
     log_file: Optional[Path] = None,
-    level: str = 'INFO',
+    format_str: Optional[str] = None,
+    date_format: Optional[str] = None,
     console_output: bool = True,
-    file_output: bool = True,
-    project_root: Optional[Path] = None
-) -> Dict:
+    file_output: bool = False,
+) -> None:
     """
-    Configure the root logger with the specified settings.
-
-    This function sets up both console and file handlers with consistent
-    formatting. It should be called once at the start of the application.
-
+    Configure the root logger with specified settings.
+    
+    This function sets up logging handlers for console and/or file output,
+    configures the log format, and sets the global initialization state.
+    
     Args:
-        log_file: Path to the log file. If None, no file output is created.
-        level: Log level as a string (e.g., 'DEBUG', 'INFO')
-        console_output: Whether to log to console
-        file_output: Whether to log to file
-        project_root: Root directory of the project. Used to resolve relative paths.
-
-    Returns:
-        Dictionary containing the current configuration
+        level: Log level as a string (e.g., 'INFO', 'DEBUG'). Defaults to 'INFO'.
+        log_file: Path to log file. If provided and file_output is True, logs are written here.
+        format_str: Custom log format string. Defaults to DEFAULT_FORMAT.
+        date_format: Custom date format string. Defaults to DEFAULT_DATE_FORMAT.
+        console_output: If True, add a console handler. Defaults to True.
+        file_output: If True and log_file is provided, add a file handler. Defaults to False.
+        
+    Raises:
+        ValueError: If log_file is provided but file_output is True and path is invalid
     """
-    global _logging_initialized, _current_config, _logger_instance
+    global _logging_initialized, _current_config
 
-    # Get the log level
-    log_level = get_log_level(level)
-
-    # Determine the log file path
-    if log_file:
-        if not log_file.is_absolute() and project_root:
-            log_file = project_root / log_file
-        log_file.parent.mkdir(parents=True, exist_ok=True)
-    elif project_root:
-        log_file = project_root / "logs" / f"hea_pipeline_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
-        log_file.parent.mkdir(parents=True, exist_ok=True)
+    # Set default values
+    level = level or "INFO"
+    format_str = format_str or DEFAULT_FORMAT
+    date_format = date_format or DEFAULT_DATE_FORMAT
 
     # Get the root logger
     root_logger = logging.getLogger()
-    root_logger.setLevel(log_level)
+    root_logger.setLevel(get_log_level(level))
 
-    # Clear any existing handlers
-    if root_logger.handlers:
-        root_logger.handlers.clear()
+    # Clear existing handlers to avoid duplicates
+    root_logger.handlers.clear()
 
     # Create formatter
-    formatter = logging.Formatter(
-        fmt='%(asctime)s | %(levelname)-8s | %(name)s | %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
+    formatter = logging.Formatter(fmt=format_str, datefmt=date_format)
 
     # Add console handler
     if console_output:
         console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(log_level)
+        console_handler.setLevel(get_log_level(level))
         console_handler.setFormatter(formatter)
         root_logger.addHandler(console_handler)
 
-    # Add file handler
+    # Add file handler if requested
     if file_output and log_file:
-        file_handler = logging.FileHandler(log_file, mode='a', encoding='utf-8')
-        file_handler.setLevel(log_level)
+        if not isinstance(log_file, Path):
+            log_file = Path(log_file)
+        
+        # Ensure parent directory exists
+        log_file.parent.mkdir(parents=True, exist_ok=True)
+        
+        file_handler = logging.FileHandler(str(log_file))
+        file_handler.setLevel(get_log_level(level))
         file_handler.setFormatter(formatter)
         root_logger.addHandler(file_handler)
 
-    # Store configuration
+    # Update global state
+    _logging_initialized = True
     _current_config = {
-        'level': level,
-        'log_file': str(log_file) if log_file else None,
-        'console_output': console_output,
-        'file_output': file_output,
-        'handlers_count': len(root_logger.handlers),
-        'initialized_at': datetime.now().isoformat()
+        "level": level,
+        "log_file": str(log_file) if log_file else None,
+        "format": format_str,
+        "date_format": date_format,
+        "console_output": console_output,
+        "file_output": file_output,
+        "timestamp": datetime.now().isoformat(),
     }
 
-    _logging_initialized = True
-    _logger_instance = root_logger
-
-    return _current_config
-
+    # Log initialization
+    root_logger.info(f"Logging initialized with level: {level}")
+    if log_file and file_output:
+        root_logger.info(f"Log file: {log_file}")
 
 def get_logger(name: Optional[str] = None) -> logging.Logger:
     """
-    Get a logger instance, optionally with a specific name.
-
-    This function returns the root logger if no name is provided,
-    or a child logger with the specified name.
-
+    Get a logger instance with the specified name.
+    
+    If logging is not yet initialized, this function will call init_default_logging()
+    to set up a basic configuration.
+    
     Args:
-        name: Optional name for the logger (e.g., 'src.data.fetch_oqmd')
-
+        name: Name for the logger. If None, the root logger is returned.
+            
     Returns:
-        A configured logger instance
+        A logging.Logger instance
     """
     if not _logging_initialized:
-        # Initialize with defaults if not already set up
-        setup_logging(level='INFO')
+        init_default_logging()
+    
+    if name is None:
+        return logging.getLogger()
+    return logging.getLogger(name)
 
-    if name:
-        return logging.getLogger(name)
-    return logging.getLogger()
-
-
-def configure_module_logging(module_name: str, level: Optional[str] = None) -> logging.Logger:
+def configure_module_logging(
+    module_name: str,
+    level: Optional[str] = None,
+    propagate: bool = False,
+) -> logging.Logger:
     """
-    Configure logging for a specific module with optional level override.
-
+    Configure logging for a specific module.
+    
+    This is useful for setting different log levels for specific modules
+    while maintaining a consistent global configuration.
+    
     Args:
         module_name: The name of the module (e.g., 'src.data.fetch_oqmd')
         level: Optional log level override for this module
-
+        propagate: If False, prevent log messages from being passed to parent handlers
+            
     Returns:
-        Configured logger for the module
+        A configured logger instance for the module
     """
-    logger = get_logger(module_name)
+    logger = logging.getLogger(module_name)
+    
     if level:
         logger.setLevel(get_log_level(level))
-    else:
-        # Inherit from root logger
-        logger.setLevel(logging.NOTSET)
+    
+    logger.propagate = propagate
+    
+    if not _logging_initialized:
+        init_default_logging()
+    
     return logger
-
 
 def is_logging_initialized() -> bool:
     """
     Check if logging has been initialized.
-
+    
     Returns:
         True if logging is initialized, False otherwise
     """
     return _logging_initialized
 
-
-def get_current_config() -> Dict:
+def get_current_config() -> Optional[Dict[str, str]]:
     """
     Get the current logging configuration.
-
+    
     Returns:
-        Dictionary containing the current configuration
+        A dictionary containing the current configuration, or None if not initialized
     """
-    return _current_config.copy()
+    return _current_config.copy() if _current_config else None
 
-
-# Convenience function to initialize logging with defaults
-def init_default_logging(project_root: Optional[Path] = None) -> Dict:
+def init_default_logging() -> None:
     """
     Initialize logging with default settings.
-
-    This is a convenience function for quick setup with sensible defaults.
-
-    Args:
-        project_root: Root directory of the project
-
-    Returns:
-        Dictionary containing the current configuration
+    
+    This is called automatically by get_logger() if logging hasn't been
+    explicitly configured yet. It sets up console output with INFO level.
     """
-    return setup_logging(
-        level='INFO',
+    global _logging_initialized
+    
+    if _logging_initialized:
+        return
+    
+    setup_logging(
+        level="INFO",
+        console_output=True,
+        file_output=False,
+    )
+    
+    _logging_initialized = True
+
+# Convenience function for quick logging setup in scripts
+def init_script_logging(script_name: str, log_dir: Optional[Path] = None) -> logging.Logger:
+    """
+    Initialize logging for a script with file output.
+    
+    This creates a log file named after the script in the specified directory
+    (or a default 'logs' directory if none is provided).
+    
+    Args:
+        script_name: Name of the script (used for log file naming)
+        log_dir: Directory for log files. Defaults to 'logs' in the current working directory.
+            
+    Returns:
+        A configured logger instance
+    """
+    if log_dir is None:
+        log_dir = Path.cwd() / "logs"
+    
+    log_file = log_dir / f"{script_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+    
+    setup_logging(
+        level="DEBUG",
+        log_file=log_file,
         console_output=True,
         file_output=True,
-        project_root=project_root
+        format_str=f"%(asctime)s - {script_name} - %(name)s - %(levelname)s - %(message)s"
     )
+    
+    return get_logger(script_name)
+
+# Initialize default logging immediately for immediate use
+# This ensures that any module importing this file gets a working logger
+init_default_logging()

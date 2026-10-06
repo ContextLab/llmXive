@@ -1,234 +1,205 @@
 """
-Normalization module for High-Entropy Alloy composition data.
+Normalization utilities for High-Entropy Alloy (HEA) composition data.
 
-This module enforces the constraint that composition fractions sum to 1.0,
-logs any adjustments made, and handles edge cases like zero-sum rows.
+This module enforces the constraint that composition fractions sum to 1.0
+and logs any adjustments made during the normalization process.
 """
+
 import logging
 import pandas as pd
 import numpy as np
 from typing import Tuple, Optional, List, Dict, Any
-from utils.logging_config import get_logger
-from utils.validators import normalize_compositions, ValidationError
 
-# Get logger for this module
-logger = get_logger(__name__)
+# Import from project utilities using the defined API surface
+from src.utils.logging_config import get_logger
+from src.utils.validators import normalize_compositions, ValidationError
 
-def get_composition_columns(df: pd.DataFrame) -> List[str]:
+# Configuration
+NORMALIZATION_TOLERANCE = 1e-9
+COMPOSITION_SUFFIX = "_atomic_fraction"
+
+def get_composition_columns(df: pd.DataFrame, prefix: str = "element_") -> List[str]:
     """
-    Identify columns in the DataFrame that represent composition fractions.
-    
-    Composition columns are typically named after chemical elements (e.g., 'Fe', 'Ni', 'Cr')
-    and contain numeric values representing atomic or weight fractions.
-    
+    Identify columns in the DataFrame that represent elemental compositions.
+
     Args:
-        df: Input DataFrame containing composition data
-        
+        df: Input DataFrame.
+        prefix: Prefix used for elemental columns (e.g., 'element_').
+
     Returns:
-        List of column names identified as composition fractions
+        List of column names representing elemental compositions.
     """
-    # Common element symbols that might appear in composition columns
-    # We'll identify them by checking if the column name is a valid element symbol
-    # and if the column contains numeric data
-    from pymatgen.core import Element, PeriodicTable
+    composition_cols = [col for col in df.columns if col.startswith(prefix)]
+    if not composition_cols:
+        # Fallback: look for columns ending with '_atomic_fraction' or similar patterns
+        composition_cols = [col for col in df.columns if 'atomic' in col.lower() or 'fraction' in col.lower()]
     
-    composition_cols = []
-    for col in df.columns:
-        try:
-            # Check if column name is a valid element symbol
-            Element(col)
-            # Check if the column contains numeric data
-            if pd.api.types.is_numeric_dtype(df[col]):
-                composition_cols.append(col)
-        except ValueError:
-            # Not a valid element symbol
-            continue
+    # Filter out any non-numeric columns
+    composition_cols = [col for col in composition_cols if pd.api.types.is_numeric_dtype(df[col])]
     
-    return composition_cols
+    return sorted(composition_cols)
+
 
 def normalize_composition_row(row: pd.Series, composition_cols: List[str]) -> Tuple[pd.Series, Dict[str, Any]]:
     """
-    Normalize a single row's composition fractions to sum to 1.0.
-    
+    Normalize a single row's composition values to sum to 1.0.
+
     Args:
-        row: A single row from the DataFrame
-        composition_cols: List of columns representing composition fractions
-        
+        row: A single row from the DataFrame.
+        composition_cols: List of columns representing elemental compositions.
+
     Returns:
-        Tuple of (normalized_row, adjustment_info)
-        adjustment_info contains details about what adjustments were made
+        Tuple of (normalized_row, adjustment_log).
     """
-    adjustment_info = {
-        'original_sum': 0.0,
-        'adjusted': False,
-        'adjustment_magnitude': 0.0,
-        'issues': []
-    }
+    normalized_row = row.copy()
+    adjustment_log = {}
     
     # Extract composition values
-    comp_values = row[composition_cols].copy()
+    comp_values = row[composition_cols].values.astype(float)
     
-    # Calculate original sum
-    original_sum = comp_values.sum()
-    adjustment_info['original_sum'] = original_sum
+    # Check for invalid values (negative or NaN)
+    if np.any(np.isnan(comp_values)) or np.any(comp_values < 0):
+        # Mark row as invalid but return as-is to allow downstream filtering
+        adjustment_log['status'] = 'invalid'
+        adjustment_log['reason'] = 'contains_nan_or_negative'
+        return normalized_row, adjustment_log
     
-    # Handle edge cases
-    if original_sum == 0:
-        # All zeros - cannot normalize, mark as invalid
-        adjustment_info['issues'].append('Zero composition sum - cannot normalize')
-        logger.warning(f"Zero composition sum found in row. Marking as invalid.")
-        # Set all to NaN to indicate invalid data
-        row[composition_cols] = np.nan
-        return row, adjustment_info
+    current_sum = np.sum(comp_values)
     
-    if original_sum < 0:
-        # Negative sum - invalid data
-        adjustment_info['issues'].append('Negative composition sum - invalid data')
-        logger.warning(f"Negative composition sum found in row. Marking as invalid.")
-        row[composition_cols] = np.nan
-        return row, adjustment_info
+    if current_sum == 0:
+        # Cannot normalize zero-sum composition
+        adjustment_log['status'] = 'invalid'
+        adjustment_log['reason'] = 'zero_sum'
+        return normalized_row, adjustment_log
     
     # Check if normalization is needed
-    if abs(original_sum - 1.0) < 1e-9:
-        # Already normalized within floating point tolerance
-        adjustment_info['adjusted'] = False
-        return row, adjustment_info
-    
-    # Normalize
-    normalized_values = comp_values / original_sum
-    row[composition_cols] = normalized_values
-    
-    adjustment_info['adjusted'] = True
-    adjustment_info['adjustment_magnitude'] = abs(original_sum - 1.0)
-    adjustment_info['new_sum'] = row[composition_cols].sum()
-    
-    # Log the adjustment
-    logger.debug(
-        f"Normalized composition row: original_sum={original_sum:.6f}, "
-        f"adjustment={adjustment_info['adjustment_magnitude']:.6f}"
-    )
-    
-    return row, adjustment_info
-
-def normalize_dataframe(df: pd.DataFrame, composition_cols: Optional[List[str]] = None) -> Tuple[pd.DataFrame, Dict[str, Any]]:
-    """
-    Normalize composition fractions in a DataFrame to sum to 1.0 for each row.
-    
-    This function:
-    1. Identifies composition columns if not provided
-    2. Normalizes each row's composition to sum to 1.0
-    3. Logs all adjustments made
-    4. Returns summary statistics about the normalization process
-    
-    Args:
-        df: Input DataFrame with composition data
-        composition_cols: Optional list of composition column names. If None, auto-detected.
+    if abs(current_sum - 1.0) > NORMALIZATION_TOLERANCE:
+        # Normalize
+        normalized_values = comp_values / current_sum
+        for i, col in enumerate(composition_cols):
+            normalized_row[col] = normalized_values[i]
         
-    Returns:
-        Tuple of (normalized_dataframe, normalization_summary)
-        normalization_summary contains statistics about adjustments made
+        adjustment_log['status'] = 'normalized'
+        adjustment_log['original_sum'] = float(current_sum)
+        adjustment_log['adjustment_magnitude'] = float(abs(current_sum - 1.0))
+    else:
+        adjustment_log['status'] = 'already_normalized'
+        adjustment_log['original_sum'] = float(current_sum)
+    
+    return normalized_row, adjustment_log
+
+
+def normalize_dataframe(df: pd.DataFrame, composition_cols: Optional[List[str]] = None, 
+                      log_adjustments: bool = True) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
+    Normalize composition columns in a DataFrame so they sum to 1.0.
+
+    Args:
+        df: Input DataFrame.
+        composition_cols: Optional list of composition columns. If None, auto-detected.
+        log_adjustments: If True, return a DataFrame with adjustment logs.
+
+    Returns:
+        Tuple of (normalized_dataframe, adjustment_logs_dataframe).
+    """
+    logger = get_logger(__name__)
+    
     if composition_cols is None:
         composition_cols = get_composition_columns(df)
     
     if not composition_cols:
         logger.warning("No composition columns found in DataFrame. Returning original data.")
-        return df, {'rows_processed': 0, 'rows_adjusted': 0, 'issues': []}
+        return df, pd.DataFrame()
     
     logger.info(f"Normalizing {len(composition_cols)} composition columns: {composition_cols}")
     
-    summary = {
-        'rows_processed': 0,
-        'rows_adjusted': 0,
-        'rows_zero_sum': 0,
-        'rows_negative_sum': 0,
-        'max_adjustment': 0.0,
-        'avg_adjustment': 0.0,
-        'adjustments': [],
-        'issues': []
-    }
+    normalized_dfs = []
+    adjustment_logs = []
     
-    adjustments = []
-    total_adjustment = 0.0
+    invalid_count = 0
+    normalized_count = 0
+    already_normalized_count = 0
     
-    # Process each row
     for idx, row in df.iterrows():
-        summary['rows_processed'] += 1
-        normalized_row, info = normalize_composition_row(row, composition_cols)
-        df.loc[idx] = normalized_row
+        norm_row, log = normalize_composition_row(row, composition_cols)
+        normalized_dfs.append(norm_row)
         
-        if info['adjusted']:
-            summary['rows_adjusted'] += 1
-            adjustments.append(info['adjustment_magnitude'])
-            total_adjustment += info['adjustment_magnitude']
-            summary['max_adjustment'] = max(summary['max_adjustment'], info['adjustment_magnitude'])
-            
-            if info['adjustment_magnitude'] > 0.01:
-                logger.warning(
-                    f"Large normalization adjustment at row {idx}: "
-                    f"original_sum={info['original_sum']:.6f}, "
-                    f"adjustment={info['adjustment_magnitude']:.6f}"
-                )
-        elif info['issues']:
-            if 'Zero composition sum' in str(info['issues']):
-                summary['rows_zero_sum'] += 1
-            elif 'Negative composition sum' in str(info['issues']):
-                summary['rows_negative_sum'] += 1
-            summary['issues'].extend(info['issues'])
+        if log_adjustments:
+            log['row_index'] = idx
+            adjustment_logs.append(log)
+        
+        if log['status'] == 'invalid':
+            invalid_count += 1
+        elif log['status'] == 'normalized':
+            normalized_count += 1
+        else:
+            already_normalized_count += 1
     
-    # Calculate average adjustment
-    if adjustments:
-        summary['avg_adjustment'] = total_adjustment / len(adjustments)
+    normalized_df = pd.DataFrame(normalized_dfs)
     
-    # Log summary
-    logger.info(
-        f"Normalization complete: {summary['rows_processed']} rows processed, "
-        f"{summary['rows_adjusted']} adjusted, "
-        f"max adjustment: {summary['max_adjustment']:.6f}, "
-        f"avg adjustment: {summary['avg_adjustment']:.6f}"
-    )
+    if log_adjustments and adjustment_logs:
+        logs_df = pd.DataFrame(adjustment_logs)
+    else:
+        logs_df = pd.DataFrame()
     
-    if summary['rows_zero_sum'] > 0:
-        logger.warning(f"Found {summary['rows_zero_sum']} rows with zero composition sum (marked as invalid)")
-    if summary['rows_negative_sum'] > 0:
-        logger.warning(f"Found {summary['rows_negative_sum']} rows with negative composition sum (marked as invalid)")
+    logger.info(f"Normalization complete: {normalized_count} rows normalized, "
+               f"{already_normalized_count} already normalized, {invalid_count} invalid.")
     
-    return df, summary
+    return normalized_df, logs_df
+
 
 def main():
     """
-    Main function to demonstrate normalization functionality.
-    This is typically called by the pipeline orchestration script.
+    Main entry point for standalone execution.
+    
+    This function demonstrates the normalization process on a sample dataset
+    and writes the results to disk.
     """
-    # Example usage
-    logger.info("Starting normalization module demonstration")
+    # Initialize logging
+    from src.utils.logging_config import init_script_logging
+    init_script_logging(level=logging.INFO)
+    logger = get_logger(__name__)
     
-    # Create a sample DataFrame with unnormalized compositions
+    logger.info("Starting composition normalization module demonstration.")
+    
+    # Create sample data for demonstration
     sample_data = {
-        'Fe': [0.2, 0.25, 0.3],
-        'Ni': [0.2, 0.25, 0.2],
-        'Cr': [0.2, 0.25, 0.2],
-        'Co': [0.2, 0.25, 0.2],
-        'Mn': [0.2, 0.0, 0.1],
-        'Bulk_Modulus': [150, 160, 170]
+        'sample_id': ['HEA_001', 'HEA_002', 'HEA_003', 'HEA_004'],
+        'element_Fe': [0.2, 0.25, 0.18, 0.22],
+        'element_Cr': [0.2, 0.25, 0.22, 0.18],
+        'element_Ni': [0.2, 0.25, 0.20, 0.20],
+        'element_Mn': [0.2, 0.25, 0.20, 0.20],
+        'element_Al': [0.2, 0.0, 0.20, 0.20],  # HEA_002 has only 4 elements, sum=0.95
     }
-    df = pd.DataFrame(sample_data)
     
-    logger.info("Original DataFrame:")
-    logger.info(df.to_string())
+    df = pd.DataFrame(sample_data)
+    logger.info(f"Sample data created with {len(df)} rows.")
+    logger.info(f"Original composition sums: {df[['element_Fe', 'element_Cr', 'element_Ni', 'element_Mn', 'element_Al']].sum(axis=1).tolist()}")
     
     # Normalize
-    normalized_df, summary = normalize_dataframe(df)
+    normalized_df, logs_df = normalize_dataframe(df)
     
-    logger.info("\nNormalized DataFrame:")
-    logger.info(normalized_df.to_string())
+    logger.info(f"Normalized composition sums: {normalized_df[['element_Fe', 'element_Cr', 'element_Ni', 'element_Mn', 'element_Al']].sum(axis=1).tolist()}")
     
-    logger.info("\nNormalization Summary:")
-    for key, value in summary.items():
-        if key != 'adjustments':  # Don't log full list of adjustments
-            logger.info(f"  {key}: {value}")
+    # Verify normalization
+    composition_cols = [col for col in normalized_df.columns if col.startswith('element_')]
+    sums = normalized_df[composition_cols].sum(axis=1)
     
-    return normalized_df, summary
+    if not np.allclose(sums, 1.0, atol=NORMALIZATION_TOLERANCE):
+        logger.error("Normalization failed: some rows do not sum to 1.0")
+        return 1
+    
+    logger.info("All rows successfully normalized to sum to 1.0.")
+    
+    # Output logs
+    if not logs_df.empty:
+        logger.info("Adjustment logs:")
+        logger.info(logs_df.to_string(index=False))
+    
+    logger.info("Normalization module demonstration completed successfully.")
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(main())

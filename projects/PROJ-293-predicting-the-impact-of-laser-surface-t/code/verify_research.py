@@ -1,6 +1,6 @@
 """
-Verification module for research.md to ensure it contains only verified static URLs/IDs.
-Implements Constitution II: No dynamic search logic for data sources.
+Research file verification module.
+Validates research.md for static URLs/IDs and absence of dynamic search logic.
 """
 import os
 import sys
@@ -8,367 +8,227 @@ import json
 import re
 import logging
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Tuple, Dict, Any, Optional
 
-# Import logging utilities from existing project API
+# Import from sibling modules as per API surface
 from logging_config import get_logger, raise_on_missing_data
 
 # Constants
-RESEARCH_MD_PATH = Path("specs/001-predict-lst-wear/research.md")
-VALIDATION_OUTPUT_PATH = Path("state/research_validation.json")
-STATE_DIR = Path("state")
+RESEARCH_FILE_PATH = Path("specs/001-predict-lst-wear/research.md")
+OUTPUT_FILE_PATH = Path("state/research_validation.json")
 
-# Patterns to detect dynamic search logic (Constitution II violations)
+# Patterns to detect dynamic search logic
 DYNAMIC_SEARCH_PATTERNS = [
-    r"search\(",
-    r"query\(",
-    r"find\(",
-    r"browse\(",
-    r"discover\(",
-    r"explore\(",
-    r"lookup\(",
-    r"google\(",
-    r"baidu\(",
-    r"duckduckgo\(",
-    r"bing\(",
-    r"arxiv.org/search",
-    r"scopus.com/search",
-    r"web of science",
-    r"dynamic.*source",
+    r"search\s*\(.*\)",
+    r"query\s*\(.*\)",
+    r"find\s*\(.*\)",
+    r"browse\s*\(.*\)",
+    r"lookup\s*\(.*\)",
+    r"api\.search",
+    r"engine\.search",
+    r"dynamic.*url",
     r"runtime.*lookup",
-    r"api.*search",
-    r"endpoint.*query",
-    r"filter.*results",
-    r"sort.*results",
-    r"page.*results",
-    r"next.*page",
-    r"load.*more",
-    r"fetch.*dynamic",
-    r"get.*search",
-    r"perform.*search",
-    r"execute.*query",
-    r"run.*search",
-    r"trigger.*search",
-    r"initiate.*search",
-    r"start.*search",
-    r"begin.*search",
-    r"launch.*search",
-    r"conduct.*search",
-    r"carry.*out.*search",
-    r"make.*search",
-    r"do.*search",
-    r"run.*query",
-    r"perform.*query",
-    r"execute.*search",
+    r"on-the-fly.*fetch",
 ]
 
-# Patterns to detect static URLs/IDs (expected valid content)
+# Patterns to detect static URLs/IDs
 STATIC_URL_PATTERNS = [
-    r"https?://[^\s]+",  # Generic URL
-    r"openml.org/d/\d+",  # OpenML dataset ID
-    r"huggingface.co/datasets/[^\s]+",  # HuggingFace dataset
-    r"doi.org/[^\s]+",  # DOI
-    r"arxiv.org/abs/\d+.\d+",  # ArXiv ID
-    r"pmc.ncbi.nlm.nih.gov/articles/PMC\d+",  # PubMed Central
-    r"sciencedirect.com/science/article/[^\s]+",  # ScienceDirect
-    r"wiley.com/doi/[^\s]+",  # Wiley
+    r"https?://[^\s]+",  # HTTP/HTTPS URLs
+    r"dataset_id\s*[:=]\s*['\"][^'\"]+['\"]",  # dataset_id assignments
+    r"openml_id\s*[:=]\s*['\"][^'\"]+['\"]",  # OpenML specific
+    r"hf_dataset\s*[:=]\s*['\"][^'\"]+['\"]",  # HuggingFace specific
 ]
 
-# Required schema structure (from T009 spec)
-REQUIRED_KEYS = ["source_name", "url", "dataset_id", "verified"]
+def setup_logging():
+    """Configure logging for the verification process."""
+    log_dir = Path("logs")
+    log_dir.mkdir(exist_ok=True)
+    log_file = log_dir / "research_validation.log"
+    
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(log_file),
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
+    return get_logger(__name__)
 
-logger = get_logger(__name__)
-
-
-def parse_research_md(file_path: Path) -> Tuple[bool, List[str], Dict[str, Any]]:
+def parse_research_md(file_path: Path) -> Dict[str, Any]:
     """
-    Parse research.md and extract structured data.
-
+    Parse research.md file and extract structured data.
+    
     Args:
-        file_path: Path to research.md file
-
+        file_path: Path to the research.md file
+        
     Returns:
-        Tuple of (is_valid, list of errors, parsed data dict)
+        Dictionary containing parsed content and metadata
     """
-    errors = []
-    parsed_data = {}
-
+    logger = logging.getLogger(__name__)
+    
     if not file_path.exists():
-        errors.append(f"File not found: {file_path}")
-        return False, errors, parsed_data
+        logger.error(f"Research file not found: {file_path}")
+        raise FileNotFoundError(f"Research file not found: {file_path}")
+    
+    with open(file_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    
+    # Extract sections
+    sections = {}
+    current_section = None
+    current_content = []
+    
+    for line in content.split('\n'):
+        if line.startswith('### '):
+            if current_section:
+                sections[current_section] = '\n'.join(current_content)
+            current_section = line[4:].strip()
+            current_content = []
+        elif current_section:
+            current_content.append(line)
+    
+    if current_section:
+        sections[current_section] = '\n'.join(current_content)
+    
+    return {
+        'raw_content': content,
+        'sections': sections,
+        'file_path': str(file_path),
+        'file_size': len(content)
+    }
 
-    try:
-        content = file_path.read_text(encoding="utf-8")
-    except Exception as e:
-        errors.append(f"Error reading file: {str(e)}")
-        return False, errors, parsed_data
-
-    lines = content.split("\n")
-    current_source = None
-
-    # Simple parser for the expected schema format
-    # Expected format: {source_name: str, url: str, dataset_id: str, verified: bool}
-    # Could be JSON, YAML, or structured text
-
-    # Try to parse as JSON first
-    try:
-        # Look for JSON block
-        json_match = re.search(r'(\{.*\})', content, re.DOTALL)
-        if json_match:
-            json_str = json_match.group(1)
-            parsed_data = json.loads(json_str)
-            if isinstance(parsed_data, dict):
-                logger.info("Successfully parsed research.md as JSON")
-                return True, errors, parsed_data
-    except (json.JSONDecodeError, AttributeError):
-        pass
-
-    # Try to parse as structured text (key-value pairs)
-    source_entries = []
-    current_entry = {}
-
-    for line in lines:
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
-
-        # Check for key-value pairs
-        if ":" in line:
-            key, value = line.split(":", 1)
-            key = key.strip()
-            value = value.strip()
-
-            # Remove quotes if present
-            value = value.strip('"\'')
-
-            # Convert boolean strings
-            if value.lower() == "true":
-                value = True
-            elif value.lower() == "false":
-                value = False
-
-            current_entry[key] = value
-
-            # If we have all required keys, save the entry
-            if all(key in current_entry for key in REQUIRED_KEYS):
-                source_entries.append(current_entry)
-                current_entry = {}
-
-    if source_entries:
-        # Convert list to dict keyed by source_name if possible
-        if all("source_name" in entry for entry in source_entries):
-            parsed_data = {entry["source_name"]: entry for entry in source_entries}
-        else:
-            parsed_data = {"sources": source_entries}
-
-        logger.info(f"Parsed {len(source_entries)} entries from research.md")
-        return True, errors, parsed_data
-
-    errors.append("Could not parse research.md in any expected format")
-    return False, errors, parsed_data
-
-
-def check_static_urls(content: str) -> Tuple[bool, List[str]]:
+def check_static_urls(content: str) -> Tuple[bool, List[str], List[str]]:
     """
-    Check that research.md contains only static URLs/IDs and no dynamic search logic.
-
+    Check if content contains only static URLs/IDs and no dynamic search logic.
+    
     Args:
-        content: String content of research.md
-
+        content: Text content to analyze
+        
     Returns:
-        Tuple of (is_valid, list of issues)
+        Tuple of (is_valid, static_urls_found, dynamic_patterns_found)
     """
-    issues = []
-
-    # Check for dynamic search patterns (Constitution II violation)
+    logger = logging.getLogger(__name__)
+    static_urls = []
+    dynamic_patterns = []
+    
+    # Check for dynamic search logic
     for pattern in DYNAMIC_SEARCH_PATTERNS:
         matches = re.findall(pattern, content, re.IGNORECASE)
         if matches:
-            issues.append(f"Dynamic search logic detected: pattern '{pattern}' matched {len(matches)} times")
-
-    # Check for presence of static URLs/IDs
-    has_static_urls = False
+            dynamic_patterns.extend(matches)
+            logger.warning(f"Dynamic search pattern detected: {pattern}")
+    
+    # Check for static URLs/IDs
     for pattern in STATIC_URL_PATTERNS:
-        if re.search(pattern, content, re.IGNORECASE):
-            has_static_urls = True
-            break
+        matches = re.findall(pattern, content)
+        static_urls.extend(matches)
+    
+    is_valid = len(dynamic_patterns) == 0 and len(static_urls) > 0
+    
+    if not is_valid:
+        if len(dynamic_patterns) > 0:
+            logger.error(f"Dynamic search logic detected: {dynamic_patterns}")
+        if len(static_urls) == 0:
+            logger.error("No static URLs/IDs found in research.md")
+    
+    return is_valid, static_urls, dynamic_patterns
 
-    if not has_static_urls:
-        issues.append("No static URLs or dataset IDs found in research.md")
-
-    # Check for placeholder or example text
-    placeholder_patterns = [
-        r"example\.com",
-        r"sample\.com",
-        r"placeholder",
-        r"TODO",
-        r"FIXME",
-        r"HACK",
-        r"XXX",
-        r"insert.*here",
-        r"add.*here",
-        r"replace.*with",
-        r"your.*here",
-        r"change.*to",
-        r"update.*to",
-        r"modify.*to",
-        r"edit.*to",
-        r"fill.*in",
-    ]
-
-    for pattern in placeholder_patterns:
-        if re.search(pattern, content, re.IGNORECASE):
-            issues.append(f"Placeholder text detected: pattern '{pattern}'")
-
-    return len(issues) == 0, issues
-
-
-def validate_research_file(file_path: Path) -> Dict[str, Any]:
+def validate_research_file(file_path: Path = RESEARCH_FILE_PATH) -> Dict[str, Any]:
     """
-    Validate research.md according to Constitution II requirements.
-
+    Validate the research.md file for compliance with Constitution II.
+    
     Args:
         file_path: Path to research.md file
-
+        
     Returns:
-        Validation result dictionary
+        Validation results dictionary
     """
-    result = {
-        "file_path": str(file_path),
-        "exists": file_path.exists(),
-        "parse_success": False,
-        "static_url_check": False,
-        "schema_validation": False,
-        "is_valid": False,
-        "issues": [],
-        "sources_found": 0,
-        "timestamp": None,
-    }
-
-    if not result["exists"]:
-        result["issues"].append(f"File not found: {file_path}")
-        return result
-
-    # Parse the file
-    parse_success, parse_errors, parsed_data = parse_research_md(file_path)
-    result["parse_success"] = parse_success
-    result["issues"].extend(parse_errors)
-
-    if not parse_success:
-        return result
-
-    # Check for static URLs
+    logger = setup_logging()
+    logger.info(f"Starting validation of research file: {file_path}")
+    
     try:
-        content = file_path.read_text(encoding="utf-8")
-        static_check_passed, static_issues = check_static_urls(content)
-        result["static_url_check"] = static_check_passed
-        result["issues"].extend(static_issues)
-    except Exception as e:
-        result["issues"].append(f"Error checking static URLs: {str(e)}")
-
-    # Validate schema
-    schema_valid = True
-    if isinstance(parsed_data, dict):
-        # Check if it's a dict of sources
-        if "sources" in parsed_data:
-            sources = parsed_data["sources"]
-            if isinstance(sources, list) and len(sources) > 0:
-                result["sources_found"] = len(sources)
-                for i, source in enumerate(sources):
-                    if not isinstance(source, dict):
-                        schema_valid = False
-                        result["issues"].append(f"Source {i} is not a dict")
-                        continue
-                    for key in REQUIRED_KEYS:
-                        if key not in source:
-                            schema_valid = False
-                            result["issues"].append(f"Source {i} missing required key: {key}")
+        # Parse the file
+        parsed_data = parse_research_md(file_path)
+        
+        # Check for static URLs and dynamic patterns
+        is_valid, static_urls, dynamic_patterns = check_static_urls(
+            parsed_data['raw_content']
+        )
+        
+        # Compile results
+        results = {
+            'file_path': str(file_path),
+            'validation_passed': is_valid,
+            'static_urls_count': len(static_urls),
+            'static_urls': static_urls[:10],  # Limit to first 10 for brevity
+            'dynamic_patterns_found': len(dynamic_patterns),
+            'dynamic_patterns': dynamic_patterns,
+            'sections_found': list(parsed_data['sections'].keys()),
+            'file_size': parsed_data['file_size'],
+            'timestamp': str(Path(file_path).stat().st_mtime),
+            'validation_details': {
+                'has_static_urls': len(static_urls) > 0,
+                'has_dynamic_logic': len(dynamic_patterns) > 0,
+                'meets_constitution_ii': is_valid
+            }
+        }
+        
+        # Log results
+        if is_valid:
+            logger.info("✓ Validation PASSED: Research file contains only static URLs/IDs")
+            logger.info(f"  Found {len(static_urls)} static URLs/IDs")
         else:
-            # Check if top-level dict values are sources
-            source_count = 0
-            for key, value in parsed_data.items():
-                if isinstance(value, dict):
-                    missing_keys = [k for k in REQUIRED_KEYS if k not in value]
-                    if missing_keys:
-                        schema_valid = False
-                        result["issues"].append(f"Source '{key}' missing keys: {missing_keys}")
-                    else:
-                        source_count += 1
-            result["sources_found"] = source_count
-    elif isinstance(parsed_data, list):
-        if len(parsed_data) > 0:
-            result["sources_found"] = len(parsed_data)
-            for i, item in enumerate(parsed_data):
-                if not isinstance(item, dict):
-                    schema_valid = False
-                    result["issues"].append(f"Item {i} is not a dict")
-                    continue
-                missing_keys = [k for k in REQUIRED_KEYS if k not in item]
-                if missing_keys:
-                    schema_valid = False
-                    result["issues"].append(f"Item {i} missing keys: {missing_keys}")
+            logger.error("✗ Validation FAILED: Research file contains dynamic search logic")
+            logger.error(f"  Found {len(dynamic_patterns)} dynamic patterns")
+        
+        return results
+        
+    except Exception as e:
+        logger.error(f"Validation failed with error: {str(e)}")
+        raise
 
-    result["schema_validation"] = schema_valid
-
-    # Overall validity
-    result["is_valid"] = (
-        result["parse_success"] and
-        result["static_url_check"] and
-        result["schema_validation"] and
-        result["sources_found"] > 0
-    )
-
-    # Add timestamp
-    from datetime import datetime
-    result["timestamp"] = datetime.utcnow().isoformat()
-
-    return result
-
+def save_validation_results(results: Dict[str, Any], output_path: Path = OUTPUT_FILE_PATH):
+    """
+    Save validation results to JSON file.
+    
+    Args:
+        results: Validation results dictionary
+        output_path: Path to output JSON file
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(results, f, indent=2, default=str)
+    
+    logging.getLogger(__name__).info(f"Validation results saved to: {output_path}")
 
 def main():
-    """
-    Main entry point for research.md verification.
-    Validates research.md and writes results to state/research_validation.json
-    """
-    logger.info("Starting research.md verification (T039a)")
-
-    # Ensure state directory exists
-    STATE_DIR.mkdir(parents=True, exist_ok=True)
-
-    # Validate the research file
-    validation_result = validate_research_file(RESEARCH_MD_PATH)
-
-    # Write results to output file
+    """Main entry point for research validation."""
+    logger = setup_logging()
+    logger.info("=== Research File Validation (T039a) ===")
+    
     try:
-        with open(VALIDATION_OUTPUT_PATH, "w", encoding="utf-8") as f:
-            json.dump(validation_result, f, indent=2)
-        logger.info(f"Validation results written to {VALIDATION_OUTPUT_PATH}")
-    except Exception as e:
-        logger.error(f"Failed to write validation results: {str(e)}")
-        raise_on_missing_data(f"Failed to write validation results: {str(e)}")
-
-    # Print summary
-    print(f"\n=== Research.md Validation Summary ===")
-    print(f"File exists: {validation_result['exists']}")
-    print(f"Parse success: {validation_result['parse_success']}")
-    print(f"Static URL check: {validation_result['static_url_check']}")
-    print(f"Schema validation: {validation_result['schema_validation']}")
-    print(f"Sources found: {validation_result['sources_found']}")
-    print(f"Overall valid: {validation_result['is_valid']}")
-
-    if validation_result["issues"]:
-        print(f"\nIssues found ({len(validation_result['issues'])}):")
-        for issue in validation_result["issues"]:
-            print(f"  - {issue}")
-
-    # Exit with appropriate code
-    if validation_result["is_valid"]:
-        logger.info("Research.md validation PASSED")
-        sys.exit(0)
-    else:
-        logger.error("Research.md validation FAILED")
+        # Validate the research file
+        results = validate_research_file()
+        
+        # Save results
+        save_validation_results(results)
+        
+        # Exit with appropriate code
+        if results['validation_passed']:
+            logger.info("Validation successful - proceeding to T010")
+            sys.exit(0)
+        else:
+            logger.error("Validation failed - cannot proceed to T010")
+            sys.exit(1)
+            
+    except FileNotFoundError as e:
+        logger.error(f"Critical error: {str(e)}")
         sys.exit(1)
-
+    except Exception as e:
+        logger.error(f"Unexpected error during validation: {str(e)}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

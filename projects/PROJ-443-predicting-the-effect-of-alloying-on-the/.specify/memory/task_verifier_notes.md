@@ -14,8 +14,3 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T016** — declared artifact(s) missing/empty/invalid: src/data/filter.py
 - **T017** — declared artifact(s) missing/empty/invalid: src/data/normalize.py
 - **T018** — declared artifact(s) missing/empty/invalid: src/features/descriptors.py
-- **T019** — declared artifact(s) missing/empty/invalid: src/features/targets.py
-- **T020** — declared artifact(s) missing/empty/invalid: src/pipeline/ingest.py, data/source_metadata.yaml
-- **T021** — declared artifact(s) missing/empty/invalid: src/report/power_report.py
-- **T022** — declared artifact(s) missing/empty/invalid: data/processed/hea_features.csv, data/source_metadata.yaml
-- **T025** — The required file `src/model/derive_groups.py` does not exist, so no code implementing the “Alloy System” grouping key is present. The task cannot be considered fulfilled until this module is created with the appropriate logic.

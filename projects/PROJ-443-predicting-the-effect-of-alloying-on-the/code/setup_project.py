@@ -1,96 +1,81 @@
 """
-Project Structure Initialization Script for PROJ-443.
-Creates the required directory hierarchy for the HEA Elastic Modulus project.
+Project structure setup script.
+Creates the required directory structure for the HEA Elastic Modulus prediction project.
 """
 import os
 import sys
 from pathlib import Path
 
+
 def create_directories():
     """Create the standard project directory structure."""
-    # Define the base directory (current working directory or project root)
-    base_path = Path.cwd()
+    # Define the base directory (current working directory or specified path)
+    base_dir = Path.cwd()
+
+    # Define required directories relative to the project root
+    # Based on tasks.md: src/, tests/, data/raw/, data/processed/, results/
+    # Note: The task mentions 'src/' but the existing API surface uses 'code/' as the root.
+    # We will create directories under 'code/' to match the existing file structure provided in the API surface.
+    # The API surface shows files like 'code/src/data/fetch_oqmd.py', 'code/tests/unit/...'.
+    # Therefore, we treat 'code' as the project root for this implementation to align with existing artifacts.
     
-    # Define relative paths based on the task requirements
-    # Note: The task asks for 'src/', 'tests/', 'data/raw/', etc.
-    # However, the existing API surface shows code in 'code/' and 'src/' subdirectories.
-    # To align with the existing API surface provided in the prompt (e.g., code/setup_environment.py),
-    # we will create the structure relative to the 'code/' directory if it exists,
-    # or assume the project root is the working directory and create 'code/' as the root for logic.
-    #
-    # Re-evaluating the prompt's existing API:
-    # "code/setup_project.py" exists and imports "from setup_project import create_directories"
-    # The task T002 asks for: src/, tests/, data/raw/, data/processed/, results/
-    # The existing files (e.g., code/src/data/fetch_mp.py) suggest the structure is:
-    # code/
-    #   src/
-    #   tests/
-    #   data/
-    #     raw/
-    #     processed/
-    #   results/
-    #
-    # We will create these directories under the current working directory,
-    # assuming the script is run from the project root where 'code' is a sibling or
-    # the script itself is inside 'code'.
-    # Given the file path "code/setup_project.py", we assume the script runs from the project root.
+    # Adjusting paths to match the existing API surface structure (code/ is the root)
+    project_root = base_dir / "code"
     
     directories = [
-        "src",
-        "tests",
-        "data/raw",
-        "data/processed",
-        "results",
-        "figures",
-        "specs",
-        "code/utils",
-        "code/features",
-        "code/models",
-        "code/data",
-        "code/pipeline",
-        "code/eval",
-        "code/interpret",
-        "code/report",
+        project_root / "src",
+        project_root / "tests",
+        project_root / "data",
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "results",
+        project_root / "figures",
+        project_root / "specs",
     ]
-    
+
     created_count = 0
-    skipped_count = 0
-    
-    print(f"Initializing project structure at: {base_path}")
-    
-    for dir_path in directories:
-        full_path = base_path / dir_path
-        try:
-            full_path.mkdir(parents=True, exist_ok=True)
-            if full_path.is_dir() and not any(full_path.iterdir()):
-                # Create a .gitkeep to ensure empty directories are tracked
-                (full_path / ".gitkeep").touch()
-                print(f"  Created: {dir_path}/")
-                created_count += 1
-            else:
-                if full_path.exists():
-                    print(f"  Exists: {dir_path}/")
-                    skipped_count += 1
-                else:
-                    print(f"  Created: {dir_path}/")
-                    created_count += 1
-        except Exception as e:
-            print(f"  Error creating {dir_path}: {e}")
-            
-    print(f"\nProject structure initialization complete.")
-    print(f"  Created: {created_count} directories")
-    print(f"  Skipped/Exists: {skipped_count} directories")
-    
-    return True
+    for directory in directories:
+        if not directory.exists():
+            directory.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {directory}")
+            created_count += 1
+        else:
+            print(f"Directory already exists: {directory}")
+
+    # Create __init__.py files to ensure they are recognized as Python packages
+    init_files = [
+        project_root / "src" / "__init__.py",
+        project_root / "tests" / "__init__.py",
+        project_root / "src" / "utils" / "__init__.py",
+        project_root / "src" / "data" / "__init__.py",
+        project_root / "src" / "features" / "__init__.py",
+        project_root / "src" / "model" / "__init__.py",
+        project_root / "src" / "models" / "__init__.py",
+        project_root / "src" / "pipeline" / "__init__.py",
+        project_root / "src" / "report" / "__init__.py",
+        project_root / "tests" / "unit" / "__init__.py",
+        project_root / "tests" / "integration" / "__init__.py",
+    ]
+
+    # Ensure subdirectories for __init__.py exist
+    for init_file in init_files:
+        init_file.parent.mkdir(parents=True, exist_ok=True)
+        if not init_file.exists():
+            init_file.touch()
+            print(f"Created init file: {init_file}")
+        else:
+            print(f"Init file already exists: {init_file}")
+
+    return created_count
+
 
 def main():
     """Entry point for the script."""
-    try:
-        create_directories()
-        return 0
-    except Exception as e:
-        print(f"Fatal error during project setup: {e}", file=sys.stderr)
-        return 1
+    print("Setting up project structure...")
+    created = create_directories()
+    print(f"Setup complete. Created {created} new directories.")
+    sys.exit(0)
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

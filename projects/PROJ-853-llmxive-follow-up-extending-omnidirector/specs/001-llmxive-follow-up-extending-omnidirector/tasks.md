@@ -24,7 +24,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per 'Project Structure' section in plan.md: create `code/`, `code/data/`, `code/geometry/`, `code/analysis/`, `code/tests/`, `code/tests/unit/`, `code/tests/integration/`, `data/raw/`, `data/processed/`. <!-- FAILED: unspecified -->
+- [ ] T001 Create project structure per 'Project Structure' section in plan.md: create `code/`, `code/data/`, `code/geometry/`, `code/analysis/`, `code/tests/`, `code/tests/unit/`, `code/tests/integration/`, `data/raw/`, `data/processed/`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T002 Initialize Python 3.11 project with `opencv-python`, `numpy`, `pandas`, `scipy`, `pytest`, `pyyaml` in `code/requirements.txt`.
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `code/`.
 
@@ -40,7 +40,7 @@
 - [X] T005 [P] Implement configuration loader in `code/config.py` to manage paths and constants.
 - [X] T006 [P] Create base data models for `GridFrame`, `CameraPose`, and `ReconstructedBox` in `code/data/models.py`.
 - [X] T006b [P] Design memory-efficient processing strategy: Define chunked data loading and streaming logic in `code/config.py` to ensure <6GB memory footprint before implementation begins.
-- [ ] T007 Attempt to fetch the real OmniDirector dataset from the canonical source (e.g., HuggingFace or GitHub release). If fetch fails, generate a deterministic synthetic dataset locally that mimics the real schema. **Output Schema**: `data/processed/filtered_sequences.csv` must contain columns: `sequence_id`, `frame_id`, `radial_motion_deg`, `z_velocity`, `grid_points_2d` (list of pixel coords), `R_matrix`, `t_vector`, `randomized_depth` (boolean). For synthetic data, set `randomized_depth=True` for [deferred] of sequences. Output to `data/raw/omnidirector.zip` (real) or `data/raw/synthetic_omnidirector.zip` (fallback). <!-- ATOMIZE: requested -->
+- [ ] T007 Attempt to fetch the real OmniDirector dataset from the canonical source (e.g., HuggingFace or GitHub release). If fetch fails, generate a deterministic synthetic dataset locally that mimics the real schema. **Output Schema**: `data/processed/filtered_sequences.csv` must contain columns: `sequence_id`, `frame_id`, `radial_motion_deg`, `z_velocity`, `grid_points_2d` (list of pixel coords), `R_matrix`, `t_vector`, `randomized_depth` (boolean). For synthetic data, set `randomized_depth=True` for [deferred] of sequences. Output to `data/raw/omnidirector.zip` (real) or `data/raw/synthetic_omnidirector.zip` (fallback). <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -81,7 +81,7 @@
 
 - [X] T015 [P] [US2] Define `WorldGridModel` (canonical unit grid at Z=0) in `code/geometry/utils.py`.
 - [X] T016 [US2] Implement orthogonal grid line detection and intersection logic in `code/geometry/utils.py`.
-- [ ] T017 Implement CPU-based `solvePnP` solver in `code/geometry/solver.py` to estimate relative motion vectors, consuming `data/processed/filtered_sequences.csv` from T011. **Input**: `grid_points_2d` (2D image points) and `R_matrix`, `t_vector` (3D object points derived from WorldGridModel). <!-- ATOMIZE: requested -->
+- [ ] T017 Implement CPU-based `solvePnP` solver in `code/geometry/solver.py` to estimate relative motion vectors, consuming `data/processed/filtered_sequences.csv` from T011. **Input**: `grid_points_2d` (2D image points) and `R_matrix`, `t_vector` (3D object points derived from WorldGridModel). <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T018 [US2] Implement bounding box dimension reconstruction (height, width, depth) from motion vectors in `code/geometry/reconstruction.py`.
 - [ ] T019 [US2] Write pose estimates and reconstructed boxes to `data/processed/poses_estimated.json`.
 - [X] T020 [US2] Implement logic to handle missing data (interpolation/skipping) and flag high-complexity sequences in `code/geometry/solver.py`.
@@ -110,7 +110,7 @@
 - [X] T027 [US3] Implement camera motion complexity metric calculation in `code/analysis/metrics.py`.
 - [X] T028 [US3] Implement Pearson's r correlation analysis between complexity and accuracy in `code/analysis/metrics.py`.
 - [X] T029 [US3] Implement aspect ratio validation (±5% tolerance) against known synthetic volumes in `code/analysis/validation.py`.
-- [ ] T030 Implement Synthetic Control Validation: Read `data/processed/filtered_sequences.csv` from T011. Identify rows where `randomized_depth` is `True`. Attempt to recover metric depth for these rows. Flag error >50% in `code/analysis/validation.py`.
+- [ ] T030 Implement Synthetic Control Validation: Read `data/processed/filtered_sequences.csv` from T011. Identify rows where `randomized_depth` is `True`. Attempt to recover metric depth for these rows. Flag error >50% in `code/analysis/validation.py`. <!-- ATOMIZE: requested -->
 - [ ] T031 [US3] Calculate Dataset Filtering Success Rate (retained/total) and record in `data/processed/reconstruction_results.csv` (SC-004).
 - [ ] T032 [US3] Instrument pipeline for timing (start/stop) and record total execution time in `data/processed/reconstruction_results.csv` (SC-005).
 - [ ] T033 [US3] Generate final `data/processed/reconstruction_results.csv` (Single Source of Truth). <!-- FAILED: unspecified -->
