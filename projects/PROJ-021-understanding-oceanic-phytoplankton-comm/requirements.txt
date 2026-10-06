@@ -8,3 +8,7 @@ netCDF4
 matplotlib
 seaborn
 datasets
+bitsandbytes
+psutil
+statsmodels
+scipy

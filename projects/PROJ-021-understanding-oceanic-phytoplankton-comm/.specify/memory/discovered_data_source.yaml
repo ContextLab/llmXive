@@ -1,0 +1,18 @@
+status: none
+intent: SeaBASS MODIS Copernicus reanalysis BGC-Argo download python package dataset
+required_fields:
+- latitude
+- longitude
+- time
+- basin_id
+- modis_chlorophyll_a
+- modis_ocean_color_index
+- temperature
+- salinity
+- nutrient_nitrate
+- in_situ_chlorophyll_a
+- in_situ_sea_surface_temperature
+- in_situ_salinity
+cache_key: 8d2d38fda60f045311b4f3f1af38d8a8528d8a4361995ef784fc3bb3244e612a
+searched_at: '2026-10-06T05:31:29.155026+00:00'
+retry_count: 1

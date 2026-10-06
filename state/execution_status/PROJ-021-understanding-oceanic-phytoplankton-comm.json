@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-021-understanding-oceanic-phytoplankton-comm",
+  "ok": false,
+  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python code/01_data_ingestion.py; 4 command(s) failed: python code/02_preprocessing.py (rc=1); python code/02_preprocessing.py --power-analysis (rc=1); python code/03_model_training.py (rc=1); 2 declared deliverable(s) absent: data/logs/missing_value_report.json; data/raw/seabass.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/01_data_ingestion.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-021-understanding-oceanic-phytoplankton-comm/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-021-understanding-oceanic-phytoplankton-comm/code/01_data_ingestion.py': [Errno 2] No such file or directory",
+    "python code/02_preprocessing.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-021-understanding-oceanic-phytoplankton-comm/code/02_preprocessing.py\", line 12, in <module>\n    import psutil\nModuleNotFoundError: No module named 'psutil'",
+    "python code/02_preprocessing.py --power-analysis -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-021-understanding-oceanic-phytoplankton-comm/code/02_preprocessing.py\", line 12, in <module>\n    import psutil\nModuleNotFoundError: No module named 'psutil'",
+    "python code/03_model_training.py -> rc=1\n    WARNING:root:PyTorch or Transformers not installed. VLM training will fallback to RF as per spec.\nERROR:__main__:Model training failed: Aligned data not found at data/processed/aligned_dataset.nc\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-021-understanding-oceanic-phytoplankton-comm/code/03_model_training.py\", line 263, in main\n    data = load_aligned_data(data_path)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-021-understanding-oceanic-phytoplankton-c",
+    "python code/04_evaluation.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-021-understanding-oceanic-phytoplankton-comm/code/04_evaluation.py\", line 10, in <module>\n    from statsmodels.stats.outliers_influence import variance_inflation_factor\nModuleNotFoundError: No module named 'statsmodels'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-10-06T05:30:09Z"
+}

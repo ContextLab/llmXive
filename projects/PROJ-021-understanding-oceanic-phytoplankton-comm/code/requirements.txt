@@ -8,8 +8,9 @@ netCDF4
 matplotlib
 seaborn
 datasets
+bitsandbytes
+psutil
+statsmodels
+pyyaml
 ruff
 black
-copernicusmarine
-pyyaml
-pytest

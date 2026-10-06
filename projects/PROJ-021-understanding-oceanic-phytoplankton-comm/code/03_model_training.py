@@ -1,301 +1,434 @@
+"""
+Model Training Module (T018, T019)
+Implements Random Forest baseline and lightweight CLIP-based VLM fine-tuning.
+"""
 import os
 import sys
 import logging
 import json
 import time
 import pickle
-import traceback
+import gc
 from pathlib import Path
-from typing import Dict, Any, List, Tuple, Optional
+from typing import Dict, Any, Optional, Tuple, List
 
 import numpy as np
-import xarray as xr
 import pandas as pd
+import xarray as xr
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 
-# Attempt to import PyTorch components for the VLM
+# VLM Imports (Conditional)
 try:
     import torch
-    import torch.nn as nn
-    import torch.optim as optim
-    from torchvision import models, transforms
     from transformers import CLIPProcessor, CLIPModel
-    HAS_TORCH = True
+    from transformers import TrainingArguments, Trainer
+    from datasets import Dataset
+    import bitsandbytes as bnb
+    VLM_AVAILABLE = True
 except ImportError:
-    HAS_TORCH = False
-    logging.warning("PyTorch or Transformers not installed. VLM training will fallback to RF as per spec.")
+    VLM_AVAILABLE = False
+    logging.warning("PyTorch or Transformers not installed. VLM training will fallback to RF.")
 
-from utils.logging_config import get_logger
-from utils.config import get_config
+from utils.config import get_config, get_available_ram_gb
+from utils.logging_config import get_logger, log_metric
 
 logger = get_logger(__name__)
 
-class PhytoplanktonDataset:
-    """Dataset class for phytoplankton data."""
-    def __init__(self, data: xr.Dataset):
-        self.data = data
-    
-    def get_features_targets(self):
-        # Extract features: temp, salinity, nutrients (chlorophyll-a is target)
-        features = []
-        for var in ['temp', 'salinity', 'nutrients']:
-            if var in self.data.data_vars:
-                features.append(self.data[var].values.flatten())
-        
-        if not features:
-            raise ValueError("No feature variables found in dataset")
-        
-        X = np.stack(features, axis=-1)
-        
-        # Target: chlorophyll-a
-        if 'chlorophyll-a' in self.data.data_vars:
-            y = self.data['chlorophyll-a'].values.flatten()
-        elif 'chl' in self.data.data_vars:
-            y = self.data['chl'].values.flatten()
-        else:
-            raise ValueError("Target variable 'chlorophyll-a' or 'chl' not found in dataset")
-        
-        # Remove rows with NaN values
-        valid_mask = ~np.isnan(X).any(axis=-1) & ~np.isnan(y)
-        return X[valid_mask], y[valid_mask]
+CONFIG = get_config()
+MEMORY_LIMIT_GB = float(os.environ.get('MEMORY_LIMIT_GB', CONFIG.get('memory_limit_gb', 7.0)))
+RAM_LIMIT_GB = 7.0
 
-def load_aligned_data(path: str) -> xr.Dataset:
-    """Load the aligned dataset."""
-    logger.info(f"Loading aligned data from {path}")
-    if not os.path.exists(path):
+# --- T019_pre: Memory Pre-check ---
+def check_vlm_memory_requirements() -> bool:
+    """
+    Verifies that the system has sufficient RAM (<7GB) to load the VLM model
+    with 4-bit quantization.
+    """
+    available_ram = get_available_ram_gb()
+    logger.info(f"Available RAM: {available_ram:.2f} GB")
+    # CLIP ViT-Base is ~400M params. 4-bit quantization reduces footprint significantly.
+    # Estimated model size: ~2GB + overhead.
+    if available_ram < 4.0:
+        logger.error(f"Insufficient RAM ({available_ram:.2f} GB) for VLM fine-tuning.")
+        return False
+    return True
+
+# --- Data Loading Helpers ---
+def load_aligned_data(path: str) -> pd.DataFrame:
+    """
+    Loads the aligned dataset from NetCDF or CSV.
+    Raises FileNotFoundError if not found.
+    """
+    p = Path(path)
+    if not p.exists():
         raise FileNotFoundError(f"Aligned data not found at {path}")
-    return xr.open_dataset(path)
 
-def train_random_forest(X_train, y_train, X_val, y_val, n_trees: int = 500):
-    """Train a Random Forest baseline."""
-    logger.info(f"Training Random Forest with {n_trees} trees")
-    rf = RandomForestRegressor(n_estimators=n_trees, n_jobs=-1, random_state=42)
-    rf.fit(X_train, y_train)
-    
-    val_pred = rf.predict(X_val)
+    if p.suffix == '.nc':
+        ds = xr.open_dataset(p)
+        df = ds.to_dataframe().reset_index()
+    elif p.suffix == '.csv':
+        df = pd.read_csv(p)
+    else:
+        raise ValueError(f"Unsupported file format: {p.suffix}")
+
+    # Ensure required columns exist
+    required_cols = ['lat', 'lon', 'timestamp', 'basin', 'temp', 'salinity', 'nutrients', 'chlorophyll_a']
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns in aligned dataset: {missing}")
+
+    return df
+
+# --- T018: Random Forest Baseline ---
+def train_random_forest(df: pd.DataFrame, test_size: float = 0.2) -> Dict[str, Any]:
+    """
+    Trains a Random Forest baseline (<=500 trees) on CPU.
+    """
+    logger.info("Training Random Forest Baseline...")
+    start = time.time()
+
+    features = ['temp', 'salinity', 'nutrients']
+    target = 'chlorophyll_a'
+
+    # Handle missing values
+    df_clean = df.dropna(subset=features + [target])
+
+    X = df_clean[features].values
+    y = df_clean[target].values
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=test_size, random_state=CONFIG.seed
+    )
+
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+
+    model = RandomForestRegressor(
+        n_estimators=500,
+        max_depth=15,
+        random_state=CONFIG.seed,
+        n_jobs=-1
+    )
+    model.fit(X_train_scaled, y_train)
+
+    y_pred = model.predict(X_test_scaled)
+
     metrics = {
-        'rmse': float(np.sqrt(mean_squared_error(y_val, val_pred))),
-        'r2': float(r2_score(y_val, val_pred)),
-        'mae': float(mean_absolute_error(y_val, val_pred))
+        "model_type": "RandomForest",
+        "rmse": float(np.sqrt(mean_squared_error(y_test, y_pred))),
+        "r2": float(r2_score(y_test, y_pred)),
+        "mae": float(mean_absolute_error(y_test, y_pred)),
+        "training_time_s": time.time() - start,
+        "n_samples": len(X_train)
     }
-    logger.info(f"RF Validation Metrics: {metrics}")
-    return rf, metrics
 
-class SimpleVLM(nn.Module):
-    """
-    Lightweight CLIP-based VLM for phytoplankton prediction.
-    Concatenates image features (from a lightweight CNN) and text features (from a simple MLP)
-    to predict chlorophyll-a concentration.
-    
-    Note: Since we don't have real images in the tabular dataset, we simulate the image branch
-    using a random projection of the environmental features to match the expected architecture
-    for the "image/text inputs" requirement, or we use a dummy image if available.
-    Given the task description implies "concatenated image/text inputs" but our data is tabular,
-    we treat the environmental features as the 'image' proxy (via a CNN-like projection) and
-    the prompt as the 'text' proxy.
-    """
-    def __init__(self, input_dim: int, hidden_dim: int = 256):
-        super(SimpleVLM, self).__init__()
-        self.input_dim = input_dim
-        
-        # Image Encoder (Simulated for tabular data: MLP acting as a feature extractor)
-        # In a real scenario with images, this would be a ResNet-18 or similar.
-        self.image_encoder = nn.Sequential(
-            nn.Linear(input_dim, hidden_dim),
-            nn.ReLU(),
-            nn.Linear(hidden_dim, hidden_dim)
-        )
-        
-        # Text Encoder (Simulated for prompt: MLP)
-        # Prompt: "Temperature: {temp}, Salinity: {sal}, Nutrients: {nut}"
-        # We encode the same features again to simulate text embedding space
-        self.text_encoder = nn.Sequential(
-            nn.Linear(input_dim, hidden_dim),
-            nn.ReLU(),
-            nn.Linear(hidden_dim, hidden_dim)
-        )
-        
-        # Fusion Head
-        self.fusion = nn.Sequential(
-            nn.Linear(hidden_dim * 2, hidden_dim),
-            nn.ReLU(),
-            nn.Dropout(0.1),
-            nn.Linear(hidden_dim, 1)
-        )
-        
-        self._init_weights()
+    logger.info(f"RF Training complete. R2: {metrics['r2']:.4f}, RMSE: {metrics['rmse']:.4f}")
+    return {
+        "model": model,
+        "scaler": scaler,
+        "metrics": metrics
+    }
 
-    def _init_weights(self):
-        for m in self.modules():
-            if isinstance(m, nn.Linear):
-                nn.init.xavier_uniform_(m.weight)
-                if m.bias is not None:
-                    nn.init.constant_(m.bias, 0)
-
-    def forward(self, x):
-        # x: (batch, input_dim)
-        img_feat = self.image_encoder(x)
-        txt_feat = self.text_encoder(x)
-        combined = torch.cat([img_feat, txt_feat], dim=1)
-        output = self.fusion(combined)
-        return output.squeeze(-1)
-
-def train_vlm(X_train, y_train, X_val, y_val, epochs: int = 10, patience: int = 3):
+# --- T019: VLM Fine-tuning (CLIP-based) ---
+def prepare_vlm_dataset(df: pd.DataFrame, processor: 'CLIPProcessor', max_samples: int = 1000) -> 'Dataset':
     """
-    Train a lightweight VLM.
-    If convergence fails (no improvement after patience epochs), log failure and return
-    baseline metrics, explicitly flagging the artifact.
+    Prepares a HuggingFace Dataset for VLM training.
+    Creates a pseudo-image from tabular data and a text prompt.
     """
-    if not HAS_TORCH:
-        logger.warning("PyTorch not available. Falling back to Random Forest for VLM task.")
-        # Fallback to RF as per spec if torch is missing
-        vlm = RandomForestRegressor(n_estimators=100, random_state=42)
-        vlm.fit(X_train, y_train)
-        val_pred = vlm.predict(X_val)
-        metrics = {
-            'rmse': float(np.sqrt(mean_squared_error(y_val, val_pred))),
-            'r2': float(r2_score(y_val, val_pred)),
-            'mae': float(mean_absolute_error(y_val, val_pred)),
-            'status': 'VLM Failed (Baseline Used) - PyTorch unavailable'
+    # Stream/limit samples to ensure CPU feasibility
+    if len(df) > max_samples:
+        logger.info(f"Limiting VLM training to {max_samples} samples from {len(df)} total.")
+        df = df.sample(n=max_samples, random_state=CONFIG.seed)
+
+    df = df.dropna(subset=['temp', 'salinity', 'nutrients', 'chlorophyll_a'])
+
+    def create_features(example):
+        # Text Prompt
+        prompt = f"Temperature: {example['temp']:.2f}, Salinity: {example['salinity']:.2f}, Nutrients: {example['nutrients']:.2f}"
+        
+        # Pseudo-Image: Create a simple 3x3 grid or normalized vector visualization
+        # For CLIP, we need a PIL Image. We'll create a simple color-coded patch.
+        # Normalize values to 0-1 for visualization
+        t_norm = (example['temp'] - df['temp'].min()) / (df['temp'].max() - df['temp'].min() + 1e-6)
+        s_norm = (example['salinity'] - df['salinity'].min()) / (df['salinity'].max() - df['salinity'].min() + 1e-6)
+        n_norm = (example['nutrients'] - df['nutrients'].min()) / (df['nutrients'].max() - df['nutrients'].min() + 1e-6)
+        
+        # Create a 3x3 RGB image representing the triplet
+        import numpy as np
+        from PIL import Image
+        img_array = np.zeros((3, 3, 3), dtype=np.uint8)
+        # Top row: Temp (Red), Sal (Green), Nut (Blue)
+        img_array[0, 0] = [int(t_norm * 255), 0, 0]
+        img_array[0, 1] = [0, int(s_norm * 255), 0]
+        img_array[0, 2] = [0, 0, int(n_norm * 255)]
+        # Fill rest with gray background
+        img_array[1:, :] = [128, 128, 128]
+        
+        img = Image.fromarray(img_array)
+        
+        return {
+            "pixel_values": img,
+            "text": prompt,
+            "label": example['chlorophyll_a']
         }
-        return vlm, metrics, True # True indicates fallback used
 
-    logger.info(f"Training VLM for {epochs} epochs with early stopping (patience={patience})")
+    # Convert to HF Dataset
+    dataset = Dataset.from_dict({
+        "temp": df['temp'].values,
+        "salinity": df['salinity'].values,
+        "nutrients": df['nutrients'].values,
+        "chlorophyll_a": df['chlorophyll_a'].values
+    })
     
-    device = torch.device("cpu") # CPU-only requirement
-    model = SimpleVLM(input_dim=X_train.shape[1]).to(device)
-    
-    # Prepare tensors
-    X_train_t = torch.FloatTensor(X_train).to(device)
-    y_train_t = torch.FloatTensor(y_train).to(device)
-    X_val_t = torch.FloatTensor(X_val).to(device)
-    y_val_t = torch.FloatTensor(y_val).to(device)
-    
-    criterion = nn.MSELoss()
-    optimizer = optim.Adam(model.parameters(), lr=1e-3)
-    
-    best_val_loss = float('inf')
-    best_model_state = None
-    epochs_no_improve = 0
-    converged = False
-    
-    for epoch in range(epochs):
-        model.train()
-        optimizer.zero_grad()
-        outputs = model(X_train_t)
-        loss = criterion(outputs, y_train_t)
-        loss.backward()
-        optimizer.step()
+    # Map features
+    dataset = dataset.map(create_features, remove_columns=['temp', 'salinity', 'nutrients', 'chlorophyll_a'])
+    dataset = dataset.cast_column("pixel_values", Image.Image) # Ensure type is correct for processor
+
+    return dataset
+
+def train_vlm(df: pd.DataFrame) -> Dict[str, Any]:
+    """
+    Fine-tunes a lightweight CLIP-based VLM.
+    Implements early stopping and fallback logic.
+    """
+    if not VLM_AVAILABLE:
+        logger.warning("VLM dependencies missing. Skipping VLM training.")
+        return None
+
+    if not check_vlm_memory_requirements():
+        logger.warning("Memory check failed. Skipping VLM training.")
+        return None
+
+    logger.info("Starting VLM Fine-tuning (CLIP)...")
+    start = time.time()
+
+    try:
+        # Load Model and Processor
+        model_name = "facebook/clip-vit-base-patch32"
+        logger.info(f"Loading model: {model_name} with 4-bit quantization...")
         
-        # Validation
-        model.eval()
-        with torch.no_grad():
-            val_outputs = model(X_val_t)
-            val_loss = criterion(val_outputs, y_val_t).item()
-        
-        logger.info(f"Epoch [{epoch+1}/{epochs}], Train Loss: {loss.item():.4f}, Val Loss: {val_loss:.4f}")
-        
-        if val_loss < best_val_loss:
-            best_val_loss = val_loss
-            best_model_state = model.state_dict().copy()
-            epochs_no_improve = 0
-            converged = True
-        else:
-            epochs_no_improve += 1
-            if epochs_no_improve >= patience:
-                logger.warning(f"Early stopping triggered at epoch {epoch+1}. No improvement for {patience} epochs.")
+        # Note: CLIP doesn't natively support 4-bit in the same way LLMs do in transformers,
+        # but we can use bitsandbytes for the linear layers if we wrap it or use a custom head.
+        # For simplicity and stability in CPU-only, we load standard weights but limit training steps.
+        # If bitsandbytes is strictly required for 4-bit, we attempt it, otherwise standard.
+        try:
+            from transformers import BitsAndBytesConfig
+            bnb_config = BitsAndBytesConfig(load_in_4bit=True)
+            model = CLIPModel.from_pretrained(model_name, quantization_config=bnb_config, device_map="cpu")
+        except Exception:
+            # Fallback to standard loading if 4-bit fails on CPU
+            logger.warning("4-bit quantization failed on CPU, loading standard model.")
+            model = CLIPModel.from_pretrained(model_name)
+            # Move to CPU explicitly
+            model = model.to("cpu")
+
+        processor = CLIPProcessor.from_pretrained(model_name)
+
+        # Prepare Dataset
+        dataset = prepare_vlm_dataset(df, processor)
+
+        # Define a simple regression head on top of CLIP text/image embeddings
+        # Since CLIP is contrastive, we adapt it for regression by projecting the joint embedding
+        from torch import nn
+        import torch.nn.functional as F
+
+        class CLIPRegressionHead(nn.Module):
+            def __init__(self, hidden_size):
+                super().__init__()
+                self.head = nn.Sequential(
+                    nn.Linear(hidden_size, 128),
+                    nn.ReLU(),
+                    nn.Linear(128, 1)
+                )
+            def forward(self, image_embeds, text_embeds):
+                # Concatenate or average embeddings
+                joint = (image_embeds + text_embeds) / 2
+                return self.head(joint)
+
+        # Freeze base CLIP parameters
+        for param in model.parameters():
+            param.requires_grad = False
+
+        # Add regression head
+        hidden_size = model.config.projection_dim
+        regression_head = CLIPRegressionHead(hidden_size)
+        regression_head = regression_head.to("cpu")
+
+        # Custom Training Loop (CPU-friendly, small batch)
+        batch_size = 4
+        max_steps = 100  # Limit steps for CPU feasibility
+        patience = 10
+        best_loss = float('inf')
+        no_improve_count = 0
+        losses = []
+
+        logger.info(f"Training with batch_size={batch_size}, max_steps={max_steps}...")
+
+        for step in range(max_steps):
+            # Sample a batch
+            indices = np.random.choice(len(dataset), size=batch_size, replace=False)
+            batch = dataset.select(indices)
+
+            # Process inputs
+            pixel_values = [b["pixel_values"] for b in batch]
+            texts = [b["text"] for b in batch]
+            labels = torch.tensor([b["label"] for b in batch], dtype=torch.float32)
+
+            inputs = processor(text=texts, images=pixel_values, return_tensors="pt", padding=True)
+            inputs = {k: v.to("cpu") for k, v in inputs.items()}
+
+            # Forward pass
+            with torch.set_grad_enabled(True):
+                outputs = model(**inputs)
+                image_embeds = outputs.image_embeds
+                text_embeds = outputs.text_embeds
+                predictions = regression_head(image_embeds, text_embeds).squeeze()
+
+                loss = F.mse_loss(predictions, labels)
+
+            # Backward pass
+            loss.backward()
+
+            # Optimizer step (manual for simplicity in custom head)
+            if step == 0:
+                optimizer = torch.optim.Adam(regression_head.parameters(), lr=1e-4)
+            
+            optimizer.step()
+            optimizer.zero_grad()
+
+            losses.append(loss.item())
+
+            # Early Stopping Logic
+            if loss.item() < best_loss:
+                best_loss = loss.item()
+                no_improve_count = 0
+            else:
+                no_improve_count += 1
+
+            if no_improve_count >= patience:
+                logger.warning(f"Early stopping triggered at step {step}. Loss: {loss.item():.4f}")
                 break
-    
-    # Load best model
-    if best_model_state:
-        model.load_state_dict(best_model_state)
-    
-    # Calculate final metrics
-    model.eval()
-    with torch.no_grad():
-        val_outputs = model(X_val_t)
-        y_pred = val_outputs.cpu().numpy()
-    
-    metrics = {
-        'rmse': float(np.sqrt(mean_squared_error(y_val, y_pred))),
-        'r2': float(r2_score(y_val, y_pred)),
-        'mae': float(mean_absolute_error(y_val, y_pred))
-    }
-    
-    if not converged:
-        logger.error("VLM training failed to converge. Using baseline metrics and flagging artifact.")
-        metrics['status'] = 'VLM Failed (Baseline Used) - No Convergence'
-        # Per spec: "default to baseline model performance metrics"
-        # We will return the RF model as the fallback in the main logic, 
-        # but here we return the VLM model with the flag so the caller can decide.
-        # However, the spec says "default to baseline model performance metrics".
-        # We will return the RF model logic if this flag is set in the main function.
-        return model, metrics, True
-    
-    logger.info(f"VLM Validation Metrics: {metrics}")
-    return model, metrics, False
 
-def save_model_artifacts(model, metrics, path: str):
-    """Save model and metrics to disk."""
-    Path(path).parent.mkdir(parents=True, exist_ok=True)
-    with open(path, 'wb') as f:
-        pickle.dump({'model': model, 'metrics': metrics}, f)
-    logger.info(f"Saved model artifacts to {path}")
+        # Evaluate
+        # Simple evaluation on a holdout subset
+        test_indices = list(range(0, len(dataset), 10))[:50]
+        if len(test_indices) > 0:
+            test_batch = dataset.select(test_indices)
+            pixel_values = [b["pixel_values"] for b in test_batch]
+            texts = [b["text"] for b in test_batch]
+            labels = torch.tensor([b["label"] for b in test_batch], dtype=torch.float32)
 
-def load_model_artifacts(path: str) -> Dict:
-    """Load model and metrics from disk."""
-    with open(path, 'rb') as f:
-        return pickle.load(f)
+            inputs = processor(text=texts, images=pixel_values, return_tensors="pt", padding=True)
+            inputs = {k: v.to("cpu") for k, v in inputs.items()}
+
+            with torch.no_grad():
+                outputs = model(**inputs)
+                image_embeds = outputs.image_embeds
+                text_embeds = outputs.text_embeds
+                preds = regression_head(image_embeds, text_embeds).squeeze()
+
+            rmse = float(np.sqrt(mean_squared_error(labels.numpy(), preds.numpy())))
+            r2 = float(r2_score(labels.numpy(), preds.numpy()))
+        else:
+            rmse = float('nan')
+            r2 = float('nan')
+
+        training_time = time.time() - start
+
+        return {
+            "model": regression_head,
+            "processor": processor,
+            "base_model": model,
+            "metrics": {
+                "model_type": "VLM-CLIP",
+                "rmse": rmse,
+                "r2": r2,
+                "training_time_s": training_time,
+                "final_loss": losses[-1] if losses else float('nan'),
+                "converged": no_improve_count < patience
+            }
+        }
+
+    except Exception as e:
+        logger.error(f"VLM Training failed: {str(e)}", exc_info=True)
+        return None
+
+def save_model_artifacts(results: Dict[str, Any], output_path: str):
+    """
+    Saves model artifacts and metrics.
+    Handles VLM failure by saving RF-only results if VLM is None.
+    """
+    p = Path(output_path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+
+    # Prepare serializable metrics
+    metrics = results.get("rf_results", {}).get("metrics", {})
+    vlm_results = results.get("vlm_results")
+    
+    if vlm_results and vlm_results.get("metrics"):
+        metrics["vlm_metrics"] = vlm_results["metrics"]
+    
+    # Save metrics JSON
+    with open(p / "model_metrics.json", "w") as f:
+        json.dump(metrics, f, indent=2)
+
+    # Save RF model
+    if "rf_results" in results:
+        with open(p / "rf_model.pkl", "wb") as f:
+            pickle.dump(results["rf_results"], f)
+
+    # Save VLM model (if successful)
+    if vlm_results and vlm_results.get("model"):
+        # Save only the head and processor config, base model is too large to pickle safely here
+        with open(p / "vlm_head.pkl", "wb") as f:
+            pickle.dump({
+                "head": vlm_results["model"],
+                "processor": vlm_results["processor"]
+            }, f)
+        # Log fallback flag if needed
+        if not vlm_results["metrics"].get("converged", False):
+            logger.warning("VLM did not converge. Fallback flag set.")
+            # Update state file
+            state_path = Path("state/projects/PROJ-021-understanding-oceanic-phytoplankton-comm.yaml")
+            if state_path.exists():
+                import yaml
+                with open(state_path, "r") as f:
+                    state = yaml.safe_load(f) or {}
+                state["vlm_fallback"] = True
+                with open(state_path, "w") as f:
+                    yaml.dump(state, f)
+                logger.info(f"Updated state file: {state_path} with vlm_fallback=True")
 
 def main():
-    """Entry point for model training."""
-    from utils.logging_config import setup_logging
-    setup_logging()
-    config = get_config()
-    
-    logger.info("Starting model training pipeline")
-    
+    """
+    Main entry point for T019.
+    """
+    setup_logging = True # Assuming logging is configured globally or here
+    logger.info("Starting Model Training (T019)...")
+
+    # Load Data
+    data_path = "data/processed/aligned_dataset.nc"
     try:
-        # Load data
-        data_path = "data/processed/aligned_dataset.nc"
-        data = load_aligned_data(data_path)
-        
-        # Extract features and targets
-        dataset = PhytoplanktonDataset(data)
-        X, y = dataset.get_features_targets()
-        
-        logger.info(f"Loaded {len(X)} samples with {X.shape[1]} features")
-        
-        # Split data
-        X_train, X_val, y_train, y_val = train_test_split(
-            X, y, test_size=0.2, random_state=42
-        )
-        
-        logger.info(f"Training set: {len(X_train)} samples, Validation set: {len(X_val)} samples")
-        
-        # Train RF
-        rf_model, rf_metrics = train_random_forest(X_train, y_train, X_val, y_val)
-        save_model_artifacts(rf_model, rf_metrics, "data/artifacts/rf_model.pkl")
-        
-        # Train VLM
-        vlm_model, vlm_metrics, is_fallback = train_vlm(X_train, y_train, X_val, y_val)
-        
-        if is_fallback:
-            # If VLM failed, we default to baseline metrics as per spec
-            # and save the RF model as the "VLM" artifact with the flag
-            logger.warning("VLM failed. Saving RF model as VLM artifact with failure flag.")
-            save_model_artifacts(rf_model, vlm_metrics, "data/artifacts/vlm_model.pkl")
-        else:
-            save_model_artifacts(vlm_model, vlm_metrics, "data/artifacts/vlm_model.pkl")
-        
-        logger.info("Model training completed successfully.")
-        
-    except Exception as e:
-        logger.error(f"Model training failed: {e}")
-        traceback.print_exc()
+        df = load_aligned_data(data_path)
+        logger.info(f"Loaded {len(df)} samples from {data_path}")
+    except FileNotFoundError as e:
+        logger.error(f"Data loading failed: {e}")
         sys.exit(1)
+
+    # Train RF
+    rf_results = train_random_forest(df)
+
+    # Train VLM
+    vlm_results = train_vlm(df)
+
+    # Save Artifacts
+    save_model_artifacts({"rf_results": rf_results, "vlm_results": vlm_results}, "data/artifacts/models")
+
+    logger.info("Model training complete.")
 
 if __name__ == "__main__":
     main()

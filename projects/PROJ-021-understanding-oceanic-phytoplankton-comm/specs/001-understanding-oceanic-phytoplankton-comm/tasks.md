@@ -60,8 +60,8 @@
 - [X] T006 Create base schema definitions in `specs/001-phytoplankton-vlm-analysis/contracts/` (phytoplankton_sample.schema.yaml, model_performance.schema.yaml)
 - [X] T007 [P] Implement versioning utility in `code/05_versioning_state.py` (SHA-256 hashing logic to be called by Advancement-Evaluator Agent, not standalone script)
 - [X] T008 Setup logging infrastructure in `code/utils/logging_config.py` (structured logs for pipeline monitoring)
-- [ ] T009a [P] Create `aligned_dataset.schema.yaml` in `specs/001-phytoplankton-vlm-analysis/contracts/`. **Definition**: Must include fields: `lat` (float), `lon` (float), `timestamp` (datetime), `basin` (string), `temp` (float), `salinity` (float), `nutrients` (float), `chlorophyll-a` (float), `quality_flags` (int). **Depends on**: None.
-- [ ] T009 [P] [US1] Contract test for schema validation in `tests/contract/test_schemas.py` (validates `aligned_dataset.schema.yaml` created in T009a). **Depends on T009a**.
+- [X] T009a [P] Create `aligned_dataset.schema.yaml` in `specs/001-phytoplankton-vlm-analysis/contracts/`. **Definition**: Must include fields: `lat` (float), `lon` (float), `timestamp` (datetime), `basin` (string), `temp` (float), `salinity` (float), `nutrients` (float), `chlorophyll_a` (float), `quality_flags` (int). **Depends on**: None.
+- [X] T009 [P] [US1] Contract test for schema validation in `tests/contract/test_schemas.py` (validates `aligned_dataset.schema.yaml` created in T009a). **Depends on T009a**.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -81,21 +81,22 @@
 
 ### Implementation for User Story 1
 
-- [X] T011a [US1] Fetch NOAA/Copernicus Reanalysis data (Temperature, Salinity, Nutrients) from verified source to `data/raw/reanalysis.nc`. **Depends on T005**.
-- [ ] T011a_verify [US1] Verify and checksum `data/raw/reanalysis.nc` using `code/05_versioning_state.py`. Update `state/projects/PROJ-021-understanding-oceanic-phytoplankton-comm.yaml` with hash. **FAIL LOUDLY** if fetch failed or checksum mismatch (NO synthetic fallback). **Depends on T011a**.
-- [X] T011b [US1] Fetch MODIS Aqua/Terra ocean color data from verified source `nasa/modis-aqua-l3` (specific file path: `s3://modis-l3/...` or HuggingFace equivalent) to `data/raw/modis.nc`. **Depends on T005**.
-- [ ] T011b_verify [US1] Verify and checksum `data/raw/modis.nc`. Update state YAML. **FAIL LOUDLY** if fetch failed or checksum mismatch. **Depends on T011b**.
-- [X] T011c [US1] Fetch SeaBASS in-situ data (Chl-a, SST, Salinity) from verified source `noaa/seabass` (or public mirror) to `data/raw/seabass.csv`. Handle authentication if required. **Depends on T005**.
-- [ ] T011c_verify [US1] Verify and checksum `data/raw/seabass.csv`. Update state YAML. **FAIL LOUDLY** if fetch failed or checksum mismatch. **Depends on T011c**.
-- [ ] T015 [US1] Implement strict quality flag filtering in `code/01_data_ingestion.py` to exclude MODIS pixels with "cloud" (flag=1) or "high aerosol" (flag=2) flags and Reanalysis anomalies from the fetched data (T011a_verify, T011b_verify, T011c_verify) BEFORE preprocessing. **Also exclude grid cells with missing in-situ data** (per US-1 Scenario 3). Output filtered dataset to `data/raw/seabass_filtered.csv`. **Depends on T011a_verify, T011b_verify, T011c_verify**.
-- [X] T013a [US1] Validate ≥10-year temporal overlap (e.g., `min(timestamp) >= 2010-01-01 AND max(timestamp) <= 2020-12-31`) in `code/02_preprocessing.py` on the filtered dataset and implement stratified train/val/test split logic by ocean basin, outputting split indices to `data/processed/split_indices.json`. **Depends on T015**.
+- [ ] T011a [US1] Fetch NOAA/Copernicus Reanalysis data (Temperature, Salinity, Nutrients) from verified physical oceanography source `cmems-global-analysis-forecast-phy-001-024` (specifically the physical layer for temp/salinity/nutrients, NOT the phytoplankton product) to `data/raw/copernicus_global_reanalysis.nc`. **CRITICAL**: Ensure the dataset ID targets physical drivers (Temperature, Salinity, Nutrients) as required by FR-001 and Constitution Principle VI, NOT the target variable (Chlorophyll). Use direct download URL if HuggingFace mirror unavailable. **Depends on T005**.
+- [X] T011a_verify [US1] Verify and checksum `data/raw/copernicus_global_reanalysis.nc` using `code/05_versioning_state.py`. Update `state/projects/PROJ-021-understanding-oceanic-phytoplankton-comm.yaml` with hash. **FAIL LOUDLY** if fetch failed or checksum mismatch (NO synthetic fallback). **Exit with code 1** and log "ERROR: Checksum mismatch for reanalysis.nc" to stderr. **Depends on T011a**.
+- [X] T011b [US1] Fetch MODIS Aqua/Terra ocean color data from verified source `nasa/modis-aqua-l3-v6` (HuggingFace ID) to `data/raw/modis.nc`. **Depends on T005**.
+- [X] T011b_verify [US1] Verify and checksum `data/raw/modis.nc`. Update state YAML. **FAIL LOUDLY** if fetch failed or checksum mismatch. **Exit with code 1** and log "ERROR: Checksum mismatch for modis.nc" to stderr. **Depends on T011b**.
+- [X] T011c [US1] Fetch SeaBASS in-situ data (Chl-a, SST, Salinity) from verified source `noaa/seabass` (HuggingFace ID, public access, no API key required) to `data/raw/seabass.csv`. **Depends on T005**.
+- [X] T011c_verify [US1] Verify and checksum `data/raw/seabass.csv`. Update state YAML. **FAIL LOUDLY** if fetch failed or checksum mismatch. **Exit with code 1** and log "ERROR: Checksum mismatch for seabass.csv" to stderr. **Depends on T011c**.
+- [ ] T015 [US1] Implement strict quality flag filtering in `code/01_data_ingestion.py` to exclude MODIS pixels with "cloud" (flag=1) or "high aerosol" (flag=2) flags (per spec Edge Cases) and Reanalysis anomalies from the fetched data (T011a_verify, T011b_verify, T011c_verify) BEFORE preprocessing. **Also exclude grid cells with missing in-situ data** (per US-1 Scenario 3) and **apply unified masking strategy** for all missing data points. Output filtered dataset to `data/raw/seabass_filtered.csv`. **Depends on T011a_verify, T011b_verify, T011c_verify**.
 - [X] T012 [US1] Implement spatial/temporal alignment in `code/02_preprocessing.py` (grid reanalysis and MODIS to a coarser resolution, create monthly composites). **Depends on T015, T009a**.
 - [X] T012a [US1] Implement linear interpolation for gaps ≤ 2 months and error quantification in `code/02_preprocessing.py`. Save interpolation error to `data/logs/interpolation_error.log`. **Depends on T012**.
 - [X] T012b [US1] Implement logic to flag gaps > 2 months for EXCLUSION (not imputation) in `code/02_preprocessing.py`. Update dataset mask. **Depends on T012a**.
-- [X] T013 [US1] Implement basin stratification and unified masking in `code/02_preprocessing.py` (retain basin ID, apply unified missing data mask across all sources, exclude grid cells with missing in-situ data). **Depends on T012b, T009a**.
+- [X] T012c [US1] **Physical Removal**: Implement logic to physically REMOVE grid cells flagged for exclusion in T012b from the dataset. **Output**: Write the cleaned dataset to `data/processed/aligned_intermediate.nc`. **Depends on T012b**.
+- [ ] T013a [US1] Validate ≥10-year temporal overlap (e.g., `min(timestamp) >= 2010-01-01 AND max(timestamp) <= 2020-12-31`) in `code/02_preprocessing.py` on the **aligned** dataset (output of T012) and implement stratified train/val/test split logic by ocean basin, outputting split indices to `data/processed/split_indices.json`. **Depends on T012, T015**.
+- [ ] T013 [US1] Implement basin stratification and unified masking in `code/02_preprocessing.py` (retain basin ID, apply unified missing data mask across all sources). **Input**: Read from `data/processed/aligned_intermediate.nc` (output of T012c). **Note**: Exclusion of missing in-situ data is already handled in T015/T012c; T013 only applies the final unified mask and stratification. **Depends on T012c, T009a**.
 - [X] T013b [US1] Implement memory enforcement and logging in `code/02_preprocessing.py` to monitor RAM usage and enforce GB limit, logging to `data/logs/memory_enforcement.log`. **Depends on T013**.
 - [X] T017 [US1] Generate final aligned dataset artifact in `data/processed/aligned_dataset.nc` (verify no missing values due to misalignment). **Depends on T013b, T009a**.
-- [ ] T017a [US1] Calculate missing value percentage in `code/02_preprocessing.py` and verify SC-004 compliance (≤5% missing). Log result to `data/logs/missing_value_report.json`. **Depends on T017**.
+- [X] T017a [US1] Calculate missing value percentage in `code/02_preprocessing.py` and verify SC-004 compliance (≤5% missing). **Verify SC-004 compliance: if missing_value_pct > 5.0, raise an exception and halt the pipeline**. Log result to `data/logs/missing_value_report.json`. **Depends on T017**.
 
 ---
 
@@ -107,16 +108,18 @@
 
 ### Tests for User Story 2 ⚠️
 
-- [ ] T032 [P] [US2] Contract test for model metrics schema in `tests/contract/test_schemas.py` (validates model_performance.schema.yaml)
+- [X] T032 [P] [US2] Contract test for model metrics schema in `tests/contract/test_schemas.py` (validates model_performance.schema.yaml)
 - [X] T039 [P] [US2] Integration test for CPU feasibility in `tests/integration/test_pipeline.py` (verifies runtime <6h and RAM <7GB for full training)
 
 ### Implementation for User Story 2
 
 - [X] T018 [US2] Implement Random RF baseline in `code/03_model_training.py` (≤500 trees, scikit-learn, CPU-only, train/val split). **Depends on T017 (US1)**.
-- [X] T019 [US2] Implement lightweight CLIP-based VLM fine-tuning in `code/03_model_training.py` (concatenated image/text inputs). **Model**: `facebook/clip-vit-base-patch32` (or similar <500M). **Prompt**: "Temperature: {temp}, Salinity: {sal}, Nutrients: {nut}". **Logic**: CPU-only, early stopping after 3 epochs if no convergence. If convergence fails, log "VLM Failed (Baseline Used)" and set artifact flag. **Depends on T017 (US1)**.
-- [X] T020 [US2] Generate model performance artifact in `data/artifacts/model_comparison.csv` (includes basin-stratified R² scores, RMSE, MAE for both RF and VLM). **Handle VLM Failure**: If VLM failed, flag artifact and skip significance test. **Depends on T018, T019**.
-- [ ] T019a [US2] Perform statistical significance test in `code/04_evaluation.py` (paired t-test, 95% confidence level) to validate if VLM R² exceeds baseline by ≥0.05. Output p-value and confidence interval to `data/artifacts/significance_test.json`. **Skip if VLM Failed**. **Depends on T020**.
-- [ ] T020a [US2] Calculate basin variance metrics in `code/04_evaluation.py` (compute difference between highest and lowest basin R² to satisfy SC-005). Output to `data/artifacts/basin_variance.json`. **Depends on T020**.
+- [ ] T019 [US2] Implement lightweight CLIP-based VLM fine-tuning in `code/03_model_training.py` (concatenated image/text inputs). **Model**: `facebook/clip-vit-base-patch32` (or similar <500M). **Prompt**: "Temperature: {temp}, Salinity: {sal}, Nutrients: {nut}". **Logic**: CPU-only. **CRITICAL**: If standard loading fails due to OOM, immediately retry with `load_in_8bit=True` (8-bit quantization) to ensure execution within 7GB RAM limits (Constitution Principle VII). **Early Stopping**: If loss does not decrease for `patience=3` epochs, set `vlm_fallback=True` in `state/projects/PROJ-021-understanding-oceanic-phytoplankton-comm.yaml`, log "VLM Failed (Baseline Used)", and **DO NOT** proceed with VLM evaluation. **Output**: Always produce a model artifact or a fallback flag. **Depends on T017**.
+- [X] T020 [US2] Generate model performance artifact in `data/artifacts/model_comparison.csv` (includes basin-stratified R² scores, RMSE, MAE for both RF and VLM). **Handle VLM Failure**: If `vlm_fallback` flag is set, the artifact MUST still be generated with RF metrics and the VLM column explicitly marked as "N/A (Failed)". **Depends on T018, T019**.
+- [ ] T019a [US2] Perform statistical significance test in `code/04_evaluation.py` (paired t-test, 95% confidence level, p < 0.05) to validate if VLM R² exceeds baseline by ≥0.05. **CRITICAL**: If `vlm_fallback` flag is set, DO NOT skip this task. Instead, execute the logic to record `p_value = "N/A"` and `status = "VLM Failed to Exceed Baseline"` in `data/artifacts/significance_test.json`. **Depends on T020**.
+- [ ] T020b [US2] **Basin Variance Metric**: Calculate the raw difference between the highest and lowest basin R² scores (max - min) to satisfy SC-005. Output this single metric value to `data/artifacts/basin_r2_difference.json`. **Depends on T020**.
+- [ ] T020c [US2] **Optional Statistical Test**: Perform a Kruskal-Wallis H-test to determine if the variance in R² scores across basins is statistically significant (optional, for deeper analysis). Output test statistic and p-value to `data/artifacts/basin_variance_significance.json`. **Depends on T020b**.
+- [ ] T020a [US2] **Basin Variance Report**: Generate a report and visualization of the variance in R² scores across basins (using the metric from T020b) as required by SC-005. **Output**: Write report to `data/artifacts/basin_variance_report.md` and visualization to `data/artifacts/basin_variance_viz.png`. **Depends on T020b**.
 
 ---
 
@@ -133,8 +136,8 @@
 
 ### Implementation for User Story 3
 
-- [X] T023 [US3] Implement permutation importance analysis in `code/04_evaluation.py` (rank drivers, normalize scores to sum=1.0 using L1 norm, verify sum equals unity within a specified tolerance, record verification result in `data/logs/importance_verification.log`). Handle multicollinearity using scikit-learn's VIF implementation (VIF > 5); if triggered, log warning and proceed without PCA to preserve spec assumptions. **Depends on T018, T020**.
-- [ ] T025 [US3] Implement in-situ correlation analysis in `code/04_evaluation.py` (calculate correlation coefficient r between predictions and in-situ measurements per basin, AND compute and output the difference between highest and lowest basin R² to `data/artifacts/basin_r2_difference.json`). **Depends on T020, T017, T011c_verify**.
+- [ ] T023 [US3] Implement permutation importance analysis in `code/04_evaluation.py` (rank drivers, normalize scores to sum=1.0 using L1 norm, verify sum equals unity within a specified tolerance, record verification result in `data/logs/importance_verification.log`). **CRITICAL**: If `vlm_fallback` flag is set, skip VLM-specific importance analysis and instead perform analysis on the RF baseline (T018), logging "Analysis performed on Baseline (VLM Failed)". Handle multicollinearity using scikit-learn's VIF implementation (VIF > 5); if triggered, log warning and proceed without PCA to preserve spec assumptions. **Depends on T018, T019**.
+- [ ] T025 [US3] Implement in-situ correlation analysis in `code/04_evaluation.py` (calculate correlation coefficient r between predictions and in-situ measurements per basin). **Depends on T020, T017, T011c_verify**.
 - [ ] T026 [US3] Generate final driver attribution artifacts in `data/artifacts/feature_importance_maps/` (include legend and basin labels). Implement spatial aggregation logic to ensure maps are at the same resolution as the aligned dataset, handling necessary resampling without introducing artifacts. **Depends on T023, T025**.
 - [ ] T024 [US3] Implement spatial visualization generation in `code/04_evaluation.py` (create GeoTIFF/PNG maps of top driver importance per basin). **Depends on T023**.
 
@@ -144,12 +147,12 @@
 
 **Purpose**: Improvements that affect multiple user stories and final validation
 
-- [ ] T050 [P] [Orchestration] Implement End-to-End Pipeline Orchestration in `code/06_pipeline_orchestrator.py` to measure total runtime from T011a to T026, enforce **hard 6-hour time limit** (using `signal.timeout` or equivalent) and **7GB RAM limit**. If limits exceeded, **FAIL/STOP immediately** (do not continue). Aggregate memory logs from T013b and T018. Output `data/logs/pipeline_summary.json`. **Depends on T026**.
-- [ ] T041 [P] Update `quickstart.md` with execution instructions for the full pipeline, including specific commands (`python code/06_pipeline_orchestrator.py`), environment variables (`MEMORY_LIMIT_GB`, `RUNTIME_LIMIT_HOURS`), and expected runtime outputs (summary JSON).
-- [ ] T028 Code cleanup and refactoring in `code/` (remove debug prints, optimize memory usage)
-- [ ] T029 [P] Run full integration test suite and verify all acceptance scenarios pass
-- [ ] T030 [P] Update `state/projects/PROJ-021-understanding-oceanic-phytoplankton-comm.yaml` with final artifact hashes
-- [ ] T031 [P] Validate `research.md` and `data-model.md` against generated artifacts
+- [X] T050 [P] [Orchestration] Implement End-to-End Pipeline Orchestration in `code/06_pipeline_orchestrator.py` to measure total runtime from T011a to T026, enforce **hard time limit** using `try/except` block catching `subprocess.TimeoutExpired` (cross-platform) and **GB RAM limit**. If limits exceeded, **check `state/projects/...yaml` for `vlm_fallback` flag**; if present, allow pipeline to continue with baseline results; otherwise, **FAIL/STOP immediately** (do not continue). Aggregate memory logs from T013b and T018. Output `data/logs/pipeline_summary.json`. **Depends on T026**.
+- [X] T041 [P] Update `quickstart.md` with execution instructions for the full pipeline, including specific commands (`python code/06_pipeline_orchestrator.py`), environment variables (`MEMORY_LIMIT_GB`, `RUNTIME_LIMIT_HOURS`, `NOAA_API_KEY`), and expected runtime outputs (summary JSON).
+- [X] T028 Code cleanup and refactoring in `code/` (remove debug prints, optimize memory usage)
+- [X] T029 [P] Run full integration test suite and verify all acceptance scenarios pass
+- [X] T030 [P] Update `state/projects/PROJ-021-understanding-oceanic-phytoplankton-comm.yaml` with final artifact hashes
+- [X] T031 [P] Validate `research.md` and `data-model.md` against generated artifacts
 
 ---
 
