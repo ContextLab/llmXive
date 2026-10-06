@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-10T05:21:09.035267Z'
-current_stage: tasked
+current_stage: analyzed
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-518-investigating-the-relationship-between-b
-last_run_id: 4bfd77b9-446e-4ae5-8244-fb3db1d0fe54
+last_run_id: 70bf9d7c-b78e-483e-9b67-3eaa32bc4f76
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-518-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b
 title: Investigating the Relationship Between Brain Network Dynamics and Creative
   Problem Solving
-updated_at: '2026-10-03T03:09:37.979448Z'
+updated_at: '2026-10-06T19:56:07.448768Z'

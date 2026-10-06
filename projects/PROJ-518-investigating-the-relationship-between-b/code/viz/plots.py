@@ -5,55 +5,32 @@ import statsmodels.api as sm
 from typing import Optional, Union
 import warnings
 import logging
+from pathlib import Path
 
-from analysis.statistics import RegressionResult
 from config import get_config
+from analysis.statistics import RegressionResult
 
-# Configure logging for the module
 logger = logging.getLogger(__name__)
 
-def _clean_nan_arrays(*arrays: Union[np.ndarray, list]) -> list:
+def _clean_nan_arrays(x: Union[np.ndarray, list], y: Union[np.ndarray, list]) -> tuple[np.ndarray, np.ndarray]:
     """
-    Filter out NaN/Inf values from multiple aligned arrays.
-    
-    Args:
-        *arrays: Variable number of array-like objects to be cleaned.
-        
-    Returns:
-        A list of cleaned numpy arrays, aligned by the valid indices.
-        If an array is empty after cleaning, an empty array is returned.
+    Remove NaN values from x and y arrays.
+    Returns cleaned arrays and logs warnings for each removal.
     """
-    if len(arrays) == 0:
-        return []
-    
-    # Convert all to numpy arrays
-    np_arrays = [np.asarray(arr) for arr in arrays]
-    
-    # Handle empty inputs
-    if any(arr.size == 0 for arr in np_arrays):
-        return [arr for arr in np_arrays]
-        
-    # Find indices where ALL arrays are finite
-    valid_mask = np.ones(np_arrays[0].shape[0], dtype=bool)
-    
-    for arr in np_arrays:
-        if arr.size == 0:
-            continue
-        # Ensure we are checking the first dimension for 1D arrays
-        if arr.ndim > 1:
-            # Flatten if necessary for mask alignment, though typically 1D here
-            valid_mask &= np.isfinite(arr.flatten())
-        else:
-            valid_mask &= np.isfinite(arr)
-    
-    cleaned = [arr[valid_mask] for arr in np_arrays]
-    
-    # Log if data was removed
-    removed_count = np_arrays[0].size - valid_mask.sum()
-    if removed_count > 0:
-        logger.warning(f"Removed {removed_count} data points containing NaN or Inf values.")
-    
-    return cleaned
+    x_arr = np.asarray(x, dtype=float)
+    y_arr = np.asarray(y, dtype=float)
+
+    if x_arr.shape != y_arr.shape:
+        raise ValueError(f"Array shapes mismatch: {x_arr.shape} vs {y_arr.shape}")
+
+    # Create mask for valid (non-NaN) entries
+    valid_mask = ~(np.isnan(x_arr) | np.isnan(y_arr))
+
+    nan_count = np.sum(~valid_mask)
+    if nan_count > 0:
+        logger.warning(f"Detected {nan_count} NaN data points in input arrays. Skipping them.")
+
+    return x_arr[valid_mask], y_arr[valid_mask]
 
 def plot_flexibility_vs_creativity(
     flexibility: Union[np.ndarray, list],
@@ -62,65 +39,46 @@ def plot_flexibility_vs_creativity(
 ) -> None:
     """
     Creates a scatter plot with regression line and confidence band.
-    
-    Handles NaN data points by filtering them out and logging a warning.
-    
-    Args:
-        flexibility: Array of network flexibility values.
-        creativity: Array of creativity scores.
-        output_path: Path to save the plot.
+    Robustly handles NaN data points by skipping them.
     """
     # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
-    # Clean data
-    flex_clean, creat_clean = _clean_nan_arrays(flexibility, creativity)
-    
-    if len(flex_clean) == 0:
-        logger.error("No valid data points remaining after filtering NaN/Inf. Cannot generate plot.")
-        # Create a minimal empty plot to avoid crashing, or raise? 
-        # Task says "continue", so we create an empty plot with a note.
-        fig, ax = plt.subplots(figsize=(8, 6))
-        ax.text(0.5, 0.5, 'No valid data points', ha='center', va='center', transform=ax.transAxes)
-        ax.set_title('Flexibility vs Creativity (No Data)')
-        plt.savefig(output_path)
-        plt.close()
-        return
+    output_dir = Path(output_path).parent
+    if not output_dir.exists():
+        output_dir.mkdir(parents=True, exist_ok=True)
 
-    fig, ax = plt.subplots(figsize=(10, 8))
-    
-    # Scatter plot
-    ax.scatter(flex_clean, creat_clean, alpha=0.6, edgecolors='w', s=70, label='Data Points')
-    
-    # Fit OLS for regression line
-    X = sm.add_constant(flex_clean)
-    model = sm.OLS(creat_clean, X).fit()
-    
-    # Sort for line plotting
-    sort_idx = np.argsort(flex_clean)
-    x_sorted = flex_clean[sort_idx]
-    y_pred = model.predict(sm.add_constant(x_sorted))
-    
-    # Plot regression line
-    ax.plot(x_sorted, y_pred, color='red', linewidth=2, label='Regression Fit')
-    
-    # Confidence band (95%)
-    conf = model.get_prediction(sm.add_constant(flex_clean)).conf_int(alpha=0.05)
-    # We need to sort the conf bounds as well to match x_sorted
-    conf_sorted = conf[sort_idx]
-    ax.fill_between(x_sorted, conf_sorted[:, 0], conf_sorted[:, 1], color='red', alpha=0.2, label='95% CI')
-    
-    ax.set_xlabel('Network Flexibility')
-    ax.set_ylabel('Creativity Score')
-    ax.set_title('Relationship Between Network Flexibility and Creativity')
-    ax.legend()
-    ax.grid(True, linestyle='--', alpha=0.5)
-    
+    # Clean data
+    x_clean, y_clean = _clean_nan_arrays(flexibility, creativity)
+
+    if len(x_clean) == 0:
+        raise ValueError("No valid data points remaining after NaN removal.")
+
+    # Prepare for regression
+    X = sm.add_constant(x_clean)
+    model = sm.OLS(y_clean, X).fit()
+
+    # Generate predictions for the plot
+    x_range = np.linspace(x_clean.min(), x_clean.max(), 100)
+    X_range = sm.add_constant(x_range)
+    y_pred = model.predict(X_range)
+
+    # Confidence intervals
+    conf_int = model.predict(X_range, interval='confidence')
+
+    plt.figure(figsize=(8, 6))
+    plt.scatter(x_clean, y_clean, alpha=0.6, label='Data')
+    plt.plot(x_range, y_pred, 'r-', label='Regression Fit')
+    plt.fill_between(x_range, conf_int[:, 0], conf_int[:, 1], color='r', alpha=0.2, label='95% CI')
+
+    plt.xlabel('Network Flexibility')
+    plt.ylabel('Creativity Score (CAQ)')
+    plt.title('Flexibility vs Creativity')
+    plt.legend()
+    plt.grid(True, linestyle='--', alpha=0.5)
+
     plt.tight_layout()
-    plt.savefig(output_path, dpi=150)
+    plt.savefig(output_path, dpi=300)
     plt.close()
-    
-    logger.info(f"Scatter plot saved to {output_path}")
+    logger.info(f"Plot saved to {output_path}")
 
 def plot_residuals(
     model: RegressionResult,
@@ -129,161 +87,138 @@ def plot_residuals(
 ) -> None:
     """
     Generates residuals-vs-fitted and QQ plots.
-    
-    Handles NaN data points by filtering them out and logging a warning.
-    
-    Args:
-        model: RegressionResult object containing fitted values and residuals.
-        residuals_path: Path to save the residuals plot.
-        qq_path: Path to save the QQ plot.
+    Handles NaN values in model residuals.
     """
-    os.makedirs(os.path.dirname(residuals_path), exist_ok=True)
-    os.makedirs(os.path.dirname(qq_path), exist_ok=True)
-    
-    fitted = np.asarray(model.fittedvalues)
-    residuals = np.asarray(model.resid)
-    
+    output_dir = Path(residuals_path).parent
+    if not output_dir.exists():
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Extract residuals and fitted values
+    residuals = np.asarray(model.residuals, dtype=float)
+    fitted = np.asarray(model.fitted_values, dtype=float)
+
+    if len(residuals) != len(fitted):
+        raise ValueError("Residuals and fitted values length mismatch.")
+
     # Clean NaNs
-    fitted_clean, resid_clean = _clean_nan_arrays(fitted, residuals)
-    
-    if len(fitted_clean) == 0:
-        logger.error("No valid data points for residual plots.")
-        # Create placeholder plots
-        for path, title in [(residuals_path, 'Residuals vs Fitted (No Data)'), 
-                            (qq_path, 'QQ Plot (No Data)')]:
-            fig, ax = plt.subplots()
-            ax.text(0.5, 0.5, 'No valid data', ha='center', va='center')
-            ax.set_title(title)
-            plt.savefig(path)
-            plt.close()
-        return
+    valid_mask = ~(np.isnan(residuals) | np.isnan(fitted))
+    if np.sum(~valid_mask) > 0:
+        logger.warning(f"Skipping {np.sum(~valid_mask)} NaN residual/fitted pairs.")
+
+    res_clean = residuals[valid_mask]
+    fit_clean = fitted[valid_mask]
+
+    if len(res_clean) == 0:
+        raise ValueError("No valid data points for residual plots.")
 
     # Plot 1: Residuals vs Fitted
-    fig, ax = plt.subplots(figsize=(8, 6))
-    ax.scatter(fitted_clean, resid_clean, alpha=0.6, edgecolors='w')
-    ax.axhline(0, color='red', linestyle='--', linewidth=1)
-    ax.set_xlabel('Fitted Values')
-    ax.set_ylabel('Residuals')
-    ax.set_title('Residuals vs Fitted')
-    ax.grid(True, linestyle='--', alpha=0.5)
+    plt.figure(figsize=(8, 6))
+    plt.scatter(fit_clean, res_clean, alpha=0.6)
+    plt.hlines(0, linestyle='--', color='red')
+    plt.xlabel('Fitted Values')
+    plt.ylabel('Residuals')
+    plt.title('Residuals vs Fitted')
+    plt.grid(True, linestyle='--', alpha=0.5)
     plt.tight_layout()
-    plt.savefig(residuals_path, dpi=150)
+    plt.savefig(residuals_path, dpi=300)
     plt.close()
-    
+    logger.info(f"Residuals plot saved to {residuals_path}")
+
     # Plot 2: QQ Plot
-    fig, ax = plt.subplots(figsize=(8, 6))
-    sm.qqplot(resid_clean, line='45', fit=True, ax=ax)
-    ax.set_title('Normal Q-Q')
+    plt.figure(figsize=(8, 6))
+    sm.qqplot(res_clean, line='45', fit=True)
+    plt.title('Normal Q-Q')
     plt.tight_layout()
-    plt.savefig(qq_path, dpi=150)
+    plt.savefig(qq_path, dpi=300)
     plt.close()
-    
-    logger.info(f"Residual plots saved to {residuals_path} and {qq_path}")
+    logger.info(f"QQ plot saved to {qq_path}")
 
 def compress_image(path: str, max_mb: float = 5.0) -> None:
     """
-    Compresses an image file to ensure it is under max_mb.
-    
-    Args:
-        path: Path to the image file.
-        max_mb: Maximum size in megabytes.
+    Compresses the image at `path` to be under `max_mb` MB.
+    Raises RuntimeError if compression fails to meet the size limit.
     """
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Image file not found: {path}")
-    
-    initial_size = os.path.getsize(path) / (1024 * 1024)
-    logger.info(f"Initial image size: {initial_size:.2f} MB")
-    
+    import subprocess
+    import sys
+
+    path_obj = Path(path)
+    if not path_obj.exists():
+        raise FileNotFoundError(f"Image not found: {path}")
+
+    initial_size = path_obj.stat().st_size / (1024 * 1024)
+    logger.info(f"Initial file size: {initial_size:.2f} MB")
+
     if initial_size <= max_mb:
+        logger.info("File size already within limit.")
         return
+
+    # Attempt compression using ImageMagick (commonly available) or convert to JPEG
+    # Strategy: Convert to JPEG with quality reduction if it's a PNG, or use pngquant if available
+    # Since we cannot guarantee external tools like pngquant, we will try a robust conversion approach
+    # or rely on matplotlib saving with optimization if possible. However, for strict file size control,
+    # we often need external tools.
     
-    # Simple compression strategy: Convert to JPEG with quality reduction if PNG
-    # or re-save PNG with lower compression level. 
-    # For this implementation, we assume we can re-save as JPEG if it's PNG, 
-    # or just reduce quality if we had PIL. Since we rely on matplotlib mostly,
-    # we will try to re-save with optimized=True and lower dpi if needed,
-    # but strictly speaking, re-processing the plot is better.
-    # However, to strictly follow "compress_image" on an existing file:
-    # We will use PIL if available, otherwise we might need to re-generate.
-    # Given the constraints, let's try to use PIL for compression.
-    
+    # Fallback strategy: Re-save as JPEG with optimized quality
+    # Check if PIL is available
     try:
         from PIL import Image
         img = Image.open(path)
         
-        # If it's already small enough after loading? No, size is on disk.
-        # We need to reduce quality.
-        base, ext = os.path.splitext(path)
+        # Determine output path
+        if path_obj.suffix.lower() == '.png':
+            jpeg_path = str(path_obj.with_suffix('.jpg'))
+            quality = 85
+            # Iterative quality reduction to meet size
+            while quality > 10:
+                img.save(jpeg_path, quality=quality, optimize=True)
+                new_size = Path(jpeg_path).stat().st_size / (1024 * 1024)
+                if new_size <= max_mb:
+                    # Replace original
+                    path_obj.unlink()
+                    Path(jpeg_path).rename(path_obj)
+                    logger.info(f"Compressed to JPEG with quality {quality}. Final size: {new_size:.2f} MB")
+                    return
+                quality -= 5
         
-        if ext.lower() == '.png':
-            # Convert to RGB if necessary for JPEG
-            if img.mode in ("RGBA", "P"):
-                img = img.convert("RGB")
-            # Save as JPEG with quality reduction
-            new_path = base + ".jpg"
-            quality = 95
-            while os.path.getsize(new_path) > max_mb * 1024 * 1024 and quality > 10:
-                quality -= 5
-                img.save(new_path, "JPEG", quality=quality)
-            os.remove(path)
-            os.rename(new_path, path)
-            final_size = os.path.getsize(path) / (1024 * 1024)
-            logger.info(f"Compressed to JPEG: {final_size:.2f} MB (Quality: {quality})")
-        else:
-            # For JPEG, just reduce quality
-            quality = 95
-            while os.path.getsize(path) > max_mb * 1024 * 1024 and quality > 10:
-                quality -= 5
-                img.save(path, "JPEG", quality=quality)
-            final_size = os.path.getsize(path) / (1024 * 1024)
-            logger.info(f"Compressed JPEG: {final_size:.2f} MB (Quality: {quality})")
-            
+        raise RuntimeError(f"Failed to compress {path} to under {max_mb} MB via JPEG conversion.")
+
     except ImportError:
-        logger.warning("PIL not available. Cannot compress image automatically.")
-        # If we can't compress, we raise the critical error as per task T057 logic
-        # But T057 says "raise CriticalError". Let's assume we just log and fail the check.
-        # Actually, T057 says: "If compression fails... raise CriticalError".
-        # We are in T058, but we must respect T057's contract.
-        # Since we can't compress without PIL, we should probably raise an error if size is too big.
-        if initial_size > max_mb:
-             raise RuntimeError(f"Image {path} exceeds {max_mb}MB and compression failed (PIL missing).")
-    
-    final_size = os.path.getsize(path) / (1024 * 1024)
-    if final_size > max_mb:
-        logger.critical(f"Compression failed: {path} is still {final_size:.2f} MB > {max_mb} MB")
-        raise RuntimeError(f"Failed to compress {path} under {max_mb} MB")
-    
-    assert os.path.getsize(path) <= max_mb * 1024 * 1024, "Compression verification failed"
+        # PIL not available, try ImageMagick
+        try:
+            subprocess.run(['convert', path, '-quality', '80', path], check=True)
+            new_size = path_obj.stat().st_size / (1024 * 1024)
+            if new_size <= max_mb:
+                logger.info(f"Compressed via ImageMagick. Final size: {new_size:.2f} MB")
+                return
+            # Try lower quality
+            subprocess.run(['convert', path, '-quality', '50', path], check=True)
+            new_size = path_obj.stat().st_size / (1024 * 1024)
+            if new_size <= max_mb:
+                logger.info(f"Compressed via ImageMagick (q50). Final size: {new_size:.2f} MB")
+                return
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            pass
+
+    raise RuntimeError(f"Compression failed: {path} remains larger than {max_mb} MB.")
 
 def log_regression_summary(result: RegressionResult, output_path: str = 'results/regression_summary.csv') -> None:
     """
-    Logs regression results to a CSV file.
-    
-    Args:
-        result: RegressionResult object.
-        output_path: Path to the CSV file.
+    Logs regression summary to CSV.
     """
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
     import pandas as pd
-    from analysis.statistics import format_delta_r2
-    
-    row = {
-        'r_squared': result.rsquared,
-        'adj_r_squared': result.rsquared_adj,
-        'pearson_r': result.pearson_r,
-        'delta_r2': result.delta_r2,
-        'delta_r2_str': format_delta_r2(result.delta_r2),
-        'coefficients': str(result.params.to_dict()) if hasattr(result.params, 'to_dict') else str(result.params)
-    }
-    
-    df = pd.DataFrame([row])
-    df.to_csv(output_path, index=False)
-    logger.info(f"Regression summary saved to {output_path}")
+    from datetime import datetime
 
-# Re-export RegressionResult for convenience if needed in other modules, 
-# though it's defined in statistics.py. 
-# The API surface says we import it from here, so we ensure it's available.
-# Actually, the API surface says: "import as: from viz.plots import RegressionResult..."
-# So we must define it here or import it. Since it's defined in statistics, we import it.
-from analysis.statistics import RegressionResult
+    output_dir = Path(output_path).parent
+    if not output_dir.exists():
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+    df = pd.DataFrame([{
+        'timestamp': datetime.now().isoformat(),
+        'r_squared': result.r_squared,
+        'adj_r_squared': result.adj_r_squared,
+        'pearson_r': result.pearson_r,
+        'delta_r2_str': result.delta_r2_str if hasattr(result, 'delta_r2_str') else 'N/A'
+    }])
+
+    df.to_csv(output_path, index=False)
+    logger.info(f"Regression summary logged to {output_path}")

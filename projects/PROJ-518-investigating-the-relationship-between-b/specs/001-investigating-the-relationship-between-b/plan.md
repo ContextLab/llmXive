@@ -40,7 +40,7 @@ The technical approach involves preprocessing resting-state fMRI data from the H
 The research question remains: How can artifact integrity be verified?
 The method remains: Generate and store cryptographic hashes for all artifacts.
 References: [Citation preserved verbatim] and updates `state/projects/PROJ-518-investigating-the-relationship-between-b.yaml` automatically upon successful pipeline completion. |
-| **VI. Neuroimaging Data Standardization** | **Pass** | Pipeline implements exact HCP-MMP atlas, -0.1 Hz band-pass, motion correction; versions and args logged in provenance files; data sourced from OpenNeuro. |
+| **VI. Neuroimaging Data Standardization** | **Pass** | Pipeline implements exact HCP-MMP atlas, A low-frequency band-pass filter will be applied to isolate the relevant signal components., motion correction; versions and args logged in provenance files; data sourced from OpenNeuro. |
 | **VII. Statistical Validation** | **Pass** | Regression includes covariates; significance assessed via a large number of permutations of the *outcome vector* (not full pipeline); effect sizes + CIs reported; deterministic seeds used. |
 
 ## Project Structure

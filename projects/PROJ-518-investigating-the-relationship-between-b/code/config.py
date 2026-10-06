@@ -5,46 +5,36 @@ from typing import List, Optional
 
 @dataclass
 class Config:
-    WINDOW_SIZES: List[int]
-    STEP: int
-    ATLAS_PATH: Path
-    DATA_PATH: Path
+    WINDOW_SIZES: List[int] = None
+    STEP: int = 5
+    ATLAS_PATH: Optional[str] = None
+    DATA_PATH: Optional[str] = None
+    FWE_METHOD: str = 'max-t'
+
+    def __post_init__(self):
+        if self.WINDOW_SIZES is None:
+            self.WINDOW_SIZES = [20, 30, 40]
+
+_config: Optional[Config] = None
 
 def get_config() -> Config:
-    """
-    Load configuration from environment variables or use defaults.
-    """
-    # Default paths relative to project root
-    project_root = Path(__file__).resolve().parent.parent
+    global _config
+    if _config is None:
+        _config = Config()
+        # Load from environment variables if present
+        if os.path.exists('.env'):
+            from dotenv import load_dotenv
+            load_dotenv()
+        
+        if 'WINDOW_SIZES' in os.environ:
+            _config.WINDOW_SIZES = [int(x) for x in os.environ['WINDOW_SIZES'].split(',')]
+        if 'STEP' in os.environ:
+            _config.STEP = int(os.environ['STEP'])
+        if 'ATLAS_PATH' in os.environ:
+            _config.ATLAS_PATH = os.environ['ATLAS_PATH']
+        if 'DATA_PATH' in os.environ:
+            _config.DATA_PATH = os.environ['DATA_PATH']
+        if 'FWE_METHOD' in os.environ:
+            _config.FWE_METHOD = os.environ['FWE_METHOD']
     
-    window_sizes = [20, 30, 40]
-    step = 5
-    
-    # Allow override via environment variables
-    if "WINDOW_SIZES" in os.environ:
-        try:
-            window_sizes = [int(x) for x in os.environ["WINDOW_SIZES"].split(",")]
-        except ValueError:
-            pass
-    
-    if "STEP" in os.environ:
-        try:
-            step = int(os.environ["STEP"])
-        except ValueError:
-            pass
-    
-    atlas_path = project_root / "data" / "atlas" / "default_atlas.nii.gz"
-    data_path = project_root / "data" / "raw"
-    
-    if "ATLAS_PATH" in os.environ:
-        atlas_path = Path(os.environ["ATLAS_PATH"])
-    
-    if "DATA_PATH" in os.environ:
-        data_path = Path(os.environ["DATA_PATH"])
-    
-    return Config(
-        WINDOW_SIZES=window_sizes,
-        STEP=step,
-        ATLAS_PATH=atlas_path,
-        DATA_PATH=data_path
-    )
+    return _config

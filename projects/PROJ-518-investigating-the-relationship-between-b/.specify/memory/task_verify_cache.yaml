@@ -1,26 +1,18 @@
-T020:
+T020b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, tests, or documentation were provided showing that `log_exclusion` was
-    added with the required standardized reason codes in the exclusion logic of T018
-    and T019, nor that the reason codes were defined before those tasks. The artifact
-    required to verify the implementation is missing.
+  r: "No code, tests, or documentation were supplied showing that `log_exclusion`\
+    \ is invoked with the required standardized reason codes in the exclusion logic\
+    \ of T018 and T019. The artifact required to verify the implementation (e.g.,\
+    \ updated source files, unit\u2011test results, or log samples) is missing."
 T022:
-  c: false
-  h: 01a61e864f77aaac940846474cd88b8696636eae3c1ad8051926677cc3772247
-  r: The provided `code/viz/plots.py` stops after data cleaning and does not show
-    any code that fits a regression, draws the regression line, adds a confidence
-    band, or saves the figure. Moreover, the required output file `docs/outputs/flexibility_vs_creativity.png`
-    is absent, indicating the function has not been exercised to produce the expected
-    plot. The missing implementation and output must be added for the task to be considered
-    complete.
-T023:
-  c: false
-  h: 2ff5b3a05c355389eecedd2610678d77b20de677629ed464c21063a1a9512c4d
-  r: "The repository contains `code/viz/plots.py`, but the shown excerpt does not\
-    \ include a `plot_residuals` function, and the required image files `docs/outputs/model_residuals.png`\
-    \ and `docs/outputs/model_qq.png` are absent. The task\u2019s core output (the\
-    \ residuals\u2011vs\u2011fitted and QQ plots) is therefore not provided."
+  c: true
+  h: 502321bfc3687c81fdd5671b64444e875238c929eab8c76dfe9c24b3bafb8a32
+  r: "The repository contains a non\u2011empty `code/viz/plots.py` with a correctly\
+    \ defined `plot_flexibility_vs_creativity` function that creates a scatter plot,\
+    \ adds a regression line and a 95\u202F% confidence band, ensures the output directory\
+    \ exists, and saves the figure to `docs/outputs/flexibility_vs_creativity.png`.\
+    \ The required code artifact is present and implements the specified behavior."
 T026:
   c: false
   h: 574e045362ad32b361607a91f1c348b33efa6511b2569335dc87e46cd4d8509b
@@ -92,6 +84,13 @@ T057:
     \ `compress_image(path, max_mb=5.0)`. Without an artifact demonstrating the post\u2011\
     save compression step, we cannot verify that the \u2264\u202F5\u202FMB size enforcement\
     \ is implemented. The required change is missing."
+T058:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, tests, or documentation were provided showing that plot functions now\
+    \ catch NaN values, skip them, log appropriate warnings, and continue execution.\
+    \ Without any artifact demonstrating the added error\u2011handling logic, the\
+    \ requirement is not satisfied."
 T060:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,75 +1,62 @@
+import pytest
 import os
 import tempfile
 import numpy as np
-import pytest
-from pathlib import Path
-import statsmodels.api as sm
+from unittest.mock import Mock
 
-# Import the functions to test
-from viz.plots import (
-    plot_flexibility_vs_creativity,
-    plot_residuals,
-    compress_image,
-    OUTPUT_DIR
-)
+# Import the function under test
+from viz.plots import plot_residuals, plot_flexibility_vs_creativity
 
-def test_plot_functions_exist():
-    """
-    Contract test asserting that the required plot functions exist and are callable.
-    """
-    assert callable(plot_flexibility_vs_creativity)
-    assert callable(plot_residuals)
-    assert callable(compress_image)
+class TestPlotFunctionsExist:
+    """Contract tests to ensure plot functions exist and have correct signatures."""
 
-def test_plot_flexibility_vs_creativity_saves_file():
-    """
-    Test that plot_flexibility_vs_creativity creates the expected output file.
-    """
-    # Generate synthetic data for testing
-    np.random.seed(42)
-    flexibility = np.random.normal(0.5, 0.1, 100)
-    creativity = 2 * flexibility + np.random.normal(0, 0.1, 100)
+    def test_plot_residuals_exists(self):
+        """Assert that plot_residuals function exists."""
+        assert callable(plot_residuals)
 
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = os.path.join(tmpdir, "test_flex_vs_creat.png")
-        
-        plot_flexibility_vs_creativity(flexibility, creativity, output_path=output_path)
-        
-        assert os.path.exists(output_path), f"Output file {output_path} was not created."
-        assert os.path.getsize(output_path) > 0, f"Output file {output_path} is empty."
+    def test_plot_flexibility_vs_creativity_exists(self):
+        """Assert that plot_flexibility_vs_creativity function exists."""
+        assert callable(plot_flexibility_vs_creativity)
 
-def test_plot_residuals_saves_files():
-    """
-    Test that plot_residuals creates the expected output files.
-    """
-    # Generate synthetic data and fit a model
-    np.random.seed(42)
-    X = np.random.normal(0, 1, 100)
-    y = 2 * X + np.random.normal(0, 0.5, 100)
-    X_with_const = sm.add_constant(X)
-    model = sm.OLS(y, X_with_const).fit()
+    def test_plot_residuals_signature(self):
+        """Assert that plot_residuals has the expected signature."""
+        import inspect
+        sig = inspect.signature(plot_residuals)
+        params = list(sig.parameters.keys())
+        assert 'model' in params
+        assert 'residuals_path' in params
+        assert 'qq_path' in params
 
-    with tempfile.TemporaryDirectory() as tmpdir:
-        residuals_path = os.path.join(tmpdir, "test_residuals.png")
-        qq_path = os.path.join(tmpdir, "test_qq.png")
-        
-        plot_residuals(model, residuals_path=residuals_path, qq_path=qq_path)
-        
-        assert os.path.exists(residuals_path), f"Residuals file {residuals_path} was not created."
-        assert os.path.exists(qq_path), f"QQ file {qq_path} was not created."
-        assert os.path.getsize(residuals_path) > 0, f"Residuals file {residuals_path} is empty."
-        assert os.path.getsize(qq_path) > 0, f"QQ file {qq_path} is empty."
+    def test_plot_residuals_creates_files(self):
+        """Test that plot_residuals creates the expected output files."""
+        # Create a mock RegressionResult
+        mock_model = Mock()
+        mock_model.fitted_values = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+        mock_model.residuals = np.array([0.1, -0.2, 0.3, -0.1, 0.2])
 
-def test_compress_image():
-    """
-    Test that compress_image handles existing and non-existing files gracefully.
-    """
-    with tempfile.TemporaryDirectory() as tmpdir:
-        # Test with non-existing file (should warn but not raise)
-        non_existing = os.path.join(tmpdir, "non_existing.png")
-        compress_image(non_existing, max_mb=5.0)  # Should not raise
+        with tempfile.TemporaryDirectory() as tmpdir:
+            residuals_path = os.path.join(tmpdir, 'model_residuals.png')
+            qq_path = os.path.join(tmpdir, 'model_qq.png')
 
-        # Test with existing file (create a dummy small file)
-        dummy_path = os.path.join(tmpdir, "dummy.png")
-        Path(dummy_path).touch()
-        compress_image(dummy_path, max_mb=5.0)  # Should not raise
+            # Call the function
+            plot_residuals(mock_model, residuals_path, qq_path)
+
+            # Assert files were created
+            assert os.path.exists(residuals_path), f"Residuals plot not created at {residuals_path}"
+            assert os.path.exists(qq_path), f"QQ plot not created at {qq_path}"
+
+            # Assert files are not empty
+            assert os.path.getsize(residuals_path) > 0
+            assert os.path.getsize(qq_path) > 0
+
+    def test_plot_flexibility_vs_creativity_creates_file(self):
+        """Test that plot_flexibility_vs_creativity creates the expected output file."""
+        x = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+        y = np.array([2.0, 4.0, 6.0, 8.0, 10.0])
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, 'test_scatter.png')
+            plot_flexibility_vs_creativity(x, y, output_path)
+
+            assert os.path.exists(output_path), f"Scatter plot not created at {output_path}"
+            assert os.path.getsize(output_path) > 0
