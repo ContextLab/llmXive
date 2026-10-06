@@ -1,16 +1,17 @@
 status: none
-intent: TCGA RNAseq HTSeq counts GEO GSE25055 GSE42752 download python package dataset
+intent: download TCGA RNA-seq HTSeq-Counts Ovarian LUAD BRCA and GEO GSE25055 GSE42752
+  python package dataset
 required_fields:
-- sample_id
-- tumor_type
-- gene_symbol
-- ensembl_id
-- raw_count
-- normalized_expression
-- clinical_age
-- clinical_gender
-- clinical_stage
-- chemotherapy_response
-cache_key: 581e696063251b90d00b12a368462bd5ee67fb0c152ce08e094fac6f4f1c07c5
-searched_at: '2026-08-23T08:12:38.033029+00:00'
+- Sample_ID
+- Cancer_Type
+- Gene_Symbol
+- Raw_Counts
+- CPM
+- Variance_Stabilized_Expression
+- Clinical_Metadata
+- Treatment_Response
+- Platform
+- Dataset_Source
+cache_key: d07fd6ee54dfacb96bff8d6b280b402c11813262bd02278f2ffad2c6451ac151
+searched_at: '2026-10-06T17:48:33.081594+00:00'
 retry_count: 1

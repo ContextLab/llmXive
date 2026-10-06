@@ -20,14 +20,6 @@ T023b:
     \ an aggregation implementation or a concrete strategy for resolving gene\u2011\
     naming conflicts using HGNC symbols. Without such code or description, we cannot\
     \ confirm the task\u2019s requirement has been met."
-T024a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data file, or documentation for the static gene panel (intersection/union\
-    \ logic) was provided. The required artifact\u2014e.g., a gene list file in `results/meta_analysis/`\
-    \ or a summary markdown indicating whether the intersection was empty and the\
-    \ union fallback was used\u2014is missing, so the task\u2019s requirement cannot\
-    \ be verified as satisfied."
 T024d:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
