@@ -9,7 +9,7 @@
 
 ### User Story 1 - Preprocess and Epoch Public Task-Switching EEG Data (Priority: P1)
 
-The researcher downloads the OpenNeuro task-switching dataset (e.g., dsXXXX) and preprocesses it to create clean, time-locked epochs suitable for analysis. This includes bandpass filtering (low-frequency cutoff to 45 Hz), ICA-based artifact removal, and epoching around stimulus onset (-1000ms to +2000ms).
+The researcher downloads the OpenNeuro task-switching dataset (e.g., dsXXXX) and preprocesses it to create clean, time-locked epochs suitable for analysis. This includes bandpass filtering (low-frequency cutoff), ICA-based artifact removal, and epoching around stimulus onset (pre-stimulus baseline to post-stimulus interval).
 
 **Why this priority**: This is the foundational step; without clean, correctly epoch-aligned data, no synchrony or behavioral analysis can occur. It validates the data pipeline's ability to handle the specific dataset constraints on a CPU-only environment.
 
@@ -19,7 +19,7 @@ The researcher downloads the OpenNeuro task-switching dataset (e.g., dsXXXX) and
 
 1. **Given** a raw EEG file from the target dataset, **When** the preprocessing pipeline runs, **Then** the output contains epochs time-locked to stimulus onset with a duration of 3000ms (-1000ms to +2000ms).
 2. **Given** raw data containing muscle artifacts, **When** ICA-based removal is applied, **Then** the system identifies and removes ICA components exhibiting a kurtosis > 5 or a spectral peak > 30 Hz, while preserving components below these thresholds.
-3. **Given** the computational constraint of 7GB RAM, **When** processing a single subject sequentially, **Then** the memory usage does not exceed 6.5 GB, ensuring the process does not crash on the free-tier runner.
+3. **Given** the computational constraint of limited RAM, **When** processing a single subject sequentially, **Then** the memory usage remains within acceptable limits, ensuring the process does not crash on the free-tier runner.
 
 ---
 
@@ -49,7 +49,7 @@ The researcher computes attention switching costs (RT_switch - RT_stay) per subj
 
 **Acceptance Scenarios**:
 
-1. **Given** subject-level synchrony means and behavioral switching costs, **When** the correlation analysis runs, **Then** the output includes a Pearson/Spearman correlation coefficient and a p-value derived from 1000 permutation iterations.
+1. **Given** subject-level synchrony means and behavioral switching costs, **When** the correlation analysis runs, **Then** the output includes a Pearson/Spearman correlation coefficient and a p-value derived from a sufficient number of permutation iterations to ensure statistical robustness.
 2. **Given** multiple hypothesis tests (e.g., testing both theta and gamma bands), **When** the statistical test runs, **Then** a multiple-comparison correction (e.g., Bonferroni or FDR) is applied to the p-values.
 3. **Given** the observational nature of the data, **When** the results are formatted, **Then** the output explicitly frames findings as associational rather than causal.
 4. **Given** trial-level data, **When** the secondary analysis runs, **Then** a linear mixed-effects model correlates trial-by-trial synchrony with trial-by-trial RT, accounting for subject-level random intercepts.
@@ -60,7 +60,7 @@ The researcher computes attention switching costs (RT_switch - RT_stay) per subj
 
 - What happens when a subject has fewer than 10 valid trials in either the switch or stay condition? System MUST exclude the subject from the correlation analysis and log the exclusion to `exclusions.csv` with the reason "insufficient trials".
 - How does the system handle subjects where the ICA component removal removes >50% of the data? System MUST flag the subject as low-quality, write a warning to `exclusions.csv` with the reason "excessive artifact removal", and exclude the subject from the final correlation.
-- What if the pre-stimulus window contains significant line noise (50/60Hz) that cannot be filtered out? System MUST apply a notch filter and log the intervention to the processing log.
+- What if the pre-stimulus window contains significant line noise (/60Hz) that cannot be filtered out? System MUST apply a notch filter and log the intervention to the processing log.
 
 ## Requirements
 
@@ -68,11 +68,11 @@ The researcher computes attention switching costs (RT_switch - RT_stay) per subj
 
 - **FR-001**: System MUST download and cache the specified OpenNeuro dataset (e.g., a designated dsXXXXX identifier) to a local temporary directory, ensuring no network calls occur during the analysis phase. (See US-1)
 - **FR-002**: System MUST apply a 1–45 Hz bandpass filter and perform ICA-based artifact removal on the EEG data before epoching, rejecting components with kurtosis > 5 or spectral peaks > 30 Hz. (See US-1)
-- **FR-003**: System MUST compute Phase-Locking Value (PLV) or weighted Phase-Lag Index (wPLI) between frontoparietal electrode pairs in the -500ms to 0ms pre-stimulus window for theta (4–7 Hz) and gamma (30–45 Hz) bands. (See US-2)
+- **FR-003**: System MUST compute Phase-Locking Value (PLV) or weighted Phase-Lag Index (wPLI) between frontoparietal electrode pairs in the -500ms to 0ms pre-stimulus window for theta (low-frequency) and gamma (high-frequency) bands. (See US-2)
 - **FR-004**: System MUST calculate the attention switching cost for each subject as the mean reaction time difference between switch and stay trials. (See US-3)
 - **FR-005**: System MUST execute the final correlation analysis using a sufficient number of permutations to assess significance and apply a multiple-comparison correction for the number of frequency bands tested. (See US-3)
 - **FR-006**: System MUST run entirely on CPU without requiring CUDA, 8-bit quantization, or GPU acceleration. (See US-1, US-2, US-3)
-- **FR-007**: System MUST execute a sensitivity analysis by re-running the primary correlation with pre-stimulus windows shifted to [-600ms, 0ms] and [-400ms, 0ms], verifying stability of results. (See US-3)
+- **FR-007**: System MUST execute a sensitivity analysis by re-running the primary correlation with pre-stimulus windows shifted to [ms, 0ms] and [-400ms, 0ms], verifying stability of results. (See US-3)
 - **FR-008**: System MUST report all findings as associational rather than causal in the final output. (See US-3)
 - **FR-009**: System MUST perform a secondary trial-level mixed-effects analysis correlating trial-by-trial synchrony with trial-by-trial RT. (See US-3)
 

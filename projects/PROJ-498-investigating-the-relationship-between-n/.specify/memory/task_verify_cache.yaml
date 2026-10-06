@@ -1,14 +1,11 @@
-T012:
+T013:
   c: false
-  h: 1532f9152167e6b396c20d514c8477463c3d86097fd28ed535f80928b2cf8f1d
-  r: "The provided `code/download.py` is truncated and does not show the full implementation\
-    \ of the required workflow (saving the selected dataset ID, handling the fallback\
-    \ download, and triggering T012b on failure). Moreover, the expected output files\
-    \ `data/selected_dataset_id.txt` and `data/data_gap_report.json` are absent, indicating\
-    \ the script\u2019s behavior has not been realized. The next implementer must\
-    \ complete the script with the full API query, selection, file writing, fallback\
-    \ download, and error\u2011handling logic, and ensure the runtime artifacts are\
-    \ generated as specified."
+  h: af4f9df700bef4fbda1521515e71ef7778884d69a60a974931eb835a4fa812f4
+  r: The repository lacks the required `data/selected_dataset_id.txt` and the generated
+    `data/raw/checksums.json`. Moreover, the provided `code/download.py` is incomplete
+    (truncated) and does not actually perform the download or create the checksums
+    file, nor does it exit with the specified error code when the ID file is missing.
+    These essential artifacts and behaviors are absent.
 T014:
   c: false
   h: dc0a5a07d3c251ee37b2fe359c2332fa3ab90e6f5377a8b7041e28b87222958c
@@ -17,13 +14,6 @@ T014:
     \ to `data/metrics/memory_profile.json`. The required JSON file is absent, and\
     \ `data/exclusions.csv` does not contain any entry with reason \u201Cmemory_limit_exceeded\u201D\
     . The memory\u2011constraint portion of the task is therefore unimplemented."
-T015b:
-  c: false
-  h: f10ee34c7736fa9ba0863e5ee070e0bf187b1fa2253ecfff7dbbdf37ad29dd77
-  r: "The required `data/processed/ica_components.csv` file does not exist, and the\
-    \ `perform_ica_and_remove_artifacts` function in `code/preprocess.py` is truncated/incomplete,\
-    \ lacking the logic to compute kurtosis, spectral peaks, and write the CSV. The\
-    \ task\u2019s core output is therefore missing."
 T016:
   c: false
   h: b5a814fcdcb90419cf4c139708b3846aae55e32307f8df8c6d0bd0c029394610
@@ -42,22 +32,6 @@ T017:
     and to record them with the appropriate reason is therefore not demonstrated.
     The artifact file must contain rows with `subject_id` and `reason` for any subjects
     meeting the exclusion criteria.
-T023:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No filtered epoch files were provided in `data/processed/band_filtered/`, nor\
-    \ any power spectral density plots or quantitative verification showing peaks\
-    \ in the theta (4\u20137\u202FHz) and gamma (30\u201345\u202FHz) bands as required.\
-    \ The claim lacks the concrete output artifacts and verification data needed to\
-    \ confirm the task was completed."
-T026:
-  c: false
-  h: 593314a0310db618eb5fd46be0b3faff1a959bb9a4d2862c5195c2a5014a3b0c
-  r: The repository lacks the required `data/metrics/synchrony_timing.json` file,
-    and the shown portion of `code/synchrony.py` does not contain a timing wrapper
-    that measures the full synchrony calculation with `time.perf_counter`, logs the
-    duration to that JSON, or raises the specified exception. These core requirements
-    are missing.
 T033:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

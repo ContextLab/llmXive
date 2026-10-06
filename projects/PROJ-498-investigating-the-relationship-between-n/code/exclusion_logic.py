@@ -1,173 +1,159 @@
-"""
-Exclusion Logic for T017.
-Implements logic to exclude subjects based on trial counts and artifact removal rates.
-Logs exclusions to data/exclusions.csv.
-"""
 import os
 import csv
 from pathlib import Path
 from typing import List, Dict, Optional, Tuple
-
-# Import from the project's logging module (synchrony.py) which provides a tolerant logger
+from datetime import datetime
 from synchrony import get_logger
 
-# Constants for exclusion criteria
+# Constants defined in the spec
 MIN_TRIALS_PER_CONDITION = 10
-MAX_ARTIFACT_REMOVAL_RATIO = 0.50  # 50%
+MAX_ARTIFACT_REMOVAL_RATIO = 0.50
 
-logger = get_logger(__name__)
-
-def ensure_exclusions_file_exists(exclusions_path: Path) -> None:
-    """Ensure the exclusions CSV file exists with the correct header."""
+def ensure_exclusions_file_exists(exclusions_path: Optional[Path] = None) -> Path:
+    """Ensure the exclusions file exists and has a header row."""
+    if exclusions_path is None:
+        exclusions_path = Path("data/exclusions.csv")
+    
+    exclusions_path.parent.mkdir(parents=True, exist_ok=True)
+    
     if not exclusions_path.exists():
-        exclusions_path.parent.mkdir(parents=True, exist_ok=True)
         with open(exclusions_path, 'w', newline='') as f:
             writer = csv.writer(f)
-            writer.writerow(['subject_id', 'reason'])
-        logger.log("ensure_exclusions_file_exists", path=str(exclusions_path))
+            writer.writerow(['subject_id', 'reason', 'timestamp'])
+    
+    return exclusions_path
 
-def log_exclusion(exclusions_path: Path, subject_id: str, reason: str) -> None:
-    """Append an exclusion record to the CSV."""
+def log_exclusion(subject_id: str, reason: str, exclusions_path: Optional[Path] = None) -> None:
+    """Log an exclusion to the CSV file."""
+    if exclusions_path is None:
+        exclusions_path = Path("data/exclusions.csv")
+    
     ensure_exclusions_file_exists(exclusions_path)
+    
+    timestamp = datetime.now().isoformat()
+    
     with open(exclusions_path, 'a', newline='') as f:
         writer = csv.writer(f)
-        writer.writerow([subject_id, reason])
-    logger.log("log_exclusion", subject_id=subject_id, reason=reason)
+        writer.writerow([subject_id, reason, timestamp])
 
 def evaluate_subject_for_exclusion(
     subject_id: str,
     trials_per_condition: Dict[str, int],
-    total_trials: int,
-    artifact_removed_count: int
-) -> Tuple[bool, Optional[str]]:
+    artifact_removal_ratio: float,
+    exclusions_path: Optional[Path] = None
+) -> Optional[str]:
     """
-    Evaluate a subject for exclusion based on T017 criteria.
-
-    Args:
-        subject_id: The subject identifier.
-        trials_per_condition: Dict mapping condition names to trial counts.
-        total_trials: Total number of trials before artifact removal.
-        artifact_removed_count: Number of trials removed due to artifacts.
-
+    Evaluate a subject for exclusion based on trial counts and artifact removal.
+    
     Returns:
-        Tuple of (is_excluded, reason). If not excluded, reason is None.
+        The exclusion reason string if the subject should be excluded, None otherwise.
     """
-    # Check for insufficient trials per condition
+    # Check trial counts
     for condition, count in trials_per_condition.items():
         if count < MIN_TRIALS_PER_CONDITION:
-            logger.log(
-                "evaluate_subject_for_exclusion",
-                subject_id=subject_id,
-                reason="insufficient_trials",
-                condition=condition,
-                count=count,
-                threshold=MIN_TRIALS_PER_CONDITION
-            )
-            return True, "insufficient trials"
-
-    # Check for excessive artifact removal
-    if total_trials > 0:
-        removal_ratio = artifact_removed_count / total_trials
-        if removal_ratio > MAX_ARTIFACT_REMOVAL_RATIO:
-            logger.log(
-                "evaluate_subject_for_exclusion",
-                subject_id=subject_id,
-                reason="excessive_artifact_removal",
-                ratio=removal_ratio,
-                threshold=MAX_ARTIFACT_REMOVAL_RATIO
-            )
-            return True, "excessive artifact removal"
-
-    return False, None
+            return "insufficient_trials"
+    
+    # Check artifact removal ratio
+    if artifact_removal_ratio > MAX_ARTIFACT_REMOVAL_RATIO:
+        return "excessive_artifact_removal"
+    
+    return None
 
 def run_exclusion_check(
-    subject_results: List[Dict],
-    exclusions_path: Path
-) -> int:
+    subject_ids: List[str],
+    trials_per_condition_map: Dict[str, Dict[str, int]],
+    artifact_removal_map: Dict[str, float],
+    exclusions_path: Optional[Path] = None
+) -> Tuple[int, List[str]]:
     """
-    Run exclusion checks on a list of subject results.
-
+    Run exclusion checks for all subjects.
+    
     Args:
-        subject_results: List of dicts containing:
-            - subject_id
-            - trials_per_condition (dict)
-            - total_trials (int)
-            - artifact_removed_count (int)
+        subject_ids: List of subject IDs to check.
+        trials_per_condition_map: Dict mapping subject_id to dict of condition -> trial count.
+        artifact_removal_map: Dict mapping subject_id to artifact removal ratio.
         exclusions_path: Path to the exclusions CSV file.
-
+    
     Returns:
-        int: The count of valid (non-excluded) subjects.
+        Tuple of (valid_subject_count, list of excluded subject IDs).
     """
+    if exclusions_path is None:
+        exclusions_path = Path("data/exclusions.csv")
+    
     ensure_exclusions_file_exists(exclusions_path)
-    valid_subject_count = 0
-
-    for result in subject_results:
-        subject_id = result['subject_id']
-        trials_per_condition = result.get('trials_per_condition', {})
-        total_trials = result.get('total_trials', 0)
-        artifact_removed_count = result.get('artifact_removed_count', 0)
-
-        is_excluded, reason = evaluate_subject_for_exclusion(
+    
+    excluded_subjects = []
+    valid_count = 0
+    
+    for subject_id in subject_ids:
+        trials = trials_per_condition_map.get(subject_id, {})
+        artifact_ratio = artifact_removal_map.get(subject_id, 0.0)
+        
+        reason = evaluate_subject_for_exclusion(
             subject_id,
-            trials_per_condition,
-            total_trials,
-            artifact_removed_count
+            trials,
+            artifact_ratio,
+            exclusions_path
         )
-
-        if is_excluded:
-            log_exclusion(exclusions_path, subject_id, reason)
+        
+        if reason:
+            log_exclusion(subject_id, reason, exclusions_path)
+            excluded_subjects.append(subject_id)
         else:
-            valid_subject_count += 1
-            logger.log(
-                "run_exclusion_check",
-                subject_id=subject_id,
-                status="valid",
-                valid_subject_count=valid_subject_count
-            )
+            valid_count += 1
+    
+    return valid_count, excluded_subjects
 
-    logger.log(
-        "run_exclusion_check",
-        total_subjects=len(subject_results),
-        excluded_count=len(subject_results) - valid_subject_count,
-        valid_subject_count=valid_subject_count
-    )
-
-    return valid_subject_count
-
-def get_excluded_subjects(exclusions_path: Path) -> List[Dict]:
-    """Read the exclusions file and return a list of excluded subjects."""
+def get_excluded_subjects(exclusions_path: Optional[Path] = None) -> List[Dict[str, str]]:
+    """
+    Read the exclusions file and return a list of excluded subjects with reasons.
+    
+    Returns:
+        List of dicts with keys 'subject_id' and 'reason'.
+    """
+    if exclusions_path is None:
+        exclusions_path = Path("data/exclusions.csv")
+    
     if not exclusions_path.exists():
         return []
-
+    
     excluded = []
-    with open(exclusions_path, 'r') as f:
+    with open(exclusions_path, 'r', newline='') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            excluded.append(row)
+            excluded.append({
+                'subject_id': row['subject_id'],
+                'reason': row['reason']
+            })
+    
     return excluded
 
 def main():
-    """
-    Main entry point for T017 exclusion logic.
-    Reads subject stats from a JSON file (if provided) or runs standalone logic.
-    For this task, we assume the pipeline passes data in memory or via a temp file.
-    This function demonstrates the logic by running on a mock set of data
-    derived from the actual preprocessed epochs if available, or a minimal test case.
-    """
-    exclusions_path = Path("data/exclusions.csv")
+    """Main entry point for testing exclusion logic."""
+    logger = get_logger()
+    logger.log("exclusion_logic_test", operation="main")
     
-    # In a real pipeline, subject_results would come from T016/T019 outputs.
-    # Since we are fixing the pipeline, we ensure this function is callable
-    # and returns the correct count structure for T017b.
+    # Example usage
+    test_subjects = ['sub-01', 'sub-02', 'sub-03']
+    test_trials = {
+        'sub-01': {'switch': 15, 'stay': 15},
+        'sub-02': {'switch': 5, 'stay': 15},  # Should be excluded
+        'sub-03': {'switch': 20, 'stay': 20}
+    }
+    test_artifacts = {
+        'sub-01': 0.1,
+        'sub-02': 0.1,
+        'sub-03': 0.6  # Should be excluded
+    }
     
-    # If this is run standalone without input, it returns 0 valid subjects 
-    # (as no data was processed in this specific script run context), 
-    # but in the context of main.py, it processes the actual results.
+    valid_count, excluded = run_exclusion_check(
+        test_subjects,
+        test_trials,
+        test_artifacts
+    )
     
-    # We return a placeholder count of 0 if no data is passed, 
-    # but the logic is designed to be called by main.py with real data.
-    print(f"Exclusion logic ready. Output file: {exclusions_path}")
-    return 0
+    print(f"Valid subjects: {valid_count}")
+    print(f"Excluded subjects: {excluded}")
 
 if __name__ == "__main__":
     main()
