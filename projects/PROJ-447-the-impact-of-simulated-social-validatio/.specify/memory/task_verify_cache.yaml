@@ -17,13 +17,6 @@ T003:
     `.flake8`, or `black` settings) or documentation of their integration into the
     project were provided. Consequently, there is no evidence that ruff/flake8 and
     black have been configured as required.
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings or file system evidence were provided showing that the
-    required folders (`code/data`, `code/analysis`, `code/viz`, `code/utils`, `data/raw`,
-    `data/processed`, `tests/unit`, `tests/integration`) actually exist. Without concrete
-    artifacts confirming the creation of this structure, the task is not satisfied.
 T015:
   c: false
   h: 08144b2732e9a46c0c3c9f931e8ad0b273312f330bb6b02386a2a7c2465d7b29
@@ -46,28 +39,6 @@ T019:
     \ function in `code/analysis/regression.py` is truncated and never writes VIF\
     \ values, the threshold, or a PASS/FAIL status to that JSON file. The required\
     \ output artifact and complete VIF\u2011writing logic are missing."
-T019c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, function, or output was provided that computes variance inflation
-    factors (VIF) and returns a comparison status such as "PASS" or "FAIL" based on
-    a threshold. The required artifact is missing, so the task is not satisfied.
-T024:
-  c: false
-  h: 204b80dd02bd2932f30d16e630c087ef8c23f08a8a02812d037236716cbf3e80
-  r: "The required output file `data/processed/sensitivity_analysis.json` does not\
-    \ exist, and the provided `sensitivity.py` snippet ends abruptly without showing\
-    \ logic that iterates over the three outlier strategies, toggles confounder inclusion/exclusion,\
-    \ computes coefficient variation, and writes the JSON results. Consequently the\
-    \ task\u2019s core requirements are not satisfied."
-T025:
-  c: false
-  h: 8431e06e31d2bf98a39ae411b8264753f05d0682877e99637326189eddcd123b
-  r: The `data/processed/sensitivity_analysis.json` file does not exist, and the shown
-    portion of `code/analysis/sensitivity.py` contains no logic that reads this JSON,
-    computes coefficient variation, checks the stability threshold via `get_stability_threshold`,
-    or raises `StabilityThresholdViolationError`. The required functionality is therefore
-    missing.
 T027a:
   c: false
   h: 47c6de7def6efed979bcb9931d4a6e33b7e653f7897d1cd2c6357b5b022d5bb6

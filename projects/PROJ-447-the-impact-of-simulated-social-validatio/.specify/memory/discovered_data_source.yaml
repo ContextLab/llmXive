@@ -1,19 +1,14 @@
 status: none
-intent: Open Science Framework Rosenberg Self-Esteem social media engagement dataset
-  python package
+intent: OpenPsych social media engagement Rosenberg self esteem ICPSR python package
+  dataset
 required_fields:
 - participant_id
 - engagement_timestamp
-- self_report_timestamp
 - likes_count
 - comments_count
 - comment_sentiment_score
-- rosenberg_self_esteem_total
-- rosenberg_self_esteem_item1
-- rosenberg_self_esteem_item2
-- rosenberg_self_esteem_item3
-- rosenberg_self_esteem_item4
-- rosenberg_self_esteem_item5
-cache_key: 229ca3946084f6620f8d302b6ce5e5be58134525d067c65035dd092fbb35c524
-searched_at: '2026-09-09T17:17:39.577941+00:00'
+- self_esteem_score
+- self_report_timestamp
+cache_key: 8dd92bc28476e404e522b4a88bc544230f76101a5c28cdac70fc33b5a3a0f859
+searched_at: '2026-10-06T14:46:50.734785+00:00'
 retry_count: 1

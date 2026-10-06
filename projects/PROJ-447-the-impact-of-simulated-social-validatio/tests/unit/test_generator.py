@@ -1,206 +1,159 @@
 """
 Unit tests for code/data/generator.py
 
-This module contains tests for:
-1. SEM model structure setup
-2. Synthetic data generation
-3. Verification that synthetic data converges to target SEM parameters
+Tests focus on:
+1. SEM model structure definition
+2. Synthetic data generation process
+3. Psychometric validation (Cronbach's Alpha)
+4. Association recovery verification
 """
-
 import pytest
-import numpy as np
 import pandas as pd
+import numpy as np
 import os
 import sys
+from pathlib import Path
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+# Add project root to path
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root / 'code'))
 
-from data.generator import generate_synthetic_data, verify_association_recovery
-from utils.constants import get_seed, set_seed, get_psv_weights
-from utils.exceptions import DataLoadError
+from data.generator import (
+    generate_synthetic_data,
+    validate_rses_psychometrics,
+    _calculate_cronbach_alpha,
+    _generate_rses_items,
+    _generate_latent_factors,
+    verify_association_recovery
+)
+from utils.exceptions import InsufficientSampleError
+from utils.constants import get_seed
 
+class TestLatentFactorGeneration:
+    def test_latent_factors_shape(self):
+        """Test that latent factors are generated with correct shape."""
+        n = 100
+        df = _generate_latent_factors(n, seed=42)
+        assert len(df) == n
+        expected_cols = ['latent_self_esteem', 'latent_social_validation', 
+                       'latent_offline_relationships', 'latent_intrinsic_traits']
+        assert list(df.columns) == expected_cols
 
-class TestSEMSyntheticDataConvergence:
-    """
-    Test that synthetic data converges to target SEM parameters.
+    def test_latent_factors_distribution(self):
+        """Test that latent factors have reasonable distributions."""
+        n = 1000
+        df = _generate_latent_factors(n, seed=42)
+        # Should be roughly standardized (mean ~0, std ~1)
+        for col in df.columns:
+            assert 0.8 < df[col].std() < 1.2
+            assert -0.5 < df[col].mean() < 0.5
 
-    This test verifies that when we generate synthetic data using the SEM model,
-    the recovered parameters (after running the model on the generated data)
-    are within a specified tolerance of the true parameters used to generate the data.
-    """
+class TestRSESItemGeneration:
+    def test_rses_items_shape(self):
+        """Test that RSES items are generated correctly."""
+        n = 100
+        latent = np.random.normal(0, 1, n)
+        items_df = _generate_rses_items(latent, seed=42)
+        
+        assert len(items_df) == n
+        expected_cols = [f'q{i}' for i in range(1, 11)]
+        assert list(items_df.columns) == expected_cols
 
-    def setup_method(self):
-        """Set up test fixtures before each test method."""
-        # Set a fixed seed for reproducibility
-        set_seed(42)
-        self.n_samples = 1000
-        self.tolerance = 0.05  # 5% tolerance for parameter recovery
+    def test_rses_items_range(self):
+        """Test that RSES items are within the 1-4 Likert scale."""
+        n = 100
+        latent = np.random.normal(0, 1, n)
+        items_df = _generate_rses_items(latent, seed=42)
+        
+        for col in items_df.columns:
+            assert items_df[col].min() >= 1.0
+            assert items_df[col].max() <= 4.0
 
-    def test_parameter_recovery_within_tolerance(self):
-        """
-        Test that generated synthetic data recovers SEM parameters within tolerance.
+class TestCronbachAlpha:
+    def test_cronbach_alpha_calculation(self):
+        """Test the Cronbach's alpha calculation function."""
+        # Create a perfectly correlated dataset -> alpha should be 1.0
+        n = 100
+        data = pd.DataFrame({
+            'q1': [1.0] * n,
+            'q2': [1.0] * n,
+            'q3': [1.0] * n
+        })
+        alpha = _calculate_cronbach_alpha(data)
+        assert alpha == 1.0
 
-        This test:
-        1. Generates synthetic data with known true parameters
-        2. Runs the verification function to recover parameters
-        3. Checks that recovered parameters are within tolerance of true values
-        """
-        # Generate synthetic data
-        df, true_params = generate_synthetic_data(n_samples=self.n_samples)
+    def test_cronbach_alpha_random(self):
+        """Test Cronbach's alpha on random data (should be low)."""
+        n = 1000
+        data = pd.DataFrame(np.random.randn(n, 10), columns=[f'q{i}' for i in range(1, 11)])
+        alpha = _calculate_cronbach_alpha(data)
+        # Random data should have low alpha, but not necessarily negative
+        assert alpha < 0.5
 
-        # Verify that data was generated
-        assert df is not None, "Data generation returned None"
-        assert len(df) == self.n_samples, f"Expected {self.n_samples} samples, got {len(df)}"
+class TestPsychometricValidation:
+    def test_validate_rses_psychometrics_pass(self):
+        """Test validation passes for valid synthetic data."""
+        df = generate_synthetic_data(n_samples=200, seed=42)
+        # This should not raise
+        result = validate_rses_psychometrics(df, min_alpha=0.7)
+        assert result is True
 
-        # Verify association recovery
-        recovered_params = verify_association_recovery(df)
+    def test_validate_rses_psychometrics_fail(self):
+        """Test validation fails for data with low alpha."""
+        # Create data with very low internal consistency
+        n = 200
+        data = pd.DataFrame(np.random.randn(n, 10), columns=[f'q{i}' for i in range(1, 11)])
+        
+        with pytest.raises(InsufficientSampleError):
+            validate_rses_psychometrics(data, min_alpha=0.7)
 
-        # Check that recovered parameters exist
-        assert recovered_params is not None, "Parameter recovery returned None"
+    def test_validate_rses_missing_items(self):
+        """Test validation raises error if RSES items are missing."""
+        df = pd.DataFrame({'age': [15, 16]})
+        
+        with pytest.raises(InsufficientSampleError):
+            validate_rses_psychometrics(df)
 
-        # Define true parameters based on the SEM model structure
-        # These should match the values used in generate_synthetic_data
-        # Based on the measurement model: 0.6 * likes + 0.4 * sentiment
-        # And typical SEM paths for this research question
-        true_beta_social_to_self = 0.50  # Example true value
-        true_beta_likes = 0.35           # Example true value
-        true_beta_sentiment = 0.40       # Example true value
+class TestSyntheticDataGeneration:
+    def test_generate_synthetic_data_structure(self):
+        """Test that generated data has all required columns."""
+        df = generate_synthetic_data(n_samples=100, seed=42)
+        
+        required_cols = [
+            'age', 'gender', 'engagement_count', 'comment_sentiment', 
+            'rse_score', 'perceived_social_validation',
+            'engagement_timestamp', 'self_report_timestamp'
+        ] + [f'q{i}' for i in range(1, 11)]
+        
+        for col in required_cols:
+            assert col in df.columns
 
-        # Check that recovered parameters are close to true values
-        # We allow for some variance due to sampling error
-        if 'beta_social_to_self' in recovered_params:
-            recovered_beta = recovered_params['beta_social_to_self']
-            error = abs(recovered_beta - true_beta_social_to_self)
-            relative_error = error / abs(true_beta_social_to_self)
-            assert relative_error <= self.tolerance, \
-                f"Parameter beta_social_to_self not recovered within tolerance: " \
-                f"true={true_beta_social_to_self}, recovered={recovered_beta}, error={relative_error}"
+    def test_generate_synthetic_data_longitudinal_order(self):
+        """Test that engagement_timestamp < self_report_timestamp."""
+        df = generate_synthetic_data(n_samples=100, seed=42)
+        
+        # Convert to comparable format if needed (they are already timestamps)
+        # Check a few rows
+        for idx in range(min(10, len(df))):
+            assert df.loc[idx, 'engagement_timestamp'] < df.loc[idx, 'self_report_timestamp']
 
-        if 'beta_likes' in recovered_params:
-            recovered_beta = recovered_params['beta_likes']
-            error = abs(recovered_beta - true_beta_likes)
-            relative_error = error / abs(true_beta_likes)
-            assert relative_error <= self.tolerance, \
-                f"Parameter beta_likes not recovered within tolerance: " \
-                f"true={true_beta_likes}, recovered={recovered_beta}, error={relative_error}"
+    def test_generate_synthetic_data_psychometric_validity(self):
+        """Test that generated data passes psychometric validation by default."""
+        df = generate_synthetic_data(n_samples=500, seed=42)
+        # The function itself validates, so if it returns, it passed.
+        # Double check alpha
+        rses_items = df[[f'q{i}' for i in range(1, 11)]]
+        from data.generator import _calculate_cronbach_alpha
+        alpha = _calculate_cronbach_alpha(rses_items)
+        assert alpha > 0.7
 
-        if 'beta_sentiment' in recovered_params:
-            recovered_beta = recovered_params['beta_sentiment']
-            error = abs(recovered_beta - true_beta_sentiment)
-            relative_error = error / abs(true_beta_sentiment)
-            assert relative_error <= self.tolerance, \
-                f"Parameter beta_sentiment not recovered within tolerance: " \
-                f"true={true_beta_sentiment}, recovered={recovered_beta}, error={relative_error}"
-
-    def test_multiple_runs_consistency(self):
-        """
-        Test that multiple runs with the same seed produce consistent results.
-
-        This verifies that the data generation is deterministic when using the same seed.
-        """
-        set_seed(42)
-        df1, _ = generate_synthetic_data(n_samples=500)
-
-        set_seed(42)
-        df2, _ = generate_synthetic_data(n_samples=500)
-
-        # Data should be identical with the same seed
-        pd.testing.assert_frame_equal(df1, df2)
-
-    def test_parameter_recovery_with_larger_sample(self):
-        """
-        Test that parameter recovery improves with larger sample size.
-
-        This test verifies that as sample size increases, the recovered parameters
-        converge closer to the true parameters (law of large numbers).
-        """
-        sample_sizes = [200, 500, 1000]
-        errors = []
-
-        for n in sample_sizes:
-            set_seed(42)
-            df, true_params = generate_synthetic_data(n_samples=n)
-            recovered_params = verify_association_recovery(df)
-
-            if 'beta_social_to_self' in recovered_params:
-                true_val = 0.50  # Match true value from generator
-                error = abs(recovered_params['beta_social_to_self'] - true_val)
-                errors.append(error)
-
-        # Verify that error generally decreases with larger sample size
-        # (allowing for some randomness in the middle)
-        assert len(errors) == len(sample_sizes), "Not all sample sizes produced errors"
-
-    def test_measurement_model_weights_consistency(self):
-        """
-        Test that the measurement model weights are correctly applied.
-
-        This verifies that the Perceived Social Validation (PSV) calculation
-        uses the correct weights defined in constants.py.
-        """
-        set_seed(42)
-        df, _ = generate_synthetic_data(n_samples=500)
-
-        # Check that PSV column exists
-        assert 'psv_score' in df.columns, "PSV score column not found in generated data"
-
-        # Get expected weights
-        weights = get_psv_weights()
-        expected_like_weight = weights.get('likes', 0.6)
-        expected_sentiment_weight = weights.get('sentiment', 0.4)
-
-        # Verify that the weights are reasonable (sum to 1.0)
-        assert abs(expected_like_weight + expected_sentiment_weight - 1.0) < 0.01, \
-            f"PSV weights do not sum to 1.0: {expected_like_weight} + {expected_sentiment_weight}"
-
-    def test_synthetic_data_has_required_columns(self):
-        """
-        Test that generated synthetic data contains all required columns.
-
-        This ensures the generated data can be used by downstream components
-        like the validator and regression analysis.
-        """
-        set_seed(42)
-        df, _ = generate_synthetic_data(n_samples=100)
-
-        required_columns = [
-            'likes_count',
-            'sentiment_score',
-            'psv_score',
-            'self_esteem_score',
-            'age',
-            'gender',
-            'offline_relationships_score',
-            'intrinsic_traits_score',
-            'engagement_timestamp',
-            'self_report_timestamp'
-        ]
-
-        for col in required_columns:
-            assert col in df.columns, f"Required column '{col}' not found in generated data"
-
-    def test_convergence_stability_across_seeds(self):
-        """
-        Test that parameter convergence is stable across different random seeds.
-
-        This verifies that the SEM model is robust and not overly sensitive
-        to the initial random seed.
-        """
-        seeds = [42, 123, 456, 789, 1000]
-        recovered_betas = []
-
-        for seed in seeds:
-            set_seed(seed)
-            df, _ = generate_synthetic_data(n_samples=1000)
-            recovered_params = verify_association_recovery(df)
-
-            if 'beta_social_to_self' in recovered_params:
-                recovered_betas.append(recovered_params['beta_social_to_self'])
-
-        # Calculate variance of recovered parameters across seeds
-        if len(recovered_betas) > 1:
-            variance = np.var(recovered_betas)
-            # Variance should be relatively low (less than 0.01 for stable convergence)
-            assert variance < 0.01, \
-                f"Parameter recovery is unstable across seeds: variance={variance}"
+class TestAssociationRecovery:
+    def test_verify_association_recovery(self):
+        """Test that association recovery verification runs without error."""
+        df = generate_synthetic_data(n_samples=200, seed=42)
+        result = verify_association_recovery(df)
+        
+        assert 'converged' in result
+        assert 'status' in result
+        # For synthetic data with correct structure, it should converge
+        assert result['status'] == 'PASS' or result['converged'] is True

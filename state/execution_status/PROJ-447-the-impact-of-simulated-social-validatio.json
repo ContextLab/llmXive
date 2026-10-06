@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-447-the-impact-of-simulated-social-validatio",
+  "ok": false,
+  "reason": "16 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data/generator.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026\"     Validates that the generated synthetic data adheres to RSES psy\u2026\u201d; code/data/generator.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026DataFrame containing the synthetic data with RSES item columns.\u2026\u201d; code/data/generator.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026d.DataFrame:     \"\"\"     Generate synthetic data using a Structural\u2026\u201d; 4 command(s) failed: python code/main.py --stage data (rc=1); python code/main.py --stage analysis (rc=1); python code/main.py --stage viz (rc=1)",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --stage data -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-447-the-impact-of-simulated-social-validatio/code/main.py\", line 16, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/main.py --stage analysis -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-447-the-impact-of-simulated-social-validatio/code/main.py\", line 16, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/main.py --stage viz -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-447-the-impact-of-simulated-social-validatio/code/main.py\", line 16, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/main.py --stage full -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-447-the-impact-of-simulated-social-validatio/code/main.py\", line 16, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-10-06T14:45:57Z"
+}
