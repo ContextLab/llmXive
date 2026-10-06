@@ -1,3 +1,17 @@
+T009a:
+  c: false
+  h: cf80d8aa4ae9e80ed17960fb0cd48221f919d99818a3fbac9822e9ff854f3070
+  r: "The repository lacks a `fetch_phylogenetic_tree` implementation in `code/data_loader.py`\
+    \ (the file shows only placeholder functions for other data loading tasks) and\
+    \ the required output file `data/phylogeny/tree.newick` does not exist. Consequently\
+    \ the task\u2019s core functionality and its output are missing."
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `quickstart.md` or `research.md` files are present in the provided evidence,
+    and thus the required exact reproduction steps, commands, and data source listings
+    are missing. The implementer has not supplied the documentation artifacts the
+    task explicitly demands.
 T022:
   c: false
   h: e5a919aa617190f01963910fb0a75b915d128cd0536081789b891396dc1a3de0

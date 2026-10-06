@@ -1,12 +1,13 @@
 status: none
-intent: download STRING protein interaction network dataset and DEG essential gene
-  list python package
+intent: download STRING protein interaction network and DEG essential gene dataset
+  python package dataset
 required_fields:
+- tax_id
+- protein1_id
+- protein2_id
+- combined_score
 - gene_id
-- partner_id
-- confidence_score
-- organism_tax_id
-- essentiality_status
-cache_key: 83a322f6c49bffb8ef176ade0243de3ee53112d609c08a6b12480ade97a71906
-searched_at: '2026-10-02T15:35:19.649695+00:00'
+- essentiality_label
+cache_key: 830fa9b694bdaf6169802c9b78989c2fcb2c19178732333b019e1a1e211c0b20
+searched_at: '2026-10-06T16:27:06.360521+00:00'
 retry_count: 1

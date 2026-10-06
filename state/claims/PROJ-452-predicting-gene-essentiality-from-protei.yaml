@@ -1580,24 +1580,6 @@
   updated_at: '2026-10-06T15:53:39Z'
 - artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
   attempts: 1
-  canonical: PGLS skipped if sample size less than 10
-  claim_id: c_82cc1d20
-  context: Include logic to skip if effective sample size n < 10 and log 'Power insufficient'
-    warning (FR-009).
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/PGLS_skipped_if_sample_size_less_than_10
-  kind: magnitude
-  raw_text: Skip PGLS if effective sample size n < 10.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-10-06T15:54:35Z'
-- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
-  attempts: 1
   canonical: Benjamini-Hochberg correction applied to p-values
   claim_id: c_863deace
   context: Calculate and save Benjamini-Hochberg corrected p-values (FR-008) as part
@@ -1827,3 +1809,1987 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-06T16:01:05Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: 'Organism list contains 5 specific IDs: 9606, 559292, 83333, 10090, 7227'
+  claim_id: c_d5875a5f
+  context: 'Create code/config.py with hardcoded organism list: Define a Python constant
+    ORGANISM_IDS = [''9606'', ''559292'', ''83333'', ''10090'', ''7227''] (Human,
+    S. cerevisiae, E. coli, Mouse, D. melanogaster) and CONFIDENCE_THRESHOLDS = [500,
+    700, 900].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define a Python constant ORGANISM_IDS = ['9606', '559292', '83333', '10090',
+    '7227'] (Human, S. cerevisiae, E. coli, Mouse, D. melanogaster)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:12:53Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Confidence thresholds set to 500, 700, 900
+  claim_id: c_d34650dd
+  context: 'Create code/config.py with hardcoded organism list: Define a Python constant
+    ORGANISM_IDS = [''9606'', ''559292'', ''83333'', ''10090'', ''7227''] (Human,
+    S. cerevisiae, E. coli, Mouse, D. melanogaster) and CONFIDENCE_THRESHOLDS = [500,
+    700, 900].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configure CONFIDENCE_THRESHOLDS = [500, 700, 900]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:13:47Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Project initialized with 9 specific dependencies on Python 3.11
+  claim_id: c_394820fa
+  context: 'Initialize Python 3.11 project with dependencies: networkx, pandas, scipy,
+    statsmodels, requests, pyyaml, numpy, biopython, dendropy. Note: pymer4 removed
+    as statsmodels is used for PGLS.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Initialize Python 3.11 project with dependencies: networkx, pandas, scipy,
+    statsmodels, requests, pyyaml, numpy, biopython, dendropy'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:14:05Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: STRING API confidence threshold set to 700
+  claim_id: c_b59639e7
+  context: "Implement fetch_string_ppi function in code/data_loader.py to fetch PPI\
+    \ networks from STRING API for each organism ID in code/config.py (from T004a).\
+    \ Use confidence threshold \u2265700; if API fails for a specific organism, log\
+    \ a warning and skip that organism (do not crash the entire pipeline)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Use confidence threshold \u2265700 for STRING API"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:14:05Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Betweenness centrality switches to k-sampling with k=100 if runtime exceeds
+    25 minutes
+  claim_id: c_a898f6cb
+  context: 'Implement compute_centrality function in code/network_analysis.py to compute
+    degree, betweenness, and eigenvector centrality using NetworkX. Algorithm: For
+    networks >5,000 nodes, use k-sampling for betweenness. Time-Budgeting: If exact
+    calculation on networks of moderate to large scale exceeds 25 minutes, automatically
+    switch to k-sampling with k=100 to guarantee completion within the 30-minute FR-004
+    limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If exact calculation on networks of moderate to large scale exceeds 25
+    minutes, automatically switch to k-sampling with k=100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:14:29Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Null distribution mean correlation threshold set to 0.05
+  claim_id: c_3bf64f7a
+  context: 'Address Review: Null Model Validation: Implement a check in code/statistics.py
+    to verify that the null distribution generated by label permutation (T020) has
+    a mean correlation close to zero (|mean| < 0.05). If the mean deviates significantly,
+    log a warning ''Null distribution biased'' and flag the result as potentially
+    invalid.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the null distribution generated by label permutation has a
+    mean correlation close to zero (|mean| < 0.05)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:14:29Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: PGLS model skipped if sample size is less than 10
+  claim_id: c_fbd2d679
+  context: Implement PGLS model in code/statistics.py using statsmodels and the loaded
+    phylogenetic tree (from T009a, validated by T009b) to test for differences in
+    correlation strength. Include logic to skip if effective sample size n < 10 and
+    log 'Power insufficient' warning (FR-009).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/PGLS_model_skipped_if_sample_size_is_less_than_10
+  kind: magnitude
+  raw_text: Skip PGLS if effective sample size n < 10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:15:23Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: ID mapping fallback triggered if coverage is less than 10%
+  claim_id: c_abbff7d9
+  context: 'Address Review: ID Mapping Fallback: Refactor code/data_loader.py to implement
+    a secondary mapping strategy using Gene Symbols if Ensembl BioMart fails or returns
+    low coverage (<10%). This secondary strategy must use a strict, case-sensitive
+    string match against the DEG database and must log the specific number of genes
+    matched via this fallback.'
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 10.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/ID_mapping_fallback_triggered_if_coverage_is_less_than_10%25
+  kind: magnitude
+  raw_text: Implement a secondary mapping strategy using Gene Symbols if Ensembl BioMart
+    fails or returns low coverage (<10%)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-10-06T16:16:15Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: DEG dataset chunk size set to 1MB
+  claim_id: c_3a497a30
+  context: 'Address Review: Streaming Implementation: Refactor code/data_loader.py
+    to use urllib.request or requests with chunked reading for the DEG dataset if
+    the FTP download fails or is too large for RAM. Specifics: Explicitly define chunk_size
+    = 1024 * 1024 (1MB) and trigger chunked mode if the estimated file size exceeds
+    a substantial portion of available RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define chunk_size = 1024 * 1024 (1MB) for chunked reading
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:16:39Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Execution time limit set to 6 hours
+  claim_id: c_167ecac2
+  context: 'Define Execution Time Limit: Implement EXECUTION_TIME_LIMIT_HOURS = 6
+    in code/config.py. Add logic in code/main.py to measure total runtime and log
+    a warning if it exceeds a high threshold of this limit, and an error if it exceeds
+    100%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement EXECUTION_TIME_LIMIT_HOURS = 6
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:16:53Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Cyclomatic complexity threshold set to 10
+  claim_id: c_b214f0f6
+  context: Code cleanup and refactoring of code/ modules (Refactor code/data_loader.py
+    to reduce cyclomatic complexity < 10 and remove unused imports; run flake8 --max-complexity=10).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refactor code/data_loader.py to reduce cyclomatic complexity < 10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:16:53Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: E. coli STRING data must contain at least 500 edges
+  claim_id: c_cbcab9b5
+  context: 'Address Review: Missing Real Data Source for E. coli: Implement fetch_string_ppi
+    for organism ID ''83333'' (E. coli) using the explicit URL pattern and verify
+    the response contains at least 500 edges. If the API returns 404 or empty data,
+    raise DataFetchError immediately.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/E._coli_STRING_data_must_contain_at_least_500_edges
+  kind: magnitude
+  raw_text: Verify the response contains at least 500 edges for E. coli
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:17:36Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Centrality calculation skipped if network has fewer than 500 edges
+  claim_id: c_7cae4efa
+  context: 'Address Review: Degraded Network for High Thresholds: Implement a pre-calculation
+    check in code/network_analysis.py that counts edges for each threshold before
+    centrality computation. If edges < 500, log ''Threshold {t} too sparse for {organism}''
+    and skip centrality calculation for that organism/threshold pair.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Centrality_calculation_skipped_if_network_has_fewer_than_500
+  kind: magnitude
+  raw_text: If edges < 500, skip centrality calculation for that organism/threshold
+    pair
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:18:06Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Sensitivity stability threshold set to 0.1
+  claim_id: c_48393050
+  context: "Generate Sensitivity Report: Generate results/sensitivity_report.md summarizing\
+    \ correlation coefficients and stability (|\u0394\u03C1|) across thresholds; MUST\
+    \ include a table of |\u0394\u03C1| values for each threshold pair and a pass/fail\
+    \ flag for SC-002 (stability \u2264 0.1). Logic: Calculate the maximum absolute\
+    \ difference in correlation coefficients across the entire set of thresholds and\
+    \ compare that single max value to the specific threshold of 0.1."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate the maximum absolute difference in correlation coefficients
+    across the entire set of thresholds and compare that single max value to the specific
+    threshold of 0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:18:38Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: DEG data stream verification size set to 10MB
+  claim_id: c_09e1e8ea
+  context: 'Verify DEG Data Streaming Capability: Execute a one-time check in code/data_loader.py
+    to stream the first 10MB of the DEG FTP dataset. If the stream fails or returns
+    fewer than 1000 lines, log a CRITICAL warning ''DEG data stream failed; verify
+    FTP access'' and halt execution.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DEG_data_stream_verification_size_set_to_10MB
+  kind: entity_fact
+  raw_text: Stream the first 10MB of the DEG FTP dataset
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:19:02Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: DEG data stream must return at least 1000 lines
+  claim_id: c_d236671f
+  context: 'Verify DEG Data Streaming Capability: Execute a one-time check in code/data_loader.py
+    to stream the first 10MB of the DEG FTP dataset. If the stream fails or returns
+    fewer than 1000 lines, log a CRITICAL warning ''DEG data stream failed; verify
+    FTP access'' and halt execution.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1051: 12500'
+      source_id: Q47604
+      url: https://www.wikidata.org/wiki/Q47604
+      value: '12500'
+    filled: true
+  kind: magnitude
+  raw_text: Verify the stream returns at least 1000 lines
+  resolved_value: '12500'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-06T16:19:15Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Organism list includes Human (9606), S. cerevisiae (559292), E. coli
+    (83333), Mouse (10090), and D. melanogaster (7227)
+  claim_id: c_710dd3f5
+  context: 'T004a [P] **Create `code/config.py` with hardcoded organism list**: Define
+    a Python constant...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define a Python constant ORGANISM_IDS = ['9606', '559292', '83333', '10090',
+    '7227'] (Human, S. cerevisiae, E. coli, Mouse, D. melanogaster) and CONFIDENCE_THRESHOLDS
+    = [500, 700, 900].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:21:58Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Permutation count set to 10000
+  claim_id: c_fedf9097
+  context: 'T019c_static [P] **Set Permutation Count N**: Define `PERMUTATION_COUNT
+    = 10000` in `code/config.py`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define PERMUTATION_COUNT = 10000 in code/config.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:22:13Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: STRING API confidence threshold set to 700
+  claim_id: c_33852c3f
+  context: "T013 [US1] Implement `fetch_string_ppi` function... Use confidence threshold\
+    \ \u2265700..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Use confidence threshold \u2265700 for fetching PPI networks from STRING\
+    \ API."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:22:13Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Betweenness centrality k-sampling threshold is 25 minutes with k=100
+  claim_id: c_6ec75f68
+  context: T016 [US1] ...If exact calculation on networks of moderate to large scale
+    exceeds **25 minutes**, automatically switch to k-sampling with **k=100**...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If exact calculation on networks of moderate to large scale exceeds 25
+    minutes, automatically switch to k-sampling with k=100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:22:13Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Null distribution mean correlation must be less than 0.05
+  claim_id: c_a907d14c
+  context: 'T086 [US1] **Address Review: Null Model Validation**: Implement a check...
+    verify that the null distribution... has a mean correlation close to zero (|mean|
+    < 0.05).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Null_distribution_mean_correlation_must_be_less_than_0.05
+  kind: magnitude
+  raw_text: Verify that the null distribution generated by label permutation has a
+    mean correlation close to zero (|mean| < 0.05).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:22:32Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: PGLS sample size minimum is 10
+  claim_id: c_ebeb4f42
+  context: T029a [US2] ...Include logic to skip if effective sample size n < 10...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Skip PGLS model fitting if effective sample size n < 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:22:33Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction applied to p-values
+  claim_id: c_8fb088b6
+  context: T029a [US2] ...**Calculate and save Benjamini-Hochberg corrected p-values**
+    (FR-008)...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_correction_applied_to_p-values
+  kind: entity_fact
+  raw_text: Calculate and save Benjamini-Hochberg corrected p-values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:23:02Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Network sparsity threshold is 500 edges
+  claim_id: c_0dda5c70
+  context: T061 [US3] ...handle the specific case where a high confidence threshold...
+    results in a network with < 500 edges.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Network_sparsity_threshold_is_500_edges
+  kind: magnitude
+  raw_text: Set centrality metrics to NaN or 0 if network has fewer than 500 edges.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:23:28Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Execution time limit is 6 hours
+  claim_id: c_26b5d91d
+  context: 'T041c [P] **Define Execution Time Limit**: Implement `EXECUTION_TIME_LIMIT_HOURS
+    = 6` in `code/config.py`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define EXECUTION_TIME_LIMIT_HOURS = 6 in code/config.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:23:49Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: E. coli STRING data minimum edge count is 500
+  claim_id: c_df92f23e
+  context: T083 [US1] ...verify the response contains at least 500 edges.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/E._coli_STRING_data_minimum_edge_count_is_500
+  kind: magnitude
+  raw_text: Verify the response contains at least 500 edges for E. coli STRING data.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:24:42Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: DEG data stream verification size is 10MB
+  claim_id: c_b1bb7a41
+  context: 'T091 [P] [US1] **Verify DEG Data Streaming Capability**: Execute a one-time
+    check... to stream the first 10MB of the DEG FTP dataset.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DEG_data_stream_verification_size_is_10MB
+  kind: entity_fact
+  raw_text: Stream the first 10MB of the DEG FTP dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:24:44Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: DEG data stream minimum line count is 1000
+  claim_id: c_0595b7b8
+  context: T091 [P] [US1] ...If the stream fails or returns fewer than 1000 lines,
+    log a CRITICAL warning...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/DEG_data_stream_minimum_line_count_is_1000
+  kind: magnitude
+  raw_text: If the stream fails or returns fewer than 1000 lines, log a CRITICAL warning.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:25:42Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Project initialized with Python 3.11
+  claim_id: c_eb6f1e1c
+  context: T002 Initialize Python 3.11 project with dependencies...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:26:08Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: 'Organism IDs list contains 5 specific IDs: Human (9606), S. cerevisiae
+    (559292), E. coli (83333), Mouse (10090), D. melanogaster (7227)'
+  claim_id: c_90dfb4cf
+  context: 'T004a [P] Create code/config.py with hardcoded organism list: Define a
+    Python constant ORGANISM_IDS = [''9606'', ''559292'', ''83333'', ''10090'', ''7227'']
+    (Human, S. cerevisiae, E. coli, Mouse, D. melanogaster) and CONFIDENCE_THRESHOLDS
+    = [500, 700, 900].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define a Python constant ORGANISM_IDS = ['9606', '559292', '83333', '10090',
+    '7227'] (Human, S. cerevisiae, E. coli, Mouse, D. melanogaster)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:29:31Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Permutation count set to 10000 for label permutation null model
+  claim_id: c_0bc02c31
+  context: 'T019c_static [P] Set Permutation Count N: Define PERMUTATION_COUNT = 10000
+    in code/config.py. This value is fixed for reproducibility and meets SC-001 requirements
+    without an undefined power analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define PERMUTATION_COUNT = 10000 in code/config.py
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:29:31Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: STRING API PPI network fetching uses confidence threshold of 700
+  claim_id: c_3201ede1
+  context: "T013 [US1] Implement fetch_string_ppi function in code/data_loader.py\
+    \ to fetch PPI networks from STRING API for each organism ID in code/config.py\
+    \ (from T004a). Use confidence threshold \u2265700; if API fails for a specific\
+    \ organism, log a warning and skip that organism."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Use confidence threshold \u2265700 for STRING API PPI network fetching"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:29:31Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Betweenness centrality switches to k-sampling with k=100 if calculation
+    exceeds 25 minutes
+  claim_id: c_970c4d92
+  context: 'T016 [US1] Implement compute_centrality function in code/network_analysis.py
+    to compute degree, betweenness, and eigenvector centrality using NetworkX. Algorithm:
+    For networks >5,000 nodes, use k-sampling for betweenness. Time-Budgeting: If
+    exact calculation on networks of moderate to large scale exceeds 25 minutes, automatically
+    switch to k-sampling with k=100 to guarantee completion within the 30-minute FR-004
+    limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Switch to k-sampling with k=100 for betweenness centrality if exact calculation
+    exceeds 25 minutes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:29:54Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: PGLS model fitting is skipped if effective sample size is less than 10
+  claim_id: c_470a40fc
+  context: T029a [US2] Implement PGLS model in code/statistics.py using statsmodels
+    and the loaded phylogenetic tree (from T009a, validated by T009b) to test for
+    differences in correlation strength. Include logic to skip if effective sample
+    size n < 10 and log Power insufficient warning (FR-009).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/PGLS_model_fitting_is_skipped_if_effective_sample_size_is_le
+  kind: magnitude
+  raw_text: Skip PGLS model fitting if effective sample size n < 10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:30:47Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis stability fails if max absolute difference in correlation
+    coefficients exceeds 0.1
+  claim_id: c_8491eb0e
+  context: "T037 [US3] Generate Sensitivity Report: Generate results/sensitivity_report.md\
+    \ summarizing correlation coefficients and stability (|\u0394\u03C1|) across thresholds;\
+    \ MUST include a table of |\u0394\u03C1| values for each threshold pair and a\
+    \ pass/fail flag for SC-002 (stability \u2264 0.1). Logic: Calculate the maximum\
+    \ absolute difference in correlation coefficients across the entire set of thresholds\
+    \ and compare that single max value to the specific threshold of 0.1."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag stability as failed if maximum absolute difference in correlation
+    coefficients across thresholds exceeds 0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:31:20Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Centrality calculation is skipped if network has fewer than 500 edges
+  claim_id: c_7e6de735
+  context: 'T061 [US3] Address Review: Threshold Edge Case Handling: Modify code/network_analysis.py
+    to handle the specific case where a high confidence threshold (e.g., 900) results
+    in a network with < 500 edges. Instead of just logging, the code must explicitly
+    set centrality_metrics to NaN or 0 for that organism/threshold combination and
+    record reason: network_too_sparse in the output JSON.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Centrality_calculation_is_skipped_if_network_has_fewer_than
+  kind: magnitude
+  raw_text: Skip centrality calculation if network has fewer than 500 edges at a high
+    confidence threshold
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:32:22Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: E. coli STRING data verification requires at least 500 edges at threshold
+    700
+  claim_id: c_75b3f8ad
+  context: 'T083 [US1] Address Review: Missing Real Data Source for E. coli: Implement
+    fetch_string_ppi for organism ID ''83333'' (E. coli) using the explicit URL pattern
+    and verify the response contains at least 500 edges. If the API returns 404 or
+    empty data, raise DataFetchError immediately.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/E._coli_STRING_data_verification_requires_at_least_500_edges
+  kind: magnitude
+  raw_text: Verify E. coli STRING data contains at least 500 edges with threshold
+    700
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:33:11Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: DEG FTP dataset streaming verification requires 10MB stream with at least
+    1000 lines
+  claim_id: c_04ac4c95
+  context: 'T091 [P] [US1] Verify DEG Data Streaming Capability: Execute a one-time
+    check in code/data_loader.py to stream the first 10MB of the DEG FTP dataset.
+    If the stream fails or returns fewer than 1000 lines, log a CRITICAL warning DEG
+    data stream failed; verify FTP access and halt execution.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/DEG_FTP_dataset_streaming_verification_requires_10MB_stream
+  kind: magnitude
+  raw_text: Stream first 10MB of DEG FTP dataset and verify at least 1000 lines
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:33:35Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: DEG dataset chunked reading uses 1MB chunk size
+  claim_id: c_f438c026
+  context: 'T069 [US3] Address Review: Streaming Implementation: Refactor code/data_loader.py
+    to use urllib.request or requests with chunked reading for the DEG dataset if
+    the FTP download fails or is too large for RAM. Specifics: Explicitly define chunk_size
+    = 1024 * 1024 (1MB) and trigger chunked mode if the estimated file size exceeds
+    a substantial portion of available RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use chunk size of 1MB (1024 * 1024) for chunked reading of DEG dataset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:33:56Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Secondary ID mapping strategy triggered if Ensembl BioMart coverage is
+    below 10%
+  claim_id: c_98950236
+  context: 'T074 [US1] Address Review: ID Mapping Fallback: Refactor code/data_loader.py
+    to implement a secondary mapping strategy using Gene Symbols if Ensembl BioMart
+    fails or returns low coverage (<10%). This secondary strategy must use a strict,
+    case-sensitive string match against the DEG database and must log the specific
+    number of genes matched via this fallback.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Trigger secondary ID mapping strategy if Ensembl BioMart returns coverage
+    below 10%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:33:56Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: PGLS analysis skipped if effective sample size n is less than 10
+  claim_id: c_4e48414c
+  context: 'T085 [US2] Address Review: PGLS Power Insufficiency: Implement a dynamic
+    check in code/statistics.py that calculates the effective sample size (organisms
+    with valid correlations AND tree tips). If n < 10, skip the PGLS model fitting,
+    log Power insufficient: n={n} and record a skipped status in results/pgls_results.json
+    with the reason.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/PGLS_analysis_skipped_if_effective_sample_size_n_is_less_tha
+  kind: magnitude
+  raw_text: Skip PGLS analysis if effective sample size n is less than 10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:34:49Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: E. coli removed from organism list if STRING API returns fewer than 500
+    edges
+  claim_id: c_d18b9567
+  context: 'T090 [P] [US1] Verify E. coli STRING Data Availability: Execute a one-time
+    check in code/data_loader.py to fetch PPI data for E. coli (ID 83333) from STRING
+    with threshold 700. If the API returns fewer than 500 edges or fails, log a CRITICAL
+    warning E. coli data unavailable; removing from organism list and update code/config.py
+    to exclude ''83333'' from ORGANISM_IDS.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/E._coli_removed_from_organism_list_if_STRING_API_returns_few
+  kind: magnitude
+  raw_text: Remove E. coli from organism list if STRING API returns fewer than 500
+    edges
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:35:29Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Null distribution warning triggered if mean correlation deviates by more
+    than 0.05 from zero
+  claim_id: c_ac0281c5
+  context: 'T086 [US1] Address Review: Null Model Validation: Implement a check in
+    code/statistics.py to verify that the null distribution generated by label permutation
+    (T020) has a mean correlation close to zero (|mean| < 0.05). If the mean deviates
+    significantly, log a warning Null distribution biased and flag the result as potentially
+    invalid.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Null_distribution_warning_triggered_if_mean_correlation_devi
+  kind: magnitude
+  raw_text: Log warning if null distribution mean correlation deviates by more than
+    0.05 from zero
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:36:00Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Total pipeline execution time limit is 6 hours
+  claim_id: c_803ca7a1
+  context: 'T041c [P] Define Execution Time Limit: Implement EXECUTION_TIME_LIMIT_HOURS
+    = 6 in code/config.py. Add logic in code/main.py to measure total runtime and
+    log a warning if it exceeds a high threshold of this limit, and an error if it
+    exceeds 100%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Limit total pipeline execution to 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:36:27Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Centrality algorithms optimized to meet 30-minute runtime for 25k nodes
+  claim_id: c_998a8909
+  context: 'T041b [P] Implement optimizations: Refactor code/network_analysis.py based
+    on T041a results to optimize centrality algorithms (T016) to meet the 30-minute
+    runtime requirement for 25k nodes. Focus: Optimize centrality algorithms, not
+    data fetches.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Optimize centrality algorithms to meet 30-minute runtime requirement for
+    25k nodes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:36:49Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Code/data_loader.py refactoring targets cyclomatic complexity below 10
+  claim_id: c_d7fb9f93
+  context: T040 Code cleanup and refactoring of code/ modules (Refactor code/data_loader.py
+    to reduce cyclomatic complexity < 10 and remove unused imports; run flake8 --max-complexity=10).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refactor code/data_loader.py to reduce cyclomatic complexity below 10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:37:07Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Organism ID list validation requires between 5 and 8 organisms
+  claim_id: c_18f24447
+  context: 'T004c [P] Validate Organism Count: Implement a check in code/config.py
+    (or main.py) that verifies the final ORGANISM_IDS list contains between 5 and
+    8 organisms after all validation steps (T090, T092) are complete. If count < 5,
+    log a CRITICAL error and halt.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Validate that ORGANISM_IDS list contains between 5 and 8 organisms
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:37:42Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Confidence thresholds set to 500, 700, and 900
+  claim_id: c_a59a50b3
+  context: 'T004a [P] Create code/config.py with hardcoded organism list: Define a
+    Python constant ORGANISM_IDS = [''9606'', ''559292'', ''83333'', ''10090'', ''7227'']
+    (Human, S. cerevisiae, E. coli, Mouse, D. melanogaster) and CONFIDENCE_THRESHOLDS
+    = [500, 700, 900].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set confidence thresholds to [500, 700, 900] in configuration
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:38:05Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Organism IDs list contains 9606, 559292, 83333, 10090, 7227
+  claim_id: c_968a2a5d
+  context: 'T004a [P] Create code/config.py with hardcoded organism list: Define a
+    Python constant ORGANISM_IDS = [''9606'', ''559292'', ''83333'', ''10090'', ''7227'']
+    (Human, S. cerevisiae, E. coli, Mouse, D. melanogaster) and CONFIDENCE_THRESHOLDS
+    = [500, 700, 900].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define a Python constant ORGANISM_IDS = ['9606', '559292', '83333', '10090',
+    '7227'] (Human, S. cerevisiae, E. coli, Mouse, D. melanogaster)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:39:29Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Confidence thresholds list contains 500, 700, 900
+  claim_id: c_1aa38b50
+  context: 'T004a [P] Create code/config.py with hardcoded organism list: Define a
+    Python constant ORGANISM_IDS = [''9606'', ''559292'', ''83333'', ''10090'', ''7227'']
+    (Human, S. cerevisiae, E. coli, Mouse, D. melanogaster) and CONFIDENCE_THRESHOLDS
+    = [500, 700, 900].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define CONFIDENCE_THRESHOLDS = [500, 700, 900]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:39:55Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Project initialized with Python 3.11
+  claim_id: c_32782adb
+  context: 'T002 Initialize Python 3.11 project with dependencies: networkx, pandas,
+    scipy, statsmodels, requests, pyyaml, numpy, biopython, dendropy.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:39:55Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Permutation count set to 10000
+  claim_id: c_af8bf968
+  context: 'T019c_static [P] Set Permutation Count N: Define PERMUTATION_COUNT = 10000
+    in code/config.py. This value is fixed for reproducibility and meets SC-001 requirements
+    without an undefined power analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define PERMUTATION_COUNT = 10000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:39:55Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Betweenness centrality uses k-sampling with k=100 for networks >5000
+    nodes
+  claim_id: c_b2312713
+  context: 'T016 [US1] Implement compute_centrality function in code/network_analysis.py
+    to compute degree, betweenness, and eigenvector centrality using NetworkX. Algorithm:
+    For networks >5,000 nodes, use k-sampling for betweenness.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use k-sampling with k=100 for networks >5,000 nodes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:39:55Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Centrality calculation switches to k-sampling if runtime exceeds 25 minutes
+  claim_id: c_e8d750de
+  context: 'T016 [US1] ... Time-Budgeting: If exact calculation on networks of moderate
+    to large scale exceeds 25 minutes, automatically switch to k-sampling with k=100
+    to guarantee completion within the 30-minute FR-004 limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Switch to k-sampling if exact calculation exceeds 25 minutes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:40:19Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Null model mean correlation must be less than 0.05
+  claim_id: c_aa26bc37
+  context: 'T086 [US1] Address Review: Null Model Validation: Implement a check in
+    code/statistics.py to verify that the null distribution generated by label permutation
+    (T020) has a mean correlation close to zero (|mean| < 0.05).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Null_model_mean_correlation_must_be_less_than_0.05
+  kind: magnitude
+  raw_text: Verify the null distribution generated by label permutation has a mean
+    correlation close to zero (|mean| < 0.05)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:40:21Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: STRING API uses confidence threshold 700
+  claim_id: c_735b80fc
+  context: T013 [US1] Implement fetch_string_ppi function in code/data_loader.py to
+    fetch PPI networks from STRING API for each organism ID in code/config.py (from
+    T004a). Use confidence threshold >=700
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use confidence threshold >= 700 for STRING API
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:40:43Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: PGLS skipped if sample size is less than 10
+  claim_id: c_77f7bc92
+  context: T029a [US2] Implement PGLS model in code/statistics.py using statsmodels
+    and the loaded phylogenetic tree (from T009a, validated by T009b) to test for
+    differences in correlation strength. Include logic to skip if effective sample
+    size n < 10 and log Power insufficient warning (FR-009).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/PGLS_skipped_if_sample_size_is_less_than_10
+  kind: magnitude
+  raw_text: Skip PGLS if effective sample size n < 10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:40:46Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction applied to p-values
+  claim_id: c_40d0745a
+  context: T029a [US2] ... Calculate and save Benjamini-Hochberg corrected p-values
+    (FR-008) as part of this function.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_correction_applied_to_p-values
+  kind: entity_fact
+  raw_text: Calculate Benjamini-Hochberg corrected p-values
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:41:11Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Data streaming uses 1MB chunk size
+  claim_id: c_2fdbfbbf
+  context: 'T069 [US3] Address Review: Streaming Implementation: Refactor code/data_loader.py
+    to use urllib.request or requests with chunked reading for the DEG dataset if
+    the FTP download fails or is too large for RAM. Specifics: Explicitly define chunk_size
+    = 1024 * 1024 (1MB) and trigger chunked mode if the estimated file size exceeds
+    a substantial portion of available RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define chunk_size = 1024 * 1024 (1MB) for streaming
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:41:36Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Secondary ID mapping triggered if coverage is less than 10%
+  claim_id: c_0e55ce2c
+  context: 'T074 [US1] Address Review: ID Mapping Fallback: Refactor code/data_loader.py
+    to implement a secondary mapping strategy using Gene Symbols if Ensembl BioMart
+    fails or returns low coverage (<10%).'
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 10.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Secondary_ID_mapping_triggered_if_coverage_is_less_than_10%25
+  kind: magnitude
+  raw_text: Implement secondary mapping strategy if coverage is < 10%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-10-06T16:42:10Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis flags instability if absolute difference exceeds
+    0.1
+  claim_id: c_83748aaa
+  context: "T037 [US3] Generate Sensitivity Report: Generate results/sensitivity_report.md\
+    \ summarizing correlation coefficients and stability (|\u0394\u03C1|) across thresholds;\
+    \ MUST include a table of |\u0394\u03C1| values for each threshold pair and a\
+    \ pass/fail flag for SC-002 (stability \u2264 0.1)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Flag stability if |\u0394\u03C1| > 0.1"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:42:10Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Centrality calculation skipped for networks with fewer than 500 edges
+  claim_id: c_c8e3b2dd
+  context: 'T084 [US1] Address Review: Degraded Network for High Thresholds: Implement
+    a pre-calculation check in code/network_analysis.py that counts edges for each
+    threshold before centrality computation. If edges < 500, log Threshold {t} too
+    sparse for {organism} and skip centrality calculation for that organism/threshold
+    pair.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Centrality_calculation_skipped_for_networks_with_fewer_than
+  kind: magnitude
+  raw_text: Skip centrality calculation if edges < 500
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:42:44Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: E. coli PPI data must contain at least 500 edges
+  claim_id: c_38f44df2
+  context: 'T083 [US1] Address Review: Missing Real Data Source for E. coli: Implement
+    fetch_string_ppi for organism ID ''83333'' (E. coli) using the explicit URL pattern
+    and verify the response contains at least 500 edges.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/E._coli_PPI_data_must_contain_at_least_500_edges
+  kind: magnitude
+  raw_text: Verify E. coli STRING data contains at least 500 edges
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:43:33Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: DEG data stream must contain at least 1000 lines in first 10MB
+  claim_id: c_5379fd8b
+  context: 'T091 [P] [US1] Verify DEG Data Streaming Capability: Execute a one-time
+    check in code/data_loader.py to stream the first 10MB of the DEG FTP dataset.
+    If the stream fails or returns fewer than 1000 lines, log a CRITICAL warning DEG
+    data stream failed; verify FTP access and halt execution.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/DEG_data_stream_must_contain_at_least_1000_lines_in_first_10
+  kind: magnitude
+  raw_text: Verify DEG data stream contains at least 1000 lines in first 10MB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:44:00Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Execution time limit set to 6 hours
+  claim_id: c_a32e968c
+  context: 'T041c [P] Define Execution Time Limit: Implement EXECUTION_TIME_LIMIT_HOURS
+    = 6 in code/config.py. Add logic in code/main.py to measure total runtime and
+    log a warning if it exceeds a high threshold of this limit, and an error if it
+    exceeds 100%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define EXECUTION_TIME_LIMIT_HOURS = 6
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:44:21Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Code refactored to achieve cyclomatic complexity less than 10
+  claim_id: c_28717e4e
+  context: T040 Code cleanup and refactoring of code/ modules (Refactor code/data_loader.py
+    to reduce cyclomatic complexity < 10 and remove unused imports; run flake8 --max-complexity=10).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Code_refactored_to_achieve_cyclomatic_complexity_less_than_1
+  kind: magnitude
+  raw_text: Refactor to reduce cyclomatic complexity < 10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:44:45Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Centrality algorithms optimized for 30-minute runtime on 25000 nodes
+  claim_id: c_b223bf47
+  context: 'T041b [P] Implement optimizations: Refactor code/network_analysis.py based
+    on T041a results to optimize centrality algorithms (T016) to meet the 30-minute
+    runtime requirement for 25k nodes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Optimize centrality algorithms to meet 30-minute runtime requirement for
+    25k nodes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:44:45Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: 'Organism IDs list contains 5 specific IDs: 9606, 559292, 83333, 10090,
+    7227'
+  claim_id: c_b579022b
+  context: 'T004a: Create code/config.py with hardcoded organism list. This list MUST
+    contain 5-8 specific organism IDs as required by FR-001.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define a Python constant ORGANISM_IDS = ['9606', '559292', '83333', '10090',
+    '7227'] (Human, S. cerevisiae, E. coli, Mouse, D. melanogaster)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:46:12Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Permutation count set to 10000
+  claim_id: c_a4ab4bd5
+  context: 'T019c_static: Set Permutation Count N. This value is fixed for reproducibility
+    and meets SC-001 requirements.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define PERMUTATION_COUNT = 10000 in code/config.py
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:46:13Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: STRING confidence threshold set to 700 or higher
+  claim_id: c_6ff7b30b
+  context: 'T013: Fetch PPI networks from STRING API for each organism ID. Use confidence
+    threshold >=700.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use confidence threshold >= 700 for fetching PPI networks from STRING
+    API
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:46:35Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: DEG dataset streaming chunk size set to 1MB
+  claim_id: c_67663878
+  context: 'T069: Refactor code/data_loader.py to use chunked reading for the DEG
+    dataset. Explicitly define chunk_size = 1024 * 1024 (1MB).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use chunk_size = 1024 * 1024 (1MB) for streaming DEG dataset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:46:57Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Betweenness centrality switches to k-sampling with k=100 after 25 minutes
+  claim_id: c_0e7c72d8
+  context: 'T016: For networks >5,000 nodes, use k-sampling for betweenness. If exact
+    calculation exceeds 25 minutes, automatically switch to k-sampling with k=100.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Switch to k-sampling with k=100 if exact centrality calculation exceeds
+    25 minutes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:47:18Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: PGLS model skipped if sample size is less than 10
+  claim_id: c_52171adf
+  context: 'T029a: Include logic to skip if effective sample size n < 10 and log ''Power
+    insufficient'' warning (FR-009).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/PGLS_model_skipped_if_sample_size_is_less_than_10
+  kind: magnitude
+  raw_text: Skip PGLS model if effective sample size n < 10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:48:09Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis flags if correlation difference exceeds 0.1
+  claim_id: c_67ff8bb1
+  context: 'T037: Generate sensitivity report. Calculate the maximum absolute difference
+    in correlation coefficients across the entire set of thresholds and compare that
+    single max value to the specific threshold of 0.1.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_flags_if_correlation_difference_exceeds
+  kind: magnitude
+  raw_text: Flag sensitivity analysis if absolute difference in correlation coefficients
+    is greater than 0.1
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:48:47Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Network sparsity warning triggered if edges are fewer than 500
+  claim_id: c_c67ff219
+  context: 'T036: Implement logging for network sparsity (flag if edges < 500).'
+  evidence:
+    entailment_evidence: Network sparsity warning triggered if edges are fewer than
+      5
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Network_sparsity_warning_triggered_if_edges_are_fewer_than_5
+  kind: magnitude
+  raw_text: Log warning if network has fewer than 500 edges
+  resolved_value: Network sparsity warning triggered if edges are fewer than 500
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-06T16:48:49Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: E. coli STRING data must contain at least 500 edges
+  claim_id: c_e1dc2e66
+  context: 'T083: Implement fetch_string_ppi for E. coli and verify the response contains
+    at least 500 edges.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/E._coli_STRING_data_must_contain_at_least_500_edges
+  kind: magnitude
+  raw_text: Verify E. coli STRING data contains at least 500 edges
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:48:52Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: DEG FTP dataset stream verification checks first 10MB
+  claim_id: c_b5277bf9
+  context: 'T091: Execute a one-time check to stream the first 10MB of the DEG FTP
+    dataset.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DEG_FTP_dataset_stream_verification_checks_first_10MB
+  kind: entity_fact
+  raw_text: Stream the first 10MB of the DEG FTP dataset
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:48:55Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: DEG data stream must return at least 1000 lines
+  claim_id: c_b0cd0049
+  context: 'T091: If the stream fails or returns fewer than 1000 lines, log a CRITICAL
+    warning.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/DEG_data_stream_must_return_at_least_1000_lines
+  kind: magnitude
+  raw_text: Verify DEG data stream returns at least 1000 lines
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:49:26Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Organism list size must be between 5 and 8
+  claim_id: c_950b016c
+  context: 'T004a: This list MUST contain 5-8 specific organism IDs as required by
+    FR-001.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Organism list must contain between 5 and 8 organisms
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:49:55Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Organism IDs list contains 9606, 559292, 83333, 10090, 7227
+  claim_id: c_8a23f53f
+  context: 'Create code/config.py with hardcoded organism list: Define a Python constant
+    ORGANISM_IDS = [''9606'', ''559292'', ''83333'', ''10090'', ''7227''] (Human,
+    S. cerevisiae, E. coli, Mouse, D. melanogaster) and CONFIDENCE_THRESHOLDS = [500,
+    700, 900].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define a Python constant ORGANISM_IDS = ['9606', '559292', '83333', '10090',
+    '7227'] (Human, S. cerevisiae, E. coli, Mouse, D. melanogaster)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:50:40Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 2
+  canonical: Permutation count set to 10000
+  claim_id: c_ff89308f
+  context: 'Set Permutation Count N: Define PERMUTATION_COUNT = 10000 in code/config.py.
+    This value is fixed for reproducibility and meets SC-001 requirements without
+    an undefined power analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define PERMUTATION_COUNT = 10000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:50:40Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Project initialized with Python 3.11
+  claim_id: c_10b1fa6f
+  context: 'Initialize Python 3.11 project with dependencies: networkx, pandas, scipy,
+    statsmodels, requests, pyyaml, numpy, biopython, dendropy.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:50:40Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: STRING confidence threshold set to 700
+  claim_id: c_1a4474b4
+  context: Implement fetch_string_ppi function in code/data_loader.py to fetch PPI
+    networks from STRING API for each organism ID in code/config.py (from T004a).
+    Use confidence threshold >=700
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use confidence threshold >= 700 for STRING API
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:50:41Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: E. coli PPI data must contain at least 500 edges
+  claim_id: c_cf498983
+  context: Implement fetch_string_ppi for organism ID '83333' (E. coli) using the
+    explicit URL pattern and verify the response contains at least 500 edges.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/E._coli_PPI_data_must_contain_at_least_500_edges
+  kind: magnitude
+  raw_text: Verify E. coli PPI data contains at least 500 edges
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:51:30Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 2
+  canonical: PGLS skipped if sample size less than 10
+  claim_id: c_82cc1d20
+  context: Include logic to skip if effective sample size n < 10 and log 'Power insufficient'
+    warning (FR-009).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/PGLS_skipped_if_sample_size_less_than_10
+  kind: magnitude
+  raw_text: Skip PGLS if effective sample size n < 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:51:33Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Centrality calculation skipped if edges less than 500
+  claim_id: c_e258cbb6
+  context: Implement a pre-calculation check in code/network_analysis.py that counts
+    edges for each threshold before centrality computation. If edges < 500, log 'Threshold
+    {t} too sparse for {organism}' and skip centrality calculation
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Centrality_calculation_skipped_if_edges_less_than_500
+  kind: magnitude
+  raw_text: Skip centrality calculation if network edges < 500
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:51:58Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis flags if correlation difference exceeds 0.1
+  claim_id: c_121965f8
+  context: Calculate the maximum absolute difference in correlation coefficients across
+    the entire set of thresholds and compare that single max value to the specific
+    threshold of 0.1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag if absolute difference in correlation coefficients > 0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:51:59Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Centrality algorithms optimized for 30 minute runtime on 25000 nodes
+  claim_id: c_38bb886b
+  context: Refactor code/network_analysis.py based on T041a results to optimize centrality
+    algorithms (T016) to meet the 30-minute runtime requirement for 25k nodes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Optimize centrality algorithms to meet 30-minute runtime for 25,000 nodes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:52:18Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Switch to k-sampling with k=100 if calculation exceeds 25 minutes
+  claim_id: c_4bb76171
+  context: If exact calculation on networks of moderate to large scale exceeds 25
+    minutes, automatically switch to k-sampling with k=100 to guarantee completion
+    within the 30-minute FR-004 limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Switch to k-sampling with k=100 if exact calculation exceeds 25 minutes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:52:38Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: DEG dataset streaming uses 1MB chunk size
+  claim_id: c_0d6362ab
+  context: Explicitly define chunk_size = 1024 * 1024 (1MB) and trigger chunked mode
+    if the estimated file size exceeds a substantial portion of available RAM.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DEG_dataset_streaming_uses_1MB_chunk_size
+  kind: entity_fact
+  raw_text: Use chunk size of 1MB for DEG dataset streaming
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:53:07Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Null distribution mean correlation must be within 0.05 of zero
+  claim_id: c_7fd1128c
+  context: Implement a check in code/statistics.py to verify that the null distribution
+    generated by label permutation (T020) has a mean correlation close to zero (|mean|
+    < 0.05).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify null distribution mean correlation is within |0.05| of zero
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:53:29Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Warning logged if mapping coverage below 10 percent
+  claim_id: c_cad42fc8
+  context: Refactor code/data_loader.py to implement a secondary mapping strategy
+    using Gene Symbols if Ensembl BioMart fails or returns low coverage (<10%).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Log warning if mapping coverage is < 10%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:53:29Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: First 10MB of DEG FTP dataset streamed for verification
+  claim_id: c_663abfdb
+  context: Execute a one-time check in code/data_loader.py to stream the first 10MB
+    of the DEG FTP dataset. If the stream fails or returns fewer than 1000 lines,
+    log a CRITICAL warning
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/First_10MB_of_DEG_FTP_dataset_streamed_for_verification
+  kind: entity_fact
+  raw_text: Stream first 10MB of DEG FTP dataset for verification
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:53:56Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: DEG stream must return at least 1000 lines
+  claim_id: c_95b8cc36
+  context: Execute a one-time check in code/data_loader.py to stream the first 10MB
+    of the DEG FTP dataset. If the stream fails or returns fewer than 1000 lines,
+    log a CRITICAL warning
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/DEG_stream_must_return_at_least_1000_lines
+  kind: magnitude
+  raw_text: Verify DEG stream returns at least 1000 lines
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T16:54:39Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Organism IDs list contains 9606, 559292, 83333, 10090, 7227 representing
+    Human, S. cerevisiae, E. coli, Mouse, D. melanogaster
+  claim_id: c_5e8be59a
+  context: 'Create `code/config.py` with hardcoded organism list: Define a Python
+    constant `ORGANISM_IDS = [''9606'', ''559292'', ''83333'', ''10090'', ''7227'']`
+    (Human, S. cerevisiae, E. coli, Mouse, D. melanogaster) and `CONFIDENCE_THRESHOLDS
+    = [500, 700, 900]`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define a Python constant ORGANISM_IDS = ['9606', '559292', '83333', '10090',
+    '7227'] (Human, S. cerevisiae, E. coli, Mouse, D. melanogaster)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T17:02:04Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Permutation count N is set to 10000
+  claim_id: c_a3ef6b31
+  context: 'Set Permutation Count N: Define `PERMUTATION_COUNT = 10000` in `code/config.py`.
+    This value is fixed for reproducibility and meets SC-001 requirements without
+    an undefined power analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define PERMUTATION_COUNT = 10000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T17:02:04Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Project initialized with Python 3.11
+  claim_id: c_da51748c
+  context: 'Initialize Python 3.11 project with dependencies: `networkx`, `pandas`,
+    `scipy`, `statsmodels`, `requests`, `pyyaml`, `numpy`, `biopython`, `dendropy`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T17:02:05Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: STRING API confidence threshold set to 700 or higher
+  claim_id: c_4b414824
+  context: "Implement `fetch_string_ppi` function in `code/data_loader.py` to fetch\
+    \ PPI networks from STRING API for each organism ID in `code/config.py` (from\
+    \ T004a). Use confidence threshold \u2265700; if API fails for a specific organism,\
+    \ log a warning and skip that organism (do not crash the entire pipeline)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Use confidence threshold \u2265700 for STRING API"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T17:02:05Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: DEG data primary source is ftp://ftp.ncbi.nlm.nih.gov/pub/microarray/deg/
+  claim_id: c_f5cb2a5f
+  context: 'Implement `fetch_deg_essentiality` function in `code/data_loader.py` to
+    fetch gene essentiality labels (binary) from the DEG database. **Fallback Strategy**:
+    Attempt primary FTP URL `ftp://ftp.ncbi.nlm.nih.gov/pub/microarray/deg/`. If that
+    fails, attempt the official DEG API endpoint.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DEG_data_primary_source_is_ftp://ftp.ncbi.nlm.nih.gov/pub/mi
+  kind: entity_fact
+  raw_text: Attempt primary FTP URL ftp://ftp.ncbi.nlm.nih.gov/pub/microarray/deg/
+    for DEG data
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T17:02:28Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Betweenness centrality switches to k-sampling with k=100 if calculation
+    exceeds 25 minutes
+  claim_id: c_c703df7d
+  context: '**Time-Budgeting**: If exact calculation on networks of moderate to large
+    scale exceeds **25 minutes**, automatically switch to k-sampling with **k=100**
+    to guarantee completion within the 30-minute FR-004 limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Switch to k-sampling with k=100 if betweenness calculation exceeds 25
+    minutes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T17:02:50Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: DEG dataset streaming chunk size is 1MB
+  claim_id: c_da2bf09f
+  context: 'Refactor `code/data_loader.py` to use `urllib.request` or `requests**
+    with chunked reading for the DEG dataset if the FTP download fails or is too large
+    for RAM. **Specifics**: Explicitly define `chunk_size = 1024 * 1024` (1MB) and
+    trigger chunked mode if the estimated file size exceeds a substantial portion
+    of available RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define chunk_size = 1024 * 1024 (1MB) for DEG dataset streaming
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T17:03:19Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: PGLS model skipped if effective sample size is less than 10
+  claim_id: c_25cf1353
+  context: Implement PGLS model in `code/statistics.py` using `statsmodels` and the
+    loaded phylogenetic tree (from T009a, validated by T009b) to test for differences
+    in correlation strength. **Include logic to skip if effective sample size n <
+    10 and log "Power insufficient" warning** (FR-009).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/PGLS_model_skipped_if_effective_sample_size_is_less_than_10
+  kind: magnitude
+  raw_text: Skip PGLS if effective sample size n < 10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T17:03:21Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis fails if maximum absolute difference in correlation
+    coefficients exceeds 0.1
+  claim_id: c_7b15454c
+  context: "Generate `results/sensitivity_report.md` summarizing correlation coefficients\
+    \ and stability (|\u0394\u03C1|) across thresholds; MUST include a table of |\u0394\
+    \u03C1| values for each threshold pair and a pass/fail flag for SC-002 (stability\
+    \ \u2264 0.1). **Logic**: Calculate the maximum absolute difference in correlation\
+    \ coefficients across the entire set of thresholds and compare that single max\
+    \ value to the **specific threshold of 0.1**."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Flag stability as failed if |\u0394\u03C1| > 0.1"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T17:03:22Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Centrality calculation skipped if network has fewer than 500 edges
+  claim_id: c_c0df5589
+  context: Implement a pre-calculation check in `code/network_analysis.py` that counts
+    edges for each threshold before centrality computation. If edges < 500, log "Threshold
+    {t} too sparse for {organism}" and skip centrality calculation for that organism/threshold
+    pair, recording the skip reason in `results/sensitivity_summary.json`.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Centrality_calculation_skipped_if_network_has_fewer_than_500
+  kind: magnitude
+  raw_text: Skip centrality calculation if network edges < 500
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T17:03:24Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: E. coli STRING data must contain at least 500 edges
+  claim_id: c_4bea1467
+  context: Implement `fetch_string_ppi` for organism ID '83333' (E. coli) using the
+    explicit URL pattern ` and verify the response contains at least 500 edges. If
+    the API returns 404 or empty data, raise `DataFetchError` immediately.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/E._coli_STRING_data_must_contain_at_least_500_edges
+  kind: magnitude
+  raw_text: Verify E. coli STRING data has at least 500 edges
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T17:04:12Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: DEG FTP data stream verification requires first 10MB to contain at least
+    1000 lines
+  claim_id: c_9650c170
+  context: Execute a one-time check in `code/data_loader.py` to stream the first 10MB
+    of the DEG FTP dataset. If the stream fails or returns fewer than 1000 lines,
+    log a CRITICAL warning "DEG data stream failed; verify FTP access" and halt execution.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/DEG_FTP_data_stream_verification_requires_first_10MB_to_cont
+  kind: magnitude
+  raw_text: Stream first 10MB of DEG FTP dataset and verify at least 1000 lines
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T17:04:14Z'

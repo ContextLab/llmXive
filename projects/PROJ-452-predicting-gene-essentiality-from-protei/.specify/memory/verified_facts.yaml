@@ -1,5 +1,5 @@
-'|code complexity cyclomatic less reduce refactor than':
-  quote: number should be in the range of 1 -10 and range specifies that
-  source_id: '1412.6216'
-  url: https://arxiv.org/abs/1412.6216
-  value: '10'
+'|least line return stream verify':
+  quote: 'P1051: 12500'
+  source_id: Q47604
+  url: https://www.wikidata.org/wiki/Q47604
+  value: '12500'
