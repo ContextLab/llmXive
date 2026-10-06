@@ -1,0 +1,17 @@
+{
+  "project_id": "PROJ-524-the-impact-of-nostalgia-on-cognitive-fle",
+  "ok": false,
+  "reason": "8 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/ingestion/fetcher.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026d.DataFrame:     \"\"\"     Generate synthetic data as a fallback.\u2026\u201d; code/ingestion/fetcher.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026gger.warning(\"Generating synthetic fallback data. This should not be used\u2026\u201d; code/task_t010d_generate_simulation.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026d.DataFrame:     \"\"\"     Generates synthetic WCST (Wisconsin Card Sor\u2026\u201d; 2 command(s) failed: python code/main.py (rc=1); python code/analysis.py (rc=1); 12 declared deliverable(s) absent: data/processed/cleaned_age_filtered.csv; data/processed/cleaned_dataset.csv; data/processed/cleaned_dataset_no_mmse.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py -> rc=1\n    2026-10-06 12:55:53,574 - utils - INFO - Starting llmXive Pipeline Orchestration\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/main.py\", line 106, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/main.py\", line 103, in main\n    return run_orchestration()\n           ^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nos",
+    "python code/analysis.py -> rc=1\n    2026-10-06 12:55:54,728 - ERROR - Data Error: Cleaned dataset not found at ./data/processed/final_cleaned_dataset.csv\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/analysis.py\", line 285, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/code/analysis.py\", line 258, in main\n    df = load_cleaned_dataset()\n         ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-10-06T12:55:57Z"
+}

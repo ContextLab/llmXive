@@ -7,12 +7,19 @@ T007:
     \ the expected Phase\u202F1 files."
 T010a:
   c: false
-  h: 7f945f21d9b9eb411dafcf0de763977546d333dd9946e1dd0778e236abc767f7
-  r: "The repository contains a `code/ingestion.py` file, but it does not implement\
-    \ the required fallback logic (exception handling and synthetic data generation)\
-    \ within this module, and the expected output files `data/raw/raw_dataset.csv`\
-    \ and `data/raw/metadata.json` are missing. Consequently the task\u2019s critical\
-    \ execution flow and required artifacts are not satisfied."
+  h: 8b89dd126c3f0459d37cddd323c4e6d390c8e70cb3596321204e1232b751a8e4
+  r: The provided `code/ingestion.py` does not implement the required `fetch_data()`
+    function (it imports it from another module) and therefore does not contain the
+    logic to fetch real data, save it to `data/raw/raw_dataset.csv`, or raise `RealDataFetchFailed`.
+    Moreover, the expected raw dataset file `data/raw/raw_dataset.csv` is missing.
+    Both the required artifact and its behavior are absent.
+T010d:
+  c: false
+  h: 8da03d86dd078c0e117517c36aa937aa542b0de0d688007bc5206577d9a3c13a
+  r: "The repository lacks the required `data/raw/raw_dataset.csv` file, and `code/ingestion.py`\
+    \ does not contain a visible `generate_simulation_data()` function (the shown\
+    \ code only defines `main()` and uses a fetcher). Consequently the core simulation\u2011\
+    data generation logic and its output are missing."
 T012c:
   c: false
   h: 68a34f2f0705f0058fbc5b72d8a5de04a6d1552197a322cab4a108251f8812c7
@@ -25,15 +32,14 @@ T015b:
   r: "The required file `data/raw/metadata.json` is missing, so the stimulus validation\
     \ logic cannot be executed and no logging can occur as specified. The task\u2019\
     s artifact is absent, thus the requirement is not met."
-T018:
+T017a:
   c: false
-  h: 8bd9e85fa4ddc68dd555d2830a81baed7ab41a57239b6583e07d9feaeb850c7c
-  r: "The required input file `data/processed/final_cleaned_dataset.csv` is missing,\
-    \ so the code cannot actually read the two groups. Moreover, `code/analysis.py`\
-    \ only defines helper functions and does not show any logic that loads the dataset,\
-    \ splits by `stimulus_condition`, runs Welch\u2019s t\u2011test on both `perseverative_errors`\
-    \ and `categories_completed`, or produces the required reports. Both the data\
-    \ artifact and the full analysis implementation are absent."
+  h: 6781bb94d0db74ba99699405752df77068e586264c7c5024feb5c95cf5b26914
+  r: "The repository lacks the required `data/processed/final_cleaned_dataset.csv`\
+    \ and the resulting `data/processed/grouped_data.json`. Although `code/analysis.py`\
+    \ contains a `split_by_stimulus_type` function, the file is truncated before any\
+    \ saving logic and no evidence shows the JSON is written. The task\u2019s output\
+    \ artifacts are missing, so the requirement is not satisfied."
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -54,12 +60,6 @@ T027a:
     \ so the task of writing the pre\u2011MMSE\u2011exclusion dataset was not completed.\
     \ The raw dataset file does exist, but without the expected processed CSV the\
     \ requirement is unmet."
-T027b:
-  c: false
-  h: 010741d1caf327fcc7fa63de1f488d95fe24d46539088ff47dfbfb1c2910511a
-  r: The required output file `data/results/robustness_report.json` is missing, so
-    the robustness analysis results were not produced as specified. The input CSV
-    exists, but without the JSON report the task is not fulfilled.
 T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -74,9 +74,23 @@ T031a:
     dependencies, and usage examples, we cannot confirm the task was fulfilled. The
     required artifact is missing.
 T044:
-  c: true
-  h: 8bd9e85fa4ddc68dd555d2830a81baed7ab41a57239b6583e07d9feaeb850c7c
-  r: "The `code/analysis.py` file exists, is non\u2011empty, and includes a `load_cleaned_dataset`\
-    \ function that raises `DataNotFoundError` when the CSV is missing or empty, and\
-    \ all subsequent metric calculations operate on the loaded DataFrame without generating\
-    \ synthetic or random data."
+  c: false
+  h: 98d3e5039f94ab44a31820ff1be8d42896d849341917a46780d5f540206a83f5
+  r: The required dataset `data/processed/final_cleaned_dataset.csv` is missing, so
+    the analysis code cannot compute real metrics and cannot be verified to avoid
+    synthetic data generation. The task also expects the code to operate on an existing
+    CSV; without the file the requirement is unmet.
+T050:
+  c: false
+  h: 8da7e6b1a251ba893484c25aac16cbc58eaf717c313f6d25c435db70b1f62815
+  r: "The provided `code/ingestion.py` does not contain any logic that checks for\
+    \ `data/verified_source.json` inside `fetch_data`, nor does it log `WARN_SOURCE_MISMATCH`\
+    \ or trigger the simulation fallback. Additionally, the required `data/verified_source.json`\
+    \ file is missing entirely. The task\u2019s strict source\u2011validation requirement\
+    \ is therefore not satisfied."
+T055:
+  c: false
+  h: 726b3df5730ebebf6fb45b3d1f722441e59682a0da408bc981beebfb3c6997dc
+  r: The required `data/raw/metadata.json` file is missing, and there is no evidence
+    that `plan.md` or `spec.md` were updated to document the new `simulation_methodology`
+    field. Without these artifacts, the task is not satisfied.

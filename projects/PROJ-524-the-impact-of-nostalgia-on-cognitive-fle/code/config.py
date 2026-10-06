@@ -1,87 +1,109 @@
+"""
+Configuration management for the llmXive pipeline.
+"""
+
 import os
 import logging
 from pathlib import Path
 from typing import Optional, Dict, Any
 
-logger = logging.getLogger(__name__)
+from utils import setup_logging
 
-def get_config() -> Dict[str, Any]:
-    """
-    Retrieves the base configuration for the project.
-    Defaults to the current working directory if no env var is set.
-    """
-    base_path = os.getenv('PROJECT_ROOT', str(Path.cwd()))
-    return {
-        'base_path': base_path,
-        'data_dir': os.path.join(base_path, 'data'),
-        'contracts_dir': os.path.join(base_path, 'contracts'),
-        'code_dir': os.path.join(base_path, 'code'),
-        'tests_dir': os.path.join(base_path, 'tests'),
-        'paper_dir': os.path.join(base_path, 'paper')
+logger = setup_logging()
+
+# Default paths relative to project root
+DEFAULT_CONFIG = {
+    'paths': {
+        'root': Path.cwd(),
+        'raw': Path('data/raw'),
+        'processed': Path('data/processed'),
+        'results': Path('data/results'),
+        'stimuli': Path('data/stimuli'),
+        'contracts': Path('contracts'),
+        'code': Path('code'),
+        'tests': Path('tests'),
+        'paper': Path('paper')
+    },
+    'thresholds': {
+        'mmse': 24,
+        'age_min': 65
     }
+}
 
-def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
-    """Loads configuration from a YAML file if provided."""
-    if not config_path:
-        return get_config()
-    
-    # Implementation for YAML loading would go here
-    # For now, return base config
-    return get_config()
-
-def get_config_value(key: str, default: Any = None) -> Any:
-    """Gets a specific value from the config."""
-    config = get_config()
-    return config.get(key, default)
-
-def get_env_str(key: str, default: Optional[str] = None) -> Optional[str]:
-    """Gets a string environment variable."""
-    return os.getenv(key, default)
+def get_env_str(key: str, default: Optional[str] = None) -> str:
+    """Get a string environment variable."""
+    return os.environ.get(key, default or "")
 
 def get_env_int(key: str, default: int = 0) -> int:
-    """Gets an integer environment variable."""
+    """Get an integer environment variable."""
+    val = os.environ.get(key)
+    if val is None:
+        return default
     try:
-        return int(os.getenv(key, default))
+        return int(val)
     except ValueError:
+        logger.warning(f"Invalid integer for env var {key}, using default: {default}")
         return default
 
 def get_env_float(key: str, default: float = 0.0) -> float:
-    """Gets a float environment variable."""
+    """Get a float environment variable."""
+    val = os.environ.get(key)
+    if val is None:
+        return default
     try:
-        return float(os.getenv(key, default))
+        return float(val)
     except ValueError:
+        logger.warning(f"Invalid float for env var {key}, using default: {default}")
         return default
 
 def get_env_bool(key: str, default: bool = False) -> bool:
-    """Gets a boolean environment variable."""
-    val = os.getenv(key, str(default)).lower()
-    return val in ('true', '1', 'yes', 'on')
+    """Get a boolean environment variable."""
+    val = os.environ.get(key)
+    if val is None:
+        return default
+    return val.lower() in ('true', '1', 'yes', 'on')
 
 def get_mmse_threshold() -> int:
-    """Returns the MMSE threshold for cognitive impairment."""
-    return get_env_int('MMSE_THRESHOLD', 24)
+    """Get the MMSE threshold from config or environment."""
+    return get_env_int('MMSE_THRESHOLD', DEFAULT_CONFIG['thresholds']['mmse'])
 
-def ensure_dirs(config: Optional[Dict[str, Any]] = None) -> None:
+def load_config() -> Dict[str, Any]:
     """
-    Ensures all required directories exist based on config.
-    This is a helper for T001 to verify directories.
+    Load configuration from environment variables and defaults.
+    
+    Returns:
+        Configuration dictionary.
     """
-    if config is None:
-        config = get_config()
+    config = DEFAULT_CONFIG.copy()
     
-    dirs_to_create = [
-        config.get('data_dir'),
-        os.path.join(config.get('data_dir'), 'raw'),
-        os.path.join(config.get('data_dir'), 'processed'),
-        os.path.join(config.get('data_dir'), 'results'),
-        os.path.join(config.get('data_dir'), 'stimuli'),
-        config.get('contracts_dir'),
-        config.get('code_dir'),
-        config.get('tests_dir'),
-        config.get('paper_dir')
-    ]
+    # Override paths if environment variables are set
+    if 'PROJECT_ROOT' in os.environ:
+        config['paths']['root'] = Path(os.environ['PROJECT_ROOT'])
     
-    for dir_path in dirs_to_create:
-        if dir_path:
-            Path(dir_path).mkdir(parents=True, exist_ok=True)
-            logger.info(f"Verified directory: {dir_path}")
+    return config
+
+def get_config() -> Dict[str, Any]:
+    """Get the full configuration."""
+    return load_config()
+
+def get_config_value(key: str, default: Any = None) -> Any:
+    """
+    Get a specific value from the configuration using dot notation.
+    e. g. 'paths.raw' -> config['paths']['raw']
+    """
+    config = get_config()
+    keys = key.split('.')
+    val = config
+    for k in keys:
+        if isinstance(val, dict) and k in val:
+            val = val[k]
+        else:
+            return default
+    return val
+
+def ensure_dirs(config: Dict[str, Any]) -> None:
+    """Ensure all required directories exist based on config."""
+    from utils import ensure_dirs
+    paths = [config['paths'][k] for k in config['paths']]
+    ensure_dirs(paths)
+    logger.info("Directories ensured.")

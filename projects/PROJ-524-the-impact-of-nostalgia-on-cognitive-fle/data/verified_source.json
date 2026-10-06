@@ -1,0 +1,6 @@
+{
+  "package_name": null,
+  "config": null,
+  "source_type": "none",
+  "reason": "No verified real data source provided. Pipeline will rely on simulation fallback if real fetch fails."
+}

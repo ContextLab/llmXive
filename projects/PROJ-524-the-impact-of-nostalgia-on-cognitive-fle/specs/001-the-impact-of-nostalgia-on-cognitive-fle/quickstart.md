@@ -1,12 +1,12 @@
-# Quick Start Guide: The Impact of Nostalgia on Cognitive Flexibility
+# Quick Start Guide
 
-This guide provides instructions to set up the environment and run the ingestion pipeline for the "Impact of Nostalgia on Cognitive Flexibility in Aging Adults" project.
+This guide explains how to set up and run the llmXive pipeline for PROJ-524: The Impact of Nostalgia on Cognitive Flexibility in Aging Adults.
 
 ## Prerequisites
 
-- Python 3.9 or higher
-- `pip` package manager
-- Git (for cloning the repository)
+- Python 3.9+
+- pip
+- git
 
 ## Installation
 
@@ -16,75 +16,90 @@ This guide provides instructions to set up the environment and run the ingestion
  cd <project-directory>
  ```
 
-2. **Create a virtual environment** (recommended):
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-3. **Install dependencies**:
- Ensure you are in the project root directory.
+2. **Install dependencies**:
  ```bash
  pip install -r requirements.txt
  ```
- *Note: `requirements.txt` includes pandas, scipy, statsmodels, numpy, pyyaml, openml, datasets, requests, pytest, black, and ruff.*
 
-4. **Verify installation**:
- Ensure all required Python packages are installed:
+3. **Ensure data directories exist** (Run T001):
  ```bash
- python -c "import pandas; import scipy; import statsmodels; print('Dependencies OK')"
+ python code/setup_dirs.py
  ```
 
-## Running the Ingestion Pipeline (Hello World)
+## Running the Pipeline
 
-This project is designed to ingest real-world data or fall back to a methodological simulation if real data is unavailable.
+The pipeline is executed in stages. You can run the full orchestration or individual tasks.
 
-### Step 1: Ensure Directory Structure
-The pipeline expects specific directories. Run the setup script to create them:
-```bash
-python code/setup_dirs.py
-```
-*This creates `data/raw/`, `data/processed/`, `data/results/`, `data/stimuli/`, `contracts/`, `code/`, `tests/`, and `paper/`.*
+### Option A: Full Orchestration (Recommended)
 
-### Step 2: Run the Orchestration Script
-Execute the main pipeline to fetch data (or generate simulation data), validate, and clean the dataset.
+Run the main orchestration script which handles data ingestion, cleaning, analysis, and reporting:
 
 ```bash
 python code/main.py
 ```
 
-**Expected Behavior:**
-- The script attempts to fetch real data from the configured source (OpenML/HuggingFace).
-- If real data fetch fails, it automatically triggers `generate_simulation_data()` to create a valid synthetic dataset for testing purposes.
-- It filters for participants aged ≥ 65.
-- It validates cognitive metrics (Perseverative Errors, Categories Completed).
-- It generates a `cleaned_dataset.csv` in `data/processed/`.
+This command will:
+1. Fetch or simulate data.
+2. Clean and filter the data.
+3. Run statistical analysis (Welch's t-test).
+4. Perform robustness checks (T027b).
+5. Generate final reports.
 
-### Step 3: Verify Outputs
-After successful execution, check the following files:
+### Option B: Step-by-Step Execution
 
-1. **Raw Data**: `data/raw/raw_dataset.csv` (or simulation equivalent)
-2. **Cleaned Data**: `data/processed/cleaned_dataset.csv`
-3. **Exclusion Log**: `data/processed/exclusion_log.json` (details on filtering steps)
-4. **Metadata**: `data/raw/metadata.json` (includes source info and simulation flags)
+If you need to debug specific stages, run the tasks individually in order:
 
-```bash
-# Example: View the first few lines of the cleaned dataset
-head data/processed/cleaned_dataset.csv
-```
+1. **Ingestion & Simulation**:
+ ```bash
+ python code/task_t010d_generate_simulation.py
+ ```
 
-## Next Steps
+2. **Data Cleaning**:
+ ```bash
+ python code/task_t012a_age_exclusion.py
+ python code/task_t012b_score_exclusion.py
+ python code/task_t012d_mmse_flag.py
+ python code/task_t012e_mmse_exclusion.py
+ python code/task_t014a_create_cleaned_dataset.py
+ python code/task_t014b_validity_metrics.py
+ ```
 
-Once the ingestion pipeline is verified, proceed to **User Story 2 (Statistical Analysis)**:
+3. **Analysis**:
+ ```bash
+ python code/analysis.py
+ ```
 
-```bash
-python code/analysis.py
-```
+4. **Robustness Analysis (T027b)**:
+ ```bash
+ python code/task_t027b_mmse_robustness_analysis.py
+ ```
 
-This will run Welch's t-tests, calculate effect sizes, and generate the `statistical_report.json` in `data/results/`.
+5. **Generate Reports**:
+ ```bash
+ python code/generate_robustness_summary.py
+ ```
+
+## Output Artifacts
+
+Upon successful completion, the following files will be generated:
+
+- `data/raw/raw_dataset.csv`: Raw input data.
+- `data/processed/cleaned_dataset.csv`: Primary cleaned dataset (with MMSE filter).
+- `data/processed/cleaned_dataset_no_mmse.csv`: Robustness dataset (without MMSE filter).
+- `data/results/statistical_report.json`: Primary statistical results.
+- `data/results/robustness_report.json`: Results from the robustness analysis (T027b).
+- `paper/001_results.md`: Final scientific report.
 
 ## Troubleshooting
 
-- **Import Errors**: Ensure you are using the virtual environment activated in Step 2.
-- **Missing Directories**: Run `python code/setup_dirs.py` again.
-- **Data Fetch Failures**: The pipeline is designed to handle this by generating simulation data. Check `data/raw/metadata.json` for the `simulation_mode` flag. If you require strictly real data, ensure network access to the configured data source is available.
+- **KeyError: 'paths'**: Ensure `code/config.py` is correctly configured and `data/` directories exist.
+- **DataNotFoundError**: Ensure the ingestion step (T010d) has successfully generated `data/raw/raw_dataset.csv`.
+- **Simulation Mode**: If real data is unavailable, the pipeline automatically falls back to simulation. Check `data/raw/metadata.json` for `simulation_mode: true`.
+
+## Verification
+
+To verify the pipeline integrity, run the integration test:
+
+```bash
+python -m pytest tests/integration/test_full_pipeline.py -v
+```
