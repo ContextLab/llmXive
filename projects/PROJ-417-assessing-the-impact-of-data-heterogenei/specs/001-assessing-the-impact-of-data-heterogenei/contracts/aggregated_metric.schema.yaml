@@ -1,27 +1,21 @@
 type: object
 required:
-  - tau2_level
-  - coverage_rate
-  - mean_bias
-  - p_value_binomial
-  - p_value_normality_test
-  - test_type_bias_comparison
+- tau2_level
+- coverage_rate
+- mean_bias
+- p_value_binomial
+- p_value_normality_test
+- test_type_bias_comparison
 properties:
   tau2_level:
     type: number
-    description: The injected between-study variance level for this aggregated metric set.
   coverage_rate:
     type: number
-    description: The proportion of confidence intervals that contained the true effect.
   mean_bias:
     type: number
-    description: The average difference between the pooled estimate and the true effect.
   p_value_binomial:
     type: number
-    description: P-value from the exact binomial test assessing coverage deviation from nominal level.
   p_value_normality_test:
     type: number
-    description: P-value from the Shapiro-Wilk test assessing normality of the bias distribution.
   test_type_bias_comparison:
     type: string
-    description: The statistical test used for bias comparison (e.g., 'Kruskal-Wallis', 'ANOVA').

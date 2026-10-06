@@ -2,6 +2,7 @@
 # This file defines all parameters for the simulation pipeline
 
 # Nominal confidence level for coverage calculations
+# Placeholder value to be resolved by T006b-resolve
 nominal_confidence_level: 0.95
 
 # Minimum number of studies for reliability flag

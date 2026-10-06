@@ -1,4 +1,4 @@
-- artifact_hash: 75a5156dc0f05afe084bef5b17c623e50218318b893a983a3e13b26d853fed7c
+- artifact_hash: 378734562413d39e8ab13d52ea6636e10ff877df97c7a0992448f44571a93072
   artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/raw/README.md
   cite_id: c-001
   cited_authors: []
@@ -8,8 +8,8 @@
   value: https://osf.io/9k2v6/
   verification_status: pending
   verified_against_url: https://osf.io/9k2v6/
-  verified_at: '2026-07-26T17:55:58.551817Z'
-- artifact_hash: 540f2932bd3c9ddf0309fd684d682a4850069c2a91b7ac5f0b2bb650fdb27b32
+  verified_at: '2026-10-06T22:51:11.695971Z'
+- artifact_hash: 5c8911d93b3903a09ffecd7c0b6a7a73cc05da11aba8d6d7e78745b3d54a8d64
   artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/research.md
   cite_id: c-001
   cited_authors: []
@@ -19,10 +19,22 @@
   value: https://osf.io/9k2v6/
   verification_status: pending
   verified_against_url: https://osf.io/9k2v6/
-  verified_at: '2026-07-26T17:55:59.065186Z'
-- artifact_hash: 4d19f970e46f1cc70908c9d4b055a8d4357906db42685f1fc056fdc702f4103e
+  verified_at: '2026-10-06T22:53:52.439715Z'
+- artifact_hash: cba39d83731a258d4c42f0ae3e1614455253aa4c7e0bb2ebcd709bd3017c54b0
   artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
   cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[1710.08708] Confidence intervals for normalised citation counts:
+    Can they delimit underlying research capability?'
+  kind: url
+  value: https://arxiv.org/abs/1710.08708
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/1710.08708
+  verified_at: '2026-10-06T22:56:58.071596Z'
+- artifact_hash: cba39d83731a258d4c42f0ae3e1614455253aa4c7e0bb2ebcd709bd3017c54b0
+  artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
@@ -30,4 +42,4 @@
   value: 10.5281/zenodo.10286623
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.10286623
-  verified_at: '2026-10-03T06:03:45.216392Z'
+  verified_at: '2026-10-06T22:56:58.071596Z'

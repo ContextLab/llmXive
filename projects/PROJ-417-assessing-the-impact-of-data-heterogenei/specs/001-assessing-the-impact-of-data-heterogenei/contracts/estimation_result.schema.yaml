@@ -1,38 +1,18 @@
 type: object
 required:
-  - I_squared
-  - Q
-  - reliability_flag
-  - injected_true_effect
-  - injected_tau2
+- I_squared
+- Q
+- reliability_flag
+- injected_true_effect
+- injected_tau2
 properties:
   I_squared:
     type: number
-    description: "I-squared statistic representing the percentage of variation across studies due to heterogeneity rather than chance."
   Q:
     type: number
-    description: "Cochran's Q statistic measuring heterogeneity."
   reliability_flag:
     type: boolean
-    description: "Flag indicating if the result is reliable (True) or if N_studies < threshold (False)."
   injected_true_effect:
     type: number
-    description: "The ground-truth effect size injected during simulation."
   injected_tau2:
     type: number
-    description: "The ground-truth between-study variance (tau-squared) injected during simulation."
-  pooled_estimate:
-    type: number
-    description: "The calculated pooled effect estimate."
-  ci_lower:
-    type: number
-    description: "Lower bound of the confidence interval."
-  ci_upper:
-    type: number
-    description: "Upper bound of the confidence interval."
-  estimator_type:
-    type: string
-    description: "The type of estimator used (e.g., 'FixedEffects', 'DL', 'REML')."
-  N_studies:
-    type: integer
-    description: "Number of studies included in the meta-analysis."
