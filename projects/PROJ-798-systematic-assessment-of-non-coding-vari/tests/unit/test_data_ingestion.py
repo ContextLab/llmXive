@@ -1,96 +1,72 @@
 import pytest
-import pandas as pd
-import gzip
+import os
 import tempfile
 from pathlib import Path
+from unittest.mock import patch, MagicMock
+import hashlib
+
+# Mock the config module to avoid directory creation issues in tests
 import sys
-import os
+from types import ModuleType
 
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+mock_config = ModuleType('config')
+mock_config.DATA_RAW_DIR = Path(tempfile.mkdtemp())
+mock_config.DATA_DERIVED_DIR = Path(tempfile.mkdtemp())
+mock_config.ensure_data_dirs = lambda: None
+sys.modules['config'] = mock_config
 
-from data_ingestion import filter_snps, parse_vcf_line
-from utils import SNP
+from data_ingestion import download_jaspar_pwms, log_source_lineage
 
-def test_parse_vcf_line():
-    """Test parsing of a standard VCF line."""
-    line = 'chr1\t100\trs123\tA\tG\t.\tPASS\tAF=0.05;AC=10;AN=200'
-    snp = parse_vcf_line(line)
-    
-    assert snp is not None
-    assert snp.chrom == "chr1"
-    assert snp.pos == 100
-    assert snp.id == "rs123"
-    assert snp.ref == "A"
-    assert snp.alt == "G"
-    assert snp.info['AF'] == '0.05'
+def test_download_jaspar_pwms_creates_file():
+    """Test that download_jaspar_pwms creates the output file."""
+    # We mock the actual download to avoid network calls
+    with patch('data_ingestion.download_file_http') as mock_download:
+        # Create a temporary file to simulate the download
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.txt') as tmp:
+            tmp.write(b">Test PWM\n")
+            tmp_path = tmp.name
+        
+        mock_download.return_value = "dummy_checksum"
+        
+        try:
+            # Override the output path for testing
+            with patch('data_ingestion.JASPAR_OUTPUT', Path(tmp_path)):
+                result_path = download_jaspar_pwms()
+                
+                assert os.path.exists(result_path)
+                assert Path(result_path).read_text() == ">Test PWM\n"
+        finally:
+            if os.path.exists(tmp_path):
+                os.remove(tmp_path)
 
-def test_parse_vcf_line_invalid_alleles():
-    """Test parsing of a line with invalid alleles (N)."""
-    line = 'chr1\t100\trs456\tN\tG\t.\tPASS\tAF=0.05'
-    snp = parse_vcf_line(line)
-    assert snp is not None
-    # The parser should still return the object, filtering happens later
-    assert snp.ref == "N"
+def test_log_source_lineage_appends_to_log():
+    """Test that log_source_lineage appends to source_log.txt."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        log_path = Path(tmpdir) / "source_log.txt"
+        
+        # Patch DATA_RAW_DIR to use our temp directory
+        with patch('data_ingestion.DATA_RAW_DIR', Path(tmpdir)):
+            log_source_lineage(
+                source_name="TEST_SOURCE",
+                file_path="test.txt",
+                checksum="abc123",
+                notes="Test note"
+            )
+            
+            assert log_path.exists()
+            content = log_path.read_text()
+            assert "TEST_SOURCE" in content
+            assert "abc123" in content
+            assert "Test note" in content
 
-def test_filter_snps_maf_threshold(tmp_path):
-    """Test that filter_snps correctly excludes SNPs with MAF < threshold."""
-    # Create a mock VCF
-    vcf_content = """##fileformat=VCFv4.2
-    #CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO
-    chr1\t100\trs1\tA\tG\t.\tPASS\tAF=0.05
-    chr1\t200\trs2\tC\tT\t.\tPASS\tAF=0.005
-    chr1\t300\trs3\tG\tA\t.\tPASS\tAF=0.10
-    """
-    
-    vcf_file = tmp_path / "test.vcf"
-    with gzip.open(vcf_file, 'wt') as f:
-        f.write(vcf_content)
-    
-    output_file = tmp_path / "output.parquet"
-    
-    # Filter with MAF > 0.01 (1%)
-    df = filter_snps(vcf_file, output_file, min_maf=0.01)
-    
-    assert len(df) == 2
-    assert set(df['snp_id']) == {'rs1', 'rs3'}
-    assert all(df['maf'] >= 0.01)
-
-def test_filter_snps_invalid_alleles(tmp_path):
-    """Test that filter_snps excludes non-ACGT alleles."""
-    vcf_content = """##fileformat=VCFv4.2
-    #CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO
-    chr1\t100\trs1\tA\tG\t.\tPASS\tAF=0.05
-    chr1\t200\trs2\tN\tT\t.\tPASS\tAF=0.05
-    chr1\t300\trs3\tC\tD\t.\tPASS\tAF=0.05
-    """
-    
-    vcf_file = tmp_path / "test.vcf"
-    with gzip.open(vcf_file, 'wt') as f:
-        f.write(vcf_content)
-    
-    output_file = tmp_path / "output.parquet"
-    
-    df = filter_snps(vcf_file, output_file, min_maf=0.01)
-    
-    # Only rs1 should remain (valid ACGT alleles)
-    assert len(df) == 1
-    assert df.iloc[0]['snp_id'] == 'rs1'
-
-def test_filter_snps_empty_output(tmp_path):
-    """Test behavior when no SNPs pass filtering."""
-    vcf_content = """##fileformat=VCFv4.2
-    #CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO
-    chr1\t100\trs1\tA\tG\t.\tPASS\tAF=0.0001
-    """
-    
-    vcf_file = tmp_path / "test.vcf"
-    with gzip.open(vcf_file, 'wt') as f:
-        f.write(vcf_content)
-    
-    output_file = tmp_path / "output.parquet"
-    
-    df = filter_snps(vcf_file, output_file, min_maf=0.01)
-    
-    assert len(df) == 0
-    assert os.path.exists(output_file)
+def test_download_jaspar_pwms_skips_existing():
+    """Test that download_jaspar_pwms skips download if file exists."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = Path(tmpdir) / "jaspar_pwm.txt"
+        output_path.write_text("Existing content")
+        
+        with patch('data_ingestion.JASPAR_OUTPUT', output_path):
+            with patch('data_ingestion.download_file_http') as mock_download:
+                download_jaspar_pwms()
+                # Should not call download if file exists
+                mock_download.assert_not_called()

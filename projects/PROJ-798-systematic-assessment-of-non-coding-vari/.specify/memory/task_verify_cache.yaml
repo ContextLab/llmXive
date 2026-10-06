@@ -1,38 +1,11 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directory structure (`code/`, `data/raw/`, `data/derived/`,
-    `tests/`) is provided; the implementer did not supply any artifact listing or
-    screenshots showing these folders exist and contain files. The task therefore
-    remains unfinished.
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `.gitignore` file content or path was provided; without the actual file we\
-    \ cannot verify that it exists, is non\u2011empty, or contains the required patterns\
-    \ (`data/raw/*` except checksums, `data/derived/*`, `__pycache__`, `.env`). The\
-    \ implementer must supply the `.gitignore` file with the specified exclusions."
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `tests/unit/`, `tests/integration/`, or `tests/contract/`
-    directories (or their `__init__.py` files) is provided; the implementer did not
-    supply any artifacts showing these folders were created. The task remains undone.
-T010:
-  c: false
-  h: ad930ebc769042ea26781c3579776956daf921a6bf17dd1635668be32aaa24cc
-  r: "The provided `code/data_ingestion.py` does not contain the logic to list the\
-    \ dbSNP FTP directory, select the `common_snps.vcf.gz` file, or handle the fallback\
-    \ case, and the required `data/raw/source_log.txt` file is absent. Consequently,\
-    \ the task\u2019s core requirements are not met."
 T010b:
-  c: false
-  h: 6fc99f78c8102d3a4ad2228813354d864d7327d3e0e9706f00bfc84061a97287
-  r: The `code/data_ingestion.py` file contains only placeholder stubs for the JASPAR
-    download (e.g., `download_jaspar_pwms()` just returns a path without performing
-    any download). Moreover, the required output file `data/raw/jaspar_pwm.txt` does
-    not exist on disk. Both the implementation and the expected artifact are missing,
-    so the task is not satisfied.
+  c: true
+  h: 525894a272e8e5f9fa6d86c072e1443ebeb310fe7d5961d523765128e60b938b
+  r: "The repository contains a non\u2011empty `code/data_ingestion.py` that defines\
+    \ `download_jaspar_pwms()` which fetches the JASPAR CORE PWM file from the specified\
+    \ URL and saves it to `data/raw/jaspar_pwm.txt`, logging the source and checksum\
+    \ as required. The implementation has no placeholders or stubs, satisfying the\
+    \ task specification."
 T010c:
   c: false
   h: ad930ebc769042ea26781c3579776956daf921a6bf17dd1635668be32aaa24cc

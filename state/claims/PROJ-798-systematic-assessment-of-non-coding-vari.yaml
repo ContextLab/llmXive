@@ -1581,3 +1581,387 @@
   source_type: external
   status: verified
   updated_at: '2026-09-20T06:53:26Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: scoring engine derives window size from PWM length
+  claim_id: c_f6407d1e
+  context: 'T005 [US2] Create code/config.py defining paths, random seeds, and MAF
+    threshold. **CRITICAL**: The scoring engine MUST derive the window size dynamically
+    from the loaded PWM length for each TF.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Scoring_engine_derives_window_size_from_PWM_length
+  kind: entity_fact
+  raw_text: The scoring engine MUST derive the window size dynamically from the loaded
+    PWM length for each TF.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T21:59:24Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: window size equals PWM length
+  claim_id: c_1028f1bb
+  context: T005 [US2] ... the window size is strictly len(pwm).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Window_size_equals_PWM_length
+  kind: entity_fact
+  raw_text: The window size is strictly len(pwm).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T21:59:47Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: common human SNPs downloaded with MAF > 1%
+  claim_id: c_8a263603
+  context: T010 [US1] Implement code/data_ingestion.py to download common human SNPs
+    (MAF > 1%) from dbSNP (primary source)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Common human SNPs are downloaded from dbSNP with MAF > 1%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T21:59:47Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: dbSNP version b155 GRCh38p13 primary source
+  claim_id: c_694ad10b
+  context: 'T010 [US1] ... from dbSNP (primary source) using bcftools or FTP. URL:
+    ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b155_GRCh38p13/VCF/.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DbSNP_version_b155_GRCh38p13_primary_source
+  kind: entity_fact
+  raw_text: dbSNP version b155 GRCh38p13 is the primary source for SNPs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:00:27Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: file common_snps.vcf.gz selected from dbSNP
+  claim_id: c_56a25235
+  context: T010 [US1] ... Select the file matching the pattern common_snps.vcf.gz
+    from the directory listing.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/File_common_snps.vcf.gz_selected_from_dbSNP
+  kind: entity_fact
+  raw_text: The file matching the pattern common_snps.vcf.gz is selected from the
+    dbSNP directory listing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:00:56Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: 1000 Genomes Phase 3 VCF fallback source
+  claim_id: c_9d5d63aa
+  context: T010a [US1] Implement code/data_ingestion.py to download 1000 Genomes Phase
+    3 VCF (common SNPs) as a fallback source.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1000 Genomes Phase 3 VCF is used as a fallback source for common SNPs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:01:29Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: JASPAR PWMs CORE collection downloaded
+  claim_id: c_daf74afe
+  context: T010b [US1] Implement code/data_ingestion.py to download JASPAR PWMs (CORE
+    collection) for human TFs.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/JASPAR_PWMs_CORE_collection_downloaded
+  kind: entity_fact
+  raw_text: JASPAR PWMs (CORE collection) are downloaded for human TFs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:01:59Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: ENCODE promoter BED file ENCFF001TDO downloaded
+  claim_id: c_0e1bd0e6
+  context: T011 [US1] ... Promoters ftp://ftp.encodeproject.org/files/ENCFF001TDO/@@download/ENCFF001TDO.bed.gz
+    ...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ENCODE_promoter_BED_file_ENCFF001TDO_downloaded
+  kind: entity_fact
+  raw_text: ENCODE promoter BED file ENCFF001TDO is downloaded.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:02:29Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: ENCODE enhancer BED file ENCFF001TDP downloaded
+  claim_id: c_13149891
+  context: T011 [US1] ... and Enhancers ftp://ftp.encodeproject.org/files/ENCFF001TDP/@@download/ENCFF001TDP.bed.gz.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ENCODE_enhancer_BED_file_ENCFF001TDP_downloaded
+  kind: entity_fact
+  raw_text: ENCODE enhancer BED file ENCFF001TDP is downloaded.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:02:57Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: SNPs with MAF < 1% excluded
+  claim_id: c_06bdbe65
+  context: T012 [US1] Implement filtering logic in code/data_ingestion.py to exclude
+    SNPs with MAF < 1% and non-ACGT alleles (handle N/indels).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SNPs with MAF < 1% are excluded during filtering.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:02:57Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: non-ACGT alleles excluded
+  claim_id: c_e1960b51
+  context: T012 [US1] ... exclude SNPs with MAF < 1% and non-ACGT alleles (handle
+    N/indels).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Non-ACGT_alleles_excluded
+  kind: entity_fact
+  raw_text: Non-ACGT alleles are excluded during filtering.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:03:23Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: SNPs intersected with regulatory regions with >= 1bp overlap
+  claim_id: c_df462cb0
+  context: "T013 [US1] ... using pybedtools to intersect SNPs with regulatory regions\
+    \ (\u22651bp overlap)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/SNPs_intersected_with_regulatory_regions_with_%3E=_1bp_overlap
+  kind: magnitude
+  raw_text: SNPs are intersected with regulatory regions using at least 1bp overlap.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:03:48Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: GC-matched control set generated within 2% tolerance
+  claim_id: c_69cd8873
+  context: "T013b [US1] ... match the GC content distribution of the input filtered\
+    \ SNPs (from T013) within \xB12% tolerance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "GC-matched non-regulatory control set is generated within \xB12% tolerance."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:03:48Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: window size equals PWM length for TF
+  claim_id: c_d9d42097
+  context: T018 [US2] ... based on SNP coordinates and dynamic window size equal to
+    the PWM length for the specific TF being scored.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Window_size_equals_PWM_length_for_TF
+  kind: entity_fact
+  raw_text: The window size equals the PWM length for the specific TF being scored.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:04:15Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: is_large_magnitude flag true if absolute Delta Score >= 2 bits
+  claim_id: c_7663688e
+  context: "T020b [US2] ... true if the absolute Delta Score is \u2265 2 bits."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "A boolean flag is_large_magnitude is true if the absolute Delta Score\
+    \ is \u2265 2 bits."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:04:15Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: GWAS Catalog version gwas_catalog_v1.0.3-2024-01-01 fetched
+  claim_id: c_324fff8a
+  context: T027 [US3] ... Fetch pinned version gwas_catalog_v1.0.3-2024-01-01 or use
+    a cached, versioned file to ensure reproducibility.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: GWAS Catalog lead SNPs are fetched from version gwas_catalog_v1.0.3-2024-01-01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:04:48Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: permutation test uses 100 iterations
+  claim_id: c_038e691c
+  context: T024 [US3] ... perform permutation test (n=100) by randomly reassigning
+    the 'in-GWAS' or 'out-of-GWAS' status labels...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation test uses n=100 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:05:09Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: KS test on full unfiltered distribution of scores inside vs outside GWAS
+    loci
+  claim_id: c_c4d08a57
+  context: T025a [US3] ... perform a Kolmogorov-Smirnov (KS) test on the FULL unfiltered
+    distribution of scores for SNPs inside GWAS loci against the distribution of scores
+    for SNPs outside GWAS loci...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/KS_test_on_full_unfiltered_distribution_of_scores_inside_vs
+  kind: entity_fact
+  raw_text: The KS test is performed on the FULL unfiltered distribution of scores
+    for SNPs inside GWAS loci against those outside.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:05:34Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: West-Stephens max-T permutation FDR method applied
+  claim_id: c_68660dbc
+  context: T025 [US3] ... apply the West-Stephens max-T permutation FDR method to
+    the p-values generated from the permutation tests across all TFs.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/West-Stephens_max-T_permutation_FDR_method_applied
+  kind: entity_fact
+  raw_text: The West-Stephens max-T permutation FDR method is applied to p-values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:05:57Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: significance threshold of alpha = 0.05 applied
+  claim_id: c_8db8c34e
+  context: "T028 [US3] ... apply a significance threshold of \u03B1 = 0.05 (Wikipedia:\
+    \ P-value, https://en.wikipedia.org/wiki/P-value) (corrected) to the output p-values..."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: A significance threshold of alpha = 0.05 is applied to the output p-values.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-06T22:06:08Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: high-impact SNPs identified as top configurable percent by |Delta Score|
+  claim_id: c_178505d7
+  context: T026 [US3] ... identify high-impact SNPs (top configurable % by |Delta
+    Score|) strictly for reporting purposes.
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: ''
+    relation: ''
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/high-impact_SNPs_identified_as_top_configurable_percent_by_%7C
+    source_value: https://en.wikipedia.org/wiki/high-impact_SNPs_identified_as_top_configurable_percent_by_|
+    subject: high-impact SNPs identified as top configurable percent by |Delta Score|
+  kind: relational
+  raw_text: High-impact SNPs are identified as the top configurable % by |Delta Score|.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:06:33Z'

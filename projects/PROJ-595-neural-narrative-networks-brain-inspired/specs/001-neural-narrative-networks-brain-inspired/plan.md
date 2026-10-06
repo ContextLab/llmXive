@@ -5,11 +5,11 @@
 
 ## Summary
 
-This project implements a computational model to test whether hippocampal-like pattern separation and prefrontal-like executive control mechanisms improve narrative alignment with human fMRI data compared to standard architectures. The approach involves downloading OpenNeuro ds001495 and ROCStories data, implementing a Sparse Autoencoder (SAE) with a gating module in PyTorch (CPU-only), processing the *exact story stimuli* from the fMRI dataset (not generating new stories), and performing Representational Similarity Analysis (RSA) with permutation testing.
+This project implements a computational model to test whether hippocampal-like pattern separation and prefrontal-like executive control mechanisms improve narrative alignment with human fMRI data compared to standard architectures. The approach involves downloading OpenNeuro and ROCStories data, implementing a Sparse Autoencoder (SAE) with a gating module in PyTorch (CPU-only), processing the *exact story stimuli* from the fMRI dataset (not generating new stories), and performing Representational Similarity Analysis (RSA) with permutation testing.
 
 **Critical Constraint**: The analysis relies on a one-to-one mapping between model inputs and fMRI stimuli. If the intersection of stories in the fMRI dataset and the ROCStories corpus is insufficient (N < 10), the pipeline halts with error E002, as the core analysis is untestable.
 
-**Fallback Strategy**: If precomputed masks for DLPFC are missing, the system falls back to standard Harvard-Oxford atlas coordinates (threshold 25%). If both fail, the system halts with error E001.
+**Fallback Strategy**: If precomputed masks for DLPFC are missing, the system falls back to standard Harvard-Oxford atlas coordinates (threshold defined by standard probabilistic conventions). If both fail, the system halts with error E001.
 
 ## Technical Context
 

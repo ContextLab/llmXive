@@ -37,11 +37,3 @@ T021:
     nor that the transformed `X_train.pkl` and `y_train.pkl` are saved. Moreover,
     the required file `data/processed/scaler.pkl` is absent from the disk. These missing
     artifacts mean the critical requirements of the task are not satisfied.
-T053:
-  c: false
-  h: 05aa6d0e6ec7fd2c1f5a435e384f376239a3125be44adfde3367f0902e256958
-  r: The provided `train.py` only contains a partially shown `extract_primary_element`
-    function and does not include any unit test or assertion that validates LOCO cluster
-    assignment across all rows, nor does it demonstrate the synthetic dataset verification.
-    Additionally, the required `family_map.yaml` file is missing from the repository.
-    These essential artifacts are absent, so the task is not genuinely completed.

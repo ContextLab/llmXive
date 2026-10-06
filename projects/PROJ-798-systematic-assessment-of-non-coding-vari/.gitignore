@@ -1,6 +1,7 @@
 # Data directories
 data/raw/*
 !data/raw/checksums.json
+!data/raw/source_log.txt
 data/derived/*
 
 # Python cache
@@ -8,28 +9,24 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Environment variables
+# Environment
 .env
+.venv/
+venv/
 
-# IDE and editor files
+# IDE
 .idea/
 .vscode/
-*.swp
-*.swo
-*~
 
-# Jupyter notebooks
-.ipynb_checkpoints/
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
 
 # Logs
 *.log
 logs/
 
-# Temporary files
-tmp/
-temp/
-*.tmp
-
-# OS generated files
+# OS
 .DS_Store
 Thumbs.db

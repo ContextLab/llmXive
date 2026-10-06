@@ -1,48 +1,61 @@
-"""
-Script to initialize the project directory structure as per T001.
-This script ensures all required directories and package markers exist.
-"""
 import os
 from pathlib import Path
 
 def main():
-    base = Path(__file__).resolve().parent.parent
-    print(f"Initializing project structure at: {base}")
-
-    # Define all required directories
-    dirs = [
+    """
+    Creates the project directory structure as defined in the implementation plan.
+    Directories created:
+      - code/
+      - data/raw/
+      - data/derived/
+      - tests/
+      - tests/unit/
+      - tests/integration/
+      - tests/contract/
+      - specs/
+      - figures/
+    """
+    root = Path(__file__).resolve().parent.parent
+    
+    directories = [
         "code",
         "data/raw",
         "data/derived",
-        "tests",
         "tests/unit",
         "tests/integration",
         "tests/contract",
+        "specs/001-gene-regulation",
+        "figures",
+        "logs"
     ]
-
-    for rel_dir in dirs:
-        full_path = base / rel_dir
+    
+    for dir_path in directories:
+        full_path = root / dir_path
         full_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created/Verified: {full_path}")
+        print(f"Created directory: {full_path.relative_to(root)}")
+    
+    # Create __init__.py files to ensure Python treats them as packages
+    init_files = [
+        "code/__init__.py",
+        "tests/__init__.py",
+        "tests/unit/__init__.py",
+        "tests/integration/__init__.py",
+        "tests/contract/__init__.py",
+        "data/__init__.py",
+        "data/raw/__init__.py",
+        "data/derived/__init__.py",
+        "specs/001-gene-regulation/__init__.py"
+    ]
+    
+    for init_file in init_files:
+        full_path = root / init_file
+        if not full_path.exists():
+            full_path.touch()
+            print(f"Created empty package file: {init_file}")
+        else:
+            print(f"Package file already exists: {init_file}")
 
-        # Create __init__.py for Python packages
-        init_file = full_path / "__init__.py"
-        if not init_file.exists():
-            # Write a minimal marker
-            init_file.write_text("# Auto-generated package marker\n")
-            print(f"  -> Created {init_file}")
-
-    # Ensure specific sub-packages in tests have init files
-    test_subdirs = ["unit", "integration", "contract"]
-    for subdir in test_subdirs:
-        path = base / "tests" / subdir
-        path.mkdir(parents=True, exist_ok=True)
-        init_file = path / "__init__.py"
-        if not init_file.exists():
-            init_file.write_text("# Auto-generated package marker\n")
-            print(f"Created/Verified: {init_file}")
-
-    print("Project structure initialization complete.")
+    print("\nProject structure initialization complete.")
 
 if __name__ == "__main__":
     main()

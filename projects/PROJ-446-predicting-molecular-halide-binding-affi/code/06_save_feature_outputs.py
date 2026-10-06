@@ -5,16 +5,18 @@ import sys
 from pathlib import Path
 from typing import Dict, Any, Optional
 import shutil
+import pandas as pd
 
-# Import existing utilities
-from code.utils.logger import get_logger
-from code.utils.config import get_path, get_data_path
+# Import existing utilities from the project API surface
+from utils.logger import get_logger
+from utils.config import get_path, get_data_path, get_code_path
 
+# Ensure logger is configured
 logger = get_logger(__name__)
 
 def load_json_safe(file_path: str) -> Optional[Dict[str, Any]]:
     """
-    Safely load a JSON file. Returns None if file does not exist or is invalid.
+    Safely load a JSON file. Returns None if file doesn't exist or is invalid.
     """
     path = Path(file_path)
     if not path.exists():
@@ -23,26 +25,22 @@ def load_json_safe(file_path: str) -> Optional[Dict[str, Any]]:
     try:
         with open(path, 'r', encoding='utf-8') as f:
             return json.load(f)
-    except json.JSONDecodeError as e:
-        logger.error(f"Invalid JSON in {file_path}: {e}")
+    except (json.JSONDecodeError, IOError) as e:
+        logger.error(f"Error loading JSON file {file_path}: {e}")
         return None
 
-def load_csv_safe(file_path: str) -> Optional[list]:
+def load_csv_safe(file_path: str) -> Optional[pd.DataFrame]:
     """
-    Safely load a CSV file as a list of dicts (using csv module to avoid pandas dependency if not needed).
-    Returns None if file does not exist.
+    Safely load a CSV file. Returns None if file doesn't exist or is invalid.
     """
-    import csv
     path = Path(file_path)
     if not path.exists():
         logger.warning(f"CSV file not found: {file_path}")
         return None
     try:
-        with open(path, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            return list(reader)
+        return pd.read_csv(path)
     except Exception as e:
-        logger.error(f"Error reading CSV {file_path}: {e}")
+        logger.error(f"Error loading CSV file {file_path}: {e}")
         return None
 
 def ensure_figures_directory(figures_dir: Path) -> None:
@@ -53,108 +51,132 @@ def ensure_figures_directory(figures_dir: Path) -> None:
         figures_dir.mkdir(parents=True, exist_ok=True)
         logger.info(f"Created figures directory: {figures_dir}")
 
-def move_figures(source_dir: Path, dest_dir: Path, pattern: str = "*.png") -> int:
+def move_figures(source_pattern: str, target_dir: Path) -> int:
     """
-    Move figure files from source to destination.
-    Returns the count of files moved.
+    Move generated figure files from source to target directory.
+    Returns the count of moved files.
     """
-    if not source_dir.exists():
-        logger.warning(f"Source figures directory does not exist: {source_dir}")
-        return 0
+    source_path = Path(source_pattern)
+    # If source_pattern is a directory
+    if source_path.is_dir():
+        files = list(source_path.glob("*.png")) + list(source_path.glob("*.jpg")) + list(source_path.glob("*.svg"))
+    else:
+        # Assume it's a glob pattern relative to data/processed
+        base_dir = source_path.parent
+        pattern = source_path.name
+        files = list(base_dir.glob(pattern))
+    
+    count = 0
+    for file_path in files:
+        if file_path.suffix.lower() in ['.png', '.jpg', '.svg']:
+            target_file = target_dir / file_path.name
+            shutil.move(str(file_path), str(target_file))
+            logger.info(f"Moved figure: {file_path} -> {target_file}")
+            count += 1
+    return count
 
-    ensure_figures_directory(dest_dir)
-    moved_count = 0
-    for file_path in source_dir.glob(pattern):
-        dest_path = dest_dir / file_path.name
-        shutil.move(str(file_path), str(dest_path))
-        moved_count += 1
-        logger.info(f"Moved figure: {file_path.name} -> {dest_path}")
-    return moved_count
-
-def aggregate_results(stability_results: Optional[Dict], 
-                      plausibility_results: Optional[Dict],
-                      summary_table: Optional[Dict],
-                      figures_moved: int) -> Dict[str, Any]:
+def aggregate_results(
+    stability_results: Optional[Dict[str, Any]],
+    plausibility_results: Optional[Dict[str, Any]],
+    summary_df: Optional[pd.DataFrame],
+    figures_moved: int
+) -> Dict[str, Any]:
     """
     Aggregate all feature analysis results into a single dictionary.
     """
-    return {
-        "feature_stability": stability_results,
-        "physical_plausibility": plausibility_results,
-        "feature_summary": summary_table,
-        "figures_saved": figures_moved,
-        "status": "complete"
+    result = {
+        "status": "completed",
+        "timestamp": pd.Timestamp.now().isoformat(),
+        "figures_generated": figures_moved,
+        "stability_analysis": stability_results or {"error": "Results not found"},
+        "physical_plausibility": plausibility_results or {"error": "Results not found"},
+        "feature_summary": {}
     }
+    
+    if summary_df is not None and not summary_df.empty:
+        # Convert DataFrame to list of dicts for JSON serialization
+        result["feature_summary"] = summary_df.to_dict(orient='records')
+        result["feature_summary_count"] = len(summary_df)
+    
+    return result
 
 def save_final_outputs(
-    stability_results: Optional[Dict],
-    plausibility_results: Optional[Dict],
-    summary_table: Optional[Dict],
-    figures_src_dir: Path,
-    figures_dest_dir: Path
-) -> Dict[str, Any]:
+    aggregated_data: Dict[str, Any],
+    output_json_path: str,
+    figures_target_dir: str
+) -> None:
     """
-    Main orchestration function to save all feature analysis outputs.
-    
-    1. Ensures destination directories exist.
-    2. Moves generated figures from temporary/working dir to final figures dir.
-    3. Aggregates stability, plausibility, and summary data.
-    4. Writes the aggregated JSON to `data/processed/feature_analysis.json`.
-    
-    Returns the saved dictionary.
+    Save the aggregated results to JSON and ensure figures are in place.
     """
-    # 1. Ensure directories exist
-    ensure_figures_directory(figures_dest_dir)
-    
-    # 2. Move figures
-    moved_count = move_figures(figures_src_dir, figures_dest_dir)
-    logger.info(f"Moved {moved_count} figures to {figures_dest_dir}")
-    
-    # 3. Aggregate
-    final_data = aggregate_results(
-        stability_results,
-        plausibility_results,
-        summary_table,
-        moved_count
-    )
-    
-    # 4. Save JSON
-    output_json_path = get_data_path("processed/feature_analysis.json")
+    # Ensure target directories exist
     output_path = Path(output_json_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
+    # Save JSON
     with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(final_data, f, indent=2, default=str)
+        json.dump(aggregated_data, f, indent=2, default=str)
+    logger.info(f"Saved feature analysis results to: {output_json_path}")
     
-    logger.info(f"Saved feature analysis results to {output_json_path}")
-    return final_data
+    # Ensure figures directory exists (figures should have been moved by move_figures)
+    figures_dir = Path(figures_target_dir)
+    ensure_figures_directory(figures_dir)
+    logger.info(f"Ensured figures directory exists: {figures_target_dir}")
 
 def main():
     """
-    Entry point for T027: Save analysis outputs.
-    Assumes T023, T024, T025, T026 have run and produced intermediate artifacts.
-    """
-    # Paths
-    figures_src = Path("code/figures") # Assumed temp location from T024
-    figures_dest = get_path("docs/paper/figures")
+    Main entry point for T027: Save analysis outputs to data/processed/feature_analysis.json 
+    and docs/paper/figures/.
     
-    # Load intermediate results (produced by T023, T025, T026)
-    # We try to load them; if they don't exist, we pass None, 
-    # but the pipeline should ensure they exist.
-    stability = load_json_safe("data/processed/feature_stability_results.json")
-    plausibility = load_json_safe("data/processed/physical_plausibility_results.json")
-    summary = load_json_safe("data/processed/feature_summary_table.json")
+    Dependencies:
+    - T023: Feature stability analysis (data/processed/feature_stability.json)
+    - T024: Partial dependence plots (generated in data/processed/ or similar)
+    - T025: Physical plausibility check (data/processed/physical_plausibility.json)
+    - T026: Feature interpretation summary (data/processed/feature_interpretation_summary.csv)
+    """
+    logger.info("Starting T027: Save analysis outputs")
+    
+    # Define paths based on project structure
+    data_path = get_data_path()
+    processed_path = data_path / "processed"
+    figures_source = processed_path  # Figures are typically generated here by T024
+    figures_target = Path("docs/paper/figures")
+    stability_file = processed_path / "feature_stability.json"
+    plausibility_file = processed_path / "physical_plausibility.json"
+    summary_file = processed_path / "feature_interpretation_summary.csv"
+    output_json = processed_path / "feature_analysis.json"
+    
+    # Load inputs from previous tasks
+    logger.info(f"Loading stability results from: {stability_file}")
+    stability_results = load_json_safe(str(stability_file))
+    
+    logger.info(f"Loading physical plausibility results from: {plausibility_file}")
+    plausibility_results = load_json_safe(str(plausibility_file))
+    
+    logger.info(f"Loading feature summary table from: {summary_file}")
+    summary_df = load_csv_safe(str(summary_file))
+    
+    # Move figures from source to target directory
+    logger.info(f"Moving figures from {figures_source} to {figures_target}")
+    figures_moved = move_figures(str(figures_source), Path(figures_target))
+    logger.info(f"Moved {figures_moved} figure files.")
+    
+    # Aggregate all results
+    aggregated_data = aggregate_results(
+        stability_results=stability_results,
+        plausibility_results=plausibility_results,
+        summary_df=summary_df,
+        figures_moved=figures_moved
+    )
     
     # Save final outputs
     save_final_outputs(
-        stability_results=stability,
-        plausibility_results=plausibility,
-        summary_table=summary,
-        figures_src_dir=figures_src,
-        figures_dest_dir=Path(figures_dest)
+        aggregated_data=aggregated_data,
+        output_json_path=str(output_json),
+        figures_target_dir=str(figures_target)
     )
     
-    logger.info("T027 completed: Feature analysis outputs saved.")
+    logger.info("T027 completed successfully.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
