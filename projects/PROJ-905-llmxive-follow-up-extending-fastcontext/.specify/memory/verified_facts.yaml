@@ -1,4 +1,4 @@
-0.05|alpha analysi power threshold:
+'|analysi power threshold':
   quote: "Indeed, although there are no formal standards for power, many researchers\
     \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
     \ This convention implies a four-to-one trade off between \u03B2-risk and \u03B1\
@@ -13,3 +13,8 @@
   source_id: Power (statistics)
   url: https://en.wikipedia.org/wiki/Power_(statistics)
   value: '0.80'
+'|idf ngram range tf':
+  quote: "TF\u2013IDF ngram_range(1,2)"
+  source_id: '2605.07793'
+  url: https://arxiv.org/abs/2605.07793
+  value: (1,2)

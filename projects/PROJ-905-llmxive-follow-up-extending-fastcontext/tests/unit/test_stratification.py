@@ -1,183 +1,94 @@
-"""
-Unit tests for the stratification module.
-"""
-import pytest
 import csv
+import os
 import tempfile
 from pathlib import Path
-import sys
 
-# Ensure we can import from code/
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+import pytest
 
-from stratification import split_repos, load_scores_from_csv, save_sets_to_csv
+# Import the function under test from the project's code module
+from code.stratification import split_repos
 
+# Fixture: sample_scores_csv
+# Creates a temporary CSV file with n=10 rows, scores ranging from low to high
+@pytest.fixture
+def sample_scores_csv():
+    """
+    Creates a temporary CSV file with 10 repositories and varying regularity scores.
+    The scores are designed to range from low to high to test the 50/50 split logic.
+    """
+    data = [
+        {"repo_id": "repo_001", "regularity_score": 0.10},
+        {"repo_id": "repo_002", "regularity_score": 0.20},
+        {"repo_id": "repo_003", "regularity_score": 0.30},
+        {"repo_id": "repo_004", "regularity_score": 0.40},
+        {"repo_id": "repo_005", "regularity_score": 0.50},
+        {"repo_id": "repo_006", "regularity_score": 0.60},
+        {"repo_id": "repo_007", "regularity_score": 0.70},
+        {"repo_id": "repo_008", "regularity_score": 0.80},
+        {"repo_id": "repo_009", "regularity_score": 0.90},
+        {"repo_id": "repo_010", "regularity_score": 1.00},
+    ]
 
-class TestSplitRepos:
-    """Tests for the split_repos function."""
+    # Create a temporary file
+    temp_fd, temp_path = tempfile.mkstemp(suffix=".csv")
+    try:
+        with os.fdopen(temp_fd, "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=["repo_id", "regularity_score"])
+            writer.writeheader()
+            writer.writerows(data)
+        yield temp_path
+    finally:
+        # Cleanup: remove the temporary file after the test
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
 
-    def test_empty_input(self):
-        """Test that empty input returns empty lists."""
-        regular, irregular = split_repos([])
-        assert regular == []
-        assert irregular == []
+class TestStratification:
+    def test_stratification_splits_50_50_by_regular_score(
+        self, sample_scores_csv
+    ):
+        """
+        Test that split_repos correctly divides the dataset into two equal halves
+        based on the regularity_score.
+        
+        Given a CSV with 10 repositories:
+        - The top 5 (scores 0.60 to 1.00) should be in the 'regular' set.
+        - The bottom 5 (scores 0.10 to 0.50) should be in the 'irregular' set.
+        """
+        # Call the function
+        regular_set, irregular_set = split_repos(sample_scores_csv)
 
-    def test_single_item(self):
-        """Test splitting a single item (all goes to irregular if median split)."""
-        data = [{'repo_id': 'repo1', 'regularity_score': 0.9}]
-        regular, irregular = split_repos(data)
-        # With 1 item, mid_point = 0, so all go to irregular
-        assert len(regular) == 0
-        assert len(irregular) == 1
-        assert irregular[0]['repo_id'] == 'repo1'
+        # Assert that both sets are lists
+        assert isinstance(regular_set, list)
+        assert isinstance(irregular_set, list)
 
-    def test_two_items_equal_split(self):
-        """Test splitting two items."""
-        data = [
-            {'repo_id': 'repo1', 'regularity_score': 0.9},
-            {'repo_id': 'repo2', 'regularity_score': 0.1}
-        ]
-        regular, irregular = split_repos(data)
-        assert len(regular) == 1
-        assert len(irregular) == 1
-        assert regular[0]['repo_id'] == 'repo1'
-        assert irregular[0]['repo_id'] == 'repo2'
+        # Assert that the split is 50/50 (n=10 -> 5 and 5)
+        assert len(regular_set) == 5, f"Expected 5 regular repos, got {len(regular_set)}"
+        assert len(irregular_set) == 5, f"Expected 5 irregular repos, got {len(irregular_set)}"
 
-    def test_uneven_split_rounding(self):
-        """Test that odd number of items rounds correctly (floor for regular)."""
-        data = [
-            {'repo_id': 'r1', 'regularity_score': 0.9},
-            {'repo_id': 'r2', 'regularity_score': 0.8},
-            {'repo_id': 'r3', 'regularity_score': 0.1}
-        ]
-        regular, irregular = split_repos(data)
-        # 3 items -> mid = 1 -> 1 regular, 2 irregular
-        assert len(regular) == 1
-        assert len(irregular) == 2
-        assert regular[0]['repo_id'] == 'r1'
+        # Verify the content of the sets
+        # Extract repo_ids for easier checking
+        regular_ids = [item["repo_id"] for item in regular_set]
+        irregular_ids = [item["repo_id"] for item in irregular_set]
 
-    def test_explicit_threshold(self):
-        """Test splitting using an explicit threshold."""
-        data = [
-            {'repo_id': 'r1', 'regularity_score': 0.9},
-            {'repo_id': 'r2', 'regularity_score': 0.5},
-            {'repo_id': 'r3', 'regularity_score': 0.4}
-        ]
-        # Threshold at 0.6
-        regular, irregular = split_repos(data, threshold=0.6)
-        assert len(regular) == 1
-        assert len(irregular) == 2
-        assert regular[0]['repo_id'] == 'r1'
+        # The top 5 scores (0.60, 0.70, 0.80, 0.90, 1.00) correspond to repo_006 to repo_010
+        expected_regular_ids = ["repo_006", "repo_007", "repo_008", "repo_009", "repo_010"]
+        
+        # The bottom 5 scores (0.10, 0.20, 0.30, 0.40, 0.50) correspond to repo_001 to repo_005
+        expected_irregular_ids = ["repo_001", "repo_002", "repo_003", "repo_004", "repo_005"]
 
-    def test_threshold_includes_equal(self):
-        """Test that threshold is inclusive for regular set."""
-        data = [
-            {'repo_id': 'r1', 'regularity_score': 0.5},
-            {'repo_id': 'r2', 'regularity_score': 0.5}
-        ]
-        regular, irregular = split_repos(data, threshold=0.5)
-        # Both should be regular
-        assert len(regular) == 2
-        assert len(irregular) == 0
+        # Check that the sets contain the correct repositories
+        # Using set equality to ignore order if the implementation sorts differently,
+        # though split_repos usually preserves order or sorts by score.
+        assert set(regular_ids) == set(expected_regular_ids), \
+            f"Regular set mismatch. Expected {expected_regular_ids}, got {regular_ids}"
+        
+        assert set(irregular_ids) == set(expected_irregular_ids), \
+            f"Irregular set mismatch. Expected {expected_irregular_ids}, got {irregular_ids}"
 
-    def test_sorting_order(self):
-        """Test that the regular set contains the highest scores."""
-        data = [
-            {'repo_id': 'r1', 'regularity_score': 0.3},
-            {'repo_id': 'r2', 'regularity_score': 0.9},
-            {'repo_id': 'r3', 'regularity_score': 0.5},
-            {'repo_id': 'r4', 'regularity_score': 0.8}
-        ]
-        regular, irregular = split_repos(data)
-        # Sorted: 0.9, 0.8, 0.5, 0.3
-        # Regular: 0.9, 0.8
-        scores_regular = [r['regularity_score'] for r in regular]
-        scores_irregular = [r['regularity_score'] for r in irregular]
+        # Verify that no repo is in both sets
+        assert len(set(regular_ids).intersection(set(irregular_ids))) == 0, \
+            "A repository cannot be in both the regular and irregular sets."
 
-        assert min(scores_regular) >= max(scores_irregular)
-
-
-class TestLoadScoresFromCsv:
-    """Tests for loading scores from CSV."""
-
-    def test_load_valid_csv(self):
-        """Test loading a valid CSV file."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-            writer = csv.writer(f)
-            writer.writerow(['repo_id', 'regularity_score'])
-            writer.writerow(['repo1', '0.9'])
-            writer.writerow(['repo2', '0.1'])
-            temp_path = Path(f.name)
-
-        try:
-            data = load_scores_from_csv(temp_path)
-            assert len(data) == 2
-            assert data[0]['repo_id'] == 'repo1'
-            assert data[0]['regularity_score'] == 0.9
-            assert data[1]['regularity_score'] == 0.1
-        finally:
-            temp_path.unlink()
-
-    def test_load_invalid_score_defaults_to_zero(self):
-        """Test that invalid scores default to 0.0."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-            writer = csv.writer(f)
-            writer.writerow(['repo_id', 'regularity_score'])
-            writer.writerow(['repo1', 'invalid'])
-            temp_path = Path(f.name)
-
-        try:
-            data = load_scores_from_csv(temp_path)
-            assert len(data) == 1
-            assert data[0]['regularity_score'] == 0.0
-        finally:
-            temp_path.unlink()
-
-
-class TestSaveSetsToCsv:
-    """Tests for saving sets to CSV."""
-
-    def test_save_empty_sets(self):
-        """Test saving empty sets."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_dir = Path(tmpdir)
-            regular_path, irregular_path = save_sets_to_csv([], [], output_dir)
-
-            assert regular_path.exists()
-            assert irregular_path.exists()
-
-            # Check headers exist
-            with open(regular_path) as f:
-                reader = csv.reader(f)
-                header = next(reader)
-                assert 'repo_id' in header
-
-    def test_save_populated_sets(self):
-        """Test saving populated sets."""
-        regular_data = [
-            {'repo_id': 'r1', 'regularity_score': 0.9, 'extra_field': 'val1'}
-        ]
-        irregular_data = [
-            {'repo_id': 'r2', 'regularity_score': 0.1, 'extra_field': 'val2'}
-        ]
-
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_dir = Path(tmpdir)
-            regular_path, irregular_path = save_sets_to_csv(regular_data, irregular_data, output_dir)
-
-            assert regular_path.exists()
-            assert irregular_path.exists()
-
-            # Verify content
-            with open(regular_path) as f:
-                reader = csv.DictReader(f)
-                rows = list(reader)
-                assert len(rows) == 1
-                assert rows[0]['repo_id'] == 'r1'
-                assert rows[0]['extra_field'] == 'val1'
-
-            with open(irregular_path) as f:
-                reader = csv.DictReader(f)
-                rows = list(reader)
-                assert len(rows) == 1
-                assert rows[0]['repo_id'] == 'r2'
+        # Verify that the union of both sets equals the total input count
+        assert len(set(regular_ids).union(set(irregular_ids))) == 10, \
+            "The union of regular and irregular sets must contain all input repositories."

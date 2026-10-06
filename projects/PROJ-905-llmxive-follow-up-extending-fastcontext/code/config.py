@@ -1,72 +1,39 @@
-"""
-Configuration management for the llmXive project.
-
-This module provides utilities for managing dataset paths, model IDs,
-and other configuration settings.
-"""
 import os
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-# Project root directory
-PROJECT_ROOT = Path(__file__).parent.parent
+# Project root is assumed to be the parent of the 'code' directory
+# This allows the script to run from 'code' or from the project root
+def _get_project_root() -> Path:
+    current_file = Path(__file__).resolve()
+    return current_file.parent.parent
 
-# Default configuration
-DEFAULT_CONFIG = {
-    "dataset": {
-        "swe_bench_lite": "princeton-nlp/SWE-bench_Lite",
-        "swe_bench_full": "princeton-nlp/SWE-bench",
-    },
-    "model": {
-        "fastcontext_lite": "fastcontext-lite-v1",
-        "fastcontext_4b": "princeton-nlp/fastcontextb",
-    },
-    "paths": {
-        "data_raw": "data/raw",
-        "data_processed": "data/processed",
-        "data_results": "data/results",
-        "code": "code",
-        "tests": "tests",
-        "specs": "specs",
-        "state": "state",
-    }
-}
+PROJECT_ROOT = _get_project_root()
 
-
-def get_path(relative_path: str) -> Path:
-    """
-    Resolves a relative path to an absolute path within the project root.
-
-    Args:
-        relative_path: Relative path string (e.g., "data/raw/file.csv").
-
-    Returns:
-        Absolute Path object.
-    """
-    return PROJECT_ROOT / relative_path
-
+def get_path(*subdirs: str) -> Path:
+    """Construct a path relative to the project root."""
+    path = PROJECT_ROOT
+    for subdir in subdirs:
+        path = path / subdir
+    return path
 
 def ensure_directories(paths: list) -> None:
-    """
-    Ensures that the given paths (files or directories) exist.
-    If a path is a file, ensures its parent directory exists.
-
-    Args:
-        paths: List of Path objects or strings.
-    """
-    for path in paths:
-        path_obj = Path(path)
-        path_obj.parent.mkdir(parents=True, exist_ok=True)
-        if not path_obj.exists() and not str(path_obj).endswith("/"):
-            # Create the file as an empty file if it doesn't exist
-            path_obj.touch()
-
+    """Create directories if they don't exist."""
+    for p in paths:
+        if isinstance(p, str):
+            p = Path(p)
+        p.mkdir(parents=True, exist_ok=True)
 
 def get_config_dict() -> Dict[str, Any]:
-    """
-    Returns the default configuration dictionary.
-
-    Returns:
-        Configuration dictionary.
-    """
-    return DEFAULT_CONFIG.copy()
+    """Return configuration dictionary including paths and weights."""
+    return {
+        'project_root': str(PROJECT_ROOT),
+        'weights': {
+            'w1': 0.5,
+            'w2': 0.5
+        },
+        'thresholds': {
+            'regularity_threshold': 0.5,
+            'precision_threshold': 0.9
+        }
+    }

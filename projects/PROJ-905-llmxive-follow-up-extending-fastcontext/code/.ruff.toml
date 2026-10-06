@@ -1,5 +1,7 @@
 [lint]
 select = ["E", "F", "I", "W"]
 
-[target-version]
-py = "py3"
+[lint.isort]
+known-first-party = ["config", "data_loader", "static_analysis", "stratification", "fastcontext_lite", "metrics_logger", "analysis", "baseline_runner", "pilot_validation", "versioning", "annotation_extractor", "export_scores", "main"]
+
+target-version = "py3"

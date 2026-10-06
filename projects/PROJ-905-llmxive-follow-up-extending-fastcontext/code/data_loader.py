@@ -63,7 +63,7 @@ def download_dataset(
     split: str = "test",
     revision: str = "main",
     cache_dir: Optional[Path] = None
-) -> Any:
+) -> any:
     """
     Downloads and loads the SWE-bench Lite dataset.
 

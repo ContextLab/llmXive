@@ -2,11 +2,19 @@ import os
 from pathlib import Path
 
 def main():
-    """Create the project directory structure for PROJ-905."""
-    base_path = Path("projects/PROJ-905-llmxive-follow-up-extending-fastcontext")
-    
-    # Define the required directories relative to the project root
-    directories = [
+    """
+    Create the project directory structure for PROJ-905-llmxive-follow-up-extending-fastcontext.
+    Ensures all required directories exist relative to the project root.
+    """
+    # Define the base project root
+    # The script is located in code/, so we go up one level to find the project root
+    script_dir = Path(__file__).resolve().parent
+    project_root = script_dir.parent
+
+    # Define relative paths required by T001
+    # Note: The task description mentions `projects/PROJ-.../` but the context implies
+    # the current working directory IS that project root. We create the subdirs relative here.
+    required_dirs = [
         "data/raw",
         "data/processed",
         "data/results",
@@ -16,20 +24,21 @@ def main():
         "specs/contracts",
         "state"
     ]
-    
-    # Create the base project directory
-    base_path.mkdir(parents=True, exist_ok=True)
-    
-    # Create each subdirectory
-    created_dirs = []
-    for dir_path in directories:
-        full_path = base_path / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
-        created_dirs.append(str(full_path))
-    
-    print(f"Project structure created at: {base_path}")
-    for d in created_dirs:
-        print(f"  - {d}")
+
+    created_count = 0
+    for rel_dir in required_dirs:
+        target_path = project_root / rel_dir
+        if not target_path.exists():
+            target_path.mkdir(parents=True, exist_ok=True)
+            created_count += 1
+            print(f"Created directory: {target_path}")
+        else:
+            # Ensure it is a directory, not a file
+            if not target_path.is_dir():
+                raise FileExistsError(f"Path exists but is not a directory: {target_path}")
+
+    print(f"Project structure verification complete. {created_count} new directories created.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

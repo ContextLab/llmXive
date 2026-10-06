@@ -1,0 +1,3 @@
+# Ruff configuration
+select = ["E", "F", "I", "W"]
+target-version = "py3"

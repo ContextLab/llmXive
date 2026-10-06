@@ -1,11 +1,18 @@
-T007c:
+T001:
   c: false
-  h: a512104581871d498ff7a81585d2d2abf1fbfe7890e7e6bf52241a9e6dd9a90d
-  r: "The required input file `data/processed/regularity_scores.csv` is absent, so\
-    \ the script cannot load the sample or compute any correlation. Moreover, the\
-    \ provided `pilot_validation.py` is truncated and does not show the correlation\
-    \ calculation or the flag\u2011ging logic. The missing CSV (and incomplete script)\
-    \ means the task\u2019s core requirement is not met."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided showing that the directories `data/raw`, `data/processed`,
+    `data/results`, `code`, `tests/unit`, `tests/integration`, `specs/contracts`,
+    and `state` exist under `projects/PROJ-905-llmxive-follow-up-extending-fastcontext/`.
+    Without confirming the presence of this project structure, the task requirement
+    is not satisfied.
+T002:
+  c: false
+  h: e8e92197a401326433d2da4e3d355acb1ee68baf650fa6dd60cc6aea11bb613e
+  r: "The required file `projects/PROJ-905-llmxive-follow-up-extending-fastcontext/code/requirements.txt`\
+    \ does not exist, and the existing `requirements.txt` files contain only package\
+    \ lists, not the full specification excerpt the task expects. The task\u2019s\
+    \ core requirement is therefore unmet."
 T023:
   c: false
   h: 882bb003344b96dbe2e11e8457192682aa149f02342da9508a0dd8ae5146df93
@@ -20,13 +27,3 @@ T032a:
   r: No README.md content from `projects/PROJ-905-llmxive-follow-up-extending-fastcontext/`
     was provided; thus we cannot verify that installation instructions, usage examples,
     and contribution guidelines were added. The required artifact is missing.
-T034:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No scripts, CSV files, JSON logs, or analysis results are present to demonstrate\
-    \ that repositories were scored for structural regularity, split into \u201CRegular\u201D\
-    \ and \u201CIrregular\u201D sets, or that the FastContext\u2011Lite pipeline was\
-    \ executed and metrics collected. Without these concrete artifacts, the task requirements\
-    \ are not satisfied. The next implementer must provide the static\u2011analysis\
-    \ script, the resulting split CSV, and example FastContext\u2011Lite execution\
-    \ logs containing the required metrics."
