@@ -1,15 +1,23 @@
-'|filter frequency hz notch':
+60|filter hz notch operate:
   quote: Fnotch or fcutoff = 49.7 Hz
   source_id: '2504.02847'
   url: https://arxiv.org/abs/2504.02847
-  value: '49.7'
-'|significance statistical threshold':
-  quote: In 1925, Ronald Fisher advanced the idea of statistical hypothesis testing,
-    which he called "tests of significance", in his publication Statistical Methods
-    for Research Workers. Fisher suggested a probability of one in twenty (0.05) as
-    a convenient cutoff level to reject the null hypothesis. In a 1933 paper, Jerzy
-    Neyman and Egon Pearson called this cutoff the significance level, which they
-    named
-  source_id: Statistical significance
-  url: https://en.wikipedia.org/wiki/Statistical_significance
+  value: 49.7 Hz
+'|alpha determined level significance statistical using':
+  quote: "The error that a practising statistician would consider the more important\
+    \ to avoid (which is a subjective judgment) is called the error of the first kind.\
+    \ The first demand of the mathematical theory is to deduce such test criteria\
+    \ as would ensure that the probability of committing an error of the first kind\
+    \ would equal (or approximately equal, or not exceed) a preassigned number \u03B1\
+    , such as \u03B1 = 0.05 or 0.01, etc. This number is called the level of significance."
+  source_id: P-value
+  url: https://en.wikipedia.org/wiki/P-value
   value: '0.05'
+'|establish iteration least permutation significance statistical testing use':
+  quote: Blocks are batches of microarrays; for example for eight samples split into
+    two groups (control and affected) there are 4!=24 permutations for each block
+    and the total number of permutations is (24)(24)= 576. A minimum of 1000 permutations
+    are recommended;
+  source_id: Microarray analysis techniques
+  url: https://en.wikipedia.org/wiki/Microarray_analysis_techniques
+  value: '1000'

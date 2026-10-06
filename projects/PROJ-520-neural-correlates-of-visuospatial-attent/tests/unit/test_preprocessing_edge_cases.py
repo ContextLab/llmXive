@@ -1,97 +1,97 @@
 import pytest
 import os
 import json
-import tempfile
 import numpy as np
 import mne
-from unittest.mock import patch, MagicMock
+from pathlib import Path
 
-from preprocessing import handle_missing_electrodes, load_raw, filter_data
-from logger import get_logger
+from preprocessing import handle_missing_electrodes, EpochingError
+from config import get_paths
 
 @pytest.fixture
-def sample_raw():
-    """Create a sample raw object for testing."""
+def temp_metadata_path(tmp_path):
+    """Create a temporary metadata file path."""
+    path = tmp_path / "metadata.json"
+    # Initialize with empty schema
+    with open(path, 'w') as f:
+        json.dump({'skipped_electrodes': [], 'assumptions': {}, 'data_source_url': None, 'fetch_method': None}, f)
+    return str(path)
+
+@pytest.fixture
+def raw_with_bad_channels(tmp_path):
+    """Create a mock MNE Raw object with some bad channels."""
+    # Create mock info
     info = mne.create_info(ch_names=['EEG 001', 'EEG 002', 'EEG 003', 'EEG 004'], 
-                           sfreq=250, ch_types='eeg')
-    data = np.random.randn(4, 500)
+                           sfreq=1000, ch_types='eeg')
+    
+    # Create data: 4 channels, 1000 samples
+    # Channel 0: Good data
+    # Channel 1: All NaN
+    # Channel 2: Constant (dead)
+    # Channel 3: 60% NaN
+    data = np.random.randn(4, 1000)
+    data[1, :] = np.nan
+    data[2, :] = 0.0
+    data[3, :400] = np.nan
+    
     raw = mne.io.RawArray(data, info)
     return raw
 
-@pytest.fixture
-def temp_metadata_path():
-    """Create a temporary file path for metadata."""
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as f:
-        return f.name
-
-def test_missing_electrodes(sample_raw, temp_metadata_path):
-    """Test that missing electrodes are correctly identified and skipped."""
-    logger = get_logger(__name__)
+def test_missing_electrodes_all_nan(temp_metadata_path, raw_with_bad_channels):
+    """Test that electrodes with all NaN are skipped."""
+    skipped = handle_missing_electrodes(raw_with_bad_channels, temp_metadata_path)
     
-    # Simulate a bad channel
-    sample_raw.info['bads'] = ['EEG 002']
+    # Check that the all-NaN channel is skipped
+    assert 'EEG 002' in skipped
     
-    # Simulate a channel with all NaN data
-    data, _ = sample_raw[:]
-    data[2, :] = np.nan
-    sample_raw._data = data
-    
-    # Run the function
-    result = handle_missing_electrodes(sample_raw, temp_metadata_path, logger)
-    
-    # Check that EEG 002 and EEG 003 are dropped
-    assert 'EEG 002' not in result.ch_names
-    assert 'EEG 003' not in result.ch_names
-    assert 'EEG 001' in result.ch_names
-    assert 'EEG 004' in result.ch_names
-    
-    # Check metadata file
-    assert os.path.exists(temp_metadata_path)
+    # Check metadata update
     with open(temp_metadata_path, 'r') as f:
         metadata = json.load(f)
-    
-    assert 'skipped_electrodes' in metadata
-    assert len(metadata['skipped_electrodes']) == 2
     assert 'EEG 002' in metadata['skipped_electrodes']
+
+def test_missing_electrodes_dead_channel(temp_metadata_path, raw_with_bad_channels):
+    """Test that dead channels (zero variance) are skipped."""
+    skipped = handle_missing_electrodes(raw_with_bad_channels, temp_metadata_path)
+    
+    # Check that the dead channel is skipped
+    assert 'EEG 003' in skipped
+    
+    # Check metadata update
+    with open(temp_metadata_path, 'r') as f:
+        metadata = json.load(f)
     assert 'EEG 003' in metadata['skipped_electrodes']
 
-def test_empty_events(sample_raw, temp_metadata_path):
-    """Test handling of empty events list (edge case for downstream epoching)."""
-    # This test verifies that the pipeline doesn't crash when events are empty.
-    # In a real scenario, this would be caught during epoching (T013/T015).
-    logger = get_logger(__name__)
+def test_missing_electrodes_high_nan_ratio(temp_metadata_path, raw_with_bad_channels):
+    """Test that channels with >50% NaN are skipped."""
+    skipped = handle_missing_electrodes(raw_with_bad_channels, temp_metadata_path)
     
-    # Handle missing electrodes with no bads
-    result = handle_missing_electrodes(sample_raw, temp_metadata_path, logger)
+    # Check that the high-NaN channel is skipped
+    assert 'EEG 004' in skipped
     
-    # Should succeed without errors
-    assert result is not None
-    assert len(result.ch_names) == 4
+    # Check metadata update
+    with open(temp_metadata_path, 'r') as f:
+        metadata = json.load(f)
+    assert 'EEG 004' in metadata['skipped_electrodes']
 
-def test_all_channels_missing(sample_raw, temp_metadata_path):
-    """Test behavior when all channels are marked as bad/missing."""
-    logger = get_logger(__name__)
+def test_missing_electrodes_good_channel_kept(temp_metadata_path, raw_with_bad_channels):
+    """Test that good channels are not skipped."""
+    skipped = handle_missing_electrodes(raw_with_bad_channels, temp_metadata_path)
     
-    # Mark all channels as bad
-    sample_raw.info['bads'] = ['EEG 001', 'EEG 002', 'EEG 003', 'EEG 004']
+    # Check that the good channel is NOT skipped
+    assert 'EEG 001' not in skipped
     
-    with pytest.raises(ValueError) as excinfo:
-        handle_missing_electrodes(sample_raw, temp_metadata_path, logger)
-    
-    # Should raise an error because no channels remain
-    assert "No channels remaining after dropping" in str(excinfo.value)
+    # Check raw channels after dropping
+    assert 'EEG 001' in raw_with_bad_channels.info['ch_names']
 
-def test_no_missing_electrodes(sample_raw, temp_metadata_path):
-    """Test when there are no missing electrodes."""
-    logger = get_logger(__name__)
-    
-    result = handle_missing_electrodes(sample_raw, temp_metadata_path, logger)
-    
-    assert result is not None
-    assert len(result.ch_names) == 4
+def test_missing_electrodes_metadata_persistence(temp_metadata_path, raw_with_bad_channels):
+    """Test that metadata is correctly updated and persisted."""
+    # Run twice to ensure accumulation
+    handle_missing_electrodes(raw_with_bad_channels, temp_metadata_path)
+    handle_missing_electrodes(raw_with_bad_channels, temp_metadata_path)
     
     with open(temp_metadata_path, 'r') as f:
         metadata = json.load(f)
     
-    assert metadata['skipped_electrodes'] == []
-    assert metadata['skipped_count'] == 0
+    # Should not have duplicates
+    assert len(metadata['skipped_electrodes']) == len(set(metadata['skipped_electrodes']))
+    assert len(metadata['skipped_electrodes']) >= 3  # At least the 3 bad channels

@@ -98,7 +98,7 @@ Train LDA classifier to distinguish active shift epochs from passive navigation 
 ## Assumptions
 
 - An OpenNeuro dataset contains EEG recordings with navigation task conditions; system MUST verify dataset content before proceeding and halt if required conditions are absent
-- The datasets contain sufficient EEG channels (P3, Pz, P4, F3, Fz, F4) for the specified electrode analysis
+- The datasets contain sufficient EEG channels (P, Pz, P4, F3, Fz, F4) for the specified electrode analysis
 - Navigation task conditions are explicitly labeled in the dataset metadata, enabling active vs. passive epoch separation
 - The OpenNeuro datasets have ≥200 total epochs (≥100 per condition) after artifact rejection to meet power requirements
 - MNE-Python is available on the CI runner with all dependencies (numpy, scipy, scikit-learn) within the allocated compute budget
