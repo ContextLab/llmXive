@@ -2,67 +2,90 @@
 
 ## Prerequisites
 
-- **Python**: 3.11+
-- **Environment**: GitHub Actions `ubuntu-latest` (or local equivalent with 7 GB+ RAM).
-- **Access**: No special API keys required if using public NIST data (or verified HuggingFace mirrors).
+*   Python 3.11+
+*   pip / virtualenv
+*   Access to GitHub Actions (for CI execution) or a local environment with substantial RAM.
 
 ## Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-376-predicting-corrosion-potential-from-comp
-   ```
+1.  **Clone the Repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-376-predicting-corrosion-potential-from-comp
+    ```
 
-2. **Create and activate virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+2.  **Create Virtual Environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
+3.  **Install Dependencies**:
+    ```bash
+    pip install -r code/requirements.txt
+    ```
+
+## Configuration
+
+1.  **Set Random Seeds**:
+    Create `code/config/seeds.yaml` (if not present):
+    ```yaml
+    random_seed: 42
+    numpy_seed: 42
+    tensorflow_seed: 42
+    ```
+
+2.  **Define Paths**:
+    Create `code/config/paths.yaml`:
+    ```yaml
+    raw_data_dir: "data/raw"
+    processed_data_dir: "data/processed"
+    logs_dir: "data/logs"
+    contracts_dir: "contracts"
+    ```
 
 ## Running the Pipeline
 
-The pipeline is executed via the main entry script.
+The pipeline is executed via the CLI script. It handles download, validation, training, and evaluation.
 
-### 1. Data Ingestion & Preprocessing
-This step downloads (or loads) the data, validates the schema, filters outliers, and **normalizes reference electrodes to SHE**.
+### Step 1: Data Ingestion & Validation
 ```bash
-python code/data/download_nist.py
-python code/data/preprocess.py
+python code/cli/run_pipeline.py --stage download
+python code/cli/run_pipeline.py --stage validate
 ```
-*Output*: `data/processed/corrosion_dataset.parquet` and `data/logs/pipeline.log`.
+*   This will attempt to download data from the NIST Internal Report series.
+*   If the dataset is < 500 records or missing required fields, the script will **halt** and report `SchemaMismatchError`.
+*   If NIST fails, it will attempt to load OpenCorrosion.
+*   If both fail, it will generate synthetic data (Simulation Mode) or halt.
 
-### 2. Model Training & Evaluation
-Trains Random Forest and Gradient Boosting models using **GroupKFold (k=5)** to ensure statistical power.
+### Step 2: Model Training
 ```bash
-python code/models/train.py
-python code/models/evaluate.py
+python code/cli/run_pipeline.py --stage train
 ```
-*Output*: `data/processed/model_metrics.json` and `data/processed/predictions.parquet`.
+*   Trains Random Forest and Gradient Boosting models.
+*   Uses "Leave-One-Specific-Alloy-Out" split (or GroupKFold fallback).
+*   Logs metrics to `data/logs/pipeline.log`.
 
-### 3. Interpretability Analysis
-Generates feature importance plots and partial dependence plots.
+### Step 3: Evaluation & Interpretation
 ```bash
-python code/models/interpret.py
+python code/cli/run_pipeline.py --stage evaluate
+python code/cli/run_pipeline.py --stage interpret
 ```
-*Output*: `data/figures/` (PDF/PNG) and `data/processed/importance_report.csv`.
+*   Generates R², RMSE, and null baseline comparison.
+*   Computes permutation importance with FDR correction.
+*   Generates partial dependence plots (via `interpret.py`).
 
-## Verification
+## Output Artifacts
 
-To verify the pipeline:
-1. Check `data/logs/pipeline.log` for "Schema Validation: PASSED" and "Reference Electrode Normalization: COMPLETED".
-2. Ensure `data/processed/model_metrics.json` contains `r2_score` and `rmse`.
-3. Confirm `data/figures/` contains at least one partial dependence plot.
-4. Verify that `data/processed/model_metrics.json` includes a `regime_of_validity` field listing the alloy families tested.
+*   `data/processed/clean_dataset.parquet`: Cleaned and split dataset.
+*   `data/logs/schema_validation.log`: Log of validation steps.
+*   `data/logs/pipeline.log`: Full execution log.
+*   `results/metrics.json`: Final model performance metrics.
+*   `results/feature_importance.png`: Visualization of top features.
+*   `results/pdp_plots/`: Partial dependence plots for key interactions.
 
 ## Troubleshooting
 
-- **Error: `DataInsufficientError`**: The dataset has a limited number of records or alloy designations. The pipeline cannot proceed.
-- **Error: `SchemaMismatchError`**: The source data lacks required columns (pH, temperature, composition, reference electrode). Check the raw data source.
-- **Error: `429 Too Many Requests`**: The download script has a built-in retry mechanism. If it fails after multiple retries, check network connectivity.
-- **Error: `ReferenceMismatchError`**: The reference electrode is missing or cannot be converted to SHE. Check the raw data for reference electrode metadata.
+*   **SchemaMismatchError**: The dataset downloaded has < 500 valid records or is inaccessible. This is a hard stop per the spec. Check the `data/logs/schema_validation.log` for details on missing fields.
+*   **NIST-IR-8200 Unreachable**: If the download fails, check network connectivity. The pipeline will attempt OpenCorrosion or Simulation Mode.
+*   **Memory Error**: Ensure the dataset is being streamed or chunked. If the raw file is too large, the `download_nist.py` script uses `streaming=True`.

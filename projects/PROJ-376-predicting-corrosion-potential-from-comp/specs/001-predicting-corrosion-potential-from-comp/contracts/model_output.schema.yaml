@@ -17,7 +17,7 @@ properties:
     description: "Root Mean Square Error in millivolts."
   is_learnable:
     type: boolean
-    description: "True if R2 > 0 and p < 0.05 via permutation test."
+    description: "True if R2 > 0.05 and p < 0.05 via global permutation test AND RMSE < 150 mV."
   feature_importance:
     type: array
     items:

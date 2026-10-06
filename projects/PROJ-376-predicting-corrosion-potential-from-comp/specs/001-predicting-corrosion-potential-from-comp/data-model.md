@@ -1,80 +1,69 @@
 # Data Model: Predicting Corrosion Potential from Composition and Environment
 
-## 1. Entity Relationship Diagram (Conceptual)
+## Overview
 
-The data model consists of three core entities linked by a unique `record_id`.
+This document defines the data structures, schemas, and transformations used in the corrosion potential prediction pipeline. It ensures that all data ingestion, processing, and modeling steps adhere to a strict schema, preventing data leakage and ensuring reproducibility.
 
-```mermaid
-erDiagram
-    AlloyRecord ||--o{ CorrosionMeasurement : "has"
-    EnvironmentRecord ||--o{ CorrosionMeasurement : "defines"
-    
-    AlloyRecord {
-        string specific_alloy_designation "e.g., SS304"
-        float fe_weight_fraction
-        float cr_weight_fraction
-        float ni_weight_fraction
-        float mo_weight_fraction
-        // ... other elements
-    }
-    
-    EnvironmentRecord {
-        float ph
-        float temperature_celsius
-        string electrolyte_type "e.g., saline, acidic"
-        string reference_electrode "e.g., SHE, SCE, Ag/AgCl"
-    }
-    
-    CorrosionMeasurement {
-        string record_id
-        float corrosion_potential_mv
-        string test_standard "e.g., ASTM G59"
-    }
-```
+## Entity Definitions
 
-## 2. Schema Definitions
+### 1. AlloyRecord
+Represents a specific metallic alloy with its elemental composition.
+*   **Specific Alloy Designation**: Unique string identifier (e.g., "SS304", "Inconel625").
+*   **Base Metal Family**: Categorical (e.g., "Fe-based", "Ni-based").
+*   **Elemental Composition**: Dictionary of element symbol to weight fraction (float, 0.0-1.0). Sum of all fractions must be 1.0.
+*   **Metadata**: Source ID, publication year (optional).
 
-### 2.1 Raw Input Schema (NIST-IR-8200)
-*Expected fields from the source.*
-- `record_id`: Unique identifier.
-- `alloy_name`: String (e.g., "Stainless Steel 304").
-- `composition`: JSON object `{ "Fe": 0.70, "Cr": 0.18, ... }`.
-- `environment`: JSON object `{ "pH": 7.0, "temp": 25.0, "type": "neutral", "reference": "SHE" }`.
-- `corrosion_potential`: Float (mV).
+### 2. EnvironmentRecord
+Represents the testing conditions for a corrosion measurement.
+*   **pH**: Float (continuous). Valid range: 0.0 - 14.0.
+*   **Temperature**: Float (continuous). Unit: Celsius.
+*   **Electrolyte Type**: Categorical (e.g., "Saline", "Acidic", "Alkaline", "Neutral").
+*   **Agitation**: Categorical (e.g., "Static", "Flowing").
 
-### 2.2 Processed Dataset Schema (Parquet)
-*The unified dataset used for training.*
+### 3. CorrosionMeasurement
+Represents the target variable linked to an AlloyRecord and EnvironmentRecord.
+*   **Corrosion Potential**: Float. Unit: millivolts (mV) vs Standard Hydrogen Electrode (SHE).
+*   **Measurement Method**: String (e.g., "ASTM G59", "Open Circuit Potential").
+*   **Record ID**: Unique identifier linking Alloy, Environment, and Measurement.
 
-| Column Name | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `record_id` | String | Unique identifier | Non-null, Unique |
-| `specific_alloy_designation` | String | Normalized alloy grade (e.g., "SS304") | Non-null |
-| `fe_weight` | Float64 | Iron weight fraction | 0.0 ≤ x ≤ 1.0 |
-| `cr_weight` | Float64 | Chromium weight fraction | 0.0 ≤ x ≤ 1.0 |
-| `ni_weight` | Float64 | Nickel weight fraction | 0.0 ≤ x ≤ 1.0 |
-| `mo_weight` | Float64 | Molybdenum weight fraction | 0.0 ≤ x ≤ 1.0 |
-| `other_elements` | Float64 | Sum of remaining elements | 0.0 ≤ x ≤ 1.0 |
-| `ph` | Float64 | Environmental pH | 0.0 ≤ x ≤ 14.0 |
-| `temperature_c` | Float64 | Temperature in Celsius | > 0 |
-| `corrosion_potential_mv` | Float64 | Target variable (normalized to SHE) | Non-null |
-| `reference_electrode` | String | Original reference electrode | Non-null (e.g., SHE, SCE) |
-| `is_outlier` | Boolean | Flag for extreme pH | False (default) |
+### 4. ModelResult
+Output of the training phase.
+*   **Model Type**: String (e.g., "RandomForest", "GradientBoosting").
+*   **Hyperparameters**: Dictionary of model settings.
+*   **Metrics**: Dictionary containing R², RMSE, and Null Baseline comparison.
+*   **Feature Importance**: Dictionary of feature name to importance score and p-value.
 
-### 2.3 Split Strategy
-- **Training Set**: All records where `specific_alloy_designation` is in the training group (GroupKFold).
-- **Test Set**: All records where `specific_alloy_designation` is in the test group (GroupKFold).
-- **Constraint**: Intersection of alloy designations between Train and Test must be **empty** within each fold.
+## Data Flow & Transformations
 
-## 3. Data Lineage
+1.  **Ingestion**: Raw data (JSONL/CSV) is downloaded and stored in `data/raw/`.
+2.  **Validation**: `validate_schema.py` checks for:
+    *   Non-null values for composition, pH, temperature, corrosion.
+    *   pH in [0, 14].
+    *   Sum of weight fractions = 1.0 (within tolerance).
+    *   Minimum 500 valid records.
+    *   Minimum 10 unique `specific_alloy_designation` values.
+3.  **Preprocessing**:
+    *   Missing pH/Temp/Corrosion rows are **dropped** (logged).
+    *   pH > 14 or < 0 rows are **flagged** and moved to `data/processed/extreme_conditions.csv`.
+    *   Categorical variables (Electrolyte) are one-hot encoded.
+    *   Elemental compositions are transformed using **Centred Log-Ratio (CLR)**.
+4.  **Splitting**:
+    *   **Group Split**: Groups are defined by `specific_alloy_designation`.
+    *   **Train**: All records for a set of alloys.
+    *   **Test**: All records for a held-out set of alloys (e.g., 1-2 alloys).
+    *   **Fallback**: If 10-14 alloys, use GroupKFold(k=5).
+    *   **Validation**: Zero overlap check between train/test alloy IDs.
 
-1. **Raw**: `data/raw/nist_corrosion.jsonl` (Downloaded from source).
-2. **Cleaned**: `data/processed/cleaned_data.csv` (Filtered for non-null pH, temp, composition, reference electrode).
-3. **Final**: `data/processed/corrosion_dataset.parquet` (Encoded, split-ready, potentials normalized to SHE).
-4. **Logs**: `data/logs/pipeline.log` (Record of exclusions, errors, normalization steps).
+## File Formats
 
-## 4. Error Handling
+*   **Raw Data**: JSONL or CSV (preserved as downloaded).
+*   **Processed Data**: Parquet (for efficient I/O and type safety) or CSV.
+*   **Logs**: JSONL (structured logs for pipeline steps).
+*   **Schemas**: YAML (for contract validation).
 
-- **SchemaMismatchError**: Raised if required columns (pH, temp, composition, reference electrode) are missing in the source.
-- **DataInsufficientError**: Raised if total records < 500 or unique alloys < 10.
-- **OutlierFlag**: Records with pH < 0 or pH > 14 are flagged but not removed from the raw log; they are excluded from the training set.
-- **ReferenceMismatchError**: Raised if the reference electrode is missing or cannot be converted to SHE.
+## Assumptions & Constraints
+
+*   **Composition Normalization**: The pipeline assumes the raw data provides weight fractions that sum to 1.0. If not, a normalization step is applied, and the original values are logged.
+*   **pH Scale**: The standard aqueous pH scale (0-14) is assumed. Non-aqueous or extreme conditions are handled separately.
+*   **Corrosion Potential**: Values are assumed to be vs SHE. If vs another reference (e.g., Ag/AgCl), a conversion factor is applied if documented; otherwise, the record is flagged.
+*   **Compositional Data**: Feature importance on raw weight fractions is descriptive only due to the closure problem. A CLR transformation is the primary method used to mitigate this.

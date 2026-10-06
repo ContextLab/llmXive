@@ -1,70 +1,55 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Corrosion Dataset Ingest Schema"
-description: "Schema for the merged dataset before splitting. Ensures composition and environment variables are present. Note: cluster_id is derived from hierarchical clustering of composition."
-type: object
+title: "IngestSchema"
+description: "Schema for raw data ingestion from NIST-IR-8200 or similar sources."
+type: "object"
 properties:
-  metadata:
-    type: object
+  record_id:
+    type: "string"
+    description: "Unique identifier for the corrosion record."
+  specific_alloy_designation:
+    type: "string"
+    description: "Unique alloy grade (e.g., 'SS304')."
+  base_metal_family:
+    type: "string"
+    description: "Base metal family (e.g., 'Fe-based')."
+  composition:
+    type: "object"
+    description: "Elemental weight fractions."
+    additionalProperties:
+      type: "number"
+      minimum: 0.0
+      maximum: 1.0
+    required:
+      - "Fe"
+      - "Cr"
+      - "Ni"
+  environment:
+    type: "object"
+    description: "Environmental conditions."
     properties:
-      source:
-        type: string
-        description: "Source of the data (e.g., 'NIST', 'Mock')"
-      generated_at:
-        type: string
-        format: date-time
-      record_count:
-        type: integer
-        minimum: 0
-      cluster_count:
-        type: integer
-        minimum: 3
-        description: "Number of distinct clusters. Pipeline halts if < 3."
-  records:
-    type: array
-    items:
-      type: object
-      required:
-        - alloy_id
-        - cluster_id
-        - composition
-        - ph
-        - corrosion_potential_mv
-      properties:
-        alloy_id:
-          type: string
-          description: "Unique identifier for the alloy"
-        alloy_name:
-          type: string
-          description: "Human-readable name"
-        cluster_id:
-          type: string
-          description: "Cluster ID derived from compositional clustering (e.g., Cluster_0)"
-          pattern: "^Cluster_[0-9]+$"
-        composition:
-          type: object
-          description: "Elemental weight fractions. Keys are element symbols, values are floats."
-          additionalProperties:
-            type: number
-            minimum: 0
-            maximum: 1
-          minProperties: 1
-        ph:
-          type: number
-          description: "pH of the environment"
-        temperature_celsius:
-          type: number
-          description: "Temperature in Celsius"
-        electrolyte_type:
-          type: string
-          description: "Type of electrolyte"
-        corrosion_potential_mv:
-          type: number
-          description: "Corrosion potential in millivolts vs SHE"
-        is_outlier:
-          type: boolean
-          description: "True if pH is outside [0, 14]"
-      additionalProperties: false
+      ph:
+        type: "number"
+        description: "pH value."
+      temperature_celsius:
+        type: "number"
+        description: "Temperature in Celsius."
+      electrolyte_type:
+        type: "string"
+        description: "Type of electrolyte."
+    required:
+      - "ph"
+      - "temperature_celsius"
+      - "electrolyte_type"
+  corrosion_potential_mV:
+    type: "number"
+    description: "Corrosion potential in millivolts vs SHE."
+  measurement_method:
+    type: "string"
+    description: "Standard method used (e.g., 'ASTM G59')."
 required:
-  - metadata
-  - records
+  - "record_id"
+  - "specific_alloy_designation"
+  - "composition"
+  - "environment"
+  - "corrosion_potential_mV"
 additionalProperties: false
