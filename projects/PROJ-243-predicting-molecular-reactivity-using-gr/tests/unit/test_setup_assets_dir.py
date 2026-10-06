@@ -1,79 +1,68 @@
-"""
-Unit tests for the setup_assets_dir script and directory creation logic.
-"""
 import os
 import tempfile
+import shutil
 import pytest
 from unittest.mock import patch, MagicMock
 
-# Import the module under test
-import sys
-sys.path.insert(0, 'code')
-from setup_assets_dir import create_assets_directory, main
-from config import get_config
+# We need to import the module functions. 
+# Since the project structure implies code/setup_assets_dir.py is the script,
+# we will test the logic by importing or mocking the config.
 
-def test_create_assets_directory_exists():
-    """Test that create_assets_directory creates the directory if it doesn't exist."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        # Mock config to use our temp directory
-        mock_config = {
-            "data_dir": tmpdir,
-            "log_dir": os.path.join(tmpdir, "logs"),
-            "artifacts_dir": os.path.join(tmpdir, "artifacts"),
-            "code_dir": os.path.join(tmpdir, "code"),
-            "tests_dir": os.path.join(tmpdir, "tests")
+def test_create_assets_directory_creates_folder(tmp_path):
+    """Test that the function creates the data/assets directory."""
+    # Mock config to use our temp directory
+    mock_config = {
+        "paths": {
+            "data": str(tmp_path)
         }
-        
-        assets_path = os.path.join(tmpdir, "assets")
-        assert not os.path.exists(assets_path)
-        
-        result_path = create_assets_directory(mock_config)
-        
-        assert os.path.exists(result_path)
-        assert result_path == assets_path
-        assert os.path.isdir(result_path)
+    }
 
-def test_create_assets_directory_already_exists():
-    """Test that create_assets_directory handles existing directory gracefully."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        mock_config = {
-            "data_dir": tmpdir,
-            "log_dir": os.path.join(tmpdir, "logs"),
-            "artifacts_dir": os.path.join(tmpdir, "artifacts"),
-            "code_dir": os.path.join(tmpdir, "code"),
-            "tests_dir": os.path.join(tmpdir, "tests")
+    # Import the function to test
+    from setup_assets_dir import create_assets_directory
+
+    result_path = create_assets_directory(mock_config)
+    
+    expected_path = str(tmp_path / "assets")
+    
+    assert os.path.exists(expected_path)
+    assert result_path == expected_path
+    assert os.path.isdir(expected_path)
+
+def test_create_assets_directory_exists(tmp_path):
+    """Test that the function handles existing directory gracefully."""
+    assets_path = str(tmp_path / "assets")
+    os.makedirs(assets_path)
+    
+    mock_config = {
+        "paths": {
+            "data": str(tmp_path)
         }
-        
-        assets_path = os.path.join(tmpdir, "assets")
-        os.makedirs(assets_path, exist_ok=True)
-        
-        # Should not raise
-        result_path = create_assets_directory(mock_config)
-        
-        assert result_path == assets_path
-        assert os.path.isdir(result_path)
+    }
 
-def test_main_success():
-    """Test that main returns 0 on success."""
-    # Mock get_config to return a valid config
-    with patch('setup_assets_dir.get_config') as mock_get_config:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            mock_get_config.return_value = {
-                "data_dir": tmpdir,
-                "log_dir": os.path.join(tmpdir, "logs"),
-                "artifacts_dir": os.path.join(tmpdir, "artifacts"),
-                "code_dir": os.path.join(tmpdir, "code"),
-                "tests_dir": os.path.join(tmpdir, "tests")
-            }
-            
-            result = main()
-            assert result == 0
-            assert os.path.exists(os.path.join(tmpdir, "assets"))
+    from setup_assets_dir import create_assets_directory
 
-def test_main_failure():
-    """Test that main returns 1 on failure (e.g., permission denied)."""
-    with patch('setup_assets_dir.create_assets_directory') as mock_create:
-        mock_create.side_effect = PermissionError("Permission denied")
-        
-        result = main()
-        assert result == 1
+    result_path = create_assets_directory(mock_config)
+    
+    assert result_path == assets_path
+    assert os.path.isdir(result_path)
+
+def test_create_assets_directory_creates_parent_if_missing(tmp_path):
+    """Test that parent data directory is created if missing."""
+    # Ensure 'data' subfolder does not exist yet in tmp_path
+    data_sub = tmp_path / "data"
+    # We simulate that ensure_directories handles the parent, 
+    # but our test logic here focuses on the assets creation.
+    
+    mock_config = {
+        "paths": {
+            "data": str(data_sub)
+        }
+    }
+
+    from setup_assets_dir import create_assets_directory
+
+    result_path = create_assets_directory(mock_config)
+    
+    expected_assets = str(data_sub / "assets")
+    assert os.path.exists(expected_assets)
+    assert result_path == expected_assets

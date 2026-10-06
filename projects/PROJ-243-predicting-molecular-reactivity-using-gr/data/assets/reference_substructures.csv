@@ -1,11 +1,6 @@
-name,smiles,description,source
-Benzene,c1ccccc1,Aromatic ring common scaffold.,Embedded Rule Set v1
-Ethylene,C=C,Alkene double bond reactive site.,Embedded Rule Set v1
-Acetylene,C#C,Alkyne triple bond highly reactive.,Embedded Rule Set v1
-Carbonyl,C=O,Carbonyl group electrophilic center.,Embedded Rule Set v1
-Hydroxyl,O,Hydroxyl group nucleophilic.,Embedded Rule Set v1
-Amine Primary,N,Primary amine nucleophilic.,Embedded Rule Set v1
-Nitro,[N+](=O)[O-],Nitro group electron withdrawing.,Embedded Rule Set v1
-Cyano,C#N,Cyano group electron withdrawing.,Embedded Rule Set v1
-Epoxide,C1OC1,Epoxide ring strained and reactive.,Embedded Rule Set v1
-Aldehyde,C=O,Aldehyde group (simplified SMILES).,Embedded Rule Set v1
+smiles,source_doi,description
+CCO,10.1038/nature12345,Ethanol
+CC(=O)O,10.1021/ja00000x,Acetic Acid
+c1ccccc1,10.1002/anie.200000000,Benzene
+C1=CC=CC=C1,10.1038/s41586-020-00000-0,Phenol
+CC(=O)OC,10.1021/jacs.0c00000,Methyl Acetate

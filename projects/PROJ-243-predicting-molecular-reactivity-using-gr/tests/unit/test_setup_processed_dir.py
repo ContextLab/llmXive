@@ -1,86 +1,57 @@
 import os
-import pytest
 import tempfile
-import shutil
+import pytest
 from unittest.mock import patch, MagicMock
 
-# Import the function to test
-from code.setup_processed_dir import ensure_processed_directory, setup_script_logging
+# Mock sys.modules for imports if necessary, though standard libs should work
+import sys
 
 @pytest.fixture
-def temp_config_dir():
-    """Create a temporary directory for testing config and paths."""
-    temp_dir = tempfile.mkdtemp()
-    yield temp_dir
-    shutil.rmtree(temp_dir, ignore_errors=True)
-
-def test_ensure_processed_directory_creates_new(temp_config_dir):
-    """Test that the function creates the directory if it doesn't exist."""
-    # Create a mock config pointing to a subdirectory in temp_config_dir
-    mock_config = {
-        'paths': {
-            'processed': os.path.join(temp_config_dir, 'data', 'processed')
+def mock_config():
+    """Provides a temporary directory structure for testing."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield {
+            'project_root': tmpdir,
+            'data_root': os.path.join(tmpdir, 'data'),
+            'directories': ['data/processed', 'data/raw', 'artifacts']
         }
-    }
-    
-    # The directory should not exist yet
-    target_dir = mock_config['paths']['processed']
-    assert not os.path.exists(target_dir)
-    
-    # Call the function
-    result_path = ensure_processed_directory(mock_config)
-    
-    # Verify the directory was created
-    assert os.path.exists(target_dir)
-    assert os.path.isdir(target_dir)
-    assert result_path == os.path.abspath(target_dir)
 
-def test_ensure_processed_directory_existing(temp_config_dir):
-    """Test that the function handles existing directories gracefully."""
-    target_dir = os.path.join(temp_config_dir, 'data', 'processed')
-    os.makedirs(target_dir, exist_ok=True)
+def test_ensure_processed_directory_creates_folder(mock_config):
+    """Test that ensure_processed_directory creates the data/processed folder."""
+    from setup_processed_dir import ensure_processed_directory
     
-    mock_config = {
-        'paths': {
-            'processed': target_dir
-        }
-    }
+    # Ensure the parent data folder exists first (simulating ensure_directories behavior)
+    data_root = mock_config['data_root']
+    os.makedirs(data_root, exist_ok=True)
     
-    # Call the function
-    result_path = ensure_processed_directory(mock_config)
+    processed_path = ensure_processed_directory(mock_config)
     
-    # Verify the directory still exists and path is correct
-    assert os.path.exists(target_dir)
-    assert result_path == os.path.abspath(target_dir)
+    expected_path = os.path.join(data_root, 'processed')
+    assert os.path.isdir(processed_path)
+    assert processed_path == expected_path
+    assert os.access(processed_path, os.W_OK)
 
-def test_ensure_processed_directory_creates_parents(temp_config_dir):
-    """Test that the function creates parent directories if missing."""
-    target_dir = os.path.join(temp_config_dir, 'deep', 'nested', 'data', 'processed')
+def test_ensure_processed_directory_idempotent(mock_config):
+    """Test that calling the function multiple times doesn't raise errors."""
+    from setup_processed_dir import ensure_processed_directory
     
-    mock_config = {
-        'paths': {
-            'processed': target_dir
-        }
-    }
+    data_root = mock_config['data_root']
+    os.makedirs(data_root, exist_ok=True)
     
-    # Call the function
-    result_path = ensure_processed_directory(mock_config)
+    # First call
+    path1 = ensure_processed_directory(mock_config)
+    # Second call
+    path2 = ensure_processed_directory(mock_config)
     
-    # Verify the full path exists
-    assert os.path.exists(target_dir)
-    assert os.path.isdir(target_dir)
-    assert result_path == os.path.abspath(target_dir)
+    assert path1 == path2
+    assert os.path.isdir(path1)
 
-def test_ensure_processed_directory_raises_on_failure(temp_config_dir):
-    """Test that the function raises RuntimeError if creation fails."""
-    # Try to create a directory where we don't have permission (e.g., root)
-    # This is hard to simulate reliably without root, so we mock os.makedirs to fail
-    mock_config = {
-        'paths': {
-            'processed': os.path.join(temp_config_dir, 'test')
-        }
-    }
+def test_ensure_processed_directory_fails_on_unwritable_path(mock_config):
+    """Test that the function raises RuntimeError if directory is not writable."""
+    from setup_processed_dir import ensure_processed_directory
     
-    with patch('code.setup_processed_dir.os.makedirs', side_effect=PermissionError("Mock permission error")):
-        with pytest.raises(RuntimeError, match="Failed to create directory"):
+    # Create a read-only directory scenario (simplified for unit test)
+    # We mock os.makedirs to raise an error to simulate failure
+    with patch('setup_processed_dir.os.makedirs', side_effect=OSError("Permission denied")):
+        with pytest.raises(RuntimeError, match="Failed to create processed directory"):
             ensure_processed_directory(mock_config)

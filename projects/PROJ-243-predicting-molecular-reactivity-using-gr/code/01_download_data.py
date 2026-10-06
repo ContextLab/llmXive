@@ -4,133 +4,127 @@ import logging
 import time
 from typing import Optional, Tuple
 
-# Add project root to path for imports
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+# Add parent to path to resolve imports relative to code/
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from datasets import load_dataset
 from config import get_config, ensure_directories
-from utils.logging_utils import setup_logging, log_metric, flush_metrics
-from utils.loaders import download_with_retry, calculate_sha256
+from utils.logging_utils import setup_logging, log_metric, get_logger
+import pandas as pd
+import psutil
 
 def setup_script_logging():
-    """Configure logging for the download script."""
-    config = get_config()
-    ensure_directories()
-    logger = setup_logging(
-        name="download_data",
-        log_file=os.path.join(config["log_dir"], "download_data.log")
-    )
+    """Initialize logging for the download script."""
+    logger = setup_logging("download_data")
     return logger
 
-def download_qm9_subset(
-    logger: logging.Logger,
-    split: str = "train",
-    subset_size: Optional[int] = 1000,
-    output_dir: Optional[str] = None
-) -> Tuple[bool, str]:
+def download_qm9_subset(logger: logging.Logger, output_path: str, subset_size: int = 10000):
     """
-    Fetches a subset of the QM9 dataset using the Hugging Face datasets library.
-    
-    This implementation strictly adheres to the requirement to use REAL data.
-    It does NOT fallback to synthetic data. If the download fails, it raises
-    an exception or returns False with a clear error message.
-    
-    Args:
-        logger: Logger instance for progress and error reporting.
-        split: Dataset split to load (default: 'train').
-        subset_size: Number of molecules to fetch. If None, fetches the full split.
-        output_dir: Directory to save the raw parquet/csv data. Defaults to config.
-        
-    Returns:
-        Tuple of (success: bool, message: str)
-    """
-    if output_dir is None:
-        config = get_config()
-        output_dir = os.path.join(config["raw_data_dir"])
-    
-    os.makedirs(output_dir, exist_ok=True)
-    
-    dataset_name = "qm9"
-    output_file = os.path.join(output_dir, "qm9_subset.parquet")
-    
-    logger.info(f"Starting download of {dataset_name} split='{split}'...")
-    
-    try:
-        # Use the HuggingFace datasets library to fetch the real QM9 dataset.
-        # This connects to the HuggingFace Hub to download the actual data.
-        logger.info(f"Loading dataset: {dataset_name} (split={split})...")
-        
-        # Load the full split first. QM9 train is ~130k molecules, which fits in memory.
-        ds = load_dataset(dataset_name, split=split)
-        
-        logger.info(f"Dataset loaded successfully from real source. Total rows: {len(ds)}")
-        
-        if subset_size and subset_size < len(ds):
-            logger.info(f"Subsetting to first {subset_size} molecules (deterministic)...")
-            # Select first N rows deterministically
-            ds_subset = ds.select(range(subset_size))
-            logger.info(f"Subset created with {len(ds_subset)} rows.")
-        else:
-            ds_subset = ds
-            if subset_size:
-                logger.warning(f"Requested subset_size {subset_size} >= dataset size {len(ds)}. Using full dataset.")
+    Stream QM9 from torch_geometric.datasets.QM9 (via HuggingFace datasets)
+    to a local parquet file.
 
-        # Convert to pandas for efficient serialization to parquet
-        logger.info(f"Converting to pandas and saving to {output_file}...")
-        df = ds_subset.to_pandas()
-        
-        # Save to parquet format (snappy compression is default for pandas parquet)
-        df.to_parquet(output_file, index=False)
-        
-        logger.info(f"Successfully saved {len(df)} rows to {output_file}")
-        
-        # Verify the file was written and calculate checksum for reproducibility
-        if not os.path.exists(output_file):
-            raise FileNotFoundError(f"Output file {output_file} was not created.")
-        
-        file_size = os.path.getsize(output_file)
-        file_checksum = calculate_sha256(output_file)
-        
-        logger.info(f"File size: {file_size / (1024*1024):.2f} MB, SHA-256: {file_checksum}")
-        
-        # Log metrics for monitoring
-        log_metric("download_qm9_rows", len(df))
-        log_metric("download_qm9_file_size_mb", file_size / (1024 * 1024))
-        log_metric("download_qm9_checksum", file_checksum)
-        
-        return True, f"Downloaded and saved {len(df)} molecules to {output_file}"
-        
+    We use the 'qm9' dataset from HuggingFace which mirrors the QM9 dataset.
+    We stream it to avoid loading the full dataset into memory, select a subset,
+    and save it as a parquet file.
+
+    Args:
+        logger: Logger instance.
+        output_path: Path to save the parquet file.
+        subset_size: Number of molecules to include in the subset.
+    """
+    logger.info(f"Starting QM9 download and streaming to {output_path}")
+    logger.info(f"Target subset size: {subset_size} molecules")
+
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    try:
+        # Load QM9 dataset from HuggingFace.
+        # Note: The 'qm9' dataset in HF is a direct mirror of the QM9 dataset.
+        # We use streaming=True to avoid downloading the full dataset into memory.
+        logger.info("Streaming QM9 dataset from HuggingFace...")
+        dataset = load_dataset("qm9", split="train", streaming=True)
+
+        logger.info("Collecting subset...")
+        count = 0
+        data_rows = []
+
+        # Iterate through the dataset and collect 'subset_size' rows
+        for item in dataset:
+            if count >= subset_size:
+                break
+
+            # QM9 dataset structure in HF typically includes:
+            # 'smiles', 'target' (list of properties), 'mol' (rdkit mol object if available, but usually we reconstruct)
+            # We specifically need SMILES and potentially the target properties.
+            # The HF 'qm9' dataset has a 'smiles' column and 'target' column (list of floats).
+            # We will store SMILES and the target properties.
+
+            smiles = item.get('smiles')
+            if not smiles:
+                logger.warning(f"Skipping row {count}: missing SMILES")
+                continue
+
+            # Extract target properties (DFT calculations)
+            # The 'target' column usually contains 19 properties.
+            # We'll store them as separate columns or a JSON string if needed.
+            # For simplicity in this subset, we'll store the first few relevant ones or all.
+            # Let's assume we want the full target vector for now.
+            targets = item.get('target', [])
+
+            # Construct a dictionary for the row
+            row = {'smiles': smiles, 'target': targets}
+            data_rows.append(row)
+            count += 1
+
+            if count % 1000 == 0:
+                logger.info(f"Collected {count} molecules...")
+
+        if count == 0:
+            raise RuntimeError("Failed to retrieve any molecules from the QM9 dataset.")
+
+        logger.info(f"Successfully collected {count} molecules.")
+
+        # Convert to DataFrame
+        df = pd.DataFrame(data_rows)
+
+        # Save to parquet
+        logger.info(f"Writing {count} rows to {output_path}")
+        df.to_parquet(output_path, index=False)
+
+        logger.info("Download and save completed successfully.")
+        return True
+
     except Exception as e:
-        # Fail loudly: do not return success or synthetic data
-        error_msg = f"Failed to download QM9 subset from real source: {str(e)}"
-        logger.error(error_msg, exc_info=True)
-        return False, error_msg
+        logger.error(f"Error during QM9 download/streaming: {e}", exc_info=True)
+        raise
 
 def main():
-    """Main entry point for the download script."""
+    """Main entry point for the QM9 download script."""
     logger = setup_script_logging()
-    logger.info("Starting QM9 data download pipeline.")
-    
     config = get_config()
-    # Configuration for the subset size can be passed via config or hardcoded for MVP
-    # Using a reasonable subset size for CPU feasibility testing as per US1
-    subset_size = config.get("qm9_subset_size", 1000) 
+
+    # Define output path based on config or default
+    # The task specifies: data/raw/qm9_subset.parquet
+    output_path = os.path.join(config.get('data_dir', 'data'), 'raw', 'qm9_subset.parquet')
     
-    success, message = download_qm9_subset(
-        logger=logger,
-        split="train",
-        subset_size=subset_size
-    )
-    
-    if success:
-        logger.info("Pipeline completed successfully.")
-        flush_metrics()
-        sys.exit(0)
-    else:
-        logger.error("Pipeline failed.")
-        flush_metrics()
+    # Ensure directories exist
+    ensure_directories(config)
+
+    # Default subset size (can be overridden by config if needed)
+    subset_size = config.get('qm9_subset_size', 10000)
+
+    try:
+        success = download_qm9_subset(logger, output_path, subset_size)
+        if success:
+            logger.info(f"QM9 subset successfully saved to {output_path}")
+            # Log the event
+            log_metric("qm9_download", "success", {"output_path": output_path, "count": subset_size})
+        else:
+            logger.error("QM9 download failed.")
+            sys.exit(1)
+    except Exception as e:
+        logger.error(f"Script failed with exception: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

@@ -1,3 +1,7 @@
+"""
+Setup script for linting (ruff) and formatting (black) tools.
+This script configures the project to use ruff for linting and black for formatting.
+"""
 import subprocess
 import sys
 import os
@@ -5,189 +9,182 @@ import logging
 from typing import Tuple, Optional
 from config import ensure_directories, get_config
 
-def setup_script_logging():
+def setup_script_logging() -> logging.Logger:
     """Initialize logging for the setup script."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(sys.stdout)
-        ]
-    )
-    return logging.getLogger(__name__)
+    logger = logging.getLogger(__name__)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+        logger.addHandler(handler)
+        logger.setLevel(logging.INFO)
+    return logger
 
-def check_tool_installed(tool_name: str) -> Tuple[bool, str]:
-    """Check if a tool is installed and return version or error."""
+def check_tool_installed(tool_name: str) -> bool:
+    """Check if a tool is installed."""
     try:
-        result = subprocess.run(
-            [tool_name, '--version'],
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        return True, result.stdout.strip()
-    except (subprocess.CalledProcessError, FileNotFoundError) as e:
-        return False, str(e)
+        subprocess.run([tool_name, "--version"], check=True, capture_output=True)
+        return True
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return False
 
 def install_tool(tool_name: str) -> bool:
     """Install a tool using pip."""
-    logging.info(f"Installing {tool_name}...")
+    logger = logging.getLogger(__name__)
+    logger.info(f"Installing {tool_name}...")
     try:
-        subprocess.run(
-            [sys.executable, '-m', 'pip', 'install', tool_name],
-            check=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-        logging.info(f"{tool_name} installed successfully.")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", tool_name])
+        logger.info(f"{tool_name} installed successfully.")
         return True
     except subprocess.CalledProcessError as e:
-        logging.error(f"Failed to install {tool_name}: {e.stderr.decode()}")
+        logger.error(f"Failed to install {tool_name}: {e}")
         return False
 
-def create_ruff_config():
-    """Create a .ruff.toml configuration file."""
-    config_content = """# Ruff configuration for llmXive project
-[lint]
+def create_ruff_config() -> str:
+    """Create a default ruff configuration file."""
+    logger = logging.getLogger(__name__)
+    config_path = os.path.join("code", "ruff.toml")
+    config_content = """[lint]
 select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # Pyflakes
-    "I",   # isort
-    "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
-    "UP",  # pyupgrade
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
 ]
 ignore = [
     "E501", # line too long (handled by black)
     "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
 ]
 
-[lint.isort]
-known-first-party = ["code", "tests", "utils"]
-
 [format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+line-length = 88
+target-version = "py311"
 """
-    config_path = os.path.join(os.getcwd(), '.ruff.toml')
-    with open(config_path, 'w') as f:
+    with open(config_path, "w") as f:
         f.write(config_content)
-    logging.info(f"Created {config_path}")
+    logger.info(f"Created ruff configuration at {config_path}")
+    return config_path
 
-def create_black_config():
-    """Create a pyproject.toml configuration for Black if not exists or update it."""
-    config_path = os.path.join(os.getcwd(), 'pyproject.toml')
-    black_section = """
-[tool.black]
+def create_black_config() -> str:
+    """Create a default black configuration file."""
+    logger = logging.getLogger(__name__)
+    config_path = os.path.join("code", "pyproject.toml")
+    config_content = """[tool.black]
 line-length = 88
 target-version = ['py311']
 include = '\\.pyi?$'
 exclude = '''
 /(
-    \\.git
-  | \\.hg
-  | \\.mypy_cache
-  | \\.tox
-  | \\.venv
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
   | _build
   | buck-out
   | build
   | dist
 )/
 '''
-
-[tool.ruff]
-# Inherit settings from .ruff.toml if it exists, otherwise define here
-lint.select = ["E", "W", "F", "I", "B", "C4", "UP"]
-lint.ignore = ["E501"]
 """
-    
+    # Check if pyproject.toml already exists and has [tool.black]
     if os.path.exists(config_path):
-        with open(config_path, 'r') as f:
+        with open(config_path, "r") as f:
             content = f.read()
-        if '[tool.black]' not in content:
-            with open(config_path, 'a') as f:
-                f.write(black_section)
-            logging.info(f"Updated {config_path} with Black settings.")
-        else:
-            logging.info(f"{config_path} already contains Black settings.")
-    else:
-        with open(config_path, 'w') as f:
-            f.write(black_section)
-        logging.info(f"Created {config_path} with Black settings.")
+            if "[tool.black]" in content:
+                logger.info(f"Black configuration already exists at {config_path}")
+                return config_path
 
-def run_flake8_check() -> bool:
-    """Run flake8 (or ruff as drop-in) to check code style."""
-    logging.info("Running style check (ruff/flake8)...")
-    try:
-        # Use ruff as the primary linter since we configured it
-        result = subprocess.run(
-            ['ruff', 'check', 'code/', 'tests/'],
-            capture_output=True,
-            text=True
-        )
-        if result.returncode == 0:
-            logging.info("Style check passed.")
-            return True
-        else:
-            logging.warning("Style check found issues:\n" + result.stdout)
-            return False
-    except FileNotFoundError:
-        logging.error("ruff not found. Please install it.")
-        return False
+    with open(config_path, "w") as f:
+        f.write(config_content)
+    logger.info(f"Created black configuration at {config_path}")
+    return config_path
 
-def run_black_check() -> bool:
-    """Run black to check formatting."""
-    logging.info("Running format check (black)...")
+def run_flake8_check() -> Tuple[bool, str]:
+    """Run flake8 (or ruff) check and return success status and output."""
+    logger = logging.getLogger(__name__)
+    # We use ruff as the primary linter, but the task mentions flake8.
+    # Ruff is a drop-in replacement for flake8.
+    cmd = ["ruff", "check", "code/"]
+    logger.info(f"Running lint check: {' '.join(cmd)}")
     try:
-        result = subprocess.run(
-            ['black', '--check', 'code/', 'tests/'],
-            capture_output=True,
-            text=True
-        )
+        result = subprocess.run(cmd, capture_output=True, text=True)
         if result.returncode == 0:
-            logging.info("Format check passed.")
-            return True
+            logger.info("Lint check passed.")
+            return True, "No issues found."
         else:
-            logging.warning("Format check found issues:\n" + result.stdout)
-            return False
+            logger.warning("Lint check found issues:")
+            logger.warning(result.stdout)
+            return False, result.stdout
     except FileNotFoundError:
-        logging.error("black not found. Please install it.")
-        return False
+        logger.error("ruff not found. Please install it with 'pip install ruff'.")
+        return False, "ruff not found."
+
+def run_black_check() -> Tuple[bool, str]:
+    """Run black check and return success status and output."""
+    logger = logging.getLogger(__name__)
+    cmd = ["black", "--check", "code/"]
+    logger.info(f"Running format check: {' '.join(cmd)}")
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode == 0:
+            logger.info("Format check passed.")
+            return True, "All files are formatted correctly."
+        else:
+            logger.warning("Format check found issues:")
+            logger.warning(result.stdout)
+            return False, result.stdout
+    except FileNotFoundError:
+        logger.error("black not found. Please install it with 'pip install black'.")
+        return False, "black not found."
 
 def main():
-    """Main entry point for linting and formatting setup."""
+    """Main entry point for the setup script."""
     logger = setup_script_logging()
-    ensure_directories()
-    
-    # Ensure config directory exists if needed, though configs are root-level
-    config = get_config()
-    
-    # 1. Check and Install Tools
-    tools = [('ruff', 'ruff'), ('black', 'black')]
-    for name, pkg in tools:
-        installed, msg = check_tool_installed(name)
-        if not installed:
-            logger.info(f"{name} not found ({msg}). Attempting installation...")
-            if not install_tool(pkg):
-                logger.error(f"Could not install {name}. Aborting.")
-                sys.exit(1)
-        else:
-            logger.info(f"{name} found: {msg}")
+    logger.info("Starting linting and formatting setup...")
 
-    # 2. Create Configuration Files
+    # Ensure directories exist
+    ensure_directories()
+
+    # Check and install tools if necessary
+    tools = [
+        ("ruff", "ruff"),
+        ("black", "black"),
+    ]
+
+    for tool_name, pip_name in tools:
+        if not check_tool_installed(tool_name):
+            logger.warning(f"{tool_name} is not installed.")
+            if not install_tool(pip_name):
+                logger.error(f"Failed to install {tool_name}. Exiting.")
+                sys.exit(1)
+
+    # Create configuration files
     create_ruff_config()
     create_black_config()
 
-    # 3. Run Checks (Non-fatal for setup, but informative)
-    logger.info("Running initial checks on existing code...")
-    run_flake8_check()
-    run_black_check()
+    # Run checks
+    logger.info("Running lint and format checks...")
+    lint_ok, lint_msg = run_flake8_check()
+    format_ok, format_msg = run_black_check()
 
-    logger.info("Linting and formatting configuration complete.")
+    if lint_ok and format_ok:
+        logger.info("All checks passed. Setup complete.")
+        sys.exit(0)
+    else:
+        logger.warning("Some checks failed. Please review the output above.")
+        if not lint_ok:
+            logger.warning("Lint errors: " + lint_msg)
+        if not format_ok:
+            logger.warning("Format errors: " + format_msg)
+        # Do not exit with error here, as the task is to configure the tools,
+        # not necessarily to fix all existing code issues immediately.
+        # However, if the task implies ensuring the project *passes* now, we might exit 1.
+        # Given the task is "Configure", we log the status.
+        sys.exit(0)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

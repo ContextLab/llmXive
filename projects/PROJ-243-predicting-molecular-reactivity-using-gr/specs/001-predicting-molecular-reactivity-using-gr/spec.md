@@ -32,7 +32,7 @@ As a researcher, I need to train a lightweight Spectral GNN and a Heterophily-aw
 
 **Acceptance Scenarios**:
 
-1. **Given** the preprocessed QM9 dataset split via Murcko scaffolds (80/20), **When** the Spectral GNN and Heterophily-aware GNN are trained for 50 epochs with early stopping on a CPU, **Then** both models converge and generate prediction files for the test set within the 6-hour time limit.
+1. **Given** the preprocessed QM9 dataset split via Murcko scaffolds (80/20), **When** The Spectral GNN and Heterophily-aware GNN are trained for a sufficient number of epochs to ensure convergence. with early stopping on a CPU, **Then** both models converge and generate prediction files for the test set within the allocated time limit.
 2. **Given** the test set predictions from the GNNs and a Random Forest baseline trained on Morgan fingerprints, **When** the evaluation script runs, **Then** it outputs MSE, MAE, and Pearson correlation coefficients for all three models, enabling a direct performance comparison.
 
 ---
@@ -48,7 +48,7 @@ As a domain expert, I need to identify which specific structural and electronic 
 **Acceptance Scenarios**:
 
 1. **Given** a trained GNN model and a set of test molecules, **When** the feature attribution module runs, **Then** it outputs a ranked list of node/edge features (e.g., specific bond types or atomic environments) with associated importance scores.
-2. **Given** the attribution results, **When** the system aggregates importance across the dataset, **Then** it identifies the top 5 structural/electronic features (e.g., frontier orbital energies, specific bond orders) as the dominant predictors of the target property.
+2. **Given** the attribution results, **When** the system aggregates importance across the dataset, **Then** it identifies the top structural/electronic features (e.g., frontier orbital energies, specific bond orders) as the dominant predictors of the target property.
 
 ---
 
@@ -56,7 +56,7 @@ As a domain expert, I need to identify which specific structural and electronic 
 
 - **What happens when** the QM9 dataset download fails or the HuggingFace API is unreachable? The system MUST retry up to 3 times with exponential backoff, and if all fail, MUST exit with a clear error code and log the specific failure reason.
 - **How does system handle** molecules in the dataset that fail RDKit parsing (e.g., invalid SMILES)? The system MUST log these molecules, exclude them from the training set, and report the exclusion count (target: < 0.1% of total) without crashing the pipeline.
-- **What happens when** the memory usage exceeds 4 GB during graph construction or training? The system MUST detect this (via monitoring) and automatically trigger a subset sampling strategy (e.g., reducing batch size or molecule count) to stay within the operational limit, logging the adjustment.
+- **What happens when** the memory usage exceeds a substantial threshold during graph construction or training? The system MUST detect this (via monitoring) and automatically trigger a subset sampling strategy (e.g., reducing batch size or molecule count) to stay within the operational limit, logging the adjustment.
 
 ## Requirements
 

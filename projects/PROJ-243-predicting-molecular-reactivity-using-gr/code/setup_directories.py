@@ -4,56 +4,48 @@ import logging
 from typing import List
 from config import get_config, ensure_directories
 
-def setup_script_logging() -> logging.Logger:
-    """Initialize script-level logging."""
-    logger = logging.getLogger(__name__)
-    if not logger.handlers:
-        handler = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-        logger.setLevel(logging.INFO)
-    return logger
+def setup_script_logging():
+    """Configure logging for the directory setup script."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    return logging.getLogger(__name__)
 
-def create_directories(config: dict, logger: logging.Logger) -> None:
+def create_directories(logger: logging.Logger, dirs: List[str]) -> None:
     """
-    Create the required project directories: code, artifacts, tests.
+    Create the specified directories if they do not exist.
     
-    This task (T002) specifically targets the creation of these three
-    top-level directories to structure the project's source code,
-    generated artifacts, and test suites.
+    Args:
+        logger: Logger instance for status updates.
+        dirs: List of relative directory paths to create.
     """
+    for d in dirs:
+        if not os.path.exists(d):
+            os.makedirs(d, exist_ok=True)
+            logger.info(f"Created directory: {d}")
+        else:
+            logger.info(f"Directory already exists: {d}")
+
+def main():
+    """Main entry point for directory setup."""
+    logger = setup_script_logging()
+    logger.info("Starting directory setup for project structure.")
+    
+    # Define the required directories based on T002
     required_dirs = [
         "code",
         "artifacts",
-        "tests"
+        "tests",
+        # Ensure data subdirectories exist as per T001a/b/c context
+        "data/raw",
+        "data/processed",
+        "data/assets"
     ]
-
-    # Ensure base directories from config exist first (data/processed, etc.)
-    # as a safety measure, though T001 tasks should have handled data dirs.
-    ensure_directories(config, logger)
-
-    for dir_path in required_dirs:
-        full_path = os.path.join(config["project_root"], dir_path)
-        if not os.path.exists(full_path):
-            os.makedirs(full_path)
-            logger.info(f"Created directory: {full_path}")
-        else:
-            logger.info(f"Directory already exists: {full_path}")
-
-def main() -> int:
-    """Main entry point for T002: Create code and artifact directories."""
-    logger = setup_script_logging()
-    logger.info("Starting T002: Creating code and artifact directories...")
     
-    try:
-        config = get_config()
-        create_directories(config, logger)
-        logger.info("T002 completed successfully.")
-        return 0
-    except Exception as e:
-        logger.error(f"Failed to create directories: {e}", exc_info=True)
-        return 1
+    create_directories(logger, required_dirs)
+    
+    logger.info("Directory setup completed successfully.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -1,3 +1,1 @@
-# This directory is created by task T001b
-# It stores preprocessed molecular graphs and split indices.
-# Files: graphs_intermediate.pt, graphs.pt, splits/*.pt
+# Placeholder to ensure data/processed directory exists in git

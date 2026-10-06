@@ -1,36 +1,13 @@
-# Python 3.11 Project Dependencies for PROJ-243
-# Molecular Reactivity Prediction using Graph Neural Networks
-
-# Core Deep Learning & Graph Libraries
-torch>=2.1.0
-torch-geometric>=2.4.0
-
-# Cheminformatics & Molecular Processing
-rdkit>=2023.9.4
-
-# Data Handling & Manipulation
-pandas>=2.1.0
-numpy>=1.24.0
-scikit-learn>=1.3.0
-
-# Dataset Access
-datasets>=2.14.0
-
-# Graph Algorithms & Utilities
-networkx>=3.1
-psutil>=5.9.0
-
-# Configuration & Logging
-pyyaml>=6.0.1
-
-# HTTP & External Data Fetching
-requests>=2.31.0
-
-# ChEMBL Client (for external database access)
-chembl_webresource_client>=0.10.6
-
-# Statistical Testing (required for metrics.py)
-scipy>=1.11.0
-
-# Optional: For parquet support if not included in pandas
-pyarrow>=14.0.0
+# Existing dependencies
+torch
+torch-geometric
+rdkit
+scikit-learn
+pandas
+datasets
+networkx
+psutil
+pyyaml
+requests
+chembl_webresource_client
+numpy

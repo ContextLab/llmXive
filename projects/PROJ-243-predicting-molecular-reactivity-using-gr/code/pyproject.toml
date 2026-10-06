@@ -1,4 +1,98 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-molecular-reactivity"
+version = "0.1.0"
+description = "Predicting Molecular Reactivity Using Graph Neural Networks"
+requires-python = ">=3.11"
+dependencies = [
+    "torch",
+    "rdkit",
+    "torch-geometric",
+    "scikit-learn",
+    "pandas",
+    "datasets",
+    "networkx",
+    "psutil",
+    "pyyaml",
+    "requests",
+    "chembl_webresource_client",
+    "scipy",
+    "numpy",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+]
+
 [tool.black]
-line-length = 88
+line-length = 100
 target-version = ['py311']
-include = '\\.pyi?$'
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | data
+    | artifacts
+    | \.eggs
+)/
+'''
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["code", "tests"]
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv",
+    "venv",
+    "data",
+    "artifacts",
+    "build",
+    "dist",
+    "*.egg-info",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E203", # Whitespace before ':' (conflicts with black)
+    "W503", # Line break before binary operator (conflicts with black)
+    "E731", # Do not assign a lambda expression, use a def
+    "E741", # Ambiguous variable name (often false positives for 'l', 'O', 'I')
+    "B008", # Do not perform function call in argument defaults (common in pydantic/fastapi, less so here but safe to ignore)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"code/*.py" = ["T201"] # Allow print statements in code scripts
+"tests/*.py" = ["S101"] # Allow assertions in tests
+"code/utils/*.py" = ["F401"] # Allow unused imports in utils (re-exports)
+
+[tool.ruff.lint.isort]
+known-first-party = ["config", "utils", "data", "models", "serialization"]
+known-third-party = ["torch", "rdkit", "pandas", "numpy", "scipy", "sklearn", "datasets", "networkx", "yaml", "requests", "chembl_webresource_client", "psutil"]
