@@ -1,17 +1,10 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 2 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst unresolved severity = 'requirement'. Routing to 'clarified' with full provenance so the next worker can address the root cause.
 
-- `T001` (rejected 1x): No directory listings or file system snapshots were provided showing the required subdirectories (`data/raw`, `data/results`, `code`, `tests/unit`, `tests/contract`, `contracts`). Without concrete evidence that these folders exist and are non‑empty, the task requirement is not satisfied. The implementer must supply a directory tree view or similar proof that the specified subdirectories have been created in the repository.
-- `T003` (rejected 1x): No `quickstart.md` file was presented; there is no evidence of a non‑empty markdown document containing placeholder text and installation instructions, which is the explicit deliverable of task T003. The required artifact is missing.
-- `T004` (rejected 1x): declared artifact(s) missing/empty/invalid: pre-commit-config.yaml
-- `T009a` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
-- `T009b` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
-- `T009c` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- Task T001 lists 'Create subdirectories: data/raw, data/results, code, tests/unit, tests/contract, contracts' but the phrasing 'contracts (root level)' is ambiguous regarding the relative path. It should explicitly state 'Create directory: contracts/ at repository root' to ensure the file paths in T009a-c match the directory structure.
+- Task T035 performs a sensitivity analysis sweeping pruning thresholds and recalculating the tipping point for each sweep. However, it fails to define how the final 'tipping point' (SC-004) is selected or reported if these multiple recalculations yield different values. This creates a silent ambiguity in the success criterion: the Spec requires a single 'tipping point' threshold measured against the PLR breakpoint, but the task produces multiple candidates without a selection rule, violating the measurability of SC-004.

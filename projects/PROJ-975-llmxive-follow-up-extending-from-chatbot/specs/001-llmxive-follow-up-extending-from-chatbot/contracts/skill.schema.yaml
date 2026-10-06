@@ -1,33 +1,37 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Skill Schema"
-description: "Schema for Python function skills in the library."
+description: "Schema for synthetic skill definitions with embeddings."
 type: "object"
 properties:
   skill_id:
     type: "string"
-    description: "Unique identifier for the skill (e.g., skill_001)."
-  code_snippet:
+    description: "Unique identifier for the skill."
+  name:
     type: "string"
-    description: "The Python function source code."
-  embedding_vector:
+    description: "Python function name."
+  code:
+    type: "string"
+    description: "Python source code of the skill."
+  embedding:
     type: "array"
-    description: "384-dimensional embedding vector."
     items:
       type: "number"
-    minItems: 384
-    maxItems: 384
+    minItems: 768
+    maxItems: 768
+    description: "768-dimensional embedding vector."
   usage_count:
     type: "integer"
-    description: "Runtime counter of how often this skill was used."
     minimum: 0
-  last_used_index:
-    type: "integer"
-    description: "Index of the task where it was last used."
-    minimum: -1
+    description: "Number of times the skill has been used (runtime metric)."
+  last_used:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of last usage."
 required:
   - skill_id
-  - code_snippet
-  - embedding_vector
+  - name
+  - code
+  - embedding
   - usage_count
-  - last_used_index
+  - last_used
 additionalProperties: false

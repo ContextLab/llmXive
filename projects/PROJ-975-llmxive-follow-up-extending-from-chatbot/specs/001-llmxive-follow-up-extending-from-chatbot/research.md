@@ -1,62 +1,94 @@
-# Research: llmXive follow-up: extending "From Chatbot to Digital Colleague"
+# Research: llmXive follow-up: extending "From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent"
 
-## Research Question
+## Objective
 
-At what library size (tipping point) does semantic redundancy in a "Digital Colleague" agent's skill library cause a statistically significant decline in task success, and can a periodic "Skill Pruning" heuristic mitigate this degradation?
-
-## Literature Context
-
-The "Digital Colleague" paradigm posits that persistent, skill-based agents outperform stateless chatbots. However, retrieval noise increases with library size. This project synthesizes concepts from:
-1.  **Retrieval-Augmented Generation (RAG)**: Performance degradation due to irrelevant context (Noise).
-2.  **Skill Library Management**: The trade-off between capability coverage and retrieval precision.
-3.  **Piecewise Linear Regression**: A statistical method for identifying structural breaks (tipping points) in performance curves.
-
-## Dataset Strategy
-
-Since no public dataset exists with *controlled semantic overlap* and *deterministic ground-truth skill paths* for code execution, this project generates a **Synthetic Dataset**.
-
-| Dataset Component | Source/Method | Justification |
-| :--- | :--- | :--- |
-| **Tasks** | `code/generate_data.py` (Synthetic) | Requires a substantial set of unique multi-step problems with known ground-truth skill sequences. |
-| **Skills** | `code/generate_data.py` (Synthetic) | A set of Python functions with programmatically adjusted cosine similarity (Low/Med/High). |
-| **Ground Truth** | `code/generate_data.py` (Synthetic) | Deterministic paths independent of retrieval logic to measure fidelity. |
-
-**Note**: The "Dataset" is generated locally at runtime. No external download is required, satisfying CI constraints.
+To empirically determine the "tipping point" of library size where retrieval noise degrades the performance of a "Digital Colleague" agent, and to evaluate whether an active "Skill Pruning" heuristic can mitigate this degradation.
 
 ## Methodology
 
-### 1. Data Generation
-- **Tasks**: 500 synthetic problems, each requiring 3-5 deterministic actions.
-- **Skills**: 100 Python functions. Embeddings generated via `sentence-transformers/all-MiniLM-L6-v2`.
+### 1. Synthetic Environment Construction (FR-001, FR-002)
+
+**Rationale**: Real-world codebases lack the deterministic ground truth required to measure "retrieval noise" vs. "solution validity" in isolation. A synthetic environment allows precise control over semantic overlap and task complexity.
+
+**Dataset Strategy**:
+- **Source**: Programmatically generated (no external download required).
+- **Variables**:
+  - `task_id`: Unique identifier.
+  - `ground_truth_skills`: List of 3-5 skill IDs required to solve the task (deterministic).
+  - `complexity`: Number of steps (3-5).
+  - `skill_library`: Set of 100 skills with embeddings.
 - **Overlap Control**:
-  - *Low*: Mean cosine < 0.30.
-  - *Medium*: Mean cosine > 0.50.
-  - *High*: Mean cosine > 0.80.
-- **Verification**: Mean pairwise similarity calculated; `maximal_overlap_detected` flag raised if > 0.95.
+  - Embeddings generated using `sentence-transformers/all-MiniLM-L6-v2` (CPU-optimized).
+  - **Low Overlap**: Mean pairwise cosine < 0.30.
+  - **Medium Overlap**: Mean pairwise > 0.50, 30% pairs > 0.50.
+  - **High Overlap**: Mean pairwise > 0.80, 30% pairs > 0.80.
+- **Feasibility**: 100 skills x 768 dimensions fits easily in RAM. 500 tasks x 5 steps is computationally trivial on CPU.
 
-### 2. Agent Execution Loop
-- **Configurations**: Library sizes **[10, 20, 30, 40, 50, 60, 70, 80, 90, 100]**. (Expanded from 4 to 10 levels to support Piecewise Regression).
-- **Metrics**: Task Success (Binary), Latency (ms), Token Usage, Retrieval Precision (Jaccard), Retrieval Diversity (Inverse Variance of top-k similarities against **query task embedding**).
-- **Pruning**: Enabled in experimental runs. Triggered **strictly every 10 tasks**. Removes skills with `usage_count == 0` AND `min_cosine_sim < 0.70`.
+### 2. Agent Execution Loop (FR-003)
 
-### 3. Statistical Analysis
-- **Primary Method**: **Piecewise Linear Regression** (FR-005).
-  - Model: `Success_Rate ~ Library_Size` with a single breakpoint `x0`.
-  - Goal: Identify `x0` where the slope significantly changes (tipping point).
-  - *Note*: Logistic Regression is **NOT** the primary method; it is retained only as a secondary sensitivity analysis for binary outcomes.
-- **Secondary Analysis**:
-  - **Pruning Effect**: Paired t-test (or non-parametric equivalent) comparing Pruned vs. Baseline success rates at each library size.
-  - **Collinearity**: Variance Inflation Factor (VIF) for predictors "Library Size" and "Mean Pairwise Similarity" (FR-007). Target VIF < 5.0. **Action**: If VIF >= 5.0, the model is invalid for independent effect interpretation.
+**Rationale**: To measure the causal effect of library size on performance.
+
+**Experimental Design**:
+- **Independent Variables**:
+  - Library Size: 10, 30, 50, 100 (subset of the 100-skill library).
+  - Pruning: Enabled vs. Disabled.
+  - Overlap Level: Low, Medium, High.
+- **Dependent Variables**:
+  - Task Success Rate (binary: success/fail).
+  - Latency (ms).
+  - Token Usage (estimated).
+  - Retrieval Precision (Jaccard similarity).
+  - Retrieval Diversity (Inverse variance of similarity).
+- **Procedure**:
+  1. Initialize library with N skills.
+  2. For each of 500 tasks:
+     - Retrieve top-k=5 skills.
+     - Execute solution path (if retrieved skills match ground truth).
+     - Log metrics.
+     - If task count % 10 == 0 and pruning enabled: Apply heuristic.
+  3. Aggregate results per configuration.
+
+### 3. Statistical Analysis (FR-005, FR-006, FR-007)
+
+**Rationale**: To identify non-monotonic trends and validate the intervention.
+
+**Methods**:
+- **Piecewise Linear Regression (PLR)**:
+  - Model: `SuccessRate ~ LibrarySize + Breakpoint + Interaction`.
+  - Goal: Identify `x0` (tipping point) where slope changes significantly.
+  - Tool: `pwlf` (Piecewise Linear Fit) or custom implementation in `scipy.optimize`.
+- **Variance Inflation Factor (VIF)**:
+  - Check collinearity between "Library Size" and "Total Redundancy".
+  - Threshold: VIF < 5.0 (FR-007).
+- **Hypothesis Testing**:
+  - Paired t-test (or Wilcoxon signed-rank if non-normal) comparing Pruning vs. Non-Pruning success rates at high library sizes (50, 100).
+
+## Compute Feasibility & Data Strategy
+
+### CPU-First Approach
+- **Embeddings**: `sentence-transformers` on CPU. 100 skills is negligible.
+- **Agent Loop**: Pure Python logic. No heavy LLM inference; "execution" is simulated by checking ground-truth match.
+- **Memory**: < 1 GB RAM required.
+- **Time**: < 1 hour for full sweep.
+
+### GPU Escape Hatch (Not Required)
+- No GPU needed. The entire simulation is CPU-tractable. If a future iteration requires fine-tuning embeddings, the plan would shift to a Kaggle GPU kernel with 8-bit quantization, but this is not currently necessary.
+
+### Data Availability
+- **Synthetic**: Data is generated on-the-fly. No external download, no access-gated datasets.
+- **Reproducibility**: Seeds are pinned. `generate_data.py` produces checksums.
 
 ## Decision Rationale
 
-- **Why Synthetic Data?** Public datasets (e.g., HumanEval) do not allow control over "semantic overlap" between skills, which is the independent variable of interest.
-- **Why Piecewise Regression?** The hypothesis predicts a *threshold* effect (tipping point), not a linear decline. Piecewise regression is the standard method for detecting structural breaks.
-- **Why 10 Library Sizes?** 4 levels are insufficient for breakpoint estimation. 10 levels provide necessary degrees of freedom for statistical validity.
-- **Why CPU-First?** The dataset is small (500 tasks, 100 skills). Embedding 100 strings takes milliseconds. No GPU is required, ensuring CI feasibility.
+| Decision | Rationale | Alternative Rejected |
+|----------|-----------|----------------------|
+| Synthetic Data | Requires ground-truth solution paths impossible to guarantee in real code. | Real codebases (lack of ground truth). |
+| CPU-Only | 100 skills is too small to justify GPU; CPU is faster for simple logic. | GPU acceleration (unnecessary overhead). |
+| PLR for Tipping Point | Standard method for detecting threshold effects in non-linear data. | Logistic regression (less interpretable for "breakpoint"). |
+| Jaccard for Precision | Directly measures set overlap (retrieved vs. ground truth). | Cosine similarity of sets (less standard for discrete skill sets). |
 
 ## Limitations
 
-- **External Validity**: Results are valid within the synthetic simulation. Generalization to real-world chaotic environments is associative.
-- **Power**: A substantial number of tasks distributed across 10 groups (approximately 50 per group) provides [deferred] power to detect large effect sizes (Cohen's h > 0.4). Subtle tipping points may be missed.
-- **Embedding Model**: `all-MiniLM-L6-v2` is a lightweight proxy; more advanced models may yield different overlap metrics.
+- **External Validity**: Results apply to the synthetic environment; generalization to real-world chaotic codebases is associative.
+- **Skill Definition**: "Skills" are simulated Python functions; real-world code has dependencies and side effects not modeled.
+- **Token Estimation**: Token usage is estimated based on function length, not actual LLM API calls.

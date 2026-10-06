@@ -1,52 +1,68 @@
-# Data Model: llmXive follow-up
+# Data Model: llmXive follow-up: extending "From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent"
 
 ## Overview
 
-This document defines the schema and relationships for the synthetic dataset and experiment results. All data is stored in JSON (raw) and CSV/JSON (results) formats to ensure portability and ease of processing in the CI environment.
+This document defines the data structures for the synthetic experiment. All data is stored in JSON (raw) and CSV (results) formats.
 
 ## Entities
 
 ### 1. Task
-A synthetic multi-step problem requiring a sequence of skills to solve.
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `task_id` | `string` | Unique identifier (e.g., "task_001"). |
-| `description` | `string` | Natural language description of the problem. |
-| `ground_truth_skills` | `array[string]` | List of skill IDs required to solve the task (deterministic). |
-| `complexity` | `integer` | Number of steps (3-5). |
-| `embedding_vector` | `array[float]` | 384-dim vector (from `all-MiniLM-L6-v2`). |
+A multi-step problem requiring a specific sequence of skills.
+
+**Source**: `data/raw/tasks.json`
+**Contract**: `contracts/task.schema.yaml`
+
+**Attributes**:
+- `task_id`: string (UUID)
+- `description`: string (Natural language description)
+- `complexity`: integer (3-5)
+- `ground_truth_skills`: list of strings (Skill IDs)
+- `solution_path`: list of strings (Ordered list of function calls)
 
 ### 2. Skill
-A Python function capability with metadata.
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `skill_id` | `string` | Unique identifier (e.g., "skill_001"). |
-| `code_snippet` | `string` | The Python function source code. |
-| `embedding_vector` | `array[float]` | 384-dim vector. |
-| `usage_count` | `integer` | Runtime counter (reset per experiment run). |
-| `last_used_index` | `integer` | Index of the task where it was last used. |
+A Python function capability with an embedding vector.
 
-### 3. ExperimentLog
-Record of a single agent execution.
+**Source**: `data/raw/skills.json`
+**Contract**: `contracts/skill.schema.yaml`
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `run_id` | `string` | Unique run identifier. |
-| `library_size` | `integer` | Size of the active skill library (10, 20, ..., 100). |
-| `overlap_level` | `string` | "low", "medium", or "high". |
-| `pruning_enabled` | `boolean` | Whether pruning heuristic was active. |
-| `task_id` | `string` | Reference to the task. |
-| `success` | `boolean` | Whether the task was solved correctly. |
-| `latency_ms` | `float` | Execution time. |
-| `token_count` | `integer` | Tokens used. |
-| `retrieval_precision` | `float` | Jaccard similarity (top-k vs ground truth). |
-| `retrieval_diversity` | `float` | Inverse variance of similarity scores (against query). |
-| `missing_skills` | `array[string]` | List of required skills not found (if failed). |
+**Attributes**:
+- `skill_id`: string (UUID)
+- `name`: string (Function name)
+- `code`: string (Python source code)
+- `embedding`: list of floats (768-dim vector)
+- `usage_count`: integer (Runtime metric)
+- `last_used`: timestamp (ISO 8601)
+
+### 3. Experiment Log
+
+Record of a single task execution.
+
+**Source**: `data/results/metrics.csv`
+**Contract**: `contracts/experiment_log.schema.yaml`
+
+**Attributes**:
+- `run_id`: string
+- `task_id`: string
+- `library_size`: integer
+- `pruning_enabled`: boolean
+- `success`: boolean
+- `latency_ms`: float
+- `tokens_used`: integer
+- `retrieval_precision`: float (0.0-1.0)
+- `retrieval_diversity`: float
+- `edge_case`: string (e.g., "missing_skill", "memory_limit", "null")
 
 ## Data Flow
 
-1.  **Generation**: `generate_data.py` creates `tasks.json` and `skills.json` in `data/raw/`.
-2.  **Execution**: `run_baseline.py` loads raw data, runs agent, appends to `experiment_log.csv` in `data/results/`.
-3.  **Analysis**: `analyze.py` reads `experiment_log.csv`, computes aggregates, and writes `tipping_point.json` and `pruning_analysis.json`.
+1. **Generation**: `generate_data.py` creates `tasks.json` and `skills.json`.
+2. **Execution**: `agent.py` reads tasks/skills, writes rows to `metrics.csv`.
+3. **Analysis**: `analysis.py` reads `metrics.csv`, computes PLR, VIF.
+4. **State**: `state/...yaml` is updated with checksums of `tasks.json`, `skills.json`, and `metrics.csv`.
+
+## Constraints
+
+- **Immutability**: `tasks.json` and `skills.json` are read-only during execution.
+- **Append-Only**: `metrics.csv` is appended to; no in-place edits.
+- **Schema Validation**: All JSON files must pass `jsonschema` validation before use.

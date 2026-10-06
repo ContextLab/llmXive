@@ -1,72 +1,49 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Experiment Log Schema"
-description: "Schema for individual experiment run records."
+description: "Schema for the CSV output of the agent execution. Note: JSON schema for CSV is conceptual; this defines the expected columns and types for validation scripts."
 type: "object"
 properties:
   run_id:
     type: "string"
-    description: "Unique run identifier."
-  library_size:
-    type: "integer"
-    description: "Size of the active skill library."
-    enum:
-      - 10
-      - 20
-      - 30
-      - 40
-      - 50
-      - 60
-      - 70
-      - 80
-      - 90
-      - 100
-  overlap_level:
-    type: "string"
-    description: "Semantic overlap level."
-    enum:
-      - low
-      - medium
-      - high
-  pruning_enabled:
-    type: "boolean"
-    description: "Whether pruning heuristic was active."
+    description: "Unique identifier for the experiment run configuration."
   task_id:
     type: "string"
-    description: "Reference to the task."
+    description: "Reference to the task executed."
+  library_size:
+    type: "integer"
+    description: "Size of the skill library used (10, 30, 50, or 100)."
+  pruning_enabled:
+    type: "boolean"
+    description: "Whether the pruning heuristic was active."
   success:
     type: "boolean"
-    description: "Whether the task was solved correctly."
+    description: "Whether the task was completed successfully."
   latency_ms:
     type: "number"
-    description: "Execution time in milliseconds."
-  token_count:
+    description: "Execution latency in milliseconds."
+  tokens_used:
     type: "integer"
-    description: "Tokens used."
-    minimum: 0
+    description: "Estimated token count."
   retrieval_precision:
     type: "number"
-    description: "Jaccard similarity (top-k vs ground truth)."
     minimum: 0.0
     maximum: 1.0
+    description: "Jaccard similarity between retrieved and ground truth skills."
   retrieval_diversity:
     type: "number"
-    description: "Inverse variance of similarity scores."
-    minimum: 0.0
-  missing_skills:
-    type: "array"
-    description: "List of required skills not found (if failed)."
-    items:
-      type: "string"
+    description: "Inverse variance of cosine similarities."
+  edge_case:
+    type: "string"
+    description: "Tag for edge cases (e.g., 'missing_skill', 'memory_limit', 'null')."
 required:
   - run_id
-  - library_size
-  - overlap_level
-  - pruning_enabled
   - task_id
+  - library_size
+  - pruning_enabled
   - success
   - latency_ms
-  - token_count
+  - tokens_used
   - retrieval_precision
   - retrieval_diversity
-  - missing_skills
+  - edge_case
 additionalProperties: false

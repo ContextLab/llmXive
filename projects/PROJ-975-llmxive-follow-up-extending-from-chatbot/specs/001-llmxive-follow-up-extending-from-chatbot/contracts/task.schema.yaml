@@ -1,37 +1,37 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Task Schema"
-description: "Schema for synthetic multi-step tasks generated for the Digital Colleague experiment."
+description: "Schema for synthetic task definitions in the Digital Colleague experiment."
 type: "object"
 properties:
   task_id:
     type: "string"
-    description: "Unique identifier for the task (e.g., task_001)."
+    description: "Unique identifier for the task."
   description:
     type: "string"
-    description: "Natural language description of the problem."
+    description: "Natural language description of the task."
+  complexity:
+    type: "integer"
+    minimum: 3
+    maximum: 5
+    description: "Number of steps in the solution path."
   ground_truth_skills:
     type: "array"
-    description: "List of skill IDs required to solve the task."
     items:
       type: "string"
     minItems: 3
     maxItems: 5
-  complexity:
-    type: "integer"
-    description: "Number of steps in the task."
-    minimum: 3
-    maximum: 5
-  embedding_vector:
+    description: "List of skill IDs required to solve the task."
+  solution_path:
     type: "array"
-    description: "384-dimensional embedding vector."
     items:
-      type: "number"
-    minItems: 384
-    maxItems: 384
+      type: "string"
+    minItems: 3
+    maxItems: 5
+    description: "Ordered list of function calls representing the ground truth."
 required:
   - task_id
   - description
-  - ground_truth_skills
   - complexity
-  - embedding_vector
+  - ground_truth_skills
+  - solution_path
 additionalProperties: false
