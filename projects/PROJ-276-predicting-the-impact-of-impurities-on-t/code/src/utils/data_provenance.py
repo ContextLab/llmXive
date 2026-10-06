@@ -1,24 +1,43 @@
 """
-Data provenance utilities for tracking the origin and processing history of datasets.
+Data provenance utilities for tracking data lineage and source metadata.
 """
-from typing import Dict
+import json
 from datetime import datetime
+from typing import Dict, Any, Optional
 
 
-def generate_provenance_header(source: str, timestamp: str, version: str) -> dict:
+def generate_provenance_header(
+    source: str,
+    timestamp: str,
+    version: str,
+    additional_metadata: Optional[Dict[str, Any]] = None
+) -> str:
     """
-    Generate a standardized provenance header dictionary for data artifacts.
+    Generate a minified JSON provenance header string.
+
+    The return value is a UTF-8 encoded, minified JSON string formatted as:
+    `# PROVENANCE: {...}`
 
     Args:
-        source (str): The identifier of the data source (e.g., 'Materials Project', 'SuperCon').
-        timestamp (str): ISO 8601 formatted timestamp of when the data was processed.
-        version (str): The version string of the processing pipeline or dataset.
+        source (str): The data source identifier (e.g., 'Materials Project', 'SuperCon').
+        timestamp (str): ISO format timestamp of data generation/fetch.
+        version (str): Version string of the data or processing script.
+        additional_metadata (Optional[Dict[str, Any]]): Optional extra key-value pairs
+            to include in the provenance object.
 
     Returns:
-        dict: A dictionary containing exactly the keys 'source', 'timestamp', and 'version'.
+        str: A string starting with '# PROVENANCE: ' followed by a minified JSON object.
     """
-    return {
+    provenance_data: Dict[str, Any] = {
         "source": source,
         "timestamp": timestamp,
         "version": version
     }
+
+    if additional_metadata:
+        provenance_data.update(additional_metadata)
+
+    # Ensure keys are sorted for reproducibility
+    minified_json = json.dumps(provenance_data, separators=(',', ':'), sort_keys=True)
+
+    return f"# PROVENANCE: {minified_json}"

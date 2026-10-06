@@ -1,15 +1,50 @@
+T000a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required file `state/contradictions/FR-006-runtime-bug.md`\
+    \ was provided, nor any JSON content inside it. The implementer must create this\
+    \ markdown file containing a properly pretty\u2011printed JSON object with the\
+    \ specified keys."
+T000b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `state/contradictions/corrected_spec_text.md` file was provided, and thus\
+    \ there is no text containing the required replacements for FR-006 and FR-004.\
+    \ The task\u2019s primary artifact is missing."
+T000c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided showing the existence of `projects/PROJ-276-predicting-the-impact-of-impurities-on-t/specs/001-impurity-impact-mgb2/spec.md`,
+    nor any proof that FR-006 and FR-004 lines were replaced with the required text
+    and committed. The required file modifications are therefore unverified.
+T000e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required validation run (e.g., a report, log, or script execution
+    output) is provided; the implementer did not supply any artifact showing that
+    the task validation logic was executed against the updated `spec.md`. The task
+    remains undone.
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure or `tree` output was provided; without evidence of the
+    required folders (`src/ingestion`, `src/modeling`, `src/visualization`, `src/utils`,
+    `tests/contract`, `tests/integration`, `tests/unit`, `data/raw`, `data/processed`,
+    `docs`) the claim cannot be verified. The implementer must supply a concrete `tree`
+    listing showing the created project hierarchy.
+T002:
+  c: true
+  h: f4730bed84e9da73fbd5574ab37a2c2b25e702ee1fa264ef9927cd7e65d8580c
+  r: "The `code/requirements.txt` file is present, non\u2011empty, and includes all\
+    \ required packages (pandas, scikit\u2011learn, xgboost, pymatgen, requests, pyyaml,\
+    \ matplotlib, seaborn, statsmodels, pytest). The extra entries do not violate\
+    \ the requirement."
 T010:
   c: false
   h: f84b42433044067770ce704081c01625d8115d91d35b6f20472542fd1ede078e
   r: "The required file `tests/unit/test_preprocessing.py` does not exist, so no unit\
     \ test for the weight% to atomic% conversion edge cases is present. The task\u2019\
     s deliverable is missing entirely."
-T026:
-  c: false
-  h: 228ea95383b81bb533703f2e79e75cb2beef4c1112588be5ca766e606a4ce1ed
-  r: "The required file `src/modeling/significance_test.py` does not exist, so no\
-    \ VIF calculation, collinearity handling, or `reduced_feature_set.csv` output\
-    \ is provided. The task\u2019s core artifact is missing."
 T026a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

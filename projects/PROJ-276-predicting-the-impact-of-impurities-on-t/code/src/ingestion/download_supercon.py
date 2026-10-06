@@ -1,163 +1,173 @@
 import sys
 import os
-import pandas as pd
+import hashlib
+import json
+from datetime import datetime
 from pathlib import Path
-from src.utils.logging import get_ingestion_logger
 
-# Ensure we can import from the project root if running as a script
-if 'code' not in sys.path:
-    sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
-
+import pandas as pd
 from datasets import load_dataset
 
-# Constants
+# Import project utilities
+from src.utils.logging import get_ingestion_logger
+from src.utils.data_provenance import generate_provenance_header
+from src.utils.config import get_project_root
+
+logger = get_ingestion_logger(__name__)
+
+# Configuration
 DATASET_ID = "taqwa92/cm.mgb2"
-MIN_IMPURITY_COVERAGE = 0.50  # 50% threshold
-IMPURITY_COLUMNS = [
-    "impurity", "impurity_element", "impurity_type", 
-    "doping_element", "dopant", "substitution_element"
-]
+OUTPUT_DIR = "data/raw"
+OUTPUT_FILE = "supercon_mgb2.csv"
+CACHE_CHECKSUM_FILE = "data/raw/.supercon_checksum.txt"
+PROVENANCE_HEADER_FILE = "data/raw/.supercon_provenance.txt"
+IMPURITY_THRESHOLD = 0.50  # Fail if >50% entries lack impurity columns
 
-logger = get_ingestion_logger()
-
-def has_impurity_columns(df: pd.DataFrame) -> bool:
-    """
-    Check if the DataFrame contains any columns that could represent impurities.
-    
-    Args:
-        df: Input DataFrame
-        
-    Returns:
-        True if at least one potential impurity column exists, False otherwise.
-    """
-    if df.empty:
-        return False
-    
-    # Check for any column that matches our impurity column patterns
-    for col in df.columns:
-        col_lower = col.lower()
-        for pattern in IMPURITY_COLUMNS:
-            if pattern.lower() in col_lower:
-                return True
-    return False
+def calculate_file_checksum(filepath: str) -> str:
+    """Calculate SHA256 checksum of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(filepath, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
 def validate_impurity_coverage(df: pd.DataFrame) -> bool:
     """
-    Validate that at least 50% of entries have impurity data.
-    
-    Args:
-        df: Input DataFrame
-        
-    Returns:
-        True if >= 50% of rows have at least one non-null impurity column,
-        False otherwise.
-        
-    Raises:
-        SystemExit: If coverage is below threshold (exits with code 1)
+    Check if more than 50% of entries lack impurity columns.
+    Returns True if valid (<=50% missing), False if invalid (>50% missing).
     """
-    if df.empty:
-        logger.error("DataFrame is empty, cannot validate impurity coverage")
-        sys.exit(1)
+    # Define expected impurity columns (common in SuperCon for MgB2)
+    # We look for columns that typically represent impurities in MgB2
+    possible_impurity_cols = [col for col in df.columns if 'impurity' in col.lower() or 'dopant' in col.lower()]
     
-    if not has_impurity_columns(df):
-        logger.error("No impurity columns found in dataset")
-        sys.exit(1)
+    if not possible_impurity_cols:
+        # If no impurity columns exist at all, that's 100% missing
+        logger.warning("No impurity columns found in dataset")
+        return False
+
+    # Check for rows where ALL impurity columns are null/empty
+    impurity_mask = df[possible_impurity_cols].isna().all(axis=1)
+    missing_ratio = impurity_mask.sum() / len(df)
     
-    # Identify actual impurity columns in this dataset
-    impurity_cols = []
-    for col in df.columns:
-        col_lower = col.lower()
-        for pattern in IMPURITY_COLUMNS:
-            if pattern.lower() in col_lower:
-                impurity_cols.append(col)
-                break
+    logger.info(f"Impurity column check: {missing_ratio:.2%} of entries lack impurity data")
     
-    if not impurity_cols:
-        logger.error("No impurity columns found after pattern matching")
-        sys.exit(1)
+    if missing_ratio > IMPURITY_THRESHOLD:
+        logger.error(f"Too many entries ({missing_ratio:.2%}) lack impurity data. Threshold: {IMPURITY_THRESHOLD:.2%}")
+        return False
     
-    # Count rows with at least one non-null impurity value
-    valid_rows = df[impurity_cols].dropna(how='all').shape[0]
-    total_rows = df.shape[0]
-    
-    coverage = valid_rows / total_rows if total_rows > 0 else 0.0
-    
-    logger.info(f"Total entries: {total_rows}")
-    logger.info(f"Entries with impurity data: {valid_rows}")
-    logger.info(f"Impurity coverage: {coverage:.2%}")
-    
-    if coverage < MIN_IMPURITY_COVERAGE:
-        logger.error(f"Impurity coverage ({coverage:.2%}) is below threshold ({MIN_IMPURITY_COVERAGE:.0%})")
-        logger.error(f"Failing validation: too many entries lack impurity columns")
-        sys.exit(1)
-    
-    logger.info(f"Impurity coverage validation passed: {coverage:.2%} >= {MIN_IMPURITY_COVERAGE:.0%}")
     return True
+
+def has_impurity_columns(df: pd.DataFrame) -> bool:
+    """Check if the dataframe has any impurity-related columns."""
+    possible_impurity_cols = [col for col in df.columns if 'impurity' in col.lower() or 'dopant' in col.lower()]
+    return len(possible_impurity_cols) > 0
 
 def load_supercon_dataset() -> pd.DataFrame:
     """
     Load the SuperCon MgB2 dataset from HuggingFace.
-    
-    Returns:
-        DataFrame containing the SuperCon dataset
-        
-    Raises:
-        SystemExit: If dataset loading fails or validation fails
+    Returns the dataframe if successful.
     """
-    logger.info(f"Loading SuperCon dataset: {DATASET_ID}")
-    
+    logger.info(f"Loading dataset {DATASET_ID} from HuggingFace...")
     try:
-        # Load dataset with streaming to handle potential size issues
-        dataset = load_dataset(DATASET_ID, split="train", streaming=True)
-        
-        # Convert to DataFrame (materializing only what we need)
-        # We'll collect all data since we need to validate coverage
-        logger.info("Converting dataset to DataFrame...")
-        df = pd.DataFrame(dataset)
-        
-        logger.info(f"Loaded {len(df)} entries from SuperCon dataset")
-        
-        # Validate impurity coverage
-        validate_impurity_coverage(df)
-        
+        dataset = load_dataset(DATASET_ID, split="train")
+        df = dataset.to_pandas()
+        logger.info(f"Successfully loaded {len(df)} entries from {DATASET_ID}")
         return df
-        
     except Exception as e:
-        logger.error(f"Failed to load SuperCon dataset: {e}")
-        sys.exit(1)
+        logger.error(f"Failed to load dataset {DATASET_ID}: {e}")
+        raise
+
+def attach_provenance_header(filepath: str, source: str):
+    """Attach provenance header to the CSV file."""
+    timestamp = datetime.utcnow().isoformat()
+    version = "1.0.0"
+    header = generate_provenance_header(source=source, timestamp=timestamp, version=version)
+    
+    # Read existing content
+    with open(filepath, 'r', encoding='utf-8') as f:
+        content = f.read()
+    
+    # Prepend header
+    final_content = header + "\n" + content
+    
+    # Write back
+    with open(filepath, 'w', encoding='utf-8') as f:
+        f.write(final_content)
+    
+    logger.info(f"Attached provenance header to {filepath}")
 
 def main():
-    """
-    Main entry point for downloading and validating SuperCon dataset.
-    
-    This script:
-    1. Loads the SuperCon MgB2 dataset from HuggingFace
-    2. Validates that >= 50% of entries have impurity data
-    3. Exits with code 1 if validation fails
-    4. Exits with code 0 if validation passes
-    
-    The validated DataFrame is printed to stdout in CSV format for piping
-    to subsequent processing steps.
-    """
-    logger.info("Starting SuperCon dataset download and validation")
-    
+    """Main entry point for downloading and validating SuperCon dataset."""
+    project_root = get_project_root()
+    output_path = project_root / OUTPUT_DIR / OUTPUT_FILE
+    cache_checksum_path = project_root / CACHE_CHECKSUM_FILE
+    provenance_path = project_root / PROVENANCE_HEADER_FILE
+
+    # Ensure output directory exists
+    output_dir = project_root / OUTPUT_DIR
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Check if cached file exists
+    if output_path.exists():
+        logger.info(f"Found cached file: {output_path}")
+        
+        # Verify checksum
+        if cache_checksum_path.exists():
+            with open(cache_checksum_path, 'r') as f:
+                cached_checksum = f.read().strip()
+            
+            current_checksum = calculate_file_checksum(str(output_path))
+            
+            if current_checksum == cached_checksum:
+                logger.info("Checksum matches. Validating provenance header...")
+                # Verify provenance header exists
+                if provenance_path.exists():
+                    logger.info("Provenance header exists. Exiting early.")
+                    return 0
+                else:
+                    # Missing provenance, but checksum valid - attach it and exit
+                    logger.warning("Provenance header missing. Attaching now.")
+                    attach_provenance_header(str(output_path), f"cached:{DATASET_ID}")
+                    with open(provenance_path, 'w') as f:
+                        f.write(f"provenance_attached:{datetime.utcnow().isoformat()}")
+                    return 0
+            else:
+                logger.error("Checksum mismatch. Aborting to prevent corruption.")
+                sys.exit(1)
+        else:
+            logger.warning("Checksum file missing. Re-fetching dataset.")
+    else:
+        logger.info("No cached file found. Fetching from HuggingFace.")
+
+    # Fetch dataset
     try:
         df = load_supercon_dataset()
-        
-        # Output the validated DataFrame as CSV to stdout
-        # This allows piping to preprocess.py
-        logger.info("Validation passed, outputting dataset")
-        print(df.to_csv(index=False))
-        
-        logger.info("SuperCon dataset processing completed successfully")
-        sys.exit(0)
-        
-    except SystemExit:
-        # Re-raise SystemExit to preserve exit code
-        raise
     except Exception as e:
-        logger.error(f"Unexpected error during processing: {e}")
+        logger.error(f"Failed to fetch dataset: {e}")
         sys.exit(1)
 
+    # Validate impurity coverage
+    if not validate_impurity_coverage(df):
+        logger.error("Dataset validation failed: >50% of entries lack impurity columns.")
+        sys.exit(1)
+
+    # Save to CSV
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved dataset to {output_path}")
+
+    # Calculate and save checksum
+    checksum = calculate_file_checksum(str(output_path))
+    with open(cache_checksum_path, 'w') as f:
+        f.write(checksum)
+    logger.info(f"Saved checksum: {checksum}")
+
+    # Attach provenance header
+    attach_provenance_header(str(output_path), f"hf:{DATASET_ID}")
+    with open(provenance_path, 'w') as f:
+        f.write(f"provenance_attached:{datetime.utcnow().isoformat()}")
+
+    logger.info("SuperCon dataset download and validation completed successfully.")
+    return 0
+
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

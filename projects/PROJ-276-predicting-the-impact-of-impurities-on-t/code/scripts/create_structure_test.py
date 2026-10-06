@@ -2,14 +2,13 @@ import os
 from pathlib import Path
 import sys
 
-def verify_structure():
+def verify_structure(base_path: Path = None) -> bool:
     """
-    Verifies that the directory structure created by T001 exists.
-    Returns True if all required directories exist, False otherwise.
+    Verifies that the required project directories exist.
+    Returns True if all directories are present, False otherwise.
     """
-    # Determine project root (assuming this script is in code/scripts/)
-    script_dir = Path(__file__).resolve().parent
-    project_root = script_dir.parent
+    if base_path is None:
+        base_path = Path(__file__).resolve().parent.parent
 
     required_dirs = [
         "src/ingestion",
@@ -25,19 +24,19 @@ def verify_structure():
     ]
 
     missing = []
-    for dir_path in required_dirs:
-        full_path = project_root / dir_path
+    for dir_str in required_dirs:
+        full_path = base_path / dir_str
         if not full_path.is_dir():
-            missing.append(dir_path)
+            missing.append(dir_str)
 
     if missing:
-        print("VERIFICATION FAILED: Missing directories:")
-        for d in missing:
-            print(f"  - {d}")
+        print(f"Structure verification FAILED. Missing directories:")
+        for m in missing:
+            print(f"  - {m}")
         return False
-    else:
-        print("VERIFICATION PASSED: All required directories exist.")
-        return True
+    
+    print("Structure verification PASSED. All required directories exist.")
+    return True
 
 if __name__ == "__main__":
     success = verify_structure()
