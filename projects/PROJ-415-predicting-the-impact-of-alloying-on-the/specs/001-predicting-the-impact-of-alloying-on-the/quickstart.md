@@ -4,14 +4,14 @@
 
 -   Python 3.11+
 -   Git
--   Access to the "Verified datasets" URLs (see `research.md` for current status).
+-   Access to a GitHub Actions runner (or local environment for testing)
 
 ## Installation
 
 1.  **Clone the repository**:
     ```bash
     git clone <repo-url>
-    cd projects/PROJ-415-predicting-the-impact-of-alloying-on-the
+    cd <project-dir>
     ```
 
 2.  **Create a virtual environment**:
@@ -24,54 +24,57 @@
     ```bash
     pip install -r requirements.txt
     ```
-    *Note: `requirements.txt` will pin `scikit-learn`, `pandas`, `numpy`, `mendeleev`, `pytest`.*
 
 ## Running the Pipeline
 
-### 1. Data Ingestion & Curation
-This step filters the raw data and checks for validity.
-```bash
-python code/ingestion/curation.py
-```
--   **Output**: `data/curated/filtered.csv`, `data/curated/data_provenance.json`.
--   **Failure Mode**: If no valid FCC self-diffusion data is found in the verified URLs, the script exits with `ERROR: No verified real dataset found...`.
+### Step 1: Data Ingestion & Curation
+This step attempts to download the verified dataset. **If no valid FCC self-diffusion data is found, the pipeline halts.**
 
-### 2. Feature Engineering
-Computes atomic descriptors.
 ```bash
-python code/features/engineering.py
-```
--   **Output**: `data/curated/enriched.csv`.
-
-### 3. Model Training
-Trains RF, GB, and Linear models.
-```bash
-python code/models/train.py
-```
--   **Output**: `models/final_rf.pkl`, `models/final_gb.pkl`, `models/linear_coef.json`.
-
-### 4. Validation & Sensitivity Analysis
-Generates baseline reports and threshold stability plots.
-```bash
-python code/validation/baseline.py
-python code/validation/sensitivity.py
-```
--   **Output**: `results/baseline_report.json`, `results/sensitivity_plot.png`, `results/stability_index.json`.
-
-## Testing
-
-Run the full test suite:
-```bash
-pytest tests/ -v
+python code/main.py --step ingest
 ```
 
-Run specific unit tests:
+*Expected Output*:
+-   `data/curated/filtered.csv` (if data found)
+-   `data/curated/data_provenance.json`
+-   **OR** `ERROR: No verified real dataset found...` (if data missing)
+
+### Step 2: Feature Engineering
+Calculates atomic descriptors and size mismatch.
+
 ```bash
-pytest tests/unit/test_feature_engineering.py -v
+python code/main.py --step features
+```
+
+*Expected Output*: `data/curated/features.csv`, `errors/missing_atomic_data.csv` (if any).
+
+### Step 3: Model Training
+Trains RF, GB, and Linear models with Grid Search.
+
+```bash
+python code/main.py --step train
+```
+
+*Expected Output*: `models/final_rf.pkl`, `models/final_gb.pkl`, `models/linear_coef.json`.
+
+### Step 4: Validation & Reporting
+Performs nested CV, sensitivity analysis, and generates the final report.
+
+```bash
+python code/main.py --step validate
+```
+
+*Expected Output*: `reports/validation_report.json`, `reports/sensitivity_plot.png`.
+
+## Verification
+
+To verify the pipeline on a local machine:
+```bash
+pytest tests/
 ```
 
 ## Troubleshooting
 
--   **"No verified real dataset found"**: The provided verified URLs do not contain the required metallurgical data. The pipeline correctly halts. Do not use synthetic data.
--   **"Stratification failed"**: If the dataset contains only one host metal, the script will fallback to a random split and log a warning.
--   **Memory Error**: The dataset size is expected to be small (<10 MB). If this error occurs, check for infinite loops or data leaks in the ingestion step.
+-   **"No verified real dataset found"**: This is expected behavior if the verified dataset list does not contain FCC metal diffusion data. The pipeline is designed to halt rather than use synthetic data.
+-   **Missing Atomic Radius**: Check `errors/missing_atomic_data.csv` for the solute causing the issue.
+-   **Memory Error**: Ensure the dataset size is < 10 MB. If streaming is required, verify `streaming=True` is used in `code/data/ingestion.py`.

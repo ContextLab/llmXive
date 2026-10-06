@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "ModelArtifact"
-description: "Schema for trained model outputs."
+description: "Schema for trained model outputs. Aligned with model_output.schema.yaml."
 type: "object"
 properties:
   model_type:
@@ -27,20 +27,25 @@ properties:
     description: "Present only for LinearRegression."
     properties:
       size_mismatch:
-        type: "number"
-      p_value:
-        type: "number"
-        minimum: 0
-        maximum: 1
-      ci_lower:
-        type: "number"
-      ci_upper:
-        type: "number"
+        type: "object"
+        properties:
+          coef:
+            type: "number"
+          p_value:
+            type: "number"
+            minimum: 0
+            maximum: 1
+          ci_lower:
+            type: "number"
+          ci_upper:
+            type: "number"
+        required:
+          - coef
+          - p_value
+          - ci_lower
+          - ci_upper
     required:
       - size_mismatch
-      - p_value
-      - ci_lower
-      - ci_upper
 required:
   - model_type
   - hyperparameters

@@ -3,40 +3,49 @@ title: "DiffusionRecord"
 description: "Schema for a single diffusion data point in the curated dataset."
 type: "object"
 properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the record."
   host_element:
     type: "string"
-    description: "Symbol of the host metal (e.g., Ni, Cu)."
     pattern: "^[A-Z][a-z]?$"
+    description: "Chemical symbol of the host metal."
   solute_element:
     type: "string"
-    description: "Symbol of the solute element."
     pattern: "^[A-Z][a-z]?$"
-  concentration_at_pct:
-    type: "number"
-    description: "Solute concentration in atomic percent."
-    minimum: 0
-    maximum: 100
-  activation_energy_eV:
-    type: "number"
-    description: "Activation energy in eV/atom."
-    minimum: 0
+    description: "Chemical symbol of the solute element."
   crystal_structure:
     type: "string"
-    description: "Crystal structure of the host."
-    enum: ["FCC"]
+    enum:
+      - "FCC"
+      - "BCC"
+      - "HCP"
+    description: "Crystal lattice structure."
   diffusion_mode:
     type: "string"
-    description: "Type of diffusion."
-    enum: ["self"]
-  source_id:
+    enum:
+      - "self"
+      - "solute"
+    description: "Diffusion mechanism type."
+  activation_energy_eV:
+    type: "number"
+    minimum: 0
+    description: "Activation energy in electron-volts."
+  solute_concentration_at_pct:
+    type: "number"
+    minimum: 0
+    description: "Solute concentration in atomic percent."
+  source_url:
     type: "string"
-    description: "Identifier for the data source."
+    format: "uri"
+    description: "URL of the original data source."
 required:
+  - id
   - host_element
   - solute_element
-  - concentration_at_pct
-  - activation_energy_eV
   - crystal_structure
   - diffusion_mode
-  - source_id
+  - activation_energy_eV
+  - solute_concentration_at_pct
+  - source_url
 additionalProperties: false

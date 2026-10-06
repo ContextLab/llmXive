@@ -1,71 +1,88 @@
 # Research: Predicting the Impact of Alloying on the Diffusion Activation Energy in FCC Metals
 
-## Overview
+## Problem Statement
 
-This research phase investigates the feasibility of predicting activation energy shifts in FCC metals using atomic descriptors. The primary hypothesis is that "size mismatch" (relative difference in atomic radii between solute and host) is a statistically significant **predictor** (associational) of diffusion barrier changes. The methodology prioritizes the use of **verified, real-world datasets** and strict statistical validation.
+Predict the shift in activation energy for self-diffusion in metals when alloyed with solutes. The primary hypothesis is that atomic size mismatch (`(r_solute - r_host) / r_host`) is a dominant predictor of this shift. The primary target is **FCC** metals.
 
 ## Dataset Strategy
 
-### Verified Datasets
+### Data Availability Check & Discovery Strategy
 
-The project relies on the following verified dataset sources. **No synthetic data is permitted.** If these sources do not contain the required fields (FCC structure, self-diffusion mode, activation energy in eV, concentration), the pipeline must halt as per FR-001.
+Per FR-001 and US-1, the pipeline **MUST** halt if no verified real dataset is found for the primary target (FCC). This project relies **exclusively** on the "Verified datasets" block provided in the user message. No external searching or URL fabrication is permitted during the plan phase.
 
-| Dataset Name | Verified URL | Format | Notes |
-| :--- | :--- | :--- | :--- |
-| DiffusionDB (FCC Self-Diffusion) | `https://huggingface.co/datasets/materials-diffusion/DiffusionDB/resolve/main/fcc_self_diffusion.csv` | CSV | **Verified**: Contains FCC crystal structure, self-diffusion mode, activation energy (eV), and solute concentration. Includes a `PureMetalBaseline` table for host-only values. |
-| PureMetalBaseline (Internal) | `https://huggingface.co/datasets/materials-diffusion/DiffusionDB/resolve/main/pure_host_baseline.csv` | CSV | **Verified**: Aggregated NIST/MP values for pure FCC host metals, used for FR-006 baseline calculation. |
+**Verified Datasets**:
+The project will attempt to load data from the following verified sources.
 
-**Data Availability Decision**
+| Dataset Name | Source URL | Format | Relevance to Study | Status |
+|:--- |:--- |:--- |:--- |:--- |
+| **HCP-Diffusion-datas** | ` | Parquet | **INVALID**: Contains HCP diffusion data, not FCC. | `INSUFFICIENT` |
+| **FCC-regulations** | ` | Parquet | **INVALID**: Contains regulatory text, not materials data. | `INVALID` |
+| **NIST (General)** | ` | JSONL | **INVALID**: Contains medical conversations, not diffusion data. | `INVALID` |
+| **BCC (General)** | ` | Parquet | **INVALID**: Focuses on BCC or non-diffusion data. | `INSUFFICIENT` |
 
-**Status**: **VALIDATED**.
+**Critical Finding & Resolution**:
+The "Verified datasets" block **does not contain** a verified source for **FCC Self-Diffusion** data in metals.
+- The dataset named `HCP-Diffusion-datas` is explicitly labeled HCP.
+- The dataset named `fcc-regulations` is regulatory text.
+- The `NIST` and `BCC` entries are irrelevant to the specific scientific question.
 
-Per **FR-001** and **User Story 1**, the system performs a "Data Availability Check". The provided verified URLs contain the necessary metallurgical data.
-1.  The implementation will load `fcc_self_diffusion.csv`.
-2.  It will verify the presence of `crystal_structure`, `diffusion_mode`, `activation_energy`, `solute_concentration`.
-3.  It will verify the presence of `pure_host_baseline.csv` for the baseline shift calculation.
-4.  If all checks pass, the pipeline proceeds. If not, it raises `ERROR: No verified real dataset found. Synthetic data is not permitted.`
+**Decision & Rationale (Critical Path Decision)**:
+1. **Primary Attempt**: The pipeline attempts to load and filter for `crystal_structure == "FCC"` from the available sources.
+2. **Failure Condition**: Since no source in the verified block contains FCC self-diffusion data, the filtered dataset will contain 0 rows.
+3. **Termination**: The pipeline **halts immediately** with the error message: "ERROR: No verified real dataset found. Synthetic data is not permitted for this research goal."
+4. **No Fallback**: The project **does not** pivot to HCP or other datasets. The scientific question is specific to **FCC** metals. Using HCP data would answer a different question and violate the spec.
+5. **Artifact Generation**: Upon halting, the pipeline generates `data/curated/data_provenance.json` with a status of "HALTED" to satisfy FR-007.
 
-## Statistical Methodology
+**Discovery Strategy**:
+The project relies on the static "Verified datasets" block. If a valid FCC dataset (e.g., from NIST or Materials Project) is required to proceed, it must be added to this verified block by the user or through a separate discovery process *before* the plan is executed. The current plan cannot proceed with modeling because the necessary data is not present in the verified sources.
 
-### Feature Engineering
--   **Size Mismatch**: Calculated as $\Delta r / r_{host} = (r_{solute} - r_{host}) / r_{host}$.
--   **Electronegativity Difference**: Calculated using the Pauling scale (fixed version).
--   **Source**: Atomic properties will be retrieved from a pinned version of the `mendeleev` library to ensure **Descriptor Consistency** (Constitution Principle VII).
--   **Limitation**: We acknowledge that static `mendeleev` radii ignore coordination number effects in alloys. This is a first-order approximation. The final report will explicitly document this limitation.
+## Feature Engineering Strategy
 
-### Model Selection
-1.  **Random Forest (RF)**: Non-linear modeling, robust to outliers.
-2.  **Gradient Boosting (GB)**: High accuracy, sequential correction.
-3.  **Linear Regression**: Used strictly for **statistical inference** (p-value of the `size_mismatch` coefficient).
-    -   *Justification*: To test the hypothesis that size mismatch is a significant **predictor** of the shift.
-    -   *Causal Framing*: **Crucially**, all conclusions regarding the relationship will be framed as **associational**, not causal. The p-value tests the strength of the association, not a causal driver. The dataset is observational (experimental/simulation data without random assignment).
+*Note: This section describes the intended workflow IF a valid dataset were found. Given the current data status, this step will not execute.*
 
-### Validation Strategy
--   **Split**: **Repeated K-Fold Cross-Validation** (5 repeats, 5 folds) on the full dataset for final model evaluation to reduce variance in R² and p-value estimates.
--   **Hyperparameter Tuning**: Grid Search (5-fold CV) on the training set only (nested within the repeated CV loop).
-    -   `max_depth`: [3, 4, 5, 6, 7, 8, 9, 10]
-    -   `n_estimators`: [50, 100, 150, 200]
-    -   Metric: Maximize R². Tie-breaker: Lowest complexity.
--   **Baseline for Comparison (SC-001)**: **Host-Mean Model**. Instead of a global mean, the baseline predicts the average activation energy for the specific host metal. This isolates the variance explained by the alloying effect.
--   **Baseline Data Strategy (FR-006)**: The "pure host activation energy" required for the shift calculation is sourced from the `PureMetalBaseline` table in the verified DiffusionDB dataset. This is an independent ground-truth value, not a model prediction.
--   **Sensitivity Analysis (FR-005)**:
-    -   Threshold sweep: 0.45 eV to 0.55 eV (step 0.01).
-    -   **Contingency**: If `PureMetalBaseline` data is missing for a specific host, the shift cannot be calculated for that row. The pipeline will log a `BASELINE_MISSING` flag and skip the shift calculation for that row, rather than hallucinating values.
-    -   Metric: Stability Index = $std(classification\_rates) / (max\_threshold - min\_threshold)$.
+Assuming data is available (post-pivot check):
+1. **Atomic Descriptors**:
+ - `solute_radius`, `host_radius`: Retrieved from `periodictable` (Pauling scale).
+ - `electronegativity`: Retrieved from `periodictable`.
+ - `size_mismatch`: Calculated as `(solute_radius - host_radius) / host_radius`.
+2. **Missing Data Handling**:
+ - If atomic radius is missing for a solute (e.g., synthetic element), row is excluded.
+ - Log entry added to `errors/missing_atomic_data.csv`.
+3. **Baseline Calculation**:
+ - `baseline_shift`: Difference between predicted solute activation energy and pure host activation energy (from external standard).
+ - **Output**: `data/curated/baseline_shifts.csv` generated by `code/validation/baseline.py`.
+
+## Model Strategy
+
+*Note: This section describes the intended workflow IF a valid dataset were found.*
+
+1. **Random Forest (RF) & Gradient Boosting (GB)**:
+ - **Goal**: High-accuracy prediction.
+ - **Hyperparameters**: `max_depth` [3, 10], `n_estimators` [50, 200].
+ - **Selection**: Grid Search with 5-fold CV, maximizing R². Tie-breaker: lowest complexity.
+ - **Hardware**: CPU-only (scikit-learn default).
+2. **Linear Regression**:
+ - **Goal**: Statistical inference of `size_mismatch`.
+ - **Output**: Coefficient, p-value, 95% Bootstrap CI (1000 resamples).
+ - **Assumption**: Linearity between size mismatch and energy shift.
+
+## Statistical Rigor & Validation
+
+*Note: This section describes the intended workflow IF a valid dataset were found.*
+
+- **Multiple Comparisons**: Not applicable for the primary regression (single hypothesis: size mismatch effect). However, if multiple descriptors are tested, Bonferroni correction will be applied.
+- **Power Analysis**: Acknowledged limitation. If dataset size < 50, the study is underpowered. Results will be framed as "exploratory" with wide confidence intervals.
+- **Causal Inference**: **Observational Data Only**. No randomization of solutes. All claims will be framed as "associational" (e.g., "Size mismatch is associated with..."). No causal claims will be made.
+- **Collinearity**: If `size_mismatch` and `electronegativity` are correlated, VIF (Variance Inflation Factor) will be checked. If VIF > 5, collinearity will be reported, and independent effects will not be claimed.
+- **Sensitivity Analysis (FR-005)**:
+ - **Condition**: Executed only if a valid dataset (FCC) is loaded.
+ - **Method**: Sweep classification threshold for "significant shift" from 0.45 eV to 0.55 eV in 0.01 eV increments.
+ - **Metric**: Stability measured as `std(classification_rates) / (max_threshold - min_threshold)` (unit: 1/eV).
+ - **Output**: `reports/sensitivity_plot.png` and `validation_report.json`.
 
 ## Compute Feasibility
 
--   **Hardware**: GitHub Actions Free Tier (2 CPU, 7 GB RAM).
--   **Strategy**: CPU-first. All models (RF, GB, Linear) are available in `scikit-learn` and run efficiently on CPU for datasets <50k rows.
--   **GPU**: Not required. No deep learning models are planned.
--   **Time Budget**: Grid search for RF/GB on a small dataset (<10k rows) is estimated to take <30 minutes.
-
-## Risks & Mitigations
-
-| Risk | Impact | Mitigation |
-| :--- | :--- | :--- |
-| **No Valid Dataset** | **Fatal** | Pipeline halts with explicit error. No synthetic data. |
-| **Collinearity** | Medium | `size_mismatch` and `electronegativity` may be correlated. Linear model will report standard errors; interpretation will be "associational" only. |
-| **Single Host Metal** | Medium | Fallback to random split; log warning. |
-| **Low R²** | Low | If R² < 0.1, report "Null Result Hypothesis Supported" rather than forcing overfitting. |
-| **Static Radius Approximation** | Medium | Documented as a known limitation; model captures first-order geometric effect. |
+- **CPU-First**: All models (RF, GB, Linear) are lightweight and run efficiently on 2 CPU cores.
+- **Memory**: Dataset < 10 MB (if data exists). Feature engineering and model training will use < 2 GB RAM.
+- **Time**: Grid search on small datasets (< 200 rows) will take < 30 minutes.
+- **GPU**: Not required. No deep learning models.

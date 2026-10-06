@@ -1,16 +1,16 @@
 status: none
-intent: download Materials Project diffusion data FCC self diffusion NIST validation
+intent: Materials Project diffusion dataset and NIST diffusion database FCC self diffusion
   python package dataset
 required_fields:
 - material_id
-- composition
+- chemical_formula
 - crystal_structure
-- diffusion_mode
+- diffusion_type
 - activation_energy_eV_per_atom
-- temperature_K
 - solute_concentration_at_percent
+- temperature_K
+- diffusion_coefficient
 - reference_source
-- dataset_id
-cache_key: e584b1dca758dea984df2f7a523479afedebd83101175477dfe118cb0422df83
-searched_at: '2026-10-02T03:30:43.714075+00:00'
+cache_key: e00f0872330fa800967ec2a850eba4746421f7ed9cc7cf8af4f164936e1672fa
+searched_at: '2026-10-06T11:26:14.535956+00:00'
 retry_count: 1

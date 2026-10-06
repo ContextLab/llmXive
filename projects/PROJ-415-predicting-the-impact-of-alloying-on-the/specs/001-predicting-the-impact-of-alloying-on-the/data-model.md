@@ -2,70 +2,54 @@
 
 ## Entity Definitions
 
-### 1. DiffusionRecord
+### DiffusionRecord
 Represents a single experimental or simulation data point.
+- `id`: Unique identifier (string)
+- `host_element`: Chemical symbol (e.g., "Ni", "Cu") (string)
+- `solute_element`: Chemical symbol (e.g., "Co", "Fe") (string)
+- `crystal_structure`: Crystal lattice type (e.g., "FCC", "BCC", "HCP") (string)
+- `diffusion_mode`: Diffusion mechanism (e.g., "self", "solute") (string)
+- `activation_energy_eV`: Activation energy in electron-volts (float)
+- `solute_concentration_at_pct`: Concentration in atomic percent (float)
+- `source_url`: URL of the original data source (string)
 
-| Field | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `id` | string | Unique identifier (UUID or hash) | Generated |
-| `host_metal` | string | Symbol of the host metal (e.g., "Ni", "Cu") | Raw Data |
-| `solute_metal` | string | Symbol of the solute metal | Raw Data |
-| `crystal_structure` | string | Must be "FCC" for this project | Raw Data |
-| `diffusion_mode` | string | Must be "self" for this project | Raw Data |
-| `activation_energy_eV` | float | Activation energy in eV/atom | Raw Data |
-| `concentration_at_pct` | float | Solute concentration in atomic percent | Raw Data |
-| `source_url` | string | URL of the dataset row | Raw Data |
+### AtomicDescriptor
+Derived features for a specific solute-host pair.
+- `host_radius_angstrom`: Atomic radius of host (float)
+- `solute_radius_angstrom`: Atomic radius of solute (float)
+- `size_mismatch`: Normalized radius difference (float)
+- `electronegativity_diff`: Difference in Pauling electronegativity (float)
+- `valence_electron_count`: Valence electrons of solute (int)
 
-### 2. AtomicDescriptor
-Computed features derived from the DiffusionRecord.
+### BaselineShift
+Represents the calculated shift in activation energy relative to the pure host.
+- `solute_element`: Chemical symbol of the solute (string)
+- `host_element`: Chemical symbol of the host (string)
+- `predicted_energy_eV`: Predicted activation energy (float)
+- `pure_host_energy_eV`: Activation energy of the pure host (float)
+- `baseline_shift_eV`: Difference (predicted - pure) (float)
 
-| Field | Type | Description | Calculation |
-| :--- | :--- | :--- | :--- |
-| `record_id` | string | FK to DiffusionRecord | - |
-| `host_radius` | float | Atomic radius of host (pm or Å) | `mendeleev` |
-| `solute_radius` | float | Atomic radius of solute | `mendeleev` |
-| `host_electronegativity` | float | Pauling electronegativity | `mendeleev` |
-| `solute_electronegativity` | float | Pauling electronegativity | `mendeleev` |
-| `size_mismatch` | float | Relative size difference | `(solute_radius - host_radius) / host_radius` |
-| `electronegativity_diff` | float | Absolute difference | `abs(solute_electronegativity - host_electronegativity)` |
-
-### 3. ModelArtifact
-Output of the training phase.
-
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `model_type` | string | "RF", "GB", or "Linear" |
-| `hyperparameters` | dict | JSON object of tuned params |
-| `metrics` | dict | R², RMSE, MAE on test set |
-| `coefficients` | dict | (For Linear) Coefficients and p-values |
-| `timestamp` | string | ISO 8601 timestamp of training |
-| `random_seed` | int | Seed used for reproducibility |
-
-### 4. ProvenanceRecord
-Record of data lineage and integrity.
-
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `source_url` | string | URL of the raw dataset |
-| `file_hash` | string | SHA-256 hash of the raw file |
-| `timestamp` | string | ISO 8601 timestamp of ingestion |
-| `filter_criteria` | string | JSON string of filters applied (e.g., "FCC", "self") |
-| `rows_in` | int | Number of rows before filtering |
-| `rows_out` | int | Number of rows after filtering |
+### ModelArtifact
+Trained model metadata.
+- `model_type`: "RandomForest", "GradientBoosting", "LinearRegression" (string)
+- `hyperparameters`: JSON object of parameters (object)
+- `metrics`: JSON object of R², RMSE, MAE (object)
+- `coefficients`: JSON object of model coefficients (if applicable) (object)
+- `p_values`: JSON object of p-values (if applicable) (object)
 
 ## Data Flow
 
-1.  **Ingestion**: `code/ingestion/curation.py` reads raw CSV/Parquet -> Filters for FCC/Self -> Writes `data/curated/filtered.csv`.
-    *   **Provenance Logic**: Simultaneously generates `data/curated/data_provenance.json` containing `source_url`, `file_hash`, `timestamp`, `filter_criteria`, `rows_in`, `rows_out` (Addressing FR-007 and T051).
-2.  **Enrichment**: `code/features/engineering.py` reads `filtered.csv` -> Joins with atomic data -> Writes `data/curated/enriched.csv`.
-3.  **Baseline Calculation**: `code/validation/baseline.py` reads `enriched.csv` and the `PureMetalBaseline` table -> Computes `baseline_shift` -> Writes `data/curated/with_shift.csv` (Addressing FR-008 and T030).
-4.  **Training**: `code/models/train.py` reads `with_shift.csv` -> Splits -> Trains -> Writes `models/`.
-5.  **Validation**: `code/validation/sensitivity.py` reads `models/` and `with_shift.csv` -> Writes `results/`.
+1.  **Ingestion**: Raw CSV/Parquet → `data/raw/`
+2.  **Curation**: `data/raw/` → Filter (FCC primary, HCP fallback) → `data/curated/filtered.csv`
+3.  **Feature Engineering**: `filtered.csv` + Periodic Table → `data/curated/features.csv`
+4.  **Baseline Calculation**: `filtered.csv` → `code/validation/baseline.py` → `data/curated/baseline_shifts.csv` (FR-008)
+5.  **Training**: `features.csv` → Split (Train/Test) → Model Artifacts (`models/`)
+6.  **Validation**: Model + Test Set → `reports/validation_report.json`
 
-## Constraints
+## Assumptions & Constraints
 
--   **FCC Only**: Any record where `crystal_structure` != "FCC" is discarded.
--   **Self Only**: Any record where `diffusion_mode` != "self" is discarded.
--   **Concentration**: Records with missing `concentration_at_pct` are discarded.
--   **Units**: All energies must be converted to eV/atom.
--   **Baseline Integrity**: If a host metal lacks a value in `PureMetalBaseline`, the `baseline_shift` for that record is marked as `NaN` and excluded from the shift analysis.
+-   **Atomic Data**: All atomic properties are derived from the `periodictable` library (version pinned).
+-   **Missing Data**: Rows with missing atomic radii are excluded and logged.
+-   **Unit Standardization**: All activation energies must be in eV. All concentrations in at.%.
+-   **No Synthetic Data**: The `data/curated/` directory must not contain generated rows unless explicitly marked as "synthetic" (which is forbidden by FR-001).
+-   **Pivot Logic**: If FCC data is unavailable, the flow automatically switches to HCP data without altering the schema.
