@@ -18,7 +18,7 @@ The system must successfully download, merge, and preprocess the American Gut Pr
 **Acceptance Scenarios**:
 
 1. **Given** the AGP study ID (10317) is provided, **When** the ingestion script executes, **Then** the system downloads the OTU/ASV table and metadata, merges them on sample ID, and outputs a unified CSV file.
-2. **Given** a merged dataset with missing mental health scores, **When** the preprocessing step runs, **Then** samples with missing PHQ-9 or GAD-7 scores are filtered out, and the system logs the exclusion rate.
+2. **Given** a merged dataset with missing mental health scores, **When** the preprocessing step runs, **Then** samples with missing PHQ or GAD scores are filtered out, and the system logs the exclusion rate.
 3. **Given** the raw OTU table, **When** rarefaction and low-abundance filtering are applied, **Then** the output table contains only taxa with ≥ 0.1% prevalence and equal sequencing depth across all samples. If rarefaction results in >20% sample loss, the system must apply variance-stabilizing transformation (VST) instead and log the fallback.
 
 ---

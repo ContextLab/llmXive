@@ -1,21 +1,42 @@
-T012b:
+T014a:
   c: false
-  h: 7c038962cb31622f966353f7e38998854d345f01cb943bb165cb67b8d0aed56a
-  r: "The repository contains a partially shown `code/data_ingestion.py` with helper\
-    \ functions for computing and saving SHA\u2011256 hashes, but the script is truncated\
-    \ and does not demonstrate iterating over the raw files or invoking those functions.\
-    \ Moreover, the required output file `data/raw/checksums.txt` is absent from the\
-    \ project. Consequently, the task of computing checksums for all downloaded raw\
-    \ data files and recording them in the specified file has not been fulfilled."
-T016:
+  h: 8c6a58006d1bc9021bec4910c56cd7a869dcbc696b9e2112b9e1a85c7ec73ca2
+  r: "The repository contains a `code/preprocessing.py` with a `calculate_sequencing_depth`\
+    \ function, but it never writes the result to `data/interior/median_depth.json`\
+    \ (the file is missing). Moreover, the function computes the median of per\u2011\
+    sample sums (`axis=1`) rather than the required median of non\u2011zero column\
+    \ sums. Both the output artifact and the correct calculation are absent."
+T014b:
   c: false
-  h: 166b1ebb406a6597a657a69feada7b253d2667d7fc5a7fa0b719099f5939b71c
-  r: The repository contains a `code/preprocessing.py` file, but the shown code is
-    truncated and does not include any logic that computes Shannon or Simpson metrics
-    on a preprocessed table and writes the results to `data/processed/alpha_metrics.csv`.
-    Moreover, the required output file `data/processed/alpha_metrics.csv` is absent
-    from the project. Both the implementation and the expected output are missing,
-    so the task is not satisfied.
+  h: 71a0a56555cd196412be5bc54e6cf8b20b54868661d7de171a0072355642e6e7
+  r: "The repository contains `code/preprocessing.py` with functions for calculating\
+    \ median depth and estimating rarefaction loss, but the script never invokes these\
+    \ functions nor writes the result to `data/interior/estimated_loss.json`. Moreover,\
+    \ the required JSON file is absent from the project. The task\u2019s output artifact\
+    \ is missing, so the implementation does not meet the specification."
+T014c:
+  c: false
+  h: 173c80d3524c4b689e0b98fd53d3cc34d91a5a06effec2994b6f56f1c2c97e7a
+  r: "The repository contains a partially shown `code/preprocessing.py` but it does\
+    \ not demonstrate the required conditional logic (loss\u202F>\u202F20\u202F% \u2192\
+    \ VST fallback, else rarefaction) nor any code that writes the preprocessed OTU\
+    \ table to `data/processed/preprocessed_otu_table.biom`. Moreover, the expected\
+    \ output file is missing from the project. The task therefore remains unfinished."
+T015:
+  c: false
+  h: ea2060fecd965fc318cbba38f9239466641b0155d2b895213a833bb6e7bcb726
+  r: "The required output file `data/processed/filtered_otu_table.biom` does not exist,\
+    \ and the visible portion of `code/preprocessing.py` contains no function that\
+    \ filters taxa by <0.1% prevalence or writes such a BIOM file. The task\u2019\
+    s core requirement is therefore unmet."
+T016b:
+  c: false
+  h: 663a0322114c932273347cfa090cbb911ec9ec97d48782b45cfc4664d2953719
+  r: "The required `.npz` files (`bray_curtis.npz`, `weighted_unifrac.npz`, `unweighted_unifrac.npz`)\
+    \ are absent, and the provided `code/preprocessing.py` snippet shows no implementation\
+    \ of Bray\u2011Curtis or UniFrac calculations nor saving of distance matrices\
+    \ as specified. The task\u2019s core functionality and output artifacts are therefore\
+    \ missing."
 T021:
   c: false
   h: 12f66b2fb4cebac5f3fdf3f5f35dfa62ed6bfc759dcdde187c50d096184583ef
@@ -25,12 +46,6 @@ T021:
     \ and does not implement the PERMANOVA analysis described in the task. Both the\
     \ input data and the PERMANOVA result artifact are missing, so the task is not\
     \ fulfilled."
-T023:
-  c: false
-  h: 10e86cd03a9023295cd503113b9b35548208b68a744430fdb91a395d2a744721
-  r: The required output file `results/temp_covariate_check.txt` does not exist, so
-    the calculation and reporting of the maximum delta were not provided. The task
-    therefore remains unfinished.
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
