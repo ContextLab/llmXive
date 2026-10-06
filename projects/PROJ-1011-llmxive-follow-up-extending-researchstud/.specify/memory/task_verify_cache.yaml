@@ -1,11 +1,3 @@
-T011:
-  c: false
-  h: 1d2c70f4dfb6f4b5e7069a718556a248782aab40093fb1bb23b18a8c7b910e58
-  r: "The `data/raw/corpus_raw.jsonl` file, the required output, does not exist, and\
-    \ the provided `code/01_data_acquisition.py` is truncated and does not contain\
-    \ a complete implementation (e.g., it ends abruptly and never reaches the download,\
-    \ balancing, or write\u2011out logic). Moreover, `data-sources.yaml` lists empty\
-    \ DOI arrays, so non\u2011ML abstracts cannot be fetched as specified."
 T012:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -46,6 +38,15 @@ T019:
     fixture nor assert that the `preprocessing_pipeline` raises a `ValueError` or
     filters out empty entries as specified. The fixture file itself is missing. The
     task therefore remains unfinished.
+T024b:
+  c: false
+  h: 104bd9cad40f37d96e47ddee96b74d247176607f3ce7ea1767701e90424390e2
+  r: "The repository lacks the required input file `data/results/generated_proposals.jsonl`\
+    \ and the output file `data/results/power_analysis_config.json`. Moreover, the\
+    \ shown portion of `code/05_statistical_analysis.py` does not contain any implementation\
+    \ that reads `n` from the generated proposals and writes the power\u2011analysis\
+    \ configuration as specified. These essential artifacts and functionality are\
+    \ missing."
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -71,6 +72,21 @@ T030a:
     \ output files `data/results/ratings_template.csv` and `data/results/generated_proposals.jsonl`\
     \ are absent from the project. The task\u2019s core deliverables are therefore\
     \ missing."
+T036:
+  c: false
+  h: a0c5d620aa388651ac9a6c88b3a66ae893f5dab06756d35f0c0ea236157f01af
+  r: The repository lacks a `calculate_validity_improvement()` implementation in `code/05_statistical_analysis.py`
+    (the shown code is truncated and does not contain that function), and the required
+    output file `data/results/validity_metrics.json` is absent. Both the core function
+    and its result file are missing, so the task is not satisfied.
+T037:
+  c: false
+  h: 7499b10e8486c31ec35f65e15deae274bb5878fd96f59eed76b38b6a0ca7e30c
+  r: "The repository lacks the required `data/results/analysis_report.md` file, and\
+    \ the provided `code/05_statistical_analysis.py` does not contain any assertion\
+    \ or parser logic that checks for the phrase \u201Cassociational, not causal\u201D\
+    . Both the artifact and the verification code are missing, so the task is not\
+    \ satisfied."
 T044:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -102,22 +118,6 @@ T048:
   r: The required `state/manifest.yaml` file is missing entirely, so no checksum information
     is present to satisfy the update task. The implementer must create the file and
     populate it with the final artifact checksums.
-T059a:
-  c: false
-  h: 0500e4cf71f76227d3be0c9a4ff354694d17faea09f843255dd29aa6b80fc0c6
-  r: "The repository contains a partially\u2011implemented `code/04_evaluation_loader.py`,\
-    \ but the required input file `data/results/generated_proposals.jsonl` is absent,\
-    \ and the expected output `data/results/blinded_batches.csv` was never created.\
-    \ Without real proposal data the script cannot generate the blinded CSV, so the\
-    \ task\u2019s core requirement is unmet."
-T059b:
-  c: false
-  h: 46752f94ff10e40b1112d47b0ae870e492ecb2ff3e7a3b2f313a288e6a07c605
-  r: "The repository lacks the required `data/results/ratings_filled.csv` file, and\
-    \ the `code/04_evaluation_loader.py` script does not contain a deterministic mock\u2011\
-    ratings generator that writes this CSV (the file is missing and the code is truncated\
-    \ before any such functionality). Consequently the task\u2019s output artifact\
-    \ is absent."
 T065:
   c: false
   h: d382a16bf0ae4bdbaf7bc81bf71d4f0345f442a40334d1b869350b8bbb7bb4c5

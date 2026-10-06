@@ -1,9 +1,6 @@
 """
-Error Handling Module for llmXive Research Pipeline.
-
-Defines custom exceptions for various failure modes in the data pipeline.
+Custom exception classes for the llmXive research pipeline.
 """
-
 import logging
 from typing import Optional, List, Dict, Any, Callable, TypeVar
 from urllib.error import URLError
@@ -14,116 +11,114 @@ from requests.exceptions import RequestException, Timeout, ConnectionError
 logger = logging.getLogger(__name__)
 
 class DataFetchError(Exception):
-    """Raised when data fetching fails (network, API, or content issues)."""
-    pass
+    """Raised when data fetching fails due to network errors, paywalls, or invalid responses."""
+    def __init__(self, message: str, venue: Optional[str] = None, status_code: Optional[int] = None):
+        self.venue = venue
+        self.status_code = status_code
+        full_message = message
+        if venue:
+            full_message += f" (Venue: {venue})"
+        if status_code:
+            full_message += f" (Status: {status_code})"
+        super().__init__(full_message)
+        logger.error(f"DataFetchError: {full_message}")
+
 
 class ValidationError(Exception):
-    """Raised when data validation fails (schema, format, or logical errors)."""
+    """Raised when data validation fails (schema, format, or business rules)."""
     pass
+
 
 class BalanceError(Exception):
-    """Raised when data sampling fails to achieve target balance."""
+    """Raised when dataset extraction fails to meet balance requirements."""
     pass
+
 
 class DesignViolationError(Exception):
-    """Raised when a design constraint is violated (e.g., wrong proposal groups)."""
+    """Raised when a generated artifact violates the experimental design constraints."""
     pass
+
 
 class VerificationError(Exception):
-    """Raised when verification processes fail (e.g., ORCID, signature)."""
+    """Raised when a verification step (e.g., blind check, fabrication guard) fails."""
     pass
+
 
 class IRRGateFailError(Exception):
-    """Raised when Inter-Rater Reliability gate fails."""
-    pass
-
-def validate_data_response(response: requests.Response, expected_content_type: Optional[str] = None) -> bool:
     """
-    Validate a requests response for successful status and content type.
-    
-    Args:
-        response: The requests.Response object.
-        expected_content_type: Optional expected content type (e.g., 'application/json').
-        
-    Returns:
-        True if valid, False otherwise.
-        
-    Raises:
-        DataFetchError: If validation fails.
+    Raised when the Inter-Rater Reliability (IRR) gate fails.
+    This is a hard blocking constraint per Constitution Principle VII.
     """
-    if response.status_code == 403:
-        raise DataFetchError(f"Access forbidden (403): {response.url}")
-    elif response.status_code == 404:
-        raise DataFetchError(f"Not found (404): {response.url}")
-    elif response.status_code >= 400:
-        raise DataFetchError(f"HTTP error {response.status_code}: {response.text[:200]}")
-    
-    if expected_content_type and expected_content_type not in response.headers.get('Content-Type', ''):
-        raise DataFetchError(
-            f"Unexpected content type: expected '{expected_content_type}', "
-            f"got '{response.headers.get('Content-Type')}'"
+    def __init__(self, message: str, alpha_value: float, detailed_log: Optional[Dict[str, Any]] = None):
+        self.alpha_value = alpha_value
+        self.detailed_log = detailed_log or {}
+        full_message = (
+            f"{message} "
+            f"Calculated Krippendorff's alpha: {alpha_value:.4f} (Threshold: >= 0.6). "
+            f"The pipeline cannot proceed to statistical analysis due to insufficient inter-rater reliability."
         )
-    
-    return True
+        super().__init__(full_message)
+        logger.critical(f"IRRGateFailError: {full_message}")
+        if detailed_log:
+            logger.critical(f"IRR Details: {detailed_log}")
 
-def fetch_with_strict_handling(
-    url: str,
-    method: str = 'GET',
-    expected_content_type: Optional[str] = None,
-    headers: Optional[Dict[str, str]] = None,
-    timeout: int = 30
-) -> requests.Response:
+
+def validate_data_response(response: requests.Response, expected_status: int = 200) -> None:
     """
-    Fetch data from a URL with strict error handling.
-    
-    Args:
-        url: The URL to fetch.
-        method: HTTP method (GET, POST, etc.).
-        expected_content_type: Expected content type.
-        headers: Optional headers.
-        timeout: Request timeout in seconds.
-        
-    Returns:
-        The requests.Response object.
-        
-    Raises:
-        DataFetchError: For any fetch failure.
+    Validates an HTTP response and raises DataFetchError if it fails.
+    """
+    if response.status_code != expected_status:
+        raise DataFetchError(
+            f"Unexpected status code {response.status_code}",
+            status_code=response.status_code
+        )
+    if "text/html" in response.headers.get("Content-Type", ""):
+        # Likely a login page or error page
+        raise DataFetchError(
+            "Received HTML instead of expected data format (likely a login page or error)",
+            status_code=response.status_code
+        )
+
+
+def fetch_with_strict_handling(url: str, **kwargs) -> requests.Response:
+    """
+    Fetches data with strict error handling.
+    Raises DataFetchError on any failure.
     """
     try:
-        response = requests.request(method, url, headers=headers, timeout=timeout)
-        validate_data_response(response, expected_content_type)
+        response = requests.get(url, **kwargs)
+        validate_data_response(response)
         return response
-        
-    except (Timeout, ConnectionError) as e:
-        raise DataFetchError(f"Network error fetching {url}: {e}")
-    except requests.exceptions.RequestException as e:
-        raise DataFetchError(f"Request failed fetching {url}: {e}")
-    except ValueError as e:
-        raise DataFetchError(f"Invalid response handling for {url}: {e}")
+    except (RequestException, Timeout, ConnectionError) as e:
+        raise DataFetchError(f"Network error fetching {url}: {str(e)}")
+    except DataFetchError:
+        raise
+    except Exception as e:
+        raise DataFetchError(f"Unexpected error fetching {url}: {str(e)}")
+
 
 def handle_fetch_failure(
     url: str,
     error: Exception,
-    venue_name: Optional[str] = None,
-    context: Optional[str] = None
-) -> None:
+    venue_name: str,
+    fallback_url: Optional[str] = None,
+    max_retries: int = 0
+) -> Optional[requests.Response]:
     """
-    Handle and log a fetch failure with context.
-    
-    Args:
-        url: The URL that failed.
-        error: The exception that occurred.
-        venue_name: Optional name of the data source/venue.
-        context: Optional additional context.
+    Handles fetch failures.
+    If fallback is provided and retries exhausted, attempts fallback.
+    Otherwise, raises DataFetchError.
     """
-    msg_parts = [f"Data fetch failed for {url}"]
-    if venue_name:
-        msg_parts.append(f"(Venue: {venue_name})")
-    if context:
-        msg_parts.append(f"({context})")
-    
-    msg = " ".join(msg_parts)
-    logger.error(f"{msg}: {error}")
-    
-    # Raise a more descriptive error
-    raise DataFetchError(f"{msg}: {error}")
+    logger.warning(f"Fetch failed for {venue_name} ({url}): {error}")
+
+    if fallback_url and max_retries > 0:
+        logger.info(f"Attempting fallback for {venue_name}: {fallback_url}")
+        try:
+            return fetch_with_strict_handling(fallback_url)
+        except Exception as fallback_error:
+            logger.error(f"Fallback also failed for {venue_name}: {fallback_error}")
+
+    raise DataFetchError(
+        f"Failed to fetch data from {venue_name} after retries.",
+        venue=venue_name
+    )

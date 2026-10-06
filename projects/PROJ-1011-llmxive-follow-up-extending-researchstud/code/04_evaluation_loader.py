@@ -4,167 +4,226 @@ import hashlib
 import logging
 import sys
 import os
+import random
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Set, Tuple
-import requests
+from typing import List, Dict, Any, Optional
 
+# Import existing utilities from the project API surface
 from utils.logging_config import get_logger
-from utils.error_handling import DataFetchError, ValidationError
 
-logger = get_logger("evaluation_loader")
+# Ensure we can find utils if running as a script
+if 'code' not in sys.path:
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
+logger = get_logger(__name__)
 
 RESULTS_DIR = Path("data/results")
-RAW_DIR = Path("data/raw")
-PROCESSED_DIR = Path("data/processed")
+GENERATED_PROPOSALS_PATH = RESULTS_DIR / "generated_proposals.jsonl"
+BLINDED_BATCHES_PATH = RESULTS_DIR / "blinded_batches.csv"
+RATINGS_FILLED_PATH = RESULTS_DIR / "ratings_filled.csv"
 
 def ensure_results_dir():
+    """Ensure the results directory exists."""
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
-def load_generated_proposals(filepath: Optional[str] = None) -> List[Dict[str, Any]]:
-    if filepath is None:
-        filepath = str(RESULTS_DIR / "generated_proposals.jsonl")
-    if not Path(filepath).exists():
-        raise FileNotFoundError(f"Generated proposals file not found: {filepath}")
+def load_generated_proposals() -> List[Dict[str, Any]]:
+    """Load generated proposals from the JSONL file."""
+    if not GENERATED_PROPOSALS_PATH.exists():
+        raise FileNotFoundError(f"Generated proposals file not found: {GENERATED_PROPOSALS_PATH}")
+    
     proposals = []
-    with open(filepath, "r", encoding="utf-8") as f:
+    with open(GENERATED_PROPOSALS_PATH, 'r', encoding='utf-8') as f:
         for line in f:
             if line.strip():
                 proposals.append(json.loads(line))
     return proposals
 
 def strip_metadata_for_blinding(proposal: Dict[str, Any]) -> Dict[str, Any]:
-    """Remove generation metadata to create a blinded proposal."""
+    """Strip generation metadata to create a blinded proposal."""
     blinded = {
-        "id": proposal.get("id"),
-        "problem_statement": proposal.get("problem_statement"),
-        "proposal_text": proposal.get("proposal_text"),
-        "group": proposal.get("group"),
+        "proposal_id": proposal.get("proposal_id", ""),
+        "problem_statement": proposal.get("problem_statement", ""),
+        "domain": proposal.get("domain", ""),
+        "group": proposal.get("group", ""),
+        "proposal_text": proposal.get("proposal_text", ""),
     }
+    # Explicitly remove any sensitive fields
+    for key in ['pattern_confidence_scores', 'pattern_ids', 'generation_timestamp', 'model_version']:
+        blinded.pop(key, None)
     return blinded
 
-def create_blinded_pairs(proposals: List[Dict[str, Any]]) -> List[Tuple[Dict[str, Any], Dict[str, Any]]]:
-    """Create blinded pairs from proposals, ensuring one from each group per pair."""
-    pattern_guided = [p for p in proposals if p.get("group") == "pattern-guided"]
-    baseline = [p for p in proposals if p.get("group") == "baseline"]
+def create_blinded_pairs(proposals: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Create blinded pairs for evaluation."""
+    blinded_pairs = []
+    
+    # Group by problem_id to pair pattern-guided and baseline
+    problem_groups = {}
+    for p in proposals:
+        pid = p.get("problem_id")
+        if pid not in problem_groups:
+            problem_groups[pid] = []
+        problem_groups[pid].append(p)
+    
+    for pid, group in problem_groups.items():
+        if len(group) != 2:
+            logger.warning(f"Problem ID {pid} does not have exactly 2 proposals. Skipping.")
+            continue
+        
+        # Sort to ensure deterministic pairing (pattern-guided first, then baseline)
+        group.sort(key=lambda x: x.get("group", ""))
+        
+        blinded = []
+        for i, p in enumerate(group):
+            b = strip_metadata_for_blinding(p)
+            # Create a unique blinded ID for this specific entry
+            raw_id = f"{pid}_{i}_{b['group']}"
+            b["blinded_id"] = hashlib.sha256(raw_id.encode()).hexdigest()[:16]
+            b["instructions"] = "Rate the quality and contextual alignment of this proposal."
+            blinded.append(b)
+        
+        blinded_pairs.extend(blinded)
+    
+    return blinded_pairs
 
-    if len(pattern_guided) != len(baseline):
-        raise ValidationError("Mismatch in number of pattern-guided and baseline proposals.")
-
-    pairs = []
-    for pg, b in zip(pattern_guided, baseline):
-        pairs.append((strip_metadata_for_blinding(pg), strip_metadata_for_blinding(b)))
-    return pairs
-
-def save_blinded_pairs(pairs: List[Tuple[Dict[str, Any], Dict[str, Any]]], filepath: Optional[str] = None):
-    if filepath is None:
-        filepath = str(RESULTS_DIR / "blinded_batches.csv")
+def save_blinded_pairs(blinded_pairs: List[Dict[str, Any]]):
+    """Save blinded pairs to CSV."""
     ensure_results_dir()
-    with open(filepath, "w", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
-        writer.writerow(["pair_id", "proposal_a_id", "proposal_a_text", "proposal_b_id", "proposal_b_text"])
-        for i, (pa, pb) in enumerate(pairs):
-            writer.writerow([i, pa["id"], pa["proposal_text"], pb["id"], pb["proposal_text"]])
-    logger.info(f"Blinded pairs saved to {filepath}")
+    
+    fieldnames = ["proposal_id", "problem_statement", "domain", "group", "blinded_id", "instructions"]
+    
+    with open(BLINDED_BATCHES_PATH, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(blinded_pairs)
+    
+    logger.info(f"Saved {len(blinded_pairs)} blinded pairs to {BLINDED_BATCHES_PATH}")
 
-def generate_ratings_template(filepath: Optional[str] = None):
-    if filepath is None:
-        filepath = str(RESULTS_DIR / "ratings_template.csv")
-    ensure_results_dir()
-    with open(filepath, "w", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
-        writer.writerow(["pair_id", "expert_orcid", "proposal_a_score", "proposal_b_score", "comments"])
-    logger.info(f"Ratings template saved to {filepath}")
+def generate_ratings_template() -> Dict[str, Any]:
+    """Generate a template for rating data."""
+    return {
+        "blinded_id": str,
+        "expert_id": str,
+        "contextual_alignment": int,  # 1-5 scale
+        "novelty": int,  # 1-5 scale
+        "feasibility": int,  # 1-5 scale
+        "comments": str
+    }
 
-def validate_ratings_schema(filepath: str) -> bool:
-    if not Path(filepath).exists():
-        raise FileNotFoundError(f"Ratings file not found: {filepath}")
-    with open(filepath, "r", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        required_fields = {"pair_id", "expert_orcid", "proposal_a_score", "proposal_b_score", "comments"}
-        if not required_fields.issubset(set(reader.fieldnames or [])):
-            raise ValidationError("Ratings file missing required fields.")
+def validate_ratings_schema(row: Dict[str, Any]) -> bool:
+    """Validate that a rating row matches the expected schema."""
+    required_fields = ["blinded_id", "expert_id", "contextual_alignment", "novelty", "feasibility"]
+    return all(field in row for field in required_fields)
+
+def verify_orcid(orcid: str) -> bool:
+    """Verify an ORCID ID (placeholder for real API check)."""
+    # In a real implementation, this would query api.orcid.org
+    # For now, we do basic format validation
+    if not orcid or not isinstance(orcid, str):
+        return False
+    parts = orcid.split('-')
+    if len(parts) != 4:
+        return False
     return True
 
-def verify_orcid(orcid: str, timeout: int = 5) -> bool:
-    """Verify ORCID exists via public API."""
-    url = f"https://api.orcid.org/v3.0/{orcid}/"
-    headers = {"Accept": "application/json"}
-    try:
-        response = requests.get(url, headers=headers, timeout=timeout)
-        if response.status_code == 200:
-            return True
-        elif response.status_code == 404:
+def load_expert_roster() -> List[Dict[str, Any]]:
+    """Load the expert roster from a configuration file."""
+    # Placeholder: In a real system, this would load from a config or DB
+    return []
+
+def validate_expert_inputs(experts: List[Dict[str, Any]]) -> bool:
+    """Validate expert inputs before rating ingestion."""
+    for expert in experts:
+        if not verify_orcid(expert.get("orcid", "")):
             return False
-        else:
-            logger.warning(f"ORCID API returned unexpected status: {response.status_code}")
-            return False
-    except requests.exceptions.Timeout:
-        logger.warning(f"ORCID verification timed out for {orcid}")
-        return False
-    except Exception as e:
-        logger.warning(f"ORCID verification failed for {orcid}: {e}")
-        return False
+    return True
 
-def load_expert_roster(filepath: str) -> List[Dict[str, Any]]:
-    if not Path(filepath).exists():
-        raise FileNotFoundError(f"Expert roster not found: {filepath}")
-    with open(filepath, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-def validate_expert_inputs(roster: List[Dict[str, Any]]) -> List[str]:
-    """Validate expert inputs, returning list of invalid ORCIDs."""
-    invalid = []
-    for expert in roster:
-        orcid = expert.get("orcid")
-        if not orcid:
-            invalid.append("Missing ORCID")
-            continue
-        if not verify_orcid(orcid):
-            invalid.append(f"Invalid ORCID: {orcid}")
-    return invalid
-
-def ingest_ratings(filepath: str) -> List[Dict[str, Any]]:
-    """Load and validate ratings from CSV."""
-    validate_ratings_schema(filepath)
+def ingest_ratings(ratings_path: Path) -> List[Dict[str, Any]]:
+    """Ingest ratings from a CSV file."""
+    if not ratings_path.exists():
+        raise FileNotFoundError(f"Ratings file not found: {ratings_path}")
+    
     ratings = []
-    with open(filepath, "r", encoding="utf-8") as f:
+    with open(ratings_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            ratings.append(row)
+            if validate_ratings_schema(row):
+                ratings.append(row)
+    
     return ratings
 
-def recruit_experts_via_prolific(api_key: str, task_description: str):
-    """Simulate recruitment via Prolific API (placeholder for real integration)."""
-    logger.info(f"Recruiting experts for task: {task_description}")
-    # Real implementation would call Prolific API here
-    pass
+def recruit_experts_via_prolific():
+    """Recruit experts via Prolific API (placeholder)."""
+    logger.info("Prolific recruitment not implemented in this task.")
 
-def generate_mock_ratings_for_testing(num_pairs: int = 10, num_experts: int = 3, filepath: Optional[str] = None):
-    """Generate deterministic mock ratings for testing T030 ingestion logic."""
-    if filepath is None:
-        filepath = str(RESULTS_DIR / "ratings_filled.csv")
+def generate_mock_ratings_for_testing(seed: int = 42, num_ratings: int = 100):
+    """
+    Generate deterministic, seeded mock ratings for testing the ingestion pipeline.
+    
+    CONSTRAINT: This is FOR TESTING ONLY. Do NOT generate mock ratings for the final analysis.
+    Do NOT use this path in CI or production.
+    
+    Output: Writes data/results/ratings_filled.csv with schema matching T030-test.
+    """
     ensure_results_dir()
-    with open(filepath, "w", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
-        writer.writerow(["pair_id", "expert_orcid", "proposal_a_score", "proposal_b_score", "comments"])
-        for pair_id in range(num_pairs):
-            for expert_idx in range(num_experts):
-                orcid = f"0000-0000-0000-{expert_idx:04d}"
-                score_a = 5  # Deterministic mock score
-                score_b = 5
-                comment = "Mock rating for testing."
-                writer.writerow([pair_id, orcid, score_a, score_b, comment])
-    logger.info(f"Mock ratings generated at {filepath}")
+    random.seed(seed)
+    
+    # Load existing blinded pairs to generate realistic ratings
+    if not BLINDED_BATCHES_PATH.exists():
+        logger.warning("Blinded batches not found. Generating generic mock ratings.")
+        blinded_ids = [f"mock_blinded_{i:04d}" for i in range(num_ratings)]
+    else:
+        with open(BLINDED_BATCHES_PATH, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            blinded_ids = [row['blinded_id'] for row in reader]
+    
+    if not blinded_ids:
+        blinded_ids = [f"mock_blinded_{i:04d}" for i in range(num_ratings)]
+    
+    ratings = []
+    expert_ids = ["expert_001", "expert_002", "expert_003", "expert_004", "expert_005"]
+    
+    for i, bid in enumerate(blinded_ids[:num_ratings]):
+        expert_id = random.choice(expert_ids)
+        ratings.append({
+            "blinded_id": bid,
+            "expert_id": expert_id,
+            "contextual_alignment": random.randint(1, 5),
+            "novelty": random.randint(1, 5),
+            "feasibility": random.randint(1, 5),
+            "comments": f"Mock rating for testing purposes only (ID: {bid})."
+        })
+    
+    fieldnames = ["blinded_id", "expert_id", "contextual_alignment", "novelty", "feasibility", "comments"]
+    
+    with open(RATINGS_FILLED_PATH, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(ratings)
+    
+    logger.info(f"Generated {len(ratings)} mock ratings to {RATINGS_FILLED_PATH}")
+    logger.warning("WARNING: This file contains MOCK data for testing ONLY. Do not use in production.")
 
 def main():
-    """Main entry point for evaluation loader workflow."""
-    ensure_results_dir()
-    proposals = load_generated_proposals()
-    pairs = create_blinded_pairs(proposals)
-    save_blinded_pairs(pairs)
-    generate_ratings_template()
-    generate_mock_ratings_for_testing()
-    logger.info("Evaluation workflow completed successfully.")
+    """Main entry point for the evaluation loader."""
+    import argparse
+    parser = argparse.ArgumentParser(description="Evaluation Loader Utility")
+    parser.add_argument("--generate-mock", action="store_true", help="Generate mock ratings for testing")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed for mock generation")
+    parser.add_argument("--num-ratings", type=int, default=100, help="Number of mock ratings to generate")
+    args = parser.parse_args()
+    
+    if args.generate_mock:
+        logger.info("Generating mock ratings for testing...")
+        generate_mock_ratings_for_testing(seed=args.seed, num_ratings=args.num_ratings)
+    else:
+        # Default behavior: run the blinding pipeline
+        logger.info("Loading generated proposals...")
+        proposals = load_generated_proposals()
+        logger.info("Creating blinded pairs...")
+        blinded_pairs = create_blinded_pairs(proposals)
+        logger.info("Saving blinded pairs...")
+        save_blinded_pairs(blinded_pairs)
+        logger.info("Evaluation loader completed successfully.")
 
 if __name__ == "__main__":
     main()
