@@ -30,7 +30,7 @@ This project implements a deterministic, CPU-tractable simulation pipeline to op
 | Principle | Compliance Status | Evidence/Action |
 |-----------|-------------------|-----------------|
 | **I. Reproducibility** | **PASS** | All random seeds pinned in `code/`; external datasets (NIST hardcoded, NASA POWER API) fetched from canonical sources; `requirements.txt` pins versions. |
-| **II. Verified Accuracy** | **PASS** | Citations to NIST, NASA POWER, and Duffie & Beckman (2020) will be validated by the Reference-Validator Agent against primary sources before review points are awarded. |
+| **II. Verified Accuracy** | **PASS** | Citations to NIST, NASA POWER, and Duffie & Beckman will be validated by the Reference-Validator Agent against primary sources before review points are awarded. |
 | **III. Data Hygiene** | **PASS** | Raw API responses saved to `data/raw/` with checksums; derived CSVs in `data/processed/`; no in-place modification. |
 | **IV. Single Source of Truth** | **PASS** | All figures/stats in final paper trace to `data/processed/simulation_results.csv` and `code/` scripts. No hand-typed numbers. |
 | **V. Versioning Discipline** | **PASS** | Artifacts under `data/` and `code/` carry content hashes; state file updated on changes. |

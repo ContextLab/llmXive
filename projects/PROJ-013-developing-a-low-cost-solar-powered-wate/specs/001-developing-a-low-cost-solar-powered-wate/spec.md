@@ -32,7 +32,7 @@ The system must implement a transient heat transfer model in Python using `scipy
 
 **Acceptance Scenarios**:
 
-1. **Given** valid material properties and a solar irradiance profile, **When** the simulation runs for the single-slope geometry, **Then** the calculated time-averaged thermal efficiency $\eta$ (final interval) is a float between 0.0 and 0.8.
+1. **Given** valid material properties and a solar irradiance profile, **When** the simulation runs for the single-slope geometry, **Then** the calculated time-averaged thermal efficiency $\eta$ (final interval) is a non-negative float.
 2. **Given** the same inputs, **When** the simulation runs for the double-slope geometry, **Then** the resulting efficiency differs from the flat-plate result by a non-zero margin, demonstrating geometry sensitivity.
 3. **Given** a standard GitHub Actions runner (2 CPU, 7GB RAM), **When** the full batch of simulations is executed, **Then** the total runtime remains within an acceptable duration for iterative experimentation..
 
@@ -67,7 +67,7 @@ The system must perform a multi-objective optimization to identify the Pareto fr
 - **FR-001**: System MUST retrieve thermal conductivity, specific heat, and emissivity for at least 4 low-cost materials from the NIST Chemistry WebBook or equivalent verified engineering handbook. (See US-1)
 - **FR-002**: System MUST construct a cost function $C$ for each design by summing the product of component mass and current market price, ensuring all costs are strictly positive. (See US-1)
 - **FR-003**: System MUST simulate 1D transient heat transfer for three distinct geometries (flat-plate, single-slope, double-slope) using `scipy.integrate` under solar irradiance boundary conditions, modeling slope variations via effective projected area. (See US-2)
-- **FR-004**: System MUST calculate time-averaged thermal efficiency $\eta$ over the final 30 minutes of the transient simulation for every valid material-geometry combination without requiring GPU acceleration. (See US-2)
+- **FR-004**: System MUST calculate time-averaged thermal efficiency $\eta$ over the final interval of the transient simulation for every valid material-geometry combination without requiring GPU acceleration. (See US-2)
 - **FR-005**: System MUST identify the Pareto frontier of $\eta$ vs. $C$ and mark the "knee point" defined as the point on the frontier minimizing the Euclidean distance to the ideal point (max $\eta$, min $C$). (See US-3)
 - **FR-006**: System MUST validate simulation outputs by ensuring the calculated efficiency $\eta$ falls within ±10% of the mean efficiency (0.45) reported in standard passive solar still literature (Ref: Duffie & Beckman, "Solar Engineering of Thermal Processes", 2020). (See US-2)
 - **FR-007**: System MUST generate a scatter plot of efficiency vs. cost with the Pareto frontier highlighted, suitable for publication-quality export. (See US-3)

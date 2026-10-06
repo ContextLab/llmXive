@@ -1,10 +1,11 @@
 T012:
   c: false
-  h: 4cf24dff1593a887056a3c48ecc9cd172cb2a5f1ca3989ec8e4f707b8ee56878
-  r: "The required output files `data/raw/nist_materials.json` and its `.sha256` checksum\
-    \ are absent, and the provided `code/data_ingestion.py` (as shown) contains no\
-    \ logic that fetches NIST data, writes the JSON file, or generates the checksum.\
-    \ Consequently the task\u2019s core requirement is not fulfilled."
+  h: 9129ebbe56aa030f74ba0838ea1f465c7bbea36d335e7c84feea6e8f106f197f
+  r: "The repository lacks the required `data/raw/nist_materials.json` and its `.sha256`\
+    \ checksum file, and the provided `code/data_ingestion.py` contains placeholder\
+    \ logic (dummy data, single\u2011material fetch, no caching or checksum verification,\
+    \ and no aggregation of the four specified materials). The script does not fulfill\
+    \ the fetching, validation, and storage requirements described in the task."
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

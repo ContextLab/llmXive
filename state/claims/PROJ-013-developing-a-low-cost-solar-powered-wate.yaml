@@ -383,23 +383,6 @@
   updated_at: '2026-10-02T01:46:52Z'
 - artifact_path: projects/PROJ-013-developing-a-low-cost-solar-powered-wate/specs/001-developing-a-low-cost-solar-powered-wate/tasks.md
   attempts: 1
-  canonical: simulation efficiency range 0.0 to 0.8
-  claim_id: c_3fa43fd9
-  context: "Independent Test: Run the simulation with fixed inputs (Aluminum, single-slope)\
-    \ and verify that output efficiency \u03B7 is between 0.0 and 0.8, and the simulation\
-    \ completes within 60 seconds on CPU."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The simulation output efficiency is expected to be between 0.0 and 0.8.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-10-02T01:46:58Z'
-- artifact_path: projects/PROJ-013-developing-a-low-cost-solar-powered-wate/specs/001-developing-a-low-cost-solar-powered-wate/tasks.md
-  attempts: 1
   canonical: simulation runtime under 60 seconds
   claim_id: c_629524f7
   context: "Independent Test: Run the simulation with fixed inputs (Aluminum, single-slope)\
@@ -416,3 +399,276 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-02T01:47:06Z'
+- artifact_path: projects/PROJ-013-developing-a-low-cost-solar-powered-wate/specs/001-developing-a-low-cost-solar-powered-wate/tasks.md
+  attempts: 1
+  canonical: "fallback solar irradiance average 550 W/m\xB2"
+  claim_id: c_87b35832
+  context: "Fallback Logic: If the API returns < 30 days of historical data, default\
+    \ to a hardcoded representative average of 550 W/m\xB2 (Reference: Plan Summary\
+    \ - Representative Average Note)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If the API returns < 30 days of historical data, default to a hardcoded\
+    \ representative average of 550 W/m\xB2."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T09:39:18Z'
+- artifact_path: projects/PROJ-013-developing-a-low-cost-solar-powered-wate/specs/001-developing-a-low-cost-solar-powered-wate/tasks.md
+  attempts: 1
+  canonical: simulation runtime limit 60 seconds
+  claim_id: c_2caca369
+  context: "Independent Test: Run the simulation with fixed inputs (Aluminum, single-slope)\
+    \ and verify that output efficiency \u03B7 is between 0.0 and 0.8, and the simulation\
+    \ completes within 60 seconds on CPU."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the simulation completes within 60 seconds on CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T09:40:20Z'
+- artifact_path: projects/PROJ-013-developing-a-low-cost-solar-powered-wate/specs/001-developing-a-low-cost-solar-powered-wate/tasks.md
+  attempts: 1
+  canonical: "efficiency validation range 0.45 \xB110% Duffie Beckman"
+  claim_id: c_d04da58d
+  context: "Perform Secondary Validation (FR-006): Check if calculated efficiency\
+    \ \u03B7 falls within \xB110% of the mean efficiency (0.45) from Duffie & Beckman\
+    \ (Solar Engineering of Thermal Processes, Chapter 10, Section 10.2)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Check if calculated efficiency \u03B7 falls within \xB110% of the mean\
+    \ efficiency (0.45) from Duffie & Beckman."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T09:40:20Z'
+- artifact_path: projects/PROJ-013-developing-a-low-cost-solar-powered-wate/specs/001-developing-a-low-cost-solar-powered-wate/tasks.md
+  attempts: 1
+  canonical: batch simulation 12 combinations runtime limit 180 seconds
+  claim_id: c_3ad7aa5d
+  context: "Run batch simulation for all material-geometry combinations (3 geometries\
+    \ \xD7 4 materials = 12 combinations); ensure total runtime < 180 seconds on CPU."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run batch simulation for all material-geometry combinations (3 geometries\
+    \ \xD7 4 materials = 12 combinations); ensure total runtime < 180 seconds on CPU."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T09:40:47Z'
+- artifact_path: projects/PROJ-013-developing-a-low-cost-solar-powered-wate/specs/001-developing-a-low-cost-solar-powered-wate/tasks.md
+  attempts: 1
+  canonical: "default solar irradiance 550 W/m\xB2 if < 30 days data"
+  claim_id: c_980828dc
+  context: "Boundary Condition: This data provides the boundary conditions for the\
+    \ 'view factors' and 'convective coefficients' modeling (See T020b deviation).\
+    \ Fallback Logic: If the API returns < 30 days of historical data, default to\
+    \ a hardcoded representative average of 550 W/m\xB2 (Reference: Plan Summary -\
+    \ Representative Average Note)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If the API returns < 30 days of historical data, default to a hardcoded\
+    \ representative average of 550 W/m\xB2."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T09:42:33Z'
+- artifact_path: projects/PROJ-013-developing-a-low-cost-solar-powered-wate/specs/001-developing-a-low-cost-solar-powered-wate/tasks.md
+  attempts: 1
+  canonical: cost function formula C = sum(mass_i * price_i)
+  claim_id: c_6553713b
+  context: "Implement cost function logic in code/data_ingestion.py: Calculate total\
+    \ cost C for a specific geometry by suming (mass \xD7 price) for all components,\
+    \ ensuring all costs are strictly positive. Strictly follow spec: C = sum(mass_i\
+    \ * price_i) without additional complexity factors."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cost_function_formula_C_%3D_sum(mass_i_*_price_i)
+  kind: entity_fact
+  raw_text: "Calculate total cost C for a specific geometry by suming (mass \xD7 price)\
+    \ for all components."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T09:43:04Z'
+- artifact_path: projects/PROJ-013-developing-a-low-cost-solar-powered-wate/specs/001-developing-a-low-cost-solar-powered-wate/tasks.md
+  attempts: 3
+  canonical: simulation efficiency range 0.0 to 0.8
+  claim_id: c_3fa43fd9
+  context: "Independent Test: Run the simulation with fixed inputs (Aluminum, single-slope)\
+    \ and verify that output efficiency \u03B7 is between 0.0 and 0.8, and the simulation\
+    \ completes within 60 seconds on CPU."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation output efficiency is expected to be between 0.0 and 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T09:43:04Z'
+- artifact_path: projects/PROJ-013-developing-a-low-cost-solar-powered-wate/specs/001-developing-a-low-cost-solar-powered-wate/tasks.md
+  attempts: 1
+  canonical: "efficiency validation range 0.45 \xB1 10% from Duffie & Beckman"
+  claim_id: c_be062684
+  context: "Perform Secondary Validation (FR-006): Check if calculated efficiency\
+    \ \u03B7 falls within \xB110% of the mean efficiency (0.45) from Duffie & Beckman\
+    \ (Solar Engineering of Thermal Processes, Chapter 10, Section 10.2)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Check if calculated efficiency \u03B7 falls within \xB110% of the mean\
+    \ efficiency (0.45) from Duffie & Beckman."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T09:43:04Z'
+- artifact_path: projects/PROJ-013-developing-a-low-cost-solar-powered-wate/specs/001-developing-a-low-cost-solar-powered-wate/tasks.md
+  attempts: 1
+  canonical: batch simulation 12 combinations runtime < 180 seconds
+  claim_id: c_72db37c2
+  context: "Run batch simulation for all material-geometry combinations (3 geometries\
+    \ \xD7 4 materials = 12 combinations); ensure total runtime < 180 seconds on CPU.\
+    \ Artifact: Generate data/processed/batch_runtime_log.json with runtime metrics."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run batch simulation for all material-geometry combinations (3 geometries\
+    \ \xD7 4 materials = 12 combinations); ensure total runtime < 180 seconds on CPU."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T09:43:04Z'
+- artifact_path: projects/PROJ-013-developing-a-low-cost-solar-powered-wate/specs/001-developing-a-low-cost-solar-powered-wate/tasks.md
+  attempts: 1
+  canonical: "default to 550 W/m\xB2 if less than 30 days of data available"
+  claim_id: c_0c06d86a
+  context: "Boundary Condition: This data provides the boundary conditions for the\
+    \ 'view factors' and 'convective coefficients' modeling (See T020b deviation).\
+    \ Fallback Logic: If the API returns < 30 days of historical data, default to\
+    \ a hardcoded representative average of 550 W/m\xB2 (Reference: Plan Summary -\
+    \ Representative Average Note)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Default_to_550_W/m%C2%B2_if_less_than_30_days_of_data_available
+  kind: magnitude
+  raw_text: "If the API returns < 30 days of historical data, default to a hardcoded\
+    \ representative average of 550 W/m\xB2"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T09:50:52Z'
+- artifact_path: projects/PROJ-013-developing-a-low-cost-solar-powered-wate/specs/001-developing-a-low-cost-solar-powered-wate/tasks.md
+  attempts: 1
+  canonical: "output efficiency \u03B7 between 0.0 and 0.8"
+  claim_id: c_2a421eef
+  context: "Independent Test: Run the simulation with fixed inputs (Aluminum, single-slope)\
+    \ and verify that output efficiency \u03B7 is between 0.0 and 0.8, and the simulation\
+    \ completes within 60 seconds on CPU."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that output efficiency \u03B7 is between 0.0 and 0.8"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T09:51:26Z'
+- artifact_path: projects/PROJ-013-developing-a-low-cost-solar-powered-wate/specs/001-developing-a-low-cost-solar-powered-wate/tasks.md
+  attempts: 1
+  canonical: simulation completes within 60 seconds on CPU
+  claim_id: c_7dd11934
+  context: "Independent Test: Run the simulation with fixed inputs (Aluminum, single-slope)\
+    \ and verify that output efficiency \u03B7 is between 0.0 and 0.8, and the simulation\
+    \ completes within 60 seconds on CPU."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: simulation completes within 60 seconds on CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T09:51:50Z'
+- artifact_path: projects/PROJ-013-developing-a-low-cost-solar-powered-wate/specs/001-developing-a-low-cost-solar-powered-wate/tasks.md
+  attempts: 1
+  canonical: "efficiency \u03B7 within 10% of mean 0.45 from Duffie & Beckman"
+  claim_id: c_cd42c081
+  context: "Perform Secondary Validation (FR-006): Check if calculated efficiency\
+    \ \u03B7 falls within \xB110% of the mean efficiency (0.45) from Duffie & Beckman\
+    \ (Solar Engineering of Thermal Processes, Chapter 10, Section 10.2)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Check if calculated efficiency \u03B7 falls within \xB110% of the mean\
+    \ efficiency (0.45) from Duffie & Beckman"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T09:51:50Z'
+- artifact_path: projects/PROJ-013-developing-a-low-cost-solar-powered-wate/specs/001-developing-a-low-cost-solar-powered-wate/tasks.md
+  attempts: 1
+  canonical: 12 material-geometry combinations simulated
+  claim_id: c_6e58291c
+  context: "Run batch simulation for all material-geometry combinations (3 geometries\
+    \ \xD7 4 materials = 12 combinations); ensure total runtime < 180 seconds on CPU."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "run batch simulation for all material-geometry combinations (3 geometries\
+    \ \xD7 4 materials = 12 combinations)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T09:52:19Z'
+- artifact_path: projects/PROJ-013-developing-a-low-cost-solar-powered-wate/specs/001-developing-a-low-cost-solar-powered-wate/tasks.md
+  attempts: 1
+  canonical: total runtime less than 180 seconds on CPU
+  claim_id: c_075ea6bb
+  context: "Run batch simulation for all material-geometry combinations (3 geometries\
+    \ \xD7 4 materials = 12 combinations); ensure total runtime < 180 seconds on CPU."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_runtime_less_than_180_seconds_on_CPU
+  kind: magnitude
+  raw_text: ensure total runtime < 180 seconds on CPU
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T09:52:42Z'

@@ -1,11 +1,13 @@
 status: none
-intent: download NIST Thermophysical Properties Database thermal conductivity specific
-  heat emissivity NIST Chemistry WebBook python package dataset
+intent: NIST Thermophysical Properties dataset for metals and polymers python package
+  dataset
 required_fields:
 - material_name
-- thermal_conductivity_W_mK
-- specific_heat_capacity_J_kgK
-- emissivity_dimensionless
-cache_key: 094da8b199a2f1d5fa382c2c0d0558dfb34856a2dfaccfb0b0cb72bb61909a7b
-searched_at: '2026-08-26T07:26:27.363915+00:00'
+- thermal_conductivity_W_per_mK
+- emissivity
+- specific_heat_J_per_kgK
+- reference_temperature_K
+- density_kg_per_m3
+cache_key: 736eb2f65028caa52536883fbafaee55fa9c34b7503fc8adf220dae576c0475b
+searched_at: '2026-10-06T09:38:26.903270+00:00'
 retry_count: 1
