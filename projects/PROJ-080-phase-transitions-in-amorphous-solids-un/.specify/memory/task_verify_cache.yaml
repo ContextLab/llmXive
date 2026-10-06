@@ -1,11 +1,18 @@
-T006:
+T004:
   c: false
-  h: b24f04524378696afcf11cca78b23a23d51ed15dcdd32fe3fffb4e5e9baee251
-  r: "The `code/data_generator.py` file is truncated and contains a stray `yield`\
-    \ statement, so it does not actually generate the HDF5 files, assign brittle/ductile\
-    \ labels, or write a `metadata.json`. Moreover, the required `data/raw/metadata.json`\
-    \ file is missing entirely. The task\u2019s output artifacts are therefore absent\
-    \ or non\u2011functional."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No Python code or configuration file was provided that sets up a `logging` logger
+    with a file handler to capture warnings for indeterminate trajectories. The required
+    logging infrastructure artifact is missing, so the task is not satisfied.
+T010:
+  c: false
+  h: 03614756993ea2f75367d6ecc69fd6e1e5d8c6b73f50ac6f809ea9dab2b8d3be
+  r: "The repository contains a `code/data_loader.py` with helper functions for computing\
+    \ a SHA\u2011256 hash and writing artifact hashes, but the file is truncated and\
+    \ never shows these functions being invoked on a downloaded/generated file, nor\
+    \ is there any evidence of the required state file (`state/projects/PROJ-080-phase-transitions-in-amorphous-solids-un.yaml`)\
+    \ being created. The missing state file means the checksum result is not actually\
+    \ persisted, so the task\u2019s core requirement is not satisfied."
 T017:
   c: false
   h: 709c8f5b91c92b431da37f591d5f3712cd7f2ae3923b3b63f2610a54eb3da8af

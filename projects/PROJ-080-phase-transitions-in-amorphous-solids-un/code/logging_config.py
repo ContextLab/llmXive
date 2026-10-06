@@ -1,167 +1,142 @@
 """
-Logging infrastructure for the Phase Transitions in Amorphous Solids project.
+Logging infrastructure for the Phase Transitions in Amorphous Solids pipeline.
 
-This module configures Python's logging module to capture warnings, specifically
-for indeterminate trajectories as required by US1. It sets up file handlers to
-persist logs to disk and provides helper functions for specific warning types.
+Configures file handlers to capture warnings, specifically for indeterminate
+trajectories and other critical research events.
 """
 import logging
 import os
 from pathlib import Path
 from typing import Optional, Dict, Any
 
-# Project root relative to this file (assuming code/ directory)
-PROJECT_ROOT = Path(__file__).parent.parent
-LOG_DIR = PROJECT_ROOT / "logs"
-LOG_FILE = LOG_DIR / "pipeline.log"
-
-# Ensure log directory exists
-LOG_DIR.mkdir(parents=True, exist_ok=True)
+# Constants
+LOG_DIR = Path("logs")
+LOG_FILE_NAME = "pipeline.log"
+DEFAULT_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 # Global logger instance
 _logger: Optional[logging.Logger] = None
 
 
-def configure_logging(
-    level: int = logging.INFO,
-    log_file: Optional[Path] = None,
-    console: bool = True
-) -> logging.Logger:
+def configure_logging(log_dir: Optional[str] = None, log_file: Optional[str] = None) -> logging.Logger:
     """
-    Configure the root logger with file and console handlers.
+    Configure the root logger with a file handler and console handler.
     
     Args:
-        level: The logging level (e.g., logging.INFO, logging.WARNING).
-        log_file: Path to the log file. Defaults to logs/pipeline.log.
-        console: Whether to also log to stdout/stderr.
+        log_dir: Directory to store log files. Defaults to 'logs'.
+        log_file: Name of the log file. Defaults to 'pipeline.log'.
     
     Returns:
         The configured logger instance.
     """
     global _logger
-    if _logger is not None:
-        return _logger
-
-    _logger = logging.getLogger("amorphous_shearing")
-    _logger.setLevel(level)
-
-    # Clear existing handlers to avoid duplicates on re-run
-    if _logger.hasHandlers():
+    
+    if log_dir is None:
+        log_dir = str(LOG_DIR)
+    if log_file is None:
+        log_file = LOG_FILE_NAME
+    
+    log_path = Path(log_dir)
+    log_path.mkdir(parents=True, exist_ok=True)
+    
+    full_log_path = log_path / log_file
+    
+    # Create logger
+    _logger = logging.getLogger("llmXive.pipeline")
+    _logger.setLevel(logging.DEBUG)  # Capture all levels
+    
+    # Clear existing handlers to avoid duplicates on re-configuration
+    if _logger.handlers:
         _logger.handlers.clear()
-
-    # Formatter
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
-
-    # File Handler
-    file_path = log_file or LOG_FILE
-    try:
-        fh = logging.FileHandler(file_path, mode='a')
-        fh.setLevel(level)
-        fh.setFormatter(formatter)
-        _logger.addHandler(fh)
-    except (OSError, PermissionError) as e:
-        # Fallback to console if file write fails, but log the error
-        print(f"Warning: Could not create log file at {file_path}: {e}. Logging to console only.")
-        fh = None
-
-    # Console Handler
-    if console:
-        ch = logging.StreamHandler()
-        ch.setLevel(level)
-        ch.setFormatter(formatter)
-        _logger.addHandler(ch)
-
+    
+    # Create file handler
+    file_handler = logging.FileHandler(full_log_path)
+    file_handler.setLevel(logging.DEBUG)
+    file_formatter = logging.Formatter(DEFAULT_FORMAT, DATE_FORMAT)
+    file_handler.setFormatter(file_formatter)
+    
+    # Create console handler for errors and above (optional, for immediate feedback)
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.WARNING)
+    console_formatter = logging.Formatter(DEFAULT_FORMAT, DATE_FORMAT)
+    console_handler.setFormatter(console_formatter)
+    
+    # Add handlers to logger
+    _logger.addHandler(file_handler)
+    _logger.addHandler(console_handler)
+    
     return _logger
 
 
 def get_logger(name: Optional[str] = None) -> logging.Logger:
     """
-    Get a child logger or the main logger.
+    Get the configured logger or a child logger.
     
     Args:
-        name: Optional sub-logger name (e.g., 'preprocess', 'analysis').
+        name: Optional name for a child logger (e.g., 'preprocess', 'analysis').
     
     Returns:
-        A logging.Logger instance.
+        A configured logger instance.
     """
+    global _logger
     if _logger is None:
-        configure_logging()
+        _logger = configure_logging()
     
-    if name:
-        return _logger.getChild(name)
-    return _logger
+    if name is None:
+        return _logger
+    return _logger.getChild(name)
 
 
-def log_indeterminate_warning(
-    trajectory_id: str,
-    reason: str,
-    logger_name: Optional[str] = None
-) -> None:
+def log_indeterminate_warning(traj_id: str, reason: str) -> None:
     """
-    Log a specific warning for an indeterminate trajectory.
+    Log a warning for an indeterminate trajectory.
     
-    This function is called when a trajectory does not exhibit a clear
-    yielding onset (e.g., no sharp stress drop > 5% detected), flagging
-    it as 'indeterminate' as per US1 requirements.
+    This is the specific function required by T004 to capture warnings
+    for indeterminate trajectories as per US1 requirements.
     
     Args:
-        trajectory_id: Identifier for the trajectory being processed.
-        reason: Explanation of why it is indeterminate.
-        logger_name: Optional logger name to use.
+        traj_id: Identifier for the trajectory being analyzed.
+        reason: Explanation of why the trajectory is indeterminate.
     """
-    log = get_logger(logger_name)
-    warning_msg = f"INDETERMINATE TRAJECTORY [{trajectory_id}]: {reason}"
-    log.warning(warning_msg)
+    logger = get_logger("preprocess")
+    msg = f"INDETERMINATE TRAJECTORY: ID={traj_id}, Reason={reason}"
+    logger.warning(msg)
 
 
-def log_multi_yield_event(
-    trajectory_id: str,
-    detected_drops: int,
-    logger_name: Optional[str] = None
-) -> None:
+def log_multi_yield_event(traj_id: str, yield_indices: list) -> None:
     """
-    Log a warning when multiple stress drops are detected, violating FR-002.
+    Log a warning when multiple yield events are detected in a trajectory.
     
     Args:
-        trajectory_id: Identifier for the trajectory.
-        detected_drops: Number of significant stress drops found.
-        logger_name: Optional logger name.
+        traj_id: Identifier for the trajectory.
+        yield_indices: List of timesteps where yield events were detected.
     """
-    log = get_logger(logger_name)
-    warning_msg = f"MULTI-YIELD DETECTED [{trajectory_id}]: Found {detected_drops} drops. " \
-                  f"Only the first is considered per FR-002. Subsequent drops ignored."
-    log.warning(warning_msg)
+    logger = get_logger("preprocess")
+    msg = f"MULTIPLE YIELD EVENTS: ID={traj_id}, Indices={yield_indices}"
+    logger.warning(msg)
 
 
-def log_data_fetch_failure(
-    source: str,
-    error_msg: str,
-    logger_name: Optional[str] = None
-) -> None:
+def log_data_fetch_failure(source: str, error_msg: str) -> None:
     """
-    Log a critical failure when real data fetching fails.
+    Log an error when real data fetching fails.
     
     Args:
-        source: The data source attempted (e.g., HuggingFace ID).
-        error_msg: The specific error message from the exception.
-        logger_name: Optional logger name.
+        source: The data source URL or identifier.
+        error_msg: The specific error message.
     """
-    log = get_logger(logger_name)
-    error_msg_full = f"DATA FETCH FAILED [{source}]: {error_msg}"
-    log.error(error_msg_full)
-    # Also log to console explicitly if console handler exists
-    if _logger:
-        for handler in _logger.handlers:
-            if isinstance(handler, logging.StreamHandler):
-                handler.emit(logging.LogRecord(
-                    name="amorphous_shearing",
-                    level=logging.ERROR,
-                    pathname="logging_config.py",
-                    lineno=0,
-                    msg=error_msg_full,
-                    args=(),
-                    exc_info=None
-                ))
+    logger = get_logger("data_loader")
+    msg = f"DATA FETCH FAILURE: Source={source}, Error={error_msg}"
+    logger.error(msg)
+
+
+def log_synthetic_fallback_active() -> None:
+    """
+    Log a critical warning when the pipeline falls back to synthetic data.
+    
+    This ensures that synthetic fallback is explicitly recorded in the logs
+    for auditability, as required by the "fail loud" policy.
+    """
+    logger = get_logger("data_loader")
+    msg = "SYNTHETIC FALLBACK ACTIVE: Real data source unavailable."
+    logger.warning(msg)

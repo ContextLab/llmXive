@@ -1,187 +1,150 @@
 """
-Unit tests for synthetic data generator.
+Unit tests for the synthetic data generator (T006).
 """
-import pytest
+
 import os
 import json
-import h5py
-import numpy as np
-from pathlib import Path
 import tempfile
-import shutil
+import pytest
+import numpy as np
+import h5py
+from pathlib import Path
 
-from data_generator import generate_synthetic_trajectory, main
+from data_generator import (
+    generate_synthetic_trajectory,
+    save_trajectory_to_h5,
+    save_metadata_json,
+    _determine_label,
+    _compute_box_dimensions,
+    _apply_shear_deformation
+)
 
-
-class TestDataGenerator:
-    """Test suite for synthetic trajectory generation."""
+class TestSyntheticDataGenerator:
     
-    def setup_method(self):
-        """Set up test fixtures."""
-        self.temp_dir = tempfile.mkdtemp()
-        self.output_path = Path(self.temp_dir) / "test_trajectory.h5"
-    
-    def teardown_method(self):
-        """Clean up test fixtures."""
-        if os.path.exists(self.temp_dir):
-            shutil.rmtree(self.temp_dir)
-    
-    def test_generate_trajectory_creates_file(self):
-        """Test that generate_synthetic_trajectory creates an HDF5 file."""
-        metadata = generate_synthetic_trajectory(
-            n_particles=100,
-            n_steps=50,
-            output_path=self.output_path
-        )
-        
-        assert self.output_path.exists(), "HDF5 file was not created"
-        assert metadata['trajectory_file'] == str(self.output_path)
-    
-    def test_generate_trajectory_metadata(self):
-        """Test that metadata contains expected fields."""
-        metadata = generate_synthetic_trajectory(
-            n_particles=100,
-            n_steps=50,
-            strain_rate=1e-5,
+    def test_generate_synthetic_trajectory_structure(self):
+        """Test that generated trajectory has correct structure."""
+        traj = generate_synthetic_trajectory(
+            num_particles=100,
+            num_timesteps=50,
             temperature=300.0,
-            seed=42,
-            output_path=self.output_path
+            strain_rate=1e-7,
+            seed=42
         )
         
-        assert metadata['n_particles'] == 100
-        assert metadata['n_steps'] == 50
-        assert metadata['strain_rate'] == 1e-5
-        assert metadata['temperature'] == 300.0
-        assert metadata['seed'] == 42
-        assert 'label' in metadata
-        assert metadata['label'] in ['brittle', 'ductile']
-    
-    def test_hdf5_structure(self):
-        """Test that the HDF5 file has the correct structure."""
-        metadata = generate_synthetic_trajectory(
-            n_particles=100,
-            n_steps=50,
-            output_path=self.output_path
-        )
+        assert "particles" in traj
+        assert "box_dimensions" in traj
+        assert "stress_tensor" in traj
+        assert "timesteps" in traj
+        assert "label" in traj
+        assert "metadata" in traj
         
-        with h5py.File(self.output_path, 'r') as f:
-            # Check attributes
-            assert f.attrs['n_particles'] == 100
-            assert f.attrs['n_steps'] == 50
-            assert f.attrs['label'] in ['brittle', 'ductile']
-            
-            # Check datasets
-            assert 'steps' in f
-            assert 'positions' in f
-            assert 'velocities' in f
-            assert 'stress' in f
-            assert 'box' in f
-            
-            # Check shapes
-            assert f['steps'].shape == (50,)
-            assert f['positions'].shape == (50, 100, 3)
-            assert f['velocities'].shape == (50, 100, 3)
-            assert f['stress'].shape == (50, 6)
-            assert f['box'].shape == (3, 3)
+        # Check shapes
+        assert traj["particles"].shape == (50, 100, 3)
+        assert traj["stress_tensor"].shape == (50, 3, 3)
+        assert traj["timesteps"] == 50
+        assert traj["label"] in ["brittle", "ductile"]
     
-    def test_label_assignment(self):
-        """Test that labels are assigned based on parameters."""
-        # Brittle case: high strain rate
-        metadata_brittle = generate_synthetic_trajectory(
-            n_particles=100,
-            n_steps=50,
-            strain_rate=1e-4,  # High strain rate
+    def test_label_determination(self):
+        """Test label determination logic."""
+        # Brittle: high strain rate, low temperature
+        assert _determine_label(1e-6, 300.0) == "brittle"
+        assert _determine_label(5e-7, 250.0) == "brittle"
+        
+        # Ductile: low strain rate, high temperature
+        assert _determine_label(1e-9, 500.0) == "ductile"
+        assert _determine_label(5e-10, 600.0) == "ductile"
+    
+    def test_box_dimensions_calculation(self):
+        """Test box dimension calculation."""
+        Lx, Ly, Lz = _compute_box_dimensions(1000, 2.3)
+        
+        assert Lx > 0
+        assert Ly > 0
+        assert Lz > 0
+        assert abs(Lx - Ly) < 1e-6  # Should be cubic
+        assert abs(Lx - Lz) < 1e-6
+    
+    def test_shear_deformation(self):
+        """Test shear deformation application."""
+        coords = np.array([[0.0, 0.0, 0.0], [0.0, 10.0, 0.0]])
+        prev_coords = coords.copy()
+        
+        new_coords = _apply_shear_deformation(coords, 100, 1e-7, 20.0, 20.0, 20.0)
+        
+        # At timestep 100, gamma = 1e-7 * 100 = 1e-5
+        # x' = x + gamma * y
+        # Particle at y=10 should have x shifted by 1e-5 * 10 = 1e-4
+        expected_shift = 1e-4
+        assert abs(new_coords[1, 0] - (coords[1, 0] + expected_shift)) < 1e-6
+    
+    def test_save_and_load_h5(self):
+        """Test saving and loading trajectory to/from HDF5."""
+        traj = generate_synthetic_trajectory(
+            num_particles=50,
+            num_timesteps=20,
             temperature=300.0,
-            output_path=self.output_path
+            strain_rate=1e-7,
+            seed=42
         )
-        assert metadata_brittle['label'] == 'brittle'
         
-        # Ductile case: low strain rate, high temperature
-        metadata_ductile = generate_synthetic_trajectory(
-            n_particles=100,
-            n_steps=50,
-            strain_rate=1e-5,
-            temperature=400.0,  # High temperature
-            output_path=self.output_path
-        )
-        assert metadata_ductile['label'] == 'ductile'
+        with tempfile.TemporaryDirectory() as tmpdir:
+            filepath = os.path.join(tmpdir, "test_trajectory.h5")
+            save_trajectory_to_h5(traj, filepath)
+            
+            # Verify file exists
+            assert os.path.exists(filepath)
+            
+            # Load and verify
+            with h5py.File(filepath, 'r') as f:
+                loaded_particles = f['particles'][:]
+                loaded_stress = f['stress_tensor'][:]
+                loaded_label = f.attrs['label']
+                
+                assert np.allclose(loaded_particles, traj["particles"])
+                assert np.allclose(loaded_stress, traj["stress_tensor"])
+                assert loaded_label == traj["label"]
     
-    def test_stress_tensor_shape(self):
-        """Test that stress tensor has correct shape (6 components)."""
-        metadata = generate_synthetic_trajectory(
-            n_particles=100,
-            n_steps=50,
-            output_path=self.output_path
-        )
+    def test_metadata_json_output(self):
+        """Test metadata JSON generation."""
+        trajectories = [
+            generate_synthetic_trajectory(num_particles=50, num_timesteps=20, seed=42),
+            generate_synthetic_trajectory(num_particles=50, num_timesteps=20, seed=43)
+        ]
         
-        with h5py.File(self.output_path, 'r') as f:
-            stress = f['stress'][:]
-            assert stress.shape == (50, 6)
-            # Check for Voigt notation: xx, yy, zz, xy, xz, yz
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Temporarily override METADATA_PATH
+            import data_generator
+            original_path = data_generator.METADATA_PATH
+            data_generator.METADATA_PATH = Path(tmpdir) / "metadata.json"
+            
+            try:
+                save_metadata_json(trajectories)
+                
+                assert os.path.exists(data_generator.METADATA_PATH)
+                
+                with open(data_generator.METADATA_PATH, 'r') as f:
+                    metadata = json.load(f)
+                
+                assert len(metadata) == 2
+                assert "filename" in metadata[0]
+                assert "label" in metadata[0]
+                assert "num_particles" in metadata[0]
+            finally:
+                data_generator.METADATA_PATH = original_path
     
     def test_reproducibility(self):
         """Test that same seed produces same results."""
-        path1 = Path(self.temp_dir) / "test1.h5"
-        path2 = Path(self.temp_dir) / "test2.h5"
+        traj1 = generate_synthetic_trajectory(seed=42)
+        traj2 = generate_synthetic_trajectory(seed=42)
         
-        generate_synthetic_trajectory(
-            n_particles=100,
-            n_steps=50,
-            seed=123,
-            output_path=path1
-        )
-        
-        generate_synthetic_trajectory(
-            n_particles=100,
-            n_steps=50,
-            seed=123,
-            output_path=path2
-        )
-        
-        with h5py.File(path1, 'r') as f1, h5py.File(path2, 'r') as f2:
-            assert np.array_equal(f1['positions'][:], f2['positions'][:])
-            assert np.array_equal(f1['velocities'][:], f2['velocities'][:])
-            assert np.array_equal(f1['stress'][:], f2['stress'][:])
+        assert np.allclose(traj1["particles"], traj2["particles"])
+        assert np.allclose(traj1["stress_tensor"], traj2["stress_tensor"])
+        assert traj1["label"] == traj2["label"]
     
-    def test_main_function_creates_files(self):
-        """Test that main() creates expected output files."""
-        # Create a temporary directory for testing
-        test_dir = Path(self.temp_dir) / "test_main"
-        test_dir.mkdir(exist_ok=True)
+    def test_different_seeds_different_results(self):
+        """Test that different seeds produce different results."""
+        traj1 = generate_synthetic_trajectory(seed=42)
+        traj2 = generate_synthetic_trajectory(seed=43)
         
-        # Temporarily override the output path
-        original_cwd = Path.cwd()
-        os.chdir(test_dir)
-        
-        try:
-            main()
-            
-            # Check that files were created
-            raw_dir = test_dir / "data" / "raw"
-            assert raw_dir.exists()
-            assert (raw_dir / "metadata.json").exists()
-            
-            # Check for trajectory files
-            h5_files = list(raw_dir.glob("synthetic_trajectory_*.h5"))
-            assert len(h5_files) > 0, "No trajectory files were created"
-            
-            # Check metadata content
-            with open(raw_dir / "metadata.json", 'r') as f:
-                metadata = json.load(f)
-                assert 'dataset_info' in metadata
-                assert 'trajectories' in metadata
-                assert len(metadata['trajectories']) > 0
-        finally:
-            os.chdir(original_cwd)
-    
-    def test_particle_count_validation(self):
-        """Test that particle count is reasonable."""
-        metadata = generate_synthetic_trajectory(
-            n_particles=50,  # Small for testing
-            n_steps=10,
-            output_path=self.output_path
-        )
-        
-        with h5py.File(self.output_path, 'r') as f:
-            assert f.attrs['n_particles'] == 50
-            assert f['positions'].shape[1] == 50
+        # Should be different (with very high probability)
+        assert not np.allclose(traj1["particles"], traj2["particles"])

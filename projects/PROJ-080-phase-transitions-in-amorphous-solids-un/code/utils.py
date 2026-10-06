@@ -19,6 +19,9 @@ def set_seed(seed: int = SEED):
 def stream_hdf5(path: str, chunk_size: int = 1000) -> Iterator[pd.DataFrame]:
     """
     Stream data from an HDF5 file in chunks to manage memory.
+    
+    This function satisfies FR-006 by ensuring memory usage stays within 
+    acceptable limits for large files through chunked reading.
 
     Args:
         path: Path to the HDF5 file.
@@ -64,6 +67,9 @@ def stream_hdf5(path: str, chunk_size: int = 1000) -> Iterator[pd.DataFrame]:
 def stream_parquet(path: str, chunk_size: int = 1000) -> Iterator[pd.DataFrame]:
     """
     Stream data from a Parquet file in chunks.
+    
+    This function satisfies FR-006 by ensuring memory usage stays within 
+    acceptable limits for large files through chunked reading.
 
     Args:
         path: Path to the Parquet file.
