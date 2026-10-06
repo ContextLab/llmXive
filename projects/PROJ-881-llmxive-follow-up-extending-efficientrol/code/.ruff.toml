@@ -1,23 +1,30 @@
-# Ruff configuration (extends pyproject.toml defaults)
-line-length = 88
-target-version = "py310"
+# Ruff configuration for llmXive
+# This file extends/overrides pyproject.toml if needed, but primarily
+# serves as the explicit configuration file for the linter.
+
+extend = "pyproject.toml"
 
 [lint]
+# Explicitly define the rules we care about
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
-    "F",  # pyflakes
+    "F",  # Pyflakes
     "I",  # isort
+    "N",  # pep8-naming
+    "UP", # pyupgrade
     "B",  # flake8-bugbear
     "C4", # flake8-comprehensions
-    "UP", # pyupgrade
+    "SIM",# flake8-simplify
 ]
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
+    "E501", # Line too long (handled by Black)
+    "B008", # Do not perform function call in argument defaults (common in dataclasses)
 ]
 
-[lint.per-file-ignores]
-"tests/*" = ["S101"] # assertions allowed in tests
-"scripts/*" = ["T201"] # print allowed in scripts
+[lint.isort]
+known-first-party = ["src", "scripts", "tests"]
+force-sort-within-sections = true
+
+[lint.flake8-bugbear]
+extend-immutable-calls = ["src.config.Config"]

@@ -1,21 +1,25 @@
-# Black configuration (extends pyproject.toml defaults)
+# Black configuration for llmXive
+# This file explicitly configures the formatter.
+# Note: Black primarily reads from pyproject.toml, but this file
+# ensures standalone configuration availability if needed.
+
+[tool.black]
 line-length = 88
-target-version = ['py310']
+target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.eggs
-    | \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-    | node_modules
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
-# Force line length for consistency
-force-exclude = true
+# Skip magic trailing comma to align with default ruff behavior unless specified
+skip-magic-trailing-comma = false

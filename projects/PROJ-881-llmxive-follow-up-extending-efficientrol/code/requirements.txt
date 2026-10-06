@@ -21,3 +21,11 @@ black==24.4.0
 # Environment & Utilities
 python-dotenv==1.0.1
 minigrid==2.3.1
+
+# Qwen1.5 Model Compatibility (0.5B, 1.5B, 7B-Int4)
+# These models are available via HuggingFace Transformers.
+# The specific model weights are downloaded at runtime by the generation script.
+# Dependencies for quantization (Int4) are provided by bitsandbytes if needed,
+# but torch 2.3.0 + transformers 4.40.0 support standard loading.
+# Explicitly listing bitsandbytes for Int4 support if quantization is used at runtime.
+bitsandbytes==0.43.1

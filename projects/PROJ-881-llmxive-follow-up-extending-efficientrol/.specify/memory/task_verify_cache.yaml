@@ -1,10 +1,3 @@
-T005:
-  c: false
-  h: f87a634f58a447a0c4edad32d95e41a73a27b14ae000c4f05d448ece26a65c48
-  r: "The required file `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/requirements.txt`\
-    \ does not exist, and the existing `code/requirements.txt` is missing several\
-    \ mandated packages (e.g., `huggingface_hub`) and any mention of Qwen1.5\u2011\
-    1.5B / 7B\u2011Int4 model compatibility. The task therefore remains unfinished."
 T007a:
   c: true
   h: 5cc0796b10a4d4f6f7e5d39730df25cfb0a5831bc60cb708e965f6aa3599e6c7
@@ -13,26 +6,23 @@ T007a:
     \ <\u202F1e\u20119, works on CPU tensors (or NumPy arrays), handles 1\u2011D and\
     \ 2\u2011D inputs, and returns a float without crashing on near\u2011zero values.\
     \ This matches the task\u2019s specifications."
+T008:
+  c: true
+  h: f89d8fd84140b1d48f8ce85f0759f67f016cad48453017a3a2f31df7abf8e426
+  r: "The artifact `code/src/utils/validators.py` exists, is non\u2011empty, and defines\
+    \ the `TokenSequence`, `ValidityLabel`, and `EntropyProfile` dataclasses with\
+    \ `from_dict` methods that enforce required fields, satisfying the schema\u2011\
+    validation requirement."
 T009:
   c: false
-  h: 84a03dbdc9008e63f88de232f1203525ce31caea32de6acf6de52ab4b840cdc4
-  r: "The provided `code/src/data/preprocessing.py` contains a partial implementation\
-    \ of `stream_batch` but does not include the required `token_batch_stream` (or\
-    \ any function named similarly) and the adaptive token\u2011batch logic is not\
-    \ present. Moreover, the integration test imports and checks unrelated functions\
-    \ (`load_tokens_from_file`, `merge_entropy_profiles`, `stream_tokens_in_batches`)\
-    \ and never verifies the memory\u2011backoff behavior for either `stream_batch`\
-    \ or a token\u2011batching function. The task\u2019s core requirements are therefore\
-    \ unmet."
-T010:
-  c: false
-  h: 631f3c4446ff11f257d602fb20999cbfd0b14bc16a79ed417b7e7e6ecead659a
-  r: "The required artifact `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/data/download.py`\
-    \ is not present at the specified location (the only file found is `code/src/data/download.py`).\
-    \ Moreover, the provided snippet shows only the GSM8K download logic; the MiniGrid\
-    \ download implementation is absent from the visible content, so the 500\u2011\
-    example capping for both datasets cannot be confirmed. The task therefore remains\
-    \ unfinished."
+  h: 47f60e38510037116b34163358002cc4fad207f7746ee831258f9eb1ed03fbfe
+  r: "The provided `code/src/data/preprocessing.py` contains only a partial `stream_batch`\
+    \ implementation (it never yields batches or enforces the 50\u2011example limit)\
+    \ and does not include any `datasets.load_dataset` handling that raises `ConnectionError`/`FileNotFoundError`.\
+    \ Moreover, the integration test `tests/integration/test_preprocessing.py` checks\
+    \ `stream_tokens_in_batches` and other utilities but never verifies the required\
+    \ `stream_batch` 50\u2011token batching behavior. Consequently, the core function\
+    \ and its verification are missing."
 T012:
   c: true
   h: 7913e4a021aaa9fe487c49c604676f4e3b332d1488a195490ab8f4d3c262721a
