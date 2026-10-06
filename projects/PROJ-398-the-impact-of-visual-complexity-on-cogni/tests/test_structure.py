@@ -1,51 +1,67 @@
+"""
+Tests for the project’s directory‑creation utilities.
+
+Two separate concerns are verified:
+
+1. Data directories are created by ``setup_data_directories.main`` (existing test).
+2. Code package directories are created by ``setup_code_directories.main`` (new test).
+
+The existing test for data directories is retained, and a new test
+``test_code_directories_exist`` is added to satisfy the T001a verification
+requirement.
+"""
+
 import os
-import sys
 from pathlib import Path
+
 import pytest
 
-# We assume the project root is the parent of the 'tests' directory
-# or we determine it dynamically. For this test, we check relative paths.
-PROJECT_ROOT = Path(__file__).parent.parent
+# Existing import – used by the original data‑directory test
+from setup_data_directories import main as run_data_structure_creation
 
-def run_structure_creation():
-    """
-    Creates the required data directory structure.
-    This function is called by the test to ensure directories exist before assertion.
-    In a real pipeline, this would be a standalone script or part of a setup task.
-    """
-    data_dirs = [
-        "data/stimuli",
-        "data/processed",
-        "data/measurements",
-        "data/raw"
-    ]
-    
-    for dir_path in data_dirs:
-        full_path = PROJECT_ROOT / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
-        
-        # Create a .gitkeep file to ensure the directory is tracked by git
-        # and to satisfy the requirement of "creating" the directory structure explicitly.
-        gitkeep = full_path / ".gitkeep"
-        if not gitkeep.exists():
-            gitkeep.touch()
+# New import – used for the code‑directory test
+from setup_code_directories import main as run_code_structure_creation
+
 
 def test_data_directories_exist():
     """
-    T001b Verification: Assert that the data directory structure exists.
-    Checks for: data/stimuli/, data/processed/, data/measurements/, data/raw/
+    Verify that the data directory hierarchy is created.
     """
-    # First, ensure the structure is created (simulating the task execution)
-    run_structure_creation()
-    
-    required_dirs = [
-        "data/stimuli",
-        "data/processed",
-        "data/measurements",
-        "data/raw"
+    # Run the data‑directory creation script
+    run_data_structure_creation()
+
+    # Expected data directories (relative to project root)
+    expected = [
+        Path("data/stimuli"),
+        Path("data/processed"),
+        Path("data/measurements"),
+        Path("data/raw"),
     ]
-    
-    for dir_name in required_dirs:
-        dir_path = PROJECT_ROOT / dir_name
-        assert dir_path.exists(), f"Directory {dir_path} does not exist."
-        assert dir_path.is_dir(), f"{dir_path} exists but is not a directory."
+
+    missing = [str(p) for p in expected if not p.is_dir()]
+    assert not missing, f"Missing data directories: {', '.join(missing)}"
+
+
+def test_code_directories_exist():
+    """
+    Verify that the required code package directories are created.
+    """
+    # Run the code‑directory creation script
+    run_code_structure_creation()
+
+    # Expected code directories (relative to project root)
+    expected = [
+        Path("src/lib"),
+        Path("src/metrics"),
+        Path("src/experiment"),
+        Path("src/analysis"),
+        Path("tests"),
+    ]
+
+    missing = [str(p) for p in expected if not p.is_dir()]
+    assert not missing, f"Missing code directories: {', '.join(missing)}"
+
+
+# Ensure the test module can be imported directly by pytest without side effects.
+# The ``if __name__ == '__main__'`` guard is unnecessary because pytest handles
+# test discovery. This file solely defines the two tests above.

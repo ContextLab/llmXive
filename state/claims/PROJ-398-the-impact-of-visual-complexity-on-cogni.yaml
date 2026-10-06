@@ -436,23 +436,6 @@
   updated_at: '2026-09-28T19:40:42Z'
 - artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
   attempts: 1
-  canonical: Recruit 20 participants for pilot study
-  claim_id: c_d05cf9c6
-  context: "Goal: Recruit a small cohort (n=20) to rate background images for perceived\
-    \ visual complexity to validate automated metrics (SC\u2011001)."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Recruit a small cohort (n=20) to rate background images for perceived
-    visual complexity
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-28T19:42:43Z'
-- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
-  attempts: 1
   canonical: download first 500 items from video-conference-backgrounds train split
   claim_id: c_944427ba
   context: "Implement src/metrics/fetch_and_archive.py as a one-time setup script\
@@ -1690,3 +1673,326 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-04T14:17:59Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: recruit small cohort of 20 participants for visual complexity rating
+    study
+  claim_id: c_0be6c2aa
+  context: "Phase 3 \u2013 User Story 0 aims to recruit a small cohort (n=20) to rate\
+    \ background images for perceived visual complexity to validate automated metrics."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Recruit a small cohort (n=20) to rate background images for perceived\
+    \ visual complexity to validate automated metrics (SC\u2011001)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T18:22:27Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: process ten 1080p images in under thirty seconds on GitHub Actions free
+    tier
+  claim_id: c_878cd65f
+  context: "Phase 4 includes a performance test (T061) that verifies processing 10\
+    \ images at 1080p completes within 30\u202Fseconds on the GitHub Actions free\u2011\
+    tier runner."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that processing 10 images at 1080p completes within 30\u202Fseconds\
+    \ on the GitHub Actions free\u2011tier runner."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T18:22:52Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: Recruit 20 participants for pilot study
+  claim_id: c_ef05ba31
+  context: 'Phase 3 - User Story 0: Conduct Human Pilot Study for Metric Validation,
+    goal to recruit a small cohort (n=20) to rate background images.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Recruit a small cohort (n=20) to rate background images for perceived
+    visual complexity to validate automated metrics.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T18:23:10Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: Performance benchmark runs on GitHub Actions free-tier runner with 7
+    GB RAM
+  claim_id: c_cb015f20
+  context: "Phase 4 includes task T066 documenting that the performance benchmark\
+    \ is executed on the GitHub Actions free\u2011tier runner (multi\u2011core CPU,\u202F\
+    7\u202FGB\u202FRAM)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The performance benchmark is executed on the GitHub Actions free\u2011\
+    tier runner (multi\u2011core CPU,\u202F7\u202FGB\u202FRAM)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T18:23:31Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: Stimuli fetched from HuggingFace video-conference-backgrounds dataset
+  claim_id: c_e8ddaf09
+  context: Phases 2 and 6 describe fetching items from the HuggingFace `video-conference-backgrounds`
+    dataset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stimuli_fetched_from_HuggingFace_video-conference-background
+  kind: entity_fact
+  raw_text: The dataset used for fetching stimuli is the HuggingFace `video-conference-backgrounds`
+    dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T18:24:01Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: Recruit a small cohort of 20 participants for visual complexity rating
+  claim_id: c_f6f850d3
+  context: "Goal: Recruit a small cohort (n=20) to rate background images for perceived\
+    \ visual complexity to validate automated metrics (SC\u2011001)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Recruit a small cohort (n=20) to rate background images for perceived\
+    \ visual complexity to validate automated metrics (SC\u2011001)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T18:25:19Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: recruit a cohort of 20 participants for pilot study
+  claim_id: c_760600c9
+  context: Phase 3 (User Story 0) describes the pilot study whose goal is to recruit
+    a small cohort (n=20) to rate background images for perceived visual complexity.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Goal: Recruit a small cohort (n=20) to rate background images for perceived\
+    \ visual complexity to validate automated metrics (SC\u2011001)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T18:26:19Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: processing 10 images at 1080p completes within 30 seconds
+  claim_id: c_ae6310d8
+  context: "Phase 4 includes a performance test (T061) that asserts processing 10\
+    \ images at 1080p completes within 30\u202Fseconds on the GitHub Actions free\u2011\
+    tier runner."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that processing 10 images at 1080p completes within 30\u202Fseconds\
+    \ and Peak RAM stays below a reasonable memory threshold on the GitHub Actions\
+    \ free\u2011tier runner."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T18:26:42Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: "performance benchmark executed on GitHub Actions free\u2011tier runner\
+    \ with 7 GB RAM"
+  claim_id: c_d9358d06
+  context: "Phase 4 documents hardware profiling (T066) stating that the performance\
+    \ benchmark runs on the GitHub Actions free\u2011tier runner with a multi\u2011\
+    core CPU and 7\u202FGB RAM."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Record that the performance benchmark is executed on the GitHub Actions\
+    \ free\u2011tier runner (multi\u2011core CPU,\u202F7\u202FGB\u202FRAM)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T18:27:07Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: processing 10 1080p images completes within 30 seconds on GitHub Actions
+    free tier
+  claim_id: c_66619d13
+  context: "T061 [P] Performance Test for Metric Extraction: Verify that processing\
+    \ 10 images at 1080p completes within 30\u202Fseconds and Peak RAM stays below\
+    \ a reasonable memory threshold on the GitHub Actions free\u2011tier runner."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Processing 10 images at 1080p completes within 30 seconds on the GitHub\
+    \ Actions free\u2011tier runner."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T18:28:27Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: recruit small cohort of 20 participants
+  claim_id: c_9b5d8328
+  context: 'Phase 3 - User Story 0: Conduct Human Pilot Study for Metric Validation,
+    goal to recruit a small cohort (n=20) to rate background images.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Recruit a small cohort (n=20) to rate background images for perceived\
+    \ visual complexity to validate automated metrics (SC\u2011001)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T18:28:57Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: processing 10 images at 1080p completes within 30 seconds
+  claim_id: c_59c64e42
+  context: "Phase 4 - Performance Test for Metric Extraction: Verify that processing\
+    \ 10 images at 1080p completes within 30 seconds on the GitHub Actions free\u2011\
+    tier runner."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Processing 10 images at 1080p completes within 30\u202Fseconds and Peak\
+    \ RAM stays below a reasonable memory threshold on the GitHub Actions free\u2011\
+    tier runner."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T18:29:21Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: no-object images have object_count zero
+  claim_id: c_6df7a570
+  context: "Phase 4 - Handle No\u2011Object Images: Ensure that images with no detectable\
+    \ objects produce object_count = 0."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Images with no detectable objects produce object_count = 0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T18:29:52Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: benchmark runs on GitHub Actions free-tier runner with 7 GB RAM
+  claim_id: c_704c192b
+  context: "Phase 4 - Hardware Profile Documentation records that the performance\
+    \ benchmark is executed on the GitHub Actions free\u2011tier runner (multi\u2011\
+    core CPU,\u202F7\u202FGB\u202FRAM)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The performance benchmark is executed on the GitHub Actions free\u2011\
+    tier runner (multi\u2011core CPU,\u202F7\u202FGB\u202FRAM)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T18:29:52Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: recruit 20 participants for pilot study rating visual complexity
+  claim_id: c_6927ecd0
+  context: "Goal: Recruit a small cohort (n=20) to rate background images for perceived\
+    \ visual complexity to validate automated metrics (SC\u2011001)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Recruit a small cohort (n=20) to rate background images for perceived
+    visual complexity to validate automated metrics.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T18:30:32Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: performance benchmark run on GitHub Actions free-tier runner with 7 GB
+    RAM
+  claim_id: c_e6892f71
+  context: "Hardware Profile Documentation: Record that the performance benchmark\
+    \ is executed on the GitHub Actions free\u2011tier runner (multi\u2011core CPU,\u202F\
+    7\u202FGB\u202FRAM)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The performance benchmark is executed on the GitHub Actions free\u2011\
+    tier runner (multi\u2011core CPU,\u202F7\u202FGB\u202FRAM)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T18:30:32Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 2
+  canonical: Recruit 20 participants for pilot study
+  claim_id: c_d05cf9c6
+  context: "Goal: Recruit a small cohort (n=20) to rate background images for perceived\
+    \ visual complexity to validate automated metrics (SC\u2011001)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Recruit a small cohort (n=20) to rate background images for perceived
+    visual complexity
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T18:31:16Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: recruit 20 participants for pilot study
+  claim_id: c_985401a1
+  context: 'Goal: Recruit a small cohort (n=20) to rate background images for perceived
+    visual complexity'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Recruit a small cohort (n=20) to rate background images for perceived
+    visual complexity
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T18:31:37Z'

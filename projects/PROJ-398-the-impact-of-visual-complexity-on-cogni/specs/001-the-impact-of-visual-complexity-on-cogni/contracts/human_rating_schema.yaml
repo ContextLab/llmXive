@@ -31,3 +31,4 @@ required:
   - complexity_score
   - role
   - timestamp
+additionalProperties: false

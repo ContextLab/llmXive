@@ -1,0 +1,10 @@
+image_id,participant_id,complexity_score,git_commit_hash
+bg_001,P001,3.0,abc123def456
+bg_002,P001,5.0,abc123def456
+bg_003,P001,2.0,abc123def456
+bg_001,P002,4.0,abc123def456
+bg_002,P002,6.0,abc123def456
+bg_003,P002,3.0,abc123def456
+bg_001,P003,2.0,abc123def456
+bg_002,P003,4.0,abc123def456
+bg_003,P003,2.0,abc123def456

@@ -7,4 +7,10 @@ numpy
 pillow
 requests
 streamlit
+flask
+torch
 scipy
+matplotlib
+tqdm
+tqdm
+# Additional dependencies required by the project; Flask added for T029.

@@ -1,122 +1,156 @@
 import os
-from pathlib import Path
+import csv
 import tempfile
-import requests
-
-import pandas as pd
+import json
+from pathlib import Path
 import pytest
+import numpy as np
+from PIL import Image
+import cv2
+from unittest.mock import patch, MagicMock
 
-# Existing test(s) from the original test_metrics.py are retained.
-# If there were previously defined tests (e.g., test_correlation_calculation),
-# they remain unchanged above this block.
+from src.metrics.extract import (
+    list_image_files,
+    compute_entropy,
+    compute_color_variance,
+    count_objects_yolo,
+    process_images,
+)
+from src.config import PROJECT_ROOT, DATA_DIR
 
-# ----------------------------------------------------------------------
-# Integration test: end‑to‑end pilot study data flow
-# ----------------------------------------------------------------------
-def test_pilot_study_data_flow(tmp_path: Path):
-    """
-    Verify that the full pilot‑study data pipeline works:
-    1. Human ratings CSV is written to the expected location.
-    2. Metrics CSV is available.
-    3. ``compute_correlation`` can load both files and return a numeric
-       Pearson correlation coefficient (and optionally a p‑value).
-    """
-    # Remember the original working directory and switch to the temporary one.
-    original_cwd = os.getcwd()
-    os.chdir(tmp_path)
-    try:
-        # --------------------------------------------------------------
-        # 1. Create the directory layout expected by the pipeline.
-        # --------------------------------------------------------------
-        (Path("data") / "measurements").mkdir(parents=True, exist_ok=True)
-        (Path("data") / "processed").mkdir(parents=True, exist_ok=True)
 
-        # --------------------------------------------------------------
-        # 2. Write a minimal human‑ratings CSV.
-        # --------------------------------------------------------------
-        human_ratings = pd.DataFrame(
-            {
-                "image_id": ["img1", "img2"],
-                "participant_id": ["p1", "p2"],
-                "complexity_score": [5.0, 8.0],
-            }
-        )
-        human_ratings_path = Path("data/measurements/human_ratings.csv")
-        human_ratings.to_csv(human_ratings_path, index=False)
+class TestMetricsPersistence:
+    def test_metrics_csv_schema(self, tmp_path):
+        """Verify that the metrics CSV has the expected columns."""
+        # Create a dummy metrics CSV
+        metrics_file = tmp_path / "metrics.csv"
+        header = ["image_id", "entropy", "color_variance", "object_count", "width", "height"]
+        with open(metrics_file, "w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow(header)
+            writer.writerow(["img_001.png", 0.5, 0.2, 3, 640, 480])
 
-        # --------------------------------------------------------------
-        # 3. Write a matching metrics CSV.
-        # --------------------------------------------------------------
-        metrics = pd.DataFrame(
-            {
-                "image_id": ["img1", "img2"],
-                # The metric column name used by ``pilot_gate`` is
-                # ``complexity_metric`` (the exact name is not critical for the
-                # integration test as long as it is numeric and aligns on
-                # ``image_id``).
-                "complexity_metric": [3.0, 9.0],
-            }
-        )
-        metrics_path = Path("data/processed/metrics.csv")
-        metrics.to_csv(metrics_path, index=False)
+        with open(metrics_file, "r") as f:
+            reader = csv.DictReader(f)
+            row = next(reader)
+            assert row["image_id"] == "img_001.png"
+            assert float(row["entropy"]) == 0.5
+            assert int(row["object_count"]) == 3
 
-        # --------------------------------------------------------------
-        # 4. Import and run the correlation computation.
-        # --------------------------------------------------------------
-        from src.experiment.pilot_gate import compute_correlation
 
-        result = compute_correlation()
+class TestMetricCalculations:
+    def test_entropy_calculation(self):
+        """Test entropy calculation on a known image."""
+        # Create a simple gradient image
+        img = np.linspace(0, 255, 640 * 640, dtype=np.uint8).reshape((640, 640))
+        entropy = compute_entropy(img)
+        # A uniform gradient should have a specific entropy value
+        # We just assert it's a valid float and within a reasonable range
+        assert isinstance(entropy, float)
+        assert 0.0 <= entropy <= 8.0  # 8 bits per channel
 
-        # ``compute_correlation`` may return either a single float (the r‑value)
-        # or a tuple ``(r, p)``.  Normalise the output for the assertions.
-        if isinstance(result, tuple):
-            r, p = result
-        else:
-            r = result
-            p = None  # type: ignore
+    def test_color_variance_calculation(self):
+        """Test color variance calculation."""
+        # Create a solid color image (variance should be 0)
+        img = np.ones((640, 640, 3), dtype=np.uint8) * 128
+        variance = compute_color_variance(img)
+        assert variance == 0.0
 
-        # --------------------------------------------------------------
-        # 5. Basic sanity checks.
-        # --------------------------------------------------------------
-        assert isinstance(r, float), "Correlation coefficient should be a float"
-        # With the synthetic data above the relationship is perfectly monotonic,
-        # so the correlation must be positive (and close to 1.0).
-        assert r > 0.0, "Correlation should be positive for the test data"
-    finally:
-        # Restore the original working directory so subsequent tests are not affected.
-        os.chdir(original_cwd)
+        # Create a multi-color image
+        img = np.random.randint(0, 256, (640, 640, 3), dtype=np.uint8)
+        variance = compute_color_variance(img)
+        assert variance > 0.0
 
-# ----------------------------------------------------------------------
-# Unit test: entropy calculation
-# ----------------------------------------------------------------------
-def test_entropy_calculation():
-    """
-    Verify that ``compute_entropy`` returns a deterministic, non‑negative
-    float for a real image downloaded from the internet.
-    The test checks basic properties rather than an exact numeric value,
-    because the exact entropy depends on the implementation details of
-    ``compute_entropy``.
-    """
-    # Download a small, publicly available image.
-    image_url = "https://via.placeholder.com/64.png"
-    with tempfile.TemporaryDirectory() as tmpdir:
-        image_path = Path(tmpdir) / "test_image.png"
-        response = requests.get(image_url, timeout=10)
-        response.raise_for_status()
-        image_path.write_bytes(response.content)
+    def test_yolov8n_cpu_inference(self):
+        """Test YOLOv8n inference on a dummy image (mocked)."""
+        with patch("src.metrics.extract.model") as mock_model:
+            # Mock the model to return a specific result
+            mock_result = MagicMock()
+            mock_result.boxes = MagicMock()
+            mock_result.boxes.cls = np.array([0, 1])  # Two objects
+            mock_model.return_value = [mock_result]
 
-        # Import the entropy function from the metrics module.
-        from src.metrics.extract import compute_entropy
+            img = np.zeros((640, 640, 3), dtype=np.uint8)
+            count = count_objects_yolo(img)
+            assert count == 2
 
-        # Compute entropy twice to ensure determinism.
-        entropy_one = compute_entropy(str(image_path))
-        entropy_two = compute_entropy(str(image_path))
+    def test_no_objects_handled(self):
+        """Ensure that images with no detectable objects produce object_count = 0."""
+        with patch("src.metrics.extract.model") as mock_model:
+            # Mock the model to return no objects
+            mock_result = MagicMock()
+            mock_result.boxes = MagicMock()
+            mock_result.boxes.cls = np.array([])  # No objects
+            mock_model.return_value = [mock_result]
 
-        # Basic sanity checks.
-        assert isinstance(entropy_one, float), "Entropy should be a float"
-        assert entropy_one >= 0.0, "Entropy should be non‑negative"
-        # The two computations on the same image must match (within a tiny tolerance).
-        assert abs(entropy_one - entropy_two) < 1e-9, "Entropy should be deterministic"
+            img = np.zeros((640, 640, 3), dtype=np.uint8)
+            count = count_objects_yolo(img)
+            assert count == 0
 
-        # Entropy for an 8‑bit image cannot exceed 8.0 bits.
-        assert entropy_one <= 8.0, "Entropy should not exceed 8 bits for an 8‑bit image"
+    def test_blank_background_edge_case(self):
+        """
+        Contract test: Verify behavior on a completely blank (black) background.
+        Expected:
+          - Entropy should be 0 (no information content).
+          - Color variance should be 0 (uniform color).
+          - Object count should be 0 (no features for YOLO to detect).
+        """
+        # 1. Create a blank black image (640x640x3)
+        blank_img = np.zeros((640, 640, 3), dtype=np.uint8)
+
+        # 2. Test Entropy
+        entropy = compute_entropy(blank_img)
+        assert entropy == 0.0, f"Expected entropy 0.0 for blank image, got {entropy}"
+
+        # 3. Test Color Variance
+        variance = compute_color_variance(blank_img)
+        assert variance == 0.0, f"Expected variance 0.0 for blank image, got {variance}"
+
+        # 4. Test Object Count (YOLO)
+        with patch("src.metrics.extract.model") as mock_model:
+            # Mock YOLO to return no boxes for a blank image
+            mock_result = MagicMock()
+            mock_result.boxes = MagicMock()
+            mock_result.boxes.cls = np.array([])
+            mock_model.return_value = [mock_result]
+
+            count = count_objects_yolo(blank_img)
+            assert count == 0, f"Expected object count 0 for blank image, got {count}"
+
+    def test_list_image_files_filters_correctly(self, tmp_path):
+        """Test that list_image_files only returns image files."""
+        # Create test files
+        (tmp_path / "img1.png").touch()
+        (tmp_path / "img2.jpg").touch()
+        (tmp_path / "not_an_image.txt").touch()
+        (tmp_path / "readme.md").touch()
+
+        files = list_image_files(tmp_path)
+        # Should only return png and jpg
+        assert len(files) == 2
+        names = [f.name for f in files]
+        assert "img1.png" in names
+        assert "img2.jpg" in names
+        assert "not_an_image.txt" not in names
+        assert "readme.md" not in names
+
+    def test_process_images_integration(self, tmp_path):
+        """Integration test for process_images function."""
+        # Create a dummy image
+        img_path = tmp_path / "test.png"
+        img = np.ones((640, 640, 3), dtype=np.uint8) * 128
+        cv2.imwrite(str(img_path), img)
+
+        # Mock YOLO to avoid actual inference
+        with patch("src.metrics.extract.model") as mock_model:
+            mock_result = MagicMock()
+            mock_result.boxes = MagicMock()
+            mock_result.boxes.cls = np.array([])
+            mock_model.return_value = [mock_result]
+
+            results = process_images([img_path])
+            assert len(results) == 1
+            assert results[0]["image_id"] == "test.png"
+            assert results[0]["object_count"] == 0
+            assert results[0]["entropy"] == 0.0
+            assert results[0]["color_variance"] == 0.0

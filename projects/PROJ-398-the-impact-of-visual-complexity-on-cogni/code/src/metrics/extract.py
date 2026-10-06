@@ -1,230 +1,227 @@
 """
-Metric Extraction Script
-========================
+src/metrics/extract.py
 
-This script processes background images, computes visual complexity metrics,
-and records performance statistics.
+This module provides utilities to extract visual complexity metrics from image files.
+It computes:
+  - Shannon entropy of the grayscale image.
+  - Color variance across RGB channels.
+  - Object count using a CPU‑only YOLOv8n model.
 
-Metrics computed per image:
-  * Entropy (grayscale Shannon entropy)
-  * Color variance (variance across all RGB channels)
-  * Object detection count (using YOLOv8n)
-
-Output:
-  * ``data/processed/metrics.csv`` – one row per image with the computed metrics.
-  * ``data/derived/performance_log.txt`` – timing and memory usage information.
+The functions are deliberately lightweight and avoid side‑effects so they can be
+reused in pipelines and unit tests. The `process_images` function writes a CSV
+compatible with the `BackgroundFrame` schema required by downstream tasks.
 """
 
+import csv
+import json
 import os
 import time
-import json
 from pathlib import Path
 from typing import List, Tuple
 
 import cv2
 import numpy as np
-import pandas as pd
 
-# YOLOv8 (ultralytics) may not be importable on systems without the package.
-# It is declared as a dependency in ``requirements.txt``.
+# Ultralytics YOLOv8n is a heavy dependency; we import lazily to keep module import
+# cheap for tests that do not need object detection.
 from ultralytics import YOLO
 
-# Optional: psutil for memory usage reporting.
-try:
-    import psutil
-except Exception:  # pragma: no cover
-    psutil = None  # type: ignore
+# Global model instance – loaded once on first use.
+_YOLO_MODEL = None
 
-# ---------------------------------------------------------------------------
-# Helper functions
-# ---------------------------------------------------------------------------
-
-def list_image_files(root_dir: Path) -> List[Path]:
-    """Return a list of image file paths under ``root_dir``."""
-    extensions = {".png", ".jpg", ".jpeg", ".bmp", ".tiff", ".tif"}
-    return [p for p in root_dir.rglob("*") if p.suffix.lower() in extensions]
-
-def compute_entropy(image: np.ndarray) -> float:
+def _load_yolo_model() -> YOLO:
     """
-    Compute the Shannon entropy of a grayscale image.
+    Load the YOLOv8n model (CPU‑only) lazily.
+
+    Returns
+    -------
+    YOLO
+        The loaded YOLO model.
+    """
+    global _YOLO_MODEL
+    if _YOLO_MODEL is None:
+        # The pretrained weights are bundled with the ultralytics package.
+        # Using the smallest nano model keeps CPU usage reasonable.
+        _YOLO_MODEL = YOLO("yolov8n.pt")
+    return _YOLO_MODEL
+
+def list_image_files(stimuli_dir: Path) -> List[Path]:
+    """
+    Return a list of image file paths (png, jpg, jpeg) in ``stimuli_dir``.
+    """
+    valid_ext = {".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff"}
+    return [
+        p
+        for p in sorted(stimuli_dir.iterdir())
+        if p.is_file() and p.suffix.lower() in valid_ext
+    ]
+
+def compute_entropy(image_path: Path) -> float:
+    """
+    Compute the Shannon entropy of a grayscale version of the image.
 
     Parameters
     ----------
-    image : np.ndarray
-        Grayscale image (uint8).
+    image_path: Path
+        Path to the image file.
 
     Returns
     -------
     float
-        Entropy in bits.
+        Entropy value (bits).
     """
-    # Histogram with 256 bins for uint8 images.
-    hist = cv2.calcHist([image], [0], None, [256], [0, 256]).flatten()
+    img = cv2.imread(str(image_path), cv2.IMREAD_GRAYSCALE)
+    if img is None:
+        raise ValueError(f"Unable to read image {image_path}")
+    # Histogram of pixel intensities (256 bins)
+    hist = cv2.calcHist([img], [0], None, [256], [0, 256]).flatten()
     prob = hist / hist.sum()
-    # Avoid log2(0) by masking zero probabilities.
-    prob = prob[prob > 0]
+    prob = prob[prob > 0]  # discard zero entries to avoid log(0)
     entropy = -np.sum(prob * np.log2(prob))
     return float(entropy)
 
-def compute_color_variance(image: np.ndarray) -> float:
+def compute_color_variance(image_path: Path) -> float:
     """
-    Compute the variance across all RGB channels.
+    Compute the variance of pixel intensities across the three colour channels.
 
     Parameters
     ----------
-    image : np.ndarray
-        Color image in BGR format (as read by OpenCV).
+    image_path: Path
+        Path to the image file.
 
     Returns
     -------
     float
-        Variance of pixel values across the three channels.
+        Mean variance across R, G, B channels.
     """
-    # Convert to float for variance calculation.
-    img_float = image.astype(np.float32)
-    # Compute variance per channel then average.
-    variances = np.var(img_float, axis=(0, 1))
-    return float(variances.mean())
+    img = cv2.imread(str(image_path), cv2.IMREAD_COLOR)
+    if img is None:
+        raise ValueError(f"Unable to read image {image_path}")
+    # Split into channels and compute variance per channel
+    variances = [np.var(img[:, :, i]) for i in range(3)]
+    return float(np.mean(variances))
 
-def count_objects_yolo(model: YOLO, image: np.ndarray) -> int:
+def count_objects_yolo(image_path: Path) -> int:
     """
-    Run YOLOv8n on an image and return the number of detected objects.
+    Detect objects in ``image_path`` using YOLOv8n (CPU‑only) and return the count.
 
-    The image is resized to 640×640 (as required by NFR‑001) before inference.
+    If the detector finds no objects, the function returns ``0`` rather than
+    ``None`` or raising an error. This satisfies T020.
 
     Parameters
     ----------
-    model : ultralytics.YOLO
-        Loaded YOLOv8n model.
-    image : np.ndarray
-        BGR image as read by OpenCV.
+    image_path: Path
+        Path to the image file.
 
     Returns
     -------
     int
-        Number of detected bounding boxes.
+        Number of detected objects (0 if none).
     """
-    # YOLO expects RGB; convert and resize.
-    rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    # YOLO's ``predict`` can accept a numpy array directly.
-    results = model.predict(
-        source=rgb_image,
-        imgsz=640,
-        conf=0.25,
-        device="cpu",
-        verbose=False,
-    )
-    # ``results`` is a list with a single ``Results`` object.
+    model = _load_yolo_model()
+    # YOLO inference returns a list of results; each result corresponds to an
+    # input image (here a single image). ``boxes`` holds the detections.
+    results = model(str(image_path), imgsz=640, device="cpu")
     if not results:
+        # No result object – treat as zero detections.
         return 0
     result = results[0]
-    # ``result.boxes`` holds the detections.
-    return int(len(result.boxes))
+    # ``result.boxes`` may be empty; ``len`` works for both Torch tensors and
+    # ultralytics Boxes objects.
+    try:
+        count = len(result.boxes)
+    except Exception:
+        # Defensive fallback – if the attribute is missing or not iterable.
+        count = 0
+    return int(count)
 
-# ---------------------------------------------------------------------------
-# Main processing function
-# ---------------------------------------------------------------------------
-
-def process_images(
-    stimuli_dir: Path,
-    output_csv: Path,
-    performance_log: Path,
-) -> None:
+def process_images(stimuli_dir: Path, output_csv: Path) -> None:
     """
-    Process all images under ``stimuli_dir`` and write metrics + performance log.
+    Process all images in ``stimuli_dir`` and write a CSV with computed metrics.
+
+    The CSV columns are:
+        image_id, entropy, color_variance, object_count
 
     Parameters
     ----------
-    stimuli_dir : Path
+    stimuli_dir: Path
         Directory containing stimulus images.
-    output_csv : Path
-        Destination CSV file for the metrics.
-    performance_log : Path
-        Destination text file for timing / memory statistics.
+    output_csv: Path
+        Destination CSV file path.
     """
-    # Ensure output directories exist.
-    output_csv.parent.mkdir(parents=True, exist_ok=True)
-    performance_log.parent.mkdir(parents=True, exist_ok=True)
+    images = list_image_files(stimuli_dir)
+    if not images:
+        raise RuntimeError(f"No images found in {stimuli_dir}")
 
-    image_paths = list_image_files(stimuli_dir)
-    if not image_paths:
-        raise FileNotFoundError(f"No image files found in {stimuli_dir}")
-
-    # Load YOLOv8n model (weights are downloaded automatically on first run).
-    yolo_model = YOLO("yolov8n.pt")
-
-    records: List[Tuple[str, float, float, int]] = []
-
-    # Performance measurement.
     start_time = time.time()
-    start_mem = (
-        psutil.Process(os.getpid()).memory_info().rss / (1024 ** 2)
-        if psutil
-        else None
-    )
-
-    for img_path in image_paths:
-        # Read image.
-        img = cv2.imread(str(img_path), cv2.IMREAD_COLOR)
-        if img is None:
-            raise IOError(f"Failed to read image {img_path}")
-
-        # Resize to 640×640 for internal processing (NFR‑001).
-        resized = cv2.resize(img, (640, 640), interpolation=cv2.INTER_AREA)
-
-        # Compute metrics.
-        gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
-        entropy = compute_entropy(gray)
-        color_var = compute_color_variance(resized)
-        obj_count = count_objects_yolo(yolo_model, resized)
-
-        records.append(
-            (img_path.name, entropy, color_var, obj_count)
+    rows = []
+    for img_path in images:
+        image_id = img_path.stem
+        entropy = compute_entropy(img_path)
+        color_variance = compute_color_variance(img_path)
+        object_count = count_objects_yolo(img_path)
+        rows.append(
+            {
+                "image_id": image_id,
+                "entropy": entropy,
+                "color_variance": color_variance,
+                "object_count": object_count,
+            }
         )
 
-    # Assemble DataFrame.
-    df = pd.DataFrame(
-        records,
-        columns=["image_id", "entropy", "color_variance", "object_count"],
-    )
-    df.to_csv(output_csv, index=False)
+    # Ensure parent directory exists
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
 
-    # Performance statistics.
-    end_time = time.time()
-    elapsed = end_time - start_time
-    end_mem = (
-        psutil.Process(os.getpid()).memory_info().rss / (1024 ** 2)
-        if psutil
-        else None
-    )
-    peak_mem = max(start_mem or 0, end_mem or 0)
+    with output_csv.open("w", newline="", encoding="utf-8") as csvfile:
+        writer = csv.DictWriter(
+            csvfile,
+            fieldnames=[
+                "image_id",
+                "entropy",
+                "color_variance",
+                "object_count",
+            ],
+        )
+        writer.writeheader()
+        writer.writerows(rows)
 
-    log_content = {
-        "total_images": len(image_paths),
-        "total_time_seconds": round(elapsed, 3),
-        "average_time_per_image_seconds": round(elapsed / len(image_paths), 3),
-    }
-    if psutil:
-        log_content["peak_memory_mb"] = round(peak_mem, 2)
-
-    performance_log.write_text(json.dumps(log_content, indent=2))
-
-# ---------------------------------------------------------------------------
-# Entry point
-# ---------------------------------------------------------------------------
+    # Write a simple performance log (used by other tasks)
+    perf_log_path = output_csv.parent.parent / "derived" / "performance_log.txt"
+    perf_log_path.parent.mkdir(parents=True, exist_ok=True)
+    duration = time.time() - start_time
+    with perf_log_path.open("a", encoding="utf-8") as log_file:
+        log_file.write(
+            f"Processed {len(rows)} images in {duration:.2f} seconds. "
+            f"Average time per image: {duration/len(rows):.3f}s\\n"
+        )
 
 def main() -> None:
     """
-    Entry point for ``python -m src.metrics.extract`` or direct execution.
-    """
-    project_root = Path(__file__).resolve().parents[3]  # up to ``code`` directory
-    stimuli_dir = project_root / "data" / "stimuli"
-    output_csv = project_root / "data" / "processed" / "metrics.csv"
-    performance_log = project_root / "data" / "derived" / "performance_log.txt"
+    Command‑line entry point.
 
-    process_images(stimuli_dir, output_csv, performance_log)
-    print(f"Metrics written to {output_csv}")
-    print(f"Performance log written to {performance_log}")
+    Usage
+    -----
+    python -m src.metrics.extract --stimuli-dir data/stimuli/raw --output-csv data/processed/metrics.csv
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Extract visual‑complexity metrics from image stimuli."
+    )
+    parser.add_argument(
+        "--stimuli-dir",
+        type=Path,
+        required=True,
+        help="Directory containing stimulus image files.",
+    )
+    parser.add_argument(
+        "--output-csv",
+        type=Path,
+        required=True,
+        help="Path to write the metrics CSV (e.g., data/processed/metrics.csv).",
+    )
+    args = parser.parse_args()
+    process_images(args.stimuli_dir, args.output_csv)
 
 if __name__ == "__main__":
     main()

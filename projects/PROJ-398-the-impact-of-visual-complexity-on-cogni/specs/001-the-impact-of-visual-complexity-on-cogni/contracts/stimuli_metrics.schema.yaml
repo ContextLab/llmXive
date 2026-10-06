@@ -1,6 +1,6 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Stimulus Metrics Schema
-description: Schema for the computed visual complexity metrics of background images.
+description: Schema for the processed visual complexity metrics of background images.
 type: object
 properties:
   stimulus_id:

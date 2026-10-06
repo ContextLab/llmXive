@@ -1,227 +1,201 @@
-# Data Model: Visual Complexity & Cognitive Load
+# Data Model: Visual Complexity ↔ Cognitive Load Study
 
 ## Overview
+The data model defines the JSON schemas and CSV structures used throughout the pipeline. All schemas live under `contracts/` and are validated with `jsonschema` during CI.
 
-This document defines the data structures for the project, ensuring alignment with the `spec.md` entities and the project's Data Hygiene principles.
+## Schemas
 
-## Entities
-
-### 1. BackgroundFrame (Stimulus)
-
-Represents a single background image used as a stimulus.
-
-**Source**: `data/stimuli/` (images) + `data/metadata/stimuli.json` (metrics).
-
+### `contracts/background_frame.schema.yaml`
 ```yaml
-# contracts/stimulus_schema.yaml
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "BackgroundFrame"
 type: object
 properties:
   frame_id:
     type: string
-    description: "Unique identifier for the stimulus (e.g., 'stim_001.png')"
+    description: "Unique identifier for the background image (e.g., bg_001)."
   entropy:
     type: number
-    description: "Shannon entropy of the image (float)"
+    description: "Shannon entropy of the grayscale image."
   color_variance:
     type: number
-    description: "Variance of color channels (float)"
+    description: "Mean variance across the RGB channels."
   object_count:
     type: integer
-    description: "Number of objects detected by YOLOv8n"
-  checksum:
-    type: string
-    description: "SHA-256 checksum of the raw image file (for reproducibility)"
+    minimum: 0
+    description: "Number of objects detected by YOLOv8n; zero if none."
 required:
   - frame_id
   - entropy
   - color_variance
   - object_count
-  - checksum
+additionalProperties: false
 ```
 
-### 2. HumanRating (Pilot Data)
-
-Represents a human participant's rating of a background image.
-
-**Source**: `data/measurements/pilot_ratings.json`.
-
+### `contracts/human_rating.schema.yaml`
 ```yaml
-# contracts/human_rating_schema.yaml
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "HumanRating"
 type: object
 properties:
-  rating_id:
+  image_id:
     type: string
-    description: "Unique ID for the rating record"
+    description: "Identifier matching a BackgroundFrame."
   participant_id:
     type: string
-    description: "Anonymous ID of the pilot participant"
-  frame_id:
-    type: string
-    description: "Reference to BackgroundFrame"
+    description: "Anonymous participant code."
   complexity_score:
-    type: integer
+    type: number
     minimum: 1
     maximum: 10
-    description: "Human rating of visual complexity (1-10)"
-  role:
-    type: string
-    enum: ["Pilot_Ground_Truth"]
-    description: "Explicitly marks this data as pilot ground truth, never to be used as main study outcome."
-  timestamp:
-    type: string
-    format: date-time
-    description: "ISO 8601 timestamp of the rating"
+    description: "Self‑reported visual complexity (1‑10)."
 required:
-  - rating_id
+  - image_id
   - participant_id
-  - frame_id
   - complexity_score
-  - role
-  - timestamp
+additionalProperties: false
 ```
 
-### 3. ParticipantSession (Main Study)
-
-Represents a single participant's session in the main study.
-
-**Source**: `data/measurements/main_study_sessions.json`.
-
+### `contracts/participant_session.schema.yaml`
 ```yaml
-# contracts/session_schema.yaml
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "ParticipantSession"
 type: object
 properties:
-  session_id:
-    type: string
-    description: "Unique session ID"
   participant_id:
     type: string
-    description: "Anonymous participant ID"
-  baseline_rt_mean:
+  session_id:
+    type: string
+  baseline_rt:
     type: number
-    description: "Mean reaction time (ms) during baseline task"
-  baseline_rt_accuracy:
+    description: "Mean reaction time (ms) on baseline task."
+  familiarity_score:
     type: number
-    description: "Accuracy percentage during baseline task"
+    minimum: 1
+    maximum: 10
+    description: "Pre‑experiment self‑reported familiarity with meeting content (1‑10)."
   trials:
     type: array
     items:
       type: object
       properties:
-        trial_id:
+        clip_id:
           type: string
-        frame_id:
+        background_frame_id:
           type: string
+        task_difficulty:
+          type: string
+          enum: [low, medium, high]
         nasa_tlx_score:
           type: number
-          description: "Overall NASA-TLX score"
-        rt_mean:
+          minimum: 0
+          maximum: 100
+        post_rt:
           type: number
-          description: "Mean reaction time (ms) for post-task"
-        rt_accuracy:
-          type: number
-          description: "Accuracy percentage for post-task"
-        order_index:
-          type: integer
-          description: "Position in the counterbalanced sequence"
+          description: "Mean RT (ms) after the clip."
+        rt_valid:
+          type: boolean
+          description: "True if TLX and RT present; False otherwise."
       required:
-        - trial_id
-        - frame_id
+        - clip_id
+        - background_frame_id
+        - task_difficulty
         - nasa_tlx_score
-        - rt_mean
-        - rt_accuracy
-        - order_index
-  attention_check_passed:
-    type: boolean
-    description: "Whether the participant passed attention checks"
+        - post_rt
+        - rt_valid
+    description: "One entry per experimental trial."
 required:
-  - session_id
   - participant_id
-  - baseline_rt_mean
-  - baseline_rt_accuracy
+  - session_id
+  - baseline_rt
+  - familiarity_score
   - trials
-  - attention_check_passed
+additionalProperties: false
 ```
 
-### 4. AnalysisResult
-
-Represents the output of the statistical model.
-
-**Source**: `data/processed/analysis_results.json`.
-
+### `contracts/analysis_result.schema.yaml`
 ```yaml
-# contracts/analysis_result_schema.yaml
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "AnalysisResult"
 type: object
 properties:
-  model_id:
+  model_name:
     type: string
-    description: "Identifier for the model run"
-  predictors:
+    description: "Identifier of the statistical model (e.g., lmm_full)."
+  fixed_effects:
     type: array
     items:
-      type: string
-    description: "List of predictors used (e.g., entropy, variance)"
-  fixed_effects:
-    type: object
-    description: "Fixed effect estimates, p-values, CIs"
-    additionalProperties:
       type: object
       properties:
+        predictor:
+          type: string
         estimate:
           type: number
-        std_err:
+        conf_low:
+          type: number
+        conf_high:
           type: number
         p_value:
           type: number
-        p_value_adj:
+        p_adj:
           type: number
-          description: "Benjamini-Hochberg adjusted p-value"
-        ci_lower:
+        effect_size:
           type: number
-        ci_upper:
-          type: number
-        vif:
-          type: number
-          description: "Variance Inflation Factor"
-  sensitivity_analysis:
+          description: "Cohen's d or standardized beta."
+      required:
+        - predictor
+        - estimate
+        - conf_low
+        - conf_high
+        - p_value
+        - p_adj
+        - effect_size
+  vif:
     type: object
-    properties:
-      alpha_thresholds:
-        type: array
-        items:
-          type: number
-        description: "List of alpha values swept (e.g., [0.01, 0.05, 0.1])"
-      significant_counts:
-        type: array
-        items:
-          type: integer
-        description: "Count of significant predictors at each alpha"
-      effect_size_sd:
-        type: number
-        description: "Standard deviation of effect sizes across thresholds"
-  fwer:
+    additionalProperties:
+      type: number
+    description: "VIF per fixed effect."
+  fwer_observed:
     type: number
-    description: "Observed Family-Wise Error Rate from null simulation"
+    description: "Family‑wise error rate from null simulations (target α = 0.05)."
+  sensitivity:
+    type: array
+    items:
+      type: object
+      properties:
+        alpha:
+          type: number
+        significant_predictors:
+          type: integer
+        effect_size_sd:
+          type: number
+      required:
+        - alpha
+        - significant_predictors
+        - effect_size_sd
 required:
-  - model_id
-  - predictors
+  - model_name
   - fixed_effects
-  - sensitivity_analysis
-  - fwer
+  - vif
+  - fwer_observed
+  - sensitivity
+additionalProperties: false
 ```
 
-## Data Flow
+## CSV Formats
+| File | Description | Primary Key |
+|------|-------------|-------------|
+| `data/stimuli/metadata/frames.csv` | `frame_id, entropy, color_variance, object_count` | `frame_id` |
+| `data/measurements/pilot_ratings.csv` | `image_id, participant_id, complexity_score` | composite |
+| `data/processed/metrics.csv` | Merges background frames with pilot correlations. | `frame_id` |
+| `data/derived/individual_metric_correlations.csv` | `metric, pearson_r, p_value` | `metric` |
+| `data/derived/rt_measurements.json` | JSON list of baseline and post‑clip RT per participant. | — |
+| `data/derived/analysis_results.json` | Serialized `AnalysisResult` object. | — |
 
-1.  **Curate**: `code/stimuli/` (real images) -> `data/stimuli/` (images) + `stimuli_schema.yaml` (metrics).
-2.  **Pilot**: `pilot/app.py` -> `human_rating_schema.yaml` (JSON).
-3.  **Validate**: `pilot/validate.py` -> Correlation report (text). **Pilot data excluded from main analysis.**
-4.  **Main**: `main_study/app.py` -> `session_schema.yaml` (JSON).
-5.  **Analyze**: `analysis/lmm.py` + `sensitivity.py` -> `analysis_result_schema.yaml` (JSON).
-6.  **Report**: `paper/` generated from `analysis_result_schema.yaml`.
+All files are checksum‑verified; SHA‑256 hashes stored in `data/metadata/dataset_manifest.json`.
+
+## Validation Notes
+- Pilot rating records (`data/measurements/pilot_ratings.csv`) are validated against `contracts/human_rating.schema.yaml`.  
+- The final analysis output (`data/derived/analysis_results.json`) is validated against `contracts/analysis_result.schema.yaml` via the CI test `tests/contract/test_schemas.py`.  
+
+--- 

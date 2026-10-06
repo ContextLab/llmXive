@@ -1,7 +1,7 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "BackgroundFrame Metrics Schema"
 description: "Schema for the computed visual complexity metrics of a single background frame."
-type: "object"
+type: object
 properties:
   frame_id:
     type: "string"

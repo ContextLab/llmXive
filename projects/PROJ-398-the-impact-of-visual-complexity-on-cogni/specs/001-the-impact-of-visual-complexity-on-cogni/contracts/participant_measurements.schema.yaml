@@ -18,7 +18,7 @@ properties:
     description: "Objective task difficulty condition (1-back = low, 2-back = high)."
   nasa_tlx_score:
     type: number
-    description: "NASA-TLX cognitive load score."
+    description: "NASA‑TLX cognitive load score."
     minimum: 0.0
     maximum: 100.0
   reaction_time_ms:

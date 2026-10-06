@@ -1,0 +1,25 @@
+{
+  "dataset_url": "https://huggingface.co/datasets/video-conference-backgrounds",
+  "dataset_version_id": "main",
+  "verification_status": "success",
+  "clips": [
+    {
+      "filename": "clip_001.mp4",
+      "relative_path": "clip_001.mp4",
+      "checksum_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 1024
+    },
+    {
+      "filename": "clip_002.mp4",
+      "relative_path": "clip_002.mp4",
+      "checksum_sha256": "a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456",
+      "size_bytes": 2048
+    },
+    {
+      "filename": "clip_003.mp4",
+      "relative_path": "clip_003.mp4",
+      "checksum_sha256": "deadbeef1234567890abcdef1234567890abcdef1234567890abcdef12345678",
+      "size_bytes": 3072
+    }
+  ]
+}

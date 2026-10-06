@@ -1,26 +1,19 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: HumanRating
-description: "Represents a human participant's subjective rating of a background image's complexity."
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "HumanRating"
 type: object
 properties:
-  rating_id:
-    type: string
-    description: "Unique identifier for the rating entry."
   image_id:
     type: string
-    description: "Reference to the Stimulus being rated."
+    description: "Identifier matching a BackgroundFrame."
   participant_id:
     type: string
-    description: "Identifier for the human rater."
+    description: "Anonymous participant code."
   complexity_score:
     type: number
-    description: "Rating on a 1-10 scale."
-  timestamp:
-    type: string
-    format: date-time
-    description: "Time of rating."
+    minimum: 1
+    maximum: 10
+    description: "Self‑reported visual complexity (1‑10)."
 required:
-  - rating_id
   - image_id
   - participant_id
   - complexity_score

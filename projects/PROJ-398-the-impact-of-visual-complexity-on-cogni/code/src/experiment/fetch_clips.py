@@ -1,205 +1,243 @@
 """
 fetch_clips.py
 
-Fetch real meeting background frames/clips from the HuggingFace
-`video-conference-backgrounds` dataset.
-
-This script downloads the media files to a specified output directory and
-writes a manifest JSON file containing metadata (filename, source URL,
-SHA‑256 checksum). It is intended for the main study (US2) and must operate
-on real data – no synthetic fall‑backs are provided.
+Implements the T032 task: download meeting background clips from the
+HuggingFace dataset ``video-conference-backgrounds`` and record provenance
+information (dataset version, source URL, per‑file SHA‑256 checksums) in
+``data/metadata/dataset_manifest.json``.
 """
 
 import argparse
 import json
 import os
 import sys
-import time
+import hashlib
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict
 
-import requests
-from datasets import load_dataset
+from huggingface_hub import HfApi, hf_hub_download
 
-# Local utilities for checksum computation
-from src.lib.utils import compute_file_checksum
-
+# ----------------------------------------------------------------------
+# Helper utilities
+# ----------------------------------------------------------------------
 def ensure_output_directory(output_dir: Path) -> None:
     """
-    Ensure that the output directory exists.
+    Ensure that the required output directories exist.
 
     Parameters
     ----------
-    output_dir : Path
-        Directory where downloaded files will be stored.
+    output_dir: Path
+        Directory where the downloaded stimuli will be stored.
     """
+    # Create the stimuli raw directory
     output_dir.mkdir(parents=True, exist_ok=True)
+    # Ensure the metadata directory exists as well
+    metadata_dir = Path("data/metadata")
+    metadata_dir.mkdir(parents=True, exist_ok=True)
 
-
-def download_dataset_items(
-    dataset_name: str = "HuggingFaceM4/video-conference-backgrounds",
-    split: str = "train",
-    output_dir: Path = Path("data/stimuli/meeting_clips"),
-    max_items: int | None = None,
-) -> List[Dict[str, Any]]:
+def compute_sha256(file_path: Path) -> str:
     """
-    Stream the dataset and download each media item.
-
-    The dataset contains either an ``image`` field (URL to a JPEG/PNG) or a
-    ``video`` field (URL to a video file). Only items with a direct URL are
-    downloaded; others are skipped with a warning.
+    Compute the SHA‑256 checksum of a file.
 
     Parameters
     ----------
-    dataset_name : str
-        HuggingFace dataset identifier.
-    split : str
-        Split to download (e.g., ``train``).
-    output_dir : Path
-        Destination directory for downloaded files.
-    max_items : int | None
-        Optional cap on the number of items to fetch. ``None`` means download
-        the full split.
+    file_path: Path
+        Path to the file.
 
     Returns
     -------
-    List[Dict[str, Any]]
-        Manifest entries for each successfully downloaded file.
+    str
+        Hexadecimal SHA‑256 digest.
     """
-    manifest: List[Dict[str, Any]] = []
+    hash_sha256 = hashlib.sha256()
+    with file_path.open("rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            hash_sha256.update(chunk)
+    return hash_sha256.hexdigest()
 
-    # Load dataset in streaming mode to avoid materialising the whole split.
-    try:
-        ds = load_dataset(dataset_name, split=split, streaming=True)
-    except Exception as exc:
-        print(f"Failed to load dataset {dataset_name} (split={split}): {exc}", file=sys.stderr)
-        raise
-
-    for idx, item in enumerate(ds):
-        if max_items is not None and idx >= max_items:
-            break
-
-        # Determine the media URL. The dataset may provide either `image` or `video`.
-        url = item.get("image") or item.get("video")
-        if not isinstance(url, str):
-            print(f"Skipping item {idx}: no downloadable URL found.", file=sys.stderr)
-            continue
-
-        # Derive a filename from the URL.
-        filename = Path(url).name
-        if not filename:
-            print(f"Skipping item {idx}: could not extract filename from URL.", file=sys.stderr)
-            continue
-
-        dest_path = output_dir / filename
-
-        # Skip already‑downloaded files to make the script resumable.
-        if dest_path.is_file():
-            checksum = compute_file_checksum(dest_path)
-            manifest.append(
-                {
-                    "filename": filename,
-                    "url": url,
-                    "checksum": checksum,
-                    "status": "already_exists",
-                }
-            )
-            continue
-
-        try:
-            with requests.get(url, stream=True, timeout=30) as response:
-                response.raise_for_status()
-                with open(dest_path, "wb") as f:
-                    for chunk in response.iter_content(chunk_size=8192):
-                        if chunk:  # filter out keep‑alive chunks
-                            f.write(chunk)
-        except Exception as exc:
-            print(f"Failed to download {url}: {exc}", file=sys.stderr)
-            continue
-
-        # Compute checksum for integrity verification.
-        checksum = compute_file_checksum(dest_path)
-
-        manifest.append(
-            {
-                "filename": filename,
-                "url": url,
-                "checksum": checksum,
-                "status": "downloaded",
-            }
-        )
-
-        # Simple progress output.
-        if (idx + 1) % 50 == 0:
-            print(f"Downloaded {idx + 1} items...")
-
-    return manifest
-
-
-def save_manifest(manifest: List[Dict[str, Any]], output_dir: Path) -> None:
+# ----------------------------------------------------------------------
+# Core download logic
+# ----------------------------------------------------------------------
+def download_dataset_items(
+    repo_id: str,
+    output_dir: Path,
+    revision: str = "main",
+    repo_type: str = "dataset",
+) -> List[Path]:
     """
-    Write the manifest JSON file to the output directory.
+    Download all files from a HuggingFace dataset repository.
 
     Parameters
     ----------
-    manifest : List[Dict[str, Any]]
-        List of metadata dictionaries for each downloaded file.
-    output_dir : Path
-        Directory where ``manifest.json`` will be written.
+    repo_id: str
+        Identifier of the HuggingFace dataset (e.g. ``video-conference-backgrounds``).
+    output_dir: Path
+        Directory where files will be saved.
+    revision: str, optional
+        Git revision / commit hash to fetch. Defaults to ``main``.
+    repo_type: str, optional
+        Repository type – always ``dataset`` for this project.
+
+    Returns
+    -------
+    List[Path]
+        List of paths to the downloaded files.
     """
-    manifest_path = output_dir / "manifest.json"
-    with open(manifest_path, "w", encoding="utf-8") as f:
+    api = HfApi()
+    # Retrieve the complete file list for the repository
+    try:
+        repo_files = api.list_repo_files(
+            repo_id=repo_id, revision=revision, repo_type=repo_type
+        )
+    except Exception as exc:
+        raise RuntimeError(
+            f"Unable to list files for repository '{repo_id}' (revision={revision})."
+        ) from exc
+
+    downloaded_paths: List[Path] = []
+    for file_name in repo_files:
+        # Skip directories (the API returns only file paths)
+        try:
+            local_path = hf_hub_download(
+                repo_id=repo_id,
+                filename=file_name,
+                revision=revision,
+                repo_type=repo_type,
+                local_dir=output_dir,
+            )
+            downloaded_paths.append(Path(local_path))
+        except Exception as exc:
+            # Propagate the error – we do **not** silently ignore failures
+            raise RuntimeError(
+                f"Failed to download '{file_name}' from '{repo_id}'."
+            ) from exc
+    return downloaded_paths
+
+# ----------------------------------------------------------------------
+# Manifest creation
+# ----------------------------------------------------------------------
+def save_manifest(
+    repo_id: str,
+    revision: str,
+    files: List[Path],
+    manifest_path: Path,
+    source_url: str,
+) -> None:
+    """
+    Write a JSON manifest containing dataset provenance and checksums.
+
+    Parameters
+    ----------
+    repo_id: str
+        The HuggingFace dataset identifier.
+    revision: str
+        The specific revision (commit hash) that was downloaded.
+    files: List[Path]
+        List of local file paths that were downloaded.
+    manifest_path: Path
+        Destination path for the JSON manifest.
+    source_url: str
+        Human‑readable URL of the dataset.
+    """
+    checksum_map: Dict[str, str] = {}
+    for file_path in files:
+        # Store checksums relative to the output directory for readability
+        rel_path = file_path.relative_to(file_path.parents[2])  # data/stimuli/raw/<file>
+        checksum_map[str(rel_path)] = compute_sha256(file_path)
+
+    manifest = {
+        "dataset": repo_id,
+        "revision": revision,
+        "source_url": source_url,
+        "files": checksum_map,
+    }
+
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    with manifest_path.open("w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2, sort_keys=True)
-    print(f"Manifest written to {manifest_path}")
 
+# ----------------------------------------------------------------------
+# Argument parsing
+# ----------------------------------------------------------------------
+def parse_arguments(argv: List[str] | None = None) -> argparse.Namespace:
+    """
+    Parse command‑line arguments for the fetch script.
 
-def parse_arguments() -> argparse.Namespace:
+    Returns
+    -------
+    argparse.Namespace
+        Parsed arguments.
+    """
     parser = argparse.ArgumentParser(
-        description="Fetch real meeting background clips from the HuggingFace dataset."
+        description="Download meeting background clips from a HuggingFace dataset "
+        "and record a provenance manifest."
+    )
+    parser.add_argument(
+        "--repo-id",
+        default="video-conference-backgrounds",
+        help="HuggingFace dataset identifier (default: video-conference-backgrounds).",
+    )
+    parser.add_argument(
+        "--revision",
+        default="main",
+        help="Dataset revision / commit hash to download (default: main).",
     )
     parser.add_argument(
         "--output-dir",
-        type=Path,
-        default=Path("data/stimuli/meeting_clips"),
-        help="Directory to store downloaded clips (default: %(default)s).",
+        default="data/stimuli/raw",
+        help="Directory where downloaded files will be stored.",
     )
     parser.add_argument(
-        "--max-items",
-        type=int,
-        default=None,
-        help="Maximum number of items to download (default: all).",
+        "--manifest-path",
+        default="data/metadata/dataset_manifest.json",
+        help="Path to write the dataset manifest JSON.",
     )
-    parser.add_argument(
-        "--split",
-        type=str,
-        default="train",
-        help="Dataset split to download (default: %(default)s).",
-    )
-    parser.add_argument(
-        "--dataset",
-        type=str,
-        default="HuggingFaceM4/video-conference-backgrounds",
-        help="HuggingFace dataset identifier (default: %(default)s).",
-    )
-    return parser.parse_args()
+    return parser.parse_args(argv)
 
+# ----------------------------------------------------------------------
+# Main entry point
+# ----------------------------------------------------------------------
+def main(argv: List[str] | None = None) -> None:
+    """
+    Orchestrate the download and manifest creation.
 
-def main() -> None:
-    args = parse_arguments()
-    output_dir: Path = args.output_dir
+    This function is deliberately side‑effectful: it writes files to the
+    repository's ``data/`` tree.  It raises on any failure so that the
+    automated pipeline can detect missing real data rather than silently
+    falling back to synthetic placeholders.
+    """
+    args = parse_arguments(argv)
+
+    output_dir = Path(args.output_dir)
+    manifest_path = Path(args.manifest_path)
+
+    # Step 1: ensure directories exist
     ensure_output_directory(output_dir)
 
-    start = time.time()
-    manifest = download_dataset_items(
-        dataset_name=args.dataset,
-        split=args.split,
+    # Step 2: download all dataset items
+    downloaded_files = download_dataset_items(
+        repo_id=args.repo_id,
         output_dir=output_dir,
-        max_items=args.max_items,
+        revision=args.revision,
+        repo_type="dataset",
     )
-    save_manifest(manifest, output_dir)
-    elapsed = time.time() - start
-    print(f"Finished downloading. Total items: {len(manifest)}. Elapsed time: {elapsed:.2f}s")
 
+    # Step 3: construct a human‑readable source URL
+    source_url = f"https://huggingface.co/datasets/{args.repo_id}"
+
+    # Step 4: write the manifest
+    save_manifest(
+        repo_id=args.repo_id,
+        revision=args.revision,
+        files=downloaded_files,
+        manifest_path=manifest_path,
+        source_url=source_url,
+    )
+
+    print(
+        f"Download complete. Manifest written to '{manifest_path}'. "
+        f"Total files: {len(downloaded_files)}."
+    )
 
 if __name__ == "__main__":
     main()

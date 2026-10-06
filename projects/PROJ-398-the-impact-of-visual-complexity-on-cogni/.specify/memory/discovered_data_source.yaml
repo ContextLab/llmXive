@@ -1,0 +1,13 @@
+status: none
+intent: Curated Real-World Meeting Backgrounds Human Pilot Ratings dataset python
+  package dataset
+required_fields:
+- image_id
+- image_path
+- entropy
+- color_variance
+- object_count
+- human_complexity_score
+cache_key: af3952ae871ae2fb967836146b177b41609f9198f9d98c5914adc09a659eec20
+searched_at: '2026-10-06T18:48:33.966174+00:00'
+retry_count: 1

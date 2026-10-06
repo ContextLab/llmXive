@@ -1,48 +1,53 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "ParticipantSession"
-description: "Schema for a participant's session data including cognitive load metrics."
-type: "object"
+type: object
 properties:
   participant_id:
-    type: "string"
-    description: "Anonymized unique ID for the participant."
-  session_id:
-    type: "string"
-    description: "Unique ID for the specific session."
-  stimulus_id:
-    type: "string"
-    description: "ID of the background image shown."
-  nasa_tlx_score:
-    type: "number"
-    description: "NASA-TLX cognitive load score (0-100)."
-  reaction_time_ms:
-    type: number
-    description: "Mean reaction time in milliseconds."
-    minimum: 0
-  accuracy_pct:
-    type: number
-    description: "Accuracy percentage of the reaction-time task."
-    minimum: 0
-    maximum: 100
-  task_condition:
     type: string
-    enum: ["1-back", "2-back"]
-    description: "Objective task difficulty condition (1-back = low, 2-back = high)."
-  baseline_reaction_time_ms:
+  session_id:
+    type: string
+  baseline_rt:
     type: number
-    description: "Baseline reaction time from the control condition."
-    minimum: 0
-  is_baseline_trial:
-    type: boolean
-    description: "True if this is the baseline control condition."
+    description: "Mean reaction time (ms) on baseline task."
+  familiarity_score:
+    type: number
+    minimum: 1
+    maximum: 10
+    description: "Pre‑experiment self‑reported familiarity with meeting content (1‑10)."
+  trials:
+    type: array
+    items:
+      type: object
+      properties:
+        clip_id:
+          type: string
+        background_frame_id:
+          type: string
+        task_difficulty:
+          type: string
+          enum: [low, medium, high]
+        nasa_tlx_score:
+          type: number
+          minimum: 0
+          maximum: 100
+        post_rt:
+          type: number
+          description: "Mean RT (ms) after the clip."
+        rt_valid:
+          type: boolean
+          description: "True if TLX and RT present; False otherwise."
+      required:
+        - clip_id
+        - background_frame_id
+        - task_difficulty
+        - nasa_tlx_score
+        - post_rt
+        - rt_valid
+    description: "One entry per experimental trial."
 required:
-  - session_id
   - participant_id
-  - clip_id
-  - nasa_tlx_score
-  - reaction_time_ms
-  - accuracy_pct
-  - task_condition
-  - baseline_reaction_time_ms
-  - is_baseline_trial
+  - session_id
+  - baseline_rt
+  - familiarity_score
+  - trials
 additionalProperties: false

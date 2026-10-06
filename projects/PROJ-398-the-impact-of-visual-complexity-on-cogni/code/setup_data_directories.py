@@ -2,44 +2,39 @@ import os
 from pathlib import Path
 from typing import Union
 
-def ensure_directory(path: Union[str, Path]) -> Path:
+def ensure_directory(path: Union[str, Path]) -> None:
     """
-    Ensure that a directory exists at the given path.
-    If the directory (or any of its parents) does not exist, it is created.
-
-    Parameters
-    ----------
-    path : Union[str, Path]
-        The directory path to ensure.
-
-    Returns
-    -------
-    Path
-        The Path object representing the ensured directory.
+    Ensure the given directory path exists. Creates it if it doesn't.
+    
+    Args:
+        path: The directory path to ensure exists.
     """
     dir_path = Path(path)
-    dir_path.mkdir(parents=True, exist_ok=True)
-    return dir_path
+    if not dir_path.exists():
+        dir_path.mkdir(parents=True, exist_ok=True)
 
 def main() -> None:
     """
-    Create the required data directory structure for the project:
-    - data/stimuli/
-    - data/processed/
-    - data/measurements/
-    - data/raw/
-    
-    The function determines the project root relative to this file's location
-    and creates each subdirectory under the root's `data/` folder.
+    Main function to create the required data directory structure.
+    Creates: data/stimuli/, data/processed/, data/measurements/, data/raw/
     """
-    # Determine the project root (assumes this file is located in <project_root>/code/)
-    project_root = Path(__file__).resolve().parent.parent
-
-    data_root = project_root / "data"
-    subdirectories = ["stimuli", "processed", "measurements", "raw"]
-
+    base_data_dir = Path("data")
+    
+    # Ensure the base data directory exists first
+    ensure_directory(base_data_dir)
+    
+    # Define the required subdirectories
+    subdirectories = [
+        "stimuli",
+        "processed",
+        "measurements",
+        "raw"
+    ]
+    
     for subdir in subdirectories:
-        ensure_directory(data_root / subdir)
+        dir_path = base_data_dir / subdir
+        ensure_directory(dir_path)
+        print(f"Ensured directory: {dir_path}")
 
 if __name__ == "__main__":
     main()
