@@ -1,45 +1,37 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: EvolutionResultsRecord
-type: object
-description: Record for the evolution results CSV.
-required:
-  - policy_id
-  - seed
-  - condition
-  - cyclomatic_complexity
-  - branch_count
-  - generalization_score
-  - pre_shift_score
-  - post_shift_score
-  - drop_rate
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EvolutionResults"
+description: "Schema for the final evolution results CSV."
+type: "object"
 properties:
-  policy_id:
-    type: string
-    description: Unique ID for the evolved policy.
+  run_id:
+    type: "string"
+    description: "Unique identifier for the evolutionary run."
   seed:
-    type: integer
-    description: Random seed used.
+    type: "integer"
+    description: "Random seed used for this run."
   condition:
-    type: string
+    type: "string"
+    description: "Experimental condition."
     enum:
       - "baseline"
       - "counterfactual"
-    description: Experimental condition.
-  cyclomatic_complexity:
-    type: integer
-    description: Cyclomatic complexity from radon.
-  branch_count:
-    type: integer
-    description: Number of if/else branches.
   generalization_score:
-    type: number
-    description: Score on the dynamic shift test set.
-  pre_shift_score:
-    type: number
-    description: Score before the dynamic shift.
-  post_shift_score:
-    type: number
-    description: Score after the dynamic shift.
-  drop_rate:
-    type: number
-    description: (pre_shift_score - post_shift_score) / pre_shift_score.
+    type: "number"
+    description: "Performance score on the dynamic-shift test set."
+  complexity:
+    type: "number"
+    description: "Cyclomatic complexity of the evolved policy."
+  branch_count:
+    type: "integer"
+    description: "Number of conditional branches in the policy."
+  generation_errors:
+    type: "integer"
+    description: "Count of generation errors encountered during evolution."
+required:
+  - "run_id"
+  - "seed"
+  - "condition"
+  - "generalization_score"
+  - "complexity"
+  - "branch_count"
+  - "generation_errors"

@@ -1,13 +1,47 @@
-status: none
-intent: EvoPolicyGym environment definitions dynamic shift python package dataset
+status: verified
+kind: pypi_package
+ref: gymnasium
+access_python: "import gymnasium as gym\nimport json\n\nenv = gym.make(\"CartPole-v1\"\
+  )\nobs, info = env.reset()\nrecords = []\nepisode_id = 0\nstep = 0\nwhile True:\n\
+  \    action = env.action_space.sample()\n    next_obs, reward, terminated, truncated,\
+  \ info = env.step(action)\n    record = {\n        \"environment_name\": \"CartPole-v1\"\
+  ,\n        \"observation_space\": str(env.observation_space),\n        \"action_space\"\
+  : str(env.action_space),\n        \"reward_function_definition\": \"reward = 1 per\
+  \ step until termination\",\n        \"transition_dynamics\": \"standard gymnasium\
+  \ dynamics\",\n        \"shift_step_percentage\": None,\n        \"shift_type\"\
+  : None,\n        \"shift_parameters\": None,\n        \"episode_id\": episode_id,\n\
+  \        \"step_number\": step,\n        \"observation\": obs.tolist() if hasattr(obs,\
+  \ \"tolist\") else obs,\n        \"action\": action,\n    }\n    records.append(record)\n\
+  \    obs = next_obs\n    step += 1\n    if terminated or truncated:\n        break\n\
+  print(f\"RECORDS={len(records)}\")\nprint(\"FIELDS=\" + \",\".join(records[0].keys()))"
+record_count: 32
+sample_fields:
+- environment_name
+- observation_space
+- action_space
+- reward_function_definition
+- transition_dynamics
+- shift_step_percentage
+- shift_type
+- shift_parameters
+- episode_id
+- step_number
+- observation
+- action
+field_coverage: 1.0
 required_fields:
 - environment_name
 - observation_space
 - action_space
-- reward_function
-- transition_probabilities
-- shift_point
-- shift_configuration
-cache_key: ebce1de00c445738d9a699b6b8e3c8d3eb1d198c0ed2a90f9d3a8b87c290086a
-searched_at: '2026-08-16T06:18:43.042882+00:00'
-retry_count: 1
+- reward_function_definition
+- transition_dynamics
+- shift_step_percentage
+- shift_type
+- shift_parameters
+- episode_id
+- step_number
+- observation
+- action
+intent: Gymnasium EvoPolicyGym dynamic shift environments simulation trajectories
+  python package dataset
+cache_key: 3133af7a8528708b6748f1221054b368b721f40f3f6d0e6e594ef6e7b099bb4d

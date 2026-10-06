@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SensitivityReport"
+description: "Schema for the sensitivity report CSV (static agent validation). Pre-generated in Phase 0."
+type: "object"
+properties:
+  env_id:
+    type: "string"
+    description: "Environment ID."
+  pre_shift_score:
+    type: "number"
+    description: "Average score before the shift."
+  post_shift_score:
+    type: "number"
+    description: "Average score after the shift."
+  drop_percent:
+    type: "number"
+    description: "Percentage drop in performance."
+  p_value:
+    type: "number"
+    description: "P-value from the one-tailed t-test."
+  is_significant:
+    type: "boolean"
+    description: "True if p < 0.05."
+required:
+  - "env_id"
+  - "pre_shift_score"
+  - "post_shift_score"
+  - "drop_percent"
+  - "p_value"
+  - "is_significant"

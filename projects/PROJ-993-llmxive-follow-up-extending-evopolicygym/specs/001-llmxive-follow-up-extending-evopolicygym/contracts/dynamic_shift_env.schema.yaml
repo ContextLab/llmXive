@@ -1,41 +1,41 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: DynamicShiftEnvironmentConfig
-type: object
-description: Configuration for the dynamic shift environment extension.
-required:
-  - env_id
-  - shift_threshold
-  - shift_config
-  - rules
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DynamicShiftEnvironment"
+description: "Schema for the dynamic shift environment configuration and state."
+type: "object"
 properties:
   env_id:
-    type: string
-    description: Unique identifier for the environment.
-  shift_threshold:
-    type: number
+    type: "string"
+    description: "Unique identifier for the environment instance."
+  base_name:
+    type: "string"
+    description: "Name of the base gymnasium environment (e.g., 'CartPole-v1')."
+  shift_step_percentage:
+    type: "number"
+    description: "Percentage of total budget at which the shift occurs (default 0.5)."
     minimum: 0.0
     maximum: 1.0
-    description: Fraction of total steps at which the shift occurs.
-  shift_config:
-    type: object
-    description: Configuration for the change (e.g., reward inversion).
+  shift_type:
+    type: "string"
+    description: "Type of shift applied (e.g., 'reward_function', 'transition_dynamics')."
+    enum:
+      - "reward_function"
+      - "transition_dynamics"
+      - "both"
+  shift_parameters:
+    type: "object"
+    description: "Parameters defining the new dynamics after the shift."
     additionalProperties: true
-  rules:
-    type: array
-    description: List of ground-truth rules for the environment.
-    items:
-      type: object
-      required:
-        - rule_id
-        - description
-        - violation_condition
-      properties:
-        rule_id:
-          type: string
-          description: Unique ID for the rule.
-        description:
-          type: string
-          description: Human-readable description of the rule.
-        violation_condition:
-          type: string
-          description: Condition that triggers a violation (e.g., "action == 'left'").
+  pre_shift_config:
+    type: "object"
+    description: "Configuration of the environment before the shift."
+    additionalProperties: true
+  post_shift_config:
+    type: "object"
+    description: "Configuration of the environment after the shift."
+    additionalProperties: true
+required:
+  - "env_id"
+  - "base_name"
+  - "shift_step_percentage"
+  - "shift_type"
+  - "shift_parameters"

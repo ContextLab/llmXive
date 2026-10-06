@@ -1,85 +1,43 @@
-# Data Model: llmXive follow-up: extending "EvoPolicyGym: Evaluating Autonomous Policy Evolution in Interactive En"
+# Data Model: llmXive follow-up
 
-## Overview
+## 1. Overview
 
-This document defines the data structures, schemas, and storage formats used in the project. All data is stored in `data/` with raw, processed, and final subdirectories.
+This document defines the data artifacts produced by the `001-llmxive-counterfactual-extension` feature. All data is stored in `data/` and validated against schemas in `contracts/`.
 
-## Key Entities
+## 2. Data Artifacts
 
-### 1. DynamicShiftEnvironment Configuration
-Defines the parameters for the dynamic shift in an environment.
+### 2.1. Environment Discovery Log
+- **File**: `data/discovered_envs.json`
+- **Purpose**: Records the list of environments successfully loaded and their shift configurations. **This is the source of truth for the environment count.**
+- **Fields**: `env_id` (str), `base_name` (str), `shift_step` (int), `shift_type` (str).
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `env_id` | string | Unique identifier for the environment (e.g., "CartPole-v1"). |
-| `shift_threshold` | float | Fraction of total steps at which the shift occurs (default 0.5). |
-| `shift_config` | object | Configuration for the change (e.g., `{"reward_inversion": true}`). |
-| `rules` | list[object] | List of ground-truth rules for this environment (masked for LLM). |
+### 2.2. Sensitivity Report
+- **File**: `data/sensitivity_report.csv`
+- **Purpose**: Records the results of the static agent test on dynamic environments to validate the shift impact.
+- **Fields**: `env_id`, `pre_shift_score`, `post_shift_score`, `drop_percent`, `p_value`, `is_significant`.
+- **Schema**: Validated against `contracts/sensitivity_report.schema.yaml` (pre-generated in Phase 0).
 
-### 2. Trajectory Log
-Record of a single agent-environment interaction episode.
+### 2.3. Evolution Results
+- **File**: `data/evolution_results.csv`
+- **Purpose**: Final metrics for each evolved policy.
+- **Fields**: `run_id`, `seed`, `condition` (baseline/counterfactual), `generalization_score`, `complexity`, `branch_count`, `generation_errors`.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `episode_id` | string | Unique ID (UUID). |
-| `seed` | int | Random seed used. |
-| `condition` | string | "baseline" or "counterfactual". |
-| `steps` | list[object] | List of steps: `{step, state, action, reward, is_shifted}`. |
-| `total_reward` | float | Sum of rewards. |
-| `pre_shift_reward` | float | Sum of rewards before shift. |
-| `post_shift_reward` | float | Sum of rewards after shift. |
-| `failed` | boolean | Whether the episode ended in failure. |
+### 2.4. Fallback Log
+- **File**: `data/fallbacks.log`
+- **Purpose**: Tracks LLM failures and fallback usage for SC-004.
+- **Fields**: `run_id`, `event_type` (timeout, validation_fail, exceeds_token_limit), `rule_id`, `timestamp`.
 
-### 3. Counterfactual Explanation
-Generated explanation for a failure.
+## 3. Data Flow
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `episode_id` | string | Link to the trajectory. |
-| `rule_id` | string | ID of the violated rule (selected by LLM). |
-| `explanation_text` | string | Natural language explanation. |
-| `suggested_action` | string | The action retrieved from ground-truth lookup. |
-| `generation_method` | string | "llm" or "fallback". |
-| `valid` | boolean | Whether the output passed schema validation. |
+1. **Discovery**: `environments/registry.py` loads envs -> `data/discovered_envs.json`.
+2. **Validation**: `agents/static_agent.py` runs on dynamic envs -> `data/sensitivity_report.csv`.
+3. **Evolution**: `agents/evolutionary_harness.py` runs evolution -> `data/evolution_results.csv`.
+4. **Explanation**: `explanation/generator.py` logs failures -> `data/fallbacks.log`.
+5. **Analysis**: `analysis/statistical_test.py` reads CSVs -> Final report.
 
-### 4. Evolved Policy Metrics
-Static analysis results for a generated policy.
+## 4. Integrity Constraints
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `policy_id` | string | Unique ID for the policy. |
-| `seed` | int | Seed used for evolution. |
-| `condition` | string | "baseline" or "counterfactual". |
-| `cyclomatic_complexity` | int | Result from `radon`. |
-| `branch_count` | int | Number of if/else branches. |
-| `code_length` | int | Lines of code. |
-| `generalization_score` | float | Score on the dynamic shift test set. |
-
-### 5. Statistical Results
-Aggregated results from the mixed-effects model.
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `model_id` | string | Unique ID for the analysis run. |
-| `p_value` | float | p-value from the mixed-effects model. |
-| `effect_size` | float | Cohen's d or similar. |
-| `significant` | boolean | True if p < 0.05 (one-tailed) and effect > 0. |
-| `complexity_coefficient` | float | Coefficient for complexity covariate. |
-| `random_effect_variance` | float | Variance attributed to seeds. |
-| `explanation_success_rate` | float | Rate of successful explanation generations (valid text / total failures). |
-
-## Storage Formats
-
-*   **Raw Data**: JSONL (JSON Lines) for trajectory logs and explanations to support streaming writes.
-*   **Processed Data**: CSV for `evolution_results.csv` and `complexity_metrics.csv`.
-*   **Final Results**: JSON for `stats_results.json`.
-*   **Schemas**: YAML (`contracts/*.schema.yaml`) for validation of counterfactual outputs.
-
-## Data Flow
-
-1.  **Generation**: `DynamicShiftEnvironment` produces trajectories -> `data/raw/trajectories/*.jsonl`.
-2.  **Feedback**: `CounterfactualGenerator` reads trajectories -> writes `data/raw/explanations.jsonl`.
-3.  **Evolution**: `EvolutionaryHarness` evolves policies -> writes `data/raw/policies/*.py`.
-4.  **Analysis**: `ComplexityAnalyzer` reads policies -> `data/processed/complexity_metrics.csv`.
-5.  **Aggregation**: `StatsRunner` reads metrics + scores -> `data/final/stats_results.json`.
-6.  **Fallback Aggregation**: `AggregationRunner` parses `data/processed/fallbacks.log` -> updates `data/final/stats_results.json` with success rate.
+- **Checksums**: All CSV/JSON files are checksummed (SHA-256) and recorded in `state/...yaml`.
+- **Immutability**: Raw data files are never modified in place. Derivations create new files.
+- **Schema Validation**: Every CSV/JSON file is validated against its corresponding `contracts/*.schema.yaml` before use.
+- **Schema Generation**: Schemas (e.g., `contracts/sensitivity_report.schema.yaml`) are generated in Phase 0 (Research) as static artifacts, independent of the data generation, to resolve the dependency deadlock.

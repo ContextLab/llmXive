@@ -1,85 +1,58 @@
-# Quickstart: llmXive follow-up: extending "EvoPolicyGym: Evaluating Autonomous Policy Evolution in Interactive En"
+# Quickstart: llmXive follow-up
 
 ## Prerequisites
 
-*   Python 3.11+
-*   Git
-*   Access to the `gymnasium` repository (public URL).
+- Python 3.11+
+- Git
+- Access to GitHub Actions runner (or local equivalent)
 
 ## Installation
 
-1.  **Clone the Project**:
-    ```bash
-    git clone <repo-url>
-    cd <repo-name>
-    ```
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd <repo-name>
+   ```
 
-2.  **Create Virtual Environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. **Install dependencies**:
+   ```bash
+   pip install -r code/requirements.txt
+   ```
+   *Note: `requirements.txt` includes `torch` (CPU), `transformers`, `bitsandbytes`, `gymnasium`, `radon`, `statsmodels`.*
 
-3.  **Install Dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-    *Note: `requirements.txt` pins `transformers`, `gymnasium`, `statsmodels`, `radon`, `pandas`.*
+3. **Verify environment**:
+   ```bash
+   python -c "import gymnasium; print(gymnasium.__version__)"
+   ```
 
-## Configuration
+## Running the Study
 
-Edit `code/utils/config.yaml` to set:
-*   `seeds`: List of random seeds (e.g., `[42, 123, 456, 789, 1011]`).
-*   `runs_per_seed`: Number of evolutionary runs per seed.
-*   `condition`: "baseline" or "counterfactual" (or run both).
-*   `shift_threshold`: Default 0.5.
-*   `llm_model`: Model name (e.g., "microsoft/phi-2" for CPU).
-
-## Running the Pipeline
-
-### 1. Run the Full Evolutionary Harness
-Execute the main CLI entry point:
+### 1. Discover Environments
 ```bash
-python code/main.py --run-evolution --seeds 42,123,456,789,1011 --runs 5 --envs all --conditions baseline,counterfactual
+python code/main.py --task discover
 ```
-*   This will:
-    *   Initialize the discovered environments (targeting up to 16).
-    *   Run the evolutionary algorithm for both conditions.
-    *   Generate counterfactual explanations (with fallbacks).
-    *   Save raw trajectories and policies to `data/raw/`.
+*Output*: `data/discovered_envs.json`
 
-### 2. Analyze Results
-Once the evolution is complete, run the analysis pipeline:
+### 2. Validate Dynamic Shifts
 ```bash
-python code/main.py --analyze --input data/raw --output data/final
+python code/main.py --task validate_shifts
 ```
-*   This will:
-    *   Calculate complexity metrics using `radon`.
-    *   Compute generalization scores.
-    *   Parse `fallbacks.log` for success rates.
-    *   Run the mixed-effects model.
-    *   Output `data/final/stats_results.json`.
+*Output*: `data/sensitivity_report.csv`
 
-### 3. Verify Outputs
-Check the generated artifacts:
-*   `data/processed/evolution_results.csv`: Contains scores and complexity metrics.
-*   `data/final/stats_results.json`: Contains the p-value, effect size, and explanation success rate.
+### 3. Run Evolutionary Harness
+```bash
+python code/main.py --task evolve --seeds 5 --conditions baseline,counterfactual
+```
+*Output*: `data/evolution_results.csv`, `data/fallbacks.log`
+
+### 4. Statistical Analysis
+```bash
+python code/main.py --task analyze
+```
+*Output*: `data/analysis_report.txt` (p-value, effect size)
 
 ## Troubleshooting
 
-*   **LLM Timeout**: If the LLM fails to generate an explanation within 30s, the system will automatically use the fallback template. Check `data/processed/fallbacks.log` for counts.
-*   **Memory Error**: If running on the GitHub Actions runner, ensure the LLM is loaded in 8-bit mode. If it still fails, the system will switch to the `TinyLlama-1.1B` fallback or template fallback.
-*   **Environment Count Mismatch**: If the upstream `gymnasium` repo count changes, the script will log a warning but proceed (no hard fail) to ensure robustness.
-
-## Expected Output
-
-*   `data/final/stats_results.json`:
-    ```json
-    {
-      "p_value": 0.032,
-      "effect_size": 0.45,
-      "significant": true,
-      "explanation_success_rate": 0.92,
-      "method": "mixed_effects"
-    }
-    ```
+- **LLM Timeout**: If the LLM times out, the system automatically uses the `TemplateExplanation` fallback. Check `data/fallbacks.log` for `timeout` events.
+- **Environment Count < 16**: If fewer than 16 environments are found, a warning is logged, but the study proceeds with the available count (as per spec relaxation).
+- **Memory Error**: If CPU memory is exceeded, the script will attempt to reduce batch size or offload to a GPU (if available).
