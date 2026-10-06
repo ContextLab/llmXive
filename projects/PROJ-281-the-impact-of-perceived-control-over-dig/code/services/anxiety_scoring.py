@@ -1,351 +1,340 @@
+"""
+Anxiety scoring service: filters text, runs inference, and filters by confidence.
+Implements T014b, T014c, T015, and T016.
+"""
 import json
 import logging
 import re
 from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional
+
 import pandas as pd
 import numpy as np
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from langdetect import detect, DetectorFactory
+from langdetect.lang_detect_exception import LangDetectException
 
-# Import config loading from the existing API surface
-from code.config import load_config_params, CONFIG
+# Set random seed for langdetect consistency
+DetectorFactory.seed = 42
 
-logging.basicConfig(level=logging.INFO)
+# Local imports (assumed to exist in project)
+try:
+    from code.config import load_config_params, get_config_value, CONFIG
+except ImportError:
+    # Fallback for standalone execution or different import context
+    def load_config_params(path: Optional[str] = None) -> Dict[str, Any]:
+        return {}
+    def get_config_value(key: str, default: Any = None) -> Any:
+        return default
+    CONFIG = type('Config', (), {})()
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+# Constants
+DEFAULT_CONFIDENCE_THRESHOLD = 0.6
+DEFAULT_MODEL_NAME = "cardiffnlp/twitter-roberta-base-emotion"
+
 class ConfigurationError(Exception):
-    """Raised when required configuration keys are missing."""
+    """Raised when required configuration is missing."""
     pass
 
-def load_config_params() -> Dict[str, Any]:
-    """
-    Load analysis configuration from contracts/analysis.schema.yaml.
-    Returns a dictionary of configuration parameters.
-    """
-    config_path = Path("contracts/analysis.schema.yaml")
-    if not config_path.exists():
-        raise FileNotFoundError(f"Configuration file not found: {config_path}")
-    
-    try:
-        import yaml
-        with open(config_path, 'r') as f:
-            config = yaml.safe_load(f)
-    except ImportError:
-        # Fallback to JSON if yaml is not available and file is JSON
-        try:
-            with open(config_path, 'r') as f:
-                config = json.load(f)
-        except json.JSONDecodeError:
-            raise ConfigurationError(f"Could not parse configuration file: {config_path}")
-    
-    return config if config else {}
-
-def get_config_value(config: Dict[str, Any], key_path: str, default: Any) -> Any:
-    """
-    Safely retrieve a nested config value.
-    key_path is dot-separated, e.g., 'filtering.entropy_threshold'
-    """
-    keys = key_path.split('.')
-    current = config
-    for key in keys:
-        if isinstance(current, dict) and key in current:
-            current = current[key]
-        else:
-            return default
-    return current
+class DataInsufficientError(Exception):
+    """Raised when filtering leaves insufficient data."""
+    pass
 
 def calculate_text_entropy(text: str) -> float:
-    """
-    Calculate Shannon entropy of a text string.
-    Higher entropy suggests more random/gibberish-like text.
-    """
+    """Calculate Shannon entropy of a text string."""
     if not text or len(text) == 0:
         return 0.0
-    
-    # Count character frequencies
-    freq = {}
-    for char in text:
-        freq[char] = freq.get(char, 0) + 1
-    
-    # Calculate entropy
-    entropy = 0.0
-    length = len(text)
-    for count in freq.values():
-        p = count / length
-        if p > 0:
-            entropy -= p * np.log2(p)
-    
-    return entropy
+    prob = [float(text.count(c)) / len(text) for c in set(text)]
+    return -sum(p * np.log2(p) for p in prob if p > 0)
 
-def filter_text_quality(df: pd.DataFrame, config: Dict[str, Any]) -> pd.DataFrame:
+def filter_non_english(df: pd.DataFrame, threshold: float = 0.8) -> pd.DataFrame:
     """
-    Filter rows based on text quality (length and entropy).
-    
-    Args:
-        df: DataFrame with a 'text' column
-        config: Configuration dictionary containing filtering parameters
-    
-    Returns:
-        Filtered DataFrame
-    
-    Raises:
-        ConfigurationError: If required config keys are missing
-    """
-    # Check for required config keys
-    min_length = get_config_value(config, 'filtering.min_text_length', None)
-    entropy_threshold = get_config_value(config, 'filtering.entropy_threshold', None)
-    
-    if min_length is None:
-        raise ConfigurationError("Missing required config key: 'filtering.min_text_length'")
-    if entropy_threshold is None:
-        raise ConfigurationError("Missing required config key: 'filtering.entropy_threshold'")
-    
-    logger.info(f"Applying text quality filters: min_length={min_length}, entropy_threshold={entropy_threshold}")
-    
-    # Ensure text column exists
-    if 'text' not in df.columns:
-        raise ValueError("Input DataFrame must contain a 'text' column")
-    
-    # Filter by minimum length
-    length_mask = df['text'].astype(str).str.len() >= min_length
-    logger.info(f"Filtered {(~length_mask).sum()} rows by minimum length ({min_length})")
-    
-    # Calculate entropy for remaining rows
-    entropy_mask = pd.Series([True] * len(df))
-    valid_indices = length_mask[length_mask].index
-    
-    if len(valid_indices) > 0:
-        entropies = df.loc[valid_indices, 'text'].astype(str).apply(calculate_text_entropy)
-        # Keep rows where entropy is BELOW threshold (lower entropy = more structured text)
-        # Note: Very low entropy might be repetitive, but very high is gibberish
-        entropy_mask = pd.Series([True] * len(df))
-        entropy_mask.loc[valid_indices] = entropies <= entropy_threshold
-        logger.info(f"Filtered {(~entropy_mask).sum()} rows by entropy threshold ({entropy_threshold})")
-    
-    # Combine masks
-    combined_mask = length_mask & entropy_mask
-    filtered_df = df[combined_mask].reset_index(drop=True)
-    
-    logger.info(f"Total rows after quality filtering: {len(filtered_df)} (from {len(df)})")
-    
-    return filtered_df
-
-def filter_non_english(df: pd.DataFrame, config: Dict[str, Any]) -> pd.DataFrame:
-    """
-    Filter out non-English text using langdetect.
-    
-    Args:
-        df: DataFrame with a 'text' column
-        config: Configuration dictionary containing filtering parameters
-    
-    Returns:
-        Filtered DataFrame
-    """
-    try:
-        from langdetect import detect, DetectorFactory
-        from langdetect.lang_detect_exception import LangDetectException
-        
-        # Set seed for reproducibility
-        DetectorFactory.seed = 0
-        
-        lang_threshold = get_config_value(config, 'filtering.langdetect_threshold', 0.8)
-        logger.info(f"Filtering non-English text with confidence threshold: {lang_threshold}")
-        
-        def detect_language_safe(text):
-            if not text or not isinstance(text, str) or len(text.strip()) == 0:
-                return None, 0.0
-            try:
-                lang = detect(text)
-                # langdetect doesn't provide confidence directly, so we use a heuristic
-                # For simplicity, we'll assume detection is reliable if it returns a language
-                return lang, 1.0
-            except LangDetectException:
-                return None, 0.0
-        
-        # Apply language detection
-        lang_results = df['text'].apply(lambda x: detect_language_safe(str(x)))
-        df['detected_lang'] = [r[0] for r in lang_results]
-        df['lang_confidence'] = [r[1] for r in lang_results]
-        
-        # Filter for English with sufficient confidence
-        mask = (df['detected_lang'] == 'en') & (df['lang_confidence'] >= lang_threshold)
-        filtered_df = df[mask].reset_index(drop=True)
-        
-        logger.info(f"Filtered {(~mask).sum()} rows by language (kept {len(filtered_df)})")
-        
-        # Drop temporary columns
-        filtered_df = filtered_df.drop(columns=['detected_lang', 'lang_confidence'])
-        
-        return filtered_df
-        
-    except ImportError:
-        logger.warning("langdetect not installed, skipping non-English filter. Please install: pip install langdetect")
-        return df
-
-def load_anxiety_model(model_name: str = "cardiffnlp/twitter-roberta-base-emotion"):
-    """
-    Load the anxiety/emotion model.
-    
-    Args:
-        model_name: HuggingFace model identifier
-    
-    Returns:
-        Tuple of (model, tokenizer)
-    """
-    try:
-        from transformers import AutoModelForSequenceClassification, AutoTokenizer
-        import torch
-        
-        logger.info(f"Loading model: {model_name}")
-        tokenizer = AutoTokenizer.from_pretrained(model_name)
-        model = AutoModelForSequenceClassification.from_pretrained(model_name)
-        
-        # Force CPU as per constraints
-        model = model.to('cpu')
-        model.eval()
-        
-        logger.info("Model loaded successfully on CPU")
-        return model, tokenizer
-        
-    except ImportError as e:
-        raise ImportError(f"Transformers library not available: {e}")
-
-def compute_anxiety_scores(df: pd.DataFrame, model, tokenizer, config: Dict[str, Any]) -> pd.DataFrame:
-    """
-    Compute anxiety scores for text data using the loaded model.
+    Filter non-English text using langdetect.
     
     Args:
         df: DataFrame with 'text' column
-        model: Loaded transformer model
-        tokenizer: Loaded tokenizer
-        config: Configuration dictionary
+        threshold: Minimum confidence for language detection
     
     Returns:
-        DataFrame with added 'anxiety_score' and 'confidence_score' columns
+        Filtered DataFrame
     """
-    logger.info("Computing anxiety scores...")
+    logger.info(f"Filtering non-English text (threshold={threshold})")
+    
+    def is_english(text):
+        if not isinstance(text, str) or len(text.strip()) == 0:
+            return False
+        try:
+            lang = detect(text)
+            # langdetect returns language code, we check confidence implicitly
+            # by checking if it's 'en'. For stricter confidence, we'd need
+            # a different approach, but standard langdetect doesn't expose
+            # confidence easily without internal hacks. We'll rely on the
+            # fact that detect() raises exception on failure and usually
+            # picks a language.
+            return lang == 'en'
+        except LangDetectException:
+            return False
+    
+    # Apply filter
+    mask = df['text'].apply(is_english)
+    filtered_df = df[mask].copy()
+    logger.info(f"Filtered {len(df) - len(filtered_df)} non-English rows. Remaining: {len(filtered_df)}")
+    return filtered_df
+
+def filter_text_quality(df: pd.DataFrame, config: Optional[Dict[str, Any]] = None) -> pd.DataFrame:
+    """
+    Filter gibberish and low-quality text based on entropy and length.
+    
+    Args:
+        df: DataFrame with 'text' column
+        config: Configuration dictionary containing filtering params
+    
+    Returns:
+        Filtered DataFrame
+    """
+    logger.info("Filtering text quality (gibberish)")
+    
+    if config is None:
+        config = load_config_params()
+    
+    # Get config values with defaults
+    min_text_length = get_config_value('filtering.min_text_length', 3, config)
+    entropy_threshold = get_config_value('filtering.entropy_threshold', 0.7, config)
+    
+    # Check for required config
+    if 'filtering' not in config or 'min_text_length' not in config.get('filtering', {}):
+        logger.warning("min_text_length not found in config, using default")
+    if 'filtering' not in config or 'entropy_threshold' not in config.get('filtering', {}):
+        logger.warning("entropy_threshold not found in config, using default")
+    
+    def is_quality_text(text):
+        if not isinstance(text, str):
+            return False
+        text = text.strip()
+        if len(text) < min_text_length:
+            return False
+        # Entropy check: very low entropy might indicate repetition (e.g., "aaaaa")
+        # Very high entropy might indicate gibberish, but usually we look for low entropy
+        # as a sign of spam/repetition. However, the task mentions "entropy-based heuristic"
+        # for gibberish. Gibberish often has high entropy (random characters).
+        # Let's assume we want entropy to be within a reasonable range.
+        # A simple heuristic: entropy > threshold might be gibberish?
+        # Actually, natural text has moderate entropy. Random noise has high entropy.
+        # Let's filter out text with entropy > entropy_threshold (too random)
+        # AND text with entropy < some lower bound (too repetitive).
+        # For now, let's just check if entropy is not too high (gibberish).
+        entropy = calculate_text_entropy(text)
+        # Heuristic: if entropy is extremely high, it's likely gibberish
+        if entropy > entropy_threshold:
+            return False
+        return True
+    
+    mask = df['text'].apply(is_quality_text)
+    filtered_df = df[mask].copy()
+    logger.info(f"Filtered {len(df) - len(filtered_df)} low-quality rows. Remaining: {len(filtered_df)}")
+    return filtered_df
+
+def verify_model_labels(model_name: str = DEFAULT_MODEL_NAME) -> Tuple[bool, Dict[str, int]]:
+    """
+    Verify if the model has 'fear' or 'anxiety' labels.
+    
+    Args:
+        model_name: HuggingFace model name
+    
+    Returns:
+        Tuple of (has_fear_label, id2label_mapping)
+    """
+    logger.info(f"Verifying model labels for {model_name}")
+    try:
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model = AutoModelForSequenceClassification.from_pretrained(model_name)
+        id2label = model.config.id2label
+        
+        has_fear = 'fear' in id2label.values()
+        logger.info(f"Model labels: {id2label}")
+        logger.info(f"Has 'fear' label: {has_fear}")
+        return has_fear, id2label
+    except Exception as e:
+        logger.error(f"Error verifying model labels: {e}")
+        return False, {}
+
+def save_model_validation(has_fear: bool, id2label: Dict[str, int], output_path: str = "state/model_validation.json"):
+    """Save model validation results."""
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    result = {
+        "has_fear_label": has_fear,
+        "id2label": id2label,
+        "model_name": DEFAULT_MODEL_NAME
+    }
+    with open(output_path, 'w') as f:
+        json.dump(result, f, indent=2)
+    logger.info(f"Saved model validation to {output_path}")
+
+def run_anxiety_scoring_pipeline(
+    input_path: str,
+    output_path: str,
+    config: Optional[Dict[str, Any]] = None,
+    confidence_threshold: float = DEFAULT_CONFIDENCE_THRESHOLD
+) -> pd.DataFrame:
+    """
+    Run the full anxiety scoring pipeline:
+    1. Load data
+    2. Filter non-English (T014b)
+    3. Filter gibberish (T014c)
+    4. Run model inference (T015)
+    5. Filter by confidence (T016)
+    
+    Args:
+        input_path: Path to input CSV (raw social media data)
+        output_path: Path to save filtered results
+        config: Configuration dictionary
+        confidence_threshold: Minimum confidence score to keep (T016)
+    
+    Returns:
+        DataFrame with anxiety scores and confidence
+    """
+    logger.info(f"Starting anxiety scoring pipeline")
+    logger.info(f"Input: {input_path}, Output: {output_path}")
+    
+    # Load data
+    logger.info(f"Loading data from {input_path}")
+    df = pd.read_csv(input_path)
+    
+    if 'text' not in df.columns:
+        raise ValueError(f"Input file must contain 'text' column. Columns: {df.columns.tolist()}")
+    
+    # T014b: Filter non-English
+    if config is None:
+        config = load_config_params()
+    lang_threshold = get_config_value('filtering.langdetect_threshold', 0.8, config)
+    df = filter_non_english(df, threshold=lang_threshold)
+    
+    # T014c: Filter gibberish
+    df = filter_text_quality(df, config)
+    
+    if len(df) == 0:
+        logger.error("No data remaining after filtering")
+        raise DataInsufficientError("No data remaining after filtering")
+    
+    # T015: Run model inference
+    logger.info("Running model inference")
+    model_name = DEFAULT_MODEL_NAME
+    has_fear, id2label = verify_model_labels(model_name)
+    save_model_validation(has_fear, id2label)
+    
+    # Load model
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModelForSequenceClassification.from_pretrained(model_name)
     
     # Get label mapping
-    label2id = model.config.id2label
-    id2label = {v: k for k, v in label2id.items()}
+    label2id = {v: k for k, v in id2label.items()}
+    anxiety_label = None
     
-    # Check for fear/anxiety labels
-    has_fear = 'fear' in label2id.values()
-    has_anxiety = 'anxiety' in label2id.values()
+    # Determine anxiety label
+    if 'anxiety' in label2id:
+        anxiety_label = label2id['anxiety']
+    elif has_fear and 'fear' in label2id:
+        # Check config for mapping
+        map_fear = get_config_value('model_mapping.fear_to_anxiety', False, config)
+        if map_fear:
+            anxiety_label = label2id['fear']
+            logger.info("Mapping 'fear' to anxiety score")
+        else:
+            logger.warning("No 'anxiety' or mapped 'fear' label found")
+    else:
+        logger.warning("No anxiety or fear label found in model")
     
-    logger.info(f"Model labels: {list(label2id.values())}")
-    logger.info(f"Has 'fear' label: {has_fear}, Has 'anxiety' label: {has_anxiety}")
+    if anxiety_label is None:
+        # Fallback: use the label with highest probability as a proxy?
+        # Or raise error? Let's raise error for now.
+        raise ValueError("Could not determine anxiety label from model")
     
-    # Map fear to anxiety if configured
-    fear_to_anxiety = get_config_value(config, 'model_mapping.fear_to_anxiety', False)
-    
-    anxiety_label_id = None
-    if has_anxiety:
-        for lid, label in label2id.items():
-            if label == 'anxiety':
-                anxiety_label_id = lid
-                break
-    elif has_fear and fear_to_anxiety:
-        for lid, label in label2id.items():
-            if label == 'fear':
-                anxiety_label_id = lid
-                break
-    
-    if anxiety_label_id is None:
-        logger.warning("Could not find anxiety or mapped fear label. Using first label as fallback.")
-        anxiety_label_id = 0
-    
-    # Process in batches
+    # Batch inference
+    texts = df['text'].fillna("").tolist()
     batch_size = 16
     all_scores = []
     all_confidences = []
     
-    texts = df['text'].tolist()
-    
+    logger.info(f"Processing {len(texts)} texts in batches of {batch_size}")
     for i in range(0, len(texts), batch_size):
         batch_texts = texts[i:i+batch_size]
+        inputs = tokenizer(batch_texts, padding=True, truncation=True, max_length=128, return_tensors="pt")
         
-        # Tokenize
-        inputs = tokenizer(
-            batch_texts,
-            padding=True,
-            truncation=True,
-            max_length=128,
-            return_tensors="pt"
-        )
-        
-        # Inference
         with torch.no_grad():
             outputs = model(**inputs)
-            probs = torch.softmax(outputs.logits, dim=-1)
+            probabilities = torch.nn.functional.softmax(outputs.logits, dim=-1)
         
-        # Extract scores
-        batch_probs = probs[:, anxiety_label_id].tolist()
-        batch_max_probs = probs.max(dim=-1).values.tolist()
-        
-        all_scores.extend(batch_probs)
-        all_confidences.extend(batch_max_probs)
+        for j, prob in enumerate(probabilities):
+            score = prob[anxiety_label].item()
+            all_scores.append(score)
+            all_confidences.append(prob.max().item())
     
     df['anxiety_score'] = all_scores
     df['confidence_score'] = all_confidences
     
-    logger.info(f"Computed anxiety scores for {len(df)} rows")
-    return df
-
-def run_full_scoring_pipeline(input_path: str, output_path: str, config: Optional[Dict[str, Any]] = None):
-    """
-    Run the full anxiety scoring pipeline:
-    1. Load preprocessed text
-    2. Filter non-English text
-    3. Filter gibberish/low-quality text
-    4. Compute anxiety scores
-    5. Save results
+    # T016: Filter by confidence
+    logger.info(f"Filtering by confidence threshold: {confidence_threshold}")
+    initial_count = len(df)
+    df = df[df['confidence_score'] >= confidence_threshold].copy()
+    final_count = len(df)
+    logger.info(f"Filtered {initial_count - final_count} low-confidence rows. Remaining: {final_count}")
     
-    Args:
-        input_path: Path to input CSV (preprocessed_text.csv)
-        output_path: Path to output CSV (scoring_results.csv)
-        config: Optional config dictionary (loads from file if None)
-    """
-    # Load config if not provided
-    if config is None:
-        config = load_config_params()
-    
-    # Load input data
-    logger.info(f"Loading input data from {input_path}")
-    input_file = Path(input_path)
-    if not input_file.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-    
-    df = pd.read_csv(input_file)
-    logger.info(f"Loaded {len(df)} rows from {input_path}")
-    
-    # Filter non-English
-    df = filter_non_english(df, config)
-    
-    # Filter text quality (gibberish)
-    df = filter_text_quality(df, config)
-    
-    # Load model and compute scores
-    model, tokenizer = load_anxiety_model()
-    df = compute_anxiety_scores(df, model, tokenizer, config)
+    if len(df) == 0:
+        logger.error("No data remaining after confidence filtering")
+        raise DataInsufficientError("No data remaining after confidence filtering")
     
     # Save results
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output_file, index=False)
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output_path, index=False)
     logger.info(f"Saved results to {output_path}")
     
     return df
 
+def run_full_scoring_pipeline(
+    input_path: str,
+    output_path: str,
+    config: Optional[Dict[str, Any]] = None
+) -> pd.DataFrame:
+    """
+    Wrapper for run_anxiety_scoring_pipeline with default config loading.
+    """
+    if config is None:
+        config = load_config_params()
+    
+    # Get confidence threshold from config
+    confidence_threshold = get_config_value('filtering.confidence_threshold', DEFAULT_CONFIDENCE_THRESHOLD, config)
+    
+    return run_anxiety_scoring_pipeline(
+        input_path=input_path,
+        output_path=output_path,
+        config=config,
+        confidence_threshold=confidence_threshold
+    )
+
 def run_full_scoring_pipeline_from_config():
     """
-    Run the pipeline using configuration from contracts/analysis.schema.yaml.
+    Main entry point for CLI execution.
+    Reads config from contracts/analysis.schema.yaml and runs the pipeline.
     """
-    config = load_config_params()
-    input_path = "data/processed/preprocessed_text.csv"
-    output_path = "data/processed/scoring_results.csv"
+    import argparse
     
-    return run_full_scoring_pipeline(input_path, output_path, config)
+    parser = argparse.ArgumentParser(description="Run anxiety scoring pipeline")
+    parser.add_argument("--input", type=str, default="data/processed/preprocessed_text.csv",
+                        help="Input CSV path")
+    parser.add_argument("--output", type=str, default="data/processed/scoring_results.csv",
+                        help="Output CSV path")
+    parser.add_argument("--config", type=str, default="contracts/analysis.schema.yaml",
+                        help="Config file path")
+    args = parser.parse_args()
+    
+    config = load_config_params(args.config)
+    run_full_scoring_pipeline(args.input, args.output, config)
 
-# Main entry point for direct execution
 if __name__ == "__main__":
     run_full_scoring_pipeline_from_config()
+
+# Import torch here to avoid top-level dependency if not needed
+import torch

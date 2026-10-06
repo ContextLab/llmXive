@@ -1,7 +1,8 @@
 import os
 import random
+import signal
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 import numpy as np
 import json
 
@@ -76,3 +77,42 @@ def load_config_params(config_path: Path) -> Dict[str, Any]:
 def get_config_value(key: str, default: Any = None) -> Any:
     """Get a configuration value by key."""
     return CONFIG.get_config_value(key, default)
+
+class RuntimeLimitExceededError(Exception):
+    """Exception raised when the runtime limit is exceeded."""
+    pass
+
+def get_runtime_limit_seconds() -> int:
+    """Get the runtime limit in seconds."""
+    return CONFIG.RUNTIME_LIMIT_SECONDS
+
+def get_runtime_limit_hours() -> int:
+    """Get the runtime limit in hours."""
+    return CONFIG.RUNTIME_LIMIT_HOURS
+
+def get_sample_size() -> int:
+    """Get the sample size limit."""
+    return CONFIG.SAMPLE_SIZE
+
+def enforce_runtime_limit(timeout_seconds: Optional[int] = None):
+    """
+    Enforce a hard runtime limit using signal.SIGALRM.
+    If timeout_seconds is None, uses CONFIG.RUNTIME_LIMIT_SECONDS.
+    
+    Raises:
+        RuntimeLimitExceededError: If the time limit is exceeded.
+    """
+    if timeout_seconds is None:
+        timeout_seconds = CONFIG.RUNTIME_LIMIT_SECONDS
+    
+    def timeout_handler(signum, frame):
+        raise RuntimeLimitExceededError(f"Runtime limit of {timeout_seconds} seconds exceeded.")
+    
+    # Set the signal handler
+    signal.signal(signal.SIGALRM, timeout_handler)
+    # Set the alarm
+    signal.alarm(timeout_seconds)
+
+def cancel_runtime_limit():
+    """Cancel any active runtime limit alarm."""
+    signal.alarm(0)

@@ -1,24 +1,24 @@
 {
   "project_id": "PROJ-281-the-impact-of-perceived-control-over-dig",
   "ok": false,
-  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/services/data_ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026, preventing fallback to synthetic data.\"\"\"     pass  def _calcu\u2026\u201d; 9 command(s) failed: python code/main.py (rc=1); python code/services/data_ingestion.py (rc=1); python code/services/anxiety_scoring.py (rc=1); 7 declared deliverable(s) absent: data/processed/correlation_plot.png; data/processed/coverage_report.json; data/processed/final_analysis.csv",
+  "reason": "6 command(s) failed: python code/main.py (rc=1); python code/services/data_ingestion.py (rc=1); python code/services/anxiety_scoring.py (rc=1); 7 declared deliverable(s) absent: data/processed/correlation_plot.png; data/processed/coverage_report.json; data/processed/final_analysis.csv",
   "artifacts": [],
   "failures": [
-    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-281-the-impact-of-perceived-control-over-dig/code/main.py\", line 18, in <module>\n    from code.config import (\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-281-the-impact-of-perceived-control-over-dig/code/config.py\", line 11, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
-    "python code/services/data_ingestion.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-281-the-impact-of-perceived-control-over-dig/code/services/data_ingestion.py\", line 8, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
-    "python code/services/anxiety_scoring.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-281-the-impact-of-perceived-control-over-dig/code/services/anxiety_scoring.py\", line 6, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
-    "python code/services/proxy_extractor.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-281-the-impact-of-perceived-control-over-dig/code/services/proxy_extractor.py\", line 12, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
-    "python code/analysis/statistical_test.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-281-the-impact-of-perceived-control-over-dig/code/analysis/statistical_test.py\", line 5, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
-    "python code/viz/plot_results.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-281-the-impact-of-perceived-control-over-dig/code/viz/plot_results.py\", line 5, in <module>\n    import matplotlib.pyplot as plt\nModuleNotFoundError: No module named 'matplotlib'",
-    "python code/profiling.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-281-the-impact-of-perceived-control-over-dig/code/profiling.py\", line 10, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
-    "python code/profiling.py --check-only -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-281-the-impact-of-perceived-control-over-dig/code/profiling.py\", line 10, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
-    "python code/profiling.py --output data/processed/custom_report.json -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-281-the-impact-of-perceived-control-over-dig/code/profiling.py\", line 10, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'"
+    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-281-the-impact-of-perceived-control-over-dig/code/main.py\", line 13, in <module>\n    from code.config import Config, RuntimeLimitExceededError\nImportError: cannot import name 'RuntimeLimitExceededError' from 'code.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-281-the-impact-of-perceived-control-over-dig/code/config.py)",
+    "python code/services/data_ingestion.py -> rc=1\n    - __main__ - INFO - Starting data ingestion pipeline\n2026-10-06 04:11:27,382 - __main__ - INFO - Downloading dataset: cardiffnlp/tweet_sentiment_extraction (split=train, revision=main)\n2026-10-06 04:11:27,382 - __main__ - INFO - Loading with streaming=True to sample 10000 rows\n2026-10-06 04:11:27,445 - httpx2 - INFO - HTTP Request: GET https://huggingface.co/api/agent-harnesses \"HTTP/1.1 200 OK\"\n2026-10-06 04:11:27,464 - httpx2 - INFO - HTTP Request: HEAD https://huggingface.co/datasets/cardiffnlp/tweet_sentiment_extraction/resolve/main/README",
+    "python code/services/anxiety_scoring.py -> rc=1\n    INFO:__main__:Loading input data from data/processed/preprocessed_text.csv\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-281-the-impact-of-perceived-control-over-dig/code/services/anxiety_scoring.py\", line 351, in <module>\n    run_full_scoring_pipeline_from_config()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-281-the-impact-of-perceived-control-over-dig/code/services/anxiety_scoring.py\", line 347, in run_full_scoring_pipeline_from_config\n    return run_full_scoring_pipeline(input_path, ",
+    "python code/profiling.py -> rc=1\n    ode.services.data_ingestion - INFO - Loading with streaming=True to sample 10000 rows\n2026-10-06 04:11:33,186 - httpx2 - INFO - HTTP Request: HEAD https://huggingface.co/datasets/cardiffnlp/tweet_sentiment_extraction/resolve/main/README.md \"HTTP/1.1 401 Unauthorized\"\n2026-10-06 04:11:33,187 - code.services.data_ingestion - ERROR - Failed to download dataset: Dataset 'cardiffnlp/tweet_sentiment_extraction' doesn't exist on the Hub or cannot be accessed.\n2026-10-06 04:11:33,187 - code.services.data_ingestion - ERROR - Ingestion pipeline failed: Failed to down",
+    "python code/profiling.py --check-only -> rc=2\n    usage: profiling.py [-h] [--sample-size SAMPLE_SIZE] [--no-enforce-limit]\nprofiling.py: error: unrecognized arguments: --check-only",
+    "python code/profiling.py --output data/processed/custom_report.json -> rc=2\n    usage: profiling.py [-h] [--sample-size SAMPLE_SIZE] [--no-enforce-limit]\nprofiling.py: error: unrecognized arguments: --output data/processed/custom_report.json"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
-  "failure_class": "fabrication",
-  "evidence": [],
-  "updated_at": "2026-09-17T23:48:01Z"
+  "failure_class": "data_unreachable",
+  "evidence": [
+    "python code/services/data_ingestion.py",
+    "python code/profiling.py"
+  ],
+  "updated_at": "2026-10-06T04:11:40Z"
 }

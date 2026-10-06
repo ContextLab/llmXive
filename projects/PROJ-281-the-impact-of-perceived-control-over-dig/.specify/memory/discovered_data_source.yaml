@@ -1,5 +1,6 @@
 status: none
-intent: HuggingFace Datasets tweet interaction metadata python package dataset
+intent: HuggingFace dataset tweets text metadata likes retweets replies edit control
+  python package dataset
 required_fields:
 - text
 - timestamp
@@ -7,7 +8,8 @@ required_fields:
 - like_count
 - retweet_count
 - reply_count
-- language
-cache_key: 470e6a058d15da7c04fd11df4764a4f8302044af7276f314e2da5647d0905822
-searched_at: '2026-09-17T23:48:58.715698+00:00'
+- edit_flag
+- control_flag
+cache_key: d84ceead62147a46eab7a8db2e53dc18ef4000dddf74318d2ded88a4c6772b0e
+searched_at: '2026-10-06T04:12:32.315994+00:00'
 retry_count: 1

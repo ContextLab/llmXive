@@ -1,0 +1,13 @@
+{
+  "model_id": "cardiffnlp/twitter-roberta-base-emotion",
+  "has_fear_label": true,
+  "all_labels": [
+    "sadness",
+    "joy",
+    "love",
+    "anger",
+    "fear",
+    "surprise"
+  ],
+  "config_override": false
+}

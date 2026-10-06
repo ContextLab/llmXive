@@ -1,1 +1,6 @@
-[]
+[
+  {
+    "data_file": "data/processed/preprocessed_text.csv",
+    "required": []
+  }
+]

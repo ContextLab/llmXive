@@ -12,14 +12,48 @@ T009:
     to configure pytest with coverage in the `tests/` directory is not demonstrated.
     The implementer must add the appropriate configuration files and verify they enable
     coverage reporting.
-T013:
+T014b:
   c: false
-  h: b0abd0ffab6e97aadfe2fa95c042cf0882946e857588e90d7b2425b8b4b12dd9
-  r: "The `code/services/data_ingestion.py` file is truncated and never reaches the\
-    \ part where it saves the CSV, computes or verifies an MD5 checksum, or writes\
-    \ to `data/raw/social_media.csv`. Moreover, the required `data/raw/social_media.csv`\
-    \ file does not exist. Consequently the implementation does not fulfill the task\u2019\
-    s requirements."
+  h: b12ab2c7de8d73d9377930175c2cde36e6884e6ca2533df7eda78535fe6b3526
+  r: "The `filter_non_english` function uses `langdetect.detect` without accessing\
+    \ a confidence score, so it cannot enforce the required \u201Cconfidence\u202F\
+    <\u202F0.8\u201D rule, and it never reads `filtering.langdetect_threshold` from\
+    \ `contracts/analysis.schema.yaml`. Moreover, the script does not read `data/raw/social_media.csv`\
+    \ nor write the filtered result to `data/processed/preprocessed_text.csv`, and\
+    \ those files are missing from the repository."
+T014c:
+  c: false
+  h: 2240f7c7c879e52fcebd8dd14ea9eba46ab09ad9ea6ab0c88b93be0c78c6d1d5
+  r: "The repository lacks the required `data/processed/preprocessed_text.csv` input\
+    \ (and thus no output can be written), and the referenced `contracts/analysis.schema.yaml`\
+    \ is missing, so the configuration keys cannot be read or validated. Additionally,\
+    \ the provided `code/services/anxiety_scoring.py` is truncated before showing\
+    \ any implementation of the gibberish\u2011filtering logic (length/entropy checks),\
+    \ so we cannot confirm the task\u2019s core requirement is met."
+T015:
+  c: false
+  h: 4aa20795673b076b275793c840f741f3325f9d2e3d3f2665a7b1fdb8cd71d7a4
+  r: "The required input file `data/processed/preprocessed_text.csv` and the expected\
+    \ output `data/processed/scoring_results.csv` are absent, and the provided `code/services/anxiety_scoring.py`\
+    \ snippet does not demonstrate the required model loading, CPU\u2011only inference,\
+    \ verification of \u201Canxiety\u201D/\u201Cfear\u201D labels, or the mapping/halt\
+    \ logic. The task therefore remains unfinished."
+T016:
+  c: false
+  h: 0a18675ec9cf2173f8ac3f413965cdeaeabb86d62ac59199d770cff005c36ec7
+  r: "The required output file `data/processed/scoring_results.csv` does not exist,\
+    \ and the provided `anxiety_scoring.py` snippet is incomplete (truncated) so it\u2019\
+    s unclear whether confidence\u2011score filtering and saving back to the same\
+    \ CSV are actually implemented. The task\u2019s core artifact is missing."
+T021:
+  c: false
+  h: 2bd8f1db7da28c2937fda6abfd731bbc53067bc4edce89f58b87634d166d3c7f
+  r: "The required input file `data/raw/social_media.csv` does not exist, and the\
+    \ expected output `data/processed/proxy_results.csv` was never created. Moreover,\
+    \ the provided `proxy_extractor.py` is only partially shown and does not demonstrate\
+    \ the full implementation (e.g., loading the CSV, enforcing the \u201Cno text\
+    \ column\u201D rule, and writing the results). Without these artifacts the task\u2019\
+    s requirements are not satisfied."
 T033a:
   c: false
   h: bdc5b776b6fc4308f3f141a1803bb8975c12776af2cbf76475c176791cc4e4c9
