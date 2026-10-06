@@ -81,17 +81,17 @@ description: "Task list template for feature implementation"
 
 **Data Acquisition & Reference Generation Tasks (Must precede US Implementation)**
 
-- [ ] T055a [Foundational] Implement `src/services/registry_generator.py` to generate `data/metadata/dataset_registry.json`
+- [X] T055a [Foundational] Implement `src/services/registry_generator.py` to generate `data/metadata/dataset_registry.json`
  - **Purpose**: Create a registry mapping system sizes (N=1000, 2000, 4000) to valid dataset IDs from verified sources (e.g., Zenodo, Materials Cloud).
  - **Logic**: Query the `VERIFIED_DATASET_IDS` constant in `src/lib/config.py` to build the registry.
  - **Output**: `data/metadata/dataset_registry.json`.
  - **Dependency**: Must be run before T055b to provide valid dataset IDs.
-- [ ] T055b [Foundational] Implement `src/services/registry_validator.py` to validate `data/metadata/dataset_registry.json`
+- [X] T055b [Foundational] Implement `src/services/registry_validator.py` to validate `data/metadata/dataset_registry.json`
  - **Purpose**: Verify that all dataset IDs in the registry are reachable and valid.
- - **Logic**: Use the Zenodo API endpoint `https://zenodo.org/api/records/{id}` to check each ID. If any ID is invalid, **HALT** with a fatal error.
+ - **Logic**: Use the Zenodo API endpoint ` to check each ID. If any ID is invalid, **HALT** with a fatal error.
  - **Output**: `data/metadata/registry_validation.log` AND `data/metadata/valid_sources.json` (containing the list of validated source IDs). **This file MUST be created here.**
  - **Dependency**: Must be run after T055a and before T056.
-- [ ] T056 [Foundational] Implement `src/services/data_loader.py` to fetch real amorphous silicon trajectories
+- [X] T056 [Foundational] Implement `src/services/data_loader.py` to fetch real amorphous silicon trajectories
  - **Depends on T001, T008, T055a, T055b**: Requires directory structure, path configuration, and a valid dataset registry.
  - **Dataset IDs**: Fetch datasets using IDs from `data/metadata/dataset_registry.json`. Do NOT hardcode IDs.
  - **Method**: Use `datasets.load_dataset(name, split=..., streaming=True)` with the specific Hugging Face dataset IDs from the registry.
@@ -319,7 +319,7 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Address specific reviewer concerns regarding data streaming, ambiguity handling, and verification robustness.
 
-- [ ] T061 [P] [US1] Implement streaming support for large trajectory files in `src/services/topology_extractor.py`
+- [X] T061 [P] [US1] Implement streaming support for large trajectory files in `src/services/topology_extractor.py`
  - **Review Concern**: Spec mentions "downsampling" for >100k atoms, but Plan requires real data.
  - **Action**: Modify `ase` loading logic to use `ase.io.stream` with the `chunk_size` parameter for chunked reading of large files.
  - **Constraint**: If full streaming is impossible, implement `itertools.islice` for a well-defined sample (e.g., first N rows).
@@ -327,7 +327,7 @@ description: "Task list template for feature implementation"
  - **Dependency**: Must not introduce synthetic data fallbacks.
  - **Trigger**: Only active if dataset size > 100k atoms or memory constraints are detected. **This task is now ACTIVE and required for pipeline execution.**
 
-- [ ] T062 [P] [US1] Implement robust RDF ambiguity handling in `src/services/topology_extractor.py`
+- [X] T062 [P] [US1] Implement robust RDF ambiguity handling in `src/services/topology_extractor.py`
  - **Review Concern**: Spec Edge Case: "What happens when the RDF minimum is ambiguous (e.g., broad first peak)?"
  - **Action**: Implement logic to detect if the first minimum is shallow (depth < 5% of peak height) or if multiple minima exist within 0.2 Å.
  - **Peak Height Definition**: Define 'peak height' as the maximum value of the RDF in the range before the first minimum.

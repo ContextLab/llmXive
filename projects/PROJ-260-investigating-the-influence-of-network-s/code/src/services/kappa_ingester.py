@@ -1,261 +1,307 @@
 """
-Kappa Ingestion Service
+Kappa Ingestor Service (T057)
 
-Ingests researcher-provided independent thermal conductivity (κ) values.
-Validates against trajectory metadata to ensure statistical independence.
+Implements ingestion of researcher-provided independent thermal conductivity (κ) values.
+Validates independence against trajectory sources to prevent circular dependencies.
 """
 import os
 import sys
 import csv
 import json
 import logging
+import re
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Set
 
-# Add project root to path for imports
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
-
-from src.lib.config import get_config, setup_logger
+from src.lib.config import get_config
 
 # Constants
-TRAJECTORY_IDS_PATH = PROJECT_ROOT / "data" / "metadata" / "trajectory_ids.json"
-DEFAULT_KAPA_INPUT = PROJECT_ROOT / "data" / "derived" / "reference" / "kappa_values.csv"
-OUTPUT_KAPA_PATH = PROJECT_ROOT / "data" / "derived" / "reference" / "kappa_values.csv"
-REQUIRED_COLUMNS = {"system_size", "kappa", "source_id", "trajectory_id"}
+VALID_SOURCE_TYPES = {'experimental', 'distinct_simulation', 'literature'}
+SOURCE_ID_REGEX = re.compile(r'^[a-z0-9_]+$')
+EXIT_CODE_CIRCULAR_DEPENDENCY = 2
+EXIT_CODE_INVALID_INPUT = 1
+EXIT_CODE_SUCCESS = 0
 
+# Logger setup
 def setup_service_logger(name: str = "kappa_ingester") -> logging.Logger:
-    """Setup logger for the kappa ingestion service."""
-    return setup_logger(name)
+    """Setup service-specific logger."""
+    logger = logging.getLogger(name)
+    if logger.handlers:
+        return logger
 
-def load_trajectory_ids(logger: logging.Logger) -> Dict[str, Any]:
+    logger.setLevel(logging.DEBUG)
+
+    # Console handler
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(logging.INFO)
+    console_fmt = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    ch.setFormatter(console_fmt)
+    logger.addHandler(ch)
+
+    # File handler
+    config = get_config()
+    log_dir = config.get_path("data_metadata")
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_file = log_dir / "kappa_ingester.log"
+
+    fh = logging.FileHandler(log_file)
+    fh.setLevel(logging.DEBUG)
+    file_fmt = logging.Formatter('%(asctime)s - %(levelname)s - %(module)s - %(message)s')
+    fh.setFormatter(file_fmt)
+    logger.addHandler(fh)
+
+    return logger
+
+logger = setup_service_logger()
+
+def load_trajectory_ids() -> Dict[str, Any]:
     """
-    Load the verified trajectory IDs from the metadata file.
-    
-    Raises:
-        FileNotFoundError: If the trajectory_ids.json file does not exist.
-        json.JSONDecodeError: If the file is not valid JSON.
+    Load trajectory IDs from data/metadata/trajectory_ids.json.
+    Must exist as per T056 dependency.
     """
-    if not TRAJECTORY_IDS_PATH.exists():
-        logger.error(f"Trajectory IDs file not found: {TRAJECTORY_IDS_PATH}")
-        logger.error("T056 (Data Loader) must be executed successfully before T057.")
-        raise FileNotFoundError(f"Missing dependency: {TRAJECTORY_IDS_PATH}")
+    config = get_config()
+    traj_path = config.get_path("data_metadata") / "trajectory_ids.json"
+
+    if not traj_path.exists():
+        logger.error(f"FATAL: Required file missing: {traj_path}")
+        sys.exit(EXIT_CODE_INVALID_INPUT)
 
     try:
-        with open(TRAJECTORY_IDS_PATH, 'r', encoding='utf-8') as f:
+        with open(traj_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
-        logger.info(f"Loaded {len(data.get('trajectory_ids', []))} trajectory IDs.")
+        logger.info(f"Loaded trajectory IDs from {traj_path}")
         return data
     except json.JSONDecodeError as e:
-        logger.error(f"Invalid JSON in trajectory IDs file: {e}")
-        raise
+        logger.error(f"FATAL: Invalid JSON in trajectory_ids.json: {e}")
+        sys.exit(EXIT_CODE_INVALID_INPUT)
+
+def load_valid_sources() -> Set[str]:
+    """
+    Load valid source IDs from data/metadata/valid_sources.json.
+    Must exist as per T055b dependency.
+    """
+    config = get_config()
+    valid_sources_path = config.get_path("data_metadata") / "valid_sources.json"
+
+    if not valid_sources_path.exists():
+        logger.error(f"FATAL: Required file missing: {valid_sources_path}")
+        sys.exit(EXIT_CODE_INVALID_INPUT)
+
+    try:
+        with open(valid_sources_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        # Expecting a list of IDs or a dict with an 'ids' key
+        if isinstance(data, list):
+            valid_ids = set(data)
+        elif isinstance(data, dict) and 'ids' in data:
+            valid_ids = set(data['ids'])
+        else:
+            logger.error(f"FATAL: Invalid structure in valid_sources.json: {data}")
+            sys.exit(EXIT_CODE_INVALID_INPUT)
+
+        logger.info(f"Loaded {len(valid_ids)} valid source IDs")
+        return valid_ids
+    except json.JSONDecodeError as e:
+        logger.error(f"FATAL: Invalid JSON in valid_sources.json: {e}")
+        sys.exit(EXIT_CODE_INVALID_INPUT)
 
 def validate_kappa_entry(
-    row: Dict[str, str], 
-    valid_trajectory_ids: set, 
-    logger: logging.Logger
+    row: Dict[str, str],
+    valid_sources: Set[str],
+    trajectory_ids: Dict[str, Any]
+) -> Optional[str]:
+    """
+    Validate a single row of the kappa CSV.
+    Returns an error message if invalid, None if valid.
+    """
+    required_cols = ['system_size', 'kappa', 'source_id', 'source_type', 'trajectory_id']
+    for col in required_cols:
+        if col not in row or not row[col]:
+            return f"Missing or empty required column: {col}"
+
+    # Validate source_id format
+    source_id = row['source_id'].strip().lower()
+    if not SOURCE_ID_REGEX.match(source_id):
+        return f"Invalid source_id format: '{row['source_id']}'. Must match {SOURCE_ID_REGEX.pattern}"
+
+    # Validate source_id is in valid_sources
+    if source_id not in valid_sources:
+        return f"source_id '{source_id}' not found in valid_sources.json"
+
+    # Validate source_type
+    source_type = row['source_type'].strip().lower()
+    if source_type not in VALID_SOURCE_TYPES:
+        return f"Invalid source_type: '{source_type}'. Must be one of {VALID_SOURCE_TYPES}"
+
+    # Validate system_size is integer
+    try:
+        int(row['system_size'])
+    except ValueError:
+        return f"system_size must be an integer: '{row['system_size']}'"
+
+    # Validate kappa is float
+    try:
+        float(row['kappa'])
+    except ValueError:
+        return f"kappa must be a float: '{row['kappa']}'"
+
+    return None
+
+def check_circular_dependency(
+    kappa_source_ids: Set[str],
+    trajectory_source: str
 ) -> bool:
     """
-    Validate a single row of kappa data.
-    
-    Checks:
-    1. Required columns present and non-empty.
-    2. Trajectory ID exists in the verified metadata.
-    3. Source ID is distinct from topology extraction source (basic check).
-    4. Kappa value is a valid float.
-    5. System size is a valid integer.
-    
-    Returns:
-        bool: True if valid, False otherwise.
+    Check if any kappa source_id matches the trajectory_source.
+    Returns True if circular dependency detected (failure).
     """
-    # Check required columns
-    missing_cols = REQUIRED_COLUMNS - set(row.keys())
-    if missing_cols:
-        logger.error(f"Row missing required columns: {missing_cols}. Row: {row}")
-        return False
-
-    # Check empty values
-    for col in REQUIRED_COLUMNS:
-        if not row[col].strip():
-            logger.error(f"Row has empty value for required column '{col}': {row}")
-            return False
-
-    # Validate Trajectory ID
-    traj_id = row["trajectory_id"].strip()
-    if traj_id not in valid_trajectory_ids:
-        logger.error(
-            f"Trajectory ID '{traj_id}' not found in verified metadata. "
-            f"Ensure T056 has run and extracted this ID. Row: {row}"
-        )
-        return False
-
-    # Validate Kappa value
-    try:
-        kappa_val = float(row["kappa"])
-        if kappa_val <= 0:
-            logger.error(f"Kappa value must be positive: {kappa_val}. Row: {row}")
-            return False
-    except ValueError:
-        logger.error(f"Invalid kappa value (not a float): '{row['kappa']}'. Row: {row}")
-        return False
-
-    # Validate System Size
-    try:
-        sys_size = int(row["system_size"])
-        if sys_size <= 0:
-            logger.error(f"System size must be positive: {sys_size}. Row: {row}")
-            return False
-    except ValueError:
-        logger.error(f"Invalid system size (not an int): '{row['system_size']}'. Row: {row}")
-        return False
-
-    # Basic Source ID check (ensure it's not 'internal_topology_extraction')
-    source_id = row["source_id"].strip()
-    if source_id.lower() == "internal_topology_extraction":
-        logger.error(
-            f"Source ID 'internal_topology_extraction' is reserved. "
-            f"κ values must be from independent external sources. Row: {row}"
-        )
-        return False
-
-    return True
+    if trajectory_source in kappa_source_ids:
+        logger.error(f"FATAL: Circular Dependency Detected. source_id '{trajectory_source}' matches trajectory source.")
+        return True
+    return False
 
 def ingest_kappa_values(
-    input_path: Optional[Path] = None,
-    logger: Optional[logging.Logger] = None
+    input_path: Path,
+    valid_sources: Set[str],
+    trajectory_ids: Dict[str, Any]
 ) -> List[Dict[str, Any]]:
     """
-    Ingest and validate kappa values from a CSV file.
-    
-    Args:
-        input_path: Path to the input CSV. Defaults to DEFAULT_KAPA_INPUT.
-        logger: Logger instance.
-        
-    Returns:
-        List of validated dictionaries.
-        
-    Raises:
-        FileNotFoundError: If input file missing.
-        ValueError: If validation fails for any row or file structure is invalid.
+    Read, validate, and filter the input CSV.
+    Raises SystemExit on fatal errors.
     """
-    if logger is None:
-        logger = setup_service_logger()
-
-    if input_path is None:
-        input_path = DEFAULT_KAPA_INPUT
-
     if not input_path.exists():
-        logger.error(f"Input κ file not found: {input_path}")
-        logger.error("Please provide a valid file via --kappa-file or place it at the default location.")
-        raise FileNotFoundError(f"Input file not found: {input_path}")
+        logger.error(f"FATAL: Input file not found: {input_path}")
+        sys.exit(EXIT_CODE_INVALID_INPUT)
 
-    # Load verified trajectory IDs
-    trajectory_data = load_trajectory_ids(logger)
-    valid_traj_ids = set(trajectory_data.get("trajectory_ids", []))
+    logger.info(f"Reading kappa values from {input_path}")
 
-    if not valid_traj_ids:
-        logger.error("No valid trajectory IDs found in metadata. T056 must run first.")
-        raise ValueError("No trajectory IDs available for validation.")
+    valid_entries = []
+    kappa_source_ids = set()
 
-    validated_rows = []
-    
     try:
         with open(input_path, 'r', encoding='utf-8', newline='') as f:
             reader = csv.DictReader(f)
-            
-            # Check header
-            if reader.fieldnames is None:
-                logger.error("CSV file is empty or has no header.")
-                raise ValueError("CSV file is empty.")
-            
-            header_set = set(reader.fieldnames)
-            if not REQUIRED_COLUMNS.issubset(header_set):
-                missing = REQUIRED_COLUMNS - header_set
-                logger.error(f"CSV header missing required columns: {missing}")
-                raise ValueError(f"Invalid CSV schema. Missing: {missing}")
 
-            row_count = 0
-            for row in reader:
-                row_count += 1
-                if validate_kappa_entry(row, valid_traj_ids, logger):
-                    # Convert types for storage
-                    validated_rows.append({
-                        "system_size": int(row["system_size"]),
-                        "kappa": float(row["kappa"]),
-                        "source_id": row["source_id"].strip(),
-                        "trajectory_id": row["trajectory_id"].strip()
-                    })
-                else:
-                    logger.warning(f"Skipping invalid row {row_count}: {row}")
+            for row_num, row in enumerate(reader, start=1):
+                error = validate_kappa_entry(row, valid_sources, trajectory_ids)
+                if error:
+                    logger.error(f"Row {row_num} validation failed: {error}")
+                    # Continue to next row? Spec says "HALT with fatal error" if file is invalid.
+                    # Interpret as: if ANY row is invalid, halt.
+                    sys.exit(EXIT_CODE_INVALID_INPUT)
 
-            if row_count == 0:
-                logger.error("No data rows found in input file.")
-                raise ValueError("Input file contains no data rows.")
+                entry = {
+                    'system_size': int(row['system_size']),
+                    'kappa': float(row['kappa']),
+                    'source_id': row['source_id'].strip().lower(),
+                    'source_type': row['source_type'].strip().lower(),
+                    'trajectory_id': row['trajectory_id']
+                }
+                valid_entries.append(entry)
+                kappa_source_ids.add(entry['source_id'])
 
     except csv.Error as e:
-        logger.error(f"CSV parsing error: {e}")
-        raise
+        logger.error(f"FATAL: CSV parsing error: {e}")
+        sys.exit(EXIT_CODE_INVALID_INPUT)
 
-    if not validated_rows:
-        logger.error("No valid rows found in input file after validation.")
-        raise ValueError("Validation failed for all rows in input file.")
+    if not valid_entries:
+        logger.error("FATAL: No valid entries found in input file.")
+        sys.exit(EXIT_CODE_INVALID_INPUT)
 
-    logger.info(f"Successfully validated {len(validated_rows)} κ entries.")
-    return validated_rows
+    # Extract trajectory_source from trajectory_ids
+    # Assuming trajectory_ids is a dict mapping size to source info, or a list.
+    # T056 output format: usually a list of dicts or a mapping.
+    # We need the 'trajectory_source' field from the metadata generated by T056.
+    # Let's assume the structure from T056: `data/metadata/trajectory_ids.json`
+    # contains a list of objects, each with 'trajectory_id' and 'trajectory_source'.
+    # We need the source_id of the fetched data.
+    
+    # If trajectory_ids is a list of dicts:
+    if isinstance(trajectory_ids, list):
+        # Collect all sources from the fetched data
+        fetched_sources = {item.get('trajectory_source') for item in trajectory_ids if item.get('trajectory_source')}
+        trajectory_source = list(fetched_sources)[0] if len(fetched_sources) == 1 else None
+        
+        # If multiple sources, we check if ANY kappa source matches ANY fetched source?
+        # The spec says: "compare it against trajectory_source".
+        # If there are multiple realizations, they might have different sources or the same.
+        # Usually, the dataset comes from one source. Let's assume one main source.
+        # If multiple, we should check against all to be safe?
+        # Spec: "If source_id == trajectory_source". Singular.
+        # Let's assume the fetched data shares a common source_id or we check intersection.
+        
+        # If the fetched data has multiple distinct sources, and a kappa entry matches ANY of them, it's circular.
+        if fetched_sources:
+            if kappa_source_ids & fetched_sources:
+                logger.error(f"FATAL: Circular Dependency Detected. kappa sources {kappa_source_ids & fetched_sources} match fetched data sources.")
+                sys.exit(EXIT_CODE_CIRCULAR_DEPENDENCY)
+    elif isinstance(trajectory_ids, dict):
+        # If it's a dict, maybe keys are sizes, values are metadata
+        # Check all values for 'trajectory_source'
+        fetched_sources = set()
+        for v in trajectory_ids.values():
+            if isinstance(v, dict) and 'trajectory_source' in v:
+                fetched_sources.add(v['trajectory_source'])
+        
+        if fetched_sources:
+            if kappa_source_ids & fetched_sources:
+                logger.error(f"FATAL: Circular Dependency Detected. kappa sources {kappa_source_ids & fetched_sources} match fetched data sources.")
+                sys.exit(EXIT_CODE_CIRCULAR_DEPENDENCY)
+    else:
+        logger.warning("Unexpected trajectory_ids format, skipping circular dependency check.")
 
-def write_output(
-    validated_rows: List[Dict[str, Any]], 
-    output_path: Path,
-    logger: logging.Logger
-) -> None:
-    """Write validated kappa values to the output CSV."""
+    logger.info(f"Successfully validated {len(valid_entries)} kappa entries.")
+    return valid_entries
+
+def write_output(entries: List[Dict[str, Any]], output_path: Path) -> None:
+    """Write validated entries to the output CSV."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
+
+    fieldnames = ['system_size', 'kappa', 'source_id', 'source_type', 'trajectory_id']
     with open(output_path, 'w', encoding='utf-8', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=["system_size", "kappa", "source_id", "trajectory_id"])
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(validated_rows)
-    
-    logger.info(f"Validated κ values written to: {output_path}")
+        writer.writerows(entries)
+
+    logger.info(f"Output written to {output_path}")
 
 def main() -> int:
     """Main entry point for the kappa ingester."""
-    logger = setup_service_logger()
-    logger.info("Starting Kappa Ingestion Service (T057)...")
-
-    # Parse arguments
     import argparse
-    parser = argparse.ArgumentParser(description="Ingest researcher-provided independent κ values.")
+
+    parser = argparse.ArgumentParser(description="Ingest researcher-provided kappa values.")
     parser.add_argument(
-        "--kappa-file", 
-        type=str, 
+        '--kappa-file',
+        type=str,
         default=None,
-        help="Path to the input CSV file containing κ values. "
-             "Defaults to data/derived/reference/kappa_values.csv"
+        help="Path to input CSV with kappa values."
     )
     args = parser.parse_args()
 
-    input_path = Path(args.kappa_file) if args.kappa_file else None
+    config = get_config()
+    
+    # Determine input path
+    if args.kappa_file:
+        input_path = Path(args.kappa_file)
+    else:
+        # Fallback to default path
+        input_path = config.get_path("data_derived_reference") / "kappa_values.csv"
 
+    # Load dependencies
+    trajectory_ids = load_trajectory_ids()
+    valid_sources = load_valid_sources()
+
+    # Ingest and validate
     try:
-        # Ingest and validate
-        validated_data = ingest_kappa_values(input_path=input_path, logger=logger)
-        
-        # Write output
-        write_output(validated_data, OUTPUT_KAPA_PATH, logger)
-        
-        logger.info("Kappa ingestion completed successfully.")
-        return 0
+        valid_entries = ingest_kappa_values(input_path, valid_sources, trajectory_ids)
+    except SystemExit:
+        return EXIT_CODE_INVALID_INPUT
 
-    except FileNotFoundError as e:
-        logger.critical(f"Fatal Error: {e}")
-        return 1
-    except ValueError as e:
-        logger.critical(f"Validation Error: {e}")
-        return 1
-    except Exception as e:
-        logger.critical(f"Unexpected error: {e}", exc_info=True)
-        return 1
+    # Write output
+    output_path = config.get_path("data_derived_reference") / "kappa_values.csv"
+    write_output(valid_entries, output_path)
+
+    return EXIT_CODE_SUCCESS
 
 if __name__ == "__main__":
     sys.exit(main())

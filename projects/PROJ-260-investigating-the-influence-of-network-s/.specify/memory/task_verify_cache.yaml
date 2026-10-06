@@ -5,3 +5,24 @@ T009:
     \ in `tests/unit/`, `tests/integration/`, or `tests/contract/`; thus the required\
     \ test package initialization files are missing. The implementer must add non\u2011\
     empty `__init__.py` files in each of those directories."
+T046:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or output files were presented that implement a loop\
+    \ ingesting data for the three required system sizes (N=1000, 2000, 4000) and\
+    \ aggregating the specified power metrics (FR\u2011006, Plan Scale/Scope). The\
+    \ evidence is missing, so the task is not satisfied."
+T055b:
+  c: false
+  h: f180ad411800e092b707190dde7a99240aae5cb987897564336b849da244f304
+  r: "The `src/services/registry_validator.py` file is truncated and ends mid\u2011\
+    statement, indicating the implementation is not finished. Moreover, the required\
+    \ `data/metadata/dataset_registry.json` file is missing entirely. Both the service\
+    \ code and the target JSON file are needed for the task to be considered complete."
+T059:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No manual reference calculation document or data for SC\u2011001 is present;\
+    \ the evidence provided contains only the feature specification and user stories,\
+    \ with no actual calculation output, file, or report. The required artifact is\
+    \ missing."

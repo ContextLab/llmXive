@@ -4014,25 +4014,6 @@
   updated_at: '2026-10-04T21:48:30Z'
 - artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
   attempts: 1
-  canonical: flag spectral anomaly if peak height less than 5 percent of global maximum
-  claim_id: c_218a4492
-  context: Flag as 'Spectral Anomaly' only if (peak height < 5% of global maximum)
-    AND (system is NOT perfectly coordinated).
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Flag_spectral_anomaly_if_peak_height_less_than_5_percent_of
-  kind: magnitude
-  raw_text: Flag spectral anomaly if peak height is less than 5% of global maximum
-    in non-perfectly-coordinated systems.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-10-04T21:48:57Z'
-- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
-  attempts: 1
   canonical: verify bottleneck density stability with threshold sweep plus or minus
     0.5
   claim_id: c_2090c01e
@@ -4260,3 +4241,1028 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-04T22:18:49Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Data validation requires system sizes N=1000, 2000, and 4000
+  claim_id: c_94f5a3a5
+  context: T056 Data Loader task description regarding validation of fetched amorphous
+    silicon trajectories.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must verify that data exists for all three required system
+    sizes (N=1000, 2000, 4000).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:10:27Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Low power warning triggered if realizations per size < 30
+  claim_id: c_e2457232
+  context: T056 Data Loader task description regarding sample size handling.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Low_power_warning_triggered_if_realizations_per_size_%3C_30
+  kind: magnitude
+  raw_text: If the count of realizations per size is less than 30, the system must
+    log a 'Low Power Warning' and proceed.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:11:06Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: 'Average coordination number acceptance criterion: |avg - 4.00| <= 0.05'
+  claim_id: c_995f4624
+  context: T017 Topology Extractor implementation details regarding global validation.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Average_coordination_number_acceptance_criterion:_%7Cavg_-_4.0
+  kind: magnitude
+  raw_text: 'The system must calculate the average coordination number and if the
+    absolute difference from the reference value 4.00 is greater than 0.05, log a
+    ''CRITICAL: Acceptance Test Failed'' message.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:12:23Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Physical anomaly flag for coordination number > 6
+  claim_id: c_97cd0659
+  context: T017 Topology Extractor implementation details regarding anomaly flagging.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Physical_anomaly_flag_for_coordination_number_%3E_6
+  kind: magnitude
+  raw_text: The system must flag any atom with a coordination number greater than
+    6 as a 'Physical Anomaly' without halting the process.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:13:16Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: 'Spectral anomaly condition: peak height < 5% of global maximum'
+  claim_id: c_9ecf5915
+  context: T028 Validation for acoustic modes and high-frequency peak logic.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Spectral_anomaly_condition:_peak_height_%3C_5%25_of_global_maxim
+  kind: magnitude
+  raw_text: The system must flag a result as 'Spectral Anomaly' only if the peak height
+    in the terahertz frequency range is less than 5% of the global maximum and the
+    system is not perfectly coordinated.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:13:53Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: 'Bootstrap iterations count: 1000'
+  claim_id: c_85fd6a11
+  context: T041 Statistical Analyzer implementation details citing math/0504516 and
+    SC-001.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 0.95, and simulated 1000 random samples of size n from each of three
+        un-
+      source_id: math/0504516
+      url: https://arxiv.org/abs/math/0504516
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: The system must execute exactly 1000 bootstrap iterations for confidence
+    interval estimation.
+  resolved_value: '1000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-06T23:14:20Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: 'Input data must contain exactly three distinct system sizes: 1000, 2000,
+    4000'
+  claim_id: c_98c9017c
+  context: T046 Data ingestion loop requirements for finite-size validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must verify that exactly three distinct system sizes (N=1000,
+    2000, 4000) are present in the input data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:14:42Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Fatal error if distinct system sizes < 3
+  claim_id: c_33c95f6c
+  context: T046 Data ingestion loop requirements for finite-size validation.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fatal_error_if_distinct_system_sizes_%3C_3
+  kind: magnitude
+  raw_text: The system must halt with a fatal error if fewer than 3 distinct system
+    sizes are found in the input data.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:15:22Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: 'Test suite failure condition: missing manual_reference.json'
+  claim_id: c_c159fc7e
+  context: T060 Test for SC-001 accuracy verification dependency.
+  evidence:
+    entailment_evidence: 'Test suite failure condition: missing manual reference.'
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Test_suite_failure_condition:_missing_manual_reference.json
+  kind: entity_fact
+  raw_text: The system must fail the test suite if the manual reference file data/metadata/manual_reference.json
+    is missing or invalid.
+  resolved_value: 'Test suite failure condition: missing manual_reference.json'
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-06T23:15:25Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: 'Accuracy verification threshold: |output - manual| < 1e-6'
+  claim_id: c_3c8979e9
+  context: T060 Test for SC-001 accuracy verification threshold.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Accuracy_verification_threshold:_%7Coutput_-_manual%7C_%3C_1e-6
+  kind: magnitude
+  raw_text: The system must fail the test if the absolute difference between the output
+    and the manual calculation is greater than or equal to 1e-6.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:16:32Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: 'Pipeline runtime threshold: 30 minutes on 4-core CPU'
+  claim_id: c_8f0101ef
+  context: Performance note regarding SC-005 and T041 implementation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full pipeline must complete within a 30-minute runtime threshold on
+    a 4-core CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:16:53Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Warning for insufficient system sizes if count < 3
+  claim_id: c_02ae365b
+  context: T064 Implementation of 'Single System Size' limitation flag.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1382: product defect'
+      source_id: Q7692348
+      url: https://www.wikidata.org/wiki/Q7692348
+      value: '3'
+    filled: true
+  kind: magnitude
+  raw_text: 'The system must log a ''LIMITATION: Insufficient System Sizes for Finite-Size
+    Validation'' warning if the count of unique system sizes is less than 3.'
+  resolved_value: '3'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-06T23:17:00Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: 'Missing velocity data error: exit code 4'
+  claim_id: c_41d9e868
+  context: T063 Implementation of 'Missing Velocity Data' failure mode.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must raise a specific VelocityDataMissingError with exit code
+    4 if velocity data is missing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:17:21Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: 'Low power warning threshold: power < 0.8'
+  claim_id: c_6751113b
+  context: T043 and T047 Implementation of Low Power warning logic.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Low_power_warning_threshold:_power_%3C_0.8
+  kind: magnitude
+  raw_text: The system must flag 'Low Power' if the calculated statistical power is
+    less than 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:17:47Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 0
+  canonical: 1000 bootstrap iterations executed for confidence interval estimation
+  claim_id: c_816e112d
+  context: Execute exactly 1000 (math/0504516, https://arxiv.org/abs/math/0504516)
+    bootstrap iterations for confidence interval estimation (FR-005, SC-001) using
+    scipy.stats.bootstrap.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 0.95, and simulated 1000 random samples of size n from each of three
+        un-
+      source_id: math/0504516
+      url: https://arxiv.org/abs/math/0504516
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: Execute exactly 1000 bootstrap iterations for confidence interval estimation.
+  resolved_value: '1000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-06T23:20:14Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Registry maps system sizes N=1000, 2000, 4000 to dataset IDs from Zenodo
+    or Materials Cloud
+  claim_id: c_329c4e5f
+  context: 'T055a Purpose: Create a registry mapping system sizes (N=1000, 2000, 4000)
+    to valid dataset IDs from verified sources (e.g., Zenodo, Materials Cloud).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Query the VERIFIED_DATASET_IDS constant in src/lib/config.py to build
+    the registry mapping system sizes (N=1000, 2000, 4000) to valid dataset IDs from
+    verified sources.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:20:37Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Low Power Warning triggered if realizations per size are fewer than 30
+  claim_id: c_6a94b9ea
+  context: 'Sample Size Handling: If the count of realizations per size is < 30, LOG
+    a ''Low Power Warning'' and proceed (do NOT halt).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Low_Power_Warning_triggered_if_realizations_per_size_are_few
+  kind: magnitude
+  raw_text: If the count of realizations per size is less than 30, log a Low Power
+    Warning and proceed.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:21:10Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Acceptance test fails if average coordination number differs from 4.00
+    by more than 0.05
+  claim_id: c_6fc6cac2
+  context: 'Global Validation: MUST calculate the average coordination number. If
+    the absolute difference from the reference value (4.00) is > 0.05, LOG a ''CRITICAL:
+    Acceptance Test Failed'' message.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Acceptance_test_fails_if_average_coordination_number_differs
+  kind: magnitude
+  raw_text: Calculate the average coordination number; if the absolute difference
+    from the reference value of 4.00 is greater than 0.05, log a CRITICAL acceptance
+    test failure.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:21:57Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Spectral Anomaly flagged if high-freq peak height is less than 5% of
+    global maximum and system is not perfectly coordinated
+  claim_id: c_b4856df1
+  context: 'Algorithm: Find local maximum in the terahertz frequency range. Flag as
+    ''Spectral Anomaly'' only if (peak height < 5% of global maximum) AND (system
+    is NOT perfectly coordinated).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Spectral_Anomaly_flagged_if_high-freq_peak_height_is_less_th
+  kind: magnitude
+  raw_text: Flag a Spectral Anomaly only if the high-frequency peak height is less
+    than 5% of the global maximum AND the system is not perfectly coordinated.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:23:05Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: 'Input data must contain exactly three distinct system sizes: 1000, 2000,
+    and 4000'
+  claim_id: c_d4d959ce
+  context: 'Explicit Validation: MUST verify that exactly three distinct system sizes
+    (N=1000, 2000, 4000) are present in the input data.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that exactly three distinct system sizes (N=1000, 2000, 4000) are
+    present in the input data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:23:33Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Low Power flag triggered if statistical power is less than 0.8
+  claim_id: c_4356ae7e
+  context: Add 'Low Power' warning logic if power < 0.8 (SC-002).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Low_Power_flag_triggered_if_statistical_power_is_less_than_0
+  kind: magnitude
+  raw_text: Flag 'Low Power' if statistical power is less than 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:24:03Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Test fails if difference between output and manual calculation is >=
+    1e-6
+  claim_id: c_35e9ca69
+  context: 'Threshold: Fail test if |output - manual| >= 1e-6.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Test_fails_if_difference_between_output_and_manual_calculati
+  kind: magnitude
+  raw_text: Fail the test if the absolute difference between the output and the manual
+    calculation is greater than or equal to 1e-6.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:25:14Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: "RDF ambiguity detected if minimum depth is less than 5% of peak height\
+    \ or multiple minima within 0.2 \xC5"
+  claim_id: c_64eea100
+  context: "Action: Implement logic to detect if the first minimum is shallow (depth\
+    \ < 5% of peak height) or if multiple minima exist within 0.2 \xC5."
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 5.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/RDF_ambiguity_detected_if_minimum_depth_is_less_than_5%25_of_p
+  kind: magnitude
+  raw_text: "Implement logic to detect if the first RDF minimum is shallow (depth\
+    \ less than 5% of peak height) or if multiple minima exist within 0.2 \xC5."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-10-06T23:25:42Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: System registry maps sizes N=1000, 2000, 4000 to verified dataset IDs
+  claim_id: c_fb36ce69
+  context: 'T055a Purpose: Create a registry mapping system sizes (N=1000, 2000, 4000)
+    to valid dataset IDs from verified sources (e.g., Zenodo, Materials Cloud).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Query the VERIFIED_DATASET_IDS constant in src/lib/config.py to build
+    the registry mapping system sizes (N=1000, 2000, 4000) to valid dataset IDs from
+    verified sources.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:27:32Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Data validation requires existence of system sizes N=1000, 2000, 4000
+  claim_id: c_c165bdbf
+  context: 'T056 Validation: MUST verify that data exists for all three required system
+    sizes (N=1000, 2000, 4000).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must verify that data exists for all three required system
+    sizes (N=1000, 2000, 4000).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:27:57Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Independence check compares source_id against trajectory_source
+  claim_id: c_0b4f6b09
+  context: 'T057 Independence Check: MUST extract source_id from the input CSV and
+    compare it against trajectory_source (from data/metadata/trajectory_ids.json).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Independence_check_compares_source_id_against_trajectory_sou
+  kind: entity_fact
+  raw_text: The system must extract the source_id from the input CSV and compare it
+    against trajectory_source to prevent circular dependency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:28:21Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Average coordination number reference value is 4.00 with 0.05 tolerance
+  claim_id: c_59c65a7b
+  context: 'T017 Global Validation: MUST calculate the average coordination number.
+    If the absolute difference from the reference value (4.00) is > 0.05, LOG a CRITICAL:
+    Acceptance Test Failed message.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the absolute difference of the average coordination number from the
+    reference value (4.00) is > 0.05, a CRITICAL acceptance test failure is logged.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:28:44Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Bootstrap analysis requires exactly 1000 iterations
+  claim_id: c_6bc4d821
+  context: T041 Execute exactly 1000 (math/0504516, https://arxiv.org/abs/math/0504516)
+    bootstrap iterations for confidence interval estimation (FR-005, SC-001) using
+    scipy.stats.bootstrap.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation must execute exactly 1000 bootstrap iterations for
+    confidence interval estimation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:29:07Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: 'Input validation requires exactly 3 distinct system sizes: 1000, 2000,
+    4000'
+  claim_id: c_96f0c295
+  context: 'T046 Explicit Validation: MUST verify that exactly three distinct system
+    sizes (N=1000, 2000, 4000) are present in the input data.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must verify that exactly three distinct system sizes (N=1000,
+    2000, 4000) are present in the input data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:29:08Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Low Power Warning triggered if realizations < 30 per size
+  claim_id: c_bdd2fb28
+  context: 'T046 Statistical Validity: If available realizations < 30 per size, LOG
+    a Low Power Warning and proceed (do NOT halt).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Low_Power_Warning_triggered_if_realizations_%3C_30_per_size
+  kind: magnitude
+  raw_text: The system must flag a Low Power Warning if available realizations are
+    less than 30 per system size.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:30:15Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: "RDF ambiguity defined as depth < 5% of peak height or multiple minima\
+    \ within 0.2 \xC5"
+  claim_id: c_41ff98c9
+  context: "T062 Action: Implement logic to detect if the first minimum is shallow\
+    \ (depth < 5% of peak height) or if multiple minima exist within 0.2 \xC5."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system must log a CRITICAL: Ambiguous RDF Minimum warning if the\
+    \ first minimum is shallow (depth < 5% of peak height) or if multiple minima exist\
+    \ within 0.2 \xC5."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:30:16Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Missing velocity data results in exit code 4
+  claim_id: c_e6c842b3
+  context: 'T063 Behavior: If missing, raise a specific VelocityDataMissingError with
+    exit code 4.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Missing_velocity_data_results_in_exit_code_4
+  kind: causal
+  raw_text: The VDOS pipeline must halt cleanly with exit code 4 if velocity data
+    is missing.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:30:19Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Data fetch failure results in exit code 1
+  claim_id: c_83545e22
+  context: 'T065 Assert: Ensure the process exits with code 1 and logs FATAL: Real
+    data fetch failed to the log file.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Data_fetch_failure_results_in_exit_code_1
+  kind: causal
+  raw_text: 'The data loader must exit with code 1 and log FATAL: Real data fetch
+    failed if the download fails.'
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:30:22Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Registry maps system sizes 1000, 2000, and 4000 to dataset IDs
+  claim_id: c_2372d285
+  context: T055a [Foundational] Implement src/services/registry_generator.py to generate
+    data/metadata/dataset_registry.json
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Query the VERIFIED_DATASET_IDS constant in src/lib/config.py to build
+    the registry mapping system sizes (N=1000, 2000, 4000) to valid dataset IDs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:31:45Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Data validation requires existence of sizes 1000, 2000, and 4000
+  claim_id: c_a150f818
+  context: T056 [Foundational] Implement src/services/data_loader.py to fetch real
+    amorphous silicon trajectories
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that data exists for all three required system sizes (N=1000, 2000,
+    4000).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:32:14Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Low power warning triggers if realizations per size are less than 30
+  claim_id: c_6d4c3d8b
+  context: T056 [Foundational] Implement src/services/data_loader.py to fetch real
+    amorphous silicon trajectories
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Low_power_warning_triggers_if_realizations_per_size_are_less
+  kind: magnitude
+  raw_text: If the count of realizations per size is < 30, LOG a 'Low Power Warning'
+    and proceed.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:32:56Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Average coordination number reference is 4.00 with tolerance 0.05
+  claim_id: c_32b7e869
+  context: T017 [US1] Implement src/services/topology_extractor.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If the absolute difference from the reference value (4.00) is > 0.05,
+    LOG a ''CRITICAL: Acceptance Test Failed'' message and set return code 3.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:33:20Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Bootstrap analysis uses 1000 iterations
+  claim_id: c_3fb26318
+  context: T041 [US3] Implement src/services/statistical_analyzer.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement exactly 1000 bootstrap iterations for confidence interval estimation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:33:40Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime threshold is 30 minutes for 4000-atom system
+  claim_id: c_376cc523
+  context: T036 [P] [US3] Integration test for runtime threshold
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify \u226430 mins runtime on a 4000-atom system."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:33:41Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Low power warning triggers if statistical power is less than 0.8
+  claim_id: c_d566aa20
+  context: T037 [P] [US3] Integration test for Low Power warning
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Low_power_warning_triggers_if_statistical_power_is_less_than
+  kind: magnitude
+  raw_text: Verify warning triggers when power < 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:34:12Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Accuracy verification threshold is 1e-6
+  claim_id: c_4682e787
+  context: T060 [P] [US3] Implement test for SC-001 accuracy verification
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fail test if |output - manual| >= 1e-6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:34:39Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: RDF ambiguity defined as depth less than 5% of peak height or multiple
+    minima within 0.2 Angstroms
+  claim_id: c_26de10f3
+  context: T062 [P] [US1] Implement robust RDF ambiguity handling
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RDF_ambiguity_defined_as_depth_less_than_5%25_of_peak_height_o
+  kind: magnitude
+  raw_text: "Implement logic to detect if the first RDF minimum is shallow (depth\
+    \ < 5% of peak height) or if multiple minima exist within 0.2 \xC5."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:34:41Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: registry maps system sizes 1000, 2000, 4000 to dataset IDs
+  claim_id: c_7f54cff2
+  context: Create a registry mapping system sizes (N=1000, 2000, 4000) to valid dataset
+    IDs from verified sources (e.g., Zenodo, Materials Cloud).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The registry maps system sizes (N=1000, 2000, 4000) to valid dataset IDs
+    from verified sources.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:41:51Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: verify data exists for system sizes 1000, 2000, 4000
+  claim_id: c_b748f6f1
+  context: MUST verify that data exists for all three required system sizes (N=1000,
+    2000, 4000). If any size is missing, HALT with a fatal error.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must verify that data exists for all three required system
+    sizes (N=1000, 2000, 4000).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:41:52Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: log low power warning if realizations per size less than 30
+  claim_id: c_66c6319b
+  context: If the count of realizations per size is < 30, LOG a 'Low Power Warning'
+    and proceed (do NOT halt). The pipeline must not proceed if N=0.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Log_low_power_warning_if_realizations_per_size_less_than_30
+  kind: magnitude
+  raw_text: If the count of realizations per size is less than 30, the system must
+    log a 'Low Power Warning'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:42:36Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: compare average coordination number against reference value 4.00
+  claim_id: c_c8903e0a
+  context: 'MUST calculate the average coordination number. If the absolute difference
+    from the reference value (4.00) is > 0.05, LOG a ''CRITICAL: Acceptance Test Failed''
+    message and set return code 3.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must calculate the average coordination number and compare
+    it against a reference value of 4.00.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:43:04Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: log critical warning if coordination number difference exceeds 0.05
+  claim_id: c_380c418d
+  context: 'If the absolute difference from the reference value (4.00) is > 0.05,
+    LOG a ''CRITICAL: Acceptance Test Failed'' message and set return code 3.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Log_critical_warning_if_coordination_number_difference_excee
+  kind: magnitude
+  raw_text: The system must log a warning if the absolute difference between the average
+    coordination number and the reference value is greater than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:44:09Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: flag atoms with coordination greater than 6 as physical anomaly
+  claim_id: c_aa6e6612
+  context: Implement mandatory flagging of any atom with coordination > 6 as a 'Physical
+    Anomaly' without halting the process.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_atoms_with_coordination_greater_than_6_as_physical_anom
+  kind: magnitude
+  raw_text: The system must flag atoms with coordination greater than 6 as a 'Physical
+    Anomaly'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:44:47Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 2
+  canonical: flag spectral anomaly if peak height less than 5 percent of global maximum
+  claim_id: c_218a4492
+  context: Flag as 'Spectral Anomaly' only if (peak height < 5% of global maximum)
+    AND (system is NOT perfectly coordinated).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_spectral_anomaly_if_peak_height_less_than_5_percent_of
+  kind: magnitude
+  raw_text: Flag spectral anomaly if peak height is less than 5% of global maximum
+    in non-perfectly-coordinated systems.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:45:17Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: verify exactly three distinct system sizes 1000, 2000, 4000 present
+  claim_id: c_64a33ef2
+  context: MUST verify that exactly three distinct system sizes (N=1000, 2000, 4000)
+    are present in the input data. If fewer than 3 distinct sizes are found, HALT
+    with a fatal error.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must verify that exactly three distinct system sizes (N=1000,
+    2000, 4000) are present in the input data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:45:18Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: execute exactly 1000 bootstrap iterations
+  claim_id: c_9ad1ad5c
+  context: Execute exactly 1000 (math/0504516, https://arxiv.org/abs/math/0504516)
+    bootstrap iterations for confidence interval estimation (FR-005, SC-001) using
+    scipy.stats.bootstrap.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 0.95, and simulated 1000 random samples of size n from each of three
+        un-
+      source_id: math/0504516
+      url: https://arxiv.org/abs/math/0504516
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: The statistical analyzer must execute exactly 1000 bootstrap iterations
+    for confidence interval estimation.
+  resolved_value: '1000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-06T23:45:39Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: flag low power warning if power less than 0.8
+  claim_id: c_f166eee9
+  context: Flag 'Low Power' if < 0.8.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_low_power_warning_if_power_less_than_0.8
+  kind: magnitude
+  raw_text: The system must flag a 'Low Power' warning if the calculated statistical
+    power is less than 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:46:24Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: fail test if difference between output and manual reference greater than
+    or equal to 1e-6
+  claim_id: c_a0fa3d5f
+  context: Fail test if |output - manual| >= 1e-6.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fail_test_if_difference_between_output_and_manual_reference
+  kind: magnitude
+  raw_text: The test suite must fail if the difference between the output and the
+    manual reference calculation is greater than or equal to 1e-6.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:47:31Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: log warning if RDF minimum shallow or multiple minima within 0.2 angstrom
+  claim_id: c_1fdb47f2
+  context: "Implement logic to detect if the first minimum is shallow (depth < 5%\
+    \ of peak height) or if multiple minima exist within 0.2 \xC5."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Log_warning_if_RDF_minimum_shallow_or_multiple_minima_within
+  kind: magnitude
+  raw_text: "The system must log a warning if the RDF minimum is shallow (depth less\
+    \ than 5% of peak height) or if multiple minima exist within 0.2 \xC5."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:48:13Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: log warning if fewer than 3 unique system sizes
+  claim_id: c_8428a815
+  context: 'If count < 3, LOG a ''LIMITATION: Insufficient System Sizes for Finite-Size
+    Validation'' warning and DO NOT perform the cross-size variance calculation.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Log_warning_if_fewer_than_3_unique_system_sizes
+  kind: magnitude
+  raw_text: The system must log a warning if the dataset contains fewer than 3 unique
+    system sizes.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T23:48:54Z'
