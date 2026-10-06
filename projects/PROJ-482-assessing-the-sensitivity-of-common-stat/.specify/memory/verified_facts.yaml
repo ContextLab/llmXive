@@ -1,3 +1,8 @@
+10|range sample simulation size:
+  quote: n 40, 100, 250, 1000
+  source_id: '2006.16638'
+  url: https://arxiv.org/abs/2006.16638
+  value: 40, 100, 250, 1000
 '|cell count expected fisher less test than triggered when':
   quote: With large samples, a chi-squared test (or better yet, a G-test) can be used
     in this situation. However, the significance value it provides is only an approximation,
@@ -20,3 +25,12 @@
   source_id: Fisher's exact test
   url: https://en.wikipedia.org/wiki/Fisher's_exact_test
   value: '5'
+'|level nominal significance simulation':
+  quote: The 0.05 significance level is merely a convention. The 0.05 significance
+    level (alpha level) is often used as the boundary between a statistically significant
+    and a statistically non-significant p-value. However, this does not imply that
+    there is generally a scientific reason to consider results on opposite sides of
+    any threshold as qualitatively different.
+  source_id: Misuse of p-values
+  url: https://en.wikipedia.org/wiki/Misuse_of_p-values
+  value: '0.05'

@@ -1,17 +1,15 @@
 status: none
-intent: sdv synthetic data generation normal uniform lognormal python package dataset
+intent: synthetic statistical power analysis dataset generator python package dataset
 required_fields:
 - sample_id
 - group
 - value
-- distribution_type
+- distribution
 - sample_size
 - effect_size
-- true_mean_control
-- true_mean_treatment
-- true_variance_control
-- true_variance_treatment
-- generated_timestamp
-cache_key: d894e096f2cc536c5fb170e4ada4342f68e97241b428cbda0a8b88e6610217ca
-searched_at: '2026-09-25T15:42:49.595220+00:00'
+- true_mean_diff
+- true_variance
+- random_seed
+cache_key: 59397fb3614e5db6ab19e0bb1a59306ec9a7a552faef9b3d282ae71bbbbc2671
+searched_at: '2026-10-06T11:30:32.317433+00:00'
 retry_count: 1

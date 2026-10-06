@@ -1860,3 +1860,1112 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-29T15:03:43Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: uniform distribution sample size n=1000
+  claim_id: c_da518df1
+  context: 'T009d [P] [US1] IF tests requested: Implement `tests/unit/test_data_generator.py::test_uniform_sample_size_accuracy`.
+    **Assertion**: Verify sample size for uniform distribution (n=1000) is exactly
+    1000 and data fits uniform profile.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify sample size for uniform distribution (n=1000) is exactly 1000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T11:35:57Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: log-normal distribution skewness n=30 theoretical value and standard
+    error approx 0.42
+  claim_id: c_3994149d
+  context: 'T009b [P] [US1] IF tests requested: Implement `tests/unit/test_data_generator.py::test_lognormal_skewness_validation`.
+    **Assertion**: Verify skewness of log-normal distribution (n=30) matches the theoretical
+    value `(exp(sigma^2) + 2) * sqrt(exp(sigma^2) - 1)` within the theoretical standard
+    error of skewness for n=30 (approx 0.42), ensuring the tolerance is statistically
+    derived rather than arbitrary.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify skewness of log-normal distribution (n=30) matches the theoretical
+    value `(exp(sigma^2) + 2) * sqrt(exp(sigma^2) - 1)` within the theoretical standard
+    error of skewness for n=30 (approx 0.42)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T11:36:29Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: normal distribution sample mean difference n=50 effect=0.0 within 1e-6
+    of 0.0
+  claim_id: c_9c647f19
+  context: 'T009a [P] [US1] IF tests requested: Implement `tests/unit/test_data_generator.py::test_normal_mean_validation`.
+    **Assertion**: Verify sample mean difference for normal distribution (n=50, effect=0.0)
+    is within 1e-6 of 0.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify sample mean difference for normal distribution (n=50, effect=0.0)
+    is within 1e-6 of 0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T11:36:53Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: log-normal distribution mean difference n=30 effect=0.5 within 1e-6 of
+    0.5
+  claim_id: c_d4af28b8
+  context: 'T009c [P] [US1] IF tests requested: Implement `tests/unit/test_data_generator.py::test_lognormal_effect_size_validation`.
+    **Assertion**: Verify mean difference for log-normal distribution (n=30, effect=0.5)
+    is within 1e-6 of 0.5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify mean difference for log-normal distribution (n=30, effect=0.5)
+    is within 1e-6 of 0.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T11:37:22Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: adaptive Monte Carlo replicates min 1000 95% CI width 0.01
+  claim_id: c_41525df1
+  context: "Goal: Perform adaptive Monte Carlo replicates (min 1000, extend until\
+    \ 95% CI width \u2264 0.01 or a maximum of a substantial number of samples will\
+    \ be considered.) for t-test, ANOVA, and Chi-squared tests, switching to Fisher's\
+    \ Exact for small counts."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform adaptive Monte Carlo replicates (min 1000, extend until 95% CI\
+    \ width \u2264 0.01 or a maximum of a substantial number of samples will be considered.)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T11:37:47Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Fisher's Exact trigger expected counts less than 5
+  claim_id: c_77ce9b81
+  context: Verify `scipy.stats.chi2_contingency` returns p < 0.05 for a 2x2 table
+    with counts [[high, low], [low, high]] and that Fisher's Exact is triggered for
+    expected counts < 5.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "To reduce the error in approximation, Frank Yates suggested a correction\
+        \ for continuity that adjusts the formula for Pearson's chi-squared test by\
+        \ subtracting 0.5 from the absolute difference between each observed value\
+        \ and its expected value in a 2 \xD7 2 contingency table. This reduces the\
+        \ chi-squared value obtained and thus increases its p-value."
+      source_id: Chi-squared test
+      url: https://en.wikipedia.org/wiki/Chi-squared_test
+      value: '5'
+    filled: true
+  kind: magnitude
+  raw_text: Fisher's Exact is triggered for expected counts < 5
+  resolved_value: '5'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-06T11:38:03Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: MAX_REPLICATES 10000 CI width 0.01 log UNSTABLE
+  claim_id: c_8d5cb726
+  context: 'Constraint: If `n_replicates >= MAX_REPLICATES` (10,000) and CI width
+    > 0.01, the run MUST log ''UNSTABLE'' to `logs/simulation.log` at WARNING level
+    with the exact string ''UNSTABLE''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If `n_replicates >= MAX_REPLICATES` (10,000) and CI width > 0.01, the
+    run MUST log 'UNSTABLE' to `logs/simulation.log` at WARNING level with the exact
+    string 'UNSTABLE'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T11:38:36Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: total time less than 6 hours GitHub Actions runner multiple CPUs 7 GB
+    RAM
+  claim_id: c_601fad8f
+  context: 'T033-RUN [P] **Benchmark Verification**: Run the benchmark script (T033-IMP)
+    and verify the total time is < 6 hours **on a standard GitHub Actions runner (multiple
+    CPUs, ~7 GB RAM)**.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_time_less_than_6_hours_GitHub_Actions_runner_multiple
+  kind: magnitude
+  raw_text: Verify the total time is < 6 hours on a standard GitHub Actions runner
+    (multiple CPUs, ~7 GB RAM)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T11:39:16Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: MAE less than 0.01 observed versus theoretical power curves
+  claim_id: c_1b060438
+  context: 'Compute: The MAE between observed power curves and theoretical power curves
+    for each test type. **Success Criterion**: **MAE < 0.01** for each test.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/MAE_less_than_0.01_observed_versus_theoretical_power_curves
+  kind: magnitude
+  raw_text: 'Calculate the MAE between observed power curves and theoretical power
+    curves for each test type. Success Criterion: MAE < 0.01 for each test'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T11:39:56Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: replace p-values 0.0 with 1e-15 before log transformation
+  claim_id: c_e759748b
+  context: 'Handling p=0**: Replace p-values of exactly 0.0 with `min_p = 1e-15` before
+    log transformation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Replace p-values of exactly 0.0 with `min_p = 1e-15` before log transformation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T11:40:31Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: theoretical mean difference matches input effect size
+  claim_id: c_928ad985
+  context: 'T037 [US1] **Log-Normal Parameter Alignment**: Refactor the log-normal
+    generation logic in `code/data_generator.py` to explicitly calculate the scale
+    parameter based on the desired effect size and group means, ensuring the theoretical
+    mean difference matches the input effect size.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Theoretical_mean_difference_matches_input_effect_size
+  kind: entity_fact
+  raw_text: ensure the theoretical mean difference matches the input effect size
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T11:41:00Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: log-normal distribution skewness tolerance sample sizes 10 to 1000
+  claim_id: c_ef5d46c8
+  context: 'T043 [US1] **Distribution Parameter Sensitivity**: Add a task to `code/data_generator.py`
+    to verify that the generated log-normal distribution maintains the specified skewness
+    within a a tolerance of a small, predefined percentage across the full range of
+    sample sizes (n=10 to n=1000), logging a warning if the skewness drifts significantly
+    due to sampling noise.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify that the generated log-normal distribution maintains the specified
+    skewness within a a tolerance of a small, predefined percentage across the full
+    range of sample sizes (n=10 to n=1000)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T11:41:23Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Fisher's Exact Test switch expected cell count less than 5
+  claim_id: c_94da7271
+  context: 'T047-NEW [US2] **Fisher''s Exact Test Threshold Verification**: Implement
+    a unit test in `tests/unit/test_simulation.py::test_fisher_exact_threshold` to
+    verify that the switch to Fisher''s Exact Test occurs exactly when the expected
+    cell count is < 5, and not for counts >= 5.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fisher's_Exact_Test_switch_expected_cell_count_less_than_5
+  kind: magnitude
+  raw_text: Verify that the switch to Fisher's Exact Test occurs exactly when the
+    expected cell count is < 5, and not for counts >= 5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T11:41:55Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: adaptive termination condition respected regardless of parallelization
+  claim_id: c_3ff62da2
+  context: 'T045-NEW [US2] **Adaptive Loop Concurrency Verification**: Implement a
+    unit test in `tests/unit/test_simulation.py::test_parallel_adaptive_termination`
+    to verify that the adaptive termination condition is correctly respected regardless
+    of parallelization status.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Adaptive_termination_condition_respected_regardless_of_paral
+  kind: entity_fact
+  raw_text: Verify that the adaptive termination condition is correctly respected
+    regardless of parallelization status
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T11:42:23Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: log-normal distribution skewness formula (exp(sigma^2) + 2) * sqrt(exp(sigma^2)
+    - 1)
+  claim_id: c_0a3153d1
+  context: Verify skewness of log-normal distribution (n=30) matches the theoretical
+    value (exp(sigma^2) + 2) * sqrt(exp(sigma^2) - 1) within the theoretical standard
+    error of skewness for n=30 (approx 0.42)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The skewness of a log-normal distribution is (exp(sigma^2) + 2) * sqrt(exp(sigma^2)
+    - 1)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T11:44:11Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: standard error of skewness for n=30 is approx 0.42
+  claim_id: c_ca4c318d
+  context: Verify skewness of log-normal distribution (n=30) matches the theoretical
+    value (exp(sigma^2) + 2) * sqrt(exp(sigma^2) - 1) within the theoretical standard
+    error of skewness for n=30 (approx 0.42)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The theoretical standard error of skewness for n=30 is approximately 0.42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T11:44:40Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: "Cox-Snell pseudo-R\xB2 formula 1 - exp((L_null - L_model) / n)"
+  claim_id: c_a27419b8
+  context: "Calculate Cox-Snell pseudo-R\xB2 using the formula appropriate for Binomial\
+    \ GLM... Formula: R\xB2_cs = 1 - exp((L_null - L_model) / n)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Cox-Snell pseudo-R\xB2 formula is R\xB2_cs = 1 - exp((L_null - L_model)\
+    \ / n)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T11:45:57Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: t-test non-centrality parameter formula d * sqrt(n/k)
+  claim_id: c_e007f7e2
+  context: 'Use appropriate non-centrality parameters (NCP) for each test: t-test
+    NCP = d * sqrt(n/k), ANOVA NCP = f * sqrt(n * k), Chi-squared NCP = w * sqrt(n).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/T-test_non-centrality_parameter_formula_d_*_sqrt(n/k)
+  kind: entity_fact
+  raw_text: The non-centrality parameter (NCP) for a t-test is NCP = d * sqrt(n/k)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T11:46:49Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: ANOVA non-centrality parameter formula f * sqrt(n * k)
+  claim_id: c_cf0af109
+  context: 'Use appropriate non-centrality parameters (NCP) for each test: t-test
+    NCP = d * sqrt(n/k), ANOVA NCP = f * sqrt(n * k), Chi-squared NCP = w * sqrt(n).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ANOVA_non-centrality_parameter_formula_f_*_sqrt(n_*_k)
+  kind: entity_fact
+  raw_text: The non-centrality parameter (NCP) for ANOVA is NCP = f * sqrt(n * k)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T11:47:29Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Chi-squared non-centrality parameter formula w * sqrt(n)
+  claim_id: c_5ef931e0
+  context: 'Use appropriate non-centrality parameters (NCP) for each test: t-test
+    NCP = d * sqrt(n/k), ANOVA NCP = f * sqrt(n * k), Chi-squared NCP = w * sqrt(n).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Chi-squared_non-centrality_parameter_formula_w_*_sqrt(n)
+  kind: entity_fact
+  raw_text: The non-centrality parameter (NCP) for Chi-squared test is NCP = w * sqrt(n)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T11:48:04Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: log-normal skewness theoretical value formula and standard error for
+    n=30
+  claim_id: c_0c037ba6
+  context: 'Test T009b: Implement test_lognormal_skewness_validation. Assertion: Verify
+    skewness of log-normal distribution (n=30) matches the theoretical value `(exp(sigma^2)
+    + 2) * sqrt(exp(sigma^2) - 1)` within the theoretical standard error of skewness
+    for n=30 (approx 0.42), ensuring the tolerance is statistically derived rather
+    than arbitrary.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify skewness of log-normal distribution (n=30) matches the theoretical
+    value `(exp(sigma^2) + 2) * sqrt(exp(sigma^2) - 1)` within the theoretical standard
+    error of skewness for n=30 (approx 0.42)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T11:50:08Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Fisher's Exact Test trigger threshold expected cell count less than 5
+  claim_id: c_6a46a799
+  context: 'Phase 4 Goal: Perform adaptive Monte Carlo replicates... for t-test, ANOVA,
+    and Chi-squared tests, switching to Fisher''s Exact for small counts.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fisher's_Exact_Test_trigger_threshold_expected_cell_count_le
+  kind: magnitude
+  raw_text: Switch to Fisher's Exact for small counts when expected cell counts <
+    5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T11:50:47Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: adaptive replication termination condition CI width less than or equal
+    to 0.01
+  claim_id: c_2d89042c
+  context: "Test T017: Implement test_adaptive_termination. Assertion: Verify adaptive\
+    \ replication loop terminates when CI width \u2264 0.01 or max replicates reached."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Adaptive_replication_termination_condition_CI_width_less_tha
+  kind: magnitude
+  raw_text: "Verify adaptive replication loop terminates when CI width \u2264 0.01\
+    \ or max replicates reached"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T11:51:13Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: adaptive control loop start replicates 1000 CI width threshold 0.01
+  claim_id: c_9cbf1baa
+  context: "Task T020-2: Implement adaptive control loop logic... start with exactly\
+    \ 1000 replicates, calculate 95% CI width using T020-1 (Bootstrap: `width = Upper\
+    \ - Lower`), and trigger additional replicates until width \u2264 0.01."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Start with exactly 1000 replicates, calculate 95% CI width, and trigger\
+    \ additional replicates until width \u2264 0.01"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T11:51:38Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: simulation unstable log condition max replicates 10000 CI width greater
+    than 0.01
+  claim_id: c_d07ce5ba
+  context: 'Task T020-2: Constraint: If `n_replicates >= MAX_REPLICATES` (10,000)
+    and CI width > 0.01, the run MUST log ''UNSTABLE'' to `logs/simulation.log` at
+    WARNING level with the exact string ''UNSTABLE''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Simulation_unstable_log_condition_max_replicates_10000_CI_wi
+  kind: magnitude
+  raw_text: If n_replicates >= MAX_REPLICATES (10,000) and CI width > 0.01, the run
+    MUST log 'UNSTABLE' to `logs/simulation.log`
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T11:52:04Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Bootstrap Resampling method required for all error rate estimates
+  claim_id: c_5f8d582e
+  context: 'Task T020-1: Constraint: Use Bootstrap Resampling (non-parametric, multiple
+    resamples) for all error rate estimates as mandated by Spec FR-004.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_Resampling_method_required_for_all_error_rate_esti
+  kind: entity_fact
+  raw_text: Use Bootstrap Resampling (non-parametric, multiple resamples) for all
+    error rate estimates
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T11:52:38Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: simulation total runtime less than 6 hours GitHub Actions runner 7 GB
+    RAM
+  claim_id: c_ca059f80
+  context: 'Task T033-RUN: Run the benchmark script (T033-IMP) and verify the total
+    time is < 6 hours on a standard GitHub Actions runner (multiple CPUs, ~7 GB RAM).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Simulation_total_runtime_less_than_6_hours_GitHub_Actions_ru
+  kind: magnitude
+  raw_text: Verify the total time is < 6 hours on a standard GitHub Actions runner
+    (multiple CPUs, ~7 GB RAM)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T11:52:40Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: power curve validation MAE less than 0.01 for t-test ANOVA Chi-squared
+  claim_id: c_54723574
+  context: 'Task T027c: Success Criterion: MAE < 0.01 for each test. Deliverable:
+    A consolidated report containing the MAE for each test type...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_curve_validation_MAE_less_than_0.01_for_t-test_ANOVA_C
+  kind: magnitude
+  raw_text: MAE < 0.01 for each test type when comparing observed power curves and
+    theoretical power curves
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T11:53:23Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: effect size 0.5 maps to Cohen's d f w 0.5
+  claim_id: c_d56e693c
+  context: 'Task T027c: Effect Size Definition: `effect_size=0.5` maps to Cohen''s
+    d/f/w = 0.5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Effect size 0.5 maps to Cohen's d/f/w = 0.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T11:55:30Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: handle p-value zero replace with 1e-15 before log transformation
+  claim_id: c_39229470
+  context: 'Task T027-1b-NEW: Handling p=0: Replace p-values of exactly 0.0 with `min_p
+    = 1e-15` before log transformation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Replace p-values of exactly 0.0 with min_p = 1e-15 before log transformation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T11:55:31Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 0
+  canonical: Fisher's Exact Test threshold is expected cell count < 5
+  claim_id: c_9f0f28e2
+  context: 'T018: Chi-squared (scipy.stats.chi2_contingency), Fisher''s Exact (scipy.stats.fisher_exact)
+    triggered when expected cell counts < 5.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: With large samples, a chi-squared test (or better yet, a G-test) can
+        be used in this situation. However, the significance value it provides is
+        only an approximation, because the sampling distribution of the test statistic
+        that is calculated is only approximately equal to the theoretical chi-squared
+        distribution. The approximation is poor when sample sizes are small, or the
+        data are very unequally distributed among the cells of the table, resulting
+        in the cell counts predicted on the null hypothesis (the "expected values")
+        being low. The usual rule for deciding whether the chi-squared approximation
+        is good enough is that the chi-squared test is not suitable when the expected
+        values in any of the cells of a contingency table are below 5, or below 10
+        when there is only one degree of freedom (this rule is now known to be overly
+        conservative). In fact, for small, sparse, or unbalanced data, the exact and
+        asymptotic p-values can be quite different and may lead to opposite conclusions
+        concerning the hypothesis of interest. In contrast the Fisher exact test is,
+        as its name states, exact as long as the experimental procedure keeps the
+        row and column totals fixed, and it can therefore be used regardless of the
+        sample characteristics. It becomes difficult to calculate with large samples
+        or well-balanced tables, but fortunately these are exactly the conditions
+        where the chi-squared test is appropriate.
+      source_id: Fisher's exact test
+      url: https://en.wikipedia.org/wiki/Fisher's_exact_test
+      value: '5'
+    filled: true
+  kind: magnitude
+  raw_text: Fisher's Exact Test is triggered when expected cell counts are less than
+    5.
+  resolved_value: '5'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-06T11:57:59Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: log-normal distribution skewness formula
+  claim_id: c_4a6ab84b
+  context: 'T009b: Verify skewness of log-normal distribution (n=30) matches the theoretical
+    value (exp(sigma^2) + 2) * sqrt(exp(sigma^2) - 1) within the theoretical standard
+    error of skewness for n=30 (approx 0.42)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The log-normal distribution skewness is calculated as (exp(sigma^2) +
+    2) * sqrt(exp(sigma^2) - 1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T11:59:20Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: theoretical standard error of skewness for n=30 is 0.42
+  claim_id: c_75a5f1ee
+  context: 'T009b: Verify skewness of log-normal distribution (n=30) matches the theoretical
+    value ... within the theoretical standard error of skewness for n=30 (approx 0.42)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The theoretical standard error of skewness for a sample size of n=30 is
+    approximately 0.42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T12:01:15Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: adaptive replication loop starts with 1000 replicates
+  claim_id: c_0f683b70
+  context: "T020-2: Implement adaptive control loop logic in code/simulation_engine.py:\
+    \ start with exactly 1000 replicates, calculate 95% CI width using T020-1 (Bootstrap:\
+    \ width = Upper - Lower), and trigger additional replicates until width \u2264\
+    \ 0.01."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The adaptive replication loop starts with exactly 1000 replicates.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T12:01:42Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: maximum replicates for adaptive loop is 10000
+  claim_id: c_f47c005e
+  context: 'T020-2: Constraint: If n_replicates >= MAX_REPLICATES (10,000) and CI
+    width > 0.01, the run MUST log ''UNSTABLE'' to logs/simulation.log at WARNING
+    level with the exact string ''UNSTABLE''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum number of replicates for the adaptive loop is 10,000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T12:02:05Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: adaptive termination condition is 95% CI width <= 0.01
+  claim_id: c_a3a7af97
+  context: "T020-2: Implement adaptive control loop logic in code/simulation_engine.py:\
+    \ start with exactly 1000 replicates, calculate 95% CI width using T020-1 (Bootstrap:\
+    \ width = Upper - Lower), and trigger additional replicates until width \u2264\
+    \ 0.01."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/adaptive_termination_condition_is_95%25_CI_width_%3C=_0.01
+  kind: entity_fact
+  raw_text: The adaptive termination condition for the simulation loop is a 95% confidence
+    interval width of 0.01.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T12:02:32Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: simulation benchmark time limit is 6 hours on GitHub Actions runner
+  claim_id: c_63af0320
+  context: 'T033-RUN: Run the benchmark script (T033-IMP) and verify the total time
+    is < 6 hours on a standard GitHub Actions runner (multiple CPUs, ~7 GB RAM).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Simulation_benchmark_time_limit_is_6_hours_on_GitHub_Actions
+  kind: magnitude
+  raw_text: The benchmark verification requires the total simulation time to be less
+    than 6 hours on a standard GitHub Actions runner.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T12:03:33Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: standard GitHub Actions runner has 7 GB RAM
+  claim_id: c_4f15fff3
+  context: 'T033-RUN: Run the benchmark script (T033-IMP) and verify the total time
+    is < 6 hours on a standard GitHub Actions runner (multiple CPUs, ~7 GB RAM).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Standard GitHub Actions runners used for benchmarking have approximately
+    7 GB of RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T12:04:02Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: p-value 0.0 replaced with 1e-15 before log transformation
+  claim_id: c_46c1b568
+  context: 'T027-1b-NEW: Handling p=0: Replace p-values of exactly 0.0 with min_p
+    = 1e-15 before log transformation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: P-values of exactly 0.0 are replaced with 1e-15 before log transformation
+    in regression analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T12:04:33Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: power curve MAE success criterion is < 0.01
+  claim_id: c_34a19365
+  context: 'T027c: Success Criterion: MAE < 0.01 for each test.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/power_curve_MAE_success_criterion_is_%3C_0.01
+  kind: magnitude
+  raw_text: The success criterion for the MAE between observed and theoretical power
+    curves is less than 0.01 for each test.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T12:05:28Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: "Cox-Snell pseudo-R\xB2 threshold is > 0.1"
+  claim_id: c_10045f8e
+  context: "T027-3: Verify if Cox-Snell R\xB2 meets the amended SC-005 threshold (>\
+    \ 0.1)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cox-Snell_pseudo-R%C2%B2_threshold_is_%3E_0.1
+  kind: magnitude
+  raw_text: "The Cox-Snell pseudo-R\xB2 threshold for the Binomial GLM model success\
+    \ is greater than 0.1."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T12:10:41Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: error rate vs sample size regression slope threshold is < 0.01
+  claim_id: c_b7c775ef
+  context: 'T026c: calculate the aggregate stability metric (slope of the regression
+    line), and verify the robustness claim defined in SC-002 (slope < 0.01).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/error_rate_vs_sample_size_regression_slope_threshold_is_%3C_0.
+  kind: magnitude
+  raw_text: The stability metric for the regression of error rate vs. sample size
+    must have a slope less than 0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T12:13:43Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: t-test power curve uses nct distribution
+  claim_id: c_c766401f
+  context: 'T027c: Implement a unified function in code/analyzer.py to calculate theoretical
+    power curves for t-test, ANOVA, and Chi-Squared tests using scipy.stats (nct,
+    ncf, ncx2 respectively).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/T-test_power_curve_uses_nct_distribution
+  kind: entity_fact
+  raw_text: The theoretical power curve calculation for the t-test uses the non-central
+    t-distribution (nct).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T12:14:22Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: ANOVA power curve uses ncf distribution
+  claim_id: c_d85f1d7a
+  context: 'T027c: Implement a unified function in code/analyzer.py to calculate theoretical
+    power curves for t-test, ANOVA, and Chi-Squared tests using scipy.stats (nct,
+    ncf, ncx2 respectively).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ANOVA_power_curve_uses_ncf_distribution
+  kind: entity_fact
+  raw_text: The theoretical power curve calculation for ANOVA uses the non-central
+    F-distribution (ncf).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T12:15:02Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Chi-squared power curve uses ncx2 distribution
+  claim_id: c_19c98f9a
+  context: 'T027c: Implement a unified function in code/analyzer.py to calculate theoretical
+    power curves for t-test, ANOVA, and Chi-Squared tests using scipy.stats (nct,
+    ncf, ncx2 respectively).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Chi-squared_power_curve_uses_ncx2_distribution
+  kind: entity_fact
+  raw_text: The theoretical power curve calculation for the Chi-Squared test uses
+    the non-central Chi-squared distribution (ncx2).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T12:15:28Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: t-test NCP formula is d * sqrt(n/k)
+  claim_id: c_ede28a34
+  context: 'T027c: Formula: Use appropriate non-centrality parameters (NCP) for each
+    test: t-test NCP = d * sqrt(n/k), ANOVA NCP = f * sqrt(n * k), Chi-squared NCP
+    = w * sqrt(n).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/T-test_NCP_formula_is_d_*_sqrt(n/k)
+  kind: entity_fact
+  raw_text: The non-centrality parameter (NCP) for the t-test is calculated as d *
+    sqrt(n/k).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T12:17:36Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: ANOVA NCP formula is f * sqrt(n * k)
+  claim_id: c_007a70f7
+  context: 'T027c: Formula: Use appropriate non-centrality parameters (NCP) for each
+    test: t-test NCP = d * sqrt(n/k), ANOVA NCP = f * sqrt(n * k), Chi-squared NCP
+    = w * sqrt(n).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ANOVA_NCP_formula_is_f_*_sqrt(n_*_k)
+  kind: entity_fact
+  raw_text: The non-centrality parameter (NCP) for ANOVA is calculated as f * sqrt(n
+    * k).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T12:18:12Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Chi-squared NCP formula is w * sqrt(n)
+  claim_id: c_04b429fe
+  context: 'T027c: Formula: Use appropriate non-centrality parameters (NCP) for each
+    test: t-test NCP = d * sqrt(n/k), ANOVA NCP = f * sqrt(n * k), Chi-squared NCP
+    = w * sqrt(n).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Chi-squared_NCP_formula_is_w_*_sqrt(n)
+  kind: entity_fact
+  raw_text: The non-centrality parameter (NCP) for the Chi-squared test is calculated
+    as w * sqrt(n).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T12:18:42Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: effect size 0.5 maps to Cohen's d/f/w = 0.5
+  claim_id: c_f2b06f45
+  context: 'T027c: Effect Size Definition: effect_size=0.5 maps to Cohen''s d/f/w
+    = 0.5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The effect size of 0.5 maps to Cohen's d/f/w = 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T12:18:42Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: "Cox-Snell pseudo-R\xB2 formula"
+  claim_id: c_d81a6e5b
+  context: "T027-2: Formula: R\xB2_cs = 1 - exp((L_null - L_model) / n)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Cox-Snell pseudo-R\xB2 formula is R\xB2_cs = 1 - exp((L_null - L_model)\
+    \ / n)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T12:18:43Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: simulation sample size range 10 to 1000
+  claim_id: c_b2a8da71
+  context: 'T004: Create code/config.py to define simulation parameters (sample sizes
+    n=10..1000, distributions, alpha=0.05, effect sizes, MAX_REPLICATES=10000, LOG_EPSILON=1e-15,
+    SEED_BASE=42).'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: n 40, 100, 250, 1000
+      source_id: '2006.16638'
+      url: https://arxiv.org/abs/2006.16638
+      value: 40, 100, 250, 1000
+    filled: true
+  kind: numeric
+  raw_text: The sample size range for the simulation is from n=10 to n=1000.
+  resolved_value: 40, 100, 250, 1000
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-06T12:19:45Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: nominal significance level alpha is 0.05
+  claim_id: c_96cb2686
+  context: 'T004: Create code/config.py to define simulation parameters (sample sizes
+    n=10..1000, distributions, alpha=0.05, effect sizes, MAX_REPLICATES=10000, LOG_EPSILON=1e-15,
+    SEED_BASE=42).'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The 0.05 significance level is merely a convention. The 0.05 significance
+        level (alpha level) is often used as the boundary between a statistically
+        significant and a statistically non-significant p-value. However, this does
+        not imply that there is generally a scientific reason to consider results
+        on opposite sides of any threshold as qualitatively different.
+      source_id: Misuse of p-values
+      url: https://en.wikipedia.org/wiki/Misuse_of_p-values
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The nominal significance level (alpha) for the simulation is 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-06T12:19:55Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: default alternative hypothesis effect size is 0.5
+  claim_id: c_4e5c823f
+  context: 'T011: Implement code/data_generator.py with functions to generate Normal,
+    Uniform, and Log-Normal distributions for both Null (effect=0) and Alternative
+    (effect=0.5) hypotheses.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default effect size for the alternative hypothesis is 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T12:20:37Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: seed base for reproducibility is 42
+  claim_id: c_7a197930
+  context: 'T004: Create code/config.py to define simulation parameters (sample sizes
+    n=10..1000, distributions, alpha=0.05, effect sizes, MAX_REPLICATES=10000, LOG_EPSILON=1e-15,
+    SEED_BASE=42).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The seed base for reproducibility is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T12:21:03Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: log epsilon is 1e-15
+  claim_id: c_53ffe5a8
+  context: 'T004: Create code/config.py to define simulation parameters (sample sizes
+    n=10..1000, distributions, alpha=0.05, effect sizes, MAX_REPLICATES=10000, LOG_EPSILON=1e-15,
+    SEED_BASE=42).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The log epsilon for numerical stability is 1e-15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T12:21:34Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: normal distribution mean difference tolerance is 1e-6
+  claim_id: c_8158db8d
+  context: 'T009a: Assertion: Verify sample mean difference for normal distribution
+    (n=50, effect=0.0) is within 1e-6 of 0.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The tolerance for sample mean difference validation in the normal distribution
+    test is 1e-6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T12:22:00Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: log-normal effect size validation tolerance is 1e-6
+  claim_id: c_aa2b3299
+  context: 'T009c: Assertion: Verify mean difference for log-normal distribution (n=30,
+    effect=0.5) is within 1e-6 of 0.5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The log-normal effect size validation tolerance is 1e-6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T12:22:28Z'

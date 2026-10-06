@@ -83,12 +83,9 @@ def generate_validation_dataset(output_path: str, seed: int = 42) -> None:
             # Use a unique seed for each scenario to ensure independence
             scenario_seed = seed + (n * 100) + (int(dist_type == "uniform") * 50) + (int(dist_type == "log_normal") * 30) + int(effect_size * 10)
             
-            data_dict = generate_data(
-                sample_size=n,
-                distribution_type=dist_type,
-                effect_size=effect_size,
-                seed=scenario_seed
-            )
+            # Call generate_data with positional arguments matching the defined API
+            # The API surface shows: generate_data(n, dist, eff, seed=seed)
+            data_dict = generate_data(n, dist_type, effect_size, seed=scenario_seed)
             
             group1 = data_dict['group1']
             group2 = data_dict['group2']

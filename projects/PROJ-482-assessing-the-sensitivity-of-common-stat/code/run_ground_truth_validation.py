@@ -1,139 +1,154 @@
 """
-Ground-Truth Validation Gate Runner.
+Ground-Truth Validation Gate Script (T017b)
 
-Executes the validation routine from T013 (validate_sample_statistics) on a fresh
-batch of generated data. This script MUST pass (exit code 0) before T018 can begin.
+This script executes the validation routine from T013 on a fresh batch of generated data
+before starting the Monte Carlo loop. It ensures that the data generator is producing
+data that matches theoretical parameters within acceptable sample tolerances.
+
+Usage:
+    python code/run_ground_truth_validation.py [--config code/config.yaml]
+
+Exit Codes:
+    0: Validation passed
+    1: Validation failed or error occurred
 """
+
 import os
 import sys
 import logging
 import argparse
 from typing import List, Dict, Any, Tuple
 
-# Add project root to path if running as script
-if __name__ == "__main__":
-    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Add parent directory to path for imports if running as script
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from config import SimulationConfig, get_simulation_grid
 from data_generator import generate_data, validate_sample_statistics
 
-logger = logging.getLogger(__name__)
-
-def setup_logging(log_file: str = "logs/ground_truth_validation.log") -> None:
-    """Configure logging to file and console."""
+def setup_logging(log_file: str = "logs/validation.log") -> logging.Logger:
+    """Configure logging for the validation script."""
     os.makedirs(os.path.dirname(log_file), exist_ok=True)
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s",
-        handlers=[
-            logging.FileHandler(log_file),
-            logging.StreamHandler(sys.stdout)
-        ]
-    )
+
+    logger = logging.getLogger("GroundTruthValidation")
+    logger.setLevel(logging.INFO)
+
+    # File handler
+    fh = logging.FileHandler(log_file)
+    fh.setLevel(logging.INFO)
+
+    # Console handler
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+    ch.setFormatter(formatter)
+
+    logger.addHandler(fh)
+    logger.addHandler(ch)
+
+    return logger
 
 def run_validation_batch(
-    sample_sizes: List[int],
-    distributions: List[str],
-    effect_sizes: List[float]
+    scenarios: List[Dict[str, Any]],
+    logger: logging.Logger,
+    n_replicates: int = 100
 ) -> bool:
     """
-    Run validation on a batch of configurations.
-    
-    Returns True if all validations pass, False otherwise.
+    Run validation on a batch of scenarios.
+
+    Args:
+        scenarios: List of scenario dictionaries (n, dist, effect)
+        logger: Logger instance
+        n_replicates: Number of replicates to generate for validation
+
+    Returns:
+        True if all validations passed, False otherwise
     """
     all_passed = True
-    config = SimulationConfig(
-        sample_sizes=sample_sizes,
-        distributions=distributions,
-        effect_sizes=effect_sizes,
-        alpha=0.05,
-        max_replicates=10000,
-        log_epsilon=1e-15
-    )
-    
-    logger.info(f"Starting ground-truth validation batch with {config.sample_sizes} sample sizes, "
-                f"{config.distributions} distributions, and {config.effect_sizes} effect sizes.")
-    
-    for n in config.sample_sizes:
-        for dist in config.distributions:
-            for eff in config.effect_sizes:
-                # Use a deterministic seed for this validation batch
-                seed = hash(f"{n}_{dist}_{eff}") % (2**32)
-                
+
+    for scenario in scenarios:
+        n = scenario['n']
+        dist = scenario['dist']
+        effect = scenario['effect']
+
+        logger.info(f"Validating scenario: n={n}, dist={dist}, effect={effect}")
+
+        try:
+            # Generate a fresh batch of data for validation
+            # We use multiple replicates to ensure sample statistics are stable
+            validation_passed = True
+
+            for rep in range(n_replicates):
+                seed = 42 + rep  # Deterministic seed for reproducibility
+                sample1, sample2 = generate_data(n, dist, effect, seed=seed)
+
+                # Validate sample statistics against theoretical parameters
                 try:
-                    sample1, sample2 = generate_data(n, dist, eff, seed=seed)
-                    
-                    # Theoretical mean difference depends on distribution and effect size
-                    if dist == "normal":
-                        # Normal: mean2 = effect_size, mean1 = 0 -> diff = effect_size
-                        expected_diff = eff
-                    elif dist == "uniform":
-                        # Uniform: mean1 = 0.5, mean2 = 0.5 + eff -> diff = effect_size
-                        expected_diff = eff
-                    elif dist == "log-normal":
-                        # Log-normal: theoretical mean is exp(mu + sigma^2/2)
-                        # mu1 = 0, mu2 = eff, sigma = 0.5
-                        # mean1 = exp(0 + 0.125), mean2 = exp(eff + 0.125)
-                        # diff = exp(0.125) * (exp(eff) - 1)
-                        expected_diff = np.exp(0.125) * (np.exp(eff) - 1)
-                    else:
-                        raise ValueError(f"Unknown distribution: {dist}")
-                    
-                    # Run validation
-                    validate_sample_statistics(
-                        sample1, sample2, 
-                        expected_diff, 
-                        tolerance=1e-6, 
-                        distribution=dist
-                    )
-                    
-                    logger.info(f"Validation PASSED for n={n}, dist={dist}, eff={eff}")
-                    
-                except Exception as e:
-                    logger.error(f"Validation FAILED for n={n}, dist={dist}, eff={eff}: {e}")
-                    all_passed = False
-    
+                    validate_sample_statistics(sample1, sample2, dist, effect, n)
+                except ValueError as e:
+                    logger.warning(f"  -> Replicate {rep} failed: {e}")
+                    validation_passed = False
+                    break
+
+            if validation_passed:
+                logger.info(f"  -> PASSED: Ground-truth verified for this configuration")
+            else:
+                logger.error(f"  -> FAILED: Sample statistics did not match theoretical parameters")
+                all_passed = False
+
+        except Exception as e:
+            logger.error(f"  -> ERROR: {e}")
+            all_passed = False
+
     return all_passed
 
 def main():
-    """
-    Entry point for the validation gate.
-    Exits with 0 if validation passes, 1 if it fails.
-    """
-    parser = argparse.ArgumentParser(description="Run ground-truth validation gate")
-    parser.add_argument("--sample-sizes", type=int, nargs="+", default=[10, 50, 100],
-                        help="Sample sizes to validate")
-    parser.add_argument("--distributions", type=str, nargs="+", 
-                        default=["normal", "uniform", "log-normal"],
-                        help="Distributions to validate")
-    parser.add_argument("--effect-sizes", type=float, nargs="+", default=[0.0, 0.5],
-                        help="Effect sizes to validate")
-    parser.add_argument("--log-file", type=str, default="logs/ground_truth_validation.log",
-                        help="Path to log file")
-    
+    """Main entry point for the validation gate."""
+    parser = argparse.ArgumentParser(description="Ground-Truth Validation Gate")
+    parser.add_argument("--config", type=str, default="code/config.yaml",
+                      help="Path to configuration file")
+    parser.add_argument("--log", type=str, default="logs/validation.log",
+                      help="Path to log file")
+    parser.add_argument("--replicates", type=int, default=100,
+                      help="Number of validation replicates per scenario")
     args = parser.parse_args()
-    
-    setup_logging(args.log_file)
-    
+
+    logger = setup_logging(args.log)
+
     logger.info("=" * 60)
-    logger.info("GROUND-TRUTH VALIDATION GATE START")
+    logger.info("Starting Ground-Truth Validation Gate (T017b)")
     logger.info("=" * 60)
-    
-    success = run_validation_batch(
-        args.sample_sizes,
-        args.distributions,
-        args.effect_sizes
-    )
-    
-    logger.info("=" * 60)
+
+    # Define a representative batch of scenarios to validate
+    # These cover the range of sample sizes and distributions used in the simulation
+    validation_scenarios = [
+        {'n': 10, 'dist': 'normal', 'effect': 0.0},
+        {'n': 10, 'dist': 'normal', 'effect': 0.5},
+        {'n': 30, 'dist': 'normal', 'effect': 0.0},
+        {'n': 30, 'dist': 'normal', 'effect': 0.5},
+        {'n': 50, 'dist': 'normal', 'effect': 0.0},
+        {'n': 50, 'dist': 'normal', 'effect': 0.5},
+        {'n': 100, 'dist': 'normal', 'effect': 0.0},
+        {'n': 100, 'dist': 'normal', 'effect': 0.5},
+        {'n': 10, 'dist': 'uniform', 'effect': 0.0},
+        {'n': 10, 'dist': 'uniform', 'effect': 0.5},
+        {'n': 30, 'dist': 'lognormal', 'effect': 0.0},
+        {'n': 30, 'dist': 'lognormal', 'effect': 0.5},
+    ]
+
+    # Run validation
+    success = run_validation_batch(validation_scenarios, logger, args.replicates)
+
     if success:
-        logger.info("GROUND-TRUTH VALIDATION GATE: PASSED (exit code 0)")
-        logger.info("All generated data verified against theoretical parameters.")
-        logger.info("Pipeline can proceed to Monte Carlo simulation (T018).")
+        logger.info("=" * 60)
+        logger.info("VALIDATION PASSED: All ground-truth parameters verified")
+        logger.info("=" * 60)
         sys.exit(0)
     else:
-        logger.error("GROUND-TRUTH VALIDATION GATE: FAILED (exit code 1)")
-        logger.error("Data generation does not match ground truth. Aborting pipeline.")
+        logger.error("=" * 60)
+        logger.error("VALIDATION FAILED: Some ground-truth parameters did not match")
+        logger.error("=" * 60)
         sys.exit(1)
 
 if __name__ == "__main__":

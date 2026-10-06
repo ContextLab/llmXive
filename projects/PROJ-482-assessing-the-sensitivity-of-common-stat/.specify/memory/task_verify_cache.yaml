@@ -1,3 +1,11 @@
+T014:
+  c: false
+  h: 891f23fa890e88e6ac197873fe9341018c1521a9cb88c9f4b742274cd76d4bce
+  r: The repository contains `code/run_data_gen.py`, but the file is truncated and
+    does not show the full implementation needed to write the required CSV. Moreover,
+    the expected output file `data/raw/sample_validation.csv` is absent. Without a
+    generated CSV containing the specified columns and checksum validation, the task
+    is not satisfied.
 T021c:
   c: false
   h: 4918e42abf222c2f4fcdaa3a382e983b2721ade3bd212113cf629419bacb2c5b
@@ -23,6 +31,16 @@ T026b:
     \ the required plot, or produce the slope/report with the success flag. The expected\
     \ output file `stability_trend.csv` is absent. The task\u2019s core deliverables\
     \ are therefore missing."
+T026c:
+  c: false
+  h: d5f693c5f1cd00524cc4bcc35628eaa12ec490e9bba005dc9bf60da559283330
+  r: "The repository contains a partially\u2011implemented `code/analyzer.py`, but\
+    \ it only loads and aggregates existing results; there is no visible logic that\
+    \ computes a per\u2011sample\u2011size Type\u202FI error trend, runs a linear\
+    \ regression, writes `data/processed/stability_trend.csv`, creates the required\
+    \ plot, or produces the report with slope and success flag. Moreover, the expected\
+    \ output file `data/processed/stability_trend.csv` is absent. The task therefore\
+    \ remains unfinished."
 T029:
   c: true
   h: a9dc4bab6d0351957b6ca0939b4befec7673979c2336654f3bff80672696c023
