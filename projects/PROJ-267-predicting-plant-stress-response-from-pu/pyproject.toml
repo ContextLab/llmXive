@@ -3,41 +3,18 @@ requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "plant-stress-proteomics"
+name = "llmxive-plant-stress"
 version = "0.1.0"
-description = "Predicting plant stress response from publicly available proteomic data"
-readme = "README.md"
+description = "Predicting Plant Stress Response from Publicly Available Proteomic Data"
 requires-python = ">=3.8"
-dependencies = [
-    "pandas>=1.3.0",
-    "scikit-learn>=1.0.0",
-    "matplotlib>=3.4.0",
-    "seaborn>=0.11.0",
-    "requests>=2.25.0",
-    "psutil>=5.8.0",
-    "pydantic>=1.8.0",
-]
 
 [tool.black]
 line-length = 88
-target-version = ['py38', 'py39', 'py310']
+target-version = ['py38', 'py39', 'py310', 'py311']
 include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-)/
-'''
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"
+[tool.flake8]
+max-line-length = 88
+extend-ignore = 'E203, W503'
+exclude = ['venv', '.git', '__pycache__', 'data', 'results', 'logs']
+per-file-ignores = {}

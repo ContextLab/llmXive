@@ -3,80 +3,63 @@ import sys
 import logging
 from pathlib import Path
 
-# Ensure the project root is in the path so we can import utils if needed
-# though this script is self-contained.
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-REQUIRED_DIRS = [
-    "code/data_ingestion",
-    "code/modeling",
-    "code/reporting",
-    "code/utils",
-    "tests",
-    "data/raw",
-    "data/processed",
-    "results",
-    "logs",
-    "docs",
-]
+from utils.logging_config import get_logger
 
-def ensure_directory(path: Path, logger: logging.Logger) -> bool:
+logger = get_logger(__name__)
+
+
+def ensure_directory(path: Path) -> bool:
     """
-    Checks if a directory exists and is writable.
-    Creates it if missing.
-    Returns True if successful, False otherwise.
+    Ensure a directory exists, creating it if necessary.
+
+    Args:
+        path: The path to the directory.
+
+    Returns:
+        True if the directory exists or was created successfully.
     """
-    full_path = PROJECT_ROOT / path
-    
-    # Check existence
-    if not full_path.exists():
-        try:
-            full_path.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created directory: {full_path}")
-        except OSError as e:
-            logger.error(f"Failed to create directory {full_path}: {e}")
-            return False
-    
-    # Check writability
-    if not os.access(full_path, os.W_OK):
-        logger.error(f"Directory {full_path} exists but is not writable.")
+    try:
+        path.mkdir(parents=True, exist_ok=True)
+        logger.debug(f"Directory ensured: {path}")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to create directory {path}: {e}")
         return False
-    
-    return True
 
-def main():
+
+def main() -> int:
     """
-    Verifies the project directory structure defined in tasks.md (Phase 1).
-    Exits with code 0 if all directories are present and writable, 1 otherwise.
+    Main entry point to verify and create standard project directories.
+
+    Verifies: code/, tests/, logs/, results/, data/raw/, data/processed/, docs/
+
+    Returns:
+        0 on success, 1 on failure.
     """
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(sys.stdout),
-            logging.FileHandler(PROJECT_ROOT / "logs" / "verify_directories.log")
-        ]
-    )
-    logger = logging.getLogger(__name__)
+    project_root = Path(__file__).resolve().parent.parent
 
-    # Ensure logs dir exists first so we can write the log file
-    logs_path = PROJECT_ROOT / "logs"
-    if not logs_path.exists():
-        logs_path.mkdir(parents=True, exist_ok=True)
-    
-    logger.info(f"Project Root: {PROJECT_ROOT}")
-    logger.info(f"Verifying directory structure...")
+    directories = [
+        project_root / "code",
+        project_root / "tests",
+        project_root / "logs",
+        project_root / "results",
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "docs"
+    ]
 
-    all_ok = True
-    for dir_path in REQUIRED_DIRS:
-        if not ensure_directory(Path(dir_path), logger):
-            all_ok = False
+    success = True
+    for directory in directories:
+        if not ensure_directory(directory):
+            success = False
 
-    if all_ok:
-        logger.info("SUCCESS: All required directories exist and are writable.")
-        sys.exit(0)
+    if success:
+        logger.info("All project directories verified/created successfully.")
+        return 0
     else:
-        logger.error("FAILURE: One or more directories are missing or not writable.")
-        sys.exit(1)
+        logger.error("Some directories failed to be created.")
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

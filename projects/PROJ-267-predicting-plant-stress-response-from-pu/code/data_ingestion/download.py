@@ -1,257 +1,215 @@
-"""
-Data Ingestion: Download Module (T011)
-
-Implements FR-001: Fetch raw data from NCBI GEO/ProteomeXchange.
-- Reads explicit URLs from research.md.
-- Validates domains (ncbi.nlm.nih.gov, proteomexchange.org, ebi.ac.uk).
-- Downloads files to data/raw/.
-- Raises ValueError if file size < 1KB or domain invalid.
-"""
 import os
 import sys
 import logging
 import re
 import requests
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
-from urllib.parse import urlparse
+from typing import List, Tuple, Optional
 
-# Project-relative imports
-from utils.config import DATA_RAW_PATH, get_logger, log_warning, REFERENCE_VALIDATOR_THRESHOLD
-from utils.checksums import compute_sha256, save_checksums
+# Local imports based on API surface
+from utils.logging_config import get_logger, log_warning
+from utils.config import get_data_path, get_project_root
 
-# Configure logger for this module
 logger = get_logger(__name__)
 
-# Allowed domains for data sources
-ALLOWED_DOMAINS = {
-    "ncbi.nlm.nih.gov",
-    "proteomexchange.org",
-    "ebi.ac.uk",
-    "www.ncbi.nlm.nih.gov",
-    "www.proteomexchange.org",
-    "www.ebi.ac.uk"
-}
+# Allowed domains for data fetching
+ALLOWED_DOMAINS = [
+    'ncbi.nlm.nih.gov',
+    'proteomexchange.org',
+    'ebi.ac.uk',
+    'www.ebi.ac.uk',
+    'figshare.com',
+    'dataverse.harvard.edu',
+    'zenodo.org'
+]
 
-# Minimum file size threshold (1 KB)
-MIN_FILE_SIZE_BYTES = 1024
-
-def parse_research_md_urls(file_path: str) -> List[Dict[str, Any]]:
+def parse_research_md_urls() -> List[Tuple[str, str]]:
     """
-    Parse research.md to extract URLs and associated metadata.
-    
-    Expected format in research.md:
-    - [Source Name] (URL)
-    - or simply: URL
-    
-    Returns a list of dicts: [{'source': str, 'url': str}, ...]
+    Parses research.md to extract data source URLs and their descriptions.
+    Returns a list of (url, description) tuples.
     """
-    path = Path(file_path)
-    if not path.exists():
-        raise FileNotFoundError(f"research.md not found at {file_path}")
+    project_root = get_project_root()
+    research_md_path = project_root / 'research.md'
+    
+    if not research_md_path.exists():
+        raise FileNotFoundError(f"research.md not found at {research_md_path}")
 
     urls = []
-    with open(path, 'r', encoding='utf-8') as f:
-        content = f.read()
+    current_desc = ""
+    
+    with open(research_md_path, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
 
-    # Regex to find URLs (http/https)
-    url_pattern = re.compile(r'https?://[^\s\)\]]+')
-    matches = url_pattern.findall(content)
-
-    for url in matches:
-        # Clean up potential trailing punctuation
-        url = url.rstrip(').,;:')
-        # Determine source name if possible (simple heuristic: look before URL)
-        source_name = "Unknown"
-        # Try to find a bracketed name or context before the URL
-        context_match = re.search(r'\[([^\]]+)\].*?(' + re.escape(url) + r')', content)
-        if context_match:
-            source_name = context_match.group(1).strip()
+    in_data_section = False
+    for line in lines:
+        line_stripped = line.strip()
         
-        urls.append({
-            "source": source_name,
-            "url": url
-        })
-
-    logger.info(f"Found {len(urls)} potential data URLs in {file_path}")
+        # Detect section start
+        if line_stripped.startswith('#') and 'Data' in line_stripped:
+            in_data_section = True
+            continue
+        
+        if in_data_section:
+            if line_stripped.startswith('#'):
+                in_data_section = False
+                continue
+            
+            # Look for URLs
+            url_match = re.search(r'(https?://[^\s\)]+)', line)
+            if url_match:
+                url = url_match.group(1)
+                # Clean up markdown links if present
+                if url.startswith('http'):
+                    # Extract description from the line if available
+                    desc = line.replace(url, '').replace('[', '').replace(']', '').replace('(', '').replace(')', '').strip()
+                    if not desc:
+                        desc = url.split('/')[-1]
+                    urls.append((url, desc))
+                    logger.info(f"Found URL: {url}")
+    
+    if not urls:
+        raise ValueError("No valid data URLs found in research.md")
+        
     return urls
 
 def validate_domain(url: str) -> bool:
     """
-    Validate that the URL belongs to an allowed domain.
+    Validates that the URL belongs to an allowed domain.
+    Raises ValueError if the domain is not allowed.
     """
     try:
+        from urllib.parse import urlparse
         parsed = urlparse(url)
-        domain = parsed.netloc.lower()
-        # Handle 'www.' prefix
-        if domain.startswith('www.'):
-            domain = domain[4:]
+        domain = parsed.netloc
         
-        if domain not in ALLOWED_DOMAINS:
-            logger.error(f"Invalid domain: {domain} for URL: {url}")
-            return False
+        if not domain:
+            raise ValueError(f"Could not extract domain from URL: {url}")
+        
+        is_allowed = any(domain.endswith(allowed) for allowed in ALLOWED_DOMAINS)
+        
+        if not is_allowed:
+            raise ValueError(f"Domain '{domain}' is not in the allowed list: {ALLOWED_DOMAINS}")
+        
+        logger.info(f"Domain validation passed for: {domain}")
         return True
     except Exception as e:
-        logger.error(f"Failed to parse domain for URL {url}: {e}")
-        return False
+        logger.error(f"Domain validation failed: {e}")
+        raise
 
-def download_file(url: str, output_path: Path, timeout: int = 300) -> bool:
+def download_file(url: str, dest_dir: Optional[Path] = None) -> Path:
     """
-    Download a file from the given URL to output_path.
+    Downloads a file from a validated URL.
     
-    - Validates domain first.
-    - Checks file size >= 1KB.
-    - Raises ValueError on failure.
+    STRICT ERROR HANDLING:
+    - No try/except blocks that catch network errors and return synthetic data.
+    - No fallback to mock data.
+    - Any failure to fetch real data results in an immediate, loud Exception.
+    
+    Args:
+        url: The URL to download from.
+        dest_dir: Directory to save the file. Defaults to data/raw/.
+    
+    Returns:
+        Path to the downloaded file.
+    
+    Raises:
+        ValueError: If URL is invalid or domain not allowed.
+        requests.exceptions.RequestException: If the download fails (network error, 404, etc.).
+        RuntimeError: If file size is < 1KB.
     """
-    if not validate_domain(url):
-        raise ValueError(f"Domain validation failed for URL: {url}")
-
-    logger.info(f"Downloading {url} to {output_path}")
+    # Validate domain first
+    validate_domain(url)
+    
+    if dest_dir is None:
+        dest_dir = get_data_path() / 'raw'
+        dest_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Derive filename from URL
+    filename = url.split('/')[-1].split('?')[0]
+    if not filename:
+        filename = f"downloaded_file_{int(time.time())}"
+    
+    dest_path = dest_dir / filename
+    
+    logger.info(f"Downloading {url} to {dest_path}")
     
     try:
-        response = requests.get(url, stream=True, timeout=timeout)
-        response.raise_for_status()
+        # Stream the download to handle large files
+        response = requests.get(url, stream=True, timeout=120)
+        response.raise_for_status()  # This raises HTTPError for bad responses (4xx, 5xx)
         
-        # Check Content-Length if available
-        content_length = response.headers.get('Content-Length')
+        # Check content length if available
+        content_length = response.headers.get('content-length')
         if content_length:
-            if int(content_length) < MIN_FILE_SIZE_BYTES:
-                raise ValueError(f"Downloaded file size ({content_length} bytes) is less than 1KB for URL: {url}")
-
-        # Write to disk
-        with open(output_path, 'wb') as f:
+            logger.info(f"Expected file size: {int(content_length)} bytes")
+        
+        # Write to file
+        with open(dest_path, 'wb') as f:
             for chunk in response.iter_content(chunk_size=8192):
                 if chunk:
                     f.write(chunk)
         
-        # Verify actual file size
-        actual_size = output_path.stat().st_size
-        if actual_size < MIN_FILE_SIZE_BYTES:
-            # Clean up small file
-            output_path.unlink()
-            raise ValueError(f"Downloaded file size ({actual_size} bytes) is less than 1KB for URL: {url}")
-
-        # Compute checksum
-        checksum = compute_sha256(output_path)
-        logger.info(f"Download complete. Size: {actual_size} bytes, SHA256: {checksum}")
+        # Verify file size
+        file_size = dest_path.stat().st_size
+        if file_size < 1024:
+            # Clean up the small file
+            dest_path.unlink()
+            raise RuntimeError(f"Downloaded file size ({file_size} bytes) is less than 1KB. Data source may be empty or invalid.")
         
-        return True
-
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Network error downloading {url}: {e}")
-        raise ValueError(f"Network error downloading {url}: {e}")
+        logger.info(f"Successfully downloaded {filename} ({file_size} bytes)")
+        return dest_path
+        
+    except requests.exceptions.Timeout:
+        logger.error(f"Download timed out for {url}")
+        raise
+    except requests.exceptions.ConnectionError:
+        logger.error(f"Connection failed for {url}")
+        raise
+    except requests.exceptions.HTTPError as e:
+        logger.error(f"HTTP error {e.response.status_code} for {url}")
+        raise
     except Exception as e:
-        logger.error(f"Error downloading {url}: {e}")
+        # Re-raise any other unexpected errors loudly
+        logger.error(f"Unexpected error during download: {e}")
         raise
 
-def run_download_pipeline(research_md_path: str = "research.md") -> List[Dict[str, Any]]:
+def run_download_pipeline() -> List[Path]:
     """
-    Main pipeline function to download all data sources.
+    Orchestrates the download of all data sources listed in research.md.
     
-    1. Parse URLs from research.md.
-    2. Validate domains.
-    3. Download files to data/raw/.
-    4. Save checksums.
+    Returns:
+        List of paths to downloaded files.
+    
+    Raises:
+        Exception: If any download fails. No synthetic fallback is performed.
     """
-    raw_dir = Path(DATA_RAW_PATH)
-    raw_dir.mkdir(parents=True, exist_ok=True)
+    logger.info("Starting download pipeline")
+    urls = parse_research_md_urls()
+    downloaded_files = []
     
-    url_list = parse_research_md_urls(research_md_path)
-    results = []
-    
-    for item in url_list:
-        url = item['url']
-        source = item['source']
-        
-        # Generate a safe filename
-        # Use the last part of the path or a hash if ambiguous
-        parsed_url = urlparse(url)
-        filename = Path(parsed_url.path).name
-        if not filename:
-            filename = f"data_{hash(url) % 10000}.gz" # Fallback naming
-        
-        # Handle cases where filename might be empty or invalid
-        if not filename or filename == '/':
-            filename = f"source_{source.replace(' ', '_')}.dat"
-        
-        output_path = raw_dir / filename
-        
-        # Check if file already exists and has correct size (optional optimization)
-        if output_path.exists() and output_path.stat().st_size >= MIN_FILE_SIZE_BYTES:
-            logger.info(f"File {filename} already exists and is valid. Skipping download.")
-            results.append({
-                "source": source,
-                "url": url,
-                "status": "skipped",
-                "path": str(output_path)
-            })
-            continue
-
+    for url, desc in urls:
         try:
-            success = download_file(url, output_path)
-            if success:
-                results.append({
-                    "source": source,
-                    "url": url,
-                    "status": "success",
-                    "path": str(output_path)
-                })
-        except ValueError as e:
-            # Log the error but continue with other URLs if possible
-            logger.error(f"Failed to download {url}: {e}")
-            results.append({
-                "source": source,
-                "url": url,
-                "status": "failed",
-                "error": str(e),
-                "path": str(output_path)
-            })
+            file_path = download_file(url)
+            downloaded_files.append(file_path)
         except Exception as e:
-            logger.error(f"Unexpected error for {url}: {e}")
-            results.append({
-                "source": source,
-                "url": url,
-                "status": "error",
-                "error": str(e),
-                "path": str(output_path)
-            })
-
-    # Save checksums for all successfully downloaded files
-    success_files = [r['path'] for r in results if r['status'] == 'success']
-    if success_files:
-        save_checksums(success_files, raw_dir / "checksums.json")
-        logger.info(f"Saved checksums for {len(success_files)} files.")
-
-    return results
+            # Log the specific failure but do NOT fallback to synthetic data
+            logger.error(f"Failed to download {desc}: {e}")
+            # Re-raise to halt the pipeline as per strict error handling requirements
+            raise e
+    
+    logger.info(f"Download pipeline completed. {len(downloaded_files)} files downloaded.")
+    return downloaded_files
 
 def main():
-    """
-    Entry point for the download script.
-    """
-    logger.info("Starting data ingestion download pipeline (T011).")
-    
-    # Default path relative to project root
-    research_md = Path("research.md")
-    if not research_md.exists():
-        # Try in parent directory if run from code/
-        if Path("code/research.md").exists():
-            research_md = Path("code/research.md")
-        else:
-            logger.error("research.md not found. Cannot proceed.")
-            sys.exit(1)
-
-    results = run_download_pipeline(str(research_md))
-    
-    # Print summary
-    success_count = sum(1 for r in results if r['status'] == 'success')
-    fail_count = sum(1 for r in results if r['status'] in ['failed', 'error'])
-    
-    logger.info(f"Pipeline finished. Success: {success_count}, Failed: {fail_count}.")
-    
-    if fail_count > 0:
+    """Entry point for the download script."""
+    try:
+        files = run_download_pipeline()
+        print(f"Successfully downloaded {len(files)} files:")
+        for f in files:
+            print(f"  - {f}")
+    except Exception as e:
+        logger.error(f"Download pipeline failed: {e}")
         sys.exit(1)
-    else:
-        sys.exit(0)
 
 if __name__ == "__main__":
     main()

@@ -2,45 +2,57 @@ import os
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 
-# Project root directory
-PROJECT_ROOT = Path(__file__).parent.parent.parent
+# Project root is assumed to be the directory containing 'code/'
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-# Data paths
-DATA_RAW_PATH = PROJECT_ROOT / "data" / "raw"
-DATA_PROCESSED_PATH = PROJECT_ROOT / "data" / "processed"
-
-# Results and logs paths
-RESULTS_PATH = PROJECT_ROOT / "results"
-LOG_PATH = PROJECT_ROOT / "logs"
+# Paths
+DATA_RAW_PATH = _PROJECT_ROOT / "data" / "raw"
+DATA_PROCESSED_PATH = _PROJECT_ROOT / "data" / "processed"
+LOG_PATH = _PROJECT_ROOT / "logs"
+RESULTS_PATH = _PROJECT_ROOT / "results"
+DOCS_PATH = _PROJECT_ROOT / "docs"
 
 # Logging configuration
-LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
-LOG_MAX_BYTES = int(os.getenv('LOG_MAX_BYTES', '10485760'))  # 10 MB
-LOG_BACKUP_COUNT = int(os.getenv('LOG_BACKUP_COUNT', '5'))
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+LOG_MAX_BYTES = int(os.getenv("LOG_MAX_BYTES", 10 * 1024 * 1024))  # 10MB
+LOG_BACKUP_COUNT = int(os.getenv("LOG_BACKUP_COUNT", 5))
 
-# Random seeds
-RANDOM_SEED = int(os.getenv('RANDOM_SEED', '42'))
-
-# Species and stress constants
-SPECIES_LIST = ['Arabidopsis', 'Rice', 'Wheat']
-STRESS_CONDITIONS = ['drought', 'salinity', 'heat']
-
-# Validation thresholds
-REFERENCE_VALIDATOR_THRESHOLD = float(os.getenv('REFERENCE_VALIDATOR_THRESHOLD', '0.7'))
-MIN_DETECTION_RATE = 0.5  # 50% detection rate threshold
 
 def get_project_root() -> Path:
-    """Get the project root directory."""
-    return PROJECT_ROOT
+    """
+    Return the absolute path to the project root.
+
+    Returns:
+        Path object pointing to the project root.
+    """
+    return _PROJECT_ROOT
+
 
 def get_data_path() -> Path:
-    """Get the data directory path."""
-    return DATA_RAW_PATH
+    """
+    Return the path to the data directory.
+
+    Returns:
+        Path object pointing to the data directory.
+    """
+    return _PROJECT_ROOT / "data"
+
 
 def get_results_path() -> Path:
-    """Get the results directory path."""
+    """
+    Return the path to the results directory.
+
+    Returns:
+        Path object pointing to the results directory.
+    """
     return RESULTS_PATH
 
+
 def get_log_path() -> Path:
-    """Get the logs directory path."""
+    """
+    Return the path to the logs directory.
+
+    Returns:
+        Path object pointing to the logs directory.
+    """
     return LOG_PATH

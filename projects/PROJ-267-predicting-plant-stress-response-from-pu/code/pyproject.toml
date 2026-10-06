@@ -1,11 +1,12 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "llmxive-plant-stress"
 version = "0.1.0"
 description = "Predicting Plant Stress Response from Publicly Available Proteomic Data"
+readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
     "pandas",
@@ -15,8 +16,18 @@ dependencies = [
     "rpy2",
     "requests",
     "psutil",
+    "datasets",
     "pydantic",
     "toml"
+]
+
+[project.optional-dependencies]
+dev = [
+    "flake8>=6.0.0",
+    "black>=23.0.0",
+    "pre-commit>=3.0.0",
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0"
 ]
 
 [tool.black]
@@ -26,19 +37,28 @@ include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-  | \.eggs
-  | \.egg-info
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | venv
+    | .venv
 )/
 '''
 
-[tool.isort]
-profile = "black"
-line_length = 88
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.setuptools]
+packages = ["code", "code.utils", "code.data_ingestion", "code.modeling", "code.reporting"]
+
+[tool.setuptools.package-dir]
+code = "code"

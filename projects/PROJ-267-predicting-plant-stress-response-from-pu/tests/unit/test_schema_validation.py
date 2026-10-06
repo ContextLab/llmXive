@@ -1,125 +1,147 @@
 import os
 import sys
 import tempfile
-import csv
-import pytest
+import json
 from pathlib import Path
+import pytest
 
-# Add code to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add code directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
 from utils.schema_validator import (
-    validate_csv_schema,
-    validate_directory_schema,
     ValidationResult,
     ValidationStatus,
-    RAW_SCHEMA_EXPECTED_COLUMNS,
-    PROCESSED_SCHEMA_EXPECTED_COLUMNS
+    validate_csv_schema,
+    validate_parquet_schema,
+    validate_directory_schema,
+    RAW_SCHEMA_REQUIRED_COLUMNS,
+    PROCESSED_SCHEMA_REQUIRED_COLUMNS
 )
 
+@pytest.fixture
+def temp_csv_raw():
+    """Create a temporary CSV file with raw data schema"""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+        f.write("sample_id,species,stress_condition,protein_A\n")
+        f.write("S001,Arabidopsis,drought,10.5\n")
+        f.write("S002,Rice,salinity,20.3\n")
+        yield Path(f.name)
+    os.unlink(f.name)
 
 @pytest.fixture
-def temp_raw_dir():
-    """Creates a temporary directory with valid and invalid CSV files for raw data."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmp_path = Path(tmpdir)
-
-        # Valid file
-        valid_file = tmp_path / "valid_sample.csv"
-        with open(valid_file, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=["SampleID", "StressCondition", "Species", "ProteinID", "Abundance"])
-            writer.writeheader()
-            writer.writerow({"SampleID": "S1", "StressCondition": "Drought", "Species": "Arabidopsis", "ProteinID": "P1", "Abundance": "10.5"})
-
-        # Missing required column
-        invalid_file = tmp_path / "missing_col.csv"
-        with open(invalid_file, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=["SampleID", "StressCondition", "Species"]) # Missing ProteinID
-            writer.writeheader()
-            writer.writerow({"SampleID": "S2", "StressCondition": "Heat", "Species": "Rice"})
-
-        # Empty file (header only)
-        empty_file = tmp_path / "empty.csv"
-        with open(empty_file, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=["SampleID", "StressCondition", "Species", "ProteinID", "Abundance"])
-            writer.writeheader()
-
-        yield tmp_path
-
+def temp_csv_processed():
+    """Create a temporary CSV file with processed data schema"""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+        f.write("sample_id,species,stress_condition,protein_A,protein_B\n")
+        f.write("S001,Arabidopsis,drought,10.5,15.2\n")
+        f.write("S002,Rice,salinity,20.3,18.7\n")
+        yield Path(f.name)
+    os.unlink(f.name)
 
 @pytest.fixture
-def temp_processed_dir():
-    """Creates a temporary directory with valid processed CSV files."""
+def temp_csv_invalid():
+    """Create a temporary CSV file with missing required columns"""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+        f.write("sample_id,species\n")  # Missing stress_condition
+        f.write("S001,Arabidopsis\n")
+        yield Path(f.name)
+    os.unlink(f.name)
+
+@pytest.fixture
+def temp_dir():
+    """Create a temporary directory with test files"""
     with tempfile.TemporaryDirectory() as tmpdir:
-        tmp_path = Path(tmpdir)
+        yield Path(tmpdir)
 
-        valid_file = tmp_path / "processed_data.csv"
-        with open(valid_file, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=["SampleID", "StressCondition", "Species", "ProteinID", "Abundance", "ImputationMethod"])
-            writer.writeheader()
-            writer.writerow({"SampleID": "S1", "StressCondition": "Drought", "Species": "Arabidopsis", "ProteinID": "P1", "Abundance": "10.5", "ImputationMethod": "MinProb"})
+def test_validate_csv_schema_raw_valid(temp_csv_raw):
+    """Test validation of a valid raw CSV file"""
+    result = validate_csv_schema(temp_csv_raw, 'raw')
+    assert result.status == ValidationStatus.VALID
+    assert 'Missing required columns' not in result.message
+    assert result.file_path == str(temp_csv_raw)
 
-        yield tmp_path
+def test_validate_csv_schema_processed_valid(temp_csv_processed):
+    """Test validation of a valid processed CSV file"""
+    result = validate_csv_schema(temp_csv_processed, 'processed')
+    assert result.status == ValidationStatus.VALID
+    assert 'Missing required columns' not in result.message
 
+def test_validate_csv_schema_invalid_columns(temp_csv_invalid):
+    """Test validation of a CSV file with missing required columns"""
+    result = validate_csv_schema(temp_csv_invalid, 'raw')
+    assert result.status == ValidationStatus.INVALID
+    assert 'Missing required columns' in result.message
+    assert 'stress_condition' in result.message
 
-def test_validate_csv_valid_raw(temp_raw_dir):
-    status = validate_csv_schema(temp_raw_dir, "raw")
-    # Should have 3 files, 1 valid (the one with data), 2 errors (missing col, empty)
-    # Note: The logic counts valid_count only if status is 'valid' or 'warning'.
-    # 'missing_col' -> error
-    # 'empty' -> error
-    # 'valid_sample' -> valid
-    assert status.passed is False
-    assert status.total_files == 3
-    assert len(status.errors) == 2
-    assert any("Missing required columns" in err for err in status.errors)
-    assert any("fewer than 1 data rows" in err for err in status.errors)
+def test_validate_csv_schema_file_not_found():
+    """Test validation of a non-existent file"""
+    result = validate_csv_schema(Path('/nonexistent/file.csv'), 'raw')
+    assert result.status == ValidationStatus.INVALID
+    assert 'File not found' in result.message
 
+def test_validate_csv_schema_empty_file(temp_dir):
+    """Test validation of an empty CSV file"""
+    empty_file = temp_dir / 'empty.csv'
+    empty_file.touch()
+    
+    result = validate_csv_schema(empty_file, 'raw')
+    assert result.status == ValidationStatus.INVALID
+    assert 'empty' in result.message.lower() or 'no headers' in result.message.lower()
 
-def test_validate_csv_valid_processed(temp_processed_dir):
-    status = validate_csv_schema(temp_processed_dir, "processed")
-    assert status.passed is True
-    assert status.total_files == 1
-    assert status.valid_files == 1
-    assert len(status.errors) == 0
+def test_validate_csv_schema_invalid_prefix(temp_dir):
+    """Test validation of a processed CSV with invalid column prefixes"""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+        f.write("sample_id,species,stress_condition,invalid_col\n")
+        f.write("S001,Arabidopsis,drought,10.5\n")
+        temp_path = Path(f.name)
+    
+    try:
+        result = validate_csv_schema(temp_path, 'processed')
+        assert result.status == ValidationStatus.WARNING
+        assert 'invalid_col' in result.message
+    finally:
+        os.unlink(temp_path)
 
+def test_validate_directory_schema(temp_dir):
+    """Test validation of all files in a directory"""
+    # Create valid and invalid files
+    valid_file = temp_dir / 'valid.csv'
+    valid_file.write_text("sample_id,species,stress_condition\nS001,Arabidopsis,drought\n")
+    
+    invalid_file = temp_dir / 'invalid.csv'
+    invalid_file.write_text("sample_id,species\nS001,Arabidopsis\n")  # Missing stress_condition
+    
+    results = validate_directory_schema(temp_dir)
+    
+    assert len(results) == 2
+    valid_results = [r for r in results if r.status == ValidationStatus.VALID]
+    invalid_results = [r for r in results if r.status == ValidationStatus.INVALID]
+    
+    assert len(valid_results) == 1
+    assert len(invalid_results) == 1
 
-def test_validate_directory_schema_integration(temp_raw_dir, temp_processed_dir):
-    # Create a fake base structure
-    with tempfile.TemporaryDirectory() as base_tmp:
-        base_path = Path(base_tmp)
-        # Create raw dir with content
-        raw_dir = base_path / "data" / "raw"
-        raw_dir.mkdir(parents=True)
-        # Copy temp_raw_dir contents to raw_dir
-        for f in temp_raw_dir.iterdir():
-            (raw_dir / f.name).write_text(f.read_text())
+def test_validate_directory_schema_nonexistent():
+    """Test validation of a non-existent directory"""
+    results = validate_directory_schema(Path('/nonexistent/dir'))
+    assert results == []
 
-        # Create processed dir with content
-        proc_dir = base_path / "data" / "processed"
-        proc_dir.mkdir(parents=True)
-        # Copy temp_processed_dir contents
-        for f in temp_processed_dir.iterdir():
-            (proc_dir / f.name).write_text(f.read_text())
-
-        # Run validation
-        report = validate_directory_schema(base_path)
-
-        assert "overall_passed" in report
-        assert report["overall_passed"] is False # Because raw has errors
-        assert "raw_data" in report
-        assert "processed_data" in report
-        assert report["processed_data"]["passed"] is True
-
-
-def test_validation_result_structure():
-    res = ValidationResult(
-        status="valid",
-        message="All good",
-        details={"key": "value"},
-        file_path="test.csv"
+def test_result_dataclass():
+    """Test ValidationResult dataclass"""
+    result = ValidationResult(
+        status=ValidationStatus.VALID,
+        message="Test message",
+        file_path="test.csv",
+        details={'key': 'value'}
     )
-    assert res.status == "valid"
-    assert res.message == "All good"
-    assert res.details["key"] == "value"
-    assert res.file_path == "test.csv"
+    
+    assert result.status == ValidationStatus.VALID
+    assert result.message == "Test message"
+    assert result.file_path == "test.csv"
+    assert result.details == {'key': 'value'}
+    
+    # Test default empty details
+    result2 = ValidationResult(
+        status=ValidationStatus.INVALID,
+        message="Another message"
+    )
+    assert result2.details == {}
