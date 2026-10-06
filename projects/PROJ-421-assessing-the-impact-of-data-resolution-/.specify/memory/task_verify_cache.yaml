@@ -1,16 +1,11 @@
-T010:
+T020:
   c: false
-  h: 1c8b56f501f06da9ed187297a87c4e724b401f343955788d9944d23f2a3954af
-  r: "The required `code/calibration.py` (containing `estimate_lambda`) does not exist,\
-    \ and the input raster `data/raw/nlcd_30m_colorado.tif` is missing, so no real\
-    \ MLE/GMM estimation could have been performed. The JSON output appears fabricated\
-    \ without evidence of a genuine data\u2011driven computation."
-T017:
-  c: false
-  h: 7ec59160360bcd93eebe11c691dd5257a0c988da97627e5e7ce23ddfb8428c59
-  r: "The required file `code/resampling.py` does not exist, so there is no implementation\
-    \ of windowed reads or the specified 2000\xD72000 pixel chunking. Without the\
-    \ file, the task cannot be satisfied."
+  h: 344291aa5ded1305316fac2273d298cb96ec7334fe4d320dbe0991acd75250a2
+  r: "The repository contains a partially shown `create_binary_indicator_map` function\
+    \ in `code/analysis.py`, but the required output file `data/derived/nlcd_30m_binary.tif`\
+    \ is absent, and there is no evidence that the function is invoked to generate\
+    \ it. The task\u2019s core deliverable \u2013 the binary raster file \u2013 has\
+    \ not been produced."
 T029:
   c: true
   h: 24dc9ef625878ca72e345fdc16dc59264cc7955170f309e83209a563e415f15d
@@ -19,12 +14,12 @@ T029:
     <\u202F0.80, returns that resolution string, and writes a `threshold_report.txt`\
     \ file to `data/results/`. The required output file will be created when the function\
     \ is executed, satisfying the task specification."
-T031:
+T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `sensitivity_report.md` file or any other evidence of a sensitivity analysis
-    (resolution factor sweep, bilinear resampling, threshold verification) was provided.
-    The required artifact is missing, so the task is not satisfied.
+  r: "No `results.csv` file (or any other artifact) was provided, and thus there is\
+    \ no evidence of rows appended with the required `resolution, type_ii_error_delta`\
+    \ columns. The task\u2019s output is missing entirely."
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -40,12 +35,13 @@ T034:
     \ cannot confirm that the requirement has been met. The implementer must supply\
     \ the modified script (or module) and example output showing the flag and column\
     \ for p\u202F=\u202F0.05."
-T035a:
+T035:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No README.md content was provided, and there is no evidence that the file was
-    created or updated with CLI usage examples. The required artifact is missing,
-    so the task is not satisfied.
+  r: "No artifact such as a modified `results.csv` containing a `class_id` column\
+    \ (or any code/data showing the analysis was rerun for the Urban class) was provided.\
+    \ The claim lacks the required output file, so the task\u2019s requirement is\
+    \ not satisfied."
 T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -53,13 +49,6 @@ T037:
     \ to demonstrate that the pipeline completes in under 6\u202Fhours on a CPU\u2011\
     only runner. The claim lacks any concrete artifact (e.g., timing output, CI logs,\
     \ profiling results) required to verify the performance optimization."
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of any files or code under a `tests/unit/` directory was provided;\
-    \ the claim of \u201Cadditional unit tests\u201D cannot be verified because the\
-    \ required test artifacts are missing. The next implementer must add concrete\
-    \ unit test files in `tests/unit/` containing actual test cases."
 T040:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

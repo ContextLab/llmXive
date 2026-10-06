@@ -1,105 +1,144 @@
 # Assessing the Impact of Data Resolution on Statistical Power in Publicly Available Spatial Datasets
 
-This project investigates how spatial data resolution affects statistical power in detecting spatial autocorrelation, using publicly available land cover datasets (NLCD).
-
-## Prerequisites
-
-- Python 3.9+
-- `pip install -r code/requirements.txt`
-
-## Quick Start
-
-### 1. Setup Directories
-```bash
-python -m code.setup_dirs
-```
-
-### 2. Validate Data Sources
-```bash
-python -m code.reference_validator --input data/ --config code/config.py
-```
-
-### 3. Ingest Data
-Downloads the high-resolution (30m) NLCD data for Colorado.
-```bash
-python -m code.data_ingestion
-```
-
-### 4. Generate Coarser Resolutions
-Creates aggregated rasters at 60m, 120m, 240m, and 480m using nearest-neighbor resampling.
-```bash
-python -m code.resampling --input data/raw/nlcd_30m_colorado.tif --factors 2,4,8,16 --output data/derived/
-```
-
-### 5. Run Calibration (Phase 0)
-Estimates the spatial lag parameter ($\lambda$) from the 30m data.
-```bash
-python -m code.calibration --input data/raw/nlcd_30m_colorado.tif --output data/results/calibration_lambda.json
-```
-
-### 6. Run Full Analysis (US2)
-Computes Moran's I, generates null/alternative distributions, and calculates statistical power.
-```bash
-python -m code.analysis --input-dir data/derived/ --lambda-file data/results/calibration_lambda.json --output data/results/results.csv
-```
-
-### 7. Generate Reports (US3)
-Creates the power curve visualization and threshold report.
-```bash
-python -m code.visualization --input data/results/results.csv --output data/results/
-python -m code.generate_sensitivity_report --input data/results/results.csv --output data/results/sensitivity_report.md
-python -m code.generate_final_report --input data/results/results.csv --output data/results/final_report.md
-```
-
-## CLI Usage Examples
-
-### Resampling with Custom Factors
-```bash
-python -m code.resampling --input data/raw/nlcd_30m_colorado.tif --factors 2,3,4 --output data/derived_custom/
-```
-
-### Analysis with Specific Seed
-```bash
-python -m code.analysis --input-dir data/derived/ --lambda-file data/results/calibration_lambda.json --seed 42 --output data/results/results.csv
-```
-
-### Sensitivity Sweep
-```bash
-python -m code.sensitivity_analysis --input data/results/results.csv --output data/results/sensitivity_report.md --sweep-factors 1.8,2.2
-```
+This project analyzes how spatial data resolution affects the statistical power to detect spatial autocorrelation using publicly available land cover data (NLCD).
 
 ## Project Structure
 
 ```
 .
 ├── code/
-│ ├── analysis.py # Moran's I, power calculation, simulation
-│ ├── calibration.py # Lambda estimation
-│ ├── config.py # Project configuration
-│ ├── data_ingestion.py # Data download and validation
-│ ├── resampling.py # Resolution aggregation
-│ ├── visualization.py # Power curve generation
-│ ├── utils.py # IO helpers, logging, retry logic
+│ ├── data_ingestion.py # Download high-resolution NLCD data
+│ ├── resampling.py # Generate coarser resolution rasters
+│ ├── calibration.py # Estimate spatial lag parameter (lambda)
+│ ├── analysis.py # Moran's I, null/alternative simulation, power calculation
+│ ├── visualization.py # Generate power curves and threshold reports
+│ ├── utils.py # Shared utilities (logging, I/O, validation)
+│ ├── config.py # Configuration (resolutions, seeds, paths)
 │ └──...
 ├── data/
 │ ├── raw/ # Original downloaded data
-│ ├── derived/ # Aggregated rasters
-│ └── results/ # Analysis outputs, reports
-├── tests/
-│ ├── test_analysis.py
-│ ├── test_resampling.py
-│ └──...
-├── README.md
-└── requirements.txt
+│ ├── derived/ # Processed rasters (resampled, binary)
+│ └── results/ # Analysis outputs (CSV, reports)
+├── tests/ # Unit and integration tests
+└── README.md
 ```
 
-## Validation
+## Prerequisites
 
-Run the quickstart validator to ensure all components are functional:
+- Python 3.9+
+- Required packages listed in `code/requirements.txt`
+
+Install dependencies:
 ```bash
-python -m code.quickstart_validator
+pip install -r code/requirements.txt
 ```
 
-## License
+## Quick Start: Full Pipeline
 
-This project is for research purposes using public domain data (NLCD).
+Run the entire analysis pipeline from data ingestion to final report:
+
+```bash
+# 1. Ingest high-resolution NLCD data (Colorado subset)
+python -m code.data_ingestion --output data/raw/nlcd_30m.tif
+
+# 2. Generate coarser resolution rasters (60m, 120m, 240m, 480m)
+python -m code.resampling --input data/raw/nlcd_30m.tif --factors 2,4,8,16 --output data/derived
+
+# 3. Create binary indicator map (Forest=1, Others=0)
+python -m code.analysis --action create_binary --input data/raw/nlcd_30m.tif --output data/derived/nlcd_30m_binary.tif
+
+# 4. Calibrate spatial lag parameter (lambda)
+python -m code.calibration --input data/derived/nlcd_30m_binary.tif --output data/results/calibration_lambda.json
+
+# 5. Run full analysis (Moran's I, null/alternative simulation, power calculation)
+python -m code.analysis --action full_analysis --input data/derived --results data/results/results.csv
+
+# 6. Generate power curve and threshold report
+python -m code.visualization --input data/results/results.csv --output data/results/threshold_report.txt
+
+# 7. Generate final report
+python -m code.generate_final_report --input data/results/results.csv --output data/results/final_report.md
+```
+
+Alternatively, run the main pipeline script:
+```bash
+python -m code.main --full-sweep
+```
+
+## Individual Components
+
+### Data Ingestion
+
+Download NLCD 30m data for Colorado:
+```bash
+python -m code.data_ingestion --output data/raw/nlcd_30m.tif
+```
+
+### Resampling
+
+Generate coarser resolution rasters using nearest-neighbor resampling:
+```bash
+python -m code.resampling --input data/raw/nlcd_30m.tif --factors 2,4,8,16 --output data/derived
+```
+Output files: `nlcd_co_res_60m.tif`, `nlcd_co_res_120m.tif`, etc.
+
+### Calibration
+
+Estimate the spatial lag parameter ($\lambda$) from the binary map:
+```bash
+python -m code.calibration --input data/derived/nlcd_30m_binary.tif --output data/results/calibration_lambda.json
+```
+
+### Analysis
+
+Run Moran's I, generate null distributions, simulate alternative hypotheses, and calculate statistical power:
+```bash
+python -m code.analysis --action full_analysis --input data/derived --results data/results/results.csv
+```
+
+### Visualization
+
+Generate power-vs-resolution curve and identify threshold where power < 0.80:
+```bash
+python -m code.visualization --input data/results/results.csv --output data/results/threshold_report.txt
+```
+
+### Final Report
+
+Generate the comprehensive final report:
+```bash
+python -m code.generate_final_report --input data/results/results.csv --output data/results/final_report.md
+```
+
+## Testing
+
+Run all tests:
+```bash
+pytest tests/
+```
+
+Run specific test modules:
+```bash
+pytest tests/test_resampling.py
+pytest tests/test_analysis.py
+```
+
+## Configuration
+
+Edit `code/config.py` to modify:
+- Target resolutions (default: 30, 60, 120, 240, 480)
+- Random seeds (default: 42)
+- File paths
+- Data source URLs
+
+## Output Files
+
+- `data/derived/nlcd_30m_binary.tif`: Binary indicator map
+- `data/results/calibration_lambda.json`: Estimated spatial lag parameter
+- `data/results/results.csv`: Moran's I, p-values, power estimates per resolution
+- `data/results/threshold_report.txt`: Resolution where power < 0.80
+- `data/results/final_report.md`: Comprehensive analysis report
+
+## Citation
+
+If you use this code or its results, please cite the NLCD data source and acknowledge the project's methodology.

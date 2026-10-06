@@ -9,6 +9,9 @@ from typing import Optional, List, Tuple, Any
 import numpy as np
 import rasterio
 from rasterio.windows import Window
+import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 logger = logging.getLogger(__name__)
 
@@ -125,3 +128,69 @@ def validate_raster_metadata(path: str, expected_checksum: Optional[str] = None)
         actual_checksum = checksum_file(path)
         return actual_checksum == expected_checksum
     return True
+
+def validate_url(url: str) -> bool:
+    """
+    Verify a URL is reachable and return a boolean.
+    
+    This function performs a HEAD request to check if the URL exists and is accessible.
+    It includes retry logic for transient network errors.
+    
+    Args:
+        url (str): The URL to validate.
+        
+    Returns:
+        bool: True if the URL is reachable (HTTP status 200 or 206), False otherwise.
+        
+    Raises:
+        ValueError: If the URL format is invalid.
+        requests.RequestException: If the URL is unreachable after retries.
+    """
+    if not url or not isinstance(url, str):
+        raise ValueError("URL must be a non-empty string")
+    
+    # Basic format validation
+    if not (url.startswith('http://') or url.startswith('https://')):
+        logger.warning(f"URL does not start with http:// or https://: {url}")
+        # We don't immediately return False, as some internal systems might use other schemes,
+        # but for this project, we strictly check HTTP(S)
+        return False
+    
+    # Setup session with retry strategy
+    session = requests.Session()
+    retry_strategy = Retry(
+        total=3,
+        backoff_factor=1,
+        status_forcelist=[429, 500, 502, 503, 504]
+    )
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    session.mount("http://", adapter)
+    session.mount("https://", adapter)
+    
+    try:
+        # Use HEAD first to check existence without downloading body
+        # Some servers block HEAD, so we fallback to GET with stream=True if needed
+        logger.info(f"Validating URL: {url}")
+        response = session.head(url, timeout=10, allow_redirects=True)
+        
+        if response.status_code in (200, 206):
+            logger.info(f"URL is reachable: {url} (Status: {response.status_code})")
+            return True
+        
+        # If HEAD fails with 405 or similar, try GET with stream to just check headers
+        if response.status_code == 405:
+            logger.warning("HEAD not allowed, trying GET with stream...")
+            response = session.get(url, stream=True, timeout=10, allow_redirects=True)
+            if response.status_code in (200, 206):
+                logger.info(f"URL is reachable: {url} (Status: {response.status_code})")
+                return True
+        
+        logger.error(f"URL validation failed: {url} (Status: {response.status_code})")
+        return False
+        
+    except requests.exceptions.Timeout:
+        logger.error(f"Timeout while validating URL: {url}")
+        raise
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Request failed while validating URL {url}: {e}")
+        raise

@@ -1,59 +1,92 @@
+"""
+Unit tests for Type II Error Delta Analysis (T030).
+"""
+
 import pytest
 import pandas as pd
 import os
 import tempfile
 from pathlib import Path
+
+# Import the function under test
 import sys
-
-# Add parent directory to path to import code modules
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 from type2_error_analysis import calculate_type2_error_delta
 
-def test_calculate_type2_error_delta():
-    """Test Type II error delta calculation with mock data."""
-    # Create a temporary CSV
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
-        f.write("resolution,power\n")
-        f.write("30m,0.95\n")
-        f.write("60m,0.85\n")
-        f.write("120m,0.70\n")
-        f.write("240m,0.50\n")
-        temp_path = f.name
+def test_calculate_type2_error_delta_basic():
+    """
+    Test basic calculation of Type II error delta.
+    """
+    with tempfile.TemporaryDirectory() as tmpdir:
+        input_path = Path(tmpdir) / "results.csv"
+        output_path = Path(tmpdir) / "results_output.csv"
 
-    try:
-        result_df = calculate_type2_error_delta(temp_path)
+        # Create a mock results dataframe
+        # 30m baseline: Power = 0.90 -> Error = 0.10
+        # 60m: Power = 0.80 -> Error = 0.20 -> Delta = 0.10 (10%)
+        # 120m: Power = 0.70 -> Error = 0.30 -> Delta = 0.20 (20%)
+        mock_data = {
+            'resolution': ['30m', '60m', '120m'],
+            'power': [0.90, 0.80, 0.70]
+        }
+        df = pd.DataFrame(mock_data)
+        df.to_csv(input_path, index=False)
 
-        # Check columns
-        assert 'type2_error' in result_df.columns
-        assert 'type2_error_delta' in result_df.columns
+        result_df = calculate_type2_error_delta(str(input_path), str(output_path))
 
-        # Check baseline (30m) delta is 0
-        baseline = result_df[result_df['resolution'] == '30m']
-        assert len(baseline) == 1
-        assert abs(baseline['type2_error_delta'].iloc[0]) < 1e-6
+        # Expected Deltas (percentage points)
+        # Baseline Error = 0.10
+        # 60m Error = 0.20 -> Delta = 0.10 * 100 = 10.0
+        # 120m Error = 0.30 -> Delta = 0.20 * 100 = 20.0
+        expected_deltas = [0.0, 10.0, 20.0]
 
-        # Check 60m delta: (1-0.85) - (1-0.95) = 0.15 - 0.05 = 0.10
-        row_60 = result_df[result_df['resolution'] == '60m']
-        assert abs(row_60['type2_error_delta'].iloc[0] - 0.10) < 1e-6
+        assert 'type_ii_error_delta' in result_df.columns
+        assert pytest.approx(result_df.iloc[0]['type_ii_error_delta'], 0.01) == 0.0
+        assert pytest.approx(result_df.iloc[1]['type_ii_error_delta'], 0.01) == 10.0
+        assert pytest.approx(result_df.iloc[2]['type_ii_error_delta'], 0.01) == 20.0
 
-    finally:
-        os.unlink(temp_path)
+        # Verify file was written
+        assert output_path.exists()
+        loaded_df = pd.read_csv(output_path)
+        assert 'type_ii_error_delta' in loaded_df.columns
 
-def test_missing_file():
-    """Test that FileNotFoundError is raised for missing input."""
+def test_calculate_type2_error_delta_missing_file():
+    """
+    Test that FileNotFoundError is raised if input file is missing.
+    """
     with pytest.raises(FileNotFoundError):
-        calculate_type2_error_delta("/nonexistent/path.csv")
+        calculate_type2_error_delta("/nonexistent/path/results.csv")
 
-def test_missing_columns():
-    """Test that ValueError is raised if columns are missing."""
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
-        f.write("resolution,some_other_col\n")
-        f.write("30m,0.95\n")
-        temp_path = f.name
+def test_calculate_type2_error_delta_missing_power():
+    """
+    Test that ValueError is raised if 'power' column is missing.
+    """
+    with tempfile.TemporaryDirectory() as tmpdir:
+        input_path = Path(tmpdir) / "results.csv"
+        mock_data = {
+            'resolution': ['30m', '60m'],
+            'moran_i': [0.5, 0.4]
+        }
+        pd.DataFrame(mock_data).to_csv(input_path, index=False)
 
-    try:
-        with pytest.raises(ValueError):
-            calculate_type2_error_delta(temp_path)
-    finally:
-        os.unlink(temp_path)
+        with pytest.raises(ValueError) as exc_info:
+            calculate_type2_error_delta(str(input_path))
+        
+        assert "'power' column" in str(exc_info.value)
+
+def test_calculate_type2_error_delta_missing_baseline():
+    """
+    Test that ValueError is raised if 30m baseline is missing.
+    """
+    with tempfile.TemporaryDirectory() as tmpdir:
+        input_path = Path(tmpdir) / "results.csv"
+        mock_data = {
+            'resolution': ['60m', '120m'],
+            'power': [0.80, 0.70]
+        }
+        pd.DataFrame(mock_data).to_csv(input_path, index=False)
+
+        with pytest.raises(ValueError) as exc_info:
+            calculate_type2_error_delta(str(input_path))
+        
+        assert "30m baseline" in str(exc_info.value)

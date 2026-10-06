@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a computational pipeline to quantify how spatial data resolution affects the statistical power to detect spatial autocorrelation (Moran's I). The approach involves ingesting high-resolution (30m) National Land Cover Database (NLCD) data, aggregating it to coarser resolutions (60m–480m) using nearest-neighbor resampling, transforming categorical data into binary indicators, and running permutation-based hypothesis tests and power simulations across the resolution spectrum. The pipeline identifies the resolution threshold where statistical power drops below an acceptable level.
+This project implements a computational pipeline to quantify how spatial data resolution affects the statistical power to detect spatial autocorrelation (Moran's I). The approach involves ingesting high-resolution National Land Cover Database (NLCD) data, aggregating it to coarser resolutions using nearest-neighbor resampling, transforming categorical data into binary indicators, and running permutation-based hypothesis tests and power simulations across the resolution spectrum. The pipeline identifies the resolution threshold where statistical power drops below an acceptable level.
 
 ## Technical Context
 

@@ -1,0 +1,12 @@
+status: none
+intent: download NLCD 2021 raster and NLCD Group 0_9 parquet via USGS EarthExplorer
+  python package dataset
+required_fields:
+- land_cover_class
+- pixel_x
+- pixel_y
+- crs
+- pixel_size
+cache_key: 0587c71ba9446c6678b9fe39d1757bd3d0874513173e3cac5aa13d99fde41752
+searched_at: '2026-10-06T02:06:33.185449+00:00'
+retry_count: 1
