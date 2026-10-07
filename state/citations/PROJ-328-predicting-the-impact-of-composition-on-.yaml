@@ -145,84 +145,51 @@
   verification_status: pending
   verified_against_url: https://doi.org/10.1016/j.actamat.2019.05.032
   verified_at: '2026-09-18T04:44:43.884776Z'
-- artifact_hash: 9220e655db6c8a0d6d6a18640db3265843136c22d6def7c1c610006c7a2dc1e2
+- artifact_hash: cba82cdb714a8411dd9ec13a0f03192a378d4e698a641f1f4ca1d3e9e183db60
   artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/research_verified.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: Materials Project API - Swagger UI
+  fetched_title: null
   kind: url
-  value: https://api.materialsproject.org
+  value: https://materialsproject.org/rest/v2/materials/
   verification_status: pending
-  verified_against_url: https://api.materialsproject.org/docs
-  verified_at: '2026-09-18T04:47:06.860593Z'
-- artifact_hash: 9220e655db6c8a0d6d6a18640db3265843136c22d6def7c1c610006c7a2dc1e2
+  verified_against_url: https://next-gen.materialsproject.org/rest/v2/materials/
+  verified_at: '2026-10-07T04:46:48.248339Z'
+- artifact_hash: cba82cdb714a8411dd9ec13a0f03192a378d4e698a641f1f4ca1d3e9e183db60
   artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/research_verified.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://archive.ics.uci.edu/ml/datasets.php
+  value: https://www.nist.gov/programs-projects/open-alloy-database
   verification_status: mismatch
-  verified_against_url: https://archive.ics.uci.edu/datasets.php
-  verified_at: '2026-09-18T04:47:06.860593Z'
-- artifact_hash: 9220e655db6c8a0d6d6a18640db3265843136c22d6def7c1c610006c7a2dc1e2
+  verified_against_url: https://www.nist.gov/programs-projects/open-alloy-database
+  verified_at: '2026-10-07T04:46:48.248339Z'
+- artifact_hash: cba82cdb714a8411dd9ec13a0f03192a378d4e698a641f1f4ca1d3e9e183db60
   artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/research_verified.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: Search | arXiv e-print repository
   kind: url
-  value: https://openalloy.org/api/v1
-  verification_status: unreachable
-  verified_against_url: https://openalloy.org/api/v1
-  verified_at: '2026-09-18T04:47:06.860593Z'
-- artifact_hash: 9220e655db6c8a0d6d6a18640db3265843136c22d6def7c1c610006c7a2dc1e2
+  value: https://arxiv.org/search/?query=solder+hardness&searchtype=all
+  verification_status: pending
+  verified_against_url: https://arxiv.org/search/?query=solder+hardness&searchtype=all
+  verified_at: '2026-10-07T04:46:48.248339Z'
+- artifact_hash: cba82cdb714a8411dd9ec13a0f03192a378d4e698a641f1f4ca1d3e9e183db60
   artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/research_verified.md
   cite_id: c-004
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://doi.org/10.1016/j.jallcom.2023.123456
-  verification_status: mismatch
-  verified_against_url: https://doi.org/10.1016/j.jallcom.2023.123456
-  verified_at: '2026-09-18T04:47:06.860593Z'
-- artifact_hash: 9220e655db6c8a0d6d6a18640db3265843136c22d6def7c1c610006c7a2dc1e2
-  artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/research_verified.md
-  cite_id: c-005
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://doi.org/10.1007/s11664-022-09876-5
-  verification_status: mismatch
-  verified_against_url: https://doi.org/10.1007/s11664-022-09876-5
-  verified_at: '2026-09-18T04:47:06.860593Z'
-- artifact_hash: 9220e655db6c8a0d6d6a18640db3265843136c22d6def7c1c610006c7a2dc1e2
-  artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/research_verified.md
-  cite_id: c-006
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.1016/j.jallcom.2023.123456
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.1016/j.jallcom.2023.123456
-  verified_at: '2026-09-18T04:47:06.860593Z'
-- artifact_hash: 9220e655db6c8a0d6d6a18640db3265843136c22d6def7c1c610006c7a2dc1e2
-  artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/research_verified.md
-  cite_id: c-007
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.1007/s11664-022-09876-5
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.1007/s11664-022-09876-5
-  verified_at: '2026-09-18T04:47:06.860593Z'
-- artifact_hash: 8fbe786c92ce864955c6bc8b9586cd191acfd84cb3e49f17d0265140196bfc5d
+  value: https://www.sciencedirect.com/journal/materials-science-and-engineering-a
+  verification_status: pending
+  verified_against_url: https://www.sciencedirect.com/journal/materials-science-and-engineering-a
+  verified_at: '2026-10-07T04:46:48.248339Z'
+- artifact_hash: 85ba9ce0b6d168b494ff1dded6fc02008e44a3a7096a3a0fc74809d0872da430
   artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -232,8 +199,8 @@
   value: https://materialsproject.org/rest/v2/materials/`
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/rest/v2/materials/
-  verified_at: '2026-10-03T12:03:51.762461Z'
-- artifact_hash: 8fbe786c92ce864955c6bc8b9586cd191acfd84cb3e49f17d0265140196bfc5d
+  verified_at: '2026-10-07T04:55:57.257557Z'
+- artifact_hash: 85ba9ce0b6d168b494ff1dded6fc02008e44a3a7096a3a0fc74809d0872da430
   artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -243,4 +210,4 @@
   value: https://arxiv.org/search/?query=solder+hardness&searchtype=all`
   verification_status: pending
   verified_against_url: https://arxiv.org/search/?query=solder+hardness&searchtype=all
-  verified_at: '2026-10-03T12:03:51.762461Z'
+  verified_at: '2026-10-07T04:55:57.257557Z'

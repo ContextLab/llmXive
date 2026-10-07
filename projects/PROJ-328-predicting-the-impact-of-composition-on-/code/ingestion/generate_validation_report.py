@@ -11,6 +11,9 @@ It depends on:
 
 Output:
 - data/processed/validation_report.yaml
+
+CRITICAL: This script MUST write the output file to disk. It must not
+rely on synthetic data or mock inputs. It expects real inputs from T014 and T014a.
 """
 import os
 import sys

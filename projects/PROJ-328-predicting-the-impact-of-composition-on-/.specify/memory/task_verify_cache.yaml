@@ -33,14 +33,14 @@ T009c:
   r: "The `data/config/sources.yaml` file is present (1085\u202Fbytes) and populated\
     \ with verified/provisional URLs and API endpoint details as required. The file\
     \ is non\u2011empty and matches the expected format for the task."
-T012a:
+T012g:
   c: false
-  h: 17d8e19e31b602d0b2173213ce128c1013fadee391bb64d4fd792669977eb320
-  r: "The provided `api_fetcher.py` is truncated (e.g., ends with `if not source or\
-    \ no`) and does not show complete implementations for authentication, rate\u2011\
-    limiting, endpoint handling, or raising `DataFetchError` as required. Consequently\
-    \ the file does not yet fulfill the task specifications. The missing or incomplete\
-    \ code must be completed and verified."
+  h: 0ff00e2b513ae1f516e4979896aaf75191af31e0eea5ff485897856a9ee1176a
+  r: "The provided `aggregator.py` defines checksum and status\u2011writing helpers\
+    \ but never copies the source files into `data/raw/` as immutable files, and the\
+    \ required output artifacts (`data/checksums.txt` and `data/raw/.ingestion_status.json`)\
+    \ are absent from the repository. Consequently the implementation does not fulfill\
+    \ the task\u2019s core requirements."
 T014:
   c: false
   h: 1810825bc549dd4c67f88646f5ceb578e772f22faaf40ec4136d0bfa7bc6b61a
@@ -51,15 +51,28 @@ T014:
     \ to `data/processed/.ingestion_status.json`. Moreover, the required `.ingestion_status.json`\
     \ file is absent. The implementer must add the missing validation logic and ensure\
     \ the status JSON is created with the exact fields."
+T014b:
+  c: false
+  h: 2d823ceb74054ea34840db1d300bdc3b0f8645fbd2298866136500ce9147a41b
+  r: "The provided `aggregate_final_report.py` is incomplete (truncated mid\u2011\
+    string and lacks code to write the final YAML). Moreover, the required input files\
+    \ `.ingestion_status.json` and `report.yaml` as well as the expected output `final_aggregated_report.yaml`\
+    \ are absent from the repository. Consequently the task\u2019s core requirement\u2014\
+    reading the two artifacts and producing the aggregated report\u2014is not satisfied."
 T016b:
   c: true
-  h: c714aec0379373d9a22058b78549e2387a5a947deb18810f6ec97584e08ffcd6
-  r: "The script `code/ingestion/generate_validation_report.py` exists, is non\u2011\
-    empty, and contains code to load the required JSON and YAML files and to combine\
-    \ them into a validation report (including handling missing inputs). The presence\
-    \ of the input and output data files is not a prerequisite for the script\u2019\
-    s existence; the script is ready to generate `validation_report.yaml` when those\
-    \ files are provided."
+  h: 23fb3bd332a25637dadd844cfa96e80107602c2d06340fa26a64babcd78217ad
+  r: "The script `code/ingestion/generate_validation_report.py` is present, non\u2011\
+    empty, and contains code that loads the required `.ingestion_status.json` and\
+    \ `validation_metrics.yaml` files and defines the output path `validation_report.yaml`.\
+    \ The missing input files are external data, not part of the script artifact itself,\
+    \ and the script is written to generate the report rather than using mock data."
+T016c:
+  c: false
+  h: 17bfa27557494d4ed7184026fd5e83e53073929183ee87259afe4fb546eb84d7
+  r: The required input artifacts `data/processed/.ingestion_status.json` and `validation_metrics.yaml`
+    are missing, so the script cannot be run with real data and no validation report
+    was generated. The integration test therefore was not performed.
 T029a:
   c: false
   h: d4dbe5214582fd42e19b267800ba0f9e159d15f868c6fbfdbfe4e30ab94e2476

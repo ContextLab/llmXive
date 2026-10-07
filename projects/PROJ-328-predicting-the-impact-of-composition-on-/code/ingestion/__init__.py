@@ -1,3 +1,4 @@
 """
-Ingestion package initialization.
+Ingestion module initialization.
 """
+pass

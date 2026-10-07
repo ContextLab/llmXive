@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T23:24:34.604841Z'
-current_stage: tasked
+current_stage: planned
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-328-predicting-the-impact-of-composition-on-
-last_run_id: 7f8042bf-7ea1-4b0d-ab27-50fb24b3fad4
+last_run_id: 0d5858c6-6b5a-46c9-9df2-fa40ac2e77c5
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on
 title: Predicting the Impact of Composition on the Vickers Hardness of Solder Alloys
-updated_at: '2026-10-03T12:04:16.163255Z'
+updated_at: '2026-10-07T04:56:08.240335Z'
