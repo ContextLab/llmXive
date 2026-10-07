@@ -1,0 +1,13 @@
+status: none
+intent: Reddit self reported loneliness dataset Zenodo and Pushshift Reddit logs python
+  package dataset
+required_fields:
+- hashed_user_id
+- month
+- loneliness_score
+- num_posts
+- num_comments
+- activity_metric
+cache_key: 5b8c8865da54c113689241e8de5811f4272b7518b4b10b796eecd036869838d9
+searched_at: '2026-10-07T18:43:08.858866+00:00'
+retry_count: 1

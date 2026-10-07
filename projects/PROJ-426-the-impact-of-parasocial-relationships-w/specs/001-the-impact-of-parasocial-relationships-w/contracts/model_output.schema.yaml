@@ -1,0 +1,55 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ModelResult
+description: Schema for the output of the linear mixed-effects model and bootstrap resampling.
+type: object
+properties:
+  model_id:
+    type: string
+    description: "Unique identifier for the model run."
+  fixed_effects:
+    type: object
+    description: "Map of fixed effect estimates."
+    additionalProperties:
+      type: number
+  p_values:
+    type: object
+    description: "Map of p-values for fixed effects."
+    additionalProperties:
+      type: number
+      minimum: 0.0
+      maximum: 1.0
+  confidence_intervals:
+    type: object
+    description: "Map of 95% confidence intervals [lower, upper] for fixed effects."
+    additionalProperties:
+      type: array
+      items:
+        type: number
+      minItems: 2
+      maxItems: 2
+  marginal_r2:
+    type: number
+    description: "Variance explained by fixed effects."
+    minimum: 0.0
+    maximum: 1.0
+  convergence_status:
+    type: string
+    description: "Status of the model convergence."
+    enum:
+      - "converged"
+      - "warning"
+      - "failed"
+  bootstrap_iterations:
+    type: integer
+    description: "Number of bootstrap iterations performed."
+    minimum: 1
+    default: 1000
+required:
+  - model_id
+  - fixed_effects
+  - p_values
+  - confidence_intervals
+  - marginal_r2
+  - convergence_status
+  - bootstrap_iterations
+additionalProperties: false

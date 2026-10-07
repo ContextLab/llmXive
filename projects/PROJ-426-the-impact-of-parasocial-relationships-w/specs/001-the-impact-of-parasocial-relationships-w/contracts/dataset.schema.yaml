@@ -1,0 +1,59 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: MatchedUsersDataset
+description: Schema for the unified analysis-ready dataset containing matched users and longitudinal records.
+type: object
+properties:
+  user_id:
+    type: string
+    description: "SHA-256 hash of the Reddit username."
+    pattern: "^[a-f0-9]{64}$"
+  age:
+    type: integer
+    description: "Self-reported age."
+    minimum: 0
+  gender:
+    type: string
+    description: "Self-reported gender."
+  attachment_anxiety_score:
+    type: number
+    description: "Normalized frequency of anxiety terms from ECAR Lexicon."
+    minimum: 0.0
+    maximum: 1.0
+  attachment_avoidance_score:
+    type: number
+    description: "Normalized frequency of avoidance terms from ECAR Lexicon."
+    minimum: 0.0
+    maximum: 1.0
+  records:
+    type: array
+    description: "List of longitudinal observations for this user."
+    items:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: "Date of the survey."
+        loneliness_score:
+          type: number
+          description: "UCLA Loneliness Scale score."
+        usage_frequency:
+          type: number
+          description: "Count of AI interactions in the preceding week."
+        session_duration:
+          type: number
+          description: "Total duration of AI interactions in the preceding week (minutes)."
+      required:
+        - timestamp
+        - loneliness_score
+        - usage_frequency
+        - session_duration
+    minItems: 1
+required:
+  - user_id
+  - age
+  - gender
+  - attachment_anxiety_score
+  - attachment_avoidance_score
+  - records
+additionalProperties: false

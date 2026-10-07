@@ -35,7 +35,7 @@ The system MUST compute per-user weekly metrics (usage frequency, session durati
 
 1. **Given** a user's baseline posts are available, **When** the lexicon scan runs, **Then** the system outputs a numeric `attachment_anxiety_score` and `attachment_avoidance_score` derived from the frequency of specific terms (e.g., "fear," "avoid," "trust").
 2. **Given** a user has multiple AI-related activities within a 7-day window, **When** the aggregation runs, **Then** the system calculates the `session_duration` as the time difference between the first and last timestamp of consecutive activities, capped at a fixed duration per session.
-3. **Given** a user has no baseline posts, **When** the feature extraction runs, **Then** the system assigns a default neutral attachment score (0.0) and sets a `missing_attachment_flag` to TRUE for later sensitivity analysis exclusion.
+3. **Given** a user has no baseline posts, **When** the feature extraction runs, **Then** the system excludes the user from the analysis dataset (rather than imputing a neutral score) to prevent invalid statistical controls.
 
 ---
 
@@ -50,15 +50,15 @@ The system MUST fit a linear mixed-effects model predicting loneliness changes f
 **Acceptance Scenarios**:
 
 1. **Given** the unified dataset with ≥500 user-observations, **When** the model fits, **Then** the output includes fixed effect estimates for `UsageFrequency` and `SessionDuration` and their corresponding p-values.
-2. **Given** the model assumptions (normality, homoscedasticity) are violated, **When** the diagnostic checks run, **Then** the system triggers the bootstrap resampling (a sufficient number of iterations) to generate corrected confidence intervals.
+2. **Given** the model assumptions (normality, homoscedasticity) are violated, **When** the diagnostic checks run, **Then** the system triggers the bootstrap resampling to generate corrected confidence intervals.
 3. **Given** the analysis completes, **When** the robustness check for age moderation runs, **Then** the system produces a separate model summary for users aged ≥ 60, comparing the effect sizes against the full population model.
 
 ---
 
 ### Edge Cases
 
-- What happens if the Pushshift API rate limits are hit during log retrieval? (System must implement exponential backoff with a a limited number of retries and a -second timeout per request).
-- How does the system handle users with missing attachment style proxies? (They are included in the main model with a neutral score (0.0) but flagged via `missing_attachment_flag` for exclusion in the sensitivity analysis).
+- What happens when the Pushshift API rate limits are hit during log retrieval? (System must implement exponential backoff with multiple retries and a 30-second timeout per request).
+- How does the system handle users with missing attachment style proxies? (They are excluded from the analysis dataset to prevent invalid statistical controls).
 - What if the number of matched users is insufficient for the mixed-effects model (e.g., < 500 users)? (The system must halt execution and report a "Power Insufficient" error, preventing a false negative result).
 
 ## Requirements *(mandatory)*
@@ -66,12 +66,15 @@ The system MUST fit a linear mixed-effects model predicting loneliness changes f
 ### Functional Requirements
 
 - **FR-001**: System MUST download and parse the *Reddit Loneliness Longitudinal Dataset* from the specified Zenodo DOI, validating that it contains at least 6 distinct calendar months of non-null loneliness scores per user (See User Story 1).
-- **FR-002**: System MUST retrieve AI interaction logs from the Pushshift API for subreddits `r/Replika`, `r/characterAI`, and `r/AICompanions`, ensuring logs cover the exact calendar window defined by the earliest and latest survey timestamps in the matched user set (See User Story 1).
+- **FR-002**: System MUST retrieve AI interaction logs from the Pushshift API () for subreddits `r/Replika`, `r/characterAI`, and `r/AICompanions`, ensuring logs cover the exact calendar window defined by the earliest and latest survey timestamps in the matched user set, specifically the period strictly preceding the survey dates to support the lagged structure (See User Story 1).
 - **FR-003**: System MUST match users across datasets using SHA-256 hashed usernames to preserve anonymity while enabling longitudinal linking (See User Story 1).
-- **FR-004**: System MUST compute weekly usage metrics (frequency and session duration) and extract attachment-style proxies using the *ECAR Lexicon* (Emotion and Coping in AI Relationships) on baseline posts, scoring via normalized term frequency (See User Story 2).
-- **FR-005**: System MUST fit a linear mixed-effects model with random intercepts for `User` and random slopes for `UsageFrequency` by `User`, controlling for attachment style, using a lagged predictor structure (usage at T predicts loneliness at T+1) (See User Story 3).
-- **FR-006**: System MUST perform bootstrap resampling with a sufficient number of iterations and a fixed random seed (seed = 42) to generate robust % confidence intervals for all model coefficients (See User Story 3).
+- **FR-004**: System MUST compute weekly usage metrics (frequency and session duration) and extract attachment-style proxies using the *ECAR Lexicon* (Emotion and Coping in AI Relationships) on baseline posts, scoring via normalized term frequency, **only if** the raw text of baseline posts is present in the dataset (See User Story 2).
+- **FR-004b**: System MUST exclude any user from the final analysis dataset if the raw text of baseline posts is missing or if the *ECAR Lexicon* extraction fails, ensuring no imputed neutral scores are used as control variables (See User Story 2).
+- **FR-005**: System MUST fit a linear mixed-effects model with random intercepts for `User` and random slopes for `UsageFrequency` by `User`, controlling for attachment style, using a lagged predictor structure (usage at T predicts loneliness at T+1) where T is strictly prior to T+1 (See User Story 3).
+- **FR-006**: System MUST perform bootstrap resampling with exactly 1,000 iterations and a fixed random seed (seed = 42) to generate robust 95% confidence intervals for all model coefficients (See User Story 3).
 - **FR-007**: System MUST execute a subgroup analysis for users aged ≥ 60 (derived from the demographics table; users with missing age are excluded from this specific subgroup analysis) to test for age moderation effects (See User Story 3).
+- **FR-008**: System MUST detect if the *ECAR Lexicon* is missing or invalid and immediately halt execution with a "Lexicon Missing" error, preventing the use of a fallback keyword-based proxy that lacks validation (See User Story 2).
+- **FR-009**: System MUST validate that the *Reddit Loneliness Longitudinal Dataset* contains the raw text of baseline posts required for the lexicon scan; if the text is missing, the system MUST exclude those users from the analysis (See User Story 2).
 
 ### Key Entities
 
@@ -88,13 +91,13 @@ The system MUST fit a linear mixed-effects model predicting loneliness changes f
 - **SC-001**: The proportion of users successfully matched between the loneliness dataset and Pushshift logs is measured against the total number of unique users in the loneliness dataset; success is defined as a match rate ≥ 80% (See User Story 1).
 - **SC-002**: The variance explained (marginal R²) by the mixed-effects model is measured against a baseline intercept-only model; success is defined as an increase in marginal R² ≥ 0.05 (See User Story 3).
 - **SC-003**: The stability of the model coefficients is measured against the bootstrap confidence intervals; if the interval includes zero, the effect is deemed non-significant (See User Story 3).
-- **SC-004**: The computational runtime of the bootstrap resampling (a sufficient number of iterations) is measured against the A time-limited continuous integration (CI) job constraint is imposed to ensure efficient resource utilization and rapid feedback loops. Research Question: How can CI pipelines be optimized to maintain code quality without excessive latency? Method: Comparative analysis of pipeline configurations under constrained execution windows. References: Smith et al. (2023); arXiv:2301.12345.. to ensure feasibility on free-tier hardware (See User Story 3).
+- **SC-004**: The computational runtime of the bootstrap resampling is measured against the GitHub Actions free-tier constraint (≤ 6 hours execution time); success is defined as completion within this limit without resource exhaustion (See User Story 3).
 
 ## Assumptions
 
-- The *Reddit Loneliness Longitudinal Dataset* contains the exact variables required: `UCLA_Loneliness_Score`, `timestamp`, and `username_hash` (or `self_reported_username`). If the dataset lacks these linkable identifiers, the pipeline must halt with a "Data Linkage Impossible" error (See FR-001).
-- The *ECAR Lexicon* is a validated, citable instrument available in the project repository; if not, the analysis will default to a keyword-based proxy which may reduce measurement validity.
-- The Pushshift API endpoint ` remains accessible and rate-limited to a maximum of 100 requests/minute without requiring authentication.
+- The *Reddit Loneliness Longitudinal Dataset* contains the exact variables required: `UCLA_Loneliness_Score`, `timestamp`, `username_hash` (or `self_reported_username`), and **raw text of baseline posts**. If the dataset lacks these linkable identifiers or the raw text, the pipeline must halt with a "Data Linkage Impossible" or "Text Missing" error (See FR-001, FR-009).
+- The *ECAR Lexicon* is a validated, citable instrument available in the project repository; if not, the analysis will halt (See FR-008).
+- The Pushshift API endpoint `` remains accessible and rate-limited to a maximum of 100 requests/minute without requiring authentication.
 - The analysis is observational; therefore, all findings regarding the relationship between AI usage and loneliness are framed as **associational**, not causal, to avoid inference framing violations.
 - The sample size of the matched dataset is sufficient (n ≥ 500) to achieve statistical power for a mixed-effects model with the expected effect size (Cohen's d ≥ 0.5); if the sample is smaller, the study will report a power limitation and halt.
 - The linear mixed-effects model and bootstrap resampling can be executed within the GitHub Actions free-tier constraints (CPU cores, ~7 GB RAM, ≤6 hours) without GPU acceleration.

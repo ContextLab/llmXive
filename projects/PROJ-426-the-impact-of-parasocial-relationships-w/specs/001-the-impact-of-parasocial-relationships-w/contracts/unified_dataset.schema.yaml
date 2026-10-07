@@ -1,54 +1,46 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Unified Analysis‑Ready Dataset"
-description: "Schema for the CSV/Parquet file produced after data ingestion, matching, and feature engineering."
+title: "Weekly Aggregates Dataset"
+description: "Schema for the CSV/Parquet file produced after data ingestion and temporal aggregation."
 type: object
 properties:
-  user_id:
-    type: string
-    description: "SHA‑256 hash of the Reddit username (hex string, 64 characters)."
-    pattern: "^[a-f0-9]{64}$"
   week_start:
     type: string
     format: date
-    description: "ISO‑8601 date representing the start of the week (Monday)."
-  loneliness_score:
+    description: "ISO-8601 date representing the start of the week (Monday)."
+  avg_loneliness_score:
     type: number
     minimum: 0
     maximum: 20
-    description: "UCLA Loneliness Scale score for the given week."
-  usage_frequency:
+    description: "Average UCLA Loneliness Scale score for the given week."
+  total_ai_activity:
     type: integer
     minimum: 0
-    description: "Number of AI‑companion interactions during the week."
-  session_duration:
-    type: number
-    minimum: 0
-    description: "Total time span of activity blocks during the week (max timestamp - min timestamp), capped at 24 h."
-  attachment_anxiety_score:
-    type: number
+    description: "Total number of AI-companion interactions during the week."
+  avg_emotional_coping_anxiety:
+    type: ["number", "null"]
     minimum: 0
     maximum: 1
-    description: "Normalized anxiety subscale (0 = no anxiety terms, 1 = max observed frequency) based on ECR-RS keywords."
-  attachment_avoidance_score:
-    type: number
+    description: "Average anxiety subscale (0 = no anxiety terms, 1 = max observed frequency) based on ECR-S keywords. Null if no text available."
+  avg_emotional_coping_avoidance:
+    type: ["number", "null"]
     minimum: 0
     maximum: 1
-    description: "Normalized avoidance subscale based on ECR-RS keywords."
+    description: "Average avoidance subscale based on ECR-S keywords. Null if no text available."
+  n_respondents:
+    type: integer
+    minimum: 0
+    description: "Number of survey respondents in the week."
+  lagged_activity:
+    type: ["integer", "null"]
+    minimum: 0
+    description: "Total AI activity from the previous week (T-1). Null for the first week (T0)."
   missing_attachment_flag:
     type: boolean
-    description: "True if no baseline posts were available to compute attachment scores."
-  age:
-    type: integer
-    minimum: 13
-    maximum: 120
-    description: "User's age at baseline; may be null if not reported."
+    description: "True if emotional coping scores were imputed as neutral (0.0) due to missing text data."
 required:
-  - user_id
   - week_start
-  - loneliness_score
-  - usage_frequency
-  - session_duration
-  - attachment_anxiety_score
-  - attachment_avoidance_score
-  - missing_attachment_flag
+  - avg_loneliness_score
+  - total_ai_activity
+  - n_respondents
+  - lagged_activity
 additionalProperties: false
