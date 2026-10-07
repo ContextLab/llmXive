@@ -1,200 +1,272 @@
 """
-NOAA CPC Atmospheric River Catalog Data Ingestion Script.
+NOAA CPC Atmospheric River Catalog Data Ingestion Script (Target Region)
 
-Fetches AR catalog data from NOAA ERDDAP, filters for West Coast NA region,
-logs dataset metadata, and saves raw downloads with checksums.
+This script fetches the NOAA CPC Atmospheric River Catalog, filters for the Target region
+(West Coast NA), and saves the raw data with checksums.
+
+Dependencies: requests, pyyaml, pandas, hashlib
 """
+
 import os
 import sys
 import logging
 import hashlib
 import json
-import urllib.request
-import urllib.error
+import time
 from pathlib import Path
-from datetime import datetime
+from typing import Dict, Any, Optional, List
+
+import pandas as pd
+import requests
+import yaml
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler(sys.stdout)]
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
 )
 logger = logging.getLogger(__name__)
 
-# Project root path (assumed to be the parent of 'code')
+# Project root relative to this script
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw" / "noaa-ar"
-OUTPUT_FILE = DATA_RAW_DIR / "ar_catalog_raw.json"
-METADATA_FILE = DATA_RAW_DIR / "dataset_metadata.json"
+CONFIG_PATH = PROJECT_ROOT / "config" / "urls.yaml"
+RAW_DATA_DIR = PROJECT_ROOT / "data" / "raw" / "noaa-ar" / "target"
 
-# NOAA ERDDAP endpoint for AR Catalog
-ERDDAP_URL = "https://coastwatch.pfeg.noaa.gov/erddap/tabledap/ar_catalog.html"
-# Specific query for West Coast NA region (35N-50N, 125W-120W)
-# We fetch all data and filter in Python to ensure we get the full context for logging
-QUERY_URL = f"{ERDDAP_URL}?date,latitude,longitude,peak_intensity,duration,area,ar_type"
+# Target Region Definition (West Coast NA)
+# Approximate bounding box for West Coast AR activity
+# Latitude: 30°N to 60°N
+# Longitude: 130°W to 115°W (converted to negative for standard format)
+TARGET_LAT_MIN = 30.0
+TARGET_LAT_MAX = 60.0
+TARGET_LON_MIN = -130.0
+TARGET_LON_MAX = -115.0
 
-# Region definition
-LAT_MIN, LAT_MAX = 35.0, 50.0
-LON_MIN, LON_MAX = -125.0, -120.0  # 120W to 125W (negative for W)
+
+def load_config(config_path: Path) -> Dict[str, Any]:
+    """Load the configuration YAML file."""
+    if not config_path.exists():
+        raise FileNotFoundError(f"Configuration file not found: {config_path}")
+
+    with open(config_path, 'r') as f:
+        return yaml.safe_load(f)
+
 
 def calculate_sha256(file_path: Path) -> str:
-    """Calculate SHA256 checksum of a file."""
+    """Calculate SHA-256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def fetch_noaa_data() -> list:
+
+def fetch_noaa_data(url: str, timeout: int = 60) -> Optional[pd.DataFrame]:
     """
-    Fetch NOAA CPC Atmospheric River Catalog data from ERDDAP.
-    Returns a list of dictionaries representing the records.
+    Fetch the NOAA CPC Atmospheric River Catalog data.
+
+    The NOAA AR Catalog is typically provided as a CSV or JSON file.
+    We attempt to fetch it directly. If the URL points to a landing page,
+    we attempt to find the direct download link or raise an error.
+
+    Args:
+        url: The verified URL from config.
+        timeout: Request timeout in seconds.
+
+    Returns:
+        pandas DataFrame with the AR catalog data, or None if fetch fails.
     """
-    logger.info(f"Fetching data from {ERDDAP_URL}...")
+    logger.info(f"Fetching NOAA AR Catalog from: {url}")
     try:
-        # ERDDAP tabledap supports CSV format for easier parsing
-        csv_url = f"{ERDDAP_URL}?date,latitude,longitude,peak_intensity,duration,area,ar_type&.csv"
-        
-        req = urllib.request.Request(csv_url)
-        req.add_header('User-Agent', 'Mozilla/5.0 (llmXive Research Agent)')
-        
-        with urllib.request.urlopen(req, timeout=60) as response:
-            if response.status != 200:
-                raise RuntimeError(f"Failed to fetch data: HTTP {response.status}")
-            
-            content = response.read().decode('utf-8')
-            lines = content.strip().split('\n')
-            
-            if len(lines) < 2:
-                logger.warning("No data rows found in response.")
-                return []
+        # Try to fetch the content directly
+        response = requests.get(url, timeout=timeout)
+        response.raise_for_status()
 
-            # Parse CSV header
-            header = [h.strip() for h in lines[0].split(',')]
-            
-            records = []
-            for line in lines[1:]:
-                if not line.strip():
-                    continue
-                values = [v.strip() for v in line.split(',')]
-                if len(values) != len(header):
-                    logger.warning(f"Skipping malformed row: {line}")
-                    continue
-                
-                row_dict = dict(zip(header, values))
-                records.append(row_dict)
-            
-            logger.info(f"Successfully fetched {len(records)} records.")
-            return records
+        # Check content type
+        content_type = response.headers.get('Content-Type', '')
 
-    except urllib.error.URLError as e:
+        if 'text/csv' in content_type or 'application/json' in content_type or 'text/plain' in content_type:
+            # Attempt to parse as CSV first (most common for these catalogs)
+            try:
+                df = pd.read_csv(pd.io.common.StringIO(response.text))
+                logger.info(f"Successfully parsed CSV data. Rows: {len(df)}")
+                return df
+            except Exception as csv_err:
+                logger.warning(f"Failed to parse as CSV: {csv_err}. Trying JSON...")
+                try:
+                    df = pd.read_json(pd.io.common.StringIO(response.text))
+                    logger.info(f"Successfully parsed JSON data. Rows: {len(df)}")
+                    return df
+                except Exception as json_err:
+                    logger.error(f"Failed to parse as JSON: {json_err}")
+                    raise ValueError("Could not parse response as CSV or JSON")
+        else:
+            # Might be a landing page or HTML
+            logger.warning(f"Unexpected content type: {content_type}")
+            # If it's HTML, we might need to scrape, but for now we fail loudly
+            # as per constraint: "Never fabricate... if no real source is reachable, return failed"
+            # However, we assume the URL in config/urls.yaml is the direct data link.
+            # If it's a landing page, we raise an error to be handled by the runner.
+            raise ValueError(f"URL returned unexpected content type: {content_type}. "
+                             f"Expected CSV/JSON direct data link.")
+
+    except requests.exceptions.RequestException as e:
         logger.error(f"Network error fetching NOAA data: {e}")
         raise
     except Exception as e:
         logger.error(f"Error processing NOAA data: {e}")
         raise
 
-def filter_region(records: list) -> list:
-    """
-    Filter records to include only those within the West Coast NA region.
-    Region: 35N-50N, 125W-120W.
-    """
-    logger.info(f"Filtering for region: Lat [{LAT_MIN}, {LAT_MAX}], Lon [{LON_MIN}, {LON_MAX}]")
-    filtered = []
-    skipped = 0
 
-    for record in records:
-        try:
-            lat = float(record.get('latitude', 0))
-            lon = float(record.get('longitude', 0))
-            
-            # Check bounds
-            if LAT_MIN <= lat <= LAT_MAX and LON_MIN <= lon <= LON_MAX:
-                filtered.append(record)
-            else:
-                skipped += 1
-        except ValueError:
-            skipped += 1
-            logger.debug(f"Skipping record with invalid coordinates: {record}")
-
-    logger.info(f"Filtered {len(filtered)} records. Skipped {skipped} outside region.")
-    return filtered
-
-def save_raw_data(data: list, output_path: Path):
-    """Save raw data to a JSON file."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=2)
-    logger.info(f"Raw data saved to {output_path}")
-
-def log_dataset_version(data: list, metadata_path: Path):
+def filter_region(df: pd.DataFrame, region_type: str = 'target') -> pd.DataFrame:
     """
-    Log dataset version, release date, and other metadata.
-    Since ERDDAP doesn't always expose a specific 'version' string in the feed,
-    we log the fetch timestamp and the count of records as a proxy for versioning.
+    Filter the DataFrame based on the region definition.
+
+    For 'target', we use the West Coast NA bounding box.
+    For 'control', we would use the East Coast NA bounding box (not implemented here).
+
+    Args:
+        df: Input DataFrame.
+        region_type: 'target' or 'control'.
+
+    Returns:
+        Filtered DataFrame.
     """
+    if region_type != 'target':
+        raise NotImplementedError(f"Region filtering for '{region_type}' is not implemented in this script.")
+
+    # Identify latitude and longitude columns
+    # NOAA AR catalog typically uses 'latitude'/'longitude' or 'lat'/'lon'
+    lat_col = None
+    lon_col = None
+
+    for col in df.columns:
+        if col.lower() in ['latitude', 'lat']:
+            lat_col = col
+        elif col.lower() in ['longitude', 'lon']:
+            lon_col = col
+
+    if lat_col is None or lon_col is None:
+        # If specific columns not found, try to infer or raise error
+        # Some datasets might have 'center_lat', 'center_lon'
+        for col in df.columns:
+            if 'lat' in col.lower():
+                lat_col = col
+            if 'lon' in col.lower():
+                lon_col = col
+
+    if lat_col is None or lon_col is None:
+        logger.warning("Could not identify latitude/longitude columns. Returning full dataset.")
+        return df
+
+    logger.info(f"Filtering by target region: Lat [{TARGET_LAT_MIN}, {TARGET_LAT_MAX}], "
+                f"Lon [{TARGET_LON_MIN}, {TARGET_LON_MAX}]")
+
+    mask = (
+        (df[lat_col] >= TARGET_LAT_MIN) &
+        (df[lat_col] <= TARGET_LAT_MAX) &
+        (df[lon_col] >= TARGET_LON_MIN) &
+        (df[lon_col] <= TARGET_LON_MAX)
+    )
+
+    filtered_df = df[mask].reset_index(drop=True)
+    logger.info(f"Filtered dataset size: {len(filtered_df)} rows (from {len(df)})")
+
+    return filtered_df
+
+
+def save_raw_data(df: pd.DataFrame, output_dir: Path) -> str:
+    """
+    Save the raw data to a CSV file and return the file path.
+    Also creates a JSON metadata file.
+
+    Args:
+        df: DataFrame to save.
+        output_dir: Directory to save files.
+
+    Returns:
+        Path to the saved CSV file.
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    timestamp = time.strftime("%Y%m%d_%H%M%S")
+    filename = f"noaa_ar_catalog_target_{timestamp}.csv"
+    file_path = output_dir / filename
+
+    df.to_csv(file_path, index=False)
+    logger.info(f"Saved raw data to: {file_path}")
+
+    # Save metadata
     metadata = {
         "source": "NOAA CPC Atmospheric River Catalog",
-        "url": ERDDAP_URL,
-        "fetch_timestamp": datetime.utcnow().isoformat() + "Z",
-        "total_records_fetched": len(data),
-        "region_filter": {
-            "lat_min": LAT_MIN,
-            "lat_max": LAT_MAX,
-            "lon_min": LON_MIN,
-            "lon_max": LON_MAX
-        },
-        "note": "Dataset version/release date is implicit in the fetch timestamp. "
-                "For precise versioning, consult the NOAA CPC AR Catalog documentation."
+        "region": "target",
+        "timestamp": timestamp,
+        "row_count": len(df),
+        "columns": list(df.columns)
     }
-    
-    metadata_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(metadata_path, 'w', encoding='utf-8') as f:
+    metadata_path = output_dir / f"noaa_ar_catalog_target_{timestamp}.json"
+    with open(metadata_path, 'w') as f:
         json.dump(metadata, f, indent=2)
-    logger.info(f"Dataset metadata logged to {metadata_path}")
+
+    return str(file_path)
+
+
+def log_dataset_version(df: pd.DataFrame, source_url: str) -> None:
+    """Log dataset version/release date information."""
+    # Attempt to extract version info from metadata or column names if available
+    # For now, we log the row count and source
+    logger.info(f"Dataset loaded from: {source_url}")
+    logger.info(f"Total records: {len(df)}")
+    logger.info(f"Columns: {list(df.columns)}")
+
 
 def main():
-    """Main entry point for the script."""
-    logger.info("Starting NOAA AR Data Ingestion (T016)...")
-    
-    try:
-        # 1. Fetch Data
-        raw_data = fetch_noaa_data()
-        
-        if not raw_data:
-            logger.error("No data retrieved. Exiting.")
-            sys.exit(1)
+    """Main entry point for the NOAA data ingestion script."""
+    logger.info("=== NOAA CPC Atmospheric River Catalog Ingestion (Target) Start ===")
 
-        # 2. Filter Region
-        filtered_data = filter_region(raw_data)
-        
-        if not filtered_data:
-            logger.warning("No data found in the specified region. Saving empty result.")
-        
-        # 3. Save Raw Data (filtered) to disk
-        save_raw_data(filtered_data, OUTPUT_FILE)
-        
-        # 4. Calculate Checksum
-        checksum = calculate_sha256(OUTPUT_FILE)
-        logger.info(f"Checksum (SHA256): {checksum}")
-        
-        # 5. Log Metadata
-        log_dataset_version(filtered_data, METADATA_FILE)
-        
-        # Update metadata with checksum
-        metadata_path = METADATA_FILE
-        with open(metadata_path, 'r') as f:
-            meta = json.load(f)
-        meta["checksum_sha256"] = checksum
-        with open(metadata_path, 'w') as f:
-            json.dump(meta, f, indent=2)
-        
-        logger.info("T016 NOAA Data Ingestion completed successfully.")
-        
+    try:
+        # 1. Load Configuration
+        config = load_config(CONFIG_PATH)
+        if 'noaa_ar_catalog' not in config:
+            raise KeyError("Key 'noaa_ar_catalog' not found in config/urls.yaml")
+
+        source_url = config['noaa_ar_catalog']
+        logger.info(f"Using verified URL: {source_url}")
+
+        # 2. Fetch Data
+        df = fetch_noaa_data(source_url)
+        if df is None or df.empty:
+            raise ValueError("Fetched data is empty.")
+
+        # 3. Log Dataset Version
+        log_dataset_version(df, source_url)
+
+        # 4. Filter Region
+        filtered_df = filter_region(df, region_type='target')
+        if filtered_df.empty:
+            logger.warning("No data found in the target region. Saving empty dataset.")
+
+        # 5. Save Raw Data
+        output_path = save_raw_data(filtered_df, RAW_DATA_DIR)
+
+        # 6. Calculate and Log Checksum
+        checksum = calculate_sha256(Path(output_path))
+        logger.info(f"SHA-256 Checksum: {checksum}")
+
+        # Save checksum to a sidecar file
+        checksum_path = Path(output_path).with_suffix('.sha256')
+        with open(checksum_path, 'w') as f:
+            f.write(f"{checksum}  {Path(output_path).name}\n")
+
+        logger.info("=== NOAA CPC Atmospheric River Catalog Ingestion (Target) Complete ===")
+        return 0
+
     except Exception as e:
-        logger.error(f"Fatal error in T016: {e}")
-        sys.exit(1)
+        logger.critical(f"NOAA Ingestion failed: {e}")
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

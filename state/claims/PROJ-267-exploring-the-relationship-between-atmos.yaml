@@ -8384,3 +8384,202 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-03T16:50:56Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Analysis assumes static non-rotating frame for monthly aggregation
+  claim_id: c_a9872c4c
+  context: "The `anomaly_value` represents the perturbation in gravitational potential\
+    \ at the GRACE\u2011FO satellite altitude, NOT the geoid height at the Earth's\
+    \ surface. This is a coordinate\u2011dependent quantity derived from spherical\u2011\
+    harmonic coefficients in the satellite's reference frame. The analysis assumes\
+    \ a static, non-rotating frame for the duration of the monthly aggregation, acknowledging\
+    \ the coordinate\u2011artifact nature of 'static' anomalies in a dynamic field."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_assumes_static_non-rotating_frame_for_monthly_aggre
+  kind: entity_fact
+  raw_text: The analysis assumes a static, non-rotating frame for the duration of
+    the monthly aggregation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T18:01:44Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Mass shifts bend local geometry
+  claim_id: c_b442ba90
+  context: 'Explicitly state that the ''Gravity Anomaly'' is a coordinate-dependent
+    quantity measured in the satellite''s reference frame, not an invariant geoid
+    height. Reference the 1915 field equations context: mass shifts (AR water) bend
+    local geometry, but the measurement is frame-specific.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mass_shifts_bend_local_geometry
+  kind: entity_fact
+  raw_text: Mass shifts (AR water) bend local geometry.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T18:02:25Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Target region is West Coast NA mid-to-high northern latitudes 125W
+  claim_id: c_0faf8321
+  context: "fetches GRACE\u2011FO Level\u20112 mascon solutions, logs dataset version/release\
+    \ date, filters to the Target region (West Coast NA: mid-to-high northern latitudes,\
+    \ \xB0W-125\xB0W), saves raw files under data/raw/grace-fo/target/ and records\
+    \ SHA\u2011256 checksums."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The target region for GRACE-FO data is the West Coast NA: mid-to-high\
+    \ northern latitudes, 125\xB0W."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T18:03:05Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Control region is East Coast NA Southern to mid-latitudes
+  claim_id: c_279ad8f0
+  context: "fetches GRACE\u2011FO Level\u20112 mascon solutions, logs dataset version/release\
+    \ date, filters to the Control region (East Coast NA: Southern to mid-latitudes,\
+    \ \xB0W\u2011\xB0W, an area with minimal AR activity), saves raw files under data/raw/grace-fo/control/\
+    \ and records SHA\u2011256 checksums."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Control_region_is_East_Coast_NA_Southern_to_mid-latitudes
+  kind: entity_fact
+  raw_text: 'The control region for GRACE-FO data is the East Coast NA: Southern to
+    mid-latitudes.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T18:03:38Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Merged CSV contains at least 90 percent of expected monthly rows
+  claim_id: c_9fa78162
+  context: "Independent Test: Execute the data pipeline script and verify the merged\
+    \ CSV contains \u2265 90 % of expected monthly rows and no NaN values in the primary\
+    \ columns."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Merged_CSV_contains_at_least_90_percent_of_expected_monthly
+  kind: magnitude
+  raw_text: The merged CSV is expected to contain at least 90% of expected monthly
+    rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T18:04:18Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling 1000 iterations seed 42
+  claim_id: c_48faf330
+  context: "Goal: Compute Pearson correlation between AR intensity and gravity anomalies\
+    \ across lag windows, apply bootstrap resampling (1000 iterations, seed=42), perform\
+    \ autocorrelation correction (Newey-West), and apply FDR multiple\u2011testing\
+    \ correction."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap resampling is performed with 1000 iterations and seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T18:04:49Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Degree correction uses Swenson and Wahr 2006 coefficients
+  claim_id: c_73e821d5
+  context: The script loads the downloaded mascon CSVs from data/raw/grace-fo/target/
+    and data/raw/grace-fo/control/, and applies degree correction using Swenson &
+    Wahr (2006) coefficients.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Degree correction uses Swenson & Wahr (2006) coefficients.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T18:05:12Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Gaussian smoothing spatial scale hundreds of kilometers
+  claim_id: c_aea757c9
+  context: performs Gaussian smoothing with a characteristic spatial scale on the
+    order of hundreds of kilometers, aggregates to monthly means, writes data/processed/grace_preprocessed_target.csv
+    and data/processed/grace_preprocessed_control.csv.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Gaussian_smoothing_spatial_scale_hundreds_of_kilometers
+  kind: entity_fact
+  raw_text: Gaussian smoothing is performed with a characteristic spatial scale on
+    the order of hundreds of kilometers.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T18:05:57Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Atmospheric River duration compared to monthly sampling interval for
+    aliasing risk
+  claim_id: c_4b02ea90
+  context: retrieves literature values for the typical duration of Atmospheric Rivers
+    (days) from the NOAA CPC AR Technical Report, compares this duration to the monthly
+    sampling interval, qualitatively assesses the risk of aliasing (e.g., 'High risk
+    if AR duration < 15 days').
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Atmospheric_River_duration_compared_to_monthly_sampling_inte
+  kind: entity_fact
+  raw_text: The typical duration of Atmospheric Rivers is compared to the monthly
+    sampling interval to assess aliasing risk.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T18:06:42Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: High aliasing risk if AR duration less than 15 days
+  claim_id: c_117f4a8e
+  context: qualitatively assesses the risk of aliasing (e.g., 'High risk if AR duration
+    < 15 days'), writes output/temporal_bias_analysis.md with the assessment and citations.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/High_aliasing_risk_if_AR_duration_less_than_15_days
+  kind: magnitude
+  raw_text: High risk of aliasing is identified if Atmospheric River duration is less
+    than 15 days.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T18:07:17Z'

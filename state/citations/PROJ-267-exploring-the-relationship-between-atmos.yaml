@@ -1,1 +1,11 @@
-[]
+- artifact_hash: a38cbeb022dcf781aa295f03c12f693b995474742ed97dd3cc08e8a500222d5f
+  artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: iso?id=gov.noaa.ncdc:C
+  kind: url
+  value: https://www.ncei.noaa.gov/access/metadata/landing-page/bin/iso?id=gov.noaa.ncdc:C`
+  verification_status: pending
+  verified_against_url: https://www.ncei.noaa.gov/access/metadata/landing-page/bin/iso?id=gov.noaa.ncdc:C
+  verified_at: '2026-10-07T18:00:20.865951Z'

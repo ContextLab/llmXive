@@ -5,12 +5,45 @@ T010:
     \ file is provided, and there is no content showing the required entity definitions\
     \ (AR Event, Gravity Anomaly, Correlation Result). The task\u2019s core artifact\
     \ is missing, so the requirement is not satisfied."
+T011a:
+  c: false
+  h: 89e09a942c73c713bf88bd0fb90793708bb5e812f17a4cd864853310473a7440
+  r: "The `config/urls.yaml` file required for the script to locate the verified URLs\
+    \ does not exist, and the provided `01_fetch_coefficients.py` script is truncated\
+    \ (it ends mid\u2011statement and never writes the fetched data). The `coeffs/degree1.yaml`\
+    \ and `coeffs/c20.yaml` files contain static placeholder values rather than data\
+    \ fetched by the script. The task\u2019s core requirements are therefore unmet."
 T012:
   c: false
   h: f6f93db0c424b69b2e0a6ba25c5114fc75330fee1a00a1d4fd0cbc933767ce80
   r: The required YAML file `projects/PROJ-267-exploring-the-relationship-between-atmos/state/projects/PROJ-267-exploring-the-relationship-between-atmos.yaml`
     does not exist, so the project metadata and `artifact_hashes` map have not been
     created. The task therefore remains unfinished.
+T015:
+  c: false
+  h: 7130d65c6c94166a423e462087e9c6aa09a446af2992bc4dadb2d5b79264e921
+  r: "The script is present but the required `config/urls.yaml` file is missing, and\
+    \ the shown code is truncated\u2014there is no implementation for saving the downloaded\
+    \ files to `data/raw/grace-fo/target/` or recording SHA\u2011256 checksums. Both\
+    \ the configuration file and the full data\u2011saving logic are needed to satisfy\
+    \ the task."
+T015b:
+  c: false
+  h: 52c511d5140f28cf1a7d43f2b679d438fa7e2b76b2bc92ec6582ebc2ae09323f
+  r: "The script file exists but the required `config/urls.yaml` is missing, so the\
+    \ script cannot read a verified URL. Moreover, the visible portion of the script\
+    \ does not show logging of dataset version/release date, saving of files to `data/raw/grace-fo/control/`,\
+    \ or recording of SHA\u2011256 checksums, and the truncated code leaves it unclear\
+    \ whether those steps are implemented. The task\u2019s essential artifacts and\
+    \ behavior are therefore not present."
+T016:
+  c: false
+  h: c4fb63c7abfacaaeab49f9f73b578a21d2d43412d9c3a94806a2e79b0f4e4fad
+  r: "The required `config/urls.yaml` file is missing, so the script cannot read the\
+    \ verified URL, and the provided script does not demonstrate logging the dataset\
+    \ version/release date, applying the target\u2011region filter, or writing raw\
+    \ files with accompanying checksums. These core requirements are absent, so the\
+    \ task is not genuinely completed."
 T017a:
   c: false
   h: 4cdea079a07319e090f02b9c3b76faf43d97b220f7b1cb6cf85cb6e7b4132845
@@ -48,11 +81,3 @@ T040:
     are missing, and the generated `docs/runtime_report.md` contains placeholder values
     (zero duration, zero CPU/memory) with a note to run the script later. No real
     runtime or resource measurements were provided.
-T045:
-  c: false
-  h: a69af93e81e2c5be3247a58a14f610919d7461e244e01fae492ac2cb4507d74e
-  r: "The repository contains `code/04_visualization.py` (a valid script) but the\
-    \ required `code/06_visualization_timeseries.py` is missing, and there is no evidence\
-    \ that `quickstart.md` was edited to invoke the new script. The task\u2019s core\
-    \ deliverable\u2014updating the quickstart run\u2011book\u2014is therefore not\
-    \ present."
