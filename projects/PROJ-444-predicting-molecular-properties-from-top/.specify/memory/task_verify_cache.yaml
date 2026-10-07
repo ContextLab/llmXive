@@ -27,22 +27,22 @@ T004:
     \ a `state/` tracking component or script that checks their existence on exit,\
     \ was presented. Without these artifacts the task\u2019s requirement cannot be\
     \ confirmed."
-T007:
+T008a:
   c: false
-  h: 60a43382dcfc043be1b8cacd37c5fd6fc5470fdc6a98cea65d35516933c9144b
-  r: The repository contains `code/00_checksum_verify.py`, but it only defines helper
-    functions and never executes them to generate `data/checksums.txt`. Moreover,
-    the required error handling (exiting with `SystemExit(1)` and the specific message
-    when `data/raw/` is missing or empty) is not implemented. The expected output
-    file `data/checksums.txt` is absent, so the verification conditions are not met.
-T008b:
+  h: fb80624c129f6dbe08b470e253ca0ee0b530c0b5b5c1ec193b8936859d8ed54f
+  r: "The provided `code/01_data_ingestion.py` does not contain logic to download\
+    \ the ESOL CSV, validate the `smiles`/`logP` columns against the required schema,\
+    \ or perform the a\u2011priori power analysis and write `data/processed/power_analysis_report.json`.\
+    \ Moreover, the referenced schema file and the JSON report are absent from the\
+    \ repository."
+T008c:
   c: false
-  h: 1e047b9caba4e179dc2c3a59209fc1b6efeb677590ea73716e39f92489fb807c
-  r: "The provided `code/01_data_ingestion.py` is truncated and does not show the\
-    \ implementation of the custom scaffold splitter, the 5\u2011fold split, or the\
-    \ logic that writes the split indices to `data/processed/splits.json`. Moreover,\
-    \ the `splits.json` file is absent from the repository. Consequently, the task\u2019\
-    s core requirements are not met."
+  h: 4d90586e9c605e0e5b81d673aa15559c81771dab546317ae53de50f6266394b3
+  r: "The required output files `data/processed/filtered_esol.csv` and `data/logs/large_molecule_exclusions.log`\
+    \ are absent, and the provided `code/01_data_ingestion.py` (as shown) does not\
+    \ contain any logic that filters molecules by molecular weight >\u202F1000\u202F\
+    Da or writes those files. The implementation therefore does not meet the task\u2019\
+    s deliverables."
 T016:
   c: false
   h: b697096e09952a68e762cd2502d0ac21404490d85b80a691c54f8d835e3f56fe

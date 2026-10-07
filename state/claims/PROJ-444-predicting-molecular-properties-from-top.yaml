@@ -2208,3 +2208,1272 @@
   source_type: external
   status: verified
   updated_at: '2026-10-03T14:10:57Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: MoleculeNet ESOL dataset fetched from deepchemdata S3 bucket
+  claim_id: c_917597c8
+  context: 'Implement code/01_data_ingestion.py (Part 1): Fetch MoleculeNet ESOL from
+    https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/dataset_esol.csv, validate
+    smiles/logP columns...'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Fetch MoleculeNet ESOL from https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/dataset_esol.csv
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:24:53Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Power analysis requires minimum sample size of 128
+  claim_id: c_45c37b7e
+  context: 'Perform a priori power analysis (N>=128). Parameters: alpha=0.05, power=0.8,
+    effect_size=0.5...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a priori power analysis with N>=128
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:25:49Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Power analysis parameters set to alpha 0.05, power 0.8, effect size 0.5
+  claim_id: c_8f0e3d38
+  context: 'Perform a priori power analysis (N>=128). Parameters: alpha=0.05, power=0.8,
+    effect_size=0.5 (scipy.stats.power).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Power analysis parameters: alpha=0.05, power=0.8, effect_size=0.5'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:26:16Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Molecules with molecular weight greater than 1000 Da are excluded
+  claim_id: c_e561ff58
+  context: Pre-filter molecules with extremely large molecular weights (> 1000 Da)
+    to prevent RAM overflow...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Molecules_with_molecular_weight_greater_than_1000_Da_are_exc
+  kind: magnitude
+  raw_text: Exclude molecules with molecular weights > 1000 Da
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:27:03Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Data split uses 5-fold cross-validation with random seed 42
+  claim_id: c_6a18d98e
+  context: Group molecules, perform a 5-fold split with seed=42, and save split indices
+    to data/processed/splits.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a 5-fold split with seed=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:27:28Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Dataset must contain at least 100 unique Bemis-Murcko scaffolds
+  claim_id: c_d1059582
+  context: Enforce min scaffolds check (>=100 unique scaffolds per Plan.md 'Scaffold
+    Validation')...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_must_contain_at_least_100_unique_Bemis-Murcko_scaffo
+  kind: magnitude
+  raw_text: Require minimum 100 unique scaffolds per Plan.md
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:27:55Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Sparse matrix format used when single molecule graph memory exceeds 6.0
+    GB
+  claim_id: c_9f343180
+  context: If estimated RAM usage for a single molecule's persistence calculation
+    > 6.0GB, use scipy.sparse.csr_matrix format.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use scipy.sparse.csr_matrix format if estimated RAM usage > 6.0GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:27:56Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Pipeline fails if RAM exceeds 6.3 GB or CPU time exceeds 5.4 hours
+  claim_id: c_46588445
+  context: Monitor RAM/CPU usage in real-time; if RAM > 6.3GB or CPU time > 5.4h,
+    raise SystemExit(1)...
+  evidence:
+    asserted: '6.3'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Terminate pipeline if RAM > 6.3GB or CPU time > 5.4h
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-10-07T05:27:56Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Primary baseline persistence images generated with 10x10 grid resolution
+  claim_id: c_e38360f3
+  context: Vectorization to persistence images for the primary baseline (fixed 10x10
+    grid resolution as per FR-002).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_baseline_persistence_images_generated_with_10x10_gri
+  kind: entity_fact
+  raw_text: Generate persistence images with 10x10 grid resolution
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:28:25Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Persistence image vectorization uses kernel bandwidth sigma of 0.1
+  claim_id: c_adbcf6cf
+  context: 'Vectorization to persistence images... Parameters: Kernel bandwidth (sigma=0.1).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use kernel bandwidth sigma=0.1 for persistence images
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:28:39Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Linear Regression model trained with regularization alpha of 1.0
+  claim_id: c_fbce15d1
+  context: Train Linear Regression (alpha=1.0) and Random Forest (100 trees, max_depth=10)
+    on 3 feature sets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Linear Regression with alpha=1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:29:15Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Random Forest model trained with 100 trees and maximum depth of 10
+  claim_id: c_22281f9d
+  context: Train Linear Regression (alpha=1.0) and Random Forest (100 trees, max_depth=10)
+    on 3 feature sets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Random Forest with 100 trees and max_depth=10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:29:41Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: "Sensitivity analysis calculates R\xB2 variance using Coefficient of\
+    \ Variation"
+  claim_id: c_e094214f
+  context: "Calculate R\xB2 variance across resolutions using Coefficient of Variation\
+    \ (CV) and generate the final stability report."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_calculates_R%C2%B2_variance_using_Coefficien
+  kind: entity_fact
+  raw_text: "Calculate R\xB2 variance across resolutions using Coefficient of Variation\
+    \ (CV)"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:30:09Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: P-values corrected using Holm-Bonferroni method
+  claim_id: c_78c3dd3e
+  context: 'Apply Holm-Bonferroni correction to p-values generated in T020. Note:
+    This task implements ''Holm-Bonferroni'' as mandated by the Plan.md...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/P-values_corrected_using_Holm-Bonferroni_method
+  kind: entity_fact
+  raw_text: Apply Holm-Bonferroni correction to p-values
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:30:35Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor flagging threshold set to 5
+  claim_id: c_33ec16ec
+  context: Calculate VIF; flag predictors > 5 (FR-007).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag predictors with VIF > 5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:30:36Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: MoleculeNet ESOL dataset source URL
+  claim_id: c_9428793d
+  context: Task T008a requires fetching the ESOL dataset from a specific S3 URL to
+    validate smiles and logP columns.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Fetch MoleculeNet ESOL from https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/dataset_esol.csv
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:32:18Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: 'Power analysis parameters for ESOL dataset: N>=128, alpha=0.05, power=0.8,
+    effect_size=0.5'
+  claim_id: c_f002bd45
+  context: Task T008a mandates a power analysis using scipy.stats.power with specific
+    parameters to determine minimum sample size.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a priori power analysis with N>=128, alpha=0.05, power=0.8, and
+    effect_size=0.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:33:12Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Filter molecules with molecular weight > 1000 Da
+  claim_id: c_c48aad70
+  context: Task T008c requires excluding molecules with MW > 1000 Da to prevent RAM
+    overflow during scaffold splitting.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_molecules_with_molecular_weight_%3E_1000_Da
+  kind: magnitude
+  raw_text: Pre-filter molecules with molecular weights greater than 1000 Da
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:33:58Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: 'Data split configuration: 5-fold, seed 42'
+  claim_id: c_8cac8dae
+  context: Task T008b requires a custom scaffold splitter to perform a 5-fold split
+    with a fixed random seed of 42.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a 5-fold split with seed=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:34:34Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: 'Minimum unique scaffolds requirement: 100'
+  claim_id: c_adb9a018
+  context: Task T008b requires checking that the pre-filtered dataset contains at
+    least 100 unique Bemis-Murcko frameworks.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce a minimum of 100 unique scaffolds per dataset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:34:56Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: 'Primary baseline persistence image resolution: 10x10'
+  claim_id: c_49d572f4
+  context: Task T013a specifies vectorizing persistence diagrams to a 10x10 grid as
+    the primary baseline.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_baseline_persistence_image_resolution:_10x10
+  kind: entity_fact
+  raw_text: Use a fixed 10x10 grid resolution for the primary baseline persistence
+    images
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:35:21Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: 'Persistence image kernel bandwidth: 0.1'
+  claim_id: c_404df4f2
+  context: Tasks T013a and T013b specify using a kernel bandwidth of 0.1 for vectorizing
+    diagrams to images.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use kernel bandwidth (sigma) of 0.1 for persistence image vectorization
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:35:45Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: 'Linear Regression regularization parameter alpha: 1.0'
+  claim_id: c_86d22bfc
+  context: Task T019 specifies training a Linear Regression model with an alpha parameter
+    of 1.0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Linear Regression with alpha=1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:35:45Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: 'Random Forest hyperparameters: 100 trees, max_depth 10'
+  claim_id: c_f79a0d8b
+  context: Task T019 specifies training a Random Forest model with 100 trees and a
+    maximum depth of 10.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Random Forest with 100 trees and max_depth=10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:35:46Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: 'VIF threshold for flagging predictors: 5'
+  claim_id: c_218ce607
+  context: Task T026 requires calculating VIF and flagging any predictors that exceed
+    a value of 5.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_threshold_for_flagging_predictors:_5
+  kind: magnitude
+  raw_text: Flag predictors with Variance Inflation Factor (VIF) greater than 5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:36:06Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: 'Statistical correction method: Holm-Bonferroni'
+  claim_id: c_545b13a0
+  context: Task T025 mandates applying the Holm-Bonferroni correction to p-values,
+    replacing the standard Bonferroni method.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_correction_method:_Holm-Bonferroni
+  kind: entity_fact
+  raw_text: Use Holm-Bonferroni correction for p-values
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:36:28Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: 'RAM resource limit: 6.3 GB'
+  claim_id: c_3d5e8061
+  context: Task T029 requires a resource monitor that raises a SystemExit if RAM usage
+    exceeds 6.3 GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Monitor RAM usage and fail if it exceeds 6.3 GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:36:51Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: 'CPU time resource limit: 5.4 hours'
+  claim_id: c_1775036e
+  context: Task T029 requires a resource monitor that raises a SystemExit if CPU time
+    exceeds 5.4 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Monitor CPU time and fail if it exceeds 5.4 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:37:09Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: 'Sparse matrix threshold: 6.0 GB'
+  claim_id: c_bb26987b
+  context: Task T015b specifies using scipy.sparse.csr_matrix format when the estimated
+    RAM for a single molecule exceeds 6.0 GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use sparse matrix format if estimated RAM usage for a single molecule's
+    persistence calculation exceeds 6.0 GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:37:27Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: MoleculeNet ESOL dataset hosted at deepchemdata.s3-us-west-1.amazonaws.com/datasets/dataset_esol.csv
+  claim_id: c_ceb3111c
+  context: 'Implement code/01_data_ingestion.py (Part 1): Fetch MoleculeNet ESOL from
+    https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/dataset_esol.csv, validate
+    smiles/logP columns...'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Fetch MoleculeNet ESOL from https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/dataset_esol.csv
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:38:24Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Power analysis minimum sample size N >= 128
+  claim_id: c_60401c85
+  context: '...validate smiles/logP columns against specs/001-predict-molecular-properties-tda/contracts/dataset.schema.yaml,
+    and perform a priori power analysis (N>=128).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: perform a priori power analysis (N>=128)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:38:25Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Power analysis parameters alpha 0.05, power 0.8, effect size 0.5
+  claim_id: c_82c29703
+  context: '**Parameters**: alpha=0.05, power=0.8, effect_size=0.5 (scipy.stats.power).
+    **Deliverable**: Generate data/processed/power_analysis_report.json...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Parameters: alpha=0.05, power=0.8, effect_size=0.5 (scipy.stats.power)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:38:51Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Filter molecules with molecular weight greater than 1000 Da
+  claim_id: c_550807f1
+  context: 'Implement code/01_data_ingestion.py (Part 2.5): Pre-filter molecules with
+    extremely large molecular weights (> 1000 Da) to prevent RAM overflow...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_molecules_with_molecular_weight_greater_than_1000_Da
+  kind: magnitude
+  raw_text: Pre-filter molecules with extremely large molecular weights (> 1000 Da)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:39:37Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Scaffold split uses 5 folds with seed 42
+  claim_id: c_da9b3c80
+  context: '...implement a custom scaffold splitter using rdkit.Chem.Scaffolds.MurckoScaffold.GetScaffoldForMol
+    to group molecules, perform a 5-fold split with seed=42, and save split indices...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: perform a 5-fold split with seed=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:39:38Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Minimum unique scaffolds requirement is 100
+  claim_id: c_24a4b589
+  context: Enforce min scaffolds check (>=100 unique scaffolds per Plan.md 'Scaffold
+    Validation'), implement a custom scaffold splitter...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce min scaffolds check (>=100 unique scaffolds)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:40:17Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Sparse matrix format used when single molecule graph memory exceeds 6.0
+    GB
+  claim_id: c_0223e748
+  context: 'Threshold: If estimated RAM usage for a single molecule''s persistence
+    calculation > 6.0GB, use scipy.sparse.csr_matrix format.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If estimated RAM usage for a single molecule's persistence calculation
+    > 6.0GB, use scipy.sparse.csr_matrix format
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:40:18Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Resource limit failure triggers exit if RAM exceeds 6.3 GB or CPU time
+    exceeds 5.4 hours
+  claim_id: c_3f0d39dc
+  context: 'Function: Wrap the main pipeline execution; monitor RAM/CPU usage in real-time;
+    if RAM > 6.3GB or CPU time > 5.4h, raise SystemExit(1) with a descriptive error.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if RAM > 6.3GB or CPU time > 5.4h, raise SystemExit(1)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:40:18Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Primary baseline persistence images use 10x10 grid resolution
+  claim_id: c_f7760bc6
+  context: 'Implement code/02_tda_computation.py: Vectorization to persistence images
+    for the primary baseline (fixed 10x10 grid resolution as per FR-002).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_baseline_persistence_images_use_10x10_grid_resolutio
+  kind: entity_fact
+  raw_text: Vectorization to persistence images for the primary baseline (fixed 10x10
+    grid resolution)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:40:42Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Persistence image kernel bandwidth sigma is 0.1
+  claim_id: c_6629899a
+  context: 'Parameters: Kernel bandwidth (sigma=0.1). **Deliverable**: Generate data/processed/persistence_images_10x10.csv...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Parameters: Kernel bandwidth (sigma=0.1)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:41:07Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Sensitivity sweep persistence images use 20x20 and 30x30 grid resolutions
+  claim_id: c_e7b2e607
+  context: 'Implement code/02_tda_computation.py: Vectorization to persistence images
+    for sensitivity sweep (variable resolutions: 20x20, 30x30). (FR-006).'
+  evidence:
+    entailment_evidence: Sensitivity sweep persistence images use 20x20 and 30x30
+      gri
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_sweep_persistence_images_use_20x20_and_30x30_gri
+  kind: entity_fact
+  raw_text: 'Vectorization to persistence images for sensitivity sweep (variable resolutions:
+    20x20, 30x30)'
+  resolved_value: Sensitivity sweep persistence images use 20x20 and 30x30 grid resolutions
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-07T05:41:09Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Linear Regression alpha 1.0; Random Forest 100 trees max depth 10
+  claim_id: c_6d8a8fd2
+  context: 'Implement code/04_model_training.py: Train Linear Regression (alpha=1.0)
+    and Random Forest (100 trees, max_depth=10) on 3 feature sets.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Linear Regression (alpha=1.0) and Random Forest (100 trees, max_depth=10)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:41:31Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Model metrics aggregated using Mean and Standard Deviation
+  claim_id: c_bca9d969
+  context: "Implement code/04_model_training.py: Calculate R\xB2 and RMSE per fold;\
+    \ aggregate metrics. Aggregation: Mean and Standard Deviation."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_metrics_aggregated_using_Mean_and_Standard_Deviation
+  kind: entity_fact
+  raw_text: "Calculate R\xB2 and RMSE per fold; aggregate metrics. Aggregation: Mean\
+    \ and Standard Deviation"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:42:51Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Holm-Bonferroni correction applied to p-values
+  claim_id: c_e4aeb7b0
+  context: 'Implement code/06_diagnostics.py: Apply Holm-Bonferroni correction to
+    p-values generated in T020.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Holm-Bonferroni_correction_applied_to_p-values
+  kind: entity_fact
+  raw_text: Apply Holm-Bonferroni correction to p-values
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:42:54Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor threshold for flagging predictors is 5
+  claim_id: c_73f4a954
+  context: 'Implement code/06_diagnostics.py: Calculate VIF; flag predictors > 5 (FR-007).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate VIF; flag predictors > 5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:42:54Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor formula is 1 divided by (1 minus R squared)
+  claim_id: c_7d4dc576
+  context: "**Method**: statsmodels.stats.outliers_influence.variance_inflation_factor.\
+    \ **Handling**: Exclude intercept column. **Formula**: 1/(1-R\xB2)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Formula: 1/(1-R\xB2)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:43:46Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Cyclomatic complexity target for graph builder is less than 10
+  claim_id: c_81992af6
+  context: 'Refactor code/utils/graph_builder.py to reduce cyclomatic complexity to
+    < 10. **Target**: Function build_graph.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cyclomatic_complexity_target_for_graph_builder_is_less_than
+  kind: magnitude
+  raw_text: Refactor code/utils/graph_builder.py to reduce cyclomatic complexity to
+    < 10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:44:10Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: MoleculeNet ESOL dataset URL
+  claim_id: c_8be9c255
+  context: 'Implement code/01_data_ingestion.py (Part 1): Fetch MoleculeNet ESOL from
+    https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/dataset_esol.csv, validate
+    smiles/logP columns'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Fetch MoleculeNet ESOL from https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/dataset_esol.csv
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:45:20Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Power analysis minimum sample size N is 128
+  claim_id: c_1459e76a
+  context: 'perform a priori power analysis (N>=128). Parameters: alpha=0.05, power=0.8,
+    effect_size=0.5 (scipy.stats.power)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a priori power analysis with N>=128
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:45:20Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Molecular weight exclusion threshold is 1000 Da
+  claim_id: c_47180430
+  context: Pre-filter molecules with extremely large molecular weights (> 1000 Da)
+    to prevent RAM overflow during scaffold splitting
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pre-filter molecules with extremely large molecular weights (> 1000 Da)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:45:21Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Minimum unique scaffolds required is 100
+  claim_id: c_19c8dae5
+  context: Enforce min scaffolds check (>=100 unique scaffolds per Plan.md 'Scaffold
+    Validation'), implement a custom scaffold splitter
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce min scaffolds check (>=100 unique scaffolds per Plan.md 'Scaffold
+    Validation')
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:45:21Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Scaffold split uses 5 folds and seed 42
+  claim_id: c_efe56ee9
+  context: perform a 5-fold split with seed=42, and save split indices to data/processed/splits.json
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a 5-fold split with seed=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:45:22Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Sparse matrix threshold for persistence calculation is 6.0 GB
+  claim_id: c_4be5a6ec
+  context: 'Threshold: If estimated RAM usage for a single molecule''s persistence
+    calculation > 6.0GB, use scipy.sparse.csr_matrix format'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use scipy.sparse.csr_matrix format if estimated RAM usage for a single
+    molecule's persistence calculation > 6.0GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:45:22Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Pipeline resource limits are 6.3 GB RAM and 5.4 hours CPU
+  claim_id: c_2b4a7d65
+  context: monitor RAM/CPU usage in real-time; if RAM > 6.3GB or CPU time > 5.4h,
+    raise SystemExit(1) with a descriptive error
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Raise SystemExit(1) if RAM > 6.3GB or CPU time > 5.4h
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-10-07T05:45:23Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Primary baseline persistence image resolution is 10x10
+  claim_id: c_015eadc4
+  context: 'Vectorization to persistence images for the primary baseline (fixed 10x10
+    grid resolution as per FR-002). Parameters: Kernel bandwidth (sigma=0.1)'
+  evidence:
+    entailment_evidence: Primary baseline persistence image resolution is 10x10
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Primary_baseline_persistence_image_resolution_is_10x10
+  kind: entity_fact
+  raw_text: Vectorize to persistence images for the primary baseline with fixed 10x10
+    grid resolution
+  resolved_value: Primary baseline persistence image resolution is 10x10
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-07T05:45:25Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Sensitivity sweep resolutions are 20x20 and 30x30
+  claim_id: c_a37d1709
+  context: 'Vectorization to persistence images for sensitivity sweep (variable resolutions:
+    20x20, 30x30). Parameters: Kernel bandwidth (sigma=0.1)'
+  evidence:
+    entailment_evidence: Sensitivity sweep resolutions are 20x20 and 30x30
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_sweep_resolutions_are_20x20_and_30x30
+  kind: entity_fact
+  raw_text: 'Generate persistence images with variable resolutions: 20x20, 30x30'
+  resolved_value: Sensitivity sweep resolutions are 20x20 and 30x30
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-07T05:45:28Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: 'Random Forest model configuration: 100 trees, max depth 10'
+  claim_id: c_1f14d4d7
+  context: Train Linear Regression (alpha=1.0) and Random Forest (100 trees, max_depth=10)
+    on 3 feature sets
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Random Forest with 100 trees and max_depth=10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:45:28Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Linear Regression alpha parameter is 1.0
+  claim_id: c_5040e33e
+  context: Train Linear Regression (alpha=1.0) and Random Forest (100 trees, max_depth=10)
+    on 3 feature sets
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Linear Regression with alpha=1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:45:29Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: VIF flag threshold is 5
+  claim_id: c_66da8a91
+  context: 'Calculate VIF; flag predictors > 5 (FR-007). Input: data/processed/combined_features.csv'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag predictors > 5 for Variance Inflation Factor (VIF)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:45:29Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Holm-Bonferroni correction used for multiple testing
+  claim_id: c_8a20ecc8
+  context: 'Apply Holm-Bonferroni correction to p-values generated in T020. Note:
+    This task implements ''Holm-Bonferroni'' as mandated by the Plan.md ''Critical
+    Methodological Update'''
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.05'
+      source_id: "Holm\u2013Bonferroni method"
+      url: "https://en.wikipedia.org/wiki/Holm\u2013Bonferroni_method"
+      value: '0.05'
+    filled: true
+  kind: entity_fact
+  raw_text: Control FWER at a standard significance level using Holm-Bonferroni correction
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-07T05:45:39Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Shortest-path filtration uses Dijkstra's algorithm
+  claim_id: c_252af1d0
+  context: 'Implement compute_filtration(graph: Graph) -> Diagram using Dijkstra''s
+    algorithm for shortest-path distances'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Shortest-path_filtration_uses_Dijkstra's_algorithm
+  kind: entity_fact
+  raw_text: Use Dijkstra's algorithm for shortest-path distances in filtration
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:45:59Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Persistence image kernel bandwidth is 0.1
+  claim_id: c_c3b3461b
+  context: 'Parameters: Kernel bandwidth (sigma=0.1). Deliverable: Generate data/processed/persistence_images_10x10.csv'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use kernel bandwidth sigma=0.1 for persistence image vectorization
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:46:19Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Target cyclomatic complexity for graph_builder is less than 10
+  claim_id: c_d3d26008
+  context: 'Refactor code/utils/graph_builder.py to reduce cyclomatic complexity to
+    < 10. Target: Function build_graph'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_cyclomatic_complexity_for_graph_builder_is_less_than
+  kind: magnitude
+  raw_text: Refactor code/utils/graph_builder.py to reduce cyclomatic complexity to
+    < 10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:46:21Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: power analysis parameters alpha 0.05 power 0.8 effect size 0.5
+  claim_id: c_e621f053
+  context: 'Implement code/01_data_ingestion.py (Part 1): Fetch MoleculeNet ESOL...
+    and perform a priori power analysis (N>=128). Parameters: alpha=0.05, power=0.8,
+    effect_size=0.5 (scipy.stats.power).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a priori power analysis with alpha=0.05, power=0.8, and effect_size=0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:49:41Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: minimum sample size N >= 128
+  claim_id: c_80ed95b5
+  context: '...perform a priori power analysis (N>=128). Parameters: alpha=0.05, power=0.8,
+    effect_size=0.5 (scipy.stats.power). Verification: Script must exit with SystemExit(1)
+    if columns are missing or N < 128.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/minimum_sample_size_N_%3E=_128
+  kind: magnitude
+  raw_text: The minimum sample size N must be greater than or equal to 128.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:51:31Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: exclude molecules with molecular weight > 1000 Da
+  claim_id: c_fbbcd1ae
+  context: 'Pre-filter molecules with extremely large molecular weights (> 1000 Da)
+    to prevent RAM overflow... Logic: Calculate MW for each molecule; exclude if >
+    1000 Da.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/exclude_molecules_with_molecular_weight_%3E_1000_Da
+  kind: magnitude
+  raw_text: Molecules with molecular weight greater than 1000 Da are excluded from
+    the dataset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:52:10Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: minimum 100 unique Bemis-Murcko scaffolds
+  claim_id: c_7c2c0088
+  context: 'Enforce min scaffolds check (>=100 unique scaffolds per Plan.md ''Scaffold
+    Validation'')... Algorithm: Count unique Bemis-Murcko frameworks on the pre-filtered
+    dataset. Verification: Verify script exits with SystemExit(1) if unique scaffolds
+    < 100.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_100_unique_Bemis-Murcko_scaffolds
+  kind: magnitude
+  raw_text: The dataset must contain at least 100 unique Bemis-Murcko scaffolds.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:52:30Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: 5-fold split with seed 42
+  claim_id: c_694dc8c7
+  context: '...perform a 5-fold split with seed=42, and save split indices to data/processed/splits.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The data is split into 5 folds using a seed of 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:53:02Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: switch to sparse matrix if RAM usage > 6.0 GB
+  claim_id: c_30fb3773
+  context: 'Threshold: If estimated RAM usage for a single molecule''s persistence
+    calculation > 6.0GB, use scipy.sparse.csr_matrix format.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If estimated RAM usage for a single molecule's persistence calculation
+    exceeds 6.0GB, a sparse matrix format is used.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:53:22Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: pipeline fails if RAM > 6.3 GB or CPU time > 5.4 hours
+  claim_id: c_6bb3d95c
+  context: '...monitor RAM/CPU usage in real-time; if RAM > 6.3GB or CPU time > 5.4h,
+    raise SystemExit(1) with a descriptive error.'
+  evidence:
+    asserted: '6.3'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pipeline fails if RAM usage exceeds 6.3GB or CPU time exceeds 5.4
+    hours.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-10-07T05:53:23Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: primary baseline persistence images 10x10 grid
+  claim_id: c_75bced6a
+  context: Vectorization to persistence images for the primary baseline (fixed 10x10
+    grid resolution as per FR-002).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_baseline_persistence_images_10x10_grid
+  kind: entity_fact
+  raw_text: The primary baseline uses a fixed 10x10 grid resolution for persistence
+    images.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:53:25Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Linear Regression alpha 1.0
+  claim_id: c_01327267
+  context: Train Linear Regression (alpha=1.0) and Random Forest (100 trees, max_depth=10)
+    on 3 feature sets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Linear Regression models are trained with an alpha value of 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:54:02Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Random Forest 100 trees max depth 10
+  claim_id: c_2a1e59f7
+  context: Train Linear Regression (alpha=1.0) and Random Forest (100 trees, max_depth=10)
+    on 3 feature sets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random Forest models are trained with 100 trees and a maximum depth of
+    10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:54:31Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: flag predictors with VIF > 5
+  claim_id: c_152aab9a
+  context: Calculate VIF; flag predictors > 5 (FR-007).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/flag_predictors_with_VIF_%3E_5
+  kind: magnitude
+  raw_text: Predictors with a Variance Inflation Factor (VIF) greater than 5 are flagged.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T05:55:20Z'

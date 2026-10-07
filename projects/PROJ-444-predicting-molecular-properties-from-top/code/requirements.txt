@@ -12,4 +12,3 @@ pytest
 memory-profiler
 statsmodels
 scipy
-networkx

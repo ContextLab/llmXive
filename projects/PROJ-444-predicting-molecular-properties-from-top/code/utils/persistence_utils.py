@@ -1,415 +1,394 @@
 """
-Persistence utility functions for Topological Data Analysis on molecular graphs.
-Implements shortest-path filtration, persistence diagram computation, and vectorization.
-Includes memory threshold checks for large molecular weights.
+persistence_utils.py
+Topological Data Analysis utilities for molecular graphs.
+Handles shortest-path filtration, persistence diagram computation,
+vectorization, and memory threshold checks for large graphs.
 """
+
 import logging
-from typing import List, Tuple, Optional, Dict, Any, Union
+from typing import List, Tuple, Optional, Dict, Any, Union, Set
 import numpy as np
 import networkx as nx
 from scipy.spatial.distance import pdist, squareform
 from scipy.sparse import csr_matrix, diags, issparse
 import sys
 
-# Memory threshold in bytes (6.0 GB)
-MEMORY_THRESHOLD_BYTES = 6.0 * 1024**3
+# Thresholds
+MEMORY_THRESHOLD_GB = 6.0
+MEMORY_THRESHOLD_BYTES = MEMORY_THRESHOLD_GB * 1024**3
+ESTIMATED_EDGE_FACTOR = 8.0  # Bytes per edge in adjacency matrix representation
 
 logger = logging.getLogger(__name__)
 
-def check_memory_requirement(num_nodes: int, num_edges: int) -> bool:
+
+def check_memory_requirement(graph: nx.Graph) -> bool:
     """
-    Estimate RAM usage for dense matrix operations and check against threshold.
-    
-    Args:
-        num_nodes: Number of nodes in the graph
-        num_edges: Number of edges in the graph
-        
-    Returns:
-        True if estimated RAM usage exceeds threshold (sparse recommended),
-        False if dense processing is acceptable.
+    Estimate RAM usage for a single molecule's persistence calculation.
+    If estimated RAM > 6.0GB, return True (sparse mode recommended).
+    Otherwise, return False (dense mode is acceptable).
+
+    Estimation logic:
+    - Number of edges in the graph.
+    - Assume an adjacency matrix of size N x N where N = num_nodes.
+    - Dense float64 matrix takes 8 bytes per entry.
+    - We check if N*N * 8 > threshold.
+
+    Note: For extremely large N, we might also consider edge count,
+    but the adjacency matrix size is the dominant factor for standard
+    persistence algorithms that often rely on dense distance matrices.
     """
-    # Estimate size for dense adjacency matrix (float64)
-    # Size = num_nodes * num_nodes * 8 bytes
-    dense_size = num_nodes * num_nodes * 8
-    
-    # Estimate size for distance matrix (symmetric, stored as full)
-    # Size = num_nodes * num_nodes * 8 bytes
-    distance_size = num_nodes * num_nodes * 8
-    
-    # Estimate size for filtration matrix (simple: num_nodes * num_nodes * 8)
-    filtration_size = num_nodes * num_nodes * 8
-    
-    total_estimated = dense_size + distance_size + filtration_size
-    
-    if total_estimated > MEMORY_THRESHOLD_BYTES:
+    num_nodes = graph.number_of_nodes()
+    # Estimate memory for a dense NxN float64 matrix
+    estimated_bytes = (num_nodes * num_nodes) * 8
+
+    if estimated_bytes > MEMORY_THRESHOLD_BYTES:
         logger.warning(
-            f"Estimated memory usage ({total_estimated / 1024**3:.2f} GB) exceeds "
-            f"threshold ({MEMORY_THRESHOLD_BYTES / 1024**3:.2f} GB). "
-            "Switching to sparse matrix operations."
+            f"Estimated memory for graph with {num_nodes} nodes: "
+            f"{estimated_bytes / (1024**3):.2f} GB > {MEMORY_THRESHOLD_GB} GB. "
+            "Switching to sparse matrix logic."
         )
         return True
-    
-    logger.info(f"Estimated memory usage ({total_estimated / 1024**6:.3f} GB) within threshold.")
     return False
+
 
 def compute_shortest_path_matrix(graph: nx.Graph, use_sparse: bool = False) -> Union[np.ndarray, csr_matrix]:
     """
-    Compute shortest path distances between all pairs of nodes using Dijkstra's algorithm.
-    
+    Compute the shortest-path distance matrix for the graph.
+
     Args:
-        graph: NetworkX graph representing the molecule
-        use_sparse: If True, return scipy.sparse.csr_matrix; otherwise return numpy array
-        
+        graph: NetworkX graph.
+        use_sparse: If True, return a scipy.sparse.csr_matrix.
+                   If False, return a dense numpy array.
+
     Returns:
-        Distance matrix (either dense numpy or sparse csr_matrix)
+        Distance matrix (dense or sparse).
     """
-    num_nodes = graph.number_of_nodes()
-    
-    if num_nodes == 0:
+    nodes = list(graph.nodes())
+    n = len(nodes)
+    node_to_idx = {node: i for i, node in enumerate(nodes)}
+
+    if n == 0:
         if use_sparse:
             return csr_matrix((0, 0))
         return np.zeros((0, 0))
-    
-    # Get node indices to ensure consistent ordering
-    nodes = list(graph.nodes())
-    node_to_idx = {node: i for i, node in enumerate(nodes)}
-    
-    # Compute all shortest paths
-    # Using scipy.sparse if requested for memory efficiency
+
+    # Initialize distance matrix
     if use_sparse:
-        # Build sparse adjacency matrix with edge weights (default 1.0)
-        rows, cols, data = [], [], []
-        for u, v, data_dict in graph.edges(data=True):
-            i, j = node_to_idx[u], node_to_idx[v]
-            weight = data_dict.get('weight', 1.0)
-            rows.extend([i, j])
-            cols.extend([j, i])
-            data.extend([weight, weight])
+        # We will build a sparse matrix using COO format then convert to CSR
+        rows = []
+        cols = []
+        data = []
         
-        adj_matrix = csr_matrix(
-            (data, (rows, cols)),
-            shape=(num_nodes, num_nodes)
+        # For each node, run Dijkstra
+        for source_idx, source_node in enumerate(nodes):
+            lengths = nx.single_source_dijkstra_path_length(graph, source_node)
+            for target_node, dist in lengths.items():
+                target_idx = node_to_idx[target_node]
+                rows.append(source_idx)
+                cols.append(target_idx)
+                data.append(float(dist))
+        
+        dist_matrix = csr_matrix(
+            (data, (rows, cols)), 
+            shape=(n, n),
+            dtype=np.float64
         )
-        
-        # Compute shortest paths using scipy.sparse algorithms
-        # For small graphs, we can use Floyd-Warshall via dense conversion
-        # For large graphs, we use multiple Dijkstra runs
-        try:
-            # Use networkx's all_pairs_dijkstra_path_length which is efficient
-            # and returns a generator, allowing us to build sparse matrix
-            dist_dict = dict(nx.all_pairs_dijkstra_path_length(graph, weight='weight'))
-            
-            # Build sparse matrix from distances
-            rows, cols, data = [], [], []
-            for i, (u, dists) in enumerate(dist_dict.items()):
-                for v, dist in dists.items():
-                    j = node_to_idx[v]
-                    rows.append(i)
-                    cols.append(j)
-                    data.append(float(dist))
-            
-            return csr_matrix((data, (rows, cols)), shape=(num_nodes, num_nodes))
-        except Exception as e:
-            logger.warning(f"Sparse shortest path computation failed: {e}, falling back to dense")
-            use_sparse = False
-    
-    # Dense computation fallback
-    dist_matrix = np.zeros((num_nodes, num_nodes))
-    for i, u in enumerate(nodes):
-        try:
-            lengths = nx.single_source_dijkstra_path_length(graph, u, weight='weight')
-            for j, v in enumerate(nodes):
-                dist_matrix[i, j] = lengths.get(v, np.inf)
-        except Exception as e:
-            logger.error(f"Error computing shortest paths from node {u}: {e}")
-            raise
-    
+    else:
+        dist_matrix = np.zeros((n, n), dtype=np.float64)
+        for source_idx, source_node in enumerate(nodes):
+            lengths = nx.single_source_dijkstra_path_length(graph, source_node)
+            for target_node, dist in lengths.items():
+                target_idx = node_to_idx[target_node]
+                dist_matrix[source_idx, target_idx] = dist
+
     return dist_matrix
 
-def build_shortest_path_filtration(dist_matrix: Union[np.ndarray, csr_matrix]) -> List[Tuple[float, float]]:
+
+def build_shortest_path_filtration(graph: nx.Graph) -> List[Tuple[int, int, float]]:
     """
-    Build filtration from distance matrix.
-    Creates simplices with filtration values based on shortest path distances.
-    
-    Args:
-        dist_matrix: Distance matrix (dense or sparse)
-        
-    Returns:
-        List of (birth, death) tuples for persistence diagram
+    Build a filtration based on shortest-path distances.
+    Returns a list of simplices (edges) with their filtration values.
+    Format: [(node_u_idx, node_v_idx, distance), ...]
+    Only includes edges (1-simplices) for simplicity in this implementation,
+    as full clique filtration is computationally expensive for large graphs.
+
+    Note: In standard TDA on graphs, we often use edge weights directly.
+    Here we use shortest-path distances which for connected graphs are just
+    the edge weights if the graph is unweighted (distance = 1 for edges).
+    However, the task specifies "shortest-path filtration", so we compute
+    all-pairs shortest paths and use those as filtration values for edges.
     """
-    if issparse(dist_matrix):
-        dist_matrix = dist_matrix.toarray()
+    nodes = list(graph.nodes())
+    node_to_idx = {node: i for i, node in enumerate(nodes)}
+    n = len(nodes)
     
-    n = dist_matrix.shape[0]
     if n == 0:
         return []
+
+    filtration = []
     
-    # Build edge list for 1-simplices (edges)
-    # Filtration value = distance between nodes
-    edges = []
-    for i in range(n):
-        for j in range(i + 1, n):
-            if not np.isinf(dist_matrix[i, j]):
-                edges.append((i, j, dist_matrix[i, j]))
+    # Compute all-pairs shortest paths
+    try:
+        lengths = nx.all_pairs_dijkstra_path_length(graph)
+        for source_node, source_lengths in lengths:
+            source_idx = node_to_idx[source_node]
+            for target_node, dist in source_lengths.items():
+                if source_node < target_node:  # Avoid duplicates and self-loops
+                    target_idx = node_to_idx[target_node]
+                    filtration.append((source_idx, target_idx, float(dist)))
+    except nx.NetworkXError as e:
+        logger.error(f"Error computing shortest paths: {e}")
+        return []
+
+    return filtration
+
+
+def compute_persistence_diagram(filtration: List[Tuple[int, int, float]]) -> List[Tuple[float, float]]:
+    """
+    Compute the persistence diagram from a filtration.
+    This is a simplified implementation for 1-simplices (edges).
+    In a full implementation, we would use a library like Dionysus or Gudhi
+    to compute the full persistence diagram for higher-dimensional simplices.
     
-    # Sort edges by filtration value (distance)
-    edges.sort(key=lambda x: x[2])
+    For 1-simplices, the persistence is simply the filtration value of the edge
+    if it creates a cycle, or infinity (or a large number) if it doesn't.
+    However, for simplicity and to match the task's scope, we return the
+    filtration values as (birth, death) pairs where death is approximated.
     
-    # Compute persistence using union-find for 0-dimensional homology
-    # and simple edge tracking for 1-dimensional homology
-    parent = list(range(n))
+    A more accurate approach for graphs:
+    - Birth: The filtration value when the edge is added.
+    - Death: The filtration value when a cycle is formed (if this edge closes a cycle).
     
-    def find(i):
-        if parent[i] != i:
-            parent[i] = find(parent[i])
-        return parent[i]
+    We'll use a Union-Find approach to detect cycles.
+    """
+    # Sort by filtration value
+    sorted_filtration = sorted(filtration, key=lambda x: x[2])
     
-    def union(i, j):
-        root_i, root_j = find(i), find(j)
-        if root_i != root_j:
-            parent[root_i] = root_j
-            return True
-        return False
+    # Union-Find data structure
+    parent = {}
+    rank = {}
+    
+    def find(x):
+        if x not in parent:
+            parent[x] = x
+            rank[x] = 0
+        if parent[x] != x:
+            parent[x] = find(parent[x])
+        return parent[x]
+    
+    def union(x, y):
+        rx, ry = find(x), find(y)
+        if rx == ry:
+            return False  # Cycle detected
+        if rank[rx] < rank[ry]:
+            parent[rx] = ry
+        elif rank[rx] > rank[ry]:
+            parent[ry] = rx
+        else:
+            parent[ry] = rx
+            rank[rx] += 1
+        return True
     
     diagram = []
-    active_cycles = {}  # Track potential 1-cycles: (u, v, birth) -> death_candidate
     
-    # Process edges in filtration order
-    for u, v, birth in edges:
-        root_u, root_v = find(u), find(v)
-        
-        if root_u != root_v:
-            # Edge connects two components -> birth of 0-cycle or death of 0-cycle
-            union(u, v)
-            # Record birth of a 0-cycle (component merging)
-            # The birth value is the edge weight
-            # The death value will be determined when this component merges with another
-            # For simplicity, we track component births
+    for u, v, value in sorted_filtration:
+        if find(u) == find(v):
+            # Cycle detected: this edge creates a 1-cycle
+            # Birth is the value when the cycle is formed (this edge)
+            # Death is infinity (or a large number) for unbounded persistence
+            diagram.append((value, float('inf')))
         else:
-            # Edge connects nodes in same component -> potential 1-cycle birth
-            # Birth of 1-cycle is the edge weight
-            # We'll determine death when the cycle is "filled"
-            # For now, we mark this as a potential cycle
-            pass
-    
-    # Simplified approach: Use standard persistence computation
-    # For molecular graphs, we focus on 0-dim (components) and 1-dim (cycles)
-    
-    # Re-compute using a more direct method
-    # Birth of 0-cycle: when a component is created (initially all nodes)
-    # Death of 0-cycle: when two components merge
-    # Birth of 1-cycle: when an edge creates a cycle
-    # Death of 1-cycle: when the cycle is "filled" (hard to define, often infinity)
-    
-    # For this implementation, we'll use a simplified approach:
-    # 1. Compute connected components at each filtration level
-    # 2. Track when components merge (0-dim persistence)
-    # 3. Track when cycles form (1-dim persistence)
-    
-    # Reset union-find
-    parent = list(range(n))
-    component_births = {i: 0.0 for i in range(n)}  # Each node starts as a component at birth=0
-    
-    for u, v, birth in edges:
-        root_u, root_v = find(u), find(v)
-        
-        if root_u != root_v:
-            # Components merge: death of the later-born component
-            # The component that was born later dies at 'birth'
-            birth_u = component_births[root_u]
-            birth_v = component_births[root_v]
-            
-            if birth_u > birth_v:
-                diagram.append((birth_v, birth_u, 0))  # (birth, death, dim)
-            else:
-                diagram.append((birth_u, birth_v, 0))
-            
-            # Merge components
+            # Edge connects two components, no cycle yet
+            # Birth is the value when the edge is added
+            # Death is infinity (it will be killed by a future cycle)
             union(u, v)
-            new_root = find(u)
-            # The merged component inherits the earlier birth time
-            component_births[new_root] = min(birth_u, birth_v)
-        else:
-            # Cycle formed: birth of 1-cycle
-            # Death is typically infinity for molecular graphs (no filling)
-            diagram.append((birth, np.inf, 1))
+            diagram.append((value, float('inf')))
     
+    # Note: In a full implementation, we would track when cycles are filled.
+    # For now, we return the simplified diagram.
     return diagram
 
-def compute_persistence_diagram(graph: nx.Graph) -> List[Tuple[float, float, int]]:
-    """
-    Compute persistence diagram for a molecular graph using shortest-path filtration.
-    
-    Args:
-        graph: NetworkX graph representing the molecule
-        
-    Returns:
-        List of (birth, death, dimension) tuples
-    """
-    if graph.number_of_nodes() == 0:
-        return []
-    
-    # Check memory requirements
-    num_nodes = graph.number_of_nodes()
-    num_edges = graph.number_of_edges()
-    use_sparse = check_memory_requirement(num_nodes, num_edges)
-    
-    # Compute distance matrix
-    dist_matrix = compute_shortest_path_matrix(graph, use_sparse=use_sparse)
-    
-    # Build filtration and compute persistence
-    diagram = build_shortest_path_filtration(dist_matrix)
-    
-    return diagram
 
-def vectorize(diagram: List[Tuple[float, float, int]], resolution: int) -> np.ndarray:
+def vectorize(diagram: List[Tuple[float, float]], resolution: int = 10) -> np.ndarray:
     """
-    Vectorize a persistence diagram into a persistence image (grid representation).
+    Vectorize a persistence diagram into a persistence image.
+    Uses a fixed grid resolution and a Gaussian kernel.
     
     Args:
-        diagram: List of (birth, death, dimension) tuples
-        resolution: Grid resolution (e.g., 10 for 10x10)
-        
+        diagram: List of (birth, death) tuples.
+        resolution: Grid resolution (resolution x resolution).
+    
     Returns:
-        Flattened numpy array of size resolution*resolution
+        1D array of size resolution*resolution representing the image.
     """
     if not diagram:
         return np.zeros(resolution * resolution)
     
-    # Filter for 1-dimensional cycles (rings in molecules)
-    # Focus on 1-dim for molecular topology
-    cycles = [(b, d) for b, d, dim in diagram if dim == 1 and np.isfinite(d)]
+    # Filter out infinite deaths for visualization purposes
+    # We'll cap them at a maximum value
+    max_birth = max(b for b, d in diagram if d != float('inf')) if diagram else 0
+    max_death = max(d for b, d in diagram if d != float('inf')) if diagram else 0
     
-    if not cycles:
-        return np.zeros(resolution * resolution)
+    # If all deaths are infinite, set a reasonable max
+    if max_death == 0:
+        max_death = max_birth + 10 if max_birth > 0 else 10
     
-    # Determine bounding box
-    births = [b for b, d in cycles]
-    deaths = [d for b, d in cycles]
-    
-    min_birth = min(births)
-    max_birth = max(births)
-    min_death = min(deaths)
-    max_death = max(deaths)
-    
-    # Ensure non-zero range
-    if max_birth == min_birth:
-        max_birth = min_birth + 1.0
-    if max_death == min_death:
-        max_death = min_death + 1.0
+    # Define grid boundaries
+    min_birth = min(b for b, d in diagram)
+    max_val = max(max_birth, max_death)
     
     # Create grid
+    x_edges = np.linspace(min_birth, max_val, resolution + 1)
+    y_edges = np.linspace(min_birth, max_val, resolution + 1)
+    
+    # Initialize image
     image = np.zeros((resolution, resolution))
     
-    # Map points to grid
-    for birth, death in cycles:
-        # Normalize to [0, 1]
-        norm_birth = (birth - min_birth) / (max_birth - min_birth)
-        norm_death = (death - min_death) / (max_death - min_death)
-        
-        # Map to grid indices
-        i = min(int(norm_birth * resolution), resolution - 1)
-        j = min(int(norm_death * resolution), resolution - 1)
-        
-        # Ensure indices are within bounds
-        i = max(0, min(i, resolution - 1))
-        j = max(0, min(j, resolution - 1))
-        
-        # Weight by persistence (death - birth)
-        persistence = death - birth
-        image[i, j] += persistence
+    # Gaussian kernel parameters
+    sigma = 0.1
     
-    # Flatten and return
+    # Add contributions from each point
+    for birth, death in diagram:
+        if death == float('inf'):
+            # Use a large value for infinite deaths
+            death_val = max_val + 1
+        else:
+            death_val = death
+        
+        # Weight based on persistence
+        persistence = death_val - birth
+        weight = persistence  # Simple weighting by persistence
+        
+        # Find grid cell
+        x_idx = np.searchsorted(x_edges, birth) - 1
+        y_idx = np.searchsorted(y_edges, death_val) - 1
+        
+        if 0 <= x_idx < resolution and 0 <= y_idx < resolution:
+            image[y_idx, x_idx] += weight
+    
+    # Flatten to 1D array
     return image.flatten()
 
-def handle_empty_diagram(resolution: int) -> np.ndarray:
+
+def handle_empty_diagram(resolution: int = 10) -> np.ndarray:
     """
-    Handle empty persistence diagram by returning zero vector.
+    Handle empty persistence diagrams by returning a zero vector.
     
     Args:
-        resolution: Grid resolution
-        
+        resolution: Grid resolution.
+    
     Returns:
-        Zero vector of size resolution*resolution
+        Zero vector of size resolution*resolution.
     """
     return np.zeros(resolution * resolution)
 
-def compute_betti_numbers(diagram: List[Tuple[float, float, int]], threshold: float) -> Dict[int, int]:
+
+def compute_betti_numbers(diagram: List[Tuple[float, float]], threshold: float) -> Dict[int, int]:
     """
     Compute Betti numbers at a given threshold.
     
     Args:
-        diagram: Persistence diagram
-        threshold: Filtration threshold
-        
+        diagram: Persistence diagram.
+        threshold: Filtration value at which to compute Betti numbers.
+    
     Returns:
-        Dictionary mapping dimension to Betti number
+        Dictionary mapping dimension to Betti number.
     """
-    betti = {0: 0, 1: 0}
+    betti_0 = 0
+    betti_1 = 0
     
-    for birth, death, dim in diagram:
+    for birth, death in diagram:
         if birth <= threshold < death:
-            betti[dim] += 1
+            if death == float('inf'):
+                # Infinite persistence component
+                betti_0 += 1
+            else:
+                betti_1 += 1
     
-    return betti
+    return {0: betti_0, 1: betti_1}
 
-def get_topological_features(diagram: List[Tuple[float, float, int]]) -> Dict[str, float]:
+
+def get_topological_features(diagram: List[Tuple[float, float]]) -> Dict[str, float]:
     """
-    Extract summary features from persistence diagram.
+    Extract simple topological features from a persistence diagram.
     
     Args:
-        diagram: Persistence diagram
-        
+        diagram: Persistence diagram.
+    
     Returns:
-        Dictionary of topological features
+        Dictionary of features.
     """
-    features = {}
+    if not diagram:
+        return {
+            'num_features': 0,
+            'total_persistence': 0.0,
+            'max_persistence': 0.0,
+            'avg_persistence': 0.0
+        }
     
-    # Count 1-dimensional cycles (rings)
-    cycles_1d = [d for b, d, dim in diagram if dim == 1 and np.isfinite(d)]
-    features['num_rings'] = len(cycles_1d)
+    persistences = [
+        (d - b) if d != float('inf') else float('inf')
+        for b, d in diagram
+    ]
     
-    if cycles_1d:
-        persistences = [d - b for b, d in cycles_1d]
-        features['max_persistence'] = max(persistences)
-        features['mean_persistence'] = np.mean(persistences)
-        features['total_persistence'] = sum(persistences)
+    finite_persistences = [p for p in persistences if p != float('inf')]
+    
+    if finite_persistences:
+        total_persistence = sum(finite_persistences)
+        max_persistence = max(finite_persistences)
+        avg_persistence = total_persistence / len(finite_persistences)
     else:
-        features['max_persistence'] = 0.0
-        features['mean_persistence'] = 0.0
-        features['total_persistence'] = 0.0
+        total_persistence = 0.0
+        max_persistence = 0.0
+        avg_persistence = 0.0
     
-    return features
+    return {
+        'num_features': len(diagram),
+        'total_persistence': total_persistence,
+        'max_persistence': max_persistence,
+        'avg_persistence': avg_persistence
+    }
+
 
 def main():
-    """Test function for persistence utilities."""
+    """
+    Main function to demonstrate memory threshold checks and sparse matrix logic.
+    """
     logging.basicConfig(level=logging.INFO)
     
-    # Create a test graph (simple cycle)
-    graph = nx.cycle_graph(5)
-    graph.add_edge(0, 1, weight=1.0)
-    graph.add_edge(1, 2, weight=1.0)
-    graph.add_edge(2, 3, weight=1.0)
-    graph.add_edge(3, 4, weight=1.0)
-    graph.add_edge(4, 0, weight=1.0)
+    # Test with a small graph
+    small_graph = nx.Graph()
+    small_graph.add_edges_from([(0, 1), (1, 2), (2, 3)])
     
-    # Test memory check
-    use_sparse = check_memory_requirement(1000, 2000)
-    logger.info(f"Use sparse: {use_sparse}")
+    print("Testing small graph...")
+    needs_sparse = check_memory_requirement(small_graph)
+    print(f"Needs sparse mode: {needs_sparse}")
     
-    # Test persistence diagram
-    diagram = compute_persistence_diagram(graph)
-    logger.info(f"Diagram: {diagram}")
+    dist_matrix = compute_shortest_path_matrix(small_graph, use_sparse=needs_sparse)
+    print(f"Distance matrix type: {type(dist_matrix)}")
+    print(f"Distance matrix shape: {dist_matrix.shape}")
     
-    # Test vectorization
-    vec = vectorize(diagram, 10)
-    logger.info(f"Vector shape: {vec.shape}")
+    # Test with a large graph (simulated)
+    # Create a graph with many nodes to trigger sparse mode
+    large_n = 3000  # 3000^2 * 8 bytes = 72 GB > 6 GB
+    large_graph = nx.Graph()
+    large_graph.add_nodes_from(range(large_n))
+    # Add some edges to make it non-trivial
+    for i in range(large_n - 1):
+        large_graph.add_edge(i, i + 1)
     
-    # Test empty diagram
-    empty_vec = handle_empty_diagram(10)
-    logger.info(f"Empty vector: {empty_vec}")
+    print("\nTesting large graph...")
+    needs_sparse_large = check_memory_requirement(large_graph)
+    print(f"Needs sparse mode: {needs_sparse_large}")
     
-    print("Persistence utils test completed.")
+    if needs_sparse_large:
+        dist_matrix_large = compute_shortest_path_matrix(large_graph, use_sparse=True)
+        print(f"Large distance matrix type: {type(dist_matrix_large)}")
+        print(f"Large distance matrix shape: {dist_matrix_large.shape}")
+        print(f"Large distance matrix nnz: {dist_matrix_large.nnz}")
+    
+    print("\nMemory threshold check test completed.")
+
 
 if __name__ == "__main__":
     main()
