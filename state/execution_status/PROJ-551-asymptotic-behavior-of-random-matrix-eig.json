@@ -1,0 +1,18 @@
+{
+  "project_id": "PROJ-551-asymptotic-behavior-of-random-matrix-eig",
+  "ok": false,
+  "reason": "2 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/analysis/generate_sensitivity_report.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026tistical correlations in simulated data. No physical system is m\u2026\u201d; code/research.md: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026correlations within the simulated data. - **Role**: The algorit\u2026\u201d; 3 command(s) failed: python code/main.py --mode single --N 1000 --theta 2.5 --k 1 --pattern diagonal (rc=1); python code/main.py --mode sweep --N 2000 --iterations 100 --patterns diagonal,block-sparse,random-sparse (rc=1); python code/main.py --mode sensitivity --N 1000 --theta 1.5 --densities 0.1,0.2,0.3 (rc=1); 10 declared deliverable(s) absent: data/figures/outlier_probability_vs_theta.png; data/processed/convergence_data.json; data/processed/mc_results.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --mode single --N 1000 --theta 2.5 --k 1 --pattern diagonal -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/main.py\", line 14, in <module>\n    from utils.config import load_config, ensure_directories\nImportError: cannot import name 'load_config' from 'utils.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/utils/config.py)",
+    "python code/main.py --mode sweep --N 2000 --iterations 100 --patterns diagonal,block-sparse,random-sparse -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/main.py\", line 14, in <module>\n    from utils.config import load_config, ensure_directories\nImportError: cannot import name 'load_config' from 'utils.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/utils/config.py)",
+    "python code/main.py --mode sensitivity --N 1000 --theta 1.5 --densities 0.1,0.2,0.3 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/main.py\", line 14, in <module>\n    from utils.config import load_config, ensure_directories\nImportError: cannot import name 'load_config' from 'utils.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/utils/config.py)"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-10-07T00:45:36Z"
+}

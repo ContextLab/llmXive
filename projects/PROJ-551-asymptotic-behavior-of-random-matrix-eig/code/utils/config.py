@@ -1,147 +1,128 @@
 """
-Configuration management module.
+Configuration management for seeds, tolerances, and paths.
 
-Handles seeds, tolerances, paths, and other global project settings.
+This module centralizes project-wide configuration parameters to ensure
+reproducibility and ease of modification.
 """
-import json
+
 import os
+import json
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+# Project root is two levels up from this file (code/utils/config.py -> project root)
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+_CONFIG_PATH = _PROJECT_ROOT / "code" / "config.json"
 
-# Default configuration values
-DEFAULT_SEED = 42
-DEFAULT_OUTLIER_TOLERANCE = 1e-6  # e for epsilon
-DEFAULT_N = 1000
-DEFAULT_THETA = 2.5
+# Default values
+_DEFAULTS = {
+    "SEED": 42,
+    "OUTLIER_TOLERANCE": 1e-10,
+    "MAX_ITER": 1000,
+    "DATA_PATH_RAW": "data/raw",
+    "DATA_PATH_PROCESSED": "data/processed",
+    "DATA_PATH_FIGURES": "data/figures",
+    "DATA_PATH_LOGS": "data/logs",
+    "STATE_PATH": "state",
+}
 
-
-class ProjectConfig:
-    """Project-wide configuration container."""
-
-    def __init__(
-        self,
-        project_root: Optional[Path] = None,
-        seed: Optional[int] = None,
-        outlier_tolerance: Optional[float] = None,
-        default_n: Optional[int] = None,
-        default_theta: Optional[float] = None
-    ):
-        """
-        Initialize project configuration.
-
-        Args:
-            project_root: Root directory of the project. If None, tries to detect.
-            seed: Random seed. Defaults to DEFAULT_SEED.
-            outlier_tolerance: Tolerance for outlier detection. Defaults to DEFAULT_OUTLIER_TOLERANCE.
-            default_n: Default matrix dimension. Defaults to DEFAULT_N.
-            default_theta: Default perturbation strength. Defaults to DEFAULT_THETA.
-        """
-        self.project_root = project_root or self._detect_project_root()
-        self.seed = seed if seed is not None else DEFAULT_SEED
-        self.outlier_tolerance = (
-            outlier_tolerance if outlier_tolerance is not None else DEFAULT_OUTLIER_TOLERANCE
-        )
-        self.default_n = default_n if default_n is not None else DEFAULT_N
-        self.default_theta = default_theta if default_theta is not None else DEFAULT_THETA
-
-        # Derived paths
-        self.code_dir = self.project_root / "code"
-        self.data_raw = self.project_root / "data" / "raw"
-        self.data_processed = self.project_root / "data" / "processed"
-        self.data_figures = self.project_root / "data" / "figures"
-        self.data_logs = self.project_root / "data" / "logs"
-        self.state_dir = self.project_root / "state"
-        self.tests_dir = self.project_root / "tests"
-
-    @staticmethod
-    def _detect_project_root() -> Path:
-        """Detect the project root by looking for a marker file or directory structure."""
-        # Start from current working directory
-        cwd = Path.cwd()
-
-        # Look for 'code/' directory as an indicator
-        if (cwd / "code").exists():
-            return cwd
-
-        # Traverse up
-        for parent in cwd.parents:
-            if (parent / "code").exists():
-                return parent
-
-        # Fallback to cwd
-        return cwd
+_config_cache: Dict[str, Any] = {}
 
 
-# Global configuration instance
-_config: Optional[ProjectConfig] = None
+def _load_config() -> Dict[str, Any]:
+    """Load configuration from file or return defaults."""
+    if _config_cache:
+        return _config_cache
+
+    config = _DEFAULTS.copy()
+
+    if _CONFIG_PATH.exists():
+        try:
+            with open(_CONFIG_PATH, 'r') as f:
+                file_config = json.load(f)
+                config.update(file_config)
+        except (json.JSONDecodeError, IOError) as e:
+            print(f"Warning: Could not load config file at {_CONFIG_PATH}: {e}. Using defaults.")
+    else:
+        # Create default config file if it doesn't exist
+        _CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with open(_CONFIG_PATH, 'w') as f:
+            json.dump(config, f, indent=2)
+
+    _config_cache.update(config)
+    return config
 
 
-def get_config() -> ProjectConfig:
-    """Get or create the global project configuration."""
-    global _config
-    if _config is None:
-        _config = ProjectConfig()
-    return _config
+def get_config(key: str, default: Any = None) -> Any:
+    """
+    Get a configuration value by key.
 
+    Args:
+        key: The configuration key.
+        default: Default value if key is not found.
 
-def get_seed() -> int:
-    """Get the current random seed."""
-    return get_config().seed
+    Returns:
+        The configuration value or default.
+    """
+    config = _load_config()
+    return config.get(key, default)
 
 
 def get_outlier_tolerance() -> float:
-    """Get the outlier detection tolerance (epsilon)."""
-    return get_config().outlier_tolerance
+    """
+    Get the outlier tolerance from configuration.
+
+    Returns:
+        The tolerance value (default 1e-10).
+    """
+    return float(get_config("OUTLIER_TOLERANCE", _DEFAULTS["OUTLIER_TOLERANCE"]))
+
+
+def get_seed() -> int:
+    """Get the random seed."""
+    return int(get_config("SEED", _DEFAULTS["SEED"]))
 
 
 def get_project_paths() -> Dict[str, Path]:
-    """Get all project paths as a dictionary."""
-    cfg = get_config()
-    return {
-        "project_root": cfg.project_root,
-        "code": cfg.code_dir,
-        "data_raw": cfg.data_raw,
-        "data_processed": cfg.data_processed,
-        "data_figures": cfg.data_figures,
-        "data_logs": cfg.data_logs,
-        "state": cfg.state_dir,
-        "tests": cfg.tests_dir,
-    }
-
-
-def set_seed(seed: int) -> None:
-    """Set the global random seed."""
-    get_config().seed = seed
-
-
-def set_outlier_tolerance(tolerance: float) -> None:
-    """Set the outlier detection tolerance."""
-    get_config().outlier_tolerance = tolerance
-
-
-def load_config_from_file(config_path: Path) -> Dict[str, Any]:
     """
-    Load configuration from a JSON file.
-
-    Args:
-        config_path: Path to the configuration JSON file.
+    Get standardized paths for project directories.
 
     Returns:
-        Dictionary of configuration values.
+        Dictionary mapping directory names to Path objects.
     """
-    with open(config_path, "r") as f:
-        return json.load(f)
+    config = _load_config()
+    paths = {}
+    for key, default_path in _DEFAULTS.items():
+        if key.startswith("DATA_PATH") or key == "STATE_PATH":
+            # Handle relative paths from project root
+            rel_path = config.get(key, default_path)
+            paths[key] = _PROJECT_ROOT / rel_path
+    return paths
 
 
-def save_config_to_file(config: Dict[str, Any], config_path: Path) -> None:
+def ensure_directories() -> None:
+    """Ensure all required data directories exist."""
+    paths = get_project_paths()
+    for path in paths.values():
+        path.mkdir(parents=True, exist_ok=True)
+
+
+def load_config_file(path: Optional[str] = None) -> Dict[str, Any]:
     """
-    Save configuration to a JSON file.
+    Load a specific configuration file (optional override).
 
     Args:
-        config: Configuration dictionary.
-        config_path: Path to save the configuration.
+        path: Path to a JSON config file. If None, uses the default project config.
+
+    Returns:
+        Configuration dictionary.
     """
-    config_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(config_path, "w") as f:
-        json.dump(config, f, indent=2)
+    if path:
+        cfg_path = Path(path)
+    else:
+        cfg_path = _CONFIG_PATH
+
+    if cfg_path.exists():
+        with open(cfg_path, 'r') as f:
+            return json.load(f)
+    return {}

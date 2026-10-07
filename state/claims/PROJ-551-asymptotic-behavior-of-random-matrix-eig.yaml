@@ -1458,3 +1458,335 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-02T15:37:51Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 0
+  canonical: theoretical semicircle edge is plus or minus 2.0
+  claim_id: c_21980bea
+  context: "Implement validation logic function in code/analysis/eigen_solver.py to\
+    \ distinguish outliers from numerical artifacts using a strict tolerance loaded\
+    \ from config.py (default 1e-10) relative to the theoretical semicircle edge (\xB1\
+    2.0)."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: arXiv:0812.2602v1 [cs.IT] 14 Dec 2008
+      source_id: '0812.2602'
+      url: https://arxiv.org/abs/0812.2602
+      value: '2'
+    filled: true
+  kind: numeric
+  raw_text: "The theoretical semicircle edge is \xB12.0."
+  resolved_value: '2'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-07T00:46:04Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: BBP transition is a rigorous mathematical theorem
+  claim_id: c_49567015
+  context: The 'gambling table' is a metaphor for the statistical ensemble, not a
+    claim about physical randomness. The BBP transition is a rigorous mathematical
+    theorem (proven in literature) that holds for the ensemble regardless of physical
+    interpretation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BBP_transition_is_a_rigorous_mathematical_theorem
+  kind: entity_fact
+  raw_text: The BBP transition is a rigorous mathematical theorem.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:47:53Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: BBP transition is rigorous mathematical result for Wigner matrices with
+    finite-rank perturbations
+  claim_id: c_6792160c
+  context: The BBP transition is a rigorous mathematical result for Wigner matrices
+    with finite-rank perturbations. This project verifies this theorem computationally.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BBP_transition_is_rigorous_mathematical_result_for_Wigner_ma
+  kind: entity_fact
+  raw_text: The BBP transition is a rigorous mathematical result for Wigner matrices
+    with finite-rank perturbations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:48:38Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: Wigner Ensemble defined as set of symmetric matrices with independent
+    identically distributed entries
+  claim_id: c_f94591f5
+  context: The Wigner Ensemble is defined as the set of symmetric matrices with independent,
+    identically distributed entries. Sparse perturbations are deterministic matrices
+    added to this ensemble.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wigner_Ensemble_defined_as_set_of_symmetric_matrices_with_in
+  kind: entity_fact
+  raw_text: The Wigner Ensemble is defined as the set of symmetric matrices with independent,
+    identically distributed entries.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:49:21Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: 'Wigner Ensemble definition: symmetric matrices with i.i.d. entries'
+  claim_id: c_2b488a8e
+  context: Update research.md to explicitly define the Wigner Ensemble and Sparse
+    Perturbations as purely mathematical constructs.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wigner_Ensemble_definition:_symmetric_matrices_with_i.i.d._e
+  kind: entity_fact
+  raw_text: The Wigner Ensemble is defined as the set of symmetric matrices with independent,
+    identically distributed entries.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:50:27Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: BBP transition is a rigorous mathematical theorem
+  claim_id: c_fd07401c
+  context: Add a subsection explaining that the BBP transition is a rigorous mathematical
+    theorem that holds for the ensemble regardless of physical interpretation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BBP_transition_is_a_rigorous_mathematical_theorem
+  kind: entity_fact
+  raw_text: The BBP transition is a rigorous mathematical theorem (proven in literature)
+    that holds for the ensemble regardless of physical interpretation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:50:49Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: BBP transition result for Wigner matrices with finite-rank perturbations
+  claim_id: c_7a3256b6
+  context: Update research.md to explicitly distinguish between the mathematical theorem
+    (BBP transition) and physical application.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BBP_transition_result_for_Wigner_matrices_with_finite-rank_p
+  kind: entity_fact
+  raw_text: The BBP transition is a rigorous mathematical result for Wigner matrices
+    with finite-rank perturbations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:50:50Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: Study investigates asymptotic behavior of eigenvalues in mathematical
+    ensemble
+  claim_id: c_3a0bdb7b
+  context: Update research.md to explicitly state the study investigates the asymptotic
+    behavior of eigenvalues in a mathematical ensemble of random matrices.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_investigates_asymptotic_behavior_of_eigenvalues_in_mat
+  kind: entity_fact
+  raw_text: The study investigates the asymptotic behavior of eigenvalues in a mathematical
+    ensemble of random matrices.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:51:22Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: Wigner Ensemble definition symmetric matrices independent identically
+    distributed entries
+  claim_id: c_fd806002
+  context: 'Update research.md (Section 2: Mathematical Framework) to explicitly define
+    the ''Wigner Ensemble'' and ''Sparse Perturbations'' as purely mathematical constructs.
+    This task must state that the ''probability distribution'' describes the statistical
+    properties of the ensemble, not a physical stochastic process.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wigner_Ensemble_definition_symmetric_matrices_independent_id
+  kind: entity_fact
+  raw_text: The Wigner Ensemble is defined as the set of symmetric matrices with independent,
+    identically distributed entries.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:52:20Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: BBP transition rigorous mathematical theorem
+  claim_id: c_8a94741d
+  context: It must explain that while the distribution is abstract, the BBP transition
+    is a rigorous mathematical theorem (proven in literature) that holds for the ensemble
+    regardless of physical interpretation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BBP_transition_rigorous_mathematical_theorem
+  kind: entity_fact
+  raw_text: The BBP transition is a rigorous mathematical theorem.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:52:22Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: BBP transition rigorous mathematical result Wigner matrices finite-rank
+    perturbations
+  claim_id: c_dd67aab1
+  context: The BBP transition is a rigorous mathematical result for Wigner matrices
+    with finite-rank perturbations. This project verifies this theorem computationally.
+    It does not claim that the matrices model a physical system where such perturbations
+    occur naturally.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BBP_transition_rigorous_mathematical_result_Wigner_matrices
+  kind: entity_fact
+  raw_text: The BBP transition is a rigorous mathematical result for Wigner matrices
+    with finite-rank perturbations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:52:24Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: BBP transition holds ensemble regardless physical interpretation
+  claim_id: c_3f4f41c9
+  context: It must explain that while the distribution is abstract, the BBP transition
+    is a rigorous mathematical theorem (proven in literature) that holds for the ensemble
+    regardless of physical interpretation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BBP_transition_holds_ensemble_regardless_physical_interpreta
+  kind: entity_fact
+  raw_text: The BBP transition holds for the ensemble regardless of physical interpretation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:53:10Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 0
+  canonical: Theoretical semicircle edge is +/-2.0
+  claim_id: c_6b12a891
+  context: "Implement validation logic function in code/analysis/eigen_solver.py to\
+    \ distinguish outliers from numerical artifacts using a strict tolerance loaded\
+    \ from config.py (default 1e-10) relative to the theoretical semicircle edge (\xB1\
+    2.0)."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: arXiv:0812.2602v1 [cs.IT] 14 Dec 2008
+      source_id: '0812.2602'
+      url: https://arxiv.org/abs/0812.2602
+      value: '2'
+    filled: true
+  kind: numeric
+  raw_text: "The theoretical semicircle edge is \xB12.0."
+  resolved_value: '2'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-07T00:54:39Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: BBP transition is a rigorous mathematical theorem
+  claim_id: c_7a038a0e
+  context: It must explain that while the distribution is abstract, the BBP transition
+    is a rigorous mathematical theorem (proven in literature) that holds for the ensemble
+    regardless of physical interpretation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BBP_transition_is_a_rigorous_mathematical_theorem
+  kind: entity_fact
+  raw_text: The BBP transition is a rigorous mathematical theorem (proven in literature)
+    that holds for the ensemble regardless of physical interpretation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:54:41Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: Wigner Ensemble defined as symmetric matrices with iid entries
+  claim_id: c_65d959f2
+  context: 'This task must state that the probability distribution describes the statistical
+    properties of the ensemble, not a physical stochastic process. Append Text: ''The
+    Wigner Ensemble is defined as the set of symmetric matrices with independent,
+    identically distributed entries.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wigner_Ensemble_defined_as_symmetric_matrices_with_iid_entri
+  kind: entity_fact
+  raw_text: The Wigner Ensemble is defined as the set of symmetric matrices with independent,
+    identically distributed entries.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:54:48Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: BBP transition is a rigorous mathematical result for Wigner matrices
+    with finite-rank perturbations
+  claim_id: c_131ca8dc
+  context: 'Update research.md to explicitly distinguish between the mathematical
+    theorem (BBP transition) and physical application. Append Text: ''The BBP transition
+    is a rigorous mathematical result for Wigner matrices with finite-rank perturbations.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BBP_transition_is_a_rigorous_mathematical_result_for_Wigner
+  kind: entity_fact
+  raw_text: The BBP transition is a rigorous mathematical result for Wigner matrices
+    with finite-rank perturbations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:54:52Z'

@@ -4,8 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T017` (rejected 1x): declared artifact(s) missing/empty/invalid: data/logs/simulation_run.log
-- `T020b` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/mc_results.csv, data/processed/convergence_data.json
+- `T021c` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/validated_sweep_results.csv, data/processed/threshold_identification.json
 
 ## Required change
 
