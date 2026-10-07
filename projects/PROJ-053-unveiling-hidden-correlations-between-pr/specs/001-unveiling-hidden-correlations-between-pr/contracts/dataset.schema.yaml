@@ -1,85 +1,45 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "AM Alloy Dataset Schema"
-description: "Schema for the processed AM alloy dataset used in GPR training."
-type: object
+title: "AM Process-Property Dataset Schema"
+description: "Schema for the preprocessed dataset used in GPR training."
+type: "object"
 properties:
-  header:
-    type: array
-    items:
-      type: string
-    description: "Column names of the processed dataset."
-    minItems: 5
-  rows:
-    type: array
-    items:
-      type: object
-      properties:
-        laser_power_norm:
-          type: number
-          minimum: 0.0
-          maximum: 1.0
-          description: "Normalized laser power."
-        scan_speed_norm:
-          type: number
-          minimum: 0.0
-          maximum: 1.0
-          description: "Normalized scan speed."
-        layer_thickness_norm:
-          type: number
-          minimum: 0.0
-          maximum: 1.0
-          description: "Normalized layer thickness."
-        energy_density_norm:
-          type: number
-          minimum: 0.0
-          maximum: 1.0
-          description: "Normalized energy density (if collinearity detected)."
-        yield_strength_norm:
-          type: number
-          description: "Normalized yield strength."
-        ductility_norm:
-          type: number
-          description: "Normalized ductility (optional)."
-        fatigue_life_norm:
-          type: number
-          description: "Normalized fatigue life (optional)."
-        is_Ti-6Al-4V:
-          type: integer
-          enum: [0, 1]
-          description: "One-hot encoded alloy type (optional)."
-        is_Inconel_718:
-          type: integer
-          enum: [0, 1]
-          description: "One-hot encoded alloy type (optional)."
-      required:
-        - laser_power_norm
-        - scan_speed_norm
-        - layer_thickness_norm
-        - yield_strength_norm
-    minItems: 50
-  metadata:
-    type: object
-    properties:
-      source:
-        type: string
-        description: "Source of the raw data (e.g., 'local', 'huggingface/...')."
-      checksum:
-        type: string
-        description: "SHA256 checksum of the raw input file."
-      sample_count:
-        type: integer
-        minimum: 50
-      imputation_log:
-        type: string
-        description: "Summary of imputation steps taken."
-      collinearity_handling:
-        type: string
-        description: "Description of collinearity handling (e.g., 'energy_density_constructed')."
-    required:
-      - source
-      - checksum
-      - sample_count
+  laser_power_norm:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Normalized laser power in Watts."
+  scan_speed_norm:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Normalized scan speed in mm/s."
+  layer_thickness_norm:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Normalized layer thickness in µm."
+  is_Ti-6Al-4V:
+    type: "integer"
+    enum: [0, 1]
+    description: "One-hot encoded flag for Ti-6Al-4V alloy."
+  is_Inconel_718:
+    type: "integer"
+    enum: [0, 1]
+    description: "One-hot encoded flag for Inconel 718 alloy."
+  yield_strength_norm:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Normalized yield strength in MPa."
+  ductility_norm:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Normalized ductility in percent."
 required:
-  - header
-  - rows
-  - metadata
+  - "laser_power_norm"
+  - "scan_speed_norm"
+  - "layer_thickness_norm"
+  - "yield_strength_norm"
+  - "ductility_norm"
+additionalProperties: false

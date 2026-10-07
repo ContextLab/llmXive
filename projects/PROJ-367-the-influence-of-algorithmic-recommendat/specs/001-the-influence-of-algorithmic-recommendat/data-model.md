@@ -1,108 +1,63 @@
 # Data Model: The Influence of Algorithmic Recommendations on Exploration vs. Exploitation in Online Learning
 
-## Overview
+## Key Entities
 
-This document defines the data structures, transformations, and schemas used in the analysis pipeline. It ensures that all data flows are traceable and reproducible, adhering to the "Single Source of Truth" principle.
-
-## Entities
-
-### 1. UserSession
+### UserSession
 Represents a single observation window for a specific user.
-- **user_id**: Unique identifier for the user.
-- **session_id**: Unique identifier for the session.
-- **recommended_categories**: List of category labels recommended by the algorithm. **Used directly for entropy calculation; no merging.**
-- **enrolled_categories**: List of category labels enrolled in by the user. **Used directly for entropy calculation; no merging.**
-- **baseline_interest_vector**: Vector representing historical preferences (pre-study). **Users with no baseline history are excluded from the dataset.**
-- **recommendation_diversity_score**: Shannon entropy (log base 2) of `recommended_categories`.
-- **learner_diversity_score**: Shannon entropy (log base 2) of `enrolled_categories`.
-- **propensity_score**: Estimated probability of receiving a high-diversity recommendation.
-- **weight**: Stabilized propensity score weight.
-- **excluded**: Boolean flag indicating if the row was excluded (e.g., empty enrollments or no baseline history).
+- **Attributes**:
+  - `user_id`: Unique identifier for the learner.
+  - `session_id`: Unique identifier for the session.
+  - `recommended_categories`: List of category strings (derived from VLE access logs).
+  - `enrolled_categories`: List of category strings the user actually enrolled in.
+  - `recommendation_diversity_score`: Calculated Shannon entropy of `recommended_categories`.
+  - `learner_diversity_score`: Calculated Shannon entropy of `enrolled_categories` (or null).
 
-### 2. DiversityScore
-A scalar value representing the Shannon entropy of a list of categories.
-- **value**: Float (entropy value).
-- **base**: Integer (log base, always 2).
-- **null_handling**: If the input list is empty, the value is `null`.
+### Baseline_Interest_Vector
+A vector representing the user's historical topic preferences.
+- **Attributes**:
+  - `user_id`: Link to `UserSession`.
+  - `category_frequencies`: Dictionary mapping category names to counts/frequencies from pre-study history.
+  - `normalized_vector`: Probability distribution over categories.
 
-### 3. ModelResult
-The output object containing model diagnostics and estimates.
-- **coefficient**: Float (fixed effect of `Recommendation_Diversity`).
-- **standard_error**: Float.
-- **p_value**: Float.
-- **vif**: Float (Variance Inflation Factor for `Baseline_Interest`).
-- **convergence_status**: Boolean.
-- **effective_sample_size**: Integer.
-- **extreme_weights_flag**: Boolean (true if any weight > 10x median).
-- **overlap_weighting_applied**: Boolean (true if overlap weighting was used).
-- **rows_trimmed**: Integer (number of rows trimmed for overlap weighting).
-- **runtime_warning**: String (warning if runtime > 6 hours, or null).
+### ModelResult
+Output object from the statistical modeling phase.
+- **Attributes**:
+  - `coefficient`: Estimated effect of `Recommendation_Diversity` on `Learner_Diversity`.
+  - `std_error`: Standard error of the coefficient.
+  - `p_value`: P-value for the coefficient.
+  - `weights`: Array of propensity scores/weights used.
+  - `vif`: Variance Inflation Factor for baseline controls.
+  - `convergence_status`: Boolean indicating model convergence.
 
 ## Data Flow
 
-1. **Ingestion**: Raw data (CSV/Parquet) is loaded and validated for required columns (`recommended_categories`, `enrolled_categories`). **If missing, `DataSchemaError` is raised.** **A statistical test ensures the predictor is not mechanically derived from the outcome.**
-2. **Preprocessing**:
-   - **No category merging is performed.** Raw labels are used.
-   - `baseline_interest_vector` is derived from pre-study history. **Users with no baseline history are excluded.**
-   - `recommendation_diversity_score` and `learner_diversity_score` are calculated directly on raw labels.
-   - Rows with empty `enrolled_categories` or no baseline history are excluded and logged.
-3. **Modeling**:
-   - Propensity scores are estimated.
-   - Stabilized weights are calculated.
-   - **If extreme weights are detected, Overlap Weighting is applied.**
-   - Weighted linear regression is fitted (or GLS if N < 30).
-4. **Robustness**:
- - **Residual Permutation Test** is executed ([deferred] iterations).
-   - **No sensitivity analysis for semantic thresholds is performed.**
-5. **Reporting**:
-   - Final metrics are aggregated.
-   - Results are framed as associational.
-   - Runtime is recorded; if > 6h, a warning flag is set.
+1. **Ingestion**: Raw OULAD data -> `cleaned_data.parquet` (validated schema).
+2. **Preprocessing**: `cleaned_data.parquet` -> `diversity_scores.json` (entropy calculated, categories merged).
+3. **Modeling**: `diversity_scores.json` + `baseline_vectors` -> `model_results.csv`.
+4. **Robustness**: `model_results.csv` -> `sensitivity_analysis.csv`, `permutation_test_results.json`.
 
 ## Schema Definitions
 
-### Raw Data Schema
-```yaml
-user_id: string
-session_id: string
-recommended_categories: list[string]
-enrolled_categories: list[string]
-# Optional: pre-study enrollment history for baseline calculation
-```
+### Input Schema (Raw Data)
+- `user_id`: String
+- `session_id`: String
+- `recommended_categories`: List[String] (JSON array or comma-separated string)
+- `enrolled_categories`: List[String] (JSON array or comma-separated string)
+- `pre_study_history`: List[String] (optional, for baseline calculation)
 
-### Processed Data Schema
-```yaml
-user_id: string
-session_id: string
-recommendation_diversity_score: float | null
-learner_diversity_score: float | null
-baseline_interest_vector: list[float]
-propensity_score: float
-weight: float
-excluded: boolean
-```
+### Output Schema (Processed)
+- `user_id`: String
+- `session_id`: String
+- `recommendation_diversity_score`: Float (nullable)
+- `learner_diversity_score`: Float (nullable)
+- `baseline_vector`: Dictionary (String -> Float)
+- `weight`: Float
+- `model_coefficient`: Float
+- `model_p_value`: Float
 
-### Output Schema
-```yaml
-coefficient: float
-standard_error: float
-p_value: float
-vif: float
-convergence_status: boolean
-effective_sample_size: integer
-extreme_weights_flag: boolean
-overlap_weighting_applied: boolean
-rows_trimmed: integer
-permutation_p_value: float
-total_runtime_seconds: number
-runtime_warning: string | null
-warning: string
-```
+## Assumptions & Constraints
 
-## Assumptions
-
-- **Baseline Imputation**: **No imputation is performed.** Users with no prior enrollment history are excluded from the analysis to avoid systematic bias.
-- **Category Merging**: **No category merging is performed.** Diversity is calculated directly on raw category labels.
-- **Null Handling**: Empty `enrolled_categories` lists result in `null` for `learner_diversity_score` and exclusion from analysis.
-- **Causal Independence**: **A verification step ensures the predictor is not mechanically derived from the outcome.**
-- **Runtime**: The pipeline is designed to complete within 6 hours. If it exceeds this, a warning flag is set rather than a hard crash.
+- **Missing Data**: Rows with empty `enrolled_categories` are excluded from the final regression but logged.
+- **Semantic Merging**: Categories are merged if semantic similarity < threshold (default 0.05).
+- **Baseline Imputation**: Users with no pre-study history receive a uniform baseline vector.
+- **Small Sample**: If N < 30, GLS is used instead of weighted regression.

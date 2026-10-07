@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: GraphConfig
+description: "Schema for the configuration of a synthetic State-Graph Environment."
+type: object
+required:
+  - graph_id
+  - tier
+  - num_nodes
+  - num_edges
+  - stochasticity
+  - reward_sparsity
+  - path_exists
+  - split_set
+properties:
+  graph_id:
+    type: string
+    description: "Unique identifier for the graph instance."
+    pattern: "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+  tier:
+    type: string
+    description: "Complexity tier."
+    enum:
+      - "Tier 1"
+      - "Tier 2"
+      - "Tier 3"
+  num_nodes:
+    type: integer
+    description: "Number of nodes in the graph."
+    minimum: 5
+  num_edges:
+    type: integer
+    description: "Number of edges in the graph."
+    minimum: 1
+  stochasticity:
+    type: number
+    description: "Probability of stochastic transition."
+    minimum: 0.0
+    maximum: 1.0
+  reward_sparsity:
+    type: number
+    description: "Ratio of reward nodes to total nodes."
+    minimum: 0.0
+    maximum: 1.0
+  path_exists:
+    type: boolean
+    description: "Validation flag indicating a valid path exists."
+  split_set:
+    type: string
+    description: "Dataset split assignment."
+    enum:
+      - "train"
+      - "validation"
+additionalProperties: false

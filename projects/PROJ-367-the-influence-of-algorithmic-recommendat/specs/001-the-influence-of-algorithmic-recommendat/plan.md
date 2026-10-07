@@ -1,45 +1,56 @@
 # Implementation Plan: The Influence of Algorithmic Recommendations on Exploration vs. Exploitation in Online Learning
 
-**Branch**: `001-the-influence-of-algorithmic-recommendations` | **Date**: 2026-07-30 | **Spec**: `specs/001-the-influence-of-algorithmic-recommendations/spec.md`
+**Branch**: `001-the-influence-of-algorithmic-recommendations` | **Date**: 2026-07-10 | **Spec**: `spec.md`
 **Input**: Feature specification from `/specs/001-the-influence-of-algorithmic-recommendations/spec.md`
 
 ## Summary
 
-This plan implements a statistical analysis pipeline to measure the associational relationship between the diversity of algorithmic course recommendations and subsequent learner enrollment diversity, controlling for baseline interests. The technical approach involves ingesting public enrollment data, calculating Shannon entropy (log base 2) for diversity metrics, applying Propensity Score Weighting (PSW) with Overlap Weighting fallback for extreme weights, and validating results via Residual Permutation Tests. **Crucially, this plan requires a verified educational dataset; if no such dataset is found, the project is blocked.**
-
-**Key Revision**: The requirement for semantic similarity merging and threshold sensitivity analysis has been removed from the scope to avoid arbitrary category definitions without a verified ontology. Diversity is now calculated directly on the raw category labels provided in the dataset.
+This project implements a statistical pipeline to quantify the association between the diversity of algorithmic course recommendations and the subsequent diversity of learner enrollments. The core technical approach involves: (1) ingesting the Open University Learning Analytics Dataset (OULAD), (2) constructing a 'Recommendation Diversity' predictor from Virtual Learning Environment (VLE) access logs (simulating algorithmic suggestions), (3) computing Shannon entropy (log base 2) for both recommendation proxies and actual enrollment lists, (4) deriving baseline interest vectors from pre-study history, (5) applying Propensity Score Weighting (PSW) to control for confounding intrinsic preferences, and (6) executing robustness checks via residual permutation tests and sensitivity analysis on semantic similarity thresholds. All findings will be framed as associational.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn`, `pyyaml`, `datasets` (Hugging Face)  
-**Storage**: Local filesystem (CSV/Parquet/JSON) within the CI runner's ephemeral storage (limited capacity).  
-**Testing**: `pytest` with `pytest-cov` for unit tests and `pytest-mock` for data ingestion mocks.  
-**Target Platform**: Linux (GitHub Actions free-tier runner: limited CPU, ~7 GB RAM).  
-**Project Type**: Data analysis pipeline / CLI tool.  
-**Performance Goals**: Full pipeline execution < 6 hours on CPU; memory usage < 6 GB during peak processing. **The entire pipeline is designed to run within these constraints to ensure reproducibility on a fresh runner.**  
-**Constraints**: No GPU usage; no causal language in final output; strict adherence to verified dataset URLs; handling of missing data as per spec. **No analysis will be performed on non-educational data.**  
-**Scale/Scope**: Designed for datasets of substantial scale; handles streaming for larger datasets if available.
+**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn`, `pyarrow`, `datasets` (Hugging Face), `requests`  
+**Storage**: Local filesystem (`data/raw`, `data/processed`), Parquet/JSON/CSV formats.  
+**Testing**: `pytest` (unit, integration, contract).  
+**Target Platform**: GitHub Actions free-tier runner (CPU-only, ~7GB RAM).  
+**Project Type**: Data analysis library/cli (pipeline).  
+**Performance Goals**: Complete pipeline execution < 6 hours on CPU; memory usage < 6GB (streaming if dataset > 7GB).  
+**Constraints**: No GPU usage; no causal claims; strict adherence to open data sources (OULAD).  
+**Scale/Scope**: Designed for datasets of moderate size (streaming if larger); handles missing data per spec.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+> Domain-specific empirical specifics (exact counts, dataset sizes) are deferred to the research/implementation phase.
 
 ## Constitution Check
 
-*Gates determined based on constitution file*
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-1.  **Reproducibility (Principle I)**: The plan mandates pinned dependencies in `requirements.txt` and the use of fixed random seeds in all stochastic processes (PSW, permutation tests). **Every result is reproducible by re-running the project's `code/` against the project's `data/` on a fresh GitHub Actions runner.** All external data sources are restricted to the "Verified datasets" block.
-2.  **Verified Accuracy (Principle II)**: All citations in `research.md` will be restricted to the provided verified URLs. No external URLs will be invented.
-3.  **Data Hygiene (Principle III)**: The plan specifies a `data/` directory structure where raw data is checksummed **and the checksum recorded under `data/` in the state YAML file**. No data may be modified in place; every transformation MUST produce a new file with a documented derivation.
-4.  **Single Source of Truth (Principle IV)**: The `quickstart.md` and `data-model.md` will define the exact data flow from raw ingestion to final metrics, **ensuring every figure in the eventual report traces to a specific row in the processed data**. The schemas in `contracts/` enforce this by ensuring the output schema matches the data model and the code produces output that conforms to the schema.
-5.  **Versioning Discipline (Principle V)**: The `plan.md` and `research.md` will reference the specific commit hash of the spec and the project ID. **Every artifact under this project carries a content hash.**
-6.  **Causal Independence Validation (Principle VI)**: The plan explicitly separates the "recommendation" column (predictor) from the "enrollment" column (outcome) in the data model. **A verification step (automated schema check and statistical correlation test) ensures these columns are distinct and that the predictor is not mechanically derived from the outcome.** The methodology (PSW) is chosen specifically to address the confounding between these two, ensuring the predictor is not mechanically derived from the outcome in the analysis step.
-7.  **Behavioral Agency Preservation (Principle VII)**: The analysis framework includes a "Null Result" handling path (SC-002, SC-003) where a lack of correlation is **treated as a significant, publishable finding** that challenges assumptions about the power of recommender systems in educational contexts.
+- **I. Reproducibility**: The plan mandates pinned `requirements.txt`, explicit random seeds in `code/`, and checksummed data in `data/`. All scripts will be idempotent.
+- **II. Verified Accuracy**: All citations in `research.md` will reference only the OULAD URL and the Wikipedia source for entropy. No external URLs will be invented.
+- **III. Data Hygiene**: Raw data (OULAD) will be stored in `data/raw` with checksums. Derivations (entropy scores, weights) will be written to `data/processed` as new files. No in-place modification.
+- **IV. Single Source of Truth**: All figures and statistics in the final report will trace directly to `data/processed` artifacts generated by `code/` scripts.
+- **V. Versioning Discipline**: Artifacts will be versioned via content hashing in the project state file.
+- **VI. Causal Independence Validation**: The plan explicitly separates the predictor (VLE access logs -> Recommendation Diversity) from the outcome (Enrollment Diversity) using temporal windows. PSW is used to address confounding, avoiding mechanical derivation.
+- **VII. Behavioral Agency Preservation**: The analysis treats a null result as significant. The model does not assume a positive correlation; it tests for association while controlling for baseline interests.
 
-## Scope Exclusion
+## FR/SC Traceability Matrix
 
-**Game-Theoretic Constructs**: The plan explicitly excludes all game-theoretic constructs (e.g., Nash Equilibrium, utility functions, payoff structures) from the analysis scope. These theoretical constructs are not present in the spec or data and would risk violating FR-006's strict associational framing. The analysis will not introduce causal language or violate the 'Single Source of Truth' principle by deriving theoretical constructs not in the data.
-
-**Semantic Similarity Merging**: The plan explicitly excludes the requirement to merge categories based on semantic similarity thresholds (0.01, 0.05, 0.1). Without a verified domain-specific ontology for the dataset, this step is arbitrary and invalidates the diversity metric. Diversity is calculated directly on the raw category labels provided in the dataset.
+| Requirement ID | Description | Implementation Phase | Script/Module | Test Case |
+| :--- | :--- | :--- | :--- | :--- |
+| **FR-001** | Compute Shannon Entropy (log base 2) | Phase 2: Preprocessing | `code/preprocessing.py` | `test_entropy_calculation` |
+| **FR-002** | Derive Baseline_Interest_Vector | Phase 2: Preprocessing | `code/preprocessing.py` | `test_baseline_vector` |
+| **FR-003** | Fit Weighted Linear Regression (PSW) | Phase 3: Modeling | `code/modeling.py` | `test_psw_regression` |
+| **FR-004** | Residual Permutation Test (sufficient iterations) | Phase 4: Robustness | `code/robustness.py` | `test_permutation_test` |
+| **FR-005** | Sensitivity Analysis (threshold sweep) | Phase 4: Robustness | `code/robustness.py` | `test_sensitivity_analysis` |
+| **FR-006** | Frame as Associational | Phase 5: Reporting | `code/main.py` | `test_report_language` |
+| **FR-007** | Validate Schema (DataSchemaError) | Phase 0: Validation | `code/data_fetcher.py` | `test_schema_validation` |
+| **FR-008** | GLS Fallback for N < 30 | Phase 3: Modeling | `code/modeling.py` | `test_gls_fallback` |
+| **FR-009** | Merge Categories (Semantic Similarity) | Phase 2: Preprocessing | `code/preprocessing.py` | `test_category_merging` |
+| **SC-001** | Correlation Coefficient vs Null | Phase 3: Modeling | `code/modeling.py` | `test_significance` |
+| **SC-002** | Coefficient Stability (2/3 thresholds) | Phase 4: Robustness | `code/robustness.py` | `test_stability` |
+| **SC-003** | False-Positive Rate vs Alpha | Phase 4: Robustness | `code/robustness.py` | `test_permutation_pval` |
+| **SC-004** | VIF < 5.0 | Phase 3: Modeling | `code/modeling.py` | `test_vif_check` |
+| **SC-005** | Compute Time < 6h | Phase 5: Reporting | `code/main.py` | `test_runtime` |
 
 ## Project Structure
 
@@ -51,10 +62,9 @@ specs/001-the-influence-of-algorithmic-recommendations/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-│   ├── dataset.schema.yaml
-│   └── output.schema.yaml
-└── tasks.md             # Phase 2 output
+└── contracts/           # Phase 1 output
+    ├── dataset.schema.yaml
+    └── output.schema.yaml
 ```
 
 ### Source Code (repository root)
@@ -64,42 +74,75 @@ projects/PROJ-367-the-influence-of-algorithmic-recommendat/
 ├── code/
 │   ├── __init__.py
 │   ├── requirements.txt
-│   ├── ingestion.py          # Data loading and validation (FR-007)
-│   ├── metrics.py            # Entropy calculation (FR-001)
-│   ├── modeling.py           # PSW and Regression (FR-002, FR-003, FR-008)
-│   ├── robustness.py         # Residual Permutation Test (FR-004)
-│   └── report.py             # Final associational framing (FR-006)
+│   ├── config.py
+│   ├── data_fetcher.py       # Phase 0: Fetch & Validate (FR-007)
+│   ├── preprocessing.py      # Phase 2: Entropy, Merging, Baseline (FR-001, FR-002, FR-009)
+│   ├── modeling.py           # Phase 3: PSW, GLS Fallback (FR-003, FR-008)
+│   ├── robustness.py         # Phase 4: Permutation, Sensitivity (FR-004, FR-005)
+│   └── main.py               # Phase 5: Orchestration & Reporting (FR-006, SC-005)
 ├── data/
-│   ├── raw/                  # Downloaded datasets (checksummed)
-│   ├── processed/            # Derived features (entropy, weights)
-│   └── results/              # Final metrics and plots
+│   ├── raw/
+│   │   └── (OULAD dataset files)
+│   └── processed/
+│       ├── cleaned_data.parquet
+│       ├── diversity_scores.json
+│       └── model_results.csv
 ├── tests/
-│   ├── __init__.py
 │   ├── unit/
-│   │   ├── test_metrics.py
-│   │   └── test_ingestion.py
-│   └── integration/
-│       └── test_pipeline.py
+│   │   ├── test_preprocessing.py
+│   │   ├── test_modeling.py
+│   │   └── test_main_output.py
+│   ├── integration/
+│   │   └── test_pipeline.py
+│   └── contract/
+│       └── test_schemas.py
 └── docs/
-    └── data_dictionary.md
+    └── reports/
+        └── analysis_report.md
 ```
 
-**Structure Decision**: A modular Python package structure (`code/`) is selected to support unit testing of individual components (entropy, PSW, permutation) and to facilitate the "Reproducibility" requirement. The separation of `ingestion`, `metrics`, and `modeling` ensures that the data flow is transparent and traceable, satisfying the "Single Source of Truth" principle.
+**Structure Decision**: Single project structure selected. All logic resides in `code/` with clear separation of concerns (fetching, preprocessing, modeling, robustness). Tests are organized by scope (unit vs. integration) and type (contract).
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Propensity Score Weighting (PSW) with Overlap Weighting | The spec requires controlling for "baseline interests" which are highly correlated with recommendations. Simple regression would suffer from multicollinearity and bias. **Overlap weighting is used to handle extreme weights instead of falling back to biased standard regression.** | Simple linear regression was rejected because it cannot adequately balance the confounding effect of intrinsic user preferences, leading to spurious associations. **Falling back to standard linear regression when PSW fails is explicitly rejected as it reintroduces bias.** |
-| Residual Permutation Test | The spec requires validating against unmeasured confounders in an observational study. Standard p-values are insufficient for robustness claims. **Outcome permutation is rejected as it ignores the weight structure.** | Standard bootstrap was rejected because it resamples data points rather than breaking the specific link between the treatment and the outcome, which is necessary to test the null hypothesis of no effect. **Outcome permutation is rejected because it fails to preserve the weight structure required for the confounder adjustment.** |
-| Direct Entropy Calculation | The spec originally required semantic similarity merging, but this is arbitrary without a verified ontology. **Direct calculation on raw labels is the only valid approach.** | Semantic similarity merging was rejected because it requires a domain-specific ontology that is not available, making the metric arbitrary and invalid. |
+| Propensity Score Weighting (PSW) | Required by US-2 and FR-003 to control for the strong confounding between baseline interests and recommendations in observational data. | Standard linear regression without weighting would yield biased estimates due to the inherent correlation between what is recommended and what a user likes. |
+| Residual Permutation Test | Required by US-3 and FR-004 to validate that the observed effect is not due to unmeasured confounders in the real OULAD data. | Standard p-values assume correct model specification; permutation tests provide a non-parametric validation of the null hypothesis against the actual data noise. |
+| Sensitivity Analysis Sweep | Required by US-3 and FR-005 to ensure robustness against the arbitrary semantic similarity threshold. | A single threshold choice is arbitrary; sweeping thresholds {0.01, 0.05, 0.1} demonstrates result stability. |
 
-## Data Availability Gate
+## Implementation Phases
 
-**Critical Requirement**: The project **MUST** use a dataset containing distinct columns for `recommended_categories` and `enrolled_categories` with **educational course topics**. **No analysis will be performed on non-educational data** (e.g., robotics, code, medical data) as it constitutes a category error and invalidates the scientific claim. If no verified educational dataset is found in the "Verified datasets" block, **the project is blocked** and no further implementation will proceed. The `DataSchemaError` (FR-007) will be raised if the required columns are missing or if the dataset is not educational.
+### Phase 0: Data Fetching & Validation
+- **Goal**: Acquire OULAD dataset and validate schema.
+- **Action**: `code/data_fetcher.py` downloads OULAD (or streams it).
+- **Validation**: Checks for required columns (mapped from OULAD fields). If missing, raises `DataSchemaError` (FR-007).
+- **Output**: `data/raw/validated_oulad.parquet`.
 
-## Reproducibility of Fallbacks
+### Phase 1: Preprocessing & Metric Calculation
+- **Goal**: Compute diversity scores and baseline vectors.
+- **Action**: `code/preprocessing.py` merges categories (FR-009), computes Shannon entropy (FR-001), derives baseline vectors (FR-002).
+- **Output**: `data/processed/cleaned_data.parquet`, `data/processed/diversity_scores.json`.
 
-**Overlap Weighting Fallback**: If extreme weights are detected (>10x median), the system applies Overlap Weighting (truncation or formula $w_i = 1 - p_i$). **The reproducibility of this fallback is ensured by logging the specific threshold used, the exact number of rows trimmed, and the resulting model parameters for the trimmed set.** This ensures the fallback is reproducible as per Principle I.
+### Phase 2: Modeling
+- **Goal**: Fit PSW model or GLS fallback.
+- **Action**: `code/modeling.py` fits weighted regression. Checks N < 30 for GLS fallback (FR-008). Calculates VIF (SC-004).
+- **Output**: `data/processed/model_results.csv`.
 
-**Runtime Warning**: If the pipeline runtime exceeds 6 hours, a warning flag is recorded in the output. The pipeline is designed to be CPU-trivial to avoid this, but the error handling is a warning, not a hard crash, to allow for metric recording.
+### Phase 3: Robustness
+- **Goal**: Permutation test and sensitivity analysis.
+- **Action**: `code/robustness.py` runs multiple permutations (FR-004) and threshold sweep (FR-005).
+- **Output**: `data/processed/sensitivity_analysis.csv`, `data/processed/permutation_test_results.json`.
+
+### Phase 4: Reporting
+- **Goal**: Generate final report.
+- **Action**: `code/main.py` orchestrates pipeline, ensures associational language (FR-006), checks runtime (SC-005).
+- **Output**: `docs/reports/analysis_report.md`.
+
+## Assumptions & Constraints
+
+- **Data Source**: The Open University Learning Analytics Dataset (OULAD) is used. 'Recommendation Diversity' is proxied by VLE resource access patterns (top-K accessed resources), and 'Learner Diversity' by actual course enrollments.
+- **Compute**: Pipeline runs on CPU. Streaming is used if OULAD exceeds available RAM capacity..
+- **Methodology**: All results are associational. No causal claims are made.
+- **Missing Data**: Rows with empty enrollments are excluded and logged.
+- **Small Sample**: If N < 30, GLS is used (FR-008).

@@ -40,6 +40,12 @@ properties:
     type: "integer"
     description: "Length of the ground-truth path."
     minimum: 1
+  split_set:
+    type: "string"
+    description: "Dataset split assignment."
+    enum:
+      - "train"
+      - "validation"
 required:
   - graph_id
   - tier
@@ -51,4 +57,5 @@ required:
   - start_node
   - goal_node
   - path_length
+  - split_set
 additionalProperties: false

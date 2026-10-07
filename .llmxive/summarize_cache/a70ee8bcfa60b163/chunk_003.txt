@@ -1,0 +1,2 @@
+- **T020** — No code, test, or documentation implementing the suppression of skill signals based on `should_inject` is present; the artifact required by the task is missing. The claim cannot be verified without concrete implementation files or evidence.
+- **T021** — declared artifact(s) missing/empty/invalid: src/simulation/runner.py

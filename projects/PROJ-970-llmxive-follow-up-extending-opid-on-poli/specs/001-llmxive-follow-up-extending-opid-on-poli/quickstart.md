@@ -1,63 +1,68 @@
 # Quickstart: OPID Critical-First Routing Complexity Analysis
 
 ## Prerequisites
-- Python 3.11+
+
+- Python 3.11 or higher
+- pip (Python package installer)
 - Git
 
 ## Installation
 
-1.  **Clone and Setup**:
+1.  **Clone the repository**:
     ```bash
-    cd projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/code
+    git clone <repository-url>
+    cd projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli
+    ```
+
+2.  **Create a virtual environment**:
+    ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+
+3.  **Install dependencies**:
+    ```bash
     pip install -r requirements.txt
     ```
+    *Dependencies include: `networkx`, `numpy`, `pandas`, `scipy`, `statsmodels`, `pytest`.*
 
-2.  **Verify Dependencies**:
-    Ensure `networkx`, `numpy`, `pandas`, `scipy`, and `pytest` are installed.
-    ```bash
-    python -c "import networkx; import numpy; import scipy; print('OK')"
-    ```
+## Running the Simulation
 
-3.  **Verify Config**:
-    Ensure `ruff.toml` and `pyproject.toml` (Black config) are present.
-    ```bash
-    ruff check .
-    black --check .
-    ```
-
-## Running the Experiments
-
-### 1. Generate Environments
-Generate the synthetic graph suite for all tiers.
+### 1. Generate Synthetic Environments
+Generate the graph suite for all three tiers, including the train/validation split.
 ```bash
-python -m src.environment.generator --tiers 1,2,3 --seed 42
+python -m src.environment.graph_generator --output data/raw/synthetic_graphs
 ```
-*Output*: Graphs saved to `data/raw/synthetic_graphs/`.
+*This creates JSON files for Tier 1, Tier 2, and Tier 3 graphs, marking a majority portion as 'train' and a minority portion as 'validation'.*
 
-### 2. Run Simulation Sweep
-Execute the full threshold sweep (0.0 to 1.0) across all tiers.
+### 2. Run the Full Experiment
+Execute the simulation sweep across all thresholds and tiers.
 ```bash
-python -m src.simulation.runner --thresholds 0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0 --episodes 1000 --seed 42
+python -m src.simulation.runner --config src/config.py --output data/processed/episode_results.csv
 ```
-*Note*: This runs sequentially to stay within 7GB RAM.
+*This will run [deferred] episodes per setting (11 thresholds × 3 tiers) on the **training** graphs. If the estimated time exceeds 6 hours, it will gracefully reduce N.*
 
-### 3. Aggregate and Analyze
-Compute metrics and run statistical tests.
+### 3. Analyze Results
+Perform statistical analysis (GLM, Quadratic Regression) and generate the final metrics.
 ```bash
-python -m src.analysis.aggregation --input data/processed/results.csv --output data/processed/aggregated_metrics.csv
-python -m src.analysis.stats --input data/processed/aggregated_metrics.csv
+python -m src.analysis.aggregation --input data/processed/episode_results.csv --output data/processed/aggregated_metrics.csv
+python -m src.analysis.regression --input data/processed/aggregated_metrics.csv
 ```
 
-### 4. Verify Results
-Run the test suite to ensure contract compliance.
+## Verification
+
+To verify the implementation, run the unit tests:
 ```bash
-pytest tests/contract/ -v
+pytest tests/unit/ -v
 ```
 
-## Troubleshooting
+To run the integration test (full loop with small N):
+```bash
+pytest tests/integration/test_full_loop.py -v
+```
 
-- **Memory Error**: Ensure the `runner` is running in sequential mode (default). Do not parallelize.
-- **Graph Validation Failed**: If a graph cannot be generated with a valid path, the system will retry. If it fails after 10 retries, check the `seed` and `tier` parameters.
-- **Missing Logs**: Check `logs/simulation.log` for "deterministic policy observed" warnings.
+## Expected Output
+
+- `data/processed/episode_results.csv`: A CSV with a scalable number of rows (depending on N).
+- `data/processed/aggregated_metrics.csv`: A summary table with multiple rows (11 thresholds × 3 tiers), including rigidity and cost-benefit metrics.
+- Console output: Progress bars and final statistical significance results (p-values for quadratic terms, inflection points).

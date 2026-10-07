@@ -15,6 +15,7 @@ properties:
       - "seed"
       - "node_count"
       - "path_length"
+      - "split_set"
     properties:
       tier:
         type: "integer"
@@ -30,6 +31,10 @@ properties:
       path_length:
         type: "integer"
         description: "Length of the ground-truth path"
+      split_set:
+        type: "string"
+        enum: ["train", "validation"]
+        description: "Dataset split assignment"
   nodes:
     type: "array"
     items:

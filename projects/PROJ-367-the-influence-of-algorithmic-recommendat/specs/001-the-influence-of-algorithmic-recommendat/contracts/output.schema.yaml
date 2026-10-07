@@ -1,58 +1,67 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Output Schema"
-type: "object"
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Results Schema
+description: Schema for the output of the statistical modeling and robustness analysis.
+type: object
 properties:
   coefficient:
-    type: "number"
-    description: "Fixed effect of Recommendation_Diversity."
-  standard_error:
-    type: "number"
-    description: "Standard error of the coefficient."
+    type: number
+    description: Estimated effect of Recommendation_Diversity on Learner_Diversity.
+  std_error:
+    type: number
+    description: Standard error of the coefficient.
   p_value:
-    type: "number"
-    description: "P-value for the coefficient."
+    type: number
+    description: P-value for the coefficient.
   vif:
-    type: "number"
-    description: "Variance Inflation Factor for Baseline_Interest."
+    type: number
+    description: Variance Inflation Factor for baseline controls.
   convergence_status:
-    type: "boolean"
-    description: "Whether the model converged."
-  effective_sample_size:
-    type: "integer"
-    description: "Effective sample size after weighting."
-  extreme_weights_flag:
-    type: "boolean"
-    description: "True if any weight > 10x median."
-  overlap_weighting_applied:
-    type: "boolean"
-    description: "True if overlap weighting was used instead of standard PSW."
-  rows_trimmed:
-    type: "integer"
-    description: "Number of rows trimmed for overlap weighting."
-  permutation_p_value:
-    type: "number"
-    description: "P-value from the Residual Permutation Test."
-  total_runtime_seconds:
-    type: "number"
-    description: "Total runtime of the pipeline in seconds, measured to satisfy SC-005."
-  runtime_warning:
-    type: ["string", "null"]
-    description: "Warning if runtime exceeds 6 hours, or null."
-  warning:
-    type: "string"
-    description: "Any warnings (e.g., power limitation, null result significance)."
+    type: boolean
+    description: Whether the model converged successfully.
+  weights_distribution:
+    type: object
+    properties:
+      median:
+        type: number
+      max:
+        type: number
+      mean:
+        type: number
+    description: Distribution statistics of the propensity weights.
+  sensitivity_analysis:
+    type: array
+    items:
+      type: object
+      properties:
+        threshold:
+          type: number
+          description: Semantic similarity threshold used (e.g., 0.01, 0.05, 0.1).
+        coefficient:
+          type: number
+        p_value:
+          type: number
+      required:
+        - threshold
+        - coefficient
+        - p_value
+    description: Results of the sensitivity analysis sweep.
+  permutation_test:
+    type: object
+    properties:
+      observed_effect:
+        type: number
+      null_distribution_mean:
+        type: number
+      null_distribution_std:
+        type: number
+      p_value_permuted:
+        type: number
+      iterations:
+        type: integer
+    description: Results of the residual permutation test.
 required:
   - coefficient
-  - standard_error
+  - std_error
   - p_value
-  - vif
   - convergence_status
-  - effective_sample_size
-  - extreme_weights_flag
-  - overlap_weighting_applied
-  - rows_trimmed
-  - permutation_p_value
-  - total_runtime_seconds
-  - runtime_warning
 additionalProperties: false
-description: "Schema for the final model results and robustness metrics."

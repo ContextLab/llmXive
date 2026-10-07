@@ -43,6 +43,9 @@ properties:
     description: "P-value of the quadratic term."
     minimum: 0.0
     maximum: 1.0
+  inflection_point:
+    type: "number"
+    description: "Threshold where performance declines (if detected)."
 required:
   - tier
   - threshold
@@ -53,4 +56,5 @@ required:
   - log_prob_shift_mean
   - quadratic_fit_r2
   - quadratic_fit_p
+  - inflection_point
 additionalProperties: false

@@ -2,69 +2,91 @@
 
 ## Prerequisites
 
-- Python 3.11 or higher.
-- Access to the verified datasets (see `research.md`). **A verified educational dataset is required.**
-- A GitHub Actions free-tier runner (2 CPU, ~7 GB RAM) for CI execution.
+- Python 3.11+
+- Git
+- Access to a GitHub Actions runner (or local environment for testing)
 
 ## Installation
 
-1. Clone the repository and navigate to the project directory.
-2. Install dependencies:
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-367-the-influence-of-algorithmic-recommendat
+   ```
+
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. **Install dependencies**:
    ```bash
    pip install -r code/requirements.txt
    ```
-3. Verify the installation by running the unit tests:
-   ```bash
-   pytest tests/unit/
-   ```
-
-## Data Preparation
-
-1. **Download the Dataset**: Use the verified URLs from `research.md` to download the dataset.
-   ```bash
-   # Example for a Hugging Face dataset
-   python -c "from datasets import load_dataset; ds = load_dataset('educational_dataset_name', split='train'); ds.to_parquet('data/raw/dataset.parquet')"
-   ```
-   *Note: The dataset MUST contain educational course categories. If not, the ingestion script will raise a `DataSchemaError`.*
-
-2. **Checksum Verification**: Record the checksum of the downloaded file in `state/projects/PROJ-367-the-influence-of-algorithmic-recommendat.yaml`.
 
 ## Running the Pipeline
 
-1. **Ingestion and Preprocessing**:
-   ```bash
-   python code/ingestion.py --input data/raw/dataset.parquet --output data/processed/processed_data.csv
-   ```
-   This step calculates entropy scores directly on raw categories, handles missing data, **excludes users with no baseline history, and validates causal independence.**
+### 1. Data Fetching
+Fetch the OULAD dataset (or a verified subset):
+```bash
+python code/data_fetcher.py
+```
+*Output*: `data/raw/validated_oulad.parquet` (or `.csv`)
 
-2. **Modeling**:
-   ```bash
-   python code/modeling.py --input data/processed/processed_data.csv --output data/results/model_results.json
-   ```
-   This step fits the weighted linear regression (with Overlap Weighting fallback) and calculates diagnostics.
+### 2. Preprocessing
+Calculate diversity scores, merge categories, and derive baseline vectors:
+```bash
+python code/preprocessing.py
+```
+*Output*: `data/processed/cleaned_data.parquet`, `data/processed/diversity_scores.json`
 
-3. **Robustness Analysis**:
-   ```bash
-   python code/robustness.py --input data/processed/processed_data.csv --output data/results/robustness_results.json
-   ```
-   This step performs the **Residual Permutation Test**. **No sensitivity analysis for semantic thresholds is performed.**
+### 3. Modeling
+Fit the weighted regression and calculate propensity scores:
+```bash
+python code/modeling.py
+```
+*Output*: `data/processed/model_results.csv`
 
-4. **Report Generation**:
-   ```bash
-   python code/report.py --input data/results/ --output docs/final_report.md
-   ```
+### 4. Robustness Analysis
+Run permutation tests and sensitivity analysis:
+```bash
+python code/robustness.py
+```
+*Output*: `data/processed/sensitivity_analysis.csv`, `data/processed/permutation_test_results.json`
 
-## Verification
+### 5. Full Orchestration
+Run the entire pipeline end-to-end:
+```bash
+python code/main.py
+```
 
-- **Unit Tests**: Run `pytest tests/unit/` to verify entropy calculations and data ingestion.
-- **Integration Tests**: Run `pytest tests/integration/` to verify the full pipeline.
-- **Reproducibility**: Re-run the pipeline on a fresh runner and compare the output checksums.
-- **Runtime Metric**: The pipeline logs the total runtime to the output schema (e.g., `output.schema.yaml`) to satisfy SC-005. If runtime > 6h, a warning is recorded.
+## Testing
+
+Run unit tests:
+```bash
+pytest tests/unit/ -v
+```
+
+Run integration tests:
+```bash
+pytest tests/integration/ -v
+```
+
+Run contract tests (schema validation):
+```bash
+pytest tests/contract/ -v
+```
+
+## Expected Outputs
+
+- `data/processed/diversity_scores.json`: Contains entropy scores for each session.
+- `data/processed/model_results.csv`: Contains regression coefficients, p-values, and weights.
+- `data/processed/sensitivity_analysis.csv`: Contains results for thresholds {0.01, 0.05, 0.1}.
+- `docs/reports/analysis_report.md`: Final summary of findings (associational only).
 
 ## Troubleshooting
 
-- **DataSchemaError**: If the dataset lacks `recommended_categories` or `enrolled_categories`, **or if the dataset is not educational**, the pipeline will stop. Check the dataset schema against the spec.
-- **Extreme Weights**: If the PSW model produces extreme weights (>10x median), the system will apply **Overlap Weighting** instead of falling back to standard linear regression. Check the logs for details.
-- **Convergence Issues**: If the PSW model fails to converge, the system will apply **Overlap Weighting**. Check the logs for details.
-- **No Baseline History**: Users with no prior enrollment history are excluded from the analysis. Check the logs for the count of excluded users.
-- **Runtime Warning**: If the pipeline exceeds 6 hours, a warning flag is recorded in the output. The pipeline is designed to be CPU-trivial to avoid this.
+- **Missing Columns**: If `DataSchemaError` is raised, ensure the input dataset has `recommended_categories` and `enrolled_categories` (or mapped equivalents).
+- **Small Sample**: If N < 30, the pipeline automatically switches to GLS. Check logs for the methodological change.
+- **Extreme Weights**: If weights > 10x median, a warning is logged, and the effective sample size is reported.

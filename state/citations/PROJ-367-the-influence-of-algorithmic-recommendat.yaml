@@ -1,1 +1,11 @@
-[]
+- artifact_hash: c80279d60c4a7c0f7b9171efe8723cad25ef6edacf1d9cf49d4c5a11e4c86a36
+  artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: OU Analyse
+  kind: url
+  value: https://analyse.kmi.open.ac.uk/dataset
+  verification_status: pending
+  verified_against_url: https://research.stem.open.ac.uk/ouanalyse/
+  verified_at: '2026-10-07T18:45:09.519904Z'

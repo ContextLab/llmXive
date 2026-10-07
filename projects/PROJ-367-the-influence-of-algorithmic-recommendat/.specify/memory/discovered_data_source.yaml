@@ -1,12 +1,14 @@
 status: none
-intent: Hugging Face datasets recommended_categories enrolled_categories PSW pick_and_place
-  record-test python package dataset
+intent: Educational Course Recommendation and Enrollment Dataset with category columns
+  download python package dataset
 required_fields:
 - user_id
 - session_id
-- recommended_categories
-- enrolled_categories
+- recommended_items
+- enrolled_items
+- recommended_item_categories
+- enrolled_item_categories
 - timestamp
-cache_key: 1cec9ae4ce08eca41f034c74fd19bf7b04e72dcef032236807894e9397f04344
-searched_at: '2026-09-22T17:29:27.675258+00:00'
+cache_key: bb94413d7b3c379b4b6e14c09a58ea60c4f326c305ef5bce0d4fc971d5e4d6b7
+searched_at: '2026-10-07T18:40:54.707632+00:00'
 retry_count: 1

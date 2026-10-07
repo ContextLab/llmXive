@@ -1,15 +1,16 @@
 status: none
-intent: graph reinforcement learning environments synthetic tiered graphs python package
+intent: synthetic state graph suite reinforcement learning environments python package
   dataset
 required_fields:
-- graph_id
-- tier
 - node_id
+- state_features
 - edges
-- transition_type
 - transition_probabilities
 - reward
-- reward_sparsity
-cache_key: ba87536e1dea5fe63b19e7ff2f081e6c1173deb0116e13c8da1fd0564df657a4
-searched_at: '2026-09-21T09:17:53.920440+00:00'
+- tier
+- start_node
+- goal_node
+- seed
+cache_key: 0df090f5bd5f9dee31272f24424e9df97fde8437e78c01bd03ec71293e63a20c
+searched_at: '2026-10-07T18:25:59.321753+00:00'
 retry_count: 1

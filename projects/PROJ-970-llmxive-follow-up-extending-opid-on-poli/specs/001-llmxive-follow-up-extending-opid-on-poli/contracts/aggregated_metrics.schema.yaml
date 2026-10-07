@@ -12,6 +12,9 @@ required:
   - "policy_rigidity"
   - "distillation_cost_benefit"
   - "n_episodes"
+  - "quadratic_beta2"
+  - "quadratic_p_value"
+  - "inflection_point"
 properties:
   tier:
     type: "integer"
@@ -38,11 +41,21 @@ properties:
     description: "Mean action entropy variance across episodes"
   policy_rigidity:
     type: "number"
-    description: "Policy rigidity (conditional variance reduction due to injection)"
+    description: "Policy rigidity (residual variance from quadratic fit)"
   distillation_cost_benefit:
     type: "number"
-    description: "Ratio of mean log-prob shift to success rate improvement"
+    description: "Ratio of mean log-prob shift to success rate improvement (from validation set)"
   n_episodes:
     type: "integer"
     minimum: 1
     description: "Number of episodes in this group"
+  quadratic_beta2:
+    type: "number"
+    description: "Quadratic coefficient from GLM"
+  quadratic_p_value:
+    type: "number"
+    description: "P-value for quadratic term"
+  inflection_point:
+    type: "number"
+    description: "Threshold where performance declines (if detected)"
+additionalProperties: false
