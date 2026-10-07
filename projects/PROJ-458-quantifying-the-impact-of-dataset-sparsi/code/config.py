@@ -1,4 +1,6 @@
-"""Configuration management for the project."""
+"""
+Configuration module for the project.
+"""
 import os
 from pathlib import Path
 from dotenv import load_dotenv
@@ -6,28 +8,20 @@ from dotenv import load_dotenv
 def load_env():
     """
     Load environment variables from .env file.
-    
-    Raises:
-        ValueError: If MP_API_KEY is missing or set to 'placeholder'.
+    Raises an error if MP_API_KEY is missing.
     """
-    # Find .env file in project root
-    project_root = Path(__file__).resolve().parent.parent
-    env_path = project_root / ".env"
+    env_path = Path(__file__).parent / '.env'
+    load_dotenv(dotenv_path=env_path)
     
-    if env_path.exists():
-        load_dotenv(env_path)
-    else:
-        # Try current directory as fallback
-        load_dotenv()
-
-    api_key = os.getenv("MP_API_KEY")
-    if not api_key or api_key == "placeholder":
-        raise ValueError(
-            "MP_API_KEY is missing or not set in environment. "
-            "Please set it in .env file (copy from code/.env.example)."
+    mp_api_key = os.getenv('MP_API_KEY')
+    if not mp_api_key:
+        raise EnvironmentError(
+            "MP_API_KEY is missing from environment. "
+            "Please set it in the .env file or export it in your shell."
         )
-    
-    return {
-        "mp_api_key": api_key,
-        "project_root": project_root
-    }
+    return mp_api_key
+
+# Additional configuration constants can be added here
+DATA_ROOT = Path(__file__).parent.parent / 'data'
+CODE_ROOT = Path(__file__).parent
+SPECS_ROOT = Path(__file__).parent.parent / 'specs'

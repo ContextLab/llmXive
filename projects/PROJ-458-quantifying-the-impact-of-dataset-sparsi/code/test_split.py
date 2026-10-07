@@ -1,10 +1,3 @@
-"""
-Test Set Splitting Module (T020)
-
-Partitions a stratified sample (5000 rows) from data/raw/raw_pool.csv into a Fixed Test Set.
-Implements FR-009 and Plan Phase 0.5 requirements.
-Uses pd.qcut on formation_energy to define strata, then samples stratified by these bins.
-"""
 import os
 import sys
 import json
@@ -13,242 +6,188 @@ import argparse
 import pandas as pd
 from pathlib import Path
 
-# Add parent directory to path for imports if running as script
-if __name__ == "__main__":
-    sys.path.insert(0, str(Path(__file__).parent))
+# Ensure project root is in path for imports if running as script
+_project_root = Path(__file__).resolve().parent.parent
+if str(_project_root) not in sys.path:
+    sys.path.insert(0, str(_project_root))
 
 from utils.logging import get_logger
 from utils.checksum_utils import compute_sha256
 
 logger = get_logger(__name__)
 
-# Configuration
-RANDOM_SEED = 42  # Fixed seed for reproducibility (FR-009)
-TEST_SIZE = 5000  # Exact number of rows for the test set
-INPUT_FILE = "data/raw/raw_pool.csv"
-OUTPUT_FILE = "data/processed/test_set.csv"
-INDICES_FILE = "data/processed/test_set_indices.csv"
-METADATA_FILE = "data/metadata/test_set_metadata.json"
+RAW_POOL_PATH = Path("data/raw/raw_pool.csv")
+TEST_CONFIG_PATH = Path("data/metadata/test_config.json")
+TEST_SET_PATH = Path("data/processed/test_set.csv")
+TEST_INDICES_PATH = Path("data/processed/test_set_indices.csv")
+TEST_METADATA_PATH = Path("data/metadata/test_set_metadata.json")
 
-def load_data(input_path: str) -> pd.DataFrame:
-    """
-    Load the raw pool dataset.
+def load_data():
+    """Load the raw pool CSV. Fails loudly if missing."""
+    if not RAW_POOL_PATH.exists():
+        raise RuntimeError(
+            f"CRITICAL: Input file {RAW_POOL_PATH} does not exist. "
+            "Task T024 (data ingestion) must complete successfully before T020 can run. "
+            "Do not generate synthetic data."
+        )
+    logger.info(f"Loading raw pool from {RAW_POOL_PATH}")
+    df = pd.read_csv(RAW_POOL_PATH)
+    logger.info(f"Loaded {len(df)} rows from raw pool.")
+    return df
 
-    Args:
-        input_path: Path to the input CSV file.
+def load_test_config():
+    """Load test configuration (size) from metadata. Fails loudly if missing."""
+    if not TEST_CONFIG_PATH.exists():
+        raise RuntimeError(
+            f"CRITICAL: Test configuration file {TEST_CONFIG_PATH} does not exist. "
+            "Please ensure T005 or the planning phase has generated the test size configuration."
+        )
+    with open(TEST_CONFIG_PATH, 'r') as f:
+        config = json.load(f)
+    
+    if 'test_size' not in config:
+        raise RuntimeError(f"CRITICAL: 'test_size' key missing in {TEST_CONFIG_PATH}")
+    
+    return config['test_size']
 
-    Returns:
-        DataFrame containing the raw pool data.
-
-    Raises:
-        FileNotFoundError: If the input file does not exist.
-        ValueError: If the file is empty or has invalid format.
-    """
-    path = Path(input_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-
-    logger.info(f"Loading data from {input_path}")
-    df = pd.read_csv(path)
-
-    if df.empty:
-        raise ValueError(f"Input file {input_path} is empty")
-
-    if 'formation_energy' not in df.columns:
-        raise ValueError(f"Input file {input_path} missing required column 'formation_energy'")
-
-    # Drop rows with null formation_energy for stratification
-    df_clean = df.dropna(subset=['formation_energy'])
-    if len(df_clean) < TEST_SIZE:
-        raise ValueError(f"Not enough valid rows ({len(df_clean)}) to create test set of size {TEST_SIZE}")
-
-    logger.info(f"Loaded {len(df)} rows total, {len(df_clean)} valid for stratification")
-    return df, df_clean
-
-def create_test_set(df_full: pd.DataFrame, df_valid: pd.DataFrame, seed: int = RANDOM_SEED, size: int = TEST_SIZE) -> tuple[pd.DataFrame, list[int]]:
+def create_test_set(df, test_size, seed=42):
     """
     Create a stratified test set based on formation_energy bins.
-
+    
     Algorithm:
-    1. Use pd.qcut on formation_energy to define strata.
-    2. Sample a proportional number of rows from each stratum to reach total size.
-    3. Return the test set and the list of original indices.
-
-    Args:
-        df_full: The full DataFrame (to retrieve original rows by index).
-        df_valid: The DataFrame with valid formation_energy values.
-        seed: Random seed for reproducibility.
-        size: Target size of the test set.
-
-    Returns:
-        Tuple of (test_set_dataframe, list_of_indices)
+    1. Use pd.qcut to create quantile bins on 'formation_energy'.
+    2. Sample 'test_size' rows stratified by these bins.
     """
-    logger.info(f"Creating stratified test set of size {size} with seed {seed}")
-
-    # Define strata using qcut (quantile-based binning)
-    # Use 10 bins to ensure good coverage across the energy distribution
+    logger.info(f"Creating stratified test set of size {test_size} with seed {seed}")
+    
+    # Ensure formation_energy exists
+    if 'formation_energy' not in df.columns:
+        raise ValueError("Column 'formation_energy' not found in raw pool. Cannot stratify.")
+    
+    # Drop rows with NaN in formation_energy for binning purposes, but we need to handle them carefully
+    # For stratification, we only consider rows with valid formation_energy
+    valid_mask = df['formation_energy'].notna()
+    valid_df = df[valid_mask].copy()
+    
+    if len(valid_df) == 0:
+        raise ValueError("No rows with valid 'formation_energy' found for stratification.")
+    
+    # Create bins using qcut. We'll use 10 quantile bins for good stratification
+    n_bins = 10
     try:
-        bins = 10
-        # Ensure we don't try to create more bins than unique values
-        unique_vals = df_valid['formation_energy'].nunique()
-        if unique_vals < bins:
-            bins = unique_vals
-            logger.warning(f"Reducing bins to {bins} due to low unique values in formation_energy")
-
-        df_valid = df_valid.copy()
-        df_valid['strata'] = pd.qcut(df_valid['formation_energy'], q=bins, duplicates='drop')
+        bins = pd.qcut(valid_df['formation_energy'], q=n_bins, duplicates='drop')
     except ValueError as e:
-        raise ValueError(f"Failed to create strata: {e}")
-
-    # Calculate sample size per stratum (proportional)
-    strata_counts = df_valid['strata'].value_counts()
-    total_valid = len(df_valid)
+        # Fallback to fewer bins if not enough unique values
+        logger.warning(f"qcut failed with {n_bins} bins: {e}. Trying fewer bins.")
+        bins = pd.qcut(valid_df['formation_energy'], q=min(n_bins, len(valid_df)), duplicates='drop')
     
-    # Calculate proportional allocation
-    sample_sizes = (strata_counts / total_valid * size).round().astype(int)
+    valid_df['stratum'] = bins
     
-    # Adjust for rounding errors to ensure exact size
-    current_total = sample_sizes.sum()
-    if current_total < size:
-        # Add remaining to the largest stratum
-        sample_sizes[sample_sizes.idxmax()] += (size - current_total)
-    elif current_total > size:
-        # Subtract from the largest stratum
-        sample_sizes[sample_sizes.idxmax()] -= (current_total - size)
-
-    logger.info(f"Strata sample sizes: {sample_sizes.to_dict()}")
-
-    # Perform stratified sampling
+    # Calculate how many to sample per stratum
+    stratum_counts = valid_df['stratum'].value_counts()
+    total_valid = len(valid_df)
+    
+    # Proportional allocation
+    sample_counts = (stratum_counts / total_valid * test_size).round().astype(int)
+    
+    # Ensure we don't exceed available rows in any stratum
+    sample_counts = sample_counts.clip(upper=stratum_counts)
+    
+    # Adjust to match exact test_size if rounding caused mismatch
+    current_sum = sample_counts.sum()
+    if current_sum != test_size:
+        diff = test_size - current_sum
+        if diff > 0:
+            # Add to largest strata
+            largest_strata = sample_counts.sort_values(ascending=False).index[:diff]
+            for idx in largest_strata:
+                if sample_counts[idx] < stratum_counts[idx]:
+                    sample_counts[idx] += 1
+        else:
+            # Remove from smallest non-zero strata
+            smallest_strata = sample_counts.sort_values(ascending=True).index
+            for idx in smallest_strata:
+                if sample_counts[idx] > 0:
+                    sample_counts[idx] -= 1
+                    diff += 1
+                    if diff == 0:
+                        break
+    
+    # Sample from each stratum
     test_indices = []
-    for stratum, n in sample_sizes.items():
-        stratum_df = df_valid[df_valid['strata'] == stratum]
-        sampled = stratum_df.sample(n=n, random_state=seed)
+    for stratum, count in sample_counts.items():
+        stratum_df = valid_df[valid_df['stratum'] == stratum]
+        sampled = stratum_df.sample(n=count, random_state=seed)
         test_indices.extend(sampled.index.tolist())
     
-    # Ensure we have exactly the requested size
-    if len(test_indices) != size:
-        logger.warning(f"Final size mismatch: {len(test_indices)} vs {size}, truncating/padding")
-        test_indices = test_indices[:size]
-
-    # Extract the test set from the FULL dataframe using the indices
-    test_df = df_full.loc[test_indices].copy()
+    test_df = df.loc[test_indices].copy()
     
-    # Reset index for clean output
-    test_df = test_df.reset_index(drop=True)
-    
-    # Remove the temporary 'strata' column if it somehow got included
-    if 'strata' in test_df.columns:
-        test_df = test_df.drop(columns=['strata'])
-
-    logger.info(f"Created test set with {len(test_df)} rows")
+    logger.info(f"Test set created with {len(test_df)} rows.")
     return test_df, test_indices
 
-def save_test_set(test_df: pd.DataFrame, output_path: str) -> None:
-    """
-    Save the test set to a CSV file.
+def save_test_set(test_df):
+    """Save the test set DataFrame to CSV."""
+    TEST_SET_PATH.parent.mkdir(parents=True, exist_ok=True)
+    test_df.to_csv(TEST_SET_PATH, index=False)
+    logger.info(f"Saved test set to {TEST_SET_PATH}")
+    return TEST_SET_PATH
 
-    Args:
-        test_df: DataFrame containing the test set.
-        output_path: Path to the output CSV file.
-    """
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
+def save_indices(indices):
+    """Save the list of indices to a CSV file."""
+    TEST_INDICES_PATH.parent.mkdir(parents=True, exist_ok=True)
+    indices_df = pd.DataFrame({'index': indices})
+    indices_df.to_csv(TEST_INDICES_PATH, index=False)
+    logger.info(f"Saved test indices to {TEST_INDICES_PATH}")
+    return TEST_INDICES_PATH
 
-    logger.info(f"Saving test set to {output_path}")
-    test_df.to_csv(path, index=False)
-    logger.info(f"Saved {len(test_df)} rows to {output_path}")
-
-def save_indices(indices: list[int], output_path: str) -> None:
-    """
-    Save the indices of the test set rows to a CSV file.
-    This ensures strict independence for downstream tasks.
-
-    Args:
-        indices: List of integer indices.
-        output_path: Path to the output CSV file.
-    """
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-
-    logger.info(f"Saving test set indices to {output_path}")
-    df_indices = pd.DataFrame({'index': indices})
-    df_indices.to_csv(path, index=False)
-    logger.info(f"Saved {len(indices)} indices to {output_path}")
-
-def save_metadata(test_df: pd.DataFrame, indices: list[int], output_path: str) -> None:
-    """
-    Save metadata about the test set to a JSON file.
-
-    Args:
-        test_df: DataFrame containing the test set.
-        indices: List of original indices.
-        output_path: Path to the output JSON file.
-    """
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Compute checksum of the saved test set file
-    checksum = compute_sha256(Path(OUTPUT_FILE))
-
+def save_metadata(test_df, indices):
+    """Generate and save metadata about the test set."""
+    checksum = compute_sha256(TEST_SET_PATH)
     metadata = {
         "row_count": len(test_df),
-        "index_count": len(indices),
-        "columns": list(test_df.columns),
+        "seed": 42,
         "checksum": checksum,
-        "random_seed": RANDOM_SEED,
-        "test_size": TEST_SIZE,
-        "source_file": INPUT_FILE,
-        "indices_file": INDICES_FILE,
-        "created_at": pd.Timestamp.now().isoformat()
+        "creation_timestamp": pd.Timestamp.now().isoformat(),
+        "source_file": str(RAW_POOL_PATH),
+        "stratification_column": "formation_energy"
     }
-
-    logger.info(f"Saving metadata to {output_path}: {metadata}")
-
-    with open(path, 'w') as f:
+    
+    TEST_METADATA_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(TEST_METADATA_PATH, 'w') as f:
         json.dump(metadata, f, indent=2)
+    
+    logger.info(f"Saved test set metadata to {TEST_METADATA_PATH}")
+    return metadata
 
 def main():
-    """
-    Main entry point for the test split script.
-    """
-    parser = argparse.ArgumentParser(description="Split raw pool into stratified fixed test set")
-    parser.add_argument("--input", type=str, default=INPUT_FILE, help="Input raw pool CSV file path")
-    parser.add_argument("--output", type=str, default=OUTPUT_FILE, help="Output test set CSV file path")
-    parser.add_argument("--indices", type=str, default=INDICES_FILE, help="Output test set indices CSV file path")
-    parser.add_argument("--metadata", type=str, default=METADATA_FILE, help="Output metadata JSON file path")
-    parser.add_argument("--seed", type=int, default=RANDOM_SEED, help="Random seed for splitting")
-    parser.add_argument("--size", type=int, default=TEST_SIZE, help="Target test set size")
+    """Main entry point for the test split task."""
+    parser = argparse.ArgumentParser(description="Split raw pool into fixed test set.")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
     args = parser.parse_args()
-
+    
     try:
-        # Load data (verify existence of raw_pool.csv)
-        df_full, df_valid = load_data(args.input)
-
-        # Create stratified test set
-        test_df, indices = create_test_set(df_full, df_valid, seed=args.seed, size=args.size)
-
-        # Save test set
-        save_test_set(test_df, args.output)
-
-        # Save indices
-        save_indices(indices, args.indices)
-
-        # Save metadata
-        save_metadata(test_df, indices, args.metadata)
-
-        logger.info("Test set splitting completed successfully")
-        return 0
-
-    except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
-        logger.error("Prerequisite T024 (data/raw/raw_pool.csv) must be completed first.")
-        return 1
-    except ValueError as e:
-        logger.error(f"Invalid data: {e}")
-        return 1
+        # 1. Load raw pool (fails if missing)
+        df = load_data()
+        
+        # 2. Load test config (fails if missing)
+        test_size = load_test_config()
+        
+        # 3. Create test set
+        test_df, indices = create_test_set(df, test_size, seed=args.seed)
+        
+        # 4. Save outputs
+        save_test_set(test_df)
+        save_indices(indices)
+        save_metadata(test_df, indices)
+        
+        logger.info("Task T020 completed successfully.")
+        
+    except RuntimeError as e:
+        logger.error(f"Runtime Error: {e}")
+        sys.exit(1)
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
-        return 1
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

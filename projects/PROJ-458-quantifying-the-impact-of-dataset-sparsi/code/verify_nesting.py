@@ -1,10 +1,8 @@
 """
 T032c: Verify strict nesting of all sparsity subsets.
 
-Reads all sparsity_<level>pct.csv files from data/processed/,
-verifies that the set of indices in each subset is a strict subset
-of the next larger subset, and logs the result to 
-data/metadata/nesting_verification.json.
+Input: All sparsity_<level>pct.csv files in data/processed/
+Output: data/metadata/nesting_verification.json with boolean is_strictly_nested
 """
 import os
 import sys
@@ -14,130 +12,181 @@ from pathlib import Path
 import pandas as pd
 from utils.logging import get_logger
 
-# Expected sparsity levels in ascending order as defined in T032b
-SPARSITY_LEVELS = [1, 2, 5, 10, 25, 50, 100]
+logger = get_logger()
 
-def load_subset_indices(file_path: Path) -> set:
-    """Load the 'material_id' (or index) column from a CSV and return as a set."""
-    if not file_path.exists():
-        raise FileNotFoundError(f"Sparsity subset file not found: {file_path}")
+def load_subset_indices(
+    data_dir: Path,
+    sparsity_levels: list[int]
+) -> dict[int, set]:
+    """
+    Load the 'material_id' column from each sparsity subset file.
     
-    df = pd.read_csv(file_path)
-    # Determine the index column name. Usually 'material_id' or the first column.
-    # Based on T032b, we expect a column identifying the rows (likely material_id).
-    # If the CSV has an explicit index column saved, use that.
-    # Assuming 'material_id' is the primary key based on data_ingestion.py context.
-    if 'material_id' in df.columns:
-        return set(df['material_id'].astype(str))
-    elif 'id' in df.columns:
-        return set(df['id'].astype(str))
-    else:
-        # Fallback: use the first column if it looks like an ID
-        first_col = df.columns[0]
-        return set(df[first_col].astype(str))
+    Args:
+        data_dir: Path to data/processed/
+        sparsity_levels: List of percentage levels to check (e.g., [1, 2, 5, 10, ...])
+        
+    Returns:
+        Dict mapping level -> set of material_ids
+    """
+    indices_map = {}
+    for level in sparsity_levels:
+        filename = f"sparsity_{level}pct.csv"
+        filepath = data_dir / filename
+        
+        if not filepath.exists():
+            logger.error(f"Required file missing: {filepath}")
+            raise FileNotFoundError(f"Missing sparsity subset: {filename}")
+        
+        try:
+            df = pd.read_csv(filepath)
+            # Assume the primary key is 'material_id' based on T024/T031 flow
+            if 'material_id' not in df.columns:
+                # Fallback: use first column if material_id is missing but we need IDs
+                first_col = df.columns[0]
+                logger.warning(f"File {filename} missing 'material_id', using '{first_col}'")
+                ids = set(df[first_col].astype(str))
+            else:
+                ids = set(df['material_id'].astype(str))
+            
+            indices_map[level] = ids
+            logger.info(f"Loaded {len(ids)} items for {level}%")
+        except Exception as e:
+            logger.error(f"Failed to load {filename}: {e}")
+            raise
+
+    return indices_map
 
 def verify_nesting(
-    processed_dir: Path, 
-    metadata_dir: Path, 
-    logger: logging.Logger
+    indices_map: dict[int, set],
+    levels: list[int]
 ) -> dict:
     """
-    Verify that sparsity subsets are strictly nested.
+    Verify that subsets are strictly nested in descending order.
     
-    Returns a dict with:
-      - is_strictly_nested: bool
-      - details: list of verification steps
+    Rule: Level X% must be a strict subset of Level Y% where Y > X.
+    Specifically, we check the chain: 1% ⊂ 2% ⊂ 5% ⊂ ... ⊂ 100%
+    
+    Args:
+        indices_map: Dict of level -> set of IDs
+        levels: Sorted list of levels (ascending)
+        
+    Returns:
+        Dict with verification results
     """
-    results = {
-        "is_strictly_nested": True,
-        "details": [],
-        "subset_sizes": {}
+    if not levels:
+        return {"is_strictly_nested": False, "reason": "No levels provided"}
+
+    sorted_levels = sorted(levels)
+    is_nested = True
+    details = []
+
+    # Check chain: sorted_levels[i] must be subset of sorted_levels[i+1]
+    for i in range(len(sorted_levels) - 1):
+        lower_level = sorted_levels[i]
+        higher_level = sorted_levels[i + 1]
+        
+        set_lower = indices_map[lower_level]
+        set_higher = indices_map[higher_level]
+        
+        is_subset = set_lower.issubset(set_higher)
+        is_strict = len(set_lower) < len(set_higher)
+        
+        if not is_subset:
+            is_nested = False
+            missing = set_lower - set_higher
+            details.append({
+                "check": f"{lower_level}% ⊂ {higher_level}%",
+                "status": "FAILED",
+                "reason": f"Not a subset. Missing {len(missing)} items in higher level.",
+                "sample_missing": list(missing)[:5]
+            })
+        elif not is_strict:
+            # Technically a subset, but not strictly smaller (could be equal)
+            # For sparsity, we expect strictly smaller counts usually, 
+            # but the requirement is "strictly nested" implying proper subset.
+            # If counts are equal, it's not a strict subset.
+            is_nested = False
+            details.append({
+                "check": f"{lower_level}% ⊂ {higher_level}%",
+                "status": "FAILED",
+                "reason": f"Not a strict subset. Counts are equal ({len(set_lower)}).",
+                "count_lower": len(set_lower),
+                "count_higher": len(set_higher)
+            })
+        else:
+            details.append({
+                "check": f"{lower_level}% ⊂ {higher_level}%",
+                "status": "PASSED",
+                "count_lower": len(set_lower),
+                "count_higher": len(set_higher)
+            })
+
+    return {
+        "is_strictly_nested": is_nested,
+        "levels_checked": sorted_levels,
+        "details": details
     }
 
-    prev_set = None
-    prev_level = None
-
-    for level in SPARSITY_LEVELS:
-        file_name = f"sparsity_{level}pct.csv"
-        file_path = processed_dir / file_name
-        
-        if not file_path.exists():
-            msg = f"Missing file: {file_name}"
-            results["details"].append({"level": level, "status": "missing", "error": msg})
-            results["is_strictly_nested"] = False
-            continue
-
-        try:
-            current_set = load_subset_indices(file_path)
-            results["subset_sizes"][level] = len(current_set)
-            
-            if prev_set is not None:
-                # Check strict subset: prev must be a subset of current
-                # And sizes must be strictly increasing (unless 0 rows, which shouldn't happen)
-                if not prev_set.issubset(current_set):
-                    msg = f"Level {prev_level} is NOT a subset of Level {level}"
-                    results["details"].append({"level": level, "status": "fail", "error": msg})
-                    results["is_strictly_nested"] = False
-                elif len(prev_set) >= len(current_set):
-                    # Should be strictly increasing size for nested samples
-                    msg = f"Level {prev_level} size ({len(prev_set)}) >= Level {level} size ({len(current_set)})"
-                    results["details"].append({"level": level, "status": "fail", "error": msg})
-                    results["is_strictly_nested"] = False
-                else:
-                    results["details"].append({
-                        "level": level, 
-                        "status": "pass", 
-                        "prev_size": len(prev_set), 
-                        "curr_size": len(current_set)
-                    })
-            else:
-                results["details"].append({"level": level, "status": "pass", "note": "First level"})
-            
-            prev_set = current_set
-            prev_level = level
-
-        except Exception as e:
-            msg = f"Error processing {file_name}: {str(e)}"
-            results["details"].append({"level": level, "status": "error", "error": msg})
-            results["is_strictly_nested"] = False
-
-    return results
-
 def main():
-    logger = get_logger("verify_nesting")
-    logger.info("Starting nesting verification (T032c).")
+    parser = argparse.ArgumentParser(description="Verify strict nesting of sparsity subsets")
+    parser.add_argument(
+        "--data-dir",
+        type=str,
+        default="data/processed",
+        help="Directory containing sparsity CSV files"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="data/metadata/nesting_verification.json",
+        help="Output path for verification JSON"
+    )
+    parser.add_argument(
+        "--levels",
+        type=str,
+        default="1,2,5,10,20,30,40,50,100",
+        help="Comma-separated list of sparsity levels to check"
+    )
+    args = parser.parse_args()
 
-    # Define paths relative to project root
-    # Assuming script is run from project root or code/
-    base_dir = Path(____).parent.parent if '__file__' in globals() else Path.cwd()
-    # Fallback to cwd if running as module
-    if not (base_dir / "data").exists():
-        base_dir = Path.cwd()
+    data_dir = Path(args.data_dir)
+    output_path = Path(args.output)
+    levels = [int(x.strip()) for x in args.levels.split(",")]
 
-    processed_dir = base_dir / "data" / "processed"
-    metadata_dir = base_dir / "data" / "metadata"
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Ensure metadata directory exists
-    metadata_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Starting nesting verification for levels: {levels}")
+    
+    try:
+        # 1. Load all subsets
+        indices_map = load_subset_indices(data_dir, levels)
+        
+        # 2. Verify nesting
+        result = verify_nesting(indices_map, levels)
+        
+        # 3. Save result
+        with open(output_path, "w") as f:
+            json.dump(result, f, indent=2)
+        
+        if result["is_strictly_nested"]:
+            logger.info("Verification PASSED: All subsets are strictly nested.")
+        else:
+            logger.error("Verification FAILED: Nesting constraints violated.")
+            for detail in result["details"]:
+                if detail["status"] == "FAILED":
+                    logger.error(f"  - {detail['check']}: {detail['reason']}")
+        
+        # Exit with code 1 if failed, to block pipeline if necessary
+        if not result["is_strictly_nested"]:
+            sys.exit(1)
 
-    if not processed_dir.exists():
-        logger.error(f"Processed directory not found: {processed_dir}")
+    except FileNotFoundError as e:
+        logger.critical(f"Critical error: {e}")
         sys.exit(1)
-
-    verification_result = verify_nesting(processed_dir, metadata_dir, logger)
-
-    output_file = metadata_dir / "nesting_verification.json"
-    with open(output_file, 'w') as f:
-        json.dump(verification_result, f, indent=2)
-
-    logger.info(f"Verification complete. Result: {verification_result['is_strictly_nested']}")
-    logger.info(f"Output written to: {output_file}")
-
-    if not verification_result['is_strictly_nested']:
-        logger.error("Nnesting verification FAILED. Please check the details.")
+    except Exception as e:
+        logger.critical(f"Unexpected error during verification: {e}")
         sys.exit(1)
-    else:
-        logger.info("Nnesting verification PASSED.")
 
 if __name__ == "__main__":
     main()

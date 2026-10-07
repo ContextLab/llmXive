@@ -1,0 +1,4 @@
+{
+  "test_size": 5000,
+  "description": "Fixed test set size for stratified sampling. Derived from power analysis or heuristic allocation (approx 3-5% of 150k pool)."
+}

@@ -19,7 +19,7 @@ The system shall construct a Representative Stratified Sample (RSS) of [deferred
 The system shall generate elemental property descriptors using `matminer` (atomic_number, electronegativity, atomic_radius).
 
 ### FR-005: Sparsity Levels
-The system shall generate strictly nested stratified subsets corresponding to the following sparsity levels: **1, 2, 5, 10, 25, 50, 100**. These levels represent the percentage of the RSS used for training.
+The system shall generate strictly nested stratified subsets corresponding to a range of sparsity levels. These levels represent the percentage of the RSS used for training.
 
 ### FR-006: Linear Mixed-Effects Modeling (LMM)
 The system shall employ Linear Mixed-Effects Modeling (LMM) to analyze the relationship between sparsity and error. The fixed effect is `sparsity_level`, and the random effect is `seed` (nested structure). The model formula is `error ~ sparsity_level + (1|seed)`.

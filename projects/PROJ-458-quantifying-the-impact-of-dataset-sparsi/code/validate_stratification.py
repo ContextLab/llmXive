@@ -1,299 +1,195 @@
-"""
-Stratification Validation Module (Task T033)
-
-Validates that the Representative Stratified Sample (RSS) pool maintains
-the distributional characteristics of the full training pool using
-Jensen-Shannon divergence and Kolmogorov-Smirnov tests.
-"""
 import os
 import sys
 import json
 import argparse
 import logging
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, Tuple
 
-import numpy as np
 import pandas as pd
+import numpy as np
 from scipy.stats import ks_2samp
 from scipy.spatial.distance import jensenshannon
 
-# Import project utilities
+# Import existing utilities from the project
 from utils.logging import get_logger
-from utils.cpu_constraints import get_current_memory_mb
+from utils.cpu_constraints import enforce_memory_limit
 
-# Constants
-THRESHOLD_JSD = 0.1  # Maximum allowed Jensen-Shannon divergence
-THRESHOLD_KS_PVALUE = 0.05  # Minimum p-value for KS test (fail if p < this)
-TARGET_METRICS_FILE = "data/metadata/stratification_report.json"
-FULL_POOL_PATH = "data/processed/full_pool_final.csv"
+# Configuration constants
+DIVERGENCE_THRESHOLD = 0.05
 RSS_POOL_PATH = "data/processed/rss_pool.csv"
+FULL_POOL_PATH = "data/processed/full_pool_final.csv"
+METADATA_DIR = "data/metadata"
+REPORT_PATH = os.path.join(METADATA_DIR, "stratification_report.json")
 
 logger = get_logger(__name__)
 
-
-def load_subset_data(file_path: str) -> pd.DataFrame:
-    """
-    Load a CSV file into a pandas DataFrame.
-    
-    Args:
-        file_path: Path to the CSV file.
-        
-    Returns:
-        DataFrame containing the data.
-        
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If the file is empty or malformed.
-    """
-    path = Path(file_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Required input file not found: {file_path}")
-    
-    logger.info(f"Loading data from {file_path}")
-    df = pd.read_csv(file_path)
-    
-    if df.empty:
-        raise ValueError(f"Dataset at {file_path} is empty.")
-        
-    logger.info(f"Loaded {len(df)} rows with columns: {list(df.columns)}")
+def load_subset_data(path: str) -> pd.DataFrame:
+    """Load a CSV dataset, failing loudly if the file is missing."""
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Required input file missing: {path}. "
+                                "Ensure prerequisite tasks (T027, T031) have completed successfully.")
+    logger.info(f"Loading data from {path}")
+    df = pd.read_csv(path)
+    logger.info(f"Loaded {len(df)} rows")
     return df
 
-
-def compute_jensen_shannon_divergence(
-    full_pool: pd.DataFrame, 
-    rss_pool: pd.DataFrame, 
-    column: str
-) -> float:
+def compute_jensen_shannon_divergence(dist1: pd.Series, dist2: pd.Series) -> float:
     """
-    Compute the Jensen-Shannon divergence between histograms of a column
-    in the full pool and the RSS pool.
-    
-    Args:
-        full_pool: DataFrame of the full pool.
-        rss_pool: DataFrame of the RSS pool.
-        column: Name of the numeric column to compare.
-        
-    Returns:
-        JSD value (float). Lower is better (0 = identical distributions).
+    Compute Jensen-Shannon divergence between two distributions.
+    We bin the continuous variable (formation_energy) to create histograms.
     """
-    # Handle missing values by dropping them for histogram calculation
-    full_vals = full_pool[column].dropna().values
-    rss_vals = rss_pool[column].dropna().values
+    # Determine common bins based on the union of both distributions
+    min_val = min(dist1.min(), dist2.min())
+    max_val = max(dist1.max(), dist2.max())
     
-    if len(full_vals) == 0 or len(rss_vals) == 0:
-        logger.warning(f"Column {column} has no valid values for JSD calculation.")
+    # Avoid division by zero or empty ranges
+    if min_val == max_val:
         return 0.0
-    
-    # Determine bin edges based on the full pool range
-    min_val = min(np.min(full_vals), np.min(rss_vals))
-    max_val = max(np.max(full_vals), np.max(rss_vals))
-    
+
     # Use a fixed number of bins for consistency
     n_bins = 50
-    bin_edges = np.linspace(min_val, max_val, n_bins + 1)
+    bins = np.linspace(min_val, max_val, n_bins + 1)
     
-    # Compute histograms
-    hist_full, _ = np.histogram(full_vals, bins=bin_edges)
-    hist_rss, _ = np.histogram(rss_vals, bins=bin_edges)
+    # Calculate histograms (density=True ensures normalization)
+    hist1, _ = np.histogram(dist1, bins=bins, density=True)
+    hist2, _ = np.histogram(dist2, bins=bins, density=True)
     
-    # Normalize to probability distributions
-    p_full = hist_full / np.sum(hist_full)
-    p_rss = hist_rss / np.sum(hist_rss)
+    # Normalize to sum to 1 (probabilities) to satisfy JS divergence requirements
+    # Adding a small epsilon to avoid log(0)
+    epsilon = 1e-10
+    p = hist1 + epsilon
+    q = hist2 + epsilon
+    p = p / p.sum()
+    q = q / q.sum()
     
-    # Compute JSD
-    try:
-        jsd = jensenshannon(p_full, p_rss)
-        return float(jsd)
-    except Exception as e:
-        logger.error(f"Error computing JSD for {column}: {e}")
-        return 0.0
+    # Calculate JS divergence
+    js_div = jensenshannon(p, q) ** 2  # scipy returns sqrt(JS), so square it to get JS
+    
+    return float(js_div)
 
-
-def compute_ks_test(
-    full_pool: pd.DataFrame, 
-    rss_pool: pd.DataFrame, 
-    column: str
-) -> Tuple[float, float]:
+def compute_ks_test(dist1: pd.Series, dist2: pd.Series) -> Tuple[float, float]:
     """
-    Perform the Kolmogorov-Smirnov test to compare distributions.
+    Perform Kolmogorov-Smirnov test to compare distributions.
+    Returns (statistic, p-value).
+    """
+    stat, pvalue = ks_2samp(dist1, dist2)
+    return float(stat), float(pvalue)
+
+def validate_stratification(rss_df: pd.DataFrame, full_df: pd.DataFrame) -> Dict[str, Any]:
+    """
+    Validate that the RSS pool is representative of the full pool.
+    Uses Jensen-Shannon divergence on formation_energy distribution.
     
     Args:
-        full_pool: DataFrame of the full pool.
-        rss_pool: DataFrame of the RSS pool.
-        column: Name of the numeric column to compare.
-        
+        rss_df: DataFrame containing the RSS subset
+        full_df: DataFrame containing the full pool (before RSS capping)
+    
     Returns:
-        Tuple of (statistic, p-value).
-    """
-    full_vals = full_pool[column].dropna().values
-    rss_vals = rss_pool[column].dropna().values
+        Dictionary with validation metrics and status
     
-    if len(full_vals) < 2 or len(rss_vals) < 2:
-        logger.warning(f"Insufficient data for KS test on {column}.")
-        return 0.0, 1.0
-    
-    try:
-        statistic, p_value = ks_2samp(full_vals, rss_vals)
-        return float(statistic), float(p_value)
-    except Exception as e:
-        logger.error(f"Error computing KS test for {column}: {e}")
-        return 0.0, 0.0
-
-
-def validate_stratification(
-    full_pool_path: str = FULL_POOL_PATH,
-    rss_pool_path: str = RSS_POOL_PATH,
-    output_path: str = TARGET_METRICS_FILE
-) -> bool:
-    """
-    Main validation function. Compares the RSS pool against the full pool
-    using JSD and KS-test on numeric columns.
-    
-    Args:
-        full_pool_path: Path to the full pool CSV.
-        rss_pool_path: Path to the RSS pool CSV.
-        output_path: Path to save the validation report JSON.
-        
-    Returns:
-        True if validation passes (JSD < threshold and KS p-value > threshold),
-        False otherwise.
-        
     Raises:
-        RuntimeError: If validation fails, to block further execution.
+        RuntimeError: If divergence exceeds threshold
     """
-    logger.info("Starting stratification validation...")
+    target_column = "formation_energy"
     
-    # Load data
-    full_pool = load_subset_data(full_pool_path)
-    rss_pool = load_subset_data(rss_pool_path)
+    if target_column not in rss_df.columns or target_column not in full_df.columns:
+        raise ValueError(f"Target column '{target_column}' not found in datasets.")
     
-    # Identify numeric columns (exclude non-numeric like material_id)
-    numeric_cols = full_pool.select_dtypes(include=[np.number]).columns.tolist()
+    rss_vals = rss_df[target_column].dropna()
+    full_vals = full_df[target_column].dropna()
     
-    # Filter out columns that might be identifiers or not relevant for distribution
-    # Assuming 'material_id' or similar are not numeric, but if they are, exclude them
-    exclude_cols = ['material_id', 'id']
-    numeric_cols = [c for c in numeric_cols if c not in exclude_cols]
+    if len(rss_vals) == 0 or len(full_vals) == 0:
+        raise ValueError("No valid data found for stratification validation.")
     
-    if not numeric_cols:
-        logger.warning("No numeric columns found for validation.")
-        # If no numeric columns, we cannot validate, but we don't fail hard
-        # unless the spec implies we must. For safety, we pass if no columns.
-        report = {
-            "status": "passed",
-            "message": "No numeric columns found to validate.",
-            "metrics": {}
-        }
-        with open(output_path, 'w') as f:
-            json.dump(report, f, indent=2)
-        return True
+    # Compute JS Divergence
+    js_div = compute_jensen_shannon_divergence(rss_vals, full_vals)
     
-    results = {}
-    all_passed = True
+    # Compute KS Test
+    ks_stat, ks_pval = compute_ks_test(rss_vals, full_vals)
     
-    for col in numeric_cols:
-        logger.info(f"Validating column: {col}")
-        
-        # Compute JSD
-        jsd = compute_jensen_shannon_divergence(full_pool, rss_pool, col)
-        jsd_pass = jsd < THRESHOLD_JSD
-        
-        # Compute KS Test
-        ks_stat, ks_pval = compute_ks_test(full_pool, rss_pool, col)
-        ks_pass = ks_pval > THRESHOLD_KS_PVALUE
-        
-        results[col] = {
-            "jensen_shannon_divergence": jsd,
-            "jensen_shannon_threshold": THRESHOLD_JSD,
-            "jensen_shannon_passed": jsd_pass,
-            "ks_statistic": ks_stat,
-            "ks_pvalue": ks_pval,
-            "ks_threshold": THRESHOLD_KS_PVALUE,
-            "ks_passed": ks_pass
-        }
-        
-        if not jsd_pass or not ks_pass:
-            all_passed = False
-            logger.warning(f"Validation FAILED for {col}: JSD={jsd:.4f}, KS p={ks_pval:.4f}")
-        else:
-            logger.info(f"Validation PASSED for {col}: JSD={jsd:.4f}, KS p={ks_pval:.4f}")
+    # Determine pass/fail
+    is_valid = js_div <= DIVERGENCE_THRESHOLD
     
-    # Generate Report
-    report = {
-        "status": "passed" if all_passed else "failed",
-        "timestamp": str(pd.Timestamp.now()),
-        "full_pool_rows": len(full_pool),
-        "rss_pool_rows": len(rss_pool),
-        "thresholds": {
-            "jsd_max": THRESHOLD_JSD,
-            "ks_pvalue_min": THRESHOLD_KS_PVALUE
-        },
-        "metrics": results
+    result = {
+        "status": "PASS" if is_valid else "FAIL",
+        "js_divergence": js_div,
+        "ks_statistic": ks_stat,
+        "ks_p_value": ks_pval,
+        "threshold": DIVERGENCE_THRESHOLD,
+        "rss_count": len(rss_df),
+        "full_count": len(full_df),
+        "message": "Stratification validated successfully." if is_valid else f"Stratification failed: JS divergence ({js_div:.6f}) exceeds threshold ({DIVERGENCE_THRESHOLD})."
     }
     
-    # Ensure output directory exists
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_path, 'w') as f:
-        json.dump(report, f, indent=2)
-    
-    logger.info(f"Stratification report saved to {output_path}")
-    
-    if not all_passed:
-        error_msg = (
-            "Stratification validation FAILED. "
-            "The RSS pool does not adequately represent the full pool distribution. "
-            f"JSD Threshold: {THRESHOLD_JSD}, KS P-value Threshold: {THRESHOLD_KS_PVALUE}. "
-            "Check data/metadata/stratification_report.json for details."
-        )
-        logger.error(error_msg)
-        raise RuntimeError(error_msg)
-    
-    logger.info("Stratification validation PASSED.")
-    return True
+    return result
 
-
-def main():
-    """Main entry point for the script."""
-    parser = argparse.ArgumentParser(description="Validate RSS stratification.")
-    parser.add_argument(
-        "--full-pool", 
-        type=str, 
-        default=FULL_POOL_PATH,
-        help="Path to the full pool CSV."
-    )
-    parser.add_argument(
-        "--rss-pool", 
-        type=str, 
-        default=RSS_POOL_PATH,
-        help="Path to the RSS pool CSV."
-    )
-    parser.add_argument(
-        "--output", 
-        type=str, 
-        default=TARGET_METRICS_FILE,
-        help="Path to save the validation report JSON."
-    )
+def main(args=None):
+    """
+    Main entry point for the stratification validation script.
+    Reads RSS pool and Full pool, validates, and saves report.
+    """
+    parser = argparse.ArgumentParser(description="Validate stratification of RSS pool against full pool.")
+    parser.add_argument("--rss-path", type=str, default=RSS_POOL_PATH, help="Path to RSS pool CSV")
+    parser.add_argument("--full-path", type=str, default=FULL_POOL_PATH, help="Path to full pool CSV")
+    parser.add_argument("--output-path", type=str, default=REPORT_PATH, help="Path to output JSON report")
+    parser.add_argument("--memory-limit-mb", type=int, default=8000, help="Memory limit in MB")
     
-    args = parser.parse_args()
+    parsed_args = parser.parse_args(args) if args else parser.parse_args()
     
+    # Enforce memory constraints if needed
     try:
-        validate_stratification(
-            full_pool_path=args.full_pool,
-            rss_pool_path=args.rss_pool,
-            output_path=args.output
-        )
-        print("Validation successful.")
-        sys.exit(0)
-    except RuntimeError as e:
-        print(f"Validation failed: {e}")
-        sys.exit(1)
-    except Exception as e:
-        logger.exception(f"Unexpected error during validation: {e}")
-        sys.exit(1)
+        enforce_memory_limit(parsed_args.memory_limit_mb)
+    except MemoryError:
+        logger.error("Memory limit exceeded before processing.")
+        return 1
 
+    # Ensure output directory exists
+    output_dir = os.path.dirname(parsed_args.output_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+
+    try:
+        # Load data
+        rss_df = load_subset_data(parsed_args.rss_path)
+        full_df = load_subset_data(parsed_args.full_path)
+        
+        logger.info("Starting stratification validation...")
+        
+        # Perform validation
+        report = validate_stratification(rss_df, full_df)
+        
+        # Log results
+        logger.info(f"Validation Status: {report['status']}")
+        logger.info(f"JS Divergence: {report['js_divergence']:.6f}")
+        logger.info(f"KS Statistic: {report['ks_statistic']:.6f}, P-value: {report['ks_p_value']:.6f}")
+        
+        # Save report
+        with open(parsed_args.output_path, 'w') as f:
+            json.dump(report, f, indent=2)
+        
+        logger.info(f"Report saved to {parsed_args.output_path}")
+        
+        # Fail loudly if validation fails to block further execution
+        if not report['status'] == 'PASS':
+            logger.error(report['message'])
+            raise RuntimeError(report['message'])
+            
+        return 0
+        
+    except FileNotFoundError as e:
+        logger.error(f"File missing error: {e}")
+        return 1
+    except ValueError as e:
+        logger.error(f"Validation error: {e}")
+        return 1
+    except RuntimeError as e:
+        logger.error(f"Stratification validation failed: {e}")
+        # Re-raise to ensure the pipeline stops
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error during validation: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

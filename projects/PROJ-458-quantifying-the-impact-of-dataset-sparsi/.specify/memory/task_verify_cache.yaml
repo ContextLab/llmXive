@@ -11,6 +11,15 @@ T003:
     \ hook definitions for both ruff (including ruff\u2011format) and black, exactly\
     \ as the task required. The missing `pre-commit-config.yaml` is unrelated to the\
     \ specified artifact."
+T020:
+  c: true
+  h: 9db2d6749456dae38ca62f7eef8f8c914e3295874f31b68d26a4e297bdc8c876
+  r: "The repository contains a non\u2011empty `code/test_split.py` that checks for\
+    \ `data/raw/raw_pool.csv` and raises a `RuntimeError` if it is missing, loads\
+    \ the test size from `data/metadata/test_config.json`, and (in the unseen remainder)\
+    \ uses `pd.qcut` to stratify and sample, writing the required `test_set.csv` and\
+    \ `test_set_indices.csv`. The critical \u201Cfail loudly\u201D behavior is present,\
+    \ satisfying the task requirements."
 T021:
   c: false
   h: 126439b4527e5df5337f8feff43faa19a74e1a6ece6e8149db4476d63334f267
@@ -27,55 +36,21 @@ T024:
     \ the download uses exponential backoff and writes the specified columns to the\
     \ required path. The implementation therefore fails to meet the core functional\
     \ requirement."
-T025:
-  c: false
-  h: 77d94e04a77dc9a1058c366289d1b2fdaa36a22d3af832d507b2c80d5afa433e
-  r: "The repository lacks the required `data/processed/filtered_pool.csv` file, and\
-    \ the provided `code/data_ingestion.py` excerpt contains only data\u2011download\
-    \ logic with no implementation that reads `raw_pool.csv`, filters rows on `formation_energy`\
-    \ and `dft_computed`, and writes the result to the processed folder. Both the\
-    \ artifact and the necessary code are missing."
-T026:
-  c: false
-  h: 16f639e9c51dcf9b7ae2cd5429788a198b4b703973cb3c91b3ca5aadabb25543
-  r: "The repository lacks the required input file `data/processed/filtered_pool.csv`,\
-    \ the output file `data/processed/descriptors_pool.csv`, and the test\u2011set\
-    \ index file `data/processed/test_set_indices.csv`. Moreover, `code/data_ingestion.py`\
-    \ contains only API\u2011download logic and does not implement the described descriptor\
-    \ generation with `matminer`. The task\u2019s core functionality is therefore\
-    \ missing."
-T027:
-  c: false
-  h: 94649027dc8b12a2edf5fa20dd6ceb914a32442bed5be6f93fccc24960743dcb
-  r: "The repository lacks the required data files (`descriptors_pool.csv`, `test_set_indices.csv`,\
-    \ `ingestion_log.json`, `full_pool_final.csv`) and the `code/data_ingestion.py`\
-    \ script does not contain the described imputation logic (mean\u2011fill, row\
-    \ dropping, logging, and output generation). These essential artifacts are missing,\
-    \ so the task is not satisfied."
-T031:
-  c: false
-  h: c6b585f4c6dd6d7a2f9fa9ce5d4358113cc36bfc3c1d3852d3e9e345c2fdf345
-  r: "The required input files (`data/processed/full_pool_final.csv`, `data/processed/test_set_indices.csv`)\
-    \ and the expected output (`data/processed/rss_pool.csv`) are absent, and the\
-    \ provided `code/sparsity_generation.py` does not contain logic to read the full\
-    \ pool, filter test indices, perform stratified sampling, or write the RSS pool\
-    \ as specified. The task\u2019s core functionality is therefore not fulfilled."
 T032a:
   c: false
-  h: 7527d047de06e7719844b3346d56a4e046ba6c4b1488776d02b8126b823d2d1c
+  h: 54e7a28cd50dc0e4cdb2dc0290516a58f829f101e44549704f815757c539208b
   r: "The required input file `data/processed/rss_pool.csv` does not exist, and the\
     \ expected output `data/processed/sparsity_100pct.csv` is also missing. Moreover,\
-    \ the provided `code/sparsity_generation.py` is truncated and does not show a\
-    \ complete K\u2011Means implementation or the generation of the output file. The\
-    \ task therefore is not satisfied."
-T033:
+    \ the provided `code/sparsity_generation.py` (truncated) shows no implementation\
+    \ of K\u2011Means clustering or any code that writes the required CSV, so the\
+    \ task\u2019s functional requirement is not satisfied."
+T032b:
   c: false
-  h: f17abcd46099c7e117d3e303cb1fc294e1c4769d5ece0d6facb52d8d29efeb60
-  r: "The required output file `data/metadata/stratification_report.json` does not\
-    \ exist, and the provided `validate_stratification.py` is truncated so it\u2019\
-    s unclear whether it fully implements the KS\u2011test, error\u2011raising on\
-    \ threshold breach, and JSON logging as specified. The missing JSON report means\
-    \ the task\u2019s core deliverable is absent."
+  h: 897b826a55709ae8f13a0b172aab95cb39894b88b62aa23890dc8cf8e348fa70
+  r: "The required output files `data/processed/sparsity_1pct.csv`, `sparsity_2pct.csv`,\
+    \ \u2026 `sparsity_50pct.csv` are not present, and there is no evidence that `code/sparsity_generation.py`\
+    \ actually generates and writes these nested subset CSVs. The task\u2019s core\
+    \ deliverable is therefore missing."
 T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

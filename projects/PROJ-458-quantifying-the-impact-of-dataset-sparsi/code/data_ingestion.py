@@ -1,338 +1,305 @@
-"""
-Data Ingestion Module for Materials Project Dataset.
-
-Implements FR-001: Download a substantial corpus of entries via Materials Project API
-with exponential backoff and strict error handling.
-"""
 import os
 import time
 import json
 import csv
 import hashlib
 import requests
-import sys
+import pandas as pd
+import numpy as np
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Set
 from dotenv import load_dotenv
 
-# Add parent directory to path for imports if running as script
-if __name__ == "__main__":
-    sys.path.insert(0, str(Path(__file__).parent))
+# Import utilities from the project structure
+from utils.logging import get_logger, log_result
+from utils.cpu_constraints import enforce_memory_limit
+from utils.checksum_utils import compute_sha256
 
-from config import load_env
-from utils.logging import get_logger
-
+# Initialize logger
 logger = get_logger(__name__)
 
-# Constants
-MP_API_BASE_URL = "https://api.materialsproject.org"
-MAX_RETRIES = 5
-INITIAL_DELAY = 1.0  # seconds
-MAX_DELAY = 60.0     # seconds
-TARGET_ENTRY_COUNT = 150000
-CHUNK_SIZE = 500     # Number of material IDs to fetch per batch
-
-def load_env_config() -> Dict[str, str]:
-    """Load environment configuration and validate MP_API_KEY."""
+def load_env_config() -> Dict[str, Any]:
+    """Load environment configuration."""
     load_dotenv()
-    api_key = os.getenv("MP_API_KEY")
-    if not api_key:
-        raise ValueError(
-            "MP_API_KEY environment variable is missing. "
-            "Set it in your .env file or export it before running."
-        )
-    return {"api_key": api_key}
+    mp_api_key = os.getenv("MP_API_KEY")
+    if not mp_api_key:
+        raise RuntimeError("MP_API_KEY environment variable is missing. Cannot proceed.")
+    
+    return {
+        "mp_api_key": mp_api_key,
+        "raw_pool_path": os.getenv("RAW_POOL_PATH", "data/raw/raw_pool.csv"),
+        "filtered_pool_path": os.getenv("FILTERED_POOL_PATH", "data/processed/filtered_pool.csv"),
+        "test_indices_path": os.getenv("TEST_INDICES_PATH", "data/processed/test_set_indices.csv"),
+        "descriptors_pool_path": os.getenv("DESCRIPTORS_POOL_PATH", "data/processed/descriptors_pool.csv"),
+        "final_pool_path": os.getenv("FINAL_POOL_PATH", "data/processed/full_pool_final.csv"),
+        "ingestion_log_path": os.getenv("INGESTION_LOG_PATH", "data/results/ingestion_log.json")
+    }
 
-def exponential_backoff(func, *args, **kwargs) -> Any:
-    """
-    Execute a function with exponential backoff retry logic.
-    
-    Args:
-        func: The function to execute
-        *args: Arguments to pass to the function
-        **kwargs: Keyword arguments to pass to the function
-        
-    Returns:
-        The result of the function call
-        
-    Raises:
-        Exception: If all retries are exhausted
-    """
-    delay = INITIAL_DELAY
-    last_exception = None
-    
-    for attempt in range(MAX_RETRIES):
+def exponential_backoff(func, max_retries=5, base_delay=1.0):
+    """Execute function with exponential backoff for rate limits."""
+    delay = base_delay
+    for attempt in range(max_retries):
         try:
-            return func(*args, **kwargs)
-        except (requests.exceptions.RequestException, requests.exceptions.HTTPError) as e:
-            last_exception = e
-            status_code = getattr(e, 'response', None)
-            if status_code is not None:
-                status_code = status_code.status_code
-            
-            # Only retry on 429 (Too Many Requests) or 5xx errors
-            if status_code in [429] or (status_code and 500 <= status_code < 600):
-                logger.warning(
-                    f"Attempt {attempt + 1}/{MAX_RETRIES} failed: {e}. "
-                    f"Retrying in {delay:.2f}s..."
-                )
+            return func()
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 429:  # Too Many Requests
+                if attempt == max_retries - 1:
+                    raise
+                logger.warning(f"Rate limit hit. Retrying in {delay:.2f}s... (Attempt {attempt + 1}/{max_retries})")
                 time.sleep(delay)
-                delay = min(delay * 2, MAX_DELAY)
+                delay *= 2
             else:
-                # For other errors (4xx), fail immediately
-                logger.error(f"Non-retryable error: {e}")
-                raise e
-        except Exception as e:
-            logger.error(f"Unexpected error: {e}")
-            raise e
-    
-    logger.error(f"All {MAX_RETRIES} attempts failed. Last error: {last_exception}")
-    raise last_exception
+                raise
+    return None
 
-def fetch_material_data(api_key: str, material_id: str) -> Optional[Dict[str, Any]]:
+def fetch_material_data(material_id: str, api_key: str) -> Optional[Dict]:
+    """Fetch single material data from Materials Project API."""
+    url = f"https://api.materialsproject.org/v2/materials/{material_id}"
+    headers = {"X-API-Key": api_key}
+    params = {"fields": "formula,prediction_analysis"}
+    
+    def _req():
+        return requests.get(url, headers=headers, params=params, timeout=30)
+    
+    response = exponential_backoff(_req)
+    if response and response.status_code == 200:
+        return response.json().get("data", {})
+    return None
+
+def get_material_ids_from_pool(pool_path: str) -> List[str]:
+    """Read material IDs from the raw pool CSV."""
+    if not os.path.exists(pool_path):
+        raise FileNotFoundError(f"Raw pool file not found: {pool_path}")
+    
+    df = pd.read_csv(pool_path)
+    return df['material_id'].tolist()
+
+def process_and_save(material_id: str, api_key: str, output_path: str):
+    """Process a single material and append to output CSV."""
+    data = fetch_material_data(material_id, api_key)
+    if not data:
+        return
+    
+    # Extract relevant fields
+    formula = data.get("formula", "")
+    prediction_analysis = data.get("prediction_analysis", {})
+    dft_computed = prediction_analysis.get("dft_computed", False)
+    formation_energy = prediction_analysis.get("formation_energy_per_atom", None)
+    
+    # Append to CSV
+    file_exists = os.path.exists(output_path)
+    with open(output_path, mode='a', newline='') as f:
+        writer = csv.writer(f)
+        if not file_exists:
+            writer.writerow(['material_id', 'composition', 'formation_energy', 'dft_computed'])
+        writer.writerow([material_id, formula, formation_energy, dft_computed])
+
+def filter_pool(config: Dict[str, Any]) -> None:
     """
-    Fetch a single material entry from the Materials Project API.
-    
-    Args:
-        api_key: The Materials Project API key
-        material_id: The material ID to fetch
-        
-    Returns:
-        Dictionary containing material data, or None if not found
+    Filter the raw pool to retain only rows where:
+    1. formation_energy is not null
+    2. dft_computed is True
+    Saves to filtered_pool.csv.
     """
-    url = f"{MP_API_BASE_URL}/v2/materials/{material_id}/summary"
-    headers = {
-        "X-API-Key": api_key,
-        "Content-Type": "application/json"
-    }
-    params = {"_fields": ["material_id", "composition", "formation_energy_per_atom", "is_hull"]}
+    input_path = config['raw_pool_path']
+    output_path = config['filtered_pool_path']
     
-    def _make_request():
-        response = requests.get(url, headers=headers, params=params, timeout=30)
-        response.raise_for_status()
-        return response.json()
+    logger.info(f"Filtering pool from {input_path}")
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input file missing: {input_path}")
     
+    df = pd.read_csv(input_path)
+    
+    # Ensure formation_energy is numeric
+    df['formation_energy'] = pd.to_numeric(df['formation_energy'], errors='coerce')
+    
+    # Filter
+    mask = df['formation_energy'].notna() & (df['dft_computed'] == True)
+    filtered_df = df[mask].reset_index(drop=True)
+    
+    logger.info(f"Filtered pool: {len(df)} -> {len(filtered_df)} rows")
+    
+    # Ensure output directory exists
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    filtered_df.to_csv(output_path, index=False)
+    logger.info(f"Saved filtered pool to {output_path}")
+
+def generate_descriptors(config: Dict[str, Any]) -> None:
+    """
+    Generate descriptors using matminer ElementalPropertyFeatureExtractor.
+    Reads filtered_pool.csv, excludes test set indices, outputs descriptors_pool.csv.
+    """
+    input_path = config['filtered_pool_path']
+    test_indices_path = config['test_indices_path']
+    output_path = config['descriptors_pool_path']
+    
+    logger.info(f"Generating descriptors from {input_path}")
+    
+    # Load training pool
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input file missing: {input_path}")
+    train_df = pd.read_csv(input_path)
+    
+    # Load test indices to exclude
+    if not os.path.exists(test_indices_path):
+        raise FileNotFoundError(f"Test indices file missing: {test_indices_path}. "
+                              "Ensure T020 has completed successfully.")
+    test_indices_df = pd.read_csv(test_indices_path)
+    test_indices_set = set(test_indices_df['index'].tolist())
+    
+    # Exclude test indices from training pool
+    # Assuming the original index is preserved or we need to re-index based on row position
+    # Since we read from CSV, we assume the 'index' column in test_indices.csv refers to
+    # the row number in the filtered_pool.csv (0-indexed)
+    train_df['original_index'] = train_df.index
+    training_df = train_df[~train_df['original_index'].isin(test_indices_set)].copy()
+    
+    logger.info(f"Excluded {len(test_indices_set)} test indices. Training size: {len(training_df)}")
+    
+    if len(training_df) == 0:
+        raise ValueError("Training pool is empty after excluding test indices.")
+    
+    # Import matminer features
     try:
-        data = exponential_backoff(_make_request)
-        if data.get("data"):
-            entry = data["data"][0]
-            return {
-                "material_id": entry.get("material_id"),
-                "composition": entry.get("composition", {}).get("reduced_formula", ""),
-                "formation_energy": entry.get("formation_energy_per_atom"),
-                "dft_computed": entry.get("is_hull", False) is not None  # is_hull indicates DFT computed
-            }
-        return None
-    except requests.exceptions.HTTPError as e:
-        if e.response.status_code == 404:
-            logger.debug(f"Material {material_id} not found (404)")
-            return None
-        raise
+        from matminer.featurizers.composition import ElementalPropertyFeatureExtractor
+    except ImportError:
+        raise ImportError("matminer is required. Install via: pip install matminer==0.9.2")
+    
+    # Initialize feature extractor
+    # Properties: atomic_number, electronegativity, atomic_radius
+    extractor = ElementalPropertyFeatureExtractor(
+        properties=['atomic_number', 'electronegativity', 'atomic_radius']
+    )
+    
+    logger.info("Computing elemental property features...")
+    # Featurize composition
+    # matminer expects a column of strings for composition
+    X = extractor.featurize_dataframe(training_df, col_id="composition", ignore_errors=True)
+    
+    # Combine with original data (keep material_id, composition, etc.)
+    final_df = pd.concat([training_df[['material_id', 'composition', 'formation_energy', 'dft_computed']], X], axis=1)
+    
+    # Ensure output directory exists
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    final_df.to_csv(output_path, index=False)
+    logger.info(f"Saved descriptors to {output_path}")
+    logger.info(f"Descriptor columns: {list(final_df.columns)}")
 
-def get_material_ids_from_pool(api_key: str, target_count: int = TARGET_ENTRY_COUNT) -> List[str]:
+def perform_imputation(config: Dict[str, Any]) -> None:
     """
-    Retrieve a list of material IDs from the Materials Project API.
+    Perform mean-fill imputation on numeric descriptors.
+    - Excludes test set indices (already done in generate_descriptors, but we read the clean pool)
+    - Drops rows with >50% missing values
+    - Logs count to ingestion_log.json
+    - Outputs full_pool_final.csv
     
-    Uses the search endpoint to get a broad set of material IDs.
-    
-    Args:
-        api_key: The Materials Project API key
-        target_count: Approximate number of IDs to retrieve
-        
-    Returns:
-        List of material IDs
+    Note: This function assumes the input is the descriptors_pool.csv generated by generate_descriptors,
+    which already excludes test indices.
     """
-    url = f"{MP_API_BASE_URL}/v2/materials/search"
-    headers = {
-        "X-API-Key": api_key,
-        "Content-Type": "application/json"
+    input_path = config['descriptors_pool_path']
+    output_path = config['final_pool_path']
+    log_path = config['ingestion_log_path']
+    
+    logger.info(f"Performing imputation on {input_path}")
+    
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input descriptors file missing: {input_path}. "
+                              "Ensure generate_descriptors has completed successfully.")
+    
+    df = pd.read_csv(input_path)
+    
+    # Identify numeric columns for imputation
+    # Exclude non-numeric columns like material_id, composition, etc.
+    # We assume the last columns are the generated descriptors
+    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+    non_numeric_cols = df.columns.difference(numeric_cols)
+    
+    if not numeric_cols:
+        logger.warning("No numeric columns found for imputation.")
+        # If no numeric columns, just save as is
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        df.to_csv(output_path, index=False)
+        return
+    
+    # Calculate mean for each numeric column
+    means = df[numeric_cols].mean()
+    
+    # Count missing values per row
+    missing_per_row = df[numeric_cols].isna().sum(axis=1)
+    total_numeric_cols = len(numeric_cols)
+    
+    # Drop rows with >50% missing values
+    rows_to_drop_mask = missing_per_row > (0.5 * total_numeric_cols)
+    dropped_count = rows_to_drop_mask.sum()
+    df_clean = df[~rows_to_drop_mask].copy()
+    
+    # Mean-fill remaining missing values
+    df_clean[numeric_cols] = df_clean[numeric_cols].fillna(means)
+    
+    # Final check: ensure no NaNs remain in numeric cols
+    remaining_nans = df_clean[numeric_cols].isna().sum().sum()
+    if remaining_nans > 0:
+        logger.warning(f"Still {remaining_nans} NaNs after imputation. Dropping these rows.")
+        df_clean = df_clean.dropna(subset=numeric_cols)
+    
+    # Prepare log data
+    log_data = {
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "input_rows": len(df),
+        "dropped_rows": dropped_count,
+        "final_rows": len(df_clean),
+        "imputation_method": "mean_fill",
+        "threshold_percent": 50,
+        "numeric_columns_processed": numeric_cols,
+        "remaining_nans_after_imputation": int(remaining_nans)
     }
     
-    # Request a large page to get as many IDs as possible
-    # The API has a limit, so we might need to paginate or use a large limit
-    params = {
-        "_limit": 10000,  # Maximum allowed per request
-        "_fields": "material_id"
-    }
+    # Save final dataset
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    df_clean.to_csv(output_path, index=False)
+    logger.info(f"Saved final training dataset to {output_path}")
     
-    def _make_request():
-        response = requests.get(url, headers=headers, params=params, timeout=60)
-        response.raise_for_status()
-        return response.json()
+    # Save log
+    Path(log_path).parent.mkdir(parents=True, exist_ok=True)
+    with open(log_path, 'w') as f:
+        json.dump(log_data, f, indent=2)
+    logger.info(f"Saved imputation log to {log_path}")
     
-    try:
-        data = exponential_backoff(_make_request)
-        results = data.get("data", [])
-        material_ids = [item.get("material_id") for item in results if item.get("material_id")]
-        
-        logger.info(f"Retrieved {len(material_ids)} material IDs from search endpoint.")
-        
-        # If we need more, we might need to implement pagination or use a different strategy
-        # For now, we'll work with what we have and log if insufficient
-        if len(material_ids) < target_count:
-            logger.warning(
-                f"Retrieved only {len(material_ids)} IDs, less than target {target_count}. "
-                "Proceeding with available IDs. Note: This may be due to API limits."
-            )
-        
-        return material_ids
-    except Exception as e:
-        logger.error(f"Failed to retrieve material IDs: {e}")
-        raise
-
-def process_and_save(material_ids: List[str], api_key: str, output_path: Path) -> int:
-    """
-    Process a list of material IDs, fetch data, and save to CSV.
-    
-    Args:
-        material_ids: List of material IDs to process
-        api_key: Materials Project API key
-        output_path: Path to save the CSV file
-        
-    Returns:
-        Number of successfully saved entries
-    """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    saved_count = 0
-    skipped_count = 0
-    error_count = 0
-    
-    with open(output_path, mode='w', newline='', encoding='utf-8') as csvfile:
-        fieldnames = ['material_id', 'composition', 'formation_energy', 'dft_computed']
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        
-        for i, mid in enumerate(material_ids):
-            if i % 1000 == 0:
-                logger.info(f"Processing material {i}/{len(material_ids)}")
-            
-            try:
-                data = fetch_material_data(api_key, mid)
-                if data and data['formation_energy'] is not None:
-                    writer.writerow(data)
-                    saved_count += 1
-                else:
-                    skipped_count += 1
-            except Exception as e:
-                logger.error(f"Error processing {mid}: {e}")
-                error_count += 1
-                continue
-            
-            # Small delay to be polite to the API
-            time.sleep(0.05)
-    
-    logger.info(f"Processing complete. Saved: {saved_count}, Skipped: {skipped_count}, Errors: {error_count}")
-    return saved_count
-
-def filter_pool(input_path: Path, output_path: Path) -> int:
-    """
-    Filter the raw pool to retain only rows with valid formation_energy and dft_computed.
-    
-    Args:
-        input_path: Path to the raw pool CSV
-        output_path: Path to save the filtered CSV
-        
-    Returns:
-        Number of rows in the filtered pool
-    """
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-    
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    filtered_count = 0
-    
-    with open(input_path, mode='r', newline='', encoding='utf-8') as infile, \
-         open(output_path, mode='w', newline='', encoding='utf-8') as outfile:
-        
-        reader = csv.DictReader(infile)
-        fieldnames = reader.fieldnames
-        writer = csv.DictWriter(outfile, fieldnames=fieldnames)
-        writer.writeheader()
-        
-        for row in reader:
-            # Check if formation_energy is not null and dft_computed is True
-            try:
-                energy = float(row['formation_energy'])
-                dft = row['dft_computed'].lower() == 'true'
-                
-                if energy is not None and dft:
-                    writer.writerow(row)
-                    filtered_count += 1
-            except (ValueError, TypeError):
-                continue
-    
-    logger.info(f"Filtered pool saved: {filtered_count} rows")
-    return filtered_count
-
-def generate_descriptors(input_path: Path, output_path: Path) -> int:
-    """
-    Generate descriptors using matminer (placeholder for actual implementation).
-    
-    Args:
-        input_path: Path to the filtered pool CSV
-        output_path: Path to save the descriptors CSV
-        
-    Returns:
-        Number of rows processed
-    """
-    # This is a placeholder. The actual implementation would use matminer.
-    # For T024, we only need the raw download. This function is defined
-    # to satisfy the API surface but is not the focus of this task.
-    logger.warning("generate_descriptors is a placeholder. Actual implementation in T026.")
-    return 0
-
-def impute_and_finalize(input_path: Path, output_path: Path) -> int:
-    """
-    Impute missing values and finalize the dataset.
-    
-    Args:
-        input_path: Path to the descriptors CSV
-        output_path: Path to save the final pool
-        
-    Returns:
-        Number of rows in the final pool
-    """
-    # Placeholder for T027
-    logger.warning("impute_and_finalize is a placeholder. Actual implementation in T027.")
-    return 0
+    return log_data
 
 def main():
-    """Main entry point for data ingestion."""
-    logger.info("Starting data ingestion pipeline (T024)")
+    """Main entry point for data ingestion pipeline."""
+    logger.info("Starting data ingestion pipeline...")
     
-    # Load configuration
     config = load_env_config()
-    api_key = config['api_key']
     
-    # Define paths
-    project_root = Path(__file__).parent.parent
-    output_path = project_root / "data" / "raw" / "raw_pool.csv"
+    # 1. Filter Pool (T025)
+    try:
+        filter_pool(config)
+    except FileNotFoundError as e:
+        logger.error(f"Filter pool failed: {e}")
+        # Do not proceed if raw pool is missing
+        raise
     
-    # Step 1: Get material IDs
-    logger.info("Retrieving material IDs...")
-    material_ids = exponential_backoff(get_material_ids_from_pool, api_key, TARGET_ENTRY_COUNT)
+    # 2. Generate Descriptors (T026)
+    try:
+        generate_descriptors(config)
+    except FileNotFoundError as e:
+        logger.error(f"Generate descriptors failed: {e}")
+        raise
+    except ImportError as e:
+        logger.error(f"Missing dependency: {e}")
+        raise
     
-    if not material_ids:
-        raise RuntimeError("No material IDs retrieved. Cannot proceed.")
+    # 3. Perform Imputation (T027)
+    try:
+        imputation_log = perform_imputation(config)
+        logger.info(f"Imputation completed. Dropped {imputation_log['dropped_rows']} rows.")
+    except FileNotFoundError as e:
+        logger.error(f"Imputation failed: {e}")
+        raise
     
-    logger.info(f"Got {len(material_ids)} material IDs. Starting download...")
-    
-    # Step 2: Fetch and save data
-    saved_count = process_and_save(material_ids, api_key, output_path)
-    
-    if saved_count == 0:
-        raise RuntimeError("No data was saved. Check API connectivity and logs.")
-    
-    logger.info(f"Successfully downloaded and saved {saved_count} entries to {output_path}")
-    
-    # Verify output
-    if not output_path.exists():
-        raise FileNotFoundError(f"Output file was not created: {output_path}")
-    
-    logger.info("Data ingestion (T024) completed successfully.")
-    return saved_count
+    logger.info("Data ingestion pipeline completed successfully.")
 
 if __name__ == "__main__":
     main()
