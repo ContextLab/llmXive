@@ -1193,3 +1193,414 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-06T23:56:41Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 0
+  canonical: dataset ID hendrycks/math
+  claim_id: c_ffa34886
+  context: 'T007 [P] Implement data download utility to fetch GSMK (dataset ID: openai/gsmk)
+    and MATH (dataset ID: hendrycks/math) datasets from verified HuggingFace URLs.'
+  evidence:
+    entailment_evidence: MATH dataset ID is hendrycks/math - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/MATH_dataset_ID_is_hendrycks/math
+  kind: entity_fact
+  raw_text: 'Dataset ID: hendrycks/math'
+  resolved_value: MATH dataset ID is hendrycks/math
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-07T00:53:49Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: task-level timeout limit of 30 minutes for exclusion
+  claim_id: c_436dad03
+  context: 'T018a [US1] Implement task-level timeout logic: if a single task exceeds
+    30 minutes, exclude it, log ''TIMEOUT_EXCLUDED'', and continue. If the exclusion
+    rate exceeds a significant proportion of the total subset, exit with code 1 and
+    log ''RESOURCE_LIMIT_EXCEEDED''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement task-level timeout logic: if a single task exceeds 30 minutes,
+    exclude it, log ''TIMEOUT_EXCLUDED'', and continue.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:54:15Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: 'system-level resource limits: 7 GB memory or 5 hours time'
+  claim_id: c_0a0f227f
+  context: 'T018b [US1] Implement system-level resource monitoring: check peak memory
+    usage and total elapsed time. If memory > 7 GB or total time > 5 hours, exit with
+    code 1 and log ''RESOURCE_LIMIT_EXCEEDED''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement system-level resource monitoring: check peak memory usage and
+    total elapsed time. If memory > 7 GB or total time > 5 hours, exit with code 1
+    and log ''RESOURCE_LIMIT_EXCEEDED''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:54:15Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: static score batch processing for 100 tasks
+  claim_id: c_cbc44a6c
+  context: T017 [US1] Implement batch processing loop to generate data/processed/static_scores.json
+    for exactly 100 tasks (matching the US-1 Independent Test requirement).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement batch processing loop to generate data/processed/static_scores.json
+    for exactly 100 tasks.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:54:55Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: stratified sampling of 50 tasks with specific token distribution
+  claim_id: c_d51c94f9
+  context: 'T021 [P] [US2] Implement stratified random sampling of a representative
+    set of tasks from GSM8K/MATH based on difficulty. Target: exactly 50 tasks distributed
+    as: 10 tasks for <50 tokens, 25 tasks for 50-100 tokens, 15 tasks for >100 tokens.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement stratified random sampling of a representative set of tasks
+    from GSM8K/MATH based on difficulty. Target: exactly 50 tasks distributed as:
+    10 tasks for <50 tokens, 25 tasks for 50-100 tokens, 15 tasks for >100 tokens.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:55:25Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: permutation test target 10000 iterations minimum 5000
+  claim_id: c_1d78f4ec
+  context: 'Goal: Align scores, compute correlations, run permutation tests (target
+    10,000 iterations, minimum 5,000), and generate residual analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run permutation tests (target 10,000 iterations, minimum 5,000).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:55:55Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: alignment logic truncation exclusion threshold 80 percent overlap
+  claim_id: c_967e114e
+  context: T026 [P] [US3] Unit test for alignment logic (truncation/exclusion <80%
+    overlap) in tests/unit/test_alignment.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Unit test for alignment logic (truncation/exclusion <80% overlap).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:55:55Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: correlation pipeline test 100 iterations per seed across 3 seeds
+  claim_id: c_22fb4b04
+  context: T028 [P] [US3] Integration test for full correlation pipeline with known
+    dummy data, running 100 iterations per seed across n=3 seeds to validate timeout
+    and p-value stability.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Integration test for full correlation pipeline with known dummy data,
+    running 100 iterations per seed across n=3 seeds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:56:16Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: permutation test hard minimum 5000 iterations
+  claim_id: c_0f9c86f5
+  context: 'T031 [US3] Implement Permutation Test with logic: Run [deferred] iterations
+    (target) with a hard minimum of 5,000 iterations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement Permutation Test with logic: Run [deferred] iterations (target)
+    with a hard minimum of 5,000 iterations.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:56:33Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: memory profiling verification limit 7 GB peak
+  claim_id: c_34bec9cc
+  context: T037 [P] Add memory profiling code to code/static_score/compute.py and
+    code/dynamic_score/run_appo.py using memory_profiler with @profile decorator on
+    the main function to verify memory usage <7 GB peak.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Add memory profiling code to code/static_score/compute.py and code/dynamic_score/run_appo.py
+    using memory_profiler with @profile decorator on the main function to verify memory
+    usage <7 GB peak.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:56:33Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: test suite memory check assertion limit 7 GB peak
+  claim_id: c_a5cab942
+  context: T038 [P] Add memory check assertion using memory_profiler to verify <7
+    GB peak usage in code/static_score/compute.py and code/dynamic_score/run_appo.py
+    in test suite.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Add memory check assertion using memory_profiler to verify <7 GB peak
+    usage in code/static_score/compute.py and code/dynamic_score/run_appo.py in test
+    suite.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:56:34Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: dataset ID openai/gsmk
+  claim_id: c_616b3ea3
+  context: 'T007 [P] Implement data download utility to fetch GSMK (dataset ID: openai/gsmk)
+    and MATH (dataset ID: hendrycks/math) datasets from verified HuggingFace URLs.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_ID_openai/gsmk
+  kind: entity_fact
+  raw_text: 'Dataset ID: openai/gsmk'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:56:58Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 0
+  canonical: MATH dataset ID is hendrycks/math
+  claim_id: c_b56c3ac6
+  context: 'Implement data download utility to fetch GSMK (dataset ID: ''openai/gsmk'')
+    and MATH (dataset ID: ''hendrycks/math'') datasets from verified HuggingFace URLs'
+  evidence:
+    entailment_evidence: MATH dataset ID is hendrycks/math - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/MATH_dataset_ID_is_hendrycks/math
+  kind: entity_fact
+  raw_text: The dataset ID for MATH is 'hendrycks/math'.
+  resolved_value: MATH dataset ID is hendrycks/math
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-07T00:57:18Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: GSMK dataset ID is openai/gsmk
+  claim_id: c_ad57261d
+  context: 'Implement data download utility to fetch GSMK (dataset ID: ''openai/gsmk'')
+    and MATH (dataset ID: ''hendrycks/math'') datasets from verified HuggingFace URLs'
+  evidence:
+    entailment_evidence: GSMK dataset ID is openai/gsmk
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/GSMK_dataset_ID_is_openai/gsmk
+  kind: entity_fact
+  raw_text: The dataset ID for GSMK is 'openai/gsmk'.
+  resolved_value: GSMK dataset ID is openai/gsmk
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-07T00:57:22Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: StaticScorer requires epsilon smoothing factor for log(0)
+  claim_id: c_e6967484
+  context: Implement 'StaticScorer' class... MUST implement an epsilon smoothing factor
+    to handle log(0) scenarios as per Spec Edge Cases
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The StaticScorer class must implement an epsilon smoothing factor to handle
+    log(0) scenarios.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:57:43Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: Task timeout threshold is 30 minutes
+  claim_id: c_dff8d51b
+  context: 'Implement task-level timeout logic: if a single task exceeds 30 minutes,
+    exclude it, log ''TIMEOUT_EXCLUDED'', and continue.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A task exceeding 30 minutes is excluded and logged as 'TIMEOUT_EXCLUDED'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:57:59Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: Memory limit threshold is 7 GB
+  claim_id: c_98edd9b2
+  context: If memory > 7 GB or total time > 5 hours, exit with code 1 and log 'RESOURCE_LIMIT_EXCEEDED'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If memory usage exceeds 7 GB, the system exits with code 1 and logs 'RESOURCE_LIMIT_EXCEEDED'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:58:22Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: Time limit threshold is 5 hours
+  claim_id: c_3a83c3fc
+  context: If memory > 7 GB or total time > 5 hours, exit with code 1 and log 'RESOURCE_LIMIT_EXCEEDED'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If total elapsed time exceeds 5 hours, the system exits with code 1 and
+    logs 'RESOURCE_LIMIT_EXCEEDED'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:58:47Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: Static score batch size is 100 tasks
+  claim_id: c_95820d16
+  context: Implement batch processing loop to generate 'data/processed/static_scores.json'
+    for exactly 100 tasks
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The batch processing loop generates static scores for exactly 100 tasks.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:59:30Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: Dynamic score sampling is 50 tasks split by token length
+  claim_id: c_0f767af1
+  context: 'Implement stratified random sampling... Target: exactly 50 tasks distributed
+    as: 10 tasks for <50 tokens, 25 tasks for 50-100 tokens, 15 tasks for >100 tokens.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stratified random sampling targets exactly 50 tasks distributed as
+    10 tasks for <50 tokens, 25 tasks for 50-100 tokens, and 15 tasks for >100 tokens.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:59:55Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: Permutation test target iterations is 10000
+  claim_id: c_2adfa625
+  context: run permutation tests (target 10,000 iterations, minimum 5,000)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test has a target of 10,000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T01:00:31Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: Permutation test minimum iterations is 5000
+  claim_id: c_1f2d238f
+  context: run permutation tests (target 10,000 iterations, minimum 5,000)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test has a minimum of 5,000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T01:01:28Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: Correlation pipeline test uses 3 seeds and 100 iterations
+  claim_id: c_86b1fb66
+  context: Integration test for full correlation pipeline... running 100 iterations
+    per seed across n=3 seeds
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The integration test for the full correlation pipeline runs 100 iterations
+    per seed across 3 seeds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T01:05:15Z'
+- artifact_path: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/specs/001-llmxive-follow-up-extending-appo-agentic/tasks.md
+  attempts: 1
+  canonical: Feasibility correlation threshold is 0.7
+  claim_id: c_875203ae
+  context: assert that the correlation coefficient meets the SC-001 threshold (>0.7)...
+    if r >= 0.7 then flag='feasible' else flag='infeasible'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The correlation coefficient threshold for feasibility is 0.7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T01:05:28Z'

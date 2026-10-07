@@ -4,5 +4,3 @@ A separate model checked the artifacts you produced for the tasks below and judg
 
 - **T005** — declared artifact(s) missing/empty/invalid: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/requirements.txt
 - **T006b** — declared artifact(s) missing/empty/invalid: pre-commit-config.yaml
-- **T011** — declared artifact(s) missing/empty/invalid: projects/PROJ-861-llmxive-follow-up-extending-appo-agentic/contracts/output_schema.yaml
-- **T017** — declared artifact(s) missing/empty/invalid: data/processed/static_scores.json

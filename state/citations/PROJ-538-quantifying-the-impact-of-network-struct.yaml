@@ -1,4 +1,4 @@
-- artifact_hash: 16818fa57474cfadad7a12ae3de4d9725b7c4b815a9884c024e50d2286858daa
+- artifact_hash: 24df9751e051a539021abe37dc5bc1c7214729860869e75e19086cffd0f618d0
   artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://en.wikipedia.org/wiki/Pi
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Pi
-  verified_at: '2026-09-28T03:46:04.573686Z'
+  verified_at: '2026-10-07T01:07:28.547964Z'

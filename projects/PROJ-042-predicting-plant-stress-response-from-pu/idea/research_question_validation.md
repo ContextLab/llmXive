@@ -1,29 +1,31 @@
 ## Research-question validation
 
 ### Phenomenon-vs-method check
-**Verdict**: concern
 
-The question asks about the biological overlap of transcriptional signatures, but it is heavily fixated on the performance of a "simple linear model" using a "top 50 most variable genes" constraint. While the underlying biological question (do stress pathways overlap?) is valid, the specific framing ties the answer to the success of a particular feature-selection strategy; if the top 50 genes are noisy, the question implies the signatures might be indistinguishable, whereas a different feature set might reveal them.
-
-### Circularity check
 **Verdict**: pass
 
-The predictor variables (gene expression levels of the top 50 variable genes) are derived from raw RNA-seq counts, while the predicted variable (stress type label) is a metadata annotation provided by the original dataset authors. These are independent sources; the labels are not mathematically constructed from the gene expression values in the current study, so there is no mechanical guarantee of the relationship.
+The question investigates the biological reality of transcriptional separability between distinct abiotic stresses (drought, salinity, heat, cold), asking whether their molecular fingerprints are inherently distinct or overlapping. While the methodology explicitly limits the feature set to the "top 50 variable genes" to test a specific hypothesis about biomarker sufficiency, the core scientific inquiry remains focused on the nature of the stress signatures themselves rather than the performance of a specific algorithm or computational constraint.
+
+### Circularity check
+
+**Verdict**: pass
+
+The predictor is derived from a subset of the most variable genes across the combined dataset, while the predicted variable is the experimental stress condition (drought, salinity, etc.) assigned during the original wet-lab experiments. These sources are independent; the stress labels are biological ground truths established by the experimental design, not statistical summaries computed from the same gene expression matrix used for prediction.
 
 ### Triviality check
-**Verdict**: concern
 
-There is a risk that the result is predetermined by domain knowledge: if the top 50 variable genes are chosen based on variance across *all* conditions, it is statistically likely they will separate the conditions to some degree, making a "pass" result unsurprising. Conversely, if the result is null, it might simply reflect the known difficulty of cross-dataset generalization due to batch effects rather than a biological lack of separation. A reasonable researcher might find a result where "linear models fail" to be a known artifact of batch effects rather than a novel biological insight.
+**Verdict**: pass
+
+Both outcomes are highly informative: a positive result (high separability with 50 genes) would validate the feasibility of low-cost, targeted qPCR panels for field breeding, while a null result (poor separability) would challenge the prevailing assumption that stress-specific biomarkers exist and suggest that stress responses are too context-dependent for simple classification. Given the conflicting evidence in the literature regarding stress crosstalk, neither outcome is predetermined by current domain knowledge.
 
 ### Question-narrowing check
-**Verdict**: concern
 
-The question narrows the scope significantly by asking if a *specific* method (linear model on top 50 genes) can distinguish the stresses, rather than asking generally about the separability of the signatures. The current phrasing risks conflating "biological separability" with "linear separability of a specific feature subset," potentially missing non-linear biological distinctions that a more flexible model could detect.
+**Verdict**: pass
+
+The question explicitly names a relationship in the domain: the degree of biological separability between transcriptional signatures of different abiotic stresses. The constraint of using a "minimal linear feature set" serves as a rigorous test of whether this biological separability is robust enough to support low-cost applications, rather than narrowing the question to a specific implementation bottleneck like "can this specific model run in 6 hours."
 
 ### Overall verdict
-**Verdict**: validator_revise
 
-The core biological question is sound, but the current framing risks conflating methodological limitations (linear models on small feature sets) with biological reality (stress signature overlap). The project should be reframed to test the biological separability first, using the linear model only as a specific lens for cost-effective biomarker discovery rather than the sole arbiter of separability.
-[REVISED]
-To what extent are the transcriptional signatures of distinct abiotic stresses (drought, salinity, heat, cold) biologically separable across independent datasets, and under what conditions can a minimal linear feature set (top 50 variable genes) successfully approximate this separability for low-cost biomarker design?
-[/REVISED]
+**Verdict**: validated
+
+All four checks pass, confirming that the research question targets a substantive biological uncertainty regarding the distinctness of stress signatures. The methodological constraints (top 50 genes, no batch correction) are integral to the hypothesis testing regarding biomarker minimalism and do not undermine the scientific validity of the inquiry. The project is ready to proceed to initialization.

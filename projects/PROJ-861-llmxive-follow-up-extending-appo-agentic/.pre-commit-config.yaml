@@ -5,12 +5,9 @@ repos:
       - id: ruff
         args: [--fix, --select, E,E7,E9,F,I]
       - id: ruff-format
-        # Uses the formatter from ruff (black-compatible)
-        # If the project prefers strictly black, use the black hook below instead
-        # and remove this ruff-format hook.
+        args: [--line-length, "88"]
   - repo: https://github.com/psf/black
     rev: 24.8.0
     hooks:
       - id: black
-        language_version: python3.11
-        args: [--line-length=88, --target-version=py311]
+        args: [--line-length, "88", --target-version, py311]
