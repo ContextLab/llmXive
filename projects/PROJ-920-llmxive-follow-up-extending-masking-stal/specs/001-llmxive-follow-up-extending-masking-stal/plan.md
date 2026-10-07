@@ -1,23 +1,25 @@
 # Implementation Plan: llmXive follow-up: extending "Masking Stale Observations Helps Search Agents -- Until It Doesn't"
 
-**Branch**: `001-llmxive-density-horizon` | **Date**: 2026-07-14 | **Spec**: `specs/001-llmxive-density-horizon/spec.md`
-**Input**: Feature specification from `specs/001-llmxive-density-horizon/spec.md`
+**Branch**: `001-llmxive-density-horizon` | **Date**: 2026-07-13 | **Spec**: `specs/001-llmxive-follow-up-extending-masking-stal/spec.md`
+**Input**: Feature specification from `/specs/001-llmxive-follow-up-extending-masking-stal/spec.md`
 
 ## Summary
 
-This feature implements a synthetic simulation pipeline to investigate how the **semantic density** of retrieved context modulates the **optimal masking horizon** for long-horizon search agents. The project generates **2,000** synthetic trajectories with controlled entropy and technical token ratios, simulates agent performance under varying retention windows using a stochastic "Focus Decay" model, and performs a logistic regression (GLM) with natural splines to quantify the interaction effect. The implementation is constrained to CPU-only execution on GitHub Actions free-tier runners (≤7 GB RAM, ≤14 GB disk, ≤6 h runtime).
+This feature implements a synthetic simulation pipeline to investigate how semantic density modulates the optimal masking horizon for long-horizon search agents. The system generates 500 synthetic search trajectories with parameterized "critical evidence" blocks (varying in Shannon entropy and technical token ratio), simulates agent performance under variable retention horizons (ranging from an initial turn up to $T$ turns), and performs logistic regression to quantify the interaction effect between density and horizon on success rates. The output includes a 3D surface plot visualizing the "regime map" of optimal retention windows.
+
+**Critical Methodological Correction**: To avoid tautological validation, the success outcome is determined *solely* by whether the critical evidence is visible (within the retention horizon) and a **fixed** random coin flip (simulating agent capability, $p=0.9$), **independent** of the semantic density value. The hypothesis is tested by observing if the *decay rate* of success with increasing horizon differs between density levels. The density-dependent Heuristic Solver defined in the original spec's FR-009 is **DEPRECATED** for this experiment to prevent circular logic.
 
 ## Technical Context
 
-**Language/Version**: Python 3.x  
-**Primary Dependencies**: `numpy`, `pandas`, `scikit-learn`, `statsmodels`, `matplotlib`, `seaborn` (CPU-only), `scipy`  
-**Storage**: Local JSON/CSV files under `data/` (streamed to disk to manage RAM)  
-**Testing**: `pytest` (unit tests for entropy calculation, simulation logic, and regression output)  
-**Target Platform**: Linux (GitHub Actions free-tier runner)  
-**Project Type**: CLI / Scientific Simulation  
-**Performance Goals**: Generate [deferred] trajectories in < 10 mins; Regression fit in < 3 mins; Peak RAM < 7 GB.
-**Constraints**: No GPU, no deep learning libraries (PyTorch/TensorFlow not required), no external API calls.  
-**Scale/Scope**: [deferred] trajectories, Variable turns per trajectory, Multiple density levels, multiple horizon levels.
+**Language/Version**: Python 3.11
+**Primary Dependencies**: `numpy`, `scipy`, `statsmodels`, `matplotlib`, `pandas`, `seaborn` (for 3D plotting support)
+**Storage**: Local filesystem (JSON for trajectories, CSV for simulation logs, PNG for plots)
+**Testing**: `pytest` (unit tests for entropy calculation, integration tests for simulation loop)
+**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7 GB RAM, 14 GB disk)
+**Project Type**: CLI / Research Simulation
+**Performance Goals**: < 6 hours runtime, < 7 GB peak RAM, < 14 GB disk usage
+**Constraints**: CPU-only execution; no GPU dependencies; streaming data handling for large outputs; strict adherence to synthetic data generation logic to avoid fabrication.
+**Scale/Scope**: 500 synthetic trajectories; ~100 MB output size; 3 predictor variables (density, horizon, age); 1 binary outcome.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -25,15 +27,15 @@ This feature implements a synthetic simulation pipeline to investigate how the *
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Compliance Note |
+| Principle | Status | Notes |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | ✅ Pass | Random seeds will be pinned in `code/`. All dependencies pinned in `requirements.txt`. |
-| **II. Verified Accuracy** | ✅ Pass | No external citations used for internal design parameters (entropy thresholds, formulas). These are defined by the project's methodology as internal constants, not external sources. Principle II applies to external citations only; internal parameters are validated via unit tests against the defined methodology. |
-| **III. Data Hygiene** | ✅ Pass | Generated data will be checksummed. Raw synthetic data preserved; analysis results derived to new files. |
-| **IV. Single Source of Truth** | ✅ Pass | Regression coefficients and plots will be generated solely from `data/` via `code/`. |
-| **V. Versioning Discipline** | ✅ Pass | Artifacts will carry content hashes in state files. |
-| **VI. Semantic-Density Grounding** | ✅ Pass | The retention window size is dynamically adjusted based on the density of the critical evidence block. Specifically, the simulation calculates a `H_min` (minimum required horizon) derived from the density metric (FR-008). The masking policy explicitly references this `H_min` to determine if evidence is visible, ensuring alignment with the principle. |
-| **VII. Synthetic Simulation Fidelity** | ✅ Pass | Simulator is rule-based; critical evidence injection is decoupled from agent output. The success logic is emergent via stochastic "Focus Decay", not hard-coded. |
+| **I. Reproducibility** | **PASS** | Random seeds pinned in `code/simulate.py`. Dependencies pinned in `requirements.txt`. No external data fetches required (fully synthetic). |
+| **II. Verified Accuracy** | **PASS** | No external citations in the simulation logic. The "ground truth" is self-contained in the generator logic (injection turn + density level). |
+| **III. Data Hygiene** | **PASS** | `data/raw/trajectories.json` will be checksummed. No in-place modifications; analysis scripts read raw, write derived logs. |
+| **IV. Single Source of Truth** | **PASS** | All regression coefficients and plot axes will be derived directly from `data/logs/simulation_results.csv`. |
+| **V. Versioning Discipline** | **PASS** | Content hashes will be recorded for `trajectories.json` and `simulation_results.csv` in the state file `state/projects/PROJ-920-llmxive-follow-up-extending-masking-stal.yaml`. |
+| **VI. Semantic-Density Grounding** | **PASS** | The simulator explicitly calculates density via a weighted combination of Shannon_Entropy and Technical_Token_Ratio, with the former receiving a higher weight than the latter. (FR-008) and uses this as a predictor. The outcome logic is decoupled from density to ensure valid inference. |
+| **VII. Synthetic Simulation Fidelity** | **PASS** | The generator uses a rule-based approach (FR-008) to inject evidence. Success is determined by visibility and a fixed probability coin flip, strictly decoupled from agent output or the density value itself. FR-009 is deprecated for this experiment. |
 
 ## Project Structure
 
@@ -46,9 +48,7 @@ specs/001-llmxive-density-horizon/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-│   ├── trajectory.schema.yaml
-│   └── regression_output.schema.yaml
-└── tasks.md             # Phase 2 output
+└── tasks.md             # Phase 2 output (generated by implementation agent)
 ```
 
 ### Source Code (repository root)
@@ -57,34 +57,72 @@ specs/001-llmxive-density-horizon/
 projects/PROJ-920-llmxive-follow-up-extending-masking-stal/
 ├── code/
 │   ├── __init__.py
-│   ├── requirements.txt
-│   ├── generate_trajectories.py    # Implements US-1, FR-001, FR-008
-│   ├── simulate_agent.py           # Implements US-2, FR-002, FR-009 (Revised Logic)
-│   ├── analyze_results.py          # Implements US-3, FR-003, FR-006
-│   ├── visualize_results.py        # Implements FR-004, FR-006
-│   └── utils/
-│       ├── entropy.py              # Entropy calculation logic
-│       └── heuristics.py           # Heuristic solver logic
+│   ├── generate_trajectories.py   # Generates synthetic data (US-1)
+│   ├── validate_trajectories.py   # Validates entropy and structure (US-1)
+│   ├── simulate_agent.py          # Runs simulation loop (US-2)
+│   ├── analyze_results.py         # Logistic regression & plotting (US-3)
+│   ├── config.py                  # Contains technical token list and solver parameters
+│   └── requirements.txt           # Pinned dependencies
 ├── data/
-│   ├── raw/                        # Generated synthetic trajectories (JSON)
-│   └── processed/                  # Simulation logs and regression inputs (CSV)
-├── tests/
-│   ├── unit/
-│   │   ├── test_entropy.py
-│   │   └── test_simulator.py
-│   └── integration/
-│       └── test_pipeline.py
-└── output/
-    └── plots/                      # PNG surface plots
+│   ├── raw/
+│   │   └── trajectories.json      # Generated synthetic data
+│   └── logs/
+│       └── simulation_results.csv # Agent performance logs
+├── results/
+│   └── regime_map.png             # 3D surface plot
+└── tests/
+    ├── test_generation.py
+    ├── test_simulation.py
+    └── test_analysis.py
 ```
 
-**Structure Decision**: Single-project structure chosen to minimize overhead. All logic is contained within `code/` with clear separation of concerns (generation, simulation, analysis, visualization). This aligns with the "Synthetic Simulation Fidelity" principle by keeping the data generation and analysis logic tightly coupled and reproducible.
+**Structure Decision**: A single project structure under `code/` is selected. This aligns with the CLI nature of the research simulation. No separate backend/frontend is needed. The `data/raw` directory stores the generated synthetic dataset, which is the "source of truth" for the simulation.
 
 ## Complexity Tracking
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **Natural Splines in GLM** | Required to capture the complex interaction surface (piecewise regime shift) between horizon and success. | Standard linear terms would fail to model the non-linear "tipping point" where high density requires longer horizons. |
-| **Streaming to Disk** | 2,000 trajectories + simulation logs could approach RAM limits if held in memory. | In-memory storage risks OOM on 7 GB limit; streaming ensures robustness. |
-| **Composite Density Metric** | FR-008 defines density as entropy + technical tokens. | Pure entropy ignores domain-specific technicality; pure technical ratio ignores information density. |
-| **[deferred] Trajectories** | Required for statistical power to detect interaction effect across A variable number of bins with natural splines. | A lower count results in approximately a small number of samples per bin, which is underpowered for logistic regression with splines. |
+No complexity violations identified. The project is self-contained and adheres to CPU constraints.
+
+## Unresolved Panel Concerns Addressed
+
+- **FABRICATED-RESULT**: The concern regarding "hard-coded values" in `tasks.md` is addressed by ensuring the *entire* pipeline (generation, simulation, analysis) is driven by the *generated* data, not pre-computed metrics. The `analyze_results.py` script will perform a *real* logistic regression on the *actual* simulation logs produced by `simulate_agent.py`. No results will be hardcoded.
+- **T011**: The plan explicitly defines the implementation of `generate_trajectories.py` to produce `data/raw/trajectories.json` with the required 500 trajectories, entropy calculations, and metadata. The script will include logic to generate text blocks with specific entropy levels, validate them, and write the full JSON output.
+- **T048**: The plan explicitly defines the implementation of `validate_trajectories.py` to load `data/raw/trajectories.json`, iterate over all trajectories, verify that the calculated entropy for critical blocks matches the requested density within a negligible tolerance., and exit with code 1 if validation fails. This ensures the input file exists and is valid before simulation.
+- **Scientific Soundness (FR-009/FR-002)**: The plan explicitly overrides the density-dependent logic in FR-009. The success condition in FR-002 is redefined for this experiment: `agent_heuristic_success` is a fixed probability (0.9) independent of density. This breaks the circular dependency where the predictor defined the outcome.
+
+## Phases
+
+### Phase 0: Research & Design
+- **Goal**: Define the exact entropy calculation method, technical token list, and logistic solver parameters.
+- **Deliverable**: `research.md`
+
+### Phase 1: Data Model & Contracts
+- **Goal**: Define the schema for trajectories and simulation logs.
+- **Deliverable**: `data-model.md`, `contracts/`
+
+### Phase 2: Implementation
+- **Goal**: Implement `generate_trajectories.py`, `simulate_agent.py`, `analyze_results.py`.
+  - **generate_trajectories.py**: Must generate a set of trajectories, inject critical evidence with target entropy, calculate actual entropy, and write to `data/raw/trajectories.json`.
+  - **validate_trajectories.py**: Must load the JSON, verify entropy tolerance, and exit with appropriate codes.
+  - **simulate_agent.py**: Must run the simulation loop with fixed probability success logic.
+  - **analyze_results.py**: Must perform real logistic regression on the generated logs.
+- **Deliverable**: Executable code in `code/`, generated `data/raw/trajectories.json`.
+
+### Phase 3: Verification
+- **Goal**: Run the full pipeline, validate outputs against contracts, ensure reproducibility.
+- **Deliverable**: `results/regime_map.png`, checksummed data files.
+
+## Compute Feasibility
+
+- **CPU-First**: The entire pipeline is designed for CPU execution.
+  - **Trajectory Generation**: Text generation and entropy calculation are O(N) and trivial for 500 trajectories.
+  - **Simulation**: The agent logic is a simple sliding window and probabilistic check. No LLM inference is performed.
+  - **Analysis**: Logistic regression with natural splines on a moderate sample size is computationally trivial for `statsmodels`..
+- **GPU Escape Hatch**: Not required. No neural network training or inference is involved.
+- **Memory**: The simulation will stream results to disk (CSV) after each batch of trajectories to stay well under 7 GB RAM.
+- **Disk**: 500 trajectories (estimated ~100 MB) + logs (estimated ~5 MB) + plots (~5 MB) fits comfortably within 14 GB.
+
+## Data Availability
+
+- **Source**: Fully synthetic. No external datasets are required.
+- **Feasibility**: The generator creates data in memory and writes to disk. No network calls or credentials are needed.
+- **Streaming**: The simulation loop will write results to `data/logs/simulation_results.csv` incrementally to prevent memory overflow.

@@ -9,11 +9,11 @@
 
 ### User Story 1 - Synthetic Trajectory Generation with Controlled Density (Priority: P1)
 
-As a researcher, I need a Python-based simulator that generates A set of synthetic search trajectories where "critical evidence" is injected at specific turns, and the semantic density of that evidence is explicitly parameterized (via information entropy per token), so that I can isolate the variable of interest without relying on external, noisy datasets.
+As a researcher, I need a Python-based simulator that generates a set of synthetic search trajectories where "critical evidence" is injected at specific turns, and the semantic density of that evidence is explicitly parameterized (via information entropy per token), so that I can isolate the variable of interest without relying on external, noisy datasets.
 
 **Why this priority**: This is the foundational data source. Without a mechanism to independently control semantic density and evidence age, the core hypothesis cannot be tested. It must be the first implemented component.
 
-**Independent Test**: The system can be tested by running the generator with fixed seeds and verifying that the output JSON file contains a sufficient number of trajectories., where the calculated entropy per token for injected evidence blocks matches the requested density levels (low, medium, high) within a tolerance of ±0.01 bits/token.
+**Independent Test**: The system can be tested by running the generator with fixed seeds and verifying that the output JSON file contains at least 500 trajectories, where the calculated entropy per token for injected evidence blocks matches the requested density levels (low, medium, high) within a tolerance of ±0.01 bits/token.
 
 **Acceptance Scenarios**:
 
@@ -29,12 +29,12 @@ As a researcher, I need to run a simulation loop where a rule-based or small-con
 
 **Why this priority**: This implements the core experimental intervention. It connects the data generation (US-1) to the statistical analysis (US-3) by producing the raw performance metrics (success/failure) needed for the regression model.
 
-**Independent Test**: The system can be tested by running the simulation on a small subset of trajectories with a known "ground truth" retention horizon (e.g., evidence at turn 5 must be visible). The system must correctly report "failure" when the retention horizon is set to < 5 turns for high-density evidence, and "success" when ≥ 5 turns (subject to the probabilistic solver).
+**Independent Test**: The system can be tested by running the simulation on a small subset of trajectories with a known "ground truth" retention horizon (e.g., evidence at turn 5 must be visible). The system must correctly report "failure" when the retention horizon is set to < 5 turns for high-density evidence (assuming the probabilistic solver fails, which occurs with probability $1 - P(retrieval)$), and "success" when ≥ 5 turns.
 
 **Acceptance Scenarios**:
 
-1. **Given** a trajectory with critical evidence at turn 5, **When** the agent runs with a retention horizon of 4 turns, **Then** the agent's output is recorded as "failure" (binary 0) because the evidence was masked (not retained).
-2. **Given** a trajectory with critical evidence at turn 5, **When** the agent runs with a retention horizon of 5 turns, **Then** the agent's output is recorded as "success" (binary 1) because the evidence was retained and the heuristic solver succeeded.
+1. **Given** a trajectory with critical evidence at turn 5, **When** the agent runs with a retention horizon of 4 turns, **Then** the agent's output is recorded as "failure" (binary 0) if the probabilistic solver fails, which is the expected outcome when evidence is masked.
+2. **Given** a trajectory with critical evidence at turn 5, **When** the agent runs with a retention horizon of 5 turns, **Then** the agent's output is recorded as "success" (binary 1) if the evidence is retained and the heuristic solver succeeds.
 3. **Given** a trajectory with low-density evidence at turn 5, **When** the agent runs with a retention horizon of 4 turns, **Then** the system records the result, allowing for comparison against the high-density condition to detect the "modulation" effect.
 
 ---
@@ -45,13 +45,13 @@ As a researcher, I need a statistical analysis script that performs a logistic r
 
 **Why this priority**: This delivers the scientific answer to the research question. It transforms the raw simulation logs into the final empirical findings (the "regime map") required to validate or falsify the hypothesis.
 
-**Independent Test**: The system can be tested by feeding it a synthetic dataset where the interaction effect is hard-coded (e.g., high density *always* requires longer horizons). The regression output must show a statistically significant interaction term (p < 0.05) and the plot must visually display the surface shift.
+**Independent Test**: The system can be tested by feeding it a synthetic dataset where the interaction effect is hard-coded (e.g., high density *always* requires longer horizons). The regression output must show the calculated coefficient and p-value for the `density * horizon` interaction term (regardless of significance), and the plot must visually display the surface shift.
 
 **Acceptance Scenarios**:
 
 1. **Given** the simulation logs containing success rates, masking horizons, and density levels, **When** the analysis script runs, **Then** it outputs a logistic regression table showing the coefficient and p-value for the `density * horizon` interaction term.
 2. **Given** the same logs, **When** the visualization script runs, **Then** it generates a PNG file (≤ 5 MB) showing a 3D surface plot with Masking Horizon on the X-axis, Semantic Density on the Y-axis, and Success Rate on the Z-axis.
-3. **Given** the analysis results, **When** the script completes, **Then** it outputs a summary text file stating whether the hypothesis (positive correlation between density and optimal horizon) was supported by the data.
+3. **Given** the analysis results, **When** the script completes, **Then** it outputs a summary text file stating whether the data supports, refutes, or is inconclusive regarding the hypothesis.
 
 ### Edge Cases
 
@@ -64,14 +64,15 @@ As a researcher, I need a statistical analysis script that performs a logistic r
 ### Functional Requirements
 
 - **FR-001**: The system MUST generate a synthetic dataset of search trajectories where semantic density is explicitly parameterized using information entropy per token, ensuring independent control over evidence age and density (See US-1).
-- **FR-002**: The system MUST implement a simulation loop that applies a configurable retention horizon (from 1 to $T$ turns) to each trajectory and records a binary success/failure outcome based on ground-truth evidence necessity AND the probabilistic Heuristic Solver (See US-2). Success is defined as: 1 if (critical_evidence_turn_index >= current_turn - retention_horizon + 1) AND (agent_heuristic_success = true), else 0.
-- **FR-003**: The system MUST perform a logistic regression (GLM) using the Python `statsmodels` library to quantify the interaction effect between semantic density and masking horizon on the binary success rate. The model MUST include natural splines with a flexible number of degrees of freedom for the 'horizon' variable and require a minimum sample size sufficient to ensure statistical power per (density, horizon) bin. The interaction term MUST be significant at p < 0.05 (See US-3).
+- **FR-002**: The system MUST implement a simulation loop that applies a configurable retention horizon (from 1 to $T$ turns) to each trajectory and records a binary success/failure outcome. Success is defined as: 1 if (critical_evidence_turn_index >= current_turn - retention_horizon + 1) AND (agent_heuristic_success = true), else 0. The `agent_heuristic_success` is determined by a probabilistic solver that may succeed even if evidence is masked, but with lower probability, ensuring the outcome is not purely deterministic based on visibility (See US-2).
+- **FR-003**: The system MUST perform a logistic regression (GLM) using the Python `statsmodels` library to quantify the interaction effect between semantic density and masking horizon on the binary success rate. The model MUST include natural splines with a flexible number of degrees of freedom for the 'horizon' variable and require a minimum sample size sufficient to ensure statistical power per (density, horizon) bin. The system MUST report the calculated coefficient, standard error, and p-value for the interaction term (See US-3).
 - **FR-004**: The system MUST generate a 3D surface plot (PNG format) visualizing the success rate as a function of masking horizon and semantic density (See US-3).
 - **FR-005**: The system MUST ensure that the entire simulation and analysis pipeline runs on a CPU-only environment with a peak memory usage of ≤ 7 GB RAM and ≤ 14 GB disk, avoiding any GPU-dependent libraries or large model training (See US-2, US-3).
 - **FR-006**: The system MUST output a summary report containing the regression coefficients and p-values for the interaction term to determine statistical significance (See US-3).
 - **FR-007**: The system MUST validate that the generated trajectories contain no circular logic by ensuring the density metric is computed solely from input text statistics, independent of the agent's output (See US-1).
-- **FR-008**: The system MUST calculate "Semantic Density" as a composite metric defined by the formula: `Density = (Shannon_Entropy weight) + (Technical_Token_Ratio weight)`, where Shannon Entropy is calculated on UTF byte-level tokens and Technical_Token_Ratio is the proportion of tokens matching a predefined list of technical terms (See US-1, Key Entities).
-- **FR-009**: The system MUST implement a "Heuristic Solver" that determines retrieval success probabilistically based on the calculated density. The probability of success MUST be calculated using the logistic function: `P(retrieval) = sigmoid(α * (density - threshold)), where α is a scaling parameter and threshold represents a critical density value.`, where density is the value from FR-008 (See FR-002, US-2).
+- **FR-008**: The system MUST calculate "Semantic Density" as a composite metric defined by the formula: `Density = (weighted coefficient for Shannon_Entropy) + (weighted coefficient for Technical_Token_Ratio)`, where Shannon Entropy is calculated on UTF byte-level tokens and Technical_Token_Ratio is the proportion of tokens matching a predefined list of technical terms. This weighting is a baseline configuration for the simulation (See US-1, Key Entities).
+- **FR-009**: The system MUST implement a "Heuristic Solver" that determines retrieval success probabilistically based on the calculated density. The probability of success MUST be calculated using the logistic function: `P(retrieval) = sigmoid(α * (density - threshold))`, where α = 2.0 and threshold = 3.5 bits/token. These parameters are simulation proxy parameters and must be documented as such (See FR-002, US-2).
+- **FR-010**: The system MUST perform a sensitivity analysis by re-running the simulation and regression with varied density weights (e.g., 0.5/0.5, 0.7/0.3) and solver parameters (e.g., α ∈ {1.5, 2.5}) to verify that the observed interaction effect is robust and not an artifact of the specific baseline configuration (See FR-008, FR-009).
 
 ### Key Entities
 
@@ -101,3 +102,4 @@ As a researcher, I need a statistical analysis script that performs a logistic r
 - The 500 trajectories are sufficient to detect a moderate interaction effect (Cohen's $f^2 \approx 0.15$) with 80% power at $\alpha = 0.05$, assuming a balanced design across density levels.
 - The "retention" logic in the simulation is implemented as a simple sliding window (retain last $N$ turns) rather than a complex attention mechanism, to maintain computational tractability on free-tier CPU.
 - The specific entropy calculation method is defined in FR-008 and Key Entities, ensuring the definition is explicit and not deferred to implementation.
+- The "regime map" visualizes the relationship derived from the simulated data; the sensitivity analysis (FR-010) is required to validate that this relationship is not an artifact of the specific simulation parameters.
