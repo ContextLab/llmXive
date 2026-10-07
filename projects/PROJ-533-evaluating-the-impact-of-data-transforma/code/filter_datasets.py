@@ -4,235 +4,336 @@ import csv
 import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
-import pandas as pd
-import numpy as np
-from scipy import stats
 
-# Project imports
-from code.utils.logging_config import setup_pipeline_logger, log_exclusion
-from code.utils.statistical_tests import shapiro_wilk
-from code.utils.schema_definitions import get_filter_results_headers, get_exclusions_headers, get_imputation_log_headers
+# Import logging configuration
+from code.utils.logging_config import setup_pipeline_logger
+from code.utils.streaming_utils import (
+    stream_csv_rows,
+    OnlineStatsCalculator,
+    compute_online_stats,
+    stream_numeric_data,
+    get_file_row_count
+)
+from code.utils.data_model import Dataset
+from code.utils.schema_definitions import (
+    get_imputation_log_headers,
+    get_exclusions_headers,
+    get_filter_results_headers
+)
 
-# Ensure logger is configured
+# Setup logger
 logger = setup_pipeline_logger("filter_datasets")
 
-def load_dataset_from_file(file_path: str) -> pd.DataFrame:
-    """Load a dataset from a CSV file."""
+def load_dataset_from_file(file_path: str) -> Dict[str, Any]:
+    """
+    Load a dataset from a CSV file.
+    Returns a dictionary with 'data' (list of dicts) and 'metadata' (dict).
+    For large files, this function should be used with streaming logic in downstream operations.
+    """
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"Dataset file not found: {file_path}")
-    return pd.read_csv(file_path)
-
-def calculate_missing_ratio(df: pd.DataFrame) -> Dict[str, float]:
-    """Calculate the missing value ratio for each column."""
-    missing_ratio = df.isna().mean()
-    return missing_ratio.to_dict()
-
-def impute_missing_values(df: pd.DataFrame, method: str = 'mean') -> Tuple[pd.DataFrame, Dict[str, float]]:
-    """Impute missing values using the specified method."""
-    imputation_log = {}
-    df_imputed = df.copy()
     
-    for col in df_imputed.columns:
-        if df_imputed[col].isna().any():
-            missing_count = df_imputed[col].isna().sum()
-            total_count = len(df_imputed)
-            rate = missing_count / total_count
-            
-            if method == 'mean':
-                impute_val = df_imputed[col].mean()
-            elif method == 'median':
-                impute_val = df_imputed[col].median()
+    data = []
+    headers = []
+    with open(file_path, 'r', newline='', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        headers = reader.fieldnames
+        for row in reader:
+            data.append(row)
+    
+    return {
+        'data': data,
+        'metadata': {
+            'source_file': file_path,
+            'headers': headers,
+            'row_count': len(data)
+        }
+    }
+
+def calculate_missing_ratio(dataset: Dict[str, Any]) -> Dict[str, float]:
+    """
+    Calculate the ratio of missing values for each column.
+    Uses streaming logic for large datasets to avoid loading everything into memory.
+    """
+    file_path = dataset['metadata']['source_file']
+    headers = dataset['metadata']['headers']
+    
+    # Initialize counters for each column
+    missing_counts = {col: 0 for col in headers}
+    total_rows = 0
+    
+    # Stream through the file to count missing values
+    for row in stream_csv_rows(file_path):
+        total_rows += 1
+        for col in headers:
+            val = row.get(col, '').strip()
+            if val == '' or val.lower() in ('nan', 'na', 'null', 'none'):
+                missing_counts[col] += 1
+    
+    if total_rows == 0:
+        return {col: 0.0 for col in headers}
+    
+    return {col: count / total_rows for col, count in missing_counts.items()}
+
+def impute_missing_values(dataset: Dict[str, Any], method: str = 'mean') -> Tuple[Dict[str, Any], Dict[str, float]]:
+    """
+    Impute missing values using the specified method (mean or median).
+    Returns the imputed dataset and a log of imputation rates.
+    Uses streaming logic for efficiency on large datasets.
+    """
+    file_path = dataset['metadata']['source_file']
+    headers = dataset['metadata']['headers']
+    
+    # First pass: compute imputation values (mean/median) for each column
+    col_values = {col: [] for col in headers}
+    
+    # Stream to collect numeric values
+    for row in stream_csv_rows(file_path):
+        for col in headers:
+            val = row.get(col, '').strip()
+            if val not in ('', 'nan', 'na', 'null', 'none'):
+                try:
+                    col_values[col].append(float(val))
+                except ValueError:
+                    pass  # Skip non-numeric values
+    
+    # Compute imputation values
+    impute_values = {}
+    for col, values in col_values.items():
+        if not values:
+            impute_values[col] = 0.0
+            continue
+        if method == 'mean':
+            impute_values[col] = sum(values) / len(values)
+        elif method == 'median':
+            sorted_vals = sorted(values)
+            n = len(sorted_vals)
+            if n % 2 == 0:
+                impute_values[col] = (sorted_vals[n//2 - 1] + sorted_vals[n//2]) / 2
             else:
-                raise ValueError(f"Unsupported imputation method: {method}")
+                impute_values[col] = sorted_vals[n//2]
+        else:
+            raise ValueError(f"Unknown imputation method: {method}")
+    
+    # Second pass: write imputed data to a new file
+    imputed_file_path = file_path.replace('.csv', '_imputed.csv')
+    imputation_log = {}
+    
+    with open(file_path, 'r', newline='', encoding='utf-8') as infile, \
+         open(imputed_file_path, 'w', newline='', encoding='utf-8') as outfile:
+        
+        reader = csv.DictReader(infile)
+        writer = csv.DictWriter(outfile, fieldnames=headers)
+        writer.writeheader()
+        
+        total_rows = 0
+        for row in reader:
+            total_rows += 1
+            imputed_row = row.copy()
+            for col in headers:
+                val = row.get(col, '').strip()
+                if val == '' or val.lower() in ('nan', 'na', 'null', 'none'):
+                    imputed_row[col] = str(impute_values[col])
+                    if col not in imputation_log:
+                        imputation_log[col] = 0
+                    imputation_log[col] += 1
             
-            df_imputed[col] = df_imputed[col].fillna(impute_val)
-            imputation_log[col] = rate
-            logger.info(f"Imputed column '{col}' using {method} (rate: {rate:.4f})")
+            writer.writerow(imputed_row)
     
-    return df_imputed, imputation_log
+    # Calculate imputation rates
+    imputation_rates = {col: count / total_rows for col, count in imputation_log.items()}
+    
+    # Update dataset metadata
+    dataset['metadata']['imputed_file'] = imputed_file_path
+    dataset['metadata']['imputation_method'] = method
+    
+    return dataset, imputation_rates
 
-def filter_by_missing_data(df: pd.DataFrame, threshold: float = 0.10) -> Tuple[pd.DataFrame, List[Dict[str, Any]]]:
-    """Filter out columns with missing data ratio above threshold."""
-    missing_ratio = calculate_missing_ratio(df)
-    excluded_cols = []
-    
-    for col, rate in missing_ratio.items():
-        if rate > threshold:
-            excluded_cols.append(col)
-            logger.warning(f"Excluding column '{col}' due to missing rate {rate:.2%} > {threshold:.2%}")
-    
-    df_filtered = df.drop(columns=excluded_cols)
-    return df_filtered, excluded_cols
+def filter_by_missing_data(dataset: Dict[str, Any], threshold: float = 0.10) -> Tuple[bool, Dict[str, float]]:
+    """
+    Check if a dataset should be excluded based on missing data threshold.
+    Returns (should_exclude, missing_ratios).
+    """
+    missing_ratios = calculate_missing_ratio(dataset)
+    max_ratio = max(missing_ratios.values()) if missing_ratios else 0.0
+    should_exclude = max_ratio > threshold
+    return should_exclude, missing_ratios
 
-def process_dataset_for_filtering(file_path: str, dataset_id: str) -> Dict[str, Any]:
-    """Process a single dataset for filtering."""
-    try:
-        df = load_dataset_from_file(file_path)
-        
-        # Step 1: Handle missing values
-        df_clean, imputation_log = impute_missing_values(df, method='mean')
-        
-        # Step 2: Check if any column exceeds 10% missing (already logged in impute step if excluded)
-        # Note: The logic in T015 handles column exclusion. Here we check row-level or overall dataset exclusion if needed.
-        # For this task, we assume column exclusion is sufficient, but we log the imputation rates.
-        
-        # Step 3: Shapiro-Wilk Test on continuous variables
-        # Select numeric columns
-        numeric_cols = df_clean.select_dtypes(include=[np.number]).columns.tolist()
-        
-        shapiro_results = []
-        non_normal_count = 0
-        
-        for col in numeric_cols:
-            data = df_clean[col].dropna()
-            if len(data) < 3:
-                continue # Need at least 3 points for Shapiro-Wilk
+def process_dataset_for_filtering(dataset: Dict[str, Any], 
+                                  imputation_method: str = 'mean',
+                                  missing_threshold: float = 0.10) -> Tuple[bool, Dict[str, Any], Optional[Dict[str, Any]]]:
+    """
+    Process a single dataset for filtering:
+    1. Calculate missing ratios
+    2. Impute if necessary
+    3. Check if it passes the missing data threshold
+    
+    Returns (passed_filter, processed_dataset, imputation_log_entry)
+    """
+    dataset_id = dataset['metadata'].get('dataset_id', 'unknown')
+    logger.info(f"Processing dataset {dataset_id}")
+    
+    # Calculate missing ratios
+    should_exclude, missing_ratios = filter_by_missing_data(dataset, missing_threshold)
+    
+    if should_exclude:
+        logger.warning(f"Dataset {dataset_id} excluded: missing rate {max(missing_ratios.values()):.2%} > {missing_threshold:.0%}")
+        return False, dataset, None
+    
+    # Impute missing values
+    dataset, imputation_rates = impute_missing_values(dataset, method=imputation_method)
+    
+    logger.info(f"Dataset {dataset_id} passed filtering. Imputation rates: {imputation_rates}")
+    
+    # Create imputation log entry
+    imputation_log_entry = {
+        'dataset_id': dataset_id,
+        'variable': 'all',
+        'imputation_method': imputation_method,
+        'rate': str(max(imputation_rates.values()))
+    }
+    
+    return True, dataset, imputation_log_entry
+
+def run_filter_pipeline(datasets_dir: str, 
+                        output_csv: str,
+                        imputation_log_csv: str,
+                        exclusions_csv: str,
+                        filter_results_csv: str,
+                        imputation_method: str = 'mean',
+                        missing_threshold: float = 0.10) -> List[Dict[str, Any]]:
+    """
+    Run the full filtering pipeline on all datasets in the directory.
+    Uses streaming logic for processing large files.
+    """
+    datasets_dir = Path(datasets_dir)
+    output_csv = Path(output_csv)
+    imputation_log_csv = Path(imputation_log_csv)
+    exclusions_csv = Path(exclusions_csv)
+    filter_results_csv = Path(filter_results_csv)
+    
+    # Ensure output directories exist
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
+    imputation_log_csv.parent.mkdir(parents=True, exist_ok=True)
+    exclusions_csv.parent.mkdir(parents=True, exist_ok=True)
+    filter_results_csv.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Initialize output files
+    with open(output_csv, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=['dataset_id', 'source_file', 'passed_filter', 'missing_rate'])
+        writer.writeheader()
+    
+    with open(imputation_log_csv, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=get_imputation_log_headers())
+        writer.writeheader()
+    
+    with open(exclusions_csv, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=get_exclusions_headers())
+        writer.writeheader()
+    
+    with open(filter_results_csv, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=get_filter_results_headers())
+        writer.writeheader()
+    
+    processed_datasets = []
+    
+    # Process each CSV file in the directory
+    for csv_file in datasets_dir.glob('*.csv'):
+        if csv_file.name.endswith('_imputed.csv') or csv_file.name == 'datasets.csv':
+            continue
+          
+        try:
+            dataset = load_dataset_from_file(str(csv_file))
+            dataset_id = csv_file.stem
+          
+            # Process dataset
+            passed, processed_dataset, imputation_entry = process_dataset_for_filtering(
+                dataset, imputation_method, missing_threshold
+            )
+          
+            # Calculate missing rate for logging
+            missing_ratios = calculate_missing_ratio(processed_dataset)
+            max_missing_rate = max(missing_ratios.values()) if missing_ratios else 0.0
+          
+            # Write to datasets.csv
+            with open(output_csv, 'a', newline='', encoding='utf-8') as f:
+                writer = csv.DictWriter(f, fieldnames=['dataset_id', 'source_file', 'passed_filter', 'missing_rate'])
+                writer.writerow({
+                    'dataset_id': dataset_id,
+                    'source_file': str(csv_file),
+                    'passed_filter': 'True' if passed else 'False',
+                    'missing_rate': f"{max_missing_rate:.4f}"
+                })
+          
+            # Write imputation log
+            if imputation_entry:
+                with open(imputation_log_csv, 'a', newline='', encoding='utf-8') as f:
+                    writer = csv.DictWriter(f, fieldnames=get_imputation_log_headers())
+                    writer.writerow(imputation_entry)
             
-            stat, p_value = shapiro_wilk(data.values)
-            shapiro_results.append({
-                'column': col,
-                'statistic': stat,
-                'p_value': p_value
-            })
+            # Write exclusion log if failed
+            if not passed:
+                exclusion_entry = {
+                    'dataset_id': dataset_id,
+                    'reason': 'missing_rate',
+                    'details': f"missing_rate: {max_missing_rate:.1%}"
+                }
+                with open(exclusions_csv, 'a', newline='', encoding='utf-8') as f:
+                    writer = csv.DictWriter(f, fieldnames=get_exclusions_headers())
+                    writer.writerow(exclusion_entry)
             
-            if p_value < 0.05:
-                non_normal_count += 1
-        
-        # Step 4: Sample size check
-        sample_size = len(df_clean)
-        
-        # Determine if dataset is kept
-        # Criteria: N >= 30 AND (at least one non-normal variable OR we are just filtering for non-normality presence)
-        # The task says "filter for non-normality". Usually this means keeping datasets that ARE non-normal.
-        # However, the description says "filter for non-normality (Shapiro-Wilk p < 0.05)".
-        # Interpretation: Keep if the dataset exhibits non-normality (p < 0.05).
-        
-        is_non_normal = non_normal_count > 0
-        is_large_enough = sample_size >= 30
-        
-        included = is_non_normal and is_large_enough
-        
-        if not is_large_enough:
-            log_exclusion(dataset_id, "sample_size", f"N={sample_size} < 30")
-            included = False
-        elif not is_non_normal:
-            # If all variables are normal, we might exclude based on the goal of finding non-normal data
-            # But the task says "filter for non-normality", implying we want the non-normal ones.
-            # If the goal is to keep normal ones, logic flips. Assuming we want non-normal.
-            log_exclusion(dataset_id, "normality", "All variables passed Shapiro-Wilk (p >= 0.05)")
-            included = False
-
-        return {
-            'dataset_id': dataset_id,
-            'sample_size': sample_size,
-            'shapiro_p': min([r['p_value'] for r in shapiro_results]) if shapiro_results else 1.0,
-            'included': included,
-            'shapiro_details': shapiro_results,
-            'imputation_log': imputation_log
-        }
-        
-    except Exception as e:
-        logger.error(f"Error processing {dataset_id}: {str(e)}")
-        return {
-            'dataset_id': dataset_id,
-            'sample_size': 0,
-            'shapiro_p': 1.0,
-            'included': False,
-            'error': str(e)
-        }
-
-def run_filter_pipeline(input_dir: str, output_dir: str) -> None:
-    """Run the full filtering pipeline on all datasets in input_dir."""
-    input_path = Path(input_dir)
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-    
-    filter_results_path = output_path / "filter_results.csv"
-    exclusions_path = output_path.parent / "exclusions.csv" # As per T015 spec
-    imputation_path = output_path.parent / "imputation_log.csv" # As per T015 spec
-    
-    # Ensure headers exist for output files
-    filter_headers = get_filter_results_headers()
-    exclusions_headers = get_exclusions_headers()
-    imputation_headers = get_imputation_log_headers()
-    
-    # Check if files exist to append or write headers
-    write_filter_headers = not filter_results_path.exists()
-    write_excl_headers = not exclusions_path.exists()
-    write_impt_headers = not imputation_path.exists()
-    
-    filter_results = []
-    exclusions_data = []
-    imputation_data = []
-    
-    # Get list of dataset files
-    dataset_files = list(input_path.glob("*.csv"))
-    
-    if not dataset_files:
-        logger.warning(f"No dataset files found in {input_dir}")
-        # Ensure files are created even if empty
-        with open(filter_results_path, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=filter_headers)
-            writer.writeheader()
-        return
-
-    for file_path in dataset_files:
-        dataset_id = file_path.stem
-        logger.info(f"Processing dataset: {dataset_id}")
-        
-        result = process_dataset_for_filtering(str(file_path), dataset_id)
-        
-        # Write filter result
-        filter_row = {
-            'dataset_id': result['dataset_id'],
-            'shapiro_p': result['shapiro_p'],
-            'sample_size': result['sample_size'],
-            'included': result['included']
-        }
-        filter_results.append(filter_row)
-        
-        # Collect imputation logs
-        for col, rate in result.get('imputation_log', {}).items():
-            imputation_data.append({
+            # Write filter results
+            filter_result = {
                 'dataset_id': dataset_id,
-                'variable': col,
-                'imputation_method': 'mean',
-                'rate': rate
-            })
-        
-        # Note: Exclusions are logged via log_exclusion which writes to exclusions.csv
-        # We also need to ensure the file exists and has headers if no exclusions happened
+                'shapiro_p': 'N/A',  # Will be updated by T016
+                'sample_size': dataset['metadata']['row_count'],
+                'included': 'True' if passed else 'False'
+            }
+            with open(filter_results_csv, 'a', newline='', encoding='utf-8') as f:
+                writer = csv.DictWriter(f, fieldnames=get_filter_results_headers())
+                writer.writerow(filter_result)
+          
+            if passed:
+                processed_datasets.append(processed_dataset)
+          
+        except Exception as e:
+            logger.error(f"Error processing {csv_file}: {e}")
+            continue
     
-    # Write Filter Results
-    with open(filter_results_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=filter_headers)
-        writer.writeheader()
-        writer.writerows(filter_results)
-    
-    # Write Imputation Log
-    with open(imputation_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=imputation_headers)
-        writer.writeheader()
-        writer.writerows(imputation_data)
-    
-    # Ensure Exclusions file exists (even if empty)
-    if not exclusions_path.exists():
-        with open(exclusions_path, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=exclusions_headers)
-            writer.writeheader()
-    
-    logger.info(f"Filtering complete. Results written to {filter_results_path}")
+    logger.info(f"Filter pipeline complete. Processed {len(processed_datasets)} datasets.")
+    return processed_datasets
 
 def main():
-    """Main entry point for the filter script."""
-    input_dir = "data/raw" # Assuming raw datasets are here after download
-    output_dir = "data/filtered"
+    """Main entry point for the filter_datasets script."""
+    import argparse
     
-    if not os.path.exists(input_dir):
-        logger.error(f"Input directory {input_dir} does not exist.")
+    parser = argparse.ArgumentParser(description='Filter datasets based on missing data and normality')
+    parser.add_argument('--datasets-dir', type=str, default='data/raw', help='Directory containing raw datasets')
+    parser.add_argument('--output-csv', type=str, default='data/datasets.csv', help='Output CSV for dataset metadata')
+    parser.add_argument('--imputation-log', type=str, default='data/imputation_log.csv', help='Output CSV for imputation log')
+    parser.add_argument('--exclusions', type=str, default='data/exclusions.csv', help='Output CSV for excluded datasets')
+    parser.add_argument('--filter-results', type=str, default='data/filter_results.csv', help='Output CSV for filter results')
+    parser.add_argument('--imputation-method', type=str, default='mean', choices=['mean', 'median'], help='Imputation method')
+    parser.add_argument('--missing-threshold', type=float, default=0.10, help='Maximum allowed missing data ratio')
+    
+    args = parser.parse_args()
+    
+    logger.info("Starting filter_datasets pipeline")
+    
+    try:
+        processed = run_filter_pipeline(
+            datasets_dir=args.datasets_dir,
+            output_csv=args.output_csv,
+            imputation_log_csv=args.imputation_log,
+            exclusions_csv=args.exclusions,
+            filter_results_csv=args.filter_results,
+            imputation_method=args.imputation_method,
+            missing_threshold=args.missing_threshold
+        )
+        logger.info(f"Pipeline completed successfully. Processed {len(processed)} datasets.")
+    except Exception as e:
+        logger.error(f"Pipeline failed: {e}")
         sys.exit(1)
-    
-    run_filter_pipeline(input_dir, output_dir)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

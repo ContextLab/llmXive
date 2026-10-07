@@ -1,87 +1,64 @@
-T001a:
+T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact showing that a `code/` directory was created or that its existence
-    was verified with `test -d code` is provided; the claim cannot be confirmed from
-    the available evidence. The implementer must supply proof (e.g., command output,
-    screenshot, or a script that creates the directory and checks it).
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that a `data/` directory was actually created or that
-    its existence was verified with `test -d data`; the implementer supplied no script,
-    command output, or filesystem snapshot showing the required directory.
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that a `results/` directory was actually created or
-    that its existence was verified with `test -d results`; the implementer did not
-    supply a script, command output, or filesystem snapshot showing the directory.
-T001d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `tests/` directory or of the verification command (`test -d
-    tests`) is present; the implementer did not provide any artifact showing the directory
-    was created or its existence confirmed.
-T003a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `.flake8` file was presented in the evidence, and there is no proof that a
-    file with the required `max-line-length=100` and the specified ignored codes exists
-    in the repository. The implementer must provide the actual `.flake8` file containing
-    the correct configuration.
-T009:
-  c: false
-  h: 5ccbf72bbc67b923e40fc6f58293c319c7d424a3bf8e381f827309f2b3f06eec
-  r: "The provided `code/utils/logging_config.py` is present but the shown content\
-    \ is truncated and does not include a complete logger configuration (e.g., creating\
-    \ a logger that writes to `results/pipeline.log`) nor a full implementation of\
-    \ the atomic\u2011write logic (temp file creation, rename, and proper lock release).\
-    \ Additionally, the required `results/pipeline.log` file is missing. The artifact\
-    \ therefore does not demonstrably satisfy the task\u2019s specifications."
+  r: "No `utils/checkpointing.py` file or its contents are present in the provided\
+    \ evidence, so the required `save_state`, `load_state`, and `delete_checkpoint`\
+    \ functions (with portalocker locking and atomic writes) are not demonstrated.\
+    \ The task\u2019s artifact is missing."
 T012a:
-  c: true
-  h: bb253b7df505af45bd78dc3e324293c1e19fd4ae9a53d277a093ff0d2d6665a0
-  r: "The repository contains a non\u2011empty `tests/integration/test_pipeline.py`\
-    \ with a `test_full_download_filter_pipeline` function that runs the download\
-    \ and filter scripts and checks for the existence and row count of `data/datasets.csv`.\
-    \ The missing `datasets.csv` is expected until the test is executed; the required\
-    \ test implementation is present."
+  c: false
+  h: 8c2ade83fa64555a711958e27ce9ad60823b9e805e0563af698789d557cd6342
+  r: "The provided `tests/integration/test_pipeline.py` is truncated, contains an\
+    \ invalid placeholder (`Path(____)`) and does not finish the CSV row\u2011count\
+    \ logic, so the test is not functional. Moreover, the required output file `data/datasets.csv`\
+    \ is absent, meaning the integration test cannot verify the \u2265\u202F1 entry\
+    \ condition. The task\u2019s requirement is therefore not satisfied."
+T013:
+  c: false
+  h: f7388db760922b9067a311ba48964fd6bdbc247c43b05f1c399974523e33db36
+  r: "The required output file `data/datasets.csv` is missing, so the verification\
+    \ condition (\u2265\u202F50 rows with valid URLs) cannot be satisfied. Additionally,\
+    \ the provided `code/download_datasets.py` is truncated and does not show the\
+    \ logic for the OpenML query or the mandated `ConnectionError` handling. The task\
+    \ therefore remains unfinished."
 T013b:
   c: false
-  h: d7c6c8d9a5fe116c0f414e178805d74853fd7db0456834a0f2d4964b10b9b832
-  r: "The `code/download_datasets.py` file is present but the implementation is incomplete\
-    \ (the source\u2011verification function is only partially shown and there is\
-    \ no evidence of code that writes verified dataset entries to `data/datasets.csv`).\
-    \ Moreover, the required `data/datasets.csv` file does not exist. The task\u2019\
-    s core requirements\u2014full URL validation and logging of verified datasets\u2014\
-    are therefore not met."
-T015:
+  h: f7388db760922b9067a311ba48964fd6bdbc247c43b05f1c399974523e33db36
+  r: "The provided `code/download_datasets.py` defines `is_source_verified`, but the\
+    \ excerpt ends before any code that actually uses this check or writes verified\
+    \ entries to `data/datasets.csv`. Moreover, the required `data/datasets.csv` file\
+    \ does not exist, indicating the logging step was not implemented. The task\u2019\
+    s core requirement of logging verified datasets is therefore unmet."
+T014:
   c: false
-  h: 3f8ef9497387835bcad3f73fe6292c133fb1448bdd6868e18a9e1853dcb7ee54
-  r: "The `filter_datasets.py` file only defines helper functions and the imputation\
-    \ routine is truncated; there is no code that writes imputation logs or exclusion\
-    \ records to the CSV files, and the provided `data/imputation_log.csv` and `data/exclusions.csv`\
-    \ contain only headers with no actual entries. Consequently, the required imputation,\
-    \ >10\u202F% missing\u2011value exclusion logic, and logging outputs are missing."
+  h: 58a3576cc34389d431712a1508b75f00f0664b942431856fe7a441f90fbe8d18
+  r: "The provided `code/checksum_datasets.py` is truncated (ends mid\u2011line in\
+    \ the `write_checksums_csv` function) and lacks the remaining implementation and\
+    \ entry\u2011point to actually compute and write checksums. Moreover, the required\
+    \ output file `data/checksums.csv` does not exist. Both the script and its output\
+    \ are incomplete, so the task is not satisfied."
 T015a:
   c: true
-  h: eaebfaefe3adcd4d29405f9a68e485baf1c0f72aa4ddfb39c6dc6073722f9a36
-  r: Both `data/imputation_log.csv` and `data/exclusions.csv` are present and each
-    contains the exact header rows specified (`dataset_id,variable,imputation_method,rate`
-    and `dataset_id,reason,details` respectively), fulfilling the schema definition
-    requirement.
-T015a#1:
+  h: d4a0a05823e368538a39ace9e0a6c2c08a6db5fd5f2a812012994605d4ea37b3
+  r: "The `data/schema/imputation_log.yaml` and `data/schema/exclusions.yaml` files\
+    \ exist, are non\u2011empty, and define the exact column headers, string types,\
+    \ and explicit constraints (required, non\u2011empty, patterns, allowed values,\
+    \ etc.) as the task demanded. The corresponding CSV files are present with the\
+    \ correct header rows."
+T016:
   c: false
-  h: eaebfaefe3adcd4d29405f9a68e485baf1c0f72aa4ddfb39c6dc6073722f9a36
-  r: The only artifacts are empty CSV files containing just header rows; they lack
-    any type specifications, constraints, or accompanying schema documentation that
-    the task requires. A proper schema definition (e.g., column data types, allowed
-    values, description) is missing.
+  h: 051d9ac0e38d8d111226f9b95a1b79a230e688e1c99de1f97631f12ed747dc70
+  r: "The provided `code/filter_datasets.py` does not contain any Shapiro\u2011Wilk\
+    \ test or sample\u2011size (N\u202F\u2265\u202F30) filtering logic (the file is\
+    \ truncated before such code could appear). Moreover, `data/filter_results.csv`\
+    \ and `data/exclusions.csv` contain only header rows with no actual data, so the\
+    \ required result files are effectively empty. The task\u2019s core functionality\
+    \ and output rows are missing."
 T016a:
   c: true
-  h: caa04e317311398842b41cee3ea2f13b4cc4e8a811dfa855cb517cc075973c7c
-  r: "The artifact `data/filter_results.csv` exists and contains the exact required\
-    \ header line `dataset_id,shapiro_p,sample_size,included`, matching the specified\
-    \ schema (comma\u2011delimited with mixed\u2011type columns). No further data\
-    \ rows are required to define the schema."
+  h: d7390cba58edf64dc684ca071416a715a478c53da1476fb11bb38c7411caaa7a
+  r: "The `data/schema/filter_results.yaml` file exists, is non\u2011empty, and defines\
+    \ all four required columns with correct types (string, float, integer, boolean)\
+    \ plus explicit constraints and validation rules. Its path and naming match the\
+    \ task specification. The accompanying `data/filter_results.csv` contains the\
+    \ required header line, satisfying the dependency on the CSV\u2019s structure."

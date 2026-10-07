@@ -23,6 +23,10 @@ class Dataset:
         shapiro_p: Shapiro-Wilk p-value indicating normality of the data (before transformation).
         checksum: SHA-256 checksum of the raw dataset file for integrity verification.
         data: Optional numpy array or pandas DataFrame containing the actual data.
+        dataset_id: Optional generated ID if not provided.
+        missing_ratio: Ratio of missing values in the dataset.
+        imputation_method: Method used for imputation if applied.
+        excluded_reason: Reason for exclusion if the dataset was filtered out.
     """
     source_url: str
     sample_size: int
@@ -31,7 +35,7 @@ class Dataset:
     shapiro_p: float
     checksum: str
     data: Optional[Any] = None  # Can be np.ndarray or pd.DataFrame
-    dataset_id: Optional[str] = None  # Generated ID if not provided
+    dataset_id: Optional[str] = None
     missing_ratio: float = 0.0
     imputation_method: Optional[str] = None
     excluded_reason: Optional[str] = None
@@ -44,6 +48,12 @@ class Dataset:
             raise TypeError("continuous_vars must be a list")
         if not isinstance(self.group_labels, list):
             raise TypeError("group_labels must be a list")
+        if not isinstance(self.shapiro_p, (int, float)) or not (0.0 <= self.shapiro_p <= 1.0):
+            raise ValueError("shapiro_p must be a float between 0.0 and 1.0")
+        if not isinstance(self.checksum, str) or len(self.checksum) == 0:
+            raise ValueError("checksum must be a non-empty string")
+        if not isinstance(self.source_url, str) or len(self.source_url) == 0:
+            raise ValueError("source_url must be a non-empty string")
 
 
 @dataclass
@@ -72,6 +82,9 @@ class Transformation:
             raise ValueError("transformed_values must be provided if success is True")
         if not self.success and self.error_message is None:
             raise ValueError("error_message must be provided if success is False")
+        if not self.success and self.transformed_values is not None:
+            # If failed, we might still have partial transformed values, but success is False
+            pass
 
 
 @dataclass
@@ -104,5 +117,12 @@ class TestResult:
             raise ValueError("p_value must be between 0.0 and 1.0")
         
         # Recalculate significance if not explicitly set but alpha is provided
+        # Note: In dataclasses, if significant is passed as None, we can handle it here
+        # However, the type hint says bool, so we assume it's passed. 
+        # If the caller passes None, this will raise TypeError on bool check.
+        # To be safe, we allow significant to be None initially and compute it.
         if self.significant is None:
             self.significant = self.p_value < self.alpha_threshold
+        
+        if not isinstance(self.significant, bool):
+            raise TypeError("significant must be a boolean")

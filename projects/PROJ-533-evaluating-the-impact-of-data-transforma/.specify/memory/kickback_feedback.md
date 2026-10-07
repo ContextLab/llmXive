@@ -4,8 +4,11 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T004` (rejected 1x): No `utils/checkpointing.py` file or its contents are presented; therefore the required functions (`save_state`, `load_state`, `delete_checkpoint`) with cross‑platform locking and atomic writes are not verified to exist. The task’s deliverable is missing.
-- `T014` (rejected 1x): The provided `code/checksum_datasets.py` is truncated (e.g., the `update_datasets_csv_with_checksums` function is cut off and there is no entry‑point that actually invokes the checksum computation and writes `data/checksums.csv`). Moreover, the expected output file `data/checksums.csv` is absent, indicating the script has not been fully implemented or executed. The missing code and lack of the CSV output mean the task requirements are not satisfied.
+- `T001a` (rejected 1x): No artifact showing that a `code/` directory was created or that its existence was verified with `test -d code` is provided; the claim cannot be confirmed from the available evidence. The implementer must supply proof (e.g., command output, screenshot, or a script that creates the directory and checks it).
+- `T001b` (rejected 1x): No evidence was provided that a `data/` directory was actually created or that its existence was verified with `test -d data`; the implementer supplied no script, command output, or filesystem snapshot showing the required directory.
+- `T003a` (rejected 1x): No `.flake8` file was presented in the evidence, and there is no proof that a file with the required `max-line-length=100` and the specified ignored codes exists in the repository. The implementer must provide the actual `.flake8` file containing the correct configuration.
+- `T009` (rejected 1x): The provided `code/utils/logging_config.py` defines a `JSONFormatter` and an `AtomicFileHandler` that ensures the log directory exists and attempts file locking, but it never creates or configures a logger that writes specifically to `results/pipeline.log`, nor does the shown code implement the required atomic‑write‑via‑temp‑file‑then‑rename logic (the handler still inherits from `RotatingFileHandler` and no custom `emit`/`write` method is visible). Consequently the core requirements of the task are not satisfied.
+- `T015` (rejected 1x): The provided `filter_datasets.py` is truncated and does not show any logic that checks a dataset’s overall missing‑value rate, excludes datasets with >10 % missing, or writes entries to `data/imputation_log.csv` or `data/exclusions.csv`. Both CSV files contain only header rows (no actual log or exclusion records). Consequently the required imputation, exclusion, and logging functionality is not present.
 
 ## Required change
 

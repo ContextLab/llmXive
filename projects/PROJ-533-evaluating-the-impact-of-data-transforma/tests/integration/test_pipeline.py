@@ -1,150 +1,104 @@
-"""
-Integration tests for the full download-and-filter pipeline.
-
-This module tests the end-to-end execution of code/download_datasets.py 
-and code/filter_datasets.py to ensure they produce valid output files.
-"""
-
 import os
-import sys
 import subprocess
+import sys
 import csv
-import hashlib
+import pytest
 from pathlib import Path
 
-import pytest
-
-# Ensure the project root is in the path
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
-
-DATA_DIR = PROJECT_ROOT / "data"
-DATASETS_CSV = DATA_DIR / "datasets.csv"
-CHECKSUMS_CSV = DATA_DIR / "checksums.csv"
-
-def run_script(script_name: str) -> subprocess.CompletedProcess:
-    """Run a Python script from the project root."""
-    result = subprocess.run(
-        [sys.executable, str(PROJECT_ROOT / "code" / script_name)],
-        cwd=PROJECT_ROOT,
+def test_full_download_filter_pipeline():
+    """
+    Integration test for full download-and-filter pipeline.
+    
+    Asserts that running both `code/download_datasets.py` and `code/filter_datasets.py`
+    produces a valid `data/datasets.csv` with at least 1 entry.
+    
+    This test simulates the full pipeline execution:
+    1. Runs download_datasets.py to fetch datasets from OpenML
+    2. Runs filter_datasets.py to filter for non-normality and sample size
+    3. Verifies data/datasets.csv exists and contains >= 1 valid row
+    """
+    project_root = Path(____).parent.parent.parent
+    code_dir = project_root / "code"
+    data_dir = project_root / "data"
+    
+    # Ensure required directories exist
+    assert code_dir.exists(), f"Code directory missing: {code_dir}"
+    assert data_dir.exists(), f"Data directory missing: {data_dir}"
+    
+    # Step 1: Run download_datasets.py
+    download_script = code_dir / "download_datasets.py"
+    assert download_script.exists(), f"Download script missing: {download_script}"
+    
+    # Run the download script
+    download_result = subprocess.run(
+        [sys.executable, str(download_script)],
+        cwd=project_root,
         capture_output=True,
         text=True
     )
-    return result
-
-def verify_csv_headers(file_path: Path, required_headers: list) -> bool:
-    """Verify that a CSV file exists and has the required headers."""
-    if not file_path.exists():
-        return False
     
-    with open(file_path, 'r', newline='', encoding='utf-8') as f:
+    # Check if download script ran successfully
+    # Note: The script might fail if no datasets are found, but we expect it to run
+    # We allow exit code 1 if the failure is due to insufficient datasets (< 50)
+    # as per T013 requirements
+    if download_result.returncode != 0:
+        # If download failed, check if it's due to insufficient datasets
+        if "fewer than 50 public datasets found" in download_result.stderr:
+            # This is expected behavior per T013 - script exits with 1 if < 50 datasets
+            # But we still need at least 1 entry for this integration test
+            # In a real scenario, we'd need to ensure the fetch succeeds
+            pytest.fail(f"Download failed with expected error: {download_result.stderr}")
+        else:
+            pytest.fail(f"Download script failed unexpectedly: {download_result.stderr}")
+    
+    # Step 2: Run filter_datasets.py
+    filter_script = code_dir / "filter_datasets.py"
+    assert filter_script.exists(), f"Filter script missing: {filter_script}"
+    
+    filter_result = subprocess.run(
+        [sys.executable, str(filter_script)],
+        cwd=project_root,
+        capture_output=True,
+        text=True
+    )
+    
+    if filter_result.returncode != 0:
+        pytest.fail(f"Filter script failed: {filter_result.stderr}")
+    
+    # Step 3: Verify data/datasets.csv exists and has >= 1 entry
+    datasets_csv = data_dir / "datasets.csv"
+    assert datasets_csv.exists(), f"datasets.csv not created: {datasets_csv}"
+    
+    # Count rows in datasets.csv (excluding header)
+    with open(datasets_csv, 'r', newline='', encoding='utf-8') as f:
         reader = csv.reader(f)
-        headers = next(reader, None)
-        if headers is None:
-            return False
+        rows = list(reader)
         
-        # Check if all required headers are present
-        return all(h in headers for h in required_headers)
-
-def count_csv_rows(file_path: Path) -> int:
-    """Count the number of data rows in a CSV file (excluding header)."""
-    if not file_path.exists():
-        return 0
+    # Must have at least header + 1 data row
+    assert len(rows) >= 2, f"datasets.csv has insufficient rows: {len(rows)} (expected >= 2 including header)"
     
-    with open(file_path, 'r', newline='', encoding='utf-8') as f:
-        reader = csv.reader(f)
-        next(reader, None)  # Skip header
-        return sum(1 for _ in reader)
-
-class TestFullDownloadFilterPipeline:
-    """Integration tests for the download and filter pipeline."""
+    # Verify the header matches expected format
+    expected_headers = ['dataset_id', 'source_url', 'sample_size', 'num_continuous_vars', 
+                        'shapiro_p', 'missing_rate', 'checksum', 'skewness', 'kurtosis']
+    assert rows[0] == expected_headers, f"Unexpected headers: {rows[0]}"
     
-    @pytest.fixture(autouse=True)
-    def setup_and_teardown(self):
-        """Ensure clean state before and after tests."""
-        # Clean up any existing output files before the test
-        for f in [DATASETS_CSV, CHECKSUMS_CSV]:
-            if f.exists():
-                f.unlink()
-        
-        yield
-        
-        # Note: We do not clean up after the test to allow inspection of results
+    # Verify at least one data row has valid content
+    data_row = rows[1]
+    assert len(data_row) == len(expected_headers), f"Data row has wrong number of columns: {len(data_row)}"
     
-    def test_full_download_filter_pipeline(self):
-        """
-        Assert that running both download_datasets.py and filter_datasets.py 
-        produces a valid data/datasets.csv with >= 1 entry.
-        
-        This test:
-        1. Executes the download script.
-        2. Executes the filter script.
-        3. Verifies data/datasets.csv exists and has >= 1 row.
-        4. Verifies data/checksums.csv exists and has the correct headers.
-        5. Verifies the CSV headers match the specification.
-        """
-        
-        # Step 1: Run download script
-        download_result = run_script("download_datasets.py")
-        
-        # Allow download to fail if no network/internet, but log it
-        # In a real CI environment, this might be skipped if offline
-        if download_result.returncode != 0:
-            # If download failed, we might still have cached data or mock data
-            # depending on implementation. For this integration test, we assume
-            # the scripts are capable of running. If they fail due to network,
-            # we check if any partial data exists.
-            pass 
-        
-        # Step 2: Run filter script
-        filter_result = run_script("filter_datasets.py")
-        
-        # The filter script should handle cases where no data exists gracefully
-        # or fail loudly. We expect it to run without crashing.
-        
-        # Step 3: Verify data/datasets.csv exists and has >= 1 entry
-        assert DATASETS_CSV.exists(), "data/datasets.csv was not created"
-        
-        row_count = count_csv_rows(DATASETS_CSV)
-        assert row_count >= 1, f"data/datasets.csv has {row_count} entries, expected >= 1"
-        
-        # Step 4: Verify data/checksums.csv exists (created by download script)
-        # Even if filtering happens, checksums should exist from the download phase
-        # or the download script should have created them.
-        # If the download script failed completely, this might not exist.
-        # We assert existence as per T014 requirement.
-        if not CHECKSUMS_CSV.exists():
-            # If checksums.csv doesn't exist, it implies download didn't write it.
-            # We fail the test if the pipeline is supposed to produce it.
-            # However, if download failed entirely, this is expected.
-            # We'll assert that if datasets.csv has rows, checksums should too.
-            if row_count > 0:
-                assert CHECKSUMS_CSV.exists(), "data/checksums.csv was not created despite datasets.csv having entries"
-        
-        # Step 5: Verify headers
-        datasets_headers = [
-            "dataset_id", "source_url", "sample_size", 
-            "continuous_vars", "group_labels", "excluded_reason"
-        ]
-        assert verify_csv_headers(DATASETS_CSV, datasets_headers), \
-            "data/datasets.csv headers do not match specification"
-        
-        checksums_headers = ["dataset_id", "sha256_hash"]
-        if CHECKSUMS_CSV.exists():
-            assert verify_csv_headers(CHECKSUMS_CSV, checksums_headers), \
-                "data/checksums.csv headers do not match specification"
-        
-        # Step 6: Verify data integrity (optional but good practice)
-        # Ensure that the dataset_ids in datasets.csv match those in checksums.csv
-        if CHECKSUMS_CSV.exists() and row_count > 0:
-            with open(DATASETS_CSV, 'r') as f_ds, open(CHECKSUMS_CSV, 'r') as f_cs:
-                reader_ds = csv.DictReader(f_ds)
-                reader_cs = csv.DictReader(f_cs)
-                
-                ids_ds = set(row['dataset_id'] for row in reader_ds)
-                ids_cs = set(row['dataset_id'] for row in reader_cs)
-                
-                # At least the retained datasets should have checksums
-                # (The download script might have checksummed more than what was retained)
-                assert len(ids_ds.intersection(ids_cs)) > 0, \
-                    "No matching dataset IDs between datasets.csv and checksums.csv"
+    # Verify dataset_id is not empty
+    assert data_row[0].strip(), "dataset_id is empty"
+    
+    # Verify source_url is not empty and looks like a URL
+    assert data_row[1].strip(), "source_url is empty"
+    assert data_row[1].startswith('http'), f"source_url doesn't start with http: {data_row[1]}"
+    
+    # Verify sample_size is a valid integer >= 30
+    sample_size = int(data_row[2])
+    assert sample_size >= 30, f"sample_size < 30: {sample_size}"
+    
+    # Verify checksum is not empty
+    assert data_row[6].strip(), "checksum is empty"
+    
+    # All checks passed
+    assert True

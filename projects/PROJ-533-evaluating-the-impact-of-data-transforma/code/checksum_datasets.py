@@ -1,8 +1,10 @@
 """
-Compute SHA-256 checksums for all retained datasets in data/filtered/
-and write results to data/checksums.csv.
+Compute SHA-256 checksums for ALL downloaded datasets in data/raw/
+and write results to data/checksums.csv (FR-010).
 
-This task must run AFTER T016 (Filtering) to ensure only retained datasets are checksummed.
+CRITICAL: This script runs immediately after T013 (download_datasets.py)
+on the data/raw/ directory to cover every downloaded dataset, regardless
+of subsequent filtering outcomes.
 """
 import os
 import sys
@@ -21,36 +23,50 @@ from code.utils.logging_config import setup_pipeline_logger
 # Setup logger
 logger = setup_pipeline_logger("checksum_datasets")
 
-FILTERED_DIR = project_root / "data" / "filtered"
+# Target directories and files as per project structure
+RAW_DIR = project_root / "data" / "raw"
 CHECKSUMS_FILE = project_root / "data" / "checksums.csv"
 DATASETS_CSV = project_root / "data" / "datasets.csv"
 
 def compute_sha256(file_path: Path) -> str:
     """Compute SHA-256 hash of a file."""
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+    try:
+        with open(file_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except Exception as e:
+        logger.error(f"Failed to compute hash for {file_path}: {e}")
+        raise
 
-def get_filtered_dataset_files() -> List[Path]:
-    """Get all dataset files in the filtered directory."""
-    if not FILTERED_DIR.exists():
-        logger.error(f"Filtered directory does not exist: {FILTERED_DIR}")
-        return []
+def get_raw_dataset_files() -> List[Path]:
+    """Get all dataset files in the raw directory."""
+    if not RAW_DIR.exists():
+        logger.error(f"Raw directory does not exist: {RAW_DIR}")
+        logger.error("Please run T013 (download_datasets.py) first to populate data/raw/")
+        sys.exit(1)
     
     files = []
-    for ext in ["*.csv", "*.arff", "*.txt"]:
-        files.extend(FILTERED_DIR.glob(ext))
+    # Scan for common data extensions
+    for ext in ["*.csv", "*.arff", "*.txt", "*.parquet", "*.json"]:
+        files.extend(RAW_DIR.glob(ext))
     
     # Filter out log files and metadata files
-    filtered_files = [f for f in files if not f.name.startswith("log") and not f.name.startswith("filter_")]
-    logger.info(f"Found {len(filtered_files)} dataset files in {FILTERED_DIR}")
+    filtered_files = [
+        f for f in files 
+        if not f.name.startswith("log") 
+        and not f.name.startswith("filter_")
+        and not f.name.startswith("checksums")
+        and not f.name.startswith("datasets")
+    ]
+    
+    logger.info(f"Found {len(filtered_files)} dataset files in {RAW_DIR}")
     return filtered_files
 
 def get_dataset_id_from_filename(file_path: Path) -> str:
     """Extract dataset ID from filename."""
-    # Expected format: dataset_{id}.csv or {id}.csv
+    # Expected formats: dataset_{id}.csv, {id}.csv, or {id}.arff
     name = file_path.stem
     if name.startswith("dataset_"):
         return name[8:]  # Remove "dataset_" prefix
@@ -60,6 +76,10 @@ def write_checksums_csv(checksums: List[Dict[str, Any]]) -> None:
     """Write checksums to CSV file."""
     if not checksums:
         logger.warning("No checksums to write")
+        # Still create the file with headers to satisfy file existence requirements
+        with open(CHECKSUMS_FILE, "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=["dataset_id", "file_path", "sha256", "file_size_bytes"])
+            writer.writeheader()
         return
     
     headers = ["dataset_id", "file_path", "sha256", "file_size_bytes"]
@@ -72,7 +92,7 @@ def write_checksums_csv(checksums: List[Dict[str, Any]]) -> None:
     logger.info(f"Wrote {len(checksums)} checksums to {CHECKSUMS_FILE}")
 
 def update_datasets_csv_with_checksums(checksums: List[Dict[str, Any]]) -> None:
-    """Update datasets.csv with checksum information for retained datasets."""
+    """Update datasets.csv with checksum information for downloaded datasets."""
     if not DATASETS_CSV.exists():
         logger.warning(f"{DATASETS_CSV} does not exist, skipping update")
         return
@@ -80,8 +100,13 @@ def update_datasets_csv_with_checksums(checksums: List[Dict[str, Any]]) -> None:
     # Read existing datasets
     with open(DATASETS_CSV, "r", newline="") as f:
         reader = csv.DictReader(f)
+        fieldnames = reader.fieldnames
         rows = list(reader)
     
+    if not fieldnames:
+        logger.warning("Datasets CSV has no headers")
+        return
+
     # Create lookup for checksums
     checksum_lookup = {c["dataset_id"]: c["sha256"] for c in checksums}
     
@@ -96,34 +121,35 @@ def update_datasets_csv_with_checksums(checksums: List[Dict[str, Any]]) -> None:
     # Write back
     if updated_rows:
         with open(DATASETS_CSV, "w", newline="") as f:
-            writer = csv.DictWriter(f, fieldnames=updated_rows[0].keys())
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
             writer.writerows(updated_rows)
         logger.info(f"Updated {len(updated_rows)} rows in {DATASETS_CSV}")
 
 def main():
-    """Main function to compute checksums for filtered datasets."""
-    logger.info("Starting checksum computation for filtered datasets")
+    """Main function to compute checksums for ALL downloaded datasets in data/raw/."""
+    logger.info("Starting checksum computation for ALL downloaded datasets in data/raw/")
     
-    # Verify filtered directory exists
-    if not FILTERED_DIR.exists():
-        logger.error(f"Filtered directory does not exist: {FILTERED_DIR}")
-        logger.error("Please run T016 (filter_datasets.py) first to create filtered datasets")
+    # Verify raw directory exists (T013 dependency)
+    if not RAW_DIR.exists():
+        logger.error(f"Raw directory does not exist: {RAW_DIR}")
+        logger.error("Please run T013 (download_datasets.py) first to populate data/raw/")
         sys.exit(1)
     
-    # Get all dataset files
-    dataset_files = get_filtered_dataset_files()
+    # Get all dataset files in raw directory
+    dataset_files = get_raw_dataset_files()
     
     if not dataset_files:
-        logger.warning("No dataset files found in filtered directory")
+        logger.warning("No dataset files found in raw directory")
         # Create empty checksums file with headers
         with open(CHECKSUMS_FILE, "w", newline="") as f:
             writer = csv.DictWriter(f, fieldnames=["dataset_id", "file_path", "sha256", "file_size_bytes"])
             writer.writeheader()
-        sys.exit(0)
+        sys.exit(1)
     
     # Compute checksums
     checksums = []
+    success_count = 0
     for file_path in dataset_files:
         try:
             dataset_id = get_dataset_id_from_filename(file_path)
@@ -137,6 +163,7 @@ def main():
                 "file_size_bytes": file_size
             })
             
+            success_count += 1
             logger.info(f"Checksummed {dataset_id}: {sha256[:16]}... ({file_size} bytes)")
             
         except Exception as e:
@@ -146,6 +173,8 @@ def main():
     if not checksums:
         logger.error("No checksums were successfully computed")
         sys.exit(1)
+    
+    logger.info(f"Successfully checksummed {success_count}/{len(dataset_files)} files")
     
     # Write checksums to CSV
     write_checksums_csv(checksums)

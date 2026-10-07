@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmXive-data-transformation-sensitivity"
+name = "llmXive-research-implementer"
 version = "0.1.0"
-description = "Evaluating the Impact of Data Transformation on Statistical Test Sensitivity"
+description = "Automated science pipeline for evaluating data transformation impact on statistical test sensitivity"
 requires-python = ">=3.11"
 dependencies = [
     "scikit-learn",
@@ -16,20 +16,39 @@ dependencies = [
     "matplotlib",
     "requests",
     "pyyaml",
-    "statsmodels"
+    "statsmodels",
+    "portalocker"
+]
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "flake8",
+    "pytest",
+    "pytest-cov"
 ]
 
 [tool.black]
 line-length = 100
 target-version = ['py311']
-include = 'code/.*\.py$'
+include = 'code/.*\.py'
 extend-exclude = '''
 /(
-    \.git
-    | \.venv
-    | __pycache__
-    | data
-    | results
-    | tests
+  \.git
+  | \.venv
+  | venv
+  | __pycache__
+  | build
+  | dist
 )/
 '''
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["code*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"

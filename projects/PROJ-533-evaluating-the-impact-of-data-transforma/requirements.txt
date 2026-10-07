@@ -7,3 +7,4 @@ matplotlib>=3.7.0
 requests>=2.31.0
 pyyaml>=6.0.0
 statsmodels>=0.14.0
+portalocker>=2.7.0
