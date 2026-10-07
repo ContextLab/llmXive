@@ -1,80 +1,93 @@
-# Quickstart: Investigating the Predictive Power of Machine Learning for Identifying Novel Phase-Change Materials
+# Quickstart: Predicting Phase‑Change Suitability with Machine‑Learning
+
+This guide shows how to reproduce the entire analysis on a fresh GitHub Actions runner (or locally) in < 5 minutes.
 
 ## Prerequisites
+- Python 3.11 (installed via `pyenv` or system Python).
+- Internet access (to download the open PCM dataset, OMDB structures, and NIST validation set).
+- Optional: an API key for the Materials Project (not required for the default run).
 
-- Python 3.11+
-- `pip` or `conda`
-- Access to GitHub Actions (for CI) or a local Linux machine with 7 GB RAM.
-- (Optional) Materials Project API Key (set as `MP_API_KEY` env var).
+## Setup
 
-## Installation
-
-1. **Clone the repository**:
- ```bash
- git clone
- cd phase-change-predictive-power
- ```
-
-2. **Create a virtual environment**:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-3. **Install dependencies**:
- ```bash
- pip install -r requirements.txt
- ```
- *Note: `requirements.txt` pins all versions for reproducibility.*
-
-## Running the Pipeline
-
-### Step 1: Fetch Data
 ```bash
-python code/data/fetch_materials.py
-```
-This downloads the Materials Project subset and NIST data to `data/raw/`.
+# 1. Clone the repository (assume you are in the project root)
+git clone
+cd phase-change-ml
 
-### Step 2: Compute Descriptors
-```bash
-python code/data/compute_descriptors.py
-```
-Generates `data/processed/features.parquet`. Includes stability checks.
+# 2. Create a clean virtual environment
+python -m venv.venv
+source.venv/bin/activate
 
-### Step 3: Train Models
-```bash
-python code/models/train_baselines.py
-python code/models/train_symbolic.py
-```
-Outputs models and metrics to `data/results/`.
-
-### Step 4: Validate & Analyze
-```bash
-python code/validate/validate_external.py
-python code/validate/sensitivity_analysis.py
-```
-Generates the validation report and sensitivity analysis.
-
-### Step 5: Generate Report
-```bash
-python code/main.py --generate-report
-```
-Creates `docs/research_report.md` with all findings.
-
-## Testing
-
-Run the full test suite:
-```bash
-pytest tests/ -v --cov=code
+# 3. Install exact dependencies
+pip install -r requirements.txt
 ```
 
-- **Contract Tests**: `tests/contract/` validates schemas against `contracts/`.
-- **Integration Tests**: `tests/integration/` runs the full pipeline end-to-end.
-- **Unit Tests**: `tests/unit/` checks individual functions.
+## Run the Full Pipeline
 
-## Troubleshooting
+```bash
+# The top‑level Makefile orchestrates the ordered tasks.
+make all
+```
 
-- **Memory Error**: Reduce the batch size in `compute_descriptors.py`.
-- **API Rate Limit**: The script automatically switches to the `matbench` HuggingFace dataset.
-- **PySR Timeout**: The script flags the limitation and falls back to SHAP analysis.
-- **Missing Data**: Check `data/external/literature_pcms_raw.csv` for fetch errors.
+`make all` executes the following steps (see `plan.md` for details):
+
+1. **Download data** – streams the PCM parquet file into `data/raw/pcm.parquet`.
+2. **Download structures** – pulls CIFs from the OMDB structures dataset into `data/raw/omdb_structures/`.
+3. **Compute elemental descriptors** – produces `data/processed/elemental_features.csv`.
+4. **(Optional) Build crystal graphs** – runs only for compounds with a CIF; missing‑structure rows receive `has_structure=0` and are logged.
+5. **Merge features & create train/val/test splits** – `data/processed/full_dataset.csv`.
+6. **Train baseline models** – Random Forest & XGBoost; results in `data/results/baseline_*.json`.
+7. **Train shallow MLP baseline** – CPU‑only PyTorch model; results in `data/results/deep_mlp.json`.
+8. **SHAP analysis** – `data/results/shap_importances.json`.
+9. **Symbolic regression (PySR)** – `data/results/pysr_formulas.json`.
+10. **Threshold & feature‑importance sweeps** – `data/results/threshold_sweep.json`.
+11. **External validation** – applies symbolic rules to the **NIST PCM** dataset; outputs `data/results/external_validation.json`.
+12. **Generate report & figures** – PDF/HTML in `paper/`.
+
+All intermediate files are checksum‑verified; re‑running `make all` will skip already‑validated steps.
+
+## Reproducibility Guarantees (Principle I)
+
+Every script starts with:
+
+```python
+import random, numpy as np, torch
+random.seed(42)
+np.random.seed(42)
+torch.manual_seed(42)
+```
+
+The same seeds are stored in `config/seeds.yaml`. This ensures deterministic results across runs.
+
+## Inspect Results
+
+```bash
+# Example: view baseline performance
+cat data/results/baseline_metrics.json | jq.
+
+# Example: view the best symbolic formula
+jq -r '.formulas[0]' data/results/pysr_formulas.json
+
+# Example: view correlation between MLP and interpretable model predictions
+jq -r '.pearson_corr' data/results/deep_mlp.json
+```
+
+## Customization
+
+- **Change label threshold**: edit `config/label.yaml` (default 150 J/g).
+- **Enable crystal‑graph generation**: set `USE_GRAPH=True` in `config/feature.yaml`.
+- **Adjust random seed**: modify `config/seeds.yaml`; all scripts read the same seed for reproducibility (Principle I).
+
+## Expected Outputs (summary)
+
+| Artifact | Description |
+|----------|-------------|
+| `data/results/baseline_metrics.json` | R², MAE, RMSE for RF & XGBoost. |
+| `data/results/deep_mlp.json` | MLP performance and Pearson correlation with SHAP‑ranked predictions (≤ 0.8 required). |
+| `data/results/shap_importances.json` | Ranked feature importances (SHAP values). |
+| `data/results/pysr_formulas.json` | Symbolic formulas with R² ≥ 0.0. |
+| `data/results/threshold_sweep.json` | Performance across five latent‑heat thresholds. |
+| `data/results/external_validation.json` | Top‑20 ranking accuracy ≥ 60 % on the independent NIST PCM set (SC‑003). |
+| `paper/figures/` | PNG/PDF figures ready for manuscript insertion. |
+
+All files conform to the JSON/YAML schemas in `contracts/`. Re‑run the pipeline on a fresh runner to verify reproducibility (Principle I).

@@ -1,57 +1,29 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Dataset Schema"
-description: "Schema for the processed features dataset (features.parquet)"
-type: "object"
+$schema: "https://json-schema.org/draft/2020-12/schema"
+type: object
+required: [material_id, composition, latent_heat_J_per_g, melting_point_K, heat_capacity_J_per_mol_K, source]
 properties:
   material_id:
-    type: "string"
-    description: "Unique identifier for the compound (e.g., mp-12345)"
-  formula:
-    type: "string"
-    description: "Chemical formula"
-  melting_point:
-    type: "number"
-    description: "Melting point in Kelvin"
-  latent_heat:
-    type: ["number", "null"]
-    description: "Latent heat in J/g. Can be null if not available."
-  space_group:
-    type: "string"
-    description: "Space group symbol"
-  crystal_system:
-    type: "string"
-    description: "Crystal system (e.g., cubic, hexagonal)"
-  elemental_descriptors:
-    type: "object"
-    description: "Computed elemental properties"
-    properties:
-      avg_electronegativity:
-        type: "number"
-      avg_atomic_radius:
-        type: "number"
-      atomic_mass:
-        type: "number"
-    required:
-      - avg_electronegativity
-      - avg_atomic_radius
-  graph_features:
-    type: "array"
-    description: "Flattened graph adjacency or symmetry features"
-    items:
-      type: "number"
+    type: string
+    description: "Unique identifier for the material (e.g., formula or database ID)."
+  composition:
+    type: string
+    description: "Chemical formula (e.g., 'BaTiO3')."
+  latent_heat_J_per_g:
+    type: number
+    description: "Latent heat of fusion (J/g). May be missing; imputed values are flagged."
+  melting_point_K:
+    type: number
+    description: "Melting temperature in Kelvin."
+  heat_capacity_J_per_mol_K:
+    type: number
+    description: "Heat capacity at constant pressure."
   source:
-    type: "string"
-    enum:
-      - "Materials Project"
-      - "NIST"
-      - "Literature"
-  collinearity_flag:
-    type: "boolean"
-    description: "True if any predictor has VIF > 5"
-required:
-  - material_id
-  - formula
-  - melting_point
-  - elemental_descriptors
-  - source
-additionalProperties: false
+    type: string
+    enum: [literature, computed]
+    description: "Origin of the thermodynamic measurements."
+  structure_id:
+    type: string
+    description: "Optional identifier for an associated crystal structure (if available)."
+  notes:
+    type: string
+    description: "Optional free‑form notes (e.g., imputation flag)."

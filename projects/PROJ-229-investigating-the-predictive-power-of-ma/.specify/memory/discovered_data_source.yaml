@@ -1,19 +1,13 @@
 status: none
-intent: matminer Materials Project melting point heat capacity NIST dataset python
+intent: Materials Project API melting point heat capacity parquet download python
   package dataset
 required_fields:
 - material_id
 - formula
 - melting_point
 - heat_capacity
-- latent_heat
-- atomic_number
-- electronegativity
-- atomic_radius
-- crystal_system
-- space_group
-- lattice_parameters
-- graph_representation
-cache_key: 510098a112205f8a615fb277e4ce2f0a6c201181bfd2b73a76c7c4ab6bb56e87
-searched_at: '2026-10-01T13:29:24.281043+00:00'
+- temperature
+- data_source
+cache_key: 28269c2b460b41208ec4b824ae0b642ad71b40b12f8f462c68a6653efdf4d7f9
+searched_at: '2026-10-07T20:43:16.771178+00:00'
 retry_count: 1
