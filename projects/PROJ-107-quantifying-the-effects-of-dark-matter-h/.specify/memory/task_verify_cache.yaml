@@ -1,10 +1,15 @@
-T001:
+T001b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory tree containing the required root folders (`code/`, `data/`, `outputs/`,
-    `docs/`, `state/`) or any subdirectories from `plan.md` is present in the provided
-    evidence. The implementer did not supply the empty project structure that the
-    task explicitly demanded.
+  r: No directory tree or listing of `data/`, `data/raw/tng100`, `data/raw/millennium`,
+    `data/processed`, and `data/metadata` is present in the provided evidence; therefore
+    the required directories have not been demonstrated as created.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree or evidence of the required `outputs/figures`, `outputs/reports`,
+    and `docs/` directories is present; the implementer did not provide the artifact
+    proving the directories were created.
 T002:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -39,14 +44,22 @@ T018:
     and the provided `tng_loader.py` snippet ends abruptly without any logic to extract
     SFR, effective radius, or stellar mass for central subhalos or to write the specified
     CSV. Both the deliverable file and the necessary implementation are missing.
-T027:
+T023a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, or log files were provided that demonstrate the addition\
-    \ of logging for null\u2011hypothesis rejection flags (p\u202F<\u202F0.01). The\
-    \ implementer\u2019s claim lacks any concrete artifact (e.g., modified source\
-    \ files, unit tests, or example log output) to verify that the required logging\
-    \ was actually implemented."
+  h: f4ded8c8c35cd73fab84c5b2744ddf80d5827bd03810e44ff8d90f1bf23ba6aa
+  r: "The repository lacks the required `data/processed/regression_results.csv` file,\
+    \ and the provided `code/analysis/stats.py` only contains matching utilities\u2014\
+    no implementation of a statsmodels linear regression over the mass\u2011matched\
+    \ chunks or generation of the specified CSV columns. The task\u2019s core deliverable\
+    \ is therefore missing."
+T023b:
+  c: false
+  h: c297845a10c7b45ccdd85702eb363b440245f3a53e43c3a57299f185f5975777
+  r: "The required output file `data/processed/binning_tests.csv` does not exist,\
+    \ and the provided `code/analysis/stats.py` only contains mass\u2011matching utilities;\
+    \ there is no visible implementation of the Kruskal\u2011Wallis, Mann\u2011Whitney\
+    \ U, or KS tests for the prolate/triaxial/spherical bins. Both the deliverable\
+    \ CSV and the specified statistical test code are missing."
 T030:
   c: false
   h: 1ed7349b44f4d4ebdf72f96fa5ca2197937276cea9abe78bcbcbc7ba3ebcb3aa

@@ -4,7 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T017` (rejected 1x): The repository lacks the required output files `data/processed/halo_shapes.csv` and `data/processed/exclusion_log.json`, and the provided `pipeline_runner.py` does not contain the aggregation, validation, logging, or CSV‑writing logic described in the task. The implementer must add the missing processing steps and generate the two deliverable files.
+- `T003a` (rejected 1x): declared artifact(s) missing/empty/invalid: ruff.toml
+- `T027` (rejected 1x): No code, configuration, or log files were provided that demonstrate the addition of logging for null‑hypothesis rejection flags (p < 0.01). The implementer’s claim lacks any concrete artifact (e.g., modified source files, unit tests, or example log output) to verify that the required logging was actually implemented.
 
 ## Required change
 

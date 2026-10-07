@@ -5,85 +5,144 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 import yaml
 
-# Project root is the directory containing 'code', 'data', etc.
-# Assuming this file is at code/utils/config.py
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+_project_root: Optional[Path] = None
+_random_seed: int = 42
 
-# Global random seed state
-_RANDOM_SEED = 42
 
 def get_project_root() -> Path:
-    """Return the root directory of the project."""
-    return _PROJECT_ROOT
+    """
+    Returns the project root directory.
+    
+    Returns:
+        Path object pointing to the project root.
+    """
+    global _project_root
+    if _project_root is None:
+        # Determine project root from the current file's location
+        _project_root = Path(__file__).parent.parent.parent
+    return _project_root
+
 
 def get_data_raw_path() -> Path:
-    """Return the path to the raw data directory."""
-    raw = get_project_root() / "data" / "raw"
-    raw.mkdir(parents=True, exist_ok=True)
-    return raw
+    """
+    Returns the path to the raw data directory.
+    
+    Returns:
+        Path object pointing to data/raw.
+    """
+    return get_project_root() / "data" / "raw"
+
 
 def get_data_processed_path() -> Path:
-    """Return the path to the processed data directory."""
-    processed = get_project_root() / "data" / "processed"
-    processed.mkdir(parents=True, exist_ok=True)
-    return processed
+    """
+    Returns the path to the processed data directory.
+    
+    Returns:
+        Path object pointing to data/processed.
+    """
+    return get_project_root() / "data" / "processed"
+
 
 def get_output_path() -> Path:
-    """Return the path to the output directory (for figures/reports)."""
-    output = get_project_root() / "outputs"
-    output.mkdir(parents=True, exist_ok=True)
-    return output
+    """
+    Returns the path to the outputs directory.
+    
+    Returns:
+        Path object pointing to outputs.
+    """
+    return get_project_root() / "outputs"
+
 
 def get_figures_path() -> Path:
-    """Return the path to the figures directory."""
-    figures = get_project_root() / "figures"
-    figures.mkdir(parents=True, exist_ok=True)
-    return figures
+    """
+    Returns the path to the figures directory.
+    
+    Returns:
+        Path object pointing to outputs/figures.
+    """
+    return get_output_path() / "figures"
+
 
 def get_millennium_path() -> Path:
-    """Return the path to the millennium data directory."""
-    millennium = get_project_root() / "data" / "raw" / "millennium"
-    millennium.mkdir(parents=True, exist_ok=True)
-    return millennium
+    """
+    Returns the path to the millennium data directory.
+    
+    Returns:
+        Path object pointing to data/raw/millennium.
+    """
+    return get_data_raw_path() / "millennium"
+
 
 def get_logs_path() -> Path:
-    """Return the path to the logs directory."""
-    logs = get_project_root() / "outputs" / "logs"
-    logs.mkdir(parents=True, exist_ok=True)
-    return logs
+    """
+    Returns the path to the logs directory.
+    
+    Returns:
+        Path object pointing to state/logs (or a dedicated logs dir).
+    """
+    return get_project_root() / "state" / "logs"
+
 
 def get_state_path() -> Path:
-    """Return the path to the state directory."""
-    state = get_project_root() / "state"
-    state.mkdir(parents=True, exist_ok=True)
-    return state
+    """
+    Returns the path to the state directory.
+    
+    Returns:
+        Path object pointing to state.
+    """
+    return get_project_root() / "state"
 
-def load_config(config_path: Optional[Path] = None) -> Dict[str, Any]:
-    """Load configuration from a YAML file."""
+
+def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Loads configuration from a YAML file.
+    
+    Args:
+        config_path: Path to the config file. If None, uses default location.
+    
+    Returns:
+        Dictionary containing configuration.
+    """
     if config_path is None:
         config_path = get_project_root() / "config.yaml"
     
+    config_path = Path(config_path)
+    
     if config_path.exists():
         with open(config_path, 'r') as f:
-            return yaml.safe_load(f)
-    return {}
+            return yaml.safe_load(f) or {}
+    else:
+        # Return default configuration
+        return {
+            "random_seed": 42,
+            "tng_api_key": "",
+            "chunk_size": 1000,
+            "mass_tolerance": 0.1,
+            "binning_thresholds": {
+                "prolate": 0.5,
+                "triaxial_upper": 0.8
+            }
+        }
 
-def set_random_seed(seed: int = 42) -> None:
-    """Set random seed for reproducibility for random and numpy."""
-    global _RANDOM_SEED
-    _RANDOM_SEED = seed
+
+def set_random_seed(seed: int) -> None:
+    """
+    Sets the random seed for reproducibility.
+    
+    Args:
+        seed: The random seed value.
+    """
+    global _random_seed
+    _random_seed = seed
     random.seed(seed)
-    try:
-        np.random.seed(seed)
-    except ImportError:
-        pass
+    np.random.seed(seed)
+
 
 def get_random_seed() -> int:
-    """Get the current random seed."""
-    return _RANDOM_SEED
-
-# Constants for data processing limits (from project constraints)
-MAX_RAM_GB = 7.0
-MAX_DISK_GB = 14.0
-CHUNK_SIZE_MB = 100  # Default chunk size for processing
-MIN_PARTICLE_COUNT = 10000  # Minimum particles for valid halo analysis
+    """
+    Returns the current random seed.
+    
+    Returns:
+        The current random seed value.
+    """
+    return _random_seed

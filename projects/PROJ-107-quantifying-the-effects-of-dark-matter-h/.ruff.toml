@@ -1,66 +1,11 @@
-# Ruff configuration for llmXive project
-# Python 3.11 target with standard linting rules
-
-target-version = "py311"
-
-[lint]
-# Enable standard rule sets:
-# E: pycodestyle errors
-# F: Pyflakes (unused imports, undefined names, etc.)
-# W: pycodestyle warnings
-# I: isort (import sorting)
+target-version = "3.11"
 select = ["E", "F", "W", "I"]
-
-# Ignore specific rules if necessary (currently none)
 ignore = []
-
-# Allow autofix for all enabled rules
-fixable = ["ALL"]
-unfixable = []
-
-# Exclude directories/files from linting
-exclude = [
-    ".git",
-    "__pycache__",
-    ".venv",
-    "venv",
-    "build",
-    "dist",
-    "*.egg-info",
-    "data/",
-    "outputs/",
-    "state/",
-]
-
-# Per-file ignores (if needed)
-per-file-ignores = {}
-
-# Line length for linting (matching black default)
 line-length = 88
+indent-width = 4
 
-# Allow unused variable names starting with underscore
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-
-[lint.isort]
-# Isort configuration for import sorting
-known-first-party = ["code"]
-known-third-party = [
-    "numpy",
-    "pandas",
-    "scipy",
-    "pytest",
-    "requests",
-    "h5py",
-    "yaml",
-    "sklearn",
-    "statsmodels",
-]
-section-order = [
-    "future",
-    "standard-library",
-    "third-party",
-    "first-party",
-    "local-folder",
-]
-force-single-line = false
-lines-after-imports = 2
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

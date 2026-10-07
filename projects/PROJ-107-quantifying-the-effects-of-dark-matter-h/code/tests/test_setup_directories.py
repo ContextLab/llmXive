@@ -1,83 +1,96 @@
+"""
+Tests for the directory setup functionality.
+Verifies that T001b and related setup tasks create the correct structure.
+"""
 import pytest
 import os
 import sys
 from pathlib import Path
-from code.setup_directories import create_project_structure
+import tempfile
+import shutil
+
+# Ensure code is in path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from setup_directories import create_project_structure
+
 
 class TestProjectStructure:
-    """Test that the project structure is correctly created."""
-    
-    def test_create_project_structure(self):
-        """Verify that create_project_structure creates all required directories."""
-        # Run the setup function
-        result = create_project_structure()
+    """Test suite for project directory creation."""
+
+    def test_creates_required_data_directories(self, tmp_path):
+        """
+        Verify T001b: Creates data/ and subdirectories (raw, processed, metadata).
+        Specifically checks for tng100 and millennium raw folders.
+        """
+        # Change to temp directory to simulate project root
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(tmp_path)
+            
+            # Run the setup
+            create_project_structure()
+
+            # Verify required data paths exist
+            assert (tmp_path / "data").exists(), "data/ directory missing"
+            assert (tmp_path / "data/raw").exists(), "data/raw/ directory missing"
+            assert (tmp_path / "data/raw/tng100").exists(), "data/raw/tng100/ missing"
+            assert (tmp_path / "data/raw/millennium").exists(), "data/raw/millennium/ missing"
+            assert (tmp_path / "data/processed").exists(), "data/processed/ missing"
+            assert (tmp_path / "data/metadata").exists(), "data/metadata/ missing"
         
-        # Assert it returned True
-        assert result is True
-        
-        # Define expected directories
-        expected_dirs = [
-            "code",
-            "data",
-            "outputs",
-            "docs",
-            "state",
-            "data/raw",
-            "data/processed",
-            "data/metadata",
-            "outputs/reports",
-            "outputs/figures",
-            "code/utils",
-            "code/ingestion",
-            "code/processing",
-            "code/analysis",
-            "code/tests",
-        ]
-        
-        # Verify each directory exists
-        for dir_path in expected_dirs:
-            full_path = Path(dir_path)
-            assert full_path.exists(), f"Directory {dir_path} should exist"
-            assert full_path.is_dir(), f"{dir_path} should be a directory"
-    
-    def test_required_root_directories(self):
-        """Verify that all required root directories exist."""
-        required_roots = ["code", "data", "outputs", "docs", "state"]
-        
-        for root_dir in required_roots:
-            path = Path(root_dir)
-            assert path.exists(), f"Root directory {root_dir} must exist"
-            assert path.is_dir(), f"{root_dir} must be a directory"
-    
-    def test_data_subdirectories(self):
-        """Verify data subdirectories are created."""
-        data_subdirs = ["data/raw", "data/processed", "data/metadata"]
-        
-        for subdir in data_subdirs:
-            path = Path(subdir)
-            assert path.exists(), f"Data subdirectory {subdir} must exist"
-            assert path.is_dir(), f"{subdir} must be a directory"
-    
-    def test_outputs_subdirectories(self):
-        """Verify outputs subdirectories are created."""
-        outputs_subdirs = ["outputs/reports", "outputs/figures"]
-        
-        for subdir in outputs_subdirs:
-            path = Path(subdir)
-            assert path.exists(), f"Outputs subdirectory {subdir} must exist"
-            assert path.is_dir(), f"{subdir} must be a directory"
-    
-    def test_code_subdirectories(self):
-        """Verify code subdirectories are created."""
-        code_subdirs = [
-            "code/utils",
-            "code/ingestion",
-            "code/processing",
-            "code/analysis",
-            "code/tests"
-        ]
-        
-        for subdir in code_subdirs:
-            path = Path(subdir)
-            assert path.exists(), f"Code subdirectory {subdir} must exist"
-            assert path.is_dir(), f"{subdir} must be a directory"
+        finally:
+            os.chdir(original_cwd)
+
+    def test_creates_required_code_directories(self, tmp_path):
+        """
+        Verify T001a: Creates code/ and subdirectories.
+        """
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(tmp_path)
+            create_project_structure()
+
+            assert (tmp_path / "code").exists()
+            assert (tmp_path / "code/ingestion").exists()
+            assert (tmp_path / "code/processing").exists()
+            assert (tmp_path / "code/analysis").exists()
+            assert (tmp_path / "code/utils").exists()
+            assert (tmp_path / "code/tests").exists()
+        finally:
+            os.chdir(original_cwd)
+
+    def test_creates_output_directories(self, tmp_path):
+        """
+        Verify T001c: Creates outputs/ and docs/ directories.
+        """
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(tmp_path)
+            create_project_structure()
+
+            assert (tmp_path / "outputs").exists()
+            assert (tmp_path / "outputs/figures").exists()
+            assert (tmp_path / "outputs/reports").exists()
+            assert (tmp_path / "docs").exists()
+            assert (tmp_path / "state").exists()
+        finally:
+            os.chdir(original_cwd)
+
+    def test_no_duplicates_on_rerun(self, tmp_path):
+        """
+        Verify that running the setup twice does not cause errors or duplicate creation logic.
+        """
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(tmp_path)
+            
+            # First run
+            count1 = create_project_structure()
+            
+            # Second run (should not raise and should create 0 new dirs)
+            count2 = create_project_structure()
+            
+            assert count2 == 0, "Second run should create 0 new directories"
+        finally:
+            os.chdir(original_cwd)
