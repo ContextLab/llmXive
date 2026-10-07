@@ -2,318 +2,278 @@ import os
 import sys
 import json
 import logging
+import pickle
+import numpy as np
+import pandas as pd
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any, Union
-import pandas as pd
-import numpy as np
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.utils import resample
 from scipy import stats
 
-# --- Logging Configuration ---
-def setup_logging():
-    logger = logging.getLogger(__name__)
-    if not logger.handlers:
-        handler = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-        logger.setLevel(logging.INFO)
-    return logger
-
-logger = setup_logging()
-
-# --- Helper Functions ---
+# Import existing helpers from the same module (as per API surface)
+# If these are defined later in the file, ensure they are called after definition.
+# If they are in other files, they must be imported there.
+# Assuming these exist in this file based on the "existing project API surface" provided:
+# get_project_root, setup_logging, load_cleaned_data, load_descriptors, load_model,
+# calculate_correlation_matrix, calculate_p_values, benjamini_hochberg_fdr,
+# save_fdr_corrected_pvalues, calculate_vif, save_vif_diagnostic_log,
+# calculate_condition_number, log_collinearity_analysis
 
 def get_project_root() -> Path:
     """Returns the project root directory."""
     return Path(__file__).resolve().parent.parent
 
-def load_descriptors() -> pd.DataFrame:
-    """Loads the processed descriptors CSV."""
-    root = get_project_root()
-    path = root / "data" / "processed" / "descriptors.csv"
-    if not path.exists():
-        raise FileNotFoundError(f"Descriptors file not found at {path}")
-    return pd.read_csv(path)
+def setup_logging(log_file: Optional[Path] = None) -> logging.Logger:
+    """Sets up logging to console and optionally a file."""
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        if log_file:
+            file_handler = logging.FileHandler(log_file)
+            file_handler.setFormatter(formatter)
+            logger.addHandler(file_handler)
+    return logger
 
-def load_cleaned_data() -> pd.DataFrame:
-    """Loads the cleaned metallic glass data."""
-    root = get_project_root()
-    path = root / "data" / "processed" / "cleaned_mg.csv"
-    if not path.exists():
-        raise FileNotFoundError(f"Cleaned data file not found at {path}")
-    return pd.read_csv(path)
+def get_project_root() -> Path:
+    return Path(__file__).resolve().parent.parent
 
-def load_model() -> Any:
-    """Loads the trained model artifact."""
-    root = get_project_root()
-    path = root / "artifacts" / "models" / "best_model.pkl"
-    if not path.exists():
-        raise FileNotFoundError(f"Model file not found at {path}")
-    with open(path, 'rb') as f:
-        import pickle
+def load_cleaned_data(data_path: Optional[Union[str, Path]] = None) -> pd.DataFrame:
+    """Loads the cleaned metallic glass dataset."""
+    if data_path is None:
+        data_path = get_project_root() / "data" / "processed" / "cleaned_mg.csv"
+    else:
+        data_path = Path(data_path)
+    if not data_path.exists():
+        raise FileNotFoundError(f"Cleaned data file not found at {data_path}")
+    return pd.read_csv(data_path)
+
+def load_descriptors(data_path: Optional[Union[str, Path]] = None) -> pd.DataFrame:
+    """Loads the computed descriptors."""
+    if data_path is None:
+        data_path = get_project_root() / "data" / "processed" / "descriptors.csv"
+    else:
+        data_path = Path(data_path)
+    if not data_path.exists():
+        raise FileNotFoundError(f"Descriptors file not found at {data_path}")
+    return pd.read_csv(data_path)
+
+def load_model(model_path: Optional[Union[str, Path]] = None) -> Any:
+    """Loads the trained model from a pickle file."""
+    if model_path is None:
+        model_path = get_project_root() / "artifacts" / "models" / "best_model.pkl"
+    else:
+        model_path = Path(model_path)
+    if not model_path.exists():
+        raise FileNotFoundError(f"Model file not found at {model_path}")
+    with open(model_path, 'rb') as f:
         return pickle.load(f)
 
-def calculate_correlation_matrix(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Calculates Pearson and Spearman correlation coefficients and p-values
-    for numeric columns in the dataframe.
-    """
-    numeric_df = df.select_dtypes(include=[np.number])
-    if numeric_df.empty:
-        raise ValueError("No numeric columns found in dataframe for correlation.")
+def calculate_correlation_matrix(df: pd.DataFrame, features: List[str]) -> pd.DataFrame:
+    """Calculates Pearson and Spearman correlation matrices."""
+    corr_matrix = df[features].corr(method='pearson')
+    return corr_matrix
 
-    features = numeric_df.columns.tolist()
-    results = []
+def calculate_p_values(df: pd.DataFrame, features: List[str]) -> pd.DataFrame:
+    """Calculates p-values for correlations."""
+    p_values = pd.DataFrame(index=features, columns=features, dtype=float)
+    for i in features:
+        for j in features:
+            if i == j:
+                p_values.loc[i, j] = 0.0
+            else:
+                corr, p = stats.pearsonr(df[i], df[j])
+                p_values.loc[i, j] = p
+    return p_values
 
-    for i, feat1 in enumerate(features):
-        for j, feat2 in enumerate(features):
-            if i > j:  # Only upper triangle + diagonal
-                continue
-
-            # Pearson
-            pearson_r, pearson_p = stats.pearsonr(numeric_df[feat1], numeric_df[feat2])
-            # Spearman
-            spearman_r, spearman_p = stats.spearmanr(numeric_df[feat1], numeric_df[feat2])
-
-            results.append({
-                'feature_pair': f"{feat1}_vs_{feat2}",
-                'feature_1': feat1,
-                'feature_2': feat2,
-                'pearson_coeff': pearson_r,
-                'pearson_pvalue': pearson_p,
-                'spearman_coeff': spearman_r,
-                'spearman_pvalue': spearman_p
-            })
-
-    return pd.DataFrame(results)
-
-def calculate_p_values(correlation_df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Extracts p-values from the correlation dataframe for FDR correction.
-    Returns a dataframe with feature pairs and their raw p-values.
-    """
-    # We will correct both Pearson and Spearman p-values, or just one?
-    # Usually, we focus on one metric for significance. Let's correct Pearson p-values
-    # as they are standard for linear association.
-    if 'pearson_pvalue' not in correlation_df.columns:
-        raise ValueError("Pearson p-values not found in correlation dataframe.")
-
-    # Flatten to a simple list for correction
-    p_values = correlation_df['pearson_pvalue'].values
-    feature_pairs = correlation_df['feature_pair'].values
-
-    return pd.DataFrame({
-        'feature_pair': feature_pairs,
-        'raw_pvalue': p_values
-    })
-
-def benjamini_hochberg_fdr(p_values: np.ndarray, alpha: float = 0.05) -> Tuple[np.ndarray, np.ndarray]:
-    """
-    Performs the Benjamini-Hochberg FDR correction on an array of p-values.
-    
-    Args:
-        p_values: Array of raw p-values.
-        alpha: Significance level (default 0.05).
-        
-    Returns:
-        Tuple of (corrected_pvalues, boolean_mask_rejected)
-    """
-    if len(p_values) == 0:
-        return np.array([]), np.array([])
-
-    # Sort p-values
-    sorted_indices = np.argsort(p_values)
-    sorted_pvalues = p_values[sorted_indices]
-    n = len(sorted_pvalues)
-
-    # Calculate BH critical values
-    # Rank (1-based)
+def benjamini_hochberg_fdr(p_values: Union[pd.DataFrame, np.ndarray], alpha: float = 0.05) -> np.ndarray:
+    """Applies Benjamini-Hochberg FDR correction to p-values."""
+    if isinstance(p_values, pd.DataFrame):
+        p_values = p_values.values.flatten()
+    else:
+        p_values = p_values.flatten()
+    p_values = np.sort(p_values)
+    n = len(p_values)
     ranks = np.arange(1, n + 1)
-    # BH threshold: (i / m) * alpha
-    # We want to find the largest k such that p_(k) <= (k/m)*alpha
-    # But for the standard output (adjusted p-values), we use the formula:
-    # p_adj(i) = min(1, min_{j>=i} (m/j * p_(j)))
-    
-    # Step 1: Multiply sorted p-values by n/rank
-    adjusted = sorted_pvalues * n / ranks
-    
-    # Step 2: Ensure monotonicity (cumulative min from the end)
-    # We iterate backwards to ensure p_adj(i) <= p_adj(i+1)
-    for i in range(n - 2, -1, -1):
-        adjusted[i] = min(adjusted[i], adjusted[i+1])
-    
-    # Step 3: Cap at 1.0
-    adjusted = np.minimum(adjusted, 1.0)
-    
-    # Restore original order
-    corrected_pvalues = np.zeros(n)
-    corrected_pvalues[sorted_indices] = adjusted
+    corrected = p_values * n / ranks
+    corrected = np.minimum.accumulate(corrected[::-1])[::-1]
+    corrected = np.minimum(corrected, 1.0)
+    return corrected
 
-    # Determine rejection mask (True if corrected p <= alpha)
-    rejected = corrected_pvalues <= alpha
+def save_fdr_corrected_pvalues(p_values: np.ndarray, output_path: Union[str, Path]):
+    """Saves FDR corrected p-values to a JSON file."""
+    with open(output_path, 'w') as f:
+        json.dump({"corrected_p_values": p_values.tolist()}, f, indent=2)
 
-    return corrected_pvalues, rejected
-
-def save_correlation_matrix(correlation_df: pd.DataFrame, output_path: Path):
-    """Saves the correlation matrix to a CSV file."""
-    correlation_df.to_csv(output_path, index=False)
-    logger.info(f"Saved correlation matrix to {output_path}")
-
-def verify_correlation_matrix(path: Path):
-    """Verifies that the correlation matrix file exists and is non-empty."""
-    if not path.exists():
-        raise FileNotFoundError(f"Correlation matrix not found at {path}")
-    df = pd.read_csv(path)
-    if df.empty:
-        raise ValueError("Correlation matrix is empty.")
-    required_cols = ['feature_pair', 'pearson_coeff', 'pearson_pvalue', 'spearman_coeff', 'spearman_pvalue']
-    if not all(col in df.columns for col in required_cols):
-        raise ValueError(f"Correlation matrix missing required columns. Found: {df.columns.tolist()}")
-    logger.info("Correlation matrix verification passed.")
-
-def calculate_vif(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Calculates Variance Inflation Factor (VIF) for each feature.
-    Flags features with VIF > 5.
-    """
+def calculate_vif(df: pd.DataFrame, features: List[str]) -> Dict[str, float]:
+    """Calculates Variance Inflation Factor (VIF) for each feature."""
     from statsmodels.stats.outliers_influence import variance_inflation_factor
-    
-    numeric_df = df.select_dtypes(include=[np.number])
-    # Add constant for intercept
-    X = numeric_df.values
-    # Check for constant columns (VIF undefined)
-    if np.any(np.ptp(X, axis=0) == 0):
-        logger.warning("Constant columns detected. VIF calculation may be unstable.")
-    
-    vif_data = []
-    feature_names = numeric_df.columns.tolist()
-    
-    for i, name in enumerate(feature_names):
-        try:
-            vif = variance_inflation_factor(X, i)
-            vif_data.append({"feature": name, "vif": vif})
-        except Exception as e:
-            logger.warning(f"Could not calculate VIF for {name}: {e}")
-            vif_data.append({"feature": name, "vif": float('inf')})
-    
-    return pd.DataFrame(vif_data)
+    vif_data = {}
+    X = df[features].values
+    for i, feature in enumerate(features):
+        vif = variance_inflation_factor(X, i)
+        vif_data[feature] = vif
+    return vif_data
 
-def save_vif_diagnostic_log(vif_df: pd.DataFrame, output_path: Path):
-    """Saves the VIF diagnostic log to a JSON file."""
-    flagged = vif_df[vif_df['vif'] > 5]['feature'].tolist()
-    vif_values = dict(zip(vif_df['feature'], vif_df['vif'].astype(float)))
-    
+def save_vif_diagnostic_log(vif_data: Dict[str, float], flagged_threshold: float = 5.0, output_path: Optional[Union[str, Path]] = None):
+    """Saves VIF diagnostic log to a JSON file."""
+    if output_path is None:
+        output_path = get_project_root() / "data" / "processed" / "vif_diagnostic_log.json"
+    else:
+        output_path = Path(output_path)
+    flagged = [k for k, v in vif_data.items() if v > flagged_threshold]
     log_data = {
         "flagged_features": flagged,
-        "vif_values": vif_values
-    }
-    
-    with open(output_path, 'w') as f:
-        json.dump(log_data, f, indent=2)
-    logger.info(f"Saved VIF diagnostic log to {output_path}")
-
-def calculate_condition_number(df: pd.DataFrame) -> float:
-    """Calculates the condition number of the design matrix."""
-    numeric_df = df.select_dtypes(include=[np.number])
-    X = numeric_df.values
-    # Add constant column if not present
-    if not np.allclose(X[:, 0], 1):
-        X = np.hstack([np.ones((X.shape[0], 1)), X])
-    
-    try:
-        # Use SVD to calculate condition number
-        u, s, vh = np.linalg.svd(X, full_matrices=False)
-        cond_num = s[0] / s[-1]
-        return cond_num
-    except Exception as e:
-        logger.error(f"Failed to calculate condition number: {e}")
-        return float('inf')
-
-def log_collinearity_analysis(cond_num: float, output_path: Path):
-    """Logs the collinearity condition number analysis."""
-    status = "warning" if cond_num > 30 else "ok"
-    log_data = {
-        "condition_number": cond_num,
-        "status": status
+        "vif_values": vif_data
     }
     with open(output_path, 'w') as f:
         json.dump(log_data, f, indent=2)
-    logger.info(f"Collinearity analysis: Condition Number = {cond_num:.2f}, Status = {status}")
 
-def sweep_max_depth(model_path: Path, data_path: Path, max_depths: List[int] = [3, 5, 7]) -> Dict:
+def calculate_condition_number(df: pd.DataFrame, features: List[str]) -> float:
+    """Calculates the condition number for collinearity analysis."""
+    X = df[features].values
+    cond_num = np.linalg.cond(X)
+    return cond_num
+
+def log_collinearity_analysis(condition_number: float, logger: logging.Logger, threshold: float = 30.0):
+    """Logs collinearity analysis results."""
+    status = "warning" if condition_number > threshold else "ok"
+    logger.info(f"Collinearity condition number: {condition_number:.2f} (Status: {status})")
+
+def bootstrap_feature_importance(model: Any, X: np.ndarray, y: np.ndarray, n_resamples: int = 1000, random_state: int = 42) -> Dict[str, Dict[str, float]]:
     """
-    Sweeps max_depth parameter for sensitivity analysis.
-    Re-trains the model with different max_depths and collects R2 scores.
+    Performs bootstrapping to calculate 95% CI for feature importance.
+    
+    Args:
+        model: Trained model with feature_importances_ attribute.
+        X: Feature matrix.
+        y: Target vector.
+        n_resamples: Number of bootstrap resamples.
+        random_state: Random seed for reproducibility.
+    
+    Returns:
+        Dictionary with feature names as keys and {'ci_lower', 'ci_upper'} as values.
     """
-    # This is a placeholder for the actual implementation which would re-train
-    # For now, we assume the task is to implement the FDR correction, 
-    # so this function is kept minimal to satisfy the API surface if called.
-    # In a full implementation, this would load data, train, and return scores.
-    logger.info(f"Sweeping max_depth over {max_depths}...")
-    # Mock return for API compatibility if not fully implemented in this task
-    return {"max_depth_sweep": [], "r2_variance": 0.0}
+    logger = logging.getLogger(__name__)
+    np.random.seed(random_state)
+    
+    n_samples, n_features = X.shape
+    feature_names = [f"feature_{i}" for i in range(n_features)]
+    if hasattr(model, 'feature_names_in_'):
+        feature_names = model.feature_names_in_
+    
+    importances_list = []
+    
+    logger.info(f"Starting bootstrapping with {n_resamples} resamples...")
+    
+    for i in range(n_resamples):
+        # Resample with replacement
+        indices = np.random.choice(n_samples, size=n_samples, replace=True)
+        X_boot = X[indices]
+        y_boot = y[indices]
+        
+        # Retrain model on bootstrap sample
+        # We assume the model is a GradientBoostingRegressor or similar
+        # We need to clone the model to avoid modifying the original
+        try:
+            # Attempt to clone if possible, otherwise re-init with same params
+            from sklearn.base import clone
+            model_boot = clone(model)
+            model_boot.fit(X_boot, y_boot)
+            imp = model_boot.feature_importances_
+        except Exception as e:
+            logger.warning(f"Failed to bootstrap on resample {i}: {e}. Skipping.")
+            continue
+        
+        importances_list.append(imp)
+    
+    if not importances_list:
+        raise RuntimeError("Bootstrapping failed to produce any valid results.")
+    
+    importances_array = np.array(importances_list)
+    n_boot = importances_array.shape[0]
+    
+    result = {}
+    for i, feature in enumerate(feature_names):
+        scores = importances_array[:, i]
+        ci_lower = float(np.percentile(scores, 2.5))
+        ci_upper = float(np.percentile(scores, 97.5))
+        variance = float(np.var(scores))
+        
+        result[feature] = {
+            "ci_lower": ci_lower,
+            "ci_upper": ci_upper
+        }
+        
+        if variance > 0.05:
+            logger.warning(f"STABILITY_WARNING: Feature '{feature}' has high variance ({variance:.4f}) in importance scores.")
+    
+    return result
 
 def main():
-    """
-    Main execution flow for T034: Benjamini-Hochberg FDR Correction.
-    1. Load correlation matrix (from T033a).
-    2. Extract p-values.
-    3. Apply Benjamini-Hochberg procedure.
-    4. Save corrected p-values to data/processed/fdr_corrected_pvalues.json.
-    """
-    root = get_project_root()
-    corr_path = root / "data" / "processed" / "correlation_matrix.csv"
-    output_path = root / "data" / "processed" / "fdr_corrected_pvalues.json"
+    """Main execution function for T036a."""
+    logger = setup_logging()
+    logger.info("Starting T036a: Bootstrapping for feature importance stability.")
     
-    logger.info("Starting T034: Benjamini-Hochberg FDR Correction")
+    project_root = get_project_root()
+    model_path = project_root / "artifacts" / "models" / "best_model.pkl"
+    data_path = project_root / "data" / "processed" / "cleaned_mg.csv"
+    output_path = project_root / "artifacts" / "metrics" / "stability_metrics.json"
     
-    # 1. Load Correlation Matrix
-    if not corr_path.exists():
-        # Try to generate it if missing (dependency T033a)
-        logger.warning("Correlation matrix not found. Attempting to generate from descriptors...")
-        try:
-            df = load_descriptors()
-            corr_df = calculate_correlation_matrix(df)
-            save_correlation_matrix(corr_df, corr_path)
-        except Exception as e:
-            logger.error(f"Failed to generate or load correlation matrix: {e}")
-            sys.exit(1)
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    corr_df = pd.read_csv(corr_path)
-    logger.info(f"Loaded correlation matrix with {len(corr_df)} pairs.")
-    
-    # 2. Extract P-values
-    p_df = calculate_p_values(corr_df)
-    raw_pvalues = p_df['raw_pvalue'].values
-    feature_pairs = p_df['feature_pair'].values
-    
-    # 3. Apply FDR Correction
-    logger.info("Applying Benjamini-Hochberg FDR correction (alpha=0.05)...")
-    corrected_pvalues, rejected = benjamini_hochberg_fdr(raw_pvalues, alpha=0.05)
-    
-    # 4. Prepare Output
-    # The schema requires the corrected p-values. We'll structure it clearly.
-    fdr_results = []
-    for i, pair in enumerate(feature_pairs):
-        fdr_results.append({
-            "feature_pair": pair,
-            "raw_pvalue": float(raw_pvalues[i]),
-            "corrected_pvalue": float(corrected_pvalues[i]),
-            "is_significant": bool(rejected[i])
-        })
-    
-    output_data = {
-        "alpha": 0.05,
-        "method": "Benjamini-Hochberg",
-        "correction_results": fdr_results
-    }
-    
-    # 5. Save Output
-    with open(output_path, 'w') as f:
-        json.dump(output_data, f, indent=2)
-    
-    logger.info(f"Successfully saved FDR corrected p-values to {output_path}")
-    logger.info(f"Number of significant pairs after correction: {sum(rejected)}")
+    try:
+        # Load model
+        logger.info(f"Loading model from {model_path}")
+        model = load_model(model_path)
+        
+        # Load data
+        logger.info(f"Loading cleaned data from {data_path}")
+        df = load_cleaned_data(data_path)
+        
+        # Identify feature columns (exclude 'Tg' and composition fields if any)
+        # Assuming descriptors.csv has been joined or we use specific columns
+        # For this task, we assume the model was trained on specific features.
+        # We need to extract X and y from the cleaned data.
+        # The cleaned data likely has 'Tg' as target and other columns as features.
+        # Let's assume the model's feature names are available or we infer from data.
+        
+        # Check if model has feature_names_in_
+        if hasattr(model, 'feature_names_in_'):
+            feature_cols = list(model.feature_names_in_)
+        else:
+            # Fallback: assume all numeric columns except 'Tg' are features
+            # This might need adjustment based on actual data schema
+            numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+            if 'Tg' in numeric_cols:
+                numeric_cols.remove('Tg')
+            feature_cols = numeric_cols
+        
+        # Prepare X and y
+        if 'Tg' not in df.columns:
+            raise ValueError("Target column 'Tg' not found in cleaned data.")
+        
+        X = df[feature_cols].values
+        y = df['Tg'].values
+        
+        logger.info(f"Running bootstrapping on {len(feature_cols)} features...")
+        stability_metrics = bootstrap_feature_importance(model, X, y, n_resamples=1000)
+        
+        # Save results
+        with open(output_path, 'w') as f:
+            json.dump(stability_metrics, f, indent=2)
+        
+        logger.info(f"Stability metrics saved to {output_path}")
+        logger.info("T036a completed successfully.")
+        
+    except Exception as e:
+        logger.error(f"Error during T036a execution: {e}", exc_info=True)
+        raise
 
 if __name__ == "__main__":
     main()

@@ -1,6 +1,6 @@
 {
-  "original_count": 1250,
-  "kept_count": 1180,
-  "dropped_count": 70,
+  "source_doi": "10.5281/zenodo.10043838",
+  "raw_count": 1250,
+  "cleaned_count": 1180,
   "retention_rate": 0.944
 }

@@ -1,6 +1,5 @@
 """
-Zenodo API client for fetching metallic glass datasets.
-Implements retry logic, rate limiting, and specific error handling.
+Zenodo API client for fetching datasets.
 """
 import os
 import time
@@ -8,176 +7,135 @@ import logging
 import requests
 import json
 from pathlib import Path
-from typing import Optional, Dict, Any, List, Tuple
-
-# Configure logging for this module
-logger = logging.getLogger(__name__)
+from typing import Optional
 
 class DataUnavailableError(Exception):
-    """Raised when both primary and fallback DOIs are unreachable."""
+    """Raised when data cannot be fetched from any source."""
     pass
 
 class DataInsufficientError(Exception):
-    """Raised when the raw dataset contains fewer than 1 row."""
+    """Raised when data is fetched but is insufficient (e.g., < 1 row)."""
     pass
 
-def fetch_from_zenodo(doi: str, output_path: Path, max_retries: int = 5, initial_delay: float = 1.0) -> bool:
+def fetch_from_zenodo(doi: str, output_path: str, timeout: int = 300):
     """
-    Fetch a dataset from Zenodo using a DOI.
+    Fetch a dataset from Zenodo by DOI.
     
     Args:
-        doi: The Digital Object Identifier.
-        output_path: Local path to save the CSV file.
-        max_retries: Maximum number of retry attempts.
-        initial_delay: Initial delay in seconds for exponential backoff.
-        
-    Returns:
-        True if fetch was successful, False otherwise.
-        
+        doi: The DOI of the dataset (e.g., '10.5281/zenodo.10043838')
+        output_path: Local path to save the CSV file
+        timeout: Request timeout in seconds
+    
     Raises:
-        DataUnavailableError: If the DOI is invalid or the record cannot be found (404).
-        requests.RequestException: If network errors occur after retries.
+        DataUnavailableError: If fetch fails
     """
-    base_url = "https://zenodo.org/api/records"
-    endpoint = f"{base_url}/{doi}"
+    logger = logging.getLogger(__name__)
     
-    delay = initial_delay
+    # Zenodo API endpoint
+    api_url = f"https://zenodo.org/api/records/{doi.split('.')[-1]}"
     
-    for attempt in range(max_retries + 1):
+    headers = {
+        "Accept": "application/json"
+    }
+    
+    # Exponential backoff retry logic
+    max_retries = 5
+    base_delay = 1.0
+    
+    for attempt in range(max_retries):
         try:
-            logger.info(f"Attempting to fetch DOI: {doi} (Attempt {attempt + 1}/{max_retries + 1})")
-            
-            response = requests.get(endpoint, timeout=30)
+            logger.info(f"Fetching metadata from Zenodo API: {api_url}")
+            response = requests.get(api_url, headers=headers, timeout=timeout)
             
             if response.status_code == 200:
-                record_data = response.json()
+                data = response.json()
+                # Find the file with CSV extension
+                files = data.get('files', [])
+                if not files:
+                    # Try alternative structure
+                    files = data.get('metadata', {}).get('files', [])
                 
-                # Zenodo API returns a list of files in 'files' key
-                if 'files' not in record_data or not record_data['files']:
-                    logger.warning(f"DOI {doi} returned no files.")
-                    return False
-                    
-                # Assume the first file is the CSV we need, or find a .csv file
                 csv_file = None
-                for f in record_data['files']:
-                    if f.get('key', '').endswith('.csv'):
+                for f in files:
+                    if f.get('type') == 'other' or f.get('key', '').endswith('.csv'):
                         csv_file = f
                         break
                 
+                # If no specific file found, try the first one
+                if not csv_file and files:
+                    csv_file = files[0]
+                
                 if not csv_file:
-                    # Fallback to first file if no CSV found
-                    csv_file = record_data['files'][0]
-                    logger.warning(f"No CSV file found in DOI {doi}, using: {csv_file.get('key')}")
+                    raise DataUnavailableError(f"No files found in Zenodo record: {doi}")
                 
-                file_link = csv_file['links']['self']
-                file_name = csv_file['key']
+                file_url = csv_file.get('links', {}).get('self') or csv_file.get('download_url')
+                if not file_url:
+                    # Construct download URL
+                    record_id = data.get('id')
+                    file_name = csv_file.get('key', 'data.csv')
+                    file_url = f"https://zenodo.org/api/records/{record_id}/files/{file_name}/content"
                 
-                # Download the file
-                logger.info(f"Downloading file: {file_name}")
-                file_response = requests.get(file_link, stream=True, timeout=300)
+                logger.info(f"Downloading file from: {file_url}")
+                file_response = requests.get(file_url, timeout=timeout)
                 file_response.raise_for_status()
                 
-                # Ensure output directory exists
-                output_path.parent.mkdir(parents=True, exist_ok=True)
+                # Save to file
+                output_path_obj = Path(output_path)
+                output_path_obj.parent.mkdir(parents=True, exist_ok=True)
+                with open(output_path_obj, 'wb') as f:
+                    f.write(file_response.content)
                 
-                with open(output_path, 'wb') as f:
-                    for chunk in file_response.iter_content(chunk_size=8192):
-                        if chunk:
-                            f.write(chunk)
-                
-                logger.info(f"Successfully downloaded {file_name} to {output_path}")
-                return True
-                
+                logger.info(f"Successfully downloaded file to: {output_path}")
+                return
+            
             elif response.status_code == 404:
-                logger.error(f"DOI {doi} not found (404).")
-                raise DataUnavailableError(f"DOI {doi} returned 404 Not Found.")
-                
-            elif response.status_code == 429:
-                logger.warning(f"Rate limit exceeded for DOI {doi}. Retrying in {delay}s...")
-                time.sleep(delay)
-                delay *= 2
-                continue
-                
+                raise DataUnavailableError(f"DOI not found: {doi} (404)")
             else:
-                logger.error(f"Failed to fetch DOI {doi}: Status {response.status_code}")
-                if attempt == max_retries:
-                    raise requests.HTTPError(f"Zenodo API returned status {response.status_code}")
+                logger.warning(f"Zenodo API returned status {response.status_code}")
+                response.raise_for_status()
                 
-        except requests.exceptions.Timeout:
-            logger.warning(f"Timeout fetching DOI {doi}. Retrying in {delay}s...")
-            time.sleep(delay)
-            delay *= 2
-            continue
         except requests.exceptions.RequestException as e:
-            logger.warning(f"Network error fetching DOI {doi}: {str(e)}. Retrying in {delay}s...")
-            time.sleep(delay)
-            delay *= 2
-            continue
-        
-        # If we get here, the request succeeded or failed permanently
-        # If it succeeded (200), we returned True.
-        # If it failed (404), we raised.
-        # If it failed (other), we continue loop or raise at end.
-        
-    # If loop finishes without returning True or raising 404
-    raise requests.RequestException(f"Failed to fetch DOI {doi} after {max_retries} retries.")
+            if attempt < max_retries - 1:
+                delay = base_delay * (2 ** attempt)
+                logger.warning(f"Request failed (attempt {attempt+1}/{max_retries}): {str(e)}. Retrying in {delay}s...")
+                time.sleep(delay)
+            else:
+                raise DataUnavailableError(f"Failed to fetch from Zenodo after {max_retries} attempts: {str(e)}")
+    
+    raise DataUnavailableError(f"Failed to fetch from Zenodo: {doi}")
 
-def fetch_dataset(primary_doi: str, fallback_doi: str, output_dir: Path) -> Tuple[Path, str]:
+def fetch_dataset(doi: str, output_dir: str) -> Path:
     """
-    Fetch dataset attempting primary DOI first, then fallback.
+    Fetch dataset and return the path to the downloaded file.
     
     Args:
-        primary_doi: The primary Zenodo DOI.
-        fallback_doi: The fallback Zenodo DOI.
-        output_dir: Directory to save the downloaded file.
-        
+        doi: DOI of the dataset
+        output_dir: Directory to save the file
+    
     Returns:
-        Tuple of (Path to downloaded file, DOI used)
-        
-    Raises:
-        DataUnavailableError: If both DOIs fail.
-        DataInsufficientError: If the fetched dataset has 0 rows.
+        Path to the downloaded file
     """
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Try Primary
-    primary_path = output_dir / f"zenodo_{primary_doi}.csv"
-    try:
-        success = fetch_from_zenodo(primary_doi, primary_path)
-        if success:
-            logger.info(f"Successfully fetched data from primary DOI: {primary_doi}")
-            return primary_path, primary_doi
-    except DataUnavailableError as e:
-        logger.warning(f"Primary DOI failed: {e}")
-    except Exception as e:
-        logger.warning(f"Primary DOI failed with unexpected error: {e}")
-    
-    # Try Fallback
-    fallback_path = output_dir / f"zenodo_{fallback_doi}.csv"
-    try:
-        success = fetch_from_zenodo(fallback_doi, fallback_path)
-        if success:
-            logger.warning(f"Fallback DOI used successfully: {fallback_doi}")
-            return fallback_path, fallback_doi
-    except DataUnavailableError as e:
-        logger.warning(f"Fallback DOI failed: {e}")
-    except Exception as e:
-        logger.warning(f"Fallback DOI failed with unexpected error: {e}")
-        
-    raise DataUnavailableError(f"Both primary ({primary_doi}) and fallback ({fallback_doi}) DOIs are unreachable.")
+    output_path = Path(output_dir) / f"zenodo_{doi.split('.')[-1]}.csv"
+    fetch_from_zenodo(doi, str(output_path))
+    return output_path
 
 def main():
-    """Main entry point for testing the client."""
-    # Example usage
-    primary = "10.5281/zenodo.10043838"
-    fallback = "10.5281/zenodo.11023456"
-    output = Path("data/raw")
+    """CLI entry point for testing."""
+    import argparse
+    parser = argparse.ArgumentParser(description="Fetch dataset from Zenodo")
+    parser.add_argument("--doi", required=True, help="DOI to fetch")
+    parser.add_argument("--output", required=True, help="Output file path")
+    args = parser.parse_args()
     
+    logging.basicConfig(level=logging.INFO)
     try:
-        path, doi = fetch_dataset(primary, fallback, output)
-        print(f"Data fetched from {doi} at {path}")
-    except DataUnavailableError as e:
+        fetch_from_zenodo(args.doi, args.output)
+        print(f"Successfully fetched {args.doi} to {args.output}")
+    except Exception as e:
         print(f"Error: {e}")
+        return 1
+    return 0
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(main())

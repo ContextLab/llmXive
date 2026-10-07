@@ -1,20 +1,25 @@
-T012:
+T014:
   c: false
-  h: 9b1ab0514a8c48f28b1b3b86abaec37a904bba6ffe37fc019b0a317563b263be
-  r: "The `ingest.py` file is truncated and does not show the required fallback\u2011\
-    DOI handling, checksum verification, chunked reading, or the DataInsufficient\
-    \ warnings/errors. Moreover, `data/ingestion_stats.json` lacks the required `source_doi`\
-    \ key, and the raw CSV files are absent (the script is expected to create/fetch\
-    \ them). These missing/unfinished elements mean the task\u2019s specifications\
-    \ are not fully satisfied."
-T015:
+  h: 0ccaa938303a00de8bd7e10ae6f9105b87eb94a254a4828905e960883c675709
+  r: "The `data/ingestion_stats.json` file is present and contains the required keys\
+    \ with valid values, but the required `data/processed/cleaned_mg.csv` file is\
+    \ missing, so the task\u2019s requirement to save the cleaned data is not satisfied.\
+    \ The missing CSV must be created and be non\u2011empty for the task to be complete."
+T021:
+  c: false
+  h: 119031fdd2980384bec8ed8888bb33e51bb7a7c2b055ff9d053557aaa75486e9
+  r: "The required `data/processed/diagnostic_log.json` and the archived `artifacts/reports/diagnostic_log.json`\
+    \ do not exist, and the provided `code/descriptors.py` is truncated before any\
+    \ logic that writes the computed value to a JSON file. Consequently the task\u2019\
+    s output and archiving steps are missing."
+T024b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or documentation showing the added DOI error\u2011handling\
-    \ logic is present; the implementer provided no artifact (e.g., updated ingestion\
-    \ module, unit test, or log output) that demonstrates a primary\u2011DOI fallback\
-    \ to a secondary DOI and a DATA_UNAVAILABLE halt when both fail. Consequently\
-    \ the requirement cannot be verified as met."
+  r: "No `artifacts/metrics/metrics.json` file was presented, and no content showing\
+    \ the required keys (`R2`, `MAE`, `feature_importances`, `null_model_r2`) was\
+    \ provided. Without the actual file or its contents, we cannot confirm that the\
+    \ metrics were calculated, saved, and verified as specified. The implementer must\
+    \ supply the JSON file with the correct fields and non\u2011empty values."
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -22,13 +27,30 @@ T025:
     \ resource\u2011monitoring checks for runtime\u202F<\u202F6\u202Fh and RAM\u202F\
     <\u202F7\u202FGB. The required artifact (e.g., a monitoring script, CI guard,\
     \ or runtime/RAM validation step) is missing, so the task is not satisfied."
+T026:
+  c: false
+  h: 8696d89f01bdb49d6a273ee121adf4a1674f98a4e543eacf6790365993d5d20a
+  r: "The required output file `data/processed/descriptors.csv` does not exist (and\
+    \ the input `data/processed/cleaned_mg.csv` is also missing), so the descriptors\
+    \ cannot have been computed or saved. Additionally, the provided `code/descriptors.py`\
+    \ is truncated and does not show the logic for dropping `weighted_mean_radius`\
+    \ or writing the CSV. The task\u2019s core deliverables are therefore absent."
+T033a:
+  c: false
+  h: b6abd6d176e80a663d52ab71fc94c802446391991bc9dc99e7a09bf9c016ffab
+  r: "The required input file `data/processed/descriptors.csv` and the output file\
+    \ `data/processed/correlation_matrix.csv` are both missing, and the provided `code/analyze.py`\
+    \ is incomplete (truncated) with no visible implementation of the correlation\
+    \ calculation or saving logic. Consequently the task\u2019s functional and output\
+    \ requirements are not satisfied."
 T034:
   c: false
-  h: 250b0a7a1d50bc5237f4a9d7c21d149ed80611570735798bbbe42b198163cdf3
-  r: "The provided `code/analyze.py` is truncated and does not contain a full implementation\
-    \ of the Benjamini\u2011Hochberg correction nor any code that writes `fdr_corrected_pvalues.json`.\
-    \ Additionally, the required input file `data/processed/correlation_matrix.csv`\
-    \ and the expected output JSON are absent from the repository."
+  h: b0d3d9dfd56406867ac1235ea9cfd0bee278b0421e7ea59480f73ba6f7afd681
+  r: "The repository lacks the required input `data/processed/correlation_matrix.csv`\
+    \ and the expected output `data/processed/fdr_corrected_pvalues.json`. Moreover,\
+    \ `code/analyze.py` is truncated and does not contain a complete implementation\
+    \ of the Benjamini\u2011Hochberg correction or the logic to read the correlation\
+    \ matrix and write the corrected p\u2011values. The task therefore remains unfinished."
 T036a:
   c: false
   h: 13cb5efa68dc81a40d3e5b12785a981ac8c2a3cd179ea8f219eb47fb305069a2
@@ -37,21 +59,11 @@ T036a:
     \ is absent, so the task\u2019s core requirement is not met."
 T037a:
   c: false
-  h: 93ca0a08023ad70a14f9d1025f76db4e6ccf82313786fb9c8500efebd1470a72
+  h: c4afe6cf0d6120fa908cade9cbfd556edb79f2595791f6eb4de7b9ee8197820b
   r: "The repository lacks the required input artifacts (`artifacts/models/best_model.pkl`\
-    \ and `data/processed/cleaned_mg.csv` are missing) and the `code/analyze.py` file\
-    \ does not contain the `sweep_max_depth` implementation (the shown portion only\
-    \ defines logging and helper loaders). Consequently the sensitivity\u2011analysis\
-    \ JSON output cannot be produced as specified."
-T059:
-  c: false
-  h: 16bbaac8b2728062888d16d00aa94dbfbc6b85cfa302711fe5adc38b46211cbe
-  r: "The repository contains a partial `code/train.py` that defines a `generate_stratification_status_file`\
-    \ function, but it never reads `logs/train.log` for `STRATIFICATION_WARNING`,\
-    \ does not produce the required fields (`family_name`, `sample_count`, `action_taken`),\
-    \ and does not write to `data/processed/stratification_status.json`. The JSON\
-    \ file is missing entirely. The task\u2019s edge\u2011case handling and output\
-    \ file are therefore not implemented."
+    \ and `data/processed/cleaned_mg.csv`), and `code/analyze.py` is truncated before\
+    \ any `sweep_max_depth` implementation appears. Consequently, the sensitivity\u2011\
+    analysis function, its JSON output, and the specified schema are not present."
 T083:
   c: false
   h: b72d02343a8d20aa87fc079f778cf4e7a98b1ccaae0494ceb4079e710b462afb

@@ -3164,3 +3164,267 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-03T06:49:39Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Zenodo DOI 10.5281/zenodo.10043838 primary fallback 10.5281/zenodo.11023456
+  claim_id: c_d1109d2d
+  context: T002 Implement Zenodo API client in code/zenodo_client.py to fetch datasets
+    using DOIs 10.5281/zenodo.10043838 (primary) and 10.5281/zenodo.11023456 (fallback)
+    from config.yaml.
+  evidence:
+    asserted: '10.5281'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: citation
+  raw_text: Implement Zenodo API client in code/zenodo_client.py to fetch datasets
+    using DOIs 10.5281/zenodo.10043838 (primary) and 10.5281/zenodo.11023456 (fallback)
+  resolved_value: '3.1416'
+  resolver: approximate
+  source_hash: 1b9312a101b0e4d349df9333e120b1449b28e444bfb44f96307ede5773c1fde7
+  source_type: external
+  status: verified
+  updated_at: '2026-10-07T00:50:50Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: mendeleev version 0.31.0 used for descriptors
+  claim_id: c_a2bdf946
+  context: T020 Implement code/descriptors.py to compute radius mismatch, electronegativity
+    difference, VEC using mendeleev==0.31.0 (FR-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use mendeleev==0.31.0 for computing descriptors
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:51:03Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: grid search hyperparameter optimization max 10 combos
+  claim_id: c_c233f79e
+  context: "T023 Implement grid search in code/train.py for hyperparameter optimization\
+    \ (\u226410 combos) (FR-003)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement grid search for hyperparameter optimization with 10 or fewer
+    combinations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:51:30Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: runtime limit 6 hours RAM limit 7 GB
+  claim_id: c_4f3db915
+  context: T025 Integrate code/resource_monitor.py into code/train.py to enforce runtime
+    < 6h and RAM < 7GB (FR-005, SC-004).
+  evidence:
+    candidates:
+    - - Runtime limit 6 hours RAM limit
+      - 7.0
+    - - Create account Log in Runtime limit
+      - 6.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Runtime_limit_6_hours_RAM_limit_7_GB
+  kind: magnitude
+  raw_text: Enforce runtime limit of less than 6 hours and RAM limit of less than
+    7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-10-07T00:52:03Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: sweep max_depth values 3 5 7
+  claim_id: c_fc423f7a
+  context: "T037a Implement sensitivity analysis in code/analyze.py: sweep max_depth\
+    \ over the specific values {3, 5, 7} to evaluate model robustness (FR-006) and\
+    \ collect R\xB2 scores."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep max_depth over the specific values 3, 5, and 7 to evaluate model
+    robustness
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:52:27Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction alpha 0.05
+  claim_id: c_5906a14f
+  context: "T034 Implement code/analyze.py for Benjamini-Hochberg FDR correction on\
+    \ correlations (\u03B1 \u2264 0.05) as per Spec FR-008."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_FDR_correction_alpha_0.05
+  kind: magnitude
+  raw_text: Perform Benjamini-Hochberg FDR correction on correlations with alpha less
+    than or equal to 0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:52:50Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: VIF flag threshold 5
+  claim_id: c_af56c59a
+  context: T035a Implement code/analyze.py for VIF calculation. MUST flag predictors
+    with VIF > 5 for diagnostic review (do NOT drop features).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_flag_threshold_5
+  kind: magnitude
+  raw_text: Flag predictors with VIF greater than 5 for diagnostic review
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:53:17Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: bootstrapping 1000 resamples 95% CI feature importance
+  claim_id: c_cfa8e70c
+  context: T036a Implement code/analyze.py for bootstrapping with n_resamples=1000
+    to calculate 95% CI for feature importance (SC-002) and save to artifacts/metrics/stability_metrics.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform bootstrapping with 1000 resamples to calculate 95% CI for feature
+    importance
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:53:41Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: stratification warning threshold 50 samples
+  claim_id: c_c22cbc7a
+  context: 'T072 Implement family size stratification check in code/train.py: Before
+    performing LOFO, check if any alloy family has < 50 samples. Action: If N < 50,
+    log a STRATIFICATION_WARNING to logs/train.log.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stratification_warning_threshold_50_samples
+  kind: magnitude
+  raw_text: Log a STRATIFICATION_WARNING if any alloy family has fewer than 50 samples
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:54:36Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: collinearity condition number warning threshold 30
+  claim_id: c_51ffc457
+  context: 'T060a Implement code/analyze.py to calculate the collinearity condition
+    number for the predictors. Output: Save to data/processed/collinearity_log.json.
+    Schema: The JSON must contain key condition_number (float) and status (e.g., ''warning''
+    if > 30, else ''ok'').'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Collinearity_condition_number_warning_threshold_30
+  kind: magnitude
+  raw_text: Flag status as warning if collinearity condition number is greater than
+    30
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:55:05Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: DataUnavailableError if raw dataset less than 1 row
+  claim_id: c_92b1cabe
+  context: T002 ... raise specific DataUnavailableError (if both DOIs unreachable)
+    or DataInsufficientError (if raw data < 1 row) exceptions.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/DataUnavailableError_if_raw_dataset_less_than_1_row
+  kind: magnitude
+  raw_text: Raise DataUnavailableError if raw dataset contains fewer than 1 row
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:55:32Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: DataInsufficientWarning if raw dataset less than 50 rows
+  claim_id: c_304cf698
+  context: T012 ... If < 50 rows, log DataInsufficientWarning.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/DataInsufficientWarning_if_raw_dataset_less_than_50_rows
+  kind: magnitude
+  raw_text: Log DataInsufficientWarning if raw dataset contains fewer than 50 rows
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:56:01Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: pandas read_csv chunksize 1000
+  claim_id: c_4eba13a1
+  context: T012 ... implement chunked reading (chunksize=1000 using pandas.read_csv)
+    to process data without loading it entirely into RAM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement chunked reading with chunksize=1000 using pandas.read_csv for
+    large datasets
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:56:17Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: verify calculated coefficients match expected values
+  claim_id: c_a51506a2
+  context: 'T033a ... Action: Explicitly verify that the calculated coefficients match
+    the expected values for the input data and that the file schema is valid before
+    proceeding.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_calculated_coefficients_match_expected_values
+  kind: entity_fact
+  raw_text: Verify that the calculated coefficients match the expected values for
+    the input data
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:56:41Z'
