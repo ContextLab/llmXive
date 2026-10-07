@@ -3,6 +3,7 @@ Structured logging utilities for the plant disease resistance pipeline.
 
 Provides a consistent logging format for pipeline steps, sample exclusions,
 and error contexts to ensure reproducibility and auditability.
+Implements log rotation to prevent disk space issues in long-running CI jobs.
 """
 import logging
 import json
@@ -10,6 +11,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Any, Dict
+from logging.handlers import RotatingFileHandler
 
 from config import get_artifacts_path
 
@@ -51,7 +53,7 @@ class StructuredFormatter(logging.Formatter):
 
 def get_logger(name: str, log_level: int = logging.INFO) -> logging.Logger:
     """
-    Get a configured logger instance with structured JSON output.
+    Get a configured logger instance with structured JSON output and log rotation.
 
     Args:
         name: Logger name (usually __name__ of the module)
@@ -72,12 +74,20 @@ def get_logger(name: str, log_level: int = logging.INFO) -> logging.Logger:
     console_handler.setLevel(log_level)
     console_handler.setFormatter(StructuredFormatter())
 
-    # Create file handler in artifacts/logs
+    # Create file handler with rotation in artifacts/logs
     artifacts_path = get_artifacts_path()
-    log_file = artifacts_path / "logs" / "pipeline.log"
-    log_file.parent.mkdir(parents=True, exist_ok=True)
+    log_dir = artifacts_path / "logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_file = log_dir / "pipeline.log"
 
-    file_handler = logging.FileHandler(log_file, mode='a')
+    # Implement log rotation: max 10MB per file, keep 5 backup files
+    # This prevents disk space issues in long-running CI jobs (T059)
+    file_handler = RotatingFileHandler(
+        log_file,
+        maxBytes=10 * 1024 * 1024,  # 10 MB
+        backupCount=5,
+        encoding='utf-8'
+    )
     file_handler.setLevel(logging.DEBUG)  # Capture all detailed logs in file
     file_handler.setFormatter(StructuredFormatter())
 

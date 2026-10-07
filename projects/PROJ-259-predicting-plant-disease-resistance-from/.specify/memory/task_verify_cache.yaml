@@ -12,10 +12,36 @@ T028:
     \ required logic to filter and rank features by selection frequency and BH\u2011\
     adjusted p\u2011value\u202F<\u202F0.05. The artifact is missing, so the task\u2019\
     s functional requirement is not satisfied."
-T048:
+T051:
+  c: false
+  h: 7e346f083d3f666ba6bac7b71a87ab13f1abd5b027ed19952700949fd7b1c80d
+  r: "The `scripts/run_ci.sh` script exists and correctly sets `MAX_MEMORY_GB=7` and\
+    \ `MAX_RUNTIME_HOURS=6`, but the required `code/utils/measure_resources.py` file\
+    \ is missing, and `code/main.py` does not import or invoke any resource\u2011\
+    measurement logic, so the environment variables are not actually respected. The\
+    \ implementation therefore fails to meet the task\u2019s core requirement."
+T053:
+  c: false
+  h: 668cbc8a2da964ba39ee9e3e3615b8fcaf7ba20f8bdcc67dc3c43c256f08a2ad
+  r: The provided `generate_final_report.py` is present but the shown code is truncated
+    and does not include the logic that writes `artifacts/reports/final_validation_report.md`.
+    Moreover, the `load_json_file` function looks for the metric JSON files in `artifacts/reports/`
+    (using `REPORTS_DIR`) instead of the expected `artifacts/` location, so it would
+    fail to aggregate the required inputs. The final markdown report file is missing,
+    indicating the generator does not yet fulfill the specification.
+T055:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, test script, or documentation showing the modification of T033 was\
-    \ provided; there is no artifact that runs a permutation test twice with a fixed\
-    \ seed and checks that the p\u2011values match within tolerance. The required\
-    \ implementation and verification are missing."
+  r: No CI workflow file (e.g., `.github/workflows/ci.yml` or similar) was presented
+    that adds a linting step running `flake8` and `black` on the `code/` and `tests/`
+    directories before the pipeline executes. Without such a configuration file or
+    log output, the required linting check cannot be confirmed. The implementer must
+    provide the actual CI configuration showing the linting steps.
+T060:
+  c: true
+  h: f664c2016f5f1ebc0746949358303408c41a9bbe930311196eb1d0364f31b8ba
+  r: "The provided `code/main.py` contains a non\u2011empty `check_data_integrity`\
+    \ function that loads `data_manifest.yaml`, verifies `source` is either `SIMULATED`\
+    \ or `REAL_DATA`, ensures `sample_count >= 100`, and logs \u201CPipeline Ready\u201D\
+    . This matches the task\u2019s specification. (The manifest file itself is not\
+    \ required to be present for the code change to be considered complete.)"

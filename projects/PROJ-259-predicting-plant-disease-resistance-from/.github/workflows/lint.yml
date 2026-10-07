@@ -1,0 +1,32 @@
+name: Linting Check
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 black
+
+      - name: Run flake8
+        run: |
+          flake8 code/ tests/ --max-line-length=127 --ignore=E501,W503,W504
+
+      - name: Run black check
+        run: |
+          black --check code/ tests/ --line-length 127
