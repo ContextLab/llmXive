@@ -1,62 +1,50 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "UQ Prediction Schema"
-description: "Schema for the output of uncertainty quantification inference."
-type: object
+title: "UQ Prediction Schema (LEGACY)"
+description: "DEPRECATED: This schema is legacy. Use 'prediction_output.schema.yaml' as the Single Source of Truth (SSoT). This file is kept for backward compatibility but should not be used for new artifacts."
+type: "object"
 properties:
   sample_id:
-    type: string
-    description: "Reference to the MaterialSample ID."
+    type: "string"
+    description: "Reference to the material sample."
   method:
-    type: string
-    enum:
-      - deep_ensemble
-      - mc_dropout
-      - sparse_gp
-    description: "The UQ method used."
-  prediction_mean:
-    type: number
-    description: "Predicted mean value."
-  prediction_variance:
-    type: number
+    type: "string"
+    enum: ["deep_ensemble", "mc_dropout", "sparse_gp"]
+    description: "UQ method used."
+  prediction:
+    type: "number"
+    description: "Point prediction."
+  lower_50:
+    type: "number"
+    description: "[deferred] lower bound."
+  upper_50:
+    type: "number"
+    description: "[deferred] upper bound."
+  lower_90:
+    type: "number"
+    description: "[deferred] lower bound."
+  upper_90:
+    type: "number"
+    description: "[deferred] upper bound."
+  variance:
+    type: "number"
     description: "Total predictive variance."
-  aleatoric_variance:
-    type: number
+  aleatoric_var:
+    type: "number"
     description: "Aleatoric uncertainty component."
-  epistemic_variance:
-    type: number
+  epistemic_var:
+    type: "number"
     description: "Epistemic uncertainty component."
-  uncertainty_type:
-    type: string
-    enum:
-      - aleatoric
-      - epistemic
-      - total
-    description: "Type of uncertainty component (Required by FR-008)."
-  lower_bound_50:
-    type: number
-    description: "Lower bound for 50% confidence interval."
-  upper_bound_50:
-    type: number
-    description: "Upper bound for 50% confidence interval."
-  lower_bound_90:
-    type: number
-    description: "Lower bound for 90% confidence interval."
-  upper_bound_90:
-    type: number
-    description: "Upper bound for 90% confidence interval."
-  reconstruction_variance:
-    type: number
-    description: "Reconstruction variance for Sparse GP (optional)."
+  seed:
+    type: "integer"
+    description: "Random seed used for this prediction."
 required:
   - sample_id
   - method
-  - prediction_mean
-  - prediction_variance
-  - aleatoric_variance
-  - epistemic_variance
-  - uncertainty_type
-  - lower_bound_50
-  - upper_bound_50
-  - lower_bound_90
-  - upper_bound_90
+  - prediction
+  - lower_50
+  - upper_50
+  - lower_90
+  - upper_90
+  - variance
+  - seed
 additionalProperties: false

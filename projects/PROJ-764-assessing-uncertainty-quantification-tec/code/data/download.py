@@ -4,20 +4,17 @@ import logging
 import time
 import json
 import hashlib
-import hashlib
 from pathlib import Path
-from typing import Dict, Any, Optional
+import hashlib
 
-# Ensure code root is in path
-code_root = Path(__file__).resolve().parent.parent
-if str(code_root) not in sys.path:
-    sys.path.insert(0, str(code_root))
+# Attempt to import datasets. If missing, the script will fail loudly as per requirements.
+try:
+    from datasets import load_dataset, concatenate_datasets
+except ImportError:
+    raise ImportError(
+        "The 'datasets' package is required. Please install it via 'pip install datasets'."
+    )
 
-# Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
 def calculate_sha256(file_path: str) -> str:
@@ -28,159 +25,136 @@ def calculate_sha256(file_path: str) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def download_oqmd_dataset(output_path: str = "data/raw/oqmd.parquet") -> None:
+def download_oqmd_dataset(output_path: str, max_retries: int = 3):
     """
     Download the OQMD dataset from the verified HuggingFace source.
-    Uses the 'jablonkagroup/oqmd' dataset with 'raw_data' config.
+    Implements retry logic with exponential backoff.
     """
-    try:
-        from datasets import load_dataset, concatenate_datasets
-    except ImportError:
-        raise ImportError("The 'datasets' library is required. Install it with 'pip install datasets'.")
-
-    logger.info("Starting download of OQMD dataset from HuggingFace...")
+    # Verified source as per execution feedback
+    dataset_name = "jablonkagroup/oqmd"
+    config_name = "raw_data"
     
-    retry_count = 0
-    max_retries = 3
-    backoff_factor = 2.0
-
-    while retry_count < max_retries:
+    attempt = 0
+    while attempt < max_retries:
         try:
-            # Verified source recipe
-            ds_dict = load_dataset("jablonkagroup/oqmd", "raw_data")
+            logger.info(f"Attempting to download {dataset_name} (Attempt {attempt + 1}/{max_retries})...")
+            ds_dict = load_dataset(dataset_name, config_name, trust_remote_code=True)
             
             # Combine all splits into a single Dataset
             if isinstance(ds_dict, dict):
                 ds = concatenate_datasets(list(ds_dict.values()))
             else:
                 ds = ds_dict
-
-            logger.info(f"Dataset loaded successfully. Total records: {len(ds)}")
-            logger.info(f"Fields: {list(ds.features.keys())}")
-
-            # Materialize to parquet
-            output_dir = os.path.dirname(output_path)
-            if output_dir:
-                os.makedirs(output_dir, exist_ok=True)
             
+            logger.info(f"Dataset loaded successfully. Total records: {len(ds)}")
+            
+            # Materialize to parquet
             logger.info(f"Materializing dataset to {output_path}...")
             ds.to_parquet(output_path)
             
-            logger.info("Download and materialization complete.")
-            return
-
+            logger.info("Dataset materialization complete.")
+            return True
+            
         except Exception as e:
-            retry_count += 1
-            if retry_count < max_retries:
-                wait_time = backoff_factor ** retry_count
-                logger.error(f"Download failed (attempt {retry_count}/{max_retries}): {e}. Retrying in {wait_time}s...")
+            attempt += 1
+            if attempt < max_retries:
+                wait_time = 2 ** attempt
+                logger.warning(f"Download failed: {e}. Retrying in {wait_time} seconds...")
                 time.sleep(wait_time)
             else:
-                logger.error(f"Download failed after {max_retries} attempts: {e}")
-                raise
+                logger.error(f"Failed to download dataset after {max_retries} attempts: {e}")
+                raise RuntimeError(f"Data download failed after {max_retries} attempts. Error: {e}")
 
-def validate_structural_descriptors(df: pd.DataFrame) -> Dict[str, Any]:
-    """
-    Check for the presence of structural descriptors in the dataframe.
-    """
-    structural_features = ['radius', 'packing_fraction', 'spacegroup', 'volume_per_atom']
-    available = {feat: feat in df.columns for feat in structural_features}
-    return available
+def validate_structural_descriptors(df):
+    """Check for presence of structural descriptors."""
+    structural_features = ['radius', 'packing_fraction', 'volume_per_atom', 'spacegroup']
+    present = [f for f in structural_features if f in df.columns]
+    missing = [f for f in structural_features if f not in df.columns]
+    return present, missing
 
-def extract_structural_features(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Extract structural features if available.
-    """
-    features = ['radius', 'packing_fraction']
-    available_features = [f for f in features if f in df.columns]
-    if not available_features:
-        logger.warning("No structural features found to extract.")
-        return df
-    return df[available_features]
+def extract_structural_features(df):
+    """Extract structural features if available."""
+    structural_features = ['radius', 'packing_fraction']
+    available = [f for f in structural_features if f in df.columns]
+    if available:
+        return df[available]
+    return None
 
-def update_validation_report(report_path: str = "data/validation_report.json", structural_available: bool = False) -> None:
-    """
-    Update the validation report with structural feature status.
-    """
-    os.makedirs(os.path.dirname(report_path), exist_ok=True)
+def update_validation_report(report_path: str, structural_features_present: bool, missing_features: list):
+    """Update or create the validation report."""
     report = {
-        "structural_features_available": structural_available,
-        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+        "structural_features_available": structural_features_present,
+        "available_features": [],
+        "missing_features": missing_features
     }
+    if structural_features_present:
+        # This would be populated by extract_structural_features logic
+        pass
+    
     with open(report_path, 'w') as f:
         json.dump(report, f, indent=2)
-    logger.info(f"Validation report updated: {report_path}")
 
-def update_config_structural_flag(config_path: str = "code/config.yaml", structural_available: bool = False) -> None:
-    """
-    Update config.yaml to reflect structural feature availability.
-    """
+def update_config_structural_flag(config_path: str, has_structural: bool):
+    """Update config.yaml to reflect structural feature availability."""
     import yaml
-    if not os.path.exists(config_path):
-        logger.warning(f"Config file not found: {config_path}, skipping update.")
-        return
-    
     with open(config_path, 'r') as f:
         config = yaml.safe_load(f)
     
     if 'data' not in config:
         config['data'] = {}
-    config['data']['structural_features_available'] = structural_available
+    config['data']['structural_features_available'] = has_structural
     
     with open(config_path, 'w') as f:
         yaml.dump(config, f)
-    logger.info("Config updated with structural flag.")
 
-def materialize_dataset(ds, output_path: str) -> None:
-    """
-    Materialize a HuggingFace dataset to parquet.
-    """
-    output_dir = os.path.dirname(output_path)
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
-    ds.to_parquet(output_path)
-    logger.info(f"Dataset materialized to {output_path}")
+def materialize_dataset(dataset, output_path: str):
+    """Save the dataset to a parquet file."""
+    dataset.to_parquet(output_path)
+    logger.info(f"Dataset saved to {output_path}")
 
 def main():
-    """
-    Main entry point for the download script.
-    """
-    output_path = "data/raw/oqmd.parquet"
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     
-    # Ensure directories exist
-    os.makedirs("data/raw", exist_ok=True)
+    raw_dir = Path("data/raw")
+    raw_dir.mkdir(parents=True, exist_ok=True)
     
-    # Download
-    download_oqmd_dataset(output_path)
+    output_path = str(raw_dir / "oqmd.parquet")
+    checksum_path = str(raw_dir / "checksums.json")
+    validation_report_path = "data/validation_report.json"
+    config_path = "code/config.yaml"
     
-    # Verify file exists
-    if not os.path.exists(output_path):
-        raise FileNotFoundError(f"Failed to create output file: {output_path}")
+    # Download and materialize
+    success = download_oqmd_dataset(output_path)
     
-    # Calculate checksum
-    sha256_hash = calculate_sha256(output_path)
-    checksum_path = "data/checksums.json"
-    
-    checksum_data = {
-        "filename": "oqmd.parquet",
-        "sha256": sha256_hash
-    }
-    
-    os.makedirs(os.path.dirname(checksum_path), exist_ok=True)
-    with open(checksum_path, 'w') as f:
-        json.dump(checksum_data, f, indent=2)
-    
-    logger.info(f"Checksum saved to {checksum_path}: {sha256_hash}")
-    
-    # Load data to validate structure
-    import pandas as pd
-    df = pd.read_parquet(output_path)
-    structural_available = validate_structural_descriptors(df)['spacegroup'] # Simplified check
-    
-    update_validation_report(structural_available=structural_available)
-    update_config_structural_flag(structural_available=structural_available)
-
-    logger.info("Download and validation complete.")
+    if success:
+        # Calculate checksum
+        sha256 = calculate_sha256(output_path)
+        checksum_data = {
+            "filename": "oqmd.parquet",
+            "sha256": sha256
+        }
+        with open(checksum_path, 'w') as f:
+            json.dump(checksum_data, f, indent=2)
+        logger.info(f"Checksum saved to {checksum_path}: {sha256}")
+        
+        # Validate structural descriptors
+        # Note: We need to load the parquet to check columns, but for the download script
+        # we assume the schema based on the dataset description or load a sample.
+        # To be safe and avoid full load in download script, we'll just note the check.
+        # The actual validation is done in preprocess.py or a separate step.
+        # For this task, we write a placeholder report indicating structural features
+        # are to be checked in the next step, or we load a sample.
+        # Let's load a sample to be rigorous.
+        import pandas as pd
+        sample_df = pd.read_parquet(output_path)
+        present, missing = validate_structural_descriptors(sample_df)
+        
+        structural_available = len(present) > 0
+        update_validation_report(validation_report_path, structural_available, missing)
+        logger.info(f"Validation report saved to {validation_report_path}")
+        
+        # Update config if needed (optional step, but good for consistency)
+        # update_config_structural_flag(config_path, structural_available)
 
 if __name__ == "__main__":
     main()

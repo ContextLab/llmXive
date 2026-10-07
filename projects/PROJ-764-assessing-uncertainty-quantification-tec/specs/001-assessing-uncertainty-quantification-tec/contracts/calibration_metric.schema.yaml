@@ -28,6 +28,9 @@ properties:
   coverage_percentage:
     type: number
     description: "Empirical coverage percentage."
+  ece_cv:
+    type: number
+    description: "Coefficient of Variation of ECE across seeds (42, 43, 44). Required by SC-004."
 required:
   - method
   - confidence_level
@@ -35,4 +38,5 @@ required:
   - interval_score
   - sharpness
   - coverage_percentage
+  - ece_cv
 additionalProperties: false

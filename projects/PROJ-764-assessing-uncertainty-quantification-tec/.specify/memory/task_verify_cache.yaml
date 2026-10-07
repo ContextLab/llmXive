@@ -1,11 +1,3 @@
-T006a:
-  c: false
-  h: 5ebf4772e2fff47fe49cc025c3513684be0c85ac42a3017805929c3370137b00
-  r: The `preprocess.py` script defines the needed functions but never calls them,
-    does not read or enforce `split_type`, and never specifies the target column (`formation_energy`).
-    Moreover, the generated CSV files contain only placeholder text rather than real
-    data with a `target_bin` column. The required split and binning outputs are therefore
-    missing.
 T006b:
   c: false
   h: 033339218a1fc9aa1c5006c1fa390254b7fbb540335aad6857621825d2ff92ba
@@ -14,43 +6,46 @@ T006b:
     \ (`pca_transformer.pkl`) are absent, and the provided `validation_report.json`\
     \ does not follow the required schema (`excluded_count` and `missing_columns`).\
     \ These core artifacts must be generated for the task to be considered complete."
+T006c:
+  c: false
+  h: a22e9e3ae74f3c6f1291869537680001342d36a5bc8f1d72b9597abe8c76e66a
+  r: "The provided `preprocess.py` contains only data\u2011loading utilities and a\
+    \ stub for applying PCA; it never fits a PCA model, saves it, or checks the >90\u202F\
+    % variance condition. Moreover, the required input file `data/processed/raw_train.csv`\
+    \ and the output `data/processed/pca_transformer.pkl` are absent, so the task\u2019\
+    s core functionality is not present."
+T006d:
+  c: false
+  h: cff7a5b9377a3d49f66aa88e0930801a4d94e723bbb83d8ff5a6e4388811f649
+  r: "The required PCA transformer file (`data/processed/pca_transformer.pkl`) and\
+    \ the three transformed feature CSVs are absent, and the generated `data/validation_report.json`\
+    \ does not follow the specified schema (`excluded_count` and `missing_columns`).\
+    \ Consequently the task\u2019s output artifacts are missing or malformed."
+T012:
+  c: false
+  h: b973ea144b028df1fe53024708dd1919487f7b776425b97856615979e6696aca
+  r: "The provided `code/models/baseline_nn.py` is present but truncated and does\
+    \ not show a function that computes total parameters and asserts the \u226410\u202F\
+    000 limit, nor does it contain code that saves the architecture to `results/models/baseline_nn_arch.pt`.\
+    \ Moreover, the required `baseline_nn_arch.pt` file is missing, and there is no\
+    \ evidence of a log entry confirming the parameter count. These essential artifacts\
+    \ must be added to satisfy the task."
+T013b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No model files were provided; the required `results/models/ensemble/ensemble_seed_42.pt`\
+    \ \u2026 `ensemble_seed_46.pt` are missing (or empty). Consequently the task\u2019\
+    s core deliverable\u2014training five independently seeded models and saving them\u2014\
+    has not been demonstrated. The next implementer must run the ensemble training\
+    \ loop and supply the five non\u2011empty `.pt` files in the specified directory."
 T014:
   c: false
-  h: ba497b473855fa5684648eac94d5ee934b7a58e0613e60f428ba89710f95055b
-  r: "The required output files `results/uq_predictions_mc_dropout.csv` and `results/models/mc_dropout/mc_dropout_seed_42.pt`\
-    \ are absent, and the provided `mc_dropout.py` is incomplete (truncated, lacks\
-    \ training/inference loops, does not save the CSV or model state, and even misses\
-    \ an import for `yaml`). Consequently the task\u2019s specifications are not met."
-T015a:
-  c: true
-  h: ed6bbcf168d3dc7a84c4d0ee32a0edd990e7b9095db15891aa23646ec8a555df
-  r: "The `code/models/sparse_gp.py` file exists and its `load_processed_data` function\
-    \ explicitly checks for `features_test_20pca.csv` and `pca_transformer.pkl`, raising\
-    \ a `FileNotFoundError` if either is missing, and contains no PCA re\u2011fitting\
-    \ logic."
-T015b:
-  c: false
-  h: f4cccf6cb56690c0a9a0a740d1a2f522c14ffb74de7acc50d6506b87225876fe
-  r: "The required data file `data/processed/features_train_20pca.csv` is absent,\
-    \ causing the verification step to fail, and the provided `sparse_gp.py` is incomplete\
-    \ (truncated) with no visible fitting logic, RBF kernel setup, or training routine.\
-    \ The task\u2019s core requirement\u2014loading the PCA features and fitting a\
-    \ Sparse GP with 500 inducing points\u2014is therefore not met."
-T015c:
-  c: false
-  h: 77a5e25b95f0b1599baf16de64e5c85340d44cff97fe3cf951d1aa4072e1c1f1
-  r: "The `code/models/sparse_gp.py` file is incomplete (truncated mid\u2011definition,\
-    \ no training or save logic) and the required output file `results/models/sparse_gp_model.pt`\
-    \ is absent. Consequently the task of saving the fitted GP model to the specified\
-    \ path is not fulfilled."
-T016a:
-  c: false
-  h: 0f52e4d1fa28c66810f384bff32e1bed2c8e26d670bc5a6d713a3a5bcc226cfb
-  r: "The repository lacks the required `results/models/sparse_gp_model.pt` file,\
-    \ and the provided `run_single_seed.py` is truncated (e.g., missing the logic\
-    \ to load model weights, iterate over the seed list, perform inference, and write\
-    \ the exact CSV columns). Consequently the script does not demonstrably fulfill\
-    \ the task\u2019s specifications."
+  h: f4f086597cf476bb473e680d41c5edcb31c3a8a1596235150434f0289b45ca4b
+  r: The `code/models/mc_dropout.py` file exists, but the required output artifacts
+    `results/models/mc_dropout/mc_dropout_seed_42.pt` and `results/uq_predictions_mc_dropout.csv`
+    are absent, so the training and inference steps were not performed and the verification
+    conditions are not met. The missing model checkpoint and CSV file must be generated
+    for the task to be considered complete.
 T025a:
   c: false
   h: 9af9028c3867c810131aa46bbb9d3080a769b231b6bdb42f36b9aa57d661e75d

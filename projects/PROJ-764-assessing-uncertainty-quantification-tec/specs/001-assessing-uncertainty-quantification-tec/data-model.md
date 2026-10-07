@@ -1,57 +1,83 @@
 # Data Model: Assessing Uncertainty Quantification Techniques for Machine‑Learning Predicted Material Properties
 
-## Entity Definitions
+## 1. Entity Relationship Overview
+
+The data flow consists of:
+1.  **Raw Data**: OQMD subset (Parquet/CSV) containing composition, structure, and targets.
+2.  **Processed Data**: Cleaned, split (Train/Val/Test), and PCA-transformed features.
+3.  **Model Artifacts**: Saved checkpoints for Baseline, Ensemble, MC-Dropout, and Sparse GP.
+4.  **Prediction Data**: CSVs containing predictions, bounds, and variance for each method.
+5.  **Evaluation Data**: Metrics (ECE, Interval Score) and screening results.
+
+## 2. Key Entities & Attributes
 
 ### MaterialSample
-Represents a single inorganic compound in the dataset.
-- `id`: Unique string identifier (e.g., OQMD ID).
-- `composition`: Dict of element -> fraction (e.g., `{"Fe": 0.5, "Si": 0.5}`).
-- `structural_descriptors`: Dict of computed features (e.g., `{"atomic_radius": 1.2, "packing_fraction": 0.74}`).
-- `formation_energy`: Float (eV/atom).
-- `bulk_modulus`: Float (GPa).
-- `band_gap`: Float (eV).
-- `excluded_reason`: String (if excluded during validation).
+*Represents a single inorganic compound.*
+*   `material_id` (str): Unique identifier.
+*   `composition` (dict): Elemental fractions (e.g., `{"Fe": 0.5, "O": 0.5}`).
+*   `structural_descriptors` (dict): `atomic_radius`, `packing_fraction`.
+*   `formation_energy` (float): Target 1.
+*   `bulk_modulus` (float): Target 2.
+*   `band_gap` (float): Target 3.
+*   `excluded` (bool): True if missing critical features.
 
 ### UQPrediction
-Output of the uncertainty quantification pipeline.
-- `sample_id`: Reference to MaterialSample.
-- `method`: String (one of: `deep_ensemble`, `mc_dropout`, `sparse_gp`).
-- `prediction_mean`: Float (predicted property value).
-- `prediction_variance`: Float (total variance).
-- `aleatoric_variance`: Float (uncertainty due to noise).
-- `epistemic_variance`: Float (uncertainty due to model).
-- `uncertainty_type`: String (enum: `aleatoric`, `epistemic`, `total`) - **Required by FR-008**.
-- `lower_bound_50`: Float (50% confidence lower).
-- `upper_bound_50`: Float (50% confidence upper).
-- `lower_bound_90`: Float (90% confidence lower).
-- `upper_bound_90`: Float (90% confidence upper).
-- `interval_width_50`: Float.
-- `interval_width_90`: Float.
-- `reconstruction_variance`: Float (specific to Sparse GP, optional for others).
+*Output of a UQ method for a single sample.*
+*   `material_id` (str)
+*   `method` (str): "ensemble", "mc_dropout", "sparse_gp".
+*   `prediction` (float): Point estimate.
+*   `lower_bound_50` (float): 50% CI lower.
+*   `upper_bound_50` (float): 50% CI upper.
+*   `lower_bound_90` (float): 90% CI lower.
+*   `upper_bound_90` (float): 90% CI upper.
+*   `variance` (float): Predictive variance.
+*   `uncertainty_type` (str): "aleatoric", "epistemic", or "total".
 
 ### CalibrationMetric
-Evaluation results for a specific method and confidence level.
-- `method`: String.
-- `confidence_level`: Float (0.5 or 0.9).
-- `ece_score`: Float.
-- `interval_score`: Float.
-- `sharpness`: Float.
-- `coverage_percentage`: Float.
+*Evaluation result for a method.*
+*   `method` (str)
+*   `metric_name` (str): "ECE", "Interval_Score_50", "Interval_Score_90", "Sharpness".
+*   `value` (float)
+* `confidence_level` (str): "50%", "[deferred]".
 
-## Data Flow
+## 3. File Specifications
 
-1. **Raw Ingestion**: `data/raw/oqmd.parquet` (or csv) -> Downloaded from verified URL.
-2. **Validation**: `code/data/validation.py` checks for nulls in targets and missing structural data. Excluded rows logged to `data/processed/exclusion_log.json`.
-3. **Feature Engineering**: `code/data/preprocess.py` computes descriptors, applies PCA (for GP), and splits data (80/10/10 stratified).
-   - Output: `data/processed/raw_train.csv`, `raw_val.csv`, `raw_test.csv`.
-4. **Model Training**: `code/models/` scripts train models. Checkpoints saved to `results/models/`.
-5. **Inference**: `code/main.py` runs inference, generates `results/uq_predictions.csv`.
-6. **Evaluation**: `code/eval/calibration.py` computes metrics, generates `results/calibration_report.csv` and `results/reliability_diagrams/*.png`.
-7. **Screening**: `code/eval/screening.py` generates `results/screening_precision.csv`.
+### `data/raw/oqmd_subset.parquet`
+*   **Source**: Hugging Face (verified URL).
+*   **Format**: Parquet.
+*   **Schema**: Matches OQMD standard (columns: `formation_energy_per_atom`, `bulk_modulus`, `band_gap`, `composition`, etc.).
 
-## Data Constraints & Hygiene
+### `data/processed/raw_train.csv`, `raw_val.csv`, `raw_test.csv`
+*   **Split**: 80/10/10 stratified by `formation_energy` quantiles.
+*   **Columns**: `material_id`, `feature_vector` (array or flattened columns), `formation_energy`, `bulk_modulus`, `band_gap`, `target_bin` (for stratification).
 
-- **Checksums**: All files in `data/raw/` must have a corresponding entry in `data/checksums.json` (SHA-256).
-- **Immutability**: Raw data is never modified. All transformations write to new files in `data/processed/`.
-- **Missing Data**: Rows with missing `formation_energy`, `bulk_modulus`, or `band_gap` are excluded. A summary is written to `validation_report.json`.
-- **Reproducibility**: All splits and random operations use a fixed seed (42, 43, 44).
+### `data/processed/pca_transformer.pkl`
+*   **Type**: Pickled `sklearn.decomposition.PCA` object.
+*   **Usage**: Transforms raw features to reduced space for Sparse GP.
+
+### `data/validation_report.json`
+*   **Schema**:
+    ```json
+    {
+      "excluded_count": 123,
+      "missing_columns": ["packing_fraction"],
+      "total_raw_rows": 50000,
+      "remaining_rows": 49877
+    }
+    ```
+
+### `results/predictions/uq_predictions_*.csv`
+*   **Columns**: `material_id`, `method`, `prediction`, `lower_bound_50`, `upper_bound_50`, `lower_bound_90`, `upper_bound_90`, `variance`, `uncertainty_type`.
+
+### `results/metrics/calibration_summary.csv`
+*   **Columns**: `method`, `metric_name`, `confidence_level`, `value`.
+
+## 4. Data Lineage & Integrity
+
+1.  **Download**: `download.py` fetches data from HF, computes SHA256 checksum, stores in `data/raw/`.
+2.  **Validation**: `validation.py` checks for nulls in targets/features, logs to `validation_report.json`, excludes bad rows.
+3.  **Split**: `preprocess.py` performs stratified split, saves CSVs.
+4.  **Transformation**: `preprocess.py` fits PCA on Train, saves to `pca_transformer.pkl`, transforms Train/Val/Test.
+5.  **Training**: Models trained on processed data, saved to `results/models/`.
+6.  **Inference**: Predictions generated, saved to `results/predictions/`.
+7.  **Evaluation**: Metrics computed from predictions and ground truth, saved to `results/metrics/`.

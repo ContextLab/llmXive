@@ -2,72 +2,85 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- Git
-- 8 GB RAM (recommended for smooth operation within 5h budget)
+*   Python 3.10+
+*   Git
+*   Access to Hugging Face Hub (no token required for public datasets)
 
 ## Installation
 
-1. **Clone and Setup Environment**
-   ```bash
-   git clone <repository-url>
-   cd projects/PROJ-764-assessing-uncertainty-quantification-tec
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r code/requirements.txt
-   ```
+1.  **Clone and Setup**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-764-assessing-uncertainty-quantification-tec
+    ```
 
-2. **Verify Data Access**
-   Ensure you have internet access to download the OQMD dataset from Hugging Face. The script will automatically download the data if `data/raw/` is empty.
+2.  **Create Virtual Environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-## Running the Pipeline
+3.  **Install Dependencies**:
+    ```bash
+    pip install -r code/requirements.txt
+    ```
+    *Note: `requirements.txt` pins versions for `torch`, `gpytorch`, `scikit-learn`, `datasets`.*
 
-### Full Pipeline (5-hour limit enforced)
-```bash
-python code/main.py
-```
-This command:
-1. Downloads and validates data.
-2. Trains Baseline, Deep Ensemble, MC Dropout, and Sparse GP models.
-3. Performs inference and generates uncertainty intervals.
-4. Computes calibration metrics and screening results (Bootstrap CI).
-5. Stops automatically if runtime exceeds 5 hours.
+## Data Download & Preprocessing
 
-### Individual Components
+Run the data pipeline to download the OQMD subset, validate, split, and transform:
 
-**Download & Preprocess Only**
 ```bash
 python code/data/download.py
+python code/data/validation.py
 python code/data/preprocess.py
 ```
 
-**Train Specific Model**
-```bash
-# Deep Ensemble
-python code/models/deep_ensemble.py --seed <random_seed>
+**Expected Outputs**:
+*   `data/raw/oqmd_subset.parquet` (Checksummed)
+*   `data/processed/raw_train.csv`, `raw_val.csv`, `raw_test.csv`
+*   `data/processed/pca_transformer.pkl`
+*   `data/validation_report.json`
 
-# Sparse GP
-python code/models/sparse_gp.py --seed
+## Training & UQ Inference
+
+Execute the full pipeline (training, inference, evaluation) with a 5-hour timeout:
+
+```bash
+# Set environment variable for timeout (optional, default is 5h)
+export PIPELINE_TIMEOUT=18000
+
+python code/main.py
 ```
 
-**Evaluate Results**
+**What this runs**:
+1.  **Baseline NN**: Trains and saves `results/models/baseline_nn_arch.pt`.
+2.  **Deep Ensemble**: Trains 5 models, saves to `results/models/ensemble/`.
+3.  **MC-Dropout**: Trains model, runs 30 passes, saves predictions.
+4.  **Sparse GP**: Fits PCA, trains GP, saves predictions.
+5.  **Evaluation**: Computes ECE, Interval Scores, and Screening Precision.
+
+**Expected Outputs**:
+*   `results/models/` (Checkpoints)
+*   `results/predictions/uq_predictions_*.csv`
+*   `results/metrics/calibration_summary.csv`
+
+## Verification
+
+Run the test suite to verify contract compliance and result integrity:
+
 ```bash
-python code/eval/calibration.py
-python code/eval/screening.py
+pytest tests/ -v
 ```
 
-## Output Artifacts
-
-After successful completion, the following files will be available:
-
-- `results/uq_predictions.csv`: Predictions with uncertainty bounds.
-- `results/calibration_report.csv`: ECE, Interval Scores, Sharpness.
-- `results/reliability_diagrams/`: PNG plots for each method.
-- `results/robustness_report.json`: Stability metrics across seeds.
-- `data/validation_report.json`: Data exclusion summary.
+**Key Checks**:
+*   Model parameter count ≤ 10,000.
+*   Prediction CSVs contain required columns.
+*   ECE values are within theoretical bounds.
+*   Screening precision > random baseline (if applicable).
 
 ## Troubleshooting
 
-- **Timeout Error**: If the pipeline fails with a timeout, reduce the dataset size in `code/data/preprocess.py` (e.g., sample a subset of rows).
-- **OQMD Download Failed**: Check internet connection. The script retries a limited number of times with exponential backoff.
-- **GP Convergence Failed**: The Sparse GP may fail if the inducing points are poorly initialized. The script falls back to standard GP or logs a warning (see `results/logs/`).
+*   **Timeout**: If the pipeline exceeds 5 hours, check `results/logs/timeout.log`. Reduce dataset size in `config.yaml` (e.g., `max_samples: 5000`).
+*   **GP Convergence**: If Sparse GP fails, check `results/logs/gp_error.log`. The pipeline will fallback to Ensemble/MC-Dropout results.
+*   **Missing Data**: Check `data/validation_report.json` for excluded rows.
