@@ -1,228 +1,298 @@
 """
-Survey application core logic for capturing and exporting participant data.
-
-This module implements the functionality required by task T022f:
-on form submission, a row is atomically appended to `data/raw/submissions.csv`
-following the schema defined in `code/survey/constants.py` (METADATA_SCHEMA).
-
-The implementation avoids any synthetic data generation and writes real
-measurements (timestamp, hashed IP, etc.) to disk.
+Streamlit Survey Application for Visual Aesthetics and Credibility Study.
+Implements US0 (Consent) and US1 (Data Collection, Randomization, Ratings).
 """
-
 import os
 import csv
 import uuid
 import hashlib
 import json
+import time
+import streamlit as st
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, Any
+import sys
 
-import streamlit as st
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-# Import helper utilities
-from utils.helpers import hash_ip, get_project_root, ensure_data_dirs
+from code.survey.constants import METADATA_SCHEMA, LATIN_SQUARE_SEQUENCES
+from code.survey.metadata import extract_metadata
+from code.survey.randomization import select_sequence, get_sequences_for_stimuli
+from code.utils.helpers import (
+    get_project_root,
+    get_submissions_csv_path,
+    hash_ip,
+    generate_user_id,
+    write_atomic,
+    get_irb_protocol_id,
+    ensure_data_dirs
+)
+from code.utils.checksums import verify_stimuli_integrity
+from code.utils.stimuli_hash import load_stored_hashes, compute_stimuli_hashes, save_stimuli_hashes
 
-# Constants module where METADATA_SCHEMA is defined
-from survey.constants import METADATA_SCHEMA
+# --- Configuration ---
+SESSION_TIMEOUT_MINUTES = int(os.getenv('SESSION_TIMEOUT_MINUTES', 30))
+ABANDONMENT_LOG_PATH = get_project_root() / "data" / "processed" / "abandonment_log.csv"
 
-# ----------------------------------------------------------------------
-# Utility functions
-# ----------------------------------------------------------------------
-def _get_submissions_csv_path() -> Path:
-    """
-    Returns the absolute path to the submissions CSV file.
-    """
-    project_root = get_project_root()
-    return project_root / "data" / "raw" / "submissions.csv"
+# --- Session State Management ---
 
-def _atomic_write_row(row: Dict[str, Any]) -> None:
-    """
-    Atomically writes a single row to the submissions CSV.
-
-    The function writes to a temporary file in the same directory and then
-    renames it to the target path, ensuring that a partially written file
-    never appears.
-
-    If the target CSV does not exist, it is created with a header derived
-    from METADATA_SCHEMA.
-    """
-    submissions_path = _get_submissions_csv_path()
-    temp_path = submissions_path.with_suffix(".tmp")
-
-    # Ensure the parent directory exists
-    submissions_path.parent.mkdir(parents=True, exist_ok=True)
-
-    file_exists = submissions_path.is_file()
-
-    # Open the temporary file for writing
-    with temp_path.open(mode="w", newline="", encoding="utf-8") as tmp_file:
-        writer = csv.DictWriter(tmp_file, fieldnames=METADATA_SCHEMA)
-        if not file_exists:
-            # Write header only if the target file does not yet exist
-            writer.writeheader()
-        else:
-            # If the file exists, copy its current contents first
-            with submissions_path.open(mode="r", newline="", encoding="utf-8") as existing_file:
-                for line in existing_file:
-                    tmp_file.write(line)
-
-        # Write the new row
-        writer.writerow(row)
-
-    # Atomically replace the old file with the new one
-    os.replace(str(temp_path), str(submissions_path))
-
-# ----------------------------------------------------------------------
-# Core Survey Functions
-# ----------------------------------------------------------------------
-def init_session_state() -> None:
-    """
-    Initializes required keys in Streamlit's session_state.
-    This function is idempotent.
-    """
-    if "participant_id" not in st.session_state:
+def init_session_state():
+    """Initialize session state variables if they don't exist."""
+    if 'participant_id' not in st.session_state:
         st.session_state.participant_id = str(uuid.uuid4())
-    if "session_start" not in st.session_state:
-        # Record the start time as an aware UTC datetime
-        st.session_state.session_start = datetime.now(timezone.utc)
+    if 'start_time' not in st.session_state:
+        st.session_state.start_time = datetime.now(timezone.utc).isoformat()
+    if 'last_activity_time' not in st.session_state:
+        st.session_state.last_activity_time = time.time()
+    if 'consent_given' not in st.session_state:
+        st.session_state.consent_given = False
+    if 'stimuli_order' not in st.session_state:
+        # Will be set after consent
+        st.session_state.stimuli_order = []
+    if 'current_stimulus_index' not in st.session_state:
+        st.session_state.current_stimulus_index = 0
+    if 'ratings' not in st.session_state:
+        st.session_state.ratings = {}
+    if 'session_ended' not in st.session_state:
+        st.session_state.session_ended = False
 
-def extract_and_validate_ip() -> str:
-    """
-    Extracts the client IP address from Streamlit's request headers and
-    validates its presence. Raises an error if the IP cannot be determined.
-    Returns the raw IP address string.
-    """
-    # Streamlit provides request context via st.experimental_get_query_params()
-    # but for IP we rely on the underlying WSGI environment.
-    ip = st.context.headers.get("X-Forwarded-For")
-    if not ip:
-        st.error("Session Rejected: Unable to verify identity.")
-        st.stop()
-    return ip
+def update_activity():
+    """Update the last activity timestamp."""
+    st.session_state.last_activity_time = time.time()
 
-def hash_participant_ip(raw_ip: str) -> str:
+def check_session_timeout():
     """
-    Hashes the participant's IP address using the PBKDF2 helper.
+    Check if the session has timed out due to inactivity.
+    Returns True if timed out, False otherwise.
+    If timed out, clears session state and logs abandonment.
     """
-    return hash_ip(raw_ip)
+    current_time = time.time()
+    last_activity = st.session_state.get('last_activity_time', current_time)
+    
+    if current_time - last_activity > (SESSION_TIMEOUT_MINUTES * 60):
+        # Session timed out
+        participant_id = st.session_state.get('participant_id', 'unknown')
+        
+        # Log abandonment BEFORE clearing state
+        log_abandonment(participant_id)
+        
+        # Clear session state (resetting the user to a fresh state or stopping them)
+        # We keep participant_id if we want to track the abandoned session, 
+        # but clear ratings and progress.
+        keys_to_clear = [
+            'consent_given', 'stimuli_order', 'current_stimulus_index', 
+            'ratings', 'session_ended'
+        ]
+        for key in keys_to_clear:
+            if key in st.session_state:
+                del st.session_state[key]
+        
+        # Reset indices
+        st.session_state.current_stimulus_index = 0
+        st.session_state.ratings = {}
+        st.session_state.consent_given = False
+        
+        # Update last activity to now to prevent immediate re-trigger if page refreshes
+        st.session_state.last_activity_time = current_time
+        
+        return True
+    
+    return False
 
-def get_browser_version() -> str:
+def log_abandonment(participant_id=None):
     """
-    Retrieves the User-Agent header and extracts a simplified browser version.
+    Log an abandoned session to data/processed/abandonment_log.csv.
+    Schema: participant_id, timestamp, reason, IRB_PROTOCOL_ID
     """
-    user_agent = st.context.headers.get("User-Agent", "unknown")
-    # Very simple extraction: take the first token before a space
-    return user_agent.split(" ")[0]
-
-def compute_session_duration_seconds() -> int:
-    """
-    Computes the session duration in seconds from the start time stored in
-    session_state.
-    """
-    start = st.session_state.get("session_start")
-    if not start:
-        return 0
-    now = datetime.now(timezone.utc)
-    return int((now - start).total_seconds())
-
-def prepare_submission_row(
-    participant_id: str,
-    age: int,
-    education: str,
-    hashed_ip: str,
-    browser_version: str,
-    session_duration: int,
-) -> Dict[str, Any]:
-    """
-    Constructs a dictionary matching METADATA_SCHEMA for a single submission.
-    """
+    if participant_id is None:
+        participant_id = st.session_state.get('participant_id', 'unknown')
+    
     timestamp = datetime.now(timezone.utc).isoformat()
-    row = {
-        "participant_id": participant_id,
-        "age": age,
-        "education": education,
-        "timestamp": timestamp,
-        "hashed_ip": hashed_ip,
-        "browser_version": browser_version,
-        "session_duration": session_duration,
-    }
-    # Ensure the row contains exactly the keys defined in the schema
-    missing = set(METADATA_SCHEMA) - set(row.keys())
-    if missing:
-        raise ValueError(f"Missing required fields for submission: {missing}")
-    return row
+    reason = 'session_timeout'
+    irb_protocol_id = get_irb_protocol_id()
+    
+    # Ensure directory exists
+    ensure_data_dirs()
+    
+    file_path = ABANDONMENT_LOG_PATH
+    fieldnames = ['participant_id', 'timestamp', 'reason', 'IRB_PROTOCOL_ID']
+    
+    file_exists = os.path.exists(file_path)
+    
+    with open(file_path, mode='a', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        if not file_exists:
+            writer.writeheader()
+        
+        writer.writerow({
+            'participant_id': participant_id,
+            'timestamp': timestamp,
+            'reason': reason,
+            'IRB_PROTOCOL_ID': irb_protocol_id
+        })
 
-def submit_survey(age: int, education: str) -> None:
-    """
-    Handles the final submission of the survey.
+# --- UI Components ---
 
-    This function:
-    1. Retrieves the participant ID from session_state.
-    2. Extracts and hashes the IP address.
-    3. Determines the browser version.
-    4. Calculates the session duration.
-    5. Writes the data atomically to `data/raw/submissions.csv`.
-    6. Triggers any downstream side‑effects (e.g., checksum updates) via
-       helpers if they are registered elsewhere.
-    """
-    # Ensure session state is initialized
-    init_session_state()
+def render_consent_modal():
+    """Display the IRB-approved consent form."""
+    st.title("Informed Consent")
+    st.markdown("### Participation in Visual Aesthetics and Credibility Study")
+    
+    # Load IRB text
+    try:
+        from code.utils.config import load_consent_text
+        consent_text = load_consent_text()
+    except Exception as e:
+        st.error(f"Error loading consent text: {e}")
+        st.stop()
+    
+    st.info(consent_text)
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("I Agree", key="consent_agree"):
+            st.session_state.consent_given = True
+            # Initialize stimuli order upon consent
+            stimuli_files = ['professional.html', 'minimalist.html', 'low_quality.html', 'neutral.html']
+            st.session_state.stimuli_order = select_sequence(stimuli_files)
+            st.rerun()
+    
+    with col2:
+        if st.button("I Do Not Agree", key="consent_disagree"):
+            # Redirect to withdrawal page
+            st.switch_page("code/survey/withdrawal.py")
 
-    participant_id = st.session_state.participant_id
-    raw_ip = extract_and_validate_ip()
-    hashed_ip = hash_participant_ip(raw_ip)
-    browser_version = get_browser_version()
-    session_duration = compute_session_duration_seconds()
+def render_stimulus(stimulus_file_path):
+    """Render the HTML stimulus."""
+    if not os.path.exists(stimulus_file_path):
+        st.error(f"Stimulus file not found: {stimulus_file_path}")
+        st.stop()
+    
+    with open(stimulus_file_path, 'r', encoding='utf-8') as f:
+        html_content = f.read()
+    
+    st.markdown(html_content, unsafe_allow_html=True)
 
-    # Build the row according to the schema
-    row = prepare_submission_row(
-        participant_id=participant_id,
-        age=age,
-        education=education,
-        hashed_ip=hashed_ip,
-        browser_version=browser_version,
-        session_duration=session_duration,
-    )
-
-    # Perform the atomic write
-    _atomic_write_row(row)
-
-    st.success("Thank you! Your responses have been recorded.")
-    # Optionally, advance to the next page or display a thank‑you message
-    # st.switch_page("thank_you.py")  # Placeholder for actual navigation
-
-# ----------------------------------------------------------------------
-# Streamlit UI Flow (simplified for the purpose of this task)
-# ----------------------------------------------------------------------
-def main() -> None:
-    """
-    Minimal Streamlit app demonstrating the capture and export workflow.
-    In the full application other steps (consent, stimulus rendering, etc.)
-    are executed before reaching this point.
-    """
-    st.title("Demographic Survey")
-
-    # Initialise session state (participant ID, start time, etc.)
-    init_session_state()
-
-    # Simple demographic form
-    with st.form(key="demographics_form"):
-        age = st.number_input("Age", min_value=0, max_value=120, step=1)
-        education = st.selectbox(
-            "Highest level of education",
-            options=["High School", "Bachelor's", "Master's", "PhD", "Other"],
+def render_rating_form(stimulus_name, stimulus_index):
+    """Render Likert scale inputs for Credibility and Professionalism."""
+    st.subheader(f"Stimulus {stimulus_index + 1}: {stimulus_name.replace('.html', '').title()}")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        credibility = st.radio(
+            "Rate Credibility (1=Very Low, 7=Very High)",
+            options=[1, 2, 3, 4, 5, 6, 7],
+            key=f"cred_{stimulus_name}",
+            horizontal=True
         )
-        submitted = st.form_submit_button(label="Submit")
+    
+    with col2:
+        professionalism = st.radio(
+            "Rate Professionalism (1=Very Low, 7=Very High)",
+            options=[1, 2, 3, 4, 5, 6, 7],
+            key=f"prof_{stimulus_name}",
+            horizontal=True
+        )
+    
+    return credibility, professionalism
 
-        if submitted:
-            # Validate inputs before submission
-            if age == 0 or not education:
-                st.error("Please provide both age and education.")
-            else:
-                submit_survey(age=int(age), education=education)
+def submit_survey_data():
+    """Collect all ratings and demographic metadata, then save to CSV."""
+    # Verify all stimuli rated
+    stimuli_files = ['professional.html', 'minimalist.html', 'low_quality.html', 'neutral.html']
+    required_keys = [f"cred_{s}" for s in stimuli_files] + [f"prof_{s}" for s in stimuli_files]
+    
+    if not all(k in st.session_state for k in required_keys):
+        st.warning("Please rate all stimuli before submitting.")
+        return False
+    
+    # Extract metadata
+    metadata = extract_metadata(st.session_state.participant_id)
+    
+    # Compile row
+    row = {
+        'participant_id': st.session_state.participant_id,
+        'age': metadata['age'],
+        'education': metadata['education'],
+        'timestamp': datetime.now(timezone.utc).isoformat(),
+        'hashed_ip': metadata['hashed_ip'],
+        'browser_version': metadata['browser_version'],
+        'session_start_time': metadata['session_start_time'],
+        'stimulus_id': ','.join([s.replace('.html', '') for s in st.session_state.stimuli_order]),
+        'credibility_rating': ','.join([str(st.session_state[f"cred_{s}"]) for s in stimuli_files]),
+        'professionalism_rating': ','.join([str(st.session_state[f"prof_{s}"]) for s in stimuli_files])
+    }
+    
+    # Write atomically
+    try:
+        write_atomic(get_submissions_csv_path(), row, fieldnames=METADATA_SCHEMA.keys())
+        st.success("Survey submitted successfully! Thank you for your participation.")
+        st.session_state.session_ended = True
+        return True
+    except Exception as e:
+        st.error(f"Error saving data: {e}")
+        return False
+
+# --- Main Logic ---
+
+def main():
+    """Main entry point for the Streamlit app."""
+    init_session_state()
+    
+    # Update activity on every render
+    update_activity()
+    
+    # Check for timeout
+    if check_session_timeout():
+        st.warning("Your session has timed out due to inactivity. Please start over.")
+        st.stop()
+    
+    # Render Consent if not given
+    if not st.session_state.consent_given:
+        render_consent_modal()
+        return
+    
+    # Verify Stimulus Integrity
+    # (Assuming T070 has run and populated state/stimuli_hashes.json)
+    # If hashes mismatch, halt.
+    try:
+        verify_stimuli_integrity()
+    except Exception as e:
+        st.error(f"Stimulus integrity check failed: {e}")
+        st.stop()
+    
+    # Render Stimuli Loop
+    stimuli_order = st.session_state.stimuli_order
+    current_idx = st.session_state.current_stimulus_index
+    
+    if current_idx < len(stimuli_order):
+        current_stimulus = stimuli_order[current_idx]
+        stimulus_path = get_project_root() / "code" / "stimuli" / current_stimulus
+        
+        render_stimulus(str(stimulus_path))
+        
+        cred, prof = render_rating_form(current_stimulus, current_idx)
+        
+        if st.button("Next Stimulus", key="btn_next"):
+            st.session_state.ratings[current_stimulus] = {'cred': cred, 'prof': prof}
+            st.session_state.current_stimulus_index += 1
+            st.rerun()
+    else:
+        # All stimuli rated
+        st.header("Submit Survey")
+        st.write("Please review your responses and submit.")
+        
+        # Display summary (optional)
+        for i, stim in enumerate(stimuli_order):
+            st.write(f"{stim}: Credibility {st.session_state.ratings[stim]['cred']}, Professionalism {st.session_state.ratings[stim]['prof']}")
+        
+        if st.button("Submit Survey", key="btn_submit"):
+            if submit_survey_data():
+                st.rerun()
 
 if __name__ == "__main__":
-    # Running the module directly launches the Streamlit UI.
-    # In production the app is launched via `streamlit run code/survey/app.py`
     main()

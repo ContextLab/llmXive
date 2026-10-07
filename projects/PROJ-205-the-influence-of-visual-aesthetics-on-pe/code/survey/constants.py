@@ -1,83 +1,90 @@
 """
-Constants for the survey application.
-Defines schemas, stimuli lists, and experimental design parameters.
+Survey Constants Module.
+
+Defines fixed constants for the survey application, including
+metadata schema and Latin Square sequences.
 """
 import os
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+# Project root
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
-# Stimuli List (Order matters for Latin Square generation)
-# These correspond to the HTML files in code/stimuli/
-STEIMULI_LIST = [
-    "professional",
-    "minimalist",
-    "low_quality",
-    "neutral"
-]
-
-# Metadata Schema for CSV export
-# Defines the columns and validation rules for data/raw/submissions.csv
-# This schema is used by code/survey/app.py to validate and export data.
+# Metadata Schema Definition (T069a)
+# Explicitly defines columns for data export and analysis.
+# browser_version and session_start_time are system-derived, not form inputs.
 METADATA_SCHEMA = {
     "participant_id": {
-        "type": "string",
-        "format": "UUID4",
-        "description": "Unique identifier for the participant (UUID v4)",
+        "type": "str",
+        "description": "Unique UUID v4 for the participant",
         "required": True
     },
     "age": {
-        "type": "integer",
-        "min_value": 18,
-        "max_value": 120,
+        "type": "int",
         "description": "Participant age in years",
         "required": True
     },
     "education": {
-        "type": "string",
-        "options": [
-            "Less than High School",
-            "High School Graduate",
-            "Some College",
-            "Associate Degree",
-            "Bachelor's Degree",
-            "Master's Degree",
-            "Doctoral Degree",
-            "Professional Degree"
-        ],
-        "description": "Highest level of education completed",
+        "type": "str",
+        "description": "Education level (categorical)",
         "required": True
     },
     "timestamp": {
-        "type": "string",
-        "format": "ISO8601",
-        "description": "Submission timestamp in ISO 8601 format",
+        "type": "str",
+        "description": "ISO8601 timestamp of submission",
         "required": True
     },
     "hashed_ip": {
-        "type": "string",
-        "description": "PBKDF2-SHA256 hash of the participant's IP address",
+        "type": "str",
+        "description": "PBKDF2-SHA256 hash of participant IP",
         "required": True
     },
     "browser_version": {
-        "type": "string",
-        "description": "Extracted browser name and version from User-Agent",
+        "type": "str",
+        "description": "Extracted browser version from User-Agent header",
         "required": True
     },
-    "session_duration": {
-        "type": "integer",
-        "description": "Session duration in seconds (calculated from start to submit)",
+    "session_start_time": {
+        "type": "str",
+        "description": "ISO8601 timestamp of session start (system-derived)",
+        "required": True
+    },
+    "stimulus_id": {
+        "type": "str",
+        "description": "Identifier for the stimulus being rated (required for analysis)",
         "required": True
     }
 }
 
-# Latin Square Sequences (Hardcoded for reproducibility)
-# A balanced Latin Square for 4 items (A, B, C, D)
-# Each stimulus appears exactly once in each position across the 4 sequences.
-# Sequences are generated based on participant_id modulo 4.
+# Latin Square Sequences (T028e)
+# 4 conditions: professional, minimalist, low_quality, neutral
+# Balanced design where each condition appears exactly once in each position
 LATIN_SQUARE_SEQUENCES = [
-    ["professional", "minimalist", "low_quality", "neutral"],
-    ["minimalist", "low_quality", "neutral", "professional"],
-    ["low_quality", "neutral", "professional", "minimalist"],
-    ["neutral", "professional", "minimalist", "low_quality"]
+    ['professional', 'minimalist', 'low_quality', 'neutral'],
+    ['minimalist', 'neutral', 'professional', 'low_quality'],
+    ['low_quality', 'professional', 'neutral', 'minimalist'],
+    ['neutral', 'low_quality', 'minimalist', 'professional']
 ]
+
+# Session timeout (minutes)
+SESSION_TIMEOUT_MINUTES = 30
+
+# Stimuli file mapping
+STIMULI_FILES = {
+    'professional': 'professional.html',
+    'minimalist': 'minimalist.html',
+    'low_quality': 'low_quality.html',
+    'neutral': 'neutral.html'
+}
+
+# Likert scale options
+LIKERT_OPTIONS = [1, 2, 3, 4, 5, 6, 7]
+LIKERT_LABELS = {
+    1: "Very Low",
+    2: "Low",
+    3: "Somewhat Low",
+    4: "Neutral",
+    5: "Somewhat High",
+    6: "High",
+    7: "Very High"
+}

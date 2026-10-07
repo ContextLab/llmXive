@@ -1,355 +1,217 @@
 """
 Preprocessing script for the Visual Aesthetics Credibility Study.
 
-This script:
-1. Verifies the integrity of the raw submissions CSV using checksums (T057).
-2. Loads and validates the raw data.
-3. Cleans and transforms the data (type casting, missing value handling).
-4. Outputs a clean dataset and audit logs.
-"""
+This script loads raw survey submissions, verifies data integrity via checksums,
+cleans the data (type casting, filtering), and exports a clean dataset for analysis.
 
+Output: data/processed/clean_data.csv
+"""
 import os
 import sys
 import csv
 import json
+import argparse
 from pathlib import Path
 from datetime import datetime
-import logging
 
 # Add project root to path for imports
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from utils.checksums import (
-    FileChecksumError,
-    verify_submissions_integrity,
-    get_checksum_store_path,
-    load_checksums,
-    store_data_checksum
-)
-from utils.helpers import (
-    get_project_root,
-    get_submissions_csv_path,
-    ensure_data_dirs,
-    get_excluded_audit_path
-)
+from utils.checksums import verify_checksum, FileChecksumError, get_project_root, get_checksum_store_path
+from utils.helpers import get_submissions_csv_path, get_cleaned_csv_path, ensure_data_dirs
+from utils.helpers import set_reproducibility_seed
+from dotenv import load_dotenv
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout)
-    ]
-)
-logger = logging.getLogger(__name__)
+# Load environment variables for seed
+load_dotenv()
 
-class FileNotFoundError(Exception):
-    """Custom exception for missing input files."""
-    pass
-
-def get_cleaned_csv_path() -> Path:
-    """Returns the path to the cleaned CSV output."""
-    return get_project_root() / "data" / "processed" / "clean_data.csv"
-
-def load_raw_data(input_path: Path) -> list:
+def load_raw_data(input_path: str):
     """
-    Loads the raw CSV data from disk.
-
+    Load raw CSV data from the specified path.
+    
     Args:
-        input_path: Path to the raw submissions CSV.
-
+        input_path (str): Path to the raw submissions CSV.
+        
     Returns:
-        A list of dictionaries representing the rows.
-
-    Raises:
-        FileNotFoundError: If the input file does not exist.
+        list[dict]: List of rows as dictionaries.
     """
-    if not input_path.exists():
+    if not os.path.exists(input_path):
         raise FileNotFoundError(f"Input file not found: {input_path}")
-
-    logger.info(f"Loading raw data from {input_path}...")
-    data = []
-    with open(input_path, 'r', newline='', encoding='utf-8') as f:
+    
+    with open(input_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
-        for row in reader:
-            data.append(row)
-
+        data = list(reader)
+    
     if not data:
-        logger.warning("Raw data file is empty.")
-    else:
-        logger.info(f"Loaded {len(data)} rows.")
-
+        raise ValueError("Input file is empty or contains no data rows.")
+    
     return data
 
-def validate_and_filter(rows: list) -> tuple:
+def validate_and_filter(data: list[dict]) -> list[dict]:
     """
-    Validates rows and filters out invalid entries.
-
-    Logic:
-    - Drop rows with missing 'participant_id' or 'stimulus_id'.
-    - Cast 'age' to integer (drop if invalid).
+    Validate data types and filter out invalid rows.
+    
+    Requirements:
+    - Cast 'age' to integer.
     - Cast 'education' to string.
-    - Cast 'ratings' (if present as a column) to float.
-    - Rename columns to snake_case if needed (e.g., 'Participant ID' -> 'participant_id').
-
+    - Cast rating columns to float.
+    - Drop rows with missing 'participant_id' or 'stimulus_id'.
+    
     Args:
-        rows: List of row dictionaries.
-
+        data (list[dict]): Raw data rows.
+        
     Returns:
-        Tuple of (cleaned_rows, excluded_rows).
+        list[dict]: Cleaned and validated data rows.
     """
-    cleaned = []
-    excluded = []
-    excluded_reasons = []
-
-    # Define expected core columns based on schema (T069)
-    # We handle potential casing variations
-    def normalize_key(k):
-        return k.lower().replace(' ', '_').replace('-', '_')
-
-    for i, row in enumerate(rows):
-        normalized_row = {normalize_key(k): v for k, v in row.items()}
-        
-        # Check for required fields
-        pid = normalized_row.get('participant_id')
-        sid = normalized_row.get('stimulus_id')
-
-        if not pid or not sid:
-            excluded.append(row)
-            excluded_reasons.append({
-                'row_index': i,
-                'reason': 'Missing participant_id or stimulus_id',
-                'data': row
-            })
+    cleaned_data = []
+    invalid_count = 0
+    required_columns = ['participant_id', 'stimulus_id', 'age', 'education', 
+                        'credibility_rating', 'professionalism_rating']
+    
+    for row in data:
+        # Check required columns exist and are not empty
+        if not row.get('participant_id') or not row.get('stimulus_id'):
+            invalid_count += 1
             continue
-
-        # Type casting and validation
-        valid_row = True
         
-        # Age: Cast to int
-        if 'age' in normalized_row and normalized_row['age']:
-            try:
-                normalized_row['age'] = int(normalized_row['age'])
-            except (ValueError, TypeError):
-                # If age is invalid, we might exclude or impute. 
-                # Per task: "Drop rows with missing...". Let's exclude invalid age.
-                excluded.append(row)
-                excluded_reasons.append({
-                    'row_index': i,
-                    'reason': f"Invalid age value: {normalized_row['age']}",
-                    'data': row
-                })
-                valid_row = False
-        
-        # Education: Ensure string
-        if 'education' in normalized_row:
-            normalized_row['education'] = str(normalized_row['education'])
-        
-        # Ratings: If it's a single column, cast to float. 
-        # If it's multiple (e.g., credibility, professionalism), we handle later.
-        # Assuming 'ratings' might be a JSON string or a single value in some schemas.
-        # If the schema uses specific rating columns (credibility_rating, professionalism_rating),
-        # we leave them as strings for now and let downstream handle, or cast if numeric.
-        # Task says "cast ratings to float". We'll check for a generic 'ratings' column.
-        if 'ratings' in normalized_row and normalized_row['ratings']:
-            try:
-                # Try to parse as float if it's a single value
-                normalized_row['ratings'] = float(normalized_row['ratings'])
-            except (ValueError, TypeError):
-                # Might be a JSON string or multiple values. 
-                # We will keep as string if it fails, but log it.
-                pass
-
-        if valid_row:
-            cleaned.append(normalized_row)
-
-    logger.info(f"Validated {len(rows)} rows. Kept {len(cleaned)}, excluded {len(excluded)}.")
-    return cleaned, excluded, excluded_reasons
-
-def reshape_to_wide_data(clean_rows: list) -> list:
-    """
-    Reshapes the long-format clean data into wide format for analysis.
-    Each participant becomes one row, with columns for each stimulus condition.
-
-    Input: List of dicts where each row is a single stimulus rating for a participant.
-    Output: List of dicts where each row is a participant with pivoted columns.
-    """
-    if not clean_rows:
-        return []
-
-    # Group by participant_id
-    participants = {}
-    for row in clean_rows:
-        pid = row.get('participant_id')
-        if pid not in participants:
-            participants[pid] = {
-                'participant_id': pid,
-                'age': row.get('age'),
-                'education': row.get('education'),
-                'stimuli': {}
+        try:
+            # Type casting
+            # Age must be integer
+            age = int(row['age'])
+            if age < 0 or age > 120:
+                invalid_count += 1
+                continue
+            
+            # Education is string (keep as is)
+            education = str(row['education'])
+            
+            # Ratings must be float
+            credibility = float(row['credibility_rating'])
+            professionalism = float(row['professionalism_rating'])
+            
+            # Construct cleaned row
+            cleaned_row = {
+                'participant_id': row['participant_id'],
+                'stimulus_id': row['stimulus_id'],
+                'age': age,
+                'education': education,
+                'timestamp': row.get('timestamp', ''),
+                'hashed_ip': row.get('hashed_ip', ''),
+                'browser_version': row.get('browser_version', ''),
+                'session_start_time': row.get('session_start_time', ''),
+                'credibility_rating': credibility,
+                'professionalism_rating': professionalism
             }
-        
-        # Collect stimulus specific data
-        sid = row.get('stimulus_id')
-        if sid:
-            participants[pid]['stimuli'][sid] = {
-                'credibility': row.get('credibility_rating'),
-                'professionalism': row.get('professionalism_rating'),
-                'timestamp': row.get('timestamp')
-            }
+            cleaned_data.append(cleaned_row)
+            
+        except (ValueError, TypeError) as e:
+            # Skip rows with invalid data types
+            invalid_count += 1
+            continue
     
-    wide_rows = []
-    for pid, data in participants.items():
-        wide_row = {
-            'participant_id': pid,
-            'age': data['age'],
-            'education': data['education']
-        }
-        
-        # Pivot stimuli
-        for stim, vals in data['stimuli'].items():
-            wide_row[f'{stim}_credibility'] = vals['credibility']
-            wide_row[f'{stim}_professionalism'] = vals['professionalism']
-            wide_row[f'{stim}_timestamp'] = vals['timestamp']
-        
-        wide_rows.append(wide_row)
+    if invalid_count > 0:
+        print(f"Warning: {invalid_count} rows were dropped due to invalid data.")
     
-    logger.info(f"Reshaped data to wide format: {len(wide_rows)} participants.")
-    return wide_rows
+    return cleaned_data
 
-def generate_audit_log(excluded_data: list, excluded_reasons: list, output_path: Path):
-    """Writes the audit log for excluded rows."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+def write_outputs(cleaned_data: list[dict], output_path: str):
+    """
+    Write cleaned data to CSV.
+    
+    Args:
+        cleaned_data (list[dict]): Data to write.
+        output_path (str): Path to output CSV.
+    """
+    if not cleaned_data:
+        raise ValueError("No data to write. Output cannot be empty.")
+    
+    ensure_data_dirs(output_path)
+    
+    fieldnames = [
+        'participant_id', 'stimulus_id', 'age', 'education',
+        'timestamp', 'hashed_ip', 'browser_version', 'session_start_time',
+        'credibility_rating', 'professionalism_rating'
+    ]
+    
     with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=['row_index', 'reason', 'data'])
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        for entry in excluded_reasons:
-            # Serialize data back to string for CSV
-            data_str = json.dumps(entry['data'])
-            writer.writerow({
-                'row_index': entry['row_index'],
-                'reason': entry['reason'],
-                'data': data_str
-            })
-    logger.info(f"Audit log written to {output_path}")
-
-def write_outputs(clean_data: list, wide_data: list, clean_output_path: Path, wide_output_path: Path = None):
-    """Writes the cleaned and wide data to CSV files."""
-    clean_output_path.parent.mkdir(parents=True, exist_ok=True)
+        writer.writerows(cleaned_data)
     
-    # Write long-format clean data
-    if clean_data:
-        with open(clean_output_path, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=clean_data[0].keys())
-            writer.writeheader()
-            writer.writerows(clean_data)
-        logger.info(f"Clean data (long format) written to {clean_output_path}")
-    else:
-        # Write empty file with headers if possible, or just touch
-        with open(clean_output_path, 'w') as f:
-            f.write("")
-        logger.warning("No clean data to write.")
-
-    if wide_data and wide_output_path:
-        wide_output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(wide_output_path, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=wide_data[0].keys())
-            writer.writeheader()
-            writer.writerows(wide_data)
-        logger.info(f"Wide format data written to {wide_output_path}")
+    print(f"Clean data written to: {output_path}")
 
 def main():
-    """Main execution entry point."""
-    logger.info("Starting preprocessing pipeline...")
-
-    # 1. Verify Checksums (T057 Dependency)
+    """Main entry point for preprocessing."""
+    parser = argparse.ArgumentParser(description="Preprocess survey data.")
+    parser.add_argument("--input", type=str, default=None,
+                        help="Path to raw submissions CSV. Defaults to project default.")
+    parser.add_argument("--output", type=str, default=None,
+                        help="Path to output clean CSV. Defaults to project default.")
+    parser.add_argument("--seed", type=int, default=None,
+                        help="Random seed for reproducibility.")
+    
+    args = parser.parse_args()
+    
+    # Set seed if provided or from env
+    seed = args.seed if args.seed is not None else int(os.getenv('RANDOM_SEED', 42))
+    set_reproducibility_seed(seed)
+    
+    # Resolve paths
+    input_path = args.input if args.input else str(get_submissions_csv_path())
+    output_path = args.output if args.output else str(get_cleaned_csv_path())
+    
+    # Ensure output directory exists
+    ensure_data_dirs(output_path)
+    
+    print(f"Loading data from {input_path}...")
+    
+    # 1. Verify Checksum
+    # The task requires calling verify_checksum from code/utils/checksums.py
+    # We verify the input file against the stored checksum
     try:
-        logger.info("Verifying data integrity checksums...")
-        # This function raises FileChecksumError if mismatch
-        verify_submissions_integrity()
-        logger.info("Checksum verification passed.")
+        verify_checksum(input_path)
+        print("Checksum verification passed.")
     except FileChecksumError as e:
-        logger.error(f"Data integrity check failed: {e}")
-        raise
-    except Exception as e:
-        # If checksum file doesn't exist yet, this might fail. 
-        # In a real run, T057 should have created it.
-        # If we are running for the first time with mock data, we might need to handle this.
-        # However, per spec, we must fail loudly if checksums don't match.
-        # If the file is missing, we assume it's a first run and we will generate it after processing?
-        # No, T057 says "verify ... before processing".
-        # If the file is missing, we can't verify. We should probably generate it for the raw file first?
-        # But T057 logic is: verify against stored.
-        # Let's assume if the store is missing, we compute and store it for the raw file now, 
-        # then proceed. If it exists and mismatches, we raise.
-        if "No checksums found" in str(e) or "File not found" in str(e):
-            logger.warning("No existing checksums found. Computing initial checksum for raw data...")
-            # We need to access the raw file path
-            raw_path = get_submissions_csv_path()
-            if raw_path.exists():
-                from utils.checksums import compute_sha256, store_data_checksum
-                checksum = compute_sha256(raw_path)
-                store_data_checksum(raw_path, checksum)
-                logger.info(f"Initial checksum stored: {checksum}")
-            else:
-                raise FileNotFoundError(f"Raw submissions file not found: {raw_path}")
+        print(f"ERROR: Checksum verification failed: {e}")
+        print("Raw data integrity compromised. Aborting preprocessing.")
+        sys.exit(1)
+    except FileNotFoundError as e:
+        # If checksum file doesn't exist, we might be in a fresh run without checksums yet.
+        # However, per T057b, checksums should be saved after T022f.
+        # If this is the first run and no checksums exist, we might need to handle gracefully
+        # or fail loudly if the spec requires it.
+        # Given the strict "fail loudly" constraint on data integrity:
+        if os.path.exists(get_checksum_store_path()):
+            print(f"ERROR: Checksum file exists but verification failed or input missing: {e}")
+            sys.exit(1)
         else:
-            raise
+            # No checksum file found. This implies data was not saved with checksums.
+            # This is a violation of T057b/T022f contract.
+            print("ERROR: No checksum file found. Raw data integrity cannot be verified.")
+            print("This indicates a failure in the data collection pipeline (T057b).")
+            sys.exit(1)
 
     # 2. Load Raw Data
-    raw_path = get_submissions_csv_path()
     try:
-        raw_data = load_raw_data(raw_path)
+        raw_data = load_raw_data(input_path)
     except FileNotFoundError as e:
-        logger.error(str(e))
-        # If no data exists, create an empty clean file to allow downstream to run (or fail gracefully)
-        clean_path = get_cleaned_csv_path()
-        clean_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(clean_path, 'w') as f:
-            f.write("")
-        logger.warning("No raw data found. Created empty clean_data.csv.")
-        return
-
-    if not raw_data:
-        logger.warning("Raw data is empty. Creating empty clean_data.csv.")
-        clean_path = get_cleaned_csv_path()
-        clean_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(clean_path, 'w') as f:
-            f.write("")
-        return
-
+        print(f"ERROR: {e}")
+        sys.exit(1)
+    
     # 3. Validate and Filter
-    clean_data, excluded_data, excluded_reasons = validate_and_filter(raw_data)
-
-    # 4. Generate Audit Log
-    audit_path = get_excluded_audit_path()
-    if excluded_data:
-        generate_audit_log(excluded_data, excluded_reasons, audit_path)
-
-    # 5. Reshape to Wide (for ANOVA/Mixed Effects)
-    wide_data = reshape_to_wide_data(clean_data)
-
-    # 6. Write Outputs
-    clean_csv_path = get_cleaned_csv_path()
-    wide_csv_path = get_project_root() / "data" / "processed" / "wide_data.csv"
+    print("Validating and filtering data...")
+    cleaned_data = validate_and_filter(raw_data)
     
-    write_outputs(clean_data, wide_data, clean_csv_path, wide_csv_path)
-
-    # 7. Store Checksum for Clean Data (for downstream verification)
-    # T024b will verify this
-    from utils.checksums import compute_sha256, store_data_checksum
-    clean_checksum = compute_sha256(clean_csv_path)
-    # We store it with a key indicating it's the cleaned data
-    checksum_store_path = get_checksum_store_path()
-    checksums = load_checksums()
-    checksums['clean_data'] = clean_checksum
-    with open(checksum_store_path, 'w') as f:
-        json.dump(checksums, f, indent=2)
+    if not cleaned_data:
+        print("ERROR: No valid data rows found after cleaning.")
+        sys.exit(1)
     
-    logger.info("Preprocessing completed successfully.")
-    logger.info(f"Clean data rows: {len(clean_data)}")
-    logger.info(f"Wide data participants: {len(wide_data)}")
+    # 4. Write Output
+    print(f"Writing cleaned data to {output_path}...")
+    write_outputs(cleaned_data, output_path)
+    
+    print("Preprocessing complete.")
 
 if __name__ == "__main__":
     main()

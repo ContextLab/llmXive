@@ -1,111 +1,76 @@
 """
-Unit tests for the Metadata Schema defined in code/survey/constants.py.
-Verifies that the schema structure is correct and CSV headers match the definition.
-"""
-import os
-import sys
-import csv
-import tempfile
-import uuid
-from datetime import datetime
+Unit tests for Metadata Schema (T069).
 
-import pytest
+Tests ensure that METADATA_SCHEMA is defined correctly and matches
+the exported CSV columns.
+"""
+import sys
+from pathlib import Path
 
 # Add project root to path
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-sys.path.insert(0, project_root)
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from code.survey.constants import METADATA_SCHEMA
 
 
-def test_schema_definitions_exist():
-    """Verify that the METADATA_SCHEMA constant is populated with expected keys."""
+def test_metadata_schema_defined():
+    """Test that METADATA_SCHEMA is defined."""
+    assert METADATA_SCHEMA is not None
     assert isinstance(METADATA_SCHEMA, dict)
-    required_keys = [
-        "participant_id", "age", "education", "timestamp",
-        "hashed_ip", "browser_version", "session_duration"
+
+
+def test_metadata_schema_has_required_fields():
+    """Test that METADATA_SCHEMA contains all required fields."""
+    required_fields = [
+        "participant_id",
+        "age",
+        "education",
+        "timestamp",
+        "hashed_ip",
+        "browser_version",
+        "session_start_time",
+        "stimulus_id"
     ]
-    for key in required_keys:
-        assert key in METADATA_SCHEMA, f"Missing required schema key: {key}"
-        assert "type" in METADATA_SCHEMA[key], f"Missing 'type' for {key}"
-        assert "description" in METADATA_SCHEMA[key], f"Missing 'description' for {key}"
+    
+    for field in required_fields:
+        assert field in METADATA_SCHEMA, f"Missing required field: {field}"
 
 
-def test_csv_headers_match_schema():
-    """
-    Verify that the headers in a generated CSV match the METADATA_SCHEMA keys.
-    This simulates the export logic from code/survey/app.py.
-    """
-    # Define the expected headers based on the schema keys
-    expected_headers = list(METADATA_SCHEMA.keys())
-
-    # Create a temporary CSV file with sample data matching the schema
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=expected_headers)
-        writer.writeheader()
-
-        # Write one valid row
-        sample_row = {
-            "participant_id": str(uuid.uuid4()),
-            "age": 25,
-            "education": "Bachelor's Degree",
-            "timestamp": datetime.utcnow().isoformat(),
-            "hashed_ip": "a1b2c3d4e5f6...",
-            "browser_version": "Chrome/120.0",
-            "session_duration": 145
-        }
-        writer.writerow(sample_row)
-        temp_path = f.name
-
-    try:
-        # Read the file back and verify headers
-        with open(temp_path, 'r', newline='') as f:
-            reader = csv.DictReader(f)
-            actual_headers = reader.fieldnames
-
-            # Assert headers match exactly
-            assert set(actual_headers) == set(expected_headers), (
-                f"CSV headers mismatch.\n"
-                f"Expected: {expected_headers}\n"
-                f"Actual: {actual_headers}"
+def test_metadata_schema_field_types():
+    """Test that METADATA_SCHEMA fields have correct type annotations."""
+    expected_types = {
+        "participant_id": "str",
+        "age": "int",
+        "education": "str",
+        "timestamp": "str",
+        "hashed_ip": "str",
+        "browser_version": "str",
+        "session_start_time": "str",
+        "stimulus_id": "str"
+    }
+    
+    for field, expected_type in expected_types.items():
+        if field in METADATA_SCHEMA:
+            actual_type = METADATA_SCHEMA[field].get("type", "")
+            assert actual_type == expected_type, (
+                f"Field {field} has type {actual_type}, expected {expected_type}"
             )
 
-            # Verify the row data matches the types defined in the schema
-            for row in reader:
-                # Check participant_id is a string (UUID)
-                assert isinstance(row['participant_id'], str)
-                # Check age is parsable as int
-                assert int(row['age']) == sample_row['age']
-                # Check session_duration is parsable as int
-                assert int(row['session_duration']) == sample_row['session_duration']
-    finally:
-        os.unlink(temp_path)
 
-
-def test_schema_field_types():
-    """Verify that schema field types are correctly defined."""
-    # Check specific type definitions
-    assert METADATA_SCHEMA['age']['type'] == 'integer'
-    assert METADATA_SCHEMA['age']['min_value'] == 18
-    assert METADATA_SCHEMA['age']['max_value'] == 120
-
-    assert METADATA_SCHEMA['education']['type'] == 'string'
-    assert isinstance(METADATA_SCHEMA['education']['options'], list)
-
-    assert METADATA_SCHEMA['timestamp']['type'] == 'string'
-    assert METADATA_SCHEMA['timestamp']['format'] == 'ISO8601'
-
-    assert METADATA_SCHEMA['session_duration']['type'] == 'integer'
-    assert METADATA_SCHEMA['session_duration']['required'] is True
-
-    assert METADATA_SCHEMA['browser_version']['type'] == 'string'
-    assert METADATA_SCHEMA['browser_version']['required'] is True
-
-def test_schema_completeness():
-    """Ensure all required fields have validation constraints."""
-    for field_name, field_def in METADATA_SCHEMA.items():
-        if field_def.get('required', False):
-            assert 'type' in field_def, f"Required field {field_name} missing type"
-            if field_def['type'] == 'integer':
-                assert 'min_value' in field_def or 'max_value' in field_def, \
-                    f"Integer field {field_name} should have range constraints"
+def test_csv_columns_match_schema():
+    """Test that CSV columns match the schema definition."""
+    # This test verifies the schema matches what we expect to export
+    expected_columns = list(METADATA_SCHEMA.keys())
+    
+    # Verify we have the expected number of columns
+    assert len(expected_columns) == 8, f"Expected 8 columns, got {len(expected_columns)}"
+    
+    # Verify specific columns exist
+    assert "participant_id" in expected_columns
+    assert "browser_version" in expected_columns
+    assert "session_start_time" in expected_columns
+    assert "stimulus_id" in expected_columns
+    assert "hashed_ip" in expected_columns
+    assert "age" in expected_columns
+    assert "education" in expected_columns
+    assert "timestamp" in expected_columns
