@@ -1,0 +1,14 @@
+status: none
+intent: Arabidopsis thaliana 1001 Genomes SNP, MetaboLights metabolomics, Plant Metabolome
+  Database resistance phenotype python package dataset
+required_fields:
+- sample_id
+- snp_id
+- genotype
+- metabolite_id
+- metabolite_concentration
+- resistance_score
+- species
+cache_key: a139d6c604ba503546c37eb254f60294a1466304d8329a61b0baa0a2774bb2ae
+searched_at: '2026-10-07T14:42:25.723288+00:00'
+retry_count: 1

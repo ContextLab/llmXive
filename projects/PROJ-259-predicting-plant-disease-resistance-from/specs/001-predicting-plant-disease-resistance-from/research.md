@@ -1,87 +1,70 @@
 # Research: Predict Plant Disease Resistance from Multi‑omics Data
 
-## 1. Problem Definition & Feasibility
+## 1. Dataset Strategy
 
-The core challenge is to build a predictive model for plant disease resistance using **paired** genomic (SNP) and metabolomic data.
-*   **Scientific Question**: Can multi-omics integration improve prediction of resistance levels compared to single-omics approaches?
-*   **Feasibility Check**: The spec requires **matched** samples (genotype + metabolite + phenotype) for the same plant individual. This is a high-bar requirement in public repositories.
+The project requires paired genomic (SNP), metabolomic, and phenotypic data from the **same samples**. The strategy prioritizes **verified open sources** (NCBI SRA, MetaboLights) and **halts** if no suitable real dataset is found. Synthetic data is **NOT** used for scientific validation.
 
-## 2. Dataset Strategy
+### Verified Datasets & Availability
 
-### Verified Sources & Constraints
-Per the "Verified datasets" block provided in the input:
-*   **SNP Data**: `ManuBansal/33param_snp500` datasets are available, but these are **financial/stock market** data (SNP500 index), **not** plant genomic data.
-*   **Plant Genomic/Metabolomic Data**: **NO verified source found** in the provided list. The block explicitly states "SNPs: NO verified source found".
-*   **Conclusion**: There is **no public, verified dataset** in the provided list that contains the required plant-specific multi-omics data.
+| Dataset Name | Type | Verified URL / Source | Suitability Analysis |
+|:--- |:--- |:--- |:--- |
+| **NCBI SRA (Plant Pathogen)** | Genomic (Raw Reads) | ` | **Primary Source**: Must search for studies with "SNP" AND "Metabolomics" AND "Phenotype" for same plant species. |
+| **MetaboLights** | Metabolomic | `https://www.ebi.ac.uk/metabolights/` | **Primary Source**: Must cross-reference with SRA studies for matched samples. |
+| **Metabolomics Workbench** | Metabolomic | ` | **Primary Source**: Alternative for metabolomic data. |
+| **33param_snp500** | SNP (CSV) | `https://huggingface.co/datasets/ManuBansal/33param_snp500` | **INSUFFICIENT**: Lacks metabolomic profiles and plant disease resistance phenotypes. **NOT** used for scientific runs or CI fallback. |
 
-### Data Acquisition Plan (Per Constitution Principle VI)
-Since no verified URL exists, the implementation will:
-1.  **Attempt Real Fetch**: The pipeline will attempt to fetch data from NCBI SRA and MetaboLights using search terms defined in `data_manifest.yaml` (e.g., "Arabidopsis thaliana pathogen interaction").
-2.  **Simulation Fallback (Primary Mode)**: If no real data is found (confirmed), the pipeline **MUST** generate a synthetic dataset that mimics the statistical properties of plant multi-omics data (high dimensionality, sparsity, correlation structures) to demonstrate the *functionality* of the pipeline (FR-001 to FR-009) without violating the "no fabricated URL" rule.
-    *   *Rationale*: The spec requires a runnable pipeline. Without a real dataset, the code cannot be tested. A synthetic dataset allows verification of the *logic* (preprocessing, feature selection, model training) while explicitly noting the limitation.
-    *   **Signal Injection**: The synthetic generator will inject a known, controlled signal (correlation between specific SNPs/metabolites and the phenotype) to allow for validation of the model's ability to detect true positives.
+### Decision: Real Data Only for Science
+**Rationale**: The research question is "Can plant disease resistance be predicted using publicly available... data?" Generating synthetic data to mimic correlations creates a tautology (validating the generator, not the biology).
+**Plan**:
+1. **Search**: Query NCBI SRA and MetaboLights for studies containing all three modalities (SNP, Metabolite, Phenotype) for the same samples.
+2. **Verification**: If a study is found, verify sample overlap. If overlap < 100, the pipeline halts with `EX_DATA_INTEGRITY`.
+3. **Fallback**: If **NO** real multi-omics dataset is found, the pipeline **HALTS** with `EX_DATA_INTEGRITY` and reports "No real multi-omics dataset found. Scientific analysis cannot proceed."
+4. **CI Mode**: Synthetic data generation is available ONLY via `--ci-mode` flag. This is for testing code execution (T042, T046, T048) and **NOT** for generating scientific results. **SC-001 (≥75% accuracy) is not applicable to CI mode.**
 
-### Power Analysis for Synthetic Data
-*   **Requirement**: FR-007/FR-008 mandate n ≥ 100.
-*   **Analysis**: The synthetic generator will be configured to produce exactly **n=150** samples (to ensure a buffer above the 100 threshold) with a signal strength (effect size) of 0.1.
-*   **Power Calculation**: With n=150, α=0.05 (BH-corrected), and effect size 0.1, the power to detect the injected signal is estimated at >0.8. This ensures that if the pipeline fails to detect the signal, the failure is due to the code, not insufficient power.
-*   **Constraint**: If the real data fetch yields <100 samples, the pipeline halts (as per FR-007/FR-008).
+## 2. Statistical Methodology
 
-### Dataset Variables (Hypothetical/Target)
-If a real dataset were found, it would require:
-*   **Genotype**: SNP matrix (Samples x Variants).
-*   **Metabolome**: Metabolite intensity matrix (Samples x Features).
-*   **Phenotype**: Disease resistance score (Continuous) or Label (Resistant/Susceptible).
+### Feature Selection (FR-003)
+* **Method**: LASSO Regression (continuous) and Random Forest (categorical).
+* **Thresholds**: Sensitivity sweep over p-values {, 0.05, 0.1}.
+* **Correction**: **Permutation-based FDR** or **Li & Ji effective tests** to account for Linkage Disequilibrium (LD) and metabolite co-regulation. Standard BH is insufficient for correlated data.
+* **Output**: Top-ranked SNPs/Metabolites by effect size, capped by significance.
+* **Robustness**: Selection frequency calculated across the three thresholds. **Report** variance; **do not halt** (T047 resolved).
 
-**Critical Mismatch Note**: The spec assumes public repositories contain matched data. In reality, matching samples across SRA (genomics) and MetaboLights (metabolomics) is rare. The plan includes a strict filtering step (FR-001) to exclude samples lacking any modality, which may reduce the sample size below the required 100 (FR-007/FR-008).
+### Model Training (FR-004)
+* **Algorithms**: Elastic-Net (continuous) or Gradient Boosting Classifier (categorical).
+* **Validation**: **Nested Cross-Validation** (K-fold outer, K-fold inner).
+ * *Inner Loop*: Feature selection and hyperparameter tuning.
+ * *Outer Loop*: Performance estimation.
+* **Baseline**: Null model (random labels).
 
-## 3. Methodological Rigor
+### Significance & Diagnostics (FR-005, Constitution Fact)
+* **Permutation Testing**: n=1000 permutations on the **outer** hold-out set (or nested permutation scheme).
+ * **Formula**: `p = (count(permutation_score >= observed_score) + 1) / (n_permutations + 1)`. (T018 fixed).
+ * **Strategy**: **Block Permutation** (permuting blocks of correlated SNPs) or **Residual Permutation** to preserve correlation structure.
+ * **Reproducibility**: Run permutation test twice with fixed seed; assert p-values match within tolerance (T048).
+* **Collinearity**: Variance Inflation Factor (VIF) calculated for all selected features.
+ * **Flag Threshold**: **VIF > 5** (per FR-005). (Corrected from 33).
+* **Power Analysis**: System halts with `EX_POWER_INSUFFICIENT` if n < 100.
 
-### Statistical Validation
-*   **Multiple Testing**: Benjamini-Hochberg (BH) correction will be applied to all p-values from feature selection to control the False Discovery Rate (FDR) at a conventional significance level.
-*   **Power Analysis**: The plan enforces a minimum of 100 samples (FR-007/FR-008). If the dataset (real or synthetic) has < 100 samples, the pipeline halts with `EX_POWER_INSUFFICIENT`.
-*   **Collinearity**: Variance Inflation Factor (VIF) will be calculated for selected features. Features with VIF > 5 will be flagged (FR-005).
-*   **Causal Claims**: All results will be framed as **associational**. No causal inference will be claimed, as the data is observational.
+### Data Splitting (FR-009)
+* **Strategy**: `sklearn.model_selection.StratifiedShuffleSplit` with `test_size=0.2`, `n_splits=1`.
+* **Rationale**: Ensures the 80/20 split maintains the same class distribution (resistant/susceptible) in both training and hold-out sets, preventing bias in performance estimation.
 
-### Model Selection & Training
-*   **Feature Selection**: LASSO (L1) and Random Forest (RF) importance.
-    *   *Sensitivity Sweep*: Thresholds {0.01, 0.05, 0.1} will be tested to determine feature stability (FR-003).
-*   **Prediction Models**:
-    *   **Elastic-Net**: For continuous resistance scores.
-    *   **Gradient-Boosting (XGBoost/LightGBM CPU mode)**: For categorical labels.
-*   **Validation**:
-    *   K-Fold Cross-Validation for training.
-    *   Independent Hold-Out Test Set for final evaluation.
-    *   Permutation Testing (n=1000) to generate p-values for model performance (FR-005).
+## 3. Compute Feasibility (CPU-First)
 
-### Compute Feasibility (CPU-Only)
-*   **Constraints**: 2 CPU cores, 7 GB RAM, 6h runtime.
-*   **Strategy**:
-    *   Data will be downsampled or processed in chunks if necessary.
-    *   Only CPU-compatible libraries (`scikit-learn`, `xgboost` with `tree_method='hist'` or `exact`, `lightgbm` with `device='cpu'`) will be used.
-    *   No GPU acceleration or quantization.
+* **Environment**: GitHub Actions Free Tier (standard CPU, sufficient RAM).
+* **Strategy**:
+ * **Data Streaming**: Use `datasets.load_dataset(..., streaming=True)` for large CSVs to avoid OOM.
+ * **No GPU**: All models (`scikit-learn`) run on CPU.
+ * **Time Limit**: Pipeline optimized to complete in < 6 hours.
+ * **CI Mode**: Synthetic data generation is lightweight and fast.
 
-## 4. Methodological Boundaries & Limitations
+## 4. Resolved Concerns
 
-### Simulation Mode vs. Scientific Validation
-*   **Current State**: The project is currently in **Software Engineering Validation Mode**. The synthetic data is used to prove that the *code* correctly implements the pipeline logic (download, preprocess, select, train, validate).
-*   **Circularity Warning**: The accuracy metrics (≥75%) and significance (p<0.05) obtained from synthetic data are **not** scientific findings about plant disease resistance. They are validation that the pipeline can detect the signal *injected by the generator*.
-*   **Biological Hypothesis**: The hypothesis that "multi-omics integration improves prediction of real plant disease resistance" remains **unvalidated** until a real, matched dataset is discovered and processed. The current results do not support or refute this biological claim.
-
-### Data Availability
-*   **Real Data**: No verified public dataset exists. The pipeline will default to synthetic data.
-*   **Future Work**: If a real dataset is discovered, the pipeline can be re-run in "Real Data Mode" to validate the biological hypothesis. The current codebase is designed to be agnostic to the data source (real vs. synthetic).
-
-### Permutation Testing Validity
-*   **Simulation Mode**: With n=150 and injected signal, permutation testing is **valid** for confirming the pipeline's ability to distinguish signal from noise (i.e., it validates the *code*).
-*   **Sparse Real Data (n < 100)**: If a real fetch yields <100 samples, the permutation test is **inapplicable** due to insufficient power for multivariate omics. In this case, the pipeline **halts** (FR-007/008) rather than producing a statistically invalid result.
-*   **Conclusion**: The permutation test is only executed when the sample size threshold is met. This ensures that any reported p-value is methodologically sound for the data regime it was applied to (either synthetic validation or real data with sufficient power).
-
-## 5. Decision Log
-
-| Decision | Rationale |
-| :--- | :--- |
-| **Synthetic Data Fallback** | No verified plant multi-omics dataset exists in the provided list. A synthetic dataset is necessary to validate the pipeline logic without inventing URLs. |
-| **Strict Sample Filtering** | FR-001 requires paired modalities. This is a known bottleneck in multi-omics; the plan prioritizes data integrity over sample count, triggering halts if n < 100. |
-| **BH Correction** | Essential for high-dimensional omics data to avoid false positives (FR-003, SC-002). |
-| **Permutation Testing** | Required to establish statistical significance of the model performance beyond cross-validation (FR-005, SC-003). In simulation mode, this validates the pipeline's ability to detect the injected signal. |
+* **T018 (Statistical Formula)**: Formula corrected to `p = (count + 1) / (n + 1)`. Random seed fixed in config.
+* **T047 (Robustness Check)**: Removed "halt if variance > [deferred]". Variance is now a reported metric only.
+* **T042 (Data Manifest)**: `code/download.py` halts if real data missing. Synthetic data is CI-only.
+* **T046 (Resource Monitor)**: `code/utils/resources.py` implemented.
+* **T048 (Permutation Reproducibility)**: Plan includes task to run permutation test twice with fixed seed and assert match.
+* **Scientific Soundness (Circular Validation)**: Addressed via Nested Cross-Validation and Block Permutation.
+* **Scientific Soundness (Dependence)**: Addressed via Block Permutation/Residual Permutation strategy.

@@ -1,0 +1,108 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for performance_metrics.json and selected_features.csv outputs."
+type: object
+required:
+  - model_info
+  - performance
+  - validation
+properties:
+  model_info:
+    type: object
+    required:
+      - algorithm
+      - hyperparameters
+    properties:
+      algorithm:
+        type: string
+        enum:
+          - ElasticNet
+          - GradientBoosting
+          - LASSO
+          - RandomForest
+      hyperparameters:
+        type: object
+        description: "Key-value pairs of model hyperparameters."
+  performance:
+    type: object
+    required:
+      - cv_score
+      - cv_metric_type
+      - null_baseline_score
+    properties:
+      cv_score:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: "Cross-validation accuracy, AUC, or R²."
+      cv_metric_type:
+        type: string
+        enum:
+          - accuracy
+          - auc_roc
+          - r_squared
+      null_baseline_score:
+        type: number
+        description: "Performance of the null model (random labels)."
+  validation:
+    type: object
+    required:
+      - permutation_p_value
+      - n_permutations
+      - vif_flags
+    properties:
+      permutation_p_value:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: "Model-level p-value from permutation testing (n=1000)."
+      n_permutations:
+        type: integer
+        minimum: 1
+        description: "Number of permutations performed."
+      vif_flags:
+        type: array
+        items:
+          type: object
+          required:
+            - feature_id
+            - vif_value
+            - flagged
+          properties:
+            feature_id:
+              type: string
+            vif_value:
+              type: number
+              description: "Variance Inflation Factor value for the feature."
+            flagged:
+              type: boolean
+              description: "True if VIF > 5, False otherwise."
+  selected_features:
+    type: array
+    items:
+      type: object
+      required:
+        - feature_id
+        - feature_type
+        - p_value_bh
+        - effect_size
+        - selection_frequency
+      properties:
+        feature_id:
+          type: string
+        feature_type:
+          type: string
+          enum:
+            - SNP
+            - METABOLITE
+        p_value_bh:
+          type: number
+          minimum: 0
+          maximum: 1
+        effect_size:
+          type: number
+        selection_frequency:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: "Frequency selected across thresholds {0.01, 0.05, 0.1}."

@@ -3,8 +3,8 @@
 ## Prerequisites
 
 *   Python 3.11+
-*   Docker (for `fastp` and `bcftools` integration)
-*   Git
+*   Docker (optional, for containerized run)
+*   7 GB RAM available
 
 ## Installation
 
@@ -16,51 +16,57 @@
 
 2.  **Install dependencies**:
     ```bash
-    pip install -r code/requirements.txt
+    pip install -r requirements.txt
     ```
 
-3.  **Build the Docker container** (optional, recommended for reproducibility):
+3.  **Verify environment**:
     ```bash
-    docker build -t plant-resistance-pipeline .
+    python -c "import scikit_learn, pandas, statsmodels; print('OK')"
     ```
 
 ## Running the Pipeline
 
-### 1. Data Preparation
-If you have a real dataset, place it in `data/raw/` and update `data/data_manifest.yaml` with the accession numbers and checksums.
+### Option A: Standard Run (Real Data Only)
+The pipeline attempts to download real multi-omics data from NCBI SRA/MetaboLights. If no real data is found, it halts with `EX_DATA_INTEGRITY`.
 
-**Note**: If no real dataset is available, the pipeline will automatically generate a **synthetic dataset** for demonstration purposes. This is the default mode due to the lack of public matched data.
-
-### 2. Execute the Pipeline
-Run the main script:
 ```bash
-python code/main.py --mode full
+python code/cli.py run --output-dir results/
 ```
 
-This will:
-1.  **Download/Generate Data**: Fetch from NCBI/MetaboLights or generate synthetic data.
-2.  **Preprocess**: Call variants, normalize metabolites, align samples.
-3.  **Split Data**: Perform stratified splitting (Training/Hold-out).
-4.  **Feature Selection**: Run LASSO/RF with sensitivity sweep.
-5.  **Model Training**: Train Elastic-Net/GBM with 5-fold CV.
-6.  **Validation**: Run permutation testing and VIF diagnostics.
-7.  **Output**: Save results to `artifacts/`.
+### Option B: CI Smoke Test (Synthetic Data)
+Force the use of synthetic data to verify pipeline logic (code execution, file I/O). **DO NOT** use for scientific results.
 
-### 3. Verify Results
-Check the `artifacts/reports/metrics.json` for performance metrics:
-*   `cv_accuracy`: Should be ≥ 0.75 (in Simulation Mode, this validates the pipeline logic).
-*   `permutation_p_value`: Should be ≤ 0.05 (in Simulation Mode, this validates signal detection).
-*   `feature_stability`: CSV of top features.
-
-### 4. Inspect Biomarkers
-View the top selected features:
 ```bash
-cat artifacts/reports/top_features.csv
+python code/cli.py run --ci-mode --output-dir results/
 ```
+
+### Option C: Validation Mode
+Run validation on a previously trained model (requires a model artifact).
+
+```bash
+python code/cli.py validate --model-path artifacts/model.pkl --data-path data/processed/
+```
+
+## Expected Outputs
+
+After a successful run, the `results/` directory will contain:
+
+*   `data_manifest.yaml`: Provenance record (source, checksums).
+*   `selected_features.csv`: Top SNPs/Metabolites with p-values and selection frequencies.
+*   `performance_metrics.json`: CV accuracy, AUC, R², and permutation p-value.
+*   `collinearity_report.csv`: VIF scores for all features (flags > 5).
+*   `pipeline_log.txt`: Execution logs including memory usage.
 
 ## Troubleshooting
 
-*   **Error: `EX_DATA_INTEGRITY (02)`**: Fewer than 100 paired samples found. Check data quality or use a larger dataset.
-*   **Error: `EX_POWER_INSUFFICIENT (03)`**: Sample size < 100. The pipeline requires this for statistical power.
-*   **Missing Data**: If the pipeline cannot find real data, it will automatically switch to synthetic mode. Check `data/data_manifest.yaml` for logs.
-*   **Note on Results**: If running in Simulation Mode, the reported accuracy and p-values reflect the pipeline's ability to detect the *injected signal* in the synthetic data, not a biological finding about real plant disease.
+*   **Error: `EX_DATA_INTEGRITY (02)`**: No real multi-omics dataset found (SNP+Metabolite+Phenotype). The pipeline halted. Use `--ci-mode` for testing.
+*   **Error: `EX_POWER_INSUFFICIENT (03)`**: Sample size < 100. Power analysis failed.
+*   **Error: `ModuleNotFoundError`**: Run `pip install -r requirements.txt` again.
+*   **Memory Warning**: If running on < 7GB RAM, ensure no other heavy processes are running. The pipeline attempts to stream data.
+
+## Reproducibility Check
+
+To verify reproducibility:
+1.  Run the pipeline twice with the same `--seed` flag.
+2.  Compare `results/performance_metrics.json` and `results/selected_features.csv`.
+3.  P-values from permutation tests should match exactly (or within floating point tolerance).

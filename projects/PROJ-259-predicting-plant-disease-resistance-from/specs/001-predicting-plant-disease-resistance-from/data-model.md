@@ -1,56 +1,74 @@
 # Data Model: Predict Plant Disease Resistance from Multi‑omics Data
 
-## 1. Overview
+## 1. Entity Relationship Overview
 
-This document defines the data structures for the plant disease resistance prediction pipeline. It covers the input data (raw and processed), the feature tables, and the output artifacts.
+The data model centers on the **Sample**, which links Genomic, Metabolomic, and Phenotypic data.
 
-## 2. Entity Definitions
+```mermaid
+erDiagram
+    Dataset ||--|{ Sample : contains
+    Sample ||--|{ Genotype : has
+    Sample ||--|{ MetaboliteProfile : has
+    Sample ||--|{ Phenotype : has
+    FeatureTable ||--|{ Feature : contains
+```
+
+## 2. Core Entities
+
+### Dataset
+Represents a single source of data (REAL only for science; SIMULATED for CI).
+*   `id`: Unique identifier (e.g., `SRA_PRJNAXXXX` or `synthetic_ci_001`).
+*   `source_type`: `REAL` or `SIMULATED`.
+*   `source_url`: URL for real data (NCBI SRA/MetaboLights), or script path if simulated.
+*   `retrieval_date`: ISO 8601 timestamp.
+*   `sample_count`: Total number of samples.
 
 ### Sample
-A single plant individual with available data.
-*   `sample_id`: Unique identifier (string).
-*   `phenotype`: Resistance score (float) or label (string: "Resistant", "Susceptible").
-*   `metadata`: Dictionary containing species, pathogen, experimental conditions.
+A single plant individual.
+*   `sample_id`: Unique string (e.g., `PLT_001`).
+*   `dataset_id`: Foreign key to Dataset.
+*   `status`: `COMPLETE` (all modalities present) or `EXCLUDED`.
+*   `exclusion_reason`: If excluded, why (e.g., `MISSING_METABOLOMICS`).
 
-### Genomic Feature (SNP)
-A genetic variant.
-*   `snp_id`: Unique identifier (e.g., "chr1:12345:A:T").
-*   `chromosome`: Chromosome name.
-*   `position`: Genomic coordinate.
-*   `allele_ref`: Reference allele.
-*   `allele_alt`: Alternate allele.
-*   `genotype`: Genotype value (0, 1, 2 for homozygous ref, heterozygous, homozygous alt).
+### Genotype (SNP Matrix)
+*   `sample_id`: Foreign key to Sample.
+*   `variant_id`: SNP identifier (e.g., `rs12345`).
+*   `genotype`: Categorical/Integer (0, 1, 2 for AA, Aa, aa).
+*   `chromosome`: String.
+*   `position`: Integer.
 
-### Metabolomic Feature
-A detected metabolite.
-*   `metabolite_id`: Unique identifier (e.g., "HMDB12345").
-*   `name`: Common name.
-*   `intensity`: Normalized intensity value.
+### MetaboliteProfile
+*   `sample_id`: Foreign key to Sample.
+*   `metabolite_id`: Compound identifier (e.g., `CMPD_001`).
+*   `intensity`: Float (normalized abundance).
+*   `platform`: `LC-MS` or `GC-MS`.
 
-## 3. Data Flow & Transformations
+### Phenotype
+*   `sample_id`: Foreign key to Sample.
+*   `resistance_score`: Float (continuous severity) or Categorical (`R`/`S`).
+*   `pathogen`: String (pathogen species).
 
-### Raw Data
-*   **Input**: FASTQ files (genomics), MS spectra files (metabolomics), Phenotype CSV.
-*   **Storage**: `data/raw/` (preserved, checksummed).
-*   **Synthetic Fallback**: If real data is missing, `data/raw/synthetic_data.h5` is generated with the same structure.
+## 3. Derived Artifacts
 
-### Preprocessed Data
-*   **SNP Matrix**: `samples x variants` (0, 1, 2). Missing values imputed or filtered.
-*   **Metabolite Matrix**: `samples x metabolites` (normalized intensity).
-*   **Phenotype Vector**: `samples x 1`.
-*   **Aligned Feature Table**: Concatenation of SNP and Metabolite matrices, filtered to only samples present in all three.
-    *   *Constraint*: If `n_samples < 100`, pipeline halts (FR-007).
+### FeatureTable
+*   `table_id`: UUID.
+*   `type`: `SNP`, `METABOLITE`, or `JOINT`.
+*   `shape`: `[rows, cols]`.
+*   `path`: Relative path to HDF5/Parquet file.
+*   `checksum`: SHA-256 hash.
 
-### Output Artifacts
-*   **Model**: Serialized sklearn/xgboost model object.
-*   **Feature Importance**: CSV of top 50 SNPs and metabolites with p-values and effect sizes.
-*   **Metrics**: JSON file containing CV accuracy, permutation p-value, VIF diagnostics.
-*   **Selection Frequency**: CSV of feature IDs, thresholds, and selection frequency (FR-003).
+### ModelArtifact
+*   `model_id`: UUID.
+*   `algorithm`: `ElasticNet` or `GradientBoosting`.
+*   `hyperparameters`: JSON dict.
+*   `cv_score`: Float (accuracy/AUC/R²).
+*   `p_value_permutation`: Float.
+*   `vif_flags`: List of feature IDs with VIF > 5.
 
-## 4. Schema Definitions (Contracts)
+## 4. Data Flow
 
-The following schemas are defined in `contracts/`:
-1.  `dataset.schema.yaml`: Validates the structure of the input/processed data (including synthetic data).
-2.  `output.schema.yaml`: Validates the structure of the results (metrics, features).
-
-These schemas are used to validate the output of the synthetic data generator and the final pipeline results.
+1.  **Raw**: `raw/*.csv` (Downloaded from NCBI/MetaboLights or Synthetic for CI).
+2.  **Preprocessed**: `processed/aligned_snps.parquet`, `processed/aligned_metabolites.parquet`.
+3.  **Feature Selection**: `results/selected_features.csv`.
+4.  **Model**: `artifacts/model.pkl`, `results/performance_metrics.json`.
+5.  **Manifest**: `data/data_manifest.yaml`.
