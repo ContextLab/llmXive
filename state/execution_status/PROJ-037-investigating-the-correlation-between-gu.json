@@ -1,17 +1,17 @@
 {
   "project_id": "PROJ-037-investigating-the-correlation-between-gu",
   "ok": false,
-  "reason": "2 run-book script(s) missing (plan/impl path mismatch): python code/main.py; python code/main.py; 4 declared deliverable(s) absent: data/outputs/correlation_results.csv; data/outputs/heatmap.png; data/outputs/pcoa_sleep_quality.png",
+  "reason": "2 command(s) failed: python code/main.py (rc=1); python code/main.py (rc=1); 1 declared deliverable(s) absent: data/processed/cohort_merged.csv",
   "artifacts": [],
   "failures": [
-    "python code/main.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-037-investigating-the-correlation-between-gu/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-037-investigating-the-correlation-between-gu/code/main.py': [Errno 2] No such file or directory",
-    "python code/main.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-037-investigating-the-correlation-between-gu/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-037-investigating-the-correlation-between-gu/code/main.py': [Errno 2] No such file or directory"
+    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-037-investigating-the-correlation-between-gu/code/diversity.py\", line 17, in <module>\n    import biom\nModuleNotFoundError: No module named 'biom'\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-037-investigating-the-correlation-between-gu/code/main.py\", line 12, in <module>\n    from diversity import main as run_diversity\n  File \"/home/runner/work/llmXive/llmXive",
+    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-037-investigating-the-correlation-between-gu/code/diversity.py\", line 17, in <module>\n    import biom\nModuleNotFoundError: No module named 'biom'\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-037-investigating-the-correlation-between-gu/code/main.py\", line 12, in <module>\n    from diversity import main as run_diversity\n  File \"/home/runner/work/llmXive/llmXive"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 4,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 4,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-08-22T19:32:55Z"
+  "updated_at": "2026-10-07T21:32:46Z"
 }
