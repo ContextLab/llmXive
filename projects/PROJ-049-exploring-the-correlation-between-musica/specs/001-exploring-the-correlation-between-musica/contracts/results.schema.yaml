@@ -1,30 +1,7 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Coefficient Deltas Schema"
-description: "Schema for data/processed/coefficient_deltas.csv containing regression coefficient changes and validity status."
-type: "object"
-properties:
-  trait:
-    type: "string"
-    description: "Big Five trait name."
-  genre:
-    type: "string"
-    description: "Standardized genre name."
-  beta_baseline:
-    type: "number"
-    description: "Beta coefficient from baseline model (Trait only)."
-  beta_full:
-    type: "number"
-    description: "Beta coefficient from full model (Trait + Covariates)."
-  delta:
-    type: "number"
-    description: "Difference beta_full - beta_baseline."
-  vif:
-    type: "number"
-    description: "Variance Inflation Factor for the full model."
-    minimum: 1
-  validity_status:
-    type: "string"
-    description: "Flag indicating whether delta exceeds 10 % change threshold (e.g., \"valid\", \"exceeds_threshold\")."
+description: "Schema for results/coefficient_deltas.csv containing regression coefficient changes and validity status."
+type: object
 required:
   - trait
   - genre
@@ -33,4 +10,26 @@ required:
   - delta
   - vif
   - validity_status
-additionalProperties: false
+properties:
+  trait:
+    type: string
+    description: "Big Five trait name."
+  genre:
+    type: string
+    description: "Standardized genre name."
+  beta_baseline:
+    type: number
+    description: "Beta coefficient from baseline **i.e.,** trait‑only model."
+  beta_full:
+    type: number
+    description: "Beta coefficient from full model (Trait + Covariates)."
+  delta:
+    type: number
+    description: "Difference beta_full - beta_baseline."
+  vif:
+    type: number
+    description: "Variance Inflation Factor for the full model."
+    minimum: 1
+  validity_status:
+    type: string
+    description: "Flag indicating whether delta exceeds 10 % change threshold (e.g., \"valid\"; \"exceeds_threshold\")."

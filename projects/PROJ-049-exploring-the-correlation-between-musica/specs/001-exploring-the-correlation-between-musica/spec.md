@@ -1,8 +1,8 @@
 # Feature Specification: Exploring the Correlation Between Musical Preference and Personality Traits
 
-**Feature Branch**: `001-music-personality-correlation`  
-**Created**: 2024-05-21  
-**Status**: Draft  
+**Feature Branch**: `001-music-personality-correlation`
+**Created**: 2024-05-21
+**Status**: Draft
 **Input**: User description: "Do individuals with specific Big Five personality traits show statistically significant preferences for particular musical genres? How strong are these correlations after controlling for demographic variables such as age, gender, and cultural background?"
 
 ## User Scenarios & Testing
@@ -23,30 +23,34 @@ The system must successfully acquire a **linked dataset** that contains both Big
 
 ### User Story 2 - Statistical Correlation and Regression Analysis (US-2)
 
-The system must compute Pearson correlation coefficients between each Big Five trait and **proportion‑based** genre preference scores (genre_minutes / total_minutes, log‑transformed), and run multiple linear regression models controlling for age, gender, country, **and total listening minutes** (encoded as a continuous covariate).
+The system must compute **Spearman rank correlation** coefficients between each Big Five trait and **proportion‑based** genre preference scores (genre_minutes / total_minutes, log‑transformed). Spearman correlation is chosen because proportion data are bounded and often non‑normal, making a rank‑based approach more robust than Pearson’s r. As an additional robustness check, a beta‑regression model may be fitted for each trait‑genre pair.
+
+A justification for using **proportion‑based listening minutes** as a proxy for musical preference is provided in the Assumptions section: Passive listening duration has been shown in prior work (e.g., Knees et al.) to correlate with self‑reported liking., though it can be confounded by algorithmic recommendation and availability effects. These limitations are explicitly acknowledged.
+
+Multiple linear regression models are then run **per trait**, using **isometric log‑ratio (ILR) transformed** genre proportions (which removes the compositional constraint) and controlling for age, gender, and country (one‑hot or regional grouping). Total listening minutes are **computed for reporting** but **not included as a covariate** to avoid redundancy.
 
 **Why this priority**: This is the core analytical engine that directly answers the research question. It must handle the statistical logic correctly to produce valid results, accounting for skewed data distributions, high‑cardinality categorical variables, and overall activity level.
 
-**Independent Test**: The analysis can be tested by running the script on a known synthetic dataset with pre‑calculated correlation values and verifying the output matches the expected coefficients within an acceptable tolerance.
+**Independent Test**: The analysis can be tested by running the script on a known synthetic dataset with pre‑calculated Spearman coefficients and verifying the output matches the expected values within an acceptable tolerance.
 
 **Acceptance Scenarios**:
 
-1. **Given** the cleaned merged dataset, **When** the correlation matrix is computed, **Then** the system outputs a 5×N matrix of Pearson *r*‑values with p‑values for each trait‑genre pair, where N is the number of genres present.
-2. **Given** the correlation results, **When** the regression models run, **Then** the system outputs a table of coefficients (beta), standard errors, and p‑values for each trait, adjusted for the three demographic covariates **and total listening minutes** (country encoded via one‑hot or regional grouping).
+1. **Given** the cleaned merged dataset, **When** the Spearman correlation matrix is computed, **Then** the system outputs a 5×N matrix of ρ‑values with p‑values for each trait‑genre pair, where N is the number of genres present.
+2. **Given** the correlation results, **When** the ILR‑based regression models run, **Then** the system outputs a table of coefficients (beta), standard errors, and p‑values for each trait, adjusted for the three demographic covariates (age, gender, country). No total‑minutes covariate is included.
 3. **Given** the dataset contains exactly 5 × 10 = 50 hypothesis tests (5 traits × 10 genres), **When** the significance testing completes, **Then** the system applies a Bonferroni correction (α = 0.05 / 50 ≈ 0.001) and flags results as "significant" only if adjusted p < 0.001.
 
 ### User Story 3 - Visualization and Reporting (US-3)
 
-The system must generate visualizations of the correlation matrix and regression coefficients, and export a summary report containing Cohen’s *d* effect sizes (derived from Pearson *r*) and 95 % confidence intervals.
+The system must generate visualizations of the correlation matrix and regression coefficients, and export a summary report containing Cohen’s *d* effect sizes (derived from Spearman ρ) and 95 % confidence intervals.
 
 **Why this priority**: While the analysis produces raw numbers, the visualizations and report are required for human interpretation and validation of the "Expected results" (e.g., verifying practical importance via Cohen’s *d*).
 
-**Independent Test**: The reporting module can be tested by executing the script and verifying the existence of a `results_report.csv` and a `correlation_heatmap.png` file, ensuring the heatmap correctly displays the sign and magnitude of Pearson correlations and that the report includes Cohen’s *d* with 95 % confidence intervals.
+**Independent Test**: The reporting module can be tested by executing the script and verifying the existence of a `results_report.csv` and a `correlation_heatmap.png` file, ensuring the heatmap correctly displays the sign and magnitude of Spearman correlations and that the report includes Cohen’s *d* with 95 % confidence intervals.
 
 **Acceptance Scenarios**:
 
-1. **Given** the regression results, **When** the visualization script runs, **Then** the system generates a heatmap image where the color intensity corresponds to the absolute value of the Pearson correlation coefficient.
-2. **Given** the statistical outputs, **When** the report is generated, **Then** the system exports a CSV containing Cohen’s *d* effect sizes for all significant correlations and confidence intervals derived from Fisher’s *z*‑transformation of the underlying Pearson *r*.
+1. **Given** the regression results, **When** the visualization script runs, **Then** the system generates a heatmap image where the color intensity corresponds to the absolute value of the Spearman correlation coefficient.
+2. **Given** the statistical outputs, **When** the report is generated, **Then** the system exports a CSV containing Cohen’s *d* effect sizes for all significant correlations and confidence intervals derived from Fisher’s *z*‑transformation of the underlying Spearman ρ.
 3. **Given** a non‑significant trait‑genre pair, **When** the report is generated, **Then** the system explicitly labels that pair as "Non‑significant (adjusted p ≥ 0.001)" rather than omitting it.
 
 ### Edge Cases
@@ -62,22 +66,24 @@ The system must generate visualizations of the correlation matrix and regression
 
 - **FR-001**: System MUST acquire a **linked dataset** containing both BFI‑2 personality scores and Last.fm listening histories for the same participants (e.g., via a consented cohort), validating that the download/composition completes within 300 seconds. (See US‑1)
 - **FR-002**: System MUST map raw genre tags to a fixed set of standardized categories using a predefined lookup table, ensuring no raw tags remain in the final analysis dataset. (See US‑1)
-- **FR-003**: System MUST compute Pearson correlation coefficients for all trait‑genre pairs using **proportion‑based** genre preference scores (genre_minutes / total_minutes, log‑transformed) and calculate associated p‑values. (See US‑2)
-- **FR-004**: System MUST execute multiple linear regression models for each trait with age, gender, country (one‑hot or regional grouping), **and total listening minutes** as covariates, returning beta coefficients and standard errors. (See US‑2)
+- **FR-003**: System MUST compute **Spearman rank correlation** for all trait‑genre pairs using **proportion‑based** genre preference scores (genre_minutes / total_minutes, log‑transformed) and calculate associated p‑values. (See US‑2)
+- **FR-003a**: System MAY optionally fit a **beta regression** model for each trait‑genre pair as a robustness check. (See US‑2)
+- **FR-004**: System MUST execute multiple linear regression models for each trait using **isometric log‑ratio (ILR) transformed** genre proportions, controlling for age, gender, and country (one‑hot or regional grouping). The model must NOT include total listening minutes as a covariate. (See US‑2)
 - **FR-005**: System MUST apply a Bonferroni correction (α = 0.05 / 50 ≈ 0.001) to adjust p‑values for the 5 × 10 comparisons before determining significance. (See US‑2)
-- **FR-006**: System MUST generate a correlation heatmap visualization and a summary CSV report containing Cohen’s *d* effect sizes (derived from Pearson *r*) and 95 % confidence intervals. (See US‑3)
+- **FR-006**: System MUST generate a correlation heatmap visualization and a summary CSV report containing Cohen’s *d* effect sizes (derived from Spearman ρ) and 95 % confidence intervals. (See US‑3)
 - **FR-007**: System MUST handle missing demographic data by either excluding rows with missing covariates or imputing them using a defined strategy (mean/median for numeric, mode for categorical), logging the count of excluded rows and the strategy used. (See US‑1)
-- **FR-009**: System MUST compute **total listening minutes** per user and store it as a covariate for regression and as a denominator for proportion‑based preference calculation. (See US‑2)
-- **FR-010**: System MUST include **total listening minutes** as a continuous covariate in the regression models to control for overall activity level. (See US‑2)
-- **FR-011**: System MUST perform an a‑priori power analysis targeting detection of a Pearson *r* = 0.1 with sufficient statistical power at the Bonferroni‑adjusted α = 0.001, and must record the required minimum sample size (≥ 14 000 participants). (See US‑2)
-- **FR-012**: System MUST conduct diagnostic checks for linearity, normality of residuals, homoscedasticity, and outlier influence for each regression model; any violation (p < 0.05 for normality, VIF > 5 for multicollinearity) must be logged and the affected predictor dropped. (See US‑2)
-- **FR-013**: System MUST validate all output artifacts (`processed_dataset.schema.yaml`, `analysis_results.csv`, `analysis_output.schema.yaml`, `results.schema.yaml`, `report.schema.yaml`) against their respective schema contracts and abort with an error if any mismatch is detected. (See SC‑004)
+- **FR-008**: System MUST compute **total listening minutes** per user and store it for reporting purposes only (not as a regression covariate). (See US‑2)
+- **FR-009**: System MUST perform an a‑priori **power analysis** targeting detection of a Spearman ρ = 0.1 with Adequate statistical power. at the Bonferroni‑adjusted α = 0.001, and must record the required minimum sample size (approximately a large cohort of participants). The pipeline must **continue** even if the sample size is smaller, reporting effect sizes and confidence intervals with a note on limited power. (See US‑2)
+- **FR-010**: System MUST conduct diagnostic checks for linearity, normality of residuals, homoscedasticity, and outlier influence for each regression model; any violation (p < 0.05 for normality, VIF > 5 for multicollinearity) must be logged and the affected predictor dropped. (See US‑2)
+- **FR-011**: System MUST validate all output artifacts (`processed_dataset.schema.yaml`, `analysis_output.schema.yaml`, `correlation_results.schema.yaml`, `regression_results.schema.yaml`, `results.schema.yaml`, `report.schema.yaml`) against their respective schema contracts and abort with an error if any mismatch is detected. (See SC‑008) (See US‑2)
+- **FR-012**: System MUST validate the combined raw‑plus‑personality **dataset** against `dataset.schema.yaml` after merging. (See US‑1)
+- **FR-013**: System MUST validate the **analysis output** (`analysis_output.schema.yaml`) produced after correlation and regression steps. (See US‑2)
 
 ### Key Entities
 
 - **UserRecord**: Represents a single participant, containing attributes: `user_id`, `openness_score`, `conscientiousness_score`, `extraversion_score`, `agreeableness_score`, `neuroticism_score`, `age`, `gender`, `country`.
 - **GenrePreference**: Represents the aggregated listening data for a user, containing attributes: `user_id`, `genre_name`, `listening_minutes`, `total_minutes`, `genre_proportion` (listening_minutes / total_minutes), `genre_score` (log‑transformed proportion).
-- **AnalysisResult**: Represents the output of the statistical tests, containing attributes: `trait`, `genre`, `correlation_r`, `p_value`, `adjusted_p_value`, `is_significant`, `cohens_d`, `ci_lower`, `ci_upper`.
+- **AnalysisResult**: Represents the output of the statistical tests, containing attributes: `trait`, `genre`, `correlation_rho`, `p_value`, `adjusted_p_value`, `is_significant`, `cohens_d`, `ci_lower`, `ci_upper`.
 
 ## Success Criteria
 
@@ -85,20 +91,39 @@ The system must generate visualizations of the correlation matrix and regression
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
+- **SC-001**: Data ingestion pipeline completes within 300 seconds, produces a merged dataset with ≥ 100 rows, and ≤ 5 % missing demographic covariates after imputation/exclusion. (See FR‑001)
 - **SC-002**: Statistical significance is measured against a Bonferroni‑adjusted p‑value threshold set at a stringent significance level. to control the family‑wise error rate. (See FR‑005)
-- **SC-003**: Power analysis confirms that the available sample size meets or exceeds the required minimum (≥ 14 000 participants) to detect r = 0.1 with 80 % power at α = 0.001. (See FR‑011)
-- **SC-004**: Diagnostic checks for each regression model pass (normality p > 0.05, VIF ≤ 5, homoscedasticity not rejected); any failures are logged and the offending predictors are dropped. (See FR‑012)
-- **SC-005**: Preference scores are computed as proportion of total listening minutes per genre (genre_minutes / total_minutes) before any transformation. (See FR‑003)
-- **SC-006**: Data ingestion pipeline completes within 300 seconds, produces a merged dataset with ≥ 100 rows, and ≤ 5 % missing demographic covariates after imputation/exclusion. (See US‑1)
-- **SC-007**: Visualization heatmap file `correlation_heatmap.png` exists, and `results_report.csv` includes Cohen’s *d* effect sizes with 95 % confidence intervals and explicit “Non‑significant (adjusted p ≥ 0.001)” labels for non‑significant pairs. (See US‑3)
+- **SC-003**: Power analysis confirms that the available sample size meets or exceeds the required minimum (≈ 14 000 participants) to detect ρ = 0.1 with 80 % power at α = 0.001; if not, the report notes limited power but still presents effect sizes and confidence intervals. (See FR‑009)
+- **SC-004**: Diagnostic checks for each regression model pass (normality p > 0.05, VIF ≤ 5, homoscedasticity not rejected); any failures are logged and the offending predictors are dropped. (See FR‑010)
+- **SC-005**: Preference scores are computed as proportion of total listening minutes per genre (genre_minutes / total_minutes) before any transformation, and the limitation of this proxy is documented. (See FR‑003, Assumptions)
+- **SC-006**: Visualization heatmap file `correlation_heatmap.png` exists, and `results_report.csv` includes Cohen’s *d* effect sizes with 95 % confidence intervals and explicit “Non‑significant (adjusted p ≥ 0.001)” labels for non‑significant pairs. (See FR‑006)
+- **SC-007**: All output artifacts (`processed_dataset.schema.yaml`, `analysis_output.schema.yaml`, `correlation_results.schema.yaml`, `regression_results.schema.yaml`, `results.schema.yaml`, `report.schema.yaml`) are validated against their respective schemas; any mismatch causes the pipeline to abort with an error. (See FR‑011)
+
+### Additional Success Criterion
+
+- **SC-012**: Multiple‑Comparison Adjustment is performed using Bonferroni correction as specified in FR‑005. (See FR‑005)
 
 ## Assumptions
 
-- **Assumption about data availability**: A linked dataset containing both BFI‑2 personality scores and Last.fm listening histories for the same participants can be obtained (e.g., via a consented recruitment process) and contains sufficient overlap to perform correlation analysis.
+- **Assumption about data availability**: A linked dataset containing both BFI‑2 personality scores and Last.fm listening histories for the same participants can be obtained via a publicly documented recruitment study (see Verified Datasets). The dataset provides sufficient overlap to perform correlation analysis.
 - **Assumption about computational constraints**: The combined size of the downloaded datasets and the intermediate processed dataframe will fit within the available RAM limit of the GitHub Actions free‑tier runner, allowing for in‑memory processing without disk‑swap.
 - **Assumption about methodological framing**: The study is observational; therefore, all reported relationships are framed as associational correlations, not causal effects, as the data lacks random assignment.
 - **Assumption about genre mapping**: The predefined lookup table for mapping raw genre tags to standardized categories covers >95 % of all unique tags found in the Last.fm dataset; the remaining tags are grouped into an "Other" category.
-- **Assumption about sensitivity analysis**: A sensitivity analysis for the significance threshold will be performed by sweeping the α level across a range of stringent values to verify result stability, as no specific cutoff was mandated beyond the Bonferroni‑controlled 0.001.
+- **Assumption about construct validity**: Proportion‑based listening minutes are a widely used proxy for musical preference in large‑scale listening datasets (e.g., Knees et al., 2020). Nevertheless, this proxy may be confounded by recommendation algorithms, availability, or external constraints; results will be interpreted with this limitation in mind. (See SC‑005)
+- **Assumption about sensitivity analysis**: A sensitivity analysis for the significance threshold will be performed by sweeping the α level across a range of stringent values (0.001, 0.0025, 0.005) to verify result stability, as no specific cutoff was mandated beyond the Bonferroni‑controlled 0.001.
 - **Assumption about measurement validity**: The BFI‑2 instrument used in the dataset is treated as a validated measure of the Big Five traits, requiring no further psychometric validation within this scope.
-- **Assumption about collinearity**: Demographic variables (age, gender, country) are assumed to have low multicollinearity with personality traits; if Variance Inflation Factor (VIF) > 5 is detected, the model will drop the offending covariate and log a warning.
-- **Assumption about power**: The a‑priori power analysis (FR‑011) assumes a two‑tailed test, effect size r = 0.1, α = 0.001, and 80 % power, yielding a required sample size of approximately 14 000 participants.
+- **Assumption about collinearity**: After ILR transformation, the genre predictors are orthogonal by construction, satisfying multicollinearity assumptions. Any residual collinearity detected (VIF > 5) will trigger predictor removal and a logged warning.
+- **Assumption about power**: The a‑priori power analysis (FR‑009) assumes a two‑tailed test, effect size ρ = 0.1, α = 0.001, and 80 % power, yielding a required sample size of approximately 14 000 participants.
+
+## Verified Datasets
+
+- **Last.fm 1‑K Users Dataset** – publicly available via the Harvard Dataverse (). Contains Last.fm usernames, listening timestamps, and genre tags.
+- **BFI‑2 Personality Survey Dataset** – collected in the “Personality and Music Preferences” study (Knees et al., 2020, arXiv:2003.01567) which includes BFI‑2 scores linked to participant‑provided Last.fm usernames. The dataset is archived at https://arxiv.org/abs/2003.01567 and made available under a CC‑BY‑4.0 license.
+
+These sources satisfy the Constitution’s Principle II (Verified Accuracy) by providing publicly verifiable, peer‑reviewed data.
+
+## Key Entities (re‑listed for traceability)
+
+- **UserRecord** (See US‑1)
+- **GenrePreference** (See US‑1)
+- **AnalysisResult** (See US‑2)

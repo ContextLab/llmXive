@@ -1,18 +1,18 @@
 status: none
-intent: OpenML Personality-Music dataset ID 987654 download python package dataset
+intent: download linked BFI-2 personality and Last.fm listening history dataset python
+  package dataset
 required_fields:
 - participant_id
-- bfi_openness
-- bfi_conscientiousness
-- bfi_extraversion
-- bfi_agreeableness
-- bfi_neuroticism
-- lastfm_username
-- genre_raw
-- genre_standardized
-- listening_count
+- bfi2_openness
+- bfi2_conscientiousness
+- bfi2_extraversion
+- bfi2_agreeableness
+- bfi2_neuroticism
+- lastfm_user_id
+- listening_history
+- standardized_genre
 - age
 - gender
-cache_key: 6a4af0e0fa764c3d9cb7ace50e4cec8352afad1c866b5a590ed76abb95b5e177
-searched_at: '2026-08-12T23:25:32.491014+00:00'
+cache_key: 00d054723338083f5574b5d5c63b765c1d914f3c07843d98af2bdce5b818bff4
+searched_at: '2026-10-07T02:00:11.834114+00:00'
 retry_count: 1

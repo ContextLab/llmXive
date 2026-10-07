@@ -1,12 +1,16 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 8 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'science'. Routing to 'specified' with full provenance so the next worker can address the root cause.
 
-- `T000a` (rejected 1x): The `results/power_analysis.txt` file is absent, and the state YAML still has `required_sample_size: null`, indicating the script never wrote or parsed the sample size nor updated `research.md`. The implementation is incomplete and does not satisfy the task’s output and update requirements.
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- The plan re‑frames the original research question (correlating *listening‑history* musical preference with personality) to using self‑reported genre preference fields that may not exist in the BFI dataset. This substitution changes the construct being measured; self‑reported preferences are not equivalent to actual listening behavior, violating construct validity and making the analysis unable to answer the spec’s primary claim.
+- Power analysis targets detection of ρ = 0.1 at α = 0.001, requiring ≈ 14 000 participants, yet the verified BFI‑2 datasets contain far fewer records (typically a few hundred). Proceeding with the analysis despite this severe under‑power risks false negatives and undermines the credibility of any reported effects.
+- Success Criterion SC-008 (unspecified in the spec but referenced in FR-011) has no explicit coverage in the plan. No phase mentions SC-008, so the criterion is unbacked.
+- The plan relies exclusively on the three verified BFI‑2 CSV/JSON files, which contain only personality scores and demographics. No verified dataset providing musical‑preference or listening‑history data is actually used, yet the original specification (spec.md) requires a *linked* dataset containing both BFI‑2 scores **and** Last.fm listening histories for the same participants. Using only BFI data (or self‑reported genre fields that may not exist) makes the dataset inappropriate for answering the research question about musical preference, constituting a wrong‑dataset‑for‑the‑question error.
+- The processed dataset schema in `data-model.md` lists a required property `genre_proportions`, while the contract `contracts/processed_dataset.schema.yaml` (and the implementation plan) use `genre_ilr`. This naming mismatch creates ambiguity about the actual field name produced by the pipeline.
+- The contracts directory includes `results.schema.yaml` (defining a `coefficient_deltas.csv` artifact), but the plan never mentions generating or validating this artifact. Either the plan should incorporate this step or the contract should be removed if unused.
+- The plan converts Spearman ρ to Cohen’s d and computes 95 % confidence intervals via Fisher‑z transformation. Fisher‑z is appropriate for Pearson r, not for Spearman rank correlation; similarly, the standard conversion to Cohen’s d assumes a linear relationship. This statistical mismatch can produce inaccurate effect‑size estimates and confidence intervals.
+- The validation target (genre preference) and the predictor (personality traits) are both derived from the same self‑reported questionnaire, introducing common‑method bias. This violates the independence assumption between predictors and outcome, making any observed correlation potentially artefactual rather than reflecting a true external association.

@@ -1,51 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Processed Merged Dataset Schema"
-type: "object"
-properties:
-  user_id:
-    type: "string"
-    description: "Hashed identifier for the participant."
-  openness_score:
-    type: "number"
-    description: "BFI‑2 Openness score (1‑5)."
-  conscientiousness_score:
-    type: "number"
-    description: "BFI‑2 Conscientiousness score (1‑5)."
-  extraversion_score:
-    type: "number"
-    description: "BFI‑2 Extraversion score (1‑5)."
-  agreeableness_score:
-    type: "number"
-    description: "BFI‑2 Agreeableness score (1‑5)."
-  neuroticism_score:
-    type: "number"
-    description: "BFI‑2 Neuroticism score (1‑5)."
-  age:
-    type: "integer"
-    description: "Age in years."
-  gender:
-    type: "string"
-    enum: ["Male", "Female", "Other"]
-    description: "Self‑reported gender."
-  country:
-    type: "string"
-    description: "Country code (ISO‑3166‑1 alpha‑2), rare values collapsed to \"Other\"."
-  genre_name:
-    type: "string"
-    enum: ["Rock", "Pop", "Hip‑Hop", "Classical", "Electronic", "Jazz", "Folk", "Country", "Metal", "Other"]
-    description: "Standardized genre category."
-  listening_minutes:
-    type: "number"
-    description: "Total minutes listened to this genre by the user."
-  total_minutes:
-    type: "number"
-    description: "Aggregate listening minutes across all genres for the user."
-  genre_proportion:
-    type: "number"
-    description: "Proportion of listening minutes for this genre (listening_minutes / total_minutes)."
-  genre_score:
-    type: "number"
-    description: "Log‑transformed genre proportion (log10(genre_proportion + ε))."
+title: "Processed Dataset Schema"
+type: object
 required:
   - user_id
   - openness_score
@@ -54,11 +9,48 @@ required:
   - agreeableness_score
   - neuroticism_score
   - age
-  - gender
-  - country
-  - genre_name
-  - listening_minutes
+  - gender_onehot
+  - country_onehot
   - total_minutes
-  - genre_proportion
-  - genre_score
-additionalProperties: false
+  - genre_proportions
+  - genre_ilr
+properties:
+  user_id:
+    type: string
+  openness_score:
+    type: number
+  conscientiousness_score:
+    type: number
+  extraversion_score:
+    type: number
+  agreeableness_score:
+    type: number
+  neuroticism_score:
+    type: number
+  age:
+    type: integer
+  gender_onehot:
+    type: object
+    additionalProperties:
+      type: integer
+      enum: [0,1]
+  country_onehot:
+    type: object
+    additionalProperties:
+      type: integer
+      enum: [0,1]
+  total_minutes:
+    type: number
+    minimum: 0
+  genre_proportions:
+    type: object
+    description: "Proportion of total listening minutes per standardized genre."
+    additionalProperties:
+      type: number
+      minimum: 0
+      maximum: 1
+  genre_ilr:
+    type: object
+    description: "ILR‑transformed compositional vector derived from `genre_proportions`."
+    additionalProperties:
+      type: number

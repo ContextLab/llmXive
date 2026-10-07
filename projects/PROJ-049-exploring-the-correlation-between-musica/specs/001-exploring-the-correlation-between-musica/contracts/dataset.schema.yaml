@@ -1,53 +1,56 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Raw Combined Dataset Schema"
-description: "Schema for the original OpenML dataset that already contains both personality scores and aggregated listening minutes per genre."
-type: "object"
-properties:
-  user_id:
-    type: "string"
-    description: "Original participant identifier (will be hashed during preprocessing)."
-  openness:
-    type: "number"
-    description: "BFI‑2 Openness score (0‑5)."
-  conscientiousness:
-    type: "number"
-    description: "BFI‑2 Conscientiousness score (0‑5)."
-  extraversion:
-    type: "number"
-    description: "BFI‑2 Extraversion score (0‑5)."
-  agreeableness:
-    type: "number"
-    description: "BFI‑2 Agreeableness score (0‑5)."
-  neuroticism:
-    type: "number"
-    description: "BFI‑2 Neuroticism score (0‑5)."
-  age:
-    type: "integer"
-    description: "Age in years."
-  gender:
-    type: "string"
-    enum: ["Male", "Female", "Other"]
-    description: "Self‑reported gender."
-  country:
-    type: "string"
-    description: "Country of residence."
-  genre:
-    type: "string"
-    enum: ["Rock", "Pop", "Hip-Hop", "Classical", "Electronic", "Jazz", "Folk", "Country", "Metal", "Other"]
-    description: "Standardized music genre."
-  listening_minutes:
-    type: "number"
-    description: "Aggregated listening minutes for this user in the given genre."
+title: "Raw BFI‑2 and Last.fm Linked Dataset"
+type: object
 required:
   - user_id
-  - openness
-  - conscientiousness
-  - extraversion
-  - agreeableness
-  - neuroticism
+  - lastfm_username
+  - openness_score
+  - conscientiousness_score
+  - extraversion_score
+  - agreeableness_score
+  - neuroticism_score
   - age
   - gender
   - country
-  - genre
-  - listening_minutes
-additionalProperties: false
+  - listening_history
+properties:
+  user_id:
+    type: string
+    description: "Hashed participant identifier."
+  lastfm_username:
+    type: string
+    description: "Username on Last.fm used for linking."
+  openness_score:
+    type: number
+    minimum: 0
+    maximum: 100
+  conscientiousness_score:
+    type: number
+    minimum: 0
+    maximum: 100
+  extraversion_score:
+    type: number
+    minimum: 0
+    maximum: 100
+  agreeableness_score:
+    type: number
+    minimum: 0
+    maximum: 100
+  neuroticism_score:
+    type: number
+    minimum: 0
+    maximum: 100
+  age:
+    type: integer
+    minimum: 0
+  gender:
+    type: string
+    enum: ["Male", "Female", "Other"]
+  country:
+    type: string
+  listening_history:
+    type: object
+    description: "Mapping from raw genre tag to total listening minutes for this user."
+    additionalProperties:
+      type: number
+      minimum: 0

@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ILR‑Based Multiple Regression Results"
+type: array
+items:
+  type: object
+  required:
+    - trait
+    - predictor
+    - coefficient
+    - std_error
+    - p_value
+    - adjusted_p_value
+    - is_significant
+  properties:
+    trait:
+      type: string
+      enum:
+        - "openness"
+        - "conscientiousness"
+        - "extraversion"
+        - "agreeableness"
+        - "neuroticism"
+    predictor:
+      type: string
+      description: "One of the ILR components, age ... etc."
+    coefficient:
+      type: number
+    std_error:
+      type: number
+    p_value:
+      type: number
+      minimum: 0
+      maximum: 1
+    adjusted_p_value:
+      type: number
+      minimum: 0
+      maximum: 1
+    is_significant:
+      type: boolean

@@ -1,64 +1,27 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Analysis Output Schema"
-description: "Schema for the statistical analysis results including correlations and regression metrics (Pearson r)."
-type: "object"
-properties:
-  trait:
-    type: "string"
-    description: "The Big Five trait name."
-  genre:
-    type: "string"
-    description: "The standardized genre name."
-  correlation_r:
-    type: "number"
-    description: "Pearson correlation coefficient between trait and genre proportion."
-  p_value:
-    type: "number"
-    description: "Two‑tailed p‑value for the Pearson correlation."
-  adjusted_p_value:
-    type: "number"
-    description: "Bonferroni corrected p‑value."
-  is_significant:
-    type: "boolean"
-    description: "True if adjusted_p_value < 0.001."
-  cohens_d:
-    type: "number"
-    description: "Cohen's d effect size derived from Pearson r."
-  ci_lower:
-    type: "number"
-    description: "Lower bound of 95 % confidence interval for Pearson r (Fisher z)."
-  ci_upper:
-    type: "number"
-    description: "Upper bound of 95 % confidence interval for Pearson r (Fisher z)."
-  high_correlation_flag:
-    type: "boolean"
-    description: "True if |correlation_r| > 0.3."
-  beta_baseline:
-    type: "number"
-    description: "Beta coefficient from baseline model (Trait only)."
-  beta_full:
-    type: "number"
-    description: "Beta coefficient from full model (Trait + Covariates)."
-  delta:
-    type: "number"
-    description: "Change in beta (beta_full - beta_baseline)."
-  vif:
-    type: "number"
-    description: "Variance Inflation Factor for collinearity check."
-    minimum: 1
+title: "Combined Analysis Output Schema"
+type: object
 required:
-  - trait
-  - genre
-  - correlation_r
-  - p_value
-  - adjusted_p_value
-  - is_significant
-  - cohens_d
-  - ci_lower
-  - ci_upper
-  - high_correlation_flag
-  - beta_baseline
-  - beta_full
-  - delta
-  - vif
-additionalProperties: false
+  - correlation_results
+  - regression_results
+  - diagnostics
+properties:
+  correlation_results:
+    $ref: "./correlation_results.schema.yaml"
+  regression_results:
+    $ref: "./regression_results.schema.yaml"
+  diagnostics:
+    type: array
+    items:
+      type: object
+      required:
+        - model_trait
+        - issue
+        - action
+      properties:
+        model_trait:
+          type: string
+        issue:
+          type: string
+        action:
+          type: string

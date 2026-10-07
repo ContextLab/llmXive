@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Spearman Correlation Results Schema"
+type: array
+items:
+  type: object
+  required:
+    - trait
+    - genre
+    - spearman_rho
+    - p_value
+    - adjusted_p_value
+    - is_significant
+    - cohens_d
+    - ci_lower
+    - ci_upper
+  properties:
+    trait:
+      type: string
+      enum:
+        - "openness"
+        - "conscientiousness"
+        - "extraversion"
+        - "agreeableness"
+        - "neuroticism"
+    genre:
+      type: string
+      enum:
+        - "Rock"
+        - "Pop"
+        - "Hip-Hop"
+        - "Classical"
+        - "Electronic"
+        - "Jazz"
+        - "Folk"
+        - "Country"
+        - "Metal"
+        - "Other"
+    spearman_rho:
+      type: number
+      minimum: -1
+      maximum: 1
+    p_value:
+      type: number
+      minimum: 0
+      maximum: 1
+    adjusted_p_value:
+      type: number
+      minimum: 0
+      maximum: 1
+    is_significant:
+      type: boolean
+    cohens_d:
+      type: number
+    ci_lower:
+      type: number
+    ci_upper:
+      type: number

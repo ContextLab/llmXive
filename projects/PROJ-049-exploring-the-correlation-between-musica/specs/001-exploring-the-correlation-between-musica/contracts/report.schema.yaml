@@ -1,51 +1,34 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Final Report Schema"
-description: "Schema for results/results_report.csv"
-type: "object"
-properties:
-  trait:
-    type: "string"
-    description: "Big Five trait name."
-  genre:
-    type: "string"
-    description: "Standardized genre name."
-  correlation_r:
-    type: "number"
-    description: "Pearson correlation coefficient."
-  p_value:
-    type: "number"
-    description: "Raw two‑tailed p‑value."
-  adjusted_p_value:
-    type: "number"
-    description: "Bonferroni corrected p‑value."
-  is_significant:
-    type: "boolean"
-    description: "True if adjusted p < 0.001."
-  cohens_d:
-    type: "number"
-    description: "Cohen's d effect size."
-  ci_lower:
-    type: "number"
-    description: "Lower bound of 95 % CI for Cohen's d."
-  ci_upper:
-    type: "number"
-    description: "Upper bound of 95 % CI for Cohen's d."
-  status_label:
-    type: "string"
-    description: "Human‑readable label (e.g., \"Non‑significant (adjusted p ≥ 0.001)\")."
-  high_correlation_flag:
-    type: "boolean"
-    description: "True if |correlation_r| > 0.3."
+title: "Final Results Report Schema"
+type: object
 required:
-  - trait
-  - genre
-  - correlation_r
-  - p_value
-  - adjusted_p_value
-  - is_significant
-  - cohens_d
-  - ci_lower
-  - ci_upper
-  - status_label
-  - high_correlation_flag
-additionalProperties: false
+  - summary_statistics
+  - significant_findings
+  - limitations
+properties:
+  summary_statistics:
+    type: object
+    required:
+      - total_tests
+      - significant_tests
+      - required_sample_size
+      - actual_sample_size
+      - power_note
+    properties:
+      total_tests:
+        type: integer
+      significant_tests:
+        type: integer
+      required_sample_size:
+        type: integer
+      actual_sample_size:
+        type: integer
+      power_note:
+        type: string
+  significant_findings:
+    type: array
+    items:
+      $ref: "./correlation_results.schema.yaml#/items"
+  limitations:
+    type: string
+    description: "Narrative ... constraints"

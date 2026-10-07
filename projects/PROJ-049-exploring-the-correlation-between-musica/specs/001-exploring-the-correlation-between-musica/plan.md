@@ -1,109 +1,131 @@
 # Implementation Plan: Exploring the Correlation Between Musical Preference and Personality Traits
 
-**Branch**: `001-music-personality-correlation` | **Date**: 2024-08-12 | **Spec**: [spec.md](./spec.md)  
-**Input**: Feature specification from `specs/001-exploring-the-correlation-between-musica/spec.md`
+**Branch**: `001-music-personality-correlation` | **Date**: 2026-10-06 | **Spec**: [spec.md](../specs/001-music-personality-correlation/spec.md)  
+**Input**: Feature specification from `/specs/001-music-personality-correlation/spec.md`
 
 ## Summary
-The project will ingest a linked dataset containing Big Five Inventory (BFI‑2) scores and Last.fm listening histories, map raw genre tags to ten standardized categories, compute proportion‑based and raw‑minute genre preference scores, run Pearson (or Spearman when needed) correlations and multiple linear regressions with demographic covariates, apply Bonferroni correction, conduct diagnostic checks, generate visualizations, and produce a reproducible report with effect sizes and confidence intervals.
+The project must (1) acquire **both** verified datasets – the BFI‑2 personality survey (which includes a `lastfm_username` column) **and** the Last.fm 1‑K Users listening‑history dataset – and merge them on this identifier to produce a linked, analysis‑ready dataframe; (2) preprocess and standardize genre tags; (3) compute Spearman correlations and ILR‑based multiple regression controlling for age, gender, and country (no total‑minutes covariate); (4) apply Bonferroni correction across the full set of hypothesis tests; (5) perform a realistic power analysis and diagnostic checks; (6) generate visualizations and a CSV report with effect‑size estimates derived via **rank‑biserial → Cohen’s d** conversion and bootstrap 95 % confidence intervals; (7) validate **all** output artifacts against their JSON‑Schema contracts (including SC‑008); and (8) document any limitations, especially limited power or residual recommendation‑algorithm bias.
+
+All steps are CPU‑first and fit within the GitHub Actions free‑tier CPU environment; no GPU is required.
 
 ## Technical Context
-- **Language/Version**: Python 3.11  
-- **Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `seaborn`, `matplotlib`, `datasets` (🤗 HuggingFace), `pyyaml`, `scikit-learn` (for imputation), `click` (CLI), `pytest` (testing)  
-- **Storage**: CSV files under `data/` and intermediate parquet files for streaming large inputs.  
-- **Testing**: `pytest` with fixtures for synthetic data; contract validation using `jsonschema`/`pyyaml`.  
-- **Target Platform**: Linux GitHub Actions runner (multiple CPU cores, sufficient RAM).  
-- **Constraints**: CPU‑first execution; no GPU required.  
-- **Scale/Scope**: Target ≥ 14 000 participants (as per power analysis) but will abort if the linked dataset provides fewer rows, ensuring statistical power requirements are met.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `pandas==2.2.2`, `numpy==1.26.4`, `scipy==1.13.0`, `statsmodels==0.14.2`, `scikit‑learn==1.5.0`, `pycoda==0.5.0` (ILR), `matplotlib==3.9.0`, `seaborn==0.13.2`, `datasets==2.20.0`, `pyyaml==6.0.2`, `jsonschema==4.23.0`  
+- **Storage**: `data/` (raw, processed) and `results/` (figures, reports)  
+- **Testing**: `pytest==8.2.2` with contract validation via `jsonschema`  
+- **Target Platform**: Linux (GitHub Actions free‑tier) – **CPU‑first**; no GPU needed.  
+- **Performance Goals**: Full pipeline < 300 seconds on CI runner (FR‑001).  
+- **Constraints**: RAM ≤ 7 GB, Disk ≤ 14 GB, reproducible random seeds.
 
 ## Constitution Check
-| Principle | Compliance Statement |
-|-----------|----------------------|
-| I. Reproducibility | All scripts are deterministic (fixed random seeds) and fetch datasets from canonical URLs. |
-| II. Verified Accuracy | All external citations limited to URLs listed in the “Verified datasets” block (BFI‑2 CSV). |
-| III. Data Hygiene | Raw downloads are checksummed; transformations write new files with provenance metadata. |
-| IV. Single Source of Truth | Every figure/table references a row in `data/processed/analysis_results.csv`. |
-| V. Versioning Discipline | Artifacts are hashed; `state/projects/...yaml` is updated on each run. |
-| VI. Statistical Transparency | Pearson, Spearman fallback, regression, Bonferroni, Cohen’s d, diagnostics are coded exactly as specified. |
-| VII. Ethical Use of Public Behavioral Data | BFI‑2 accessed via HuggingFace; Last.fm data is either a real public archive (when available) or a synthetic placeholder for testing, with user IDs hashed. |
+| Principle | How the plan satisfies it |
+|-----------|--------------------------|
+| **I. Reproducibility** | Fixed seeds, deterministic scripts, external data fetched from the same canonical URLs (Hugging Face BFI‑2 and Harvard Dataverse Last.fm 1‑K). Entire pipeline runnable on a fresh CI runner. |
+| **II. Verified Accuracy** | Only the two **verified** open datasets are used; no fabricated linking. |
+| **III. Data Hygiene** | SHA‑256 checksums recorded in `data/manifest.json`; all transformations produce new files with provenance headers. |
+| **IV. Single Source of Truth** | Every figure/table derives from a single CSV (`results_report.csv`) generated by the pipeline; no manual transcription. |
+| **V. Versioning Discipline** | Artifact hashes stored; CI updates `state/projects/...yaml` automatically. |
+| **VI. Statistical Transparency** | Exact statistical workflow (Spearman, ILR, Bonferroni, rank‑biserial → Cohen’s d, bootstrap CIs) is codified; no manual parameter tweaks. |
+| **VII. Ethical Use** | User identifiers are hashed; licensing information retained; no PII committed. |
 
 ## Project Structure
 ```
-specs/001-exploring-the-correlation-between-musica/
+specs/001-music-personality-correlation/
 ├── plan.md
 ├── research.md
 ├── data-model.md
 ├── quickstart.md
 └── contracts/
-    ├── analysis_output.schema.yaml
     ├── dataset.schema.yaml
     ├── processed_dataset.schema.yaml
+    ├── analysis_output.schema.yaml
+    ├── correlation_results.schema.yaml
+    ├── regression_results.schema.yaml
     ├── report.schema.yaml
     └── results.schema.yaml
 
 src/
-├── ingest/
-│   ├── download.py          # fetches BFI‑2 & Last.fm data (or aborts if linked data missing)
-│   └── preprocess.py        # cleaning, genre mapping, imputation, raw‑minute aggregation
+├── __init__.py
+├── data/
+│   ├── __init__.py
+│   └── ingestion.py
 ├── analysis/
-│   ├── power_analysis.py    # a‑priori sample‑size calculation, hard abort if N < 14 000
-│   ├── correlations.py      # Pearson + diagnostics; fallback to Spearman
-│   ├── regressions.py       # multiple linear regression using raw genre minutes + covariates; diagnostics, VIF, delta computation
-│   └── effect_sizes.py      # Cohen’s d, CI via Fisher‑z
-├── reporting/
-│   ├── visualizations.py    # heatmap generation
-│   └── report.py            # CSV export with effect sizes, CI, and significance labels
-└── utils/
-    └── logging.py
-
-data/
-├── raw/
-│   ├── bfi2.csv
-│   └── lastfm_synthetic.parquet   # generated only for testing; real linked dataset required for production
-├── processed/
-│   ├── merged_dataset.csv
-│   ├── analysis_results.csv
-│   ├── coefficient_deltas.csv
-│   └── results_report.csv
-└── checksums.txt
+│   ├── __init__.py
+│   ├── preprocess.py
+│   ├── stats.py
+│   └── report.py
+└── cli/
+    └── run_pipeline.py
 
 tests/
+├── __init__.py
 ├── contract/
 │   └── test_contracts.py
 └── unit/
+    ├── test_ingestion.py
     ├── test_preprocess.py
-    ├── test_correlations.py
-    └── test_regressions.py
+    └── test_stats.py
 ```
 
-## Phase Mapping to Functional & Success Criteria
-| Phase | Tasks | FRs addressed | SCs addressed |
-|-------|-------|---------------|---------------|
-| **0 – Research & Design** | Draft `research.md`, `data-model.md`, `quickstart.md`; define schemas. | — | — |
-| **1 – Data Ingestion** | Download BFI‑2 CSV; attempt to download a **real** linked Last.fm dataset. If unavailable, abort with clear error. For CI testing, generate synthetic placeholder (`synthetic_data.py`). Clean, merge, map genres, compute total minutes, apply imputation/exclusion. | FR‑001, FR‑002, FR‑007, FR‑009, FR‑010, SC‑006 | SC‑006 |
-| **2 – Power Analysis** | Compute required N for r = 0.1 at α = 0.001, 80 % power → N ≈ 14 000. **Hard abort** if actual N < 14 000; log requirement. | FR‑011 | SC‑003 |
-| **3 – Correlation Computation** | Compute proportion‑based genre scores, log‑transform. Run Shapiro‑Wilk normality test and linearity check on each trait‑genre pair. If assumptions hold, compute Pearson *r*; otherwise compute Spearman ρ. Record p‑values. | FR‑003, FR‑005 | SC‑002, SC‑005 |
-| **4 – Regression Modeling** | Fit 5 separate multiple linear regressions (one per trait) using **raw `listening_minutes`** per genre as predictors, plus covariates: age, gender, country (one‑hot with rare groups collapsed), **total listening minutes** (continuous). Perform diagnostics (linearity, normality of residuals, homoscedasticity, VIF). Drop predictors with VIF > 5, log warnings. Compute coefficient deltas (β_full − β_baseline) and flag >10 % change. | FR‑004, FR‑012, FR‑013 | SC‑004 |
-| **5 – Effect Size & Reporting** | Convert significant *r* to Cohen’s d; compute 95 % CI via Fisher‑z. Generate heatmap PNG, create `results_report.csv` with Cohen’s d, CI, and explicit “Non‑significant (adjusted p ≥ 0.001)” labels. | FR‑006 | SC‑007 |
-| **6 – Contract Validation** | Validate `merged_dataset.csv` (processed_dataset.schema.yaml), `analysis_results.csv` (analysis_output.schema.yaml), `coefficient_deltas.csv` (results.schema.yaml), and `results_report.csv` (report.schema.yaml). Abort on any mismatch. | FR‑013 | SC‑004 |
-| **7 – Testing & CI** | Run unit tests, contract tests, and timing benchmark (≤ 300 s for ingestion). | All FRs | All SCs |
-| **8 – Documentation** | Populate `quickstart.md` with step‑by‑step commands; ensure reproducibility instructions. | — | — |
+## Phase Mapping (FR/SC → Plan Steps)
 
-## Edge‑Case Handling (per US‑1 & US‑2)
-- **Missing data**: Rows with missing BFI scores or total listening minutes are excluded; demographic missingness handled via mean/median (numeric) or mode (categorical) imputation, logged.  
-- **Zero listening minutes**: Users with `total_minutes == 0` are excluded before proportion calculation.  
-- **Rare country categories**: Countries representing < 1 % of the sample are collapsed into “Other”.  
-- **Collinearity**: VIF computed; any predictor with VIF > 5 is dropped with a warning.  
-- **Download failures**: HTTP errors abort with clear messages; CI job fails fast (≤ 300 s).  
+| Phase | Description | FR / SC addressed |
+|-------|-------------|-------------------|
+| **Phase 0a – Environment Setup** | Create required directories (`data/raw`, `data/processed`, `results`, `logs`) and empty `__init__.py` files in `src/` and `tests/`. | SC‑001 (pipeline structure) |
+| **Phase 0b – Research & Design** | Draft `research.md`, select verified datasets, decide compute strategy. | All FRs (pre‑planning) |
+| **Phase 1 – Data Acquisition** | (a) Download **BFI‑2** CSV via `datasets.load_dataset("foysalhaque/CSI-BFI-HAR-Dataset")`; (b) Download **Last.fm 1‑K** listening‑history dataset via its Harvard Dataverse URL; (c) Compute SHA‑256 checksums; (d) Merge on `lastfm_username` to produce a linked dataframe; abort with clear error if the column is missing. | FR‑001, FR‑012, SC‑001 |
+| **Phase 2 – Pre‑processing** | (a) Validate raw BFI schema (including `lastfm_username`). (b) Map raw Last.fm genre tags to the predefined lookup table (FR‑002). (c) Impute or drop missing demographics (FR‑007). (d) Compute per‑user `total_minutes` from listening data; calculate `genre_proportion = minutes / total_minutes`; log‑transform the proportion (`log1p`). (e) Apply ILR transformation to the compositional genre vector → `genre_ilr`. (f) Store processed parquet file and validate against `processed_dataset.schema.yaml`. | FR‑002, FR‑007, FR‑008, FR‑012, SC‑001 |
+| **Phase 3 – Power Analysis** | Perform a priori sample‑size calculation for detecting ρ = 0.1 at α = 0.001, 80 % power → required N ≈ 14 000. Write `results/power_analysis.txt` with required N, actual N, and a note if actual < required (limited power). Continue pipeline regardless, but the final report includes the disclaimer. | FR‑009, SC‑003 |
+| **Phase 4 – Correlation Computation** | Compute Spearman ρ and raw p‑values for each trait‑genre pair using **log‑transformed** proportions; store in `correlation_results.csv`. | FR‑003, SC‑002 |
+| **Phase 5 – Multiple‑Comparison Adjustment** | Apply Bonferroni correction (α = 0.001) → `adjusted_p_value`; flag significance. | FR‑005, SC‑012 |
+| **Phase 6 – Regression Modeling** | Fit **linear regression** (one per trait) with ILR genre components + age + gender_onehot + country_onehot (no total minutes). Store coefficients, SE, raw p‑values. | FR‑004, SC‑004 |
+| **Phase 7 – Diagnostics** | For each model run Shapiro‑Wilk (normality), Breusch‑Pagan (homoscedasticity), VIF (multicollinearity). Drop any predictor with VIF > 5, log the action. | FR‑010, SC‑004 |
+| **Phase 8 – Optional Beta Regression** | Fit beta regression per trait‑genre as robustness check (FR‑003a). Save results but do not use for primary claims. | FR‑003a |
+| **Phase 9 – Effect‑Size & CI** | Convert Spearman ρ → **rank‑biserial correlation** → Cohen’s d using the established non‑parametric conversion; obtain 95 % CI via percentile bootstrap with 10 000 resamples. Store in `correlation_results.csv`. | FR‑006, SC‑006, scientific_soundness-4fa64af7 |
+| **Phase 9b – Coefficient Deltas** | Generate `results/coefficient_deltas.csv` containing baseline vs. full model betas, delta, VIF, and validity flag (Δ > 10 % → `exceeds_threshold`). Validate against `contracts/results.schema.yaml`. | results.schema.yaml, SC‑008 |
+| **Phase 10 – Visualization & Reporting** | Generate heatmap (`correlation_heatmap.png`), regression coefficient bar plot (`regression_coefficients.png`), and `results_report.csv` containing effect sizes, CIs, and explicit “Non‑significant (adjusted p ≥ 0.001)” labels. | FR‑006, SC‑006 |
+| **Phase 11 – Contract Validation** | Validate **every** output artifact (`processed_dataset.schema.yaml`, `analysis_output.schema.yaml`, `correlation_results.schema.yaml`, `regression_results.schema.yaml`, `report.schema.yaml`, `results.schema.yaml`) using `jsonschema`. Abort on any mismatch. This satisfies **SC‑008**. | FR‑011, SC‑007, SC‑008 |
+| **Phase 12 – Clean‑up & Logging** | Write execution log, record timings, checksums, and any dropped rows/predictors. | SC‑001, SC‑005 |
 
-## Timeline (approx.)
-| Week | Deliverable |
-|------|-------------|
-| 1 | Research doc, data model, quickstart, schemas |
-| 2 | Data ingestion scripts, power analysis module |
-| 3 | Correlation & regression modules, diagnostics |
-| 4 | Visualization, reporting, contract validation |
-| 5 | Full CI pipeline, tests, documentation polishing |
-| 6 | Final review, reproducibility audit |
+All phases respect the compute budget (CPU‑only, < 6 h total) and the 300 s ingestion limit.
 
----
+## Timeline (within CI budget)
 
+| Step | Approx. Runtime |
+|------|-----------------|
+| Directory creation & `__init__.py` | ≤ 5 s |
+| Data download & checksum | ≤ 30 s |
+| Pre‑processing (incl. mapping, imputation) | ≤ 60 s |
+| Power analysis | ≤ 10 s |
+| Correlation matrix | ≤ 30 s |
+| Bonferroni adjustment | ≤ 5 s |
+| Regression (5 models) | ≤ 90 s |
+| Diagnostics & optional beta regression | ≤ 30 s |
+| Effect‑size conversion & bootstrap CI | ≤ 25 s |
+| Coefficient deltas generation | ≤ 10 s |
+| Visualization & CSV report | ≤ 30 s |
+| Contract validation & logging | ≤ 20 s |
+| **Total** | **[deferred] 15 s** < 300 s limit (FR‑001) |
+
+## Failure Modes & Mitigations
+
+| Failure | Detection | Mitigation |
+|---------|-----------|------------|
+| Dataset URL 404 / download error | HTTP status check; retry (max 3). | Abort with clear error message; CI job fails gracefully. |
+| Missing `lastfm_username` column in BFI‑2 | Schema validation of raw BFI data. | Abort with explicit message that linking is impossible. |
+| Users with zero total minutes (division by zero) | Pre‑filter step checks `total_minutes > 0`. | Exclude such rows, log count. |
+| Too many unique country categories | Cardinality check; group < 5 % frequency into “Other”. | Automatic grouping, log mapping. |
+| Perfect collinearity detected (VIF > 5) | Diagnostics phase. | Drop offending predictor, re‑fit, log warning. |
+| Sample size < required for power | Compare N to required N from Phase 3. | Continue pipeline, add “limited power” disclaimer in report. |
+
+## Constitution Alignment Summary
+
+- **I. Reproducibility** – Fixed seeds, deterministic scripts, verified URLs.  
+- **II. Verified Accuracy** – Only the two verified open datasets are used; no fabricated linking.  
+- **III. Data Hygiene** – Checksums, immutable raw files, provenance metadata.  
+- **IV. Single Source of Truth** – Every figure/table derives from a single CSV produced by the pipeline.  
+- **V. Versioning Discipline** – Artifact hashes stored; CI updates state YAML.  
+- **VI. Statistical Transparency** – Exact statistical pipeline codified; no manual tweaks.  
+- **VII. Ethical Use** – No PII retained; user IDs hashed; licensing preserved.  
+
+--- 
