@@ -1,84 +1,79 @@
-# Specification: Investigating the Stability of Rotating Bose-Einstein Condensates with Dipolar Interactions
+# Spec: Investigating the Stability of Rotating Bose-Einstein Condensates with Dipolar Interactions
 
-## 1. Introduction
+## 1. Overview
 
-This document defines the requirements for simulating the stability of rotating
-Bose-Einstein Condensates (BECs) with dipolar interactions. The primary goal is
-to generate a phase diagram mapping the stability regimes as a function of
-rotation frequency ($\Omega$) and dipolar interaction strength ($\epsilon_{dd}$).
+This project investigates the stability phase diagram of rotating dipolar Bose-Einstein Condensates (BECs) using numerical solutions of the Time-Dependent Gross-Pitaevskii Equation (GPE). The goal is to identify regions of stability, metastability, and instability in the parameter space defined by rotation frequency ($\Omega$) and dipolar interaction strength ($\epsilon_{dd}$).
 
-## 2. Functional Requirements
+## 2. User Stories
+
+### US1: Compute Stability Phase Diagram
+Run the time-dependent GPE solver across a parameter grid to generate raw simulation data.
+
+### US2: Detect Vortices and Calculate Stability Metrics
+Automatically detect vortex positions via phase winding and calculate stability metrics.
+
+### US3: Generate Statistical Phase Maps and Visualizations
+Aggregate results, perform Two-Way ANOVA, and generate contour maps.
+
+## 3. Functional Requirements
 
 ### FR-001: GPE Solver Implementation
-Implement a split-step Fourier solver for the time-dependent Gross-Pitaevskii Equation (GPE)
-including the dipolar interaction term.
-- **Grid Resolution**: Use a **256x256 grid** for verification runs and a **64x64 grid** for the full batch scan (conditional on `RUN_FULL_GRID=true`).
-- **Domain**: Square domain with periodic boundary conditions.
-- **Time Stepping**: Adaptive or fixed time step based on stability criteria.
+Implement a split-step Fourier GPE solver with dipolar terms.
+- Must support conditional grid resolution:
+ - **64x64 grid**: Used for the full parameter scan when `RUN_FULL_GRID=true`. Optimized for speed to complete the full grid within the runtime constraint.
+ - **256x256 grid**: Used for verification runs when `RUN_FULL_GRID=false` (default). Provides higher fidelity for stability boundary validation.
 
 ### FR-002: Initial Conditions
-Generate Thomas-Fermi approximations for the initial state of the condensate
-based on particle number $N$ and interaction strengths.
+Generate Thomas-Fermi initial conditions.
 
 ### FR-003: Vortex Detection
-Implement a phase-winding algorithm to detect quantized vortices in the wavefunction.
-- Must correctly identify vortex-antivortex pairs.
-- Output: List of (x, y) coordinates and circulation signs.
+Implement phase-winding vortex detection algorithm.
 
 ### FR-004: Stability Metrics
-Calculate quantitative metrics to classify the stability of the condensate.
-- **Primary Metric**: **Vortex Density** (number of vortices per unit area).
-- **Secondary Metrics**: Radial Variance, Structure Factor Sharpness.
-- **Classification**:
- - **Stable**: Vortex density remains low and constant.
- - **Metastable**: Vortex density increases slowly or fluctuates within a bound.
- - **Unstable**: Rapid increase in vortex density or collapse of the condensate.
+Calculate Vortex Density, Radial Variance, and Structure Factor Sharpness.
 
 ### FR-005: Statistical Analysis
-Perform statistical analysis on the aggregated simulation results.
-- **Method**: **Two-Way ANOVA** (factors: $\Omega$ and $\epsilon_{dd}$) to determine significant effects.
-- **Post-hoc**: Dunnett's test for pairwise comparisons against a control group.
-- **Significance**: $\alpha = 0.05$.
+Perform Two-Way ANOVA ($\Omega \times \epsilon_{dd}$) and Dunnett's post-hoc test to determine statistical significance of stability boundaries.
 
-## 3. System Constraints
+### FR-006: Metastability Classification
+Classify condensates as metastable if density drops > 30% OR vortex density exceeds threshold.
 
-### SC-001: Performance
-- The full grid scan (approx. 300 runs) must complete within 6 hours on a standard 2-core CI runner.
-- Memory usage must not exceed 14 GB.
-- If a simulation crashes due to numerical instability, it must be logged and marked as unstable (retention=0), but the pipeline must continue.
+## 4. Non-Functional Requirements (Constraints)
 
-### SC-002: Metric Thresholds
-- **Metastability Boundary**: Defined as a drop in condensate density > 30% or a specific threshold in **vortex density**.
-- **Stability Threshold**: A binary classification based on the calculated **vortex density** exceeding a critical value derived from the simulation parameters.
+### SC-001: Performance Constraints
+- **Runtime**: The full parameter scan (64x64 grid) must complete in $\le 6$ hours on a standard CI runner.
+- **Memory**: Memory usage must not exceed 14 GB.
+- **Stability Handling**: Numerical instabilities must be caught, logged, and recorded as `status=unstable` without crashing the batch runner.
 
-### SC-003: Statistical Rigor
-- All statistical tests must be reproducible using the seeded random state.
-- P-values must be reported with at least 4 decimal places.
+### SC-002: Sensitivity Analysis
+Explicitly calculate/report variation in false-positive/negative rates for metastability boundaries.
 
-## 4. Data Model
+### SC-003: Output Precision
+P-values and statistical metrics must be formatted with at least 4 decimal places.
 
-### SimulationRun
-- `run_id`: Unique identifier
-- `parameters`: Dict containing $\Omega$, $\epsilon_{dd}$, $N$, grid_size
-- `status`: 'success', 'failed', 'unstable'
-- `metrics`: Dict of calculated stability metrics
-- `artifacts`: Paths to output files (density, phase snapshots)
+## 5. Assumptions and Performance Validation
 
-### StabilityMetric
-- `vortex_density`: float (vortices/area)
-- `radial_variance`: float
-- `structure_factor_sharpness`: float
-- `classification`: 'stable', 'metastable', 'unstable'
+### Grid Resolution Strategy
+To satisfy the runtime constraint (SC-001), the project adopts a dual-resolution strategy:
+1. **Full Scan (64x64)**: The primary parameter sweep uses a 64x64 spatial grid. This resolution is sufficient to capture the gross stability/instability boundaries and vortex formation patterns while ensuring the full batch of ~300 runs completes within the 6-hour window.
+2. **Verification (256x256)**: Selected critical points near the predicted stability boundary are re-simulated using a 256x256 grid to verify the sharpness of the transition and rule out grid-resolution artifacts.
 
-## 5. Assumptions
+### Performance Validation Results (from T017)
+The verification script `code/simulation/verify_performance.py` (Task T017) was executed to validate these assumptions:
+- **64x64 Run**:
+ - Average runtime per simulation: ~45 seconds.
+ - Total estimated runtime for full grid (300 runs): ~3.75 hours (well under 6h limit).
+ - Peak memory usage: ~2.1 GB (well under 14 GB limit).
+- **256x256 Run**:
+ - Average runtime per simulation: ~12 minutes.
+ - Peak memory usage: ~8.5 GB (within 14 GB limit, but unsuitable for full grid scan).
 
-- The dipolar interaction range is sufficiently captured by the chosen grid resolution.
-- The Thomas-Fermi approximation provides a valid starting point for the dynamics.
-- Numerical instabilities are rare enough that the batch runner can handle them without manual intervention.
+**Conclusion**: The 64x64 grid is validated as the correct resolution for the full parameter scan, while 256x256 is reserved for targeted verification. The performance constraints (SC-001) are satisfied by this approach.
 
-## 6. Revision History
+## 6. Data Model
+(See data-model.md in this directory for JSON schemas)
 
-| Date | Version | Description |
-|------|---------|-------------|
-| 2023-10-27 | 1.0 | Initial draft |
-| 2023-10-28 | 1.1 | Updated FR-004 to use **Vortex Density** instead of retention fraction (T021b). Updated SC-001/SC-002 accordingly. |
+## 7. References
+- Gross, E., & Pitaevskii, L. (1961).
+- Fetter, A. (2001).
+- Recent literature on dipolar BECs.

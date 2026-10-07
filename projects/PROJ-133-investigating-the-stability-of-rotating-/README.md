@@ -1,28 +1,28 @@
 # Investigating the Stability of Rotating Bose-Einstein Condensates with Dipolar Interactions
 
-This project implements a numerical study of the stability of rotating Bose-Einstein Condensates (BECs) with dipolar interactions. It solves the time-dependent Gross-Pitaevskii Equation (GPE) using a split-step Fourier method, detects vortices via phase winding, calculates stability metrics, and performs statistical analysis to generate phase diagrams.
+This project implements a numerical pipeline to investigate the stability of rotating Bose-Einstein condensates (BECs) with dipolar interactions. It solves the time-dependent Gross-Pitaevskii equation (GPE) using a split-step Fourier method, detects vortices via phase winding, and performs statistical analysis to map the stability phase diagram.
 
-## Features
+## Table of Contents
 
-- **GPE Solver**: Split-step Fourier solver with dipolar interaction terms.
-- **Initial Conditions**: Thomas-Fermi and Gaussian initial states.
-- **Vortex Detection**: Phase-winding algorithm to detect vortex-antivortex pairs.
-- **Stability Metrics**: Calculates vortex density, radial variance, and structure factor sharpness.
-- **Statistical Analysis**: Two-Way ANOVA (Ω × ε_dd) and Dunnett's post-hoc test.
-- **Visualization**: 3D contour maps of stability regimes and representative density/phase plots.
-
-## Prerequisites
-
-- Python 3.8+
-- pip
-- git
+- [Installation](#installation)
+- [Project Structure](#project-structure)
+- [Usage](#usage)
+ - [Running a Single Simulation](#running-a-single-simulation)
+ - [Running the Full Parameter Grid](#running-the-full-parameter-grid)
+ - [Analyzing Snapshots](#analyzing-snapshots)
+ - [Generating Visualizations](#generating-visualizations)
+- [Configuration](#configuration)
+- [Parameters](#parameters)
+- [Output Data](#output-data)
+- [Testing](#testing)
+- [License](#license)
 
 ## Installation
 
 1. Clone the repository:
  ```bash
  git clone <repository-url>
- cd PROJ-133-investigating-the-stability-of-rotating-
+ cd <project-directory>
  ```
 
 2. Create a virtual environment (recommended):
@@ -41,139 +41,176 @@ This project implements a numerical study of the stability of rotating Bose-Eins
 ```
 .
 ├── code/
+│ ├── analysis/ # Vortex detection, metrics calculation
+│ ├── config/ # Configuration management
+│ ├── models/ # Data models and entities
 │ ├── simulation/ # GPE solver, initial conditions, batch runner
-│ ├── analysis/ # Vortex detection, metrics, sensitivity analysis
-│ ├── statistics/ # Aggregation, ANOVA, Dunnett's test
-│ ├── viz/ # Plotting and reporting
-│ ├── config/ # Grid and physical parameters
-│ ├── models/ # Data models (SimulationRun, StabilityMetric)
-│ ├── utils/ # Logging, I/O, seed management
+│ ├── statistics/ # Statistical analysis, aggregation
+│ ├── utils/ # Logging, I/O helpers, seed management
+│ ├── viz/ # Visualization and reporting
 │ └── requirements.txt
 ├── data/
-│ ├── raw/ # Raw simulation outputs
-│ ├── processed/ # Processed data (vortices, metrics)
-│ └── aggregated/ # Aggregated results for statistics
+│ ├── raw/ # Raw simulation output (density, phase snapshots)
+│ ├── processed/ # Processed metrics (vortex counts, stability scores)
+│ └── aggregated/ # Aggregated statistical results
 ├── tests/
 │ ├── unit/ # Unit tests
-│ ├── contract/ # Contract tests
-│ └── integration/ # Integration tests
-├── docs/ # Documentation
-├── README.md
-└── spec.md
+│ ├── integration/ # Integration tests
+│ └── contract/ # Contract tests
+├── specs/ # Design documents, data models, research notes
+└── README.md
 ```
 
 ## Usage
 
-### 1. Run a Single Simulation
+### Running a Single Simulation
 
-Run a single GPE simulation with specific parameters:
-
-```bash
-cd code
-python simulation/runner.py --omega 0.5 --epsilon_dd 0.5 --N 10000 --grid_size 64
-```
-
-**Parameters:**
-- `--omega`: Rotation frequency (Ω)
-- `--epsilon_dd`: Dipolar interaction strength (ε_dd)
-- `--N`: Number of particles
-- `--grid_size`: Grid resolution (64 for batch, 256 for verification)
-
-Output files will be saved in `data/raw/`.
-
-### 2. Run Batch Simulations
-
-Run simulations across a parameter grid:
+To run a single GPE simulation with specific parameters:
 
 ```bash
-cd code
-python simulation/runner.py --batch
+python code/simulation/gpe_solver.py \
+ --omega 0.5 \
+ --epsilon_dd 0.5 \
+ --N 10000 \
+ --grid_size 64 \
+ --max_time 5.0 \
+ --output_dir data/raw
 ```
 
-This iterates over predefined values of Ω, ε_dd, and N. Set `RUN_FULL_GRID=true` to use 64x64 grid for the full scan.
+This will generate density and phase snapshots in `data/raw/`.
 
-### 3. Analyze Snapshots
+### Running the Full Parameter Grid
 
-Detect vortices and calculate stability metrics from raw simulation data:
+To run the full parameter scan (64x64 grid) or verification (256x256):
 
 ```bash
-cd code
-python analysis/pipeline.py --input data/raw/ --output data/processed/
+# Set environment variable to choose grid size
+export RUN_FULL_GRID=true # 64x64 for full scan
+# or
+export RUN_FULL_GRID=false # 256x256 for verification
+
+python code/simulation/runner.py \
+ --output_dir data/raw \
+ --metrics_output data/processed/metrics.csv
 ```
 
-**Metrics Calculated:**
-- Vortex Density (vortices/area)
-- Radial Variance
-- Structure Factor Sharpness
+The batch runner will iterate over:
+- **Ω (Rotation frequency)**: Range [0.0, 0.9]
+- **ε_dd (Dipolar interaction strength)**: {0.0, 0.5, 1.0, 1.5}
+- **N (Particle number)**: {small, intermediate, large}
 
-### 4. Perform Sensitivity Analysis
+### Analyzing Snapshots
 
-Analyze the sensitivity of stability thresholds:
+To detect vortices and calculate stability metrics from simulation snapshots:
 
 ```bash
-cd code
-python analysis/sensitivity_analysis.py --input data/processed/
+python code/analysis/pipeline.py \
+ --input_dir data/raw \
+ --output_file data/processed/metrics.csv
 ```
 
-Evaluates thresholds over {0.30, 0.35} and reports false-positive/negative rates.
+This pipeline:
+1. Detects vortices using phase-winding algorithm
+2. Calculates stability metrics (vortex density, radial variance, structure factor)
+3. Classifies metastability boundaries
+4. Exports results to CSV
 
-### 5. Generate Statistical Phase Maps
+### Generating Visualizations
 
-Aggregate results and generate visualizations:
+To generate the 3D stability phase diagram and summary reports:
 
 ```bash
-cd code
-python statistics/aggregators.py --input data/processed/ --output data/aggregated/
-python viz/reporter.py --input data/aggregated/ --output data/aggregated/summary.csv
-python viz/plotter.py --input data/aggregated/ --output figures/
-```
+# Aggregate results and perform statistical analysis
+python code/statistics/aggregators.py \
+ --input_file data/processed/metrics.csv \
+ --output_dir data/aggregated
 
-**Outputs:**
-- `data/aggregated/summary.csv`: ANOVA p-values and stability flags.
-- `figures/`: 3D contour maps and regime sample plots.
+# Generate visualizations
+python code/viz/plotter.py \
+ --input_dir data/aggregated \
+ --output_dir figures
+
+# Generate summary report
+python code/viz/reporter.py \
+ --input_dir data/aggregated \
+ --output_file data/aggregated/summary_table.csv
+```
 
 ## Configuration
 
-Grid and physical parameters are managed in `code/config/grid_config.py`. Key settings:
+Configuration is managed through environment variables and command-line arguments:
 
-- `GRID_SIZE`: 64 (default for batch) or 256 (verification).
-- `RUN_FULL_GRID`: Environment variable to toggle grid size.
-- `MAX_TIME`: Maximum simulation time.
-- `TIME_STEP`: Time step for integration.
+- **RUN_FULL_GRID**: Set to `true` for 64x64 grid (full scan), `false` for 256x256 (verification)
+- **LOG_LEVEL**: Set logging verbosity (DEBUG, INFO, WARNING, ERROR)
+- **RANDOM_SEED**: Set for reproducibility (default: derived from timestamp)
 
-Example environment setup:
-```bash
-export RUN_FULL_GRID=true
-export GRID_SIZE=64
-```
+Grid parameters can be configured in `code/config/grid_config.py`:
+- Domain size
+- Time step
+- Maximum simulation time
+- Resolution
+
+## Parameters
+
+### Key Simulation Parameters
+
+| Parameter | Symbol | Description | Range/Values |
+|-----------|--------|-------------|--------------|
+| Rotation frequency | Ω | Angular velocity of the trap | [0.0, 0.9] |
+| Dipolar strength | ε_dd | Ratio of dipolar to contact interaction | {0.0, 0.5, 1.0, 1.5} |
+| Particle number | N | Total number of atoms | {small, intermediate, large} |
+| Grid size | Nx, Ny | Spatial discretization | 64 or 256 |
+| Max time | t_max | Simulation duration | 5.0 (default) |
+
+### Stability Metrics
+
+| Metric | Description |
+|--------|-------------|
+| Vortex Density | Number of vortices per unit area |
+| Radial Variance | Spread of density distribution |
+| Structure Factor Sharpness | Measure of vortex lattice order |
+| Metastability Status | Stable, Metastable, or Unstable classification |
+
+## Output Data
+
+### Raw Data (`data/raw/`)
+- Density snapshots: `density_t{time}.npy`
+- Phase snapshots: `phase_t{time}.npy`
+- Wavefunction: `wavefunction_t{time}.npy`
+
+### Processed Data (`data/processed/`)
+- `metrics.csv`: Contains vortex counts, stability metrics, and classification for each simulation run
+
+### Aggregated Data (`data/aggregated/`)
+- `aggregated_metrics.json`: Statistical aggregates per parameter set
+- `anova_results.json`: Two-Way ANOVA results (Ω × ε_dd)
+- `dunnett_results.json`: Post-hoc test results
+- `summary_table.csv`: ANOVA p-values and significance flags
+
+### Figures (`figures/`)
+- 3D contour maps of stability phase diagram
+- Density and phase plots for stable, metastable, and unstable regimes
+- Vortex detection visualizations
 
 ## Testing
 
-Run the test suite:
-
+Run all tests:
 ```bash
-pytest tests/
+pytest tests/ -v
 ```
 
-**Key Tests:**
-- `tests/unit/test_gpe_solver.py::test_split_step_preserves_norm`: Validates numerical stability.
-- `tests/integration/test_single_run.py::test_single_run_completes`: Ensures single run completion.
-- `tests/unit/test_vortex_detector.py::test_phase_winding_detects_single_vortex`: Validates vortex detection.
+Run specific test suites:
+```bash
+# Unit tests
+pytest tests/unit/ -v
 
-## Performance Notes
+# Integration tests
+pytest tests/integration/ -v
 
-- **Grid Resolution**: 64x64 is used for full batch scans to meet CI time/memory constraints. 256x256 is reserved for verification runs.
-- **Runtime**: Full grid (300 runs) targets ≤6 hours on a 2-core runner.
-- **Memory**: Peak memory usage is logged and validated in `code/simulation/verify_performance.py`.
+# Contract tests
+pytest tests/contract/ -v
+```
 
 ## License
 
-[Insert License Here]
-
-## Contributing
-
-1. Fork the repository.
-2. Create a feature branch.
-3. Commit your changes.
-4. Push to the branch.
-5. Open a Pull Request.
+This project is part of the llmXive automated science pipeline. See the LICENSE file for details.

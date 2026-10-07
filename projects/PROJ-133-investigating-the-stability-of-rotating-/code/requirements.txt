@@ -6,5 +6,4 @@ pytest
 numba
 ruff
 black
-statsmodels
 psutil

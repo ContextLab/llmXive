@@ -1,29 +1,15 @@
-T021b:
+T017a:
   c: true
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided specification excerpt shows FR\u2011004 now defines \u201Cvortex\
-    \ density (vortices/area)\u201D and both SC\u2011001 and SC\u2011002 refer to\
-    \ \u201Cvortex density\u201D instead of \u201Cretention fraction\u201D, confirming\
-    \ the required amendments to `spec.md` are present."
-T029b:
+  r: "The provided spec excerpt includes an updated \u201CAssumptions and Performance\
+    \ Validation\u201D section that formally documents the deviation between the 64\xD7\
+    64 full\u2011scan and 256\xD7256 verification runs and records the performance\
+    \ validation results (runtime, memory, and conclusion). This fulfills the task\u2019\
+    s requirement to update spec.md accordingly."
+T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `spec.md` file is provided, and there is no evidence that FR\u2011\
-    005 or SC\u2011003 have been edited to replace the statistical methods as required.\
-    \ The implementer must supply the revised specification document showing the new\
-    \ wording for FR\u2011005 (\u201CTwo\u2011Way ANOVA (\u03A9 \xD7 \u03B5_dd)\u201D\
-    \ and \u201CDunnett's post\u2011hoc test\u201D) and the corresponding change in\
-    \ SC\u2011003."
-T035a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No README.md file or its contents were presented, so we cannot confirm that it
-    has been updated with the required usage examples, parameter descriptions, and
-    installation instructions. The necessary documentation artifact is missing.
-T035b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of any docstrings in the `code/` directory is provided; the claim\
-    \ lacks the required artifact (the updated source files with NumPy\u2011style\
-    \ docstrings for every public function and class). The implementer must supply\
-    \ the modified code files showing the added documentation."
+  r: "No code, data, or report was supplied that implements the metastability classification\
+    \ logic or calculates the false\u2011positive/negative rate variation required\
+    \ by FR\u2011006 and SC\u2011002. The artifact section contains no files, so the\
+    \ task\u2019s deliverables are missing."

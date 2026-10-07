@@ -1,37 +1,62 @@
-# Ruff configuration for PROJ-133
-# Linting rules for the rotating BEC stability project
+# Ruff configuration for llmXive project
+# Linting and code quality rules
 
 [lint]
 # Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
-select = ["E", "F", "I", "W", "N", "B", "C4", "UP"]
-ignore = []
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+    "N",  # pep8-naming
+]
+ignore = [
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function call in argument defaults (common in dataclasses)
+]
 
-# Allow autofix for all enabled rules
-fixable = ["I"]
+# Allow autofix for all enabled rules (if `--fix` is provided)
+fixable = ["ALL"]
+unfixable = []
 
-# Exclude specific directories
-exclude = ["__pycache__", ".git", ".venv", "venv", "build", "dist"]
+# Exclude a few files/directories
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "data",
+    "docs",
+]
 
-[lint.per-file-ignores]
-# Allow longer lines in data generation scripts if necessary
-"code/utils/setup_data_dirs.py" = ["E501"]
+# Per-file-ignores
+per-file-ignores = {}
+
+# Same as `ignore`.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 [lint.isort]
-known-first-party = ["simulation", "analysis", "statistics", "viz", "utils", "config", "models"]
-force-single-line = false
-lines-after-imports = 2
-order-by-type = true
-
-[lint.flake8-quotes]
-docstring-quotes = "double"
-inline-quotes = "double"
-multiline-quotes = "double"
-
-[lint.flake8-unused-arguments]
-ignore-variadic-names = true
-
-[lint.flake8-comprehensions]
-allow-inline-init-lists = true
-
-[lint.pydocstyle]
-convention = "numpy"
+known-first-party = ["simulation", "analysis", "statistics", "viz", "models", "config", "utils"]
+force-sort-within-sections = true
+combine-as-imports = true
+split-on-trailing-comma = true

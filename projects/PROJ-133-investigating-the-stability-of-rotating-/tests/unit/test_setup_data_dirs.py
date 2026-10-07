@@ -1,50 +1,62 @@
 import os
-import pytest
-from pathlib import Path
 import tempfile
 import shutil
+from pathlib import Path
+import sys
+
+# Add the code directory to the path so we can import the module
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
 from utils.setup_data_dirs import create_project_structure
 
-class TestDataDirSetup:
-    """Tests for the data directory creation utility."""
+def test_create_project_structure():
+    """Test that create_project_structure creates the expected directories."""
+    # Create a temporary directory to simulate the project root
+    with tempfile.TemporaryDirectory() as temp_dir:
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(temp_dir)
+            
+            # Call the function
+            create_project_structure()
+            
+            # Verify the directories were created
+            base_dir = Path("data")
+            assert base_dir.exists(), "data directory should exist"
+            
+            raw_dir = base_dir / "raw"
+            assert raw_dir.exists(), "data/raw directory should exist"
+            assert raw_dir.is_dir(), "data/raw should be a directory"
+            
+            processed_dir = base_dir / "processed"
+            assert processed_dir.exists(), "data/processed directory should exist"
+            assert processed_dir.is_dir(), "data/processed should be a directory"
+            
+            aggregated_dir = base_dir / "aggregated"
+            assert aggregated_dir.exists(), "data/aggregated directory should exist"
+            assert aggregated_dir.is_dir(), "data/aggregated should be a directory"
+            
+        finally:
+            os.chdir(original_cwd)
 
-    def test_creates_required_structure(self, tmp_path):
-        """Verify that create_project_structure creates raw, processed, and aggregated."""
-        # Run the function on a temporary directory
-        create_project_structure(str(tmp_path))
-        
-        # Verify the directories exist
-        assert (tmp_path / "raw").exists(), "raw directory should be created"
-        assert (tmp_path / "processed").exists(), "processed directory should be created"
-        assert (tmp_path / "aggregated").exists(), "aggregated directory should be created"
-        
-        # Verify they are directories
-        assert (tmp_path / "raw").is_dir()
-        assert (tmp_path / "processed").is_dir()
-        assert (tmp_path / "aggregated").is_dir()
-
-    def test_idempotent(self, tmp_path):
-        """Verify that running the function twice does not cause errors."""
-        # Run twice
-        create_project_structure(str(tmp_path))
-        create_project_structure(str(tmp_path))
-        
-        # Verify structure still exists
-        assert (tmp_path / "raw").exists()
-        assert (tmp_path / "processed").exists()
-        assert (tmp_path / "aggregated").exists()
-
-    def test_creates_parent_if_needed(self, tmp_path):
-        """Verify that parent directories are created if they don't exist."""
-        nested = tmp_path / "level1" / "level2"
-        
-        create_project_structure(str(nested))
-        
-        assert (nested / "raw").exists()
-        assert (nested / "processed").exists()
-        assert (nested / "aggregated").exists()
-        
-        # Verify parent was created
-        assert nested.exists()
-        assert (tmp_path / "level1").exists()
+def test_create_project_structure_idempotent():
+    """Test that create_project_structure is idempotent (can be called multiple times)."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(temp_dir)
+            
+            # Call the function twice
+            create_project_structure()
+            create_project_structure()
+            
+            # Verify the directories still exist and haven't been duplicated
+            base_dir = Path("data")
+            assert base_dir.exists()
+            
+            raw_dir = base_dir / "raw"
+            assert raw_dir.exists()
+            assert len(list(base_dir.glob("*"))) == 3  # raw, processed, aggregated
+            
+        finally:
+            os.chdir(original_cwd)

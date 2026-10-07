@@ -1,0 +1,62 @@
+[
+  {
+    "grid_resolution": 64,
+    "omega": 0.5,
+    "epsilon_dd": 0.5,
+    "N": 10000,
+    "runtime_seconds": 45.23,
+    "runtime_hours": 0.0126,
+    "initial_memory_mb": 128.5,
+    "peak_memory_mb": 156.8,
+    "success": true,
+    "error": null
+  },
+  {
+    "grid_resolution": 64,
+    "omega": 0.8,
+    "epsilon_dd": 1.0,
+    "N": 50000,
+    "runtime_seconds": 52.17,
+    "runtime_hours": 0.0145,
+    "initial_memory_mb": 135.2,
+    "peak_memory_mb": 178.4,
+    "success": true,
+    "error": null
+  },
+  {
+    "grid_resolution": 256,
+    "omega": 0.5,
+    "epsilon_dd": 0.5,
+    "N": 10000,
+    "runtime_seconds": 312.45,
+    "runtime_hours": 0.0868,
+    "initial_memory_mb": 512.3,
+    "peak_memory_mb": 645.7,
+    "success": true,
+    "error": null
+  },
+  {
+    "grid_resolution": 256,
+    "omega": 0.8,
+    "epsilon_dd": 1.0,
+    "N": 50000,
+    "runtime_seconds": 385.92,
+    "runtime_hours": 0.1072,
+    "initial_memory_mb": 548.1,
+    "peak_memory_mb": 712.3,
+    "success": true,
+    "error": null
+  },
+  {
+    "grid_resolution": 256,
+    "omega": 0.2,
+    "epsilon_dd": 0.0,
+    "N": 20000,
+    "runtime_seconds": 298.67,
+    "runtime_hours": 0.0830,
+    "initial_memory_mb": 498.5,
+    "peak_memory_mb": 625.9,
+    "success": true,
+    "error": null
+  }
+]

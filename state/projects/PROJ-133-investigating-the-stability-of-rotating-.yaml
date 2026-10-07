@@ -6,7 +6,7 @@ failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-133-investigating-the-stability-of-rotating-
-last_run_id: 25b1c844-5211-4271-9361-27ec93ef42da
+last_run_id: 2181dc22-7542-4f6b-88c4-4c710fba5fe6
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-133-investigating-the-stability-of-rotating-/specs/001-investigating-the-stability-of-rotating
 title: Investigating the Stability of Rotating Bose-Einstein Condensates with Dipolar
   Interactions
-updated_at: '2026-10-04T04:43:39.722489Z'
+updated_at: '2026-10-07T23:57:42.343710Z'
