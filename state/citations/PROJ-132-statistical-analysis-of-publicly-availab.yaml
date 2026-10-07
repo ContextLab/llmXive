@@ -20,7 +20,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/daymet/annual
   verified_at: '2026-08-05T14:11:48.933818Z'
-- artifact_hash: 452a6d30f729daf50a5cd8ae26d442299ab4fbc6a77ac636063cac8b7e48372f
+- artifact_hash: 9b72fb973c1f06c4e114935c6b533b1af9ca9a2afb3b9e20d648748d9f953a39
   artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,4 +30,4 @@
   value: https://www.wikidata.org/wiki/Q115911873
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q115911873
-  verified_at: '2026-10-02T21:09:13.138930Z'
+  verified_at: '2026-10-07T04:51:35.103441Z'
