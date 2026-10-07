@@ -1,0 +1,21 @@
+{
+  "project_id": "PROJ-016-evaluating-the-effectiveness-of-communit",
+  "ok": false,
+  "reason": "every produced artifact is gitignored (data/processed/regression_results_nonlinear.json, data/raw/wb_economic_data.csv) \u2014 the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 3 command(s) failed: python code/data/clean.py (rc=1); python code/data/classify.py (rc=1); python code/analysis/visualization.py (rc=1); 7 declared deliverable(s) absent: data/processed/cbnrm_proxy_metadata.json; data/processed/merged_panel.csv; data/processed/metrics.json",
+  "artifacts": [
+    "data/processed/regression_results_nonlinear.json",
+    "data/raw/wb_economic_data.csv"
+  ],
+  "failures": [
+    "python code/data/clean.py -> rc=1\n    in__ - INFO - Starting T013: Data Merging and Cleaning\n2026-10-07 03:43:55,308 - __main__ - INFO - Starting T013: Data Merging and Cleaning\n2026-10-07 03:43:55,308 - __main__ - ERROR - FAO data file not found: data/raw/fao_land_use.csv\n2026-10-07 03:43:55,308 - __main__ - ERROR - FAO data file not found: data/raw/fao_land_use.csv\n2026-10-07 03:43:55,310 - __main__ - INFO - Loaded World Bank data: 0 rows\n2026-10-07 03:43:55,310 - __main__ - INFO - Loaded World Bank data: 0 rows\n2026-10-07 03:43:55,311 - __main__ - WARNING - CBNRM proxy data file not found: ",
+    "python code/data/classify.py -> rc=1\n    2026-10-07 03:43:55,660 - __main__ - INFO - Starting T014: Regime Classification\n2026-10-07 03:43:55,660 - __main__ - INFO - Starting T014: Regime Classification\n2026-10-07 03:43:55,660 - __main__ - ERROR - CBNRM Proxy metadata missing: /home/runner/work/llmXive/llmXive/projects/PROJ-016-evaluating-the-effectiveness-of-communit/data/processed/cbnrm_proxy_metadata.json. Cannot derive regime_type.\n2026-10-07 03:43:55,660 - __main__ - ERROR - CBNRM Proxy metadata missing: /home/runner/work/llmXive/llmXive/projects/PROJ-016-evaluating-the-effectiveness-of-c",
+    "python code/analysis/visualization.py -> rc=1\n    ession results file not found: {filepath}\")\nFileNotFoundError: Regression results file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-016-evaluating-the-effectiveness-of-communit/data/processed/regression_results_primary.json\n2026-10-07 03:43:57,600 - __main__ - ERROR - Visualization generation failed: Regression results file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-016-evaluating-the-effectiveness-of-communit/data/processed/regression_results_primary.json\nTraceback (most recent call last):\n  File \"/home/runner/wor"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-10-07T03:43:59Z"
+}

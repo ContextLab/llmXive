@@ -1,327 +1,284 @@
 import json
 import logging
 import sys
+import os
 from pathlib import Path
 from typing import Dict, Any, Optional, List
-import pandas as pd
-import numpy as np
 
-from config import get_config
-from logging_config import get_logger
-from data.download import fetch_fao_fra_data, load_world_bank_gdp_population, load_cbmrm_proxy_data
+# Ensure imports from sibling modules match the API surface
+# The API surface lists: standardize_iso_code, standardize_year, load_fao_data, load_world_bank_data,
+# load_regime_data, merge_datasets, drop_missing_primary_vars, calculate_coverage_rate,
+# clean_and_merge_data, apply_fr007_exclusion, apply_country_level_exclusion, main
 
-logger = get_logger(__name__)
+# We need to import logging_config if it's used, but the API surface for clean.py
+# doesn't explicitly list it. We'll use standard logging setup as per existing patterns.
+import logging
 
-def standardize_iso_code(series: pd.Series) -> pd.Series:
-    """
-    Standardize ISO country codes to 3-letter uppercase (alpha-3).
-    Handles common variations (2-letter, mixed case, 'UK' -> 'GBR').
-    """
-    def normalize_code(code):
-        if pd.isna(code):
-            return None
-        code_str = str(code).strip().upper()
-        if code_str == '':
-            return None
-        # Handle specific 2-letter to 3-letter conversions if needed
-        # Common mapping for 2-letter to ISO 3
-        iso_map = {
-            'US': 'USA', 'UK': 'GBR', 'DE': 'DEU', 'FR': 'FRA',
-            'IT': 'ITA', 'ES': 'ESP', 'CN': 'CHN', 'JP': 'JPN',
-            'IN': 'IND', 'BR': 'BRA', 'CA': 'CAN', 'AU': 'AUS',
-            'RU': 'RUS', 'ZA': 'ZAF', 'NG': 'NGA', 'KE': 'KEN',
-            'TZ': 'TZA', 'UG': 'UGA', 'MZ': 'MOZ', 'ZW': 'ZWE',
-            'GH': 'GHA', 'ET': 'ETH', 'CD': 'COD', 'AO': 'AGO',
-            'CM': 'CMR', 'BF': 'BFA', 'ML': 'MLI', 'NE': 'NER',
-            'SN': 'SEN', 'TD': 'TCD', 'SD': 'SDN', 'EG': 'EGY',
-            'MA': 'MAR', 'DZ': 'DZA', 'TN': 'TUN', 'LY': 'LBY'
-        }
-        if len(code_str) == 2:
-            return iso_map.get(code_str, code_str) # Return as is if not mapped, might fail later validation
-        return code_str
+# Configure logging similar to other modules
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('logs/run.log')
+    ]
+)
+logger = logging.getLogger(__name__)
 
-    return series.apply(normalize_code)
-
-def standardize_year(series: pd.Series) -> pd.Series:
-    """
-    Standardize year column to integer.
-    """
-    def to_int(val):
-        if pd.isna(val):
-            return None
-        try:
-            return int(float(val))
-        except (ValueError, TypeError):
-            return None
-    return series.apply(to_int)
-
-def load_fao_data() -> Optional[pd.DataFrame]:
-    """
-    Load FAO land use data from the processed raw file.
-    Expected file: data/raw/fao_land_use.csv
-    """
-    fao_path = Path('data/raw/fao_land_use.csv')
-    if not fao_path.exists():
-        logger.error(f"FAO data file not found: {fao_path}")
-        return None
-
-    try:
-        df = pd.read_csv(fao_path)
-        logger.info(f"Loaded FAO data: {len(df)} rows")
-        
-        # Standardize columns if they exist
-        if 'country_code' in df.columns:
-            df['country_code'] = standardize_iso_code(df['country_code'])
-        if 'year' in df.columns:
-            df['year'] = standardize_year(df['year'])
-        
+def standardize_iso_code(df: pd.DataFrame, col: str = 'iso_code') -> pd.DataFrame:
+    """Standardize ISO codes to 3-letter format."""
+    if col not in df.columns:
         return df
-    except Exception as e:
-        logger.error(f"Error loading FAO data: {e}")
-        return None
+    df[col] = df[col].str.upper().str[:3]
+    return df
 
-def load_world_bank_data() -> Optional[pd.DataFrame]:
-    """
-    Load World Bank economic data from the processed raw file.
-    Expected file: data/raw/wb_economic_data.csv
-    """
-    wb_path = Path('data/raw/wb_economic_data.csv')
-    if not wb_path.exists():
-        logger.error(f"World Bank data file not found: {wb_path}")
-        return None
-
-    try:
-        df = pd.read_csv(wb_path)
-        logger.info(f"Loaded World Bank data: {len(df)} rows")
-
-        # Standardize columns
-        if 'country_code' in df.columns:
-            df['country_code'] = standardize_iso_code(df['country_code'])
-        if 'year' in df.columns:
-            df['year'] = standardize_year(df['year'])
-
+def standardize_year(df: pd.DataFrame, col: str = 'year') -> pd.DataFrame:
+    """Standardize year to integer."""
+    if col not in df.columns:
         return df
-    except Exception as e:
-        logger.error(f"Error loading World Bank data: {e}")
-        return None
+    df[col] = pd.to_numeric(df[col], errors='coerce').astype('Int64')
+    return df
 
-def load_regime_data() -> Optional[pd.DataFrame]:
-    """
-    Load CBNRM proxy/regime data.
-    This task depends on T009/T012 which should have populated data/raw/cbnrm_proxy.csv.
-    However, T013's specific requirement is merging FAO and WB.
-    If regime data is needed for the merge (e.g. for T014 later), it should be loaded here.
-    For T013, we primarily need FAO and WB. We will attempt to load proxy if it exists
-    to prepare for downstream merging, but T013 focus is FAO+WB merge.
-    """
-    proxy_path = Path('data/raw/cbnrm_proxy.csv')
-    if not proxy_path.exists():
-        logger.warning(f"CBNRM proxy data file not found: {proxy_path}. Proceeding without it for this merge.")
-        return None
-
-    try:
-        df = pd.read_csv(proxy_path)
-        logger.info(f"Loaded CBNRM proxy data: {len(df)} rows")
-        
-        if 'country_code' in df.columns:
-            df['country_code'] = standardize_iso_code(df['country_code'])
-        if 'year' in df.columns:
-            df['year'] = standardize_year(df['year'])
-        
-        return df
-    except Exception as e:
-        logger.error(f"Error loading CBNRM proxy data: {e}")
-        return None
-
-def merge_datasets(fao_df: pd.DataFrame, wb_df: pd.DataFrame, proxy_df: Optional[pd.DataFrame] = None) -> pd.DataFrame:
-    """
-    Merge FAO and World Bank datasets on country_code and year.
-    Optional: merge proxy data as well.
-    """
-    logger.info("Starting dataset merge...")
+def load_fao_data(filepath: Path) -> pd.DataFrame:
+    """Load FAO land use data."""
+    if not filepath.exists():
+        logger.error(f"FAO data file not found: {filepath}")
+        return pd.DataFrame()
     
-    # Ensure keys are present
-    common_cols = ['country_code', 'year']
-    if not all(col in fao_df.columns for col in common_cols):
-        raise ValueError("FAO data missing required columns: country_code, year")
-    if not all(col in wb_df.columns for col in common_cols):
-        raise ValueError("WB data missing required columns: country_code, year")
+    try:
+        df = pd.read_csv(filepath)
+        logger.info(f"Loaded FAO data: {len(df)} rows")
+        return df
+    except Exception as e:
+        logger.error(f"Failed to load FAO data: {e}")
+        return pd.DataFrame()
 
-    # Perform inner merge to ensure we only have rows where both sources have data
-    merged = pd.merge(fao_df, wb_df, on=['country_code', 'year'], how='inner')
-    logger.info(f"After FAO+WB merge: {len(merged)} rows")
+def load_world_bank_data(filepath: Path) -> pd.DataFrame:
+    """Load World Bank economic data."""
+    if not filepath.exists():
+        logger.warning(f"World Bank data file not found: {filepath}")
+        return pd.DataFrame()
+    
+    try:
+        df = pd.read_csv(filepath)
+        logger.info(f"Loaded World Bank data: {len(df)} rows")
+        return df
+    except Exception as e:
+        logger.error(f"Failed to load World Bank data: {e}")
+        return pd.DataFrame()
 
-    if proxy_df is not None and len(proxy_df) > 0:
-        if all(col in proxy_df.columns for col in common_cols):
-            merged = pd.merge(merged, proxy_df, on=['country_code', 'year'], how='left')
-            logger.info(f"After proxy merge: {len(merged)} rows")
-        else:
-            logger.warning("Proxy data missing required columns for merge, skipping proxy merge.")
+def load_regime_data(filepath: Path) -> pd.DataFrame:
+    """Load regime classification data."""
+    if not filepath.exists():
+        logger.warning(f"Regime data file not found: {filepath}")
+        return pd.DataFrame()
+    
+    try:
+        df = pd.read_csv(filepath)
+        logger.info(f"Loaded regime data: {len(df)} rows")
+        return df
+    except Exception as e:
+        logger.error(f"Failed to load regime data: {e}")
+        return pd.DataFrame()
 
+def merge_datasets(fao_df: pd.DataFrame, wb_df: pd.DataFrame, regime_df: pd.DataFrame) -> pd.DataFrame:
+    """Merge FAO, World Bank, and regime data."""
+    if fao_df.empty or wb_df.empty:
+        logger.error("Cannot proceed with merge: FAO or WB data missing.")
+        return pd.DataFrame()
+    
+    # Standardize columns
+    fao_df = standardize_iso_code(fao_df)
+    wb_df = standardize_iso_code(wb_df)
+    
+    # Merge on iso_code and year
+    merged = fao_df.merge(wb_df, on=['iso_code', 'year'], how='inner')
+    
+    if not regime_df.empty:
+        regime_df = standardize_iso_code(regime_df)
+        merged = merged.merge(regime_df, on=['iso_code', 'year'], how='left')
+    
+    logger.info(f"Merged dataset: {len(merged)} rows")
     return merged
 
 def drop_missing_primary_vars(df: pd.DataFrame, primary_vars: List[str] = None) -> pd.DataFrame:
-    """
-    Drop rows missing primary variables.
-    Primary vars for this task: land_use_change_rate (from FAO), regime_type (if available, but T013 is pre-classification usually? 
-    Wait, T013 description says: "drop rows missing primary vars". 
-    Based on T011/T012, primary vars are likely FAO's land use change and WB's GDP/Pop.
-    Let's define primary vars as: 'AG.LND.FRST.ZS' (or renamed), 'NY.GDP.PCAP.CD', 'SP.POP.DENS'.
-    We need to know the column names after download.
-    Assuming download.py standardizes column names or we map them here.
-    Let's assume the columns in the raw CSVs are:
-    FAO: 'country_code', 'year', 'indicator', 'value' OR 'country_code', 'year', 'Forest_Area_Change'
-    WB: 'country_code', 'year', 'GDP', 'Pop_Density'
+    """Drop rows missing primary variables (land_use_change_rate, regime_type)."""
+    if primary_vars is None:
+        primary_vars = ['land_use_change_rate', 'regime_type']
     
-    To be safe, we will check for common column names derived from the indicator codes or generic names.
-    Let's assume the download scripts produce columns like:
-    'land_use_change' (from FAO), 'gdp_per_capita', 'population_density' (from WB).
-    If these don't exist, we try to find them by indicator code.
+    # Filter rows where any primary variable is null
+    before = len(df)
+    df = df.dropna(subset=primary_vars)
+    after = len(df)
+    
+    if before > after:
+        logger.info(f"Dropped {before - after} rows missing primary variables")
+    
+    return df
+
+def calculate_coverage_rate(total_merged: int, total_fao_available: int, total_wb_available: int) -> float:
+    """Calculate coverage rate as intersection of available records."""
+    min_available = min(total_fao_available, total_wb_available)
+    if min_available == 0:
+        return 0.0
+    return total_merged / min_available
+
+def apply_fr007_exclusion(df: pd.DataFrame, secondary_vars: List[str] = None) -> pd.DataFrame:
+    """
+    Apply row-level exclusion (FR-007) for Secondary Variables (GDP, Pop).
+    Log the specific missing variable name, exclude the row, continue.
+    """
+    if secondary_vars is None:
+        secondary_vars = ['gdp_per_capita', 'population_density']
+    
+    # Filter for rows where any secondary variable is null
+    mask = df[secondary_vars].notna().all(axis=1)
+    
+    # Identify rows to exclude and log them
+    excluded_mask = ~mask
+    if excluded_mask.any():
+        excluded_rows = df[excluded_mask]
+        for idx, row in excluded_rows.iterrows():
+            missing_vars = [var for var in secondary_vars if pd.isna(row.get(var))]
+            if missing_vars:
+                logger.warning(f"Row {idx} excluded due to missing secondary variables: {missing_vars}")
+        
+        df = df[mask]
+        logger.info(f"FR-007: Excluded {excluded_mask.sum()} rows with missing secondary variables")
+    
+    return df
+
+def apply_country_level_exclusion(df: pd.DataFrame, primary_vars: List[str] = None, threshold: float = 0.2) -> pd.DataFrame:
+    """
+    Apply country-level exclusion for Primary Variables.
+    If >20% of a country's years are missing for a primary variable, exclude the entire country.
     """
     if primary_vars is None:
-        # Heuristic: look for these columns, or fallback to indicator codes if raw
-        potential_primary = ['land_use_change', 'gdp_per_capita', 'population_density', 'AG.LND.FRST.ZS', 'NY.GDP.PCAP.CD', 'SP.POP.DENS']
-        found_primary = [col for col in potential_primary if col in df.columns]
-        if not found_primary:
-            # If no standard names, maybe the raw indicator codes are columns?
-            # Or maybe the raw data is in 'value' column with 'indicator' column.
-            # For T013, let's assume the download scripts have already pivoted or named columns appropriately.
-            # If not, we must handle the 'wide' vs 'long' format.
-            # Assuming 'wide' format for simplicity based on typical download.py patterns in this project context.
-            # If 'value' column exists, we might need to pivot. But T013 says "Standardize... drop rows".
-            # Let's assume the columns are named after the indicator code or a cleaned version.
-            # We will define the primary vars as the ones we expect to be non-null.
-            # Let's try to detect them dynamically if not found.
-            pass
-        primary_vars = found_primary
-
-    if not primary_vars:
-        logger.warning("No primary variables identified to drop missing rows. Skipping drop.")
-        return df
-
-    initial_count = len(df)
-    # Drop rows where ANY of the primary variables are NaN
-    df_clean = df.dropna(subset=primary_vars)
-    dropped = initial_count - len(df_clean)
-    logger.info(f"Dropped {dropped} rows missing primary variables: {primary_vars}")
+        primary_vars = ['land_use_change_rate', 'regime_type']
     
-    return df_clean
-
-def apply_fr007_exclusion(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Apply row-level exclusion for Secondary Variables (GDP, Pop).
-    Log specific missing variable name.
-    """
-    # This is handled in drop_missing_primary_vars for primary, but FR-007 mentions Secondary.
-    # If secondary vars are present, we might want to log which ones are missing but keep the row?
-    # The task T013 says "drop rows missing primary vars". T016 handles FR-007 for secondary.
-    # So T013 just drops primary missing.
-    return df
-
-def apply_country_level_exclusion(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Apply country-level exclusion for Primary Variables (>20% missing).
-    This is T016b, but we include it here if needed for T013 completeness?
-    T013 description: "Standardize years (int), ISO codes (alpha-3), drop rows missing primary vars. Save merged panel."
-    It does not explicitly mention country-level exclusion. That is T016b.
-    So we skip this for T013 to avoid scope creep, unless "cleaning" implies it.
-    We will stick to the strict definition: Standardize + Drop Row + Save.
-    """
-    return df
-
-def clean_and_merge_data() -> pd.DataFrame:
-    """
-    Main orchestration for T013:
-    1. Load FAO, WB, Proxy (if exists)
-    2. Merge
-    3. Drop missing primary vars
-    4. Return cleaned dataframe
-    """
-    fao_df = load_fao_data()
-    wb_df = load_world_bank_data()
-    proxy_df = load_regime_data()
-
-    if fao_df is None or wb_df is None:
-        logger.error("Cannot proceed with merge: FAO or WB data missing.")
-        # Create empty DF with expected schema to prevent downstream crash?
-        # Or raise error. T013 says "Save merged panel". If no data, save empty?
-        # Let's create an empty one with headers if possible, but better to fail loud if source missing.
-        # However, T011/T012 say "If missing, create empty CSV". So they should exist.
-        # If they exist but are empty, merge will be empty.
-        raise FileNotFoundError("Required source data files are missing or empty.")
-
-    merged = merge_datasets(fao_df, wb_df, proxy_df)
+    if df.empty:
+        return df, []
     
-    # Identify primary variables dynamically if not passed
-    # Expected primary: Land Use (FAO), GDP, Pop (WB)
-    # Let's assume column names are standardized by download.py or we map them here.
-    # If download.py uses indicator codes as column names:
-    fao_cols = [c for c in fao_df.columns if c != 'country_code' and c != 'year']
-    wb_cols = [c for c in wb_df.columns if c != 'country_code' and c != 'year']
-    proxy_cols = [c for c in (proxy_df.columns if proxy_df is not None else []) if c != 'country_code' and c != 'year']
+    excluded_countries = []
     
-    # Heuristic for primary vars:
-    # Land use change is likely the FAO value.
-    # GDP and Pop are WB values.
-    # We need to drop rows where these are null.
-    # Let's assume the columns are named 'land_use_change', 'gdp_per_capita', 'population_density' 
-    # OR the indicator codes 'AG.LND.FRST.ZS', 'NY.GDP.PCAP.CD', 'SP.POP.DENS'.
+    for var in primary_vars:
+        if var not in df.columns:
+            continue
+        
+        # Group by country and calculate missing percentage
+        country_stats = df.groupby('iso_code').agg(
+            total_count=(var, 'count'),
+            missing_count=(var, lambda x: x.isna().sum())
+        ).reset_index()
+        
+        country_stats['missing_pct'] = country_stats['missing_count'] / country_stats['total_count']
+        
+        # Identify countries exceeding threshold
+        bad_countries = country_stats[country_stats['missing_pct'] > threshold]['iso_code'].tolist()
+        
+        if bad_countries:
+            excluded_countries.extend(bad_countries)
+            logger.warning(f"Primary Variable Missing ({var}): Excluding countries with >{threshold*100}% missing: {bad_countries}")
     
-    primary_vars = []
-    # Check for standard names first
-    for name in ['land_use_change', 'gdp_per_capita', 'population_density']:
-        if name in merged.columns:
-            primary_vars.append(name)
+    # Remove duplicates
+    excluded_countries = list(set(excluded_countries))
     
-    # If not found, check indicator codes
-    if not primary_vars:
-        for code in ['AG.LND.FRST.ZS', 'NY.GDP.PCAP.CD', 'SP.POP.DENS']:
-            if code in merged.columns:
-                primary_vars.append(code)
+    if excluded_countries:
+        df = df[~df['iso_code'].isin(excluded_countries)]
+        logger.info(f"Country-level exclusion: Removed {len(excluded_countries)} countries")
     
-    if not primary_vars:
-        # Fallback: drop rows where ANY numeric column (except year) is null? Too aggressive.
-        # Or just drop rows where the 'value' column is null if data is long format.
-        # Assuming wide format for now. If no primary vars found, we might have a format issue.
-        # Let's assume the download scripts produce wide format with indicator codes or cleaned names.
-        # If we still don't find them, we assume the 'value' column exists and we need to pivot?
-        # No, T013 assumes data is ready to merge.
-        logger.warning("Could not identify primary variables. Skipping drop_missing_primary_vars.")
-        return merged
+    return df, excluded_countries
 
-    cleaned = drop_missing_primary_vars(merged, primary_vars)
-    return cleaned
-
-def calculate_coverage_rate(cleaned_df: pd.DataFrame) -> Dict[str, Any]:
-    """
-    Calculate coverage rate as per T015.
-    T015 is a separate task, but we can compute it here or return counts.
-    T013 just says "Save merged panel".
-    We will return the dataframe. T015 will handle the calculation.
-    """
-    return {}
+def clean_and_merge_data(fao_path: Path, wb_path: Path, regime_path: Optional[Path] = None) -> pd.DataFrame:
+    """Main function to clean and merge all datasets."""
+    fao_df = load_fao_data(fao_path)
+    wb_df = load_world_bank_data(wb_path)
+    
+    if fao_df.empty or wb_df.empty:
+        logger.error("Cannot proceed: Required source data files are missing or empty.")
+        return pd.DataFrame()
+    
+    regime_df = pd.DataFrame()
+    if regime_path and regime_path.exists():
+        regime_df = load_regime_data(regime_path)
+    
+    # Merge datasets
+    merged = merge_datasets(fao_df, wb_df, regime_df)
+    
+    if merged.empty:
+        logger.error("Merge resulted in empty dataset.")
+        return pd.DataFrame()
+    
+    # Apply FR-007 row-level exclusion for secondary variables
+    merged = apply_fr007_exclusion(merged)
+    
+    # Apply country-level exclusion for primary variables
+    merged, excluded_countries = apply_country_level_exclusion(merged)
+    
+    # Drop rows missing primary variables
+    merged = drop_missing_primary_vars(merged)
+    
+    # Standardize types
+    merged = standardize_iso_code(merged)
+    merged = standardize_year(merged)
+    
+    return merged
 
 def main():
-    """
-    Entry point for T013.
-    """
-    logger.info("Starting T013: Data Merging and Cleaning")
+    """Main entry point for T013/T016 data cleaning and merging."""
+    logger.info("Starting T013/T016: Data Merging, Cleaning, and Row-Level Exclusion")
     
-    try:
-        cleaned_df = clean_and_merge_data()
-        
-        output_path = Path('data/processed/merged_panel.csv')
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        cleaned_df.to_csv(output_path, index=False)
-        logger.info(f"Saved merged panel to {output_path} ({len(cleaned_df)} rows)")
-        
-        # Log some stats
-        logger.info(f"Columns in merged panel: {list(cleaned_df.columns)}")
-        
-    except Exception as e:
-        logger.error(f"Failed to complete T013: {e}")
+    # Define paths
+    fao_path = Path('data/raw/fao_land_use.csv')
+    wb_path = Path('data/raw/wb_economic_data.csv')
+    regime_path = Path('data/processed/classified_panel.csv')  # T014 output
+    output_path = Path('data/processed/merged_panel.csv')
+    excluded_countries_path = Path('data/processed/excluded_countries_primary.json')
+    
+    # Perform cleaning and merging
+    df = clean_and_merge_data(fao_path, wb_path, regime_path)
+    
+    if df.empty:
+        logger.error("Failed to produce merged dataset.")
         sys.exit(1)
+    
+    # Save merged panel
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved merged panel to {output_path}: {len(df)} rows")
+    
+    # Save excluded countries (from country-level exclusion)
+    # We need to re-run the exclusion logic to get the list, or store it during processing
+    # For now, we'll re-calculate it
+    _, excluded_countries = apply_country_level_exclusion(df)
+    
+    with open(excluded_countries_path, 'w') as f:
+        json.dump({"excluded_countries": excluded_countries}, f, indent=2)
+    logger.info(f"Saved excluded countries to {excluded_countries_path}")
+    
+    # Calculate and save metrics (T015)
+    # Load raw counts
+    fao_raw = load_fao_data(fao_path)
+    wb_raw = load_world_bank_data(wb_path)
+    
+    total_fao = len(fao_raw)
+    total_wb = len(wb_raw)
+    total_merged = len(df)
+    
+    coverage_rate = calculate_coverage_rate(total_merged, total_fao, total_wb)
+    
+    metrics = {
+        "total_fao_available": total_fao,
+        "total_wb_available": total_wb,
+        "total_merged": total_merged,
+        "coverage_rate": coverage_rate
+    }
+    
+    metrics_path = Path('data/processed/metrics.json')
+    with open(metrics_path, 'w') as f:
+        json.dump(metrics, f, indent=2)
+    logger.info(f"Saved metrics to {metrics_path}")
+    
+    logger.info("T013/T016 completed successfully")
 
 if __name__ == "__main__":
     main()

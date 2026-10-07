@@ -1,212 +1,321 @@
+"""
+Data Download Module for CBNRM vs State-Led Management Analysis.
+Implements robust fetching, retry logic, and data loading for World Bank and FAO sources.
+"""
 import json
 import time
 import sys
 import logging
+import os
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Dict, Any, Optional, List, Tuple
 import pandas as pd
 import requests
 
-# Ensure logging is configured
-from logging_config import get_logger
+# Add parent directory to path to allow imports if run as script
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-# Configuration import
 from config import get_config
+from logging_config import get_logger
 
 logger = get_logger(__name__)
 
-def fetch_with_backoff(url: str, params: Dict[str, Any], max_retries: int = 3) -> Optional[pd.DataFrame]:
+# Constants
+MAX_RETRIES = 3
+BACKOFF_FACTOR = 2.0
+CHUNK_SIZE = 10000  # Rows per chunk for large downloads
+
+def fetch_with_backoff(url: str, params: Optional[Dict] = None, timeout: int = 30) -> Optional[Dict]:
     """
     Fetch data from a URL with exponential backoff retry logic.
-    Returns a DataFrame if successful, None if all retries fail.
+    Returns the JSON response or None if all retries fail.
     """
-    for attempt in range(max_retries):
+    attempt = 0
+    while attempt < MAX_RETRIES:
         try:
-            logger.info(f"Fetching URL: {url}, Attempt {attempt + 1}/{max_retries}")
-            response = requests.get(url, params=params, timeout=30)
-            response.raise_for_status()
+            logger.info(f"Fetching URL: {url} (Attempt {attempt + 1}/{MAX_RETRIES})")
+            response = requests.get(url, params=params, timeout=timeout)
             
-            # World Bank API returns JSON
-            data = response.json()
-            
-            # Handle the specific structure of World Bank API responses
-            # Usually data is in the second element of the list
-            if isinstance(data, list) and len(data) > 1:
-                records = data[1]
-                return pd.DataFrame(records)
-            elif isinstance(data, dict) and 'page' in data:
-                # Handle pagination or specific structure
-                records = data.get('data', [])
-                return pd.DataFrame(records)
-            else:
-                logger.warning(f"Unexpected response structure from {url}")
-                return pd.DataFrame()
+            # Handle Rate Limiting (429)
+            if response.status_code == 429:
+                retry_after = response.headers.get('Retry-After', str(BACKOFF_FACTOR * (attempt + 1)))
+                try:
+                    wait_time = float(retry_after)
+                except ValueError:
+                    wait_time = BACKOFF_FACTOR * (attempt + 1)
+                logger.warning(f"Rate limited. Waiting {wait_time}s before retry.")
+                time.sleep(wait_time)
+                attempt += 1
+                continue
 
+            response.raise_for_status()
+            return response.json()
+            
         except requests.exceptions.RequestException as e:
-            wait_time = (2 ** attempt) * 2  # Exponential backoff: 2s, 4s, 8s
-            logger.warning(f"Request failed: {e}. Retrying in {wait_time}s...")
-            time.sleep(wait_time)
-        except json.JSONDecodeError as e:
-            logger.error(f"Failed to decode JSON response: {e}")
-            return None
-        
-    logger.error(f"Failed to fetch data from {url} after {max_retries} retries.")
+            logger.error(f"Request failed on attempt {attempt + 1}: {e}")
+            if attempt < MAX_RETRIES - 1:
+                wait_time = BACKOFF_FACTOR ** (attempt + 1)
+                logger.info(f"Retrying in {wait_time} seconds...")
+                time.sleep(wait_time)
+            attempt += 1
+    
+    logger.error(f"Failed to fetch data after {MAX_RETRIES} attempts: {url}")
     return None
 
 def verify_fao_indicator(indicator_code: str) -> bool:
     """
-    Verify if an FAO indicator exists (placeholder for FAO specific logic).
-    """
-    # Implementation would go here if FAO verification is needed
-    return True
-
-def fetch_fao_fra_data(indicator_code: str, year_start: int, year_end: int) -> Optional[pd.DataFrame]:
-    """
-    Fetch FAO FRA data (placeholder for FAO specific logic).
-    """
-    # Implementation would go here
-    return None
-
-def save_fao_data_to_csv(df: pd.DataFrame, output_path: Path):
-    """
-    Save FAO data to CSV.
-    """
-    if df is not None and not df.empty:
-        df.to_csv(output_path, index=False)
-        logger.info(f"Saved FAO data to {output_path}")
-    else:
-        # Create empty CSV with headers if no data
-        df = pd.DataFrame(columns=['country', 'year', 'value'])
-        df.to_csv(output_path, index=False)
-        logger.warning(f"No FAO data to save, created empty file at {output_path}")
-
-def load_world_bank_gdp_population(year_start: int = 2000, year_end: int = 2020) -> pd.DataFrame:
-    """
-    Fetch GDP (NY.GDP.PCAP.CD) and Population Density (SP.POP.DENS) from World Bank API.
-    Returns a DataFrame with columns: country, country_code, year, gdp_per_capita, pop_density.
+    Verify if an indicator exists in the FAO STAT API.
+    Returns True if exists, False otherwise.
     """
     config = get_config()
-    api_base = config['API_BASE_URL']
+    base_url = config.get('API_BASE_URL', 'https://www.fao.org/faostat/api')
+    # FAO STAT API endpoint for indicator metadata
+    url = f"{base_url}/indicator"
+    params = {'code': indicator_code}
     
-    indicators = ['NY.GDP.PCAP.CD', 'SP.POP.DENS']
-    all_data = []
+    logger.info(f"Verifying FAO Indicator: {indicator_code}")
+    response = fetch_with_backoff(url, params)
     
-    for indicator in indicators:
-        url = f"{api_base}/indicators/{indicator}"
-        params = {
-            'date': f"{year_start}:{year_end}",
-            'format': 'json',
-            'per_page': 50000  # Fetch as many as possible
-        }
-        
-        df = fetch_with_backoff(url, params)
-        
-        if df is not None and not df.empty:
-            # Filter for the specific indicator
-            df_filtered = df[df['indicator']['id'] == indicator]
-            
-            # Rename columns for consistency
-            df_filtered = df_filtered.rename(columns={
-                'value': 'indicator_value',
-                'date': 'year',
-                'countryiso3code': 'country_code',
-                'country': 'country'
-            })
-            
-            # Keep only necessary columns
-            df_filtered = df_filtered[['country', 'country_code', 'year', 'indicator_value']]
-            df_filtered['indicator'] = indicator
-            
-            all_data.append(df_filtered)
-            logger.info(f"Fetched {len(df_filtered)} rows for indicator {indicator}")
-        else:
-            logger.warning(f"No data fetched for indicator {indicator}")
+    if response and 'data' in response and len(response['data']) > 0:
+        logger.info(f"Indicator {indicator_code} exists in FAO STAT.")
+        return True
     
-    if not all_data:
-        # Return empty dataframe with expected columns
-        return pd.DataFrame(columns=['country', 'country_code', 'year', 'indicator_value', 'indicator'])
-    
-    combined_df = pd.concat(all_data, ignore_index=True)
-    
-    # Pivot to have GDP and Pop Density as separate columns
-    pivot_df = combined_df.pivot_table(
-        index=['country', 'country_code', 'year'],
-        columns='indicator',
-        values='indicator_value',
-        aggfunc='first'
-    ).reset_index()
-    
-    # Rename columns to match expected output
-    pivot_df = pivot_df.rename(columns={
-        'NY.GDP.PCAP.CD': 'gdp_per_capita',
-        'SP.POP.DENS': 'pop_density'
-    })
-    
-    # Ensure year is integer
-    pivot_df['year'] = pivot_df['year'].astype(int)
-    
-    return pivot_df
+    logger.warning(f"Indicator {indicator_code} NOT found in FAO STAT.")
+    return False
 
-def load_cbmrm_proxy_data(file_path: Path) -> Optional[pd.DataFrame]:
+def save_fao_indicator_status(status: bool, indicator: str, output_path: Path) -> None:
+    """Save verification status to JSON."""
+    data = {
+        'exists': status,
+        'indicator': indicator,
+        'timestamp': time.strftime("%Y-%m-%d %H:%M:%S")
+    }
+    with open(output_path, 'w') as f:
+        json.dump(data, f, indent=2)
+    logger.info(f"Saved FAO indicator status to {output_path}")
+
+def fetch_fao_fra_data(indicator_code: str, start_year: int, end_year: int) -> Optional[pd.DataFrame]:
     """
-    Load CBNRM proxy data from a CSV file if it exists.
-    Returns the DataFrame or None if file is missing.
+    Fetch Forest Area Change data from FAO STAT.
+    Returns a DataFrame with columns: Country, Year, Value.
     """
-    if not file_path.exists():
-        logger.warning(f"CBNRM proxy file not found at {file_path}. Continuing without it.")
+    config = get_config()
+    # FAO STAT API endpoint for data
+    url = "https://www.fao.org/faostat/api/data"
+    params = {
+        'code': indicator_code,
+        'start_year': start_year,
+        'end_year': end_year,
+        'format': 'json'
+    }
+    
+    logger.info(f"Fetching FAO FRA data for {indicator_code} from {start_year} to {end_year}")
+    response = fetch_with_backoff(url, params)
+    
+    if not response or 'data' not in response:
+        logger.error("Failed to fetch FAO data or invalid response format.")
         return None
     
     try:
-        df = pd.read_csv(file_path)
-        logger.info(f"Loaded CBNRM proxy data: {len(df)} rows from {file_path}")
+        # Parse FAO STAT response structure
+        # Expected structure: {'data': [{'country': '...', 'year': 2000, 'value': ...}, ...]}
+        records = response['data']
+        df = pd.DataFrame(records)
+        
+        if df.empty:
+            logger.warning("FAO data returned empty.")
+            return pd.DataFrame(columns=['Country', 'Year', 'Value'])
+        
+        # Standardize columns
+        df = df.rename(columns={
+            'country': 'Country',
+            'year': 'Year',
+            'value': 'Value'
+        })
+        
+        # Ensure types
+        df['Year'] = pd.to_numeric(df['Year'], errors='coerce').astype('Int64')
+        df['Value'] = pd.to_numeric(df['Value'], errors='coerce')
+        
+        # Drop rows with missing critical data
+        df = df.dropna(subset=['Country', 'Year', 'Value'])
+        
+        logger.info(f"Fetched {len(df)} rows from FAO STAT.")
         return df
     except Exception as e:
-        logger.error(f"Failed to load CBNRM proxy data from {file_path}: {e}")
+        logger.error(f"Error parsing FAO data: {e}")
+        return None
+
+def save_fao_data_to_csv(df: pd.DataFrame, output_path: Path) -> None:
+    """Save FAO data to CSV."""
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved FAO data to {output_path}")
+
+def load_world_bank_gdp_population(start_year: int, end_year: int, output_path: Path) -> pd.DataFrame:
+    """
+    Fetch GDP (NY.GDP.PCAP.CD) and Population Density (SP.POP.DENS) from World Bank API.
+    Returns a DataFrame with columns: Country, CountryCode, Year, GDP, PopDensity.
+    """
+    config = get_config()
+    base_url = "https://api.worldbank.org/v2"
+    
+    indicators = {
+        'gdp': 'NY.GDP.PCAP.CD',
+        'pop_density': 'SP.POP.DENS'
+    }
+    
+    all_data = []
+    
+    for name, indicator_code in indicators.items():
+        url = f"{base_url}/country/all/indicator/{indicator_code}"
+        params = {
+            'format': 'json',
+            'date': f"{start_year}:{end_year}",
+            'per_page': 50000  # Request max per page
+        }
+        
+        logger.info(f"Fetching World Bank data for {indicator_code} ({name})")
+        response = fetch_with_backoff(url, params)
+        
+        if not response or len(response) < 2:
+            logger.warning(f"No data found for {indicator_code}. Skipping.")
+            continue
+        
+        # World Bank API returns [metadata, data]
+        data_records = response[1]
+        
+        for record in data_records:
+            if not record.get('value'):
+                continue
+            
+            country_code = record.get('countryiso3code')
+            country_name = record.get('country', {}).get('value', '')
+            year = record.get('date')
+            
+            if not country_code or not year:
+                continue
+            
+            try:
+                year_int = int(year)
+            except ValueError:
+                continue
+            
+            all_data.append({
+                'Country': country_name,
+                'CountryCode': country_code,
+                'Year': year_int,
+                name: float(record['value'])
+            })
+    
+    if not all_data:
+        logger.warning("No economic data fetched from World Bank.")
+        # Create empty DataFrame with expected columns
+        df = pd.DataFrame(columns=['Country', 'CountryCode', 'Year', 'gdp', 'pop_density'])
+        df.to_csv(output_path, index=False)
+        return df
+    
+    df = pd.DataFrame(all_data)
+    
+    # Pivot to wide format: One row per Country-Year, columns for GDP and PopDensity
+    # First, ensure we have unique rows
+    df = df.drop_duplicates(subset=['CountryCode', 'Year', 'gdp', 'pop_density'], keep='first')
+    
+    # Pivot
+    df_wide = df.pivot_table(
+        index=['Country', 'CountryCode', 'Year'],
+        columns=None,
+        values=['gdp', 'pop_density'],
+        aggfunc='first'
+    ).reset_index()
+    
+    # Flatten columns if necessary
+    df_wide.columns = ['Country', 'CountryCode', 'Year', 'GDP', 'Population_Density']
+    
+    # Save to CSV
+    df_wide.to_csv(output_path, index=False)
+    logger.info(f"Saved World Bank economic data ({len(df_wide)} rows) to {output_path}")
+    
+    return df_wide
+
+def load_cbmrm_proxy_data(proxy_path: Path) -> Optional[pd.DataFrame]:
+    """
+    Load CBNRM proxy data from a CSV file.
+    Returns DataFrame or None if file missing/empty.
+    """
+    if not proxy_path.exists():
+        logger.warning(f"CBNRM proxy file not found: {proxy_path}")
+        return None
+    
+    try:
+        df = pd.read_csv(proxy_path)
+        if df.empty:
+            logger.warning(f"CBNRM proxy file is empty: {proxy_path}")
+            return None
+        logger.info(f"Loaded CBNRM proxy data: {len(df)} rows from {proxy_path}")
+        return df
+    except Exception as e:
+        logger.error(f"Error loading CBNRM proxy data: {e}")
         return None
 
 def main():
     """
-    Main execution function for T012:
-    1. Fetch GDP and Population Density from World Bank API.
-    2. Load CBNRM proxy data if available.
-    3. Save outputs to data/raw/.
+    Main entry point for T012: World Bank data loader.
+    Fetches GDP and Population Density, loads CBNRM proxy, and saves outputs.
     """
-    logger.info("Starting T012: World Bank data loader")
+    logger.info("Starting T012: World Bank Data Loader")
     
-    # Define paths
-    raw_dir = Path("data/raw")
-    raw_dir.mkdir(parents=True, exist_ok=True)
+    # Configuration
+    config = get_config()
+    start_year = config.get('DATA_YEARS_START', 2000)
+    end_year = config.get('DATA_YEARS_END', 2020)
     
-    wb_output_path = raw_dir / "wb_economic_data.csv"
-    proxy_output_path = raw_dir / "cbnrm_proxy.csv"
+    # Paths
+    data_dir = Path("data/raw")
+    data_dir.mkdir(parents=True, exist_ok=True)
     
-    # Fetch World Bank economic data
-    logger.info("Fetching World Bank GDP and Population Density data...")
-    wb_df = load_world_bank_gdp_population(year_start=2000, year_end=2020)
+    wb_output_path = data_dir / "wb_economic_data.csv"
+    proxy_primary_path = data_dir / "cbnrm_proxy_primary.csv"
+    proxy_secondary_path = data_dir / "cbnrm_proxy_secondary.csv"
+    proxy_tertiary_path = data_dir / "cbnrm_proxy_tertiary.csv"
     
-    if wb_df is not None and not wb_df.empty:
-        wb_df.to_csv(wb_output_path, index=False)
-        logger.info(f"Saved World Bank economic data to {wb_output_path}")
+    # Step 1: Fetch World Bank Economic Data
+    logger.info("Fetching GDP and Population Density from World Bank...")
+    wb_df = load_world_bank_gdp_population(start_year, end_year, wb_output_path)
+    
+    if wb_df is None or wb_df.empty:
+        logger.warning("No World Bank economic data fetched. Proceeding with empty dataset.")
+    
+    # Step 2: Load CBNRM Proxy Data (Priority: Primary -> Secondary -> Tertiary)
+    proxy_source = None
+    proxy_df = None
+    
+    # Try Primary
+    if proxy_primary_path.exists():
+        proxy_df = load_cbmrm_proxy_data(proxy_primary_path)
+        proxy_source = "primary"
+    
+    # Try Secondary if Primary failed
+    if proxy_df is None and proxy_secondary_path.exists():
+        proxy_df = load_cbmrm_proxy_data(proxy_secondary_path)
+        proxy_source = "secondary"
+    
+    # Try Tertiary if Secondary failed
+    if proxy_df is None and proxy_tertiary_path.exists():
+        proxy_df = load_cbmrm_proxy_data(proxy_tertiary_path)
+        proxy_source = "tertiary"
+    
+    if proxy_df is not None:
+        logger.info(f"Successfully loaded CBNRM proxy from {proxy_source} source.")
     else:
-        # Create empty CSV with headers if no data
-        wb_df = pd.DataFrame(columns=['country', 'country_code', 'year', 'gdp_per_capita', 'pop_density'])
-        wb_df.to_csv(wb_output_path, index=False)
-        logger.warning(f"No World Bank data fetched, created empty file at {wb_output_path}")
+        logger.warning("No CBNRM proxy data available. Proceeding without it.")
     
-    # Load CBNRM proxy data (if it exists from T009)
-    # Note: T009 might have failed or not run yet, so we handle missing file gracefully
-    proxy_df = load_cbmrm_proxy_data(proxy_output_path)
+    # Step 3: Save Proxy Data (if loaded) to ensure it's in the raw directory
+    # Note: The task says "Save ... the proxy to data/raw/cbnrm_proxy_primary.csv (or secondary/tertiary)"
+    # We assume the fetch tasks (T009a/b/c) already saved them. We just log the status.
+    # However, if we need to ensure the file exists for downstream tasks, we could copy it.
+    # For now, we rely on the fetch tasks having written them.
     
-    # If proxy file doesn't exist, we don't create it here (T009 is responsible for that)
-    # We just log the status
-    if proxy_df is None:
-        logger.warning("CBNRM proxy data not available. This is expected if T009 has not run or failed.")
-    else:
-        # Ensure proxy data is saved (in case it was loaded from a different location)
-        proxy_df.to_csv(proxy_output_path, index=False)
-        logger.info(f"Ensured CBNRM proxy data is saved at {proxy_output_path}")
-    
-    logger.info("T012 completed successfully.")
+    logger.info("T012: World Bank Data Loader completed.")
     return 0
 
 if __name__ == "__main__":

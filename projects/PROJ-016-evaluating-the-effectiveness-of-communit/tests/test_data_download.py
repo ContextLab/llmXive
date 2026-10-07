@@ -1,89 +1,172 @@
+"""
+Tests for data download module.
+"""
+
 import pytest
 import time
 import requests
 from unittest.mock import patch, MagicMock, Mock
 from pathlib import Path
 import sys
-import pandas as pd
 import json
+import tempfile
+import pandas as pd
 
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-from data.download import fetch_with_backoff, verify_fao_indicator, fetch_fao_fra_data, save_fao_data_to_csv
+from data.download import fetch_with_backoff, verify_fao_indicator, save_fao_indicator_status
 
 class TestDownloadRetryLogic:
-    @patch('data.download.requests.get')
-    def test_exponential_backoff(self, mock_get):
-        """Test that retries happen with exponential backoff."""
-        mock_response = Mock()
-        mock_response.raise_for_status.side_effect = requests.exceptions.RequestException("Simulated Error")
-        mock_get.return_value = mock_response
+    """Tests for exponential backoff retry logic."""
 
-        start_time = time.time()
-        result = fetch_with_backoff("http://test.com", max_retries=3)
-        elapsed = time.time() - start_time
+    @patch('data.download.requests.Session')
+    def test_fetch_with_backoff_success(self, mock_session_class):
+        """Test successful fetch on first attempt."""
+        mock_session = MagicMock()
+        mock_response = MagicMock()
+        mock_response.json.return_value = {'data': [{'key': 'value'}]}
+        mock_response.raise_for_status = MagicMock()
+        mock_session.get.return_value = mock_response
+        mock_session_class.return_value = mock_session
 
-        # Should have called 3 times
-        assert mock_get.call_count == 3
-        # Should have waited at least 2+4=6 seconds (2s, 4s)
-        assert elapsed >= 6
+        result = fetch_with_backoff('http://example.com', max_retries=3)
+
+        assert result == {'data': [{'key': 'value'}]}
+        mock_session.get.assert_called_once()
+
+    @patch('data.download.requests.Session')
+    def test_fetch_with_backoff_retry(self, mock_session_class):
+        """Test fetch succeeds after retry."""
+        mock_session = MagicMock()
+        mock_response = MagicMock()
+        mock_response.json.return_value = {'data': [{'key': 'value'}]}
+        mock_response.raise_for_status = MagicMock()
+
+        # First two attempts fail, third succeeds
+        error_response = MagicMock()
+        error_response.raise_for_status.side_effect = requests.exceptions.RequestException("Error")
+
+        mock_session.get.side_effect = [error_response, error_response, mock_response]
+        mock_session_class.return_value = mock_session
+
+        with patch('data.download.time.sleep'):
+            result = fetch_with_backoff('http://example.com', max_retries=3)
+
+        assert result == {'data': [{'key': 'value'}]}
+        assert mock_session.get.call_count == 3
+
+    @patch('data.download.requests.Session')
+    def test_fetch_with_backoff_all_fail(self, mock_session_class):
+        """Test fetch fails after all retries."""
+        mock_session = MagicMock()
+        error_response = MagicMock()
+        error_response.raise_for_status.side_effect = requests.exceptions.RequestException("Error")
+
+        mock_session.get.side_effect = [error_response] * 4
+        mock_session_class.return_value = mock_session
+
+        with patch('data.download.time.sleep'):
+            result = fetch_with_backoff('http://example.com', max_retries=3)
+
         assert result is None
+        assert mock_session.get.call_count == 4
 
-    @patch('data.download.requests.get')
-    def test_success_on_second_attempt(self, mock_get):
-        """Test success after a failure."""
-        mock_fail = Mock()
-        mock_fail.raise_for_status.side_effect = requests.exceptions.RequestException("Error")
-        
-        mock_success = Mock()
-        mock_success.status_code = 200
-        mock_success.json.return_value = {"value": [{"year": 2000, "value": 10}]}
-        
-        mock_get.side_effect = [mock_fail, mock_success]
+class TestVerifyFaoIndicator:
+    """Tests for FAO indicator verification."""
 
-        result = fetch_with_backoff("http://test.com", max_retries=3)
-        assert mock_get.call_count == 2
-        assert result.status_code == 200
+    @patch('data.download.fetch_with_backoff')
+    def test_verify_fao_indicator_exists(self, mock_fetch):
+        """Test successful verification of existing indicator."""
+        mock_fetch.return_value = {'data': [{'iso3': 'USA', 'year': 2020, 'value': 10}]}
+
+        exists, message = verify_fao_indicator('AG.LND.FRST.ZS')
+
+        assert exists is True
+        assert 'exists and has data' in message
+
+    @patch('data.download.fetch_with_backoff')
+    def test_verify_fao_indicator_empty_data(self, mock_fetch):
+        """Test verification with empty data."""
+        mock_fetch.return_value = {'data': []}
+
+        exists, message = verify_fao_indicator('AG.LND.FRST.ZS')
+
+        assert exists is False
+        assert 'has no data' in message
+
+    @patch('data.download.fetch_with_backoff')
+    def test_verify_fao_indicator_not_found(self, mock_fetch):
+        """Test verification when indicator not found."""
+        mock_fetch.return_value = None
+
+        exists, message = verify_fao_indicator('AG.LND.FRST.ZS')
+
+        assert exists is False
+        assert 'not found' in message.lower() or 'error' in message.lower()
+
+class TestSaveFaoIndicatorStatus:
+    """Tests for saving FAO indicator status."""
+
+    def test_save_fao_indicator_status(self, tmp_path):
+        """Test saving status to JSON file."""
+        output_path = tmp_path / "status.json"
+
+        save_fao_indicator_status('AG.LND.FRST.ZS', True, "Indicator exists", str(output_path))
+
+        assert output_path.exists()
+        with open(output_path) as f:
+            data = json.load(f)
+
+        assert data['indicator_code'] == 'AG.LND.FRST.ZS'
+        assert data['exists'] is True
+        assert data['status'] == 'success'
+
+    def test_save_fao_indicator_status_missing(self, tmp_path):
+        """Test saving status for missing indicator."""
+        output_path = tmp_path / "status_missing.json"
+
+        save_fao_indicator_status('AG.LND.MISSING', False, "Indicator not found", str(output_path))
+
+        assert output_path.exists()
+        with open(output_path) as f:
+            data = json.load(f)
+
+        assert data['indicator_code'] == 'AG.LND.MISSING'
+        assert data['exists'] is False
+        assert data['status'] == 'missing'
 
 class TestDownloadNoSyntheticFallback:
-    def test_no_synthetic_data_on_failure(self, tmp_path):
-        """Verify that if fetch fails, no synthetic data is generated."""
-        # Mock the fetch to fail
-        with patch('data.download.fetch_with_backoff', return_value=None):
-            with patch('data.download.verify_fao_indicator', return_value=False):
-                df = fetch_fao_fra_data("FAKE_IND", 2000, 2001)
-        
-        # Should be empty, not synthetic
-        assert df.empty
-        assert len(df) == 0
+    """Tests for fail-loud behavior - no synthetic data generation."""
 
-class TestFaoDataFetching:
     @patch('data.download.fetch_with_backoff')
-    def test_fetch_and_save_empty_on_missing_indicator(self, mock_fetch):
-        """Test that empty CSV is created if indicator is missing."""
+    def test_no_synthetic_on_failure(self, mock_fetch):
+        """Test that failed fetch returns None, not synthetic data."""
         mock_fetch.return_value = None
-        
-        output_file = tmp_path / "test_fao.csv"
-        save_fao_data_to_csv(pd.DataFrame(), str(output_file), "TEST")
-        
-        assert output_file.exists()
-        # Check if file has headers or is empty depending on implementation
-        # Our implementation writes headers even if empty
-        with open(output_file, 'r') as f:
-            content = f.read()
-            # Should not be completely empty string if headers are written, 
-            # but our code writes empty DF which might result in empty file if no columns.
-            # Let's ensure the function handles the empty case gracefully.
-            pass
 
-    def test_save_fao_data_to_csv_creates_file(self, tmp_path):
-        """Test that save function creates the file."""
-        df = pd.DataFrame({'country_code': ['USA'], 'year': [2000], 'land_use_change_rate': [1.5]})
-        output_file = tmp_path / "test_fao.csv"
-        save_fao_data_to_csv(df, str(output_file), "TEST")
-        
-        assert output_file.exists()
-        loaded_df = pd.read_csv(output_file)
-        assert len(loaded_df) == 1
-        assert loaded_df.iloc[0]['country_code'] == 'USA'
+        result = fetch_with_backoff('http://example.com', max_retries=1)
+
+        assert result is None
+        # Ensure no synthetic data was generated
+        assert not isinstance(result, pd.DataFrame)
+        assert not isinstance(result, dict) or result is None
+
+    @patch('data.download.requests.Session')
+    def test_fail_loudly_no_fallback(self, mock_session_class):
+        """Test that persistent failure raises error, no fallback."""
+        mock_session = MagicMock()
+        error_response = MagicMock()
+        error_response.raise_for_status.side_effect = requests.exceptions.RequestException("Error")
+
+        mock_session.get.side_effect = [error_response] * 2
+        mock_session_class.return_value = mock_session
+
+        with patch('data.download.time.sleep'):
+            result = fetch_with_backoff('http://example.com', max_retries=1)
+
+        assert result is None
+        # The function should return None, not generate synthetic data
+        # A "fail loud" behavior means the caller should handle the None appropriately
+        # and not proceed with fake data

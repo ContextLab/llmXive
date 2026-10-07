@@ -7,106 +7,88 @@ from pathlib import Path
 import sys
 import os
 
-# Add code to path
+# Add code directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from data.clean import (
-    standardize_iso_code, 
-    standardize_year, 
-    drop_missing_primary_vars, 
-    merge_datasets,
-    clean_and_merge_data
-)
+from data.clean import apply_fr007_exclusion, apply_country_level_exclusion, standardize_iso_code, standardize_year
 
 @pytest.fixture
 def sample_dataframe():
+    """Create a sample DataFrame for testing."""
     data = {
-        'country_code': ['USA', 'USA', 'GBR', 'GBR', 'DEU', 'CHN'],
-        'year': [2000, 2001, 2000, 2001, 2000, 2001],
-        'land_use_change': [1.2, 1.3, 0.5, 0.6, 0.8, np.nan], # CHN has NaN
-        'gdp_per_capita': [50000, 51000, 40000, 41000, 45000, 8000],
-        'population_density': [90, 91, 270, 271, 230, 150]
+        'iso_code': ['USA', 'USA', 'USA', 'CAN', 'CAN', 'FRA', 'FRA', 'DEU'],
+        'year': [2000, 2005, 2010, 2000, 2005, 2000, 2005, 2000],
+        'land_use_change_rate': [0.1, 0.2, 0.3, 0.15, 0.25, 0.12, 0.18, 0.14],
+        'regime_type': [1, 1, 1, 0, 0, 1, 1, 0],
+        'gdp_per_capita': [50000.0, 52000.0, np.nan, 45000.0, 47000.0, 38000.0, np.nan, 42000.0],
+        'population_density': [90.0, 92.0, 95.0, 4.0, 4.2, 115.0, 118.0, 230.0]
     }
     return pd.DataFrame(data)
 
 @pytest.fixture
-def temp_data_dir(tmp_path):
-    data_dir = tmp_path / "data" / "raw"
-    data_dir.mkdir(parents=True)
-    return data_dir
+def temp_data_dir():
+    """Create a temporary directory for test data."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
 
 class TestDataCleaningLogic:
-    def test_standardize_iso_code(self):
-        series = pd.Series(['us', 'uk', 'de', None, ''])
-        result = standardize_iso_code(series)
-        assert result[0] == 'USA'
-        assert result[1] == 'GBR'
-        assert result[2] == 'DEU'
-        assert pd.isna(result[3])
-        assert result[4] is None or pd.isna(result[4])
-
-    def test_standardize_year(self):
-        series = pd.Series(['2000', 2001, '2002.0', None, 'abc'])
-        result = standardize_year(series)
-        assert result[0] == 2000
-        assert result[1] == 2001
-        assert result[2] == 2002
-        assert pd.isna(result[3])
-        assert result[4] is None or pd.isna(result[4])
-
-    def test_drop_missing_primary_vars(self, sample_dataframe):
-        # 'land_use_change' is a primary var
-        primary_vars = ['land_use_change', 'gdp_per_capita']
-        df_clean = drop_missing_primary_vars(sample_dataframe, primary_vars)
-        # CHN should be dropped because land_use_change is NaN
-        assert len(df_clean) == 5
-        assert 'CHN' not in df_clean['country_code'].values
-
-    def test_merge_handles_missing_keys(self):
-        fao = pd.DataFrame({
-            'country_code': ['USA', 'GBR'],
-            'year': [2000, 2000],
-            'land_use_change': [1.0, 0.5]
-        })
-        wb = pd.DataFrame({
-            'country_code': ['USA', 'DEU'], # DEU not in FAO
-            'year': [2000, 2000],
-            'gdp_per_capita': [50000, 45000]
-        })
-        
-        merged = merge_datasets(fao, wb)
-        # Inner join: only USA should remain
-        assert len(merged) == 1
-        assert merged['country_code'].iloc[0] == 'USA'
+    """Test cases for data cleaning logic including T016 row-level exclusion."""
 
     def test_excludes_row_when_gdp_missing(self, sample_dataframe):
-        # Modify sample to have NaN in GDP
-        sample_dataframe.loc[0, 'gdp_per_capita'] = np.nan
-        primary_vars = ['land_use_change', 'gdp_per_capita']
-        df_clean = drop_missing_primary_vars(sample_dataframe, primary_vars)
-        # Row 0 (USA 2000) should be dropped
-        assert len(df_clean) == 5
-        # Check that the specific row is gone
-        assert not ((df_clean['country_code'] == 'USA') & (df_clean['year'] == 2000)).any()
+        """T016: Verify a row is excluded if GDP is null and logged correctly."""
+        # Apply FR-007 exclusion
+        result = apply_fr007_exclusion(sample_dataframe)
+        
+        # Check that the row with missing GDP is excluded
+        # Row index 2 (USA, 2010) has nan in gdp_per_capita
+        # Row index 6 (FRA, 2005) has nan in gdp_per_capita
+        expected_rows = 6  # 8 total - 2 excluded
+        assert len(result) == expected_rows, f"Expected {expected_rows} rows, got {len(result)}"
+        
+        # Verify no rows with missing GDP remain
+        assert result['gdp_per_capita'].isna().sum() == 0, "Some rows with missing GDP remain"
 
-    def test_excludes_country_when_primary_missing(self, sample_dataframe):
-        # This test is for T016b, but we can test the logic here if we implement country exclusion.
-        # T013 does not require country exclusion, so we skip strict testing for it here.
-        # Instead, we verify the row exclusion works correctly.
-        pass
+    def test_excludes_country_when_primary_missing(self, sample_dataframe, temp_data_dir):
+        """T016b: Verify a country is excluded if >20% of years are missing for a primary variable."""
+        # Create a scenario where one country has >20% missing primary data
+        data = {
+            'iso_code': ['USA', 'USA', 'USA', 'CAN', 'CAN', 'CAN', 'FRA', 'FRA', 'FRA'],
+            'year': [2000, 2005, 2010, 2000, 2005, 2010, 2000, 2005, 2010],
+            'land_use_change_rate': [0.1, 0.2, 0.3, 0.15, 0.25, 0.35, np.nan, np.nan, np.nan],  # FRA has 100% missing
+            'regime_type': [1, 1, 1, 0, 0, 0, 1, 1, 1]
+        }
+        df = pd.DataFrame(data)
+        
+        # Apply country-level exclusion
+        result, excluded_countries = apply_country_level_exclusion(df)
+        
+        # FRA should be excluded (100% > 20%)
+        assert 'FRA' in excluded_countries, "FRA should be excluded due to missing primary data"
+        assert len(result) == 6, "Should have 6 rows remaining (USA and CAN)"
 
-    def test_classifies_cbnrm_when_proxy_above_threshold(self):
-        # This is for T014, not T013.
-        pass
+    def test_standardizes_iso_code(self):
+        """Test ISO code standardization."""
+        data = {'iso_code': ['usa', 'can', 'fra'], 'value': [1, 2, 3]}
+        df = pd.DataFrame(data)
+        result = standardize_iso_code(df)
+        assert all(result['iso_code'] == ['USA', 'CAN', 'FRA']), "ISO codes not standardized"
 
-    def test_classifies_state_led_when_proxy_below_threshold(self):
-        # This is for T014, not T013.
-        pass
+    def test_standardizes_year(self):
+        """Test year standardization."""
+        data = {'year': ['2000', '2005', '2010'], 'value': [1, 2, 3]}
+        df = pd.DataFrame(data)
+        result = standardize_year(df)
+        assert all(result['year'] == [2000, 2005, 2010]), "Years not standardized"
 
-    def test_download_exponential_backoff(self):
-        # This is for T017a, testing download.py, not clean.py.
-        pass
+    def test_fr007_handles_empty_dataframe(self):
+        """Test FR-007 with empty DataFrame."""
+        df = pd.DataFrame(columns=['iso_code', 'year', 'gdp_per_capita', 'population_density'])
+        result = apply_fr007_exclusion(df)
+        assert len(result) == 0, "Empty DataFrame should remain empty"
 
-    def test_fetch_fails_loudly_no_synthetic(self):
-        # This is for T065, testing download.py.
-        pass
+    def test_country_exclusion_handles_empty_dataframe(self):
+        """Test country-level exclusion with empty DataFrame."""
+        df = pd.DataFrame(columns=['iso_code', 'year', 'land_use_change_rate'])
+        result, excluded = apply_country_level_exclusion(df)
+        assert len(result) == 0, "Empty DataFrame should remain empty"
+        assert len(excluded) == 0, "No countries should be excluded from empty DataFrame"

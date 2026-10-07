@@ -1,19 +1,49 @@
+T009d:
+  c: false
+  h: cba4c4576cb88181f8d84a0e5cf0abaf8d726da396a6225b25736b73ccbf7a82
+  r: "The provided `code/data/classify.py` is truncated and never performs the required\
+    \ variance calculation or writes `data/processed/proxy_validation.json`. Moreover,\
+    \ the expected output file `proxy_validation.json` is missing from the repository.\
+    \ The task\u2019s core functionality and output artifact are therefore not present."
+T010:
+  c: false
+  h: f34183d6b9db55e12c26d3206399f48112e1077783904a29ae6c63c64532554d
+  r: "The provided `download.py` only defines a generic `verify_fao_indicator` function\
+    \ and does not contain any logic that calls it for the specific `AG.LND.FRST.ZS`\
+    \ indicator, logs the exact warning \u201CData Gap: Missing Variable in Source\u201D\
+    , skips processing of that indicator, or writes a status JSON to `data/processed/fao_indicator_status.json`\
+    \ (the file is missing). The implementation is incomplete and does not satisfy\
+    \ the task\u2019s deliverable."
+T011:
+  c: false
+  h: 41f546e712f6370fb210c0e57ef7b440c0b3d4984576325dd80581769ed869d7
+  r: "The provided `code/data/download.py` is truncated and does not show any logic\
+    \ that fetches the `AG.LND.FRST.ZS` indicator, processes data in chunks, or writes\
+    \ a CSV to `data/raw/fao_land_use.csv`. Moreover, the required output file `data/raw/fao_land_use.csv`\
+    \ is absent. The task\u2019s core requirements are therefore not met."
 T012:
   c: false
-  h: b9d5a172b05576a6bf5d8eab799de55919b9d0d20661f11c93aae635810c384b
-  r: "The `download.py` file shown only contains FAO\u2011related fetching logic and\
-    \ does not include any code to retrieve World Bank GDP or population\u2011density\
-    \ data, nor does it read the `data/raw/cbnrm_proxy.csv` file. Moreover, the required\
-    \ proxy CSV file is absent from the repository. Both the functional implementation\
-    \ and the necessary data artifact are missing."
+  h: b2bf2723dd93ae754545527c2b960f4730928499674fa10e0bee992a17e471d9
+  r: "The `data/raw/cbnrm_proxy_primary.csv` file is missing, and `data/raw/wb_economic_data.csv`\
+    \ contains only the header with no fetched data. Moreover, the provided `code/data/download.py`\
+    \ is truncated and shows no implementation of World Bank API calls, chunked processing,\
+    \ or the required proxy\u2011file handling. These gaps mean the task\u2019s requirements\
+    \ are not met."
 T013:
   c: false
-  h: ad2ccb11ad563c55236a533f475efe0bd88afeca80e0e65ee5e7d65a46859867
-  r: The repository contains a `code/data/clean.py` file, but it lacks the full implementation
-    for merging the FAO and World Bank datasets, dropping rows with missing primary
-    variables, and writing the result to `data/processed/merged_panel.csv`. Moreover,
-    the expected output file `data/processed/merged_panel.csv` is absent. The task
-    therefore remains unfinished.
+  h: b2b9626dbe563dca077d2027fd98acfbb47af8fb66ef20dd5d1a7ba60b49861a
+  r: The provided `code/data/clean.py` is truncated and does not contain a complete
+    implementation (e.g., missing imports, unfinished functions, no call to save `merged_panel.csv`).
+    Moreover, the required output file `data/processed/merged_panel.csv` is absent.
+    Both the script and the expected merged CSV are missing, so the task is not satisfied.
+T016b:
+  c: false
+  h: cd8655705cb2d4af9d09192dff4cd09ad130a3566c2063b9587ff2d44acf3626
+  r: "The required output file `data/processed/excluded_countries_primary.json` does\
+    \ not exist, and the provided `code/data/clean.py` excerpt shows no implementation\
+    \ of the country\u2011level exclusion logic for primary variables nor any code\
+    \ that writes the excluded country codes to that JSON file. The task\u2019s deliverable\
+    \ is therefore missing."
 T023a:
   c: false
   h: 22b7452fbf7aa7756cd1724dfe213db4e6b7543d8e905c02015207f0689d2b79
@@ -45,15 +75,6 @@ T025b:
     \ any implementation that tests a quadratic term or saves such results. The task\u2019\
     s core requirement\u2014non\u2011linearity robustness check and persisting its\
     \ output\u2014is therefore not satisfied."
-T027:
-  c: false
-  h: cec75e6dcf29f217551e8802c5cb5f7d31320ae874946a08e428731f1d372383
-  r: "The repository contains a `generate_associational_flag` function that can write\
-    \ the required JSON, but the file `data/processed/regression_metadata.json` does\
-    \ not exist, and there is no evidence that the function is called to create it.\
-    \ The task\u2019s core requirement\u2014to generate and save the associational\
-    \ flag at the specified location\u2014is therefore unmet. The missing JSON file\
-    \ (or code invoking the function to create it) must be added."
 T036:
   c: false
   h: ce7e5b5e90619f7929ee108f4a8e3f438ea075642c80c6bd572f0476c5cb3e92

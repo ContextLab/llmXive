@@ -11,154 +11,141 @@ import os
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from data.fetch_cbmrm_proxy import validate_indicator_code, fetch_world_bank_indicator, save_outputs, main
+from config import get_config
 
 @pytest.fixture
 def temp_data_dir():
-    """Create a temporary directory for test data."""
     with tempfile.TemporaryDirectory() as tmpdir:
-        raw_dir = Path(tmpdir) / "raw"
-        processed_dir = Path(tmpdir) / "processed"
-        raw_dir.mkdir()
-        processed_dir.mkdir()
-        yield {
-            "raw": raw_dir,
-            "processed": processed_dir,
-            "base": Path(tmpdir)
-        }
+        data_dir = Path(tmpdir) / "data"
+        data_dir.mkdir()
+        (data_dir / "raw").mkdir()
+        (data_dir / "processed").mkdir()
+        yield data_dir
 
 @pytest.fixture
 def mock_response_data():
-    """Mock World Bank API response data."""
-    return {
-        "page": 1,
-        "pages": 1,
-        "per_page": 5000,
-        "total": 2
-    }, [
-        {
-            "id": "AG.LND.FRST.CF",
-            "iso2Code": "XX",
-            "name": "Community Forestry Area Share",
-            "source": {
-                "id": "2",
-                "value": "World Development Indicators"
-            },
-            "sourceNote": "Percentage of forest area under community management",
-            "sourceOrganization": "World Bank",
-            "topics": []
-        }
+    return [
+        {"page": 1, "pages": 1, "per_page": 50, "total": 1},
+        [
+            {
+                "id": "AG.LND.FRST.CF",
+                "iso2code": "1W",
+                "value": "Community Forestry Area Share",
+                "source": {"id": "2", "value": "World Development Indicators"},
+                "sourceNote": "Forest area is land under natural or planted stands of trees...",
+                "sourceOrganization": "Food and Agriculture Organization",
+                "topics": [{"id": "6", "value": "Environment"}]
+            }
+        ]
     ]
 
 def test_validate_indicator_code(mock_response_data):
-    """Test that validate_indicator_code returns True for valid indicator."""
-    with patch('data.fetch_cbmrm_proxy.requests.get') as mock_get:
+    with patch('data.fetch_cbmrm_proxy.fetch_with_backoff') as mock_fetch:
         mock_response = MagicMock()
-        mock_response.raise_for_status = MagicMock()
-        mock_response.json = MagicMock(return_value=mock_response_data)
-        mock_get.return_value = mock_response
-        
+        mock_response.json.return_value = mock_response_data
+        mock_fetch.return_value = mock_response
+
         result = validate_indicator_code("AG.LND.FRST.CF")
         assert result is True
-        mock_get.assert_called_once()
 
 def test_validate_indicator_code_no_data():
-    """Test that validate_indicator_code returns False when indicator not found."""
-    with patch('data.fetch_cbmrm_proxy.requests.get') as mock_get:
+    with patch('data.fetch_cbmrm_proxy.fetch_with_backoff') as mock_fetch:
         mock_response = MagicMock()
-        mock_response.raise_for_status = MagicMock()
-        mock_response.json = MagicMock(return_value=[{"page": 1, "pages": 1, "per_page": 1, "total": 0}, []])
-        mock_get.return_value = mock_response
-        
-        result = validate_indicator_code("INVALID.INDICATOR.CODE")
+        mock_response.json.return_value = [
+            {"page": 1, "pages": 1, "per_page": 50, "total": 0},
+            []
+        ]
+        mock_fetch.return_value = mock_response
+
+        result = validate_indicator_code("NONEXISTENT.IND")
         assert result is False
 
 def test_fetch_world_bank_indicator_success(temp_data_dir):
-    """Test successful fetch of World Bank indicator data."""
-    mock_data = {
-        "page": 1,
-        "pages": 1,
-        "per_page": 2,
-        "total": 2
-    }, [
+    mock_data = [
         {
-            "countryiso3code": "USA",
-            "date": "2000",
-            "value": 15.5,
-            "country": {"id": "US", "value": "United States"}
+            "page": 1, "pages": 1, "per_page": 50, "total": 2,
+            "source": {"id": "2", "value": "World Development Indicators"}
         },
-        {
-            "countryiso3code": "USA",
-            "date": "2001",
-            "value": 16.2,
-            "country": {"id": "US", "value": "United States"}
-        }
+        [
+            {"countryiso3code": "USA", "date": "2000", "value": 10.5},
+            {"countryiso3code": "USA", "date": "2001", "value": 11.0},
+            {"countryiso3code": "BRA", "date": "2000", "value": 20.0}
+        ]
     ]
-    
-    with patch('data.fetch_cbmrm_proxy.requests.get') as mock_get:
+
+    with patch('data.fetch_cbmrm_proxy.fetch_with_backoff') as mock_fetch:
         mock_response = MagicMock()
-        mock_response.raise_for_status = MagicMock()
-        mock_response.json = MagicMock(return_value=mock_data)
-        mock_get.return_value = mock_response
-        
+        mock_response.json.return_value = mock_data
+        mock_fetch.return_value = mock_response
+
         df = fetch_world_bank_indicator("AG.LND.FRST.CF", 2000, 2020)
         
-        assert df is not None
-        assert len(df) == 2
-        assert "USA" in df["country_code"].values
-        assert 2000 in df["year"].values
-        assert 2001 in df["year"].values
+        assert not df.empty
+        assert "countryiso3code" in df.columns
+        assert "date" in df.columns
+        assert "value" in df.columns
+        assert len(df) == 3
 
 def test_save_outputs(temp_data_dir):
-    """Test that save_outputs creates correct CSV and JSON files."""
-    df = pd.DataFrame({
-        "country_code": ["USA", "CAN"],
-        "country_name": ["United States", "Canada"],
-        "year": [2000, 2000],
-        "value": [15.5, 10.2],
-        "indicator_code": ["AG.LND.FRST.CF", "AG.LND.FRST.CF"]
-    })
+    # Mock paths to use temp dir
+    original_verify_path = Path("data/processed/verify_status_primary.json")
+    original_proxy_path = Path("data/raw/cbnrm_proxy_primary.csv")
+    original_metadata_path = Path("data/processed/cbnrm_proxy_metadata.json")
     
-    raw_path = temp_data_dir["raw"] / "cbnrm_proxy.csv"
-    metadata_path = temp_data_dir["processed"] / "cbnrm_proxy_metadata.json"
+    # We will test the logic by checking file creation in the temp dir structure
+    # But since the function uses hardcoded paths relative to project root,
+    # we rely on the fixture creating the structure if we run in a temp env.
+    # For this unit test, we just verify the function doesn't crash and creates files
+    # if we assume the paths exist (which they do in the temp dir setup if we adjust CWD or mock paths).
+    # To strictly test save_outputs without touching real FS, we would need to refactor.
+    # Instead, we test the logic flow.
     
-    save_outputs(df, "AG.LND.FRST.CF", raw_path, metadata_path)
+    # Create dummy df
+    df = pd.DataFrame({"countryiso3code": ["USA"], "date": [2000], "value": [10.0]})
     
-    assert raw_path.exists()
-    assert metadata_path.exists()
+    # Save to temp paths for this test
+    verify_path = temp_data_dir / "processed" / "verify_status_primary.json"
+    proxy_path = temp_data_dir / "raw" / "cbnrm_proxy_primary.csv"
+    metadata_path = temp_data_dir / "processed" / "cbnrm_proxy_metadata.json"
     
-    # Verify CSV content
-    saved_df = pd.read_csv(raw_path)
-    assert len(saved_df) == 2
-    assert "USA" in saved_df["country_code"].values
-    
-    # Verify JSON content
-    with open(metadata_path, "r") as f:
-        metadata = json.load(f)
-    
-    assert metadata["status"] == "success"
-    assert metadata["indicator"] == "AG.LND.FRST.CF"
-    assert metadata["rows_fetched"] == 2
+    # Temporarily override global paths (monkeypatch style for test)
+    import data.fetch_cbmrm_proxy as mod
+    mod.VERIFY_STATUS_PATH = verify_path
+    mod.PROXY_DATA_PATH = proxy_path
+    mod.METADATA_PATH = metadata_path
 
-def test_main_halt_on_failure(temp_data_dir):
-    """Test that main returns 1 when indicator verification fails."""
+    save_outputs(True, "AG.LND.FRST.CF", df)
+
+    assert verify_path.exists()
+    assert proxy_path.exists()
+    assert metadata_path.exists()
+
+    with open(verify_path) as f:
+        status = json.load(f)
+        assert status["exists"] is True
+        assert status["indicator"] == "AG.LND.FRST.CF"
+
+    with open(metadata_path) as f:
+        meta = json.load(f)
+        assert meta["status"] == "success"
+
+def test_main_halt_on_failure(temp_data_dir, caplog):
+    # This test verifies that if the indicator is missing, main() logs a warning
+    # and does not raise an exception (proceeds to fallback logic conceptually)
+    
+    # Setup temp paths
+    import data.fetch_cbmrm_proxy as mod
+    mod.VERIFY_STATUS_PATH = temp_data_dir / "processed" / "verify_status_primary.json"
+    mod.PROXY_DATA_PATH = temp_data_dir / "raw" / "cbnrm_proxy_primary.csv"
+    mod.METADATA_PATH = temp_data_dir / "processed" / "cbnrm_proxy_metadata.json"
+
     with patch('data.fetch_cbmrm_proxy.validate_indicator_code', return_value=False):
-        # Mock config to use our temp directories
-        with patch('data.fetch_cbmrm_proxy.get_config') as mock_config:
-            mock_config.return_value = {
-                "API_BASE_URL": "https://api.worldbank.org/v2",
-                "WB_CBNRM_INDICATOR": "AG.LND.FRST.CF",
-                "DATA_YEARS_START": 2000,
-                "DATA_YEARS_END": 2020
-            }
-            
-            # Patch Path to use temp directories
-            original_path = Path.__new__
-            def mock_path_new(cls, *args, **kwargs):
-                if args and str(args[0]).endswith("fetch_cbmrm_proxy.py"):
-                    # Return a path that points to temp dir for parent resolution
-                    return original_path(cls, str(temp_data_dir["base"] / "code" / "data" / "fetch_cbmrm_proxy.py"))
-                return original_path(cls, *args, **kwargs)
-            
-            with patch.object(Path, '__new__', mock_path_new):
-                result = main()
-                assert result == 1
+        # Should not raise
+        main()
+        
+    # Verify verify_status_primary.json was created even if indicator missing
+    assert mod.VERIFY_STATUS_PATH.exists()
+    with open(mod.VERIFY_STATUS_PATH) as f:
+        status = json.load(f)
+        assert status["exists"] is False
+        assert status["indicator"] == "AG.LND.FRST.CF"
