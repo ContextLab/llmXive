@@ -8,5 +8,7 @@ matplotlib
 seaborn
 captum
 pytest
-pytest-memory-profiler
+pytest-memprof
+datasets
 pyyaml
+tracemalloc

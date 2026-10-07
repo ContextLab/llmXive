@@ -4,7 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T009` (rejected 1x): The required output files `data/processed/train_split.csv`, `data/processed/test_split.csv`, and `data/processed/graph_train_split.graphml` are absent from the repository, so the temporal holdout split and graph construction have not been performed. No other artifacts were provided to demonstrate that the split logic or graph creation was executed.
+- `T007a` (rejected 1x): declared artifact(s) missing/empty/invalid: data/raw/ctu13_scenario_1.csv
+- `T007b` (rejected 1x): declared artifact(s) missing/empty/invalid: data/raw/bot-iot_v3.csv
 
 ## Required change
 

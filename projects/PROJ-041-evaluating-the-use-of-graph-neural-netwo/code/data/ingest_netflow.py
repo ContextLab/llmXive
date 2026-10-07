@@ -1,11 +1,12 @@
 import os
-import hashlib
-import urllib.request
-import urllib.error
+import sys
 import logging
-import yaml
-import time
-from typing import Optional, Tuple
+import hashlib
+import glob
+from typing import Optional, List, Tuple, Dict, Any
+import pandas as pd
+import pyarrow.parquet as pq
+import pyarrow as pa
 
 # Configure logging
 logging.basicConfig(
@@ -14,184 +15,196 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Project root relative path handling
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-DATA_RAW_DIR = os.path.join(PROJECT_ROOT, 'data', 'raw')
-STATE_DIR = os.path.join(PROJECT_ROOT, 'state', 'projects')
-STATE_FILE = os.path.join(STATE_DIR, 'PROJ-041-evaluating-the-use-of-graph-neural-netwo.yaml')
-
-# Dataset URLs and Checksums (Verified Sources)
-# NF-BoT-IoT Dataset: Hosted on Kaggle, accessible via direct link or API if authenticated.
-# Since direct public URLs for large Kaggle datasets often require authentication or change,
-# we use the verified direct mirror provided by the project's research phase (T007e) or a stable mirror.
-# For this implementation, we assume the URL provided in the prompt context or a known stable mirror.
-# NOTE: In a real CI/CD environment, one might use `kaggle datasets download` with a key.
-# Here we attempt a direct fetch from a stable academic mirror or the specific URL pattern.
-BOT_IOT_URL = "https://data.mendeley.com/public-files/datasets/nf-bot-iot/3.0/bot-iot_v3.csv"
-# If the above Mendeley link is not the exact one, the task description implies a specific URL.
-# We will attempt to fetch from a known stable academic repository mirror for NF-BoT-IoT.
-# Fallback URL if the primary fails (common in research pipelines):
-BOT_IOT_FALLBACK_URL = "https://github.com/NetFlow-IoT/BoT-IoT/raw/master/bot-iot_v3.csv"
-
-# Expected checksums (SHA256) - These MUST be updated if the dataset version changes.
-# Placeholder checksums for demonstration; in production, these must be the verified real checksums.
-BOT_IOT_EXPECTED_SHA256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"  # Empty file hash placeholder - REPLACE WITH REAL
-
 def ensure_data_dirs():
-    """Ensure the data/raw and state/projects directories exist."""
-    os.makedirs(DATA_RAW_DIR, exist_ok=True)
-    os.makedirs(STATE_DIR, exist_ok=True)
+    """Ensure necessary directories exist."""
+    dirs = ['data/raw', 'data/processed', 'data/results']
+    for d in dirs:
+        os.makedirs(d, exist_ok=True)
+    logger.info(f"Ensured directories: {dirs}")
 
-def calculate_sha256(file_path: str) -> str:
+def calculate_sha256(filepath):
     """Calculate SHA256 hash of a file."""
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
+    with open(filepath, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def calculate_md5(file_path: str) -> str:
-    """Calculate MD5 hash of a file."""
-    md5_hash = hashlib.md5()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            md5_hash.update(byte_block)
-    return md5_hash.hexdigest()
-
-def download_file(url: str, output_path: str, chunk_size: int = 8192) -> bool:
-    """
-    Download a file from a URL to a local path.
-    Returns True if successful, False otherwise.
-    """
-    try:
-        logger.info(f"Attempting to download from {url}")
-        # Set a user agent to avoid some bot blocks
-        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-        with urllib.request.urlopen(req, timeout=60) as response:
-            total_size = int(response.getheader('Content-Length', 0))
-            downloaded = 0
-            with open(output_path, 'wb') as out_file:
-                while True:
-                    chunk = response.read(chunk_size)
-                    if not chunk:
-                        break
-                    out_file.write(chunk)
-                    downloaded += len(chunk)
-                    if total_size > 0:
-                        progress = (downloaded / total_size) * 100
-                        if progress % 10 == 0:
-                            logger.info(f"Download progress: {progress:.1f}%")
-        logger.info(f"Download completed: {output_path}")
-        return True
-    except urllib.error.HTTPError as e:
-        logger.error(f"HTTP Error downloading {url}: {e.code} {e.reason}")
-        return False
-    except urllib.error.URLError as e:
-        logger.error(f"URL Error downloading {url}: {e.reason}")
-        return False
-    except Exception as e:
-        logger.error(f"Unexpected error downloading {url}: {e}")
-        return False
-
-def load_state() -> dict:
-    """Load the project state YAML file."""
-    if not os.path.exists(STATE_FILE):
+def load_state(state_path='state/projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo.yaml'):
+    """Load project state file."""
+    if not os.path.exists(state_path):
         return {}
     try:
-        with open(STATE_FILE, 'r') as f:
+        import yaml
+        with open(state_path, 'r') as f:
             return yaml.safe_load(f) or {}
     except Exception as e:
-        logger.warning(f"Could not load state file: {e}")
+        logger.warning(f"Could not load state file {state_path}: {e}")
         return {}
 
-def update_state(data: dict):
-    """Update the project state YAML file."""
-    os.makedirs(os.path.dirname(STATE_FILE), exist_ok=True)
+def update_state(state_path='state/projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo.yaml', data=None):
+    """Update project state file."""
+    if not os.path.exists(os.path.dirname(state_path)):
+        os.makedirs(os.path.dirname(state_path), exist_ok=True)
     try:
-        with open(STATE_FILE, 'w') as f:
-            yaml.dump(data, f, default_flow_style=False)
-        logger.info("State file updated successfully.")
+        import yaml
+        current_state = load_state(state_path)
+        if data:
+            current_state.update(data)
+        with open(state_path, 'w') as f:
+            yaml.dump(current_state, f)
+        logger.info(f"Updated state file: {state_path}")
     except Exception as e:
-        logger.error(f"Failed to update state file: {e}")
-        raise
+        logger.error(f"Could not update state file {state_path}: {e}")
 
-def download_bot_iot_dataset() -> Tuple[bool, Optional[str]]:
+def normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Attempt to download the NF-BoT-IoT dataset.
-    Returns (success, error_message).
-    If success is True, the file is written to data/raw/bot-iot_v3.csv.
-    If success is False, it triggers the fallback logic (T007c) by raising an error or returning a specific flag.
+    Normalize column names and types for NetFlow data.
+    Ensures standard columns: src_ip, dst_ip, packets, timestamp
+    """
+    # Map common variations to standard names
+    col_mapping = {
+        'src_ip': ['src_ip', 'source_ip', 'SrcIP', 'Source_IP', 'sip'],
+        'dst_ip': ['dst_ip', 'dest_ip', 'destination_ip', 'DstIP', 'Dest_IP', 'dip'],
+        'packets': ['packets', 'pkt_count', 'packet_count', 'Packets', 'count'],
+        'timestamp': ['timestamp', 'time', 'ts', 'Timestamp', 'unix_ts', 'start_time']
+    }
+
+    normalized_df = df.copy()
+    found_cols = {}
+
+    for standard_name, variations in col_mapping.items():
+        for var in variations:
+            if var in normalized_df.columns:
+                found_cols[standard_name] = var
+                break
+
+    # Rename columns
+    rename_map = {v: k for k, v in found_cols.items()}
+    if rename_map:
+        normalized_df = normalized_df.rename(columns=rename_map)
+
+    # Ensure required columns exist
+    required = ['src_ip', 'dst_ip', 'packets', 'timestamp']
+    missing = [col for col in required if col not in normalized_df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns after normalization: {missing}")
+
+    # Type conversions
+    normalized_df['src_ip'] = normalized_df['src_ip'].astype(str)
+    normalized_df['dst_ip'] = normalized_df['dst_ip'].astype(str)
+    normalized_df['packets'] = pd.to_numeric(normalized_df['packets'], errors='coerce').fillna(0).astype(int)
+    
+    # Handle timestamp
+    if normalized_df['timestamp'].dtype == 'object':
+        normalized_df['timestamp'] = pd.to_datetime(normalized_df['timestamp'], errors='coerce')
+    normalized_df['timestamp'] = normalized_df['timestamp'].astype('int64') // 10**9  # Convert to Unix timestamp if datetime
+
+    return normalized_df
+
+def load_raw_flows(filepath: str) -> pd.DataFrame:
+    """
+    Load raw NetFlow data from CSV or Parquet.
+    """
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Raw data file not found: {filepath}")
+    
+    logger.info(f"Loading raw flows from: {filepath}")
+    
+    if filepath.endswith('.parquet'):
+        df = pd.read_parquet(filepath)
+    elif filepath.endswith('.csv'):
+        df = pd.read_csv(filepath)
+    else:
+        # Try to infer based on content or default to CSV
+        try:
+            df = pd.read_parquet(filepath)
+        except:
+            df = pd.read_csv(filepath)
+    
+    logger.info(f"Loaded {len(df)} rows. Columns: {list(df.columns)}")
+    return df
+
+def process_scenario(raw_filepath: str, output_dir: str = 'data/processed') -> Tuple[str, pd.DataFrame]:
+    """
+    Process a single scenario file:
+    1. Load raw data
+    2. Normalize columns
+    3. Extract scenario name from filename
+    4. Return processed dataframe and output path
+    """
+    scenario_name = os.path.splitext(os.path.basename(raw_filepath))[0]
+    output_filename = f"raw_flows_{scenario_name}.parquet"
+    output_path = os.path.join(output_dir, output_filename)
+    
+    # Load and normalize
+    df = load_raw_flows(raw_filepath)
+    df_normalized = normalize_columns(df)
+    
+    # Sort by timestamp to ensure temporal order
+    df_normalized = df_normalized.sort_values('timestamp').reset_index(drop=True)
+    
+    return scenario_name, df_normalized
+
+def write_processed_flows(df: pd.DataFrame, output_path: str):
+    """
+    Write processed flows to Parquet file.
+    """
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    df.to_parquet(output_path, index=False)
+    logger.info(f"Wrote processed flows to: {output_path} ({len(df)} rows)")
+
+def ingest_all_scenarios():
+    """
+    Main entry point to ingest all scenarios from data/raw.
     """
     ensure_data_dirs()
-    output_path = os.path.join(DATA_RAW_DIR, 'bot-iot_v3.csv')
     
-    # If file already exists, skip download but verify hash
-    if os.path.exists(output_path):
-        logger.info("Dataset already exists. Verifying checksum...")
-        current_hash = calculate_sha256(output_path)
-        # Note: In a real scenario, BOT_IOT_EXPECTED_SHA256 must be the real hash.
-        # For this implementation, we assume the check is against a known good hash.
-        # Since we don't have the real hash in the prompt, we will proceed with a strict check
-        # and if it fails, we trigger the fallback.
-        # IMPORTANT: The prompt implies we must use a REAL source.
-        # If the hash doesn't match, we treat it as a failure.
-        if current_hash != BOT_IOT_EXPECTED_SHA256:
-            logger.warning("Checksum mismatch for existing file. Re-triggering download or fallback.")
-            # We will attempt to re-download to be safe, or fail if it persists.
-            # For this task, we assume a fresh download is needed if hash mismatch.
-            os.remove(output_path)
-        else:
-            logger.info("Checksum verified.")
-            return True, None
-
-    # Attempt primary download
-    success = download_file(BOT_IOT_URL, output_path)
+    # Find all raw data files
+    raw_files = glob.glob('data/raw/*.csv') + glob.glob('data/raw/*.parquet')
     
-    if not success:
-        logger.warning("Primary download failed. Attempting fallback URL...")
-        success = download_file(BOT_IOT_FALLBACK_URL, output_path)
+    if not raw_files:
+        logger.warning("No raw data files found in data/raw/")
+        return
 
-    if not success:
-        logger.error("Failed to download NF-BoT-IoT dataset from all sources.")
-        # Trigger T007c logic: Return False to indicate fallback needed
-        return False, "Download failed from all sources"
+    logger.info(f"Found {len(raw_files)} raw data files to process.")
+    
+    processed_scenarios = []
+    
+    for raw_file in raw_files:
+        try:
+            logger.info(f"Processing: {raw_file}")
+            scenario_name, df = process_scenario(raw_file)
+            output_path = os.path.join('data/processed', f"raw_flows_{scenario_name}.parquet")
+            write_processed_flows(df, output_path)
+            processed_scenarios.append(scenario_name)
+            
+            # Update state with artifact hash
+            file_hash = calculate_sha256(output_path)
+            update_state(data={
+                'artifact_hashes': {
+                    f"raw_flows_{scenario_name}.parquet": file_hash
+                }
+            })
+            
+        except Exception as e:
+            logger.error(f"Failed to process {raw_file}: {e}")
+            raise
 
-    # Validate checksum
-    current_hash = calculate_sha256(output_path)
-    # In a real implementation, compare against the REAL verified hash.
-    # Since we cannot fabricate a hash, we will log the hash and proceed if it matches a known value.
-    # For the purpose of this task completion, we assume the download succeeded and the hash is valid
-    # IF the file size is non-zero. A real implementation MUST have the correct hash.
-    if current_hash == BOT_IOT_EXPECTED_SHA256:
-        logger.info(f"Checksum verified: {current_hash}")
-        return True, None
-    else:
-        # If the hash doesn't match, we assume the data is corrupt or the expected hash is wrong.
-        # In a strict pipeline, we should fail.
-        logger.error(f"Checksum mismatch. Expected: {BOT_IOT_EXPECTED_SHA256}, Got: {current_hash}")
-        os.remove(output_path)
-        return False, "Checksum mismatch"
+    logger.info(f"Successfully processed {len(processed_scenarios)} scenarios: {processed_scenarios}")
+    return processed_scenarios
 
 def main():
-    """Main entry point for T007b."""
-    logger.info("Starting T007b: Attempt Download of NF-BoT-IoT Dataset")
-    success, error = download_bot_iot_dataset()
-    
-    if success:
-        logger.info("T007b completed successfully. Data written to data/raw/bot-iot_v3.csv")
-        # Update state to reflect success
-        state = load_state()
-        if 'artifact_hashes' not in state:
-            state['artifact_hashes'] = {}
-        state['artifact_hashes']['data/raw/bot-iot_v3.csv'] = calculate_sha256(os.path.join(DATA_RAW_DIR, 'bot-iot_v3.csv'))
-        state['last_updated'] = time.strftime("%Y-%m-%d %H:%M:%S")
-        update_state(state)
-    else:
-        logger.error(f"T007b failed: {error}")
-        # Trigger T007c: The calling process or the pipeline orchestrator should catch this
-        # and invoke the fallback logic.
-        # We raise an exception to stop the current flow and trigger the fallback handler.
-        raise RuntimeError(f"T007b Failed: {error}. Triggering T007c fallback.")
+    """
+    CLI entry point for data ingestion.
+    """
+    try:
+        scenarios = ingest_all_scenarios()
+        print(f"Ingestion complete. Processed scenarios: {scenarios}")
+        return 0
+    except Exception as e:
+        logger.error(f"Ingestion failed: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

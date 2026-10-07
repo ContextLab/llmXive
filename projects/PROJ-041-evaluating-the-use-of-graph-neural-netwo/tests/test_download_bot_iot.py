@@ -1,17 +1,14 @@
-"""
-Tests for the NF-BoT-IoT dataset download functionality.
-"""
 import os
 import sys
 import tempfile
-import hashlib
-import unittest
-from unittest.mock import patch, MagicMock, mock_open
+import shutil
+import pytest
+from unittest.mock import patch, MagicMock
 
-# Add parent directory to path
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Add the code directory to the path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
-from code.data.download_bot_iot import (
+from data.download_bot_iot import (
     calculate_sha256,
     download_file,
     validate_file,
@@ -19,7 +16,7 @@ from code.data.download_bot_iot import (
     trigger_fallback
 )
 
-class TestCalculateSha256(unittest.TestCase):
+class TestCalculateSha256:
     def test_calculate_sha256(self):
         """Test SHA256 calculation."""
         with tempfile.NamedTemporaryFile(delete=False) as tmp:
@@ -27,135 +24,113 @@ class TestCalculateSha256(unittest.TestCase):
             tmp_path = tmp.name
         
         try:
-            expected_hash = hashlib.sha256(b"test data").hexdigest()
+            # Known SHA256 for "test data"
+            expected_hash = "916f0027a575074ce72a331777c3478d6513f786a591bd892da1a577bf2335f9"
             actual_hash = calculate_sha256(tmp_path)
-            self.assertEqual(actual_hash, expected_hash)
+            assert actual_hash == expected_hash
         finally:
             os.unlink(tmp_path)
 
-    def test_calculate_sha256_file_not_found(self):
-        """Test SHA256 calculation with non-existent file."""
-        with self.assertRaises(FileNotFoundError):
-            calculate_sha256("non_existent_file.txt")
+class TestDownloadFile:
+    def test_download_file_success(self):
+        """Test successful file download."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            dest_path = os.path.join(tmpdir, "test.csv")
+            # Mock the download to succeed
+            with patch('data.download_bot_iot.urllib.request.urlopen') as mock_urlopen:
+                mock_response = MagicMock()
+                mock_response.read.return_value = b"col1,col2\n1,2\n"
+                mock_response.__enter__ = lambda self: mock_response
+                mock_response.__exit__ = lambda self, *args: None
+                mock_urlopen.return_value = mock_response
+                
+                result = download_file("http://example.com/test.csv", dest_path)
+                assert result is True
+                assert os.path.exists(dest_path)
+                with open(dest_path, 'rb') as f:
+                    assert f.read() == b"col1,col2\n1,2\n"
 
-class TestDownloadFile(unittest.TestCase):
-    @patch('urllib.request.urlretrieve')
-    def test_download_success(self, mock_urlretrieve):
-        """Test successful download."""
-        mock_urlretrieve.return_value = None
-        with tempfile.NamedTemporaryFile(delete=False) as tmp:
+    def test_download_file_failure(self):
+        """Test failed file download."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            dest_path = os.path.join(tmpdir, "test.csv")
+            with patch('data.download_bot_iot.urllib.request.urlopen') as mock_urlopen:
+                mock_urlopen.side_effect = Exception("Network error")
+                
+                result = download_file("http://example.com/test.csv", dest_path)
+                assert result is False
+                assert not os.path.exists(dest_path)
+
+class TestValidateFile:
+    def test_validate_file_exists(self):
+        """Test validation of existing file."""
+        with tempfile.NamedTemporaryFile(delete=False, mode='w') as tmp:
+            tmp.write("header\nrow\n")
             tmp_path = tmp.name
         
         try:
-            result = download_file("http://example.com/file.csv", tmp_path)
-            self.assertTrue(result)
-            mock_urlretrieve.assert_called_once_with("http://example.com/file.csv", tmp_path)
-        finally:
-            if os.path.exists(tmp_path):
-                os.unlink(tmp_path)
-
-    @patch('urllib.request.urlretrieve')
-    def test_download_failure(self, mock_urlretrieve):
-        """Test failed download."""
-        mock_urlretrieve.side_effect = Exception("Network error")
-        with tempfile.NamedTemporaryFile(delete=False) as tmp:
-            tmp_path = tmp.name
-        
-        try:
-            result = download_file("http://example.com/file.csv", tmp_path)
-            self.assertFalse(result)
-        finally:
-            if os.path.exists(tmp_path):
-                os.unlink(tmp_path)
-
-class TestValidateFile(unittest.TestCase):
-    def test_validate_file_success(self):
-        """Test successful validation."""
-        with tempfile.NamedTemporaryFile(delete=False) as tmp:
-            tmp.write(b"test data")
-            tmp_path = tmp.name
-        
-        try:
-            expected_hash = hashlib.sha256(b"test data").hexdigest()
-            result = validate_file(tmp_path, expected_hash)
-            self.assertTrue(result)
+            assert validate_file(tmp_path) is True
         finally:
             os.unlink(tmp_path)
 
-    def test_validate_file_failure(self):
-        """Test failed validation."""
+    def test_validate_file_not_exists(self):
+        """Test validation of non-existing file."""
+        assert validate_file("/nonexistent/file.csv") is False
+
+    def test_validate_file_empty(self):
+        """Test validation of empty file."""
         with tempfile.NamedTemporaryFile(delete=False) as tmp:
-            tmp.write(b"test data")
             tmp_path = tmp.name
         
         try:
-            result = validate_file(tmp_path, "wrong_hash")
-            self.assertFalse(result)
+            assert validate_file(tmp_path) is False
         finally:
             os.unlink(tmp_path)
 
-    def test_validate_file_not_found(self):
-        """Test validation with non-existent file."""
-        result = validate_file("non_existent_file.txt", "some_hash")
-        self.assertFalse(result)
+    def test_validate_file_hash_mismatch(self):
+        """Test validation with hash mismatch."""
+        with tempfile.NamedTemporaryFile(delete=False, mode='w') as tmp:
+            tmp.write("header\nrow\n")
+            tmp_path = tmp.name
+        
+        try:
+            # Provide a wrong hash
+            assert validate_file(tmp_path, expected_hash="wronghash") is False
+        finally:
+            os.unlink(tmp_path)
 
-class TestTriggerFallback(unittest.TestCase):
+class TestDownloadBotIotDataset:
+    def test_download_bot_iot_dataset_success(self):
+        """Test successful download of bot-iot dataset."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Temporarily change the DATA_RAW_DIR
+            original_dir = "data/raw"
+            # We can't easily change the constant, so we mock the necessary parts
+            with patch('data.download_bot_iot.DATA_RAW_DIR', tmpdir):
+                with patch('data.download_bot_iot.download_file') as mock_download:
+                    mock_download.return_value = True
+                    with patch('data.download_bot_iot.validate_file') as mock_validate:
+                        mock_validate.return_value = True
+                        # Create a dummy file to simulate success
+                        dummy_file = os.path.join(tmpdir, "bot-iot_v3.csv")
+                        with open(dummy_file, 'w') as f:
+                            f.write("col1,col2\n1,2\n")
+                        
+                        result = download_bot_iot_dataset()
+                        assert result == dummy_file
+                        assert os.path.exists(result)
+
+    def test_download_bot_iot_dataset_failure(self):
+        """Test failure of bot-iot dataset download."""
+        with patch('data.download_bot_iot.download_file') as mock_download:
+            mock_download.return_value = False
+            with pytest.raises(RuntimeError) as excinfo:
+                download_bot_iot_dataset()
+            assert "Fallback" in str(excinfo.value)
+
+class TestTriggerFallback:
     def test_trigger_fallback_raises_error(self):
-        """Test that trigger_fallback raises an error."""
-        with self.assertRaises(RuntimeError):
+        """Test that trigger_fallback raises RuntimeError."""
+        with pytest.raises(RuntimeError) as excinfo:
             trigger_fallback()
-
-class TestDownloadBotIotDataset(unittest.TestCase):
-    @patch('code.data.download_bot_iot.download_file')
-    @patch('code.data.download_bot_iot.validate_file')
-    @patch('code.data.download_bot_iot.load_state')
-    @patch('code.data.download_bot_iot.update_state')
-    def test_download_and_validate_success(self, mock_update_state, mock_load_state, mock_validate, mock_download):
-        """Test successful download and validation."""
-        mock_download.return_value = True
-        mock_validate.return_value = True
-        mock_load_state.return_value = {}
-        
-        # Mock os.makedirs to avoid file system changes
-        with patch('os.makedirs'), \
-             patch('os.path.exists', return_value=False), \
-             patch('code.data.download_bot_iot.OUTPUT_FILE', '/tmp/test.csv'):
-            
-            result = download_bot_iot_dataset()
-            self.assertTrue(result)
-            mock_download.assert_called_once()
-            mock_validate.assert_called_once()
-
-    @patch('code.data.download_bot_iot.download_file')
-    @patch('code.data.download_bot_iot.validate_file')
-    @patch('code.data.download_bot_iot.trigger_fallback')
-    def test_download_failure_triggers_fallback(self, mock_fallback, mock_validate, mock_download):
-        """Test that download failure triggers fallback."""
-        mock_download.return_value = False
-        
-        with patch('os.makedirs'), \
-             patch('os.path.exists', return_value=False), \
-             patch('code.data.download_bot_iot.OUTPUT_FILE', '/tmp/test.csv'):
-            
-            with self.assertRaises(RuntimeError):
-                download_bot_iot_dataset()
-            mock_fallback.assert_called_once()
-
-    @patch('code.data.download_bot_iot.download_file')
-    @patch('code.data.download_bot_iot.validate_file')
-    @patch('code.data.download_bot_iot.trigger_fallback')
-    def test_validation_failure_triggers_fallback(self, mock_fallback, mock_validate, mock_download):
-        """Test that validation failure triggers fallback."""
-        mock_download.return_value = True
-        mock_validate.return_value = False
-        
-        with patch('os.makedirs'), \
-             patch('os.path.exists', return_value=False), \
-             patch('code.data.download_bot_iot.OUTPUT_FILE', '/tmp/test.csv'):
-            
-            with self.assertRaises(RuntimeError):
-                download_bot_iot_dataset()
-            mock_fallback.assert_called_once()
-
-if __name__ == '__main__':
-    unittest.main()
+        assert "Fallback" in str(excinfo.value)

@@ -32,7 +32,7 @@
   verification_status: mismatch
   verified_against_url: https://www.unb.ca/cic/datasets/bot-iot.html
   verified_at: '2026-10-03T02:33:54.804890Z'
-- artifact_hash: 5459ee07397d92b0e0eab35c0ba7ed12a5907effb79dcaa24c5c5a42da635956
+- artifact_hash: 96283b00e900a485a8dc9bec854c82fd3aeb95cfc12f5492bd408cd0f793a191
   artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -43,15 +43,4 @@
   value: https://arxiv.org/abs/2605.23004
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2605.23004
-  verified_at: '2026-10-03T02:52:21.835014Z'
-- artifact_hash: 5459ee07397d92b0e0eab35c0ba7ed12a5907effb79dcaa24c5c5a42da635956
-  artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[1906.01701] On Benjamini-Hochberg procedure applied to mid p-values'
-  kind: url
-  value: https://arxiv.org/abs/1906.01701
-  verification_status: pending
-  verified_against_url: https://arxiv.org/abs/1906.01701
-  verified_at: '2026-10-03T02:52:21.835014Z'
+  verified_at: '2026-10-07T11:29:02.091734Z'

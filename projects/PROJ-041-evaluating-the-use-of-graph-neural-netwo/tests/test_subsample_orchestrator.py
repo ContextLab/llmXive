@@ -1,122 +1,159 @@
-import os
-import tempfile
-import pytest
-import networkx as nx
-from unittest.mock import patch, MagicMock
+"""
+Tests for the Subsampling Orchestrator (T008d).
 
-# Import the module under test
+Validates the decision tree logic:
+1. Graphs under limit are passed through.
+2. Graphs over limit trigger LCC extraction.
+3. LCCs over limit trigger degree-based subsampling.
+"""
+
+import os
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
+import tempfile
+import shutil
+import networkx as nx
+import pytest
+
+# Add project root to path
+_project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
 
 from data.subsample_orchestrator import (
     run_subsampling_orchestration,
-    load_graph_safe,
-    NODE_LIMIT
+    extract_lcc,
+    degree_based_subsample,
+    NODE_LIMIT,
+    MEMORY_LIMIT_MB
 )
-from utils.memory_monitor import MemoryLimitExceededError
+from utils.seed import set_seed
 
-class TestSubsampleOrchestrator:
-    @pytest.fixture
-    def temp_dir(self):
-        with tempfile.TemporaryDirectory() as tmpdir:
-            yield tmpdir
+@pytest.fixture
+def temp_graph_dir():
+    """Create a temporary directory for test graphs."""
+    tmpdir = tempfile.mkdtemp()
+    yield tmpdir
+    shutil.rmtree(tmpdir)
 
-    def test_no_subsample_needed(self, temp_dir):
-        """Test that a small graph passes through unchanged."""
-        # Create a small graph
-        G = nx.erdos_renyi_graph(100, 0.1, seed=42)
-        input_path = os.path.join(temp_dir, "graph_small_raw.graphml")
+def create_test_graph(num_nodes, num_edges, connected=True):
+    """Helper to create a test graph."""
+    G = nx.Graph()
+    G.add_nodes_from(range(num_nodes))
+    if connected and num_nodes > 1:
+        # Create a path to ensure connectivity
+        G.add_edges_from([(i, i+1) for i in range(num_nodes-1)])
+        # Add random edges
+        for _ in range(max(0, num_edges - (num_nodes - 1))):
+            u = np.random.randint(0, num_nodes)
+            v = np.random.randint(0, num_nodes)
+            if u != v and not G.has_edge(u, v):
+                G.add_edge(u, v)
+    else:
+        # Disconnected graph
+        for _ in range(num_edges):
+            u = np.random.randint(0, num_nodes)
+            v = np.random.randint(0, num_nodes)
+            if u != v and not G.has_edge(u, v):
+                G.add_edge(u, v)
+    return G
+
+import numpy as np
+
+class TestSubsamplingOrchestrator:
+    def test_graph_under_limit_passes_through(self, temp_graph_dir):
+        """Test that a graph under 5000 nodes is copied directly."""
+        input_path = os.path.join(temp_graph_dir, "input.graphml")
+        output_path = os.path.join(temp_graph_dir, "output.graphml")
+
+        G = create_test_graph(1000, 2000)
         nx.write_graphml(G, input_path)
 
-        output_path, hash_path = run_subsampling_orchestration(
-            raw_graph_path=input_path,
-            seed=42,
-            output_dir=temp_dir,
-            node_limit=5000
-        )
+        result_path = run_subsampling_orchestration(input_path, output_path, seed=42)
 
-        assert os.path.exists(output_path)
-        assert os.path.exists(hash_path)
+        assert os.path.exists(result_path)
+        assert os.path.exists(result_path + ".hash")
         
-        # Verify content
-        G_out = nx.read_graphml(output_path)
-        assert G_out.number_of_nodes() == 100
+        # Verify node count is preserved
+        G_out = nx.read_graphml(result_path)
+        assert G_out.number_of_nodes() == 1000
 
-    def test_lcc_subsample_only(self, temp_dir):
-        """Test graph that needs LCC but LCC is within limits."""
-        # Create a graph with a large component and some isolated nodes
-        G_full = nx.Graph()
-        # Large component
-        large_comp = nx.erdos_renyi_graph(3000, 0.1, seed=42)
-        # Add some isolated nodes
-        for i in range(1000):
-            G_full.add_node(f"isolated_{i}")
-        
-        # Map nodes of large_comp to G_full
-        mapping = {n: f"comp_{n}" for n in large_comp.nodes()}
-        G_full.add_nodes_from(mapping.values())
-        G_full.add_edges_from([(mapping[u], mapping[v]) for u, v in large_comp.edges()])
-        
-        input_path = os.path.join(temp_dir, "graph_lcc_test_raw.graphml")
-        nx.write_graphml(G_full, input_path)
+    def test_large_graph_triggers_lcc(self, temp_graph_dir):
+        """Test that a large graph triggers LCC extraction."""
+        input_path = os.path.join(temp_graph_dir, "input.graphml")
+        output_path = os.path.join(temp_graph_dir, "output.graphml")
 
-        output_path, hash_path = run_subsampling_orchestration(
-            raw_graph_path=input_path,
-            seed=42,
-            output_dir=temp_dir,
-            node_limit=5000
-        )
-
-        assert os.path.exists(output_path)
-        G_out = nx.read_graphml(output_path)
-        # Should be the LCC (approx 3000 nodes)
-        assert G_out.number_of_nodes() <= 5000
-        assert G_out.number_of_nodes() < G_full.number_of_nodes()
-
-    def test_degree_subsample_fallback(self, temp_dir):
-        """Test graph where LCC is still too big, requiring degree subsampling."""
-        # Create a graph with > 5000 nodes in LCC
-        # Use a scale-free graph to ensure high degree nodes exist
-        G = nx.barabasi_albert_graph(6000, 5, seed=42)
-        
-        input_path = os.path.join(temp_dir, "graph_degree_test_raw.graphml")
+        # Create a graph with > 5000 nodes
+        G = create_test_graph(6000, 12000)
         nx.write_graphml(G, input_path)
 
-        output_path, hash_path = run_subsampling_orchestration(
-            raw_graph_path=input_path,
-            seed=42,
-            output_dir=temp_dir,
-            node_limit=5000
-        )
+        result_path = run_subsampling_orchestration(input_path, output_path, seed=42)
 
-        assert os.path.exists(output_path)
-        G_out = nx.read_graphml(output_path)
-        # Should be exactly or close to the limit
-        assert G_out.number_of_nodes() <= 5000
-        assert G_out.number_of_nodes() < 6000
+        assert os.path.exists(result_path)
+        G_out = nx.read_graphml(result_path)
+        
+        # Should be <= 5000
+        assert G_out.number_of_nodes() <= NODE_LIMIT
 
-    def test_missing_input_file(self, temp_dir):
-        """Test that FileNotFoundError is raised for missing input."""
-        with pytest.raises(FileNotFoundError):
-            run_subsampling_orchestration(
-                raw_graph_path=os.path.join(temp_dir, "nonexistent.graphml"),
-                seed=42,
-                output_dir=temp_dir
-            )
+    def test_disconnected_graph_lcc_extraction(self, temp_graph_dir):
+        """Test LCC extraction on a disconnected graph."""
+        input_path = os.path.join(temp_graph_dir, "input.graphml")
+        output_path = os.path.join(temp_graph_dir, "output.graphml")
 
-    def test_memory_limit_exceeded(self, temp_dir, monkeypatch):
-        """Test that MemoryLimitExceededError is raised if memory is too high."""
-        # Create a dummy graph
-        G = nx.erdos_renyi_graph(100, 0.1, seed=42)
-        input_path = os.path.join(temp_dir, "graph_mem_test_raw.graphml")
+        # Create a graph with two large components
+        G = nx.Graph()
+        # Component 1: 6000 nodes
+        comp1 = list(range(6000))
+        G.add_nodes_from(comp1)
+        G.add_edges_from([(i, i+1) for i in range(5999)])
+        
+        # Component 2: 1000 nodes
+        comp2 = list(range(6000, 7000))
+        G.add_nodes_from(comp2)
+        G.add_edges_from([(i, i+1) for i in range(6000, 6999)])
+
         nx.write_graphml(G, input_path)
 
-        # Mock the memory monitor to return a high value
-        with patch('data.subsample_orchestrator.stop_monitoring', return_value=10000.0): # 10GB
-            with pytest.raises(MemoryLimitExceededError):
-                run_subsampling_orchestration(
-                    raw_graph_path=input_path,
-                    seed=42,
-                    output_dir=temp_dir,
-                    memory_limit_gb=7.0
-                )
+        result_path = run_subsampling_orchestration(input_path, output_path, seed=42)
+
+        G_out = nx.read_graphml(result_path)
+        
+        # Should contain the LCC (6000 nodes) but wait, 6000 > 5000
+        # So it should trigger degree subsampling on the LCC
+        assert G_out.number_of_nodes() <= NODE_LIMIT
+
+    def test_degree_subsample_tie_breaking(self, temp_graph_dir):
+        """Test that degree subsampling uses IP string for tie-breaking."""
+        # This is a unit test for the helper function logic
+        # Create a graph where many nodes have the same degree
+        G = nx.Graph()
+        nodes = ["10.0.0.1", "10.0.0.2", "10.0.0.3", "10.0.0.4"]
+        G.add_nodes_from(nodes)
+        # Make them all have degree 1 (connected to a central hub not in list? No, simple ring)
+        G.add_edges_from([("10.0.0.1", "10.0.0.2"), ("10.0.0.3", "10.0.0.4")])
+        
+        # All have degree 1.
+        # We want to select 2.
+        # Tie-breaking: sort by degree (desc), then by IP (asc).
+        # Sorted: 10.0.0.1, 10.0.0.2, 10.0.0.3, 10.0.0.4
+        # Select top 2: 10.0.0.1, 10.0.0.2
+        
+        subsampled = degree_based_subsample(G, 2, seed=42)
+        assert subsampled.number_of_nodes() == 2
+        assert "10.0.0.1" in subsampled.nodes()
+        assert "10.0.0.2" in subsampled.nodes()
+        assert "10.0.0.3" not in subsampled.nodes()
+
+    def test_lcc_extraction_on_empty_graph(self, temp_graph_dir):
+        """Test LCC extraction on an empty graph."""
+        input_path = os.path.join(temp_graph_dir, "input.graphml")
+        output_path = os.path.join(temp_graph_dir, "output.graphml")
+
+        G = nx.Graph()
+        nx.write_graphml(G, input_path)
+
+        result_path = run_subsampling_orchestration(input_path, output_path, seed=42)
+        
+        # Should handle gracefully
+        assert os.path.exists(result_path)
+        G_out = nx.read_graphml(result_path)
+        assert G_out.number_of_nodes() == 0

@@ -4,15 +4,31 @@ import logging
 import hashlib
 import tracemalloc
 import random
-import networkx as nx
 import pandas as pd
-from typing import Optional, Tuple, Dict, Any
+import networkx as nx
+from typing import Optional, Dict, Any, Tuple
 
+# Import shared utilities from the project API
 from utils.seed import set_seed, get_seed_value
-from utils.memory_monitor import enforce_memory_limit, MemoryLimitExceededError
+from utils.memory_monitor import (
+    MemoryLimitExceededError,
+    start_monitoring,
+    stop_monitoring,
+    get_peak_memory_mb,
+    enforce_memory_limit_check,
+)
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
 logger = logging.getLogger(__name__)
+
+# Constants
+DEFAULT_MEMORY_LIMIT_MB = 7000  # 7GB
+INPUT_DIR = "data/processed"
+OUTPUT_DIR = "data/processed"
+
 
 def calculate_sha256(file_path: str) -> str:
     """Calculate SHA256 hash of a file."""
@@ -22,188 +38,253 @@ def calculate_sha256(file_path: str) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def build_graph_from_csv(csv_path: str) -> nx.Graph:
+
+def build_graph_from_csv(
+    input_path: str,
+    output_path: str,
+    src_col: str = "src_ip",
+    dst_col: str = "dst_ip",
+    weight_col: str = "packet_count",
+    seed: Optional[int] = None,
+) -> Tuple[nx.DiGraph, Dict[str, Any]]:
     """
-    Build a directed graph from a CSV of netflow records.
-    Nodes are IPs, edges are flows. Edge weight is packet count.
+    Construct a directed graph from a processed NetFlow parquet/CSV file.
+
+    Nodes are unique IPs (source and destination).
+    Edges represent flows from source to destination.
+    Edge weights are derived from the specified weight column (e.g., packet count).
+
+    Args:
+        input_path: Path to the input parquet/CSV file (output of T013a).
+        output_path: Path to write the resulting GraphML file.
+        src_col: Name of the source IP column.
+        dst_col: Name of the destination IP column.
+        weight_col: Name of the column to use as edge weight.
+        seed: Random seed for reproducibility (if needed for tie-breaking).
+
+    Returns:
+        Tuple of (constructed nx.DiGraph, metadata dict).
     """
-    logger.info(f"Building graph from {csv_path}")
-    df = pd.read_csv(csv_path)
-    
-    # Ensure required columns exist
-    required_cols = ['src_ip', 'dst_ip', 'packets']
-    for col in required_cols:
-        if col not in df.columns:
-            raise ValueError(f"Missing required column: {col}")
-    
-    G = nx.Graph()
-    
-    # Add edges with attributes
+    if seed is not None:
+        set_seed(seed)
+
+    logger.info(f"Loading flows from {input_path}...")
+    if input_path.endswith(".parquet"):
+        df = pd.read_parquet(input_path)
+    else:
+        df = pd.read_csv(input_path)
+
+    # Basic validation
+    required_cols = [src_col, dst_col, weight_col]
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Input file missing required columns: {missing}")
+
+    # Ensure weight column is numeric
+    df[weight_col] = pd.to_numeric(df[weight_col], errors="coerce").fillna(0)
+
+    logger.info(f"Constructing directed graph with {len(df)} flow records...")
+    G = nx.DiGraph()
+
+    # Add edges
+    # Using a dictionary to aggregate weights if multiple edges exist between same nodes
+    edge_weights = {}
     for _, row in df.iterrows():
-        src = str(row['src_ip'])
-        dst = str(row['dst_ip'])
-        weight = int(row['packets'])
-        
-        if weight < 0:
-            logger.warning(f"Negative packet count found at row {_, src, dst}, setting to 0")
-            weight = 0
-      
-        G.add_edge(src, dst, weight=weight, packet_count=weight)
-        
-        # Ensure nodes have attributes if needed (e.g., label if present)
-        if 'label' in df.columns:
-            label = row['label']
-            if src not in G.nodes:
-                G.nodes[src]['label'] = label
-            if dst not in G.nodes:
-                G.nodes[dst]['label'] = label
-    
-    logger.info(f"Graph built: {G.number_of_nodes()} nodes, {G.number_of_edges()} edges")
-    return G
+        src = str(row[src_col])
+        dst = str(row[dst_col])
+        weight = float(row[weight_col])
 
-def extract_lcc(G: nx.Graph) -> nx.Graph:
-    """Extract the Largest Connected Component."""
-    logger.info("Extracting Largest Connected Component (LCC)")
-    if nx.is_connected(G):
-        logger.info("Graph is already connected.")
-        return G.copy()
-    
-    largest_cc = max(nx.connected_components(G), key=len)
-    lcc_graph = G.subgraph(largest_cc).copy()
-    logger.info(f"LCC extracted: {lcc_graph.number_of_nodes()} nodes, {lcc_graph.number_of_edges()} edges")
-    return lcc_graph
+        if src == dst:
+            continue  # Skip self-loops for network traffic graphs
 
-def subsample_graph(G: nx.Graph, max_nodes: int = 5000) -> nx.Graph:
+        edge_key = (src, dst)
+        if edge_key in edge_weights:
+            edge_weights[edge_key] += weight
+        else:
+            edge_weights[edge_key] = weight
+            # Add nodes implicitly by adding edge, but ensure attributes if needed
+            if src not in G:
+                G.add_node(src)
+            if dst not in G:
+                G.add_node(dst)
+
+    # Add aggregated edges
+    for (src, dst), weight in edge_weights.items():
+        G.add_edge(src, dst, weight=weight)
+
+    # Metadata
+    metadata = {
+        "num_nodes": G.number_of_nodes(),
+        "num_edges": G.number_of_edges(),
+        "source_file": os.path.basename(input_path),
+        "avg_degree": sum(dict(G.degree()).values()) / G.number_of_nodes()
+        if G.number_of_nodes() > 0
+        else 0,
+    }
+
+    logger.info(
+        f"Graph constructed: {metadata['num_nodes']} nodes, "
+        f"{metadata['num_edges']} edges."
+    )
+
+    # Validate graph
+    validate_graph(G)
+
+    # Write to disk
+    write_graph_with_hash(G, output_path)
+
+    return G, metadata
+
+
+def validate_graph(G: nx.DiGraph) -> bool:
     """
-    Subsample graph to max_nodes using degree centrality.
-    Tie-breaking: sort by degree desc, then by IP string asc.
-    """
-    if G.number_of_nodes() <= max_nodes:
-        logger.info(f"Graph has {G.number_of_nodes()} nodes, no subsampling needed.")
-        return G.copy()
-    
-    logger.info(f"Subsampling graph from {G.number_of_nodes()} to {max_nodes} nodes by degree.")
-    
-    # Calculate degree
-    degrees = dict(G.degree())
-    
-    # Sort nodes: primary by degree (desc), secondary by IP string (asc)
-    sorted_nodes = sorted(degrees.items(), key=lambda x: (-x[1], x[0]))
-    
-    # Select top N nodes
-    top_nodes = [node for node, _ in sorted_nodes[:max_nodes]]
-    
-    # Create subgraph
-    subsampled = G.subgraph(top_nodes).copy()
-    logger.info(f"Subsampled graph: {subsampled.number_of_nodes()} nodes, {subsampled.number_of_edges()} edges")
-    return subsampled
+    Validate the constructed graph against basic integrity checks.
 
-def validate_graph(G: nx.Graph) -> bool:
-    """Validate graph properties: non-negative weights, no missing labels if expected."""
-    logger.info("Validating graph...")
+    Args:
+        G: The networkx DiGraph to validate.
+
+    Returns:
+        True if valid, raises ValueError otherwise.
+    """
+    if G.number_of_nodes() == 0:
+        raise ValueError("Constructed graph has no nodes.")
+    if G.number_of_edges() == 0:
+        raise ValueError("Constructed graph has no edges.")
+
+    # Check for NaN weights
     for u, v, data in G.edges(data=True):
-        if 'weight' in data and data['weight'] < 0:
-            logger.error(f"Negative weight found on edge ({u}, {v})")
-            return False
+        if "weight" in data:
+            w = data["weight"]
+            if pd.isna(w) or w < 0:
+                raise ValueError(f"Invalid weight {w} for edge ({u}, {v})")
+
     logger.info("Graph validation passed.")
     return True
 
-def write_graph_with_hash(G: nx.Graph, output_path: str) -> str:
+
+def write_graph_with_hash(G: nx.DiGraph, output_path: str) -> str:
     """
-    Write graph to GraphML and create a sidecar .hash file with SHA256.
-    Returns the hash string.
+    Write the graph to a GraphML file and create a sidecar hash file.
+
+    Args:
+        G: The networkx DiGraph to write.
+        output_path: Path to the output .graphml file.
+
+    Returns:
+        The SHA256 hash of the written file.
     """
-    logger.info(f"Writing graph to {output_path}")
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     nx.write_graphml(G, output_path)
-    
-    # Calculate hash
+    logger.info(f"Wrote graph to {output_path}")
+
+    # Calculate and write hash
     file_hash = calculate_sha256(output_path)
-    
-    # Write sidecar
     hash_path = output_path + ".hash"
-    with open(hash_path, 'w') as f:
+    with open(hash_path, "w") as f:
         f.write(file_hash)
-    
-    logger.info(f"Graph written. SHA256: {file_hash}")
-    logger.info(f"Hash sidecar written to {hash_path}")
+    logger.info(f"Wrote hash to {hash_path}: {file_hash}")
+
     return file_hash
 
-def preprocess_graph(input_csv: str, scenario: str, max_nodes: int = 5000) -> Dict[str, str]:
+
+def preprocess_graph(
+    input_path: str,
+    output_path: str,
+    memory_limit_mb: int = DEFAULT_MEMORY_LIMIT_MB,
+    seed: Optional[int] = None,
+) -> Dict[str, Any]:
     """
-    Full preprocessing pipeline:
-    1. Build graph from CSV
-    2. Extract LCC if needed
-    3. Subsample if needed
-    4. Validate
-    5. Write to GraphML with hash sidecar
-    
-    Returns a dict of output paths.
+    Main orchestration function to preprocess a flow file into a graph.
+    Wraps graph construction with memory monitoring.
+
+    Args:
+        input_path: Path to input parquet file (T013a output).
+        output_path: Path to output GraphML file.
+        memory_limit_mb: Maximum allowed memory in MB.
+        seed: Random seed.
+
+    Returns:
+        Metadata dictionary about the constructed graph.
     """
-    set_seed(get_seed_value()) # Ensure deterministic behavior
-    
-    raw_path = f"data/processed/graph_{scenario}_raw.graphml"
-    lcc_path = f"data/processed/graph_{scenario}_lcc.graphml"
-    final_path = f"data/processed/graph_{scenario}_subsampled.graphml"
-    
-    # 1. Build Raw Graph
-    G = build_graph_from_csv(input_csv)
-    write_graph_with_hash(G, raw_path)
-    
-    # 2. Check constraints
-    needs_lcc = G.number_of_nodes() > max_nodes
-    if needs_lcc:
-        G = extract_lcc(G)
-        write_graph_with_hash(G, lcc_path)
-    
-    # 3. Subsample if still too large
-    if G.number_of_nodes() > max_nodes:
-        G = subsample_graph(G, max_nodes)
-    else:
-        # If LCC was small enough, we might not need a new file, but task T017 implies
-        # writing the final subsampled artifact. If no subsampling happened, 
-        # we can copy the LCC or Raw to the final path to ensure the artifact exists.
-        # To be safe and consistent with the flow, we write the current state to final_path.
-        pass
-    
-    # 4. Validate
-    if not validate_graph(G):
-        raise ValueError("Graph validation failed after processing.")
-    
-    # 5. Write Final
-    final_hash = write_graph_with_hash(G, final_path)
-    
-    return {
-        "raw": raw_path,
-        "lcc": lcc_path if needs_lcc else None,
-        "final": final_path,
-        "hash": final_hash
-    }
+    scenario = os.path.splitext(os.path.basename(input_path))[0]
+    # Ensure output name follows convention: graph_{scenario}_raw.graphml
+    if not output_path.endswith(".graphml"):
+        output_path = os.path.join(
+            os.path.dirname(output_path) or ".",
+            f"graph_{scenario}_raw.graphml",
+        )
+
+    if seed is None:
+        seed = get_seed_value()
+
+    logger.info(f"Starting graph construction for scenario: {scenario}")
+    logger.info(f"Memory limit: {memory_limit_mb} MB")
+
+    start_monitoring()
+
+    try:
+        G, metadata = build_graph_from_csv(
+            input_path=input_path,
+            output_path=output_path,
+            seed=seed,
+        )
+
+        peak_mem = get_peak_memory_mb()
+        logger.info(f"Peak memory usage: {peak_mem:.2f} MB")
+
+        if peak_mem > memory_limit_mb:
+            raise MemoryLimitExceededError(
+                f"Peak memory {peak_mem:.2f} MB exceeded limit {memory_limit_mb} MB"
+            )
+
+        metadata["peak_memory_mb"] = peak_mem
+        metadata["seed"] = seed
+        metadata["memory_limit_mb"] = memory_limit_mb
+
+        logger.info(f"Graph construction successful for {scenario}.")
+        return metadata
+
+    except MemoryLimitExceededError:
+        logger.error("Memory limit exceeded during graph construction.")
+        stop_monitoring()
+        raise
+    except Exception as e:
+        logger.error(f"Error during graph construction: {e}")
+        stop_monitoring()
+        raise
+    finally:
+        stop_monitoring()
+
 
 def main():
     """
-    CLI entry point for preprocess_graph.
-    Expects arguments: input_csv scenario
+    Entry point for running the graph builder from command line.
+    Expects an input parquet file path as the first argument.
     """
-    if len(sys.argv) < 3:
-        logger.error("Usage: python preprocess.py <input_csv> <scenario>")
+    if len(sys.argv) < 2:
+        logger.error("Usage: python preprocess.py <input_parquet_path> [output_path]")
         sys.exit(1)
-    
-    input_csv = sys.argv[1]
-    scenario = sys.argv[2]
-    
-    if not os.path.exists(input_csv):
-        logger.error(f"Input file not found: {input_csv}")
+
+    input_file = sys.argv[1]
+    output_file = sys.argv[2] if len(sys.argv) > 2 else None
+
+    if not os.path.exists(input_file):
+        logger.error(f"Input file not found: {input_file}")
         sys.exit(1)
-    
+
+    if output_file is None:
+        # Derive output path
+        base_name = os.path.splitext(os.path.basename(input_file))[0]
+        output_file = os.path.join(OUTPUT_DIR, f"graph_{base_name}_raw.graphml")
+
     try:
-        results = preprocess_graph(input_csv, scenario)
-        logger.info(f"Preprocessing complete. Final artifact: {results['final']}")
-    except MemoryLimitExceededError as e:
-        logger.error(f"Memory limit exceeded: {e}")
-        sys.exit(2)
+        meta = preprocess_graph(input_file, output_file)
+        logger.info("Preprocessing completed successfully.")
+        logger.info(f"Metadata: {meta}")
     except Exception as e:
-        logger.error(f"Error during preprocessing: {e}")
-        sys.exit(3)
+        logger.error(f"Preprocessing failed: {e}")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

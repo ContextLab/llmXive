@@ -1,14 +1,17 @@
 """
-Script to validate research.md and configure target_auc in code/config.yaml.
+validate_research.py
 
-This task (T007d) ensures that:
-1. research.md exists (produced by T007e)
-2. target_auc is extracted from research.md
-3. code/config.yaml is updated with the target_auc value
-4. If research.md is missing or malformed, a blocking error is raised
+Task: T007d - Validate research.md and configure target_auc.
 
-Output: code/config.yaml with target_auc
+Logic:
+1. Check existence of research.md (produced by T007e_gen).
+2. Verify code/config.yaml (produced by T007e_cfg) contains 'target_auc'.
+3. If either is missing, raise a blocking error.
+4. Output: Verified code/config.yaml.
+
+This task is a prerequisite for the entire project; failure here stops execution.
 """
+
 import os
 import sys
 import re
@@ -22,132 +25,151 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-RESEARCH_MD_PATH = "research.md"
-CONFIG_YAML_PATH = "code/config.yaml"
+# Constants
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+RESEARCH_MD_PATH = os.path.join(PROJECT_ROOT, "research.md")
+CONFIG_YAML_PATH = os.path.join(PROJECT_ROOT, "code", "config.yaml")
+
 
 def check_research_md_exists():
-    """Check if research.md exists."""
+    """
+    Check if research.md exists.
+    Returns True if exists, raises FileNotFoundError if not.
+    """
     if not os.path.exists(RESEARCH_MD_PATH):
         raise FileNotFoundError(
-            f"CRITICAL: {RESEARCH_MD_PATH} not found. "
-            "Task T007e (Generate Research Plan) must complete first."
+            f"CRITICAL: research.md not found at {RESEARCH_MD_PATH}. "
+            "Task T007e_gen must complete first."
         )
-    logger.info(f"Found {RESEARCH_MD_PATH}")
+    logger.info(f"research.md found at {RESEARCH_MD_PATH}")
+    return True
+
 
 def extract_target_auc_from_research():
     """
     Extract target_auc value from research.md.
-    
-    Looks for patterns like:
-    - "target_auc: 0.75"
-    - "Target AUC: 0.75"
-    - "target_auc = 0.75"
+    Returns the float value or raises ValueError if not found.
     """
-    with open(RESEARCH_MD_PATH, 'r', encoding='utf-8') as f:
-        content = f.read()
+    try:
+        with open(RESEARCH_MD_PATH, 'r', encoding='utf-8') as f:
+            content = f.read()
 
-    # Pattern 1: YAML-style key-value
-    pattern1 = r'target_auc\s*[:=]\s*([\d.]+)'
-    match = re.search(pattern1, content, re.IGNORECASE)
-    
-    if match:
-        target_auc = float(match.group(1))
-        logger.info(f"Extracted target_auc from research.md: {target_auc}")
-        return target_auc
+        # Look for patterns like "target_auc: 0.75" or "Target AUC: 0.75"
+        # Case insensitive search
+        pattern = r'target[_\s]?auc[:\s]+([0-9.]+)'
+        match = re.search(pattern, content, re.IGNORECASE)
 
-    # Pattern 2: Natural language "Target AUC is X"
-    pattern2 = r'target auc\s+(?:is|of|at)\s+([\d.]+)'
-    match = re.search(pattern2, content, re.IGNORECASE)
-    
-    if match:
-        target_auc = float(match.group(1))
-        logger.info(f"Extracted target_auc from research.md (natural language): {target_auc}")
-        return target_auc
+        if match:
+            value_str = match.group(1)
+            try:
+                value = float(value_str)
+                logger.info(f"Extracted target_auc = {value} from research.md")
+                return value
+            except ValueError:
+                raise ValueError(f"Invalid target_auc value found in research.md: {value_str}")
+        else:
+            raise ValueError(
+                "CRITICAL: 'target_auc' not found in research.md. "
+                "Please ensure T007e_gen wrote the value correctly."
+            )
+    except FileNotFoundError:
+        raise FileNotFoundError(f"research.md not found at {RESEARCH_MD_PATH}")
 
-    raise ValueError(
-        f"CRITICAL: Could not find 'target_auc' value in {RESEARCH_MD_PATH}. "
-        "Please ensure T007e properly defines the target AUC threshold."
-    )
 
-def update_config_yaml(target_auc):
+def update_config_yaml(target_auc_value):
     """
-    Update code/config.yaml with the target_auc value.
-    
-    If the file exists, we update the target_auc key.
-    If it doesn't exist, we create it with the target_auc and other defaults.
+    Ensure code/config.yaml exists and contains the correct target_auc.
+    If it exists but lacks target_auc, add it. If it has a different value, update it.
     """
-    if os.path.exists(CONFIG_YAML_PATH):
-        with open(CONFIG_YAML_PATH, 'r', encoding='utf-8') as f:
-            config = yaml.safe_load(f)
-        
-        logger.info(f"Updating {CONFIG_YAML_PATH} with target_auc = {target_auc}")
-        config['target_auc'] = target_auc
-        
-        with open(CONFIG_YAML_PATH, 'w', encoding='utf-8') as f:
-            yaml.dump(config, f, default_flow_style=False, sort_keys=False)
-    else:
-        # Create new config file with essential fields
-        config = {
-            'target_auc': target_auc,
+    if not os.path.exists(CONFIG_YAML_PATH):
+        logger.warning(f"config.yaml not found at {CONFIG_YAML_PATH}. Creating new one.")
+        config_data = {
+            'target_auc': target_auc_value,
             'temporal_split_ratio': 0.8,
             'seed': 42,
-            'memory_limit_mb': 7000,
-            'research_plan_version': '1.0',
-            'research_plan_date': '2023-10-27',
-            'research_plan_author': 'llmXive Automated Science Pipeline'
+            'memory_limit_mb': 7000
         }
-        
-        logger.info(f"Creating {CONFIG_YAML_PATH} with target_auc = {target_auc}")
-        os.makedirs(os.path.dirname(CONFIG_YAML_PATH), exist_ok=True)
-        
-        with open(CONFIG_YAML_PATH, 'w', encoding='utf-8') as f:
-            yaml.dump(config, f, default_flow_style=False, sort_keys=False)
+    else:
+        logger.info(f"Loading existing config.yaml from {CONFIG_YAML_PATH}")
+        with open(CONFIG_YAML_PATH, 'r', encoding='utf-8') as f:
+            config_data = yaml.safe_load(f) or {}
+
+        if 'target_auc' not in config_data:
+            logger.info(f"Adding target_auc = {target_auc_value} to config.yaml")
+            config_data['target_auc'] = target_auc_value
+        elif config_data['target_auc'] != target_auc_value:
+            logger.warning(
+                f"Updating target_auc from {config_data['target_auc']} to {target_auc_value} "
+                "in config.yaml to match research.md."
+            )
+            config_data['target_auc'] = target_auc_value
+        else:
+            logger.info(f"config.yaml already has correct target_auc = {target_auc_value}")
+
+    # Write back to file
+    with open(CONFIG_YAML_PATH, 'w', encoding='utf-8') as f:
+        yaml.dump(config_data, f, default_flow_style=False, sort_keys=False)
+
+    logger.info(f"Updated config.yaml at {CONFIG_YAML_PATH}")
+    return config_data
+
 
 def validate_config():
-    """Validate that config.yaml now contains target_auc."""
+    """
+    Final validation: Ensure config.yaml exists and has target_auc.
+    Returns True if valid, raises error otherwise.
+    """
     if not os.path.exists(CONFIG_YAML_PATH):
-        raise RuntimeError(f"CRITICAL: {CONFIG_YAML_PATH} was not created.")
-    
+        raise FileNotFoundError(f"config.yaml not found at {CONFIG_YAML_PATH}")
+
     with open(CONFIG_YAML_PATH, 'r', encoding='utf-8') as f:
-        config = yaml.safe_load(f)
-    
-    if 'target_auc' not in config:
-        raise RuntimeError(
-            f"CRITICAL: target_auc not found in {CONFIG_YAML_PATH} after update."
+        config_data = yaml.safe_load(f)
+
+    if 'target_auc' not in config_data:
+        raise ValueError(
+            f"CRITICAL: 'target_auc' missing in {CONFIG_YAML_PATH}. "
+            "Task T007e_cfg must complete first."
         )
-    
-    logger.info(f"Validation successful: {CONFIG_YAML_PATH} contains target_auc = {config['target_auc']}")
-    return config['target_auc']
+
+    logger.info(f"Validation successful: config.yaml contains target_auc = {config_data['target_auc']}")
+    return True
+
 
 def main():
-    """Main entry point for T007d."""
+    """
+    Main execution for T007d.
+    """
     logger.info("Starting T007d: Validate research.md and configure target_auc")
-    
+
     try:
         # Step 1: Check existence of research.md
+        logger.info("Step 1: Checking existence of research.md...")
         check_research_md_exists()
-        
+
         # Step 2: Extract target_auc from research.md
-        target_auc = extract_target_auc_from_research()
-        
-        # Step 3: Write to code/config.yaml
-        update_config_yaml(target_auc)
-        
-        # Step 4: Validate the update
-        final_auc = validate_config()
-        
-        logger.info(f"T007d completed successfully. target_auc = {final_auc}")
-        print(f"T007d: Research validated. target_auc configured to {final_auc}")
+        logger.info("Step 2: Extracting target_auc from research.md...")
+        target_auc_value = extract_target_auc_from_research()
+
+        # Step 3: Update/verify config.yaml
+        logger.info("Step 3: Updating/verifying code/config.yaml...")
+        update_config_yaml(target_auc_value)
+
+        # Step 4: Final validation
+        logger.info("Step 4: Final validation of config.yaml...")
+        validate_config()
+
+        logger.info("T007d completed successfully. research.md validated and config.yaml updated.")
         return 0
-        
-    except (FileNotFoundError, ValueError, RuntimeError) as e:
-        logger.error(f"T007d FAILED: {str(e)}")
-        print(f"ERROR: {str(e)}")
+
+    except (FileNotFoundError, ValueError) as e:
+        logger.error(f"CRITICAL ERROR in T007d: {e}")
+        logger.error("Execution halted. Please resolve the missing artifacts or configuration.")
         return 1
     except Exception as e:
-        logger.error(f"Unexpected error in T007d: {str(e)}")
-        print(f"UNEXPECTED ERROR: {str(e)}")
+        logger.error(f"Unexpected error in T007d: {e}")
+        logger.error("Execution halted.")
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())
