@@ -1,0 +1,4 @@
+# PyPy configuration for compatibility checks
+[pypy]
+version = "3.11"
+jit = true

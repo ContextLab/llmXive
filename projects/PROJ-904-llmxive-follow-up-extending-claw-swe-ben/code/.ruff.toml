@@ -1,24 +1,8 @@
 [lint]
-# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
-select = ["E", "F", "I", "W", "N", "UP"]
-ignore = [
-    "E501", # Line too long (handled by black)
-    "W191", # Indentation contains tabs (handled by black)
-]
-
-[lint.isort]
-force-single-line = false
-lines-between-types = 0
-lines-after-imports = 2
-known-first-party = ["config", "data", "models", "utils", "analysis", "experiments"]
-section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
-
-[lint.per-file-ignores]
-"__init__.py" = ["F401"] # Allow unused imports in __init__.py for re-exports
+select = ["E", "F", "W", "I", "N", "B", "C4", "UP"]
+ignore = ["E501", "E731", "F403", "F405"]
+target-version = "py311"
 
 [format]
-# Use black-compatible formatting
-quote-style = "double"
-indent-style = "space"
-line-ending = "auto"
-skip-magic-trailing-comma = false
+line-length = 100
+indent-width = 4

@@ -1,1 +1,1 @@
-"""Integration test suite."""
+pass

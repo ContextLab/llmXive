@@ -1,14 +1,3 @@
-"""
-Merge results from baseline and high-fidelity experiments into a single CSV.
-
-This script aggregates JSONL output files from:
-- data/intermediate/baseline_run.jsonl
-- data/intermediate/hf_run_1b.jsonl
-- data/intermediate/hf_run_7b.jsonl
-
-and produces a single `data/results.csv` (Single Source of Truth).
-"""
-
 import json
 import csv
 import logging
@@ -16,204 +5,106 @@ import sys
 import hashlib
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-from dataclasses import dataclass, asdict
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+from dataclasses import dataclass
 
 @dataclass
 class MergedResultRow:
-    """Schema for the merged result row in data/results.csv."""
     instance_id: str
-    model_size: str  # '1B', '7B', etc.
-    strategy: str    # 'baseline', 'tfidf', 'diff_aware', 'summarization'
-    pass_at_1: int   # 0 or 1
-    execution_time: float
-    tokens_used: int
-    failure_mode: Optional[str]
-    context_lines: int
-    hash: str
+    strategy: str
+    model_size: str
+    pass_at_1: bool
+    duration_seconds: float
+    failure_category: Optional[str]
 
-    def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
+def validate_input_schema(data: List[Dict]) -> bool:
+    required_keys = {"instance_id", "strategy", "model_size", "pass_at_1", "duration_seconds"}
+    for item in data:
+        if not required_keys.issubset(item.keys()):
+            return False
+    return True
 
-def validate_input_schema(record: Dict[str, Any], source_file: str) -> None:
-    """Validate that a record from a JSONL file has the expected keys."""
-    required_keys = [
-        'instance_id', 'model_size', 'strategy', 'pass_at_1',
-        'execution_time', 'tokens_used', 'failure_mode', 'context_lines'
-    ]
-    missing = [k for k in required_keys if k not in record]
-    if missing:
-        raise ValueError(
-            f"Record in {source_file} missing keys: {missing}. "
-            f"Found keys: {list(record.keys())}"
-        )
+def validate_strategy_consistency(data: List[Dict]) -> bool:
+    strategies = {item.get("strategy") for item in data}
+    valid_strategies = {"baseline", "tfidf", "diff_aware", "semantic_summary"}
+    return strategies.issubset(valid_strategies)
 
-def validate_strategy_consistency(records: List[Dict[str, Any]]) -> None:
-    """Ensure strategies are consistent across inputs."""
-    valid_strategies = {'baseline', 'tfidf', 'diff_aware', 'summarization'}
-    for r in records:
-        if r['strategy'] not in valid_strategies:
-            logger.warning(f"Unknown strategy found: {r['strategy']}")
+def validate_model_sizes(data: List[Dict]) -> bool:
+    sizes = {item.get("model_size") for item in data}
+    valid_sizes = {"1B", "7B"}
+    return sizes.issubset(valid_sizes)
 
-def validate_model_sizes(records: List[Dict[str, Any]]) -> None:
-    """Ensure model sizes are consistent."""
-    valid_sizes = {'1B', '7B'}
-    for r in records:
-        if r['model_size'] not in valid_sizes:
-            logger.warning(f"Unknown model size found: {r['model_size']}")
-
-def define_aggregation_schema() -> Dict[str, str]:
-    """Define the schema for the aggregated CSV."""
+def define_aggregation_schema() -> Dict[str, Any]:
     return {
-        'instance_id': 'str',
-        'model_size': 'str',
-        'strategy': 'str',
-        'pass_at_1': 'int',
-        'execution_time': 'float',
-        'tokens_used': 'int',
-        'failure_mode': 'str (nullable)',
-        'context_lines': 'int',
-        'hash': 'str'
+        "instance_id": "str",
+        "strategy": "str",
+        "model_size": "str",
+        "pass_at_1": "bool",
+        "duration_seconds": "float",
+        "failure_category": "str or null"
     }
 
-def define_merge_logic() -> List[str]:
-    """Define the logic for merging: simply concatenate all rows."""
-    return [
-        "Read all input JSONL files.",
-        "Validate schema for each record.",
-        "Concatenate all records into a single list.",
-        "Compute a unique hash for each row based on content.",
-        "Write to CSV."
-    ]
+def define_merge_logic() -> Dict[str, Any]:
+    return {
+        "group_by": ["instance_id", "strategy", "model_size"],
+        "aggregations": {
+            "pass_at_1": "any",
+            "duration_seconds": "sum",
+            "failure_category": "first_non_null"
+        }
+    }
 
-def aggregate_jsonl(input_paths: List[Path]) -> List[Dict[str, Any]]:
-    """
-    Read multiple JSONL files and return a list of validated records.
-
-    Args:
-        input_paths: List of paths to JSONL files.
-
-    Returns:
-        List of dictionaries representing the merged data.
-
-    Raises:
-        FileNotFoundError: If an input file does not exist.
-        ValueError: If a record fails schema validation.
-    """
-    all_records = []
+def aggregate_jsonl(input_paths: List[str], output_path: str):
+    all_data = []
     for path in input_paths:
-        if not path.exists():
-            raise FileNotFoundError(f"Input file not found: {path}")
+        try:
+            with open(path, 'r') as f:
+                for line in f:
+                    if line.strip():
+                        all_data.append(json.loads(line))
+        except FileNotFoundError:
+            logging.warning(f"File not found: {path}")
 
-        logger.info(f"Reading {path}...")
-        with open(path, 'r', encoding='utf-8') as f:
-            count = 0
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    record = json.loads(line)
-                    validate_input_schema(record, str(path))
-                    all_records.append(record)
-                    count += 1
-                except json.JSONDecodeError as e:
-                    logger.error(f"JSON decode error in {path} at line {count}: {e}")
-                    raise
-                except ValueError as e:
-                    logger.error(f"Validation error in {path} at line {count}: {e}")
-                    raise
-            logger.info(f"  Read {count} records from {path}")
+    if not validate_input_schema(all_data):
+        raise ValueError("Input data does not match expected schema")
 
-    validate_strategy_consistency(all_records)
-    validate_model_sizes(all_records)
-
-    return all_records
-
-def compute_row_hash(row: Dict[str, Any]) -> str:
-    """Compute a deterministic hash for a row based on its content."""
-    # Sort keys to ensure deterministic ordering
-    content = json.dumps(row, sort_keys=True)
-    return hashlib.sha256(content.encode('utf-8')).hexdigest()[:16]
-
-def execute_merge(input_paths: List[Path], output_path: Path) -> None:
-    """
-    Execute the merge process: read JSONL, validate, and write CSV.
-
-    Args:
-        input_paths: List of paths to input JSONL files.
-        output_path: Path to the output CSV file.
-    """
-    if not output_path.parent.exists():
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    logger.info(f"Starting merge of {len(input_paths)} files...")
-    records = aggregate_jsonl(input_paths)
-
-    logger.info(f"Merged {len(records)} total records.")
-
-    # Add hash to each record
-    merged_rows = []
-    for record in records:
-        # Create a copy to avoid modifying the original if needed later
-        row_data = record.copy()
-        row_data['hash'] = compute_row_hash(row_data)
-        merged_rows.append(row_data)
-
-    # Define fieldnames based on MergedResultRow
-    fieldnames = [
-        'instance_id', 'model_size', 'strategy', 'pass_at_1',
-        'execution_time', 'tokens_used', 'failure_mode',
-        'context_lines', 'hash'
-    ]
-
-    logger.info(f"Writing to {output_path}...")
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+    # Simple aggregation: just flatten for now
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=[
+            "instance_id", "strategy", "model_size", "pass_at_1", 
+            "duration_seconds", "failure_category"
+        ])
         writer.writeheader()
-        writer.writerows(merged_rows)
+        for item in all_data:
+            writer.writerow({
+                "instance_id": item.get("instance_id"),
+                "strategy": item.get("strategy"),
+                "model_size": item.get("model_size"),
+                "pass_at_1": item.get("pass_at_1"),
+                "duration_seconds": item.get("duration_seconds"),
+                "failure_category": item.get("failure_category")
+            })
 
-    logger.info(f"Successfully wrote {len(merged_rows)} rows to {output_path}")
+    logging.info(f"Merged {len(all_data)} rows to {output_path}")
+
+def compute_row_hash(row: Dict) -> str:
+    content = json.dumps(row, sort_keys=True)
+    return hashlib.sha256(content.encode()).hexdigest()
+
+def execute_merge(input_paths: List[str], output_path: str):
+    aggregate_jsonl(input_paths, output_path)
 
 def main():
-    """Main entry point for the merge results script."""
-    # Define paths relative to project root (assumed to be code/../)
-    # We assume this script runs from the 'code' directory or project root.
-    # Adjust based on execution context.
-    project_root = Path(__file__).resolve().parent.parent
-    data_dir = project_root / 'data'
-    intermediate_dir = data_dir / 'intermediate'
-
-    input_files = [
-        intermediate_dir / 'baseline_run.jsonl',
-        intermediate_dir / 'hf_run_1b.jsonl',
-        intermediate_dir / 'hf_run_7b.jsonl'
-    ]
-
-    output_file = data_dir / 'results.csv'
-
-    logger.info(f"Project root detected at: {project_root}")
-    logger.info(f"Input files: {input_files}")
-    logger.info(f"Output file: {output_file}")
-
-    try:
-        execute_merge(input_files, output_file)
-        logger.info("Merge completed successfully.")
-    except FileNotFoundError as e:
-        logger.error(f"Missing input file: {e}")
-        sys.exit(1)
-    except ValueError as e:
-        logger.error(f"Data validation error: {e}")
-        sys.exit(1)
-    except Exception as e:
-        logger.error(f"Unexpected error during merge: {e}")
+    logging.basicConfig(level=logging.INFO)
+    
+    if len(sys.argv) < 4:
+        logging.error("Usage: python merge_results.py --inputs <path1,path2,...> --output <output_path>")
         sys.exit(1)
 
-if __name__ == '__main__':
+    inputs_str = sys.argv[sys.argv.index("--inputs") + 1]
+    output_path = sys.argv[sys.argv.index("--output") + 1]
+    input_paths = [p.strip() for p in inputs_str.split(",")]
+
+    execute_merge(input_paths, output_path)
+
+if __name__ == "__main__":
     main()

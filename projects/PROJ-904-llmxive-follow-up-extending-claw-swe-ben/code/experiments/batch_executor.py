@@ -1,85 +1,82 @@
-"""
-Batch Execution and Timeout Management.
-"""
-
 import os
 import sys
 import logging
 import time
 import signal
 import json
-from typing import Callable, Optional
-from datetime import datetime
+from typing import List, Dict, Any, Callable, Optional
+from dataclasses import dataclass
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 class TimeoutError(Exception):
-    """Custom timeout exception."""
     pass
 
+def timeout_handler(signum, frame):
+    raise TimeoutError("Operation timed out")
+
 class TimeoutGuard:
-    """
-    Decorator/Guard to enforce a timeout on a function call.
-    """
-    def __init__(self, timeout: int):
-        self.timeout = timeout
+    def __init__(self, timeout_seconds: int):
+        self.timeout_seconds = timeout_seconds
 
-    def __call__(self, func: Callable, *args, **kwargs):
-        def handler(signum, frame):
-            raise TimeoutError(f"Function timed out after {self.timeout} seconds")
+    def __enter__(self):
+        signal.signal(signal.SIGALRM, timeout_handler)
+        signal.alarm(self.timeout_seconds)
 
-        # Set the signal handler
-        old_handler = signal.signal(signal.SIGALRM, handler)
-        signal.alarm(self.timeout)
-
-        try:
-            result = func(*args, **kwargs)
-        finally:
-            signal.alarm(0)
-            signal.signal(signal.SIGALRM, old_handler)
-
-        return result
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        signal.alarm(0)
 
 class GlobalTimeBudgetEnforcer:
-    """
-    Enforces a global time budget for the entire experiment.
-    """
-    def __init__(self, total_seconds: int):
+    def __init__(self, total_budget_seconds: int):
+        self.total_budget = total_budget_seconds
         self.start_time = time.time()
-        self.total_seconds = total_seconds
+        self.logger = logging.getLogger(__name__)
 
-    def is_time_exceeded(self) -> bool:
+    def remaining_time(self) -> float:
         elapsed = time.time() - self.start_time
-        if elapsed > self.total_seconds:
-            logging.warning(f"Global time budget exceeded: {elapsed:.2f}s > {self.total_seconds}s")
-            return True
-        return False
+        return max(0, self.total_budget - elapsed)
+
+    def is_budget_exceeded(self) -> bool:
+        return self.remaining_time() <= 0
+
+    def log_status(self):
+        remaining = self.remaining_time() / 3600
+        self.logger.info(f"Remaining budget: {remaining:.2f} hours")
 
 class BatchExecutor:
-    """
-    Manages batch execution of tasks.
-    """
-    def __init__(self, max_workers: int = 4):
+    def __init__(self, max_workers: int = 4, time_budget: int = 72 * 3600):
         self.max_workers = max_workers
-        self.results = []
+        self.enforcer = GlobalTimeBudgetEnforcer(time_budget)
+        self.logger = logging.getLogger(__name__)
 
-    def submit(self, func: Callable, *args, **kwargs):
-        """
-        Submits a task for execution.
-        """
-        # For simplicity in this task, we run sequentially.
-        # Parallelism can be added using multiprocessing or threading.
-        try:
-            result = func(*args, **kwargs)
-            self.results.append(result)
-        except Exception as e:
-            logging.error(f"Task failed: {e}")
-            self.results.append(None)
+    def submit(self, func: Callable, args: List[Any]) -> List[Dict]:
+        results = []
+        for i, arg in enumerate(args):
+            if self.enforcer.is_budget_exceeded():
+                self.logger.warning("Time budget exceeded, stopping batch")
+                break
+            
+            self.enforcer.log_status()
+            
+            try:
+                with TimeoutGuard(3600):  # 1 hour per task
+                    result = func(arg)
+                    results.append({"index": i, "result": result, "status": "success"})
+            except TimeoutError:
+                results.append({"index": i, "status": "timeout"})
+            except Exception as e:
+                results.append({"index": i, "status": "error", "error": str(e)})
+        
+        return results
 
 def main():
-    """
-    Entry point for testing batch executor.
-    """
     logging.basicConfig(level=logging.INFO)
-    logging.info("BatchExecutor module loaded.")
+    executor = BatchExecutor()
+    
+    def dummy_func(x):
+        return x * 2
+    
+    results = executor.submit(dummy_func, [1, 2, 3])
+    print(json.dumps(results, indent=2))
 
 if __name__ == "__main__":
     main()

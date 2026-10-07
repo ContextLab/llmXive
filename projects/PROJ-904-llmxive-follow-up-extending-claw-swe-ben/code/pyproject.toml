@@ -3,75 +3,21 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-follow-up-extending-claw-swe-ben"
+name = "llmxive-follow-up"
 version = "0.1.0"
-description = "Follow-up research on Context Fidelity vs. Model Scaling Trade-offs"
-readme = "README.md"
+description = "Context Fidelity vs. Model Scaling Trade-offs Research"
 requires-python = ">=3.11"
 dependencies = [
-    "transformers",
-    "datasets",
-    "scikit-learn",
-    "statsmodels",
-    "networkx",
-    "pytest",
-    "huggingface_hub",
-    "ruff",
-    "black",
-    "numpy",
-    "pandas",
-    "torch",
-]
-
-[project.optional-dependencies]
-dev = [
-    "pytest",
-    "pytest-cov",
-    "ruff",
-    "black",
+    "transformers>=4.40.0",
+    "datasets>=2.18.0",
+    "scikit-learn>=1.4.0",
+    "statsmodels>=0.14.0",
+    "networkx>=3.2.0",
+    "pytest>=7.4.0",
+    "huggingface_hub>=0.21.0",
+    "pyyaml>=6.0.0",
 ]
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["*", "data/*", "models/*", "utils/*", "analysis/*", "experiments/*", "tests/*"]
-
-[tool.black]
-line-length = 88
-target-version = ["py311"]
-include = '\.pyi?$'
-extend-exclude = '''
-/(
-    \.git
-    | \.mypy_cache
-    | \.venv
-    | venv
-    | build
-    | dist
-)/
-'''
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = "test_*.py"
-python_classes = "Test*"
-python_functions = "test_*"
-addopts = "-v --strict-markers"
-markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "integration: marks tests as integration tests",
-    "unit: marks tests as unit tests",
-]
-
-[tool.ruff]
-line-length = 88
-target-version = "py311"
-src = ["."]
-
-[tool.ruff.lint]
-select = ["E", "F", "I", "W", "N", "UP"]
-ignore = ["E501"]
-
-[tool.ruff.lint.isort]
-known-first-party = ["config", "data", "models", "utils", "analysis", "experiments"]
-force-sort-within-sections = false
-lines-after-imports = 2
+include = ["code*"]
