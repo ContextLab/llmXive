@@ -32,7 +32,7 @@
  **Logic**:
  1. Parse `spec.md` and `plan.md` to extract claimed citations (e.g., "Lee & See (2004)", "Langer (1975)").
  2. For Lee & See (2004), use the **explicitly known DOI** `10.1518/hfes.46.1.50_30392` as defined in the plan. **Do NOT infer or search** for the DOI.
- 3. Use `requests` to call ` to fetch metadata (Title, DOI, Year, Journal).
+ 3. Use `requests` to call `https://api.crossref.org/works/10.1518/hfes.46.1.50_30392` to fetch metadata (Title, DOI, Year, Journal).
  4. Compute a string overlap score between fetched `title` and claimed title using `difflib.SequenceMatcher`.
  5. **Verify Metadata ONLY**: Title, DOI, Year, Journal.
  6. **Derive Item Hash**: Using the DOI, fetch the PDF or Supplement link from the Crossref metadata (or a verified mirror if Crossref link is broken). Extract the text of the survey items from the document. Compute a SHA-256 hash of this extracted text block.
