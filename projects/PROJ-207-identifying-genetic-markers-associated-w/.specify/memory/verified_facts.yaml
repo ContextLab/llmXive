@@ -1,6 +1,31 @@
-20|data ratio split testing training using:
-  quote: sample-wise curves at different training set sizes up to 80% of the data.
-    The
-  source_id: '2201.12150'
-  url: https://arxiv.org/abs/2201.12150
-  value: 80%
+'|alpha analysi level power':
+  quote: '0.05'
+  source_id: Power (statistics)
+  url: https://en.wikipedia.org/wiki/Power_(statistics)
+  value: '0.05'
+'|amel genome hav3 reference used':
+  quote: 'Since 2018 a new version of the honey bee genome is available on NCBI (Amel_HAv3.1,
+    BioProject ID: PRJNA471592). This assembly contains full chromosome length scaffolds,
+    which means that the sequence data for each chromosome is contiguous, and not
+    split between multiple pieces called scaffolds. The existence of a highly contiguous
+    reference genome for a species enables more detailed investigations of evolutionary
+    processes that affect the genome as well as more accurate estimations of for example
+    differentiation between populations and diversity within populations.'
+  source_id: Western honey bee
+  url: https://en.wikipedia.org/wiki/Western_honey_bee
+  value: Amel_HAv3.1
+'|analysi power target':
+  quote: "Indeed, although there are no formal standards for power, many researchers\
+    \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+    \ This convention implies a four-to-one trade off between \u03B2-risk and \u03B1\
+    -risk, as the probability of a type II error \u03B2 is set as 1 - 0.8 = 0.2, while\
+    \ \u03B1, the probability of a type I error, is commonly set at 0.05. Some applications\
+    \ require much higher levels of power. Medical tests may be designed to minimise\
+    \ the number of false negatives (type II errors) produced by loosening the threshold\
+    \ of significance, raising the risk of obtaining a false positive (a type I error).\
+    \ The rationale is that it is better to tell a healthy patient \"we may have found\
+    \ something\u2014let's test further,\" than to tell a diseased patient \"all is\
+    \ well.\""
+  source_id: Power (statistics)
+  url: https://en.wikipedia.org/wiki/Power_(statistics)
+  value: '0.80'

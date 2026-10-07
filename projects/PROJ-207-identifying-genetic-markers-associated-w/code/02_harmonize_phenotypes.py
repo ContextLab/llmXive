@@ -1,13 +1,20 @@
 """
-Phenotype Harmonization Module for Honeybee CCD Study.
+Phenotype Harmonization for Honeybee CCD Study (FR-011).
 
-This module maps raw CCD diagnosis codes from various sources (NCBI, BeeBase)
-to the standardized CCD Working Group criteria (FR-011).
+This module maps CCD diagnosis codes from raw metadata to the CCD Working Group
+criteria (FR-011) and produces a PLINK-compatible .fam file with the harmonized
+phenotype in column 6.
 
-The CCD Working Group criteria for Colony Collapse Disorder are:
-1. Presence of dead adult bees in the hive (or near the entrance).
-2. Absence of dead pupae (brood remains healthy).
-3. Live bee population < 10% relative to peak season.
+It enforces the Varroa covariate coverage gate: if <80% of samples have Varroa
+data, the pipeline halts with ERR_VARROA_COVARIATE_MISSING.
+
+Inputs:
+    - data/processed/ncbi_metadata_only.json: Metadata from T012a (T012a)
+    - data/raw/fastq_files/: Directory containing FASTQ files (T012b)
+
+Outputs:
+    - data/interim/phenotypes_harmonized.fam: PLINK .fam file with CCD status (0/1)
+    - data/interim/harmonization_log.json: Detailed log of mapping decisions and coverage stats
 """
 
 import os
@@ -17,250 +24,215 @@ import argparse
 from pathlib import Path
 import pandas as pd
 
-# Constants for CCD Working Group Criteria
-CCD_CRITERIA = {
-    "presence_dead_adults": "presence_dead_adults",
-    "absence_dead_pupae": "absence_dead_pupae",
-    "low_population_ratio": "low_population_ratio"
-}
+# Error codes as defined in tasks.md
+ERR_VARROA_COVARIATE_MISSING = "ERR_VARROA_COVARIATE_MISSING"
+ERR_SAMPLE_SIZE_INSUFFICIENT = "ERR_SAMPLE_SIZE_INSUFFICIENT"
 
-# Mapping of common source codes to internal boolean flags
-# This map handles variations in terminology from NCBI/BeeBase metadata
-CODE_MAPPINGS = {
-    # Source: "Code" -> Internal Flag
-    "CCD": True,
-    "Colony Collapse Disorder": True,
-    "collapse": True,
-    "CCD_symptomatic": True,
-    "healthy": False,
-    "control": False,
-    "normal": False,
-    "non-CCD": False,
-    "healthy_control": False,
-    # Explicit criteria flags if present in source
-    "dead_adults_present": True,
-    "pupae_absent": True,
-    "pop_low": True,
-    "dead_adults_absent": False,
-    "pupae_present": False,
-    "pop_normal": False
-}
+# CCD Working Group (2007) Criteria Mapping
+# 'Colony collapse' = dead adult bees, no dead pupae, < 10% live bee population.
+# Map 'CCD', 'Colony Collapse' -> 1
+# Map 'Healthy', 'Control' -> 0
+# 'colony loss' -> ambiguous (exclude unless mapped)
+CCD_POSITIVE_TERMS = ['CCD', 'Colony Collapse', 'Colony Collapse Disorder']
+CCD_NEGATIVE_TERMS = ['Healthy', 'Control', 'Non-CCD']
+AMBIGUOUS_TERMS = ['colony loss', 'unknown', 'missing']
 
-def load_raw_phenotypes(input_path: str) -> pd.DataFrame:
+def load_raw_phenotypes(metadata_path: Path) -> pd.DataFrame:
     """
-    Load raw phenotype data from a TSV or CSV file.
-
-    Args:
-        input_path: Path to the raw phenotype file.
-
-    Returns:
-        DataFrame containing raw phenotype data.
-
-    Raises:
-        FileNotFoundError: If the input file does not exist.
-        ValueError: If the file format is unsupported or empty.
+    Load metadata from T012a and extract phenotype-relevant fields.
     """
-    path = Path(input_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
+    if not metadata_path.exists():
+        raise FileNotFoundError(f"Metadata file not found: {metadata_path}")
 
-    suffix = path.suffix.lower()
-    if suffix == '.tsv':
-        df = pd.read_csv(path, sep='\t')
-    elif suffix == '.csv':
-        df = pd.read_csv(path, sep=',')
-    else:
-        # Try to infer, default to TSV as per PLINK conventions often used
-        df = pd.read_csv(path, sep='\t')
+    with open(metadata_path, 'r') as f:
+        data = json.load(f)
 
-    if df.empty:
-        raise ValueError("Input file is empty.")
+    # Expected structure based on T012a output:
+    # {
+    #   "samples": [
+    #     {
+    #       "sample_accession": "...",
+    #       "attributes": {
+    #         "ccd_status": "CCD",
+    #         "varroa_load": 12.5,
+    #         "geographic_region": "North America",
+    #         "sampling_year": 2015
+    #       }
+    #     },
+    #     ...
+    #   ]
+    # }
+    
+    samples = data.get("samples", [])
+    if not samples:
+        raise ValueError("No samples found in metadata file.")
 
+    records = []
+    for s in samples:
+        attrs = s.get("attributes", {})
+        records.append({
+            "sample_id": s.get("sample_accession", "UNKNOWN"),
+            "ccd_status": attrs.get("ccd_status", "unknown"),
+            "varroa_load": attrs.get("varroa_load"),
+            "geographic_region": attrs.get("geographic_region", "Unknown"),
+            "sampling_year": attrs.get("sampling_year", 0)
+        })
+
+    df = pd.DataFrame(records)
     return df
 
-def validate_and_clean(df: pd.DataFrame) -> pd.DataFrame:
+def validate_and_clean(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     """
-    Validate and clean phenotype data, mapping raw codes to CCD criteria.
-
-    FR-011 Compliance:
-    Explicitly checks for the three CCD criteria:
-    1. Presence of dead adult bees.
-    2. Absence of dead pupae.
-    3. Live bee population < 10% of peak.
-
-    If specific criteria columns are missing, it attempts to infer the CCD status
-    from a generic 'diagnosis' or 'phenotype' column using the CODE_MAPPINGS.
-
-    Args:
-        df: Raw phenotype DataFrame.
+    Map CCD diagnosis codes to binary phenotype (1=CCD, 0=Healthy).
+    Flag ambiguous codes and calculate Varroa coverage.
 
     Returns:
-        Cleaned DataFrame with standardized columns.
+        - Cleaned DataFrame with 'phenotype' column (1, 0, or -9 for missing)
+        - Log dictionary with stats
     """
-    # Identify the diagnosis column
-    possible_cols = ['diagnosis', 'phenotype', 'status', 'ccd_status', 'label']
-    diag_col = None
-    for col in possible_cols:
-        if col in df.columns:
-            diag_col = col
-            break
-
-    if diag_col is None:
-        # If no obvious diagnosis column, check for specific criteria columns
-        # and assume if any criteria are met, it's CCD (conservative)
-        # But strictly, we need a target variable. Let's raise an error if we can't find one.
-        raise ValueError("No diagnosis or phenotype column found in input data.")
-
-    # Create a harmonized status column
-    def map_status(val):
-        if pd.isna(val):
-            return None
-        val_str = str(val).strip()
-        # Direct boolean check if already boolean
-        if val_str.lower() in ['true', '1', 'yes']:
-            return True
-        if val_str.lower() in ['false', '0', 'no']:
-            return False
-        # Map string codes
-        return CODE_MAPPINGS.get(val_str, None)
-
-    df['ccd_harmonized'] = df[diag_col].apply(map_status)
-
-    # Drop rows with unmappable status
-    initial_count = len(df)
-    df = df.dropna(subset=['ccd_harmonized'])
-    dropped_count = initial_count - len(df)
-
-    # Log the drop for the harmonization log
-    # We will return this info separately or via side effect, but for now just clean
-    
-    # Ensure binary 0/1 for PLINK compatibility later
-    df['phenotype_binary'] = df['ccd_harmonized'].astype(int)
-
-    # Return only essential columns for downstream (FAM/PHENO)
-    # Keep sample ID (usually first col or 'sample_id')
-    sample_id_col = None
-    for col in ['sample_id', 'FID', 'IID', 'id', 'colony_id']:
-        if col in df.columns:
-            sample_id_col = col
-            break
-
-    if sample_id_col is None:
-        # Assume index or first column if unnamed
-        if df.index.name is None and len(df.columns) > 0:
-            # Reset index to make it a column
-            df = df.reset_index()
-            sample_id_col = 'index'
-        else:
-            raise ValueError("Could not identify a sample ID column.")
-
-    # Select standard columns: SampleID, Phenotype (0/1), and original diagnosis for audit
-    result = df[[sample_id_col, 'phenotype_binary', diag_col]].copy()
-    result.columns = ['sample_id', 'phenotype', 'raw_diagnosis']
-
-    return result, dropped_count
-
-def write_plink_fam(df: pd.DataFrame, output_path: str, phenotype_col: str = 'phenotype'):
-    """
-    Write PLINK .fam file format.
-    Format: FID IID PAT MAT SEX PHENOTYPE
-    We will set PAT, MAT, SEX to 0/0/-9 and use the harmonized phenotype.
-    """
-    # PLINK FAM requires 6 columns
-    # FID, IID, PAT, MAT, SEX, PHENOTYPE
-    # We map 'sample_id' to both FID and IID if not provided separately
-    fam_data = pd.DataFrame({
-        'FID': df['sample_id'],
-        'IID': df['sample_id'],
-        'PAT': 0,
-        'MAT': 0,
-        'SEX': 0, # Unknown
-        'PHENOTYPE': df[phenotype_col]
-    })
-
-    fam_data.to_csv(output_path, sep='\t', header=False, index=False)
-
-def write_pheno_file(df: pd.DataFrame, output_path: str, phenotype_col: str = 'phenotype'):
-    """
-    Write PLINK .pheno file format.
-    Format: FID IID PHENOTYPE [COVARIATES...]
-    """
-    pheno_data = df[['sample_id', 'sample_id', phenotype_col]].copy()
-    pheno_data.columns = ['FID', 'IID', 'PHENOTYPE']
-    pheno_data.to_csv(output_path, sep='\t', index=False)
-
-def write_harmonization_log(log_path: str, dropped_count: int, total_count: int, input_file: str):
-    """
-    Write a log file documenting the harmonization process.
-    """
-    log_content = {
-        "input_file": input_file,
-        "total_records": total_count,
-        "records_dropped_invalid": dropped_count,
-        "records_valid": total_count - dropped_count,
-        "mapping_criteria": "CCD Working Group (FR-011)",
-        "mapping_logic": "Mapped raw diagnosis codes to binary 0/1 based on CCD criteria.",
-        "status": "SUCCESS"
+    log = {
+        "total_samples": len(df),
+        "ccd_mapped": 0,
+        "healthy_mapped": 0,
+        "ambiguous": 0,
+        "varroa_coverage": 0.0,
+        "varroa_count": 0,
+        "ambiguous_ids": []
     }
 
-    with open(log_path, 'w') as f:
-        json.dump(log_content, f, indent=2)
+    def map_status(status):
+        if pd.isna(status):
+            return -9, "missing"
+        status_str = str(status).strip()
+        if any(term.lower() in status_str.lower() for term in CCD_POSITIVE_TERMS):
+            return 1, "ccd"
+        if any(term.lower() in status_str.lower() for term in CCD_NEGATIVE_TERMS):
+            return 0, "healthy"
+        return -9, "ambiguous"
+
+    # Apply mapping
+    df['phenotype'], df['map_reason'] = zip(*df['ccd_status'].apply(map_status))
+
+    # Calculate Varroa coverage
+    df['has_varroa'] = ~df['varroa_load'].isna()
+    log['varroa_count'] = int(df['has_varroa'].sum())
+    log['varroa_coverage'] = log['varroa_count'] / log['total_samples'] if log['total_samples'] > 0 else 0.0
+
+    # Log counts
+    log['ccd_mapped'] = int((df['phenotype'] == 1).sum())
+    log['healthy_mapped'] = int((df['phenotype'] == 0).sum())
+    ambiguous_mask = df['phenotype'] == -9
+    log['ambiguous'] = int(ambiguous_mask.sum())
+    log['ambiguous_ids'] = df.loc[ambiguous_mask, 'sample_id'].tolist()
+
+    return df, log
+
+def check_varroa_gate(df: pd.DataFrame, log: dict) -> None:
+    """
+    Enforce the Varroa coverage gate.
+    If < 80% of samples have Varroa data, exit with ERR_VARROA_COVARIATE_MISSING.
+    """
+    if log['varroa_coverage'] < 0.80:
+        print(f"ERROR: Varroa coverage ({log['varroa_coverage']:.2%}) is below 80% threshold.", file=sys.stderr)
+        print(f"Samples with Varroa: {log['varroa_count']}/{log['total_samples']}", file=sys.stderr)
+        sys.exit(ERR_VARROA_COVARIATE_MISSING)
+
+def write_plink_fam(df: pd.DataFrame, output_path: Path) -> None:
+    """
+    Write PLINK .fam file.
+    PLINK .fam format:
+    1. Family ID
+    2. Individual ID
+    3. Paternal ID (0)
+    4. Maternal ID (0)
+    5. Sex (0=unknown)
+    6. Phenotype (1=control, 2=case, -9=missing)
+    
+    We map: CCD (1) -> 2, Healthy (0) -> 1, Missing (-9) -> -9
+    """
+    fam_data = df.copy()
+    fam_data['fam_id'] = fam_data['sample_id']
+    fam_data['ind_id'] = fam_data['sample_id']
+    fam_data['pat_id'] = 0
+    fam_data['mat_id'] = 0
+    fam_data['sex'] = 0
+    
+    # Map phenotype: 1 (CCD) -> 2, 0 (Healthy) -> 1, -9 -> -9
+    def plink_pheno(p):
+        if p == 1: return 2
+        if p == 0: return 1
+        return -9
+
+    fam_data['phenotype'] = fam_data['phenotype'].apply(plink_pheno)
+
+    fam_data[['fam_id', 'ind_id', 'pat_id', 'mat_id', 'sex', 'phenotype']].to_csv(
+        output_path, sep='\t', header=False, index=False
+    )
+
+def write_pheno_file(df: pd.DataFrame, output_path: Path) -> None:
+    """
+    Write a separate phenotype file for PLINK covariates if needed.
+    Format: FID IID PHENO COV1 COV2 ...
+    """
+    pheno_data = df.copy()
+    pheno_data['FID'] = pheno_data['sample_id']
+    pheno_data['IID'] = pheno_data['sample_id']
+    # Map phenotype for PLINK
+    pheno_data['PHENO'] = pheno_data['phenotype'].apply(lambda p: 2 if p == 1 else (1 if p == 0 else -9))
+    
+    # Include covariates
+    covariates = ['varroa_load', 'geographic_region', 'sampling_year']
+    # Ensure columns exist
+    for c in covariates:
+        if c not in pheno_data.columns:
+            pheno_data[c] = None
+
+    cols = ['FID', 'IID', 'PHENO'] + covariates
+    pheno_data[cols].to_csv(output_path, sep='\t', index=False)
+
+def write_harmonization_log(log: dict, output_path: Path) -> None:
+    """Write detailed log of harmonization process."""
+    with open(output_path, 'w') as f:
+        json.dump(log, f, indent=2)
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Harmonize raw phenotype data to CCD Working Group criteria."
-    )
-    parser.add_argument(
-        "--input",
-        required=True,
-        help="Path to the raw phenotype file (TSV or CSV)."
-    )
-    parser.add_argument(
-        "--output-dir",
-        default="data/processed",
-        help="Directory to write output files (default: data/processed)."
-    )
-
+    parser = argparse.ArgumentParser(description="Harmonize CCD phenotypes from NCBI metadata.")
+    parser.add_argument("--input", required=True, help="Path to ncbi_metadata_only.json (from T012a)")
+    parser.add_argument("--output-dir", type=Path, default=Path("data/interim"), help="Output directory for .fam and logs")
     args = parser.parse_args()
 
     input_path = Path(args.input)
-    output_dir = Path(args.output_dir)
+    output_dir = args.output_dir
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Define output paths
-    fam_path = output_dir / "phenotypes_cleaned.fam"
-    pheno_path = output_dir / "phenotypes_cleaned.pheno"
-    log_path = output_dir / "harmonization_log.json"
-
+    print(f"Loading metadata from {input_path}...")
     try:
-        # 1. Load
-        df_raw = load_raw_phenotypes(str(input_path))
-        total_count = len(df_raw)
-
-        # 2. Validate and Clean
-        df_clean, dropped_count = validate_and_clean(df_raw)
-
-        # 3. Write Outputs
-        write_plink_fam(df_clean, str(fam_path))
-        write_pheno_file(df_clean, str(pheno_path))
-        write_harmonization_log(str(log_path), dropped_count, total_count, str(input_path))
-
-        print(f"Harmonization complete.")
-        print(f"  Input: {input_path}")
-        print(f"  Valid records: {len(df_clean)}")
-        print(f"  Dropped: {dropped_count}")
-        print(f"  Output FAM: {fam_path}")
-        print(f"  Output PHENO: {pheno_path}")
-
-    except FileNotFoundError as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except ValueError as e:
-        print(f"Validation Error: {e}", file=sys.stderr)
-        sys.exit(1)
+        df = load_raw_phenotypes(input_path)
     except Exception as e:
-        print(f"Unexpected error: {e}", file=sys.stderr)
+        print(f"ERROR: Failed to load metadata: {e}", file=sys.stderr)
         sys.exit(1)
+
+    print(f"Loaded {len(df)} samples. Validating and mapping...")
+    df, log = validate_and_clean(df)
+
+    print(f"Varroa Coverage: {log['varroa_coverage']:.2%} ({log['varroa_count']}/{log['total_samples']})")
+    check_varroa_gate(df, log)
+
+    fam_path = output_dir / "phenotypes_harmonized.fam"
+    print(f"Writing PLINK .fam to {fam_path}...")
+    write_plink_fam(df, fam_path)
+
+    pheno_path = output_dir / "phenotypes_cleaned.fam" # Also write as .fam for downstream compatibility
+    write_pheno_file(df, pheno_path)
+
+    log_path = output_dir / "harmonization_log.json"
+    write_harmonization_log(log, log_path)
+
+    print("Harmonization complete.")
+    print(f"  - CCD samples: {log['ccd_mapped']}")
+    print(f"  - Healthy samples: {log['healthy_mapped']}")
+    print(f"  - Ambiguous/Excluded: {log['ambiguous']}")
+    print(f"  - Output: {fam_path}")
 
 if __name__ == "__main__":
     main()

@@ -70,7 +70,7 @@ entrez-direct
 ```
 **Note**: `dwgsim` is a system binary, not a Python package. It must be installed via conda/bioconda, not pip. Do NOT include it in requirements.txt. T013a handles system binary installation.
 
-- [ ] T005 [US1] [Foundational] Implement `code/utils/power_analysis.py` for FR-012. MUST:
+- [X] T005 [US1] [Foundational] Implement `code/utils/power_analysis.py` for FR-012. MUST:
  1. Calculate power using non-central chi-squared distribution.
  2. **Parameters**: Effect size (OR >= 2.5), alpha=0.05, target power=0.8.
  3. **Input**: Accepts `n_samples` as a command-line argument (provided by T012a metadata fetch).
@@ -106,7 +106,7 @@ entrez-direct
 - [X] T013b [P] [Foundational] Verify `dwgsim` availability.
  - **Implementation**: Run `dwgsim --help` and verify it exits with code 0.
 
-- [ ] T012a [US1] [Foundational] Implement `code/01_download_metadata.py` to fetch **metadata only** from NCBI BioProject PRJNA639195 (CCD) and PRJNA566029 (Healthy) to determine sample size.
+- [X] T012a [US1] [Foundational] Implement `code/01_download_metadata.py` to fetch **metadata only** from NCBI BioProject PRJNA639195 (CCD) and PRJNA566029 (Healthy) to determine sample size.
  - **Implementation**:
  1. **Primary Source**: Use `entrez-direct` (esearch, efetch) to download SRA metadata for PRJNA639195 and PRJNA566029.
  2. **API Details**: Use `esearch` with `db=sra` and `query="PRJNA639195[Accession]"` to retrieve accession IDs. Use `efetch` to retrieve metadata JSON.
@@ -139,7 +139,7 @@ entrez-direct
 
 ### Implementation for User Story 1
 
-- [ ] T062 [US1] [Foundational] Implement `code/02_harmonize_phenotypes.py` to map CCD diagnosis codes to CCD Working Group criteria (FR-011).
+- [X] T062 [US1] [Foundational] Implement `code/02_harmonize_phenotypes.py` to map CCD diagnosis codes to CCD Working Group criteria (FR-011).
  - **Depends on**: T012b (Full Data Fetch).
  - **Input**: `data/processed/ncbi_metadata_only.json` (from T012a) and `data/raw/fastq_files` (from T012b).
  - **Output**: `data/interim/phenotypes_harmonized.fam`.
@@ -155,7 +155,7 @@ entrez-direct
  - **Input**: `data/raw/fastq_files` (from T012b).
  - **Output**: `data/interim/raw_variants.vcf`.
  - **Implementation**:
- 1. **Reference Genome**: Use `data/raw/refs/Amel_HAv3.1.fa`. Verify checksum before alignment.
+ 1. **Reference Genome**: Use `data/raw/refs/Amel_HAv3.1 (Wikipedia: Western honey bee, https://en.wikipedia.org/wiki/Western_honey_bee).fa`. Verify checksum before alignment.
  2. Align reads to reference genome `Amel_HAv3.1` using `bwa mem`.
  3. Call variants using `FreeBayes`.
  4. Filter to high-quality biallelic SNPs (QUAL > 30, depth ≥ 10) using `bcftools`.
@@ -258,7 +258,7 @@ entrez-direct
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement threshold sensitivity sweep across a specific set of thresholds in `code/utils/threshold_sensitivity.py` (FR-005).
+- [X] T021 [US2] Implement threshold sensitivity sweep across a specific set of thresholds in `code/utils/threshold_sensitivity.py` (FR-005).
  - **Depends on**: T022.
  - **Input**: `data/processed/gwas_results_fdr.tsv` (from T022).
  - **Output**: `data/processed/threshold_sensitivity.json`.
@@ -283,7 +283,7 @@ entrez-direct
 
 ### Implementation for User Story 3
 
-- [ ] T027 [US3] Implement LASSO logistic regression with 5-fold cross-validation in `code/04_ml_validation.py` (FR-006) and report out-of-sample AUC value.
+- [X] T027 [US3] Implement LASSO logistic regression with 5-fold cross-validation in `code/04_ml_validation.py` (FR-006) and report out-of-sample AUC value.
  - **Depends on**: T022.
  - **Implementation**:
  1. Split data: **80% training, [deferred] testing** using `train_test_split` with `random_state=42` and `stratify=y`.
@@ -312,7 +312,7 @@ entrez-direct
  - **Implementation**: Calculate PRS for each colony based on significant SNPs.
  - **Output Schema**: Columns must be: `colony_id`, `prs_score`, `p_value`.
 
-- [ ] T029 [US3] Implement likelihood-ratio test for PRS improvement over covariates-only model in `code/04_ml_validation.py` (FR-007).
+- [X] T029 [US3] Implement likelihood-ratio test for PRS improvement over covariates-only model in `code/04_ml_validation.py` (FR-007).
  - **Depends on**: T028.
  - **Input**: `data/processed/prs_scores.tsv` (from T028).
  - **Output**: `data/processed/prs_lr_test.json`.
@@ -323,7 +323,7 @@ entrez-direct
  - **Output**: `data/processed/collinearity_report.json`.
  - **Output Schema**: `{"vif_values": {"region": float, "year": float}, "correlation_matrix": [[float]]}`.
 
-- [ ] T032 [US3] Implement `code/05_annotation.py` to map significant SNPs to genes using Ensembl Bees API v104 at and query GO terms (FR-008).
+- [X] T032 [US3] Implement `code/05_annotation.py` to map significant SNPs to genes using Ensembl Bees API v104 at and query GO terms (FR-008).
  - **Depends on**: T063, T022.
  - **Input**: `data/interim/immune_pathway_snps.txt` (from T063), `data/processed/gwas_results_fdr.tsv` (from T022).
  - **Output**: `data/processed/annotation_results.tsv`.
@@ -393,7 +393,7 @@ entrez-direct
 - [X] T100 [P] [Final Check] Verify that `tasks.md` accurately reflects the dependency chain: Power Analysis (T005/T043) -> Data Fetch (T012a/T012b) -> Alignment (T014) -> GWAS (T017) -> FDR (T020) -> ML (T027).
  - **Implementation**: Review the task list to ensure no task attempts to use output from a task that hasn't been marked complete yet.
 
-- [ ] T101 [P] [Review Fix] Update `code/04_ml_validation.py` (T027) to explicitly use `StratifiedKFold(n_splits=5, random_state=42)` and log the exact split indices used for reproducibility.
+- [X] T101 [P] [Review Fix] Update `code/04_ml_validation.py` (T027) to explicitly use `StratifiedKFold(n_splits=5, random_state=42)` and log the exact split indices used for reproducibility.
  - **Specific Action**: Modify the LASSO training block in `code/04_ml_validation.py` to instantiate `StratifiedKFold` with `random_state=42` and print the train/test indices for each fold to `data/processed/ml_split_log.txt`.
  - **Rationale**: The plan revision (T083) mandates a concrete 80/20 split with 5-fold CV. Explicit logging of the split ensures the "independent test" condition for US3 can be verified deterministically.
 

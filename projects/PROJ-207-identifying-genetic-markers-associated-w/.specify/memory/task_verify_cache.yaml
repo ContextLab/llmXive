@@ -19,17 +19,3 @@ T037:
   r: "The implementer provided no evidence that the quickstart.md validation was executed\u2014\
     no logs, output files, screenshots, or reproducibility reports are present. Consequently,\
     \ the required artifact confirming the validation run is missing."
-T084:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `plan.md` file or its contents were provided, so there is no evidence that\
-    \ Phase\u202F1 was reordered to place Power Analysis before Data Fetch. The required\
-    \ artifact is missing, preventing verification that the task\u2019s requirement\
-    \ was met."
-T085:
-  c: true
-  h: 024ac6c51579ac71e503258070abfe35a77e2582a66fa03ab06219e34491367c
-  r: "The `docs/data_dictionary.md` file exists (6\u202FKB) and contains a dedicated\
-    \ \u201CCritical Distinction\u201D section that explicitly explains the difference\
-    \ between `data/interim/bed.bim` (all high\u2011quality SNPs) and `data/interim/immune_pathway_snps.txt`\
-    \ (filtered immune\u2011pathway subset), fulfilling the update request."

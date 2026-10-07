@@ -20,14 +20,14 @@
   verification_status: pending
   verified_against_url: https://useast.ensembl.org/Apis_mellifera/Info/Index?redirectsrc=//www.ensembl.org%2FApis_mellifera%2FInfo%2FIndex
   verified_at: '2026-08-01T12:48:16.115569Z'
-- artifact_hash: 0471743855d3ea654823d4930e552a58e2e87fdc42749b4891da5dfeec446160
+- artifact_hash: 9447a490d29f3be65c20c0e2f3379977b45fde8dddd70adfa509907e72d2f72e
   artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: Western honey bee - Wikipedia
   kind: url
-  value: https://bees.ensembl.org/
-  verification_status: unreachable
-  verified_against_url: https://bees.ensembl.org/
-  verified_at: '2026-10-05T19:09:44.717134Z'
+  value: https://en.wikipedia.org/wiki/Western_honey_bee
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Western_honey_bee
+  verified_at: '2026-10-07T10:53:41.815883Z'

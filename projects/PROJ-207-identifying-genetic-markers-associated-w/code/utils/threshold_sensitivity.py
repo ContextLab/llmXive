@@ -7,6 +7,8 @@ FDR-corrected GWAS results. It measures the robustness of findings
 across a range of low-magnitude thresholds.
 
 MANDATORY: Uses Benjamini-Hochberg (BH) corrected q-values as per Spec FR-004.
+Input: data/processed/gwas_results_fdr.tsv (produced by T022).
+Output: data/processed/threshold_sensitivity.json
 """
 import os
 import sys
