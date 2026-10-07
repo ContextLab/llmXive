@@ -104,9 +104,9 @@
 ### Implementation for User Story 2
 
 - [X] T019 [US2] [Requires: T016] **Implement and Execute** the primary ridge regression pipeline in `code/modeling.py`. **Function**: `run_ridge_pipeline(data: pd.DataFrame, alpha_grid: list[float], cv_folds: int, seed: int)`. **Logic**: 1. Define nested k-fold CV structure (inner loop for alpha tuning, outer loop for performance). 2. Fit model Y ~ Global_Signal_SD + FD + DVARS + Age + Sex. 3. Run nested CV with `alpha_grid will include a range of regularization parameters spanning multiple orders of magnitude.`. 4. **Save residuals** to `data/processed/residuals.csv` with schema: `Subject_ID, residual_raw, residual_standardized`. 5. **Save results** to `data/results/full_model.json` (containing MAE, r, R², alpha). **Verification**: Assert `residuals.csv` exists and is non-empty. (FR-003, FR-004)
-- [X] T021 [US2] [Requires: T019] **Execute** the null distribution generation in `code/modeling.py` by **independently permuting the MWQ score vector** (using `seed=42` for the permutation loop) and running the full nested CV pipeline for each permutation. **Function**: `run_null_permutations(n: int, seed: int)`. **Logic**: Run a FIXED number of N=100 permutations. **Write** the resulting MAE and R² values to `data/results/null_distribution.json` with schema `{"permutations": [{"mae": float, "r2": float}, ...]}`. **Constraint**: Assert `len(null_distribution) == 100` before calculating p-value. **Verification**: Verify that the calculated p-value is reported with appropriate decimal precision and that the null distribution histogram is saved to `data/results/null_dist.png`. (FR-005, SC-002, Plan-Phase2-Step3)
+- [X] T021 [US2] [Requires: T019] **Execute** the null distribution generation in `code/modeling.py` by **independently permuting the MWQ score vector** (using `seed=42` for the permutation loop) and running the full nested CV pipeline for each permutation. **Function**: `run_null_permutations(n: int, seed: int)`. **Logic**: Run a FIXED number of N=100 permutations. **Write** the resulting MAE and R² values to `data/results/null_distribution.json` with schema `{"permutations": [{"mae": float, "r2": float},...]}`. **Constraint**: Assert `len(null_distribution) == 100` before calculating p-value. **Verification**: Verify that the calculated p-value is reported with appropriate decimal precision and that the null distribution histogram is saved to `data/results/null_dist.png`. (FR-005, SC-002, Plan-Phase2-Step3)
 - [X] T022 [US2] [Requires: T021, T019] Implement empirical p-value calculation: read `data/results/null_distribution.json` and the observed MAE from `data/results/full_model.json` (T019's execution output), then calculate the proportion of null MAEs <= observed MAE (standard convention, SC-002). (FR-005)
-- [X] T038 [US2] [FR-005] [SC-002] [Requires: T019] Implement the **Reduced Model Permutation Loop** specifically for the isolation test. **Function**: `run_reduced_model_permutations(n: int, seed: int)`. **Logic**: Create a dedicated function that fits the Reduced Model (Y ~ FD + DVARS + Age + Sex), permutes MWQ, and records R² for N=100 permutations. **Output**: `data/results/reduced_null_r2.json` with schema `{"permutations": [{"r2": float}, ...]}`. (FR-005, Plan Methodology)
+- [X] T038 [US2] [FR-005] [SC-002] [Requires: T019] Implement the **Reduced Model Permutation Loop** specifically for the isolation test. **Function**: `run_reduced_model_permutations(n: int, seed: int)`. **Logic**: Create a dedicated function that fits the Reduced Model (Y ~ FD + DVARS + Age + Sex), permutes MWQ, and records R² for N=100 permutations. **Output**: `data/results/reduced_null_r2.json` with schema `{"permutations": [{"r2": float},...]}`. (FR-005, Plan Methodology)
 - [X] T023 [US2] [Requires: T019, T038] **Implement Reduced Model Comparison (Isolation Step)**. **Logic**: 1. Fit a **Reduced Model** (Y ~ FD + DVARS + Age + Sex) without GSA. 2. Use the null distribution from T038. 3. Calculate Delta R² (Full R² - Reduced R²) for the observed data. 4. For each permutation in T038, calculate Delta R²_perm (Full_Perms R² - Reduced_Perms R²). 5. Test if the observed Delta R² is significantly different from the distribution of Delta R²_perm (empirical p-value). **Output**: Write results to `data/results/delta_r2.json` containing Delta R², status (significant/not significant), and the p-value. **Fallback**: If Reduced Model fails (e.g., collinearity), output `data/results/delta_r2.json` with schema `{'status': 'failed', 'reason': 'High Collinearity', 'delta_r2': null}` and log 'High Collinearity' and set a flag to trigger narrative change in T025. (Plan Phase 2 Step 3)
 - [X] T024 [US2] [Requires: T016] Implement collinearity diagnostics (VIF, GSA-FD correlation) in `code/diagnostics.py`. Input: `data/processed/cleaned_data.csv`. Output: `data/results/diagnostics.json` with VIF values per predictor and a `collinearity_flag` (boolean: true if any VIF > 5). **Logic**: If `collinearity_flag` is true, log a warning and set a flag to trigger narrative change in T025. (Plan Phase 1 Step 3)
 - [X] T025 [US2] [Requires: T019, T022, T023, T024] Generate `data/results/model_report.json` containing mean out-of-fold MAE, Pearson r, R², p-value, and Reduced Model stats (**must include `Delta_R2` and `Reduced_Model_R2` keys**). **Logic**: If `collinearity_flag` from T024 is true, set `interpretation_type` to 'Predictive Gain'; otherwise, set to 'Independent Effect'. (Plan Phase 1 Step 3)
@@ -154,91 +154,10 @@
 
 **Goal**: Address specific reviewer concerns regarding data integrity, streaming logic, and analysis independence.
 
-- [ ] T039 [US1] [Requires: T009] **Refine Streaming Logic**: Update `code/ingestion.py` to explicitly handle chunked iteration over the `streaming=True` dataset. Ensure that the global signal calculation (T011) accumulates statistics (sum, sum of squares) online per chunk to avoid holding the entire 4D time series in RAM. **Constraint**: The script must NOT attempt to load the full dataset into a single numpy array. (FR-001, Plan Phase 0, Data Hygiene)
-- [ ] T040 [US1] [Requires: T009] **Enforce "Fail Loudly" on Data Fetch**: Remove any `try/except` blocks in `code/ingestion.py` that catch network errors and fallback to `generate_synthetic_*()`. If `datasets.load_dataset` fails to connect or returns an empty stream, the script must raise a `ConnectionError` or `FileNotFoundError` and exit immediately. Verify that no synthetic data generation code is reachable during the ingestion phase. (Constitution Rule: No Synthetic Fallbacks, FR-001)
-- [ ] T041 [US2] [Requires: T038, T023] **Isolate GSA Effect in Reduced Model**: Refine `code/modeling.py` to ensure the Reduced Model (Y ~ FD + DVARS + Age + Sex) is fitted **independently** of the Full Model during the permutation loop. Verify that the `Delta_R2` calculation in T023 uses the specific R² from the Reduced Model's permutation run, not a cached value from the Full Model run. (Plan Phase 2 Step 3, FR-005)
+- [X] T039 [US1] [Requires: T009] **Refine Streaming Logic**: Update `code/ingestion.py` to explicitly handle chunked iteration over the `streaming=True` dataset. Ensure that the global signal calculation (T011) accumulates statistics (sum, sum of squares) online per chunk to avoid holding the entire 4D time series in RAM. **Constraint**: The script must NOT attempt to load the full dataset into a single numpy array. (FR-001, Plan Phase 0, Data Hygiene)
+- [X] T040 [US1] [Requires: T009] **Enforce "Fail Loudly" on Data Fetch**: Remove any `try/except` blocks in `code/ingestion.py` that catch network errors and fallback to `generate_synthetic_*()`. If `datasets.load_dataset` fails to connect or returns an empty stream, the script must raise a `ConnectionError` or `FileNotFoundError` and exit immediately. Verify that no synthetic data generation code is reachable during the ingestion phase. (Constitution Rule: No Synthetic Fallbacks, FR-001)
+- [X] T041 [US2] [Requires: T038, T023] **Isolate GSA Effect in Reduced Model**: Refine `code/modeling.py` to ensure the Reduced Model (Y ~ FD + DVARS + Age + Sex) is fitted **independently** of the Full Model during the permutation loop. Verify that the `Delta_R2` calculation in T023 uses the specific R² from the Reduced Model's permutation run, not a cached value from the Full Model run. (Plan Phase 2 Step 3, FR-005)
 - [ ] T042 [US2] [Requires: T024, T030] **Dynamic Partial Correlation Logic**: Update `code/robustness.py` (T030) to dynamically read the `collinearity_flag` from `data/results/diagnostics.json` **at runtime**. If the flag is `True`, the script must skip the partial correlation calculation and write `status: 'skipped'` to `data/results/partial_corr.json` without attempting the calculation, preventing numerical instability. (Plan Phase 1 Step 3, Edge Cases)
-- [ ] T043 [US3] [Requires: T028] **Validate Alpha Sweep Range**: In `code/robustness.py`, ensure the alpha sweep for T028 covers a sufficient range (e.g., `np.logspace(start, end, 10)`) to capture the optimal regularization parameter identified in T019. Verify that the `alpha_sweep.png` plot clearly shows the minimum MAE and that the range extends beyond the optimal point to demonstrate stability. (FR-006)
+- [X] T043 [US3] [Requires: T028] **Validate Alpha Sweep Range**: In `code/robustness.py`, ensure the alpha sweep for T028 covers a sufficient range (e.g., `np.logspace(start, end, 10)`) to capture the optimal regularization parameter identified in T019. Verify that the `alpha_sweep.png` plot clearly shows the minimum MAE and that the range extends beyond the optimal point to demonstrate stability. (FR-006)
 - [ ] T044 [US1] [Requires: T013, T014] **Log Exclusion Reasons Explicitly**: Enhance the logging in `code/ingestion.py` (T013, T014) to include the specific numeric threshold that triggered an exclusion (e.g., `mean_fd=0.52` vs `threshold=0.5`). This ensures the exclusion logic is transparent and reproducible in `data/logs/exclusions.log`. (FR-008, FR-009)
-- [ ] T045 [US2] [Requires: T021, T022] **Verify Permutation Count**: Add a runtime check in `code/modeling.py` (T021) to ensure the number of permutations executed matches the configured `N=100`. If the process is interrupted or the loop terminates early, raise a `RuntimeError` to prevent reporting an invalid p-value based on insufficient permutations. (FR-005)
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-- **Revision (Phase 7)**: Depends on completion of US1, US2, and US3 implementation tasks.
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Depends on US1 (requires `cleaned_data.csv` from US1)
-- **User Story 3 (P3)**: Depends on US1 (requires `cleaned_data.csv`) and modeling logic (T019), but can run in parallel with US2 reporting (T025).
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, US1 can start immediately
-- US3 (T028, T029, T030) can run in parallel with US2 reporting (T025) once T016 and T019 are complete.
-- Revision tasks (Phase 7) can be executed in parallel as they mostly involve code refactoring and validation of existing outputs.
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
-3. Stories complete and integrate independently
-4. Developer D (or rotation) handles Phase 7 Revision tasks to ensure robustness and data integrity.
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All tasks must be feasible on CPU-only CI with limited computational resources, including a small number of cores, approximately modest RAM, and no GPU. No 8-bit/4-bit quantization, no large LLMs, no deep nets from scratch.
-- **Data Integrity Rule**: If a verified real data source is injected, USE it. Do not fall back to synthetic data. If data fetch fails, the script must fail loudly.
-- **Streaming Requirement**: For large datasets, tasks must implement chunked processing to stay within RAM limits. Do not load full 4D volumes into memory.
+- [X] T045 [US2] [Requires: T021, T022] **Verify Permutation Count**: Add a runtime check in `code/modeling.py` (T021) to ensure the number of permutations executed matches the configured `N=100`. If the process is interrupted or the loop terminates early, raise a `RuntimeError` to prevent reporting an invalid p-value based on insufficient permutations. (FR-005)

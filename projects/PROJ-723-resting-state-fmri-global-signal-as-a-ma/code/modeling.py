@@ -6,323 +6,248 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any
 import numpy as np
 import pandas as pd
-from sklearn.linear_model import Ridge
-from sklearn.model_selection import nested_cv, KFold
+from sklearn.linear_model import RidgeCV
+from sklearn.model_selection import KFold, cross_val_score
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import mean_absolute_error, r2_score
 import matplotlib.pyplot as plt
-import signal
 
-# Setup logging
-logger = logging.getLogger(__name__)
+# Local imports matching the API surface
+from utils import get_logger, setup_logging, read_json, write_json
+from config import ensure_directories
 
-# Global state for interruption handling
-_interrupted = False
+# Configuration
+PERMUTATION_COUNT = 100
+SEED = 42
 
-def _signal_handler(signum, frame):
-    global _interrupted
-    _interrupted = True
-    logger.warning("Interrupt received. Saving partial results...")
-    sys.exit(0)
-
-signal.signal(signal.SIGINT, _signal_handler)
-
-def load_cleaned_data(file_path: str) -> pd.DataFrame:
-    """Load cleaned data from CSV."""
-    path = Path(file_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Cleaned data file not found: {file_path}")
-    df = pd.read_csv(path)
-    required_cols = ['Subject_ID', 'Global_Signal_SD', 'MWQ_Score', 'Age', 'Sex', 'Mean_FD', 'Mean_DVARS']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required columns in {file_path}: {missing}")
-    return df
+def load_cleaned_data(data_path: str) -> pd.DataFrame:
+    """Load the cleaned dataset."""
+    if not os.path.exists(data_path):
+        raise FileNotFoundError(f"Cleaned data file not found: {data_path}")
+    return pd.read_csv(data_path)
 
 def prepare_model_data(df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray, List[str]]:
-    """Prepare feature matrix X and target vector y."""
-    feature_cols = ['Global_Signal_SD', 'FD', 'DVARS', 'Age', 'Sex']
-    # Handle column name mapping if necessary (e.g. Mean_FD -> FD)
-    col_map = {
-        'Mean_FD': 'FD',
-        'Mean_DVARS': 'DVARS'
-    }
-    for old, new in col_map.items():
-        if old in df.columns and new not in df.columns:
-            df[new] = df[old]
-    
+    """
+    Prepare X (features) and y (target) for modeling.
+    Returns: X, y, feature_names
+    """
+    target_col = 'MWQ_Score'
+    feature_cols = ['Global_Signal_SD', 'Mean_FD', 'Mean_DVARS', 'Age']
+    # Sex is categorical, handled separately if needed, but for simplicity here assume numeric encoding or drop
+    if 'Sex' in df.columns:
+        # Simple label encoding for binary Sex if needed, otherwise drop if not numeric
+        if df['Sex'].dtype == object:
+            df['Sex'] = df['Sex'].map({'M': 0, 'F': 1}).fillna(0)
+        feature_cols.append('Sex')
+
+    # Ensure columns exist
+    missing = [c for c in feature_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required feature columns: {missing}")
+    if target_col not in df.columns:
+        raise ValueError(f"Missing target column: {target_col}")
+
     X = df[feature_cols].values
-    y = df['MWQ_Score'].values
+    y = df[target_col].values
     return X, y, feature_cols
 
-def run_ridge_regression_with_nested_cv(X: np.ndarray, y: np.ndarray, alpha_range: List[float] = None) -> Dict[str, Any]:
-    """Run nested cross-validation for Ridge regression."""
-    if alpha_range is None:
-        alpha_range = [0.01, 0.1, 1.0, 10.0, 100.0]
-    
-    n_samples = X.shape[0]
-    outer_cv = KFold(n_splits=5, shuffle=True, random_state=42)
-    inner_cv = KFold(n_splits=5, shuffle=True, random_state=42)
-    
-    best_alpha = None
-    best_score = float('inf')
-    
-    # Outer loop for evaluation
-    oof_predictions = np.zeros(n_samples)
-    
+def run_ridge_regression_with_nested_cv(
+    X: np.ndarray, y: np.ndarray, alpha_grid: List[float], cv_folds: int, seed: int
+) -> Dict[str, Any]:
+    """
+    Run nested cross-validation for Ridge Regression.
+    Outer loop: performance estimation
+    Inner loop: alpha tuning
+    """
+    rng = np.random.RandomState(seed)
+    outer_cv = KFold(n_splits=cv_folds, shuffle=True, random_state=seed)
+    inner_cv = KFold(n_splits=3, shuffle=True, random_state=seed) # Inner CV for tuning
+
+    scores = []
+    alphas_used = []
+    residuals_list = []
+    y_pred_list = []
+    y_true_list = []
+
+    scaler = StandardScaler()
+
     for train_idx, test_idx in outer_cv.split(X):
         X_train, X_test = X[train_idx], X[test_idx]
         y_train, y_test = y[train_idx], y[test_idx]
-        
-        # Scale features
-        scaler = StandardScaler()
+
+        # Scale
         X_train_scaled = scaler.fit_transform(X_train)
         X_test_scaled = scaler.transform(X_test)
-        
-        # Inner loop for alpha tuning
-        for alpha in alpha_range:
-            scores = []
-            for inner_train_idx, inner_test_idx in inner_cv.split(X_train_scaled):
-                ridge = Ridge(alpha=alpha)
-                ridge.fit(X_train_scaled[inner_train_idx], y_train[inner_train_idx])
-                y_pred = ridge.predict(X_test_scaled[inner_test_idx])
-                scores.append(mean_absolute_error(y_train[inner_test_idx], y_pred))
-            
-            mean_mae = np.mean(scores)
-            if mean_mae < best_score:
-                best_score = mean_mae
-                best_alpha = alpha
-    
-    # Fit final model on full data with best alpha
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
-    final_model = Ridge(alpha=best_alpha)
-    final_model.fit(X_scaled, y)
-    
-    # Predict on full data for residuals
-    y_pred_full = final_model.predict(X_scaled)
-    residuals = y - y_pred_full
-    
-    # Calculate metrics
-    mae = mean_absolute_error(y, y_pred_full)
-    r2 = r2_score(y, y_pred_full)
-    
+
+        # Inner CV for alpha tuning
+        ridge_cv = RidgeCV(alphas=alpha_grid, cv=inner_cv, store_cv_values=True)
+        ridge_cv.fit(X_train_scaled, y_train)
+
+        best_alpha = ridge_cv.alpha_
+        alphas_used.append(best_alpha)
+
+        # Evaluate on outer test set
+        y_pred = ridge_cv.predict(X_test_scaled)
+        mse = np.mean((y_test - y_pred) ** 2)
+        scores.append(mse)
+
+        # Collect residuals and predictions for aggregation
+        residuals_list.extend(y_test - y_pred)
+        y_pred_list.extend(y_pred)
+        y_true_list.extend(y_test)
+
+    mean_mae = np.mean(np.abs(residuals_list)) # Using MAE as primary metric per task
+    # Calculate Pearson r
+    correlation = np.corrcoef(y_true_list, y_pred_list)[0, 1]
+    # Calculate R2
+    ss_res = np.sum((np.array(y_true_list) - np.array(y_pred_list)) ** 2)
+    ss_tot = np.sum((np.array(y_true_list) - np.mean(y_true_list)) ** 2)
+    r2 = 1 - (ss_res / ss_tot)
+
     return {
-        'model': final_model,
-        'scaler': scaler,
-        'best_alpha': best_alpha,
-        'mae': float(mae),
-        'r2': float(r2),
-        'residuals': residuals,
-        'y_pred': y_pred_full
+        "mae": float(mean_mae),
+        "r": float(correlation),
+        "r2": float(r2),
+        "alpha": float(np.mean(alphas_used)) if alphas_used else float(alpha_grid[0]),
+        "residuals": residuals_list,
+        "predictions": y_pred_list,
+        "actuals": y_true_list
     }
 
-def run_null_distribution_analysis(X: np.ndarray, y: np.ndarray, observed_mae: float, 
-                                   min_permutations: int = 100, max_permutations: int = 1000, 
-                                   target_std: float = 0.001) -> Dict[str, Any]:
+def run_null_distribution_analysis(
+    X: np.ndarray, y: np.ndarray, alpha_grid: List[float], cv_folds: int,
+    n_permutations: int, seed: int
+) -> List[Dict[str, float]]:
     """
-    Generate null distribution by permuting MWQ scores and running nested CV.
-    Stops when std(null MAE) < target_std or N reaches max_permutations.
+    Run permutation test to generate null distribution.
+    **T045 Implementation**: Verifies that exactly n_permutations are executed.
     """
-    global _interrupted
-    null_maes = []
-    null_r2s = []
-    n_permutations = 0
-    
-    logger.info(f"Starting null distribution analysis. Min: {min_permutations}, Max: {max_permutations}")
-    
-    # Ensure seeds for reproducibility
-    rng = np.random.RandomState(42)
-    
-    for i in range(max_permutations):
-        if _interrupted:
-            logger.warning("Process interrupted. Saving partial results...")
-            break
-        
+    rng = np.random.RandomState(seed)
+    results = []
+    executed_count = 0
+
+    for i in range(n_permutations):
         # Permute y
-        y_permuted = rng.permutation(y)
-        
-        # Run nested CV on permuted data
-        # We reuse the logic but skip alpha tuning for speed? 
-        # No, task says "running the full nested CV pipeline". 
-        # However, for performance on CPU, we might fix alpha or use a subset.
-        # Given the constraint of "real" results, we must run the model.
-        # To avoid excessive time, we will use a fixed alpha (median of search space) 
-        # or a simplified CV if the full nested is too slow, but strictly speaking 
-        # we should run the full pipeline.
-        # Let's assume we run a simplified nested CV (outer only) for the null 
-        # to save time, or fix alpha to 1.0 for the null loop to ensure it runs.
-        # The task says "running the full nested CV pipeline". 
-        # We will run a simplified version (outer CV with fixed alpha) to ensure 
-        # we can reach N=1000 in reasonable time on CPU, as full nested is O(N*alpha_options).
-        # Actually, let's run the full nested CV but with a smaller alpha grid for the null.
-        
-        # Optimization: Use a single alpha (e.g. 1.0) for the null distribution 
-        # to ensure the loop completes, as the relative distribution matters more 
-        # than the exact alpha tuning for the null hypothesis.
-        # Or, we can run the full nested CV. Let's try to run it efficiently.
-        
-        # Re-using the training logic with fixed alpha=1.0 for null distribution 
-        # to ensure speed, as the null hypothesis assumes no relationship, 
-        # so alpha tuning is less critical for the null shape than for the observed.
-        # However, strict adherence to "full nested CV" implies we should tune.
-        # Let's do a compromise: Run outer CV with fixed alpha=1.0 for the null.
-        
-        outer_cv = KFold(n_splits=5, shuffle=True, random_state=42)
-        oof_mae = []
-        oof_r2 = []
-        
-        for train_idx, test_idx in outer_cv.split(X):
-            X_train, X_test = X[train_idx], X[test_idx]
-            y_train, y_test = y_permuted[train_idx], y_permuted[test_idx]
-            
-            scaler = StandardScaler()
-            X_train_scaled = scaler.fit_transform(X_train)
-            X_test_scaled = scaler.transform(X_test)
-            
-            model = Ridge(alpha=1.0) # Fixed alpha for speed in null loop
-            model.fit(X_train_scaled, y_train)
-            y_pred = model.predict(X_test_scaled)
-            
-            oof_mae.append(mean_absolute_error(y_test, y_pred))
-            oof_r2.append(r2_score(y_test, y_pred))
-        
-        mean_null_mae = np.mean(oof_mae)
-        mean_null_r2 = np.mean(oof_r2)
-        
-        null_maes.append(mean_null_mae)
-        null_r2s.append(mean_null_r2)
-        n_permutations += 1
-        
-        # Check stopping condition
-        if n_permutations >= min_permutations:
-            current_std = np.std(null_maes)
-            if current_std < target_std:
-                logger.info(f"Stopping at N={n_permutations}. Std of null MAE: {current_std:.4f} < {target_std}")
-                break
-        
-        if (n_permutations + 1) % 10 == 0:
-            logger.info(f"Completed {n_permutations} permutations. Current Std: {np.std(null_maes):.4f}")
+        y_permuted = y.copy()
+        rng.shuffle(y_permuted)
 
-    # Calculate empirical p-value
-    # p = (count(null_mae <= observed_mae) + 1) / (N + 1)
-    count_le = sum(1 for mae in null_maes if mae <= observed_mae)
-    p_value_mae = (count_le + 1) / (n_permutations + 1)
-    
-    count_le_r2 = sum(1 for r2 in null_r2s if r2 >= (np.mean(null_r2s) + 0.05)) # Example logic for R2
-    # Actually for R2, we check if observed R2 is in the tail of null R2.
-    # Usually we want to know if observed R2 is significantly better than null.
-    # Null R2 should be near 0. If observed R2 is high, p is small.
-    # p = (count(null_r2 >= observed_r2) + 1) / (N + 1)
-    # But we don't have observed_r2 here. We assume the caller calculates it.
-    # Let's just return the distributions and the MAE p-value.
-    
-    return {
-        'null_maes': [float(m) for m in null_maes],
-        'null_r2s': [float(r) for r in null_r2s],
-        'n_permutations': n_permutations,
-        'p_value_mae': float(p_value_mae),
-        'final_std': float(np.std(null_maes))
-    }
+        # Run the pipeline on permuted data
+        # We use a simplified version of the nested CV here for speed in permutation loop
+        # In a real heavy-duty scenario, we might parallelize, but we stick to the logic
+        try:
+            res = run_ridge_regression_with_nested_cv(X, y_permuted, alpha_grid, cv_folds, seed + i)
+            results.append({
+                "mae": res["mae"],
+                "r2": res["r2"]
+            })
+            executed_count += 1
+        except Exception as e:
+            logging.error(f"Permutation {i} failed: {e}")
+            # Do not count failed permutations as successful runs
 
-def plot_null_distribution(null_maes: List[float], observed_mae: float, output_path: str):
-    """Plot histogram of null MAE distribution with observed MAE marked."""
+    # T045: Verify Permutation Count
+    if executed_count != n_permutations:
+        raise RuntimeError(
+            f"Permutation count mismatch: Expected {n_permutations}, but only {executed_count} completed. "
+            "Invalid p-value calculation cannot proceed."
+        )
+
+    return results
+
+def plot_null_distribution(null_results: List[Dict], observed_mae: float, output_path: str):
+    """Plot the null distribution histogram."""
+    null_maes = [r["mae"] for r in null_results]
     plt.figure(figsize=(10, 6))
-    plt.hist(null_maes, bins=30, alpha=0.7, color='skyblue', edgecolor='black', label='Null Distribution')
-    plt.axvline(observed_mae, color='red', linestyle='dashed', linewidth=2, label=f'Observed MAE: {observed_mae:.3f}')
-    plt.xlabel('Mean Absolute Error (MAE)')
+    plt.hist(null_maes, bins=30, alpha=0.7, color='skyblue', edgecolor='black')
+    plt.axvline(observed_mae, color='red', linestyle='dashed', linewidth=2, label=f'Observed MAE: {observed_mae:.2f}')
+    plt.xlabel('MAE (Null Distribution)')
     plt.ylabel('Frequency')
-    plt.title('Null Distribution of MAE (Permutation Test)')
+    plt.title('Null Distribution of MAE')
     plt.legend()
-    plt.tight_layout()
-    plt.savefig(output_path, dpi=150)
+    plt.savefig(output_path)
     plt.close()
-    logger.info(f"Null distribution plot saved to {output_path}")
 
 def main():
-    """Main entry point for modeling task T021."""
-    logger.info("Starting T021: Null Distribution Generation")
-    
-    # Paths
+    """Main entry point for modeling pipeline."""
+    logger = get_logger(__name__)
+    setup_logging()
+
+    # Parse arguments (simulated for script execution)
     data_path = "data/processed/cleaned_data.csv"
-    results_dir = Path("data/results")
-    results_dir.mkdir(parents=True, exist_ok=True)
-    
-    null_dist_path = results_dir / "null_distribution.json"
-    partial_null_dist_path = results_dir / "null_distribution_partial.json"
-    plot_path = results_dir / "null_dist.png"
-    full_model_path = results_dir / "full_model.json"
-    
-    # Load data
+    if len(sys.argv) > 1:
+        for i, arg in enumerate(sys.argv):
+            if arg == "--data" and i + 1 < len(sys.argv):
+                data_path = sys.argv[i+1]
+
+    ensure_directories()
+
+    logger.info(f"Loading data from {data_path}")
     try:
         df = load_cleaned_data(data_path)
-        X, y, _ = prepare_model_data(df)
-    except Exception as e:
-        logger.error(f"Failed to load data: {e}")
+    except FileNotFoundError as e:
+        logger.error(str(e))
         sys.exit(1)
-    
-    # Run primary model to get observed metrics
-    logger.info("Running primary model to get observed metrics...")
-    try:
-        # We need to re-run the model or load it. 
-        # Assuming we run it here for T021 to be self-contained or rely on T019.
-        # T021 requires T019. We should load T019 output if available.
-        if full_model_path.exists():
-            with open(full_model_path, 'r') as f:
-                full_model_results = json.load(f)
-            observed_mae = full_model_results['mae']
-            observed_r2 = full_model_results['r2']
-            logger.info(f"Loaded observed metrics from {full_model_path}")
-        else:
-            # Run model if not found (fallback for T021 standalone)
-            res = run_ridge_regression_with_nested_cv(X, y)
-            observed_mae = res['mae']
-            observed_r2 = res['r2']
-            with open(full_model_path, 'w') as f:
-                json.dump({
-                    'mae': observed_mae,
-                    'r2': observed_r2,
-                    'alpha': res['best_alpha']
-                }, f)
-            logger.info(f"Ran primary model. Observed MAE: {observed_mae:.3f}")
-    except Exception as e:
-        logger.error(f"Failed to get observed metrics: {e}")
-        sys.exit(1)
-    
-    # Run null distribution analysis
-    logger.info("Starting null distribution analysis...")
-    try:
-        null_results = run_null_distribution_analysis(
-            X, y, observed_mae, 
-            min_permutations=100, max_permutations=1000, target_std=0.001
-        )
-    except Exception as e:
-        logger.error(f"Null distribution analysis failed: {e}")
-        # Save partial if available
-        if 'null_results' in locals():
-            with open(partial_null_dist_path, 'w') as f:
-                json.dump(null_results, f, indent=2)
-        sys.exit(1)
-    
-    # Save results
-    try:
-        with open(null_dist_path, 'w') as f:
-            json.dump(null_results, f, indent=2)
-        logger.info(f"Null distribution saved to {null_dist_path}")
-    except Exception as e:
-        logger.error(f"Failed to save null distribution: {e}")
-        sys.exit(1)
-    
+
+    logger.info("Preparing model data")
+    X, y, feature_names = prepare_model_data(df)
+
+    # Parameters
+    alpha_grid = [0.1, 1.0, 10.0]
+    cv_folds = 5
+    seed = 42
+    n_permutations = PERMUTATION_COUNT
+
+    logger.info("Running Ridge Regression with Nested CV")
+    model_results = run_ridge_regression_with_nested_cv(X, y, alpha_grid, cv_folds, seed)
+
+    # Save residuals
+    residuals_path = "data/processed/residuals.csv"
+    residuals_df = pd.DataFrame({
+        "Subject_ID": df["Subject_ID"].values,
+        "residual_raw": model_results["residuals"],
+        "residual_standardized": (np.array(model_results["residuals"]) - np.mean(model_results["residuals"])) / np.std(model_results["residuals"])
+    })
+    residuals_df.to_csv(residuals_path, index=False)
+    logger.info(f"Saved residuals to {residuals_path}")
+
+    # Save full model results
+    results_path = "data/results/full_model.json"
+    write_json(results_path, {
+        "mae": model_results["mae"],
+        "r": model_results["r"],
+        "r2": model_results["r2"],
+        "alpha": model_results["alpha"]
+    })
+    logger.info(f"Saved full model results to {results_path}")
+
+    # T021: Run Null Permutations
+    logger.info(f"Running {n_permutations} permutation tests...")
+    null_results = run_null_distribution_analysis(X, y, alpha_grid, cv_folds, n_permutations, seed)
+
+    # T022: Calculate p-value (simplified here, logic depends on T022 task)
+    observed_mae = model_results["mae"]
+    null_maes = [r["mae"] for r in null_results]
+    # Proportion of null MAEs <= observed MAE (assuming lower MAE is better, but usually we test if observed is better than null)
+    # If null is random, observed should be lower (better).
+    # p-value = count(null <= observed) / N  (if we are testing if observed is significantly better/low)
+    # Or count(null >= observed) if we are testing if observed is worse.
+    # Standard: p = (1 + sum(null <= observed)) / (1 + N) for two-tailed or specific direction.
+    # Task T022 says: "proportion of null MAEs <= observed MAE"
+    p_value = sum(1 for mae in null_maes if mae <= observed_mae) / len(null_maes)
+
+    null_dist_path = "data/results/null_distribution.json"
+    write_json(null_dist_path, {
+        "permutations": null_results,
+        "observed_mae": observed_mae,
+        "p_value": p_value
+    })
+    logger.info(f"Saved null distribution to {null_dist_path}")
+
     # Plot
-    try:
-        plot_null_distribution(null_results['null_maes'], observed_mae, str(plot_path))
-    except Exception as e:
-        logger.error(f"Failed to plot null distribution: {e}")
-        sys.exit(1)
-    
-    logger.info("T021 completed successfully.")
+    plot_path = "data/results/null_dist.png"
+    plot_null_distribution(null_results, observed_mae, plot_path)
+    logger.info(f"Saved null distribution plot to {plot_path}")
+
+    logger.info("Modeling pipeline completed successfully.")
 
 if __name__ == "__main__":
-    # Setup basic logging
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     main()

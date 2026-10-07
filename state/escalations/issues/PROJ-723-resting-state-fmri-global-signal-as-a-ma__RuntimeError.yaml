@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-10-07T11:24:25.462317+00:00'
+issue_number: 1467
+project_id: PROJ-723-resting-state-fmri-global-signal-as-a-ma
