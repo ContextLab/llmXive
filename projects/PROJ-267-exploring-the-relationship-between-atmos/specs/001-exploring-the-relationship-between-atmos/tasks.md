@@ -55,10 +55,10 @@ noaa_ar:
 
 - [X] T007c [Sequential] **Populate** `projects/PROJ-267-exploring-the-relationship-between-atmos/config/urls.yaml` with the **actual canonical URLs** for the GRACE-FO (CSR/JPL) and NOAA CPC Atmospheric River Catalog data sources. **This task MUST run BEFORE T008.** The values must be the direct API endpoints or file paths used for ingestion.
 > **Note**: T007c uses the following verified URLs:
-> - GRACE-FO Mascon (CSR RL06): ` (or equivalent direct data link)
-> - NOAA AR Catalog: ` (or equivalent direct data link)
-> - GRACE-FO Degree-1 Coefficients: `
-> - GRACE-FO C20 Coefficients: `
+> - GRACE-FO Mascon (CSR RL06): `https://grace.jpl.nasa.gov/data/get-data/` (or equivalent direct data link)
+> - NOAA AR Catalog: `https://www.ncei.noaa.gov/access/monitoring/climate-at-a-glance/` (or equivalent direct data link)
+> - GRACE-FO Degree-1 Coefficients: `https://grace.jpl.nasa.gov/data/get-data/`
+> - GRACE-FO C20 Coefficients: `https://grace.jpl.nasa.gov/data/get-data/`
 
 - [X] T008 [Sequential] Create citation‑verification script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/00_verify_citations.py`. **Prerequisite**: `config/urls.yaml` MUST be populated with actual URLs by T007c. The script performs an HTTP HEAD request for each URL and checks that the fetched HTML title overlaps ≥ 0.7 with the expected title (stored in the YAML). It exits with a non‑zero code on any failure, ensuring Constitution Principle II is satisfied **before** data ingestion. **This task runs AFTER T007c and BEFORE T015/T016.**
 > **Note**: T008 is marked [X] because the **verification logic is defined**. The actual execution of the verification (and subsequent data fetch) is pending until T015/T016 are run.
@@ -301,12 +301,7 @@ if __name__ == "__main__":
 - [X] T016b [US1] Create data‑fetching script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/01_data_ingestion_noaa_control.py` that (1) reads the **verified** URL from `config/urls.yaml`, (2) fetches the NOAA CPC Atmospheric River Catalog, (3) logs dataset version/release date, (4) filters to the **Control** region (East Coast NA), (5) saves raw files under `data/raw/noaa-ar/control/` with checksums.
 > **Note**: T016b is marked [X] because the **script definition is complete**. The actual execution (data fetch) is pending until the task is run.
 
-- [X] T017a [US1] Create GRACE‑FO preprocessing script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/02_preprocessing_grace.py`. The script (1) loads the downloaded mascon CSVs from `data/raw/grace-fo/target/` and `data/raw/grace-fo/control/` (produced by T015/T015b), (2) applies **degree correction** using Swenson & Wahr (n.d.)
-
-The specific value to remove/generalize: 'n.d.'
-
-Rewritten passage:
-Swenson & Wahr (n.d.) coefficients (read from `coeffs/degree1.yaml` populated by T011a) by calculating the center-of-mass shift term: `delta = -3 * (C11_x * cos(lat) * cos(lon) + C11_y * cos(lat) * sin(lon) + C11_z * sin(lat))` and adding it to the mascon values, (3) replaces the **C20** coefficient with the latest SLR‑derived value (read from `coeffs/c20.yaml` populated by T011a), (4) performs **Gaussian smoothing** with a characteristic spatial scale of **300 km** by projecting data to a 2D grid (using a high-resolution grid), applying 2D convolution with a Gaussian kernel (sigma=300km converted to grid units), and aggregating back, (5) aggregates to monthly means, (6) writes `data/processed/grace_preprocessed_target.csv` and `data/processed/grace_preprocessed_control.csv`. The script raises informative errors if required columns are missing. **Depends on T011a and execution of T015/T015b.**
+- [X] T017a [US1] Create GRACE‑FO preprocessing script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/02_preprocessing_grace.py`. The script (1) loads the downloaded mascon CSVs from `data/raw/grace-fo/target/` and `data/raw/grace-fo/control/` (produced by T015/T015b), (2) applies **degree correction** using Swenson & Wahr (2006) coefficients (read from `coeffs/degree1.yaml` populated by T011a) by calculating the center-of-mass shift term: `delta = -3 * (C11_x * cos(lat) * cos(lon) + C11_y * cos(lat) * sin(lon) + C11_z * sin(lat))` and adding it to the mascon values, (3) replaces the **C20** coefficient with the latest SLR‑derived value (read from `coeffs/c20.yaml` populated by T011a), (4) performs **Gaussian smoothing** with a characteristic spatial scale of **300 km** by projecting data to a 2D grid (using a high-resolution grid), applying 2D convolution with a Gaussian kernel (sigma=300km converted to grid units), and aggregating back, (5) aggregates to monthly means, (6) writes `data/processed/grace_preprocessed_target.csv` and `data/processed/grace_preprocessed_control.csv`. The script raises informative errors if required columns are missing. **Depends on T011a and execution of T015/T015b.**
 ```python
 import pandas as pd
 import numpy as np
@@ -1084,4 +1079,123 @@ if __name__ == "__main__":
  main()
 ```
 
-**All tasks complete – the feature is ready for final review.**
+---
+
+## Phase 6: Review Resolution & Theoretical Clarification (Priority: P1 – Revision)
+
+**Purpose**: Address the "albert-einstein-simulated" review regarding the explicit distinction between physical curvature and coordinate artifacts in the gravity anomaly definition. This phase ensures the theoretical framework is rigorously documented before execution.
+
+- [ ] T050 [Sequential] Update `docs/methodology.md` to add a dedicated section "Frame of Reference and Coordinate System" that explicitly defines the `anomaly_value` as the perturbation in gravitational potential at the satellite altitude (a coordinate-dependent quantity) rather than the geoid height at the Earth's surface. **Depends on T009b and T033.** The section must cite the relevant GRACE-FO processing standards and acknowledge the coordinate-artifact nature of "static" anomalies in a dynamic field.
+```markdown
+### Frame of Reference and Coordinate System
+
+The analysis utilizes the perturbation in gravitational potential at the GRACE‑FO satellite altitude (≈ low Earth orbit) as the proxy for mass redistribution. This is distinct from the geoid height at the Earth's surface.
+
+GRACE‑FO measures changes in the Earth's gravity field by tracking inter‑satellite distance variations, which are converted to spherical‑harmonic (Stokes) coefficients. The resulting "anomaly" is a coordinate‑dependent quantity derived in the satellite's reference frame.
+
+While the field equations demand a fully covariant description, the monthly averaging process effectively integrates over orbital perturbations, yielding a scalar potential anomaly in the satellite's reference frame. It is critical to acknowledge that "static" anomalies in this context are coordinate artifacts within a dynamic gravitational field. The analysis assumes a static, non‑rotating frame for the duration of the monthly aggregation.
+```
+
+- [ ] T051 [US2] Update `data-model.md` to include a "Frame of Reference Definition" subsection under the `Gravity Anomaly` entity, mirroring the clarification in `methodology.md`. **Depends on T010 and T050.**
+```markdown
+### Frame of Reference Definition
+The `anomaly_value` represents the perturbation in the gravitational potential at the GRACE‑FO satellite altitude., **NOT** the geoid height at the Earth's surface. This is a coordinate‑dependent quantity derived from spherical‑harmonic coefficients in the satellite's reference frame. The analysis assumes a static, non‑rotating frame for the duration of the monthly aggregation, acknowledging the coordinate‑artifact nature of "static" anomalies in a dynamic field.
+```
+
+- [ ] T052 [US3] Update `output/sensitivity_report.md` template in T028 to include a mandatory "Frame of Reference and Limitations" section that explicitly states the coordinate-dependent nature of the results and the absence of causal inference. **Depends on T050.**
+
+**Checkpoint**: Theoretical ambiguity resolved; all documentation and data models updated to reflect the correct frame of reference before any data processing or analysis begins.
+
+---
+
+## Dependencies & Execution Order
+
+### Phase Dependencies
+
+- **Setup (Phase 0)**: No dependencies - can start immediately
+- **Foundational (Phase 1)**: Depends on Setup completion - BLOCKS all user stories
+- **User Stories (Phase 2-4)**: All depend on Foundational phase completion
+  - User stories can then proceed in parallel (if staffed)
+  - Or sequentially in priority order (P1 → P2 → P3)
+- **Polish (Phase 5)**: Depends on all desired user stories being complete
+- **Review Resolution (Phase 6)**: Can run in parallel with Phase 1/2 but must complete before final analysis (Phase 3) and reporting (Phase 4)
+
+### User Story Dependencies
+
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
+
+### Within Each User Story
+
+- Tests (if included) MUST be written and FAIL before implementation
+- Models before services
+- Services before endpoints
+- Core implementation before integration
+- Story complete before moving to next priority
+
+### Parallel Opportunities
+
+- All Setup tasks marked [P] can run in parallel
+- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- All tests for a user story marked [P] can run in parallel
+- Models within a story marked [P] can run in parallel
+- Different user stories can be worked on in parallel by different team members
+
+---
+
+## Parallel Example: User Story 1
+
+```bash
+# Launch all tests for User Story 1 together (if tests requested):
+Task: "Contract test for [endpoint] in tests/contract/test_[name].py"
+Task: "Integration test for [user journey] in tests/integration/test_[name].py"
+
+# Launch all models for User Story 1 together:
+Task: "Create [Entity1] model in src/models/[entity1].py"
+Task: "Create [Entity2] model in src/models/[entity2].py"
+```
+
+---
+
+## Implementation Strategy
+
+### MVP First (User Story 1 Only)
+
+1. Complete Phase 1: Setup
+2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
+3. Complete Phase 3: User Story 1
+4. **STOP and VALIDATE**: Test User Story 1 independently
+5. Deploy/demo if ready
+
+### Incremental Delivery
+
+1. Complete Setup + Foundational → Foundation ready
+2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
+3. Add User Story 2 → Test independently → Deploy/Demo
+4. Add User Story 3 → Test independently → Deploy/Demo
+5. Each story adds value without breaking previous stories
+
+### Parallel Team Strategy
+
+With multiple developers:
+
+1. Team completes Setup + Foundational together
+2. Once Foundational is done:
+   - Developer A: User Story 1
+   - Developer B: User Story 2
+   - Developer C: User Story 3
+3. Stories complete and integrate independently
+
+---
+
+## Notes
+
+- [P] tasks = different files, no dependencies
+- [Story] label maps task to specific user story for traceability
+- Each user story should be independently completable and testable
+- Verify tests fail before implementing
+- Commit after each task or logical group
+- Stop at any checkpoint to validate story independently
+- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
