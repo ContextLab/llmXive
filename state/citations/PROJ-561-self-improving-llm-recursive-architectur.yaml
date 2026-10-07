@@ -1,4 +1,4 @@
-- artifact_hash: ad68cfff3f6699f08389dbfeb7aa0d7cc4b450b863ee4078c1fbb934d701ea1d
+- artifact_hash: f841cb2a1a8eaa0ef0ea74b60b5a56625f0345c2600de8cd4dbed41d8b02cc13
   artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://arxiv.org/abs/1409.4317
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/1409.4317
-  verified_at: '2026-10-02T18:09:49.442451Z'
+  verified_at: '2026-10-07T02:45:11.860036Z'

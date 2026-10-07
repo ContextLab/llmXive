@@ -3829,3 +3829,232 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-02T18:08:31Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: paired bootstrap statistical testing with Bonferroni correction uses
+    alpha 0.05 adjusted based on arXiv 1409.4317
+  claim_id: c_54087099
+  context: "T007 [P] Implement paired bootstrap statistical testing (run_bootstrap_test)\
+    \ with Bonferroni correction for multiple benchmark comparisons (\u03B1=0.05 adjusted).\
+    \ (1409.4317, https://arxiv.org/abs/1409.4317)."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Implement paired bootstrap statistical testing (run_bootstrap_test) with\
+    \ Bonferroni correction for multiple benchmark comparisons (\u03B1=0.05 adjusted).\
+    \ (1409.4317, https://arxiv.org/abs/1409.4317)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T02:41:49Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: pipeline terminates if performance degradation is 5 percent or more from
+    baseline
+  claim_id: c_d0b240fb
+  context: T036 [S] Implement Early Termination Check (check_termination). This task
+    explicitly implements FR-015. If performance degradation >= 5% from baseline (Cycle
+    0), the system MUST terminate the pipeline immediately.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If performance degradation >= 5% from baseline (Cycle 0), the system MUST
+    terminate the pipeline immediately.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T02:41:50Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: training allows up to 2 retries per cycle before proceeding to next modification
+  claim_id: c_7e442d40
+  context: 'T044 [S] Implement training retry logic: up to 2 retries per cycle; on
+    2nd failure, log failure, increment cycle counter, and proceed to next cycle with
+    a NEW modification.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement training retry logic: up to 2 retries per cycle; on 2nd failure,
+    log failure, increment cycle counter, and proceed to next cycle with a NEW modification.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T02:42:24Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: refinement loop repeats for up to 3 attempted cycles
+  claim_id: c_f8dae3a5
+  context: "T049 [S] Extend orchestrator to repeat the refinement loop for up to three\
+    \ attempted cycles, respecting retry and early\u2011stop rules."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Extend orchestrator to repeat the refinement loop for up to three attempted\
+    \ cycles, respecting retry and early\u2011stop rules."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T02:42:25Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: training subset reduced if estimated time exceeds 2 hours
+  claim_id: c_aaf7b18b
+  context: 'T017a [S] Implement training loop train_epoch (AdamW, bs=4, lr=5e-5, 1
+    epoch) on OpenWebText subset. Includes Time-Estimation and Subset-Reduction Fallback:
+    if estimated time > 2h, reduce training subset to a dynamic sample count determined
+    by the research phase or a calculated fraction of the total dataset to fit within
+    the time budget.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If estimated time > 2h, reduce training subset to a dynamic sample count
+    determined by the research phase or a calculated fraction of the total dataset
+    to fit within the time budget.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T02:42:26Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Dataset loaders use exponential backoff
+  claim_id: c_54934791
+  context: "T005a [P] Implement dataset loaders for OpenWebText, GSMK, ARC\u2011Challenge,\
+    \ BoolQ with fail\u2011fast logic and streaming support. Uses backoff from T005b."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_loaders_use_exponential_backoff
+  kind: entity_fact
+  raw_text: Uses backoff from T005b.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T02:43:53Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Paired bootstrap statistical testing with Bonferroni correction cited
+    as 1409.4317
+  claim_id: c_5d14d93b
+  context: "T007 [P] Implement paired bootstrap statistical testing (run_bootstrap_test)\
+    \ with Bonferroni correction for multiple benchmark comparisons (\u03B1=0.05 adjusted).\
+    \ (1409.4317, https://arxiv.org/abs/1409.4317)."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "paired bootstrap statistical testing (run_bootstrap_test) with Bonferroni\
+    \ correction for multiple benchmark comparisons (\u03B1=0.05 adjusted). (1409.4317,\
+    \ https://arxiv.org/abs/1409.4317)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T02:44:13Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Baseline capability check flags performance near-random if below 10%
+    on GSM8K or ARC
+  claim_id: c_1e8188db
+  context: T002 [S] Implement Baseline Capability Check (run_baseline_check) that
+    evaluates the unmodified model on all benchmarks, writes Cycle 0 metrics to results/trajectory.json,
+    and explicitly flags if performance is near-random (<10% on GSM8K/ARC).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: explicitly flags if performance is near-random (<10% on GSM8K/ARC)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T02:44:14Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Training subset reduced if estimated time exceeds 2 hours
+  claim_id: c_fa63739b
+  context: 'T017a [S] Implement training loop train_epoch (AdamW, bs=4, lr=5e-5, 1
+    epoch) on OpenWebText subset. Saves model to results/cycle_N/model.pt. Includes
+    Time-Estimation and Subset-Reduction Fallback: if estimated time > 2h, reduce
+    training subset to a dynamic sample count determined by the research phase or
+    a calculated fraction of the total dataset to fit within the time budget.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if estimated time > 2h, reduce training subset to a dynamic sample count
+    determined by the research phase or a calculated fraction of the total dataset
+    to fit within the time budget.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T02:44:14Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Training retry logic allows up to 2 retries per cycle
+  claim_id: c_1c2717a1
+  context: 'T044 [S] Implement training retry logic: up to 2 retries per cycle; on
+    2nd failure, log failure, increment cycle counter, and proceed to next cycle with
+    a NEW modification.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: up to 2 retries per cycle
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T02:44:37Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Pipeline terminates immediately if performance degradation is 5% or more
+    from baseline
+  claim_id: c_74f28d5e
+  context: T036 [S] Implement Early Termination Check (check_termination). This task
+    explicitly implements FR-015. If performance degradation >= 5% from baseline (Cycle
+    0), the system MUST terminate the pipeline immediately.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If performance degradation >= 5% from baseline (Cycle 0), the system MUST
+    terminate the pipeline immediately.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T02:44:37Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Refinement loop repeats for up to three attempted cycles
+  claim_id: c_8def6bb1
+  context: "T049 [S] Extend orchestrator to repeat the refinement loop for up to three\
+    \ attempted cycles, respecting retry and early\u2011stop rules."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Refinement_loop_repeats_for_up_to_three_attempted_cycles
+  kind: entity_fact
+  raw_text: Extend orchestrator to repeat the refinement loop for up to three attempted
+    cycles
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T02:45:11Z'

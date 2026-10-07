@@ -1,23 +1,15 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: 'from datasets import load_dataset
-
-
-  ds = load_dataset(''openai/gsm8k'', ''main'', split=''train'')
-
-  print(f"RECORDS={len(ds)}")
-
-  print(f"FIELDS={'',''.join(ds.column_names)}")'
-record_count: 7473
-sample_fields:
+status: none
+intent: download OpenWebText GSM8K ARC-Challenge BoolQ benchmark datasets python package
+  dataset
+required_fields:
+- text
 - question
 - answer
-field_coverage: 0.75
-required_fields:
-- 'OpenWebText: text'
-- 'GSM8K: question, answer'
-- 'ARC-Challenge: question, choices, answer'
-- 'BoolQ: passage, question, answer'
-intent: download OpenWebText GSM8K ARC-Challenge BoolQ datasets python package dataset
-cache_key: 57a9992332a32e611b3e334bdd53530d9859f5eeaf7740ea89e3befb3bc2292d
+- solution
+- answer_choices
+- correct_answer
+- passage
+- label
+cache_key: b48cf2140bf61c1d08e8cdfc22dd00a24b5a3431b2f2593d80989fd710d080e3
+searched_at: '2026-10-07T02:40:37.375443+00:00'
+retry_count: 1

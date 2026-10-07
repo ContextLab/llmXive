@@ -5,3 +5,7 @@ scipy>=1.11.0
 psutil>=5.9.0
 pydantic>=2.0.0
 jinja2>=3.1.0
+pytest  # auto-added: imported by run-book but missing from venv
+requests  # auto-added: imported by run-book but missing from venv
+transformers  # auto-added: imported by run-book but missing from venv
+pyyaml  # auto-added: imported by run-book but missing from venv

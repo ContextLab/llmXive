@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T008` (rejected 1x): No `config.py` file containing the specified hyperparameters, constraint, and path definitions was provided; the evidence contains only a textual description of the task and no actual code artifact to verify. The required file is missing, so the task is not satisfied.
+- `T124` (rejected 1x): No evidence of a modified `utils/logging.py` was provided, nor any sample log output showing the required “Authority Trace” entries with benchmark scores, oracle results, and human constraints. The artifact is missing, so the task’s logging requirement has not been demonstrated.
 
 ## Required change
 

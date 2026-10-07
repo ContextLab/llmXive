@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-10-07T02:52:48.255310+00:00'
+issue_number: 1465
+project_id: PROJ-561-self-improving-llm-recursive-architectur

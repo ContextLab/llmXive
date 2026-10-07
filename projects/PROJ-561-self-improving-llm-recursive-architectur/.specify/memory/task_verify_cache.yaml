@@ -114,13 +114,6 @@ T059:
     % parameter increase rule, and no structural\u2011validity checks are present,\
     \ nor is there a verification test added. The required implementation and its\
     \ test are missing, so the task is not satisfied."
-T124:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a modified `utils/logging.py` was provided, nor any sample log\
-    \ output showing the required \u201CAuthority Trace\u201D entries with benchmark\
-    \ scores, oracle results, and human constraints. The artifact is missing, so the\
-    \ task\u2019s logging requirement has not been demonstrated."
 T125:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
