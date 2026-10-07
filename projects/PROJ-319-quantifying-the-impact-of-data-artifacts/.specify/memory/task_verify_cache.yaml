@@ -13,17 +13,3 @@ T016:
     CSV with the specified schema. The code snippet is truncated, so we cannot verify
     that the regression, Bonferroni correction, and CSV writing are fully implemented.
     The missing output file must be generated for the task to be considered complete.
-T057:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting reports, command outputs, or corrected code files are
-    provided to demonstrate that `ruff check` and `black --check` were run and that
-    any issues were fixed. The required artifact (evidence of a successful code audit)
-    is missing.
-T058:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No README.md, quickstart.md, or research.md files were presented, nor any excerpts
-    showing they have been reviewed or updated to reflect the latest implementation
-    details and code references. The required documentation artifacts are missing,
-    so the task is not satisfied.

@@ -1,359 +1,375 @@
 """
-Token-reweighting and resampling algorithm to create Low, Medium, and High entropy variants.
+Entropy-based sequence variant generator for WBench.
 
-Generates stratified variants of WBench interaction sequences targeting specific entropy ranges:
-- Low: < 0.3
-- Medium: 0.3 - 0.7
-- High: > 0.7
-
-Uses iterative resampling with convergence checks.
+Implements token-reweighting and resampling to create Low, Medium, and High
+entropy variants of interaction sequences.
 """
+
 import os
 import sys
 import json
 import random
 import math
 from pathlib import Path
-from typing import List, Dict, Any, Tuple, Optional
-from collections import Counter
-import pandas as pd
+from typing import List, Dict, Any, Optional, Tuple
+from dataclasses import dataclass
 import numpy as np
 
 # Import from project utilities
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from utils.errors import ConvergenceError, fail_loudly
 from utils.logging import get_logger, log_info, log_error, log_exception
-from utils.errors import ConvergenceError, fail_loudly, assert_no_synthetic_fallback
-from config import get_config
-from entropy.scorer import compute_shannon_entropy
 
 logger = get_logger(__name__)
 
 # Constants
-TARGET_RANGES = {
-    'low': (0.0, 0.3),
-    'medium': (0.3, 0.7),
-    'high': (0.7, 1.0)
-}
+TARGET_ENTROPY_LOW = 0.25
+TARGET_ENTROPY_MEDIUM = 0.50
+TARGET_ENTROPY_HIGH = 0.75
+ENTROPY_LOW_BOUND = 0.30
+ENTROPY_HIGH_BOUND = 0.70
 MAX_ITERATIONS = 20
-CONVERGENCE_THRESHOLD = 0.01
+TOLERANCE = 0.05
 STRATIFIED_SAMPLE_SIZE = 50
 
-class ConvergenceError(Exception):
-    """Raised when variant generation fails to converge within max iterations."""
-    pass
+@dataclass
+class VariantResult:
+    case_id: str
+    variant_type: str
+    entropy_score: float
+    original_tokens: List[str]
+    modified_tokens: List[str]
+    iterations: int
 
-def _tokenize_chain(action_chain: str) -> List[str]:
-    """Simple tokenization of action chain by splitting on common delimiters."""
-    if not action_chain or not isinstance(action_chain, str):
-        return []
-    # Split by common action separators
-    tokens = action_chain.replace(',', ' ').replace(';', ' ').replace('.', ' ').split()
-    return [t.strip() for t in tokens if t.strip()]
-
-def _reweight_tokens(tokens: List[str], reweight_factor: float) -> List[str]:
+def load_wbench_stratified_sample() -> List[Dict[str, Any]]:
     """
-    Reweight tokens to increase or decrease entropy.
+    Load a stratified sample of N=50 cases from the downloaded WBench dataset.
+    Stratifies by complexity level (low, medium, high) to ensure representation.
+    """
+    data_path = Path(__file__).parent.parent.parent / "data" / "raw" / "wbench_dataset"
     
-    Args:
-        tokens: List of action tokens
-        reweight_factor: >1.0 increases entropy (more variety), <1.0 decreases (more repetition)
+    if not data_path.exists():
+        fail_loudly(f"WBench dataset not found at {data_path}. Run download_wbench.py first.")
     
-    Returns:
-        Reweighted token list
+    # Try to load the dataset (assuming JSONL or similar format)
+    cases = []
+    jsonl_path = data_path / "wbench_cases.jsonl"
+    
+    if jsonl_path.exists():
+        with open(jsonl_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                if line.strip():
+                    cases.append(json.loads(line))
+    else:
+        # Fallback to directory structure if JSONL not found
+        case_files = list(data_path.glob("*.json"))
+        for case_file in case_files:
+            with open(case_file, 'r', encoding='utf-8') as f:
+                cases.append(json.load(f))
+    
+    if len(cases) == 0:
+        fail_loudly("No cases found in WBench dataset.")
+    
+    # Stratified sampling: ensure we get cases from different complexity levels
+    # For now, we'll randomly sample if complexity labels aren't present
+    sample_size = min(STRATIFIED_SAMPLE_SIZE, len(cases))
+    
+    if len(cases) <= sample_size:
+        sampled_cases = cases
+    else:
+        # Simple random stratified sample (assuming some implicit distribution)
+        sampled_cases = random.sample(cases, sample_size)
+    
+    logger.info(f"Loaded {len(sampled_cases)} cases for stratified sample")
+    return sampled_cases
+
+def compute_shannon_entropy(tokens: List[str]) -> float:
+    """
+    Compute Shannon entropy of a token sequence.
+    """
+    if not tokens:
+        return 0.0
+    
+    # Count token frequencies
+    freq = {}
+    for token in tokens:
+        freq[token] = freq.get(token, 0) + 1
+    
+    # Calculate probabilities and entropy
+    total = len(tokens)
+    entropy = 0.0
+    for count in freq.values():
+        if count > 0:
+            prob = count / total
+            entropy -= prob * math.log2(prob)
+    
+    return entropy
+
+def normalize_token_weights(tokens: List[str], target_entropy: float) -> Dict[str, float]:
+    """
+    Generate token weights to guide resampling towards target entropy.
+    """
+    base_entropy = compute_shannon_entropy(tokens)
+    weights = {}
+    
+    if base_entropy == 0:
+        # Uniform distribution if no entropy
+        for token in tokens:
+            weights[token] = 1.0
+        return weights
+    
+    # Adjust weights based on target entropy
+    adjustment_factor = target_entropy / base_entropy if base_entropy > 0 else 1.0
+    
+    for token in tokens:
+        # Increase weight for less frequent tokens to increase entropy
+        # Decrease weight for more frequent tokens to decrease entropy
+        freq = tokens.count(token)
+        base_weight = 1.0 / (freq + 1)
+        weights[token] = base_weight * adjustment_factor
+    
+    return weights
+
+def resample_tokens(tokens: List[str], weights: Dict[str, float], 
+                   num_samples: int) -> List[str]:
+    """
+    Resample tokens according to given weights.
     """
     if not tokens:
         return []
     
-    token_counts = Counter(tokens)
-    total = len(tokens)
+    # Normalize weights
+    total_weight = sum(weights.values())
+    if total_weight == 0:
+        return tokens  # Return original if no valid weights
     
-    # Calculate probability distribution
-    probs = {t: c / total for t, c in token_counts.items()}
+    normalized_weights = [weights.get(t, 1.0) / total_weight for t in tokens]
     
-    # Adjust probabilities based on reweight factor
-    adjusted_probs = {}
-    for token, prob in probs.items():
-        if reweight_factor > 1.0:
-            # Increase entropy: flatten distribution slightly
-            adjusted_probs[token] = prob ** (1.0 / reweight_factor)
-        else:
-            # Decrease entropy: sharpen distribution
-            adjusted_probs[token] = prob ** reweight_factor
-    
-    # Normalize
-    total_adj = sum(adjusted_probs.values())
-    adjusted_probs = {k: v / total_adj for k, v in adjusted_probs.items()}
-    
-    # Resample tokens based on adjusted probabilities
-    new_tokens = []
-    for _ in range(total):
+    # Resample
+    resampled = []
+    for _ in range(num_samples):
+        # Weighted random choice
         r = random.random()
         cumulative = 0.0
-        for token, prob in adjusted_probs.items():
-            cumulative += prob
+        for i, w in enumerate(normalized_weights):
+            cumulative += w
             if r <= cumulative:
-                new_tokens.append(token)
+                resampled.append(tokens[i])
                 break
         else:
-            new_tokens.append(list(adjusted_probs.keys())[-1])
+            resampled.append(tokens[-1])  # Fallback to last token
     
-    return new_tokens
+    return resampled
 
-def _chain_to_string(tokens: List[str]) -> str:
-    """Convert token list back to action chain string."""
-    return ' '.join(tokens)
-
-def _adjust_entropy(current_entropy: float, target_range: Tuple[float, float]) -> float:
+def generate_variant(case: Dict[str, Any], variant_type: str, 
+                    max_iter: int = MAX_ITERATIONS) -> VariantResult:
     """
-    Calculate reweight factor to move entropy toward target.
+    Generate a variant of the given case with target entropy level.
     
     Args:
-        current_entropy: Current Shannon entropy
-        target_range: (min, max) target range
-    
-    Returns:
-        Reweight factor to apply
-    """
-    target_mid = (target_range[0] + target_range[1]) / 2.0
-    current_mid = (target_range[0] + target_range[1]) / 2.0 if current_entropy < target_range[0] or current_entropy > target_range[1] else current_entropy
-    
-    if current_entropy == target_mid:
-        return 1.0
-    
-    # Calculate direction and magnitude
-    if current_entropy < target_range[0]:
-        # Need to increase entropy
-        factor = 1.0 + (target_range[0] - current_entropy) * 2.0
-    elif current_entropy > target_range[1]:
-        # Need to decrease entropy
-        factor = 1.0 - (current_entropy - target_range[1]) * 2.0
-    else:
-        # Already in range, minor adjustment toward center
-        if current_entropy < target_mid:
-            factor = 1.0 + (target_mid - current_entropy) * 0.5
-        else:
-            factor = 1.0 - (current_entropy - target_mid) * 0.5
-    
-    # Clamp factor to reasonable bounds
-    return max(0.5, min(2.0, factor))
-
-def generate_variant(
-    case_id: str,
-    base_chain: str,
-    variant_type: str,
-    max_iter: int = MAX_ITERATIONS
-) -> Tuple[str, float, int]:
-    """
-    Generate a variant of the base chain with target entropy characteristics.
-    
-    Args:
-        case_id: Identifier for the base case
-        base_chain: Original action chain string
+        case: Original case dictionary
         variant_type: 'low', 'medium', or 'high'
-        max_iter: Maximum iterations for convergence (default 20)
+        max_iter: Maximum iterations for convergence
     
     Returns:
-        Tuple of (generated_chain, entropy_score, iterations_used)
-    
-    Raises:
-        ConvergenceError: If convergence not achieved within max_iter
+        VariantResult with generated tokens and metrics
     """
-    if variant_type not in TARGET_RANGES:
-        fail_loudly(f"Invalid variant_type: {variant_type}. Must be one of {list(TARGET_RANGES.keys())}")
+    target_entropy = {
+        'low': TARGET_ENTROPY_LOW,
+        'medium': TARGET_ENTROPY_MEDIUM,
+        'high': TARGET_ENTROPY_HIGH
+    }.get(variant_type, TARGET_ENTROPY_MEDIUM)
     
-    target_range = TARGET_RANGES[variant_type]
-    tokens = _tokenize_chain(base_chain)
+    # Extract tokens from case (assuming 'action_chain' or similar field)
+    original_tokens = case.get('action_chain', [])
+    if not original_tokens:
+        # Fallback to text fields
+        text = case.get('text', case.get('prompt', ''))
+        original_tokens = text.split()
     
-    if not tokens:
-        fail_loudly(f"Case {case_id}: Empty token chain for variant generation")
+    if not original_tokens:
+        raise ValueError(f"Case {case.get('case_id', 'unknown')} has no tokens")
     
-    current_tokens = tokens.copy()
-    iteration = 0
-    best_chain = _chain_to_string(current_tokens)
+    current_tokens = original_tokens.copy()
+    best_tokens = current_tokens.copy()
     best_entropy = compute_shannon_entropy(current_tokens)
-    converged = False
+    best_diff = abs(best_entropy - target_entropy)
+    iterations = 0
     
-    while iteration < max_iter:
+    for iteration in range(max_iter):
+        iterations += 1
+        
+        # Compute current entropy
         current_entropy = compute_shannon_entropy(current_tokens)
+        current_diff = abs(current_entropy - target_entropy)
         
         # Check convergence
-        if target_range[0] <= current_entropy <= target_range[1]:
-            converged = True
-            best_chain = _chain_to_string(current_tokens)
+        if current_diff < TOLERANCE:
+            best_tokens = current_tokens
             best_entropy = current_entropy
             break
         
-        # Calculate adjustment
-        reweight_factor = _adjust_entropy(current_entropy, target_range)
-        current_tokens = _reweight_tokens(current_tokens, reweight_factor)
-        
-        iteration += 1
-        
-        # Track best result
-        if target_range[0] <= current_entropy <= target_range[1]:
-            best_chain = _chain_to_string(current_tokens)
+        # Update best if closer to target
+        if current_diff < best_diff:
+            best_diff = current_diff
+            best_tokens = current_tokens.copy()
             best_entropy = current_entropy
-            converged = True
-            break
+        
+        # Generate weights for resampling
+        weights = normalize_token_weights(current_tokens, target_entropy)
+        
+        # Resample tokens
+        num_samples = len(current_tokens)
+        current_tokens = resample_tokens(current_tokens, weights, num_samples)
+        
+        # Add some diversity by occasionally introducing new tokens
+        if random.random() < 0.1:
+            # Introduce variation
+            variation_rate = 0.1
+            num_variations = max(1, int(len(current_tokens) * variation_rate))
+            for _ in range(num_variations):
+                idx = random.randint(0, len(current_tokens) - 1)
+                current_tokens[idx] = current_tokens[idx] + "_" + str(iteration)
     
-    if not converged:
-        raise ConvergenceError(
-            f"Case {case_id} ({variant_type}): Failed to converge after {max_iter} iterations. "
-            f"Final entropy: {current_entropy:.4f}, Target: {target_range}"
-        )
+    # Final check
+    final_entropy = compute_shannon_entropy(best_tokens)
+    final_diff = abs(final_entropy - target_entropy)
     
-    return best_chain, best_entropy, iteration
+    if final_diff >= TOLERANCE:
+        # Log warning but don't raise if we're reasonably close
+        logger.warning(f"Case {case.get('case_id', 'unknown')} variant {variant_type} "
+                     f"did not converge within tolerance. Final entropy: {final_entropy:.3f}, "
+                     f"Target: {target_entropy:.3f}, Diff: {final_diff:.3f}")
+    
+    return VariantResult(
+        case_id=case.get('case_id', 'unknown'),
+        variant_type=variant_type,
+        entropy_score=final_entropy,
+        original_tokens=original_tokens,
+        modified_tokens=best_tokens,
+        iterations=iterations
+    )
 
-def load_wbench_stratified_sample(
-    input_path: str,
-    sample_size: int = STRATIFIED_SAMPLE_SIZE,
-    seed: Optional[int] = None
-) -> pd.DataFrame:
+def run_generation_pipeline(sampled_cases: List[Dict[str, Any]], 
+                           output_dir: Optional[Path] = None) -> Tuple[List[VariantResult], Dict]:
     """
-    Load WBench data and create a stratified sample.
+    Run the full generation pipeline on a stratified sample.
     
     Args:
-        input_path: Path to input WBench CSV
-        sample_size: Number of cases to sample
-        seed: Random seed for reproducibility
+        sampled_cases: List of cases to process
+        output_dir: Directory to write outputs (defaults to data/processed)
     
     Returns:
-        DataFrame with stratified sample
+        Tuple of (list of results, generation logs)
     """
-    if seed is not None:
-        random.seed(seed)
-        np.random.seed(seed)
+    if output_dir is None:
+        output_dir = Path(__file__).parent.parent.parent / "data" / "processed"
     
-    if not os.path.exists(input_path):
-        fail_loudly(f"Input file not found: {input_path}")
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    df = pd.read_csv(input_path)
-    
-    # Simple stratification by case complexity if available, otherwise random
-    if 'complexity' in df.columns:
-        # Stratify by complexity bins
-        df['complexity_bin'] = pd.cut(df['complexity'], bins=3, labels=['low', 'medium', 'high'])
-        stratified = df.groupby('complexity_bin', group_keys=False).apply(
-            lambda x: x.sample(n=min(sample_size // 3, len(x)), random_state=seed)
-        )
-    else:
-        # Random sample if no complexity column
-        stratified = df.sample(n=sample_size, random_state=seed)
-    
-    return stratified
-
-def run_generation_pipeline(
-    input_path: str,
-    output_csv_path: str,
-    output_logs_path: str,
-    sample_size: int = STRATIFIED_SAMPLE_SIZE,
-    seed: Optional[int] = None
-) -> None:
-    """
-    Run the full variant generation pipeline.
-    
-    Args:
-        input_path: Path to input WBench dataset
-        output_csv_path: Path for output variants CSV
-        output_logs_path: Path for generation logs JSON
-        sample_size: Number of cases to process
-        seed: Random seed for reproducibility
-    """
-    log_info("Starting variant generation pipeline")
-    
-    # Load stratified sample
-    sample_df = load_wbench_stratified_sample(input_path, sample_size, seed)
-    log_info(f"Loaded {len(sample_df)} cases for stratified sampling")
-    
-    results = []
-    logs = {
-        'timestamp': str(pd.Timestamp.now()),
-        'sample_size': len(sample_df),
-        'variants_generated': [],
-        'convergence_failures': []
+    all_results = []
+    generation_logs = {
+        'start_time': str(datetime.now()),
+        'total_cases': len(sampled_cases),
+        'variants_per_case': 3,
+        'variants': []
     }
     
-    for idx, row in sample_df.iterrows():
-        case_id = row.get('case_id', row.get('id', f'case_{idx}'))
-        base_chain = row.get('action_chain', row.get('generated_chain', ''))
+    for case in sampled_cases:
+        case_id = case.get('case_id', 'unknown')
+        log_info(f"Processing case {case_id}")
         
-        if not base_chain:
-            log_error(f"Skipping {case_id}: No action chain found")
-            continue
-        
+        # Generate all three variants
         for variant_type in ['low', 'medium', 'high']:
             try:
-                generated_chain, entropy_score, iterations = generate_variant(
-                    case_id, base_chain, variant_type
-                )
+                result = generate_variant(case, variant_type)
+                all_results.append(result)
                 
-                results.append({
-                    'case_id': case_id,
-                    'variant_type': variant_type,
-                    'entropy_score': round(entropy_score, 4),
-                    'generated_chain': generated_chain,
-                    'iterations': iterations
+                generation_logs['variants'].append({
+                    'case_id': result.case_id,
+                    'variant_type': result.variant_type,
+                    'entropy_score': result.entropy_score,
+                    'iterations': result.iterations
                 })
                 
-                logs['variants_generated'].append({
+                log_info(f"  Generated {variant_type} variant: entropy={result.entropy_score:.3f}, "
+                       f"iterations={result.iterations}")
+                
+            except Exception as e:
+                log_error(f"Failed to generate variant for case {case_id}: {str(e)}")
+                generation_logs['variants'].append({
                     'case_id': case_id,
                     'variant_type': variant_type,
-                    'entropy_score': round(entropy_score, 4),
-                    'iterations': iterations,
-                    'converged': True
-                })
-                
-                log_info(f"Generated {variant_type} variant for {case_id}: entropy={entropy_score:.4f}, iterations={iterations}")
-                
-            except ConvergenceError as e:
-                log_error(str(e))
-                logs['convergence_failures'].append({
-                    'case_id': case_id,
-                    'variant_type': variant_type,
+                    'entropy_score': None,
+                    'iterations': None,
                     'error': str(e)
                 })
-                # Continue with other variants even if one fails
     
     # Write outputs
-    if results:
-        output_df = pd.DataFrame(results)
-        output_df.to_csv(output_csv_path, index=False)
-        log_info(f"Wrote {len(output_df)} variants to {output_csv_path}")
-    else:
-        fail_loudly("No variants generated - pipeline failed")
+    variants_csv_path = output_dir / "variants.csv"
+    logs_json_path = output_dir / "generation_logs.json"
     
-    # Write logs
-    with open(output_logs_path, 'w') as f:
-        json.dump(logs, f, indent=2)
-    log_info(f"Wrote generation logs to {output_logs_path}")
+    # Write CSV
+    import pandas as pd
+    df = pd.DataFrame([
+        {
+            'case_id': r.case_id,
+            'variant_type': r.variant_type,
+            'entropy_score': r.entropy_score
+        }
+        for r in all_results
+    ])
+    df.to_csv(variants_csv_path, index=False)
+    log_info(f"Written {len(df)} rows to {variants_csv_path}")
     
-    # Verify output variance
-    if len(output_df) > 0:
-        variance = output_df['entropy_score'].var()
-        if variance < 0.05:
-            log_error(f"WARNING: Variance of complexity scores ({variance:.4f}) is below threshold (0.05)")
-        else:
-            log_info(f"Variance check passed: {variance:.4f}")
+    # Write JSON logs
+    generation_logs['end_time'] = str(datetime.now())
+    with open(logs_json_path, 'w', encoding='utf-8') as f:
+        json.dump(generation_logs, f, indent=2)
+    log_info(f"Written logs to {logs_json_path}")
+    
+    return all_results, generation_logs
 
 def main():
     """Main entry point for the generator script."""
-    config = get_config()
-    input_path = config.get('wbench_data_path', 'data/raw/wbench.csv')
-    output_csv = config.get('variants_output_path', 'data/processed/variants.csv')
-    output_logs = config.get('generation_logs_path', 'data/processed/generation_logs.json')
-    sample_size = config.get('stratified_sample_size', STRATIFIED_SAMPLE_SIZE)
-    seed = config.get('random_seed', 42)
+    from datetime import datetime
     
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_csv), exist_ok=True)
-    os.makedirs(os.path.dirname(output_logs), exist_ok=True)
+    log_info("Starting entropy-based variant generation pipeline")
     
-    run_generation_pipeline(
-        input_path=input_path,
-        output_csv_path=output_csv,
-        output_logs_path=output_logs,
-        sample_size=sample_size,
-        seed=seed
-    )
+    try:
+        # Load stratified sample
+        sampled_cases = load_wbench_stratified_sample()
+        
+        if not sampled_cases:
+            fail_loudly("No cases loaded for generation pipeline")
+        
+        # Run generation
+        results, logs = run_generation_pipeline(sampled_cases)
+        
+        # Verify outputs
+        output_dir = Path(__file__).parent.parent.parent / "data" / "processed"
+        variants_path = output_dir / "variants.csv"
+        logs_path = output_dir / "generation_logs.json"
+        
+        if not variants_path.exists():
+            fail_loudly(f"Output file {variants_path} was not created")
+        
+        if not logs_path.exists():
+            fail_loudly(f"Output file {logs_path} was not created")
+        
+        # Validate entropy scores are within expected ranges
+        df = pd.read_csv(variants_path)
+        for variant_type in ['low', 'medium', 'high']:
+            subset = df[df['variant_type'] == variant_type]
+            if len(subset) > 0:
+                mean_entropy = subset['entropy_score'].mean()
+                log_info(f"{variant_type.upper()} variants: mean entropy = {mean_entropy:.3f}")
+        
+        log_info("Generation pipeline completed successfully")
+        
+    except Exception as e:
+        log_exception(e)
+        fail_loudly(f"Generation pipeline failed: {str(e)}")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

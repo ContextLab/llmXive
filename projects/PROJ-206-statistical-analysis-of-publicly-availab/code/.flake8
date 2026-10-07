@@ -1,0 +1,31 @@
+[flake8]
+# Maximum line length (matching Black's default)
+max-line-length = 88
+extend-ignore = E203, W503
+
+# Directories to exclude
+exclude = 
+    .git,
+    __pycache__,
+    .eggs,
+    build,
+    dist,
+    venv,
+    .venv,
+    env,
+    data,
+    state,
+    .mypy_cache
+    
+# Per-file ignores
+# S101: Use of assert detected (common in tests)
+# ARG: Unused arguments (common in interfaces/tests)
+per-file-ignores = 
+    tests/*:S101,ARG
+    
+# Count violations
+count = True
+# Show source
+show-source = True
+# Show statistics
+statistics = True

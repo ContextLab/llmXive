@@ -1,51 +1,34 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided showing that the `code/`, `tests/`, `data/`, and `results/`
-    directories actually exist in the repository root; without visible directory listings
-    or files, the requirement cannot be confirmed as satisfied. The implementer must
-    add these directories (even if empty) to the project structure.
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings or file system evidence were provided showing that `tests/unit/`,
-    `tests/integration/`, and `tests/contract/` exist in the repository. Without concrete
-    proof of these folders being created, the task requirement is not satisfied. The
-    implementer must add the three test directories (and optionally placeholder test
-    files) and present evidence (e.g., a directory tree or file list).
 T003:
   c: true
   h: 797725104da221a10b35f271c494f31f9ef119acc72702c233cc7c826e394780
   r: "The file `code/.pre-commit-config.yaml` exists, is non\u2011empty, and correctly\
     \ configures both ruff (linting) and black (formatting) as required. The missing\
     \ `pre-commit-config.yaml` at the repository root is irrelevant to this task."
-T013:
-  c: false
-  h: 9c0089065ae4e8cfce38db96de9a210e24768842437d80fcd7058be61bfb0da5
-  r: "The provided `code/entropy/generator.py` is truncated (ends abruptly at `new_tokens.append(list`)\
-    \ and does not contain the full generation logic, nor any code that writes `data/processed/variants.csv`\
-    \ or `data/processed/generation_logs.json`. Both required output files are missing\
-    \ from the repository. Consequently the task\u2019s functional and output requirements\
-    \ are not satisfied."
-T014:
-  c: false
-  h: f1306cf786cc789fd143de98de3e90149ad886ab25b59e35f945fe9de5bc06f2
-  r: "The required input file `data/processed/variants.csv` and the expected output\
-    \ `data/processed/validity_flags.csv` are both absent, and the provided `code/entropy/validator.py`\
-    \ is truncated, so we cannot verify that it reads the input, validates chains,\
-    \ and writes the correct CSV with the specified columns. The task\u2019s core\
-    \ artifacts are missing."
-T015:
-  c: false
-  h: f297a40317318436e1faad699897abd2f21d3c3639c052013b8e5f986039074c
-  r: The repository contains a `code/entropy/scorer.py` file, but it is truncated
-    and does not show any logic that writes the required `data/processed/complexity_scores.csv`
-    with the specified columns. Moreover, the `complexity_scores.csv` file is missing
-    entirely, so the primary output artifact does not exist. The task therefore remains
-    unfinished.
 T019:
   c: false
   h: 29480e40b96ad67001a0f62667c2e96c5e65b0c3890556d2127ea51bd303b8a5
   r: "The required file `tests/integration/inference/test_inference.py` does not exist\
     \ in the repository, so the integration test cannot be verified or run. The task\u2019\
     s core artifact is missing."
+T021:
+  c: false
+  h: b3e2c4762e907f1bac64d0fcfb5ec54bd4a8f66009ae6ad65631bb8b82b81eed
+  r: The required output CSV `data/processed/inference_results.csv` does not exist,
+    and the provided `code/inference/runner.py` is truncated and lacks the full logic
+    for handling OOM errors, using a proxy entry, and writing a row with `status='proxy'`
+    and NaN scores. Both the artifact and its behavior are missing, so the task is
+    not genuinely completed.
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, test, or documentation was provided that implements the check
+    for loading at least three valid models and raising an error otherwise. Without
+    an artifact demonstrating this logic, the requirement cannot be confirmed as met.
+T027a:
+  c: false
+  h: 4034e1607c4afa5a926efcd940f061bdb9ae111636c220ba9d47e720a3cceed7
+  r: The repository contains a partially implemented `code/metrics/baseline.py` (the
+    file is truncated and never writes `baseline_scores.json`). The required output
+    file `data/processed/baseline_scores.json` is missing, and there is no evidence
+    of a unit test verifying the baseline calculation. The task is therefore not fully
+    satisfied.

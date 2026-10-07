@@ -1,1 +1,1 @@
-# Contract test package for llmXive pipeline
+"""Contract tests validating data schemas and interfaces."""

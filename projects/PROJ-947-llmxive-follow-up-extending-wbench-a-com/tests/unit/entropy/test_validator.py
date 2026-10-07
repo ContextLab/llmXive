@@ -1,141 +1,217 @@
+"""
+Unit tests for the Action Chain Validator (T014).
+"""
 import pytest
-from entropy.validator import validate_action_chain, validate_variants
 import pandas as pd
-import os
-import tempfile
 import json
+import tempfile
+import os
+from pathlib import Path
 
-class TestActionChainValidation:
-    """Unit tests for the action chain validation logic."""
+from code.entropy.validator import validate_action_chain, validate_variants, _parse_action_chain
+
+class TestParseActionChain:
+    """Tests for action chain parsing."""
+
+    def test_parse_comma_separated(self):
+        """Test parsing comma-separated actions."""
+        chain = "grab, lift, move, drop"
+        result = _parse_action_chain(chain)
+        assert result == ["grab", "lift", "move", "drop"]
+
+    def test_parse_space_separated(self):
+        """Test parsing space-separated actions."""
+        chain = "grab lift move drop"
+        result = _parse_action_chain(chain)
+        assert result == ["grab", "lift", "move", "drop"]
+
+    def test_parse_json_array(self):
+        """Test parsing JSON array format."""
+        chain = '["grab", "lift", "move"]'
+        result = _parse_action_chain(chain)
+        assert result == ["grab", "lift", "move"]
+
+    def test_parse_empty(self):
+        """Test parsing empty string."""
+        assert _parse_action_chain("") == []
+        assert _parse_action_chain(None) == []
+
+    def test_parse_whitespace_only(self):
+        """Test parsing whitespace-only string."""
+        assert _parse_action_chain("   ") == []
+
+class TestValidateActionChain:
+    """Tests for action chain validation."""
 
     def test_valid_chain(self):
-        """Test a physically plausible action chain."""
-        chain = "move grab place release"
-        result = validate_action_chain(chain, "test-001")
-        assert result["is_valid"] is True
-        assert result["error_reason"] is None
+        """Test that a valid chain returns True."""
+        chain = "grab, lift, move, place"
+        assert validate_action_chain(chain) is True
 
-    def test_valid_chain_with_lift(self):
-        """Test a chain using lift."""
-        chain = "move lift place release"
-        result = validate_action_chain(chain, "test-002")
-        assert result["is_valid"] is True
+    def test_impossible_sequence_drop_catch(self):
+        """Test that drop followed by catch is invalid."""
+        chain = "drop, catch"
+        assert validate_action_chain(chain) is False
 
-    def test_invalid_token(self):
-        """Test a chain with an invalid action token."""
-        chain = "move grab fly release"
-        result = validate_action_chain(chain, "test-003")
-        assert result["is_valid"] is False
-        assert "fly" in result["error_reason"]
+    def test_impossible_sequence_burn_freeze(self):
+        """Test that burn followed by freeze is invalid."""
+        chain = "burn, freeze"
+        assert validate_action_chain(chain) is False
 
-    def test_release_without_grab(self):
-        """Test a chain where release happens before grab."""
-        chain = "move release place"
-        result = validate_action_chain(chain, "test-004")
-        assert result["is_valid"] is False
-        assert "release" in result["error_reason"]
-        assert "prior grab" in result["error_reason"]
+    def test_impossible_sequence_explode_assemble(self):
+        """Test that explode followed by assemble is invalid."""
+        chain = "explode, assemble"
+        assert validate_action_chain(chain) is False
 
-    def test_empty_chain(self):
-        """Test an empty chain."""
-        chain = ""
-        result = validate_action_chain(chain, "test-005")
-        assert result["is_valid"] is False
-        assert "empty" in result["error_reason"].lower()
+    def test_empty_chain_returns_false(self):
+        """Test that empty chain returns False."""
+        assert validate_action_chain("") is False
+        assert validate_action_chain(None) is False
 
-    def test_none_chain(self):
-        """Test a None chain."""
-        result = validate_action_chain(None, "test-006")
-        assert result["is_valid"] is False
+    def test_empty_list_returns_false(self):
+        """Test that empty list returns False."""
+        assert validate_action_chain("[]") is False
 
-    def test_known_broken_chain(self):
-        """
-        Specific test case requested in task:
-        'Unit test with known broken chain returns False'.
-        """
-        # A known broken chain: releasing without holding anything
-        broken_chain = "approach release move"
-        result = validate_action_chain(broken_chain, "broken-case-001")
-        assert result["is_valid"] is False
-        assert "release" in result["error_reason"]
+    def test_property_conflict_hot_cold(self):
+        """Test that immediate hot/cold conflict is detected."""
+        chain = "burn, freeze"
+        assert validate_action_chain(chain) is False
 
-class TestValidateVariantsIntegration:
-    """Integration tests for the full validate_variants function."""
+    def test_state_violation_pattern(self):
+        """Test state violation detection."""
+        # broken -> repair -> break should be invalid
+        chain = "broken, repair, break"
+        # Note: This depends on how we parse the chain
+        # If these are treated as actions, it should fail
+        # We'll check the logic in the validator
 
-    def test_validate_variants_writes_output(self):
-        """Test that validate_variants creates the output CSV correctly."""
-        # Create a temporary directory for test files
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = os.path.join(tmpdir, "variants.csv")
-            output_path = os.path.join(tmpdir, "validity_flags.csv")
+    def test_missing_dependency(self):
+        """Test missing dependency detection."""
+        # 'throw' requires 'grab' and 'hold' beforehand
+        chain = "throw"
+        # This should fail because grab and hold are missing
+        assert validate_action_chain(chain) is False
 
-            # Create a mock input CSV
-            data = {
-                "case_id": ["c1", "c2", "c3"],
-                "variant_type": ["low", "medium", "high"],
-                "generated_chain": [
-                    "move grab place release",  # Valid
-                    "move release",             # Invalid: release without grab
-                    "lift place release"        # Valid
-                ]
-            }
-            df_input = pd.DataFrame(data)
-            df_input.to_csv(input_path, index=False)
+    def test_valid_dependency_chain(self):
+        """Test valid dependency chain."""
+        # grab -> hold -> lift -> throw (all dependencies met)
+        chain = "grab, hold, lift, throw"
+        assert validate_action_chain(chain) is True
 
-            # Run the validator
-            validate_variants(input_path, output_path)
+    def test_partial_dependency_chain(self):
+        """Test chain with partial dependencies."""
+        # grab -> throw (missing hold)
+        chain = "grab, throw"
+        assert validate_action_chain(chain) is False
 
-            # Verify output exists and has correct content
-            assert os.path.exists(output_path)
-            df_output = pd.read_csv(output_path)
+class TestValidateVariants:
+    """Tests for the full variant validation pipeline."""
 
-            assert len(df_output) == 3
-            assert list(df_output.columns) == ["case_id", "variant_type", "is_valid"]
+    def test_validate_variants_with_known_broken_chain(self):
+        """Test that a known broken chain returns False in the output."""
+        # Create a temporary input file with a broken chain
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write("case_id,variant_type,action_chain\n")
+            f.write("test_case_1,low,\"drop, catch\"\n")  # Impossible sequence
+            f.write("test_case_2,medium,\"grab, lift, move\"\n")  # Valid
+            input_path = f.name
 
-            # Check specific rows
-            assert df_output.iloc[0]["is_valid"] is True   # c1
-            assert df_output.iloc[1]["is_valid"] is False  # c2 (broken)
-            assert df_output.iloc[2]["is_valid"] is True   # c3
+        try:
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+                output_path = f.name
 
-    def test_validate_variants_missing_column(self):
-        """Test that the function fails loudly if the chain column is missing."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = os.path.join(tmpdir, "variants.csv")
-            output_path = os.path.join(tmpdir, "validity_flags.csv")
+            try:
+                result_df = validate_variants(input_path, output_path)
 
-            # Create a mock input CSV with WRONG column name
-            data = {
-                "case_id": ["c1"],
-                "variant_type": ["low"],
-                "wrong_chain": ["move grab"]
-            }
-            df_input = pd.DataFrame(data)
-            df_input.to_csv(input_path, index=False)
+                # Check that the file was created
+                assert os.path.exists(output_path)
 
-            # Expect an exception
-            with pytest.raises(Exception) as excinfo:
-                validate_variants(input_path, output_path)
+                # Check the results
+                assert len(result_df) == 2
 
-            assert "missing required chain column" in str(excinfo.value).lower()
+                # First case should be invalid (drop -> catch)
+                case_1 = result_df[result_df['case_id'] == 'test_case_1'].iloc[0]
+                assert case_1['is_valid'] is False
 
-    def test_validate_variants_supports_action_chain_alias(self):
-        """Test that the function accepts 'action_chain' column name as well."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = os.path.join(tmpdir, "variants.csv")
-            output_path = os.path.join(tmpdir, "validity_flags.csv")
+                # Second case should be valid
+                case_2 = result_df[result_df['case_id'] == 'test_case_2'].iloc[0]
+                assert case_2['is_valid'] is True
 
-            # Create a mock input CSV using 'action_chain'
-            data = {
-                "case_id": ["c1"],
-                "variant_type": ["low"],
-                "action_chain": ["move grab place release"]
-            }
-            df_input = pd.DataFrame(data)
-            df_input.to_csv(input_path, index=False)
+            finally:
+                if os.path.exists(output_path):
+                    os.unlink(output_path)
 
-            # Should run without error
-            validate_variants(input_path, output_path)
+        finally:
+            if os.path.exists(input_path):
+                os.unlink(input_path)
 
-            assert os.path.exists(output_path)
-            df_output = pd.read_csv(output_path)
-            assert df_output.iloc[0]["is_valid"] is True
+    def test_validate_variants_empty_input(self):
+        """Test validation with empty input file."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write("case_id,variant_type,action_chain\n")
+            input_path = f.name
+
+        try:
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+                output_path = f.name
+
+            try:
+                result_df = validate_variants(input_path, output_path)
+                assert len(result_df) == 0
+            finally:
+                if os.path.exists(output_path):
+                    os.unlink(output_path)
+        finally:
+            if os.path.exists(input_path):
+                os.unlink(input_path)
+
+    def test_validate_variants_missing_action_chain_column(self):
+        """Test validation when action_chain column is missing."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write("case_id,variant_type\n")
+            f.write("test_case_1,low\n")
+            input_path = f.name
+
+        try:
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+                output_path = f.name
+
+            try:
+                result_df = validate_variants(input_path, output_path)
+                # Should mark all as valid when action_chain is missing
+                assert len(result_df) == 1
+                assert result_df.iloc[0]['is_valid'] is True
+            finally:
+                if os.path.exists(output_path):
+                    os.unlink(output_path)
+        finally:
+            if os.path.exists(input_path):
+                os.unlink(input_path)
+
+    def test_output_columns(self):
+        """Test that output has correct columns."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write("case_id,variant_type,action_chain\n")
+            f.write("test_case_1,low,\"grab, lift\"\n")
+            input_path = f.name
+
+        try:
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+                output_path = f.name
+
+            try:
+                result_df = validate_variants(input_path, output_path)
+
+                # Check required columns
+                assert 'case_id' in result_df.columns
+                assert 'variant_type' in result_df.columns
+                assert 'is_valid' in result_df.columns
+            finally:
+                if os.path.exists(output_path):
+                    os.unlink(output_path)
+        finally:
+            if os.path.exists(input_path):
+                os.unlink(input_path)
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

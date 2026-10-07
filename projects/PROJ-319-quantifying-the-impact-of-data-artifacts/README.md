@@ -1,95 +1,77 @@
 # Quantifying the Impact of Data Artifacts on Planetary Nebula Morphology
 
-This project quantifies how data artifacts (noise and saturation) bias measurements of planetary nebula morphology (ellipticity and asymmetry). It uses synthetic data with known ground truth to derive calibration functions that correct for these biases.
+This project investigates how common data artifacts (noise and saturation) bias the measurement of planetary nebula morphology parameters (ellipticity and asymmetry). Using synthetic data with known ground truth, we quantify these biases and derive calibration functions to correct them.
 
 ## Project Structure
 
 ```
-.
+PROJ-319-quantifying-the-impact-of-data-artifacts/
 ├── code/ # Source code
 │ ├── analysis/ # Statistical analysis and regression
-│ ├── io/ # I/O utilities (loading/saving)
-│ ├── metrics/ # Morphology metrics (ellipticity, asymmetry)
+│ ├── io/ # Input/output utilities
+│ ├── metrics/ # Morphology metric calculations
 │ ├── synthetic/ # Synthetic data generation and artifact injection
-│ ├── config.py # Configuration and project root
-│ └── main.py # CLI entry point
+│ ├── config.py # Project configuration and parameters
+│ ├── main.py # CLI entry point
+│ └── setup_dirs.py # Directory initialization
 ├── data/ # Data artifacts
-│ ├── raw/ # Raw input data (if any)
-│ ├── synthetic/ # Generated synthetic nebulae
-│ ├── processed/ # Processed data, metrics, and statistics
-│ ├── validation/ # Real HST validation data
-│ └── validation_results/ # Validation outputs
+│ ├── raw/ # Raw input data
+│ ├── synthetic/ # Generated synthetic planetary nebulae
+│ ├── processed/ # Processed data and analysis results
+│ └── validation/ # Validation data and reports
+├── docs/ # Documentation
+│ ├── decisions/ # ADRs
+│ └── reports/ # Final research reports
+├── logs/ # Execution logs
 ├── tests/ # Test suite
 │ ├── unit/ # Unit tests
 │ ├── contract/ # Contract tests
 │ └── integration/ # Integration tests
-├── docs/ # Documentation
-│ ├── decisions/ # Architecture decisions
-│ └── reports/ # Final research reports
-├── logs/ # Execution logs
 ├── requirements.txt # Python dependencies
 ├── quickstart.md # Quick start guide
-└── research.md # Research findings
+├── research.md # Research documentation
+└── README.md # This file
 ```
 
 ## Quick Start
 
-1. **Install Dependencies**:
- ```bash
- pip install -r requirements.txt
- ```
+See [quickstart.md](quickstart.md) for detailed instructions on running the full pipeline.
 
-2. **Run the Full Pipeline**:
- ```bash
- python code/main.py --run-all
- ```
- This command:
- - Generates synthetic planetary nebulae with known ground truth.
- - Injects noise and saturation artifacts.
- - Measures ellipticity and asymmetry.
- - Computes bias and fits calibration models.
- - Validates results and generates reports.
+```bash
+# Install dependencies
+pip install -r requirements.txt
 
-3. **Run Specific Modes**:
- ```bash
- # Generate synthetic data
- python code/main.py --mode generate --n-images 50 --output data/synthetic
+# Run the full pipeline
+python code/main.py --run-all
 
- # Process artifacts (noise/saturation sweeps)
- python code/main.py --mode process --input data/synthetic --output data/processed
+# Or run specific modes
+python code/main.py --mode generate --n-images 50
+python code/main.py --mode process
+python code/main.py --mode calibrate
+python code/main.py --mode validate
+```
 
- # Calibrate models
- python code/main.py --mode calibrate --input data/processed/metrics.csv --output data/processed/models.json
+## Key Components
 
- # Validate results
- python code/main.py --mode validate --input data/processed/models.json --test-set data/synthetic/validation --output data/processed/validation_results.csv
-
- # Verify pipeline state
- python code/main.py --mode verify --output logs/verification.log
- ```
-
-## Key Artifacts
-
-- **Synthetic Data**: `data/synthetic/synth_*.fits` and `data/synthetic/gt_metadata.json`
-- **Bias Data**: `data/processed/noise_sweep_data.csv`, `data/processed/saturation_sweep.csv`
-- **Statistics**: `data/processed/noise_stats.csv`, `data/processed/saturation_stats.csv`
-- **Calibration**: `data/processed/calibration_functions.json`
-- **Reports**: `docs/reports/001-final-bias-analysis.md`, `data/validation/power_analysis_report.md`
+- **Synthetic Data Generation** (`code/synthetic/generator.py`): Creates realistic planetary nebulae with known ground-truth ellipticity and asymmetry.
+- **Artifact Injection** (`code/synthetic/artifacts.py`): Injects controlled noise and saturation artifacts.
+- **Metric Calculation** (`code/metrics/`): Computes ellipticity (second-order moments) and asymmetry (Conselice 2003).
+- **Statistical Analysis** (`code/analysis/`): Performs regression analysis to quantify bias and derive calibration functions.
+- **Validation** (`code/analysis/validation.py`): Applies corrections and validates residual bias.
 
 ## Configuration
 
-Edit `code/config.py` to adjust:
-- Random seeds
-- Default paths
-- Artifact parameters (noise levels, saturation range)
+Key parameters are defined in `code/config.py`:
+- Random seeds for reproducibility
+- Artifact ranges: noise levels `{0.01, 0.05, 0.10}`, saturation `0.0` to `0.5` in `0.05` increments
+- Default paths for data and outputs
 
-## Testing
+## Validation
 
-Run the test suite:
-```bash
-pytest tests/
-```
+- **Qualitative**: Real HST images (NGC 7009, NGC 6543) validated against known morphologies (see `data/validation/`).
+- **Quantitative**: Synthetic data with known ground truth used to measure bias.
+- **Statistical**: Power analysis and cross-validation ensure robustness.
 
 ## License
 
-This project is for research purposes.
+This project is part of the llmXive automated science pipeline.

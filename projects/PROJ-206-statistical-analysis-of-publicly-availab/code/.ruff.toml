@@ -1,26 +1,45 @@
+# Ruff configuration for llmXive project
+# Configures linting rules and formatting settings
+
 [lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`) rules
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "ARG", "SIM"]
+
+# Ignore specific rules that might be too strict for research code
 ignore = [
-    "E501",  # line too long (handled by black)
-    "B008",  # do not perform function calls in argument defaults
+    "E501",  # Line too long (handled by black)
+    "B008",  # Do not perform function call in argument (common in research for defaults)
+    "SIM105", # Use `contextlib.suppress` instead of try/except (optional preference)
 ]
 
-[lint.per-file-ignores]
-"__init__.py" = ["F401", "F403"]
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude specific directories
+exclude = [
+    ".git",
+    "__pycache__",
+    ".eggs",
+    "build",
+    "dist",
+    "venv",
+    ".venv",
+    "env",
+    "data",
+]
+
+# Per-file ignores
+per-file-ignores = { "tests/*" = ["S101", "ARG"] }
+
+[lint.isort]
+known-first-party = ["src", "code"]
+force-sort-within-sections = true
+lines-after-imports = 2
 
 [format]
+# Configuration for the formatter if using ruff format (optional, black is primary)
 quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"
-
-[isort]
-known-first-party = ["src", "code", "tests"]
-force-single-line = false

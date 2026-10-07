@@ -1,84 +1,202 @@
+# Forecast Schema for Aggregation Pipeline
+# Defines the structure and validation rules for generated forecasts
+# Used by src/models/frequentist.py and src/models/bayesian.py
 $schema: http://json-schema.org/draft-07/schema#
-title: Forecast Dataset Schema
-description: >
-  Schema for the aggregated forecast outputs produced by the frequentist and Bayesian models.
-  This schema ensures consistency in reporting point estimates, uncertainty intervals, and
-  model metadata.
-
+title: ForecastDatasetSchema
+description: Schema for forecast outputs (Frequentist and Bayesian)
 type: object
 required:
-  - week_bin
-  - model_type
-  - candidate
-  - state
-  - forecast_value
-  - lower_bound
-  - upper_bound
-  - prediction_date
-
+  - fields
+  - validation_rules
 properties:
-  week_bin:
-    type: string
-    format: date
-    description: "Start date of the weekly bin for which the forecast was made."
-    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
-  
-  model_type:
-    type: string
-    enum:
-      - "simple_average"
-      - "weighted_average"
-      - "bayesian_random_walk"
-    description: "The forecasting model used to generate the prediction."
-  
-  candidate:
-    type: string
-    minLength: 1
-    description: "Name of the candidate."
-  
-  state:
-    type: string
-    description: "US State code or 'US' for national."
-    minLength: 1
-    maxLength: 2
-  
-  forecast_value:
-    type: number
-    description: "Point forecast (percentage vote share)."
-  
-  lower_bound:
-    type: number
-    description: "Lower bound of the confidence/credible interval (e.g., 2.5% for 95% CI)."
-  
-  upper_bound:
-    type: number
-    description: "Upper bound of the confidence/credible interval (e.g., 97.5% for 95% CI)."
-  
-  prediction_date:
-    type: string
-    format: date
-    description: "Date the forecast was generated (execution timestamp)."
-    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
-  
-  method_details:
+  fields:
     type: object
-    description: "Optional metadata specific to the model (e.g., R-hat, effective samples)."
     properties:
+      week_bin:
+        type: object
+        description: The week bin for which the forecast is made
+        required:
+          - type
+        properties:
+          type:
+            const: integer
+          minimum:
+            const: 1
+      state:
+        type: object
+        description: State code for the forecast
+        required:
+          - type
+        properties:
+          type:
+            const: string
+          pattern:
+            const: "^[A-Z]{2}$"
+      candidate:
+        type: object
+        description: Candidate name
+        required:
+          - type
+        properties:
+          type:
+            const: string
+          minLength:
+            const: 1
+      simple_avg_forecast:
+        type: object
+        description: Simple unweighted average forecast (FR-003)
+        required:
+          - type
+          - minimum
+          - maximum
+        properties:
+          type:
+            const: number
+          minimum:
+            const: 0
+          maximum:
+            const: 100
+      weighted_avg_forecast:
+        type: object
+        description: Accuracy-weighted average forecast (FR-004)
+        required:
+          - type
+          - minimum
+          - maximum
+        properties:
+          type:
+            const: number
+          minimum:
+            const: 0
+          maximum:
+            const: 100
+      bayesian_forecast:
+        type: object
+        description: Bayesian hierarchical model forecast (FR-005)
+        required:
+          - type
+          - minimum
+          - maximum
+        properties:
+          type:
+            const: number
+          minimum:
+            const: 0
+          maximum:
+            const: 100
+      ci_lower:
+        type: object
+        description: Lower bound of 95% credible/confidence interval
+        required:
+          - type
+          - minimum
+          - maximum
+        properties:
+          type:
+            const: number
+          minimum:
+            const: 0
+          maximum:
+            const: 100
+      ci_upper:
+        type: object
+        description: Upper bound of 95% credible/confidence interval
+        required:
+          - type
+          - minimum
+          - maximum
+        properties:
+          type:
+            const: number
+          minimum:
+            const: 0
+          maximum:
+            const: 100
+      model_type:
+        type: object
+        description: Type of model that generated this forecast
+        required:
+          - type
+          - enum
+        properties:
+          type:
+            const: string
+          enum:
+            - simple_average
+            - weighted_average
+            - bayesian_random_walk
       r_hat:
-        type: number
-        minimum: 1.0
-        description: "R-hat convergence statistic (Bayesian models only)."
-      effective_samples:
-        type: integer
-        minimum: 0
-        description: "Number of effective samples (Bayesian models only)."
+        type: object
+        description: R-hat convergence statistic (Bayesian only)
+        required:
+          - type
+          - minimum
+          - maximum
+        properties:
+          type:
+            const: number
+          minimum:
+            const: 0
+          maximum:
+            const: 2.0
+          description:
+            const: "Must be <= 1.05 for convergence (T023)"
+    required:
+      - week_bin
+      - state
+      - candidate
+      - model_type
+  validation_rules:
+    type: object
+    description: Business logic validation rules for forecasts
+    properties:
+      ci_coverage:
+        type: object
+        description: Check if actual outcome falls within CI (SC-002)
+        required:
+          - target_coverage
+          - actual_coverage_min
+        properties:
+          target_coverage:
+            const: 0.95
+          actual_coverage_min:
+            const: 0.90
+          severity:
+            const: error
+      convergence_check:
+        type: object
+        description: Bayesian model convergence check
+        required:
+          - max_r_hat
+          - severity
+        properties:
+          max_r_hat:
+            const: 1.05
+          severity:
+            const: error
+      forecast_order:
+        type: object
+        description: Forecasts must be ordered by week_bin
+        required:
+          - ascending
+          - severity
+        properties:
+          ascending:
+            const: true
+          severity:
+            const: warning
       weight_normalization:
-        type: string
-        description: "Description of weight normalization (Frequentist models only)."
-  
-  actual_outcome:
-    type: number
-    nullable: true
-    description: "Actual election result if available (for post-election evaluation)."
-
-additionalProperties: false
+        type: object
+        description: Weights must sum to 1.0 (for weighted average)
+        required:
+          - tolerance
+          - severity
+        properties:
+          tolerance:
+            const: 0.0001
+          severity:
+            const: error
+metadata:
+  version: "1.0.0"
+  source: "specs/001-statistical-poll-aggregation/contracts/forecast.schema.yaml"
+  created_by: "T007 Implementation"

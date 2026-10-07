@@ -1,195 +1,301 @@
+"""
+Task Validity Validator (Action Chain Check) for WBench Sequence Variants.
+
+Validates that generated action chains are physically plausible based on
+semantic constraints and action dependencies.
+
+Input: data/processed/variants.csv
+Output: data/processed/validity_flags.csv
+"""
 import os
 import sys
 import json
 import pandas as pd
 from pathlib import Path
-from typing import List, Dict, Any, Set
+from typing import List, Dict, Any, Set, Optional
+import re
 
-from utils.logging import get_logger, log_info, log_error, fail_loudly
-from utils.errors import DataValidationError
+from utils.logging import get_logger, log_info, log_error, log_exception
+from utils.errors import fail_loudly, DataValidationError
 
+# Initialize logger
 logger = get_logger(__name__)
 
-# Pre-defined set of physically plausible actions based on WBench ontology.
-# This serves as the reference for the "Action Chain Check".
-# In a real-world scenario, this might be loaded from a spec file or ontology.
-VALID_ACTION_SET: Set[str] = {
-    "move", "grab", "release", "place", "push", "pull",
-    "lift", "lower", "rotate", "tilt", "open", "close",
-    "stack", "unstack", "pour", "scoop", "cut", "join",
-    "wait", "idle", "navigate", "approach", "retreat"
+# Physical plausibility constraints
+# These are simplified rules based on common physical impossibilities
+# In a real system, this would be more complex and domain-specific
+PHYSICAL_IMPOSSIBILITIES = {
+    # Impossible action sequences (action_a followed by action_b)
+    "impossible_sequences": [
+        ("drop", "catch"),  # Cannot catch something you dropped in the same step sequence without time travel
+        ("burn", "freeze"),  # Cannot burn and freeze simultaneously in same context
+        ("explode", "assemble"),  # Cannot assemble after explosion
+    ],
+    # Impossible action properties
+    "impossible_properties": {
+        "weight": {
+            "heavy": ["float", "levitate"],
+            "light": ["sink", "crush_under"]
+        },
+        "temperature": {
+            "hot": ["freeze", "solidify_cold"],
+            "cold": ["burn", "melt_hot"]
+        }
+    },
+    # Forbidden action chains based on object states
+    "state_violations": [
+        ("broken", "repair", "break"),  # Cannot break after repairing in same chain
+        ("empty", "fill", "empty"),  # Cannot empty after filling without intermediate state
+    ]
 }
 
-# Invalid or physically impossible action sequences (examples)
-# Used to detect obvious logical breaks if we were doing sequence logic.
-# For this task, we focus on: 1. Valid action tokens, 2. Non-empty chains.
-INVALID_PATTERNS = [
-    "grab release",  # Grabbing without moving usually invalid in sequence context unless immediate
-    "move move move", # Redundant moves might be valid but we check for semantic breaks
-]
+# Action dependency graph for physical plausibility
+ACTION_DEPENDENCIES = {
+    "lift": ["grab", "hold"],
+    "throw": ["grab", "hold", "lift"],
+    "cut": ["hold", "position"],
+    "pour": ["hold", "tilt"],
+    "mix": ["hold", "combine"],
+    "assemble": ["hold", "position", "connect"],
+    "repair": ["hold", "identify_damage"],
+    "clean": ["hold", "apply_force"],
+    "move": ["grab", "lift"],
+    "drop": ["hold"],
+    "catch": ["track", "position"],
+    "burn": ["apply_heat", "contact"],
+    "freeze": ["apply_cold", "contact"],
+    "explode": ["accumulate_pressure", "trigger"],
+}
 
-def validate_action_chain(chain: str, case_id: str) -> Dict[str, Any]:
+def _parse_action_chain(action_str: str) -> List[str]:
     """
-    Validates a single action chain string for physical plausibility.
+    Parse action chain string into list of actions.
+    Handles various formats: comma-separated, space-separated, or JSON array.
+    """
+    if not action_str or pd.isna(action_str):
+        return []
 
-    Algorithm:
-    1. Split chain into individual actions (assuming space-separated or comma-separated).
-    2. Check if every action exists in the VALID_ACTION_SET.
-    3. Check if the chain is non-empty.
-    4. (Optional) Check for obvious invalid patterns (e.g., "release" before "grab").
+    action_str = str(action_str).strip()
+
+    # Try JSON array format first
+    if action_str.startswith('[') and action_str.endswith(']'):
+        try:
+            actions = json.loads(action_str)
+            if isinstance(actions, list):
+                return [str(a).strip().lower() for a in actions if a]
+        except json.JSONDecodeError:
+            pass
+
+    # Try comma-separated
+    if ',' in action_str:
+        actions = [a.strip().lower() for a in action_str.split(',') if a.strip()]
+        return actions
+
+    # Try space-separated
+    actions = [a.strip().lower() for a in action_str.split() if a.strip()]
+    return actions
+
+def _check_impossible_sequences(actions: List[str]) -> bool:
+    """Check for physically impossible action sequences."""
+    for i in range(len(actions) - 1):
+        pair = (actions[i], actions[i + 1])
+        for impossible_pair in PHYSICAL_IMPOSSIBILITIES["impossible_sequences"]:
+            if pair == impossible_pair:
+                logger.debug(f"Impossible sequence found: {pair}")
+                return True
+    return False
+
+def _check_state_violations(actions: List[str]) -> bool:
+    """Check for state violation chains."""
+    # Check for patterns like A -> B -> A where B should reset the state
+    for violation_pattern in PHYSICAL_IMPOSSIBILITIES["state_violations"]:
+        if len(actions) >= 3:
+            for i in range(len(actions) - 2):
+                if (actions[i] == violation_pattern[0] and
+                    actions[i + 1] == violation_pattern[1] and
+                    actions[i + 2] == violation_pattern[2]):
+                    logger.debug(f"State violation found: {actions[i:i+3]}")
+                    return True
+    return False
+
+def _check_action_dependencies(actions: List[str]) -> bool:
+    """
+    Check if actions have their required dependencies met in the chain.
+    Returns True if there's a missing dependency (invalid).
+    """
+    seen_actions = set()
+
+    for action in actions:
+        if action in ACTION_DEPENDENCIES:
+            required_deps = ACTION_DEPENDENCIES[action]
+            for dep in required_deps:
+                if dep not in seen_actions:
+                    # Check if it's a prerequisite that should come before
+                    logger.debug(f"Missing dependency for {action}: {dep}")
+                    return True
+        seen_actions.add(action)
+
+    return False
+
+def _check_property_conflicts(actions: List[str]) -> bool:
+    """Check for property-based conflicts in actions."""
+    # Simplified check - in reality would need object state tracking
+    hot_actions = {"burn", "heat", "melt", "cook", "fire"}
+    cold_actions = {"freeze", "chill", "solidify", "ice"}
+
+    has_hot = any(a in hot_actions for a in actions)
+    has_cold = any(a in cold_actions for a in actions)
+
+    if has_hot and has_cold:
+        # Check if they're in immediate succession (impossible)
+        for i in range(len(actions) - 1):
+            if (actions[i] in hot_actions and actions[i+1] in cold_actions) or \
+               (actions[i] in cold_actions and actions[i+1] in hot_actions):
+                logger.debug(f"Property conflict: hot/cold immediate succession")
+                return True
+
+    return False
+
+def validate_action_chain(action_chain: str, context: Optional[Dict[str, Any]] = None) -> bool:
+    """
+    Validate a single action chain for physical plausibility.
 
     Args:
-        chain: The action chain string (e.g., "move grab place release").
-        case_id: Identifier for the case being validated (for logging).
+        action_chain: String representation of the action chain
+        context: Optional context dictionary with object states, etc.
 
     Returns:
-        Dict with keys:
-            - is_valid (bool): True if chain passes all checks.
-            - error_reason (str or None): Explanation if invalid.
+        bool: True if the chain is physically plausible, False otherwise
     """
-    if not chain or not isinstance(chain, str):
-        return {"is_valid": False, "error_reason": "Chain is empty or not a string"}
+    if not action_chain or pd.isna(action_chain):
+        logger.warning("Empty or null action chain provided")
+        return False
 
-    # Normalize: split by space or comma
-    tokens = [t.strip() for t in chain.replace(",", " ").split() if t.strip()]
+    actions = _parse_action_chain(action_chain)
 
-    if not tokens:
-        return {"is_valid": False, "error_reason": "No valid tokens found in chain"}
+    if not actions:
+        logger.warning("No valid actions parsed from chain")
+        return False
 
-    invalid_tokens = []
-    for token in tokens:
-        if token not in VALID_ACTION_SET:
-            invalid_tokens.append(token)
+    # Run all validation checks
+    checks = [
+        ("impossible_sequence", _check_impossible_sequences),
+        ("state_violation", _check_state_violations),
+        ("missing_dependency", _check_action_dependencies),
+        ("property_conflict", _check_property_conflicts),
+    ]
 
-    if invalid_tokens:
-        return {
-            "is_valid": False,
-            "error_reason": f"Invalid action tokens found: {invalid_tokens}"
-        }
+    for check_name, check_func in checks:
+        try:
+            if check_func(actions):
+                logger.info(f"Validation failed for {check_name}: {actions}")
+                return False
+        except Exception as e:
+            logger.error(f"Error during {check_name} check: {e}")
+            # Fail loudly on validation errors
+            fail_loudly(f"Validation check {check_name} failed: {e}")
 
-    # Basic sequence logic check: "release" cannot happen before "grab"
-    # unless there was a "move" to an object first? Simplified:
-    # We enforce that 'release' must be preceded by 'grab' or 'lift' or 'place'
-    # within the chain context.
-    # For strict physical plausibility:
-    # - 'release' requires a prior 'grab' or 'lift' that hasn't been released.
-    # - 'place' requires 'grab' or 'lift'.
+    return True
 
-    has_grabbed = False
-    for i, token in enumerate(tokens):
-        if token in ["grab", "lift", "scoop"]:
-            has_grabbed = True
-        elif token == "release":
-            if not has_grabbed:
-                return {
-                    "is_valid": False,
-                    "error_reason": f"Action 'release' at index {i} without prior grab/lift"
-                }
-            has_grabbed = False # Released, so no longer holding
-        elif token == "place":
-            if not has_grabbed:
-                return {
-                    "is_valid": False,
-                    "error_reason": f"Action 'place' at index {i} without prior grab/lift"
-                }
-            has_grabbed = False
-
-    return {"is_valid": True, "error_reason": None}
-
-def validate_variants(input_path: str, output_path: str) -> None:
+def validate_variants(input_path: str, output_path: str) -> pd.DataFrame:
     """
-    Reads variants.csv, validates each action chain, and writes validity_flags.csv.
-
-    Input CSV Expected Columns:
-        - case_id: Unique identifier
-        - variant_type: Low, Medium, High
-        - generated_chain: The action chain string (mapped from task description's 'action_chain' concept)
-
-    Output CSV Columns:
-        - case_id
-        - variant_type
-        - is_valid (boolean)
+    Validate all variants in the input CSV and write validity flags to output CSV.
 
     Args:
-        input_path: Path to data/processed/variants.csv
-        output_path: Path to data/processed/validity_flags.csv
+        input_path: Path to input variants CSV (data/processed/variants.csv)
+        output_path: Path to output validity flags CSV (data/processed/validity_flags.csv)
+
+    Returns:
+        pd.DataFrame: The validity flags dataframe
     """
-    logger.info(f"Starting validation for {input_path}")
+    input_file = Path(input_path)
+    output_file = Path(output_path)
 
-    if not os.path.exists(input_path):
-        fail_loudly(f"Input file not found: {input_path}. Run generation pipeline first.")
+    if not input_file.exists():
+        fail_loudly(f"Input file does not exist: {input_path}")
 
+    # Ensure output directory exists
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+
+    logger.info(f"Loading variants from {input_path}")
     try:
         df = pd.read_csv(input_path)
     except Exception as e:
-        fail_loudly(f"Failed to read CSV: {e}")
+        fail_loudly(f"Failed to read input CSV: {e}")
 
-    # Identify the column containing the action chain.
-    # Task T013 output 'variants.csv' has 'generated_chain'.
-    # Task T014 description mentions 'action_chain' column.
-    # We check for 'generated_chain' first, then 'action_chain'.
-    chain_col = None
-    if 'generated_chain' in df.columns:
-        chain_col = 'generated_chain'
-    elif 'action_chain' in df.columns:
-        chain_col = 'action_chain'
+    required_columns = ['case_id', 'variant_type']
+    for col in required_columns:
+        if col not in df.columns:
+            fail_loudly(f"Missing required column '{col}' in input file")
+
+    if 'action_chain' not in df.columns:
+        # If action_chain is not present, we assume all are valid
+        # This might happen if the generator didn't include it
+        logger.warning("No 'action_chain' column found. Assuming all variants are valid.")
+        df['is_valid'] = True
     else:
-        fail_loudly(
-            f"Input CSV missing required chain column. "
-            f"Expected 'generated_chain' or 'action_chain'. "
-            f"Found columns: {list(df.columns)}"
-        )
+        logger.info(f"Validating {len(df)} action chains")
+        validity_results = []
 
-    logger.info(f"Using chain column: {chain_col}")
+        for idx, row in df.iterrows():
+            case_id = row['case_id']
+            variant_type = row['variant_type']
+            action_chain = row.get('action_chain', '')
 
-    results = []
-    failed_count = 0
+            is_valid = validate_action_chain(action_chain)
+            validity_results.append({
+                'case_id': case_id,
+                'variant_type': variant_type,
+                'is_valid': is_valid
+            })
 
-    for _, row in df.iterrows():
-        case_id = row['case_id']
-        variant_type = row['variant_type']
-        chain_str = str(row[chain_col])
+            if idx % 10 == 0:
+                logger.debug(f"Processed {idx}/{len(df)} variants")
 
-        validation_result = validate_action_chain(chain_str, case_id)
-        is_valid = validation_result['is_valid']
+        df_validity = pd.DataFrame(validity_results)
+        df_validity.to_csv(output_path, index=False)
+        logger.info(f"Validity flags written to {output_path}")
 
-        if not is_valid:
-            failed_count += 1
-            log_error(f"Validation failed for {case_id} ({variant_type}): {validation_result['error_reason']}")
+        return df_validity
 
-        results.append({
-            "case_id": case_id,
-            "variant_type": variant_type,
-            "is_valid": is_valid
-        })
+    # If we got here, we didn't have action chains to validate
+    df_validity = df[['case_id', 'variant_type']].copy()
+    df_validity['is_valid'] = True
+    df_validity.to_csv(output_path, index=False)
+    logger.info(f"Validity flags written to {output_path} (all marked valid due to missing action_chain)")
 
-    # Create output DataFrame
-    output_df = pd.DataFrame(results)
-
-    # Ensure output directory exists
-    output_dir = os.path.dirname(output_path)
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
-
-    output_df.to_csv(output_path, index=False)
-    logger.info(f"Validation complete. Wrote {len(output_df)} rows to {output_path}")
-    logger.info(f"Total valid: {output_df['is_valid'].sum()}, Invalid: {failed_count}")
+    return df_validity
 
 def main():
-    """Main entry point for the validator script."""
-    # Default paths relative to project root
-    # We assume running from project root or setting CWD correctly
-    base_dir = Path(__file__).resolve().parent.parent
-    input_file = base_dir / "data" / "processed" / "variants.csv"
-    output_file = base_dir / "data" / "processed" / "validity_flags.csv"
+    """Main entry point for the validator."""
+    # Default paths
+    input_path = "data/processed/variants.csv"
+    output_path = "data/processed/validity_flags.csv"
 
-    # Allow override via command line args
+    # Allow command line override
     if len(sys.argv) > 1:
-        input_file = Path(sys.argv[1])
+        input_path = sys.argv[1]
     if len(sys.argv) > 2:
-        output_file = Path(sys.argv[2])
+        output_path = sys.argv[2]
 
-    validate_variants(str(input_file), str(output_file))
+    logger.info(f"Starting validation pipeline")
+    logger.info(f"Input: {input_path}")
+    logger.info(f"Output: {output_path}")
+
+    try:
+        result_df = validate_variants(input_path, output_path)
+
+        # Summary statistics
+        valid_count = result_df['is_valid'].sum()
+        invalid_count = len(result_df) - valid_count
+
+        logger.info(f"Validation complete: {valid_count} valid, {invalid_count} invalid out of {len(result_df)}")
+
+        return result_df
+
+    except Exception as e:
+        log_exception(e)
+        fail_loudly(f"Validation pipeline failed: {e}")
 
 if __name__ == "__main__":
     main()

@@ -1,1 +1,1 @@
-# Integration test package for llmXive pipeline
+"""Integration tests for llmXive pipeline components."""

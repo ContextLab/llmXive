@@ -1,5 +1,5 @@
 """
-Statistical analysis for bias trends.
+Statistical analysis: Regression and hypothesis testing.
 """
 import csv
 import logging
@@ -7,109 +7,149 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Any, Optional
 import numpy as np
 from scipy import stats
-from code.config import RANDOM_SEED
 
-def apply_bonferroni_correction(p_values: List[float], n_tests: int) -> List[float]:
-    """
-    Apply Bonferroni correction to a list of p-values.
-    """
-    return [min(p * n_tests, 1.0) for p in p_values]
+try:
+    from code.config import get_project_root
+except ImportError:
+    # Fallback
+    import sys
+    from pathlib import Path
+    parent = Path(__file__).resolve().parent.parent
+    if str(parent) not in sys.path:
+        sys.path.insert(0, str(parent))
+    from config import get_project_root
 
-def run_noise_regression(input_csv: Path, output_csv: Path) -> None:
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+def apply_bonferroni_correction(p_values: List[float], alpha: float = 0.05) -> List[bool]:
+    """Apply Bonferroni correction to a list of p-values."""
+    n = len(p_values)
+    if n == 0:
+        return []
+    corrected_alpha = alpha / n
+    return [p < corrected_alpha for p in p_values]
+
+def run_noise_regression(root: Path):
     """
     Perform linear regression on noise sweep data.
     Output: data/processed/noise_stats.csv
     """
-    input_csv = Path(input_csv)
-    output_csv = Path(output_csv)
+    input_file = root / "data" / "processed" / "noise_sweep_data.csv"
+    output_file = root / "data" / "processed" / "noise_stats.csv"
     
-    # Read data
+    if not input_file.exists():
+        logger.error(f"Input file not found: {input_file}")
+        return
+    
+    # Load data
     data = []
-    with open(input_csv, 'r') as f:
+    with open(input_file) as f:
         reader = csv.DictReader(f)
         for row in reader:
             data.append(row)
     
     # Group by sigma
-    sigma_groups: Dict[float, List[float]] = {}
+    sigma_groups = {}
     for row in data:
-        sigma = float(row['sigma'])
-        bias = float(row['bias'])
+        sigma = float(row["sigma"])
         if sigma not in sigma_groups:
             sigma_groups[sigma] = []
-        sigma_groups[sigma].append(bias)
+        sigma_groups[sigma].append(float(row["bias"]))
     
-    # Perform regression: sigma (X) vs mean_bias (Y)
+    results = []
+    p_values = []
+    
+    # Simple linear regression: bias ~ sigma
     sigmas = sorted(sigma_groups.keys())
-    mean_biases = [np.mean(sigma_groups[s]) for s in sigmas]
+    biases = [np.mean(sigma_groups[s]) for s in sigmas]
     
-    # Linear regression
-    slope, intercept, r_value, p_value, std_err = stats.linregress(sigmas, mean_biases)
+    if len(sigmas) > 1:
+        slope, intercept, r_value, p_val, std_err = stats.linregress(sigmas, biases)
+        p_values.append(p_val)
+        
+        # Bonferroni correction (only one test here, but for generality)
+        significant = apply_bonferroni_correction([p_val])[0]
+        
+        results.append({
+            "sigma": sigmas[-1], # Use max sigma for summary or aggregate
+            "mean_bias": np.mean(biases),
+            "p_value": p_val,
+            "significant": significant,
+            "slope": slope,
+            "intercept": intercept
+        })
+    else:
+        logger.warning("Not enough data points for regression.")
     
-    # Bonferroni correction (n_tests = number of sigma levels)
-    n_tests = len(sigmas)
-    corrected_p = min(p_value * n_tests, 1.0)
-    significant = corrected_p < 0.05
+    with open(output_file, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=["sigma", "mean_bias", "p_value", "significant", "slope", "intercept"])
+        writer.writeheader()
+        writer.writerows(results)
     
-    # Write output
-    with open(output_csv, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(["sigma", "mean_bias", "p_value", "significant", "slope", "intercept"])
-        for s, mb in zip(sigmas, mean_biases):
-            # We only have one regression line, so we write the same slope/intercept for all
-            # But we can write the p-value for the overall fit
-            writer.writerow([s, mb, corrected_p, significant, slope, intercept])
-    
-    logging.info(f"Noise regression stats written to {output_csv}")
+    logger.info(f"Noise regression stats saved to {output_file}")
 
-def run_saturation_regression(input_csv: Path, output_csv: Path) -> None:
+def run_saturation_regression(root: Path):
     """
     Perform linear regression on saturation sweep data.
     Output: data/processed/saturation_stats.csv
     """
-    input_csv = Path(input_csv)
-    output_csv = Path(output_csv)
+    input_file = root / "data" / "processed" / "saturation_sweep.csv"
+    output_file = root / "data" / "processed" / "saturation_stats.csv"
     
-    # Read data
+    if not input_file.exists():
+        logger.error(f"Input file not found: {input_file}")
+        return
+    
     data = []
-    with open(input_csv, 'r') as f:
+    with open(input_file) as f:
         reader = csv.DictReader(f)
         for row in reader:
             data.append(row)
     
-    # Group by saturation_fraction
-    sat_groups: Dict[float, List[float]] = {}
+    # Group by saturation fraction
+    sat_groups = {}
     for row in data:
-        sat = float(row['saturation_fraction'])
-        bias = float(row['bias'])
-        if sat not in sat_groups:
-            sat_groups[sat] = []
-        sat_groups[sat].append(bias)
+        frac = float(row["saturation_fraction"])
+        if frac not in sat_groups:
+            sat_groups[frac] = []
+        sat_groups[frac].append(float(row["bias_mean"]))
     
-    # Perform regression
+    results = []
+    p_values = []
+    
     sats = sorted(sat_groups.keys())
-    mean_biases = [np.mean(sat_groups[s]) for s in sats]
+    biases = [np.mean(sat_groups[s]) for s in sats]
     
-    slope, intercept, r_value, p_value, std_err = stats.linregress(sats, mean_biases)
+    if len(sats) > 1:
+        slope, intercept, r_value, p_val, std_err = stats.linregress(sats, biases)
+        p_values.append(p_val)
+        
+        significant = apply_bonferroni_correction([p_val])[0]
+        
+        results.append({
+            "saturation_fraction": sats[-1],
+            "mean_bias": np.mean(biases),
+            "p_value": p_val,
+            "significant": significant,
+            "slope": slope,
+            "intercept": intercept
+        })
+    else:
+        logger.warning("Not enough data points for regression.")
     
-    n_tests = len(sats)
-    corrected_p = min(p_value * n_tests, 1.0)
-    significant = corrected_p < 0.05
+    with open(output_file, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=["saturation_fraction", "mean_bias", "p_value", "significant", "slope", "intercept"])
+        writer.writeheader()
+        writer.writerows(results)
     
-    with open(output_csv, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(["saturation_fraction", "mean_bias", "p_value", "significant", "slope", "intercept"])
-        for s, mb in zip(sats, mean_biases):
-            writer.writerow([s, mb, corrected_p, significant, slope, intercept])
-    
-    logging.info(f"Saturation regression stats written to {output_csv}")
+    logger.info(f"Saturation regression stats saved to {output_file}")
 
 def main():
-    root = Path(__file__).resolve().parent.parent.parent
-    run_noise_regression(root / "data" / "processed" / "noise_sweep_data.csv",
-                         root / "data" / "processed" / "noise_stats.csv")
-    run_saturation_regression(root / "data" / "processed" / "saturation_sweep.csv",
-                              root / "data" / "processed" / "saturation_stats.csv")
+    """Main entry point for statistical analysis."""
+    root = get_project_root()
+    run_noise_regression(root)
+    run_saturation_regression(root)
 
 if __name__ == "__main__":
     main()

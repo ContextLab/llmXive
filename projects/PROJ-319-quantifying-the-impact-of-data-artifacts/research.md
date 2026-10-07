@@ -1,74 +1,156 @@
-# Research Findings: Quantifying the Impact of Data Artifacts on Planetary Nebula Morphology
+# Research Documentation: Quantifying the Impact of Data Artifacts
 
-## Executive Summary
+## Overview
 
-This study quantifies the bias introduced by Gaussian noise and pixel saturation on measurements of planetary nebula morphology, specifically ellipticity and asymmetry. Using synthetic data with known ground truth, we derived calibration functions to correct for these biases. Key findings include:
-- Noise significantly biases ellipticity measurements, with bias increasing linearly with noise level.
-- Saturation inflates asymmetry measurements, with a strong positive correlation.
-- Calibration functions successfully reduce residual bias to non-significant levels.
+This document describes the scientific methodology, experimental design, and results of the study on how data artifacts (noise and saturation) bias the measurement of planetary nebula morphology parameters.
 
-## Methodology
+## Research Questions
 
-### Data Generation
-- **Synthetic Nebulae**: Generated 50 synthetic planetary nebulae using Gaussian profiles with central stars. [UNRESOLVED-CLAIM: c_9e1def18 — status=not_enough_info] Ground-truth ellipticity and asymmetry were recorded.
-- **Artifacts Injected**:
- - **Noise**: Gaussian noise at levels 0.01, 0.05, 0.10.
- - **Saturation**: Clipping fractions from 0.00 to 0.50 in 0.05 increments.
+1. How does Gaussian noise bias ellipticity measurements?
+2. Does pixel-level saturation systematically inflate the asymmetry index?
+3. Can we derive calibration functions to correct these biases?
 
-### Metrics
-- **Ellipticity**: Calculated using second-order moments.
-- **Asymmetry**: Calculated using the Conselice (2003) A-statistic with robust centering.
+## Experimental Design
+
+### Synthetic Data Generation
+
+We generate synthetic planetary nebulae with known ground-truth ellipticity and asymmetry using a Gaussian profile model:
+- **Profile**: 2D Gaussian with FWHM=2px
+- **Central Star**: Point source added to center
+- **Ellipticity**: Randomized within defined ranges
+- **Asymmetry**: Randomized within defined ranges
+- **Sample Size**: N=50 images (see power analysis in `data/validation/power_analysis_report.md`)
+
+Ground truth is saved to `data/synthetic/gt_metadata.json` for reproducibility.
+
+### Artifact Injection
+
+#### Noise Sweep (User Story 1)
+- **Levels**: σ = {0.01, 0.05, 0.10}
+- **Method**: Gaussian noise injection
+- **Metric**: Ellipticity (second-order moments)
+- **Output**: `data/processed/noise_sweep_data.csv`
+
+#### Saturation Sweep (User Story 2)
+- **Range**: 0.0 to 0.5 in 0.05 increments (per T037a decision)
+- **Method**: Pixel-level clipping of brightest pixels
+- **Metric**: Asymmetry (Conselice 2003 A-statistic)
+- **Output**: `data/processed/saturation_sweep.csv`
 
 ### Statistical Analysis
-- **Regression**: Linear regression with Bonferroni correction to link artifact magnitude to bias.
-- **Power Analysis**: Post-hoc check to verify n=50 achieves ≥80% power for observed effect sizes.
-- **Cross-Validation**: Train-test split to ensure calibration functions generalize.
 
-## Results
+#### Regression Models
+- **Method**: Linear regression with Bonferroni correction
+- **Input**: Artifact magnitude vs. parameter deviation
+- **Output**: Coefficients, p-values, significance flags
+- **Files**: `data/processed/noise_stats.csv`, `data/processed/saturation_stats.csv`
 
-### Noise-Induced Bias on Ellipticity
-- **Trend**: Bias increases linearly with noise level (σ).
-- **Regression**: Significant slope (p < 0.05) indicating noise systematically inflates ellipticity.
-- **Correction**: Derived linear model reduces residual bias to near-zero.
+#### Model Selection
+- **Criterion**: Akaike Information Criterion (AIC)
+- **Models**: Linear vs. quadratic
+- **Implementation**: `code/analysis/regression.py`
 
-### Saturation-Induced Bias on Asymmetry
-- **Trend**: Bias increases with saturation fraction.
-- **Regression**: Significant positive slope (p < 0.05) confirming saturation inflates asymmetry.
-- **Correction**: Polynomial model (selected via AIC) effectively corrects bias.
+### Validation
 
-### Calibration Functions
-- **Ellipticity Model**: Linear correction based on noise level.
-- **Asymmetry Model**: Polynomial correction based on saturation fraction.
-- **Validation**: Residual bias after correction is statistically non-significant.
+#### Quantitative Validation
+- **Method**: Apply inverse correction and compute residual bias
+- **Metric**: Statistical significance of residual (t-test)
+- **Cross-Validation**: Train-test split to test generalization
+- **Output**: `data/processed/validation_results.csv`
+
+#### Qualitative Validation
+- **Data**: Real HST images (NGC 7009, NGC 6543)
+- **Source**: MAST archive via `astroquery.mast`
+- **Criteria**: Bipolar/elliptical morphology, calibrated flux, valid WCS
+- **Output**: `data/validation/validation_report.md`
 
 ### Power Analysis
-- **Sample Size**: n=50 images.
-- **Power**: ≥80% for observed effect sizes (Cohen's d).
-- **Limitations**: Documented in `data/validation/power_analysis_report.md`.
+- **Goal**: Verify n=50 achieves ≥80% power for effect size
+- **Method**: Post-hoc limit check using observed Cohen's d
+- **Parameters**: α=0.05, test_type='two-sample t-test'
+- **Output**: `data/validation/power_analysis_report.md`
+- **Limitation Handling**: If power < 80%, document limitation and continue
 
-## Validation
+## Results Summary
 
-- **Synthetic Validation**: Quantitative validation confirms calibration functions reduce bias.
-- **Real HST Validation**: Qualitative validation using real HST images (NGC 7009, NGC 6543) confirms morphology preservation. See `data/validation/validation_report.md`.
+### Noise-Induced Bias on Ellipticity
+
+The noise sweep experiment quantified how Gaussian noise levels bias ellipticity measurements.
+
+**Key Findings**:
+- Bias increases linearly with noise sigma [UNRESOLVED-CLAIM: c_ed7bc0ac — status=not_enough_info]
+- Regression coefficients and p-values in `data/processed/noise_stats.csv`
+- Correction function derived in `data/processed/calibration_functions.json`
+
+### Saturation-Induced Bias on Asymmetry
+
+The saturation sweep experiment determined if pixel-level saturation systematically inflates the asymmetry index.
+
+**Key Findings**:
+- Bias increases with saturation fraction [UNRESOLVED-CLAIM: c_d7926a93 — status=not_enough_info]
+- Edge cases (saturation > 0.5) handled with warnings
+- Regression results in `data/processed/saturation_stats.csv`
+
+### Calibration Functions
+
+Final correction models are saved to `data/processed/calibration_functions.json`:
+```json
+{
+ "ellipticity_model": {
+ "type": "linear",
+ "coefficients": [...],
+ "aic":...
+ },
+ "asymmetry_model": {
+ "type": "linear",
+ "coefficients": [...],
+ "aic":...
+ }
+}
+```
 
 ## Limitations
 
-- **Sample Size**: n=50 may limit generalizability to extreme artifact levels.
-- **Synthetic Data**: Ground truth is based on idealized models; real nebulae may exhibit more complex structures.
-- **Power Analysis**: If power < 80%, limitations are documented but pipeline continues.
+### Sample Size
+- N=50 synthetic images
+- Power analysis conducted in `data/validation/power_analysis_report.md`
+- If power < 80%, limitation is explicitly documented
 
-## Conclusion
+### Synthetic Data
+- Ground truth is known, but synthetic models may not capture all real-world complexities
+- Qualitative validation with real HST images provides partial mitigation
 
-Data artifacts (noise and saturation) introduce significant, systematic bias in planetary nebula morphology measurements. Calibration functions derived from synthetic data effectively correct for these biases, improving measurement accuracy. Future work should expand sample size and incorporate more realistic nebula models.
+### Edge Cases
+- Extreme noise (σ > 0.10) and saturation (> 0.5) are logged and skipped
+- See `code/synthetic/artifacts.py` for edge-case handling
+
+## Reproducibility
+
+### Run Manifest
+Every execution generates `data/processed/run_manifest.json` with:
+- Git commit hash
+- Environment variables (PYTHON_VERSION, PATH)
+- Full artifact parameter set
+- Timestamp
+
+### Code Versioning
+- All code is version-controlled via Git
+- Commit hash recorded in manifest
+- See `docs/decisions/001-saturation-range.md` for key parameter decisions
+
+### Data Checksums
+- All FITS images and metadata files include checksums
+- See `code/io/writer.py` for checksum computation
 
 ## References
 
-- Conselice, C. J. (2003). The relationship between stellar light distributions of galaxies and their formation histories.
-- Constitution Principles I, IV, VII (Project Internal)
+1. Conselice, C. J. (2003). The Relationship between Stellar Light Distribution and Galaxy Morphology. *The Astrophysical Journal Supplement Series*, 147(1), 1-28.
+2. Decision Document: `docs/decisions/001-saturation-range.md` (saturation range 0.0-0.5)
+3. Constitution Principles: I (Reproducibility), IV (Ground Truth), VII (Qualitative Validation)
 
-## Artifacts
+## Next Steps
 
-- **Data**: `data/processed/noise_sweep_data.csv`, `data/processed/saturation_sweep.csv`
-- **Statistics**: `data/processed/noise_stats.csv`, `data/processed/saturation_stats.csv`
-- **Models**: `data/processed/calibration_functions.json`
-- **Reports**: `docs/reports/001-final-bias-analysis.md`, `data/validation/power_analysis_report.md`
+1. Extend analysis to additional artifact types (e.g., PSF blurring)
+2. Increase sample size if power analysis indicates limitation
+3. Validate calibration functions on real astronomical data
+4. Integrate correction functions into standard image analysis pipelines

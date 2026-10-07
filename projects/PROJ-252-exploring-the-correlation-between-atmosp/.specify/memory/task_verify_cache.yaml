@@ -6,14 +6,6 @@ T009:
     (`earthquake.schema.yaml` and `pressure-anomaly.schema.yaml`) are absent from
     the repository. Both the test logic and the dependent schema artifacts are missing,
     so the task is not genuinely fulfilled.
-T010:
-  c: false
-  h: a3101941e9676702982ca9a9e5688aa9e8282c8fc3933d6a72d883eb9691ec55
-  r: The `tests/integration/test_download_pipeline.py` file is present but truncated
-    (e.g., the `required_fields` string is incomplete) and cannot run correctly. Moreover,
-    the required `data/processed/config.yaml` file, which should define `expected_earthquake_count`
-    (12), is missing entirely, so the test cannot obtain the expected count. Both
-    artifacts needed to satisfy the task are absent or malformed.
 T013a:
   c: false
   h: f9b7a4f8e8a9da3c86954e649cd1047b8ea41ce2275ade219509f80b2d0418f4
@@ -23,19 +15,20 @@ T013a:
     Without the function and/or the mask file, the task requirement is not satisfied.
 T013b:
   c: false
-  h: b35547c11b850f2adfb40ff98595908ccd4735b198afc836c9edbfc0d7b4715b
-  r: "The repository lacks an `apply_ocean_mask()` implementation in `code/preprocess.py`\
-    \ (the file is truncated and does not contain such a function), and the required\
-    \ output file `data/interim/masked_events.csv` is absent. Consequently the task\u2019\
-    s core functionality and expected artifact are not present."
+  h: cad0893f6a66e7e7a179ae555cf6dc459bb2e415719dce200f9f77e97af13a3d
+  r: "The repository lacks the required output file `data/interim/masked_events.csv`,\
+    \ and the shown portion of `code/preprocess.py` does not contain an `apply_ocean_mask()`\
+    \ implementation (the file is truncated before any such function). Consequently\
+    \ the task\u2019s core functionality\u2014loading the land mask, computing reliability,\
+    \ filtering events, and writing the filtered CSV\u2014is not present. The missing\
+    \ CSV and absent/unfinished function must be added to satisfy the requirement."
 T013c:
   c: false
-  h: 470bd822dc758ca0ef42ced613c90cbf8c2d43b5ff0e77e9cefdccb772d90c04
-  r: "The repository lacks the required output file `data/interim/clean_events.csv`,\
-    \ and the shown portion of `code/preprocess.py` does not contain an `exclude_missing_pressure()`\
-    \ implementation (the file is truncated before any such function could appear).\
-    \ Consequently the task\u2019s core functionality and its expected output are\
-    \ missing."
+  h: 5cb06a5dfa24dfa1cf9759bb407f781ba6075060a50cfa4392ea6c35a4bffe3d
+  r: "The repository\u2019s `code/preprocess.py` does not contain an `exclude_missing_pressure()`\
+    \ implementation (the file is truncated before any such function appears), and\
+    \ the required output file `data/interim/clean_events.csv` is absent. Both the\
+    \ core function and its expected output are missing, so the task is not fulfilled."
 T016:
   c: false
   h: 16108849caf57c05b2226f25fdf2ccec29937f1b4baf267d4de854e605f459a1

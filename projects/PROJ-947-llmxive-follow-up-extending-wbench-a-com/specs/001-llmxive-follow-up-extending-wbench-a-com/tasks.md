@@ -102,14 +102,14 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T018 [P] [US2] Unit test for RAM profiling utility in `tests/unit/inference/test_runner.py`
-- [ ] T019 [P] [US2] Integration test for single-case inference with a CPU-compatible model in `tests/integration/inference/test_inference.py`
+- [X] T019 [P] [US2] Integration test for single-case inference with a CPU-compatible model in `tests/integration/inference/test_inference.py`
 
 ### Implementation for User Story 2
 
 - [X] T020 [P] [US2] Implement `code/inference/models.py` to register and validate CPU-only models (<7GB RAM) from HuggingFace
 - [ ] T021 [US2] Implement `code/inference/runner.py` with pre-flight RAM profiling; skip models exceeding GB limit. **Logic**: If video generation fails or exceeds RAM, use pre-validated CPU-compatible model metrics (proxy) or skip; DO NOT generate synthetic data. **Output**: Log error/skip. If proxy used, append row to `data/processed/inference_results.csv` with `status='proxy'` and NaN scores. **Verify**: Unit test: mock OOM error; assert CSV row exists with NaN scores.
 - [ ] T022 [US2] Implement logic to handle inference failures. **Output**: Append row to `data/processed/inference_results.csv` with `status='failed'`, `error_msg` column, and NaN scores. **Verify**: Unit test: mock OOM error; assert CSV row exists with NaN scores.
-- [ ] T023 [US2] Create pipeline script `code/inference/run_inference.py` to process a set of cases × 3 variants × N models
+- [X] T023 [US2] Create pipeline script `code/inference/run_inference.py` to process a set of cases × 3 variants × N models
 - [ ] T024 [US2] Ensure at least 3 valid models are loaded before proceeding; raise error if fewer are available
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -124,13 +124,13 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T025 [P] [US3] Unit test for ANOVA and trend analysis in `tests/unit/analysis/test_correlation.py`
-- [ ] T026 [P] [US3] Unit test for Bonferroni correction logic in `tests/unit/analysis/test_correction.py`
+- [X] T025 [P] [US3] Unit test for ANOVA and trend analysis in `tests/unit/analysis/test_correlation.py`
+- [X] T026 [P] [US3] Unit test for Bonferroni correction logic in `tests/unit/analysis/test_correction.py`
 
 ### Implementation for User Story 3
 
 - [ ] T027a [US3] Implement `code/metrics/baseline.py` to generate a random-noise video and calculate the motion artifact baseline score. **Output**: `data/processed/baseline_scores.json` with the baseline value. **Verify**: Unit test with known noise input.
-- [ ] T027b [US3] Implement `code/metrics/wbench_suite.py` to calculate physics compliance and temporal consistency scores. **Requirement**: MUST subtract the motion artifact baseline (from T027a) from raw scores (per FR-004). **Output**: `data/processed/fidelity_metrics.csv` with columns [case_id, physics_score, consistency_score, baseline_subtracted]. **Verify**: Unit test with known baseline subtraction logic.
+- [~] T027b [US3] Implement `code/metrics/wbench_suite.py` to calculate physics compliance and temporal consistency scores. **Requirement**: MUST subtract the motion artifact baseline (from T027a) from raw scores (per FR-004). **Output**: `data/processed/fidelity_metrics.csv` with columns [case_id, physics_score, consistency_score, baseline_subtracted]. **Verify**: Unit test with known baseline subtraction logic.
 - [ ] T028 [US3] Implement `code/analysis/correlation.py` to perform **ANOVA with trend analysis** (per Plan & FR-005). **Constraint**: Do NOT implement Pearson correlation for discrete groups. **Output**: Intermediate stats CSV with F-statistic, p-value, and trend direction. **Verify**: Unit test: assert trend direction matches input data.
 - [ ] T029 [US3] Implement `code/analysis/correction.py` for Bonferroni correction across N models (controlling family-wise error rate). **Requirement**: MUST integrate corrected p-values into the final output CSV. **Verify**: Unit test: assert corrected p-value < 0.05 triggers significance flag (SC-003).
 - [ ] T030 [US3] Create pipeline script `code/analysis/run_analysis.py` to merge results, compute statistics, and output final CSVs

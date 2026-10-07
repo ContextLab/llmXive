@@ -3510,3 +3510,402 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-01T09:49:31Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/README.md
+  attempts: 1
+  canonical: asymmetry metric defined by Conselice 2003
+  claim_id: c_3fd39126
+  context: 'Metric Calculation (`code/metrics/`): Computes ellipticity (second-order
+    moments) and asymmetry (Conselice 2003). Statistical Analysis (`code/analysis/`):
+    Performs regression analysis to quantify bias and derive calibration functions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Metric Calculation (`code/metrics/`): Computes ellipticity (second-order
+    moments) and asymmetry (Conselice 2003).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T13:14:05Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/README.md
+  attempts: 1
+  canonical: NGC 7009 and NGC 6543 are real HST images used for qualitative validation
+  claim_id: c_55611bd0
+  context: 'Validation - Qualitative: Real HST images (NGC 7009, NGC 6543) validated
+    against known morphologies (see `data/validation/`). Quantitative: Synthetic data
+    with known ground truth used to measure bias.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Qualitative: Real HST images (NGC 7009, NGC 6543) validated against known
+    morphologies (see `data/validation/`).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T13:14:37Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/research.md
+  attempts: 1
+  canonical: synthetic planetary nebulae generated with 2D Gaussian profile FWHM 2px
+  claim_id: c_b63772c4
+  context: 'We generate synthetic planetary nebulae with known ground-truth ellipticity
+    and asymmetry using a Gaussian profile model: Profile: 2D Gaussian with FWHM=2px
+    Central Star: Point source added to center'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_planetary_nebulae_generated_with_2D_Gaussian_profi
+  kind: entity_fact
+  raw_text: 'We generate synthetic planetary nebulae with known ground-truth ellipticity
+    and asymmetry using a Gaussian profile model: Profile: 2D Gaussian with FWHM=2px'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T13:15:29Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/research.md
+  attempts: 1
+  canonical: sample size of 50 synthetic images
+  claim_id: c_c58cd2ed
+  context: 'Ellipticity: Randomized within defined ranges Asymmetry: Randomized within
+    defined ranges Sample Size: N=50 images (see power analysis in data/validation/power_analysis_report.md)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Sample Size: N=50 images'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T13:16:29Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/research.md
+  attempts: 1
+  canonical: noise levels tested at sigma 0.01, 0.05, and 0.10
+  claim_id: c_45be2a4d
+  context: "Noise Sweep (User Story 1) Levels: \u03C3 = {0.01, 0.05, 0.10} Method:\
+    \ Gaussian noise injection Metric: Ellipticity (second-order moments)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Noise Levels: \u03C3 = {0.01, 0.05, 0.10}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T13:16:52Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/research.md
+  attempts: 1
+  canonical: saturation range tested from 0.0 to 0.5 in 0.05 increments
+  claim_id: c_11de8f18
+  context: 'Saturation Sweep (User Story 2) Range: 0.0 to 0.5 in 0.05 increments (per
+    T037a decision) Method: Pixel-level clipping of brightest pixels'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Saturation Range: 0.0 to 0.5 in 0.05 increments'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T13:17:19Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/research.md
+  attempts: 1
+  canonical: asymmetry measured using Conselice 2003 A-statistic
+  claim_id: c_926f85c2
+  context: 'Saturation Sweep (User Story 2) Range: 0.0 to 0.5 in 0.05 increments (per
+    T037a decision) Method: Pixel-level clipping of brightest pixels Metric: Asymmetry
+    (Conselice 2003 A-statistic)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Metric: Asymmetry (Conselice 2003 A-statistic)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T13:17:37Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/research.md
+  attempts: 1
+  canonical: qualitative validation used HST images of NGC 7009 and NGC 6543
+  claim_id: c_dd2263a3
+  context: 'Qualitative Validation Data: Real HST images (NGC 7009, NGC 6543) Source:
+    MAST archive via astroquery.mast Criteria: Bipolar/elliptical morphology, calibrated
+    flux, valid WCS'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Qualitative Validation Data: Real HST images (NGC 7009, NGC 6543)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T13:17:58Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/research.md
+  attempts: 1
+  canonical: HST images sourced from MAST archive
+  claim_id: c_2dcb8903
+  context: 'Qualitative Validation Data: Real HST images (NGC 7009, NGC 6543) Source:
+    MAST archive via astroquery.mast Criteria: Bipolar/elliptical morphology, calibrated
+    flux, valid WCS'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HST_images_sourced_from_MAST_archive
+  kind: entity_fact
+  raw_text: 'Source: MAST archive via astroquery.mast'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T13:18:48Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/research.md
+  attempts: 1
+  canonical: power analysis goal to verify 50 samples achieve 80% power
+  claim_id: c_88682a80
+  context: "Power Analysis Goal: Verify n=50 achieves \u226580% power for effect size\
+    \ Method: Post-hoc limit check using observed Cohen's d Parameters: \u03B1=0.05,\
+    \ test_type='two-sample t-test'"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Goal: Verify n=50 achieves \u226580% power for effect size"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T13:19:20Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/research.md
+  attempts: 1
+  canonical: power analysis used alpha 0.05 and two-sample t-test
+  claim_id: c_9e15e0ba
+  context: "Goal: Verify n=50 achieves \u226580% power for effect size Method: Post-hoc\
+    \ limit check using observed Cohen's d Parameters: \u03B1=0.05, test_type='two-sample\
+    \ t-test' Output: data/validation/power_analysis_report.md"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Parameters: \u03B1=0.05, test_type='two-sample t-test'"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T13:19:49Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/research.md
+  attempts: 1
+  canonical: ellipticity bias increases linearly with noise sigma
+  claim_id: c_ed7bc0ac
+  context: 'Key Findings: Bias increases linearly with noise sigma Regression coefficients
+    and p-values in data/processed/noise_stats.csv Correction function derived in
+    data/processed/calibration_functions.json'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ellipticity_bias_increases_linearly_with_noise_sigma
+  kind: entity_fact
+  raw_text: Bias increases linearly with noise sigma
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T13:20:18Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/research.md
+  attempts: 1
+  canonical: asymmetry bias increases with saturation fraction
+  claim_id: c_d7926a93
+  context: 'Key Findings: Bias increases with saturation fraction Edge cases (saturation
+    > 0.5) handled with warnings Regression results in data/processed/saturation_stats.csv'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Asymmetry_bias_increases_with_saturation_fraction
+  kind: entity_fact
+  raw_text: Bias increases with saturation fraction
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T13:20:43Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Acquire 2 to 5 real HST images for qualitative validation
+  claim_id: c_4a61de42
+  context: 'T009 [S] CRITICAL: Acquire, vet, checksum, and process a small set (minimum
+    2, up to 5) of real HST images (MAST) for qualitative validation only as required
+    by Constitution Principle VII. Targets: Prefer NGC 7009 (Saturn Nebula), NGC 6543
+    (Cat''s Eye).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Acquire, vet, checksum, and process a small set (minimum 2, up to 5) of
+    real HST images (MAST) for qualitative validation only as required by Constitution
+    Principle VII.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T13:21:55Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Preferred HST targets are NGC 7009 and NGC 6543; fallback is NGC 6572
+  claim_id: c_6a67d70e
+  context: 'T009 [S] CRITICAL: Acquire, vet, checksum, and process a small set (minimum
+    2, up to 5) of real HST images (MAST) for qualitative validation only as required
+    by Constitution Principle VII. Targets: Prefer NGC 7009 (Saturn Nebula), NGC 6543
+    (Cat''s Eye). Fallback: If validation fails, use NGC 6572.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Targets: Prefer NGC 7009 (Saturn Nebula), NGC 6543 (Cat''s Eye). Fallback:
+    If validation fails, use NGC 6572.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T13:23:08Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Generate default set of 50 synthetic planetary nebulae
+  claim_id: c_c3eb408e
+  context: 'T006a [S] CRITICAL: Create code/synthetic/generator.py to generate a configurable
+    set of N synthetic planetary nebulae (default N=50, defined in code/config.py)
+    with known ground-truth ellipticity and asymmetry (no GPU, CPU-only).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create code/synthetic/generator.py to generate a configurable set of N
+    synthetic planetary nebulae (default N=50, defined in code/config.py) with known
+    ground-truth ellipticity and asymmetry (no GPU, CPU-only).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T13:23:24Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Synthetic nebulae use Gaussian profile with FWHM of 2 pixels
+  claim_id: c_11ad67a4
+  context: 'T006a [S] CRITICAL: Create code/synthetic/generator.py to generate a configurable
+    set of N synthetic planetary nebulae (default N=50, defined in code/config.py)
+    with known ground-truth ellipticity and asymmetry (no GPU, CPU-only). Algorithm:
+    Use a Gaussian profile with FWHM=2px, add a central star (point source), and randomize
+    ellipticity (within a defined range starting from a lower bound) and asymmetry
+    (within a defined range) within defined ranges.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a Gaussian profile with FWHM=2px, add a central star (point source),
+    and randomize ellipticity and asymmetry within defined ranges.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T13:23:50Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Noise levels set to 0.01, 0.05, and 0.10; saturation range 0.0 to 0.5
+    in 0.05 increments
+  claim_id: c_3db258ca
+  context: 'T004 [P] Create code/config.py with pinned random seeds, default paths,
+    and concrete artifact parameters: noise levels {0.01, 0.05, 0.10}, saturation
+    range 0.0 to 0.5 in 0.05 increments (FR-002, FR-003, SC-003).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Configure concrete artifact parameters: noise levels {0.01, 0.05, 0.10},
+    saturation range 0.0 to 0.5 in 0.05 increments.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T13:24:20Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Verify sample size of 50 achieves at least 80% power
+  claim_id: c_96d2a371
+  context: "T030 [S] US3 Power Analysis and Cross-Validation: Implement code/analysis/power_analysis.py\
+    \ to perform a Post-hoc Limitation Check verifying n=50 achieves \u226580% power\
+    \ for effect size. Parameters: alpha=0.05, test_type='two-sample t-test', effect_size='Cohen's\
+    \ d'."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_sample_size_of_50_achieves_at_least_80%25_power
+  kind: magnitude
+  raw_text: "Perform a Post-hoc Limitation Check verifying n=50 achieves \u226580%\
+    \ power for effect size."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T13:25:52Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Full sensitivity sweep runtime under 4 hours on 2 CPU cores
+  claim_id: c_13dfdc35
+  context: 'T034 [P] Performance optimization: Ensure full sensitivity sweep runs
+    < 4 hours on 2 CPU cores'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure full sensitivity sweep runs < 4 hours on 2 CPU cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T13:25:52Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Power analysis uses alpha 0.05 and power 0.80
+  claim_id: c_f212e4fa
+  context: 'T052 [US3] Formalize Power Analysis Output: Update code/analysis/power_analysis.py
+    to explicitly calculate and report the ''Minimum Detectable Effect Size'' (MDES)
+    given the n=50 constraint using statsmodels.stats.power.TTestIndPower with alpha=0.05,
+    power=0.80, and the observed effect size.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use statsmodels.stats.power.TTestIndPower with alpha=0.05, power=0.80,
+    and the observed effect size.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T13:26:16Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/specs/001-quantifying-the-impact-of-data-artifacts/tasks.md
+  attempts: 1
+  canonical: Asymmetry calculation follows Conselice 2003 definition
+  claim_id: c_a9d87a27
+  context: 'T019 [P] [US2] Unit test for asymmetry calculation in tests/unit/test_asymmetry.py:
+    Function test_asymmetry_conselice asserting that the A-statistic matches the Conselice
+    (2003) definition (FR-004).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Asymmetry calculation must match the Conselice (2003) definition.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T13:26:33Z'
