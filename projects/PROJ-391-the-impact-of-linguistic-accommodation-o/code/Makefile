@@ -1,28 +1,29 @@
-# Makefile for linting and formatting tasks
-# Usage:
-#   make format       -> Run black to format code
-#   make lint         -> Run ruff to check for linting errors
-#   make check        -> Run both lint and format checks (dry run)
-#   make fix          -> Run lint and format to fix issues automatically
+.PHONY: lint format test clean
 
-.PHONY: format lint check fix clean
-
-format:
-	black code/ tests/
-
+# Lint the codebase
 lint:
-	ruff check code/ tests/
+	@echo "Running linters..."
+	@bash scripts/lint.sh
 
-check:
-	black --check code/ tests/
-	ruff check code/ tests/
+# Format the codebase
+format:
+	@echo "Running formatters..."
+	@bash scripts/format.sh
 
-fix:
-	black code/ tests/
-	ruff check --fix code/ tests/
+# Run tests
+test:
+	@echo "Running tests..."
+	pytest tests/ -v
 
+# Clean up generated files
 clean:
-	find . -type d -name "__pycache__" -exec rm -rf {} +
+	@echo "Cleaning up..."
+	find . -type d -name __pycache__ -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete
-	find . -type d -name ".ruff_cache" -exec rm -rf {} +
-	find . -type d -name ".pytest_cache" -exec rm -rf {} +
+	find . -type f -name "*.pyo" -delete
+	find . -type d -name .pytest_cache -exec rm -rf {} +
+	find . -type d -name htmlcov -exec rm -rf {} +
+	rm -rf .coverage
+
+# Default target
+all: lint format test

@@ -1,1 +1,2 @@
-# Placeholder for model artifacts
+# This file ensures the artifacts directory exists in git.
+# It should be empty.

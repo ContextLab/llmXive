@@ -1706,45 +1706,6 @@
   status: not_enough_info
   updated_at: '2026-08-21T19:34:34Z'
 - artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 2
-  canonical: Power analysis reports achieved power greater than or equal to 0.8
-  claim_id: c_52fdd255
-  context: "Independent Test: Feed mock paired datasets; verify p-values are calculated\
-    \ correctly and power analysis reports required n \u2265 38 and The power analysis\
-    \ reports achieved power \u2265 0.8."
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Power_analysis_reports_achieved_power_greater_than_or_equal
-  kind: magnitude
-  raw_text: "The power analysis reports achieved power \u2265 0.8."
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-21T19:34:36Z'
-- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 1
-  canonical: Power analysis reports required sample size greater than or equal to
-    38
-  claim_id: c_dedabd1d
-  context: "Independent Test: Feed mock paired datasets; verify p-values are calculated\
-    \ correctly and power analysis reports required n \u2265 38 and The power analysis\
-    \ reports achieved power \u2265 0.8."
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Power_analysis_reports_required_sample_size_greater_than_or
-  kind: magnitude
-  raw_text: "The power analysis reports required n \u2265 38."
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-21T19:34:38Z'
-- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   attempts: 1
   canonical: Fixed sample size N equals 164 for study design
   claim_id: c_2ec7aacb
@@ -3518,22 +3479,6 @@
   status: not_enough_info
   updated_at: '2026-10-02T22:54:14Z'
 - artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 1
-  canonical: Primary model is Salesforce/codegen-mono-4b
-  claim_id: c_c1721e97
-  context: 'Implement code/generate_code.py to load Primary Model: Salesforce/codegen-mono-4b
-    (-bit quantized) on CPU.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The Salesforce/codegen-mono-4b model is the primary model for code generation.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-10-02T22:54:15Z'
-- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   attempts: 2
   canonical: CodeLlama model has 3 billion parameters
   claim_id: c_d3b6e4f7
@@ -3665,3 +3610,284 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-02T22:58:32Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset contains 164 tasks
+  claim_id: c_82486cb5
+  context: 'Independent Test: Run the pipeline on the full HumanEval dataset. Verify
+    the following: 1. data/analysis/metrics.json exists and contains cyclomatic_complexity,
+    halstead_volume, branch_coverage_potential, dynamic_branch_coverage, and pass_rate
+    for all tasks (unfiltered).'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 'Run the pipeline on the full HumanEval dataset (Wikipedia: Language model
+    benchmark, https://en.wikipedia.org/wiki/Language_model_benchmark).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-07T03:28:26Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset contains 164 tasks
+  claim_id: c_b1e6c8e1
+  context: 'Aggregation (Full Sample): Implement aggregation in code/analyze_metrics.py
+    to produce data/analysis/metrics.json containing ALL 164 tasks (unfiltered, including
+    those with pass_rate < 0.80). Used for Primary Analysis to avoid selection bias.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement aggregation in code/analyze_metrics.py to produce data/analysis/metrics.json
+    containing ALL 164 tasks (unfiltered, including those with pass_rate < 0.80).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T03:31:44Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset contains 164 tasks
+  claim_id: c_c485a9b3
+  context: 'Sensitivity Analysis (MDES & Achieved Power): Implement Minimum Detectable
+    Effect Size (MDES) calculation in code/statistical_tests.py for the fixed sample
+    size N=164, alpha=0.05, power=0.80.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Minimum Detectable Effect Size (MDES) calculation in code/statistical_tests.py
+    for the fixed sample size N=164, alpha=0.05, power=0.80.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T03:35:05Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset contains 164 tasks
+  claim_id: c_ffac9242
+  context: 'Additional Requirement: Implement Achieved Power (post-hoc) calculation
+    with 95% Confidence Intervals based on the actual observed effect sizes and the
+    full sample size N=164.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Achieved Power (post-hoc) calculation with 95% Confidence Intervals
+    based on the actual observed effect sizes and the full sample size N=164.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T03:35:18Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 3
+  canonical: Power analysis reports achieved power greater than or equal to 0.8
+  claim_id: c_52fdd255
+  context: "Independent Test: Feed mock paired datasets; verify p-values are calculated\
+    \ correctly and power analysis reports required n \u2265 38 and The power analysis\
+    \ reports achieved power \u2265 0.8."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_reports_achieved_power_greater_than_or_equal
+  kind: magnitude
+  raw_text: "The power analysis reports achieved power \u2265 0.8."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T03:35:28Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 2
+  canonical: Power analysis reports required sample size greater than or equal to
+    38
+  claim_id: c_dedabd1d
+  context: "Independent Test: Feed mock paired datasets; verify p-values are calculated\
+    \ correctly and power analysis reports required n \u2265 38 and The power analysis\
+    \ reports achieved power \u2265 0.8."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_reports_required_sample_size_greater_than_or
+  kind: magnitude
+  raw_text: "The power analysis reports required n \u2265 38."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T03:35:35Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: CodeLlama model has 3 billion parameters
+  claim_id: c_ba6d9139
+  context: 'Verification: The script MUST verify that the loaded model has a parameter
+    count consistent with the target scale (3B parameters) and matches the pinned
+    repository/commit; if mismatch, raise an error to ensure CPU feasibility and reproducibility
+    compliance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script MUST verify that the loaded model has a parameter count consistent
+    with the target scale (3B parameters).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T03:35:41Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset commit SHA is d82884567991811251419242208479796794843
+  claim_id: c_4ecca6e4
+  context: 'Implementation: Use datasets.load_dataset(..., revision=''d82884567991811251419242208479796794843'')
+    to fetch, convert the resulting Dataset object to a pandas.DataFrame, and use
+    df.to_parquet(''data/raw/humaneval.parquet'').'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HumanEval_dataset_commit_SHA_is_d828845679918112514192422084
+  kind: entity_fact
+  raw_text: Use the specific commit SHA revision='d82884567991811251419242208479796794843'
+    to fetch the HumanEval dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T03:35:50Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Wilcoxon Signed-Rank test uses alpha 0.05
+  claim_id: c_673b4bf7
+  context: 'Parameters: Use a two-tailed test with alpha=0.05 (Wikipedia: P-value,
+    https://en.wikipedia.org/wiki/P-value).'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.6113'
+      source_id: Wilcoxon signed-rank test
+      url: https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test
+      value: '0.6113'
+    filled: true
+  kind: numeric
+  raw_text: Use a two-tailed Wilcoxon Signed-Rank test with alpha=0.05.
+  resolved_value: '0.6113'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-07T03:35:59Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 0
+  canonical: HumanEval dataset commit SHA d82884567991811251419242208479796794843
+  claim_id: c_9ee175a3
+  context: Use datasets.load_dataset(..., revision='d82884567991811251419242208479796794843')
+    to fetch, convert the resulting Dataset object to a pandas.DataFrame, and use
+    df.to_parquet('data/raw/humaneval.parquet').
+  evidence:
+    entailment_evidence: HumanEval commit SHA d82884567991811251419242208479796794843
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/HumanEval_commit_SHA_d82884567991811251419242208479796794843
+  kind: entity_fact
+  raw_text: The commit SHA for the HumanEval dataset is d82884567991811251419242208479796794843.
+  resolved_value: HumanEval commit SHA d82884567991811251419242208479796794843
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-07T03:36:18Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 2
+  canonical: Primary model is Salesforce/codegen-mono-4b
+  claim_id: c_c1721e97
+  context: 'Implement code/generate_code.py to load Primary Model: Salesforce/codegen-mono-4b
+    (-bit quantized) on CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Salesforce/codegen-mono-4b model is the primary model for code generation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T03:38:38Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: CodeLlama model has 3 billion parameters
+  claim_id: c_5095746b
+  context: Verify that the loaded model has a parameter count consistent with the
+    target scale (3B parameters) and matches the pinned repository/commit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CodeLlama model used for sensitivity analysis has 3 billion parameters.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T03:38:48Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: CodeLlama model from TheBloke/CodeLlamab-Instruct-GGUF
+  claim_id: c_395a598e
+  context: Implement code/generate_code_llama.py to generate code samples using a
+    quantized CodeLlama model (specifically from repository TheBloke/CodeLlamab-Instruct-GGUF,
+    commit hash main or specific commit if pinned).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CodeLlama_model_from_TheBloke/CodeLlamab-Instruct-GGUF
+  kind: entity_fact
+  raw_text: The CodeLlama model is sourced from the repository TheBloke/CodeLlamab-Instruct-GGUF.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T03:38:53Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Power analysis achieved power >= 0.8
+  claim_id: c_2d57566c
+  context: "Verify p-values are calculated correctly and power analysis reports required\
+    \ n \u2265 38 and The power analysis reports achieved power \u2265 0.8."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_achieved_power_%3E=_0.8
+  kind: magnitude
+  raw_text: The power analysis reports achieved power greater than or equal to 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T03:39:00Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Power analysis required sample size >= 38
+  claim_id: c_d0f23426
+  context: "Verify p-values are calculated correctly and power analysis reports required\
+    \ n \u2265 38 and The power analysis reports achieved power \u2265 0.8."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_required_sample_size_%3E=_38
+  kind: magnitude
+  raw_text: The power analysis reports a required sample size of at least 38.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T03:39:07Z'

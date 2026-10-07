@@ -51,8 +51,13 @@ def compute_descriptors(df: pd.DataFrame) -> pd.DataFrame:
     formulas = df['formula'].tolist()
     
     # Compute descriptors
-    descriptors_df = magpie.compute(formulas)
-    
+    # Magpie.compute returns a DataFrame with descriptor columns
+    try:
+        descriptors_df = magpie.compute(formulas)
+    except Exception as e:
+        logger.error(f"Error computing descriptors: {e}")
+        raise
+
     # Ensure index matches original dataframe
     descriptors_df.index = df.index
     

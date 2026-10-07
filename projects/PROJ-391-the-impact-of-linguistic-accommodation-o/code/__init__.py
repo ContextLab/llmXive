@@ -1,2 +1,1 @@
-# llmXive Project: Linguistic Accommodation and Speaker Emotional Intensity
-# Package initialization for code modules
+# llmXive Research Pipeline: Core Code Package

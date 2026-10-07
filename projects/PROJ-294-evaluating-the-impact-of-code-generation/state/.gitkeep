@@ -1,3 +1,2 @@
-# This directory is reserved for state tracking artifacts (validation results, citations, hashes, etc.)
-# Distinct from data/ (raw/processed) and results/ (reports/figures).
+# This directory is reserved for project state files (e.g., citations.yaml, artifact_hashes.yaml).
 # Created by task T001b.

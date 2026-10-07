@@ -97,7 +97,7 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.1037/R42259-000
   verified_at: '2026-08-17T23:15:32.671748Z'
-- artifact_hash: d3d34c960d7d344b1bc7a38deb18feb72f05e046417b2da9fff5d6f109810c88
+- artifact_hash: 0a7b543a0bcee3625a996265fd52f7029c7b91a4e89eca97e2d5437b8df36fa5
   artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -108,8 +108,8 @@
   value: https://arxiv.org/abs/2302.05330
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2302.05330
-  verified_at: '2026-10-02T22:45:15.433189Z'
-- artifact_hash: d3d34c960d7d344b1bc7a38deb18feb72f05e046417b2da9fff5d6f109810c88
+  verified_at: '2026-10-07T03:36:02.984991Z'
+- artifact_hash: 0a7b543a0bcee3625a996265fd52f7029c7b91a4e89eca97e2d5437b8df36fa5
   artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -119,8 +119,8 @@
   value: https://en.wikipedia.org/wiki/Language_model_benchmark
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Language_model_benchmark
-  verified_at: '2026-10-02T22:45:15.433189Z'
-- artifact_hash: d3d34c960d7d344b1bc7a38deb18feb72f05e046417b2da9fff5d6f109810c88
+  verified_at: '2026-10-07T03:36:02.984991Z'
+- artifact_hash: 0a7b543a0bcee3625a996265fd52f7029c7b91a4e89eca97e2d5437b8df36fa5
   artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -130,8 +130,8 @@
   value: https://en.wikipedia.org/wiki/P-value
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/P-value
-  verified_at: '2026-10-02T22:45:15.433189Z'
-- artifact_hash: d3d34c960d7d344b1bc7a38deb18feb72f05e046417b2da9fff5d6f109810c88
+  verified_at: '2026-10-07T03:36:02.984991Z'
+- artifact_hash: 0a7b543a0bcee3625a996265fd52f7029c7b91a4e89eca97e2d5437b8df36fa5
   artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   cite_id: c-004
   cited_authors: []
@@ -141,4 +141,4 @@
   value: https://en.wikipedia.org/wiki/Misuse_of_p-values
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Misuse_of_p-values
-  verified_at: '2026-10-02T22:45:15.433189Z'
+  verified_at: '2026-10-07T03:36:02.984991Z'

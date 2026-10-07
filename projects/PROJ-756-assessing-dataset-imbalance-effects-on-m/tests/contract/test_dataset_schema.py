@@ -59,16 +59,17 @@ class TestDataSchemaValidation(unittest.TestCase):
         df = pd.read_parquet(descriptors_path)
         
         # Check required columns based on schema
-        # Note: The schema defines 'property', 'composition', 'target_value', 'descriptors'
-        # We check if these columns (or similar) exist.
+        # The schema defines structure for the dataset
         required_columns = self.schema.get('required', [])
         
-        # For a parquet file with descriptors, we expect specific columns.
-        # We'll check for the presence of key columns.
-        expected_cols = ['composition', 'target_value'] # At minimum
+        # Validate that all required columns from schema are present
+        missing_cols = []
+        for col in required_columns:
+            if col not in df.columns:
+                missing_cols.append(col)
         
-        for col in expected_cols:
-            self.assertIn(col, df.columns, f"Column '{col}' must be present in descriptors data.")
+        if missing_cols:
+            self.fail(f"Missing required columns from schema: {missing_cols}")
 
     def test_data_types(self):
         """Test that data types are correct."""
@@ -81,10 +82,34 @@ class TestDataSchemaValidation(unittest.TestCase):
         
         df = pd.read_parquet(descriptors_path)
         
-        # Check 'target_value' is numeric
+        # Check 'target_value' is numeric if present
         if 'target_value' in df.columns:
             self.assertTrue(pd.api.types.is_numeric_dtype(df['target_value']), 
                             "Column 'target_value' must be numeric.")
+        
+        # Check 'composition' is string if present
+        if 'composition' in df.columns:
+            self.assertTrue(df['composition'].dtype == object or pd.api.types.is_string_dtype(df['composition']),
+                            "Column 'composition' must be string type.")
+
+    def test_no_null_values_in_required_fields(self):
+        """Test that required fields do not contain null values."""
+        if not self.schema:
+            self.skipTest("Schema not loaded.")
+        
+        descriptors_path = self.processed_dir / "descriptors.parquet"
+        if not descriptors_path.exists():
+            self.skipTest("Descriptors file not found.")
+        
+        df = pd.read_parquet(descriptors_path)
+        
+        # Get required columns from schema
+        required_columns = self.schema.get('required', [])
+        
+        for col in required_columns:
+            if col in df.columns:
+                null_count = df[col].isnull().sum()
+                self.assertEqual(null_count, 0, f"Column '{col}' contains {null_count} null values.")
 
 if __name__ == '__main__':
     unittest.main()

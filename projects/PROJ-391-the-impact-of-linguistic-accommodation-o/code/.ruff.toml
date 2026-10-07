@@ -1,0 +1,38 @@
+# Ruff configuration for llmXive project
+# Linter settings
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex (handled by separate complexity check)
+]
+
+# Per-file ignores
+[per-file-ignores]
+"code/data/ingestion.py" = ["E402"] # Allow imports after comments in data script
+
+# Line length (should match black)
+line-length = 88
+
+# Target Python version
+target-version = "py39"
+
+# Exclude directories
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv",
+    "data/raw",
+    "data/processed",
+    "outputs",
+    "build",
+    "dist",
+]

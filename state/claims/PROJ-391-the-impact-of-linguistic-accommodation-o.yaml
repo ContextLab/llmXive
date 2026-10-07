@@ -1,0 +1,54 @@
+- artifact_path: projects/PROJ-391-the-impact-of-linguistic-accommodation-o/specs/001-the-impact-of-linguistic-accommodation-o/tasks.md
+  attempts: 1
+  canonical: DailyDialog dataset contains explicit topic labels
+  claim_id: c_cee7a38f
+  context: 'T036a [US3] [FR-007] Extract raw topic labels from the DailyDialog dataset
+    (column `topic`) for regression control. **Note**: Spec FR-007 mentions ''LDA
+    cluster ID'', but DailyDialog provides explicit topic labels.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DailyDialog_dataset_contains_explicit_topic_labels
+  kind: entity_fact
+  raw_text: DailyDialog provides explicit topic labels.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T04:03:51Z'
+- artifact_path: projects/PROJ-391-the-impact-of-linguistic-accommodation-o/specs/001-the-impact-of-linguistic-accommodation-o/tasks.md
+  attempts: 1
+  canonical: 'DailyDialog emotion to intensity mapping: Joy 5, Sadness 2, Anger 1,
+    Fear 2, Surprise 4, Disgust 1, Neutral 3'
+  claim_id: c_4d34f8e0
+  context: 'T028 [US2] Implement `code/analysis/emotion_mapping.py`: Apply emotion-to-intensity
+    mapping rule (Joy=5, Sadness=2, Anger=1, Fear=2, Surprise=4, Disgust=1, Neutral=3)
+    (FR-003)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Emotion-to-intensity mapping rule: Joy=5, Sadness=2, Anger=1, Fear=2,
+    Surprise=4, Disgust=1, Neutral=3'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T04:03:58Z'
+- artifact_path: projects/PROJ-391-the-impact-of-linguistic-accommodation-o/specs/001-the-impact-of-linguistic-accommodation-o/tasks.md
+  attempts: 1
+  canonical: 'Cohen thresholds for effect size: 0.1 small, 0.3 medium, 0.5 large'
+  claim_id: c_f78b0691
+  context: 'T044 [US3] Implement `code/analysis/stats.py`: Calculate effect sizes
+    and interpret against **Cohen''s thresholds** (0.1 small, 0.3 medium, 0.5 large).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Cohen''s thresholds: 0.1 small, 0.3 medium, 0.5 large'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T04:04:03Z'
