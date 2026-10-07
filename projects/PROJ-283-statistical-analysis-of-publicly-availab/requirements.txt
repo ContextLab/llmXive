@@ -8,5 +8,6 @@ seaborn
 requests
 datasets
 pytest
-pyarrow
-scipy
+memory-profiler
+line-profiler
+pyyaml

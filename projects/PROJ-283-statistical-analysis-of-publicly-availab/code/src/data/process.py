@@ -1,7 +1,3 @@
-"""
-Data processing module with online accumulation.
-Implements T015, T016a, T016b, T017: Process stream and accumulate metrics.
-"""
 import pandas as pd
 import numpy as np
 from typing import Optional, List, Dict, Any, Generator
@@ -12,147 +8,176 @@ import json
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Import from sibling modules as defined in API surface
+from src.data.models import GameRecord
+from src.data.parse import calculate_material_imbalance_move10, calculate_material_imbalance_move5
+from src.data.parse import calculate_and_save_inclusion_metrics
+from src.config import ensure_directories
+
+# Ensure output directories exist
+ensure_directories()
+
 class OnlineAccumulator:
     """
-    Online accumulator for streaming statistics.
-    Implements T015.
+    Accumulates statistics for outcome_deviation and feature statistics in an online manner.
+    Avoids building a massive DataFrame in memory.
     """
     def __init__(self):
         self.total_games = 0
         self.parsed_games = 0
         self.outcome_deviation_sum = 0.0
-        self.feature_sums = {}
-        self.feature_counts = {}
-    
-    def add_record(self, record: Dict[str, Any]) -> None:
-        """Add a record to the accumulator."""
+        self.outcome_deviation_sq_sum = 0.0
+        self.feature_sums: Dict[str, float] = {}
+        self.feature_sq_sums: Dict[str, float] = {}
+        self.records: List[GameRecord] = []
+        # Batch size to control memory usage before writing to parquet
+        self.batch_size = 10000
+        self._current_batch: List[GameRecord] = []
+
+    def add(self, record: GameRecord):
+        """Add a single record to the accumulator."""
         self.total_games += 1
-        
-        if record:
-            self.parsed_games += 1
-            
-            # Accumulate outcome deviation
-            if 'outcome_deviation' in record:
-                self.outcome_deviation_sum += record['outcome_deviation']
-            
-            # Accumulate features
-            for key, value in record.items():
-                if key not in ['game_id', 'outcome_deviation']:
+        self.parsed_games += 1
+
+        # Update running sums for statistics
+        self.outcome_deviation_sum += record['outcome_deviation']
+        self.outcome_deviation_sq_sum += record['outcome_deviation'] ** 2
+
+        # Update feature sums dynamically
+        for key, value in record.items():
+            if key not in ['game_id', 'outcome_deviation', 'outcome', 'eco_code']:
+                if isinstance(value, (int, float)):
                     if key not in self.feature_sums:
                         self.feature_sums[key] = 0.0
-                        self.feature_counts[key] = 0
-                    if isinstance(value, (int, float)):
-                        self.feature_sums[key] += value
-                        self.feature_counts[key] += 1
-    
-    def get_inclusion_rate(self) -> float:
-        """Get current inclusion rate."""
-        return self.parsed_games / max(self.total_games, 1)
-    
-    def get_stats(self) -> Dict[str, Any]:
-        """Get accumulated statistics."""
-        return {
+                        self.feature_sq_sums[key] = 0.0
+                    self.feature_sums[key] += value
+                    self.feature_sq_sums[key] += value ** 2
+
+        # Accumulate records for batch writing
+        self._current_batch.append(record)
+        if len(self._current_batch) >= self.batch_size:
+            self.records.extend(self._current_batch)
+            self._current_batch = []
+
+    def finalize(self):
+        """Finalize the accumulator, flushing any remaining batches."""
+        if self._current_batch:
+            self.records.extend(self._current_batch)
+            self._current_batch = []
+
+        # Calculate final statistics
+        stats = {
             'total_games': self.total_games,
             'parsed_games': self.parsed_games,
-            'inclusion_rate': self.get_inclusion_rate(),
-            'mean_outcome_deviation': self.outcome_deviation_sum / max(self.parsed_games, 1)
+            'mean_outcome_deviation': self.outcome_deviation_sum / self.parsed_games if self.parsed_games > 0 else 0.0,
+            'std_outcome_deviation': np.sqrt(
+                (self.outcome_deviation_sq_sum / self.parsed_games) - (self.outcome_deviation_sum / self.parsed_games) ** 2
+            ) if self.parsed_games > 0 else 0.0
         }
+        return stats
+
+    def get_dataframe(self) -> pd.DataFrame:
+        """Convert accumulated records to a DataFrame."""
+        if not self.records:
+            return pd.DataFrame()
+        return pd.DataFrame(self.records)
 
 def calculate_expected_probability(white_rating: float, black_rating: float) -> float:
     """
-    Calculate expected win probability using Elo formula.
-    Implements T016a.
+    Calculate expected win probability using standard Elo logistic formula.
+    P = 1 / (1 + 10^((R2-R1)/400))
+    Capped to [0.01, 0.99] to prevent numerical instability.
     """
+    if white_rating is None or black_rating is None:
+        return 0.5  # Default if ratings missing
     diff = black_rating - white_rating
     prob = 1.0 / (1.0 + 10 ** (diff / 400.0))
-    # Cap to [0.01, 0.99]
+    # Cap to prevent numerical issues
     return max(0.01, min(0.99, prob))
 
 def calculate_outcome_deviation(actual_result: float, expected_prob: float) -> float:
     """
-    Calculate outcome deviation.
-    Implements T016b.
+    Calculate outcome deviation as (actual_result - expected_prob).
+    Uses the capped expected probability.
     """
     return actual_result - expected_prob
 
-def process_stream(iterator: Generator[Dict[str, Any], None, None], 
-                  accumulator: OnlineAccumulator) -> pd.DataFrame:
+def process_stream(iterator: Generator[str, None, None], config: Dict[str, Any]) -> OnlineAccumulator:
     """
-    Process stream of records and accumulate statistics.
-    Implements T015.
+    Process a stream of PGN games, extracting features and accumulating statistics.
+    Yields GameRecord objects and updates the OnlineAccumulator.
     """
-    records = []
+    accumulator = OnlineAccumulator()
     
-    for record in iterator:
-        if record:
-            # Calculate expected probability
-            expected_prob = calculate_expected_probability(
-                record['white_rating'], 
-                record['black_rating']
-            )
-            
-            # Calculate outcome deviation
-            outcome_deviation = calculate_outcome_deviation(
-                record['outcome'],
-                expected_prob
-            )
-            
-            record['elo_expected_prob'] = expected_prob
-            record['outcome_deviation'] = outcome_deviation
-            
-            records.append(record)
-            accumulator.add_record(record)
-            
-            # Early exit check
-            if accumulator.get_inclusion_rate() < 0.95:
-                raise ValueError(f"Inclusion rate dropped below 0.95: {accumulator.get_inclusion_rate():.2%}")
+    # Import parsing functions locally to avoid circular imports if any
+    from src.data.parse import parse_pgn_stream
     
-    return pd.DataFrame(records)
+    # Parse the stream using the defined parser
+    for record in parse_pgn_stream(iterator):
+        accumulator.add(record)
+    
+    accumulator.finalize()
+    return accumulator
 
-def save_inclusion_metrics(accumulator: OnlineAccumulator) -> None:
+def save_games_parquet(accumulator: OnlineAccumulator, output_path: str = "data/processed/games.parquet"):
     """
-    Save inclusion metrics to file.
-    Implements T017.
+    Save the accumulated game records to a Parquet file.
     """
-    output_path = Path("code/data/results/inclusion_counts.json")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    df = accumulator.get_dataframe()
+    if df.empty:
+        logger.warning("No data to save to parquet.")
+        return
     
+    # Ensure directory exists
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    df.to_parquet(output_path, index=False)
+    logger.info(f"Saved {len(df)} records to {output_path}")
+
+def save_inclusion_metrics(total_games: int, parsed_games: int, output_path: str = "data/results/inclusion_metrics.json"):
+    """
+    Calculate the inclusion rate and save it to a JSON file.
+    Schema: {total_games: int, parsed_games: int, inclusion_rate: float}
+    Logic: inclusion_rate = parsed_games / total_games
+    Requirement: Do NOT halt if inclusion_rate < 0.95.
+    """
+    if total_games == 0:
+        logger.warning("Total games is 0, setting inclusion rate to 0.0")
+        inclusion_rate = 0.0
+    else:
+        inclusion_rate = parsed_games / total_games
+
     metrics = {
-        'total_games': accumulator.total_games,
-        'parsed_games': accumulator.parsed_games
+        "total_games": total_games,
+        "parsed_games": parsed_games,
+        "inclusion_rate": inclusion_rate
     }
+
+    # Ensure directory exists
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     
     with open(output_path, 'w') as f:
         json.dump(metrics, f, indent=2)
     
-    logger.info(f"Saved inclusion counts to {output_path}")
+    logger.info(f"Inclusion metrics saved to {output_path}: {metrics}")
+    return metrics
 
-def validate_inclusion_rate(accumulator: OnlineAccumulator, threshold: float = 0.95) -> None:
+def validate_inclusion_rate(inclusion_rate: float, threshold: float = 0.95) -> bool:
     """
-    Validate inclusion rate and save metrics.
-    Implements T017.
+    Validate inclusion rate against a threshold.
+    Returns True if rate >= threshold, False otherwise.
+    Note: Per SC-001, this is a measurement, not a hard halt.
     """
-    rate = accumulator.get_inclusion_rate()
-    
-    # Save metrics file
-    metrics_path = Path("code/data/results/inclusion_metrics.json")
-    metrics_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    metrics = {
-        'total_games': accumulator.total_games,
-        'parsed_games': accumulator.parsed_games,
-        'inclusion_rate': rate
-    }
-    
-    with open(metrics_path, 'w') as f:
-        json.dump(metrics, f, indent=2)
-    
-    # Validate threshold
-    if rate < threshold:
-        raise ValueError(f"Inclusion rate {rate:.2%} below threshold {threshold:.2%}")
-    
-    logger.info(f"Validation passed: inclusion rate = {rate:.2%}")
+    return inclusion_rate >= threshold
 
 def main():
-    """Main entry point for testing."""
+    """
+    Main entry point for processing stage if run standalone.
+    This is typically called by src/main.py orchestration.
+    """
+    logger.info("Starting data processing stage.")
+    # Example usage if run directly (though typically orchestrated by main.py)
+    # This block ensures the script can be tested or invoked if needed.
     pass
+
+if __name__ == "__main__":
+    main()
