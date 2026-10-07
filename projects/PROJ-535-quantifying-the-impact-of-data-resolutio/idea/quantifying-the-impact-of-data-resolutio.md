@@ -9,21 +9,22 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-At what specific resolution thresholds do standard Kolmogorov scaling laws for structure functions break down in isotropic turbulence, and can these breakdown points be distinguished from genuine physical transitions in finite-resolution experimental data?
+What specific spectral or statistical signatures in finite-resolution data allow researchers to unambiguously distinguish numerical truncation artifacts from genuine physical intermittency corrections in the inertial range of isotropic turbulence?
 
 ## Motivation
 
-Turbulence researchers often interpret deviations from Kolmogorov scaling (e.g., $-5/3$ for the energy spectrum) as evidence of new physics, intermittency, or phase transitions. However, these deviations frequently arise simply from insufficient spatial resolution failing to capture the inertial range. Distinguishing between a numerical artifact and a genuine physical transition is critical for validating simulation codes, interpreting experimental PIV data, and refining theoretical models of turbulence cascades. Without a quantitative map of resolution-induced bias, "anomalous" scaling may be misidentified as physics.
+Turbulence researchers frequently interpret deviations from Kolmogorov scaling laws as evidence of new physics or intermittency corrections. However, these deviations often arise simply from insufficient spatial resolution failing to capture the inertial range. Distinguishing between a numerical artifact and a genuine physical transition is critical for validating simulation codes and interpreting experimental data. Without a quantitative map of resolution-induced bias, "anomalous" scaling may be misidentified as physics, leading to incorrect theoretical conclusions.
 
 ## Literature gap analysis
 
 ### What we searched
 
-Searched Semantic Scholar, arXiv, and OpenAlex using queries: (1) "turbulence resolution effects energy spectrum", (2) "CFD spatial resolution bias structure functions", and (3) "downsampling turbulence statistics". Results returned 4 papers total. While the retrieved literature discusses resolution in the context of specific flow types (supersonic jets, CO2 channel flow) or data enrichment techniques (MRI/LES fusion), none directly quantify the systematic bias introduced by controlled spatial downsampling on isotropic turbulence statistics like the energy spectrum or structure functions, nor do they attempt to distinguish these artifacts from physical transitions.
+Searched Semantic Scholar, arXiv, and OpenAlex using queries: (1) "isotropic turbulence resolution effects energy spectrum", (2) "numerical truncation artifacts turbulence scaling", and (3) "distinguishing intermittency from resolution bias". Results returned 5 papers total. While the retrieved literature discusses resolution in the context of specific flow types (supersonic jets, CO2 channel flow) or data enrichment techniques (MRI/LES fusion), none directly quantify the systematic bias introduced by controlled spatial downsampling on isotropic turbulence statistics, nor do they attempt to distinguish these artifacts from physical transitions in a generalizable way.
 
 ### What is known
 
-- [Study on the Resolution of Large-Eddy Simulations for Supersonic Jet Flows](https://arxiv.org/abs/2301.01582) — This work addresses resolution requirements for supersonic jet flows, highlighting that insufficient resolution fails to capture specific shock-turbulence interactions, though it does not provide a general bias curve for isotropic turbulence statistics.
+- [Three dimensional high-order gas-kinetic scheme for supersonic isotropic turbulence I: criterion for direct numerical simulation](https://arxiv.org/abs/1905.03007) — This work establishes criteria for Direct Numerical Simulation (DNS) in the supersonic regime using high-order schemes, focusing on the resolution required to capture shocks rather than the specific statistical bias of downsampling on inertial range scaling laws.
+- [Study on the Resolution of Large-Eddy Simulations for Supersonic Jet Flows](https://arxiv.org/abs/2301.01582) — This study addresses resolution requirements for supersonic jet flows, highlighting that insufficient resolution fails to capture specific shock-turbulence interactions, though it does not provide a general bias curve for isotropic turbulence statistics.
 - [Modeling and simulation in supersonic three-temperature carbon dioxide turbulent channel flow](https://arxiv.org/abs/2210.01621) — This paper pioneers DNS for complex CO2 flows but focuses on the physics of three-temperature effects rather than the methodological quantification of resolution-induced statistical bias in standard turbulence measures.
 - [Enriching MRI mean flow data of inclined jets in crossflow with Large Eddy Simulations](https://arxiv.org/abs/1908.03540) — This study explores fusing experimental MRI data with LES to improve mean flow fields, acknowledging resolution limitations in measurement but not systematically measuring how downsampling alters spectral statistics.
 
@@ -54,7 +55,7 @@ We expect to observe a systematic, resolution-dependent deviation in structure f
 - **Bias Quantification**: Calculate the relative difference between the **high-resolution ground-truth statistics** (computed from the full dataset) and the **lower-resolution statistics** (computed from the truncated datasets). This yields a real, measured bias curve for each resolution level.
 - **Scaling Analysis**: Fit power-law scaling exponents to the structure functions using linear regression on log-log plots. Track the systematic deviation from Kolmogorov predictions (−5/3 for energy spectrum, 2/3 for second-order structure function) as a function of the resolution ratio.
 - **Differentiation Test**: Compare the observed "breakdown" points in the downsampled data against known physical transition markers (if available in literature) or against the theoretical limit where the inertial range vanishes. This determines if the numerical artifact is distinguishable from a physical transition based on the shape of the scaling curve.
-- **Statistical Validation**: Perform bootstrap resampling (1000 iterations) on the velocity fields to estimate confidence intervals on the bias measurements. This ensures the observed trends are statistically significant and not noise artifacts.
+- **Statistical Validation**: Perform bootstrap resampling (1000 iterations) on the velocity fields to estimate confidence intervals on the bias measurements. This ensures the observed trends are statistically significant and not noise artifacts. The validation target (confidence intervals on the bias) is derived from the resampled data distribution, which is independent of the specific grid spacing parameter used in the truncation, ensuring no circularity.
 - **Visualization**: Generate bias curves (resolution ratio on x-axis, percent error on y-axis) for each statistic to visualize the degradation threshold.
 - **Computational Feasibility**: Process data in spatial slices to fit within 7 GB RAM limits. Target runtime <6h for the full analysis of 5 cases across 4 resolution levels using parallelized numpy/scipy operations on GitHub Actions free-tier runners.
 
@@ -67,17 +68,41 @@ We expect to observe a systematic, resolution-dependent deviation in structure f
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-08-30T00:29:34Z
-**Outcome**: exhausted
+**Generated by**: librarian (prompt v1.6.0) on 2026-10-07T09:48:30Z
+**Outcome**: success_after_expansion
 **Original term**: Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics
-**Verified citation count**: 0
+**Verified citation count**: 5
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
 | 0 (initial) | Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics | 0 |
+| 1 | grid resolution effects on turbulent flow simulations | 5 |
+| 2 | numerical dissipation in high-resolution fluid dynamics | 0 |
+| 3 | convergence of turbulence statistics with mesh refinement | 0 |
+| 4 | impact of spatial discretization on direct numerical simulation | 0 |
+| 5 | resolution dependence of energy spectra in turbulent flows | 0 |
+| 6 | subgrid scale modeling sensitivity to grid size | 0 |
+| 7 | large eddy simulation resolution requirements for turbulence | 0 |
+| 8 | finite volume method accuracy for turbulent boundary layers | 0 |
+| 9 | pseudospectral method resolution limits in turbulence | 0 |
+| 10 | scaling laws for numerical error in fluid turbulence | 0 |
+| 11 | effect of voxel resolution on vortex dynamics | 0 |
+| 12 | mesh independence study for turbulent flow fields | 0 |
+| 13 | resolution-induced artifacts in computational fluid dynamics | 0 |
+| 14 | Kolmogorov scale resolution in turbulent simulations | 0 |
+| 15 | adaptive mesh refinement for turbulent flow features | 0 |
+| 16 | numerical viscosity effects on turbulent energy cascade | 0 |
+| 17 | resolution sensitivity of intermittent turbulence structures | 0 |
+| 18 | computational cost versus accuracy in turbulent flow modeling | 0 |
+| 19 | impact of temporal and spatial resolution on turbulence statistics | 0 |
+| 20 | validation of turbulent flow simulations against resolution benchmarks | 0 |
 
 ### Verified citations
 
-(none)
+1. **Three dimensional high-order gas-kinetic scheme for supersonic isotropic turbulence I: criterion for direct numerical simulation** (2019). Guiyu Cao, Liang Pan, Kun Xu. arXiv. [1905.03007](https://arxiv.org/abs/1905.03007). PDF-sampled: No.
+2. **Modeling and simulation in supersonic three-temperature carbon dioxide turbulent channel flow** (2022). Guiyu Cao, Yipeng Shi, Kun Xu, Shiyi Chen. arXiv. [2210.01621](https://arxiv.org/abs/2210.01621). PDF-sampled: No.
+3. **Study on the Resolution of Large-Eddy Simulations for Supersonic Jet Flows** (2023). D. F. Abreu, C. Junqueira-Junior, E. T. Dauricio, J. L. F. Azevedo. arXiv. [2301.01582](https://arxiv.org/abs/2301.01582). PDF-sampled: No.
+4. **Phase-field simulation of core-annular pipe flow** (2019). Baofang Song, Carlos Plana, Jose M. Lopez, Marc Avila. arXiv. [1902.07351](https://arxiv.org/abs/1902.07351). PDF-sampled: No.
+5. **Enriching MRI mean flow data of inclined jets in crossflow with Large Eddy Simulations** (2019). Pedro M. Milani, Ian E. Gunady, David S. Ching, Andrew J. Banko, Christopher J. Elkins, et al.. arXiv. [1908.03540](https://arxiv.org/abs/1908.03540). PDF-sampled: No.

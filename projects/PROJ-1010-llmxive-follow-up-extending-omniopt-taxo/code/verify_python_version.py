@@ -1,54 +1,55 @@
 """
-Verify that the current Python environment is version 3.11 or higher.
+Verify Python 3.11+ availability for the llmXive research pipeline.
 
-This script is a prerequisite check for the llmXive project.
-It exits with code 0 if the version is valid, or code 1 if not.
+This script checks that the current Python environment meets the
+minimum version requirement (3.11) and reports the executable path.
 """
 import sys
 import subprocess
+from typing import Tuple, Optional
 
-MIN_MAJOR = 3
-MIN_MINOR = 11
-
-def check_version() -> bool:
-    """Check if the running Python interpreter meets the minimum version requirement."""
-    current_major = sys.version_info.major
-    current_minor = sys.version_info.minor
-
-    if current_major > MIN_MAJOR:
-        return True
-    if current_major == MIN_MAJOR and current_minor >= MIN_MINOR:
-        return True
-    
-    return False
+MIN_VERSION = (3, 11)
 
 def get_python_executable() -> str:
-    """Attempt to find the 'python3' executable in the PATH."""
-    try:
-        result = subprocess.run(
-            ["python3", "--version"], 
-            capture_output=True, 
-            text=True, 
-            check=True
-        )
-        return result.stdout.strip()
-    except subprocess.CalledProcessError:
-        return "python3 not found in PATH"
-    except FileNotFoundError:
-        return "python3 command not found"
+    """Return the path to the current Python executable."""
+    return sys.executable
+
+def check_version() -> Tuple[bool, str]:
+    """
+    Check if the current Python version meets the minimum requirement.
+    
+    Returns:
+        Tuple of (is_valid, message)
+    """
+    current_version = sys.version_info[:2]
+    version_str = f"{current_version[0]}.{current_version[1]}"
+    min_version_str = f"{MIN_VERSION[0]}.{MIN_VERSION[1]}"
+    
+    if current_version >= MIN_VERSION:
+        return True, f"Python {version_str} meets minimum requirement ({min_version_str})"
+    else:
+        return False, f"Python {version_str} is below minimum requirement ({min_version_str})"
 
 def main() -> int:
-    """Main entry point for the version verification script."""
-    print(f"Current Python executable: {sys.executable}")
-    print(f"Current Python version: {sys.version}")
+    """
+    Main entry point for version verification.
     
-    if not check_version():
-        print(f"ERROR: Python version {sys.version_info.major}.{sys.version_info.minor} is too old.")
-        print(f"Requirement: Python {MIN_MAJOR}.{MIN_MINOR} or higher.")
+    Returns:
+        Exit code: 0 for success, 1 for failure
+    """
+    executable = get_python_executable()
+    is_valid, message = check_version()
+    
+    print(f"Python Executable: {executable}")
+    print(f"Current Version: {sys.version}")
+    print(f"Verification Result: {message}")
+    
+    if is_valid:
+        print("✓ Version check PASSED")
+        return 0
+    else:
+        print("✗ Version check FAILED")
         return 1
-    
-    print(f"SUCCESS: Python version {sys.version_info.major}.{sys.version_info.minor} meets the requirement (>= {MIN_MAJOR}.{MIN_MINOR}).")
-    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

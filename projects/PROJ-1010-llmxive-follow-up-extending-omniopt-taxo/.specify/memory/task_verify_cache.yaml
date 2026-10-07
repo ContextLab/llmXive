@@ -20,12 +20,11 @@ T001c:
     has not been demonstrated.
 T002a:
   c: false
-  h: 84da2529c9fb6d9d50ed5be1d4c3b6b3c55967d407428ad0458dbbc69a91909a
+  h: 3f199242c3f6278c2653b52ad63649802f8861682f9f4bd3037aaec3f88afe06
   r: "The required file at `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/code/requirements.txt`\
-    \ does not exist, and the provided `requirements.txt` (in a different location)\
-    \ lists unpinned package names and even includes extra packages (`ruff`, `black`)\
-    \ not requested. The task\u2019s specification for a correctly\u2011located, pinned\
-    \ requirements file is therefore not satisfied."
+    \ does not exist, and the only `requirements.txt` found is in a different location\
+    \ and uses non\u2011pinned \u201C>=\u201D version specifiers plus extra packages\
+    \ not requested. The task\u2019s specific artifact is missing."
 T002b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -40,3 +39,17 @@ T003:
     \ ruff and black, a `.ruff.toml`, or a pre\u2011commit hook) or any evidence of\
     \ them being added to `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/code/`\
     \ were provided. The required artifacts are missing, so the task is not satisfied."
+T011:
+  c: false
+  h: ace595a2b116037cf799d84a962591e24fe728e70ed4ca396479adfcaef1d9e5
+  r: "The required unit test file `tests/unit/test_data_loader.py` is missing from\
+    \ the repository, so no test code exists to verify the streaming data loader\u2019\
+    s failure behavior. The task cannot be considered done until the file is present\
+    \ and contains the appropriate test implementation."
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `spectral_extractor.py` file or any related code, data, or output was provided
+    for inspection, and there is no evidence that models were selected from HuggingFace
+    or that gradient covariance was computed on TinyImageNet. The required artifact
+    is missing, so the task is not satisfied.

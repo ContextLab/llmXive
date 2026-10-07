@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-30T00:28:52Z",
+  "fetched_at": "2026-10-07T09:48:30Z",
   "field": "physics",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,123 +9,104 @@
       "idea_body_excerpt": "Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence",
       "target_n": 5
     },
-    "duration_seconds": 184.115,
-    "ended_at": "2026-08-30T00:28:52Z",
+    "duration_seconds": 36.792,
+    "ended_at": "2026-10-07T09:48:30Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "Grid resolution effects on turbulent flow simulation"
+          "grid resolution effects on turbulent flow simulations"
         ],
         [
           2,
-          "Spatial discretization impact on turbulence modeling"
+          "numerical dissipation in high-resolution fluid dynamics"
         ],
         [
           3,
-          "Mesh convergence study for fluid dynamics turbulence"
+          "convergence of turbulence statistics with mesh refinement"
         ],
         [
           4,
-          "Numerical resolution sensitivity in large eddy simulation"
+          "impact of spatial discretization on direct numerical simulation"
         ],
         [
           5,
-          "Effect of grid spacing on turbulent kinetic energy spectra"
+          "resolution dependence of energy spectra in turbulent flows"
         ],
         [
           6,
-          "Resolution dependence of direct numerical simulation turbulence"
+          "subgrid scale modeling sensitivity to grid size"
         ],
         [
           7,
-          "Subgrid scale modeling sensitivity to resolution"
+          "large eddy simulation resolution requirements for turbulence"
         ],
         [
           8,
-          "Computational grid size influence on turbulent mixing"
+          "finite volume method accuracy for turbulent boundary layers"
         ],
         [
           9,
-          "High-resolution vs low-resolution fluid turbulence comparison"
+          "pseudospectral method resolution limits in turbulence"
         ],
         [
           10,
-          "Numerical dissipation effects on resolved turbulence scales"
+          "scaling laws for numerical error in fluid turbulence"
         ],
         [
           11,
-          "Impact of temporal and spatial resolution on flow statistics"
+          "effect of voxel resolution on vortex dynamics"
         ],
         [
           12,
-          "Turbulence cascade accuracy at varying grid resolutions"
+          "mesh independence study for turbulent flow fields"
         ],
         [
           13,
-          "Finite volume resolution effects on turbulent structures"
+          "resolution-induced artifacts in computational fluid dynamics"
         ],
         [
           14,
-          "Spectral convergence of turbulent flow simulations"
+          "Kolmogorov scale resolution in turbulent simulations"
         ],
         [
           15,
-          "Resolution requirements for capturing inertial subrange"
+          "adaptive mesh refinement for turbulent flow features"
         ],
         [
           16,
-          "Grid-induced errors in turbulent flow predictions"
+          "numerical viscosity effects on turbulent energy cascade"
         ],
         [
           17,
-          "Adaptive mesh refinement impact on turbulence resolution"
+          "resolution sensitivity of intermittent turbulence structures"
         ],
         [
           18,
-          "Scale-resolving simulation resolution sensitivity"
+          "computational cost versus accuracy in turbulent flow modeling"
         ],
         [
           19,
-          "Influence of discretization error on turbulent transport"
+          "impact of temporal and spatial resolution on turbulence statistics"
         ],
         [
           20,
-          "Optimal grid resolution for turbulent flow computation"
+          "validation of turbulent flow simulations against resolution benchmarks"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
-        "Adaptive mesh refinement impact on turbulence resolution": 0,
-        "Computational grid size influence on turbulent mixing": 0,
-        "Effect of grid spacing on turbulent kinetic energy spectra": 0,
-        "Finite volume resolution effects on turbulent structures": 0,
-        "Grid resolution effects on turbulent flow simulation": 0,
-        "Grid-induced errors in turbulent flow predictions": 0,
-        "High-resolution vs low-resolution fluid turbulence comparison": 0,
-        "Impact of temporal and spatial resolution on flow statistics": 0,
-        "Influence of discretization error on turbulent transport": 0,
-        "Mesh convergence study for fluid dynamics turbulence": 0,
-        "Numerical dissipation effects on resolved turbulence scales": 0,
-        "Numerical resolution sensitivity in large eddy simulation": 0,
-        "Optimal grid resolution for turbulent flow computation": 0,
         "Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics": 0,
-        "Resolution dependence of direct numerical simulation turbulence": 0,
-        "Resolution requirements for capturing inertial subrange": 0,
-        "Scale-resolving simulation resolution sensitivity": 0,
-        "Spatial discretization impact on turbulence modeling": 0,
-        "Spectral convergence of turbulent flow simulations": 0,
-        "Subgrid scale modeling sensitivity to resolution": 0,
-        "Turbulence cascade accuracy at varying grid resolutions": 0
+        "grid resolution effects on turbulent flow simulations": 5
       },
-      "total_queries_issued": 20
+      "total_queries_issued": 1
     },
     "extracted_queries": [
-      "grid independence spectral slope energy cascade",
-      "direct numerical simulation DNS Reynolds number grid spacing",
-      "lattice Boltzmann method LES subgrid scale modeling",
-      "turbulence kinetic energy dissipation rate Kolmogorov scale",
-      "numerical dissipation artificial viscosity discretization error"
+      "grid independence Reynolds number convergence",
+      "LES DNS Kolmogorov scale resolution",
+      "spectral energy cascade inertial range",
+      "numerical dissipation turbulence kinetic energy decay",
+      "subgrid scale modeling truncation error"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -134,28 +115,36 @@
       "invoked": true,
       "verdict": false
     },
-    "outcome": "exhausted",
+    "outcome": "success_after_expansion",
     "pdf_sample": {
-      "sample_size_target": 0,
-      "sampled_count": 0,
-      "sampled_pointers": []
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1905.03007"
+      ]
     },
     "per_query_hit_count": {
+      "LES DNS Kolmogorov scale resolution": 3,
       "Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics": 3,
-      "direct numerical simulation DNS Reynolds number grid spacing": 0,
-      "grid independence spectral slope energy cascade": 0,
-      "lattice Boltzmann method LES subgrid scale modeling": 0,
-      "numerical dissipation artificial viscosity discretization error": 0,
-      "turbulence kinetic energy dissipation rate Kolmogorov scale": 0
+      "grid independence Reynolds number convergence": 3,
+      "numerical dissipation turbulence kinetic energy decay": 2,
+      "spectral energy cascade inertial range": 3,
+      "subgrid scale modeling truncation error": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 0,
-      "rejections": []
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2410.13402",
+          "rationale": "The paper focuses on Monte Carlo simulations of gamma-ray detector responses for space missions, which is an astrophysics instrumentation problem entirely distinct from the user's question about fluid turbulence physics. It fails to address the mechanism, domain, or variables of fluid dynamics and represents a case of off-domain research sharing only the generic keyword \"simulation.\"",
+          "title": "Monte Carlo Simulation of Angular Response of GRID Detectors for GRID Mission"
+        }
+      ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-08-30T00:25:48Z",
+    "started_at": "2026-10-07T09:47:53Z",
     "term_input": {
       "normalized": "quantifying the impact of data resolution on simulated fluid turbulence physics",
       "raw": "Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics"
@@ -177,7 +166,7 @@
           "primary_pointer": "2503.13774"
         },
         "details": "query-relevance 0.286 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='Jamming of Elastoviscoplastic fluids in Elastic Turbulence')",
-        "failed_at": "2026-08-30T00:28:48Z",
+        "failed_at": "2026-10-07T09:48:20Z",
         "reason": "query_irrelevant"
       },
       {
@@ -195,7 +184,7 @@
           "primary_pointer": "2008.05018"
         },
         "details": "query-relevance 0.286 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='Effect of spatial dimension on a model of fluid turbulence')",
-        "failed_at": "2026-08-30T00:28:48Z",
+        "failed_at": "2026-10-07T09:48:20Z",
         "reason": "query_irrelevant"
       },
       {
@@ -214,11 +203,376 @@
           "primary_pointer": "2303.06631"
         },
         "details": "query-relevance 0.286 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='Higher-order statistics and intermittency of a two-fluid HVBK quantum turbulent flow')",
-        "failed_at": "2026-08-30T00:28:48Z",
+        "failed_at": "2026-10-07T09:48:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Here we survey the compactness and geometric stability conjectures formulated by the participants at the 2018 IAS Emerging Topics Workshop on {\\em Scalar Curvature and Convergence}. We have tried to survey all the progress towards these conjectures as well as related examples, although it is impossible to cover everything. We focus primarily on sequences of compact Riemannian manifolds with nonnegative scalar curvature and their limit spaces. Christina Sormani is grateful to have had the opportunity to write up our ideas and has done her best to credit everyone involved within the paper even though she is the only author listed above. In truth we are a team of over thirty people working together and apart on these deep questions and we welcome everyone who is interested in these conjectures to join us.",
+          "claimed_authors": [
+            "Christina Sormani",
+            "Participants at the IAS Emerging Topics Workshop on Scalar Curvature",
+            " Convergence"
+          ],
+          "claimed_title": "Conjectures on Convergence and Scalar Curvature",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.10093"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='Conjectures on Convergence and Scalar Curvature')",
+        "failed_at": "2026-10-07T09:48:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "As technological advances allow us to fabricate smaller autonomous self-propelled devices, it is clear that at some point directed propulsion could not come from pre-specified deterministic periodic deformation of the swimmer's body and we need to develop strategies to extract a net directed motion from a series of random transitions in the conformation space of the swimmer. We present a theoretical formulation to describe the \"stochastic motor\" that drives the motion of low Reynolds number swimmers based on this concept, and use it to study the propulsion of a simple low Reynolds number swimmer, namely, the three-sphere swimmer model. When the detailed-balanced is broken and the motor is driven out of equilibrium, it can propel the swimmer in the required direction. The formulation can be used to study optimal design strategies for molecular-scale low Reynolds number swimmers.",
+          "claimed_authors": [
+            "Ramin Golestanian",
+            "Armand Ajdari"
+          ],
+          "claimed_title": "Stochastic Low Reynolds Number Swimmers",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0901.1624"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='Stochastic Low Reynolds Number Swimmers')",
+        "failed_at": "2026-10-07T09:48:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this work a simple problem on 2D optimal shape for body immersed in a viscous flow is analyzed. The body has geometrical constraints and its profile would be found in the class of cubics which satisfy those conditions. The optimal profile depends on the leading coefficient of these cubics and its relation with the Reynolds number of the system is found. The solution to the problem uses a method based on a suitable transformation rule for the cartesian reference.",
+          "claimed_authors": [
+            "Gianluca Argentini"
+          ],
+          "claimed_title": "Searching optimal shape in viscous flow: its dependence on Reynolds number",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2008,
+          "primary_pointer": "0810.1679"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='Searching optimal shape in viscous flow: its dependence on Reynolds number')",
+        "failed_at": "2026-10-07T09:48:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Domain Name Service (DNS) resolution is a mechanism that resolves the symbolic names of networked devices to their corresponding Internet Protocol (IP) address. With the emergence of the document that describes an extension to a DNS service definition, it was becoming apparent that DNS implementations will need to comply with some modified DNS behaviour. One such modification is that DNS continues to use the User Datagram Protocol (UDP) to transmit DNS payloads that are longer than 512 bytes. Until the emergence of the Extension DNS (EDNS) specification, DNS servers would switch over from UDP to Transmission Control Protocol (TCP) if the response payload was larger than 512 bytes. With the new EDNS capability, it was required that DNS replies would continue to provide responses as UDP datagrams even though the response was larger than 512 bytes. To the author's best knowledge, there are no academic articles dealing with the assessment of the DNS servers against EDNS specification. This paper examines the level of compatibility for a number of public DNS servers for some popular internet domains. It also explores behaviour of some contemporary DNS implementations such as Microsoft Windows 2012, 2016 and 2019 as well as Linux-based BIND in regards to the EDNS.",
+          "claimed_authors": [
+            "Ivica Stipovic"
+          ],
+          "claimed_title": "Analysis of an Extension Dynamic Name Service -- A discussion on DNS compliance with RFC 6891",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2003.13319"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='Analysis of an Extension Dynamic Name Service -- A discussion on DNS compliance with RFC 6891')",
+        "failed_at": "2026-10-07T09:48:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The present study is concerned with large-eddy simulations (LES) of supersonic jet flows. The work addresses, in particular, the simulation of a perfectly expanded free jet flow with an exit Mach number of 1.4 and an exit temperature equal to the ambient temperature. Calculations are performed using a nodal discontinuous Galerkin method. The present effort studies the effects of mesh and polynomial refinement on the solution. The present calculations consider computational meshes and polynomial orders such that the number of degrees of freedom (DOFs) in the solution ranges from 50 to 410 million. Mean velocity results and root mean square (RMS) values of velocity fluctuations indicate a better agreement with experimental data as the resolution is increased. The generated data provide a good understanding of the effects of increasing the discretization refinement for LES calculations of jet flows. The present results can guide future simulations of similar flow configurations.",
+          "claimed_authors": [
+            "D. F. Abreu",
+            "C. Junqueira-Junior",
+            "E. T. Dauricio",
+            "J. L. F. Azevedo"
+          ],
+          "claimed_title": "Study on the Resolution of Large-Eddy Simulations for Supersonic Jet Flows",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2301.01582"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='Study on the Resolution of Large-Eddy Simulations for Supersonic Jet Flows')",
+        "failed_at": "2026-10-07T09:48:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study the complexity of valued constraint satisfaction problems (VCSP). A problem from VCSP is characterised by a \\emph{constraint language}, a fixed set of cost functions over a finite domain. An instance of the problem is specified by a sum of cost functions from the language and the goal is to minimise the sum. We consider the case of so-called \\emph{conservative} languages; that is, languages containing all unary cost functions, thus allowing arbitrary restrictions on the domains of the variables. We prove a Schaefer-like dichotomy theorem for this case: if all cost functions in the language satisfy a certain condition (specified by a complementary combination of \\emph{STP and MJN multimorphisms}) then any instance can be solved in polynomial time by the algorithm of Kolmogorov and Zivny (arXiv:1008.3104v1), otherwise the language is NP-hard. This generalises recent results of Takhanov (STACS'10) who considered $\\{0,\\infty\\}$-valued languages containing additionally all finite-valued unary cost functions, and Kolmogorov and Zivny (arXiv:1008.1555v1) who considered \\emph{finite-valued} conservative languages.",
+          "claimed_authors": [
+            "Vladimir Kolmogorov"
+          ],
+          "claimed_title": "A dichotomy theorem for conservative general-valued CSPs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1008.4035"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='A dichotomy theorem for conservative general-valued CSPs')",
+        "failed_at": "2026-10-07T09:48:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the Dark Energy Survey (DES), a proposed optical-near infrared survey of 5000 sq. deg of the South Galactic Cap to ~24th magnitude in SDSS griz, that would use a new 3 sq. deg CCD camera to be mounted on the Blanco 4-m telescope at Cerro Telolo Inter-American Observatory (CTIO). The survey data will allow us to measure the dark energy and dark matter densities and the dark energy equation of state through four independent methods: galaxy clusters, weak gravitational lensing tomography, galaxy angular clustering, and supernova distances. These methods are doubly complementary: they constrain different combinations of cosmological model parameters and are subject to different systematic errors. By deriving the four sets of measurements from the same data set with a common analysis framework, we will obtain important cross checks of the systematic errors and thereby make a substantial and robust advance in the precision of dark energy measurements.",
+          "claimed_authors": [
+            " The Dark Energy Survey Collaboration"
+          ],
+          "claimed_title": "The Dark Energy Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0510346"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='The Dark Energy Survey')",
+        "failed_at": "2026-10-07T09:48:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-10-07T09:48:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The spectral behavior of the difference between the resolvents of two realizations $\\tilde A_1$ and $\\tilde A_2$ of a second-order strongly elliptic symmetric differential operator $A$, defined by different Robin conditions $νu=b_1γ_0u$ and $νu=b_2γ_0u$, can in the case where all coefficients are $C^\\infty$ be determined by use of a general result by the author in 1984 on singular Green operators. We here treat the problem for nonsmooth $b_i$. Using a Krein resolvent formula, we show that if $b_1$ and $b_2$ are in $L_\\infty$, the s-numbers $s_j$ of $(\\tilde A_1 -λ)^{-1}-(\\tilde A_2 -λ)^{-1}$ satisfy $s_j j^{3/(n-1)}\\le C$ for all $j$; this improves a recent result for $A=-Δ$ by Behrndt et al., that $\\sum_js_j ^p<\\infty$ for $p>(n-1)/3$. A sharper estimate is obtained when $b_1$ and $b_2$ are in $C^ε$ for some $ε>0$, with jumps at a smooth hypersurface, namely that $s_j j^{3/(n-1)}\\to c$ for $j\\to \\infty$, with a constant $c$ defined from the principal symbol of $A$ and $b_2-b_1$.\n  As an auxiliary result we show that the usual principal spectral asymptotic estimate for pseudodifferential operators of negative order on a closed manifold extends to products of pseudodifferential operators interspersed with piecewise continuous functions.",
+          "claimed_authors": [
+            "Gerd Grubb"
+          ],
+          "claimed_title": "Spectral asymptotics for Robin problems with a discontinuous coefficient",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1009.0997"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='Spectral asymptotics for Robin problems with a discontinuous coefficient')",
+        "failed_at": "2026-10-07T09:48:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The performance of high-order gas-kinetic scheme (HGKS) has been investigated for the direct numerical simulation (DNS) of isotropic compressible turbulence up to the supersonic regime. Due to the multi-scale nature and coupled temporal-spatial evolution process, HGKS provides a valid tool for the numerical simulation of compressible turbulent flow. Based on the domain decomposition and message passing interface (MPI), a parallel HGKS code is developed for large-scale computation in this paper. The standard tests from the nearly incompressible flow to the supersonic one, including Taylor-Green vortex problem, turbulent channel flow and isotropic compressible turbulence, are presented to validate the parallel scalability, efficiency, accuracy and robustness of parallel implementation. The performance of HGKS for the nearly incompressible turbulence is comparable with the high-order finite difference scheme, including the resolution of flow structure and efficiency of computation. Based on the accuracy of the numerical solution, the numerical dissipation of the scheme in the turbulence simulation is quantitatively evaluated. As a mesoscopic method, HGKS performs better than both lattice Boltzmann method (LBM) and discrete unified gas-kinetic scheme (DUGKS), due to its high-order accuracy. Meanwhile, based on the kinetic formulation HGKS shows advantage for supersonic turbulent flow simulation with its accuracy and robustness. The current work demonstrates the capability of HGKS as a powerful DNS tool from the low speed to supersonic turbulence study, which is less reported under the framework of finite volume scheme.",
+          "claimed_authors": [
+            "Guiyu Cao",
+            "Liang Pan",
+            "Kun Xu"
+          ],
+          "claimed_title": "High-order gas-kinetic scheme with parallel computation for direct numerical simulation of turbulent flows",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.08736"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='High-order gas-kinetic scheme with parallel computation for direct numerical simulation of turbulent flows')",
+        "failed_at": "2026-10-07T09:48:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We address the question of parameterizing the subgrid scales in simulations of geophysical flows by applying stochastic mode reduction to the one-dimensional stochastically forced shallow water equations. The problem is formulated in physical space by defining resolved variables as local spatial averages over finite-volume cells and unresolved variables as corresponding residuals. Based on the assumption of a time-scale separation between the slow spatial averages and the fast residuals, the stochastic mode reduction procedure is used to obtain a low-resolution model for the spatial averages alone with local stochastic subgrid-scale parameterization coupling each resolved variable only to a few neighboring cells. The closure improves the results of the low-resolution model and outperforms two purely empirical stochastic parameterizations. It is shown that the largest benefit is in the representation of the energy spectrum. By adjusting only a single coefficient (the strength of the noise) we observe that there is a potential for improving the performance of the parameterization, if additional tuning of the coefficients is performed. In addition, the scale-awareness of the parameterizations is studied.",
+          "claimed_authors": [
+            "Matthias Zacharuk",
+            "Stamen I. Dolaptchiev",
+            "Ulrich Achatz",
+            "Ilya Timofeyev"
+          ],
+          "claimed_title": "Stochastic subgrid-scale parameterization for one-dimensional shallow water dynamics using stochastic mode reduction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1808.05467"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='Stochastic subgrid-scale parameterization for one-dimensional shallow water dynamics using stochastic mode reduction')",
+        "failed_at": "2026-10-07T09:48:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Current design constraints have encouraged the studies of aeroacoustics fields around compressible jet flows. The present work addresses the numerical study of subgrid scale modeling for unsteady turbulent jet flows as a preliminary step for future aeroacoustic analyses of main engine rocket plumes. An in-house large eddy simulation (LES) tool is developed in order to reproduce high fidelity results of compressible jet flows. In the present study, perfectly expanded jets are considered because the authors want to emphasize the effects of the jet mixing phenomena. The large eddy simulation formulation is written using the finite difference approach, with an explicit time integration and using a second order spatial discretization. The energy equation is carefully discretized in order to model the energy equation of the filtered Navier-Stokes formulation. The classical Smagorinsky model, the dynamic Smagorinsky model and the Vreman models are the chosen subgrid scale closures for the present work. Numerical simulations of perfectly expanded jets are performed and compared with the literature in order to validate and compare the performance of each subgrid closure in the solver.",
+          "claimed_authors": [
+            "Carlos Junqueira-Junior",
+            "Sami Yamouni",
+            "Joao Luiz F. Azevedo",
+            "William Wolf"
+          ],
+          "claimed_title": "Influence of Different Subgrid Scale Models in LES of Supersonic Jet Flows",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2301.00651"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='Influence of Different Subgrid Scale Models in LES of Supersonic Jet Flows')",
+        "failed_at": "2026-10-07T09:48:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Sinc approximation applied to double-exponentially decaying functions is referred to as the DE-Sinc approximation. Because of its high efficiency, this method has been used in various applications. In the Sinc approximation, the mesh size and truncation numbers should be optimally selected to achieve its best performance. However, the standard selection formula has only been \"near-optimally\" selected because the optimal formula of the mesh size cannot be expressed in terms of elementary functions of truncation numbers. In this study, we propose two improved selection formulas. The first one is based on the concept by an earlier research that resulted in a better selection formula for the double-exponential formula. The formula performs slightly better than the standard one, but is still not optimal. As a second selection formula, we introduce a new parameter to propose truly optimal selection formula. We provide explicit error bounds for both selection formulas. Numerical comparisons show that the first formula gives a better error bound than the standard formula, and the second formula gives a much better error bound than the standard and first formulas.",
+          "claimed_authors": [
+            "Tomoaki Okayama",
+            "Shota Ogawa"
+          ],
+          "claimed_title": "Improvement of selection formulas of mesh size and truncation numbers for the DE-Sinc approximation and its theoretical error bound",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.08334"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics', candidate_title='Improvement of selection formulas of mesh size and truncation numbers for the DE-Sinc approximation and its theoretical error bound')",
+        "failed_at": "2026-10-07T09:48:21Z",
         "reason": "query_irrelevant"
       }
     ],
-    "verified_citations": []
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Guiyu Cao",
+            "Liang Pan",
+            "Kun Xu"
+          ],
+          "title": "Three dimensional high-order gas-kinetic scheme for supersonic isotropic turbulence I: criterion for direct numerical simulation",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1905.03007",
+        "summary": "In this paper, we intend to address the high-order gas-kinetic scheme (HGKS) in the direct numerical simulation (DNS) of compressible isotropic turbulence up to the supersonic regime. With the consideration of robustness and accuracy, the WENO-Z scheme is adopted for spatial reconstruction in the current higher-order scheme. Statistical quantities are compared with the high-order compact finite difference scheme to determine the spatial and temporal criterion for DNS. According to the grid and time convergence study, it can be concluded that the minimum spatial resolution parameter $κ_{max} η_0 \\ge 2.71$ and the maximum temporal resolution parameter $Δt_{ini}/τ_{t_0} \\leq 5.58/1000$ are adequate for HGKS to resolve the compressible isotropic turbulence, where $κ_{max}$ is the maximum resolved wave number, $Δt_{ini}$ is the initial time step, $η_0$ and $τ_{t_0}$ are the initial Kolmogorov length scale and the large-eddy-turnover time. Guided by such criterion, the compressible isotropic turbulence from subsonic regime $Ma_t=0.8$ to supersonic one $Ma_t=1.2$, and the Taylor microscale Reynolds number $Re_λ$ ranging from $10$ to $72$ are simulated. With the high initial turbulent Mach number, the strong random shocklets and high expansion regions are identified, as well as the wide range of probability density function over local turbulence Mach number. All those impose great challenge for high-order schemes. In order to construct compressible large eddy simulation models at high turbulent Mach number, the ensemble budget of turbulent kinetic energy is fully analyzed. The solenoidal dissipation rate decreases with the increasing of $Ma_t$ and $Re_λ$. Meanwhile, the dilational dissipation rate increases with the increasing of $Ma_t$, which cannot be neglected for constructing supersonic turbulence model.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1905.03007",
+          "http_status": 200,
+          "pdf_sample_score": 0.298,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-07T09:48:20Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Guiyu Cao",
+            "Yipeng Shi",
+            "Kun Xu",
+            "Shiyi Chen"
+          ],
+          "title": "Modeling and simulation in supersonic three-temperature carbon dioxide turbulent channel flow",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2210.01621",
+        "summary": "This paper pioneers the direct numerical simulation (DNS) and physical analysis in supersonic three-temperature carbon dioxide (CO2) turbulent channel flow. CO2 is a linear and symmetric triatomic molecular, with the thermal non-equilibrium three-temperature effects arising from the interactions among translational, rotational and vibrational modes under room temperature. Thus, the rotational and vibrational modes of CO2 are addressed. Thermal non-equilibrium effect of CO2 has been modeled in an extended three-temperature BGK-type model, with the calibrated translational, rotational and vibrational relaxation time. To solve the extended BGK-type equation accurately and robustly, non-equilibrium high-accuracy gas-kinetic scheme is proposed within the well-established two-stage fourth-order framework. Compared with the one-temperature supersonic turbulent channel flow, supersonic three-temperature CO2 turbulence enlarges the ensemble heat transfer of the wall by approximate 20%, and slightly decreases the ensemble frictional force. The ensemble density and temperature fields are greatly affected, and there is little change in Van Driest transformation of streamwise velocity. The thermal non-equilibrium three-temperature effects of CO2 also suppress the peak of normalized root-mean-square of density and temperature, normalized turbulent intensities and Reynolds stress. The vibrational modes of CO2 behave quite differently with rotational and translational modes. Compared with the vibrational temperature fields, the rotational temperature fields have the higher similarity with translational temperature fields, especially in temperature amplitude. Current thermal non-equilibrium models, high-accuracy DNS and physical analysis in supersonic CO2 turbulent flow can act as the benchmark for the long-term applicability of compressible CO2 turbulence.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2210.01621",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-07T09:48:25Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "D. F. Abreu",
+            "C. Junqueira-Junior",
+            "E. T. Dauricio",
+            "J. L. F. Azevedo"
+          ],
+          "title": "Study on the Resolution of Large-Eddy Simulations for Supersonic Jet Flows",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2301.01582",
+        "summary": "The present study is concerned with large-eddy simulations (LES) of supersonic jet flows. The work addresses, in particular, the simulation of a perfectly expanded free jet flow with an exit Mach number of 1.4 and an exit temperature equal to the ambient temperature. Calculations are performed using a nodal discontinuous Galerkin method. The present effort studies the effects of mesh and polynomial refinement on the solution. The present calculations consider computational meshes and polynomial orders such that the number of degrees of freedom (DOFs) in the solution ranges from 50 to 410 million. Mean velocity results and root mean square (RMS) values of velocity fluctuations indicate a better agreement with experimental data as the resolution is increased. The generated data provide a good understanding of the effects of increasing the discretization refinement for LES calculations of jet flows. The present results can guide future simulations of similar flow configurations.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2301.01582",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-07T09:48:26Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Baofang Song",
+            "Carlos Plana",
+            "Jose M. Lopez",
+            "Marc Avila"
+          ],
+          "title": "Phase-field simulation of core-annular pipe flow",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1902.07351",
+        "summary": "Phase-field methods have long been used to model the flow of immiscible fluids. Their ability to naturally capture interface topological changes is widely recognized, but their accuracy in simulating flows of real fluids in practical geometries is not established. We here quantitatively investigate the convergence of the phase-field method to the sharp-interface limit with simulations of two-phase pipe flow. We focus on core-annular flows, in which a highly viscous fluid is lubricated by a less viscous fluid, and validate our simulations with an analytic laminar solution, a formal linear stability analysis and also in the fully nonlinear regime. We demonstrate the ability of the phase-field method to accurately deal with non-rectangular geometry, strong advection, unsteady fluctuations and large viscosity contrast. We argue that phase-field methods are very promising for quantitatively studying moderately turbulent flows, especially at high concentrations of the disperse phase.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1902.07351",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-07T09:48:26Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Pedro M. Milani",
+            "Ian E. Gunady",
+            "David S. Ching",
+            "Andrew J. Banko",
+            "Christopher J. Elkins",
+            "John K. Eaton"
+          ],
+          "title": "Enriching MRI mean flow data of inclined jets in crossflow with Large Eddy Simulations",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1908.03540",
+        "summary": "Measurement techniques such as Magnetic Resonance Velocimety (MRV) and Magnetic Resonance Concentration (MRC) are useful for obtaining 3D time-averaged flow quantities in complex turbulent flows, but cannot measure turbulent correlations or near-wall data. In this work, we use highly resolved Large Eddy Simulations (LES) to complement the experiments and bypass those limitations. Coupling LES and magnetic resonance experimental techniques is especially advantageous in complex non-homogeneous flows because the 3D data allow for extensive validation, creating confidence that the simulation results portray a physically realistic flow. As such we can treat the simulation as data, which \"enrich\" the original MRI mean flow results. This approach is demonstrated using a cylindrical and inclined jet in crossflow with three distinct velocity ratios, $r=1$, $r=1.5$, and $r=2$. The numerical mesh is highly refined in order for the subgrid scale models to have negligible contribution, and a systematic, iterative procedure is described to set inlet conditions. The validation of the mean flow data shows excellent agreement between simulation and experiments, which creates confidence that the LES data can be used to enrich the experiments with near-wall results and turbulent statistics. We also discuss some mean flow features and how they vary with velocity ratio, including wall concentration, the counter rotating vortex pair, and the in-hole velocity.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1908.03540",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-07T09:48:27Z"
+        }
+      }
+    ]
   },
   "target_n": 5,
   "term_normalized": "quantifying the impact of data resolution on simulated fluid turbulence physics",

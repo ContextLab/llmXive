@@ -1,2 +1,4 @@
-# Analysis package for llmXive automated science pipeline
-# Contains spectral extraction, correlation analysis, and model training utilities
+"""
+Analysis modules for the llmXive pipeline.
+Contains spectral analysis, correlation analysis, and model training utilities.
+"""
