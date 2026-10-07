@@ -1,15 +1,6 @@
 """
-T039: Generate visualization figures for the study.
-
-Creates three plots:
-1. fixation_dist.png: Distribution of eye-to-mouth fixation ratios.
-2. model_coeffs.png: Coefficients and confidence intervals from the LMM.
-3. power_curve.png: A priori power analysis curve.
-
-Requires:
-- data/processed/features.csv (from T019/T020)
-- results/lmm_continuous.csv (from T029a)
-- results/power_analysis.json (from T032)
+Visualization module for generating plots from the visual search analysis pipeline.
+Generates fixation distribution, model coefficients, and power curve plots.
 """
 import os
 import sys
@@ -24,222 +15,236 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# Add project root to path if running as script
-if __name__ == "__main__":
-    project_root = Path(__file__).resolve().parent.parent
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
-
 from config import get_config
 from utils.logging import get_logger
 
-# Configure warnings to avoid matplotlib backend issues in some environments
-warnings.filterwarnings("ignore", category=UserWarning)
-warnings.filterwarnings("ignore", category=FutureWarning)
+# Ensure consistent plotting style
+plt.style.use('seaborn-v0_8-whitegrid')
+warnings.filterwarnings('ignore', category=UserWarning)
 
-def ensure_dir(path: Path):
-    """Ensure directory exists."""
-    path.mkdir(parents=True, exist_ok=True)
+def ensure_dir(directory_path: Path) -> None:
+    """Ensure the specified directory exists, creating it if necessary."""
+    directory_path.mkdir(parents=True, exist_ok=True)
 
 def load_features(config: Any) -> Optional[pd.DataFrame]:
-    """Load processed features."""
+    """Load processed features from data/processed/features.csv."""
     features_path = config.PROCESSED_DATA_DIR / "features.csv"
     if not features_path.exists():
-        logging.error(f"Features file not found: {features_path}")
+        logger = get_logger("visualize_results")
+        logger.error(f"Features file not found at {features_path}")
         return None
-    return pd.read_csv(features_path)
+    try:
+        df = pd.read_csv(features_path)
+        return df
+    except Exception as e:
+        logger = get_logger("visualize_results")
+        logger.error(f"Failed to load features: {e}")
+        return None
 
 def load_lmm_results(config: Any) -> Optional[pd.DataFrame]:
-    """Load LMM results table."""
+    """Load LMM results from results/lmm_continuous.csv."""
     results_path = config.RESULTS_DIR / "lmm_continuous.csv"
     if not results_path.exists():
-        logging.error(f"LMM results not found: {results_path}")
+        logger = get_logger("visualize_results")
+        logger.warning(f"LMM results file not found at {results_path}")
         return None
-    return pd.read_csv(results_path)
+    try:
+        df = pd.read_csv(results_path)
+        return df
+    except Exception as e:
+        logger = get_logger("visualize_results")
+        logger.error(f"Failed to load LMM results: {e}")
+        return None
 
 def load_power_analysis(config: Any) -> Optional[Dict[str, Any]]:
-    """Load power analysis JSON."""
+    """Load power analysis results from results/power_analysis.json."""
     power_path = config.RESULTS_DIR / "power_analysis.json"
     if not power_path.exists():
-        logging.error(f"Power analysis not found: {power_path}")
+        logger = get_logger("visualize_results")
+        logger.warning(f"Power analysis file not found at {power_path}")
         return None
-    with open(power_path, 'r') as f:
-        return json.load(f)
+    try:
+        with open(power_path, 'r') as f:
+            return json.load(f)
+    except Exception as e:
+        logger = get_logger("visualize_results")
+        logger.error(f"Failed to load power analysis: {e}")
+        return None
 
-def plot_fixation_distribution(df: pd.DataFrame, output_path: Path, logger: logging.Logger):
+def plot_fixation_distribution(df: pd.DataFrame, output_path: Path) -> bool:
     """
-    Plot distribution of eye-to-mouth fixation ratios.
-    Expected column: 'fixation_ratio' or similar.
+    Generate a histogram/density plot of fixation durations (eye vs mouth).
+    Expects columns: 'fixation_eye_duration', 'fixation_mouth_duration'.
     """
-    logger.info("Generating fixation distribution plot...")
-    ensure_dir(output_path.parent)
+    logger = get_logger("visualize_results")
+    if df is None:
+        logger.error("Cannot plot fixation distribution: no data loaded.")
+        return False
 
-    # Identify the ratio column
-    ratio_col = None
-    candidates = ['fixation_ratio', 'eye_mouth_ratio', 'continuous_ratio', 'ratio']
-    for c in candidates:
-        if c in df.columns:
-            ratio_col = c
-            break
+    required_cols = ['fixation_eye_duration', 'fixation_mouth_duration']
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        logger.error(f"Missing required columns for fixation plot: {missing}")
+        return False
 
-    if ratio_col is None:
-        logger.warning(f"Could not find ratio column. Available: {list(df.columns)}")
-        # Try to find any numeric column that looks like a ratio
-        numeric_cols = df.select_dtypes(include=[np.number]).columns
-        if len(numeric_cols) > 0:
-            ratio_col = numeric_cols[0]
-            logger.warning(f"Using {ratio_col} as proxy for ratio.")
-        else:
-            logger.error("No numeric columns found to plot.")
-            return
+    fig, ax = plt.subplots(figsize=(10, 6))
 
-    plt.figure(figsize=(10, 6))
-    sns.histplot(data=df, x=ratio_col, kde=True, color='skyblue', edgecolor='black')
-    plt.title(f'Distribution of {ratio_col.replace("_", " ").title()}', fontsize=14)
-    plt.xlabel(ratio_col.replace("_", " ").title(), fontsize=12)
-    plt.ylabel('Frequency', fontsize=12)
-    plt.grid(axis='y', alpha=0.3)
-    
-    # Add mean and median lines
-    mean_val = df[ratio_col].mean()
-    median_val = df[ratio_col].median()
-    plt.axvline(mean_val, color='red', linestyle='--', linewidth=2, label=f'Mean: {mean_val:.3f}')
-    plt.axvline(median_val, color='green', linestyle='-.', linewidth=2, label=f'Median: {median_val:.3f}')
-    plt.legend()
+    # Plot distributions
+    sns.kdeplot(data=df, x='fixation_eye_duration', label='Eye Region', fill=True, alpha=0.4, ax=ax)
+    sns.kdeplot(data=df, x='fixation_mouth_duration', label='Mouth Region', fill=True, alpha=0.4, ax=ax)
 
-    plt.tight_layout()
-    plt.savefig(output_path, dpi=150)
-    plt.close()
-    logger.info(f"Saved fixation distribution to {output_path}")
+    ax.set_xlabel('Fixation Duration (ms)')
+    ax.set_ylabel('Density')
+    ax.set_title('Distribution of Fixation Durations by ROI')
+    ax.legend()
 
-def plot_model_coefficients(df: pd.DataFrame, output_path: Path, logger: logging.Logger):
+    try:
+        fig.savefig(output_path, dpi=300, bbox_inches='tight')
+        logger.info(f"Saved fixation distribution plot to {output_path}")
+        plt.close(fig)
+        return True
+    except Exception as e:
+        logger.error(f"Failed to save fixation distribution plot: {e}")
+        plt.close(fig)
+        return False
+
+def plot_model_coefficients(df: pd.DataFrame, output_path: Path) -> bool:
     """
-    Plot model coefficients with confidence intervals.
-    Expected columns: 'term', 'estimate', 'std_error', 'pvalue' or similar.
+    Generate a bar plot of model coefficients with confidence intervals.
+    Expects columns: 'term', 'estimate', 'std_error', 't_statistic', 'p_value'.
     """
-    logger.info("Generating model coefficients plot...")
-    ensure_dir(output_path.parent)
+    logger = get_logger("visualize_results")
+    if df is None:
+        logger.error("Cannot plot model coefficients: no data loaded.")
+        return False
 
-    # Identify columns
-    term_col, est_col, se_col = None, None, None
-    for c in df.columns:
-        cl = c.lower()
-        if 'term' in cl: term_col = c
-        elif 'estimate' in cl or 'coef' in cl: est_col = c
-        elif 'std_error' in cl or 'se' in cl: se_col = c
+    required_cols = ['term', 'estimate', 'std_error']
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        logger.error(f"Missing required columns for coefficient plot: {missing}")
+        return False
 
-    if not all([term_col, est_col, se_col]):
-        logger.warning(f"Could not identify coefficient columns. Available: {list(df.columns)}")
-        return
+    # Filter out intercept if present for clarity, or keep if desired
+    # Usually we want to see the predictor
+    plot_df = df[~df['term'].str.contains('Intercept', case=False, na=False)].copy()
 
-    # Filter for fixed effects if possible (often 'term' contains 'Intercept' or predictor names)
-    # We'll plot all terms present
-    df_plot = df[[term_col, est_col, se_col]].copy()
-    
-    # Calculate CI (approx 1.96 * SE for 95% CI)
-    df_plot['ci_lower'] = df_plot[est_col] - 1.96 * df_plot[se_col]
-    df_plot['ci_upper'] = df_plot[est_col] + 1.96 * df_plot[se_col]
+    if plot_df.empty:
+        logger.warning("No non-intercept terms found for coefficient plot.")
+        # If only intercept exists, plot it
+        plot_df = df.copy()
 
-    plt.figure(figsize=(10, 6))
-    
+    fig, ax = plt.subplots(figsize=(8, 6))
+
+    # Calculate CI
+    plot_df['ci_lower'] = plot_df['estimate'] - 1.96 * plot_df['std_error']
+    plot_df['ci_upper'] = plot_df['estimate'] + 1.96 * plot_df['std_error']
+
     # Sort by estimate for better visualization
-    df_plot = df_plot.sort_values(by=est_col)
-    df_plot = df_plot.reset_index(drop=True)
+    plot_df = plot_df.sort_values('estimate')
 
-    y_pos = range(len(df_plot))
-    plt.errorbar(
-        y_pos, 
-        df_plot[est_col], 
-        yerr=[df_plot[est_col] - df_plot['ci_lower'], df_plot['ci_upper'] - df_plot[est_col]], 
-        fmt='o', 
-        color='navy', 
-        ecolor='red', 
-        capsize=5, 
-        linestyle='None',
-        markersize=8
-    )
-    
-    plt.yticks(y_pos, df_plot[term_col])
-    plt.axvline(0, color='gray', linestyle='--', linewidth=1)
-    plt.xlabel('Coefficient Estimate', fontsize=12)
-    plt.ylabel('Predictor', fontsize=12)
-    plt.title('Linear Mixed-Effects Model Coefficients', fontsize=14)
-    plt.grid(axis='x', alpha=0.3)
+    bars = ax.barh(plot_df['term'], plot_df['estimate'], xerr=[plot_df['estimate'] - plot_df['ci_lower'], plot_df['ci_upper'] - plot_df['estimate']], capsize=5, color='steelblue', alpha=0.8)
 
-    plt.tight_layout()
-    plt.savefig(output_path, dpi=150)
-    plt.close()
-    logger.info(f"Saved model coefficients to {output_path}")
+    # Add zero line
+    ax.axvline(x=0, color='red', linestyle='--', linewidth=1)
 
-def plot_power_curve(power_data: Dict[str, Any], output_path: Path, logger: logging.Logger):
+    ax.set_xlabel('Coefficient Estimate (95% CI)')
+    ax.set_ylabel('Predictor')
+    ax.set_title('Linear Mixed-Effects Model Coefficients')
+
+    try:
+        fig.savefig(output_path, dpi=300, bbox_inches='tight')
+        logger.info(f"Saved model coefficients plot to {output_path}")
+        plt.close(fig)
+        return True
+    except Exception as e:
+        logger.error(f"Failed to save model coefficients plot: {e}")
+        plt.close(fig)
+        return False
+
+def plot_power_curve(power_data: Dict[str, Any], output_path: Path) -> bool:
     """
-    Plot power curve from a priori power analysis.
-    Expected keys in power_data: 'sample_sizes', 'powers', 'effect_size', 'alpha'
+    Generate a power curve plot showing power vs sample size.
+    Expects power_data to have keys: 'sample_sizes', 'powers', 'effect_size', 'alpha'.
     """
-    logger.info("Generating power curve plot...")
-    ensure_dir(output_path.parent)
+    logger = get_logger("visualize_results")
+    if power_data is None:
+        logger.error("Cannot plot power curve: no data loaded.")
+        return False
 
-    # Extract data
-    sample_sizes = power_data.get('sample_sizes', [])
-    powers = power_data.get('powers', [])
-    effect_size = power_data.get('effect_size', 0.5)
-    alpha = power_data.get('alpha', 0.05)
+    required_keys = ['sample_sizes', 'powers']
+    missing = [k for k in required_keys if k not in power_data]
+    if missing:
+        logger.error(f"Missing required keys in power data: {missing}")
+        return False
 
-    if not sample_sizes or not powers:
-        logger.warning("Power analysis data missing required arrays.")
-        return
+    sample_sizes = power_data['sample_sizes']
+    powers = power_data['powers']
 
-    plt.figure(figsize=(10, 6))
-    plt.plot(sample_sizes, powers, marker='o', color='darkgreen', linewidth=2, markersize=6)
-    
-    # Highlight 80% power
-    plt.axhline(y=0.8, color='red', linestyle='--', linewidth=1.5, label='Target Power (0.80)')
-    plt.axvline(x=sample_sizes[powers.index(min(powers, key=lambda x: abs(x-0.8)))], 
-                color='orange', linestyle=':', linewidth=1.5, 
-                label=f'N for 80% Power')
+    fig, ax = plt.subplots(figsize=(8, 6))
 
-    plt.title(f'Power Curve (Effect Size d={effect_size}, α={alpha})', fontsize=14)
-    plt.xlabel('Sample Size (N)', fontsize=12)
-    plt.ylabel('Statistical Power', fontsize=12)
-    plt.ylim(0, 1.05)
-    plt.grid(True, alpha=0.3)
-    plt.legend()
+    ax.plot(sample_sizes, powers, marker='o', linestyle='-', color='darkgreen', label='Power')
+    ax.axhline(y=0.80, color='red', linestyle='--', linewidth=1, label='Target Power (0.80)')
+    ax.axvline(x=power_data.get('target_n', sample_sizes[np.argmin(np.abs(np.array(powers) - 0.80))]), color='orange', linestyle=':', linewidth=1, label='Required N')
 
-    plt.tight_layout()
-    plt.savefig(output_path, dpi=150)
-    plt.close()
-    logger.info(f"Saved power curve to {output_path}")
+    ax.set_xlabel('Sample Size (N)')
+    ax.set_ylabel('Statistical Power')
+    ax.set_title('A Priori Power Analysis Curve')
+    ax.set_ylim(0, 1.05)
+    ax.legend()
+    ax.grid(True, alpha=0.3)
+
+    try:
+        fig.savefig(output_path, dpi=300, bbox_inches='tight')
+        logger.info(f"Saved power curve plot to {output_path}")
+        plt.close(fig)
+        return True
+    except Exception as e:
+        logger.error(f"Failed to save power curve plot: {e}")
+        plt.close(fig)
+        return False
 
 def main():
-    """Main entry point for T039."""
+    """Main entry point to generate all required figures."""
     config = get_config()
-    logger = get_logger(__name__)
-    
-    logger.info("Starting T039: Visualization Generation")
+    logger = get_logger("visualize_results")
+    logger.info("Starting figure generation for T039...")
 
     # Ensure output directory exists
-    ensure_dir(config.FIGURES_DIR)
+    figures_dir = config.RESULTS_FIGURES_DIR
+    ensure_dir(figures_dir)
 
     # Load data
-    df_features = load_features(config)
-    df_lmm = load_lmm_results(config)
+    features_df = load_features(config)
+    lmm_df = load_lmm_results(config)
     power_data = load_power_analysis(config)
 
-    if df_features is None and df_lmm is None and power_data is None:
-        logger.error("No input data found. Cannot generate plots.")
-        return
+    # Generate plots
+    success_count = 0
+    total_plots = 3
 
-    # Generate Plots
-    if df_features is not None:
-        plot_fixation_distribution(df_features, config.FIGURES_DIR / "fixation_dist.png", logger)
-    
-    if df_lmm is not None:
-        plot_model_coefficients(df_lmm, config.FIGURES_DIR / "model_coeffs.png", logger)
-    
-    if power_data is not None:
-        plot_power_curve(power_data, config.FIGURES_DIR / "power_curve.png", logger)
+    # 1. Fixation Distribution
+    fixation_path = figures_dir / "fixation_dist.png"
+    if plot_fixation_distribution(features_df, fixation_path):
+        success_count += 1
 
-    logger.info("T039 completed successfully.")
+    # 2. Model Coefficients
+    coeffs_path = figures_dir / "model_coeffs.png"
+    if plot_model_coefficients(lmm_df, coeffs_path):
+        success_count += 1
+
+    # 3. Power Curve
+    power_path = figures_dir / "power_curve.png"
+    if plot_power_curve(power_data, power_path):
+        success_count += 1
+
+    logger.info(f"Figure generation complete: {success_count}/{total_plots} plots created successfully.")
+
+    if success_count < total_plots:
+        logger.warning("Some plots failed to generate. Check logs for details.")
+        sys.exit(1)
+    else:
+        logger.info("All required figures generated successfully.")
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

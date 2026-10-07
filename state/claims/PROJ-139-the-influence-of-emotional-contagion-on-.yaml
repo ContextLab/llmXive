@@ -7566,3 +7566,227 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-19T03:10:57Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Filtering non-English content is an optimization authorized by Assumption
+    6
+  claim_id: c_c33b764a
+  context: 'Justification: {{claim:c_3c912d3b}} (Wikidata Q37573478, https://www.wikidata.org/wiki/Q37573478)
+    Filtering is an implementation optimization authorized by Assumption 6 (CPU feasibility)
+    and does not constitute scope reduction.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Filtering_non-English_content_is_an_optimization_authorized
+  kind: entity_fact
+  raw_text: Filtering is an implementation optimization authorized by Assumption 6
+    (CPU feasibility) and does not constitute scope reduction.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T15:51:36Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime constraint is 6 hours for 500 threads on CPU
+  claim_id: c_c7946c30
+  context: 'Requirement: Run full pipeline on up to N=500 threads and verify completion
+    within 6 hours on CPU-only runner (SC-005).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must complete within 6 hours on a CPU-only runner for up
+    to N=500 threads.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T15:52:01Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: RuntimeError raised if memory usage exceeds 6GB during streaming
+  claim_id: c_69308e59
+  context: 'Constraint: ...If memory usage exceeds 6GB during streaming (monitored
+    via psutil), the pipeline MUST raise a RuntimeError...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RuntimeError_raised_if_memory_usage_exceeds_6GB_during_strea
+  kind: entity_fact
+  raw_text: The pipeline must raise a RuntimeError if memory usage exceeds 6GB during
+    streaming.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T15:52:20Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Primary data source is Pushshift API
+  claim_id: c_1dd2d03d
+  context: 'Primary: Pushshift API (verified endpoint: with query params subreddit=AskScience,AskHistorians,etc&size=1000&sort=desc).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_data_source_is_Pushshift_API
+  kind: entity_fact
+  raw_text: The primary data source for fetching threads is the Pushshift API.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T15:52:52Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Threads with < 5 replies excluded from contagion analysis
+  claim_id: c_785c944c
+  context: 'Constraint: Strictly exclude threads with <5 replies from all contagion
+    analysis.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Threads_with_%3C_5_replies_excluded_from_contagion_analysis
+  kind: magnitude
+  raw_text: Threads with fewer than 5 replies are strictly excluded from all contagion
+    analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T15:53:39Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Primary set for contagion index requires >= 20 replies
+  claim_id: c_6376b851
+  context: 'Primary Set: Select threads with reply_count >= 20 for the fixed-window
+    contagion index calculation (as per Plan and Spec).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Primary_set_for_contagion_index_requires_%3E=_20_replies
+  kind: magnitude
+  raw_text: For the primary set of contagion index calculation, threads must have
+    at least 20 replies.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T15:54:22Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: VIF collinearity threshold warning at 5.0
+  claim_id: c_85718c16
+  context: In code/data/modeling.py, if any VIF score (from T030) exceeds 5.0, log
+    a warning...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The VIF collinearity threshold for warning is 5.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T15:54:46Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Significance testing uses Wald test with alpha 0.05
+  claim_id: c_539c5385
+  context: "Implement significance testing in code/data/modeling.py: Wald tests (\u03B1\
+    =0.05) for contagion coefficients."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Significance testing uses a Wald test with alpha of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T15:55:10Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Multiple-comparison correction applied when >= 3 tests are run
+  claim_id: c_fe6495c7
+  context: "Implement multiple-comparison correction in code/data/modeling.py: Apply\
+    \ Bonferroni or Benjamini-Hochberg FDR when \u22653 hypothesis tests are run (FR-007)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Multiple-comparison correction is applied when 3 or more hypothesis tests
+    are run.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T15:55:32Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis tests agreement cutoffs 0.5, 0.6, 0.7
+  claim_id: c_9e921d6f
+  context: '...for each sweep (agreement cutoff {0.5, 0.6, 0.7} and entropy threshold
+    {0.2, 0.4, 0.6}).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis tests agreement cutoffs of 0.5, 0.6, and 0.7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T15:56:03Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis tests entropy thresholds 0.2, 0.4, 0.6
+  claim_id: c_c47c7549
+  context: '...for each sweep (agreement cutoff {0.5, 0.6, 0.7} and entropy threshold
+    {0.2, 0.4, 0.6}).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis tests entropy thresholds of 0.2, 0.4, and 0.6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T15:56:30Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Power analysis sample size is N=500 threads
+  claim_id: c_93bd1ee3
+  context: 'Add Power Analysis Documentation: ...explicitly state the sample size
+    (N=500 threads)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sample size for the power analysis documentation is N=500 threads.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T15:57:37Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Pushshift API query uses size=1000 and sort=desc
+  claim_id: c_e93ea433
+  context: 'Primary: Pushshift API (verified endpoint: with query params subreddit=AskScience,AskHistorians,etc&size=1000&sort=desc).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pushshift API query parameters include size=1000 and sort=desc.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T15:58:00Z'

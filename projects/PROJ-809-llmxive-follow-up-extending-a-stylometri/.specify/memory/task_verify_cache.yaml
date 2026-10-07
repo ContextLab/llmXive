@@ -14,13 +14,11 @@ T007:
     \ The claim cannot be verified because the required artifact is missing."
 T011:
   c: false
-  h: ee4d6662c98aa55d2f58b0fb2d92170f3a654a7071f20f36bb8e6a2eab656f82
-  r: "The required output file `data/raw/arxiv_subset.parquet` is missing, and the\
-    \ provided `code/data_ingestion.py` does not contain a complete implementation\
-    \ for downloading the HuggingFace \u201Carxiv\u201D train split and filtering\
-    \ by the specified categories. The script is truncated, focuses on abstract length\
-    \ filtering, and lacks any code that performs the dataset download or writes the\
-    \ parquet file."
+  h: 00504013a524330810818c9d74e45aff74ad720468cef014b86340cb7ed319de
+  r: The repository contains `code/data_ingestion.py`, but the script does not include
+    any code that writes the filtered data to `data/raw/arxiv_subset.parquet`, and
+    the expected parquet file is absent from the `data/raw` directory. Consequently,
+    the required output artifact is missing.
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -36,3 +34,18 @@ T017:
     of abstracts shorter than 6 characters nor records the number of excluded abstracts.
     The evidence consists only of a textual description, which does not satisfy the
     requirement for a concrete, executable artifact.
+T023b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required fallback logic or the saved `author_{id}_n5_fallback.pkl`
+    model files is present; the implementer did not provide any code, scripts, or
+    model artifacts demonstrating that n=6 failures trigger training of an n=5 model
+    and that the resulting file is stored at the specified path.
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission contains only high\u2011level user story descriptions and no\
+    \ concrete artifacts (e.g., scripts, benchmark logs, profiling reports) demonstrating\
+    \ that training/evaluation for each author actually runs \u226430\u202Fseconds\
+    \ and stays under 6\u202FGB RAM on CPU\u2011only hardware. Without measurable\
+    \ runtime/memory evidence, the CPU\u2011only constraint cannot be verified."

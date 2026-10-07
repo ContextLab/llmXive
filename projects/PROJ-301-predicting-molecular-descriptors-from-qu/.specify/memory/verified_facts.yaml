@@ -1,5 +1,5 @@
-'|cross fold pipeline training use validation':
-  quote: 'Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate'
-  source_id: '2604.10702'
-  url: https://arxiv.org/abs/2604.10702
-  value: '5'
+'|2d bit fingerprint generate morgan radius':
+  quote: 2 representations atnBits= 2048give the best balance of
+  source_id: '2609.22167'
+  url: https://arxiv.org/abs/2609.22167
+  value: '2048'

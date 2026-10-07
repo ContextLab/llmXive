@@ -91,9 +91,9 @@ description: "Task list template for feature implementation"
 - [X] T012 [US1] Implement `code/04_feature_generation.py`: **Feature Generation & Serialization**.
  1. **Input**: Load `data/processed/molecules_cleaned.parquet` and `data/processed/split_indices_final.json`. Load `labels_train.csv` and `labels_test.csv`.
  2. **Pre-Condition Assertion**: **Assert** that all molecules in the loaded subset have ≤100 atoms. If any molecule exceeds this limit, **FAIL the pipeline immediately** with a clear error message indicating the sampling strategy (T011) failed to filter correctly. Do NOT drop or warn.
- 3. **Feature Generation**: Generate 2D Morgan fingerprints (radius=2, nBits=2048) and 3D graph features. **Explicitly include**: atomic number, hybridization, distance bins, bond angles, and dihedral angles as required by FR-002.
+ 3. **Feature Generation**: Generate 2D Morgan fingerprints (radius=2, nBits=2048 (2609.22167, https://arxiv.org/abs/2609.22167)) and 3D graph features. **Explicitly include**: atomic number, hybridization, distance bins, bond angles, and dihedral angles as required by FR-002.
  4. **Serialization Format**:
- - Save 2D features to `data/processed/features_2d.npy`.
+ - Save 2D featuresto `data/processed/features_2d.npy`.
  - **Save 3D graph features to `data/processed/features_3d.npy`** using a **strictly typed structured NumPy array** with a **fixed maximum size** to ensure reproducibility.
  - **Schema**: `dtype=[('atom_num', 'i4', (100,)), ('hybridization', 'i4', (100,)), ('distances', 'f4', (4950,)), ('angles', 'f4', (161700,)), ('dihedrals', 'f4', (392120,))]` (assuming max 100 atoms).
  - **Padding**: All fields are padded with NaN (for floats) or 0 (for ints) if the molecule has fewer atoms/bonds than the max.
@@ -263,7 +263,7 @@ description: "Task list template for feature implementation"
 
 **Goal**: Ensure the run-book matches the implementation and the pipeline is executable.
 
-- [ ] T034 [US3] **Reconcile run-book vs implementation for `code/03_feature_extraction.py`**: The quickstart run-book previously invoked `code/extract.py` which did not exist. **Resolution**: The run-book has been updated to invoke `code/03_feature_extraction.py` (wrapper script) which orchestrates the canonical `code/extract_features.py` logic. **Verification**: Run `grep -r "03_feature_extraction" docs/quickstart.md` and `ls code/03_feature_extraction.py`. If either fails, the task is incomplete. <!-- FAILED: unspecified -->
+- [X] T034 [US3] **Reconcile run-book vs implementation for `code/03_feature_extraction.py`**: The quickstart run-book previously invoked `code/extract.py` which did not exist. **Resolution**: The run-book has been updated to invoke `code/03_feature_extraction.py` (wrapper script) which orchestrates the canonical `code/extract_features.py` logic. **Verification**: Run `grep -r "03_feature_extraction" docs/quickstart.md` and `ls code/03_feature_extraction.py`. If either fails, the task is incomplete. <!-- FAILED: unspecified -->
  1. **Action**: Confirm `docs/quickstart.md` references `code/03_feature_extraction.py`.
  2. **Action**: Confirm `code/03_feature_extraction.py` exists.
  3. **Verification**: Run `grep -r "03_feature_extraction" docs/quickstart.md` and `ls code/03_feature_extraction.py`. If either fails, the task is incomplete. **Exit Code**: 0 indicates success.
@@ -410,7 +410,7 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 
 <!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
-- [ ] T034 Reconcile run-book vs implementation for `code/03_feature_extraction.py`: The quickstart run-book previously invoked `code/extract.py` which did not exist. **Resolution**: The run-book has been updated to invoke `code/03_feature_extraction.py` (wrapper script) which orchestrates the canonical `code/extract_features.py` logic. Code-side reconciliation is complete. <!-- FAILED: unspecified -->
+- [X] T034 Reconcile run-book vs implementation for `code/03_feature_extraction.py`: The quickstart run-book previously invoked `code/extract.py` which did not exist. **Resolution**: The run-book has been updated to invoke `code/03_feature_extraction.py` (wrapper script) which orchestrates the canonical `code/extract_features.py` logic. Code-side reconciliation is complete. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T035 Reconcile run-book vs implementation for `code/train.py`: The quickstart run-book previously invoked `code/train.py` which did not exist. **Resolution**: The run-book has been updated to invoke `code/04_train_orchestrator.py` (T018). Code-side reconciliation is complete.
 
 <!-- auto-added by the execution fix loop: missing GPU execution path for 3D graph construction -->
@@ -429,5 +429,5 @@ With multiple developers:
 - [X] T058 [US1] **Implement Robust Error Handling for Corrupted Data**. **REMOVED**: This logic is integrated into T009 and T010.
 
 <!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
-- [ ] T059 Reconcile run-book vs implementation for `code/train_models.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/train_models.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
-- [ ] T060 Reconcile run-book vs implementation for `code/analyze_results.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/analyze_results.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist. <!-- FAILED: unspecified -->
+- [X] T059 Reconcile run-book vs implementation for `code/train_models.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/train_models.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist. <!-- FAILED: unspecified -->
+- [X] T060 Reconcile run-book vs implementation for `code/analyze_results.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/analyze_results.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist. <!-- FAILED: unspecified -->

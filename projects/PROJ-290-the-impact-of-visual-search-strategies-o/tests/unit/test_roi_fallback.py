@@ -1,169 +1,118 @@
-import pytest
-import pandas as pd
-import numpy as np
-from pathlib import Path
-import json
-import tempfile
-import os
+"""
+Unit tests for T013: Generic ROI Fallback logic.
 
-from data.validate import (
+These tests verify that the 3x3 grid is correctly generated and applied
+to records missing `roi_annotations`.
+"""
+
+import json
+import os
+import pytest
+from pathlib import Path
+import sys
+
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
+from code.data.roi_fallback import (
     define_generic_roi_grid,
     apply_roi_fallback,
-    validate_dataset,
-    write_validation_report
+    run_roi_fallback_pipeline
 )
+from utils.logging import get_logger
 
-class TestROIFallback:
-    """Tests for Generic ROI Fallback (3x3 grid) logic."""
 
-    def test_define_generic_roi_grid_basic(self):
-        """Test that 3x3 grid is generated correctly."""
-        grid = define_generic_roi_grid(64, 64)
-        
+class TestDefineGenericROIGrid:
+    def test_grid_dimensions(self):
+        """Test that the grid produces 9 regions."""
+        grid = define_generic_roi_grid(200, 200)
         assert len(grid) == 9
-        assert "top_left" in grid
-        assert "bottom_right" in grid
-        assert "middle_center" in grid
         
-        # Check dimensions
-        for name, (x, y, w, h) in grid.items():
-            assert x >= 0
-            assert y >= 0
-            assert w > 0
-            assert h > 0
+    def test_grid_keys(self):
+        """Test that grid keys follow the expected pattern."""
+        grid = define_generic_roi_grid(200, 200)
+        expected_keys = [f"grid_{r}_{c}" for r in range(3) for c in range(3)]
+        assert set(grid.keys()) == set(expected_keys)
+        
+    def test_grid_coordinates(self):
+        """Test that coordinates are within bounds."""
+        w, h = 200, 200
+        grid = define_generic_roi_grid(w, h)
+        for key, region in grid.items():
+            assert 0 <= region["x_min"] < w
+            assert 0 <= region["y_min"] < h
+            assert region["x_max"] <= w
+            assert region["y_max"] <= h
+            assert region["x_max"] > region["x_min"]
+            assert region["y_max"] > region["y_min"]
 
-    def test_define_generic_roi_grid_dimensions(self):
-        """Test grid dimensions match input image size."""
-        width, height = 128, 64
-        grid = define_generic_roi_grid(width, height)
+class TestApplyROIFallback:
+    def setup_method(self):
+        self.logger = get_logger("test_roi_fallback")
         
-        cell_w = width // 3
-        cell_h = height // 3
+    def test_no_missing_annotations(self):
+        """Test that no fallback is applied if all records have annotations."""
+        data = [
+            {"id": 1, "roi_annotations": {"custom": "data"}},
+            {"id": 2, "roi_annotations": {"custom": "data"}}
+        ]
+        updated, count = apply_roi_fallback(data, self.logger)
+        assert count == 0
+        assert updated[0]["roi_annotations"] == {"custom": "data"}
         
-        for name, (x, y, w, h) in grid.items():
-            assert w == cell_w
-            assert h == cell_h
+    def test_missing_annotations(self):
+        """Test that fallback is applied to missing annotations."""
+        data = [
+            {"id": 1, "roi_annotations": None},
+            {"id": 2}, # Key missing entirely
+            {"id": 3, "roi_annotations": {"valid": "data"}}
+        ]
+        updated, count = apply_roi_fallback(data, self.logger)
+        assert count == 2
+        assert "grid_0_0" in updated[0]["roi_annotations"]
+        assert "grid_0_0" in updated[1]["roi_annotations"]
+        assert updated[2]["roi_annotations"] == {"valid": "data"}
+        
+    def test_empty_list(self):
+        """Test handling of empty data list."""
+        data = []
+        updated, count = apply_roi_fallback(data, self.logger)
+        assert count == 0
+        assert updated == []
 
-    def test_apply_roi_fallback_missing_column(self):
-        """Test fallback when roi_annotations column is missing."""
-        df = pd.DataFrame({
-            "participant_id": [1, 2, 3],
-            "gaze_coordinates": [[1, 2], [3, 4], [5, 6]],
-            "response_times": [0.5, 0.6, 0.7]
-        })
+class TestROIFallbackPipeline:
+    def test_run_pipeline_with_json(self, tmp_path):
+        """Test the full pipeline with a JSON input file."""
+        input_file = tmp_path / "input.json"
+        output_file = tmp_path / "output.json"
         
-        modified_df, fallback_info = apply_roi_fallback(df)
+        data = [
+            {"participant_id": "P1", "roi_annotations": None},
+            {"participant_id": "P2", "roi_annotations": {"existing": "roi"}}
+        ]
         
-        assert "roi_annotations" in modified_df.columns
-        assert fallback_info["applied"] is True
-        assert fallback_info["records_modified"] == 3
-        assert fallback_info["grid_type"] == "3x3"
+        with open(input_file, 'w') as f:
+            json.dump(data, f)
+            
+        result = run_roi_fallback_pipeline(
+            input_data_path=input_file,
+            output_data_path=output_file,
+            force_overwrite=True
+        )
         
-        # Check that all records have grid
-        for idx, row in modified_df.iterrows():
-            assert isinstance(row["roi_annotations"], dict)
-            assert len(row["roi_annotations"]) == 9
+        assert result["status"] == "success"
+        assert result["fallbacks_applied"] == 1
+        assert output_file.exists()
+        
+        with open(output_file, 'r') as f:
+            output_data = json.load(f)
+            
+        assert "grid_0_0" in output_data[0]["roi_annotations"]
+        assert output_data[1]["roi_annotations"] == {"existing": "roi"}
 
-    def test_apply_roi_fallback_empty_annotations(self):
-        """Test fallback for records with empty roi_annotations."""
-        df = pd.DataFrame({
-            "participant_id": [1, 2, 3],
-            "gaze_coordinates": [[1, 2], [3, 4], [5, 6]],
-            "response_times": [0.5, 0.6, 0.7],
-            "roi_annotations": [
-                {"top_left": (0, 0, 10, 10)},  # Valid
-                None,  # Missing
-                {}  # Empty
-            ]
-        })
-        
-        modified_df, fallback_info = apply_roi_fallback(df)
-        
-        assert fallback_info["applied"] is True
-        assert fallback_info["records_modified"] == 2
-        
-        # First record should be unchanged
-        assert len(modified_df.iloc[0]["roi_annotations"]) == 1
-        
-        # Other records should have full grid
-        for idx in [1, 2]:
-            assert len(modified_df.iloc[idx]["roi_annotations"]) == 9
-
-    def test_apply_roi_fallback_no_missing(self):
-        """Test that no fallback is applied when all annotations are valid."""
-        df = pd.DataFrame({
-            "participant_id": [1, 2, 3],
-            "gaze_coordinates": [[1, 2], [3, 4], [5, 6]],
-            "response_times": [0.5, 0.6, 0.7],
-            "roi_annotations": [
-                {"top_left": (0, 0, 10, 10)},
-                {"middle_center": (10, 10, 20, 20)},
-                {"bottom_right": (20, 20, 30, 30)}
-            ]
-        })
-        
-        modified_df, fallback_info = apply_roi_fallback(df)
-        
-        assert fallback_info["applied"] is False
-        assert fallback_info["records_modified"] == 0
-
-    def test_validate_dataset_with_roi_fallback(self):
-        """Test full validation pipeline with ROI fallback."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, "validation_report.json")
-            
-            df = pd.DataFrame({
-                "participant_id": [1, 2, 3],
-                "gaze_coordinates": [[1, 2], [3, 4], [5, 6]],
-                "response_times": [0.5, 0.6, 0.7],
-                "emotion_labels": ["happy", "sad", "neutral"]
-            })
-            
-            required_vars = ["gaze_coordinates", "response_times", "emotion_labels", "roi_annotations"]
-            
-            success = validate_dataset(
-                df, 
-                required_vars, 
-                output_path=output_path,
-                image_width=64,
-                image_height=64
-            )
-            
-            assert success is True
-            assert Path(output_path).exists()
-            
-            with open(output_path, 'r') as f:
-                report = json.load(f)
-            
-            assert report["status"] in ["PASS", "WARN"]
-            assert report["roi_fallback_applied"] is True
-            assert report["roi_fallback_details"]["records_modified"] == 3
-
-    def test_validate_dataset_critical_missing(self):
-        """Test that validation fails when critical variables are missing."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, "validation_report.json")
-            
-            df = pd.DataFrame({
-                "participant_id": [1, 2, 3],
-                "response_times": [0.5, 0.6, 0.7]
-                # Missing gaze_coordinates and emotion_labels
-            })
-            
-            required_vars = ["gaze_coordinates", "response_times", "emotion_labels", "roi_annotations"]
-            
-            success = validate_dataset(
-                df, 
-                required_vars, 
-                output_path=output_path
-            )
-            
-            assert success is False
-            assert Path(output_path).exists()
-            
-            with open(output_path, 'r') as f:
-                report = json.load(f)
-            
-            assert report["status"] == "FAIL"
-            assert "gaze_coordinates" in report["missing_variables"]
-            assert "emotion_labels" in report["missing_variables"]
+    def test_run_pipeline_no_input(self):
+        """Test that pipeline fails gracefully if input not found."""
+        result = run_roi_fallback_pipeline(
+            input_data_path=Path("/nonexistent/path/file.json")
+        )
+        assert result["status"] == "error"

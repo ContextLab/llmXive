@@ -79,7 +79,7 @@
 
 - [X] T010 [US1] Implement `code/data/download.py` to search HuggingFace for 'eye-tracking', 'face', 'emotion' datasets; select the first dataset where schema validation passes (FR-009) and contains at least one valid record; if no valid dataset is found, halt with a clear error message. Do NOT use a hardcoded fallback dataset ID.
 - [X] T011 [US1] Implement retry logic with exponential backoff in `code/data/download.py` (FR-002) with explicit timings: 1s, 2s, 4s.
-- [ ] T012 [US1] Implement `code/data/validate.py` to check for `gaze_coordinates`, `response_times`, `emotion_labels`, `roi_annotations`; write `data/validation_report.json` with status and missing variables list; HALT if critical vars missing (FR-009).
+- [X] T012 [US1] Implement `code/data/validate.py` to check for `gaze_coordinates`, `response_times`, `emotion_labels`, `roi_annotations`; write `data/validation_report.json` with status and missing variables list; HALT if critical vars missing (FR-009).
 - [ ] T013 [US1] Implement logic to apply Generic ROI Fallback (3x3 grid) if `roi_annotations` are missing
 - [ ] T014 [US1] Implement participant exclusion logic: exclude if >20% missing gaze data; log exclusion rate
 - [ ] T015 [US1] Create `data/raw/` directory structure and save downloaded dataset checksums
@@ -131,11 +131,11 @@
 
 - [ ] T029a [US3] Implement `code/analysis/lmm.py` to fit Linear Mixed-Effects Model with detection time as outcome and **continuous fixation ratio** as fixed effect (Primary Analysis per Plan); output `results/lmm_continuous.csv`; assert model.converged. **If model fails to converge (max_iter=500), immediately fall back to a simpler linear model using the SAME predictor (Continuous Ratio).**
 - [ ] T029b [US3] [Descriptive Only] Implement `code/analysis/lmm.py` to fit Linear Mixed-Effects Model with detection time as outcome and **processing strategy (derived cluster label from T023a)** as fixed effect; **WARNING: This is Exploratory/Descriptive Only and NOT for primary inference due to circularity risks per Plan.** Output `results/lmm_cluster.csv`; assert model.converged. <!-- FAILED: unspecified -->
-- [~] T030 [US3] Implement Permutation Test in `code/analysis/lmm.py`: permute detection times **1000 times** to establish null distribution; use same data prep as T029a; output `results/permutation_test.json`.
+- [ ] T030 [US3] Implement Permutation Test in `code/analysis/lmm.py`: permute detection times **1000 times** to establish null distribution; use same data prep as T029a; output `results/permutation_test.json`.
 - [X] T031 [US3] Implement multiple-comparison correction (Bonferroni or Benjamini-Hochberg) at α=0.05 in `code/analysis/power.py` (FR-007)
 - [X] T032 [US3] Implement a priori power analysis based on effect size d=0.5, **target power=0.80, alpha=0.05, two-tailed test** in `code/analysis/power.py`
-- [~] T033 [US3] Implement post-hoc power analysis; document if power < 0.80 (FR-008)
-- [~] T034 [US3] Generate statistical results table with estimates, SE, t-values, p-values, and adjusted p-values
+- [ ] T033 [US3] Implement post-hoc power analysis; document if power < 0.80 (FR-008)
+- [ ] T034 [US3] Generate statistical results table with estimates, SE, t-values, p-values, and adjusted p-values
 - [ ] T025 [US3] [FR-010] Implement Sensitivity Analysis: sweep k over {2, 3}, run **secondary LMM using cluster labels** (from T024b) to report coefficient variance for the **descriptive model**; output `results/sensitivity_report.yaml`. This validates the stability of the exploratory cluster-based approach, not the primary continuous predictor.
 - [ ] T026 [US3] Save sensitivity analysis report to `results/sensitivity_report.yaml` (SC-006)
 - [~] T037c [US3] Run `hash_artifacts.py` to update `state/` with hashes after T026, T034 (Final Results)
@@ -149,7 +149,7 @@
 **Purpose**: Improvements that affect multiple user stories and final validation.
 
 - [X] T035 [P] Implement `code/validation/reference_validator.py` to validate citations against primary sources (Title overlap ≥0.7)
-- [ ] T038 Generate final report in `results/report.md` including sections: Data, Methods, Results (Continuous & Cluster), Sensitivity, Limitations; must include tables from T029a and T029b. <!-- ATOMIZE: requested -->
+- [ ] T038 Generate final report in `results/report.md` including sections: Data, Methods, Results (Continuous & Cluster), Sensitivity, Limitations; must include tables from T029a and T029b. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [ ] T039 Create `results/figures/` directory and generate plots: `results/figures/fixation_dist.png`, `results/figures/model_coeffs.png`, `results/figures/power_curve.png`.
 - [~] T040 Run `quickstart.md` validation to ensure end-to-end pipeline execution succeeds within 6 hours <!-- FAILED: unspecified -->
 

@@ -5,33 +5,6 @@ T012:
     \ is truncated and does not demonstrate writing `data/validation_report.json`\
     \ or halting on missing critical variables. Moreover, the required `data/validation_report.json`\
     \ file is absent. The task\u2019s core output is therefore missing."
-T013:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, or documentation implementing the Generic ROI Fallback (3x3
-    grid) logic is present; the artifact is missing entirely, so the requirement is
-    not satisfied. The next implementer must add the fallback implementation and provide
-    the corresponding source file or test evidence.
-T014:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The submission provides no code, script, or documentation showing a participant\u2011\
-    exclusion routine that drops participants with >20\u202F% missing gaze data, nor\
-    \ any log output reporting the exclusion rate. Without these artifacts the requirement\
-    \ cannot be verified."
-T015:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The submission provides no visible `data/raw/` directory nor any checksum files
-    documenting downloaded datasets; no artifacts were presented to verify that the
-    required structure and checksum records exist. The task therefore remains unfulfilled.
-T020:
-  c: false
-  h: 547466fc29497e508fcb4e3adf15b3d864910c6a5af3b44cfdc286f134e2434a
-  r: "The provided `classification.py` defines the ratio calculation and logs a warning,\
-    \ but it never writes the resulting DataFrame to `data/processed/features.csv`,\
-    \ and that CSV file is missing from the repository. The task\u2019s requirement\
-    \ to append the computed ratio to that file is therefore not fulfilled."
 T022:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -42,26 +15,43 @@ T022:
     \ The missing implementation must be added and the relevant file(s) supplied."
 T029a:
   c: false
-  h: 0ebb1f5e005e1b5829b0f99b09307cf79e0928040dcf568862e5e13cc6e9fe2f
-  r: The provided `code/analysis/lmm.py` is truncated and does not contain a complete
-    implementation for fitting the LMM with detection time and continuous fixation
-    ratio, asserting convergence, or writing `results/lmm_continuous.csv`. Moreover,
-    the required output file `results/lmm_continuous.csv` is absent. The task therefore
-    remains unfinished.
+  h: f05add672a9ab08769b5f12243fb268935af41afa4a5ace472b692614bbb17ea
+  r: The repository contains a partially shown `code/analysis/lmm.py`, but the file
+    is truncated and does not demonstrate a concrete execution that fits a model with
+    `detection_time` as outcome and `continuous_fixation_ratio` as predictor, writes
+    `results/lmm_continuous.csv`, or asserts convergence. Moreover, the required output
+    CSV is missing from the `results` directory. The task therefore remains unfinished.
 T029b:
   c: false
-  h: c9d22e444926b0334ab24eb133c1206ddadb81569b198499c3aad099e6468bd8
-  r: "The provided `code/analysis/lmm.py` is truncated, contains placeholder comments,\
-    \ and even has a syntax error (`return pd.DataFram`). It never defines the required\
-    \ model fitting with detection time and processing\u2011strategy fixed effect,\
-    \ nor does it write `results/lmm_cluster.csv`. The expected output file is absent.\
-    \ The task therefore remains unfinished."
-T037a:
+  h: 019355e93a71d0049a4f9291132379dfcd838ae10364790d9356046bfe908cfd
+  r: "The `code/analysis/lmm.py` file is present but the shown excerpt ends abruptly\
+    \ (truncated) and does not contain logic that loads the cluster label, fits a\
+    \ model with detection time as the outcome and the processing\u2011strategy predictor,\
+    \ asserts convergence, or writes `results/lmm_cluster.csv`. Moreover, the required\
+    \ output file `results/lmm_cluster.csv` is missing from the repository. The task\
+    \ therefore remains unfinished."
+T030:
+  c: false
+  h: 1b4553a7032a0caedc80bc3b5900431be9ece22153d701850a00ff6620756d02
+  r: The provided `code/analysis/lmm.py` does not contain any implementation of a
+    permutation test (no code that permutes detection times 1000 times or writes a
+    null distribution). Additionally, the required output file `results/permutation_test.json`
+    is missing from the repository. Both the core functionality and the expected result
+    artifact are absent.
+T033:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that `hash_artifacts.py` was executed, nor that a `state/`
-    directory containing updated hash files exists; the required artifact (the updated
-    hashes) is missing.
+  r: "No code, script, notebook, or documentation implementing a post\u2011hoc power\
+    \ analysis (or noting when power\u202F<\u202F0.80) was provided. The claim cannot\
+    \ be verified because the required artifact is missing."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No statistical results table (containing estimates, standard errors, t\u2011\
+    values, p\u2011values, and adjusted p\u2011values) is present in the provided\
+    \ evidence. The implementer supplied only the task description and specification\
+    \ excerpt, without any generated output, code, or data files that fulfill the\
+    \ requirement. Consequently, the required artifact is missing."
 T037b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

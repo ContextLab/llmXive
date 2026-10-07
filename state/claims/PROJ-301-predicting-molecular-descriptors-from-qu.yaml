@@ -677,3 +677,178 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-07T12:28:58Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 0
+  canonical: Download QM9 dataset from lisn/QM9 HuggingFace source
+  claim_id: c_ff97332a
+  context: 'Implement code/01_download.py: Download & Verify. Source: Download QM9
+    dataset strictly from the verified HuggingFace source lisn/QM9 as mandated by
+    plan.md (T009.1 Amendment).'
+  evidence:
+    entailment_evidence: QM9 dataset source is lisn/QM9 on HuggingFace
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/QM9_dataset_source_is_lisn/QM9_on_HuggingFace
+  kind: entity_fact
+  raw_text: Download QM9 dataset strictly from the verified HuggingFace source lisn/QM9.
+  resolved_value: QM9 dataset source is lisn/QM9 on HuggingFace
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-07T15:31:48Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: Verify QM9 dataset schema matches Harvard Dataverse record structure
+  claim_id: c_0263a8ea
+  context: 'Verification: Verify the dataset schema (column names: dipole, HOMO, LUMO)
+    and a random sample count match the known Harvard Dataverse record structure.
+    If mismatch, fail with error.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P5332: 2954'
+      source_id: Q55082981
+      url: https://www.wikidata.org/wiki/Q55082981
+      value: '2954'
+    filled: true
+  kind: entity_fact
+  raw_text: Verify the dataset schema matches the known Harvard Dataverse record structure.
+  resolved_value: '2954'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-07T15:31:58Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: Filter molecules with atom count greater than 100
+  claim_id: c_cc2ba723
+  context: 'Pre-Filter: Explicitly filter out any molecules with >100 atoms before
+    sampling to ensure compatibility with the fixed-size schema in T012.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_molecules_with_atom_count_greater_than_100
+  kind: magnitude
+  raw_text: Filter out any molecules with more than 100 atoms before sampling.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T15:32:36Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: KS test statistic D less than 0.05 for distribution verification
+  claim_id: c_45cc9a0d
+  context: 'Distribution Verification: For each candidate subset, run a Kolmogorov-Smirnov
+    (KS) test comparing the ''atom count'' and ''polarity'' distributions of the subset
+    against the full population (post-filter). Requirement: KS statistic D < 0.05
+    for both strata.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/KS_test_statistic_D_less_than_0.05_for_distribution_verifica
+  kind: magnitude
+  raw_text: Use Kolmogorov-Smirnov test with statistic D less than 0.05 for distribution
+    verification.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T15:34:50Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: Generate 2D Morgan fingerprints radius 2 nBits 2048
+  claim_id: c_f9ac4897
+  context: 'Feature Generation: Generate 2D Morgan fingerprints (radius=2, nBits=2048)
+    and 3D graph features.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 2 representations atnBits= 2048give the best balance of
+      source_id: '2609.22167'
+      url: https://arxiv.org/abs/2609.22167
+      value: '2048'
+    filled: true
+  kind: numeric
+  raw_text: Generate 2D Morgan fingerprints with radius 2 and 2048 bits.
+  resolved_value: '2048'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-07T15:35:11Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: 3D features schema 100 atoms fixed size NumPy array
+  claim_id: c_423ae9db
+  context: 'Schema: dtype=[(''atom_num'', ''i4'', (100,)), (''hybridization'', ''i4'',
+    (100,)), (''distances'', ''f4'', (4950,)), (''angles'', ''f4'', (161700,)), (''dihedrals'',
+    ''f4'', (392120,))] (assuming max 100 atoms).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use fixed maximum size NumPy structured array schema with 100 atoms for
+    3D features.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T15:35:29Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: Train Random Forest Regressors 5-fold cross-validation
+  claim_id: c_211e99f6
+  context: 'Goal: Train Random Forest Regressors on 2D and 3D features using 5-fold
+    CV within 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Random Forest Regressors using 5-fold cross-validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T15:35:54Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction alpha 0.0167
+  claim_id: c_48019589
+  context: "Correction: Apply Bonferroni correction (\u03B1 = 0.05 / 3 \u2248 0.0167)\
+    \ to the p-value of BOTH the Wilcoxon test and the paired t-test."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Bonferroni correction with alpha 0.0167 to p-values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T15:36:14Z'
+- artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
+  attempts: 1
+  canonical: Failure boundary REI greater than or equal to 10% and p-value less than
+    0.0167
+  claim_id: c_ea21c96d
+  context: "Synthesis: Determine 'Failure Boundary' for each descriptor: REI \u2265\
+    \ 10% AND p-value < 0.0167 (Bonferroni corrected)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Failure_boundary_REI_greater_than_or_equal_to_10%25_and_p-valu
+  kind: magnitude
+  raw_text: Define failure boundary as Relative Error Increase greater than or equal
+    to 10% and p-value less than 0.0167.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T15:37:00Z'

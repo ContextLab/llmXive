@@ -1,150 +1,174 @@
-"""
-Unit tests for data validation module (T012).
-
-Tests:
-- Variable presence checking
-- ROI fallback application
-- Report generation
-- Halting on missing critical variables
-"""
 import pytest
-import pandas as pd
 import json
-import tempfile
+import os
 from pathlib import Path
-import logging
+from unittest.mock import Mock, patch, MagicMock
 
+# Import the module under test
+# Assuming the package structure is code.data.validate
 from code.data.validate import (
     check_variable_presence,
     validate_data_content,
+    define_generic_roi_grid,
     apply_roi_fallback,
-    write_validation_report,
     validate_dataset,
-    CRITICAL_VARIABLES
+    write_validation_report,
+    main
 )
 from code.config import get_config
 
-@pytest.fixture
-def sample_data_with_all_vars():
-    """Sample DataFrame with all critical variables."""
-    return pd.DataFrame({
-        'gaze_coordinates': [[100, 200], [150, 250], [120, 220]],
-        'response_times': [0.5, 0.7, 0.6],
-        'emotion_labels': ['happy', 'sad', 'angry'],
-        'roi_annotations': [{'eye': [0, 0]}, {'eye': [1, 1]}, {'eye': [2, 2]}],
-        'participant_id': [1, 2, 3]
-    })
+class TestCheckVariablePresence:
+    def test_hf_dataset_all_present(self):
+        mock_ds = Mock()
+        mock_ds.column_names = ["gaze_coordinates", "response_times", "emotion_labels", "roi_annotations"]
+        present, missing = check_variable_presence(mock_ds, ["gaze_coordinates", "response_times"])
+        assert present is True
+        assert missing == []
 
-@pytest.fixture
-def sample_data_missing_vars():
-    """Sample DataFrame missing some critical variables."""
-    return pd.DataFrame({
-        'gaze_coordinates': [[100, 200], [150, 250]],
-        'response_times': [0.5, 0.7],
-        # Missing emotion_labels and roi_annotations
-        'participant_id': [1, 2]
-    })
+    def test_hf_dataset_missing_one(self):
+        mock_ds = Mock()
+        mock_ds.column_names = ["gaze_coordinates", "response_times"]
+        present, missing = check_variable_presence(mock_ds, ["gaze_coordinates", "emotion_labels"])
+        assert present is False
+        assert missing == ["emotion_labels"]
 
-@pytest.fixture
-def sample_data_empty():
-    """Empty DataFrame."""
-    return pd.DataFrame()
+    def test_dict_data_all_present(self):
+        data = {"gaze_coordinates": [], "response_times": [], "emotion_labels": []}
+        present, missing = check_variable_presence(data, ["gaze_coordinates", "response_times"])
+        assert present is True
+        assert missing == []
 
-@pytest.fixture
-def temp_output_path():
-    """Temporary path for report output."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield Path(tmpdir) / 'test_report.json'
+    def test_dict_data_missing_multiple(self):
+        data = {"gaze_coordinates": []}
+        present, missing = check_variable_presence(data, ["gaze_coordinates", "response_times", "emotion_labels"])
+        assert present is False
+        assert missing == ["response_times", "emotion_labels"]
 
-def test_check_variable_presence_all_present(sample_data_with_all_vars):
-    """Test that all_present is True when all variables exist."""
-    all_present, missing = check_variable_presence(sample_data_with_all_vars, CRITICAL_VARIABLES)
-    assert all_present is True
-    assert len(missing) == 0
+class TestValidateDataContent:
+    def test_empty_dataset(self):
+        mock_ds = Mock()
+        mock_ds.__len__ = Mock(return_value=0)
+        mock_ds.column_names = ["col1"]
+        result = validate_data_content(mock_ds)
+        assert result["is_valid"] is False
+        assert "empty" in result["issues"][0].lower()
 
-def test_check_variable_presence_some_missing(sample_data_missing_vars):
-    """Test detection of missing variables."""
-    all_present, missing = check_variable_presence(sample_data_missing_vars, CRITICAL_VARIABLES)
-    assert all_present is False
-    assert 'emotion_labels' in missing
-    assert 'roi_annotations' in missing
+    def test_valid_dataset(self):
+        mock_ds = Mock()
+        mock_ds.__len__ = Mock(return_value=100)
+        mock_ds.column_names = ["col1", "col2"]
+        result = validate_data_content(mock_ds)
+        assert result["is_valid"] is True
+        assert result["row_count"] == 100
 
-def test_validate_data_content_non_empty(sample_data_with_all_vars):
-    """Test content validation on non-empty data."""
-    result = validate_data_content(sample_data_with_all_vars)
-    assert result['is_empty'] is False
-    assert result['row_count'] == 3
+class TestDefineGenericRoiGrid:
+    def test_grid_dimensions(self):
+        grid = define_generic_roi_grid(100, 100)
+        assert len(grid) == 9
+        assert "top_left" in grid
+        assert "bottom_right" in grid
 
-def test_validate_data_content_empty(sample_data_empty):
-    """Test content validation on empty data."""
-    result = validate_data_content(sample_data_empty)
-    assert result['is_empty'] is True
-    assert len(result['issues']) > 0
+class TestApplyRoiFallback:
+    def test_apply_fallback_to_dict(self):
+        data = {"gaze": []}
+        result = apply_roi_fallback(data)
+        assert "roi_annotations" in result
+        assert len(result["roi_annotations"]) == 9
 
-def test_apply_roi_fallback_when_missing(sample_data_missing_vars):
-    """Test that ROI fallback is applied when roi_annotations is missing."""
-    result = apply_roi_fallback(sample_data_missing_vars)
-    assert 'roi_annotations' in result.columns
-    # Check that the default 3x3 grid was applied
-    assert len(result['roi_annotations'][0]) == 9
+class TestValidateDataset:
+    @patch('code.data.validate.get_logger_wrapper')
+    def test_validate_missing_critical(self, mock_logger):
+        mock_logger.return_value = Mock()
+        mock_ds = Mock()
+        mock_ds.column_names = ["gaze_coordinates"] # Missing response_times, emotion_labels
+        
+        report = validate_dataset(mock_ds)
+        
+        assert report["status"] == "failed"
+        assert "response_times" in report["missing_critical_vars"]
+        assert "emotion_labels" in report["missing_critical_vars"]
 
-def test_apply_roi_fallback_when_present(sample_data_with_all_vars):
-    """Test that ROI fallback is NOT applied when roi_annotations exists."""
-    original_roi = sample_data_with_all_vars['roi_annotations'].iloc[0]
-    result = apply_roi_fallback(sample_data_with_all_vars)
-    # Should remain unchanged
-    assert result['roi_annotations'].iloc[0] == original_roi
+    @patch('code.data.validate.get_logger_wrapper')
+    def test_validate_passed(self, mock_logger):
+        mock_logger.return_value = Mock()
+        mock_ds = Mock()
+        mock_ds.column_names = ["gaze_coordinates", "response_times", "emotion_labels"]
+        
+        report = validate_dataset(mock_ds)
+        
+        assert report["status"] == "passed"
+        assert report["missing_critical_vars"] == []
 
-def test_write_validation_report(temp_output_path):
-    """Test that validation report is written correctly."""
-    test_result = {
-        'status': 'passed',
-        'missing_variables': [],
-        'test_field': 'test_value'
-    }
-    write_validation_report(test_result, temp_output_path)
-    
-    assert temp_output_path.exists()
-    with open(temp_output_path, 'r') as f:
-        loaded = json.load(f)
-    assert loaded['status'] == 'passed'
-    assert loaded['test_field'] == 'test_value'
+class TestWriteValidationReport:
+    def test_write_report_json(self, tmp_path):
+        report = {"status": "passed", "data": [1, 2, 3]}
+        output_file = tmp_path / "test_report.json"
+        write_validation_report(report, output_file)
+        
+        assert output_file.exists()
+        with open(output_file) as f:
+            loaded = json.load(f)
+        assert loaded["status"] == "passed"
 
-def test_validate_dataset_raises_on_missing_critical_vars(sample_data_missing_vars, tmp_path):
-    """Test that validate_dataset raises ValueError when critical vars are missing."""
-    # Create a mock config with a temp data dir
-    class MockConfig:
-        DATA_DIR = str(tmp_path)
-    
-    with pytest.raises(ValueError) as excinfo:
-        validate_dataset(sample_data_missing_vars, MockConfig())
-    
-    assert "Missing required variables" in str(excinfo.value)
-    assert "emotion_labels" in str(excinfo.value)
+class TestMain:
+    @patch('code.data.validate.load_from_disk')
+    @patch('code.data.validate.get_config')
+    @patch('code.data.validate.validate_dataset')
+    @patch('code.data.validate.write_validation_report')
+    @patch('code.data.validate.Path')
+    def test_main_success(self, mock_path, mock_write, mock_validate, mock_config, mock_load):
+        # Setup mocks
+        mock_config.return_value = {
+            "data_raw_path": "/fake/path",
+            "validation_report_path": "/fake/report.json"
+        }
+        
+        mock_ds = Mock()
+        mock_ds.column_names = ["gaze_coordinates", "response_times", "emotion_labels"]
+        mock_load.return_value = mock_ds
+        
+        mock_report = {"status": "passed"}
+        mock_validate.return_value = mock_report
+        
+        mock_path_instance = Mock()
+        mock_path_instance.parent = Mock()
+        mock_path_instance.parent.mkdir = Mock()
+        mock_path.return_value = mock_path_instance
+        
+        # Mock Path iterdir logic for raw_dir check
+        with patch('code.data.validate.Path.iterdir', return_value=[Mock(is_dir=lambda: True)]):
+            result = main()
+            
+        assert result == 0
+        mock_validate.assert_called_once()
+        mock_write.assert_called_once()
 
-def test_validate_dataset_passes_when_all_present(sample_data_with_all_vars, tmp_path):
-    """Test that validate_dataset passes when all critical vars are present."""
-    class MockConfig:
-        DATA_DIR = str(tmp_path)
-    
-    result = validate_dataset(sample_data_with_all_vars, MockConfig())
-    assert result['status'] == 'passed'
-    assert len(result['missing_variables']) == 0
-    assert (tmp_path / 'validation_report.json').exists()
-
-def test_roi_fallback_creates_3x3_grid_structure():
-    """Test that the fallback ROI is a 3x3 grid (9 regions)."""
-    df = pd.DataFrame({'id': [1, 2]})
-    result = apply_roi_fallback(df)
-    
-    roi = result['roi_annotations'].iloc[0]
-    assert len(roi) == 9
-    
-    # Check labels for 3x3 grid
-    labels = [r['label'] for r in roi]
-    expected_labels = [
-        'top_left', 'top_center', 'top_right',
-        'middle_left', 'center', 'middle_right',
-        'bottom_left', 'bottom_center', 'bottom_right'
-    ]
-    assert labels == expected_labels
+    @patch('code.data.validate.load_from_disk')
+    @patch('code.data.validate.get_config')
+    @patch('code.data.validate.validate_dataset')
+    @patch('code.data.validate.write_validation_report')
+    @patch('code.data.validate.Path')
+    def test_main_failure_missing_vars(self, mock_path, mock_write, mock_validate, mock_config, mock_load):
+        mock_config.return_value = {
+            "data_raw_path": "/fake/path",
+            "validation_report_path": "/fake/report.json"
+        }
+        
+        mock_ds = Mock()
+        mock_ds.column_names = ["gaze_coordinates"]
+        mock_load.return_value = mock_ds
+        
+        mock_report = {"status": "failed", "missing_critical_vars": ["response_times"]}
+        mock_validate.return_value = mock_report
+        
+        mock_path_instance = Mock()
+        mock_path_instance.parent = Mock()
+        mock_path_instance.parent.mkdir = Mock()
+        mock_path.return_value = mock_path_instance
+        
+        with patch('code.data.validate.Path.iterdir', return_value=[Mock(is_dir=lambda: True)]):
+            result = main()
+            
+        assert result == 1
+        mock_validate.assert_called_once()
+        mock_write.assert_called_once()

@@ -1,98 +1,114 @@
-"""
-Unit tests for code/features/save_features.py (Task T019).
-"""
+import os
+import sys
+import json
+import tempfile
+import logging
+from pathlib import Path
+from unittest.mock import patch, MagicMock
 import pytest
 import pandas as pd
-import numpy as np
-from pathlib import Path
-import sys
-import os
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add code to path if not already
+code_root = Path(__file__).parent.parent.parent / "code"
+if str(code_root) not in sys.path:
+    sys.path.insert(0, str(code_root))
 
-from code.features.save_features import load_raw_data, save_features, main
-from code.features.extraction import process_participant_record
-from code.features.classification import calculate_continuous_ratio
+from features.save_features import load_raw_data, save_features, main
+from config import get_config
 
-
-class TestSaveFeatures:
-    """Tests for the save_features module."""
-
-    def test_save_features_creates_csv(self, tmp_path):
-        """Test that save_features writes a valid CSV file."""
-        # Create a dummy dataframe
-        df = pd.DataFrame({
-            'participant_id': ['P1', 'P2'],
-            'trial_id': [1, 2],
-            'fixation_eye': [100.0, 200.0],
-            'fixation_mouth': [50.0, 100.0],
-            'eye_mouth_ratio': [2.0, 2.0]
-        })
-
-        output_path = tmp_path / "test_features.csv"
-
-        # We need to mock the config or pass a path directly if the function allowed it.
-        # Since save_features uses get_config(), we will test the core logic by
-        # directly calling pd.to_csv in a controlled way or mocking the config.
-        # For this unit test, we will verify the function's ability to write if given a path.
-        # However, the current implementation of save_features hardcodes the path via config.
-        # We will test the logic by creating a temporary directory and patching the config.
+@pytest.fixture
+def mock_config():
+    """Mock the config to use temp directories."""
+    with patch('features.save_features.get_config') as mock_get_config:
+        mock_config = MagicMock()
+        # Create temp dirs
+        temp_root = Path(tempfile.mkdtemp())
+        mock_config.data_raw_dir = temp_root / "data" / "raw"
+        mock_config.data_raw_dir.mkdir(parents=True, exist_ok=True)
+        mock_config.data_processed_dir = temp_root / "data" / "processed"
+        mock_config.data_processed_dir.mkdir(parents=True, exist_ok=True)
         
-        # Alternative: Test the logic of save_features by mocking get_config
-        from unittest.mock import patch, MagicMock
-        from code import config
+        mock_get_config.return_value = mock_config
+        yield mock_config
+        # Cleanup
+        import shutil
+        shutil.rmtree(temp_root)
 
-        mock_config = {
-            "paths.processed_data_dir": str(tmp_path)
+@pytest.fixture
+def sample_raw_data(mock_config):
+    """Create a sample raw data file."""
+    data = [
+        {
+            "participant_id": "P001",
+            "trial_id": 1,
+            "gaze_coordinates": [{"x": 100, "y": 100, "time": 0}, {"x": 105, "y": 105, "time": 100}],
+            "response_times": 500,
+            "emotion_labels": "happy",
+            "roi_annotations": {"eye": [0, 0, 50, 50], "mouth": [0, 50, 50, 100]}
+        },
+        {
+            "participant_id": "P001",
+            "trial_id": 2,
+            "gaze_coordinates": [{"x": 120, "y": 120, "time": 0}, {"x": 125, "y": 125, "time": 100}],
+            "response_times": 450,
+            "emotion_labels": "sad",
+            "roi_annotations": {"eye": [0, 0, 50, 50], "mouth": [0, 50, 50, 100]}
         }
+    ]
+    data_file = mock_config.data_raw_dir / "sample_data.json"
+    with open(data_file, 'w') as f:
+        json.dump(data, f)
+    return data_file
 
-        with patch.object(config, 'get_config', return_value=mock_config):
-            result = save_features(df, MagicMock())
-            assert result is True
-            assert output_path.exists()
-            
-            # Verify content
-            loaded_df = pd.read_csv(output_path)
-            assert len(loaded_df) == 2
-            assert 'participant_id' in loaded_df.columns
+def test_load_raw_data_valid(mock_config, sample_raw_data):
+    """Test loading valid raw data."""
+    logger = logging.getLogger("test")
+    data = load_raw_data(logger)
+    assert data is not None
+    assert len(data) == 2
+    assert data[0]["participant_id"] == "P001"
 
-    def test_process_participant_record_structure(self):
-        """Test that process_participant_record returns a dict with expected keys."""
-        # Create a mock row
-        row = {
-            'participant_id': 'P1',
-            'trial_id': 1,
-            'gaze_coordinates': [[10, 10], [20, 20]],
-            'roi_annotations': {'eye': [[0,0,50,50]], 'mouth': [[0,50,50,100]]},
-            'emotion_labels': 'happy',
-            'response_times': 500
-        }
-        
-        # This test might fail if the extraction logic is complex and depends on real data structures.
-        # We assume the function handles the basic structure.
-        # If the function requires specific preprocessing, we might need to mock more.
-        # For now, we check if it returns a dict.
-        try:
-            # Note: This might raise errors if the extraction logic is strict.
-            # We wrap in try-except to avoid test failure due to data format issues
-            # if the real data format is different.
-            feat = process_participant_record(row, MagicMock())
-            assert isinstance(feat, dict)
-        except Exception as e:
-            # If the function fails due to data format, we note it but don't fail the test
-            # if the data format is expected to be different in real usage.
-            pytest.skip(f"Skipping due to data format mismatch: {e}")
+def test_load_raw_data_missing_dir(mock_config):
+    """Test loading when raw directory is missing."""
+    mock_config.data_raw_dir = Path("/nonexistent/path")
+    logger = logging.getLogger("test")
+    data = load_raw_data(logger)
+    assert data is None
 
-    def test_calculate_continuous_ratio(self):
-        """Test that calculate_continuous_ratio adds the ratio column."""
-        df = pd.DataFrame({
-            'participant_id': ['P1'],
-            'trial_id': [1],
-            'fixation_eye': [100.0],
-            'fixation_mouth': [50.0]
-        })
-        
-        result_df = calculate_continuous_ratio(df, MagicMock())
-        assert 'eye_mouth_ratio' in result_df.columns
-        assert result_df['eye_mouth_ratio'].iloc[0] == 2.0
+def test_save_features(tmp_path):
+    """Test saving features to CSV."""
+    df = pd.DataFrame({"col1": [1, 2], "col2": ["a", "b"]})
+    output_path = tmp_path / "test_features.csv"
+    
+    logger = logging.getLogger("test")
+    success = save_features(df, output_path, logger)
+    
+    assert success
+    assert output_path.exists()
+    
+    # Verify content
+    loaded_df = pd.read_csv(output_path)
+    assert len(loaded_df) == 2
+    assert "col1" in loaded_df.columns
+
+@patch('features.save_features.load_raw_data')
+@patch('features.save_features.process_participant_record')
+@patch('features.save_features.calculate_continuous_ratio')
+@patch('features.save_features.save_features')
+def test_main_flow(mock_save, mock_calc, mock_process, mock_load, mock_config):
+    """Test the main flow of T019."""
+    # Setup mocks
+    mock_load.return_value = [{"id": 1}, {"id": 2}]
+    mock_process.return_value = {"id": 1, "feature": 10.0}
+    mock_calc.return_value = pd.DataFrame({"id": [1], "feature": [10.0], "ratio": [0.5]})
+    mock_save.return_value = True
+
+    logger = logging.getLogger("test")
+    with patch('features.save_features.get_logger', return_value=logger):
+        result = main()
+    
+    assert result == 0
+    mock_load.assert_called_once()
+    mock_process.assert_called()
+    mock_calc.assert_called_once()
+    mock_save.assert_called_once()

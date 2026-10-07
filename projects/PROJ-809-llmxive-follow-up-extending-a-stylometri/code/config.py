@@ -7,189 +7,201 @@ from typing import Any, Dict, Optional, List
 
 import yaml
 
-# Global configuration state
-_config: Dict[str, Any] = {
-    "seed": 42,
-    "contracts_dir": "contracts",
-    "data_dir": "data",
-    "artifacts_dir": "artifacts",
-    "state_file": "state/PROJ-809-llmxive-followup.yaml",
-    "strict_mode": True,
-    "allowed_categories": ["cs.CL", "physics.gen-ph", "q-bio.QM"],
-    "min_abstract_length": 6,
-    "target_authors": 20,
-    "min_abstracts_per_author": 10,
-    "collision_warning_threshold": 50,
-    "ngram_orders": [4, 5, 6],
-    "train_test_split": 0.2,
+# Project Root Path (relative to where scripts are run)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+CONTRACTS_DIR = PROJECT_ROOT / "contracts"
+CONFIG_PATH = PROJECT_ROOT / "config.yaml"
+SEED_FILE = PROJECT_ROOT / "state" / "seed_state.json"
+
+# Global seed state
+_seed_state = {
+    "global_seed": 42,
+    "ngram_seed": 42,
+    "sampling_seed": 42,
+    "base_seed": 42
 }
 
-def ensure_dir(path: str) -> Path:
-    """Ensure a directory exists, creating it if necessary."""
-    dir_path = Path(path)
-    dir_path.mkdir(parents=True, exist_ok=True)
-    return dir_path
+def ensure_dir(path: Path) -> None:
+    """Ensure directory exists."""
+    path.mkdir(parents=True, exist_ok=True)
 
-def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
-    """
-    Load configuration from a YAML file if provided, otherwise return defaults.
-    If the file exists but is invalid, raises ValueError.
-    """
-    global _config
-    if config_path and os.path.exists(config_path):
-        with open(config_path, "r", encoding="utf-8") as f:
-            try:
-                custom_config = yaml.safe_load(f)
-                if isinstance(custom_config, dict):
-                    _config.update(custom_config)
-                else:
-                    raise ValueError(f"Config file {config_path} must contain a YAML mapping.")
-            except yaml.YAMLError as e:
-                raise ValueError(f"Failed to parse config file {config_path}: {e}")
-    return _config.copy()
+def load_config(config_path: Optional[Path] = None) -> Dict[str, Any]:
+    """Load configuration from YAML file."""
+    path = config_path or CONFIG_PATH
+    if not path.exists():
+        # Return defaults if config doesn't exist yet
+        return {
+            "project": "llmXive-followup",
+            "version": "1.0.0",
+            "seeds": {
+                "global": 42,
+                "ngram": 42,
+                "sampling": 42
+            },
+            "paths": {
+                "raw_data": "data/raw",
+                "processed_data": "data/processed",
+                "hybrid_data": "data/hybrid",
+                "models": "artifacts/models",
+                "metrics": "artifacts/metrics",
+                "results": "artifacts/results"
+            },
+            "data_ingestion": {
+                "categories": ["cs.CL", "physics.gen-ph", "q-bio.QM"],
+                "min_authors": 20,
+                "min_abstracts_per_author": 10,
+                "min_abstract_length": 6
+            },
+            "model_training": {
+                "ngram_orders": [4, 5, 6],
+                "kneser_ney_smoothing": True,
+                "train_test_split": 0.2,
+                "sparsity_threshold": 0.95
+            },
+            "evaluation": {
+                "primary_ngram_order": 5,
+                "baseline_method": "function_words",
+                "statistical_test": "mcnemar"
+            }
+        }
+    
+    with open(path, 'r', encoding='utf-8') as f:
+        return yaml.safe_load(f)
 
-def save_config(config: Dict[str, Any], config_path: str) -> None:
-    """Save the current configuration to a YAML file."""
-    ensure_dir(os.path.dirname(config_path))
-    with open(config_path, "w", encoding="utf-8") as f:
+def save_config(config: Dict[str, Any], config_path: Optional[Path] = None) -> None:
+    """Save configuration to YAML file."""
+    path = config_path or CONFIG_PATH
+    ensure_dir(path.parent)
+    with open(path, 'w', encoding='utf-8') as f:
         yaml.dump(config, f, default_flow_style=False, sort_keys=False)
 
-def set_seed(seed: int) -> None:
-    """Set the global random seed for reproducibility."""
-    _config["seed"] = seed
-    random.seed(seed)
-    # Note: numpy and torch seeds would be set here if those were dependencies,
-    # but per constraints we stick to stdlib and declared deps.
+def set_seed(seed_name: str, seed_value: int) -> None:
+    """Set a specific seed value."""
+    _seed_state[seed_name] = seed_value
+    # Also update global seed if this is the global seed
+    if seed_name == "global_seed":
+        random.seed(seed_value)
+        os.environ['PYTHONHASHSEED'] = str(seed_value)
 
-def get_seed() -> int:
-    """Get the current global random seed."""
-    return _config["seed"]
-
-def load_schema(schema_path: str) -> Dict[str, Any]:
-    """
-    Load a JSON schema from the contracts directory.
-    Raises FileNotFoundError if the schema does not exist.
-    """
-    full_path = Path(schema_path)
-    if not full_path.is_absolute():
-        contracts_dir = Path(_config["contracts_dir"])
-        full_path = contracts_dir / schema_path
-
-    if not full_path.exists():
-        raise FileNotFoundError(f"Schema file not found: {full_path}")
-
-    with open(full_path, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-def validate_against_schema(data: Any, schema: Dict[str, Any]) -> List[str]:
-    """
-    Validate data against a JSON schema.
-    Returns a list of error messages. If empty, validation passed.
-    Note: This is a basic implementation assuming 'type' and 'properties' checks.
-    For full JSON Schema validation, a library like 'jsonschema' would be needed.
-    Given constraints, we implement a minimal validator for common patterns.
-    """
-    errors = []
-    schema_type = schema.get("type")
-
-    if schema_type == "object":
-        if not isinstance(data, dict):
-            errors.append(f"Expected object, got {type(data).__name__}")
-            return errors
-        properties = schema.get("properties", {})
-        required = schema.get("required", [])
-        for key in required:
-            if key not in data:
-                errors.append(f"Missing required property: {key}")
-        for key, value_schema in properties.items():
-            if key in data:
-                sub_errors = validate_against_schema(data[key], value_schema)
-                errors.extend([f"{key}: {err}" for err in sub_errors])
-    elif schema_type == "array":
-        if not isinstance(data, list):
-            errors.append(f"Expected array, got {type(data).__name__}")
-            return errors
-        items_schema = schema.get("items")
-        if items_schema:
-            for i, item in enumerate(data):
-                sub_errors = validate_against_schema(item, items_schema)
-                errors.extend([f"[{i}]: {err}" for err in sub_errors])
-    elif schema_type == "string":
-        if not isinstance(data, str):
-            errors.append(f"Expected string, got {type(data).__name__}")
-    elif schema_type == "integer":
-        if not isinstance(data, int):
-            errors.append(f"Expected integer, got {type(data).__name__}")
-    elif schema_type == "number":
-        if not isinstance(data, (int, float)):
-            errors.append(f"Expected number, got {type(data).__name__}")
-    elif schema_type == "boolean":
-        if not isinstance(data, bool):
-            errors.append(f"Expected boolean, got {type(data).__name__}")
-
-    return errors
-
-def get_contract_paths() -> List[str]:
-    """
-    Return a list of paths to all JSON schema files in the contracts directory.
-    """
-    contracts_dir = Path(_config["contracts_dir"])
-    if not contracts_dir.exists():
-        return []
-    return [str(p) for p in contracts_dir.glob("*.json")]
+def get_seed(seed_name: str) -> int:
+    """Get a specific seed value."""
+    return _seed_state.get(seed_name, _seed_state["base_seed"])
 
 def reset_config() -> None:
-    """Reset configuration to defaults."""
-    global _config
-    _config = {
-        "seed": 42,
-        "contracts_dir": "contracts",
-        "data_dir": "data",
-        "artifacts_dir": "artifacts",
-        "state_file": "state/PROJ-809-llmxive-followup.yaml",
-        "strict_mode": True,
-        "allowed_categories": ["cs.CL", "physics.gen-ph", "q-bio.QM"],
-        "min_abstract_length": 6,
-        "target_authors": 20,
-        "min_abstracts_per_author": 10,
-        "collision_warning_threshold": 50,
-        "ngram_orders": [4, 5, 6],
-        "train_test_split": 0.2,
+    """Reset seeds to default values."""
+    global _seed_state
+    _seed_state = {
+        "global_seed": 42,
+        "ngram_seed": 42,
+        "sampling_seed": 42,
+        "base_seed": 42
     }
 
+def load_schema(schema_path: Path) -> Dict[str, Any]:
+    """Load a JSON schema from the contracts directory."""
+    if not schema_path.exists():
+        raise FileNotFoundError(f"Schema not found: {schema_path}")
+    
+    with open(schema_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+def validate_against_schema(data: Any, schema: Dict[str, Any]) -> bool:
+    """
+    Basic validation of data against a JSON schema.
+    Note: This is a simplified validator. For production, use jsonschema library.
+    """
+    schema_type = schema.get("type")
+    
+    if schema_type == "object":
+        if not isinstance(data, dict):
+            return False
+        properties = schema.get("properties", {})
+        required = schema.get("required", [])
+        
+        for key in required:
+            if key not in data:
+                return False
+        
+        for key, value in data.items():
+            if key in properties:
+                if not validate_against_schema(value, properties[key]):
+                    return False
+        return True
+    
+    elif schema_type == "array":
+        if not isinstance(data, list):
+            return False
+        items_schema = schema.get("items", {})
+        for item in data:
+            if not validate_against_schema(item, items_schema):
+                return False
+        return True
+    
+    elif schema_type == "string":
+        return isinstance(data, str)
+    
+    elif schema_type == "number":
+        return isinstance(data, (int, float))
+    
+    elif schema_type == "integer":
+        return isinstance(data, int)
+    
+    elif schema_type == "boolean":
+        return isinstance(data, bool)
+    
+    elif schema_type == "null":
+        return data is None
+    
+    return True
+
+def get_contract_paths() -> List[Path]:
+    """Get all schema paths in the contracts directory."""
+    if not CONTRACTS_DIR.exists():
+        return []
+    
+    contract_paths = []
+    for pattern in ["*.json", "*.yaml", "*.yml"]:
+        contract_paths.extend(CONTRACTS_DIR.glob(pattern))
+    
+    return sorted(contract_paths)
+
 def main():
-    """
-    Command-line entry point for configuration management.
-    Usage:
-      python code/config.py --init <path>   # Initialize a new config file
-      python code/config.py --show          # Show current config
-      python code/config.py --seed <int>    # Set seed
-    """
-    import argparse
-
-    parser = argparse.ArgumentParser(description="llmXive Configuration Manager")
-    parser.add_argument("--init", type=str, help="Path to initialize a new config file")
-    parser.add_argument("--show", action="store_true", help="Display current configuration")
-    parser.add_argument("--seed", type=int, help="Set the random seed")
-    parser.add_argument("--load", type=str, help="Load configuration from a file")
-
-    args = parser.parse_args()
-
-    if args.init:
-        ensure_dir(os.path.dirname(args.init))
-        save_config(_config, args.init)
-        print(f"Configuration initialized at {args.init}")
-    elif args.show:
-        print(json.dumps(_config, indent=2))
-    elif args.seed is not None:
-        set_seed(args.seed)
-        print(f"Seed set to {get_seed()}")
-    elif args.load:
-        load_config(args.load)
-        print(f"Configuration loaded from {args.load}")
-        print(json.dumps(_config, indent=2))
-    else:
-        parser.print_help()
+    """Main entry point for configuration management."""
+    print("llmXive Configuration Loader")
+    print("=" * 40)
+    
+    # Load or create config
+    config = load_config()
+    print(f"Loaded config from: {CONFIG_PATH}")
+    print(f"Project: {config.get('project', 'Unknown')}")
+    print(f"Version: {config.get('version', 'Unknown')}")
+    
+    # Show seed values
+    print("\nCurrent Seeds:")
+    for key, value in _seed_state.items():
+        print(f"  {key}: {value}")
+    
+    # Show contract paths
+    contracts = get_contract_paths()
+    print(f"\nFound {len(contracts)} contract schemas:")
+    for c in contracts:
+        print(f"  - {c.relative_to(PROJECT_ROOT)}")
+    
+    # Example: Load and validate a schema
+    if contracts:
+        first_schema_path = contracts[0]
+        try:
+            schema = load_schema(first_schema_path)
+            print(f"\nSuccessfully loaded schema: {first_schema_path.name}")
+            print(f"Schema type: {schema.get('type', 'unknown')}")
+        except Exception as e:
+            print(f"Error loading schema: {e}")
+    
+    # Example: Validate sample data
+    sample_data = {"test": "value", "number": 42}
+    test_schema = {"type": "object", "properties": {"test": {"type": "string"}}, "required": ["test"]}
+    is_valid = validate_against_schema(sample_data, test_schema)
+    print(f"\nSample data validation: {'PASSED' if is_valid else 'FAILED'}")
 
 if __name__ == "__main__":
     main()

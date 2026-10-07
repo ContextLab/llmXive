@@ -79,10 +79,10 @@
 - [ ] T011 [US1] Implement `code/data_ingestion.py` to download dataset 'arxiv' (split: train) filtered by categories [cs.CL, physics.gen-ph, q-bio.QM] and save to `data/raw/arxiv_subset.parquet`
 - [X] T012 [US1] Implement filtering logic in `code/data_ingestion.py` to extract 20 distinct lead authors with ≥10 abstracts each (FR-001, FR-009)
 - [X] T013 [US1] Implement author disambiguation and collision logging in `code/data_ingestion.py`: log warning if name appears >50 times (FR-009)
-- [ ] T013a [US1] Implement collision flagging: write `data/processed/collision_report.json` and update `state/PROJ-809-llmxive-followup.yaml` with manual_review flag for names appearing >50 times; raise fatal error if critical collision threshold is exceeded (FR-009)
+- [X] T013a [US1] Implement collision flagging: write `data/processed/collision_report.json` and update `state/PROJ-809-llmxive-followup.yaml` with manual_review flag for names appearing >50 times; raise fatal error if critical collision threshold is exceeded (FR-009)
 - [X] T014 [US1] Implement preprocessing in `code/data_ingestion.py`: lowercase, remove punctuation, tokenization to character sequences (FR-002)
 - [ ] T015 [US1] Implement stratified random sampling to select representative cohort if >20 authors qualify; raise fatal error with clear message if filtered dataset yields < 20 authors (FR-001, Edge Cases)
-- [ ] T016 [US1] Write checksums of raw download and processed artifacts to `state/PROJ-809-llmxive-followup.yaml` (Constitution III & V)
+- [X] T016 [US1] Write checksums of raw download and processed artifacts to `state/PROJ-809-llmxive-followup.yaml` (Constitution III & V)
 - [ ] T017 [US1] Filter abstracts < 6 characters (max n-gram order) to ensure validity for all n=4,5,6 models; log count of excluded abstracts (FR-002, Edge Cases)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -104,10 +104,10 @@
 
 - [X] T020 [US2] Implement `code/model_training.py` to train character-level n-gram models (n=4, 5, 6) per author using sklearn CountVectorizer, saving to `artifacts/models/author_{id}_n{n}.pkl` (FR-003)
 - [X] T021 [US2] Implement Kneser-Ney smoothing in `code/model_training.py` to handle data sparsity for ALL models (n=4, 5, 6) (FR-011)
-- [ ] T022 [US2] Implement /20 train/test split logic within `code/model_training.py`
-- [ ] T023 [US2] Implement sparsity check logic in `code/model_training.py`: if n=6 sparsity > threshold, trigger fallback to n=5 for that author
+- [X] T022 [US2] Implement /20 train/test split logic within `code/model_training.py`
+- [X] T023 [US2] Implement sparsity check logic in `code/model_training.py`: if n=6 sparsity > threshold, trigger fallback to n=5 for that author
 - [ ] T023b [US2] Implement fallback logic: if n=6 fails sparsity check, train and save n=5 model to `artifacts/models/author_{id}_n5_fallback.pkl` to ensure a model is generated for every author (FR-003, FR-011)
-- [ ] T024 [US2] Implement `code/evaluation.py` to compute perplexity matrix (cross-evaluation of all held-out abstracts against all models) and save to `artifacts/metrics/perplexity_matrix.csv` (FR-004)
+- [X] T024 [US2] Implement `code/evaluation.py` to compute perplexity matrix (cross-evaluation of all held-out abstracts against all models) and save to `artifacts/metrics/perplexity_matrix.csv` (FR-004)
 - [ ] T025 [US2] Ensure all training and evaluation runs within CPU-only constraints (≤30s per author, ≤6GB RAM) (FR-008, SC-004)
 - [ ] T026 [US2] Save trained models to `artifacts/models/` with content hashes
 - [ ] T027 [US2] Implement sensitivity analysis: train and evaluate n=4, n=5, and n=6 models for all authors to generate performance metrics; save results to `artifacts/metrics/sensitivity_analysis.json` (FR-010, Plan)

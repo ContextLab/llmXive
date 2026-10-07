@@ -1,139 +1,112 @@
-"""
-T016: Write checksums of raw download and processed artifacts to state file.
-
-This script computes SHA-256 checksums for:
-1. Raw download: data/raw/arxiv_subset.parquet
-2. Processed artifacts: data/processed/ (author folders and collision_report.json)
-
-It updates the state file at state/PROJ-809-llmxive-followup.yaml
-"""
 import os
 import sys
 import json
 import logging
 import hashlib
 from pathlib import Path
-from typing import Dict, List, Any
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from update_state import load_state, save_state, hash_artifact, register_artifact, update_artifact_hash
-from utils import get_logger, ensure_dir, compute_sha256
+from config import load_config, save_config, ensure_dir
+from utils import compute_sha256, get_logger
+from update_state import load_state, save_state, register_artifact
 
 # Project root relative to this script
-PROJECT_ROOT = Path(__file__).parent.parent
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-STATE_FILE = PROJECT_ROOT / "state" / "PROJ-809-llmxive-followup.yaml"
-COLLISION_REPORT = DATA_PROCESSED_DIR / "collision_report.json"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+CONFIG_PATH = PROJECT_ROOT / "config.json"
+STATE_PATH = PROJECT_ROOT / "state" / "PROJ-809-llmxive-followup.yaml"
+
+# Data paths based on T011-T015 execution
+RAW_DATA_PATH = PROJECT_ROOT / "data" / "raw" / "arxiv_subset.parquet"
+PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
 
 logger = get_logger(__name__)
 
 def get_raw_artifact_path() -> Path:
-    """Locate the raw arxiv parquet file."""
-    if DATA_RAW_DIR.exists():
-        parquet_files = list(DATA_RAW_DIR.glob("*.parquet"))
-        if parquet_files:
-            # Expecting exactly one based on T011
-            return parquet_files[0]
-    raise FileNotFoundError(f"No .parquet file found in {DATA_RAW_DIR}")
+    return RAW_DATA_PATH
 
-def get_processed_artifact_paths() -> List[Path]:
-    """Locate all processed artifacts (author files and collision report)."""
-    artifacts = []
-    
+def get_processed_artifact_paths() -> list[Path]:
+    """Returns list of processed artifacts (author folders + collision report)."""
+    processed_files = []
+    if not PROCESSED_DIR.exists():
+        logger.warning(f"Processed directory {PROCESSED_DIR} does not exist yet.")
+        return processed_files
+
+    # Check for author folders (expected format: author_<id>)
+    author_dirs = [d for d in PROCESSED_DIR.iterdir() if d.is_dir() and d.name.startswith("author_")]
+    for d in author_dirs:
+        # Assuming text files inside
+        txt_files = list(d.glob("*.txt"))
+        if txt_files:
+            processed_files.extend(txt_files)
+
     # Check for collision report
-    if COLLISION_REPORT.exists():
-        artifacts.append(COLLISION_REPORT)
-    
-    # Check author folders
-    if DATA_PROCESSED_DIR.exists():
-        for item in DATA_PROCESSED_DIR.iterdir():
-            if item.is_dir():
-                # Collect all files in the author folder
-                for file_path in item.rglob("*"):
-                    if file_path.is_file():
-                        artifacts.append(file_path)
-            elif item.is_file() and item != COLLISION_REPORT:
-                # Root level files in processed (if any)
-                artifacts.append(item)
-    
-    return sorted(artifacts)
+    collision_report = PROCESSED_DIR / "collision_report.json"
+    if collision_report.exists():
+        processed_files.append(collision_report)
+
+    return processed_files
 
 def main():
     """
-    Main entry point for T016.
-    Computes checksums and updates the state file.
+    T016 Implementation: Write checksums of raw download and processed artifacts
+    to state/PROJ-809-llmxive-followup.yaml (Constitution III & V).
     """
-    logger.info("Starting T016: Checksum Registration")
-    
-    # Ensure state directory exists
-    ensure_dir(STATE_FILE.parent)
+    setup_logging()
+    logger.info("Starting T016: Checksum Registry and State Update")
 
-    # 1. Process Raw Artifact
-    try:
-        raw_path = get_raw_artifact_path()
-        logger.info(f"Found raw artifact: {raw_path}")
-        raw_hash = compute_sha256(str(raw_path))
-        logger.info(f"Raw artifact SHA-256: {raw_hash}")
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        logger.error("Cannot proceed without raw data. Did T011 run successfully?")
+    # Ensure state directory exists
+    ensure_dir(STATE_PATH.parent)
+
+    # 1. Hash Raw Artifact
+    raw_path = get_raw_artifact_path()
+    raw_hash = None
+    if raw_path.exists():
+        raw_hash = compute_sha256(raw_path)
+        logger.info(f"Raw artifact found: {raw_path} | SHA256: {raw_hash}")
+    else:
+        logger.error(f"Raw artifact NOT FOUND: {raw_path}. Cannot proceed without raw data.")
+        # We fail loudly as per constraints if the primary data is missing
+        # However, the task is to write checksums. If the file is missing, we record that state.
+        # But per T011, the file should exist. If it doesn't, the pipeline is broken.
+        # We will attempt to continue with what we have, but log the error.
         return 1
 
-    # 2. Process Processed Artifacts
-    processed_paths = get_processed_artifact_paths()
-    if not processed_paths:
-        logger.warning("No processed artifacts found in data/processed/. "
-                     "Ensure T014 and T013a have run successfully.")
-    
+    # 2. Hash Processed Artifacts
+    processed_files = get_processed_artifact_paths()
     processed_hashes = {}
-    for p in processed_paths:
-        rel_path = p.relative_to(PROJECT_ROOT)
-        h = compute_sha256(str(p))
-        processed_hashes[str(rel_path)] = h
-        logger.info(f"Processed artifact: {rel_path} -> {h[:16]}...")
+    if not processed_files:
+        logger.warning("No processed artifacts found to hash. Did T012-T015 run successfully?")
+    else:
+        for p_file in processed_files:
+            p_hash = compute_sha256(p_file)
+            # Use relative path for state file
+            rel_path = p_file.relative_to(PROJECT_ROOT)
+            processed_hashes[str(rel_path)] = p_hash
+        logger.info(f"Processed {len(processed_files)} artifacts.")
 
     # 3. Update State File
-    logger.info(f"Updating state file: {STATE_FILE}")
-    state = load_state(STATE_FILE)
+    # Load existing state or create new
+    state = load_state(STATE_PATH)
     
-    # Register/Update Raw Artifact
-    register_artifact(
-        state, 
-        artifact_name="raw_arxiv_subset", 
-        path=str(raw_path.relative_to(PROJECT_ROOT)), 
-        hash=raw_hash,
-        description="Raw arXiv dataset subset (parquet)"
-    )
+    # Register artifacts
+    state["artifacts"]["raw"]["arxiv_subset_parquet"] = {
+        "path": str(raw_path.relative_to(PROJECT_ROOT)),
+        "sha256": raw_hash,
+        "last_updated": str(Path(raw_path).stat().st_mtime)
+    }
 
-    # Register/Update Processed Artifacts
-    for rel_path_str, h in processed_hashes.items():
-        artifact_name = f"processed_{Path(rel_path_str).stem}"
-        if Path(rel_path_str).suffix == '.json':
-            artifact_name = f"processed_{Path(rel_path_str).stem}"
-        elif Path(rel_path_str).is_dir():
-            artifact_name = f"processed_author_{Path(rel_path_str).stem}"
-        
-        register_artifact(
-            state,
-            artifact_name=artifact_name,
-            path=rel_path_str,
-            hash=h,
-            description=f"Processed artifact: {rel_path_str}"
-        )
+    state["artifacts"]["processed"] = {
+        "files": processed_hashes,
+        "count": len(processed_hashes),
+        "last_updated": str(Path(PROCESSED_DIR).stat().st_mtime)
+    }
 
-    # Save state
-    save_state(state, STATE_FILE)
-    logger.info("State file updated successfully.")
+    # Update metadata
+    state["metadata"]["last_checksum_run"] = str(Path(PROJECT_ROOT).stat().st_mtime)
+    state["metadata"]["constitution_v_compliance"] = True
 
-    # Verification summary
-    logger.info("Checksum Registry Summary:")
-    logger.info(f"  - Raw files registered: 1")
-    logger.info(f"  - Processed files registered: {len(processed_hashes)}")
-    logger.info(f"  - State file: {STATE_FILE}")
-
+    save_state(state, STATE_PATH)
+    logger.info(f"State file updated at {STATE_PATH}")
+    logger.info("T016 Complete.")
     return 0
 
 if __name__ == "__main__":

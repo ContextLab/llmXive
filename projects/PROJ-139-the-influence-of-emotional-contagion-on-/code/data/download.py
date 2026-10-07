@@ -1,3 +1,8 @@
+"""
+Data download module for fetching Reddit thread data.
+Implements a strict "fail-loud" policy: no synthetic fallbacks.
+"""
+
 import os
 import sys
 import json
@@ -7,32 +12,39 @@ import hashlib
 import requests
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-import argparse
 
-# Import config to ensure paths are initialized
-from config.settings import get_config, Config
-
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-def ensure_directories(config: Config):
-    """Ensure all required directories exist."""
-    config.raw_dir.mkdir(parents=True, exist_ok=True)
-    config.processed_dir.mkdir(parents=True, exist_ok=True)
-    config.state_dir.mkdir(parents=True, exist_ok=True)
+# Project root path (assumes code/data/ is the current directory structure)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+STATE_DIR = PROJECT_ROOT / "state" / "projects"
 
-def log_download_attempt(config: Config, thread_id: str, origin_type: str, success: bool, message: str = ""):
+def ensure_directories():
+    """Ensure all required directories exist."""
+    DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
+    DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    logger.info("Directories ensured.")
+
+def log_download_attempt(thread_id: str, origin_type: str, success: bool, message: str = ""):
     """Log download attempt to data/processed/download_attempts.log."""
-    log_path = config.processed_dir / "download_attempts.log"
+    log_path = DATA_PROCESSED_DIR / "download_attempts.log"
     entry = {
+        "timestamp": time.time(),
         "thread_id": thread_id,
         "origin_type": origin_type,
         "success": success,
-        "timestamp": time.time(),
         "message": message
     }
-    with open(log_path, 'a') as f:
-        f.write(json.dumps(entry) + '\n')
+    with open(log_path, "a") as f:
+        f.write(json.dumps(entry) + "\n")
 
 def compute_sha256(file_path: Path) -> str:
     """Compute SHA-256 checksum of a file."""
@@ -43,182 +55,217 @@ def compute_sha256(file_path: Path) -> str:
     return sha256_hash.hexdigest()
 
 def check_memory_usage():
-    """Check if memory usage is within limits (placeholder for T081)."""
-    # T081 handles detailed memory monitoring with psutil.
-    # This is a placeholder to satisfy the interface if called early.
-    pass
+    """Check memory usage and raise if too high (for streaming safety)."""
+    try:
+        import psutil
+        process = psutil.Process(os.getpid())
+        mem_info = process.memory_info()
+        if mem_info.rss > 6 * 1024 * 1024 * 1024:  # 6GB
+            raise RuntimeError(f"Memory usage exceeded 6GB: {mem_info.rss / (1024**3):.2f} GB")
+    except ImportError:
+        logger.warning("psutil not installed; skipping memory check.")
 
-def fetch_from_pushshift(subreddit: str, limit: int = 1000) -> Optional[List[Dict[str, Any]]]:
+def fetch_from_pushshift(subreddit: str, size: int = 1000) -> Optional[List[Dict]]:
     """
     Fetch data from Pushshift API.
-    Note: Pushshift API has been deprecated/unreliable. We attempt it but expect failure.
+    Returns None if fetch fails.
     """
-    url = "https://api.pushshift.io/reddit/search/subreddit/"
+    url = f"https://api.pushshift.io/reddit/search/subreddit/{subreddit}"
     params = {
-        "subreddit": subreddit,
-        "size": min(limit, 1000),
-        "sort": "desc",
-        "sort_type": "desc"
+        "size": min(size, 1000),  # Pushshift max is 1000
+        "sort": "desc"
     }
-    
-    logger.info(f"Attempting Pushshift API: {url}")
     try:
         response = requests.get(url, params=params, timeout=30)
         if response.status_code == 200:
             data = response.json()
             if "data" in data:
-                logger.info(f"Pushshift returned {len(data['data'])} items.")
                 return data["data"]
             else:
-                logger.warning("Pushshift response missing 'data' key.")
+                logger.warning(f"Pushshift returned no data for {subreddit}")
                 return None
         else:
-            logger.warning(f"Pushshift failed with status {response.status_code}.")
+            logger.warning(f"Pushshift failed with status {response.status_code} for {subreddit}")
             return None
-    except Exception as e:
-        logger.warning(f"Pushshift request failed: {e}")
+    except requests.exceptions.RequestException as e:
+        logger.warning(f"Pushshift request failed for {subreddit}: {e}")
         return None
 
-def fetch_from_reddit_api(subreddit: str, limit: int = 1000) -> Optional[List[Dict[str, Any]]]:
+def fetch_from_reddit_api(subreddit: str, size: int = 1000) -> Optional[List[Dict]]:
     """
     Fetch data from Reddit Official API (OAuth).
-    Requires credentials in config.
+    Requires REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USER_AGENT env vars.
+    Returns None if credentials missing or fetch fails.
     """
-    config = get_config()
-    if not config.api_keys.reddit_client_id or not config.api_keys.reddit_client_secret:
+    client_id = os.getenv("REDDIT_CLIENT_ID")
+    client_secret = os.getenv("REDDIT_CLIENT_SECRET")
+    user_agent = os.getenv("REDDIT_USER_AGENT", "llmXive_research/1.0")
+
+    if not client_id or not client_secret:
         logger.warning("Reddit API credentials not found in config. Skipping Reddit API.")
         return None
 
-    # Simplified OAuth flow for demonstration (real implementation requires token refresh)
-    # In a real scenario, we would implement the full OAuth2 flow.
-    # For this task, we simulate the fetch or return None if not fully configured.
-    logger.info("Reddit API credentials present, but full OAuth flow not implemented in this snippet.")
-    logger.warning("Reddit API access requires full OAuth implementation. Skipping for now.")
-    return None
+    try:
+        # OAuth token
+        auth = requests.auth.HTTPBasicAuth(client_id, client_secret)
+        data = {"grant_type": "client_credentials"}
+        token_response = requests.post("https://www.reddit.com/api/v1/access_token",
+                                       auth=auth, data=data, timeout=30)
+        token_response.raise_for_status()
+        token = token_response.json()["access_token"]
 
-def fetch_from_internet_archive(subreddit: str) -> Optional[List[Dict[str, Any]]]:
+        headers = {"Authorization": f"bearer {token}", "User-Agent": user_agent}
+        url = f"https://oauth.reddit.com/r/{subreddit}/hot"
+        params = {"limit": min(size, 1000)}
+
+        response = requests.get(url, headers=headers, params=params, timeout=30)
+        response.raise_for_status()
+        data = response.json()
+        if "data" in data and "children" in data["data"]:
+            return [child["data"] for child in data["data"]["children"]]
+        else:
+            logger.warning(f"Reddit API returned no data for {subreddit}")
+            return None
+    except requests.exceptions.RequestException as e:
+        logger.warning(f"Reddit API request failed for {subreddit}: {e}")
+        return None
+
+def fetch_from_internet_archive(subreddit: str, size: int = 1000) -> Optional[List[Dict]]:
     """
-    Fetch data from Internet Archive / Common Crawl.
-    Placeholder for T008 Fallback 2.
+    Fallback to Internet Archive/Common Crawl.
+    Currently not fully implemented; returns None.
     """
     logger.warning("Internet Archive fallback is not fully implemented for Reddit data.")
     return None
 
-def download_data(subreddit: str, output_file: Path, log_file: Path):
+def download_data(subreddit: str, output_file: Path):
     """
-    Main function to download data for a subreddit.
-    Tries sources in order: Pushshift -> Reddit API -> Internet Archive.
-    Fails loudly if all fail.
+    Download data for a given subreddit using available sources.
+    Implements strict fail-loud policy: raises RuntimeError if all sources fail.
     """
-    config = get_config()
-    ensure_directories(config)
-    
-    logger.info(f"Processing subreddit: {subreddit}")
-    data_sources = [
-        ("Pushshift", lambda: fetch_from_pushshift(subreddit)),
-        ("Reddit API", lambda: fetch_from_reddit_api(subreddit)),
-        ("Internet Archive", lambda: fetch_from_internet_archive(subreddit))
+    ensure_directories()
+
+    sources = [
+        ("Pushshift API", fetch_from_pushshift),
+        ("Reddit API", fetch_from_reddit_api),
+        ("Internet Archive", fetch_from_internet_archive)
     ]
-    
+
     all_threads = []
-    success = False
-    used_source = None
+    data_retrieved = False
 
-    for source_name, fetch_func in data_sources:
-        logger.info(f"Attempting source: {source_name}")
-        data = fetch_func()
-        
-        if data:
-            all_threads.extend(data)
-            success = True
-            used_source = source_name
-            logger.info(f"Successfully fetched data from {source_name}.")
-            break
-        else:
-            logger.warning(f"Failed to fetch data from {source_name}.")
+    for source_name, fetch_func in sources:
+        logger.info(f"Attempting {source_name}: {fetch_func.__name__}")
+        try:
+            data = fetch_func(subreddit)
+            if data:
+                all_threads.extend(data)
+                data_retrieved = True
+                logger.info(f"Successfully retrieved {len(data)} threads from {source_name}")
+                # Log successful fetches
+                for thread in data:
+                    log_download_attempt(
+                        thread_id=thread.get("id", "unknown"),
+                        origin_type=source_name,
+                        success=True
+                    )
+                break  # Stop after first successful source
+            else:
+                log_download_attempt(
+                    thread_id="batch",
+                    origin_type=source_name,
+                    success=False,
+                    message="No data returned"
+                )
+        except Exception as e:
+            logger.warning(f"{source_name} failed with exception: {e}")
+            log_download_attempt(
+                thread_id="batch",
+                origin_type=source_name,
+                success=False,
+                message=str(e)
+            )
 
-    if not success:
-        error_msg = f"CRITICAL FAILURE: Could not retrieve any data for subreddit '{subreddit}' from Pushshift, Reddit API, or Internet Archive. The pipeline cannot proceed without real data. Please check network connectivity, API credentials, or source availability."
+    if not data_retrieved:
+        error_msg = (
+            f"CRITICAL FAILURE: Could not retrieve any data for subreddit '{subreddit}' "
+            f"from Pushshift, Reddit API, or Internet Archive. The pipeline cannot proceed "
+            f"without real data. Please check network connectivity, API credentials, or source availability."
+        )
         logger.error(error_msg)
+        # Strict fail-loud: raise RuntimeError
         raise RuntimeError(error_msg)
 
-    # Write raw data
-    logger.info(f"Writing {len(all_threads)} threads to {output_file}")
-    with open(output_file, 'w') as f:
+    # Write data to output file
+    with open(output_file, "w") as f:
         for thread in all_threads:
-            # Ensure origin_type is recorded
-            thread['origin_type'] = used_source
-            f.write(json.dumps(thread) + '\n')
+            f.write(json.dumps(thread) + "\n")
 
-    # Compute checksum
+    logger.info(f"Wrote {len(all_threads)} threads to {output_file}")
+
+    # Compute and log checksum
     checksum = compute_sha256(output_file)
     logger.info(f"Checksum for {output_file}: {checksum}")
 
-    # Log attempts (simplified: log the overall success for the subreddit)
-    # In a real scenario, we would log per-thread attempts if we had them.
-    # Here we log the successful fetch for the batch.
-    log_download_attempt(config, f"subreddit_{subreddit}", used_source, True, f"Fetched {len(all_threads)} threads")
+    # Record checksum in state
+    state_file = STATE_DIR / f"{os.path.basename(PROJECT_ROOT)}.yaml"
+    if not state_file.exists():
+        state_file.write_text("artifact_hashes: {}\n")
 
-    return len(all_threads)
+    # Simple YAML update (in production, use a proper YAML library)
+    content = state_file.read_text()
+    if "artifact_hashes:" not in content:
+        content += "artifact_hashes:\n"
+    content += f"  {output_file.name}: {checksum}\n"
+    state_file.write_text(content)
 
-def validate_origin_types(config: Config):
-    """Validate that origin_type is present in the downloaded data."""
-    raw_file = config.raw_dir / "reddit_threads.jsonl"
-    if not raw_file.exists():
-        logger.error("Raw data file not found. Cannot validate origin types.")
-        return False
+def validate_origin_types(raw_file: Path):
+    """
+    Verify that origin_type log is present and accurate.
+    """
+    log_file = DATA_PROCESSED_DIR / "download_attempts.log"
+    if not log_file.exists():
+        raise FileNotFoundError(f"Download log not found: {log_file}")
 
-    count = 0
-    valid_count = 0
-    with open(raw_file, 'r') as f:
+    raw_data = []
+    with open(raw_file) as f:
         for line in f:
-            count += 1
-            try:
-                data = json.loads(line)
-                if 'origin_type' in data:
-                    valid_count += 1
-                else:
-                    logger.warning(f"Thread {count} missing origin_type")
-            except json.JSONDecodeError:
-                logger.warning(f"Thread {count} is not valid JSON")
+            raw_data.append(json.loads(line))
 
-    if count == 0:
-        logger.warning("No threads found in raw file.")
-        return False
+    log_entries = []
+    with open(log_file) as f:
+        for line in f:
+            log_entries.append(json.loads(line))
 
-    ratio = valid_count / count
-    if ratio < 1.0:
-        logger.warning(f"Origin type validation failed: {ratio:.2%} of threads have origin_type")
-        return False
-    
-    logger.info(f"Origin type validation passed: 100% of threads have origin_type")
-    return True
+    # Simple validation: check that every thread in raw_data has a corresponding log entry
+    raw_ids = {thread["id"] for thread in raw_data}
+    logged_ids = {entry["thread_id"] for entry in log_entries if entry["thread_id"] != "batch"}
+
+    if not raw_ids.issubset(logged_ids):
+        missing = raw_ids - logged_ids
+        logger.warning(f"Some thread IDs missing from log: {missing}")
+    else:
+        logger.info("Origin type log validation passed.")
 
 def main():
-    parser = argparse.ArgumentParser(description="Download Reddit data for analysis.")
-    parser.add_argument("--source", type=str, default="askScience", help="Subreddit name to download.")
-    parser.add_argument("--limit", type=int, default=1000, help="Max number of threads to fetch.")
+    """Main entry point for data download."""
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Download Reddit thread data.")
+    parser.add_argument("--source", action="append", required=True,
+                        help="Subreddit(s) to fetch data from (e.g., --source AskScience)")
     args = parser.parse_args()
 
-    config = get_config()
-    ensure_directories(config)
-    
-    output_file = config.raw_dir / "reddit_threads.jsonl"
-    log_file = config.processed_dir / "download_attempts.log"
+    for subreddit in args.source:
+        logger.info(f"Processing subreddit: {subreddit}")
+        output_file = DATA_RAW_DIR / f"reddit_{subreddit}.jsonl"
+        download_data(subreddit, output_file)
 
-    try:
-        count = download_data(args.source, output_file, log_file)
-        logger.info(f"Download complete. Fetched {count} threads.")
-        
-        # Validate
-        if validate_origin_types(config):
-            logger.info("Validation successful.")
-        else:
-            logger.warning("Validation incomplete.")
-            
-    except RuntimeError as e:
-        logger.error(str(e))
-        sys.exit(1)
+        # Validate origin types if file exists
+        if output_file.exists():
+            validate_origin_types(output_file)
+
+    logger.info("Data download completed.")
 
 if __name__ == "__main__":
     main()

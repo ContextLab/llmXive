@@ -9,5 +9,5 @@ required_fields:
 - mixing_enthalpy
 - atomic_radius_mismatch
 cache_key: 12467906da4068a88f98216711d12a3a2a09114a2c36fe72e5acf79cdd4536a0
-searched_at: '2026-09-27T01:59:17.821686+00:00'
-retry_count: 1
+searched_at: '2026-10-07T15:59:58.303793+00:00'
+retry_count: 2
