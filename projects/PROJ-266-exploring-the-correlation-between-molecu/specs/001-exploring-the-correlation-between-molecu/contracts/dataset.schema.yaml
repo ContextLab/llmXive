@@ -1,9 +1,9 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Caco-2 Permeability Dataset Schema
 description: >
-  JSON Schema for the Caco-2 permeability dataset retrieved from ChEMBL.
-  This schema defines the structure for both raw and processed data files,
-  ensuring consistency across the pipeline.
+  JSON Schema for the Caco-2 permeability dataset used in the molecular
+  flexibility and drug transport correlation study. This schema defines the
+  structure for both the raw retrieved data and the processed filtered data.
 type: object
 required:
   - smiles
@@ -16,55 +16,66 @@ properties:
   smiles:
     type: string
     description: >
-      SMILES string representing the molecular structure.
-      Must be a valid canonical SMILES string.
+      Canonical SMILES string representing the molecular structure.
+      Must be a valid SMILES string for RDKit processing.
     minLength: 1
+    pattern: "^[A-Za-z0-9@#$%&*()\\-+=\\[\\]{}|~^<>:._]+$"
+  
   logPapp:
     type: number
     description: >
-      Apparent permeability coefficient (Papp) in cm/s, typically
-      expressed as log10(Papp).
+      Apparent permeability coefficient (Papp) expressed as log10(Papp cm/s).
+      This is the primary dependent variable for the study.
     minimum: -10.0
-    maximum: -4.0
+    maximum: 0.0
+  
   mw:
     type: number
     description: >
-      Molecular weight of the compound in Daltons (g/mol).
-    minimum: 0.0
+      Molecular weight in Daltons (g/mol).
+      Calculated from the SMILES structure.
+    minimum: 100.0
+    maximum: 2000.0
+  
   psa:
     type: number
     description: >
-      Polar Surface Area (PSA) in Angstroms squared (Å²).
+      Topological Polar Surface Area (TPSA) in Å².
+      Calculated from the SMILES structure.
     minimum: 0.0
+    maximum: 500.0
+  
   assay_id:
     type: string
     description: >
-      Unique identifier for the assay from ChEMBL (e.g., CHEMBL12345).
-    pattern: '^CHEMBL[0-9]+$'
+      Unique identifier for the assay record from ChEMBL.
+      Typically follows the format 'CHEMBLxxxxxx'.
+    minLength: 1
+  
   protocol_metadata:
     type: object
     description: >
-      Metadata describing the experimental protocol used for the assay.
-      This object captures the heterogeneity of the data sources.
+      Metadata regarding the experimental protocol used for the measurement.
+      Used to filter for standardized protocols and ensure data quality.
     required:
       - standard_type
-      - heterogeneity_score
     properties:
       standard_type:
         type: string
         description: >
-          The type of standard measurement used (e.g., MEASUREMENT,
-          CALCULATION, ESTIMATE). Expected values: 'MEASUREMENT'.
+          The type of standard applied in the assay.
+          Expected values include 'MEASUREMENT', 'ESTIMATE', etc.
+          Only 'MEASUREMENT' records are retained for analysis.
         enum:
           - MEASUREMENT
-          - CALCULATION
           - ESTIMATE
-      heterogeneity_score:
-        type: number
-        description: >
-          A numeric score indicating the level of heterogeneity or
-          uncertainty in the protocol. Lower scores indicate higher
-          consistency with standard protocols.
-        minimum: 0.0
-        maximum: 1.0
-additionalProperties: false
+          - PREDICTION
+          - RANGE
+          - OTHER
+      assay_name:
+        type: string
+        description: Optional name of the assay.
+      source:
+        type: string
+        description: Source database or publication reference.
+additionalProperties: true

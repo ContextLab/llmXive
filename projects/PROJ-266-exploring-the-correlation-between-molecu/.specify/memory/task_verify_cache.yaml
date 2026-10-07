@@ -1,17 +1,3 @@
-T002:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory artifacts (`code/`, `tests/`, `data/`) are presented; the claim
-    provides only a textual statement without any file system evidence that the `os.makedirs`
-    calls were executed. The required folders are therefore missing.
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., .flake8, pyproject.toml\
-    \ with black settings, or a pre\u2011commit hook) are present in the provided\
-    \ evidence, so the requirement to configure flake8/black is not satisfied. The\
-    \ implementer must add the appropriate configuration artifacts and ensure they\
-    \ are non\u2011empty."
 T006:
   c: false
   h: 9914aae3ece5fb48343f57249c7f1395fe8fe5d86fea31a1482bcaab2398bc8b
@@ -20,23 +6,6 @@ T006:
     \ section to `research.md`, and the shown code contains a typo (`DEFAULT_DEVIA`)\
     \ that would raise a `NameError` if a YAML parse error occurs. Consequently the\
     \ script does not fully meet the task\u2019s functional requirement."
-T008a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, or console output showing the `os.makedirs` calls or the subsequent
-    `assert` checks is provided, and there is no evidence that the required directories
-    actually exist. The implementer must supply the execution artifact (e.g., a Python
-    script or notebook cell) that creates the four directories and demonstrates the
-    assertions passing.
-T008b:
-  c: false
-  h: 5d8febb7c51451e414925e46b3820a6961b8fa356ebc4c391a03e4b367c866f7
-  r: "The `code/utils/checksum.py` file is truncated and the `scan_and_register_data_files`\
-    \ function is incomplete, so it never actually computes checksums or writes them.\
-    \ Moreover, the required output file `state/pending/checksums.yaml` does not exist.\
-    \ The task\u2019s core requirement\u2014generating SHA\u2011256 checksums for\
-    \ files in `data/` and writing them to the pending YAML file\u2014is therefore\
-    \ unmet."
 T008d:
   c: true
   h: d974da252bf6da54549fe47a2bff38b765fc42114be092df21dff90595ff0687
@@ -44,37 +13,59 @@ T008d:
     required file `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml`
     is present with the exact content `artifact_hashes: {}` as specified. No missing
     or placeholder artifacts remain.'
-T009:
+T013:
   c: false
-  h: 9962cd300afab99984d333a3c76ce15d6b03bc04e418774c1ebb1cd08496bc92
-  r: "The `code/data/retrieval.py` file is truncated, contains syntax errors (e.g.,\
-    \ undefined variable `assa`), and never writes the required CSV or calls the checksum\
-    \ utility. The expected output file `data/raw/chembl_raw.csv`, the schema file\
-    \ `specs/.../dataset.schema.yaml`, and the checksum file `state/pending/checksums.yaml`\
-    \ are all missing. The task\u2019s core requirements are therefore not satisfied."
-T010:
+  h: 0f8b2bd00a943aeddb56260569d969538af7601c9f12a11b0520655413d0c2fa
+  r: "The repository contains a partially shown `generate_conformers` function, but\
+    \ the code is truncated and does not include logic to filter conformers by the\
+    \ 10\u202Fkcal/mol energy window nor any code that writes the resulting ensembles\
+    \ to `data/processed/conformers.pkl`. Moreover, the required `conformers.pkl`\
+    \ file is absent. The task\u2019s output artifact is therefore missing."
+T014:
   c: false
-  h: a6df4786e788031e31030f409b0677a32263e577035e3360483f31bb137325ba
-  r: The repository lacks the required input file `data/raw/chembl_raw.csv`, the output
-    `data/processed/filtered_data.csv`, and the generated `state/pending/checksums.yaml`.
-    Moreover, the provided `preprocessing.py` is truncated and does not show the saving
-    of filtered data or the invocation of the checksum utility, so the full required
-    behavior is not implemented.
-T012:
+  h: bc63d28135f1e3cda3dcbb08261d9d42a6117837efcf91c760951dfa07be3bb4
+  r: "The repository lacks the required `data/processed/conformers.pkl` input and\
+    \ the resulting `data/processed/descriptors_raw.csv` output. Moreover, the provided\
+    \ `code/data/descriptors.py` is truncated and does not contain the full implementation\
+    \ (e.g., conversion to XYZ, pyvib call, variance calculations, CSV writing, and\
+    \ the <450\u2011descriptor threshold check). These missing artifacts prevent the\
+    \ task from being genuinely completed."
+T015:
   c: false
-  h: f8ee792295b89ba5371fd2488e6bccc9b5cba590fa1214b514545911dc411da3
-  r: The `tests/contract/test_dataset.py` file is present, but the required `test_schema_compliance`
-    function is not shown (the file is truncated and no such test is evident). Moreover,
-    the referenced schema file `specs/.../contracts/dataset.schema.yaml` does not
-    exist, violating the verification step that the schema must be present before
-    running the tests. Both the test implementation and the schema file are missing.
+  h: b4371263f668ed119ce1e3c05b4f98bf06fd7a22405295bf9cba0d949973a711
+  r: The analysis script defines a `calculate_bivariate_correlations` function that
+    computes the required Pearson and Spearman correlations, but it never writes the
+    results to `data/processed/correlation_diagnostic.csv` nor is the function invoked.
+    Consequently, the expected CSV file is missing from the repository. The task requires
+    both the computation and the saved output, which are not fully implemented.
+T015b:
+  c: false
+  h: 574aa0d35d689f8fec38fdbcf252125ca31b0235bef4555d55bc3b31dce3762c
+  r: "The `calculate_controlled_partial_correlations` function is only partially shown\
+    \ and does not contain a full implementation or any code that writes results to\
+    \ `data/processed/correlation_controlled.csv`. Moreover, the required output file\
+    \ `data/processed/correlation_controlled.csv` is missing from the repository.\
+    \ The task\u2019s core requirement is therefore not satisfied."
 T016:
   c: false
-  h: b5b66e20dde713d494ce6477a6aa5f4d8a0c84c505486b736e910c894aa75620
-  r: "The `analysis.py` file contains a partially\u2011implemented `compute_correlations_with_fdr`\
-    \ function that is truncated and never writes results to `data/processed/correlation_results.csv`.\
-    \ Moreover, the required `correlation_results.csv` file does not exist. The FDR\u2011\
-    corrected q\u2011values are therefore not persisted as the task specifies."
+  h: b4371263f668ed119ce1e3c05b4f98bf06fd7a22405295bf9cba0d949973a711
+  r: "The provided `analysis.py` does not contain any Benjamini\u2011Hochberg FDR\
+    \ correction logic nor code that writes a CSV with corrected q\u2011values, and\
+    \ the required output file `data/processed/correlation_diagnostic.csv` is absent.\
+    \ The task\u2019s core requirement is therefore unmet."
+T019a:
+  c: false
+  h: 4c65c89e9ce9f5e30a2dd42cc64c5e9e00e97017501445769c0caa01dace4636
+  r: "The required `data/processed/enriched_data.csv` file is absent, and `analysis.py`\
+    \ does not contain a multivariate linear regression model or code that writes\
+    \ coefficients/metrics to `data/processed/model_results.json`. Consequently the\
+    \ task\u2019s core requirements are not met."
+T025:
+  c: false
+  h: a3042d1cf2056fa36e1c3ed3b7464fc109eaf5f0dcc7f6aaf3d27529a4597053
+  r: The required artifact `data/processed/enriched_data.csv` does not exist, so the
+    implementer could not read the `mw` column nor append a `complexity_metric` column
+    as specified. The task therefore remains unfinished.
 T029:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

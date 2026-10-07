@@ -47,7 +47,7 @@ def scan_data_files(data_dir: Path) -> List[Path]:
     Returns:
         List of file paths.
     """
-    extensions = {'.csv', '.json', '.yaml', '.yml', '.parquet', '.txt', '.tsv'}
+    extensions = {'.csv', '.json', '.yaml', '.yml', '.parquet', '.txt', '.tsv', '.pkl'}
     files = []
     for ext in extensions:
         files.extend(data_dir.rglob(f'*{ext}'))

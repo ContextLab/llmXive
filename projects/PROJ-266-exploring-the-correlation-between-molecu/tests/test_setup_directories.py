@@ -1,62 +1,81 @@
 import os
 import pytest
 from pathlib import Path
-import tempfile
-import shutil
+import sys
 
-# Mock the project root for testing if necessary, or rely on the actual get_project_root
-# For this test, we assume the test runner is executed from the project root
-# or that get_project_root correctly identifies the root.
+# Add the code directory to the path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
 from utils.config import get_project_root
-from code.data.setup_directories import create_directories, verify_directories
+from data.setup_directories import create_directories, verify_directories
 
-def test_directory_creation():
+class TestDirectorySetup:
     """
-    Test that create_directories actually creates the required folders.
+    Unit tests for directory creation and verification logic.
     """
-    project_root = get_project_root()
-    
-    # Clean up if they exist from previous runs (optional, but good for isolation)
-    # Note: In a real CI environment, we might not want to delete data, 
-    # but for unit testing the logic, we ensure the function creates them.
-    
-    create_directories()
-    
-    # Assertions matching T008a requirements
-    assert os.path.isdir(project_root / "data" / "raw"), "data/raw/ missing"
-    assert os.path.isdir(project_root / "data" / "processed"), "data/processed/ missing"
-    assert os.path.isdir(project_root / "state" / "projects"), "state/projects/ missing"
-    assert os.path.isdir(project_root / "state" / "pending"), "state/pending/ missing"
 
-def test_directory_verification():
-    """
-    Test that verify_directories passes when directories exist.
-    """
-    project_root = get_project_root()
-    
-    # Ensure they exist first
-    create_directories()
-    
-    # This should not raise an AssertionError
-    try:
-        verify_directories()
-    except AssertionError as e:
-        pytest.fail(f"verify_directories failed unexpectedly: {e}")
+    def test_create_directories_creates_all_required_dirs(self):
+        """
+        Test that create_directories creates data/raw, data/processed,
+        state/projects, and state/pending.
+        """
+        project_root = get_project_root()
+        
+        # Define expected directories
+        expected_dirs = [
+            project_root / "data" / "raw",
+            project_root / "data" / "processed",
+            project_root / "state" / "projects",
+            project_root / "state" / "pending",
+        ]
+        
+        # Ensure they don't exist before test (optional cleanup)
+        for d in expected_dirs:
+            if d.exists():
+                # Don't remove, just verify they are created
+                pass
+        
+        # Run the creation function
+        create_directories(project_root)
+        
+        # Verify all directories were created
+        for expected_dir in expected_dirs:
+            assert expected_dir.exists(), f"Directory was not created: {expected_dir}"
+            assert expected_dir.is_dir(), f"Path is not a directory: {expected_dir}"
 
-def test_verify_directories_fails_when_missing():
-    """
-    Test that verify_directories raises AssertionError if a directory is missing.
-    """
-    project_root = get_project_root()
-    
-    # Temporarily remove a directory to test failure
-    temp_path = project_root / "data" / "raw"
-    if temp_path.exists():
-        shutil.rmtree(temp_path)
-    
-    with pytest.raises(AssertionError):
-        verify_directories()
-    
-    # Restore for subsequent tests
-    temp_path.mkdir(parents=True, exist_ok=True)
+    def test_verify_directories_raises_on_missing(self, tmp_path):
+        """
+        Test that verify_directories raises FileNotFoundError if a directory is missing.
+        """
+        # Create a temporary project root with only some directories
+        missing_dir = tmp_path / "data" / "raw"
+        # Do not create missing_dir
+        
+        with pytest.raises(FileNotFoundError):
+            # We need to mock the project root or pass a specific path
+            # Since verify_directories expects a Path, we pass tmp_path
+            # But verify_directories looks for specific relative paths
+            # So we construct the full path for the missing one to trigger the error
+            # Actually, verify_directories iterates over specific relative paths
+            # Let's create the other dirs but not the one we want to test
+            (tmp_path / "data" / "processed").mkdir(parents=True, exist_ok=True)
+            (tmp_path / "state" / "projects").mkdir(parents=True, exist_ok=True)
+            (tmp_path / "state" / "pending").mkdir(parents=True, exist_ok=True)
+            
+            # Now verify should fail because data/raw is missing
+            verify_directories(tmp_path)
+
+    def test_verify_directories_passes_when_all_exist(self, tmp_path):
+        """
+        Test that verify_directories passes when all required directories exist.
+        """
+        project_root = tmp_path
+        
+        # Create all required directories
+        create_directories(project_root)
+        
+        # This should not raise any exception
+        verify_directories(project_root)
+        
+        # If we get here, the test passed
+        assert True

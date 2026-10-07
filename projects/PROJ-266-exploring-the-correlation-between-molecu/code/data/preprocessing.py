@@ -1,11 +1,12 @@
 """
 Preprocessing Module for Caco-2 Permeability Data.
 
-This module implements the data filtering logic for User Story 1.
-It reads raw data from ChEMBL, filters for valid records, and handles
-protocol heterogeneity checks.
+This module filters raw ChEMBL data to ensure data completeness and protocol
+consistency. It reads the raw CSV, parses JSON metadata, filters for valid
+SMILES and logPapp values, and enforces the 'MEASUREMENT' standard type.
 
-Traceability: FR-010 - Filter raw data for non-NULL SMILES and logPapp.
+Traceability:
+- FR-010: Filter raw data for non-NULL SMILES and logPapp.
 """
 
 import csv
@@ -15,202 +16,182 @@ import sys
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
-# Import local utilities relative to project structure
-# We need to ensure the code directory is in the path for imports to work
-# when running as a script from the root or code/data
-if str(Path(__file__).parent.parent.parent) not in sys.path:
-    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
-from utils.logging import get_logger
+# Import from sibling modules as per API surface
+from utils.logging import get_logger, configure_root_logger
 from utils.config import get_project_root
 from utils.checksum import scan_and_register_data_files
 
+# Configure logger
 logger = get_logger(__name__)
 
-def load_raw_data(input_path: Path) -> List[Dict[str, Any]]:
+def load_raw_data(file_path: Path) -> List[Dict[str, Any]]:
     """
     Load raw data from a CSV file.
 
     Args:
-        input_path: Path to the raw CSV file.
+        file_path: Path to the raw CSV file.
 
     Returns:
-        List of dictionaries representing rows.
+        List of dictionaries representing the rows.
     """
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
+    if not file_path.exists():
+        raise FileNotFoundError(f"Raw data file not found: {file_path}")
 
-    records = []
-    with open(input_path, 'r', encoding='utf-8') as f:
+    data = []
+    with open(file_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            records.append(row)
+            data.append(row)
 
-    logger.info(f"Loaded {len(records)} records from {input_path}")
-    return records
+    logger.info(f"Loaded {len(data)} records from {file_path}")
+    return data
 
 def parse_protocol_metadata(record: Dict[str, Any]) -> Dict[str, Any]:
     """
     Parse the protocol_metadata JSON string back into a dictionary.
 
     Args:
-        record: A row dictionary from the CSV.
+        record: A dictionary representing a row from the raw CSV.
 
     Returns:
-        Parsed metadata dictionary.
+        Parsed dictionary or empty dict if parsing fails.
     """
-    meta_str = record.get('protocol_metadata', '{}')
-    if not meta_str:
+    metadata_str = record.get('protocol_metadata', '{}')
+    if not metadata_str or metadata_str == '{}':
         return {}
+
     try:
-        return json.loads(meta_str)
+        return json.loads(metadata_str)
     except json.JSONDecodeError as e:
         logger.warning(f"Failed to parse protocol_metadata for record: {e}")
         return {}
 
-def check_protocol_heterogeneity(record: Dict[str, Any]) -> Tuple[bool, str]:
+def check_protocol_heterogeneity(records: List[Dict[str, Any]]) -> Tuple[int, int]:
     """
-    Check if a record should be excluded due to protocol heterogeneity.
-
-    Logic:
-    1. If standard_type is not 'MEASUREMENT', exclude.
-    2. If heterogeneity_score is present and > 0.8 (arbitrary high threshold), exclude.
-
-    Args:
-        record: A row dictionary.
-
-    Returns:
-        Tuple of (is_excluded, reason).
-    """
-    meta = parse_protocol_metadata(record)
-    standard_type = meta.get('standard_type', '')
-    heterogeneity_score = meta.get('heterogeneity_score', 0.0)
-
-    if standard_type != 'MEASUREMENT':
-        return True, f"Invalid standard_type: {standard_type}"
-
-    if isinstance(heterogeneity_score, (int, float)) and heterogeneity_score > 0.8:
-        return True, f"High heterogeneity score: {heterogeneity_score}"
-
-    return False, ""
-
-def preprocess_data(records: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], Dict[str, int]]:
-    """
-    Filter records for non-NULL SMILES and logPapp, and check protocol heterogeneity.
+    Check for protocol heterogeneity by counting records where standard_type is not 'MEASUREMENT'.
 
     Args:
         records: List of raw records.
 
     Returns:
-        Tuple of (filtered_records, stats_dict).
+        Tuple of (total_records, excluded_count).
     """
-    filtered = []
-    stats = {
-        'total': len(records),
-        'null_smiles': 0,
-        'null_logpapp': 0,
-        'protocol_excluded': 0,
-        'kept': 0
-    }
-
+    excluded_count = 0
     for record in records:
-        smiles = record.get('smiles', '').strip()
-        logpapp = record.get('logPapp', '').strip()
+        metadata = parse_protocol_metadata(record)
+        standard_type = metadata.get('standard_type', '')
+        if standard_type != 'MEASUREMENT':
+            excluded_count += 1
+    return len(records), excluded_count
 
-        # Check for NULL SMILES
-        if not smiles or smiles.lower() == 'nan':
-            stats['null_smiles'] += 1
-            continue
-
-        # Check for NULL logPapp
-        if not logpapp or logpapp.lower() == 'nan':
-            stats['null_logpapp'] += 1
-            continue
-
-        # Check protocol heterogeneity
-        is_excluded, reason = check_protocol_heterogeneity(record)
-        if is_excluded:
-            stats['protocol_excluded'] += 1
-            logger.debug(f"Excluded due to protocol: {reason}")
-            continue
-
-        filtered.append(record)
-        stats['kept'] += 1
-
-    return filtered, stats
-
-def write_clean_data(records: List[Dict[str, Any]], output_path: Path) -> None:
+def preprocess_data(raw_data: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], int, int]:
     """
-    Write filtered records to a new CSV file.
+    Filter raw data for non-NULL SMILES, logPapp, and correct protocol standard_type.
 
     Args:
-        records: List of filtered records.
+        raw_data: List of raw records.
+
+    Returns:
+        Tuple of (filtered_data, total_excluded, excluded_due_to_protocol).
+    """
+    filtered_data = []
+    total_excluded = 0
+    excluded_due_to_protocol = 0
+
+    for record in raw_data:
+        # Check for non-NULL SMILES
+        smiles = record.get('smiles')
+        if not smiles or smiles.strip() == '':
+            total_excluded += 1
+            continue
+
+        # Check for non-NULL logPapp
+        logpapp = record.get('logPapp')
+        if logpapp is None or logpapp == '' or logpapp == 'NULL':
+            total_excluded += 1
+            continue
+
+        # Check protocol standard_type
+        metadata = parse_protocol_metadata(record)
+        standard_type = metadata.get('standard_type', '')
+        if standard_type != 'MEASUREMENT':
+            excluded_due_to_protocol += 1
+            total_excluded += 1
+            continue
+
+        # If all checks pass, add to filtered data
+        # Ensure logPapp is stored as a float string for CSV consistency if it was a number
+        if isinstance(logpapp, (int, float)):
+            record['logPapp'] = str(logpapp)
+        
+        filtered_data.append(record)
+
+    return filtered_data, total_excluded, excluded_due_to_protocol
+
+def write_clean_data(data: List[Dict[str, Any]], output_path: Path) -> None:
+    """
+    Write the filtered data to a CSV file.
+
+    Args:
+        data: List of filtered records.
         output_path: Path to the output CSV file.
     """
-    if not records:
-        logger.warning("No records to write.")
-        # Create an empty file with headers if possible, or just return
-        # We need headers from the first record if available, otherwise default
-        # Since we have no records, we can't infer headers easily without schema.
-        # However, for robustness, we assume the schema is consistent.
-        # If empty, we write nothing or an empty file.
-        with open(output_path, 'w', encoding='utf-8') as f:
-            pass
+    if not data:
+        logger.warning("No data to write.")
         return
 
-    fieldnames = list(records[0].keys())
+    # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    fieldnames = list(data[0].keys())
 
     with open(output_path, 'w', encoding='utf-8', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(records)
+        writer.writerows(data)
 
-    logger.info(f"Wrote {len(records)} records to {output_path}")
+    logger.info(f"Wrote {len(data)} records to {output_path}")
 
 def main():
     """
-    Main entry point for preprocessing.
+    Main entry point for the preprocessing script.
     """
+    configure_root_logger()
+    logger.info("Starting data preprocessing.")
+
     project_root = get_project_root()
-    input_path = project_root / 'data' / 'raw' / 'chembl_raw.csv'
+    raw_data_path = project_root / 'data' / 'raw' / 'chembl_raw.csv'
     output_path = project_root / 'data' / 'processed' / 'filtered_data.csv'
 
-    logger.info(f"Starting preprocessing. Input: {input_path}, Output: {output_path}")
-
-    if not input_path.exists():
-        logger.error(f"Input file does not exist: {input_path}. "
-                     "Please run T009 (retrieval) first.")
-        sys.exit(1)
-
+    # Load raw data
     try:
-        # Load
-        records = load_raw_data(input_path)
-
-        # Preprocess
-        filtered_records, stats = preprocess_data(records)
-
-        # Report stats
-        pass_rate = (stats['kept'] / stats['total'] * 100) if stats['total'] > 0 else 0.0
-        logger.info(f"Preprocessing complete.")
-        logger.info(f"Total records: {stats['total']}")
-        logger.info(f"Excluded (NULL SMILES): {stats['null_smiles']}")
-        logger.info(f"Excluded (NULL logPapp): {stats['null_logpapp']}")
-        logger.info(f"Excluded (Protocol Heterogeneity): {stats['protocol_excluded']}")
-        logger.info(f"Kept: {stats['kept']}")
-        logger.info(f"Pass Rate: {pass_rate:.2f}%")
-
-        # Write
-        write_clean_data(filtered_records, output_path)
-
-        # Invoke checksum utility
-        logger.info("Invoking checksum utility...")
-        scan_and_register_data_files()
-        logger.info("Checksum utility completed.")
-
-    except Exception as e:
-        logger.error(f"Preprocessing failed: {e}", exc_info=True)
+        raw_data = load_raw_data(raw_data_path)
+    except FileNotFoundError as e:
+        logger.error(f"Cannot proceed: {e}")
         sys.exit(1)
+
+    # Check protocol heterogeneity
+    total, protocol_excluded = check_protocol_heterogeneity(raw_data)
+    logger.info(f"Protocol heterogeneity check: {protocol_excluded} records excluded out of {total}.")
+
+    # Preprocess data
+    filtered_data, total_excluded, _ = preprocess_data(raw_data)
+
+    # Calculate pass rate
+    pass_rate = (len(filtered_data) / len(raw_data) * 100) if raw_data else 0.0
+    logger.info(f"Pass rate: {pass_rate:.2f}%")
+    logger.info(f"Total records excluded: {total_excluded}")
+    logger.info(f"Records excluded due to protocol heterogeneity: {protocol_excluded}")
+
+    # Write clean data
+    write_clean_data(filtered_data, output_path)
+
+    # Invoke checksum utility to generate checksums for pending state
+    # This satisfies the requirement to invoke code/utils/checksum.py
+    logger.info("Invoking checksum utility to register new artifacts.")
+    scan_and_register_data_files()
+
+    logger.info("Data preprocessing completed successfully.")
 
 if __name__ == '__main__':
     main()

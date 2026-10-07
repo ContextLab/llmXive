@@ -1,21 +1,21 @@
 """
-Unit tests for data filtering logic in code/data/preprocessing.py.
-These tests verify the filtering logic and pass rate calculation as required by T011.
+Unit tests for the preprocessing module.
+
+Tests the filtering logic and pass rate calculation for User Story 1.
 """
-import pytest
-import pandas as pd
+
+import csv
 import json
-from pathlib import Path
-import sys
 import os
+import tempfile
+from pathlib import Path
+from unittest import TestCase
 
-# Add the project root to the path to allow imports from code/
-# This assumes the test is run from the project root or the path is configured correctly
-project_root = Path(__file__).resolve().parent.parent
-if str(project_root / 'code') not in sys.path:
-    sys.path.insert(0, str(project_root / 'code'))
+import sys
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from data.preprocessing import (
+from code.data.preprocessing import (
     load_raw_data,
     parse_protocol_metadata,
     check_protocol_heterogeneity,
@@ -24,132 +24,138 @@ from data.preprocessing import (
 )
 
 
-def create_mock_raw_data(tmp_path):
-    """Helper to create a mock CSV file for testing."""
-    data = [
-        {
-            "smiles": "CCO",
-            "logPapp": -4.5,
-            "assay_id": "1",
-            "protocol_metadata": json.dumps({"standard_type": "MEASUREMENT", "heterogeneity_score": 0.1})
-        },
-        {
-            "smiles": "CC(C)C",
-            "logPapp": -5.2,
-            "assay_id": "2",
-            "protocol_metadata": json.dumps({"standard_type": "MEASUREMENT", "heterogeneity_score": 0.2})
-        },
-        {
-            "smiles": None,
-            "logPapp": -4.0,
-            "assay_id": "3",
-            "protocol_metadata": json.dumps({"standard_type": "MEASUREMENT", "heterogeneity_score": 0.1})
-        },
-        {
-            "smiles": "CCCC",
-            "logPapp": None,
-            "assay_id": "4",
-            "protocol_metadata": json.dumps({"standard_type": "MEASUREMENT", "heterogeneity_score": 0.1})
-        },
-        {
-            "smiles": "CCCCC",
-            "logPapp": -6.0,
-            "assay_id": "5",
-            "protocol_metadata": json.dumps({"standard_type": "ESTIMATE", "heterogeneity_score": 0.9})
-        },
-        {
-            "smiles": "CCCCCC",
-            "logPapp": -6.5,
-            "assay_id": "6",
-            "protocol_metadata": json.dumps({"standard_type": "MEASUREMENT", "heterogeneity_score": 0.8})
-        }
-    ]
-    csv_path = tmp_path / "mock_raw.csv"
-    df = pd.DataFrame(data)
-    df.to_csv(csv_path, index=False)
-    return csv_path
+class TestPreprocessingLogic(TestCase):
+    """Tests for the core filtering logic."""
+
+    def setUp(self):
+        self.test_data = [
+            # Valid record
+            {
+                'smiles': 'CCO',
+                'logPapp': '-5.0',
+                'protocol_metadata': json.dumps({'standard_type': 'MEASUREMENT'})
+            },
+            # Invalid SMILES (NULL)
+            {
+                'smiles': '',
+                'logPapp': '-5.0',
+                'protocol_metadata': json.dumps({'standard_type': 'MEASUREMENT'})
+            },
+            # Invalid logPapp (NULL)
+            {
+                'smiles': 'CCO',
+                'logPapp': '',
+                'protocol_metadata': json.dumps({'standard_type': 'MEASUREMENT'})
+            },
+            # Invalid Protocol (Not MEASUREMENT)
+            {
+                'smiles': 'CCO',
+                'logPapp': '-5.0',
+                'protocol_metadata': json.dumps({'standard_type': 'ESTIMATE'})
+            },
+            # Invalid Protocol (Missing key)
+            {
+                'smiles': 'CCO',
+                'logPapp': '-5.0',
+                'protocol_metadata': json.dumps({'other_key': 'value'})
+            },
+            # Valid record with null string
+            {
+                'smiles': 'null',
+                'logPapp': '-5.0',
+                'protocol_metadata': json.dumps({'standard_type': 'MEASUREMENT'})
+            }
+        ]
+
+    def test_filter_logic(self):
+        """
+        Verifies that the filtering logic correctly excludes records based on:
+        1. NULL/Empty SMILES
+        2. NULL/Empty logPapp
+        3. Protocol heterogeneity (standard_type != 'MEASUREMENT')
+        """
+        filtered_data, stats = preprocess_data(self.test_data)
+
+        # Expected: Only the first record (index 0) should pass.
+        # Index 1: Null SMILES
+        # Index 2: Null logPapp
+        # Index 3: Estimate (not Measurement)
+        # Index 4: Missing standard_type
+        # Index 5: 'null' string SMILES
+
+        self.assertEqual(len(filtered_data), 1)
+        self.assertEqual(filtered_data[0]['smiles'], 'CCO')
+
+        # Verify counts
+        self.assertEqual(stats['excluded_null_smiles'], 2) # Index 1 and 5
+        self.assertEqual(stats['excluded_null_logpapp'], 1) # Index 2
+        self.assertEqual(stats['excluded_protocol_heterogeneity'], 2) # Index 3 and 4
+
+    def test_pass_rate_calculation(self):
+        """
+        Verifies that the pass rate is calculated correctly in the stats dict.
+        """
+        filtered_data, stats = preprocess_data(self.test_data)
+
+        total_input = len(self.test_data)
+        total_output = len(filtered_data)
+        expected_pass_rate = (total_output / total_input) * 100
+
+        # The stats dict itself doesn't store the rate, but we can verify the components
+        # to ensure the rate would be correct if calculated.
+        self.assertEqual(stats['total_input'], total_input)
+        self.assertEqual(stats['total_output'], total_output)
+
+        # Verify that the sum of exclusions + output equals input
+        total_exclusions = (
+            stats['excluded_null_smiles'] +
+            stats['excluded_null_logpapp'] +
+            stats['excluded_protocol_heterogeneity']
+        )
+        self.assertEqual(total_exclusions + total_output, total_input)
 
 
-def test_filter_logic(tmp_path):
-    """
-    Test that the filtering logic correctly removes records with NULL SMILES,
-    NULL logPapp, and those excluded due to protocol heterogeneity.
-    """
-    csv_path = create_mock_raw_data(tmp_path)
-    output_path = tmp_path / "filtered_output.csv"
+class TestParseProtocolMetadata(TestCase):
+    """Tests for parsing the JSON metadata string."""
 
-    # Load raw data
-    raw_df = load_raw_data(csv_path)
+    def test_valid_json(self):
+        row = {'protocol_metadata': '{"standard_type": "MEASUREMENT", "other": 123}'}
+        result = parse_protocol_metadata(row)
+        self.assertIsInstance(result, dict)
+        self.assertEqual(result['standard_type'], 'MEASUREMENT')
 
-    # Parse protocol metadata
-    raw_df['protocol_metadata_parsed'] = raw_df['protocol_metadata'].apply(parse_protocol_metadata)
+    def test_invalid_json(self):
+        row = {'protocol_metadata': 'not valid json'}
+        result = parse_protocol_metadata(row)
+        self.assertIsNone(result)
 
-    # Check heterogeneity (exclude if standard_type != 'MEASUREMENT' or heterogeneity_score > 0.7)
-    # Based on typical logic inferred from task descriptions
-    heterogeneity_mask = raw_df['protocol_metadata_parsed'].apply(
-        lambda x: check_protocol_heterogeneity(x, threshold=0.7)
-    )
+    def test_empty_string(self):
+        row = {'protocol_metadata': ''}
+        result = parse_protocol_metadata(row)
+        self.assertIsNone(result)
 
-    # Apply filters
-    filtered_df = preprocess_data(
-        raw_df,
-        smiles_col='smiles',
-        logPapp_col='logPapp',
-        heterogeneity_mask=heterogeneity_mask
-    )
-
-    # Assertions
-    assert len(filtered_df) == 2, f"Expected 2 valid records, got {len(filtered_df)}"
-    
-    # Check that NULL SMILES and NULL logPapp are removed
-    assert filtered_df['smiles'].isnull().sum() == 0
-    assert filtered_df['logPapp'].isnull().sum() == 0
-
-    # Check that 'ESTIMATE' type and high heterogeneity scores are removed
-    # Record 5: ESTIMATE (removed)
-    # Record 6: MEASUREMENT but heterogeneity_score 0.8 > 0.7 (removed)
-    # Record 0, 1: Valid
-    # Record 2: NULL SMILES (removed)
-    # Record 3: NULL logPapp (removed)
-    
-    smiles_list = filtered_df['smiles'].tolist()
-    assert "CCO" in smiles_list
-    assert "CC(C)C" in smiles_list
-    assert "CCCCC" not in smiles_list
-    assert "CCCCCC" not in smiles_list
+    def test_missing_key(self):
+        row = {}
+        result = parse_protocol_metadata(row)
+        self.assertIsNone(result)
 
 
-def test_pass_rate_calculation(tmp_path):
-    """
-    Test that the pass rate is calculated correctly.
-    Pass rate = (Number of valid records) / (Total number of raw records)
-    """
-    csv_path = create_mock_raw_data(tmp_path)
-    output_path = tmp_path / "filtered_output.csv"
+class TestCheckProtocolHeterogeneity(TestCase):
+    """Tests for the protocol heterogeneity check."""
 
-    raw_df = load_raw_data(csv_path)
-    total_records = len(raw_df)
+    def test_is_measurement(self):
+        row = {'protocol_metadata': json.dumps({'standard_type': 'MEASUREMENT'})}
+        # Returns True if EXCLUDED, False if PASSED
+        self.assertFalse(check_protocol_heterogeneity(row))
 
-    raw_df['protocol_metadata_parsed'] = raw_df['protocol_metadata'].apply(parse_protocol_metadata)
-    heterogeneity_mask = raw_df['protocol_metadata_parsed'].apply(
-        lambda x: check_protocol_heterogeneity(x, threshold=0.7)
-    )
+    def test_is_not_measurement(self):
+        row = {'protocol_metadata': json.dumps({'standard_type': 'ESTIMATE'})}
+        self.assertTrue(check_protocol_heterogeneity(row))
 
-    filtered_df = preprocess_data(
-        raw_df,
-        smiles_col='smiles',
-        logPapp_col='logPapp',
-        heterogeneity_mask=heterogeneity_mask
-    )
+    def test_missing_metadata(self):
+        row = {}
+        self.assertTrue(check_protocol_heterogeneity(row))
 
-    valid_records = len(filtered_df)
-    pass_rate = valid_records / total_records if total_records > 0 else 0.0
-
-    # Expected: 2 valid out of 6 total
-    expected_pass_rate = 2 / 6
-
-    assert abs(pass_rate - expected_pass_rate) < 1e-6, f"Pass rate {pass_rate} does not match expected {expected_pass_rate}"
-
-    # Verify the pass rate is reported (log or returned value check if applicable)
-    # Since preprocess_data returns the dataframe, we calculate it here to verify the logic
-    assert 0.3333 <= pass_rate <= 0.3334
+    def test_missing_standard_type(self):
+        row = {'protocol_metadata': json.dumps({'other': 'value'})}
+        self.assertTrue(check_protocol_heterogeneity(row))

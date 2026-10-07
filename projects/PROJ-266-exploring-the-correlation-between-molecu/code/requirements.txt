@@ -9,4 +9,5 @@ scipy
 statsmodels
 nolds
 pyvib
+pytest
 pyyaml

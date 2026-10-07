@@ -1,49 +1,15 @@
-[build-system]
-requires = ["setuptools>=45", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "molecular-flexibility-permeability"
-version = "0.1.0"
-description = "Exploring the correlation between molecular flexibility and drug transport"
-requires-python = ">=3.8"
-dependencies = [
-    "rdkit",
-    "pandas",
-    "scikit-learn",
-    "matplotlib",
-    "seaborn",
-    "requests",
-    "numpy",
-    "scipy",
-    "statsmodels",
-    "nolds",
-    "flake8",
-    "black",
-]
-
 [tool.black]
 line-length = 88
 target-version = ['py38', 'py39', 'py310', 'py311']
-include = '\.pyi?$'
-exclude = '''
+include = '\\.pyi?$'
+extend-exclude = '''
 /(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
+  \.git
+  | __pycache__
   | build
   | dist
+  | \.eggs
+  | \.egg-info
+  | data
 )/
 '''
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-addopts = "-v --strict-markers"
-
-[tool.setuptools.packages.find]
-where = ["code"]

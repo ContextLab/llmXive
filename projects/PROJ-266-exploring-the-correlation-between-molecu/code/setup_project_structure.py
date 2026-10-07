@@ -1,58 +1,70 @@
-import os
+import logging
 import sys
 from pathlib import Path
+from utils.logging import get_logger, configure_root_logger
+from utils.config import get_project_root
 
-def create_directories():
+def create_directories(project_root: Path) -> None:
     """
-    Create the standard project directories: code/, tests/, data/.
-    This implements the requirement for T002.
+    Create the required directory structure for the project.
+    
+    Requirement: Execute mkdir -p code tests data data/raw data/processed state/projects state/pending
+    at the repository root.
     """
-    # Ensure we are running from the project root or handle relative paths correctly
-    # The script assumes it is run from the root where 'code', 'tests', 'data' should be created.
-    # If run as a module, we need to resolve the path relative to the project root.
-    
-    # We use the current working directory as the base for directory creation
-    # to ensure artifacts are written where the runner expects them.
-    base_path = Path.cwd()
-    
-    directories = [
-        base_path / 'code',
-        base_path / 'tests',
-        base_path / 'data'
+    dirs_to_create = [
+        project_root / "code",
+        project_root / "tests",
+        project_root / "data",
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "state" / "projects",
+        project_root / "state" / "pending",
     ]
     
-    for dir_path in directories:
-        os.makedirs(str(dir_path), exist_ok=True)
-        print(f"Created/Verified directory: {dir_path}")
+    for directory in dirs_to_create:
+        directory.mkdir(parents=True, exist_ok=True)
+        logging.info(f"Created directory: {directory}")
 
-def verify_directories():
+def verify_directories(project_root: Path) -> None:
     """
-    Verify that the required directories exist.
+    Verify that all required directories exist.
+    
+    Requirement: Verify creation by checking that each directory exists.
     """
-    base_path = Path.cwd()
-    directories = ['code', 'tests', 'data']
+    dirs_to_verify = [
+        project_root / "code",
+        project_root / "tests",
+        project_root / "data",
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "state" / "projects",
+        project_root / "state" / "pending",
+    ]
     
-    all_exist = True
-    for dir_name in directories:
-        dir_path = base_path / dir_name
-        if not dir_path.is_dir():
-            print(f"ERROR: Directory missing: {dir_path}")
-            all_exist = False
-        else:
-            print(f"Verified directory: {dir_path}")
+    for directory in dirs_to_verify:
+        if not directory.exists():
+            raise FileNotFoundError(f"Required directory does not exist: {directory}")
+        if not directory.is_dir():
+            raise NotADirectoryError(f"Path exists but is not a directory: {directory}")
+        logging.info(f"Verified directory: {directory}")
+
+def main() -> None:
+    """
+    Main entry point for project structure setup and verification.
+    """
+    configure_root_logger()
+    logger = get_logger(__name__)
     
-    if not all_exist:
-        raise FileNotFoundError("One or more required directories are missing.")
+    project_root = get_project_root()
+    logger.info(f"Project root: {project_root}")
+    
+    logger.info("Creating project directories...")
+    create_directories(project_root)
+    
+    logger.info("Verifying project directories...")
+    verify_directories(project_root)
+    
+    logger.info("Project structure setup and verification complete.")
 
-def main():
-    logger = None
-    try:
-        create_directories()
-        verify_directories()
-        print("Project structure initialization successful.")
-    except Exception as e:
-        print(f"Failed to initialize project structure: {e}")
-        sys.exit(1)
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
