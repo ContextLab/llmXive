@@ -55,7 +55,7 @@ As a researcher, I need to validate the model results via permutation testing an
 
 ### Edge Cases
 
-- **Short Time Series**: If a subject has fewer than 100 time points after motion scrubbing, the system MUST exclude the subject and log the exclusion to `exclusions.log` with the subject ID and reason.
+- **Short Time Series**: If a subject has an insufficient number of time points after motion scrubbing, the system MUST exclude the subject. and log the exclusion to `exclusions.log` with the subject ID and reason.
 - **Missing Phenotypic Data**: If a subject has missing ADHD-RS scores, the system MUST exclude them from the regression analysis but retain them for binary diagnosis if the diagnostic label is present.
 - **Zero Variance Parcels**: If a parcel has zero variance in the time series (e.g., signal dropouts), the system MUST set the entropy to the median value of that parcel across the cohort and log the event.
 - **Motion Confound**: If the correlation between entropy features and Framewise Displacement (FD) exceeds a predefined significance threshold, the system MUST flag the result as potentially confounded by motion in the final report..
@@ -66,7 +66,7 @@ As a researcher, I need to validate the model results via permutation testing an
 
 - **FR-001**: The system MUST compute sample entropy for every parcel in the Schaefer 200 atlas for every subject that meets the validity criteria (≥100 time points post-scrubbing), using embedding dimension m=2 and tolerance r=0.2 * standard deviation (See US-1).
 - **FR-002**: The system MUST implement a stratified cross-validation loop that preserves the balance of diagnostic labels (ADHD vs. Control) in each fold. (See US-2).
-- **FR-003**: The system MUST train and evaluate three distinct models: () Entropy-only, (2) Connectivity-only, and (3) Combined Entropy+Connectivity, storing all cross-validated metrics (See US-2).
+- **FR-003**: The system MUST train and evaluate three distinct models: () Entropy-only, () Connectivity-only, and () Combined Entropy+Connectivity, storing all cross-validated metrics (See US-2).
 - **FR-004**: The system MUST perform a sufficient number of permutation tests by shuffling outcome labels while maintaining the feature matrix structure to derive empirical p-values. (See US-3).
 - **FR-005**: The system MUST execute a sensitivity analysis sweeping the entropy tolerance parameter `r` over a representative range of values and report the resulting performance variance. (See US-3).
 - **FR-006**: The system MUST apply False Discovery Rate (FDR) correction to the parcel-level statistical tests to control for multiple comparisons (See US-3).
@@ -92,7 +92,7 @@ As a researcher, I need to validate the model results via permutation testing an
 
 - **SC-001**: Success is verified if the empirical p-value for the Entropy-only model predicting continuous ADHD-RS scores is < 0.05 AND the difference in mean Pearson correlation (Δr) between the Entropy-only and Connectivity-only models is ≥ 0.05 (See US-2). *Justification: 0.05 is the community-standard minimum effect size for neuroimaging biomarker studies.*
 - **SC-002**: Success is verified if the lower bound of the 95% confidence interval for the difference in AUC (ΔAUC) between the Entropy-only and Connectivity-only models is ≥ 0.05 (See US-2). *Justification: 0.05 is the community-standard minimum effect size for neuroimaging biomarker studies.*
-- **SC-003**: The empirical p-value derived from 1,000 permutations for the primary model's performance metric is measured against the significance threshold of 0.05; the result must be < 0.05 to confirm non-chance performance (See US-3).
+- **SC-003**: The empirical p-value derived from a sufficient number of permutations for the primary model's performance metric is measured against the significance threshold of 0.05.; the result must be < 0.05 to confirm non-chance performance (See US-3).
 - **SC-004**: The variation in model performance (AUC/r) across the sensitivity sweep of `r` ∈ {0.15, 0.20, 0.25} is measured; success is verified if |perf(0.20) - mean(perf)| / mean(perf) ≤ 0.10 (See US-3).
 - **SC-005**: The number of parcels identified as significant predictors after FDR correction is measured; a non-zero count of significant parcels indicates spatial specificity of the biomarker (See US-3).
 - **SC-006**: The absolute correlation coefficient between the mean entropy feature vector and the mean Framewise Displacement (FD) vector across subjects is measured; success requires |r| < 0.3 to confirm the biomarker is not primarily a proxy for motion (See US-3 Edge Cases).

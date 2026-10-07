@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a computational pipeline to evaluate Sample Entropy (SampEn) of resting-state fMRI time series as a biomarker for ADHD traits. The core novelty is the computation of parcel-wise entropy (Schaefer 200 atlas) and its comparison against a functional connectivity baseline. The pipeline strictly adheres to the spec: computing entropy with `m=2`, `r=0.2*SD`, performing motion scrubbing (FD > 0.2mm), standardizing time series to N=120, and training Ridge Regression/Logistic Ridge models with 5-fold stratified cross-validation. The plan includes rigorous permutation testing and sensitivity analysis to ensure statistical validity within CPU-only CI constraints.
+This project implements a computational pipeline to evaluate Sample Entropy (SampEn) of resting-state fMRI time series as a biomarker for ADHD traits. The core novelty is the computation of parcel-wise entropy (Schaefer atlas) and its comparison against a functional connectivity baseline. The pipeline strictly adheres to the spec: computing entropy with `m=2`, `r=0.2*SD`, performing motion scrubbing (FD > 0.2mm), standardizing time series to N=120, and training Ridge Regression/Logistic Ridge models with -fold stratified cross-validation. The plan includes rigorous permutation testing and sensitivity analysis to ensure statistical validity within CPU-only CI constraints.
 
 **Critical Constraint**: The "Entropy-only" model MUST NOT include motion covariates (e.g., `scrub_fraction`) as features. The model must test the *intrinsic* predictive value of entropy. Motion is handled via scrubbing and exclusion criteria only.
 
@@ -13,12 +13,12 @@ This project implements a computational pipeline to evaluate Sample Entropy (Sam
 
 **Language/Version**: Python 3.11  
 **Primary Dependencies**: `antropy`, `nibabel`, `numpy`, `pandas`, `scikit-learn`, `openneuro-py`, `nilearn` (CPU-compatible versions), `pyyaml`  
-**Storage**: Local file system (GitHub Actions runner ephemeral storage: ~14GB limit)  
+**Storage**: Local file system (GitHub Actions runner ephemeral storage: ~GB limit)  
 **Testing**: `pytest` (unit tests for entropy logic, integration tests for pipeline execution)  
 **Target Platform**: Linux (GitHub Actions `ubuntu-latest` free tier: CPU, 7GB RAM, no GPU)  
 **Project Type**: Data analysis pipeline / Research software  
 **Performance Goals**: Complete full dataset processing (subset to N=50 for full permutation test) and model training within 6 hours.  
-**Constraints**: No GPU; memory usage < 6GB; strict adherence to spec dimensions (200 PCA components); no motion covariates in the "Entropy-only" model.  
+**Constraints**: No GPU; memory usage < 6GB; strict adherence to spec dimensions (A reduced set of PCA components); no motion covariates in the "Entropy-only" model.  
 **Scale/Scope**: Processing of ADHD-200 subset (N ~50 for full analysis, up to 100 for entropy computation); 200 parcels; 3 model types; 1000 permutation iterations.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
@@ -88,7 +88,7 @@ tests/
     └── test_motion_scrub.py
 ```
 
-**Structure Decision**: Single project structure selected to minimize overhead and fit within the 14GB disk limit of the CI runner. The `data/` directory in `code/` is for processed/derived data only; raw data is preserved in `data/raw/` with checksums.
+**Structure Decision**: Single project structure selected to minimize overhead and fit within the The disk space limit of the CI runner is constrained.. The `data/` directory in `code/` is for processed/derived data only; raw data is preserved in `data/raw/` with checksums.
 
 ## Complexity Tracking
 
