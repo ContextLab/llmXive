@@ -45,7 +45,7 @@
 
 - [ ] T001 Create root project directories (`projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/`) and test directories (`tests/unit`, `tests/integration`, `docs/`). **Directories**: `code/`, `data/raw`, `data/processed`, `data/interim`, `data/results`, `state/`. **Verification**: Run `tree -L 2` and verify output matches expected structure.
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` (dependencies: `datasets`, `scikit-learn`, `statsmodels`, `sentence-transformers`, `llama-cpp-python`, `pandas`, `numpy`, `tqdm`, `biopython`, `firth-logistic`, `requests`). **Note**: `firth-logistic` must be installed from PyPI; `requests` added for Entrez queries.
-- [ ] T003a [P] **Create Linting Config**: Create `.ruff.toml` file with specific rules for the project (e.g., line length, ignored files). **Output**: `.ruff.toml`. **Dependency**: None.
+- [ ] T003a [P] **Create Linting Config**: Create `.ruff.toml` file with specific rules for the project (e.g., line length, ignored files). **Output**: `.ruff.toml`. **Dependency**: None. <!-- FAILED: unspecified -->
 - [X] T003b [P] **Create Formatting Config**: Create `pyproject.toml` with black configuration (line length, target version). **Output**: `pyproject.toml`. **Dependency**: None.
 
 ---

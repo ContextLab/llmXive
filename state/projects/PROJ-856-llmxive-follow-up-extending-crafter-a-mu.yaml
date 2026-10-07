@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T07:59:31.697839Z'
-current_stage: specified
+current_stage: clarified
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-856-llmxive-follow-up-extending-crafter-a-mu
-last_run_id: ff59ebd7-9b29-4e43-997b-5319e7cdf03f
+last_run_id: 7cc758c0-3687-467c-a985-99617718174c
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/specs/001-llmxive-follow-up-extending-crafter-a-mu
 title: 'llmXive follow-up: extending "Crafter: A Multi-Agent Harness for Editable
   Scientific Figure Generati"'
-updated_at: '2026-09-10T03:23:27.515582Z'
+updated_at: '2026-10-07T21:37:26.600576Z'

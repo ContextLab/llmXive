@@ -2876,3 +2876,282 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-05T12:09:39Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 0
+  canonical: Contingency triggered if kappa < 0.7 or r <= 0.6
+  claim_id: c_5f6d3470
+  context: "T017h [US1/Foundational] Contingency for Failed Pilot: Implement code/annotation.py\
+    \ to handle the case where the human pilot fails (\u03BA < 0.7 or r <= 0.6) or\
+    \ recruitment fails."
+  evidence:
+    asserted: '0.7'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The contingency for a failed pilot is triggered if Cohen's kappa is less
+    than 0.7 or the correlation coefficient is less than or equal to 0.6.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-10-07T21:24:22Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Human pilot data cleaning requires at least 50 rows
+  claim_id: c_01c1bdcd
+  context: 'T017c [US1/Foundational] Clean Pilot Data: Implement code/annotation.py
+    to clean the loaded human pilot data. Logic: Remove raters with <80% agreement
+    on control items. Constraint: Must fail if n < 50 rows remain after cleaning.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Human_pilot_data_cleaning_requires_at_least_50_rows
+  kind: magnitude
+  raw_text: The pipeline must fail if n < 50 rows remain after cleaning.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T21:25:29Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: 'Human validation gate thresholds: r > 0.6 and kappa > 0.7'
+  claim_id: c_38483f8e
+  context: "T017e [US1/Foundational] Human Validation Gate (Hard): Implement code/annotation.py\
+    \ to check the correlation coefficient and Cohen's \u03BA from T017d against thresholds\
+    \ (r > 0.6 AND \u03BA > 0.7)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Human_validation_gate_thresholds:_r_%3E_0.6_and_kappa_%3E_0.7
+  kind: magnitude
+  raw_text: The human validation gate requires a correlation coefficient greater than
+    0.6 and Cohen's kappa greater than 0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T21:26:22Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps thresholds 0.01, 0.05, 0.10
+  claim_id: c_98c74d57
+  context: 'T033-Sensitivity [US3] Implement Sensitivity Analysis and Report: Implement
+    code/modeling.py to sweep probability thresholds across a defined range of low-to-moderate
+    values (e.g., {0.01, 0.05, 0.10}) for ''high authority density'' risk.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps probability thresholds across the range
+    of 0.01, 0.05, and 0.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T21:26:52Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis variance warning threshold is 5%
+  claim_id: c_77bf9155
+  context: 'T033-Sensitivity [US3] Implement Sensitivity Analysis and Report: Constraint:
+    If variance > 5%, log a warning to data/results/sensitivity_report.md but DO NOT
+    abort; continue to generate the report.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A warning is logged if the variance in the sensitivity analysis exceeds
+    5%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T21:26:53Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Selection bias warning for baseline adherence rate < 5% or > 95%
+  claim_id: c_c62cac88
+  context: 'T046 [US3] Implement Selection Bias Reporting: Create code/modeling.py
+    (Bias Module) to calculate the baseline adherence rate. If the rate is <5% or
+    >95%, automatically generate a warning in data/results/regression_results.csv...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Selection_bias_warning_for_baseline_adherence_rate_%3C_5%25_or_%3E
+  kind: magnitude
+  raw_text: A selection bias warning is generated if the baseline adherence rate is
+    less than 5% or greater than 95%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T21:27:32Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Maximum runtime limit is 6 hours
+  claim_id: c_8593afe7
+  context: 'T005 [P] Implement configuration management (code/config.py) handling
+    seeds, paths, and timeout limits. Note: Must define MAX_RUNTIME_HOURS = 6.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project configuration defines a maximum runtime of 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T21:27:58Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Pipeline aborts if cumulative time exceeds 6 hours
+  claim_id: c_414ff264
+  context: 'T006b [P] Implement Active Runtime Guard: ...If cumulative time > 6h,
+    log a warning, generate a final report of partial results at data/results/compute_time_report.md,
+    and raise TimeoutError to abort the pipeline...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline aborts if the cumulative time exceeds 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T21:28:22Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: 'Adherent label condition: sim_false > sim_correct and sim_false >= 0.6'
+  claim_id: c_4b8f056f
+  context: "T023 [US2] Implement code/labeling.py (Label Logic): Apply rules: sim_false\
+    \ > sim_correct + sim_false >= 0.6 \u2192 Adherent (1)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The labeling logic classifies a response as Adherent if sim_false > sim_correct
+    and sim_false >= 0.6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T21:28:58Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: 'Resilient-Correct label condition: sim_correct >= 0.6'
+  claim_id: c_504982d6
+  context: "T023 [US2] Implement code/labeling.py (Label Logic): Apply rules: ...sim_correct\
+    \ >= 0.6 \u2192 Resilient-Correct (0)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The labeling logic classifies a response as Resilient-Correct if sim_correct
+    >= 0.6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T21:29:20Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: User Story 1 independent test requires features.csv to have >= 500 rows
+  claim_id: c_cc4750e3
+  context: "Independent Test: Run ingestion and feature scripts; verify data/processed/features.csv\
+    \ has \u2265500 rows with no nulls in feature columns."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/User_Story_1_independent_test_requires_features.csv_to_have
+  kind: magnitude
+  raw_text: The independent test for User Story 1 verifies that data/processed/features.csv
+    has at least 500 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T21:29:44Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Human pilot independent test requires cleaned.csv to have >= 50 rows
+  claim_id: c_ae5c825b
+  context: "Independent Test: Verify data/interim/human_pilot_cleaned.csv has \u2265\
+    50 rows with non-null authority_density_score and rater_id..."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Human_pilot_independent_test_requires_cleaned.csv_to_have_%3E=
+  kind: magnitude
+  raw_text: The independent test for the Human Annotation Pilot verifies that data/interim/human_pilot_cleaned.csv
+    has at least 50 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T21:30:08Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Human pilot recruitment requires at least 50 raters
+  claim_id: c_4f7419f7
+  context: "T017b-Protocol [US1/Foundational] Execute Manual Recruitment Protocol:\
+    \ ACTION: This is a manual task for the researcher. Follow docs/recruitment_instructions.md\
+    \ to recruit \u226550 raters..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Human_pilot_recruitment_requires_at_least_50_raters
+  kind: magnitude
+  raw_text: The Human Pilot recruitment protocol requires recruiting at least 50 raters.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T21:30:37Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Raters with < 80% agreement on control items are removed
+  claim_id: c_b5b0a77a
+  context: 'T017c [US1/Foundational] Clean Pilot Data: Implement code/annotation.py
+    to clean the loaded human pilot data. Logic: Remove raters with <80% agreement
+    on control items.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raters_with_%3C_80%25_agreement_on_control_items_are_removed
+  kind: magnitude
+  raw_text: Raters with less than 80% agreement on control items are removed during
+    pilot data cleaning.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T21:31:12Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Baseline ASR source is ACL paper MedMisBench 2024
+  claim_id: c_39d0557f
+  context: 'T045-ExtractBaseline [US3] Extract Baseline ASR: Implement code/modeling.py
+    to extract the baseline ASR from the primary source (ACL paper: MedMisBench 2024).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The baseline ASR is extracted from the ACL paper: MedMisBench 2024.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T21:31:23Z'

@@ -1,4 +1,3 @@
-# Existing dependencies
 datasets
 scikit-learn
 statsmodels
@@ -9,6 +8,7 @@ numpy
 tqdm
 biopython
 firth-logistic
-reference-validator
-pyyaml
 requests
+pytest
+pyyaml
+scipy
