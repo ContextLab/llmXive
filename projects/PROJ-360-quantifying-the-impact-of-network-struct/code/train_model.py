@@ -1,10 +1,8 @@
 """
-T022: Train a linear regression model using filtered features.
+Train a Linear Regression Model on Filtered Features.
 
 Reads filtered features from data/processed/filtered_features.csv,
-trains a Linear Regression model, and saves it to models/thermal_predictor.pkl.
-
-Dependencies: T020b (filtered_features.csv must exist).
+trains a model, and saves it to models/thermal_predictor.pkl.
 """
 import os
 import sys
@@ -13,170 +11,104 @@ import pickle
 import pandas as pd
 from pathlib import Path
 from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_squared_error
-import numpy as np
 
-# Add project root to path for imports if running as script
+# Add project root to path
 project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+sys_path = str(project_root)
+if sys_path not in sys.path:
+    sys.path.insert(0, sys_path)
 
 from config import Config, initialize_environment
-from utils import pin_seed
 
 def setup_model_logger():
-    """Configure logging for the model training script."""
-    logger = logging.getLogger("model_trainer")
+    logger = logging.getLogger("train_model")
     logger.setLevel(logging.INFO)
     if not logger.handlers:
-        handler = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
-        handler.setFormatter(formatter)
+        handler = logging.StreamHandler()
+        handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
         logger.addHandler(handler)
     return logger
 
-def load_filtered_features(csv_path):
-    """
-    Load the filtered features CSV.
+def load_filtered_features(path: str, logger: logging.Logger) -> pd.DataFrame:
+    """Load filtered features CSV."""
+    logger.info(f"Loading filtered features from {path}")
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Filtered features file not found: {path}")
     
-    Expected columns (based on T020b):
-    - Feature columns (VIF filtered network metrics + physical descriptors)
-    - Target column: 'thermal_conductivity_scalar'
+    df = pd.read_csv(path)
+    logger.info(f"Loaded {len(df)} rows and {len(df.columns)} columns")
     
-    Returns:
-        X (pd.DataFrame): Feature matrix
-        y (pd.Series): Target vector
-    """
-    logger = logging.getLogger("model_trainer")
+    # Verify required columns
+    required_cols = ['unit_cell_volume', 'total_atom_count', 'mean_atomic_mass']
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        logger.error(f"Missing required columns: {missing}")
+        raise ValueError(f"Missing required columns: {missing}")
     
-    if not os.path.exists(csv_path):
-        raise FileNotFoundError(
-            f"Filtered features file not found at {csv_path}. "
-            "Ensure T020b (filter_features) has been run successfully."
-        )
+    return df
+
+def train_linear_model(df: pd.DataFrame, target_col: str = 'thermal_conductivity_scalar', logger: logging.Logger = None) -> LinearRegression:
+    """Train a linear regression model."""
+    if logger is None:
+        logger = logging.getLogger("train_model")
     
-    df = pd.read_csv(csv_path)
+    # Drop rows with NaN in target or features
+    clean_df = df.dropna(subset=[target_col] + [c for c in df.columns if c != 'material_id'])
     
-    # Identify target column
-    if 'thermal_conductivity_scalar' not in df.columns:
-        raise ValueError(
-            f"Target column 'thermal_conductivity_scalar' not found in {csv_path}. "
-            f"Available columns: {list(df.columns)}"
-        )
+    if len(clean_df) < 2:
+        logger.error("Not enough data to train model.")
+        raise ValueError("Not enough data to train model.")
     
-    # Separate features and target
-    # We assume all columns except the target are features
-    target_col = 'thermal_conductivity_scalar'
-    feature_cols = [col for col in df.columns if col != target_col]
+    # Features: all numeric columns except material_id and target
+    feature_cols = [c for c in clean_df.columns if c not in ['material_id', target_col] and clean_df[c].dtype in ['float64', 'int64']]
     
     if not feature_cols:
-        raise ValueError(
-            f"No feature columns found in {csv_path} excluding target."
-        )
+        logger.error("No feature columns found.")
+        raise ValueError("No feature columns found.")
     
-    X = df[feature_cols].dropna()
-    y = df.loc[X.index, target_col]
+    X = clean_df[feature_cols]
+    y = clean_df[target_col]
     
-    # Drop rows where target is NaN as well
-    valid_mask = y.notna()
-    X = X[valid_mask]
-    y = y[valid_mask]
+    logger.info(f"Training with features: {feature_cols}")
+    logger.info(f"Target: {target_col}")
+    logger.info(f"Training samples: {len(X)}")
     
-    logger.info(f"Loaded {len(X)} samples with {len(feature_cols)} features.")
-    
-    if len(X) < 2:
-        raise ValueError(
-            f"Insufficient data for training. Found {len(X)} valid samples. "
-            "Need at least 2."
-        )
-    
-    return X, y
-
-def train_linear_model(X, y, seed=42):
-    """
-    Train a Linear Regression model.
-    
-    Args:
-        X (pd.DataFrame): Feature matrix
-        y (pd.Series): Target vector
-        seed (int): Random seed for reproducibility
-        
-    Returns:
-        model (LinearRegression): Trained model
-    """
-    logger = logging.getLogger("model_trainer")
-    pin_seed(seed)
-    
-    logger.info("Initializing Linear Regression model...")
     model = LinearRegression()
-    
-    logger.info("Fitting model...")
     model.fit(X, y)
     
-    # Calculate training metrics for logging
+    # Evaluate on training set (simple check)
     y_pred = model.predict(X)
     r2 = r2_score(y, y_pred)
-    rmse = np.sqrt(mean_squared_error(y, y_pred))
+    rmse = mean_squared_error(y, y_pred, squared=False)
     
-    logger.info(f"Training complete. R²: {r2:.4f}, RMSE: {rmse:.4f}")
+    logger.info(f"Training R2: {r2:.4f}, RMSE: {rmse:.4f}")
     
     return model
 
-def save_model(model, output_path):
-    """
-    Save the trained model to a pickle file.
-    
-    Args:
-        model: Trained sklearn model
-        output_path (str): Path to save the pickle file
-    """
-    logger = logging.getLogger("model_trainer")
-    
-    output_dir = os.path.dirname(output_path)
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
-    
-    with open(output_path, 'wb') as f:
+def save_model(model: LinearRegression, path: str, logger: logging.Logger):
+    """Save model to pickle."""
+    with open(path, 'wb') as f:
         pickle.dump(model, f)
-    
-    logger.info(f"Model saved to {output_path}")
+    logger.info(f"Saved model to {path}")
 
 def main():
-    """Main entry point for T022."""
     logger = setup_model_logger()
-    
-    # Initialize config to ensure environment is ready
     initialize_environment()
     
-    # Paths
-    features_path = "data/processed/filtered_features.csv"
-    model_path = "models/thermal_predictor.pkl"
-    
-    logger.info(f"Starting T022: Train Linear Regression Model")
-    logger.info(f"Input: {features_path}")
-    logger.info(f"Output: {model_path}")
-    
+    input_path = os.environ.get("FILTERED_FEATURES_INPUT", str(project_root / "data" / "processed" / "filtered_features.csv"))
+    output_path = os.environ.get("MODEL_OUTPUT", str(project_root / "models" / "thermal_predictor.pkl"))
+
     try:
-        # Load data
-        X, y = load_filtered_features(features_path)
-        
-        # Train model
-        model = train_linear_model(X, y)
-        
-        # Save model
-        save_model(model, model_path)
-        
-        logger.info("T022 completed successfully.")
-        
-    except FileNotFoundError as e:
-        logger.error(f"Data missing: {e}")
-        sys.exit(1)
-    except ValueError as e:
-        logger.error(f"Validation error: {e}")
-        sys.exit(1)
+        df = load_filtered_features(input_path, logger)
+        model = train_linear_model(df, logger=logger)
+        save_model(model, output_path, logger)
+        logger.info("Model training completed.")
     except Exception as e:
-        logger.error(f"Unexpected error during training: {e}")
+        logger.error(f"Model training failed: {e}")
+        import traceback
+        traceback.print_exc()
         sys.exit(1)
 
 if __name__ == "__main__":

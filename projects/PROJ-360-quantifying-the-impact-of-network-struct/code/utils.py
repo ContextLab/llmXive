@@ -71,3 +71,48 @@ def fetch_with_retry(
     except Exception as e:
         logging.error(f"Failed to fetch {url}: {e}")
         return None
+
+class APIRateLimiter:
+    """
+    Tracks request timestamps and enforces a minimum delay between requests
+    to avoid 429 (Too Many Requests) errors from rate-limited APIs.
+    """
+    def __init__(self, min_delay_seconds: float = 1.0):
+        """
+        Initialize the rate limiter.
+
+        Args:
+            min_delay_seconds: Minimum time in seconds to wait between requests.
+        """
+        self.min_delay = min_delay_seconds
+        self._last_request_time: float = 0.0
+        self._logger = logging.getLogger(__name__)
+
+    def wait(self) -> None:
+        """
+        Block execution until the minimum delay has passed since the last request.
+        If no request has been made yet, returns immediately.
+        """
+        current_time = time.time()
+        time_since_last = current_time - self._last_request_time
+
+        if time_since_last < self.min_delay:
+            sleep_time = self.min_delay - time_since_last
+            self._logger.debug(f"Rate limiter: waiting {sleep_time:.2f}s")
+            time.sleep(sleep_time)
+
+    def mark_request(self) -> None:
+        """
+        Record the current timestamp as the time of the most recent request.
+        This should be called immediately after a request is successfully sent.
+        """
+        self._last_request_time = time.time()
+        self._logger.debug(f"Rate limiter: request marked at {self._last_request_time}")
+
+    def acquire(self) -> None:
+        """
+        Convenience method that combines waiting and marking a request.
+        Waits for the required delay, then marks the current time as the request time.
+        """
+        self.wait()
+        self.mark_request()

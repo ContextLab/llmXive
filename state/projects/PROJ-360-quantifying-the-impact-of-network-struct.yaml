@@ -6,7 +6,7 @@ failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-360-quantifying-the-impact-of-network-struct
-last_run_id: 3eba5b12-c4b5-4ccd-a64d-fe0ad4a7cd16
+last_run_id: 89ec653d-0c55-4dc3-8749-3ba04b790341
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-360-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct
 title: Quantifying the Impact of Network Structure on Heat Diffusion in Crystalline
   Solids
-updated_at: '2026-10-03T06:39:45.966231Z'
+updated_at: '2026-10-07T15:53:31.452370Z'

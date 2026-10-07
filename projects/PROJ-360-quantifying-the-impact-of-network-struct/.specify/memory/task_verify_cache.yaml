@@ -17,14 +17,6 @@ T013:
   r: "The repository contains a partially shown `code/compute_metrics.py`, but the\
     \ required output file `data/processed/metrics.csv` and the state file `state/projects/PROJ-360-quantifying-the-impact-of-network-struct.yaml`\
     \ are absent. Without these artifacts, the task\u2019s deliverables are not satisfied."
-T015:
-  c: false
-  h: 8be47ed9dc8eaf7a8fed4ffe0d3fb6c039659f069ae9f0ae81ec0cdbe3b001aa
-  r: The `metrics.csv` file only contains a header with no material rows, so no thermal
-    conductivity scalars were actually extracted or appended, and there is no evidence
-    of the required assertion or logging of missing metadata. The `results/power_analysis.log`
-    does not record any count of skipped materials for missing thermal conductivity
-    data. The task therefore remains unfinished.
 T016a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -77,3 +69,10 @@ T020b:
     provided excerpt of `code/analyze.py` does not show a `log_vif_results(vif_dict)`
     implementation (or any evidence that it writes VIF values in the specified format).
     Without the function and its output file, the task is not fulfilled.
+T031:
+  c: false
+  h: 67559461968a914aa74d26c69564fd1889b764aac0cc2b0ccc89c2801030d36d
+  r: "The repository lacks `data/processed/metrics_transformed.csv`, and the shown\
+    \ portion of `code/analyze.py` contains no Shapiro\u2011Wilk test or log\u2011\
+    transformation logic for the thermal conductivity or metric columns. Consequently\
+    \ the required task and output are not present."

@@ -4,7 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T022` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/filtered_features.csv, models/thermal_predictor.pkl
+- `T028` (rejected 1x): No updated `quickstart.md` file was provided, nor any excerpt showing the exact commands to run the full pipeline or instructions for verifying the “Limitations” text in the output report. The required documentation artifact is missing.
+- `T032a` (rejected 1x): declared artifact(s) missing/empty/invalid: results/robustness_check.json
+- `T033` (rejected 1x): declared artifact(s) missing/empty/invalid: results/model_residuals.png
 
 ## Required change
 

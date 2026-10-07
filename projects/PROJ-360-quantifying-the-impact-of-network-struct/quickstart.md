@@ -1,89 +1,68 @@
-# Quickstart Guide
+# Quickstart Guide: Quantifying the Impact of Network Structure on Heat Diffusion
 
-This guide outlines the steps to run the full analysis pipeline for the project.
+This guide details how to run the full pipeline for project **PROJ-360**.
 
 ## Prerequisites
 
 - Python 3.11+
-- Dependencies installed via `pip install -r requirements.txt`
-- `MP_API_KEY` environment variable set (for data download)
+- `pip install -r requirements.txt`
+- Set the `MP_API_KEY` environment variable:
+ ```bash
+ export MP_API_KEY="your_materials_project_api_key_here"
+ ```
 
-## Run the Pipeline
+## Full Pipeline Execution
 
-Execute the following commands in order. Each command produces specific artifacts required by the next.
+Run the following commands in sequence. Each command corresponds to a specific task in `tasks.md`.
 
-### 1. Setup Directories
-```bash
-python code/setup_directories.py
-```
-
-### 2. Download CIF Files (Requires MP_API_KEY)
+### 1. Setup & Download
 ```bash
 python code/download.py --limit 50 --output data/raw/cif/
-```
-
-### 3. Save CIFs and Checksums
-```bash
-python code/save_cifs_and_checksums.py
-```
-
-### 4. Construct Networks
-```bash
 python code/construct_network.py --input data/raw/cif/ --output data/processed/networks/
 ```
 
-### 5. Save Networks and Checksums
+### 2. Compute Metrics & Analyze
 ```bash
-python code/save_networks.py
+python code/compute_metrics.py --input data/processed/networks/ --output data/processed/metrics.csv
+python code/analyze.py --input data/processed/metrics.csv --output data/processed/filtered_features.csv
 ```
 
-### 6. Validate Graphs
+### 3. Train Model & Validate
 ```bash
-python code/validate_graphs.py
+python code/train_model.py --input data/processed/filtered_features.csv --output models/thermal_predictor.pkl
+python code/stratified_cv.py --model models/thermal_predictor.pkl --input data/processed/filtered_features.csv --output results/model_performance.json
 ```
 
-### 7. Compute Metrics
+### 4. Robustness & Reporting
 ```bash
-python code/compute_metrics.py
+python code/robustness_check.py --input data/processed/filtered_features.csv --output results/robustness_check.json
+python code/generate_residuals.py --model models/thermal_predictor.pkl --input data/processed/filtered_features.csv --output results/model_residuals.png
+python code/report.py --performance results/model_performance.json --output results/final_report.md
 ```
 
-### 8. Analyze (Correlations, VIF, Filter)
+### 5. Verification
 ```bash
-python code/analyze.py
+python code/verify_report_limitations.py --report results/final_report.md
+python code/validate_artifacts.py --input data/processed/filtered_features.csv --output results/validations.json
 ```
 
-### 9. Train Model
+## Verifying the "Limitations" Section
+
+To verify that the mandatory "Limitations" text is present in the final report:
+
+1. Open `results/final_report.md`.
+2. Ensure the following text appears exactly as written:
+ > "This study is observational. Correlations do not imply causality. The thermal conductivity tensor was reduced to a scalar by averaging principal components, which may obscure anisotropic effects."
+
+Alternatively, run the verification script:
 ```bash
-python code/train_model.py
+python code/verify_report_limitations.py --report results/final_report.md
 ```
-
-### 10. Stratified Cross-Validation (T023)
-```bash
-python code/stratified_cv.py
-```
-
-### 11. Generate Final Report
-```bash
-python code/report.py
-```
-
-### 12. Validate Artifacts
-```bash
-python code/validate_artifacts.py
-```
-
-## Expected Outputs
-
-- `data/raw/cif/*.cif`: Downloaded CIF files
-- `data/processed/networks/*.pkl`: Constructed network graphs
-- `data/processed/metrics.csv`: Computed metrics
-- `data/processed/filtered_features.csv`: Features after VIF filtering
-- `models/thermal_predictor.pkl`: Trained linear regression model
-- `results/model_performance.json`: Cross-validation results
-- `results/final_report.md`: Final analysis report
+This script will exit with code 0 if the text is found, or 1 if it is missing.
 
 ## Troubleshooting
 
-- **MP_API_KEY not set**: Ensure the environment variable is exported before running `download.py`.
-- **Missing dependencies**: Run `pip install -r requirements.txt`.
-- **CUDA errors**: This pipeline is CPU-only. If you encounter CUDA errors, ensure no GPU-specific code is inadvertently executed.
+- **Missing API Key**: Ensure `MP_API_KEY` is set in your environment.
+- **No CIF files**: If `data/raw/cif/` is empty, re-run `download.py` with a valid API key.
+- **Model not found**: Ensure `train_model.py` has been executed before running `stratified_cv.py` or `generate_residuals.py`.
+- **Missing filtered features**: Ensure `analyze.py` has been executed to produce `data/processed/filtered_features.csv`.
