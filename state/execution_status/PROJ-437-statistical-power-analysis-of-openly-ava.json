@@ -12,15 +12,12 @@
   ],
   "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
-  "replan_rounds": 0,
-  "failure_class": "compute_env",
-  "evidence": [
-    "python code/main.py --action download --config config.yaml",
-    "python code/main.py --action estimate_noise --config config.yaml",
-    "python code/main.py --action generate_synthetic --config config.yaml",
-    "python code/main.py --action analyze --config config.yaml",
-    "python code/main.py --action report --config config.yaml"
-  ],
-  "updated_at": "2026-10-03T16:33:10Z"
+  "offload": {
+    "status": "running",
+    "kernel_ref": "jeremy9/llmxive-proj-437-statistical-power-analysis-of-ope",
+    "submitted_at": "2026-10-07T09:35:03Z",
+    "reason": "",
+    "evidence": []
+  },
+  "updated_at": "2026-10-07T09:35:09Z"
 }

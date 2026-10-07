@@ -21,13 +21,6 @@ T035:
   r: No updated `README.md` file was provided or shown, and there is no evidence that
     CLI usage examples or installation instructions have been added. The required
     documentation artifact is missing, so the task is not satisfied.
-T038b:
-  c: false
-  h: d75f9c7a0964b5641be7378e69f1b4cbba47ecef686c4823c1e87cf8e42602a7
-  r: The `code/utils/timer.py` file exists and defines the required `start_run`, `end_run`,
-    and `log_split` functions, but the required output artifacts `results/paper/timing_report.md`
-    and `results/paper/timing_breakdown.csv` are absent. These files must be generated
-    for the task to be considered complete.
 T041:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
