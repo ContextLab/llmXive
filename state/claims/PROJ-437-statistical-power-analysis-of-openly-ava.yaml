@@ -139,3 +139,605 @@
   source_type: external
   status: refuted
   updated_at: '2026-09-21T15:39:56Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: Use streaming dataset loading for datasets larger than 1 GB
+  claim_id: c_c0225f2d
+  context: T008 [P] [US1] Implement `code/download/openneuro_fetcher.py` to download
+    raw BIDS data for **the set of verified datasets**. **Read dataset IDs dynamically
+    from `specs/001-statistical-power-analysis/research.md` (T000). Validate checksums
+    against a manifest before fetching. Use `datasets.load_dataset(..., streaming=True)`
+    for datasets > 1 GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use `datasets.load_dataset(..., streaming=True)` for datasets > 1 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T11:55:44Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: Run at least 50 split-half iterations per sample size
+  claim_id: c_15c47ca5
+  context: "T017 [P] [US1] Implement `code/analysis/split_half_validator.py` to perform\
+    \ **bootstrap loop**: for each sample\u2011size configuration, run **\u2265 50**\
+    \ random split\u2011half iterations."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Run_at_least_50_split-half_iterations_per_sample_size
+  kind: magnitude
+  raw_text: Run >= 50 random split-half iterations for each sample-size configuration.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T11:56:26Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: Check if test Cohen's d is within 20% of training estimate
+  claim_id: c_e2dca1fa
+  context: "T017 [P] [US1] ... 5. If converged, check magnitude: is test Cohen's d\
+    \ within \xB120% of training estimate?"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Check if test Cohen's d is within \xB120% of training estimate."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T11:56:26Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: Iterate over standard significance level alpha thresholds
+  claim_id: c_c42a06bf
+  context: "T022 [P] [US2] ... Also iterate over alpha thresholds representing standard\
+    \ significance levels (Assumption\u2011Alpha) and store separate curves per alpha."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Iterate_over_standard_significance_level_alpha_thresholds
+  kind: entity_fact
+  raw_text: Use alpha thresholds representing standard significance levels.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T11:56:58Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: Apply Benjamini-Hochberg FDR correction by default
+  claim_id: c_57cefd33
+  context: T024 [P] [US2] ... **Apply Benjamini-Hochberg FDR correction by default
+    to final results; Bonferroni is optional via CLI.**
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Benjamini-Hochberg_FDR_correction_by_default
+  kind: entity_fact
+  raw_text: Apply Benjamini-Hochberg FDR correction by default to final results.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T11:57:18Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: Log High Collinearity if VIF is 5 or greater
+  claim_id: c_9bdfde83
+  context: "T025 [P] Add VIF calculation in `power_curve_generator.py` to check multicollinearity\
+    \ (SC\u2011004). Log 'High Collinearity' if VIF \u2265 5 and flag model result\
+    \ as 'Invalid' in output metadata; do not halt pipeline."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Log 'High Collinearity' if VIF >= 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T11:57:43Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: Flag High Sensitivity if replication rate difference exceeds 10 percentage
+    points or Cohen's d difference exceeds 0.2
+  claim_id: c_773ff1a4
+  context: "T033 [P] Add 'High Sensitivity' flag in `temporal_sensitivity_orchestrator.py`\
+    \ if **both** replication\u2011rate difference > 10 pp **or** Cohen's d difference\
+    \ > 0.2 (US\u20113 Scenario 2)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag 'High Sensitivity' if replication-rate difference > 10 pp or Cohen's
+    d difference > 0.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T11:57:43Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: Assert ROI timeseries CSV has more than 100 rows
+  claim_id: c_c0e994cb
+  context: "T044a [P] [US1] Run `quickstart.md` validation on GitHub Actions free\u2011\
+    tier. **Command:** `python code/main.py --config test_config.yaml`. **Assert:**\
+    \ `data/derived/roi_timeseries.csv` exists and has > 100 rows. Exit code 0."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_ROI_timeseries_CSV_has_more_than_100_rows
+  kind: magnitude
+  raw_text: Assert that `data/derived/roi_timeseries.csv` has > 100 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T11:58:03Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: Flag iterations where max iterations exceed 100 or tolerance is less
+    than 1e-4
+  claim_id: c_c217efa7
+  context: 'T049 [P] [US2] Implement `code/utils/convergence_monitor.py` to parse
+    `convergence_log.json` from T016 (schema: `iteration_id`, `converged`, `max_iterations`,
+    `tolerance`), flag iterations where `max_iterations > 100` or `tolerance < 1e-4`...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_iterations_where_max_iterations_exceed_100_or_tolerance
+  kind: magnitude
+  raw_text: Flag iterations where max_iterations > 100 or tolerance < 1e-4.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T11:58:25Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: Raise critical error if valid subject count is below 5
+  claim_id: c_7ee87ad0
+  context: T071 [P] [US1] Implement `code/download/corruption_handler.py` to explicitly
+    detect and log corrupted NIfTI files during the validation phase (T009), skip
+    affected subjects, and raise a critical error if the remaining valid subject count
+    falls below the minimum threshold (N=5) required for statistical power.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Raise a critical error if the remaining valid subject count falls below
+    the minimum threshold (N=5).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T11:59:04Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: Use streaming dataset loading for datasets exceeding 500 MB
+  claim_id: c_2d337a93
+  context: T079 [P] [US1] Update `code/download/openneuro_fetcher.py` to implement
+    a 'Stream-First' policy for datasets > 500 MB. **The fetcher must default to `datasets.load_dataset(...,
+    streaming=True)` for any dataset exceeding this threshold.**
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use `datasets.load_dataset(..., streaming=True)` for any dataset exceeding
+    500 MB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T11:59:29Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: Raise ResourceExhaustionError with code 13 on memory exhaustion
+  claim_id: c_4ddb93a0
+  context: T078 [P] [All] Implement `code/utils/resource_guard.py` to enforce a hard
+    memory ceiling during data loading and model fitting. **If memory usage exceeds
+    this threshold, the utility must immediately raise a `ResourceExhaustionError`
+    with a specific error code (e.g., 13) and a message directing the user to reduce
+    sample size or enable streaming.**
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Raise a `ResourceExhaustionError` with error code 13 if memory usage exceeds
+    threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T11:59:50Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: Cite Smith et al 2013 and Eklund et al 2016 in preprocessing justification
+  claim_id: c_5d924708
+  context: 'T077a [P] [All] Update `specs/001-statistical-power-analysis/plan.md`
+    to explicitly document the architectural deviation from fMRIPrep to ROI extraction
+    + temporal smoothing as a CPU-tractable substitute. **Must cite: Smith et al.,
+    2013; Eklund et al., 2016.**'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cite Smith et al., 2013 and Eklund et al., 2016 in preprocessing justification.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T11:59:59Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: Use random seed 42 for subsampling operations
+  claim_id: c_18d0f15f
+  context: T000 [P] Create and populate `specs/001-statistical-power-analysis/research.md`.
+    **Define the list of verified OpenNeuro dataset IDs (Motor, Working Memory, Emotional
+    Face, Auditory Oddball, Visual Motion) with their checksums. Explicitly document
+    the streaming chunk size strategy (e.g., 'process by subject') and the fixed random
+    seed (seed=42) for all subsampling operations.**
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use random seed 42 for all subsampling operations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T12:00:22Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: Use temporal smoothing kernels of 4 seconds and 8 seconds
+  claim_id: c_8932d6ab
+  context: T022 [P] [US2] ... support **multiple smoothing kernels** (temporal variants
+    4s/8s).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use temporal smoothing kernels of 4 s and 8 s.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T12:00:41Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: Use Cohen's d values of 0.0, 0.2, 0.5, 0.8, and 1.0 for effect sizes
+  claim_id: c_e4fac1a2
+  context: T015 [P] [US1] ... Use real noise parameters to generate synthetic data,
+    then inject known effect sizes (Cohen's d = 0.0, 0.2, 0.5, 0.8, 1.0) at specific
+    time points.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Cohen's d values of 0.0, 0.2, 0.5, 0.8, and 1.0 for embedded effect
+    sizes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T12:02:48Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: fixed random seed of 42 for subsampling operations
+  claim_id: c_3499bedb
+  context: 'Phase 0: Research & Data Source Definition - Create and populate research.md.
+    Define the list of verified OpenNeuro dataset IDs...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Explicitly document the streaming chunk size strategy (e.g., 'process
+    by subject') and the fixed random seed (seed=42) for all subsampling operations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T12:05:06Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: project dependencies list including bidslib 2.0.0, nibabel 3.0.0, nilearn
+    0.9.0, scikit-learn 1.0.0, statsmodels 0.13.0, pandas 1.3.0, numpy 1.20.0, mne
+    1.0.0, datasets 2.0.0, pytest 7.0.0
+  claim_id: c_17eb63e9
+  context: 'Phase 1: Setup - Initialize Python 3.11 project with requirements.txt.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Dependencies: bidslib>=2.0.0, nibabel>=3.0.0, nilearn>=0.9.0, scikit-learn>=1.0.0,
+    statsmodels>=0.13.0, pandas>=1.3.0, numpy>=1.20.0, mne>=1.0.0, datasets>=2.0.0,
+    pytest>=7.0.0.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T12:05:24Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: trigger downsampling if RAM usage exceeds 6 GB
+  claim_id: c_58c6d637
+  context: 'Phase 2a: Infrastructure - Implement memory_monitor.py to track RAM usage.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/utils/memory_monitor.py to track RAM usage and trigger
+    downsampling if >6GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T12:05:24Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: use streaming mode for datasets larger than 1 GB
+  claim_id: c_a41ceede
+  context: 'Phase 2b: Core Implementation - Implement openneuro_fetcher.py to download
+    raw BIDS data.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use `datasets.load_dataset(..., streaming=True)` for datasets > 1 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T12:05:24Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: raise error if valid subjects are less than 5
+  claim_id: c_7c81ee6b
+  context: 'Phase 2b: Core Implementation - Implement data_validator.py to verify
+    BIDS structure.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_error_if_valid_subjects_are_less_than_5
+  kind: magnitude
+  raw_text: If valid subjects < 5, raise error code 1 and log 'Insufficient Data'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T12:05:47Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: temporal smoothing kernel mapping of 4 seconds (TR 2 seconds) to 4 mm
+    spatial smoothing
+  claim_id: c_d9a2f27b
+  context: 'Phase 2b: Core Implementation - Implement temporal_smoothing.py to apply
+    temporal smoothing kernels.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Mapping: 4 s (TR = 2 s) \u2194 4 mm spatial."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T12:06:09Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: run at least 50 random split-half iterations
+  claim_id: c_f22f07b6
+  context: 'Phase 2b: Core Implementation - Implement split_half_validator.py to perform
+    bootstrap loop.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Run_at_least_50_random_split-half_iterations
+  kind: magnitude
+  raw_text: "run \u2265 50 random split-half iterations."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T12:06:45Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: check if test Cohen's d is within 20 percent of training estimate
+  claim_id: c_e0d8285a
+  context: 'Phase 2b: Core Implementation - Implement split_half_validator.py to perform
+    bootstrap loop.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "is test Cohen's d within \xB120% of training estimate?"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T12:06:45Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: cite Smith et al. 2013 and Eklund et al. 2016
+  claim_id: c_38beba4f
+  context: 'Phase 2b: Core Implementation - Update plan.md to document architectural
+    deviation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Must cite: Smith et al., 2013; Eklund et al., 2016.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T12:06:59Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: integration test with dataset ds000030, sample size 10, 4 second temporal
+    kernel, Motor paradigm
+  claim_id: c_f45e16cf
+  context: 'Phase 2c: Testing - Integration test for end-to-end pipeline.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Assert output file `data/aggregated/power_curves.json` exists and contains
+    `sample_sizes_tested` and `empirical_rates` (list of floats). Run with inputs:
+    ds000030, N=10, kernel=4 s (temporal), paradigm=Motor.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T12:07:45Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: apply Benjamini-Hochberg FDR correction by default
+  claim_id: c_a7616992
+  context: 'Phase 3a: Power Curve Generator - Implement logistic regression model.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Benjamini-Hochberg_FDR_correction_by_default
+  kind: entity_fact
+  raw_text: Apply Benjamini-Hochberg FDR correction by default to final results; Bonferroni
+    is optional via CLI.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T12:08:08Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: flag model as invalid if Variance Inflation Factor is 5 or greater
+  claim_id: c_42e9e69f
+  context: 'Phase 3a: Power Curve Generator - Add VIF calculation to check multicollinearity.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Log 'High Collinearity' if VIF \u2265 5 and flag model result as 'Invalid'\
+    \ in output metadata."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T12:08:08Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: run separate loops for 4 second and 8 second temporal smoothing kernels
+  claim_id: c_6a64e408
+  context: 'Phase 4: User Story 3 - Extend power_curve_generator.py to run separate
+    loops for temporal smoothing kernels.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: run separate loops for the two temporal smoothing kernels (4 s, 8 s).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T12:08:23Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: flag high sensitivity if replication rate difference exceeds 10 percentage
+    points or Cohen's d difference exceeds 0.2
+  claim_id: c_b90ca942
+  context: 'Phase 4: User Story 3 - Add High Sensitivity flag based on difference
+    thresholds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Add 'High Sensitivity' flag in `temporal_sensitivity_orchestrator.py`\
+    \ if both replication\u2011rate difference > 10 pp or Cohen's d difference > 0.2."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T12:08:24Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: assert roi_timeseries.csv has more than 100 rows
+  claim_id: c_e00ac8b0
+  context: 'Phase 5: Polish & Cross-Cutting Concerns - Run quickstart.md validation
+    on GitHub Actions.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_roi_timeseries.csv_has_more_than_100_rows
+  kind: magnitude
+  raw_text: 'Assert: `data/derived/roi_timeseries.csv` exists and has > 100 rows.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T12:09:02Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: flag iterations where max iterations exceed 100 or tolerance is less
+    than 1e-4
+  claim_id: c_6468416f
+  context: 'Phase 7: Execution Monitoring & Reporting - Implement convergence_monitor.py.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_iterations_where_max_iterations_exceed_100_or_tolerance
+  kind: magnitude
+  raw_text: flag iterations where `max_iterations > 100` or `tolerance < 1e-4`.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T12:09:03Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: raise critical error if valid subject count falls below 5
+  claim_id: c_1437a979
+  context: 'Phase 12: Final Integration & Edge Case Validation - Implement corruption_handler.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: raise a critical error if the remaining valid subject count falls below
+    the minimum threshold (N=5) required for statistical power.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T12:09:32Z'
+- artifact_path: projects/PROJ-437-statistical-power-analysis-of-openly-ava/specs/001-statistical-power-analysis-of-openly-ava/tasks.md
+  attempts: 1
+  canonical: enforce real sample policy for subject subsampling
+  claim_id: c_cf0417c4
+  context: 'Phase 14: Execution Gate & Resource Constraint Hardening - Implement sampling_strategy.py.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Enforce_real_sample_policy_for_subject_subsampling
+  kind: entity_fact
+  raw_text: Implement `code/utils/sampling_strategy.py` to define and enforce a 'Real
+    Sample' policy.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T12:10:18Z'

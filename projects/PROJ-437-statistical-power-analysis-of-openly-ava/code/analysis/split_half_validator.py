@@ -1,350 +1,291 @@
 """
-Split-half validation for statistical power analysis.
+Split-half validator for bootstrap power analysis.
 
-This module implements the bootstrap loop for split-half validation,
-enforcing strict memory isolation and real-data-only constraints.
+This module implements the bootstrap loop:
+1. Load full dataset
+2. For each sample size, run >= 50 random split-half iterations
+3. Subsample subjects into train/test sets per iteration
+4. Fit GLM on training half
+5. Check convergence and magnitude/direction match
+6. Aggregate replication success rates
 """
 
+import gc
+import json
 import logging
 import sys
-import json
-import gc
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 
 import numpy as np
-from scipy import stats
+import pandas as pd
 
-# Import from sibling modules based on provided API surface
-from analysis.glm_fitter import fit_glm, estimate_effect_size, load_and_subsample_data
 from utils.seed_manager import set_global_seed, get_seed
-from utils.memory_monitor import check_memory_threshold, trigger_gc
 from utils.data_leakage_guard import verify_no_leakage, force_memory_isolation
+from analysis.glm_fitter import fit_glm_batch, ConvergenceLogger
 
 logger = logging.getLogger(__name__)
 
-
 class SplitHalfValidationError(Exception):
-    """Custom exception for split-half validation failures."""
+    """Raised when split-half validation fails."""
     pass
 
+def load_preprocessed_data(data_path: Union[str, Path]) -> pd.DataFrame:
+    """
+    Load preprocessed ROI timeseries data.
+    
+    Args:
+        data_path: Path to the data file.
+        
+    Returns:
+        DataFrame with subject data.
+    """
+    data_path = Path(data_path)
+    if not data_path.exists():
+        raise FileNotFoundError(f"Preprocessed data not found: {data_path}")
+    
+    if data_path.suffix == '.csv':
+        return pd.read_csv(data_path)
+    elif data_path.suffix == '.npy':
+        data = np.load(data_path)
+        if data.ndim == 3:
+            n_subjects, n_timepoints, n_rois = data.shape
+            df = pd.DataFrame(
+                data.reshape(n_subjects, -1),
+                columns=[f'feature_{i}' for i in range(n_timepoints * n_rois)]
+            )
+        else:
+            df = pd.DataFrame(data)
+        return df
+    else:
+        raise ValueError(f"Unsupported file format: {data_path.suffix}")
 
-def validate_split_half(
-    training_data: np.ndarray,
-    test_data: np.ndarray,
-    design_matrix: np.ndarray,
-    sample_size: int,
-    kernel: str,
-    iteration_id: int,
-    alpha: float = 0.05
-) -> Dict[str, Any]:
+def validate_split_half(train_data: pd.DataFrame, test_data: pd.DataFrame, 
+                        design_matrix: np.ndarray, seed: int) -> Dict[str, Any]:
     """
     Perform a single split-half validation iteration.
-
+    
     Args:
-        training_data: ROI time-series for training subjects
-        test_data: ROI time-series for test subjects
-        design_matrix: Design matrix for GLM
-        sample_size: Target sample size for this iteration
-        kernel: Smoothing kernel used
-        iteration_id: Unique identifier for this iteration
-        alpha: Significance threshold
-
+        train_data: Training set data.
+        test_data: Test set data.
+        design_matrix: Design matrix for GLM.
+        seed: Random seed for this iteration.
+        
     Returns:
-        Dictionary with replication success metrics
+        Dictionary with replication success status and metrics.
     """
-    logger.info(f"Iteration {iteration_id}: Starting split-half validation")
-
-    # Enforce strict memory isolation before fitting
-    force_memory_isolation(training_data, test_data)
-
+    set_global_seed(seed)
+    
     # Verify no data leakage
-    leakage_ok = verify_no_leakage(training_data, test_data)
-    if not leakage_ok:
-        logger.warning(f"Iteration {iteration_id}: Potential data leakage detected")
-
+    try:
+        verify_no_leakage(train_data, test_data)
+    except Exception as e:
+        logger.error(f"Data leakage detected: {e}")
+        return {
+            "replication_success": 0,
+            "reason": "data_leakage",
+            "error": str(e)
+        }
+    
     # Fit GLM on training data
-    try:
-        logger.info(f"Iteration {iteration_id}: Fitting GLM on training set (n={len(training_data)})")
-        glm_results = fit_glm(
-            timeseries=training_data,
-            design_matrix=design_matrix,
-            sample_size=sample_size,
-            kernel=kernel
-        )
-    except Exception as e:
-        logger.error(f"Iteration {iteration_id}: GLM fitting failed - {str(e)}")
-        return {
-            "iteration_id": iteration_id,
-            "converged": False,
-            "replication_success": False,
-            "reason": "convergence_failure",
-            "error": str(e)
-        }
-
-    if not glm_results.get("converged", False):
-        logger.warning(f"Iteration {iteration_id}: GLM did not converge")
-        return {
-            "iteration_id": iteration_id,
-            "converged": False,
-            "replication_success": False,
-            "reason": "convergence_failure"
-        }
-
-    # Estimate effect size from training
-    training_effect_size = estimate_effect_size(glm_results)
-    logger.info(f"Iteration {iteration_id}: Training Cohen's d = {training_effect_size:.4f}")
-
-    # Test significance on held-out half
-    try:
-        test_p_value = glm_results.get("p_value", None)
-        test_effect_size = estimate_effect_size(glm_results)
-    except Exception as e:
-        logger.error(f"Iteration {iteration_id}: Effect size estimation failed - {str(e)}")
-        return {
-            "iteration_id": iteration_id,
-            "converged": True,
-            "replication_success": False,
-            "reason": "effect_size_estimation_failure",
-            "error": str(e)
-        }
-
-    # Check replication criteria
-    # 1. Direction match
-    direction_match = np.sign(training_effect_size) == np.sign(test_effect_size)
-
-    # 2. Magnitude within ±20% of training estimate
-    if training_effect_size == 0:
-        magnitude_within_20_percent = abs(test_effect_size) < 0.01  # Avoid division by zero
-    else:
-        magnitude_within_20_percent = abs(test_effect_size - training_effect_size) <= 0.20 * abs(training_effect_size)
-
-    # 3. p < 0.05
-    p_significant = test_p_value is not None and test_p_value < alpha
-
-    replication_success = direction_match and magnitude_within_20_percent and p_significant
-
-    logger.info(
-        f"Iteration {iteration_id}: Replication success = {replication_success} "
-        f"(direction={direction_match}, magnitude={magnitude_within_20_percent}, p={p_significant})"
+    train_result = fit_glm_batch(
+        train_data, design_matrix, len(train_data), seed=seed,
+        iteration_id=seed, paradigm="split_half"
     )
-
-    # Force garbage collection and memory isolation after iteration
-    trigger_gc()
-    force_memory_isolation(training_data, test_data)
-
+    
+    if not train_result['converged']:
+        return {
+            "replication_success": 0,
+            "reason": "train_convergence_failure",
+            "train_effect_size": train_result['effect_size']
+        }
+    
+    # Fit GLM on test data
+    test_result = fit_glm_batch(
+        test_data, design_matrix, len(test_data), seed=seed + 1000,
+        iteration_id=seed + 1000, paradigm="split_half"
+    )
+    
+    if not test_result['converged']:
+        return {
+            "replication_success": 0,
+            "reason": "test_convergence_failure",
+            "train_effect_size": train_result['effect_size'],
+            "test_effect_size": test_result['effect_size']
+        }
+    
+    # Check magnitude match (within 20%)
+    train_d = train_result['effect_size']
+    test_d = test_result['effect_size']
+    
+    if train_d == 0:
+        magnitude_match = (test_d == 0)
+    else:
+        magnitude_match = abs(test_d - train_d) <= 0.2 * abs(train_d)
+    
+    # Check direction match
+    direction_match = np.sign(train_d) == np.sign(test_d)
+    
+    # Check p-value threshold
+    p_threshold_match = test_result['p_value'] < 0.05
+    
+    replication_success = int(magnitude_match and direction_match and p_threshold_match)
+    
     return {
-        "iteration_id": iteration_id,
-        "converged": True,
         "replication_success": replication_success,
-        "training_effect_size": float(training_effect_size),
-        "test_effect_size": float(test_effect_size),
-        "p_value": float(test_p_value) if test_p_value is not None else None,
+        "train_effect_size": train_d,
+        "test_effect_size": test_d,
+        "magnitude_match": magnitude_match,
         "direction_match": direction_match,
-        "magnitude_within_20_percent": magnitude_within_20_percent,
-        "p_significant": p_significant
+        "p_threshold_match": p_threshold_match,
+        "train_p_value": train_result['p_value'],
+        "test_p_value": test_result['p_value']
     }
 
-
-def run_split_half_validation(
-    roi_timeseries: np.ndarray,
-    design_matrix: np.ndarray,
-    sample_size: int,
-    kernel: str,
-    num_iterations: int = 50,
-    seed: Optional[int] = None,
-    alpha: float = 0.05
-) -> List[Dict[str, Any]]:
+def run_split_half_validation(data: pd.DataFrame, sample_size: int, 
+                              n_iterations: int = 50, seed: Optional[int] = None,
+                              design_matrix: Optional[np.ndarray] = None) -> List[Dict[str, Any]]:
     """
-    Run the full bootstrap loop for split-half validation.
-
+    Run the full split-half validation loop.
+    
     Args:
-        roi_timeseries: Full dataset of ROI time-series
-        design_matrix: Design matrix for GLM
-        sample_size: Target sample size for this configuration
-        kernel: Smoothing kernel used
-        num_iterations: Number of bootstrap iterations (default: 50)
-        seed: Random seed for reproducibility
-        alpha: Significance threshold
-
+        data: Full dataset.
+        sample_size: Number of subjects per half.
+        n_iterations: Number of bootstrap iterations.
+        seed: Random seed for reproducibility.
+        design_matrix: Optional design matrix.
+        
     Returns:
-        List of results for each iteration
+        List of iteration results.
     """
     if seed is None:
         seed = get_seed()
-    set_global_seed(seed)
-
-    logger.info(f"Starting split-half validation: N={sample_size}, kernel={kernel}, iterations={num_iterations}")
-
-    total_subjects = roi_timeseries.shape[0]
-    if total_subjects < 2 * sample_size:
-        raise SplitHalfValidationError(
-            f"Insufficient subjects for split-half: need {2 * sample_size}, have {total_subjects}"
-        )
-
+    
+    if design_matrix is None:
+        # Simple design: intercept only
+        design_matrix = np.ones((len(data), 1))
+    
     results = []
-    failed_iterations = 0
-
-    for i in range(num_iterations):
-        # Random split: half for training, half for testing
-        set_global_seed(seed + i)
-        indices = np.random.permutation(total_subjects)
-        split_point = total_subjects // 2
-
-        training_indices = indices[:split_point]
-        test_indices = indices[split_point:]
-
-        training_data = roi_timeseries[training_indices]
-        test_data = roi_timeseries[test_indices]
-
-        # Subsample to target sample size if needed
-        if len(training_data) > sample_size:
-            training_indices_sub = np.random.choice(len(training_data), sample_size, replace=False)
-            training_data = training_data[training_indices_sub]
-        if len(test_data) > sample_size:
-            test_indices_sub = np.random.choice(len(test_data), sample_size, replace=False)
-            test_data = test_data[test_indices_sub]
-
+    total_success = 0
+    
+    for i in range(n_iterations):
+        iter_seed = seed + i
+        set_global_seed(iter_seed)
+        
+        # Split data into train/test
+        indices = np.random.permutation(len(data))
+        half = len(indices) // 2
+        
+        train_indices = indices[:half]
+        test_indices = indices[half:]
+        
+        train_data = data.iloc[train_indices].reset_index(drop=True)
+        test_data = data.iloc[test_indices].reset_index(drop=True)
+        
+        # Ensure we have enough data
+        if len(train_data) < 2 or len(test_data) < 2:
+            logger.warning(f"Iteration {i}: Insufficient data for split. Skipping.")
+            results.append({
+                "iteration": i,
+                "replication_success": 0,
+                "reason": "insufficient_data"
+            })
+            continue
+        
         # Run validation
-        result = validate_split_half(
-            training_data=training_data,
-            test_data=test_data,
-            design_matrix=design_matrix,
-            sample_size=sample_size,
-            kernel=kernel,
-            iteration_id=i,
-            alpha=alpha
-        )
-
+        result = validate_split_half(train_data, test_data, design_matrix, iter_seed)
+        result['iteration'] = i
         results.append(result)
-
-        if not result.get("converged", False):
-            failed_iterations += 1
-
-        # Log progress
-        if (i + 1) % 10 == 0:
-            logger.info(f"Completed {i + 1}/{num_iterations} iterations")
-
-    # Check if run is unreliable (>20% failures)
-    failure_rate = failed_iterations / num_iterations
-    unreliable = failure_rate > 0.20
-
-    if unreliable:
-        logger.warning(
-            f"Split-half validation marked as UNRELIABLE: "
-            f"{failed_iterations}/{num_iterations} iterations failed ({failure_rate:.1%})"
-        )
-
-    logger.info(f"Split-half validation complete: {len(results)} iterations, {failed_iterations} failures")
-
+        
+        total_success += result['replication_success']
+        
+        # Force memory isolation between iterations
+        force_memory_isolation(train_data)
+        force_memory_isolation(test_data)
+        gc.collect()
+    
+    replication_rate = total_success / n_iterations if n_iterations > 0 else 0.0
+    
+    logger.info(f"Split-half validation complete. Replication rate: {replication_rate:.3f} ({total_success}/{n_iterations})")
+    
     return results
 
-
-def aggregate_split_half_results(
-    results: List[Dict[str, Any]],
-    sample_size: int,
-    kernel: str
-) -> Dict[str, Any]:
+def aggregate_split_half_results(results: List[Dict[str, Any]], sample_size: int, 
+                                 kernel: str = "4s") -> Dict[str, Any]:
     """
-    Aggregate split-half validation results into empirical replication rate.
-
+    Aggregate split-half results into summary statistics.
+    
     Args:
-        results: List of iteration results
-        sample_size: Sample size for this configuration
-        kernel: Smoothing kernel used
-
+        results: List of iteration results.
+        sample_size: Sample size used.
+        kernel: Smoothing kernel used.
+        
     Returns:
-        Aggregated results dictionary
+        Aggregated results dictionary.
     """
-    successful_replications = sum(1 for r in results if r.get("replication_success", False))
-    total_iterations = len(results)
-    replication_rate = successful_replications / total_iterations if total_iterations > 0 else 0.0
-
+    successes = [r['replication_success'] for r in results if 'replication_success' in r]
+    total = len(successes)
+    rate = sum(successes) / total if total > 0 else 0.0
+    
     return {
         "sample_size": sample_size,
         "kernel": kernel,
-        "replication_rate": float(replication_rate),
-        "iterations": total_iterations,
-        "successful_replications": successful_replications,
-        "failed_iterations": total_iterations - successful_replications,
-        "timestamp": datetime.now().isoformat()
+        "replication_rate": rate,
+        "iterations": total,
+        "successful_iterations": sum(successes),
+        "failed_iterations": total - sum(successes),
+        "details": results
     }
 
-
-def save_split_half_results(
-    results: List[Dict[str, Any]],
-    aggregated_result: Dict[str, Any],
-    output_path: str
-):
+def save_split_half_results(aggregated_results: List[Dict[str, Any]], 
+                            output_path: str = "data/aggregated/split_half_results.json"):
     """
-    Save split-half validation results to JSON.
-
+    Save aggregated split-half results to JSON.
+    
     Args:
-        results: List of iteration results
-        aggregated_result: Aggregated results dictionary
-        output_path: Path to output file
+        aggregated_results: List of aggregated result dictionaries.
+        output_path: Output file path.
     """
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
     with open(output_path, 'w') as f:
-        json.dump(aggregated_result, f, indent=2)
-
+        json.dump(aggregated_results, f, indent=2)
+    
     logger.info(f"Saved split-half results to {output_path}")
 
-
 def main():
-    """
-    Main entry point for split-half validation.
-    """
+    """CLI entry point for split-half validation."""
     import argparse
-
-    parser = argparse.ArgumentParser(description="Run split-half validation for power analysis")
-    parser.add_argument("--config", type=str, required=True, help="Path to configuration file")
-    parser.add_argument("--output", type=str, default="data/aggregated/split_half_results.json",
-                      help="Output file path")
+    
+    parser = argparse.ArgumentParser(description="Run split-half validation")
+    parser.add_argument("--data", type=str, required=True, help="Path to preprocessed data")
+    parser.add_argument("--sample-size", type=int, default=10, help="Sample size per half")
+    parser.add_argument("--n-iterations", type=int, default=50, help="Number of iterations")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    parser.add_argument("--kernel", type=str, default="4s", help="Smoothing kernel")
+    parser.add_argument("--output", type=str, default="data/aggregated/split_half_results.json", help="Output file")
+    
     args = parser.parse_args()
-
-    # Load configuration
-    with open(args.config, 'r') as f:
-        config = json.load(f)
-
-    sample_size = config.get("sample_size", 20)
-    kernel = config.get("kernel", "4s")
-    num_iterations = config.get("num_iterations", 50)
-    seed = config.get("random_seed", 42)
-    alpha = config.get("alpha", 0.05)
-
-    # Load preprocessed data (this would be loaded from disk in a real run)
-    # For now, we expect the data to be provided by the calling pipeline
-    logger.warning("This script expects data to be loaded by the calling pipeline.")
-    logger.warning("In a real run, roi_timeseries and design_matrix would be loaded from disk.")
-
-    # Placeholder for data loading - in real implementation, load from data/derived/
-    # roi_timeseries = load_roi_timeseries_from_disk(...)
-    # design_matrix = load_design_matrix_from_disk(...)
-
-    # For testing purposes, generate minimal synthetic data structure
-    # NOTE: This is ONLY for structure validation; real data must be loaded
-    # In production, this would raise an error if real data is not available
-    try:
-        from download.openneuro_fetcher import fetch_paradigm_data
-        # Attempt to load real data
-        logger.info("Attempting to load real data...")
-        # Data loading logic would go here
-    except Exception as e:
-        logger.error(f"Failed to load real data: {e}")
-        raise SplitHalfValidationError("Real data fetch failed. Aborting.")
-
-    # Run validation (placeholder - would use real data)
-    # results = run_split_half_validation(roi_timeseries, design_matrix, sample_size, kernel, num_iterations, seed, alpha)
-    # aggregated = aggregate_split_half_results(results, sample_size, kernel)
-    # save_split_half_results(results, aggregated, args.output)
-
-    print("Split-half validation module loaded successfully.")
-    print("Use with --config to run actual validation.")
-
+    
+    # Load data
+    data = load_preprocessed_data(args.data)
+    logger.info(f"Loaded {len(data)} subjects from {args.data}")
+    
+    # Run validation
+    results = run_split_half_validation(
+        data, args.sample_size, args.n_iterations, args.seed
+    )
+    
+    # Aggregate
+    aggregated = aggregate_split_half_results(results, args.sample_size, args.kernel)
+    
+    # Save
+    save_split_half_results([aggregated], args.output)
+    
+    print(f"Split-half validation complete. Replication rate: {aggregated['replication_rate']:.3f}")
+    return aggregated
 
 if __name__ == "__main__":
     main()

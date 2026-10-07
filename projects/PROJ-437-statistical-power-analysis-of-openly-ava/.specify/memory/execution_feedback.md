@@ -17,60 +17,75 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py --action download --config config.yaml -> rc=1
-    NEDNN_OPTS=0`.
-I0000 00:00:1791045162.762244    2815 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
-To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX512_FP16 AVX_VNNI AMX_TILE AMX_INT8 AMX_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+    datasets - INFO - TensorFlow version 2.21.0 available.
+
 WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
-I0000 00:00:1791045164.697807    2815 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
-I0000 00:00:1791045164.700487    2815 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+I0000 00:00:1791373560.242533    3087 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1791373562.681464    3087 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/main.py", line 29, in <module>
-    from analysis.convergence_monitor import main as convergence_monitor_main
-ModuleNotFoundError: No module named 'analysis.convergence_monitor'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/main.py", line 36, in <module>
+    from analysis.split_half_validator import main as split_half_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/analysis/split_half_validator.py", line 23, in <module>
+    from utils.data_leakage_guard import verify_no_leakage, force_memory_isolation
+ModuleNotFoundError: No module named 'utils.data_leakage_guard'
 - python code/main.py --action estimate_noise --config config.yaml -> rc=1
-    NEDNN_OPTS=0`.
-I0000 00:00:1791045169.629538    2825 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
-To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX512_FP16 AVX_VNNI AMX_TILE AMX_INT8 AMX_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+    datasets - INFO - TensorFlow version 2.21.0 available.
+
 WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
-I0000 00:00:1791045170.805986    2825 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
-I0000 00:00:1791045170.806282    2825 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+I0000 00:00:1791373568.688018    3098 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1791373570.436863    3098 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/main.py", line 29, in <module>
-    from analysis.convergence_monitor import main as convergence_monitor_main
-ModuleNotFoundError: No module named 'analysis.convergence_monitor'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/main.py", line 36, in <module>
+    from analysis.split_half_validator import main as split_half_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/analysis/split_half_validator.py", line 23, in <module>
+    from utils.data_leakage_guard import verify_no_leakage, force_memory_isolation
+ModuleNotFoundError: No module named 'utils.data_leakage_guard'
 - python code/main.py --action generate_synthetic --config config.yaml -> rc=1
-    NEDNN_OPTS=0`.
-I0000 00:00:1791045174.039371    2836 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
-To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX512_FP16 AVX_VNNI AMX_TILE AMX_INT8 AMX_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+    datasets - INFO - TensorFlow version 2.21.0 available.
+
 WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
-I0000 00:00:1791045175.201420    2836 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
-I0000 00:00:1791045175.201732    2836 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+I0000 00:00:1791373575.180933    3108 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1791373576.965243    3108 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/main.py", line 29, in <module>
-    from analysis.convergence_monitor import main as convergence_monitor_main
-ModuleNotFoundError: No module named 'analysis.convergence_monitor'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/main.py", line 36, in <module>
+    from analysis.split_half_validator import main as split_half_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/analysis/split_half_validator.py", line 23, in <module>
+    from utils.data_leakage_guard import verify_no_leakage, force_memory_isolation
+ModuleNotFoundError: No module named 'utils.data_leakage_guard'
 - python code/main.py --action analyze --config config.yaml -> rc=1
-    NEDNN_OPTS=0`.
-I0000 00:00:1791045178.433592    2846 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
-To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX512_FP16 AVX_VNNI AMX_TILE AMX_INT8 AMX_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+    datasets - INFO - TensorFlow version 2.21.0 available.
+
 WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
-I0000 00:00:1791045179.565502    2846 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
-I0000 00:00:1791045179.565813    2846 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+I0000 00:00:1791373581.800377    3120 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1791373583.589713    3120 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/main.py", line 29, in <module>
-    from analysis.convergence_monitor import main as convergence_monitor_main
-ModuleNotFoundError: No module named 'analysis.convergence_monitor'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/main.py", line 36, in <module>
+    from analysis.split_half_validator import main as split_half_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/analysis/split_half_validator.py", line 23, in <module>
+    from utils.data_leakage_guard import verify_no_leakage, force_memory_isolation
+ModuleNotFoundError: No module named 'utils.data_leakage_guard'
 - python code/main.py --action report --config config.yaml -> rc=1
-    NEDNN_OPTS=0`.
-I0000 00:00:1791045182.829333    2856 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
-To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX512_FP16 AVX_VNNI AMX_TILE AMX_INT8 AMX_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+    datasets - INFO - TensorFlow version 2.21.0 available.
+
 WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
-I0000 00:00:1791045183.974153    2856 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
-I0000 00:00:1791045183.974446    2856 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+I0000 00:00:1791373588.468828    3130 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1791373590.202640    3130 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/main.py", line 29, in <module>
-    from analysis.convergence_monitor import main as convergence_monitor_main
-ModuleNotFoundError: No module named 'analysis.convergence_monitor'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/main.py", line 36, in <module>
+    from analysis.split_half_validator import main as split_half_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-437-statistical-power-analysis-of-openly-ava/code/analysis/split_half_validator.py", line 23, in <module>
+    from utils.data_leakage_guard import verify_no_leakage, force_memory_isolation
+ModuleNotFoundError: No module named 'utils.data_leakage_guard'
 
 ## Declared deliverables still missing
 
@@ -82,10 +97,12 @@ ModuleNotFoundError: No module named 'analysis.convergence_monitor'
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
 - `data/aggregated/convergence_log.json` is declared but was NOT written. Scripts referencing it:
+    - `code/main.py` — IS a run-book command
     - `code/utils/convergence_monitor.py` — NOT invoked by the run-book
     - `code/analysis/convergence_logger.py` — NOT invoked by the run-book
     - `code/analysis/glm_fitter.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/aggregated/convergence_log.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/aggregated/split_half_results.json` is declared but was NOT written. Scripts referencing it:
+    - `code/main.py` — IS a run-book command
     - `code/analysis/split_half_validator.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/aggregated/split_half_results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.

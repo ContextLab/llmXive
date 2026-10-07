@@ -4,20 +4,23 @@
   "reason": "5 command(s) failed: python code/main.py --action download --config config.yaml (rc=1); python code/main.py --action estimate_noise --config config.yaml (rc=1); python code/main.py --action generate_synthetic --config config.yaml (rc=1); 2 declared deliverable(s) absent: data/aggregated/convergence_log.json; data/aggregated/split_half_results.json",
   "artifacts": [],
   "failures": [
-    "python code/main.py --action download --config config.yaml -> rc=1\n    NEDNN_OPTS=0`.\nI0000 00:00:1791045162.762244    2815 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.\nTo enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX512_FP16 AVX_VNNI AMX_TILE AMX_INT8 AMX_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.\nWARNING: All log messages before absl::InitializeLog() is called are written to STDERR\nI0000 00:00:1791045164.697807    2815 port.cc:153] o",
-    "python code/main.py --action estimate_noise --config config.yaml -> rc=1\n    NEDNN_OPTS=0`.\nI0000 00:00:1791045169.629538    2825 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.\nTo enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX512_FP16 AVX_VNNI AMX_TILE AMX_INT8 AMX_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.\nWARNING: All log messages before absl::InitializeLog() is called are written to STDERR\nI0000 00:00:1791045170.805986    2825 port.cc:",
-    "python code/main.py --action generate_synthetic --config config.yaml -> rc=1\n    NEDNN_OPTS=0`.\nI0000 00:00:1791045174.039371    2836 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.\nTo enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX512_FP16 AVX_VNNI AMX_TILE AMX_INT8 AMX_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.\nWARNING: All log messages before absl::InitializeLog() is called are written to STDERR\nI0000 00:00:1791045175.201420    2836 port",
-    "python code/main.py --action analyze --config config.yaml -> rc=1\n    NEDNN_OPTS=0`.\nI0000 00:00:1791045178.433592    2846 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.\nTo enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX512_FP16 AVX_VNNI AMX_TILE AMX_INT8 AMX_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.\nWARNING: All log messages before absl::InitializeLog() is called are written to STDERR\nI0000 00:00:1791045179.565502    2846 port.cc:153] on",
-    "python code/main.py --action report --config config.yaml -> rc=1\n    NEDNN_OPTS=0`.\nI0000 00:00:1791045182.829333    2856 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.\nTo enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX512_FP16 AVX_VNNI AMX_TILE AMX_INT8 AMX_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.\nWARNING: All log messages before absl::InitializeLog() is called are written to STDERR\nI0000 00:00:1791045183.974153    2856 port.cc:153] one"
+    "python code/main.py --action download --config config.yaml -> rc=1\n    datasets - INFO - TensorFlow version 2.21.0 available.\n\nWARNING: All log messages before absl::InitializeLog() is called are written to STDERR\nI0000 00:00:1791373560.242533    3087 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.\nTo enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.\nWARNING: All log messages before absl::InitializeLog() is called are written to STDERR\nI000",
+    "python code/main.py --action estimate_noise --config config.yaml -> rc=1\n    datasets - INFO - TensorFlow version 2.21.0 available.\n\nWARNING: All log messages before absl::InitializeLog() is called are written to STDERR\nI0000 00:00:1791373568.688018    3098 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.\nTo enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.\nWARNING: All log messages before absl::InitializeLog() is called are written to STDER",
+    "python code/main.py --action generate_synthetic --config config.yaml -> rc=1\n    datasets - INFO - TensorFlow version 2.21.0 available.\n\nWARNING: All log messages before absl::InitializeLog() is called are written to STDERR\nI0000 00:00:1791373575.180933    3108 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.\nTo enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.\nWARNING: All log messages before absl::InitializeLog() is called are written to S",
+    "python code/main.py --action analyze --config config.yaml -> rc=1\n    datasets - INFO - TensorFlow version 2.21.0 available.\n\nWARNING: All log messages before absl::InitializeLog() is called are written to STDERR\nI0000 00:00:1791373581.800377    3120 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.\nTo enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.\nWARNING: All log messages before absl::InitializeLog() is called are written to STDERR\nI0000",
+    "python code/main.py --action report --config config.yaml -> rc=1\n    datasets - INFO - TensorFlow version 2.21.0 available.\n\nWARNING: All log messages before absl::InitializeLog() is called are written to STDERR\nI0000 00:00:1791373588.468828    3130 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.\nTo enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.\nWARNING: All log messages before absl::InitializeLog() is called are written to STDERR\nI0000 "
   ],
-  "fix_rounds": 2,
+  "fix_rounds": 3,
   "model_tier": 0,
-  "offload": {
-    "status": "running",
-    "kernel_ref": "jeremy9/llmxive-proj-437-statistical-power-analysis-of-ope",
-    "submitted_at": "2026-10-07T09:35:03Z",
-    "reason": "",
-    "evidence": []
-  },
-  "updated_at": "2026-10-07T09:35:09Z"
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "compute_env",
+  "evidence": [
+    "python code/main.py --action download --config config.yaml",
+    "python code/main.py --action estimate_noise --config config.yaml",
+    "python code/main.py --action generate_synthetic --config config.yaml",
+    "python code/main.py --action analyze --config config.yaml",
+    "python code/main.py --action report --config config.yaml"
+  ],
+  "updated_at": "2026-10-07T11:46:37Z"
 }
