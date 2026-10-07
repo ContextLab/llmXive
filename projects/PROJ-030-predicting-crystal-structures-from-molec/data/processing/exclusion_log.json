@@ -1,0 +1,16 @@
+{
+  "timestamp": "2024-01-01T00:00:00",
+  "input_file": "data/processed/crystal_molecules.csv",
+  "parameters": {
+    "max_mw": null,
+    "min_mw": null,
+    "fingerprint_bits": 2048
+  },
+  "excluded_rows": [],
+  "summary": {
+    "total_excluded": 0,
+    "parse_errors": 0,
+    "mw_excluded": 0,
+    "fingerprint_errors": 0
+  }
+}

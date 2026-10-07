@@ -1,145 +1,158 @@
-# PROJ-030: Predicting Crystal Structures from Molecular Fingerprints
+# Predicting Crystal Structures from Molecular Fingerprints
 
-An automated scientific pipeline to predict crystal structures (space groups and lattice parameters) from molecular fingerprints using machine learning. This project implements a rigorous, reproducible workflow adhering to the Constitution Principles of automated science.
+**Project ID**: PROJ-030
+**Status**: Active Research Pipeline
 
 ## Overview
 
-This pipeline ingests organic crystal structures from the Crystallography Open Database (COD), processes them into molecular fingerprints (ECFP4), trains machine learning models (Random Forest, Gradient Boosting, Ridge Regression), and performs interpretability analysis to identify predictive chemical substructures.
+This project implements an automated scientific pipeline to predict crystal structures (Space Groups and Lattice Parameters) from molecular fingerprints (ECFP4). The pipeline ingests data from the Crystallography Open Database (COD), processes CIF files, handles polymorphism, trains machine learning models (Random Forest, Gradient Boosting, Ridge Regression), and performs interpretability analysis using SHAP and permutation importance.
 
-**Key Features:**
-- **Data Ingestion:** Streaming download of the COD organic subset from HuggingFace.
-- **Feature Engineering:** Generation of ECFP4 fingerprints and handling of polymorphism (treating unique SMILES/Space Group pairs as distinct samples).
-- **Robust Modeling:** Scaffold-based train/test splits to ensure zero structural overlap, handling of class imbalance, and baseline comparisons.
-- **Interpretability:** SHAP and permutation importance analysis to map fingerprint bits to chemical substructures.
-- **Constitution Compliance:** Strict error handling (no synthetic fallbacks), citation verification, and power analysis integration.
+**Key Constraints**:
+- **CPU-Only Execution**: All training and inference are restricted to CPU environments (Constitution Principle IV).
+- **Real Data Only**: No synthetic data or fallbacks are permitted. The pipeline fails loudly if the real data source is unreachable.
+- **Polymorphism Handling**: Distinct (SMILES, Space Group) pairs are treated as unique samples.
+- **Scaffold Splitting**: Train/test splits are verified to have zero scaffold overlap.
+
+## Project Structure
+
+```text
+.
+├── code/
+│ ├── ingestion/ # Data loading, parsing, fingerprinting
+│ ├── modeling/ # Model training, splitting, evaluation
+│ ├── analysis/ # Power analysis, interpretability, reporting
+│ ├── utils/ # Utility functions, directory initialization
+│ ├── config.py # Path management and configuration
+│ ├── exceptions.py # Custom exception definitions
+│ ├── logging_config.py# Structured logging setup
+│ └── validate_env.py # Environment validation (CPU-only check)
+├── data/
+│ ├── raw/ # Downloaded raw data (COD subset)
+│ ├── processed/ # Intermediate and final processed datasets
+│ ├── results/ # Model outputs, metrics, logs
+│ ├── validation/ # Validation reports (split checks, etc.)
+│ └── models/ # Serialized trained models
+├── tests/ # Unit and integration tests
+├── specs/ # Feature specifications and design docs
+└── README.md
+```
 
 ## Prerequisites
 
 - Python 3.11+
-- HuggingFace Token (for dataset access)
-- System dependencies: `libopenbabel-dev` (for PIFCifRw/OpenBabel)
+- HuggingFace Token (`HF_TOKEN`) for dataset access
+- Required dependencies (see `code/requirements.txt`)
 
 ## Installation
 
-1. **Clone the repository:**
+1. Clone the repository.
+2. Create a virtual environment:
  ```bash
- git clone <repository-url>
- cd PROJ-030-predicting-crystal-structures-from-molec
+ python -m venv.venv
+ source.venv/bin/activate # On Windows:.venv\Scripts\activate
  ```
-
-2. **Create a virtual environment:**
+3. Install dependencies:
  ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
+ pip install -r code/requirements.txt
  ```
-
-3. **Install dependencies:**
+4. Set environment variables:
  ```bash
- cd code
- pip install -r requirements.txt
- ```
-
-4. **Configure environment:**
- - Copy `.env.example` to `.env` in the `code/` directory.
- - Set your `HF_TOKEN` in `.env` to access the HuggingFace dataset.
- ```bash
- cp.env.example.env
- # Edit.env to add HF_TOKEN=your_token_here
- ```
-
-5. **Verify environment:**
- ```bash
- python code/validate_env.py
+ export HF_TOKEN="your_huggingface_token_here"
  ```
 
 ## Usage
 
-### 1. Data Ingestion Pipeline
+### 1. Initialize Directories
 
-Downloads, parses, and processes the COD dataset to generate the final training CSV.
+Before running any pipeline steps, initialize the required directory structure:
+
+```bash
+python code/utils/init_dirs.py
+```
+
+### 2. Validate Environment
+
+Ensure the environment is CPU-only as per project constraints:
+
+```bash
+python code/validate_env.py
+```
+
+This writes `training_device="cpu"` to `data/results/runtime_config.json`.
+
+### 3. Run the Full Pipeline
+
+Execute the complete ingestion, training, and analysis pipeline:
 
 ```bash
 python code/ingestion/run_pipeline.py
 ```
 
-**Outputs:**
-- `data/processed/crystal_dataset.csv`: Final processed dataset with fingerprints.
-- `data/validation/fingerprint_check.json`: Validation of fingerprint dimensions and nulls.
+This script orchestrates:
+- Streaming the COD organic dataset (`data/raw/`)
+- Parsing CIFs and extracting SMILES/lattice parameters
+- Generating ECFP4 fingerprints
+- Handling polymorphism (distinct SMILES/Space Group pairs)
+- Training models and evaluating metrics
+- Generating interpretability reports
 
-### 2. Model Training and Evaluation
+### 4. Step-by-Step Execution
 
-Trains models, calculates baselines, and evaluates performance with scaffold splitting.
+If you prefer to run steps individually:
 
+**Ingestion**:
 ```bash
-python code/modeling/train.py
-python code/modeling/evaluate.py
+python code/ingestion/load_cod.py --output data/raw/cod_organic_subset.parquet
+python code/ingestion/parse_cif.py --input data/raw/cod_organic_subset.parquet --output data/processed/crystal_molecules.parquet
+python code/ingestion/fingerprint.py --input data/processed/crystal_molecules.parquet --output data/processed/fingerprinted_dataset.csv
+python code/ingestion/dataset_builder.py --input data/processed/fingerprinted_dataset.csv --output data/processed/crystal_dataset.csv
 ```
 
-**Outputs:**
-- `data/models/`: Trained model artifacts (`.pkl`).
-- `data/results/`: Baseline metrics, model metrics, and success criterion checks.
+**Preprocessing**:
+```bash
+python code/modeling/group_rare.py --input data/processed/crystal_dataset.csv --output data/processed/grouped_dataset.csv
+python code/modeling/split.py --input data/processed/grouped_dataset.csv --output_dir data/processed
+python code/modeling/validate_split.py --input data/processed/grouped_dataset.csv --split_indices data/processed/split_indices.json
+```
+
+**Training**:
+```bash
+python code/modeling/train.py --train data/processed/split_indices.json --output data/results
+```
+
+**Evaluation & Analysis**:
+```bash
+python code/modeling/evaluate.py --model_dir data/models --split_indices data/processed/split_indices.json --output data/results/model_metrics.json
+python code/analysis/interpret.py --model_path data/models/rf_model.pkl --data data/processed/crystal_dataset.csv --output data/results/feature_importance_report.md
+```
+
+## Output Artifacts
+
+The pipeline produces the following key artifacts:
+
+- `data/processed/crystal_dataset.csv`: Final dataset with fingerprints and targets.
+- `data/processed/split_indices.json`: Train/test split indices (scaffold-based).
+- `data/models/*.pkl`: Trained Random Forest, Gradient Boosting, and Ridge models.
+- `data/results/model_metrics.json`: Performance metrics (Accuracy, F1, R², MAE).
+- `data/results/feature_importance_report.md`: Interpretability report with substructure mapping.
 - `data/validation/scaffold_overlap_report.json`: Verification of zero scaffold overlap.
 
-### 3. Interpretability Analysis
+## Testing
 
-Generates SHAP values and maps top features to chemical substructures.
-
+Run unit tests:
 ```bash
-python code/analysis/interpret.py
-python code/analysis/generate_report.py
+python -m pytest tests/unit/ -v
 ```
 
-**Outputs:**
-- `data/results/feature_importance_report.md`: Human-readable report of predictive substructures.
-- `data/results/shap_analysis.json`: Detailed SHAP values.
-
-### 4. End-to-End Execution
-
-Run the full pipeline (Ingestion + Training + Analysis) to verify the 6-hour SC-004 limit.
-
+Run integration tests:
 ```bash
-python code/ingestion/run_pipeline.py && \
-python code/modeling/train.py && \
-python code/modeling/evaluate.py && \
-python code/analysis/interpret.py && \
-python code/analysis/generate_report.py
+python -m pytest tests/integration/ -v
 ```
 
-## Project Structure
+## Configuration
 
-```text
-PROJ-030-predicting-crystal-structures-from-molec/
-├── code/
-│ ├── ingestion/ # Data loading, parsing, fingerprinting
-│ ├── modeling/ # Training, splitting, evaluation
-│ ├── analysis/ # Interpretability, power analysis
-│ ├── config.py # Configuration management
-│ ├── logging_config.py# Logging infrastructure
-│ └──...
-├── data/
-│ ├── processed/ # Intermediate and final datasets
-│ ├── models/ # Trained model artifacts
-│ ├── results/ # Metrics and analysis outputs
-│ └── validation/ # Validation reports
-├── tests/ # Unit and integration tests
-├── specs/ # Feature specifications and design docs
-├── logs/ # Execution logs
-└── README.md
-```
-
-## Key Design Decisions
-
-- **Polymorphism Handling:** Each unique (SMILES, Space Group) pair is treated as a distinct sample to capture polymorphic variations.
-- **Scaffold Splitting:** Uses Bemis-Murcko scaffolds to ensure zero structural overlap between training and test sets, preventing data leakage.
-- **Error Handling:** The pipeline fails loudly on data fetch errors or memory issues; no synthetic data fallbacks are used (Constitution Principle II & III).
-- **Power Analysis:** Sample size requirements are calculated based on the actual dataset size and stored in the config.
-
-## Contributing
-
-1. Ensure all new code passes `ruff` and `black` checks.
-2. Add unit tests for new functionality in `tests/`.
-3. Update `tasks.md` if new tasks are identified.
+All dynamic configuration (e.g., sample sizes, thresholds) is stored in `data/results/*.json`. Static configuration (paths, seeds) is managed in `code/config.py`. Do not modify `code/config.py` at runtime.
 
 ## License
 
-[Insert License Here]
+This project is part of the llmXive automated science pipeline. See the main repository for licensing details.

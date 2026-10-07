@@ -1,16 +1,16 @@
 """
 Environment validation and device detection utility.
 
-This module checks for CUDA availability and writes the detected
-training device configuration to the runtime config file.
+This module strictly enforces CPU-only execution per Plan constraints.
+It does NOT enable GPU offloading or detect GPU drivers for training.
+It always defaults to 'cpu' and writes this configuration to the runtime config.
 """
 import os
 import json
 import logging
-import subprocess
-import shutil
 from pathlib import Path
-from typing import Optional, Dict, Any
+from datetime import datetime
+from typing import Dict, Any
 
 # Import from project config
 from config import get_path_results, ensure_directory, load_runtime_config, save_runtime_config
@@ -24,6 +24,9 @@ logger = get_logger(__name__)
 def check_cuda_visible_devices() -> bool:
     """
     Check if CUDA_VISIBLE_DEVICES environment variable is set and non-empty.
+    
+    NOTE: This check is performed for diagnostic/logging purposes only.
+    The task constraints mandate CPU-only execution regardless of this check.
 
     Returns:
         bool: True if the variable is set to a non-empty string, False otherwise.
@@ -35,10 +38,16 @@ def check_cuda_visible_devices() -> bool:
 def check_nvidia_smi() -> bool:
     """
     Check if nvidia-smi is available and returns valid GPU information.
+    
+    NOTE: This check is performed for diagnostic/logging purposes only.
+    The task constraints mandate CPU-only execution regardless of this check.
 
     Returns:
         bool: True if nvidia-smi is found and returns success, False otherwise.
     """
+    import shutil
+    import subprocess
+
     if not shutil.which("nvidia-smi"):
         return False
 
@@ -58,6 +67,9 @@ def check_nvidia_smi() -> bool:
 def check_torch_cuda() -> bool:
     """
     Check if PyTorch is available and CUDA is supported.
+    
+    NOTE: This check is performed for diagnostic/logging purposes only.
+    The task constraints mandate CPU-only execution regardless of this check.
 
     Returns:
         bool: True if PyTorch is installed and CUDA is available, False otherwise.
@@ -75,40 +87,40 @@ def check_torch_cuda() -> bool:
 def detect_training_device() -> str:
     """
     Detect the appropriate training device based on environment.
-
-    Checks in order:
-    1. CUDA_VISIBLE_DEVICES environment variable
-    2. nvidia-smi availability and GPU presence
-    3. PyTorch CUDA availability
+    
+    CRITICAL CONSTRAINT: Per Plan constraints, this function strictly enforces
+    CPU-only execution. It does NOT enable GPU offloading. It always returns "cpu".
+    
+    Diagnostic checks (CUDA_VISIBLE_DEVICES, nvidia-smi, torch.cuda) are performed
+    only to log the environment state, not to influence the device selection.
 
     Returns:
-        str: "cuda" if GPU is detected, "cpu" otherwise.
+        str: Always returns "cpu" to enforce Plan constraints.
     """
-    # Check 1: Environment variable
+    # Diagnostic: Log environment state
     if check_cuda_visible_devices():
-        logger.info("CUDA_VISIBLE_DEVICES environment variable detected.")
-        return "cuda"
+        logger.info("WARNING: CUDA_VISIBLE_DEVICES detected, but CPU-only mode enforced.")
+    elif check_nvidia_smi():
+        logger.info("WARNING: nvidia-smi detected, but CPU-only mode enforced.")
+    elif check_torch_cuda():
+        logger.info("WARNING: PyTorch CUDA support detected, but CPU-only mode enforced.")
+    else:
+        logger.info("No GPU detected or GPU disabled.")
 
-    # Check 2: nvidia-smi
-    if check_nvidia_smi():
-        logger.info("nvidia-smi detected available GPU(s).")
-        return "cuda"
-
-    # Check 3: PyTorch CUDA
-    if check_torch_cuda():
-        logger.info("PyTorch CUDA support detected.")
-        return "cuda"
-
-    logger.info("No GPU detected. Defaulting to CPU.")
+    # Enforce CPU-only per Plan constraints
+    logger.info("Enforcing CPU-only execution per Plan constraints.")
     return "cpu"
 
 
 def write_runtime_config(device: str) -> Dict[str, Any]:
     """
     Write the training device configuration to the runtime config file.
+    
+    This function ensures the 'training_device' key is set in the runtime config.
+    The device argument is expected to be 'cpu' as per the enforceable constraint.
 
     Args:
-        device (str): The detected training device ("cuda" or "cpu").
+        device (str): The training device configuration (expected "cpu").
 
     Returns:
         Dict[str, Any]: The updated runtime configuration.
@@ -127,6 +139,7 @@ def write_runtime_config(device: str) -> Dict[str, Any]:
     # Update with the detected device
     current_config["training_device"] = device
     current_config["device_detected_at"] = datetime.now().isoformat()
+    current_config["cpu_only_enforced"] = True
 
     # Save the updated config
     with open(config_path, "w", encoding="utf-8") as f:
@@ -139,6 +152,8 @@ def write_runtime_config(device: str) -> Dict[str, Any]:
 def main() -> int:
     """
     Main entry point for environment validation and device detection.
+    
+    This function enforces CPU-only execution and writes the configuration.
 
     Returns:
         int: Exit code (0 for success, 1 for failure).
@@ -146,13 +161,13 @@ def main() -> int:
     try:
         logger.info("Starting environment validation and device detection.")
 
-        # Detect the training device
+        # Detect the training device (enforced to CPU)
         device = detect_training_device()
 
         # Write the configuration
         config = write_runtime_config(device)
 
-        logger.info(f"Environment validation complete. Device: {device}")
+        logger.info(f"Environment validation complete. Device: {device} (CPU-only enforced)")
         return 0
 
     except Exception as e:
@@ -162,7 +177,5 @@ def main() -> int:
 
 if __name__ == "__main__":
     import sys
-    from datetime import datetime  # Local import to avoid circular issues if any
-
     exit_code = main()
     sys.exit(exit_code)

@@ -1,9 +1,22 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory `projects/PROJ-030-predicting-crystal-structures-from-molec/` or\
+    \ any of its expected sub\u2011folders/files (e.g., `data/processed/`, `data/results/`)\
+    \ were presented as evidence, so we cannot confirm the required project structure\
+    \ was actually created."
 T003:
   c: true
-  h: f9cfc4592cb9d6a0ce4e84dd69465f6dd5406f7280fdb6267d99def8235e941b
-  r: "The file `code/.pre-commit-config.yaml` exists, is non\u2011empty, and contains\
-    \ proper Black and Ruff hook configurations, fulfilling the requirement to set\
-    \ up linting and formatting tools."
+  h: 88b2061d2d2b43574a1a0c4b352367f96272e60015d086735284b27d043fefe5
+  r: "The file `code/.pre-commit-config.yaml` is present, non\u2011empty, and correctly\
+    \ configures both Black (formatter) and Ruff (linter) hooks as required. No missing\
+    \ or placeholder content was found."
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No logging code, configuration, or example JSON log files were presented, and
+    there is no `logs/` directory or any artifact showing structured JSON output.
+    The required logging infrastructure is therefore missing.
 T006b:
   c: false
   h: faaa8a7217af57e16e7014ee8e9390ec2f909fe33b426dbb9de811d4611c8b2b
@@ -12,22 +25,16 @@ T006b:
     \ Moreover, the required JSON output file does not exist. Consequently the task\u2019\
     s core requirement\u2014calculating and persisting the target sample size\u2014\
     is not satisfied."
-T012:
-  c: false
-  h: 4076167a8a08948cab1f3c9a2263486f996749c17b1adf92eca8f0cf0c0f3486
-  r: The claimed output file `data/processed/polymorphic_dataset.csv` does not exist,
-    and the provided `dataset_builder.py` is incomplete (e.g., truncated line `df
-    = pd.read_cs` and no visible logic that creates and writes the polymorphic dataset).
-    Hence the required artifact and full implementation are missing.
 T013:
   c: true
-  h: 0f27359539eb8f6e230f0de7e499049d547fbf48f3f4cff4aa4d0892da6a291f
-  r: "The file `code/ingestion/run_pipeline.py` is present, non\u2011empty (\u2248\
-    5\u202FKB), and contains code that imports the required modules and defines functions\
-    \ to download, parse, fingerprint, handle polymorphism, and save the final dataset,\
-    \ matching the specification for orchestrating T009\u2011T012 and producing `data/processed/crystal_dataset.csv`.\
-    \ The absence of the CSV file itself does not invalidate the task, as it is the\
-    \ expected runtime output of the script."
+  h: b8437d9853d5956ec0c2ee3f8fc0bc6b0777482c4f3cb263684327a7c2fbb8f6
+  r: "The `code/ingestion/run_pipeline.py` file exists, is non\u2011empty (\u2248\
+    8\u202FKB), and contains real code that imports the required modules, defines\
+    \ a pipeline function, and references all four dependent tasks (download, parse,\
+    \ fingerprint, dataset building) with appropriate logging and error handling.\
+    \ No placeholder or stub code is present, satisfying the task\u2019s requirement\
+    \ to provide a script that orchestrates those steps and would produce `data/processed/crystal_dataset.csv`\
+    \ when executed."
 T017:
   c: false
   h: 3f8e2cfde9c9327a791d6c7a887fefd3af145315540f271c7eb63d08b86c4594
@@ -43,16 +50,6 @@ T017b:
     \ required output file `data/results/majority_class_baseline_metrics.json` is\
     \ missing from the repository. Consequently the task\u2019s core requirement is\
     \ not satisfied."
-T018a:
-  c: false
-  h: c7c94df19a11d1d41c1f89261b9491c0c973a2f5da8d0313ef252d26b92447cd
-  r: "The repository contains a `code/modeling/timeout_handler.py` file, but the displayed\
-    \ content is truncated and does not show any function that actually performs the\
-    \ timeout check, reduces the number of trees during model training, or writes\
-    \ a log entry to `data/results/timeout_action.log`. Moreover, the expected log\
-    \ file is absent from the `data/results` directory, so the required logging side\u2011\
-    effect is not demonstrated. The task\u2019s core behavior is therefore not verifiably\
-    \ implemented."
 T022:
   c: false
   h: 2f4e534688edaa1d5b6c441a536f05e2d0bf89e51d67d5637565369a2b677880
@@ -60,11 +57,36 @@ T022:
     output `data/results/permutation_importance.json` is missing. Moreover, `code/analysis/interpret.py`
     does not contain any implementation for computing permutation importance or writing
     it to the JSON file. The task therefore is not satisfied.
-T036:
+T027a:
   c: false
-  h: 41b01ded745761e28f045d631fb91158522da6dba338f23bf2eb13eb1f338416
-  r: "The `code/validate_env.py` script contains detection logic but the crucial part\
-    \ that writes `training_device=\"cuda\"` (or `\"cpu\"`) to `data/results/runtime_config.json`\
-    \ is either missing or incomplete (the `write_runtime_config` function is truncated)\
-    \ and the required `runtime_config.json` file does not exist. Consequently the\
-    \ task\u2019s primary output is not present."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `README.md` file or its contents was provided; the implementer
+    did not supply the updated README with pipeline usage instructions and project
+    overview, so the required artifact is missing.
+T027b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required docstrings was provided; the claim does not include
+    the contents of any `code/ingestion/*.py` or `code/modeling/*.py` files showing
+    added comprehensive docstrings. The implementer must supply the updated source
+    files (or excerpts) with the new docstrings to verify completion.
+T028a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (e.g., a git commit hash, diff, or report) showing that `ruff --fix`
+    was executed on the whole codebase is present; the implementer provided no evidence
+    of linting changes or a committed update. The required proof of the task is missing.
+T029a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration file, or performance evidence was provided showing that
+    fingerprint generation was refactored to use batch processing, that memory usage
+    was reduced, or that a configurable batch size was added. The required artifact
+    (updated implementation and config) is missing.
+T029b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No profiling report, benchmark results, or updated data\u2011loading code were\
+    \ provided; the implementer supplied no artifacts that demonstrate the pipeline\
+    \ was profiled, bottlenecks identified, or streaming efficiency improvements applied.\
+    \ Consequently the task\u2019s requirement is not satisfied."

@@ -1,300 +1,338 @@
 """
 Fingerprint generation module for crystal structure prediction.
 
-Generates ECFP4 fingerprints from SMILES strings using RDKit.
-Handles MemoryError by logging and excluding large molecules.
+This module handles the conversion of molecular SMILES to ECFP4 fingerprints
+using batch processing to optimize memory usage.
 """
+
 import os
 import sys
+import json
 import logging
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional, Tuple, Generator, Iterator
 
+import numpy as np
 from rdkit import Chem
-from rdkit.Chem import AllChem
+from rdkit.Chem import AllChem, rdMolDescriptors
 from rdkit import DataStructs
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
-
-from ingestion.models import MoleculeRecord
+# Import project utilities
+from config import get_path_processed_data, get_path_results, get_config_dict, ensure_directory
 from logging_config import get_logger, log_event
-from error_handling import handle_memory_error
-from config import get_path_absolute
 
 # Constants
-FINGERPRINT_RADIUS = 2  # ECFP4 uses radius 2
-FINGERPRINT_BITS = 2048  # Standard bit length
-MOLECULE_MW_THRESHOLD = 1000.0  # MW threshold to skip large molecules
+DEFAULT_FP_SIZE = 2048
+DEFAULT_RADIUS = 2
+DEFAULT_BATCH_SIZE = 1000
+DEFAULT_MIN_MW = 50.0
+DEFAULT_MAX_MW = 1000.0
 
 logger = get_logger(__name__)
+
 
 class FingerprintError(Exception):
     """Custom exception for fingerprint generation errors."""
     pass
 
+
 def smiles_to_mol(smiles: str) -> Optional[Chem.Mol]:
-    """
-    Convert a SMILES string to an RDKit Mol object.
-
-    Args:
-        smiles: SMILES string representation of a molecule
-
-    Returns:
-        RDKit Mol object or None if parsing fails
-    """
+    """Convert SMILES string to RDKit Mol object."""
     if not smiles or not isinstance(smiles, str):
         return None
-
     try:
         mol = Chem.MolFromSmiles(smiles)
         if mol is None:
-            logger.warning(f"Failed to parse SMILES: {smiles}")
             return None
-
-        # Add hydrogens for better fingerprint generation
-        mol = Chem.AddHs(mol)
+        # Sanitize the molecule
+        Chem.SanitizeMol(mol)
         return mol
     except Exception as e:
-        logger.warning(f"Error converting SMILES to mol: {e}")
+        logger.warning(f"Failed to parse SMILES '{smiles}': {e}")
         return None
 
-def generate_ecfp4(mol: Chem.Mol, bits: int = FINGERPRINT_BITS, radius: int = FINGERPRINT_RADIUS) -> Optional[List[int]]:
+
+def generate_ecfp4(mol: Chem.Mol, fp_size: int = DEFAULT_FP_SIZE, radius: int = DEFAULT_RADIUS) -> np.ndarray:
     """
     Generate ECFP4 fingerprint for a molecule.
 
     Args:
         mol: RDKit Mol object
-        bits: Number of bits in fingerprint (default 2048)
-        radius: Radius for ECFP (default 2 for ECFP4)
+        fp_size: Size of the fingerprint (number of bits)
+        radius: Radius of the fingerprint (ECFP4 uses radius=2)
 
     Returns:
-        List of bit indices set to 1, or None if generation fails
+        Numpy array of bits (0 or 1)
     """
     try:
-        fp = AllChem.GetMorganFingerprintAsBitVect(mol, radius, nBits=bits)
-        # Convert to list of indices where bits are set
-        indices = list(fp.GetOnBits())
-        return indices
+        fp = AllChem.GetMorganFingerprintAsBitVect(mol, radius, nBits=fp_size)
+        arr = np.zeros((fp_size,), dtype=int)
+        DataStructs.ConvertToNumpyArray(fp, arr)
+        return arr
     except Exception as e:
-        logger.error(f"Error generating ECFP4 fingerprint: {e}")
+        logger.warning(f"Failed to generate ECFP4 fingerprint: {e}")
         return None
 
-def get_molecular_weight(mol: Chem.Mol) -> float:
-    """
-    Calculate molecular weight of a molecule.
 
-    Args:
-        mol: RDKit Mol object
-
-    Returns:
-        Molecular weight in g/mol
-    """
+def get_molecular_weight(mol: Chem.Mol) -> Optional[float]:
+    """Calculate molecular weight of a molecule."""
     try:
-      return Chem.Descriptors.MolWt(mol)
-    except Exception:
-        return 0.0
+        return rdMolDescriptors.CalcExactMolWt(mol)
+    except Exception as e:
+        logger.warning(f"Failed to calculate molecular weight: {e}")
+        return None
 
-def process_molecule_for_fingerprint(
-    mol: Chem.Mol,
-    smiles: str,
-    bits: int = FINGERPRINT_BITS,
-    radius: int = FINGERPRINT_RADIUS,
-    mw_threshold: float = MOLECULE_MW_THRESHOLD
-) -> Optional[Tuple[List[int], float]]:
+
+def process_molecule_for_fingerprint(smiles: str, fp_size: int = DEFAULT_FP_SIZE) -> Optional[Tuple[str, np.ndarray, float]]:
     """
-    Process a molecule to generate fingerprint, with memory and size checks.
+    Process a single molecule: parse SMILES, validate, and generate fingerprint.
 
     Args:
-        mol: RDKit Mol object
-        smiles: Original SMILES string
-        bits: Number of fingerprint bits
-        radius: ECFP radius
-        mw_threshold: Molecular weight threshold to skip large molecules
+        smiles: SMILES string
+        fp_size: Fingerprint size
 
     Returns:
-        Tuple of (fingerprint_indices, molecular_weight) or None if skipped
+        Tuple of (smiles, fingerprint_array, molecular_weight) or None if invalid
     """
-    # Check molecular weight first
+    mol = smiles_to_mol(smiles)
+    if mol is None:
+        return None
+
     mw = get_molecular_weight(mol)
-    if mw > mw_threshold:
-        logger.info(f"Skipping molecule with MW {mw:.2f} > {mw_threshold} (SMILES: {smiles[:50]}...)")
+    if mw is None or mw < DEFAULT_MIN_MW or mw > DEFAULT_MAX_MW:
         return None
 
-    # Generate fingerprint with memory error handling
-    try:
-        fp_indices = generate_ecfp4(mol, bits, radius)
-        if fp_indices is None:
-            logger.warning(f"Failed to generate fingerprint for: {smiles}")
-            return None
-        return (fp_indices, mw)
-    except MemoryError:
-        handle_memory_error(f"Memory error generating fingerprint for: {smiles}")
-        return None
-    except Exception as e:
-        logger.error(f"Unexpected error processing molecule {smiles}: {e}")
+    fp = generate_ecfp4(mol, fp_size=fp_size)
+    if fp is None:
         return None
 
-def fingerprints_to_bit_vectors(
-    fingerprint_list: List[List[int]],
-    n_bits: int = FINGERPRINT_BITS
-) -> List[List[int]]:
+    return (smiles, fp, mw)
+
+
+def stream_dataset_rows(input_path: Path) -> Generator[Dict[str, Any], None, None]:
     """
-    Convert lists of set bit indices to fixed-length bit vectors.
+    Stream rows from a CSV/Parquet dataset file.
 
     Args:
-        fingerprint_list: List of lists of set bit indices
-        n_bits: Total number of bits in each vector
+        input_path: Path to the input file
 
-    Returns:
-        List of fixed-length bit vectors (0s and 1s)
+    Yields:
+        Dictionary containing row data
     """
-    bit_vectors = []
-    for fp_indices in fingerprint_list:
-        vector = [0] * n_bits
-        for idx in fp_indices:
-            if 0 <= idx < n_bits:
-                vector[idx] = 1
-        bit_vectors.append(vector)
-    return bit_vectors
+    import pandas as pd
 
-def generate_fingerprints_for_dataset(
-    molecules: List[Dict[str, Any]],
-    output_path: Optional[str] = None,
-    bits: int = FINGERPRINT_BITS,
-    radius: int = FINGERPRINT_RADIUS
-) -> List[Dict[str, Any]]:
+    # Check file extension
+    suffix = input_path.suffix.lower()
+
+    if suffix == '.csv':
+        df = pd.read_csv(input_path, chunksize=DEFAULT_BATCH_SIZE)
+        for chunk in df:
+            for _, row in chunk.iterrows():
+                yield row.to_dict()
+    elif suffix == '.parquet':
+        df = pd.read_parquet(input_path)
+        for _, row in df.iterrows():
+            yield row.to_dict()
+    else:
+        raise ValueError(f"Unsupported file format: {suffix}")
+
+
+def generate_fingerprints_streaming(
+    input_path: Path,
+    output_path: Path,
+    fp_size: int = DEFAULT_FP_SIZE,
+    batch_size: int = DEFAULT_BATCH_SIZE
+) -> Dict[str, int]:
     """
-    Generate fingerprints for a list of molecule records.
+    Generate fingerprints for a dataset using batch processing to optimize memory.
+
+    This function processes the input dataset in batches, generating fingerprints
+    for each molecule and writing the results to the output file.
 
     Args:
-        molecules: List of molecule dictionaries with 'smiles' key
-        output_path: Optional path to save results as CSV
-        bits: Number of fingerprint bits
-        radius: ECFP radius
+        input_path: Path to input dataset (CSV or Parquet)
+        output_path: Path to output dataset with fingerprints
+        fp_size: Size of the fingerprint
+        batch_size: Number of rows to process in each batch
 
     Returns:
-        List of molecule records with fingerprint data added
+        Dictionary with processing statistics
     """
-    logger.info(f"Starting fingerprint generation for {len(molecules)} molecules")
+    import pandas as pd
 
-    results = []
-    skipped_count = 0
-    error_count = 0
+    stats = {
+        'total_rows': 0,
+        'processed_rows': 0,
+        'skipped_rows': 0,
+        'failed_rows': 0,
+        'batches_processed': 0
+    }
 
-    for i, mol_data in enumerate(molecules):
-        smiles = mol_data.get('smiles', '')
-        if not smiles:
-            logger.warning(f"Skipping record {i}: missing SMILES")
-            error_count += 1
-            continue
+    ensure_directory(output_path.parent)
 
-        mol = smiles_to_mol(smiles)
-        if mol is None:
-            error_count += 1
-            continue
+    # Read all rows into a list first to avoid chunking issues with iterrows
+    # but we'll process them in batches
+    input_suffix = input_path.suffix.lower()
+    if input_suffix == '.csv':
+        df = pd.read_csv(input_path)
+    elif input_suffix == '.parquet':
+        df = pd.read_parquet(input_path)
+    else:
+        raise ValueError(f"Unsupported input format: {input_suffix}")
 
-        try:
-            result = process_molecule_for_fingerprint(mol, smiles, bits, radius)
-            if result is None:
-                skipped_count += 1
+    stats['total_rows'] = len(df)
+    logger.info(f"Starting fingerprint generation for {stats['total_rows']} rows in batches of {batch_size}")
+
+    # Prepare output lists
+    output_records = []
+    failed_smiles = []
+
+    # Process in batches
+    for i in range(0, len(df), batch_size):
+        batch_df = df.iloc[i:i+batch_size]
+        batch_results = []
+
+        for idx, row in batch_df.iterrows():
+            smiles = row.get('smiles') or row.get('SMILES')
+            if not smiles:
+                stats['skipped_rows'] += 1
                 continue
 
-            fp_indices, mw = result
+            result = process_molecule_for_fingerprint(str(smiles), fp_size=fp_size)
+            if result is None:
+                stats['skipped_rows'] += 1
+                failed_smiles.append(smiles)
+                continue
 
-            # Create result record
-            record = {
-                **mol_data,
+            smiles_out, fp, mw = result
+            batch_results.append({
+                'smiles': smiles_out,
                 'molecular_weight': mw,
-                'fingerprint_indices': fp_indices,
-                'fingerprint_length': bits
-            }
-            results.append(record)
+                'fingerprint': fp.tolist()
+            })
+            stats['processed_rows'] += 1
 
-            # Progress logging
-            if (i + 1) % 100 == 0:
-                logger.info(f"Processed {i + 1}/{len(molecules)} molecules "
-                            f"(skipped: {skipped_count}, errors: {error_count})")
+        # Append batch results
+        output_records.extend(batch_results)
+        stats['batches_processed'] += 1
 
-        except MemoryError:
-            handle_memory_error(f"Memory error at molecule {i}: {smiles[:50]}")
-            skipped_count += 1
-            continue
-        except Exception as e:
-            logger.error(f"Error processing molecule {i}: {e}")
-            error_count += 1
-            continue
+        # Log progress
+        if stats['batches_processed'] % 10 == 0:
+            logger.info(f"Processed {stats['batches_processed'] * batch_size} / {stats['total_rows']} rows")
 
-    logger.info(f"Fingerprint generation complete: "
-                f"{len(results)} successful, {skipped_count} skipped, {error_count} errors")
+    # Write output
+    if output_records:
+        # Convert fingerprints to separate columns for CSV/Parquet compatibility
+        # or store as JSON strings if the format supports it
+        output_df = pd.DataFrame(output_records)
 
-    # Save to CSV if output path provided
-    if output_path:
-        save_fingerprints_to_csv(results, output_path)
+        # Expand fingerprint array into separate columns if needed
+        # For Parquet, we can store lists directly
+        if output_suffix == '.parquet':
+            output_df.to_parquet(output_path, index=False)
+        else:
+            # For CSV, convert fingerprint list to string representation
+            output_df['fingerprint'] = output_df['fingerprint'].apply(lambda x: json.dumps(x))
+            output_df.to_csv(output_path, index=False)
 
-    return results
+        logger.info(f"Wrote {len(output_records)} records to {output_path}")
+    else:
+        logger.warning("No valid records to write")
 
-def save_fingerprints_to_csv(records: List[Dict[str, Any]], output_path: str) -> None:
+    # Log exclusion details
+    exclusion_log_path = get_path_results() / 'exclusion_log.json'
+    ensure_directory(exclusion_log_path.parent)
+    with open(exclusion_log_path, 'w') as f:
+        json.dump({
+            'stats': stats,
+            'failed_smiles_sample': failed_smiles[:100]  # Limit to first 100
+        }, f, indent=2)
+
+    logger.info(f"Fingerprint generation complete. Stats: {stats}")
+    return stats
+
+
+def generate_fingerprints_for_dataset(
+    input_path: Path,
+    output_path: Path,
+    fp_size: int = DEFAULT_FP_SIZE,
+    batch_size: int = DEFAULT_BATCH_SIZE
+) -> Dict[str, int]:
     """
-    Save fingerprint results to a CSV file.
+    Wrapper for generate_fingerprints_streaming to maintain backward compatibility.
 
     Args:
-        records: List of molecule records with fingerprint data
-        output_path: Path to output CSV file
+        input_path: Path to input dataset
+        output_path: Path to output dataset
+        fp_size: Fingerprint size
+        batch_size: Batch size for processing
+
+    Returns:
+        Processing statistics
     """
-    import csv
+    return generate_fingerprints_streaming(input_path, output_path, fp_size, batch_size)
 
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
 
-    fieldnames = [
-        'smiles', 'molecular_weight', 'fingerprint_length',
-        'fingerprint_indices', 'space_group', 'lattice_a', 'lattice_b',
-        'lattice_c', 'lattice_alpha', 'lattice_beta', 'lattice_gamma'
-    ]
+def save_fingerprints_to_csv(
+    fingerprints: List[np.ndarray],
+    smiles_list: List[str],
+    output_path: Path
+) -> None:
+    """
+    Save fingerprints and SMILES to a CSV file.
 
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
+    Args:
+        fingerprints: List of fingerprint arrays
+        smiles_list: List of SMILES strings
+        output_path: Path to output file
+    """
+    import pandas as pd
 
-        for record in records:
-            # Convert fingerprint_indices to string for CSV storage
-            row = {k: v for k, v in record.items() if k in fieldnames}
-            if 'fingerprint_indices' in row:
-                row['fingerprint_indices'] = ';'.join(map(str, row['fingerprint_indices']))
-            writer.writerow(row)
+    ensure_directory(output_path.parent)
 
-    logger.info(f"Saved {len(records)} records to {output_path}")
+    records = []
+    for smiles, fp in zip(smiles_list, fingerprints):
+        records.append({
+            'smiles': smiles,
+            'fingerprint': fp.tolist()
+        })
+
+    df = pd.DataFrame(records)
+    df['fingerprint'] = df['fingerprint'].apply(lambda x: json.dumps(x))
+    df.to_csv(output_path, index=False)
+
+    logger.info(f"Saved {len(records)} fingerprints to {output_path}")
+
 
 def main():
     """Main entry point for fingerprint generation script."""
-    logger.info("Starting fingerprint generation module")
+    import argparse
 
-    # Example usage with sample data
-    sample_molecules = [
-        {'smiles': 'CCO', 'space_group': 'P21/c'},
-        {'smiles': 'c1ccccc1', 'space_group': 'P21/c'},
-        {'smiles': 'CC(=O)Oc1ccccc1C(=O)O', 'space_group': 'P1'}
-    ]
+    parser = argparse.ArgumentParser(description='Generate ECFP4 fingerprints for molecular dataset')
+    parser.add_argument('--input', type=str, required=True, help='Input dataset path (CSV or Parquet)')
+    parser.add_argument('--output', type=str, required=True, help='Output dataset path')
+    parser.add_argument('--fp_size', type=int, default=DEFAULT_FP_SIZE, help='Fingerprint size')
+    parser.add_argument('--batch_size', type=int, default=DEFAULT_BATCH_SIZE, help='Batch size for processing')
 
-    results = generate_fingerprints_for_dataset(
-        sample_molecules,
-        output_path=str(get_path_absolute('data/processed/sample_fingerprints.csv')),
-        bits=FINGERPRINT_BITS,
-        radius=FINGERPRINT_RADIUS
+    args = parser.parse_args()
+
+    input_path = Path(args.input)
+    output_path = Path(args.output)
+
+    if not input_path.exists():
+        logger.error(f"Input file not found: {input_path}")
+        sys.exit(1)
+
+    stats = generate_fingerprints_streaming(
+        input_path,
+        output_path,
+        fp_size=args.fp_size,
+        batch_size=args.batch_size
     )
 
-    logger.info(f"Generated fingerprints for {len(results)} molecules")
+    # Print summary
+    print(json.dumps(stats, indent=2))
 
-    # Verify results
-    for record in results:
-        if 'fingerprint_indices' not in record:
-            logger.error(f"Missing fingerprint for: {record.get('smiles')}")
-        else:
-            logger.info(f"SMILES: {record['smiles'][:30]}... -> {len(record['fingerprint_indices'])} bits")
 
-    return results
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

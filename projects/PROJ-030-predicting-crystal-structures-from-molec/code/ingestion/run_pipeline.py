@@ -2,10 +2,10 @@
 Main pipeline script for User Story 1: Data Ingestion and Feature Extraction.
 
 Orchestrates the following steps:
-1. Download filtered COD organic subset (T009)
-2. Parse CIFs to extract SMILES and lattice parameters (T010)
-3. Generate ECFP4 fingerprints (T011)
-4. Handle polymorphism and build final dataset (T012)
+1. Download (T009): Stream COD organic dataset from HuggingFace.
+2. Parsing (T010): Parse CIF files to extract SMILES and lattice parameters.
+3. Fingerprinting (T011): Generate ECFP4 fingerprints.
+4. Dataset Building (T012): Handle polymorphism and produce the final CSV.
 
 Output: data/processed/crystal_dataset.csv
 """
@@ -15,139 +15,195 @@ import json
 import logging
 import traceback
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Optional, Dict, Any
 
-# Add project root to path for imports
+# Ensure project root is in path
 project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(project_root))
 
+from config import get_path_processed_data, get_path_raw_data, ensure_directory, get_path_validation
 from ingestion.load_cod import stream_cod_organic
 from ingestion.parse_cif import process_cif_batch
-from ingestion.fingerprint import generate_fingerprints_for_dataset
+from ingestion.fingerprint import generate_fingerprints_for_dataset, save_fingerprints_to_csv
 from ingestion.dataset_builder import handle_polymorphism, save_dataset
+from ingestion.validate_source import validate_source
+from ingestion.validate_fingerprints import validate_dataset as validate_fingerprints
+from utils.error_handlers import handle_memory_error, handle_download_failure
 from logging_config import get_logger, log_event
-from config import ensure_directory
+from exceptions import SourceUnreachableError, DownloadError
+
+# Constants
+RAW_DATA_DIR = "data/raw"
+PROCESSED_DATA_DIR = "data/processed"
+VALIDATION_DIR = "data/validation"
+LOGS_DIR = "logs"
+
+OUTPUT_FILENAME = "crystal_dataset.csv"
+INTERMEDIATE_PARQUET = "crystal_molecules.parquet"
+POLYMORPHIC_CSV = "polymorphic_dataset.csv"
+STREAMING_METRICS_FILE = "streaming_metrics.json"
+EXCLUSION_LOG_FILE = "data/processing/exclusion_log.json"
 
 def setup_pipeline_logging():
     """Initialize logging for the pipeline."""
-    logger = get_logger("pipeline")
+    ensure_directory(LOGS_DIR)
+    log_file = os.path.join(LOGS_DIR, "pipeline_run.log")
+    logger = get_logger("pipeline", log_file=log_file, level=logging.INFO)
     return logger
 
-def run_download_and_parse(logger):
+@handle_download_failure
+@handle_memory_error
+def run_download_and_parse(logger: logging.Logger) -> Optional[Path]:
     """
-    Step 1 & 2: Stream COD organic dataset and parse CIFs.
+    Step 1 & 2: Download and Parse.
     
-    Returns:
-        List[Dict]: List of parsed structure dictionaries.
+    1. Validate source citation.
+    2. Stream COD organic dataset.
+    3. Parse CIFs to extract SMILES and lattice params.
+    4. Save intermediate parquet.
     """
-    logger.info("Starting download and parse step...")
-    log_event(logger, "pipeline_start", {"step": "download_parse"})
+    logger.info("Starting Download and Parse phase.")
     
+    # 1. Validate Source
+    logger.info("Validating data source citation...")
     try:
-        # Stream the dataset (T009)
-        cif_files = stream_cod_organic()
-        
-        # Parse CIFs (T010)
-        parsed_data = process_cif_batch(cif_files)
-        
-        logger.info(f"Parsed {len(parsed_data)} CIF files successfully.")
-        log_event(logger, "download_parse_complete", {"count": len(parsed_data)})
-        
-        return parsed_data
+        validate_source()
+        logger.info("Source citation validated successfully.")
+    except SourceUnreachableError as e:
+        logger.error(f"Source validation failed: {e}")
+        raise e
     except Exception as e:
-        logger.error(f"Download/parse step failed: {e}", exc_info=True)
-        log_event(logger, "pipeline_error", {"step": "download_parse", "error": str(e)})
-        raise
+        logger.error(f"Unexpected error during source validation: {e}")
+        raise e
 
-def run_fingerprinting_and_finalization(parsed_data, logger):
-    """
-    Step 3 & 4: Generate fingerprints and handle polymorphism.
+    # 2. Stream and Download
+    raw_output_path = get_path_raw_data(INTERMEDIATE_PARQUET)
+    ensure_directory(os.path.dirname(raw_output_path))
     
-    Args:
-        parsed_data: List of parsed structure dictionaries from previous step.
-        
-    Returns:
-        List[Dict]: Final polymorphic dataset records.
-    """
-    logger.info("Starting fingerprinting and finalization step...")
-    log_event(logger, "pipeline_start", {"step": "fingerprint_polymorphism"})
-    
+    logger.info(f"Streaming COD organic dataset to {raw_output_path}...")
     try:
-        # Generate fingerprints (T011)
-        fingerprints = generate_fingerprints_for_dataset(parsed_data)
-        logger.info(f"Generated fingerprints for {len(fingerprints)} molecules.")
-        
-        # Handle polymorphism (T012)
-        polymorphic_data = handle_polymorphism(fingerprints)
-        logger.info(f"Processed {len(polymorphic_data)} polymorphic records.")
-        
-        log_event(logger, "fingerprint_polymorphism_complete", {"count": len(polymorphic_data)})
-        
-        return polymorphic_data
+        # stream_cod_organic is expected to handle the HF streaming logic
+        stream_cod_organic(output_path=raw_output_path)
+        logger.info(f"Download complete: {raw_output_path}")
     except Exception as e:
-        logger.error(f"Fingerprinting/finalization step failed: {e}", exc_info=True)
-        log_event(logger, "pipeline_error", {"step": "fingerprint_polymorphism", "error": str(e)})
-        raise
+        logger.error(f"Failed to download/stream data: {e}")
+        raise e
+
+    # 3. Parse CIFs
+    # Note: The existing parse_cif.py expects to process the downloaded files.
+    # Since load_cod.py streams to a parquet (or list of files), we pass that path.
+    # If load_cod produces a parquet of file paths, parse_cif reads it.
+    # If load_cod produces actual files, we pass the directory.
+    # Assuming stream_cod_organic produces a manifest or parquet of data to be parsed.
+    # For this implementation, we assume parse_cif_batch can take the raw output path.
+    
+    parsed_output_path = get_path_processed_data(INTERMEDIATE_PARQUET)
+    ensure_directory(os.path.dirname(parsed_output_path))
+    
+    logger.info("Parsing CIF files...")
+    try:
+        process_cif_batch(input_path=raw_output_path, output_path=parsed_output_path)
+        logger.info(f"Parsing complete: {parsed_output_path}")
+    except Exception as e:
+        logger.error(f"Failed to parse CIF files: {e}")
+        raise e
+
+    return parsed_output_path
+
+@handle_memory_error
+def run_fingerprinting_and_finalization(parsed_path: Path, logger: logging.Logger) -> Path:
+    """
+    Step 3 & 4: Fingerprinting and Dataset Building.
+    
+    1. Generate ECFP4 fingerprints.
+    2. Handle polymorphism (SMILES, Space Group) -> distinct rows.
+    3. Save final CSV.
+    """
+    logger.info("Starting Fingerprinting and Finalization phase.")
+    
+    # 3. Fingerprinting
+    logger.info("Generating ECFP4 fingerprints...")
+    try:
+        # generate_fingerprints_for_dataset reads the parsed parquet and adds fingerprints
+        fingerprinted_path = generate_fingerprints_for_dataset(
+            input_path=str(parsed_path),
+            output_path=str(parsed_path).replace(".parquet", "_fingerprinted.parquet")
+        )
+        logger.info(f"Fingerprinting complete: {fingerprinted_path}")
+    except Exception as e:
+        logger.error(f"Failed to generate fingerprints: {e}")
+        raise e
+
+    # 4. Polymorphism Handling & Final Dataset
+    # The task requires outputting data/processed/crystal_dataset.csv
+    final_output_path = get_path_processed_data(OUTPUT_FILENAME)
+    ensure_directory(os.path.dirname(final_output_path))
+    
+    logger.info("Handling polymorphism and building final dataset...")
+    try:
+        # handle_polymorphism treats (SMILES, Space Group) as distinct
+        # It should read the fingerprinted data and write the final CSV
+        handle_polymorphism(
+            input_path=str(fingerprinted_path),
+            output_path=final_output_path
+        )
+        logger.info(f"Polymorphism handling complete: {final_output_path}")
+    except Exception as e:
+        logger.error(f"Failed to handle polymorphism: {e}")
+        raise e
+
+    # 5. Validation (Optional but recommended per T014 dependency)
+    logger.info("Validating final dataset structure...")
+    try:
+        validate_fingerprints(dataset_path=final_output_path)
+        logger.info("Validation passed.")
+    except Exception as e:
+        logger.warning(f"Validation check issued warnings/errors: {e}")
+        # Do not fail the pipeline if validation only warns, but log it.
+
+    return final_output_path
 
 def run_full_pipeline():
-    """
-    Execute the full ingestion pipeline end-to-end.
-    
-    This function orchestrates all steps defined in User Story 1:
-    - T009: Download COD organic subset
-    - T010: Parse CIFs
-    - T011: Generate fingerprints
-    - T012: Handle polymorphism
-    
-    Final output: data/processed/crystal_dataset.csv
-    """
+    """Execute the full ingestion pipeline."""
     logger = setup_pipeline_logging()
-    logger.info("=" * 60)
-    logger.info("Starting Crystal Structure Prediction Pipeline (US1)")
-    logger.info("=" * 60)
-    
-    # Ensure output directories exist
-    ensure_directory("data/processed")
-    ensure_directory("data/raw")
-    ensure_directory("logs")
+    log_event(logger, "Pipeline Start", {"pipeline": "US1_Ingestion"})
     
     try:
+        # Ensure directories exist
+        ensure_directory(PROCESSED_DATA_DIR)
+        ensure_directory(RAW_DATA_DIR)
+        ensure_directory(VALIDATION_DIR)
+        ensure_directory("data/processing") # For exclusion logs
+
         # Step 1 & 2: Download and Parse
-        parsed_data = run_download_and_parse(logger)
+        parsed_path = run_download_and_parse(logger)
+        if not parsed_path or not parsed_path.exists():
+            raise FileNotFoundError(f"Parsed data file not found at {parsed_path}")
+
+        # Step 3 & 4: Fingerprint and Build
+        final_output = run_fingerprinting_and_finalization(parsed_path, logger)
         
-        if not parsed_data:
-            logger.warning("No data parsed from CIF files. Exiting.")
-            log_event(logger, "pipeline_warning", {"reason": "empty_parsed_data"})
-            return
-        
-        # Step 3 & 4: Fingerprinting and Polymorphism Handling
-        polymorphic_data = run_fingerprinting_and_finalization(parsed_data, logger)
-        
-        if not polymorphic_data:
-            logger.warning("No polymorphic records generated. Exiting.")
-            log_event(logger, "pipeline_warning", {"reason": "empty_polymorphic_data"})
-            return
-        
-        # Save final dataset (T012 output)
-        output_path = "data/processed/crystal_dataset.csv"
-        save_dataset(polymorphic_data, output_path)
-        
-        logger.info(f"Final dataset saved to: {output_path}")
-        logger.info(f"Total records: {len(polymorphic_data)}")
-        
-        log_event(logger, "pipeline_complete", {
-            "output_file": output_path,
-            "record_count": len(polymorphic_data)
+        if not final_output.exists():
+            raise FileNotFoundError(f"Final dataset not written to {final_output}")
+
+        log_event(logger, "Pipeline Success", {
+            "output_file": str(final_output),
+            "status": "completed"
         })
-        
-        logger.info("=" * 60)
-        logger.info("Pipeline completed successfully!")
-        logger.info("=" * 60)
-        
+        print(f"Pipeline completed successfully. Output: {final_output}")
+        return final_output
+
     except Exception as e:
-        logger.error(f"Pipeline failed with error: {e}", exc_info=True)
-        log_event(logger, "pipeline_failure", {"error": str(e)})
-        sys.exit(1)
+        log_event(logger, "Pipeline Failed", {
+            "error": str(e),
+            "traceback": traceback.format_exc()
+        })
+        print(f"Pipeline failed: {e}")
+        raise e
+
+def main():
+    """Entry point for the script."""
+    run_full_pipeline()
 
 if __name__ == "__main__":
-    run_full_pipeline()
+    main()

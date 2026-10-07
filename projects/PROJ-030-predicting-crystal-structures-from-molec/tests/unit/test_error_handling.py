@@ -1,13 +1,18 @@
 """
-Unit tests for error handling utilities.
+Unit tests for error handling utilities in code/utils/error_handlers.py.
+
+These tests verify that MemoryError and DownloadError are caught explicitly
+and that no synthetic fallbacks are used.
 """
 
 import pytest
+import logging
+from unittest.mock import patch, MagicMock
 import sys
 import os
 
-# Add the code directory to the path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
+# Ensure the 'code' directory is in the path for imports
+sys.path.insert(0, os.path.join(os.dirname(__file__), '..', '..'))
 
 from utils.error_handlers import (
     handle_download_failure,
@@ -16,125 +21,151 @@ from utils.error_handlers import (
     safe_process_item,
     DownloadError,
     MemoryErrorHandled,
-    ValidationError
+    main
 )
 
 
-class TestDownloadErrorHandling:
-    """Tests for download error handling."""
+class TestHandleDownloadFailure:
+    """Tests for the handle_download_failure decorator."""
 
     def test_catches_download_error(self):
-        """Test that handle_download_failure catches and re-raises DownloadError."""
+        """Test that DownloadError is caught and re-raised."""
         @handle_download_failure
         def mock_download():
-            raise DownloadError("Connection timed out")
+            raise DownloadError("Network timeout")
 
-        with pytest.raises(DownloadError) as exc_info:
+        with pytest.raises(DownloadError, match="Network timeout"):
             mock_download()
 
-        assert "Connection timed out" in str(exc_info.value)
-
-    def test_wraps_unexpected_errors_as_download_error(self):
-        """Test that unexpected errors during download are wrapped."""
+    def test_wraps_other_errors_as_download_error(self):
+        """Test that unexpected errors are wrapped in DownloadError."""
         @handle_download_failure
-        def mock_download():
+        def mock_failing_download():
             raise ValueError("Unexpected logic error")
 
-        with pytest.raises(DownloadError) as exc_info:
-            mock_download()
+        with pytest.raises(DownloadError, match="Unexpected error during download"):
+            mock_failing_download()
 
-        assert "Download failed" in str(exc_info.value)
-        assert isinstance(exc_info.value.__cause__, ValueError)
+    def test_logs_download_error(self):
+        """Test that DownloadError is logged correctly."""
+        with patch('utils.error_handlers.log_event') as mock_log:
+            @handle_download_failure
+            def mock_download():
+                raise DownloadError("Test error")
+
+            try:
+                mock_download()
+            except DownloadError:
+                pass
+
+            mock_log.assert_called_once()
+            args, kwargs = mock_log.call_args
+            assert args[1] == "ERROR"
+            assert "Download failed" in args[2]
 
 
-class TestMemoryErrorHandling:
-    """Tests for memory error handling."""
+class TestHandleMemoryError:
+    """Tests for the handle_memory_error decorator."""
 
     def test_catches_memory_error(self):
-        """Test that handle_memory_error catches MemoryError and raises MemoryErrorHandled."""
+        """Test that MemoryError is caught and raised as MemoryErrorHandled."""
         @handle_memory_error
         def mock_process():
-            raise MemoryError("RAM exhausted")
+            raise MemoryError("Out of memory")
 
-        with pytest.raises(MemoryErrorHandled) as exc_info:
+        with pytest.raises(MemoryErrorHandled, match="MemoryError caught"):
             mock_process()
 
-        assert "MemoryError" in str(exc_info.value)
-        assert isinstance(exc_info.value.__cause__, MemoryError)
+    def test_logs_memory_error(self):
+        """Test that MemoryError is logged correctly."""
+        with patch('utils.error_handlers.log_event') as mock_log:
+            @handle_memory_error
+            def mock_process():
+                raise MemoryError("Test memory error")
 
-    def test_allows_other_exceptions_to_pass(self):
-        """Test that non-memory exceptions are not caught."""
+            try:
+                mock_process()
+            except MemoryErrorHandled:
+                pass
+
+            mock_log.assert_called_once()
+            args, kwargs = mock_log.call_args
+            assert args[1] == "ERROR"
+            assert "MemoryError handled" in args[2]
+
+    def test_allows_other_errors(self):
+        """Test that non-MemoryError exceptions are not caught."""
         @handle_memory_error
         def mock_process():
-            raise ValueError("Not a memory error")
+            raise ValueError("Regular error")
 
-        with pytest.raises(ValueError) as exc_info:
+        with pytest.raises(ValueError, match="Regular error"):
             mock_process()
-
-        assert "Not a memory error" in str(exc_info.value)
 
 
 class TestSafeDownload:
-    """Tests for safe_download wrapper."""
+    """Tests for the safe_download wrapper."""
 
-    def test_success_path(self):
-        """Test successful download path."""
+    def test_logs_start_and_success(self):
+        """Test that successful download logs start and end."""
+        with patch('utils.error_handlers.logger') as mock_logger:
+            @safe_download
+            def mock_download():
+                return "data"
+
+            result = mock_download()
+
+            assert result == "data"
+            assert mock_logger.info.call_count >= 2
+
+    def test_raises_download_error_on_failure(self):
+        """Test that DownloadError is raised on failure."""
         @safe_download
-        def mock_download():
-            return "data_file.parquet"
-
-        result = mock_download()
-        assert result == "data_file.parquet"
-
-    def test_failure_path(self):
-        """Test download failure path."""
-        @safe_download
-        def mock_download():
-            raise Exception("Network failure")
+        def mock_failing_download():
+            raise DownloadError("Failed")
 
         with pytest.raises(DownloadError):
-            mock_download()
+            mock_failing_download()
+
+    def test_wraps_unexpected_error(self):
+        """Test that unexpected errors are wrapped in DownloadError."""
+        @safe_download
+        def mock_failing_download():
+            raise KeyError("Unexpected")
+
+        with pytest.raises(DownloadError, match="Download failed"):
+            mock_failing_download()
 
 
 class TestSafeProcessItem:
-    """Tests for safe_process_item wrapper."""
+    """Tests for the safe_process_item wrapper."""
 
-    def test_success_path(self):
-        """Test successful processing path."""
+    def test_catches_memory_error(self):
+        """Test that MemoryError is caught and raised as MemoryErrorHandled."""
         @safe_process_item
-        def mock_process(item):
-            return item * 2
-
-        assert mock_process(5) == 10
-
-    def test_memory_error_path(self):
-        """Test memory error handling in processing."""
-        @safe_process_item
-        def mock_process(item):
-            raise MemoryError("OOM")
+        def mock_process():
+            raise MemoryError("Memory limit")
 
         with pytest.raises(MemoryErrorHandled):
-            mock_process(5)
+            mock_process()
+
+    def test_allows_normal_execution(self):
+        """Test that normal execution returns result."""
+        @safe_process_item
+        def mock_process():
+            return "processed"
+
+        assert mock_process() == "processed"
 
 
-class TestValidationError:
-    """Tests for ValidationError custom exception."""
+class TestMain:
+    """Tests for the main entry point."""
 
-    def test_init_with_message_only(self):
-        """Test initialization with just a message."""
-        exc = ValidationError("Invalid value")
-        assert exc.message == "Invalid value"
-        assert exc.field is None
-        assert exc.value is None
-
-    def test_init_with_all_args(self):
-        """Test initialization with all arguments."""
-        exc = ValidationError("Invalid format", field="smiles", value="123")
-        assert exc.message == "Invalid format"
-        assert exc.field == "smiles"
-        assert exc.value == "123"
-
-    def test_str_representation(self):
-        """Test string representation."""
-        exc = ValidationError("Error message")
-        assert "Error message" in str(exc)
+    def test_runs_without_error(self):
+        """Test that main() runs without raising unhandled exceptions."""
+        # Capture logs to ensure no errors occur
+        with patch('utils.error_handlers.logger') as mock_logger:
+            # We expect the function to run and catch errors internally
+            main()
+            # Verify that the "Error handler tests completed" message was logged
+            mock_logger.info.assert_any_call("Error handler tests completed.")

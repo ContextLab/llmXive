@@ -43,9 +43,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-030-predicting-crystal-structures-from-molec/`)
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt`
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools in `code/.pre-commit-config.yaml`
+- [ ] T001-recovery Re-establish the `projects/PROJ-030-predicting-crystal-structures-from-molec/` root directory structure if missing. **Constraint**: This task must create the full directory tree explicitly to ensure T001 and subsequent tasks have a valid working directory. **Output**: `data/.initialized` file and exit code 0.
+- [ ] T001 [P] Create project structure per implementation plan (`projects/PROJ-030-predicting-crystal-structures-from-molec/`). **Output**: `logs/init.log` listing created directories. **Dependency**: T001-recovery.
+- [X] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt`
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools in `code/.pre-commit-config.yaml`
 
 ---
 
@@ -55,14 +56,14 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup configuration management in `code/config.py` (paths, seeds, hyperparameters)
-- [ ] T005 [P] Implement logging infrastructure with structured JSON output to `logs/`
-- [ ] T006 Create base data models (`MoleculeRecord`, `ModelMetrics`, `FeatureImportance`) in `code/ingestion/models.py`
-- [ ] T007 [P] Implement `code/utils/error_handlers.py` to catch `MemoryError` and `DownloadError` explicitly (no synthetic fallbacks) and add unit test `tests/unit/test_error_handling.py::test_catches_memory_error`
-- [ ] T008 [P] Create `code/.env.example` and implement `code/validate_env.py` to verify `HF_TOKEN` and cache paths are set before execution
-- [ ] T008b [P] Implement Reference-Validator integration in `code/ingestion/validate_source.py` to verify the HuggingFace dataset citation against the primary source before processing (Constitution Principle II compliance)
-- [ ] T001b [P] Implement directory creation script `code/utils/init_dirs.py` to create all required data directories (`data/processed`, `data/results`, `data/validation`, `data/models`, `logs`) and write a confirmation log to `data/.initialized`. **Dependency**: Must run before any task that writes to these directories (e.g., T036, T009). **Constraint**: Explicitly creates the full directory tree for a CPU-only environment; no CUDA-specific cache directories are created.
-- [ ] T036 [P] [Dep: T001b] Implement `code/validate_env.py` to verify the environment is CPU-only per Plan constraints; write `training_device="cpu"` to `data/results/runtime_config.json`. **Constraint**: This task strictly enforces CPU-only execution as per Plan constraints; it does NOT enable GPU offloading or detect GPU drivers.
+- [X] T004 Setup configuration management in `code/config.py` (paths, seeds, hyperparameters)
+- [ ] T005 [P] Implement logging infrastructure with structured JSON output to `logs/`. **Output**: `code/utils/logger.py` and `logs/initialization.log`. **Dependency**: T001.
+- [X] T006 Create base data models (`MoleculeRecord`, `ModelMetrics`, `FeatureImportance`) in `code/ingestion/models.py`
+- [X] T007 [P] Implement `code/utils/error_handlers.py` to catch `MemoryError` and `DownloadError` explicitly (no synthetic fallbacks) and add unit test `tests/unit/test_error_handling.py::test_catches_memory_error`
+- [ ] T008 [P] [Dep: T008b] Implement `code/validate_env.py` to verify `HF_TOKEN`, cache paths, and enforce CPU-only execution (`training_device="cpu"`). **Output**: `data/results/runtime_config.json` with `training_device="cpu"`. **Constraint**: This task strictly enforces CPU-only execution as per Plan constraints; it does NOT enable GPU offloading or detect GPU drivers. **Dependency**: T008b (Reference-Validator integration) must complete first to ensure source validation before environment setup.
+- [X] T008b [P] Implement Reference-Validator integration in `code/ingestion/validate_source.py` to verify the HuggingFace dataset citation against the primary source before processing (Constitution Principle II compliance). **Output**: `data/validation/source_validation.json`.
+- [ ] T005a [P] [Dep: T004] Implement seed verification script `code/utils/verify_seeds.py` that re-runs a small subset twice and confirms identical hashes. **Output**: `data/validation/seed_verification.json`.
+- [ ] T001b [P] Implement directory creation script `code/utils/init_dirs.py` to create all required data directories (`data/processed`, `data/results`, `data/validation`, `data/models`, `logs`) and write a confirmation log to `data/.initialized`. **Dependency**: Must run after T001-recovery and before any task that writes to these directories (e.g., T036, T009). **Constraint**: Explicitly creates the full directory tree for a CPU-only environment; no CUDA-specific cache directories are created.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,12 +77,12 @@
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] [Dep: T008b] Implement `code/ingestion/load_cod.py` to **stream** the `crystallography-open-database/organic` dataset from HuggingFace (`streaming=True`), enforcing the <500MB organic filter and raising an error if the source is unreachable (no synthetic fallback). **Hard Gate**: The script must abort if Tb (Reference-Validator) has not successfully validated the source. The script must process data in chunks to stay within 7GB RAM limits.
-- [ ] T010 [US1] [Dep: T009] Implement `code/ingestion/parse_cif.py` to parse downloaded CIF files using `pycifrw` and `openbabel`, extracting canonical SMILES and lattice parameters, while skipping malformed files with detailed logging
-- [ ] T011 [US1] [Dep: T010] Implement `code/ingestion/fingerprint.py` to generate ECFP4 fingerprints using `rdkit`, using chunked streaming to handle memory limits; if a molecule is too large to process, log the exclusion count to `data/processing/exclusion_log.json` rather than silently dropping data (Constitution Principle III)
-- [ ] T012 [US1] [Dep: T011] Implement polymorphism handling logic in `code/ingestion/dataset_builder.py` to treat each unique (SMILES, Space Group) pair as a distinct row, producing the intermediate artifact `data/processed/polymorphic_dataset.csv`
-- [ ] T013 [US1] [Dep: T012] Create the main pipeline script `code/ingestion/run_pipeline.py` that orchestrates download (T009), parsing (T010), fingerprinting (T011), and dataset building (T012), outputting `data/processed/crystal_dataset.csv`
-- [ ] T014 [US1] [Dep: T013] Add validation step to verify that `data/processed/crystal_dataset.csv` has no nulls in key columns and that fingerprint bit counts are of a fixed, high-dimensional magnitude, outputting `data/validation/fingerprint_check.json` with pass/fail status
+- [X] T009 [US1] [Dep: T008b] Implement `code/ingestion/load_cod.py` to **stream** the `crystallography-open-database/organic` dataset from HuggingFace (`streaming=True`), enforcing the <500MB organic filter and raising an error if the source is unreachable (no synthetic fallback). **Hard Gate**: The script must abort if T008b has not successfully validated the source. The script must process data in chunks to stay within 7GB RAM limits.
+- [X] T010 [US1] [Dep: T009] Implement `code/ingestion/parse_cif.py` to parse downloaded CIF files using `pycifrw` and `openbabel`, extracting canonical SMILES and lattice parameters, while skipping malformed files with detailed logging
+- [X] T011 [US1] [Dep: T010] Implement `code/ingestion/fingerprint.py` to generate ECFP4 fingerprints using `rdkit`, using chunked streaming to handle memory limits; if a molecule is too large to process, log the exclusion count to `data/processing/exclusion_log.json` rather than silently dropping data (Constitution Principle III)
+- [ ] T012 [US1] [Dep: T011] Implement polymorphism handling logic in `code/ingestion/dataset_builder.py` to treat each unique (SMILES, Space Group) pair as a distinct row. **Output**: `code/ingestion/dataset_builder.py`. **Constraint**: This task creates the script; it does not run it.
+- [ ] T013 [US1] [Dep: T012] Create the main pipeline script `code/ingestion/run_pipeline.py` that orchestrates download (T009), parsing (T010), fingerprinting (T011), and dataset building (T012), outputting `data/processed/crystal_dataset.csv`. **Constraint**: This task does NOT perform grouping logic; it outputs the raw polymorphic dataset. **Output**: `code/ingestion/run_pipeline.py` and `data/processed/crystal_dataset.csv`.
+- [ ] T014 [US1] [Dep: T013] Implement `code/ingestion/validate_dataset.py` to verify that `data/processed/crystal_dataset.csv` has no nulls in key columns, fingerprint bit counts are of a fixed, high-dimensional magnitude, and the schema matches US1 requirements. **Output**: `data/validation/fingerprint_check.json` with pass/fail status.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -95,21 +96,23 @@
 
 ### Implementation for User Story 2
 
-- [ ] T006b-exec [US2] [Dep: T013] Implement `code/analysis/power.py` to calculate target sample size (Cohen's w=0.15) using the actual dataset size from T013, write the result to `data/results/power_analysis.json`, and DO NOT modify static `code/config.py`. The power metrics are loaded dynamically at runtime. **Constraint**: This task must generate the `power_analysis.json` artifact as a distinct, verifiable step before T017a-exec.
-- [ ] T015a-exec [US2] [Dep: T013] Implement `code/modeling/group_rare.py` to read `data/processed/crystal_dataset.csv`, group rare space groups (<20 samples) into an 'Other' category, and write the result to `data/processed/grouped_dataset.csv`. **Validation**: If input is missing or invalid, raise a clear error. **Retry Logic**: Internal to script (re-fetch if missing), not a separate task.
-- [ ] T015b-exec [US2] [Dep: T015a-exec] Implement `code/modeling/split.py` to perform a scaffold-based split using the Bemis-Murcko algorithm on `data/processed/grouped_dataset.csv`, outputting `data/processed/split_indices.json`
-- [ ] T015c-exec [US2] [Dep: T015b-exec] Implement `code/modeling/validate_split.py` to verify zero scaffold overlap between train/test sets, generate `data/validation/scaffold_overlap_report.json`, and **exit with code 1** if overlap > 0 (Hard Gate for SC-002).
+- [ ] T015a-exec [US2] [Dep: T013] Implement `code/modeling/group_rare.py` to read `data/processed/crystal_dataset.csv`, group rare space groups (<20 samples) into an 'Other' category, and write the result to `data/processed/grouped_dataset.csv`. **Validation**: If input is missing or invalid, raise a clear error. **Retry Logic**: Internal to script (re-fetch if missing), not a separate task. **Constraint**: If no rare groups are found, log a warning and pass the dataset through.
+- [ ] T015a-ec [US2] [Dep: T015a-exec] Implement validation to ensure the 'Other' class exists in the test split after grouping. **Output**: `data/validation/other_class_check.json`. **Constraint**: If the 'Other' class is empty in the test split, exit with code 1 or flag as a warning before training.
+- [ ] T006a-exec [US2] [Dep: T015a-exec] Implement `code/analysis/power.py` to calculate target sample size (Cohen's w=0.15) using the actual dataset size from T015a-exec, write the result to `data/results/power_analysis.json` (justification logic), and DO NOT modify static `code/config.py`. **Constraint**: This task must generate the `power_analysis.json` artifact as a distinct, verifiable step before T006b-exec. **Hard Gate**: If sample size is insufficient, exit with code 1 to stop T016-exec.
+- [ ] T006b-exec [US2] [Dep: T006a-exec] Implement `code/analysis/define_lift.py` to read `data/results/power_analysis.json` and verify if the dataset size is sufficient. **Constraint**: If sample size is insufficient, exit with code 1 to stop T016-exec.
+- [ ] T015b-exec [US2] [Dep: T015a-ec] Implement `code/modeling/split.py` to perform a scaffold-based split using the Bemis-Murcko algorithm on `data/processed/grouped_dataset.csv`, outputting `data/processed/split_indices.json`
+- [ ] T015c-exec [US2] [Dep: T015b-exec] Implement `code/modeling/validate_split.py` to verify zero scaffold overlap between train/test sets, generate `data/validation/scaffold_overlap_report.json`, and **exit with code 1** if overlap > 0 (Hard Gate for SC-002). **Output**: `data/validation/scaffold_overlap_report.json`.
 - [ ] T016-exec [US2] [Dep: T015c-exec] Implement `code/modeling/train.py` to train Random RF, GB, and Ridge models. **Integrated Logic**:
  - Read `data/results/runtime_config.json` for `training_device` (CPU only).
- - Implement **hard timeout enforcement** (6-hour limit) with a `signal` handler or `timeout` decorator. If timeout exceeded, log to `data/results/timeout_action.log` and exit with code 1.
+ - Implement **hard timeout enforcement** (6-hour limit) using `signal.signal(signal.SIGALRM, timeout_handler)`. If timeout exceeded, log to `data/results/timeout_action.log` and exit with code 1.
  - Train models using `data/processed/split_indices.json`.
  - Output `data/models/rf_model.pkl`, `data/models/gb_model.pkl`, `data/models/ridge_model.pkl`.
 - [ ] T017-exec [US2] [Dep: T016-exec] Implement `code/modeling/baseline_mw.py` to calculate Molecular Weight baseline regression for the 'Lattice Parameters' target and output `data/results/mw_baseline_metrics.json` as a standalone deliverable.
 - [ ] T017b-exec [US2] [Dep: T016-exec] Implement majority-class baseline calculation in `code/modeling/baseline_majority.py` specifically for the 'Space Group' (classification) target, outputting `data/results/majority_class_baseline_metrics.json`.
-- [ ] T017a-exec [US2] [Dep: T006b-exec] Implement `code/analysis/define_lift.py` to read `data/results/power_analysis.json` (wait for file existence and non-empty size) and calculate a **conservative lift threshold** (e.g., a small effect size over baseline based on Cohen's w) if empirical lift is unknown. Write this numeric threshold to `data/results/power_analysis_threshold.json`. **Constraint**: If empirical power analysis is inconclusive, use a conservative heuristic ([deferred] lift) and explicitly document this as a conservative estimate in the output JSON. **Do NOT output 'DEFERRED'**.
-- [ ] T017c-exec [US2] [Dep: T017-exec, T017b-exec, T017a-exec, T019-exec] Implement `code/modeling/verify_success.py` to read `data/results/majority_class_baseline_metrics.json`, `data/results/model_metrics_partial.json` (to be used by T019), and `data/results/power_analysis_threshold.json`. Calculate `Accuracy > Majority Baseline + [threshold]`. **Fail explicitly** if lift is not met. Output `data/validation/success_criterion_check.json`.
-- [ ] T019-exec [US2] [Dep: T016-exec] Calculate classification metrics (Accuracy, Macro-F1) and regression metrics (R-squared, MAE) in `code/modeling/evaluate.py`, comparing against baselines. Output `data/results/model_metrics_partial.json` (to be used by T017c).
+- [ ] T017a-exec [US2] [Dep: T006b-exec] Implement `code/analysis/define_lift.py` to read `data/results/power_analysis.json` and output a **'DEFERRED'** status for the lift threshold, noting that the spec requires an empirical value. **Constraint**: This task MUST NOT calculate a heuristic threshold. It must output a JSON with `status: "DEFERRED"` and a note explaining the requirement for an empirical value. **Hard Gate**: If it cannot determine a status (e.g., missing input), exit with code 1.
+- [ ] T019-exec [US2] [Dep: T016-exec] Calculate classification metrics (Accuracy, Macro-F1) and regression metrics (R-squared, MAE) in `code/modeling/evaluate.py`, comparing against baselines. Output `data/results/model_metrics_partial.json`. **Constraint**: Include standard error calculations for all metrics.
 - [ ] T019d-exec [US2] [Dep: T016-exec] Implement `code/modeling/polymorphism_metrics.py` to calculate Top-K Accuracy (K=5) and Prediction Entropy using `data/processed/split_indices.json` and trained models. **Integrated Logic**: Use predicted probability distribution to handle polymorphism. Output `data/results/polymorphism_metrics.json`. **Constraint**: This task must generate the `polymorphism_metrics.json` artifact as a distinct, high-priority output.
+- [ ] T017c-exec [US2] [Dep: T019-exec, T017-exec, T017b-exec, T017a-exec] Implement `code/modeling/verify_success.py` to read `data/results/majority_class_baseline_metrics.json`, `data/results/model_metrics_partial.json`, and `data/results/power_analysis_threshold.json` (or deferred note). Calculate `Accuracy > Majority Baseline + [threshold]`. **Fail explicitly** if lift is not met (or if threshold is deferred and not met by a placeholder). Output `data/validation/success_criterion_check.json`.
 - [ ] T019c-exec [US2] [Dep: T019-exec, T019d-exec, T017c-exec] Implement `code/modeling/final_metrics.py` to generate the final metrics file `data/results/model_metrics.json` containing all performance metrics, baseline comparisons, and success criterion verifications.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -126,9 +129,9 @@
 
 - [ ] T022-exec [US3] [Dep: T016-exec, T015c-exec] Compute and save permutation importance for the trained Random RF model (`data/models/rf_model.pkl`) in `code/analysis/interpret.py`, outputting `data/results/permutation_importance.json`.
 - [ ] T023-exec [US3] [Dep: T016-exec] Compute and save SHAP values for the Random RF model (Space Group) and Ridge Regression model (Lattice Parameters) in `code/analysis/interpret.py` to identify top bits for both targets, outputting `data/results/shap_analysis.json`.
-- [ ] T024-exec [US3] [Dep: T023-exec] Implement substructure mapping logic in `code/analysis/interpret.py` to identify representative chemical substructures for top bits. **Integrated Logic**: Explicitly use **RDKit's `GetMorganFingerprint`** and `rdkit.Chem.rdMolDescriptors` to map bits to subgraphs. Flag bits with multiple mappings (collisions) and report the *most frequent* substructure while listing alternatives.
+- [ ] T024-exec [US3] [Dep: T023-exec, T022-exec] Implement substructure mapping logic in `code/analysis/interpret.py` to identify representative chemical substructures for top bits. **Integrated Logic**: Explicitly use **RDKit's `GetMorganFingerprint`** and `rdkit.Chem.rdMolDescriptors` to map bits to subgraphs. Flag bits with multiple mappings (collisions). **Fallback Logic**: If the top N bits do not yield 20 valid mappings, iterate deeper into the bit list until at least 20 valid mappings are found or the list is exhausted. Report the *most frequent* substructure while listing alternatives.
 - [ ] T025-exec [US3] [Dep: T024-exec] Implement `code/analysis/report_generator.py` to generate the final interpretability report in `data/results/feature_importance_report.md` listing the top bits, their scores, substructures, and collision warnings, explicitly enforcing sorting by importance and ensuring >= 20 annotated bits (SC-003).
-- [ ] T026-exec [US3] [Dep: T025-exec] Implement `code/analysis/validate_report.py` to ensure the report contains at least 20 annotated bits sorted by importance, outputting `data/validation/report_check.json`
+- [ ] T026-exec [US3] [Dep: T025-exec] Implement `code/analysis/validate_report.py` to ensure the report contains at least 20 annotated bits sorted by importance. **Constraint**: If validation fails (<20 bits), exit with code 1 to prevent project advancement. **Output**: `data/validation/report_check.json`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -138,16 +141,29 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T027a [P] Update `README.md` with pipeline usage instructions and project overview
-- [ ] T027b [P] Add comprehensive docstrings to all `code/ingestion/*.py` and `code/modeling/*.py` files
-- [ ] T028a [P] Run `ruff --fix` on the entire codebase and commit changes
-- [ ] T028b [P] Refactor `code/ingestion/fingerprint.py` to use streaming generator for memory efficiency
-- [ ] T029a [P] Optimize fingerprint generation to reduce memory usage via batch processing (specify batch size in config)
-- [ ] T029b [P] Profile and optimize data loading pipeline for streaming efficiency
-- [ ] T030 [P] [Dep: T016-exec] Execute the full end-to-end pipeline (ingestion + training + analysis) on the target GitHub Actions runner and log the total duration to `data/results/pipeline_timing.log` to verify SC-004 (6-hour limit).
+- [ ] T027a [P] Update `README.md` with pipeline usage instructions and project overview. **Constraint**: Add a specific "Usage" section containing commands X, Y, Z.
+- [ ] T027b [P] Add comprehensive docstrings to all `code/ingestion/*.py` and `code/modeling/*.py` files. **Constraint**: Add Google-style docstrings to all functions.
+- [ ] T028a [P] Run `ruff --fix` on the entire codebase and commit changes. **Constraint**: Apply ruff fixes to code/ and commit changes.
+- [X] T028b [P] Refactor `code/ingestion/fingerprint.py` to use streaming generator for memory efficiency
+- [ ] T029a [P] Optimize fingerprint generation to reduce memory usage via batch processing. **Output**: `code/ingestion/fingerprint_optimized.py`. **Constraint**: Specify batch size in config.
+- [ ] T029b [P] Profile and optimize data loading pipeline for streaming efficiency. **Output**: `data/results/profiling_report.json` and `code/ingestion/streaming_optimized.py`.
+- [ ] T035 [P] [Dep: T013] Implement resource profiling script `code/utils/profile_resources.py` to stream a sample and estimate total dataset size. **Output**: `data/results/resource_profile.json`. **Constraint**: Must run before T030 to verify 7GB RAM limit.
+- [ ] T030 [US1, US2, US3] [Dep: T016-exec, T019c-exec, T026-exec, T035] Execute the full end-to-end pipeline (ingestion + training + analysis) on the target GitHub Actions runner and log the total duration to `data/results/pipeline_timing.log` to verify SC-004 (6-hour limit). **Constraint**: This task is NOT parallel-safe; it must run after all US1, US2, and US3 tasks are complete.
 - [ ] T030a [Dep: T030] Implement explicit build failure mechanism: if T030 detects a timeout, mark the project as 'failed' and exit with code 1 to enforce SC-004 as a hard pass/fail gate.
-- [ ] T031 Final review of `state/projects/PROJ-030-predicting-crystal-structures-from-molec.yaml` for artifact hashes
+- [ ] T031 Final review of `state/projects/PROJ-030-predicting-crystal-structures-from-molec.yaml` for artifact hashes. **Constraint**: Update the state file with hashes and `updated_at` timestamp.
 - [ ] T006c [P] [Dep: T006b-exec] Invoke the Advancement-Evaluator Agent to update `state/projects/PROJ-030-predicting-crystal-structures-from-molec.yaml` with the content hash of the power analysis output and update `updated_at` timestamp (Constitution Principle V compliance)
+
+---
+
+## Phase O: Revision & Analysis Resolution (Post-Analysis)
+
+**Purpose**: Address specific findings from the `/speckit.analyze` review cycle to ensure scientific validity and execution compliance.
+
+**Goal**: Resolve flagged issues regarding data sampling, GPU offloading logic, and metric calculation precision.
+
+- [ ] T038 [P] [US1] [Dep: T009] Add explicit chunk-size logging to `code/ingestion/load_cod.py` to record the exact number of rows processed per stream chunk in `data/processing/streaming_metrics.json` for reproducibility. **Output**: `data/processing/streaming_metrics.json`.
+- [ ] T039 [P] [US2] [Dep: T019-exec] Refactor `code/modeling/evaluate.py` to explicitly calculate and report the **standard error** for all metrics (Accuracy, F1, R²) alongside the point estimates to satisfy statistical rigor requirements. **Output**: `code/modeling/evaluate.py` updated with standard error calculation.
+- [ ] T040 [P] [US3] [Dep: T024-exec] Implement `code/analysis/collision_resolver.py` to apply a deterministic tie-breaking rule (e.g., alphabetical substructure name) when multiple substructures map to the same fingerprint bit, ensuring the final report is strictly sorted and reproducible. **Output**: `data/results/collision_resolution_log.json`.
 
 ---
 
@@ -238,20 +254,20 @@ With multiple developers:
 - **Critical Constraint**: Data exclusion (if any) must be formally logged in a derivation file (Constitution Principle III).
 - **Critical Constraint**: State file updates MUST be performed by the Advancement-Evaluator Agent (Constitution Principle V).
 - **Critical Constraint**: NO static `code/config.py` modification at runtime. All dynamic values go to `data/results/*.json`.
-- **Critical Constraint**: T017a-exec MUST calculate a numeric threshold (no 'DEFERRED') to unblock T017c-exec.
-- **Critical Constraint**: T036 MUST default to 'cpu' if GPU detection fails to prevent runtime crashes. (Note: Task updated to strictly enforce CPU-only per Plan).
-- **Critical Constraint**: T015a-exec MUST regenerate T013 output if T015a fails to break circular dependencies. (Note: Removed circular dependency; retry logic internal to script).
+- **Critical Constraint**: T017a-exec MUST output 'DEFERRED' for lift threshold, not a heuristic.
+- **Critical Constraint**: T008 MUST default to 'cpu' if GPU detection fails to prevent runtime crashes. (Note: Task updated to strictly enforce CPU-only per Plan).
+- **Critical Constraint**: T015a-exec must regenerate T013 output if T015a fails to break circular dependencies. (Note: Removed circular dependency; retry logic internal to script).
 - **Critical Constraint**: All tasks marked `[X]` in previous versions have been reset to `[ ]` (pending) to resolve contradictions with missing artifacts.
 - **Critical Constraint**: T037 and T041 (GPU offload) have been removed to preserve Plan constraints (CPU-only).
-
----
-
-## Phase O: Revision & Analysis Resolution (Post-Analysis)
-
-**Purpose**: Address specific findings from the `/speckit.analyze` review cycle to ensure scientific validity and execution compliance.
-
-**Goal**: Resolve flagged issues regarding data sampling, GPU offloading logic, and metric calculation precision.
-
-- [ ] T038 [P] [US1] Add explicit chunk-size logging to `code/ingestion/load_cod.py` to record the exact number of rows processed per stream chunk in `data/processing/streaming_metrics.json` for reproducibility.
-- [ ] T039 [P] [US2] Refactor `code/modeling/evaluate.py` to explicitly calculate and report the **standard error** for all metrics (Accuracy, F1, R²) alongside the point estimates to satisfy statistical rigor requirements.
-- [ ] T040 [P] [US3] Implement `code/analysis/collision_resolver.py` to apply a deterministic tie-breaking rule (e.g., alphabetical substructure name) when multiple substructures map to the same fingerprint bit, ensuring the final report is strictly sorted and reproducible.
+- **Critical Constraint**: Streaming logic in T009 and T038 must explicitly log row counts to verify data volume without OOM.
+- **Critical Constraint**: Metric calculation in T039 must use `scipy.stats` or equivalent for standard error to ensure statistical rigor.
+- **Critical Constraint**: Collision resolution in T040 must be deterministic to ensure reproducible reports across runs.
+- **Critical Constraint**: T001-recovery must be executed if the project root is missing to prevent directory errors.
+- **Critical Constraint**: T015a-exec must precede T006a-exec to ensure statistical validity.
+- **Critical Constraint**: T019-exec must precede T017c-exec to ensure metrics availability.
+- **Critical Constraint**: T030 is a sequential task, not parallel.
+- **Critical Constraint**: T008 depends on T008b to ensure source validation before environment setup.
+- **Critical Constraint**: T035 must run before T030 to verify resource constraints.
+- **Critical Constraint**: T014 validates US1 output before US2 processing.
+- **Critical Constraint**: T006a-exec validates sample size before T016-exec proceeds.
+- **Critical Constraint**: T017a-exec outputs 'DEFERRED' status, not a heuristic.
