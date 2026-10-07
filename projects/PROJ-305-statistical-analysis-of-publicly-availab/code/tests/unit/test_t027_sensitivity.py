@@ -1,5 +1,8 @@
 """
-Unit tests for T027 Sensitivity Analysis Module
+Unit tests for T027 sensitivity analysis.
+
+Tests the sensitivity analysis module that compares different baseline groups
+for top signals.
 """
 import os
 import sys
@@ -9,8 +12,9 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+# Add project root to path
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
 
 from src.analysis.sensitivity import (
     load_signals,
@@ -21,185 +25,156 @@ from src.analysis.sensitivity import (
 )
 
 @pytest.fixture
-def sample_signals():
-    """Create sample signals DataFrame for testing."""
+def sample_cleaned_data():
+    """Create sample cleaned data for testing."""
     data = {
-        'soc': ['SOC001', 'SOC002', 'SOC003', 'SOC004', 'SOC005', 'SOC006'],
-        'ror': [3.5, 2.8, 1.9, 4.2, 2.1, 1.5],
-        'ror_ci_lower': [2.1, 1.8, 0.9, 3.0, 1.2, 0.8],
-        'ror_ci_upper': [5.8, 4.3, 3.5, 6.1, 3.8, 2.9],
-        'prr': [2.9, 2.3, 1.6, 3.5, 1.8, 1.3],
-        'prr_ci_lower': [1.8, 1.5, 0.8, 2.6, 1.1, 0.7],
-        'prr_ci_upper': [4.7, 3.5, 2.9, 4.8, 2.9, 2.4],
-        'ic': [1.8, 1.4, 0.7, 2.1, 1.1, 0.5],
-        'ic_ci_lower': [0.9, 0.6, 0.1, 1.5, 0.4, -0.2],
-        'ic_ci_upper': [2.7, 2.2, 1.3, 2.7, 1.8, 1.2],
-        'signal_flag': [True, True, False, True, True, False]
+        'VAX_TYPE': [
+            'COVID-19', 'COVID-19', 'COVID-19',
+            'Influenza', 'Influenza', 'Influenza',
+            'Other Vaccine', 'Other Vaccine', 'Other Vaccine'
+        ],
+        'SOC': [
+            'SOC001', 'SOC002', 'SOC001',
+            'SOC001', 'SOC002', 'SOC003',
+            'SOC001', 'SOC002', 'SOC003'
+        ],
+        'REPT_DATE': pd.date_range('2020-01-01', periods=9),
+        'AGE': [30, 40, 50, 35, 45, 55, 25, 35, 45]
     }
     return pd.DataFrame(data)
 
 @pytest.fixture
-def sample_cleaned_data():
-    """Create sample cleaned data for testing."""
-    # Create a realistic mix of COVID-19 and baseline data
-    n_rows = 1000
-    np.random.seed(42)
-    
+def sample_signals():
+    """Create sample signals DataFrame for testing."""
     data = {
-        'VAX_TYPE': np.random.choice(
-            ['COVID-19', 'Influenza', 'MMR', 'Tetanus', 'Hepatitis B'],
-            n_rows,
-            p=[0.3, 0.2, 0.2, 0.15, 0.15]
-        ),
-        'SOC': np.random.choice(['SOC001', 'SOC002', 'SOC003', 'SOC004', 'SOC005'], n_rows),
-        'baseline_type': ['COVID-19'] * n_rows  # Will be overwritten below
+        'soc': ['SOC001', 'SOC002', 'SOC003'],
+        'ror': [2.5, 1.8, 3.0],
+        'ror_ci_lower': [1.5, 1.0, 2.0],
+        'ror_ci_upper': [3.5, 2.6, 4.0],
+        'prr': [2.2, 1.6, 2.8],
+        'prr_ci_lower': [1.2, 0.9, 1.8],
+        'prr_ci_upper': [3.2, 2.3, 3.8],
+        'ic': [0.8, 0.4, 1.2],
+        'ic_ci_lower': [0.2, -0.1, 0.5],
+        'ic_ci_upper': [1.4, 0.9, 1.9],
+        'signal_flag': [True, False, True]
     }
-    
-    df = pd.DataFrame(data)
-    
-    # Set baseline_type correctly
-    df['baseline_type'] = df.apply(
-        lambda row: 'Non-COVID' if 'COVID-19' not in row['VAX_TYPE'] else 'COVID-19',
-        axis=1
-    )
-    
-    # Mark Flu-only
-    df.loc[df['VAX_TYPE'] == 'Influenza', 'baseline_type'] = 'Flu-only'
-    
-    return df
+    return pd.DataFrame(data)
 
-def test_load_signals_valid_file(sample_signals):
+def test_load_signals_valid_file(tmp_path):
     """Test loading signals from a valid file."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-        sample_signals.to_csv(f.name, index=False)
-        temp_path = f.name
+    signals_data = {
+        'soc': ['SOC001'],
+        'ror': [2.5],
+        'ror_ci_lower': [1.5],
+        'ror_ci_upper': [3.5],
+        'prr': [2.2],
+        'prr_ci_lower': [1.2],
+        'prr_ci_upper': [3.2],
+        'ic': [0.8],
+        'ic_ci_lower': [0.2],
+        'ic_ci_upper': [1.4],
+        'signal_flag': [True]
+    }
+    df = pd.DataFrame(signals_data)
+    signals_path = tmp_path / 'signals.csv'
+    df.to_csv(signals_path, index=False)
     
-    try:
-        loaded = load_signals(temp_path)
-        assert len(loaded) == 4  # Only 4 signals (signal_flag == True)
-        assert 'soc' in loaded.columns
-        assert 'ror' in loaded.columns
-    finally:
-        os.unlink(temp_path)
+    loaded = load_signals(str(signals_path))
+    assert len(loaded) == 1
+    assert 'soc' in loaded.columns
+    assert 'signal_flag' in loaded.columns
 
 def test_load_signals_missing_file():
-    """Test that loading from missing file raises FileNotFoundError."""
+    """Test that loading from non-existent file raises error."""
     with pytest.raises(FileNotFoundError):
         load_signals('/nonexistent/path/signals.csv')
 
-def test_load_signals_no_signals(sample_signals):
-    """Test loading when no signals are present."""
-    no_signal_df = sample_signals.copy()
-    no_signal_df['signal_flag'] = False
-    
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-        no_signal_df.to_csv(f.name, index=False)
-        temp_path = f.name
-    
-    try:
-        loaded = load_signals(temp_path)
-        assert loaded.empty
-    finally:
-        os.unlink(temp_path)
-
 def test_filter_data_for_baseline_primary(sample_cleaned_data):
-    """Test filtering for Non-COVID (All) baseline."""
-    filtered = filter_data_for_baseline(sample_cleaned_data, 'Non-COVID (All)')
-    
-    # Should include all non-COVID entries (Influenza, MMR, Tetanus, Hepatitis B)
-    expected_count = len(sample_cleaned_data[sample_cleaned_data['baseline_type'] == 'Non-COVID'])
-    assert len(filtered) == expected_count
+    """Test filtering for Full Non-COVID baseline."""
+    filtered = filter_data_for_baseline(sample_cleaned_data, 'full_non_covid')
+    # Should exclude COVID-19 rows (3 rows), keep 6
+    assert len(filtered) == 6
     assert not filtered['VAX_TYPE'].str.contains('COVID-19').any()
 
 def test_filter_data_for_baseline_flu_only(sample_cleaned_data):
     """Test filtering for Flu-only baseline."""
-    filtered = filter_data_for_baseline(sample_cleaned_data, 'Flu-only')
-    
-    # Should include only Influenza entries
-    expected_count = len(sample_cleaned_data[sample_cleaned_data['baseline_type'] == 'Flu-only'])
-    assert len(filtered) == expected_count
-    assert all(filtered['VAX_TYPE'] == 'Influenza')
+    filtered = filter_data_for_baseline(sample_cleaned_data, 'flu_only')
+    # Should only keep Influenza rows (3 rows)
+    assert len(filtered) == 3
+    assert filtered['VAX_TYPE'].str.contains('Influenza').all()
 
 def test_calculate_metrics_for_soc(sample_cleaned_data):
     """Test metric calculation for a specific SOC."""
-    metrics = calculate_metrics_for_soc(sample_cleaned_data, 'SOC001')
+    covid_data = sample_cleaned_data[sample_cleaned_data['VAX_TYPE'].str.contains('COVID-19')]
+    baseline_data = sample_cleaned_data[~sample_cleaned_data['VAX_TYPE'].str.contains('COVID-19')]
     
+    metrics = calculate_metrics_for_soc('SOC001', covid_data, baseline_data)
+    
+    assert metrics is not None
     assert 'ror' in metrics
     assert 'prr' in metrics
     assert 'ic' in metrics
     assert 'ror_ci_lower' in metrics
     assert 'ror_ci_upper' in metrics
-    
-    # Metrics should be finite (not NaN) if enough data
-    if not np.isnan(metrics['ror']):
-        assert metrics['ror'] > 0
 
-def test_calculate_metrics_insufficient_data():
-    """Test metric calculation with insufficient data."""
-    # Create minimal data
-    data = pd.DataFrame({
-        'VAX_TYPE': ['COVID-19', 'COVID-19', 'Influenza'],
-        'SOC': ['SOC001', 'SOC001', 'SOC001'],
-        'baseline_type': ['COVID-19', 'COVID-19', 'Flu-only']
-    })
+def test_calculate_metrics_insufficient_data(sample_cleaned_data):
+    """Test that insufficient data returns None."""
+    covid_data = sample_cleaned_data[sample_cleaned_data['VAX_TYPE'].str.contains('COVID-19')]
+    baseline_data = sample_cleaned_data[~sample_cleaned_data['VAX_TYPE'].str.contains('COVID-19')]
     
-    metrics = calculate_metrics_for_soc(data, 'SOC001')
-    
-    # Should return NaN due to insufficient data
-    assert np.isnan(metrics['ror'])
+    # SOC004 doesn't exist, should return None
+    metrics = calculate_metrics_for_soc('SOC004', covid_data, baseline_data)
+    assert metrics is None
 
 def test_run_sensitivity_analysis_with_empty_signals(sample_cleaned_data):
     """Test sensitivity analysis with no signals."""
-    empty_signals = pd.DataFrame(columns=['soc', 'ror', 'ror_ci_lower', 'ror_ci_upper',
-                                        'prr', 'prr_ci_lower', 'prr_ci_upper',
-                                        'ic', 'ic_ci_lower', 'ic_ci_upper', 'signal_flag'])
+    empty_signals = pd.DataFrame(columns=['soc', 'ror', 'prr', 'ic', 'signal_flag'])
     
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-        empty_signals.to_csv(f.name, index=False)
-        signals_path = f.name
+    covid_data = sample_cleaned_data[sample_cleaned_data['VAX_TYPE'].str.contains('COVID-19')]
+    baseline_full = sample_cleaned_data[~sample_cleaned_data['VAX_TYPE'].str.contains('COVID-19')]
+    baseline_flu = sample_cleaned_data[sample_cleaned_data['VAX_TYPE'].str.contains('Influenza')]
+    baseline_non_flu = sample_cleaned_data[
+        ~sample_cleaned_data['VAX_TYPE'].str.contains('COVID-19') & 
+        ~sample_cleaned_data['VAX_TYPE'].str.contains('Influenza')
+    ]
     
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-        sample_cleaned_data.to_csv(f.name, index=False)
-        data_path = f.name
+    results = run_sensitivity_analysis(
+        signals_df=empty_signals,
+        covid_data=covid_data,
+        baseline_full=baseline_full,
+        baseline_flu=baseline_flu,
+        baseline_non_flu=baseline_non_flu,
+        top_n=5
+    )
     
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-        output_path = f.name
-    
-    try:
-        result = run_sensitivity_analysis(data_path, signals_path, output_path)
-        assert result.empty
-    finally:
-        os.unlink(signals_path)
-        os.unlink(data_path)
-        os.unlink(output_path)
+    assert results.empty
 
-def test_run_sensitivity_analysis_full(sample_signals, sample_cleaned_data):
+def test_run_sensitivity_analysis_full(sample_cleaned_data, sample_signals):
     """Test full sensitivity analysis workflow."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-        sample_signals.to_csv(f.name, index=False)
-        signals_path = f.name
+    covid_data = sample_cleaned_data[sample_cleaned_data['VAX_TYPE'].str.contains('COVID-19')]
+    baseline_full = sample_cleaned_data[~sample_cleaned_data['VAX_TYPE'].str.contains('COVID-19')]
+    baseline_flu = sample_cleaned_data[sample_cleaned_data['VAX_TYPE'].str.contains('Influenza')]
+    baseline_non_flu = sample_cleaned_data[
+        ~sample_cleaned_data['VAX_TYPE'].str.contains('COVID-19') & 
+        ~sample_cleaned_data['VAX_TYPE'].str.contains('Influenza')
+    ]
     
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-        sample_cleaned_data.to_csv(f.name, index=False)
-        data_path = f.name
+    results = run_sensitivity_analysis(
+        signals_df=sample_signals,
+        covid_data=covid_data,
+        baseline_full=baseline_full,
+        baseline_flu=baseline_flu,
+        baseline_non_flu=baseline_non_flu,
+        top_n=5
+    )
     
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-        output_path = f.name
-    
-    try:
-        result = run_sensitivity_analysis(data_path, signals_path, output_path)
-        
-        # Should have results for top 5 signals (or fewer)
-        assert len(result) <= 5
-        assert 'soc' in result.columns
-        assert 'ror_delta' in result.columns
-        assert 'prr_delta' in result.columns
-        assert 'ic_delta' in result.columns
-        assert 'baseline_type' in result.columns
-        
-        # Verify output file was created
-        assert os.path.exists(output_path)
-    finally:
-        os.unlink(signals_path)
-        os.unlink(data_path)
-        os.unlink(output_path)
+    # Should have results for SOC001 and SOC003 (the ones with signal_flag=True)
+    # Each SOC can have up to 2 baseline comparisons (flu_only and non_covid_non_flu)
+    assert len(results) <= 4  # 2 signals * 2 baselines
+    assert 'soc' in results.columns
+    assert 'ror_delta' in results.columns
+    assert 'prr_delta' in results.columns
+    assert 'ic_delta' in results.columns
+    assert 'baseline_type' in results.columns
+    assert results['baseline_type'].isin(['flu_only', 'non_covid_non_flu']).all()

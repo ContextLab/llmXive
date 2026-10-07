@@ -1,49 +1,46 @@
 """
-VAERS Data Download Module.
-
-Fetches VAERS datasets for years 2020-2023 from the CDC/NIH public repository
-and saves them to the data/raw/ directory.
+Module: src/data/download.py
+Purpose: Fetch VAERS 2020-2023 CSVs from the verified CDC source.
+Requirements:
+  - Uses `requests` with explicit error handling.
+  - NO synthetic fallbacks.
+  - Post-download validation: verifies required columns (VAX_TYPE, SOC_CODE/LLT, REPT_DATE).
+  - Exits with E_SCHEMA_MISSING if validation fails.
 """
 import os
 import sys
 import hashlib
 import zipfile
+import logging
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Optional, List
+
 import requests
 import pandas as pd
 
-# Add project root to path if running as script
-if "src" not in sys.path:
-    project_root = Path(__file__).resolve().parent.parent.parent
-    sys.path.insert(0, str(project_root))
+# Constants
+BASE_URL = "https://vaers.hhs.gov/data/datasets"
+YEARS = ["2020", "2021", "2022", "2023"]
+REQUIRED_COLUMNS = {"VAX_TYPE", "REPT_DATE"}
+# SOC_CODE is often derived or present as LLT in raw data, but spec requires checking for SOC_CODE or LLT
+# The raw VAERS data usually has LLT. We check for LLT as the proxy for SOC mapping input.
+REQUIRED_COLUMNS_FOR_MAPPING = {"LLT"}
 
-from src.utils.config import DATA_DIR, RAW_DATA_DIR
+# Error codes
+E_SCHEMA_MISSING = 1
+E_DOWNLOAD_FAILED = 2
+E_NETWORK_ERROR = 3
 
-# Ensure directories exist
-RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
-
-# Configuration for VAERS data
-# Using the official CDC/NIH GitHub repository for raw data
-VAERS_BASE_URL = "https://vaers.hhs.gov/data/datasets"
-
-# Mapping of years to their specific dataset filenames (ZIP archives)
-# These are the standard names for the annual releases
-VAERS_DATASETS = {
-    2020: "2020vaersdata.zip",
-    2021: "2021vaersdata.zip",
-    2022: "2022vaersdata.zip",
-    2023: "2023vaersdata.zip"
-}
-
-# Checksums (SHA256) for verification - updated annually by CDC
-# Note: In a production environment, these would be fetched dynamically or 
-# from a trusted manifest. For this implementation, we use known values 
-# or skip strict checksum verification if not provided to avoid blocking.
-# The task requires fetching from a real source; we will implement the fetch logic.
-# If checksums change, the script should ideally warn or fail.
-# For robustness in this implementation, we will download and verify existence.
-# We will not hardcode strict checksums that might rot, but implement the mechanism.
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler("logs/download.log", mode='a')
+    ]
+)
+logger = logging.getLogger(__name__)
 
 def calculate_sha256(file_path: Path) -> str:
     """Calculate SHA256 hash of a file."""
@@ -53,138 +50,171 @@ def calculate_sha256(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def download_file(url: str, destination: Path) -> Path:
-    """Download a file from URL to destination with progress."""
-    print(f"Downloading: {url}")
-    response = requests.get(url, stream=True, timeout=120)
-    response.raise_for_status()
-    
-    total_size = int(response.headers.get('content-length', 0))
-    downloaded = 0
-    
-    with open(destination, 'wb') as f:
-        for chunk in response.iter_content(chunk_size=8192):
-            if chunk:
-                f.write(chunk)
-                downloaded += len(chunk)
-                if total_size > 0:
-                    progress = (downloaded / total_size) * 100
-                    print(f"\rProgress: {progress:.1f}%", end='')
-    print("\nDownload complete.")
-    return destination
+def download_file(url: str, dest_path: Path) -> None:
+    """
+    Download a file from URL to dest_path.
+    Raises Exception on failure.
+    """
+    logger.info(f"Downloading {url} to {dest_path}")
+    try:
+        response = requests.get(url, stream=True, timeout=120)
+        response.raise_for_status()
+        
+        total_size = int(response.headers.get('content-length', 0))
+        downloaded = 0
+        
+        with open(dest_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+                    downloaded += len(chunk)
+                    if total_size > 0:
+                        progress = (downloaded / total_size) * 100
+                        # Log progress occasionally to avoid spam
+                        if downloaded % (1024 * 1024 * 10) == 0: 
+                            logger.info(f"Progress: {progress:.1f}%")
+        
+        logger.info(f"Download complete: {dest_path}")
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Network error downloading {url}: {e}")
+        raise E_NETWORK_ERROR from e
+    except Exception as e:
+        logger.error(f"Failed to download {url}: {e}")
+        raise E_DOWNLOAD_FAILED from e
 
-def fetch_vaers_data(years: list[int], force: bool = False) -> Dict[int, Path]:
+def extract_csv_from_zip(zip_path: Path, extract_to: Path) -> Path:
     """
-    Fetch VAERS datasets for specified years.
-    
-    Args:
-        years: List of years (2020-2023) to fetch.
-        force: If True, re-download existing files.
-        
-    Returns:
-        Dictionary mapping year to the path of the downloaded ZIP file.
+    Extract CSV from a zip file.
+    Returns the path to the extracted CSV.
     """
-    downloaded_files = {}
-    
-    for year in years:
-        if year not in VAERS_DATASETS:
-            print(f"Warning: No dataset defined for year {year}. Skipping.")
-            continue
+    logger.info(f"Extracting {zip_path} to {extract_to}")
+    csv_file = None
+    try:
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            # Find the CSV file inside
+            csv_files = [f for f in zip_ref.namelist() if f.endswith('.csv')]
+            if not csv_files:
+                raise ValueError(f"No CSV file found in {zip_path}")
             
-        filename = VAERS_DATASETS[year]
-        zip_path = RAW_DATA_DIR / filename
+            # VAERS datasets usually have one main CSV per year
+            target_csv = csv_files[0]
+            zip_ref.extract(target_csv, extract_to)
+            csv_file = extract_to / target_csv
+            logger.info(f"Extracted {target_csv}")
+    except zipfile.BadZipFile as e:
+        logger.error(f"Corrupted zip file {zip_path}: {e}")
+        raise E_DOWNLOAD_FAILED from e
+    except Exception as e:
+        logger.error(f"Failed to extract {zip_path}: {e}")
+        raise E_DOWNLOAD_FAILED from e
+    
+    # Clean up zip
+    if zip_path.exists():
+        zip_path.unlink()
+        logger.info(f"Removed temporary zip file: {zip_path}")
+    
+    return csv_file
+
+def validate_schema(file_path: Path) -> bool:
+    """
+    Validate that the downloaded CSV contains required columns.
+    Required: VAX_TYPE, REPT_DATE, and (SOC_CODE or LLT).
+    Returns True if valid, raises exception if invalid.
+    """
+    logger.info(f"Validating schema for {file_path}")
+    try:
+        # Read only the header to check columns
+        df = pd.read_csv(file_path, nrows=0)
+        columns = set(df.columns)
         
-        if zip_path.exists() and not force:
-            print(f"File {filename} already exists. Skipping download.")
-            downloaded_files[year] = zip_path
+        missing_required = REQUIRED_COLUMNS - columns
+        if missing_required:
+            logger.error(f"Missing required columns: {missing_required}")
+            return False
+        
+        # Check for mapping column (SOC_CODE or LLT)
+        # VAERS raw data typically has LLT for MedDRA Low Level Term
+        has_mapping = bool(REQUIRED_COLUMNS_FOR_MAPPING & columns)
+        if not has_mapping:
+            logger.error(f"Missing mapping column (expected {REQUIRED_COLUMNS_FOR_MAPPING}, found {columns})")
+            return False
+        
+        logger.info(f"Schema validation passed for {file_path}. Columns: {list(columns)[:10]}...")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to validate schema for {file_path}: {e}")
+        return False
+
+def fetch_vaers_data(output_dir: Path) -> List[Path]:
+    """
+    Fetch VAERS data for years 2020-2023.
+    Returns a list of paths to the extracted CSV files.
+    """
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    downloaded_files = []
+    
+    for year in YEARS:
+        # Construct URL for VAERS data
+        # The standard pattern is: https://vaers.hhs.gov/data/datasets/VAERS_{YEAR}_DATA.zip
+        filename = f"VAERS_{year}_DATA.zip"
+        url = f"{BASE_URL}/{filename}"
+        zip_path = output_dir / filename
+        extracted_csv_path = output_dir / f"vaers_{year}.csv"
+        
+        # Skip if already exists (optional, but good practice)
+        if extracted_csv_path.exists():
+            logger.info(f"File {extracted_csv_path} already exists. Skipping download.")
+            downloaded_files.append(extracted_csv_path)
             continue
-        
-        # Construct URL
-        # The CDC hosts data on their website, but direct links can be tricky.
-        # We will use the official GitHub mirror which is more stable for programmatic access
-        # as per the task requirement for a "verified mirror".
-        # Official source: https://vaers.hhs.gov/data/datasets
-        # GitHub mirror: https://github.com/CDCgov/VAERS
-        # However, the raw file links on GitHub are the most reliable for scripts.
-        # Let's use the direct link pattern from the CDC GitHub repo which is verified.
-        # Note: The actual raw data is often split into multiple files (data, defs, symptoms).
-        # The task asks for "VAERS 2020-2023 CSVs". The primary file is the data file.
-        
-        # Using the official CDC GitHub repository for raw data access
-        # URL pattern: https://raw.githubusercontent.com/CDCgov/VAERS/master/{year}/{year}vaersdata.zip
-        # Note: The structure might vary. We will attempt the standard pattern.
-        # If the mirror fails, we fallback to the official site structure if known.
-        
-        # Verified Mirror Strategy:
-        # The CDC provides a specific download page. Direct scraping is unreliable.
-        # The most robust programmatic source is the GitHub mirror maintained by CDCgov.
-        # File: {year}vaersdata.zip
-        
-        url = f"https://raw.githubusercontent.com/CDCgov/VAERS/master/{year}/{filename}"
         
         try:
+            # Download
             download_file(url, zip_path)
-            downloaded_files[year] = zip_path
-        except requests.exceptions.RequestException as e:
-            print(f"Error downloading {year} data: {e}")
-            print(f"Attempting fallback to official CDC site structure...")
-            # Fallback logic could go here if the GitHub mirror structure changed
-            # For now, we raise an error if the primary source fails to ensure we don't proceed with bad data
-            raise RuntimeError(f"Failed to download {year} VAERS data from primary and fallback sources.")
-
+            
+            # Extract
+            csv_path = extract_csv_from_zip(zip_path, output_dir)
+            
+            # Validate
+            if not validate_schema(csv_path):
+                logger.critical(f"Schema validation failed for {year}. Exiting.")
+                sys.exit(E_SCHEMA_MISSING)
+            
+            # Rename to standard name if needed (extract_csv_from_zip returns the extracted path)
+            # The extraction might keep the original name, so we ensure consistency
+            if csv_path.name != f"vaers_{year}.csv":
+                csv_path.rename(output_dir / f"vaers_{year}.csv")
+                downloaded_files.append(output_dir / f"vaers_{year}.csv")
+            else:
+                downloaded_files.append(csv_path)
+                
+        except Exception as e:
+            logger.error(f"Failed to process year {year}: {e}")
+            # Fail loudly as per requirements
+            if isinstance(e, int):
+                sys.exit(e)
+            raise e
+    
     return downloaded_files
 
-def extract_csv_from_zip(zip_path: Path, target_dir: Path) -> Path:
-    """
-    Extract the main data CSV from the VAERS ZIP file.
-    
-    VAERS ZIP files usually contain multiple files. We look for the file
-    ending in 'data.csv' or 'data'.
-    """
-    target_dir.mkdir(parents=True, exist_ok=True)
-    
-    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-        files = zip_ref.namelist()
-        # Look for the main data file
-        data_file = None
-        for f in files:
-            if 'data.csv' in f or f.endswith('data.csv'):
-                data_file = f
-                break
-        
-        if not data_file:
-            # Fallback: look for any CSV
-            csv_files = [f for f in files if f.endswith('.csv')]
-            if csv_files:
-                data_file = csv_files[0]
-            else:
-                raise FileNotFoundError(f"No CSV file found in {zip_path}")
-        
-        print(f"Extracting {data_file}...")
-        zip_ref.extract(data_file, target_dir)
-        
-        # Return the path to the extracted CSV
-        extracted_path = target_dir / Path(data_file).name
-        return extracted_path
-
 def main():
-    """Main entry point for downloading VAERS data."""
-    years = [2020, 2021, 2022, 2023]
-    print(f"Starting VAERS data download for years: {years}")
+    """Main entry point for the download script."""
+    logger.info("Starting VAERS data download for 2020-2023")
+    
+    # Define output directory based on project structure
+    # Assuming this runs from project root or code/
+    base_dir = Path(__file__).resolve().parent.parent.parent
+    data_dir = base_dir / "data" / "raw"
     
     try:
-        zip_files = fetch_vaers_data(years)
-        
-        for year, zip_path in zip_files.items():
-            csv_path = extract_csv_from_zip(zip_path, RAW_DATA_DIR)
-            print(f"Successfully processed {year}: {csv_path}")
-        
-        print("All data downloads and extractions completed.")
-        return 0
-        
+        files = fetch_vaers_data(data_dir)
+        logger.info(f"Successfully downloaded and validated {len(files)} files.")
+        for f in files:
+            logger.info(f"  - {f.name} ({f.stat().st_size / (1024*1024):.1f} MB)")
     except Exception as e:
-        print(f"Error during download process: {e}")
-        return 1
+        logger.error(f"Critical error in download process: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

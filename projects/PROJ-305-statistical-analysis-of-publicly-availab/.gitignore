@@ -20,11 +20,9 @@ parts/
 sdist/
 var/
 wheels/
-share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
 
 # PyInstaller
 *.manifest
@@ -36,17 +34,11 @@ pip-delete-this-directory.txt
 
 # Unit test / coverage reports
 htmlcov/
-.tox/
-.nox/
 .coverage
-.coverage.*
-.cache
-nosetests.xml
 coverage.xml
 *.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
+.tox/
+.nox/
 
 # Translations
 *.mo
@@ -61,31 +53,44 @@ ENV/
 env.bak/
 venv.bak/
 
-# IDE
+# IDEs and Editors
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
-
-# OS
-.DS_Store
-Thumbs.db
+.project
+.pydevproject
+.settings/
 
 # Jupyter Notebook
 .ipynb_checkpoints
 
-# Data (Large files)
-data/raw/*.csv
-data/raw/*.zip
-data/processed/*.parquet
-data/processed/*.csv
-output/*.csv
-output/*.png
-output/*.md
-figures/*.png
-figures/*.pdf
+# pyenv
+.python-version
 
-# Configs (if sensitive)
-.secrets
-.env.local
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Project specific
+logs/
+output/
+data/raw/
+data/processed/
+data/meddra_soc_mapping.csv
+contracts/
+*.log

@@ -1,39 +1,19 @@
-name: vaers_dataset_schema
-version: "1.0"
-description: Schema for raw and cleaned VAERS COVID-19 vaccine adverse event data.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: VAERS Dataset Schema
+description: Required columns and types for raw VAERS data validation
+type: object
+required:
+  - properties
+properties:
+  columns:
+    type: array
+    description: List of required column names in the CSV
+    items:
+      type: string
+    minItems: 4
 required_columns:
   - VAX_TYPE
   - SOC_CODE
-  - LLT
   - REPT_DATE
   - AGE
-  - SOC
-column_definitions:
-  VAX_TYPE:
-    type: string
-    description: Vaccine type (e.g., "COVID-19", "Influenza", "Non-COVID")
-    nullable: false
-  SOC_CODE:
-    type: string
-    description: MedDRA System Organ Class code
-    nullable: false
-  LLT:
-    type: string
-    description: Lowest Level Term (MedDRA preferred term)
-    nullable: true
-  REPT_DATE:
-    type: date
-    description: Date of report submission
-    nullable: false
-    format: "%m/%d/%Y"
-  AGE:
-    type: numeric
-    description: Patient age
-    nullable: true
-  SOC:
-    type: string
-    description: Mapped System Organ Class name
-    nullable: false
-constraints:
-  min_rows: 1
-  allow_duplicates: true
+note: "The validator checks that the input CSV contains at least these columns."

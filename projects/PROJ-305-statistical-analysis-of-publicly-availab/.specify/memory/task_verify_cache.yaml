@@ -12,13 +12,22 @@ T019:
   r: "The required unit\u2011test file `tests/unit/test_disproportionality.py` is\
     \ missing; no test code is present to verify ROR/PRR/IC calculations or continuity\
     \ correction. The task therefore is not satisfied."
-T026:
+T022:
+  c: false
+  h: 70376ca5305becd099edd7ae01e925931ac563bd06fe5c4f8594712758f9ef32
+  r: "The repository contains a `src/analysis/disproportionality.py` file, but it\
+    \ only defines helper functions and does not include code that reads the required\
+    \ `data/processed/cleaned_vaers_full_non_covid.parquet` file, iterates over all\
+    \ SOCs, or writes out the 2\xD72 tables. Moreover, the specified input parquet\
+    \ file is absent from the project. Both the missing data file and the incomplete\
+    \ script prevent the task from being fulfilled."
+T025b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `output/signals.csv` file or its contents were presented; the required columns\
-    \ (`soc`, `ror`, `ror_ci_lower`, `ror_ci_upper`, `prr`, `prr_ci_lower`, `prr_ci_upper`,\
-    \ `ic`, `ic_ci_lower`, `ic_ci_upper`, `p_adj`, `signal_flag`) are not demonstrated,\
-    \ so the task\u2019s deliverable is missing."
+  r: "No `output/signals.csv` file or its contents were presented, so we cannot confirm\
+    \ the required columns, values, or the `background_rate_status` setting. The implementer\
+    \ must supply the actual CSV file with the specified schema and ensure all rows\
+    \ have `background_rate_status` set to \u201CUNKNOWN\u201D."
 T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

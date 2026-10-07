@@ -4,152 +4,258 @@ import math
 import logging
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any
+
 import pandas as pd
 import numpy as np
 
-# Add project root to path if running as script
-if __package__ is None:
-    sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+from src.utils.config import THRESHOLDS
 
-from src.utils.config import ensure_dirs, THRESHOLDS, MEMORY_LIMITS
-from src.data.clean import get_memory_usage_gb, check_memory_usage
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('logs/analysis.log')
+    ]
+)
+logger = logging.getLogger(__name__)
 
-logger = logging.getLogger("pipeline")
-
-def apply_continuity_correction(a: int, b: int, c: int, d: int) -> Tuple[float, float, float, float]:
-    """Apply 0.5 continuity correction to 2x2 table cells."""
-    return a + 0.5, b + 0.5, c + 0.5, d + 0.5
-
-def build_contingency_table(df: pd.DataFrame, soc: str) -> Tuple[int, int, int, int]:
+def apply_continuity_correction(a: int, b: int, c: int, d: int) -> Tuple[int, int, int, int]:
     """
-    Build 2x2 contingency table for a specific SOC.
-    Rows: Event (SOC present), No Event (SOC absent)
-    Cols: COVID-19, Non-COVID-Non-Flu (Reference)
+    Apply continuity correction (add 0.5) to zero-count cells in a 2x2 table.
     
-    Returns: (a, b, c, d) where:
-    a = COVID-19 with Event
-    b = Non-COVID-Non-Flu with Event
-    c = COVID-19 without Event
-    d = Non-COVID-Non-Flu without Event
+    Table structure:
+              | Event | No Event
+    ----------|-------|----------
+    Exposed   | a     | b
+    Unexposed | c     | d
+    
+    Args:
+        a: Exposed with event
+        b: Exposed without event
+        c: Unexposed with event
+        d: Unexposed without event
+        
+    Returns:
+        Tuple of (a, b, c, d) with 0.5 added to any zero cell.
     """
-    # Filter for the specific SOC
-    soc_df = df[df['SOC'] == soc]
-    
-    # Total counts per group
-    covid_total = len(df[df['GROUP'] == 'COVID-19'])
-    ref_total = len(df[df['GROUP'] == 'Non-COVID-Non-Flu'])
-    
-    # Event counts
-    covid_event = len(soc_df[soc_df['GROUP'] == 'COVID-19'])
-    ref_event = len(soc_df[soc_df['GROUP'] == 'Non-COVID-Non-Flu'])
-    
-    # No event counts
-    covid_no_event = covid_total - covid_event
-    ref_no_event = ref_total - ref_event
-    
-    return covid_event, ref_event, covid_no_event, ref_no_event
+    a = a + 0.5 if a == 0 else a
+    b = b + 0.5 if b == 0 else b
+    c = c + 0.5 if c == 0 else c
+    d = d + 0.5 if d == 0 else d
+    return int(a), int(b), int(c), int(d)
 
-def calculate_ror(a: float, b: float, c: float, d: float) -> float:
-    """Calculate Reporting Odds Ratio."""
-    if c == 0 or d == 0:
+def build_contingency_table(df: pd.DataFrame, soc: str, event_col: str = 'has_event') -> Dict[str, int]:
+    """
+    Build a 2x2 contingency table for a specific SOC.
+    
+    Args:
+        df: Cleaned DataFrame with columns 'GROUP', 'has_event', 'SOC'
+        soc: System Organ Class to analyze
+        event_col: Column name indicating if the record is an event (1) or control (0)
+        
+    Returns:
+        Dictionary with keys 'a', 'b', 'c', 'd' representing the 2x2 table.
+    """
+    soc_data = df[df['SOC'] == soc]
+    
+    # COVID-19 Group (Exposed)
+    covid_events = len(soc_data[(soc_data['GROUP'] == 'COVID-19') & (soc_data[event_col] == 1)])
+    covid_no_events = len(soc_data[(soc_data['GROUP'] == 'COVID-19') & (soc_data[event_col] == 0)])
+    
+    # Full Non-COVID Group (Unexposed) - includes Flu
+    noncovid_events = len(soc_data[(soc_data['GROUP'] == 'Full Non-COVID') & (soc_data[event_col] == 1)])
+    noncovid_no_events = len(soc_data[(soc_data['GROUP'] == 'Full Non-COVID') & (soc_data[event_col] == 0)])
+    
+    return {
+        'a': covid_events,
+        'b': covid_no_events,
+        'c': noncovid_events,
+        'd': noncovid_no_events
+    }
+
+def calculate_ror(a: int, b: int, c: int, d: int) -> float:
+    """
+    Calculate Reporting Odds Ratio (ROR).
+    
+    ROR = (a/b) / (c/d) = (a*d) / (b*c)
+    
+    Args:
+        a, b, c, d: Cells of the 2x2 contingency table
+        
+    Returns:
+        ROR value.
+    """
+    if b == 0 or c == 0:
         return float('inf')
     return (a * d) / (b * c)
 
-def calculate_prr(a: float, b: float, c: float, d: float) -> float:
-    """Calculate Proportional Reporting Ratio."""
-    p1 = a / (a + c)
-    p2 = b / (b + d)
-    if p2 == 0:
-        return float('inf')
-    return p1 / p2
-
-def calculate_ic(a: float, b: float, c: float, d: float) -> float:
-    """Calculate Information Component."""
-    if a == 0:
-        return float('-inf') # Or handle as 0 depending on convention
-    p1 = a / (a + c)
-    p2 = b / (b + d)
-    # IC = log2( (a/(a+c)) / ( (a+b)/(a+b+c+d) ) ) ... simplified here to log2(ROR) approximation or specific formula
-    # Standard IC formula: IC = log2( (a * N) / ((a+c) * (a+b)) )
-    # Where N = a+b+c+d
-    N = a + b + c + d
-    expected = (a + c) * (a + b) / N
-    if expected == 0:
-        return float('inf')
-    return math.log2(a / expected)
-
-def calculate_ci_ror(a: float, b: float, c: float, d: float) -> Tuple[float, float]:
-    """Calculate 95% CI for ROR using Woolf's method."""
-    # SE(log(ROR)) = sqrt(1/a + 1/b + 1/c + 1/d)
-    if a == 0 or b == 0 or c == 0 or d == 0:
-        return (float('-inf'), float('inf'))
+def calculate_prr(a: int, b: int, c: int, d: int) -> float:
+    """
+    Calculate Proportional Reporting Ratio (PRR).
     
-    se = math.sqrt(1/a + 1/b + 1/c + 1/d)
-    log_ror = math.log((a * d) / (b * c))
-    lower = math.exp(log_ror - 1.96 * se)
-    upper = math.exp(log_ror + 1.96 * se)
-    return lower, upper
-
-def calculate_ci_prr(a: float, b: float, c: float, d: float) -> Tuple[float, float]:
-    """Calculate 95% CI for PRR."""
-    # SE(log(PRR)) = sqrt( (1/a - 1/(a+c)) + (1/b - 1/(b+d)) )
-    if a == 0 or b == 0:
-        return (float('-inf'), float('inf'))
+    PRR = (a / (a+b)) / (c / (c+d))
     
-    se = math.sqrt((1/a - 1/(a+c)) + (1/b - 1/(b+d)))
-    log_prr = math.log((a * (b + d)) / (b * (a + c)))
-    lower = math.exp(log_prr - 1.96 * se)
-    upper = math.exp(log_prr + 1.96 * se)
-    return lower, upper
+    Args:
+        a, b, c, d: Cells of the 2x2 contingency table
+        
+    Returns:
+        PRR value.
+    """
+    if (a + b) == 0 or (c + d) == 0:
+        return float('inf')
+    exposed_rate = a / (a + b)
+    unexposed_rate = c / (c + d)
+    if unexposed_rate == 0:
+        return float('inf')
+    return exposed_rate / unexposed_rate
 
-def calculate_ci_ic(a: float, b: float, c: float, d: float) -> Tuple[float, float]:
-    """Calculate 95% CI for IC."""
-    # SE(IC) approx = 1 / sqrt(a)
-    if a == 0:
-        return (float('-inf'), float('inf'))
-    se = 1.0 / math.sqrt(a)
-    ic_val = calculate_ic(a, b, c, d)
-    lower = ic_val - 1.96 * se
-    upper = ic_val + 1.96 * se
-    return lower, upper
-
-def calculate_p_value_chi2(a: float, b: float, c: float, d: float) -> float:
-    """Calculate p-value using Chi-square test (approximation)."""
-    # Chi2 = (ad - bc)^2 * N / ((a+b)(c+d)(a+c)(b+d))
-    N = a + b + c + d
-    numerator = (a * d - b * c) ** 2 * N
-    denominator = (a + b) * (c + d) * (a + c) * (b + d)
+def calculate_ic(a: int, b: int, c: int, d: int) -> float:
+    """
+    Calculate Information Component (IC).
+    
+    IC = log2((a * (a+b+c+d)) / ((a+b) * (a+c)))
+    
+    Args:
+        a, b, c, d: Cells of the 2x2 contingency table
+        
+    Returns:
+        IC value.
+    """
+    n = a + b + c + d
+    if (a + b) == 0 or (a + c) == 0 or a == 0:
+        return float('-inf')
+    numerator = a * n
+    denominator = (a + b) * (a + c)
     if denominator == 0:
-        return 1.0
-    chi2 = numerator / denominator
-    # Approximate p-value from chi2 (1 df)
-    # Using survival function of chi2 distribution
-    # For simplicity, we use a rough approximation or scipy if available
-    # Since we want to avoid heavy deps, we'll use a simple approximation or return 0 if significant
-    # Better: import scipy.stats if available, else fallback
+        return float('-inf')
+    return math.log2(numerator / denominator)
+
+def calculate_ci_ror(a: int, b: int, c: int, d: int, confidence: float = 0.95) -> Tuple[float, float]:
+    """
+    Calculate 95% Confidence Interval for ROR.
+    
+    CI = exp(ln(ROR) ± 1.96 * sqrt(1/a + 1/b + 1/c + 1/d))
+    
+    Args:
+        a, b, c, d: Cells of the 2x2 contingency table
+        confidence: Confidence level (default 0.95)
+        
+    Returns:
+        Tuple of (lower_bound, upper_bound)
+    """
+    if a == 0 or b == 0 or c == 0 or d == 0:
+        return (0.0, float('inf'))
+    
+    z = 1.96  # For 95% CI
+    se = math.sqrt(1/a + 1/b + 1/c + 1/d)
+    ror = calculate_ror(a, b, c, d)
+    if ror == 0 or ror == float('inf'):
+        return (0.0, float('inf'))
+    
+    ln_ror = math.log(ror)
+    lower = math.exp(ln_ror - z * se)
+    upper = math.exp(ln_ror + z * se)
+    return (lower, upper)
+
+def calculate_ci_prr(a: int, b: int, c: int, d: int, confidence: float = 0.95) -> Tuple[float, float]:
+    """
+    Calculate 95% Confidence Interval for PRR.
+    
+    CI = exp(ln(PRR) ± 1.96 * sqrt((1/a - 1/(a+b)) + (1/c - 1/(c+d))))
+    
+    Args:
+        a, b, c, d: Cells of the 2x2 contingency table
+        confidence: Confidence level (default 0.95)
+        
+    Returns:
+        Tuple of (lower_bound, upper_bound)
+    """
+    if a == 0 or c == 0 or (a+b) == 0 or (c+d) == 0:
+        return (0.0, float('inf'))
+    
+    z = 1.96
+    prr = calculate_prr(a, b, c, d)
+    if prr == float('inf'):
+        return (0.0, float('inf'))
+    
+    se = math.sqrt((1/a - 1/(a+b)) + (1/c - 1/(c+d)))
+    ln_prr = math.log(prr)
+    lower = math.exp(ln_prr - z * se)
+    upper = math.exp(ln_prr + z * se)
+    return (lower, upper)
+
+def calculate_ci_ic(a: int, b: int, c: int, d: int, confidence: float = 0.95) -> Tuple[float, float]:
+    """
+    Calculate 95% Confidence Interval for IC.
+    
+    CI = IC ± 1.96 * sqrt(1/(a*ln(2)^2))
+    
+    Args:
+        a, b, c, d: Cells of the 2x2 contingency table
+        confidence: Confidence level (default 0.95)
+        
+    Returns:
+        Tuple of (lower_bound, upper_bound)
+    """
+    if a == 0:
+        return (float('-inf'), float('-inf'))
+    
+    z = 1.96
+    ic = calculate_ic(a, b, c, d)
+    if ic == float('-inf'):
+        return (float('-inf'), float('-inf'))
+    
+    se = math.sqrt(1 / (a * (math.log(2) ** 2)))
+    lower = ic - z * se
+    upper = ic + z * se
+    return (lower, upper)
+
+def calculate_p_value_chi2(a: int, b: int, c: int, d: int) -> float:
+    """
+    Calculate p-value using Chi-squared test with Yates' continuity correction.
+    
+    Args:
+        a, b, c, d: Cells of the 2x2 contingency table
+        
+    Returns:
+        p-value from Chi-squared test.
+    """
+    from scipy import stats
+    
+    # Create contingency table
+    table = [[a, b], [c, d]]
     try:
-        from scipy.stats import chi2 as chi2_dist
-        return 1 - chi2_dist.cdf(chi2, 1)
-    except ImportError:
-        # Fallback: if chi2 > 3.84 (p<0.05), return 0.05, else 1.0
-        if chi2 > 3.841:
-            return 0.05
+        _, p_value, _, _ = stats.chi2_contingency(table, correction=True)
+        return p_value
+    except Exception as e:
+        logger.warning(f"Chi-squared test failed for table {table}: {e}")
         return 1.0
 
-def calculate_disproportionality_metrics(a: float, b: float, c: float, d: float) -> Dict[str, float]:
-    """Calculate all metrics for a single SOC."""
+def calculate_disproportionality_metrics(a: int, b: int, c: int, d: int) -> Dict[str, Any]:
+    """
+    Calculate all disproportionality metrics for a 2x2 table.
+    
+    Args:
+        a, b, c, d: Cells of the 2x2 contingency table
+        
+    Returns:
+        Dictionary containing ROR, PRR, IC, their CIs, and p-value.
+    """
     # Apply continuity correction
-    a, b, c, d = apply_continuity_correction(a, b, c, d)
+    a_corr, b_corr, c_corr, d_corr = apply_continuity_correction(a, b, c, d)
     
-    ror = calculate_ror(a, b, c, d)
-    prr = calculate_prr(a, b, c, d)
-    ic = calculate_ic(a, b, c, d)
+    ror = calculate_ror(a_corr, b_corr, c_corr, d_corr)
+    ror_ci = calculate_ci_ror(a_corr, b_corr, c_corr, d_corr)
     
-    ror_ci = calculate_ci_ror(a, b, c, d)
-    prr_ci = calculate_ci_prr(a, b, c, d)
-    ic_ci = calculate_ci_ic(a, b, c, d)
+    prr = calculate_prr(a_corr, b_corr, c_corr, d_corr)
+    prr_ci = calculate_ci_prr(a_corr, b_corr, c_corr, d_corr)
     
-    p_val = calculate_p_value_chi2(a, b, c, d)
+    ic = calculate_ic(a_corr, b_corr, c_corr, d_corr)
+    ic_ci = calculate_ci_ic(a_corr, b_corr, c_corr, d_corr)
+    
+    p_value = calculate_p_value_chi2(a_corr, b_corr, c_corr, d_corr)
     
     return {
         'ror': ror,
@@ -161,128 +267,110 @@ def calculate_disproportionality_metrics(a: float, b: float, c: float, d: float)
         'ic': ic,
         'ic_ci_lower': ic_ci[0],
         'ic_ci_upper': ic_ci[1],
-        'p_raw': p_val
+        'p_value': p_value
     }
 
-def benjamini_hochberg(p_values: List[float]) -> List[float]:
-    """Apply Benjamini-Hochberg correction for multiple testing."""
-    n = len(p_values)
-    if n == 0:
+def benjamini_hochberg(p_values: List[Tuple[str, float]]) -> List[Tuple[str, float]]:
+    """
+    Apply Benjamini-Hochberg correction for multiple testing.
+    
+    Args:
+        p_values: List of (soc, p_value) tuples
+        
+    Returns:
+        List of (soc, adjusted_p_value) tuples, sorted by SOC.
+    """
+    if not p_values:
         return []
     
-    # Sort p-values and keep original indices
-    sorted_indices = sorted(range(n), key=lambda i: p_values[i])
-    sorted_p = [p_values[i] for i in sorted_indices]
-    
-    adjusted = [0.0] * n
-    min_val = 1.0
+    # Sort by p-value
+    sorted_p = sorted(p_values, key=lambda x: x[1])
+    n = len(sorted_p)
     
     # Calculate adjusted p-values
-    for i in range(n - 1, -1, -1):
-        j = sorted_indices[i]
-        adjusted[j] = min(min_val, sorted_p[i] * n / (i + 1))
-        min_val = adjusted[j]
+    adjusted = []
+    prev_adj = 1.0
     
-    # Ensure monotonicity (adjusted p-values should not decrease as raw p-values increase)
-    # The loop above does a reverse pass, but we need to ensure forward monotonicity too
-    # Re-sort back to original order and enforce monotonicity
-    # Actually, the standard algorithm ensures monotonicity if done correctly in reverse
-    # But let's double check:
-    # We need to ensure adjusted[i] <= adjusted[i+1] if sorted_p[i] <= sorted_p[i+1]
-    # The reverse loop already handles this by taking min with previous (which is larger index)
+    for i, (soc, p) in reversed(list(enumerate(sorted_p))):
+        rank = i + 1
+        adj_p = min(p * n / rank, prev_adj)
+        adjusted.append((soc, adj_p))
+        prev_adj = adj_p
     
-    return adjusted
+    # Reverse to restore original order (sorted by p-value), then sort by SOC
+    adjusted.reverse()
+    return sorted(adjusted, key=lambda x: x[0])
 
-def run_analysis(df: pd.DataFrame) -> pd.DataFrame:
+def run_analysis(input_path: str, output_path: str) -> None:
     """
-    Run disproportionality analysis on the cleaned dataframe.
+    Run disproportionality analysis on cleaned data.
+    
+    Args:
+        input_path: Path to cleaned_vaers_full_non_covid.parquet
+        output_path: Path to output signals CSV
     """
-    logger.info("Starting disproportionality analysis...")
+    logger.info(f"Loading data from {input_path}")
     
-    # Check memory
-    if not check_memory_usage(limit_gb=MEMORY_LIMITS["analysis"]):
-        raise MemoryError("Memory limit exceeded during analysis.")
+    if not os.path.exists(input_path):
+        logger.error(f"Input file not found: {input_path}")
+        sys.exit(1)
     
-    # Get unique SOCs
-    socs = df['SOC'].unique()
+    df = pd.read_parquet(input_path)
+    logger.info(f"Loaded {len(df)} records")
+    
+    # Filter SOCs with >= 5 total reports
+    soc_counts = df.groupby('SOC').size()
+    valid_socs = soc_counts[soc_counts >= 5].index.tolist()
+    logger.info(f"Analyzing {len(valid_socs)} SOCs with >= 5 reports")
+    
     results = []
+    p_values_list = []
     
-    for soc in socs:
-        # Check memory periodically
-        if not check_memory_usage(limit_gb=MEMORY_LIMITS["analysis"]):
-            raise MemoryError("Memory limit exceeded during analysis loop.")
+    for soc in valid_socs:
+        contingency = build_contingency_table(df, soc)
+        a, b, c, d = contingency['a'], contingency['b'], contingency['c'], contingency['d']
         
-        # Count total reports for this SOC
-        total_reports = len(df[df['SOC'] == soc])
-        
-        # Skip if < 5 reports
-        if total_reports < 5:
-            continue
-        
-        a, b, c, d = build_contingency_table(df, soc)
         metrics = calculate_disproportionality_metrics(a, b, c, d)
         metrics['soc'] = soc
-        metrics['total_reports'] = total_reports
+        metrics['total_reports'] = a + b + c + d
+        metrics['background_rate_status'] = 'UNKNOWN'
+        
         results.append(metrics)
-    
-    if not results:
-        logger.warning("No SOCs met the minimum report threshold (>=5).")
-        return pd.DataFrame()
-    
-    df_results = pd.DataFrame(results)
+        p_values_list.append((soc, metrics['p_value']))
+        
+        logger.debug(f"SOC {soc}: ROR={metrics['ror']:.2f}, PRR={metrics['prr']:.2f}, IC={metrics['ic']:.2f}")
     
     # Apply Benjamini-Hochberg correction
-    p_raw = df_results['p_raw'].tolist()
-    p_adj = benjamini_hochberg(p_raw)
-    df_results['p_adj'] = p_adj
+    adjusted_p = benjamini_hochberg(p_values_list)
+    adj_dict = dict(adjusted_p)
+    for row in results:
+        row['p_adj'] = adj_dict.get(row['soc'], 1.0)
     
-    # Apply 2-out-of-3 rule
-    # ROR > 2.0 AND ROR_CI_LOWER > 1.0
-    # PRR > 1.5 AND PRR_CI_LOWER > 1.0
-    # IC > 0 AND IC_CI_LOWER > 0
+    # Convert to DataFrame
+    results_df = pd.DataFrame(results)
     
-    cond_ror = (df_results['ror'] > THRESHOLDS['ror_min']) & (df_results['ror_ci_lower'] > THRESHOLDS['ror_ci_min'])
-    cond_prr = (df_results['prr'] > THRESHOLDS['prr_min']) & (df_results['prr_ci_lower'] > THRESHOLDS['prr_ci_min'])
-    cond_ic = (df_results['ic'] > THRESHOLDS['ic_min']) & (df_results['ic_ci_lower'] > THRESHOLDS['ic_ci_min'])
+    # Ensure all numeric columns are finite
+    numeric_cols = ['ror', 'ror_ci_lower', 'ror_ci_upper', 'prr', 'prr_ci_lower', 
+                   'prr_ci_upper', 'ic', 'ic_ci_lower', 'ic_ci_upper', 'p_value', 'p_adj']
+    for col in numeric_cols:
+        results_df[col] = results_df[col].replace([np.inf, -np.inf], np.nan)
     
-    # 2-out-of-3: at least 2 conditions must be true
-    df_results['signal_flag'] = (cond_ror.astype(int) + cond_prr.astype(int) + cond_ic.astype(int)) >= 2
+    # Sort by SOC for consistent output
+    results_df = results_df.sort_values('soc').reset_index(drop=True)
     
-    # Sort by signal_flag (True first) and then by p_adj
-    df_results = df_results.sort_values(by=['signal_flag', 'p_adj'], ascending=[False, True])
-    
-    return df_results
+    logger.info(f"Writing results to {output_path}")
+    results_df.to_csv(output_path, index=False)
+    logger.info(f"Analysis complete. {len(results_df)} SOCs analyzed.")
 
 def main():
-    """Entry point for analysis."""
-    ensure_dirs()
+    """Main entry point for disproportionality analysis."""
+    input_path = "data/processed/cleaned_vaers_full_non_covid.parquet"
+    output_path = "output/signals.csv"
     
-    # Load cleaned data
-    input_file = Path("data/processed/cleaned_vaers.parquet")
-    if not input_file.exists():
-        logger.error("Cleaned data not found. Run cleaning first.")
-        return 1
+    # Ensure output directory exists
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     
-    df = pd.read_parquet(input_file)
-    
-    # Run analysis
-    try:
-        results_df = run_analysis(df)
-    except MemoryError as e:
-        logger.error(str(e))
-        return 1
-    
-    if results_df.empty:
-        logger.warning("No signals detected.")
-        # Create empty output
-        results_df = pd.DataFrame(columns=['soc', 'ror', 'ror_ci_lower', 'ror_ci_upper', 'prr', 'prr_ci_lower', 'prr_ci_upper', 'ic', 'ic_ci_lower', 'ic_ci_upper', 'p_adj', 'signal_flag'])
-    
-    # Save output
-    output_file = Path("output/signals.csv")
-    results_df.to_csv(output_file, index=False)
-    logger.info(f"Saved signals to {output_file}")
-    
-    return 0
+    run_analysis(input_path, output_path)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

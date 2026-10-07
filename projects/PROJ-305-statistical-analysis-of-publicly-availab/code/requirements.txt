@@ -1,11 +1,26 @@
-pandas
-numpy
-scipy
-requests
-pyarrow
-matplotlib
-pytest
-pytest-cov
-pyyaml
-tracemalloc
-# No GPU libraries (torch, tensorflow, cupy) as per T005
+# Core data processing
+pandas>=2.0.0
+numpy>=1.24.0
+pyarrow>=12.0.0
+
+# Statistical analysis
+scipy>=1.11.0
+requests>=2.31.0
+
+# Visualization
+matplotlib>=3.7.0
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# MedDRA mapping (if available as a package)
+# Note: MedDRA is proprietary; the project may need to use a verified mirror or static file
+# meddra>=25.0.0  # Uncomment if a valid package is identified
+
+# Linting and formatting
+ruff>=0.1.0
+black>=23.0.0
+
+# Memory monitoring
+psutil>=5.9.0

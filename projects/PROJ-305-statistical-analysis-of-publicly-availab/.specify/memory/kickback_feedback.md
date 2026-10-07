@@ -4,15 +4,17 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No evidence of the required project directories (`src/`, `tests/`, `data/`, `output/`) is provided; the claim lacks any artifact showing that these folders exist or contain files. The implementer must create and show the directory structure to satisfy the task.
-- `T003` (rejected 1x): No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`, `pyproject.toml` with Black settings, or related scripts) were found in the provided evidence, so the requirement to configure ruff/flake8 and Black is not satisfied.
+- `T001a` (rejected 1x): No directory listing or file tree was provided showing the required folders (`src/`, `tests/`, `data/`, `data/raw/`, `data/processed/`, `output/`, `contracts/`, `logs/`). Without concrete evidence that these directories exist and are non‑empty, the claim that the project structure is created cannot be verified. The implementer must supply a file system snapshot (e.g., `tree` output or a zip archive) demonstrating the presence of all required directories.
+- `T001b` (rejected 1x): No `.gitignore` or `README.md` files were presented in the evidence, nor any content showing they contain a project title and description. The required stub files are missing, so the task is not satisfied.
+- `T003` (rejected 1x): No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `.flake8`, or `black` settings) are present in the provided evidence, nor any documentation showing that ruff/flake8 and black have been set up for the project. Consequently, the requirement to configure these tools is not satisfied.
 - `T006` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
-- `T007` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
-- `T008` (rejected 1x): The provided `src/data/validate.py` is truncated (the `validate_data` function ends mid‑line) and cannot fully perform validation, and the required `dataset.schema.yaml` file is missing, so the script cannot actually check raw data against a schema as the task demands. The implementation must be completed and the schema file supplied.
+- `T006b` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
+- `T008` (rejected 1x): The `src/data/validate.py` file is truncated (ends abruptly in `sys.exit(E_SCH`) and does not contain a complete validation routine that checks the data against a schema and exits with `E_SCHEMA_MISSING` on failure. Moreover, the required `contracts/dataset.schema.yaml` (or `schema.yaml`) is absent from the repository, so the validator cannot even load the schema. Both the implementation and the necessary schema file are missing.
 - `T009` (rejected 1x): declared artifact(s) missing/empty/invalid: src/utils/plots.py
+- `T016b` (rejected 1x): declared artifact(s) missing/empty/invalid: src/data/download_meddra.py, data/meddra_soc_mapping.csv
 - `T015` (rejected 1x): declared artifact(s) missing/empty/invalid: src/data/clean.py
+- `T016` (rejected 1x): declared artifact(s) missing/empty/invalid: src/data/clean.py
 - `T018` (rejected 1x): declared artifact(s) missing/empty/invalid: src/data/clean.py
-- `T027` (rejected 1x): declared artifact(s) missing/empty/invalid: src/analysis/sensitivity.py
 
 ## Required change
 

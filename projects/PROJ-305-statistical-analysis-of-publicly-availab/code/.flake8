@@ -1,6 +1,20 @@
 [flake8]
-max-line-length = 100
-exclude = .git,__pycache__,build,dist,.venv
-extend-ignore = E203, E501
+max-line-length = 88
+extend-ignore = E501, B008
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    .venv,
+    venv,
+    *.egg-info
 per-file-ignores =
+    # Allow assert in tests
     code/tests/*:S101
+    # Allow print in setup and scripts
+    code/setup_project.py:T201
+    code/scripts/*:T201
+
+# Additional flake8 plugins can be added here if needed
+# e.g., flake8-bugbear, flake8-comprehensions
