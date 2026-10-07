@@ -28667,7 +28667,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-07T20:09:56.140713+00:00",
+  "generated_at": "2026-10-07T20:28:31.079746+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -128860,7 +128860,7 @@
       },
       "authors": [
         {
-          "contributions": 16295,
+          "contributions": 16285,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -128920,83 +128920,83 @@
       "last_run_log": [
         {
           "agent": "implementer",
-          "duration_s": 0.955825,
-          "ended_at": "2026-10-07T20:09:40.427810Z",
+          "duration_s": 1.009779,
+          "ended_at": "2026-10-07T18:35:04.968474Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-07T20:09:39.471985Z"
+          "started_at": "2026-10-07T18:35:03.958695Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.005519,
-          "ended_at": "2026-10-07T20:09:39.434586Z",
+          "duration_s": 0.78252,
+          "ended_at": "2026-10-07T18:35:03.889115Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-07T20:09:38.429067Z"
+          "started_at": "2026-10-07T18:35:03.106595Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.436109,
-          "ended_at": "2026-10-07T20:09:38.392078Z",
+          "duration_s": 0.834168,
+          "ended_at": "2026-10-07T18:35:03.037568Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-07T20:09:36.955969Z"
+          "started_at": "2026-10-07T18:35:02.203400Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.954399,
-          "ended_at": "2026-10-07T20:09:36.873381Z",
+          "duration_s": 1.366187,
+          "ended_at": "2026-10-07T18:35:02.133693Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-07T20:09:35.918982Z"
+          "started_at": "2026-10-07T18:35:00.767506Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.952525,
-          "ended_at": "2026-10-07T20:09:35.807778Z",
+          "duration_s": 0.933552,
+          "ended_at": "2026-10-07T18:35:00.697902Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-07T20:09:34.855253Z"
+          "started_at": "2026-10-07T18:34:59.764350Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.622988,
-          "ended_at": "2026-10-07T20:09:34.819782Z",
+          "duration_s": 0.837312,
+          "ended_at": "2026-10-07T18:34:59.694683Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-07T20:09:33.196794Z"
+          "started_at": "2026-10-07T18:34:58.857371Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.218641,
-          "ended_at": "2026-10-07T20:09:33.160693Z",
+          "duration_s": 0.884348,
+          "ended_at": "2026-10-07T18:34:58.786018Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-07T20:09:31.942052Z"
+          "started_at": "2026-10-07T18:34:57.901670Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.697991,
-          "ended_at": "2026-10-07T20:09:31.833647Z",
+          "duration_s": 0.846081,
+          "ended_at": "2026-10-07T18:34:57.789609Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-07T20:09:30.135656Z"
+          "started_at": "2026-10-07T18:34:56.943528Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.039371,
-          "ended_at": "2026-10-07T20:09:30.084773Z",
+          "duration_s": 1.02547,
+          "ended_at": "2026-10-07T18:34:56.874246Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-07T20:09:29.045402Z"
+          "started_at": "2026-10-07T18:34:55.848776Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 4.064625,
-          "ended_at": "2026-10-07T20:09:28.998089Z",
+          "duration_s": 3.031278,
+          "ended_at": "2026-10-07T18:34:55.773354Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-07T20:09:24.933464Z"
+          "started_at": "2026-10-07T18:34:52.742076Z"
         }
       ],
       "paper_status": null,
@@ -172357,6 +172357,126 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-07T12:11:01.504482Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 3.172121,
+      "ended_at": "2026-10-07T12:11:01.570604Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-07T12:10:58.398483Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.205805,
+      "ended_at": "2026-10-07T12:11:01.460452Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-07T12:11:00.254647Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.947479,
+      "ended_at": "2026-10-07T12:11:00.210684Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-07T12:10:59.263205Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.9152,
+      "ended_at": "2026-10-07T12:10:59.218800Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-07T12:10:58.303600Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.848185,
+      "ended_at": "2026-10-07T12:10:58.212706Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-07T12:10:57.364521Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.965907,
+      "ended_at": "2026-10-07T12:10:57.316655Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-07T12:10:56.350748Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 3.461209,
+      "ended_at": "2026-10-07T12:10:56.301713Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-07T12:10:52.840504Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 400.74309,
+      "ended_at": "2026-10-07T12:10:18.346547Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-437-statistical-power-analysis-of-openly-ava",
+      "project_stage": "clarified",
+      "severity": "ok",
+      "started_at": "2026-10-07T12:03:37.603457Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 39.257667,
+      "ended_at": "2026-10-07T12:03:37.600023Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-437-statistical-power-analysis-of-openly-ava",
+      "project_stage": "clarified",
+      "severity": "ok",
+      "started_at": "2026-10-07T12:02:58.342356Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 515.14621,
+      "ended_at": "2026-10-07T12:02:49.029741Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-437-statistical-power-analysis-of-openly-ava",
+      "project_stage": "clarified",
+      "severity": "ok",
+      "started_at": "2026-10-07T11:54:13.883531Z"
     }
   ],
   "reviewed_preprints": [
