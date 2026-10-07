@@ -105,7 +105,7 @@ The researcher MUST be able to perform a sensitivity analysis on decision thresh
 
 - Public atomistic simulation datasets (Materials Project, OQMD) are accessible via standard HTTP/HTTPS protocols without authentication requirements for bulk structures
 - Segregation energy data is NOT available in MP/OQMD and MUST be generated via new GB supercell simulations
-- The GitHub Actions free-tier runner (2 CPU cores, ~7 GB RAM, ~14 GB disk, CPU-only) is sufficient for training RandomForest or linear regression models on a sampled dataset of ≤1000 configurations
+- The GitHub Actions free-tier runner (multiple CPU cores, ~7 GB RAM, ~14 GB disk, CPU-only) is sufficient for training RandomForest or linear regression models on a sampled dataset of ≤1000 configurations
 - Segregation energy data from generated GB supercell simulations uses consistent units (eV) and reference states
 - Impurity clustering descriptors (RDF peaks, pair correlations, Voronoi counts) computed from the GB interface region are representative of the clustering behavior driving segregation
 - The 5-fold cross-validation (or LOOCV) procedure provides adequate statistical power for evaluating model performance on the available sample size
