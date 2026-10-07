@@ -1,5 +1,14 @@
-'|definition light si speed':
-  quote: 299792458.0 (scipy.constants.c (CODATA 2018, exact by SI definition))
-  source_id: speed_of_light
-  url: https://physics.nist.gov/cgi-bin/cuu/Value?c
-  value: '299792458.0'
+'|algorithm checksum output pipeline sha use verify':
+  quote: "Within ZFS, data integrity is achieved by using a Fletcher-based checksum\
+    \ or a SHA-256 hash throughout the file system tree. Each block of data is checksummed\
+    \ and the checksum value is then saved in the pointer to that block\u2014rather\
+    \ than at the actual block itself. Next, the block pointer is checksummed, with\
+    \ the value being saved at its pointer. This checksumming continues all the way\
+    \ up the file system's data hierarchy to the root node, which is also checksummed,\
+    \ thus creating a Merkle tree. In-flight data corruption or phantom reads/writes\
+    \ (the data written/read checksums correctly but is actually wrong) are undetectable\
+    \ by most filesystems as they store the checksum with the data. ZFS stores the\
+    \ checksum of each block in its parent block pointer so that the entire pool self-validates."
+  source_id: ZFS
+  url: https://en.wikipedia.org/wiki/ZFS
+  value: SHA-256

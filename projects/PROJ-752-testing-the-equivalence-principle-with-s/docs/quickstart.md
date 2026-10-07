@@ -1,75 +1,54 @@
-# Quick Start Guide
+# Quickstart Guide: Testing the Equivalence Principle with Satellite Laser Ranging
 
-This guide walks you through setting up and running the SLR Equivalence Principle pipeline.
+This guide provides instructions to validate the reproducibility of the `PROJ-752` pipeline.
 
-## 1. Environment Setup
+## Prerequisites
+
+- Python 3.9+
+- `pip` and `venv`
+- Access to the ILRS data archive (for full run) or cached data.
+
+## Installation
+
+1. Clone the repository.
+2. Create a virtual environment:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+3. Install dependencies:
+ ```bash
+ pip install -r requirements.txt
+ ```
+
+## Validation Procedure (T046)
+
+To ensure the pipeline is reproducible and all artifacts are correctly generated, run the validation script:
 
 ```bash
-# Create a virtual environment
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
+python code/scripts/validate_quickstart.py
 ```
 
-## 2. Configuration
+### What this script does:
+1. **Configuration Check**: Verifies `config.yaml` is present and valid.
+2. **Data Verification**: Checks for `data/processed/cleaned_slr_data.csv` and other required inputs. If missing, it attempts to run the ingestion pipeline.
+3. **Lightweight Run**: Executes a minimal subset of the analysis (preprocessing and logic checks) to verify code integrity without requiring a full orbit determination.
+4. **Artifact Validation**: Computes SHA-256 hashes for generated data and saves a report to `data/results/quickstart_validation_report.json`.
 
-Ensure `config.yaml` exists in the project root.
-- **Required**: `benchmark_values.etvos_limit` must be set (see `docs/research/benchmark_selection.md`).
-- **Optional**: Override default paths for `data/raw` or `data/results`.
+### Expected Output
+- A log file at `data/logs/quickstart_validation.log`.
+- A JSON report at `data/results/quickstart_validation_report.json`.
+- Exit code `0` on success, `1` on failure.
 
-```yaml
-# Example config.yaml
-paths:
- raw_data: "data/raw"
- processed_data: "data/processed"
- results: "data/results"
- logs: "data/logs"
+## Full Pipeline Execution
 
-benchmark_values:
- etvos_limit: 1.1e-13
- citation: "Williams et al. (2016)"
+To run the full analysis (requires significant time and data):
 
-hyperparameters:
- residual_threshold_m: 0.02
- min_arc_days: 30
-```
-
-## 3. Running the Pipeline
-
-### Full Run
-Execute the main entry point:
 ```bash
-python code/cli/main.py
-```
-This will:
-1. Check resource limits (Memory < 6GB, Time < 6h).
-2. Fetch data for LAGEOS-1 and LAGEOS-2 (if not already present).
-3. Preprocess and clean the data.
-4. Run separate orbit fits.
-5. Compute $\eta$ and validate against the benchmark.
-6. Generate reports and plots.
-
-### Step-by-Step (Debugging)
-You can run individual stages:
-```bash
-# Ingestion
-python code/scripts/run_ingestion_pipeline.py
-
-# Analysis (requires pre-processed data)
-python code/analysis/eotvos.py
+python code/cli/main.py --run-full
 ```
 
-## 4. Verifying Results
+## Troubleshooting
 
-Check the generated artifacts:
-- `data/results/eotvos_metrics.json`: Contains the calculated $\eta$ and confidence interval.
-- `data/results/sensitivity_analysis.png`: Visual check of model sensitivity.
-- `data/logs/resource_monitor.log`: Verify no memory/time limits were exceeded.
-
-## 5. Troubleshooting
-
-- **Error: "Benchmark value missing"**: Ensure `config.yaml` has `benchmark_values.etvos_limit` set.
-- **Error: "Memory limit exceeded"**: Reduce the dataset size (e.g., use a shorter time range) or increase the limit in `--memory-limit`.
-- **Error: "Data unavailable"**: Check network connectivity to ILRS or verify `data/verified_datasets.yaml`.
+- **Missing Data**: If the script fails due to missing data, ensure you have internet access to download from ILRS or that `data/verified_datasets.yaml` contains valid URLs.
+- **Configuration Errors**: Verify `config.yaml` has the `benchmark_values.etvos_limit` key populated (see Research Phase T048).

@@ -2183,3 +2183,330 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-03T21:43:51Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: "State-of-the-art benchmark criteria for E\xF6tv\xF6s parameter: papers\
+    \ after 2010 with precision < 1e-13"
+  claim_id: c_c4198199
+  context: "Research Prerequisites (Phase 2) search criteria for defining state-of-the-art\
+    \ benchmarks for E\xF6tv\xF6s parameter precision."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Papers published after 2010 with precision < 1e-13 are used as criteria\
+    \ for defining state-of-the-art benchmarks for E\xF6tv\xF6s parameter precision."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T20:26:36Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: 'ILRS archive URLs verified for 5 satellites: LAGEOS-1, LAGEOS-2, Etalon-1,
+    Etalon-2, Starlette'
+  claim_id: c_29879fd7
+  context: Task T009d explicitly verifies the specific ILRS archive URLs for the 5
+    satellites required by FR-001 before ingestion begins.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The ILRS archive URLs are verified for 5 specific satellites: LAGEOS-1,
+    LAGEOS-2, Etalon-1, Etalon-2, and Starlette.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T20:27:00Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: SLR data cleaning filters residuals > 2cm for LAGEOS, Etalon, and Starlette
+  claim_id: c_21876076
+  context: User Story 1 goal to download and clean SLR normal-point series, specifically
+    implementing a filter to drop rows where abs(residual) > 0.02 (2 cm).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SLR_data_cleaning_filters_residuals_%3E_2cm_for_LAGEOS,_Etalon
+  kind: entity_fact
+  raw_text: SLR normal-point series for LAGEOS, Etalon, and Starlette are cleaned
+    by filtering residuals > 2cm.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T20:27:24Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Satellites with < 30 days arc length excluded from joint estimation
+  claim_id: c_48f2263c
+  context: Task T018 requirement to log warnings for satellites with < 30 days unique
+    dates and explicitly exclude them from downstream joint estimation.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Satellites_with_%3C_30_days_arc_length_excluded_from_joint_est
+  kind: magnitude
+  raw_text: Satellites with less than 30 days of arc length are identified and excluded
+    from downstream joint estimation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T20:27:50Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: 'Pipeline execution time limit: 6 hours on GitHub Actions free-tier'
+  claim_id: c_39932d48
+  context: User Story 4 goal to validate pipeline execution within GitHub Actions
+    free-tier constraints, including a timing gate to exit if total time > 6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must complete within a 6-hour time limit on GitHub Actions
+    free-tier constraints.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T20:28:17Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Pipeline exit code 1 if RAM > 6GB
+  claim_id: c_b9181a41
+  context: Task T038 requirement to monitor RAM and exit with code 1 if the limit
+    is exceeded to prevent runner hangs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must exit with code 1 if RAM usage exceeds 6GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T20:28:43Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: 'Memory monitoring interval: 5 seconds'
+  claim_id: c_c22a745a
+  context: Task T038 requirement to poll memory every 5 seconds using psutil.Process().memory_info().rss.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory usage is monitored every 5 seconds during pipeline execution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T20:29:08Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: 'Levenberg-Marquardt algorithm convergence tolerance: 1e-8'
+  claim_id: c_8d624d82
+  context: Task T024 requirement to use Levenberg-Marquardt algorithm with tol=1e-8
+    convergence tolerance for the JointLeastSquaresSolver.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The differential acceleration parameter estimation uses a Levenberg-Marquardt
+    algorithm with a convergence tolerance of 1e-8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T20:29:26Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: "E\xF6tv\xF6s parameter calculation: eta = |ac| / g"
+  claim_id: c_8ab259d4
+  context: Task T026 requirement to compute eta = |ac| / g and 95% CI for both joint
+    and separate methods.
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: / g
+    relation: ac
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/E%C3%B6tv%C3%B6s_parameter_calculation:_eta_=_ac_/_g
+    source_value: "https://en.wikipedia.org/wiki/E\xF6tv\xF6s_parameter_calculation:_eta_=_ac_/_g"
+    subject: "E\xF6tv\xF6s parameter calculation: eta ="
+  kind: relational
+  raw_text: "The E\xF6tv\xF6s parameter eta is calculated as the absolute value of\
+    \ differential acceleration divided by local gravity (eta = |ac| / g)."
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T20:30:04Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Z-score variation > 20% flags result as Unreliable
+  claim_id: c_7b1587b7
+  context: Task T035 requirement to flag 'Unreliable' if Z-score variation > 20% across
+    models, and T052 to calculate coefficient of variation.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Z-score_variation_%3E_20%25_flags_result_as_Unreliable
+  kind: magnitude
+  raw_text: A Z-score variation greater than 20% across geopotential models flags
+    the result as 'Unreliable'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T20:30:58Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Output checksum verification uses SHA-256 algorithm
+  claim_id: c_662b46ef
+  context: Task T019 requirement to write output to data/processed/cleaned_slr_data.csv
+    with checksum verification using SHA-256.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Within ZFS, data integrity is achieved by using a Fletcher-based checksum\
+        \ or a SHA-256 hash throughout the file system tree. Each block of data is\
+        \ checksummed and the checksum value is then saved in the pointer to that\
+        \ block\u2014rather than at the actual block itself. Next, the block pointer\
+        \ is checksummed, with the value being saved at its pointer. This checksumming\
+        \ continues all the way up the file system's data hierarchy to the root node,\
+        \ which is also checksummed, thus creating a Merkle tree. In-flight data corruption\
+        \ or phantom reads/writes (the data written/read checksums correctly but is\
+        \ actually wrong) are undetectable by most filesystems as they store the checksum\
+        \ with the data. ZFS stores the checksum of each block in its parent block\
+        \ pointer so that the entire pool self-validates."
+      source_id: ZFS
+      url: https://en.wikipedia.org/wiki/ZFS
+      value: SHA-256
+    filled: true
+  kind: numeric
+  raw_text: The pipeline uses SHA-256 algorithm to verify output checksums.
+  resolved_value: SHA-256
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-07T20:31:11Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Joint fit solver initial orbital elements from TLE data
+  claim_id: c_bd61c702
+  context: Task T024 requirement to use TLE data for initial orbital elements in the
+    JointLeastSquaresSolver.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Joint_fit_solver_initial_orbital_elements_from_TLE_data
+  kind: entity_fact
+  raw_text: The joint fit solver uses TLE data for initial orbital elements.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T20:31:46Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: GGM05C geopotential model implemented
+  claim_id: c_89d3401a
+  context: Task T023a requirement to explicitly implement GGM geopotential (e.g.,
+    GGM05C).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GGM05C_geopotential_model_implemented
+  kind: entity_fact
+  raw_text: The GGM05C geopotential model is explicitly implemented in the dynamics
+    model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T20:32:16Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Jacchia drag model implemented
+  claim_id: c_1bf7a9dc
+  context: Task T023b requirement to implement Jacchia drag model in the dynamics
+    model.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Jacchia_drag_model_implemented
+  kind: entity_fact
+  raw_text: The Jacchia drag model is implemented in the dynamics model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T20:32:49Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Schwarzschild and Lense-Thirring relativistic corrections implemented
+  claim_id: c_b546801f
+  context: Task T023d requirement to implement standard relativistic corrections (e.g.,
+    Schwarzschild, Lense-Thirring).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Schwarzschild_and_Lense-Thirring_relativistic_corrections_im
+  kind: entity_fact
+  raw_text: Standard relativistic corrections including Schwarzschild and Lense-Thirring
+    are implemented.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T20:33:11Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis iterates over GGM, EGM2008, and GOCO models
+  claim_id: c_d8eeffa3
+  context: Task T033a requirement to implement iteration logic over GGM, EGM2008,
+    and GOCO geopotential models.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_iterates_over_GGM,_EGM2008,_and_GOCO_mo
+  kind: entity_fact
+  raw_text: The pipeline iterates over GGM, EGM2008, and GOCO geopotential models
+    for sensitivity analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T20:33:39Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Bonferroni, Holm-Bonferroni, and Benjamini-Hochberg corrections implemented
+  claim_id: c_e95dadfb
+  context: Task T034 requirement to explicitly implement logic for Bonferroni, Holm-Bonferroni,
+    and Benjamini-Hochberg methods.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni,_Holm-Bonferroni,_and_Benjamini-Hochberg_correcti
+  kind: entity_fact
+  raw_text: Multiple-comparison corrections including Bonferroni, Holm-Bonferroni,
+    and Benjamini-Hochberg are implemented.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T20:34:07Z'

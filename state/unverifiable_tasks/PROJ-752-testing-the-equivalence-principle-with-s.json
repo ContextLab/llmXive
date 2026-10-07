@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-752-testing-the-equivalence-principle-with-s",
+  "tasks": [
+    {
+      "task_key": "T045",
+      "reject_count": 1,
+      "last_reason": "No unit test files or code were presented under `tests/unit/`; the claim that edge\u2011case tests for missing data and empty results exist cannot be verified because the required artifacts are absent. The next implementer must add the actual test files containing the specified edge\u2011case cases.",
+      "first_seen": "2026-10-07T20:34:09.926223+00:00",
+      "last_seen": "2026-10-07T20:34:09.926223+00:00"
+    },
+    {
+      "task_key": "T046",
+      "reject_count": 1,
+      "last_reason": "The implementer provided no evidence of running a `quickstart.md` validation\u2014no logs, screenshots, or generated reproducibility report are present. Consequently, the required artifact confirming that the quickstart steps were executed and validated is missing.",
+      "first_seen": "2026-10-07T20:34:09.928317+00:00",
+      "last_seen": "2026-10-07T20:34:09.928317+00:00"
+    }
+  ],
+  "updated_at": "2026-10-07T20:34:09.928317+00:00"
+}
