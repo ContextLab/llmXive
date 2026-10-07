@@ -1,18 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided showing that the required directories (`code/`, `data/raw/`,
-    `data/processed/`, `data/results/`, `tests/`) actually exist on disk; the claim
-    is unsubstantiated. The implementer must create these directories (e.g., via `mkdir
-    -p`) and provide a listing or screenshot confirming their presence.
-T007b:
-  c: false
-  h: 41f602be03ef7b61a6c26c6a1e9651d21ece662c548846fb0a5d196a4d74131b
-  r: The repository lacks the required `specs/001-assess-ml-predictive-power/contracts/dataset.schema.yaml`
-    file, so the validator cannot actually load the schema. Moreover, `code/utils/validators.py`
-    is truncated, contains syntax errors (e.g., `raise FileNotFoundEr`) and does not
-    define the `validate_dataset_schema` function that the verification command expects.
-    These issues prevent the task from being fulfilled.
 T010:
   c: false
   h: 99ddaf5c78959bc30a8ed17afce5774413327911d15089cd4257b875baf70176
@@ -66,6 +51,21 @@ T022b:
     \ artifact the task demands. The implementer must add the actual code (e.g., a\
     \ Python module that performs scaffold\u2011based splitting of the USPTO dataset)\
     \ and the resulting split files or documentation proving it works."
+T026a:
+  c: false
+  h: b611a7c21f04c575f161fcff6998ce8fed67f00dc49051623bfad248517894d7
+  r: The required data files (`data/processed/held_out_test_indices.csv`, `data/processed/train_indices.csv`)
+    are absent, and the expected result files (`data/results/test_metrics.json`, `data/results/train_metrics.json`)
+    were not generated. Moreover, the provided `code/modeling/evaluate.py` is truncated
+    and does not contain the logic to compute the metrics and write the JSON outputs.
+    The task therefore remains unfinished.
+T026a#1:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, model training scripts, or evaluation results were supplied;\
+    \ the claim lacks any tangible artifacts to confirm that the preprocessing pipeline,\
+    \ model training/hyperparameter optimization, or generalization/feature\u2011\
+    importance analysis were actually performed. The required outputs are missing."
 T027a:
   c: false
   h: a0bc2b984bcb6735bf196eeb29fd7c854471697abcf2cee9dabfdcf72d720d7c

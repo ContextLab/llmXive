@@ -1,77 +1,51 @@
 import os
-from pathlib import Path
 import pytest
-import shutil
-import tempfile
+from pathlib import Path
 import sys
 
-# Add the parent directory to the path so we can import the module
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+# Add project root to path if needed
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from setup_directories import main
 
+@pytest.fixture
+def temp_project_root(tmp_path):
+    """Create a temporary directory to simulate project root."""
+    # Change to temp dir to test directory creation
+    original_cwd = os.getcwd()
+    os.chdir(tmp_path)
+    yield tmp_path
+    os.chdir(original_cwd)
 
-def test_directories_created():
-    """
-    Verify that the setup_directories script creates the required directories.
-    This test creates a temporary directory structure to simulate the project root.
-    """
-    # Create a temporary directory to act as the project root
-    with tempfile.TemporaryDirectory() as temp_root:
-        temp_path = Path(temp_root)
-        
-        # Create a dummy setup_directories.py in the temp location to test
-        # We need to simulate the structure: temp_root/code/setup_directories.py
-        code_dir = temp_path / "code"
-        code_dir.mkdir()
-        
-        # Copy the logic to test it in isolation
-        directories = [
-            "code",
-            "data/raw",
-            "data/processed",
-            "data/results",
-            "tests"
-        ]
-        
-        for dir_name in directories:
-            dir_path = temp_path / dir_name
-            if not dir_path.exists():
-                dir_path.mkdir(parents=True, exist_ok=True)
-        
-        # Verify existence
-        for dir_name in directories:
-            dir_path = temp_path / dir_name
-            assert dir_path.exists(), f"Directory {dir_path} was not created."
-            assert dir_path.is_dir(), f"{dir_path} exists but is not a directory."
-        
-        # Specifically check nested structure
-        assert (temp_path / "data" / "raw").exists()
-        assert (temp_path / "data" / "processed").exists()
-        assert (temp_path / "data" / "results").exists()
+def test_directories_created(temp_project_root):
+    """Test that all required directories are created."""
+    # Run the main function
+    main()
 
+    required_dirs = [
+        "code",
+        "data/raw",
+        "data/processed",
+        "data/results",
+        "tests"
+    ]
 
-def test_idempotency():
-    """
-    Verify that running the directory creation logic multiple times does not fail.
-    """
-    with tempfile.TemporaryDirectory() as temp_root:
-        temp_path = Path(temp_root)
-        
-        directories = [
-            "code",
-            "data/raw",
-            "data/processed",
-            "data/results",
-            "tests"
-        ]
-        
-        # Run creation twice
-        for _ in range(2):
-            for dir_name in directories:
-                dir_path = temp_path / dir_name
-                dir_path.mkdir(parents=True, exist_ok=True)
-        
-        # Verify all still exist
-        for dir_name in directories:
-            assert (temp_path / dir_name).exists()
+    for dir_name in required_dirs:
+        dir_path = temp_project_root / dir_name
+        assert dir_path.exists(), f"Directory {dir_name} was not created"
+        assert dir_path.is_dir(), f"{dir_name} is not a directory"
+
+def test_existing_directories_not_overwritten(temp_project_root):
+    """Test that existing directories are handled gracefully."""
+    # Pre-create one directory
+    pre_created = temp_project_root / "code"
+    pre_created.mkdir(parents=True, exist_ok=True)
+
+    # Run main
+    main()
+
+    # Should still exist and be a directory
+    assert pre_created.exists()
+    assert pre_created.is_dir()
+    # Should contain __init__.py or other files if they existed before
+    # (though we didn't add any, it should still be there)
