@@ -34,32 +34,30 @@ T008b:
     nor shown, and no content with the three required sections (Hypothesis, Pilot
     Results, Rationale) is provided. Without this document, the pilot comparison and
     baseline hypothesis are not documented.
-T019b:
+T013a:
+  c: false
+  h: eff0c03ed4ee98d3381c338a6493fbc0d28ad691bfb7f5a41b22a3d6f440dc0c
+  r: "The required output file `data/processed/convergence_results_core.csv` does\
+    \ not exist, and the provided `inference.py` is truncated and shows no evidence\
+    \ of actually performing the k\u2011step iterative refinement or writing results.\
+    \ Consequently the task\u2019s core requirement\u2014producing the convergence\
+    \ results CSV\u2014is unmet."
+T019#2:
+  c: false
+  h: 8f7a3d5ef3487cb6bc15e51b6328278bf9335c970aac917d9b7789ea209268cc
+  r: The required input files (`entropy_results.csv`, `convergence_results_core.csv`,
+    `baseline_pass1.json`, `router_cv_folds_verified.json`) are missing, and the expected
+    output artifacts (`router_model.pkl`, `router_metrics.json`) do not exist. Without
+    these files the training script cannot have produced the model or metrics, so
+    the task is not fulfilled.
+T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `router_results.csv` file or any other output was presented; the conversation
-    contains only the task description and no evidence of the router being applied
-    to the test set or of a CSV with the required columns (`task_id, predicted_k,
-    actual_k, accuracy, is_censored`). The required artifact is missing.
-T020a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `static_k2_baseline.json` file containing `{total_flops, accuracy}` was provided,\
-    \ nor any FLOPs or accuracy numbers for the always\u2011k=2 baseline on the filtered\
-    \ test set. Consequently the required artifact is missing."
-T021c:
-  c: false
-  h: ec26da4568a31b482344cfbc9d3afe550b3d2bf62871a927527c1388292f6f42
-  r: The required `data/processed/config.json` file is missing, so the extracted `NON_INFERIORITY_DELTA`
-    and `RANDOM_SEED` have not been written to the expected location. The implementer
-    must create the JSON file containing those two values.
-T025a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `stratum_pvalues_powered.json` file or any other output artifact was presented.\
-    \ Without the required JSON containing the per\u2011stratum powered\u2011only\
-    \ p\u2011values, the task\u2019s deliverable is missing. The implementer must\
-    \ generate and provide this file."
+  r: "No `router_accuracy_test.json` file or its contents were presented; without\
+    \ the paired\u2011t\u2011test results stored in that JSON artifact, the requirement\
+    \ to compare router accuracy against a random baseline and record the statistical\
+    \ test cannot be confirmed. The implementer must provide the actual JSON file\
+    \ with the test statistics."
 T025b:
   c: false
   h: 5c7426b85f582598146828b40fb1e8d92549a6aa510db07f9145f1cb5fb9853c
@@ -68,12 +66,6 @@ T025b:
     \ does not contain any implementation of Holm\u2011Bonferroni correction or grouping\
     \ by strata, and `code/config.yaml` does not define the needed `alpha: 0.05`.\
     \ Consequently the task\u2019s specifications are not met."
-T025c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The claim provides no actual `convergence_results_merged.csv` file (or any CSV)
-    to inspect, and there is no evidence that the two source CSVs were concatenated.
-    Without the merged file present and verified, the task requirement is not satisfied.
 T025d:
   c: false
   h: ddf3eb338a1457807e24a27639d07c0e761936d11f9d8e5be58b1fb1b4ef946c
@@ -90,24 +82,25 @@ T025f:
     \ did not provide the required merged JSON artifact linking `adjusted_pvalues_powered.json`\
     \ and `mixed_effects_results.json`. Consequently the task\u2019s core requirement\
     \ is unmet."
-T026:
+T050:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `sensitivity_sweep.json` file or any computed Spearman\u202F\u03C1 results\
-    \ for thresholds k\u202F=\u202F2,\u202F3,\u202F4 are present; the implementer\
-    \ provided only the task description and project spec without the required output\
-    \ artifact. Consequently, the task\u2019s deliverable is missing."
-T035:
+  h: e29e63f25ad00cb60e9edc2a47a28fd0ef12674e3d940434084975fdd154d25f
+  r: "The provided `data_loader.py` still uses `load_dataset` without `streaming=True`\
+    \ and contains no logic for chunked processing, result accumulation, or periodic\
+    \ flushing to `entropy_results.csv`/`convergence_results_core.csv`. Moreover,\
+    \ the required output files `data/processed/entropy_results.csv` and `data/processed/streaming_log.json`\
+    \ are absent. The task\u2019s core requirements are therefore not satisfied."
+T051:
   c: false
-  h: d6edfed47c2329d2ad03b70a6d9eaca7f3ad91eb8b5edc53f7f189a27b41133f
-  r: "The required input file `data/processed/filtered_splits.json` does not exist,\
-    \ and the expected output `data/processed/entropy_results.csv` is also missing;\
-    \ there is no evidence that the script was run, that it exited with code\u202F\
-    0, or that it produced the output file. The task therefore remains unfinished."
-T036:
+  h: 12e00b9c9875ede52da556661ae7a30ac89fd5e6f4f64f9a0cf0cb16f9ade436
+  r: The provided `entropy.py` only catches parsing errors with debug logs and returns
+    `None`; it never writes failure details to `data/processed/entropy_errors.json`,
+    and that JSON file is absent. Consequently the pipeline does not have the required
+    persistent error logging or guaranteed continuation behavior.
+T053:
   c: false
-  h: 1f0a6b9ad0a61000cfc1ea0747919a942f6680a5d3e3abc3e1e147c4040ed5de
-  r: "The required input `data/processed/filtered_splits.json` and the expected output\
-    \ `data/processed/convergence_results_core.csv` are both absent, and there is\
-    \ no evidence (e.g., logs, exit\u2011code capture) that the inference script was\
-    \ actually executed. The task therefore has not been fulfilled."
+  h: 324a702f7550881165b4e6830c8c19361074d72f456ab2929169b8e4793a3669
+  r: "The required output file `data/processed/router_convergence.json` does not exist,\
+    \ so the convergence status was never logged. Without this artifact the task\u2019\
+    s core requirement\u2014validating and recording the ordinal logistic regression\
+    \ convergence\u2014is unmet."

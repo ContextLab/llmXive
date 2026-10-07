@@ -4,231 +4,272 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 import math
-import pandas as pd
-from scipy.stats import spearmanr
 
-from src.config import load_config, get_config_value
-from src.logging_utils import save_results_to_json
+import pandas as pd
+import statsmodels.api as sm
+from statsmodels.formula.api import mixedlm
 
 logger = logging.getLogger(__name__)
 
-def load_full_splits(path: str = "data/processed/full_splits.json") -> Dict[str, Any]:
-    """Load the full splits JSON."""
-    p = Path(path)
-    if not p.exists():
-        raise FileNotFoundError(f"Full splits not found at {path}")
-    with open(p, 'r') as f:
+def load_full_splits(splits_path: Path) -> Dict[str, List[Dict]]:
+    """Load full splits JSON."""
+    with open(splits_path, 'r') as f:
         return json.load(f)
 
-def load_strata_log(path: str = "data/processed/strata_log.json") -> Dict[str, Any]:
-    """Load the strata log JSON."""
-    p = Path(path)
-    if not p.exists():
-        raise FileNotFoundError(f"Strata log not found at {path}")
-    with open(p, 'r') as f:
+def load_strata_log(strata_log_path: Path) -> List[Dict]:
+    """Load strata log JSON."""
+    with open(strata_log_path, 'r') as f:
         return json.load(f)
 
-def load_entropy_results(path: str = "data/processed/entropy_results.csv") -> pd.DataFrame:
-    """Load entropy results into a DataFrame."""
-    p = Path(path)
-    if not p.exists():
-        raise FileNotFoundError(f"Entropy results not found at {path}")
-    return pd.read_csv(p)
+def load_entropy_results(entropy_path: Path) -> List[Dict]:
+    """Load entropy results CSV."""
+    results = []
+    with open(entropy_path, 'r', newline='') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            results.append({
+                'task_id': row['task_id'],
+                'entropy': float(row['entropy'])
+            })
+    return results
 
-def load_convergence_results(path: str) -> pd.DataFrame:
-    """Load convergence results from a CSV file."""
-    p = Path(path)
-    if not p.exists():
-        raise FileNotFoundError(f"Convergence results not found at {path}")
-    return pd.read_csv(p)
+def load_convergence_results(convergence_path: Path) -> List[Dict]:
+    """Load convergence results CSV."""
+    results = []
+    with open(convergence_path, 'r', newline='') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            results.append({
+                'task_id': row['task_id'],
+                'k': int(row['k']),
+                'is_correct': row['is_correct'] == 'True',
+                'first_correct_step': int(row['first_correct_step']) if row['first_correct_step'] != '' else None,
+                'censored': row['censored'] == 'True',
+                'time_to_event': int(row['time_to_event'])
+            })
+    return results
 
-def get_stratum_for_task(task_id: str, strata_log: Dict[str, Any]) -> Optional[str]:
-    """Retrieve the stratum name for a given task_id."""
-    # The strata_log structure is expected to have a 'strata' key containing a list of strata definitions
-    # Each stratum definition likely has a 'stratum_name' and a list of 'task_ids' or similar.
-    # If the structure is different (e.g., a flat map), adjust accordingly.
-    # Assuming structure: {'strata': [{'name': 'easy', 'task_ids': [...]}, ...]}
-    strata = strata_log.get('strata', [])
-    for stratum in strata:
-        if 'task_ids' in stratum and task_id in stratum['task_ids']:
-            return stratum.get('name') or stratum.get('stratum_name')
-        # Fallback check if task_ids are keys in a dict
-        if 'tasks' in stratum and task_id in stratum['tasks']:
-            return stratum.get('name') or stratum.get('stratum_name')
+def get_stratum_for_task(task_id: str, full_splits: Dict[str, List[Dict]], strata_log: List[Dict]) -> Optional[str]:
+    """Determine the stratum for a given task_id."""
+    # Reconstruct strata mapping if not directly stored in splits
+    # Assuming strata_log contains: [{"strata_name": "...", "task_ids": [...]}, ...]
+    for stratum_entry in strata_log:
+        if task_id in stratum_entry.get('task_ids', []):
+            return stratum_entry['strata_name']
     return None
 
-def compute_per_stratum_correlation(
-    entropy_df: pd.DataFrame,
-    convergence_df: pd.DataFrame,
-    strata_log: Dict[str, Any]
-) -> List[Dict[str, Any]]:
+def compute_per_stratum_correlation(entropy_data: List[Dict], convergence_data: List[Dict], strata_log: List[Dict]) -> Dict[str, Dict[str, float]]:
     """Compute Spearman correlation per stratum."""
-    merged = pd.merge(entropy_df, convergence_df, on='task_id', how='inner')
-    results = []
+    import scipy.stats as stats
 
-    strata = strata_log.get('strata', [])
-    for stratum in strata:
-        stratum_name = stratum.get('name') or stratum.get('stratum_name')
-        stratum_tasks = set(stratum.get('task_ids', []) or stratum.get('tasks', []))
+    results = {}
+    merged = {}
+    for e in entropy_data:
+        merged[e['task_id']] = {'entropy': e['entropy']}
+    for c in convergence_data:
+        if c['task_id'] in merged:
+            merged[c['task_id']]['first_correct_step'] = c['first_correct_step']
 
-        # Filter merged data for this stratum
-        stratum_data = merged[merged['task_id'].isin(stratum_tasks)]
+    for stratum_entry in strata_log:
+        stratum_name = stratum_entry['strata_name']
+        task_ids = stratum_entry.get('task_ids', [])
+        stratum_data = [merged[tid] for tid in task_ids if tid in merged and 'first_correct_step' in merged[tid]]
 
-        if len(stratum_data) < 2:
-            logger.warning(f"Stratum {stratum_name} has fewer than 2 samples. Skipping correlation.")
-            results.append({
-                'stratum': stratum_name,
-                'n_samples': len(stratum_data),
-                'rho': None,
-                'p_value': None,
-                'status': 'insufficient_samples'
-            })
+        if len(stratum_data) < 3:
+            results[stratum_name] = {'rho': float('nan'), 'p_value': float('nan'), 'n': len(stratum_data)}
             continue
 
-        # Compute Spearman correlation between entropy and first_correct_step (or time_to_event)
-        # Assuming 'entropy' and 'first_correct_step' columns exist
-        if 'entropy' not in stratum_data.columns or 'first_correct_step' not in stratum_data.columns:
-            logger.error(f"Required columns missing in stratum data for {stratum_name}")
-            continue
+        entropies = [d['entropy'] for d in stratum_data]
+        steps = [d['first_correct_step'] for d in stratum_data]
 
-        rho, p_value = spearmanr(stratum_data['entropy'], stratum_data['first_correct_step'])
-        results.append({
-            'stratum': stratum_name,
-            'n_samples': len(stratum_data),
-            'rho': float(rho) if not math.isnan(rho) else None,
-            'p_value': float(p_value) if not math.isnan(p_value) else None,
-            'status': 'computed'
-        })
+        rho, p_val = stats.spearmanr(entropies, steps)
+        results[stratum_name] = {'rho': float(rho), 'p_value': float(p_val), 'n': len(stratum_data)}
 
     return results
 
-def merge_convergence_results(
-    core_path: str = "data/processed/convergence_results_core.csv",
-    sensitivity_path: str = "data/processed/convergence_results_sensitivity.csv",
-    output_path: str = "data/processed/convergence_results_merged.csv"
-) -> pd.DataFrame:
+def merge_convergence_results(core_path: Path, sensitivity_path: Path) -> List[Dict]:
     """Merge core and sensitivity convergence results."""
-    core_path = Path(core_path)
-    sensitivity_path = Path(sensitivity_path)
-    output_path = Path(output_path)
+    merged = {}
+    for path in [core_path, sensitivity_path]:
+        if not path.exists():
+            continue
+        with open(path, 'r', newline='') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                task_id = row['task_id']
+                k = int(row['k'])
+                if task_id not in merged:
+                    merged[task_id] = []
+                merged[task_id].append({
+                    'k': k,
+                    'output': row['output'],
+                    'is_correct': row['is_correct'] == 'True',
+                    'first_correct_step': int(row['first_correct_step']) if row['first_correct_step'] else None,
+                    'censored': row['censored'] == 'True',
+                    'time_to_event': int(row['time_to_event'])
+                })
+    return [{'task_id': tid, 'runs': runs} for tid, runs in merged.items()]
 
-    if not core_path.exists():
-        raise FileNotFoundError(f"Core convergence results not found at {core_path}")
-    if not sensitivity_path.exists():
-        raise FileNotFoundError(f"Sensitivity convergence results not found at {sensitivity_path}")
+def run_sensitivity_sweep(merged_convergence: List[Dict], thresholds: List[int]) -> Dict[str, Any]:
+    """Run sensitivity sweep on merged convergence data."""
+    results = {}
+    for threshold in thresholds:
+        # Filter data where time_to_event <= threshold or censored
+        valid_count = 0
+        total = len(merged_convergence)
+        for item in merged_convergence:
+            runs = item['runs']
+            # Find if any run is correct within threshold
+            correct_within = any(r['k'] <= threshold and r['is_correct'] for r in runs)
+            if correct_within:
+                valid_count += 1
+        accuracy = valid_count / total if total > 0 else 0.0
+        results[f'k_{threshold}'] = {'accuracy': accuracy, 'n': total}
+    return results
 
-    df_core = pd.read_csv(core_path)
-    df_sens = pd.read_csv(sensitivity_path)
-
-    # Concatenate and drop duplicates if any (based on task_id and k)
-    merged = pd.concat([df_core, df_sens], ignore_index=True)
-    merged = merged.drop_duplicates(subset=['task_id', 'k'], keep='first')
-
-    merged.to_csv(output_path, index=False)
-    logger.info(f"Merged convergence results saved to {output_path}")
-    return merged
-
-def run_sensitivity_sweep(
-    merged_convergence_path: str = "data/processed/convergence_results_merged.csv",
-    output_path: str = "data/processed/sensitivity_sweep.json"
+def run_mixed_effects_sensitivity_analysis(
+    entropy_path: Path,
+    convergence_path: Path,
+    full_splits_path: Path,
+    strata_log_path: Path,
+    output_path: Path
 ) -> Dict[str, Any]:
     """
-    Perform sensitivity sweep: compute Spearman rho for thresholds k in {2, 3, 4}.
-    Compare against baseline (k={1, 2, 3}) and output results.
+    Perform sensitivity analysis on the hierarchical mixed-effects model
+    by varying the random effects structure.
+    
+    Models compared:
+    1. (1 | strata) - Random intercept only
+    2. (1 + entropy | strata) - Random intercept and slope for entropy
+    
+    Returns comparison of AIC/BIC scores.
     """
-    merged_df = pd.read_csv(merged_convergence_path)
+    # Load data
+    entropy_data = load_entropy_results(entropy_path)
+    convergence_data = load_convergence_results(convergence_path)
+    full_splits = load_full_splits(full_splits_path)
+    strata_log = load_strata_log(strata_log_path)
 
-    if 'first_correct_step' not in merged_df.columns:
-        raise ValueError("Column 'first_correct_step' not found in merged convergence results.")
+    # Merge data
+    merged_df = []
+    for e in entropy_data:
+        task_id = e['task_id']
+        entropy_val = e['entropy']
+        
+        # Find stratum
+        stratum = get_stratum_for_task(task_id, full_splits, strata_log)
+        if stratum is None:
+            continue
+        
+        # Find convergence step (use first_correct_step or time_to_event)
+        conv_entry = next((c for c in convergence_data if c['task_id'] == task_id), None)
+        if conv_entry is None:
+            continue
+        
+        # Use time_to_event as the response variable
+        response = conv_entry['time_to_event']
+        
+        merged_df.append({
+            'task_id': task_id,
+            'entropy': entropy_val,
+            'response': response,
+            'strata': stratum
+        })
 
-    # Define thresholds
-    thresholds = [2, 3, 4]
-    baseline_thresholds = [1, 2, 3]
+    if len(merged_df) == 0:
+        logger.error("No data available for mixed effects analysis.")
+        return {"error": "No data available"}
 
-    results = {
-        'baseline': {},
-        'sweep': {}
+    df = pd.DataFrame(merged_df)
+
+    # Model 1: Random intercept only (1 | strata)
+    logger.info("Fitting Model 1: (1 | strata)")
+    try:
+        model1 = mixedlm("response ~ entropy", df, groups=df["strata"])
+        result1 = model1.fit()
+        aic1 = result1.aic
+        bic1 = result1.bic
+        logger.info(f"Model 1 AIC: {aic1:.2f}, BIC: {bic1:.2f}")
+    except Exception as e:
+        logger.warning(f"Model 1 failed: {e}")
+        aic1, bic1 = None, None
+
+    # Model 2: Random intercept and slope (1 + entropy | strata)
+    logger.info("Fitting Model 2: (1 + entropy | strata)")
+    try:
+        # Note: statsmodels MixedLM syntax for random slopes
+        # re_formula="1" is default, "1+entropy" for random slope
+        model2 = mixedlm("response ~ entropy", df, groups=df["strata"], re_formula="1+entropy")
+        result2 = model2.fit()
+        aic2 = result2.aic
+        bic2 = result2.bic
+        logger.info(f"Model 2 AIC: {aic2:.2f}, BIC: {bic2:.2f}")
+    except Exception as e:
+        logger.warning(f"Model 2 failed: {e}")
+        aic2, bic2 = None, None
+
+    # Prepare comparison
+    comparison = {
+        "model_1_intercept_only": {
+            "formula": "response ~ entropy, (1 | strata)",
+            "aic": aic1,
+            "bic": bic1,
+            "converged": result1.converged if aic1 is not None else False
+        },
+        "model_2_intercept_slope": {
+            "formula": "response ~ entropy, (1 + entropy | strata)",
+            "aic": aic2,
+            "bic": bic2,
+            "converged": result2.converged if aic2 is not None else False
+        },
+        "comparison": {
+            "aic_diff": (aic2 - aic1) if (aic1 is not None and aic2 is not None) else None,
+            "bic_diff": (bic2 - bic1) if (bic1 is not None and bic2 is not None) else None,
+            "preferred_model": None
+        }
     }
 
-    # Compute baseline correlation (using all rows where first_correct_step <= 3)
-    # For baseline, we consider the standard convergence metric
-    baseline_data = merged_df[merged_df['first_correct_step'] <= 3].copy()
-    # If we need to adjust 'first_correct_step' for baseline (e.g., treat >3 as censored),
-    # but the task implies comparing correlation at different cutoffs.
-    # Let's assume we compute correlation on the subset of data that converges within the threshold.
-    # However, the task says "compute Spearman ρ for thresholds k ∈ {2,3,4}".
-    # This likely means: for each threshold K, consider only problems that converge by K,
-    # and compute correlation between entropy and first_correct_step.
-
-    # Baseline: K=3 (standard)
-    baseline_subset = merged_df[merged_df['first_correct_step'] <= 3]
-    if len(baseline_subset) > 1:
-        rho_base, p_base = spearmanr(baseline_subset['entropy'], baseline_subset['first_correct_step'])
-        results['baseline'] = {
-            'threshold': 3,
-            'n_samples': len(baseline_subset),
-            'rho': float(rho_base) if not math.isnan(rho_base) else None,
-            'p_value': float(p_base) if not math.isnan(p_base) else None
-        }
-    else:
-        results['baseline'] = {
-            'threshold': 3,
-            'n_samples': len(baseline_subset),
-            'rho': None,
-            'p_value': None,
-            'note': 'Insufficient samples for baseline'
-        }
-
-    # Sweep for K in {2, 3, 4}
-    for k in thresholds:
-        subset = merged_df[merged_df['first_correct_step'] <= k]
-        if len(subset) > 1:
-            rho, p_val = spearmanr(subset['entropy'], subset['first_correct_step'])
-            results['sweep'][k] = {
-                'n_samples': len(subset),
-                'rho': float(rho) if not math.isnan(rho) else None,
-                'p_value': float(p_val) if not math.isnan(p_val) else None
-            }
+    # Determine preferred model
+    if aic1 is not None and aic2 is not None:
+        if aic2 < aic1:
+            comparison["comparison"]["preferred_model"] = "model_2_intercept_slope"
         else:
-            results['sweep'][k] = {
-                'n_samples': len(subset),
-                'rho': None,
-                'p_value': None,
-                'note': 'Insufficient samples'
-            }
+            comparison["comparison"]["preferred_model"] = "model_1_intercept_only"
+    elif aic1 is not None:
+        comparison["comparison"]["preferred_model"] = "model_1_intercept_only"
+    elif aic2 is not None:
+        comparison["comparison"]["preferred_model"] = "model_2_intercept_slope"
 
     # Save results
-    save_results_to_json(results, output_path)
-    logger.info(f"Sensitivity sweep results saved to {output_path}")
-    return results
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(comparison, f, indent=2)
+
+    logger.info(f"Sensitivity analysis results saved to {output_path}")
+    return comparison
 
 def main():
-    """Main entry point for the robustness analysis, specifically the sensitivity sweep."""
+    """Main entry point for mixed effects sensitivity analysis."""
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Mixed Effects Sensitivity Analysis")
+    parser.add_argument("--entropy", type=str, required=True, help="Path to entropy_results.csv")
+    parser.add_argument("--convergence", type=str, required=True, help="Path to convergence_results_core_full.csv")
+    parser.add_argument("--splits", type=str, required=True, help="Path to full_splits.json")
+    parser.add_argument("--strata", type=str, required=True, help="Path to strata_log.json")
+    parser.add_argument("--output", type=str, required=True, help="Path to output JSON")
+    
+    args = parser.parse_args()
+
     logging.basicConfig(level=logging.INFO)
 
-    # Load data
-    try:
-        # Ensure merged file exists (T025c dependency)
-        merged_path = "data/processed/convergence_results_merged.csv"
-        if not Path(merged_path).exists():
-            # Attempt to merge if not exists (should be done by T025c, but safety check)
-            merge_convergence_results(
-                core_path="data/processed/convergence_results_core.csv",
-                sensitivity_path="data/processed/convergence_results_sensitivity.csv",
-                output_path=merged_path
-            )
-
-        # Run sensitivity sweep
-        output_json = "data/processed/sensitivity_sweep.json"
-        run_sensitivity_sweep(
-            merged_convergence_path=merged_path,
-            output_path=output_json
-        )
-        logger.info("Sensitivity sweep completed successfully.")
-
-    except Exception as e:
-        logger.error(f"Error during sensitivity sweep: {e}")
-        raise
+    run_mixed_effects_sensitivity_analysis(
+        entropy_path=Path(args.entropy),
+        convergence_path=Path(args.convergence),
+        full_splits_path=Path(args.splits),
+        strata_log_path=Path(args.strata),
+        output_path=Path(args.output)
+    )
 
 if __name__ == "__main__":
     main()
