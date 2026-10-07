@@ -26,7 +26,7 @@ This project implements a computational psychology experiment to test whether in
 *Gates determined based on constitution file*
 
 1.  **Principle I (Reproducibility)**: **SATISFIED**. The plan mandates `random.seed` pinning in `code/` and deterministic data loading. The pipeline is designed to run end-to-end on a fresh runner.
-2.  **Principle II (Verified Accuracy)**: **SATISFIED**. The plan includes a specific step (Phase 0) to verify the Lee & See (Year) citation (DOI/Title) against the **Crossref API** before hardcoding survey items. The "hardcoded list" concern is addressed by moving the *verification* of the list into the pipeline setup, ensuring the code uses the *verified* items, not an unverified guess. The script outputs a `citation_log.json` with verified metadata.
+2.  **Principle II (Verified Accuracy)**: **SATISFIED**. The plan includes an initial verification step to validate the Lee & See (Year) citation (DOI/Title) against the **Crossref API** before hardcoding survey items. The "hardcoded list" concern is addressed by moving the *verification* of the list into the pipeline setup, ensuring the code uses the *verified* items, not an unverified guess. The script outputs a `citation_log.json` with verified metadata.
 3.  **Principle III (Data Hygiene)**: **SATISFIED**. All raw data (simulated or real) will be checksummed before processing. Derivations will produce new files. PII will be excluded from the schema.
 4.  **Principle IV (Single Source of Truth)**: **SATISFIED**. Figures and statistics in the final report will be generated programmatically from the `data/` artifacts, not hand-typed.
 5.  **Principle V (Versioning Discipline)**: **SATISFIED**. The plan includes content hashing for all artifacts in `data/` and `code/`.
@@ -101,7 +101,7 @@ projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/
     *   Generate `docs/power_analysis_report.md`.
 3.  **Protocol Definition (Resolving T038/T008)**:
     *   **Resolution of Circular Dependency**: The workflow is reordered to be strictly linear:
-        1.  **Define Config**: `sensitivity_config` ranges are defined in `config.yaml` based on standard practice (70-95%).
+        1.  **Define Config**: `sensitivity_config` ranges are defined in `config.yaml` based on standard practice (high-to-moderate percentages).
         2.  **Generate Protocol**: `docs/protocol.md` is generated *referencing* the `config.yaml` ranges.
         3.  **Consistency Check**: A script validates that `config.yaml` matches the ranges documented in `docs/protocol.md`.
     *   This eliminates the circular dependency: Config -> Protocol -> Validation. The justification for ranges comes from the config definition and standard practice, not the protocol itself.
@@ -113,7 +113,7 @@ projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/
 2.  **Randomization**: Ensure participants are randomly assigned to conditions.
 3.  **Data Capture**: Record `Condition_ID`, `Adherence_Rate` (secondary behavioral metric, NOT a direct proxy for Trust), `Trust_Score` (derived mean of multiple items, **included in raw CSV for schema compliance**), `Attention_Score` (continuous scale, derived from 5 attention questions), Cognitive_Load_Score (continuous, Likert-type scale), and `Perceived_Agency_Score` (manipulation check).
     *   **Note**: `Adherence_Rate` is captured as a secondary outcome. It is **not** assumed to be a direct proxy for Trust without empirical validation.
-    *   **Attention Check**: The attention check consists of a series of **5 distinct questions**. `Attention_Score` is calculated as the percentage of correct answers (, 20, 40, 60, 80, 100).
+    *   **Attention Check**: The attention check consists of a series of **distinct questions**. `Attention_Score` is calculated as the percentage of correct answers (,, 40, 60, 80, 100).
 4.  **Data Hygiene**: Write raw data to `data/raw/simulation_run_YYYYMMDD.csv` and generate a checksum.
 
 ### Phase 2: Statistical Analysis Pipeline
@@ -160,4 +160,4 @@ projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/
 - **Scientific Soundness (Adherence)**: Clarified Adherence as secondary outcome, not a direct proxy for Trust.
 - **Scientific Soundness (Hierarchical Testing)**: Defined decision tree: Omnibus -> (Contrasts AND Tukey). Tukey is performed if Omnibus is significant, with a unified Holm-Bonferroni correction across all 5 tests.
 - **Scientific Soundness (Manipulation Check)**: Added mandatory ANOVA on `Perceived_Agency_Score` with halt condition.
-- **Scientific Soundness (Attention Check)**: Defined specific task (5 questions) and justified threshold range (70-95% based on 5 items).
+- **Scientific Soundness (Attention Check)**: Defined specific task (5 questions) and justified threshold range (based on 5 items).
