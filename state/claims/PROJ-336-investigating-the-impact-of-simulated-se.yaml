@@ -405,3 +405,133 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-07T01:13:52Z'
+- artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/tasks.md
+  attempts: 1
+  canonical: exclude subjects with more than 10% high-motion volumes
+  claim_id: c_5242782f
+  context: "T006 [P] Implement src/data/quality_check.py to compute Framewise Displacement\
+    \ (FD) from JSON sidecars, exclude subjects with >10% high-motion volumes, log\
+    \ the exclusion count, and halt with an error if the remaining sample size drops\
+    \ below n \u2265 20."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_subjects_with_more_than_10%25_high-motion_volumes
+  kind: magnitude
+  raw_text: exclude subjects with >10% high-motion volumes
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:44:41Z'
+- artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/tasks.md
+  attempts: 1
+  canonical: halt processing if remaining sample size is less than 20 subjects
+  claim_id: c_b340a9dc
+  context: "T006 [P] Implement src/data/quality_check.py to compute Framewise Displacement\
+    \ (FD) from JSON sidecars, exclude subjects with >10% high-motion volumes, log\
+    \ the exclusion count, and halt with an error if the remaining sample size drops\
+    \ below n \u2265 20."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_processing_if_remaining_sample_size_is_less_than_20_sub
+  kind: magnitude
+  raw_text: "halt with an error if the remaining sample size drops below n \u2265\
+    \ 20"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:45:34Z'
+- artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/tasks.md
+  attempts: 1
+  canonical: download and cache Schaefer or AAL atlas with approximately 400 regions
+    of interest
+  claim_id: c_cfecd707
+  context: T005 [P] Implement src/utils/atlas.py to download and cache Schaefer/AAL
+    atlas (-400 ROIs) from GitHub with version pinning
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: download and cache Schaefer/AAL atlas (-400 ROIs)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:46:23Z'
+- artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/tasks.md
+  attempts: 1
+  canonical: run permutation testing with at least 1000 iterations using sign-flip
+    strategy
+  claim_id: c_4f2fb0ad
+  context: "T027 [US3] Implement src/analysis/stats.py to run permutation testing\
+    \ (\u22651,000 iterations, sign-flip strategy) for empirical p-values"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Run_permutation_testing_with_at_least_1000_iterations_using
+  kind: magnitude
+  raw_text: "run permutation testing (\u22651,000 iterations, sign-flip strategy)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:46:45Z'
+- artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/tasks.md
+  attempts: 1
+  canonical: document sample size of at least 20 and associated power limitations
+  claim_id: c_0e065043
+  context: "T035 [P] Generate results/power_analysis.md documenting sample size (n\u2265\
+    20) and power limitations per SC-004: document the method used for power consideration\
+    \ and acknowledge any power limitations."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Document_sample_size_of_at_least_20_and_associated_power_lim
+  kind: magnitude
+  raw_text: "document sample size (n\u226520) and power limitations"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:47:34Z'
+- artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/tasks.md
+  attempts: 1
+  canonical: ensure memory usage is less than 7 GB
+  claim_id: c_b4651131
+  context: T036 [P] Code cleanup and refactoring for memory efficiency (ensure <7GB
+    RAM usage)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_memory_usage_is_less_than_7_GB
+  kind: magnitude
+  raw_text: ensure <7GB RAM usage
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:48:05Z'
+- artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/tasks.md
+  attempts: 1
+  canonical: complete processing within 6 hours
+  claim_id: c_59d8eff5
+  context: 'T037 [P] Performance optimization: parallelize subject processing where
+    possible (within 6h limit)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: within 6h limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:48:38Z'

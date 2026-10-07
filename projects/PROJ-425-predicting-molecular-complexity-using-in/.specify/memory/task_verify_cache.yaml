@@ -1,17 +1,24 @@
 T015:
   c: false
-  h: f487281a503d8b40074e5a246a04bad29aeb53bc44d73925e297f411efd28558
-  r: "The provided `code/main.py` is incomplete (truncated) and does not show a loop\
-    \ that batches `fetch_molecules()` into `CHUNK_SIZE` chunks nor writes the computed\
-    \ metrics to `data/processed/metrics.csv`. Moreover, the expected output file\
-    \ `data/processed/metrics.csv` is missing from the repository. The task\u2019\
-    s core requirement\u2014incremental CSV writing of the specified columns\u2014\
-    is therefore not fulfilled."
+  h: 18b7843faea4242de80d5e2aa6430d04952ea1e2a67dd6bb40c6fdb99ec668d0
+  r: The repository lacks the required `data/processed/metrics.csv` file, so the incremental
+    write step is not present. Moreover, the provided `code/main.py` excerpt does
+    not show the chunked processing loop that batches `fetch_molecules()` and writes
+    results to the CSV, indicating the core functionality is missing. The next implementer
+    must add the loop, ensure it respects `CHUNK_SIZE`, and create/write the `metrics.csv`
+    with the specified columns.
 T017:
+  c: true
+  h: 999f6e410252f454a7a9f96cadf54cda08dfc891839dbadbda9053a8d693f8aa
+  r: "The `generate_initial_report` function is fully implemented, writes a JSON file\
+    \ to `data/processed/report.json` containing the required `\"type\": \"associational\"\
+    ` label, `\"n\"` sample size, and per\u2011pair `\"r\"` and `\"p\"` values. The\
+    \ missing `report.json` file is expected until the function is invoked, not a\
+    \ sign of incomplete implementation."
+T040:
   c: false
-  h: c862d5e2fbfa63c49a26b624b1873128427a6922328f0a06751d8919070624b7
-  r: "The `code/report.py` file defines `generate_initial_report` but the module is\
-    \ truncated (ends with an incomplete `if _` line), making it syntactically invalid\
-    \ and non\u2011importable. Moreover, the function returns a path instead of `None`,\
-    \ deviating from the required signature, and the expected JSON file `data/processed/report.json`\
-    \ is not present. The implementation therefore does not meet the task requirements."
+  h: 1bd1c27e3e523acb68e3dd75dd6eb531bac8e0cf6f1163dec71f804f4e554752
+  r: The required `data/processed/metrics.csv` file does not exist, and the provided
+    `code/main.py` excerpt shows no implementation that loads this CSV into a DataFrame
+    (or handles `FileNotFoundError`). Both the necessary artifact and the specific
+    loading logic are missing.

@@ -2838,3 +2838,279 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-01T04:04:59Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: sagawa/pubchem-10m-canonicalized is a random sample from PubChem
+  claim_id: c_2b797c86
+  context: T014B requires documenting that the analysis was performed on the HuggingFace
+    dataset 'sagawa/pubchem-10m-canonicalized' (random sample) instead of the Spec's
+    CID 1-5000 requirement.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sagawa/pubchem-10m-canonicalized_is_a_random_sample_from_Pub
+  kind: entity_fact
+  raw_text: The dataset 'sagawa/pubchem-10m-canonicalized' is a random sample of a
+    large number of molecules from PubChem.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:33:38Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: original spec required CID 1-5000
+  claim_id: c_2b0959d9
+  context: T014B and T031B note that the Plan overrides the Spec's FR-001 requirement
+    for CID 1-5000.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The specification originally required analysis of molecules with CID 1-5000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:33:58Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: HuggingFace dataset supersedes CID 1-5000 requirement
+  claim_id: c_e7e9bdd0
+  context: T031B explicitly states the data source supersedes the Spec's original
+    CID 1-5000 requirement as per Plan.md.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The HuggingFace dataset 'sagawa/pubchem-10m-canonicalized' supersedes
+    the original CID 1-5000 requirement.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:34:17Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: Analysis performed on HuggingFace dataset sagawa/pubchem-10m-canonicalized
+  claim_id: c_34a5aa59
+  context: T014B and T031B tasks require documenting that the data source is the HuggingFace
+    dataset 'sagawa/pubchem-10m-canonicalized' (random sample) instead of the Spec's
+    CID 1-5000 requirement.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis is performed on the HuggingFace dataset 'sagawa/pubchem-10m-canonicalized'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:37:14Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: sagawa/pubchem-10m-canonicalized is a random sample of PubChem chemical
+    space
+  claim_id: c_ed51911a
+  context: T014B states that results are generalizable to chemical space based on
+    the representative random sample from the HuggingFace dataset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sagawa/pubchem-10m-canonicalized_is_a_random_sample_of_PubCh
+  kind: entity_fact
+  raw_text: The dataset 'sagawa/pubchem-10m-canonicalized' is a random sample of the
+    PubChem chemical space.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:37:33Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: dataset ID sagawa/pubchem-10m-canonicalized
+  claim_id: c_dbb592a7
+  context: 'T004 [P] [Atomic] Create ''code/config.py'': Define {''SEED'': 42, ''DATASET_ID'':
+    ''sagawa/pubchem-10m-canonicalized '', ''CHUNK_SIZE'': 500, ''TIMEOUT_SECONDS'':
+    60, ''MAX_RETRIES'': 3, ''MEMORY_LIMIT_GB'': ''sufficient for the workload''}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset ID is 'sagawa/pubchem-10m-canonicalized'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:38:25Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: analysis uses random sample from PubChem dataset
+  claim_id: c_4d17dac7
+  context: 'Note: This configuration supports the analysis of molecular complexity
+    vs. chemical properties on a representative random sample of PubChem.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_uses_random_sample_from_PubChem_dataset
+  kind: entity_fact
+  raw_text: The analysis will use a random sample of molecules from the PubChem dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:38:59Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: sagawa/pubchem-10m-canonicalized is random sample of large number of
+    molecules
+  claim_id: c_d8920745
+  context: 'T031B [P] **Clarify Data Source**: Update ''README.md'' ''Data'' section
+    to explicitly state: ''Data source: HuggingFace dataset ''sagawa/pubchemm-canonicalized''
+    (random sample of a large number of molecules).'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sagawa/pubchem-10m-canonicalized_is_random_sample_of_large_n
+  kind: entity_fact
+  raw_text: The dataset 'sagawa/pubchem-10m-canonicalized' is a random sample of a
+    large number of molecules.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:39:01Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling generates 95% confidence intervals
+  claim_id: c_b258d16d
+  context: 'Independent Test for User Story 2: The system must perform a sufficient
+    number of bootstrap iterations to generate 95% confidence intervals., apply Bonferroni
+    correction, and include Spearman/Partial correlations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must perform a sufficient number of bootstrap iterations to
+    generate 95% confidence intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:40:16Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling with n_iter=100 on [1,2,3,4,5] yields 100 results
+    with mean between 0 and 6
+  claim_id: c_e1e4b66e
+  context: 'Unit test for bootstrap resampling logic in tests/unit/test_analysis.py:
+    Input data=[1, 2, 3, 4, 5], n_iter=100, assert len(results) == 100 and 0 < mean(results)
+    < 6.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Input data=[1, 2, 3, 4, 5], n_iter=100, assert len(results) == 100 and
+    0 < mean(results) < 6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:40:44Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction on [0.01, 0.04, 0.05, 0.06] with n_tests=4 yields
+    adjusted[0]=0.04 and adjusted[3]=1.0
+  claim_id: c_b75a90a8
+  context: 'Unit test for multiple-comparison correction (Bonferroni) in tests/unit/test_analysis.py:
+    Input p_values=[0.01, 0.04, 0.05, 0.06], n_tests=4, assert adjusted[0] == 0.04
+    and adjusted[3] == 1.0 (capped at 1).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Input p_values=[0.01, 0.04, 0.05, 0.06], n_tests=4, assert adjusted[0]
+    == 0.04 and adjusted[3] == 1.0 (capped at 1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:41:11Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: Dataset subsampled to n=5000 rows if memory usage exceeds 4GB
+  claim_id: c_427d36f7
+  context: 'Implement code/analysis.py function enforce_memory_limit_bootstrap: If
+    > 4GB: a. Bin atom_count into 10 quantiles. b. Use sklearn.model_selection.StratifiedShuffleSplit
+    with n_splits=1, train_size calculated to result in exactly n=5000 rows.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If dataset memory usage exceeds 4GB, bin atom_count into 10 quantiles
+    and subsample to exactly n=5000 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:41:35Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: System generates four scatter plots with regression lines and annotated
+    statistics
+  claim_id: c_96231645
+  context: 'Independent Test for User Story 3: The system must generate four distinct
+    scatter plots (Entropy-SA, Entropy-QED, LZ-SA, LZ-QED) with linear regression
+    lines and annotated r, p, n values.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_generates_four_scatter_plots_with_regression_lines_an
+  kind: entity_fact
+  raw_text: The system must generate four distinct scatter plots (Entropy-SA, Entropy-QED,
+    LZ-SA, LZ-QED) with linear regression lines and annotated r, p, n values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:42:37Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time is less than or equal to 45 minutes
+  claim_id: c_86ef9d0c
+  context: "Performance Optimization: Run python -m cProfile... Verify time python\
+    \ code/main.py output \u2264 45 minutes (SC-005)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_execution_time_is_less_than_or_equal_to_45_minutes
+  kind: magnitude
+  raw_text: "Verify time python code/main.py output \u2264 45 minutes."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:42:57Z'
+- artifact_path: projects/PROJ-425-predicting-molecular-complexity-using-in/specs/001-predicting-molecular-complexity-using-in/tasks.md
+  attempts: 1
+  canonical: Data source is HuggingFace dataset sagawa/pubchem-10m-canonicalized
+  claim_id: c_2e37d61f
+  context: 'Spec Deviation Note: Tasks T005 and T014 implement the Plan''s override
+    of the Spec''s CID 1-5000 requirement, using the HuggingFace dataset sagawa/pubchem-10m-canonicalized
+    instead.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Data source is HuggingFace dataset 'sagawa/pubchem-10m-canonicalized'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:43:14Z'

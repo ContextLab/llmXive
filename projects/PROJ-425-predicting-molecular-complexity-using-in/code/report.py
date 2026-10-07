@@ -29,6 +29,9 @@ def generate_initial_report(correlations: Dict[str, tuple], n_samples: Optional[
                 ...
             }
         }
+    
+    Returns:
+        None (writes file to disk as a side effect)
     """
     project_root = get_project_root()
     metrics_path = get_metrics_path()
@@ -70,7 +73,8 @@ def generate_initial_report(correlations: Dict[str, tuple], n_samples: Optional[
         json.dump(report_data, f, indent=2)
 
     logger.info(f"Initial report written to {report_path}")
-    return report_path
+    # Explicitly return None to match signature requirement
+    return None
 
 def main():
     """
@@ -87,8 +91,8 @@ def main():
     }
     
     try:
-        path = generate_initial_report(mock_correlations)
-        print(f"Report generated at: {path}")
+        generate_initial_report(mock_correlations)
+        print(f"Report generated successfully.")
     except Exception as e:
         logger.error(f"Failed to generate report: {e}")
         raise

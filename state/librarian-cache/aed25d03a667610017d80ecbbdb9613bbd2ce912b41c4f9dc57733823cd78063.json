@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-26T10:35:41Z",
+  "fetched_at": "2026-10-07T07:08:25Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,8 +9,8 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players\"",
       "target_n": 5
     },
-    "duration_seconds": 35.914,
-    "ended_at": "2026-08-26T10:35:41Z",
+    "duration_seconds": 249.475,
+    "ended_at": "2026-10-07T07:08:25Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
@@ -19,79 +19,79 @@
         ],
         [
           2,
-          "multi-agent generative simulation environments"
+          "large language model multi-agent simulation"
         ],
         [
           3,
-          "LLM-based multi-agent world simulation"
+          "emergent behavior in generative agent environments"
         ],
         [
           4,
-          "generative agents beyond dyadic interactions"
+          "scalable multi-agent world generation"
         ],
         [
           5,
-          "scalable multi-agent generative environments"
+          "LLM-driven procedural world building"
         ],
         [
           6,
-          "large language model multi-agent coordination"
+          "generative agents beyond dyadic interaction"
         ],
         [
           7,
-          "generative world models for multi-agent systems"
+          "multi-agent system world modeling"
         ],
         [
           8,
-          "LLM-driven emergent multi-agent behavior"
+          "language model based environment synthesis"
         ],
         [
           9,
-          "multi-agent reinforcement learning with generative worlds"
+          "dynamic world simulation with generative AI"
         ],
         [
           10,
-          "procedural generation for multi-agent simulations"
+          "multi-player generative agent frameworks"
         ],
         [
           11,
-          "language model agents in shared generative environments"
+          "LLM-based interactive world generation"
         ],
         [
           12,
-          "emergent social dynamics in LLM multi-agent systems"
+          "scalable generative simulation for multiple agents"
         ],
         [
           13,
-          "generative AI for complex multi-agent interactions"
+          "emergent social dynamics in LLM worlds"
         ],
         [
           14,
-          "multi-agent planning in generative world models"
+          "generative multi-agent reinforcement learning environments"
         ],
         [
           15,
-          "LLM-based narrative generation for multi-agent worlds"
+          "large language models for complex world simulation"
         ],
         [
           16,
-          "simulating complex societies with generative agents"
+          "autonomous agent world modeling"
         ],
         [
           17,
-          "multi-agent interaction modeling using large language models"
+          "generative AI for multi-agent narrative worlds"
         ],
         [
           18,
-          "generative simulation of multi-player scenarios"
+          "LLM-powered virtual world construction"
         ],
         [
           19,
-          "agent-based modeling with generative language models"
+          "multi-agent emergent behavior in simulated environments"
         ],
         [
           20,
-          "extending generative world models to N-agent systems"
+          "generative models for open-ended agent interaction"
         ]
       ],
       "original_term": "",
@@ -102,11 +102,11 @@
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "generative world models multi-agent simulation",
-      "Gamma-World LLM agent environment",
-      "emergent social dynamics LLM agents",
-      "multi-agent reinforcement learning simulation benchmark",
-      "causal reasoning emergent behavior LLM"
+      "generative world model multi-agent simulation",
+      "Gamma-World generative multi-agent environment",
+      "emergent behavior multi-agent system LLM",
+      "agent interaction dynamics synthetic evaluation",
+      "procedural content generation multi-agent training"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -124,12 +124,12 @@
       ]
     },
     "per_query_hit_count": {
-      "Gamma-World LLM agent environment": 3,
-      "causal reasoning emergent behavior LLM": 3,
-      "emergent social dynamics LLM agents": 3,
-      "generative world models multi-agent simulation": 3,
+      "Gamma-World generative multi-agent environment": 1,
+      "agent interaction dynamics synthetic evaluation": 3,
+      "emergent behavior multi-agent system LLM": 1,
+      "generative world model multi-agent simulation": 3,
       "llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players\" computer science": 3,
-      "multi-agent reinforcement learning simulation benchmark": 1
+      "procedural content generation multi-agent training": 3
     },
     "relevance_judge": {
       "enabled": true,
@@ -144,7 +144,7 @@
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-08-26T10:35:05Z",
+    "started_at": "2026-10-07T07:04:15Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"gamma-world: generative multi-agent world modeling beyond two players\" computer science",
       "raw": "llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players\" computer science"
@@ -163,7 +163,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-08-26T10:35:32Z",
+        "failed_at": "2026-10-07T07:08:10Z",
         "reason": "query_irrelevant"
       },
       {
@@ -182,7 +182,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-08-26T10:35:32Z",
+        "failed_at": "2026-10-07T07:08:10Z",
         "reason": "query_irrelevant"
       },
       {
@@ -200,7 +200,7 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-08-26T10:35:32Z",
+        "failed_at": "2026-10-07T07:08:10Z",
         "reason": "query_irrelevant"
       },
       {
@@ -219,7 +219,7 @@
           "primary_pointer": "1311.5108"
         },
         "details": "query-relevance 0.286 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations')",
-        "failed_at": "2026-08-26T10:35:32Z",
+        "failed_at": "2026-10-07T07:08:10Z",
         "reason": "query_irrelevant"
       },
       {
@@ -238,7 +238,7 @@
           "primary_pointer": "2604.03350"
         },
         "details": "query-relevance 0.214 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='From Model-Based Screening to Data-Driven Surrogates: A Multi-Stage Workflow for Exploring Stochastic Agent-Based Models')",
-        "failed_at": "2026-08-26T10:35:32Z",
+        "failed_at": "2026-10-07T07:08:10Z",
         "reason": "query_irrelevant"
       },
       {
@@ -256,198 +256,178 @@
           "primary_pointer": "2203.08975"
         },
         "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='A Survey of Multi-Agent Deep Reinforcement Learning with Communication')",
-        "failed_at": "2026-08-26T10:35:32Z",
+        "failed_at": "2026-10-07T07:08:10Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "In the domain of Human-Computer Interaction, focus groups represent a widely utilised yet resource-intensive methodology, often demanding the expertise of skilled moderators and meticulous preparatory efforts. This study introduces the ``Focus Agent,'' a Large Language Model (LLM) powered framework that simulates both the focus group (for data collection) and acts as a moderator in a focus group setting with human participants. To assess the data quality derived from the Focus Agent, we ran five focus group sessions with a total of 23 human participants as well as deploying the Focus Agent to simulate these discussions with AI participants. Quantitative analysis indicates that Focus Agent can generate opinions similar to those of human participants. Furthermore, the research exposes some improvements associated with LLMs acting as moderators in focus group discussions that include human participants.",
+          "claimed_abstract": "The card game Hanabi is considered a strong medium for the testing and development of multi-agent reinforcement learning (MARL) algorithms, due to its cooperative nature, partial observability, limited communication and remarkable complexity. Previous research efforts have explored the capabilities of MARL algorithms within Hanabi, focusing largely on advanced architecture design and algorithmic manipulations to achieve state-of-the-art performance for various number of cooperators. However, this often leads to complex solution strategies with high computational cost and requiring large amounts of training data. For humans to solve the Hanabi game effectively, they require the use of conventions, which often allows for a means to implicitly convey ideas or knowledge based on a predefined, and mutually agreed upon, set of \"rules\" or principles. Multi-agent problems containing partial observability, especially when limited communication is present, can benefit greatly from the use of implicit knowledge sharing. In this paper, we propose a novel approach to augmenting an agent's action space using conventions, which act as a sequence of special cooperative actions that span over and include multiple time steps and multiple agents, requiring agents to actively opt in for it to reach fruition. These conventions are based on existing human conventions, and result in a significant improvement on the performance of existing techniques for self-play and cross-play for various number of cooperators within Hanabi.",
           "claimed_authors": [
-            "Taiyu Zhang",
-            "Xuesong Zhang",
-            "Robbe Cools",
-            "Adalberto L. Simeone"
+            "F. Bredell",
+            "H. A. Engelbrecht",
+            "J. C. Schoeman"
           ],
-          "claimed_title": "Focus Agent: LLM-Powered Virtual Focus Group",
+          "claimed_title": "Augmenting the action space with conventions to improve multi-agent cooperation in Hanabi",
           "claimed_venue": "arXiv",
           "claimed_year": 2024,
-          "primary_pointer": "2409.01907"
+          "primary_pointer": "2412.06333"
         },
-        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Focus Agent: LLM-Powered Virtual Focus Group')",
-        "failed_at": "2026-08-26T10:35:32Z",
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Augmenting the action space with conventions to improve multi-agent cooperation in Hanabi')",
+        "failed_at": "2026-10-07T07:08:10Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Integrating large language models (LLMs) into personal assistants, like Xiao Ai and Blue Heart V, effectively enhances their ability to interact with humans, solve complex tasks, and manage IoT devices. Such assistants are also termed LLM-driven agents. Upon receiving user requests, the LLM-driven agent generates plans using an LLM, executes these plans through various tools, and then returns the response to the user. During this process, the latency for generating a plan with an LLM can reach tens of seconds, significantly degrading user experience. Real-world dataset analysis shows that about 30% of the requests received by LLM-driven agents are identical or similar, which allows the reuse of previously generated plans to reduce latency. However, it is difficult to accurately define the similarity between the request texts received by the LLM-driven agent through directly evaluating the original request texts. Moreover, the diverse expressions of natural language and the unstructured format of plan texts make implementing plan reuse challenging. To address these issues, we present and implement a plan reuse mechanism for LLM-driven agents called AgentReuse. AgentReuse leverages the similarities and differences among requests' semantics and uses intent classification to evaluate the similarities between requests and enable the reuse of plans. Experimental results based on a real-world dataset demonstrate that AgentReuse achieves a 93% effective plan reuse rate, an F1 score of 0.9718, and an accuracy of 0.9459 in evaluating request similarities, reducing latency by 93.12% compared with baselines without using the reuse mechanism.",
+          "claimed_abstract": "Traditional AI safety evaluations on isolated LLMs are insufficient as multi-agent AI ensembles become prevalent, introducing novel emergent risks. This paper introduces the Multi-Agent Emergent Behavior Evaluation (MAEBE) framework to systematically assess such risks. Using MAEBE with the Greatest Good Benchmark (and a novel double-inversion question technique), we demonstrate that: (1) LLM moral preferences, particularly for Instrumental Harm, are surprisingly brittle and shift significantly with question framing, both in single agents and ensembles. (2) The moral reasoning of LLM ensembles is not directly predictable from isolated agent behavior due to emergent group dynamics. (3) Specifically, ensembles exhibit phenomena like peer pressure influencing convergence, even when guided by a supervisor, highlighting distinct safety and alignment challenges. Our findings underscore the necessity of evaluating AI systems in their interactive, multi-agent contexts.",
           "claimed_authors": [
-            "Guopeng Li",
-            "Ruiqi Wu",
-            "Haisheng Tan"
+            "Sinem Erisken",
+            "Timothy Gothard",
+            "Martin Leitgab",
+            "Ram Potham"
           ],
-          "claimed_title": "A Plan Reuse Mechanism for LLM-Driven Agent",
+          "claimed_title": "MAEBE: Multi-Agent Emergent Behavior Framework",
           "claimed_venue": "arXiv",
           "claimed_year": 2025,
-          "primary_pointer": "2512.21309"
+          "primary_pointer": "2506.03053"
         },
-        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='A Plan Reuse Mechanism for LLM-Driven Agent')",
-        "failed_at": "2026-08-26T10:35:32Z",
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='MAEBE: Multi-Agent Emergent Behavior Framework')",
+        "failed_at": "2026-10-07T07:08:10Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Large Language Model (LLM) agents significantly extend the capabilities of standalone LLMs, empowering them to interact with external tools (e.g., APIs, functions) and complete various tasks in a self-directed fashion. The challenge of tool use demands that LLMs not only understand user queries and generate answers accurately but also excel in task planning, tool invocation, and result summarization. While traditional works focus on training a single LLM with all these capabilities, performance limitations become apparent, particularly with smaller models. To overcome these challenges, we propose a novel approach that decomposes the aforementioned capabilities into a planner, caller, and summarizer. Each component is implemented by a single LLM that focuses on a specific capability and collaborates with others to accomplish the task. This modular framework facilitates individual updates and the potential use of smaller LLMs for building each capability. To effectively train this framework, we introduce a two-stage training paradigm. First, we fine-tune a backbone LLM on the entire dataset without discriminating sub-tasks, providing the model with a comprehensive understanding of the task. Second, the fine-tuned LLM is used to instantiate the planner, caller, and summarizer respectively, which are continually fine-tuned on respective sub-tasks. Evaluation across various tool-use benchmarks illustrates that our proposed multi-LLM framework surpasses the traditional single-LLM approach, highlighting its efficacy and advantages in tool learning.",
+          "claimed_abstract": "In this work, we present Gander, a native multimodal duplex interaction model that builds on MiniCPM-o 4.5 and is further adapted for realtime interaction with an asynchronous agent loop. In contrast to conventional turn based systems, Gander continuously processes streaming user inputs, enabling full-duplex interaction in both everyday conversations and complex workflow agent scenarios. Users can interrupt an ongoing response, while the model can proactively provide intermediate feedback or ask follow up questions. To natively support these capabilities, Gander adopts two key architectural designs: 1) a Cerebellum-Brain collaborative framework, Cerebellum is responsible for realtime interaction while the Brain handles complex reasoning and higher level agentic tasks. The two components interact continuously through tool calling and the agent orchestration runtime. 2) The Cerebellum is built upon a streaming Thinker-Talker architecture, where user inputs and model outputs are flattened into an ordered token stream at the chunk level. We evaluate Gander across conversational ability, interactive capability, understanding, and tool assisted task execution. Internal human evaluations show that Gander maintains natural and expressive spoken dialogue, while benchmark results demonstrate effective turn taking capability and encouraging results on spoken question answering and related understanding tasks. Gander also supports a range of challenging interaction settings, including background noise interference, multi-party interactions, and backchannel communication. While our current evaluation focuses on tool assisted settings, broader long horizon agent tasks and more diverse deployment conditions remain promising directions for further study. We release Gander together with its models, code, and data to facilitate further research and development in the community.",
           "claimed_authors": [
-            "Weizhou Shen",
-            "Chenliang Li",
-            "Hongzhan Chen",
-            "Ming Yan",
-            "Xiaojun Quan",
-            "Hehong Chen",
-            "Ji Zhang",
-            "Fei Huang"
+            " Orantqing",
+            "Shengpeng Ji",
+            "Junlong Tong",
+            "Jialong Zuo",
+            "Dongjie Fu",
+            "Di Cao",
+            "Yangzhuo Li",
+            "Shangda Wu",
+            " Franz",
+            " Evan",
+            "Theron Veyra",
+            "Changhao Pan",
+            "Jingyu Lu",
+            "Dongchao Yang",
+            "Zhifei Xie",
+            "Yang Tan",
+            "Xiaoyu Shen",
+            "Xiaoda Yang",
+            "Wenfu Wang",
+            "Teddy Sun",
+            "Steve Yves",
+            "Zhou Zhao"
           ],
-          "claimed_title": "Small LLMs Are Weak Tool Learners: A Multi-LLM Agent",
+          "claimed_title": "Multimodal Duplex Interaction Agent",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2609.08977"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Multimodal Duplex Interaction Agent')",
+        "failed_at": "2026-10-07T07:08:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Generative AI agents are increasingly used in interaction design to facilitate ideation and offer critique, often following their own internal reasoning. These interactions tend to add design ideas and expand the design space. Our work explores an antagonistic role for design agents, prompting designers to engage with stakeholder tension. We built an AI agent inspired by adversarial design theory that enacts constructive conflict. We examine the agent's influence in a between-subjects experiment with 45 design students across three conditions: Self Reflection (unsupported review of the design proposal), Stepwise Guidance (written prompts that walk designers through a constructive-conflict framework), and Interactive Engagement (an AI agent that enacts the constructive-conflict framework interactively by synthesizing stakeholder pushback). The latter two conditions share the framework but differ in whether it is self-enacted or agent-enacted. Results show that, compared with Self Reflection, both the Stepwise Guidance and Interactive Engagement groups reported significantly higher self-reconsideration and made more improvements to their design proposals. Compared with Stepwise Guidance, the antagonistic agent introduced more conflictual perspectives, and participants in the Interactive Engagement condition generated and discarded more ideas. These findings suggest that agent-enacted constructive conflict can turn reconsideration into concrete design actions and deepen engagement with divergent stakeholder perspectives.",
+          "claimed_authors": [
+            "Howard Ziyu Han",
+            "Nikolas Martelaro"
+          ],
+          "claimed_title": "Enacting Constructive Conflicts with AI Agents to Enhance Reconsideration among Novice Interaction Designers",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2608.04166"
+        },
+        "details": "query-relevance 0.214 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Enacting Constructive Conflicts with AI Agents to Enhance Reconsideration among Novice Interaction Designers')",
+        "failed_at": "2026-10-07T07:08:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advancements in visual generative models have enabled high-quality image and video generation, opening diverse applications. However, evaluating these models often demands sampling hundreds or thousands of images or videos, making the process computationally expensive, especially for diffusion-based models with inherently slow sampling. Moreover, existing evaluation methods rely on rigid pipelines that overlook specific user needs and provide numerical results without clear explanations. In contrast, humans can quickly form impressions of a model's capabilities by observing only a few samples. To mimic this, we propose the Evaluation Agent framework, which employs human-like strategies for efficient, dynamic, multi-round evaluations using only a few samples per round, while offering detailed, user-tailored analyses. It offers four key advantages: 1) efficiency, 2) promptable evaluation tailored to diverse user needs, 3) explainability beyond single numerical scores, and 4) scalability across various models and tools. Experiments show that Evaluation Agent reduces evaluation time to 10% of traditional methods while delivering comparable results. The Evaluation Agent framework is fully open-sourced to advance research in visual generative models and their efficient evaluation.",
+          "claimed_authors": [
+            "Fan Zhang",
+            "Shulin Tian",
+            "Ziqi Huang",
+            "Yu Qiao",
+            "Ziwei Liu"
+          ],
+          "claimed_title": "Evaluation Agent: Efficient and Promptable Evaluation Framework for Visual Generative Models",
           "claimed_venue": "arXiv",
           "claimed_year": 2024,
-          "primary_pointer": "2401.07324"
+          "primary_pointer": "2412.09645"
         },
-        "details": "query-relevance 0.214 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Small LLMs Are Weak Tool Learners: A Multi-LLM Agent')",
-        "failed_at": "2026-08-26T10:35:32Z",
+        "details": "query-relevance 0.286 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Evaluation Agent: Efficient and Promptable Evaluation Framework for Visual Generative Models')",
+        "failed_at": "2026-10-07T07:08:10Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Can large language model (LLM) agents reproduce the complex social dynamics that characterize human online behavior -- shaped by homophily, reciprocity, and social validation -- and what memory and learning mechanisms enable such dynamics to emerge? We present a multi-agent LLM simulation framework in which agents repeatedly interact, evaluate one another, and adapt their behavior through in-context learning accelerated by a coaching signal. To model human social behavior, we design behavioral reward functions that capture core drivers of online engagement, including social interaction, information seeking, self-presentation, coordination, and emotional support. These rewards align agent objectives with empirically observed user motivations, enabling the study of how network structures and group formations emerge from individual decision-making. Our experiments show that coached LLM agents develop stable interaction patterns and form emergent social ties, yielding network structures that mirror properties of real online communities. By combining behavioral rewards with in-context adaptation, our framework establishes a principled testbed for investigating collective dynamics in LLM populations and reveals how artificial agents may approximate or diverge from human-like social behavior.",
+          "claimed_abstract": "Tabletop roleplaying games (TTRPGs) and procedural content generators can both be understood as systems of rules for producing content. In this paper, we argue that TTRPG design can usefully be viewed as procedural content generator design. We present several case studies linking key concepts from PCG research -- including possibility spaces, expressive range analysis, and generative pipelines -- to key concepts in TTRPG design. We then discuss the implications of these relationships and suggest directions for future work uniting research in TTRPGs and PCG.",
           "claimed_authors": [
-            "Philipp J. Schneider",
-            "Lin Tian",
-            "Marian-Andrei Rizoiu"
+            "Matthew Guzdial",
+            "Devi Acharya",
+            "Max Kreminski",
+            "Michael Cook",
+            "Mirjam Eladhari",
+            "Antonios Liapis",
+            "Anne Sullivan"
           ],
-          "claimed_title": "Learning to Make Friends: Coaching LLM Agents toward Emergent Social Ties",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2510.19299"
-        },
-        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Learning to Make Friends: Coaching LLM Agents toward Emergent Social Ties')",
-        "failed_at": "2026-08-26T10:35:32Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The dynamic character of most social networks requires to model evolution of networks in order to enable complex analysis of theirs dynamics. The following paper focuses on the definition of differences between network snapshots by means of Graph Differential Tuple. These differences enable to calculate the diverse distance measures as well as to investigate the speed of changes. Four separate measures are suggested in the paper with experimental study on real social network data.",
-          "claimed_authors": [
-            "Radosław Michalski",
-            "Piotr Bródka",
-            "Przemysław Kazienko",
-            "Krzysztof Juszczyszyn"
-          ],
-          "claimed_title": "Quantifying Social Network Dynamics",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2013,
-          "primary_pointer": "1303.5009"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Quantifying Social Network Dynamics')",
-        "failed_at": "2026-08-26T10:35:32Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "In a social network, individuals express their opinions on several interdependent topics, and therefore the evolution of their opinions on these topics is also mutually dependent. In this work, we propose a differential game model for the multi-dimensional opinion formation of a social network whose population of agents interacts according to a communication graph. Each individual's opinion evolves according to an aggregation of disagreements between the agent's opinions and its graph neighbors on multiple interdependent topics exposed to an unknown extraneous disturbance. For a social network with strategist agents the opinions evolve over time with respect to the minimization of a quadratic cost function that solely represents each individual's motives against the disturbance. We find the unique Nash/worst-case equilibrium solution for the proposed differential game model of coupled multi-dimensional opinions under an open-loop information structure. Moreover, we propose a distributed implementation of the Nash/worst-case equilibrium solution. We examine the non-distributed and proposed distributed open-loop Nash/worst-case strategies on a small social network with strategist agents in a two-dimensional opinion space. Then we compare the opinions evolved based on the Nash/worst-case strategy with the opinions corresponding to social optimality actions for non-strategist agents.",
-          "claimed_authors": [
-            "Hossein B. Jond",
-            "Aykut Yıldız"
-          ],
-          "claimed_title": "A Game Approach to Multi-dimensional Opinion Dynamics in Social Networks with Stubborn Strategist Agents",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2310.03900"
-        },
-        "details": "query-relevance 0.214 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='A Game Approach to Multi-dimensional Opinion Dynamics in Social Networks with Stubborn Strategist Agents')",
-        "failed_at": "2026-08-26T10:35:32Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We propose a \\emph{collaborative} multi-agent reinforcement learning algorithm named variational policy propagation (VPP) to learn a \\emph{joint} policy through the interactions over agents. We prove that the joint policy is a Markov Random Field under some mild conditions, which in turn reduces the policy space effectively. We integrate the variational inference as special differentiable layers in policy such that the actions can be efficiently sampled from the Markov Random Field and the overall policy is differentiable. We evaluate our algorithm on several large scale challenging tasks and demonstrate that it outperforms previous state-of-the-arts.",
-          "claimed_authors": [
-            "Chao Qu",
-            "Hui Li",
-            "Chang Liu",
-            "Junwu Xiong",
-            "James Zhang",
-            "Wei Chu",
-            "Weiqiang Wang",
-            "Yuan Qi",
-            "Le Song"
-          ],
-          "claimed_title": "Variational Policy Propagation for Multi-agent Reinforcement Learning",
+          "claimed_title": "Tabletop Roleplaying Games as Procedural Content Generators",
           "claimed_venue": "arXiv",
           "claimed_year": 2020,
-          "primary_pointer": "2004.08883"
+          "primary_pointer": "2007.06108"
         },
-        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Variational Policy Propagation for Multi-agent Reinforcement Learning')",
-        "failed_at": "2026-08-26T10:35:32Z",
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Tabletop Roleplaying Games as Procedural Content Generators')",
+        "failed_at": "2026-10-07T07:08:10Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_abstract": "Co-creative Procedural Content Generation via Machine Learning (PCGML) refers to systems where a PCGML agent and a human work together to produce output content. One of the limitations of co-creative PCGML is that it requires co-creative training data for a PCGML agent to learn to interact with humans. However, acquiring this data is a difficult and time-consuming process. In this work, we propose approximating human-AI interaction data and employing transfer learning to adapt learned co-creative knowledge from one game to a different game. We explore this approach for co-creative Zelda dungeon room generation.",
           "claimed_authors": [
-            "Dinithi Dissanayake",
-            "Suranga Nanayakkara"
+            "Zisen Zhou",
+            "Matthew Guzdial"
           ],
-          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_title": "Toward Co-creative Dungeon Generation via Transfer Learning",
           "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2504.16021"
+          "claimed_year": 2021,
+          "primary_pointer": "2107.12533"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
-        "failed_at": "2026-08-26T10:35:32Z",
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Toward Co-creative Dungeon Generation via Transfer Learning')",
+        "failed_at": "2026-10-07T07:08:10Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Causal reasoning in relational domains is fundamental to studying real-world social phenomena in which individual units can influence each other's traits and behavior. Dynamics between interconnected units can be represented as an instantiation of a relational causal model; however, causal reasoning over such instantiation requires additional templating assumptions that capture feedback loops of influence. Previous research has developed lifted representations to address the relational nature of such dynamics but has strictly required that the representation has no cycles. To facilitate cycles in relational representation and learning, we introduce relational $σ$-separation, a new criterion for understanding relational systems with feedback loops. We also introduce a new lifted representation, $σ$-abstract ground graph which helps with abstracting statistical independence relations in all possible instantiations of the cyclic relational model. We show the necessary and sufficient conditions for the completeness of $σ$-AGG and that relational $σ$-separation is sound and complete in the presence of one or more cycles with arbitrary length. To the best of our knowledge, this is the first work on representation of and reasoning with cyclic relational causal models.",
+          "claimed_abstract": "Procedural content generation via machine learning (PCGML) is the process of procedurally generating game content using models trained on existing game content. PCGML methods can struggle to capture the true variance present in underlying data with a single model. In this paper, we investigated the use of ensembles of Markov chains for procedurally generating \\emph{Mega Man} levels. We conduct an initial investigation of our approach and evaluate it on measures of playability and stylistic similarity in comparison to a non-ensemble, existing Markov chain approach.",
           "claimed_authors": [
-            "Ragib Ahsan",
-            "David Arbour",
-            "Elena Zheleva"
+            "Bowei Li",
+            "Ruohan Chen",
+            "Yuqing Xue",
+            "Ricky Wang",
+            "Wenwen Li",
+            "Matthew Guzdial"
           ],
-          "claimed_title": "Relational Causal Models with Cycles:Representation and Reasoning",
+          "claimed_title": "Ensemble Learning For Mega Man Level Generation",
           "claimed_venue": "arXiv",
-          "claimed_year": 2022,
-          "primary_pointer": "2202.10706"
+          "claimed_year": 2021,
+          "primary_pointer": "2107.12524"
         },
-        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Relational Causal Models with Cycles:Representation and Reasoning')",
-        "failed_at": "2026-08-26T10:35:32Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Emergent behavior arising in a joint human-robot system cannot be fully predicted based on an understanding of the individual agents. Typically, robot behavior is governed by algorithms that optimize a reward function that should quantitatively capture the joint system's goal. Although reward functions can be updated to better match human needs, this is no guarantee that no misalignment with the complex and variable human needs will occur. Algorithms may learn undesirable behavior when interacting with the human and the intrinsically unpredictable human-inhabited world, thereby producing further misalignment with human users or bystanders. As a result, humans might behave differently than anticipated, causing robots to learn differently and undesirable behavior to emerge. With this short paper, we state that to design for Human-Robot Interaction that mitigates such undesirable emergent behavior, we need to complement advancements in human-robot interaction algorithms with human factors knowledge and expertise. More specifically, we advocate a three-pronged approach that we illustrate using a particularly challenging example of safety-critical human-robot interaction: a driver interacting with a semi-automated vehicle. Undesirable emergent behavior should be mitigated by a combination of 1) including driver behavioral mechanisms in the vehicle's algorithms and reward functions, 2) model-based approaches that account for interaction-induced driver behavioral adaptations and 3) driver-centered interaction design that promotes driver engagement with the semi-automated vehicle, and the transparent communication of each agent's actions that allows mutual support and adaptation. We provide examples from recent empirical work in our group, in the hope this proves to be fruitful for discussing emergent human-robot interaction.",
-          "claimed_authors": [
-            "Timo Melman",
-            "Niek Beckers",
-            "David Abbink"
-          ],
-          "claimed_title": "Mitigating undesirable emergent behavior arising between driver and semi-automated vehicle",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2006.16572"
-        },
-        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Mitigating undesirable emergent behavior arising between driver and semi-automated vehicle')",
-        "failed_at": "2026-08-26T10:35:32Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Ensemble Learning For Mega Man Level Generation')",
+        "failed_at": "2026-10-07T07:08:10Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -476,7 +456,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-26T10:35:38Z"
+          "verified_at": "2026-10-07T07:08:15Z"
         }
       },
       {
@@ -504,7 +484,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-26T10:35:38Z"
+          "verified_at": "2026-10-07T07:08:16Z"
         }
       },
       {
@@ -530,7 +510,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-26T10:35:38Z"
+          "verified_at": "2026-10-07T07:08:16Z"
         }
       },
       {
@@ -557,7 +537,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-26T10:35:38Z"
+          "verified_at": "2026-10-07T07:08:17Z"
         }
       }
     ]

@@ -113,10 +113,10 @@
 ### Implementation for User Story 2
 
 - [ ] T027 [US2] Implement and train null model (intercept-only) per nutrient condition; save `data/processed/null_model_metrics.csv` (FR-005)
-- [ ] T028 [US2] Implement Lasso/ElasticNet training loop in `code/train.py` (FR-004, FR-010)
-- [ ] T029 [US2] Implement hyperparameter search for regularization in `code/train.py`
-- [ ] T030 [US2] Implement Random Forest training in `code/train.py` (FR-004)
-- [ ] T031 [US2] Implement Gradient Boosting training in `code/train.py` (FR-004)
+- [X] T028 [US2] Implement Lasso/ElasticNet training loop in `code/train.py` (FR-004, FR-010)
+- [X] T029 [US2] Implement hyperparameter search for regularization in `code/train.py`
+- [X] T030 [US2] Implement Random Forest training in `code/train.py` (FR-004)
+- [X] T031 [US2] Implement Gradient Boosting training in `code/train.py` (FR-004)
 - [ ] T032 [US2] Implement PCA/L1 regularization strictly for Linear Models if features > 5000; save transformed features to `data/processed/pca_features.parquet` (FR-010)
 - [ ] T033 [US2] Load null model metrics from `data/processed/null_model_metrics.csv` and compare against trained models (FR-005, SC-001)
 - [X] T034 [US2] Implement 95% CI calculation method in `code/evaluate.py`

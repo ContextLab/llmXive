@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T03:18:10.895717Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-336-investigating-the-impact-of-simulated-se
-last_run_id: 7ca915c3-ffb8-4511-a5f3-df42db96b342
+last_run_id: efc6f083-aace-4dc3-b53a-1b4a2f96afd6
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se
 title: Investigating the Impact of Simulated Sensory Deprivation on Resting-State
   Brain Network Dynamics
-updated_at: '2026-07-07T01:01:47.176634Z'
+updated_at: '2026-10-07T06:53:34.558117Z'

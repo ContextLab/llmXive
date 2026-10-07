@@ -75,7 +75,7 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T009 [P] [US1] Unit test for dataset label validation in `tests/unit/test_download.py` (verifies 'task-rest' + deprivation labels)
-- [ ] T010 [P] [US1] Unit test for FD calculation in `tests/unit/test_quality_check.py` (verifies FD > 0.5mm threshold logic)
+- [X] T010 [P] [US1] Unit test for FD calculation in `tests/unit/test_quality_check.py` (verifies FD > 0.5mm threshold logic)
 
 ### Implementation for User Story 1
 

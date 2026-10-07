@@ -67,7 +67,7 @@
  - `calculate_molecular_weight(smiles: str) -> float`
  - `calculate_atom_count(smiles: str) -> int`
 - [X] T007 [P] [Atomic] Create `code/main.py` orchestration skeleton: Load config, initialize logging, define `process_chunk` function. <!-- FAILED: unspecified -->
-- [ ] T008 [P] [Atomic] Configure logging in `code/main.py` to capture skipped molecules (invalid SMILES, timeouts) with specific format: `{"event": "skipped", "reason": "timeout" | "invalid_smiles", "cid": int}`.
+- [X] T008 [P] [Atomic] Configure logging in `code/main.py` to capture skipped molecules (invalid SMILES, timeouts) with specific format: `{"event": "skipped", "reason": "timeout" | "invalid_smiles", "cid": int}`.
 - [X] T009 [P] [Atomic] Create `code/setup_env.py` (or equivalent): Configure environment variables for CI runner constraints (CPU-only, memory limits) and validate `rdkit` installation.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -84,9 +84,9 @@
 
 > **NOTE**: Write these test scaffolds FIRST to define assertions for Phase 2 functions.
 
-- [ ] T010 [P] [US1] Add `tests/unit/test_metrics.py::test_shannon_entropy_returns_positive_float` with assertion: Input `smiles="CCO"`, assert `result > 0` and `isinstance(result, float)`.
-- [ ] T011 [P] [US1] Add `tests/unit/test_metrics.py::test_lzma_length_returns_integer` with assertion: Input `smiles="CCO"`, assert `isinstance(result, int)` and `result > 0`.
-- [ ] T012 [P] [US1] Add `tests/unit/test_metrics.py::test_sa_and_qed_return_valid_range` with assertion: Input `smiles="CCO"`, assert `0.0 <= sa_score <= 10.0` and `0.0 <= qed_score <= 1.0`.
+- [X] T010 [P] [US1] Add `tests/unit/test_metrics.py::test_shannon_entropy_returns_positive_float` with assertion: Input `smiles="CCO"`, assert `result > 0` and `isinstance(result, float)`.
+- [X] T011 [P] [US1] Add `tests/unit/test_metrics.py::test_lzma_length_returns_integer` with assertion: Input `smiles="CCO"`, assert `isinstance(result, int)` and `result > 0`.
+- [X] T012 [P] [US1] Add `tests/unit/test_metrics.py::test_sa_and_qed_return_valid_range` with assertion: Input `smiles="CCO"`, assert `0.0 <= sa_score <= 10.0` and `0.0 <= qed_score <= 1.0`.
 - [X] T013 [P] [US1] Add `tests/integration/test_error_handling.py::test_invalid_smiles_skipped` with assertion: Input list `["CCO", "INVALID_SMILES_STRING", "CC"]`, assert `skipped_count == 1` and `valid_count == 2`.
 
 ### Implementation for User Story 1
@@ -95,7 +95,7 @@
 - [ ] T014B [US1] **Document Deviation**: Update `code/report.py` to include a `limitations` section in the final JSON/HTML report explicitly stating: "Analysis performed on HuggingFace dataset 'sagawa/pubchem-10m-canonicalized ' (random sample) instead of Spec FR-001 (CID 1-5000) per Plan.md. Results are generalizable to chemical space but not strictly limited to the CID 1-5000 range."
 - [ ] T015 [US1] Implement `code/main.py` chunked processing loop: Iterate `code/download.py` in batches of `CHUNK_SIZE`; call `code/metrics.py` functions; write results incrementally to `data/processed/metrics.csv` (columns: cid, smiles, entropy, lz, sa, qed, mw, atom_count). <!-- ATOMIZE: requested -->
 - [X] T016 [US1] Implement `code/analysis.py` function `calculate_pearson_correlations(df: pd.DataFrame) -> dict`: Input `df` columns; use `scipy.stats.pearsonr`; return dict `{'entropy_sa': (r, p), 'entropy_qed': (r, p),...}`.
-- [ ] T017 [US1] Implement `code/report.py` function `generate_initial_report(correlations: dict) -> None`: Write JSON to `data/processed/report.json` with keys `r`, `p`, `n`, and explicit label `type: "associational"`.
+- [X] T017 [US1] Implement `code/report.py` function `generate_initial_report(correlations: dict) -> None`: Write JSON to `data/processed/report.json` with keys `r`, `p`, `n`, and explicit label `type: "associational"`.
 - [X] T018 [US1] Implement timeout handling in `code/metrics.py` wrapper: Enforce `TIMEOUT_SECONDS` per molecule with a duration sufficient to complete the evaluation.; log skipped entries with `reason: "timeout"`; ensure no hanging processes.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -106,7 +106,7 @@
 
 **Goal**: Verify correlations via bootstrap resampling, apply multiple-comparison correction, and implement additional statistical methods per Plan.
 
-**Independent Test**: The system must perform a sufficient number of bootstrap iterations to generate 95% confidence intervals., apply Bonferroni correction, and include Spearman/Partial correlations.
+**Independent Test**: The system must perform a sufficient number of bootstrap iterations to generate 95% confidence intervals. [UNRESOLVED-CLAIM: c_b258d16d — status=not_enough_info], apply Bonferroni correction, and include Spearman/Partial correlations.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -118,14 +118,14 @@
 - [X] T022 [US2] Implement `code/analysis.py` function `calculate_bootstrap_stats(df: pd.DataFrame, metric_x: str, metric_y: str, n_iter: int=1000) -> dict`: Resample rows with replacement; calculate Pearson r for each iteration; compute 95% CI using percentile method; return `{'r_mean': float, 'ci_lower': float, 'ci_upper': float, 'std': float}`.
 - [ ] T022B [US2] **Orchestrate Bootstrap**: Update `code/main.py` to call `calculate_bootstrap_stats` for all four metric pairs after Pearson calculation and pass results to `generate_final_report`.
 - [X] T023 [US2] Implement `code/analysis.py` function `apply_multiple_comparison_correction(p_values: dict) -> dict`: Apply Bonferroni correction to 4 p-values; return adjusted p-values.
-- [ ] T037 [US2] Implement `code/analysis.py` function `calculate_spearman_correlations(df: pd.DataFrame) -> dict`: Use `scipy.stats.spearmanr`; return dict of r and p-values for same pairs as Pearson.
+- [X] T037 [US2] Implement `code/analysis.py` function `calculate_spearman_correlations(df: pd.DataFrame) -> dict`: Use `scipy.stats.spearmanr`; return dict of r and p-values for same pairs as Pearson.
 - [ ] T037B [US2] **Integrate Spearman**: Update `code/report.py` to include Spearman correlation results (r and p) in the final report table.
 - [ ] T037C [US2] **Execute Spearman**: Update `code/main.py` to explicitly call `calculate_spearman_correlations` and pass results to `generate_final_report`.
-- [ ] T038 [US2] Implement `code/analysis.py` function `calculate_partial_correlations(df: pd.DataFrame) -> dict`: Control for MW and Atom Count; return partial r and p-values for Entropy-SA and LZ-SA.
+- [X] T038 [US2] Implement `code/analysis.py` function `calculate_partial_correlations(df: pd.DataFrame) -> dict`: Control for MW and Atom Count; return partial r and p-values for Entropy-SA and LZ-SA.
 - [ ] T038B [US2] **Integrate Partial**: Update `code/report.py` to include Partial correlation results (r and p) in the final report table.
 - [ ] T038C [US2] **Execute Partial**: Update `code/main.py` to explicitly call `calculate_partial_correlations` and pass results to `generate_final_report`.
 - [ ] T040 [US2] **Load Data for Analysis**: Implement `code/main.py` step to load `data/processed/metrics.csv` into a pandas DataFrame (`df_full`) for analysis. Handle `FileNotFoundError` gracefully.
-- [ ] T039 [US2] **Enforce Memory Limit**: Implement `code/analysis.py` function `enforce_memory_limit_bootstrap(df: pd.DataFrame) -> pd.DataFrame`:
+- [X] T039 [US2] **Enforce Memory Limit**: Implement `code/analysis.py` function `enforce_memory_limit_bootstrap(df: pd.DataFrame) -> pd.DataFrame`:
  1. Check `df.memory_usage(deep=True)`.
  2. If `> 4GB`:
  a. Bin `atom_count` into 10 quantiles.
@@ -150,7 +150,7 @@
 
 **Goal**: Generate scatter plots with regression lines, confidence intervals, and annotated statistics.
 
-**Independent Test**: The system must generate four distinct scatter plots (Entropy-SA, Entropy-QED, LZ-SA, LZ-QED) with linear regression lines and annotated r, p, n values.
+**Independent Test**: The system must generate four distinct scatter plots (Entropy-SA, Entropy-QED, LZ-SA, LZ-QED) with linear regression lines and annotated r, p, n values. [UNRESOLVED-CLAIM: c_96231645 — status=not_enough_info]
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 

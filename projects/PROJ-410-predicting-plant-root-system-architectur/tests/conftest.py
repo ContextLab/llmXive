@@ -1,8 +1,15 @@
+"""
+Pytest configuration and fixtures for the project.
+"""
 import os
 import sys
 import logging
 import pytest
 from pathlib import Path
+
+# Add project root to path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
 # Configure logging for tests
 logging.basicConfig(
@@ -12,37 +19,32 @@ logging.basicConfig(
 
 @pytest.fixture(scope="session")
 def project_root_path():
-    """Returns the root path of the project."""
-    # Assuming tests/ is at project root or code/tests/
-    # Adjust based on actual structure. Here we assume tests/ is in code/ based on API surface
-    # But the task asks for root structure. Let's assume standard layout:
-    # project_root/
-    #   code/
-    #     tests/
-    #   data/
-    #   contracts/
-    
-    # If this file is in code/tests/, go up two levels
-    current_file = Path(__file__).resolve()
-    root = current_file.parent.parent
-    return root
+    return project_root
 
 @pytest.fixture(scope="session")
-def data_dir(project_root_path):
-    """Returns the path to the data directory."""
-    return project_root_path / "data"
+def code_dir():
+    return project_root / "code"
 
 @pytest.fixture(scope="session")
-def processed_data_dir(project_root_path):
-    """Returns the path to the processed data directory."""
-    return project_root_path / "data" / "processed"
+def data_dir():
+    return project_root / "data"
 
 @pytest.fixture(scope="session")
-def raw_data_dir(project_root_path):
-    """Returns the path to the raw data directory."""
-    return project_root_path / "data" / "raw"
+def raw_data_dir():
+    return data_dir / "raw"
 
 @pytest.fixture(scope="session")
-def code_dir(project_root_path):
-    """Returns the path to the code directory."""
-    return project_root_path / "code"
+def processed_data_dir():
+    return data_dir / "processed"
+
+@pytest.fixture(scope="session")
+def figures_dir():
+    return data_dir / "figures"
+
+@pytest.fixture(scope="session")
+def setup_environment(tmp_path_factory):
+    """Setup temporary directories for test artifacts."""
+    base = tmp_path_factory.mktemp("test_data")
+    processed = base / "processed"
+    processed.mkdir(parents=True, exist_ok=True)
+    return base
