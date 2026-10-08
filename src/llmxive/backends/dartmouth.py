@@ -402,6 +402,10 @@ def _raise_for_backend_error(text: str, exc: BaseException) -> NoReturn:
       to PERMANENT below, surfacing a loud, actionable engine-failure issue.
     * anything else                → :class:`PermanentBackendError` (no retry)
     """
+    # Explicit account budgets are hard limits even when costs/IDs happen to
+    # contain a transient marker such as "500". Never retry around this limit.
+    if "budget has been exceeded" in text.lower():
+        raise PermanentBackendError(str(exc)) from exc
     if _is_model_down_text(text):
         raise ModelDownError(str(exc)) from exc
     if _is_transient_error_text(text):

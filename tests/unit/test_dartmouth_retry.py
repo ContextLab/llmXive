@@ -410,7 +410,7 @@ def test_no_available_server_is_model_down_but_budget_remains_hard_limit():
     with pytest.raises(ModelDownError):
         _raise_for_backend_error(message, RuntimeError(message))
     assert _is_transient_error_text(message)
-    budget = "Error code: 400 - Budget has been exceeded!"
+    budget = "Error code: 400 - Budget has been exceeded! Current cost: 2.500000, Max budget: 2.0"
     with pytest.raises(PermanentBackendError):
         _raise_for_backend_error(budget, RuntimeError(budget))
 
