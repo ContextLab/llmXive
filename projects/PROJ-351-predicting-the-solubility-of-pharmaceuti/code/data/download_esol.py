@@ -1,169 +1,180 @@
+"""
+Task T004: Download ESOL dataset from MoleculeNet or verified mirror.
+
+Fetches the 'delaney-processed.csv' file, validates the 'logS' column,
+saves it to data/raw/, computes SHA-256 checksum, and updates the state manifest.
+
+Constraints:
+- NO synthetic fallbacks. If both sources fail, raise an exception.
+- Must record checksum in state/projects/PROJ-351-predicting-the-solubility-of-pharmaceuti.yaml
+"""
 import os
 import sys
-import pandas as pd
+import json
 import hashlib
 import logging
 import urllib.request
 import urllib.error
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Tuple, List, Dict, Any
 
-# Ensure imports work relative to project root if run as script
-if __name__ == '__main__' and 'code' not in sys.path[0]:
-    sys.path.insert(0, str(Path(__file__).parent.parent))
+# Ensure project root is in path for imports if running as script
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-logger = logging.getLogger(__name__)
+from config.logging_config import setup_logger
 
-# Verified sources as per project constraints
-# Primary: MoleculeNet S3 (as per task description)
-PRIMARY_SOURCE_URL = "https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv"
-# Fallback: HuggingFace direct file resolve (verified mirror)
-FALLBACK_SOURCE_URL = "https://huggingface.co/datasets/deepchem/delaney-processed/resolve/main/delaney-processed.csv"
+# Configuration
+PRIMARY_SOURCE = "https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv"
+FALLBACK_SOURCE = "https://huggingface.co/datasets/deepchem/delaney-processed/resolve/main/delaney-processed.csv"
+OUTPUT_FILENAME = "delaney-processed.csv"
+OUTPUT_DIR = "data/raw"
+STATE_MANIFEST_PATH = "state/projects/PROJ-351-predicting-the-solubility-of-pharmaceuti.yaml"
+REQUIRED_COLUMNS = ["logS"]
 
-def fetch_esol_dataset(output_dir: str) -> pd.DataFrame:
-    """
-    Fetches the ESOL dataset from verified real sources.
-    Tries Primary URL, then Fallback URL.
-    Fails loudly if both sources are unreachable.
-    No synthetic fallbacks allowed.
-    """
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-    csv_path = output_path / "delaney-processed.csv"
+# Setup logging
+logger = setup_logger("download_esol")
 
-    if csv_path.exists():
-        logger.info(f"Found existing raw CSV at {csv_path}")
-        # Validate content minimally
-        try:
-            df = pd.read_csv(csv_path)
-            if "logS" in df.columns:
-                return df
-            else:
-                logger.warning("Existing CSV missing 'logS' column, re-fetching...")
-        except Exception:
-            logger.warning("Existing CSV corrupted, re-fetching...")
-
-    # Attempt Primary Source
-    logger.info(f"Attempting to fetch from Primary Source: {PRIMARY_SOURCE_URL}")
-    try:
-        df = _download_csv(PRIMARY_SOURCE_URL, output_path)
-        return df
-    except Exception as e:
-        logger.warning(f"Primary source failed: {e}. Attempting fallback...")
-
-    # Attempt Fallback Source
-    logger.info(f"Attempting to fetch from Fallback Source: {FALLBACK_SOURCE_URL}")
-    try:
-        df = _download_csv(FALLBACK_SOURCE_URL, output_path)
-        return df
-    except Exception as e:
-        logger.error(f"Fallback source failed: {e}")
-        # CRITICAL: Fail loudly. No synthetic fallback.
-        raise RuntimeError(
-            f"CRITICAL: Could not fetch real data from any verified source. "
-            f"Primary: {PRIMARY_SOURCE_URL}, Fallback: {FALLBACK_SOURCE_URL}. "
-            f"Aborting."
-        ) from e
-
-def _download_csv(url: str, output_path: Path) -> pd.DataFrame:
-    """Helper to download CSV from a URL and return as DataFrame."""
-    try:
-        # Use urllib to fetch the file directly
-        with urllib.request.urlopen(url, timeout=30) as response:
-            if response.status != 200:
-                raise ConnectionError(f"HTTP {response.status}")
-            
-            # Save raw content
-            raw_path = output_path / "delaney-processed.csv"
-            with open(raw_path, "wb") as f:
-                f.write(response.read())
-        
-        # Load and validate
-        df = pd.read_csv(raw_path)
-        
-        # Validate required columns
-        if "logS" not in df.columns:
-            raise ValueError("Invalid dataset format: 'logS' column missing.")
-        if "smiles" not in df.columns:
-            # Handle case sensitivity if needed
-            cols_lower = {c.lower(): c for c in df.columns}
-            if "smiles" in cols_lower:
-                df = df.rename(columns={cols_lower["smiles"]: "smiles"})
-            else:
-                raise ValueError("Invalid dataset format: 'smiles' column missing.")
-        
-        logger.info(f"Successfully downloaded and validated CSV from {url}")
-        return df
-
-    except urllib.error.URLError as e:
-        raise ConnectionError(f"Network error fetching {url}: {e}")
-    except Exception as e:
-        raise RuntimeError(f"Failed to process CSV from {url}: {e}")
-
-def save_raw_csv(df: pd.DataFrame, output_path: str):
-    """Saves the dataframe to a CSV file."""
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved raw CSV to {output_path}")
-
-def verify_checksum(file_path: str) -> str:
-    """Computes SHA-256 checksum of a file."""
+def compute_sha256(filepath: Path) -> str:
+    """Compute SHA-256 hash of a file."""
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
+    with open(filepath, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def update_state_manifest(checksum: str, csv_path: str):
-    """Updates the project state manifest with the artifact checksum."""
-    import yaml
-    from config.seeds import get_seed # Just to ensure config imports work if needed elsewhere, though not strictly used here
+def fetch_url(url: str, output_path: Path) -> None:
+    """Fetch a file from a URL and save it."""
+    logger.info(f"Attempting to fetch from: {url}")
+    try:
+        with urllib.request.urlopen(url, timeout=30) as response:
+            with open(output_path, 'wb') as out_file:
+                # Read in chunks to handle large files gracefully
+                while True:
+                    chunk = response.read(8192)
+                    if not chunk:
+                        break
+                    out_file.write(chunk)
+        logger.info(f"Successfully downloaded to: {output_path}")
+    except urllib.error.HTTPError as e:
+        logger.error(f"HTTP Error {e.code} fetching {url}: {e.reason}")
+        raise
+    except urllib.error.URLError as e:
+        logger.error(f"URL Error fetching {url}: {e.reason}")
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error fetching {url}: {e}")
+        raise
+
+def validate_csv(filepath: Path) -> bool:
+    """Validate that the CSV contains required columns."""
+    try:
+        import pandas as pd
+        df = pd.read_csv(filepath, nrows=5) # Read header and a few rows
+        missing_cols = [col for col in REQUIRED_COLUMNS if col not in df.columns]
+        if missing_cols:
+            logger.error(f"Validation failed: Missing required columns: {missing_cols}")
+            return False
+        logger.info("Validation passed: Required columns present.")
+        return True
+    except Exception as e:
+        logger.error(f"Validation failed: Could not read CSV: {e}")
+        return False
+
+def load_yaml_manifest(filepath: Path) -> Dict[str, Any]:
+    """Load a YAML file safely without external dependencies if possible, or use yaml."""
+    try:
+        import yaml
+        if not filepath.exists():
+            return {"artifact_hashes": {}}
+        with open(filepath, 'r') as f:
+            return yaml.safe_load(f) or {"artifact_hashes": {}}
+    except ImportError:
+        # Fallback if pyyaml not installed (unlikely given T002) but handle gracefully
+        logger.warning("PyYAML not installed. Attempting simple parse or failing.")
+        if not filepath.exists():
+            return {"artifact_hashes": {}}
+        # Simple parser for the specific expected format if yaml is missing
+        # This is a last resort; ideally pyyaml is installed.
+        return {"artifact_hashes": {}} 
+
+def save_yaml_manifest(filepath: Path, data: Dict[str, Any]) -> None:
+    """Save data to a YAML file."""
+    try:
+        import yaml
+        filepath.parent.mkdir(parents=True, exist_ok=True)
+        with open(filepath, 'w') as f:
+            yaml.dump(data, f, default_flow_style=False)
+        logger.info(f"Updated state manifest at {filepath}")
+    except ImportError:
+        logger.error("PyYAML is required to update the state manifest.")
+        raise
+
+def update_state_manifest(output_file: Path, checksum: str) -> None:
+    """Update the project state manifest with the new checksum."""
+    manifest_path = project_root / STATE_MANIFEST_PATH
+    data = load_yaml_manifest(manifest_path)
     
-    project_id = "PROJ-351-predicting-the-solubility-of-pharmaceuti"
-    state_dir = Path("state/projects")
-    state_dir.mkdir(parents=True, exist_ok=True)
-    manifest_path = state_dir / f"{project_id}.yaml"
+    # Ensure artifact_hashes key exists
+    if "artifact_hashes" not in data:
+        data["artifact_hashes"] = {}
     
-    # Load existing or create new
-    if manifest_path.exists():
-        with open(manifest_path, 'r') as f:
-            try:
-                state = yaml.safe_load(f) or {}
-            except yaml.YAMLError:
-                state = {}
-    else:
-        state = {}
+    # Update the specific hash
+    relative_path = str(output_file.relative_to(project_root))
+    data["artifact_hashes"][relative_path] = f"sha256:{checksum}"
     
-    # Ensure structure
-    if "artifact_hashes" not in state:
-        state["artifact_hashes"] = {}
+    save_yaml_manifest(manifest_path, data)
+
+def fetch_esol_dataset(output_dir: Path) -> Path:
+    """
+    Fetch ESOL dataset from primary source, fallback to mirror if needed.
+    Raises RuntimeError if both fail.
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / OUTPUT_FILENAME
+
+    sources = [PRIMARY_SOURCE, FALLBACK_SOURCE]
     
-    # Update specific hash
-    relative_path = csv_path
-    if not relative_path.startswith("data/"):
-        relative_path = f"data/{csv_path}"
-        
-    state["artifact_hashes"][relative_path] = f"sha256:{checksum}"
-    
-    # Write back
-    with open(manifest_path, 'w') as f:
-        yaml.dump(state, f, default_flow_style=False, sort_keys=False)
-    
-    logger.info(f"Updated state manifest at {manifest_path}")
+    for url in sources:
+        try:
+            fetch_url(url, output_path)
+            if validate_csv(output_path):
+                return output_path
+            else:
+                logger.warning(f"Validation failed for {url}, removing file.")
+                output_path.unlink()
+        except Exception as e:
+            logger.warning(f"Failed to fetch or validate from {url}: {e}")
+            if output_path.exists():
+                output_path.unlink()
+            continue
+
+    raise RuntimeError(
+        f"CRITICAL: Could not fetch real ESOL data from any source. "
+        f"Primary: {PRIMARY_SOURCE}, Fallback: {FALLBACK_SOURCE}. "
+        "Aborting. No synthetic data allowed."
+    )
 
 def main():
-    """Main entry point for downloading ESOL dataset."""
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    output_dir = os.environ.get("DATA_RAW_DIR", "data/raw")
-    os.makedirs(output_dir, exist_ok=True)
+    """Main entry point for the download task."""
+    logger.info("Starting ESOL dataset download (Task T004)...")
     
-    df = fetch_esol_dataset(output_dir)
-    csv_path = os.path.join(output_dir, "delaney-processed.csv")
-    checksum = verify_checksum(csv_path)
-    logger.info(f"Dataset checksum: {checksum}")
-    
-    # Update state manifest
-    update_state_manifest(checksum, csv_path)
+    output_path = project_root / OUTPUT_DIR
+    try:
+        csv_path = fetch_esol_dataset(output_path)
+        
+        # Compute checksum
+        checksum = compute_sha256(csv_path)
+        logger.info(f"SHA-256 Checksum: {checksum}")
+        
+        # Update manifest
+        update_state_manifest(csv_path, checksum)
+        
+        logger.info("Task T004 completed successfully.")
+        
+    except Exception as e:
+        logger.error(f"Task T004 failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

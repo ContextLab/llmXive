@@ -1952,3 +1952,549 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-09T10:57:32Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 0
+  canonical: Empirical error rate calculation uses p-value threshold of 0.05
+  claim_id: c_f18ea381
+  context: 'User Story 3 Independent Test: Feed a set of pre-calculated p-values into
+    aggregation logic and verify that the calculated empirical error rate matches
+    the proportion of p-values < 0.05.'
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Verify the calculated empirical error rate matches the proportion of p-values
+    < 0.05.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T15:40:04Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Dataset loading threshold is 7GB
+  claim_id: c_fc560d3b
+  context: 'T024: Implement Smart Streaming Loader. Refactor code/preprocessing/ingestion.py
+    to use datasets.load_dataset(..., streaming=True) for large public datasets.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_loading_threshold_is_7GB
+  kind: entity_fact
+  raw_text: If dataset size < 7GB, load fully into memory. If size >= 7GB, stream
+    and process in chunks to compute statistics or sample a fixed number of rows.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:40:40Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Sample size for chunked data testing is 5000 rows
+  claim_id: c_b5300333
+  context: 'T026: Adapt code/analysis/tests.py to accept chunked/streamed data via
+    a data_stream or sample_size argument. Implement a ''sample-and-test'' strategy.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stream N=5000 rows, then run the standard test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:41:05Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Null hypothesis generation mean difference tolerance is 0.01
+  claim_id: c_1843c66b
+  context: 'User Story 1 Independent Test: Generate a dataset with null hypothesis
+    (mean diff = 0) and verify mean difference < 0.01.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify mean difference < 0.01 for null hypothesis generation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:41:05Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Alternative hypothesis generation mean difference tolerance is 0.05
+  claim_id: c_3d3da0c2
+  context: 'User Story 1 Independent Test: generate alternative (mean diff = 1.0)
+    and verify |mean_diff - 1.0| < 0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify |mean_diff - 1.0| < 0.05 for alternative hypothesis generation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:41:49Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Zero variance edge case threshold is 1e-9
+  claim_id: c_949400c0
+  context: 'T013: Add logic to handle zero-variance edge cases in code/simulation/generator.py.'
+  evidence:
+    asserted: 1e-09
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Log WARNING with message ''Skipping iteration: zero variance detected''
+    if std_dev < 1e-9.'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T15:41:49Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Chi-squared bin expected count threshold is 5
+  claim_id: c_395c6d86
+  context: 'T023: Implement run_chi_squared with binning logic. Edge Case Handling:
+    If a bin has an expected count < 5, merge with the left neighbor.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If a bin has an expected count < 5, merge with the left neighbor.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:41:50Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Simulation run time limit is 5.5 hours
+  claim_id: c_f00e1f81
+  context: 'T028a: Implement Simulation Loop Orchestration. Fallback: If elapsed time
+    > 5.5 hours and [deferred] iterations have not been reached, the run MUST FAIL.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If elapsed time > 5.5 hours and [deferred] iterations have not been reached,
+    the run MUST FAIL with exit code indicating an unspecified error condition.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:41:50Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Minimum iteration count is 10,000
+  claim_id: c_fa445672
+  context: 'T028a: Implement Simulation Loop Orchestration. Log ''FIDELITY VIOLATION:
+    Insufficient iterations (<10,000) due to time limit''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Log ''FIDELITY VIOLATION: Insufficient iterations (<10,000) due to time
+    limit''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:41:51Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Iteration enforcement fails if count is below 10,000
+  claim_id: c_85121872
+  context: 'T028d: Implement Iteration Logic Enforcement. Logic: if elapsed_time <
+    5.5h and iterations < 10000: continue; else if iterations < 10000: fail_run.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If time limit is approached BEFORE [deferred] iterations are complete,
+    the run MUST FAIL. Logic: if elapsed_time < 5.5h and iterations < 10000: continue;
+    else if iterations < 10000: fail_run.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:41:51Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Alpha levels for sensitivity analysis are 0.01, 0.05, and 0.10
+  claim_id: c_702bf1b3
+  context: 'T057: Implement Sensitivity Analysis for Alpha Thresholds. Explicit Alpha
+    Levels: Test a range of significance thresholds, including stringent levels: [0.01,
+    0.05, 0.10].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Test a range of significance thresholds, including stringent levels:
+    [0.01, 0.05, 0.10].'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:42:19Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Mixed-effects significance threshold is 0.05
+  claim_id: c_01bfeaa0
+  context: 'T069: Analyze and Report Mixed-Effects Significance. Logic: If p-value
+    >= 0.05, explicitly report ''SC-007 FAILED: Scaling method not significant''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Report if p-value for the fixed effect scaling_method is < 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:42:20Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Theoretical error rate baseline is 0.05
+  claim_id: c_d1ef8ec2
+  context: 'T071: Generate Simulation Validity Report. Compare measured deviations
+    (error rate vs theoretical baseline) against theoretical expectations. theoretical_error_rate
+    (0.05).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compare measured deviations against theoretical expectations with theoretical_error_rate
+    (0.05).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:43:03Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Sampling justification log threshold is 7GB
+  claim_id: c_31fd7d18
+  context: 'T035b: Log Sampling Justification. Log message must include ''Sampling
+    applied due to dataset size > 7GB'' and the sample size.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sampling_justification_log_threshold_is_7GB
+  kind: entity_fact
+  raw_text: Log message must include 'Sampling applied due to dataset size > 7GB'
+    and the sample size.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:43:35Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Minimum full dataset count requirement is 10
+  claim_id: c_d34d56b3
+  context: 'T056b: Enforce Minimum Full Dataset Count. If the count of fully processed
+    datasets is < 10, the run MUST FAIL with exit code 99.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_full_dataset_count_requirement_is_10
+  kind: magnitude
+  raw_text: 'If the count of fully processed datasets is < 10, the run MUST FAIL with
+    exit code 99 and log ''FIDELITY VIOLATION: Less than 10 full datasets ingested''.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:44:29Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Dataset loading strategy switches from full memory load to streaming
+    at 7GB size threshold
+  claim_id: c_c3ac4399
+  context: 'T024 [US4] Implement Smart Streaming Loader: Refactor code/preprocessing/ingestion.py
+    to use datasets.load_dataset(..., streaming=True) for large public datasets.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_loading_strategy_switches_from_full_memory_load_to_s
+  kind: entity_fact
+  raw_text: If size < 7GB, load fully into memory. If size >= 7GB, stream and process
+    in chunks to compute statistics or sample a fixed number of rows.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:46:27Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Sample-and-test strategy streams 5000 rows before running standard test
+  claim_id: c_c96e9fe5
+  context: 'T026 [US4] Adapt code/analysis/tests.py to accept chunked/streamed data
+    via a data_stream or sample_size argument. Implement a ''sample-and-test'' strategy:
+    stream N=5000 rows, then run the standard test.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: stream N=5000 rows, then run the standard test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:46:28Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: 'Simulation configuration matrix requires at least three distinct configurations:
+    Normal (skew 0, kurt 3), Skewed (non-zero skew, kurt 3), and Heteroscedastic (skew
+    0, kurt 3, non-unity variance ratio)'
+  claim_id: c_5aa2b1cf
+  context: 'T065 [US1] Define Configuration Matrix with Explicit Moments: Define the
+    CONFIG_MATRIX in code/simulation/config.py as a list of SimulationConfig objects.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Simulation_configuration_matrix_requires_at_least_three_dist
+  kind: magnitude
+  raw_text: 'The matrix MUST include at least three distinct configurations: 1. {''type'':
+    ''Normal'', ''skew'': 0, ''kurt'': 3}, 2. {''type'': ''Skewed'', ''skew'': non-zero,
+    ''kurt'': 3}, 3. {''type'': ''Heteroscedastic'', ''skew'': 0, ''kurt'': 3, ''group_variance_ratio'':
+    non-unity}.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:47:12Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Null hypothesis generation verification requires mean difference less
+    than 0.01
+  claim_id: c_b0f01f43
+  context: 'Independent Test: Generate a dataset with null hypothesis (mean diff =
+    0) and verify mean difference < 0.01; generate alternative (mean diff = 1.0) and
+    verify |mean_diff - 1.0| < 0.05.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Null_hypothesis_generation_verification_requires_mean_differ
+  kind: magnitude
+  raw_text: verify mean difference < 0.01
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:47:36Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Alternative hypothesis generation verification requires absolute difference
+    from 1.0 less than 0.05
+  claim_id: c_e521724b
+  context: 'Independent Test: Generate a dataset with null hypothesis (mean diff =
+    0) and verify mean difference < 0.01; generate alternative (mean diff = 1.0) and
+    verify |mean_diff - 1.0| < 0.05.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Alternative_hypothesis_generation_verification_requires_abso
+  kind: magnitude
+  raw_text: verify |mean_diff - 1.0| < 0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:48:05Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Ground truth validation logs failures if null mean difference is 0.01
+    or greater or alternative deviation from 1.0 is 0.05 or greater
+  claim_id: c_38849430
+  context: T012 [US1] Implement ground truth validation logic in code/simulation/generator.py
+    that returns a boolean and logs assertion failures if mean_diff >= 0.01 for null
+    or |mean_diff - 1.0| >= 0.05 for alternative.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: log assertion failures if mean_diff >= 0.01 for null or |mean_diff - 1.0|
+    >= 0.05 for alternative.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:48:34Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Zero variance edge case triggers warning skip if standard deviation is
+    less than 1e-9
+  claim_id: c_fc46105e
+  context: 'T013 [US1] Add logic to handle zero-variance edge cases in code/simulation/generator.py:
+    Log WARNING with message ''Skipping iteration: zero variance detected'' if std_dev
+    < 1e-9 and skip the specific iteration.'
+  evidence:
+    asserted: 1e-09
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: 'log WARNING with message ''Skipping iteration: zero variance detected''
+    if std_dev < 1e-9'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T15:48:34Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Simulation run fails with exit code 99 if 5.5 hours elapsed before reaching
+    target iterations
+  claim_id: c_72a526cb
+  context: 'T028a [US3] Implement Simulation Loop Orchestration: ... Fallback: If
+    elapsed time > 5.5 hours and [deferred] iterations have not been reached, the
+    run MUST FAIL with exit code indicating an unspecified error condition.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if elapsed time > 5.5 hours and [deferred] iterations have not been reached,
+    the run MUST FAIL
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:48:35Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Fidelity violation logged when iterations are below 10,000 due to time
+    limit
+  claim_id: c_f6aacad3
+  context: 'T028a [US3] ... log ''FIDELITY VIOLATION: Insufficient iterations (<10,000)
+    due to time limit''. DO NOT reduce target iterations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'log ''FIDELITY VIOLATION: Insufficient iterations (<10,000) due to time
+    limit'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:48:35Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Iteration logic fails run if time limit reached before 10,000 iterations
+    are completed
+  claim_id: c_818d63e1
+  context: 'T028d [US3] Implement Iteration Logic Enforcement: ... Logic: if elapsed_time
+    < 5.5h and iterations < 10000: continue; else if iterations < 10000: fail_run.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'if elapsed_time < 5.5h and iterations < 10000: continue; else if iterations
+    < 10000: fail_run'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:48:35Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis tests alpha levels at 0.01, 0.05, and 0.10
+  claim_id: c_0d8297a8
+  context: 'T057 [US3] Implement Sensitivity Analysis for Alpha Thresholds: ... Explicit
+    Alpha Levels: Test a range of significance thresholds, including stringent levels:
+    [0.01, 0.05, 0.10].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Test a range of significance thresholds, including stringent levels:
+    [0.01, 0.05, 0.10].'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:48:36Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Pipeline fails with exit code 99 if fewer than 10 full datasets are processed
+  claim_id: c_735a35fe
+  context: 'T056b [US4] Enforce Minimum Full Dataset Count: ... Requirement: If the
+    count of fully processed datasets is < 10, the run MUST FAIL with exit code 99
+    and log ''FIDELITY VIOLATION: Less than 10 full datasets ingested''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_fails_with_exit_code_99_if_fewer_than_10_full_datas
+  kind: magnitude
+  raw_text: If the count of fully processed datasets is < 10, the run MUST FAIL with
+    exit code 99
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:49:16Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Comparison report calculates Mean Absolute Difference and Pearson Correlation
+    Coefficient between synthetic and real p-values
+  claim_id: c_b8d51bd8
+  context: 'T039 [US4] Implement Comparison Report Generation: ... Metrics: Calculate
+    Mean_Absolute_Difference (mean of |synthetic_p - real_p|) and Correlation_Coefficient
+    (Pearson correlation between synthetic and real p-values).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Comparison_report_calculates_Mean_Absolute_Difference_and_Pe
+  kind: entity_fact
+  raw_text: Calculate Mean_Absolute_Difference (mean of |synthetic_p - real_p|) and
+    Correlation_Coefficient (Pearson correlation between synthetic and real p-values).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:49:55Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Simulation validity report compares measured error rate against theoretical
+    baseline of 0.05
+  claim_id: c_c4d0f190
+  context: 'T071 [US3] Generate Simulation Validity Report: ... table comparing config_id,
+    scaling_method, measured_error_rate, theoretical_error_rate (0.05), and deviation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: theoretical_error_rate (0.05)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:50:35Z'

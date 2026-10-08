@@ -85,7 +85,7 @@
  5. **Do NOT** attempt to fetch from a "Project Implicit canonical source" if the URL is unknown; rely on the configured URL or local file.
 - [X] T039 [US1] Implement `code/data_loader.py` logic to verify the downloaded/local file against `contracts/dataset.schema.yaml` immediately after fetch/validation; raise `ValueError` with specific missing columns if validation fails.
 - [X] T040 [US1] Create `data/raw/.gitkeep` and `data/raw/README.md` documenting the exact source URL used (if fetched) or the local file path and date of download to ensure provenance.
-- [ ] T041 [US1] Implement a "dry-run" data fetch in `code/main.py` that validates the **full** schema against the first several rows (if available) or the entire file (if small) to ensure column mapping logic works, raising `ValueError` if required columns are missing even in a sample.
+- [X] T041 [US1] Implement a "dry-run" data fetch in `code/main.py` that validates the **full** schema against the first several rows (if available) or the entire file (if small) to ensure column mapping logic works, raising `ValueError` if required columns are missing even in a sample.
 
 ---
 
@@ -114,7 +114,7 @@
 - [X] T015 [US1] Implement `code/models.py` to fit primary linear regression: `IAT_D ~ news_exposure_z * political_ideology` (continuous)
 - [X] T017b [US1] **Retrospective Power Analysis**: Calculate `observed_power` using fitted model effect size; output to `results/power_analysis.csv` with columns: `observed_power`, `required_n`, `effect_size`, `met_target`. (Distinct from T017a).
 - [X] T016 [US1] Implement derived variable creation in `code/preprocessing.py`: `news_exposure_z` (z-scored) and `ideology_binary` (median split for later use)
-- [ ] T018 [US1] **Integrate Pipeline**: Implement `code/main.py` orchestration for the Load -> Impute -> Model pipeline. Ensure data flows correctly from `data/raw/` to `data/processed/` and initial results are saved to `results/`.
+- [X] T018 [US1] **Integrate Pipeline**: Implement `code/main.py` orchestration for the Load -> Impute -> Model pipeline. Ensure data flows correctly from `data/raw/` to `data/processed/` and initial results are saved to `results/`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -139,7 +139,7 @@
 - [X] T022 [US2] Implement alpha sweep in `code/robustness.py` to re-evaluate significance at thresholds **{0.01, 0.05, 0.10}**; report variation in significance status; save results to `results/alpha_sweep.csv`
 - [X] T023 [US2] Implement covariate adjustment model in `code/models.py`: Re-fit model from scratch using imputed data and added covariates (`age`, `gender`, `education`); compare interaction coefficient magnitude/significance to primary model
 - [X] T024b [US2] **Binary Model Fit**: Re-fit linear regression using `ideology_binary` (from T016) instead of continuous ideology; report results (coefficient/significance) and save to `results/binary_model.csv`. **Note**: This is a secondary sensitivity check (FR-006) and can run in parallel with T021-T023.
-- [ ] T025 [US2] Integrate robustness checks into `code/main.py` pipeline after primary model
+- [X] T025 [US2] Integrate robustness checks into `code/main.py` pipeline after primary model
 - [X] T026 [US2] **Aggregate Robustness Metrics**: Read `results/intermediate_convergence.json`, `results/alpha_sweep.csv`, and `results/binary_model.csv`. Aggregate all robustness metrics (bootstrap CI, alpha sweep results, covariate comparison, binary model results) into a single `results/robustness_metrics.csv`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -162,7 +162,7 @@
 - [X] T028b [US3] **Report Generation**: Implement `reporting.py` logic to populate the `templates/report.j2` with data from `results/` CSVs and JSONs, and render the final PDF report using `jinja2` and `weasyprint`/`pdfkit`.
 - [X] T029 [US3] Generate CSV summary tables (`model_summary.csv`, `diagnostics.csv`). **Schema**: `model_summary.csv` must include columns: `term`, `estimate`, `std_error`, `p_value`, `ci_lower`, `ci_upper`. `diagnostics.csv` must include: `variable`, `missing_count`, `missing_pct`, `imputation_method`.
 - [X] T030 [US3] Implement plotting functions (interaction plot, bootstrap distribution) using `seaborn`/`matplotlib` and embed in report
-- [ ] T031 [US3] Integrate reporting step into `code/main.py` as the final pipeline stage
+- [X] T031 [US3] Integrate reporting step into `code/main.py` as the final pipeline stage
 - [X] T032 [US3] Ensure all artifacts are written to `results/` directory with correct filenames and constraints (PDF ≤ 5 MB)
 
 **Checkpoint**: All user stories should now be independently functional

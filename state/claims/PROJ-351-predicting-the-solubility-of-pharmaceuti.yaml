@@ -527,3 +527,161 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-01T10:52:00Z'
+- artifact_path: projects/PROJ-351-predicting-the-solubility-of-pharmaceuti/specs/001-predicting-the-solubility-of-pharmaceuti/tasks.md
+  attempts: 1
+  canonical: 'ESOL dataset sources: MoleculeNet S3 and HuggingFace mirror'
+  claim_id: c_d7580b3d
+  context: Task T004 implements a download script to fetch the ESOL dataset with fallback
+    logic to a verified HuggingFace mirror if the primary source is unreachable.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: The ESOL dataset is fetched from the MoleculeNet repository URL (https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv)
+    or a verified HuggingFace mirror URL (https://huggingface.co/datasets/deepchem/delaney-processed/resolve/main/delaney-processed.csv).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:26:07Z'
+- artifact_path: projects/PROJ-351-predicting-the-solubility-of-pharmaceuti/specs/001-predicting-the-solubility-of-pharmaceuti/tasks.md
+  attempts: 1
+  canonical: Random Forest baseline uses Morgan fingerprints radius=2, 2048 bits
+  claim_id: c_4479ed1d
+  context: Task T012a and T013 define the Random Forest baseline architecture using
+    Morgan fingerprints with specific parameters.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Random Forest baseline uses Morgan fingerprints with a radius of 2
+    and 2048 bits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:26:28Z'
+- artifact_path: projects/PROJ-351-predicting-the-solubility-of-pharmaceuti/specs/001-predicting-the-solubility-of-pharmaceuti/tasks.md
+  attempts: 1
+  canonical: Nested Cross-Validation uses 5 outer folds and 5 inner folds
+  claim_id: c_cd460821
+  context: Tasks T016 and T021 specify a Nested Cross-Validation loop with 5 folds
+    for both the outer and inner loops.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Nested Cross-Validation uses an outer loop of 5 folds and an inner
+    loop of 5 folds for hyperparameter tuning.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:26:58Z'
+- artifact_path: projects/PROJ-351-predicting-the-solubility-of-pharmaceuti/specs/001-predicting-the-solubility-of-pharmaceuti/tasks.md
+  attempts: 1
+  canonical: Stratified K-Fold split uses 10 quantile bins on logS
+  claim_id: c_34e82a27
+  context: Task T006 mandates a Stratified K-Fold split using 10 quantile bins for
+    logS distribution balance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stratified K-Fold splitting uses 10 quantile bins based on logS to ensure
+    distribution balance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:27:25Z'
+- artifact_path: projects/PROJ-351-predicting-the-solubility-of-pharmaceuti/specs/001-predicting-the-solubility-of-pharmaceuti/tasks.md
+  attempts: 1
+  canonical: Nadeau's Corrected Resampled t-test with k=5 fold ratio correction
+  claim_id: c_53d0cc62
+  context: Task T028 explicitly mandates the use of Nadeau's Corrected Resampled t-test
+    with a k=5 fold ratio correction on the concatenated absolute error vectors.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical significance test uses Nadeau's Corrected Resampled t-test
+    with a k=5 fold ratio correction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:29:09Z'
+- artifact_path: projects/PROJ-351-predicting-the-solubility-of-pharmaceuti/specs/001-predicting-the-solubility-of-pharmaceuti/tasks.md
+  attempts: 1
+  canonical: Visualization selection uses 10th, 50th, and 90th percentiles
+  claim_id: c_f3f4fa4f
+  context: Task T030 specifies that molecules for visualization are selected via deterministic
+    quantile-based selection at the 10th, 50th, and 90th percentiles.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Visualization_selection_uses_10th,_50th,_and_90th_percentile
+  kind: entity_fact
+  raw_text: The visualization selection logic uses deterministic quantile-based selection
+    at the 10th, 50th, and 90th percentiles.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:29:41Z'
+- artifact_path: projects/PROJ-351-predicting-the-solubility-of-pharmaceuti/specs/001-predicting-the-solubility-of-pharmaceuti/tasks.md
+  attempts: 1
+  canonical: Visualization guarantees minimum 5 unique molecules
+  claim_id: c_c04871f0
+  context: Task T030 includes a fallback mechanism to ensure the minimum of 5 unique
+    molecules is met if quantile selection yields fewer.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The visualization process guarantees a minimum of 5 unique molecules for
+    the output.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:30:25Z'
+- artifact_path: projects/PROJ-351-predicting-the-solubility-of-pharmaceuti/specs/001-predicting-the-solubility-of-pharmaceuti/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime limit 6 hours on 2-core CPU
+  claim_id: c_bf0cede5
+  context: Task T045 and the constraints section state that the end-to-end pipeline
+    must complete within 6 hours on a 2-core CPU runner.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full pipeline is required to complete within 6 hours on a 2-core CPU
+    runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:30:49Z'
+- artifact_path: projects/PROJ-351-predicting-the-solubility-of-pharmaceuti/specs/001-predicting-the-solubility-of-pharmaceuti/tasks.md
+  attempts: 1
+  canonical: Ceiling effect detected if Baseline R-squared > 0.9
+  claim_id: c_1a39b1e0
+  context: "Task T034 adds logic to detect a 'ceiling effect' specifically if the\
+    \ Baseline R\xB2 is greater than 0.9."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ceiling_effect_detected_if_Baseline_R-squared_%3E_0.9
+  kind: magnitude
+  raw_text: The ceiling effect is detected if the Baseline R-squared value is greater
+    than 0.9.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:31:23Z'

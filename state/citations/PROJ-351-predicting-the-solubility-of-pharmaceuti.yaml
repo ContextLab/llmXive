@@ -64,7 +64,7 @@
   verification_status: pending
   verified_against_url: https://github.com/your-org/your-repo
   verified_at: '2026-09-22T04:59:39.094123Z'
-- artifact_hash: 7ae9beeb2bb3e1e89e9e2fdf1d1f1d0487f4b8f79f3dc5fb2a40f375e94d9153
+- artifact_hash: 0768834e99da3a501d75f176351437e6fa57090e68fadd45ccdff7b33574f7cf
   artifact_path: projects/PROJ-351-predicting-the-solubility-of-pharmaceuti/specs/001-predicting-the-solubility-of-pharmaceuti/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -74,8 +74,8 @@
   value: https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv`
   verification_status: pending
   verified_against_url: https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv
-  verified_at: '2026-10-01T10:46:21.391240Z'
-- artifact_hash: 7ae9beeb2bb3e1e89e9e2fdf1d1f1d0487f4b8f79f3dc5fb2a40f375e94d9153
+  verified_at: '2026-10-08T15:31:39.278018Z'
+- artifact_hash: 0768834e99da3a501d75f176351437e6fa57090e68fadd45ccdff7b33574f7cf
   artifact_path: projects/PROJ-351-predicting-the-solubility-of-pharmaceuti/specs/001-predicting-the-solubility-of-pharmaceuti/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -85,4 +85,4 @@
   value: https://huggingface.co/datasets/deepchem/delaney-processed/resolve/main/delaney-processed.csv`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/deepchem/delaney-processed/resolve/main/delaney-processed.csv
-  verified_at: '2026-10-01T10:46:21.391240Z'
+  verified_at: '2026-10-08T15:31:39.278018Z'

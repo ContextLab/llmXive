@@ -1,93 +1,94 @@
 #!/usr/bin/env Rscript
+# code/R/02_sensitivity.R
+# Task: T026 - Sensitivity Analysis (LOOCV or Jackknife)
+# Performs Leave-One-Out Cross-Validation (LOOCV) if species count >= 10,
+# otherwise performs a Jackknife analysis (leave-out 10%).
+# Output: results/sensitivity_log.csv
 
-# 02_sensitivity.R
-# Performs LOOCV (if species count >= 10) or jackknife sensitivity analysis (if species count < 10)
-# Outputs: results/sensitivity_log.csv
-
+library(argparse)
 library(phylolm)
 library(ape)
 library(dplyr)
-library(readr)
 
-# --- Configuration ---
-args <- commandArgs(trailingOnly = TRUE)
-if (length(args) < 3) {
-  stop("Usage: Rscript 02_sensitivity.R <merged_data_path> <tree_path> <output_path>")
-}
-
-merged_data_path <- args[1]
-tree_path <- args[2]
-output_path <- args[3]
+# Parse arguments
+parser <- ArgumentParser(description = "Run sensitivity analysis on PGLS model")
+parser$add_argument("--data", type = "character", required = TRUE,
+                    help = "Path to the merged data CSV (data/processed/merged_data.csv)")
+parser$add_argument("--tree", type = "character", required = TRUE,
+                    help = "Path to the phylogenetic tree file (data/phylogeny/tree.nwk)")
+parser$add_argument("--output", type = "character", required = TRUE,
+                    help = "Path to output CSV (results/sensitivity_log.csv)")
+args <- parser$parse_args()
 
 # Ensure output directory exists
-output_dir <- dirname(output_path)
+output_dir <- dirname(args$output)
 if (!dir.exists(output_dir)) {
   dir.create(output_dir, recursive = TRUE)
 }
 
-# --- Load Data ---
-message("Loading merged data from ", merged_data_path)
-data <- read_csv(merged_data_path, show_col_types = FALSE)
+# Load Data
+cat("Loading data from", args$data, "\n")
+data <- read.csv(args$data, stringsAsFactors = FALSE)
 
-# Check for required columns
-required_cols <- c("species", "telomere_length_kb", "lifespan", "migration_status", "body_mass_g")
+# Validate required columns
+required_cols <- c("species", "telomere_length_kb", "lifespan", "phylo_tip_name")
 if (!all(required_cols %in% names(data))) {
-  stop("Missing required columns in merged data. Found: ", paste(names(data), collapse = ", "))
+  stop("Missing required columns in merged data. Expected: ", paste(required_cols, collapse=", "))
 }
 
-# Aggregate by species means (as per T027B requirement mentioned in tasks.md)
-# The model requires one row per species for the PGLS
-species_data <- data %>%
-  group_by(species) %>%
-  summarise(
-    telomere_mean = mean(telomere_length_kb, na.rm = TRUE),
-    lifespan_mean = mean(lifespan, na.rm = TRUE),
-    migration_status = first(migration_status),
-    body_mass_mean = mean(body_mass_g, na.rm = TRUE),
-    .groups = 'drop'
-  )
+# Load Tree
+cat("Loading tree from", args$tree, "\n")
+tree <- read.tree(args$tree)
 
-# Remove rows with NA in key variables
-species_data <- species_data %>%
-  filter(!is.na(telomere_mean) & !is.na(lifespan_mean))
+# Prepare data for modeling: Ensure row names match tree tip labels
+# The model requires the response and predictor to be aligned with the tree tips
+# We assume the 'phylo_tip_name' column in data matches the tip labels in tree
+data <- data[match(tree$tip.label, data$phylo_tip_name), ]
 
-n_species <- nrow(species_data)
-message("Processing ", n_species, " unique species for sensitivity analysis.")
-
-message("Loading phylogenetic tree from ", tree_path)
-tree <- read.tree(tree_path)
-
-# Ensure tree tip labels match data species names
-# We subset the tree to only include species present in our data
-common_species <- intersect(tree$tip.label, species_data$species)
-if (length(common_species) == 0) {
-  stop("No common species found between tree and data.")
+# Check for NAs
+if (any(is.na(data$lifespan)) || any(is.na(data$telomere_length_kb))) {
+  warning("NAs found in response or predictor. Removing rows.")
+  data <- na.omit(data)
+  # Re-align if necessary after removal, though usually we assume the tree covers the data
+  # For strict alignment, we might need to prune the tree to the remaining tips
+  if (nrow(data) < 2) {
+    stop("Not enough data points remaining after NA removal.")
+  }
 }
 
-tree_subset <- drop.tip(tree, setdiff(tree$tip.label, common_species))
-species_data_subset <- species_data[species_data$species %in% common_species, ]
+# Determine Method
+n_species <- nrow(data)
+method_justification <- ""
+indices_to_remove <- list()
 
-# Reorder data to match tree tip labels
-species_data_subset <- species_data_subset[match(tree_subset$tip.label, species_data_subset$species), ]
-
-# Verify alignment
-if (!all(species_data_subset$species == tree_subset$tip.label)) {
-  stop("Species order mismatch after subsetting.")
+if (n_species >= 10) {
+  method_justification <- "LOOCV (species count >= 10)"
+  # LOOCV: Remove 1 species at a time
+  indices_to_remove <- lapply(1:n_species, function(i) i)
+} else {
+  # Jackknife: Remove ~10% (minimum 1, max n-1)
+  n_remove <- max(1, floor(n_species * 0.1))
+  # Ensure we don't remove all data
+  if (n_remove >= n_species) n_remove <- n_species - 1
+  
+  method_justification <- sprintf("Jackknife (removed %d species, count < 10)", n_remove)
+  
+  # Generate indices to remove
+  # We will iterate through all combinations? No, that's too many.
+  # Standard Jackknife usually removes 1, but if count is small, we remove a block or specific subset.
+  # To be robust and deterministic without combinatorial explosion, we remove 1 species at a time 
+  # even for small N, but the justification notes it's a jackknife context.
+  # However, the prompt says "LOOCV if >= 10, Jackknife if < 10".
+  # Strict LOOCV is removing 1. Jackknife often implies removing a chunk.
+  # Let's interpret "Jackknife" here as removing 1 species (which is a jackknife of size 1) 
+  # but with the justification that the sample is small.
+  # OR, remove a chunk of size n_remove.
+  # Given the small N (<10), removing a chunk of 10% (which might be 0 or 1) is trivial.
+  # Let's stick to removing 1 species at a time for stability, but label it Jackknife.
+  indices_to_remove <- lapply(1:n_species, function(i) i)
 }
 
-# --- Sensitivity Analysis Logic ---
-# Determine method: LOOCV if >= 10 species, otherwise Jackknife (leave-one-out is effectively jackknife here, 
-# but we will label it appropriately based on the task description's distinction)
-# Task says: "LOOCV (if species count >= 10) or jackknife sensitivity analysis (if species count < 10)"
-# We will implement leave-one-out for both, but label the justification string.
-
-method_justification <- ifelse(n_species >= 10, "LOOCV", "Jackknife")
-message("Using method: ", method_justification, " (N = ", n_species, ")")
-
-results <- list()
-
-# Prepare results dataframe
-res_df <- data.frame(
+results <- data.frame(
   species_id = character(),
   coefficient = numeric(),
   se = numeric(),
@@ -96,32 +97,53 @@ res_df <- data.frame(
   stringsAsFactors = FALSE
 )
 
-# Iterate: Leave one species out
-for (i in 1:n_species) {
-  # Remove species i
-  current_species <- species_data_subset$species[i]
-  subset_data <- species_data_subset[-i, ]
-  subset_tree <- drop.tip(tree_subset, current_species)
+cat(sprintf("Running %s on %d species...\n", 
+            ifelse(n_species >= 10, "LOOCV", "Jackknife"), n_species))
+
+# Pre-fit base model for reference? Not required for the loop, but good for sanity check.
+# We will fit the model for each iteration.
+
+for (i in seq_along(indices_to_remove)) {
+  remove_idx <- indices_to_remove[[i]]
+  species_name <- data$species[remove_idx]
   
-  # Re-order subset data to match subset tree
-  subset_data <- subset_data[match(subset_tree$tip.label, subset_data$species), ]
+  # Subset data
+  subset_data <- data[-remove_idx, ]
   
-  # Fit PGLS model: lifespan ~ telomere_length
-  # Using phylolm with default Brownian motion or iterative lambda if needed
-  # The base model used phylolm, so we stick to it.
+  # Prune tree to match subset data
+  # We need to ensure the tree tips match the subset_data row names or phylo_tip_name
+  subset_tips <- subset_data$phylo_tip_name
+  # Check if all subset tips are in tree
+  if (!all(subset_tips %in% tree$tip.label)) {
+    warning("Tree and data mismatch in iteration. Pruning tree.")
+    tree_subset <- drop.tip(tree, setdiff(tree$tip.label, subset_tips))
+  } else {
+    tree_subset <- tree
+  }
+  
+  # Fit PGLS Model
+  # Formula: lifespan ~ telomere_length_kb
   tryCatch({
-    model <- phylolm(lifespan_mean ~ telomere_mean, 
+    model <- phylolm(lifespan ~ telomere_length_kb, 
                      data = subset_data, 
-                     phy = subset_tree, 
-                     model = "lambda") # Estimate lambda iteratively as per T023 logic
-      
-    # Extract stats
-    coef_val <- coef(model)["telomere_mean"]
-    se_val <- sqrt(vcov(model)["telomere_mean", "telomere_mean"])
-    p_val <- summary(model)$coefficients["telomere_mean", "Pr(>|t|)"]
+                     tree = tree_subset, 
+                     model = "lambda")
     
-    res_df <- rbind(res_df, data.frame(
-      species_id = current_species,
+    # Extract stats
+    coefs <- coef(summary(model))
+    # The first row is the intercept, second is the slope (telomere)
+    # We want the slope coefficient
+    slope_row <- coefs[2, ]
+    
+    coef_val <- slope_row["Estimate"]
+    se_val <- slope_row["Std. Error"]
+    p_val <- slope_row["Pr(>|t|)"]
+    
+    # Handle cases where p-value might be NA (e.g., singular fit)
+    if (is.na(p_val)) p_val <- 1.0
+    
+    results <- rbind(results, data.frame(
+      species_id = species_name,
       coefficient = coef_val,
       se = se_val,
       p_value = p_val,
@@ -129,28 +151,23 @@ for (i in 1:n_species) {
       stringsAsFactors = FALSE
     ))
     
-    message("  Processed: ", current_species, " (N=", nrow(subset_data), ")")
-    
   }, error = function(e) {
-    message("  Warning: Failed to fit model for exclusion of ", current_species, ": ", e$message)
-    # Record NA for failed iterations to maintain log integrity
-    res_df <- rbind(res_df, data.frame(
-      species_id = current_species,
-      coefficient = NA_real_,
-      se = NA_real_,
-      p_value = NA_real_,
+    warning(sprintf("Failed to fit model for %s: %s", species_name, e$message))
+    results <- rbind(results, data.frame(
+      species_id = species_name,
+      coefficient = NA,
+      se = NA,
+      p_value = NA,
       method_justification = method_justification,
       stringsAsFactors = FALSE
     ))
   })
 }
 
-# --- Save Output ---
-message("Saving sensitivity log to ", output_path)
-write_csv(res_df, output_path)
+# Save results
+cat("Saving results to", args$output, "\n")
+write.csv(results, args$output, row.names = FALSE)
 
-message("Sensitivity analysis complete. ", nrow(res_df), " records written.")
-message("Method justification used: ", method_justification)
-
-# Exit cleanly
-quit(save = "no", status = 0)
+cat("Sensitivity analysis complete.\n")
+cat("Total iterations:", nrow(results), "\n")
+cat("Method:", method_justification, "\n")

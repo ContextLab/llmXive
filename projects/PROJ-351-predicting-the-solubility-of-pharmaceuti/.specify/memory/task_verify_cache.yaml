@@ -1,11 +1,13 @@
 T004:
   c: false
-  h: f35784ef3bbc12aaa5ed1b365a1e8c4060e0eb4e2ea77bed74d13e564fd454b8
-  r: "The repository lacks the required `data/raw/delaney-processed.csv` file and\
-    \ the `state/projects/PROJ-351-predicting-the-solubility-of-pharmaceuti.yaml`\
-    \ file with the SHA\u2011256 hash entry. Consequently the download script\u2019\
-    s side\u2011effects (saving the CSV and recording its checksum) have not been\
-    \ realized."
+  h: 4e507c7a894cb5a77ccdeb40dd9c7ca2609808edb18a00aa6d52c1a719420a26
+  r: "The repository lacks the required `data/raw/delaney-processed.csv` and the state\
+    \ manifest YAML file, so the script cannot have saved the CSV or recorded its\
+    \ checksum. Moreover, the shown portion of `download_esol.py` is truncated before\
+    \ any fallback\u2011to\u2011mirror logic or YAML\u2011update code, indicating\
+    \ the implementation is incomplete. The missing artifacts must be created and\
+    \ the script must contain the full fallback and checksum\u2011recording logic\
+    \ to satisfy the task."
 T012a:
   c: false
   h: 877622d2c4e86bafb482ac98c019e2352650de4d9117448720865ebf49c82bf3

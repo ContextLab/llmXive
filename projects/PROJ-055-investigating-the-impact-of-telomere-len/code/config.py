@@ -1,3 +1,7 @@
+"""
+Configuration management module for the Telomere-Lifesman Impact project.
+Handles environment variable loading, validation, and random seed initialization.
+"""
 import os
 import random
 import sys
@@ -9,106 +13,150 @@ class ConfigError(Exception):
     """Custom exception for configuration errors."""
     pass
 
+# Project root path (assuming code/ is at repo root or one level up)
+# We assume this file is at code/config.py, so root is parent
+PROJECT_ROOT = Path(__file__).parent.parent
+ENV_FILE_PATH = PROJECT_ROOT / "code" / ".env"
+CONFIG_SCHEMA = {
+    "required": ["DRYAD_API_KEY"],
+    "optional": ["ANAGE_API_KEY", "RANDOM_SEED"],
+    "defaults": {
+        "ANAGE_API_KEY": "",
+        "RANDOM_SEED": 42
+    }
+}
+
 def load_env_config(env_path: Optional[Path] = None) -> Dict[str, str]:
     """
-    Loads environment variables from a .env file or the current environment.
+    Load environment variables from a .env file into os.environ.
+    Supports standard KEY=VALUE format.
     
     Args:
-        env_path: Path to the .env file. If None, looks for .env in the project root.
+        env_path: Path to the .env file. Defaults to PROJECT_ROOT/code/.env
     
     Returns:
-        Dictionary of environment variables.
+        Dictionary of loaded environment variables.
+    
+    Raises:
+        FileNotFoundError: If the .env file does not exist.
     """
     if env_path is None:
-        # Default to project root .env
-        project_root = Path(__file__).parent.parent
-        env_path = project_root / ".env"
+        env_path = ENV_FILE_PATH
     
-    config = {}
+    if not env_path.exists():
+        raise FileNotFoundError(f"Environment file not found at {env_path}")
     
-    if env_path.exists():
-        with open(env_path, 'r') as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith('#'):
-                    if '=' in line:
-                        key, value = line.split('=', 1)
-                        config[key.strip()] = value.strip()
+    env_vars = {}
+    with open(env_path, 'r') as f:
+        for line in f:
+            line = line.strip()
+            # Skip comments and empty lines
+            if not line or line.startswith('#'):
+                continue
+            
+            if '=' in line:
+                key, value = line.split('=', 1)
+                key = key.strip()
+                value = value.strip()
+                # Remove quotes if present
+                if (value.startswith('"') and value.endswith('"')) or \
+                   (value.startswith("'") and value.endswith("'")):
+                    value = value[1:-1]
+                env_vars[key] = value
+                os.environ[key] = value
     
-    # Override with actual environment variables if set
-    for key in list(config.keys()):
-        if key in os.environ:
-            config[key] = os.environ[key]
-    
-    return config
+    return env_vars
 
 def validate_config(config: Dict[str, str]) -> None:
     """
-    Validates the configuration dictionary for required keys.
+    Validate that required configuration keys are present and non-empty.
+    
+    Args:
+        config: Dictionary of configuration values.
     
     Raises:
-        ConfigError: If required keys are missing or invalid.
+        ConfigError: If a required key is missing or empty.
     """
-    # Define required keys
-    required_keys = ['RANDOM_SEED']
+    required_keys = CONFIG_SCHEMA.get("required", [])
+    for key in required_keys:
+        value = config.get(key)
+        if not value:
+            raise ConfigError(f"Missing or empty required configuration key: {key}")
     
-    missing_keys = [key for key in required_keys if key not in config or not config[key]]
-    if missing_keys:
-        raise ConfigError(f"Missing required configuration keys: {', '.join(missing_keys)}")
-    
-    # Validate RANDOM_SEED is an integer
-    try:
-        seed = int(config['RANDOM_SEED'])
-    except ValueError:
-        raise ConfigError(f"RANDOM_SEED must be an integer, got: {config['RANDOM_SEED']}")
+    # Optional validation: Check if RANDOM_SEED is an integer
+    if "RANDOM_SEED" in config:
+        try:
+            int(config["RANDOM_SEED"])
+        except ValueError:
+            raise ConfigError(f"RANDOM_SEED must be an integer, got: {config['RANDOM_SEED']}")
 
 def init_config(env_path: Optional[Path] = None) -> Dict[str, Any]:
     """
-    Initializes the configuration by loading and validating environment settings.
+    Initialize the project configuration: load .env, validate, and set seeds.
     
     Args:
         env_path: Path to the .env file.
     
     Returns:
-        Dictionary containing validated configuration values.
+        Dictionary containing the validated configuration.
+    
+    Raises:
+        ConfigError: If validation fails.
     """
-    config = load_env_config(env_path)
-    validate_config(config)
-    return config
+    try:
+        env_vars = load_env_config(env_path)
+    except FileNotFoundError:
+        # If .env is missing, try to load from actual OS environment
+        # This allows CI/CD or production environments to work without a file
+        env_vars = {k: v for k, v in os.environ.items() if k in CONFIG_SCHEMA["required"] + CONFIG_SCHEMA["optional"]}
+    
+    # Apply defaults for optional keys not present
+    for key, default_val in CONFIG_SCHEMA.get("defaults", {}).items():
+        if key not in env_vars:
+            env_vars[key] = str(default_val)
+    
+    validate_config(env_vars)
+    set_random_seed(int(env_vars.get("RANDOM_SEED", 42)))
+    
+    return env_vars
 
 def get_config() -> Dict[str, Any]:
     """
-    Retrieves the current project configuration.
-    Initializes if not already loaded.
+    Get the current configuration. Initializes it if not already done.
+    This is a convenience wrapper for scripts that need config without explicit init.
     
     Returns:
-        Dictionary containing configuration values.
+        Configuration dictionary.
     """
-    # Use a simple global cache or re-load based on project needs
-    # For this implementation, we load fresh to ensure .env changes are picked up
-    # In a production system, a singleton pattern might be preferred
-    return init_config()
+    # Simple check if we have the critical key in os.environ
+    if "DRYAD_API_KEY" not in os.environ:
+        return init_config()
+    return {k: v for k, v in os.environ.items() if k in CONFIG_SCHEMA["required"] + CONFIG_SCHEMA["optional"]}
 
-def set_random_seed(seed: Optional[int] = None) -> int:
+def set_random_seed(seed: int) -> None:
     """
-    Sets the random seed for reproducibility across the pipeline.
+    Set the random seed for reproducibility across libraries.
     
     Args:
-        seed: The seed value. If None, reads from configuration.
-    
-    Returns:
-        The seed value used.
+        seed: Integer seed value.
     """
-    if seed is None:
-        config = get_config()
-        seed = int(config['RANDOM_SEED'])
-    
     random.seed(seed)
-    # Also set numpy seed if available, as many data scripts use it
+    # If numpy is available, seed it too
     try:
         import numpy as np
         np.random.seed(seed)
     except ImportError:
         pass
     
-    return seed
+    # If torch is available, seed it too
+    try:
+        import torch
+        torch.manual_seed(seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(seed)
+    except ImportError:
+        pass
+    
+    # Log the seed setting
+    import logging
+    logging.getLogger(__name__).info(f"Random seed set to: {seed}")

@@ -108,7 +108,7 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement `code/04_model_pglS.py` to extract unique species from `data/processed/merged_data.csv` and fetch the corresponding phylogenetic tree from `rotl` (Newick format) to `data/phylogeny/`. **Must run before T023/T024**.
+- [ ] T022 [US2] Implement `code/04_model_pglS.py` to extract unique species from `data/processed/merged_data.csv` and fetch the corresponding phylogenetic tree from `rotl` (Newick format) to `data/phylogeny/`. **Must run before T023/T024**. <!-- FAILED: unspecified -->
 - [X] T023 [US2] Create `code/R/01_fit_pglS.R` to define and fit the PGLS model. Use `phylolm` (selected for iterative lambda estimation capability as per plan.md) to ensure phylogenetic covariance structure is derived from data. The model formula will be implemented as `lifespan ~ telomere_length` with the tree passed as the covariance matrix argument to match the conceptual requirement `lifespan ~ telomere_length + phylogenetic_covariance`.
 - [X] T024 [US2] Implement `code/04_model_pglS.py` to call the R script via `rpy2`, passing the merged data and tree, and capturing the summary statistics (coefficient, SE, p-value, lambda). Implement logic to handle low power cases (<15 species) by logging the exact string "Low Power: Phylogenetic inference unreliable" and skipping the modeling step (do not halt the entire pipeline abruptly) instead of failing or proceeding.
 - [ ] T025 [US2] Implement `code/04_model_pglS.py` to save model results to `results/model_summary.csv` and log the phylogenetic signal (lambda).

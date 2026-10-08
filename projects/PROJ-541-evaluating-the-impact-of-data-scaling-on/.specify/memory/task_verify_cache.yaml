@@ -1,11 +1,13 @@
 T005b:
   c: false
-  h: a9b2e594f46ea7aa6c1ba1caf4b6594f9a269590b4cbc355521ab696885b707c
-  r: "The `code/simulation/logger.py` file does not contain implementations of `setup_logger`,\
-    \ `inject_batch_context`, or `save_seed_config` (the file ends abruptly with a\
-    \ syntax error and missing functions). Consequently, the required `seed_config.json`\
-    \ file is not created, and the unit tests cannot pass. The task\u2019s core functionality\
-    \ is absent."
+  h: 017664fc75b8de54195b0e78dd77c052fe32bd449620eb5caaa4532a5a4f8105
+  r: "The `code/simulation/logger.py` file is present, but the provided excerpt ends\
+    \ before the implementations of `setup_logger`, `inject_batch_context`, and `save_seed_config`;\
+    \ none of these functions are shown, and there is no code that validates, appends\
+    \ to `data/config/seed_config.json`, handles file\u2011locking errors, or returns\
+    \ the updated config object as required. Consequently the required functionality\
+    \ is not demonstrably implemented. The missing implementations must be added to\
+    \ satisfy the task."
 T028a:
   c: false
   h: 7c480ebea748c0b882aa42a0b013d00695380b85ac19da470d99cc578e3440eb
@@ -22,15 +24,14 @@ T028b:
     \ `code/main.py` does not show any checkpoint\u2011writing logic. Implement the\
     \ checkpoint mechanism in `main.py` and add a test that confirms `partial_checkpoint.csv`\
     \ is created and populated as expected."
-T029:
+T028c:
   c: false
-  h: d1f1b6a7425ae25836385c3b9fa8cf2fbb219df3054bd49da0aea72db054da79
-  r: "The repository lacks the required input file `results/simulation_results.csv`,\
-    \ and the function `calculate_aggregate_metrics` is only partially implemented\
-    \ (it does not compute separate power values, does not calculate Clopper\u2011\
-    Pearson confidence intervals, and never writes `results/aggregate_metrics.csv`).\
-    \ Consequently the deliverable CSV is missing and the implementation does not\
-    \ meet the specification."
+  h: fea79b5cc60d1d06cca36d75ec6e38b808ea68248be489026915c126f2e6a48a
+  r: "The repository contains a `write_simulation_results` function and unit tests,\
+    \ but the required output file `results/simulation_results.csv` is not present,\
+    \ and there is no evidence that the main simulation loop actually invokes this\
+    \ function to write to that path. Consequently the task\u2019s core requirement\u2014\
+    producing the aggregated CSV at the specified location\u2014is not satisfied."
 T039:
   c: false
   h: 7ce3bfe1c83a7a1af0d44673bce7447d7abc93bd6b75a815203391c8869d2f3b
@@ -93,6 +94,12 @@ T050:
     \ the required simulation generator, scaling pipeline, statistical test outputs,\
     \ or any aggregated visualizations. Consequently, the task\u2019s core deliverables\
     \ are absent."
+T053b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `plan.md` file is presented, and there is no evidence that the \u201C\
+    Complexity Tracking\u201D section was edited to replace the specified statement.\
+    \ The required artifact is missing, so the task is not satisfied."
 T065:
   c: false
   h: 759ee0a69262705f2a1ca2ead1c276145e0a02b3c86d3051dfff7b334f3e38e8

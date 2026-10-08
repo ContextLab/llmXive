@@ -84,7 +84,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012a [US1] Implement `code/data/featurize.py` to load cleaned RDKit Mol objects (from T005, specifically `data/processed/cleaned_graphs.pkl` containing SMILES) and convert them into Morgan fingerprints (radius=2, 2048 bits) for the Random Forest baseline. Save to `data/processed/fingerprints.npz`. **Depends on:** T005. **Note:** This task explicitly handles the RF-specific feature extraction, distinct from the GNN graph tensors in T005b. It must load SMILES from `cleaned_graphs.pkl`.
+- [ ] T012a [US1] Implement `code/data/featurize.py` to load cleaned RDKit Mol objects (from T005, specifically `data/processed/cleaned_graphs.pkl` containing SMILES) and convert them into Morgan fingerprints (radius=2, 2048 bits) for the Random Forest baseline. Save to `data/processed/fingerprints.npz`. **Depends on:** T005. **Note:** This task explicitly handles the RF-specific feature extraction, distinct from the GNN graph tensors in T005b. It must load SMILES from `cleaned_graphs.pkl`. <!-- FAILED: unspecified -->
 - [X] T013 [US1] Define Random Forest baseline architecture in `code/models/baseline_rf.py` using Morgan fingerprints (radius=2, 2048 bits). **Depends on:** T012a.
 - [X] T016 [US1] Implement a **Nested Cross-Validation** loop in `code/training/train_baseline_cv.py`:
  - **Outer Loop**: 5 folds (Stratified by logS using 10 bins).
@@ -144,7 +144,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T033 [US3] Implement `code/evaluation/aggregate_predictions.py` to load **per-fold** predictions from T016 (`data/processed/rf_fold_predictions.json`) and T021 (`data/processed/gnn_fold_predictions.json`), concatenate them into single vectors, calculate absolute errors, and save to `data/processed/aggregated_predictions.json` (containing `predictions`, `true_values`, `errors` for both models). **Requires:** T016 (RF CV), T021 (GNN CV). **Note:** This task is the explicit aggregation step, resolving the redundancy with T016/T021. It must output `absolute_errors` as a distinct key.
+- [ ] T033 [US3] Implement `code/evaluation/aggregate_predictions.py` to load **per-fold** predictions from T016 (`data/processed/rf_fold_predictions.json`) and T021 (`data/processed/gnn_fold_predictions.json`), concatenate them into single vectors, calculate absolute errors, and save to `data/processed/aggregated_predictions.json` (containing `predictions`, `true_values`, `errors` for both models). **Requires:** T016 (RF CV), T021 (GNN CV). **Note:** This task is the explicit aggregation step, resolving the redundancy with T016/T021. It must output `absolute_errors` as a distinct key. <!-- FAILED: unspecified -->
 - [X] T025 [US3] **Model Comparison**: Implement `code/evaluation/compare_models.py` to calculate the RMSE delta between Baseline (from T016) and GNN (from T021). Save to `results/model_comparison.json`. **Depends on:** T016, T021, T033.
 - [X] T028 [P] [US3] Implement `code/evaluation/statistical_test.py` to:
  1. **Execute Nadeau's Corrected Resampled t-test** (using **k=5** fold ratio correction) on the concatenated absolute error vectors from the Outer Loop (input from `data/processed/aggregated_predictions.json`). **Constraint:** This test is MANDATORY regardless of distribution. **No Shapiro-Wilk check or fallback to non-parametric tests is permitted.**
@@ -183,7 +183,7 @@
 
 **Purpose**: Ensure all components work together and verify the full pipeline meets all success criteria.
 
-- [ ] T045 [P] **End-to-End Pipeline Verification**: Execute `code/main_pipeline.py` to run the full workflow (Download -> Clean -> Split -> RF CV -> GNN CV -> Stats -> Report) and verify completion within 6 hours on a **2-core CPU runner**. **Depends on:** All Phase 2-5 tasks. **Reason**: Validates SC-003 (Computational Feasibility) and ensures all components integrate correctly. **Note**: Runtime logging must be captured to confirm the 6-hour limit is met.
+- [X] T045 [P] **End-to-End Pipeline Verification**: Execute `code/main_pipeline.py` to run the full workflow (Download -> Clean -> Split -> RF CV -> GNN CV -> Stats -> Report) and verify completion within 6 hours on a **2-core CPU runner**. **Depends on:** All Phase 2-5 tasks. **Reason**: Validates SC-003 (Computational Feasibility) and ensures all components integrate correctly. **Note**: Runtime logging must be captured to confirm the 6-hour limit is met. <!-- FAILED: unspecified -->
 - [X] T046 [US3] **Final Report Generation**: Generate `docs/reports/final_report.md` containing the following **mandatory sections** (read data from `results/metrics.json`, `results/statistical_test.json`, `results/viz_manifest.json`):
  1. **Executive Summary**: Brief overview of findings.
  2. **Methodology**: Description of Nested CV and Nadeau's test.

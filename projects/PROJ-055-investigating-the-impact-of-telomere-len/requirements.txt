@@ -1,4 +1,4 @@
-# Existing dependencies
+# Core dependencies
 pandas
 requests
 numpy
@@ -8,7 +8,4 @@ rpy2
 pyyaml
 psutil
 pytest
-testthat
-# New dependencies for T026 (if any specific Python wrappers needed, though R handles logic)
-# No new Python dependencies strictly required as R script handles the logic via rpy2 invocation
-# ensuring R packages (phylolm, ape, dplyr, readr) are installed in the R environment.
+# SHA256 utilities are standard library, no extra package needed

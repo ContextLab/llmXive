@@ -1,59 +1,17 @@
-T010:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No configuration files, scripts, or documentation for managing Dryad/AnAge API
-    keys or setting random seeds were provided; the claim lacks any tangible artifact
-    demonstrating that environment configuration management has been implemented.
-T011:
-  c: false
-  h: 277f05bb1a172bd7f8dfd941686fc36813969f75a15723204ed142c79b921c56
-  r: The required artifact `tests/test_ingest.py` does not exist on disk, so no unit
-    test for Dryad URL parsing and CSV loading is present. The task cannot be considered
-    completed until this file is created with appropriate test code.
-T017:
-  c: false
-  h: 00a79e7b7d7bb8979708532fa06b14da111a643c7ae17f063255a8a6dd5d7a43
-  r: "The repository lacks the required output file `data/processed/merged_data.csv`,\
-    \ and the provided `code/03_clean_merge.py` is truncated before any merge, validation,\
-    \ or missing\u2011data logging logic is implemented. Consequently the task\u2019\
-    s core requirements are not satisfied."
-T022:
-  c: false
-  h: 368437daf4185179d7aacc7443aecf65ec039f6f0d25a642aa4370f40a2cf468
-  r: "The repository lacks the required `data/processed/merged_data.csv`, so the script\
-    \ cannot actually extract species. Moreover, `code/04_model_pglS.py` only defines\
-    \ helper functions and does not contain a runnable entry that calls them to write\
-    \ the Newick tree into `data/phylogeny/`; the R snippet inside `fetch_phylogenetic_tree`\
-    \ is also malformed (it injects a Python list into R code). The task\u2019s core\
-    \ behavior is therefore not realized."
-T025:
-  c: false
-  h: b3e1ee2911a796b9ac574db188173855d87214b7fc835a05ff66f094c2b02d94
-  r: The repository lacks the required `results/model_summary.csv` file, and the provided
-    `code/04_model_pglS.py` snippet does not show any logic that writes model results
-    to that CSV or logs the phylogenetic signal (lambda). The implementation is therefore
-    incomplete.
-T026:
-  c: false
-  h: ba2d5b765a30c6d5366553ee05eb7bba5a5ef7dfdc58c24903e2fdc27bd27ca5
-  r: "The provided `code/R/02_sensitivity.R` stops after setting `method_justification`;\
-    \ the script does not contain the LOOCV/jackknife loops, coefficient/SE/p\u2011\
-    value calculations, nor does it write `results/sensitivity_log.csv`. Consequently\
-    \ the required output file is missing. The implementer must complete the analysis\
-    \ logic and generate the CSV with the specified columns."
 T034:
   c: false
-  h: 6fe3b123287f6435b8602e5062e7818432e9270467d017b17066ea5430983897
-  r: "The repository contains a `code/06_moderator.py` that defines functions to load\
-    \ the base model CSV and run the moderator R script, but it never computes the\
-    \ AIC difference or extracts the interaction coefficient/p\u2011value, and the\
-    \ required `results/model_summary.csv` file is absent. Both the necessary data\
-    \ file and the full implementation of the requested calculations are missing."
+  h: 7a61431e2c0444c73ff1d526f6725a81ad076c3a925d9352303bbb4fbe67a6c3
+  r: "The repository lacks the required `results/model_summary.csv` file, so the scripts\
+    \ cannot read the base model results or compute the AIC difference. Moreover,\
+    \ the provided code snippets are truncated and do not show the actual call to\
+    \ the moderator R script or the extraction of the interaction coefficient and\
+    \ p\u2011value. The missing CSV and absent implementation details mean the task\
+    \ requirements are not satisfied."
 T035:
   c: false
-  h: 18613ead2b0b0dc3079965ff7fbadf8c04e55498378a70bcc8fe1b778fdc8c55
-  r: "The repository lacks the required output file `results/moderator_plot.png`,\
-    \ and the provided `code/05_visualize.py` is truncated before any plotting logic\
-    \ is shown, giving no evidence that it actually creates and saves the grouped\
-    \ scatter plot with separate regression lines. The task\u2019s core deliverable\
-    \ is therefore missing."
+  h: 4f77e5ce077092db14f3e96e94584d9f2ef20f3fce03613300a3289f3982354f
+  r: The provided `code/05_visualize.py` is truncated (ends with `plt.figu`), showing
+    that the plotting function is not fully implemented, and the required output file
+    `results/moderator_plot.png` does not exist. Consequently, the task of generating
+    and saving the grouped scatter plot with separate regression lines has not been
+    fulfilled.
