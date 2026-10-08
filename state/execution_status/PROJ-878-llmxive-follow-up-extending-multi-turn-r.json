@@ -1,0 +1,17 @@
+{
+  "project_id": "PROJ-878-llmxive-follow-up-extending-multi-turn-r",
+  "ok": false,
+  "reason": "",
+  "artifacts": [],
+  "failures": [],
+  "fix_rounds": 0,
+  "model_tier": 0,
+  "offload": {
+    "status": "running",
+    "kernel_ref": "jeremy9/llmxive-proj-878-llmxive-follow-up-extending-multi",
+    "submitted_at": "2026-10-08T20:22:44Z",
+    "reason": "",
+    "evidence": []
+  },
+  "updated_at": "2026-10-08T20:22:48Z"
+}

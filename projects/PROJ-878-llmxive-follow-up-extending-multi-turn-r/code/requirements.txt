@@ -1,0 +1,4 @@
+python-dotenv  # auto-added: imported by run-book but missing from venv
+networkx  # auto-added: imported by run-book but missing from venv
+numpy  # auto-added: imported by run-book but missing from venv
+torch  # auto-added: imported by run-book but missing from venv
