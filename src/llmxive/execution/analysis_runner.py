@@ -70,7 +70,7 @@ class AnalysisRunResult:
 
 
 def extract_run_commands(quickstart_text: str) -> list[str]:
-    """Return the ordered ``python`` commands from quickstart's bash blocks.
+    """Return ordered Python and pytest commands from quickstart's bash blocks.
 
     Only ``python``/``python3`` lines are kept (they do the real work);
     directory checks, navigation, prints, and the venv/pip setup lines are
@@ -89,6 +89,8 @@ def extract_run_commands(quickstart_text: str) -> list[str]:
                 continue
             if line.startswith(("python ", "python3 ")):
                 commands.append(line)
+            elif line == "pytest" or line.startswith("pytest "):
+                commands.append("python -m " + line)
     return commands
 
 
@@ -339,6 +341,17 @@ def run_analysis(
         # planner-vs-implementer naming/dir drift to the real file; only a
         # genuinely-unresolvable path is a real missing-script failure.
         script_missing = False
+        if args[:2] == ["-m", "pytest"]:
+            # Run-books often `cd code` before `pytest test_analysis.py`; the
+            # executor keeps project-root cwd, so resolve those targets there.
+            resolved_targets = []
+            for arg in args[2:]:
+                target, separator, selection = arg.partition("::")
+                resolved = _resolve_script(project_dir, target) if target.endswith(".py") and not target.startswith("-") else None
+                if resolved is None and not (project_dir / target).exists() and (project_dir / "code" / target).is_dir():
+                    resolved = "code/" + target
+                resolved_targets.append((resolved or target) + separator + selection)
+            args = ["-m", "pytest", *resolved_targets]
         if args and not args[0].startswith("-") and args[0].endswith(".py"):
             resolved = _resolve_script(project_dir, args[0])
             if resolved is None:

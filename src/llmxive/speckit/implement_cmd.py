@@ -24,7 +24,12 @@ from llmxive.backends.base import ChatMessage, ChatResponse
 from llmxive.config import LEAF_TASK_BUDGET_SECONDS
 from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
 from llmxive.speckit.task_lines import TASK_LINE_RE as _TASK_RE
-from llmxive.speckit.task_lines import all_complete, mark_task, validate_open_tasks
+from llmxive.speckit.task_lines import (
+    all_complete,
+    mark_task,
+    task_continuation,
+    validate_open_tasks,
+)
 from llmxive.speckit.yaml_extract import parse_yaml_lenient
 
 
@@ -45,7 +50,8 @@ class ImplementerAgent(SlashCommandAgent):
     def _next_incomplete(self, tasks_text: str) -> tuple[str, str] | None:
         for m in _TASK_RE.finditer(tasks_text):
             if m.group("status") == " ":
-                return m.group("id"), m.group(0)
+                index = tasks_text[:m.start()].count("\n")
+                return m.group("id"), m.group(0) + task_continuation(tasks_text.splitlines(), index)
         return None
 
     def _all_complete(self, tasks_text: str) -> bool:

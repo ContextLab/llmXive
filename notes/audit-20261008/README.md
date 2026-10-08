@@ -130,6 +130,22 @@ and model/outcome counts; `progress-metrics.json` uses persisted stage history.
     placeholders and a validation instruction conflicting with its FR-004. That
     paragraph now states the question and defers to the active specification's
     held-out-species validation requirement, without inventing a citation.
+14. **Execution results and tests could become stale or invisible.** Successful
+    execution records now bind to the analysis source, run-book and output bytes;
+    editing or removing evidence invalidates acceptance. Run-book `pytest`
+    commands are executed instead of silently discarded. A real failing pytest
+    subprocess blocks acceptance even when the preceding analysis creates a CSV.
+    The implementer prompt now documents the existing `execute: true` capability,
+    which its previous output contract omitted entirely. Scientific-output tasks
+    can request their producer run immediately, as well as wiring the run-book.
+15. **Multiline task requirements were dropped.** Replanning emitted task headers
+    followed by indented output paths and constraints. Implementation context and
+    verification had retained only the first line. Both now retain the full
+    indented task body; an absent CSV named on a continuation line fails the
+    deterministic check. `canary-diagnostic-tasks.md` and the diagnostic trail
+    preserve the failed trial. That process was stopped to test the corrected
+    pipeline from the same initial idea; its recorded running status is a
+    pre-interruption snapshot, not a claim of an ongoing or accepted run.
 
 ## Models: verified, not inferred from names
 

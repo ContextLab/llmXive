@@ -97,3 +97,63 @@ def test_wrapped_refusal_is_not_fabrication_but_unrelated_negation_is(tmp_path):
     assert find_synthetic_data_use(tmp_path) == []
     script.write_text('"""Real data was not available.\n    We use synthetic data instead."""\n')
     assert find_synthetic_data_use(tmp_path)
+
+
+def test_successful_execution_is_invalidated_by_code_or_output_edits(tmp_path):
+    project, _ = _project(tmp_path, "print('actual analysis')\n")
+    data = project / "data/result.csv"
+    data.parent.mkdir()
+    data.write_text("n,square\n3,9\n")
+    def record():
+        execution_status.record(project.name, ok=True, reason="measured output",
+                                artifacts=["data/result.csv"], failures=[], repo_root=tmp_path)
+    record()
+    assert execution_status.is_ok(project.name, repo_root=tmp_path)
+    (project / "code/run.py").write_text("raise RuntimeError('regression')\n")
+    assert not execution_status.is_ok(project.name, repo_root=tmp_path)
+    record()
+    data.write_text("n,square\n3,1234\n")
+    assert not execution_status.is_ok(project.name, repo_root=tmp_path)
+    record()
+    data.unlink()
+    assert not execution_status.is_ok(project.name, repo_root=tmp_path)
+
+
+def test_runbook_pytest_failure_blocks_generated_artifact_acceptance(tmp_path, monkeypatch):
+    import sys
+
+    from llmxive import sandbox
+    from llmxive.execution.analysis_runner import extract_run_commands, run_analysis
+
+    project, tasks = _project(tmp_path, (
+        "from pathlib import Path\nPath('data').mkdir(exist_ok=True)\n"
+        "Path('data/counts.csv').write_text('n,count\\n3,9\\n')\n"
+    ))
+    quickstart = tasks.parent / "quickstart.md"
+    quickstart.write_text("```bash\npython code/run.py\npytest test_analysis.py -q\n```\n")
+    (project / "code/test_analysis.py").write_text("def test_computation():\n    assert 3 * 3 == 8\n")
+    # Use the installed test interpreter; commands and pytest run in real subprocesses.
+    monkeypatch.setattr(sandbox, "ensure_venv", lambda project_dir: Path(sys.executable))
+    assert extract_run_commands(quickstart.read_text())[-1] == "python -m pytest test_analysis.py -q"
+    result = run_analysis(project)
+    assert not result.ok
+    assert result.artifacts_produced == ["data/counts.csv"]
+    assert len(result.commands) == 2 and result.commands[1].returncode == 1
+    assert "FAILED" in result.commands[1].tail
+
+
+def test_multiline_task_deliverables_reach_implementer_and_verifier(tmp_path, monkeypatch):
+    from llmxive.speckit.implement_cmd import ImplementerAgent
+
+    project, tasks = _project(tmp_path, "print('code only')\n")
+    text = "- [ ] T008 Export the following:\n  `data/counts.csv` with exact counts.\n\n- [ ] T009 Plot data/plot.png\n"
+    task_id, description = ImplementerAgent()._next_incomplete(text)
+    assert task_id == "T008" and "data/counts.csv" in description
+    assert "data/plot.png" not in description
+    tasks.write_text(text.replace("[ ] T008", "[X] T008"))
+    monkeypatch.setattr(tv, "verify_task", lambda **kw: tv.TaskVerdict(True, "should not be reached"))
+    mem = project / ".specify/memory"
+    result = tv.run_verification_pass(project, tasks, already_verified=set(),
+                                     notes_path=mem / "notes.md", state_path=mem / "task_verify.yaml")
+    assert result["rejected"] and "data/counts.csv" in result["rejected"][0][1]
+    assert "[ ] T008" in tasks.read_text()

@@ -1,0 +1,97 @@
+{
+  "project_id": "PROJ-9999-totient-canary",
+  "status": "running",
+  "steps": [
+    {
+      "step": 1,
+      "before": "flesh_out_complete",
+      "after": "validated",
+      "elapsed_s": 17.002
+    },
+    {
+      "step": 2,
+      "before": "validated",
+      "after": "project_initialized",
+      "elapsed_s": 29.511
+    },
+    {
+      "step": 3,
+      "before": "project_initialized",
+      "after": "specified",
+      "elapsed_s": 88.192
+    },
+    {
+      "step": 4,
+      "before": "specified",
+      "after": "clarified",
+      "elapsed_s": 223.228
+    },
+    {
+      "step": 5,
+      "before": "clarified",
+      "after": "planned",
+      "elapsed_s": 754.97
+    },
+    {
+      "step": 6,
+      "before": "planned",
+      "after": "tasked",
+      "elapsed_s": 71.16
+    },
+    {
+      "step": 7,
+      "before": "tasked",
+      "after": "analyzed",
+      "elapsed_s": 667.664
+    },
+    {
+      "step": 8,
+      "before": "analyzed",
+      "after": "in_progress",
+      "elapsed_s": 791.954
+    },
+    {
+      "step": 9,
+      "before": "in_progress",
+      "after": "in_progress",
+      "elapsed_s": 687.917
+    },
+    {
+      "step": 10,
+      "before": "in_progress",
+      "after": "planned",
+      "elapsed_s": 619.27
+    },
+    {
+      "step": 11,
+      "before": "planned",
+      "after": "tasked",
+      "elapsed_s": 930.834
+    },
+    {
+      "step": 12,
+      "before": "tasked",
+      "after": "analyzed",
+      "elapsed_s": 996.916
+    },
+    {
+      "step": 13,
+      "before": "analyzed",
+      "after": "in_progress",
+      "elapsed_s": 694.176
+    },
+    {
+      "step": 14,
+      "before": "in_progress",
+      "after": "planned",
+      "elapsed_s": 829.822
+    },
+    {
+      "step": 15,
+      "before": "planned",
+      "after": "tasked",
+      "elapsed_s": 1262.269
+    }
+  ],
+  "elapsed_s": 3265.628
+}

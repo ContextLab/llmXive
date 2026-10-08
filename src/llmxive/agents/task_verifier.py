@@ -37,6 +37,7 @@ from typing import Any
 from llmxive.backends.base import ChatMessage
 from llmxive.backends.router import REASONING_MAX_TOKENS, chat_with_fallback
 from llmxive.speckit.task_lines import TASK_ID_RE as _TASK_ID_RE
+from llmxive.speckit.task_lines import task_continuation
 
 LOGGER = logging.getLogger(__name__)
 
@@ -409,8 +410,8 @@ def verified_done_keys(project_dir: Path, tasks_path: Path) -> set[str]:
         match = _TASK_LINE_RE.match(lines[i])
         if not match or match.group(2) not in {"x", "X"}:
             continue
-        rest = match.group(3)
-        digest = _evidence_hash(rest.strip() + "\n" + spec + "\n" + gather_evidence(project_dir, rest))
+        task_text = match.group(3).strip() + task_continuation(lines, i)
+        digest = _evidence_hash(task_text + "\n" + spec + "\n" + gather_evidence(project_dir, task_text))
         receipt = cache.get(key)
         if isinstance(receipt, dict) and receipt.get("c") is True and receipt.get("h") == digest:
             verified.add(key)
@@ -571,7 +572,7 @@ def run_verification_pass(
         under_review = mark == "~"
         if not (newly_claimed or under_review):
             continue
-        task_text = rest.strip()
+        task_text = rest.strip() + task_continuation(lines, i)
 
         # (A) Already recorded UNVERIFIABLE → do NOT re-judge (this is what breaks
         # the loop REJECT_CAP used to paper over). Keep it OUT of the done set
@@ -593,7 +594,7 @@ def run_verification_pass(
             continue
 
         # (C) Ambiguous residue → evidence-hash cache, else bounded semantic LLM.
-        evidence = gather_evidence(project_dir, rest)
+        evidence = gather_evidence(project_dir, task_text)
         ev_hash = _evidence_hash(task_text + "\n" + spec_context + "\n" + evidence)
         cached = cache.get(key)
         if (
@@ -713,7 +714,7 @@ def drain_under_review(
             continue
         rest = m.group(3)
         key = keys[i]
-        task_text = rest.strip()
+        task_text = rest.strip() + task_continuation(lines, i)
         if key in unv_keys:
             lines[i] = f"{m.group(1)}[ ]{rest}"
             reopened += 1

@@ -24,6 +24,17 @@ class TaskFormatError(ValueError):
     """An unchecked checkbox cannot be mapped to a unique task identity."""
 
 
+def task_continuation(lines: list[str], index: int) -> str:
+    """Indented Markdown paragraphs belong to the preceding task, not a new task."""
+    continuation = []
+    for line in lines[index + 1:]:
+        if line.strip() and (not line[:1].isspace() or CHECKBOX_RE.fullmatch(line)):
+            break
+        continuation.append(line)
+    body = "\n".join(continuation).rstrip()
+    return "\n" + body if body else ""
+
+
 def validate_open_tasks(text: str) -> None:
     malformed = [
         m.group(0)

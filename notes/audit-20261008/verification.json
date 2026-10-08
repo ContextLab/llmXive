@@ -11,7 +11,11 @@
     "planner_and_persistence": 62,
     "claim_design_preservation": 64,
     "execution_verification_and_fabrication": 38,
-    "tasker_production_and_bridge": 13
+    "tasker_production_and_bridge": 13,
+    "execution_status_consumers": 176,
+    "real_pytest_execution_and_fingerprint": 41,
+    "multiline_implementation_and_verification": 26,
+    "implementation_and_execution_consumers": 164
   },
   "lint": "changed Python files pass ruff",
   "live_model_probe": "GLM-5.3 free catalog entry and real JSON response verified",

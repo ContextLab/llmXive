@@ -69,6 +69,9 @@ def run(project_id: str, repo: Path, *, max_steps: int = 50, budget_s: float = 7
             output.write_text(json.dumps(result, indent=2))
         else:
             raise RuntimeError("full-pipeline acceptance step limit exhausted")
+    except KeyboardInterrupt:
+        result.update(status="interrupted", reason="operator stopped the run; acceptance is unproven")
+        raise
     except Exception as exc:
         result.update(status="failed", reason=str(exc))
         raise

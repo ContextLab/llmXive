@@ -14,6 +14,7 @@ something concrete to fix.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 import os
@@ -125,9 +126,48 @@ def load(project_id: str, *, repo_root: Path | None = None) -> dict[str, Any] | 
 
 
 def is_ok(project_id: str, *, repo_root: Path | None = None) -> bool:
-    """True iff the latest recorded execution run produced real artifacts."""
+    """A successful run is reusable only while its code and outputs still match."""
     rec = load(project_id, repo_root=repo_root)
-    return bool(rec and rec.get("ok") is True)
+    if not rec or rec.get("ok") is not True:
+        return False
+    return rec.get("execution_fingerprint") == _execution_fingerprint(
+        project_id, rec.get("artifacts", []), repo_root=repo_root
+    )
+
+
+def _execution_fingerprint(
+    project_id: str, artifacts: list[str], *, repo_root: Path | None = None
+) -> str:
+    """Bind execution to source, run-book, requirements, and produced evidence."""
+    root = (repo_root or _repo_root()) / "projects" / project_id
+    paths: set[Path] = set()
+    for base in ("code", "scripts"):
+        for path in (root / base).rglob("*"):
+            if any(part in {".venv", "__pycache__", ".tasks"} for part in path.parts):
+                continue
+            if path.is_file() and path.suffix.lower() in {
+                ".py", ".r", ".sh", ".toml", ".yaml", ".yml", ".txt"
+            }:
+                paths.add(path)
+    from llmxive.execution.analysis_runner import _find_quickstart
+
+    quickstart = _find_quickstart(root)
+    if quickstart is not None:
+        paths.add(quickstart)
+    for artifact in artifacts:
+        path = root / artifact
+        if not path.resolve().is_relative_to(root.resolve()):
+            continue
+        paths.add(path)
+    digest = hashlib.sha256()
+    for path in sorted(paths):
+        digest.update(str(path.relative_to(root)).encode())
+        try:
+            with path.open("rb") as source:
+                digest.update(hashlib.file_digest(source, "sha256").digest())
+        except OSError:
+            digest.update(b"MISSING")
+    return digest.hexdigest()
 
 
 def fix_rounds(project_id: str, *, repo_root: Path | None = None) -> int:
@@ -263,6 +303,9 @@ def record(
         "failure_class": None if ok else (failure_class or None),
         "evidence": [] if ok else [str(e)[:600] for e in (evidence or [])][:20],
         "updated_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "execution_fingerprint": _execution_fingerprint(
+            project_id, artifacts, repo_root=repo_root
+        ) if ok else None,
     }
     d = _dir(repo_root)
     d.mkdir(parents=True, exist_ok=True)
