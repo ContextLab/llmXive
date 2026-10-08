@@ -6,7 +6,7 @@ failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-257-investigating-the-statistical-properties
-last_run_id: d4c59625-2f64-4505-b7d6-ec0c7a1915ee
+last_run_id: 75993980-5e26-41ea-aaac-177170b0101f
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties
 title: Investigating the Statistical Properties of Simulated Black Hole Mergers
-updated_at: '2026-10-05T01:53:36.487131Z'
+updated_at: '2026-10-08T19:11:48.168195Z'

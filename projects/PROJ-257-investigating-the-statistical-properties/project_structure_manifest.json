@@ -1,9 +1,70 @@
 {
-  "/project_root_placeholder": [
-    "data",
-    "logs",
-    "output",
-    "src",
-    "tests"
-  ]
+  "src": {
+    "type": "directory",
+    "absolute": "/project_root/src"
+  },
+  "src/data": {
+    "type": "directory",
+    "absolute": "/project_root/src/data"
+  },
+  "src/analysis": {
+    "type": "directory",
+    "absolute": "/project_root/src/analysis"
+  },
+  "src/viz": {
+    "type": "directory",
+    "absolute": "/project_root/src/viz"
+  },
+  "src/utils": {
+    "type": "directory",
+    "absolute": "/project_root/src/utils"
+  },
+  "tests": {
+    "type": "directory",
+    "absolute": "/project_root/tests"
+  },
+  "tests/unit": {
+    "type": "directory",
+    "absolute": "/project_root/tests/unit"
+  },
+  "tests/integration": {
+    "type": "directory",
+    "absolute": "/project_root/tests/integration"
+  },
+  "tests/contract": {
+    "type": "directory",
+    "absolute": "/project_root/tests/contract"
+  },
+  "data": {
+    "type": "directory",
+    "absolute": "/project_root/data"
+  },
+  "data/raw": {
+    "type": "directory",
+    "absolute": "/project_root/data/raw"
+  },
+  "data/processed": {
+    "type": "directory",
+    "absolute": "/project_root/data/processed"
+  },
+  "data/results": {
+    "type": "directory",
+    "absolute": "/project_root/data/results"
+  },
+  "output": {
+    "type": "directory",
+    "absolute": "/project_root/output"
+  },
+  "output/results": {
+    "type": "directory",
+    "absolute": "/project_root/output/results"
+  },
+  "output/figures": {
+    "type": "directory",
+    "absolute": "/project_root/output/figures"
+  },
+  "logs": {
+    "type": "directory",
+    "absolute": "/project_root/logs"
+  }
 }

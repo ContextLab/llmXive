@@ -86,18 +86,18 @@
   verification_status: verified
   verified_against_url: https://github.com/your-org/your-repo
   verified_at: '2026-07-06T03:19:01.161597Z'
-- artifact_hash: 8d7a4c441ab5cc4dfae7757ff8396bb05310769acc9799bd1d711be538b80717
+- artifact_hash: 39ad09c76349fa83762b489204823de945cce9646e62ddcfb1bfcbff7583482a
   artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: '[2309.06305] Sensitivity Analysis for Linear Estimators'
-  kind: url
-  value: https://arxiv.org/abs/2309.06305
-  verification_status: pending
-  verified_against_url: https://arxiv.org/abs/2309.06305
-  verified_at: '2026-10-05T01:49:49.269775Z'
-- artifact_hash: 8d7a4c441ab5cc4dfae7757ff8396bb05310769acc9799bd1d711be538b80717
+  fetched_title: null
+  kind: doi
+  value: 10.5281/zenodo.3966973
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.3966973
+  verified_at: '2026-10-08T19:06:16.646078Z'
+- artifact_hash: 39ad09c76349fa83762b489204823de945cce9646e62ddcfb1bfcbff7583482a
   artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -107,4 +107,4 @@
   value: 10.5281/zenodo.3966974
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.3966974
-  verified_at: '2026-10-05T01:49:49.269775Z'
+  verified_at: '2026-10-08T19:06:16.646078Z'

@@ -4,7 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T006` (rejected 1x): declared artifact(s) missing/empty/invalid: src/utils/logger.py
+- `T001` (rejected 1x): No `project_structure_manifest.json` file or its contents were provided; without the manifest we cannot verify that the required directory structure was created or that the JSON meets the specified schema. The task therefore lacks the essential artifact.
+- `T004` (rejected 1x): declared artifact(s) missing/empty/invalid: ruff.toml
+- `T047` (rejected 1x): declared artifact(s) missing/empty/invalid: github/workflows/ci.yml
 
 ## Required change
 

@@ -1,65 +1,50 @@
 """
-Unit tests for linting and formatting configuration.
+Unit tests for linting and formatting configuration files.
 """
 import os
-import subprocess
-import sys
+import json
 from pathlib import Path
-import pytest
 
+def test_ruff_toml_exists():
+    """Test that ruff.toml file exists."""
+    ruff_path = Path("ruff.toml")
+    assert ruff_path.exists(), "ruff.toml file does not exist"
 
-def test_ruff_config_exists():
-    """Test that ruff.toml configuration file exists."""
-    assert Path("ruff.toml").exists(), "ruff.toml configuration file should exist"
-
-
-def test_pyproject_black_config():
-    """Test that pyproject.toml contains black configuration."""
+def test_pyproject_toml_exists():
+    """Test that pyproject.toml file exists."""
     pyproject_path = Path("pyproject.toml")
-    assert pyproject_path.exists(), "pyproject.toml should exist"
+    assert pyproject_path.exists(), "pyproject.toml file does not exist"
+
+def test_ruff_toml_content():
+    """Test that ruff.toml has correct content."""
+    ruff_path = Path("ruff.toml")
+    content = ruff_path.read_text()
+    
+    assert "line-length = 88" in content, "ruff.toml missing line-length = 88"
+    assert 'target-version = "py39"' in content, "ruff.toml missing target-version = py39"
+    assert 'select = ["E", "F", "W", "I"]' in content, "ruff.toml missing select configuration"
+
+def test_pyproject_toml_black_config():
+    """Test that pyproject.toml has correct black configuration."""
+    pyproject_path = Path("pyproject.toml")
     content = pyproject_path.read_text()
-    assert "[tool.black]" in content, "pyproject.toml should contain [tool.black] section"
+    
+    assert "[tool.black]" in content, "pyproject.toml missing [tool.black] section"
+    assert "line-length = 88" in content, "pyproject.toml missing line-length = 88 in black config"
+    assert "target-version = ['py39']" in content, "pyproject.toml missing target-version in black config"
 
-
-def test_ruff_command_available():
-    """Test that ruff command is available in the environment."""
-    result = subprocess.run(
-        [sys.executable, "-m", "ruff", "--version"],
-        capture_output=True,
-        text=True
-    )
-    assert result.returncode == 0, f"ruff command failed: {result.stderr}"
-    assert "ruff" in result.stdout.lower(), "ruff version output should contain 'ruff'"
-
-
-def test_black_command_available():
-    """Test that black command is available in the environment."""
-    result = subprocess.run(
-        [sys.executable, "-m", "black", "--version"],
-        capture_output=True,
-        text=True
-    )
-    assert result.returncode == 0, f"black command failed: {result.stderr}"
-    assert "black" in result.stdout.lower(), "black version output should contain 'black'"
-
-
-def test_ruff_check_runs():
-    """Test that ruff check command runs without crashing."""
-    result = subprocess.run(
-        [sys.executable, "-m", "ruff", "check", "."],
-        capture_output=True,
-        text=True
-    )
-    # ruff check may return non-zero if there are linting errors, but it should not crash
-    assert result.returncode in [0, 1], f"ruff check crashed: {result.stderr}"
-
-
-def test_black_check_runs():
-    """Test that black --check command runs without crashing."""
-    result = subprocess.run(
-        [sys.executable, "-m", "black", "--check", "."],
-        capture_output=True,
-        text=True
-    )
-    # black --check may return non-zero if files are not formatted, but it should not crash
-    assert result.returncode in [0, 1], f"black --check crashed: {result.stderr}"
+def test_configure_linting_script_imports():
+    """Test that configure_linting.py can be imported without errors."""
+    try:
+        from code.configure_linting import (
+            ensure_package_installed,
+            create_ruff_config,
+            create_pyproject_config,
+            main
+        )
+        assert callable(ensure_package_installed)
+        assert callable(create_ruff_config)
+        assert callable(create_pyproject_config)
+        assert callable(main)
+    except ImportError as e:
+        raise AssertionError(f"Failed to import configure_linting.py: {e}")

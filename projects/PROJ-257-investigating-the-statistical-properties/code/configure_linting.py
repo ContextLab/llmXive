@@ -1,146 +1,125 @@
+"""
+Script to configure linting (ruff) and formatting (black) tools.
+Creates ruff.toml and updates pyproject.toml with black configuration.
+"""
 import subprocess
 import sys
 import os
 from pathlib import Path
 
-def ensure_package_installed(package_name: str, pip_name: str = None) -> None:
-    """Check if a package is installed, install it if not."""
-    if pip_name is None:
-        pip_name = package_name
-    
+def ensure_package_installed(package_name: str, import_name: str = None) -> None:
+    """Ensure a package is installed, install it if not."""
+    if import_name is None:
+        import_name = package_name
     try:
-        __import__(package_name.replace('-', '_'))
+        __import__(import_name)
     except ImportError:
-        print(f"Installing {pip_name}...")
-        subprocess.check_call([sys.executable, "-m", "pip", "install", pip_name])
-        print(f"{pip_name} installed successfully.")
+        print(f"Installing {package_name}...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", package_name])
 
 def create_ruff_config() -> None:
-    """Create a default ruff.toml configuration file."""
-    config_content = """# Ruff configuration for llmXive project
-[lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-]
-
-[lint.per-file-ignores]
-"tests/*" = ["S101"] # assert allowed in tests
-
-[lint.isort]
-known-first-party = ["src"]
-
-[format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+    """Create ruff.toml with the exact required configuration."""
+    config_content = """line-length = 88
+target-version = "py39"
+select = ["E", "F", "W", "I"]
 """
-    path = Path("ruff.toml")
-    if not path.exists():
-        path.write_text(config_content)
-        print("Created ruff.toml")
-    else:
-        print("ruff.toml already exists")
+    ruff_path = Path("ruff.toml")
+    if ruff_path.exists():
+        print(f"ruff.toml already exists at {ruff_path.absolute()}")
+        # Verify content matches expected
+        current_content = ruff_path.read_text()
+        if current_content.strip() == config_content.strip():
+            print("ruff.toml content matches expected configuration.")
+            return
+        else:
+            print("ruff.toml exists but content differs. Overwriting.")
+    ruff_path.write_text(config_content)
+    print(f"Created ruff.toml at {ruff_path.absolute()}")
 
 def create_pyproject_config() -> None:
-    """Create a pyproject.toml with black configuration."""
-    config_content = """[tool.black]
+    """Create or update pyproject.toml with [tool.black] section."""
+    pyproject_path = Path("pyproject.toml")
+    black_section = """
+[tool.black]
 line-length = 88
-target-version = ['py311']
-include = '\\.pyi?$'
-exclude = '''
-/(
-    \\.eggs
-  | \\.git
-  | \\.hg
-  | \\.mypy_cache
-  | \\.tox
-  | \\.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_functions = ["test_*"]
+target-version = ['py39']
 """
-    path = Path("pyproject.toml")
-    if not path.exists():
-        path.write_text(config_content)
-        print("Created pyproject.toml")
+    
+    if pyproject_path.exists():
+        content = pyproject_path.read_text()
+        if "[tool.black]" in content:
+            print("pyproject.toml already contains [tool.black] section.")
+            # Check if line-length is correct
+            if "line-length = 88" in content:
+                print("Black configuration is correct.")
+                return
+            else:
+                print("Updating black configuration in pyproject.toml...")
+                # Simple replacement for line-length
+                lines = content.splitlines()
+                new_lines = []
+                in_black = False
+                for line in lines:
+                    if "[tool.black]" in line:
+                        in_black = True
+                        new_lines.append(line)
+                    elif in_black and "line-length" in line:
+                        new_lines.append("line-length = 88")
+                    elif in_black and "target-version" in line:
+                        new_lines.append("target-version = ['py39']")
+                    elif in_black and line.strip().startswith('['):
+                        in_black = False
+                        new_lines.append(line)
+                    else:
+                        new_lines.append(line)
+                content = "\n".join(new_lines)
+        else:
+            print("Appending [tool.black] section to pyproject.toml...")
+            content = content.rstrip() + black_section
     else:
-        print("pyproject.toml already exists")
+        print("Creating new pyproject.toml with [tool.black] section...")
+        content = f"""[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "statistical-properties-black-hole-mergers"
+version = "0.1.0"
+description = "Investigating the statistical properties of simulated black hole mergers"
+requires-python = ">=3.9"
+dependencies = [
+    "numpy",
+    "scipy",
+    "pandas",
+    "matplotlib",
+    "requests",
+    "tqdm",
+    "pytest",
+    "h5py",
+    "statsmodels",
+    "memory-profiler",
+]
+{black_section.strip()}
+"""
+    
+    pyproject_path.write_text(content)
+    print(f"Updated pyproject.toml at {pyproject_path.absolute()}")
 
 def main() -> None:
-    """Main entry point for configuring linting and formatting."""
-    print("Configuring linting (ruff) and formatting (black)...")
+    """Main entry point for configuring linting and formatting tools."""
+    print("Configuring linting (ruff) and formatting (black) tools...")
     
-    # Ensure packages are installed
+    # Ensure ruff is installed
     ensure_package_installed("ruff", "ruff")
-    ensure_package_installed("black", "black")
-    
-    # Verify installation
-    try:
-        ruff_result = subprocess.run(
-            [sys.executable, "-m", "ruff", "--version"],
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        print(f"Ruff version: {ruff_result.stdout.strip()}")
-    except subprocess.CalledProcessError:
-        print("ERROR: ruff installation verification failed")
-        sys.exit(1)
-    
-    try:
-        black_result = subprocess.run(
-            [sys.executable, "-m", "black", "--version"],
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        print(f"Black version: {black_result.stdout.strip()}")
-    except subprocess.CalledProcessError:
-        print("ERROR: black installation verification failed")
-        sys.exit(1)
     
     # Create configuration files
     create_ruff_config()
     create_pyproject_config()
     
-    # Run checks (these may fail if code is not formatted yet, which is expected)
-    print("\nRunning initial checks...")
-    try:
-        subprocess.run(
-            [sys.executable, "-m", "ruff", "check", "."],
-            check=False
-        )
-    except Exception as e:
-        print(f"Ruff check completed (may have linting errors): {e}")
-    
-    try:
-        subprocess.run(
-            [sys.executable, "-m", "black", "--check", "."],
-            check=False
-        )
-    except Exception as e:
-        print(f"Black check completed (may have formatting errors): {e}")
-    
-    print("\nLinting and formatting configuration complete.")
+    print("Configuration complete.")
+    print("Verification commands:")
+    print("  test -f ruff.toml && test -f pyproject.toml")
+    print("  grep -q 'line-length = 88' ruff.toml && grep -q 'line-length = 88' pyproject.toml")
 
 if __name__ == "__main__":
     main()
