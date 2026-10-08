@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "InferenceResult"
+description: "Schema for MCMC and Nested Sampling outputs."
+type: "object"
+properties:
+  run_id: { type: "string" }
+  model_name:
+    type: "string"
+    enum: ["Newtonian", "Yukawa"]
+  parameters:
+    type: "array"
+    items: { type: "string" }
+    description: "List of parameter names (e.g., ['alpha', 'lambda', 'scale'])."
+  log_evidence:
+    type: "number"
+    description: "Log-evidence from dynesty."
+  gelman_rubin:
+    type: "number"
+    description: "Gelman-Rubin convergence statistic."
+  credible_interval_95:
+    type: "object"
+    additionalProperties:
+      type: "array"
+      items: { type: "number" }
+      minItems: 2
+      maxItems: 2
+    description: "95% credible intervals for each parameter [low, high]."
+  samples_file:
+    type: "string"
+    description: "Path to the HDF5 file containing full posterior samples."
+required: ["run_id", "model_name", "parameters", "log_evidence", "credible_interval_95", "samples_file"]

@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e., US1, US2, US3)
+- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -49,8 +49,13 @@
 
 - [ ] T001-C-INIT-TEST Create the test directory tree: `projects/PROJ-191-investigating-the-validity-of-the-invers/tests/` including `tests/unit/`, `tests/contract/`, `tests/integration/` using the shell command `mkdir -p projects/PROJ-191-investigating-the-validity-of-the-invers/tests/{unit,contract,integration}`.
 
-- [ ] T002 Initialize a Python project in `projects/PROJ-191-investigating-the-validity-of-the-invers/code/` and write pinned dependencies to `projects/PROJ-191-investigating-the-validity-of-the-invers/code/requirements.txt`.
- 1. Create `requirements.txt` with the following EXACT pinned versions:
+- [ ] T002-A [P] Initialize a Python project virtual environment.
+ 1. Run `python -m venv venv` in the root directory `projects/PROJ-191-investigating-the-validity-of-the-invers/`.
+ 2. Verify `venv/bin/activate` exists.
+ 3. **Constraint**: Ensure the virtual environment is using a compatible Python version. If not, create a new venv with `python3.11 -m venv venv`.
+
+- [ ] T002-B [P] Install pinned dependencies.
+ 1. Create `requirements.txt` at `projects/PROJ-191-investigating-the-validity-of-the-invers/code/requirements.txt` (as per plan structure) with the following EXACT pinned versions:
  ```
  numpy==1.26.4
  scipy==1.13.1
@@ -61,10 +66,11 @@
  requests==2.32.3
  pytest==8.3.2
  ruamel.yaml==0.18.6
+ psutil==5.9.8
  ```
- 2. **Execute**: Run `python -m venv venv` to create an isolated environment, then `source venv/bin/activate` (or `venv\Scripts\activate` on Windows), and finally `pip install -r requirements.txt`.
+ 2. **Execute**: Activate the environment (`source venv/bin/activate`) and run `pip install -r projects/PROJ-191-investigating-the-validity-of-the-invers/code/requirements.txt`.
 
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools by creating `.ruff.toml` and adding `[tool.black]` / `[tool.ruff]` sections to `pyproject.toml` in the root directory.
+- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools by creating `.ruff.toml` and adding `[tool.black]` / `[tool.ruff]` sections to `pyproject.toml` in the `projects/PROJ-191-investigating-the-validity-of-the-invers/code/` directory.
 
 ---
 
@@ -88,7 +94,7 @@
 
 **Independent Test**: Execute `code/data/download.py` and `code/data/harmonize.py` against the provided arXiv URLs; verify output is a single CSV/JSON file containing aligned force data, separation distances, and a valid positive‑definite **full (diagonal)** covariance matrix with no missing values in the microscopic separation distance range.
 
-**Sequential Flow**: T013-VALIDATE-IDS → T013-DATA → T013-PARSE → T013-ORCH-ROUTE → (T014/T015 OR T013-BOOTSTRAP)
+**Sequential Flow**: T013-VALIDATE-IDS → T013-DATA → T013-PARSE → T014 → T027-DECIDE → T015-COV-CONSTRUCT
 
 ### Tests for User Story 1 (OPTIONAL)
 
@@ -109,8 +115,7 @@
  2. Unpack tarballs to `data/raw/`.
  3. Scan for files matching `*_run*.csv` (or metadata `experiment_id`) to count independent experimental runs.
  4. Write the count of runs to `data/processed/run_count.json`.
- 5. **Do NOT** implement conditional logic here. Just output the count.
- 6. **Dependency**: Runs after T013-VALIDATE-IDS.
+ 5. **Dependency**: Runs after T013-VALIDATE-IDS.
 
 - [ ] T013-PARSE [US1] **Parser**: Implement logic in `code/data/parsers.py` to parse the raw CSV files extracted by T013‑DATA.
  1. Read headers, map columns to force, separation, and uncertainty fields.
@@ -118,53 +123,35 @@
  3. Construct intermediate `HarmonizedDataset` objects.
  4. **Dependency**: Runs after T013-DATA.
 
+- [ ] T014 [P] [US1] Implement unit conversion (dynes → N, micrometers → m) and grid alignment in `code/data/harmonize.py`. **Edge‑case handling**: Detect non‑overlapping separation ranges; interpolate missing points or exclude non‑overlapping regions and log a warning as required by the spec.
+
+- [ ] T027-DECIDE [US1] **Memory Strategy Decision**: Implement logic in `code/data/config.py` to enforce `numpy.memmap` for the covariance matrix.
+ 1. **Check**: Read the raw data size and check available RAM using `psutil.virtual_memory().available`.
+ 2. **Condition**: **Always** set `use_memmap = True` for the covariance matrix construction to guarantee compliance with the plan's rejection of subsampling and strict memory limits. Do NOT trigger subsampling under any condition.
+ 3. **Constraint**: **Do NOT trigger subsampling**. The plan explicitly rejects subsampling. The system MUST use `numpy.memmap` to preserve statistical power.
+ 4. **Output**: `data/processed/data_config.json` with `use_memmap = True` and `needs_subsample = False`.
+ 5. **Dependency**: Runs after T014.
+
 - [ ] T013-ORCH-ROUTE [US1] **Orchestration & Routing**: Implement `code/data/orchestrator.py` to route the pipeline based on run count.
  1. Read `data/processed/run_count.json`.
  2. **If** `count >= 3`: Execute T014 (harmonize) and T015 (covariance) logic.
- 3. **If** `count < 3`: Execute T013-BOOTSTRAP logic immediately.
+ 3. **If** `count < 3`: Set `use_lopbo = True` in `data/processed/orchestration_status.json`. (Plan mandates Leave-One-Block-Out, NOT bootstrap).
  4. This task acts as the control flow bridge, ensuring the correct path is taken.
- 5. **Output**: Write `data/processed/orchestration_status.json` with the chosen path.
+ 5. **Output**: Write `data/processed/orchestration_status.json` with the chosen path and `use_lopbo` flag.
  6. **Dependency**: Runs after T013-DATA and T013-PARSE.
- 7. **Invocation**: Explicitly invoke T013-BOOTSTRAP via a function call or subprocess if `count < 3`.
+ 7. **Note**: Do NOT invoke any bootstrap logic. T013-BOOTSTRAP does not exist.
 
-- [ ] T013-BOOTSTRAP [US1] **Bootstrap Resampling Fallback**: Implement `code/data/bootstrap.py` to generate bootstrap resamples if `len(runs) < 3`.
- 1. Read the raw data parsed by T013-PARSE.
- 2. Perform row-wise bootstrap resampling with N=1000 samples (as stipulated in the plan).
- 3. **Construct the final 'full' covariance matrix** (diagonal with systematic propagation) for each resample, as required by FR-002.
- 4. Output the resampled dataset(s) to `data/processed/robustness/bootstrap/`.
- 5. **Dependency**: Runs after T013-PARSE (triggered by T013-ORCH-ROUTE).
-
-- [X] T014 [P] [US1] Implement unit conversion (dynes → N, micrometers → m) and grid alignment in `code/data/harmonize.py`. **Edge‑case handling**: Detect non‑overlapping separation ranges; interpolate missing points or exclude non‑overlapping regions and log a warning as required by the spec.
-
-- [ ] T015-A-COV-CONSTRUCT [US1] **Covariance Construction (Diagonal)**: Implement construction of the diagonal covariance matrix in `code/data/harmonize.py`.
+- [ ] T015-COV-CONSTRUCT [US1] **Covariance Construction (Full Diagonal with Memmap)**: Implement construction of the full N x N diagonal covariance matrix in `code/data/harmonize.py`.
  1. Combine statistical uncertainties and systematic error budgets into a diagonal matrix.
- 2. Output as `data/processed/covariance_matrix_diagonal.npy`.
- 3. **Dependency**: Runs after T014.
+ 2. **CRITICAL**: Use `numpy.memmap` to construct and store this matrix. Do NOT load the full N x N matrix into RAM. The file must be `data/processed/covariance_matrix_full.npy` (memmap format).
+ 3. This satisfies the "full matrix" requirement (off-diagonals = 0) while acknowledging the lack of off-diagonal data in the source and preserving statistical power.
+ 4. Verify the matrix is positive‑definite using `scipy.linalg.cholesky` (on a small sample or via Cholesky on the diagonal vector if full check is too heavy).
+ 5. **Dependency**: Runs after T014 and T027-DECIDE.
 
-- [ ] T015-A-COV-VERIFY [US1] **Covariance Verification**: Verify the diagonal matrix is positive‑definite.
- 1. Verify the matrix is positive‑definite using `scipy.linalg.cholesky` with `check_finite=False`.
- 2. Log any errors.
- 3. **Dependency**: Runs after T015-A-COV-CONSTRUCT.
-
-- [ ] T015-B-COV-BAND [US1] **Covariance Construction (Banded)**: Implement construction of the banded covariance matrix in `code/data/harmonize.py`.
- 1. Construct a **banded covariance matrix** (bandwidth = 20) to test the impact of unmodeled correlations.
- 2. Verify the matrix is positive‑definite.
- 3. Output as `data/processed/covariance_matrix_banded.npy`.
- 4. **Dependency**: Runs after T014.
-
-- [ ] T015-C-COV-SENS [US1] **Covariance Sensitivity Analysis**: Implement `code/data/sensitivity.py` to compare diagonal vs. banded results.
- 1. Run a quick inference test (using a reduced step count) on both the diagonal and banded matrices.
- 2. Compare the resulting Bayes factors and credible limits.
- 3. Document the justification for using the diagonal matrix (e.g., "Diagonal and banded results differ by < X%").
- 4. Output `data/processed/covariance_sensitivity_report.json`.
- 5. **Dependency**: Runs after T015-A-COV-VERIFY and T015-B-COV-BAND.
-
-- [ ] T015-Z-RESOLVE-COV [US1] **Covariance Requirement Resolution**: Implement logic to formally resolve the FR-002 requirement.
- 1. Read `data/processed/covariance_sensitivity_report.json`.
- 2. If the difference is negligible (< 1%), select the diagonal matrix; otherwise, select the banded matrix.
- 3. Write `data/processed/covariance_strategy.json` with the selected matrix path.
- 4. **Crucially**: Explicitly document in `data/processed/covariance_resolution_log.json` that a true full covariance matrix (with off-diagonal terms) is impossible due to missing source data, and that the diagonal/banded approximation is the only scientifically valid "full" matrix under the constraints. This log serves as the formal resolution for FR-002.
- 5. **Dependency**: Runs after T015-C-COV-SENS.
+- [ ] T015-COV-LOG [US1] **Covariance Documentation**: Implement `code/data/covariance_log.py` to document the approximation.
+ 1. Read `data/processed/covariance_sensitivity_report.json` (if exists) or log directly.
+ 2. Write `data/processed/covariance_resolution_log.json` explicitly stating: "A true full covariance matrix with off-diagonal terms is impossible due to missing source data. The 'full' matrix constructed (T015-COV-CONSTRUCT) uses zero off-diagonals, which is the scientifically valid approximation for uncorrelated data. Memmap is used to preserve statistical power without exceeding RAM."
+ 3. **Dependency**: Runs after T015-COV-CONSTRUCT.
 
 **Checkpoint**: User Story 1 should now be fully functional and testable independently.
 
@@ -185,46 +172,30 @@
 ### Implementation for User Story 2
 
 - [X] T021 [P] [US2] Implement Newtonian and Yukawa‑modified force models in `code/models/physics.py`.
-- [ ] T022 [P] [US2] Implement log‑likelihood function using the **full** covariance matrix from T015. Employ Cholesky decomposition for numerical stability. **Dependency**: Runs after T015-Z-RESOLVE-COV and T021.
-
-- [ ] T027-DECIDE [US2] **Feasibility Decision**: Implement logic in `code/data/config.py` to decide whether to subsample based on dataset size.
- 1. **Check**: Read the actual harmonized dataset artifact (output of T014/T015) to measure its size. If the dataset size exceeds available RAM or projected runtime, set a flag `needs_subsample = True`.
- 2. **Output**: `data/processed/data_config.json` with `needs_subsample` flag.
- 3. **Dependency**: Runs after T015-Z-RESOLVE-COV and T014/T015 (harmonized dataset).
-
-- [ ] T027-GEN [US2] **Data Subsample Generation**: Implement `code/data/subsampling.py` to generate the subsampled dataset.
- 1. If `needs_subsample` is True, select a pre-defined subset: **random sample with seed 42** (or every Nth point if deterministic selection is preferred).
- 2. **Covariance Handling**: Construct a **block-diagonal matrix** (bandwidth = 20) to retain local correlation structure.
- 3. Output the subsampled dataset and covariance to `data/processed/subsampled_data.json` and `data/processed/subsampled_cov.npy`.
- 4. **Dependency**: Runs after T027-DECIDE.
+- [ ] T022 [P] [US2] Implement log‑likelihood function using the **full diagonal covariance matrix** from T015-COV-CONSTRUCT. Employ Cholesky decomposition for numerical stability. **Constraint**: Use `numpy.memmap` to load the covariance matrix to avoid RAM overflow. **Dependency**: Runs after T015-COV-CONSTRUCT and T021.
 
 - [ ] T023-MCMC [US2] **MCMC Execution**: Implement `emcee` runner in `code/inference/mcmc.py`.
- 1. Run in **batches** of steps with a sufficient number of walkers.
- 2. After each batch, compute the Gelman‑Rubin statistic.
- 3. **Stop Condition**: Run until Gelman‑Rubin < 1.01 OR until steps (HARD CAP 5000). If 5000 steps are reached without convergence, stop and flag the result as "unconverged". Do NOT continue running.
- 4. **Runtime Enforcement**: Measure elapsed time. If projected total time exceeds 5.5 hours, **automatically trigger T027-GEN (subsampling)** and re-run the inference on the subsampled data. Do NOT fail the task.
- 5. Load the dataset from `data/processed/subsampled_data.json` if it exists (triggered by T027-GEN), otherwise use the full harmonized dataset from T015-Z-RESOLVE-COV.
- 6. Store chains in `data/results/mcmc_chains.npy`. **Dependency**: Runs after T022 and T027-DECIDE/T027-GEN (if subsampled) or T015-Z-RESOLVE-COV (if full).
+ 1. Run in **batches** of steps with a sufficient number of a cohort of walkers.
+ 2. **Constraint**: Run for a **minimum of 5000 steps**. If Gelman-Rubin < 1.01 after 5000 steps, stop. If Gelman-Rubin >= 1.01, continue running until convergence (no hard step cap, only until convergence is achieved). **Do NOT stop early if convergence is reached before 5000 steps.**
+ 3. **Diagnostics**: Compute Gelman-Rubin after each batch and log it.
+ 4. **Runtime Enforcement**: Measure elapsed time. Calculate `projected_time = (current_steps / elapsed_time) * max_steps`. If `projected_time > 5.5 hours`, **log a warning but DO NOT subsample**. The plan mandates `numpy.memmap` to handle large data, not subsampling.
+ 5. Load the dataset from `data/processed/covariance_matrix_full.npy` (T015-COV-CONSTRUCT) using **`numpy.memmap`**. **Do NOT load from `subsampled_data.json` as that artifact is forbidden.**
+ 6. Store chains in `data/results/mcmc_chains.npy`. **Dependency**: Runs after T022 and T015-COV-CONSTRUCT.
 
 - [X] T024 [US2] Implement `dynesty` nested sampler for both Newtonian and Yukawa models in `code/inference/nested.py`.
 - [ ] T025-INJECTION [US2] **Injection‑Recovery Test**: Implement `code/robustness/injection.py`.
- 1. Generate synthetic data with a known non-zero α and realistic noise using the full covariance matrix.
+ 1. Generate synthetic data with a known non-zero α and realistic noise using the full covariance matrix from the loaded dataset.
  2. Run a local inference instance (re‑using T021/T022 logic, independent of T023‑MCMC).
  3. Compute `distance = |injected_alpha – recovered_alpha_median|`.
  4. Determine pass: `SC005_PASS = (injected_alpha within 95% credible interval of recovered samples)`.
  5. Output `data/results/injection_recovery_report.json` with all metrics. **Dependency**: Runs after T021 and T022.
-- [ ] T026-THRESHOLD [US2] **Null-Simulation Threshold Definition**: Implement logic in `code/robustness/null_simulation.py` to define the acceptable false-positive rate.
- 1. Define the acceptable false-positive rate threshold as a configurable parameter.
- 2. Output `data/processed/null_threshold.json` with `threshold` and `rationale`.
- 3. **Dependency**: Runs after T021 and T022.
 - [ ] T026-NULL-SIM [US2] **Null‑Simulation Test**: Implement `code/robustness/null_simulation.py`.
- 1. Generate synthetic data with α = 0 but realistic systematic errors.
- 2. Run inference.
- 3. Compute `false_positive = (Bayes_factor_K > 3)`.
- 4. **Verification Step**: Calculate the p-value of the primary Bayes factor (from T023/T024) against the null distribution generated here.
- 5. **Pass Condition**: Use the threshold defined in T026-THRESHOLD to determine `SC002_BASELINE_PASS` (true if false‑positive rate < threshold).
- 6. Output `data/results/null_baseline_report.json` with `true_alpha`, `recovered_alpha_median`, `bayes_factor_K`, `false_positive_detected`, `null_distribution` (array), `threshold`, and `SC002_BASELINE_PASS`. **Dependency**: Runs after T021, T022, and T026-THRESHOLD.
- 7. **Note**: If performance requires, this task can be parallelized internally, but is listed as a single task for dependency clarity.
+ 1. Generate synthetic data with α = 0 but realistic systematic errors using the full covariance matrix.
+ 2. Run inference multiple times to generate a null distribution of Bayes factors.
+ 3. **Verification Step**: Calculate the false positive rate as the proportion of null runs where Bayes_factor_K > 3.
+ 4. **Output**: Output `data/results/null_baseline_report.json` with `true_alpha`, `recovered_alpha_median`, `bayes_factor_K`, `false_positive_rate` (calculated from null distribution), `null_distribution` (array of Bayes factors from multiple runs), `p_value` (calculated against the observed primary Bayes factor). **Do NOT hardcode a pass/fail threshold here.** The pass/fail logic is in T039.
+ 5. **Dependency**: Runs after T021, T022.
+ 6. **Note**: If performance requires, this task can be parallelized internally, but is listed as a single task for dependency clarity.
 
 **Checkpoint**: User Stories 1 & 2 should now work independently.
 
@@ -245,31 +216,22 @@
 
 - [ ] T030-LOO [US3] **Leave-One-Out Cross-Validation**: Implement `code/robustness/cross_val.py`.
  1. **Primary method**: If `runs ≥ 3`, iteratively omit one experimental run.
- 2. **Re-Harmonization**: For each iteration, **re-run T014/T015 logic** (T030-LOO-REHARMONIZE) to generate a 'subset_harmonized' artifact with a valid covariance matrix for the subset.
- 3. **Execution**: Call the `run_inference()` function defined in T023-MCMC for each iteration using the subset artifact.
- 4. Store each iteration's credible upper limit for α for later analysis. **Dependency**: Runs after T013-ORCH-ROUTE, T015-Z-RESOLVE-COV, and T023-MCMC.
+ 2. **Re-Harmonization**: For each iteration, **call `harmonize.harmonize_subset()`** with the excluded run ID to generate a 'subset_harmonized' artifact with a valid covariance matrix for the subset.
+ 3. **Memory Constraint**: **Use `numpy.memmap` for all intermediate subset harmonizations** to avoid loading full N x N covariance matrices into RAM.
+ 4. **Execution**: Call the `run_inference()` function defined in `code/inference/mcmc.py` (T021/T022) for each iteration using the subset artifact.
+ 5. Store each iteration's credible upper limit for α for later analysis.
+ 6. **Fallback**: If `runs < 3`, **read `data/processed/orchestration_status.json`**. If `use_lopbo` is True, **execute the Leave-One-Block-Out (LOPBO) loop** on the largest dataset. **Do NOT use bootstrap resampling.**
+ 7. **Dependency**: Runs after T013-ORCH-ROUTE, T015-COV-CONSTRUCT, and T022 (inference module).
 
 - [ ] T030-LOO-REHARMONIZE [US3] **Re-Harmonization for LOO**: Implement logic to re-harmonize data for a subset.
  1. Take a subset of the raw data (excluding one run).
  2. Re-run unit conversion and grid alignment (T014 logic) and covariance construction (T015 logic) for this subset.
- 3. Output a `subset_harmonized` artifact.
+ 3. Output a `subset_harmonized` artifact at `data/processed/loo_subset_{id}_harmonized.json`.
  4. **Dependency**: Runs after T013-PARSE and within the T030-LOO loop.
 
-- [ ] T030-BOOT [US3] **Bootstrap Robustness Fallback**: Implement `code/robustness/bootstrap_robustness.py`.
- 1. **Fallback method**: If `runs < 3`, **execute the bootstrap resampling loop** (using the resamples generated in T013-BOOTSTRAP) to perform the robustness analysis. Do NOT skip.
- 2. **Iteration**: Implement T030-BOOT-ITERATE to iterate over each resample.
- 3. **Execution**: Call the `run_inference()` function for each resample.
- 4. Store each iteration's credible upper limit for α for later analysis. **Dependency**: Runs after T013-BOOTSTRAP and T023-MCMC.
-
-- [ ] T030-BOOT-ITERATE [US3] **Bootstrap Iteration**: Implement logic to iterate over bootstrap resamples.
- 1. Loop through each resampled dataset generated by T013-BOOTSTRAP.
- 2. Feed each dataset into the inference loop (T023-MCMC).
- 3. Ensure each iteration's result is stored separately.
- 4. **Dependency**: Runs after T013-BOOTSTRAP and T023-MCMC.
-
-- [ ] T002-CONFIG-INFLATION [US3] **Define Inflation Factor Configuration**: Implement logic in `code/config.py` to load or create the systematic uncertainty inflation factor.
+- [X] T002-CONFIG-INFLATION [US3] **Define Inflation Factor Configuration**: Implement logic in `code/config.py` to load or create the systematic uncertainty inflation factor.
  1. Attempt to read the key `inflation_factor` from `data/processed/config.json`.
- 2. **Strict Check**: If the key is missing or the file does not exist, **raise a `RuntimeError`** with the message: "Missing inflation_factor in config.json. Please update the configuration file explicitly and increment the project version." Do NOT create a default.
+ 2. **Default**: If the key is missing or the file does not exist, **set a default value of 2.0** (as per the plan's '[deferred]' intent) and log a warning. Do NOT raise a RuntimeError.
  3. Store the loaded value in `data/processed/config.json` for downstream tasks.
  4. **Dependency**: Runs after T002/T005 (config setup).
 
@@ -280,7 +242,7 @@
  2. **Zero-Check**: If `mean_limit < 1e-10`, set `relative_shift = 0.0` and log a warning "Mean limit near zero; metric set to 0.0".
  3. **Acceptance Criterion**: Verify `CV < 0.15` as defined in SC-003.
  4. **Artifact**: Write `data/results/robustness_metrics.json` containing `cv`, `threshold` (0.15), and `pass` (boolean: `cv < 0.15`).
- 5. If `pass` is false, flag the result as "unstable" in the report. **Dependency**: Runs after T030-LOO or T030-BOOT.
+ 5. If `pass` is false, flag the result as "unstable" in the report. **Dependency**: Runs after T030-LOO.
 
 - [ ] T040-LITERATURE-COMP [US2/US3] **Literature Comparison Artifact**: Implement `code/robustness/literature_comparison.py`.
  1. Load the credible upper limits on α from `data/results/robustness_metrics.json` or `data/results/bayes_factor.json`.
@@ -288,7 +250,7 @@
  3. Output `data/results/literature_comparison.json` with fields `alpha_limit`, `lambda_range`, `literature_reference`, and `comparison_notes`.
  4. **Dependency**: Runs after T033 and T026-NULL-SIM.
 
-- [ ] T039-REPORT [US2/US3] **Aggregation**: Aggregate the pass/fail status from T025 (SC‑005) and T026 (SC‑002) into a single summary artifact `data/results/validity_report.json`. Include fields `SC005_PASS`, `SC002_KASS_RAFTERY_PASS`, `SC002_BASELINE_PASS`, and embed the detailed metrics from the injection and null‑simulation reports. **Dependency**: Runs after T025, T026-NULL-SIM, and T033.
+- [ ] T039-REPORT [US2/US3] **Aggregation**: Aggregate the pass/fail status from T025 (SC‑005) and T026 (SC‑002) into a single summary artifact `data/results/validity_report.json`. Include fields `SC005_PASS`, `SC002_KASS_RAFTERY_PASS`, `SC002_BASELINE_PASS` (calculated by comparing primary Bayes factor to the `null_distribution` from T026), and embed the detailed metrics from the injection and null‑simulation reports. **Dependency**: Runs after T025, T026-NULL-SIM, and T033.
 
 **Checkpoint**: All user stories should now be independently functional.
 
@@ -339,7 +301,7 @@ Task: "Implement code/data/validator.py (T013-VALIDATE-IDS)"
 Task: "Implement code/data/download.py to fetch arXiv:2106.08611, 2305.06325..."
 Task: "Parse raw tarball contents into HarmonizedDataset (T013-PARSE)..."
 Task: "Implement unit conversion and grid alignment in code/data/harmonize.py"
-Task: "Implement covariance construction (T015-A-COV-CONSTRUCT, T015-B-COV-BAND)"
+Task: "Implement covariance construction (T015-COV-CONSTRUCT)"
 ```
 
 ---
@@ -382,3 +344,4 @@ Task: "Implement covariance construction (T015-A-COV-CONSTRUCT, T015-B-COV-BAND)
 - Verify tests fail before implementing; commit after each logical group.
 - Stop at any checkpoint to validate story independently.
 - Avoid vague tasks, file conflicts, or hidden cross‑story dependencies.
+- **Important**: The plan explicitly rejects "bootstrap resampling" and "banded covariance" matrices. Only "Leave-One-Block-Out" (LOPBO) and "full diagonal covariance" are authorized.

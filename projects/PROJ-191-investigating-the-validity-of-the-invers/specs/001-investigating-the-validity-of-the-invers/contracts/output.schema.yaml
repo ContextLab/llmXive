@@ -13,7 +13,7 @@ properties:
     description: "Bayes factor K = exp(log_z_yukawa - log_z_newtonian)"
   interpretation:
     type: "string"
-    description: "Qualitative interpretation based on Kass-Raftery scale"
+    description: "Qualitative interpretation based on Kass-Raftery scale (K > 3)"
   alpha_upper_limit_95:
     type: "number"
     description: "95% credible upper limit on alpha"
@@ -21,10 +21,19 @@ properties:
     type: "number"
     description: "Gelman-Rubin statistic"
     minimum: 1.0
+  comparison_with_literature:
+    type: "object"
+    description: "Comparison with arXiv:2305.06325"
+    properties:
+      literature_value: { type: "number" }
+      improvement_factor: { type: "number" }
+    required: ["literature_value", "improvement_factor"]
 required:
   - log_z_newtonian
   - log_z_yukawa
   - bayes_factor_k
   - alpha_upper_limit_95
   - convergence_metric
+  - interpretation
+  - comparison_with_literature
 additionalProperties: false

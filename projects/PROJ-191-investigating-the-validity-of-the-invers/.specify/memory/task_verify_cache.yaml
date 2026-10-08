@@ -6,13 +6,19 @@ T001:
     \ with all the specified sub\u2011directories actually exists. The implementer\
     \ must supply concrete proof that the `mkdir -p \u2026` command was run and the\
     \ full hierarchy is present."
-T002:
+T003:
   c: false
-  h: 89b90d7687d79231f5843da22f677a5ac286bc4067fa3b39ff0e588dc64e677f
-  r: The required file `projects/PROJ-191-investigating-the-validity-of-the-invers/code/requirements.txt`
-    does not exist, so the Python project has not been initialized at the specified
-    location nor are the pinned dependencies written there. The existing `code/requirements.txt`
-    is in the wrong directory.
+  h: 3e17835b4a6f1cdddaca39cb81af9de13ac75d305a7f9af9cb48ee0d6e8ca172
+  r: The `pyproject.toml` correctly contains `[tool.black]` and `[tool.ruff]` sections,
+    but the required `.ruff.toml` file is absent from the repository. The task is
+    not fully satisfied until that file is created.
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or module implementing the full\u2011covariance log\u2011likelihood\
+    \ function (with Cholesky decomposition) is present, nor any evidence that it\
+    \ runs after T015\u2011Z\u2011RESOLVE\u2011COV and T021. The required artifact\
+    \ is missing, so the task is not satisfied."
 T031:
   c: false
   h: 5ebdcaee46ca1fc6c68a9024fa5ea982f15c73a2b712e49685cd995bbb724298
@@ -29,11 +35,3 @@ T033:
     \ robustness iterations, the resulting CV percentage, and the appropriate log/warning)\
     \ is absent. The implementer must supply the implementation and its output to\
     \ satisfy the task."
-T037:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, benchmark logs, or documentation showing a tuned Cholesky implementation\
-    \ or runtime\u2011threshold logic were provided. The artifact required to demonstrate\
-    \ that likelihood evaluation speed was optimized (e.g., modified likelihood function,\
-    \ performance comparison before/after, or a script that triggers tuning when a\
-    \ threshold is exceeded) is missing."

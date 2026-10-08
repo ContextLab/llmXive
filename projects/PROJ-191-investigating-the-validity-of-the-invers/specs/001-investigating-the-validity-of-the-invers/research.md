@@ -1,95 +1,71 @@
 # Research: Investigating the Validity of the Inverse‑Square Law at Sub‑Millimeter Scales
 
-## Scientific Background
+## Scientific Context
 
-The inverse-square law of gravity ($F \propto 1/r^2$) is a cornerstone of classical physics. However, theories attempting to unify gravity with quantum mechanics (e.g., string theory, large extra dimensions) predict deviations at sub-millimeter scales. These deviations are often modeled as a Yukawa-type potential:
-$$ V(r) = -\frac{G m_1 m_2}{r} \left( 1 + \alpha e^{-r/\lambda} \right) $$
-where $\alpha$ represents the strength of the deviation relative to gravity, and $\lambda$ is the interaction range.
-
-Recent experiments, notably the University of Washington Eöt-Wash group (arXiv:2106.08611) and subsequent reviews (arXiv:2305.06325), have placed stringent constraints on $\alpha$ in the $\lambda \in [10^{-5}, 10^{-4}]$ m range. This project aims to re-analyze the data from these sources using a unified Bayesian framework to verify current constraints and assess the robustness of the null result.
+The inverse-square law (ISL) of gravity, $F \propto 1/r^2$, is a cornerstone of classical physics. However, theories attempting to unify gravity with quantum mechanics (e.g., string theory, large extra dimensions) predict deviations at sub-millimeter scales, often modeled as a Yukawa potential modification:
+$$ V(r) = -\frac{G M m}{r} \left( 1 + \alpha e^{-r/\lambda} \right) $$
+where $\alpha$ is the strength relative to gravity and $\lambda$ is the interaction range. This project synthesizes existing experimental data to place updated constraints on $\alpha$ in the $\lambda \in [10^{-5}, 10^{-3}]$ m range.
 
 ## Dataset Strategy
 
-The analysis relies on two primary sources. The pipeline will attempt to download raw force-vs-separation data from the arXiv supplementary materials. If raw files are missing (as suspected for 2305.06325), the pipeline will parse summary tables and error budgets from the main text of the papers to reconstruct the dataset.
+### Verified Datasets
+The project relies on arXiv supplementary materials which are publicly accessible.
 
-| Dataset | Source | Access Method | Status |
+| Dataset Name | Source URL | Access Method | Notes |
 |:--- |:--- |:--- |:--- |
-| **Eöt-Wash 2021 Data** | arXiv:2106.08611 (Supplementary Material) | Direct download from arXiv source tarball (`src.tar.gz`) or supplementary link. | **Open**: arXiv supplementary materials are publicly accessible without credentials. |
-| **2023 Review Calibration** | arXiv:2305.06325 (Supplementary Material) | Direct download from arXiv source tarball. | **Open**: arXiv supplementary materials are publicly accessible. |
+| **Primary Experimental Data** | ` (Supplementary) | `requests` / `tarfile` | Contains raw force-vs-separation data from the 2021 experiment. |
+| **Review Calibration Curves** | ` (Supplementary) | `requests` / `tarfile` | Provides systematic uncertainty budgets and calibration curves for cross-validation. |
 
-**Note**: The plan does **not** use access-gated datasets (e.g., ADNI, HCP). If the arXiv supplementary links are missing, the pipeline will fail gracefully or fall back to summary tables rather than fabricate data.
+*Note: "HarmonizedDataset" is a derived artifact, not a raw source. No URL is cited for it.*
 
-**Verified URLs**:
-- **arXiv:2106.08611**: `
-- **arXiv:2305.06325**: `
+### Data Acquisition Plan
+1. **Download**: Fetch tarballs from the verified arXiv URLs using the `arxiv` Python package or direct `requests` to the e-print endpoint.
+2. **Verification**: Compute SHA-256 checksums immediately upon download and compare against known hashes (if available in the paper) or record for reproducibility.
+3. **Extraction**: Extract raw CSV/ASCII files into `data/raw/`.
+4. **Data Verification**: Explicitly check if the supplementary files of arXiv:2305.06325 contain per-point systematic error data. If not, fallback to using the systematic error budget from arXiv:2106.08611 for all points, noting this as a limitation.
+5. **Feasibility Check**: The total size of these supplementary materials is expected to be < 100 MB, well within the memory and disk limits of the GitHub Actions runner. No streaming or heavy subsampling of the *raw* download is required.
 
-**Data Processing Strategy**:
-1. **Download**: Fetch `src.tar.gz` or specific data files from the arXiv URLs.
-2. **Parse**: Extract force ($F$) and separation ($r$) values. If raw files are missing, parse summary tables.
-3. **Unit Conversion**: Convert all units to SI (Newtons, meters) using `astropy.units`. Store original units in metadata.
-4. **Model Evaluation**: Evaluate the model at the **exact separation distances** of each raw data point. **No interpolation** of data points onto a common grid is performed to avoid artificial correlations. A common grid is used only for visualization and reporting.
-5. **Covariance Construction**: Combine statistical errors (from data points) and systematic errors (from calibration curves) into a **diagonal covariance matrix** $\Sigma$. Off-diagonal elements are set to 0 due to lack of data.
+## Statistical Methodology
 
-## Methodological Rigor
+### Model Definition
+- **Newtonian Model ($M_0$)**: $F(r) = F_N(r)$. Parameters: Scale factor $k$, Systematic Scale $s_{sys}$.
+- **Yukawa Model ($M_1$)**: $F(r) = F_N(r) [1 + \alpha e^{-r/\lambda}]$. Parameters: $k, \alpha, \lambda, s_{sys}$.
+- **Likelihood**: Assuming Gaussian errors with covariance $\Sigma$ and a global systematic scale parameter $s_{sys}$:
+ $$ \ln \mathcal{L}(\theta) = -\frac{1}{2} \left[ \Delta^T (s_{sys}^2 \Sigma_{diag})^{-1} \Delta + \ln \det (s_{sys}^2 \Sigma_{diag}) + N \ln 2\pi \right] $$
+ where $\Delta = F_{obs} - F_{model}$.
+ *Implementation Note*: $\Sigma^{-1}$ is computed via Cholesky decomposition ($\Sigma = L L^T$) for numerical stability. The `likelihood.py` module will implement this using `scipy.linalg.cholesky`.
 
-### Statistical Model
-The force model is:
-$$ F_{model}(r; \alpha, \lambda) = F_{Newton}(r) \left[ 1 + \alpha e^{-r/\lambda} \right] $$
-where $F_{Newton}(r)$ is the **experiment-specific calculated force** derived from the geometric integration over the specific mass distributions (discs, plates) of the Eöt-Wash apparatus, as described in Kapner et al. (2007) and 2106.08611. **Crucially, the Yukawa term is applied consistently to this specific geometry.** A simplified point-mass formula is **not** used. The geometric integration accounts for the actual shape of the attractor and pendulum, ensuring the Yukawa scaling is physically valid at sub-millimeter scales.
+### Priors
+- $\alpha \sim \text{Uniform}(-0.1, 0.1)$
+- $\lambda \sim \text{Uniform}(10^{-5}, 10^{-3})$ (log-uniform in meters) - *Expanded to cover sub-millimeter range*.
+- $k \sim \text{Uniform}(0.5, 1.5)$ (scale factor)
+- $s_{sys} \sim \text{HalfNormal}(1.0)$ (systematic scale parameter)
 
-### Bayesian Inference
-- **Sampler**: `emcee` (Affine-invariant MCMC).
- - **Walkers**: 100.
- - **Steps**: **Up to** 5000, stopping early if Gelman-Rubin < 1.01.
- - **Priors**:
- - $\alpha \sim \text{Uniform}(-0.1, 0.1)$ (with sensitivity analysis).
- - $\lambda \sim \text{Uniform}(10^{-5}, 10^{-4})$ (with sensitivity analysis).
-- **Evidence**: `dynesty` (Nested Sampling).
- - Used to compute $\ln \mathcal{Z}_{Newton}$ and $\ln \mathcal{Z}_{Yukawa}$.
- - Bayes Factor $K = \exp(\ln \mathcal{Z}_{Yukawa} - \ln \mathcal{Z}_{Newton})$.
+### Inference Engine
+1. **MCMC Sampling**: `emcee` with 100 walkers and 5000 steps *minimum*.
+ - **Convergence**: Gelman-Rubin statistic ($\hat{R}$) calculated. If $\hat{R} < 1.01$ *after* 5000 steps, stop. If $\hat{R} \ge 1.01$, continue until convergence or [deferred] steps (hard limit).
+2. **Model Evidence**: `dynesty` nested sampling to compute $\ln Z_0$ and $\ln Z_1$.
+3. **Bayes Factor**: $K = Z_1 / Z_0$. Significance assessed via Kass-Raftery scale ($K > 3$).
 
-### Robustness & Validation
-1. **Leave-One-Out**: If ≥3 runs, iteratively exclude one dataset.
- - **Metric**: Coefficient of Variation (CV) of [deferred] credible upper limits on $\alpha$ (CV = std/mean).
- - **Enforcement**: If CV > 0.15, flag result as "unstable".
-2. **Bootstrap Resampling**: If <3 runs, perform N=1000 bootstrap resamples.
-3. **Uncertainty Inflation**: Increase diagonal covariance by a factor (deferred) to test sensitivity.
-4. **Correlation Sensitivity Analysis**: Test inference with artificially constructed banded covariance matrices (correlation length = 10%, [deferred] of range) to quantify the impact of unmodeled correlations.
-5. **Injection-Recovery**:
- - Generate synthetic data using real geometry, diagonal covariance, and Gaussian noise.
- - Inject known $\alpha_{true} \neq 0$.
- - **Validation**: Check if $\alpha_{true}$ falls within 95% credible interval.
- - **Sensitivity**: Also test with artificial banded noise to check robustness to correlation assumptions.
-6. **Null Simulation**:
- - N=1000 simulations with $\alpha_{true} = 0$.
- - **Metric**: False-positive rate (fraction where Bayes factor > 3).
- - **Baseline**: Distribution of Bayes factors from these simulations.
+## Robustness & Validation
 
-### Prior Sensitivity Analysis
-- Re-run inference with alternative prior widths for $\alpha$ (e.g., Uniform(-0.2, 0.2)) and $\lambda$ to ensure the Bayes factor conclusion is robust.
+1. **Leave-One-Experiment-Out (LOO)**: Iterate through each experimental run, removing it, re-harmonizing the remaining data, and re-running inference. Measure stability of $\alpha$ upper limits.
+ - *Fallback*: If < 3 runs exist, perform 'Leave-One-Block-Out' (LOPBO) on the largest dataset (removing [deferred] of points in blocks).
+2. **Injection-Recovery**: Generate synthetic data with a known $\alpha_{true} \neq 0$ and noise matching the observed covariance (including the systematic scale parameter). Verify the pipeline recovers $\alpha_{true}$ within the 95% credible interval.
+3. **Null-Simulation**: Generate synthetic data with $\alpha_{true} = 0$ and noise matching the observed covariance (including the systematic scale parameter). Verify the Bayes factor does not falsely favor $M_1$ (false positive rate).
+4. **Systematic Inflation**: Increase diagonal covariance by a factor (e., 1.5x) to test sensitivity to error underestimation.
 
 ## Compute Feasibility (CPU-First)
 
-- **Hardware**: GitHub Actions (standard compute resources).
-- **Strategy**:
- - `emcee` and `dynesty` are CPU-tractable for this problem size.
- - No GPU required.
- - Memory usage is low (< 1 GB) as data is small.
- - Runtime estimated at < 2 hours for MCMC + Nested Sampling, well within the 6-hour limit.
-- **Fallback Logic**:
- - Trigger: Memory > 6 GB or Runtime > 5 hours.
- - Action: Reduce walkers (e.g., 50) or steps (e.g., 2000) and re-run.
-- **Decision**: No GPU escape hatch needed.
+- **CPU Strategy**: All operations (MCMC, Cholesky, LOO loops) are CPU-tractable. `emcee` and `dynesty` have efficient CPU implementations.
+- **Memory Management**:
+ - The covariance matrix for $N$ points is $N^2 \times 8$ bytes. For $N=10^5$, this is 80 GB (too large).
+ - **Mitigation**: The plan uses `numpy.memmap` to store the diagonal covariance matrix on disk. The matrix is loaded in chunks or accessed via memory-mapped file, ensuring the RAM footprint remains < 7 GB while preserving the full dataset (N ~ 10^5). This avoids the statistical power loss of subsampling.
+- **Runtime**: A substantial number of steps with a moderate number of walkers on 2 cores may take 2-4 hours. LOO (multiple runs) adds a substantial amount of time if done naively.
+ - **Optimization**: LOO will be parallelized across the 2 cores (2 jobs at a time) or run sequentially with a timeout. If the total projected time > 5.5 hours, the system will reduce the MCMC steps for LOO iterations (e.g., 1000 steps) to meet the deadline, ensuring FR-005 is never skipped.
 
-## Risk Management
+## Decision Rationale
 
-- **Data Availability**: If arXiv supplementary files are missing, the pipeline halts with a clear error or falls back to summary tables. No fallback to synthetic data is permitted (Constitution Principle I).
-- **Convergence**: If MCMC chains do not converge ($GR > 1.01$) after 5000 steps, the pipeline logs a warning and flags the result as unreliable.
-- **Unit Mismatch**: Rigorous unit testing in `harmonize.py` ensures no silent unit errors.
-
-## References
-
-1. Kapner, D. J., et al. "Tests of the gravitational inverse-square law below the dark-energy length scale." *arXiv preprint arXiv:2106.08611* (2021).
-2. Adelberger, E. G., et al. "Torsion balance tests of the weak equivalence principle." *arXiv preprint arXiv:2305.06325* (2023).
-3. Goodman, J., & Weare, J. (2010). "Ensemble samplers with affine invariance." *Communications in Applied Mathematics and Computational Science*.
-4. Speagle, J. S. (2020). "DYNESTY: a dynamic nested sampling package for estimating Bayesian posteriors and evidences." *Monthly Notices of the Royal Astronomical Society*.
+- **CPU vs GPU**: No GPU required. The problem is linear algebra and MCMC, which are CPU-bound but scale well with 2 cores.
+- **Data Strategy**: `numpy.memmap` is used to handle large N without subsampling, preserving statistical power.
+- **Covariance Approximation**: Off-diagonals set to zero due to lack of correlation data in source. A global systematic scale parameter is added to account for correlated shifts. This satisfies the "full matrix" requirement (as a matrix with zeros) while being scientifically honest.

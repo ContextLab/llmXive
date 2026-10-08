@@ -1,34 +1,45 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Harmonized Dataset Schema"
+title: "HarmonizedDataset"
+description: "Schema for the unified force-vs-separation dataset with covariance matrix."
 type: "object"
 properties:
-  experiment_id:
-    type: "string"
-    description: "Identifier for the source experiment"
-  separation_m:
-    type: "number"
-    description: "Separation distance in meters"
-    minimum: 0
-  force_N:
-    type: "number"
-    description: "Force measurement in Newtons"
-  stat_error_N:
-    type: "number"
-    description: "Statistical uncertainty in Newtons"
-    minimum: 0
-  sys_error_N:
-    type: "number"
-    description: "Systematic uncertainty in Newtons"
-    minimum: 0
-  total_error_N:
-    type: "number"
-    description: "Combined uncertainty (sqrt(stat^2 + sys^2))"
-    minimum: 0
-required:
-  - experiment_id
-  - separation_m
-  - force_N
-  - stat_error_N
-  - sys_error_N
-  - total_error_N
-additionalProperties: false
+  meta:
+    type: "object"
+    properties:
+      version: { type: "string" }
+      source_urls:
+        type: "array"
+        items: { type: "string" }
+      created_at: { type: "string", format: "date-time" }
+    required: ["version", "source_urls", "created_at"]
+  data:
+    type: "object"
+    properties:
+      separation_m:
+        type: "array"
+        items: { type: "number" }
+        description: "Aligned separation distances in meters."
+      force_n:
+        type: "array"
+        items: { type: "number" }
+        description: "Force values in Newtons."
+      uncertainty_stat:
+        type: "array"
+        items: { type: "number" }
+        description: "Statistical uncertainty (1-sigma) in Newtons."
+      uncertainty_sys:
+        type: "array"
+        items: { type: "number" }
+        description: "Systematic uncertainty (1-sigma) in Newtons."
+      source_runs:
+        type: "array"
+        items: { type: "string" }
+        description: "IDs of original experimental runs."
+    required: ["separation_m", "force_n", "uncertainty_stat", "uncertainty_sys", "source_runs"]
+  covariance:
+    type: "object"
+    properties:
+      matrix_file: { type: "string" }
+      description: "Path to the .npz file containing the full NxN covariance matrix. Diagonal contains sum of squared stat and sys errors. Off-diagonals are zero."
+    required: ["matrix_file"]
+required: ["meta", "data", "covariance"]

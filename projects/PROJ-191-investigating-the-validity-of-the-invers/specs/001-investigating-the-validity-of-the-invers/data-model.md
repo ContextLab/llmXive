@@ -1,75 +1,52 @@
 # Data Model: Investigating the Validity of the Inverse‑Square Law at Sub‑Millimeter Scales
 
-## Overview
+## Entity Definitions
 
-This document defines the data structures used to represent the harmonized experimental data, the model parameters, and the inference results. All data is stored in `data/` and validated against the schemas in `contracts/`. The `harmonized_dataset.csv` is the Single Source of Truth (SSoT); JSON schemas validate the in-memory representation.
+### 1. RawDataFile
+Represents a downloaded file from arXiv.
+-   `file_path`: string (relative to `data/raw/`)
+-   `source_url`: string (verified arXiv URL)
+-   `checksum_sha256`: string
+-   `format`: string (e.g., "csv", "ascii", "tar")
+-   `extracted_files`: list of strings (paths to extracted contents)
 
-## Entities
+### 2. HarmonizedDataset
+The unified dataset used for inference.
+-   `separation_m`: array(float) - Aligned separation distances in meters.
+-   `force_n`: array(float) - Force values in Newtons.
+-   `uncertainty_stat`: array(float) - Statistical uncertainty (1$\sigma$) in Newtons.
+-   `uncertainty_sys`: array(float) - Systematic uncertainty (1$\sigma$) in Newtons.
+-   `covariance_matrix`: string (path to `.npz` or `.memmap` file) - Full $N \times N$ covariance matrix stored on disk.
+    -   Diagonal: $(\text{uncertainty\_stat})^2 + (\text{uncertainty\_sys})^2$
+    -   Off-diagonal: 0.0 (due to lack of correlation data).
+-   `source_runs`: list of strings - IDs of original experimental runs included.
+-   `interpolation_method`: string (e.g., "linear", "cubic")
+-   `storage_type`: string ("memmap" if N > 80000, "numpy" otherwise)
 
-### 1. HarmonizedDataset
-Represents the unified force-vs-separation data from multiple experiments.
+### 3. InferenceResult
+Output of the MCMC/Nested Sampling run.
+-   `model_name`: string ("Newtonian" or "Yukawa")
+-   `samples`: array(float, 2D) - Posterior samples (walkers $\times$ steps $\times$ params).
+-   `params`: list of strings - ["alpha", "lambda", "scale", "sys_scale"]
+-   `log_evidence`: float - $\ln Z$ from `dynesty`.
+-   `gelman_rubin`: float - Convergence statistic.
+-   `credible_interval_95`: dict - {"alpha": [low, high], "lambda": [low, high], "sys_scale": [low, high]}
 
--   **Source**: `data/processed/harmonized_dataset.csv`
--   **Description**: A tabular dataset where each row represents a measurement point at its **exact** separation distance. **No interpolation** is performed.
--   **Attributes**:
-    -   `experiment_id`: Identifier for the source experiment (e.g., "eotwash_2021", "review_2023").
-    -   `separation_m`: Separation distance in meters (float).
-    -   `force_N`: Force measurement in Newtons (float).
-    -   `stat_error_N`: Statistical uncertainty in Newtons (float).
-    -   `sys_error_N`: Systematic uncertainty in Newtons (float).
-    -   `total_error_N`: Combined uncertainty (float, derived).
-    -   `original_units_force`: Original unit of force (string, e.g., "dynes").
-    -   `original_units_dist`: Original unit of distance (string, e.g., "micrometers").
-
-### 2. CovarianceMatrix
-Represents the error structure, implemented as a **diagonal matrix** due to lack of off-diagonal data.
-
--   **Source**: `data/processed/covariance_matrix.npy`
--   **Description**: A 2D NumPy array of shape $(N, N)$ where $N$ is the total number of data points in `HarmonizedDataset`.
--   **Properties**:
-    -   Off-diagonal elements are **0**.
-    -   Diagonal elements: $Var(F_i) = \sigma_{stat, i}^2 + \sigma_{sys, i}^2$.
-    -   **Sensitivity**: A banded covariance matrix may be generated for sensitivity analysis.
-
-### 3. ModelPosterior
-Represents the sampled distribution of parameters from the MCMC run.
-
--   **Source**: `data/results/mcmc_chains.h5` or `.npy`
--   **Attributes**:
-    -   `alpha_samples`: Array of shape $(N_{walkers}, N_{steps})$ containing samples of $\alpha$.
-    -   `lambda_samples`: Array of shape $(N_{walkers}, N_{steps})$ containing samples of $\lambda$.
-    -   `log_prob`: Array of log-probabilities.
-    -   `convergence_metric`: Gelman-Rubin statistic (float).
-    -   `n_steps`: Actual number of steps run (up to 5000).
-
-### 4. BayesianEvidence
-Represents the computed log-evidence for model comparison.
-
--   **Source**: `data/results/evidence.json`
--   **Attributes**:
-    -   `log_z_newtonian`: Log-evidence for the null model ($\alpha=0$).
-    -   `log_z_yukawa`: Log-evidence for the Yukawa model.
-    -   `bayes_factor_k`: Calculated $K = \exp(\Delta \ln \mathcal{Z})$.
-    -   `interpretation`: String description based on Kass-Raftery scale.
-
-### 5. RobustnessResult
-Represents the results of validation tests.
-
--   **Source**: `data/results/robustness_report.json`
--   **Attributes**:
-    -   `test_type`: Type of test (e.g., "leave_one_out", "null_simulation").
-    -   `n_simulations`: Number of simulations (for null test).
-    -   `false_positive_rate`: Fraction of simulations where Bayes factor > 3.
-    -   `cv_limits`: Coefficient of variation of upper limits (for LOO).
-    -   `status`: "passed", "failed", or "warning" (e.g., if CV > 0.15).
+### 4. RobustnessReport
+Output of LOO and Injection-Recovery tests.
+-   `loo_iterations`: list of InferenceResult - Results for each excluded run.
+-   `injection_recovery`: dict - {"injected_alpha": float, "recovered_alpha": float, "recovered_interval": [low, high], "success": bool}
+-   `null_simulation`: dict - {"bayes_factor_mean": float, "false_positive_rate": float}
+-   `stability_metric`: float - Variation in upper limits across LOO iterations (must be < 15%).
 
 ## Data Flow
 
-1.  **Ingest**: Raw files (`data/raw/*.tar.gz`) $\to$ `download.py`.
-2.  **Harmonize**: Raw data $\to$ `harmonize.py` $\to$ `HarmonizedDataset` (CSV) + `CovarianceMatrix` (Numpy).
-3.  **Inference**: `HarmonizedDataset` + `CovarianceMatrix` $\to$ `inference.py` $\to$ `ModelPosterior` + `BayesianEvidence`.
-4.  **Robustness**: `ModelPosterior` $\to$ `robustness.py` $\to$ Sensitivity reports.
+1.  **Ingestion**: `RawDataFile` -> `harmonize.py` -> `HarmonizedDataset`.
+2.  **Inference**: `HarmonizedDataset` + `config.yaml` -> `mcmc.py`/`nested.py` -> `InferenceResult`.
+3.  **Validation**: `HarmonizedDataset` + `InferenceResult` -> `robustness.py` -> `RobustnessReport`.
 
-## Validation
+## Storage Format
 
-All data artifacts must pass the schema validation defined in `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` before being used in downstream analysis or reported in the final paper. The CSV file is the SSoT; the schema validates the in-memory parsed data.
+-   **HarmonizedDataset**: Saved as `data/harmonized/dataset_v1.csv` (for tabular data) and `data/harmonized/covariance_v1.npz` (for the matrix, or `.memmap` for large N).
+-   **InferenceResult**: Saved as `results/inference_run_001.json` (summary) and `results/samples_run_001.h5` (large samples).
+-   **RobustnessReport**: Saved as `results/robustness_report.json`.
