@@ -1,3 +1,2 @@
-"""
-llmXive project code module.
-"""
+# llmXive Project: Predicting Material Degradation Pathways
+# Package initialization

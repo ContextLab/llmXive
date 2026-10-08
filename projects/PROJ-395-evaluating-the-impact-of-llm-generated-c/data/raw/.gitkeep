@@ -1,1 +1,2 @@
-# Placeholder for raw dataset downloads
+# This directory stores raw dataset files (e.g., HumanEval, MBPP)
+# Do not commit large files here; add them via .gitignore or LFS

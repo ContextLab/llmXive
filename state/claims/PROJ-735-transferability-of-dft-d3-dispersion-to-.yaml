@@ -1805,3 +1805,342 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-21T05:52:44Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: DFT-D3 MAE of 1.2345 kcal/mol against CCSD(T)/CBS reference values
+  claim_id: c_8cc43ca9
+  context: The following error metrics were computed comparing DFT-D3 interaction
+    energies to CCSD(T)/CBS reference values
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Mean Absolute Error (MAE): 1.2345 kcal/mol'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:01:41Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: DFT-D3 RMSE of 1.6789 kcal/mol against CCSD(T)/CBS reference values
+  claim_id: c_a559a352
+  context: The following error metrics were computed comparing DFT-D3 interaction
+    energies to CCSD(T)/CBS reference values
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Root Mean Square Error (RMSE): 1.6789 kcal/mol'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:02:10Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: "DFT-D3 MSE of 2.8186 (kcal/mol)\xB2 against CCSD(T)/CBS reference values"
+  claim_id: c_434ce3d9
+  context: The following error metrics were computed comparing DFT-D3 interaction
+    energies to CCSD(T)/CBS reference values
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Mean Squared Error (MSE): 2.8186 (kcal/mol)\xB2"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:02:41Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: 95% CI for DFT-D3 MAE is 0.9876 to 1.4814 kcal/mol based on 1000 bootstrap
+    replicates
+  claim_id: c_f799dccd
+  context: Statistical Significance (Bootstrap) section reporting confidence intervals
+    for the MAE
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Using 1,000 bootstrap replicates, the 95% Confidence Interval for the
+    MAE is: [0.9876, 1.4814] kcal/mol'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:03:07Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: Benchmark dataset size of 20 ionic liquid ion pairs
+  claim_id: c_1e3b7fd3
+  context: Statistical Power Warning noting the dataset size is lower than the recommended
+    100 pairs
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset used for this benchmark consists of 20 ion pairs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:03:38Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: Optimal DFT-D3 scaling factor of 0.8542 derived to address systematic
+    bias
+  claim_id: c_d8581598
+  context: Scaling Factor Analysis section listing the derived optimal scaling factor
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Optimal Scaling Factor (s): 0.8542'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:04:15Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: 95% CI for DFT-D3 scaling factor s is 0.7890 to 0.9194
+  claim_id: c_b63f0d30
+  context: Scaling Factor Analysis section listing the confidence interval for the
+    scaling factor
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '95% Confidence Interval for s: [0.7890, 0.9194]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:04:15Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: Null hypothesis that DFT-D3 scaling factor equals 1.0 is rejected
+  claim_id: c_e59ccb43
+  context: Hypothesis Test section stating the null hypothesis is rejected because
+    1.0 is outside the 95% CI
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The null hypothesis H\u2080: s = 1.0 is REJECTED"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:04:51Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: dataset contains 20 ion pairs
+  claim_id: c_0e34f341
+  context: "Statistical Power Warning: The dataset used for this analysis consists\
+    \ of 20 ion pairs. This is significantly lower than the \u2265100 pairs recommended\
+    \ in the project specification for robust statistical inference."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset used for this analysis consists of 20 ion pairs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:06:04Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Pearson R raw D3 vs density is -0.4521
+  claim_id: c_2370cc9c
+  context: '3.1 Raw D3 Term vs Density - Pearson R: -0.4521 - Spearman R: -0.4105
+    - Adjusted P-value: 0.0482'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pearson R for Raw D3 Term vs Density is -0.4521.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:06:31Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Spearman R raw D3 vs density is -0.4105
+  claim_id: c_c856feb9
+  context: '3.1 Raw D3 Term vs Density - Pearson R: -0.4521 - Spearman R: -0.4105
+    - Adjusted P-value: 0.0482'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Spearman R for Raw D3 Term vs Density is -0.4105.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:07:41Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: adjusted p-value raw D3 vs density is 0.0482
+  claim_id: c_316311e4
+  context: '3.1 Raw D3 Term vs Density - Pearson R: -0.4521 - Spearman R: -0.4105
+    - Adjusted P-value: 0.0482'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Adjusted P-value for Raw D3 Term vs Density is 0.0482.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:08:15Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: 95% CI Pearson raw D3 vs density is -0.7234 to -0.1208
+  claim_id: c_87ec0235
+  context: '3.1 Raw D3 Term vs Density - Pearson R: -0.4521 - Spearman R: -0.4105
+    - Adjusted P-value: 0.0482 - 95% CI (Pearson): [-0.7234, -0.1208]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 95% CI (Pearson) for Raw D3 Term vs Density is [-0.7234, -0.1208].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:08:16Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Pearson R scaled D3 vs density is -0.4612
+  claim_id: c_60f491b9
+  context: '3.2 Scaled D3 Term vs Density - Pearson R: -0.4612 - Spearman R: -0.4210
+    - Adjusted P-value: 0.0435'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pearson R for Scaled D3 Term vs Density is -0.4612.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:09:15Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Spearman R scaled D3 vs density is -0.4210
+  claim_id: c_5dfd591c
+  context: '3.2 Scaled D3 Term vs Density - Pearson R: -0.4612 - Spearman R: -0.4210
+    - Adjusted P-value: 0.0435'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Spearman R for Scaled D3 Term vs Density is -0.4210.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:10:06Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: adjusted p-value scaled D3 vs density is 0.0435
+  claim_id: c_e9683858
+  context: '3.2 Scaled D3 Term vs Density - Pearson R: -0.4612 - Spearman R: -0.4210
+    - Adjusted P-value: 0.0435'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Adjusted P-value for Scaled D3 Term vs Density is 0.0435.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:10:43Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: 95% CI Pearson scaled D3 vs density is -0.7312 to -0.1298
+  claim_id: c_1aa8036a
+  context: '3.2 Scaled D3 Term vs Density - Pearson R: -0.4612 - Spearman R: -0.4210
+    - Adjusted P-value: 0.0435 - 95% CI (Pearson): [-0.7312, -0.1298]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 95% CI (Pearson) for Scaled D3 Term vs Density is [-0.7312, -0.1298].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:10:43Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Pearson R dispersion-only error vs viscosity is 0.3890
+  claim_id: c_1478a66b
+  context: '3.3 Dispersion-Only Error vs Viscosity - Pearson R: 0.3890 - Spearman
+    R: 0.3541 - Adjusted P-value: 0.0912'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pearson R for Dispersion-Only Error vs Viscosity is 0.3890.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:11:16Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Spearman R dispersion-only error vs viscosity is 0.3541
+  claim_id: c_8082a873
+  context: '3.3 Dispersion-Only Error vs Viscosity - Pearson R: 0.3890 - Spearman
+    R: 0.3541 - Adjusted P-value: 0.0912'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Spearman R for Dispersion-Only Error vs Viscosity is 0.3541.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:12:05Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: adjusted p-value dispersion-only error vs viscosity is 0.0912
+  claim_id: c_538bf969
+  context: '3.3 Dispersion-Only Error vs Viscosity - Pearson R: 0.3890 - Spearman
+    R: 0.3541 - Adjusted P-value: 0.0912'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Adjusted P-value for Dispersion-Only Error vs Viscosity is 0.0912.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:12:41Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: 95% CI Pearson dispersion-only error vs viscosity is 0.0512 to 0.6789
+  claim_id: c_90797818
+  context: '3.3 Dispersion-Only Error vs Viscosity - Pearson R: 0.3890 - Spearman
+    R: 0.3541 - Adjusted P-value: 0.0912 - 95% CI (Pearson): [0.0512, 0.6789]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 95% CI (Pearson) for Dispersion-Only Error vs Viscosity is [0.0512, 0.6789].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:12:41Z'

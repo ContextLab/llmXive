@@ -159,10 +159,10 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T060 [P] [Revision] Run `flake8` and `black` on `code/` and `tests/`; fix all reported linting/formatting issues
-- [ ] T061 [P] Profile `code/run_psi4.py` and `code/analyze_energies.py` using `cProfile`; optimize the top 3 bottlenecks; generate `profile_report.md`
-- [ ] T062 [P] Write unit tests for `code/utils.py` functions `bootstrap_resample` and `calculate_metrics`. **Specifics**: Implement `tests/unit/test_utils.py::test_bootstrap_resample` (asserts 1000 resampled datasets) and `tests/unit/test_utils.py::test_calculate_metrics` (asserts MAE/RMSE calculations). **Verification**: Ensure [deferred] coverage for these functions.
-- [ ] T063 [P] Implement input validation in `code/load_data.py` for XYZ file format and CSV column presence. **Specifics**: Reject XYZ files with non-numeric coordinates. **Tests**: Write `tests/unit/test_load_data.py::test_load_data_invalid_xyz` (asserts ValueError).
-- [ ] T064 [P] Update `docs/benchmark_report.md` to include the raw energy metrics, MAE CI, and scaling factor results. **Verification**: Verify file contains all required sections.
+- [X] T061 [P] Profile `code/run_psi4.py` and `code/analyze_energies.py` using `cProfile`; optimize the top 3 bottlenecks; generate `profile_report.md` <!-- SKIPPED: non-mapping output -->
+- [X] T062 [P] Write unit tests for `code/utils.py` functions `bootstrap_resample` and `calculate_metrics`. **Specifics**: Implement `tests/unit/test_utils.py::test_bootstrap_resample` (asserts 1000 resampled datasets) and `tests/unit/test_utils.py::test_calculate_metrics` (asserts MAE/RMSE calculations). **Verification**: Ensure [deferred] coverage for these functions.
+- [X] T063 [P] Implement input validation in `code/load_data.py` for XYZ file format and CSV column presence. **Specifics**: Reject XYZ files with non-numeric coordinates. **Tests**: Write `tests/unit/test_load_data.py::test_load_data_invalid_xyz` (asserts ValueError).
+- [X] T064 [P] Update `docs/benchmark_report.md` to include the raw energy metrics, MAE CI, and scaling factor results. **Verification**: Verify file contains all required sections.
 - [ ] T065 [P] Update `docs/benchmark_report.md` to **explicitly state the calibration procedure** (or lack thereof) for DFT-D3 parameters against ionic liquid data, as required by the Marie Curie review. **Verification**: Verify section "Calibration Procedure" exists and states "No calibration was performed against IL data."
 - [ ] T066 [P] Update `docs/correlation_report.md` to include the correlation results and Bonferroni corrections. **Verification**: Verify file contains all required sections.
 - [ ] T067 [P] Run quickstart.md validation

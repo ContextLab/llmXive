@@ -7,11 +7,10 @@ T001:
     been created.
 T003:
   c: false
-  h: b61c2e9f657a8c6b770b11384785c97418493660eb78d359e96177e269a6d484
-  r: "The repository contains a `pyproject.toml` with Black and Ruff configuration,\
-    \ but the required `.ruff.toml` file (dot\u2011prefixed) is missing, and the task\
-    \ explicitly demanded its creation in the `code/` directory. Without this file\
-    \ the linting setup is incomplete."
+  h: bf8cd9f269a2ad71cc5e27a0db8152a77980f3054c64e99a009632c51ca4f8cb
+  r: The repository contains a `pyproject.toml` with Black and Ruff configuration,
+    but the required `.ruff.toml` file inside the `code/` directory is missing, so
+    the linting tool is not fully configured as specified.
 T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -28,18 +27,44 @@ T018b:
     s core requirements are therefore not satisfied."
 T019:
   c: false
-  h: 3bcff88cfcc5711e4acf76850b992fb01e8d86401934ea770cccf9ec3149cf4a
-  r: 'The provided `code/preprocessing.py` is truncated, never reads `data/contracts/alloy_class_map.json`,
-    and raises a generic `ValueError` instead of halting with the required `error_code:
-    OOD_SPLIT_FAILED` and message. The claimed parquet files are only described as
-    simulated text placeholders, not real Parquet outputs. Consequently the OOD split
-    implementation and required artifacts are not genuinely present.'
+  h: 4301d21997e5263ece786675fcd7a6a7f14b9823ca0a35d6379ef51a866ae044
+  r: "The repository contains `code/preprocessing.py` but the shown portion stops\
+    \ at generating the alloy class map and does not include any logic that reads\
+    \ `alloy_class_map.json`, performs an OOD split by alloy class, checks for fewer\
+    \ than two classes, or writes `train_set.parquet` and `test_ood_set.parquet`.\
+    \ Both required parquet files are missing, so the task\u2019s core functionality\
+    \ is not delivered."
 T019a:
   c: false
-  h: 92458e6283fe98e26cf72de8a4e61c14bcadf0fcb85ad3e52f8f0a99b2c4ffd1
-  r: "The provided `alloy_class_map.json` is a fabricated sample (it contains a comment,\
-    \ which is invalid JSON, and maps record IDs to classes rather than the required\
-    \ class\u2011to\u2011indices map). Moreover, the required input file `data/processed/cleaned_alloys.csv`\
-    \ is missing, so the script could not have actually generated the map from real\
-    \ data. The task\u2019s core requirement\u2014producing a genuine class map from\
-    \ the CSV using the specified rules\u2014is not satisfied."
+  h: f7731bf9a533f795917caa35cb97357326252a1e24c477f503a954c0abcc0ceb
+  r: "The required input file `data/processed/cleaned_alloys.csv` is missing, so the\
+    \ script could not have actually processed real data. Moreover, `code/preprocessing.py`\
+    \ is truncated before completing the `generate_alloy_class_map` function (e.g.,\
+    \ no code to write the JSON), and the existing `alloy_class_map.json` is a hand\u2011\
+    written sample with a comment stating it is only a placeholder. Hence the artifact\
+    \ is not a genuine output of the implemented logic. The missing CSV and incomplete\
+    \ script must be provided and the JSON regenerated from it."
+T019c:
+  c: false
+  h: ce4012b655ac1bf6b8cc4f58431bac37b6e84c420f9822ab9912baa7e322c2e7
+  r: "The repository lacks the required `data/processed/ood_audit.json` file, and\
+    \ the provided `code/preprocessing.py` does not contain any logic for generating\
+    \ an OOD audit log (it only defines alloy\u2011family classification functions).\
+    \ Consequently, the task\u2019s core requirement is not satisfied."
+T026b:
+  c: false
+  h: e5cee2f7941ffffb6c50752e0bee4118ffcd3f0262fd786fd2291ebdce907e61
+  r: "The required output files `results/metrics/permutation_test_report.json` and\
+    \ `results/plots/null_distribution.png` are not present, and the provided `code/evaluation.py`\
+    \ excerpt shows only helper functions without any code that creates the JSON report,\
+    \ generates the matplotlib plot with the specified axis labels, or writes the\
+    \ `permutation_test_passed` flag. The task\u2019s core deliverables are therefore\
+    \ missing."
+T026c:
+  c: false
+  h: 4b49f9e4ef4406105e2518cb91fddf161f32cd49276e1ea9bb536947dd7f4d7b
+  r: "The provided `code/evaluation.py` is truncated and does not contain any logic\
+    \ that checks the p\u2011value from T026, halts the pipeline when p\u202F\u2265\
+    \u202F0.05, or writes a failure entry to `results/metrics/permutation_test_failure.json`.\
+    \ Moreover, the required `results/metrics/permutation_test_failure.json` file\
+    \ is absent. The task\u2019s core requirement is therefore not satisfied."

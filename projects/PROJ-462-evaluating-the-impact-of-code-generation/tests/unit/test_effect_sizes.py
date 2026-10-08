@@ -1,13 +1,22 @@
+"""
+Unit tests for effect size calculations in code/analysis/effect_sizes.py.
+
+Tests cover:
+- Cohen's d calculation (independent and paired)
+- Multiple comparison corrections (Bonferroni, Holm-Bonferroni)
+- Pairwise comparisons by stratum
+- Paired output verification
+"""
+
 import pytest
 import numpy as np
 import pandas as pd
-from pathlib import Path
-import sys
+from dataclasses import asdict
 
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
-
+# Import the module under test using the exact API surface provided
 from analysis.effect_sizes import (
+    PairwiseComparison,
+    EffectSizeResult,
     calculate_cohens_d,
     calculate_paired_cohens_d,
     bonferroni_correction,
@@ -15,340 +24,371 @@ from analysis.effect_sizes import (
     perform_pairwise_comparisons_by_stratum,
     verify_paired_output,
     run_effect_size_pipeline,
-    PairwiseComparison,
-    EffectSizeResult
 )
 
 
-class TestCohensD:
-    """Tests for Cohen's d calculation."""
+class TestCalculateCohensD:
+    """Tests for independent samples Cohen's d calculation."""
 
-    def test_calculate_cohens_d_basic(self):
-        """Test basic Cohen's d calculation."""
-        group1 = np.array([10, 12, 11, 13, 12])
-        group2 = np.array([8, 9, 7, 10, 8])
+    def test_cohens_d_basic(self):
+        """Test basic Cohen's d calculation with known values."""
+        # Group A: mean=10, std=2, n=10
+        group_a = np.array([8, 9, 10, 11, 12, 9, 10, 11, 10, 10])
+        # Group B: mean=12, std=2, n=10
+        group_b = np.array([10, 11, 12, 13, 14, 11, 12, 13, 12, 12])
 
-        d, mean_diff, pooled_std = calculate_cohens_d(group1, group2)
+        result = calculate_cohens_d(group_a, group_b)
 
-        assert d > 0, "Effect size should be positive (group1 > group2)"
-        assert mean_diff > 0, "Mean difference should be positive"
-        assert pooled_std > 0, "Pooled std should be positive"
-        assert isinstance(d, float), "Cohen's d should be a float"
+        # Expected: mean_diff = -2, pooled_std = 2, d = -1.0
+        assert isinstance(result, EffectSizeResult)
+        assert result.group_a_name == "group_a"
+        assert result.group_b_name == "group_b"
+        assert np.isclose(result.mean_a, 10.0, atol=0.01)
+        assert np.isclose(result.mean_b, 12.0, atol=0.01)
+        assert np.isclose(result.mean_diff, -2.0, atol=0.01)
+        # Pooled std should be close to 2.0
+        assert np.isclose(result.pooled_std, 2.0, atol=0.1)
+        # Cohen's d should be close to -1.0
+        assert np.isclose(result.cohen_d, -1.0, atol=0.1)
+        assert result.sample_size_a == 10
+        assert result.sample_size_b == 10
 
-    def test_calculate_cohens_d_negative(self):
-        """Test Cohen's d with group1 < group2."""
-        group1 = np.array([5, 6, 5, 7])
-        group2 = np.array([10, 12, 11, 13])
+    def test_cohens_d_unequal_variances(self):
+        """Test Cohen's d with unequal variances."""
+        group_a = np.array([1, 2, 3, 4, 5])
+        group_b = np.array([10, 12, 14, 16, 18, 20, 22, 24, 26, 28])
 
-        d, mean_diff, _ = calculate_cohens_d(group1, group2)
+        result = calculate_cohens_d(group_a, group_b)
 
-        assert d < 0, "Effect size should be negative (group1 < group2)"
-        assert mean_diff < 0, "Mean difference should be negative"
+        assert isinstance(result, EffectSizeResult)
+        assert result.cohen_d != 0
+        assert not np.isnan(result.cohen_d)
 
-    def test_calculate_cohens_d_identical(self):
-        """Test Cohen's d with identical groups."""
-        group1 = np.array([5, 5, 5, 5])
-        group2 = np.array([5, 5, 5, 5])
+    def test_cohens_d_identical_groups(self):
+        """Test Cohen's d when groups are identical."""
+        group_a = np.array([1, 2, 3, 4, 5])
+        group_b = np.array([1, 2, 3, 4, 5])
 
-        d, mean_diff, pooled_std = calculate_cohens_d(group1, group2)
+        result = calculate_cohens_d(group_a, group_b)
 
-        assert d == 0.0, "Cohen's d should be 0 for identical groups"
-        assert mean_diff == 0.0, "Mean difference should be 0"
-        assert pooled_std == 0.0, "Pooled std should be 0"
+        assert np.isclose(result.cohen_d, 0.0, atol=1e-6)
+        assert result.mean_diff == 0.0
 
-    def test_calculate_paired_cohens_d(self):
-        """Test paired Cohen's d calculation."""
-        pre = np.array([10, 12, 11, 13, 12])
-        post = np.array([8, 9, 7, 10, 8])
+    def test_cohens_d_single_element(self):
+        """Test Cohen's d with single element groups (should handle gracefully)."""
+        group_a = np.array([1])
+        group_b = np.array([2])
 
-        d, mean_diff, std_diff = calculate_paired_cohens_d(pre, post)
+        # With single element, std is 0, which may cause division by zero
+        # The function should handle this or return a meaningful result
+        result = calculate_cohens_d(group_a, group_b)
+        assert isinstance(result, EffectSizeResult)
 
-        assert d > 0, "Paired Cohen's d should be positive"
-        assert mean_diff > 0, "Mean difference should be positive"
-        assert std_diff > 0, "Std of differences should be positive"
+    def test_cohens_d_as_dict_serializable(self):
+        """Test that EffectSizeResult can be serialized to dict."""
+        group_a = np.array([1, 2, 3, 4, 5])
+        group_b = np.array([6, 7, 8, 9, 10])
 
-    def test_calculate_paired_cohens_d_length_mismatch(self):
-        """Test that paired calculation raises error on length mismatch."""
-        pre = np.array([1, 2, 3])
-        post = np.array([1, 2])
+        result = calculate_cohens_d(group_a, group_b)
+        result_dict = asdict(result)
 
-        with pytest.raises(ValueError):
-            calculate_paired_cohens_d(pre, post)
+        assert isinstance(result_dict, dict)
+        assert "cohen_d" in result_dict
+        assert "mean_diff" in result_dict
+        assert "pooled_std" in result_dict
+
+
+class TestCalculatePairedCohensD:
+    """Tests for paired samples Cohen's d calculation."""
+
+    def test_paired_cohens_d_basic(self):
+        """Test basic paired Cohen's d calculation."""
+        # Before and after measurements
+        before = np.array([10, 12, 14, 16, 18, 10, 12, 14, 16, 18])
+        after = np.array([12, 14, 16, 18, 20, 12, 14, 16, 18, 20])
+
+        result = calculate_paired_cohens_d(before, after)
+
+        assert isinstance(result, EffectSizeResult)
+        # Mean difference should be 2.0
+        assert np.isclose(result.mean_diff, 2.0, atol=0.01)
+        # Cohen's d should be positive
+        assert result.cohen_d > 0
+
+    def test_paired_cohens_d_no_effect(self):
+        """Test paired Cohen's d with no effect."""
+        before = np.array([1, 2, 3, 4, 5])
+        after = np.array([1, 2, 3, 4, 5])
+
+        result = calculate_paired_cohens_d(before, after)
+
+        assert np.isclose(result.cohen_d, 0.0, atol=1e-6)
+
+    def test_paired_cohens_d_negative_effect(self):
+        """Test paired Cohen's d with negative effect."""
+        before = np.array([10, 12, 14, 16, 18])
+        after = np.array([8, 10, 12, 14, 16])
+
+        result = calculate_paired_cohens_d(before, after)
+
+        assert result.cohen_d < 0
 
 
 class TestBonferroniCorrection:
-    """Tests for Bonferroni correction."""
+    """Tests for Bonferroni multiple comparison correction."""
 
-    def test_bonferroni_single_test(self):
-        """Test Bonferroni with single test."""
-        p_values = [0.03]
-        results = bonferroni_correction(p_values, alpha=0.05)
+    def test_bonferroni_basic(self):
+        """Test basic Bonferroni correction."""
+        p_values = [0.01, 0.05, 0.10, 0.20]
 
-        assert len(results) == 1
-        raw, adj, sig = results[0]
-        assert raw == 0.03
-        assert adj == 0.03  # 0.03 * 1 = 0.03
-        assert sig is True
+        result = bonferroni_correction(p_values)
 
-    def test_bonferroni_multiple_tests(self):
-        """Test Bonferroni with multiple tests."""
-        p_values = [0.01, 0.03, 0.06, 0.10]
-        results = bonferroni_correction(p_values, alpha=0.05)
+        assert len(result) == len(p_values)
+        # Corrected p-values should be original * n_tests
+        # But capped at 1.0
+        expected = [min(p * 4, 1.0) for p in p_values]
+        for i, (orig, corr) in enumerate(zip(p_values, result)):
+            assert np.isclose(corr, expected[i], atol=1e-6)
 
-        assert len(results) == 4
+    def test_bonferroni_single_pvalue(self):
+        """Test Bonferroni with a single p-value."""
+        p_values = [0.05]
 
-        # Check that adjusted p-values are correctly calculated
-        # adj_p = min(p * m, 1.0)
-        m = 4
-        expected_adj = [min(0.01 * m, 1.0), min(0.03 * m, 1.0), min(0.06 * m, 1.0), min(0.10 * m, 1.0)]
+        result = bonferroni_correction(p_values)
 
-        for i, (_, adj, _) in enumerate(results):
-            assert np.isclose(adj, expected_adj[i])
-
-        # Check significance
-        # adj_p < 0.05
-        expected_sig = [True, True, False, False]
-        for i, (_, _, sig) in enumerate(results):
-            assert sig == expected_sig[i]
+        assert len(result) == 1
+        assert np.isclose(result[0], 0.05, atol=1e-6)
 
     def test_bonferroni_empty_list(self):
         """Test Bonferroni with empty list."""
-        results = bonferroni_correction([], alpha=0.05)
-        assert results == []
+        p_values = []
 
-    def test_bonferroni_caps_at_one(self):
-        """Test that adjusted p-values are capped at 1.0."""
-        p_values = [0.5, 0.6, 0.7]
-        results = bonferroni_correction(p_values, alpha=0.05)
+        result = bonferroni_correction(p_values)
 
-        for _, adj, _ in results:
-            assert adj <= 1.0
+        assert result == []
 
 
 class TestHolmBonferroniCorrection:
-    """Tests for Holm-Bonferroni correction."""
+    """Tests for Holm-Bonferroni step-down correction."""
 
-    def test_holm_basic(self):
-        """Test Holm-Bonferroni with basic p-values."""
-        p_values = [0.01, 0.03, 0.06, 0.10]
-        results = holm_bonferroni_correction(p_values, alpha=0.05)
+    def test_holm_bonferroni_basic(self):
+        """Test basic Holm-Bonferroni correction."""
+        p_values = [0.01, 0.04, 0.03, 0.20]
 
-        assert len(results) == 4
+        result = holm_bonferroni_correction(p_values)
 
-        # Holm is less conservative than Bonferroni
-        # Check that at least some results are different from Bonferroni
-        bonf_results = bonferroni_correction(p_values, alpha=0.05)
+        assert len(result) == len(p_values)
+        # All corrected p-values should be >= original p-values
+        for orig, corr in zip(p_values, result):
+            assert corr >= orig - 1e-6
 
-        for i, ((raw_h, adj_h, sig_h), (raw_b, adj_b, sig_b)) in enumerate(zip(results, bonf_results)):
-            assert raw_h == raw_b
-            # Holm adjusted p-values should be <= Bonferroni (more powerful)
-            assert adj_h <= adj_b
+    def test_holm_bonferroni_monotonicity(self):
+        """Test that corrected p-values maintain monotonicity."""
+        p_values = [0.01, 0.02, 0.03, 0.04]
 
-    def test_holm_significance(self):
-        """Test Holm-Bonferroni significance determination."""
-        p_values = [0.01, 0.02, 0.06, 0.10]
-        results = holm_bonferroni_correction(p_values, alpha=0.05)
+        result = holm_bonferroni_correction(p_values)
 
-        # With Holm:
-        # m=4: 0.01 < 0.05/4=0.0125 -> sig
-        # m=3: 0.02 < 0.05/3=0.0167 -> sig
-        # m=2: 0.06 < 0.05/2=0.025 -> not sig
-        # m=1: 0.10 < 0.05/1=0.05 -> not sig
-        expected_sig = [True, True, False, False]
+        # Corrected p-values should be non-decreasing
+        for i in range(len(result) - 1):
+            assert result[i] <= result[i + 1] + 1e-6
 
-        for i, (_, _, sig) in enumerate(results):
-            assert sig == expected_sig[i]
+    def test_holm_bonferroni_vs_bonferroni(self):
+        """Test that Holm-Bonferroni is less conservative than Bonferroni."""
+        p_values = [0.01, 0.05, 0.10]
 
-    def test_holm_empty_list(self):
-        """Test Holm-Bonferroni with empty list."""
-        results = holm_bonferroni_correction([], alpha=0.05)
-        assert results == []
+        bonf_result = bonferroni_correction(p_values)
+        holm_result = holm_bonferroni_correction(p_values)
 
-    def test_holm_monotonicity(self):
-        """Test that adjusted p-values are monotonic."""
-        p_values = [0.05, 0.03, 0.01, 0.02]  # Unsorted
-        results = holm_bonferroni_correction(p_values, alpha=0.05)
-
-        # Extract adjusted p-values in original order
-        adj_p = [r[1] for r in results]
-
-        # When sorted by original p-value, adjusted p-values should be non-decreasing
-        sorted_pairs = sorted(zip(p_values, adj_p), key=lambda x: x[0])
-        sorted_adj = [p[1] for p in sorted_pairs]
-
-        for i in range(len(sorted_adj) - 1):
-            assert sorted_adj[i] <= sorted_adj[i + 1]
+        # Holm-Bonferroni should be <= Bonferroni for all p-values
+        for h, b in zip(holm_result, bonf_result):
+            assert h <= b + 1e-6
 
 
-class TestPairwiseComparisons:
-    """Tests for pairwise comparisons by stratum."""
+class TestPerformPairwiseComparisonsByStratum:
+    """Tests for pairwise comparisons stratified by experience level."""
 
-    def create_test_data(self):
-        """Create test DataFrame."""
-        data = {
-            'task_time': [10, 12, 11, 8, 9, 7, 15, 14, 16, 12, 13, 11],
-            'tool_usage': ['AI', 'AI', 'AI', 'AI', 'AI', 'AI', 'Manual', 'Manual', 'Manual', 'Manual', 'Manual', 'Manual'],
-            'experience_level': ['Novice', 'Novice', 'Novice', 'Expert', 'Expert', 'Expert',
-                                 'Novice', 'Novice', 'Novice', 'Expert', 'Expert', 'Expert']
-        }
-        return pd.DataFrame(data)
-
-    def test_perform_pairwise_comparisons_basic(self):
-        """Test basic pairwise comparison."""
-        df = self.create_test_data()
+    def test_stratified_comparisons(self):
+        """Test pairwise comparisons across experience strata."""
+        # Create sample data with experience levels
+        data = pd.DataFrame({
+            "tool_usage": ["A"] * 30 + ["B"] * 30,
+            "experience_level": (
+                ["novice"] * 10 + ["intermediate"] * 10 + ["expert"] * 10 +
+                ["novice"] * 10 + ["intermediate"] * 10 + ["expert"] * 10
+            ),
+            "task_time": (
+                [10, 11, 12, 13, 14, 15, 16, 17, 18, 19] +  # novice A
+                [8, 9, 10, 11, 12, 13, 14, 15, 16, 17] +   # intermediate A
+                [6, 7, 8, 9, 10, 11, 12, 13, 14, 15] +     # expert A
+                [12, 13, 14, 15, 16, 17, 18, 19, 20, 21] + # novice B
+                [10, 11, 12, 13, 14, 15, 16, 17, 18, 19] + # intermediate B
+                [8, 9, 10, 11, 12, 13, 14, 15, 16, 17]     # expert B
+            ),
+        })
 
         result = perform_pairwise_comparisons_by_stratum(
-            df, 'task_time', 'tool_usage', 'experience_level', alpha=0.05, correction_method='holm'
+            data,
+            group_col="tool_usage",
+            outcome_col="task_time",
+            stratum_col="experience_level",
         )
 
-        assert isinstance(result, EffectSizeResult)
-        assert result.n_tests > 0
-        assert len(result.comparisons) == result.n_tests
-        assert result.correction_method == 'holm'
+        assert isinstance(result, dict)
+        # Should have results for each stratum
+        assert "novice" in result
+        assert "intermediate" in result
+        assert "expert" in result
 
-    def test_pairwise_comparisons_has_effect_sizes(self):
-        """Test that all comparisons include effect sizes."""
-        df = self.create_test_data()
+        # Each stratum should have pairwise comparisons
+        for stratum_name, stratum_result in result.items():
+            assert "comparisons" in stratum_result
+            assert "effect_sizes" in stratum_result
+            assert "corrections" in stratum_result
+
+    def test_stratified_comparisons_single_stratum(self):
+        """Test with data having only one stratum."""
+        data = pd.DataFrame({
+            "tool_usage": ["A"] * 10 + ["B"] * 10,
+            "experience_level": ["novice"] * 20,
+            "task_time": list(range(10)) + list(range(10, 20)),
+        })
 
         result = perform_pairwise_comparisons_by_stratum(
-            df, 'task_time', 'tool_usage', 'experience_level', alpha=0.05, correction_method='bonferroni'
+            data,
+            group_col="tool_usage",
+            outcome_col="task_time",
+            stratum_col="experience_level",
         )
 
-        for comp in result.comparisons:
-            assert 'cohens_d' in comp
-            assert 'mean_diff' in comp
-            assert 'p_value' in comp
-            assert 'p_value_adjusted' in comp
+        assert "novice" in result
+        assert len(result["novice"]["comparisons"]) > 0
 
-    def test_pairwise_comparisons_stratification(self):
-        """Test that comparisons are stratified correctly."""
-        df = self.create_test_data()
+    def test_stratified_comparisons_empty_data(self):
+        """Test with empty dataframe."""
+        data = pd.DataFrame(columns=["tool_usage", "experience_level", "task_time"])
 
         result = perform_pairwise_comparisons_by_stratum(
-            df, 'task_time', 'tool_usage', 'experience_level', alpha=0.05, correction_method='holm'
+            data,
+            group_col="tool_usage",
+            outcome_col="task_time",
+            stratum_col="experience_level",
         )
 
-        # Should have comparisons for both Novice and Expert
-        strata = set(c['stratum'] for c in result.comparisons)
-        assert 'Novice' in strata
-        assert 'Expert' in strata
-
-    def test_pairwise_comparisons_empty_data(self):
-        """Test with empty DataFrame."""
-        df = pd.DataFrame(columns=['task_time', 'tool_usage', 'experience_level'])
-
-        result = perform_pairwise_comparisons_by_stratum(
-            df, 'task_time', 'tool_usage', 'experience_level', alpha=0.05, correction_method='holm'
-        )
-
-        assert result.n_tests == 0
-        assert len(result.comparisons) == 0
+        assert isinstance(result, dict)
+        # Should handle empty data gracefully
+        for stratum_name, stratum_result in result.items():
+            assert stratum_result["comparisons"] == []
 
 
 class TestVerifyPairedOutput:
-    """Tests for paired output verification."""
+    """Tests for paired output verification (Constitution Principle VI)."""
 
-    def test_verify_paired_output_success(self):
-        """Test verification passes with complete data."""
-        result = EffectSizeResult(
-            comparisons=[
-                {
-                    'group1': 'A', 'group2': 'B',
-                    'cohens_d': 0.5, 'p_value': 0.03, 'p_value_adjusted': 0.06,
-                    'mean_diff': 2.0, 'significant': False, 'stratum': 'Novice', 'n1': 10, 'n2': 10
-                }
+    def test_verify_paired_output_complete(self):
+        """Test verification when p-values and effect sizes are paired."""
+        results = {
+            "p_values": [0.01, 0.05, 0.10],
+            "effect_sizes": [
+                {"cohen_d": 0.5, "group_a": "A", "group_b": "B"},
+                {"cohen_d": 0.3, "group_a": "A", "group_b": "C"},
+                {"cohen_d": 0.1, "group_a": "B", "group_b": "C"},
             ],
-            correction_method='holm',
-            alpha=0.05,
-            n_tests=1,
-            significant_count=0,
-            family_wise_error_rate=0.05,
-            raw_p_values=[0.03],
-            adjusted_p_values=[0.06]
-        )
-
-        assert verify_paired_output(result) is True
-
-    def test_verify_paired_output_missing_cohens_d(self):
-        """Test verification fails with missing Cohen's d."""
-        result = EffectSizeResult(
-            comparisons=[
-                {
-                    'group1': 'A', 'group2': 'B',
-                    'p_value': 0.03, 'p_value_adjusted': 0.06,
-                    'mean_diff': 2.0, 'significant': False, 'stratum': 'Novice', 'n1': 10, 'n2': 10
-                }
-            ],
-            correction_method='holm',
-            alpha=0.05,
-            n_tests=1,
-            significant_count=0,
-            family_wise_error_rate=0.05,
-            raw_p_values=[0.03],
-            adjusted_p_values=[0.06]
-        )
-
-        assert verify_paired_output(result) is False
-
-    def test_verify_paired_output_missing_p_value(self):
-        """Test verification fails with missing p-value."""
-        result = EffectSizeResult(
-            comparisons=[
-                {
-                    'group1': 'A', 'group2': 'B',
-                    'cohens_d': 0.5, 'p_value_adjusted': 0.06,
-                    'mean_diff': 2.0, 'significant': False, 'stratum': 'Novice', 'n1': 10, 'n2': 10
-                }
-            ],
-            correction_method='holm',
-            alpha=0.05,
-            n_tests=1,
-            significant_count=0,
-            family_wise_error_rate=0.05,
-            raw_p_values=[0.03],
-            adjusted_p_values=[0.06]
-        )
-
-        assert verify_paired_output(result) is False
-
-
-class TestEffectSizePipeline:
-    """Integration tests for the effect size pipeline."""
-
-    def test_run_effect_size_pipeline(self, tmp_path):
-        """Test running the full pipeline."""
-        # Create test data
-        data = {
-            'task_time': [10, 12, 11, 8, 9, 7, 15, 14, 16, 12, 13, 11],
-            'tool_usage': ['AI', 'AI', 'AI', 'AI', 'AI', 'AI', 'Manual', 'Manual', 'Manual', 'Manual', 'Manual', 'Manual'],
-            'experience_level': ['Novice', 'Novice', 'Novice', 'Expert', 'Expert', 'Expert',
-                                 'Novice', 'Novice', 'Novice', 'Expert', 'Expert', 'Expert']
         }
-        df = pd.DataFrame(data)
 
-        input_path = tmp_path / 'test_data.csv'
-        output_path = tmp_path / 'test_output.json'
+        is_valid, message = verify_paired_output(results)
 
-        df.to_csv(input_path, index=False)
+        assert is_valid
+        assert "paired" in message.lower()
+
+    def test_verify_paired_output_missing_effect_sizes(self):
+        """Test verification when effect sizes are missing."""
+        results = {
+            "p_values": [0.01, 0.05, 0.10],
+            "effect_sizes": [],
+        }
+
+        is_valid, message = verify_paired_output(results)
+
+        assert not is_valid
+        assert "missing" in message.lower() or "effect" in message.lower()
+
+    def test_verify_paired_output_mismatched_lengths(self):
+        """Test verification when lengths don't match."""
+        results = {
+            "p_values": [0.01, 0.05],
+            "effect_sizes": [
+                {"cohen_d": 0.5, "group_a": "A", "group_b": "B"},
+                {"cohen_d": 0.3, "group_a": "A", "group_b": "C"},
+                {"cohen_d": 0.1, "group_a": "B", "group_b": "C"},
+            ],
+        }
+
+        is_valid, message = verify_paired_output(results)
+
+        assert not is_valid
+        assert "mismatch" in message.lower() or "length" in message.lower()
+
+    def test_verify_paired_output_empty(self):
+        """Test verification with empty results."""
+        results = {
+            "p_values": [],
+            "effect_sizes": [],
+        }
+
+        is_valid, message = verify_paired_output(results)
+
+        # Empty results should be considered valid (no violations)
+        assert is_valid
+
+
+class TestRunEffectSizePipeline:
+    """Tests for the complete effect size pipeline."""
+
+    def test_run_pipeline_basic(self):
+        """Test running the full effect size pipeline."""
+        # Create sample data
+        data = pd.DataFrame({
+            "tool_usage": ["A"] * 20 + ["B"] * 20,
+            "experience_years": np.concatenate([
+                np.random.normal(1.5, 0.5, 20),  # novice
+                np.random.normal(3.5, 0.5, 20),  # intermediate
+            ]),
+            "task_time": np.concatenate([
+                np.random.normal(15, 3, 20),
+                np.random.normal(12, 3, 20),
+            ]),
+        })
 
         result = run_effect_size_pipeline(
-            data_path=str(input_path),
-            outcome_var='task_time',
-            group_var='tool_usage',
-            stratum_var='experience_level',
-            alpha=0.05,
-            correction_method='holm',
-            output_path=str(output_path)
+            data,
+            group_col="tool_usage",
+            outcome_col="task_time",
+            stratum_col="experience_years",
+            stratum_thresholds=[2, 5],
+            stratum_labels=["novice", "intermediate", "expert"],
         )
 
-        assert result.n_tests > 0
-        assert output_path.exists()
+        assert isinstance(result, dict)
+        assert "stratified_results" in result
+        assert "corrections" in result
+        assert "verification" in result
 
-        # Verify output file contains expected keys
-        import json
-        with open(output_path, 'r') as f:
-            output_data = json.load(f)
+    def test_run_pipeline_with_missing_data(self):
+        """Test pipeline with missing values in data."""
+        data = pd.DataFrame({
+            "tool_usage": ["A"] * 10 + ["B"] * 10,
+            "experience_years": [1.0, 1.5, 2.0, np.nan, 3.0] * 4,
+            "task_time": [10, 12, 14, 16, 18] * 4,
+        })
 
-        assert 'comparisons' in output_data
-        assert 'correction_method' in output_data
-        assert 'significant_count' in output_data
+        result = run_effect_size_pipeline(
+            data,
+            group_col="tool_usage",
+            outcome_col="task_time",
+            stratum_col="experience_years",
+            stratum_thresholds=[2, 5],
+            stratum_labels=["novice", "intermediate", "expert"],
+        )
+
+        assert isinstance(result, dict)
+        # Should handle missing data by filtering
+        assert "stratified_results" in result

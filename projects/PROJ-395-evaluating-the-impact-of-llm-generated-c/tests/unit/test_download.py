@@ -1,139 +1,158 @@
 """
 Unit tests for code/download.py.
 
-These tests verify that the download module correctly attempts to fetch
-real datasets from HuggingFace and handles errors appropriately.
-
-Note: These tests require network access and valid HuggingFace credentials
-(if the datasets are gated, though HumanEval and MBPP are public).
+Ensures the dataset loading mechanism works without authentication and
+verifies the integrity of the downloaded artifacts.
 """
 import os
 import sys
 import tempfile
+import hashlib
 from pathlib import Path
-from unittest.mock import patch, MagicMock, mock_open
+from unittest import TestCase, main
+from unittest.mock import patch, MagicMock
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Ensure code/ is in the path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from code.download import (
-    download_humaneval,
-    download_mbpp,
-    _calculate_sha256,
-    _verify_checksum,
-    DATA_RAW_DIR
+from download import (
+    calculate_sha256,
+    verify_dataset_structure,
+    download_dataset,
+    save_dataset_to_parquet,
+    update_manifest
 )
 
 
-class TestChecksumUtils:
-    """Tests for helper functions."""
+class TestCalculateSha256(TestCase):
+    """Tests for the calculate_sha256 utility function."""
 
-    def test_calculate_sha256(self):
-        """Test SHA256 calculation on a known string."""
-        # Create a temporary file with known content
-        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
-            f.write("test content")
-            temp_path = f.name
-        
+    def test_calculate_sha256_file(self):
+        """Verify SHA-256 calculation on a temporary file."""
+        with tempfile.NamedTemporaryFile(delete=False) as tmp:
+            tmp.write(b"Hello, World!")
+            tmp_path = tmp.name
+
         try:
-            # Known hash for "test content"
-            expected_hash = "6ae8a75555209fd6c44157c0aed8016e763ff435a19cf186f76863140143ff72"
-            actual_hash = _calculate_sha256(Path(temp_path))
-            assert actual_hash == expected_hash, f"Expected {expected_hash}, got {actual_hash}"
+            expected_hash = hashlib.sha256(b"Hello, World!").hexdigest()
+            actual_hash = calculate_sha256(tmp_path)
+            self.assertEqual(actual_hash, expected_hash)
         finally:
-            os.unlink(temp_path)
+            os.unlink(tmp_path)
 
-    def test_verify_checksum_missing_file(self):
-        """Test verification fails for missing file."""
-        assert _verify_checksum(Path("/nonexistent/file.txt")) is False
-
-    def test_verify_checksum_empty_file(self):
-        """Test verification fails for empty file."""
-        with tempfile.NamedTemporaryFile(delete=False) as f:
-            temp_path = f.name
-        
-        try:
-            assert _verify_checksum(Path(temp_path)) is False
-        finally:
-            os.unlink(temp_path)
-
-    def test_verify_checksum_valid_file(self):
-        """Test verification passes for valid file."""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
-            f.write("valid content")
-            temp_path = f.name
-        
-        try:
-            assert _verify_checksum(Path(temp_path)) is True
-        finally:
-            os.unlink(temp_path)
+    def test_calculate_sha256_nonexistent(self):
+        """Verify that calculating hash on a missing file raises FileNotFoundError."""
+        with self.assertRaises(FileNotFoundError):
+            calculate_sha256("/nonexistent/path/file.txt")
 
 
-class TestDownloadFunctions:
-    """Tests for download functions (mocked)."""
+class TestVerifyDatasetStructure(TestCase):
+    """Tests for dataset structure verification logic."""
 
-    @patch('code.download.load_dataset')
-    @patch('code.download.DATA_RAW_DIR', new=MagicMock())
-    def test_download_humaneval_success(self, mock_load_dataset, mock_dir):
-        """Test successful HumanEval download."""
+    def test_verify_dataset_structure_valid(self):
+        """Verify structure check passes for a valid directory layout."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            # Create expected structure
+            os.makedirs(os.path.join(tmp_dir, "data"))
+            os.makedirs(os.path.join(tmp_dir, "code"))
+            os.makedirs(os.path.join(tmp_dir, "tests"))
+            
+            # Create dummy files
+            Path(os.path.join(tmp_dir, "data", "dummy.txt")).touch()
+            
+            result = verify_dataset_structure(tmp_dir)
+            self.assertTrue(result)
+
+    def test_verify_dataset_structure_missing_dir(self):
+        """Verify structure check fails if a required directory is missing."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            # Only create 'data', missing 'code' and 'tests'
+            os.makedirs(os.path.join(tmp_dir, "data"))
+            
+            result = verify_dataset_structure(tmp_dir)
+            self.assertFalse(result)
+
+
+class TestDownloadDatasetMock(TestCase):
+    """Tests for download_dataset ensuring it runs without auth (mocked)."""
+
+    @patch('download.hf_hub_download')
+    @patch('download.Path')
+    def test_download_dataset_no_auth_needed(self, mock_path_class, mock_hf_download):
+        """
+        Ensure the download flow executes without raising authentication errors.
+        This test mocks the HF Hub to simulate a successful public download.
+        """
         # Setup mocks
-        mock_dataset = MagicMock()
-        mock_load_dataset.return_value = mock_dataset
-        mock_dir.mkdir.return_value = None
-        mock_dir.__truediv__.return_value = Path("/fake/path.parquet")
+        mock_hf_download.return_value = "/mocked/path/to/dataset.parquet"
+        mock_path_instance = MagicMock()
+        mock_path_class.return_value = mock_path_instance
         
-        # Mock the to_parquet method
-        mock_dataset.to_parquet = MagicMock()
-        
-        # Mock checksum verification to return True
-        with patch('code.download._verify_checksum', return_value=True):
-            result = download_humaneval()
-            
-            # Verify calls
-            mock_load_dataset.assert_called_once()
-            mock_dataset.to_parquet.assert_called_once()
-            assert result == Path("/fake/path.parquet")
+        # Define a mock manifest
+        mock_manifest = {
+            "dataset_id": "google-research-datasets/mbpp",
+            "revision": "main",
+            "files": ["dataset.parquet"]
+        }
 
-    @patch('code.download.load_dataset')
-    def test_download_humaneval_failure(self, mock_load_dataset):
-        """Test HumanEval download raises error on failure."""
-        mock_load_dataset.side_effect = Exception("Network error")
-        
-        with patch('code.download.DATA_RAW_DIR', new=MagicMock()):
-            with pytest.raises(RuntimeError) as exc_info:
-                download_humaneval()
-            
-            assert "Failed to download HumanEval" in str(exc_info.value)
+        # Execute
+        result_path = download_dataset(
+            dataset_id="google-research-datasets/mbpp",
+            revision="main",
+            output_dir="/tmp/test_output",
+            manifest=mock_manifest
+        )
 
-    @patch('code.download.load_dataset')
-    @patch('code.download.DATA_RAW_DIR', new=MagicMock())
-    def test_download_mbpp_success(self, mock_load_dataset, mock_dir):
-        """Test successful MBPP download."""
-        mock_dataset = MagicMock()
-        mock_load_dataset.return_value = mock_dataset
-        mock_dir.mkdir.return_value = None
-        mock_dir.__truediv__.return_value = Path("/fake/path.parquet")
-        mock_dataset.to_parquet = MagicMock()
-        
-        with patch('code.download._verify_checksum', return_value=True):
-            result = download_mbpp()
-            
-            mock_load_dataset.assert_called_once()
-            mock_dataset.to_parquet.assert_called_once()
-            assert result == Path("/fake/path.parquet")
+        # Assertions
+        self.assertIsNotNone(result_path)
+        mock_hf_download.assert_called_once()
+        # Ensure no auth-related exceptions were raised during the mock call
+        # (If the real function required auth and failed, this would raise)
 
-    @patch('code.download.load_dataset')
-    def test_download_mbpp_failure(self, mock_load_dataset):
-        """Test MBPP download raises error on failure."""
-        mock_load_dataset.side_effect = Exception("Network error")
+
+class TestSaveDatasetToParquet(TestCase):
+    """Tests for saving dataset to parquet format."""
+
+    @patch('download.pd')
+    def test_save_dataset_to_parquet(self, mock_pd):
+        """Verify that the parquet save function calls pandas correctly."""
+        mock_df = MagicMock()
+        mock_pd.DataFrame.return_value = mock_df
         
-        with patch('code.download.DATA_RAW_DIR', new=MagicMock()):
-            with pytest.raises(RuntimeError) as exc_info:
-                download_mbpp()
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            output_path = os.path.join(tmp_dir, "output.parquet")
+            data = [{"prompt": "test", "test_list": []}]
             
-            assert "Failed to download MBPP" in str(exc_info.value)
+            save_dataset_to_parquet(data, output_path)
+            
+            mock_pd.DataFrame.assert_called_once_with(data)
+            mock_df.to_parquet.assert_called_once_with(output_path, index=False)
+
+
+class TestUpdateManifest(TestCase):
+    """Tests for updating the dataset manifest file."""
+
+    def test_update_manifest(self):
+        """Verify manifest update logic creates/updates the YAML file."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            manifest_path = os.path.join(tmp_dir, "manifest.yaml")
+            dataset_info = {
+                "id": "test-dataset",
+                "version": "1.0.0",
+                "hash": "abc123"
+            }
+
+            update_manifest(manifest_path, dataset_info)
+
+            # Verify file exists
+            self.assertTrue(os.path.exists(manifest_path))
+            
+            # Verify content (basic check)
+            with open(manifest_path, 'r') as f:
+                content = f.read()
+                self.assertIn("id: test-dataset", content)
+                self.assertIn("version: 1.0.0", content)
 
 
 if __name__ == "__main__":
-    import pytest
-    pytest.main([__file__, "-v"])
+    main()

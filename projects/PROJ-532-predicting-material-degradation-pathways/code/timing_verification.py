@@ -4,160 +4,132 @@ import time
 import json
 import logging
 from pathlib import Path
-from typing import Dict, Any, Optional
 
-# Add project root to path for imports if running as script
+# Add project root to path for imports
 project_root = Path(__file__).resolve().parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+sys.path.insert(0, str(project_root / "code"))
 
-# Import from sibling modules using the exact API surface provided
-from training import run_training_pipeline, main as training_main
-from evaluation import run_evaluation_pipeline, main as evaluation_main
-from utils import setup_logging, get_env_var
-
-# Constants
-MAX_EXECUTION_TIME_HOURS = 6
-MAX_EXECUTION_TIME_SECONDS = MAX_EXECUTION_TIME_HOURS * 3600
-OUTPUT_DIR = project_root / "results" / "metrics"
-TIMING_REPORT_FILE = OUTPUT_DIR / "timing_verification.json"
+from training import run_training_pipeline
+from evaluation import run_evaluation_pipeline
+from utils import setup_logging, save_json, load_json, get_env_var
 
 logger = logging.getLogger(__name__)
 
-def run_timed_training() -> Dict[str, Any]:
-    """
-    Executes the training pipeline and measures execution time.
-    Returns a dictionary with timing metrics and status.
-    """
-    logger.info("Starting timed training pipeline execution...")
-    start_time = time.perf_counter()
-    
-    try:
-        # Run the training pipeline (this loads data, trains model, saves artifacts)
-        # We call run_training_pipeline directly. 
-        # Note: run_training_pipeline is expected to handle its own logging and data paths.
-        training_result = run_training_pipeline()
-        
-        end_time = time.perf_counter()
-        duration_seconds = end_time - start_time
-        
-        return {
-            "status": "success",
-            "duration_seconds": duration_seconds,
-            "duration_hours": duration_seconds / 3600,
-            "start_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(start_time)),
-            "end_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(end_time)),
-            "result": training_result
-        }
-    except Exception as e:
-        end_time = time.perf_counter()
-        duration_seconds = end_time - start_time
-        logger.error(f"Training pipeline failed after {duration_seconds:.2f} seconds: {e}")
-        return {
-            "status": "failed",
-            "duration_seconds": duration_seconds,
-            "duration_hours": duration_seconds / 3600,
-            "error": str(e),
-            "start_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(start_time)),
-            "end_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(end_time))
-        }
+TIME_LIMIT_SECONDS = 6 * 3600  # 6 hours in seconds
 
-def run_timed_evaluation() -> Dict[str, Any]:
+def run_timed_training():
     """
-    Executes the evaluation pipeline and measures execution time.
-    Returns a dictionary with timing metrics and status.
+    Executes the training pipeline and measures elapsed time.
+    Returns (success, elapsed_time, error_message)
     """
-    logger.info("Starting timed evaluation pipeline execution...")
-    start_time = time.perf_counter()
+    logger.info("Starting timed training execution...")
+    start_time = time.time()
     
     try:
-        # Run the evaluation pipeline (loads model, computes metrics, generates plots)
-        evaluation_result = run_evaluation_pipeline()
+        # Run the actual training pipeline
+        # This loads data from data/processed/train_set.parquet and trains the model
+        run_training_pipeline()
         
-        end_time = time.perf_counter()
-        duration_seconds = end_time - start_time
-        
-        return {
-            "status": "success",
-            "duration_seconds": duration_seconds,
-            "duration_hours": duration_seconds / 3600,
-            "start_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(start_time)),
-            "end_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(end_time)),
-            "result": evaluation_result
-        }
+        elapsed_time = time.time() - start_time
+        logger.info(f"Training completed in {elapsed_time:.2f} seconds.")
+        return True, elapsed_time, None
     except Exception as e:
-        end_time = time.perf_counter()
-        duration_seconds = end_time - start_time
-        logger.error(f"Evaluation pipeline failed after {duration_seconds:.2f} seconds: {e}")
-        return {
-            "status": "failed",
-            "duration_seconds": duration_seconds,
-            "duration_hours": duration_seconds / 3600,
-            "error": str(e),
-            "start_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(start_time)),
-            "end_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(end_time))
-        }
+        elapsed_time = time.time() - start_time
+        logger.error(f"Training failed after {elapsed_time:.2f} seconds: {e}")
+        return False, elapsed_time, str(e)
+
+def run_timed_evaluation():
+    """
+    Executes the evaluation pipeline and measures elapsed time.
+    Returns (success, elapsed_time, error_message)
+    """
+    logger.info("Starting timed evaluation execution...")
+    start_time = time.time()
+    
+    try:
+        # Run the actual evaluation pipeline
+        # This loads the model from results/artifacts/model.pkl and evaluates
+        run_evaluation_pipeline()
+        
+        elapsed_time = time.time() - start_time
+        logger.info(f"Evaluation completed in {elapsed_time:.2f} seconds.")
+        return True, elapsed_time, None
+    except Exception as e:
+        elapsed_time = time.time() - start_time
+        logger.error(f"Evaluation failed after {elapsed_time:.2f} seconds: {e}")
+        return False, elapsed_time, str(e)
 
 def main():
     """
-    Main entry point for T030: Verify execution time of full training/eval cycle.
-    Runs training and evaluation, measures total time, and writes a report.
+    Main entry point for T030b: Verify execution time <= 6 hours.
+    Runs training and evaluation, checks timing, and writes results.
     """
-    # Ensure output directory exists
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    
     # Setup logging
-    log_file = project_root / "results" / "metrics" / "timing_verification.log"
-    setup_logging(log_file=str(log_file), level=logging.INFO)
+    log_dir = Path(project_root) / "results" / "metrics"
+    log_dir.mkdir(parents=True, exist_ok=True)
     
-    logger.info("=" * 60)
-    logger.info("T030: Timing Verification for Training/Evaluation Cycle")
-    logger.info(f"Max allowed time: {MAX_EXECUTION_TIME_HOURS} hours ({MAX_EXECUTION_TIME_SECONDS} seconds)")
-    logger.info("=" * 60)
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(log_dir / "timing_verification.log"),
+            logging.StreamHandler()
+        ]
+    )
+
+    logger.info("=" * 50)
+    logger.info("Starting T030b: Execution Time Verification")
+    logger.info(f"Time limit: {TIME_LIMIT_SECONDS} seconds (6 hours)")
+    logger.info("=" * 50)
+
+    # Run Training
+    train_success, train_time, train_error = run_timed_training()
     
-    # Run training
-    training_metrics = run_timed_training()
-    
-    # Run evaluation
-    evaluation_metrics = run_timed_evaluation()
-    
-    # Calculate total time
-    total_seconds = training_metrics["duration_seconds"] + evaluation_metrics["duration_seconds"]
-    total_hours = total_seconds / 3600
-    is_within_limit = total_seconds <= MAX_EXECUTION_TIME_SECONDS
-    
-    # Construct final report
+    # Run Evaluation
+    eval_success, eval_time, eval_error = run_timed_evaluation()
+
+    total_time = train_time + eval_time
+    passed = train_success and eval_success and (total_time <= TIME_LIMIT_SECONDS)
+
+    # Prepare report
     report = {
-        "task_id": "T030",
-        "max_allowed_hours": MAX_EXECUTION_TIME_HOURS,
-        "max_allowed_seconds": MAX_EXECUTION_TIME_SECONDS,
-        "total_execution_seconds": total_seconds,
-        "total_execution_hours": total_hours,
-        "within_limit": is_within_limit,
-        "training": training_metrics,
-        "evaluation": evaluation_metrics,
-        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        "task_id": "T030b",
+        "time_limit_seconds": TIME_LIMIT_SECONDS,
+        "total_execution_time_seconds": total_time,
+        "training": {
+            "success": train_success,
+            "elapsed_seconds": train_time,
+            "error": train_error
+        },
+        "evaluation": {
+            "success": eval_success,
+            "elapsed_seconds": eval_time,
+            "error": eval_error
+        },
+        "verification_passed": passed,
+        "message": "Execution time verification successful." if passed else "Execution time exceeded limit or pipeline failed."
     }
-    
-    # Write report to disk
-    with open(TIMING_REPORT_FILE, 'w') as f:
-        json.dump(report, f, indent=2)
-    
-    logger.info("-" * 60)
-    logger.info(f"Total Execution Time: {total_hours:.4f} hours ({total_seconds:.2f} seconds)")
-    logger.info(f"Within Limit ({MAX_EXECUTION_TIME_HOURS}h): {'YES' if is_within_limit else 'NO'}")
-    logger.info(f"Report saved to: {TIMING_REPORT_FILE}")
-    logger.info("-" * 60)
-    
-    if not is_within_limit:
-        logger.warning("EXECUTION TIME EXCEEDED LIMIT. Task T030 verification failed.")
-        # Do not raise, as the script successfully ran and recorded the time.
-        # The verification result is in the JSON report.
+
+    # Save report
+    output_path = log_dir / "timing_verification_report.json"
+    save_json(report, output_path)
+
+    logger.info("-" * 50)
+    logger.info(f"Total Time: {total_time:.2f} seconds ({total_time/3600:.2f} hours)")
+    logger.info(f"Limit: {TIME_LIMIT_SECONDS} seconds ({TIME_LIMIT_SECONDS/3600:.2f} hours)")
+    logger.info(f"Status: {'PASSED' if passed else 'FAILED'}")
+    logger.info(f"Report saved to: {output_path}")
+    logger.info("-" * 50)
+
+    if not passed:
+        if not train_success or not eval_success:
+            logger.error("Pipeline execution failed.")
+        else:
+            logger.error("Time limit exceeded.")
+        sys.exit(1)
     else:
-        logger.info("EXECUTION TIME WITHIN LIMIT. Task T030 verification passed.")
-    
-    return 0 if is_within_limit else 1
+        logger.info("T030b verification completed successfully.")
+        sys.exit(0)
 
 if __name__ == "__main__":
-    # Ensure we are in the code directory or have correct paths
-    sys.exit(main())
+    main()

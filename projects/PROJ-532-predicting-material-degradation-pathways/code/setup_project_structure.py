@@ -1,3 +1,8 @@
+"""
+Project Structure Setup Module.
+Creates the required directory hierarchy and placeholder files for the
+PROJ-532-predicting-material-degradation-pathways project.
+"""
 import os
 from pathlib import Path
 
@@ -5,66 +10,93 @@ def ensure_dir(path: Path) -> None:
     """Create directory if it does not exist."""
     if not path.exists():
         path.mkdir(parents=True, exist_ok=True)
-        logging.info(f"Created directory: {path}")
 
-def create_placeholder_file(path: Path, content: str = "# Placeholder\n") -> None:
-    """Create a placeholder file if it does not exist."""
+def create_placeholder_file(path: Path, content: str = "") -> None:
+    """Create a file with optional initial content."""
+    path.parent.mkdir(parents=True, exist_ok=True)
     if not path.exists():
         path.write_text(content)
-        logging.info(f"Created placeholder file: {path}")
 
 def main() -> None:
     """
-    Main entry point to create the project structure for PROJ-532.
-    This creates the root directory and standard subdirectories.
+    Execute the full project structure setup.
+    Creates directories under the project root relative to the current working directory.
     """
-    import logging
-    from utils import setup_logging
+    # Base project root
+    project_root = Path.cwd() / "projects" / "PROJ-532-predicting-material-degradation-pathways"
+    ensure_dir(project_root)
 
-    setup_logging()
-    logger = logging.getLogger(__name__)
-
-    project_root = Path("projects/PROJ-532-predicting-material-degradation-pathways")
-    
-    # Define the directory structure
+    # Core directories
     dirs = [
-        project_root,
-        project_root / "code",
-        project_root / "data",
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "data" / "contracts",
-        project_root / "tests",
-        project_root / "tests" / "unit",
-        project_root / "tests" / "integration",
-        project_root / "results",
-        project_root / "results" / "metrics",
-        project_root / "results" / "plots",
-        project_root / "results" / "artifacts",
-        project_root / "specs",
+        "code",
+        "data/raw",
+        "data/processed",
+        "data/contracts",
+        "tests/unit",
+        "tests/integration",
+        "results/metrics",
+        "results/plots",
+        "results/artifacts",
+        "specs",
+        "figures",
     ]
 
-    for dir_path in dirs:
-        ensure_dir(dir_path)
+    for d in dirs:
+        ensure_dir(project_root / d)
 
-    # Create README in project root
-    readme_path = project_root / "README.md"
-    if not readme_path.exists():
-        readme_content = """# PROJ-532: Predicting Material Degradation Pathways
+    # Create README.md in project root
+    readme_content = """# PROJ-532: Predicting Material Degradation Pathways
 
-This project implements an automated science pipeline for predicting material degradation pathways from compositional data.
+This project implements an automated pipeline for predicting material degradation pathways
+from compositional data.
 
 ## Structure
-- `code/`: Source code
-- `data/`: Raw and processed data
+- `code/`: Source code modules
+- `data/`: Raw, processed, and contract data
 - `tests/`: Unit and integration tests
-- `results/`: Model artifacts and metrics
-- `specs/`: Feature specifications
+- `results/`: Model artifacts, metrics, and plots
+- `specs/`: Feature specifications and design documents
 """
-        readme_path.write_text(readme_content)
-        logger.info(f"Created README at {readme_path}")
+    create_placeholder_file(project_root / "README.md", readme_content)
 
-    logger.info(f"Project structure created at {project_root}")
+    # Create README.md in data directories
+    data_readme = """# Data Directory
+
+This directory stores raw and processed data for the project.
+
+## Subdirectories
+- `raw/`: Original downloaded datasets
+- `processed/`: Cleaned and preprocessed data ready for modeling
+- `contracts/`: Derived contracts and reference vectors (e.g., literature vectors, alloy maps)
+"""
+    create_placeholder_file(project_root / "data" / "README.md", data_readme)
+
+    # Create README.md in results directories
+    results_readme = """# Results Directory
+
+This directory stores model outputs, metrics, and visualizations.
+
+## Subdirectories
+- `metrics/`: JSON reports on model performance and validation
+- `plots/`: Generated visualizations (PNG, SVG)
+- `artifacts/`: Saved model objects (pkl) and pipelines
+"""
+    create_placeholder_file(project_root / "results" / "README.md", results_readme)
+
+    # Create __init__.py files to make directories Python packages
+    init_files = [
+        "code",
+        "tests",
+        "tests/unit",
+        "tests/integration",
+    ]
+    for f in init_files:
+        create_placeholder_file(project_root / f / "__init__.py", "# Package initialization")
+
+    print(f"Project structure created at: {project_root}")
+    print("Directories created:")
+    for d in dirs:
+        print(f"  - {project_root / d}")
 
 if __name__ == "__main__":
     main()

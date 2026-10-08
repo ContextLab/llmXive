@@ -94,7 +94,7 @@ description: "Task list template for feature implementation"
 - [X] T016 [P] [US1] Implement `code/preprocessing.py` to map elemental weight percentages to feature vectors
 - [X] T017 [P] [US1] Implement `code/preprocessing.py` to calculate derived atomic properties (electronegativity, radius) for post-hoc analysis (exclude from training vector)
 - [X] T018a [US1] Implement `code/ingestion.py` to calculate retention statistics (count, percentage) from the filtered dataset.
-- [ ] T018b [S] [US1] **Verify Data Sufficiency**: Implement `code/ingestion.py` to write `data/processed/retention_audit.json` with the calculated stats. **HALT** the pipeline if retention < 70% OR record count < 200. If HALT is triggered, **immediately generate** `data/processed/data_insufficiency_report.json` (T020) and stop. Target: ≥70% retention, ≥200 records. **This task depends on T018a. If targets are not met, T018b must trigger T020.**
+- [X] T018b [S] [US1] **Verify Data Sufficiency**: Implement `code/ingestion.py` to write `data/processed/retention_audit.json` with the calculated stats. **HALT** the pipeline if retention < 70% OR record count < 200. If HALT is triggered, **immediately generate** `data/processed/data_insufficiency_report.json` (T020) and stop. Target: ≥70% retention, ≥200 records. **This task depends on T018a. If targets are not met, T018b must trigger T020.**
 
 **Checkpoint**: Data ingestion and sufficiency check complete. OOD Split logic follows immediately in this phase.
 
@@ -108,7 +108,7 @@ description: "Task list template for feature implementation"
 - [ ] T019a_val [S] [US1] **Validate Alloy Map Completeness**: Implement `code/preprocessing.py` to count records successfully classified by T019a. **HALT** the pipeline if classification coverage < 90%. Log the failure reason to `data/processed/classification_failure_log.json`. **This task depends on T019a.**
 - [ ] T019 [S] [US1] **Perform OOD Split**: Implement `code/preprocessing.py` to perform **Out-of-Distribution (OOD) test set split based on alloy class** using `data/contracts/alloy_class_map.json`. **If <2 classes exist, HALT the pipeline immediately** with `error_code: OOD_SPLIT_FAILED` and `message: Insufficient alloy classes for OOD split`. Do NOT fall back to random split. Generate `data/processed/train_set.parquet` and `data/processed/test_ood_set.parquet`. **This task depends on T019a_val.**
 - [X] T019b [S] [US1] **Generate OOD Split Report**: Implement `code/preprocessing.py` to generate `data/processed/ood_split_report.json` containing the split ratio, the specific alloy classes held out, and an explicit `ood_validation_passed` boolean flag. **This task depends on T019.**
-- [~] T019c [S] [US1] **Generate OOD Audit Log**: Implement `code/preprocessing.py` to generate `data/processed/ood_audit.json` containing the raw logic trace of the split decision. **This task depends on T019b.**
+- [ ] T019c [S] [US1] **Generate OOD Audit Log**: Implement `code/preprocessing.py` to generate `data/processed/ood_audit.json` containing the raw logic trace of the split decision. **This task depends on T019b.**
 
 **Checkpoint**: US1 Complete. Data ingestion, sufficiency check, and OOD split artifacts are ready. US2 can now begin.
 
@@ -131,12 +131,12 @@ description: "Task list template for feature implementation"
 - [X] T024 [US2] Implement `code/training.py` to train a Random Forest multi-label classifier (CPU-only, default precision) using the pre-split `train_set.parquet` generated in T019.
 - [X] T025 [US2] Implement `code/evaluation.py` to generate a stratified random baseline preserving class distribution **and explicitly preserving the multi-label correlation structure during shuffling by shuffling the joint label vector**, defining the null hypothesis as "no predictive power beyond label correlation".
 - [X] T026 [US2] Implement `code/evaluation.py` to perform permutation test (n=1,000, shuffle the joint label vector per sample) to validate p < 0.05.
-- [~] T026c [S] [US2] **Enforce Permutation Test Stop Condition**: Implement `code/evaluation.py` to check the p-value from T026. **HALT** the pipeline if p >= 0.05. Log failure to `results/metrics/permutation_test_failure.json`. **This task depends on T026.**
-- [~] T026b [S] [US2] **Generate Permutation Test Report**: Implement `code/evaluation.py` to generate `results/metrics/permutation_test_report.json` containing the p-value, the null distribution plot (`results/plots/null_distribution.png`), and an explicit `permutation_test_passed` boolean flag. **Plot must use matplotlib, x-axis='Permutation Score', y-axis='Frequency'.** **This task depends on T026c.**
+- [ ] T026c [S] [US2] **Enforce Permutation Test Stop Condition**: Implement `code/evaluation.py` to check the p-value from T026. **HALT** the pipeline if p >= 0.05. Log failure to `results/metrics/permutation_test_failure.json`. **This task depends on T026.**
+- [ ] T026b [S] [US2] **Generate Permutation Test Report**: Implement `code/evaluation.py` to generate `results/metrics/permutation_test_report.json` containing the p-value, the null distribution plot (`results/plots/null_distribution.png`), and an explicit `permutation_test_passed` boolean flag. **Plot must use matplotlib, x-axis='Permutation Score', y-axis='Frequency'.** **This task depends on T026c.**
 - [X] T027 [US2] Implement `code/evaluation.py` to calculate macro-F1 score and compare against baseline (Baseline: stratified random shuffle of joint labels; Target: margin ≥ 0.05).
 - [X] T028 [US2] Implement `code/evaluation.py` to generate confusion matrix identifying error modes (e.g., pitting vs. SCC).
 - [X] T029 [US2] Save trained `ModelArtifact` (model + metrics) to `results/artifacts/model.pkl` and `results/metrics/training_report.json`
-- [ ] T030a [US2] Implement timing instrumentation in `code/training.py` to log execution time to `results/metrics/timing_log.json`.
+- [~] T030a [US2] Implement timing instrumentation in `code/training.py` to log execution time to `results/metrics/timing_log.json`.
 - [ ] T030b [US2] Verify execution time of full training/eval cycle is ≤ 6 hours on CPU runner by checking `results/metrics/timing_log.json`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -159,14 +159,14 @@ description: "Task list template for feature implementation"
 
 - [X] T034 [S] [US3] Implement `code/explainability.py` to compute SHAP values for the trained Random Forest model
 - [X] T035 [S] [US3] Implement `code/explainability.py` to generate ranked feature importance lists for each degradation pathway
-- [ ] T036 [S] [US3] Implement `code/explainability.py` to perform threshold sensitivity sweep (baseline level, deltas Δ ∈ {small, medium, large values})
-- [ ] T037 [S] [US3] Implement `code/explainability.py` to report FP/FN rate variations and stability check (within 5% variance)
-- [ ] T038 [S] [US3] Implement `code/explainability.py` to load the `data/contracts/literature_vector.json` (constructed in T009b) and calculate Spearman rank correlation (ρ) between SHAP results and Reference Vector (Target: ρ ≥ 0.6).
-- [ ] T038c [S] [US3] **Enforce Literature Validation Stop Condition**: Implement `code/explainability.py` to check the correlation coefficient from T038. **HALT** the pipeline if ρ < 0.6. Log failure to `results/metrics/literature_validation_failure.json`. **This task depends on T038.**
-- [ ] T038b [S] [US3] **Generate Literature Validation Report**: Implement `code/explainability.py` to generate `results/metrics/literature_validation_report.json` documenting the correlation coefficient, the reference vector source, and an explicit `literature_validation_passed` boolean flag. **This task depends on T038c.**
-- [ ] T039 [S] [US3] **Calculate Provisional Metrics**: Implement `code/explainability.py` to calculate a deterministic "provisional" metric for unobserved confounders (e.g., missing pH/temp) by applying a **an appropriate scaling factor** to the missing variable estimate. **Explicitly flag the result as [provisional] and [estimated] in all outputs.**
-- [ ] T039b [S] [US3] **Generate Confounding Factor Audit**: Implement `code/explainability.py` to generate `results/metrics/confounding_factor_audit.json` listing the missing variables (pH, temp), the applied provisional logic, and update the final `explainability_report.json` with the specific `[deferred]` flags for these variables. **This task must run before T040.**
-- [ ] T040 [S] [US3] **Generate Final Reports**: Implement `code/explainability.py` to generate `results/plots/shap_summary.png`, `results/plots/threshold_sensitivity.png`, and `results/metrics/explainability_report.json`. **This task must incorporate the deferred flags from T039b into the final report.**
+- [X] T036 [S] [US3] Implement `code/explainability.py` to perform threshold sensitivity sweep (baseline level, deltas Δ ∈ {small, medium, large values})
+- [X] T037 [S] [US3] Implement `code/explainability.py` to report FP/FN rate variations and stability check (within 5% variance)
+- [X] T038 [S] [US3] Implement `code/explainability.py` to load the `data/contracts/literature_vector.json` (constructed in T009b) and calculate Spearman rank correlation (ρ) between SHAP results and Reference Vector (Target: ρ ≥ 0.6).
+- [~] T038c [S] [US3] **Enforce Literature Validation Stop Condition**: Implement `code/explainability.py` to check the correlation coefficient from T038. **HALT** the pipeline if ρ < 0.6. Log failure to `results/metrics/literature_validation_failure.json`. **This task depends on T038.**
+- [~] T038b [S] [US3] **Generate Literature Validation Report**: Implement `code/explainability.py` to generate `results/metrics/literature_validation_report.json` documenting the correlation coefficient, the reference vector source, and an explicit `literature_validation_passed` boolean flag. **This task depends on T038c.**
+- [X] T039 [S] [US3] **Calculate Provisional Metrics**: Implement `code/explainability.py` to calculate a deterministic "provisional" metric for unobserved confounders (e.g., missing pH/temp) by applying a **an appropriate scaling factor** to the missing variable estimate. **Explicitly flag the result as [provisional] and [estimated] in all outputs.**
+- [~] T039b [S] [US3] **Generate Confounding Factor Audit**: Implement `code/explainability.py` to generate `results/metrics/confounding_factor_audit.json` listing the missing variables (pH, temp), the applied provisional logic, and update the final `explainability_report.json` with the specific `[deferred]` flags for these variables. **This task must run before T040.**
+- [~] T040 [S] [US3] **Generate Final Reports**: Implement `code/explainability.py` to generate `results/plots/shap_summary.png`, `results/plots/threshold_sensitivity.png`, and `results/metrics/explainability_report.json`. **This task must incorporate the deferred flags from T039b into the final report.**
 - [ ] T041 [S] [US3] Ensure all findings are explicitly framed as associational, not causal. **Add the following text to all reports: "These findings are associational and do not imply causation."**
 
 **Checkpoint**: All user stories should now be independently functional

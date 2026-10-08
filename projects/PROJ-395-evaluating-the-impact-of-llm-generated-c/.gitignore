@@ -24,29 +24,56 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual environments
-venv/
-.venv/
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Environments
+.env
+.venv
 env/
-.env/
+venv/
+ENV/
+env.bak/
+venv.bak/
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
-
-# Data and State (excluding raw/processed which are git-ignored by convention, but keeping structure)
-data/raw/*
-data/processed/*
-state/*
-!data/raw/.gitkeep
-!data/processed/.gitkeep
-!state/.gitkeep
-
-# Logs
-*.log
+*~
 
 # OS
 .DS_Store
 Thumbs.db
+
+# Project specific
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+state/*
+!state/.gitkeep
+figures/
+*.log
+.ruff_cache/

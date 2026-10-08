@@ -1,3 +1,7 @@
+"""
+Utility functions for the project.
+Includes logging setup, checksumming, JSON handling, and environment configuration.
+"""
 import hashlib
 import json
 import logging
@@ -7,19 +11,14 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-def setup_logging(level: int = logging.INFO) -> logging.Logger:
+def setup_logging(log_level: int = logging.INFO) -> logging.Logger:
     """Configure and return the root logger."""
-    if logging.getLogger().handlers:
-        return logging.getLogger()
-    
     logging.basicConfig(
-        level=level,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(sys.stdout)
-        ]
+        level=log_level,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        handlers=[logging.StreamHandler(sys.stdout)]
     )
-    return logging.getLogger()
+    return logging.getLogger(__name__)
 
 def calculate_sha256(file_path: Path) -> str:
     """Calculate SHA-256 checksum of a file."""
@@ -29,68 +28,45 @@ def calculate_sha256(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def save_json(data: Any, path: Path) -> None:
-    """Save data to a JSON file."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, 'w') as f:
+def save_json(data: Dict[str, Any], file_path: Path) -> None:
+    """Save data as a JSON file."""
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(file_path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
 
-def load_json(path: Path) -> Dict[str, Any]:
+def load_json(file_path: Path) -> Dict[str, Any]:
     """Load data from a JSON file."""
-    with open(path, 'r') as f:
+    with open(file_path, "r", encoding="utf-8") as f:
         return json.load(f)
 
-def get_env_var(key: str, default: Optional[str] = None) -> Optional[str]:
-    """Get an environment variable, with optional default."""
-    return os.environ.get(key, default)
+def get_env_var(var_name: str, default: Optional[str] = None) -> Optional[str]:
+    """Get an environment variable."""
+    return os.getenv(var_name, default)
 
-def ensure_dir(dir_path: Path) -> Path:
+def ensure_dir(path: Path) -> None:
     """Ensure a directory exists, creating it if necessary."""
-    dir_path.mkdir(parents=True, exist_ok=True)
-    return dir_path
+    path.mkdir(parents=True, exist_ok=True)
 
 def set_deterministic_seed(seed: int) -> None:
-    """Set random seed for reproducibility."""
+    """Set random seeds for reproducibility."""
     random.seed(seed)
-    # If numpy is available, set its seed too
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    # Note: numpy and torch seeds are set in their respective modules
+
+def get_dataset_url() -> str:
+    """Retrieve the dataset URL from environment variables."""
+    url = os.getenv("ZENODO_DATASET_URL")
+    if not url:
+        raise ValueError("ZENODO_DATASET_URL environment variable is not set.")
+    return url
+
+def configure_seed_from_env() -> int:
+    """Configure random seed from environment variable or default."""
+    seed_str = os.getenv("RANDOM_SEED", "42")
     try:
-        import numpy as np
-        np.random.seed(seed)
-    except ImportError:
-        pass
-
-def get_dataset_url(key: str) -> Optional[str]:
-    """Get dataset URL from environment variable."""
-    return get_env_var(key)
-
-def configure_seed_from_env(var_name: str = "RANDOM_SEED", default: int = 42) -> int:
-    """
-    Configure the random seed from an environment variable.
-    
-    Reads the integer value from the specified environment variable.
-    If the variable is not set or invalid, falls back to the provided default.
-    Sets the seed for both Python's random module and numpy (if available).
-    
-    Args:
-        var_name: The name of the environment variable to read (default: "RANDOM_SEED")
-        default: The default seed value to use if the env var is missing/invalid (default: 42)
-    
-    Returns:
-        The integer seed value that was set.
-    """
-    seed_str = os.environ.get(var_name)
-    if seed_str is not None:
-        try:
-            seed = int(seed_str)
-        except ValueError:
-            logger = setup_logging()
-            logger.warning(
-                f"Invalid seed value '{seed_str}' for env var '{var_name}'. "
-                f"Using default seed: {default}"
-            )
-            seed = default
-    else:
-        seed = default
-    
+        seed = int(seed_str)
+    except ValueError:
+        logging.warning(f"Invalid RANDOM_SEED '{seed_str}', using default 42")
+        seed = 42
     set_deterministic_seed(seed)
     return seed

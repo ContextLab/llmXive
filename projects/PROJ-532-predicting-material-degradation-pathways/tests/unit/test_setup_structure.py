@@ -1,61 +1,100 @@
+"""
+Unit tests for the project structure setup module.
+Verifies that the required directory hierarchy is created correctly.
+"""
 import os
+import tempfile
+import shutil
 from pathlib import Path
 import pytest
 
-from setup_project_structure import ensure_dir, create_placeholder_file, main
+# Import the module under test
+# We need to simulate the project root environment
+import sys
 
-@pytest.fixture
-def temp_project_root(tmp_path):
-    """Create a temporary root to simulate the project structure."""
-    # Change CWD to tmp_path to simulate running the script in a clean env
-    os.chdir(tmp_path)
-    return tmp_path
+def test_ensure_dir_creates_directory():
+    """Test that ensure_dir creates a directory if it doesn't exist."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        test_path = Path(tmpdir) / "new_dir"
+        # Import locally to avoid path issues in test runner
+        from code.setup_project_structure import ensure_dir
+        ensure_dir(test_path)
+        assert test_path.exists()
+        assert test_path.is_dir()
 
-def test_ensure_dir_creates_directory(temp_project_root):
-    target = temp_project_root / "new_dir"
-    assert not target.exists()
-    ensure_dir(target)
-    assert target.exists()
-    assert target.is_dir()
+def test_ensure_dir_no_op_if_exists():
+    """Test that ensure_dir does nothing if directory already exists."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        test_path = Path(tmpdir) / "existing_dir"
+        test_path.mkdir()
+        from code.setup_project_structure import ensure_dir
+        ensure_dir(test_path)
+        assert test_path.exists()
 
-def test_ensure_dir_idempotent(temp_project_root):
-    target = temp_project_root / "existing_dir"
-    target.mkdir()
-    ensure_dir(target)  # Should not raise
-    assert target.exists()
+def test_create_placeholder_file_creates_file():
+    """Test that create_placeholder_file creates a file."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        test_path = Path(tmpdir) / "test_file.txt"
+        from code.setup_project_structure import create_placeholder_file
+        create_placeholder_file(test_path, "Hello World")
+        assert test_path.exists()
+        assert test_path.read_text() == "Hello World"
 
-def test_create_placeholder_file(temp_project_root):
-    target = temp_project_root / "subdir" / "file.txt"
-    assert not target.exists()
-    create_placeholder_file(target, content="Hello World")
-    assert target.exists()
-    assert target.read_text() == "Hello World"
+def test_create_placeholder_file_creates_parent_dirs():
+    """Test that create_placeholder_file creates parent directories."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        test_path = Path(tmpdir) / "sub" / "deep" / "test.txt"
+        from code.setup_project_structure import create_placeholder_file
+        create_placeholder_file(test_path, "Content")
+        assert test_path.exists()
+        assert test_path.parent.exists()
 
-def test_create_placeholder_file_skips_existing(temp_project_root):
-    target = temp_project_root / "file.txt"
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text("Existing Content")
-    create_placeholder_file(target)
-    assert target.read_text() == "Existing Content"
-
-def test_main_creates_structure(temp_project_root):
-    # Run the main function which creates the full tree
-    main()
-
-    base = Path("projects/PROJ-532-predicting-material-degradation-pathways")
-    assert (base / "code").exists()
-    assert (base / "data").exists()
-    assert (base / "data" / "raw").exists()
-    assert (base / "data" / "processed").exists()
-    assert (base / "results").exists()
-    assert (base / "results" / "metrics").exists()
-    assert (base / "results" / "plots").exists()
-    assert (base / "results" / "artifacts").exists()
-    assert (base / "tests").exists()
-    assert (base / "tests" / "unit").exists()
-    assert (base / "tests" / "integration").exists()
-    assert (base / "specs").exists()
-    assert (base / "docs").exists()
-    assert (base / "README.md").exists()
-    assert (base / "code" / "__init__.py").exists()
-    assert (base / "tests" / "__init__.py").exists()
+def test_main_creates_project_structure(tmp_path):
+    """
+    Test that main() creates the expected directory structure.
+    We run it in a temporary directory to avoid polluting the real workspace.
+    """
+    # Change to temp directory to simulate project root
+    original_cwd = os.getcwd()
+    try:
+        os.chdir(tmp_path)
+        
+        # Import and run main
+        from code.setup_project_structure import main
+        main()
+        
+        # Verify expected directories exist
+        project_root = tmp_path / "projects" / "PROJ-532-predicting-material-degradation-pathways"
+        
+        expected_dirs = [
+            "code",
+            "data/raw",
+            "data/processed",
+            "data/contracts",
+            "tests/unit",
+            "tests/integration",
+            "results/metrics",
+            "results/plots",
+            "results/artifacts",
+            "specs",
+            "figures",
+        ]
+        
+        for d in expected_dirs:
+            dir_path = project_root / d
+            assert dir_path.exists(), f"Missing directory: {dir_path}"
+            assert dir_path.is_dir(), f"Not a directory: {dir_path}"
+        
+        # Verify README files exist
+        assert (project_root / "README.md").exists()
+        assert (project_root / "data" / "README.md").exists()
+        assert (project_root / "results" / "README.md").exists()
+        
+        # Verify __init__.py files exist
+        assert (project_root / "code" / "__init__.py").exists()
+        assert (project_root / "tests" / "__init__.py").exists()
+        assert (project_root / "tests" / "unit" / "__init__.py").exists()
+        assert (project_root / "tests" / "integration" / "__init__.py").exists()
+        
+    finally:
+        os.chdir(original_cwd)

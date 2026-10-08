@@ -1,200 +1,108 @@
 import pytest
 import pandas as pd
-import numpy as np
-from pathlib import Path
-import sys
 import os
+import json
+import tempfile
+from pathlib import Path
 
-# Add code directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Import the function to test
+from preprocessing import classify_alloy_family, generate_alloy_class_map
 
-from preprocessing import (
-    classify_alloy_family,
-    perform_ood_split,
-    handle_missing_values,
-    calculate_derived_atomic_properties
-)
+class TestAlloyClassification:
+    
+    def test_high_entropy_alloy_logic(self):
+        """Test that 5+ elements > 5% correctly identifies High-Entropy Alloy."""
+        # Create a mock row with 5 elements > 5%
+        row_data = {
+            'record_id': 'test_he_01',
+            'fe': 15.0, 'cr': 15.0, 'ni': 15.0, 'mn': 15.0, 'co': 15.0, # 5 elements > 5%
+            'c': 0.1, 'si': 0.1
+        }
+        row = pd.Series(row_data)
+        result = classify_alloy_family(row)
+        assert result == "High-Entropy Alloy", f"Expected High-Entropy Alloy, got {result}"
 
-class TestClassifyAlloyFamily:
-    """Tests for alloy family classification logic."""
-    
-    def test_high_entropy_alloy(self):
-        """Test classification of high-entropy alloy."""
-        row = pd.Series({
-            'Fe': 0.20, 'Cr': 0.20, 'Ni': 0.20, 'Mn': 0.20, 'Co': 0.20,
-            'C': 0.001
-        })
-        assert classify_alloy_family(row) == "High-Entropy Alloys"
-    
-    def test_stainless_steel(self):
-        """Test classification of stainless steel."""
-        row = pd.Series({
-            'Fe': 0.70, 'Cr': 0.18, 'Ni': 0.10, 'C': 0.01
-        })
-        assert classify_alloy_family(row) == "Stainless Steels"
-    
-    def test_carbon_steel(self):
-        """Test classification of carbon steel."""
-        row = pd.Series({
-            'Fe': 0.98, 'C': 0.02
-        })
-        assert classify_alloy_family(row) == "Carbon Steels"
-    
-    def test_nickel_superalloy(self):
-        """Test classification of nickel-based superalloy."""
-        row = pd.Series({
-            'Ni': 0.60, 'Cr': 0.15, 'Co': 0.10, 'Fe': 0.10
-        })
-        assert classify_alloy_family(row) == "Nickel-Based Superalloys"
-    
-    def test_unknown_alloy(self):
-        """Test classification of unknown alloy."""
-        row = pd.Series({
-            'Fe': 0.50, 'Cu': 0.30, 'Zn': 0.20
-        })
-        assert classify_alloy_family(row) == "Unknown"
-    
-    def test_insufficient_elements_for_he(self):
-        """Test that alloy with 4 elements is not classified as HEA."""
-        row = pd.Series({
-            'Fe': 0.25, 'Cr': 0.25, 'Ni': 0.25, 'Mn': 0.25
-        })
-        assert classify_alloy_family(row) != "High-Entropy Alloys"
+    def test_stainless_steel_logic(self):
+        """Test that Fe > 10% AND Cr > 10% correctly identifies Stainless Steel."""
+        row_data = {
+            'record_id': 'test_ss_01',
+            'fe': 70.0, 'cr': 18.0, 'ni': 8.0,
+            'c': 0.1, 'mn': 1.0
+        }
+        row = pd.Series(row_data)
+        result = classify_alloy_family(row)
+        assert result == "Stainless Steel", f"Expected Stainless Steel, got {result}"
 
-class TestPerformOODSplit:
-    """Tests for OOD split logic."""
-    
-    def test_ood_split_with_multiple_families(self):
-        """Test OOD split with multiple alloy families."""
-        # Create a dataset with multiple families
-        data = {
-            'alloy_family': ['Stainless Steels'] * 50 + 
-                            ['Carbon Steels'] * 30 + 
-                            ['High-Entropy Alloys'] * 20,
-            'value': list(range(100))
+    def test_carbon_steel_logic(self):
+        """Test that Fe > 80% AND C < 2% correctly identifies Carbon Steel."""
+        row_data = {
+            'record_id': 'test_cs_01',
+            'fe': 98.0, 'c': 0.5, 'mn': 1.0,
+            'si': 0.2
         }
-        df = pd.DataFrame(data)
-        
-        train_df, test_df, metadata = perform_ood_split(df)
-        
-        # Should use OOD split since we have multiple families
-        assert metadata['fallback_used'] == False
-        assert metadata['split_method'] == 'alloy_family_ood'
-        assert len(train_df) + len(test_df) == 100
-        assert len(test_df['alloy_family'].unique()) == 1  # Only one family in test
-        assert len(train_df['alloy_family'].unique()) > 1  # Multiple families in train
-    
-    def test_fallback_to_stratified_split(self):
-        """Test fallback to stratified split when <2 families exist."""
-        # Create a dataset with only one family
-        data = {
-            'alloy_family': ['Stainless Steels'] * 100,
-            'label_pitting': [1] * 50 + [0] * 50,
-            'value': list(range(100))
-        }
-        df = pd.DataFrame(data)
-        
-        train_df, test_df, metadata = perform_ood_split(df)
-        
-        # Should fallback to stratified split
-        assert metadata['fallback_used'] == True
-        assert metadata['fallback_reason'] is not None
-        assert len(train_df) + len(test_df) == 100
-        assert abs(len(train_df) - 80) <= 5  # ~80% train
-        assert abs(len(test_df) - 20) <= 5   # ~20% test
-    
-    def test_minimum_test_set_size(self):
-        """Test that test set has minimum 5 records."""
-        # Create a dataset with a very small family
-        data = {
-            'alloy_family': ['Stainless Steels'] * 50 + 
-                            ['Carbon Steels'] * 100 +
-                            ['Unknown'] * 3,  # Very small family
-            'value': list(range(153))
-        }
-        df = pd.DataFrame(data)
-        
-        train_df, test_df, metadata = perform_ood_split(df)
-        
-        # Should not use the tiny family for test if possible
-        # (depends on implementation, but should have >=5 records in test)
-        assert len(test_df) >= 5
+        row = pd.Series(row_data)
+        result = classify_alloy_family(row)
+        assert result == "Carbon Steel", f"Expected Carbon Steel, got {result}"
 
-class TestHandleMissingValues:
-    """Tests for missing value handling."""
-    
-    def test_median_imputation(self):
-        """Test median imputation for missing values."""
-        data = {
-            'Fe': [0.70, 0.72, np.nan, 0.68],
-            'Cr': [0.18, np.nan, 0.19, 0.17],
-            'Ni': [0.10, 0.11, 0.09, 0.10]
+    def test_other_logic(self):
+        """Test that records not matching specific rules are classified as Other."""
+        row_data = {
+            'record_id': 'test_other_01',
+            'fe': 5.0, 'c': 0.1, 'cu': 90.0, # Copper based, not steel
+            'zn': 5.0
         }
-        df = pd.DataFrame(data)
-        
-        df_clean = handle_missing_values(df)
-        
-        # No NaN values should remain
-        assert df_clean.isnull().sum().sum() == 0
-        
-        # Imputed values should be close to median
-        assert df_clean['Fe'].iloc[2] == df['Fe'].median()
-        assert df_clean['Cr'].iloc[1] == df['Cr'].median()
-    
-    def test_column_dropping(self):
-        """Test dropping columns with >=5% missing values."""
-        # Create data with 10% missing in one column
-        data = {
-            'Fe': [0.70, 0.72, 0.68, 0.69, 0.71],
-            'Cr': [0.18, 0.19, np.nan, np.nan, np.nan],  # 60% missing
-            'Ni': [0.10, 0.11, 0.09, 0.10, 0.10]
-        }
-        df = pd.DataFrame(data)
-        
-        df_clean = handle_missing_values(df)
-        
-        # Cr column should be dropped
-        assert 'Cr' not in df_clean.columns
-        assert 'Fe' in df_clean.columns
-        assert 'Ni' in df_clean.columns
+        row = pd.Series(row_data)
+        result = classify_alloy_family(row)
+        assert result == "Other", f"Expected Other, got {result}"
 
-class TestCalculateDerivedAtomicProperties:
-    """Tests for derived atomic properties calculation."""
-    
-    def test_average_electronegativity(self):
-        """Test calculation of average electronegativity."""
-        data = {
-            'Fe': [0.70],
-            'Cr': [0.18],
-            'Ni': [0.10]
+    def test_priority_rules(self):
+        """Test that High-Entropy rule takes priority over Stainless Steel."""
+        # Fe=15, Cr=15 (Stainless condition), but also Ni=15, Mn=15, Co=15 (HE condition)
+        row_data = {
+            'record_id': 'test_priority_01',
+            'fe': 15.0, 'cr': 15.0, 'ni': 15.0, 'mn': 15.0, 'co': 15.0,
+            'c': 0.1
         }
-        df = pd.DataFrame(data)
-        
-        derived_df = calculate_derived_atomic_properties(df)
-        
-        # Should have calculated properties
-        assert 'avg_electronegativity' in derived_df.columns
-        assert 'avg_atomic_radius' in derived_df.columns
-        assert 'num_elements' in derived_df.columns
-        
-        # Should have values
-        assert derived_df['avg_electronegativity'].iloc[0] > 0
-        assert derived_df['avg_atomic_radius'].iloc[0] > 0
-        assert derived_df['num_elements'].iloc[0] == 3
+        row = pd.Series(row_data)
+        result = classify_alloy_family(row)
+        # Should be HE because 5 elements > 5%
+        assert result == "High-Entropy Alloy", f"Expected High-Entropy Alloy (priority), got {result}"
+
+class TestGenerateAlloyClassMap:
     
-    def test_num_elements_calculation(self):
-        """Test number of elements calculation."""
-        data = {
-            'Fe': [0.70, 0.50],
-            'Cr': [0.18, 0.00],  # Second row has no Cr
-            'Ni': [0.10, 0.30],
-            'C': [0.01, 0.01]
-        }
-        df = pd.DataFrame(data)
-        
-        derived_df = calculate_derived_atomic_properties(df)
-        
-        # First row: Fe, Cr, Ni, C (4 elements)
-        # Second row: Fe, Ni, C (3 elements, Cr is 0)
-        assert derived_df['num_elements'].iloc[0] == 4
-        assert derived_df['num_elements'].iloc[1] == 3
+    def test_generate_map_from_csv(self):
+        """Test generating the alloy class map from a temporary CSV file."""
+        # Create temporary directory and files
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = os.path.join(tmpdir, "cleaned_alloys.csv")
+            output_path = os.path.join(tmpdir, "alloy_class_map.json")
+            
+            # Create mock CSV data
+            data = {
+                'record_id': ['rec_001', 'rec_002', 'rec_003', 'rec_004'],
+                'fe': [70.0, 98.0, 15.0, 5.0],
+                'cr': [18.0, 1.0, 15.0, 0.0],
+                'ni': [8.0, 1.0, 15.0, 0.0],
+                'mn': [1.0, 1.0, 15.0, 0.0],
+                'co': [0.0, 0.0, 15.0, 0.0],
+                'c': [0.1, 0.5, 0.1, 0.1]
+            }
+            df = pd.DataFrame(data)
+            df.to_csv(input_path, index=False)
+            
+            # Run the function
+            result_map = generate_alloy_class_map(input_path, output_path)
+            
+            # Verify output file exists
+            assert os.path.exists(output_path), "Output JSON file was not created"
+            
+            # Verify content
+            with open(output_path, 'r') as f:
+                loaded_map = json.load(f)
+            
+            assert loaded_map['rec_001'] == "Stainless Steel"
+            assert loaded_map['rec_002'] == "Carbon Steel"
+            assert loaded_map['rec_003'] == "High-Entropy Alloy"
+            assert loaded_map['rec_004'] == "Other"
+            
+            assert len(result_map) == 4

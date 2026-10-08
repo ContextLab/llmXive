@@ -1,35 +1,37 @@
 # Ruff configuration for PROJ-532-predicting-material-degradation-pathways
-# Enforces PEP 8 compliance, imports sorting, and project-specific rules
-
-line-length = 100
-target-version = "py311"
+# This file is required by Task T003.
 
 [lint]
-# Enable specific rule sets
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort (import sorting)
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
-    "S",  # flake8-bandit (security)
-]
-
-# Ignore specific rules that conflict with project style or are too noisy
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = ["E", "F", "I", "W", "N", "UP", "B", "C4", "SIM"]
 ignore = [
-    "E501", # Line too long (handled by line-length above, but sometimes needed)
-    "B008", # Do not perform function call in argument defaults (common in data pipelines)
-    "S101", # Use of assert (allowed in tests and simple checks)
+  "E501",  # Line too long (handled by Black)
+  "F403",  # 'from module import *' used (allowed in specific __init__ files if needed)
+  "N806",  # Variable in function should be lowercase (allowing some scientific naming)
 ]
 
-[lint.isort]
-known-first-party = ["utils", "ingestion", "preprocessing", "training", "evaluation", "explainability", "literature_review", "config_env"]
-force-to-top = ["utils"]
-order-by-type = true
-lines-after-imports = 2
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few files/directories from linting
+extend-exclude = [
+  "__pycache__",
+  "*.pyc",
+  "*.ipynb",
+  ".git",
+  "data/raw",  # External data files
+  "data/processed", # Generated data files
+  "results", # Generated results
+]
 
 [lint.per-file-ignores]
-# Allow specific exceptions for test files if needed
-"tests/*" = ["S101", "B018"]
+# Allow wildcard imports in __init__.py for clean API surface
+"__init__.py" = ["F403", "F405"]
+# Allow long lines in test data mocks if necessary
+"tests/**/test_*.py" = ["N802"]
+
+[lint.isort]
+known-first-party = ["code"]
+force-single-line = true
+lines-after-imports = 2

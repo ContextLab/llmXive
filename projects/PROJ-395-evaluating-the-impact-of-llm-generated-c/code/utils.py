@@ -1,284 +1,327 @@
+"""
+Utility functions for the memory impact evaluation project.
+
+This module provides common utilities including:
+    - Custom exceptions (Timeout, OOM, Syntax)
+    - Timeout and memory limit context managers
+    - Safe code execution with error handling
+    - Retry logic for transient failures
+    - Resource cost calculation
+    - CSV I/O helpers
+
+Key Functions:
+    - run_with_timeout_and_memory_limit: Execute code with constraints
+    - execute_code_safely: Execute with comprehensive error handling
+    - retry_on_transient_error: Retry failed operations
+    - calculate_total_resource_cost: Compute composite penalty score
+    - write_memory_measurements_csv: Save profiling results
+
+Usage:
+    from utils import execute_code_safely, calculate_total_resource_cost
+    result = execute_code_safely(code, timeout=60)
+    cost = calculate_total_resource_cost(result['memory'], result['time'], result['status'])
+"""
+
 import csv
 import os
 import signal
 import subprocess
 import sys
 import time
-from typing import Optional, Tuple, Callable, Any
-from contextlib import contextmanager
-import tempfile
-import traceback
+from pathlib import Path
+from typing import List, Dict, Any, Optional, Callable
 
-# Configuration constants
-EXECUTION_TIMEOUT_SECONDS = 60
-MEMORY_LIMIT_GB = 7
-MAX_RETRIES = 3
-RETRY_DELAY = 1.0
+from config import CI_MEMORY_LIMIT_GB, TIMEOUT_SECONDS
+
+
+# ============================================================================
+# Custom Exceptions
+# ============================================================================
 
 class ExecutionTimeoutError(Exception):
     """Raised when code execution exceeds the timeout limit."""
     pass
 
+
 class OutOfMemoryError(Exception):
     """Raised when code execution exceeds memory limits."""
     pass
 
+
 class SyntaxErrorWrapper(Exception):
-    """Wrapper for syntax errors in executed code."""
+    """Wrapper for syntax errors in generated code."""
     pass
 
-@contextmanager
+
+# ============================================================================
+# Timeout and Memory Context Managers
+# ============================================================================
+
 def timeout_context(seconds: int):
-    """Context manager to enforce execution timeout."""
-    def signal_handler(signum, frame):
+    """
+    Context manager for setting execution timeout.
+
+    Args:
+        seconds: Timeout duration in seconds.
+
+    Yields:
+        None
+
+    Raises:
+        ExecutionTimeoutError: If timeout is exceeded.
+    """
+    def timeout_handler(signum, frame):
         raise ExecutionTimeoutError(f"Execution timed out after {seconds} seconds")
-    
+
     # Set the signal handler
-    original_handler = signal.signal(signal.SIGALRM, signal_handler)
+    old_handler = signal.signal(signal.SIGALRM, timeout_handler)
     signal.alarm(seconds)
-    
+
     try:
         yield
     finally:
-        # Restore the original handler and cancel the alarm
         signal.alarm(0)
-        signal.signal(signal.SIGALRM, original_handler)
+        signal.signal(signal.SIGALRM, old_handler)
+
 
 def run_with_timeout_and_memory_limit(
     script_path: str,
-    timeout_sec: int = EXECUTION_TIMEOUT_SECONDS,
-    memory_limit_gb: int = MEMORY_LIMIT_GB
-) -> subprocess.CompletedProcess:
+    timeout: int = TIMEOUT_SECONDS,
+    memory_limit_gb: float = CI_MEMORY_LIMIT_GB
+) -> Dict[str, Any]:
     """
     Run a Python script with timeout and memory limits.
-    
+
     Args:
-        script_path: Path to the Python script to execute
-        timeout_sec: Maximum execution time in seconds
-        memory_limit_gb: Maximum memory usage in GB
-        
+        script_path: Path to the Python script to execute.
+        timeout: Maximum execution time in seconds.
+        memory_limit_gb: Memory limit in GB.
+
     Returns:
-        CompletedProcess instance
-        
+        Dict[str, Any]: Execution results with status and metrics.
+
     Raises:
-        ExecutionTimeoutError: If execution exceeds timeout
-        OutOfMemoryError: If execution exceeds memory limit
-        SyntaxErrorWrapper: If there's a syntax error in the code
+        ExecutionTimeoutError: If execution exceeds timeout.
+        OutOfMemoryError: If execution exceeds memory limit.
     """
-    # Convert memory limit to bytes for ulimit
-    memory_limit_bytes = memory_limit_gb * 1024 * 1024 * 1024
-    
+    result = {
+        'status': 'success',
+        'returncode': 0,
+        'stdout': '',
+        'stderr': ''
+    }
+
+    # Set memory limit using ulimit (Unix only)
+    # Note: Windows memory limiting requires different approach
+    if os.name != 'nt':
+        try:
+            memory_limit_bytes = int(memory_limit_gb * 1024 * 1024 * 1024)
+            soft, hard = resource.getrlimit(resource.RLIMIT_AS)
+            resource.setrlimit(resource.RLIMIT_AS, (memory_limit_bytes, memory_limit_bytes))
+        except ImportError:
+            pass  # resource module not available
+
     try:
-        with timeout_context(timeout_sec):
-            # Run the script
-            result = subprocess.run(
-                [sys.executable, script_path],
-                capture_output=True,
-                text=True,
-                timeout=timeout_sec
-            )
-            
-            # Check for syntax errors
-            if "SyntaxError" in result.stderr or "Syntax error" in result.stderr.lower():
-                raise SyntaxErrorWrapper(f"Syntax error in code: {result.stderr}")
-            
-            # Check for memory errors
-            if "MemoryError" in result.stderr or "out of memory" in result.stderr.lower():
-                raise OutOfMemoryError(f"Out of memory: {result.stderr}")
-            
-            return result
-            
+        start_time = time.time()
+        process = subprocess.run(
+            [sys.executable, script_path],
+            capture_output=True,
+            text=True,
+            timeout=timeout
+        )
+        elapsed = time.time() - start_time
+
+        result['returncode'] = process.returncode
+        result['stdout'] = process.stdout
+        result['stderr'] = process.stderr
+
+        if process.returncode != 0:
+            # Check for OOM indicators in stderr
+            if 'MemoryError' in process.stderr or 'OOM' in process.stderr:
+                result['status'] = 'oom'
+                raise OutOfMemoryError("Memory limit exceeded")
+
     except subprocess.TimeoutExpired:
-        raise ExecutionTimeoutError(f"Execution timed out after {timeout_sec} seconds")
-    except SyntaxErrorWrapper:
-        raise
-    except OutOfMemoryError:
-        raise
-    except Exception as e:
-        # Re-raise as our custom exceptions if appropriate
-        if "timeout" in str(e).lower():
-            raise ExecutionTimeoutError(str(e))
-        elif "memory" in str(e).lower():
-            raise OutOfMemoryError(str(e))
-        else:
-            raise
+        result['status'] = 'timeout'
+        raise ExecutionTimeoutError(f"Execution timed out after {timeout} seconds")
+    except MemoryError:
+        result['status'] = 'oom'
+        raise OutOfMemoryError("Memory limit exceeded")
+
+    return result
+
 
 def execute_code_safely(
     code: str,
-    timeout_sec: int = EXECUTION_TIMEOUT_SECONDS,
-    memory_limit_gb: int = MEMORY_LIMIT_GB
-) -> Tuple[bool, Optional[str], Optional[str]]:
+    timeout: int = TIMEOUT_SECONDS
+) -> Dict[str, Any]:
     """
-    Execute code safely with timeout and memory limits.
-    
+    Execute code safely with comprehensive error handling.
+
     Args:
-        code: Python code string to execute
-        timeout_sec: Maximum execution time
-        memory_limit_gb: Maximum memory usage
-        
+        code: Code string to execute.
+        timeout: Execution timeout in seconds.
+
     Returns:
-        Tuple of (success, stdout, stderr)
+        Dict[str, Any]: Execution results.
     """
-    # Create a temporary file for the code
+    result = {
+        'status': 'success',
+        'error': None,
+        'output': None
+    }
+
+    # Check for syntax errors first
+    try:
+        compile(code, '<string>', 'exec')
+    except SyntaxError as e:
+        result['status'] = 'syntax_error'
+        result['error'] = str(e)
+        return result
+
+    # Execute with timeout
     with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
         f.write(code)
         temp_path = f.name
-    
+
     try:
-        result = run_with_timeout_and_memory_limit(
-            temp_path,
-            timeout_sec=timeout_sec,
-            memory_limit_gb=memory_limit_gb
-        )
-        return (True, result.stdout, result.stderr)
+        exec_result = run_with_timeout_and_memory_limit(temp_path, timeout)
+        result['output'] = exec_result['stdout']
+        result['status'] = exec_result['status']
     except ExecutionTimeoutError as e:
-        return (False, None, str(e))
+        result['status'] = 'timeout'
+        result['error'] = str(e)
     except OutOfMemoryError as e:
-        return (False, None, str(e))
-    except SyntaxErrorWrapper as e:
-        return (False, None, str(e))
+        result['status'] = 'oom'
+        result['error'] = str(e)
     except Exception as e:
-        return (False, None, f"Unexpected error: {str(e)}")
+        result['status'] = 'error'
+        result['error'] = str(e)
     finally:
-        # Clean up temp file
-        if os.path.exists(temp_path):
-            os.unlink(temp_path)
+        os.unlink(temp_path)
+
+    return result
+
 
 def retry_on_transient_error(
     func: Callable,
-    *args,
-    max_retries: int = MAX_RETRIES,
-    delay: float = RETRY_DELAY,
-    **kwargs
-) -> Any:
+    max_retries: int = 3,
+    backoff_factor: float = 2.0
+) -> Callable:
     """
-    Retry a function call on transient errors.
-    
+    Decorator to retry a function on transient errors.
+
     Args:
-        func: Function to call
-        *args: Positional arguments to pass to func
-        max_retries: Maximum number of retries
-        delay: Delay between retries in seconds
-        **kwargs: Keyword arguments to pass to func
-        
+        func: Function to wrap.
+        max_retries: Maximum number of retry attempts.
+        backoff_factor: Multiplier for exponential backoff.
+
     Returns:
-        Result of func call
-        
-    Raises:
-        Last exception if all retries fail
+        Callable: Wrapped function.
     """
-    last_exception = None
-    
-    for attempt in range(max_retries):
-        try:
-            return func(*args, **kwargs)
-        except (ExecutionTimeoutError, OutOfMemoryError) as e:
-            last_exception = e
-            if attempt < max_retries - 1:
-                time.sleep(delay)
-                continue
-            else:
-                raise
-        except Exception as e:
-            # For non-transient errors, don't retry
-            raise
-    
-    raise last_exception
+    import functools
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        last_exception = None
+        for attempt in range(max_retries):
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                last_exception = e
+                if attempt < max_retries - 1:
+                    wait_time = backoff_factor ** attempt
+                    time.sleep(wait_time)
+        raise last_exception
+
+    return wrapper
+
 
 def calculate_total_resource_cost(
-    memory_bytes: Optional[float],
-    time_seconds: float,
+    peak_memory_bytes: float,
+    execution_time_seconds: float,
     status: str
 ) -> float:
     """
-    Calculate total resource cost for a code execution.
-    
-    For successful executions: Memory * Time
-    For failed executions (timeout/OOM): 7GB * 60s (penalty)
-    
+    Calculate total resource cost as a composite penalty score.
+
+    Formula: Memory_Bytes * Time_Seconds + Failure_Penalty
+
+    For failed executions (timeout, oom, N/A), a large penalty is applied
+    to reflect the cost of wasted resources.
+
     Args:
-        memory_bytes: Peak memory usage in bytes (None for failures)
-        time_seconds: Execution time in seconds
-        status: Execution status ('success', 'timeout', 'oom', etc.)
-        
+        peak_memory_bytes: Peak memory usage in bytes.
+        execution_time_seconds: Execution time in seconds.
+        status: Execution status ('success', 'timeout', 'oom', 'N/A').
+
     Returns:
-        Total resource cost in GB*seconds
+        float: Total resource cost score.
     """
-    # Constants for penalty calculation
-    PENALTY_MEMORY_GB = 7.0
-    PENALTY_TIME_SECONDS = 60.0
-    
-    if status in ['timeout', 'oom']:
-        # Apply penalty for failures
-        return PENALTY_MEMORY_GB * PENALTY_TIME_SECONDS
-    elif status == 'success' and memory_bytes is not None:
-        # Convert bytes to GB and calculate cost
-        memory_gb = memory_bytes / (1024 ** 3)
-        return memory_gb * time_seconds
+    # Base cost for successful runs
+    base_cost = peak_memory_bytes * execution_time_seconds
+
+    # Failure penalty (7GB * 60s)
+    FAILURE_PENALTY = CI_MEMORY_LIMIT_GB * 1024 * 1024 * 1024 * TIMEOUT_SECONDS
+
+    if status == 'success':
+        return base_cost
     else:
-        # For other cases (syntax errors, etc.), return 0 or a small penalty
-        return 0.0
+        return base_cost + FAILURE_PENALTY
+
+
+# ============================================================================
+# CSV I/O Helpers
+# ============================================================================
 
 def write_memory_measurements_csv(
-    measurements: list,
+    results: List[Dict[str, Any]],
     output_path: str
 ) -> None:
     """
     Write memory measurements to a CSV file.
-    
-    Args:
-        measurements: List of measurement dictionaries
-        output_path: Path to output CSV file
-    """
-    if not measurements:
-        # Create empty file with headers
-        with open(output_path, 'w', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow([
-                'problem_id',
-                'source_type',
-                'peak_memory',
-                'steady_state',
-                'status',
-                'total_resource_cost'
-            ])
-        return
-    
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=[
-            'problem_id',
-            'source_type',
-            'peak_memory',
-            'steady_state',
-            'status',
-            'total_resource_cost'
-        ])
-        writer.writeheader()
-        writer.writerows(measurements)
 
-def read_memory_measurements_csv(input_path: str) -> list:
+    Args:
+        results: List of measurement dictionaries.
+        output_path: Path to save the CSV file.
+    """
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    fieldnames = [
+        'problem_id',
+        'source_type',
+        'peak_memory',
+        'steady_state',
+        'status',
+        'total_resource_cost'
+    ]
+
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(results)
+
+    print(f"Written {len(results)} measurements to {output_path}")
+
+
+def read_memory_measurements_csv(input_path: str) -> List[Dict[str, Any]]:
     """
     Read memory measurements from a CSV file.
-    
+
     Args:
-        input_path: Path to input CSV file
-        
+        input_path: Path to the CSV file.
+
     Returns:
-        List of measurement dictionaries
+        List[Dict]: List of measurement dictionaries.
     """
-    measurements = []
-    
-    with open(input_path, 'r', newline='') as f:
+    results = []
+    with open(input_path, 'r') as f:
         reader = csv.DictReader(f)
         for row in reader:
             # Convert numeric fields
-            if row['peak_memory']:
-                row['peak_memory'] = float(row['peak_memory'])
-            if row['steady_state']:
-                row['steady_state'] = float(row['steady_state'])
-            if row['total_resource_cost']:
-                row['total_resource_cost'] = float(row['total_resource_cost'])
-            
-            measurements.append(row)
-    
-    return measurements
+            row['peak_memory'] = float(row['peak_memory'])
+            row['steady_state'] = float(row.get('steady_state', 0))
+            row['total_resource_cost'] = float(row.get('total_resource_cost', 0))
+            results.append(row)
+
+    return results

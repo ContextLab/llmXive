@@ -1,14 +1,28 @@
 """
-Memory profiling harness for LLM-generated and human-written code solutions.
+Memory profiling harness for code solutions.
 
-This module provides functions to:
-- Profile single code executions for memory usage
-- Check stability of measurements across multiple runs
-- Profile complete code solutions with stability checks
-- Handle various execution errors gracefully
+This module provides functions to profile memory usage of code solutions,
+including:
+    - Single execution profiling with tracemalloc
+    - Stability checking (IQR-based)
+    - Timeout and error handling
+    - Batch processing of problems
 
-The profiler uses tracemalloc for steady-state memory and memory_profiler
-for peak memory measurements.
+Key Functions:
+    - profile_single_execution: Profile one execution of code
+    - check_stability: Verify measurement stability across runs
+    - profile_code_solution: Profile a solution with stability check
+    - process_problems: Batch process multiple problems
+
+Profiling Strategy:
+    - Uses tracemalloc for steady-state memory
+    - Uses memory_profiler for peak memory (if available)
+    - Implements IQR-based stability check (max 2 retries)
+    - Handles timeouts (60s) and syntax errors gracefully
+
+Usage:
+    from profile import process_problems
+    measurements = process_problems(solutions, output_path='data/processed/memory_measurements.csv')
 """
 
 import os
@@ -17,352 +31,280 @@ import time
 import tracemalloc
 import subprocess
 import tempfile
-import json
-import csv
-from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any, Union
-import statistics
+from typing import List, Dict, Any, Optional, Tuple
 
-# Import shared utilities and exceptions
+import numpy as np
+
+from config import (
+    TIMEOUT_SECONDS,
+    CI_MEMORY_LIMIT_GB,
+    STABILITY_IQR_THRESHOLD,
+    STABILITY_MAX_RUNS,
+    DATA_PROCESSED_DIR
+)
 from utils import (
     ExecutionTimeoutError,
     OutOfMemoryError,
     SyntaxErrorWrapper,
-    timeout_context,
     run_with_timeout_and_memory_limit,
-    execute_code_safely,
-    retry_on_transient_error,
-    calculate_total_resource_cost,
-    write_memory_measurements_csv,
-    read_memory_measurements_csv
+    calculate_total_resource_cost
 )
-import config
-
-# Constants
-PROFILE_RUNS = 3
-STABILITY_IQR_THRESHOLD = 0.15  # 15% of median
-MAX_STABILITY_RETRIES = 2
-DEFAULT_TIMEOUT_SECONDS = 60
-DEFAULT_MEMORY_LIMIT_GB = 7.0
 
 
-def profile_single_execution(
-    code: str,
-    problem_id: str,
-    source_type: str,
-    timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS,
-    memory_limit_gb: float = DEFAULT_MEMORY_LIMIT_GB
-) -> Dict[str, Any]:
+def profile_single_execution(code: str, timeout: int = TIMEOUT_SECONDS) -> Dict[str, Any]:
     """
-    Profile a single execution of code for memory usage.
+    Profile memory usage of a single code execution.
 
     Args:
-        code: The Python code to profile
-        problem_id: Identifier for the problem being solved
-        source_type: Type of code source ('llm' or 'human')
-        timeout_seconds: Maximum execution time in seconds
-        memory_limit_gb: Maximum memory limit in gigabytes
+        code: Code string to execute.
+        timeout: Execution timeout in seconds.
 
     Returns:
-        Dictionary containing:
-            - problem_id: Problem identifier
-            - source_type: Source type ('llm' or 'human')
-            - peak_memory: Peak memory usage in bytes
-            - steady_state: Steady-state memory usage in bytes
-            - execution_time: Execution time in seconds
-            - status: 'success', 'timeout', 'oom', 'syntax_error', or 'runtime_error'
-            - total_resource_cost: Calculated resource cost (Memory * Time + penalty)
+        Dict[str, Any]: Profiling results including peak_memory, steady_state, status.
     """
     result = {
-        'problem_id': problem_id,
-        'source_type': source_type,
         'peak_memory': 0,
         'steady_state': 0,
-        'execution_time': 0,
         'status': 'success',
-        'total_resource_cost': 0
+        'execution_time': 0
     }
 
-    # Create a temporary file for the code
+    # Write code to temporary file
     with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
         f.write(code)
-        temp_file = f.name
+        temp_path = f.name
 
     try:
-        # Start tracemalloc before execution
+        # Start memory tracking
         tracemalloc.start()
 
         start_time = time.time()
 
-        # Execute the code with timeout and memory limits
+        # Execute with timeout and memory limit
         try:
-            with timeout_context(timeout_seconds):
-                # Execute the code
-                exec_globals = {}
-                exec(code, exec_globals)
+            exec_result = run_with_timeout_and_memory_limit(
+                temp_path,
+                timeout=timeout,
+                memory_limit_gb=CI_MEMORY_LIMIT_GB
+            )
 
-                # Get memory snapshots
+            if exec_result['status'] == 'timeout':
+                result['status'] = 'timeout'
+                result['peak_memory'] = 0
+                result['steady_state'] = 0
+            elif exec_result['status'] == 'oom':
+                result['status'] = 'oom'
+                result['peak_memory'] = 0
+                result['steady_state'] = 0
+            else:
+                # Get memory stats
                 current, peak = tracemalloc.get_traced_memory()
-
-                end_time = time.time()
-                execution_time = end_time - start_time
-
-                result['steady_state'] = current
                 result['peak_memory'] = peak
-                result['execution_time'] = execution_time
-                result['status'] = 'success'
+                result['steady_state'] = current
+                result['execution_time'] = time.time() - start_time
 
         except ExecutionTimeoutError:
             result['status'] = 'timeout'
-            result['execution_time'] = timeout_seconds
-            # Calculate resource cost for timeout (censored data)
-            result['total_resource_cost'] = calculate_total_resource_cost(
-                0,  # Memory not available
-                timeout_seconds,
-                is_failure=True
-            )
-            return result
-
+            result['peak_memory'] = 0
+            result['steady_state'] = 0
         except OutOfMemoryError:
             result['status'] = 'oom'
-            result['execution_time'] = time.time() - start_time
-            # Calculate resource cost for OOM (censored data)
-            result['total_resource_cost'] = calculate_total_resource_cost(
-                0,  # Memory not available
-                result['execution_time'],
-                is_failure=True
-            )
-            return result
-
-        except SyntaxError as e:
-            result['status'] = 'syntax_error'
-            result['execution_time'] = time.time() - start_time
-            # Calculate resource cost for syntax error
-            result['total_resource_cost'] = calculate_total_resource_cost(
-                0,  # Memory not available
-                result['execution_time'],
-                is_failure=True
-            )
-            return result
-
+            result['peak_memory'] = 0
+            result['steady_state'] = 0
+        except SyntaxErrorWrapper as e:
+            result['status'] = 'N/A'
+            result['peak_memory'] = 0
+            result['steady_state'] = 0
         except Exception as e:
-            result['status'] = 'runtime_error'
-            result['execution_time'] = time.time() - start_time
-            # Calculate resource cost for runtime error
-            result['total_resource_cost'] = calculate_total_resource_cost(
-                0,  # Memory not available
-                result['execution_time'],
-                is_failure=True
-            )
-            return result
-
-        finally:
-            tracemalloc.stop()
-
-        # Calculate resource cost for successful execution
-        result['total_resource_cost'] = calculate_total_resource_cost(
-            result['peak_memory'],
-            result['execution_time'],
-            is_failure=False
-        )
+            result['status'] = 'error'
+            result['peak_memory'] = 0
+            result['steady_state'] = 0
 
     finally:
-        # Clean up temporary file
-        if os.path.exists(temp_file):
-            os.unlink(temp_file)
+        tracemalloc.stop()
+        os.unlink(temp_path)
 
     return result
 
 
-def check_stability(
-    measurements: List[Dict[str, Any]],
-    metric: str = 'peak_memory'
-) -> Tuple[bool, float, float]:
+def check_stability(measurements: List[float], threshold: float = STABILITY_IQR_THRESHOLD) -> bool:
     """
-    Check if a set of measurements is stable based on IQR threshold.
+    Check if a set of measurements is stable.
+
+    Stability is determined by the Interquartile Range (IQR) relative to
+    the median. If IQR > threshold * median, the measurements are unstable.
 
     Args:
-        measurements: List of measurement dictionaries
-        metric: The metric to check for stability ('peak_memory' or 'steady_state')
+        measurements: List of measurement values.
+        threshold: IQR threshold as fraction of median.
 
     Returns:
-        Tuple of (is_stable, iqr_value, median_value)
+        bool: True if stable, False otherwise.
     """
-    if len(measurements) < 2:
-        return True, 0.0, 0.0
+    if len(measurements) < 3:
+        return True  # Not enough data to assess stability
 
-    values = [m[metric] for m in measurements if m['status'] == 'success']
+    arr = np.array(measurements)
+    median = np.median(arr)
+    if median == 0:
+        return True  # Avoid division by zero
 
-    if len(values) < 2:
-        return True, 0.0, 0.0
-
-    # Calculate IQR
-    sorted_values = sorted(values)
-    n = len(sorted_values)
-
-    # Calculate Q1 and Q3
-    q1_idx = n // 4
-    q3_idx = (3 * n) // 4
-
-    q1 = sorted_values[q1_idx]
-    q3 = sorted_values[q3_idx]
+    q1 = np.percentile(arr, 25)
+    q3 = np.percentile(arr, 75)
     iqr = q3 - q1
 
-    # Calculate median
-    median = statistics.median(values)
-
-    # Check if IQR is within threshold of median
-    if median == 0:
-        return True, iqr, median
-
-    iqr_ratio = iqr / median
-    is_stable = iqr_ratio <= STABILITY_IQR_THRESHOLD
-
-    return is_stable, iqr, median
+    return (iqr / median) <= threshold
 
 
 def profile_code_solution(
     code: str,
-    problem_id: str,
-    source_type: str,
-    timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS,
-    memory_limit_gb: float = DEFAULT_MEMORY_LIMIT_GB,
-    max_runs: int = PROFILE_RUNS,
-    max_retries: int = MAX_STABILITY_RETRIES
-) -> List[Dict[str, Any]]:
+    max_runs: int = STABILITY_MAX_RUNS,
+    timeout: int = TIMEOUT_SECONDS
+) -> Dict[str, Any]:
     """
-    Profile a code solution with stability checks.
+    Profile a code solution with stability checking.
 
-    Runs the code multiple times and checks for stability. If the measurements
-    are not stable, re-runs up to max_retries times.
+    Runs the code multiple times and checks for stability. If unstable,
+    re-runs up to max_runs times.
 
     Args:
-        code: The Python code to profile
-        problem_id: Identifier for the problem
-        source_type: Type of code source ('llm' or 'human')
-        timeout_seconds: Maximum execution time
-        memory_limit_gb: Maximum memory limit
-        max_runs: Number of runs for stability check
-        max_retries: Maximum number of retries if unstable
+        code: Code string to profile.
+        max_runs: Maximum number of runs for stability check.
+        timeout: Timeout per execution.
 
     Returns:
-        List of measurement dictionaries (all runs, including retries)
+        Dict[str, Any]: Final profiling results with median values.
     """
-    all_measurements = []
-    current_runs = []
+    all_peaks = []
+    all_steady = []
+    all_times = []
+    statuses = []
 
-    # Initial runs
-    for i in range(max_runs):
-        result = profile_single_execution(
-            code, problem_id, source_type, timeout_seconds, memory_limit_gb
-        )
-        all_measurements.append(result)
-        current_runs.append(result)
+    for run in range(max_runs):
+        result = profile_single_execution(code, timeout)
+        statuses.append(result['status'])
 
-    # Check stability
-    is_stable, iqr, median = check_stability(current_runs)
+        if result['status'] == 'success':
+            all_peaks.append(result['peak_memory'])
+            all_steady.append(result['steady_state'])
+            all_times.append(result['execution_time'])
 
-    retry_count = 0
-    while not is_stable and retry_count < max_retries:
-        retry_count += 1
-        # Additional runs for retry
-        for i in range(max_runs):
-            result = profile_single_execution(
-                code, problem_id, source_type, timeout_seconds, memory_limit_gb
-            )
-            all_measurements.append(result)
-            current_runs.append(result)
+        # Check stability if we have enough successful runs
+        if len(all_peaks) >= 3:
+            if check_stability(all_peaks):
+                break
 
-        # Check stability again with all runs so far
-        is_stable, iqr, median = check_stability(current_runs)
+    # Calculate median values
+    if all_peaks:
+      median_peak = float(np.median(all_peaks))
+      median_steady = float(np.median(all_steady))
+      median_time = float(np.median(all_times))
+    else:
+      median_peak = 0
+      median_steady = 0
+      median_time = 0
 
-    return all_measurements
+    # Determine overall status
+    if 'timeout' in statuses:
+        final_status = 'timeout'
+    elif 'oom' in statuses:
+        final_status = 'oom'
+    elif 'N/A' in statuses:
+        final_status = 'N/A'
+    else:
+        final_status = 'success'
+
+    # Calculate resource cost
+    resource_cost = calculate_total_resource_cost(
+        median_peak,
+        median_time,
+        final_status
+    )
+
+    return {
+        'peak_memory': median_peak,
+        'steady_state': median_steady,
+        'execution_time': median_time,
+        'status': final_status,
+        'total_resource_cost': resource_cost,
+        'n_runs': len(all_peaks)
+    }
 
 
 def process_problems(
-    problems: List[Dict[str, str]],
-    output_path: str,
-    timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS,
-    memory_limit_gb: float = DEFAULT_MEMORY_LIMIT_GB
-) -> None:
+    solutions: List[Dict[str, Any]],
+    output_path: Optional[str] = None
+) -> List[Dict[str, Any]]:
     """
-    Process a list of problems and write results to CSV.
+    Process multiple code solutions and profile their memory usage.
 
     Args:
-        problems: List of dictionaries with 'problem_id', 'code', 'source_type'
-        output_path: Path to output CSV file
-        timeout_seconds: Maximum execution time per problem
-        memory_limit_gb: Maximum memory limit
+        solutions: List of solution dictionaries with 'solution' code.
+        output_path: Optional path to save CSV results.
+
+    Returns:
+        List[Dict]: List of profiling results.
     """
     results = []
 
-    for problem in problems:
-        problem_id = problem['problem_id']
-        code = problem['code']
-        source_type = problem['source_type']
+    for i, sol in enumerate(solutions):
+        print(f"Profiling solution {i+1}/{len(solutions)}")
 
-        print(f"Processing problem {problem_id} ({source_type})...")
-
-        try:
-            # Profile the code solution
-            measurements = profile_code_solution(
-                code, problem_id, source_type,
-                timeout_seconds, memory_limit_gb
-            )
-
-            # Add all measurements to results
-            for measurement in measurements:
-                results.append(measurement)
-
-        except Exception as e:
-            # Handle any unexpected errors gracefully
-            error_result = {
-                'problem_id': problem_id,
-                'source_type': source_type,
+        code = sol.get('solution')
+        if not code:
+            results.append({
+                'problem_id': sol.get('problem_id', i),
+                'source_type': sol.get('source_type', 'unknown'),
                 'peak_memory': 0,
                 'steady_state': 0,
-                'execution_time': 0,
-                'status': 'error',
-                'total_resource_cost': 0,
-                'error_message': str(e)
-            }
-            results.append(error_result)
-            print(f"Error processing problem {problem_id}: {e}")
+                'status': 'N/A',
+                'total_resource_cost': 0
+            })
+            continue
 
-    # Write results to CSV
-    write_memory_measurements_csv(results, output_path)
-    print(f"Results written to {output_path}")
+        profile_result = profile_code_solution(code)
+
+        result = {
+            'problem_id': sol.get('problem_id', i),
+            'source_type': sol.get('source_type', 'LLM'),
+            'peak_memory': profile_result['peak_memory'],
+            'steady_state': profile_result['steady_state'],
+            'status': profile_result['status'],
+            'total_resource_cost': profile_result['total_resource_cost']
+        }
+        results.append(result)
+
+    # Save to CSV if path provided
+    if output_path:
+        from utils import write_memory_measurements_csv
+        write_memory_measurements_csv(results, output_path)
+
+    return results
 
 
 def main():
     """
-    Main entry point for the profiling harness.
+    Main entry point for profiling.
 
-    Reads problems from a JSON file, profiles them, and writes results to CSV.
+    Loads generated solutions and profiles them.
     """
-    import argparse
+    import json
+    from config import DATA_PROCESSED_DIR
 
-    parser = argparse.ArgumentParser(description='Profile code solutions for memory usage')
-    parser.add_argument('--input', '-i', required=True, help='Input JSON file with problems')
-    parser.add_argument('--output', '-o', required=True, help='Output CSV file path')
-    parser.add_argument('--timeout', '-t', type=int, default=DEFAULT_TIMEOUT_SECONDS,
-                      help='Timeout in seconds per execution')
-    parser.add_argument('--memory-limit', '-m', type=float, default=DEFAULT_MEMORY_LIMIT_GB,
-                      help='Memory limit in GB')
+    input_path = os.path.join(DATA_PROCESSED_DIR, 'generated_solutions.json')
+    output_path = os.path.join(DATA_PROCESSED_DIR, 'memory_measurements.csv')
 
-    args = parser.parse_args()
+    if not os.path.exists(input_path):
+        print(f"Error: Input file not found: {input_path}")
+        sys.exit(1)
 
-    # Load problems from JSON
-    with open(args.input, 'r') as f:
-        problems = json.load(f)
+    with open(input_path, 'r') as f:
+        solutions = json.load(f)
 
-    # Process problems
-    process_problems(
-        problems,
-        args.output,
-        args.timeout,
-        args.memory_limit
-    )
+    print(f"Profiling {len(solutions)} solutions...")
+    results = process_problems(solutions, output_path)
+
+    print(f"Profiling complete. Results saved to {output_path}")
 
 
 if __name__ == '__main__':

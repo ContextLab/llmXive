@@ -141,13 +141,13 @@
 
 ### Edge Case Tests for User Story 2
 
-- [ ] T046b [P] [US2] Add unit tests for skewed distributions at `tests/unit/test_data_validation.py` - tests Welch's ANOVA fallback logic
-- [ ] T046c [P] [US2] Add unit tests for collinearity handling at `tests/unit/test_data_validation.py` - tests VIF diagnostics and warning
+- [X] T046b [P] [US2] Add unit tests for skewed distributions at `tests/unit/test_data_validation.py` - tests Welch's ANOVA fallback logic
+- [X] T046c [P] [US2] Add unit tests for collinearity handling at `tests/unit/test_data_validation.py` - tests VIF diagnostics and warning
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Create unit test for ANOVA calculation at `tests/unit/test_anova.py`
-- [ ] T019 [P] [US2] Create unit test for effect size calculation at `tests/unit/test_effect_sizes.py`
+- [X] T018 [P] [US2] Create unit test for ANOVA calculation at `tests/unit/test_anova.py`
+- [X] T019 [P] [US2] Create unit test for effect size calculation at `tests/unit/test_effect_sizes.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -161,17 +161,17 @@
 
 ### Logging Infrastructure (US3)
 
-- [ ] T039 [P] [US3] Add logging for visualization and export operations at `code/viz/logging.py` - establishes logging before implementation
+- [X] T039 [P] [US3] Add logging for visualization and export operations at `code/viz/logging.py` - establishes logging before implementation
 
 ### Implementation for User Story 3
 
-- [ ] T033a [US3] Write function to prepare boxplot data at `code/viz/plots.py` (FR-007, SC-005) - stratified by experience level
-- [ ] T033b [US3] Write function to calculate interaction lines at `code/viz/plots.py` (FR-007) - connect group means across experience levels
-- [ ] T033c [US3] Write function to render publication-ready boxplot at `code/viz/plots.py` (FR-007)
-- [ ] T035 [US3] Implement CSV export of statistical outputs at `code/export/results.py` (FR-008)
-- [ ] T036 [US3] Implement JSON export with metadata at `code/export/results.py` (FR-008)
-- [ ] T036a [US3] Validate export file size stays within 14 GB disk limit at `code/export/results.py` (SC-007) - check file size before export completion; fail if exceeds limit
-- [ ] T037 [US3] Implement visualization export at `code/viz/plots.py` (FR-007) - publication-ready formatting
+- [X] T033a [US3] Write function to prepare boxplot data at `code/viz/plots.py` (FR-007, SC-005) - stratified by experience level
+- [X] T033b [US3] Write function to calculate interaction lines at `code/viz/plots.py` (FR-007) - connect group means across experience levels
+- [X] T033c [US3] Write function to render publication-ready boxplot at `code/viz/plots.py` (FR-007)
+- [X] T035 [US3] Implement CSV export of statistical outputs at `code/export/results.py` (FR-008)
+- [X] T036 [US3] Implement JSON export with metadata at `code/export/results.py` (FR-008)
+- [X] T036a [US3] Validate export file size stays within 14 GB disk limit at `code/export/results.py` (SC-007) - check file size before export completion; fail if exceeds limit
+- [X] T037 [US3] Implement visualization export at `code/viz/plots.py` (FR-007) - publication-ready formatting
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
