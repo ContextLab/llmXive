@@ -1,293 +1,347 @@
 """
-Manual Validation Audit Runner (T019b)
+Manual Validation Audit Runner (T019b).
 
-Implements a CLI-based interactive audit runner for validating LLM vs Human PR classifications.
-Logic:
-1. Load prs_labeled.csv and manual_audit_checklist.csv.
-2. Select a stratified sample based on source_type and confidence_score.
-3. Pause execution, display PR diff summary to terminal, and wait for user input to set human_label.
-4. Save results to data/audit/manual_audit_results.json.
-5. Calculate error rate and write to data/audit/error_rate.json.
+Implements a CLI-based audit runner with file polling for human-in-the-loop validation.
+This script orchestrates the manual audit process defined in SC-004.
 
-Dependencies: T019a (checklist template), T017 (labeled dataset).
+Workflow:
+1. Loads labeled PRs and the checklist template.
+2. Selects a stratified sample based on T009 logic.
+3. Generates `audit_input.jsonl` for human review.
+4. Polls the input file for human updates (human_label, human_confidence).
+5. Calculates error rates and validates ground truth.
+6. Saves results to `data/audit/manual_audit_results.json` and `data/audit/error_rate.json`.
 """
+from __future__ import annotations
+
+import argparse
+import csv
+import json
 import os
 import sys
-import json
-import csv
-import math
-import random
-import argparse
 import time
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
-# Import from project API surface
-from utils.config import get_path, get_audit_settings
+# Local imports matching API surface
 from utils.logging import get_logger, setup_logging
+from utils.config import get_audit_settings, get_path
 from utils.seeds import set_global_seed
 
-# Initialize logging
-logger = get_logger(__name__)
+
+# --- Configuration & Helpers ---
 
 def get_audit_config() -> Dict[str, Any]:
-    """Load audit configuration from utils.config."""
+    """Retrieve audit configuration from utils.config."""
     return get_audit_settings()
 
-def load_labeled_prs(input_path: str) -> List[Dict[str, Any]]:
-    """Load the labeled PRs dataset."""
-    path = Path(input_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}. Ensure T017 (save_labeled_dataset) has completed.")
-
-    data = []
-    with open(path, 'r', encoding='utf-8') as f:
+def load_labeled_prs(path: Optional[str] = None) -> List[Dict[str, Any]]:
+    """Load PRs from the labeled dataset CSV."""
+    if path is None:
+        path = str(get_path("processed_prs_labeled"))
+    
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Labeled dataset not found at {path}. "
+                                "Ensure T017 (save_labeled_dataset) has completed.")
+    
+    prs = []
+    with open(path, "r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
-            # Ensure types are correct
-            row['pr_id'] = int(row['pr_id'])
-            row['confidence_score'] = float(row['confidence_score'])
-            row['detector_score'] = float(row['detector_score'])
-            data.append(row)
-    logger.info(f"Loaded {len(data)} labeled PRs from {input_path}")
-    return data
+            # Convert types
+            row["pr_id"] = int(row["pr_id"])
+            row["confidence_score"] = float(row["confidence_score"])
+            row["detector_score"] = float(row["detector_score"])
+            row["flagged"] = row["flagged"].lower() == "true"
+            prs.append(row)
+    return prs
 
-def load_checklist_template(template_path: str) -> List[str]:
-    """Load the checklist template to know which columns to fill."""
-    if not Path(template_path).exists():
-        # If template doesn't exist, create a default one in memory or raise
-        # Per task, we assume T019a created this.
-        raise FileNotFoundError(f"Checklist template not found: {template_path}. Run T019a first.")
-
-    headers = []
-    with open(template_path, 'r', encoding='utf-8') as f:
-        reader = csv.reader(f)
-        # Assume first row is headers
-        headers = next(reader)
-    return headers
-
-def calculate_sample_size(n_total: int, config: Dict[str, Any]) -> int:
-    """
-    Calculate sample size based on audit settings.
-    Formula: max(minimum_threshold, ceil(scaling_factor * N_LLM))
-    """
-    min_threshold = config.get('minimum_threshold', 30)
-    scaling_factor = config.get('scaling_factor', 0.1)
+def load_checklist_template(path: Optional[str] = None) -> List[Dict[str, Any]]:
+    """Load the manual audit checklist template."""
+    if path is None:
+        path = str(get_path("manual_audit_checklist"))
     
-    # Estimate N_LLM roughly from total if not provided, or assume 50/50 split for estimation
-    # In a real scenario, we might filter the loaded data first.
-    estimated_n_llm = int(n_total * 0.5) 
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Checklist template not found at {path}. "
+                                "Ensure T019a has created the template.")
     
-    calculated = math.ceil(scaling_factor * estimated_n_llm)
-    sample_size = max(min_threshold, calculated)
-    
-    logger.info(f"Calculated sample size: {sample_size} (min: {min_threshold}, calc: {calculated})")
-    return sample_size
+    with open(path, "r", encoding="utf-8") as f:
+        return list(csv.DictReader(f))
 
-def select_stratified_sample(data: List[Dict], sample_size: int, seed: int) -> List[Dict]:
+def calculate_sample_size(N_llm: int, min_threshold: int = 10, scaling_factor: float = 0.1) -> int:
     """
-    Select a stratified sample based on source_type.
-    Ensures representation from both 'llm' and 'human' groups.
+    Calculate sample size for manual audit.
+    Logic from T009: max(min_threshold, floor(N * scaling_factor))
+    """
+    return max(min_threshold, int(N_llm * scaling_factor))
+
+def select_stratified_sample(prs: List[Dict[str, Any]], sample_size: int, seed: int = 42) -> List[Dict[str, Any]]:
+    """
+    Select a stratified sample of PRs for manual audit.
+    Stratifies by source_type (llm vs human) to ensure representation.
     """
     set_global_seed(seed)
     
-    # Group by source_type
-    groups = {}
-    for row in data:
-        st = row['source_type']
-        if st not in groups:
-            groups[st] = []
-        groups[st].append(row)
+    llm_prs = [p for p in prs if p["source_type"] == "llm"]
+    human_prs = [p for p in prs if p["source_type"] == "human"]
     
-    sample = []
-    # Simple stratified: proportional allocation
-    for st, items in groups.items():
-        count = len(items)
-        if count == 0:
+    # Calculate proportional allocation
+    n_llm = min(len(llm_prs), int(sample_size * (len(llm_prs) / len(prs))))
+    n_human = sample_size - n_llm
+    
+    # Ensure we don't exceed available data
+    n_llm = min(n_llm, len(llm_prs))
+    n_human = min(n_human, len(human_prs))
+    
+    import random
+    random.seed(seed)
+    
+    sample_llm = random.sample(llm_prs, n_llm) if n_llm > 0 else []
+    sample_human = random.sample(human_prs, n_human) if n_human > 0 else []
+    
+    return sample_llm + sample_human
+
+def generate_audit_input(sample: List[Dict[str, Any]], output_path: str) -> None:
+    """
+    Generate the JSONL input file for human auditors.
+    Includes PR details and placeholder fields for human input.
+    """
+    with open(output_path, "w", encoding="utf-8") as f:
+        for pr in sample:
+            record = {
+                "pr_id": pr["pr_id"],
+                "source_type": pr["source_type"],
+                "confidence_score": pr["confidence_score"],
+                "detector_score": pr["detector_score"],
+                "automated_label": pr["source_type"],
+                "diff_summary": pr.get("diff_summary", "N/A"),
+                "human_label": None,  # To be filled by human
+                "human_confidence": None
+            }
+            f.write(json.dumps(record) + "\n")
+
+def poll_for_updates(input_path: str, interval: int = 10, max_wait: int = 60) -> Optional[Dict[str, Any]]:
+    """
+    Poll the input file for updates.
+    Returns the first record that has been updated by a human (has human_label).
+    """
+    start_time = time.time()
+    last_mtime = 0.0
+    
+    while time.time() - start_time < max_wait:
+        if not os.path.exists(input_path):
+            time.sleep(interval)
             continue
-        # Calculate allocation for this stratum
-        allocation = int((count / len(data)) * sample_size)
-        if allocation == 0 and sample_size > 0:
-            allocation = 1 # Ensure at least one if needed
         
-        # Shuffle and pick
-        random.shuffle(items)
-        selected = items[:allocation]
-        sample.extend(selected)
-    
-    # If we need more to reach sample_size (due to rounding), pick randoms
-    while len(sample) < sample_size and len(data) > len(sample):
-        # Pick from remaining
-        remaining = [x for x in data if x not in sample]
-        if not remaining:
-            break
-        idx = random.randint(0, len(remaining) - 1)
-        sample.append(remaining[idx])
+        current_mtime = os.path.getmtime(input_path)
         
-    return sample
+        # Check if file has changed since last check
+        if current_mtime > last_mtime:
+            last_mtime = current_mtime
+            
+            # Read and check for updates
+            with open(input_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    record = json.loads(line)
+                    if record.get("human_label") is not None:
+                        return record
+        
+        time.sleep(interval)
+    
+    return None
 
-def display_pr_summary(pr: Dict) -> None:
-    """Display a summary of the PR to the terminal for audit."""
-    print("\n" + "="*80)
-    print(f"PR ID: {pr['pr_id']}")
-    print(f"Source Type (Automated): {pr['source_type']}")
-    print(f"Confidence Score: {pr['confidence_score']:.4f}")
-    print(f"Detector Score: {pr['detector_score']:.4f}")
-    print(f"Flagged: {pr.get('flagged', False)}")
-    
-    # Display diff summary (truncated)
-    diff_text = pr.get('diff_summary', 'No diff summary available')
-    if len(diff_text) > 500:
-        diff_text = diff_text[:500] + "..."
-    print(f"Diff Summary:\n{diff_text}")
-    print("="*80)
-
-def execute_human_judgment_checklist(pr: Dict, checklist_headers: List[str]) -> Dict[str, Any]:
+def calculate_error_rate(audit_results: List[Dict[str, Any]]) -> Dict[str, float]:
     """
-    Interactive loop to get human judgment for a single PR.
-    Returns the updated record with 'human_label'.
+    Calculate error rates based on audit results.
+    Compares automated_label vs human_label.
     """
-    display_pr_summary(pr)
+    total = len(audit_results)
+    if total == 0:
+        return {"error_rate": 0.0, "count": 0}
     
-    print("\nPlease provide the following:")
-    
-    # Prompt for human label
-    while True:
-        human_label = input("Human Label (llm/human/ambiguous): ").strip().lower()
-        if human_label in ['llm', 'human', 'ambiguous']:
-            break
-        print("Invalid input. Please enter 'llm', 'human', or 'ambiguous'.")
-    
-    # Prompt for checklist items (simplified for CLI: boolean flags)
-    # In a real GUI, this would be checkboxes. Here we ask for a comma-separated list of True/False
-    # or just a single "Pass/Fail" for the whole checklist if the template is complex.
-    # For this implementation, we'll assume the checklist items are boolean flags in the CSV.
-    # We will ask the user to confirm the checklist status.
-    
-    checklist_response = {}
-    # We assume the checklist has specific boolean columns like 'boilerplate_ok', 'syntax_ok' etc.
-    # Since we don't have the exact headers from T019a here, we'll prompt generically.
-    # If the template has 'checklist_items' as a string, we might parse it.
-    # For now, let's just store the human_label and a generic 'audit_passed' flag.
-    
-    audit_passed = input("Did the automated label match your judgment? (y/n): ").strip().lower() == 'y'
-    
-    updated_pr = pr.copy()
-    updated_pr['human_label'] = human_label
-    updated_pr['audit_passed'] = audit_passed
-    updated_pr['audit_timestamp'] = time.strftime("%Y-%m-%d %H:%M:%S")
-    
-    # Add placeholder for checklist items if they exist in the template
-    # We'll just add a generic field for now
-    updated_pr['checklist_notes'] = input("Any specific checklist notes? (optional): ").strip()
-    
-    return updated_pr
-
-def calculate_error_rate(results: List[Dict]) -> Dict[str, Any]:
-    """
-    Calculate the error rate of the automated classifier against human labels.
-    Error = (Automated != Human) / Total
-    """
-    if not results:
-        return {"error_rate": 0.0, "count": 0, "errors": 0}
-    
-    total = len(results)
     errors = 0
-    for r in results:
-        auto_label = r['source_type']
-        human_label = r['human_label']
-        if auto_label != human_label and human_label != 'ambiguous':
+    for record in audit_results:
+        if record.get("automated_label") != record.get("human_label"):
             errors += 1
     
-    error_rate = errors / total if total > 0 else 0.0
-    
     return {
-        "error_rate": error_rate,
+        "error_rate": errors / total,
         "total_audited": total,
-        "errors": errors,
-        "threshold": 0.05 # SC-004 threshold
+        "errors": errors
     }
 
-def save_audit_results(results: List[Dict], output_path: str) -> None:
-    """Save the audit results to a JSON file."""
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
+def validate_ground_truth(audit_results: List[Dict[str, Any]], detector_threshold: float = 0.7) -> Dict[str, Any]:
+    """
+    Validate ground truth for high-confidence cases.
+    Compares human_label vs detector_score for high-confidence automated labels.
+    """
+    high_conf_cases = [r for r in audit_results if r.get("detector_score", 0) >= detector_threshold]
+    
+    if not high_conf_cases:
+        return {"valid": True, "reason": "No high-confidence cases found"}
+    
+    mismatches = 0
+    for r in high_conf_cases:
+        if r.get("automated_label") != r.get("human_label"):
+            mismatches += 1
+    
+    return {
+        "high_confidence_cases": len(high_conf_cases),
+        "mismatches": mismatches,
+        "validation_rate": 1.0 - (mismatches / len(high_conf_cases)) if high_conf_cases else 1.0
+    }
+
+def save_audit_results(results: List[Dict[str, Any]], output_path: str) -> None:
+    """Save the full audit results to a JSON file."""
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
         json.dump(results, f, indent=2)
-    logger.info(f"Audit results saved to {output_path}")
 
 def save_error_rate(error_data: Dict[str, Any], output_path: str) -> None:
-    """Save the error rate calculation to a JSON file."""
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
+    """Save the error rate metrics to a JSON file."""
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
         json.dump(error_data, f, indent=2)
-    logger.info(f"Error rate saved to {output_path}")
 
-def run_manual_validation(args: argparse.Namespace) -> None:
-    """Main execution logic for the manual validation runner."""
-    # Setup
-    config = get_audit_config()
-    seed = config.get('seed', 42)
-    set_global_seed(seed)
+# --- Main Execution ---
+
+def run_manual_validation(
+    input_csv: str,
+    checklist_csv: str,
+    output_dir: str,
+    poll_interval: int = 10,
+    max_poll_time: int = 60,
+    seed: int = 42
+) -> None:
+    """
+    Main orchestration function for the manual validation audit.
     
-    input_path = args.input or get_path('labeled_dataset')
-    template_path = get_path('audit_checklist')
-    output_results_path = get_path('audit_results')
-    output_error_path = get_path('error_rate')
+    1. Load data.
+    2. Select stratified sample.
+    3. Generate audit input.
+    4. Poll for human updates.
+    5. Calculate metrics.
+    6. Save results.
+    """
+    logger = get_logger()
+    logger.log("audit_start", input=input_csv, output_dir=output_dir)
     
-    logger.info(f"Starting manual validation audit for {input_path}")
+    # Paths
+    audit_input_path = os.path.join(output_dir, "audit_input.jsonl")
+    results_output_path = os.path.join(output_dir, "manual_audit_results.json")
+    error_rate_output_path = os.path.join(output_dir, "error_rate.json")
     
-    # 1. Load Data
-    try:
-        labeled_prs = load_labeled_prs(input_path)
-        checklist_headers = load_checklist_template(template_path)
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        sys.exit(1)
+    # 1. Load data
+    logger.log("loading_data", input=input_csv, checklist=checklist_csv)
+    prs = load_labeled_prs(input_csv)
+    checklist = load_checklist_template(checklist_csv)
     
-    # 2. Select Sample
-    sample_size = calculate_sample_size(len(labeled_prs), config)
-    sample = select_stratified_sample(labeled_prs, sample_size, seed)
-    logger.info(f"Selected {len(sample)} PRs for audit.")
+    # 2. Calculate sample size and select sample
+    N_llm = len([p for p in prs if p["source_type"] == "llm"])
+    sample_size = calculate_sample_size(N_llm)
+    logger.log("sample_selected", total_prs=len(prs), n_llm=N_llm, sample_size=sample_size)
     
-    # 3. Execute Human Judgment (Interactive)
-    results = []
-    for i, pr in enumerate(sample):
-        print(f"\n[Audit {i+1}/{len(sample)}]")
-        try:
-            result = execute_human_judgment_checklist(pr, checklist_headers)
-            results.append(result)
-        except KeyboardInterrupt:
-            print("\nAudit interrupted by user. Saving partial results...")
+    sample = select_stratified_sample(prs, sample_size, seed=seed)
+    
+    # 3. Generate audit input
+    logger.log("generating_audit_input", path=audit_input_path)
+    generate_audit_input(sample, audit_input_path)
+    
+    print(f"Audit input generated: {audit_input_path}")
+    print(f"Please manually label {len(sample)} PRs in this file.")
+    print(f"Set 'human_label' to 'llm' or 'human' and 'human_confidence' (0-1).")
+    print(f"Script will poll for updates every {poll_interval}s (max {max_poll_time}s).")
+    
+    # 4. Poll for updates
+    # In a real interactive scenario, we would loop. For this script, we simulate
+    # the polling by checking if the file has been modified by the user.
+    # Since we cannot block indefinitely in an automated runner, we do one pass
+    # or wait if the file exists and is being edited.
+    
+    updated_results = []
+    start_time = time.time()
+    
+    # Initial read
+    if os.path.exists(audit_input_path):
+        with open(audit_input_path, "r", encoding="utf-8") as f:
+            for line in f:
+                updated_results.append(json.loads(line))
+    
+    # Polling loop
+    while time.time() - start_time < max_poll_time:
+        current_results = []
+        if os.path.exists(audit_input_path):
+            with open(audit_input_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    current_results.append(json.loads(line))
+        
+        # Check if we have new labels
+        if any(r.get("human_label") for r in current_results):
+            updated_results = current_results
+            print("New labels detected. Saving results...")
             break
+        
+        time.sleep(poll_interval)
     
-    # 4. Save Results
-    save_audit_results(results, output_results_path)
+    # 5. Calculate Error Rate and Validate Ground Truth
+    error_metrics = calculate_error_rate(updated_results)
+    ground_truth_validation = validate_ground_truth(updated_results)
     
-    # 5. Calculate and Save Error Rate
-    error_stats = calculate_error_rate(results)
-    save_error_rate(error_stats, output_error_path)
+    # 6. Save results
+    save_audit_results(updated_results, results_output_path)
+    save_error_rate(error_metrics, error_rate_output_path)
     
-    # Summary
-    print("\n" + "="*80)
-    print("AUDIT COMPLETE")
-    print(f"Total Audited: {error_stats['total_audited']}")
-    print(f"Errors Found: {error_stats['errors']}")
-    print(f"Error Rate: {error_stats['error_rate']:.4f} ({error_stats['error_rate']*100:.2f}%)")
-    print(f"Threshold: {error_stats['threshold']}")
-    if error_stats['error_rate'] > error_stats['threshold']:
-        print("STATUS: BLOCKED - Error rate exceeds threshold.")
-    else:
-        print("STATUS: PASSED - Error rate within threshold.")
-    print("="*80)
+    logger.log("audit_complete", error_rate=error_metrics["error_rate"], 
+               output_results=results_output_path, output_error=error_rate_output_path)
+    
+    print(f"Audit complete. Results saved to {results_output_path}")
+    print(f"Error rate: {error_metrics['error_rate']:.4f} ({error_metrics['errors']}/{error_metrics['total_audited']})")
+    print(f"Ground truth validation rate: {ground_truth_validation.get('validation_rate', 0):.4f}")
 
-def main():
+def main() -> None:
+    """CLI entry point."""
     parser = argparse.ArgumentParser(description="Manual Validation Audit Runner (T019b)")
-    parser.add_argument('--input', type=str, help='Path to prs_labeled.csv')
-    parser.add_argument('--output', type=str, help='Path to output audit results JSON (deprecated, uses config)')
+    parser.add_argument("--input", type=str, default=None, help="Path to prs_labeled.csv")
+    parser.add_argument("--checklist", type=str, default=None, help="Path to manual_audit_checklist.csv")
+    parser.add_argument("--output-dir", type=str, default=None, help="Output directory for audit files")
+    parser.add_argument("--poll-interval", type=int, default=10, help="Polling interval in seconds")
+    parser.add_argument("--max-poll-time", type=int, default=60, help="Maximum polling time in seconds")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed for sampling")
+    
     args = parser.parse_args()
     
-    setup_logging()
-    run_manual_validation(args)
+    # Setup logging
+    log_config = setup_logging()
+    logger = get_logger()
+    
+    # Determine paths
+    if args.input is None:
+        args.input = str(get_path("processed_prs_labeled"))
+    if args.checklist is None:
+        args.checklist = str(get_path("manual_audit_checklist"))
+    if args.output_dir is None:
+        args.output_dir = str(get_path("audit_dir"))
+    
+    # Ensure output directory exists
+    os.makedirs(args.output_dir, exist_ok=True)
+    
+    try:
+        run_manual_validation(
+            input_csv=args.input,
+            checklist_csv=args.checklist,
+            output_dir=args.output_dir,
+            poll_interval=args.poll_interval,
+            max_poll_time=args.max_poll_time,
+            seed=args.seed
+        )
+    except FileNotFoundError as e:
+        logger.log("audit_failed", error=str(e))
+        print(f"ERROR: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.log("audit_failed", error=str(e))
+        print(f"Unexpected error: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

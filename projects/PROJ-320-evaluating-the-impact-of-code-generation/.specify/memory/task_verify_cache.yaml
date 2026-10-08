@@ -5,6 +5,14 @@ T003:
     \ sections, satisfying the requirement to provide project\u2011specific linting\
     \ and formatting settings (the separate `ruff.toml` and `black.toml` files are\
     \ optional)."
+T017:
+  c: false
+  h: b6c24437230c47aa646b66f9e01bf6a9e8500d23af2743e9718b7e341eae6f44
+  r: "The `save_labeled_dataset.py` script exists and defines the required schema,\
+    \ but the expected output file `data/processed/prs_labeled.csv` is missing, so\
+    \ the task\u2019s primary deliverable (the labeled CSV) was not produced. The\
+    \ next implementer must run the script (or otherwise generate) to create the CSV\
+    \ with the specified columns."
 T019a:
   c: false
   h: 55cf842a59b805eeefaa1ae6dd7ac2deee86e325a005638758867ee338bd25ed
@@ -13,13 +21,24 @@ T019a:
     sample calculation, and the file is truncated before the sample\u2011selection,\
     \ checklist, and JSON\u2011logging code. Moreover, the required output file `data/audit/manual_audit_results.json`\
     \ does not exist."
-T022:
+T019b:
   c: false
-  h: 0eb9db584eb640524bf3266b693f4fe062755f44f2efa731e71632823c3ab80b
-  r: The provided `extract_metrics.py` exists but its implementation is truncated
-    and never reaches the joining or output steps, and the required input files `data/processed/prs_labeled.csv`
-    and `data/processed/complexity_scores.csv` are missing, so the script cannot produce
-    the specified `prs_metrics.csv` with the required schema.
+  h: a4252aeb61d1294bc3f5b4b384e49217e451260e9c7d901e11b7f00c24f718a4
+  r: "The provided `manual_validation.py` is truncated (e.g., `select_stratified_sample`\
+    \ ends abruptly) and lacks the CLI entry point, polling loop, error\u2011rate\
+    \ calculations, and code that writes `manual_audit_results.json` and `error_rate.json`.\
+    \ Moreover, the expected result files are absent from `data/audit/`. The implementation\
+    \ does not fulfill the full task requirements."
+T024a:
+  c: false
+  h: 6fc3e763963ff4c598820cbbe63492faeba3603acc0a222c9bcc999df38e05ec
+  r: "The required output file `data/processed/results.json` does not exist, so the\
+    \ primary deliverable is missing. Additionally, the provided `statistical_tests.py`\
+    \ excerpt does not show the required Shapiro\u2011Wilk normality check or the\
+    \ JSON writing logic. The next implementer must add the normality test, ensure\
+    \ the t\u2011test is forced with the specified warning, compute both t\u2011test\
+    \ and Mann\u2011Whitney U results, and write them to `data/processed/results.json`\
+    \ with the exact schema."
 T027:
   c: false
   h: 8000ea2b71150998fd4006aa6d4f86d630000b526d91a6d242ed058cbcfef9dd
@@ -34,12 +53,12 @@ T030b:
     \ required test `test_histogram_generation` (which should assert that `reports/figures/histograms.pdf`\
     \ exists) is absent, and the `histograms.pdf` file itself is missing. The task\u2019\
     s specific artifact and test are not present."
-T033a:
+T033b:
   c: false
-  h: c769f2ec35ca85e2cd1bc4deb68ff8ee98aa94ae4cf0df3270067a952cba6e0e
-  r: "The required dataset `data/processed/prs_labeled.csv` is absent, so the script\
-    \ cannot compute metrics on PR diffs. Moreover, `code/analysis/complexity.py`\
-    \ only defines helper functions (e.g., `calculate_loc`, `calculate_cyclomatic_complexity`)\
-    \ and does not contain code that reads the CSV and applies these calculations\
-    \ to the PR diffs. Both the essential input file and the end\u2011to\u2011end\
-    \ processing logic are missing."
+  h: da0b8c3a035021d954448d4bb78330bf081f477133f5ced5caadc70ca77f1ed6
+  r: "The `save_complexity_scores.py` script exists, but the required input file `data/processed/prs_labeled.csv`\
+    \ and the generated output `data/processed/complexity_scores.csv` are both missing,\
+    \ so the script cannot produce the required CSV with `pr_id` and `complexity_score`\
+    \ columns. The next implementer must provide the `prs_labeled.csv` dataset (or\
+    \ mock data) and ensure the script runs to create a non\u2011empty `complexity_scores.csv`\
+    \ with the correct columns."

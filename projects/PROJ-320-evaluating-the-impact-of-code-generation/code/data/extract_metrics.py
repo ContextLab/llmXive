@@ -1,321 +1,382 @@
 """
-Extract review metrics from labeled PRs and join with complexity scores.
+T022 Implementation: Extract PR metrics and join with complexity scores.
 
-This script calculates comment_count, time_to_merge_minutes, and review_cycles
-for every PR from data/processed/prs_labeled.csv and joins with
-data/processed/complexity_scores.csv (produced by T033) to include the
-actual complexity_score.
+Calculates comment_count, time_to_merge_minutes, and review_cycles for every PR
+from data/processed/prs_labeled.csv and joins with data/processed/complexity_scores.csv
+on pr_id.
 
 Output: data/processed/prs_metrics.csv
 Schema: pr_id (int), comment_count (int), time_to_merge_minutes (float),
         review_cycles (int), complexity_score (float)
 """
-
-import os
+import argparse
 import csv
 import json
-from pathlib import Path
+import os
+import sys
 from datetime import datetime
-from typing import List, Dict, Any, Optional
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
-# Import from project utils
-from utils.logging import get_logger, setup_logging
+# Add project root to path for imports
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from utils.logging import setup_logging, get_logger
 from utils.config import get_path
 
-# Setup logging
-logger = get_logger(__name__)
-setup_logging()
 
-def setup_logging_and_config():
-    """Initialize logging and configuration."""
-    return logger
+def setup_logging_and_config(script_name: str = "extract_metrics") -> tuple:
+    """Initialize logging and load configuration."""
+    # Tolerant logging setup handling various call signatures seen in execution logs
+    try:
+        logger = setup_logging(script_name=script_name)
+    except TypeError:
+        try:
+            logger = setup_logging(log_file=f"data/logs/{script_name}.log")
+        except (TypeError, FileNotFoundError):
+            # Fallback to default setup if arguments don't match
+            logger = setup_logging()
+    
+    config = get_path()
+    return logger, config
 
-def load_prs_labeled(logger: Any) -> List[Dict[str, Any]]:
+
+def load_prs_labeled(logger: Any, input_path: Optional[str] = None) -> List[Dict[str, Any]]:
     """
-    Load the labeled PRs dataset from data/processed/prs_labeled.csv.
-
-    Returns a list of dictionaries with PR data including:
-    - pr_id: int
-    - created_at: str (ISO format)
-    - merged_at: str (ISO format) or None
-    - comment_count: int
-    - review_cycles: int (derived from review events if available)
-    - source_type: str ('llm' or 'human')
+    Load labeled PRs from data/processed/prs_labeled.csv.
+    
+    Args:
+        logger: Logger instance
+        input_path: Optional override for input path
+        
+    Returns:
+        List of dictionaries containing PR data
     """
-    input_path = get_path("processed_prs_labeled")
-    logger.info(f"Loading labeled PRs from {input_path}")
-
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(
-            f"Required input file not found: {input_path}. "
-            "Ensure T017 (save_labeled_dataset) has completed successfully."
-        )
-
-    prs = []
-    with open(input_path, 'r', newline='', encoding='utf-8') as f:
+    path = input_path or get_path("processed", "prs_labeled.csv")
+    logger.info(f"Loading labeled PRs from {path}")
+    
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Required input file not found: {path}. "
+                              "Ensure T017 (save_labeled_dataset) has completed successfully.")
+    
+    data = []
+    with open(path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            prs.append({
-                'pr_id': int(row['pr_id']),
-                'created_at': row.get('created_at'),
-                'merged_at': row.get('merged_at'),
-                'comment_count': int(row.get('comment_count', 0)),
-                'review_cycles': int(row.get('review_cycles', 0)),
-                'source_type': row.get('source_type', 'unknown'),
-                'confidence_score': float(row.get('confidence_score', 0.0)),
-                'flagged': row.get('flagged', 'False') == 'True',
-                'detector_score': float(row.get('detector_score', 0.0))
-            })
+            data.append(row)
+    
+    logger.info(f"Loaded {len(data)} labeled PRs")
+    return data
 
-    logger.info(f"Loaded {len(prs)} PRs from labeled dataset")
-    return prs
 
-def load_complexity_scores(logger: Any) -> Dict[int, float]:
+def load_complexity_scores(logger: Any, input_path: Optional[str] = None) -> Dict[int, float]:
     """
     Load complexity scores from data/processed/complexity_scores.csv.
-
-    Returns a dictionary mapping pr_id -> complexity_score.
+    
+    Args:
+        logger: Logger instance
+        input_path: Optional override for input path
+        
+    Returns:
+        Dictionary mapping pr_id to complexity_score
     """
-    input_path = get_path("processed_complexity_scores")
-    logger.info(f"Loading complexity scores from {input_path}")
-
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(
-            f"Required input file not found: {input_path}. "
-            "Ensure T033 (save_complexity_scores) has completed successfully."
-        )
-
+    path = input_path or get_path("processed", "complexity_scores.csv")
+    logger.info(f"Loading complexity scores from {path}")
+    
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Required input file not found: {path}. "
+                              "Ensure T033b (save_complexity_scores) has completed successfully.")
+    
     complexity_map = {}
-    with open(input_path, 'r', newline='', encoding='utf-8') as f:
+    with open(path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            pr_id = int(row['pr_id'])
-            complexity_score = float(row['complexity_score'])
-            complexity_map[pr_id] = complexity_score
-
-    logger.info(f"Loaded complexity scores for {len(complexity_map)} PRs")
+            try:
+                pr_id = int(row['pr_id'])
+                complexity_score = float(row['complexity_score'])
+                complexity_map[pr_id] = complexity_score
+            except (ValueError, KeyError) as e:
+                logger.warning(f"Skipping malformed complexity row: {row} - {e}")
+    
+    logger.info(f"Loaded {len(complexity_map)} complexity scores")
     return complexity_map
 
-def parse_timestamp(timestamp_str: Optional[str]) -> Optional[datetime]:
-    """
-    Parse an ISO format timestamp string to datetime object.
 
-    Handles common GitHub API timestamp formats.
+def parse_timestamp(timestamp_str: str) -> Optional[datetime]:
+    """
+    Parse various timestamp formats to datetime object.
+    
+    Args:
+        timestamp_str: Timestamp string from GitHub API
+        
+    Returns:
+        datetime object or None if parsing fails
     """
     if not timestamp_str:
         return None
-
-    try:
-        # Try standard ISO format
-        return datetime.fromisoformat(timestamp_str.replace('Z', '+00:00'))
-    except ValueError:
+    
+    formats = [
+        "%Y-%m-%dT%H:%M:%SZ",
+        "%Y-%m-%dT%H:%M:%S.%fZ",
+        "%Y-%m-%d %H:%M:%S",
+        "%Y-%m-%dT%H:%M:%S"
+    ]
+    
+    for fmt in formats:
         try:
-            # Try alternative formats
-            return datetime.strptime(timestamp_str, "%Y-%m-%dT%H:%M:%S")
+            return datetime.strptime(timestamp_str, fmt)
         except ValueError:
-            logger.warning(f"Could not parse timestamp: {timestamp_str}")
-            return None
+            continue
+    
+    logger.warning(f"Could not parse timestamp: {timestamp_str}")
+    return None
 
-def calculate_time_to_merge_minutes(created_at: Optional[str], merged_at: Optional[str]) -> Optional[float]:
+
+def calculate_time_to_merge_minutes(pr_data: Dict[str, Any]) -> float:
     """
-    Calculate time-to-merge in minutes between PR creation and merge.
-
-    Returns None if either timestamp is missing or merge didn't occur.
-    """
-    if not created_at or not merged_at:
-        return None
-
-    created_dt = parse_timestamp(created_at)
-    merged_dt = parse_timestamp(merged_at)
-
-    if not created_dt or not merged_dt:
-        return None
-
-    if merged_dt < created_dt:
-        logger.warning(f"Invalid timestamps: merged_at < created_at for PR")
-        return None
-
-    delta = merged_dt - created_dt
-    return delta.total_seconds() / 60.0
-
-def calculate_review_cycles(review_events: Optional[List[Dict[str, Any]]]) -> int:
-    """
-    Calculate the number of review cycles from review events.
-
-    A review cycle is counted when there's a review request or approval/rejection
-    that indicates a round of feedback. For simplicity, we count unique
-    review sessions or rounds.
-
+    Calculate time to merge in minutes from created_at to merged_at.
+    
     Args:
-        review_events: List of review event dictionaries
-
+        pr_data: Dictionary containing PR data with timestamps
+        
     Returns:
-        int: Number of review cycles (minimum 0)
+        Time to merge in minutes, or -1.0 if calculation fails
     """
+    created_at = parse_timestamp(pr_data.get('created_at', ''))
+    merged_at = parse_timestamp(pr_data.get('merged_at', ''))
+    
+    if created_at and merged_at and merged_at > created_at:
+        delta = merged_at - created_at
+        return delta.total_seconds() / 60.0
+    
+    return -1.0
+
+
+def calculate_review_cycles(pr_data: Dict[str, Any]) -> int:
+    """
+    Calculate review cycles based on review events.
+    
+    A review cycle is counted when there are multiple review states
+    (e.g., REQUEST_CHANGES -> COMMENT -> APPROVE).
+    
+    Args:
+        pr_data: Dictionary containing PR data with review_events
+        
+    Returns:
+        Number of review cycles
+    """
+    review_events = pr_data.get('review_events', [])
     if not review_events:
         return 0
-
-    # Count distinct review cycles based on state changes
-    # This is a simplified heuristic; real implementation would parse
-    # the actual review event sequence
-    cycles = 0
-    last_state = None
-
+    
+    # Count state changes in reviews
+    state_changes = 0
+    prev_state = None
+    
     for event in review_events:
-        state = event.get('state', '').lower()
-        if state in ['approved', 'changes_requested', 'commented']:
-            if state != last_state:
-                cycles += 1
-                last_state = state
+        state = event.get('state', '').upper()
+        if state and state != prev_state:
+            if prev_state is not None:
+                state_changes += 1
+            prev_state = state
+    
+    return max(1, state_changes) if state_changes > 0 else 0
 
-    return cycles
 
 def extract_comment_count(pr_data: Dict[str, Any]) -> int:
     """
-    Extract the comment count from PR data.
-
+    Extract total comment count from PR data.
+    
     Args:
-        pr_data: Dictionary containing PR information
-
+        pr_data: Dictionary containing PR data
+        
     Returns:
-        int: Number of comments on the PR
+        Total comment count
     """
-    return int(pr_data.get('comment_count', 0))
+    # Sum of comments and review comments
+    comments = int(pr_data.get('comments', 0))
+    review_comments = int(pr_data.get('review_comments', 0))
+    return comments + review_comments
 
-def extract_pr_metrics(
-    pr: Dict[str, Any],
-    complexity_map: Dict[int, float],
-    logger: Any
-) -> Dict[str, Any]:
+
+def extract_pr_metrics(prs: List[Dict[str, Any]], logger: Any) -> List[Dict[str, Any]]:
     """
-    Extract all metrics for a single PR.
-
+    Extract metrics for all PRs.
+    
     Args:
-        pr: Labeled PR data dictionary
-        complexity_map: Dictionary mapping pr_id to complexity_score
+        prs: List of PR dictionaries
         logger: Logger instance
-
+        
     Returns:
-        Dictionary with all extracted metrics
+        List of dictionaries with extracted metrics
     """
-    pr_id = pr['pr_id']
+    metrics = []
+    
+    for pr in prs:
+        try:
+            pr_id = int(pr.get('pr_id', pr.get('id', 0)))
+            comment_count = extract_comment_count(pr)
+            time_to_merge = calculate_time_to_merge_minutes(pr)
+            review_cycles = calculate_review_cycles(pr)
+            
+            metrics.append({
+                'pr_id': pr_id,
+                'comment_count': comment_count,
+                'time_to_merge_minutes': time_to_merge,
+                'review_cycles': review_cycles
+            })
+            
+        except (ValueError, KeyError) as e:
+            logger.warning(f"Skipping PR due to extraction error: {pr.get('pr_id', 'unknown')} - {e}")
+            continue
+    
+    logger.info(f"Extracted metrics for {len(metrics)} PRs")
+    return metrics
 
-    # Calculate time to merge
-    time_to_merge = calculate_time_to_merge_minutes(
-        pr.get('created_at'),
-        pr.get('merged_at')
-    )
-
-    # Get comment count (already in labeled data, but re-extract for clarity)
-    comment_count = extract_comment_count(pr)
-
-    # Get review cycles (already in labeled data, but re-extract for clarity)
-    review_cycles = pr.get('review_cycles', 0)
-
-    # Get complexity score from joined data
-    complexity_score = complexity_map.get(pr_id)
-    if complexity_score is None:
-        logger.warning(f"PR {pr_id} not found in complexity scores. Using 0.0")
-        complexity_score = 0.0
-
-    return {
-        'pr_id': pr_id,
-        'comment_count': comment_count,
-        'time_to_merge_minutes': time_to_merge if time_to_merge is not None else 0.0,
-        'review_cycles': review_cycles,
-        'complexity_score': complexity_score,
-        'source_type': pr.get('source_type', 'unknown')
-    }
 
 def join_and_save_metrics(
-    prs: List[Dict[str, Any]],
-    complexity_map: Dict[int, float],
+    metrics: List[Dict[str, Any]], 
+    complexity_map: Dict[int, float], 
     output_path: str,
     logger: Any
-) -> int:
+) -> bool:
     """
-    Join PRs with complexity scores and save to CSV.
-
+    Join metrics with complexity scores and save to CSV.
+    
     Args:
-        prs: List of labeled PR dictionaries
+        metrics: List of metric dictionaries
         complexity_map: Dictionary mapping pr_id to complexity_score
-        output_path: Path for output CSV file
+        output_path: Path for output CSV
         logger: Logger instance
-
+        
     Returns:
-        int: Number of records written
+        True if successful, False otherwise
     """
-    logger.info(f"Joining {len(prs)} PRs with complexity scores")
-
-    metrics = []
-    for pr in prs:
-        metric_row = extract_pr_metrics(pr, complexity_map, logger)
-        metrics.append(metric_row)
-
+    joined_data = []
+    skipped_count = 0
+    
+    for metric in metrics:
+        pr_id = metric['pr_id']
+        complexity_score = complexity_map.get(pr_id, -1.0)
+        
+        if pr_id not in complexity_map:
+            skipped_count += 1
+            logger.warning(f"Complexity score missing for PR {pr_id}, using -1.0")
+        
+        joined_data.append({
+            'pr_id': pr_id,
+            'comment_count': metric['comment_count'],
+            'time_to_merge_minutes': metric['time_to_merge_minutes'],
+            'review_cycles': metric['review_cycles'],
+            'complexity_score': complexity_score
+        })
+    
+    if skipped_count > 0:
+        logger.warning(f"Skipped {skipped_count} PRs due to missing complexity scores")
+    
+    # Ensure output directory exists
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir, exist_ok=True)
+    
     # Write to CSV
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-
-    fieldnames = ['pr_id', 'comment_count', 'time_to_merge_minutes',
-                  'review_cycles', 'complexity_score', 'source_type']
-
+    fieldnames = ['pr_id', 'comment_count', 'time_to_merge_minutes', 'review_cycles', 'complexity_score']
+    
     with open(output_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        for metric in metrics:
-            writer.writerow(metric)
+        writer.writerows(joined_data)
+    
+    logger.info(f"Saved {len(joined_data)} joined metrics to {output_path}")
+    return True
 
-    logger.info(f"Wrote {len(metrics)} metrics to {output_path}")
-    return len(metrics)
 
-def run_extraction(logger: Any) -> bool:
+def run_extraction(
+    labeled_path: Optional[str] = None,
+    complexity_path: Optional[str] = None,
+    output_path: Optional[str] = None
+) -> bool:
     """
-    Main extraction pipeline: load data, join, and save metrics.
-
+    Main extraction pipeline.
+    
+    Args:
+        labeled_path: Path to labeled PRs CSV
+        complexity_path: Path to complexity scores CSV
+        output_path: Path for output metrics CSV
+        
     Returns:
-        bool: True if successful, False otherwise
+        True if successful, False otherwise
     """
+    logger, config = setup_logging_and_config()
+    logger.info("Starting PR metrics extraction pipeline (T022)")
+    
     try:
-        # Load input data
-        prs = load_prs_labeled(logger)
-        complexity_map = load_complexity_scores(logger)
-
-        if not prs:
-            logger.error("No PRs found in labeled dataset")
-            return False
-
-        if not complexity_map:
-            logger.error("No complexity scores found")
-            return False
-
-        # Define output path
-        output_path = get_path("processed_prs_metrics")
-
+        # Load inputs
+        prs_labeled = load_prs_labeled(logger, labeled_path)
+        complexity_scores = load_complexity_scores(logger, complexity_path)
+        
+        # Extract metrics
+        metrics = extract_pr_metrics(prs_labeled, logger)
+        
+        # Set output path
+        out_path = output_path or get_path("processed", "prs_metrics.csv")
+        
         # Join and save
-        count = join_and_save_metrics(prs, complexity_map, output_path, logger)
-
-        logger.info(f"Extraction complete: {count} records written to {output_path}")
-        return True
-
+        success = join_and_save_metrics(metrics, complexity_scores, out_path, logger)
+        
+        if success:
+            logger.info("Pipeline completed successfully")
+            return True
+        else:
+            logger.error("Pipeline failed during save")
+            return False
+            
     except FileNotFoundError as e:
         logger.error(f"Input file error: {e}")
         return False
     except Exception as e:
-        logger.error(f"Unexpected error during extraction: {e}", exc_info=True)
+        logger.error(f"Pipeline failed with unexpected error: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
         return False
 
+
 def main():
-    """Entry point for the script."""
-    logger = setup_logging_and_config()
-    logger.info("Starting PR metrics extraction pipeline (T022)")
+    """CLI entry point."""
+    parser = argparse.ArgumentParser(
+        description="Extract PR metrics and join with complexity scores (T022)"
+    )
+    parser.add_argument(
+        "--labeled-input",
+        type=str,
+        default=None,
+        help="Path to labeled PRs CSV (default: data/processed/prs_labeled.csv)"
+    )
+    parser.add_argument(
+        "--complexity-input",
+        type=str,
+        default=None,
+        help="Path to complexity scores CSV (default: data/processed/complexity_scores.csv)"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=None,
+        help="Path for output metrics CSV (default: data/processed/prs_metrics.csv)"
+    )
+    
+    args = parser.parse_args()
+    
+    success = run_extraction(
+        labeled_path=args.labeled_input,
+        complexity_path=args.complexity_input,
+        output_path=args.output
+    )
+    
+    sys.exit(0 if success else 1)
 
-    success = run_extraction(logger)
-
-    if success:
-        logger.info("Pipeline completed successfully")
-        return 0
-    else:
-        logger.error("Pipeline failed")
-        return 1
 
 if __name__ == "__main__":
-    exit(main())
+    main()

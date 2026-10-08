@@ -1,67 +1,51 @@
 """
-Custom error classes for GitHub API interactions and pipeline errors.
+Custom Error Classes for the project.
 """
 import time
 from typing import Optional, Dict, Any
 
 class GitHubAPIError(Exception):
-    """Base exception for GitHub API errors."""
-    def __init__(self, message: str, status_code: Optional[int] = None):
-        super().__init__(message)
+    """Base error for GitHub API issues."""
+    def __init__(self, message: str):
         self.message = message
-        self.status_code = status_code
+        super().__init__(self.message)
 
 class RateLimitExceeded(GitHubAPIError):
-    """Exception raised when GitHub rate limit is exceeded."""
-    def __init__(self, message: str, reset_time: Optional[float] = None):
-        super().__init__(message)
-        self.reset_time = reset_time
+    """Raised when GitHub rate limit is hit."""
+    pass
 
 class AuthError(GitHubAPIError):
-    """Exception raised for authentication failures."""
+    """Raised when authentication fails."""
     pass
 
 class ResourceNotFoundError(GitHubAPIError):
-    """Exception raised when a requested resource is not found."""
+    """Raised when a resource (repo, PR) is not found."""
     pass
 
 class WatchdogTimeoutError(Exception):
-    """Exception raised when execution exceeds the time limit."""
+    """Raised when the watchdog timer expires."""
     pass
 
-def handle_github_error(
-    response: Any,
-    default_message: str = "GitHub API error"
-) -> GitHubAPIError:
+def handle_github_error(response: Any) -> None:
     """
-    Convert a GitHub API response into the appropriate exception.
-    
-    Args:
-        response: The requests.Response object
-        default_message: Default message if status code is unknown
-        
-    Returns:
-        The appropriate exception instance
+    Handles GitHub API errors based on response object.
     """
-    status_code = response.status_code
-    text = response.text.lower()
+    if response is None:
+        raise GitHubAPIError("No response received from GitHub API.")
     
-    if status_code == 404:
-        return ResourceNotFoundError(f"Resource not found: {response.url}")
+    status_code = getattr(response, 'status_code', 0)
+    text = getattr(response, 'text', '')
+    
+    if status_code == 401:
+        raise AuthError("Authentication failed (401).")
     elif status_code == 403:
-        if "rate limit" in text:
-            reset_time = response.headers.get("X-RateLimit-Reset")
-            return RateLimitExceeded(
-                "GitHub rate limit exceeded",
-                reset_time=float(reset_time) if reset_time else None
-            )
-        elif "bad credentials" in text:
-            return AuthError("Authentication failed")
+        if 'rate limit' in text.lower():
+            raise RateLimitExceeded("Rate limit exceeded (403).")
         else:
-            return GitHubAPIError(f"Forbidden: {text}", status_code)
-    elif status_code == 401:
-        return AuthError("Unauthorized")
+            raise AuthError("Forbidden (403) - check permissions.")
+    elif status_code == 404:
+        raise ResourceNotFoundError("Resource not found (404).")
     elif status_code >= 500:
-        return GitHubAPIError(f"Server error: {status_code}", status_code)
+        raise GitHubAPIError(f"Server error (5xx): {text}")
     else:
-        return GitHubAPIError(default_message, status_code)
+        raise GitHubAPIError(f"Unexpected error (status={status_code}): {text}")

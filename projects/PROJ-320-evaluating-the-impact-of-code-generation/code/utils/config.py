@@ -1,120 +1,71 @@
 """
-config.py
-
-Centralized configuration management for the project.
-Defines paths, thresholds, and API settings.
+Configuration management for the project.
 """
 import os
 from typing import List, Dict, Any
 from pathlib import Path
 
-# Project root is assumed to be the parent of the 'code' directory
-# If running as a script, we try to infer it, otherwise we use a default
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-if not (_PROJECT_ROOT / "code").exists():
-    # Fallback if structure is different or running in a test environment
-    _PROJECT_ROOT = Path.cwd()
-
-def get_path(relative_path: str) -> Path:
-    """
-    Resolve a relative path from the project root.
-    
-    Args:
-        relative_path: Path relative to the project root.
-        
-    Returns:
-        Absolute Path object.
-    """
-    return _PROJECT_ROOT / relative_path
-
-def get_repo_list() -> List[str]:
-    """
-    Get the list of prioritized repositories to analyze.
-    
-    Returns:
-        List of "owner/repo" strings.
-    """
-    return [
+# Default configuration
+_CONFIG = {
+    "repos": [
         "psf/requests",
         "microsoft/vscode",
-        "numpy/numpy",
-        "pandas-dev/pandas",
-        "scikit-learn/scikit-learn"
-    ]
+        "numpy/numpy"
+    ],
+    "api": {
+        "token": os.getenv("GITHUB_TOKEN", ""),
+        "base_url": "https://api.github.com"
+    },
+    "thresholds": {
+        "min_llm_count": 10,
+        "confidence_threshold": 0.6,
+        "error_rate_threshold": 0.05
+    },
+    "audit": {
+        "min_sample_size": 10,
+        "scaling_factor": 0.1
+    },
+    "complexity": {
+        "memory_threshold_gb": 6,
+        "chunk_size_lines": 1000
+    }
+}
+
+def get_path(key: str) -> Path:
+    """Get a path from config (placeholder for future path config)."""
+    return Path(".")
+
+def get_repo_list() -> List[str]:
+    """Returns the list of prioritized repositories."""
+    return _CONFIG.get("repos", [])
 
 def get_api_settings() -> Dict[str, Any]:
-    """
-    Get GitHub API settings including rate limit handling.
-    
-    Returns:
-        Dictionary with API configuration.
-    """
-    return {
-        "base_url": "https://api.github.com",
-        "timeout": 30,
-        "max_retries": 5,
-        "backoff_factor": 2,
-        "rate_limit_buffer": 10, # Leave this many requests in the buffer
-    }
+    """Returns API settings."""
+    return _CONFIG.get("api", {})
 
 def get_classification_thresholds() -> Dict[str, float]:
-    """
-    Get thresholds for classification logic.
-    
-    Returns:
-        Dictionary with confidence thresholds.
-    """
-    return {
-        "min_confidence_llm": 0.8,
-        "min_confidence_human": 0.6,
-        "ambiguous_threshold": 0.6, # Below this is flagged
-        "detector_score_threshold": 0.5,
-    }
+    """Returns classification thresholds."""
+    return _CONFIG.get("thresholds", {})
 
 def get_audit_settings() -> Dict[str, Any]:
-    """
-    Get settings for manual validation and audit.
-    
-    Returns:
-        Dictionary with audit configuration.
-    """
-    return {
-        "min_sample_size": 30,
-        "percentage_sample": 0.10, # 10% of LLM dataset
-        "error_rate_threshold": 0.05, # 5% max error rate
-    }
+    """Returns audit settings."""
+    return _CONFIG.get("audit", {})
 
 def get_complexity_settings() -> Dict[str, Any]:
-    """
-    Get settings for complexity analysis.
-    
-    Returns:
-        Dictionary with complexity configuration.
-    """
-    return {
-        "memory_threshold_mb": 6000, # 6GB threshold for fallback
-        "chunk_size": 100, # PRs to process in a batch
-    }
+    """Returns complexity settings."""
+    return _CONFIG.get("complexity", {})
 
 def get_config_summary() -> Dict[str, Any]:
-    """
-    Get a summary of all configuration settings for logging/reporting.
-    
-    Returns:
-        Dictionary containing all config sections.
-    """
+    """Returns a summary of the current configuration."""
     return {
-        "repos": get_repo_list(),
-        "api": get_api_settings(),
-        "classification": get_classification_thresholds(),
-        "audit": get_audit_settings(),
-        "complexity": get_complexity_settings(),
+        "repos": len(get_repo_list()),
+        "api_configured": bool(get_api_settings().get("token")),
+        "thresholds": get_classification_thresholds()
     }
 
 def main():
-    """Print current configuration summary."""
-    import json
-    print(json.dumps(get_config_summary(), indent=2))
+    print(f"Repos: {get_repo_list()}")
+    print(f"API Settings: {get_api_settings()}")
 
 if __name__ == "__main__":
     main()

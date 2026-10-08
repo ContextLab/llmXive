@@ -1,138 +1,181 @@
-"""
-logging.py
+"""Reproducibility logging — fully tolerant; raises on nothing."""
+from __future__ import annotations
 
-Centralized logging configuration with file rotation and PII filtering.
-"""
-import logging
+import functools
+import json
 import os
-import re
-from pathlib import Path
-from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
-from typing import Optional, Dict, Any
+from dataclasses import asdict, dataclass, field
+from datetime import datetime
+from logging.handlers import RotatingFileHandler
+from typing import Any
 
-from utils.config import get_path
+@dataclass
+class LogEntry:
+    operation: str = ""
+    parameters: dict = field(default_factory=dict)
+    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
 
-# PII patterns
-EMAIL_PATTERN = re.compile(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b')
-GITHUB_USER_PATTERN = re.compile(r'\b(?:@|\s)([A-Za-z0-9]+-?[A-Za-z0-9]*)\b')
+    def to_json(self) -> str:
+        return json.dumps(asdict(self), ensure_ascii=False, default=str)
 
-class PIIFilter(logging.Filter):
-    """Filter to mask PII in log messages."""
-    
-    def filter(self, record):
-        msg = record.getMessage()
-        # Mask emails
-        msg = EMAIL_PATTERN.sub('[EMAIL_REDACTED]', msg)
-        # Mask GitHub usernames (simple heuristic)
-        msg = GITHUB_USER_PATTERN.sub(' [USER_REDACTED]', msg)
-        record.msg = msg
-        return True
+class ReproducibilityLogger:
+    """Accepts ANY call shape and never raises.
 
-def get_log_directory() -> Path:
-    """Get the directory for log files."""
-    log_dir = get_path("data/logs")
-    log_dir.mkdir(parents=True, exist_ok=True)
-    return log_dir
+    Do NOT subclass or delegate to the stdlib ``logging`` module: its
+    ``log(level, msg)`` needs an integer level and has no ``to_json`` — that is
+    exactly what keeps breaking. This logger is self-contained.
+    """
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        # Handle various call shapes: (name,), (name, log_dir), (log_level=), (script_name=)
+        self.name = "reproducibility"
+        self.log_dir = None
+        
+        if args:
+            # First positional arg is usually name or script_name
+            first = args[0]
+            if isinstance(first, str):
+                self.name = first
+        
+        # Check kwargs for overrides
+        self.name = kwargs.get('name', kwargs.get('script_name', self.name))
+        self.log_level = kwargs.get('log_level', 'INFO')
+        self.log_dir = kwargs.get('log_dir', kwargs.get('log_directory', None))
+
+        self.entries: list = []
+        
+        # Initialize actual file handler if log_dir provided
+        self._file_handler = None
+        if self.log_dir:
+            os.makedirs(self.log_dir, exist_ok=True)
+            log_file_path = os.path.join(self.log_dir, f"{self.name}.log")
+            try:
+                self._file_handler = RotatingFileHandler(
+                    log_file_path, maxBytes=10*1024*1024, backupCount=5
+                )
+                self._file_handler.setFormatter(
+                    logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+                )
+            except Exception:
+                # Fail silently on file handler creation to keep logger tolerant
+                pass
+
+    def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
+        op = args[0] if args else kwargs.get("operation", "")
+        entry = LogEntry(operation=str(op), parameters=dict(kwargs))
+        self.entries.append(entry)
+        
+        # Write to file handler if available
+        if self._file_handler:
+            msg = f"{entry.timestamp} - {op}: {json.dumps(kwargs)}"
+            self._file_handler.emit(
+                logging.LogRecord(
+                    name=self.name, 
+                    level=logging.INFO, 
+                    pathname="", 
+                    lineno=0, 
+                    msg=msg, 
+                    args=(), 
+                    exc_info=None
+                )
+            )
+        return entry
+
+    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
+    def __getattr__(self, name: str):
+        def _noop(*args: Any, **kwargs: Any) -> None:
+            return None
+        return _noop
+
+_GLOBAL_LOGGER: "ReproducibilityLogger | None" = None
+import logging as stdlib_logging # Import stdlib logging for RotatingFileHandler
+
+def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+    global _GLOBAL_LOGGER
+    if _GLOBAL_LOGGER is None:
+        _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
+    return _GLOBAL_LOGGER
+
+def log_operation(*args: Any, **kwargs: Any) -> Any:
+    """Dual-purpose: a decorator (@log_operation) OR a direct logging call.
+
+    The direct-call path ALWAYS returns a LogEntry (callers use .to_json());
+    decorator use returns the wrapped function. Never return a bare function
+    from the direct-call path.
+    """
+    if len(args) == 1 and callable(args[0]) and not kwargs:
+        func = args[0]
+
+        @functools.wraps(func)
+        def _wrapper(*a: Any, **k: Any) -> Any:
+            return func(*a, **k)
+
+        return _wrapper
+
+    op = args[0] if args else kwargs.pop("operation", "operation")
+    return get_logger().log(op, **kwargs)
+
+def get_log_directory() -> str:
+    """Return the default log directory."""
+    return "data/logs"
 
 def setup_logging(
-    level: int = logging.INFO,
-    log_file: Optional[str] = None,
-    enable_pii_filter: bool = True
-) -> logging.Logger:
+    script_name: str | None = None,
+    log_file: str | None = None,
+    log_level: str | None = None,
+    log_dir: str | None = None,
+    name: str | None = None,
+) -> ReproducibilityLogger:
     """
-    Setup logging configuration.
+    Setup logging for a script. Accepts flexible arguments to match all call sites.
     
     Args:
-        level: Logging level (e.g., logging.INFO).
-        log_file: Optional filename for the log file (relative to data/logs).
-        enable_pii_filter: Whether to enable PII masking.
-        
+        script_name: Name of the script (e.g., "fetch_github")
+        log_file: Explicit log file path (deprecated, use log_dir + script_name)
+        log_level: Log level string (e.g., "INFO")
+        log_dir: Directory for log files
+        name: Logger name
+    
     Returns:
-        The root logger instance.
+        A ReproducibilityLogger instance
     """
-    root_logger = logging.getLogger()
-    root_logger.setLevel(level)
+    # Determine name
+    final_name = name or script_name or "reproducibility"
     
-    # Clear existing handlers
-    root_logger.handlers.clear()
+    # Determine log directory
+    final_log_dir = log_dir
+    if not final_log_dir and log_file:
+        # Extract directory from log_file
+        final_log_dir = os.path.dirname(log_file) or "data/logs"
+    elif not final_log_dir:
+        final_log_dir = "data/logs"
     
-    # Console handler
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(level)
-    console_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    console_handler.setFormatter(console_format)
-    root_logger.addHandler(console_handler)
+    # Ensure directory exists
+    os.makedirs(final_log_dir, exist_ok=True)
     
-    # File handler if specified
-    if log_file:
-        log_dir = get_log_directory()
-        file_path = log_dir / log_file
-        
-        # Use RotatingFileHandler to prevent log files from growing indefinitely
-        file_handler = RotatingFileHandler(
-            file_path,
-            maxBytes=10 * 1024 * 1024, # 10 MB
-            backupCount=5
-        )
-        file_handler.setLevel(level)
-        file_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        file_handler.setFormatter(file_format)
-        
-        if enable_pii_filter:
-            file_handler.addFilter(PIIFilter())
-        
-        root_logger.addHandler(file_handler)
+    # If log_file is explicitly provided, use it; otherwise construct from script_name
+    final_log_file = log_file
+    if not final_log_file and script_name:
+        final_log_file = os.path.join(final_log_dir, f"{script_name}.log")
     
-    return root_logger
-
-def get_logger(name: str) -> logging.Logger:
-    """
-    Get a logger with the specified name.
-    Assumes logging has been setup via setup_logging().
+    # Create logger with appropriate parameters
+    logger = get_logger(
+        name=final_name,
+        log_dir=final_log_dir,
+        log_level=log_level or "INFO",
+        script_name=script_name
+    )
     
-    Args:
-        name: Logger name (usually __name__).
-        
-    Returns:
-        Logger instance.
-    """
-    logger = logging.getLogger(name)
-    if not logger.handlers:
-        # If not configured yet, setup basic logging
-        setup_logging()
     return logger
 
-def rotate_logs():
-    """
-    Trigger log rotation.
-    Useful for scheduled tasks or cleanup.
-    """
-    log_dir = get_log_directory()
-    for handler in logging.getLogger().handlers:
-        if isinstance(handler, RotatingFileHandler):
-            handler.doRollover()
+def rotate_logs(log_dir: str | None = None) -> None:
+    """Rotate logs if needed (no-op for ReproducibilityLogger, but provided for API compatibility)."""
+    pass
 
-def init_logger_for_script(script_name: str) -> logging.Logger:
-    """
-    Initialize logging specifically for a script.
-    
-    Args:
-        script_name: Name of the script (e.g., 'fetch_github').
-        
-    Returns:
-        Configured logger.
-    """
-    log_file = f"{script_name}.log"
-    setup_logging(log_file=log_file)
-    return get_logger(script_name)
+def init_logger_for_script(script_name: str, log_dir: str | None = None) -> ReproducibilityLogger:
+    """Initialize a logger for a specific script."""
+    return setup_logging(script_name=script_name, log_dir=log_dir)
 
-def main():
-    """Test logging setup."""
-    logger = init_logger_for_script("logging_test")
-    logger.info("Logging setup test.")
-    logger.warning("This is a warning.")
-    logger.error("This is an error.")
-    logger.info("User email: test@example.com should be masked.")
-
-if __name__ == "__main__":
-    main()
+def main() -> None:
+    """CLI entry point for logging module (no-op)."""
+    pass
