@@ -199,10 +199,9 @@ def _skip_path(p: Path) -> bool:
 def find_code_fabrication(project_dir: Path) -> list[str]:
     """Scan a project's analysis code (``code/**/*.py``) for fabrication signals."""
     out: list[str] = []
-    code_dir = project_dir / "code"
-    if not code_dir.is_dir():
-        return out
-    for py in sorted(code_dir.rglob("*.py")):
+    from llmxive.project_files import source_files
+
+    for py in source_files(project_dir):
         if _skip_path(py):
             continue
         try:
@@ -349,7 +348,7 @@ def find_synthetic_data_use(project_dir: Path) -> list[str]:
     """Findings where the project's code/results use SYNTHETIC input data (by the
     code's own label). The caller suppresses these when the spec authorizes it."""
     out: list[str] = []
-    for sub in ("code", "data", "results", "outputs"):
+    for sub in ("code", "src", "scripts", "data", "results", "outputs"):
         d = project_dir / sub
         if not d.is_dir():
             continue

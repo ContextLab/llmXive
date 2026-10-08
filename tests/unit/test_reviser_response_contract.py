@@ -301,6 +301,26 @@ def test_build_concern_responses_pads_missing_honestly():
     assert "C1" in by_id["C2"].what_changed
 
 
+@pytest.mark.parametrize("label", ["concern C1", "[concern C1]", " C1 "])
+def test_build_concern_responses_accepts_literal_prompt_label(label):
+    out = build_concern_responses(
+        [{"concern_id": label, "response": "fixed", "what_changed": "edited"}],
+        _concerns(),
+    )
+    assert out[0].concern_id == "C1"
+    assert out[0].response == "fixed"
+    assert out[1].response == "<missing>"
+
+
+def test_build_concern_responses_rejects_unknown_and_ambiguous_ids():
+    out = build_concern_responses(
+        [{"concern_id": label, "response": "fixed"}
+         for label in ["C1", "concern C1", "concern C2-extra"]],
+        _concerns(),
+    )
+    assert all(r.response == "<missing>" for r in out)
+
+
 def test_build_concern_responses_all_missing_records_parse_to_zero_reason():
     """When the whole reply parses to zero per-concern responses (the
     PROJ-552 plan-009 R2 shape), every padded entry must say SO in the

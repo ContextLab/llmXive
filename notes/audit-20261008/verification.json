@@ -3,7 +3,7 @@
     "passed": 7569,
     "skipped": 17,
     "deselected_slow": 4,
-    "duration_s": 394.40
+    "duration_s": 394.4
   },
   "post_suite_focused_checks": {
     "data_source_and_audit": 26,
@@ -23,7 +23,39 @@
   "repair_trial": "baseline regression fails; candidate plus related tests 5 passed; independent GPT-OSS acceptance",
   "full_pipeline_acceptance": "in progress, not yet accepted",
   "deployment": "not yet deployed; draft PR https://github.com/ContextLab/llmXive/pull/1472",
-  "template_audit": {"artifacts": 6905, "template_classified": 0},
+  "template_audit": {
+    "artifacts": 6905,
+    "template_classified": 0
+  },
   "workflow_validation": "actionlint passed for all four changed workflows",
-  "live_claim_processing": "parameter domains and runtime target preserved verbatim"
+  "live_claim_processing": "parameter domains and runtime target preserved verbatim",
+  "source_layout_and_response_validation": {
+    "unit_integration_initial": {
+      "passed": 7458,
+      "skipped": 15,
+      "deselected_slow": 4,
+      "sandbox_failures_or_errors": 37,
+      "duration_s": 1495.65
+    },
+    "network_allowed_rerun": {
+      "passed": 37,
+      "failed": 0,
+      "duration_s": 21.13
+    },
+    "contracts_and_reviser_followup": {
+      "passed": 142,
+      "skipped": 2
+    },
+    "source_layout_focused": {
+      "passed": 59,
+      "deselected_slow": 1
+    },
+    "repair_feedback_followup": {
+      "passed": 21
+    },
+    "concern_response_focused": {
+      "passed": 64
+    },
+    "note": "Network-requiring checks passed on rerun; no suite failures remain. Full-pipeline canary remains unaccepted."
+  }
 }

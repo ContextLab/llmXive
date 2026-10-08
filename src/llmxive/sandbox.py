@@ -77,7 +77,9 @@ def ensure_venv(project_dir: Path) -> Path:
             check=True,
             capture_output=True,
         )
-    req = project_dir / "code" / "requirements.txt"
+    from llmxive.project_files import requirements_path
+
+    req = requirements_path(project_dir)
     if req.exists():
         mtime_file = venv / ".requirements_mtime"
         last_synced = (
@@ -183,7 +185,9 @@ def _analysis_env(project_dir: Path, base_env: dict[str, str]) -> dict[str, str]
     any inherited PYTHONPATH. Fixes the ModuleNotFoundError class that dominated the
     execution failures (25 of them) — the analysis crashing on its OWN package."""
     env = dict(base_env)
-    parts = [str(project_dir), str(project_dir / "code")]
+    from llmxive.project_files import SOURCE_DIRS
+
+    parts = [str(project_dir.resolve()), *(str((project_dir / root).resolve()) for root in SOURCE_DIRS)]
     if env.get("PYTHONPATH"):
         parts.append(env["PYTHONPATH"])
     env["PYTHONPATH"] = os.pathsep.join(parts)
@@ -271,7 +275,10 @@ def run_python_script(
     extra_env: dict[str, str] | None = None,
 ) -> ExecutionResult:
     """Run `python <script>` inside the project's venv. Returns capture."""
-    script = project_dir / script_relpath
+    script = (project_dir / script_relpath).resolve()
+    if not script.is_relative_to(project_dir.resolve()):
+        return ExecutionResult(ok=False, returncode=-1, stdout="",
+                               stderr="script escapes the project directory", duration_s=0.0)
     if not script.exists():
         return ExecutionResult(
             ok=False,

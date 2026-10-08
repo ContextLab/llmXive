@@ -157,3 +157,39 @@ def test_multiline_task_deliverables_reach_implementer_and_verifier(tmp_path, mo
                                      notes_path=mem / "notes.md", state_path=mem / "task_verify.yaml")
     assert result["rejected"] and "data/counts.csv" in result["rejected"][0][1]
     assert "[ ] T008" in tasks.read_text()
+
+
+def test_src_package_executes_and_is_in_context_fabrication_and_fingerprint_checks(tmp_path):
+    from llmxive.execution.fabrication_guard import find_code_fabrication
+    from llmxive.speckit.implement_cmd import _summarize_existing_code
+
+    project, tasks = _project(tmp_path, "")
+    (project / "code/run.py").unlink()
+    source = project / "src/nested"
+    source.mkdir(parents=True)
+    library = project / "src/library.py"
+    library.write_text("def square(n):\n    return n * n\n")
+    (source / "run.py").write_text(
+        "from pathlib import Path\nfrom library import square\n"
+        "Path('data').mkdir(exist_ok=True)\n"
+        "Path('data/counts.csv').write_text(f'n,square\\n3,{square(3)}\\n')\n"
+    )
+    (tasks.parent / "quickstart.md").write_text("```bash\npython -m src.nested.run\n```\n")
+    run_implementation_preview(project)
+    assert (project / "data/counts.csv").read_text().endswith("3,9\n")
+    assert "from src.library import square" in _summarize_existing_code(project)
+    execution_status.record(project.name, ok=True, reason="computed",
+                            artifacts=["data/counts.csv"], failures=[], repo_root=tmp_path)
+    library.write_text("import random\naccuracy = random.uniform(0.8, 0.99)\n")
+    assert find_code_fabrication(project)
+    assert not execution_status.is_ok(project.name, repo_root=tmp_path)
+
+
+def test_output_producer_runs_with_relative_project_path(tmp_path, monkeypatch):
+    from llmxive import sandbox
+
+    project, _ = _project(tmp_path, "from pathlib import Path\nPath('result.txt').write_text('computed')\n")
+    monkeypatch.chdir(tmp_path)
+    result = sandbox.run_python_script(project_dir=project.relative_to(tmp_path), script_relpath="code/run.py")
+    assert result.ok, result.stderr
+    assert (project / "result.txt").read_text() == "computed"

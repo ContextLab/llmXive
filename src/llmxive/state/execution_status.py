@@ -141,14 +141,11 @@ def _execution_fingerprint(
     """Bind execution to source, run-book, requirements, and produced evidence."""
     root = (repo_root or _repo_root()) / "projects" / project_id
     paths: set[Path] = set()
-    for base in ("code", "scripts"):
-        for path in (root / base).rglob("*"):
-            if any(part in {".venv", "__pycache__", ".tasks"} for part in path.parts):
-                continue
-            if path.is_file() and path.suffix.lower() in {
-                ".py", ".r", ".sh", ".toml", ".yaml", ".yml", ".txt"
-            }:
-                paths.add(path)
+    from llmxive.project_files import source_files
+
+    paths.update(source_files(root, (".py", ".r", ".sh", ".toml", ".yaml", ".yml", ".txt")))
+    if (root / "requirements.txt").exists():
+        paths.add(root / "requirements.txt")
     from llmxive.execution.analysis_runner import _find_quickstart
 
     quickstart = _find_quickstart(root)

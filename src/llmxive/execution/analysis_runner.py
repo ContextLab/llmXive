@@ -113,13 +113,11 @@ def _resolve_script(project_dir: Path, rel_path: str) -> str | None:
     """
     if (project_dir / rel_path).is_file():
         return rel_path
-    code = project_dir / "code"
-    if not code.is_dir():
-        return None
+    from llmxive.project_files import source_files
     want = set(Path(rel_path).stem.split("_"))
     if not want:
         return None
-    cands = [p for p in code.rglob("*.py") if "/.venv/" not in str(p)]
+    cands = list(source_files(project_dir))
     exact = [p for p in cands if set(p.stem.split("_")) == want]
     if len(exact) == 1:
         return str(exact[0].relative_to(project_dir))
@@ -370,10 +368,12 @@ def run_analysis(
         # that never reached research_complete). Carrying both makes either style
         # run without a rewrite. code/ goes first so a bare sibling import always
         # wins over a same-named top-level module.
-        pythonpath = os.pathsep.join((
-            str((project_dir / "code").resolve()),
+        from llmxive.project_files import SOURCE_DIRS
+
+        pythonpath = os.pathsep.join([
+            *(str((project_dir / base).resolve()) for base in SOURCE_DIRS),
             str(project_dir.resolve()),
-        ))
+        ])
         res = sandbox.run_in_venv(
             project_dir=project_dir, args=args, timeout_s=per_cmd_timeout_s,
             extra_env={"PYTHONPATH": pythonpath},

@@ -414,7 +414,9 @@ def ensure_source_in_requirements(project_dir: Path) -> bool:
     ref = str(rec.get("ref") or "").strip()
     if not ref:
         return False
-    req = project_dir / "code" / "requirements.txt"
+    from llmxive.project_files import requirements_path
+
+    req = requirements_path(project_dir)
     existing = req.read_text(encoding="utf-8") if req.is_file() else ""
     # Already declared (bare name match, ignoring version specifiers)?
     bare = re.split(r"[<>=!~\[ ]", ref, maxsplit=1)[0].lower()

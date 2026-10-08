@@ -21,9 +21,11 @@ are provided in the messages that follow.
    names that sibling files already define (don't invent mismatched names). When a task
    references an existing file, extend it coherently rather than replacing it wholesale.
 4. **Stay inside the project tree.** All artifact paths are relative to the project root
-   and MUST live under `code/`, `data/`, `tests/`, `contracts/`, `figures/`,
+   and MUST live under `code/`, existing `src/` or `scripts/`, `data/`, `tests/`, `contracts/`, `figures/`,
    `paper/figures/`, `results/`, or the project's `specs/` feature directory.
    Never write to absolute paths, platform state, or the repository's own source.
+   A project's root `requirements.txt` is also allowed when that is its existing
+   dependency manifest; do not scatter competing manifests across directories.
 5. **Whole-file contents only — NO diffs.** Each artifact's `contents` is the COMPLETE
    final text of that file. Do NOT emit unified diffs (`--- a/`, `+++ b/`, `@@`) or
    search-and-replace fragments — they will be rejected.

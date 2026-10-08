@@ -710,11 +710,10 @@ def _summarize_existing_code(project_dir: Path, *, max_chars: int = 16000) -> st
           import numpy as np
           from typing import Optional
     """
-    code_dir = project_dir / "code"
-    if not code_dir.is_dir():
-        return ""
+    from llmxive.project_files import source_files
+
     lines: list[str] = []
-    for fp in sorted(code_dir.rglob("*.py")):
+    for fp in source_files(project_dir):
         if any(p in fp.parts for p in (".venv", "__pycache__", ".tasks")):
             continue
         if fp.name == "__init__.py":
@@ -733,7 +732,10 @@ def _summarize_existing_code(project_dir: Path, *, max_chars: int = 16000) -> st
         # Canonical import path: drop "code/" prefix and ".py" suffix,
         # convert "/" to ".".  For tests/, drop "code/" and prefix with
         # "tests." (test runner adds tests/ to path).
-        rel_to_code = fp.relative_to(code_dir).with_suffix("").as_posix().replace("/", ".")
+        module_path = fp.relative_to(project_dir)
+        if module_path.parts[0] == "code":
+            module_path = Path(*module_path.parts[1:])
+        rel_to_code = module_path.with_suffix("").as_posix().replace("/", ".")
         import_stmt = (
             f"from {rel_to_code} import " + ", ".join(names[:8])
             if names else f"import {rel_to_code}"
@@ -753,7 +755,7 @@ def _summarize_existing_code(project_dir: Path, *, max_chars: int = 16000) -> st
 
 
 _PATH_RE = re.compile(
-    r"\b(?:code|specs|paper|data|tests)/[A-Za-z0-9_./\-]+\.(?:py|md|yaml|yml|json|toml|txt)\b"
+    r"\b(?:code|src|scripts|specs|paper|data|tests|contracts)/[A-Za-z0-9_./\-]+\.(?:py|md|yaml|yml|json|toml|txt)\b"
 )
 
 

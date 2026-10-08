@@ -69,7 +69,9 @@ RESPONSE_FORMAT_BLOCK = (
     "}\n"
     "```\n\n"
     "Keep this JSON SMALL: it is only the change-log, never the documents "
-    "themselves. Every panel concern MUST have exactly one entry.\n\n"
+    "themselves. Every panel concern MUST have exactly one entry. Copy its "
+    "literal ID only: for [concern abc-123], concern_id is abc-123, without "
+    "the word concern or surrounding brackets.\n\n"
     "## Part 2 — each full revised artifact, VERBATIM\n\n"
     "After the json fence, emit EACH artifact you changed as raw text "
     "(exactly the bytes that should be written to disk — do NOT escape it, do "
@@ -356,10 +358,24 @@ def build_concern_responses(
     ``[the_doc_path]``; multi-doc revisers pass ``None`` → empty list).
     """
     by_id: dict[str, dict[str, Any]] = {}
+    known_ids = {c.id for c in concerns}
+    duplicates: set[str] = set()
     for raw in responses_raw:
         cid = raw.get("concern_id")
         if isinstance(cid, str):
+            cid = cid.strip()
+            if cid not in known_ids:
+                # The prompt labels these as [concern <id>]. Tolerate a
+                # copied label only when its literal ID is an input concern;
+                # never fuzzy-match an invented or truncated identifier.
+                label = re.fullmatch(r"\[?concern\s+([^\[\]]+)\]?", cid, re.IGNORECASE)
+                if label and label.group(1).strip() in known_ids:
+                    cid = label.group(1).strip()
+            if cid in by_id:
+                duplicates.add(cid)
             by_id[cid] = raw
+    for cid in duplicates:
+        del by_id[cid]  # Ambiguous duplicate answers cannot resolve a concern.
 
     # Observability (notes/spec-015 follow-up): when concerns get padded
     # ``<missing>``, record WHY in ``what_changed`` so the convergence trail

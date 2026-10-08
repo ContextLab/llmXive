@@ -147,6 +147,24 @@ and model/outcome counts; `progress-metrics.json` uses persisted stage history.
     pipeline from the same initial idea; its recorded running status is a
     pre-interruption snapshot, not a claim of an ongoing or accepted run.
 
+16. **Valid source layouts escaped execution and evidence checks.** The clean
+    canary planned a `src/` package, while preview execution, code context,
+    dependency discovery, fabrication checks, and execution fingerprints assumed
+    `code/`. These now share discovery across `code/`, `src/`, and `scripts/`.
+    An existing root requirements manifest is reused. A real subprocess regression
+    executes a nested `src/` module, validates its computed CSV, then proves a
+    fabricated replacement invalidates its execution approval. Failed `src/`
+    module commands now reopen their owning task and retain the correct repair
+    path. Relative project paths also work for direct output-producer execution.
+17. **Copied concern labels triggered a false planning kickback.** The clean
+    canary's plan panel accepted all three corrections, but the reviser returned
+    IDs prefixed with `concern`, copied from the prompt's labels. Exact matching
+    padded these as missing and sent the project back to specification. The
+    recorded trail is `canary-plan-response-failure.jsonl`. Response IDs now
+    tolerate that explicit wrapper only when the remaining literal ID is a
+    supplied concern. Unknown IDs and duplicate answers still fail closed; the
+    independent panel still decides whether the correction resolves the concern.
+
 ## Models: verified, not inferred from names
 
 Dartmouth's authenticated catalog exposed `zai-org.glm-5.3` with zero input and
