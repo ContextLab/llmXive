@@ -260,3 +260,53 @@
 - [ ] T144 **(Final End-to-End Validation)** Run the complete pipeline with `--mode real` (using a valid mock dataset for CI) to ensure all tasks complete in order and all checksums are recorded. *Verification*: CI passes with `--mode real` using a small, pre‑generated dataset.
 
 - [ ] T145 **(Constitutional Principle Checklist)** Add `tests/contract/test_constitutional_principles.py` to verify that all six constitutional principles (Reproducibility, Verified Accuracy, Data Hygiene, Single Source of Truth, Versioning Discipline, Human‑Subject Anonymity) are met by the generated artifacts. *Verification*: test suite passes.
+
+## Phase 1: User Story 1 - Stimulus Generation and Data Collection (Priority: P1) 🎯 MVP
+
+**Goal**: Generate controlled text message stimuli and collect real human ratings.
+
+**Independent Test**: Verify `data/raw/stimuli.csv` exists with unique feature combinations, and `data/raw/real_ratings.csv` exists with ≥60 unique Prolific IDs and required fields.
+
+### Implementation for User Story 1
+
+- [ ] T150 [US1] **(Base Scenario Definition)** Create `data/raw/base_scenarios.json` containing at least 10 distinct emotional scenarios (e.g., "I had a rough day", "I need to tell you something"). *Depends on: T001*.
+- [ ] T151 [US1] **(Stimulus Generation Logic)** Refine `code/01_generate_stimuli.py` to iterate through `base_scenarios.json` and apply all factorial combinations of emoji (0, 1, >1), punctuation (Standard, Excessive), and length (<10, ≥10 words). *Depends on: T013, T150*.
+- [ ] T152 [US1] **(Data Collection Script)** Implement `code/02_collect_real_data.py` with `--mode ingest` to load `data/raw/real_ratings.csv`, validate columns (`participant_id`, `stimulus_id`, `relationship_type`, `rating`, `timestamp`), and enforce Prolific ID format. *Depends on: T015b-Real*.
+- [ ] T153 [US1] **(Participant Exclusion Logic)** Integrate straight-lining detection (zero variance check) into `code/03_clean_data.py` and output `data/processed/excluded_participants.csv`. *Depends on: T016a*.
+- [ ] T154 [US1] **(Missing Data Handling)** Implement listwise deletion in `code/03_clean_data.py` for participants with incomplete rows, logging excluded IDs to `data/pipeline.log`. *Depends on: T016b*.
+- [ ] T155 [US1] **(Randomization Check)** Add validation in `code/02_collect_real_data.py` to ensure every participant has ratings for both "friend" and "acquaintance" contexts; fail if randomization failed. *Depends on: T015b-Real*.
+
+## Phase 2: User Story 2 - Statistical Analysis Pipeline (Priority: P2)
+
+**Goal**: Execute LMM with random intercepts and Tukey-corrected post-hoc tests.
+
+**Independent Test**: Verify `data/results/lmm_summary.csv` contains fixed effect estimates, p-values, and effect sizes for the interaction term.
+
+### Implementation for User Story 2
+
+- [ ] T160 [US2] **(LMM Model Definition)** Implement `code/04_fit_lmm_r.py` to construct the formula `rating ~ relationship * cue_intensity + (1|participant_id) + (1|stimulus_id)` using `rpy2` and `lmerTest`. *Depends on: T021a*.
+- [ ] T161 [US2] **(Satterthwaite Approximation)** Ensure the LMM fit uses Satterthwaite degrees of freedom; if `rpy2` fails, fallback to Wald-Z in `code/04_fit_lmm_wald.py` and log the limitation. *Depends on: T021c*.
+- [ ] T162 [US2] **(Post-Hoc Trigger)** Implement conditional logic in `code/05_posthoc.py` to run Tukey HSD only if the interaction p-value < 0.05. *Depends on: T024*.
+- [ ] T163 [US2] **(Effect Size Calculation)** Compute Cohen's f for the interaction term in `code/04_fit_lmm_r.py` and append to `data/results/lmm_summary.csv`. *Depends on: T133*.
+- [ ] T164 [US2] **(Result Aggregation)** Merge LMM summary, post-hoc results, and exclusion logs into `data/results/analysis_results.json` with a deterministic sort order. *Depends on: T025*.
+
+## Phase 3: User Story 3 - Methodological Robustness and Sensitivity Reporting (Priority: P3)
+
+**Goal**: Perform sensitivity analysis on cue intensity definitions and report robustness.
+
+**Independent Test**: Verify `data/processed/sensitivity_report.md` shows interaction effect stability across three alternative weightings.
+
+### Implementation for User Story 3
+
+- [ ] T170 [US3] **(Weighting Scheme Loader)** Implement `code/06_sensitivity.py` to load `data/processed/cue_intensity_weights.json` and iterate through the three schemes (Equal, Emoji-Dominant, Punctuation-Dominant). *Depends on: T090*.
+- [ ] T171 [US3] **(Sensitivity Execution)** Run the LMM model three times with different cue intensity definitions, saving results to `data/results/sensitivity_{scheme}.csv`. *Depends on: T027a, T027b, T027c*.
+- [ ] T172 [US3] **(Stability Metric Computation)** Calculate the absolute difference in beta coefficients and p-values across schemes in `code/06_sensitivity.py` and save to `data/processed/sensitivity_metrics.csv`. *Depends on: T028*.
+- [ ] T173 [US3] **(Theoretical Justification)** Add a section to `data/processed/sensitivity_report.md` citing theoretical hypotheses for the three weighting schemes (e.g., "Emoji Dominance" theory). *Depends on: T143*.
+- [ ] T174 [US3] **(Robustness Conclusion)** Generate a final conclusion in `data/processed/sensitivity_report.md` stating whether the interaction effect is robust to operationalization changes. *Depends on: T029*.
+
+## Phase N: Polish & Cross-Cutting Concerns
+
+- [ ] T180 [P] **(Final Manifest Update)** Run `code/99_manifest.py` to record final SHA-256 hashes for all artifacts. *Depends on: T093*.
+- [ ] T181 [P] **(Documentation Finalization)** Update `README.md` and `quickstart.md` with final CLI instructions and data source warnings. *Depends on: T033, T141*.
+- [ ] T182 [P] **(Constitutional Compliance Check)** Run `tests/contract/test_constitutional_principles.py` to verify all principles are met. *Depends on: T145*.
+- [ ] T183 [P] **(CI Pipeline Verification)** Ensure GitHub Actions workflow runs all tests and benchmarks successfully. *Depends on: T128, T135*.
