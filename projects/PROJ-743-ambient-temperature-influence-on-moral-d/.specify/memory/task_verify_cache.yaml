@@ -1,11 +1,3 @@
-T001b:
-  c: false
-  h: 9ff346375671f4d8506e82633c813dd6d8f128a4b2f0d7c35aed3c1e29c45ad5
-  r: The required output file `data/raw/era5_sample.h5` is missing, and the provided
-    log does not show the specific validation messages the task demands. The script
-    is incomplete/truncated and there is no evidence that it fetched, saved, and validated
-    the data as specified. The missing HDF5 file and lack of concrete validation logs
-    must be addressed.
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -33,15 +25,6 @@ T009c:
     \ `MergedDataset.schema.json`) are present under a `contracts/` directory, nor\
     \ is any content shown that would indicate they were generated from the Pydantic\
     \ models. The required artifacts are missing."
-T009d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `contracts/models.py` file containing a `MergedDataset` Pydantic model was\
-    \ presented, and no code snippet or file listing was provided to verify that the\
-    \ required fields (`dilemma_choice`, `dilemma_complexity`, `time_of_day`, `temperature_celsius`,\
-    \ `participant_id`, `cultural_region`, plus the raw model fields) are defined.\
-    \ The implementer\u2019s claim lacks concrete evidence of the model\u2019s existence\
-    \ or its correct schema."
 T017:
   c: false
   h: dc3b38c9259104dcab6a3c7b379ae6cafb606947e01557628e5df9349f8241ec
