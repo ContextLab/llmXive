@@ -2,32 +2,26 @@ import os
 import sys
 from pathlib import Path
 
-def create_directory(path: str) -> bool:
-    """Create a directory if it does not exist.
-    
-    Args:
-        path: The path to the directory to create.
-        
-    Returns:
-        True if the directory was created or already exists, False otherwise.
-    """
-    try:
-        dir_path = Path(path)
-        dir_path.mkdir(parents=True, exist_ok=True)
-        return True
-    except Exception as e:
-        print(f"Error creating directory {path}: {e}", file=sys.stderr)
-        return False
-
-def main():
-    """Create the contracts directory under specs/001-llmxive-followup."""
-    contracts_dir = "specs/001-llmxive-followup/contracts"
-    if create_directory(contracts_dir):
-        print(f"Created directory: {contracts_dir}")
-        return 0
+def create_directory(path: Path) -> None:
+    """Create a directory if it does not exist."""
+    if not path.exists():
+        path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {path}")
     else:
-        print(f"Failed to create directory: {contracts_dir}", file=sys.stderr)
-        return 1
+        print(f"Directory already exists: {path}")
+
+def main() -> None:
+    """
+    Specific helper for specs directories if needed, 
+    though create_directories covers all. Kept for API surface compatibility.
+    """
+    project_root = Path.cwd()
+    specs_dirs = [
+        project_root / "specs" / "001-llmxive-followup",
+        project_root / "specs" / "001-llmxive-followup" / "contracts",
+    ]
+    for d in specs_dirs:
+        create_directory(d)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

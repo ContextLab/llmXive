@@ -1,20 +1,16 @@
 """
-Evaluation module for llmXive research pipeline.
-
-This module contains utilities for evaluating generated images against
-physics constraints and performing statistical analysis.
+Evaluation module for llmXive.
+Contains object detection and metric calculation logic.
 """
 
-__version__ = "0.1.0"
-
-# Public API exports
 from .detector import (
     ObjectDetectionError,
     PhysicsViolationError,
     load_yolo_model,
     detect_objects,
-    extract_bounding_boxes,
     calculate_iou,
+    load_physics_constraints,
+    extract_bounding_boxes_from_constraints,
     check_physics_violations,
     run_evaluation,
     main
@@ -25,8 +21,9 @@ __all__ = [
     'PhysicsViolationError',
     'load_yolo_model',
     'detect_objects',
-    'extract_bounding_boxes',
     'calculate_iou',
+    'load_physics_constraints',
+    'extract_bounding_boxes_from_constraints',
     'check_physics_violations',
     'run_evaluation',
     'main'

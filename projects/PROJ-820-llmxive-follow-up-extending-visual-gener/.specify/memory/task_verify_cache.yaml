@@ -1,32 +1,10 @@
-T001m:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided showing that a `tests/integration` directory exists
-    in the repository; the claim is unsubstantiated and the required artifact is missing.
-T001n:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `tests/unit` directory was provided; the claim lacks any artifact
-    showing the directory exists or contains files. The required setup step is therefore
-    not verified.
-T001o:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `specs/001-llmxive-followup` directory (or any files within
-    it) is provided; the implementer did not show that the required directory was
-    created. The task remains undone.
-T001p:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact showing the `specs/001-llmxive-followup/contracts` directory (or\
-    \ its contents) was provided; without concrete evidence of the directory\u2019\
-    s existence, the setup task cannot be confirmed as completed."
-T001q:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `state/projects` directory is provided; the claim lacks any\
-    \ artifact confirming the directory\u2019s creation, so the required setup is\
-    \ missing."
+  r: No directory tree or file listings were provided to show that the required folders
+    (e.g., `data/raw`, `data/derived/physics_constraints`, `code/simulation`, `tests/unit`,
+    etc.) have been created; the claim lacks any concrete artifact confirming the
+    project structure exists.
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -35,6 +13,12 @@ T003:
     in the provided artifacts, nor any documentation showing they have been set up.
     The claim lacks any concrete evidence that ruff and black have been configured
     for the project.
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `__init__.py` files are shown for the `simulation`, `generation`, `evaluation`,
+    or `analysis` subdirectories, and there is no evidence that they exist on disk.
+    The required package initializer files are missing, so the task is not satisfied.
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -42,19 +26,6 @@ T007:
     or manage random seed settings and model path variables. Without concrete artifacts
     (e.g., a `.env` file, a config module, or usage examples), the claim that environment
     configuration management has been set up cannot be verified.
-T014:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `physics_engine.py` file or diff showing added validation logic and logging\
-    \ of contradictory scenes as \u201CInvalid Physics Rules\u201D was provided; thus\
-    \ the required code change cannot be confirmed. The implementer must supply the\
-    \ updated file (or a patch) that implements the validation and logging."
-T015:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, tests, or documentation were provided showing that error handling for
-    missing scene descriptions or simulation failures was added. The artifact required
-    to demonstrate this functionality is absent, so the task is not satisfied.
 T019:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -65,14 +36,6 @@ T019:
     \ to demonstrate this behavior. The implementer must add the seed\u2011locking\
     \ code (and ideally a test showing identical seeds produce identical random streams\
     \ for both groups)."
-T019b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The claim provides only high\u2011level feature specifications and user stories;\
-    \ there is no code, configuration file, or script present that implements \u201C\
-    seed locking for Control group\u201D or demonstrates that the control group uses\
-    \ a distinct but internally consistent random seed. Consequently, the required\
-    \ artifact is missing."
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -80,3 +43,12 @@ T020:
     \ with a maximum attempt count for generation failures, nor any logging of \u201C\
     Generation Failure\u201D when the limit is exceeded. The required artifact is\
     \ missing, so the task is not satisfied."
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No image files are present in the repository under `data/derived/generated_images/`\
+    \ for the Baseline, Experimental, or Control groups, nor any script output or\
+    \ logs showing that images were generated and saved. Without these artifacts,\
+    \ the requirement to \u201CSave generated images \u2026 and ensure all three groups\
+    \ are fully generated\u201D is not met. The next implementer must produce the\
+    \ PNG files (or at least a demonstrable listing) for every scene ID in each group."

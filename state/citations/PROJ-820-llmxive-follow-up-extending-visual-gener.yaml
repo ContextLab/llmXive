@@ -1,11 +1,1 @@
-- artifact_hash: 114b1d84b4c51c70d65423071f7f66d507540fa9fabe4b28646961648a33fd19
-  artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: CPU - Wikidata
-  kind: url
-  value: https://www.wikidata.org/wiki/Q117453145
-  verification_status: pending
-  verified_against_url: https://www.wikidata.org/wiki/Q117453145
-  verified_at: '2026-10-04T14:36:24.359179Z'
+[]

@@ -1,14 +1,13 @@
 """
-Simulation module for llmXive physics engine.
-
-This module handles physics simulations using pymunk to validate
-scene descriptions and detect logical contradictions.
+Simulation module for llmXive.
+Contains physics simulation logic using PyMunk.
 """
 
 from .physics_engine import (
     SceneDescriptionNotFoundError,
     InvalidSceneDescriptionError,
     SimulationError,
+    PhysicsConstraint,
     load_scene_descriptions,
     parse_scene_description,
     simulate_physics,
@@ -21,6 +20,7 @@ __all__ = [
     'SceneDescriptionNotFoundError',
     'InvalidSceneDescriptionError',
     'SimulationError',
+    'PhysicsConstraint',
     'load_scene_descriptions',
     'parse_scene_description',
     'simulate_physics',

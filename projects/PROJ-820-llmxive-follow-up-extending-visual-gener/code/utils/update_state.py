@@ -2,7 +2,7 @@
 Update state files with SHA-256 hashes of artifacts.
 
 This module scans directories and calculates SHA-256 hashes for all files,
-then updates the project state YAML file with these hashes.
+then updates the project state JSON file with these hashes.
 """
 
 import os
@@ -11,6 +11,7 @@ import hashlib
 import json
 from pathlib import Path
 from typing import Dict, List, Any, Optional
+import datetime
 
 def calculate_sha256(file_path: Path) -> str:
     """
@@ -43,7 +44,7 @@ def scan_directory(directory: Path, extensions: Optional[List[str]] = None) -> D
     hashes = {}
     
     if not directory.exists():
-        print(f"Warning: Directory {directory} does not exist, skipping.")
+        # Return empty dict if directory doesn't exist, caller handles warning
         return hashes
     
     for file_path in directory.rglob("*"):
@@ -61,7 +62,7 @@ def scan_directory(directory: Path, extensions: Optional[List[str]] = None) -> D
 
 def update_state_file(state_path: Path, hashes: Dict[str, Dict[str, str]]) -> None:
     """
-    Update the state YAML/JSON file with new hashes.
+    Update the state JSON file with new hashes.
     
     Args:
         state_path: Path to the state file
@@ -81,7 +82,6 @@ def update_state_file(state_path: Path, hashes: Dict[str, Dict[str, str]]) -> No
         state["artifacts"][dir_name] = dir_hashes
     
     # Add timestamp
-    import datetime
     state["last_updated"] = datetime.datetime.now().isoformat()
     
     # Write back
@@ -115,6 +115,8 @@ def main() -> None:
             hashes = scan_directory(directory)
             if hashes:
                 all_hashes[dir_name] = hashes
+        else:
+            print(f"Warning: Directory {directory} does not exist, skipping.")
     
     if all_hashes:
         update_state_file(state_path, all_hashes)

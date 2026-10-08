@@ -43,23 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001a [Setup] Create `data/raw` directory.
-- [X] T001b [Setup] Create `data/derived/physics_constraints` directory.
-- [X] T001c [Setup] Create `data/derived/prompts` directory.
-- [X] T001d [Setup] Create `data/derived/generated_images` directory.
-- [X] T001e [Setup] Create `data/derived/evaluation_results` directory.
-- [X] T001f [Setup] Create `data/processed` directory.
-- [ ] T001g [Setup] Create `code/simulation` directory.
-- [ ] T001h [Setup] Create `code/generation` directory.
-- [ ] T001i [Setup] Create `code/evaluation` directory.
-- [ ] T001j [Setup] Create `code/analysis` directory.
-- [ ] T001k [Setup] Create `code/utils` directory.
-- [ ] T001l [Setup] Create `tests/contract` directory.
-- [ ] T001m [Setup] Create `tests/integration` directory.
-- [ ] T001n [Setup] Create `tests/unit` directory.
-- [ ] T001o [Setup] Create `specs/001-llmxive-followup` directory.
-- [ ] T001p [Setup] Create `specs/001-llmxive-followup/contracts` directory.
-- [ ] T001q [Setup] Create `state/projects` directory.
+- [ ] T001 [Setup] Initialize project structure: Create all required directories defined in plan.md (`data/raw`, `data/derived/physics_constraints`, `data/derived/prompts`, `data/derived/generated_images`, `data/derived/evaluation_results`, `data/processed`, `code/simulation`, `code/generation`, `code/evaluation`, `code/analysis`, `code/utils`, `tests/contract`, `tests/integration`, `tests/unit`, `specs/001-llmxive-followup`, `specs/001-llmxive-followup/contracts`, `state/projects`).
 
 ---
 
@@ -69,16 +53,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pymunk, diffusers, torch-cpu, ultralytics, scikit-learn, pandas, numpy, pyyaml)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
-- [X] T004 [MUST run after T001a-T001q] Create `code/utils/update_state.py` to calculate SHA-256 hashes of artifacts and update `state/...yaml`
-- [X] T005a [P] Create `code/simulation/__init__.py`
-- [X] T005b [P] Create `code/generation/__init__.py`
-- [X] T005c [P] Create `code/evaluation/__init__.py`
-- [X] T005d [P] Create `code/analysis/__init__.py`
-- [X] T006 Create `tests/contract/test_schemas.py` to validate JSON against `specs/001-llmxive-followup/contracts/`
-- [ ] T007 Setup environment configuration management for random seeds and model paths
-- [X] T008 Implement `code/main.py` orchestration skeleton with phase flags (sim, gen, eval, analyze)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pymunk, diffusers, torch-cpu, ultralytics, scikit-learn, pandas, numpy, pyyaml, pillow, scikit-image).
+- [X] T003 [P] Create linting and formatting configuration files: `ruff.toml` and `pyproject.toml` (Black configuration).
+- [X] T004 [MUST run after T001] Create `code/utils/update_state.py` to calculate SHA-256 hashes of artifacts and update `state/...yaml`.
+- [ ] T005 [P] Create `__init__.py` files for all code subdirectories (`simulation`, `generation`, `evaluation`, `analysis`).
+- [X] T006 Create `tests/contract/test_schemas.py` to validate JSON against `specs/001-llmxive-followup/contracts/`.
+- [ ] T007-config-create [P] Create `code/config.yaml` to manage random seeds, model paths, and configuration settings. Schema must include `seed`, `model_path`, `device`, and `paths` sections.
+- [X] T008 Implement `code/main.py` orchestration skeleton with phase flags (sim, gen, eval, analyze).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -94,18 +75,16 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T009 [Depends on Phase 2 Completion] [US1] Contract test for `PhysicsConstraint` JSON schema in `tests/contract/test_schemas.py`
-- [X] T010 [Depends on Phase 2 Completion] [US1] Unit test for `pymunk` simulation logic in `tests/unit/test_physics_logic.py` (verify no contradictions)
+- [X] T009 [Depends on Phase 2 Completion] [US1] Contract test for `PhysicsConstraint` JSON schema in `tests/contract/test_schemas.py`.
+- [X] T010 [Depends on Phase 2 Completion] [US1] Unit test for `pymunk` simulation logic in `tests/unit/test_physics_logic.py` (verify no contradictions).
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Create `data/raw/scene_descriptions.csv` with a curated set of 100 scene descriptions (N=100 scope). Fetch from a real, physics-inferable source (e.g., `datasets.load_dataset('coco-captions', split='train', trust_remote_code=True)` filtered for object interaction scenes). If fetch fails, execute a deterministic script using a fixed seed and predefined interaction templates (e.g., "A on B", "A next to B") to generate valid scenes, ensuring no hallucinated external datasets.
+- [ ] T011 [US1] [Independent] Generate `data/raw/scene_descriptions.csv` locally using a deterministic script with `seed=42` and predefined interaction templates (e.g., "A on B", "A next to B", "A under B") to create a 'curated' set of scenes. Do NOT fetch from external datasets. Validate that the generated set contains the necessary prepositions. Output file: `data/raw/scene_descriptions.csv`.
 - [X] T012 [US1] [Depends on T011] Implement `code/simulation/physics_engine.py`: Load scene, run `pymunk` simulation, detect logical contradictions (cycles, impossible overlaps, A above B AND B above A), output `data/derived/physics_constraints/{scene_id}.json`. Log any contradictions to `data/derived/physics_constraints/contradiction_log.json`.
-- [X] T013 [US1] [Depends on T011] Implement `code/generation/prompt_engine.py`: Read scene description + physics JSON, generate natural language descriptor, output `data/derived/prompts/{scene_id}_{group}.txt` (Baseline, Experimental).
-- [X] T013b [US1] [Depends on T011] Implement `code/generation/prompt_engine.py` (Control): Read scene description, generate length-matched random noise descriptor, output `data/derived/prompts/{scene_id}_control.txt`.
-- [ ] T014 [US1] Add validation logic in `physics_engine.py` to exclude contradictory scenes and log them as "Invalid Physics Rules" (FR-006).
-- [ ] T015 [US1] Add error handling for missing scene descriptions or simulation failures.
-- [X] T016 [US1] [Depends on T012] Implement logic to aggregate contradiction logs from `data/derived/physics_constraints/contradiction_log.json`, calculate contradiction rate percentage, and verify it is < 5% (SC-004); if rate > 5%, flag the study (soft fail) but continue to allow downstream analysis to halt the pipeline if required.
+- [X] T013 [US1] [Depends on T011] Implement `code/generation/prompt_engine.py`: Read scene description + physics JSON, generate natural language descriptor, output `data/derived/prompts/{scene_id}_baseline.txt` and `data/derived/prompts/{scene_id}_experimental.txt`.
+- [X] T013b [US1] [Depends on T011] [FR-011] Implement `code/generation/prompt_engine.py` (Control): Read scene description, generate length-matched random noise descriptor (Authorized by Plan's Matched Control Group requirement), output `data/derived/prompts/{scene_id}_control.txt`.
+- [X] T016 [US1] [Depends on T012] Implement validation logic in `physics_engine.py` to exclude contradictory scenes and log them as "Invalid Physics Rules" to `data/derived/physics_constraints/contradiction_log.json` (FR-006). **Output**: `data/derived/physics_constraints/contradiction_log.json` (must be readable by T029-exclusion). Calculate contradiction rate using denominator = 'total valid scenes processed'.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -119,21 +98,16 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T017 [P] [US2] Integration test for generation pipeline in `tests/integration/test_pipeline.py` (small subset run)
+- [X] T017 [P] [US2] Integration test for generation pipeline in `tests/integration/test_pipeline.py` (small subset run).
 
 ### Implementation for User Story 2
 
-- [X] T018 [US2] [Depends on T013, T013b] Implement `code/generation/diffusion_runner.py`: Load CPU-optimized model ('latent-consistency/lcm-lora-sdv1-5'), set random seeds, generate images from Baseline, Experimental, and Control prompt files. Ensure T013 and T013b are complete before execution.
-- [ ] T019 [US2] Implement seed locking mechanism ensuring Baseline and Experimental groups use identical seeds for the same scene ID (FR-007).
-- [ ] T019b [US2] Implement seed locking for Control group (distinct from Baseline/Exp but consistent within Control).
-- [ ] T020 [US2] Implement retry logic (max attempts) for generation failures and log "Generation Failure" if exceeded (FR-006, Edge Case).
-- [~] T021 [US2] Save generated images to `data/derived/generated_images/{group}/{scene_id}.png`. Ensure all three groups (Baseline, Experimental, Control) are fully generated before marking task complete.
-- [~] T022 [US2] [Depends on T022a] Implement fallback mechanism: If architecture permits only approximate seed control, generate N=5 candidate images per prompt using the same seed. <!-- FAILED: unspecified -->
-- [X] T022a [US2] [Depends on T012] Implement `code/generation/reference_geometry.py`: Render a "reference geometry" image by projecting the `pymunk` JSON bounding boxes onto a virtual 512x512 canvas matching the generation resolution.
-- [~] T022b [US2] [Depends on T022] Implement selection logic: Calculate SSIM between each of the N=5 candidates and the reference geometry (from T022a), select the candidate with the highest SSIM score, and save only that single image as the final output.
-- [~] T023 [US2] Monitor memory usage and enforce a time limit per batch.
-
-The research question, method, and references remain unchanged as per the planning document requirements.
+- [X] T018 [US2] [Depends on T013, T013b, T019] Implement `code/generation/diffusion_runner.py`: Load CPU-optimized model ('latent-consistency/lcm-lora-sdv'), set random seeds using the manifest from T019, generate images from Baseline, Experimental, and Control prompt files. Ensure T013 and T013b are complete before execution.
+- [ ] T019 [US2] [Depends on T007-config-create] Implement seed locking mechanism: Generate `data/derived/seed_manifest.json` containing identical seeds for Baseline and Experimental groups for each scene ID, and distinct but consistent seeds for the Control group. This artifact satisfies FR-007.
+- [ ] T020 [US2] [Depends on T018] Implement retry logic (A limited number of attempts) for generation failures in `diffusion_runner.py`. If exceeded, log "Generation Failure" to `data/derived/generated_images/generation_failure_log.json` and mark the scene as failed (FR-006, Edge Case).
+- [ ] T021 [US2] [Depends on T018] Save generated images to `data/derived/generated_images/{group}/{scene_id}.png`. Ensure all three groups (Baseline, Experimental, Control) are fully generated before marking task complete.
+- [ ] T022-verify [US2] [Independent] Verify if LCM-LoRA supports deterministic seed locking (approximate vs exact). Output boolean flag to `data/derived/seed_lock_status.json`.
+- [ ] T022-fallback [US2] [Depends on T018, T022-verify, T012] [Conditional] If T022-verify indicates approximate seed control, implement fallback: Render a "reference geometry" image (512x512) by projecting `pymunk` JSON bounding boxes onto a virtual canvas. Generate N=5 candidate images per prompt using the same seed. Calculate SSIM between each candidate and the reference geometry (512x512), select the candidate with the highest SSIM score, and save only that single image as `data/derived/generated_images/selected_{scene_id}.png`. Discard the other candidate(s). If T022-verify indicates exact locking, skip this task.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently. **Must have generated images for Baseline, Experimental, AND Control groups.**
 
@@ -147,25 +121,20 @@ The research question, method, and references remain unchanged as per the planni
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T024 [P] [US3] Contract test for `EvaluationResult` schema in `tests/contract/test_schemas.py`
-- [X] T025 [P] [US3] Unit test for Z-test/Fisher's Exact Test logic in `tests/unit/test_statistics.py`
+- [X] T024 [P] [US3] Contract test for `EvaluationResult` schema in `tests/contract/test_schemas.py`.
+- [X] T025 [P] [US3] Unit test for Z-test/Fisher's Exact Test logic in `tests/unit/test_statistics.py`.
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] [Depends on T012, T021] Implement `code/evaluation/detector.py`: Load YOLOv8n (CPU (Wikidata Q117453145, https://www.wikidata.org/wiki/Q117453145)), detect objects, extract bounding boxes, compare against `physics_constraints/{scene_id}.json` (relative to 512x512 output, IoU < 0.5 or Y-offset > 5px).
-- [ ] T027 [US3] Implement violation logic:Count floating objects/interpenetration; default to violation if object confidence < 0.7 (Edge Case).
-- [ ] T028 [US3] Save evaluation results to `data/derived/evaluation_results/{scene_id}.json` with violation flags and confidence distributions (FR-010).
-- [ ] T029 [US3] [Independent of T016] Implement `code/analysis/statistics.py` Power Analysis: Perform power analysis (effect_size=0.2, alpha=0.05, power_target=0.8) and output `power_analysis_report.json`.
-- [ ] T029a [US3] [Depends on T029] Implement Power Verification: Verify that the calculated power (≥0.8) is achieved. If power < 0.8, halt the pipeline and flag `power_analysis_report.json` as failed.
-- [ ] T029b [US3] Implement Statistical Test Switching Logic: Read the `power_analysis_report.json` and check expected cell counts. If cell counts < 5, switch to Fisher's Exact Test; otherwise, use two-proportion z-test.
-- [ ] T029c [US3] [Depends on T016] Implement Exclusion Logic: Read contradiction logs (from T016) and generation failure logs (from T020), identify the corresponding scene IDs, and exclude them from the final statistical denominator.
-- [ ] T029d [US3] [Depends on T016] Implement Contradiction Rate Check: Re-calculate the contradiction rate from logs. If rate > 5%, raise a `StudyInvalidError` to halt the pipeline (Hard Fail).
-- [ ] T030 [US3] [Depends on T030b] Generate `data/processed/final_analysis.csv` with aggregated stats, p-values, and "Prompt Adherence Rate" labeling (FR-009).
-- [ ] T030b [US3] Implement Metric Labeling Enforcement: Ensure "Prompt Adherence Rate" is explicitly used as the label for violation metrics in `power_analysis_report.json`, `evaluation_results`, and `final_analysis.csv`.
-- [ ] T031 [US3] [Depends on T031a] Implement Correction Factor Logic: If the False Negative Rate (FNR) exceeds the derived threshold (from T031a), apply a conservative correction factor or switch to a qualitative 'Pass/Fail' assessment.
-- [ ] T031a [US3] Implement Validation Set & Threshold Derivation: Load a held-out validation set (defined in `data/raw/validation_scenes.csv`), calculate the detector's FNR, and derive the "predefined acceptable threshold" dynamically.
-- [ ] T032a [US3] [Depends on T016] Implement aggregation logic in `code/analysis/statistics.py` to read contradiction logs, calculate the exact contradiction rate percentage, and verify it is < 5% (SC-004); if rate > 5%, raise a `StudyInvalidError` to halt the pipeline.
-- [ ] T032b [US3] [Depends on T032a] Update `data/processed/final_analysis.csv` and `code/analysis/statistics.py` to explicitly include the "Contradiction Rate" metric and ensure it is reported in the final summary output.
+- [ ] T026 [US3] [Depends on T012, T021] Implement `code/evaluation/detector.py`: Load YOLOv8n (CPU), detect objects, extract bounding boxes, compare against `physics_constraints/{scene_id}.json` (relative to 512x512 output, IoU < 0.5 or Y-offset > 5px). Output bounding boxes to `data/derived/evaluation_results/{scene_id}_boxes.json`.
+- [ ] T027 [US3] [Depends on T026] Implement violation logic: Count floating objects/interpenetration; default to violation if object confidence < 0.7 (Edge Case).
+- [ ] T028 [US3] [Depends on T027] Save evaluation results to `data/derived/evaluation_results/{scene_id}.json` with violation flags and confidence distributions (FR-010).
+- [ ] T029 [US3] [Independent] Implement `code/analysis/statistics.py` Power Analysis and Test Selection: Perform power analysis (effect_size=0.2, alpha=0.05, power_target=0.8) and output `data/processed/power_analysis_report.json`. If power < 0.8, log a WARNING but continue (soft fail) to align with N=100 scope. Check expected cell counts; if < 5, switch to Fisher's Exact Test; otherwise, use two-proportion z-test. Output results to `data/processed/statistical_test_results.json`.
+- [ ] T029-exclusion [US3] [Depends on T016, T020, T028] Implement Exclusion Logic and Contradiction Rate Verification: Read contradiction logs from `data/derived/physics_constraints/contradiction_log.json` (produced by T016) and generation failure logs from `data/derived/generated_images/generation_failure_log.json` (produced by T020). Re-calculate contradiction rate. If rate > 5%, raise `StudyInvalidError` (Hard Fail) to halt pipeline. Identify corresponding scene IDs, exclude them from the final statistical denominator. Output exclusion list to `data/processed/exclusion_list.json`. Generate `data/processed/final_analysis.csv` with aggregated stats, p-values, and "Prompt Adherence Rate" labeling (FR-009).
+- [ ] T030b [US3] [Depends on T029-exclusion] Implement Metric Labeling Enforcement: Ensure "Prompt Adherence Rate" is explicitly used as the label for violation metrics in `data/processed/power_analysis_report.json`, `data/derived/evaluation_results`, and `data/processed/final_analysis.csv`.
+- [ ] T031a-gen [US3] [Independent] Generate `data/raw/validation_scenes.csv` locally using the same deterministic script and templates as T011 (seed=42) to create a held-out validation set of scenes. Output file: `data/raw/validation_scenes.csv`.
+- [ ] T031a [US3] [Depends on T026, T031a-gen] Implement Validation Set & Threshold Derivation: Load `data/raw/validation_scenes.csv`, run detector (T026) on these scenes to calculate the detector's False Negative Rate (FNR), and derive the "predefined acceptable threshold" dynamically. Output threshold to `data/derived/evaluation_results/fnr_threshold.json`.
+- [ ] T031 [US3] [Depends on T031a] Implement Correction Factor Logic: If the False Negative Rate (FNR) exceeds the derived threshold (from T031a), apply a conservative correction factor or switch to a qualitative 'Pass/Fail' assessment. Log correction to `data/derived/evaluation_results/correction_factor_log.json`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -178,11 +147,11 @@ The research question, method, and references remain unchanged as per the planni
 - [ ] T033 [P] Update `README.md` with project overview, dependencies, and step-by-step execution instructions for the full pipeline; specifically update the "Results" and "Methodology" sections to reflect the N=100 scope and Control Group inclusion.
 - [ ] T034 [P] Update `quickstart.md` with environment setup, CPU-only model download instructions, and N=100 run validation steps; ensure the "Expected Output" section lists the three groups (Baseline, Experimental, Control).
 - [ ] T035 [P] Create `scope_justification.md` artifact explaining the deviation from N=500 to N=100 due to compute constraints and citing the plan.md constraints.
-- [ ] T036 Code cleanup and refactoring of `code/` modules
-- [ ] T037 Performance optimization for CPU generation batch sizes
-- [ ] T038 [P] Additional unit tests in `tests/unit/`
-- [ ] T039 Security hardening (input validation for prompts)
-- [ ] T040 [P] Run `quickstart.md` validation and verify full pipeline on N=100
+- [ ] T036 Code cleanup and refactoring of `code/` modules.
+- [ ] T037 Performance optimization for CPU generation batch sizes.
+- [ ] T038 [P] Additional unit tests in `tests/unit/`.
+- [ ] T039 Security hardening (input validation for prompts).
+- [ ] T040 [P] Run `quickstart.md` validation and verify full pipeline on N=100.
 
 ---
 
@@ -230,7 +199,7 @@ Task: "Contract test for PhysicsConstraint JSON schema in tests/contract/test_sc
 Task: "Unit test for pymunk simulation logic in tests/unit/test_physics_logic.py"
 
 # Launch all models for User Story 1 together:
-Task: "Create data/raw/scene_descriptions.csv"
+Task: "Generate data/raw/scene_descriptions.csv locally"
 Task: "Implement code/simulation/physics_engine.py"
 ```
 
@@ -276,23 +245,21 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: All image generation tasks (T018-T023) must strictly adhere to CPU-only constraints (no CUDA, no 8-bit quantization requiring bitsandbytes). Use distilled models (LCM-LoRA) only.
-- **CRITICAL**: Dataset download/fetch tasks must use real, reachable URLs or package fetchers (e.g., `datasets.load_dataset`), never synthetic/fake data.
+- **CRITICAL**: All image generation tasks (T018-T021) must strictly adhere to CPU-only constraints (no CUDA, no 8-bit quantization requiring bitsandbytes). Use distilled models (LCM-LoRA) only.
+- **CRITICAL**: Dataset download/fetch tasks must use real, reachable URLs or package fetchers (e.g., `datasets.load_dataset`), never synthetic/fake data. **Exception**: T011 and T031a-gen use local deterministic generation to satisfy the 'curated' assumption without external dependencies.
 - **CRITICAL**: Task ordering respects data flow: Physics JSON (US1) must be generated before Prompts (US1) which must be generated before Images (US2) which must be generated before Evaluation (US3).
-- **CRITICAL**: T004 MUST run after T001a-T001q (sequential dependency).
+- **CRITICAL**: T004 MUST run after T001 (sequential dependency).
 - **CRITICAL**: T009/T010 depend on Phase 2 completion.
 - **CRITICAL**: T012/T013 depend on T011.
 - **CRITICAL**: T026 depends on T012 and T021.
-- **CRITICAL**: T032a/T032b depend on T016 and aggregate logs from US1.
+- **CRITICAL**: T029-exclusion depends on T016 and T020.
 - **CRITICAL**: T029 must output `power_analysis_report.json` as a mandatory deliverable.
 - **CRITICAL**: T031 must switch to 'Pass/Fail' if FNR > derived threshold.
-- **CRITICAL**: T022 must use SSIM for similarity calculation.
+- **CRITICAL**: T022-fallback must use 512x512 resolution for SSIM calculation.
 - **CRITICAL**: T035 must document the N=100 scope reduction.
-- **CRITICAL**: T022 must explicitly calculate "reference geometry" by projecting `pymunk` JSON to a virtual canvas (512x512) before calculating SSIM.
-- **CRITICAL**: T011 must explicitly handle the N=100 scope reduction in the data fetching logic.
-- **CRITICAL**: T022b must explicitly select the best candidate based on SSIM.
-- **CRITICAL**: T029a must halt the pipeline if power < 0.8.
-- **CRITICAL**: T029b must switch to Fisher's Exact Test if cell counts < 5.
-- **CRITICAL**: T030b must ensure "Prompt Adherence Rate" labeling is applied to all reports.
-- **CRITICAL**: T029c must exclude contradictory and failed scenes from the statistical denominator.
-- **CRITICAL**: T031a must derive the FNR threshold from a held-out validation set.
+- **CRITICAL**: T022-fallback must explicitly calculate "reference geometry" by projecting `pymunk` JSON to a virtual canvas (512x512) before calculating SSIM.
+- **CRITICAL**: T011 must explicitly use local generation with seed=42.
+- **CRITICAL**: T029 must implement a 'soft fail' (warning) if power < 0.8.
+- **CRITICAL**: T029-exclusion must enforce a 'hard fail' if contradiction rate > 5%.
+- **CRITICAL**: T031a-gen must generate the validation set locally.
+- **CRITICAL**: T022-verify must determine if fallback is needed.

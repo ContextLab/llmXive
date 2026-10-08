@@ -1,69 +1,146 @@
 """
-Unit tests for code/utils/update_state.py
+Unit tests for update_state module.
 """
+
 import os
 import sys
+import json
 import tempfile
-import shutil
-import hashlib
 from pathlib import Path
-import unittest
-from unittest.mock import patch, MagicMock
+import pytest
 
-# Add parent directory to path to import code.utils
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+# Add code directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from code.utils.update_state import calculate_sha256, scan_directory, PROJECT_ROOT, DATA_DIR
+from utils.update_state import calculate_sha256, scan_directory, update_state_file
 
-class TestUpdateStateUtils(unittest.TestCase):
+class TestCalculateSha256:
+    def test_hash_consistency(self, tmp_path):
+        """Test that same file produces same hash."""
+        file_path = tmp_path / "test.txt"
+        content = b"Hello, World!"
+        file_path.write_bytes(content)
+        
+        hash1 = calculate_sha256(file_path)
+        hash2 = calculate_sha256(file_path)
+        
+        assert hash1 == hash2
+        assert len(hash1) == 64  # SHA-256 hex length
 
-    def setUp(self):
-        """Create a temporary directory structure for testing."""
-        self.temp_dir = tempfile.mkdtemp()
-        self.test_data_dir = Path(self.temp_dir) / "data"
-        self.test_data_dir.mkdir()
+    def test_hash_changes_with_content(self, tmp_path):
+        """Test that different content produces different hash."""
+        file1 = tmp_path / "test1.txt"
+        file2 = tmp_path / "test2.txt"
+        
+        file1.write_bytes(b"Content A")
+        file2.write_bytes(b"Content B")
+        
+        hash1 = calculate_sha256(file1)
+        hash2 = calculate_sha256(file2)
+        
+        assert hash1 != hash2
 
-        # Create some dummy files
-        (self.test_data_dir / "file1.txt").write_text("hello world")
-        (self.test_data_dir / "subdir").mkdir()
-        (self.test_data_dir / "subdir" / "file2.txt").write_text("test content")
-
-    def tearDown(self):
-        """Clean up temporary directory."""
-        shutil.rmtree(self.temp_dir)
-
-    def test_calculate_sha256(self):
-        """Test SHA-256 calculation."""
-        file_path = Path(self.temp_dir) / "data" / "file1.txt"
-        expected_hash = hashlib.sha256(b"hello world").hexdigest()
-        self.assertEqual(calculate_sha256(file_path), expected_hash)
-
-    def test_scan_directory_existing(self):
-        """Test scanning an existing directory with files."""
-        scan_result = scan_directory(self.test_data_dir)
-        self.assertEqual(scan_result["status"], "ok")
-        self.assertEqual(scan_result["total_files"], 2)
-        self.assertEqual(len(scan_result["files"]), 2)
-
-        # Check if files are listed
-        paths = [f["path"] for f in scan_result["files"]]
-        self.assertIn("file1.txt", paths)
-        self.assertIn("subdir/file2.txt", paths)
-
-    def test_scan_directory_empty(self):
+class TestScanDirectory:
+    def test_scan_empty_directory(self, tmp_path):
         """Test scanning an empty directory."""
-        empty_dir = Path(self.temp_dir) / "empty"
-        empty_dir.mkdir()
-        scan_result = scan_directory(empty_dir)
-        self.assertEqual(scan_result["status"], "empty")
-        self.assertEqual(scan_result["total_files"], 0)
+        hashes = scan_directory(tmp_path)
+        assert hashes == {}
 
-    def test_scan_directory_missing(self):
+    def test_scan_with_files(self, tmp_path):
+        """Test scanning a directory with files."""
+        file1 = tmp_path / "file1.txt"
+        file2 = tmp_path / "file2.json"
+        
+        file1.write_text("content1")
+        file2.write_text("content2")
+        
+        hashes = scan_directory(tmp_path)
+        
+        assert "file1.txt" in hashes
+        assert "file2.json" in hashes
+        assert len(hashes) == 2
+
+    def test_scan_with_extension_filter(self, tmp_path):
+        """Test scanning with extension filter."""
+        file1 = tmp_path / "file1.txt"
+        file2 = tmp_path / "file2.json"
+        
+        file1.write_text("content1")
+        file2.write_text("content2")
+        
+        hashes = scan_directory(tmp_path, extensions=[".txt"])
+        
+        assert "file1.txt" in hashes
+        assert "file2.json" not in hashes
+        assert len(hashes) == 1
+
+    def test_scan_nonexistent_directory(self):
         """Test scanning a non-existent directory."""
-        missing_path = Path(self.temp_dir) / "non_existent"
-        scan_result = scan_directory(missing_path)
-        self.assertEqual(scan_result["status"], "missing")
-        self.assertEqual(scan_result["total_files"], 0)
+        fake_path = Path("/nonexistent/path/that/does/not/exist")
+        hashes = scan_directory(fake_path)
+        assert hashes == {}
 
-if __name__ == "__main__":
-    unittest.main()
+    def test_scan_nested_directories(self, tmp_path):
+        """Test scanning nested directories."""
+        subdir = tmp_path / "subdir"
+        subdir.mkdir()
+        
+        file1 = tmp_path / "root.txt"
+        file2 = subdir / "nested.txt"
+        
+        file1.write_text("root content")
+        file2.write_text("nested content")
+        
+        hashes = scan_directory(tmp_path)
+        
+        assert "root.txt" in hashes
+        assert "subdir/nested.txt" in hashes
+        assert len(hashes) == 2
+
+class TestUpdateStateFile:
+    def test_create_new_state_file(self, tmp_path):
+        """Test creating a new state file."""
+        state_path = tmp_path / "state.json"
+        hashes = {"test_dir": {"file.txt": "abc123"}}
+        
+        update_state_file(state_path, hashes)
+        
+        assert state_path.exists()
+        
+        with open(state_path, 'r') as f:
+            state = json.load(f)
+        
+        assert "artifacts" in state
+        assert "test_dir" in state["artifacts"]
+        assert "file.txt" in state["artifacts"]["test_dir"]
+        assert "last_updated" in state
+
+    def test_update_existing_state_file(self, tmp_path):
+        """Test updating an existing state file."""
+        state_path = tmp_path / "state.json"
+        
+        # Create initial state
+        initial_state = {"artifacts": {"old_dir": {"old.txt": "old_hash"}}}
+        with open(state_path, 'w') as f:
+            json.dump(initial_state, f)
+        
+        # Update with new hashes
+        new_hashes = {"new_dir": {"new.txt": "new_hash"}}
+        update_state_file(state_path, new_hashes)
+        
+        with open(state_path, 'r') as f:
+            state = json.load(f)
+        
+        # Should have both old and new
+        assert "old_dir" in state["artifacts"]
+        assert "new_dir" in state["artifacts"]
+        assert "last_updated" in state
+
+    def test_creates_parent_directories(self, tmp_path):
+        """Test that parent directories are created if they don't exist."""
+        state_path = tmp_path / "deep" / "nested" / "state.json"
+        hashes = {"test": {"file.txt": "hash"}}
+        
+        update_state_file(state_path, hashes)
+        
+        assert state_path.exists()
