@@ -1,9 +1,11 @@
 """
-Environment configuration management for random seeds and model paths.
+Environment configuration management for Socratic Transformers project.
 
-This module defines the central configuration for the Socratic Transformers project,
-including model IDs, data paths, and random seed management for reproducibility.
+Handles random seeds, model paths, and experimental parameters.
+Model IDs are required and must be provided via environment variables
+or a config file to allow experimental flexibility per FR-003.
 """
+
 import os
 import random
 from dataclasses import dataclass, field
@@ -12,66 +14,74 @@ from typing import Optional, Dict, Any, List
 
 import numpy as np
 
-# Project Root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_ROOT = PROJECT_ROOT / "data"
-STATE_ROOT = PROJECT_ROOT / "state"
-RESULTS_ROOT = PROJECT_ROOT / "results"
-
-# Model Configuration
-# Base model for generation and fine-tuning (small, CPU-friendly)
-BASE_MODEL_ID = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
-
-# Critic model for adversarial feedback (frozen, small)
-# Using a small model to fit within CPU constraints while providing critique
-CRITIC_MODEL_ID = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
-
-# Path to the question bank (GSM8K/MATH processed data)
-QUESTION_BANK_PATH = str(DATA_ROOT / "processed" / "static_tuples.jsonl")
-
-# Random Seed Configuration
-DEFAULT_SEED = 42
-
 
 @dataclass
 class SocraticConfig:
     """
-    Central configuration dataclass for the Socratic Transformers project.
+    Main configuration class for the Socratic Transformers pipeline.
+    
+    Attributes:
+        CRITIC_MODEL_ID: Required. ID of the frozen critic model for adversarial critique.
+        BASE_MODEL_ID: Required. ID of the base model for answer generation and fine-tuning.
+        QUESTION_BANK_PATH: Optional. Path to a local question bank file.
+        ADVERSARIAL_PROMPT_TEMPLATE: Template string for generating critique prompts.
+        SELECTION_THRESHOLD: Float threshold for negative selection (similarity score).
+        RANDOM_SEED: Integer seed for reproducibility.
     """
-    # Model IDs
-    base_model_id: str = BASE_MODEL_ID
-    critic_model_id: str = CRITIC_MODEL_ID
-
-    # Paths
-    project_root: Path = field(default_factory=lambda: PROJECT_ROOT)
-    data_root: Path = field(default_factory=lambda: DATA_ROOT)
-    state_root: Path = field(default_factory=lambda: STATE_ROOT)
-    results_root: Path = field(default_factory=lambda: RESULTS_ROOT)
-    question_bank_path: str = field(default_factory=lambda: QUESTION_BANK_PATH)
-
-    # Training/Generation Parameters
-    seed: int = DEFAULT_SEED
-    max_length: int = 512
-    batch_size: int = 1
-    gradient_accumulation_steps: int = 4
-
-    # Quantization
-    use_4bit: bool = True
-
-    # Logging
-    log_level: str = "INFO"
-
+    CRITIC_MODEL_ID: str = field(
+        default_factory=lambda: os.environ.get("CRITIC_MODEL_ID")
+    )
+    BASE_MODEL_ID: str = field(
+        default_factory=lambda: os.environ.get("BASE_MODEL_ID")
+    )
+    QUESTION_BANK_PATH: Optional[str] = None
+    ADVERSARIAL_PROMPT_TEMPLATE: str = "Identify logical contradictions in: {answer}"
+    SELECTION_THRESHOLD: float = 0.85
+    RANDOM_SEED: int = 42
+    
+    # Additional runtime paths
+    PROJECT_ROOT: Path = field(
+        default_factory=lambda: Path(__file__).resolve().parents[3]
+    )
+    DATA_RAW_DIR: Path = field(init=False)
+    DATA_PROCESSED_DIR: Path = field(init=False)
+    DATA_RESULTS_DIR: Path = field(init=False)
+    STATE_DIR: Path = field(init=False)
+    
     def __post_init__(self):
-        """Ensure paths are Path objects."""
-        if isinstance(self.project_root, str):
-            self.project_root = Path(self.project_root)
-        if isinstance(self.data_root, str):
-            self.data_root = Path(self.data_root)
-        if isinstance(self.state_root, str):
-            self.state_root = Path(self.state_root)
-        if isinstance(self.results_root, str):
-            self.results_root = Path(self.results_root)
-
+        """Initialize derived paths after dataclass initialization."""
+        self.DATA_RAW_DIR = self.PROJECT_ROOT / "data" / "raw"
+        self.DATA_PROCESSED_DIR = self.PROJECT_ROOT / "data" / "processed"
+        self.DATA_RESULTS_DIR = self.PROJECT_ROOT / "data" / "results"
+        self.STATE_DIR = self.PROJECT_ROOT / "state"
+        
+        # Ensure model IDs are set
+        if not self.CRITIC_MODEL_ID:
+            raise ValueError(
+                "CRITIC_MODEL_ID must be set via environment variable "
+                "or config file. Set CRITIC_MODEL_ID=<model_id>."
+            )
+        if not self.BASE_MODEL_ID:
+            raise ValueError(
+                "BASE_MODEL_ID must be set via environment variable "
+                "or config file. Set BASE_MODEL_ID=<model_id>."
+            )
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Export configuration to a dictionary."""
+        return {
+            "CRITIC_MODEL_ID": self.CRITIC_MODEL_ID,
+            "BASE_MODEL_ID": self.BASE_MODEL_ID,
+            "QUESTION_BANK_PATH": self.QUESTION_BANK_PATH,
+            "ADVERSARIAL_PROMPT_TEMPLATE": self.ADVERSARIAL_PROMPT_TEMPLATE,
+            "SELECTION_THRESHOLD": self.SELECTION_THRESHOLD,
+            "RANDOM_SEED": self.RANDOM_SEED,
+            "PROJECT_ROOT": str(self.PROJECT_ROOT),
+            "DATA_RAW_DIR": str(self.DATA_RAW_DIR),
+            "DATA_PROCESSED_DIR": str(self.DATA_PROCESSED_DIR),
+            "DATA_RESULTS_DIR": str(self.DATA_RESULTS_DIR),
+            "STATE_DIR": str(self.STATE_DIR),
+        }
 
 # Global configuration instance
 _global_config: Optional[SocraticConfig] = None
@@ -79,18 +89,27 @@ _global_config: Optional[SocraticConfig] = None
 
 def get_config() -> SocraticConfig:
     """
-    Get the global configuration instance.
-    Creates one if it doesn't exist.
+    Retrieve the global configuration instance.
+    
+    Returns:
+        The active SocraticConfig instance.
+        
+    Raises:
+        ValueError: If the configuration has not been initialized.
     """
-    global _global_config
     if _global_config is None:
-        _global_config = load_config_from_env()
+        raise ValueError(
+            "Configuration not initialized. Call init_project() or set_config() first."
+        )
     return _global_config
 
 
 def set_global_config(config: SocraticConfig) -> None:
     """
     Set the global configuration instance.
+    
+    Args:
+        config: The SocraticConfig instance to set as global.
     """
     global _global_config
     _global_config = config
@@ -98,68 +117,99 @@ def set_global_config(config: SocraticConfig) -> None:
 
 def load_config_from_env() -> SocraticConfig:
     """
-    Load configuration from environment variables, falling back to defaults.
+    Load configuration from environment variables.
+    
+    Environment variables:
+        CRITIC_MODEL_ID: Model ID for the critic.
+        BASE_MODEL_ID: Model ID for the base model.
+        QUESTION_BANK_PATH: Optional path to question bank.
+        ADVERSARIAL_PROMPT_TEMPLATE: Template for critique prompts.
+        SELECTION_THRESHOLD: Threshold for negative selection.
+        RANDOM_SEED: Random seed for reproducibility.
+        
+    Returns:
+        A new SocraticConfig instance populated from environment variables.
     """
-    base_model = os.getenv("BASE_MODEL_ID", BASE_MODEL_ID)
-    critic_model = os.getenv("CRITIC_MODEL_ID", CRITIC_MODEL_ID)
-    seed = int(os.getenv("RANDOM_SEED", DEFAULT_SEED))
-    question_bank = os.getenv("QUESTION_BANK_PATH", QUESTION_BANK_PATH)
-
-    return SocraticConfig(
-        base_model_id=base_model,
-        critic_model_id=critic_model,
-        seed=seed,
-        question_bank_path=question_bank
+    critic_id = os.environ.get("CRITIC_MODEL_ID")
+    base_id = os.environ.get("BASE_MODEL_ID")
+    question_bank = os.environ.get("QUESTION_BANK_PATH")
+    prompt_template = os.environ.get(
+        "ADVERSARIAL_PROMPT_TEMPLATE",
+        "Identify logical contradictions in: {answer}"
     )
-
+    threshold_str = os.environ.get("SELECTION_THRESHOLD", "0.85")
+    seed_str = os.environ.get("RANDOM_SEED", "42")
+    
+    try:
+        threshold = float(threshold_str)
+    except ValueError:
+        raise ValueError(f"SELECTION_THRESHOLD must be a float, got: {threshold_str}")
+    
+    try:
+        seed = int(seed_str)
+    except ValueError:
+        raise ValueError(f"RANDOM_SEED must be an integer, got: {seed_str}")
+    
+    return SocraticConfig(
+        CRITIC_MODEL_ID=critic_id,
+        BASE_MODEL_ID=base_id,
+        QUESTION_BANK_PATH=question_bank,
+        ADVERSARIAL_PROMPT_TEMPLATE=prompt_template,
+        SELECTION_THRESHOLD=threshold,
+        RANDOM_SEED=seed
+    )
 
 def set_seed(seed: Optional[int] = None) -> None:
     """
-    Set random seeds for reproducibility across Python, NumPy, and PyTorch (if available).
+    Set the random seed for reproducibility across all libraries.
+    
+    Args:
+        seed: The seed value. If None, uses the seed from the global config.
     """
     if seed is None:
-        seed = get_config().seed
-
+        config = get_config()
+        seed = config.RANDOM_SEED
+    
     random.seed(seed)
     np.random.seed(seed)
-
-    try:
+    if 'torch' in globals() or 'torch' in __import__('sys').modules:
         import torch
         torch.manual_seed(seed)
         if torch.cuda.is_available():
             torch.cuda.manual_seed_all(seed)
-    except ImportError:
-        pass
 
-
-def init_project() -> None:
+def init_project() -> SocraticConfig:
     """
-    Initialize project directories based on configuration.
+    Initialize the project by loading configuration from environment
+    and setting up the global config instance.
+    
+    Returns:
+        The initialized SocraticConfig instance.
     """
-    config = get_config()
-    dirs = [
-        config.data_root / "raw",
-        config.data_root / "processed",
-        config.data_root / "results",
-        config.state_root,
-        config.results_root
-    ]
+    config = load_config_from_env()
+    set_global_config(config)
+    set_seed(config.RANDOM_SEED)
+    
+    # Ensure directories exist
+    for dir_path in [config.DATA_RAW_DIR, config.DATA_PROCESSED_DIR, 
+                     config.DATA_RESULTS_DIR, config.STATE_DIR]:
+        dir_path.mkdir(parents=True, exist_ok=True)
+    
+    return config
 
-    for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
-
-
-def main() -> None:
-    """
-    Main entry point for testing configuration.
-    """
-    config = get_config()
-    print(f"Project Root: {config.project_root}")
-    print(f"Base Model ID: {config.base_model_id}")
-    print(f"Critic Model ID: {config.critic_model_id}")
-    print(f"Question Bank Path: {config.question_bank_path}")
-    print(f"Seed: {config.seed}")
-
+def main():
+    """Entry point for testing configuration loading."""
+    try:
+        config = init_project()
+        print(f"Configuration loaded successfully:")
+        print(f"  CRITIC_MODEL_ID: {config.CRITIC_MODEL_ID}")
+        print(f"  BASE_MODEL_ID: {config.BASE_MODEL_ID}")
+        print(f"  SELECTION_THRESHOLD: {config.SELECTION_THRESHOLD}")
+        print(f"  RANDOM_SEED: {config.RANDOM_SEED}")
+    except ValueError as e:
+        print(f"Configuration error: {e}")
+        return 1
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

@@ -1,4 +1,1 @@
-"""
-Socratic Transformers: Dialogue-Based Selection on Belief
-Source code package.
-"""
+# Source package for PROJ-582-socratic-transformers-dialogue-based-sel

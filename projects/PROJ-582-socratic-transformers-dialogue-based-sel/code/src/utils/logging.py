@@ -1,7 +1,7 @@
 """
-Structured logging utility for Socratic Transformers project.
+Structured logging utility for Socratic Transformers dialogue events.
 
-Handles degenerate dialogue events as JSON lines with a strict schema:
+Handles degenerate dialogue events as JSON lines with the schema:
 {"event_type": str, "timestamp": str, "details": dict}
 """
 import json
@@ -12,158 +12,168 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-# Ensure the src package root is in the path if running as script
-if __name__ == "__main__" and __package__ is None:
-    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-
 
 class SocraticJsonFormatter(logging.Formatter):
-    """
-    Custom formatter that outputs log records as JSON lines.
-    Ensures the schema: {"event_type": str, "timestamp": str, "details": dict}
-    """
+    """Custom formatter that outputs log records as JSON lines."""
 
     def format(self, record: logging.LogRecord) -> str:
-        # Map standard logging levels to event_type
-        event_type = record.levelname.lower()
-
-        # Build the details dict from extra fields and standard attributes
-        details: Dict[str, Any] = {
-            "message": record.getMessage(),
-            "name": record.name,
-            "pathname": record.pathname,
-            "lineno": record.lineno,
-            "funcName": record.funcName,
+        """Format a log record as a JSON line."""
+        event_data: Dict[str, Any] = {
+            "event_type": record.levelname,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "details": {
+                "message": record.getMessage(),
+                "logger": record.name,
+                "module": record.module,
+                "function": record.funcName,
+                "line": record.lineno,
+            },
         }
 
-        # Add any extra fields passed in the log call
-        if hasattr(record, "details"):
-            if isinstance(record.details, dict):
-                details.update(record.details)
-            else:
-                details["extra_data"] = record.details
+        # Add extra fields if present
+        if hasattr(record, "details") and isinstance(record.details, dict):
+            event_data["details"].update(record.details)
 
-        # Ensure timestamp is ISO format with timezone
-        timestamp = datetime.fromtimestamp(record.created, tz=timezone.utc).isoformat()
-
-        event_record = {
-            "event_type": event_type,
-            "timestamp": timestamp,
-            "details": details,
-        }
-
-        return json.dumps(event_record, default=str)
+        return json.dumps(event_data)
 
 
 class SocraticLogger(logging.Logger):
-    """
-    Custom logger class that uses SocraticJsonFormatter by default.
-    """
+    """Extended logger with convenience methods for structured logging."""
 
-    def __init__(self, name: str, level: int = logging.NOTSET):
-        super().__init__(name, level)
-        # Default handler to console if not configured
-        if not self.handlers:
-            console_handler = logging.StreamHandler(sys.stdout)
-            console_handler.setFormatter(SocraticJsonFormatter())
-            self.addHandler(console_handler)
-
-    def log_event(self, event_type: str, message: str, details: Optional[Dict[str, Any]] = None, level: int = logging.INFO) -> None:
+    def log_event(self, event_type: str, message: str, details: Optional[Dict[str, Any]] = None) -> None:
         """
-        Helper method to log a structured event.
+        Log a structured event.
+
+        Args:
+            event_type: The type of event (e.g., "DIALOGUE_STEP", "CRITIQUE_GENERATED")
+            message: The main message text
+            details: Additional structured data to include
         """
         extra = {"details": details} if details else {}
-        self.log(level, message, extra=extra)
+        self.info(message, extra=extra)
 
 
-# Set the custom logger class
+# Register custom logger class
 logging.setLoggerClass(SocraticLogger)
 
 
-def get_logger(name: str) -> SocraticLogger:
+def get_logger(name: str, log_path: Optional[str] = None, level: int = logging.INFO) -> SocraticLogger:
     """
-    Get or create a logger with the specified name.
-    """
-    return logging.getLogger(name)
-
-
-def log_event(
-    event_type: str,
-    message: str,
-    details: Optional[Dict[str, Any]] = None,
-    level: int = logging.INFO,
-    logger_name: str = "socratic_logger",
-    log_file: Optional[str] = None
-) -> None:
-    """
-    Log an event to the specified logger (and optionally a file).
+    Get or create a logger with JSON formatting.
 
     Args:
-        event_type: The type of event (e.g., 'info', 'error', 'test').
-        message: The log message.
-        details: Optional dictionary of additional details.
-        level: Logging level (default: INFO).
-        logger_name: Name of the logger instance.
-        log_file: Optional path to a log file. If provided, a file handler
-                   with JSON formatting is added.
+        name: Logger name (usually __name__)
+        log_path: Optional path to write log file. If None, logs to stderr.
+        level: Logging level
+
+    Returns:
+        Configured SocraticLogger instance
     """
-    logger = get_logger(logger_name)
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
 
-    # If a file log is requested, add a file handler if it doesn't exist
-    if log_file:
-        file_handler = None
-        for handler in logger.handlers:
-            if isinstance(handler, logging.FileHandler) and handler.filename == str(log_file):
-                file_handler = handler
-                break
+    # Avoid duplicate handlers
+    if logger.handlers:
+        return logger
 
-        if file_handler is None:
-            file_path = Path(log_file)
-            file_path.parent.mkdir(parents=True, exist_ok=True)
-            file_handler = logging.FileHandler(str(file_path))
-            file_handler.setFormatter(SocraticJsonFormatter())
-            logger.addHandler(file_handler)
+    # Create formatter
+    formatter = SocraticJsonFormatter()
 
-    # Log the event
-    extra = {"details": details} if details else {}
-    logger.log(level, message, extra=extra)
+    # Add file handler if path provided
+    if log_path:
+        log_file = Path(log_path)
+        log_file.parent.mkdir(parents=True, exist_ok=True)
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+
+    # Always add console handler for visibility
+    console_handler = logging.StreamHandler(sys.stderr)
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
+
+    return logger  # type: ignore[return-value]
 
 
-def init_default_logger(log_file: str = "socratic.log") -> None:
+# Global logger instance
+_global_logger: Optional[SocraticLogger] = None
+
+
+def log_event(event_type: str, message: str, details: Optional[Dict[str, Any]] = None, log_path: str = "test.log") -> None:
     """
-    Initialize a default logger that writes to a specific file.
+    Convenience function to log an event to a file.
+
+    This function creates a logger instance, logs the event, and ensures
+    the output is written to the specified log file as JSON lines.
+
+    Args:
+        event_type: Type of event (e.g., "TEST", "INFO", "ERROR")
+        message: The message to log
+        details: Optional dictionary of additional details
+        log_path: Path to the log file (default: "test.log")
     """
-    logger = get_logger("default")
-    logger.setLevel(logging.INFO)
+    global _global_logger
 
-    # Remove existing handlers to avoid duplicates
-    logger.handlers.clear()
+    if _global_logger is None:
+        _global_logger = get_logger("socratic_logger", log_path=log_path)
 
-    file_handler = logging.FileHandler(log_file)
-    file_handler.setFormatter(SocraticJsonFormatter())
-    logger.addHandler(file_handler)
+    # Map event_type to log level
+    level_map = {
+        "DEBUG": logging.DEBUG,
+        "INFO": logging.INFO,
+        "WARNING": logging.WARNING,
+        "ERROR": logging.ERROR,
+        "CRITICAL": logging.CRITICAL,
+    }
+    level = level_map.get(event_type.upper(), logging.INFO)
+
+    # Log with the appropriate level
+    _global_logger.log(level, message, extra={"details": details} if details else {})
+
+
+def init_default_logger(log_path: str = "socratic.log") -> SocraticLogger:
+    """
+    Initialize and return the default project logger.
+
+    Args:
+        log_path: Path to the default log file
+
+    Returns:
+        The initialized logger instance
+    """
+    global _global_logger
+    _global_logger = get_logger("socratic", log_path=log_path)
+    return _global_logger
 
 
 def main() -> None:
-    """
-    Demo function to test the logging utility.
-    """
-    # Initialize default logger to 'test.log' as per verification requirement
-    init_default_logger("test.log")
-    logger = get_logger("default")
+    """Test the logging functionality."""
+    # Initialize logger with test output
+    logger = init_default_logger("test.log")
 
-    # Log a test event
-    log_event(
-        event_type="test",
-        message="Testing the logging utility",
-        details={"test_id": 1, "status": "active"},
-        log_file="test.log"
-    )
+    # Log some test events
+    log_event("INFO", "Test event 1", {"test_key": "test_value"})
+    log_event("DEBUG", "Debug message", {"debug_info": 123})
+    log_event("WARNING", "Warning message")
 
-    # Log via the logger directly
-    logger.log_event("info", "Direct log event", {"source": "main"})
+    # Verify file exists and contains valid JSON
+    assert os.path.exists("test.log"), "Log file was not created"
 
-    print("Logging demo complete. Check 'test.log' for output.")
+    with open("test.log", "r") as f:
+        lines = f.readlines()
+        assert len(lines) > 0, "Log file is empty"
+
+        for line in lines:
+            try:
+                parsed = json.loads(line.strip())
+                assert "event_type" in parsed, "Missing event_type"
+                assert "timestamp" in parsed, "Missing timestamp"
+                assert "details" in parsed, "Missing details"
+                assert isinstance(parsed["details"], dict), "Details must be a dict"
+            except json.JSONDecodeError as e:
+                raise AssertionError(f"Invalid JSON in log file: {line}") from e
+
+    print("Logging test passed successfully!")
 
 
 if __name__ == "__main__":

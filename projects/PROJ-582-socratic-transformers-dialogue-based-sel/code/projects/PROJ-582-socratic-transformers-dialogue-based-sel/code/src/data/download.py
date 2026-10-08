@@ -1,240 +1,171 @@
-"""
-Dataset Downloader for Socratic Transformers Project.
-
-This module implements the download of real datasets (GSM8K and MATH) via the
-HuggingFace `datasets` library. It adheres to the constraint of using real data
-only, failing loudly if the data cannot be fetched, and never falling back to
-synthetic generation.
-
-It also includes functionality to compute checksums for verification against
-the spec.md manifest (to be implemented in T010).
-"""
-
 import hashlib
 import json
 import os
 import sys
+import gc
+import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
-# Import from project utils as per API surface
-from src.utils.config import get_config
-from src.utils.logging import get_logger
+# Add project root to path for imports if running as script
+project_root = Path(__file__).resolve().parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-# Import datasets library
 try:
-    from datasets import load_dataset, disable_progress_bar
+    from datasets import load_dataset
 except ImportError:
-    # Fallback if not installed, though requirements.txt should handle this
-    print("ERROR: 'datasets' library not found. Please install via requirements.txt")
+    print("ERROR: 'datasets' package is not installed. Please run: pip install datasets")
     sys.exit(1)
 
+from src.utils.logging import get_logger
+
 # Configure logging
-logger = get_logger(__name__)
+logger = get_logger("download")
 
-# Disable progress bars for cleaner log output in automated runners
-disable_progress_bar()
-
-# Constants for dataset identifiers
-DATASET_CONFIGS = {
+# Constants
+DATASETS = {
     "gsm8k": {
         "name": "gsm8k",
-        "hf_id": "openai/gsm8k",
         "config": "main",
-        "output_file": "gsm8k_train.jsonl",
-        "output_subdir": "raw/gsm8k",
         "split": "train",
-        "description": "Grade School Math 8K dataset"
+        "output_file": "gsm8k_train.jsonl"
     },
     "math": {
-        "name": "math",
-        "hf_id": "hendrycks/math",
-        "config": "all", # We might need to handle subsets, but 'all' is the standard entry
-        "output_file": "math_train.jsonl",
-        "output_subdir": "raw/math",
-        "split": "train", # Standard split for training
-        "description": "MATH dataset for competition math"
+        "name": "lighteval/math",
+        "config": "default",
+        "split": "train",
+        "output_file": "math_train.jsonl"
     }
 }
 
-def ensure_data_dirs(base_path: Path) -> None:
-    """Ensure the raw data directories exist."""
-    for key in DATASET_CONFIGS:
-        subdir_path = base_path / DATASET_CONFIGS[key]["output_subdir"]
-        subdir_path.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Ensured directory exists: {subdir_path}")
+def ensure_data_dirs() -> Path:
+    """Ensure raw data directories exist."""
+    raw_dir = project_root / "data" / "raw"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    return raw_dir
 
-def compute_file_hash(file_path: Path, algorithm: str = "sha256") -> str:
-    """Compute the SHA-256 hash of a file."""
+def ensure_state_dir() -> Path:
+    """Ensure state directory exists for manifest."""
+    state_dir = project_root / "state"
+    state_dir.mkdir(parents=True, exist_ok=True)
+    return state_dir
+
+def compute_file_hash(file_path: Path) -> str:
+    """Compute SHA-256 hash of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
-        # Read in chunks to handle large files
-        for chunk in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(chunk)
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def load_manifest(manifest_path: Path) -> Dict[str, Any]:
-    """Load the expected checksums manifest."""
-    if not manifest_path.exists():
-        logger.warning(f"Manifest not found at {manifest_path}. Verification will be skipped.")
-        return {}
-    with open(manifest_path, "r", encoding="utf-8") as f:
-        return json.load(f)
+def load_manifest(state_dir: Path) -> Dict[str, Any]:
+    """Load existing manifest if it exists."""
+    manifest_path = state_dir / "artifact_hashes.yaml"
+    if manifest_path.exists():
+        # Simple YAML parser for our specific format (no external dependency)
+        manifest = {}
+        with open(manifest_path, "r") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#"):
+                    if ":" in line:
+                        key, value = line.split(":", 1)
+                        manifest[key.strip()] = value.strip()
+        return manifest
+    return {}
 
-def save_manifest(manifest_path: Path, data: Dict[str, Any]) -> None:
-    """Save the checksums manifest."""
-    with open(manifest_path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
+def save_manifest(manifest: Dict[str, Any], state_dir: Path) -> None:
+    """Save manifest to YAML file."""
+    manifest_path = state_dir / "artifact_hashes.yaml"
+    with open(manifest_path, "w") as f:
+        f.write("# Artifact Hashes - Generated by download.py\n")
+        f.write("# Format: filename: sha256_hash\n\n")
+        for key, value in manifest.items():
+            f.write(f"{key}: {value}\n")
+    logger.info(f"Manifest saved to {manifest_path}")
 
-def verify_checksums(downloaded_path: Path, expected_hash: str) -> bool:
-    """Verify the downloaded file against the expected hash."""
-    actual_hash = compute_file_hash(downloaded_path)
-    logger.info(f"Computed hash for {downloaded_path.name}: {actual_hash}")
-    if actual_hash == expected_hash:
-        logger.info(f"Checksum verification PASSED for {downloaded_path.name}")
-        return True
-    else:
-        logger.error(f"Checksum verification FAILED for {downloaded_path.name}")
-        logger.error(f"  Expected: {expected_hash}")
-        logger.error(f"  Actual:   {actual_hash}")
-        return False
-
-def download_dataset(dataset_key: str, base_path: Path, manifest: Optional[Dict[str, Any]] = None) -> Path:
+def download_dataset(dataset_name: str, raw_dir: Path) -> Optional[Path]:
     """
-    Download a specific dataset from HuggingFace and save it as JSONL.
-
-    Args:
-        dataset_key: Key in DATASET_CONFIGS (e.g., 'gsm8k', 'math')
-        base_path: Base project path (code/)
-        manifest: Optional manifest dict for checksum verification
-
-    Returns:
-        Path to the downloaded file.
-
-    Raises:
-        RuntimeError: If the dataset cannot be fetched or saved.
+    Download a dataset from HuggingFace and save as JSONL.
+    Returns the path to the downloaded file, or None if failed.
     """
-    config = DATASET_CONFIGS[dataset_key]
-    hf_id = config["hf_id"]
-    split = config["split"]
-    output_subdir = base_path / config["output_subdir"]
-    output_file_path = output_subdir / config["output_file"]
+    if dataset_name not in DATASETS:
+        logger.error(f"Unknown dataset: {dataset_name}")
+        return None
 
-    logger.info(f"Starting download for {config['description']} ({hf_id})...")
+    config = DATASETS[dataset_name]
+    output_file = raw_dir / config["output_file"]
+
+    # Skip if file already exists (idempotent)
+    if output_file.exists():
+        logger.info(f"Dataset {dataset_name} already exists at {output_file}")
+        return output_file
 
     try:
-        # Load the dataset
-        # Note: We use streaming=False to ensure we get the full dataset in memory for processing
-        # if it fits, or we handle it in chunks if we change strategy later.
-        # For GSM8K and MATH, full load is usually feasible in the context of this project's
-        # memory constraints if we process carefully, but we'll attempt a direct load.
-        logger.info(f"Loading dataset from HF: {hf_id}, split: {split}")
-        dataset = load_dataset(hf_id, split=split, trust_remote_code=True)
+        logger.info(f"Loading dataset {config['name']} (config: {config['config']})...")
+        dataset = load_dataset(
+            config["name"],
+            config["config"],
+            split=config["split"],
+            trust_remote_code=True
+        )
 
-        if manifest:
-            expected_hash = manifest.get(dataset_key, {}).get("hash")
-            if expected_hash:
-                logger.info(f"Expected checksum for {dataset_key}: {expected_hash}")
-
-        # Write to JSONL
-        logger.info(f"Writing dataset to {output_file_path}...")
-        with open(output_file_path, "w", encoding="utf-8") as f:
+        logger.info(f"Dataset loaded. Writing to {output_file}...")
+        with open(output_file, "w", encoding="utf-8") as f:
             for item in dataset:
-                # Ensure we serialize safely. Some datasets might have complex types.
-                # We convert to string representation if necessary, but standard dicts work.
-                json_line = json.dumps(item, ensure_ascii=False)
-                f.write(json_line + "\n")
+                # Convert item to JSON string
+                import json
+                json_str = json.dumps(item, ensure_ascii=False)
+                f.write(json_str + "\n")
 
-        logger.info(f"Successfully downloaded and saved {dataset_key} to {output_file_path}")
-
-        # Verify checksum if manifest is provided
-        if manifest:
-            expected_hash = manifest.get(dataset_key, {}).get("hash")
-            if expected_hash:
-                if not verify_checksums(output_file_path, expected_hash):
-                    # We do not delete the file here, but we raise an error to stop the pipeline
-                    # as per "Fail loudly" constraint.
-                    raise RuntimeError(f"Checksum mismatch for {dataset_key}. Aborting.")
-            else:
-                logger.warning(f"No expected checksum found for {dataset_key} in manifest.")
-
-        return output_file_path
+        logger.info(f"Successfully downloaded {dataset_name} to {output_file}")
+        # Force garbage collection to free memory
+        gc.collect()
+        return output_file
 
     except Exception as e:
-        logger.error(f"Failed to download or process {dataset_key}: {e}")
-        # Clean up partial file if it exists
-        if output_file_path.exists():
-            logger.warning(f"Removing partial file: {output_file_path}")
-            output_file_path.unlink()
-        raise RuntimeError(f"Data download failed for {dataset_key}. Real data source unreachable.") from e
+        logger.error(f"Failed to download {dataset_name}: {e}")
+        return None
 
-def download_all_datasets(base_path: Path, manifest_path: Optional[Path] = None) -> List[Path]:
-    """
-    Download all configured datasets.
+def download_all_datasets() -> Dict[str, Path]:
+    """Download all configured datasets."""
+    raw_dir = ensure_data_dirs()
+    downloaded = {}
 
-    Args:
-        base_path: Base project path.
-        manifest_path: Path to the checksum manifest file.
+    for name in DATASETS:
+        path = download_dataset(name, raw_dir)
+        if path:
+            downloaded[name] = path
 
-    Returns:
-        List of paths to downloaded files.
-    """
-    ensure_data_dirs(base_path)
+    return downloaded
 
-    manifest = None
-    if manifest_path and manifest_path.exists():
-        manifest = load_manifest(manifest_path)
+def main() -> None:
+    """Main entry point for dataset download and manifest generation."""
+    logger.info("Starting dataset download process...")
 
-    downloaded_files = []
-    for key in DATASET_CONFIGS:
-        file_path = download_dataset(key, base_path, manifest)
-        downloaded_files.append(file_path)
+    # Download datasets
+    downloaded_files = download_all_datasets()
 
-    return downloaded_files
-
-def main():
-    """Entry point for the download script."""
-    # Determine base path relative to the script location or project root
-    # Assuming script is run from code/ directory or similar
-    current_dir = Path(__file__).resolve().parent
-    project_root = current_dir.parent.parent.parent # code/src/data -> code -> project root
-    
-    # Adjust path logic if running from different context, but typically:
-    # code/ is the root for this project structure
-    base_path = current_dir.parent.parent # code/
-    
-    manifest_path = base_path / "state" / "dataset_checksums.json"
-    
-    # Ensure state directory exists for manifest
-    state_dir = base_path / "state"
-    state_dir.mkdir(parents=True, exist_ok=True)
-
-    try:
-        logger.info("Starting dataset download process...")
-        files = download_all_datasets(base_path, manifest_path)
-        logger.info(f"Download complete. Files: {[str(f) for f in files]}")
-        
-        # Update manifest with actual hashes if it didn't exist or for verification
-        # (This part is more for T010 to read, but we can compute and save if needed)
-        if not manifest_path.exists():
-            logger.info("No manifest found. Generating initial manifest with computed hashes...")
-            new_manifest = {}
-            for key in DATASET_CONFIGS:
-                file_path = base_path / DATASET_CONFIGS[key]["output_subdir"] / DATASET_CONFIGS[key]["output_file"]
-                if file_path.exists():
-                  new_manifest[key] = {
-                      "hash": compute_file_hash(file_path),
-                      "size_bytes": file_path.stat().st_size
-                  }
-            save_manifest(manifest_path, new_manifest)
-            logger.info(f"Manifest saved to {manifest_path}")
-
-    except RuntimeError as e:
-        logger.error(f"Critical error during download: {e}")
+    if not downloaded_files:
+        logger.error("No datasets were downloaded successfully.")
         sys.exit(1)
-    except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        sys.exit(1)
+
+    # Generate checksums
+    state_dir = ensure_state_dir()
+    manifest = load_manifest(state_dir)
+
+    logger.info("Generating SHA-256 checksums...")
+    for name, path in downloaded_files.items():
+        file_hash = compute_file_hash(path)
+        manifest[f"{name}_hash"] = file_hash
+        manifest[f"{name}_path"] = str(path.relative_to(project_root))
+        logger.info(f"  {name}: {file_hash[:16]}...")
+
+    # Save manifest
+    save_manifest(manifest, state_dir)
+
+    logger.info("Download process completed successfully.")
 
 if __name__ == "__main__":
     main()

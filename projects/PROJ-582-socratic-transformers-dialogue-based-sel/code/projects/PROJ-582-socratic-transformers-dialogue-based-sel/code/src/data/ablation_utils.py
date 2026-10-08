@@ -1,14 +1,14 @@
 """
-Ablation utilities for generating neutral placeholders and calculating token metrics.
+Ablation utilities for token counting and semantic similarity.
 
-This module provides functions to calculate the token count of critique strings
-and generate neutral placeholders with equivalent token lengths for ablation studies.
+Implements CPU-safe semantic similarity using TF-IDF and cosine similarity
+as required by FR-003 (7GB RAM limit).
 """
-
 import logging
-from typing import Optional, Tuple, List, Union
+from typing import Optional, List, Union
 
-import re
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 from transformers import AutoTokenizer
 
 from src.utils.config import get_config
@@ -17,211 +17,156 @@ logger = logging.getLogger(__name__)
 
 _tokenizer: Optional[AutoTokenizer] = None
 
-
 def get_target_tokenizer() -> AutoTokenizer:
     """
-    Retrieve the tokenizer for the base model defined in config.
-
+    Load the tokenizer for the base model defined in config.
+    
     Returns:
-        AutoTokenizer: The configured tokenizer instance.
-
+        AutoTokenizer: The configured tokenizer.
+        
     Raises:
-        ValueError: If the tokenizer cannot be loaded or configuration is missing.
+        ValueError: If the tokenizer cannot be loaded.
     """
     global _tokenizer
     if _tokenizer is None:
         config = get_config()
-        if not hasattr(config, 'BASE_MODEL_ID') or config.BASE_MODEL_ID is None:
-            raise ValueError(
-                "BASE_MODEL_ID is not defined in config. "
-                "Please ensure src/utils/config.py is properly configured."
-            )
+        model_id = config.BASE_MODEL_ID
+        if not model_id:
+            raise ValueError("BASE_MODEL_ID is not configured in config.py")
         
-        logger.info(f"Loading tokenizer for base model: {config.BASE_MODEL_ID}")
+        logger.info(f"Loading tokenizer for model: {model_id}")
         try:
-            _tokenizer = AutoTokenizer.from_pretrained(config.BASE_MODEL_ID)
-            # Ensure padding token is set if not already
+            _tokenizer = AutoTokenizer.from_pretrained(model_id)
+            # Ensure padding side is right for consistent processing
             if _tokenizer.pad_token is None:
                 _tokenizer.pad_token = _tokenizer.eos_token
         except Exception as e:
-            logger.error(f"Failed to load tokenizer for {config.BASE_MODEL_ID}: {e}")
+            logger.error(f"Failed to load tokenizer for {model_id}: {e}")
             raise
-    
     return _tokenizer
 
-
-def calculate_token_count(text: Union[str, List[str]]) -> Union[int, List[int]]:
+def calculate_token_count(text: str) -> int:
     """
-    Calculate the token count of a text string (or list of strings) using the base model tokenizer.
-
-    This function is critical for T015a (FR-007) to ensure ablation placeholders
-    match the original critique's token length.
-
+    Calculate the number of tokens in a given text using the configured tokenizer.
+    
     Args:
-        text: The string or list of strings to tokenize.
-
+        text: The input string to tokenize.
+        
     Returns:
-        The number of tokens (int) or a list of token counts (List[int]).
-
+        int: The number of tokens.
+        
     Raises:
-        ValueError: If the input is empty or not a string/list of strings.
-        RuntimeError: If the tokenizer fails to encode the input.
+        ValueError: If the tokenizer is not available.
     """
-    if text is None:
-        raise ValueError("Input text cannot be None.")
+    if not text:
+        return 0
     
     tokenizer = get_target_tokenizer()
+    tokens = tokenizer.encode(text, add_special_tokens=False)
+    return len(tokens)
 
-    if isinstance(text, str):
-        if not text.strip():
-            return 0
-        try:
-            # Use encode to get the list of token IDs
-            # add_special_tokens=False ensures we only count the text tokens
-            token_ids = tokenizer.encode(text, add_special_tokens=False)
-            return len(token_ids)
-        except Exception as e:
-            logger.error(f"Tokenization failed for text: '{text[:50]}...'. Error: {e}")
-            raise RuntimeError(f"Failed to encode text: {e}")
+def calculate_similarity(text_a: str, text_b: str) -> float:
+    """
+    Calculate the cosine similarity between two texts using TF-IDF vectorization.
     
-    elif isinstance(text, list):
-        if not text:
-            return []
-        if not all(isinstance(item, str) for item in text):
-            raise ValueError("All items in the list must be strings.")
+    This implementation uses scikit-learn's TfidfVectorizer and cosine_similarity
+    to ensure CPU safety and compliance with FR-003 (7GB RAM limit).
+    
+    Args:
+        text_a: The first input string.
+        text_b: The second input string.
         
-        counts = []
-        for item in text:
-            if not item.strip():
-                counts.append(0)
-            else:
-                try:
-                    token_ids = tokenizer.encode(item, add_special_tokens=False)
-                    counts.append(len(token_ids))
-                except Exception as e:
-                    logger.error(f"Tokenization failed for list item: '{item[:50]}...'. Error: {e}")
-                    raise RuntimeError(f"Failed to encode list item: {e}")
-        return counts
-    
-    else:
-        raise ValueError(f"Input must be a string or list of strings, got {type(text)}")
-
-
-def load_spacy_model(lang: str = "en_core_web_sm") -> Optional[object]:
-    """
-    Attempt to load a spaCy model for syntactic complexity analysis.
-
-    Note: This is a fallback utility. The primary tokenization is handled by
-    the transformer tokenizer via calculate_token_count.
-
-    Args:
-        lang: The spaCy language model to load.
-
     Returns:
-        The loaded spaCy nlp object, or None if not available.
+        float: The cosine similarity score between 0.0 and 1.0.
+               Returns 0.0 if either text is empty or if vectorization fails.
     """
-    try:
-        import spacy
-        return spacy.load(lang)
-    except (ImportError, OSError) as e:
-        logger.warning(f"spaCy model '{lang}' not available. Syntactic complexity analysis will be skipped. Error: {e}")
-        return None
-
-
-def calculate_syntactic_complexity(text: str, nlp: Optional[object] = None) -> float:
-    """
-    Calculate a proxy for syntactic complexity (e.g., average dependency depth).
-
-    Requires a loaded spaCy model. If nlp is None, it attempts to load the default.
-
-    Args:
-        text: The text to analyze.
-        nlp: Optional loaded spaCy model.
-
-    Returns:
-        A float representing the complexity score, or 0.0 if analysis fails.
-    """
-    if nlp is None:
-        nlp = load_spacy_model()
-    
-    if nlp is None:
-        logger.warning("spaCy not available; returning 0.0 for syntactic complexity.")
+    if not text_a or not text_b:
         return 0.0
-
+    
     try:
-        doc = nlp(text)
-        # Simple metric: average depth of dependency tree
-        # This is a proxy; more complex metrics can be derived from doc.sents
-        total_depth = 0
-        node_count = 0
-        for token in doc:
-            depth = 0
-            ancestor = token.head
-            while ancestor != token:
-                depth += 1
-                ancestor = ancestor.head
-                if depth > 10: # Safety break
-                    break
-            total_depth += depth
-            node_count += 1
+        # Create TF-IDF vectorizer
+        vectorizer = TfidfVectorizer()
         
-        return total_depth / node_count if node_count > 0 else 0.0
+        # Fit and transform the two texts
+        tfidf_matrix = vectorizer.fit_transform([text_a, text_b])
+        
+        # Calculate cosine similarity between the two vectors
+        # cosine_similarity returns a 2x2 matrix, we want the off-diagonal element
+        similarity_matrix = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])
+        
+        return float(similarity_matrix[0][0])
+        
     except Exception as e:
-        logger.warning(f"Failed to calculate syntactic complexity: {e}")
+        logger.warning(f"Similarity calculation failed for texts of length {len(text_a)} and {len(text_b)}: {e}")
         return 0.0
-
 
 def verify_token_match(original_text: str, placeholder_text: str, tolerance: int = 1) -> bool:
     """
     Verify that the placeholder text matches the token count of the original text.
-
+    
     Args:
-        original_text: The original critique string.
-        placeholder_text: The generated neutral placeholder string.
-        tolerance: Allowed difference in token count (default 1).
-
+        original_text: The original text string.
+        placeholder_text: The placeholder text string.
+        tolerance: Acceptable difference in token count (default 1).
+        
     Returns:
-        True if the token counts match within tolerance, False otherwise.
+        bool: True if token counts match within tolerance, False otherwise.
     """
-    orig_count = calculate_token_count(original_text)
-    place_count = calculate_token_count(placeholder_text)
+    original_count = calculate_token_count(original_text)
+    placeholder_count = calculate_token_count(placeholder_text)
     
-    diff = abs(orig_count - place_count)
-    is_match = diff <= tolerance
-    
-    if not is_match:
-        logger.warning(
-            f"Token count mismatch: Original={orig_count}, Placeholder={place_count}, Diff={diff}"
-        )
-    
-    return is_match
+    return abs(original_count - placeholder_count) <= tolerance
 
+def calculate_syntactic_complexity(text: str) -> float:
+    """
+    Calculate a simple syntactic complexity metric based on token count and length.
+    
+    This is a placeholder implementation that can be expanded with more
+    sophisticated metrics (e.g., dependency tree depth, clause count).
+    
+    Args:
+        text: The input text.
+        
+    Returns:
+        float: A complexity score (higher = more complex).
+    """
+    if not text:
+        return 0.0
+    
+    token_count = calculate_token_count(text)
+    char_count = len(text)
+    
+    # Simple heuristic: weighted combination of token count and average token length
+    avg_token_length = char_count / token_count if token_count > 0 else 0
+    complexity = (token_count * 0.7) + (avg_token_length * 0.3)
+    
+    return complexity
 
 def main():
-    """
-    Main entry point for testing the ablation utilities.
-    """
-    logging.basicConfig(level=logging.INFO)
+    """Main entry point for standalone testing."""
+    print("Testing ablation utilities...")
     
-    test_text = "This is a test critique to verify the token counting mechanism."
-    print(f"Input text: {test_text}")
+    # Test token counting
+    test_text = "This is a test sentence."
+    count = calculate_token_count(test_text)
+    print(f"Token count for '{test_text}': {count}")
+    assert count > 0, "Token count should be positive"
     
-    try:
-        count = calculate_token_count(test_text)
-        print(f"Token count: {count}")
-        
-        # Verify against direct tokenizer call
-        tokenizer = get_target_tokenizer()
-        direct_count = len(tokenizer.encode(test_text, add_special_tokens=False))
-        print(f"Direct tokenizer count: {direct_count}")
-        
-        assert count == direct_count, f"Counts do not match: {count} != {direct_count}"
-        print("Verification successful: Token count matches direct tokenizer output.")
-        
-    except Exception as e:
-        print(f"Error during verification: {e}")
-        raise
-
+    # Test similarity
+    text_a = "The cat sat on the mat."
+    text_b = "The dog sat on the rug."
+    text_c = "The cat sat on the mat."
+    
+    sim_same = calculate_similarity(text_a, text_c)
+    sim_diff = calculate_similarity(text_a, text_b)
+    
+    print(f"Similarity (same): {sim_same}")
+    print(f"Similarity (diff): {sim_diff}")
+    assert 0 <= sim_same <= 1, "Similarity should be between 0 and 1"
+    assert 0 <= sim_diff <= 1, "Similarity should be between 0 and 1"
+    assert sim_same >= sim_diff, "Identical texts should have higher similarity"
+    
+    print("All tests passed.")
 
 if __name__ == "__main__":
     main()

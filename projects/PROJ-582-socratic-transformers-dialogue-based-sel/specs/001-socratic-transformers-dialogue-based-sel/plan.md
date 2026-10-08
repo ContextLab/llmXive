@@ -17,7 +17,7 @@ This plan implements a selectionist mechanism to improve LLM reasoning by applyi
 **Project Type**: Computational Research / ML Pipeline.  
 **Performance Goals**: Complete data generation and fine-tuning within 6 hours on CPU (scaled) or 9 hours on Kaggle GPU.  
 **Constraints**: Must run on free-tier CI; no external API keys; strict memory limits (limited RAM); Low-bit quantization mandatory for base model.  
-**Scale/Scope**: A variable number of examples per condition (scaled to fit memory), fine-tuning on a small subset (e.g., -2GB of data) to ensure feasibility. **5 independent training runs (seeds)** per condition for statistical power.
+**Scale/Scope**: A variable number of examples per condition (scaled to fit memory), fine-tuning on a small subset (e.g., a manageable amount of data) to ensure feasibility. **5 independent training runs (seeds)** per condition for statistical power.
 
 > **Note on Compute**: The plan assumes a CPU-first approach for data generation and statistical analysis. The fine-tuning step (US2) is the only component that may require the GPU escape hatch (Kaggle) if the base model (e.g., LlamaB-4bit) exceeds 7GB RAM even with quantization. If the CPU run fails with OOM (exit code or "CUDA out of memory"), the runner will automatically offload to Kaggle.
 
@@ -101,4 +101,4 @@ projects/PROJ-582-socratic-transformers-dialogue-based-sel/
 | **Quality Gate** | Prevents "degenerate generation" (trivial critiques) from polluting training data. | Without a gate, the model might learn to ignore noise, confounding the "negative selection" hypothesis. |
 | **Multiple Runs** | Required for statistical power (t-test). | A single run per condition yields a single scalar, making a t-test impossible. Multiple runs per condition ensure a distribution. |
 | **Balanced Sampling** | Required to prevent confounding by sample size. | If Selection yields fewer valid tuples, the comparison is confounded. Regeneration ensures equal N. |
-| **Hard Timeout** | Required by FR-008 to prevent infinite loops. | Without a timeout, a stuck process could exceed the 6h CI limit. |
+| **Hard Timeout** | Required by FR-008 to prevent infinite loops. | Without a timeout, a stuck process could exceed the CI time limit. |

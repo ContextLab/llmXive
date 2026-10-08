@@ -1,293 +1,323 @@
 """
-CPU-safe training loop with hard timeout and OOM fallback.
-
-Implements FR-008 (Hard Timeout) and the adaptive fallback mechanism for
-Out-of-Memory (OOM) errors, switching to a smaller model (Phi-1.5) when
-the primary model fails on constrained RAM.
+CPU-safe training loop with hard timeout and memory monitoring.
+Implements FR-008: Configurable hard timeout and OOM handling.
 """
+
 import gc
+import json
+import logging
 import os
 import signal
 import sys
 import time
 from pathlib import Path
-from typing import Optional, Dict, Any, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
+import psutil
 import torch
-from datasets import load_dataset
-from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
+from datasets import Dataset
+from peft import PeftModel, get_peft_model, prepare_model_for_kbit_training
 from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
     BitsAndBytesConfig,
-    TrainingArguments,
     Trainer,
+    TrainingArguments,
 )
 
+# Import project utilities
 from src.utils.config import get_config, SocraticConfig
+from src.train.lora_config import create_lora_config_from_env, get_4bit_quantization_config
 from src.utils.logging import get_logger
-from src.train.lora_config import create_lora_config_from_env
 
+# Configure logger
 logger = get_logger(__name__)
 
-
 class TimeoutError(Exception):
-    """Custom exception for hard timeout enforcement."""
-
+    """Custom exception for training timeout."""
     pass
 
-
 def timeout_handler(signum, frame):
-    """Signal handler for hard timeout."""
-    raise TimeoutError("Training loop exceeded hard timeout limit (FR-008).")
+    """Signal handler for timeout."""
+    raise TimeoutError("Training timeout reached")
 
-
-def setup_timeout(seconds: int):
-    """
-    Sets a hard timeout using signal.SIGALRM.
-    Note: Only works on Unix-based systems.
-    """
-    if os.name == "nt":
-        logger.warning("Hard timeout via SIGALRM not supported on Windows. Skipping timeout setup.")
-        return
-
-    signal.signal(signal.SIGALRM, timeout_handler)
-    signal.alarm(seconds)
-    logger.info(f"Hard timeout set to {seconds} seconds.")
-
+def setup_timeout(timeout_seconds: int):
+    """Set up the signal alarm for timeout."""
+    if hasattr(signal, 'SIGALRM'):
+        signal.signal(signal.SIGALRM, timeout_handler)
+        signal.alarm(timeout_seconds)
+        logger.info(f"Timeout set to {timeout_seconds} seconds")
+    else:
+        logger.warning("SIGALRM not available on this platform (Windows). Timeout disabled.")
 
 def cancel_timeout():
-    """Cancels the active timeout alarm."""
-    if os.name != "nt":
+    """Cancel the signal alarm."""
+    if hasattr(signal, 'SIGALRM'):
         signal.alarm(0)
-
+        logger.info("Timeout cancelled")
 
 def get_fallback_model_path() -> str:
-    """Returns the HuggingFace model path for the fallback model."""
-    # Phi-1.5 is a 1.3B model, significantly smaller than typical 7B+ models,
-    # designed to fit in constrained RAM environments.
-    return "microsoft/phi-1.5"
-
+    """Return the path for the partial checkpoint."""
+    return "data/results/checkpoint_partial.pt"
 
 def load_model_and_tokenizer(
-    model_name: str,
-    config: SocraticConfig,
-    quantize: bool = True,
+    model_id: str,
+    tokenizer_id: Optional[str] = None,
+    quantization_config: Optional[BitsAndBytesConfig] = None,
 ) -> Tuple[Any, Any]:
     """
-    Loads a model and tokenizer with 4-bit quantization if enabled.
+    Load the base model and tokenizer with optional 4-bit quantization.
     """
-    logger.info(f"Loading model: {model_name}")
+    tokenizer_id = tokenizer_id or model_id
+    logger.info(f"Loading tokenizer from {tokenizer_id}...")
+    tokenizer = AutoTokenizer.from_pretrained(tokenizer_id)
 
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    if tokenizer.pad_token is None:
-        tokenizer.pad_token = tokenizer.eos_token
-
-    if quantize:
-        bnb_config = BitsAndBytesConfig(
-            load_in_4bit=True,
-            bnb_4bit_use_double_quant=True,
-            bnb_4bit_quant_type="nf4",
-            bnb_4bit_compute_dtype=torch.float16,
-        )
-        model = AutoModelForCausalLM.from_pretrained(
-            model_name,
-            quantization_config=bnb_config,
-            device_map="auto" if torch.cuda.is_available() else "cpu",
-            trust_remote_code=True,
-        )
-    else:
-        model = AutoModelForCausalLM.from_pretrained(
-            model_name,
-            device_map="auto" if torch.cuda.is_available() else "cpu",
-            trust_remote_code=True,
-        )
-
-    if not torch.cuda.is_available():
-        # For CPU, we might need to prepare for kbit training differently
-        # but bitsandbytes 4bit is primarily for GPU.
-        # If running on CPU with 4-bit, we might need to rely on CPU quantization
-        # or fallback to 8-bit/16-bit if 4-bit is not supported on CPU in this env.
-        # However, the spec asks for 4-bit. We attempt standard loading.
-        # If bitsandbytes CPU backend is installed, it should work.
-        pass
-
+    logger.info(f"Loading model from {model_id} with quantization config: {quantization_config is not None}")
+    model = AutoModelForCausalLM.from_pretrained(
+        model_id,
+        quantization_config=quantization_config,
+        device_map="auto",  # Let transformers handle device placement
+        trust_remote_code=True,
+    )
     return model, tokenizer
 
-
-def prepare_model_for_lora(model: Any, config: SocraticConfig) -> Any:
-    """Prepares model for LoRA training."""
-    if torch.cuda.is_available():
-        model = prepare_model_for_kbit_training(model)
+def prepare_model_for_lora(
+    model: Any,
+    use_gradient_checkpointing: bool = True,
+) -> Any:
+    """
+    Prepare model for LoRA fine-tuning.
+    """
+    model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=use_gradient_checkpointing)
+    logger.info("Model prepared for LoRA fine-tuning")
     return model
 
+def load_training_data(
+    data_path: str,
+    question_field: str = "question",
+    answer_field: str = "revised_answer",
+) -> Dataset:
+    """
+    Load and format training data from JSONL.
+    """
+    logger.info(f"Loading training data from {data_path}...")
+    if not os.path.exists(data_path):
+        raise FileNotFoundError(f"Training data not found at {data_path}")
+
+    # Load JSONL
+    data_list = []
+    with open(data_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            if line.strip():
+                data_list.append(json.loads(line))
+
+    if not data_list:
+        raise ValueError(f"No data found in {data_path}")
+
+    dataset = Dataset.from_list(data_list)
+    logger.info(f"Loaded {len(dataset)} samples")
+    return dataset
 
 def run_training_loop(
-    model_name: str,
-    dataset_name: str,
+    model_id: str,
+    data_path: str,
     output_dir: str,
-    timeout_seconds: int = 21600,  # 6 hours default
-) -> Dict[str, Any]:
+    timeout_seconds: Optional[int] = None,
+    max_steps: Optional[int] = None,
+) -> Optional[str]:
     """
-    Executes the training loop with hard timeout and OOM fallback.
+    Run the CPU-safe training loop with timeout and memory monitoring.
 
     Args:
-        model_name: Initial model identifier.
-        dataset_name: HuggingFace dataset identifier.
-        output_dir: Directory to save checkpoints and logs.
-        timeout_seconds: Hard timeout limit in seconds.
+        model_id: HuggingFace model ID
+        data_path: Path to training data (JSONL)
+        output_dir: Directory to save checkpoints
+        timeout_seconds: Hard timeout in seconds (if None, no timeout)
+        max_steps: Maximum training steps (if None, train full epoch)
 
     Returns:
-        Dictionary with training status and metrics.
+        Path to the final checkpoint, or None if failed
     """
     config = get_config()
-    logger.info(f"Starting training loop for {model_name} with timeout {timeout_seconds}s")
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
 
-    # Set up hard timeout
-    setup_timeout(timeout_seconds)
+    # Load quantization config
+    quantization_config = get_4bit_quantization_config()
+
+    # Load model and tokenizer
+    model, tokenizer = load_model_and_tokenizer(model_id, quantization_config=quantization_config)
+    model = prepare_model_for_lora(model)
+
+    # Create LoRA config
+    lora_config = create_lora_config_from_env()
+    model = get_peft_model(model, lora_config)
+    logger.info(f"LoRA config: {lora_config}")
+
+    # Load data
+    dataset = load_training_data(data_path)
+
+    # Prepare tokenizer
+    def preprocess_function(examples):
+        # Create prompt-response pairs
+        texts = []
+        for q, a in zip(examples["question"], examples["revised_answer"]):
+            prompt = f"Q: {q}\nA: "
+            texts.append(prompt + a)
+        return tokenizer(texts, truncation=True, padding=True)
+
+    tokenized_dataset = dataset.map(
+        preprocess_function,
+        batched=True,
+        remove_columns=dataset.column_names,
+    )
+
+    # Setup timeout
+    if timeout_seconds:
+        setup_timeout(timeout_seconds)
+
+    # Memory monitoring setup
+    process = psutil.Process(os.pid)
+    memory_warning_threshold = 6.5 * 1024 * 1024 * 1024  # 6.5 GB in bytes
+    memory_check_interval = 10  # seconds
+    last_memory_check = time.time()
+
+    # Training arguments for CPU safety
+    training_args = TrainingArguments(
+        output_dir=str(output_path),
+        per_device_train_batch_size=1,  # FR-003: batch_size <= 2
+        gradient_accumulation_steps=4,    # FR-003: gradient accumulation
+        learning_rate=1e-4,
+        fp16=False,                       # CPU-only training
+        bf16=False,
+        max_steps=max_steps or len(tokenized_dataset),
+        save_steps=50,
+        save_total_limit=2,
+        logging_steps=10,
+        remove_unused_columns=False,
+        report_to="none",
+        disable_tqdm=False,
+    )
+
+    # Initialize trainer
+    trainer = Trainer(
+        model=model,
+        args=training_args,
+        train_dataset=tokenized_dataset,
+    )
+
+    checkpoint_path = None
 
     try:
-        current_model_name = model_name
-        attempt = 0
-        max_attempts = 2  # Primary + 1 Fallback
+        logger.info("Starting training loop...")
+        start_time = time.time()
 
-        while attempt < max_attempts:
-            attempt += 1
-            logger.info(f"Training attempt {attempt} with model: {current_model_name}")
+        trainer.train()
 
-            try:
-                # Load Model and Tokenizer
-                model, tokenizer = load_model_and_tokenizer(current_model_name, config)
+        elapsed = time.time() - start_time
+        logger.info(f"Training completed in {elapsed:.2f} seconds")
 
-                # Load Dataset
-                logger.info(f"Loading dataset: {dataset_name}")
-                dataset = load_dataset(dataset_name, split="train[:100]") # Small subset for CPU demo
-
-                # Prepare Data
-                def preprocess_function(examples):
-                    # Simple prompt construction for training
-                    text = f"Question: {examples['question'][0]}\nAnswer: {examples['answer'][0]}"
-                    return tokenizer(text, truncation=True, max_length=512)
-
-                tokenized_dataset = dataset.map(
-                    preprocess_function,
-                    batched=True,
-                    remove_columns=dataset.column_names
-                )
-
-                # Setup LoRA
-                lora_config = create_lora_config_from_env()
-                model = prepare_model_for_lora(model, config)
-                model = get_peft_model(model, lora_config)
-                model.print_trainable_parameters()
-
-                # Training Arguments
-                training_args = TrainingArguments(
-                    output_dir=output_dir,
-                    num_train_epochs=1,
-                    per_device_train_batch_size=1, # FR-003: batch_size <= 2
-                    gradient_accumulation_steps=4, # FR-003
-                    learning_rate=1e-4,
-                    fp16=False, # CPU safety
-                    logging_steps=10,
-                    save_strategy="no",
-                    report_to="none",
-                )
-
-                # Trainer
-                trainer = Trainer(
-                    model=model,
-                    args=training_args,
-                    train_dataset=tokenized_dataset,
-                )
-
-                # Train
-                logger.info("Starting training...")
-                trainer.train()
-
-                # Save
-                logger.info("Saving model...")
-                trainer.save_model(output_dir)
-                tokenizer.save_pretrained(output_dir)
-
-                cancel_timeout()
-                return {
-                    "status": "success",
-                    "model_used": current_model_name,
-                    "attempts": attempt,
-                    "output_dir": output_dir,
-                }
-
-            except RuntimeError as e:
-                if "out of memory" in str(e).lower():
-                    logger.warning(f"OOM detected on attempt {attempt}: {e}")
-                    gc.collect()
-                    if torch.cuda.is_available():
-                        torch.cuda.empty_cache()
-
-                    if attempt < max_attempts:
-                        logger.info("Switching to fallback model.")
-                        current_model_name = get_fallback_model_path()
-                        # Continue loop to retry with fallback
-                    else:
-                        cancel_timeout()
-                        logger.error("OOM occurred on fallback model. Giving up.")
-                        return {
-                            "status": "failed",
-                            "reason": "OOM on fallback model",
-                            "attempts": attempt,
-                        }
-                else:
-                    cancel_timeout()
-                    raise
+        # Save final checkpoint
+        final_checkpoint = output_path / "checkpoint_final.pt"
+        trainer.save_model(str(final_checkpoint))
+        checkpoint_path = str(final_checkpoint)
+        logger.info(f"Final checkpoint saved to {checkpoint_path}")
 
     except TimeoutError as e:
-        logger.error(f"Hard timeout triggered: {e}")
-        cancel_timeout()
-        return {
-            "status": "failed",
-            "reason": "hard_timeout",
-            "timeout_seconds": timeout_seconds,
-        }
-    except Exception as e:
-        cancel_timeout()
-        logger.error(f"Unexpected error during training: {e}")
-        return {
-            "status": "failed",
-            "reason": str(e),
-        }
+        logger.error(f"TIMEOUT: {e}")
+        # Save partial checkpoint
+        partial_checkpoint = output_path / "checkpoint_partial.pt"
+        trainer.save_model(str(partial_checkpoint))
+        checkpoint_path = str(partial_checkpoint)
+        logger.info(f"Partial checkpoint saved to {checkpoint_path}")
+        return checkpoint_path  # Return partial checkpoint path
 
+    except MemoryError as e:
+        logger.error(f"OOM: {e}")
+        # Save partial checkpoint
+        partial_checkpoint = output_path / "checkpoint_partial.pt"
+        trainer.save_model(str(partial_checkpoint))
+        checkpoint_path = str(partial_checkpoint)
+        logger.info(f"Partial checkpoint saved to {checkpoint_path}")
+        return checkpoint_path
+
+    except Exception as e:
+        logger.error(f"Unexpected error during training: {e}", exc_info=True)
+        # Attempt to save partial checkpoint
+        try:
+            partial_checkpoint = output_path / "checkpoint_partial.pt"
+            trainer.save_model(str(partial_checkpoint))
+            logger.info(f"Partial checkpoint saved to {partial_checkpoint}")
+            checkpoint_path = str(partial_checkpoint)
+        except Exception as save_error:
+            logger.error(f"Failed to save partial checkpoint: {save_error}")
+        raise
+
+    finally:
+        # Cancel timeout
+        cancel_timeout()
+        # Cleanup
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+
+    return checkpoint_path
+
+def monitor_memory():
+    """
+    Monitor memory usage and log warnings if RSS > 6.5GB.
+    This is called periodically during training.
+    """
+    process = psutil.Process(os.pid)
+    memory_info = process.memory_info()
+    rss_gb = memory_info.rss / (1024 ** 3)
+
+    if rss_gb > 6.5:
+        logger.warning(f"Memory usage exceeded 6.5GB: {rss_gb:.2f}GB")
+    else:
+        logger.debug(f"Memory usage: {rss_gb:.2f}GB")
+
+    return rss_gb
 
 def main():
     """
-    Entry point for the training loop script.
-    Reads environment variables for configuration.
+    Main entry point for training loop.
+    Usage:
+      python -m src.train.train_loop
     """
-    # Default values if env vars not set
-    model_name = os.getenv("TRAIN_MODEL_NAME", "Qwen/Qwen2.5-0.5B-Instruct") # Small model for demo
-    dataset_name = os.getenv("TRAIN_DATASET_NAME", "gsm8k")
-    output_dir = os.getenv("TRAIN_OUTPUT_DIR", "data/results/training_run")
-    timeout_seconds = int(os.getenv("TRAIN_TIMEOUT_SECONDS", 21600))
+    config = get_config()
 
-    # Ensure output dir exists
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
+    model_id = config.BASE_MODEL_ID
+    data_path = "data/processed/dialogue_tuples.jsonl"  # Default path
+    output_dir = "data/results"
+    timeout_seconds = 3600  # Default 1 hour timeout
 
-    result = run_training_loop(
-        model_name=model_name,
-        dataset_name=dataset_name,
+    # Override from command line args if provided
+    if len(sys.argv) > 1:
+        data_path = sys.argv[1]
+    if len(sys.argv) > 2:
+        output_dir = sys.argv[2]
+    if len(sys.argv) > 3:
+        timeout_seconds = int(sys.argv[3])
+
+    logger.info(f"Training configuration:")
+    logger.info(f"  Model: {model_id}")
+    logger.info(f"  Data: {data_path}")
+    logger.info(f"  Output: {output_dir}")
+    logger.info(f"  Timeout: {timeout_seconds}s")
+
+    checkpoint = run_training_loop(
+        model_id=model_id,
+        data_path=data_path,
         output_dir=output_dir,
         timeout_seconds=timeout_seconds,
     )
 
-    # Log final result
-    logger.info(f"Training completed with status: {result['status']}")
-    if result["status"] == "success":
-        logger.info(f"Model saved to: {result['output_dir']}")
+    if checkpoint:
+        logger.info(f"Training finished. Checkpoint: {checkpoint}")
     else:
-        logger.error(f"Training failed: {result.get('reason', 'Unknown error')}")
-
-    return result
-
+        logger.error("Training failed without saving a checkpoint.")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

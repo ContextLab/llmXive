@@ -1,10 +1,10 @@
 """
-Dataset Verification Module (T010).
+Verify downloaded datasets against recorded checksums.
 
-Validates checksums in state/artifact_hashes.yaml against raw data files
-in data/raw/ to ensure data integrity after download (T012).
+This script validates the integrity of raw data files in `data/raw/`
+by comparing their SHA-256 hashes against the manifest in `state/artifact_hashes.yaml`.
+It ensures that T012 (Data Download) produced valid, uncorrupted artifacts.
 """
-
 import hashlib
 import json
 import os
@@ -12,258 +12,98 @@ import sys
 from pathlib import Path
 from typing import Dict, Optional, List, Any
 
-# Project root relative to this file
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
+import yaml
 
+# Project root relative to this file
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+STATE_DIR = PROJECT_ROOT / "state"
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+MANIFEST_PATH = STATE_DIR / "artifact_hashes.yaml"
 
 def ensure_state_dir() -> Path:
     """Ensure the state directory exists."""
-    state_dir = PROJECT_ROOT / "state"
-    state_dir.mkdir(parents=True, exist_ok=True)
-    return state_dir
-
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    return STATE_DIR
 
 def compute_file_hash(file_path: Path) -> str:
-    """
-    Compute SHA-256 hash of a file.
-
-    Args:
-        file_path: Path to the file to hash.
-
-    Returns:
-        Hexadecimal string of the SHA-256 hash.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        IOError: If the file cannot be read.
-    """
-    if not file_path.exists():
-        raise FileNotFoundError(f"File not found for hashing: {file_path}")
-
+    """Compute SHA-256 hash of a file."""
     sha256_hash = hashlib.sha256()
-    try:
-        with open(file_path, "rb") as f:
-            for chunk in iter(lambda: f.read(8192), b""):
-                sha256_hash.update(chunk)
-        return sha256_hash.hexdigest()
-    except IOError as e:
-        raise IOError(f"Failed to read file {file_path}: {e}")
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
+def load_manifest() -> Dict[str, str]:
+    """Load the checksum manifest from YAML."""
+    if not MANIFEST_PATH.exists():
+        raise FileNotFoundError(
+            f"Manifest file not found at {MANIFEST_PATH}. "
+            "Run T012 (download.py) first to generate the manifest."
+        )
+    with open(MANIFEST_PATH, "r", encoding="utf-8") as f:
+        data = yaml.safe_load(f)
+    return data.get("artifacts", {})
 
-def load_manifest(manifest_path: Path) -> Dict[str, Any]:
-    """
-    Load the artifact hashes manifest (YAML or JSON).
+def save_manifest(artifacts: Dict[str, str]) -> None:
+    """Save the checksum manifest to YAML."""
+    ensure_state_dir()
+    with open(MANIFEST_PATH, "w", encoding="utf-8") as f:
+        yaml.dump({"artifacts": artifacts}, f, default_flow_style=False)
 
-    Args:
-        manifest_path: Path to the manifest file.
-
-    Returns:
-        Dictionary containing the manifest data.
-
-    Raises:
-        FileNotFoundError: If manifest does not exist.
-        ValueError: If manifest format is invalid.
-    """
-    if not manifest_path.exists():
-        raise FileNotFoundError(f"Manifest not found: {manifest_path}")
-
-    try:
-        with open(manifest_path, "r", encoding="utf-8") as f:
-            content = f.read()
-
-        # Attempt JSON first
-        try:
-            return json.loads(content)
-        except json.JSONDecodeError:
-            pass
-
-        # Attempt simple YAML-like parsing for key: value structure
-        # Since we cannot rely on PyYAML being installed without checking,
-        # we implement a basic parser for the expected format from T012.
-        # Expected format:
-        # artifacts:
-        #   - path: data/raw/gsm8k.jsonl
-        #     hash: sha256_value
-        data: Dict[str, Any] = {"artifacts": []}
-        current_artifact: Optional[Dict[str, str]] = None
-
-        for line in content.splitlines():
-            line = line.strip()
-            if not line or line.startswith("#"):
-                continue
-
-            if line.startswith("- path:"):
-                if current_artifact:
-                    data["artifacts"].append(current_artifact)
-                current_artifact = {"path": line.split("path:", 1)[1].strip()}
-            elif line.startswith("hash:") and current_artifact is not None:
-                current_artifact["hash"] = line.split("hash:", 1)[1].strip()
-            elif line.startswith("dataset:") and current_artifact is not None:
-                # Handle potential alternative keys if format varies
-                pass
-
-        if current_artifact:
-            data["artifacts"].append(current_artifact)
-
-        if not data["artifacts"]:
-            raise ValueError("Manifest appears to be empty or malformed.")
-
-        return data
-
-    except Exception as e:
-        raise ValueError(f"Failed to parse manifest {manifest_path}: {e}")
-
-
-def save_manifest(manifest_path: Path, data: Dict[str, Any]) -> None:
-    """
-    Save the artifact hashes manifest.
-
-    Args:
-        manifest_path: Path to the manifest file.
-        data: Dictionary containing the manifest data.
-    """
-    with open(manifest_path, "w", encoding="utf-8") as f:
-        f.write("# Artifact Hash Manifest\n")
-        f.write("# Generated by verify_datasets.py\n\n")
-        f.write("artifacts:\n")
-        for artifact in data.get("artifacts", []):
-            f.write(f"  - path: {artifact.get('path', '')}\n")
-            f.write(f"    hash: {artifact.get('hash', '')}\n")
-
-
-def verify_dataset(artifact_entry: Dict[str, str]) -> bool:
-    """
-    Verify a single dataset artifact against its recorded hash.
-
-    Args:
-        artifact_entry: Dictionary with 'path' and 'hash' keys.
-
-    Returns:
-        True if hash matches, False otherwise.
-
-    Raises:
-        FileNotFoundError: If the dataset file is missing.
-    """
-    file_path = PROJECT_ROOT / artifact_entry["path"]
-    recorded_hash = artifact_entry["hash"]
-
+def verify_dataset(file_name: str, expected_hash: str) -> bool:
+    """Verify a single dataset file against its expected hash."""
+    file_path = DATA_RAW_DIR / file_name
     if not file_path.exists():
-        raise FileNotFoundError(f"Dataset file missing: {file_path}")
-
-    computed_hash = compute_file_hash(file_path)
-
-    if computed_hash != recorded_hash:
-        print(f"MISMATCH: {file_path}")
-        print(f"  Expected: {recorded_hash}")
-        print(f"  Found:    {computed_hash}")
+        print(f"MISSING: {file_path} does not exist.")
         return False
 
-    print(f"OK: {file_path} ({computed_hash[:16]}...)")
+    actual_hash = compute_file_hash(file_path)
+    if actual_hash != expected_hash:
+        print(f"MISMATCH: {file_name}")
+        print(f"  Expected: {expected_hash}")
+        print(f"  Actual:   {actual_hash}")
+        return False
+
+    print(f"OK: {file_name} (hash verified)")
     return True
 
-
-def register_dataset(
-    dataset_path: Path, manifest: Dict[str, Any]
-) -> Dict[str, Any]:
-    """
-    Register a new dataset entry in the manifest.
-
-    Args:
-        dataset_path: Path to the dataset file.
-        manifest: Current manifest data.
-
-    Returns:
-        Updated manifest data.
-    """
-    relative_path = str(dataset_path.relative_to(PROJECT_ROOT))
-    file_hash = compute_file_hash(dataset_path)
-
-    # Check if already exists
-    for entry in manifest.get("artifacts", []):
-        if entry.get("path") == relative_path:
-            entry["hash"] = file_hash
-            return manifest
-
-    manifest.setdefault("artifacts", []).append(
-        {"path": relative_path, "hash": file_hash}
-    )
-    return manifest
-
-
-def download_and_cache_dataset(
-    dataset_name: str, cache_dir: Path
-) -> Path:
-    """
-    Placeholder for download logic (T012 responsibility).
-    This function is included for interface completeness but T010 assumes
-    T012 has already run.
-    """
-    raise NotImplementedError("Download logic is handled by T012 (download.py).")
-
+def register_dataset(file_name: str, file_hash: str) -> None:
+    """Register a dataset hash in the manifest."""
+    manifest = load_manifest()
+    manifest[file_name] = file_hash
+    save_manifest(manifest)
 
 def main() -> int:
     """
-    Main entry point for T010 verification.
-
-    Returns:
-        0 if all checksums match, 1 otherwise.
+    Main entry point for dataset verification.
+    Returns 0 if all checksums match, 1 otherwise.
     """
-    manifest_path = PROJECT_ROOT / "state" / "artifact_hashes.yaml"
-    raw_data_dir = PROJECT_ROOT / "data" / "raw"
-
-    print("=== T010: Verify Datasets ===")
-    print(f"Manifest: {manifest_path}")
-    print(f"Data Dir: {raw_data_dir}")
-
-    if not manifest_path.exists():
-        print("ERROR: Manifest file not found. Run T012 (download.py) first.")
-        return 1
-
-    if not raw_data_dir.exists():
-        print("ERROR: Raw data directory not found. Run T012 (download.py) first.")
+    if not DATA_RAW_DIR.exists():
+        print(f"ERROR: Raw data directory not found at {DATA_RAW_DIR}")
+        print("Ensure T012 (download.py) has been run to populate data/raw/.")
         return 1
 
     try:
-        manifest = load_manifest(manifest_path)
-    except Exception as e:
-        print(f"ERROR: Failed to load manifest: {e}")
+        manifest = load_manifest()
+    except FileNotFoundError as e:
+        print(f"ERROR: {e}")
         return 1
 
-    if not manifest.get("artifacts"):
-        print("WARNING: Manifest contains no artifacts to verify.")
+    if not manifest:
+        print("WARNING: Manifest is empty. No datasets to verify.")
         return 0
 
     all_valid = True
-    verified_count = 0
-    failed_count = 0
-
-    for entry in manifest["artifacts"]:
-        try:
-            if verify_dataset(entry):
-                verified_count += 1
-            else:
-                failed_count += 1
-                all_valid = False
-        except FileNotFoundError as e:
-            print(f"ERROR: {e}")
-            failed_count += 1
+    for file_name, expected_hash in manifest.items():
+        if not verify_dataset(file_name, expected_hash):
             all_valid = False
-        except Exception as e:
-            print(f"ERROR processing {entry.get('path', 'unknown')}: {e}")
-            failed_count += 1
-            all_valid = False
-
-    print("\n--- Summary ---")
-    print(f"Verified: {verified_count}")
-    print(f"Failed:   {failed_count}")
 
     if all_valid:
-        print("STATUS: All checksums verified successfully.")
+        print("\n✓ All dataset checksums verified successfully.")
         return 0
     else:
-        print("STATUS: Verification FAILED. Some checksums do not match.")
+        print("\n✗ Verification failed: One or more checksums do not match.")
         return 1
-
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -1,9 +1,10 @@
 """
-Metric utility for standard accuracy and loss calculations.
+Metric utility module for standard accuracy and loss calculations.
 
-Provides functions to compute accuracy and loss for model predictions,
-compatible with the project's transformer-based pipeline.
+This module provides functions to calculate accuracy and loss for model
+evaluation, compatible with the Socratic Transformers pipeline.
 """
+
 import math
 from typing import List, Optional, Tuple, Union
 
@@ -13,233 +14,199 @@ from transformers import PreTrainedModel, PreTrainedTokenizer
 
 def calculate_accuracy(
     predictions: Union[List[int], torch.Tensor],
-    labels: Union[List[int], torch.Tensor],
-    ignore_index: int = -100
+    labels: Union[List[int], torch.Tensor]
 ) -> float:
     """
     Calculate accuracy between predictions and labels.
-    
+
     Args:
-        predictions: Model predictions (logits or token ids)
-        labels: Ground truth labels
-        ignore_index: Index to ignore in the calculation (default: -100)
-        
+        predictions: Model predictions (logits or token IDs).
+        labels: Ground truth labels.
+
     Returns:
-        Accuracy as a float between 0.0 and 1.0
-        
-    Raises:
-        ValueError: If predictions and labels have different shapes
+        Accuracy as a float between 0 and 1.
     """
-    if isinstance(predictions, torch.Tensor):
-        if predictions.dim() > 1:
-            # If logits, take argmax
-            predictions = predictions.argmax(dim=-1)
-        predictions = predictions.flatten()
-    else:
-        predictions = torch.tensor(predictions).flatten()
-        
-    if isinstance(labels, torch.Tensor):
-        labels = labels.flatten()
-    else:
-        labels = torch.tensor(labels).flatten()
-        
-    if predictions.shape != labels.shape:
-        raise ValueError(
-            f"Predictions and labels must have the same shape. "
-            f"Got {predictions.shape} and {labels.shape}"
-        )
-        
-    # Mask out ignored indices
-    mask = labels != ignore_index
-    if not mask.any():
+    if len(predictions) != len(labels):
+        raise ValueError("Predictions and labels must have the same length")
+
+    if len(predictions) == 0:
         return 0.0
-        
-    correct = (predictions[mask] == labels[mask]).sum().item()
-    total = mask.sum().item()
-    
-    return correct / total if total > 0 else 0.0
+
+    # Convert to tensors if they are lists
+    if isinstance(predictions, list):
+        predictions = torch.tensor(predictions)
+    if isinstance(labels, list):
+        labels = torch.tensor(labels)
+
+    # If predictions are logits, get the argmax
+    if predictions.dim() > 1:
+        predictions = predictions.argmax(dim=-1)
+
+    # Calculate accuracy
+    correct = (predictions == labels).sum().item()
+    total = len(labels)
+
+    return correct / total
 
 
 def calculate_loss(
-    logits: Union[torch.Tensor, List[List[float]]],
-    labels: Union[torch.Tensor, List[int]],
-    ignore_index: int = -100,
-    reduction: str = 'mean'
+    model: PreTrainedModel,
+    input_ids: torch.Tensor,
+    attention_mask: Optional[torch.Tensor] = None,
+    labels: Optional[torch.Tensor] = None
 ) -> float:
     """
-    Calculate cross-entropy loss between logits and labels.
-    
+    Calculate the loss for a given model and input.
+
     Args:
-        logits: Model output logits of shape (batch_size, seq_len, vocab_size)
-               or (batch_size, vocab_size)
-        labels: Ground truth labels of shape (batch_size, seq_len) or (batch_size,)
-        ignore_index: Index to ignore in the calculation (default: -100)
-        reduction: 'mean', 'sum', or 'none'
-        
+        model: The transformer model to evaluate.
+        input_ids: Token IDs for the input sequence.
+        attention_mask: Attention mask for padding.
+        labels: Ground truth labels for loss calculation.
+
     Returns:
-        Loss value as a float
-        
-    Raises:
-        ValueError: If inputs have incompatible shapes
+        The computed loss as a float.
     """
-    if isinstance(logits, list):
-        logits = torch.tensor(logits, dtype=torch.float32)
-    if isinstance(labels, list):
-        labels = torch.tensor(labels, dtype=torch.long)
-        
-    if logits.dim() == 2:
-        # (batch_size, vocab_size)
-        loss_fn = torch.nn.CrossEntropyLoss(
-            ignore_index=ignore_index,
-            reduction=reduction
+    model.eval()
+
+    with torch.no_grad():
+        outputs = model(
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            labels=labels
         )
-        loss = loss_fn(logits, labels)
-    elif logits.dim() == 3:
-        # (batch_size, seq_len, vocab_size) -> (batch_size * seq_len, vocab_size)
-        batch_size, seq_len, vocab_size = logits.shape
-        logits_flat = logits.view(-1, vocab_size)
-        labels_flat = labels.view(-1)
-        
-        loss_fn = torch.nn.CrossEntropyLoss(
-            ignore_index=ignore_index,
-            reduction=reduction
-        )
-        loss = loss_fn(logits_flat, labels_flat)
-        
-        if reduction == 'mean':
-            # Recalculate mean over non-ignored tokens
-            mask = labels_flat != ignore_index
-            if mask.sum() > 0:
-                loss = loss * (logits_flat.shape[0] / mask.sum())
-    else:
-        raise ValueError(
-            f"Logits must be 2D or 3D tensor. Got shape {logits.shape}"
-        )
-        
-    if isinstance(loss, torch.Tensor):
-        return loss.item()
-    return float(loss)
+        loss = outputs.loss
+
+    return loss.item()
 
 
 class MetricCalculator:
     """
-    A utility class for computing various metrics during training and evaluation.
-    
-    This class maintains state for running calculations and provides methods
-    for batch-wise metric computation.
+    A utility class for calculating various metrics during model evaluation.
     """
-    
-    def __init__(self, ignore_index: int = -100):
+
+    def __init__(self, model: Optional[PreTrainedModel] = None):
         """
         Initialize the MetricCalculator.
-        
+
         Args:
-            ignore_index: Index to ignore in calculations (default: -100)
+            model: Optional pre-trained model for loss calculation.
         """
-        self.ignore_index = ignore_index
-        self.total_correct = 0
-        self.total_count = 0
-        self.total_loss = 0.0
-        self.loss_count = 0
-        
-    def reset(self):
-        """Reset all accumulated metrics."""
-        self.total_correct = 0
-        self.total_count = 0
-        self.total_loss = 0.0
-        self.loss_count = 0
-        
-    def update_accuracy(
+        self.model = model
+
+    def set_model(self, model: PreTrainedModel) -> None:
+        """
+        Set the model for loss calculation.
+
+        Args:
+            model: The transformer model to use.
+        """
+        self.model = model
+
+    def calculate_accuracy_batch(
         self,
-        predictions: Union[List[int], torch.Tensor],
-        labels: Union[List[int], torch.Tensor]
-    ) -> None:
+        predictions: torch.Tensor,
+        labels: torch.Tensor
+    ) -> float:
         """
-        Update accuracy metrics with a batch of predictions and labels.
-        
+        Calculate accuracy for a batch of predictions.
+
         Args:
-            predictions: Model predictions
-            labels: Ground truth labels
+            predictions: Model predictions (logits or token IDs).
+            labels: Ground truth labels.
+
+        Returns:
+            Accuracy as a float.
         """
-        correct = calculate_accuracy(predictions, labels, self.ignore_index)
-        
-        if isinstance(predictions, torch.Tensor):
-            if predictions.dim() > 1:
-                predictions = predictions.argmax(dim=-1)
-            predictions = predictions.flatten()
-        else:
-            predictions = torch.tensor(predictions).flatten()
-            
-        if isinstance(labels, torch.Tensor):
-            labels = labels.flatten()
-        else:
-            labels = torch.tensor(labels).flatten()
-            
-        mask = labels != self.ignore_index
-        count = mask.sum().item()
-        
-        if count > 0:
-            self.total_correct += correct * count
-            self.total_count += count
-            
-    def update_loss(
+        return calculate_accuracy(predictions, labels)
+
+    def calculate_loss_batch(
         self,
-        logits: Union[torch.Tensor, List[List[float]]],
-        labels: Union[torch.Tensor, List[int]]
-    ) -> None:
+        input_ids: torch.Tensor,
+        attention_mask: Optional[torch.Tensor] = None,
+        labels: Optional[torch.Tensor] = None
+    ) -> float:
         """
-        Update loss metrics with a batch of logits and labels.
-        
+        Calculate loss for a batch of inputs.
+
         Args:
-            logits: Model output logits
-            labels: Ground truth labels
+            input_ids: Token IDs for the input sequence.
+            attention_mask: Attention mask for padding.
+            labels: Ground truth labels.
+
+        Returns:
+            The computed loss.
+
+        Raises:
+            ValueError: If no model is set.
         """
-        loss = calculate_loss(logits, labels, self.ignore_index, reduction='sum')
-        
-        if isinstance(logits, torch.Tensor):
-            if logits.dim() == 2:
-                count = logits.shape[0]
-            elif logits.dim() == 3:
-                mask = labels != self.ignore_index
-                count = mask.sum().item() if isinstance(mask, torch.Tensor) else mask.sum()
+        if self.model is None:
+            raise ValueError("Model must be set before calculating loss")
+
+        return calculate_loss(self.model, input_ids, attention_mask, labels)
+
+    def evaluate_batch(
+        self,
+        input_ids: torch.Tensor,
+        attention_mask: Optional[torch.Tensor] = None,
+        labels: Optional[torch.Tensor] = None
+    ) -> Tuple[float, float]:
+        """
+        Evaluate both accuracy and loss for a batch.
+
+        Args:
+            input_ids: Token IDs for the input sequence.
+            attention_mask: Attention mask for padding.
+            labels: Ground truth labels.
+
+        Returns:
+            Tuple of (accuracy, loss).
+
+        Raises:
+            ValueError: If no model is set for loss calculation.
+        """
+        if self.model is None:
+            raise ValueError("Model must be set before evaluating")
+
+        # Forward pass
+        with torch.no_grad():
+            outputs = self.model(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+                labels=labels
+            )
+
+            loss = outputs.loss.item()
+
+            # Get predictions
+            if hasattr(outputs, 'logits'):
+                predictions = outputs.logits.argmax(dim=-1)
             else:
-                count = 1
-        else:
-            count = 1
-            
-        self.total_loss += loss
-        self.loss_count += count
-        
-    def get_accuracy(self) -> float:
-        """
-        Get the current accuracy.
-        
-        Returns:
-            Accuracy as a float, or 0.0 if no data has been seen
-        """
-        if self.total_count == 0:
-            return 0.0
-        return self.total_correct / self.total_count
-        
-    def get_loss(self) -> float:
-        """
-        Get the current average loss.
-        
-        Returns:
-            Average loss as a float, or 0.0 if no data has been seen
-        """
-        if self.loss_count == 0:
-            return 0.0
-        return self.total_loss / self.loss_count
-        
-    def get_metrics(self) -> dict:
-        """
-        Get all current metrics.
-        
-        Returns:
-            Dictionary containing 'accuracy' and 'loss'
-        """
-        return {
-            'accuracy': self.get_accuracy(),
-            'loss': self.get_loss()
-        }
+                raise ValueError("Model outputs do not contain logits")
+
+            accuracy = calculate_accuracy(predictions, labels)
+
+        return accuracy, loss
+
+def main():
+    """Main entry point for testing the metrics module."""
+    print("Testing metrics module...")
+
+    # Test accuracy calculation
+    preds = [0, 1, 2, 3, 4]
+    labels = [0, 1, 2, 3, 4]
+    acc = calculate_accuracy(preds, labels)
+    print(f"Perfect accuracy test: {acc}")
+    assert acc == 1.0, "Perfect accuracy should be 1.0"
+
+    # Test with mismatches
+    labels_mismatch = [0, 0, 0, 0, 0]
+    acc_mismatch = calculate_accuracy(preds, labels_mismatch)
+    print(f"Mismatch accuracy test: {acc_mismatch}")
+    assert acc_mismatch == 0.2, "Mismatch accuracy should be 0.2"
+
+    print("All tests passed!")
+
+
+if __name__ == "__main__":
+    main()
