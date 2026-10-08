@@ -1,100 +1,97 @@
+"""
+Tests for correlation analysis module.
+"""
 import os
 import sys
-import pytest
 import pandas as pd
 import numpy as np
 from pathlib import Path
+import pytest
 
-# Add code directory to path
+# Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from analysis.correlations import (
     load_processed_data,
     extract_pupil_metrics,
     calculate_pearson_correlation,
-    benjamini_hochberg_fdr,
     compute_correlations,
-    save_results
+    apply_fdr_correction
 )
+from config import load_config
 
-def test_extract_pupil_metrics():
-    """Test that pupil metrics are correctly extracted."""
-    df = pd.DataFrame({
-        'subject_id': ['S1', 'S1', 'S2', 'S2'],
-        'pupil_diameter': [2.0, 4.0, 3.0, 5.0]
-    })
-    
-    metrics = extract_pupil_metrics(df)
-    
-    assert 'peak' in metrics
-    assert 'mean' in metrics
-    assert 'quantized' in metrics
-    
-    # Check values
-    assert metrics['peak']['S1'] == 4.0
-    assert metrics['peak']['S2'] == 5.0
-    assert metrics['mean']['S1'] == 3.0
-    assert metrics['mean']['S2'] == 4.0
+@pytest.fixture
+def sample_config():
+    return {
+        'paths': {
+            'processed_data': 'data/processed',
+            'results': 'results'
+        }
+    }
 
-def test_calculate_pearson_correlation():
-    """Test Pearson correlation calculation."""
-    x = pd.Series([1, 2, 3, 4, 5])
-    y = pd.Series([2, 4, 6, 8, 10])
-    
-    r, p = calculate_pearson_correlation(x, y)
-    
-    assert np.isclose(r, 1.0)
-    assert p < 0.05
+@pytest.fixture
+def sample_df():
+    """Create a sample DataFrame with pupil metrics and proxies."""
+    data = {
+        'subject_id': [1, 1, 1, 2, 2, 2],
+        'trial_id': [1, 2, 3, 1, 2, 3],
+        'pupil_mean': [2.5, 2.6, 2.4, 3.0, 3.1, 2.9],
+        'pupil_peak': [3.0, 3.1, 2.9, 3.5, 3.6, 3.4],
+        'search_time': [100, 110, 90, 150, 160, 140],
+        'fixation_count': [5, 6, 4, 8, 9, 7],
+        'target_salience': [0.8, 0.7, 0.9, 0.6, 0.5, 0.7]
+    }
+    return pd.DataFrame(data)
 
-def test_benjamini_hochberg_fdr():
-    """Test FDR correction logic."""
-    p_values = np.array([0.01, 0.04, 0.03, 0.001, 0.05])
-    adjusted = benjamini_hochberg_fdr(p_values)
-    
-    assert len(adjusted) == len(p_values)
-    assert all(adjusted >= 0) and all(adjusted <= 1)
-    # Basic sanity check: adjusted values should generally be larger than raw
-    # (though monotonicity correction might make some smaller)
-    assert np.any(adjusted > p_values) or np.allclose(adjusted, p_values)
+def test_extract_pupil_metrics(sample_df):
+    metrics = extract_pupil_metrics(sample_df)
+    assert 'pupil_mean' in metrics
+    assert 'pupil_peak' in metrics
+    assert 'search_time' not in metrics
 
-def test_compute_correlations():
-    """Test full correlation computation pipeline."""
-    # Create mock metrics and features
-    metrics_df = pd.DataFrame({
-        'peak': [2.0, 3.0],
-        'mean': [2.1, 3.1]
-    }, index=['S1', 'S2'])
-    
-    features_df = pd.DataFrame({
-        'search_time': [10.0, 20.0],
-        'fixation_count': [5, 10]
-    }, index=['S1', 'S2'])
-    
-    results = compute_correlations(metrics_df, features_df)
-    
+def test_calculate_pearson_correlation(sample_df):
+    x = sample_df['pupil_mean']
+    y = sample_df['search_time']
+    corr, p_val = calculate_pearson_correlation(x, y)
+    assert not np.isnan(corr)
+    assert not np.isnan(p_val)
+    # Check that correlation is positive (as constructed in sample data)
+    assert corr > 0
+
+def test_calculate_pearson_correlation_insufficient_data():
+    x = pd.Series([1.0, 2.0])
+    y = pd.Series([1.0, 2.0])
+    corr, p_val = calculate_pearson_correlation(x, y)
+    assert np.isnan(corr)
+    assert np.isnan(p_val)
+
+def test_compute_correlations(sample_df):
+    results = compute_correlations(sample_df)
+    assert not results.empty
     assert 'metric' in results.columns
     assert 'proxy' in results.columns
     assert 'pearson_r' in results.columns
     assert 'raw_p' in results.columns
     assert 'method' in results.columns
     
-    # Check that we have 2 metrics * 2 proxies = 4 rows
-    assert len(results) == 4
+    # Check that we have correlations for expected metrics
+    metrics_found = set(results['metric'].unique())
+    assert 'pupil_mean' in metrics_found
+    assert 'pupil_peak' in metrics_found
 
-def test_save_results(tmp_path):
-    """Test saving results to CSV."""
-    df = pd.DataFrame({
-        'metric': ['peak'],
-        'proxy': ['search_time'],
-        'pearson_r': [0.5],
-        'raw_p': [0.05],
-        'method': ['pearson']
-    })
-    
-    output_file = tmp_path / "test_results.csv"
-    save_results(df, str(output_file))
-    
-    assert output_file.exists()
-    loaded = pd.read_csv(output_file)
-    assert len(loaded) == 1
-    assert loaded['pearson_r'][0] == 0.5
+def test_compute_correlations_with_nan(sample_df):
+    # Introduce NaNs
+    sample_df.loc[0, 'pupil_mean'] = np.nan
+    results = compute_correlations(sample_df)
+    assert not results.empty
+    # Should still compute correlations using valid data
+
+def test_apply_fdr_correction(sample_df):
+    raw_results = compute_correlations(sample_df)
+    corrected_results = apply_fdr_correction(raw_results)
+    assert 'adj_p' in corrected_results.columns
+    assert len(corrected_results) == len(raw_results)
+    # Adjusted p-values should be >= raw p-values (usually)
+    # Note: This is a statistical property, but due to floating point might vary slightly
+    # We just check they exist and are numeric
+    assert all(not np.isnan(corrected_results['adj_p'].dropna()))

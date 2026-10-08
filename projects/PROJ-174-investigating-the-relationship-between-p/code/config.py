@@ -1,70 +1,44 @@
-"""
-Configuration loader for the pipeline.
-Loads and validates configuration from YAML file.
-"""
 import os
 import yaml
 from pathlib import Path
 from typing import Dict, Any
 
-def load_config(config_path: Path) -> Dict[str, Any]:
+def load_config() -> Dict[str, Any]:
     """
-    Load configuration from YAML file.
-    
-    Args:
-        config_path: Path to the configuration file
-        
-    Returns:
-        Dictionary containing configuration values
-        
-    Raises:
-        FileNotFoundError: If config file doesn't exist
-        yaml.YAMLError: If config file is invalid YAML
+    Load configuration from code/config.yaml.
+    Returns a dictionary with configuration values.
     """
-    if not isinstance(config_path, Path):
-        config_path = Path(config_path)
-        
+    config_path = Path('code/config.yaml')
     if not config_path.exists():
-        raise FileNotFoundError(f"Configuration file not found: {config_path}")
+        # Fallback to root if not in code/
+        config_path = Path('config.yaml')
+    
+    if not config_path.exists():
+        # Create a default config if missing
+        default_config = {
+            'seeds': 42,
+            'thresholds': [0.40, 0.50, 0.60],
+            'paths': {
+                'processed_features': 'data/processed/features.csv'
+            },
+            'aggregation': False
+        }
+        config_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(config_path, 'w') as f:
+            yaml.dump(default_config, f)
+        return default_config
     
     with open(config_path, 'r') as f:
         config = yaml.safe_load(f)
     
-    # Apply defaults for missing keys
-    defaults = {
-        'seeds': {'random': 42, 'numpy': 42},
-        'thresholds': [0.40, 0.50, 0.60],
-        'paths': {
-            'raw_data': 'data/raw',
-            'processed_data': 'data/processed',
-            'results': 'results',
-            'external_stimuli': 'data/external/stimuli'
-        },
-        'aggregation': False,
-        'preprocessing': {
-            'lowpass_cutoff': 4.0,
-            'blink_threshold': 30.0,
-            'max_blink_duration': 0.3
-        },
-        'analysis': {
-            'fdr_method': 'benjamini_hochberg',
-            'min_trials_per_subject': 20
-        },
-        'classification': {
-            'window_duration': 2.0,
-            'update_interval': 0.2,
-            'l2_regularization': 1.0
-        }
-    }
-    
-    # Merge defaults with loaded config
-    def merge_dicts(default, loaded):
-        result = default.copy()
-        for key, value in loaded.items():
-            if key in result and isinstance(result[key], dict) and isinstance(value, dict):
-                result[key] = merge_dicts(result[key], value)
-            else:
-                result[key] = value
-        return result
-    
-    return merge_dicts(defaults, config)
+    # Ensure defaults
+    if 'thresholds' not in config:
+        config['thresholds'] = [0.40, 0.50, 0.60]
+    if 'aggregation' not in config:
+        config['aggregation'] = False
+    if 'paths' not in config:
+        config['paths'] = {}
+    if 'processed_features' not in config['paths']:
+        config['paths']['processed_features'] = 'data/processed/features.csv'
+        
+    return config

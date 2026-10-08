@@ -11,15 +11,6 @@ T010:
   r: "The required artifact `tests/test_data_loader.py` does not exist on disk, so\
     \ no unit test for data loader validation is present. The task cannot be considered\
     \ completed until a non\u2011empty test file is added at the specified location."
-T013:
-  c: false
-  h: 8573e24eb14e530a4cee680d175602ca6f4708f408b311344a30d0a8eca7dfab
-  r: "The provided `load_data.py` is truncated (e.g., ends with an incomplete line\
-    \ `df['timestamp'] = pd.to_n`) and does not contain a complete implementation\
-    \ that writes a uniform CSV with the required columns. Additionally, the required\
-    \ `config.yaml` file is missing, so the module cannot be configured as specified.\
-    \ The task\u2019s core requirement\u2014ingesting raw data and converting it to\
-    \ a standardized CSV\u2014is therefore not satisfied."
 T015a:
   c: false
   h: 0fd8d0cf0fbdbe129da27210e79d98fb6f25536beb6e480ed713794b5be413ee
@@ -36,6 +27,15 @@ T015b:
     \ or mark entries as `UNFULFILLABLE` with a status column. Moreover, the required\
     \ output file `data/processed/features.csv` is absent. The task therefore remains\
     \ unfinished."
+T015c:
+  c: false
+  h: 7abe2f2035943776cb167091b9277b07a33fffcd90dd79d85f7db36fba12d267
+  r: "The repository lacks a `config.yaml` file, so the code cannot read the required\
+    \ Gabor parameters, and the provided `features.py` (truncated) shows no evidence\
+    \ of loading that config or handling the UNFULFILLABLE case. Moreover, `data/processed/features.csv`\
+    \ contains only rows with status \u201COK\u201D and no entries marked \u201CUNFULFILLABLE\u201D\
+    , indicating the required fallback logic is not implemented. The task\u2019s conditional\
+    \ salience computation and error handling are therefore not satisfied."
 T016a:
   c: false
   h: dfd3ef2999d90925f3026d1c77bc0dd7b73978d106f5182c14dd4e59a5127ba6
@@ -44,6 +44,13 @@ T016a:
     \ the required output file `data/processed/features.csv` is absent, so the script\
     \ has no data to process or update. Both the missing CSV and the incomplete script\
     \ mean the task\u2019s requirement is not satisfied."
+T016b:
+  c: false
+  h: 603d6f474a2562cc0c4ed8145baab230d65e59892b627f5bf160e1abaa6f4ff5
+  r: "The required output file `results/correlations.csv` does not exist, and the\
+    \ provided `code/analysis/correlations.py` is incomplete (truncated before any\
+    \ logic that would compute and write the correlations). Consequently the task\u2019\
+    s primary artifact is missing."
 T017:
   c: false
   h: 3b756df8055fc5254e0308f31339b37857ab927a625abf9407132752004d477d
@@ -64,33 +71,29 @@ T021a:
     \ implemented."
 T021b:
   c: false
-  h: 5218b61d7f107e30818d1ba54644f76ddb955600396ca363658a66fc50b8b8e8
-  r: "The `lme_model.py` script contains only stub functions (e.g., placeholder LRT\
-    \ returning NaNs, dummy summary DataFrame) and never actually fits a linear mixed\u2011\
-    effects model or stores the model object. Moreover, the required `results/vif_report.log`\
-    \ file is missing, so the logic for handling dropped predictors cannot be exercised.\
-    \ The implementation does not meet the specified requirements."
-T021c:
+  h: 3839714db6d677b6c200edb9eb91b50177f0d8468206f3c0becd62bc858bb43d
+  r: The required file `code/analysis/lme_fit.py` does not exist, so no model fitting
+    logic or output model object is provided. The other inputs (`features.csv` and
+    `vif_report.log`) are present, but without the implementation the task is not
+    satisfied.
+T024:
   c: false
-  h: d4ea5d687e94238fd990d1955760b76bb96ac6a6cc059d23eb01c83d951c437f
-  r: "The provided `lme_model.py` contains placeholder implementations (e.g., `perform_likelihood_ratio_test`\
-    \ returns NaNs and `extract_model_summary` uses hard\u2011coded values) and the\
-    \ required output file `results/model_summary.csv` does not exist. Consequently\
-    \ the script does not actually compute a real LRT nor produce the specified CSV\
-    \ summary."
-T029:
+  h: ec893374de16c85af5e123b501f08596aa6318a8a511ccee929e3506b705c198
+  r: The provided `trial_validation.py` is truncated (ends abruptly) and does not
+    implement the required config file loading or the exact error message format.
+    Moreover, `config.yaml` and the expected `results/trial_validation.log` are missing,
+    so the script cannot fulfill the specified validation and logging behavior.
+T031:
   c: false
-  h: db0bd13edf2a12a681dfc47f109cf0bbf3813998dc363ecee23a6352c11adc0a
-  r: "The `results/limitations.md` file exists and documents the median\u2011split\
-    \ labeling and UNFULFILLABLE handling, but the required `results/classification_metrics.csv`\
-    \ file is missing, and there is no artifact showing the actual ground\u2011truth\
-    \ labeling logic was implemented. The task therefore remains unfinished."
+  h: 7f8b6deded901571b321378ad006b9f0b1e6df3e2822d7abddd14a4629560157
+  r: "The required output file `results/sensitivity_analysis.csv` does not exist,\
+    \ and the `config.yaml` file is also missing, so the sensitivity\u2011analysis\
+    \ implementation and its configuration handling are not present."
 T035:
   c: false
-  h: a037615c375062863e4b09d5e6bafceb21a6dea5d55a132b5ef9cb922b1eec7e
-  r: "The repository contains `scripts/profile_memory.py`, but the required output\
-    \ file `results/memory_profile.csv` is missing, and there is no evidence that\
-    \ the script was run on a 1\u202FGB dataset, produced a populated CSV, returned\
-    \ exit code\u202F0, or met the \u22645\u202Fh / \u22646\u202FGB constraints. The\
-    \ script is also truncated and does not demonstrate actual execution or logging\
-    \ of dataset size."
+  h: 2f8561379cecdf54cb13d70afb79b6c2a035d1061e91fdc34b6c1d9c5953718a
+  r: "The repository contains `scripts/profile_memory.py`, but the script is incomplete\
+    \ (truncated) and there is no `results/memory_profile.csv` file, nor any logs\
+    \ showing that the script was run against the full real dataset or that the 5\u2011\
+    hour / 6\u202FGB constraints were verified. The required output artifact and execution\
+    \ evidence are missing."

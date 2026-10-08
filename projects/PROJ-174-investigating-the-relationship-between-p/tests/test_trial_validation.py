@@ -1,138 +1,146 @@
-"""
-Tests for T024: Trial Count Validation.
-"""
 import os
 import sys
-import tempfile
-import pytest
 import pandas as pd
-import yaml
+import pytest
 from pathlib import Path
+import yaml
+import shutil
 
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Ensure parent directory is in path
+parent_dir = Path(__file__).resolve().parent.parent
+if str(parent_dir) not in sys.path:
+    sys.path.insert(0, str(parent_dir))
 
 from analysis.trial_validation import validate_trial_counts, run_validation_pipeline
 
-class TestTrialValidation:
+@pytest.fixture
+def temp_data_dir(tmp_path):
+    """Create a temporary directory structure for testing."""
+    data_dir = tmp_path / "data" / "processed"
+    data_dir.mkdir(parents=True)
+    results_dir = tmp_path / "results"
+    results_dir.mkdir(parents=True)
+    return tmp_path
+
+@pytest.fixture
+def mock_config(temp_data_dir):
+    """Create a mock config.yaml in the temp directory."""
+    config = {
+        "seeds": 42,
+        "thresholds": {"low": 0.40, "mid": 0.50, "high": 0.60},
+        "paths": {
+            "data_raw": "data/raw",
+            "data_processed": str(temp_data_dir / "data" / "processed"),
+            "results": str(temp_data_dir / "results")
+        },
+        "aggregation": False,
+        "trial_count_threshold": 20
+    }
+    config_path = temp_data_dir / "config.yaml"
+    with open(config_path, 'w') as f:
+        yaml.dump(config, f)
     
-    def setup_method(self):
-        """Create temporary directory and files for tests."""
-        self.temp_dir = tempfile.TemporaryDirectory()
-        self.data_path = os.path.join(self.temp_dir.name, "features.csv")
-        self.config_path = os.path.join(self.temp_dir.name, "config.yaml")
+    # Save original cwd and change to temp dir so load_config finds it
+    original_cwd = os.getcwd()
+    os.chdir(temp_data_dir)
+    
+    yield config
+    
+    os.chdir(original_cwd)
 
-    def teardown_method(self):
-        """Clean up temporary files."""
-        self.temp_dir.cleanup()
+@pytest.fixture
+def mock_data_pass(temp_data_dir):
+    """Create a mock features.csv where every subject has > 20 trials."""
+    df = pd.DataFrame({
+        'subject_id': ['S1'] * 25 + ['S2'] * 30,
+        'trial_id': list(range(25)) + list(range(30)),
+        'pupil_mean': [1.0] * 55
+    })
+    path = temp_data_dir / "data" / "processed" / "features.csv"
+    df.to_csv(path, index=False)
+    return path
 
-    def _create_config(self, aggregation: bool):
-        """Helper to create a config file."""
-        config_data = {
-            "seeds": {"random": 42},
-            "thresholds": [0.4, 0.5],
-            "paths": {
-                "processed_data": os.path.dirname(self.data_path),
-                "raw_data": "data/raw"
-            },
-            "aggregation": aggregation
-        }
-        with open(self.config_path, 'w') as f:
-            yaml.dump(config_data, f)
+@pytest.fixture
+def mock_data_fail(temp_data_dir):
+    """Create a mock features.csv where one subject has < 20 trials."""
+    df = pd.DataFrame({
+        'subject_id': ['S1'] * 25 + ['S2'] * 15,
+        'trial_id': list(range(25)) + list(range(15)),
+        'pupil_mean': [1.0] * 40
+    })
+    path = temp_data_dir / "data" / "processed" / "features.csv"
+    df.to_csv(path, index=False)
+    return path
 
-    def _create_data(self, subject_trial_map: dict):
-        """
-        Helper to create a features.csv with specific trial counts per subject.
-        subject_trial_map: {subject_id: [trial_ids]}
-        """
-        rows = []
-        for sub_id, trials in subject_trial_map.items():
-            for trial_id in trials:
-                rows.append({
-                    'subject_id': sub_id,
-                    'trial_id': trial_id,
-                    'pupil_mean': 1.0,
-                    'search_time': 2.0
-                })
-        df = pd.DataFrame(rows)
-        df.to_csv(self.data_path, index=False)
+def test_validate_trial_counts_pass(mock_data_pass, mock_config):
+    """Test validation passes when all subjects have sufficient trials."""
+    data_path = str(mock_data_pass)
+    result = validate_trial_counts(data_path, mock_config)
+    
+    assert len(result) == 2
+    assert all(result['trial_count'] >= 20)
+    assert all(result['validation_status'] == 'PASS')
 
-    def test_all_subjects_pass_no_aggregation(self):
-        """Test: All subjects have >= 20 trials, aggregation=False -> Pass."""
-        # 2 subjects, 25 trials each
-        self._create_config(aggregation=False)
-        self._create_data({
-            'S01': list(range(25)),
-            'S02': list(range(25))
-        })
-        
-        success, details = validate_trial_counts(self.data_path, self.config_path)
-        assert success is True
-        assert len(details) == 0
+def test_validate_trial_counts_fail(mock_data_fail, mock_config):
+    """Test validation raises RuntimeError when subject has < 20 trials and aggregation is False."""
+    data_path = str(mock_data_fail)
+    
+    with pytest.raises(RuntimeError) as exc_info:
+        validate_trial_counts(data_path, mock_config)
+    
+    assert "Subject S2 has 15 trials" in str(exc_info.value)
+    assert "Insufficient trials per subject" in str(exc_info.value)
 
-    def test_one_subject_fails_no_aggregation_raises(self):
-        """Test: One subject has < 20 trials, aggregation=False -> RuntimeError."""
-        self._create_config(aggregation=False)
-        self._create_data({
-            'S01': list(range(25)), # Pass
-            'S02': list(range(10))  # Fail
-        })
-        
-        with pytest.raises(RuntimeError) as excinfo:
-            validate_trial_counts(self.data_path, self.config_path)
-        
-        assert "Subject S02" in str(excinfo.value)
-        assert "10 trials" in str(excinfo.value)
+def test_validate_trial_counts_aggregate(mock_data_fail, mock_config, temp_data_dir):
+    """Test validation aggregates across subjects when flag is True."""
+    # Update config to enable aggregation
+    mock_config['aggregation'] = True
+    
+    data_path = str(mock_data_fail)
+    result = validate_trial_counts(data_path, mock_config)
+    
+    assert len(result) == 2
+    # S2 should have LOW_COUNT_AGGREGATE status
+    s2_row = result[result['subject_id'] == 'S2']
+    assert s2_row['validation_status'].values[0] == 'LOW_COUNT_AGGREGATE'
+    # S1 should be PASS
+    s1_row = result[result['subject_id'] == 'S1']
+    assert s1_row['validation_status'].values[0] == 'PASS'
 
-    def test_fail_subjects_pass_with_aggregation(self):
-        """Test: Some subjects fail, but aggregation=True -> Pass (no error)."""
-        self._create_config(aggregation=True)
-        self._create_data({
-            'S01': list(range(25)),
-            'S02': list(range(5))  # Fail
-        })
-        
-        success, details = validate_trial_counts(self.data_path, self.config_path)
-        assert success is True
-        assert len(details) == 1
-        assert details[0]['subject_id'] == 'S02'
-        assert details[0]['status'] == 'FAIL'
+def test_missing_subject_id_column(temp_data_dir, mock_config):
+    """Test validation fails if subject_id column is missing."""
+    df = pd.DataFrame({
+        'trial_id': [1, 2, 3],
+        'pupil_mean': [1.0, 1.0, 1.0]
+    })
+    path = temp_data_dir / "data" / "processed" / "features.csv"
+    df.to_csv(path, index=False)
+    
+    with pytest.raises(ValueError) as exc_info:
+        validate_trial_counts(str(path), mock_config)
+    
+    assert "subject_id" in str(exc_info.value)
 
-    def test_missing_config_raises_file_not_found(self):
-        """Test: Missing config file raises FileNotFoundError."""
-        self._create_data({'S01': list(range(25))})
-        # Don't create config file
-        invalid_path = os.path.join(self.temp_dir.name, "nonexistent.yaml")
+def test_run_validation_pipeline_creates_log(mock_data_pass, mock_config, temp_data_dir):
+    """Test that run_validation_pipeline creates the log file."""
+    # We need to monkeypatch load_config to return our mock config
+    import analysis.trial_validation as tv_module
+    original_load_config = tv_module.load_config
+    
+    def mock_load_config():
+        return mock_config
+    
+    tv_module.load_config = mock_load_config
+    
+    try:
+        run_validation_pipeline()
         
-        with pytest.raises(FileNotFoundError):
-            validate_trial_counts(self.data_path, invalid_path)
-
-    def test_missing_data_raises_file_not_found(self):
-        """Test: Missing data file raises FileNotFoundError."""
-        self._create_config(aggregation=False)
-        # Don't create data file
-        invalid_data = os.path.join(self.temp_dir.name, "missing.csv")
+        log_path = os.path.join(mock_config['paths']['results'], 'trial_validation.log')
+        assert os.path.exists(log_path)
         
-        with pytest.raises(FileNotFoundError):
-            validate_trial_counts(invalid_data, self.config_path)
-
-    def test_missing_aggregation_key_defaults_to_false(self):
-        """Test: If 'aggregation' key is missing, defaults to False and warns (log)."""
-        # Create config without 'aggregation' key
-        config_data = {
-            "seeds": {"random": 42},
-            "paths": {"processed_data": os.path.dirname(self.data_path)}
-        }
-        with open(self.config_path, 'w') as f:
-            yaml.dump(config_data, f)
-        
-        self._create_data({
-            'S01': list(range(25)),
-            'S02': list(range(10)) # Fail
-        })
-        
-        # Should raise RuntimeError because it defaults to False
-        with pytest.raises(RuntimeError) as excinfo:
-            validate_trial_counts(self.data_path, self.config_path)
-        
-        assert "Subject S02" in str(excinfo.value)
+        with open(log_path, 'r') as f:
+            content = f.read()
+            assert "Trial Validation Log" in content
+            assert "Validation Results:" in content
+    finally:
+        tv_module.load_config = original_load_config

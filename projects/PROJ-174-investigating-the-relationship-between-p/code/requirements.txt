@@ -11,4 +11,4 @@ requests
 datasets
 python-dotenv
 radon
-memory-profiler
+memory_profiler

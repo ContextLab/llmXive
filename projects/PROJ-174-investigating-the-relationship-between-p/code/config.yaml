@@ -1,25 +1,11 @@
-# Configuration for Pupil Dilation Cognitive Load Pipeline
-seeds:
-  random: 42
-  numpy: 42
+seeds: 42
 thresholds:
-  - 0.40
-  - 0.50
-  - 0.60
+  low: 0.40
+  mid: 0.50
+  high: 0.60
 paths:
-  raw_data: "data/raw"
-  processed_data: "data/processed"
-  results: "results"
-  external_stimuli: "data/external/stimuli"
+  data_raw: data/raw
+  data_processed: data/processed
+  results: results
 aggregation: false
-preprocessing:
-  lowpass_cutoff: 4.0
-  blink_threshold: 30.0
-  max_blink_duration: 0.3
-analysis:
-  fdr_method: "benjamini_hochberg"
-  min_trials_per_subject: 20
-classification:
-  window_duration: 2.0
-  update_interval: 0.2
-  l2_regularization: 1.0
+trial_count_threshold: 20

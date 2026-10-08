@@ -23,7 +23,7 @@ def validate_trial_counts(data_path: str, config: Dict[str, Any]) -> pd.DataFram
     Args:
         data_path: Path to the processed features CSV.
         config: Configuration dictionary containing 'aggregation' flag and 'trial_count_threshold'.
-        
+                
     Returns:
         DataFrame with subject trial counts and validation status.
         
@@ -32,24 +32,33 @@ def validate_trial_counts(data_path: str, config: Dict[str, Any]) -> pd.DataFram
                       and aggregation is disabled.
     """
     logger.info(f"Loading data from {data_path}")
+    
+    if not os.path.exists(data_path):
+        raise FileNotFoundError(f"Input data file not found: {data_path}")
+        
     df = pd.read_csv(data_path)
     
     if 'subject_id' not in df.columns:
         raise ValueError("Data must contain 'subject_id' column for trial validation.")
     
+    # Count trials per subject
     trial_counts = df.groupby('subject_id').size().reset_index(name='trial_count')
     
+    # Get configuration values
     threshold = config.get('trial_count_threshold', 20)
     aggregate = config.get('aggregation', False)
     
     logger.info(f"Validating trial counts (threshold={threshold}, aggregation={aggregate})")
     
+    # Identify subjects with insufficient trials
     violations = trial_counts[trial_counts['trial_count'] < threshold]
     
     if not violations.empty:
-        violation_details = violations['subject_id'].apply(
-            lambda x: f"Subject {x} has {violations.loc[violations['subject_id'] == x, 'trial_count'].values[0]} trials"
-        ).tolist()
+        violation_details = []
+        for _, row in violations.iterrows():
+            sub_id = row['subject_id']
+            count = row['trial_count']
+            violation_details.append(f"Subject {sub_id} has {count} trials")
         
         if not aggregate:
             error_msg = "Validation Failed: " + ", ".join(violation_details) + ". " + \
@@ -58,10 +67,8 @@ def validate_trial_counts(data_path: str, config: Dict[str, Any]) -> pd.DataFram
             raise RuntimeError(error_msg)
         else:
             logger.warning(f"Aggregation is enabled. Proceeding with subjects having < {threshold} trials: {violation_details}")
-            # In aggregation mode, we might still want to log which subjects are low,
-            # but we don't raise an error. The model fitting logic (T021b) handles
-            # the actual aggregation or reduced model fitting.
     
+    # Generate validation status column
     validation_status = []
     for _, row in trial_counts.iterrows():
         if row['trial_count'] >= threshold:
@@ -73,7 +80,7 @@ def validate_trial_counts(data_path: str, config: Dict[str, Any]) -> pd.DataFram
                 validation_status.append("FAIL")
                 
     trial_counts['validation_status'] = validation_status
-    
+
     return trial_counts
 
 def run_validation_pipeline() -> None:
@@ -81,8 +88,37 @@ def run_validation_pipeline() -> None:
     Main entry point for the trial validation pipeline.
     Loads config, validates data, and logs results.
     """
-    config = load_config()
-    data_path = config['paths']['data_processed'] + '/features.csv'
+    # Verify config.yaml exists
+    config_path = Path(__file__).resolve().parent.parent / "config.yaml"
+    if not config_path.exists():
+        logger.warning("config.yaml not found in project root. Creating default config with aggregation=false.")
+        # Create a minimal default config to allow the script to run or fail gracefully
+        default_config = {
+            "seeds": 42,
+            "thresholds": {"low": 0.40, "mid": 0.50, "high": 0.60},
+            "paths": {
+                "data_raw": "data/raw",
+                "data_processed": "data/processed",
+                "results": "results"
+            },
+            "aggregation": False,
+            "trial_count_threshold": 20
+        }
+        with open(config_path, 'w') as f:
+            yaml.dump(default_config, f)
+        logger.warning(f"Default config written to {config_path}")
+        config = default_config
+    else:
+        config = load_config()
+
+    # Check aggregation flag specifically
+    if 'aggregation' not in config:
+        logger.warning("'aggregation' key missing in config.yaml. Defaulting to false.")
+        config['aggregation'] = False
+
+    # Construct path to processed features
+    data_dir = config.get('paths', {}).get('data_processed', 'data/processed')
+    data_path = os.path.join(data_dir, 'features.csv')
     
     if not os.path.exists(data_path):
         raise FileNotFoundError(f"Processed data file not found at {data_path}. "
@@ -93,10 +129,31 @@ def run_validation_pipeline() -> None:
         logger.info("Trial validation completed successfully.")
         logger.info(f"Summary:\n{validation_report.to_string(index=False)}")
         
-        # Optionally save the validation report
-        report_path = config['paths']['results'] + '/trial_validation_report.csv'
-        validation_report.to_csv(report_path, index=False)
-        logger.info(f"Validation report saved to {report_path}")
+        # Write validation log
+        results_dir = config.get('paths', {}).get('results', 'results')
+        # Ensure results directory exists
+        os.makedirs(results_dir, exist_ok=True)
+        
+        log_path = os.path.join(results_dir, 'trial_validation.log')
+        
+        with open(log_path, 'w') as f:
+            f.write("Trial Validation Log\n")
+            f.write("=" * 40 + "\n")
+            f.write(f"Timestamp: {pd.Timestamp.now()}\n")
+            f.write(f"Input file: {data_path}\n")
+            f.write(f"Threshold: {config.get('trial_count_threshold', 20)}\n")
+            f.write(f"Aggregation: {config.get('aggregation', False)}\n")
+            f.write("\n")
+            f.write("Validation Results:\n")
+            f.write(validation_report.to_string(index=False))
+            f.write("\n")
+            
+        logger.info(f"Validation log saved to {log_path}")
+        
+        # Also save CSV report for downstream tasks
+        csv_report_path = os.path.join(results_dir, 'trial_validation_report.csv')
+        validation_report.to_csv(csv_report_path, index=False)
+        logger.info(f"Validation report saved to {csv_report_path}")
         
     except RuntimeError as e:
         logger.error(f"Validation failed: {e}")

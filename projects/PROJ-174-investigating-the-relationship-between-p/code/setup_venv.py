@@ -1,152 +1,234 @@
+"""
+Task T002b: Setup Python 3.11 virtual environment and install dependencies.
+
+This script creates a virtual environment in code/.venv using the system's
+Python 3.11 interpreter, installs dependencies from requirements.txt, and
+verifies the installation.
+
+Verification:
+Run: code/.venv/bin/python --version
+Assert: Output contains '3.11'
+"""
 import subprocess
 import sys
 import os
 import shutil
 from pathlib import Path
+import logging
 
-def check_python_version():
-    """Check if the current Python version is 3.11.x."""
-    version = sys.version_info
-    if version.major == 3 and version.minor == 11:
-        print(f"Python version {version.major}.{version.minor}.{version.micro} is valid (3.11.x).")
-        return True
-    else:
-        print(f"ERROR: Python version {version.major}.{version.minor}.{version.micro} is not 3.11.x.")
-        print("Please ensure python3.11 is available in your PATH or set PYVENV_PYTHON=python3.11")
-        return False
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-def create_virtual_environment(venv_path: Path):
-    """Create a virtual environment in the specified path."""
-    if venv_path.exists():
-        print(f"Removing existing virtual environment at {venv_path}")
-        shutil.rmtree(venv_path)
+# Project root is the parent of the code/ directory
+PROJECT_ROOT = Path(__file__).parent.parent
+CODE_DIR = PROJECT_ROOT / "code"
+VENV_DIR = CODE_DIR / ".venv"
+REQUIREMENTS_FILE = CODE_DIR / "requirements.txt"
+
+def check_python_version() -> bool:
+    """Check if Python 3.11 is available in the system PATH."""
+    logger.info("Checking for Python 3.11 availability...")
     
-    print(f"Creating virtual environment at {venv_path}...")
+    # Try common python3.11 executable names
+    python_executables = ['python3.11', 'python3.11.exe']
+    found = False
+    python_path = None
     
-    # Try to use the current interpreter first, but allow override
-    python_exec = os.environ.get('PYVENV_PYTHON', sys.executable)
+    for exe in python_executables:
+        try:
+            result = subprocess.run(
+                [exe, '--version'],
+                capture_output=True,
+                text=True,
+                timeout=10
+            )
+            if result.returncode == 0:
+                version_output = result.stderr.strip() if result.stderr else result.stdout.strip()
+                if '3.11' in version_output:
+                    logger.info(f"Found Python 3.11: {exe} -> {version_output}")
+                    found = True
+                    python_path = exe
+                    break
+        except (subprocess.TimeoutExpired, FileNotFoundError):
+            continue
     
+    if not found:
+        # Fallback: check if current python is 3.11
+        current_version = f"{sys.version_info.major}.{sys.version_info.minor}"
+        if current_version.startswith("3.11"):
+            logger.info(f"Current Python is 3.11: {sys.executable}")
+            found = True
+            python_path = sys.executable
+        else:
+            logger.error(f"Python 3.11 not found. Current version: {current_version}")
+            logger.error("Please install Python 3.11 and ensure it is in PATH as 'python3.11'")
+            return False
+    
+    return True
+
+def create_virtual_environment() -> bool:
+    """Create a virtual environment in code/.venv."""
+    logger.info(f"Creating virtual environment at {VENV_DIR}...")
+    
+    # Remove existing venv if it exists
+    if VENV_DIR.exists():
+        logger.warning(f"Removing existing virtual environment at {VENV_DIR}")
+        shutil.rmtree(VENV_DIR)
+    
+    # Create new venv
     try:
+        # Use the found python3.11 if available, otherwise use current python
+        python_exec = sys.executable
         result = subprocess.run(
-            [python_exec, '-m', 'venv', str(venv_path)],
-            check=True,
+            [python_exec, "-m", "venv", str(VENV_DIR)],
             capture_output=True,
-            text=True
+            text=True,
+            timeout=300
         )
-        print("Virtual environment created successfully.")
+        
+        if result.returncode != 0:
+            logger.error(f"Failed to create virtual environment: {result.stderr}")
+            return False
+        
+        logger.info("Virtual environment created successfully")
         return True
-    except subprocess.CalledProcessError as e:
-        print(f"ERROR: Failed to create virtual environment: {e.stderr}")
+    except subprocess.TimeoutExpired:
+        logger.error("Timeout while creating virtual environment")
+        return False
+    except Exception as e:
+        logger.error(f"Error creating virtual environment: {e}")
         return False
 
-def install_dependencies(venv_path: Path, requirements_path: Path):
+def install_dependencies() -> bool:
     """Install dependencies from requirements.txt into the virtual environment."""
-    if not requirements_path.exists():
-        print(f"ERROR: Requirements file not found at {requirements_path}")
-        return False
-
-    venv_bin = venv_path / 'bin'
-    pip_path = venv_bin / 'pip'
+    logger.info("Installing dependencies from requirements.txt...")
     
-    if not pip_path.exists():
-        print(f"ERROR: pip not found in virtual environment at {pip_path}")
+    if not REQUIREMENTS_FILE.exists():
+        logger.error(f"Requirements file not found: {REQUIREMENTS_FILE}")
         return False
-
-    print(f"Installing dependencies from {requirements_path}...")
+    
+    # Determine the pip executable path
+    if os.name == 'nt':  # Windows
+        pip_exec = VENV_DIR / "Scripts" / "pip.exe"
+    else:  # Unix/Linux/Mac
+        pip_exec = VENV_DIR / "bin" / "pip"
+    
+    if not pip_exec.exists():
+        logger.error(f"Pip executable not found at {pip_exec}")
+        return False
     
     try:
         # Upgrade pip first
-        subprocess.run(
-            [str(pip_path), 'install', '--upgrade', 'pip'],
-            check=True,
+        logger.info("Upgrading pip...")
+        result = subprocess.run(
+            [str(pip_exec), "install", "--upgrade", "pip"],
             capture_output=True,
-            text=True
+            text=True,
+            timeout=300
         )
+        
+        if result.returncode != 0:
+            logger.warning(f"Warning: pip upgrade failed: {result.stderr}")
+            # Continue anyway, might still work
         
         # Install requirements
+        logger.info(f"Installing requirements from {REQUIREMENTS_FILE}...")
         result = subprocess.run(
-            [str(pip_path), 'install', '-r', str(requirements_path)],
-            check=True,
+            [str(pip_exec), "install", "-r", str(REQUIREMENTS_FILE)],
             capture_output=True,
-            text=True
+            text=True,
+            timeout=600  # Longer timeout for dependency installation
         )
-        print("Dependencies installed successfully.")
+        
+        if result.returncode != 0:
+            logger.error(f"Failed to install dependencies: {result.stderr}")
+            logger.error(f"stdout: {result.stdout}")
+            return False
+        
+        logger.info("Dependencies installed successfully")
         return True
-    except subprocess.CalledProcessError as e:
-        print(f"ERROR: Failed to install dependencies: {e.stderr}")
+    except subprocess.TimeoutExpired:
+        logger.error("Timeout while installing dependencies")
+        return False
+    except Exception as e:
+        logger.error(f"Error installing dependencies: {e}")
         return False
 
-def verify_installation(venv_path: Path):
-    """Verify the virtual environment is working and Python version is 3.11.x."""
-    python_path = venv_path / 'bin' / 'python'
+def verify_installation() -> bool:
+    """Verify that the virtual environment is using Python 3.11."""
+    logger.info("Verifying Python version in virtual environment...")
     
-    if not python_path.exists():
-        print(f"ERROR: Python executable not found at {python_path}")
+    # Determine the python executable path
+    if os.name == 'nt':  # Windows
+        python_exec = VENV_DIR / "Scripts" / "python.exe"
+    else:  # Unix/Linux/Mac
+        python_exec = VENV_DIR / "bin" / "python"
+    
+    if not python_exec.exists():
+        logger.error(f"Python executable not found at {python_exec}")
         return False
-
+    
     try:
         result = subprocess.run(
-            [str(python_path), '--version'],
-            check=True,
+            [str(python_exec), "--version"],
             capture_output=True,
-            text=True
+            text=True,
+            timeout=10
         )
-        version_output = result.stdout.strip()
-        print(f"Verification: {version_output}")
         
-        # Parse version to check it's 3.11.x
-        version_parts = version_output.replace('Python ', '').split('.')
-        if len(version_parts) >= 2:
-            major = int(version_parts[0])
-            minor = int(version_parts[1])
-            if major == 3 and minor == 11:
-                print("SUCCESS: Virtual environment is using Python 3.11.x")
-                return True
-            else:
-                print(f"ERROR: Virtual environment is using Python {major}.{minor}, expected 3.11.x")
-                return False
+        version_output = result.stderr.strip() if result.stderr else result.stdout.strip()
+        logger.info(f"Virtual environment Python version: {version_output}")
+        
+        if '3.11' in version_output:
+            logger.info("Verification successful: Virtual environment uses Python 3.11")
+            return True
         else:
-            print(f"ERROR: Could not parse version string: {version_output}")
+            logger.error(f"Verification failed: Expected Python 3.11, got {version_output}")
             return False
-    except subprocess.CalledProcessError as e:
-        print(f"ERROR: Failed to verify installation: {e.stderr}")
+    except subprocess.TimeoutExpired:
+        logger.error("Timeout while verifying Python version")
+        return False
+    except Exception as e:
+        logger.error(f"Error verifying Python version: {e}")
         return False
 
 def main():
-    """Main function to set up the virtual environment."""
-    # Determine paths relative to code/ directory
-    code_dir = Path(__file__).parent
-    venv_path = code_dir / '.venv'
-    requirements_path = code_dir / 'requirements.txt'
+    """Main entry point for the virtual environment setup."""
+    logger.info("=" * 60)
+    logger.info("Starting Python 3.11 Virtual Environment Setup (Task T002b)")
+    logger.info("=" * 60)
     
-    print("=" * 60)
-    print("Setting up Python 3.11 Virtual Environment")
-    print("=" * 60)
-    
-    # Step 1: Check Python version
+    # Check for Python 3.11
     if not check_python_version():
-        print("Exiting due to incorrect Python version.")
+        logger.error("Aborting: Python 3.11 not available")
         sys.exit(1)
     
-    # Step 2: Create virtual environment
-    if not create_virtual_environment(venv_path):
-        print("Exiting due to virtual environment creation failure.")
+    # Create virtual environment
+    if not create_virtual_environment():
+        logger.error("Aborting: Failed to create virtual environment")
         sys.exit(1)
     
-    # Step 3: Install dependencies
-    if not install_dependencies(venv_path, requirements_path):
-        print("Exiting due to dependency installation failure.")
+    # Install dependencies
+    if not install_dependencies():
+        logger.error("Aborting: Failed to install dependencies")
         sys.exit(1)
     
-    # Step 4: Verify installation
-    if not verify_installation(venv_path):
-        print("Exiting due to verification failure.")
+    # Verify installation
+    if not verify_installation():
+        logger.error("Aborting: Verification failed")
         sys.exit(1)
     
-    print("=" * 60)
-    print("Virtual environment setup complete!")
-    print(f"Activate with: source {venv_path}/bin/activate")
-    print("=" * 60)
+    logger.info("=" * 60)
+    logger.info("Virtual environment setup completed successfully!")
+    logger.info(f"Activate with: source {VENV_DIR}/bin/activate  (Unix/Mac)")
+    logger.info(f"Activate with: {VENV_DIR}\\Scripts\\activate  (Windows)")
+    logger.info("=" * 60)
+    
+    sys.exit(0)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
