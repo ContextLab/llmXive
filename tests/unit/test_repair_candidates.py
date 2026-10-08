@@ -10,6 +10,52 @@ from llmxive.repair.publish import apply
 from llmxive.repair.runner import safe_path, validate_proposal
 
 
+def test_issue_selection_includes_recurring_reviewer_umbrella(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+
+    from llmxive.repair import runner
+
+    issues = [
+        {"number": 1474, "title": "Recurring: malformed reviewer responses block convergence",
+         "body": "Observed failure", "url": "https://example.test/1474"},
+        {"number": 2, "title": "New research idea", "body": "Unrelated"},
+    ]
+    monkeypatch.setattr(runner.subprocess, "run",
+                        lambda *a, **k: SimpleNamespace(stdout=json.dumps(issues)))
+    result = runner.select_evidence(tmp_path, "issues")
+    assert [i["number"] for i in result["issues"]] == [1474]
+
+
+def test_repair_prompt_keeps_later_issues_and_retry_feedback(tmp_path, monkeypatch):
+    from llmxive.repair import runner
+
+    evidence = {
+        "source": "issues",
+        "issues": [{"body": "Current problem\n" + "Historical incident\n" * 2000 +
+                    "\nLatest concrete finding", "number": i, "title": f"Pipeline defect {i}"}
+                   for i in range(5)],
+        "previous_attempt_failure": "Regression did not reproduce the bug",
+        "test_diagnostics": "setup\n" * 10000 + "AssertionError: expected a retained diagnosis",
+    }
+    captured = []
+
+    def ask(prompt):
+        captured.append(prompt)
+        return {"skip": "diagnostic probe"}
+
+    monkeypatch.setattr(runner, "_ask", ask)
+    runner.run(tmp_path, evidence, tmp_path / "output")
+    payload = captured[0].split("\nEVIDENCE:\n", 1)[1].split("\nFILES:\n", 1)[0]
+    parsed = json.loads(payload)
+    assert len(payload) <= 12000
+    assert [i["number"] for i in parsed["issues"]] == list(range(5))
+    assert all("Current problem" in i["body"] and "Latest concrete finding" in i["body"]
+               for i in parsed["issues"])
+    assert parsed["previous_attempt_failure"] == evidence["previous_attempt_failure"]
+    assert parsed["test_diagnostics"].endswith("AssertionError: expected a retained diagnosis")
+    assert json.loads((tmp_path / "output/evidence.json").read_text()) == evidence
+
+
 @pytest.mark.parametrize(
     "path",
     [

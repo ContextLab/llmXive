@@ -128,10 +128,36 @@ def select_evidence(repo: Path, source: str) -> dict | None:
         for i in issues
         if any(
             w in i["title"].lower()
-            for w in ("engine", "pipeline", "bug", "failure", "self-improvement")
+            for w in ("engine", "pipeline", "bug", "failure", "self-improvement", "recurring")
         )
     ]
     return {"source": source, "issues": candidates[:5]} if candidates else None
+
+
+def render_evidence(evidence: dict, *, budget: int = 12000) -> str:
+    """Keep every selected record and its identity in valid, bounded JSON.
+
+    Raw evidence remains in evidence.json. A global string slice could cut off
+    later issues AND retry diagnostics. Summarize long fields instead, keeping
+    their beginning and end (recent findings often follow historical evidence).
+    """
+    def compact(value, limit):
+        if isinstance(value, str) and len(value) > limit:
+            head = limit * 2 // 3
+            return value[:head] + "\n[... field truncated ...]\n" + value[-(limit - head):]
+        if isinstance(value, dict):
+            return {k: compact(v, limit) for k, v in value.items()}
+        if isinstance(value, list):
+            return [compact(v, limit) for v in value]
+        return value
+
+    limit = 2400
+    while limit >= 75:
+        rendered = json.dumps(compact(evidence, limit), ensure_ascii=False)
+        if len(rendered) <= budget:
+            return rendered
+        limit //= 2
+    raise ValueError("evidence metadata exceeds prompt budget; narrow the selected records")
 
 
 def copy_platform(repo: Path, target: Path) -> None:
@@ -220,7 +246,7 @@ def run(repo: Path, evidence: dict, output: Path, *, image: str = IMAGE) -> dict
         "Choose up to 6 source/test files needed to fix ONE concrete defect from this evidence. "
         'If the evidence is insufficient or already fixed, return {"skip":"reason"}. '
         'Otherwise return {"paths":[...],"problem":"..."}.\nEVIDENCE:\n'
-        + json.dumps(evidence)[:16000]
+        + render_evidence(evidence)
         + "\nFILES:\n"
         + "\n".join(tree)
     )
@@ -248,7 +274,7 @@ def run(repo: Path, evidence: dict, output: Path, *, image: str = IMAGE) -> dict
         "Tests run OFFLINE with pytest already installed. Do not download/install packages. "
         "For a real venv, use --system-site-packages to reuse installed dependencies. "
         "No test may inspect source strings as a substitute for behavior.\nEVIDENCE:\n"
-        + json.dumps(evidence)[:16000]
+        + render_evidence(evidence)
         + "\nSELECTED PROBLEM:\n"
         + str(selection.get("problem"))
         + "\nSOURCE:\n"
@@ -332,7 +358,7 @@ def run(repo: Path, evidence: dict, output: Path, *, image: str = IMAGE) -> dict
             ),
             ChatMessage(
                 role="user",
-                content=json.dumps(evidence)[:12000]
+                content=render_evidence(evidence)
                 + "\nPATCH:\n"
                 + patch.decode()
                 + "\nBEFORE:\n"

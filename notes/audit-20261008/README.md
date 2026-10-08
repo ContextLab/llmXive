@@ -215,6 +215,17 @@ project completion or proof that GLM alone solves the pipeline.
 
 ## Self-improvement: a concrete product
 
+The consolidated backlog exposed another repair-input defect: title filtering
+omitted the new reviewer umbrella, and slicing the combined evidence JSON
+hid later issue identities and retry diagnostics. Recurring issues are now
+eligible. Long string fields are bounded individually while retaining their
+beginning/end; all selected records remain in valid JSON and the complete raw
+evidence stays on disk. A probe using the actual consolidated inventory
+reproduced invalid JSON against the prior runner and retained all five issue
+identities afterward (45,811 raw characters → 7,229 prompt characters).
+Twelve focused checks and lint passed. This is a verified input correction,
+not another claim of a model-generated repair; see `repair-evidence-bounds.json`.
+
 The elaborate prototype on branch 025 was not present in production. The new
 production repair runner takes either repeated structured failures or open
 platform issues, selects one bounded defect, and proposes at most five files.
