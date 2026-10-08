@@ -2133,3 +2133,340 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-04T19:17:02Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: 'Project initialized with Python 3.11 and specific library versions:
+    torch 2.1.0, transformers 4.36.0, datasets 2.14.0, scikit-learn 1.3.0, opencv-python-headless
+    4.8.0, numpy 1.24.0, pandas 2.0.0, matplotlib 3.7.0, scipy 1.10.0, psutil 2.3.0'
+  claim_id: c_924f83fd
+  context: 'T002 Initialize Python 3.11 project with projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/requirements.txt
+    pinning exact versions: torch==2.1.0+cpu , transformers==4.36.0 , datasets==2.14.0
+    , scikit-learn==1.3.0 , opencv-python-headless==4.8.0 , numpy==1.24.0 , pandas==2.0.0
+    , matplotlib==3.7.0 , scipy==1.10.0 , psutil==2.3.0 .'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project with torch==2.1.0+cpu, transformers==4.36.0,
+    datasets==2.14.0, scikit-learn==1.3.0, opencv-python-headless==4.8.0, numpy==1.24.0,
+    pandas==2.0.0, matplotlib==3.7.0, scipy==1.10.0, psutil==2.3.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T10:43:06Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: ChestX-ray14 dataset excluded from data loading and analysis
+  claim_id: c_cbd0a959
+  context: 'T036 Verify that spec.md contains the required amendments: exclusion of
+    ChestX-ray14 (FR-003/US-2)... T036c-1 Edit spec.md to formally document the exclusion
+    of ChestX-ray14... stating: ChestX-ray dataset is excluded from all data loading
+    and analysis steps per Decision Record 001.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ChestX-ray14_dataset_excluded_from_data_loading_and_analysis
+  kind: entity_fact
+  raw_text: ChestX-ray14 is excluded from all data loading and analysis steps.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T10:43:36Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Paired t-test or Wilcoxon signed-rank test used to compare error distributions
+  claim_id: c_c1a44f01
+  context: 'T036 Verify that spec.md contains the required amendments: ... and paired
+    t-test/Wilcoxon (SC-004)... T036c-3 Edit spec.md to formally document the statistical
+    test change... stating: Paired t-test or Wilcoxon signed-rank test is used to
+    compare error distributions per the established decision protocol (DR-002).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Paired_t-test_or_Wilcoxon_signed-rank_test_used_to_compare_e
+  kind: entity_fact
+  raw_text: Paired t-test or Wilcoxon signed-rank test is used to compare error distributions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T10:44:14Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: ViQ encoder weights loaded using placeholder ID viq-base-v
+  claim_id: c_86140e50
+  context: T006 Implement code/model.py defining VQ-VAE Codebook, Projection Head,
+    and Frozen ViQ/CLIP wrappers. Use ViQ-Base placeholder ID viq-base-v.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ViQ_encoder_weights_loaded_using_placeholder_ID_viq-base-v
+  kind: entity_fact
+  raw_text: ViQ encoder weights are loaded using placeholder ID viq-base-v.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T10:44:57Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Training time limit is 6 hours on CPU
+  claim_id: c_9e95579f
+  context: 'Compute Constraint: Training MUST complete within 6 hours on CPU; if not,
+    reduce sample size in code/config.py and log the reduction.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Training MUST complete within 6 hours on CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T10:45:22Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: COCO dataset loaded with streaming=True
+  claim_id: c_3b122682
+  context: T005 Implement code/data_loader.py to load COCO (datasets.load_dataset(coco,
+    split=train, streaming=True))...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/COCO_dataset_loaded_with_streaming=True
+  kind: entity_fact
+  raw_text: COCO dataset is loaded with streaming=True.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T10:45:52Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: ImageNet-1K dataset loaded with streaming=False
+  claim_id: c_9c3df47b
+  context: T005 Implement code/data_loader.py to load ... ImageNet-1K (datasets.load_dataset(imagenet,
+    split=validation, streaming=False))...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ImageNet-1K_dataset_loaded_with_streaming=False
+  kind: entity_fact
+  raw_text: ImageNet-1K dataset is loaded with streaming=False.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T10:46:24Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Contrastive loss temperature set to 0.07
+  claim_id: c_f70a38e9
+  context: T012 Implement code/train.py ... Contrastive (InfoNCE, temp=0.07, negative
+    sampling via in-batch negatives) loss.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "S and QQP, standard L2 normalization with \u03C4 \u201C 0.055 for CQA-A,\
+        \ \u03C4 \u201C 0.07 for CQA-B, and"
+      source_id: '2110.15725'
+      url: https://arxiv.org/abs/2110.15725
+      value: '0.07'
+    filled: true
+  kind: numeric
+  raw_text: Contrastive loss uses temperature 0.07.
+  resolved_value: '0.07'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T10:46:56Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: SSIM calculation uses window_size=11
+  claim_id: c_3cbc751c
+  context: T021 ... Calculate PSNR using skimage.metrics.peak_signal_noise_ratio and
+    SSIM using skimage.metrics.structural_similarity with window_size=11 on native
+    1024x1024 images.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "In order to evaluate the image quality, this formula is usually applied\
+        \ only on luma, although it may also be applied on color (e.g., RGB) values\
+        \ or chromatic (e.g. YCbCr) values. The resultant SSIM index is a decimal\
+        \ value between -1 and 1, where 1 indicates perfect similarity, 0 indicates\
+        \ no similarity, and -1 indicates perfect anti-correlation. For an image,\
+        \ it is typically calculated using a sliding Gaussian window of size 11\xD7\
+        11 or a block window of size 8\xD78. The window can be displaced pixel-by-pixel\
+        \ on the image to create an SSIM quality map of the image. In the case of\
+        \ video quality assessment, the authors propose to use only a subgroup of\
+        \ the possible windows to reduce the complexity of the calculation."
+      source_id: Structural similarity index measure
+      url: https://en.wikipedia.org/wiki/Structural_similarity_index_measure
+      value: '11'
+    filled: true
+  kind: numeric
+  raw_text: SSIM calculation uses window_size=11.
+  resolved_value: '11'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T10:47:05Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: 'Project dependencies: torch 2.1.0+cpu, transformers 4.36.0, datasets
+    2.14.0, scikit-learn 1.3.0, opencv-python-headless 4.8.0, numpy 1.24.0, pandas
+    2.0.0, matplotlib 3.7.0, scipy 1.10.0, psutil 2.3.0'
+  claim_id: c_76582e15
+  context: Initialize Python 3.11 project with requirements.txt pinning exact versions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses PyTorch version 2.1.0+cpu, transformers version 4.36.0,
+    datasets version 2.14.0, scikit-learn version 1.3.0, opencv-python-headless version
+    4.8.0, numpy version 1.24.0, pandas version 2.0.0, matplotlib version 3.7.0, scipy
+    version 1.10.0, and psutil version 2.3.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T10:49:37Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: ChestX-ray14 dataset excluded from analysis per Decision Record 001
+  claim_id: c_4a7f132e
+  context: Edit spec.md to formally document the exclusion of ChestX-ray14.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ChestX-ray14 dataset is excluded from all data loading and analysis
+    steps per Decision Record 001.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T10:49:55Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Paired t-test or Wilcoxon signed-rank test used to compare error distributions
+  claim_id: c_b58ba9cd
+  context: Edit spec.md to formally document the statistical test change.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A paired t-test or Wilcoxon signed-rank test is used to compare error
+    distributions per the established decision protocol (DR-002).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T10:50:17Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: VQ-VAE contrastive loss temperature 0.07 with in-batch negative sampling
+  claim_id: c_751de6ca
+  context: Implement code/train.py with CPU-only training loop.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The VQ-VAE contrastive loss uses a temperature of 0.07 with negative sampling
+    via in-batch negatives.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T10:50:33Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Dynamic batch size adjustment triggered when RAM exceeds 6.5GB
+  claim_id: c_c3f375f6
+  context: Script must dynamically adjust batch size if RAM > 6.5GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must dynamically adjust batch size if RAM exceeds 6.5GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T10:51:06Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Final total loss must be less than 50% of initial total loss
+  claim_id: c_1a13c899
+  context: Verify loss decreases in train_log.json.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Final_total_loss_must_be_less_than_50%25_of_initial_total_loss
+  kind: magnitude
+  raw_text: The final total loss must be less than 50% of the initial total loss,
+    or a CRITICAL warning is issued if the time limit is exceeded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T10:52:23Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: SSIM calculation uses window size 11
+  claim_id: c_ad862b8f
+  context: Calculate PSNR and SSIM with window_size=11.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "In order to evaluate the image quality, this formula is usually applied\
+        \ only on luma, although it may also be applied on color (e.g., RGB) values\
+        \ or chromatic (e.g. YCbCr) values. The resultant SSIM index is a decimal\
+        \ value between -1 and 1, where 1 indicates perfect similarity, 0 indicates\
+        \ no similarity, and -1 indicates perfect anti-correlation. For an image,\
+        \ it is typically calculated using a sliding Gaussian window of size 11\xD7\
+        11 or a block window of size 8\xD78. The window can be displaced pixel-by-pixel\
+        \ on the image to create an SSIM quality map of the image. In the case of\
+        \ video quality assessment, the authors propose to use only a subgroup of\
+        \ the possible windows to reduce the complexity of the calculation."
+      source_id: Structural similarity index measure
+      url: https://en.wikipedia.org/wiki/Structural_similarity_index_measure
+      value: "11\xD711"
+    filled: true
+  kind: numeric
+  raw_text: The Structural Similarity Index Measure (SSIM) calculation uses a window
+    size of 11.
+  resolved_value: "11\xD711"
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T10:52:32Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Training time limit of 6 hours on CPU
+  claim_id: c_ac5adefd
+  context: 'Compute Constraint: Training MUST complete within 6 hours on CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Training must complete within 6 hours on CPU hardware.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T10:53:04Z'

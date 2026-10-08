@@ -1,15 +1,7 @@
 """
-T036: SPEC VERIFICATION SCRIPT
-
-Verifies that spec.md contains the required amendments:
-1. Exclusion of ChestX-ray14 (FR-003/US-2)
-2. Native 1024x1024 ground truth (FR-004)
-3. Paired t-test/Wilcoxon (SC-004)
-
-Raises RuntimeError if any required text block is missing.
-Writes a verification log to data/results/spec_verification_log.txt on success.
+Task T036: SPEC VERIFICATION
+Verifies that spec.md contains the required amendments per the project plan.
 """
-
 import os
 import sys
 import logging
@@ -23,163 +15,120 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Define required text blocks (keywords/phrases to search for)
-REQUIRED_AMENDMENTS = [
-    {
-        "id": "FR-003/US-2",
-        "description": "Exclusion of ChestX-ray14",
-        "keywords": [
-            "ChestX-ray14",
-            "exclusion",
-            "Decision Record 001"
-        ]
-    },
-    {
-        "id": "FR-004",
-        "description": "Native 1024x1024 ground truth",
-        "keywords": [
-            "1024x1024",
-            "native",
-            "ground truth",
-            "Decision Record 002"
-        ]
-    },
-    {
-        "id": "SC-004",
-        "description": "Paired t-test/Wilcoxon",
-        "keywords": [
-            "paired t-test",
-            "Wilcoxon",
-            "signed-rank",
-            "SC-004"
-        ]
-    }
-]
-
 def find_spec_file() -> Path:
-    """Locate spec.md in the project root or specs directory."""
+    """Locate the spec.md file in the project root or specs directory."""
     possible_paths = [
-        Path("specs/spec.md"),
         Path("spec.md"),
-        Path("docs/spec.md"),
-        Path("project/spec.md")
+        Path("specs/spec.md"),
+        Path("specs/001-viq-resolution-invariance/spec.md"),
+        Path("../spec.md"),
+        Path("../../spec.md")
     ]
-    
+
     for path in possible_paths:
         if path.exists():
-            logger.info(f"Found spec.md at: {path}")
-            return path
-    
+            logger.info(f"Found spec.md at: {path.resolve()}")
+            return path.resolve()
+
     raise FileNotFoundError(
-        "Could not locate spec.md. Please ensure it exists in the project root "
-        "or specs/ directory."
+        "Could not find spec.md in standard locations. "
+        "Please ensure the file exists in the project root or specs directory."
     )
 
-def verify_amendments(spec_path: Path) -> Tuple[bool, List[str]]:
+def verify_amendments(spec_path: Path) -> List[Tuple[str, bool]]:
     """
-    Verify that spec.md contains all required amendments.
-    
-    Returns:
-        Tuple of (all_present, list_of_missing_amendments)
-    """
-    missing = []
-    
-    try:
-        with open(spec_path, 'r', encoding='utf-8') as f:
-            content = f.read().lower()
-    except Exception as e:
-        raise RuntimeError(f"Failed to read spec.md: {e}")
-    
-    for amendment in REQUIRED_AMENDMENTS:
-        found = False
-        # Check if at least one keyword from the set is present
-        for keyword in amendment["keywords"]:
-            if keyword.lower() in content:
-                found = True
-                break
-        
-        if not found:
-            missing.append(
-                f"{amendment['id']} ({amendment['description']}): "
-                f"Missing keywords {amendment['keywords']}"
-            )
-    
-    return len(missing) == 0, missing
+    Verify that the spec.md file contains the required amendment text blocks.
 
-def write_verification_log(spec_path: Path, success: bool, missing: List[str]):
-    """Write verification results to data/results/spec_verification_log.txt."""
-    log_dir = Path("data/results")
-    log_dir.mkdir(parents=True, exist_ok=True)
-    
-    log_path = log_dir / "spec_verification_log.txt"
-    
-    with open(log_path, 'w', encoding='utf-8') as f:
-        f.write("SPEC VERIFICATION LOG\n")
-        f.write("=" * 50 + "\n\n")
-        f.write(f"Spec file: {spec_path}\n")
-        f.write(f"Verification status: {'PASSED' if success else 'FAILED'}\n\n")
-        
-        if success:
-            f.write("All required amendments found:\n")
-            for amendment in REQUIRED_AMENDMENTS:
-                f.write(f"  ✓ {amendment['id']}: {amendment['description']}\n")
+    Required strings (per task description):
+    1. "ChestX-ray14 is excluded"
+    2. "native 1024x1024 ground truth"
+    3. "Paired t-test or Wilcoxon signed-rank test"
+
+    Returns:
+        List of tuples (description, passed)
+    """
+    required_strings = [
+        ("ChestX-ray14 exclusion (FR-003)", "ChestX-ray14 is excluded"),
+        ("Native 1024x1024 ground truth (FR-004)", "native 1024x1024 ground truth"),
+        ("Paired test methodology (SC-004)", "Paired t-test or Wilcoxon signed-rank test")
+    ]
+
+    results = []
+    try:
+        content = spec_path.read_text(encoding='utf-8')
+    except Exception as e:
+        logger.error(f"Failed to read spec.md: {e}")
+        raise
+
+    for description, target_string in required_strings:
+        found = target_string.lower() in content.lower()
+        results.append((description, found))
+        if found:
+            logger.info(f"✓ Found: {description}")
         else:
-            f.write("Missing amendments:\n")
-            for item in missing:
-                f.write(f"  ✗ {item}\n")
-        
-        f.write("\nVerification completed at: ")
-        from datetime import datetime
-        f.write(datetime.now().isoformat())
-    
+            logger.error(f"✗ Missing: {description} (searched for: '{target_string}')")
+
+    return results
+
+def write_verification_log(
+    spec_path: Path,
+    results: List[Tuple[str, bool]],
+    log_path: Path
+) -> None:
+    """Write a verification log to disk."""
+    all_passed = all(passed for _, passed in results)
+    status = "PASSED" if all_passed else "FAILED"
+
+    with open(log_path, 'w', encoding='utf-8') as f:
+        f.write(f"# Spec Verification Log\n")
+        f.write(f"**Spec File**: {spec_path}\n")
+        f.write(f"**Status**: {status}\n")
+        f.write(f"**Timestamp**: {Path(__file__).parent.name}\n\n")
+        f.write("## Verification Results\n\n")
+
+        for desc, passed in results:
+            status_icon = "✅" if passed else "❌"
+            f.write(f"- {status_icon} {desc}\n")
+
+        f.write("\n## Summary\n")
+        if all_passed:
+            f.write("All required amendments are present in spec.md.\n")
+        else:
+            f.write("CRITICAL: One or more required amendments are missing.\n")
+            f.write("The project cannot proceed until spec.md is updated.\n")
+
     logger.info(f"Verification log written to: {log_path}")
 
 def verify_spec_amendments() -> bool:
     """
-    Main verification function.
-    
+    Main entry point for spec verification.
+
     Returns:
         True if all amendments are present, False otherwise.
-        
-    Raises:
-        RuntimeError: If any required amendment is missing.
     """
-    logger.info("Starting spec.md verification for T036...")
-    
-    # Locate spec.md
-    spec_path = find_spec_file()
-    
-    # Verify amendments
-    success, missing = verify_amendments(spec_path)
-    
-    # Write log
-    write_verification_log(spec_path, success, missing)
-    
-    if not success:
-        error_msg = (
-            "SPEC VERIFICATION FAILED: The following required amendments are missing "
-            "from spec.md:\n" + "\n".join(f"  - {m}" for m in missing) + "\n\n"
-            "Please update spec.md to include these amendments before proceeding."
-        )
-        logger.error(error_msg)
-        raise RuntimeError(error_msg)
-    
-    logger.info("SPEC VERIFICATION PASSED: All required amendments are present.")
-    return True
+    try:
+        spec_path = find_spec_file()
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        return False
+
+    results = verify_amendments(spec_path)
+    write_verification_log(spec_path, results, Path("data/results/spec_verification.log"))
+
+    all_passed = all(passed for _, passed in results)
+    return all_passed
 
 def main():
-    """Entry point for the script."""
-    try:
-        verify_spec_amendments()
-        print("✓ T036 Spec Verification: PASSED")
+    """CLI entry point."""
+    logger.info("Starting Spec Verification (Task T036)...")
+    success = verify_spec_amendments()
+
+    if success:
+        logger.info("SUCCESS: All spec amendments verified.")
         sys.exit(0)
-    except RuntimeError as e:
-        print(f"✗ T036 Spec Verification: FAILED")
-        print(f"  Reason: {e}")
-        sys.exit(1)
-    except Exception as e:
-        print(f"✗ T036 Spec Verification: ERROR")
-        print(f"  Unexpected error: {e}")
+    else:
+        logger.error("FAILURE: Spec verification failed. Required amendments missing.")
+        logger.error("Please update spec.md with the required text blocks.")
         sys.exit(1)
 
 if __name__ == "__main__":

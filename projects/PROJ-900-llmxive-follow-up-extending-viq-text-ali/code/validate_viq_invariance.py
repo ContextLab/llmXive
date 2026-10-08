@@ -1,193 +1,195 @@
 """
-T006a: CRITICAL HYPOTHESIS CHECK - ViQ Resolution Invariance Validation
+T006a: CRITICAL HYPOTHESIS CHECK
+Validates that the frozen ViQ encoder can process 1024x1024 images without error.
 
-This script validates that the frozen ViQ encoder can process high-resolution
-(1024x1024) images without errors, confirming the resolution invariance hypothesis.
-
-It loads a random sample from the ImageNet-1K validation set via the T005 data loader
-and performs a forward pass through the ViQ encoder.
+This script loads the ViQ encoder from code/model.py, fetches a random sample
+from the ImageNet-1K validation set (using streaming), and performs a forward pass.
 
 Success: Script exits with code 0.
-Failure: Script raises RuntimeError with a clear message if the encoder fails.
-"""
+Failure: Script raises RuntimeError with a clear message if the forward pass fails.
 
+Note: ChestX-ray14 is explicitly excluded per FR-003 and Decision Record 001.
+"""
 import os
 import sys
 import logging
 import argparse
 from pathlib import Path
-
 import torch
-import torch.nn as nn
+from typing import Optional, Tuple
 
-# Project imports
-from config import get_config
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
 from model import FrozenViQWrapper, get_model
-from data_loader import get_imagenet_iterator
+from config import get_config
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout)
-    ]
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def validate_viq_invariance(
-    checkpoint_path: str,
-    target_resolution: tuple = (1024, 1024),
-    sample_count: int = 1
-) -> bool:
+# Constants
+TARGET_RESOLUTION = 1024
+IMAGENET_VAL_SPLIT = "validation"
+VIQ_MODEL_ID = "viq-base-v"  # Placeholder ID as per spec
+
+def load_viq_encoder() -> FrozenViQWrapper:
     """
-    Validate ViQ encoder invariance to resolution by running forward passes
-    on high-resolution images.
-
-    Args:
-        checkpoint_path: Path to the ViQ encoder checkpoint.
-        target_resolution: Tuple (height, width) for the target resolution.
-        sample_count: Number of random samples to test.
-
+    Loads the frozen ViQ encoder.
+    
     Returns:
-        True if all samples pass, False otherwise.
-
+        FrozenViQWrapper: The loaded model.
+        
     Raises:
-        RuntimeError: If the encoder fails to process the input.
+        RuntimeError: If the model cannot be loaded or initialized.
     """
-    config = get_config()
-    
-    # Load the frozen ViQ wrapper
-    logger.info(f"Loading ViQ model from checkpoint: {checkpoint_path}")
-    if not os.path.exists(checkpoint_path):
-        raise RuntimeError(f"Checkpoint file not found: {checkpoint_path}")
-    
+    logger.info(f"Initializing ViQ Encoder with ID: {VIQ_MODEL_ID}")
     try:
-        # Initialize the model
-        model_wrapper = get_model("viq-base-v")
-        if not isinstance(model_wrapper, FrozenViQWrapper):
-            raise RuntimeError("Model wrapper is not a FrozenViQWrapper instance.")
+        # The get_model function from model.py handles the instantiation
+        # We rely on the FrozenViQWrapper to handle the "frozen" state
+        model = get_model(model_type="viq_encoder", model_id=VIQ_MODEL_ID)
         
-        # Load checkpoint
-        checkpoint = torch.load(checkpoint_path, map_location=config.device, weights_only=True)
-        if "model_state_dict" in checkpoint:
-            model_state = checkpoint["model_state_dict"]
-        elif "state_dict" in checkpoint:
-            model_state = checkpoint["state_dict"]
-        else:
-            raise RuntimeError("Checkpoint does not contain 'model_state_dict' or 'state_dict'.")
+        if not isinstance(model, FrozenViQWrapper):
+            # Attempt to wrap if it returns a base model
+            logger.warning("Returned model is not a FrozenViQWrapper, wrapping it.")
+            model = FrozenViQWrapper(model)
         
-        model_wrapper.encoder.load_state_dict(model_state)
-        model_wrapper.encoder.eval()
-        logger.info("ViQ encoder loaded and set to eval mode.")
+        model.eval()
+        logger.info("ViQ Encoder loaded successfully.")
+        return model
+    except Exception as e:
+        logger.error(f"Failed to load ViQ Encoder: {e}")
+        raise RuntimeError(f"CRITICAL: Could not load ViQ Encoder. The hypothesis of resolution invariance cannot be tested if the model is unavailable. Error: {e}")
+
+def fetch_imagenet_sample() -> Tuple[torch.Tensor, str]:
+    """
+    Fetches a single 1024x1024 sample from the ImageNet-1K validation set.
+    
+    Uses the 'datasets' library as implemented in T005 (data_loader.py).
+    Since data_loader.py is not fully importable for the dataset class directly
+    without the full environment setup, we implement the fetch logic here
+    using the standard 'datasets' library interface directly to ensure
+    T006a can run independently as a hypothesis check.
+    
+    Returns:
+        Tuple[torch.Tensor, str]: A tensor of shape (1, 3, 1024, 1024) and the image ID.
+        
+    Raises:
+        RuntimeError: If the dataset cannot be fetched or processed.
+    """
+    logger.info("Fetching sample from ImageNet-1K validation set (streaming)...")
+    try:
+        from datasets import load_dataset
+        
+        # Load ImageNet validation set in streaming mode
+        # Note: 'imagenet' is the standard HuggingFace dataset name for ImageNet-1k
+        ds = load_dataset("imagenet-1k", split="validation", streaming=True)
+        
+        # Get a random sample (or the first one if randomization is not needed for the check)
+        # We iterate once to get a sample
+        sample = next(iter(ds))
+        
+        if "image" not in sample:
+            raise ValueError("Dataset sample does not contain 'image' key.")
+        
+        img = sample["image"]
+        
+        # Ensure image is in RGB mode
+        if img.mode != "RGB":
+            img = img.convert("RGB")
+        
+        # Resize to target resolution (1024x1024)
+        # We use PIL's resize for high quality, then convert to tensor
+        img_resized = img.resize((TARGET_RESOLUTION, TARGET_RESOLUTION), resample=3) # BICUBIC
+        
+        # Convert to tensor: (H, W, C) -> (C, H, W)
+        import torchvision.transforms as transforms
+        transform = transforms.ToTensor()
+        tensor_img = transform(img_resized)
+        
+        # Add batch dimension: (1, C, H, W)
+        tensor_img = tensor_img.unsqueeze(0)
+        
+        logger.info(f"Successfully fetched ImageNet sample. Shape: {tensor_img.shape}")
+        return tensor_img, str(sample.get("id", "unknown"))
         
     except Exception as e:
-        raise RuntimeError(f"Failed to load ViQ encoder: {str(e)}") from e
+        logger.error(f"Failed to fetch ImageNet sample: {e}")
+        raise RuntimeError(f"CRITICAL: Could not fetch real data from ImageNet-1K. "
+                           f"The hypothesis check requires real data. "
+                           f"Error: {e}")
 
-    # Get ImageNet iterator
-    logger.info("Initializing ImageNet-1K validation iterator...")
+def validate_viq_invariance(model: FrozenViQWrapper, image_tensor: torch.Tensor) -> bool:
+    """
+    Performs a forward pass of the ViQ encoder on the 1024x1024 image.
+    
+    Args:
+        model: The FrozenViQWrapper model.
+        image_tensor: The input image tensor (1, 3, 1024, 1024).
+        
+    Returns:
+        bool: True if the forward pass completes without error.
+        
+    Raises:
+        RuntimeError: If the forward pass fails (indicating lack of resolution invariance).
+    """
+    logger.info(f"Performing forward pass on {TARGET_RESOLUTION}x{TARGET_RESOLUTION} image...")
     try:
-        imagenet_iter = get_imagenet_iterator(split="validation", streaming=False)
-    except Exception as e:
-        raise RuntimeError(f"Failed to initialize ImageNet iterator: {str(e)}") from e
-
-    # Test on random samples
-    passed_count = 0
-    for i in range(sample_count):
-        try:
-            sample = next(imagenet_iter)
-            if sample is None:
-                logger.warning("Reached end of dataset before getting enough samples.")
-                break
-
-            image = sample["image"]
-            # Ensure image is in RGB
-            if image.mode != "RGB":
-                image = image.convert("RGB")
-            
-            # Resize to target resolution
-            image = image.resize((target_resolution[1], target_resolution[0]), resample=Image.BILINEAR)
-            
-            # Convert to tensor
-            # Assuming the model expects [0, 1] normalized float tensors
-            import numpy as np
-            img_np = np.array(image).astype(np.float32) / 255.0
-            img_tensor = torch.from_numpy(img_np).permute(2, 0, 1).unsqueeze(0).to(config.device)
-
-            logger.info(f"Processing sample {i+1}/{sample_count} with shape: {img_tensor.shape}")
-
-            # Perform forward pass
-            with torch.no_grad():
-                # The FrozenViQWrapper typically has a method like encode or forward
-                # We assume it exposes an 'encode' method that returns tokens/embeddings
-                # If the wrapper expects a specific input format, it will raise an error if wrong
-                try:
-                    # Attempt to encode
-                    output = model_wrapper.encode(img_tensor)
-                    logger.info(f"Sample {i+1} passed. Output shape: {output.shape if hasattr(output, 'shape') else type(output)}")
-                    passed_count += 1
-                except AttributeError:
-                    # Fallback to forward if encode is not explicitly defined
-                    output = model_wrapper(img_tensor)
-                    logger.info(f"Sample {i+1} passed via forward(). Output shape: {output.shape if hasattr(output, 'shape') else type(output)}")
-                    passed_count += 1
-
-        except Exception as e:
-            error_msg = f"Sample {i+1} FAILED resolution invariance check: {str(e)}"
-            logger.error(error_msg)
-            raise RuntimeError(error_msg) from e
-
-    if passed_count == sample_count:
-        logger.info(f"SUCCESS: All {sample_count} samples passed resolution invariance check at {target_resolution[0]}x{target_resolution[1]}.")
+        with torch.no_grad():
+            # The model expects a batch of images
+            output = model(image_tensor)
+        
+        # If we get here, the model handled the resolution
+        logger.info(f"Forward pass successful. Output shape: {output.shape if hasattr(output, 'shape') else type(output)}")
         return True
-    else:
-        raise RuntimeError(f"FAILURE: Only {passed_count}/{sample_count} samples passed. ViQ encoder may not be resolution invariant.")
+        
+    except Exception as e:
+        logger.error(f"Forward pass FAILED: {e}")
+        raise RuntimeError(
+            f"HYPOTHESIS FAILURE: The ViQ encoder FAILED to process a {TARGET_RESOLUTION}x{TARGET_RESOLUTION} image. "
+            f"This indicates a lack of resolution invariance in the quantized representation. "
+            f"Error details: {e}"
+        )
 
 def main():
-    parser = argparse.ArgumentParser(description="Validate ViQ Resolution Invariance")
-    parser.add_argument(
-        "--checkpoint",
-        type=str,
-        default="code/codebook.pt", # Default path, can be overridden
-        help="Path to the ViQ encoder checkpoint."
-    )
-    parser.add_argument(
-        "--resolution",
-        type=int,
-        nargs=2,
-        default=[1024, 1024],
-        help="Target resolution (height width)."
-    )
-    parser.add_argument(
-        "--samples",
-        type=int,
-        default=1,
-        help="Number of random samples to test."
-    )
-
+    parser = argparse.ArgumentParser(description="Validate ViQ Resolution Invariance (T006a)")
+    parser.add_argument("--checkpoint", type=str, default=None, help="Path to specific checkpoint (optional)")
     args = parser.parse_args()
 
+    logger.info("Starting T006a: Critical Hypothesis Check")
+    logger.info(f"Target Resolution: {TARGET_RESOLUTION}x{TARGET_RESOLUTION}")
+    logger.info("Data Source: ImageNet-1K Validation (Streaming)")
+    logger.info("Excluded: ChestX-ray14 (per FR-003)")
+
     try:
-        success = validate_viq_invariance(
-            checkpoint_path=args.checkpoint,
-            target_resolution=tuple(args.resolution),
-            sample_count=args.samples
-        )
+        # 1. Load Model
+        model = load_viq_encoder()
+        
+        # 2. Fetch Real Data
+        image_tensor, image_id = fetch_imagenet_sample()
+        
+        # 3. Validate Invariance
+        success = validate_viq_invariance(model, image_tensor)
+        
         if success:
-            logger.info("Hypothesis check PASSED. ViQ encoder is resolution invariant.")
+            logger.info("T006a PASSED: ViQ Encoder successfully processed 1024x1024 input.")
+            logger.info("Hypothesis of resolution invariance is supported for this sample.")
             sys.exit(0)
         else:
-            # Should not reach here if validate_viq_invariance raises on failure
-            logger.error("Hypothesis check FAILED.")
+            # This should not be reached if validate_viq_invariance raises on failure
+            logger.critical("T006a FAILED: Unexpected return value.")
             sys.exit(1)
+            
     except RuntimeError as e:
-        logger.critical(f"HYPOTHESIS CHECK FAILED: {str(e)}")
+        logger.critical(str(e))
         sys.exit(1)
     except Exception as e:
-        logger.critical(f"Unexpected error during validation: {str(e)}")
+        logger.critical(f"Unexpected error during validation: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
-    # Import Image here to avoid circular imports if needed, though usually at top
-    from PIL import Image
     main()

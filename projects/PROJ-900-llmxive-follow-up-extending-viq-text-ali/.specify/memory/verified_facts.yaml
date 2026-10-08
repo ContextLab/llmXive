@@ -1,4 +1,4 @@
-'|size ssim window':
+'|calculation index measure similarity size structural use window':
   quote: "In order to evaluate the image quality, this formula is usually applied\
     \ only on luma, although it may also be applied on color (e.g., RGB) values or\
     \ chromatic (e.g. YCbCr) values. The resultant SSIM index is a decimal value between\

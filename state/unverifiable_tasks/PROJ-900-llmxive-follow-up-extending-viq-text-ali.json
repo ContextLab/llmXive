@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-900-llmxive-follow-up-extending-viq-text-ali",
+  "tasks": [
+    {
+      "task_key": "T036",
+      "reject_count": 1,
+      "last_reason": "No verification script, log, or execution output is provided; the claim that `spec.md` was checked for the required amendments cannot be confirmed from the available artifacts. The required script and its successful run output are missing.",
+      "first_seen": "2026-10-08T10:53:05.107909+00:00",
+      "last_seen": "2026-10-08T10:53:05.107909+00:00"
+    }
+  ],
+  "updated_at": "2026-10-08T10:53:05.107909+00:00"
+}

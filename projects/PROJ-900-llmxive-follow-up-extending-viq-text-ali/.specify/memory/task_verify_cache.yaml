@@ -6,6 +6,13 @@ T006b:
     \ are absent; the script does not create them automatically. The task\u2019s core\
     \ deliverable of generating these documents before pipeline termination is therefore\
     \ not satisfied."
+T012:
+  c: false
+  h: dda77f1b4fcab3c1c3da1d20072b6ad6ee13f02542822fd61ab51fc9d295b3b7
+  r: "The required output files `data/results/codebook_v0.pth` and `data/results/train_log.json`\
+    \ are absent, and the provided `code/train.py` is incomplete (truncated) with\
+    \ no visible training loop, dynamic batch\u2011size logic, or loss\u2011decrease\
+    \ verification. The task\u2019s deliverables are therefore not satisfied."
 T014:
   c: false
   h: 601377512cfc3392d15a7f9d3247fd69444cb4dc730a8875033d1c3ad6c68861
@@ -47,12 +54,6 @@ T028:
     \ a correlation analysis script unrelated to computing the percentage difference\
     \ between high\u2011res and baseline semantic similarity scores. The task\u2019\
     s core functionality and output file are therefore missing."
-T036:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No verification script, log, or execution output is provided; the claim that
-    `spec.md` was checked for the required amendments cannot be confirmed from the
-    available artifacts. The required script and its successful run output are missing.
 T036b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -68,3 +69,11 @@ T036c:
     Paired t\u2011test or Wilcoxon signed\u2011rank test used per Decision Record\u202F\
     002\u201D), nor is there any shown evidence of an updated `spec.md` file. Without\
     \ the actual updated document, the deliverable is missing."
+T040:
+  c: false
+  h: cb60f05380b1169b58c81ca2ca7289f02b48690a1a5266aff7fb769ed47c0032
+  r: "The repository contains `code/verify_data_integrity.py`, but the script\u2019\
+    s implementation is truncated and does not show any logic that writes `data/raw/checksums.json`.\
+    \ Moreover, the required `data/raw/checksums.json` file is absent, so the task\u2019\
+    s verification condition is not met. The missing checksum file (and likely incomplete\
+    \ script) must be added for the task to be considered complete."
