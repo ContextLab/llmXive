@@ -1,0 +1,8 @@
+status: none
+intent: pip install huggingface datasets to download WikiText-2 benchmark dataset
+  python package dataset
+required_fields:
+- text
+cache_key: 8a94a00b359fa4eb3ddba0d55dc049278ab30b06f30dd563ff541f60144d282a
+searched_at: '2026-10-08T23:34:46.986197+00:00'
+retry_count: 1

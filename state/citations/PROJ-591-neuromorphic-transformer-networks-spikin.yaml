@@ -20,7 +20,7 @@
   verification_status: mismatch
   verified_against_url: https://huggingface.co/datasets/Salesforce/wikitext/resolve/main/wikitext-2-raw-v1/validation-00000-of-00000.parquet
   verified_at: '2026-07-01T19:25:36.037625Z'
-- artifact_hash: 3e882900c685a371aba2d62c6792a36d7410950ec7798587cb9b36e30b63622b
+- artifact_hash: c106a8f5ecdb0acea5d656e3dbc1d6bf04864b1121a2585c1a7b15e3984e6618
   artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/specs/001-neuromorphic-transformer-networks-spikin/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -28,6 +28,6 @@
   fetched_title: wikitext-2-v1.zip
   kind: url
   value: https://s3.amazonaws.com/research.metamind.io/wikitext/wikitext-2-v1.zip`
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://s3.amazonaws.com/research.metamind.io/wikitext/wikitext-2-v1.zip
-  verified_at: '2026-07-15T05:17:14.428916Z'
+  verified_at: '2026-10-08T23:31:32.669645Z'

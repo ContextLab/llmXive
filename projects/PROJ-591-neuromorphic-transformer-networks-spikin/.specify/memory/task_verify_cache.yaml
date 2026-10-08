@@ -1,0 +1,42 @@
+T001:
+  c: false
+  h: bf21b11f86379f03daacede1b5a8fb06e9991e2c14f7b62b8936afe90925d113
+  r: No evidence of the required directory `projects/PROJ-591-neuromorphic-transformer-networks-spikin/`
+    (or its contents) is provided; without a visible project structure we cannot confirm
+    the task was fulfilled. The implementer must supply the actual folder and its
+    files to verify compliance.
+T002:
+  c: true
+  h: 3c7985d58abb0875909ded8c816ed089a83ae9cc3b5919199a577a98860d3852
+  r: "The provided `requirements.txt` exists, is non\u2011empty, and lists all required\
+    \ packages (torch, snnTorch, codecarbon, datasets, scikit-learn, pandas, numpy)\
+    \ plus an extra `tqdm`, which does not violate the requirement."
+T003:
+  c: false
+  h: 784bb3955ef4f68e5d2e366a45545eafe1dad0f1f0b27f579a07d80eb3ec1576
+  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    or Black settings) or installation scripts are present in the provided evidence,
+    so the requirement to configure ruff and Black is not demonstrated. The implementer
+    must add the appropriate configuration files and ensure the tools are set up in
+    the project.
+T003.5:
+  c: true
+  h: e9a50f6e6490e83387e6a2f7f403f6956fddf03518fd94640277f34f915a32c8
+  r: "The `plan.md` file is present and includes a revised \u201CComplexity Tracking\u201D\
+    \ section that explicitly describes a **Paired Statistical Design** with matching\
+    \ seeds (1\u20135) for baseline and spiking runs, replacing any prior unpaired\
+    \ design. This directly addresses the FR\u2011009 requirement."
+T004:
+  c: false
+  h: f33d940969ab6bf1feb69fb1f8cd1fd27e1f1275897c0a339dbc395ec4e50bc1
+  r: "The `dataset_loader.py` exists but lacks the required 3\u2011retry logic for\
+    \ the S3 fallback and never writes the computed SHA\u2011256 checksum to `state/projects/PROJ-591-neuromorphic-transformer-networks-spikin.yaml`,\
+    \ which is missing entirely. These omissions mean the task\u2019s data\u2011hygiene\
+    \ requirement is not satisfied."
+T005:
+  c: false
+  h: ee15a610a006cdd6a0227361b17242605f91d983fa693929e5d5a9d27c0c6d67
+  r: "The file defines a 2\u2011layer, 4\u2011head transformer with roughly the right\
+    \ size, but it contains no logic that enforces CPU\u2011only execution (e.g.,\
+    \ device checks, warnings, or forced `torch.device('cpu')`). Hence the implementation\
+    \ does not fully satisfy the task\u2019s requirement."
