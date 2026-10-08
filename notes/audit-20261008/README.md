@@ -246,6 +246,15 @@ notification was created.
 
 ## Acceptance and deployment boundaries
 
+The latest PR real-call job ([37826932550](https://github.com/ContextLab/llmXive/actions/runs/37826932550))
+was cancelled at its 60-minute job limit. Its contract suite and 7,053 unit
+tests passed; real-call output stopped after the liveness checks, immediately
+before the 15-persona sequential rotation in collection order. That rotation
+now joins the existing nightly-only heavy tests. Collection checks confirm it
+remains selected by the nightly suite and is excluded from the fast PR gate.
+This change does not establish that the remaining real-call gate passes; a
+fresh run is required.
+
 The old “full pipeline” test only invoked one step and could pass when the
 project was rejected or needed human input. Its description is corrected. A new
 opt-in real acceptance test traverses both research and paper gates, with the
