@@ -7,3 +7,5 @@ tqdm
 pyyaml
 datasets
 jinja2
+jsonschema  # auto-added: imported by run-book but missing from venv
+matplotlib  # auto-added: imported by run-book but missing from venv

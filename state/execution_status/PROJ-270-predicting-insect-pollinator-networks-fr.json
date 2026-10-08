@@ -1,0 +1,16 @@
+{
+  "project_id": "PROJ-270-predicting-insect-pollinator-networks-fr",
+  "ok": false,
+  "reason": "1 command(s) failed: python code/main.py (rc=1)",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py -> rc=1\n    "
+  ],
+  "fix_rounds": 3,
+  "model_tier": 0,
+  "total_attempts": 3,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-10-08T17:48:38Z"
+}

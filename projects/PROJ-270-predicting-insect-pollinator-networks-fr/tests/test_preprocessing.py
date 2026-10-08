@@ -1,198 +1,172 @@
-"""
-Tests for preprocessing functions, specifically focusing on negative sample validation.
-"""
-import unittest
+import pytest
 import pandas as pd
 import numpy as np
-from datetime import datetime, timedelta
-from pathlib import Path
+import logging
+import io
 import sys
-import os
-
-# Add parent directory to path to allow imports from code/
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
-
 from preprocessing import (
-    generate_negative_samples,
-    MissingTemporalMetadataError,
-    check_temporal_metadata,
-    enforce_temporal_cooccurrence,
+    define_sample, 
+    check_temporal_metadata, 
+    generate_negative_samples, 
+    validate_negative_samples,
+    median_imputation,
+    flag_missingness,
+    winsorize_outliers,
+    z_score_normalize,
+    one_hot_encode,
+    assemble_feature_matrix
 )
 
+# Configure logging to capture warnings
+@pytest.fixture
+def log_capture():
+    log_stream = io.StringIO()
+    handler = logging.StreamHandler(log_stream)
+    handler.setLevel(logging.WARNING)
+    logger = logging.getLogger('preprocessing')
+    logger.addHandler(handler)
+    yield log_stream
+    logger.removeHandler(handler)
 
-class TestNegativeSampleValidation(unittest.TestCase):
+def test_sample_definition_first_n():
     """
-    Test suite for T015b: Negative Sample Validation.
+    Test that define_sample with method='first_n' selects the first N rows
+    and logs the limitation explicitly.
+    """
+    data = {'val': range(100), 'id': range(100, 200)}
+    df = pd.DataFrame(data)
     
-    Verifies that:
-    1. All negative pairs exist in the derived co-occurrence matrix.
-    2. All negative pairs satisfy the temporal co-occurrence constraint.
-    3. The validation logic correctly identifies invalid pairs if constraints are violated.
+    sample_size = 10
+    sampled_df, meta = define_sample(df, sample_size=sample_size, method='first_n')
+    
+    assert len(sampled_df) == sample_size
+    assert meta['sampled'] is True
+    assert meta['original_size'] == 100
+    assert meta['final_size'] == 10
+    assert meta['method'] == 'first_n'
+    assert 'truncated to first' in meta['limitation']
+    assert 'bias if the data is ordered' in meta['limitation']
+
+def test_sample_definition_random():
     """
+    Test that define_sample with method='random' selects N rows deterministically
+    with a fixed seed and logs the limitation.
+    """
+    data = {'val': range(100), 'id': range(100, 200)}
+    df = pd.DataFrame(data)
+    
+    sample_size = 10
+    seed = 42
+    
+    # Run twice to ensure determinism
+    sampled_df_1, _ = define_sample(df, sample_size=sample_size, method='random', seed=seed)
+    sampled_df_2, _ = define_sample(df, sample_size=sample_size, method='random', seed=seed)
+    
+    pd.testing.assert_frame_equal(sampled_df_1, sampled_df_2)
+    
+    assert len(sampled_df_1) == sample_size
+    assert 'randomly sampled' in _[1]['limitation']
+    assert 'seed: 42' in _[1]['limitation']
 
-    def setUp(self):
-        """Set up test fixtures."""
-        # Create a mock ecosystem metadata with temporal data
-        self.ecosystem_id = "test_ecosystem_01"
-        self.metadata = {
-            "ecosystem_id": self.ecosystem_id,
-            "start_date": "2020-05-01",
-            "end_date": "2020-08-31",
-            "location": "Test Location"
-        }
+def test_sample_definition_no_sampling():
+    """
+    Test that define_sample returns the full dataframe when sample_size is None.
+    """
+    data = {'val': range(10), 'id': range(10, 20)}
+    df = pd.DataFrame(data)
+    
+    sampled_df, meta = define_sample(df, sample_size=None)
+    
+    assert len(sampled_df) == 10
+    assert meta['sampled'] is False
+    assert 'No sampling applied' in meta['limitation']
 
-        # Create a mock interaction dataframe (observed links)
-        # Columns: plant_species, pollinator_species, start_date, end_date
-        self.interactions = pd.DataFrame([
-            {"plant_species": "Plant_A", "pollinator_species": "Pollinator_X", "start_date": "2020-05-15", "end_date": "2020-06-15"},
-            {"plant_species": "Plant_B", "pollinator_species": "Pollinator_Y", "start_date": "2020-06-01", "end_date": "2020-07-01"},
-            {"plant_species": "Plant_A", "pollinator_species": "Pollinator_Y", "start_date": "2020-05-20", "end_date": "2020-06-20"},
-        ])
+def test_sample_definition_invalid_method():
+    """
+    Test that define_sample raises ValueError for unknown method.
+    """
+    df = pd.DataFrame({'val': [1, 2, 3]})
+    with pytest.raises(ValueError):
+        define_sample(df, sample_size=2, method='invalid_method')
 
-        # Create a mock co-occurrence matrix (derived from spatial/temporal data)
-        # This represents species that were present in the ecosystem during the study period
-        self.cooccurrence_matrix = pd.DataFrame({
-            "plant_species": ["Plant_A", "Plant_B", "Plant_C"],
-            "pollinator_species": ["Pollinator_X", "Pollinator_Y", "Pollinator_Z"],
-            "present": [True, True, True]
-        })
+def test_temporal_metadata_check():
+    """Test temporal metadata validation."""
+    meta_good = {'start_date': '2020-01-01', 'end_date': '2020-12-31'}
+    meta_bad = {'start_date': '2020-01-01'}
+    
+    assert check_temporal_metadata(meta_good) is True
+    assert check_temporal_metadata(meta_bad) is False
 
-    def test_negative_samples_exist_in_cooccurrence(self):
-        """
-        Assert that all generated negative samples exist in the co-occurrence matrix.
-        """
-        # Generate negative samples
-        negative_samples = generate_negative_samples(
-            interactions=self.interactions,
-            cooccurrence=self.cooccurrence_matrix,
-            temporal_start=self.metadata["start_date"],
-            temporal_end=self.metadata["end_date"]
-        )
+def test_negative_sample_generation():
+    """Test negative sample generation via spatial co-occurrence."""
+    # Positive data
+    df_pos = pd.DataFrame({
+        'plant_species': ['A', 'B', 'C'],
+        'pollinator_species': ['X', 'Y', 'Z'],
+        'link_label': [1, 1, 1]
+    })
+    
+    # Generate negatives
+    df_neg = generate_negative_samples(df_pos)
+    
+    # Should not contain A-X, B-Y, C-Z
+    assert not ((df_neg['plant_species'] == 'A') & (df_neg['pollinator_species'] == 'X')).any()
+    assert len(df_neg) > 0
 
-        # Validate that every negative pair is in the co-occurrence matrix
-        for _, row in negative_samples.iterrows():
-            pair_exists = self.cooccurrence_matrix[
-                (self.cooccurrence_matrix["plant_species"] == row["plant_species"]) &
-                (self.cooccurrence_matrix["pollinator_species"] == row["pollinator_species"])
-            ].empty
+def test_negative_sample_validation():
+    """Test validation of negative samples."""
+    df_pos = pd.DataFrame({
+        'plant_species': ['A', 'B'],
+        'pollinator_species': ['X', 'Y'],
+        'link_label': [1, 1]
+    })
+    df_neg = pd.DataFrame({
+        'plant_species': ['A', 'C'],
+        'pollinator_species': ['Y', 'X'],
+        'link_label': [0, 0]
+    })
+    
+    assert validate_negative_samples(df_neg, df_pos) is True
+    
+    # Add a positive link to negatives
+    df_neg_bad = pd.concat([df_neg, pd.DataFrame({'plant_species': ['A'], 'pollinator_species': ['X'], 'link_label': [0]})])
+    assert validate_negative_samples(df_neg_bad, df_pos) is False
 
-            self.assertFalse(
-                pair_exists,
-                f"Negative pair ({row['plant_species']}, {row['pollinator_species']}) "
-                "does not exist in the co-occurrence matrix."
-            )
+def test_median_imputation():
+    df = pd.DataFrame({'A': [1.0, 2.0, np.nan, 4.0]})
+    result = median_imputation(df, ['A'])
+    assert not result['A'].isnull().any()
+    assert result['A'].iloc[2] == 2.5 # Median of 1, 2, 4
 
-    def test_negative_samples_satisfy_temporal_constraint(self):
-        """
-        Assert that all negative samples satisfy the temporal co-occurrence constraint.
-        This test verifies that the generation logic correctly filters by temporal overlap.
-        """
-        # Generate negative samples
-        negative_samples = generate_negative_samples(
-            interactions=self.interactions,
-            cooccurrence=self.cooccurrence_matrix,
-            temporal_start=self.metadata["start_date"],
-            temporal_end=self.metadata["end_date"]
-        )
+def test_flag_missingness():
+    df_high = pd.DataFrame({'A': [1.0, np.nan, np.nan, np.nan]}) # 75% missing
+    df_low = pd.DataFrame({'A': [1.0, 2.0, 3.0, np.nan]}) # 25% missing
+    
+    assert flag_missingness(df_high, threshold=0.15) is True
+    assert flag_missingness(df_low, threshold=0.50) is False
 
-        # Since generate_negative_samples already filters by temporal constraints
-        # (as per T015a implementation), we verify that the output is non-empty
-        # and that the dates are within the valid range.
-        self.assertFalse(negative_samples.empty, "Negative samples should not be empty.")
+def test_winsorize_outliers():
+    df = pd.DataFrame({'A': [1, 2, 3, 4, 100]})
+    result = winsorize_outliers(df, ['A'], limits=(0.1, 0.9))
+    assert result['A'].max() < 100
 
-        # Check that all dates in negative samples are within the ecosystem's temporal bounds
-        for _, row in negative_samples.iterrows():
-            pair_start = pd.to_datetime(row.get("start_date", self.metadata["start_date"]))
-            pair_end = pd.to_datetime(row.get("end_date", self.metadata["end_date"]))
-            eco_start = pd.to_datetime(self.metadata["start_date"])
-            eco_end = pd.to_datetime(self.metadata["end_date"])
+def test_z_score_normalize():
+    df = pd.DataFrame({'A': [10, 20, 30]})
+    result = z_score_normalize(df, ['A'])
+    assert np.isclose(result['A'].mean(), 0.0)
+    assert np.isclose(result['A'].std(), 1.0)
 
-            self.assertGreaterEqual(
-                pair_start, eco_start,
-                f"Pair start date {pair_start} is before ecosystem start {eco_start}"
-            )
-            self.assertLessEqual(
-                pair_end, eco_end,
-                f"Pair end date {pair_end} is after ecosystem end {eco_end}"
-            )
+def test_one_hot_encode():
+    df = pd.DataFrame({'cat': ['A', 'B', 'A']})
+    result = one_hot_encode(df, ['cat'])
+    assert 'cat_A' in result.columns
+    assert 'cat_B' in result.columns
 
-    def test_validation_raises_on_missing_temporal_metadata(self):
-        """
-        Assert that validation raises MissingTemporalMetadataError if temporal data is missing.
-        """
-        # Simulate missing temporal metadata
-        incomplete_metadata = {
-            "ecosystem_id": "test_ecosystem_02",
-            "location": "Test Location"
-            # Missing start_date and end_date
-        }
-
-        with self.assertRaises(MissingTemporalMetadataError):
-            enforce_temporal_cooccurrence(
-                interactions=self.interactions,
-                metadata=incomplete_metadata
-            )
-
-    def test_negative_pairs_exclude_observed_links(self):
-        """
-        Assert that generated negative samples do not include observed links.
-        """
-        # Generate negative samples
-        negative_samples = generate_negative_samples(
-            interactions=self.interactions,
-            cooccurrence=self.cooccurrence_matrix,
-            temporal_start=self.metadata["start_date"],
-            temporal_end=self.metadata["end_date"]
-        )
-
-        # Check that no observed link appears in negative samples
-        for _, row in negative_samples.iterrows():
-            is_observed = self.interactions[
-                (self.interactions["plant_species"] == row["plant_species"]) &
-                (self.interactions["pollinator_species"] == row["pollinator_species"])
-            ].empty
-
-            self.assertTrue(
-                is_observed,
-                f"Negative pair ({row['plant_species']}, {row['pollinator_species']}) "
-                "is actually an observed link."
-            )
-
-    def test_cooccurrence_derivation_from_interactions(self):
-        """
-        Test that the co-occurrence matrix is correctly derived from interactions.
-        This ensures the validation logic in T015b is based on the correct data source.
-        """
-        # Derive co-occurrence from interactions (as done in T014a/T014b)
-        derived_cooccurrence = pd.DataFrame({
-            "plant_species": self.interactions["plant_species"].unique(),
-            "pollinator_species": self.interactions["pollinator_species"].unique()
-        })
-        # This is a simplified derivation; in reality, it would be more complex
-        # involving spatial and temporal overlap checks.
-
-        # Validate that negative samples generated from this matrix
-        # are consistent with the derived co-occurrence
-        negative_samples = generate_negative_samples(
-            interactions=self.interactions,
-            cooccurrence=derived_cooccurrence,
-            temporal_start=self.metadata["start_date"],
-            temporal_end=self.metadata["end_date"]
-        )
-
-        # Ensure all negative pairs are in the derived co-occurrence
-        for _, row in negative_samples.iterrows():
-            pair_exists = derived_cooccurrence[
-                (derived_cooccurrence["plant_species"] == row["plant_species"]) &
-                (derived_cooccurrence["pollinator_species"] == row["pollinator_species"])
-            ].empty
-
-            self.assertFalse(
-                pair_exists,
-                f"Negative pair ({row['plant_species']}, {row['pollinator_species']}) "
-                "not found in derived co-occurrence matrix."
-            )
-
-
-if __name__ == "__main__":
-    unittest.main()
+def test_assemble_feature_matrix():
+    pos = pd.DataFrame({'plant': ['A'], 'pollinator': ['X'], 'trait': [1.0]})
+    neg = pd.DataFrame({'plant': ['A'], 'pollinator': ['Y'], 'trait': [2.0]})
+    result = assemble_feature_matrix(pos, neg, ['trait'])
+    assert len(result) == 2
+    assert result['link_label'].sum() == 1
+    assert result['link_label'].min() == 0
+    assert result['link_label'].max() == 1

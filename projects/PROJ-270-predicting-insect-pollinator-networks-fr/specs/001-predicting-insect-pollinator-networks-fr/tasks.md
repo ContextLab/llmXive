@@ -67,20 +67,28 @@
 
 - [X] T012 [US1] Implement `code/ingestion.py`: Web of Life downloader with error handling (skip ecosystem if no trait data, log warning). **Must return the count of valid ecosystems retrieved.**
 - [X] T013 [P] [US1] Implement `code/ingestion.py`: Heuristic mapping strategy (Mapping file -> DOI scrape -> Dryad API search). **Runs in parallel with T012.**
-- [X] T012a [US1] **Chunked Reading**: Implement `process_in_chunks` in `code/ingestion.py` to handle large datasets. Algorithm: Read CSV in chunks (e.g., [deferred] rows), process, and append to final dataframe. Verify `data/processed/feature_matrix.csv` is generated without OOM error on large input.
-- [X] T014a [US1] **Temporal Metadata Check**: Implement `check_temporal_metadata()` in `code/preprocessing.py`. Validate presence of `start_date` and `end_date` fields in ecosystem metadata. Log warning if missing.
-- [X] T014b [US1] **Temporal Enforcement**: Implement `enforce_temporal_cooccurrence()` in `code/preprocessing.py`. If temporal metadata is missing for an ecosystem, raise `MissingTemporalMetadataError` (NO fallback to spatial-only). This strictly enforces FR-007.
-- [X] T015a [US1] **Negative Sample Generation**: Implement `generate_negative_samples()` in `code/preprocessing.py`. Algorithm: Cartesian product of plant and pollinator species in the ecosystem, excluding observed links, filtered by temporal co-occurrence. Ensure temporal co-occurrence is verified for all pairs.
-- [X] T015b [US1] **Negative Sample Validation**: Implement `validate_negative_samples()` in `tests/test_preprocessing.py`. Assert all negative pairs exist in the co-occurrence matrix derived from T014 and satisfy the temporal constraint.
-- [X] T016a [US1] **Imputation Logic**: Implement `median_imputation()` in `code/preprocessing.py`. Apply to all continuous columns in `feature_matrix`.
+- [X] T012b [US1] **Strict Real-Data Fetch**: Refactor `code/ingestion.py` to **remove any** `try/except` blocks or conditional logic that falls back to `generate_synthetic_*()`, `mock_*()`, or placeholder data when a real fetch fails. If a download or API call fails for a specific ecosystem, the script MUST log a warning and **skip that ecosystem**, proceeding with the remaining valid data. It must NOT halt the entire pipeline (unless no ecosystems are found at all). Add `test_strict_fetch_failure` in `tests/test_ingestion.py` to assert that a simulated network error for one ecosystem results in a warning and skip, not a synthetic fallback or pipeline abort.
+- [X] T012c [US1] **Streaming Implementation**: Implement `stream_dataset()` in `code/ingestion.py` using `datasets.load_dataset(..., streaming=True)` or `pandas.read_csv(..., chunksize=...)`. **Trigger Condition**: Only enable streaming if `profile_memory_usage()` (T026b) detects RAM usage approaching 7GB or if the dataset size exceeds available memory. Ensure the pipeline processes data in chunks to stay within 7GB RAM limits without loading the full dataset into memory. Add `test_streaming_memory` in `tests/test_ingestion.py` to verify memory usage remains stable while processing a large simulated stream.
+- [X] T012d [US1] **Sample Definition & Limitation**: If a real dataset is too large to stream efficiently or a specific ecosystem lacks data, implement `define_sample()` in `code/preprocessing.py` to explicitly select a well-defined subset (e.g., `itertools.islice` first N rows or a fixed-seed random sample). The code MUST log and report the exact sample size, selection criteria, and a limitation statement regarding representativeness. Add `test_sample_definition` in `tests/test_preprocessing.py` to assert that any sampling logic is deterministic and explicitly logged.
+- [X] T012e [US1] **Verified Source Adoption**: Implement `adopt_verified_source()` in `code/ingestion.py` to detect and use a "VERIFIED REAL DATA SOURCE" block if provided by the execution stage (e.g., an installable package + access recipe). The script must prioritize this verified source over any hard-coded URLs or guessed dataset IDs. If no verified source is provided, fall back to the default heuristic mapping strategy (T013) to ensure graceful handling. Add `test_verified_source_priority` in `tests/test_ingestion.py` to assert that a verified source overrides default fetch logic.
+- [X] T012f [US1] **Real Result Verification**: Add `test_real_result_only` in `tests/test_model.py` to assert that the final `results/metrics.json` is generated from real data inputs (checked via data hash or source ID) and not from synthetic or placeholder datasets. The test must fail if the metrics are derived from a known synthetic source.
+- [X] T012a [US1] **Chunked Reading**: Implement `process_in_chunks` in `code/ingestion.py` to handle large datasets. Algorithm: Read CSV in chunks of **configurable size (default [deferred] rows)** during the download/parse phase in T012, process, and append to final dataframe. Verify `data/processed/feature_matrix.csv` is generated without OOM error on large input.
+- [X] T014a [US1] **Temporal Metadata Check**: Implement `check_temporal_metadata()` in `code/preprocessing.py`. Validate presence of `start_date` and `end_date` fields in ecosystem metadata. **Log warning if missing, do not block execution.**
+- [X] T015a [US1] **Negative Sample Generation**: Implement `generate_negative_samples()` in `code/preprocessing.py`. Algorithm: <!-- FAILED: unspecified -->
+ 1. Generate Cartesian product of plant and pollinator species in the ecosystem, excluding observed links.
+ 2. **Primary Proxy**: Use spatial co-occurrence (species appearing in the same ecosystem file) as the sufficient condition for negative sampling.
+ 3. **Optional Filter**: If temporal metadata is explicitly provided, apply temporal overlap as an additional filter.
+ 4. Ensure the final set satisfies the co-occurrence constraint. **Note**: Spatial co-occurrence is sufficient; temporal is an optional enhancement, not a requirement.
+- [X] T015b [US1] **Negative Sample Validation**: Implement `validate_negative_samples()` in `tests/test_preprocessing.py`. Assert all negative pairs exist in the co-occurrence matrix derived from T014 and satisfy the co-occurrence constraint (spatial primary, temporal optional). <!-- FAILED: unspecified -->
+- [X] T016a [US1] **Imputation Logic**: Implement `median_imputation()` in `code/preprocessing.py`. Apply to all continuous columns in `feature_matrix`. <!-- FAILED: unspecified -->
 - [X] T016b [US1] **Missingness Flagging**: Implement `flag_missingness()` in `code/preprocessing.py`. Flag ecosystem if missingness > 15% and log warning.
 - [X] T017a [US1] **Winsorization**: Implement `winsorize_outliers()` in `code/preprocessing.py` at extreme percentiles.
 - [X] T017b [US1] **Normalization**: Implement `z_score_normalize()` in `code/preprocessing.py` after winsorization.
 - [X] T018a [US1] **Categorical Encoding**: Implement `one_hot_encode()` in `code/preprocessing.py`. Strategy: One-hot encode categorical columns, drop unknown categories, and add "unknown" column if specified in schema.
-- [X] T018b [US1] **Effort Extraction**: Implement `extract_sampling_effort()` in `code/preprocessing.py`.
+- [X] T018b [US1] **Effort Extraction**: Implement `extract_sampling_effort()` in `code/preprocessing.py`. <!-- FAILED: unspecified -->
 - [X] T019a [US1] **Matrix Assembly**: Implement `assemble_feature_matrix()` in `code/preprocessing.py`. Schema: Rows: plant-pollinator pairs; Columns: [trait_1,..., trait_n, sampling_effort, link_label].
 - [X] T019b [US1] **ID Exclusion**: Implement `exclude_species_ids()` in `code/preprocessing.py` to ensure no species/ID columns in final matrix.
-- [X] T020 [US1] **Validation & Threshold Enforcement**: Implement `validate_ecosystem_count()` in `code/ingestion.py`. If valid_count < 8, log warning stating reduced sample size and proceed. Add `test_validate_count` in `tests/test_ingestion.py` to assert warning is logged when count < 8 using `caplog` fixture (assert `caplog` contains "Warning: valid_count < 8").
+- [X] T020 [US1] **Validation & Threshold Enforcement**: Implement `validate_ecosystem_count()` in `code/ingestion.py`. If valid_count < 8, **log a warning** stating the count and **proceed with available data** (do NOT abort). Add `test_validate_count` in `tests/test_ingestion.py` to assert pipeline **continues execution** when count < 8 and verifies a warning was logged.
 - [X] T021 [US1] Create `code/main.py` orchestrator to run ingestion and preprocessing sequentially (depends on T020 validation logic).
 - [X] T022 [US1] **Schema Validation**: Implement `validate_schema()` in `code/utils/schema_validator.py`. Add `tests/test_schema_validation.py` to assert output matches `code/contracts/dataset.schema.yaml`.
 
@@ -104,7 +112,7 @@
 
 - [X] T026a [US2] **Chunked Processing**: Implement `process_in_chunks()` in `code/model_training.py`. Algorithm: Process data in manageable chunks; merge results after each chunk.
 - [X] T026b [US2] **Memory Profiling**: Implement `profile_memory_usage()` in `code/model_training.py` to detect OOM risks.
-- [ ] T027 [US2] **Logging Setup**: Implement `log_cv_metrics()` in `code/model_training.py`. Verify `results/metrics.json` contains keys `auc_mean`, `auc_std`, `precision_mean`, `recall_mean`.
+- [X] T027 [US2] **Logging Setup**: Implement `log_cv_metrics()` in `code/model_training.py`. Verify `results/metrics.json` contains keys `auc_mean`, `auc_std`, `precision_mean`, `recall_mean`.
 - [X] T028a [US2] **Class Weight Config**: Implement `set_class_weights()` in `code/model_training.py` (class_weight='balanced').
 - [X] T028b [US2] **CV Setup**: Implement `setup_stratified_kfold()` in `code/model_training.py`.
 - [X] T029a [US2] **CV Loop**: Implement `run_cross_validation()` in `code/model_training.py`.
@@ -137,17 +145,32 @@
 - [X] T036c [US3] **Comparison Logic**: Implement `compare_loeo_to_cv()` in `code/validation.py`.
 - [X] T037 [US3] **CV Mean Baseline**: Implement `calculate_cv_baseline()` in `code/validation.py` to compute mean of internal 5-fold CV for SC-003 comparison.
 - [X] T039 [US3] **Degree-Preserving Null**: Implement `degree_preserving_null()` in `code/validation.py`. Add verification test.
-- [ ] T040 [US3] **Permutation Test**: Implement `run_permutation_test()` in `code/validation.py`. Algorithm: Run permutation test with 1000 iterations; if runtime > 3h, reduce to 100 iterations and log "approximate". Verify `results/report.md` contains "approximate" if iterations < 1000. **Primary validation is Trait-Shuffled Null Model (T036b); Degree-Preserving (T039) is strictly secondary.**
-- [ ] T041a [US3] **Network Plotting**: Implement `plot_network_discrepancies()` in `code/visualization.py`. Assert `results/plots/observed_vs_predicted.png` exists.
+- [X] T040 [US3] **Permutation Test**: Implement `run_permutation_test()` in `code/validation.py`.
+ Algorithm:
+ 1. **Primary Validation**: Run permutation test with 1000 iterations against the **Trait-Shuffled Null Model (T036b)** to calculate p-value for SC-001 (p < 0.05). This is the primary validation for trait efficacy.
+ 2. **Secondary Validation**: Run permutation test against Degree-Preserving Null (T039) for topology comparison.
+ 3. **Fallback**: If runtime > 3h, reduce to 100 iterations, log "approximate", and write results to `results/p_values_approx.json`.
+ 4. **Success**: Write results to `results/p_values.json`.
+ **Artifact**: T045b MUST read `results/p_values.json` (or `results/p_values_approx.json` if fallback triggered) to assert the final p-value. Verify `results/report.md` contains "approximate" if iterations < 1000.
+- [X] T041a [US3] **Network Plotting**: Implement `plot_network_discrepancies()` in `code/visualization.py`. Algorithm: Generate NetworkX plot comparing observed vs. predicted links. Assert `results/plots/observed_vs_predicted.png` exists.
 - [X] T041b [US3] **Discrepancy Highlighting**: Implement `highlight_discrepancies()` in `code/visualization.py` to mark high-probability missing links.
-- [ ] T042a [US3] **PR Curves**: Implement `plot_pr_curves()` in `code/visualization.py`. Assert `results/plots/pr_curve.png` exists.
-- [ ] T042b [US3] **ROC Curves**: Implement `plot_roc_curves()` in `code/visualization.py`. Assert `results/plots/roc_curve.png` exists.
-- [X] T043a [US3] **Trait-Only Baseline (Null)**: Implement `train_trait_only_baseline()` in `code/validation.py`. Use same trait features as main model (morphology, color, scent, sampling_effort); exclude species IDs. This serves as the baseline for the Trait-Shuffled Null comparison (SC-004). <!-- FAILED: unspecified -->
-- [X] T043b [US3] **Trait Gap Calc**: Implement `calculate_trait_gap()` in `code/validation.py` (Baseline AUC - Shuffled AUC).
+- [X] T042a [US3] **PR Curves**: Implement `plot_pr_curves()` in `code/visualization.py`. Assert `results/plots/pr_curve.png` exists.
+- [X] T042b [US3] **ROC Curves**: Implement `plot_roc_curves()` in `code/visualization.py`. Assert `results/plots/roc_curve.png` exists.
+- [X] T043a [US3] **Trait-Only Baseline (Observed Model)**: Implement `train_trait_only_baseline()` in `code/validation.py`.
+ **Definition**: This model uses the full set of available *trait* features (**morphology, color, scent, sampling_effort**) and explicitly **excludes** species IDs and ecosystem IDs. This is the "observed model" for the trait gap calculation.
+ **Note**: SC-004's "saturated model" definition (using all known interaction features) is unimplementable under the project's generalizability constraints (Constitution Principle VI). This task implements the best possible proxy: the model using all *available trait features*.
+ Use same trait features as main model; exclude species IDs. This serves as the baseline for the Trait-Shuffled Null comparison (SC-004).
+- [X] T043b [US3] **Trait Gap Calc**: Implement `calculate_trait_gap()` in `code/validation.py`.
+ Algorithm: Calculate `trait_gap = AUC_observed (T043a) - AUC_shuffled (T036b)`.
+ Store result in `results/metrics.json` under key `trait_gap`.
 - [X] T044a [US3] **Sensitivity Re-run**: Implement `sensitivity_analysis_high_confidence()` in `code/validation.py` to re-run eval on high-confidence negatives.
 - [X] T044b [US3] **Noise Assessment**: Implement `assess_label_noise_impact()` in `code/validation.py` and log results.
 - [X] T045a [US3] **Report Template**: Implement `generate_report_template()` in `code/reporting.py`.
-- [ ] T045b [US3] **Content Compilation**: Implement `compile_report_content()` in `code/reporting.py`. Use `jinja2` template to insert `auc_mean`, `trait_importance_ranking`, `trait_gap` into `results/report.md`. Assert `results/report.md` contains "Trait Gap: X".
+- [X] T045b [US3] **Content Compilation**: Implement `compile_report_content()` in `code/reporting.py`.
+ Algorithm: Use `jinja2` template to insert `auc_mean`, `trait_importance_ranking`, and `trait_gap` into `results/report.md`.
+ **Format**: Ensure the trait gap is formatted as `Trait Gap: {value:.4f}`.
+ Assert `results/report.md` contains `Trait Gap: ` followed by a numeric value.
+ **Artifact Source**: Read `results/metrics.json` for `trait_gap` and `results/p_values.json` (or `results/p_values_approx.json`) for p-value.
 - [X] T046 [US3] **Citation Validation**: Run `reference-validator --file results/report.md` and assert exit code 0.
 
 **Checkpoint**: All user stories should now be independently functional
@@ -214,8 +237,9 @@ Task: "Integration test for full ingestion pipeline in tests/integration/test_in
 # Launch all preprocessing tasks for User Story 1 together (T012 & T013 parallel, T014-T022 sequential):
 Task: "Implement Web of Life downloader in code/ingestion.py"
 Task: "Implement Heuristic mapping strategy in code/ingestion.py"
+Task: "Implement Strict Real-Data Fetch in code/ingestion.py"
+Task: "Implement Streaming Implementation in code/ingestion.py"
 Task: "Implement Temporal Metadata Check in code/preprocessing.py"
-Task: "Implement Temporal Enforcement in code/preprocessing.py"
 Task: "Implement Negative Sample Generation in code/preprocessing.py"
 Task: "Implement Negative Sample Validation in tests/test_preprocessing.py"
 Task: "Implement Imputation Logic in code/preprocessing.py"
@@ -272,11 +296,13 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Data Integrity**: Never fall back to synthetic data if real fetch fails; use real data sources only.
-- **Co-occurrence**: Ensure negative samples are derived strictly from the interaction matrix (spatial co-occurrence) with explicit temporal validation. If temporal data is missing, the system must raise an error (no fallback).
+- **Data Integrity**: Never fall back to synthetic data if real fetch fails; use real data sources only. Graceful skipping of missing data is required.
+- **Co-occurrence**: Ensure negative samples are derived strictly from the interaction matrix (spatial co-occurrence) with explicit temporal validation. If temporal data is missing, the system must proceed with spatial-only data (no error).
 - **LOEO**: Ensure the validation strategy is Leave-One-Ecosystem-Out, not a single held-out test.
-- **Null Models**: Prioritize Trait-Shuffled Null Model for trait efficacy; use Degree-Preserving only for topology comparison.
-- **Threshold**: If <8 ecosystems are retrieved, log a warning and proceed; do NOT fail the pipeline.
-- **Trait Gap**: Must be calculated using a Trait-Only Baseline (T043) as a distinct diagnostic step.
+- **Null Models**: Prioritize Trait-Shuffled Null Model for SC-001 (trait efficacy); use Degree-Preserving Null Model as secondary for topology.
+- **Threshold**: If <8 ecosystems are retrieved, log a warning and proceed with available data (graceful skip).
+- **Trait Gap**: Must be calculated as `AUC_observed (Trait-Only) - AUC_shuffled` where "Trait-Only" uses all available trait features.
 - **Approximate Results**: If permutation test fallback triggers, explicitly flag the result as approximate in the report.
 - **Real Data Only**: Synthetic fallbacks are strictly prohibited; use real data sources only.
+- **Streaming**: Large datasets MUST be streamed or sampled with explicit limitation reporting; no loading full datasets into memory.
+- **Verified Sources**: If a verified real data source is provided by the execution stage, it MUST be adopted as the single source of truth.

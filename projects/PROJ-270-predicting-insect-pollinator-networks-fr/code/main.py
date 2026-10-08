@@ -32,6 +32,10 @@ def main():
     # Setup logging
     log_dir = get_logs_root()
     ensure_directory_structure(log_dir)
+    
+    # T021: Call setup_logging with log_level and log_file as per T020 dependency
+    # The setup_logging function must now accept these arguments to avoid the 
+    # "SHARED-MODULE CONTRACT" error reported in the execution failure.
     setup_logging(log_level=logging.INFO, log_file=log_dir / "main_pipeline.log")
     logger = get_logger("main_orchestrator")
     
@@ -62,8 +66,6 @@ def main():
         logger.info(f"Ingestion complete. Valid ecosystems retrieved: {valid_ecosystem_count}")
         
         # T020 logic is embedded in the downloader/ingestion flow or called here.
-        # Assuming downloader.run_ingestion_pipeline() handles the T020 validation logic
-        # internally as per the dependency chain, or we log the result here.
         # Based on T020 description: "If valid_count < 8, log a warning...".
         # The ingestion script (T012) returns the count. We log it here.
         if valid_ecosystem_count < 8:
