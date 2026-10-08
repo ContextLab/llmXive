@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-12T12:55:35Z",
+  "fetched_at": "2026-10-08T02:20:23Z",
   "field": "chemistry",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,104 @@
       "idea_body_excerpt": "Predicting Molecular Refractive Indices from Graph-Based Molecular Representations",
       "target_n": 5
     },
-    "duration_seconds": 45.847,
-    "ended_at": "2026-08-12T12:55:35Z",
+    "duration_seconds": 40.772,
+    "ended_at": "2026-10-08T02:20:23Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "Graph neural networks for molecular property prediction"
+          "graph neural networks for molecular property prediction"
         ],
         [
           2,
-          "Machine learning prediction of refractive index in organic compounds"
+          "deep learning models for refractive index estimation"
         ],
         [
           3,
-          "Molecular graph representations for optical property estimation"
+          "QSAR modeling of optical properties using molecular graphs"
         ],
         [
           4,
-          "Deep learning models for refractive index calculation"
+          "machine learning prediction of molar refractivity"
         ],
         [
           5,
-          "QSAR models for refractive index using molecular graphs"
+          "graph-based regression for molecular polarizability"
         ],
         [
           6,
-          "Graph-based regression for optical constants"
+          "molecular graph representation learning for physical properties"
         ],
         [
           7,
-          "Atomic contribution methods for refractive index prediction"
+          "predicting optical constants with graph convolutional networks"
         ],
         [
           8,
-          "Molecular descriptor-based refractive index estimation"
+          "structure-activity relationship studies on refractive index"
         ],
         [
           9,
-          "End-to-end learning of optical properties from molecular structure"
+          "deep learning for dielectric property prediction from structure"
         ],
         [
           10,
-          "Graph convolutional networks for physical property prediction"
+          "graph attention networks for molecular refractivity"
         ],
         [
           11,
-          "Data-driven prediction of molar refraction"
+          "end-to-end learning of molecular optical descriptors"
         ],
         [
           12,
-          "Structure-property relationships for refractive index"
+          "computational prediction of Lorentz-Lorenz refractive index"
         ],
         [
           13,
-          "Message passing neural networks for molecular optical properties"
+          "graph neural networks for estimating molecular polarizability"
         ],
         [
           14,
-          "Computational estimation of refractive index from SMILES or graphs"
+          "data-driven modeling of molecular light-matter interaction"
         ],
         [
           15,
-          "Graph attention networks for predicting refractive indices"
+          "molecular graph embeddings for physical property regression"
         ],
         [
           16,
-          "Molecular fingerprint approaches to refractive index modeling"
+          "machine learning approaches to molar refraction"
         ],
         [
           17,
-          "In silico prediction of optical refractive index"
+          "predicting refractive indices using message passing neural networks"
         ],
         [
           18,
-          "Topological indices for refractive index correlation"
+          "graph-based feature extraction for optical property modeling"
         ],
         [
           19,
-          "Transfer learning for molecular optical property prediction"
+          "deep learning for estimating bulk optical properties of molecules"
         ],
         [
           20,
-          "Automated refractive index estimation using graph algorithms"
+          "structure-property modeling of refractive behavior in organic compounds"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
-        "Graph neural networks for molecular property prediction": 5,
-        "Predicting Molecular Refractive Indices from Graph-Based Molecular Representations chemistry": 0
+        "Predicting Molecular Refractive Indices from Graph-Based Molecular Representations chemistry": 0,
+        "graph neural networks for molecular property prediction": 5
       },
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "molar refractivity polarizability quantum chemistry",
-      "QM9 dataset refractive index graph neural network",
-      "molecular polarizability graph topology homophily",
-      "dielectric constant prediction molecular property regression",
-      "density functional theory refractive index benchmark"
+      "molar refractivity polarizability molecular property",
+      "QM9 dataset GNN refractive index",
+      "quantum chemical descriptors graph neural network",
+      "molecular property prediction held-out evaluation benchmark",
+      "density functional theory polarizability estimation"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -120,16 +120,16 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2510.08900"
+        "2402.18433"
       ]
     },
     "per_query_hit_count": {
       "Predicting Molecular Refractive Indices from Graph-Based Molecular Representations chemistry": 3,
-      "QM9 dataset refractive index graph neural network": 3,
-      "density functional theory refractive index benchmark": 3,
-      "dielectric constant prediction molecular property regression": 2,
-      "molar refractivity polarizability quantum chemistry": 3,
-      "molecular polarizability graph topology homophily": 2
+      "QM9 dataset GNN refractive index": 3,
+      "density functional theory polarizability estimation": 3,
+      "molar refractivity polarizability molecular property": 2,
+      "molecular property prediction held-out evaluation benchmark": 1,
+      "quantum chemical descriptors graph neural network": 3
     },
     "relevance_judge": {
       "enabled": true,
@@ -159,7 +159,7 @@
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-08-12T12:54:49Z",
+    "started_at": "2026-10-08T02:19:42Z",
     "term_input": {
       "normalized": "predicting molecular refractive indices from graph-based molecular representations chemistry",
       "raw": "Predicting Molecular Refractive Indices from Graph-Based Molecular Representations chemistry"
@@ -184,7 +184,7 @@
           "primary_pointer": "astro-ph/0609027"
         },
         "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor')",
-        "failed_at": "2026-08-12T12:55:17Z",
+        "failed_at": "2026-10-08T02:20:10Z",
         "reason": "query_irrelevant"
       },
       {
@@ -202,7 +202,7 @@
           "primary_pointer": "1705.09868"
         },
         "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='Energy flow in biological system: Bioenergy transduction of V1-ATPase molecular rotary motor from E. hirae')",
-        "failed_at": "2026-08-12T12:55:17Z",
+        "failed_at": "2026-10-08T02:20:10Z",
         "reason": "query_irrelevant"
       },
       {
@@ -220,32 +220,31 @@
           "primary_pointer": "1705.09863"
         },
         "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='Molecular recognition of the environment and mechanisms of the origin of species in quantum-like modeling of evolution')",
-        "failed_at": "2026-08-12T12:55:17Z",
+        "failed_at": "2026-10-08T02:20:10Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Utilizing quantum computer to investigate quantum chemistry is an important research field nowadays. In addition to the ground-state problems that have been widely studied, the determination of excited-states plays a crucial role in the prediction and modeling of chemical reactions and other physical processes. Here, we propose a non-variational full circuit-based quantum algorithm for obtaining the excited-state spectrum of a quantum chemistry Hamiltonian. Compared with previous classical-quantum hybrid variational algorithms, our method eliminates the classical optimization process, reduces the resource cost caused by the interaction between different systems, and achieves faster convergence rate and stronger robustness against noise without barren plateau. The parameter updating for determining the next energy-level is naturally dependent on the energy measurement outputs of the previous energy-level and can be realized by only modifying the state preparation process of ancillary system, introducing little additional resource overhead. Numerical simulations of the algorithm with hydrogen, LiH, H2O and NH3 molecules are presented. Furthermore, we offer an experimental demonstration of the algorithm on a superconducting quantum computing platform, and the results show a good agreement with theoretical expectations. The algorithm can be widely applied to various Hamiltonian spectrum determination problems on the fault-tolerant quantum computers.",
+          "claimed_abstract": "AI-assisted molecular property prediction has become a promising technique in early-stage drug discovery and materials design in recent years. However, due to high-cost and complex wet-lab experiments, real-world molecules usually experience the issue of scarce annotations, leading to limited labeled data for effective supervised AI model learning. In light of this, few-shot molecular property prediction (FSMPP) has emerged as an expressive paradigm that enables learning from only a few labeled examples. Despite rapidly growing attention, existing FSMPP studies remain fragmented, without a coherent framework to capture methodological advances and domain-specific challenges. In this work, we present the first comprehensive and systematic survey of few-shot molecular property prediction. We begin by analyzing the few-shot phenomenon in molecular datasets and highlighting two core challenges: (1) cross-property generalization under distribution shifts, where each task corresponding to each property, may follow a different data distribution or even be inherently weakly related to others from a biochemical perspective, requiring the model to transfer knowledge across heterogeneous prediction tasks, and (2) cross-molecule generalization under structural heterogeneity, where molecules involved in different or same properties may exhibit significant structural diversity, making model difficult to achieve generalization. Then, we introduce a unified taxonomy that organizes existing methods into data, model, and learning paradigm levels, reflecting their strategies for extracting knowledge from scarce supervision in few-shot molecular property prediction. Next, we compare representative methods, summarize benchmark datasets and evaluation protocols. In the end, we identify key trends and future directions for advancing the continued research on FSMPP.",
           "claimed_authors": [
-            "Jingwei Wen",
-            "Zhengan Wang",
-            "Chitong Chen",
-            "Junxiang Xiao",
-            "Hang Li",
-            "Ling Qian",
-            "Zhiguo Huang",
-            "Heng Fan",
-            "Shijie Wei",
-            "Guilu Long"
+            "Zeyu Wang",
+            "Tianyi Jiang",
+            "Huanchang Ma",
+            "Yao Lu",
+            "Xiaoze Bao",
+            "Shanqing Yu",
+            "Qi Xuan",
+            "Shirui Pan",
+            "Xin Zheng"
           ],
-          "claimed_title": "A full circuit-based quantum algorithm for excited-states in quantum chemistry",
+          "claimed_title": "Few-shot Molecular Property Prediction: A Survey",
           "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2112.14193"
+          "claimed_year": 2025,
+          "primary_pointer": "2510.08900"
         },
-        "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='A full circuit-based quantum algorithm for excited-states in quantum chemistry')",
-        "failed_at": "2026-08-12T12:55:17Z",
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='Few-shot Molecular Property Prediction: A Survey')",
+        "failed_at": "2026-10-08T02:20:10Z",
         "reason": "query_irrelevant"
       },
       {
@@ -267,57 +266,7 @@
           "primary_pointer": "2305.15200"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='Reducing Rydberg state dc polarizability by microwave dressing')",
-        "failed_at": "2026-08-12T12:55:17Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Tianyan Quantum Cloud Platform offers cloud services demonstrating quantum advantage capabilities with a Zuchongzhi 3.0-like superconducting quantum processor. This cloud-accessible superconducting quantum prototype, named Tianyan-287, features 105 qubits and achieves high operational fidelities, with single-qubit gates, two-qubit gates, and readout fidelity at 99.90%, 99.56%, 98.7%, respectively. For a specific benchmark task involving random circuit sampling on a 74-qubit system over 24 cycles, the platform completes one million samples in just 18.4 minutes. In contrast, state-of-the-art classical supercomputers would require approximately 16,000 years to complete the equivalent calculation. To facilitate this, the platform provides access via Cqlib, an open-source SDK designed for working with quantum systems at the level of extended quantum circuits, operators, and primitives. The cloud service aims to democratize access to high-performance quantum hardware, enabling the community to validate and explore practical quantum advantages.",
-          "claimed_authors": [
-            " Tianyan Quantum Group"
-          ],
-          "claimed_title": "Tianyan: Cloud services with quantum advantage",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2512.10504"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='Tianyan: Cloud services with quantum advantage')",
-        "failed_at": "2026-08-12T12:55:17Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Random Neural Networks (RNNs) are a class of Neural Networks (NNs) that can also be seen as a specific type of queuing network. They have been successfully used in several domains during the last 25 years, as queuing networks to analyze the performance of resource sharing in many engineering areas, as learning tools and in combinatorial optimization, where they are seen as neural systems, and also as models of neurological aspects of living beings. In this article we focus on their learning capabilities, and more specifically, we present a practical guide for using the RNN to solve supervised learning problems. We give a general description of these models using almost indistinctly the terminology of Queuing Theory and the neural one. We present the standard learning procedures used by RNNs, adapted from similar well-established improvements in the standard NN field. We describe in particular a set of learning algorithms covering techniques based on the use of first order and, then, of second order derivatives. We also discuss some issues related to these objects and present new perspectives about their use in supervised learning problems. The tutorial describes their most relevant applications, and also provides a large bibliography.",
-          "claimed_authors": [
-            "Sebastián Basterrech",
-            "Gerardo Rubino"
-          ],
-          "claimed_title": "A Tutorial about Random Neural Networks in Supervised Learning",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2016,
-          "primary_pointer": "1609.04846"
-        },
-        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='A Tutorial about Random Neural Networks in Supervised Learning')",
-        "failed_at": "2026-08-12T12:55:17Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Learning powerful data embeddings has become a center piece in machine learning, especially in natural language processing and computer vision domains. The crux of these embeddings is that they are pretrained on huge corpus of data in a unsupervised fashion, sometimes aided with transfer learning. However currently in the graph learning domain, embeddings learned through existing graph neural networks (GNNs) are task dependent and thus cannot be shared across different datasets. In this paper, we present a first powerful and theoretically guaranteed graph neural network that is designed to learn task-independent graph embeddings, thereafter referred to as deep universal graph embedding (DUGNN). Our DUGNN model incorporates a novel graph neural network (as a universal graph encoder) and leverages rich Graph Kernels (as a multi-task graph decoder) for both unsupervised learning and (task-specific) adaptive supervised learning. By learning task-independent graph embeddings across diverse datasets, DUGNN also reaps the benefits of transfer learning. Through extensive experiments and ablation studies, we show that the proposed DUGNN model consistently outperforms both the existing state-of-art GNN models and Graph Kernels by an increased accuracy of 3% - 8% on graph classification benchmark datasets.",
-          "claimed_authors": [
-            "Saurabh Verma",
-            "Zhi-Li Zhang"
-          ],
-          "claimed_title": "Learning Universal Graph Neural Network Embeddings With Aid Of Transfer Learning",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1909.10086"
-        },
-        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='Learning Universal Graph Neural Network Embeddings With Aid Of Transfer Learning')",
-        "failed_at": "2026-08-12T12:55:17Z",
+        "failed_at": "2026-10-08T02:20:10Z",
         "reason": "query_irrelevant"
       },
       {
@@ -372,82 +321,7 @@
           "primary_pointer": "2405.19595"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
-        "failed_at": "2026-08-12T12:55:17Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Persistence modules are a central algebraic object arising in topological data analysis. The notion of interleaving provides a natural way to measure distances between persistence modules. We consider various classes of persistence modules, including many of those that have been previously studied, and describe the relationships between them. In the cases where these classes are sets, interleaving distance induces a topology. We undertake a systematic study the resulting topological spaces and their basic topological properties.",
-          "claimed_authors": [
-            "Peter Bubenik",
-            "Tane Vergili"
-          ],
-          "claimed_title": "Topological spaces of persistence modules and their properties",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1802.08117"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='Topological spaces of persistence modules and their properties')",
-        "failed_at": "2026-08-12T12:55:17Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The paper is devoted to study the structure of Hawaiian groups of some topological spaces. We present some behaviors of Hawaiian groups with respect to product spaces, weak join spaces, cone spaces, covering spaces and locally trivial bundles. In particular, we determine the structure of the $n$-dimensional Hawaiian group of the $m$-dimensional Hawaiian earring space, for all $1\\leq m\\leq n$.",
-          "claimed_authors": [
-            "Ameneh Babaee",
-            "Behrooz Mashayekhy",
-            "Hanieh Mirebrahimi"
-          ],
-          "claimed_title": "On Hawaiian Groups of Some Topological Spaces",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2011,
-          "primary_pointer": "1111.0731"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='On Hawaiian Groups of Some Topological Spaces')",
-        "failed_at": "2026-08-12T12:55:17Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "AI-assisted molecular property prediction has become a promising technique in early-stage drug discovery and materials design in recent years. However, due to high-cost and complex wet-lab experiments, real-world molecules usually experience the issue of scarce annotations, leading to limited labeled data for effective supervised AI model learning. In light of this, few-shot molecular property prediction (FSMPP) has emerged as an expressive paradigm that enables learning from only a few labeled examples. Despite rapidly growing attention, existing FSMPP studies remain fragmented, without a coherent framework to capture methodological advances and domain-specific challenges. In this work, we present the first comprehensive and systematic survey of few-shot molecular property prediction. We begin by analyzing the few-shot phenomenon in molecular datasets and highlighting two core challenges: (1) cross-property generalization under distribution shifts, where each task corresponding to each property, may follow a different data distribution or even be inherently weakly related to others from a biochemical perspective, requiring the model to transfer knowledge across heterogeneous prediction tasks, and (2) cross-molecule generalization under structural heterogeneity, where molecules involved in different or same properties may exhibit significant structural diversity, making model difficult to achieve generalization. Then, we introduce a unified taxonomy that organizes existing methods into data, model, and learning paradigm levels, reflecting their strategies for extracting knowledge from scarce supervision in few-shot molecular property prediction. Next, we compare representative methods, summarize benchmark datasets and evaluation protocols. In the end, we identify key trends and future directions for advancing the continued research on FSMPP.",
-          "claimed_authors": [
-            "Zeyu Wang",
-            "Tianyi Jiang",
-            "Huanchang Ma",
-            "Yao Lu",
-            "Xiaoze Bao",
-            "Shanqing Yu",
-            "Qi Xuan",
-            "Shirui Pan",
-            "Xin Zheng"
-          ],
-          "claimed_title": "Few-shot Molecular Property Prediction: A Survey",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2510.08900"
-        },
-        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='Few-shot Molecular Property Prediction: A Survey')",
-        "failed_at": "2026-08-12T12:55:17Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Currently, the study of systems confined within various materials, such as graphene and graphene oxide, for diverse applications such as water desalination, metal separation from water, battery cells, and high-efficiency capacitors, is very common. Among these systems, water is a prominent subject of investigation. Understanding the impact of the number of molecules and the optimal cutoff radius is essential in order to determine the parameters. This study investigates the dielectric properties of H2O in relation to both the number of molecules and the cutoff radius within the simulation cell. We employ the flexible water model FBA/$ε$, known for its improved accuracy in reproducing water properties across various thermodynamic states. We range from 60 to 1372 molecules and use cutoff radius from 6 nm to 1.2 nm, encompassing a wide range of calculations to assess their impact on the simulation results, including critical properties like the dielectric constant, density, and phase change enthalpy.",
-          "claimed_authors": [
-            "Raúl Fuentes-Azcatl"
-          ],
-          "claimed_title": "Dielectric Properties of Water: A Molecular Dynamics Study on the Effects of Molecule Count and Cutoff Radius",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2405.14729"
-        },
-        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='Dielectric Properties of Water: A Molecular Dynamics Study on the Effects of Molecule Count and Cutoff Radius')",
-        "failed_at": "2026-08-12T12:55:17Z",
+        "failed_at": "2026-10-08T02:20:10Z",
         "reason": "query_irrelevant"
       },
       {
@@ -465,7 +339,96 @@
           "primary_pointer": "0901.4052"
         },
         "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='Probing a Possible Vacuum Refractive Index with Gamma-Ray Telescopes')",
-        "failed_at": "2026-08-12T12:55:17Z",
+        "failed_at": "2026-10-08T02:20:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Intracranial aneurysm rupture is associated with substantial morbidity and mortality, yet aneurysm detection remains challenging, particularly for small lesions and on routine non-angiographic imaging examinations. To support the development and evaluation of artificial intelligence (AI) algorithms for intracranial aneurysm detection and localization, the Radiological Society of North America (RSNA), in collaboration with the American Society of Neuroradiology (ASNR), the Society of Neurointerventional Surgery (SNIS), and the European Society of Neuroradiology (ESNR), curated the RSNA Intracranial Aneurysm (RSNA-ICA) Dataset. Developed for the 2025 RSNA Intracranial Aneurysm Detection Challenge, RSNA-ICA is a large, publicly available, expert-annotated dataset comprising 7202 CTA, MRA, and MRI series from 4278 adult patients collected across 21 institutions in 12 countries spanning five continents. The dataset includes 2566 CTA, 2166 MRA, and 2470 MRI series from patients with and without intracranial saccular aneurysms, providing substantial geographic and imaging diversity. Expert annotations indicate both aneurysm presence and location, and 178 series additionally include three-dimensional segmentations of challenge-defined vascular locations. RSNA-ICA was used to develop and evaluate algorithms in the 2025 RSNA Intracranial Aneurysm Detection Challenge. Of the 7202 image series, 5041 are publicly available through MIRA, while the remainder were used for challenge public and private test sets. The dataset is freely available to the research community for noncommercial use and provides a comprehensive resource for advancing AI-based aneurysm detection across both angiographic and routine neuroimaging examinations.",
+          "claimed_authors": [
+            "Maria Correia de Verdier",
+            "Rachit Saluja",
+            "Jason Sho",
+            "Maryam Vabarizad",
+            "Rennie Yung-Chieh Chen",
+            "Uyen N. T. Nguyen",
+            "Mona Alrehaili",
+            "Layal Aweidah",
+            "Deniz Bulja",
+            "Wesley C. Chan",
+            "Hernan Chaves",
+            "Madhavi Duvvuri",
+            "Huseyin Ekin Ergin",
+            "Undrakh-Erdene Erdenebold",
+            "Ekim Gumeler",
+            "Mohamed Sobhi Jabal",
+            "Chin-Chi Kuo",
+            "Fatima Mubarak",
+            "Sevde Nur Emir",
+            "Scott Riley K. Ong",
+            "Johanna Ortiz",
+            "Almudena Pérez-Lara",
+            "Andreas M. Rauschecker",
+            "Shayan Sirat Maheen Anwar",
+            "Charit Tippareddy",
+            "Tam Tran",
+            "Sorawis Visrutaratna",
+            "John Mongan",
+            "Adam E. Flanders",
+            "Robyn Ball",
+            "Greg Zaharchuk",
+            "Peter D. Chang",
+            "Felipe Kitamura",
+            "Errol Colak",
+            "Luciano Prevedello",
+            "Tyler Richards",
+            "Data Contributor Group",
+            "Dataset Annotator Group",
+            "Evan Calabrese",
+            "Jeffrey D. Rudie"
+          ],
+          "claimed_title": "The RSNA Intracranial Aneurysm (RSNA-ICA) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2610.01135"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='The RSNA Intracranial Aneurysm (RSNA-ICA) Dataset')",
+        "failed_at": "2026-10-08T02:20:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Random Neural Networks (RNNs) are a class of Neural Networks (NNs) that can also be seen as a specific type of queuing network. They have been successfully used in several domains during the last 25 years, as queuing networks to analyze the performance of resource sharing in many engineering areas, as learning tools and in combinatorial optimization, where they are seen as neural systems, and also as models of neurological aspects of living beings. In this article we focus on their learning capabilities, and more specifically, we present a practical guide for using the RNN to solve supervised learning problems. We give a general description of these models using almost indistinctly the terminology of Queuing Theory and the neural one. We present the standard learning procedures used by RNNs, adapted from similar well-established improvements in the standard NN field. We describe in particular a set of learning algorithms covering techniques based on the use of first order and, then, of second order derivatives. We also discuss some issues related to these objects and present new perspectives about their use in supervised learning problems. The tutorial describes their most relevant applications, and also provides a large bibliography.",
+          "claimed_authors": [
+            "Sebastián Basterrech",
+            "Gerardo Rubino"
+          ],
+          "claimed_title": "A Tutorial about Random Neural Networks in Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.04846"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='A Tutorial about Random Neural Networks in Supervised Learning')",
+        "failed_at": "2026-10-08T02:20:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning powerful data embeddings has become a center piece in machine learning, especially in natural language processing and computer vision domains. The crux of these embeddings is that they are pretrained on huge corpus of data in a unsupervised fashion, sometimes aided with transfer learning. However currently in the graph learning domain, embeddings learned through existing graph neural networks (GNNs) are task dependent and thus cannot be shared across different datasets. In this paper, we present a first powerful and theoretically guaranteed graph neural network that is designed to learn task-independent graph embeddings, thereafter referred to as deep universal graph embedding (DUGNN). Our DUGNN model incorporates a novel graph neural network (as a universal graph encoder) and leverages rich Graph Kernels (as a multi-task graph decoder) for both unsupervised learning and (task-specific) adaptive supervised learning. By learning task-independent graph embeddings across diverse datasets, DUGNN also reaps the benefits of transfer learning. Through extensive experiments and ablation studies, we show that the proposed DUGNN model consistently outperforms both the existing state-of-art GNN models and Graph Kernels by an increased accuracy of 3% - 8% on graph classification benchmark datasets.",
+          "claimed_authors": [
+            "Saurabh Verma",
+            "Zhi-Li Zhang"
+          ],
+          "claimed_title": "Learning Universal Graph Neural Network Embeddings With Aid Of Transfer Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.10086"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='Learning Universal Graph Neural Network Embeddings With Aid Of Transfer Learning')",
+        "failed_at": "2026-10-08T02:20:10Z",
         "reason": "query_irrelevant"
       },
       {
@@ -482,7 +445,7 @@
           "primary_pointer": "1211.2355"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='Energy density functional in nuclear physics')",
-        "failed_at": "2026-08-12T12:55:17Z",
+        "failed_at": "2026-10-08T02:20:10Z",
         "reason": "query_irrelevant"
       },
       {
@@ -500,11 +463,80 @@
           "primary_pointer": "2202.09760"
         },
         "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='The strong-interaction limit of density functional theory')",
-        "failed_at": "2026-08-12T12:55:17Z",
+        "failed_at": "2026-10-08T02:20:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this chapter, we provide a review of ground-state Kohn-Sham density-functional theory of electronic systems and some of its extensions, we present exact expressions and constraints for the exchange and correlation density functionals, and we discuss the main families of approximations for the exchange-correlation energy: semilocal approximations, single-determinant hybrid approximations, multideterminant hybrid approximations, dispersion-corrected approximations, as well as orbital-dependent exchange-correlation density functionals. The chapter aims at providing both a consistent bird's-eye view of the field and a detailed description of some of the most used approximations. It is intended to be readable by chemists/physicists and applied mathematicians.",
+          "claimed_authors": [
+            "Julien Toulouse"
+          ],
+          "claimed_title": "Review of approximations for the exchange-correlation energy in density-functional theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.02645"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='Review of approximations for the exchange-correlation energy in density-functional theory')",
+        "failed_at": "2026-10-08T02:20:10Z",
         "reason": "query_irrelevant"
       }
     ],
     "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tomoya Shiota",
+            "Kenji Ishihara",
+            "Wataru Mizukami"
+          ],
+          "title": "Universal neural network potentials as descriptors: Towards scalable chemical property prediction using quantum and classical computers",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2402.18433",
+        "summary": "Accurate prediction of diverse chemical properties is crucial for advancing molecular design and materials discovery. Here we present a versatile approach that uses the intermediate information of a universal neural network potential as a general-purpose descriptor for chemical property prediction. Our method is based on the insight that by training a sophisticated neural network architecture for universal force fields, it learns transferable representations of atomic environments. We show that transfer learning with graph neural network potentials such as M3GNet and MACE achieves accuracy comparable to state-of-the-art methods for predicting the NMR chemical shifts of using quantum machine learning as well as a standard classical regression model, despite the compactness of its descriptors. In particular, the MACE descriptor demonstrates the highest accuracy to date on the ${^{13}}$C NMR chemical shift benchmarks for drug molecules. This work provides an efficient way to accurately predict properties, potentially accelerating the discovery of new molecules and materials.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2402.18433",
+          "http_status": 200,
+          "pdf_sample_score": 0.2173,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-08T02:20:10Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jinjiang Guo",
+            "Sheng Ding"
+          ],
+          "title": "Do Larger Models Really Win in Drug Discovery? A Benchmark Assessment of Model Scaling in AI-Driven Molecular Property and Activity Prediction",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.26498",
+        "summary": "The rapid growth of molecular foundation models and large language models (LLMs) has encouraged a scale centred view of AI in drug discovery, in which larger pretrained models are expected to supersede compact cheminformatics models. We test this assumption across 26 ADME, toxicity and bioactivity endpoints, covering 165,541 endpoint level compound label records. The benchmark contains 78 endpoint and split entries evaluated under random, Murcko scaffold and structure separated 5-fold cross validation protocols, representing increasing chemical generalization difficulty. Across 156 task and metric comparisons, classical machine learning (ML) provides the largest share of best performing entries (47.4%), followed by pretrained molecular sequence models (28.8%), graph neural networks (21.8%) and LLM based SAR baselines (1.9%). Classical ML dominates random split interpolation and remains the largest winner family overall. GNN and sequence models are competitive in selected harder splits, but their strict winner shares decrease under a fixed final-window readout, indicating sensitivity to training settings and model selection. Paired bootstrap analyses show that small numerical differences between individual models should not be read as decisive victories. SAR knowledge from training folds improves GPT5.5-SAR and Opus4.7-SAR metrics but does not make rule based reasoning a universal substitute for supervised predictors. Compact specialized models remain highly effective, and predictive performance depends on the fit among model, task and validation scenario, not on scale alone.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.26498",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-08T02:20:10Z"
+        }
+      },
       {
         "bibliographic_info": {
           "authors": [
@@ -529,13 +561,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2510.08900",
           "http_status": 200,
-          "pdf_sample_score": 0.3622,
+          "pdf_sample_score": null,
           "query_relevance_score": 0.4,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-12T12:55:23Z"
+          "verified_at": "2026-10-08T02:20:15Z"
         }
       }
     ]

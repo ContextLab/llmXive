@@ -1,0 +1,67 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MoleculeGraph Dataset Schema"
+description: "Schema for the processed molecular dataset used in RI prediction."
+type: "object"
+properties:
+  smiles:
+    type: "string"
+    description: "Canonical SMILES string of the molecule."
+    pattern: "^[A-Za-z0-9@#$%&*()+=<>\\[\\]{}!~^|\\\\\\\\]+$"
+  molecular_weight:
+    type: "number"
+    description: "Molecular weight in g/mol."
+    minimum: 0
+    maximum: 500
+  refractive_index:
+    type: "number"
+    description: "Experimental refractive index normalized to 20°C."
+    minimum: 1.0
+  node_features:
+    type: "array"
+    description: "List of node features (atoms)."
+    items:
+      type: "object"
+      properties:
+        atomic_num:
+          type: "integer"
+        degree:
+          type: "integer"
+        hybridization:
+          type: "string"
+          enum: ["SP", "SP2", "SP3", "UNSPECIFIED"]
+        is_aromatic:
+          type: "boolean"
+      required:
+        - atomic_num
+        - degree
+        - hybridization
+        - is_aromatic
+  edge_features:
+    type: "array"
+    description: "List of edge features (bonds)."
+    items:
+      type: "object"
+      properties:
+        bond_type:
+          type: "string"
+          enum: ["SINGLE", "DOUBLE", "TRIPLE", "AROMATIC"]
+        is_conjugated:
+          type: "boolean"
+        stereo:
+          type: "string"
+          enum: ["NONE", "STEREOANY", "STEREOZ", "STEREOE"]
+      required:
+        - bond_type
+        - is_conjugated
+        - stereo
+  scaffold_id:
+    type: "string"
+    description: "Murcko scaffold fingerprint."
+required:
+  - smiles
+  - molecular_weight
+  - refractive_index
+  - node_features
+  - edge_features
+  - scaffold_id
+additionalProperties: false

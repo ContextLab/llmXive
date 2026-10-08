@@ -1,0 +1,10 @@
+status: none
+intent: download experimental refractive index dataset organic molecules SMILES NIST
+  Chemistry WebBook python package dataset
+required_fields:
+- smiles
+- refractive_index
+- molecular_weight
+cache_key: c7e6c6bcd587e7c6315bb6d03918dd0ecb0086bd34985b520e6bc0919c414e93
+searched_at: '2026-10-08T02:27:05.919441+00:00'
+retry_count: 1

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.26498",
+  "judged_at": "2026-10-08T02:20:23Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular refractive indices from graph-based molecular representations chemistry",
+  "rationale": "This paper satisfies criterion (b) as it benchmarks Graph Neural Networks (GNNs) and other molecular representations for predicting molecular properties (ADME, toxicity, bioactivity), which directly addresses the user's domain of using graph-based representations for molecular property prediction, even though it focuses on a broader set of endpoints rather than refractive indices specifically. It also partially satisfies (d) by serving as a canonical reference for the current state-of-the-art an",
+  "relevant": true
+}

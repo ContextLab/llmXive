@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Prediction Output Schema"
+description: "Schema for the model prediction and evaluation results."
+type: "object"
+properties:
+  smiles:
+    type: "string"
+    description: "Input SMILES."
+  true_ri:
+    type: "number"
+    description: "Experimental refractive index."
+  pred_ri_gnn:
+    type: "number"
+    description: "MPNN predicted refractive index."
+  pred_ri_baseline:
+    type: "number"
+    description: "Atomic contribution baseline prediction."
+  error_gnn:
+    type: "number"
+    description: "Absolute error of GNN."
+  error_baseline:
+    type: "number"
+    description: "Absolute error of baseline."
+  attribution_scores:
+    type: "array"
+    description: "Normalized attribution scores for top 10 features."
+    items:
+      type: "object"
+      properties:
+        feature_type:
+          type: "string"
+          enum: ["ATOM", "BOND"]
+        feature_index:
+          type: "integer"
+        score:
+          type: "number"
+      required:
+        - feature_type
+        - feature_index
+        - score
+required:
+  - smiles
+  - true_ri
+  - pred_ri_gnn
+  - pred_ri_baseline
+  - error_gnn
+  - error_baseline
+additionalProperties: false
