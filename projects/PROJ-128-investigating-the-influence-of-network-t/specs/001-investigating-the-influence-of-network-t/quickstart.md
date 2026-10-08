@@ -1,70 +1,95 @@
 # Quickstart: Investigating the Influence of Network Topology on Spontaneous Brain Activity Patterns
 
-## 1. Prerequisites
+## Prerequisites
 
-*   Python 3.11+
-*   `pip`
-*   Access to the HCP 1200 Subjects Release (S1200) via the HCP website or AWS Open Data.
+- Python 3.11+
+- Git
+- Access to a terminal with `pip` and `venv` support.
 
-## 2. Installation
+## Installation
 
-1.  Clone the repository and navigate to the project directory.
-2.  Create a virtual environment:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-3.  Install dependencies:
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *Note: `requirements.txt` pins versions compatible with CPU-only execution.*
+1. **Clone the Repository**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-128-investigating-the-influence-of-network-t
+   ```
 
-## 3. Data Preparation
+2. **Create Virtual Environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-1.  Download the HCP 1200 Subjects Release (S1200) data. The pipeline expects data in `data/raw/`.
-    *   **Option A (AWS)**: Use `aws s3 cp s3://hcp-openaccess/HCP_1200/ data/raw/ --recursive` (requires AWS CLI setup).
-    *   **Option B (Web)**: Download preprocessed NIfTI files from the HCP Connectome Workbench and place them in `data/raw/`.
-    *   Ensure the downloaded files match the checksums recorded in `state/projects/PROJ-128.../state.yaml`.
+3. **Install Dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-2.  Verify data integrity:
-    ```bash
-    python code/main.py --check-data
-    ```
+## Running the Pipeline
 
-## 4. Running the Pipeline
+The pipeline is executed via a series of scripts in the `code/` directory.
 
-Execute the full pipeline (structural metrics, dynamic metrics with LOO clustering, correlation, robustness):
-
+### Step 1: Download Data
 ```bash
-python code/main.py
+python code/download_data.py
+```
+- Downloads HCP data from OpenNeuro ds000224.
+- Validates checksums and schema.
+- Outputs: `data/raw/verified_manifest.json`.
+
+### Step 2: Compute Data Completeness Report
+```bash
+python code/completeness_report.py
+```
+- Parses exclusion logs from Phases 0, 1, and 2.
+- Generates `data/derived/data_completeness_report.csv`.
+
+### Step 3: Compute Structural Metrics
+```bash
+python code/structural_metrics.py
+```
+- Computes graph metrics (efficiency, clustering, modularity).
+- Handles sparsity and missing data.
+- Outputs: `data/derived/structural_metrics.csv`.
+
+### Step 4: Compute Dynamic Metrics (LOSO)
+```bash
+python code/dynamic_metrics.py
+```
+- Extracts dynamic states via LOSO sliding-window and k-means.
+- Computes dwell times and visit counts.
+- Outputs: `data/derived/dynamic_metrics.csv`.
+
+### Step 5: Correlation Analysis
+```bash
+python code/correlation_analysis.py
+```
+- Performs Pearson/Spearman correlations with FDR correction.
+- Outputs: `data/derived/correlation_results.csv`.
+
+### Step 6: Sensitivity Analysis
+```bash
+python code/sensitivity_analysis.py
+```
+- Re-runs with 20 TR window and ±5% density.
+- Outputs: `data/derived/sensitivity_comparison.csv`.
+
+### Step 7: Generate Report
+```bash
+python code/report_generator.py
+```
+- Aggregates results and generates `artifacts/final_report.md` and `README.md`.
+
+## Testing
+
+Run unit and integration tests:
+```bash
+pytest tests/
 ```
 
-**Output**:
-*   `data/processed/structural_metrics.csv`
-*   `data/processed/dynamic_metrics.csv`
-*   `data/processed/correlation_results.csv`
-*   `data/logs/exclusion_log.json`
-*   `reports/final_report.md`
+## Troubleshooting
 
-## 5. Reproducibility Check
-
-To verify reproducibility on a fresh environment:
-
-```bash
-# Set seed
-export PYTHONHASHSEED=42
-
-# Run pipeline
-python code/main.py
-
-# Verify outputs match expected hashes (if available)
-python code/main.py --verify-hashes
-```
-
-## 6. Troubleshooting
-
-*   **Memory Error**: Reduce the number of subjects or process in smaller batches (modify `config.py`).
-*   **k-means Non-convergence**: This is expected for noisy data. The subject will be excluded and logged.
-*   **No Significant Findings**: This is a valid result. The report will explicitly state that no associations survived FDR correction and frame the study as exploratory.
-*   **Data Access**: If you cannot access HCP data, ensure you have a free account at `humanconnectome.org` and have accepted the data use agreement.
+- **Missing Data**: Check `data/derived/data_completeness_report.csv` for excluded subjects and reasons.
+- **Convergence Failure**: Check logs in `data/derived/exclusion_log.txt`.
+- **Memory Error**: Reduce batch size in `structural_metrics.py` or `dynamic_metrics.py`.
+- **Robustness**: Check `data/derived/sensitivity_comparison.csv` for `is_robust` flags.

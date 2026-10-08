@@ -69,7 +69,7 @@ A researcher needs to verify that the findings are robust to parameter choices (
 ### Functional Requirements
 
 - **FR-001**: System MUST compute structural graph metrics (global efficiency, average clustering coefficient, modularity) from preprocessed dMRI connectivity matrices using NetworkX. (See US-1)
-- **FR-002**: System MUST extract dynamic functional states from resting-state fMRI time series by computing sliding-window correlation matrices (30 TR window, 1 TR step), concatenating these windowed matrices across all subjects, and applying k-means clustering (k=5) to define a common set of recurrent states. (See US-1)
+- **FR-002**: System MUST extract dynamic functional states from resting-state fMRI time series by computing sliding-window correlation matrices (a fixed-duration window, 1 TR step), concatenating these windowed matrices across all subjects, and applying k-means clustering (k=5) to define a common set of recurrent states. (See US-1)
 - **FR-003**: System MUST calculate per-subject dynamic metrics including number of visited states and mean dwell time for each state based on the common state space defined in FR-002. (See US-1)
 - **FR-004**: System MUST test for normality (Shapiro-Wilk, α=0.05) on structural and dynamic metrics; if normality is violated, use Spearman's rank correlation, otherwise use Pearson's correlation, between each structural metric and each dynamic metric across the subject cohort. (See US-2)
 - **FR-005**: System MUST apply Benjamini-Hochberg FDR correction (q=0.05) to all correlation p-values to control for multiple comparisons. (See US-2)

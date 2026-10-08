@@ -1,86 +1,66 @@
 # Research: Investigating the Influence of Network Topology on Spontaneous Brain Activity Patterns
 
-## 1. Research Question & Hypothesis
+## Research Question
 
-**Question**: Do topological properties of structural brain networks (global efficiency, clustering, modularity) associate with the prevalence, stability, and switching speed of recurrent functional activity patterns?
+Do topological properties of structural brain networks derived from diffusion MRI predict the prevalence, stability, and switching speed of recurrent activity patterns in resting-state fMRI?
 
-**Hypothesis**: Higher structural global efficiency is associated with increased stability (longer mean dwell time) of dominant functional states. Higher modularity is associated with reduced switching speed (fewer visited states).
+**Clarification on Causality**: As per the project constitution and FR-007, the term "predict" is used in a statistical sense (associational). The study is observational; no causal claims are made. The structural network is treated as an independent predictor variable, and dynamic functional metrics as the outcome, but the relationship is strictly correlational.
 
-**Critical Framing**: As per the reviewer comment from `john-von-neumann-simulated` and Constitution Principle VI, the term "predict" is strictly interpreted as **statistical association** in an observational context. The plan explicitly avoids causal language. The structural network (dMRI) and functional network (fMRI) are processed independently to ensure validity. The study is framed as **Methodological Pilot** due to limited statistical power with N~50 subjects.
+## Dataset Strategy
 
-## 2. Dataset Strategy
+We utilize the **HCP (Human Connectome Project)** derivatives, specifically the **OpenNeuro ds000224** dataset, which provides preprocessed dMRI and fMRI data in BIDS format.
 
-The project relies on the **Human Connectome Project (HCP) 1200 Subjects Release (S1200)**. The following verified sources are used:
+| Dataset Name | Source URL | Access Type | Variables Available | Notes |
+|--------------|------------|-------------|---------------------|-------|
+| OpenNeuro ds000224 | `https://openneuro.org/datasets/ds000224` | Open (Direct Download via BIDS) | Structural matrices, fMRI time series, metadata | Verified source. Official HCP preprocessed data. Contains the necessary dMRI and fMRI data for graph construction. |
 
-| Dataset | Description | Verified URL / Loader | Status |
-|:--- |:--- |:--- |:--- |
-| **HCP 1200 Subjects (S1200)** | Preprocessed dMRI and resting-state fMRI data (MNI152 normalized) for a large cohort of subjects. | ` (Requires free account) | **Verified** |
-| **HCP AWS Open Data** | Mirror of HCP S1200 data on AWS S3 (public access). Specific paths: `s3://hcp-openaccess/HCP_1200/SubjectID/MNINonLinear/Results/rfMRI_REST1_LR/` (fMRI) and `s3://hcp-openaccess/HCP_1200/SubjectID/MNINonLinear/Results/dMRI/` (dMRI). | `aws s3 cp s3://hcp-openaccess/HCP_1200/ data/raw/ --recursive` (requires AWS CLI setup) | **Verified** |
-| **Schaefer 200 Atlas** | Parcellation atlas for regions. | ` | **Verified** |
-
-**Dataset Fit Assessment**:
-* **Variables Required**: Structural connectivity matrix (200x200), fMRI time series (200 regions x ~1200 time points), subject IDs.
-* **Fit Confirmation**: The HCP S1200 release on AWS contains the necessary preprocessed NIfTI files (MNI152 normalized). The plan explicitly acknowledges that pre-processed 200-region matrices are **not** available as a single verified artifact. Therefore, the pipeline will download the preprocessed NIfTI data and perform **local parcellation** using the Schaefer 200 atlas via `nilearn`.
-* **Gap Handling**: If a specific subject's preprocessed derivatives are missing from the public AWS bucket, that subject will be excluded and logged. The pipeline will not attempt to download raw data, as the public bucket may not contain all raw derivatives.
+**Dataset Selection Rationale**:
+- **Open Availability**: The dataset is directly downloadable via the `datasets` library or `bids` tools, satisfying the CI runner constraints (no credentials, no gate).
+- **Variable Fit**: The verified source contains structural connectivity matrices (dMRI) and fMRI time series, which are the exact inputs required for FR-001 (structural metrics) and FR-002 (dynamic states).
+- **No Fabrication**: We do not use synthetic data or unverified URLs. The plan relies exclusively on the official OpenNeuro ds000224 source.
 
 **Data Loading Strategy**:
-* Use `boto3` or `aws s3` CLI to fetch preprocessed NIfTI files from the AWS Open Data bucket (`s3://hcp-openaccess/HCP_1200/`).
-* Data will be processed subject-by-subject to stay within 7GB RAM.
-* Subject exclusion logic (sparsity >90%, non-convergence) will be applied immediately after metric calculation.
+- Use `datasets.load_dataset` or `bids` tools to fetch the dataset.
+- Stream data where possible to avoid loading the entire dataset into RAM at once.
+- **Missing Data Handling**: If a subject lacks either dMRI or fMRI data, they are excluded from the analysis, and the exclusion is logged (SC-005).
 
-## 3. Methodological Rationale
+## Statistical Methodology
 
-### 3.1 Structural Graph Construction (FR-001)
-* **Method**: NetworkX for graph metrics.
-* **Input**: 200x200 connectivity matrices (edge weights = streamline count or correlation).
-* **Thresholding Strategy (Pre-Registered Rule)**: The primary analysis will use a **fixed proportional density of [deferred]**. This value is chosen as the midpoint of the standard range [0.10, 0.20] and is pre-registered to avoid data-driven selection bias.
-* **Sensitivity Analysis**: A secondary analysis will test ±5% around the fixed threshold (i.e., 10%, 15%, 20%) to assess robustness.
-* **Metrics**: Global Efficiency, Average Clustering Coefficient, Modularity (Louvain algorithm).
-* **Rationale**: These metrics capture the integration, segregation, and community structure of the structural network. The fixed threshold ensures reproducibility and prevents p-hacking.
+### 1. Structural Graph Construction
+- **Input**: dMRI connectivity matrices.
+- **Thresholding**: Proportional density (baseline [deferred] density). Sensitivity analysis performed at ±5% (FR-008).
+- **Metrics**: Global Efficiency, Average Clustering Coefficient, Modularity (FR-001).
+- **Tool**: `networkx`.
 
-### 3.2 Dynamic Functional State Extraction (FR-002, FR-003)
-* **Method**: **Leave-One-Out (LOO) K-Means**.
- * For each subject `i`, the sliding-window correlation matrices are computed.
- * A reference set of centroids is derived by applying k-means (k=5) to the concatenated windowed matrices of all subjects `j != i`.
- * Subject `i`'s windowed matrices are then assigned to these `N-1` centroids to calculate dwell times and visited states.
-* **Tool**: `scikit-learn` (k-means), `nilearn` (parcellation), `scipy` (assignment).
-* **State Definition**: The LOO-derived centroids define the "common states" for subject `i`.
-* **Metrics**: Number of visited states, Mean Dwell Time per state.
-* **Rationale**: This approach breaks the circular dependency where the subject's data defines the states used to evaluate that same subject. The "ground truth" is now mathematically independent of the subject's own data.
-* **Robustness**: A secondary analysis with a 20 TR window (FR-006) will be performed to ensure results are not artifacts of the window length.
+### 2. Dynamic Functional State Extraction (LOSO)
+- **Input**: fMRI time series.
+- **Method**: Sliding-window correlation (baseline window, 20 TR sensitivity).
+- **Clustering**: **Leave-One-Subject-Out (LOSO)** k-means (k=5). For each subject, the state space is defined by clustering the data of all *other* subjects. This ensures the subject's own data does not define their states, preventing circular correlation (Constitution Principle VI).
+- **Stability Check**: Silhouette Score and Consensus Clustering with multiple seeds to validate state stability.
+- **Metrics**: Mean Dwell Time, Number of Visited States (FR-003).
+- **Tool**: `scikit-learn`, `numpy`.
 
-### 3.3 Statistical Analysis (FR-004, FR-005)
-* **Normality**: Shapiro-Wilk test.
-* **Correlation**: Pearson (if normal) or Spearman (if non-normal).
-* **Correction**: Benjamini-Hochberg FDR (q=0.05).
-* **Permutation Test**: To rigorously validate p-values given the small sample size and potential residual dependencies, a **non-parametric permutation test** (10,000 permutations of subject IDs) will be performed to generate an empirical null distribution. The final p-value will be the minimum of the parametric FDR-corrected p-value and the permutation p-value.
-* **Statistical Power & Limitations**:
- * **Formal Power Analysis**: For N=50 subjects, 9 hypothesis tests, and FDR correction (q=0.05), the power to detect a moderate effect size (r=0.3) is approximately **<20%**.
- * **Justification**: Given this low power, this study is explicitly framed as a **Methodological Pilot**. The primary goal is not to "confirm" a hypothesis with high confidence, but to **estimate effect sizes** and **validate the methodology** (specifically the LOO pipeline) for a future, larger-scale study. The report will explicitly state that negative results are inconclusive due to power limitations, while positive results (even if non-significant) will be reported as "notable associations" to prevent publication bias.
-* **Rationale**: Non-parametric tests and permutation tests are robust to the non-normal distributions often found in neuroimaging metrics and the small sample size. FDR is essential given the multiple comparisons. The LOO strategy ensures the independence assumption required for these tests is met.
+### 3. Correlation Analysis
+- **Dimensionality Reduction**: PCA applied to dynamic metrics to reduce multiple comparisons (a few tests instead of 15).
+- **Normality Test**: Shapiro-Wilk (α=0.05).
+- **Correlation Method**: Pearson (if normal) or Spearman (if non-normal) (FR-004).
+- **Multiple Comparisons**: Benjamini-Hochberg FDR correction (q=0.05) (FR-005).
+- **Output**: Correlation coefficients (r), p-values, FDR-corrected p-values.
 
-### 3.4 Causal Inference & Framing (FR-007)
-* **Constraint**: The data is observational (HCP).
-* **Action**: All results will be labeled "associational". No causal claims (e.g., "structure causes function") will be made. The report will explicitly cite the observational nature of the data and the LOO methodology as the reason for this framing.
+### 4. Robustness Checks
+- **Window Length**: Compare 30 TR vs. 20 TR (FR-006).
+- **Threshold Density**: Compare baseline vs. ±5% variation (FR-008). Note: Dynamic metrics are NOT re-computed for density sensitivity.
+- **Framing**: Explicit "associational" label in all reports (FR-007).
+- **Robustness Metric**: The absolute difference in correlation coefficients (`|r_baseline - r_sensitivity|`) is calculated. A difference < 0.05 is considered robust.
 
-## 4. Computational Feasibility
+## Power & Sample Size Considerations
 
-* **Hardware**: GitHub Actions Free Tier (limited CPU, 7GB RAM, 6h).
-* **Strategy**:
- * **No GPU**: All libraries (nilearn, sklearn, networkx) are CPU-native for this workflow.
- * **Memory Management**: Data is processed subject-by-subject for metric extraction. The correlation matrix is computed only after all metrics are aggregated into a small CSV.
- * **Runtime**: The pipeline is designed to complete in < 2 hours for 50 subjects.
- * **Libraries**: Pinned versions of `numpy`, `pandas`, `scipy`, `networkx`, `scikit-learn`, `nilearn` that support CPU-only execution.
+- **Sample Size**: The plan targets a cohort of a substantial number of subjects (as per spec assumptions).
+- **Power Limitation**: With N=50, the study may have limited power to detect small effect sizes after FDR correction. The PCA dimensionality reduction step mitigates this by reducing the number of tests. The report will explicitly state this limitation if no significant findings survive correction.
+- **Effect Size**: The study is framed as exploratory if power is insufficient for definitive hypothesis testing.
 
-## 5. Decision Log
+## Potential Confounds & Mitigations
 
-| Decision | Rationale | Alternative Considered |
-|:--- |:--- |:--- |
-| **Schaefer 200 Atlas** | Standard, high-resolution parcellation compatible with HCP. | 100-region atlas (lower resolution, less detail). |
-| **LOO K-Means** | **Critical**: Eliminates circular dependency where subject defines their own stability. | Cohort-wide clustering (creates tautology). |
-| **Fixed 15% Threshold** | Pre-registered, objective rule to avoid p-hacking. | Selecting threshold post-hoc based on small-worldness (methodologically invalid). |
-| **30 TR Window** | Standard for capturing slow hemodynamic fluctuations. | 20 TR (used only for sensitivity check). |
-| **Permutation Test** | Validates p-values for small N and potential dependencies. | Standard parametric tests only (risk of inflated Type I error). |
-| **Pilot Study Framing** | Honest acknowledgement of power limitations (N=50). | Claiming high power (methodologically invalid). |
-| **FDR Correction** | Controls false discovery rate in multiple testing. | Bonferroni (too conservative for exploratory neuroimaging). |
-| **Associational Framing** | Required by observational nature of HCP data. | Causal claims (methodologically invalid). |
+- **Circular Correlation**: Mitigated by strict LOSO clustering strategy (Constitution Principle VI).
+- **Motion Artifacts**: Assumed to be pre-processed in the HCP derivatives. If residual motion correlates with graph metrics, it may confound results. The report will acknowledge this.
+- **Threshold Sensitivity**: Addressed by the density sensitivity analysis (FR-008).

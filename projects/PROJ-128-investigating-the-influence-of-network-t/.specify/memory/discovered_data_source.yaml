@@ -1,0 +1,15 @@
+status: none
+intent: download Human Connectome Project 1200 subjects dataset Python package including
+  Schaefer atlas python package dataset
+required_fields:
+- subject_id
+- structural_connectivity_matrix
+- structural_global_efficiency
+- structural_average_clustering_coefficient
+- structural_modularity
+- functional_state_dwell_times
+- number_of_dynamic_states
+- parcellation_name
+cache_key: 02c7b1a0e29dd769f8d0b3fe496410433b9f68d1be5d1a9f8aea772c1d1c8c35
+searched_at: '2026-10-08T08:28:05.230858+00:00'
+retry_count: 1
