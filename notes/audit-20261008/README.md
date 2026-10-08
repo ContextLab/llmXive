@@ -246,6 +246,13 @@ notification was created.
 
 ## Acceptance and deployment boundaries
 
+The [issue consolidation report](issue-consolidation/report.md) records the
+completed backlog review: 199 initially open issues, two new recurring-cause
+umbrellas and two new incident reports yielded 203 tracked dispositions.
+195 were closed with evidence and continuing-work links; eight remain open.
+Complex unresolved work is retained with acceptance criteria. Production can
+still emit duplicates until the shared-routing change is deployed.
+
 The next live planning attempt took 5,655.9 seconds and kicked back from
 `clarified` to `specified`. Its preserved trail
 (`canary-plan-hash-response-failure.jsonl`) records two rounds with no parsed
@@ -256,6 +263,14 @@ uniquely to a current reviewer-prefixed concern. Unknown, shortened, colliding,
 and duplicate answers remain unresolved. Forty-four focused checks passed;
 the live scientific correction and accepted paper remain pending.
 
+Later, the same run reached `planned` after eleven total recorded steps. The
+resulting plan and research notes now explicitly use `1/(p−1)` for conditional
+TV and retain the finite-range interpretation. The runner then failed its
+budget check (12,242.9 seconds in that resumed run); this is not acceptance.
+The status and log are saved as `canary-planned-budget-exhausted.*`. It resumed
+from the saved `planned` stage with the hash-identity fix loaded, without
+editing research artifacts or forcing a stage transition.
+
 The latest PR real-call job ([37826932550](https://github.com/ContextLab/llmXive/actions/runs/37826932550))
 was cancelled at its 60-minute job limit. Its contract suite and 7,053 unit
 tests passed; real-call output stopped after the liveness checks, immediately
@@ -264,6 +279,10 @@ now joins the existing nightly-only heavy tests. Collection checks confirm it
 remains selected by the nightly suite and is excluded from the fast PR gate.
 This change does not establish that the remaining real-call gate passes; a
 fresh run is required.
+
+The follow-up run [37835730308](https://github.com/ContextLab/llmXive/actions/runs/37835730308)
+passed in 17m12s on commit `8cb06dc8602`; all six PR checks passed on that
+revision. The subsequent hash-identity change still requires its own remote CI.
 
 The old “full pipeline” test only invoked one step and could pass when the
 project was rejected or needed human input. Its description is corrected. A new

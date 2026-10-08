@@ -78,6 +78,29 @@
     "unit_skipped": 7,
     "unit_deselected": 4,
     "change": "15-persona rotation retained in nightly-only tests",
-    "fresh_pr_gate": "pending"
+    "fresh_pr_gate": {
+      "run": 37835730308,
+      "head": "8cb06dc8602",
+      "result": "passed",
+      "duration": "17m12s",
+      "all_six_pr_checks": "passed"
+    }
+  },
+  "canary_planning_followup": {
+    "status": "budget_exhausted_after_planned",
+    "elapsed_s": 12242.878,
+    "evidence": "canary-planned-budget-exhausted.json",
+    "resumed_from": "planned",
+    "full_acceptance": false
+  },
+  "issue_consolidation": {
+    "initial_open": 199,
+    "new_umbrellas": 2,
+    "new_incidents": 2,
+    "tracked": 203,
+    "closed": 195,
+    "remaining_open": 8,
+    "evidence": "issue-consolidation/report.md",
+    "ongoing_emission": "possible until routing fix deployed"
   }
 }
