@@ -1,0 +1,34 @@
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, or output artifacts (e.g., latency\u2011injection script, modified\
+    \ audio files, EVA\u2011Bench run logs, regression results, or comparative report)\
+    \ were supplied; the claim cannot be verified against any tangible evidence. The\
+    \ required deliverables are missing."
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No logging configuration files, code snippets, or documentation showing file
+    handlers and warning filters were provided; the claim lacks any tangible artifact
+    to verify that the required logging infrastructure was actually set up.
+T015:
+  c: false
+  h: d74cddd8817a004276ea80f59c44f82a02c4b386f2b92d78943d473da5fa8a57
+  r: "The required `data/processed/turn_boundaries.csv` file is absent, and the provided\
+    \ `code/injectors/latency.py` contains latency\u2011injection code unrelated to\
+    \ turn\u2011boundary detection; it does not implement the specified algorithm\
+    \ for shifting boundaries based on audio gaps. Both the input artifact and the\
+    \ correct functionality are missing."
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or module implementing deterministic jitter generation with
+    a seeded `numpy.random` was provided; the evidence section contains no artifact
+    paths or files, so the required functionality is missing. The task remains undone.
+T020:
+  c: false
+  h: f6c737b019d3210873eb3666bd8d1cfef42cf1347e3fa4c326253c4340d3d14d
+  r: "The required file `code/tests/test_analysis.py` does not exist in the repository,\
+    \ so no integration test has been provided. Without this artifact, the task\u2019\
+    s requirement cannot be satisfied. The missing test file must be added with the\
+    \ appropriate integration test logic."

@@ -21,7 +21,7 @@
   verification_status: verified
   verified_against_url: https://github.com/coqui-ai/TTS
   verified_at: '2026-07-11T21:39:10.751012Z'
-- artifact_hash: 3292eeb367a061a2e5e62dde02d70c8444f6c14c4201bf4dbded172a1e4f097a
+- artifact_hash: 8ff422b37763f6530fc1c27009dd24be2fd8b835a761ae71d9617b30450847ab
   artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -29,6 +29,6 @@
   fetched_title: China Pharmaceutical University - Wikidata
   kind: url
   value: https://www.wikidata.org/wiki/Q5099853
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q5099853
-  verified_at: '2026-07-11T22:13:33.802459Z'
+  verified_at: '2026-10-08T03:41:05.912612Z'

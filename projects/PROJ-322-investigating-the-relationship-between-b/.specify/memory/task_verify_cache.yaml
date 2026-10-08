@@ -40,3 +40,48 @@ T023:
     \ system detecting a non\u2011convergent model fit, logging a warning, skipping\
     \ the offending subject, and continuing with the rest of the batch. Without such\
     \ artifact the requirement cannot be verified."
+T024a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, query logs, or resulting manifest showing columns such as \u201C\
+    ReturnToWork\u201D, \u201CRTW\u201D, or \u201CEmploymentStatus\u201D were provided.\
+    \ Consequently there is no evidence that the OpenNeuro metadata API was queried\
+    \ or that a real independent functional metric was identified. The required artifact\
+    \ (search script/output) is missing."
+T024b:
+  c: false
+  h: a99aa776d1fa05d8512d7ee3ee2a8f415962e8a776155fdee4b7f6d0930d1f16
+  r: "The required `data/results/gaps.json` file is absent, and the expected output\
+    \ `data/results/external_validation.json` was not generated. Neither the \u201C\
+    validation gap\u201D flag nor the validation results were produced, so the task\u2019\
+    s conditional requirements are unmet."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No JSON output artifact was provided, and there is no evidence that any output\
+    \ includes the required `is_synthetic` flag when running in Methodology Validation\
+    \ Mode. The implementer must supply the actual JSON file (or code generating it)\
+    \ demonstrating the flag\u2019s presence under the specified mode."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, configuration, or test output demonstrating a 6\u2011hour hard\
+    \ stop with a \u201CTime Limit Warning\u201D at 5 hours was provided; the only\
+    \ artifacts shown relate to neuroimaging data processing, not to the required\
+    \ runtime\u2011limit feature. The required implementation and verification evidence\
+    \ are missing."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No documentation files in `docs/` or updates to `README.md` are present; the
+    only evidence provided relates to feature specifications and user stories, not
+    to any actual documentation artifacts. The required documentation updates are
+    missing.
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, or refactored files were provided; the claim contains only\
+    \ the original feature specification and no evidence of any cleanup or memory\u2011\
+    efficiency refactoring work. The required artifact\u2014a cleaned\u2011up, memory\u2011\
+    optimized codebase (e.g., updated ingestion or analysis scripts, documentation\
+    \ of changes, or performance logs) \u2013 is missing."

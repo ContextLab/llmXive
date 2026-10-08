@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan by executing: `mkdir -p projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/{data/{raw,processed},code/{injectors,evaluation,analysis,synthetic},tests/{unit,integration},specs/001-gene-regulation}` <!-- FAILED: unspecified -->
-- [ ] T002 {{claim:c_c938ab6b}}
+- [ ] T002 {{claim:c_c938ab6b}} <!-- FAILED: unspecified -->
 - [X] T003a [P] Configure Black formatting by creating `pyproject.toml` with `tool.black` section (line-length=88, target-version=['py311']).
 - [X] T003b [P] Configure Flake8 linting by creating `.flake8` with strict rules (max-line-length=88, exclude=venv).
 - [X] T003c [P] Configure import sorting by adding `tool.isort` to `pyproject.toml` (profile=black).
@@ -58,11 +58,11 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Create directory structure: `data/raw/`, `data/processed/`, `code/`, `tests/`, `specs/`
-- [X] T005 [P] Implement `code/config.py` for path configuration, random seeds, and hyperparameters (200ms-2000ms bounds)
-- [~] T006 [P] Setup logging infrastructure with file handlers and warning filters for edge cases
+- [X] T005 [P] Implement `code/config.py` for path configuration, random seeds, and hyperparameters (200ms-2000ms bounds) [UNRESOLVED-CLAIM: c_8c03ac5d — status=not_enough_info]
+- [ ] T006 [P] Setup logging infrastructure with file handlers and warning filters for edge cases
 - [X] T007 [P] Implement `code/synthetic/tts_engine.py` (FR-011) as a fallback for missing EVA-Bench audio using Coqui TTS with known characteristics; simultaneously document 'known characteristics' (model version, prosody settings, seed) in `docs/tts_characteristics.md` to satisfy FR-011 reproducibility constraints; Output: `code/synthetic/tts_engine.py` and `docs/tts_characteristics.md`
 - [X] T008 Create `data/checksums.json` schema and initialization script; schema must be `{"files": [{"path": "string", "sha256": "string"}]}`; script must initialize empty `{"files": []}`; Output: `data/checksums.json`
-- [X] T009 Implement `code/main.py` orchestration skeleton with argument parsing for perturbation types [UNRESOLVED-CLAIM: c_6888dec5 — status=not_enough_info]
+- [X] T009 Implement `code/main.py` orchestration skeleton with argument parsing for perturbation types
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -72,7 +72,7 @@
 
 **Goal**: Implement the ability to inject variable network latency into EVA-Bench audio streams and re-run the evaluation pipeline.
 
-**Independent Test**: The system can be tested by taking a single EVA-Bench scenario, injecting a fixed delay, re-running the pipeline, and verifying that the output log contains a modified inter-turn gap consistent with the injected delay while the original acoustic content remains unchanged.
+**Independent Test**: The system can be tested by taking a single EVA-Bench scenario, injecting a fixed delay, re-running the pipeline, and verifying that the output log contains a modified inter-turn gap consistent with the injected delay while the original acoustic content remains unchanged. [UNRESOLVED-CLAIM: c_a25af77c — status=not_enough_info]
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -84,7 +84,7 @@
 ### Implementation for User Story 1
 
 - [X] T014 [US1] Implement `code/injectors/latency.py`: `LatencyInjector` class with `librosa.stream` for chunked I/O
-- [~] T015 [US1] Implement turn-boundary detection logic in `code/injectors/latency.py`; Input: `data/processed/turn_boundaries.csv`; Algorithm: If gap overlaps audio > 10ms, shift boundary to nearest silence > 50ms [UNRESOLVED-CLAIM: c_c51f6117 — status=not_enough_info]; Output: Updated turn boundaries <!-- FAILED: unspecified -->
+- [ ] T015 [US1] Implement turn-boundary detection logic in `code/injectors/latency.py`; Input: `data/processed/turn_boundaries.csv`; Algorithm: If gap overlaps audio > 10ms, shift boundary to nearest silence > 50ms; Output: Updated turn boundaries <!-- FAILED: unspecified -->
 - [X] T016 [US1] Implement duration validation and truncation logic in `code/injectors/latency.py`; MUST enforce a strict maximum duration limit as defined in Spec Edge Cases.; truncate audio if exceeded, log warning, and record score as `null`; Output: Updated audio files and logs
 - [X] T017 [US1] Create `code/injectors/__init__.py` exports
 - [ ] T018 [US1] Add deterministic jitter generation using seeded `numpy.random`
@@ -101,7 +101,7 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Unit test for piecewise regression fitting in `projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/code/tests/test_stats_models.py`
+- [X] T019 [P] [US2] Unit test for piecewise regression fitting in `projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/code/tests/test_stats_models.py`
 - [ ] T020 [P] [US2] Integration test for full latency sweep analysis in `projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/code/tests/test_analysis.py`
 
 ### Implementation for User Story 2
@@ -114,7 +114,7 @@
 - [ ] T030 [US2] Implement `code/analysis/metric_check.py`: Validate "Turn-Taking" definition for tautology risk (FR-010); Output: Write boolean flag `is_tautology` to `data/processed/metric_validation.json`
 - [ ] T030b [US2] Implement logic to adjust the analysis based on the tautology flag from T030; If `is_tautology` is true, switch to a non-tautological proxy metric or flag the result as invalid per FR-010; Output: Update `data/processed/metric_validation.json` with adjustment details; Requires: T030
 - [ ] T031 [US2] Create `data/processed/results.csv` schema and writer for aggregated scores
-- [ ] T032 [US2] Implement parallel execution logic in `code/main.py` to process 213 scenarios within 6h limit [UNRESOLVED-CLAIM: c_f42c7bc6 — status=not_enough_info]; Requires: T014-T018, T021-T024
+- [ ] T032 [US2] Implement parallel execution logic in `code/main.py` to process 213 scenarios within 6h limit; Requires: T014-T018, T021-T024
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -136,7 +136,7 @@
 - [ ] T036a [US3] Document deviation from Spec FR-005 (Segmented Regression) to Isotonic Regression; Cite Plan's Complexity Tracking rationale (sparse data); Output: `docs/method_deviation_report.md`; Requires: T036
 - [ ] T036 [US3] Implement `code/analysis/isotonic.py`: Primary threshold detection using Isotonic Regression; **Note**: This task implements Isotonic Regression *instead* of the Segmented Regression mandated by Spec FR-005, as justified in the Plan's Complexity Tracking due to sparse data; Output: `data/processed/statistical_report.json` with knee point; Requires: T038
 - [ ] T036b [US3] Derive and report 'slope ratio' equivalent from Isotonic model to satisfy SC-003; Output: Add 'slope_ratio' field to `data/processed/statistical_report.json`; Requires: T036
-- [ ] T037 [US3] Implement `code/analysis/lmm.py`: Piecewise Linear Mixed-Effects Model (PLMM) for secondary check [UNRESOLVED-CLAIM: c_dd0cb010 — status=not_enough_info]; Requires: T038
+- [ ] T037 [US3] Implement `code/analysis/lmm.py`: Piecewise Linear Mixed-Effects Model (PLMM) for secondary check; Requires: T038
 - [ ] T038 [US3] Implement delta calculation logic ($\Delta$) between baseline and perturbed scores; Aggregate per-system deltas from `data/processed/results.csv` (output of T029c) for regression input; Requires: T029c (output file)
 - [ ] T039 [US3] Implement multiple-comparison correction (Bonferroni/Holm) for p-values
 - [ ] T040 [US3] Implement sensitivity analysis for knee point stability: Sweep the **decision cutoff** parameter of the threshold model over [750, 800, 850]ms (±50ms sweep) to verify stability as required by SC-005; Output: `data/processed/sensitivity.json`; Requires: T036
@@ -252,6 +252,6 @@ With multiple developers:
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
-- **Critical Constraint**: All audio processing must use `librosa.stream` to stay within 7GB RAM limits [UNRESOLVED-CLAIM: c_7d83bbdf — status=not_enough_info].
+- **Critical Constraint**: All audio processing must use `librosa.stream` to stay within 7GB RAM limits.
 - **Critical Constraint**: {{claim:c_52ef3759}} (Wikidata Q5099853, https://www.wikidata.org/wiki/Q5099853).
 - **Critical Constraint**: Synthetic audio (FR-011) is a fallback only; real EVA-Bench data is preferred.

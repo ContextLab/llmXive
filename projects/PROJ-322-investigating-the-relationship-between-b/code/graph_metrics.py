@@ -5,251 +5,229 @@ import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Union, Tuple
 
-from config import is_synthetic, check_data_availability
-from entities import ConnectivityMatrix, GraphMetrics
-
 logger = logging.getLogger(__name__)
 
-def calculate_global_efficiency(adj_matrix: np.ndarray) -> float:
+def calculate_global_efficiency(matrix: np.ndarray) -> float:
     """
-    Calculate Global Efficiency of a graph from its adjacency matrix.
-    Global Efficiency is the average of the inverse shortest path lengths.
+    Calculate Global Efficiency (1/average shortest path length).
+    Assumes matrix is symmetric and square.
     """
-    if adj_matrix.shape[0] != adj_matrix.shape[1]:
-        raise ValueError("Adjacency matrix must be square.")
-    
-    G = nx.from_numpy_array(adj_matrix)
-    if not nx.is_connected(G) and nx.number_connected_components(G) > 1:
-        # For disconnected graphs, efficiency is defined over reachable pairs only
-        # or we can treat infinite distance as 0 contribution (standard approach)
-        pass
-
-    try:
-        # nx.efficiency uses shortest path length
-        # Global efficiency is average efficiency over all pairs
-        eff = nx.global_efficiency(G)
-        return float(eff)
-    except Exception as e:
-        logger.warning(f"Could not calculate global efficiency: {e}")
+    n = matrix.shape[0]
+    if n == 0:
         return 0.0
 
-def calculate_local_efficiency(adj_matrix: np.ndarray) -> float:
-    """
-    Calculate Local Efficiency of a graph from its adjacency matrix.
-    Local efficiency is the average of the efficiencies of the local subgraphs.
-    """
-    if adj_matrix.shape[0] != adj_matrix.shape[1]:
-        raise ValueError("Adjacency matrix must be square.")
-    
-    G = nx.from_numpy_array(adj_matrix)
+    # Create graph from matrix
+    G = nx.from_numpy_array(matrix)
+
+    # Calculate average shortest path
     try:
-        eff = nx.local_efficiency(G)
-        return float(eff)
-    except Exception as e:
-        logger.warning(f"Could not calculate local efficiency: {e}")
+        lengths = nx.average_shortest_path_length(G)
+        if lengths == 0:
+            return 0.0
+        return 1.0 / lengths
+    except nx.NetworkXError:
+        # Graph might be disconnected
+        # Calculate efficiency as sum of 1/d_ij for all pairs
+        total_eff = 0.0
+        count = 0
+        for i in range(n):
+            for j in range(i+1, n):
+                try:
+                    d = nx.shortest_path_length(G, i, j)
+                    if d > 0:
+                        total_eff += 1.0 / d
+                        count += 1
+                except nx.NetworkXError:
+                    continue
+        return total_eff / count if count > 0 else 0.0
+
+def calculate_local_efficiency(matrix: np.ndarray) -> float:
+    """
+    Calculate Local Efficiency (average local efficiency of nodes).
+    Local efficiency of a node is the global efficiency of its neighborhood.
+    """
+    n = matrix.shape[0]
+    if n == 0:
         return 0.0
 
-def calculate_modularity(adj_matrix: np.ndarray, partitions: Optional[Dict[int, int]] = None) -> float:
+    G = nx.from_numpy_array(matrix)
+    local_efficiencies = []
+
+    for i in range(n):
+        # Get neighbors of node i
+        neighbors = list(G.neighbors(i))
+        if len(neighbors) < 2:
+            local_efficiencies.append(0.0)
+            continue
+
+        # Create subgraph of neighbors
+        subgraph = nx.subgraph(G, [i] + neighbors)
+        try:
+            eff = nx.global_efficiency(subgraph)
+            local_efficiencies.append(eff)
+        except nx.NetworkXError:
+            local_efficiencies.append(0.0)
+
+    return sum(local_efficiencies) / len(local_efficiencies) if local_efficiencies else 0.0
+
+def calculate_modularity(matrix: np.ndarray, community_detection: Optional[nx.community.CommunityDetection] = None) -> float:
     """
-    Calculate Modularity (Q) of a graph.
-    If partitions are not provided, use a default community detection algorithm (Louvain).
+    Calculate Modularity (Q) using Louvain algorithm.
     """
-    if adj_matrix.shape[0] != adj_matrix.shape[1]:
-        raise ValueError("Adjacency matrix must be square.")
-    
-    G = nx.from_numpy_array(adj_matrix)
-    try:
-        if partitions is None:
-            # Use Louvain algorithm for community detection
-            try:
-                import community
-                partitions = community.best_partition(G)
-            except ImportError:
-                logger.warning("python-louvain not found, using default partitioning or returning 0.0")
-                return 0.0
-        
-        modularity = nx.community.modularity(G, partitions.values())
-        return float(modularity)
-    except Exception as e:
-        logger.warning(f"Could not calculate modularity: {e}")
+    n = matrix.shape[0]
+    if n == 0:
         return 0.0
 
-def apply_spatial_threshold(adj_matrix: np.ndarray, threshold_type: str = 'proportional', threshold_value: float = 0.1) -> np.ndarray:
-    """
-    Apply a threshold to the connectivity matrix.
-    
-    Args:
-        adj_matrix: Input connectivity matrix (symmetric, NxN)
-        threshold_type: 'proportional' or 'absolute'
-        threshold_value: 
-            - If 'proportional', fraction of edges to keep (0.0 to 1.0)
-            - If 'absolute', minimum weight to keep
-    
-    Returns:
-        Thresholded adjacency matrix
-    """
-    if threshold_type == 'proportional':
-        if not 0.0 < threshold_value <= 1.0:
-            raise ValueError("Proportional threshold must be between 0 and 1 (exclusive of 0).")
-        
-        # Get upper triangle indices (excluding diagonal)
-        n = adj_matrix.shape[0]
-        rows, cols = np.triu_indices(n, k=1)
-        weights = adj_matrix[rows, cols]
-        
-        # Calculate the number of edges to keep
-        num_edges = int(len(weights) * threshold_value)
-        
-        if num_edges == 0:
-            logger.warning("Proportional threshold resulted in 0 edges. Using a very small threshold.")
-            num_edges = 1
-        
-        # Sort weights and find the cutoff
-        sorted_weights = np.sort(weights)
-        cutoff = sorted_weights[-num_edges] if num_edges <= len(sorted_weights) else sorted_weights[0]
-        
-        # Create binary mask
-        mask = adj_matrix >= cutoff
-        np.fill_diagonal(mask, 0)  # Remove self-loops
-        
-        # Apply mask
-        thresholded_matrix = adj_matrix * mask
-        
-        # Ensure we have exactly the right number of edges (in case of ties)
-        # This is a simplification; exact edge count might vary slightly with ties
-        logger.info(f"Applied proportional threshold {threshold_value}. Kept {np.sum(thresholded_matrix > 0)} edges.")
-        
-    elif threshold_type == 'absolute':
-        thresholded_matrix = adj_matrix.copy()
-        thresholded_matrix[thresholded_matrix < threshold_value] = 0
-        np.fill_diagonal(thresholded_matrix, 0)
+    G = nx.from_numpy_array(matrix)
+
+    # If community detection is not provided, use Louvain
+    if community_detection is None:
+        try:
+            partition = nx.community.louvain(G)
+            return nx.modularity(G, partition)
+        except nx.NetworkXError:
+            return 0.0
     else:
-        raise ValueError(f"Unknown threshold type: {threshold_type}")
-    
-    return thresholded_matrix
+        try:
+            return nx.modularity(G, community_detection)
+        except nx.NetworkXError:
+            return 0.0
 
-def compute_metrics_from_matrix(adj_matrix: np.ndarray, threshold_type: str = 'proportional', threshold_value: float = 0.1) -> Dict[str, float]:
+def apply_spatial_threshold(matrix: np.ndarray, sparsity: float = 0.1) -> np.ndarray:
     """
-    Compute graph metrics from a connectivity matrix after applying thresholding.
-    
+    Apply proportional sparsity thresholding to connectivity matrix.
+    Keeps the top (sparsity * 100)% of connections by weight.
+    Returns a binary adjacency matrix.
+
     Args:
-        adj_matrix: Input connectivity matrix
-        threshold_type: Type of thresholding ('proportional' or 'absolute')
-        threshold_value: Threshold value
-    
+        matrix: Input connectivity matrix (numpy array)
+        sparsity: Proportion of connections to keep (e., 0.1 = 10%)
+
     Returns:
-        Dictionary of graph metrics
+        Binary adjacency matrix with only the strongest connections retained
     """
-    if adj_matrix.shape[0] != adj_matrix.shape[1]:
-        raise ValueError("Adjacency matrix must be square.")
-    
-    # Apply thresholding
-    thresholded_matrix = apply_spatial_threshold(adj_matrix, threshold_type, threshold_value)
-    
-    # Calculate metrics
-    global_eff = calculate_global_efficiency(thresholded_matrix)
-    local_eff = calculate_local_efficiency(thresholded_matrix)
-    modularity = calculate_modularity(thresholded_matrix)
-    
+    if not isinstance(matrix, np.ndarray):
+        raise ValueError("Input must be a numpy array")
+
+    if sparsity <= 0 or sparsity >= 1:
+        raise ValueError("Sparsity must be between 0 and 1 (exclusive)")
+
+    n = matrix.shape[0]
+    total_possible_connections = n * (n - 1) / 2  # Upper triangle
+
+    # Get upper triangle values (excluding diagonal)
+    upper_triangle = matrix[np.triu_indices(n, k=1)]
+    num_to_keep = int(np.ceil(sparsity * len(upper_triangle)))
+
+    if num_to_keep == 0:
+        logger.warning("Sparsity too low, no connections will be retained")
+        return np.zeros_like(matrix)
+
+    # Find threshold value
+    threshold = np.sort(upper_triangle)[-num_to_keep]
+
+    # Create binary matrix
+    binary_matrix = np.zeros_like(matrix)
+    binary_matrix[matrix >= threshold] = 1
+
+    # Ensure diagonal is zero
+    np.fill_diagonal(binary_matrix, 0)
+
+    logger.info(f"Applied sparsity threshold: {sparsity:.2%}, threshold value: {threshold:.4f}, connections kept: {num_to_keep}")
+
+    return binary_matrix
+
+def compute_metrics_from_matrix(matrix: np.ndarray, sparsity: Optional[float] = None) -> Dict[str, float]:
+    """
+    Compute graph metrics from a connectivity matrix.
+    Optionally applies sparsity thresholding before calculation.
+
+    Args:
+        matrix: Connectivity matrix (numpy array)
+        sparsity: Optional sparsity threshold (e.g., 0.1 for 10%)
+
+    Returns:
+        Dictionary containing global efficiency, local efficiency, and modularity
+    """
+    if sparsity is not None:
+        matrix = apply_spatial_threshold(matrix, sparsity)
+
+    global_eff = calculate_global_efficiency(matrix)
+    local_eff = calculate_local_efficiency(matrix)
+    modularity = calculate_modularity(matrix)
+
     return {
-        "global_efficiency": global_eff,
-        "local_efficiency": local_eff,
-        "modularity": modularity,
-        "threshold_type": threshold_type,
-        "threshold_value": threshold_value,
-        "num_edges": int(np.sum(thresholded_matrix > 0))
+        "global_efficiency": float(global_eff),
+        "local_efficiency": float(local_eff),
+        "modularity": float(modularity)
     }
 
 def process_connectivity_matrices(
-    matrices: List[Union[np.ndarray, ConnectivityMatrix]],
-    threshold_type: str = 'proportional',
-    threshold_value: float = 0.1
-) -> List[GraphMetrics]:
+    matrices: List[Tuple[str, np.ndarray]],
+    sparsity: float = 0.1
+) -> List[Dict[str, Any]]:
     """
-    Process a list of connectivity matrices and compute graph metrics.
-    
+    Process a list of connectivity matrices with sparsity thresholding.
+
     Args:
-        matrices: List of connectivity matrices or ConnectivityMatrix objects
-        threshold_type: Type of thresholding
-        threshold_value: Threshold value
-    
+        matrices: List of tuples (subject_id, matrix)
+        sparsity: Sparsity threshold to apply
+
     Returns:
-        List of GraphMetrics objects
+        List of dictionaries with subject_id and computed metrics
     """
     results = []
-    
-    for i, mat in enumerate(matrices):
-        if isinstance(mat, ConnectivityMatrix):
-            adj_matrix = mat.matrix
-            subject_id = mat.subject_id
-            time_point = mat.time_point
-        else:
-            adj_matrix = mat
-            subject_id = f"subject_{i}"
-            time_point = None
-        
+
+    for subject_id, matrix in matrices:
         try:
-            metrics_dict = compute_metrics_from_matrix(adj_matrix, threshold_type, threshold_value)
-            metrics = GraphMetrics(
-                subject_id=subject_id,
-                time_point=time_point,
-                global_efficiency=metrics_dict["global_efficiency"],
-                local_efficiency=metrics_dict["local_efficiency"],
-                modularity=metrics_dict["modularity"],
-                threshold_type=metrics_dict["threshold_type"],
-                threshold_value=metrics_dict["threshold_value"],
-                num_edges=metrics_dict["num_edges"]
-            )
-            results.append(metrics)
-            logger.info(f"Processed matrix {i}: Global Eff={metrics.global_efficiency:.4f}, "
-                        f"Local Eff={metrics.local_efficiency:.4f}, Modularity={metrics.modularity:.4f}")
+            metrics = compute_metrics_from_matrix(matrix, sparsity)
+            results.append({
+                "subject_id": subject_id,
+                "metrics": metrics
+            })
+            logger.info(f"Processed {subject_id}: Global Eff={metrics['global_efficiency']:.4f}")
         except Exception as e:
-            logger.error(f"Failed to process matrix {i}: {e}")
-            # Create a placeholder or skip? Let's create a placeholder with zeros
-            metrics = GraphMetrics(
-                subject_id=subject_id,
-                time_point=time_point,
-                global_efficiency=0.0,
-                local_efficiency=0.0,
-                modularity=0.0,
-                threshold_type=threshold_type,
-                threshold_value=threshold_value,
-                num_edges=0
-            )
-            results.append(metrics)
-    
+            logger.error(f"Failed to process {subject_id}: {e}")
+            results.append({
+                "subject_id": subject_id,
+                "error": str(e)
+            })
+
     return results
 
 def main():
     """
-    Main function to demonstrate graph metrics calculation with thresholding.
-    This is a placeholder for integration with the full pipeline.
+    Main function to demonstrate sparsity thresholding and metric calculation.
+    This can be used for testing or batch processing.
     """
     logging.basicConfig(level=logging.INFO)
-    
-    # Example: Load a sample matrix (in real usage, this would come from preprocessing)
-    # For now, we'll create a synthetic one if in synthetic mode
-    if is_synthetic():
-        logger.info("Running in synthetic mode. Generating sample data.")
-        from synthetic_data import generate_connectivity_matrix
-        n_nodes = 90  # AAL atlas size
-        sample_matrix = generate_connectivity_matrix(n_nodes, seed=42)
-        
-        # Process with proportional thresholding
-        metrics = compute_metrics_from_matrix(sample_matrix, threshold_type='proportional', threshold_value=0.1)
-        logger.info(f"Synthetic metrics: {metrics}")
-        
-        # Save to file
-        output_path = Path("data/results/sample_metrics.json")
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(metrics, f, indent=2)
-        logger.info(f"Sample metrics saved to {output_path}")
-    else:
-        logger.info("Real data mode. Integration with preprocessing pipeline required.")
-        # In real mode, this would be called from the pipeline with actual matrices
-        # from data/processed/
-        pass
+
+    # Example usage
+    logger.info("Testing sparsity thresholding and graph metrics calculation")
+
+    # Create a sample matrix
+    n = 5
+    sample_matrix = np.random.rand(n, n)
+    sample_matrix = (sample_matrix + sample_matrix.T) / 2  # Make symmetric
+    np.fill_diagonal(sample_matrix, 0)
+
+    # Test without thresholding
+    metrics_no_thresh = compute_metrics_from_matrix(sample_matrix, sparsity=None)
+    logger.info(f"Metrics without thresholding: {metrics_no_thresh}")
+
+    # Test with thresholding
+    metrics_with_thresh = compute_metrics_from_matrix(sample_matrix, sparsity=0.3)
+    logger.info(f"Metrics with 30% sparsity: {metrics_with_thresh}")
+
+    # Process multiple matrices
+    matrices = [
+        ("sub-01", sample_matrix),
+        ("sub-02", sample_matrix * 0.8),
+    ]
+    results = process_connectivity_matrices(matrices, sparsity=0.2)
+    logger.info(f"Processed {len(results)} subjects")
+
+    return results
 
 if __name__ == "__main__":
     main()

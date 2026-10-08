@@ -40,7 +40,7 @@
 **Note**: T007 (Models) MUST complete before T005 and T006. T005 and T006 are parallel to each other but sequential to T007.
 
 - [X] T007 Create base data models/entities in `code/utils/models.py` (Repository, CodeBlock, MaintenanceEvent, MatchedPair) using dataclasses with type hints.
-- [X] T002 Initialize Python 3.11 project with `code/requirements.txt` containing pinned versions for: transformers, onnxruntime, radon, scikit-learn, pandas, requests, matplotlib, statsmodels, datasets, PyGithub.
+- [X] T002 Initialize Python 3.11 project with `code/requirements.txt` containing pinned versions for: transformers, onnxruntime, radon, scikit-learn, pandas, requests, matplotlib, statsmodels, datasets, PyGithub, tree-sitter, tree-sitter-javascript.
 - [X] T003 [P] Configure linting and formatting by creating `.flake8` (max-line-length=88, exclude=venv), `pyproject.toml` (black target-version=py311), and `.editorconfig` (indent_size=4, end_of_line=lf) with the specified rules.
 - [X] T005 [P] Implement `code/utils/github_client.py` with rate-limit handling, shallow clone logic (depth=100), and 404 error handling for deleted repos. **[P] applies only to T005 vs T006, not T007.**
 - [X] T006 [P] Implement `code/utils/classifier.py` wrapping `transformers` CodeBERT model via `onnxruntime` for CPU-only inference. **[P] applies only to T005 vs T006, not T007.**
@@ -60,18 +60,18 @@
 ### Implementation for User Story 1
 
 - [X] T010a [P] [US1] Implement `code/01_data_curation.py` script: GitHub Search API integration (topics:llm-generated, topic:copilot). Search for repos matching criteria.
-- [X] T010b-impl [US1] Execute primary search: Query GitHub API for repos with `topic:llm-generated` OR `topic:copilot` AND `stars>=5` AND `updated_at > 90 days ago`. Output results to `data/raw/repo_list.csv`. Stop when a sufficient number of repos are found or a predefined limit of API calls is reached. (Depends on T010a)
+- [X] T010b-impl [US1] Execute primary search: Query GitHub API for repos with `topic:llm-generated` OR `topic:copilot` AND `stars>=5` AND `updated_at > 90 days ago`. Output results to `data/raw/repo_list.csv`. Stop when a sufficient number of repositories are found or the API call limit is reached. (Depends on T010a)
 - [X] T010c-impl [US1] Execute secondary search: If `data/raw/repo_list.csv` contains < 50 repos, query GitHub API for `q="LLM generated code" OR "Copilot generated"` (in code) with same activity filters. Append to `data/raw/repo_list.csv` until 50 repos found or 5000 API calls made. (Depends on T010b-impl)
 - [X] T011 [US1] Implement repository cloning logic in `code/01_data_curation.py`: shallow clone (depth=100), filter by activity (≥1 commit/90 days, ≥5 stars).
 - [X] T011a [US1] Implement repository metadata extraction in `code/01_data_curation.py`: retrieve `stargazers_count`, `created_at`, and `updated_at` for each repo and store in `data/raw/repo_metadata.csv` for use in matching.
-- [ ] T012 [US1] Implement code block extraction logic: Parse Python files using `ast` (extract functions/classes) and JS files using `acorn` (via `tree-sitter`). Extract code blocks. **Output**: `data/raw/code_blocks.csv` with schema: `block_id, file_path, start_line, end_line, language, content_hash`. (Depends on T011)
-- [ ] T012b [US1] Implement verification logic for `git mv` detection: Run `git log --follow` on each block's file path. Exclude block ONLY if file path hash changes OR directory level changes (indicating complete structural refactor). **Log**: `data/logs/refactor_exclusions.log` with format: `block_id, old_path, new_path, reason`. **Verify** by running `tests/unit/test_git_mv_detection.py` and ensuring [deferred] pass rate; generate `data/logs/refactor_validation_report.json`. (Depends on T012)
+- [ ] T012 [US1] Implement code block extraction logic: Parse Python files using `ast` (extract functions/classes) and JS files using `tree-sitter` (library `tree-sitter-javascript`). **API Usage**: Instantiate `Language('path/to/tree-sitter-javascript.so')` and `Parser()`, then call `parser.parse(code_bytes)`. **Output**: `data/raw/code_blocks.csv` with schema: `block_id, file_path, start_line, end_line, language, content_hash`. (Depends on T011)
+- [ ] T012b [US1] Implement verification logic for `git mv` detection: Run `git log --follow` on each block's file path. Exclude block ONLY if file path hash changes OR directory level changes (defined as: change in number of path segments OR change in immediate parent directory name). **Log**: `data/logs/refactor_exclusions.log` with format: `block_id, old_path, new_path, reason`. **Verify** by running `tests/unit/test_git_mv_detection.py` and ensuring [deferred] pass rate; generate `data/logs/refactor_validation_report.json`. (Depends on T012)
 - [ ] T013 [US1] Integrate CodeBERT classifier (ONNX) in `code/01_data_curation.py`: tag blocks as LLM/Human with confidence ≥ 0.8; exclude low-confidence blocks. Log exclusions to `data/logs/classifier_exclusions.log`. (Depends on T012)
 - [X] T014 [US1] Implement static complexity metric extraction using `radon` (cyclomatic complexity, nesting depth, LOC) in `code/01_data_curation.py`. **Output**: Append metrics to `data/raw/code_blocks.csv`. (Depends on T012)
-- [ ] T015 [US1] Implement 1:1 nearest-neighbor propensity score matching in `code/utils/matching.py`. **Algorithm**: 1. Fit a logistic regression model using `cyclomatic_complexity` and `LOC` (from T014) as covariates to predict probability of being LLM-generated. 2. Calculate propensity scores for all blocks. 3. Perform 1:1 nearest-neighbor matching on propensity scores between LLM and Human blocks within the same repository. **Output**: `data/processed/matched_pairs.csv`. (Depends on T011a, T014)
+- [ ] T015 [US1] Implement Nearest-neighbor propensity score matching in `code/utils/matching.py`. **Algorithm**: 1. Fit a logistic regression model using `cyclomatic_complexity` and `LOC` (from T014) as covariates to predict probability of being LLM-generated. 2. Calculate propensity scores for all blocks. 3. Perform 1:1 nearest-neighbor matching on propensity scores between LLM and Human blocks within the same repository. **Parameters**: Use `caliper width = 0.05` and `sklearn.neighbors.NearestNeighbors` with `n_neighbors=1`. **Output**: `data/processed/matched_pairs.csv`. (Depends on T011a, T014, T013)
 - [ ] T016 [US1] Enforce repository inclusion criteria: Exclude repos with <5 LLM and <5 Human blocks after tagging. **Output**: Filter `data/processed/matched_pairs.csv` to `data/processed/matched_pairs_filtered.csv`. **Log**: `data/logs/repo_exclusions.csv`. (Depends on T015)
 - [X] T017a [US1] Implement ground truth selection: randomly select ≥10 blocks for manual verification, save to `data/ground_truth/manual_labels.csv`. (Depends on T013)
-- [ ] T017b [US1] Calculate classifier precision and recall on the ground truth subset from T017a by comparing predicted labels (from T013) against ground truth. **Verify** by running `tests/unit/test_classifier_metrics.py` against a mock dataset. Save results to `data/ground_truth/classifier_metrics.json` as required by FR-007. (Depends on T017a, T013)
+- [ ] T017b [US1] Calculate classifier precision and recall on the ground truth subset from T017a by comparing predicted labels (from T013) against ground truth. **Output**: Save results to `data/ground_truth/classifier_metrics.json` with schema: `{"precision": float, "recall": float}`. **Verify** by running `tests/unit/test_classifier_metrics.py` against a mock dataset. (Depends on T017a, T013)
 - [X] T018 [US1] Add checksum generation for `data/ground_truth/manual_labels.csv` and record in `state/checksums.json`. (Depends on T017a)
 - [X] T019 [US1] Add checkpoint mechanism in `code/01_data_curation.py`: save progress per repo to resume if interrupted (time limit).
 
@@ -90,7 +90,7 @@
 - [X] T020a [US2] Implement `code/02_metric_extraction.py`: Load `matched_pairs_filtered.csv` (from T016).
 - [X] T020b [US2] Query commit history for a multi-month window post-introduction for each block.
 - [X] T020c [US2] Parse commit logs for changes to specific blocks.
-- [ ] T021 [US2] Implement bug fix latency calculation: Parse commit messages for "Fixes #N" or "Closes #N" using regex. Extract issue number N. Query GitHub API for issue N to confirm resolution status. Calculate time difference between the commit timestamp and the issue closed timestamp. **Output**: `data/processed/metrics_longitudinal.csv` with columns: `block_id, latency_days, issue_id`. (Depends on T020c)
+- [ ] T021 [US2] Implement bug fix latency calculation: Parse commit messages for "Fixes #N" or "Closes #N" using regex. Extract issue number N. Query GitHub API for issue N (endpoint: `GET /repos/{owner}/{repo}/issues/{issue_number}`) to confirm resolution status. **Edge Case Handling**: If issue number is invalid or issue is in a different repository, exclude from latency analysis and log the reason. Calculate time difference between the commit timestamp and the issue closed timestamp. **Output**: `data/processed/metrics_longitudinal.csv` with columns: `block_id, latency_days, issue_id`. (Depends on T020c)
 - [ ] T022 [US2] Implement code churn calculation: Aggregate lines added/deleted for each block in a multi-month window (excluding initial commit). **Output**: Append to `data/processed/metrics_longitudinal.csv` with columns: `block_id, lines_added, lines_deleted, window_start, window_end`. (Depends on T020c)
 - [ ] T023 [US2] Handle edge cases: Exclude pairs with null latency from latency analysis (but retain for churn). **Log**: `data/logs/latency_exclusions.log` with format: `pair_id, reason`. (Depends on T021, T022)
 - [ ] T024 [US2] Handle repo deletion/private status during window: Gracefully exclude from analysis count with 404 handling. **Log**: `data/logs/repo_deletion.log`. **Output**: Update `data/processed/metrics_longitudinal.csv` by removing rows for deleted repos. (Depends on T020c)
@@ -109,16 +109,16 @@
 ### Implementation for User Story 3
 
 - [X] T026 [US3] Implement `code/03_analysis.py`: Load `metrics_longitudinal.csv` (requires T025) and `matched_pairs_filtered.csv` (requires T015). (Depends on T025, T015)
-- [ ] T027a [US3] Calculate W-statistic and p-value using `scipy.stats.wilcoxon` on matched pairs to compare maintainability metrics between LLM and Human groups, as required by FR-005.
+- [ ] T027a [US3] Calculate W-statistic and p-value using `scipy.stats.wilcoxon` on matched pairs to compare maintainability metrics between LLM and Human groups, as required by FR-005. **Pre-filtering**: Exclude pairs with null latency values before executing the test. **Parameters**: Use `zero_method='pratt'` and `alternative='two-sided'`.
 - [ ] T027b [US3] Calculate Cohen's d effect size for the observed differences.
 - [ ] T027c [US3] Save Wilcoxon results to `data/processed/wilcoxon_results.json`. (Depends on T027a, T027b)
-- [X] T027d [US3] Document the amendment to Constitution Principle VI in `docs/paper/constitution_amendment.md`: explain why Wilcoxon Signed-Rank is used instead of Mann-Whitney U for paired data.
+- [X] T027d [US3] Document the justification for using Wilcoxon Signed-Rank instead of Mann-Whitney U for paired data in `docs/paper/methodology.md`. (Depends on T027c)
 - [ ] T028 [US3] Implement Benjamini-Hochberg correction for multiple comparisons across churn and latency tests applied to Wilcoxon p-values. **Output**: `data/processed/bh_corrected_pvalues.json`. (Depends on T027c)
 - [X] T028a [US3] Document Benjamini-Hochberg assumptions and verify logic based on code output in `docs/paper/methodology.md`, ensuring traceability to code/data. (Depends on T028)
 - [ ] T029 [US3] Implement Sensitivity Analysis: Adjust effect sizes using misclassification rates from `manual_labels.csv` (ground truth). **Output**: `data/processed/sensitivity_analysis.csv`. (Depends on T017b)
-- [ ] T029b [US3] Read existing classifier precision/recall metrics from `data/ground_truth/classifier_metrics.json` (produced by T017b). Compare against SC-006 threshold (0.85) defined in `code/utils/config.py`. **If threshold not met**: Block execution of T030 and T032, and append a JSON object to `docs/paper/limitations.json` with keys `threshold_met` (bool) and `reason` (string). (Depends on T017b)
+- [ ] T029b [US3] Read existing classifier precision/recall metrics from `data/ground_truth/classifier_metrics.json` (produced by T017b). Compare `precision` against SC-006 threshold (0.85) defined in `code/utils/config.py`. **If threshold not met**: Block execution of T030 and T032, and append a JSON object to `docs/paper/limitations.json` with keys `threshold_met` (bool) and `reason` (string). (Depends on T017b)
 - [ ] T030 [US3] Generate visualizations: Box plots and density plots for churn/latency using `matplotlib` (CPU-only); save as PNG <10MB. **Files**: `docs/paper/fig_churn_boxplot.png`, `docs/paper/fig_latency_density.png`. (Depends on T026)
-- [ ] T031 [US3] Perform post-hoc power analysis on final matched pair count using `scipy.stats.power_analysis` with effect size=0.5, alpha=0.05, targeting ≥0.80 power. **Output**: `data/processed/power_analysis.json` with format: `{"power": 0.XX, "threshold_met": true/false}`. (Depends on T015, T025)
+- [ ] T031 [US3] Perform post-hoc power analysis on final matched pair count using `statsmodels.stats.power.zt_ind_solve_power` with effect size=0.5, alpha=0.05, targeting ≥0.80 power. **Output**: `data/processed/power_analysis.json` with format: `{"power": 0.XX, "threshold_met": true/false}`. (Depends on T015, T025)
 - [ ] T032 [US3] Generate final report summary: p-values, effect sizes (Cohen's d), bias-corrected confidence intervals, and FDR. **Output**: `docs/paper/results_summary.md` with structured sections. (Depends on T027c, T028, T029, T030, T031)
 - [ ] T033 [US3] Save all statistical artifacts to `data/processed/` and `docs/paper/`. **Files**: `data/processed/wilcoxon_results.json`, `data/processed/bh_corrected_pvalues.json`, `data/processed/power_analysis.json`, `data/processed/sensitivity_analysis.csv`. (Depends on T032)
 
@@ -130,7 +130,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T034a-1 [P] [Polish] Generate data model documentation in `docs/paper/data-model.md`. **Dependencies**: T012 (code_blocks schema), T021 (latency schema), T022 (churn schema), T025 (final metrics schema). (Depends on T012, T021, T022, T025)
+- [ ] T034a-1 [P] [Polish] Generate data model documentation in `docs/paper/data-model.md`. **Format**: Markdown table with columns: Field, Type, Description. **Dependencies**: T012 (code_blocks schema), T021 (latency schema), T022 (churn schema), T025 (final metrics schema). (Depends on T012, T021, T022, T025)
 - [ ] T034a-2 [P] [Polish] Generate schema YAML definitions in `contracts/`. **Files**: `contracts/dataset.schema.yaml`, `contracts/metrics.schema.yaml`, `contracts/ground_truth_schema.schema.yaml`. **Dependencies**: T012, T021, T022, T025. (Depends on T012, T021, T022, T025)
 - [ ] T034b [P] [Polish] Create `quickstart.md` (Prerequisites, Installation, Execution, Expected Outputs) and update `docs/paper/methodology.md` with final execution paths. **Dependencies**: T034a-1, T034a-2, T027-T031. (Depends on T034a-1, T034a-2, T027, T028, T029, T030, T031)
 - [ ] T034c [P] [Polish] Update `docs/paper/results_summary.md` with final visualizations and interpretation. **Dependencies**: T032, T030. (Depends on T032, T030)
@@ -189,6 +189,7 @@
 - All tests for a user story marked [P] can run in parallel.
 - Models within a story marked [P] can run in parallel.
 - Different user stories **cannot** be worked on in parallel if they have data dependencies (e.g., US3 cannot start before US2).
+- **T013 and T014** can run in parallel **after** T012 completes.
 
 ---
 
@@ -260,3 +261,4 @@ With multiple developers:
 - **CRITICAL**: T021 MUST strictly enforce the "Fixes #N" / "Closes #N" pattern and map to issues via commit diff file paths; any ambiguity must result in exclusion to prevent false positives in latency calculation.
 - **CRITICAL**: T012b MUST implement `git log --follow` to detect renames; if a block's path changes significantly (directory level), it must be excluded to ensure valid longitudinal tracking.
 - **CRITICAL**: T029b must block T030 and T032 if precision/recall threshold is not met.
+- **CRITICAL**: The Constitution is a ratified document; tasks must document justifications for deviations, not "amend" the Constitution.

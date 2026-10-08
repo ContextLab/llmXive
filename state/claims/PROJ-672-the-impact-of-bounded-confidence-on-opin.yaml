@@ -1464,3 +1464,317 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-02T22:39:02Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/methodology.md
+  attempts: 1
+  canonical: network ensembles generated with 500 nodes across 3 topologies
+  claim_id: c_5504876e
+  context: Network Topologies section describing the generation of ER, BA, and WS
+    networks.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: We generate ensembles of networks with N=500 nodes across three distinct
+    topological classes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T03:46:38Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/methodology.md
+  attempts: 1
+  canonical: 50 independent network instances generated per topology type
+  claim_id: c_804e6931
+  context: 'Phase 1: Network Generation describing the experimental setup.'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 14 437502
+      source_id: A000084
+      url: https://oeis.org/A000084
+      value: '50'
+    filled: true
+  kind: numeric
+  raw_text: We generate 50 independent instances for each topology type.
+  resolved_value: '50'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T03:46:50Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/methodology.md
+  attempts: 1
+  canonical: HK simulations executed across epsilon sweep from 0.01 to 0.50
+  claim_id: c_8d06c386
+  context: 'Phase 2: Simulation Execution describing the range of bounded confidence
+    thresholds.'
+  evidence:
+    asserted: '0.01'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: We execute discrete-time HK simulations across a sweep of epsilon values
+    (typically [0.01, 0.50]).
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T03:46:50Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/methodology.md
+  attempts: 1
+  canonical: simulation convergence threshold set to 1e-4
+  claim_id: c_d5d25117
+  context: 'Phase 2: Simulation Execution describing termination conditions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation terminates when the maximum opinion change between iterations
+    falls below delta = 10^-4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T03:47:02Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/methodology.md
+  attempts: 1
+  canonical: gamma variation below 5% across convergence thresholds from 1e-3 to 1e-5
+  claim_id: c_9e9f15c7
+  context: Sensitivity Analysis section verifying robustness of results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Variation in gamma remains below 5% when re-running simulations with convergence
+    thresholds delta in [10^-3, 10^-5].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T03:47:14Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/results.md
+  attempts: 1
+  canonical: "Erd\u0151s-R\xE9nyi network critical threshold epsilon_c is 0.12 plus\
+    \ or minus 0.03"
+  claim_id: c_b6328acc
+  context: "Observed $\\epsilon_c$ Values: Erd\u0151s-R\xE9nyi: $\\epsilon_c \\\\\
+    approx 0.12 \\\\pm 0.03$"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "For Erd\u0151s-R\xE9nyi networks, the critical threshold is $\\epsilon_c\
+    \ \\\\approx 0.12 \\\\pm 0.03$."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T03:51:42Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/results.md
+  attempts: 1
+  canonical: "Barab\xE1si-Albert network critical threshold epsilon_c is 0.15 plus\
+    \ or minus 0.04"
+  claim_id: c_7287a6f9
+  context: "Observed $\\epsilon_c$ Values: Barab\xE1si-Albert: $\\epsilon_c \\\\approx\
+    \ 0.15 \\\\pm 0.04$"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "For Barab\xE1si-Albert networks, the critical threshold is $\\epsilon_c\
+    \ \\\\approx 0.15 \\\\pm 0.04$."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T03:51:52Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/results.md
+  attempts: 1
+  canonical: Watts-Strogatz network critical threshold epsilon_c is 0.10 plus or minus
+    0.02
+  claim_id: c_f2a474a6
+  context: 'Observed $\epsilon_c$ Values: Watts-Strogatz: $\epsilon_c \\approx 0.10
+    \\pm 0.02$'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For Watts-Strogatz networks, the critical threshold is $\epsilon_c \\approx
+    0.10 \\pm 0.02$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T03:52:01Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/results.md
+  attempts: 1
+  canonical: "Erd\u0151s-R\xE9nyi network scaling exponent gamma is 1.8 plus or minus\
+    \ 0.2"
+  claim_id: c_8a277e1d
+  context: "Extracted Scaling Exponents ($\\gamma$): Erd\u0151s-R\xE9nyi: $\\gamma\
+    \ \\\\approx 1.8 \\\\pm 0.2$"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "For Erd\u0151s-R\xE9nyi networks in the critical regime, the scaling\
+    \ exponent is $\\gamma \\\\approx 1.8 \\\\pm 0.2$."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T03:52:09Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/results.md
+  attempts: 1
+  canonical: "Barab\xE1si-Albert network scaling exponent gamma is 2.3 plus or minus\
+    \ 0.3"
+  claim_id: c_6fdeebf7
+  context: "Extracted Scaling Exponents ($\\gamma$): Barab\xE1si-Albert: $\\gamma\
+    \ \\\\approx 2.3 \\\\pm 0.3$"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "For Barab\xE1si-Albert networks in the critical regime, the scaling exponent\
+    \ is $\\gamma \\\\approx 2.3 \\\\pm 0.3$."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T03:52:17Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/results.md
+  attempts: 1
+  canonical: Watts-Strogatz network scaling exponent gamma is 1.5 plus or minus 0.2
+  claim_id: c_6faeba5c
+  context: 'Extracted Scaling Exponents ($\gamma$): Watts-Strogatz: $\gamma \\approx
+    1.5 \\pm 0.2$'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For Watts-Strogatz networks in the critical regime, the scaling exponent
+    is $\gamma \\approx 1.5 \\pm 0.2$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T03:52:23Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/results.md
+  attempts: 1
+  canonical: Power-law fits achieved R squared greater than 0.85
+  claim_id: c_4fa4eb81
+  context: All fits achieved $R^2 > 0.85$, confirming the validity of the power-law
+    model in the critical regime.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power-law_fits_achieved_R_squared_greater_than_0.85
+  kind: magnitude
+  raw_text: All power-law fits achieved $R^2 > 0.85$.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T03:52:40Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/results.md
+  attempts: 1
+  canonical: ER network path length correlation with gamma is r equals negative 0.38
+  claim_id: c_3e03fb02
+  context: 'Path Length: Negative correlation with $\gamma$ in ER networks ($r = -0.38,
+    p < 0.05$)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The correlation between Path Length and $\gamma$ in ER networks was $r
+    = -0.38$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T04:01:05Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/results.md
+  attempts: 1
+  canonical: Simulation gamma variation was less than 3 percent across convergence
+    thresholds 10 to negative 3 to 10 to negative 5
+  claim_id: c_250c7e73
+  context: Re-running simulations with convergence thresholds $\delta \\in [10^{-3},
+    10^{-5}]$ yielded $\gamma$ variation of $< 3\\%$ across all configurations
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Simulation_gamma_variation_was_less_than_3_percent_across_co
+  kind: magnitude
+  raw_text: Re-running simulations with convergence thresholds $\delta \\in [10^{-3},
+    10^{-5}]$ yielded $\gamma$ variation of $< 3\\%$.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T04:03:09Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/results.md
+  attempts: 1
+  canonical: Bootstrap error estimation used 1000 resamples
+  claim_id: c_9b782907
+  context: 'Bootstrap error estimation: 95% confidence intervals computed via 1000
+    resamples'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: As an example, assume we are interested in the average (or mean) height
+        of people worldwide.  We cannot measure all the people in the global population,
+        so instead, we sample only a tiny part of it, and measure that.  Assume the
+        sample is of size N; that is, we measure the heights of N individuals.  From
+        that single sample, only one estimate of the mean can be obtained.  In order
+        to reason about the population, we need some sense of the variability of the
+        mean that we have computed. The simplest bootstrap method involves taking
+        the original data set of heights, and, using a computer, sampling from it
+        to form a new sample (called a 'resample' or bootstrap sample) that is also
+        of size N.  The bootstrap sample is taken from the original by using sampling
+        with replacement (e.g. we might 'resample' 5 times from [1,2,3,4,5] and get
+        [2,5,4,4,1]), so, assuming N is sufficiently large, for all practical purposes
+        there is virtually zero probability that it will be identical to the original
+        "real" sample.  This process is repeated a large number of times (typically
+        1,000 or 10,000 times), and for each of these bootstrap samples, we compute
+        its mean (each of these is called a "bootstrap estimate").  We now can create
+        a histogram of bootstrap means.  This histogram provides an estimate of the
+        shape of the distribution of the sample mean from which we can answer questions
+        about how much the mean varies across samples.  (The method here, described
+        for the mean, can be applied to almost any other statistic or estimator.)
+      source_id: Bootstrapping (statistics)
+      url: https://en.wikipedia.org/wiki/Bootstrapping_(statistics)
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: Bootstrap error estimation used 1000 resamples to compute 95% confidence
+    intervals.
+  resolved_value: '1000'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T04:03:21Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/results.md
+  attempts: 1
+  canonical: Simulations used network size N equals 500
+  claim_id: c_e804d4b2
+  context: All simulations used $N=500$.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All simulations used a network size of $N=500$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T04:10:26Z'

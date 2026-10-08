@@ -91,7 +91,7 @@
 
 - [ ] T014 [US1] Add logic to handle AAL atlas failure (skip subject, log error) without crashing (Edge Case)
 
-- [ ] T016 [US1] Implement contingency check: if `n < 20`, switch to non-parametric bootstrapping by implementing `code/bootstrapping.py` (1000 iterations) and generating `data/results/bootstrapped_ci.json` (FR-009)
+- [X] T016 [US1] Implement contingency check: if `n < 20`, switch to non-parametric bootstrapping by implementing `code/bootstrapping.py` (1000 iterations) and generating `data/results/bootstrapped_ci.json` (FR-009)
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -125,11 +125,11 @@
 
 - [ ] T023 [US2] Handle non-convergence: log warning, skip subject, continue processing batch (Edge Case)
 
-- [~] T024a [US2] Search for real independent functional metric (e.g., Return-to-Work) by querying OpenNeuro metadata API for clinical/behavioral derivatives and checking for columns like 'ReturnToWork', 'RTW', or 'EmploymentStatus' in the manifest.
+- [ ] T024a [US2] Search for real independent functional metric (e.g., Return-to-Work) by querying OpenNeuro metadata API for clinical/behavioral derivatives and checking for columns like 'ReturnToWork', 'RTW', or 'EmploymentStatus' in the manifest.
 
-- [~] T024b [US2] [Depends on T024a] If T024a found no real independent metric, immediately write `validation_gap: true` flag with a detailed search log in `data/results/gaps.json` and SKIP the `code/validation.py` implementation and `external_validation.json` generation (FR-007). If a metric is found, implement validation correlation in `code/validation.py` and output `data/results/external_validation.json` (FR-007).
+- [ ] T024b [US2] [Depends on T024a] If T024a found no real independent metric, immediately write `validation_gap: true` flag with a detailed search log in `data/results/gaps.json` and SKIP the `code/validation.py` implementation and `external_validation.json` generation (FR-007). If a metric is found, implement validation correlation in `code/validation.py` and output `data/results/external_validation.json` (FR-007).
 
-- [~] T025 [US2] Ensure output JSON includes `is_synthetic` flag if running in Methodology Validation Mode (Plan Contingency)
+- [ ] T025 [US2] Ensure output JSON includes `is_synthetic` flag if running in Methodology Validation Mode (Plan Contingency)
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -153,7 +153,7 @@
 
 - [ ] T029 [US3] Implement sensitivity analysis: sweep correlation thresholds based on data-driven representative values (e.g., quantiles of correlation distribution) and output `data/results/sensitivity_analysis.csv` (FR-005, SC-003)
 
-- [~] T030 [US3] Implement hard stop at 6 hours runtime with "Time Limit Warning" at 5 hours (FR-003, SC-004)
+- [ ] T030 [US3] Implement hard stop at 6 hours runtime with "Time Limit Warning" at 5 hours (FR-003, SC-004)
 
 - [ ] T031 [US3] Generate final `data/results/analysis_report.json` containing all metrics, p-values, flags (synthetic, pilot, validation_gap), and limitations. Explicitly aggregate runtime and memory logs from T005b/T007 to verify SC-004/SC-005 compliance: read logs, parse metrics, compute `runtime_ok` (total_time <= 5h) and `memory_ok` (peak_ram <= 6GB) booleans, and include `compliance_status: { runtime_ok, memory_ok }` in the report.
 
@@ -171,9 +171,9 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T032 [P] Documentation updates in `docs/` and `README.md`
+- [ ] T032 [P] Documentation updates in `docs/` and `README.md`
 
-- [~] T033 Code cleanup and refactoring for memory efficiency
+- [ ] T033 Code cleanup and refactoring for memory efficiency
 
 - [~] T034 Performance optimization for batch processing (ensure ≤5h runtime)
 

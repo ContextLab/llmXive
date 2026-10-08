@@ -4,239 +4,258 @@ import json
 import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
-
-from config import get_config, is_synthetic
-from entities import GraphMetrics
+from sklearn.decomposition import PCA
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 logger = logging.getLogger(__name__)
 
-def calculate_vif(df: pd.DataFrame, exclude_intercept: bool = True) -> Dict[str, float]:
+def calculate_vif(df: pd.DataFrame, feature_names: List[str]) -> Dict[str, float]:
     """
-    Calculate Variance Inflation Factor (VIF) for each predictor in a DataFrame.
-    
-    Args:
-        df: DataFrame containing predictor variables.
-        exclude_intercept: If True, removes the intercept column from calculation.
-        
-    Returns:
-        Dictionary mapping column names to their VIF values.
-    """
-    if exclude_intercept and 'intercept' in df.columns:
-        df = df.drop(columns=['intercept'])
-    
-    vif_data = {}
-    for col in df.columns:
-        other_cols = [c for c in df.columns if c != col]
-        if len(other_cols) == 0:
-            vif_data[col] = 0.0
-            continue
-        
-        # Fit linear model: col ~ other_cols
-        try:
-            X = sm.add_constant(df[other_cols])
-            y = df[col]
-            model = sm.OLS(y, X).fit()
-            r_squared = model.rsquared
-            vif = 1.0 / (1.0 - r_squared)
-            vif_data[col] = vif
-        except Exception as e:
-            logger.warning(f"Could not calculate VIF for {col}: {e}")
-            vif_data[col] = float('inf')
-    
-    return vif_data
+    Calculate Variance Inflation Factor (VIF) for each predictor.
 
-def run_pca_on_metrics(df: pd.DataFrame, target_cols: List[str], variance_threshold: float = 0.60) -> Tuple[Optional[Any], Dict[str, Any]]:
-    """
-    Run PCA on selected metrics to handle collinearity.
-    
     Args:
-        df: DataFrame containing the metrics.
-        target_cols: List of column names to apply PCA on.
-        variance_threshold: Minimum cumulative variance explained required.
-        
+        df: DataFrame containing the predictor variables.
+        feature_names: List of column names to calculate VIF for.
+
     Returns:
-        Tuple of (PCA object or None, dict with variance info)
+        Dictionary mapping feature names to their VIF values.
     """
-    if len(target_cols) == 0:
-        return None, {"variance_explained": 0.0, "success": False}
+    if len(feature_names) < 2:
+        logger.warning("Need at least 2 features to calculate VIF.")
+        return {name: 0.0 for name in feature_names}
+
+    X = df[feature_names].values
     
-    X = df[target_cols].dropna()
-    if X.shape[0] < 2:
-        logger.warning("Not enough samples for PCA")
-        return None, {"variance_explained": 0.0, "success": False}
-        
+    # Add constant for intercept (statsmodels VIF requires it)
     try:
-        from sklearn.decomposition import PCA
-        pca = PCA()
-        pca.fit(X)
-        
-        cumulative_variance = np.cumsum(pca.explained_variance_ratio_)
-        total_variance_explained = cumulative_variance[-1]
-        
-        if total_variance_explained >= variance_threshold:
-            logger.info(f"PCA successful: cumulative variance = {total_variance_explained:.4f}")
-            return pca, {
-                "variance_explained": float(total_variance_explained),
-                "components": int(pca.n_components_),
-                "success": True
-            }
-        else:
-            logger.warning(f"PCA failed: cumulative variance = {total_variance_explained:.4f} < {variance_threshold}")
-            return None, {
-                "variance_explained": float(total_variance_explained),
-                "components": int(pca.n_components_),
-                "success": False
-            }
-    except Exception as e:
-        logger.error(f"PCA failed with error: {e}")
-        return None, {"variance_explained": 0.0, "success": False}
+        from statsmodels.tools import add_constant
+        X_with_const = add_constant(X)
+    except ImportError:
+        # Fallback if statsmodels.tools not available (though it should be)
+        X_with_const = np.hstack([np.ones((X.shape[0], 1)), X])
 
-def generate_descriptive_vif_report(df: pd.DataFrame, target_cols: List[str], output_path: Path) -> Dict[str, Any]:
+    vif_data = []
+    for i in range(len(feature_names)):
+        try:
+            # Calculate VIF for the i-th feature
+            vif = variance_inflation_factor(X_with_const, i+1) # +1 because col 0 is constant
+            vif_data.append((feature_names[i], vif))
+            logger.debug(f"VIF for {feature_names[i]}: {vif:.4f}")
+        except Exception as e:
+            logger.error(f"Error calculating VIF for {feature_names[i]}: {e}")
+            vif_data.append((feature_names[i], float('inf')))
+
+    return {name: val for name, val in vif_data}
+
+def run_pca_on_metrics(df: pd.DataFrame, feature_names: List[str], min_variance: float = 0.60) -> Dict[str, Any]:
     """
-    Generate a descriptive VIF report when PCA fails.
-    Contains correlation matrix and variance decomposition.
+    Perform PCA on graph metrics to handle multicollinearity.
+
+    Args:
+        df: DataFrame containing the predictor variables.
+        feature_names: List of column names to include in PCA.
+        min_variance: Minimum cumulative variance explained required (default 0.60).
+
+    Returns:
+        Dictionary containing PCA results (eigenvalues, variance explained, components).
+        Returns None if criteria are not met or if matrix is singular.
+    """
+    logger.info(f"Running PCA on features: {feature_names} with min variance {min_variance}")
+    
+    X = df[feature_names].values
+
+    # Check for singular matrix / rank deficiency
+    if np.linalg.rank(X) < X.shape[1]:
+        logger.warning("Matrix is rank deficient. PCA may fail.")
+        # Try PCA anyway, it might handle it, but expect potential issues
+        pass
+
+    try:
+        pca = PCA()
+        pca_transformed = pca.fit_transform(X)
+        
+        eigenvalues = pca.eigenvals_ if hasattr(pca, 'eigenvals_') else pca.singular_values_**2
+        # statsmodels/numpy PCA usually provides explained_variance_ratio_
+        explained_variance_ratio = pca.explained_variance_ratio_
+        cumulative_variance = np.cumsum(explained_variance_ratio)
+        
+        logger.info(f"PCA eigenvalues: {pca.eexplained_variance_}")
+        logger.info(f"Cumulative variance explained: {cumulative_variance[-1]:.4f}")
+
+        if cumulative_variance[-1] < min_variance:
+            logger.warning(f"Cumulative variance ({cumulative_variance[-1]:.4f}) < {min_variance}. PCA criteria not met.")
+            return None
+
+        # Check for positive eigenvalues (strictly speaking, PCA handles semi-definite, but spec asks for > 0)
+        # Note: singular_values are always non-negative. If any are 0, it's rank deficient.
+        if np.any(pca.singular_values_ == 0):
+            logger.warning("PCA resulted in zero singular values (rank deficiency).")
+            # Depending on strictness, we might return None here. 
+            # Spec says "eigenvalues > 0". If singular values are 0, eigenvalues are 0.
+            # Let's be strict: if any are 0, it's not strictly > 0.
+            return None
+
+        result = {
+            "eigenvalues": pca.explained_variance_.tolist(),
+            "explained_variance_ratio": explained_variance_ratio.tolist(),
+            "cumulative_variance_explained": cumulative_variance.tolist(),
+            "components": pca.components_.tolist(),
+            "n_components_used": len(cumulative_variance),
+            "success": True
+        }
+        logger.info("PCA successful. Criteria met.")
+        return result
+
+    except np.linalg.LinAlgError as e:
+        logger.error(f"PCA failed due to linear algebra error (singular matrix): {e}")
+        return None
+    except Exception as e:
+        logger.error(f"PCA failed with unexpected error: {e}")
+        return None
+
+def generate_descriptive_vif_report(df: pd.DataFrame, feature_names: List[str], output_path: Path):
+    """
+    Generate a descriptive report of VIF and correlations when PCA fails.
     
     Args:
-        df: DataFrame with predictor variables.
-        target_cols: List of column names to include in the report.
+        df: DataFrame with data.
+        feature_names: List of feature names.
         output_path: Path to save the JSON report.
-        
-    Returns:
-        Dictionary containing the report data.
     """
-    if len(target_cols) == 0:
-        logger.warning("No target columns provided for VIF report")
-        return {}
-        
-    X = df[target_cols].dropna()
-    if X.shape[0] < 2:
-        logger.warning("Not enough samples for VIF report")
-        return {}
+    logger.info(f"Generating descriptive VIF report to {output_path}")
     
-    # Calculate correlation matrix
-    corr_matrix = X.corr()
+    vif_results = calculate_vif(df, feature_names)
+    correlation_matrix = df[feature_names].corr()
     
-    # Calculate VIFs
-    vif_dict = calculate_vif(X)
-    
-    # Variance decomposition (proportion of variance explained by each component)
-    # We'll use a simple decomposition based on correlation structure
-    variance_decomposition = {}
-    for col in X.columns:
-        # Sum of squared correlations with other variables (simplified measure)
-        other_cols = [c for c in X.columns if c != col]
-        if len(other_cols) > 0:
-            sq_corr_sum = sum(corr_matrix.loc[col, other_col]**2 for other_col in other_cols)
-            variance_decomposition[col] = float(sq_corr_sum)
-        else:
-            variance_decomposition[col] = 0.0
-    
-    report = {
-        "correlation_matrix": corr_matrix.to_dict(),
-        "vif_values": vif_dict,
-        "variance_decomposition": variance_decomposition,
-        "sample_size": int(X.shape[0]),
-        "num_predictors": len(target_cols),
-        "description": "Descriptive VIF report generated because PCA failed (singular matrix or insufficient variance explained). This report characterizes the joint relationships among predictors."
-    }
-    
-    # Ensure directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Save to JSON
-    with open(output_path, 'w') as f:
-        json.dump(report, f, indent=2, default=str)
-    
-    logger.info(f"Descriptive VIF report saved to {output_path}")
-    return report
+    # Variance decomposition (simplified: proportion of variance due to each predictor's VIF)
+    # A common heuristic: weight = (VIF_i - 1) / sum(VIF_j - 1)
+    vif_values = list(vif_results.values())
+    if sum(vif_values) > len(vif_values): # If there is any inflation
+        weights = [(v - 1) / sum(v - 1 for v in vif_values) for v in vif_values]
+    else:
+        weights = [1.0 / len(vif_values)] * len(vif_values)
 
-def check_and_handle_collinearity(df: pd.DataFrame, target_cols: List[str], vif_threshold: float = 5.0, variance_threshold: float = 0.60) -> Dict[str, Any]:
+    report = {
+        "status": "PCA_failed_or_criteria_not_met",
+        "reason": "VIF > 5 detected, but PCA failed to meet eigenvalue > 0 or cumulative variance > 60% criteria.",
+        "vif_values": vif_results,
+        "correlation_matrix": correlation_matrix.round(4).to_dict(),
+        "variance_decomposition": dict(zip(feature_names, [round(w, 4) for w in weights])),
+        "recommendation": "Use descriptive statistics or drop highly collinear variables manually."
+    }
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2)
+    logger.info(f"Descriptive VIF report saved to {output_path}")
+
+def check_and_handle_collinearity(
+    df: pd.DataFrame, 
+    feature_names: List[str], 
+    vif_threshold: float = 5.0,
+    output_dir: Optional[Path] = None
+) -> Dict[str, Any]:
     """
-    Check for multicollinearity and handle it by attempting PCA or generating a report.
+    Main entry point to check VIF and attempt PCA if necessary.
     
     Args:
         df: DataFrame containing the data.
-        target_cols: List of column names to check.
-        vif_threshold: VIF value above which collinearity is considered problematic.
-        variance_threshold: Minimum cumulative variance for PCA to be considered successful.
-        
+        feature_names: List of predictor column names.
+        vif_threshold: Threshold for VIF to trigger PCA.
+        output_dir: Directory to save output files. Defaults to 'data/results'.
+
     Returns:
-        Dictionary with the outcome of the collinearity check and handling.
+        Dictionary indicating success/failure and paths to artifacts.
     """
-    if len(target_cols) == 0:
-        return {"status": "no_columns", "message": "No target columns provided."}
+    if output_dir is None:
+        output_dir = Path("data/results")
     
-    X = df[target_cols].dropna()
-    if X.shape[0] < 2:
-        return {"status": "insufficient_data", "message": "Not enough samples for collinearity check."}
+    output_dir.mkdir(parents=True, exist_ok=True)
+    pca_output_path = output_dir / "pca_metrics.json"
+    vif_report_path = output_dir / "descriptive_vif_report.json"
+
+    logger.info(f"Checking multicollinearity for features: {feature_names}")
     
-    vif_dict = calculate_vif(X)
-    max_vif = max(vif_dict.values()) if vif_dict else 0.0
+    vif_results = calculate_vif(df, feature_names)
+    max_vif = max(vif_results.values())
     
-    logger.info(f"Maximum VIF: {max_vif:.2f}")
-    
+    logger.info(f"Maximum VIF detected: {max_vif:.4f}")
+
     if max_vif <= vif_threshold:
-        logger.info("No significant multicollinearity detected.")
+        logger.info(f"All VIFs <= {vif_threshold}. No action needed.")
         return {
-            "status": "ok",
-            "vif_values": vif_dict,
-            "message": "VIF values are within acceptable limits."
+            "status": "no_collinearity",
+            "max_vif": max_vif,
+            "action_taken": "none"
         }
+
+    logger.warning(f"Max VIF ({max_vif:.4f}) > {vif_threshold}. Attempting PCA.")
     
-    logger.warning(f"High multicollinearity detected (Max VIF: {max_vif:.2f}). Attempting PCA...")
-    
-    pca, pca_info = run_pca_on_metrics(X, target_cols, variance_threshold)
-    
-    if pca_info["success"]:
+    pca_result = run_pca_on_metrics(df, feature_names)
+
+    if pca_result is not None:
+        # PCA Success
+        output_dir.mkdir(parents=True, exist_ok=True)
+        with open(pca_output_path, 'w') as f:
+            json.dump(pca_result, f, indent=2)
+        logger.info(f"PCA successful. Results saved to {pca_output_path}")
         return {
             "status": "pca_success",
-            "vif_values": vif_dict,
-            "pca_info": pca_info,
-            "message": "PCA successfully reduced dimensionality while explaining sufficient variance."
+            "max_vif": max_vif,
+            "action_taken": "pca",
+            "output_file": str(pca_output_path),
+            "pca_results": pca_result
         }
-    
-    logger.warning("PCA failed. Generating descriptive VIF report...")
-    
-    # Generate the descriptive report as per FR-006
-    report_path = Path("data/results/descriptive_vif_report.json")
-    report_data = generate_descriptive_vif_report(X, target_cols, report_path)
-    
-    return {
-        "status": "pca_failed_report_generated",
-        "vif_values": vif_dict,
-        "pca_info": pca_info,
-        "report_path": str(report_path),
-        "report_data": report_data,
-        "message": "PCA failed. Descriptive VIF report generated to characterize joint relationships."
-    }
+    else:
+        # PCA Failed
+        logger.warning("PCA failed or did not meet criteria. Generating descriptive report.")
+        generate_descriptive_vif_report(df, feature_names, vif_report_path)
+        return {
+            "status": "pca_failed",
+            "max_vif": max_vif,
+            "action_taken": "descriptive_report",
+            "output_file": str(vif_report_path)
+        }
 
 def main():
     """
-    Main entry point for collinearity analysis.
-    Loads preprocessed data and checks for multicollinearity.
+    Main function to demonstrate the collinearity check.
+    Expects data to be available or uses synthetic data for demonstration if in validation mode.
     """
-    logger.info("Starting collinearity analysis...")
+    from config import is_methodology_validation_mode, set_synthetic_mode
+    from synthetic_data import generate_dataset
     
-    # Load preprocessed data (assuming it's in data/processed/)
-    # This is a placeholder; actual implementation would load from the correct path
-    preprocessed_path = Path("data/processed/preprocessed_data.csv")
+    logging.basicConfig(level=logging.INFO)
     
-    if not preprocessed_path.exists():
-        logger.error(f"Preprocessed data not found at {preprocessed_path}")
-        return
-    
-    df = pd.read_csv(preprocessed_path)
-    
-    # Define target columns for collinearity check
-    # These should match the predictors used in the statistical model
-    target_cols = ["global_efficiency", "modularity"]  # Example columns
-    
-    # Check and handle collinearity
-    result = check_and_handle_collinearity(df, target_cols)
-    
-    logger.info(f"Collinearity analysis result: {result['status']}")
-    if "report_path" in result:
-        logger.info(f"Report saved to: {result['report_path']}")
+    # Check if we are in methodology validation mode
+    if is_methodology_validation_mode():
+        logger.info("Running in Methodology Validation Mode. Generating synthetic data.")
+        # Generate synthetic data for testing the pipeline logic
+        df = generate_dataset(n_subjects=30, n_timepoints=2)
+        feature_names = ['global_efficiency', 'local_efficiency', 'modularity']
+    else:
+        # In a real run, this would load from the preprocessed data file
+        # For now, if not synthetic and no real data path provided, we might fail or assume data exists
+        # The task implies this runs as part of the pipeline. 
+        # We will attempt to load from a standard location if it exists, else error.
+        data_path = Path("data/processed/metrics.csv")
+        if not data_path.exists():
+            logger.error("Real data file 'data/processed/metrics.csv' not found and not in synthetic mode.")
+            # Create a dummy failure or exit? The spec says fail loudly if no real source.
+            # But for the script to run in CI, we might need to handle the missing file gracefully 
+            # if it's expected to be generated by T019/T020.
+            # Let's assume the pipeline order: T019/T020 -> T021 -> T022a.
+            # If this is run standalone without previous steps, it should error.
+            raise FileNotFoundError(f"Expected data file {data_path} not found.")
+        
+        df = pd.read_csv(data_path)
+        # Assume columns exist based on T019/T020 output
+        feature_names = ['global_efficiency', 'local_efficiency', 'modularity']
+        # Filter out any rows with NaN in these columns
+        df = df.dropna(subset=feature_names)
+
+    result = check_and_handle_collinearity(df, feature_names)
+    print(json.dumps(result, indent=2))
 
 if __name__ == "__main__":
     main()

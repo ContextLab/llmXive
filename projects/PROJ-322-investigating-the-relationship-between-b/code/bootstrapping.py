@@ -1,11 +1,6 @@
 """
-Bootstrapping module for non-parametric confidence interval estimation.
-
-Implements contingency logic: if sample size n < 20, switch to 
-non-parametric bootstrapping with 1000 iterations to estimate 
-confidence intervals for graph metrics vs cognitive recovery correlation.
-
-Output: data/results/bootstrapped_ci.json
+Bootstrapping module for contingency analysis when sample size is small (n < 20).
+Implements non-parametric bootstrapping to generate confidence intervals for correlation metrics.
 """
 import os
 import json
@@ -16,294 +11,295 @@ from typing import Dict, Any, Optional, List, Tuple
 import numpy as np
 import pandas as pd
 
-from config import get_config, is_synthetic
-from logging_config import get_logger
-from memory_monitor import get_current_ram_gb, is_limit_exceeded, check_and_warn
+from config import is_synthetic, get_config
+from statistical_model import load_preprocessed_data
+from memory_monitor import check_and_warn, get_current_ram_gb
 
-# Constants
-BOOTSTRAP_ITERATIONS = 1000
-CONFIDENCE_LEVEL = 0.95
-MIN_SAMPLE_SIZE = 20
-OUTPUT_PATH = Path("data/results/bootstrapped_ci.json")
-
-logger = get_logger(__name__)
+# Configure logging
+logger = logging.getLogger(__name__)
 
 def load_preprocessed_data() -> pd.DataFrame:
     """
-    Load preprocessed graph metrics and cognitive scores.
-    Expects data to be in data/processed/ or data/results/ from previous pipeline steps.
+    Load preprocessed data from the results directory.
+    Falls back to synthetic data if in methodology validation mode and real data is unavailable.
+    
+    Returns:
+        pd.DataFrame: DataFrame containing subject data with graph metrics and cognitive scores.
     """
-    # Try common locations based on pipeline flow
-    possible_paths = [
-        Path("data/results/graph_metrics.csv"),
-        Path("data/processed/graph_metrics.csv"),
-        Path("data/processed/metrics.csv")
-    ]
+    config = get_config()
+    data_path = Path(config.get('processed_data_path', 'data/processed'))
+    metrics_file = data_path / 'metrics.json'
     
-    for path in possible_paths:
-        if path.exists():
-            logger.info(f"Loading data from {path}")
-            df = pd.read_csv(path)
-            # Ensure required columns exist
-            required_cols = ['subject_id', 'time_point', 'global_efficiency', 
-                             'local_efficiency', 'modularity', 'cognitive_score']
-            missing_cols = [col for col in required_cols if col not in df.columns]
-            if not missing_cols:
-                return df
-            else:
-                logger.warning(f"Missing columns in {path}: {missing_cols}")
+    if not metrics_file.exists():
+        # Try to load from statistical model output if available
+        model_results_path = Path('data/results/model_results.json')
+        if model_results_path.exists():
+            with open(model_results_path, 'r') as f:
+                data = json.load(f)
+            if 'data' in data:
+                return pd.DataFrame(data['data'])
+        
+        # If in synthetic mode and no real data, generate synthetic
+        if is_synthetic():
+            logger.info("Real data not found. Generating synthetic data for bootstrapping.")
+            from synthetic_data import generate_dataset
+            dataset = generate_dataset(n_subjects=15, n_timepoints=2)
+            return pd.DataFrame(dataset)
+        else:
+            raise FileNotFoundError(f"Preprocessed data not found at {metrics_file}")
     
-    raise FileNotFoundError(
-        "Could not find preprocessed data with required columns. "
-        "Ensure preprocessing pipeline has run successfully."
-    )
+    with open(metrics_file, 'r') as f:
+        data = json.load(f)
+    
+    if isinstance(data, list):
+        return pd.DataFrame(data)
+    elif 'data' in data:
+        return pd.DataFrame(data['data'])
+    else:
+        raise ValueError(f"Unexpected data format in {metrics_file}")
 
-def calculate_correlation(df: pd.DataFrame, metric_col: str, target_col: str = 'cognitive_score') -> float:
+def calculate_correlation(df: pd.DataFrame, x_col: str, y_col: str) -> float:
     """
-    Calculate Pearson correlation between a graph metric and cognitive score.
-    """
-    # Drop NaN values
-    valid_data = df[[metric_col, target_col]].dropna()
-    if len(valid_data) < 2:
-        return np.nan
+    Calculate Pearson correlation between two columns.
     
-    correlation, _ = np.corrcoef(valid_data[metric_col], valid_data[target_col])
-    return correlation[0, 1]
+    Args:
+        df: DataFrame containing the data.
+        x_col: Name of the first column.
+        y_col: Name of the second column.
+        
+    Returns:
+        float: Pearson correlation coefficient.
+    """
+    if x_col not in df.columns or y_col not in df.columns:
+        raise ValueError(f"Columns {x_col} or {y_col} not found in DataFrame. Available: {df.columns.tolist()}")
+    
+    # Drop rows with NaN in either column
+    clean_df = df[[x_col, y_col]].dropna()
+    
+    if len(clean_df) < 3:
+        raise ValueError(f"Insufficient data points for correlation calculation: {len(clean_df)}")
+    
+    return clean_df[x_col].corr(clean_df[y_col])
 
 def bootstrap_correlation(
-    df: pd.DataFrame, 
-    metric_col: str, 
-    target_col: str = 'cognitive_score',
-    n_iterations: int = BOOTSTRAP_ITERATIONS,
+    df: pd.DataFrame,
+    x_col: str,
+    y_col: str,
+    n_iterations: int = 1000,
+    confidence_level: float = 0.95,
     random_state: Optional[int] = None
 ) -> Dict[str, Any]:
     """
-    Perform non-parametric bootstrapping to estimate confidence intervals
-    for the correlation between a graph metric and cognitive score.
+    Perform non-parametric bootstrapping to estimate confidence intervals for correlation.
     
-    Parameters
-    ----------
-    df : pd.DataFrame
-        DataFrame with graph metrics and cognitive scores
-    metric_col : str
-        Name of the graph metric column (e.g., 'global_efficiency')
-    target_col : str
-        Name of the cognitive score column
-    n_iterations : int
-        Number of bootstrap iterations (default: 1000)
-    random_state : int, optional
-        Random seed for reproducibility
-    
-    Returns
-    -------
-    dict
-        Dictionary containing correlation estimates, confidence intervals,
-        and metadata
+    Args:
+        df: DataFrame containing the data.
+        x_col: Name of the first column.
+        y_col: Name of the second column.
+        n_iterations: Number of bootstrap iterations (default 1000).
+        confidence_level: Confidence level for CI (default 0.95).
+        random_state: Random seed for reproducibility.
+        
+    Returns:
+        Dict: Dictionary containing observed correlation, bootstrap mean, CI bounds, and iterations.
     """
     if random_state is not None:
         np.random.seed(random_state)
     
-    # Check memory before starting
-    current_ram = get_current_ram_gb()
-    logger.info(f"Starting bootstrapping with current RAM: {current_ram:.2f} GB")
+    # Calculate observed correlation
+    observed_corr = calculate_correlation(df, x_col, y_col)
     
-    if is_limit_exceeded():
-        logger.error("Memory limit exceeded before bootstrapping. Aborting.")
-        raise MemoryError("Memory limit exceeded")
-    
-    # Get valid data pairs
-    valid_data = df[[metric_col, target_col]].dropna()
-    n_samples = len(valid_data)
-    
-    if n_samples < 2:
-        logger.warning(f"Not enough samples ({n_samples}) for bootstrapping")
-        return {
-            'metric': metric_col,
-            'n_samples': n_samples,
-            'error': 'Insufficient samples',
-            'correlation': np.nan,
-            'ci_lower': np.nan,
-            'ci_upper': np.nan,
-            'bootstrap_mean': np.nan,
-            'bootstrap_std': np.nan,
-            'iterations': 0
-        }
-    
-    correlations = []
-    start_time = time.time()
-    
-    logger.info(f"Running {n_iterations} bootstrap iterations for {metric_col}...")
+    # Bootstrap iterations
+    bootstrap_correlations = []
+    n_samples = len(df)
     
     for i in range(n_iterations):
         # Check memory periodically
         if i % 100 == 0:
-            current_ram = get_current_ram_gb()
-            if is_limit_exceeded():
-                logger.error(f"Memory limit exceeded at iteration {i}")
-                raise MemoryError("Memory limit exceeded during bootstrapping")
-            
-            # Progress log
-            elapsed = time.time() - start_time
-            logger.debug(f"Bootstrap iteration {i}/{n_iterations} ({elapsed:.1f}s elapsed)")
+            check_and_warn()
+            if get_current_ram_gb() > 5.5:
+                logger.warning("Memory usage high during bootstrapping. Proceeding with caution.")
         
         # Resample with replacement
-        resampled_indices = np.random.choice(n_samples, size=n_samples, replace=True)
-        resampled_data = valid_data.iloc[resampled_indices]
+        resampled_indices = np.random.randint(0, n_samples, size=n_samples)
+        resampled_df = df.iloc[resampled_indices]
         
-        # Calculate correlation for this sample
-        corr = calculate_correlation(resampled_data, metric_col, target_col)
-        if not np.isnan(corr):
-            correlations.append(corr)
+        # Calculate correlation on resampled data
+        try:
+            corr = calculate_correlation(resampled_df, x_col, y_col)
+            bootstrap_correlations.append(corr)
+        except ValueError as e:
+            # Skip iterations with insufficient data
+            logger.debug(f"Skipping iteration {i}: {e}")
+            continue
     
-    end_time = time.time()
-    elapsed_time = end_time - start_time
-    
-    logger.info(f"Bootstrapping completed in {elapsed_time:.2f} seconds")
+    if len(bootstrap_correlations) == 0:
+        raise RuntimeError("No valid bootstrap correlations calculated.")
     
     # Calculate statistics
-    correlations = np.array(correlations)
-    mean_corr = np.mean(correlations)
-    std_corr = np.std(correlations, ddof=1)
+    bootstrap_mean = np.mean(bootstrap_correlations)
+    bootstrap_std = np.std(bootstrap_correlations)
     
-    # Calculate confidence intervals (percentile method)
-    alpha = 1 - CONFIDENCE_LEVEL
-    ci_lower = np.percentile(correlations, (alpha / 2) * 100)
-    ci_upper = np.percentile(correlations, (1 - alpha / 2) * 100)
-    
-    # Original sample correlation
-    original_corr = calculate_correlation(valid_data, metric_col, target_col)
+    # Calculate confidence intervals
+    alpha = 1 - confidence_level
+    lower_percentile = alpha / 2
+    upper_percentile = 1 - alpha / 2
+    ci_lower = np.percentile(bootstrap_correlations, lower_percentile * 100)
+    ci_upper = np.percentile(bootstrap_correlations, upper_percentile * 100)
     
     return {
-        'metric': metric_col,
-        'n_samples': n_samples,
-        'original_correlation': float(original_corr),
-        'bootstrap_mean': float(mean_corr),
-        'bootstrap_std': float(std_corr),
+        'observed_correlation': float(observed_corr),
+        'bootstrap_mean': float(bootstrap_mean),
+        'bootstrap_std': float(bootstrap_std),
         'ci_lower': float(ci_lower),
         'ci_upper': float(ci_upper),
-        'confidence_level': CONFIDENCE_LEVEL,
-        'iterations': len(correlations),
-        'elapsed_seconds': float(elapsed_time),
-        'method': 'non-parametric percentile bootstrap'
+        'confidence_level': confidence_level,
+        'n_iterations': n_iterations,
+        'valid_iterations': len(bootstrap_correlations),
+        'sample_size': n_samples
     }
 
-def run_full_bootstrapping(df: pd.DataFrame) -> Dict[str, Any]:
+def run_full_bootstrapping(
+    n_iterations: int = 1000,
+    confidence_level: float = 0.95,
+    random_state: Optional[int] = None
+) -> Dict[str, Any]:
     """
-    Run bootstrapping for all graph metrics and compile results.
-    
-    Parameters
-    ----------
-    df : pd.DataFrame
-        DataFrame with graph metrics and cognitive scores
-    
-    Returns
-    -------
-    dict
-        Complete bootstrapping results for all metrics
-    """
-    metrics = ['global_efficiency', 'local_efficiency', 'modularity']
-    results = {}
-    
-    for metric in metrics:
-        if metric in df.columns:
-            logger.info(f"Bootstrapping correlation for {metric}")
-            results[metric] = bootstrap_correlation(df, metric)
-        else:
-            logger.warning(f"Metric {metric} not found in data, skipping")
-            results[metric] = {
-                'metric': metric,
-                'error': 'Column not found',
-                'n_samples': 0
-            }
-    
-    # Add metadata
-    results['metadata'] = {
-        'total_subjects': len(df),
-        'is_synthetic': is_synthetic(),
-        'timestamp': time.strftime('%Y-%m-%d %H:%M:%S'),
-        'bootstrapping_iterations': BOOTSTRAP_ITERATIONS,
-        'confidence_level': CONFIDENCE_LEVEL,
-        'min_sample_threshold': MIN_SAMPLE_SIZE
-    }
-    
-    return results
-
-def save_results(results: Dict[str, Any]) -> Path:
-    """
-    Save bootstrapping results to JSON file.
-    
-    Parameters
-    ----------
-    results : dict
-        Bootstrapping results dictionary
-    
-    Returns
-    -------
-    Path
-        Path to the saved JSON file
-    """
-    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(OUTPUT_PATH, 'w') as f:
-        json.dump(results, f, indent=2, default=str)
-    
-    logger.info(f"Bootstrapping results saved to {OUTPUT_PATH}")
-    return OUTPUT_PATH
-
-def main():
-    """
-    Main entry point for bootstrapping analysis.
+    Run the full bootstrapping analysis.
     
     This function:
     1. Loads preprocessed data
     2. Checks sample size (n < 20 triggers bootstrapping)
-    3. Runs non-parametric bootstrapping if needed
-    4. Saves results to data/results/bootstrapped_ci.json
+    3. Performs bootstrapping on graph metrics vs cognitive score correlation
+    4. Returns results dictionary
+    
+    Args:
+        n_iterations: Number of bootstrap iterations (default 1000).
+        confidence_level: Confidence level for CI (default 0.95).
+        random_state: Random seed for reproducibility.
+        
+    Returns:
+        Dict: Complete bootstrapping results including metadata.
     """
-    logger.info("Starting bootstrapping analysis (Task T016)")
+    logger.info("Starting full bootstrapping analysis...")
+    start_time = time.time()
+    
+    # Load data
+    df = load_preprocessed_data()
+    n_subjects = len(df)
+    
+    logger.info(f"Loaded {n_subjects} subjects for bootstrapping analysis.")
+    
+    # Contingency check: if n < 20, switch to non-parametric bootstrapping
+    if n_subjects < 20:
+        logger.info(f"Sample size ({n_subjects}) is less than 20. Switching to non-parametric bootstrapping.")
+        is_small_sample = True
+    else:
+        logger.info(f"Sample size ({n_subjects}) is sufficient. Bootstrapping performed for robustness.")
+        is_small_sample = False
+    
+    # Determine columns to analyze
+    # Look for efficiency metrics and cognitive scores
+    efficiency_cols = [col for col in df.columns if 'efficiency' in col.lower() or 'global_eff' in col.lower()]
+    cognitive_cols = [col for col in df.columns if 'cognitive' in col.lower() or 'score' in col.lower() or 'recovery' in col.lower()]
+    
+    if not efficiency_cols or not cognitive_cols:
+        # Fallback to known column names from synthetic data
+        efficiency_cols = ['global_efficiency']
+        cognitive_cols = ['cognitive_score']
+        
+        # Verify these columns exist
+        for col in efficiency_cols + cognitive_cols:
+            if col not in df.columns:
+                raise ValueError(f"Required column '{col}' not found in data. Available: {df.columns.tolist()}")
+    
+    # Use first available efficiency and cognitive columns
+    x_col = efficiency_cols[0]
+    y_col = cognitive_cols[0]
+    
+    logger.info(f"Analyzing correlation between '{x_col}' and '{y_col}'")
+    
+    # Perform bootstrapping
+    boot_results = bootstrap_correlation(
+        df=df,
+        x_col=x_col,
+        y_col=y_col,
+        n_iterations=n_iterations,
+        confidence_level=confidence_level,
+        random_state=random_state
+    )
+    
+    elapsed_time = time.time() - start_time
+    
+    # Compile full results
+    results = {
+        'analysis_type': 'bootstrapping',
+        'triggered_by_small_sample': is_small_sample,
+        'sample_size': n_subjects,
+        'threshold_n': 20,
+        'x_variable': x_col,
+        'y_variable': y_col,
+        'correlation_results': boot_results,
+        'runtime_seconds': elapsed_time,
+        'methodology_validation_mode': is_synthetic(),
+        'timestamp': time.strftime('%Y-%m-%d %H:%M:%S')
+    }
+    
+    logger.info(f"Bootstrapping completed in {elapsed_time:.2f} seconds.")
+    logger.info(f"Observed correlation: {boot_results['observed_correlation']:.4f}")
+    logger.info(f"95% CI: [{boot_results['ci_lower']:.4f}, {boot_results['ci_upper']:.4f}]")
+    
+    return results
+
+def save_results(results: Dict[str, Any], output_path: Optional[str] = None) -> str:
+    """
+    Save bootstrapping results to JSON file.
+    
+    Args:
+        results: Dictionary containing bootstrapping results.
+        output_path: Optional path for output file. Defaults to 'data/results/bootstrapped_ci.json'.
+    
+    Returns:
+        str: Path to the saved file.
+    """
+    if output_path is None:
+        output_path = 'data/results/bootstrapped_ci.json'
+    
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_file, 'w') as f:
+        json.dump(results, f, indent=2)
+    
+    logger.info(f"Results saved to {output_file}")
+    return str(output_file)
+
+def main():
+    """
+    Main entry point for bootstrapping analysis.
+    """
+    logger.info("=" * 60)
+    logger.info("Starting Bootstrapping Analysis (T016)")
+    logger.info("=" * 60)
     
     try:
-        # Load data
-        df = load_preprocessed_data()
-        logger.info(f"Loaded {len(df)} subjects with graph metrics and cognitive scores")
-        
-        # Check sample size
-        n_subjects = len(df)
-        logger.info(f"Sample size: {n_subjects}")
-        
-        if n_subjects >= MIN_SAMPLE_SIZE:
-            logger.info(f"Sample size ({n_subjects}) >= {MIN_SAMPLE_SIZE}. "
-                       "Bootstrapping still performed for robustness (FR-009).")
-        else:
-            logger.warning(f"Sample size ({n_subjects}) < {MIN_SAMPLE_SIZE}. "
-                         "Non-parametric bootstrapping REQUIRED per FR-009.")
-        
-        # Run bootstrapping
-        results = run_full_bootstrapping(df)
+        # Run full bootstrapping with default parameters
+        results = run_full_bootstrapping(
+            n_iterations=1000,
+            confidence_level=0.95,
+            random_state=42
+        )
         
         # Save results
         output_path = save_results(results)
         
-        # Log summary
-        logger.info("Bootstrapping summary:")
-        for metric in ['global_efficiency', 'local_efficiency', 'modularity']:
-            if metric in results and 'original_correlation' in results[metric]:
-                r = results[metric]
-                logger.info(f"  {metric}: r={r['original_correlation']:.3f}, "
-                           f"95% CI [{r['ci_lower']:.3f}, {r['ci_upper']:.3f}]")
-        
-        logger.info(f"Task T016 completed successfully. Output: {output_path}")
-        return True
-        
-    except MemoryError as e:
-        logger.error(f"Memory error during bootstrapping: {e}")
-        raise
-    except FileNotFoundError as e:
-        logger.error(f"Data loading error: {e}")
-        raise
+        logger.info("Bootstrapping analysis completed successfully.")
+        return 0
+      
     except Exception as e:
-        logger.error(f"Unexpected error during bootstrapping: {e}", exc_info=True)
-        raise
+        logger.error(f"Bootstrapping analysis failed: {e}", exc_info=True)
+        return 1
 
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    import sys
+    sys.exit(main())
