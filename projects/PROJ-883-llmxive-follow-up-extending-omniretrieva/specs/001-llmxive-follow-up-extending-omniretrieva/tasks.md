@@ -156,6 +156,8 @@
 - [ ] T037 [P] Run `quickstart.md` validation to ensure the full pipeline completes within 6 hours on free-tier runners
 - [ ] T038 [P] Verify all dataset URLs in `code/config.py` are real and reachable (MS MARCO, Spider, DBpedia subsets)
 - [ ] T039 [P] Add a `state/state.yaml` generator to track artifact hashes for `data/processed/` and `data/results/` (Constitution Principle V)
+- [ ] T040 [P] [Review Fix] Implement streaming data loader in `code/utils/data_fetcher.py` to handle large real datasets (e.g., full MS MARCO or DBpedia shards) using `datasets.load_dataset(..., streaming=True)` and chunked processing, ensuring the full dataset contributes to results without exceeding RAM limits. This task addresses the requirement to stream real data rather than shrinking to a toy set.
+- [ ] T041 [P] [Review Fix] Add explicit error handling in `code/utils/data_fetcher.py` to raise a loud exception if a real data fetch fails, removing any `try/except` blocks that might silently fall back to synthetic data generation. This ensures the "Fail Loudly" principle is enforced.
 
 ---
 
@@ -254,3 +256,4 @@ With multiple developers:
 - **Data Integrity**: All datasets must be fetched from real URLs (HuggingFace/GitHub) or generated synthetically with deterministic seeds. No fake data.
 - **Statistical Validity**: Normality checks are diagnostics only; ANOVA/ANCOVA must run regardless.
 - **Sensitivity Analysis**: Must use the specific range [2, 3, 4] as defined in FR-007.
+- **Data Streaming**: T040 and T041 ensure real large datasets are streamed and failures are loud, preventing fabrication.
