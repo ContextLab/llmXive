@@ -1,0 +1,28 @@
+[acceptance] 1: clarified
+/private/tmp/llmxive-recovery-20261008/src/llmxive/backends/dartmouth.py:779: UserWarning: Parameters {'timeout'} should be specified explicitly. Instead they were passed in as part of `model_kwargs` parameter.
+  client = self._client(model)
+reviser reply malformed (attempt 1/2): PlanReviser: backend did not return parseable JSON: reviser response carried neither '===BEGIN_ARTIFACT' markers nor parseable legacy JSON; first 200 chars: '```json\n{\n  "responses": [\n    {\n      "concern_id": "methodology-df82379f",\n      "response": "Explicitly state that conditional total‑variation distance uses the uniform distribution over the\u202fp‑1 no'; first 200 chars: '```json\n{\n  "responses": [\n    {\n      "concern_id": "methodology-df82379f",\n      "response": "Explicitly state that conditional total‑variation distance uses the uniform distribution over the\u202fp‑1 no' — retrying
+[acceptance] 2: specified
+claim_extract: YAML parse failed (while parsing a block mapping
+  in "<unicode string>", line 12, column 5:
+      - claim_text: 'If the estimated me ... 
+        ^
+expected <block end>, but found '<scalar>'
+  in "<unicode string>", line 12, column 94:
+     ... the program aborts with error \'Error: Estimated memory use (≈ X ... 
+                                         ^); attempting tolerant recovery
+[acceptance] 3: clarified
+[acceptance] 4: specified
+[acceptance] 5: clarified
+claim_extract: YAML parse failed (while scanning for the next token
+found character '`' that cannot start any token
+  in "<unicode string>", line 7, column 1:
+    ```
+    ^); attempting tolerant recovery
+Traceback (most recent call last):
+  File "/private/tmp/llmxive-canary-run.py", line 26, in <module>
+    print(json.dumps(run(pid,repo,max_steps=50,budget_s=10800)))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/llmxive-recovery-20261008/src/llmxive/pipeline/acceptance.py", line 41, in run
+    raise RuntimeError("full-pipeline acceptance budget exhausted")
+RuntimeError: full-pipeline acceptance budget exhausted
