@@ -8,7 +8,8 @@
   "post_suite_focused_checks": {
     "data_source_and_audit": 26,
     "concurrent_git_persistence": 2,
-    "planner_and_persistence": 62
+    "planner_and_persistence": 62,
+    "claim_design_preservation": 64
   },
   "lint": "changed Python files pass ruff",
   "live_model_probe": "GLM-5.3 free catalog entry and real JSON response verified",
@@ -16,5 +17,6 @@
   "repair_trial": "baseline regression fails; candidate plus related tests 5 passed; independent GPT-OSS acceptance",
   "full_pipeline_acceptance": "in progress, not yet accepted",
   "deployment": "not yet deployed",
-  "workflow_validation": "actionlint passed for all four changed workflows"
+  "workflow_validation": "actionlint passed for all four changed workflows",
+  "live_claim_processing": "parameter domains and runtime target preserved verbatim"
 }

@@ -96,6 +96,17 @@ and model/outcome counts; `progress-metrics.json` uses persisted stage history.
    in the original idea; execution, fabrication checks and scientific review still
    apply. Studies without such a declaration retain normal data discovery.
 
+10. **Claim cleanup altered the experiment itself.** With production scientific
+    guards enabled, the canary's planned `p ∈ {5, 7, 11}` became incomplete sets
+    such as `{, 7, 11}`. The planning extractor was even instructed to treat
+    runtime budgets and acceptance targets as empirical findings. The extractor
+    now distinguishes chosen parameters/targets from measured findings, and the
+    deterministic guards preserve enumerated parameter domains. An unrelated
+    observed quantity on the same line still goes through claim handling.
+    Sixty-four regression checks passed; a real GLM claim-processing call
+    preserved both domains and the five-minute runtime target verbatim
+    (`design-preservation-live.json`).
+
 ## Models: verified, not inferred from names
 
 Dartmouth's authenticated catalog exposed `zai-org.glm-5.3` with zero input and
