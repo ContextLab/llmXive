@@ -2,88 +2,85 @@
 Unit tests for code/utils.py
 """
 import pytest
-import tempfile
 import os
+import tempfile
 from pathlib import Path
 
-from code.utils import (
+from utils import (
     seed_all,
     hash_artifact,
     SAMPLE_SIZE,
     CONVERGENCE_THRESHOLD,
-    MAX_EPOCHS,
+    MAX_EPOCHS
 )
 
+def test_sample_size_is_110():
+    """Verify SAMPLE_SIZE constant matches specification (FR-001)."""
+    assert SAMPLE_SIZE == 110
 
-class TestConstants:
-    """Tests for module constants."""
+def test_convergence_threshold_is_090():
+    """Verify CONVERGENCE_THRESHOLD constant matches specification (FR-005)."""
+    assert CONVERGENCE_THRESHOLD == 0.90
 
-    def test_sample_size_is_110(self):
-        """Verify SAMPLE_SIZE matches the specification (N=110)."""
-        assert SAMPLE_SIZE == 110, f"Expected SAMPLE_SIZE to be 110, got {SAMPLE_SIZE}"
+def test_max_epochs_is_1000():
+    """Verify MAX_EPOCHS constant matches specification (FR-005)."""
+    assert MAX_EPOCHS == 1000
 
-    def test_convergence_threshold_is_090(self):
-        """Verify CONVERGENCE_THRESHOLD matches the specification (0.90)."""
-        assert CONVERGENCE_THRESHOLD == 0.90, f"Expected 0.90, got {CONVERGENCE_THRESHOLD}"
+def test_seed_all_sets_random_seed():
+    """Verify seed_all sets the random module seed."""
+    import random
+    seed_all(12345)
+    val1 = random.random()
+    
+    seed_all(12345)
+    val2 = random.random()
+    
+    assert val1 == val2, "Random seed not set correctly"
 
-    def test_max_epochs_is_1000(self):
-        """Verify MAX_EPOCHS matches the specification (1000)."""
-        assert MAX_EPOCHS == 1000, f"Expected 1000, got {MAX_EPOCHS}"
-
-
-class TestSeedAll:
-    """Tests for the seed_all function."""
-
-    def test_seed_all_runs_without_error(self):
-        """Verify seed_all executes without raising exceptions."""
-        # Should not raise even if torch/numpy are missing (handled internally)
-        try:
-            seed_all(42)
-        except Exception as e:
-            pytest.fail(f"seed_all raised an unexpected exception: {e}")
-
-    def test_seed_all_sets_random(self):
-        """Verify seed_all affects the random module."""
-        import random
-        seed_all(12345)
-        val1 = random.random()
+def test_seed_all_sets_numpy_seed():
+    """Verify seed_all sets numpy seed if available."""
+    try:
+        import numpy as np
+        seed_all(67890)
+        arr1 = np.random.rand(5)
         
-        seed_all(12345)
-        val2 = random.random()
+        seed_all(67890)
+        arr2 = np.random.rand(5)
         
-        assert val1 == val2, "Seeding with the same value should produce the same random sequence"
+        assert np.array_equal(arr1, arr2), "Numpy seed not set correctly"
+    except ImportError:
+        pytest.skip("NumPy not installed")
 
+def test_seed_all_sets_torch_seed():
+    """Verify seed_all sets torch seed if available."""
+    try:
+        import torch
+        seed_all(11223)
+        t1 = torch.rand(5)
+        
+        seed_all(11223)
+        t2 = torch.rand(5)
+        
+        assert torch.equal(t1, t2), "Torch seed not set correctly"
+    except ImportError:
+        pytest.skip("PyTorch not installed")
 
-class TestHashArtifact:
-    """Tests for the hash_artifact function."""
+def test_hash_artifact_returns_sha256():
+    """Verify hash_artifact computes correct SHA-256 hash."""
+    with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+        f.write("test content")
+        temp_path = f.name
+    
+    try:
+        import hashlib
+        expected_hash = hashlib.sha256(b"test content").hexdigest()
+        actual_hash = hash_artifact(temp_path)
+        
+        assert actual_hash == expected_hash, "Hash mismatch"
+    finally:
+        os.unlink(temp_path)
 
-    def test_hash_artifact_computes_correct_hash(self):
-        """Verify hash_artifact computes a valid SHA-256 hash."""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
-            f.write("test content")
-            temp_path = f.name
-
-        try:
-            hash_val = hash_artifact(temp_path)
-            assert len(hash_val) == 64, "SHA-256 hash should be 64 hex characters"
-            assert all(c in '0123456789abcdef' for c in hash_val), "Hash should be hexadecimal"
-        finally:
-            os.unlink(temp_path)
-
-    def test_hash_artifact_raises_on_missing_file(self):
-        """Verify hash_artifact raises FileNotFoundError for missing files."""
-        with pytest.raises(FileNotFoundError):
-            hash_artifact("/nonexistent/path/to/file.txt")
-
-    def test_hash_determinism(self):
-        """Verify the same file produces the same hash."""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
-            f.write("deterministic test")
-            temp_path = f.name
-
-        try:
-            hash1 = hash_artifact(temp_path)
-            hash2 = hash_artifact(temp_path)
-            assert hash1 == hash2, "Hashing the same file twice should yield identical results"
-        finally:
-            os.unlink(temp_path)
+def test_hash_artifact_raises_on_missing_file():
+    """Verify hash_artifact raises FileNotFoundError for missing files."""
+    with pytest.raises(FileNotFoundError):
+        hash_artifact("/nonexistent/path/file.txt")

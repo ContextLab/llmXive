@@ -1,20 +1,19 @@
 """
-Project Structure Initialization Script.
+Project Structure Initialization Script for llmXive Pipeline.
 
-This script creates the required directory structure for the llmXive project
-and verifies their existence before exiting.
+This script creates the required directory structure for the research project
+and verifies that all directories exist before exiting successfully.
 """
 import os
 import sys
 from pathlib import Path
 
 def main():
-    """Create and verify the project directory structure."""
-    # Define the required directories relative to the project root
-    # We assume the script is run from the project root or code/ directory.
-    # We will resolve paths relative to the current working directory.
-    root = Path.cwd()
+    """Create project directories and verify their existence."""
+    # Define the base project root (current directory)
+    project_root = Path(".")
     
+    # Define required directory paths relative to project root
     required_dirs = [
         "code",
         "tests",
@@ -23,50 +22,45 @@ def main():
         "data/processed",
         "data/analysis",
         "artifacts",
-        "contracts"
+        "contracts",
     ]
-
-    print(f"Initializing project structure in: {root}")
     
     created_count = 0
-    existing_count = 0
-
+    verified_count = 0
+    
+    print("Creating project directory structure...")
+    
     for dir_path in required_dirs:
-        full_path = root / dir_path
+        full_path = project_root / dir_path
         
+        # Create directory if it doesn't exist
         if not full_path.exists():
-            try:
-                full_path.mkdir(parents=True, exist_ok=True)
-                print(f"Created directory: {full_path}")
-                created_count += 1
-            except OSError as e:
-                print(f"ERROR: Failed to create directory {full_path}: {e}", file=sys.stderr)
-                sys.exit(1)
+            full_path.mkdir(parents=True, exist_ok=True)
+            created_count += 1
+            print(f"  Created: {full_path}")
         else:
-            if full_path.is_dir():
-                print(f"Directory already exists: {full_path}")
-                existing_count += 1
-            else:
-                print(f"ERROR: Path exists but is not a directory: {full_path}", file=sys.stderr)
-                sys.exit(1)
-
-    # Verification: Ensure all directories exist
-    print("\n--- Verification ---")
-    all_exist = True
-    for dir_path in required_dirs:
-        full_path = root / dir_path
-        if not (full_path.exists() and full_path.is_dir()):
-            print(f"FAIL: Directory missing or invalid: {full_path}")
-            all_exist = False
+            print(f"  Exists:  {full_path}")
+        
+        # Verify directory exists
+        if full_path.exists() and full_path.is_dir():
+            verified_count += 1
         else:
-            print(f"OK: {full_path}")
-
-    if not all_exist:
-        print("\nVERIFICATION FAILED: Not all required directories exist.", file=sys.stderr)
+            print(f"  ERROR: Failed to create or verify directory: {full_path}")
+            sys.exit(1)
+    
+    # Final verification summary
+    print(f"\nVerification Summary:")
+    print(f"  Total directories checked: {len(required_dirs)}")
+    print(f"  Directories created:       {created_count}")
+    print(f"  Directories verified:      {verified_count}")
+    
+    if verified_count == len(required_dirs):
+        print("\n✓ All required directories exist and are valid.")
+        print("Project structure initialization successful.")
+        return 0
+    else:
+        print("\n✗ Verification failed: Some directories are missing.")
         sys.exit(1)
 
-    print(f"\nSuccess: Created {created_count} new directories. Verified {existing_count + created_count} total.")
-    print("Project structure initialization complete.")
-
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

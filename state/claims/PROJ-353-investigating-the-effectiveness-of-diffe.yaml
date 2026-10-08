@@ -4264,3 +4264,705 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-04T19:12:54Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: generate graphs for 11 beta levels from 0.0 to 1.0
+  claim_id: c_6a12d586
+  context: 'Read utils.SAMPLE_SIZE (expected 110) and generate exactly 10 graphs per
+    beta level. Explicit Levels: Generate graphs for beta levels explicitly enumerated
+    as: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate graphs for beta levels explicitly enumerated as: [0.0, 0.1,
+    0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0].'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:38:04Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: generate 110 graphs with 10 per beta level
+  claim_id: c_53277423
+  context: 'Read utils.SAMPLE_SIZE (expected 110) and generate exactly 10 graphs per
+    beta level. Explicit Levels: Generate graphs for beta levels explicitly enumerated
+    as: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Read utils.SAMPLE_SIZE (expected 110) and generate exactly 10 graphs per
+    beta level.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:38:20Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: verify graphs.jsonl contains 110 entries
+  claim_id: c_31be00f7
+  context: 'Verification: Verify that data/raw/graphs.jsonl contains exactly 110 entries
+    (or logs a warning if fewer due to topology constraints) and that the distribution
+    is exactly 10 per beta level for valid levels.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify that data/raw/graphs.jsonl contains exactly 110 entries
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:38:41Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: verify convergence_logs.csv contains 220 rows
+  claim_id: c_62f57266
+  context: 'Verification: Verify data/processed/convergence_logs.csv contains exactly
+    220 rows (110 graphs * 2 losses) with columns: graph_id, loss_type, steps_to_convergence,
+    final_accuracy, max_loss, beta, node_count.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify data/processed/convergence_logs.csv contains exactly 220 rows (110
+    graphs * 2 losses)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:39:10Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: assert total pipeline duration less than 6 hours
+  claim_id: c_2406da91
+  context: Run the full pipeline (T019 -> T026/T027 -> T033-T039) and assert total
+    duration < 21600s (6 hours). If this fails, the build fails.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_total_pipeline_duration_less_than_6_hours
+  kind: magnitude
+  raw_text: assert total duration < 21600s (6 hours)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:39:27Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Watts-Strogatz graphs generated at 11 beta levels from 0.0 to 1.0
+  claim_id: c_2b01feb4
+  context: Task T019 requires implementing a graph generation pipeline that reads
+    SAMPLE_SIZE and generates exactly 10 graphs per beta level for a specific range.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate graphs for beta levels explicitly enumerated as: [0.0, 0.1,
+    0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:40:55Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: 10 graphs generated per beta level
+  claim_id: c_4f84dd1e
+  context: Task T019 specifies generating exactly 10 graphs per beta level across
+    the enumerated spectrum.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate exactly 10 graphs per beta level
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:41:16Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Graph dataset contains 110 entries
+  claim_id: c_e3df2334
+  context: Task T019 includes a verification step to ensure the output file contains
+    exactly 110 entries (11 levels * 10 graphs).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that data/raw/graphs.jsonl contains exactly 110 entries
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:41:17Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Distribution is 10 graphs per beta level
+  claim_id: c_2ee3eb89
+  context: Task T019 requires verifying the count per beta level in the output file
+    is exactly 10.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Validate that the distribution is exactly 10 per beta level for valid
+    levels
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:43:14Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Maximum 1000 regeneration attempts per beta level
+  claim_id: c_e12d6aab
+  context: Task T019 defines a validation loop that regenerates disconnected graphs,
+    with a hard limit of 1000 attempts before proceeding.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the loop exceeds 1000 attempts for a specific beta level without success,
+    log a WARNING
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:43:50Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Convergence log CSV contains 220 rows
+  claim_id: c_9b3cfee4
+  context: Task T033 requires aggregating data from 110 graphs and 2 loss types, resulting
+    in exactly 220 rows.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that data/processed/convergence_logs.csv contains exactly 220 rows
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:43:50Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied with 2 tests
+  claim_id: c_0ea7b8e3
+  context: Task T037 implements Bonferroni correction using a test count of 2 for
+    the two statistical models.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Apply correction: p_corr = p_raw * n_tests where n_tests = 2'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:44:11Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Significance threshold set at 0.05 after Bonferroni correction
+  claim_id: c_9294c1dc
+  context: Task T037 defines the significance criterion as the minimum of the corrected
+    p-values being less than 0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Determine significance: is_significant = min(p_tobit_corr, p_cox_corr)
+    < 0.05'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:44:12Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Total pipeline runtime limit is 21600 seconds
+  claim_id: c_22a3f494
+  context: Task T044 requires executing the full pipeline and asserting the total
+    duration is under 21600 seconds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: assert total duration < 21600s (6 hours)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:44:13Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Peak memory usage limit is 7GB
+  claim_id: c_1377f241
+  context: Task T043b requires verifying that peak memory usage during a single run
+    is less than 7GB.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_limit_is_7GB
+  kind: entity_fact
+  raw_text: Verify peak memory < 7GB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:44:35Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Sample size is 110
+  claim_id: c_ea9ca57e
+  context: Task T004 defines the constant SAMPLE_SIZE as 110, derived from power analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SAMPLE_SIZE = 110
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:45:00Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Convergence threshold is 0.90
+  claim_id: c_0c17e0b5
+  context: Task T004 defines the constant CONVERGENCE_THRESHOLD as 0.90 for marking
+    convergence.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CONVERGENCE_THRESHOLD = 0.90
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:45:21Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Maximum epochs is 1000
+  claim_id: c_34c21b24
+  context: Task T004 defines the constant MAX_EPOCHS as 1000 for training loops.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MAX_EPOCHS = 1000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:45:54Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Class balance constraint is 80% maximum
+  claim_id: c_e6b8d442
+  context: Task T019 requires enforcing class balance with a maximum of 80% for any
+    single class.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: class balance (<80% max)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:45:55Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Watts-Strogatz graphs generated for 11 beta levels from 0.0 to 1.0
+  claim_id: c_c06911cb
+  context: 'Implement Graph Generation Pipeline: Read utils.SAMPLE_SIZE (expected
+    110) and generate exactly 10 graphs per beta level. Explicit Levels: Generate
+    graphs for beta levels explicitly enumerated as: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5,
+    0.6, 0.7, 0.8, 0.9, 1.0].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate graphs for beta levels explicitly enumerated as: [0.0, 0.1,
+    0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:53:46Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: 10 graphs generated per beta level
+  claim_id: c_9a28a7b3
+  context: 'Read utils.SAMPLE_SIZE (expected 110) and generate exactly 10 graphs per
+    beta level. Explicit Levels: Generate graphs for beta levels explicitly enumerated
+    as: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: generate exactly 10 graphs per beta level
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:53:47Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Sample size set to 110
+  claim_id: c_88d8de7b
+  context: 'Implement utils.py: Implement constants SAMPLE_SIZE = 110. Verification:
+    Include a unit test that asserts utils.SAMPLE_SIZE == 110.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SAMPLE_SIZE = 110
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:53:48Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Graph dataset contains 110 entries
+  claim_id: c_ca0c43af
+  context: 'Verification: Verify that data/raw/graphs.jsonl contains exactly 110 entries
+    (or logs a warning if fewer due to topology constraints) and that the distribution
+    is exactly 10 per beta level for valid levels.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify that data/raw/graphs.jsonl contains exactly 110 entries
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:53:49Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Convergence threshold set at 0.90 accuracy
+  claim_id: c_2b1e9493
+  context: 'Verification: Ensure convergence_status is recorded as converged if accuracy
+    >= 0.90, or censored if max epochs reached.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: convergence_status is recorded as converged if accuracy >= 0.90
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:54:08Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Maximum epochs set to 1000
+  claim_id: c_fed53ec2
+  context: 'Implement utils.py: Implement constants MAX_EPOCHS = 1000.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MAX_EPOCHS = 1000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:54:09Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Convergence logs contain 220 rows
+  claim_id: c_8ece0ceb
+  context: 'Verification: Verify data/processed/convergence_logs.csv contains exactly
+    220 rows (110 graphs * 2 losses) with columns: graph_id, loss_type, steps_to_convergence,
+    final_accuracy, max_loss, beta, node_count.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify data/processed/convergence_logs.csv contains exactly 220 rows
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:54:09Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Full pipeline execution duration limit of 6 hours
+  claim_id: c_385d2d10
+  context: 'Execute Full Pipeline & Validate Runtime: Run the full pipeline and assert
+    total duration < 21600s (6 hours). If this fails, the build fails.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: assert total duration < 21600s (6 hours)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:54:10Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Peak memory usage limit of 7GB
+  claim_id: c_c6354ab5
+  context: 'Analyze and Report Memory Usage: Run code/profile_memory.py and generate
+    data/memory_report.md. Constraint: Must verify peak memory < 7GB.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_limit_of_7GB
+  kind: entity_fact
+  raw_text: peak memory < 7GB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:54:33Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Sample size of 110 derived from power analysis
+  claim_id: c_ec7ada64
+  context: 'Constraint: N is fixed at 110 (Spec FR-001), derived from power analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N is fixed at 110 derived from power analysis
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:55:31Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Graph regeneration loop limit of 1000 attempts
+  claim_id: c_abe2712a
+  context: 'Minimum Validity: If the loop exceeds 1000 attempts for a specific beta
+    level without success, log a WARNING, record the attempt count, and proceed with
+    the valid subset (at least 1 graph) for that level.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the loop exceeds 1000 attempts for a specific beta level without success,
+    log a WARNING
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:55:32Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied to 2 tests
+  claim_id: c_e11457cb
+  context: 'Implement Bonferroni Correction: Calculate n_tests = 2. Apply correction:
+    p_corr = p_raw * n_tests to the interaction term p-values only.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: n_tests = 2 for Bonferroni correction
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:55:58Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: 11 beta levels enumerated from 0.0 to 1.0
+  claim_id: c_c3e2c628
+  context: 'Implement code/data_generation.py to generate N=110 graphs. Explicit Levels:
+    Generate graphs for beta levels explicitly enumerated as: [0.0, 0.1, 0.2, 0.3,
+    0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate graphs for beta levels explicitly enumerated as: [0.0, 0.1,
+    0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0].'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:57:03Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: 10 graphs generated per beta level
+  claim_id: c_92e223a6
+  context: Read utils.SAMPLE_SIZE (expected 110) and generate exactly 10 graphs per
+    beta level.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate exactly 10 graphs per beta level.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:57:04Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Spec requires sample size N of 110
+  claim_id: c_598c1bec
+  context: The script must assert that specs/001-investigating-the-effectiveness-of-diffe/spec.md
+    contains 'N=110' (FR-001).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation script must assert that the spec contains N=110.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:57:48Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: 1000 regeneration attempts limit for graph connectivity
+  claim_id: c_e068977a
+  context: 'Minimum Validity: If the loop exceeds 1000 attempts for a specific beta
+    level without success, log a WARNING, record the attempt count, and proceed with
+    the valid subset.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the loop exceeds 1000 attempts for a specific beta level without success,
+    log a WARNING.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:57:49Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Output file must contain 110 graph entries
+  claim_id: c_661b874e
+  context: 'Verification: Verify that data/raw/graphs.jsonl contains exactly 110 entries
+    (or logs a warning if fewer due to topology constraints).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that data/raw/graphs.jsonl contains exactly 110 entries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:57:50Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Convergence logs CSV contains 220 rows
+  claim_id: c_d701cdc8
+  context: 'Verify data/processed/convergence_logs.csv contains exactly 220 rows (110
+    graphs * 2 losses) with columns: graph_id, loss_type, steps_to_convergence, final_accuracy,
+    max_loss, beta, node_count.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that data/processed/convergence_logs.csv contains exactly 220 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:57:51Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction uses 2 tests
+  claim_id: c_f47e322f
+  context: 'Logic: Calculate n_tests = 2. Apply correction: p_corr = p_raw * n_tests
+    to the interaction term p-values only.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate n_tests = 2 for Bonferroni correction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:58:11Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Full pipeline runtime must be under 21600 seconds
+  claim_id: c_c141dacb
+  context: Run the full pipeline (T019 -> T026/T027 -> T033-T039) and assert total
+    duration < 21600s (6 hours).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert total duration < 21600s (6 hours).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:58:12Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Peak memory usage must be under 7 gigabytes
+  claim_id: c_444a7d09
+  context: 'Constraint: Must verify peak memory < 7GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify peak memory < 7GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:58:12Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Research hypothesis compares InfoNCE and Cross-Entropy on small-world
+    graphs
+  claim_id: c_4a242c69
+  context: 'Content Requirement: Must explicitly state the hypothesis (InfoNCE vs
+    CE on small-world graphs) and the statistical approach (Tobit/Cox).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_hypothesis_compares_InfoNCE_and_Cross-Entropy_on_sm
+  kind: entity_fact
+  raw_text: The hypothesis is InfoNCE vs CE on small-world graphs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:58:31Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Statistical analysis uses Tobit and Cox proportional hazards models
+  claim_id: c_82dda759
+  context: 'Content Requirement: Must explicitly state the hypothesis (InfoNCE vs
+    CE on small-world graphs) and the statistical approach (Tobit/Cox).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_analysis_uses_Tobit_and_Cox_proportional_hazards
+  kind: entity_fact
+  raw_text: The statistical approach uses Tobit and Cox models.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:58:52Z'

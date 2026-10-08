@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project investigates whether contrastive learning (InfoNCE) converges faster than supervised learning (Cross-Entropy) as graph connectivity ($\beta$) increases in Watts-Strogatz small-world networks. The technical approach involves generating A set of synthetic graphs (per $\beta$ level from 0.0 to 1.0), training Graph Convolutional Networks (GCNs) with both loss functions, and measuring two primary metrics: (1) **Time-to-Threshold** (epochs to reach $\ge$ 0.90 accuracy via a linear probe) analyzed using Tobit Regression and Cox Proportional Hazards, and (2) **Accuracy at Fixed Epochs** (e.g., epoch 100, 500) to assess optimization efficiency independent of a binary threshold.
+This project investigates whether contrastive learning (InfoNCE) converges faster than supervised learning (Cross-Entropy) as graph connectivity ($\beta$) increases in Watts-Strogatz small-world networks. The technical approach involves generating A set of synthetic graphs (per $\beta$ level across the full range from the lower bound to 1.0), training Graph Convolutional Networks (GCNs) with both loss functions, and measuring two primary metrics: (1) **Time-to-Threshold** (epochs to reach high accuracy via a linear probe) analyzed using Tobit Regression and Cox Proportional Hazards, and (2) **Accuracy at Fixed Epochs** (e.g., epoch 100, 500) to assess optimization efficiency independent of a binary threshold.
 
 **Note on Effectiveness**: "Effectiveness" is defined as a combination of convergence speed and final representation quality. Slower convergence to 0.90 does not imply inferiority if the model achieves higher final accuracy or better generalization.
 

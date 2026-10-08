@@ -53,3 +53,14 @@
   verification_status: unreachable
   verified_against_url: https://llmxive.org/schemas/analysis_result.json
   verified_at: '2026-10-04T19:04:11.427044Z'
+- artifact_hash: 9b09d60b240b723639d8e44dd07731613eea3d8791edc3dc7a858fa78a08b843
+  artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/data-model.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: schema#
+  kind: url
+  value: http://json-schema.org/draft-07/schema#
+  verification_status: pending
+  verified_against_url: https://json-schema.org/draft-07/schema
+  verified_at: '2026-10-08T09:48:27.242043Z'

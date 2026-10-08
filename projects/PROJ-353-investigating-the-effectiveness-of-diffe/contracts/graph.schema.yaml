@@ -1,44 +1,40 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: SyntheticGraph
 description: >
-  JSON Schema for a generated Watts-Strogatz graph used in the
-  "Investigating Loss Functions on Small-World Graphs" study.
-  Defines the structure for entries in data/raw/graphs.jsonl.
+  JSON Schema Draft 7 for the SyntheticGraph entity used in the
+  Watts-Strogatz graph generation pipeline. Defines the structure for
+  graph metadata, topology, and community labels.
 type: object
 required:
   - id
   - beta
   - seed
   - node_count
-  - clustering_coeff
   - edge_list
   - labels
-  - connected
+  - clustering_coeff
+  - is_connected
 properties:
   id:
     type: string
     description: Unique identifier for the graph instance.
-    pattern: "^graph_[0-9a-f]{8}$"
+    pattern: "^graph_\\d+$"
   beta:
     type: number
-    description: Rewiring probability parameter (0.0 to 1.0).
+    description: Rewiring probability parameter for Watts-Strogatz model.
     minimum: 0.0
     maximum: 1.0
   seed:
     type: integer
-    description: Random seed used for graph generation.
+    description: Random seed used for generation reproducibility.
+    minimum: 0
   node_count:
     type: integer
-    description: Total number of nodes in the graph (N).
-    minimum: 1
-  clustering_coeff:
-    type: number
-    description: Global clustering coefficient of the generated graph.
-    minimum: 0.0
-    maximum: 1.0
+    description: Total number of nodes in the graph.
+    minimum: 2
   edge_list:
     type: array
-    description: List of edges as [source, target] pairs.
+    description: List of edges represented as [source, target] pairs.
     items:
       type: array
       minItems: 2
@@ -52,28 +48,22 @@ properties:
     description: Community labels derived from the initial ring lattice.
     items:
       type: integer
+      minimum: 0
     minItems: 1
-  connected:
+  clustering_coeff:
+    type: number
+    description: Global transitivity (clustering coefficient) of the graph.
+    minimum: 0.0
+    maximum: 1.0
+  is_connected:
     type: boolean
-    description: Flag indicating if the graph is fully connected.
-    const: true
-  metadata:
-    type: object
-    description: Optional additional metadata.
-    additionalProperties: true
+    description: Indicates if the graph is a single connected component.
+  generation_timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when the graph was generated.
+  checksum:
+    type: string
+    description: SHA-256 checksum of the serialized graph data.
+    pattern: "^[a-f0-9]{64}$"
 additionalProperties: false
-examples:
-  - id: "graph_00000001"
-    beta: 0.0
-    seed: 42
-    node_count: 100
-    clustering_coeff: 0.523
-    edge_list:
-      - [0, 1]
-      - [1, 2]
-      - [2, 0]
-    labels:
-      - 0
-      - 0
-      - 0
-    connected: true

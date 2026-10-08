@@ -1,9 +1,9 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: TrainingRun
-description: >-
-  Schema for a single training run result (Cross-Entropy or InfoNCE).
-  Captures convergence metrics, trajectory, and metadata as required by
-  Constitution Principle VI and US-2.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Training Run Schema"
+description: >
+  JSON Schema Draft 7 for a single training run result.
+  Captures convergence status, trajectory, and metadata as required by
+  Constitution Principle VI and User Story 2.
 type: object
 required:
   - run_id
@@ -11,64 +11,54 @@ required:
   - loss_type
   - beta
   - node_count
-  - epochs_trained
   - convergence_status
   - steps_to_convergence
   - final_accuracy
-  - max_loss
   - trajectory
 properties:
   run_id:
     type: string
-    description: Unique identifier for this training run.
+    description: "Unique identifier for this training run (e.g., 'run_001_ce')."
   graph_id:
     type: string
-    description: ID of the source graph from data/raw/graphs.jsonl.
+    description: "Identifier of the source graph used for training."
   loss_type:
     type: string
     enum:
-      - ce
-      - infonce
-    description: The loss function used for training.
+      - "cross_entropy"
+      - "infonce"
+    description: "The loss function used for training."
   beta:
     type: number
-    description: The rewiring probability (beta) of the source Watts-Strogatz graph.
+    description: "The rewiring probability (beta) of the Watts-Strogatz graph."
+    minimum: 0.0
+    maximum: 1.0
   node_count:
     type: integer
+    description: "Number of nodes in the graph."
     minimum: 1
-    description: Number of nodes in the source graph.
-  epochs_trained:
-    type: integer
-    minimum: 1
-    description: Total number of epochs the model was trained for.
   convergence_status:
     type: string
     enum:
-      - converged
-      - censored
-    description: >-
+      - "converged"
+      - "censored"
+    description: >
       Status indicating if the model reached the convergence threshold
-      (accuracy >= CONVERGENCE_THRESHOLD) or hit MAX_EPOCHS.
+      (accuracy >= 0.90) within MAX_EPOCHS.
   steps_to_convergence:
     type: integer
+    description: >
+      Number of epochs taken to reach convergence.
+      If censored, this equals MAX_EPOCHS.
     minimum: 0
-    description: >-
-      Number of epochs until convergence. If censored, this is equal to
-      epochs_trained (or MAX_EPOCHS).
   final_accuracy:
     type: number
+    description: "Final accuracy achieved at the last epoch."
     minimum: 0.0
     maximum: 1.0
-    description: Accuracy measured at the final epoch (via linear probe for InfoNCE).
-  max_loss:
-    type: number
-    description: Maximum loss value observed during training.
   trajectory:
     type: array
-    description: >-
-      Full per-epoch trajectory of loss and accuracy. Required by
-      Constitution Principle VI and US-2 to allow detailed analysis of
-      convergence behavior.
+    description: "List of per-epoch metrics recorded during training."
     items:
       type: object
       required:
@@ -78,14 +68,15 @@ properties:
       properties:
         epoch:
           type: integer
+          description: "Epoch number (1-indexed)."
           minimum: 1
-          description: Epoch number (1-indexed).
         loss:
           type: number
-          description: Loss value at this epoch.
+          description: "Loss value at this epoch."
         accuracy:
           type: number
+          description: "Accuracy value at this epoch."
           minimum: 0.0
           maximum: 1.0
-          description: Accuracy at this epoch.
+    minItems: 1
 additionalProperties: false

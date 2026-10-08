@@ -54,21 +54,7 @@ def info_nce_loss(
     logits = torch.matmul(query, key.T) / temperature
 
     # Create labels: assume diagonal is positive (i matches i)
-    # If a custom mask is provided, we need to handle it differently,
-    # but for standard contrastive learning on paired data, diagonal is standard.
     labels = torch.arange(logits.size(0), device=logits.device)
-
-    if mask is not None:
-        # If mask is provided, we treat it as a set of valid positives.
-        # However, standard InfoNCE usually compares against a batch of negatives.
-        # If mask is strictly diagonal, we ignore this branch.
-        # For this implementation, we stick to the standard diagonal assumption
-        # unless a specific batch-wise negative sampling strategy is defined.
-        # A robust implementation would sum over valid positives in the numerator.
-        # Here we assume standard diagonal pairing for simplicity unless mask
-        # implies a different structure (which requires more complex numerator logic).
-        # Given the task context (training on graphs), diagonal pairing (augmented views) is standard.
-        pass
 
     loss = F.cross_entropy(logits, labels)
     return loss
@@ -120,4 +106,4 @@ def compute_accuracy(
         correct = (predicted == targets.unsqueeze(1)).sum().item()
     
     total = targets.size(0)
-    return torch.tensor(correct / total, device=logits.device)
+    return torch.tensor(correct / total, device=logits.device, dtype=torch.float32)

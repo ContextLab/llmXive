@@ -4,7 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No evidence was provided showing that the required `code/`, `tests/`, and `data/` directories actually exist in the project repository; the claim lacks any artifact or directory listing to verify the structure. The implementer must add these top‑level directories (and populate them as appropriate) before the task can be considered complete.
+- `T040a` (rejected 1x): No `research.md` file in `specs/353-loss-functions-small-world/` is presented, and no content showing the hypothesis (InfoNCE vs CE) or the statistical approach (Tobit/Cox) is provided. The required artifact is missing.
+- `T006a` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
+- `T007` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
 
 ## Required change
 

@@ -1,11 +1,15 @@
-T005b:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `data-model.md` file or its contents were provided; without the markdown\
-    \ document containing the required schema and JSON Schema Draft\u202F7 examples,\
-    \ the task\u2019s deliverable cannot be confirmed as completed. The implementer\
-    \ must supply a non\u2011empty `data-model.md` that defines the entities (SyntheticGraph,\
-    \ TrainingRun, AnalysisResult) as specified."
+  r: No directories or verification script are provided in the evidence; the required
+    project structure (code/, tests/, data/, data/raw/, data/processed/, data/analysis/,
+    artifacts/, contracts/) and a script that checks their existence are missing.
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `data-model.md` file or its contents were presented; thus there is no evidence\
+    \ of markdown tables for `SyntheticGraph`, `TrainingRun`, and `AnalysisResult`\
+    \ nor JSON Schema Draft\u202F7 examples. The required artifact is missing."
 T011:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -42,9 +46,3 @@ T036:
     \ saved, which is not demonstrated. The implementer must produce the JSON file\
     \ with `tobit_interaction_p_value` and `cox_interaction_p_value` (and the `is_significant`\
     \ flag)."
-T040a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `research.md` file in `specs/353-loss-functions-small-world/` is presented,
-    and no content showing the hypothesis (InfoNCE vs CE) or the statistical approach
-    (Tobit/Cox) is provided. The required artifact is missing.
