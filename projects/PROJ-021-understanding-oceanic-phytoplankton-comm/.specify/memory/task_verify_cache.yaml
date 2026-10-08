@@ -11,22 +11,14 @@ T012:
     \ of linear interpolation for \u22642\u2011month gaps, error quantification, or\
     \ flagging of larger gaps. Moreover, the required `data/logs/interpolation_error.log`\
     \ file is absent. The task\u2019s core requirements are therefore not satisfied."
-T013:
-  c: false
-  h: a626d6dc1890ff3a19ec7672e12d25f3b1a427b194a274a8766dfe8a8848656a
-  r: "The provided `code/02_preprocessing.py` contains only placeholder loading functions\
-    \ and memory\u2011limit utilities; it does not implement basin stratification,\
-    \ retain a basin ID, apply a unified missing\u2011data mask, or exclude cells\
-    \ lacking in\u2011situ data as required. Moreover, the required input file `data/raw/aligned_intermediate.nc`\
-    \ is absent. Both the functional code and the necessary data artifact are missing."
 T013a:
   c: false
-  h: f2acbaa6493d4b3bb08a16e333c624bc92de4b20148d54e539c3c5e3e237f6d5
-  r: "The provided `code/02_preprocessing.py` only contains memory\u2011enforcement\
-    \ utilities and placeholder data\u2011loading stubs; it does not implement the\
-    \ 10\u2011year timestamp validation nor the stratified train/val/test split, nor\
-    \ does it write a `data/processed/split_indices.json` file (the file is missing).\
-    \ Consequently the task requirements are not met."
+  h: 8a2311d060fdaf1a1359778d89277da192a869c959800bea309bcef8889643aa
+  r: "The provided `code/02_preprocessing.py` does not contain any implementation\
+    \ that checks a \u226510\u2011year timestamp range nor any logic that creates\
+    \ a stratified train/val/test split by ocean basin. Moreover, the required output\
+    \ file `data/processed/split_indices.json` is absent. Both the validation step\
+    \ and the split\u2011indices artifact are missing, so the task is not fulfilled."
 T013b:
   c: true
   h: 92bcd33f4d3a1b99703b2af84b89b59971b9edcf05086c6abad218b118b74de4
@@ -34,39 +26,23 @@ T013b:
     \ to `data/logs/memory_enforcement.log` and implements functions (`enforce_memory_limit_gb`,\
     \ `get_current_memory_usage_gb`) to monitor and enforce a RAM usage limit. The\
     \ required log file will be created at runtime, satisfying the task\u2019s specification."
-T015:
+T023:
   c: false
-  h: bab97917039cc936af4e77221fe04d655a68a51298b3cc953aa18056baae09b8
-  r: "The repository contains `code/01_data_ingestion.py`, but the required output\
-    \ file `data/raw/seabass_filtered.csv` is absent, so the filtering step does not\
-    \ produce the mandated filtered dataset. Without this artifact the task\u2019\
-    s primary deliverable is missing."
-T019:
+  h: e7d5bbdb6b51ac8dd31f79babea66a95b9a508b12c2c19dd3167a362704c8acb
+  r: "The `data/logs/importance_verification.log` file is absent, so the verification\
+    \ result is never recorded. Moreover, the shown portion of `code/04_evaluation.py`\
+    \ contains only utility functions (model loading, VIF calculation) and does not\
+    \ implement the required permutation\u2011importance analysis, L1\u2011norm normalization,\
+    \ sum\u2011to\u2011one check, fallback handling, or the specified VIF\u2011>5\
+    \ warning logic. These core functionalities are missing, so the task is not genuinely\
+    \ completed."
+T026:
   c: false
-  h: 6da238fabd0b0896adac910f41e6e86f2665603a995d3b5c5bfd92f4bbc755b2
-  r: "The `code/03_model_training.py` file does not contain any implementation of\
-    \ CLIP\u2011based VLM fine\u2011tuning, low\u2011bit quantization, early\u2011\
-    stopping logic, or the code that writes `vlm_fallback=True` to `state/projects/PROJ-021-understanding-oceanic-phytoplankton-comm.yaml`.\
-    \ That YAML file is missing entirely, and the integration test `tests/integration/test_pipeline.py`\
-    \ does not check for the required flag. Consequently the task\u2019s core requirements\
-    \ are not satisfied."
-T019a:
-  c: false
-  h: 35439b8ce0d7db0b57584d5dd45cf5b67d78c807f907898b8580ab02e0d5024c
-  r: "The `code/04_evaluation.py` file contains model loading, metric computation,\
-    \ and a partially shown basin\u2011stratified function, but it does not implement\
-    \ a paired t\u2011test or bootstrap to compare VLM vs. baseline R\xB2, nor does\
-    \ it write a `p-value` and confidence interval to `data/artifacts/significance_test.json`.\
-    \ Moreover, the required `data/artifacts/significance_test.json` file is absent.\
-    \ The task\u2019s core requirement is therefore unmet."
-T020a:
-  c: false
-  h: 37ea1f6d3d767816ca13ef13ee11eb1c3b2916909e8d9fda3fe188d6549ea26e
-  r: "The provided `code/04_evaluation.py` does not contain a completed implementation\
-    \ for computing variance of R\xB2 scores across basins or writing the results\
-    \ to `data/artifacts/basin_variance.json` (the function is truncated and contains\
-    \ syntax errors). Moreover, the required `data/artifacts/basin_variance.json`\
-    \ file is absent. The task\u2019s core requirement is therefore unmet."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required driver attribution maps was provided\u2014there\
+    \ are no files in `data/artifacts/feature_importance_maps/`, nor any code showing\
+    \ spatial aggregation/resampling logic, legends, or basin labels. The task\u2019\
+    s deliverables are missing."
 T032:
   c: false
   h: 39b02d45b1a7a9e3f12ffb97a76c7fc67a46e3ee4177d06081a0b3a0118c2294

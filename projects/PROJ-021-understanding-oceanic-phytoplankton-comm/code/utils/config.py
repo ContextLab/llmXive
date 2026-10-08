@@ -3,7 +3,6 @@ import sys
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, field, asdict
-
 from utils.logging_config import get_logger
 
 logger = get_logger(__name__)
@@ -11,45 +10,62 @@ logger = get_logger(__name__)
 @dataclass
 class Config:
     """Configuration manager for the project."""
-    seed: int = 42
-    ram_limit_gb: float = 7.0
-    paths: Dict[str, str] = field(default_factory=lambda: {
-        'raw': 'data/raw',
-        'processed': 'data/processed',
-        'artifacts': 'data/artifacts',
-        'logs': 'data/logs',
-        'figures': 'figures'
-    })
-    hyperparameters: Dict[str, Any] = field(default_factory=lambda: {
-        'rf_n_trees': 500,
-        'vlm_epochs': 10,
-        'batch_size': 32
-    })
+    project_root: Path = field(default_factory=lambda: Path(os.getcwd()))
+    data_root: Path = field(default_factory=lambda: Path("data"))
+    code_root: Path = field(default_factory=lambda: Path("code"))
+    specs_root: Path = field(default_factory=lambda: Path("specs"))
+    state_root: Path = field(default_factory=lambda: Path("state"))
+    
+    # Hyperparameters and limits
+    memory_limit_gb: float = 7.0
+    runtime_limit_hours: float = 6.0
+    random_seed: int = 42
+    
+    # Dataset specific
+    min_temporal_overlap_years: int = 10
+    missing_value_threshold_pct: float = 5.0
+    
+    # Model specific
+    rf_max_trees: int = 500
+    vlm_patience: int = 3
+    vlm_fallback_threshold: float = 0.05 # R2 difference threshold for fallback logic
 
-_global_config: Optional[Config] = None
+    def get_path(self, relative_path: str) -> Path:
+        """Resolve a relative path against the project root."""
+        return self.project_root / relative_path
+
+_config: Optional[Config] = None
 
 def get_config() -> Config:
-    global _global_config
-    if _global_config is None:
-        _global_config = Config()
-    return _global_config
+    global _config
+    if _config is None:
+        # Try to load from environment or defaults
+        _config = Config()
+        if "MEMORY_LIMIT_GB" in os.environ:
+            _config.memory_limit_gb = float(os.environ["MEMORY_LIMIT_GB"])
+        if "RUNTIME_LIMIT_HOURS" in os.environ:
+            _config.runtime_limit_hours = float(os.environ["RUNTIME_LIMIT_HOURS"])
+        if "RANDOM_SEED" in os.environ:
+            _config.random_seed = int(os.environ["RANDOM_SEED"])
+    return _config
 
 def reset_config():
-    global _global_config
-    _global_config = None
+    global _config
+    _config = None
 
 def get_available_ram_gb() -> float:
-    """Estimate available RAM (simplified)."""
-    # In a real system, this might check /proc/meminfo or psutil
-    return 7.0
+    """Estimate available RAM (simple fallback if psutil not available)."""
+    try:
+        import psutil
+        return psutil.virtual_memory().available / (1024 ** 3)
+    except ImportError:
+        logger.warning("psutil not installed, using default memory limit.")
+        return get_config().memory_limit_gb
 
 def main():
-    """Entry point for config test."""
-    logger.info("Config module loaded successfully.")
+    """Test configuration loading."""
     cfg = get_config()
-    logger.info(f"Current RAM limit: {cfg.ram_limit_gb} GB")
+    logger.info(f"Config loaded: {asdict(cfg)}")
 
 if __name__ == "__main__":
-    from utils.logging_config import setup_logging
-    setup_logging()
     main()
