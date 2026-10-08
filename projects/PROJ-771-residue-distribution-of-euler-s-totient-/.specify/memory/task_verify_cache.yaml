@@ -23,3 +23,18 @@ T027a:
     Lockard or Pollack\u202F&\u202FRoy formulas, nor does it reference any constants.\
     \ Consequently, the task\u2019s core requirement\u2014real error\u2011bound calculations\
     \ without hard\u2011coded placeholders\u2014is not met."
+T032c:
+  c: true
+  h: c97ce5245021f13290a507d89a9e63c732bf6b0463b29f3e80abd2c3ef1f78d5
+  r: "The benchmark result file exists and shows an elapsed time of 145.32\u202Fseconds,\
+    \ which is well under the 1\u2011hour limit, so the required assertion would succeed\
+    \ and no failure log is needed. No other artifacts are required for a successful\
+    \ validation."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact such as a validation log, script output, or reproduced `quickstart.md`
+    run is present; the only provided material is the feature specification, which
+    does not demonstrate that the quickstart guide was actually executed in a fresh
+    environment. Consequently the required evidence of reproducibility validation
+    is missing.

@@ -1,1 +1,1 @@
-"""Integration tests package for llmXive residue distribution analysis."""
+# Integration tests package

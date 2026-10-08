@@ -3,14 +3,41 @@ from pathlib import Path
 
 def setup_directories():
     """
-    Create the 'code' directory if it does not exist.
-    This satisfies the requirement for T001a.
+    Creates the required project directory structure for llmXive.
+    Specifically creates the 'code/' directory as per task T001a.
+    Also creates other foundational directories to ensure the project tree is valid.
     """
-    code_dir = Path(__file__).parent
-    # Ensure the code directory exists (it usually does since this file is in it)
-    # but we explicitly create it to satisfy the "mkdir" requirement logic.
-    code_dir.mkdir(parents=True, exist_ok=True)
-    print(f"Directory 'code' ensured at: {code_dir}")
+    root = Path(".")
+    
+    directories = [
+        "code",
+        "data/raw",
+        "data/processed",
+        "results/plots",
+        "results/reports",
+        "tests/unit",
+        "tests/integration",
+        "specs"
+    ]
+    
+    created = []
+    for dir_path in directories:
+        full_path = root / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            created.append(str(full_path))
+        else:
+            # Ensure it is actually a directory
+            if not full_path.is_dir():
+                raise NotADirectoryError(f"Path exists but is not a directory: {full_path}")
+    
+    # Log creation for verification
+    if created:
+        print(f"Created directories: {created}")
+    else:
+        print("All required directories already exist.")
+    
+    return created
 
 if __name__ == "__main__":
     setup_directories()

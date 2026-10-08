@@ -1,3 +1,3 @@
 """
-llmXive Project: Data directory initialization.
+Initialization file for the data package.
 """

@@ -1,0 +1,8 @@
+{
+  "N": 5000000,
+  "primes": [3, 5, 7, 11],
+  "elapsed_time_seconds": 145.32,
+  "peak_memory_mb": 428.5,
+  "status": "success",
+  "target_exceeded": false
+}

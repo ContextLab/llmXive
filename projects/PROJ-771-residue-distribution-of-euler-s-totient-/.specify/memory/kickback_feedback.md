@@ -4,12 +4,12 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001a` (rejected 1x): No evidence of a `code/` directory being present (or its contents) is provided; without a visible directory or listing we cannot confirm the implementer actually created it. The required artifact is missing.
-- `T001b` (rejected 1x): No evidence was provided showing that the `data/raw/` and `data/processed/` directories actually exist; the response contains no file listings, screenshots, or commands confirming their creation. The required artifact (the two directories) is therefore missing.
-- `T001c` (rejected 1x): No evidence was provided that the `results/plots/` and `results/reports/` directories actually exist (e.g., a directory listing, command output, or screenshot). Without such proof, we cannot confirm the required directories were created.
-- `T001d` (rejected 1x): No evidence of the required `tests/unit/` and `tests/integration/` directories is provided; the artifact list contains no such paths, so we cannot verify that the directories were actually created. The implementer must add the directories (and optionally a placeholder file) to the repository.
-- `T014` (rejected 1x): No code, configuration, or log files were supplied that show error‑handling logic for the sieve, nor any evidence that the logging of the offending $n$ occurs before any data‑save step. Without such artifacts the requirement cannot be verified as met.
-- `T013` (rejected 1x): No `data/raw/residues_{prime}_{N}.json` file (or code that creates it) is present, and there is no evidence of JSON serialization of a `ResidueDataset`. The required output artifact is missing, so the task is not satisfied.
+- `T001a` (rejected 1x): No evidence was presented showing that a `code/` directory exists in the repository (e.g., a directory listing or file path). Without such proof, we cannot confirm the required artifact was created.
+- `T001b` (rejected 1x): No evidence of the required `data/raw/` and `data/processed/` directories being created is provided; the artifact list is empty, so the claim that the directories exist cannot be verified. The implementer must create those directories (or provide proof they exist) to satisfy the task.
+- `T001c` (rejected 1x): No evidence of the required `results/plots/` and `results/reports/` directories was provided; the claim lacks any artifact showing that these folders were created (e.g., a directory listing or screenshot). The implementer must supply proof that the two directories exist in the repository.
+- `T001d` (rejected 1x): No evidence of the required `tests/unit/` and `tests/integration/` directories being present in the repository is provided; the artifact list is empty, so we cannot confirm the directories were actually created. The implementer must add these directories (and optionally placeholder files) to satisfy the task.
+- `T030` (rejected 1x): No `quickstart.md` file or any documentation artifact was provided; the claim contains only feature specifications and test scenarios, but lacks the required markdown file with execution instructions for $N=5{,}000{,}000$. The task’s core deliverable is missing.
+- `T031` (rejected 1x): No `run_analysis.py` file or any refactored code was provided; the evidence consists only of the task description and specifications, without the required artifact demonstrating a clean separation of orchestration logic. The implementer must supply the refactored `run_analysis.py` source code (non‑empty) for verification.
 
 ## Required change
 

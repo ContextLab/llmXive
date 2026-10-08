@@ -1,3 +1,1 @@
-"""
-llmXive Project: Tests directory initialization.
-"""
+# Tests package

@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-10-08T11:42:11.979418+00:00'
+issue_number: 1471
+project_id: PROJ-771-residue-distribution-of-euler-s-totient-
