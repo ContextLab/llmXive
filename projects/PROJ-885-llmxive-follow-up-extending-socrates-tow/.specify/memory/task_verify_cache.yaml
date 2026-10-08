@@ -5,6 +5,15 @@ T011:
     \ is missing from the repository, so no test code exists to verify the oversampling\
     \ distribution as specified. Without this artifact, the task\u2019s acceptance\
     \ criteria cannot be satisfied."
+T019:
+  c: false
+  h: 95546ba7dca28e7561c405ab4cb9a904de3680c5b08a38f8acb7a16284aaf28f
+  r: "The required output file `data/processed/classifier_training_data.json` does\
+    \ not exist, and the provided `code/data/generator.py` is incomplete (truncated)\
+    \ and lacks any implementation that splits trajectories into 3\u2011turn windows,\
+    \ creates `turn_text`/`label` pairs, adds `confidence_score` and `threshold_used`,\
+    \ or writes the results to the specified JSON file. Consequently the task\u2019\
+    s core requirements are not met."
 T029:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

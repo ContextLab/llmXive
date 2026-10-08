@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T17:21:36.197736Z'
-current_stage: tasked
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-885-llmxive-follow-up-extending-socrates-tow
-last_run_id: 05c6b4b2-10fb-4725-bdc1-ec4303141bf2
+last_run_id: 656d7362-85c2-4a36-9e46-da5394ab59fd
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow
 title: 'llmXive follow-up: extending "SoCRATES: Towards Reliable Automated Evaluation
   of Proactive LLM Media"'
-updated_at: '2026-10-04T04:53:53.676126Z'
+updated_at: '2026-10-08T06:59:55.590288Z'

@@ -1,10 +1,21 @@
 # Core dependencies
-scikit-learn
-pandas
-transformers (CPU-only)
-datasets
-pytest
-statsmodels
-numpy
-torch
-# Note: bitsandbytes, flash-attn, and GPU-accelerated libraries are explicitly excluded.
+scikit-learn==1.5.0
+pandas==2.2.0
+datasets==2.18.0
+pytest==8.0.0
+numpy==1.26.0
+
+# Transformers (CPU-only, no GPU acceleration)
+# Explicitly excluding bitsandbytes, flash-attn, and any GPU-accelerated libraries
+# to satisfy FR-004 (CPU-only execution requirement)
+transformers==4.38.0
+
+# Additional utilities
+pyyaml==6.0.1
+tqdm==4.66.0
+
+# Note: This project explicitly excludes:
+# - bitsandbytes (GPU quantization)
+# - flash-attn (GPU attention optimization)
+# - Any other GPU-accelerated libraries
+# All inference must run on CPU for reproducibility (FR-004)

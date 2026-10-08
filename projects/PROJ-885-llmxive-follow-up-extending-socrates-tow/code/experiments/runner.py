@@ -1,3 +1,10 @@
+"""
+CPU-only Inference Runner for Socio-Cognitive State Injection Experiments.
+
+This module implements the core experiment execution loop, enforcing CPU-only
+execution, managing model loading, and handling dynamic state injection.
+"""
+
 import json
 import logging
 import time
@@ -5,266 +12,366 @@ import uuid
 import torch
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple
 
-from config import setup_logging, get_config_summary, ensure_directories
-from experiments.retry_utils import retry_with_backoff, RetryError
-from experiments.prompts import get_static_baseline_prompt, get_dynamic_adapter_prompt, format_prompt_for_inference
-from experiments.model_loader import check_and_load_model, get_available_models, filter_models_by_memory
-from models.classifier import SocioCognitiveClassifier, ClassifierConfig
-from models.entities import ConflictTrajectory, SocioCognitiveState, SocioCognitiveStateType
+from config import ensure_directories, setup_logging, get_config_summary
+from data.generator import split_trajectory_into_turns, derive_classifier_training_data
+from models.classifier import SocioCognitiveClassifier
+from experiments.prompts import get_static_baseline_prompt, get_dynamic_adapter_prompt
+from experiments.retry_utils import exponential_backoff_retry
+from analysis.log_writer import write_experiment_logs
+
+# Constants
+CONFIDENCE_THRESHOLD = 0.65  # Threshold for low-confidence fallback
+NEUTRAL_STATE_LABEL = "neutral-monitoring"
 
 logger = logging.getLogger(__name__)
 
-# --- CPU-Only Verification Logic (T027) ---
-def enforce_cpu_only_execution() -> None:
+def enforce_cpu_only_execution(model_name: str) -> Optional[str]:
     """
-    Verifies that the environment is CPU-only as per FR-004 and T027.
-    Raises RuntimeError if GPU libraries are detected or CUDA is available.
+    Enforce CPU-only execution policy.
+    
+    If GPU is available, this function logs a warning, appends an exclusion
+    record to scope_adjustments.json, and returns None to indicate the model
+    should be skipped.
+    
+    Args:
+        model_name: Name of the model being loaded.
+        
+    Returns:
+        None if GPU detected (model excluded), otherwise returns 'cpu'.
     """
     if torch.cuda.is_available():
-        # Check if any CUDA device is actually visible
-        device_count = torch.cuda.device_count()
-        if device_count > 0:
-            raise RuntimeError(
-                f"GPU execution detected: CUDA is available with {device_count} device(s). "
-                "This project enforces CPU-only execution (FR-004). "
-                "Please set CUDA_VISIBLE_DEVICES='' or remove GPU hardware access."
-            )
+        warning_msg = f"GPU detected ({torch.cuda.device_count()} devices). Excluding model '{model_name}' to ensure CPU-only reproducibility."
+        logger.warning(warning_msg)
+        
+        # Prepare exclusion record
+        exclusion_record = {
+            "model_name": model_name,
+            "reason": "GPU_detected",
+            "estimated_ram_gb": None
+        }
+        
+        # Append to scope_adjustments.json
+        scope_file = Path("data/results/scope_adjustments.json")
+        ensure_directories()
+        
+        # Load existing records or initialize
+        try:
+            if scope_file.exists():
+                with open(scope_file, 'r') as f:
+                    records = json.load(f)
+            else:
+                records = []
+        except (json.JSONDecodeError, IOError) as e:
+            logger.error(f"Failed to read scope_adjustments.json: {e}")
+            records = []
+        
+        # Append new record
+        records.append(exclusion_record)
+        
+        # Write back
+        with open(scope_file, 'w') as f:
+            json.dump(records, f, indent=2)
+        
+        logger.info(f"Exclusion record for '{model_name}' appended to {scope_file}")
+        return None
     
-    # Explicitly check for bitsandbytes to ensure it's not imported or used accidentally
-    try:
-        import bitsandbytes
-        raise RuntimeError(
-            "bitsandbytes library detected. This project explicitly excludes GPU-accelerated libraries "
-            "and quantization tools like bitsandbytes. Please remove it from the environment."
-        )
-    except ImportError:
-        # Expected: library should not be present
-        pass
+    return "cpu"
 
-    logger.info("CPU-only execution environment verified successfully.")
-
-# --- Classifier Loading ---
-def load_classifier(config: ClassifierConfig) -> SocioCognitiveClassifier:
-    """Loads the trained classifier from disk."""
-    logger.info(f"Loading classifier from {config.model_path}")
-    if not Path(config.model_path).exists():
+def load_classifier() -> SocioCognitiveClassifier:
+    """
+    Load the pre-trained classifier for state detection.
+    
+    Returns:
+        Initialized SocioCognitiveClassifier instance.
+    """
+    classifier_path = Path("data/processed/classifier_model.pkl")
+    
+    if not classifier_path.exists():
         raise FileNotFoundError(
-            f"Classifier model not found at {config.model_path}. "
-            "Please ensure T019 and T020 have been run to generate the classifier."
+            f"Classifier model not found at {classifier_path}. "
+            "Please run T020 (classifier training) before T027."
         )
-    return SocioCognitiveClassifier.load(config)
+    
+    logger.info(f"Loading classifier from {classifier_path}")
+    classifier = SocioCognitiveClassifier.load(classifier_path)
+    return classifier
 
-# --- Inference Logic ---
 def run_single_turn_inference(
-    model_name: str,
-    prompt: str,
-    max_new_tokens: int = 64,
-    temperature: float = 0.7
+    model, 
+    tokenizer, 
+    prompt: str, 
+    max_length: int = 512
 ) -> str:
     """
-    Runs a single turn of inference on CPU.
-    Uses retry logic for transient failures.
+    Run a single turn of inference on the loaded model.
+    
+    Args:
+        model: The loaded transformer model.
+        tokenizer: The corresponding tokenizer.
+        prompt: The input prompt text.
+        max_length: Maximum sequence length for generation.
+        
+    Returns:
+        Generated text response.
     """
-    @retry_with_backoff(max_retries=3, base_delay=2.0)
-    def _inference_call():
-        model, tokenizer = check_and_load_model(model_name)
-        inputs = tokenizer(prompt, return_tensors="pt")
-        
-        # Explicitly force CPU
-        inputs = {k: v for k, v in inputs.items()} 
-        # No .to('cuda') calls allowed
+    inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=max_length)
+    inputs = {k: v.to("cpu") for k, v in inputs.items()}  # Explicitly move to CPU
+    
+    with torch.no_grad():
+        outputs = model.generate(
+            **inputs,
+            max_new_tokens=256,
+            temperature=0.7,
+            do_sample=True,
+            pad_token_id=tokenizer.eos_token_id
+        )
+    
+    response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    # Remove the original prompt from the response
+    response = response.replace(prompt, "").strip()
+    return response
 
-        with torch.no_grad():
-            outputs = model.generate(
-                **inputs,
-                max_new_tokens=max_new_tokens,
-                temperature=temperature,
-                do_sample=True if temperature > 0 else False,
-                pad_token_id=tokenizer.eos_token_id
-            )
-        
-        response = tokenizer.decode(outputs[0], skip_special_tokens=True)
-        return response
-
-    try:
-        return _inference_call()
-    except RetryError as e:
-        logger.error(f"Failed to generate response for model {model_name} after retries: {e}")
-        raise
-
-# --- State Injection Fallback Logic (FR-002) ---
 def get_state_for_turn(
-    classifier: SocioCognitiveClassifier,
-    turn_text: str,
-    confidence_threshold: float = 0.6
-) -> SocioCognitiveState:
+    classifier: SocioCognitiveClassifier, 
+    turn_text: str
+) -> Tuple[str, float]:
     """
-    Infers the socio-cognitive state from the turn text.
-    Implements fallback to 'neutral monitoring' on low confidence.
+    Get the socio-cognitive state for a given turn text using the classifier.
+    
+    Args:
+        classifier: The trained classifier.
+        turn_text: The dialogue turn text.
+        
+    Returns:
+        Tuple of (state_label, confidence_score).
     """
-    prediction, confidence = classifier.predict(turn_text)
-    
-    if confidence < confidence_threshold:
-        logger.warning(
-            f"Low confidence ({confidence:.2f}) on turn text. "
-            f"Falling back to neutral monitoring state (FR-002)."
-        )
-        return SocioCognitiveState(
-            state_type=SocioCognitiveStateType.NEUTRAL_MONITORING,
-            confidence=confidence,
-            is_fallback=True
-        )
-    
-    return SocioCognitiveState(
-        state_type=prediction,
-        confidence=confidence,
-        is_fallback=False
-    )
+    state_label, confidence = classifier.predict_with_confidence(turn_text)
+    return state_label, confidence
 
-# --- Main Experiment Runner ---
 def process_trajectory(
-    trajectory: ConflictTrajectory,
-    condition: str, # 'Adapter' or 'Static'
-    model_name: str,
+    trajectory: Dict[str, Any],
+    model,
+    tokenizer,
     classifier: SocioCognitiveClassifier,
-    confidence_threshold: float = 0.6
+    condition: str,
+    model_name: str
 ) -> List[Dict[str, Any]]:
     """
-    Processes a single trajectory turn-by-turn.
-    Injects dynamic prompts for 'Adapter' condition based on classifier output.
+    Process a single conflict trajectory through the LLM under the specified condition.
+    
+    Args:
+        trajectory: The conflict trajectory data.
+        model: The loaded LLM.
+        tokenizer: The LLM tokenizer.
+        classifier: The state classifier.
+        condition: Either 'adapter' or 'static'.
+        model_name: Name of the model being used.
+        
+    Returns:
+        List of turn-level experiment logs.
     """
-    logs = []
-    current_context = trajectory.initial_context
+    log_entries = []
+    turns = split_trajectory_into_turns(trajectory)
     
-    for turn_idx, turn in enumerate(trajectory.turns):
-        # 1. Determine State (only for Adapter)
-        injected_state = None
-        prompt_template = None
-
-        if condition == "Adapter":
-            state = get_state_for_turn(classifier, turn.text, confidence_threshold)
-            injected_state = state.state_type
-            prompt_template = get_dynamic_adapter_prompt(turn.text, state)
+    # Accumulator for dialogue history
+    dialogue_history = []
+    
+    for i, turn in enumerate(turns):
+        turn_text = turn.get("text", "")
+        dialogue_history.append(turn_text)
+        
+        # Build prompt based on condition
+        if condition == "adapter":
+            # Get state for current turn
+            state_label, confidence = get_state_for_turn(classifier, turn_text)
+            
+            # Determine injected state
+            if confidence < CONFIDENCE_THRESHOLD:
+                injected_state = NEUTRAL_STATE_LABEL
+                prompt_template = get_static_baseline_prompt(turn_text)  # Fallback to static
+            else:
+                injected_state = state_label
+                prompt_template = get_dynamic_adapter_prompt(turn_text, injected_state)
+            
+            full_prompt = prompt_template
         else:
-            prompt_template = get_static_baseline_prompt(turn.text)
-
-        # 2. Format Full Prompt
-        full_prompt = format_prompt_for_inference(prompt_template, current_context)
-
-        # 3. Run Inference
+            # Static condition: no injection
+            injected_state = None
+            confidence = None
+            full_prompt = get_static_baseline_prompt(turn_text)
+        
+        # Run inference
         try:
-            response = run_single_turn_inference(model_name, full_prompt)
+            response = run_single_turn_inference(model, tokenizer, full_prompt)
+            status = "success"
         except Exception as e:
-            logger.error(f"Inference failed for trajectory {trajectory.id}, turn {turn_idx}: {e}")
-            continue # Skip this turn but continue trajectory if possible
-
-        # 4. Log Result
+            logger.error(f"Inference failed for turn {i}: {e}")
+            response = "[INFERENCE_ERROR]"
+            status = "error"
+        
+        # Create log entry
         log_entry = {
-            "trajectory_id": str(trajectory.id),
-            "turn_index": turn_idx,
+            "trajectory_id": trajectory.get("id"),
+            "turn_index": i,
+            "turn_text": turn_text,
+            "model_name": model_name,
             "condition": condition,
-            "input_turn": turn.text,
+            "prompt": full_prompt[:500] + "..." if len(full_prompt) > 500 else full_prompt,
+            "response": response,
+            "status": status,
+            "timestamp": datetime.utcnow().isoformat(),
+            "confidence_score": confidence,
             "injected_state": injected_state,
-            "injected_state_confidence": injected_state.confidence if injected_state else None,
-            "is_fallback": injected_state.is_fallback if injected_state else False,
-            "model_response": response,
-            "timestamp": datetime.now().isoformat()
+            "metadata": {
+                "condition_details": "adapter" if condition == "adapter" else "static_baseline"
+            }
         }
-        logs.append(log_entry)
-
-        # Update context for next turn
-        current_context += f"\nUser: {turn.text}\nAssistant: {response}"
+        
+        log_entries.append(log_entry)
     
-    return logs
+    return log_entries
 
 def run_experiment(
-    trajectories_path: Path,
-    classifier_config: ClassifierConfig,
-    models_to_run: List[str],
-    output_path: Path,
-    confidence_threshold: float = 0.6
-) -> None:
+    trajectories: List[Dict[str, Any]],
+    model_name: str,
+    model,
+    tokenizer,
+    classifier: SocioCognitiveClassifier,
+    conditions: List[str]
+) -> List[Dict[str, Any]]:
     """
-    Main entry point for the experiment.
-    Loads trajectories, runs them through models under both conditions,
-    and saves results.
-    """
-    # 1. Enforce CPU Only
-    enforce_cpu_only_execution()
-
-    # 2. Load Trajectories
-    logger.info(f"Loading trajectories from {trajectories_path}")
-    with open(trajectories_path, 'r') as f:
-        raw_data = json.load(f)
+    Run the full experiment suite for a given model and set of trajectories.
     
-    trajectories = [ConflictTrajectory.from_dict(item) for item in raw_data]
-    logger.info(f"Loaded {len(trajectories)} trajectories.")
-
-    # 3. Load Classifier
-    classifier = load_classifier(classifier_config)
-
-    # 4. Initialize Output
-    all_logs = []
-
-    # 5. Run Experiments
-    for model_name in models_to_run:
-        logger.info(f"Starting experiments for model: {model_name}")
+    Args:
+        trajectories: List of conflict trajectories.
+        model_name: Name of the model.
+        model: The loaded model.
+        tokenizer: The model tokenizer.
+        classifier: The state classifier.
+        conditions: List of conditions to run (e.g., ['adapter', 'static']).
         
-        # Filter models by memory (T009 logic)
-        available_models = get_available_models()
-        if model_name not in available_models:
-            logger.warning(f"Model {model_name} not found or exceeds memory limits. Skipping.")
-            continue
-
-        for condition in ["Adapter", "Static"]:
-            logger.info(f"  Running condition: {condition}")
-            for traj in trajectories:
-                try:
-                    logs = process_trajectory(
-                        trajectory=traj,
-                        condition=condition,
-                        model_name=model_name,
-                        classifier=classifier,
-                        confidence_threshold=confidence_threshold
-                    )
-                    all_logs.extend(logs)
-                except Exception as e:
-                    logger.error(f"Error processing trajectory {traj.id} for {model_name}/{condition}: {e}")
-                    continue
-
-    # 6. Save Results
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(all_logs, f, indent=2)
+    Returns:
+        Aggregated list of all experiment log entries.
+    """
+    all_logs = []
     
-    logger.info(f"Experiment logs saved to {output_path}")
+    for trajectory in trajectories:
+        for condition in conditions:
+            logger.info(f"Processing trajectory {trajectory.get('id')} with {model_name} under {condition} condition")
+            start_time = time.time()
+            
+            turn_logs = process_trajectory(
+                trajectory=trajectory,
+                model=model,
+                tokenizer=tokenizer,
+                classifier=classifier,
+                condition=condition,
+                model_name=model_name
+            )
+            
+            elapsed = time.time() - start_time
+            logger.info(f"Completed {condition} condition in {elapsed:.2f}s")
+            
+            all_logs.extend(turn_logs)
+    
+    return all_logs
 
 def main():
-    """CLI entry point."""
+    """
+    Main entry point for the experiment runner.
+    
+    Usage: python code/experiments/runner.py --models <model1,model2> --conditions <cond1,cond2>
+    """
     setup_logging()
-    ensure_directories()
+    logger.info("Starting CPU-only Inference Runner")
     
-    # Configuration (simplified for T027 implementation)
-    config = get_config_summary()
+    # Parse arguments (simplified for this task)
+    import argparse
+    parser = argparse.ArgumentParser(description="Run inference experiments")
+    parser.add_argument("--models", type=str, default="llama-3-8b-instruct", 
+                      help="Comma-separated list of model names")
+    parser.add_argument("--conditions", type=str, default="adapter,static",
+                      help="Comma-separated list of conditions")
+    args = parser.parse_args()
     
-    # Paths
+    model_names = [m.strip() for m in args.models.split(",")]
+    conditions = [c.strip() for c in args.conditions.split(",")]
+    
+    logger.info(f"Models to run: {model_names}")
+    logger.info(f"Conditions to run: {conditions}")
+    
+    # Load classifier
+    try:
+        classifier = load_classifier()
+        logger.info("Classifier loaded successfully")
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        return 1
+    
+    # Load trajectories (simplified - in real scenario, load from data/processed/trajectories.json)
     trajectories_path = Path("data/processed/trajectories.json")
-    classifier_config = ClassifierConfig(model_path="data/processed/classifier.pkl")
-    output_path = Path("data/processed/experiment_logs.json")
+    if not trajectories_path.exists():
+        logger.error(f"Trajectories file not found at {trajectories_path}")
+        return 1
     
-    # Models to test (subset for safety, can be expanded)
-    # Ensure these are in requirements.txt and available
-    models_to_run = ["google/flan-t5-base"] # Example CPU-safe model
-
-    run_experiment(
-        trajectories_path=trajectories_path,
-        classifier_config=classifier_config,
-        models_to_run=models_to_run,
-        output_path=output_path,
-        confidence_threshold=0.6
-    )
+    with open(trajectories_path, 'r') as f:
+        trajectories = json.load(f)
+    
+    logger.info(f"Loaded {len(trajectories)} trajectories")
+    
+    # Import model loader here to avoid circular imports
+    from experiments.model_loader import check_and_load_model
+    
+    all_experiment_logs = []
+    
+    for model_name in model_names:
+        logger.info(f"Processing model: {model_name}")
+        
+        # Enforce CPU-only
+        device = enforce_cpu_only_execution(model_name)
+        if device is None:
+            # Model was excluded due to GPU detection
+            continue
+        
+        # Load model
+        try:
+            model, tokenizer = check_and_load_model(model_name, device=device)
+            logger.info(f"Model '{model_name}' loaded successfully on {device}")
+        except Exception as e:
+            logger.error(f"Failed to load model {model_name}: {e}")
+            continue
+        
+        # Run experiment
+        try:
+            logs = run_experiment(
+                trajectories=trajectories,
+                model_name=model_name,
+                model=model,
+                tokenizer=tokenizer,
+                classifier=classifier,
+                conditions=conditions
+            )
+            all_experiment_logs.extend(logs)
+        except Exception as e:
+            logger.error(f"Experiment failed for {model_name}: {e}")
+            continue
+        
+        # Clean up model to free memory
+        del model, tokenizer
+        torch.cuda.empty_cache() if torch.cuda.is_available() else None
+    
+    # Write results
+    if all_experiment_logs:
+        output_path = Path("data/processed/experiment_logs.json")
+        write_experiment_logs(all_experiment_logs, output_path)
+        logger.info(f"Experiment logs written to {output_path}")
+    else:
+        logger.warning("No experiment logs generated")
+    
+    logger.info("Experiment runner completed")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())
