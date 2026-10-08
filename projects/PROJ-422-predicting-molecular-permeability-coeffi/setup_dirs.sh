@@ -1,58 +1,41 @@
 #!/bin/bash
-# setup_dirs.sh
-# Script to programmatically generate the project directory structure
-# for PROJ-422-predicting-molecular-permeability-coeffi
-#
-# Usage: bash setup_dirs.sh && ls
-#
-# This script creates the following directories relative to the project root:
-# - code/data, code/models, code/analysis
-# - data/raw, data/processed, data/interim
-# - results
-# - tests/unit, tests/integration
+# Setup script for PROJ-422-predicting-molecular-permeability-coeffi
+# Creates the required project directory structure programmatically
 
-set -e  # Exit immediately if a command exits with a non-zero status
+set -e  # Exit on any error
 
-# Define the project base directory name
-PROJECT_DIR="projects/PROJ-422-predicting-molecular-permeability-coeffi"
+PROJECT_ROOT="projects/PROJ-422-predicting-molecular-permeability-coeffi"
 
-echo "Creating project directory structure for $PROJECT_DIR..."
+echo "Creating project directory structure for $PROJECT_ROOT..."
 
-# Create the main project directory
-mkdir -p "$PROJECT_DIR"
-
-# Create code directories
-mkdir -p "$PROJECT_DIR/code/data"
-mkdir -p "$PROJECT_DIR/code/models"
-mkdir -p "$PROJECT_DIR/code/analysis"
-
-# Create data directories
-mkdir -p "$PROJECT_DIR/data/raw"
-mkdir -p "$PROJECT_DIR/data/processed"
-mkdir -p "$PROJECT_DIR/data/interim"
-
-# Create results directory
-mkdir -p "$PROJECT_DIR/results"
-
-# Create tests directories
-mkdir -p "$PROJECT_DIR/tests/unit"
-mkdir -p "$PROJECT_DIR/tests/integration"
+# Create all required directories
+mkdir -p "${PROJECT_ROOT}/code/data"
+mkdir -p "${PROJECT_ROOT}/code/models"
+mkdir -p "${PROJECT_ROOT}/code/analysis"
+mkdir -p "${PROJECT_ROOT}/data/raw"
+mkdir -p "${PROJECT_ROOT}/data/processed"
+mkdir -p "${PROJECT_ROOT}/data/interim"
+mkdir -p "${PROJECT_ROOT}/results"
+mkdir -p "${PROJECT_ROOT}/tests/unit"
+mkdir -p "${PROJECT_ROOT}/tests/integration"
 
 echo "Directory structure created successfully."
-echo ""
-echo "Verification (listing created structure):"
-find "$PROJECT_DIR" -type d | sort
+echo "Verifying directories exist..."
 
-# Optional: Create placeholder .gitkeep files to ensure directories are tracked by git
-# Uncomment the following lines if git tracking of empty directories is required:
-# touch "$PROJECT_DIR/code/data/.gitkeep"
-# touch "$PROJECT_DIR/code/models/.gitkeep"
-# touch "$PROJECT_DIR/code/analysis/.gitkeep"
-# touch "$PROJECT_DIR/data/raw/.gitkeep"
-# touch "$PROJECT_DIR/data/processed/.gitkeep"
-# touch "$PROJECT_DIR/data/interim/.gitkeep"
-# touch "$PROJECT_DIR/results/.gitkeep"
-# touch "$PROJECT_DIR/tests/unit/.gitkeep"
-# touch "$PROJECT_DIR/tests/integration/.gitkeep"
+# Verification checks as specified in the task
+if [ -d "${PROJECT_ROOT}/code/data" ] && \
+   [ -d "${PROJECT_ROOT}/code/models" ] && \
+   [ -d "${PROJECT_ROOT}/code/analysis" ] && \
+   [ -d "${PROJECT_ROOT}/data/raw" ] && \
+   [ -d "${PROJECT_ROOT}/data/processed" ] && \
+   [ -d "${PROJECT_ROOT}/data/interim" ] && \
+   [ -d "${PROJECT_ROOT}/results" ] && \
+   [ -d "${PROJECT_ROOT}/tests/unit" ] && \
+   [ -d "${PROJECT_ROOT}/tests/integration" ]; then
+  echo "All 9 directories exist"
+else
+  echo "ERROR: One or more directories are missing!"
+  exit 1
+fi
 
-exit 0
+echo "Setup complete."

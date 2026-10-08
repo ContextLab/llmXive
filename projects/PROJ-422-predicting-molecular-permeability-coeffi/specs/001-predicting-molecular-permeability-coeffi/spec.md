@@ -107,5 +107,5 @@ The system must apply GNNExplainer to the GNN and SHAP analysis to the Random Fo
 - The "standard molecular descriptors" computed by RDKit (MW, logP, TPSA, etc.) are sufficient to represent the baseline model's capability for comparison.
 - The dataset does not require complex imputation for missing values; any missing data can be handled by median imputation or row exclusion without biasing the results significantly.
 - The experimental permeability coefficients in the source datasets are independent measurements, and any potential circularity with structural descriptors will be detected by the bias check (FR-013).
-- The GNN model architecture (3 layers) is sufficiently simple to avoid overfitting on the available dataset size, provided early stopping is used.
+- The GNN model architecture is sufficiently simple to avoid overfitting on the available dataset size, provided early stopping is used.
 - GNNExplainer provides a scientifically valid approximation of feature importance for the specific MPNN architecture used.

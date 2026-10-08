@@ -53,3 +53,14 @@
   verification_status: pending
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/691a8b8eb9d00158e249626e/82059ec7857eb8bb8ce797a633df6fbadb7cb5f9d950ccede71972562bac39a4?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1787773360&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjkxYThiOGViOWQwMDE1OGUyNDk2MjZlLzgyMDU5ZWM3ODU3ZWI4YmI4Y2U3OTdhNjMzZGY2ZmJhZGI3Y2I1ZjlkOTUwY2NlZGU3MTk3MjU2MmJhYzM5YTRcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0ImdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4Nzc3MzM2MH19fV19&Signature=MEUCIATi3WZ6lfTdw3dM5nvugUvjTi41cLHEHN0U6a6ZjTwRAiEAlj5haq0lRO%7EcDbsf5CEGlsvIdgXQVexvXDvOkf%7E7pzk_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
   verified_at: '2026-08-26T18:42:24.529664Z'
+- artifact_hash: 2a54439456ba98257bdfac6fc0f348556ae7664a8bc392fac1a7df2026d1bfd0
+  artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/specs/001-predicting-molecular-permeability-coeffi/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: schema#
+  kind: url
+  value: http://json-schema.org/draft-07/schema#
+  verification_status: pending
+  verified_against_url: https://json-schema.org/draft-07/schema
+  verified_at: '2026-10-08T13:03:58.951578Z'
