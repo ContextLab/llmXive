@@ -1,68 +1,74 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: AlloyRecord Schema
-description: Schema for cleaned and validated aluminum alloy records.
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AlloyRecord"
+description: "Schema for a single aluminum alloy record in the processed dataset."
+type: "object"
+required:
+  - "material_id"
+  - "formula"
+  - "elemental_composition"
+  - "poissons_ratio"
+  - "youngs_modulus"
+  - "measurement_method"
+  - "source"
 properties:
-  id:
-    type: string
-    description: Unique identifier for the alloy record.
-  source:
-    type: string
-    description: Source of the data (e.g., 'Materials Project', 'NIST').
-  composition:
-    type: object
-    description: Atomic fractions of alloying elements and Aluminum.
+  material_id:
+    type: "string"
+    description: "Unique identifier from the source database."
+  formula:
+    type: "string"
+    description: "Chemical formula of the alloy."
+  elemental_composition:
+    type: "object"
+    required:
+      - "Cu"
+      - "Mg"
+      - "Si"
+      - "Zn"
+      - "Mn"
+      - "Al"
     properties:
       Cu:
-        type: number
-        minimum: 0
-        maximum: 1
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "Atomic fraction of Copper."
       Mg:
-        type: number
-        minimum: 0
-        maximum: 1
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "Atomic fraction of Magnesium."
       Si:
-        type: number
-        minimum: 0
-        maximum: 1
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "Atomic fraction of Silicon."
       Zn:
-        type: number
-        minimum: 0
-        maximum: 1
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "Atomic fraction of Zinc."
       Mn:
-        type: number
-        minimum: 0
-        maximum: 1
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "Atomic fraction of Manganese."
       Al:
-        type: number
-        minimum: 0
-        maximum: 1
-    required:
-      - Cu
-      - Mg
-      - Si
-      - Zn
-      - Mn
-      - Al
-  poisson_ratio:
-    type: number
-    description: Poisson's ratio (dimensionless).
-    minimum: 0
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "Atomic fraction of Aluminum (calculated balance)."
+  poissons_ratio:
+    type: "number"
+    description: "Poisson's ratio (dimensionless)."
   youngs_modulus:
-    type: number
-    description: Young's modulus in GPa.
-    minimum: 0
+    type: "number"
+    description: "Young's modulus in GPa."
   measurement_method:
-    type: ["string", "null"]
-    description: Method used to measure Poisson's ratio.
-  row_index:
-    type: integer
-    description: Original row index in the raw dataset.
-required:
-  - id
-  - source
-  - composition
-  - poisson_ratio
-  - youngs_modulus
-  - row_index
-additionalProperties: false
+    type: "string"
+    description: "Method used to measure Poisson's ratio (e.g., 'Ultrasonic')."
+  source:
+    type: "string"
+    enum:
+      - "Materials Project"
+      - "NIST"
+    description: "Source of the data."

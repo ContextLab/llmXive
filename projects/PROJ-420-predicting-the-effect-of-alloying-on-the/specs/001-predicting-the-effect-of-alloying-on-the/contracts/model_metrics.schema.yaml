@@ -1,50 +1,29 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "ModelMetrics Schema"
-description: "Schema for model performance metrics from Repeated 5-Fold CV and Test Set."
+title: "ModelMetrics"
+description: "Schema for model performance metrics."
 type: "object"
+required:
+  - "cv_mae"
+  - "test_mae"
+  - "n_samples"
+  - "train_size"
+  - "test_size"
 properties:
-  cv_mae_mean:
+  cv_mae:
     type: "number"
-    description: "Mean Absolute Error from Repeated 5-Fold Cross-Validation."
-  cv_mae_ci_lower:
-    type: "number"
-    description: "95% Confidence Interval Lower Bound for CV-MAE."
-  cv_mae_ci_upper:
-    type: "number"
-    description: "95% Confidence Interval Upper Bound for CV-MAE."
+    description: "Mean Absolute Error from 5-fold cross-validation."
   test_mae:
     type: "number"
     description: "Mean Absolute Error on the held-out test set."
-  null_baseline_mae:
-    type: "number"
-    description: "MAE of the null baseline (predicting the mean)."
-  n_samples_total:
+  n_samples:
     type: "integer"
-    minimum: 1
-    description: "Total number of samples used."
-  model_type:
-    type: "string"
-    enum:
-      - "RandomForest"
-    description: "Type of model used."
-  transform:
-    type: "string"
-    enum:
-      - "ILR"
-    description: "Transformation applied to features."
-  cv_repeats:
+    minimum: 0
+    description: "Total number of samples in the dataset."
+  train_size:
     type: "integer"
-    enum:
-      - 5
-    description: "Number of repeats for CV."
-required:
-  - "cv_mae_mean"
-  - "cv_mae_ci_lower"
-  - "cv_mae_ci_upper"
-  - "test_mae"
-  - "null_baseline_mae"
-  - "n_samples_total"
-  - "model_type"
-  - "transform"
-  - "cv_repeats"
-additionalProperties: false
+    minimum: 0
+    description: "Number of samples in the training set."
+  test_size:
+    type: "integer"
+    minimum: 0
+    description: "Number of samples in the test set."

@@ -1,30 +1,39 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Feature Importance Schema"
-description: "Schema for Grouped ILR Importance results. Importance is aggregated from ILR coordinates to rank alloying elements."
-type: object
+title: "FeatureImportance"
+description: "Schema for back-transformed feature importance scores."
+type: "object"
 required:
-  - element
-  - importance_mean
-  - importance_std
-  - method
+  - "Cu_importance"
+  - "Mg_importance"
+  - "Si_importance"
+  - "Zn_importance"
+  - "Mn_importance"
+  - "ranked_elements"
 properties:
-  element:
-    type: array
+  Cu_importance:
+    type: "number"
+    description: "Importance score for Copper."
+  Mg_importance:
+    type: "number"
+    description: "Importance score for Magnesium."
+  Si_importance:
+    type: "number"
+    description: "Importance score for Silicon."
+  Zn_importance:
+    type: "number"
+    description: "Importance score for Zinc."
+  Mn_importance:
+    type: "number"
+    description: "Importance score for Manganese."
+  ranked_elements:
+    type: "array"
     items:
-      type: string
-    description: "List of alloying elements (Cu, Mg, Si, Zn, Mn)."
-  importance_mean:
-    type: array
-    items:
-      type: number
-    description: "Mean Grouped ILR Importance for each element."
-  importance_std:
-    type: array
-    items:
-      type: number
-    description: "Standard deviation of Grouped ILR Importance."
-  method:
-    type: string
-    const: "Grouped ILR Importance"
-    description: "Method used to calculate importance. Must be 'Grouped ILR Importance'."
+      type: "string"
+      enum:
+        - "Cu"
+        - "Mg"
+        - "Si"
+        - "Zn"
+        - "Mn"
+    description: "List of elements ranked by importance (highest to lowest)."
 additionalProperties: false

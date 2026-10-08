@@ -2,64 +2,62 @@
 
 ## Prerequisites
 
-- Python 3.11 or higher.
-- Git.
-- **Materials Project API Key** (Optional but recommended for full data access). Set as environment variable `MP_API_KEY`.
+-   Python 3.11+
+-   `pip`
+-   Access to the internet (for downloading `matminer` data)
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-420-predicting-the-effect-of-alloying-on-the
-    ```
-
+1.  **Clone the repository** and navigate to the project directory.
 2.  **Create a virtual environment**:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
-
 3.  **Install dependencies**:
     ```bash
-    pip install -r code/requirements.txt
+    pip install -r requirements.txt
     ```
+    *Note: `requirements.txt` includes `matminer`, `pandas`, `scikit-learn`, `compositional`, `statsmodels`, `pyyaml`, `joblib`, `chemparse`.*
 
 ## Running the Pipeline
 
-The pipeline is executed via a single orchestration script.
+The entire pipeline can be executed via the main orchestration script:
 
-1.  **Execute the main pipeline**:
-    ```bash
-    python code/main_pipeline.py
-    ```
+```bash
+python code/main.py
+```
 
-    This script will:
-    - Check for `MP_API_KEY` and attempt data extraction from Materials Project/NIST.
-    - Halt with a clear error if data is unavailable or N < 50.
-    - Filter and clean the dataset (wt% -> at%, unit normalization).
-    - Verify data independence (exclude derived Poisson's ratio).
-    - Perform ILR transformation (SBP basis).
-    - Train the Random Forest model with k-fold CV and an 80/20 split.
-    - Compute Grouped ILR feature importance and VIF on ILR features.
-    - Save results to `results/` with associational framing.
+This script performs the following steps in order:
+1.  **Download**: Fetches data from `matminer` and verified NIST sources.
+2.  **Clean**: Filters for monolithic Al alloys, normalizes units, excludes incomplete records.
+3.  **Transform**: Applies ILR transformation and calculates VIF on raw data.
+4.  **Train**: Trains Random Forest with 5-fold CV and evaluates on test set.
+5.  **Interpret**: Back-transforms feature importance and generates the final report.
 
-2.  **Verify outputs**:
-    - Check `data/processed/alloys_clean.parquet` for the cleaned dataset.
-    - Check `results/cv_metrics.json` and `results/test_metrics.json` for performance.
-    - Check `results/feature_importance.json` for element rankings (Grouped ILR).
-    - Check `results/vif_diagnostic.json` for collinearity flags (on ILR features).
-    - Check `results/model_output.json` for the "Associational, Not Causal" disclaimer.
+## Output Artifacts
+
+After successful execution, check the following directories:
+
+-   `data/processed/alloys_clean.parquet`: The cleaned dataset.
+-   `data/processed/alloys_ilr.parquet`: The dataset with ILR features.
+-   `results/model_metrics.json`: MAE and sample counts.
+-   `results/feature_importance.json`: Ranked alloying elements (includes `ranked_elements` array).
+-   `results/final_report.md`: The associational findings report.
+-   `data/checksums.json`: SHA-256 checksums for all data files.
 
 ## Troubleshooting
 
-- **Data Extraction Failure**: If the script halts with "Data Availability Failure" or "Insufficient Data", verify network access to Materials Project/NIST APIs and ensure `MP_API_KEY` is set if required. The project cannot proceed without valid data.
-- **Memory Error**: Unlikely given the expected dataset size (<2000 rows). If encountered, check for infinite loops or accidental data duplication.
-- **VIF Flag**: If `vif_flag` is True, review the ILR feature correlations. This is a diagnostic flag, not a failure (expected in some compositional subsets).
-- **Model Performance**: If MAE > 0.05, check `results/test_metrics.json` for the "No Signal Detected" flag if the model performs no better than the null baseline.
+-   **No Data Found**: If the dataset is empty, check the `data/logs/app.log` for filtering reasons (e.g., "Sum of elements < 0.95").
+-   **VIF Flag**: If `is_flagged` is True in `collinearity_diagnostic.json`, the raw data is highly collinear (expected), but the model uses ILR so this is a diagnostic only.
+-   **Matminer Error**: Ensure you have an internet connection. `matminer` fetches data from the Materials Project API.
 
-## Output Interpretation
+## Validation
 
-- **MAE**: Lower is better. An MAE > 0.05 is flagged as a potential model fit issue or high noise.
-- **Feature Importance**: Higher scores indicate a stronger associational relationship with Poisson's ratio. Remember: **Correlation does not imply causation**. The scores are derived from Grouped ILR importance, not back-transformed splits.
-- **VIF**: Values > 5 on ILR features indicate potential multicollinearity in the transformed space. This is a diagnostic flag.
+To validate the output against the contract schemas:
+
+```bash
+pytest tests/test_contracts.py
+```
+
+This ensures that `results/*.json` files match the defined YAML schemas.
