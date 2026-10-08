@@ -1,286 +1,252 @@
 """
 code/data/clean.py
-
-Implements canonicalization of SMILES and filtering of primary alkyl halides
-for the SN1 rate constant prediction pipeline.
-
-Logic:
-1. Validate column values (specifically 'substrate_class').
-2. Filter rows where 'substrate_class' == 'primary' (retain secondary/tertiary).
-3. Standardize SMILES. If fails, exclude with code 'ambiguous_stereochemistry'.
-4. Log all exclusions to data/processed/exclusion_raw.log and data/processed/clean.log.
-5. Output: data/processed/cleaned_intermediate.csv.
+Implements T012: Canonicalize SMILES and filter primary alkyl halides.
 """
-
 import os
 import sys
 import json
 import logging
 import argparse
+import csv
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Optional, Tuple, Dict, Any
 
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import AllChem
 
-# Import project utilities
-from config import DataConfig, ensure_dirs
-from utils.logger import get_logger
+# Import shared utilities
+# Note: ensure_dirs is defined in code/config.py and must accept *args/kwargs as per contract
+try:
+    from config import ensure_dirs, DataConfig
+except ImportError:
+    # Fallback for execution context where relative import might differ
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+    from config import ensure_dirs, DataConfig
 
-# --- Configuration Constants ---
+# Logger setup
+logger = logging.getLogger(__name__)
+
+# Constants
 VALID_SUBSTRATE_CLASSES = ['secondary', 'tertiary']
-EXCLUDED_SUBSTRATE_CLASS = 'primary'
-INVALID_SUBSTRATE_REASON = 'invalid_substrate_label'
-AMBIGUOUS_STEREO_REASON = 'ambiguous_stereochemistry'
-MISSING_INPUT_REASON = 'input_missing'
-MISSING_SUBSTRATE_CLASS_REASON = 'missing_substrate_class'
-
-# --- Logger Setup ---
+PRIMARY_SUBSTRATE_LABEL = 'primary'
+EXCLUSION_LOG_HEADER = ['row_index', 'reason', 'original_smiles']
 
 def setup_cleaning_logger(log_path: Path) -> logging.Logger:
-    """Sets up the logger for the cleaning process."""
-    ensure_dirs(log_path)
-    logger = logging.getLogger('cleaning')
-    logger.setLevel(logging.INFO)
-
-    # File handler
-    fh = logging.FileHandler(log_path)
-    fh.setLevel(logging.INFO)
+    """
+    Sets up a logger for the cleaning process.
+    """
+    ensure_dirs(log_path.parent)
+    handler = logging.FileHandler(log_path)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    fh.setFormatter(formatter)
-
-    # Avoid duplicate handlers if called multiple times
-    if not logger.handlers:
-        logger.addHandler(fh)
-
-    # Console handler
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(logging.INFO)
-    ch.setFormatter(formatter)
-    if not logger.handlers: # Check again after file handler logic
-        logger.addHandler(ch)
+    handler.setFormatter(formatter)
     
-    # Remove duplicates if any added previously
-    logger.handlers = list(set(logger.handlers))
+    # Remove existing handlers to avoid duplicates
+    root_logger = logging.getLogger()
+    for h in root_logger.handlers[:]:
+        root_logger.removeHandler(h)
+        
+    root_logger.setLevel(logging.INFO)
+    root_logger.addHandler(handler)
     
-    return logger
+    return root_logger
 
-def log_fatal_error(logger: logging.Logger, reason: str, status_file: Path, log_file: Path):
-    """Logs a fatal error and writes 'ABORTED' to the pipeline status file."""
-    logger.error(f"FATAL ERROR: {reason}")
-    write_aborted_status(status_file)
-    # Also log to the clean.log if it exists or create it
-    if log_file.exists():
-       # Append to existing log
-       with open(log_file, 'a') as f:
-           f.write(f"{pd.Timestamp.now()} - FATAL - {reason}\n")
-    else:
-       # Create new log
-       with open(log_file, 'w') as f:
-           f.write(f"{pd.Timestamp.now()} - FATAL - {reason}\n")
-    sys.exit(1)
+def log_fatal_error(log_path: Path, status: str, reason: str, message: str):
+    """
+    Logs a fatal error to the clean.log file.
+    """
+    ensure_dirs(log_path.parent)
+    with open(log_path, 'a') as f:
+        f.write(f"{status}|{reason}|{message}\n")
+    logger.error(f"FATAL: {reason} - {message}")
 
-def write_aborted_status(status_file: Path):
-    """Writes 'ABORTED' to the pipeline status file."""
-    ensure_dirs(status_file)
-    with open(status_file, 'w') as f:
+def write_aborted_status(status_path: Path):
+    """
+    Writes 'ABORTED' to the pipeline status file.
+    """
+    ensure_dirs(status_path.parent)
+    with open(status_path, 'w') as f:
         f.write('ABORTED')
+    logger.critical("Pipeline status set to ABORTED.")
 
 def save_exclusion_report(exclusion_log_path: Path, row_index: int, reason: str, smiles: str):
-    """Appends an exclusion record to the exclusion_raw.log file."""
-    ensure_dirs(exclusion_log_path)
-    header_exists = exclusion_log_path.exists() and exclusion_log_path.stat().st_size > 0
+    """
+    Appends an exclusion entry to the exclusion log.
+    """
+    ensure_dirs(exclusion_log_path.parent)
+    file_exists = exclusion_log_path.exists()
     
     with open(exclusion_log_path, 'a', newline='') as f:
         writer = csv.writer(f)
-        if not header_exists:
-            writer.writerow(['row_index', 'reason', 'original_smiles'])
+        if not file_exists:
+            writer.writerow(EXCLUSION_LOG_HEADER)
         writer.writerow([row_index, reason, smiles])
-
-# --- Data Processing Logic ---
 
 def canonicalize_smiles(smiles: str) -> Optional[str]:
     """
-    Standardizes SMILES.
-    Returns canonical SMILES if successful, None if failure (e.
-    ambiguous stereochemistry).
+    Attempts to canonicalize a SMILES string using RDKit.
+    Returns None if the SMILES is invalid or ambiguous.
     """
     if not smiles or not isinstance(smiles, str):
         return None
     
     try:
-        mol = Chem.SmilesParser(smiles)
+        mol = Chem.MolFromSmiles(smiles)
         if mol is None:
             return None
-        # Canonicalize
-        canonical = Chem.CanonicalSmiles(mol)
+        
+        # Check for stereochemistry ambiguity
+        # RDKit's MolToSmiles canonicalizes but we check for explicit stereo warnings if needed
+        # For this task, if MolFromSmiles succeeds, we consider it valid structure.
+        # If we need strict stereo handling, we can use Chem.MolToSmiles with isomeric=True
+        
+        canonical = Chem.MolToSmiles(mol, isomericSmiles=True)
         return canonical
     except Exception:
-        # RDKit might throw or return None for bad input
         return None
 
-def is_primary_substrate(row: pd.Series) -> bool:
-    """Checks if the row represents a primary substrate."""
-    # Note: We retain secondary/tertiary. We filter OUT primary.
-    # But for logging, we identify primary rows to exclude.
-    if 'substrate_class' not in row:
-        return False # Not a primary check, but missing class is handled elsewhere
-    
-    val = str(row['substrate_class']).strip().lower()
-    return val == EXCLUDED_SUBSTRATE_CLASS
-
-def validate_substrate_class_column(df: pd.DataFrame, logger: logging.Logger) -> bool:
+def is_primary_substrate(substrate_class: str) -> bool:
     """
-    Validates that 'substrate_class' column exists and contains only explicit values.
-    Returns True if valid, False otherwise.
+    Checks if the substrate class indicates a primary alkyl halide.
+    """
+    return substrate_class and substrate_class.lower() == PRIMARY_SUBSTRATE_LABEL
+
+def validate_substrate_class_column(df: pd.DataFrame, log_path: Path, status_path: Path) -> bool:
+    """
+    Validates that the 'substrate_class' column exists and contains only valid explicit values.
+    Returns False if the column is missing or contains non-explicit values (e.g., 'unknown').
     """
     if 'substrate_class' not in df.columns:
-        logger.error("Column 'substrate_class' missing.")
-        return False
-
-    # Check for non-explicit values (e.g., 'unknown', 'mixed')
-    unique_vals = df['substrate_class'].unique()
-    non_explicit = [v for v in unique_vals if str(v).strip().lower() not in VALID_SUBSTRATE_CLASSES + [EXCLUDED_SUBSTRATE_CLASS]]
-    
-    if non_explicit:
-        logger.error(f"Found non-explicit substrate class values: {non_explicit}")
+        log_fatal_error(log_path, 'fatal_error', 'missing_substrate_class', 
+                      "Column 'substrate_class' not found in input dataframe.")
+        write_aborted_status(status_path)
         return False
     
+    # Check for non-explicit values
+    unique_values = df['substrate_class'].unique()
+    invalid_values = [v for v in unique_values if v not in VALID_SUBSTRATE_CLASSES and v != PRIMARY_SUBSTRATE_LABEL]
+    
+    if invalid_values:
+        # Log specific invalid values found
+        msg = f"Found invalid substrate class values: {invalid_values}. Only {VALID_SUBSTRATE_CLASSES + [PRIMARY_SUBSTRATE_LABEL]} allowed."
+        log_fatal_error(log_path, 'fatal_error', 'missing_substrate_class', msg)
+        write_aborted_status(status_path)
+        return False
+        
     return True
 
-def clean_and_filter_data(input_path: Path, output_path: Path, exclusion_log_path: Path, clean_log_path: Path, status_file_path: Path):
+def clean_and_filter_data(input_path: Path, output_path: Path, exclusion_log_path: Path, clean_log_path: Path, status_path: Path) -> bool:
     """
-    Main cleaning logic:
-    1. Check input file existence.
-    2. Load data.
-    3. Validate 'substrate_class' column.
-    4. Filter out primary substrates.
-    5. Canonicalize SMILES.
-    6. Log exclusions.
-    7. Save output.
+    Main logic to clean SMILES, validate substrate class, and filter primary substrates.
     """
-    logger = setup_cleaning_logger(clean_log_path)
-    logger.info(f"Starting cleaning process for {input_path}")
-
-    # Guard Clause: Input missing or empty
+    # Guard Clause: Check input file
     if not input_path.exists():
-        log_fatal_error(logger, MISSING_INPUT_REASON, status_file_path, clean_log_path)
-    
+        log_fatal_error(clean_log_path, 'fatal_error', 'input_missing', 
+                      f"Input file not found: {input_path}")
+        write_aborted_status(status_path)
+        return False
+
     try:
         df = pd.read_csv(input_path)
     except Exception as e:
-        log_fatal_error(logger, f"Failed to read input CSV: {e}", status_file_path, clean_log_path)
+        log_fatal_error(clean_log_path, 'fatal_error', 'input_read_failed', 
+                      f"Failed to read input CSV: {str(e)}")
+        write_aborted_status(status_path)
+        return False
 
     if df.empty:
-        log_fatal_error(logger, MISSING_INPUT_REASON, status_file_path, clean_log_path)
+        log_fatal_error(clean_log_path, 'fatal_error', 'input_empty', 
+                      "Input dataframe is empty.")
+        write_aborted_status(status_path)
+        return False
 
-    # Guard Clause (FR-009): Missing or non-explicit substrate_class
-    if not validate_substrate_class_column(df, logger):
-        log_fatal_error(logger, MISSING_SUBSTRATE_CLASS_REASON, status_file_path, clean_log_path)
+    # Guard Clause: Validate substrate class column
+    if not validate_substrate_class_column(df, clean_log_path, status_path):
+        return False
 
-    # Count initial rows
-    initial_count = len(df)
-    logger.info(f"Loaded {initial_count} rows.")
+    # Initialize exclusion list for this run (we append to file, but track for final check)
+    exclusions_this_run = 0
+    valid_rows = []
 
-    # Filter: Exclude rows where substrate_class == 'primary'
-    # We KEEP secondary and tertiary.
-    mask_valid_class = df['substrate_class'].str.lower().isin(VALID_SUBSTRATE_CLASSES)
-    df_filtered_class = df[mask_valid_class]
-    
-    primary_count = initial_count - len(df_filtered_class)
-    logger.info(f"Filtered out {primary_count} rows with 'primary' substrate class.")
+    logger.info(f"Processing {len(df)} rows...")
 
-    # Log exclusions for primary substrates to exclusion_raw.log
-    if primary_count > 0:
-        # Get the rows that were filtered out
-        df_excluded_primary = df[~mask_valid_class]
-        for idx, row in df_excluded_primary.iterrows():
-            # Note: idx here is the original index from the CSV if we didn't reset it.
-            # We should use the original row index if possible, or the current index if it matches.
-            # Assuming the CSV has a consistent index or we use the current position.
-            # The task says "row_index". Let's assume it's the original index or the position.
-            # Using the index from the dataframe (which might be 0..N if reset, or original if not).
-            # To be safe, let's assume the input CSV has a 'row_index' column or we use the dataframe index.
-            # If the input is just raw, we use the integer index.
-            original_idx = row.name if hasattr(row, 'name') else idx
-            save_exclusion_report(exclusion_log_path, original_idx, 'primary_substrate_filter', str(row.get('smiles', '')))
-
-    # SMILES Canonicalization
-    logger.info("Canonicalizing SMILES...")
-    valid_smiles_rows = []
-    invalid_smiles_indices = []
-
-    for idx, row in df_filtered_class.iterrows():
-        smiles = str(row.get('smiles', ''))
-        canonical = canonicalize_smiles(smiles)
+    for idx, row in df.iterrows():
+        original_smiles = str(row.get('smiles', ''))
+        substrate_class = str(row.get('substrate_class', ''))
         
-        if canonical:
-            valid_smiles_rows.append(canonical)
-        else:
-            invalid_smiles_indices.append(idx)
-            save_exclusion_report(exclusion_log_path, idx, AMBIGUOUS_STEREO_REASON, smiles)
+        # 1. Validate Substrate Class Label
+        if substrate_class not in VALID_SUBSTRATE_CLASSES:
+            if substrate_class == PRIMARY_SUBSTRATE_LABEL:
+                # Filter primary: log and skip
+                save_exclusion_report(exclusion_log_path, idx, 'primary_substrate_filter', original_smiles)
+                exclusions_this_run += 1
+                continue
+            else:
+                # Invalid label (e.g., 'unknown' if it slipped through initial check, or mixed)
+                save_exclusion_report(exclusion_log_path, idx, 'invalid_substrate_label', original_smiles)
+                exclusions_this_run += 1
+                continue
 
-    # Update the dataframe with canonical smiles
-    # We need to align the valid smiles with the rows
-    # Since we iterated in order, we can assign directly if we didn't drop rows yet.
-    # But we filtered by class first.
+        # 2. Canonicalize SMILES
+        canonical_smiles = canonicalize_smiles(original_smiles)
+        if canonical_smiles is None:
+            # Determine reason: ambiguous structure vs stereo
+            # For simplicity in this task, we treat any failure as ambiguous_structure
+            # unless we have specific stereo logic.
+            reason = 'ambiguous_structure'
+            save_exclusion_report(exclusion_log_path, idx, reason, original_smiles)
+            exclusions_this_run += 1
+            continue
+
+        # Row is valid
+        row_dict = row.to_dict()
+        row_dict['smiles'] = canonical_smiles
+        valid_rows.append(row_dict)
+
+    # Create output dataframe
+    if not valid_rows:
+        log_fatal_error(clean_log_path, 'fatal_error', 'no_valid_rows', 
+                      "Zero valid rows remaining after filtering. Pipeline aborted.")
+        write_aborted_status(status_path)
+        return False
+
+    output_df = pd.DataFrame(valid_rows)
     
-    # Create a new dataframe or update existing
-    df_final = df_filtered_class.copy()
-    df_final['smiles'] = valid_smiles_rows
-    
-    # Drop rows with invalid SMILES (they were logged above)
-    # We need to drop by index.
-    # Note: invalid_smiles_indices contains indices from the iterrows of df_filtered_class
-    # which corresponds to the index of df_filtered_class.
-    df_final = df_final.drop(index=invalid_smiles_indices)
-
-    final_count = len(df_final)
-    logger.info(f"Final row count after SMILES canonicalization: {final_count}")
-    logger.info(f"Excluded {len(invalid_smiles_indices)} rows due to ambiguous stereochemistry.")
-
-    # CRITICAL: If zero valid rows, abort
-    if final_count == 0:
-        log_fatal_error(logger, "Zero valid rows remaining after filtering and canonicalization.", status_file_path, clean_log_path)
-
     # Ensure output directory exists
-    ensure_dirs(output_path)
-
-    # Save output
-    df_final.to_csv(output_path, index=False)
-    logger.info(f"Cleaned data saved to {output_path}")
-
-    # Log summary to clean.log
-    with open(clean_log_path, 'a') as f:
-        f.write(f"Summary: Initial={initial_count}, FilteredPrimary={primary_count}, InvalidSMILES={len(invalid_smiles_indices)}, Final={final_count}\n")
-
-# --- Main Entry Point ---
+    ensure_dirs(output_path.parent)
+    output_df.to_csv(output_path, index=False)
+    
+    logger.info(f"Cleaning complete. Output: {len(output_df)} rows. Excluded: {exclusions_this_run} rows.")
+    return True
 
 def main():
-    parser = argparse.ArgumentParser(description="Clean and filter SN1 data.")
-    parser.add_argument('--input', type=str, required=True, help='Input CSV path')
-    parser.add_argument('--output', type=str, required=True, help='Output CSV path')
-    parser.add_argument('--exclusion-log', type=str, required=True, help='Path to exclusion log')
-    parser.add_argument('--clean-log', type=str, default='data/processed/clean.log', help='Path to clean log')
+    parser = argparse.ArgumentParser(description="Clean and filter SN1 dataset.")
+    parser.add_argument('--input', required=True, help='Path to input intermediate CSV')
+    parser.add_argument('--output', required=True, help='Path to output cleaned CSV')
+    parser.add_argument('--exclusion-log', required=True, help='Path to exclusion log file')
+    parser.add_argument('--clean-log', default='data/processed/clean.log', help='Path to clean log file')
+    parser.add_argument('--status', default='data/processed/.pipeline_status', help='Path to pipeline status file')
     
     args = parser.parse_args()
-
+    
     input_path = Path(args.input)
     output_path = Path(args.output)
     exclusion_log_path = Path(args.exclusion_log)
     clean_log_path = Path(args.clean_log)
-    status_file_path = Path('data/processed/.pipeline_status')
-
-    # Check pipeline status before running
-    if status_file_path.exists():
-        with open(status_file_path, 'r') as f:
-            status = f.read().strip()
-            if status == 'ABORTED':
-                print("Pipeline status is ABORTED. Exiting.")
-                sys.exit(1)
-
-    clean_and_filter_data(input_path, output_path, exclusion_log_path, clean_log_path, status_file_path)
+    status_path = Path(args.status)
+    
+    # Setup logger
+    setup_cleaning_logger(clean_log_path)
+    
+    logger.info("Starting clean and filter process.")
+    
+    success = clean_and_filter_data(input_path, output_path, exclusion_log_path, clean_log_path, status_path)
+    
+    if not success:
+        sys.exit(1)
+        
+    logger.info("Process completed successfully.")
+    sys.exit(0)
 
 if __name__ == '__main__':
     main()

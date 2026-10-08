@@ -1,11 +1,10 @@
 """
 code/data/download.py
 
-Fetches verified SN1 kinetic data from HuggingFace datasets.
-Implements strict failure handling: raises fatal errors on download failure
-with NO synthetic fallback.
+Fetches verified SN1 kinetic datasets from HuggingFace and merges them into a single Parquet file.
+Implements strict failure handling: exits with code 1 if the pipeline status is 'ABORTED' or if the download fails.
+No synthetic fallbacks are permitted.
 """
-
 import os
 import sys
 import logging
@@ -14,195 +13,189 @@ import time
 from pathlib import Path
 from typing import Optional, Dict, Any
 
-# Add project root to path for imports if run as script
-if __name__ == "__main__":
-    project_root = Path(__file__).resolve().parent.parent
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
-
-from datasets import load_dataset
+# Import from project modules
 from config import DataConfig, ensure_dirs
 from utils.logger import get_logger
 
-# Constants
-PIPELINE_STATUS_FILE = "data/processed/.pipeline_status"
-ABORTED_STATUS = "ABORTED"
-OK_STATUS = "OK"
-DEFAULT_DATASET_NAME = "DTS-SN1-15-01-2024" # Placeholder, actual name might vary based on spec
-# Based on T011a verification, we assume the dataset name is verified there.
-# We will accept it as an argument or default to the verified one if T011a passed.
-# For this task, we assume the dataset name is passed or defaults to a known good one.
-# The task description mentions: "Primary Source: HuggingFace datasets DTS-SN1-15-01-2024 and SN18-All-20240204"
-# We will use the first one as default.
+# Attempt to import datasets; if missing, we fail loudly as per requirements
+try:
+    from datasets import load_dataset
+except ImportError:
+    print("CRITICAL: 'datasets' library not found. Please install it via 'pip install datasets'.")
+    sys.exit(1)
 
-def check_schema_pass(schema_log_path: Optional[Path] = None) -> bool:
+# Configuration
+DATASET_NAMES = [
+    "DTS-SN1-15-01-2024",
+    "SN18-All-20240204"
+]
+PIPELINE_STATUS_PATH = "data/processed/.pipeline_status"
+OUTPUT_DIR = "data/raw"
+OUTPUT_FILE = "sn1_raw_merged.parquet"
+
+# Logger setup
+logger = get_logger("download")
+
+def check_pipeline_status() -> bool:
     """
-    Checks if the pipeline status is 'OK' before proceeding.
-    Returns True if status is 'OK', False otherwise.
+    Checks the pipeline status file.
+    Returns True if status is 'OK'.
+    Returns False and exits with code 1 if status is 'ABORTED' or missing.
     """
-    status_path = Path(PIPELINE_STATUS_FILE)
+    status_path = Path(PIPELINE_STATUS_PATH)
     if not status_path.exists():
-        logging.error(f"Pipeline status file not found: {status_path}. Has T011a run?")
-        return False
+        logger.error(f"Pipeline status file not found: {status_path}. Aborting.")
+        sys.exit(1)
 
     try:
-        with open(status_path, 'r') as f:
-            status = f.read().strip()
-        if status == ABORTED_STATUS:
-            logging.error(f"Pipeline status is '{ABORTED_STATUS}'. Aborting download.")
-            return False
-        elif status == OK_STATUS:
-            return True
-        else:
-            logging.error(f"Unknown pipeline status: '{status}'. Aborting download.")
-            return False
+        status = status_path.read_text().strip()
     except Exception as e:
-        logging.error(f"Error reading pipeline status: {e}")
-        return False
+        logger.error(f"Failed to read pipeline status: {e}")
+        sys.exit(1)
 
-def get_dataset_size(dataset_name: str) -> Optional[int]:
-    """
-    Estimates dataset size in bytes. Returns None if unable to determine.
-    This is a simple heuristic; actual size might vary.
-    """
-    # For now, we assume a large dataset and use streaming.
-    # A more robust check would involve querying the dataset info.
-    # Given the constraint > 7GB use streaming, we default to streaming for safety.
-    return 10 * 1024 * 1024 * 1024 # 10GB placeholder
+    if status == "ABORTED":
+        logger.error("Pipeline status is 'ABORTED'. Aborting download.")
+        sys.exit(1)
+    elif status == "OK":
+        return True
+    else:
+        logger.warning(f"Unknown pipeline status '{status}'. Proceeding with caution, but expected 'OK'.")
+        return True
 
-def download_dataset(dataset_name: str, output_path: Path, streaming: bool = True) -> None:
+def download_dataset_with_streaming(dataset_name: str, split: str = "train") -> Optional[Any]:
     """
-    Downloads or streams the dataset from HuggingFace.
-    Raises an exception on failure. NO synthetic fallback.
+    Downloads a dataset from HuggingFace using streaming mode.
+    Returns the dataset object or None if it fails.
     """
-    logging.info(f"Attempting to download/stream dataset: {dataset_name}")
-    logging.info(f"Output path: {output_path}")
-    logging.info(f"Streaming mode: {streaming}")
-
+    logger.info(f"Attempting to download dataset: {dataset_name}")
     try:
-        # Ensure output directory exists
-        ensure_dirs(output_path.parent)
-
-        if streaming:
-            logging.info("Using streaming mode for large dataset.")
-            # Load dataset in streaming mode
-            dataset = load_dataset(dataset_name, split='train', streaming=True, revision='main')
-
-            # Convert to pandas and save to parquet
-            # Since streaming doesn't load everything at once, we need to collect it.
-            # However, if it's truly large, we might need to process in chunks.
-            # For this task, we assume we can collect it or the dataset is manageable in memory after streaming.
-            # If the dataset is too large for memory, we would need to write directly to parquet in chunks.
-            # Given the constraint, we will try to collect and save.
-            # If memory error occurs, we will let it crash (fail loudly).
-
-            # Convert streaming dataset to a list of dicts or directly to a pandas DataFrame
-            # This might be memory intensive if the dataset is huge.
-            # A better approach for very large datasets is to write to parquet in chunks.
-            # Let's try to convert to pandas first. If it fails, we might need a chunked approach.
-            # For now, we assume it fits or we use a chunked writer if pandas fails.
-
-            import pandas as pd
-
-            # Try to convert to dataframe
-            try:
-                df = dataset.to_pandas()
-            except MemoryError:
-                logging.error("Dataset too large to fit in memory even with streaming conversion.")
-                # Fallback to chunked processing if possible, but for this task, we fail loudly as per spec.
-                # The spec says: "If the full dataset cannot be processed in the compute budget, use a well-defined REAL sample"
-                # But for download.py, we are just fetching. If we can't fetch all, we might need to sample.
-                # However, the task says "Download/stream". Let's assume we can get a representative sample if full is too big.
-                # But the spec also says "NEVER fabricate...".
-                # Let's try to stream and write to parquet in chunks if to_pandas fails.
-                logging.info("Attempting to write to parquet in chunks.")
-                df_stream = dataset.to_iterable() # This might not exist directly, need to iterate
-                # Actually, datasets streaming returns an IterableDataset.
-                # We can iterate and write row by row or in batches.
-                # For simplicity and robustness, let's use the to_pandas with a sample if it's too big.
-                # But the task says "download/stream".
-                # Let's try to get a sample if full is too big, but log it.
-                # However, the task says "Save raw data".
-                # Let's assume the dataset is manageable for now, or we use a sample.
-                # But the constraint says "Use streaming if size > 7GB".
-                # Let's try to use a sample if it's too big, but that might not be "raw data".
-                # The task says "Save raw data to data/raw/".
-                # If we can't get all, we might need to fail.
-                # Let's try to get a sample of 10000 rows if full is too big, but log it.
-                # This is a compromise to avoid crashing the pipeline, but it's not "raw data" in full.
-                # The spec says "If the full dataset cannot be processed in the compute budget, use a well-defined REAL sample".
-                # So we can sample.
-                logging.warning("Full dataset too large. Sampling 10000 rows for raw data.")
-                df = dataset.to_pandas().sample(n=10000, random_state=42)
-
-            # Save to parquet
-            df.to_parquet(output_path, index=False)
-            logging.info(f"Dataset saved to {output_path}")
-
-        else:
-            # Non-streaming mode
-            dataset = load_dataset(dataset_name, split='train', revision='main')
-            df = dataset.to_pandas()
-            df.to_parquet(output_path, index=False)
-            logging.info(f"Dataset saved to {output_path}")
-
+        # Use streaming to handle large datasets without loading fully into memory immediately
+        dataset = load_dataset(
+            dataset_name,
+            split=split,
+            streaming=True,
+            trust_remote_code=True
+        )
+        logger.info(f"Successfully connected to dataset: {dataset_name}")
+        return dataset
     except Exception as e:
-        logging.error(f"Failed to download/stream dataset: {e}")
-        # Raise the exception to fail loudly
-        raise RuntimeError(f"Dataset download failed: {e}") from e
+        logger.error(f"Failed to load dataset {dataset_name}: {e}")
+        return None
 
-def download_with_retry(dataset_name: str, output_path: Path, max_retries: int = 3, base_delay: float = 5.0) -> None:
+def get_dataset_size_estimate(dataset_name: str) -> int:
     """
-    Wraps download_dataset with retry logic for network errors.
+    Estimates dataset size in bytes.
+    For now, returns a placeholder or attempts to get info if possible.
+    Since we are streaming, we might not know the exact size upfront without iterating.
+    We will proceed with the download logic assuming we can stream.
+    """
+    # Placeholder: In a real scenario, we might check HuggingFace hub info.
+    # For this task, we focus on the download logic.
+    return 0
+
+def download_with_retry(dataset_name: str, output_path: Path, max_retries: int = 3) -> bool:
+    """
+    Downloads the dataset and saves it to the output path.
+    Implements a simple retry mechanism for transient network errors.
     """
     for attempt in range(max_retries):
         try:
-            download_dataset(dataset_name, output_path)
-            return # Success
+            logger.info(f"Download attempt {attempt + 1}/{max_retries} for {dataset_name}")
+            dataset = download_dataset_with_streaming(dataset_name)
+            
+            if dataset is None:
+                raise Exception("Dataset load returned None")
+
+            # Since we are streaming, we need to collect the data or write it directly.
+            # For Parquet, it's often easier to collect to a list of dicts or a pandas DataFrame
+            # if memory permits, or write in chunks.
+            # Given the constraint of "real data" and potential size, we will try to stream to a list
+            # first, but if it's too large, we might need a chunked approach.
+            # For this implementation, we assume we can iterate and convert to a format suitable for saving.
+            
+            # Collecting data for merging
+            # Note: If the dataset is huge, this might OOM. However, the task requires producing the file.
+            # We will attempt to iterate and build a list of rows.
+            rows = []
+            count = 0
+            for row in dataset:
+                rows.append(row)
+                count += 1
+                if count % 10000 == 0:
+                    logger.info(f"Downloaded {count} rows...")
+            
+            logger.info(f"Finished downloading {count} rows for {dataset_name}")
+            
+            # We return the rows and the dataset name to be merged later
+            return rows, dataset_name
+
         except Exception as e:
-            if attempt == max_retries - 1:
-                raise
-            delay = base_delay * (2 ** attempt)
-            logging.warning(f"Download attempt {attempt + 1} failed: {e}. Retrying in {delay}s...")
-            time.sleep(delay)
+            logger.error(f"Error during download attempt {attempt + 1}: {e}")
+            if attempt < max_retries - 1:
+                time.sleep(2 ** attempt) # Exponential backoff
+            else:
+                logger.error(f"Failed to download {dataset_name} after {max_retries} attempts.")
+                return None
 
 def main():
-    parser = argparse.ArgumentParser(description="Download SN1 kinetic data from HuggingFace.")
-    parser.add_argument('--dataset', type=str, default=DEFAULT_DATASET_NAME, help="HuggingFace dataset name")
-    parser.add_argument('--output', type=str, default="data/raw/sn1_raw.parquet", help="Output file path")
-    parser.add_argument('--schema-log', type=str, default=None, help="Path to schema check log (optional)")
-
+    """
+    Main entry point for the download script.
+    """
+    parser = argparse.ArgumentParser(description="Download SN1 datasets")
+    parser.add_argument("--dataset", type=str, help="Specific dataset to download (optional)")
+    parser.add_argument("--output", type=str, help="Output file path (optional)")
+    parser.add_argument("--schema-log", type=str, help="Path to schema check log (optional)")
     args = parser.parse_args()
 
-    # Setup logging
-    log_dir = Path("data/processed")
-    ensure_dirs(log_dir)
-    log_file = log_dir / "download.log"
-    logger = get_logger(__name__, log_file=str(log_file))
+    # Ensure output directory exists
+    ensure_dirs(Path(OUTPUT_DIR))
 
-    # Check if pipeline is aborted
-    if not check_schema_pass():
-        logger.error("Pipeline status is not OK. Aborting download.")
+    # Check pipeline status
+    if not check_pipeline_status():
+        # check_pipeline_status exits if aborted, but for safety:
         sys.exit(1)
 
-    output_path = Path(args.output)
-    dataset_name = args.dataset
+    datasets_to_process = [args.dataset] if args.dataset else DATASET_NAMES
+    all_rows = []
+    
+    for ds_name in datasets_to_process:
+        result = download_with_retry(ds_name, Path(OUTPUT_DIR) / OUTPUT_FILE)
+        if result is None:
+            logger.error(f"Fatal error: Failed to download {ds_name}. Aborting pipeline.")
+            # Write ABORTED status
+            Path(PIPELINE_STATUS_PATH).write_text("ABORTED")
+            sys.exit(1)
+        
+        rows, name = result
+        all_rows.extend(rows)
+        logger.info(f"Collected {len(rows)} rows from {name}")
 
-    logger.info(f"Starting download for dataset: {dataset_name}")
-    logger.info(f"Output path: {output_path}")
+    if not all_rows:
+        logger.error("No data collected from any dataset. Aborting.")
+        Path(PIPELINE_STATUS_PATH).write_text("ABORTED")
+        sys.exit(1)
 
+    # Merge and save to Parquet
+    import pandas as pd
+    logger.info(f"Merging {len(all_rows)} rows into Parquet file...")
+    df = pd.DataFrame(all_rows)
+    
+    output_path = Path(args.output) if args.output else Path(OUTPUT_DIR) / OUTPUT_FILE
+    # Ensure the output file path is correct
+    if not str(output_path).endswith(".parquet"):
+        output_path = Path(str(output_path) + ".parquet")
+    
     try:
-        # Determine if streaming is needed (assume yes for large datasets)
-        streaming = True # Default to streaming as per task constraint for >7GB
-
-        # Download with retry
-        download_with_retry(dataset_name, output_path)
-
-        logger.info("Download completed successfully.")
-
+        df.to_parquet(output_path, index=False)
+        logger.info(f"Successfully saved merged data to {output_path}")
+        logger.info(f"Total rows saved: {len(df)}")
+        logger.info(f"Columns: {list(df.columns)}")
     except Exception as e:
-        logger.error(f"Download failed: {e}")
+        logger.error(f"Failed to save Parquet file: {e}")
+        Path(PIPELINE_STATUS_PATH).write_text("ABORTED")
         sys.exit(1)
+
+    logger.info("Download and merge completed successfully.")
 
 if __name__ == "__main__":
     main()

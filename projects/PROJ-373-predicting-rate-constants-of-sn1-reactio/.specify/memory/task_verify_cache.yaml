@@ -1,39 +1,10 @@
-T011a:
+T011c:
   c: false
-  h: 90f18680bbadcc257fd5bbf106b0b093b036bf61f4de9ef82c9f2141845d5166
-  r: "The provided `code/data/verify_metadata.py` is truncated and does not show handling\
-    \ of missing required columns, logging the specific reason `'missing_metadata'`,\
-    \ falling back to `exclusion_log.csv` when `clean.log` is absent, or exiting with\
-    \ code\u202F1 as required. Consequently the script does not demonstrably satisfy\
-    \ the task\u2019s specifications."
-T011e:
-  c: false
-  h: dbcca78ddf3f8f377e40ee6ef62f8b9f06f16aac0942d62fe30b50d6b02c2ea1
-  r: "The repository contains a `code/data/mapping.py` file, but it does not implement\
-    \ the required guard clause that raises a fatal error when `data/processed/exclusion_raw.log`\
-    \ is missing, and the script\u2019s `main` function is truncated. Moreover, the\
-    \ required input file `data/raw/sn1_raw.parquet` and the expected outputs `data/processed/exclusion_raw.log`\
-    \ and `data/processed/intermediate_sn1.csv` are absent, so the pipeline cannot\
-    \ be executed or verified."
-T012:
-  c: false
-  h: 02afe22364fbfcbb4c39def869ad0e6d74dcad19ac4232c3f837a2d172cd0d77
-  r: "The provided `code/data/clean.py` file exists, but the visible portion is truncated\
-    \ and does not demonstrate implementation of all required guard clauses (e.g.,\
-    \ checking for missing or empty `intermediate_sn1.csv`, validating the presence\
-    \ and explicitness of `substrate_class`, counting filtered primary rows, aborting\
-    \ on zero valid rows). Moreover, none of the expected log files, status file,\
-    \ or output CSV were generated, so the script\u2019s behavior cannot be verified\
-    \ as meeting the specification. The missing and unverified functionality must\
-    \ be completed."
-T013:
-  c: false
-  h: 266809dec91bd6e789d06cbf1f3d17400f866d7b1fc8ac9ef40be7c839d39424
-  r: "The provided `code/data/descriptors.py` is truncated and does not contain the\
-    \ full pipeline (reading input rows, writing `descriptors.csv`, handling failures,\
-    \ and ensuring the exclusion log header). Moreover, the required output files\
-    \ `data/processed/exclusion_raw.log` and `data/processed/descriptors.csv` are\
-    \ absent. The task\u2019s core requirements are therefore not satisfied."
+  h: 6d290c18ba5a28366dc629b8e37d65449aa3d0097e1c66aa31778b21d3d2e4f5
+  r: "The repository lacks the required `data/processed/.pipeline_status` file and\
+    \ the resulting `data/raw/sn1_raw_merged.parquet` output. Moreover, the provided\
+    \ `download.py` does not implement size\u2011based streaming logic, dataset merging,\
+    \ or writing the merged Parquet file, so the core functionality is missing."
 T013b:
   c: false
   h: 42de1aff23f1b9ab6251b393cf7bc7eca465d89482dab37d85e796fb9cecaf87
@@ -41,22 +12,6 @@ T013b:
     absent, and the expected output `data/processed/exclusion_validation.log` was
     not created. Consequently the validation step could not be performed and no error
     log was provided.
-T014:
-  c: false
-  h: 3176bb70497e154977dca378ac6f299c91618c9e02d680068d4e0e63bee473b6
-  r: "The repository lacks the required input file `data/processed/cleaned_sn1.csv`\
-    \ and the three split CSVs plus `split_report.json`; none of these artifacts exist.\
-    \ Moreover, `code/data/split.py` is truncated (no main routine, no saving of the\
-    \ JSON report) and therefore does not actually perform the full end\u2011to\u2011\
-    end split as specified. The task must provide the cleaned dataset, generate and\
-    \ store the train/val/test CSVs, and produce the JSON report."
-T023:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `artifacts/hyperparameter_search.csv` file was presented, and no content\
-    \ showing the required columns or top\u201110 configurations was provided. The\
-    \ evidence needed to confirm that the CSV exists, is non\u2011empty, and contains\
-    \ the specified fields is missing."
 T028:
   c: false
   h: b96c484cb05faa0ac2b698170e56c925771c3252df4d9dbbeabe0837e854ce7f
@@ -74,14 +29,10 @@ T040:
     \ is shown. There is no `artifacts/feasibility_test_log.json`, no subprocess\u2011\
     based timeout implementation, and no evidence that the pipeline was executed or\
     \ that SC\u2011002 was verified. The task therefore remains unfinished."
-T600:
+T602:
   c: false
-  h: d3c3f9109b2e46f8c47cf3eadba9948320caeda01ab1de47d7ea3d0a6b0bb4e0
-  r: "The provided `tests/unit/test_download_failure.py` exists and mocks `load_dataset`\
-    \ to raise an error, but it does not (in the visible portion) verify that the\
-    \ script exits with code\u202F1, nor does it check that `data/processed/.pipeline_status`\
-    \ is set to \u201CABORTED\u201D. Moreover, the repository is missing the required\
-    \ `data/processed/.pipeline_status` file, and the test does not assert that no\
-    \ `synthetic_*` or `mock_*` files are created in the real `data/raw/` directory.\
-    \ These missing checks mean the task\u2019s acceptance criteria are not fully\
-    \ met."
+  h: 6e4ab6485d2da7f6a462583809bcb3a62e1600494fd04250f12d6ae5f77001bf
+  r: The required deliverable `tests/integration/test_timeout_mechanism.py` is absent
+    from the repository (the file is listed as missing). Without this test file, the
+    integration test for the `--max-configs` timeout mechanism has not been provided,
+    so the task is not satisfied.

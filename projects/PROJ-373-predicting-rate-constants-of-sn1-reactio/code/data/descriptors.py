@@ -6,7 +6,7 @@ import csv
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
-# Ensure imports work
+# Ensure imports work relative to project root
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from config import ensure_dirs, DataConfig
@@ -24,6 +24,7 @@ def compute_gasteiger_charges(smiles: str):
             return None, "invalid_smiles"
         
         # Initialize charges
+        # ComputeGasteigerCharges modifies the molecule in place
         Chem.ComputeGasteigerCharges(mol)
         
         charges = []
@@ -41,7 +42,7 @@ def compute_gasteiger_charges(smiles: str):
         return charges, None
     except Exception as e:
         logger.warning(f"Failed to compute Gasteiger charges for {smiles}: {e}")
-        return None, "gasteiger_error"
+        return None, "descriptor_failure"
 
 def compute_topological_indices(smiles: str):
     """Compute topological indices using RDKit."""
@@ -53,7 +54,7 @@ def compute_topological_indices(smiles: str):
         if mol is None:
             return None, "invalid_smiles"
         
-        # Compute some topological indices
+        # Compute topological indices
         indices = {
             'mol_wt': Descriptors.MolWt(mol),
             'logp': Descriptors.MolLogP(mol),
@@ -66,7 +67,7 @@ def compute_topological_indices(smiles: str):
         return indices, None
     except Exception as e:
         logger.warning(f"Failed to compute topological indices for {smiles}: {e}")
-        return None, "topological_error"
+        return None, "descriptor_failure"
 
 def process_single_row(row: Dict[str, Any]):
     """Process a single row and compute descriptors."""
@@ -85,9 +86,14 @@ def process_single_row(row: Dict[str, Any]):
         return None, error
     
     # Combine results
+    # Flatten charges into columns: gasteiger_charge_0, gasteiger_charge_1, ...
+    charge_cols = {}
+    for i, charge in enumerate(charges):
+        charge_cols[f'gasteiger_charge_{i}'] = charge
+    
     result = {
         'smiles': smiles,
-        'gasteiger_charges': charges,
+        **charge_cols,
         **indices
     }
     
@@ -96,15 +102,17 @@ def process_single_row(row: Dict[str, Any]):
 def ensure_exclusion_log_header(exclusion_log_path: str):
     """Ensure the exclusion log has the correct header."""
     if not os.path.exists(exclusion_log_path):
+        ensure_dirs()
         with open(exclusion_log_path, 'w', newline='') as f:
-            writer = csv.writer(f)
+            writer = csv.writer(f, quoting=csv.QUOTE_MINIMAL)
             writer.writerow(['row_index', 'reason', 'original_smiles'])
+        logger.info(f"Initialized exclusion log at {exclusion_log_path}")
 
 def append_to_exclusion_log(exclusion_log_path: str, row_index: int, reason: str, smiles: str):
     """Append a single exclusion entry to the log."""
     ensure_exclusion_log_header(exclusion_log_path)
     with open(exclusion_log_path, 'a', newline='') as f:
-        writer = csv.writer(f)
+        writer = csv.writer(f, quoting=csv.QUOTE_MINIMAL)
         writer.writerow([row_index, reason, smiles])
 
 def compute_descriptors_for_dataset(input_path: str, output_path: str, exclusion_log_path: str):
@@ -113,6 +121,10 @@ def compute_descriptors_for_dataset(input_path: str, output_path: str, exclusion
     
     if not os.path.exists(input_path):
         raise FileNotFoundError(f"Input file not found: {input_path}")
+    
+    # Guard Clause: Check exclusion log exists (T011d requirement)
+    if not os.path.exists(exclusion_log_path):
+        raise FileNotFoundError(f"Exclusion log missing: {exclusion_log_path}. T011d must run first.")
     
     df = pd.read_csv(input_path)
     logger.info(f"Loaded {len(df)} rows from {input_path}")
@@ -139,6 +151,8 @@ def compute_descriptors_for_dataset(input_path: str, output_path: str, exclusion
     # Save results
     if results:
         result_df = pd.DataFrame(results)
+        # Ensure output directory exists
+        ensure_dirs()
         result_df.to_csv(output_path, index=False)
         logger.info(f"Saved {len(results)} rows to {output_path}")
     else:

@@ -64,17 +64,24 @@ def verify_distribution(original_df: pd.DataFrame, train_df: pd.DataFrame, val_d
             return False, f"Missing classes: {missing}"
     
     # Check proportions
+    max_diff = 0.0
     for dist_name, dist in [('train', train_dist), ('val', val_dist), ('test', test_dist)]:
         for cls in original_dist.index:
             diff = abs(dist.get(cls, 0) - original_dist[cls])
+            if diff > max_diff:
+                max_diff = diff
             if diff > tolerance:
                 logger.warning(f"Proportion difference for {cls} in {dist_name}: {diff}")
-                # Don't fail, just warn
     
-    return True, "Distribution verified"
+    success = max_diff <= tolerance
+    return success, f"Distribution verified (max diff: {max_diff:.4f}, tolerance: {tolerance})"
 
 def save_split_datasets(train_df: pd.DataFrame, val_df: pd.DataFrame, test_df: pd.DataFrame, train_path: str, val_path: str, test_path: str):
     """Save split datasets to CSV files."""
+    # Ensure directories exist
+    for p in [train_path, val_path, test_path]:
+        ensure_dirs(Path(p).parent)
+    
     train_df.to_csv(train_path, index=False)
     val_df.to_csv(val_path, index=False)
     test_df.to_csv(test_path, index=False)
@@ -101,9 +108,13 @@ def main():
         df = pd.read_csv(args.input)
         logger.info(f"Loaded {len(df)} rows from {args.input}")
         
+        if len(df) == 0:
+            logger.error("Input file is empty")
+            sys.exit(1)
+        
         # Check for stratification column
         if args.column not in df.columns:
-            logger.error(f"Stratification column '{args.column}' not found in data")
+            logger.error(f"Stratification column '{args.column}' not found in data. Available: {list(df.columns)}")
             sys.exit(1)
         
         # Perform split
@@ -135,6 +146,8 @@ def main():
         
     except Exception as e:
         logger.error(f"Split failed: {e}")
+        import traceback
+        traceback.print_exc()
         sys.exit(1)
 
 if __name__ == "__main__":

@@ -147,3 +147,39 @@ class TestComputeDescriptorsForDataset:
             assert os.path.exists(output_path)
             output_df = pd.read_csv(output_path)
             assert len(output_df) == 0
+
+class TestSmilesToGraph:
+    def test_smiles_to_graph(self):
+        """Unit test for SMILES parsing and descriptor calculation logic.
+        
+        Logic:
+        1) Create a mock SMILES string with valid structure.
+        2) Call the RDKit parsing function.
+        3) Assert that the resulting graph object is not None and has the expected number of nodes/edges.
+        4) Verify that invalid SMILES raise a specific exception (or return None as per implementation).
+        """
+        # 1) Create a mock SMILES string with valid structure (Ethanol)
+        valid_smiles = "CCO"
+        
+        # 2) Call the RDKit parsing function
+        mol = Chem.MolFromSmiles(valid_smiles)
+        
+        # 3) Assert that the resulting graph object is not None and has expected nodes/edges
+        assert mol is not None, "RDKit parsing failed for valid SMILES"
+        assert mol.GetNumAtoms() == 3, "Ethanol should have 3 atoms (2 C, 1 O)"
+        assert mol.GetNumBonds() == 2, "Ethanol should have 2 bonds (C-C, C-O)"
+        
+        # 4) Verify that invalid SMILES raise a specific exception or return None
+        invalid_smiles = "invalid_smiles_123"
+        invalid_mol = Chem.MolFromSmiles(invalid_smiles)
+        
+        # RDKit returns None for invalid SMILES, which is the expected behavior here
+        # The task description mentions "raise a specific exception", but standard RDKit
+        # behavior is to return None. We assert None as it is the robust check for failure.
+        assert invalid_mol is None, "Invalid SMILES should result in None"
+        
+        # Additional check: ensure we can compute descriptors on the valid molecule
+        # This verifies the full pipeline of parsing -> graph -> descriptor calculation
+        charges = compute_gasteiger_charges(mol)
+        assert charges is not None, "Gasteiger charges should be computable on valid molecule"
+        assert len(charges) == 3, "Should have 3 charges for ethanol"
