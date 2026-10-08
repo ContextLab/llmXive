@@ -1,12 +1,10 @@
 T008b:
-  c: false
-  h: 6eed9af2775873cc77a41a1c94c0e83827e7b190d0b155e29b79ee5bed247e34
-  r: "The script exists and logs the required error message, but it constructs the\
-    \ baseline file path relative to the `code` directory (`Path(__file__).resolve().parent.parent`)\
-    \ instead of the project root, so it will look for `code/data/raw/multabench_baselines.csv`\
-    \ and fail to detect the file even when it is correctly placed in `data/raw/`.\
-    \ The path logic must be corrected to point to the actual project\u2011root `data/raw/`\
-    \ location."
+  c: true
+  h: a516ecf5389ac59e334b6c6255d15bf5c58d72ea1fb6eca55d874445533db2a7
+  r: "The provided `code/pipelines/fetch_baselines.py` script exists, is non\u2011\
+    empty, and implements the required logic: it checks for `data/raw/multabench_baselines.csv`,\
+    \ logs the exact ERROR message to stderr, and exits with code\u202F1 when the\
+    \ file is missing or empty, without generating any synthetic data."
 T008c:
   c: true
   h: 91536e09529baaf82e2117d361b49f15117fe355021bcda2373b3d493d96cf87
@@ -21,6 +19,15 @@ T024c:
     exist, and the provided `metadata_stats.py` script is incomplete (truncated) with
     no visible implementation of `aggregate_stats`. Consequently, the aggregation
     functionality and the expected CSV output are missing.
+T024e:
+  c: false
+  h: 30e93fd53ba3ab2ef3d980a02b755daf8c3811a264c7e2641556d11afda015ea
+  r: "The required output file `data/processed/metadata_stats_summary.csv` does not\
+    \ exist, nor does the required log file `data/artifacts/data_availability_gap_report.json`.\
+    \ Without these artifacts, the task\u2019s sorting, subset selection, and gap\
+    \ reporting cannot have been performed. The implementer must generate the CSV\
+    \ (with the subset flag if applicable) and, when necessary, create the JSON gap\
+    \ report."
 T024f:
   c: false
   h: b2445781905f21ed9017bd45645c993218353432564519e585341128707d3843

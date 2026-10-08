@@ -5,6 +5,10 @@ This script validates the presence of the required baseline file
 `data/raw/multabench_baselines.csv`. If the file is missing or empty,
 it logs an ERROR to stderr and exits with code 1. It does NOT generate
 synthetic data or attempt to parse external links.
+
+Path Correction: Uses `Path(__file__).resolve().parent.parent.parent` to
+correctly resolve the project root from `code/pipelines/`, ensuring the
+check targets `data/raw/multabench_baselines.csv` at the repository root.
 """
 
 import os
@@ -27,9 +31,11 @@ def main() -> int:
     Returns:
         int: 0 if file exists and is non-empty, 1 otherwise.
     """
-    # Define the path relative to the project root
-    # Assuming this script runs from the project root or code/pipelines/
-    project_root = Path(__file__).resolve().parent.parent
+    # Define the path relative to the project root.
+    # Script location: code/pipelines/fetch_baselines.py
+    # Project root: parent of code/
+    # Correct traversal: parent (pipelines) -> parent (code) -> parent (root)
+    project_root = Path(__file__).resolve().parent.parent.parent
     baseline_path = project_root / "data" / "raw" / "multabench_baselines.csv"
 
     if not baseline_path.exists():

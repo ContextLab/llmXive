@@ -27,6 +27,15 @@ T010c:
     \ relate to the bird\u2011migration data pipeline, not to the \u201CTest Logging\u201D\
     \ task. Consequently the required log entry and its format\u2011compliance verification\
     \ are missing."
+T015a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or output artifacts (e.g., preprocessing scripts, resulting\
+    \ CSV, GAMM modeling scripts, model result files, or analysis figures) were supplied.\
+    \ Without these concrete deliverables, the claim that the \u201CCLO Migratory\
+    \ List\u201D retrieval and associated preprocessing/analysis pipeline is complete\
+    \ cannot be verified. The implementer must provide the actual scripts and generated\
+    \ outputs that meet the specifications outlined in the user stories."
 T017d:
   c: true
   h: 46e809cb470be233bd45ffebcdb85e1a45a782c9d2a8b17050accebace1c59da
@@ -35,13 +44,6 @@ T017d:
     of\u2011records schema, and the constraint that any record with `is_imputed =\
     \ true` has a non\u2011null `imputation_source`. No further artifacts were required\
     \ by the task."
-T018:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, configuration file, or test output was provided that implements\
-    \ the required logic to flag grid cells with fewer than 5 observations per Plan\
-    \ Phase\u202F2 and to exclude them from downstream modeling. Consequently, the\
-    \ artifact demanded by T018 is missing."
 T025c:
   c: false
   h: 93fa3d6863026d3c79377ab94b8855a246a852e60e00c07fc4bc1c4517831132

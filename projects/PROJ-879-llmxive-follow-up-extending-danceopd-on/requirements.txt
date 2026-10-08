@@ -10,4 +10,5 @@ scipy
 torch-fidelity
 pyyaml
 pytest
-joblib
+pyarrow
+aiohttp

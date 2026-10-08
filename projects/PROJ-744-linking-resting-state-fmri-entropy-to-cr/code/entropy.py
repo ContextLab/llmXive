@@ -1,3 +1,8 @@
+"""
+Entropy computation module for resting-state fMRI analysis.
+Implements Multiscale Sample Entropy (MSE) calculation, aggregation, and orchestration.
+"""
+
 import numpy as np
 from typing import Optional, Union, Dict, List, Tuple
 import logging
@@ -7,463 +12,342 @@ from pathlib import Path
 import psutil
 import time
 
+from config import Config
+from utils import ensure_dir, setup_logging
+
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
-def compute_sample_entropy(
-    time_series: np.ndarray,
-    m: int = 2,
-    r: float = 0.2,
-    axis: int = -1
-) -> np.ndarray:
-    """
-    Compute Sample Entropy for a time series (or array of time series).
-    Vectorized implementation optimized for CPU.
-    
-    Parameters:
-    -----------
-    time_series : np.ndarray
-        Input time series data. If 2D, rows are subjects/trials, columns are time points.
-    m : int
-        Embedding dimension (default: 2)
-    r : float
-        Tolerance threshold (default: 0.2 * std)
-    axis : int
-        Axis along which time series are stored (default: last)
-        
-    Returns:
-    --------
-    np.ndarray
-        Sample entropy values for each time series
-    """
-    # Handle single time series case
-    if time_series.ndim == 1:
-        time_series = time_series.reshape(1, -1)
-    
-    n_series, n_points = time_series.shape
-    
-    if n_points < m + 1:
-        logger.warning(f"Time series length {n_points} is too short for m={m}")
-        return np.full(n_series, np.nan)
-    
-    # Normalize r by standard deviation if r is relative (0 < r < 1)
-    if 0 < r < 1:
-        std_dev = np.std(time_series, axis=axis, keepdims=True)
-        std_dev[std_dev == 0] = 1  # Avoid division by zero
-        r_abs = r * std_dev
-    else:
-        r_abs = r
-    
-    # Flatten for processing
-    data = time_series
-    
-    # Build template vectors
-    # We need to compare all pairs of vectors of length m
-    # Vectorized approach: create matrix of differences
-    
-    results = np.zeros(n_series)
-    
-    for i in range(n_series):
-        ts = data[i]
-        n = len(ts)
-        
-        # Create template vectors
-        templates = np.array([ts[j:j+m] for j in range(n - m)])
-        
-        # Compute distances between all pairs
-        # B(x) = number of pairs within distance r (excluding self)
-        # A(x) = number of pairs of (m+1)-length vectors within distance r
-        
-        # For B: compare all m-length vectors
-        diff_m = np.abs(templates[:, None, :] - templates[None, :, :])
-        dist_m = np.max(diff_m, axis=2)  # Chebyshev distance
-        
-        B = np.sum(dist_m <= r_abs[i, 0], axis=1) - 1  # Exclude self
-        B = np.maximum(B, 0)  # Ensure non-negative
-        
-        # For A: compare (m+1)-length vectors
-        if n > m:
-            templates_m1 = np.array([ts[j:j+m+1] for j in range(n - m)])
-            diff_m1 = np.abs(templates_m1[:, None, :] - templates_m1[None, :, :])
-            dist_m1 = np.max(diff_m1, axis=2)
-            A = np.sum(dist_m1 <= r_abs[i, 0], axis=1) - 1
-            A = np.maximum(A, 0)
-        else:
-            A = np.zeros(n - m)
-        
-        # Compute sample entropy
-        B_mean = np.mean(B)
-        A_mean = np.mean(A)
-        
-        if B_mean > 0 and A_mean >= 0:
-            results[i] = -np.log(A_mean / B_mean) if B_mean > 0 else np.nan
-        else:
-            results[i] = np.nan
-    
-    return results
+# Global peak RAM tracker for the current process
+_peak_ram_mb = 0.0
 
-def compute_multiscale_entropy(
-    time_series: np.ndarray,
-    scales: List[int] = None,
-    m: int = 2,
-    r: float = 0.2
-) -> Tuple[np.ndarray, float]:
-    """
-    Compute Multiscale Sample Entropy and aggregate via AUC.
-    
-    Parameters:
-    -----------
-    time_series : np.ndarray
-        Input time series
-    scales : List[int]
-        List of scale factors (default: 1-20)
-    m : int
-        Embedding dimension
-    r : float
-        Tolerance threshold
-        
-    Returns:
-    --------
-    Tuple[np.ndarray, float]
-        Entropy values at each scale, and AUC-aggregated entropy
-    """
-    if scales is None:
-        scales = list(range(1, 21))
-    
-    n_points = len(time_series)
-    entropy_values = []
-    
-    for scale in scales:
-        # Coarse-graining
-        n_coarse = n_points // scale
-        if n_coarse < m + 1:
-            entropy_values.append(np.nan)
-            continue
-        
-        coarse_ts = np.mean(
-            time_series[:n_coarse * scale].reshape(n_coarse, scale),
-            axis=1
-        )
-        
-        ent = compute_sample_entropy(coarse_ts, m=m, r=r)
-        entropy_values.append(ent[0] if len(ent) > 0 else np.nan)
-    
-    entropy_array = np.array(entropy_values)
-    
-    # Compute AUC using trapezoidal rule
-    valid_mask = ~np.isnan(entropy_array)
-    if np.sum(valid_mask) < 2:
-        auc = np.nan
-    else:
-        scales_valid = np.array(scales)[valid_mask]
-        entropy_valid = entropy_array[valid_mask]
-        auc = np.trapz(entropy_valid, scales_valid)
-    
-    return entropy_array, auc
+def _update_peak_ram():
+    """Update the global peak RAM usage tracker."""
+    global _peak_ram_mb
+    process = psutil.Process(os.getpid())
+    current_ram_mb = process.memory_info().rss / (1024 * 1024)
+    if current_ram_mb > _peak_ram_mb:
+        _peak_ram_mb = current_ram_mb
 
-def load_hcp_atlas(
-    atlas_path: Union[str, Path]
-) -> Dict[str, List[int]]:
+def _reset_peak_ram():
+    """Reset the peak RAM tracker."""
+    global _peak_ram_mb
+    _peak_ram_mb = 0.0
+
+def _log_peak_ram(output_path: Path):
+    """Log the peak RAM usage to the specified file."""
+    ensure_dir(output_path.parent)
+    with open(output_path, 'a') as f:
+        timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+        f.write(f"[{timestamp}] Peak RAM during entropy computation: {_peak_ram_mb:.2f} MB\n")
+
+def load_hcp_atlas(atlas_path: Union[str, Path]) -> Dict[str, List[int]]:
     """
-    Load HCP 360-parcel atlas mapping.
-    
-    Parameters:
-    -----------
-    atlas_path : Union[str, Path]
-        Path to atlas definition file (CSV or JSON)
-        
-    Returns:
-    --------
-    Dict[str, List[int]]
-        Mapping of network names to parcel indices
+    Load the HCP 360-parcel atlas mapping.
+    Returns a dictionary mapping network names to lists of parcel indices.
     """
-    path = Path(atlas_path)
-    if not path.exists():
+    atlas_path = Path(atlas_path)
+    if not atlas_path.exists():
         raise FileNotFoundError(f"Atlas file not found: {atlas_path}")
     
-    # Assume CSV format: parcel_id, network_name
-    df = pd.read_csv(path)
-    atlas_map = {}
-    
+    # Assuming a CSV format: parcel_id, network_name
+    df = pd.read_csv(atlas_path)
+    mapping = {}
     for network in df['network_name'].unique():
         parcels = df[df['network_name'] == network]['parcel_id'].tolist()
-        atlas_map[network] = parcels
-    
-    return atlas_map
+        mapping[network] = parcels
+    return mapping
 
-def process_parcels_for_subject(
-    subject_id: str,
-    time_series_data: np.ndarray,
-    atlas: Dict[str, List[int]],
-    m: int = 2,
-    r: float = 0.2
-) -> Dict[str, np.ndarray]:
+def compute_sample_entropy(time_series: np.ndarray, m: int = 2, r: float = 0.2) -> float:
     """
-    Process time series data for a subject across all parcels.
+    Compute Sample Entropy for a 1D time series.
     
-    Parameters:
-    -----------
-    subject_id : str
-        Subject identifier
-    time_series_data : np.ndarray
-        3D array: (time, x, y) or 4D: (time, x, y, z) flattened to parcels
-    atlas : Dict[str, List[int]]
-        Atlas mapping
-    m : int
-        Embedding dimension
-    r : float
-        Tolerance threshold
-        
+    Args:
+        time_series: 1D numpy array of fMRI signal.
+        m: Template length (default: 2).
+        r: Tolerance threshold (default: 0.2 * std of time series).
+    
     Returns:
-    --------
-    Dict[str, np.ndarray]
-        Per-parcel entropy values
+        Sample Entropy value.
     """
-    results = {}
+    n = len(time_series)
+    if n < m + 2:
+        return float('nan')
     
-    for network, parcels in atlas.items():
-        network_entropies = []
+    # Normalize r if it's a scalar relative to std
+    if isinstance(r, float) and r < 1.0:
+        r = r * np.std(time_series)
+    
+    # Precompute differences for efficiency
+    # Create template vectors
+    templates = np.lib.stride_tricks.as_strided(
+        time_series,
+        shape=(n - m + 1, m),
+        strides=(time_series.strides[0], time_series.strides[0])
+    )
+    
+    # Compute distances between all pairs of templates
+    # B(i, j) = max |u(i) - u(j)|
+    diff = np.abs(templates[:, None, :] - templates[None, :, :])
+    max_diff = np.max(diff, axis=2)
+    
+    # Count matches within tolerance r (excluding self-matches)
+    B_m = np.sum((max_diff <= r).astype(int), axis=1) - 1  # Exclude self
+    
+    if m == 1:
+        # For m=1, we count matches for length 1 (which is just the number of points)
+        # But Sample Entropy is defined as -ln(A/B) where A is matches for m+1 and B for m
+        # Here we are computing B_m (matches for length m)
+        pass
+
+    # Compute matches for length m+1
+    if n < m + 2:
+        return float('nan')
+    
+    templates_m1 = np.lib.stride_tricks.as_strided(
+        time_series,
+        shape=(n - m, m + 1),
+        strides=(time_series.strides[0], time_series.strides[0])
+    )
+    
+    diff_m1 = np.abs(templates_m1[:, None, :] - templates_m1[None, :, :])
+    max_diff_m1 = np.max(diff_m1, axis=2)
+    
+    B_m1 = np.sum((max_diff_m1 <= r).astype(int), axis=1) - 1
+    
+    # Avoid division by zero
+    if np.any(B_m == 0) or np.any(B_m1 == 0):
+        # If no matches, entropy is undefined or infinity, return nan
+        return float('nan')
+    
+    # Sample Entropy = -ln( (sum B_m1) / (sum B_m) )
+    phi_m = np.mean(np.log(B_m))
+    phi_m1 = np.mean(np.log(B_m1))
+    
+    sampen = phi_m - phi_m1
+    return float(sampen)
+
+def compute_multiscale_entropy(time_series: np.ndarray, m: int = 2, r: float = 0.2, max_scale: int = 20) -> Tuple[np.ndarray, float]:
+    """
+    Compute Multiscale Sample Entropy across scales 1 to max_scale.
+    Returns the entropy profile and the Area Under the Curve (AUC).
+    
+    Args:
+        time_series: 1D numpy array.
+        m: Template length.
+        r: Tolerance threshold.
+        max_scale: Maximum scale factor.
+    
+    Returns:
+        Tuple of (entropy_profile, auc_value).
+    """
+    scales = np.arange(1, max_scale + 1)
+    entropy_profile = []
+    
+    for scale in scales:
+        # Coarse-graining: average non-overlapping windows of length 'scale'
+        ts_len = len(time_series)
+        num_windows = ts_len // scale
+        if num_windows < m + 2:
+            entropy_profile.append(np.nan)
+            continue
         
-        for parcel_idx in parcels:
-            # Extract parcel time series (assuming flattened or indexed)
-            if time_series_data.ndim == 2:
-                ts = time_series_data[:, parcel_idx]
-            elif time_series_data.ndim == 3:
-                # Reshape to 2D if needed
-                ts = time_series_data[:, parcel_idx]
-            else:
-                raise ValueError(f"Unsupported time series shape: {time_series_data.shape}")
-            
-            # Check for NaNs
-            if np.sum(np.isnan(ts)) > len(ts) * 0.1:
-                network_entropies.append(np.nan)
+        coarse_ts = np.mean(time_series[:num_windows * scale].reshape(num_windows, scale), axis=1)
+        ent = compute_sample_entropy(coarse_ts, m, r)
+        entropy_profile.append(ent)
+    
+    entropy_profile = np.array(entropy_profile)
+    
+    # Compute AUC using trapezoidal rule
+    auc = np.trapz(entropy_profile[~np.isnan(entropy_profile)], 
+                   scales[~np.isnan(entropy_profile)])
+    
+    return entropy_profile, auc
+
+def process_parcels_for_subject(subject_id: str, ts_data: Dict[int, np.ndarray], 
+                                atlas_mapping: Dict[str, List[int]], 
+                                m: int = 2, r: float = 0.2, max_scale: int = 20) -> Dict[str, Dict[str, float]]:
+    """
+    Process all parcels for a single subject and compute entropy metrics.
+    
+    Args:
+        subject_id: Subject identifier.
+        ts_data: Dictionary mapping parcel_id -> time series array.
+        atlas_mapping: Dictionary mapping network -> list of parcel_ids.
+        m, r, max_scale: Entropy parameters.
+    
+    Returns:
+        Dictionary with subject_id as key, containing parcel and network metrics.
+    """
+    results = {
+        'subject_id': subject_id,
+        'parcels': {},
+        'networks': {}
+    }
+    
+    invalid_count = 0
+    total_parcels = 0
+    
+    # Compute parcel-level entropy
+    for network, parcel_ids in atlas_mapping.items():
+        network_values = []
+        for pid in parcel_ids:
+            if pid not in ts_data:
+                continue
+            ts = ts_data[pid]
+            if np.any(np.isnan(ts)):
+                invalid_count += 1
+                results['parcels'][pid] = {'entropy': np.nan}
                 continue
             
-            ent = compute_sample_entropy(ts, m=m, r=r)
-            network_entropies.append(ent[0] if len(ent) > 0 else np.nan)
+            total_parcels += 1
+            _, auc = compute_multiscale_entropy(ts, m, r, max_scale)
+            results['parcels'][pid] = {'entropy': auc}
+            if not np.isnan(auc):
+                network_values.append(auc)
         
-        results[network] = np.array(network_entropies)
+        # Aggregate network entropy (mean of parcel entropies)
+        if network_values:
+            results['networks'][network] = np.mean(network_values)
+        else:
+            results['networks'][network] = np.nan
+    
+    results['invalid_parcels_count'] = invalid_count
+    results['total_parcels_count'] = total_parcels
     
     return results
 
-def flag_invalid_parcels(
-    results: Dict[str, np.ndarray],
-    threshold: float = 0.1
-) -> bool:
+def flag_invalid_parcels(subject_results: Dict, threshold: float = 0.10, log_path: Optional[Path] = None):
     """
-    Flag subjects with >10% invalid (NaN) parcels.
-    
-    Parameters:
-    -----------
-    results : Dict[str, np.ndarray]
-        Per-parcel entropy results
-    threshold : float
-        Fraction of invalid parcels to trigger flag
-        
-    Returns:
-    --------
-    bool
-        True if subject should be flagged for manual review
+    Flag subjects where >10% of parcels are invalid (NaN).
+    Logs to invalid_parcels.log if log_path is provided.
     """
-    total_parcels = 0
-    invalid_parcels = 0
+    total = subject_results.get('total_parcels_count', 0)
+    invalid = subject_results.get('invalid_parcels_count', 0)
     
-    for network, entropies in results.items():
-        total_parcels += len(entropies)
-        invalid_parcels += np.sum(np.isnan(entropies))
+    if total == 0:
+        is_invalid = False
+    else:
+        ratio = invalid / total
+        is_invalid = ratio > threshold
     
-    if total_parcels == 0:
-        return True
-    
-    invalid_ratio = invalid_parcels / total_parcels
-    return invalid_ratio > threshold
-
-def run_parcels_and_flagging(
-    subject_id: str,
-    time_series_data: np.ndarray,
-    atlas: Dict[str, List[int]],
-    m: int = 2,
-    r: float = 0.2,
-    log_path: Optional[Path] = None
-) -> Tuple[Dict[str, np.ndarray], bool]:
-    """
-    Run parcel processing and flagging for a subject.
-    
-    Parameters:
-    -----------
-    subject_id : str
-        Subject identifier
-    time_series_data : np.ndarray
-        Time series data
-    atlas : Dict[str, List[int]]
-        Atlas mapping
-    m : int
-        Embedding dimension
-    r : float
-        Tolerance threshold
-    log_path : Optional[Path]
-        Path to log file for invalid parcel flags
-        
-    Returns:
-    --------
-    Tuple[Dict[str, np.ndarray], bool]
-        Results and flag status
-    """
-    results = process_parcels_for_subject(
-        subject_id, time_series_data, atlas, m, r
-    )
-    
-    is_flagged = flag_invalid_parcels(results)
-    
-    if is_flagged and log_path:
+    if is_invalid and log_path:
+        ensure_dir(log_path.parent)
         with open(log_path, 'a') as f:
-            f.write(f"{subject_id}: Invalid parcel ratio exceeds threshold\n")
+            f.write(f"Subject {subject_results['subject_id']}: {invalid}/{total} parcels invalid ({ratio:.2%})\n")
     
-    return results, is_flagged
+    return is_invalid
 
-def run_entropy_orchestration(
-    valid_subjects_path: Union[str, Path],
-    raw_data_dir: Union[str, Path],
-    atlas_path: Union[str, Path],
-    output_path: Union[str, Path],
-    m: int = 2,
-    r: float = 0.2,
-    chunk_size: int = 10,
-    log_path: Optional[Path] = None
-) -> pd.DataFrame:
+def run_parcels_and_flagging(subject_ids: List[str], 
+                             data_dir: Path, 
+                             atlas_path: Path, 
+                             output_csv: Path,
+                             log_path: Optional[Path] = None,
+                             m: int = 2, r: float = 0.2, max_scale: int = 20,
+                             chunk_size: int = 10):
     """
-    Main orchestration function to compute entropy for all valid subjects.
-    Implements RAM monitoring and chunking for memory constraints.
-    
-    Parameters:
-    -----------
-    valid_subjects_path : Union[str, Path]
-        Path to valid_subjects.csv
-    raw_data_dir : Union[str, Path]
-        Directory containing raw fMRI data
-    atlas_path : Union[str, Path]
-        Path to atlas definition
-    output_path : Union[str, Path]
-        Path for output CSV
-    m : int
-        Embedding dimension
-    r : float
-        Tolerance threshold
-    chunk_size : int
-        Number of subjects to process per chunk
-    log_path : Optional[Path]
-        Path to log file for invalid parcel flags
-        
-    Returns:
-    --------
-    pd.DataFrame
-        Complete entropy metrics DataFrame
+    Process parcels for multiple subjects in chunks to manage memory.
     """
-    # Initialize RAM tracking
-    process = psutil.Process()
-    peak_ram_mb = 0
-    start_time = time.time()
+    global _peak_ram_mb
+    _peak_ram_mb = 0.0
     
-    logger.info("Starting entropy orchestration with RAM monitoring")
+    atlas_mapping = load_hcp_atlas(atlas_path)
     
-    # Load valid subjects
-    valid_subjects = pd.read_csv(valid_subjects_path)
-    subject_ids = valid_subjects['subject_id'].tolist()
-    
-    # Load atlas
-    atlas = load_hcp_atlas(atlas_path)
-    
-    # Prepare output storage
     all_results = []
     
-    # Process in chunks to manage memory
     for i in range(0, len(subject_ids), chunk_size):
-        chunk_subjects = subject_ids[i:i + chunk_size]
-        logger.info(f"Processing chunk {i//chunk_size + 1}: {len(chunk_subjects)} subjects")
+        chunk = subject_ids[i:i+chunk_size]
+        logger.info(f"Processing chunk {i//chunk_size + 1}: {len(chunk)} subjects")
         
-        for subject_id in chunk_subjects:
+        for sid in chunk:
             try:
-                # Load subject data (simplified - assume NIfTI loading handled elsewhere)
-                # In real implementation, this would load from raw_data_dir
-                subject_data_path = Path(raw_data_dir) / f"{subject_id}.nii.gz"
+                # Simulate loading time series for parcels (in real impl, load from NIfTI)
+                # Placeholder for actual data loading logic
+                ts_data = {}
+                # In real implementation, load from data_dir/sid/parcels/
+                # For now, assume we have a way to get ts_data
                 
-                if not subject_data_path.exists():
-                    logger.warning(f"Data not found for {subject_id}, skipping")
+                # Since we cannot load real data here without the full pipeline,
+                # we assume the data is available via a loader function from data_loader
+                from data_loader import load_and_scrub_subject
+                ts_data = load_and_scrub_subject(sid, data_dir)
+                
+                if not ts_data:
+                    logger.warning(f"No data for subject {sid}")
                     continue
                 
-                # Placeholder for actual data loading
-                # In real code: load_and_scrub_subject(subject_id, raw_data_dir)
-                # Simulating time series data for demonstration
-                n_timepoints = 1200
-                n_parcels = 360
-                time_series_data = np.random.randn(n_timepoints, n_parcels)
+                results = process_parcels_for_subject(sid, ts_data, atlas_mapping, m, r, max_scale)
+                flag_invalid_parcels(results, log_path=log_path)
                 
-                # Compute entropy
-                results, is_flagged = run_parcels_and_flagging(
-                    subject_id, time_series_data, atlas, m, r, log_path
-                )
+                # Flatten results for CSV
+                row = {'subject_id': sid}
+                for net, val in results['networks'].items():
+                    row[f'network_{net}'] = val
+                for pid, vals in results['parcels'].items():
+                    row[f'parcel_{pid}'] = vals['entropy']
+                row['invalid_parcels_count'] = results['invalid_parcels_count']
+                row['total_parcels_count'] = results['total_parcels_count']
                 
-                # Aggregate to network level
-                network_ents = {}
-                for network, entropies in results.items():
-                    valid_ents = entropies[~np.isnan(entropies)]
-                    if len(valid_ents) > 0:
-                        network_ents[f"{network}_mean"] = np.mean(valid_ents)
-                        network_ents[f"{network}_std"] = np.std(valid_ents)
-                        network_ents[f"{network}_auc"], _ = compute_multiscale_entropy(
-                            time_series_data[:, 0], m=m, r=r
-                        )  # Simplified - would use actual parcel data
-                    
-                # Add subject metadata
-                row = {'subject_id': subject_id}
-                row.update(network_ents)
-                row['flagged_for_review'] = is_flagged
                 all_results.append(row)
                 
+                _update_peak_ram()
+                
             except Exception as e:
-                logger.error(f"Error processing {subject_id}: {str(e)}")
+                logger.error(f"Error processing subject {sid}: {e}")
                 continue
-        
-        # Check RAM usage after each chunk
-        current_ram_mb = process.memory_info().rss / (1024 * 1024)
-        if current_ram_mb > peak_ram_mb:
-            peak_ram_mb = current_ram_mb
-        
-        logger.info(f"Current RAM: {current_ram_mb:.2f} MB, Peak RAM: {peak_ram_mb:.2f} MB")
     
-    # Create final DataFrame
-    df_results = pd.DataFrame(all_results)
+    # Write results
+    df = pd.DataFrame(all_results)
+    ensure_dir(output_csv.parent)
+    df.to_csv(output_csv, index=False)
+    logger.info(f"Wrote {len(all_results)} subjects to {output_csv}")
+
+def run_entropy_orchestration(config: Config, log_ram_path: Optional[Path] = None):
+    """
+    Main orchestration function to run entropy computation for all valid subjects.
+    Includes RAM usage logging.
+    """
+    global _peak_ram_mb
+    _reset_peak_ram()
     
-    # Log peak RAM usage
-    end_time = time.time()
-    duration = end_time - start_time
+    logger.info("Starting entropy orchestration...")
+    start_time = time.time()
     
-    log_entry = (
-        f"Entropy computation completed. "
-        f"Subjects processed: {len(all_results)}, "
-        f"Duration: {duration:.2f}s, "
-        f"Peak RAM: {peak_ram_mb:.2f} MB\n"
+    # Load valid subjects
+    valid_subjects_path = Path(config.PROCESSED_DATA_DIR) / 'valid_subjects.csv'
+    if not valid_subjects_path.exists():
+        raise FileNotFoundError(f"Valid subjects file not found: {valid_subjects_path}")
+    
+    df_valid = pd.read_csv(valid_subjects_path)
+    subject_ids = df_valid['subject_id'].tolist()
+    
+    # Define paths
+    atlas_path = Path(config.ATLAS_PATH)
+    output_csv = Path(config.PROCESSED_DATA_DIR) / 'entropy_metrics.csv'
+    invalid_log = Path(config.LOGS_DIR) / 'invalid_parcels.log'
+    
+    # Run processing
+    run_parcels_and_flagging(
+        subject_ids=subject_ids,
+        data_dir=Path(config.RAW_DATA_DIR),
+        atlas_path=atlas_path,
+        output_csv=output_csv,
+        log_path=invalid_log,
+        m=config.M,
+        r=config.R,
+        max_scale=config.MAX_SCALE,
+        chunk_size=config.CHUNK_SIZE
     )
     
-    if log_path:
-        with open(log_path, 'a') as f:
-            f.write(log_entry)
-    else:
-        # Default log path
-        default_log_dir = Path('data/logs')
-        default_log_dir.mkdir(parents=True, exist_ok=True)
-        default_log_path = default_log_dir / 'ram_usage.log'
-        with open(default_log_path, 'a') as f:
-            f.write(log_entry)
+    elapsed = time.time() - start_time
+    logger.info(f"Entropy computation completed in {elapsed:.2f} seconds")
     
-    logger.info(f"Peak RAM usage: {peak_ram_mb:.2f} MB")
-    
-    # Write output
-    df_results.to_csv(output_path, index=False)
-    logger.info(f"Results written to {output_path}")
-    
-    return df_results
+    # Log RAM usage if requested
+    if log_ram_path:
+        _log_peak_ram(log_ram_path)
+        logger.info(f"Peak RAM logged to {log_ram_path}")
+
+if __name__ == "__main__":
+    # Example usage for testing
+    config = Config()
+    run_entropy_orchestration(config, log_ram_path=Path(config.LOGS_DIR) / 'ram_usage.log')

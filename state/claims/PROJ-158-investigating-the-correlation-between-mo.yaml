@@ -332,26 +332,6 @@
   status: not_enough_info
   updated_at: '2026-07-09T22:20:24Z'
 - artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
-  attempts: 2
-  canonical: Download dssc_dataset.csv from Zenodo Record ID 10.5281/zenodo.4921127
-  claim_id: c_3e9b851e
-  context: 'T009 [US1] Implement code/data/download.py (Download Only): 1. Download
-    dssc_dataset.csv from Zenodo (Nazeer et al., Record ID: 10.5281/zenodo.4921127,
-    DOI: 10.5281/zenodo.4921127) to data/raw/dssc_dataset.csv.'
-  evidence:
-    ok: false
-    reason: cited source unreadable (resolved but no open-access full text); cannot
-      substantiate
-  kind: citation
-  raw_text: 'Download dssc_dataset.csv from Zenodo (Nazeer et al., Record ID: 10.5281/zenodo.4921127,
-    DOI: 10.5281/zenodo.4921127)'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-09T22:21:30Z'
-- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
   attempts: 1
   canonical: DSSC dataset sourced from Zenodo with DOI 10.5281/zenodo.4921127
   claim_id: c_18d1a0aa
@@ -976,3 +956,398 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-28T13:07:06Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 3
+  canonical: Download dssc_dataset.csv from Zenodo Record ID 10.5281/zenodo.4921127
+  claim_id: c_3e9b851e
+  context: 'T009 [US1] Implement code/data/download.py (Download Only): 1. Download
+    dssc_dataset.csv from Zenodo (Nazeer et al., Record ID: 10.5281/zenodo.4921127,
+    DOI: 10.5281/zenodo.4921127) to data/raw/dssc_dataset.csv.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download dssc_dataset.csv from Zenodo (Nazeer et al., Record ID: 10.5281/zenodo.4921127,
+    DOI: 10.5281/zenodo.4921127)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T21:58:53Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: Use torch-geometric version 2.4.0 and scikit-learn version 1.3.2
+  claim_id: c_2b2a76fc
+  context: 'T002 Initialize Python 3.11 project: Create code/requirements.txt with
+    pinned versions for {{claim:c_dc22c00d}}, torch-geometric==2.4.0, {{claim:c_22d5dbc4}},
+    scikit-learn==1.3.2, {{claim:c_f4e6ec6d}}, {{claim:c_f954c24c}}, {{claim:c_8d0fe271}}.'
+  evidence:
+    asserted: '2.4'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Create code/requirements.txt with pinned versions for torch-geometric==2.4.0
+    and scikit-learn==1.3.2.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T21:58:53Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: Project uses Python 3.11
+  claim_id: c_fee4e8d1
+  context: 'T002 Initialize Python 3.11 project: Create code/requirements.txt with
+    pinned versions...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Python 3.11 for the project.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T21:59:08Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: GCN architecture has 2 layers and hidden size 128
+  claim_id: c_86f3ec6f
+  context: "T017 [P] [US2] Implement code/models/gcn.py: Define GCN architecture (\u2264\
+    2 layers, hidden size 128) optimized for CPU execution (FR-003)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train GCN models with a maximum of 2 layers and a hidden size of 128.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T21:59:26Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: Use 5-fold scaffold-aware cross-validation
+  claim_id: c_b03f06e2
+  context: 'T016 [P] [US2] Implement code/data/split.py: Extract Bemis-Murcko scaffolds
+    and perform scaffold-aware 5-fold cross-validation split (FR-004).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform scaffold-aware 5-fold cross-validation split.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T21:59:51Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: Use paired t-test on fold-wise MAE for GCN and RF comparison
+  claim_id: c_f58e8702
+  context: 'T022 [US2] Implement code/analysis/stats.py: 1. Perform paired t-test
+    (PRIMARY) on fold-wise MAE between GCN and RF as required by FR-006 and SC-003.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_paired_t-test_on_fold-wise_MAE_for_GCN_and_RF_comparison
+  kind: entity_fact
+  raw_text: Perform a paired t-test on fold-wise MAE between GCN and Random Forest
+    models.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T22:00:26Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: Calculate Cohen's d effect size for GCN and RF comparison
+  claim_id: c_c1430f28
+  context: 'T022 [US2] Implement code/analysis/stats.py: 2. Calculate Cohen''s d (PRIMARY)
+    effect size as required by SC-003.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_Cohen's_d_effect_size_for_GCN_and_RF_comparison
+  kind: entity_fact
+  raw_text: Calculate Cohen's d effect size for the comparison between GCN and Random
+    Forest models.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T22:02:49Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: Fallback method must produce at least 5 distinct non-isomorphic substructures
+  claim_id: c_ae163a11
+  context: 'T026 [P] [US3] Implement code/analysis/interpret.py: ...Critical Verification:
+    If the fallback method is used, verify that it produces at least 5 distinct (non-isomorphic)
+    substructures.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fallback_method_must_produce_at_least_5_distinct_non-isomorp
+  kind: magnitude
+  raw_text: Verify that motif extraction produces at least 5 distinct (non-isomorphic)
+    substructures if the fallback method is used.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T22:03:12Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: Peak memory usage less than 6GB during training
+  claim_id: c_34572195
+  context: 'T035 [P] Performance: Implement batch processing in code/models/train.py
+    to ensure peak memory usage < 6GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_less_than_6GB_during_training
+  kind: magnitude
+  raw_text: Ensure peak memory usage is less than 6GB during batch processing in model
+    training.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T22:03:35Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: DSSC dataset from Zenodo Nazeer et al. Record ID 10.5281/zenodo.4921127
+  claim_id: c_cd8a0660
+  context: 'T009 [US1] Implement code/data/download.py (Download Only): 1. Download
+    dssc_dataset.csv from Zenodo (Nazeer et al., Record ID: 10.5281/zenodo.4921127,
+    DOI: 10.5281/zenodo.4921127) to data/raw/dssc_dataset.csv.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download dssc_dataset.csv from Zenodo (Nazeer et al., Record ID: 10.5281/zenodo.4921127,
+    DOI: 10.5281/zenodo.4921127)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T22:04:29Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: Download dssc_dataset.csv from Zenodo Record ID 10.5281/zenodo.4921127
+    by Nazeer et al.
+  claim_id: c_4d61fee5
+  context: 'Implement code/data/download.py (Download Only): Download dssc_dataset.csv
+    from Zenodo (Nazeer et al., Record ID: 10.5281/zenodo.4921127, DOI: 10.5281/zenodo.4921127)
+    to data/raw/dssc_dataset.csv.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download dssc_dataset.csv from Zenodo (Nazeer et al., Record ID: 10.5281/zenodo.4921127,
+    DOI: 10.5281/zenodo.4921127)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T22:05:27Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: torch-geometric version 2.4.0 required
+  claim_id: c_e868c471
+  context: 'Initialize Python 3.11 project: Create code/requirements.txt with pinned
+    versions for ... torch-geometric==2.4.0 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: torch-geometric==2.4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T22:05:47Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.3.2 required
+  claim_id: c_ce782fbf
+  context: 'Initialize Python 3.11 project: Create code/requirements.txt with pinned
+    versions for ... scikit-learn==1.3.2 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.3.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T22:06:12Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: dssc_dataset.csv available at Zenodo DOI 10.5281/zenodo.4921127
+  claim_id: c_b17a2b9c
+  context: 'T009 [US1] Implement code/data/download.py (Download Only): 1. Download
+    dssc_dataset.csv from Zenodo (Nazeer et al., Record ID: 10.5281/zenodo.4921127,
+    DOI: 10.5281/zenodo.4921127) to data/raw/dssc_dataset.csv.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download dssc_dataset.csv from Zenodo (Nazeer et al., Record ID: 10.5281/zenodo.4921127,
+    DOI: 10.5281/zenodo.4921127) to data/raw/dssc_dataset.csv.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T22:06:55Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: DSSC dataset available on Zenodo with DOI 10.5281/zenodo.4921127
+  claim_id: c_7dcddd32
+  context: 'Phase 3: User Story 1 - Data Acquisition and Pre-processing Pipeline.
+    Task T009: Download dssc_dataset.csv from Zenodo (Nazeer et al., Record ID: 10.5281/zenodo.4921127,
+    DOI: 10.5281/zenodo.4921127) to data/raw/dssc_dataset.csv.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download dssc_dataset.csv from Zenodo (Nazeer et al., Record ID: 10.5281/zenodo.4921127,
+    DOI: 10.5281/zenodo.4921127)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T22:07:48Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: torch-geometric version 2.4.0
+  claim_id: c_064d5aca
+  context: 'Phase 1: Setup. Task T002: Initialize Python 3.11 project with pinned
+    versions for torch-geometric==2.4.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: torch-geometric==2.4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T22:07:48Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.3.2
+  claim_id: c_846c8cb5
+  context: 'Phase 1: Setup. Task T002: Initialize Python 3.11 project with pinned
+    versions for scikit-learn==1.3.2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.3.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T22:07:48Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: Python 3.11 environment
+  claim_id: c_82eda097
+  context: 'Phase 1: Setup. Task T002: Initialize Python 3.11 project.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Python 3.11
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T22:08:06Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: scaffold-aware 5-fold cross-validation
+  claim_id: c_a372bd05
+  context: 'Phase 4: User Story 2. Task T016: Extract Bemis-Murcko scaffolds and perform
+    scaffold-aware 5-fold cross-validation split.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scaffold-aware 5-fold cross-validation split
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T22:08:53Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: GCN architecture with 2 layers and hidden size 128
+  claim_id: c_8fd9276e
+  context: "Phase 4: User Story 2. Task T017: Define GCN architecture (\u22642 layers,\
+    \ hidden size 128) optimized for CPU execution."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "GCN architecture (\u22642 layers, hidden size 128)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T22:08:53Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: training completes within 6 hours
+  claim_id: c_e71ced8b
+  context: 'Phase 4: User Story 2. Independent Test: Run code/models/train.py to verify
+    completion within 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: training completes within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T22:09:18Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: peak memory usage less than 6GB
+  claim_id: c_48e8a395
+  context: 'Phase N: Polish & Cross-Cutting Concerns. Task T035: Implement batch processing
+    to ensure peak memory usage < 6GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_less_than_6GB
+  kind: magnitude
+  raw_text: peak memory usage < 6GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T22:09:33Z'

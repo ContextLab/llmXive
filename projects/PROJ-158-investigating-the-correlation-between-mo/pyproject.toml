@@ -1,10 +1,33 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-dssc"
+version = "0.1.0"
+description = "Investigating the Correlation Between Molecular Structure and DSSC Performance"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "torch>=2.0.0",
+    "torch-geometric==2.4.0",
+    "scikit-learn==1.3.2",
+    "rdkit>=2023.9.0",
+    "requests>=2.31.0",
+    "pyyaml>=6.0",
+    "tqdm>=4.66.0",
+]
+
 [tool.black]
-line-length = 88
+line-length = 100
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.git
+    \.eggs
+  | \.git
   | \.hg
   | \.mypy_cache
   | \.tox
@@ -15,3 +38,16 @@ exclude = '''
   | dist
 )/
 '''
+
+[tool.setuptools.packages.find]
+where = ["code"]
+# Exclude test packages from the main install
+exclude = ["tests*"]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+]

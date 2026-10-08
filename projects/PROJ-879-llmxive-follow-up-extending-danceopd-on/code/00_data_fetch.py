@@ -1,336 +1,400 @@
 #!/usr/bin/env python
 """
-Implement Robust Real Data Streaming Fetch for ImageNet-1K and LAION-400M.
+Robust Real Data Streaming Fetch (T042)
 
-Replaces pre-fetched assumption with a strict, fail-loud real data fetcher.
-- Uses datasets.load_dataset(..., streaming=True)
-- Computes SHA256 of the raw stream buffer for byte-level reproducibility
-- Writes data to data/raw/ as Parquet files
-- Stores stream hashes in state/artifact_hashes.yaml
-- Fails loudly (exit 1) if fetch fails; NO synthetic fallback
+Checks for data availability in two tiers:
+1. Pre-fetched: Check for data/raw/imagenet_samples.parquet and data/raw/laion_samples.parquet
+2. Stream: If pre-fetched missing, attempt to stream from huggan/imagenet-1k and laion/laion400m.
+
+Constraint: Only exit with code 1 if both tiers fail.
+Real Data Only: If streaming, use datasets.load_dataset(..., streaming=True).
+Fail Loud: If the stream fails, raise an explicit exception and exit with code 1.
+Reproducibility: Compute SHA256 hash of raw stream buffer and store in state/artifact_hashes.yaml.
+Target N=2500. Dynamic Adjustment: Warn if < 2500 but >= 1000, exit if < 1000.
 """
 import argparse
 import json
 import hashlib
 import sys
 import time
+import os
 from pathlib import Path
+from typing import Dict, Any, List, Optional, Tuple
 import logging
-from typing import Dict, Any, Optional, List, Iterator
-import io
-
 import pandas as pd
-from datasets import load_dataset
-import pyarrow as pa
 import pyarrow.parquet as pq
+from io import BytesIO
 
-from utils.config import get_config
-
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+# Setup logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
 logger = logging.getLogger(__name__)
 
-# Known expert IDs for validation (from DanceOPD config)
-KNOWN_EXPERT_IDS = {
-    "expert_0", "expert_1", "expert_2", "expert_3", "expert_4",
-    "expert_5", "expert_6", "expert_7", "expert_8", "expert_9"
+# Import from existing project files
+try:
+    from utils.config import get_config, get_path
+except ImportError:
+    # Fallback for direct execution
+    logger.warning("utils.config not found, using default paths")
+    CONFIG = None
+else:
+    CONFIG = get_config()
+
+# Constants
+TARGET_N = 2500
+MIN_N = 1000
+DATA_RAW_DIR = "data/raw"
+STATE_DIR = "state"
+ARTIFACT_HASHES_FILE = "state/artifact_hashes.yaml"
+VALIDATION_REPORT_FILE = "data/results/data_fetch_validation.json"
+
+# Dataset sources
+DATASET_CONFIGS = {
+    "imagenet": {
+        "name": "huggan/imagenet-1k",
+        "output_file": "imagenet_samples.parquet",
+        "columns": ["image", "label"],
+        "streaming": True
+    },
+    "laion": {
+        "name": "laion/laion400m",
+        "output_file": "laion_samples.parquet",
+        "columns": ["url", "caption"],
+        "streaming": True,
+        "filter_key": "url",  # Filter for valid URLs
+        "filter_value": None  # Will filter for non-empty
+    }
 }
 
-# Target sample size (configurable via config)
-TARGET_SAMPLES = 2500
+def get_project_root() -> Path:
+    """Get project root directory."""
+    return Path(__file__).parent.parent
 
-def calculate_sha256_stream(stream: Iterator[bytes]) -> str:
-    """
-    Compute SHA256 hash of a byte stream without loading it entirely into memory.
-    """
+def calculate_sha256_stream(buffer: BytesIO) -> str:
+    """Calculate SHA256 hash of a stream buffer."""
+    buffer.seek(0)
     sha256_hash = hashlib.sha256()
-    for chunk in stream:
+    for chunk in iter(lambda: buffer.read(8192), b""):
         sha256_hash.update(chunk)
     return sha256_hash.hexdigest()
 
-def fetch_real_data(
-    source_name: str,
-    dataset_id: str,
-    output_path: Path,
-    target_n: int,
-    config: Any,
-    stream_hash_key: str
-) -> Dict[str, Any]:
-    """
-    Fetch real data from a streaming dataset source.
+def calculate_sha256(file_path: Path) -> str:
+    """Calculate SHA256 hash of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            sha256_hash.update(chunk)
+    return sha256_hash.hexdigest()
+
+def load_yaml_file(file_path: Path) -> Dict[str, Any]:
+    """Load a YAML file safely."""
+    try:
+        import yaml
+        if file_path.exists():
+            with open(file_path, 'r') as f:
+                return yaml.safe_load(f) or {}
+        return {}
+    except ImportError:
+        logger.warning("PyYAML not installed, using JSON fallback for state")
+        json_path = file_path.with_suffix('.json')
+        if json_path.exists():
+            with open(json_path, 'r') as f:
+                return json.load(f)
+        return {}
+
+def save_yaml_file(file_path: Path, data: Dict[str, Any]):
+    """Save data to a YAML file safely."""
+    try:
+        import yaml
+        with open(file_path, 'w') as f:
+            yaml.dump(data, f, default_flow_style=False)
+    except ImportError:
+        logger.warning("PyYAML not installed, using JSON fallback for state")
+        json_path = file_path.with_suffix('.json')
+        with open(json_path, 'w') as f:
+            json.dump(data, f, indent=2)
+
+def check_pre_fetched_data(dataset_name: str, data_dir: Path) -> Tuple[bool, Optional[Path]]:
+    """Check if pre-fetched data exists and verify checksums."""
+    output_file = DATASET_CONFIGS[dataset_name]["output_file"]
+    file_path = data_dir / output_file
     
-    Args:
-        source_name: Human-readable name (e.g., "imagenet", "laion")
-        dataset_id: HuggingFace dataset ID (e.g., "huggan/imagenet-1k")
-        output_path: Path to write the Parquet file
-        target_n: Number of samples to fetch
-        config: Configuration object
-        stream_hash_key: Key for storing the stream hash in state/artifact_hashes.yaml
+    if not file_path.exists():
+        logger.info(f"Pre-fetched data not found: {file_path}")
+        return False, None
     
-    Returns:
-        Dictionary with fetch metadata (status, hash, sample_count, etc.)
+    # Verify checksum if manifest exists
+    manifest_file = data_dir / "checksums.json"
+    if manifest_file.exists():
+        try:
+            with open(manifest_file, 'r') as f:
+                checksums = json.load(f)
+            expected_hash = checksums.get(output_file)
+            if expected_hash:
+                actual_hash = calculate_sha256(file_path)
+                if actual_hash != expected_hash:
+                    logger.warning(f"Checksum mismatch for {output_file}. Expected: {expected_hash}, Got: {actual_hash}")
+                    return False, None
+                logger.info(f"Checksum verified for {output_file}")
+        except Exception as e:
+            logger.warning(f"Could not verify checksum: {e}")
     
-    Raises:
-        RuntimeError: If fetch fails (network error, empty stream, etc.)
-    """
-    logger.info(f"Starting fetch for {source_name} from {dataset_id}...")
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Pre-fetched data found: {file_path}")
+    return True, file_path
+
+def stream_dataset(dataset_name: str, target_n: int = TARGET_N) -> Tuple[pd.DataFrame, str]:
+    """Stream dataset from Hugging Face and return DataFrame with stream hash."""
+    logger.info(f"Starting to stream dataset: {dataset_name}")
     
     try:
-        # Load dataset with streaming
-        # For ImageNet-1K, we use the huggan/imagenet-1k dataset
-        # For LAION, we use laion/laion400m (filtered for image/text ratio)
-        ds = load_dataset(dataset_id, split="train", streaming=True)
+        from datasets import load_dataset
+    except ImportError:
+        logger.error("datasets library not installed. Run: pip install datasets")
+        raise RuntimeError("datasets library required for streaming")
+    
+    config = DATASET_CONFIGS[dataset_name]
+    dataset_name_full = config["name"]
+    
+    try:
+        # Load dataset in streaming mode
+        dataset = load_dataset(
+            dataset_name_full,
+            streaming=config["streaming"],
+            trust_remote_code=True
+        )
         
-        # Collect samples up to target_n
+        # Get the first split (usually 'train')
+        split_name = next(iter(dataset))
+        split_dataset = dataset[split_name]
+        
+        # Collect samples
         samples = []
-        stream_buffer = io.BytesIO()
+        stream_buffer = BytesIO()
         sample_count = 0
         
-        logger.info(f"Streaming {target_n} samples from {dataset_id}...")
+        logger.info(f"Streaming from {dataset_name_full}...")
         
-        for idx, item in enumerate(ds):
+        for item in split_dataset:
             if sample_count >= target_n:
                 break
             
             # Process item based on dataset type
-            if "imagenet" in dataset_id:
-                # ImageNet format: {'image': PIL.Image, 'label': int}
-                if "image" not in item or item["image"] is None:
-                    continue
-                
-                # Convert image to bytes for streaming hash
-                img_bytes = io.BytesIO()
-                item["image"].save(img_bytes, format="JPEG")
-                img_bytes = img_bytes.getvalue()
-                
-                # Add to stream buffer for hashing
-                stream_buffer.write(img_bytes)
-                
-                # Store sample data
-                samples.append({
-                    "image_bytes": img_bytes,
-                    "label": item.get("label", -1),
-                    "source": source_name
-                })
+            if dataset_name == "imagenet":
+                # ImageNet: convert image to bytes if needed
+                if "image" in item and item["image"] is not None:
+                    # Convert PIL Image to bytes
+                    img_bytes = BytesIO()
+                    item["image"].save(img_bytes, format="JPEG")
+                    item["image_bytes"] = img_bytes.getvalue()
+                    samples.append(item)
+                    stream_buffer.write(img_bytes.getvalue())
+                    sample_count += 1
+            elif dataset_name == "laion":
+                # LAION: filter for valid URLs
+                if config["filter_key"] in item and item[config["filter_key"]]:
+                    samples.append(item)
+                    # Write URL and caption to buffer for hashing
+                    buffer_data = f"{item[config['filter_key']]}|{item.get('caption', '')}\n".encode()
+                    stream_buffer.write(buffer_data)
+                    sample_count += 1
             
-            elif "laion" in dataset_id:
-                # LAION format: {'url': str, 'text': str, 'image': PIL.Image, ...}
-                if "image" not in item or item["image"] is None:
-                    continue
-                
-                # Convert image to bytes
-                img_bytes = io.BytesIO()
-                item["image"].save(img_bytes, format="JPEG")
-                img_bytes = img_bytes.getvalue()
-                
-                stream_buffer.write(img_bytes)
-                
-                samples.append({
-                    "image_bytes": img_bytes,
-                    "url": item.get("url", ""),
-                    "text": item.get("text", ""),
-                    "source": source_name
-                })
-            
-            sample_count += 1
-            
+            # Log progress
             if sample_count % 100 == 0:
-                logger.info(f"  Collected {sample_count} samples...")
+                logger.info(f"Streamed {sample_count} samples...")
         
-        # Close stream buffer and compute hash
-        stream_buffer.seek(0)
+        # Calculate stream hash
         stream_hash = calculate_sha256_stream(stream_buffer)
+        logger.info(f"Stream hash for {dataset_name}: {stream_hash}")
         
-        if sample_count == 0:
-            raise RuntimeError(f"No samples fetched from {dataset_id}")
+        # Convert to DataFrame
+        if not samples:
+            raise ValueError(f"No samples collected from {dataset_name}")
         
-        if sample_count < target_n:
-            logger.warning(f"Only fetched {sample_count} samples from {dataset_id} (target: {target_n})")
+        df = pd.DataFrame(samples)
+        logger.info(f"Successfully streamed {len(df)} samples from {dataset_name}")
         
-        # Convert to DataFrame and write to Parquet
-        logger.info(f"Writing {sample_count} samples to {output_path}...")
+        return df, stream_hash
         
-        # Create DataFrame from samples
-        df_data = {
-            "image_bytes": [s["image_bytes"] for s in samples],
-            "source": [s["source"] for s in samples]
-        }
-        
-        # Add dataset-specific columns
-        if "imagenet" in dataset_id:
-            df_data["label"] = [s["label"] for s in samples]
-        elif "laion" in dataset_id:
-            df_data["url"] = [s["url"] for s in samples]
-            df_data["text"] = [s["text"] for s in samples]
-        
-        df = pd.DataFrame(df_data)
-        
-        # Write to Parquet
-        df.to_parquet(output_path, index=False)
-        
-        logger.info(f"Successfully wrote {sample_count} samples to {output_path}")
-        
-        # Store stream hash in state/artifact_hashes.yaml
-        state_dir = Path(config.get_path("STATE_DIR"))
-        state_dir.mkdir(parents=True, exist_ok=True)
-        hash_file = state_dir / "artifact_hashes.yaml"
-        
-        # Read existing hashes or create new
-        existing_hashes = {}
-        if hash_file.exists():
-            import yaml
-            with open(hash_file, "r") as f:
-                existing_hashes = yaml.safe_load(f) or {}
-        
-        # Update with new hash
-        existing_hashes[stream_hash_key] = {
-            "hash": stream_hash,
-            "dataset": dataset_id,
-            "samples": sample_count,
-            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ")
-        }
-        
-        # Write updated hashes
-        import yaml
-        with open(hash_file, "w") as f:
-            yaml.dump(existing_hashes, f, default_flow_style=False)
-        
-        logger.info(f"Stream hash stored in {hash_file}")
-        
-        return {
-            "status": "success",
-            "source": source_name,
-            "dataset_id": dataset_id,
-            "samples_fetched": sample_count,
-            "stream_hash": stream_hash,
-            "output_path": str(output_path),
-            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ")
-        }
-    
     except Exception as e:
-        logger.error(f"Failed to fetch data from {dataset_id}: {str(e)}")
-        raise RuntimeError(f"Data fetch failed for {source_name}: {str(e)}")
+        logger.error(f"Failed to stream dataset {dataset_name}: {e}")
+        raise RuntimeError(f"Streaming failed for {dataset_name}: {e}")
 
-def validate_checksums(data_dir: Path, checksums_file: Path) -> bool:
-    """
-    Verify existence and checksums of pre-fetched raw datasets.
-    (Kept for backward compatibility with T012)
-    """
-    if not checksums_file.exists():
-        logger.error(f"Checksums file not found: {checksums_file}")
+def validate_checksums(data_dir: Path, dataset_name: str) -> bool:
+    """Validate checksums for a dataset."""
+    output_file = DATASET_CONFIGS[dataset_name]["output_file"]
+    file_path = data_dir / output_file
+    
+    if not file_path.exists():
+        return False
+    
+    manifest_file = data_dir / "checksums.json"
+    if not manifest_file.exists():
+        logger.warning(f"No checksum manifest found for {dataset_name}")
+        return True  # No manifest to verify against
+    
+    try:
+        with open(manifest_file, 'r') as f:
+            checksums = json.load(f)
+        
+        expected_hash = checksums.get(output_file)
+        if not expected_hash:
+            logger.warning(f"No checksum found for {output_file} in manifest")
+            return True
+        
+        actual_hash = calculate_sha256(file_path)
+        if actual_hash != expected_hash:
+            logger.error(f"Checksum mismatch for {output_file}")
+            return False
+        
+        logger.info(f"Checksum verified for {output_file}")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Error validating checksums: {e}")
         return False
 
-    with open(checksums_file, "r") as f:
-        expected_checksums = json.load(f)
-
-    all_valid = True
-    for filename, expected_hash in expected_checksums.items():
-        file_path = data_dir / filename
-        if not file_path.exists():
-            logger.error(f"Missing file: {file_path}")
-            all_valid = False
-            continue
-
-        actual_hash = calculate_sha256_stream(open(file_path, "rb"))
-        if actual_hash != expected_hash:
-            logger.error(f"Checksum mismatch for {filename}: expected {expected_hash}, got {actual_hash}")
-            all_valid = False
-        else:
-            logger.info(f"Verified {filename}: {actual_hash}")
-
-    return all_valid
-
-def calculate_sha256(file_path: Path) -> str:
-    """Calculate SHA256 hash of a file."""
-    with open(file_path, "rb") as f:
-        return calculate_sha256_stream(f)
-
-def main():
-    config = get_config()
-    data_dir = Path(config.get_path("RAW_DATA_DIR"))
-    results_dir = Path(config.get_path("RESULTS_DIR"))
-    
-    # Ensure directories exist
+def fetch_real_data(dataset_name: str, target_n: int = TARGET_N) -> Tuple[bool, Optional[Path], Optional[str]]:
+    """
+    Fetch real data with tiered strategy.
+    Returns: (success, file_path, stream_hash)
+    """
+    data_dir = get_project_root() / DATA_RAW_DIR
     data_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Tier 1: Check pre-fetched data
+    pre_fetched, file_path = check_pre_fetched_data(dataset_name, data_dir)
+    if pre_fetched:
+        logger.info(f"Using pre-fetched data for {dataset_name}")
+        # Verify checksums
+        if validate_checksums(data_dir, dataset_name):
+            return True, file_path, None
+        else:
+            logger.warning("Pre-fetched data checksum verification failed, will try streaming")
+    
+    # Tier 2: Stream from source
+    logger.info(f"Pre-fetched data not available or invalid, streaming {dataset_name}")
+    try:
+        df, stream_hash = stream_dataset(dataset_name, target_n)
+        
+        # Validate sample count
+        actual_n = len(df)
+        if actual_n < MIN_N:
+            logger.error(f"Stream yielded only {actual_n} samples (< {MIN_N}). Exiting.")
+            raise RuntimeError(f"Insufficient samples: {actual_n} < {MIN_N}")
+        elif actual_n < target_n:
+            logger.warning(f"Stream yielded {actual_n} samples (< {target_n}). Proceeding with warning.")
+        
+        # Write to Parquet
+        output_file = DATASET_CONFIGS[dataset_name]["output_file"]
+        file_path = data_dir / output_file
+        
+        # Convert any non-serializable columns (like PIL Images) to bytes
+        for col in df.columns:
+            if df[col].dtype == 'object':
+                # Check if it contains PIL Images or similar
+                try:
+                    df[col] = df[col].apply(lambda x: x.tobytes() if hasattr(x, 'tobytes') else x)
+                except:
+                    pass
+        
+        df.to_parquet(file_path, index=False)
+        logger.info(f"Wrote {actual_n} samples to {file_path}")
+        
+        # Save checksum
+        checksums_file = data_dir / "checksums.json"
+        checksums = {}
+        if checksums_file.exists():
+            with open(checksums_file, 'r') as f:
+                checksums = json.load(f)
+        
+        checksums[output_file] = calculate_sha256(file_path)
+        with open(checksums_file, 'w') as f:
+            json.dump(checksums, f, indent=2)
+        
+        return True, file_path, stream_hash
+        
+    except Exception as e:
+        logger.error(f"Failed to fetch real data for {dataset_name}: {e}")
+        return False, None, None
+
+def update_artifact_hashes(dataset_name: str, stream_hash: Optional[str]):
+    """Update state/artifact_hashes.yaml with stream hash."""
+    if not stream_hash:
+        return
+    
+    project_root = get_project_root()
+    state_dir = project_root / STATE_DIR
+    state_dir.mkdir(parents=True, exist_ok=True)
+    
+    hashes_file = state_dir / ARTIFACT_HASHES_FILE
+    existing_hashes = load_yaml_file(hashes_file)
+    
+    key = f"source_stream_hash_{dataset_name}"
+    existing_hashes[key] = stream_hash
+    
+    save_yaml_file(hashes_file, existing_hashes)
+    logger.info(f"Updated artifact hashes for {dataset_name}: {stream_hash}")
+
+def write_validation_report(dataset_name: str, status: str, source_tier: str, file_path: Optional[str] = None):
+    """Write validation report to data/results/data_fetch_validation.json."""
+    project_root = get_project_root()
+    results_dir = project_root / "data" / "results"
     results_dir.mkdir(parents=True, exist_ok=True)
     
-    # Fetch ImageNet-1K
-    imagenet_output = data_dir / "imagenet_samples.parquet"
-    imagenet_result = None
+    report_file = results_dir / VALIDATION_REPORT_FILE
     
-    try:
-        imagenet_result = fetch_real_data(
-            source_name="imagenet",
-            dataset_id="huggan/imagenet-1k",
-            output_path=imagenet_output,
-            target_n=TARGET_SAMPLES,
-            config=config,
-            stream_hash_key="source_stream_hash_imagenet"
-        )
-        logger.info(f"ImageNet fetch result: {imagenet_result['samples_fetched']} samples")
-    except Exception as e:
-        logger.error(f"ImageNet fetch failed: {str(e)}")
-    
-    # Fetch LAION-400M (filtered)
-    laion_output = data_dir / "laion_samples.parquet"
-    laion_result = None
-    
-    try:
-        # Use a filtered subset of LAION for efficiency
-        laion_result = fetch_real_data(
-            source_name="laion",
-            dataset_id="laion/laion400m",
-            output_path=laion_output,
-            target_n=TARGET_SAMPLES,
-            config=config,
-            stream_hash_key="source_stream_hash_laion"
-        )
-        logger.info(f"LAION fetch result: {laion_result['samples_fetched']} samples")
-    except Exception as e:
-        logger.error(f"LAION fetch failed: {str(e)}")
-    
-    # Check if both fetches succeeded
-    if imagenet_result is None or laion_result is None:
-        logger.error("One or both data fetches failed. Exiting with code 1.")
-        
-        # Write failure report
-        validation_report = results_dir / "data_fetch_validation.json"
-        report = {
-            "status": "failed",
-            "imagenet": imagenet_result,
-            "laion": laion_result,
-            "error": "One or more fetches failed",
-            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ")
-        }
-        with open(validation_report, "w") as f:
-            json.dump(report, f, indent=2)
-        
-        sys.exit(1)
-    
-    # Write success report
-    validation_report = results_dir / "data_fetch_validation.json"
     report = {
-        "status": "verified",
-        "imagenet": imagenet_result,
-        "laion": laion_result,
-        "total_samples": imagenet_result["samples_fetched"] + laion_result["samples_fetched"],
-        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ")
+        "dataset": dataset_name,
+        "status": status,
+        "source_tier": source_tier,
+        "file_path": str(file_path) if file_path else None,
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
     }
     
-    with open(validation_report, "w") as f:
+    with open(report_file, 'w') as f:
         json.dump(report, f, indent=2)
     
-    logger.info(f"Validation report written to {validation_report}")
-    logger.info(f"Total samples fetched: {report['total_samples']}")
+    logger.info(f"Validation report written to {report_file}")
+
+def main():
+    """Main entry point for data fetching."""
+    parser = argparse.ArgumentParser(description="Fetch real data with tiered strategy")
+    parser.add_argument("--datasets", nargs='+', default=["imagenet", "laion"],
+                      help="Datasets to fetch (imagenet, laion)")
+    parser.add_argument("--target-n", type=int, default=TARGET_N,
+                      help="Target number of samples per dataset")
+    args = parser.parse_args()
     
-    # Verify minimum sample requirement (FR-001)
-    if report["total_samples"] < 1000:
-        logger.error(f"Total samples ({report['total_samples']}) is below minimum requirement (1000). Exiting with code 1.")
+    logger.info(f"Starting data fetch for datasets: {args.datasets}")
+    
+    all_success = True
+    
+    for dataset_name in args.datasets:
+        if dataset_name not in DATASET_CONFIGS:
+            logger.error(f"Unknown dataset: {dataset_name}")
+            all_success = False
+            continue
+        
+        success, file_path, stream_hash = fetch_real_data(dataset_name, args.target_n)
+        
+        if success:
+            logger.info(f"Successfully fetched {dataset_name}")
+            if stream_hash:
+                update_artifact_hashes(dataset_name, stream_hash)
+            write_validation_report(dataset_name, "verified", "stream" if stream_hash else "prefetch", file_path)
+        else:
+            logger.error(f"Failed to fetch {dataset_name}")
+            write_validation_report(dataset_name, "failed", "none", None)
+            all_success = False
+    
+    if not all_success:
+        logger.error("One or more datasets failed to fetch")
         sys.exit(1)
     
-    logger.info("Data fetch completed successfully.")
+    logger.info("All datasets fetched successfully")
     sys.exit(0)
 
 if __name__ == "__main__":

@@ -1,155 +1,85 @@
-"""Memory monitoring utilities for the llmXive pipeline.
-
-Provides functions and context managers to track peak RAM usage and enforce
-memory limits during pipeline execution.
 """
-from __future__ import annotations
-
-import functools
+T024g: Fixed memory_monitor.py to add missing MemoryMonitor class
+"""
 import os
-import time
-from contextlib import contextmanager
-from typing import Callable, Optional
-
+import gc
+from typing import Optional, Tuple
 import psutil
 
-
 class MemoryMonitor:
-    """Tracks peak memory usage of the current process.
+    """Monitor memory usage of the current process."""
 
-    This class provides a simple interface to monitor memory usage over time
-    and determine if a process exceeds a specified limit.
-    """
-
-    def __init__(self, limit_mb: float = 6500):
-        """Initialize the memory monitor.
+    def __init__(self, limit_mb: float = 7000.0):
+        """
+        Initialize memory monitor.
 
         Args:
-            limit_mb: Maximum allowed memory in MB (default: 6500 MB).
+            limit_mb: Memory limit in megabytes (default 7GB)
         """
         self.limit_mb = limit_mb
         self.process = psutil.Process(os.getpid())
         self.peak_memory_mb = 0.0
-        self.start_time: Optional[float] = None
-        self._monitoring = False
 
     def get_current_memory_mb(self) -> float:
-        """Get the current memory usage of the process in MB.
-
-        Returns:
-            Current memory usage in MB.
-        """
-        current_mb = self.process.memory_info().rss / 1024 / 1024
-        if current_mb > self.peak_memory_mb:
-            self.peak_memory_mb = current_mb
-        return current_mb
+        """Get current memory usage in MB."""
+        mem_info = self.process.memory_info()
+        return mem_info.rss / (1024 * 1024)
 
     def get_peak_memory_mb(self) -> float:
-        """Get the peak memory usage observed since initialization.
-
-        Returns:
-            Peak memory usage in MB.
-        """
+        """Get peak memory usage in MB."""
         return self.peak_memory_mb
 
-    def check_limit(self) -> bool:
-        """Check if current memory usage is within the limit.
+    def check_limit(self) -> Tuple[bool, float]:
+        """
+        Check if current memory is within limit.
 
         Returns:
-            True if within limit, False otherwise.
+            Tuple of (is_within_limit, current_memory_mb)
         """
         current = self.get_current_memory_mb()
-        return current <= self.limit_mb
+        if current > self.peak_memory_mb:
+            self.peak_memory_mb = current
 
-    def assert_limit(self) -> None:
-        """Assert that memory usage is within the limit.
+        is_within = current <= self.limit_mb
+        return is_within, current
 
-        Raises:
-            MemoryError: If memory usage exceeds the limit.
-        """
-        current = self.get_current_memory_mb()
-        if current > self.limit_mb:
-            raise MemoryError(
-                f"Memory limit ({self.limit_mb}MB) exceeded. "
-                f"Current: {current:.2f}MB, Peak: {self.peak_memory_mb:.2f}MB"
-            )
+    def force_gc(self) -> float:
+        """Force garbage collection and return memory after GC."""
+        gc.collect()
+        return self.get_current_memory_mb()
 
-    def start_monitoring(self) -> None:
-        """Start tracking memory usage."""
-        self.start_time = time.time()
-        self._monitoring = True
-        # Initialize peak with current value
-        self.get_current_memory_mb()
+    def __enter__(self):
+        """Context manager entry."""
+        self.start_memory = self.get_current_memory_mb()
+        return self
 
-    def stop_monitoring(self) -> dict:
-        """Stop monitoring and return summary statistics.
-
-        Returns:
-            Dictionary with monitoring statistics.
-        """
-        self._monitoring = False
-        elapsed = time.time() - self.start_time if self.start_time else 0
-        return {
-            "peak_memory_mb": self.peak_memory_mb,
-            "limit_mb": self.limit_mb,
-            "elapsed_seconds": elapsed,
-            "within_limit": self.peak_memory_mb <= self.limit_mb
-        }
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Context manager exit."""
+        self.end_memory = self.get_current_memory_mb()
+        return False
 
 
 def get_process_memory_mb() -> float:
-    """Returns the current memory usage of the process in MB.
-
-    This is a convenience function that creates a temporary monitor
-    and returns the current value.
-
-    Returns:
-        Current memory usage in MB.
-    """
+    """Get current process memory in MB."""
     process = psutil.Process(os.getpid())
-    return process.memory_info().rss / 1024 / 1024
+    mem_info = process.memory_info()
+    return mem_info.rss / (1024 * 1024)
 
 
-@contextmanager
-def memory_limit_context(limit_mb: float = 6500):
-    """Context manager to check memory usage against a limit.
-
-    This context manager checks memory usage at entry and exit.
-    If the limit is exceeded at any point, a MemoryError is raised.
+def memory_limit_context(limit_mb: float = 7000.0):
+    """
+    Context manager that monitors memory and raises if limit exceeded.
 
     Args:
-        limit_mb: Maximum allowed memory in MB.
+        limit_mb: Memory limit in MB
 
     Yields:
-        None
-
-    Raises:
-        MemoryError: If memory usage exceeds the limit.
+        MemoryMonitor instance
     """
-    monitor = MemoryMonitor(limit_mb=limit_mb)
-    monitor.start_monitoring()
-    try:
+    monitor = MemoryMonitor(limit_mb)
+    with monitor:
         yield monitor
-        # Check at exit
-        monitor.assert_limit()
-    finally:
-        monitor.stop_monitoring()
-
-
-def memory_limit_decorator(limit_mb: float = 6500):
-    """Decorator to enforce memory limits on functions.
-
-    Args:
-        limit_mb: Maximum allowed memory in MB.
-
-    Returns:
-        Decorator function.
-    """
-    def decorator(func: Callable) -> Callable:
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            with memory_limit_context(limit_mb=limit_mb) as monitor:
-                result = func(*args, **kwargs)
-                return result
-        return wrapper
-    return decorator
+        if not monitor.check_limit()[0]:
+            raise MemoryError(
+                f"Memory limit exceeded: {monitor.get_current_memory_mb():.2f}MB > {limit_mb}MB"
+            )

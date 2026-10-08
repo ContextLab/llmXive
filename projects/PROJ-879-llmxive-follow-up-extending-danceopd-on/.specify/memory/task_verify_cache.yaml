@@ -12,16 +12,54 @@ T021d:
   r: No evidence of a metadata file being validated against `specs/contracts/DecisionTreeMetadata.json`
     is present, nor any indication that `state/` was updated with model hashes. The
     required artifacts are missing, so the task is not satisfied.
+T030a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim provides only the task description and specifications; there are no
+    actual artifacts such as computed FID or CLIP score values, result tables, or
+    any files demonstrating that the pilot images were evaluated. Consequently, the
+    required output is missing.
+T030b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., script output, variance values, log files, or report) showing\
+    \ that T030a was run on pilot images and that variance was estimated is present.\
+    \ The provided specification concerns unrelated teacher\u2011routing data generation\
+    \ and decision\u2011tree training, not the required pilot variance calculation.\
+    \ The task therefore lacks the necessary evidence of execution and results."
+T030c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided evidence only describes data\u2011generation and decision\u2011\
+    tree pipelines; there is no sample\u2011size or power\u2011analysis calculation,\
+    \ nor any artifact (e.g., a report, script, or numeric result) showing the required\
+    \ sample size derived from pilot variance. Consequently the core requirement of\
+    \ T030c is not met."
+T030d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact containing the computed FID and CLIP scores for the full images is
+    present; the claim provides only the task description and specifications, but
+    no data files, tables, or code outputs that demonstrate the required metrics have
+    been calculated. The required evidence is missing.
+T030e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No statistical test results, code, or data artifacts (e.g., bootstrap FID distributions,\
+    \ paired t\u2011test outputs on CLIP scores, or a summary report) were provided;\
+    \ therefore the requirement to \u201Cperform statistical tests \u2026 using bootstrap\
+    \ testing and paired t\u2011tests\u201D is not satisfied. The implementer must\
+    \ supply the actual test calculations, figures/tables, and any accompanying scripts\
+    \ or notebooks."
 T042:
   c: false
-  h: 3ea295f4205fb55b44fce535543c28ffb71ee0c3115f1e2511b3ddb7025aefec
+  h: 43ca4794eb5d9a6fbfd4536c55513c7e0b8615a668c73291a82f1d0b1d194d8d
   r: "The provided `code/00_data_fetch.py` is truncated and does not show the required\
-    \ pre\u2011fetch checks, checksum verification, tier\u2011selection logic, dynamic\u2011\
-    adjustment warnings, or writing of the computed stream hash to `state/artifact_hashes.yaml`.\
-    \ Moreover, the expected output files `data/raw/imagenet_samples.parquet` and\
-    \ `data/raw/laion_samples.parquet` are absent, and the hash file still contains\
-    \ placeholder values, indicating the script has not successfully fetched or stored\
-    \ real data. The task\u2019s core requirements are therefore not satisfied."
+    \ logic (checksum verification, per\u2011chunk SHA256 aggregation, proper exit\u2011\
+    code handling, warnings for <2500 samples, etc.). Moreover, `state/artifact_hashes.yaml`\
+    \ still contains placeholder `\"pending_fetch\"` values, indicating the script\
+    \ never performed the streaming fetch or recorded real hashes. The implementation\
+    \ therefore does not meet the task\u2019s specifications."
 T043:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

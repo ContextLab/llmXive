@@ -50,7 +50,7 @@
 - [X] T001e Create directory: `tests/`
 - [X] T001f Create directory: `docs/`
 - [X] T002a Initialize `requirements.txt` file in repository root with empty content or header comment.
-- [X] T002b Pin dependencies in `requirements.txt` with exact versions: `numpy==1.26.4`, `scipy==1.13.1`, `pandas==2.2.2`, `statsmodels==0.14.2`, `nibabel==5.2.1`, `scikit-learn==1.5.0`, `tqdm==4.66.4`, `requests==2.32.3`, `pytest==8.2.2`, `psutil==6.0.0`.
+- [X] T002b {{claim:c_d4d0efc0}}
 
 ---
 
@@ -77,7 +77,7 @@
 - [X] T006 [US1] Implement `code/data_loader.py` with functions to:
  1. **Validate existence** of `Creative_Problem_Solving.csv` and **halt execution** if missing (per FR-008)
  2. Load NIfTI volumes using `nibabel`
-- [ ] T007 [US1] Implement motion scrubbing in `code/data_loader.py` to filter time series based on FD, **exclude subjects with <100 remaining frames ** (logging to `data/logs/missing_data.log`), and log FD-based exclusions to `data/logs/motion_exclusions.log` per FR-006. **Additionally, initiate the [deferred] invalid parcels check** by counting NaNs per subject during loading and logging counts to `data/logs/parcel_quality.log` (detailed flagging logic in T015b).
+- [X] T007 [US1] Implement motion scrubbing in `code/data_loader.py` to filter time series based on FD, **exclude subjects with <100 remaining frames ** (logging to `data/logs/missing_data.log`), and log FD-based exclusions to `data/logs/motion_exclusions.log` per FR-006. **Additionally, initiate the [deferred] invalid parcels check** by counting NaNs per subject during loading and logging counts to `data/logs/parcel_quality.log` (detailed flagging logic in T015b).
  - *Note: This task is sequential relative to T006. Internal loops over subjects may be parallelized, but the task produces a global list required by downstream tasks.*
 - [ ] T007b [US1] Implement logic to **persist the list of valid subject IDs** to `data/processed/valid_subjects.csv` (CSV) so downstream tasks (T013, T022) can consume it. This file MUST be generated immediately after T007 completes.
 - [ ] T008 Setup `tests/` directory structure and `conftest.py` for shared fixtures (sample data paths, mock entropy vectors)
@@ -107,9 +107,9 @@
 - [X] T015 [US1] Implement parcel-level processing loop in `code/entropy.py` to iterate over HCP 360-parcel atlas using **scrubbed time series from T007/valid_subjects.csv**, handling NaNs per FR-001.
  - **Input**: HCP Atlas definition file (external input).
  - **Output**: Per-parcel entropy values.
-- [ ] T015b [US1] Implement logic in `code/entropy.py` to **flag subjects for manual review if >10% of parcels are invalid ** (NaN) and log to `data/logs/invalid_parcels.log` per Edge Cases. This task consumes the parcel counts logged in T007.
+- [X] T015b [US1] Implement logic in `code/entropy.py` to **flag subjects for manual review if >10% of parcels are invalid ** (NaN) and log to `data/logs/invalid_parcels.log` per Edge Cases. This task consumes the parcel counts logged in T007.
 - [X] T016 [P] [US1] Implement `aggregate_networks` function in `code/aggregation.py` to map parcels to DMN, FPN, CON, and other networks using HCP atlas definitions
-- [ ] T017 [US1] Implement main entropy orchestration in `code/entropy.py` to process all valid subjects, handle chunking for memory constraints (<7GB RAM), and output `data/processed/entropy_metrics.csv`
+- [ ] T017 [US1] Implement main entropy orchestration in `code/entropy.py` to process all valid subjects, handle chunking for memory constraints (<7GB RAM), and output `data/processed/entropy_metrics.csv` <!-- FAILED: unspecified -->
 - [ ] T017b [US1] Implement instrumentation in `code/entropy.py` to **log peak RAM usage using `psutil`** for the full entropy computation run to `data/logs/ram_usage.log` per SC-003
 
 **Surrogate Validation Sub-Phase (Required for Scientific Soundness per Plan.md Complexity Tracking)**
@@ -117,7 +117,7 @@
 
 - [X] T042 [US1] Implement `code/sensitivity.py` function to generate phase-randomized surrogates of fMRI time series for a subset of subjects.
 - [ ] T043 [US1] Implement entropy and model computation on surrogate data to validate non-linear structure, outputting `data/processed/surrogate_results.csv`.
-- [ ] T044 [US1] Implement validation comparison logic in `code/sensitivity.py` to compare surrogate results against real data results. **Output**: `data/processed/surrogate_validation_report.csv` containing columns: `entropy_real`, `entropy_surrogate`, `difference`, `pass_flag` (PASS if difference > 10%). Log validation status per FR-010 (Scientific Soundness).
+- [ ] T044 [US1] Implement validation comparison logic in `code/sensitivity.py` to compare surrogate results against real data results. **Output**: `data/processed/surrogate_validation_report.csv` containing columns: `entropy_real`, `entropy_surrogate`, `difference`, `pass_flag` (PASS (Wikidata Q1194697, https://www.wikidata.org/wiki/Q1194697) if difference > 10%). Log validation status per FR-010 (Scientific Soundness).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 

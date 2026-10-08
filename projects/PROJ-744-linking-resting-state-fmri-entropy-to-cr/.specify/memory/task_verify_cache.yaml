@@ -18,15 +18,24 @@ T015b:
     \ them\u2014is therefore not satisfied."
 T017:
   c: false
-  h: e9042d2593fc4852a8c0d7aec492c9ebe0e748d13e971f89ed89aa6cf32d0d47
-  r: "The required output file `data/processed/entropy_metrics.csv` is absent, and\
-    \ the provided `code/entropy.py` excerpt only shows a helper function without\
-    \ any orchestration logic, chunking handling, or CSV writing. The task\u2019s\
-    \ core deliverable is therefore not present."
+  h: 2d9c2d919ca6a2e687d2ec72e058586c5d0546ee339f76f4d23978dfca9112f0
+  r: "The repository contains a partially shown `code/entropy.py`, but the file is\
+    \ truncated and does not demonstrate the required orchestration, subject looping,\
+    \ or memory\u2011chunking logic. Moreover, the required output `data/processed/entropy_metrics.csv`\
+    \ is absent. The task\u2019s core deliverables are therefore not present."
 T017b:
   c: false
-  h: 090758488d27f7ca8a9cdd2212f67ab4d6a520bbc8ae3c34d50934466260df44
-  r: "The `code/entropy.py` file does not contain any logic that records peak RAM\
-    \ usage to `data/logs/ram_usage.log` (the file is absent), and the provided snippet\
-    \ shows only the entropy computation function without any psutil\u2011based instrumentation\
-    \ or file writing. The required log artifact is missing, so the task is not fulfilled."
+  h: 9d4d06ca8745aa23fc9d4584e57d8e803262b60df8f54d056012a5d597e76787
+  r: "The `code/entropy.py` file defines helper functions for RAM tracking but the\
+    \ provided excerpt (and the truncated remainder) shows no invocation of `_reset_peak_ram`,\
+    \ `_update_peak_ram`, or `_log_peak_ram` during the actual entropy computation,\
+    \ nor is the required `data/logs/ram_usage.log` file present. Consequently the\
+    \ task\u2019s requirement to log peak RAM usage for the full run is not satisfied."
+T044:
+  c: false
+  h: f3571dd0d065001611221b14ee5aa718814a2e1bc1e59b9d47a8fdcb361e7f49
+  r: The required `data/processed/surrogate_validation_report.csv` does not exist,
+    and the provided `code/sensitivity.py` is truncated and lacks any implementation
+    that compares real vs. surrogate entropy, computes differences, determines pass/fail,
+    or writes the specified CSV. The validation logic and output artifact are therefore
+    missing.

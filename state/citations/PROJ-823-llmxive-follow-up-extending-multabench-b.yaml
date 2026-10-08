@@ -31,7 +31,7 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-07-11T20:11:22.593068Z'
-- artifact_hash: c9b0eb17501ccf5639cb08a7ed802db82641e45fd4fabd3a623d463b65cf53fd
+- artifact_hash: f1d24136ff041bd01d7e03ed285bc27e5254e65003366b2b224cb5971094b4a9
   artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -41,4 +41,4 @@
   value: '2605.10616'
   verification_status: unreachable
   verified_against_url: null
-  verified_at: '2026-09-26T16:09:21.297642Z'
+  verified_at: '2026-10-08T21:33:17.004674Z'

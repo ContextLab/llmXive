@@ -8,7 +8,7 @@ T001:
     \ is not satisfied."
 T003:
   c: false
-  h: 9a04de4a0eb34b58dc5d674e62299dd7e7e622c2587821d0b91b5c74ee61cffc
-  r: The `pyproject.toml` file with a Black configuration is present, but the required
-    `.ruff.toml` (or `ruff.toml`) file is missing entirely, so the linting tool configuration
-    is not provided. The task therefore remains unfinished.
+  h: 07f4767b92262fdc29b30c2db02cda5df758ab18ef32aaa711860fb621e97942
+  r: The `pyproject.toml` with a Black configuration is present, but the required
+    `.ruff.toml` file is missing entirely, so the linting tool is not configured as
+    specified. The task therefore is not fully satisfied.

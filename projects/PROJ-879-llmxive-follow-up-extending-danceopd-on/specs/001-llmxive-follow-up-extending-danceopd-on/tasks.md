@@ -212,7 +212,7 @@
  - **Logic**: Calculate N based on pilot variance using `statsmodels.stats.power.TTestIndPower` with `target_power=0.8` and `effect_size=0.5` (medium). **Handle Missing Pilot**: If `data/results/pilot_variance.json` is missing, run a default pilot (N=50) or fail with error.
  - **Constraint**: **Check `timer.check_timeout()`** (see T033a). **Action**: If the calculated N exceeds the time limit, **reduce N linearly to the maximum feasible count** within the 6-hour limit and set `status: reduced` in `data/results/sample_size_config.json`. **Do NOT** proceed with an N that is known to be impossible to complete. If N is underpowered but feasible, set `status: underpowered` and proceed with a warning. **Ensure N does not exceed the available test set size.**
  - **Deliverable**: Final sample size configuration for full evaluation saved to `data/results/sample_size_config.json`.
-- [ ] T028b [US3] **Generate Teacher and Tree Images (Full)**. Implement `code/02_evaluate_fidelity.py` to generate images for BOTH the Teacher baseline and the Tree-predicted routing for the **Full** sample size (N calculated in T030c).
+- [X] T028b [US3] **Generate Teacher and Tree Images (Full)**. Implement `code/02_evaluate_fidelity.py` to generate images for BOTH the Teacher baseline and the Tree-predicted routing for the **Full** sample size (N calculated in T030c). <!-- ATOMIZE: requested -->
  - **Dependency**: Depends on T030c (Sample Size Config), T020 (Data Split), T021b/T021c/T021d (Trained Trees), T029b (Expert Fields Loaded), T029a (Velocity Generation), T029c (Euler Integrator).
  - **Logic**: Iterate through the test set (up to `sample_size` from T030c). For each sample:
  1. **Teacher Baseline**: **Load** `routing_label` and `velocity_vector` from `data/processed/teacher_ground_truth_filtered.parquet` (pre-computed). Generate image using Euler integrator (T029c).
@@ -227,11 +227,11 @@
  - **Dependency**: Depends on T005b (Metrics implementation), T028b (Full Images).
  - **Logic**: Process **ALL samples** (including mismatched). Aggregate per-sample CLIP scores (mean) and calculate dataset-level FID.
  - **Deliverable**: Metrics saved in `data/results/fidelity_metrics_full.csv`.
-- [ ] T033a [US3] **Implement Early-Stop Timer**. Implement `code/utils/timer.py` to use a cross-platform timeout mechanism (e., `threading` with fallback) for a configurable timeout duration and save partial results as JSON with a `status: partial` flag if exceeded.
+- [X] T033a [US3] **Implement Early-Stop Timer**. Implement `code/utils/timer.py` to use a cross-platform timeout mechanism (e., `threading` with fallback) for a configurable timeout duration and save partial results as JSON with a `status: partial` flag if exceeded.
  - **Logic**: Set a timer at the start of the evaluation. If time expires, save partial results and exit gracefully.
  - **Verification**: Verify `check_timeout()` returns boolean and `save_partial_results()` writes valid JSON.
  - **Deliverable**: `code/utils/timer.py` with `check_timeout()` function.
-- [ ] T033b [US3] **Enforce Hard Stop-Eearly**. Implement logic in `code/02_evaluate_fidelity.py` to wrap the training/evaluation loops with the timer from T033a. **Logic**: Check `timer.check_timeout()` at the start of each sample iteration. If timeout, break loop, save partial results, and set `status: partial` in all output JSONs.
+- [X] T033b [US3] **Enforce Hard Stop-Eearly**. Implement logic in `code/02_evaluate_fidelity.py` to wrap the training/evaluation loops with the timer from T033a. **Logic**: Check `timer.check_timeout()` at the start of each sample iteration. If timeout, break loop, save partial results, and set `status: partial` in all output JSONs.
  - **Dependency**: Depends on T033a.
  - **Deliverable**: Hard stop-early enforcement in the evaluation pipeline.
 - [ ] T030e [US3] **Perform Statistical Tests**. Perform statistical tests on the FID distributions and CLIP scores to determine the significance of performance degradation using bootstrap testing and paired t-tests.

@@ -182,3 +182,221 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-01T00:58:13Z'
+- artifact_path: projects/PROJ-744-linking-resting-state-fmri-entropy-to-cr/specs/001-linking-resting-state-fmri-entropy-to-cr/tasks.md
+  attempts: 0
+  canonical: 'Dependency versions: numpy 1.26.4, scipy 1.13.1, pandas 2.2.2, statsmodels
+    0.14.2, nibabel 5.2.1, scikit-learn 1.5.0, tqdm 4.66.4, requests 2.32.3, pytest
+    8.2.2, psutil 6.0.0'
+  claim_id: c_d4d0efc0
+  context: 'Phase 1: Setup (Shared Infrastructure) - Task T002b'
+  evidence:
+    asserted: '1.26'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Pin dependencies in `requirements.txt` with exact versions: `numpy==1.26.4`,
+    `scipy==1.13.1`, `pandas==2.2.2`, `statsmodels==0.14.2`, `nibabel==5.2.1`, `scikit-learn==1.5.0`,
+    `tqdm==4.66.4`, `requests==2.32.3`, `pytest==8.2.2`, `psutil==6.0.0`.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T21:45:05Z'
+- artifact_path: projects/PROJ-744-linking-resting-state-fmri-entropy-to-cr/specs/001-linking-resting-state-fmri-entropy-to-cr/tasks.md
+  attempts: 1
+  canonical: 'Data source: OpenNeuro S3 bucket ds000030'
+  claim_id: c_e33b7677
+  context: 'Phase 2: Data Acquisition & Validation - Task T039'
+  evidence:
+    entailment_evidence: 'Data source: OpenNeuro S3 bucket ds000030'
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Data_source:_OpenNeuro_S3_bucket_ds000030
+  kind: entity_fact
+  raw_text: Download pre-processed HCP multi-dimensional volumes from OpenNeuro S3
+    bucket (ds000030).
+  resolved_value: 'Data source: OpenNeuro S3 bucket ds000030'
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T21:45:08Z'
+- artifact_path: projects/PROJ-744-linking-resting-state-fmri-entropy-to-cr/specs/001-linking-resting-state-fmri-entropy-to-cr/tasks.md
+  attempts: 1
+  canonical: 'Motion scrubbing exclusion threshold: fewer than 100 remaining frames'
+  claim_id: c_507a9a15
+  context: 'Phase 3: Foundational - Task T007'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Motion_scrubbing_exclusion_threshold:_fewer_than_100_remaini
+  kind: magnitude
+  raw_text: Exclude subjects with <100 remaining frames.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T21:45:38Z'
+- artifact_path: projects/PROJ-744-linking-resting-state-fmri-entropy-to-cr/specs/001-linking-resting-state-fmri-entropy-to-cr/tasks.md
+  attempts: 1
+  canonical: 'Motion scrubbing threshold: Framewise Displacement greater than 0.2mm'
+  claim_id: c_2f18a1ed
+  context: 'Phase 3: Foundational - Task T007'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Motion_scrubbing_threshold:_Framewise_Displacement_greater_t
+  kind: magnitude
+  raw_text: Filter time series based on FD > 0.2mm.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T21:46:03Z'
+- artifact_path: projects/PROJ-744-linking-resting-state-fmri-entropy-to-cr/specs/001-linking-resting-state-fmri-entropy-to-cr/tasks.md
+  attempts: 1
+  canonical: 'Multiscale entropy scale range: 1 to 20'
+  claim_id: c_0b5d8a45
+  context: 'Phase 4: User Story 1 - Task T014'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate entropy across multiple scales (1-20).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T21:46:27Z'
+- artifact_path: projects/PROJ-744-linking-resting-state-fmri-entropy-to-cr/specs/001-linking-resting-state-fmri-entropy-to-cr/tasks.md
+  attempts: 1
+  canonical: 'Atlas used: HCP 360-parcel atlas'
+  claim_id: c_2c9cd669
+  context: 'Phase 4: User Story 1 - Task T015'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Iterate over HCP 360-parcel atlas.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T21:47:16Z'
+- artifact_path: projects/PROJ-744-linking-resting-state-fmri-entropy-to-cr/specs/001-linking-resting-state-fmri-entropy-to-cr/tasks.md
+  attempts: 1
+  canonical: 'Invalid parcel threshold for manual review: greater than 10%'
+  claim_id: c_d19b79f8
+  context: 'Phase 4: User Story 1 - Task T015b'
+  evidence:
+    entailment_evidence: 'Invalid parcel threshold for manual review: greater than
+      10%'
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Invalid_parcel_threshold_for_manual_review:_greater_than_10%25
+  kind: magnitude
+  raw_text: Flag subjects for manual review if >10% of parcels are invalid (NaN).
+  resolved_value: 'Invalid parcel threshold for manual review: greater than 10%'
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T21:47:19Z'
+- artifact_path: projects/PROJ-744-linking-resting-state-fmri-entropy-to-cr/specs/001-linking-resting-state-fmri-entropy-to-cr/tasks.md
+  attempts: 1
+  canonical: 'Memory constraint for entropy computation: less than 7GB RAM'
+  claim_id: c_4cc6a0f6
+  context: 'Phase 4: User Story 1 - Task T017'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_constraint_for_entropy_computation:_less_than_7GB_RAM
+  kind: magnitude
+  raw_text: Handle chunking for memory constraints (<7GB RAM).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T21:47:45Z'
+- artifact_path: projects/PROJ-744-linking-resting-state-fmri-entropy-to-cr/specs/001-linking-resting-state-fmri-entropy-to-cr/tasks.md
+  attempts: 1
+  canonical: 'Surrogate validation pass condition: difference greater than 10%'
+  claim_id: c_f5f78247
+  context: 'Phase 4: User Story 1 - Task T044'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q37489014
+        url: https://www.wikidata.org/wiki/Q37489014
+        value: '18'
+      quote: 'P1813: PASS'
+      source_id: Q1194697
+      url: https://www.wikidata.org/wiki/Q1194697
+      value: PASS
+    filled: true
+  kind: magnitude
+  raw_text: PASS if difference > 10%.
+  resolved_value: PASS
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T21:48:02Z'
+- artifact_path: projects/PROJ-744-linking-resting-state-fmri-entropy-to-cr/specs/001-linking-resting-state-fmri-entropy-to-cr/tasks.md
+  attempts: 1
+  canonical: 'Sample size safety check: halt if N less than 30'
+  claim_id: c_901b6844
+  context: 'Phase 5: User Story 2 - Task T025'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sample_size_safety_check:_halt_if_N_less_than_30
+  kind: magnitude
+  raw_text: HALT primary analysis if N < 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T21:49:05Z'
+- artifact_path: projects/PROJ-744-linking-resting-state-fmri-entropy-to-cr/specs/001-linking-resting-state-fmri-entropy-to-cr/tasks.md
+  attempts: 1
+  canonical: 'Collinearity threshold: Variance Inflation Factor greater than 5'
+  claim_id: c_5f5d4c50
+  context: 'Phase 5: User Story 2 - Task T023'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Collinearity_threshold:_Variance_Inflation_Factor_greater_th
+  kind: magnitude
+  raw_text: Detect collinearity (VIF > 5) among predictors.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T21:49:33Z'
+- artifact_path: projects/PROJ-744-linking-resting-state-fmri-entropy-to-cr/specs/001-linking-resting-state-fmri-entropy-to-cr/tasks.md
+  attempts: 1
+  canonical: 'Sensitivity analysis r values: 0.15, 0.20, 0.25 times SD'
+  claim_id: c_faef33a1
+  context: 'Phase 6: User Story 3 - Task T030a'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Re-execute entropy computation for each r value in {0.15*SD, 0.20*SD,
+    0.25*SD}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T21:51:01Z'
