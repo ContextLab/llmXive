@@ -246,6 +246,16 @@ notification was created.
 
 ## Acceptance and deployment boundaries
 
+The next live planning attempt took 5,655.9 seconds and kicked back from
+`clarified` to `specified`. Its preserved trail
+(`canary-plan-hash-response-failure.jsonl`) records two rounds with no parsed
+per-concern responses, then four answers using complete concern hashes without
+their reviewer prefixes. The engine treated those four identities as missing.
+The response mapper now accepts a complete eight-digit hash only if it maps
+uniquely to a current reviewer-prefixed concern. Unknown, shortened, colliding,
+and duplicate answers remain unresolved. Forty-four focused checks passed;
+the live scientific correction and accepted paper remain pending.
+
 The latest PR real-call job ([37826932550](https://github.com/ContextLab/llmXive/actions/runs/37826932550))
 was cancelled at its 60-minute job limit. Its contract suite and 7,053 unit
 tests passed; real-call output stopped after the liveness checks, immediately

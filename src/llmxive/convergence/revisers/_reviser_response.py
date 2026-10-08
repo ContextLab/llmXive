@@ -71,7 +71,8 @@ RESPONSE_FORMAT_BLOCK = (
     "Keep this JSON SMALL: it is only the change-log, never the documents "
     "themselves. Every panel concern MUST have exactly one entry. Copy its "
     "literal ID only: for [concern abc-123], concern_id is abc-123, without "
-    "the word concern or surrounding brackets.\n\n"
+    "the word concern or surrounding brackets. Preserve the reviewer prefix "
+    "as well as the hash: methodology-df82379f must not become df82379f.\n\n"
     "## Part 2 — each full revised artifact, VERBATIM\n\n"
     "After the json fence, emit EACH artifact you changed as raw text "
     "(exactly the bytes that should be written to disk — do NOT escape it, do "
@@ -359,6 +360,13 @@ def build_concern_responses(
     """
     by_id: dict[str, dict[str, Any]] = {}
     known_ids = {c.id for c in concerns}
+    hash_ids: dict[str, set[str]] = {}
+    for c in concerns:
+        prefix = f"{c.reviewer}-"
+        if c.id.startswith(prefix):
+            digest = c.id[len(prefix):]
+            if re.fullmatch(r"[0-9a-f]{8}", digest):
+                hash_ids.setdefault(digest, set()).add(c.id)
     duplicates: set[str] = set()
     for raw in responses_raw:
         cid = raw.get("concern_id")
@@ -367,10 +375,16 @@ def build_concern_responses(
             if cid not in known_ids:
                 # The prompt labels these as [concern <id>]. Tolerate a
                 # copied label only when its literal ID is an input concern;
-                # never fuzzy-match an invented or truncated identifier.
+                # never fuzzy-match an invented identifier.
                 label = re.fullmatch(r"\[?concern\s+([^\[\]]+)\]?", cid, re.IGNORECASE)
                 if label and label.group(1).strip() in known_ids:
                     cid = label.group(1).strip()
+                # Live plan-003 answered with complete hashes but omitted the
+                # reviewer prefix. Only a unique, full eight-digit hash from
+                # THIS concern set can recover that exact identity.
+                matches = hash_ids.get(cid, set())
+                if cid not in known_ids and len(matches) == 1:
+                    cid = next(iter(matches))
             if cid in by_id:
                 duplicates.add(cid)
             by_id[cid] = raw

@@ -332,6 +332,40 @@ def test_build_concern_responses_all_missing_records_parse_to_zero_reason():
         assert "ZERO per-concern responses" in r.what_changed
 
 
+def test_build_concern_responses_recovers_live_hash_only_ids():
+    pairs = [("methodology", "df82379f"), ("methodology", "093e040e"),
+             ("scientific_soundness", "4c3d74c4"), ("scientific_soundness", "e649ec8b")]
+    concerns = [Concern(id=f"{reviewer}-{digest}", reviewer=reviewer,
+                        severity=Severity.METHODOLOGY, artifact="plan.md", text="fix")
+                for reviewer, digest in pairs]
+    out = build_concern_responses(
+        [{"concern_id": digest, "response": "corrected", "what_changed": "formula"}
+         for _, digest in pairs], concerns)
+    assert [r.concern_id for r in out] == [c.id for c in concerns]
+    assert all(r.response == "corrected" for r in out)
+
+
+@pytest.mark.parametrize("ids", [
+    ["df82379"], ["df82379ff"], ["00000000"],
+    ["df82379f", "methodology-df82379f"],
+])
+def test_hash_alias_rejects_truncation_unknown_and_duplicate_answers(ids):
+    concern = Concern(id="methodology-df82379f", reviewer="methodology",
+                      severity=Severity.METHODOLOGY, artifact="plan.md", text="fix")
+    out = build_concern_responses(
+        [{"concern_id": cid, "response": "fixed"} for cid in ids], [concern])
+    assert out[0].response == "<missing>"
+
+
+def test_hash_alias_rejects_collision_across_reviewers():
+    concerns = [Concern(id=f"{reviewer}-df82379f", reviewer=reviewer,
+                        severity=Severity.METHODOLOGY, artifact="plan.md", text="fix")
+                for reviewer in ["methodology", "scientific_soundness"]]
+    out = build_concern_responses(
+        [{"concern_id": "df82379f", "response": "fixed"}], concerns)
+    assert all(r.response == "<missing>" for r in out)
+
+
 def test_delimited_path_with_crlf_line_endings():
     """Models sometimes emit CRLF. The markers must still match and the body
     is captured without the marker lines."""

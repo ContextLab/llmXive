@@ -64,5 +64,20 @@
     "provider_failures": 1475,
     "deployment": "pending"
   },
-  "independent_scientific_reference": "Twelve exact totient residue distributions computed independently; not pipeline-generated acceptance evidence"
+  "independent_scientific_reference": "Twelve exact totient residue distributions computed independently; not pipeline-generated acceptance evidence",
+  "concern_hash_identity_followup": {
+    "passed": 44,
+    "lint": "passed",
+    "evidence": "canary-plan-hash-response-failure.jsonl",
+    "live_acceptance": "pending"
+  },
+  "ci_timeout_followup": {
+    "run": 37826932550,
+    "reason": "60-minute job limit",
+    "unit_passed": 7053,
+    "unit_skipped": 7,
+    "unit_deselected": 4,
+    "change": "15-persona rotation retained in nightly-only tests",
+    "fresh_pr_gate": "pending"
+  }
 }
