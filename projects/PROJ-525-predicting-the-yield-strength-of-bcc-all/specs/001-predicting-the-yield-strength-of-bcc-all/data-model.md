@@ -1,63 +1,91 @@
 # Data Model: Predicting Yield Strength of BCC Alloys
 
-## Entity-Relationship Overview
+## Entity Definitions
 
-The data model consists of three primary entities: `AlloyRecord`, `CompositionalDescriptor`, and `ModelPerformance`. Data flows from raw ingestion to derived features, then to model evaluation.
+### AlloyRecord
+Represents a single alloy entry from the source dataset.
+- `system_id`: `str` (Unique identifier from source)
+- `elemental_composition`: `dict[str, float]` (Element symbol -> Atomic fraction)
+- `yield_strength`: `float` (MPa)
+- `crystal_structure`: `str` (e.g., "BCC", "FCC")
+- `source_reference`: `str` (DOI or URL of source)
+- `yield_definition`: `str` (e.g., "[deferred] offset", "[deferred] offset") - Added to track construct validity.
 
-### 1. AlloyRecord (Raw & Filtered)
+### CompositionalDescriptor
+Derived features calculated from `AlloyRecord`.
+- `delta_radius`: `float` (Atomic radius mismatch, %)
+- `vec`: `float` (Valence Electron Concentration)
+- `mixing_entropy`: `float` (J/mol/K)
+- `mixing_enthalpy`: `float` (kJ/mol)
+- `electronegativity_diff`: `float` (Pauling scale)
+- `ilr_transformed_features`: `list[float]` (ILR coordinates)
 
-Represents a single alloy entry from the source database.
+### CombinedFeatureSet
+The concatenated set of ILR and Scalar descriptors used for feature selection.
+- `system_id`: `str`
+- `scalar_features`: `dict[str, float]`
+- `ilr_features`: `list[float]`
+- `combined_vector`: `list[float]` (Concatenated scalar + ilr)
 
-| Attribute | Type | Description | Constraints |
-|-----------|------|-------------|-------------|
-| `system_id` | string | Unique identifier for the alloy. | Primary Key, Non-null |
-| `elemental_composition` | dict | Map of element symbol to atomic fraction. | Keys: 1-3 char symbols; Values: float, sum to 1.0 |
-| `yield_strength` | float | Yield strength in MPa. | Non-null, > 0 |
-| `crystal_structure` | string | Crystal phase (e.g., "BCC", "FCC"). | Must be "BCC" for valid records |
-| `source_reference` | string | DOI or URL of the source. | Non-null |
-| `processing_status` | string | "raw", "filtered", "rejected". | Enum |
-| `rejection_reason` | string | Reason if rejected (e.g., "Missing Yield", "Non-BCC"). | Nullable |
+### ModelPerformance
+Evaluation results for a trained model.
+- `model_type`: `str` (e.g., "RandomForest", "Ridge")
+- `r_squared`: `float` (Mean R² across folds)
+- `mae`: `float` (Mean Absolute Error)
+- `rmse`: `float` (Root Mean Squared Error)
+- `confidence_interval`: `tuple[float, float]` (95% CI for R²)
+- `feature_importance`: `dict[str, float]` (Ranked importance)
 
-### 2. CompositionalDescriptor (Engineered)
+### FeatureStability
+Metrics for feature importance stability (SC-003).
+- `rank_std_dev`: `float` (Standard deviation of feature importance ranks across bootstrap resamples)
+- `spearman_correlation`: `float` (Median Spearman correlation of ranks)
 
-Derived features for each valid `AlloyRecord`.
+### PracticalUtility
+Metrics for practical utility (SC-002).
+- `mae_vs_threshold`: `bool` (True if MAE <= 50 MPa)
+- `mae_value`: `float` (MAE in MPa)
 
-| Attribute | Type | Description | Constraints |
-|-----------|------|-------------|-------------|
-| `system_id` | string | FK to `AlloyRecord`. | Primary Key |
-| `delta_radius` | float | Atomic radius mismatch (%). | Calculated |
-| `vec` | float | Valence Electron Concentration. | Calculated |
-| `mixing_entropy` | float | Mixing entropy (J/mol·K). | Calculated |
-| `mixing_enthalpy` | float | Mixing enthalpy (kJ/mol). | Calculated |
-| `electronegativity_diff` | float | Electronegativity difference. | Calculated |
-| `ilr_features` | list[float] | Isometric Log-Ratio transformed features. | Length = N_elements - 1 |
-| `selected_features` | list[str] | Names of features selected by RFE/L1. | Nullable |
+### ThermodynamicParams
+Binary interaction parameters for mixing enthalpy.
+- `element_pair`: `tuple[str, str]` (e.g., ("Fe", "Cr"))
+- `omega_ij`: `float` (kJ/mol)
 
-### 3. ModelPerformance (Evaluation)
+## Data Flow
 
-Results from model training and validation.
+1. **Raw Data**: `data/raw/mpea.csv` (or parquet)
+2. **Filtered Data**: `data/processed/bcc_filtered.csv` (BCC only, non-null yield, verified yield definition)
+3. **Feature Data**: `data/processed/features_engineered.csv` (Descriptors + ILR)
+4. **Model Artifacts**: `data/processed/models/` (pickle files)
+5. **Results**: `reports/results.json`
 
-| Attribute | Type | Description | Constraints |
-|-----------|------|-------------|-------------|
-| `model_id` | string | Unique ID for the run (e.g., "RF_seed42"). | Primary Key |
-| `model_type` | string | "RandomForest", "GradientBoosting", "Ridge". | Enum |
-| `r_squared_mean` | float | Mean R² across 5-fold CV. | Float |
-| `r_squared_ci_lower` | float | Lower bound of 95% CI. | Float |
-| `r_squared_ci_upper` | float | Upper bound of 95% CI. | Float |
-| `mae_mean` | float | Mean Absolute Error. | Float |
-| `rmse_mean` | float | Root Mean Square Error. | Float |
-| `feature_importance` | dict | Map of feature name to importance score. | Nullable |
-| `seed` | int | Random seed used. | Non-null |
+## Calculations
 
-## Data Flow Diagram
+### Atomic Radius Mismatch (δ)
+$$ \delta = \sqrt{\sum_{i} c_i \left( 1 - \frac{r_i}{\bar{r}} \right)^2} \times 100 $$
+Where $c_i$ is atomic fraction, $r_i$ is atomic radius, $\bar{r} = \sum c_i r_i$.
 
-1.  **Ingestion**: `raw_data.csv` -> `data_ingestion.py` -> `filtered_bcc.csv` (AlloyRecord).
-2.  **Engineering**: `filtered_bcc.csv` + `periodic_table.json` -> `feature_engineering.py` -> `descriptors.csv` (CompositionalDescriptor).
-3.  **Modeling**: `descriptors.csv` -> `modeling.py` -> `results.json` (ModelPerformance).
-4.  **Reporting**: `results.json` -> `paper/` (aggregated stats).
+### Valence Electron Concentration (VEC)
+$$ VEC = \sum_{i} c_i \cdot VEC_i $$
 
-## Storage Constraints
+### Mixing Entropy (ΔS_mix)
+$$ \Delta S_{mix} = -R \sum_{i} c_i \ln(c_i) $$
 
-- **Raw Data**: Stored in `data/raw/` with SHA-256 checksums.
-- **Processed Data**: Stored in `data/processed/` with timestamps.
-- **Logs**: `data/logs/rejected_entries.log` for traceability (Principle III).
+### Mixing Enthalpy (ΔH_mix)
+$$ \Delta H_{mix} = \sum_{i \neq j} \Omega_{ij} c_i c_j $$
+Where $\Omega_{ij}$ are binary interaction parameters from `data/raw/nist_janaf_params.json`.
+
+### ILR Transformation
+Isometric Log-Ratio transformation applied to the composition vector $x$ to handle closure.
+$$ ilr(x) = V^T \ln(x) $$
+Where $V$ is an orthonormal basis matrix for the simplex.
+
+## Constraints
+
+- **Composition Sum**: All composition rows MUST sum to 1.0 (within tolerance 1e-6).
+- **BCC Filter**: Only rows with `crystal_structure == "BCC"` are included.
+- **Yield Validity**: `yield_strength` MUST be a positive float AND `yield_definition` MUST be verified (e.g., "[deferred] offset").
+- **Feature Selection**: L1/RFE MUST be performed on `CombinedFeatureSet` (ILR + Scalars).
+- **Complementarity**: L1/RFE MUST NOT remove all ILR or all Scalar features (enforced by ComplementarityFailureContract).
+- **Validation**: 5-fold CV MUST be repeated 10 times.
+- **Bootstrap**: 100 resamples MUST be used for CI.

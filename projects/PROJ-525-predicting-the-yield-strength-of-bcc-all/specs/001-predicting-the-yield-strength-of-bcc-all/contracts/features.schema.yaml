@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CompositionalDescriptor"
+description: "Schema for engineered features."
+type: object
+required:
+  - system_id
+  - delta_radius
+  - vec
+  - mixing_entropy
+  - mixing_enthalpy
+  - electronegativity_diff
+  - ilr_transformed_features
+properties:
+  system_id:
+    type: string
+    description: "Reference to the original alloy ID."
+  delta_radius:
+    type: number
+    description: "Atomic radius mismatch (%)."
+  vec:
+    type: number
+    description: "Valence Electron Concentration."
+  mixing_entropy:
+    type: number
+    description: "Mixing entropy (J/mol/K)."
+  mixing_enthalpy:
+    type: number
+    description: "Mixing enthalpy (kJ/mol)."
+  electronegativity_diff:
+    type: number
+    description: "Electronegativity difference."
+  ilr_transformed_features:
+    type: array
+    items:
+      type: number
+    description: "ILR transformed compositional features."

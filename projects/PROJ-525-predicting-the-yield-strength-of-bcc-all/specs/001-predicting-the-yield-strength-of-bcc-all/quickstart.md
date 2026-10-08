@@ -3,67 +3,63 @@
 ## Prerequisites
 
 - Python 3.11+
-- `pip` or `conda`
-- Access to the MPEA database (DOI: 10.1038/s41597-020-00768-9) or a verified BCC dataset.
+- `pip`
+- Access to a GitHub Actions runner (for CI) or local Linux environment.
 
 ## Installation
 
 1. **Clone the repository**:
- ```bash
- git clone <repo-url>
- cd projects/PROJ-525-predicting-the-yield-strength-of-bcc-all
- ```
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-525-predicting-the-yield-strength-of-bcc-all
+   ```
 
 2. **Create a virtual environment**:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
+   ```bash
+   python -m venv venv
+   source venv/bin/activate
+   ```
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-4.  **Download Data**:
-    - Manually download the MPEA database (or verified BCC dataset) and place it in `data/raw/mpea_raw.csv`.
-    - Ensure the file contains columns: `system_id`, `elemental_composition`, `yield_strength`, `crystal_structure`.
-    - Run the checksum verification (if provided):
-      ```bash
-      python code/utils.py --verify data/raw/mpea_raw.csv
-      ```
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+   *Dependencies include: `pandas`, `numpy`, `scikit-learn`, `scipy`, `periodictable`, `requests`, `pyyaml`, `pymatgen`.*
 
 ## Running the Pipeline
 
-Execute the full pipeline from data ingestion to model evaluation:
+1. **Initialize directories**:
+   ```bash
+   mkdir -p data/raw data/processed data/logs reports
+   ```
 
-```bash
-python code/main.py
-```
+2. **Run the full pipeline**:
+   ```bash
+   python code/main.py
+   ```
+   This script executes:
+   - Data download and filtering (FR-001, FR-002)
+   - Yield Definition Verification (Halt if invalid)
+   - Data Scarcity Check (Halt if N < 80)
+   - Feature Engineering (ILR + Scalars, inside CV)
+   - Model training and validation (FR-005, FR-006)
+   - Report generation (SC-002, SC-003, SC-004)
 
-### Expected Output
+3. **Check logs**:
+   - `data/logs/pipeline_runtime.log`: Runtime metrics.
+   - `data/logs/rejected_entries.log`: Entries excluded during filtering.
 
-- `data/processed/filtered_bcc.csv`: Cleaned dataset.
-- `data/processed/descriptors.csv`: Feature-engineered dataset.
-- `data/processed/model_results.json`: Performance metrics and confidence intervals.
-- `data/logs/rejected_entries.log`: List of excluded alloys and reasons.
+## Expected Outputs
 
-## Testing
-
-Run the unit tests to verify feature engineering accuracy:
-
-```bash
-pytest tests/unit/test_feature_engineering.py -v
-```
-
-Run the integration test to verify the full pipeline:
-
-```bash
-pytest tests/integration/test_pipeline.py -v
-```
+- `data/processed/features_engineered.csv`: Final dataset with descriptors.
+- `reports/results.json`: Model performance metrics (R², MAE, RMSE, CI, Feature Stability, Practical Utility).
+- `data/processed/models/`: Trained model artifacts.
 
 ## Troubleshooting
 
-- **Error: "DATA_SCARCITY: Insufficient BCC alloys (N < 80)"**: The filtered dataset has fewer than 80 entries. Verify the source data or the filtering logic.
-- **Error: "Missing Element Reference"**: An element in the composition is not found in the periodic table reference. Check for typos in the data.
-- **Error: "Math Domain Error"**: A mixing entropy calculation encountered a log of zero. The script will log the alloy ID and assign 0.0 or NaN.
+- **Data Scarcity Error**: If the log shows "DATA_SCARCITY: Insufficient BCC alloys (N < 80)", the dataset does not meet the minimum sample size. The pipeline has halted as per spec.
+- **Yield Definition Error**: If the log shows "YIELD_DEFINITION_INVALID: Source data lacks standard yield strength definition", the raw data does not specify the yield strength method (e.g., [deferred] offset). The pipeline has halted to ensure construct validity.
+- **Data Unavailable**: If the log shows "DATA_UNAVAILABLE: MPEA requires access credentials", the MPEA database is not accessible. No fallback is available.
+- **Complementarity Failure**: If the log shows "COMPLEMENTARITY_FAILURE: Feature selection removed all ILR or all Scalar features", the feature selection step violated FR-003.1. The pipeline has halted.
+- **Missing Element**: If a specific element is not found in the periodic table reference, check the raw data for typos.
+- **Memory Error**: If OOM occurs, ensure the dataset is streamed or sampled. The pipeline is designed for < 7 GB RAM.

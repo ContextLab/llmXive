@@ -14,14 +14,13 @@ properties:
       type: "number"
       minimum: 0
       maximum: 1
-    required:
-      - "Fe"
-      - "Cr"
-      - "Ni"
   yield_strength:
     type: "number"
     description: "Yield strength in MPa."
     minimum: 0
+  yield_definition:
+    type: "string"
+ description: "Definition of yield strength (e.g., '[deferred] offset')."
   crystal_structure:
     type: "string"
     description: "Crystal phase."
@@ -38,6 +37,7 @@ required:
   - system_id
   - elemental_composition
   - yield_strength
+  - yield_definition
   - crystal_structure
   - source_reference
   - processing_status

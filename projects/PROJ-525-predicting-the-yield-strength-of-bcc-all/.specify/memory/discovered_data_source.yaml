@@ -1,0 +1,9 @@
+status: none
+intent: MPEA alloy dataset Hugging Face python package dataset
+required_fields:
+- composition
+- crystal_structure
+- yield_strength
+cache_key: f946203f6fce9721eac3c1f4a28eff1a638e9f4c070a8c31a00c1b2acea3d10a
+searched_at: '2026-10-08T14:55:36.318303+00:00'
+retry_count: 1

@@ -1,41 +1,37 @@
 # Implementation Plan: Predicting Yield Strength of BCC Alloys
 
 **Branch**: `001-bcc-yield-strength` | **Date**: 2024-05-21 | **Spec**: `specs/001-bcc-yield-strength/spec.md`
-**Input**: Feature specification from `specs/001-bcc-yield-strength/spec.md`
+**Input**: Feature specification from `/specs/001-bcc-yield-strength/spec.md`
 
 ## Summary
 
-This feature implements a machine learning pipeline to predict the yield strength of Body-Centered Cubic (BCC) alloys using public data. The approach involves downloading and filtering a multi-principal element alloy (MPEA) database for BCC-phase entries, engineering compositional descriptors (atomic radius mismatch, VEC, mixing entropy/enthalpy), applying log-ratio transformations to address compositional closure, and training/evaluating regression models (Random Forest, Gradient Boosting, Ridge) on a CPU-constrained CI environment. The plan ensures strict adherence to the project constitution regarding reproducibility, data hygiene, and verified accuracy.
-
-**Critical Methodological Update**: To address statistical rigor in small data regimes (N < 1000) and prevent data leakage, the evaluation strategy has been revised. The plan utilizes a **Stratified Train-Test Split
-
-The research question is to determine the generalizability of the model across different data strata. The method involves a stratified split of the dataset into training and testing subsets to maintain class distribution. References: [Insert DOI/arXiv/author-year here].** (as mandated by FR-004) for the outer evaluation layer, with **Nested Cross-Validation** performed strictly within the training set. Confidence Intervals are derived from a **Repeated Stratified K-Fold** (5x5) distribution to ensure statistical validity.
+This project implements a machine learning pipeline to predict the yield strength of Body-Centered Cubic (BCC) alloys using public data. The approach involves downloading the MPEA database, filtering for BCC phases, engineering compositional descriptors (atomic radius mismatch, VEC, mixing entropy/enthalpy) and Isometric Log-Ratio (ILR) transformed features, performing feature selection via L1 regularization/RFE on the *combined* set, and training Random Forest, Gradient Boosting, and Ridge Regression models. The pipeline includes strict data scarcity checks (N < 80), repeated 5-fold cross-validation on the full dataset, and bootstrap confidence interval estimation for R². All feature engineering and selection steps are performed *inside* the cross-validation loop to prevent data leakage. If the feature selection removes all ILR or all Scalar features, the pipeline halts to enforce the complementarity requirement.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `scikit-learn`, `numpy`, `periodictable`, `pyyaml`, `requests`, `scipy`, `skbio`  
-**Storage**: Local CSV/Parquet files under `data/` (checksummed); no external database.  
-**Testing**: `pytest` (unit tests for feature engineering, integration tests for pipeline).  
-**Target Platform**: GitHub Actions Free Tier (Linux, 2 CPU, 7GB RAM, No GPU).  
-**Project Type**: Data Science / Computational Materials Science Library  
-**Performance Goals**: Full pipeline execution < 6 hours; Feature engineering < 5 minutes for N=500.  
-**Constraints**: No GPU usage; No large-LLM inference; Dataset must be sampled if > 14GB; Strict memory management (<7GB).  
-**Scale/Scope**: Dataset size variable, but expected < 1000 entries after BCC filtering.
+**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `scipy`, `periodictable`, `requests`, `pyyaml`, `pymatgen`  
+**Storage**: Local file system (CSV, Parquet, JSON logs)  
+**Testing**: `pytest`  
+**Target Platform**: Linux (GitHub Actions free-tier runner)  
+**Project Type**: Data Science Pipeline / CLI  
+**Performance Goals**: Complete pipeline execution within 6 hours (GitHub Actions Free-Tier Policy) on 2 CPU cores, ~7 GB RAM.  
+**Constraints**: CPU-first execution; no local GPU; strict adherence to data availability (open datasets only); no fabrication of results.  
+**Scale/Scope**: Dataset size variable (expected < 10k rows post-filtering); model training on CPU-tractable subsets.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research.*
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-1.  **Principle I (Reproducibility)**: Plan mandates pinned `requirements.txt`, fixed random seeds in all ML steps, and deterministic data fetching.
-2.  **Principle II (Verified Accuracy)**: The plan defines a 'Verified Source' as one that is either programmatically fetchable OR manually placed with a verified checksum. The Reference-Validator Agent will verify the checksum of the manually placed file against the DOI's known hash. If the DOI is unverified, the pipeline requires manual placement; this is a valid compliance path.
-3.  **Principle III (Data Hygiene)**: Plan includes checksum generation for raw and derived data; no in-place modifications; distinct files for raw vs. processed data.
-4.  **Principle IV (Single Source of Truth)**: **Traceability Mechanism**: All performance metrics are generated via `code/` execution logs (JSON lines format) and written to `state/projects/PROJ-525...yaml` in a strict JSON format defined by `contracts/model_output.schema.yaml`. A specific script (`code/traceability.py`) extracts metrics from logs and updates the state file. Manual entry is forbidden by the pipeline design.
-5.  **Principle V (Versioning)**: Plan explicitly details the content hashing strategy for `state/` artifacts. The SHA-256 hash of the `state/projects/PROJ-525...yaml` file is calculated on the content *excluding* the `content_hash` field itself, and this hash is stored in a separate `state/manifest.yaml` file to avoid recursive definitions.
-6.  **Principle VI (Compositional Feature Integrity)**: Plan specifies exact formulas for δ, VEC, entropy, enthalpy in **research.md -> Feature Engineering Strategy**. This section is explicitly referenced here for traceability.
-7.  **Principle VII (Crystal-Structure Specificity)**: Plan mandates explicit filtering for "BCC" phase before any modeling; mixed-phase entries are excluded.
+- **I. Reproducibility**: Plan mandates pinned `requirements.txt` and deterministic random seeds in all modeling steps (FR-005, FR-006).
+- **II. Verified Accuracy**: The plan explicitly cites the MPEA DOI and mandates that external citations are verified by the Reference-Validator Agent against primary sources (title-token-overlap ≥ 0.7).
+- **III. Data Hygiene**: Pipeline separates `data/raw` (immutable) from `data/processed` (derived), with checksums recorded in `state/`. Checksums for raw data align with Principle III.
+- **IV. Single Source of Truth**: All metrics (R², MAE, CI) are generated by scripts and logged; no manual entry in reports.
+- **V. Versioning Discipline**: Every artifact under this project carries a content hash. The Advancement-Evaluator Agent actively invalidates stale review records when the hashed artifact changes, as per the constitution.
+- **VI. Compositional Feature Integrity**: Explicit calculation formulas for δ, VEC, entropy, enthalpy are defined in `data-model.md` using standard periodic table references.
+- **VII. Crystal-Structure Specificity**: Filtering logic strictly enforces BCC phase verification before any feature engineering or modeling.
 
 ## Project Structure
 
@@ -56,45 +52,131 @@ specs/001-bcc-yield-strength/
 ```text
 projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/
 ├── data/
-│   ├── raw/                 # Downloaded raw data (checksummed)
-│   ├── processed/           # Filtered BCC data, feature-engineered data
-│   └── logs/                # Rejected entries, error logs
+│   ├── raw/                 # Downloaded MPEA data (immutable), nist_janaf_params.json
+│   ├── processed/           # Filtered/Engineered features
+│   └── logs/                # Pipeline execution logs
 ├── code/
 │   ├── __init__.py
-│   ├── config.py            # Paths, seeds, constants
-│   ├── data_ingestion.py    # FR-001, FR-002
-│   ├── feature_engineering.py # FR-003, FR-003.1, FR-003.2 + Pre-Analysis Independence Check
-│   ├── modeling.py          # Nested CV, FR-005, FR-006
-│   ├── traceability.py      # Extracts logs, updates state/manifest.yaml
-│   ├── utils.py             # Logging, checksumming
-│   └── main.py              # Pipeline orchestrator
+│   ├── download.py          # Data ingestion & filtering
+│   ├── features.py          # Descriptor & ILR calculation
+│   ├── models.py            # Training & evaluation
+│   └── utils.py             # Constants (periodic table, etc.)
 ├── tests/
-│   ├── unit/
-│   │   ├── test_feature_engineering.py
-│   │   └── test_data_ingestion.py
-│   └── integration/
-│       └── test_pipeline.py
-├── requirements.txt
-└── README.md
+│   ├── test_download.py
+│   ├── test_features.py
+│   └── test_models.py
+├── reports/
+│   └── results.json
+├── state/
+│   └── projects/PROJ-525...yaml
+└── requirements.txt
 ```
 
-**Structure Decision**: Single project structure chosen for simplicity. Data is local to the repo to ensure reproducibility on CI. `code/` contains modular scripts for each functional requirement.
+**Structure Decision**: Single project structure selected to align with the CLI/data-science nature of the spec. Direct separation of raw/processed data ensures reproducibility and data hygiene as mandated by the constitution.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Nested Cross-Validation | Required to avoid high variance in performance estimation for N < 1000 and prevent data leakage from a single holdout split. | A single train-test split (e.g., 80/20) yields unstable metrics for small N and risks overfitting the validation set. |
-| Repeated Stratified K-Fold | Required to generate a sufficient distribution of scores for valid Confidence Interval calculation., avoiding the instability of bootstrapping only a small number of points. | Bootstrapping only 5-fold scores is statistically invalid and produces meaningless intervals. |
-| Pre-Filter Dimensionality Reduction (PCA) | Required to mitigate overfitting risk for N < 80 by reducing the effective dimensionality of the feature space before model training. | Standard RFE/L1 may not be sufficient for extremely small N with high-dimensional compositional features. |
-| Residualization | Required to mitigate multicollinearity between scalar descriptors and ILR coordinates, ensuring geometric independence. | Standard RFE/L1 does not address the structural geometric constraints of the combined feature space. |
-| Pre-Analysis Independence Check | Required to detect potential circular validation between thermodynamic parameters and yield strength. | Assuming independence without verification risks data leakage and invalid scientific claims. |
+| ILR + Scalar Descriptors | FR-003.1 requires both to capture geometric constraints and physical mechanisms. | Using only ILR loses physical interpretability; using only scalars ignores compositional closure. |
+| L1/RFE Feature Selection | FR-003.2 mandates this specific step to mitigate redundancy between ILR and scalars. | PCA/Residualization (T029a/b in prior rejected tasks) alters the feature space in unrequested ways and violates the "complementary" requirement. |
+| Repeated 5-Fold CV | FR-005 explicitly requires 5-fold CV; nested CV was a scope addition in rejected tasks. | Nested CV increases computational cost without being mandated by the spec for this specific hypothesis test. Repeated 5-Fold (n_repeats=10) is sufficient to stabilize the mean estimate for N < 100, though power is limited. |
+| Bootstrap CI (a sufficient number of resamples) | FR-006 mandates 100 bootstrap resamples for R² confidence intervals. | Single split or standard error estimation lacks the robustness required for small datasets. |
 
-## Statistical Rigor & Success Criteria Alignment
+## Data Flow
 
-- **Power Limitation**: For N < 80, the plan explicitly acknowledges that statistical power is limited. The success criterion MAE ≤ 50 MPa (SC-002) is conditional: it is only considered met if the model's performance is statistically significantly better than a null model (predicting the mean) and the confidence intervals do not include the null performance.
-- **Multiple Comparisons**: When comparing 3 models, a correction (e.g., Bonferroni) will be applied if hypothesis testing on model differences is performed.
-- **Causal Inference**: This is an observational study. Claims will be framed as "associational" or "predictive," not causal. No randomization exists in the dataset.
-- **Collinearity**: Addressed via Residualization of scalar descriptors against ILR coordinates and PCA for dimensionality reduction.
-- **Measurement Validity**: Yield strength values are assumed to be measured under comparable conditions (room temp, standard strain). No normalization for testing conditions is applied (per Assumptions).
-- **Confidence Intervals**: Calculated from the distribution of scores (repeats of 5-fold CV) using the percentile method, ensuring statistical validity for small N.
+1. **Raw Data**: `data/raw/mpea.csv` (Downloaded via DOI resolver, checksummed).
+2. **Yield Definition Check**: Inspect raw data for yield strength definition (e.g., [deferred] offset). **Halt** if definition is missing or non-standard.
+3. **Scarcity Check (DataScarcityContract)**: Filter for BCC, non-null yield. **Halt** if N < 80 (FR-004) with message "DATA_SCARCITY: Insufficient BCC alloys (N < 80)".
+4. **Model Training Loop (NestedPipelineContract)**:
+   - Apply Repeated 5-Fold CV (n_repeats=10) to the **entire** filtered dataset.
+   - For each fold:
+     - **Feature Engineering (Inside CV)**: Calculate ILR and Scalar descriptors on training fold only.
+     - **Feature Selection (FeatureSelectionContract)**: Apply L1/RFE on the *combined* set of ILR and Scalars.
+     - **Complementarity Check (ComplementarityFailureContract)**: **Halt** if L1/RFE removes all ILR or all Scalar features.
+     - **Transform Test**: Apply ILR and Selection parameters from training fold to test fold.
+     - **Model Fit**: Train RF, GB, Ridge.
+5. **Evaluation**: Calculate R², MAE, RMSE, CI (100 bootstrap), Feature Stability (rank_std_dev), and Practical Utility (MAE vs 50 MPa).
+6. **Reporting**: Aggregate results into `reports/results.json`.
+
+## Contracts & Configuration
+
+### ValidationConfig
+- `n_folds`: 5 (Hard constraint per FR-005)
+- `n_repeats`: 10 (Mitigation for small N variance)
+- `random_state`: 42 (Deterministic)
+
+### BootstrapConfig
+- `n_resamples`: 100 (Hard constraint per FR-006)
+- `method`: percentile
+
+### DataScarcityContract
+- `threshold`: 80 (Hard constraint per FR-004)
+- `action`: Halt with exit code 1 and message "DATA_SCARCITY: Insufficient BCC alloys (N < 80)"
+- `timing`: Before any splitting or modeling.
+
+### FeatureComplementContract
+- `input`: Combined set of ILR features and Scalar descriptors (δ, VEC, etc.)
+- `action`: Pass *both* sets to Feature Selection step.
+- `rationale`: FR-003.1 requires ILR and scalars to be used in "COMPLEMENT".
+
+### FeatureSelectionContract
+- `method`: L1 regularization or Recursive Feature Elimination (RFE)
+- `input`: CombinedFeatureSet (ILR + Scalars)
+- `output`: SelectedFeatureSet
+- `rationale`: FR-003.2 mandates this specific step to mitigate redundancy.
+
+### ComplementarityFailureContract
+- `condition`: L1/RFE removes all ILR features OR all Scalar features.
+- `action`: Halt with exit code 1 and message "COMPLEMENTARITY_FAILURE: Feature selection removed all ILR or all Scalar features, violating FR-003.1".
+- `rationale`: Enforces FR-003.1 strictly; retraining with a single set would violate the spec's requirement for complementary features.
+
+### NestedPipelineContract
+- `structure`: Feature Engineering and Selection MUST occur *inside* the Cross-Validation loop.
+- `rationale`: Prevents data leakage from test set into feature selection or descriptor calculation.
+
+### FeatureStabilityContract
+- `metric`: rank_std_dev
+- `threshold`: < 2.0 (Reporting only, SC-003)
+- `method`: Spearman correlation of ranks across bootstrap resamples.
+- `action`: Report metric; do NOT halt pipeline if threshold exceeded.
+
+### PracticalUtilityContract
+- `metric`: MAE
+- `threshold`: 50 MPa (Reporting only, SC-002)
+- `action`: Report pass/fail status; do NOT halt pipeline if threshold exceeded.
+
+### RuntimeConstraintContract
+- `limit`: 6 hours
+- `source`: GitHub Actions Free-Tier Policy (max job duration per free runner)
+- `derivation`: Derived directly from the standard time limit for free-tier runners.
+- `action`: Log runtime; no hard halt unless exceeded.
+
+### ThermodynamicSourceContract
+- `source`: `data/raw/nist_janaf_params.json` (Local file included in repo)
+- `content`: Binary interaction parameters (Ω_ij) for mixing enthalpy.
+- `rationale`: No verified public URL exists; local file ensures reproducibility.
+
+### HyperparameterLimitContract
+- `limit`: Single best configuration per model type.
+- `rationale`: Prevents overfitting the validation set given limited degrees of freedom in small N scenarios.
+
+## Dependency Clarification
+
+- `pymatgen`: Used strictly for crystal structure validation (Principle VII).
+- `periodictable`: Used strictly for elemental property retrieval (atomic radius, electronegativity) for scalar descriptor calculation (Principle VI).
+- `scikit-learn`: Used for ML models, ILR transformation, and feature selection.
+
+## Statistical Rigor & Power
+
+- **Power Analysis**: The dataset size is expected to be small (N < 100). Repeated 5-Fold CV (n_repeats=10) is used to stabilize the *mean* performance estimate and provide a bootstrap distribution for confidence intervals. However, the plan explicitly acknowledges that statistical power is limited and results are exploratory. The variance of the estimator due to data sparsity is not reduced by repetition; repetition only reduces the variance of the *mean* estimate.
+- **Causal Interpretation**: Feature importance is strictly for predictive ranking and MUST NOT be interpreted as causal effect (observational study).
+- **Multiple Comparisons**: Bonferroni correction applies to the pairwise model comparisons (RF vs GB, RF vs Ridge, GB vs Ridge) on the primary R² metric. Hyperparameter tuning is limited to a single best configuration per model type to avoid overfitting the validation set in small N scenarios.
+- **Feature Redundancy**: If L1/RFE removes all ILR or all Scalar features, the pipeline halts (see ComplementarityFailureContract) to enforce FR-003.1's 'complement' requirement.
+
+## Metrics Reporting
+
+- **R²**: Mean across 5-fold CV, 95% CI via 100 bootstrap resamples.
+- **MAE**: Mean across folds; compared to 50 MPa threshold (SC-002).
+- **Feature Stability**: Standard deviation of feature importance ranks across bootstrap resamples (SC-003).
+- **Runtime**: Total pipeline time logged against 6-hour limit (SC-004).

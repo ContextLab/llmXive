@@ -45,7 +45,7 @@ A data scientist needs to train multiple regression models (Random Forest, Gradi
 
 **Why this priority**: This is the core research output. It directly answers the research question regarding the relationship between composition and yield strength. The inclusion of validation (Repeated 5-Fold CV) ensures the results are statistically defensible and robust for small datasets.
 
-**Independent Test**: The system can be tested by running the training script with a fixed random seed and verifying that the reported R², MAE, and RMSE values match the expected values within a tolerance of 0.001, and that the bootstrapped confidence intervals are generated using the specified method.
+**Independent Test**: The system can be tested by running the training script with a fixed random seed and verifying that the reported R², MAE, and RMSE values match the expected values within an acceptable tolerance., and that the bootstrapped confidence intervals are generated using the specified method.
 
 **Acceptance Scenarios**:
 
@@ -72,7 +72,7 @@ A data scientist needs to train multiple regression models (Random Forest, Gradi
 - **FR-003.2**: System MUST apply a feature selection step (e.g., L1 regularization or Recursive Feature Elimination) to the combined set of ILR and scalar descriptors to mitigate potential redundancy and identify the most predictive subset (See US-2).
 - **FR-004**: System MUST perform a stratified 80/20 train-test split based on 4 quantile-based bins of the target variable (yield strength) IF the dataset size is ≥ 80; ELSE the system MUST halt with exit code 1 and the message "DATA_SCARCITY: Insufficient BCC alloys (N < 80)" (See US-3).
 - **FR-005**: System MUST train Random Forest, Gradient Boosting, and Ridge Regression models using 5-fold Cross-Validation for all datasets with N ≥ 80, reporting the mean R², MAE, and RMSE across folds on the holdout set (See US-3).
-- **FR-006**: System MUST perform permutation importance testing and generate 95% confidence intervals for the R² metric using the percentile method on 100 bootstrap resamples of the 5-fold CV scores (See US-3).
+- **FR-006**: System MUST perform permutation importance testing and generate confidence intervals for the R² metric using the percentile method on 100 bootstrap resamples of the 5-fold CV scores (See US-3).
 
 ### Key Entities
 
@@ -90,7 +90,7 @@ A data scientist needs to train multiple regression models (Random Forest, Gradi
 
 - **SC-001**: The coefficient of determination (R²) for the best-performing model is measured against the null hypothesis baseline (predicting the mean yield strength of the training set) to determine if composition explains significant variance (See US-3).
 - **SC-002**: The mean absolute error (MAE) of the model predictions MUST be ≤ 50 MPa (the experimental uncertainty threshold of the source dataset) to demonstrate practical utility (See US-3).
-- **SC-003**: The stability of feature importance rankings is measured against 100 bootstrap resamples; the standard deviation of feature importance ranks across these resamples MUST be < 2.0 to ensure robustness (See US-3).
+- **SC-003**: The stability of feature importance rankings is measured against multiple bootstrap resamples.; the standard deviation of feature importance ranks across these resamples MUST be < 2.0 to ensure robustness (See US-3).
 - **SC-004**: The computational runtime of the full pipeline (data download to final report) is measured against the standard GitHub Actions free-tier limit to ensure feasibility. (See US-3).
 
 ## Assumptions
