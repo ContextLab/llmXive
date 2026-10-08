@@ -1,0 +1,39 @@
+T011:
+  c: false
+  h: 00ebc7a5abd425607903027a8613d1eaa6a5d087930d9843120089250baff370
+  r: "The required artifact `tests/unit/test_metrics.py` does not exist on disk, so\
+    \ no unit test for `calculate_type1_error` is present. The task\u2019s core deliverable\
+    \ is missing."
+T020:
+  c: false
+  h: 00ebc7a5abd425607903027a8613d1eaa6a5d087930d9843120089250baff370
+  r: "The required artifact `tests/unit/test_metrics.py` does not exist on disk, so\
+    \ no unit test for `identify_tipping_point` was provided. The task\u2019s core\
+    \ deliverable is missing."
+T021:
+  c: false
+  h: 31ea01f217af9ebbefee24634e8f93c222ea620717a48d5b2794066b865e432c
+  r: "The required artifact `tests/integration/test_us2_sensitivity.py` does not exist\
+    \ on disk, so no integration test has been provided to verify the sensitivity\u2011\
+    analysis sweep. The task cannot be considered fulfilled until the file is created\
+    \ with appropriate test code."
+T022a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `code/configure_sweep_rates.py` file is present, and no code snippet or description
+    showing that `SimulationConfig` is populated with a range of sweep rates is provided.
+    The required artifact is missing, so the task is not satisfied.
+T023:
+  c: false
+  h: 2347e88e3ce7c9e6a87d0ace2eb94b92bc170e2086113ec096e1276c79dea6e1
+  r: The `code/metrics.py` file does not contain a `compare_to_nominal` implementation
+    (the snippet ends before such a function appears), and the required input file
+    `data/processed/us1_results.json` is absent. Both the function implementation
+    and the dependent data artifact are missing.
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `README.md` file or its contents was provided, so we cannot
+    confirm that execution instructions, seed handling details, and expected outputs
+    were added as required. The implementer must supply the updated `README.md` showing
+    these sections.

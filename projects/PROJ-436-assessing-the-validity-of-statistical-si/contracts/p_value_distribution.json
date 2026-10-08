@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PValueDistribution",
+  "description": "Aggregated p-value distribution and summary statistics for a specific simulation run.",
+  "type": "object",
+  "required": [
+    "dataset_id",
+    "mechanism",
+    "missing_rate",
+    "method",
+    "n_iterations",
+    "p_values",
+    "summary"
+  ],
+  "properties": {
+    "dataset_id": {
+      "type": "string",
+      "description": "OpenML ID of the dataset used."
+    },
+    "mechanism": {
+      "type": "string",
+      "enum": ["MCAR", "MAR", "MNAR"]
+    },
+    "missing_rate": {
+      "type": "number"
+    },
+    "method": {
+      "type": "string",
+      "enum": ["CC", "MI", "IPW"]
+    },
+    "n_iterations": {
+      "type": "integer"
+    },
+    "p_values": {
+      "type": "array",
+      "description": "Raw list of p-values from each iteration.",
+      "items": {
+        "type": "number",
+        "minimum": 0.0,
+        "maximum": 1.0
+      }
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "mean": { "type": "number" },
+        "median": { "type": "number" },
+        "std": { "type": "number" },
+        "min": { "type": "number" },
+        "max": { "type": "number" },
+        "count_below_0_05": { "type": "integer" },
+        "count_below_0_01": { "type": "integer" },
+        "uniformity_test_stat": { "type": "number", "description": "Kolmogorov-Smirnov statistic for uniformity" },
+        "uniformity_p_value": { "type": "number" }
+      },
+      "required": ["mean", "median", "std", "min", "max", "count_below_0_05"]
+    }
+  },
+  "additionalProperties": false
+}

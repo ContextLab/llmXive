@@ -18,7 +18,7 @@ This project implements a simulation engine to assess the validity of statistica
 **Project Type**: Computational Statistics / Simulation Engine.  
 **Performance Goals**: Complete full sensitivity analysis (8 rates x 3 mechanisms x 3 methods x 2000 iterations) within 6 hours on CPU. Use vectorized operations and parallel processing (`joblib`) where memory permits.  
 **Constraints**: Must run without GPU; must handle datasets >7GB via streaming or sampling; must not fabricate data; must strictly adhere to the "permute treatment first, then simulate missingness" protocol for ground truth.  
-**Scale/Scope**: 3 datasets (minimum), 72 simulation conditions, 144,000 total hypothesis tests (2000 iterations x 72 conditions). *Note: Iterations will be increased to reduce standard error and improve power for detecting the 10% threshold.*
+**Scale/Scope**: 3 datasets (minimum), 72 simulation conditions, 144,000 total hypothesis tests (2000 iterations x 72 conditions). *Note: Iterations will be increased to reduce standard error and improve power for detecting the threshold.*
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
@@ -87,4 +87,4 @@ projects/PROJ-436-assessing-the-validity-of-statistical-si/
 > 1.  **Streaming**: Using `openml` and `pandas` chunking to handle large RCT datasets without loading full ~7GB into RAM.
 > 2.  **Vectorization**: Using `numpy`/`pandas` for missingness simulation rather than row-by-row loops.
 > 3.  **Parallelization**: Using `joblib` to parallelize the iterations across the 2 available CPU cores (batching iterations).
-> 4.  **Deferral**: Specific dataset sizes and exact iteration counts (beyond the spec's 500) are deferred to the research phase if power analysis suggests adjustments (Note: Plan now targets 2000).
+> 4.  **Deferral**: Specific dataset sizes and exact iteration counts (beyond the spec's maximum threshold) are deferred to the research phase if power analysis suggests adjustments (Note: Plan now targets 2000).
