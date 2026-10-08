@@ -320,6 +320,7 @@ def _run_task_verification(
     tasks_path = _active_tasks_md(project_dir, track="research")
     if tasks_path is None:
         return
+    already_verified = already_verified & _tv.verified_done_keys(project_dir, tasks_path)
     spec_context = ""
     try:
         spec_context = (tasks_path.parent / "spec.md").read_text(encoding="utf-8")
@@ -527,6 +528,15 @@ def run_one_step(
     # implementation from reaching review (PROJ-552: 68/68 'done' but empty
     # data/figures).
     _exec_project_dir = repo / "projects" / project.id
+    if project.current_stage == Stage.IN_PROGRESS and _all_tasks_done(_exec_project_dir):
+        # Recover interrupted batches and invalidate reviews of overwritten code.
+        from llmxive.agents.task_verifier import verified_done_keys
+
+        _tasks = _active_tasks_md(_exec_project_dir, track="research")
+        if _tasks is not None:
+            _run_task_verification(
+                _exec_project_dir, verified_done_keys(_exec_project_dir, _tasks), repo_root=repo
+            )
     if (
         project.current_stage == Stage.IN_PROGRESS
         and _all_tasks_done(_exec_project_dir)
@@ -740,21 +750,16 @@ def run_one_step(
         _batch_cap = IMPLEMENT_TASK_BATCH if _is_implement_batch else 1
         _deadline = time.monotonic() + IMPLEMENT_BATCH_BUDGET_SECONDS
         _processed = 0
-        # TASK-VERIFIER snapshot (spec-contract consistency): the implement batch
-        # below marks tasks ``[X]`` on the implementer's OWN say-so. Snapshot which
-        # tasks are ALREADY verifier-accepted (``[X]`` before this tick) so the
-        # post-batch verify pass independently judges ONLY the tasks claimed THIS
-        # tick (plus any prior-tick ``[~]`` deferrals) — never re-judging settled work.
+        # Snapshot evidence-backed acceptances, not unchecked self-reports.
+        # The post-batch pass also invalidates receipts for code edited this tick.
         _verify_already_done: set[str] = set()
         if _is_implement_batch:
-            from llmxive.agents.task_verifier import claimed_done_keys
+            from llmxive.agents.task_verifier import verified_done_keys
             _vt_tasks = _active_tasks_md(
                 project_dir, track="paper" if _paper_track else "research"
             )
             if _vt_tasks is not None:
-                _verify_already_done = claimed_done_keys(
-                    _vt_tasks.read_text(encoding="utf-8")
-                )
+                _verify_already_done = verified_done_keys(project_dir, _vt_tasks)
         # MODEL-TIER OVERRIDE (autonomous exhaustion handling — SHARED ladder).
         # The per-project ``model_tier`` (execution_status) is the SSoT model
         # ladder for BOTH autonomous loops:
@@ -879,6 +884,14 @@ def run_one_step(
             # self-reported-but-undone task from advancing the project (research
             # track only; paper tasks have their own finalize gates).
             if not _paper_track:
+                # Output tasks need their generators to run BEFORE verification.
+                # The final execution gate still runs after every task passes.
+                try:
+                    from llmxive.execution.stage import run_implementation_preview
+
+                    run_implementation_preview(project_dir)
+                except Exception as exc:
+                    logger.warning("implementation preview failed for %s: %s", project.id, exc)
                 try:
                     _run_task_verification(
                         project_dir, _verify_already_done, repo_root=repo

@@ -368,7 +368,7 @@ _PLANNING_RECALL_ADDENDUM = (
     "In ADDITION to the usual check-worthy claims, ALSO extract any SPECIFIC "
     "EMPIRICAL VALUE stated as scope, metadata, or a goal — an exact count of "
     "things (e.g. \"27,635 prime knots at 13 crossings\"), a dataset size, a "
-    "measured quantity or observed duration — even when it appears in a Scale/Scope, "
+    "measured quantity, observed percentage, or observed duration — even when it appears in a Scale/Scope, "
     "Performance Goals, or Constraints line rather than as a prose assertion. These "
     "specific values belong to the implementation/research phase and MUST be "
     "detected here. Emit each as a NUMERIC (or MAGNITUDE) claim whose text is the "

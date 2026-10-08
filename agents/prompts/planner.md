@@ -178,6 +178,14 @@ obtainable data:
 
 ## Deliver one bounded research result
 
+Respect stage ownership. Research produces executable analysis, tests, measured
+tables/figures, and an evidence summary. Preserve manuscript requirements in a
+paper-stage handoff; the subsequent paper pipeline handles manuscript layout,
+PDF compilation, and publication. Do not duplicate the platform with per-project
+CI workflows or operating-system provisioning. When an existing specification
+incorrectly demands those later-stage operations before research completes,
+surface that scope inconsistency for correction rather than expanding the plan.
+
 Plan the smallest complete study that answers the existing research question:
 one verified input source (or an explicitly authorized mathematical/simulation
 method), one primary analysis, the necessary comparison or sensitivity check,

@@ -9,22 +9,12 @@ artifacts/evidence and decides whether the work is genuinely done.
 
 Two-tier verification (issue #1139, defect D6 — throughput + fail-open fix):
 
-  1. DETERMINISTIC-FIRST (free, no LLM). Before spending any model call, each
-     claimed/under-review task is settled from FILESYSTEM STATE: a task whose
-     declared artifacts all exist and validate (data outputs parse + have rows)
-     is ACCEPTED ``[X]``; a production task whose declared artifacts are all
-     missing/empty is REOPENED ``[ ]``. This is what drains the huge ``[~]``
-     backlog cheaply — the throughput lever is deterministic draining, NOT a
-     bigger LLM cap. The artifact-path detector is broadened well beyond the old
-     code/data/figures/results/outputs roots (now also src/, tests/, scripts/,
-     config/, and bare build/config files) so setup/config/test tasks are judged
-     from STATE, not prose.
-  2. SEMANTIC RESIDUE (bounded LLM). Only genuinely ambiguous tasks (no
-     detectable artifact path, or a mixed/partial state) reach the single
-     temp-0 LLM call in :func:`verify_task`, bounded to ``cap`` calls per tick.
-     Each semantic verdict is bound to a ``(task_key, evidence_hash)`` cache so
-     re-verifying an unchanged task is free and a verdict invalidates the moment
-     the evidence bytes change.
+  1. Reject demonstrably absent production artifacts without a model call.
+     File existence alone never establishes correctness.
+  2. Judge the remaining tasks against their requirements and actual evidence
+     with a separate model, bounded to ``cap`` calls per tick. Cache verdicts
+     by task, requirements, and evidence hashes; unchanged evidence is free to
+     recheck, while later edits invalidate the saved acceptance.
 
 Verdict → mark: COMPLETE → ``[X]``; INCOMPLETE → ``[ ]`` (implementer REDOES it)
 + a note the next session reads; DEFER (backend outage / over-cap) → ``[~]``
@@ -84,8 +74,8 @@ what is missing or wrong, so the next implementer can fix it.
 # scaffolding / config / test tasks are judged from real files, not prose.
 #: Directory-rooted artifact paths with a real dotted extension.
 _ROOTED_PATH_RE = re.compile(
-    r"\b((?:code|data|figures|results|outputs|src|tests?|scripts|config|configs|"
-    r"notebooks|docs|assets|models|reports)/[\w./-]+\.\w+)"
+    r"(?<![\w./-])((?:code|data|figures|results|outputs|src|tests?|scripts|config|configs|"
+    r"notebooks|docs|assets|models|reports|paper|contracts|state)/[\w./-]+\.\w+)"
 )
 #: Bare (optionally path-prefixed) build/config filenames a task may reference.
 _CONFIG_FILE_RE = re.compile(
@@ -94,7 +84,7 @@ _CONFIG_FILE_RE = re.compile(
     r"conftest\.py|pytest\.ini|mkdocs\.ya?ml|Makefile|Dockerfile))\b"
 )
 #: Generic config-extension files (…toml/…cfg/…yaml/…ini) referenced under the project.
-_CONFIG_EXT_RE = re.compile(r"\b((?:[\w./-]+/)?[\w-]+\.(?:toml|cfg|ya?ml|ini))\b")
+_CONFIG_EXT_RE = re.compile(r"(?<![\w./-])((?:[\w./-]+/)?[\w.-]+\.(?:toml|cfg|ya?ml|ini))\b")
 _SPEC_DOC_RE = re.compile(r"\b((?:specs/[\w./-]+/)?(?:plan|spec|tasks|research|quickstart|data-model)\.md)\b")
 #: Back-compat alias — some callers/tests reference the historical single regex; it
 #: now points at the primary rooted-path pattern (the deterministic detector uses
@@ -199,8 +189,7 @@ def _has_production_intent(task_text: str) -> bool:
 def _deterministic_verdict(project_dir: Path, task_text: str) -> tuple[str | None, str]:
     """Settle a claimed task from FILESYSTEM STATE alone — no LLM.
 
-    Returns ``("accept", reason)`` when every declared artifact exists and
-    validates, ``("reject", reason)`` when a production task's declared artifacts
+    Returns ``("reject", reason)`` when a production task's declared artifacts
     are all missing/empty/invalid, or ``(None, "")`` when the task is genuinely
     ambiguous (no detectable artifact path, or a mixed/partial state) and must go
     to the semantic verifier."""
@@ -395,6 +384,39 @@ def claimed_done_keys(tasks_text: str) -> set[str]:
     return out
 
 
+def verified_done_keys(project_dir: Path, tasks_path: Path) -> set[str]:
+    """Only reuse acceptances whose requirements and actual evidence still match.
+
+    A checkbox alone can be an interrupted implementer's unverified self-report.
+    Later tasks can also overwrite an earlier task's accepted code.
+    """
+    import yaml
+
+    state_path = project_dir / ".specify/memory/task_verify.yaml"
+    try:
+        cache = yaml.safe_load(_cache_path(state_path).read_text()) or {}
+    except (OSError, yaml.YAMLError):
+        return set()
+    if not isinstance(cache, dict):
+        return set()
+    try:
+        spec = (tasks_path.parent / "spec.md").read_text()
+    except OSError:
+        spec = ""
+    lines = tasks_path.read_text().splitlines()
+    verified = set()
+    for i, key in task_keys(lines).items():
+        match = _TASK_LINE_RE.match(lines[i])
+        if not match or match.group(2) not in {"x", "X"}:
+            continue
+        rest = match.group(3)
+        digest = _evidence_hash(rest.strip() + "\n" + spec + "\n" + gather_evidence(project_dir, rest))
+        receipt = cache.get(key)
+        if isinstance(receipt, dict) and receipt.get("c") is True and receipt.get("h") == digest:
+            verified.add(key)
+    return verified
+
+
 def _resolve_ids(
     project_dir: Path, project_id: str | None, repo_root: Path | None
 ) -> tuple[str, Path]:
@@ -456,12 +478,10 @@ def run_verification_pass(
     """Independently verify each newly-claimed (``[X]`` not in ``already_verified``)
     or previously-deferred (``[~]``) task in ``tasks_path``, rewriting its mark.
 
-    Two tiers (issue #1139): every task is first settled DETERMINISTICALLY from
-    filesystem state (free) — declared artifacts all valid → ``[X]``; a production
-    task's declared artifacts all missing → ``[ ]``. Only genuinely ambiguous tasks
-    reach the bounded (``cap``) semantic LLM, whose verdicts are cached by
-    ``(task_key, evidence_hash)`` so unchanged tasks re-verify for free and a verdict
-    invalidates the instant the evidence bytes change.
+    Reject absent production artifacts deterministically. Remaining tasks reach
+    the bounded (``cap``) semantic model, with verdicts cached against task,
+    requirements, and evidence bytes. Persist pending review before backend calls
+    so interruption cannot leave unreviewed work marked accepted.
 
       - COMPLETE   → ``[X]`` (truly done),
       - INCOMPLETE → ``[ ]`` (implementer REDOES it) + a note in ``notes_path``;
@@ -505,6 +525,16 @@ def run_verification_pass(
     unverifiable_flagged: list[str] = []
     budget = cap
     keys = task_keys(lines)  # unique + churn-stable; see task_keys()
+
+    # Persist pending review BEFORE calling a backend. A crash/interruption must
+    # not leave an unreviewed [X] that the next tick mistakes for an acceptance.
+    pending = list(lines)
+    for i, key in keys.items():
+        match = _TASK_LINE_RE.match(lines[i])
+        if match and match.group(2) in {"X", "x"} and key not in already_verified:
+            pending[i] = f"{match.group(1)}[~]{match.group(3)}"
+    if pending != lines:
+        atomic_write_text(tasks_path, "\n".join(pending) + ("\n" if text.endswith("\n") else ""))
 
     def _accept(i: int, m: re.Match[str], rest: str, key: str) -> None:
         nonlocal accepted
@@ -603,7 +633,7 @@ def run_verification_pass(
             deferred.append(key)
 
     new_text = "\n".join(lines) + ("\n" if text.endswith("\n") else "")
-    if new_text != text:
+    if new_text != tasks_path.read_text(encoding="utf-8"):
         atomic_write_text(tasks_path, new_text)
 
     # Drop reject counts / cache entries for tasks that no longer exist in tasks.md.

@@ -107,6 +107,30 @@ and model/outcome counts; `progress-metrics.json` uses persisted stage history.
     preserved both domains and the five-minute runtime target verbatim
     (`design-preservation-live.json`).
 
+11. **Task verification could prevent its own prerequisites from running.**
+    The production-guarded canary generated exporter code but no data files;
+    verification reopened the output tasks, while the dedicated execution gate
+    waited for every task to be checked off. A bounded run-book preview now runs
+    before each implementation batch's verification, supplies real output and
+    traceback evidence, and leaves final execution acceptance/fix budgets alone.
+    Real subprocess regressions prove outputs are computed with tasks still open
+    and a failed computation supplies feedback without accepting the project.
+    Evidence parsing also preserves `paper/figures/...` and multi-dot schema
+    filenames instead of looking for nonexistent shortened paths.
+12. **A checkbox was mistaken for a saved review.** A batch interrupted before
+    verification could resume with unverified tasks treated as previously
+    accepted. Later tasks could also overwrite accepted code without invalidating
+    its checkbox. Acceptance reuse now requires a matching cached review of the
+    current task/spec/evidence; pending review is persisted before backend calls.
+13. **The template audit confused task tags with unfilled fields.** Remote CI
+    flagged six existing files. Five were substantive task lists with labels such
+    as `[Write Script]` or bold `[Phase Timer]`; these are now recognized in task
+    metadata positions, while explicit fill-in directives remain detectable.
+    PROJ-434 also contained actual `Insert Research Question`/`Insert Reference`
+    placeholders and a validation instruction conflicting with its FR-004. That
+    paragraph now states the question and defers to the active specification's
+    held-out-species validation requirement, without inventing a citation.
+
 ## Models: verified, not inferred from names
 
 Dartmouth's authenticated catalog exposed `zai-org.glm-5.3` with zero input and

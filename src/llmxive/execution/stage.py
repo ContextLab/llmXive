@@ -324,6 +324,29 @@ def _deliverable_repair_feedback(project_dir: Path, res: AnalysisRunResult) -> s
     ])
 
 
+def run_implementation_preview(project_dir: Path) -> None:
+    """Produce execution evidence before verifying output-producing tasks.
+
+    Waiting for all task checkboxes before running their generators deadlocks:
+    the verifier correctly rejects the absent outputs. Run the evolving run-book
+    once per implementation batch, with a short budget. This is feedback only;
+    it never marks execution accepted, consumes final-gate fix rounds, or opens
+    tasks that the implementer has not reached yet.
+    """
+    if not any((project_dir / "code").glob("*.py")):
+        return
+    res = run_analysis(project_dir, per_cmd_timeout_s=120, overall_deadline_s=300)
+    mem = project_dir / ".specify" / "memory"
+    failures = [
+        f"{r.command} -> rc={r.returncode}\n{r.tail}"
+        for r in res.commands if not r.ok
+    ]
+    if not res.ok:
+        _write_execution_feedback(mem, res, failures)
+    else:
+        (mem / _FEEDBACK_FILENAME).unlink(missing_ok=True)
+
+
 def execute_and_gate(project_dir: Path, *, repo_root: Path | None = None) -> bool:
     """Run the analysis and gate. Returns True iff it produced real artifacts.
 

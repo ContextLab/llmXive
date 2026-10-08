@@ -135,6 +135,7 @@ def _snapshot_artifacts(project_dir: Path) -> dict[str, float]:
     for sub in _ARTIFACT_DIRS:
         roots.append(project_dir / sub)           # <proj>/data, <proj>/results, …
         roots.append(project_dir / "code" / sub)  # <proj>/code/output, …
+    roots.append(project_dir / "paper" / "figures")
     for root in roots:
         if not root.is_dir():
             continue
@@ -164,7 +165,7 @@ def declared_deliverables(tasks_md: str) -> set[str]:
     """
     out: set[str] = set()
     # data/ or figures/ rooted paths with a real file extension
-    for m in re.finditer(r"\b((?:data|figures)/[\w./-]+\.\w+)", tasks_md or ""):
+    for m in re.finditer(r"(?<![\w./-])((?:paper/figures|data|figures)/[\w./-]+\.\w+)", tasks_md or ""):
         out.add(m.group(1))
     return {
         p for p in out

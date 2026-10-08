@@ -143,7 +143,7 @@
 
 **Goal**: Train RF models and evaluate via Stratified K-Fold CV
 
-The research question remains: [Insert Research Question]. The method involves stratified K-fold cross-validation to ensure representative data splits across folds, as described in [Insert Reference]. (Primary), Leave-One-Species-Out (LOSO) (Secondary).
+The research question is whether soil nutrient profiles predict plant root depth and branching density beyond species identity. Validation must follow the active specification's FR-004: Leave-One-Species-Out cross-validation with R² and RMSE measured on held-out species. Reconcile any conflicting stratified-K-fold instructions below with that requirement before implementation; cite only sources verified in `research.md`.
 
 **Independent Test**: The training script executes on the merged dataset, outputs cross-validation metrics (mean R², mean RMSE) for both target variables, and generates a feature importance plot.
 

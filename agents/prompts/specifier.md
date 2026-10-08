@@ -42,6 +42,16 @@ A Markdown document conforming to the `spec_template` structure:
 
 ## Methodological soundness (encode these in the FRs/SCs — the panel blocks on them)
 
+This is the research specification. Its executable deliverables are the analysis,
+validation, measured tables/figures, and an evidence summary. Preserve requested
+manuscript requirements under an explicit "Paper-stage handoff" section: the
+subsequent paper pipeline owns manuscript formatting, PDF compilation, and
+publication. Do not turn those later deliverables into prerequisites for research
+completion or require a project-specific CI workflow to duplicate the platform.
+Scientific success means an informative, reproducible answer, including null or
+negative results; never require a favorable effect size or significant result
+as a completion criterion.
+
 For any empirical / quantitative study, the spec's FRs and SCs MUST make the
 design methodologically defensible — these are the concerns the downstream
 methodology panel raises and that no later stage can paper over:

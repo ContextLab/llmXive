@@ -287,9 +287,15 @@ _POST_AVOIDANCE_RE = re.compile(
     re.IGNORECASE,
 )
 
+_WRAPPED_REFUSAL_RE = re.compile(
+    r"\b(?:never|do(?:es)?\s+not|don'?t|doesn'?t)\s+"
+    r"(?:fall(?:s)?\s+back\s+to|use|uses|generate|generates)\s+" + _SYNTH_PHRASE,
+    re.IGNORECASE,
+)
+
 
 def _avoidance_spans(text: str) -> list[tuple[int, int]]:
-    return [m.span() for pattern in (_AVOIDANCE_RE, _POST_AVOIDANCE_RE)
+    return [m.span() for pattern in (_AVOIDANCE_RE, _POST_AVOIDANCE_RE, _WRAPPED_REFUSAL_RE)
             for m in pattern.finditer(text)]
 
 
