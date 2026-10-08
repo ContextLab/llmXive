@@ -1,6 +1,6 @@
 status: none
-intent: PhysioNet EEG Motor Movement Imagery dataset download using MNE python package
-  dataset
+intent: PhysioNet EEG Motor Movement Imagery dataset with reaction time task python
+  package dataset
 required_fields:
 - participant_id
 - delta_power
@@ -9,6 +9,6 @@ required_fields:
 - beta_power
 - gamma_power
 - median_reaction_time
-cache_key: ae038647d26e51c61b1a6f187d515217ccf1794a4070854a566510ef7643e7d9
-searched_at: '2026-08-29T03:02:59.946170+00:00'
+cache_key: 7b94bcf1435b896057e17accf55093ce1b758027d8fd8e8206b1cd176e45f92e
+searched_at: '2026-10-08T04:51:46.860330+00:00'
 retry_count: 1
