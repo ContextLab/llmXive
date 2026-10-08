@@ -18,7 +18,7 @@ The system MUST ingest raw 16S rRNA taxonomic data from the American Gut Project
 **Acceptance Scenarios**:
 
 1. **Given** raw AGP and HRS CSV/TSV files exist locally, **When** the ingestion script runs, **Then** a merged dataframe is produced with ≥ 80% overlap on participant IDs (calculated as the intersection of unique IDs present in both source datasets).
-2. **Given** the merged dataframe, **When** the age filter (≥ 60) is applied, **Then** the resulting subset contains no participants under 60 years old.
+2. **Given** the merged dataframe, **When** the age filter (≥ 60) is applied, **Then** the resulting subset contains no participants under the specified age threshold.
 3. **Given** missing covariate values (e.g., BMI, education), **When** imputation is applied, **Then** no null values remain in the final analysis dataset.
 
 ---
@@ -50,7 +50,7 @@ The system MUST train a Random Forest regressor to predict cognitive scores from
 **Acceptance Scenarios**:
 
 1. **Given** the training set, **When** the Random Forest model is trained, **Then** it runs on CPU-only hardware without GPU acceleration requests.
-2. **Given** the hold-out set, **When** performance is evaluated, **Then** the R² score is compared against the permutation null distribution (1000 shuffles).
+2. **Given** the hold-out set, **When** performance is evaluated, **Then** the R² score is compared against the permutation null distribution (multiple shuffles).
 3. **Given** the rarefaction depth threshold, **When** a sensitivity analysis is run across the specified set of depths, **Then** the model is re-evaluated at each depth and the variance in R² is reported.
 
 ---

@@ -1,97 +1,137 @@
 """
-Unit tests for the data models (Sample, Taxon) defined in code/utils/data_models.py.
+Unit tests for code/utils/data_models.py
 """
-
 import pytest
-from code.utils.data_models import Sample, Taxon, DataType
+from code.utils.data_models import DataType, Taxon, Sample
+from datetime import datetime
+
+
+class TestDataTypeEnum:
+    def test_datatype_values(self):
+        assert DataType.GUT_MICROBIOME.value == "gut_microbiome"
+        assert DataType.COGNITIVE_SCORE.value == "cognitive_score"
+        assert DataType.COVARIATE.value == "covariate"
+
+    def test_datatype_from_string(self):
+        assert DataType("gut_microbiome") == DataType.GUT_MICROBIOME
+        assert DataType("cognitive_score") == DataType.COGNITIVE_SCORE
 
 
 class TestTaxon:
     def test_taxon_creation(self):
-        taxon = Taxon(id="g__Bacteroides", rank="genus", name="Bacteroides")
-        assert taxon.id == "g__Bacteroides"
-        assert taxon.rank == "genus"
+        taxon = Taxon(
+            taxon_id="GUT_001",
+            name="Bacteroides",
+            rank="genus",
+            abundance=0.25,
+            data_type=DataType.GUT_MICROBIOME
+        )
+        assert taxon.taxon_id == "GUT_001"
         assert taxon.name == "Bacteroides"
-        assert taxon.metadata == {}
+        assert taxon.rank == "genus"
+        assert taxon.abundance == 0.25
+        assert taxon.data_type == DataType.GUT_MICROBIOME
 
     def test_taxon_to_dict(self):
-        taxon = Taxon(id="g__Bacteroides", rank="genus", name="Bacteroides", metadata={"source": "AGP"})
-        d = taxon.to_dict()
-        assert d["id"] == "g__Bacteroides"
-        assert d["rank"] == "genus"
-        assert d["metadata"]["source"] == "AGP"
+        taxon = Taxon(
+            taxon_id="GUT_002",
+            name="Firmicutes",
+            rank="phylum",
+            abundance=0.75,
+            data_type=DataType.GUT_MICROBIOME
+        )
+        result = taxon.to_dict()
+        assert result["taxon_id"] == "GUT_002"
+        assert result["name"] == "Firmicutes"
+        assert result["rank"] == "phylum"
+        assert result["abundance"] == 0.75
+        assert result["data_type"] == "gut_microbiome"
 
     def test_taxon_from_dict(self):
         data = {
-            "id": "s__E_coli",
-            "rank": "species",
-            "name": "Escherichia coli",
-            "metadata": {"pathogenic": True}
+            "taxon_id": "GUT_003",
+            "name": "Proteobacteria",
+            "rank": "phylum",
+            "abundance": 0.10,
+            "data_type": "gut_microbiome"
         }
         taxon = Taxon.from_dict(data)
-        assert taxon.id == "s__E_coli"
-        assert taxon.metadata["pathogenic"] is True
+        assert taxon.taxon_id == "GUT_003"
+        assert taxon.name == "Proteobacteria"
+        assert taxon.rank == "phylum"
+        assert taxon.abundance == 0.10
+        assert taxon.data_type == DataType.GUT_MICROBIOME
 
 
 class TestSample:
     def test_sample_creation(self):
         sample = Sample(
             sample_id="S001",
-            participant_id="P001",
+            participant_id="P123",
+            collection_date=datetime(2023, 1, 15),
             age=65,
-            data_type=DataType.RAW_COUNTS
+            sex="M",
+            bmi=24.5,
+            cognitive_score=85.0,
+            data_type=DataType.COGNITIVE_SCORE
         )
         assert sample.sample_id == "S001"
+        assert sample.participant_id == "P123"
         assert sample.age == 65
-        assert sample.data_type == DataType.RAW_COUNTS
+        assert sample.sex == "M"
+        assert sample.bmi == 24.5
+        assert sample.cognitive_score == 85.0
+        assert sample.data_type == DataType.COGNITIVE_SCORE
 
-    def test_get_abundance(self):
+    def test_sample_to_dict(self):
         sample = Sample(
-            sample_id="S001",
-            participant_id="P001",
-            taxon_abundances={"g__Bacteroides": 100.0, "g__Prevotella": 50.0}
+            sample_id="S002",
+            participant_id="P456",
+            collection_date=datetime(2023, 2, 20),
+            age=70,
+            sex="F",
+            bmi=22.0,
+            cognitive_score=90.0,
+            data_type=DataType.COGNITIVE_SCORE
         )
-        assert sample.get_abundance("g__Bacteroides") == 100.0
-        assert sample.get_abundance("g__Unknown") == 0.0
+        result = sample.to_dict()
+        assert result["sample_id"] == "S002"
+        assert result["participant_id"] == "P456"
+        assert result["age"] == 70
+        assert result["sex"] == "F"
+        assert result["bmi"] == 22.0
+        assert result["cognitive_score"] == 90.0
+        assert result["data_type"] == "cognitive_score"
 
-    def test_has_non_null_cognitive_score(self):
-        # No scores
-        sample = Sample(sample_id="S001", participant_id="P001")
-        assert not sample.has_non_null_cognitive_score()
+    def test_sample_from_dict(self):
+        data = {
+            "sample_id": "S003",
+            "participant_id": "P789",
+            "collection_date": "2023-03-25",
+            "age": 62,
+            "sex": "M",
+            "bmi": 26.0,
+            "cognitive_score": 78.0,
+            "data_type": "cognitive_score"
+        }
+        sample = Sample.from_dict(data)
+        assert sample.sample_id == "S003"
+        assert sample.participant_id == "P789"
+        assert sample.age == 62
+        assert sample.sex == "M"
+        assert sample.bmi == 26.0
+        assert sample.cognitive_score == 78.0
+        assert sample.data_type == DataType.COGNITIVE_SCORE
 
-        # Valid score
-        sample.cognitive_scores = {"memory": 0.8}
-        assert sample.has_non_null_cognitive_score()
-
-        # Null/NaN score
-        sample.cognitive_scores = {"memory": None}
-        assert not sample.has_non_null_cognitive_score()
-
-    def test_filter_by_age(self):
-        young = Sample(sample_id="S001", participant_id="P001", age=45)
-        old = Sample(sample_id="S002", participant_id="P002", age=70)
-        no_age = Sample(sample_id="S003", participant_id="P003")
-
-        assert not young.filter_by_age(60)
-        assert old.filter_by_age(60)
-        assert not no_age.filter_by_age(60)
-
-    def test_serialization_roundtrip(self):
-        original = Sample(
-            sample_id="S001",
-            participant_id="P001",
-            age=62,
-            cognitive_scores={"executive": 0.9},
-            taxon_abundances={"g__Firmicutes": 500.0},
-            data_type=DataType.RELATIVE_ABUNDANCE,
-            metadata={"notes": "test"}
-        )
-
-        json_str = original.to_json()
-        restored = Sample.from_json(json_str)
-
-        assert restored.sample_id == original.sample_id
-        assert restored.age == original.age
-        assert restored.cognitive_scores == original.cognitive_scores
-        assert restored.data_type == original.data_type
-        assert restored.metadata == original.metadata
+    def test_sample_invalid_age(self):
+        with pytest.raises(ValueError):
+            Sample(
+                sample_id="S004",
+                participant_id="P999",
+                collection_date=datetime(2023, 4, 1),
+                age=40,
+                sex="M",
+                bmi=23.0,
+                cognitive_score=80.0,
+                data_type=DataType.COGNITIVE_SCORE
+            )

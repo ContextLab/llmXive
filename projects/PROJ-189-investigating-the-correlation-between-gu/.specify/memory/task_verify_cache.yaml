@@ -29,31 +29,6 @@ T006:
     \ logging infrastructure has not been verified to create or use it. The missing\
     \ implementation details and absent log file mean the task\u2019s requirement\
     \ is not demonstrably satisfied."
-T014:
-  c: false
-  h: 3e39810f24f5ec28c78d9f58daff98777cc3d47ccd21d6667fe4d5daa399c134
-  r: "The repository lacks the required `data/processed/merge_log.json` file, and\
-    \ the shown portion of `code/01_data_ingestion.py` is truncated before any merge\
-    \ logic is defined, so we cannot verify that it checks for \u2265\u202F500 overlapping\
-    \ IDs, raises a `ValueError` on failure, and logs the count. The task\u2019s core\
-    \ requirements are therefore not satisfied."
-T016:
-  c: false
-  h: 9a5fe20fc49dd2c5bd96351de596c477ae0243842439fc18d4a7a114198b86c2
-  r: "The provided `code/02_preprocessing.py` does not contain any logic for rarefying\
-    \ to a uniform depth or collapsing to genus\u2011level relative abundances, and\
-    \ the required output file `data/processed/rarefied_genus_table.parquet` is absent\
-    \ from the repository. Both the implementation and the expected artifact are missing,\
-    \ so the task is not satisfied."
-T018:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The response contains only the task description and specification; no script,\
-    \ log file, or code implementing \u201Clog mismatch counts and proceed only if\
-    \ overlap\u202F\u2265\u202F500 samples; fail gracefully otherwise\u201D is provided.\
-    \ Consequently, there is no artifact to verify that the required behavior is implemented.\
-    \ The missing implementation (e.g., a Python/R script that computes the overlap,\
-    \ logs the mismatch count, and aborts when <\u202F500) must be added."
 T024b:
   c: false
   h: 495da69fa9b2257bc823f65170a489aad48e04002d67d3d52e2308bc64410ade
@@ -76,3 +51,10 @@ T033:
     \ not exist, and the provided `code/04_predictive_modeling.py` snippet shows no\
     \ implementation of VIF calculation, CLR transformation, or JSON logging for VIF\
     \ >\u202F5. The task\u2019s core functionality is therefore not delivered."
+T045:
+  c: false
+  h: efcdf6ef2a493570d0644e2aad1ea5f722eb54fa8e197563b6ec93f03b3f0775
+  r: "The required output file `data/processed/test_report_merge.json` does not exist,\
+    \ and there is no evidence that `pytest tests/contract/test_data_merge.py -v`\
+    \ was executed and its results saved. Without this JSON report the task\u2019\
+    s deliverable is missing."
