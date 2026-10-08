@@ -170,6 +170,19 @@ and model/outcome counts; `progress-metrics.json` uses persisted stage history.
     the existing peer-model fallback instead of opening a permanent engine
     failure. A regression exercises the backend's actual classification entry
     point and verifies that budget-exceeded errors remain hard limits.
+19. **Failure deduplication was scoped to each project, multiplying tickets.**
+    The live issue census found 185 reviewer-schema reports and five provider
+    reports among 199 open issues. Those observed signatures now route to shared
+    tracking issues [#1474](https://github.com/ContextLab/llmXive/issues/1474) and
+    [#1475](https://github.com/ContextLab/llmXive/issues/1475), before consulting
+    legacy per-project ledgers. The state ledger retains the latest 20 project/
+    stage examples with run IDs and diagnostic excerpts. Repeated occurrences
+    emit no new tickets or comments. A closed tracking issue is reopened when
+    recurrence is detected, with status checks bounded to once per UTC day per
+    checkout. Unknown signatures retain their distinct issue tracking. The
+    regression covers thirty different projects sharing one issue and recurrence
+    after closure; it does not claim an exact global occurrence counter across
+    concurrent workers.
 
 ### Independent scientific acceptance reference
 

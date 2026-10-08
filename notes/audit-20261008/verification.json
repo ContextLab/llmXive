@@ -15,7 +15,8 @@
     "execution_status_consumers": 176,
     "real_pytest_execution_and_fingerprint": 41,
     "multiline_implementation_and_verification": 26,
-    "implementation_and_execution_consumers": 164
+    "implementation_and_execution_consumers": 164,
+    "recurring_issue_and_provider_routing": 50
   },
   "lint": "changed Python files pass ruff",
   "live_model_probe": "GLM-5.3 free catalog entry and real JSON response verified",
@@ -57,5 +58,11 @@
       "passed": 64
     },
     "note": "Network-requiring checks passed on rerun; no suite failures remain. Full-pipeline canary remains unaccepted."
-  }
+  },
+  "recurring_issue_targets": {
+    "reviewer_schema": 1474,
+    "provider_failures": 1475,
+    "deployment": "pending"
+  },
+  "independent_scientific_reference": "Twelve exact totient residue distributions computed independently; not pipeline-generated acceptance evidence"
 }
