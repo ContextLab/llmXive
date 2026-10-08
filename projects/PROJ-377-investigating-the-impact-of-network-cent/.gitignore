@@ -19,9 +19,9 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
 # Virtual Environments
-.venv/
 venv/
 ENV/
 env/
@@ -32,39 +32,32 @@ env/
 *.swp
 *.swo
 *~
-.project
-.pydevproject
 
-# Data and Artifacts (CRITICAL: Do not commit raw or processed data)
+# Data and Artifacts (Critical for Research)
+# Raw data must never be committed
 data/raw/
+
+# Processed data is large and derived; excluded from git
 data/processed/
+
+# Generated artifacts and figures
 data/artifacts/
-data/interim/
 figures/
-*.csv
-*.tsv
-*.json (processed results)
-*.pkl
-*.h5
-*.nii
-*.nii.gz
 
 # Logs
 logs/
 *.log
 
+# Reproducibility report (generated)
+reproducibility_report.json
+
 # OS
 .DS_Store
 Thumbs.db
 
-# Project specific
-.reproducibility_report.json
-reproducibility_report.json
+# Jupyter
+.ipynb_checkpoints/
 
-# Testing
-.coverage
-htmlcov/
-.pytest_cache/
-
-# Environment variables
+# Local config (if any)
 .env
+config.local.json

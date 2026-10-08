@@ -4708,3 +4708,263 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-21T21:56:39Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: frozen_repo_list.json contains exactly 20 repositories from PyPI
+  claim_id: c_2f43fe94
+  context: 'T010: Create/freeze `data/raw/frozen_repo_list.json`: Implement `code/utils/repo_fetcher.py`
+    to fetch top-ranked Python repositories on the PyPI leaderboard via the PyPI JSON
+    API... The script MUST enforce that the final list contains a predefined, fixed
+    number of items.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script MUST enforce that the final list contains a predefined, fixed
+    number of items. If the API fails to return the required number of valid repos
+    after retries, the script MUST raise an exception and fail loudly.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T13:48:35Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: frozen_repo_list.json contains exactly 20 repositories
+  claim_id: c_7cee9232
+  context: 'T010: Create/freeze `data/raw/frozen_repo_list.json`: Implement `code/utils/repo_fetcher.py`
+    to fetch top-ranked Python repositories on the PyPI leaderboard via the PyPI JSON
+    API... The script MUST enforce that the final list contains a predefined, fixed
+    number of items. If the API fails to return the required number of valid repos
+    after retries, the script MUST raise an exception and fail loudly. (do NOT proceed
+    with a fallback list). Copy `data/raw/frozen_repo_list.json` to `data/raw/repo_list.json`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script MUST enforce that the final list contains a predefined, fixed
+    number of items.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T13:48:36Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: total method count up to 20,000
+  claim_id: c_5b421d85
+  context: 'T018b: Edit `plan.md` to ensure the ''Performance Goals'' and ''Constraints''
+    sections explicitly state ''Max a reasonable number of methods per repository
+    to ensure manageability and coherence.'' (hard cap) and that the total count is
+    up to 20,000 (20 repos * [deferred]).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The total count is up to 20,000 (20 repos * [deferred]).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T13:49:06Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: per-repo count <= 1,000 and total count <= 20,000
+  claim_id: c_59dc11e7
+  context: 'T026: Execute `python code/aggregate.py` to merge `data/processed/generation_batch_*_cleaned.json`
+    into a single `data/processed/results.json`, preserving `ast_params`, and verify
+    the final file structure and per-repo count <= 1,000 and total count <= 20,000
+    (valid if < 20,000 due to sparse repos).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The final file structure and per-repo count <= 1,000 and total count <=
+    20,000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T13:49:37Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 3
+  canonical: frozen_repo_list.json contains exactly 20 repositories
+  claim_id: c_078f9306
+  context: 'T010: Create/freeze `data/raw/frozen_repo_list.json`: Implement `code/utils/repo_fetcher.py`
+    to fetch top-ranked Python repositories on the PyPI leaderboard via the PyPI JSON
+    API (`https://pypi.org/pypi/{package}/json`) with a retry mechanism with exponential
+    backoff (A limited number of retries). Sort them deterministically by star count.
+    Write the list to `data/raw/frozen_repo_list.json`. The script MUST enforce that
+    the final list contains a predefined, fixed number of items. If the API fails
+    to return the required number of valid repos after retries, the script MUST raise
+    an exception and fail loudly. (do NOT proceed with a fallback list). Copy `data/raw/frozen_repo_list.json`
+    to `data/raw/repo_list.json`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script MUST enforce that the final list contains a predefined, fixed
+    number of items.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T13:49:40Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: frozen_repo_list.json contains exactly 20 repositories
+  claim_id: c_6c2d7a8b
+  context: Task T010 requires implementing a script to fetch top-ranked Python repositories,
+    sort them by star count, and write the list to data/raw/frozen_repo_list.json
+    with a verification step ensuring the count is exactly 20.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script MUST enforce that the final list contains a predefined, fixed
+    number of items... verify the count is exactly 20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T13:54:20Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: total method count cap is up to 20,000 based on 20 repositories
+  claim_id: c_599d4509
+  context: Task T018b requires updating plan.md to state the total count is up to
+    20,000 methods derived from 20 repositories.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The plan's 'Performance Goals' and 'Constraints' sections explicitly state
+    'Max a reasonable number of methods per repository... and that the total count
+    is up to 20,000 (20 repos * [deferred]).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T13:54:40Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: maximum total method count is 20,000
+  claim_id: c_1df705dd
+  context: Task T018b verification requires ensuring the total count is up to 20,000.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The total count is up to 20,000 (20 repos * [deferred]).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T13:54:41Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: model loaded with 4-bit quantization
+  claim_id: c_a60458b0
+  context: Task T024 requires loading the Salesforce/codegen-350M-mono model with
+    4-bit quantization and no fallback.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script MUST load the model with 4-bit quantization.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T13:55:06Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: process aborts if RAM exceeds 7 GB
+  claim_id: c_e3ce2687
+  context: Task T025 requires integrating memory monitoring that aborts the process
+    if RAM usage exceeds 7 GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If RAM > 7 GB, log a specific RAM_LIMIT_EXCEEDED entry to logs/monitor.log
+    and call sys.exit(1) to abort the process immediately.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T13:55:07Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Wilcoxon signed-rank test performed on human vs LLM coverage scores
+  claim_id: c_ae5b9629
+  context: Task T035 requires implementing a Wilcoxon signed-rank test for paired
+    comparison of Human vs. LLM coverage scores.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test_performed_on_human_vs_LLM_coverage
+  kind: entity_fact
+  raw_text: Execute python code/analyze.py --step=stats and write to data/processed/results_with_stats.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T13:55:35Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: warning logged for statistical power when n < 30
+  claim_id: c_802ed720
+  context: Task T030 and T035a require logging a warning 'Statistical power may be
+    low (n < 30)' if the number of pairs is less than 30.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical power may be low (n < 30) warning is logged if the number
+    of pairs is small.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T13:55:36Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: semantic similarity calculated using sentence-transformers/all-MiniLM-L6-v2
+  claim_id: c_68c91546
+  context: Task T034 requires implementing semantic similarity calculation using sentence-transformers/all-MiniLM-L6-v2.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: embedding (i.e., all-MiniLM-L6-v2) in an
+      source_id: '2607.07974'
+      url: https://arxiv.org/abs/2607.07974
+      value: all-MiniLM-L6-v2
+    filled: true
+  kind: entity_fact
+  raw_text: The script uses sentence-transformers/all-MiniLM-L6-v2 as the model for
+    semantic similarity calculation.
+  resolved_value: all-MiniLM-L6-v2
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T13:56:02Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: plan reference to 100 methods removed
+  claim_id: c_99895ec4
+  context: Notes section states that the plan's mention of '100 methods' has been
+    corrected by T018b.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The plan mentions '100 methods' has been corrected by T018b.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T13:56:25Z'

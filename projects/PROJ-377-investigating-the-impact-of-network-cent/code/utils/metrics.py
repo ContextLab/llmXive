@@ -1,204 +1,280 @@
-"""
-Reproducibility Reporting Utility.
-
-Implements T006 and T040: Generate reproducibility_report.json with checksums,
-resource usage, and all validation metrics.
-"""
 import json
 import os
 import hashlib
 import platform
 import subprocess
 import time
-from typing import Dict, Any, List, Optional
+import logging
 from pathlib import Path
+from typing import Dict, Any, Optional, List
+from datetime import datetime
+
+# Import from existing logging utility to ensure consistency
+from utils.logging import get_resource_usage
+
+# Ensure output directories exist
+DATA_PROCESSED_BEHAVIORAL = Path("data/processed/behavioral")
+DATA_PROCESSED_CENTRALITY = Path("data/processed/centrality")
+DATA_PROCESSED_REGRESSION = Path("data/processed/regression")
+DATA_PROCESSED_VALIDATION = Path("data/processed/validation")
+DATA_PROCESSED_LOGS = Path("data/processed/logs")
+
+# Ensure directories exist
+DATA_PROCESSED_BEHAVIORAL.mkdir(parents=True, exist_ok=True)
+DATA_PROCESSED_CENTRALITY.mkdir(parents=True, exist_ok=True)
+DATA_PROCESSED_REGRESSION.mkdir(parents=True, exist_ok=True)
+DATA_PROCESSED_VALIDATION.mkdir(parents=True, exist_ok=True)
+DATA_PROCESSED_LOGS.mkdir(parents=True, exist_ok=True)
+
+logger = logging.getLogger(__name__)
+
 
 def get_git_commit() -> str:
+    """Get the current git commit hash."""
     try:
-        result = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True, check=True)
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            capture_output=True,
+            text=True,
+            check=True
+        )
         return result.stdout.strip()
-    except Exception:
+    except (subprocess.CalledProcessError, FileNotFoundError):
         return "unknown"
 
-def get_file_checksum(file_path: str) -> str:
-    if not os.path.exists(file_path):
-        return "missing"
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
 
-def get_directory_checksums(dir_path: str) -> Dict[str, str]:
+def get_file_checksum(file_path: Path) -> str:
+    """Calculate SHA256 checksum of a file."""
+    if not file_path.exists():
+        return "file_not_found"
+    sha256_hash = hashlib.sha256()
+    try:
+        with open(file_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except Exception as e:
+        logger.error(f"Error calculating checksum for {file_path}: {e}")
+        return "error"
+
+
+def get_directory_checksums(dir_path: Path, extensions: List[str] = None) -> Dict[str, str]:
+    """Calculate checksums for all relevant files in a directory."""
+    if not dir_path.exists():
+        return {}
     checksums = {}
-    if not os.path.exists(dir_path):
-        return checksums
-    for root, _, files in os.walk(dir_path):
-        for file in files:
-            full_path = os.path.join(root, file)
-            checksums[full_path] = get_file_checksum(full_path)
+    if extensions is None:
+        extensions = [".csv", ".json", ".tsv"]
+    
+    for ext in extensions:
+        for file_path in dir_path.glob(f"**/*{ext}"):
+            checksums[str(file_path)] = get_file_checksum(file_path)
     return checksums
 
-def get_resource_usage() -> Dict[str, Any]:
-    try:
-        import psutil
-        process = psutil.Process(os.getpid())
-        mem_info = process.memory_info()
-        return {
-            "rss_mb": round(mem_info.rss / (1024 * 1024), 2),
-            "vms_mb": round(mem_info.vms / (1024 * 1024), 2),
-            "cpu_percent": round(process.cpu_percent(), 2)
-        }
-    except ImportError:
-        return {
-            "rss_mb": 0,
-            "vms_mb": 0,
-            "cpu_percent": 0,
-            "note": "psutil not installed"
-        }
 
-def calculate_artifact_checksums(artifact_dirs: List[str]) -> Dict[str, Dict[str, str]]:
-    results = {}
-    for d in artifact_dirs:
-        if os.path.exists(d):
-            results[d] = get_directory_checksums(d)
-        else:
-            results[d] = {"_status": "directory_not_found"}
-    return results
-
-def load_validation_metrics(file_path: str) -> Dict[str, Any]:
-    if os.path.exists(file_path):
-        with open(file_path, "r") as f:
-            return json.load(f)
-    return {}
-
-def load_cv_metrics(file_path: str) -> Dict[str, Any]:
-    if os.path.exists(file_path):
-        with open(file_path, "r") as f:
-            return json.load(f)
-    return {}
-
-def load_permutation_results(file_path: str) -> Dict[str, Any]:
-    if os.path.exists(file_path):
-        with open(file_path, "r") as f:
-            return json.load(f)
-    return {}
-
-def load_baseline_r2(file_path: str) -> Dict[str, Any]:
-    if os.path.exists(file_path):
-        with open(file_path, "r") as f:
-            return json.load(f)
-    return {}
-
-def load_regression_summary(file_path: str) -> Dict[str, Any]:
-    if os.path.exists(file_path):
-        df = __import__('pandas').read_csv(file_path)
-        # Convert to dict for JSON serialization
-        return df.to_dict(orient='records')
-    return []
-
-def generate_report(
-    git_commit: str,
-    artifacts: Dict[str, Dict[str, str]],
-    validation_metrics: Dict[str, Any],
-    resource_usage: Dict[str, Any]
-) -> Dict[str, Any]:
-    return {
-        "git_commit": git_commit,
-        "platform": platform.platform(),
-        "python_version": platform.python_version(),
-        "artifacts_checksums": artifacts,
-        "validation_metrics": validation_metrics,
-        "resource_usage": resource_usage,
-        "generated_at": time.strftime("%Y-%m-%d %H:%M:%S")
+def calculate_artifact_checksums() -> Dict[str, Any]:
+    """Calculate checksums for all critical pipeline artifacts."""
+    checksums = {
+        "behavioral": get_directory_checksums(DATA_PROCESSED_BEHAVIORAL),
+        "centrality": get_directory_checksums(DATA_PROCESSED_CENTRALITY),
+        "regression": get_directory_checksums(DATA_PROCESSED_REGRESSION),
+        "validation": get_directory_checksums(DATA_PROCESSED_VALIDATION),
     }
+    return checksums
 
-def save_report(report: Dict[str, Any], output_path: str):
-    output_dir = os.path.dirname(output_path)
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
-    with open(output_path, "w") as f:
-        json.dump(report, f, indent=2)
-    print(f"Reproducibility report saved to {output_path}")
 
-def run_reproducibility_report(output_path: str = "data/artifacts/reproducibility_report.json"):
-    """
-    Generates the final reproducibility report for T040.
-    Collects checksums, resource usage, and all validation metrics.
-    """
-    import pandas as pd
+def load_validation_metrics() -> Optional[Dict[str, Any]]:
+    """Load validation metrics from permutation and cross-validation results."""
+    results = {}
     
-    # Define artifact directories to checksum
-    artifact_dirs = [
-        "data/processed/behavioral",
-        "data/processed/centrality",
-        "data/processed/regression",
-        "data/processed/validation",
-        "data/processed/logs"
-    ]
+    # Load permutation results
+    perm_file = DATA_PROCESSED_VALIDATION / "permutation_results.json"
+    if perm_file.exists():
+        try:
+            with open(perm_file, "r") as f:
+                results["permutation"] = json.load(f)
+        except Exception as e:
+            logger.warning(f"Could not load permutation results: {e}")
+    
+    # Load cross-validation results
+    cv_file = DATA_PROCESSED_VALIDATION / "cv_results.json"
+    if cv_file.exists():
+        try:
+            with open(cv_file, "r") as f:
+                results["cross_validation"] = json.load(f)
+        except Exception as e:
+            logger.warning(f"Could not load CV results: {e}")
+    
+    return results if results else None
 
-    # Calculate checksums
-    checksums = calculate_artifact_checksums(artifact_dirs)
 
-    # Load validation metrics from various sources
-    validation_data = {}
+def load_cv_metrics() -> Optional[Dict[str, Any]]:
+    """Load cross-validation metrics."""
+    cv_file = DATA_PROCESSED_VALIDATION / "cv_results.json"
+    if cv_file.exists():
+        try:
+            with open(cv_file, "r") as f:
+                return json.load(f)
+        except Exception as e:
+            logger.warning(f"Could not load CV metrics: {e}")
+    return None
 
-    # Load Permutation Results (T036)
-    perm_results = load_permutation_results("data/processed/validation/permutation_results.json")
-    if perm_results:
-        validation_data["permutation_p_value"] = perm_results.get("p_value")
-        validation_data["observed_statistic"] = perm_results.get("observed_statistic")
-        validation_data["null_distribution_size"] = perm_results.get("null_distribution_size")
 
-    # Load CV Results (T037)
-    cv_results = load_cv_metrics("data/processed/validation/cv_results.json")
-    if cv_results:
-        validation_data["cv_out_of_sample_r2"] = cv_results.get("mean_r2")
-        validation_data["cv_r2_std"] = cv_results.get("std_r2")
-        validation_data["cv_rmse"] = cv_results.get("mean_rmse")
-        validation_data["cv_rmse_std"] = cv_results.get("std_rmse")
-        validation_data["cv_folds"] = cv_results.get("folds")
-        validation_data["baseline_comparison"] = cv_results.get("baseline_comparison", {})
+def load_permutation_results() -> Optional[Dict[str, Any]]:
+    """Load permutation test results."""
+    perm_file = DATA_PROCESSED_VALIDATION / "permutation_results.json"
+    if perm_file.exists():
+        try:
+            with open(perm_file, "r") as f:
+                return json.load(f)
+        except Exception as e:
+            logger.warning(f"Could not load permutation results: {e}")
+    return None
 
-    # Load Baseline R2 (T029)
-    baseline = load_baseline_r2("data/processed/validation/baseline_r2.json")
-    if baseline:
-        validation_data["baseline_r2"] = baseline.get("baseline_r2")
 
-    # Load Regression Summary (T028)
-    reg_summary = load_regression_summary("data/processed/regression/linear_model_summary.csv")
-    if reg_summary:
-        validation_data["regression_model_summary"] = reg_summary
+def load_baseline_r2() -> Optional[float]:
+    """Load baseline R² from null model residuals if available."""
+    # This would typically be calculated during null model fitting
+    # For now, return None as a placeholder
+    return None
 
-    # Load Non-linearity Check (T030)
-    nl_check = load_cv_metrics("data/processed/regression/nonlinearity_check.csv") # Reusing loader logic for CSV
-    if nl_check:
-       # If it was saved as CSV, we need to handle it differently, but for JSON report we try to load as dict if possible
-       # or just note its existence
-       if isinstance(nl_check, list) and len(nl_check) > 0:
-           validation_data["nonlinearity_check"] = nl_check
 
+def load_regression_summary() -> Optional[Dict[str, Any]]:
+    """Load regression model summary."""
+    summary_file = DATA_PROCESSED_REGRESSION / "linear_model_summary.csv"
+    if summary_file.exists():
+        try:
+            import pandas as pd
+            df = pd.read_csv(summary_file)
+            # Convert to dict for JSON serialization
+            return df.to_dict(orient='records')
+        except Exception as e:
+            logger.warning(f"Could not load regression summary: {e}")
+    return None
+
+
+def generate_report() -> Dict[str, Any]:
+    """Generate the complete reproducibility report structure."""
+    start_time = time.time()
+    commit = get_git_commit()
+    platform_info = platform.platform()
+    python_version = platform.python_version()
+    
     # Get resource usage
     resource_usage = get_resource_usage()
-
-    # Get Git Commit
-    git_commit = get_git_commit()
-
-    # Generate Report
-    report = generate_report(
-        git_commit=git_commit,
-        artifacts=checksums,
-        validation_metrics=validation_data,
-        resource_usage=resource_usage
-    )
-
-    # Save Report
-    save_report(report, output_path)
+    
+    # Calculate checksums
+    checksums = calculate_artifact_checksums()
+    
+    # Load validation metrics
+    validation_metrics = load_validation_metrics()
+    
+    # Load regression summary
+    regression_summary = load_regression_summary()
+    
+    # Calculate wall clock time
+    wall_clock_time = time.time() - start_time
+    
+    report = {
+        "metadata": {
+            "generated_at": datetime.now().isoformat(),
+            "git_commit": commit,
+            "platform": platform_info,
+            "python_version": python_version,
+            "wall_clock_time_seconds": wall_clock_time,
+            "ram_usage_mb": resource_usage.get("ram_mb", 0),
+            "cpu_percent": resource_usage.get("cpu_percent", 0)
+        },
+        "pipeline_metrics": {
+            "multicollinearity_check": {},  # Will be populated by T027c
+            "power_warning": False,  # Will be populated by T004b
+            "retention_rate": None,  # Will be populated by T003
+            "n_subjects": None  # Will be populated by T004a
+        },
+        "validation_metrics": validation_metrics or {},
+        "regression_summary": regression_summary,
+        "artifact_checksums": checksums,
+        "status": "incomplete"  # Updated to "complete" when all tasks finish
+    }
+    
     return report
 
+
+def save_report(report: Dict[str, Any], output_path: Optional[Path] = None) -> Path:
+    """Save the reproducibility report to JSON."""
+    if output_path is None:
+        output_path = Path("data/artifacts/reproducibility_report.json")
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, "w") as f:
+        json.dump(report, f, indent=2, default=str)
+    
+    logger.info(f"Saved reproducibility report to {output_path}")
+    return output_path
+
+
+def load_reproducibility_report() -> Optional[Dict[str, Any]]:
+    """Load the existing reproducibility report if it exists."""
+    report_path = Path("data/artifacts/reproducibility_report.json")
+    if report_path.exists():
+        try:
+            with open(report_path, "r") as f:
+                return json.load(f)
+        except Exception as e:
+            logger.error(f"Error loading reproducibility report: {e}")
+    return None
+
+
+def update_reproducibility_report(updates: Dict[str, Any]) -> Path:
+    """Update the reproducibility report with new metrics."""
+    report = load_reproducibility_report()
+    if report is None:
+        report = generate_report()
+    
+    # Deep update the report
+    for key, value in updates.items():
+        if isinstance(value, dict) and key in report:
+            report[key].update(value)
+        else:
+            report[key] = value
+    
+    # Update status if all critical metrics are present
+    if (report["pipeline_metrics"].get("n_subjects") is not None and
+        report["pipeline_metrics"].get("retention_rate") is not None):
+        report["status"] = "complete"
+    
+    return save_report(report)
+
+
+def run_reproducibility_report() -> Path:
+    """Main entry point to generate and save the reproducibility report."""
+    logger.info("Generating reproducibility report...")
+    report = generate_report()
+    return save_report(report)
+
+
 def main():
-    """Entry point for T040 execution."""
-    run_reproducibility_report()
+    """CLI entry point for metrics utility."""
+    import argparse
+    parser = argparse.ArgumentParser(description="Generate reproducibility report")
+    parser.add_argument("--update", action="store_true", help="Update existing report with new metrics")
+    args = parser.parse_args()
+    
+    if args.update:
+        # Load existing report and update with latest metrics
+        report = load_reproducibility_report()
+        if report:
+            # Refresh checksums and resource usage
+            report["artifact_checksums"] = calculate_artifact_checksums()
+            report["metadata"]["wall_clock_time_seconds"] = time.time() - time.time()  # Reset
+            report["metadata"]["ram_usage_mb"] = get_resource_usage().get("ram_mb", 0)
+            save_report(report)
+        else:
+            logger.warning("No existing report found to update.")
+    else:
+        run_reproducibility_report()
+
 
 if __name__ == "__main__":
     main()

@@ -57,7 +57,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Create `code/config.py` with pinned random seeds, file paths, simulation box size (h⁻¹ Mpc for Millennium, appropriate domain size for TNG100-1), and critical density constants.
+- [X] T004 [P] Create `code/config.py` with pinned random seeds, file paths, simulation box size (h⁻¹ Mpc for Millennium, appropriate domain size for TNG100-1), and critical density constants.
 - [ ] T004D [P] [US1] Define Bullock et al. (2001) analytic fit parameters as numerical constants in `code/config.py` (variables: `BULLOCK_C200`, `BULLOCK_ALPHA`). **Specific Requirement**: Must include the exact numerical values for c_200 and alpha as per the paper. (See T036A).
 - [ ] T004E [P] [US3] Add docstring and citation block for Bullock et al. (2001) parameters in `code/config.py` (See T004D). **Dependency**: Must complete after T004D.
 - [ ] T005A [P] Configure Benjamini-Hochberg correction method in `code/config.py` as parameters for the analysis logic (See T033 for implementation). Do NOT mark as immutable constants; these are configuration inputs for the statistical tests.
@@ -152,15 +152,15 @@
 
 ### Implementation for User Story 3
 
-- [ ] T031 [US3] Implement mass binning with specific boundaries across multiple orders of magnitude in stellar mass and environment binning (Δ < 200 vs ≥ 200) in `code/analysis/stats.py`. **Requirement**: Explicitly use `ρ_critical` from `code/config.py` (defined in T004) for overdensity normalization. (FR-007)
+- [X] T031 [US3] Implement mass binning with specific boundaries across multiple orders of magnitude in stellar mass and environment binning (Δ < 200 vs ≥ 200) in `code/analysis/stats.py`. **Requirement**: Explicitly use `ρ_critical` from `code/config.py` (defined in T004) for overdensity normalization. (FR-007)
 - [X] T032 [P] [US3] Implement two-sample KS tests between low/high environmental bins for shape, spin, and concentration in `code/analysis/stats.py` (FR-008)
-- [ ] T033 [P] [US3] Implement Benjamini-Hochberg correction for multiple hypothesis testing across multiple KS tests (multiple metrics x multiple bins) in `code/analysis/stats.py` (FR-009); use threshold from `code/config.py`. <!-- FAILED: unspecified -->
-- [ ] T034 [P] [US3] Implement Spearman's ρ correlation between halo mass and each structural metric in `code/analysis/stats.py` (FR-010)
+- [X] T033 [P] [US3] Implement Benjamini-Hochberg correction for multiple hypothesis testing across multiple KS tests (multiple metrics x multiple bins) in `code/analysis/stats.py` (FR-009); use threshold from `code/config.py`. <!-- FAILED: unspecified -->
+- [X] T034 [P] [US3] Implement Spearman's ρ correlation between halo mass and each structural metric in `code/analysis/stats.py` (FR-010)
 - [ ] T036A [US3] Load Bullock et al. (2001) parameters from `code/config.py` (variables `BULLOCK_C200`, `BULLOCK_ALPHA` defined in T004D). **Verification**: Assert values match the expected constants by checking `config.BULLOCK_C200` and `config.BULLOCK_ALPHA` are not None and are numeric. (FR-011)
 - [ ] T036B [US3] Implement the Bullock et al. (2001) analytic fit function in `code/analysis/stats.py` using the parameters from T036A.
-- [ ] T035 [US3] Implement comparison against Bullock et al. (2001) analytic fit in `code/analysis/stats.py`. **Dependency**: Requires parameters verified in T036A and fit function from T036B. (FR-011)
+- [X] T035 [US3] Implement comparison against Bullock et al. (2001) analytic fit in `code/analysis/stats.py`. **Dependency**: Requires parameters verified in T036A and fit function from T036B. (FR-011) <!-- FAILED: unspecified -->
 - [ ] T035A [US3] Calculate and report deviation statistics (RMSE, mean difference) between measured mass-concentration relation and the Bullock et al. (2001) fit curve. **Dependency**: Must complete after T035. (SC-005, FR-011)
-- [ ] T037 [US3] Implement visualization generation (scatter plots, KDE curves, heatmaps) using matplotlib/seaborn in `code/analysis/visualize.py` (FR-012)
+- [X] T037 [US3] Implement visualization generation (scatter plots, KDE curves, heatmaps) using matplotlib/seaborn in `code/analysis/visualize.py` (FR-012)
 - [ ] T038 [US3] Save all results (p-values, effect sizes, convergence rates) to `results/statistics.json`
 - [ ] T039 [US3] Save visualizations as PNG/PDF in `results/figures/`
 

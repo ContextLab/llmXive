@@ -1,57 +1,49 @@
+"""
+Setup script to create the required data directory structure.
+This script ensures that the data/ directory and its subdirectories
+(raw/, processed/, artifacts/) exist for the project.
+"""
 import os
 from pathlib import Path
 
 def setup_data_directories():
     """
-    Create the project data directory structure as specified in T005b.
+    Creates the data directory structure required for the project.
     
-    Creates:
+    Creates the following directories relative to the project root:
     - data/
     - data/raw/
     - data/processed/
     - data/artifacts/
     
-    Ensures all directories exist, creating them if necessary.
+    Returns:
+        bool: True if all directories were created successfully, False otherwise.
     """
-    base_dir = Path("data")
-    subdirs = ["raw", "processed", "artifacts"]
+    project_root = Path(__file__).resolve().parent.parent
+    data_root = project_root / "data"
     
-    created_dirs = []
-    
-    # Ensure base directory exists
-    base_dir.mkdir(parents=True, exist_ok=True)
-    created_dirs.append(str(base_dir))
-    
-    # Create subdirectories
-    for subdir in subdirs:
-        dir_path = base_dir / subdir
-        dir_path.mkdir(parents=True, exist_ok=True)
-        created_dirs.append(str(dir_path))
-    
-    # Create additional required subdirectories for processed data
-    # as referenced in tasks.md (e.g., behavioral, centrality, logs, etc.)
-    processed_base = base_dir / "processed"
-    additional_subdirs = [
-        "behavioral",
-        "centrality",
-        "fmriprep",
-        "regression",
-        "validation",
-        "logs"
+    directories = [
+        data_root,
+        data_root / "raw",
+        data_root / "processed",
+        data_root / "artifacts"
     ]
     
-    for subdir in additional_subdirs:
-        dir_path = processed_base / subdir
-        dir_path.mkdir(parents=True, exist_ok=True)
-        created_dirs.append(str(dir_path))
+    success = True
+    for directory in directories:
+        try:
+            directory.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {directory}")
+        except OSError as e:
+            print(f"Error creating directory {directory}: {e}")
+            success = False
     
-    return created_dirs
+    return success
 
 if __name__ == "__main__":
-    import logging
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
-    
-    logger.info("Setting up data directory structure...")
-    dirs = setup_data_directories()
-    logger.info(f"Created directories: {dirs}")
+    success = setup_data_directories()
+    if success:
+        print("Data directory structure setup completed successfully.")
+    else:
+        print("Data directory structure setup completed with errors.")
+        exit(1)

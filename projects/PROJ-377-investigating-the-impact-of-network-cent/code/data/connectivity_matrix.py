@@ -1,57 +1,48 @@
 """
 Data model for a functional connectivity matrix.
-
-Encapsulates connectivity data derived from fMRI time-series for a specific subject.
 """
 import numpy as np
 from typing import Optional, List, Tuple
 import os
 from pathlib import Path
 
-
 class ConnectivityMatrix:
     """
     Represents a functional connectivity matrix for a subject.
-
+    
     Attributes:
-        subject_id (str): Unique identifier of the subject.
-        matrix (np.ndarray): 2D numpy array of connectivity values (N_nodes x N_nodes).
-        atlas_name (str): Name of the atlas used (e.g., 'AAL3').
-        node_names (List[str]): Optional list of region names corresponding to matrix indices.
-        file_path (Optional[Path]): Path where the matrix is saved on disk.
+        matrix: 2D numpy array representing the connectivity matrix.
+        region_names: List of region names corresponding to matrix rows/cols.
+        subject_id: ID of the subject this matrix belongs to.
+        method: Method used to calculate connectivity (e.g., 'pearson', 'spearman').
     """
     def __init__(
         self,
-        subject_id: str,
         matrix: np.ndarray,
-        atlas_name: str = "AAL3",
-        node_names: Optional[List[str]] = None,
-        file_path: Optional[Path] = None
+        region_names: Optional[List[str]] = None,
+        subject_id: Optional[str] = None,
+        method: str = 'pearson'
     ):
         """
         Initialize a ConnectivityMatrix.
-
+        
         Args:
-            subject_id: Unique subject identifier.
             matrix: 2D numpy array of connectivity values.
-            atlas_name: Name of the parcellation atlas.
-            node_names: List of region names.
-            file_path: Path to save/load the matrix.
+            region_names: Optional list of region names.
+            subject_id: Optional subject identifier.
+            method: Correlation method used.
         """
-        self.subject_id = subject_id
-        self.atlas_name = atlas_name
-        self.node_names = node_names
-        self.file_path = file_path
-
-        # Validate and store matrix
         if not isinstance(matrix, np.ndarray):
-            raise TypeError("Matrix must be a numpy array")
+            raise TypeError("matrix must be a numpy array")
         if matrix.ndim != 2:
-            raise ValueError("Matrix must be 2D")
+            raise ValueError("matrix must be 2D")
         if matrix.shape[0] != matrix.shape[1]:
-            raise ValueError("Matrix must be square")
-
-        self.matrix = matrix.astype(np.float32)  # Memory efficient storage
+            raise ValueError("matrix must be square")
+        
+        self.matrix = matrix
+        self.region_names = region_names
+        self.subject_id = subject_id
+        self.method = method
 
     @property
     def shape(self) -> Tuple[int, int]:
@@ -59,58 +50,55 @@ class ConnectivityMatrix:
         return self.matrix.shape
 
     @property
-    def n_nodes(self) -> int:
-        """Return the number of nodes in the graph."""
+    def n_regions(self) -> int:
+        """Return the number of regions."""
         return self.matrix.shape[0]
 
-    def save(self, path: Optional[Path] = None) -> None:
-        """
-        Save the connectivity matrix to disk.
+    def to_array(self) -> np.ndarray:
+        """Return the underlying numpy array."""
+        return self.matrix.copy()
 
+    def save(self, path: Path) -> None:
+        """
+        Save the connectivity matrix to a file.
+        
         Args:
-            path: Destination path. If None, uses self.file_path.
+            path: Path to save the matrix (supports .npy or .csv).
         """
-        save_path = path or self.file_path
-        if save_path is None:
-            raise ValueError("No file path provided to save the matrix")
-
-        # Ensure directory exists
-        save_path.parent.mkdir(parents=True, exist_ok=True)
-
-        np.save(str(save_path), self.matrix)
-        self.file_path = save_path
+        path = Path(path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        
+        if path.suffix == '.npy':
+            np.save(path, self.matrix)
+        elif path.suffix == '.csv':
+            import pandas as pd
+            df = pd.DataFrame(self.matrix, columns=self.region_names if self.region_names else None)
+            df.to_csv(path, index=False)
+        else:
+            raise ValueError(f"Unsupported file extension: {path.suffix}")
 
     @classmethod
-    def load(cls, file_path: Path, subject_id: str, atlas_name: str = "AAL3") -> 'ConnectivityMatrix':
+    def load(cls, path: Path, subject_id: Optional[str] = None) -> 'ConnectivityMatrix':
         """
-        Load a connectivity matrix from disk.
-
+        Load a connectivity matrix from a file.
+        
         Args:
-            file_path: Path to the .npy file.
-            subject_id: Subject ID to associate with the matrix.
-            atlas_name: Atlas name associated with the matrix.
-
+            path: Path to the matrix file.
+            subject_id: Optional subject ID to associate with the matrix.
+        
         Returns:
-            ConnectivityMatrix instance.
+            A ConnectivityMatrix instance.
         """
-        if not os.path.exists(file_path):
-            raise FileNotFoundError(f"Connectivity matrix file not found: {file_path}")
-
-        matrix = np.load(str(file_path))
-        return cls(
-            subject_id=subject_id,
-            matrix=matrix,
-            atlas_name=atlas_name,
-            file_path=file_path
-        )
-
-    def to_sparse_dict(self) -> dict:
-        """
-        Convert the matrix to a sparse dictionary representation (for specific analyses).
-        Only includes non-zero values.
-        """
-        sparse_data = {}
-        indices = np.argwhere(self.matrix != 0)
-        for i, j in indices:
-            sparse_data[f"{i}_{j}"] = float(self.matrix[i, j])
-        return sparse_data
+        path = Path(path)
+        
+        if path.suffix == '.npy':
+            matrix = np.load(path)
+        elif path.suffix == '.csv':
+            import pandas as pd
+            df = pd.read_csv(path)
+            matrix = df.to_numpy()
+            region_names = df.columns.tolist()
+        else:
+            raise ValueError(f"Unsupported file extension: {path.suffix}")
+        
+        return cls(matrix=matrix, region_names=region_names if path.suffix == '.csv' else None, subject_id=subject_id)

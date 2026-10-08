@@ -285,7 +285,7 @@ With multiple developers:
 - **NOTE**: T024 is marked [S] (Sequential) as it is a single script iterating over all repos.
 - **NOTE**: T038 has been removed; complex type hint handling is integrated into T033.
 - **NOTE**: T018b is added to update the Plan.md to align with Spec FR-001 ([deferred] methods cap) and moved to Phase 0.
-- **NOTE**: T034 uses `sentence-transformers/all-MiniLM-L6-v2` as specified in the User Story 3 acceptance criteria.
+- **NOTE**: T034 uses `sentence-transformers/all-MiniLM-L6-v2 (2607.07974, https://arxiv.org/abs/2607.07974)` as specified in the User Story 3 acceptance criteria.
 - **NOTE**: T035a is added to implement the small dataset warning logic.
 - **NOTE**: T026a is added to provide mock data for T033 testing, breaking the circular dependency.
 - **NOTE**: T027a is moved to Phase 2 to ensure schema definition precedes artifact generation.

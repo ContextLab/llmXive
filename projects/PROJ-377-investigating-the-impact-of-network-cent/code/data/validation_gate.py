@@ -1,85 +1,80 @@
-"""
-T002: Fatal Gate - Verify required columns in downloaded metadata.
-
-This script checks for the presence of essential behavioral columns
-in the metadata downloaded by T001. If any required column is missing,
-it logs a fatal error and exits immediately, preventing downstream
-processing of invalid data.
-"""
 import os
 import sys
 import logging
 import pandas as pd
 from pathlib import Path
-
-# Add project root to path for imports if running as script
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
 from utils.logging import setup_logger
-from utils.config import get_config
 
-REQUIRED_COLUMNS = ['pre_motor_score', 'post_motor_score', 'age', 'sex', 'subject_id']
-METADATA_PATH = Path("data/raw/metadata.csv")
-
-def validate_metadata_columns(file_path: Path) -> bool:
+def validate_metadata_columns(metadata_path: str, required_columns: list) -> bool:
     """
-    Verify that the metadata file contains all required columns.
-    
+    Verify the presence of required columns in the downloaded metadata CSV.
+
     Args:
-        file_path: Path to the metadata CSV file.
-        
+        metadata_path: Path to the metadata CSV file (e.g., data/raw/metadata.csv)
+        required_columns: List of column names that must be present.
+
     Returns:
-        True if all required columns are present, False otherwise.
-        
+        True if all columns are present, False otherwise.
+
     Raises:
         FileNotFoundError: If the metadata file does not exist.
-        ValueError: If the file is empty or has no rows.
+        SystemExit: If required columns are missing (Fatal Gate).
     """
-    logger = logging.getLogger("validation_gate")
+    logger = setup_logger(__name__)
     
-    if not file_path.exists():
-        logger.error(f"Fatal: Metadata file not found at {file_path}")
-        return False
-        
+    if not os.path.exists(metadata_path):
+        logger.error(f"Fatal: Metadata file not found at {metadata_path}")
+        sys.exit(1)
+
     try:
-        df = pd.read_csv(file_path)
+        df = pd.read_csv(metadata_path)
+        available_columns = set(df.columns)
+        missing_columns = [col for col in required_columns if col not in available_columns]
+
+        if missing_columns:
+            error_msg = f"Fatal: Dataset lacks behavioral motor task metrics. Missing columns: {missing_columns}"
+            logger.error(error_msg)
+            # Fatal Gate: Exit immediately, do not proceed
+            sys.exit(1)
+        
+        logger.info(f"Validation passed. All required columns present: {required_columns}")
+        return True
+
+    except pd.errors.EmptyDataError:
+        logger.error("Fatal: Metadata file is empty.")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Fatal: Could not read metadata file: {e}")
-        return False
-        
-    if df.empty:
-        logger.error("Fatal: Metadata file is empty (no rows).")
-        return False
-        
-    missing_cols = [col for col in REQUIRED_COLUMNS if col not in df.columns]
-    
-    if missing_cols:
-        logger.error(f"Fatal: Dataset lacks behavioral motor task metrics. Missing columns: {missing_cols}")
-        return False
-        
-    logger.info(f"Validation passed: All {len(REQUIRED_COLUMNS)} required columns present.")
-    return True
+        logger.error(f"Fatal: Error reading metadata file: {e}")
+        sys.exit(1)
 
 def main():
-    """Main entry point for the validation gate."""
-    setup_logger("validation_gate", level=logging.INFO)
-    logger = logging.getLogger("validation_gate")
+    """
+    Entry point for the validation gate task (T002).
+    Checks for required columns in data/raw/metadata.csv.
+    """
+    logger = setup_logger(__name__)
+    logger.info("Starting T002: Fatal Gate - Metadata Column Validation")
+
+    # Define paths relative to project root
+    # Assuming the script is run from the project root or code/ directory
+    project_root = Path(__file__).resolve().parent.parent.parent
+    metadata_path = project_root / "data" / "raw" / "metadata.csv"
     
-    logger.info("Starting T002: Fatal Gate - Metadata Column Verification")
+    required_columns = [
+        "pre_motor_score", 
+        "post_motor_score", 
+        "age", 
+        "sex", 
+        "subject_id"
+    ]
+
+    logger.info(f"Checking metadata at: {metadata_path}")
+    logger.info(f"Required columns: {required_columns}")
+
+    # Perform validation (exits on failure)
+    validate_metadata_columns(str(metadata_path), required_columns)
     
-    # Use configured path or default
-    config = get_config()
-    # Default to data/raw/metadata.csv if not specified in config
-    meta_path = METADATA_PATH
-    
-    if not validate_metadata_columns(meta_path):
-        logger.critical("FATAL: Aborting pipeline due to missing behavioral metrics.")
-        sys.exit(1)
-        
-    logger.info("T002 completed successfully. Proceeding to next phase.")
-    return 0
+    logger.info("T002 Validation Gate PASSED. Proceeding to next tasks.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -1,316 +1,250 @@
 """
-Contract tests for centrality metric calculation.
+Contract tests for centrality metric calculation (User Story 2).
 
-These tests verify that the centrality calculation logic adheres to the
-specified data contracts, schema requirements, and mathematical definitions
-before full implementation is attempted.
-
-Test Strategy:
-1. Verify input schema (connectivity matrix format)
-2. Verify output schema (centrality metrics DataFrame)
-3. Verify mathematical correctness of centrality metrics
-4. Verify handling of edge cases (disconnected graphs, NaN values)
+These tests validate the interface and output schema of the centrality
+calculation module before full integration. They ensure that:
+1. The centrality calculation function accepts valid inputs.
+2. The output DataFrame contains the required columns and schema.
+3. The hub selection logic returns the expected number of nodes.
+4. The metrics are calculated correctly for a known graph.
 """
 
+import os
+import sys
 import pytest
 import numpy as np
 import pandas as pd
 import networkx as nx
 from pathlib import Path
-import sys
 
-# Add code directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+# Add the project root to the path to allow imports from 'code'
+# Assuming this test runs from the project root or the test runner sets this up.
+# We explicitly add the 'code' directory to sys.path.
+code_root = Path(__file__).parent.parent.parent / "code"
+if str(code_root) not in sys.path:
+    sys.path.insert(0, str(code_root))
 
-from utils.config import get_centrality_config, get_fixed_region_indices
+from analysis.centrality import (
+    compute_centrality_metrics,
+    load_connectivity_matrix,
+    extract_connectivity_matrix_for_subject,
+    run_centrality_analysis
+)
+from utils.config import get_config, CentralityConfig
 
+# --- Fixtures ---
 
-class TestCentralityInputSchema:
-    """Test that input connectivity matrices adhere to expected schema."""
+@pytest.fixture
+def sample_connectivity_matrix():
+    """
+    Creates a small, deterministic sample connectivity matrix (adjacency matrix)
+    for testing centrality calculations.
+    Shape: (10, 10) representing 10 regions.
+    """
+    np.random.seed(42)
+    n_regions = 10
+    # Create a random symmetric matrix with values between 0 and 1
+    matrix = np.random.rand(n_regions, n_regions)
+    matrix = (matrix + matrix.T) / 2  # Symmetrize
+    np.fill_diagonal(matrix, 0.0)  # No self-loops
     
-    def test_connectivity_matrix_shape(self):
-        """Verify that input matrices are square and symmetric."""
-        # Create a valid connectivity matrix
-        n_regions = 90  # AAL3 atlas size
-        matrix = np.random.rand(n_regions, n_regions)
-        matrix = (matrix + matrix.T) / 2  # Make symmetric
-        np.fill_diagonal(matrix, 0)  # Zero diagonal
-        
-        # Validate shape
-        assert matrix.shape[0] == matrix.shape[1], "Matrix must be square"
-        assert matrix.shape[0] == n_regions, f"Expected {n_regions} regions"
-        
-    def test_connectivity_matrix_dtype(self):
-        """Verify that matrices use float32 for memory efficiency."""
-        matrix = np.random.rand(10, 10).astype(np.float32)
-        assert matrix.dtype == np.float32, "Matrix should be float32"
-        
-    def test_connectivity_matrix_no_nan(self):
-        """Verify that input matrices contain no NaN values."""
-        matrix = np.random.rand(10, 10)
-        matrix[0, 0] = np.nan  # Introduce NaN
-        
-        assert np.isnan(matrix).any(), "Matrix should contain NaN for this test"
-        # In real implementation, this should raise an error or be handled
-        
-class TestCentralityOutputSchema:
-    """Test that centrality outputs adhere to expected schema."""
+    # Threshold to create a sparse graph (optional, but realistic)
+    threshold = 0.5
+    matrix[matrix < threshold] = 0.0
     
-    def test_centrality_metrics_columns(self):
-        """Verify that output DataFrame contains required columns."""
-        # Expected columns based on task T020
-        required_columns = [
-            'subject_id',
-            'region_index',
-            'region_name',
-            'degree_centrality',
-            'betweenness_centrality',
-            'eigenvector_centrality'
-        ]
-        
-        # Create a mock output DataFrame
-        df = pd.DataFrame({
-            'subject_id': ['sub-01'],
-            'region_index': [1],
-            'region_name': ['Region1'],
-            'degree_centrality': [0.5],
-            'betweenness_centrality': [0.3],
-            'eigenvector_centrality': [0.7]
-        })
-        
-        for col in required_columns:
-            assert col in df.columns, f"Missing required column: {col}"
-            
-    def test_centrality_metrics_dtypes(self):
-        """Verify that output DataFrame has correct data types."""
-        df = pd.DataFrame({
-            'subject_id': ['sub-01'],
-            'region_index': [1],
-            'region_name': ['Region1'],
-            'degree_centrality': [0.5],
-            'betweenness_centrality': [0.3],
-            'eigenvector_centrality': [0.7]
-        })
-        
-        assert df['subject_id'].dtype == object, "subject_id should be string"
-        assert df['region_index'].dtype in [np.int64, np.int32], "region_index should be integer"
-        assert df['degree_centrality'].dtype in [np.float64, np.float32], "degree_centrality should be float"
-        assert df['betweenness_centrality'].dtype in [np.float64, np.float32], "betweenness_centrality should be float"
-        assert df['eigenvector_centrality'].dtype in [np.float64, np.float32], "eigenvector_centrality should be float"
-        
-    def test_centrality_metrics_range(self):
-        """Verify that centrality metrics are within valid ranges."""
-        # Degree centrality: [0, 1]
-        # Betweenness centrality: [0, 1]
-        # Eigenvector centrality: [0, 1] (normalized)
-        
-        df = pd.DataFrame({
-            'subject_id': ['sub-01'],
-            'region_index': [1],
-            'region_name': ['Region1'],
-            'degree_centrality': [0.5],
-            'betweenness_centrality': [0.3],
-            'eigenvector_centrality': [0.7]
-        })
-        
-        assert 0 <= df['degree_centrality'].iloc[0] <= 1, "Degree centrality must be in [0, 1]"
-        assert 0 <= df['betweenness_centrality'].iloc[0] <= 1, "Betweenness centrality must be in [0, 1]"
-        assert 0 <= df['eigenvector_centrality'].iloc[0] <= 1, "Eigenvector centrality must be in [0, 1]"
-        
-class TestCentralityMathematicalCorrectness:
-    """Test that centrality metrics are calculated correctly."""
+    return matrix
+
+@pytest.fixture
+def sample_subject_id():
+    return "sub-001"
+
+@pytest.fixture
+def sample_region_names():
+    """
+    Returns a list of region names corresponding to the matrix indices.
+    """
+    return [f"Region_{i}" for i in range(10)]
+
+@pytest.fixture
+def centrality_config():
+    """
+    Returns a CentralityConfig object with default settings for testing.
+    """
+    return CentralityConfig(
+        top_hubs=3,  # Select top 3 hubs for analysis
+        centrality_types=["degree", "betweenness", "eigenvector"],
+        threshold=0.5
+    )
+
+# --- Contract Tests ---
+
+def test_compute_centrality_metrics_input_validation(sample_connectivity_matrix):
+    """
+    Contract: The function must accept a numpy array and return a dictionary
+    of centrality metrics.
+    """
+    # Ensure the matrix is symmetric and has zero diagonal
+    assert np.allclose(sample_connectivity_matrix, sample_connectivity_matrix.T)
+    assert np.allclose(np.diag(sample_connectivity_matrix), 0.0)
+
+    # Call the function
+    metrics = compute_centrality_metrics(sample_connectivity_matrix)
+
+    # Assert output type
+    assert isinstance(metrics, dict)
+
+    # Assert expected keys exist (based on standard networkx metrics)
+    expected_keys = ["degree", "betweenness", "eigenvector"]
+    for key in expected_keys:
+        assert key in metrics, f"Missing expected metric: {key}"
+        assert isinstance(metrics[key], dict), f"Metric {key} must be a dict mapping node to value"
+
+def test_compute_centrality_metrics_output_schema(sample_connectivity_matrix, sample_region_names):
+    """
+    Contract: The output metrics must have keys corresponding to the number of regions.
+    """
+    n_regions = len(sample_region_names)
+    metrics = compute_centrality_metrics(sample_connectivity_matrix)
+
+    for metric_name, metric_dict in metrics.items():
+        assert len(metric_dict) == n_regions, \
+            f"Metric {metric_name} must have entries for all {n_regions} regions"
+        # Check that keys are integers (node indices)
+        for node_id in metric_dict.keys():
+            assert isinstance(node_id, int) or str(node_id).isdigit(), \
+                f"Node ID {node_id} should be an integer or string integer"
+
+def test_hub_selection_logic(sample_connectivity_matrix, centrality_config):
+    """
+    Contract: The function must correctly identify the top N hub nodes
+    based on degree centrality.
+    """
+    metrics = compute_centrality_metrics(sample_connectivity_matrix)
+    degree_centrality = metrics["degree"]
     
-    def test_degree_centrality_definition(self):
-        """Verify degree centrality calculation matches NetworkX definition."""
-        # Create a simple graph: 0-1-2-3 (path graph)
-        G = nx.path_graph(4)
-        
-        # Degree centrality for path graph:
-        # Node 0: 1/3 (connected to 1 out of 3 possible)
-        # Node 1: 2/3 (connected to 2 out of 3 possible)
-        # Node 2: 2/3 (connected to 2 out of 3 possible)
-        # Node 3: 1/3 (connected to 1 out of 3 possible)
-        
-        expected = {0: 1/3, 1: 2/3, 2: 2/3, 3: 1/3}
-        actual = nx.degree_centrality(G)
-        
-        for node in G.nodes():
-            assert abs(actual[node] - expected[node]) < 1e-10, \
-                f"Degree centrality mismatch for node {node}"
-                
-    def test_betweenness_centrality_definition(self):
-        """Verify betweenness centrality calculation matches NetworkX definition."""
-        # Create a star graph: 0 is center, connected to 1, 2, 3
-        G = nx.star_graph(3)
-        
-        # Betweenness centrality for star graph:
-        # Center node (0): 0 (no shortest paths pass through it)
-        # Leaf nodes (1, 2, 3): 0 (no shortest paths pass through them)
-        # Actually, for star graph, all nodes have 0 betweenness
-        
-        actual = nx.betweenness_centrality(G, normalized=True)
-        
-        # All nodes should have very low betweenness in a star graph
-        for node in G.nodes():
-            assert actual[node] < 0.1, f"Betweenness centrality unexpectedly high for node {node}"
-            
-    def test_eigenvector_centrality_definition(self):
-        """Verify eigenvector centrality calculation matches NetworkX definition."""
-        # Create a complete graph: all nodes connected to all others
-        G = nx.complete_graph(5)
-        
-        # In a complete graph, all nodes should have equal eigenvector centrality
-        actual = nx.eigenvector_centrality(G)
-        
-        values = list(actual.values())
-        # All values should be approximately equal
-        assert max(values) - min(values) < 1e-10, \
-            "All nodes in complete graph should have equal eigenvector centrality"
-            
-class TestCentralityEdgeCases:
-    """Test handling of edge cases in centrality calculation."""
+    # Sort by degree centrality descending
+    sorted_nodes = sorted(degree_centrality.items(), key=lambda x: x[1], reverse=True)
+    top_hubs = [node for node, _ in sorted_nodes[:centrality_config.top_hubs]]
     
-    def test_disconnected_graph(self):
-        """Verify handling of disconnected graphs."""
-        # Create a disconnected graph: two separate components
-        G = nx.Graph()
-        G.add_edges_from([(0, 1), (2, 3)])  # Two separate edges
-        
-        # Degree centrality should still work
-        degree = nx.degree_centrality(G)
-        assert len(degree) == 4, "All nodes should be included"
-        
-        # Betweenness centrality should work
-        betweenness = nx.betweenness_centrality(G)
-        assert len(betweenness) == 4, "All nodes should be included"
-        
-        # Eigenvector centrality might fail or return zeros
-        try:
-            eigenvector = nx.eigenvector_centrality(G)
-            # If it succeeds, values should be reasonable
-            for node, val in eigenvector.items():
-                assert 0 <= val <= 1, f"Eigenvector centrality out of range for node {node}"
-        except nx.PowerIterationFailedConvergence:
-            # This is expected for disconnected graphs
-            pass
-            
-    def test_single_node_graph(self):
-        """Verify handling of single node graphs."""
-        G = nx.Graph()
-        G.add_node(0)
-        
-        # Degree centrality should be 0
-        degree = nx.degree_centrality(G)
-        assert degree[0] == 0, "Single node should have degree centrality of 0"
-        
-        # Betweenness centrality should be 0
-        betweenness = nx.betweenness_centrality(G)
-        assert betweenness[0] == 0, "Single node should have betweenness centrality of 0"
-        
-    def test_zero_connectivity_matrix(self):
-        """Verify handling of zero connectivity matrix."""
-        matrix = np.zeros((5, 5))
-        G = nx.from_numpy_array(matrix)
-        
-        # All centrality metrics should be 0
-        degree = nx.degree_centrality(G)
-        betweenness = nx.betweenness_centrality(G)
-        
-        for node in G.nodes():
-            assert degree[node] == 0, "Zero matrix should result in zero degree centrality"
-            assert betweenness[node] == 0, "Zero matrix should result in zero betweenness centrality"
-            
-class TestConfigIntegration:
-    """Test integration with configuration system."""
+    # Verify we got the correct number of hubs
+    assert len(top_hubs) == centrality_config.top_hubs, \
+        f"Expected {centrality_config.top_hubs} hubs, got {len(top_hubs)}"
     
-    def test_fixed_region_indices_config(self):
-        """Verify that fixed region indices are correctly retrieved from config."""
-        indices = get_fixed_region_indices()
-        
-        assert isinstance(indices, list), "Fixed region indices should be a list"
-        assert len(indices) > 0, "Fixed region indices should not be empty"
-        assert all(isinstance(i, int) for i in indices), "All indices should be integers"
-        assert all(i >= 1 for i in indices), "Region indices should be >= 1 (AAL3 convention)"
-        
-    def test_centrality_config_defaults(self):
-        """Verify that centrality config has expected defaults."""
-        config = get_centrality_config()
-        
-        # Check that required fields exist
-        assert hasattr(config, 'metrics'), "Config should have 'metrics' attribute"
-        assert hasattr(config, 'threshold'), "Config should have 'threshold' attribute"
-        
-        # Verify default metrics include required ones
-        default_metrics = ['degree', 'betweenness', 'eigenvector']
-        for metric in default_metrics:
-            assert metric in config.metrics, f"Default metrics should include {metric}"
-            
-class TestDataPersistence:
-    """Test that data persistence follows expected patterns."""
+    # Verify the hubs are the ones with highest degree
+    # (This is implicitly tested by the sort, but we can be explicit)
+    min_highest_degree = min(degree_centrality[n] for n in top_hubs)
+    max_non_hub_degree = max(
+        (degree_centrality[n] for n in range(len(sample_connectivity_matrix)) if n not in top_hubs),
+        default=0
+    )
     
-    def test_output_file_path_format(self):
-        """Verify that output file paths follow expected naming convention."""
-        subject_id = "sub-01"
-        expected_filename = f"{subject_id}_metrics.csv"
-        
-        # Check that filename follows pattern
-        assert expected_filename.endswith("_metrics.csv"), "Filename should end with _metrics.csv"
-        assert expected_filename.startswith("sub-"), "Filename should start with sub-"
-        
-    def test_csv_column_order(self):
-        """Verify that CSV output maintains consistent column order."""
-        expected_order = [
-            'subject_id',
-            'region_index',
-            'region_name',
-            'degree_centrality',
-            'betweenness_centrality',
-            'eigenvector_centrality'
-        ]
-        
-        df = pd.DataFrame(columns=expected_order)
-        assert list(df.columns) == expected_order, "Column order should match expected"
-            
-class TestValidationAgainstSpecification:
-    """Test that implementation meets specification requirements."""
+    # In case of ties, strict inequality might not hold, but generally:
+    # The lowest degree in the hub set should be >= highest degree outside
+    assert min_highest_degree >= max_non_hub_degree, \
+        "Hub selection logic error: A non-hub has higher degree than a hub"
+
+def test_compute_centrality_metrics_edge_cases():
+    """
+    Contract: The function must handle edge cases like empty graphs or fully connected graphs.
+    """
+    # Case 1: Empty graph (all zeros)
+    empty_matrix = np.zeros((5, 5))
+    metrics_empty = compute_centrality_metrics(empty_matrix)
+    assert all(v == 0.0 for v in metrics_empty["degree"].values())
+    # Betweenness and eigenvector might be 0 or NaN depending on implementation, 
+    # but degree must be 0.
     
-    def test_all_regions_included(self):
-        """Verify that all ~90 regions from AAL3 atlas are included."""
-        # AAL3 atlas has approximately 90 regions
-        expected_min_regions = 85
-        expected_max_regions = 95
-        
-        # This test would be validated against actual implementation
-        # For now, we verify the contract
-        assert True, "Implementation should include all regions from AAL3 atlas"
-        
-    def test_global_centralty_calculation(self):
-        """Verify that global centrality is calculated as mean of fixed subset."""
-        # Get fixed region indices from config
-        fixed_indices = get_fixed_region_indices()
-        
-        # Create mock metrics for fixed regions
-        metrics = {
-            'degree': [0.5] * len(fixed_indices),
-            'betweenness': [0.3] * len(fixed_indices),
-            'eigenvector': [0.7] * len(fixed_indices)
+    # Case 2: Fully connected graph (all ones except diagonal)
+    n = 5
+    full_matrix = np.ones((n, n))
+    np.fill_diagonal(full_matrix, 0.0)
+    metrics_full = compute_centrality_metrics(full_matrix)
+    
+    # In a fully connected graph, degree centrality should be uniform (n-1)
+    expected_degree = n - 1
+    for node, deg in metrics_full["degree"].items():
+        assert np.isclose(deg, expected_degree), \
+            f"Fully connected graph degree mismatch for node {node}: {deg} vs {expected_degree}"
+
+def test_load_connectivity_matrix_file_not_found():
+    """
+    Contract: The loader must raise a FileNotFoundError if the file does not exist.
+    """
+    non_existent_path = "/tmp/does_not_exist_connectivity_matrix.npy"
+    with pytest.raises(FileNotFoundError):
+        load_connectivity_matrix(non_existent_path)
+
+def test_extract_connectivity_matrix_for_subject_shape(sample_connectivity_matrix):
+    """
+    Contract: The extraction function must return a 2D numpy array of the correct shape.
+    """
+    extracted = extract_connectivity_matrix_for_subject(sample_connectivity_matrix)
+    assert isinstance(extracted, np.ndarray)
+    assert extracted.ndim == 2
+    assert extracted.shape == sample_connectivity_matrix.shape
+
+def test_run_centrality_analysis_schema_integration(
+    sample_connectivity_matrix, 
+    sample_subject_id, 
+    sample_region_names,
+    centrality_config,
+    tmp_path
+):
+    """
+    Contract: The full analysis pipeline must produce a DataFrame with the
+    required schema: subject_id, region_id, region_name, degree, betweenness, eigenvector.
+    """
+    # Mock the necessary inputs for run_centrality_analysis
+    # We simulate the behavior of the pipeline on a single subject
+    
+    # Create a temporary directory for output
+    output_dir = tmp_path / "centrality_output"
+    output_dir.mkdir()
+    
+    # Save the matrix to a temporary file
+    matrix_path = output_dir / "sub-001_connectivity.npy"
+    np.save(matrix_path, sample_connectivity_matrix)
+    
+    # Create a mock config for the analysis
+    # We will call the internal logic directly to test the schema
+    metrics = compute_centrality_metrics(sample_connectivity_matrix)
+    
+    # Construct the expected DataFrame manually to verify schema logic
+    rows = []
+    for region_idx in range(len(sample_region_names)):
+        row = {
+            "subject_id": sample_subject_id,
+            "region_id": region_idx,
+            "region_name": sample_region_names[region_idx],
+            "degree": metrics["degree"].get(region_idx, 0.0),
+            "betweenness": metrics["betweenness"].get(region_idx, 0.0),
+            "eigenvector": metrics["eigenvector"].get(region_idx, 0.0)
         }
-        
-        # Calculate mean
-        global_degree = np.mean(metrics['degree'])
-        global_betweenness = np.mean(metrics['betweenness'])
-        global_eigenvector = np.mean(metrics['eigenvector'])
-        
-        # Verify calculation
-        assert global_degree == 0.5, "Global degree should be mean of fixed subset"
-        assert global_betweenness == 0.3, "Global betweenness should be mean of fixed subset"
-        assert global_eigenvector == 0.7, "Global eigenvector should be mean of fixed subset"
-        
-    def test_vif_threshold_config(self):
-        """Verify that VIF threshold is correctly configured."""
-        from utils.config import get_vif_threshold
-        
-        threshold = get_vif_threshold()
-        assert isinstance(threshold, (int, float)), "VIF threshold should be numeric"
-        assert threshold > 0, "VIF threshold should be positive"
-        assert threshold == 5, "Default VIF threshold should be 5"
+        rows.append(row)
+    
+    df = pd.DataFrame(rows)
+    
+    # Verify schema
+    required_columns = ["subject_id", "region_id", "region_name", "degree", "betweenness", "eigenvector"]
+    assert list(df.columns) == required_columns, \
+        f"DataFrame columns mismatch. Expected {required_columns}, got {list(df.columns)}"
+    
+    # Verify data types
+    assert df["subject_id"].dtype == object
+    assert df["region_id"].dtype in [np.int64, np.int32, int]
+    assert df["region_name"].dtype == object
+    assert df["degree"].dtype in [np.float64, np.float32, float]
+    assert df["betweenness"].dtype in [np.float64, np.float32, float]
+    assert df["eigenvector"].dtype in [np.float64, np.float32, float]
+
+def test_centrality_values_range(sample_connectivity_matrix):
+    """
+    Contract: Centrality values should be within reasonable bounds.
+    Degree centrality is typically [0, 1] if normalized, or [0, N-1] if not.
+    We check that they are non-negative.
+    """
+    metrics = compute_centrality_metrics(sample_connectivity_matrix)
+    
+    for metric_name, metric_dict in metrics.items():
+        for node, value in metric_dict.items():
+            assert value >= 0.0, f"Centrality value for {metric_name} at node {node} is negative: {value}"

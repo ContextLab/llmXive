@@ -1,19 +1,20 @@
 # Evaluating the Impact of Code Generation Models on Code Documentation Completeness
 
-This project implements an automated pipeline to evaluate how code generation models (specifically `Salesforce/codegen-350M-mono`) affect the completeness of code documentation. It extracts public method signatures and human-written docstrings from top PyPI repositories, generates docstrings using a quantized LLM, and performs statistical analysis on parameter coverage.
+This project evaluates how code generation models (specifically `Salesforce/codegen-350M-mono` in 4-bit quantization) impact the completeness of code documentation by comparing human-written docstrings against LLM-generated ones.
 
 ## Prerequisites
 
 - Python 3.9+
-- PyTorch 2.1.0+
-- CUDA-capable GPU (recommended for 4-bit quantization) or sufficient RAM for CPU inference
+- Git
+- 16GB+ RAM (for model loading and generation)
+- CUDA-compatible GPU recommended (optional, but speeds up generation)
 
 ## Installation
 
 1. **Clone the repository**:
  ```bash
  git clone <repository-url>
- cd <project-directory>
+ cd <project-root>
  ```
 
 2. **Set up the project structure**:
@@ -26,117 +27,129 @@ This project implements an automated pipeline to evaluate how code generation mo
  pip install -r code/requirements.txt
  ```
 
-4. **Verify reproducibility**:
+4. **Verify seed reproducibility** (optional but recommended):
  ```bash
  python code/verify_seed.py
  ```
 
-## Usage
-
-The pipeline is divided into three main user stories (phases). Execute them in order.
-
-### Phase 1: Repository Data Extraction (US1)
-
-Extract public methods and docstrings from 20 top PyPI repositories. [UNRESOLVED-CLAIM: c_bf79dfc4 — status=not_enough_info]
-
-```bash
-# 1. Fetch the list of top repositories
-python code/utils/repo_fetcher.py
-
-# 2. Clone repositories and extract methods
-python code/extract.py --input data/raw/frozen_repo_list.json --output data/raw/repos
-```
-
-**Outputs**:
-- `data/raw/repos/{repo_slug}.json`: Extracted method signatures and human docstrings.
-
-### Phase 2: LLM Docstring Generation (US2)
-
-Generate docstrings using the quantized CodeGen model.
-
-```bash
-# 1. Generate docstrings for all extracted methods
-python code/generate.py --input-dir data/raw/repos --output-dir data/processed
-
-# 2. Post-process to flag empty/whitespace docstrings
-python code/post_process.py --input-dir data/processed --output-dir data/processed
-
-# 3. Aggregate results
-python code/aggregate.py --input-dir data/processed --output data/processed/results.json
-```
-
-**Outputs**:
-- `data/processed/generation_batch_{repo_slug}_cleaned.json`: Cleaned generation results.
-- `data/processed/results.json`: Aggregated dataset.
-
-### Phase 3: Parameter Coverage Analysis (US3)
-
-Calculate coverage scores and perform statistical analysis.
-
-```bash
-# 1. Calculate Parameter Coverage Scores
-python code/analyze.py --step=coverage --input data/processed/results.json --output data/processed/results_with_coverage.json
-
-# 2. Calculate Semantic Similarity
-python code/analyze.py --step=similarity --input data/processed/results_with_coverage.json --output data/processed/results_with_scores.json
-
-# 3. Run Wilcoxon Signed-Rank Test
-python code/analyze.py --step=stats --input data/processed/results_with_scores.json --output data/processed/results_with_stats.json
-
-# 4. Generate Final Report
-python code/analyze.py --report --input data/processed/results_with_stats.json --output data/processed/final_report.json
-```
-
-**Outputs**:
-- `data/processed/results_with_coverage.json`: Results with coverage scores.
-- `data/processed/results_with_scores.json`: Results with semantic similarity.
-- `data/processed/results_with_stats.json`: Statistical test results.
-- `data/processed/final_report.json`: Final summary report.
-
 ## Configuration
 
-- **Random Seed**: Defined in `code/config.py` (default: 42).
-- **Max Methods per Repo**: Defined in `code/config.py` (default: 1000).
-- **Quantization**: 4-bit quantization is enforced by default. No fallback is allowed.
+Edit `code/config.py` to adjust:
+- `SEED`: Random seed for reproducibility (default: 42)
+- `MAX_METHODS`: Maximum number of methods per repository (default: 1000)
+- `MODEL_NAME`: Model to use for generation (default: `Salesforce/codegen-350M-mono`)
+- `TEMPERATURE`: Generation temperature (default: 0.7)
 
-## Testing
+## Usage
 
-Run unit and integration tests:
+### Step 1: Repository Data Extraction (User Story 1)
+
+Extract public method signatures and docstrings from top PyPI repositories.
 
 ```bash
-pytest tests/unit/
-pytest tests/integration/
+python code/extract.py
 ```
+
+**Output**: `data/raw/repos/{repo_slug}.json` for each repository in `data/raw/frozen_repo_list.json`.
+
+### Step 2: LLM Docstring Generation (User Story 2)
+
+Generate docstrings for extracted methods using the quantized model.
+
+```bash
+python code/generate.py --input-dir data/raw/repos --output-dir data/processed
+```
+
+**Output**: `data/processed/generation_batch_{repo_slug}.json` and `data/processed/generation_batch_{repo_slug}_cleaned.json`.
+
+### Step 3: Analysis (User Story 3)
+
+Run the full analysis pipeline to calculate coverage scores, semantic similarity, and statistical significance.
+
+```bash
+# Calculate coverage scores
+python code/analyze.py --step=coverage
+
+# Calculate semantic similarity
+python code/analyze.py --step=similarity
+
+# Run Wilcoxon statistical test
+python code/analyze.py --step=stats
+
+# Generate final report
+python code/analyze.py --report
+```
+
+**Output**: `data/processed/results_with_coverage.json`, `data/processed/results_with_scores.json`, `data/processed/results_with_stats.json`, and `data/processed/final_report.json`.
 
 ## Project Structure
 
 ```
 .
 ├── code/
-│ ├── analyze.py
-│ ├── aggregate.py
-│ ├── config.py
-│ ├── extract.py
-│ ├── generate.py
-│ ├── post_process.py
+│ ├── analyze.py # Analysis pipeline (coverage, similarity, stats, report)
+│ ├── aggregate.py # Aggregates generation batches
+│ ├── config.py # Configuration and seed pinning
+│ ├── extract.py # Repository data extraction
+│ ├── generate.py # LLM docstring generation
+│ ├── post_process.py # Post-processing (empty docstring handling)
 │ ├── utils/
-│ │ ├── ast_parser.py
-│ │ ├── model_loader.py
-│ │ ├── monitor.py
-│ │ ├── repo_fetcher.py
-│ │ └──...
-│ └── requirements.txt
+│ │ ├── ast_parser.py # AST parsing utilities
+│ │ ├── config.py # Configuration loading
+│ │ ├── coverage.py # Coverage calculation
+│ │ ├── exceptions.py # Custom exceptions
+│ │ ├── file_walker.py # File walking utilities
+│ │ ├── git_clone.py # Git repository cloning
+│ │ ├── model_loader.py # Model loading with 4-bit quantization
+│ │ ├── models.py # Data models
+│ │ ├── monitor.py # Memory monitoring
+│ │ ├── repo_fetcher.py # Repository list fetching
+│ │ ├── repo_loader.py # Repository list loading
+│ │ ├── similarity.py # Semantic similarity calculation
+│ │ └── stats.py # Statistical testing
+│ └── requirements.txt # Dependencies
 ├── data/
 │ ├── raw/
-│ │ ├── frozen_repo_list.json
-│ │ └── repos/
-│ └── processed/
-├── logs/
-├── state/
-├── tests/
+│ │ ├── frozen_repo_list.json # Frozen list of 20 top PyPI repos
+│ │ ├── repo_list.json # Copy of frozen list
+│ │ └── repos/ # Extracted method data per repo
+│ └── processed/ # Generated docstrings and analysis results
+├── logs/ # Execution logs
 ├── scripts/
-│ └── setup.sh
-└── README.md
+│ └── setup.sh # Project setup script
+├── specs/
+│ └── 001-evaluating-the-impact-of-code-generation/
+│ ├── data-model.md # Data schema definitions
+│ └──...
+├── state/
+│ └── projects/
+│ └── PROJ-318-evaluating-the-impact-of-code-generation.yaml # Artifact hashes
+├── tests/
+│ ├── unit/ # Unit tests
+│ └── integration/ # Integration tests
+├── README.md # This file
+└── quickstart.md # Step-by-step execution guide
+```
+
+## Testing
+
+Run all tests:
+```bash
+pytest tests/
+```
+
+Run specific test suites:
+```bash
+pytest tests/unit/
+pytest tests/integration/
+```
+
+## Reproducibility
+
+All random seeds are pinned in `code/config.py`. To verify reproducibility:
+```bash
+python code/verify_seed.py
+python code/verify_seed.py # Run again; output should be identical
 ```
 
 ## License

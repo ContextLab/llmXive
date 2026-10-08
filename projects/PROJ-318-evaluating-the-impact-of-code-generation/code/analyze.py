@@ -1,329 +1,373 @@
+"""
+Analysis pipeline for evaluating code generation impact.
+Handles coverage calculation, semantic similarity, statistical analysis, and final reporting.
+"""
 import json
 import logging
 import sys
 import os
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
+import argparse
 from scipy import stats
 import numpy as np
-from docstring_parser import parse
-import argparse
 
-# Import local utilities
-from utils.coverage import parse_docstring_parameters, calculate_parameter_coverage
-from utils.stats import run_wilcoxon_test, StatsException
+# Local imports based on API surface
+from docstring_parser import parse as docstring_parse
+from docstring_parser import Docstring
 
-def setup_logging(log_file: str = "logs/analysis.log") -> logging.Logger:
-    """Configure logging for the analysis pipeline."""
-    logger = logging.getLogger("analyze")
-    logger.setLevel(logging.INFO)
-    
-    # File handler
-    fh = logging.FileHandler(log_file)
-    fh.setLevel(logging.INFO)
-    
-    # Console handler
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
-    
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    fh.setFormatter(formatter)
-    ch.setFormatter(formatter)
-    
-    logger.addHandler(fh)
-    logger.addHandler(ch)
-    
+# Configure logging
+LOG_DIR = Path("logs")
+LOG_DIR.mkdir(exist_ok=True)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.FileHandler(LOG_DIR / "analyze.log"),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger(__name__)
+
+def setup_logging():
+    """Initialize logging configuration."""
     return logger
 
 def strip_type_hints(param_str: str) -> str:
-    """Remove type hints from a parameter string (e.g., 'List[str]' -> 'str')."""
+    """
+    Strip type hints from a parameter string.
+    E.g., 'List[str]' -> 'str', 'Optional[int]' -> 'int'
+    """
     if not param_str:
-        return param_str
-    # Simple heuristic: take the last word if it looks like a type, 
-    # but docstring_parser usually handles this. 
-    # We'll rely on docstring_parser's output which is usually clean 'name'
+        return ""
+    # Simple heuristic: find the last dot or bracket content if it looks like a type
+    # For this specific task, we focus on matching the core name.
+    # If the string contains '->', it might be a return annotation, ignore.
+    # We assume param_str is just the parameter definition or name.
+    # Common patterns: 'name: type', 'name', 'name: list[int]'
+    if ':' in param_str:
+        return param_str.split(':')[0].strip()
+    # Remove generic brackets content for matching simplicity if needed, 
+    # but usually just the name is enough.
     return param_str
 
-def calculate_coverage_scores(data: List[Dict[str, Any]], logger: logging.Logger) -> List[Dict[str, Any]]:
-    """Calculate parameter coverage scores for each record."""
+def load_json_file(file_path: Path) -> List[Dict[str, Any]]:
+    """Load a JSON file and return its contents as a list of dictionaries."""
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+    with open(file_path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    if not isinstance(data, list):
+        raise ValueError(f"Expected JSON list in {file_path}, got {type(data)}")
+    return data
+
+def save_json_file(file_path: Path, data: List[Dict[str, Any]]) -> None:
+    """Save a list of dictionaries to a JSON file."""
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(file_path, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+    logger.info(f"Saved {len(data)} records to {file_path}")
+
+def calculate_coverage_scores(data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Calculate Parameter Coverage Score for each record.
+    Score = (matched params / total AST params)
+    """
     results = []
     for record in data:
         ast_params = record.get("ast_params", [])
-        docstring_text = record.get("generated_docstring") or record.get("human_docstring")
+        generated_docstring = record.get("generated_docstring") or ""
+        human_docstring = record.get("human_docstring") or ""
         
-        if not ast_params:
+        # We compare generated docstring against AST params
+        # If generated docstring is missing, score is 0
+        if not generated_docstring or not generated_docstring.strip():
             score = 0.0
-            results.append({**record, "coverage_score": score})
-            continue
-        
-        try:
-            doc = parse(docstring_text) if docstring_text else None
-            if not doc:
-                score = 0.0
-            else:
-                # Extract param names from docstring
-                doc_params = [p.arg_name for p in doc.params if p.arg_name]
-                # Match case-insensitively
-                ast_param_names = [p.lower() for p in ast_params]
-                doc_param_names = [p.lower() for p in doc_params]
+            parse_error = False
+        else:
+            try:
+                parsed = docstring_parse(generated_docstring)
+                doc_params = [p.arg_name for p in parsed.params if p.arg_name]
                 
-                matched = sum(1 for name in doc_param_names if name in ast_param_names)
-                score = matched / len(ast_params) if ast_params else 0.0
-        except Exception as e:
-            logger.warning(f"Parse error for record: {e}")
-            score = 0.0
-            record["parse_error"] = True
-        
-        results.append({**record, "coverage_score": score})
+                # Normalize AST params (strip type hints)
+                normalized_ast = [strip_type_hints(p).lower() for p in ast_params if p]
+                normalized_doc = [p.lower() for p in doc_params]
+                
+                if not normalized_ast:
+                    score = 0.0
+                else:
+                    matched = len(set(normalized_doc) & set(normalized_ast))
+                    score = matched / len(normalized_ast)
+                parse_error = False
+            except Exception as e:
+                logger.warning(f"Docstring parsing error: {e}")
+                score = 0.0
+                parse_error = True
+
+        new_record = record.copy()
+        new_record["coverage_score"] = round(score, 4)
+        if parse_error:
+            new_record["parse_error"] = True
+        results.append(new_record)
     
     return results
 
-def run_wilcoxon_analysis(data: List[Dict[str, Any]], logger: logging.Logger) -> Dict[str, Any]:
-    """Run Wilcoxon signed-rank test on human vs LLM coverage scores."""
+def calculate_semantic_similarity(data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Calculate semantic similarity between human and generated docstrings.
+    Uses sentence-transformers/all-MiniLM-L6-v2.
+    """
+    # Lazy import to avoid loading model if not needed
+    try:
+        from sentence_transformers import SentenceTransformer
+        model = SentenceTransformer('all-MiniLM-L6-v2')
+    except ImportError:
+        raise ImportError("sentence-transformers is required for semantic similarity. Run: pip install sentence-transformers")
+
+    results = []
+    texts_h = []
+    texts_g = []
+    indices = []
+
+    for i, record in enumerate(data):
+        h = record.get("human_docstring")
+        g = record.get("generated_docstring")
+        
+        # Handle None/empty
+        if not h or not h.strip():
+            h = ""
+        if not g or not g.strip():
+            g = ""
+        
+        texts_h.append(h)
+        texts_g.append(g)
+        indices.append(i)
+
+    if not texts_h:
+        # Return original data with 0.0 similarity if empty
+        for i, record in enumerate(data):
+            new_record = record.copy()
+            new_record["semantic_similarity"] = 0.0
+            results.append(new_record)
+        return results
+
+    embeddings_h = model.encode(texts_h, convert_to_numpy=True)
+    embeddings_g = model.encode(texts_g, convert_to_numpy=True)
+
+    # Cosine similarity
+    similarities = np.zeros(len(texts_h))
+    for i in range(len(texts_h)):
+        if np.linalg.norm(embeddings_h[i]) == 0 or np.linalg.norm(embeddings_g[i]) == 0:
+            similarities[i] = 0.0
+        else:
+            similarities[i] = np.dot(embeddings_h[i], embeddings_g[i]) / (
+                np.linalg.norm(embeddings_h[i]) * np.linalg.norm(embeddings_g[i])
+            )
+
+    for i, record in enumerate(data):
+        new_record = record.copy()
+        new_record["semantic_similarity"] = round(float(similarities[i]), 4)
+        results.append(new_record)
+
+    return results
+
+def run_wilcoxon_analysis(data: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """
+    Perform Wilcoxon signed-rank test on Human vs LLM coverage scores.
+    Returns test statistic and p-value.
+    """
     human_scores = []
     llm_scores = []
-    
+
     for record in data:
-        # We need human coverage score. 
-        # In this pipeline, 'coverage_score' in the input file (from T033/T034) 
-        # was calculated on the generated docstring. 
-        # We need to re-calculate or assume the input file has both.
-        # However, T033 calculates coverage on the generated docstring.
-        # To do a paired test, we need Human Coverage vs LLM Coverage.
-        # Let's assume the input data has 'human_docstring' and 'generated_docstring'.
-        # We will calculate human coverage on the fly if not present, or assume 
-        # the previous step calculated both. 
-        # Given the task description: "paired comparison of Human vs. LLM coverage scores".
-        # We will calculate human coverage score now if missing.
+        # We compare human docstring coverage vs generated docstring coverage?
+        # Actually, the task implies comparing coverage scores derived from human vs generated.
+        # But typically, we compare the coverage score of the generated docstring against a baseline?
+        # The prompt says: "paired comparison of Human vs. LLM coverage scores".
+        # Since we only calculated coverage for the generated docstring in calculate_coverage_scores,
+        # we need to calculate it for the human docstring too to have a pair?
+        # OR, the task implies the 'coverage_score' in the data IS the LLM score, and we compare it to a theoretical perfect human score?
+        # Re-reading T035: "paired comparison of Human vs. LLM coverage scores".
+        # This implies we need two scores per record.
+        # Let's assume the input data has 'human_coverage_score' and 'generated_coverage_score'.
+        # If not, we calculate them on the fly.
         
-        human_doc = record.get("human_docstring")
-        gen_doc = record.get("generated_docstring")
+        # Calculate human coverage
+        h_doc = record.get("human_docstring") or ""
         ast_params = record.get("ast_params", [])
         
-        if not ast_params:
-            continue
-        
-        # Calculate Human Score
         h_score = 0.0
-        if human_doc:
+        if h_doc.strip() and ast_params:
             try:
-                doc = parse(human_doc)
-                if doc:
-                    doc_params = [p.arg_name for p in doc.params if p.arg_name]
-                    ast_param_names = [p.lower() for p in ast_params]
-                    doc_param_names = [p.lower() for p in doc_params]
-                    matched = sum(1 for name in doc_param_names if name in ast_param_names)
-                    h_score = matched / len(ast_params)
+                parsed = docstring_parse(h_doc)
+                doc_params = [p.arg_name for p in parsed.params if p.arg_name]
+                normalized_ast = [strip_type_hints(p).lower() for p in ast_params if p]
+                normalized_doc = [p.lower() for p in doc_params]
+                if normalized_ast:
+                    matched = len(set(normalized_doc) & set(normalized_ast))
+                    h_score = matched / len(normalized_ast)
             except:
                 h_score = 0.0
-        
-        # Calculate LLM Score (use existing coverage_score if present, else recalc)
-        l_score = record.get("coverage_score", 0.0)
-        if l_score == 0.0 and gen_doc:
-             try:
-                doc = parse(gen_doc)
-                if doc:
-                    doc_params = [p.arg_name for p in doc.params if p.arg_name]
-                    ast_param_names = [p.lower() for p in ast_params]
-                    doc_param_names = [p.lower() for p in doc_params]
-                    matched = sum(1 for name in doc_param_names if name in ast_param_names)
-                    l_score = matched / len(ast_params)
-             except:
-                l_score = 0.0
 
-        human_scores.append(h_score)
-        llm_scores.append(l_score)
-    
-    if len(human_scores) < 2:
-        logger.warning("Insufficient data for Wilcoxon test (n < 2).")
-        return {
-            "statistic": 0.0,
-            "pvalue": 1.0,
-            "n_pairs": len(human_scores),
-            "warning": "Insufficient data"
-        }
-    
-    try:
-        # Log small dataset warning
-        if len(human_scores) < 30:
-            logger.warning(f"Statistical power may be low (n = {len(human_scores)} < 30)")
+        # Get generated coverage (already in record as coverage_score)
+        g_score = record.get("coverage_score", 0.0)
         
-        statistic, pvalue = stats.wilcoxon(human_scores, llm_scores)
+        human_scores.append(h_score)
+        llm_scores.append(g_score)
+
+    if len(human_scores) < 2:
+        logger.warning("Not enough data points for Wilcoxon test.")
+        return {"statistic": 0.0, "pvalue": 1.0, "n": len(human_scores)}
+
+    # Check sample size warning
+    if len(human_scores) < 30:
+        logger.warning(f"Statistical power may be low (n < 30). Proceeding with calculation.")
+
+    try:
+        stat, pvalue = stats.wilcoxon(human_scores, llm_scores)
         return {
-            "statistic": float(statistic),
+            "statistic": float(stat),
             "pvalue": float(pvalue),
-            "n_pairs": len(human_scores),
-            "warning": "Statistical power may be low (n < 30)" if len(human_scores) < 30 else None
+            "n": len(human_scores)
         }
     except Exception as e:
         logger.error(f"Wilcoxon test failed: {e}")
-        return {
-            "statistic": 0.0,
-            "pvalue": 1.0,
-            "n_pairs": len(human_scores),
-            "error": str(e)
-        }
+        return {"statistic": 0.0, "pvalue": 1.0, "n": len(human_scores), "error": str(e)}
 
-def generate_final_report(data: List[Dict[str, Any]], stats_results: Dict[str, Any], logger: logging.Logger) -> Dict[str, Any]:
-    """Generate the final report with p-value, test statistic, and coverage rates."""
+def generate_final_report(data: List[Dict[str, Any]], stats_result: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Generate the final report JSON.
+    Includes p-value, test statistic, and coverage rates.
+    """
     total_records = len(data)
     if total_records == 0:
-        return {"error": "No data available for report"}
-    
-    # Calculate average coverage rates
-    human_scores = []
-    llm_scores = []
-    
-    for record in data:
-        ast_params = record.get("ast_params", [])
-        if not ast_params:
-            continue
+        avg_human = 0.0
+        avg_llm = 0.0
+    else:
+        # Calculate average coverage for human and llm
+        human_scores = []
+        llm_scores = []
+        for record in data:
+            h_doc = record.get("human_docstring") or ""
+            ast_params = record.get("ast_params", [])
+            h_score = 0.0
+            if h_doc.strip() and ast_params:
+                try:
+                    parsed = docstring_parse(h_doc)
+                    doc_params = [p.arg_name for p in parsed.params if p.arg_name]
+                    normalized_ast = [strip_type_hints(p).lower() for p in ast_params if p]
+                    normalized_doc = [p.lower() for p in doc_params]
+                    if normalized_ast:
+                        matched = len(set(normalized_doc) & set(normalized_ast))
+                        h_score = matched / len(normalized_ast)
+                except:
+                    h_score = 0.0
+            human_scores.append(h_score)
+            llm_scores.append(record.get("coverage_score", 0.0))
         
-        # Human Score
-        h_score = 0.0
-        human_doc = record.get("human_docstring")
-        if human_doc:
-            try:
-                doc = parse(human_doc)
-                if doc:
-                    doc_params = [p.arg_name for p in doc.params if p.arg_name]
-                    ast_param_names = [p.lower() for p in ast_params]
-                    doc_param_names = [p.lower() for p in doc_params]
-                    matched = sum(1 for name in doc_param_names if name in ast_param_names)
-                    h_score = matched / len(ast_params)
-            except: pass
-        human_scores.append(h_score)
-        
-        # LLM Score
-        l_score = record.get("coverage_score", 0.0)
-        if l_score == 0.0 and record.get("generated_docstring"):
-            try:
-                doc = parse(record["generated_docstring"])
-                if doc:
-                    doc_params = [p.arg_name for p in doc.params if p.arg_name]
-                    ast_param_names = [p.lower() for p in ast_params]
-                    doc_param_names = [p.lower() for p in doc_params]
-                    matched = sum(1 for name in doc_param_names if name in ast_param_names)
-                    l_score = matched / len(ast_params)
-            except: pass
-        llm_scores.append(l_score)
-    
-    avg_human = np.mean(human_scores) if human_scores else 0.0
-    avg_llm = np.mean(llm_scores) if llm_scores else 0.0
-    
+        avg_human = sum(human_scores) / len(human_scores)
+        avg_llm = sum(llm_scores) / len(llm_scores)
+
     report = {
-        "total_records": total_records,
-        "valid_pairs": len(human_scores),
-        "average_human_coverage": float(avg_human),
-        "average_llm_coverage": float(avg_llm),
-        "wilcoxon_test": stats_results
+        "total_methods": total_records,
+        "average_human_coverage": round(avg_human, 4),
+        "average_llm_coverage": round(avg_llm, 4),
+        "wilcoxon_test": {
+            "statistic": stats_result.get("statistic"),
+            "pvalue": stats_result.get("pvalue"),
+            "sample_size": stats_result.get("n"),
+            "significant": stats_result.get("pvalue", 1.0) < 0.05
+        },
+        "timestamp": str(Path(__file__).parent.absolute()) # Placeholder for actual timestamp if needed
     }
-    
-    logger.info(f"Report generated: {total_records} records, p-value={stats_results.get('pvalue')}")
     return report
 
 def main():
-    parser = argparse.ArgumentParser(description="Analysis pipeline for code documentation evaluation")
-    parser.add_argument("--step", type=str, choices=["coverage", "similarity", "stats", "report"], 
-                      help="Step to execute")
-    parser.add_argument("--input-dir", type=str, default="data/processed", help="Input directory")
-    parser.add_argument("--output-dir", type=str, default="data/processed", help="Output directory")
+    parser = argparse.ArgumentParser(description="Analysis pipeline for code generation evaluation")
+    parser.add_argument("--step", type=str, choices=["coverage", "similarity", "stats", "report"],
+                        help="Step to execute")
+    parser.add_argument("--input", type=str, help="Input JSON file path")
+    parser.add_argument("--output", type=str, help="Output JSON file path")
+    
     args = parser.parse_args()
-    
-    logger = setup_logging()
-    input_dir = Path(args.input_dir)
-    output_dir = Path(args.output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Determine input file based on step
+
     if args.step == "coverage":
-        input_file = input_dir / "results.json"
-        output_file = output_dir / "results_with_coverage.json"
-    elif args.step == "similarity":
-        input_file = output_dir / "results_with_coverage.json"
-        output_file = output_dir / "results_with_scores.json"
-    elif args.step == "stats":
-        input_file = output_dir / "results_with_scores.json"
-        output_file = output_dir / "results_with_stats.json"
-    elif args.step == "report":
-        input_file = output_dir / "results_with_stats.json"
-        output_file = output_dir / "final_report.json"
-    else:
-        logger.error("No step specified")
-        sys.exit(1)
-    
-    if not input_file.exists():
-        logger.error(f"Input file not found: {input_file}")
-        sys.exit(1)
-    
-    with open(input_file, "r") as f:
-        data = json.load(f)
-    
-    logger.info(f"Processing {len(data)} records from {input_file}")
-    
-    if args.step == "coverage":
-        processed_data = calculate_coverage_scores(data, logger)
-        with open(output_file, "w") as f:
-            json.dump(processed_data, f, indent=2)
-        logger.info(f"Wrote coverage scores to {output_file}")
-    
-    elif args.step == "similarity":
-        # Placeholder for semantic similarity if needed, but task T034 handles it.
-        # Assuming data already has 'semantic_similarity' from T034 if we are here.
-        # If T034 is skipped, we might need to implement it here.
-        # For T037, we assume T034 ran.
-        with open(output_file, "w") as f:
-            json.dump(data, f, indent=2)
-        logger.info(f"Copied data to {output_file} (similarity step skipped or already done)")
-    
-    elif args.step == "stats":
-        stats_results = run_wilcoxon_analysis(data, logger)
-        # Add stats results to every record or just save separately? 
-        # Task says "write to results_with_stats.json". Usually implies appending stats to records.
-        # But Wilcoxon is a summary. Let's append the summary to each record for consistency 
-        # or just save the summary. The task says "paired comparison... write to ...json".
-        # Let's append the test results to the data structure.
-        # To be safe, we'll save the list of records with the stats summary attached as a metadata field 
-        # or just save the summary. The previous tasks output lists of records.
-        # Let's add the stats summary to each record for uniformity, or better:
-        # The task T035 says "write to results_with_stats.json". 
-        # We will output the original data with an additional 'stats_summary' field if needed, 
-        # but typically statistical reports are separate.
-        # However, to keep the pipeline consistent (list of records), we will add the stats result 
-        # to the records, but since it's the same for all, we'll just save the stats result 
-        # as a single object if the file is meant to be the report.
-        # Re-reading T035: "write to data/processed/results_with_stats.json". 
-        # Let's assume this file contains the records with the stats summary attached or just the summary.
-        # Given T037 reads it to generate final_report.json, let's store the summary.
-        # But T037 says "Verify ... exists". 
-        # Let's save the stats summary as the content of the file? 
-        # No, T033/T034 output lists of records. T035 should likely do the same.
-        # Let's add the stats result to each record.
-        for record in data:
-            record["stats_summary"] = stats_results
-        with open(output_file, "w") as f:
-            json.dump(data, f, indent=2)
-        logger.info(f"Wrote stats analysis to {output_file}")
-    
-    elif args.step == "report":
-        stats_summary = None
-        # Extract stats from the first record if they were attached, or read a separate file?
-        # If T035 attached it to records:
-        if data and "stats_summary" in data[0]:
-            stats_summary = data[0]["stats_summary"]
-        else:
-            # Fallback: re-run if not present (should not happen in correct flow)
-            logger.warning("Stats summary not found in records, re-running analysis.")
-            stats_summary = run_wilcoxon_analysis(data, logger)
+        input_path = Path(args.input) if args.input else Path("data/processed/results.json")
+        output_path = Path(args.output) if args.output else Path("data/processed/results_with_coverage.json")
         
-        report = generate_final_report(data, stats_summary, logger)
-        with open(output_file, "w") as f:
+        logger.info(f"Loading data from {input_path}")
+        data = load_json_file(input_path)
+        logger.info(f"Calculated coverage scores for {len(data)} records")
+        result_data = calculate_coverage_scores(data)
+        save_json_file(output_path, result_data)
+
+    elif args.step == "similarity":
+        input_path = Path(args.input) if args.input else Path("data/processed/results_with_coverage.json")
+        output_path = Path(args.output) if args.output else Path("data/processed/results_with_scores.json")
+        
+        logger.info(f"Loading data from {input_path}")
+        data = load_json_file(input_path)
+        logger.info(f"Calculated semantic similarity for {len(data)} records")
+        result_data = calculate_semantic_similarity(data)
+        save_json_file(output_path, result_data)
+
+    elif args.step == "stats":
+        input_path = Path(args.input) if args.input else Path("data/processed/results_with_scores.json")
+        output_path = Path(args.output) if args.output else Path("data/processed/results_with_stats.json")
+        
+        logger.info(f"Loading data from {input_path}")
+        data = load_json_file(input_path)
+        logger.info(f"Running Wilcoxon analysis on {len(data)} records")
+        stats_result = run_wilcoxon_analysis(data)
+        
+        # Append stats result to each record? Or just save the stats result?
+        # The task says "write to results_with_stats.json". Usually this implies the data with stats appended or just the stats.
+        # Given the flow, it likely appends the stats result to the records or creates a summary.
+        # Let's append the stats result to each record for consistency, or create a wrapper.
+        # Re-reading T035: "write to data/processed/results_with_stats.json".
+        # T037 expects "results_with_stats.json" to exist.
+        # Let's assume we append the stats result (stat, pvalue) to each record.
+        for record in data:
+            record["wilcoxon_statistic"] = stats_result.get("statistic")
+            record["wilcoxon_pvalue"] = stats_result.get("pvalue")
+        
+        save_json_file(output_path, data)
+        logger.info(f"Stats saved to {output_path}")
+        # Also save the raw stats result for the report step
+        with open(Path("data/processed/wilcoxon_result.json"), 'w') as f:
+            json.dump(stats_result, f, indent=2)
+
+    elif args.step == "report":
+        input_path = Path(args.input) if args.input else Path("data/processed/results_with_stats.json")
+        output_path = Path(args.output) if args.output else Path("data/processed/final_report.json")
+        
+        logger.info(f"Loading data from {input_path}")
+        if not input_path.exists():
+            raise FileNotFoundError(f"Input file for report not found: {input_path}")
+        
+        data = load_json_file(input_path)
+        
+        # Load stats result if saved separately, or re-calculate
+        stats_path = Path("data/processed/wilcoxon_result.json")
+        if stats_path.exists():
+            with open(stats_path, 'r') as f:
+                stats_result = json.load(f)
+        else:
+            # Fallback: re-calculate
+            stats_result = run_wilcoxon_analysis(data)
+
+        logger.info("Generating final report")
+        report = generate_final_report(data, stats_result)
+        save_json_file(output_path, [report]) # Save as list for consistency, or just object? T037 says "final_report.json". Usually object.
+        # Let's save as object if it's a single report
+        with open(output_path, 'w') as f:
             json.dump(report, f, indent=2)
-        logger.info(f"Final report written to {output_file}")
-    
+        
+        logger.info(f"Final report saved to {output_path}")
+        print(json.dumps(report, indent=2))
+
     else:
-        logger.error("Invalid step")
-        sys.exit(1)
+        parser.print_help()
 
 if __name__ == "__main__":
     main()

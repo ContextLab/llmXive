@@ -839,3 +839,104 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-25T03:55:53Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Retention rate threshold for missing behavioral data is 80%
+  claim_id: c_a38a2286
+  context: 'T003 [D] [US1] **Retention & Behavioral Validation**: Read the downloaded
+    metadata from `data/raw/metadata.csv`. Calculate retention rate (subjects with
+    valid data / total subjects). **If < 80% due to missing behavioral data, log ''Fatal:
+    Retention < 80% due to missing behavioral data'' and exit.** If < 80% due to motion
+    artifacts, log warning and proceed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If retention rate is < 80% due to missing behavioral data, log ''Fatal:
+    Retention < 80% due to missing behavioral data'' and exit.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T13:31:09Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Warning threshold for limited power is 85 subjects
+  claim_id: c_82a02b44
+  context: 'T004b [D] [US1] **Power Logging**: If 50 <= N < 85, log warning ''N <
+    85: Power may be limited for small effects''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If 50 <= N < 85, log warning ''N < 85: Power may be limited for small
+    effects''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T13:32:17Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Cross-validation uses 5 folds with random seed 42
+  claim_id: c_fc04c448
+  context: 'T037a [US3] **Run Cross-Validation**: Perform **5-fold k-fold cross-validation**
+    with `random_seed=42`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform 5-fold k-fold cross-validation with random_seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T13:34:08Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor threshold for PCA adjustment is 5
+  claim_id: c_b2df92dd
+  context: 'T027a [US2] **Determine Predictor Set (Decision)**: Read `vif_values.csv`
+    (T026). **IF** any of the three VIF values > 5: Mark decision as ''PCA-Adjusted''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If any of the three VIF values > 5, mark decision as 'PCA-Adjusted'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T13:34:08Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Regional analysis covers approximately 90 regions
+  claim_id: c_82b58719
+  context: 'T032 [US2] **Regional Analysis Fallback**: Fit separate regression models
+    for each of the ~90 regions (using metrics from T023) to generate regional p-values.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fit separate regression models for each of the ~90 regions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T13:34:38Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Polynomial regression model uses degree 2
+  claim_id: c_5d657247
+  context: 'T030b [US2] **Fit Polynomial Model**: Fit a Polynomial Regression model
+    (degree=2) using the SAME predictor set as T028.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fit a Polynomial Regression model with degree=2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T13:35:00Z'

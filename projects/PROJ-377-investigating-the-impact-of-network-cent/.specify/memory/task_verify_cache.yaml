@@ -43,3 +43,10 @@ T006:
   r: No evidence of a Git repository being initialized nor a `.gitignore` file for
     data and artifacts is provided; the claim lacks any displayed artifact or path
     confirming the required files exist.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting configuration files (e.g., `setup.cfg`, `pyproject.toml`, `.flake8`,
+    or `black` config) or documentation of linting/formatting setup are present; the
+    implementer provided no artifacts related to flake8 or black, so the requirement
+    is not satisfied.

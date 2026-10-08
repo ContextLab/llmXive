@@ -32,27 +32,17 @@ T030:
   r: "The required file `tests/unit/test_stats.py` is missing from the repository,\
     \ so no unit test for semantic similarity calculation exists. Without this artifact,\
     \ the task\u2019s deliverable is not present."
-T033:
-  c: false
-  h: eaf6ecbfd1443814a66bf71ca1fe0bd3d838b8b5b0b4beb4ad474a4b8f5d1776
-  r: The required `data/processed/results_with_coverage.json` file is missing, and
-    there is no evidence that `code/analyze.py` implements a `--step=coverage` CLI
-    that writes this file. Without the output file containing a `coverage_score` for
-    each record, the task is not satisfied.
 T034:
   c: false
-  h: 3429f158ee1a884fd7e3e86ba9ab36ea1047249946a7fb1d36d472718e88d49d
-  r: "The required input file `data/processed/results_with_coverage.json` does not\
-    \ exist, and the expected output `data/processed/results_with_scores.json` is\
-    \ also missing. The provided `code/analyze.py` contains only coverage\u2011related\
-    \ functions and shows no implementation of semantic similarity using `sentence\u2011\
-    transformers/all\u2011MiniLM\u2011L\u2011v2`, nor any evidence that the script\
-    \ was run with `--step=similarity`. Consequently the task\u2019s requirements\
-    \ are not met."
-T040:
+  h: 4f95b3814f08b159d67e2303e81890b71aeb5352a2dbeb16473be0ca21ed18a3
+  r: The required input file `data/processed/results_with_coverage.json` is missing,
+    and the expected output `data/processed/results_with_scores.json` does not exist.
+    There is no evidence that `code/analyze.py` implements the semantic similarity
+    step or that it was run with `--step=similarity` to produce the `semantic_similarity`
+    field. The task therefore remains unfinished.
+T043:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a modified or newly created `quickstart.md` was provided; the\
-    \ claim lacks the required artifact showing a step\u2011by\u2011step execution\
-    \ guide. The implementer must supply the updated `quickstart.md` file with the\
-    \ requested instructions."
+  r: No unit test files, test suites, or coverage reports are provided; there is no
+    evidence that any new tests targeting previously uncovered code paths have been
+    added. The required artifact (new unit tests) is missing.

@@ -10,5 +10,5 @@ astropy
 numba
 pytest
 pyarrow
-jsonschema
 pyyaml
+jsonschema

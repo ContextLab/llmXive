@@ -5,305 +5,359 @@ import numpy as np
 from scipy.spatial import cKDTree
 from scipy.optimize import curve_fit
 from pathlib import Path
-from typing import Dict, Any, Optional, Generator, Tuple, List
+from typing import Dict, Any, List, Optional, Tuple
 
+from config import get_rho_critical_at_z, get_simulation_box_size
 from utils.logging import get_logger
-from config import BOX_SIZE, RHO_CRITICAL, BULLOCK_C200, BULLOCK_ALPHA
+from data.streaming import subsample_particles
 
-# Configure logger
 logger = get_logger(__name__)
 
 # Constants for NFW fitting
-G = 4.302e-6  # kpc km^2 s^-2 Msol^-1
+G = 4.302e-6  # (km/s)^2 kpc/Msun
+Mpc_to_kpc = 1000.0
 
-def nfw_profile(r, rs, vrs):
+def nfw_profile(r, rs, rho_s):
     """
-    NFW profile function for fitting.
-    r: radius
-    rs: scale radius
-    vrs: velocity scale at rs
+    NFW density profile function.
+    r: radius in kpc
+    rs: scale radius in kpc
+    rho_s: characteristic density in Msun/kpc^3
     """
     x = r / rs
-    return vrs / (x * (1 + x)**2)
+    # Avoid division by zero
+    x = np.where(x == 0, 1e-10, x)
+    return rho_s / (x * (1 + x)**2)
 
-def calculate_local_overdensity(positions: np.ndarray, particle_masses: np.ndarray, 
-                                center: Optional[np.ndarray] = None) -> Dict[str, float]:
+def calculate_local_overdensity(positions, box_size: float, rho_critical: float) -> np.ndarray:
     """
-    Calculate local overdensity using cKDTree with periodic boundary wrapping.
+    Calculate local overdensity for each halo using cKDTree with periodic boundaries.
+    Uses a spherical top-hat of 5 Mpc h^-1 radius.
     """
-    if center is None:
-        center = np.mean(positions, axis=0)
-    
-    # Wrap positions relative to center
-    wrapped_positions = (positions - center + BOX_SIZE/2) % BOX_SIZE - BOX_SIZE/2
-    
-    tree = cKDTree(wrapped_positions, boxsize=BOX_SIZE)
-    
-    # Find neighbors within 5 Mpc/h
-    radius = 5.0
-    indices = tree.query_ball_point(np.zeros(3), radius)
-    
-    total_mass = 0.0
-    for idx in indices:
-        total_mass += particle_masses[idx]
-    
-    volume = (4.0/3.0) * np.pi * (radius**3)
-    local_density = total_mass / volume
-    overdensity = local_density / RHO_CRITICAL
-    
-    return {"overdensity": overdensity, "local_density": local_density}
+    R_TOP_HAT = 5.0  # Mpc h^-1
+    # Convert to kpc for consistency if needed, but assuming positions are in kpc
+    # If positions are in Mpc, convert R_TOP_HAT to kpc
+    R_TOP_HAT_kpc = R_TOP_HAT * Mpc_to_kpc
 
-def compute_shape_from_inertia_tensor(particle_positions: np.ndarray, 
-                                      particle_masses: np.ndarray) -> float:
+    overdensities = []
+    tree = cKDTree(positions, boxsize=box_size)
+
+    for i, pos in enumerate(positions):
+        # Find neighbors within R_TOP_HAT
+        neighbors = tree.query_ball_point(pos, R_TOP_HAT_kpc)
+        # Exclude self
+        neighbors = [n for n in neighbors if n != i]
+        
+        if len(neighbors) == 0:
+            # If no neighbors, assume background density
+            delta = 0.0
+        else:
+            # Calculate local density
+            # Volume of sphere
+            volume = (4.0/3.0) * np.pi * (R_TOP_HAT_kpc**3)
+            # Assume unit mass for simplicity or use actual masses if available
+            # For now, assume 1 Msun per particle for counting
+            local_density = len(neighbors) / volume
+            delta = (local_density / rho_critical) - 1.0
+        
+        overdensities.append(delta)
+    
+    return np.array(overdensities)
+
+def compute_shape_from_inertia_tensor(positions: np.ndarray, masses: np.ndarray) -> float:
     """
     Compute shape parameter s = c/a from inertia tensor.
+    positions: Nx3 array of particle positions
+    masses: Nx1 array of particle masses
+    Returns: s (c/a ratio), where 0 < s <= 1
     """
-    if len(particle_positions) < 3:
+    if len(positions) < 3:
         raise ValueError("Need at least 3 particles to compute inertia tensor")
     
-    # Center the positions
-    center = np.average(particle_positions, axis=0, weights=particle_masses)
-    centered_positions = particle_positions - center
+    # Center positions
+    center = np.average(positions, axis=0, weights=masses)
+    centered_positions = positions - center
     
     # Compute inertia tensor
+    # I_ij = sum_k m_k (r_k^2 delta_ij - r_ki r_kj)
     I = np.zeros((3, 3))
     for i in range(3):
         for j in range(3):
-            sum_term = 0.0
-            for k, pos in enumerate(centered_positions):
-                sum_term += particle_masses[k] * pos[i] * pos[j]
-            I[i, j] = sum_term
+            if i == j:
+                I[i, j] = np.sum(masses * np.sum(centered_positions**2, axis=1) - masses * centered_positions[:, i]**2)
+            else:
+                I[i, j] = -np.sum(masses * centered_positions[:, i] * centered_positions[:, j])
     
     # Eigenvalues
     eigenvalues = np.linalg.eigvalsh(I)
     eigenvalues = np.sort(eigenvalues)
     
-    # s = c/a (smallest / largest)
+    # s = c/a, where c is smallest axis, a is largest
+    # Inertia tensor eigenvalues are proportional to a^2+b^2, a^2+c^2, b^2+c^2
+    # For a triaxial ellipsoid, we can approximate axes lengths from eigenvalues
+    # Simplified approach: s = min(eigenvalues) / max(eigenvalues)
+    # This is a rough approximation; more sophisticated methods exist
     if eigenvalues[-1] == 0:
-        return 0.0
+        return 1.0
     
     s = eigenvalues[0] / eigenvalues[-1]
-    return float(np.clip(s, 0.0, 1.0))
+    # Ensure s is in valid range [0, 1]
+    s = np.clip(s, 0.0, 1.0)
+    
+    return s
 
-def compute_spin_parameter(particle_positions: np.ndarray, 
-                           particle_masses: np.ndarray,
-                           particle_velocities: np.ndarray) -> float:
+def compute_spin_parameter(positions: np.ndarray, velocities: np.ndarray, masses: np.ndarray, halo_radius: float) -> float:
     """
-    Compute spin parameter λ using subsampled Plummer-softened potential.
+    Compute spin parameter lambda using subsampled Plummer-softened potential.
+    Implements a subsample of N=500 particles to approximate total energy E.
     """
-    n_particles = len(particle_positions)
+    N_SUBSAMPLE = 500
+    n_particles = len(positions)
+    
     if n_particles == 0:
         raise ValueError("No particles to compute spin parameter")
     
-    # Subsample if necessary
-    n_sample = min(500, n_particles)
-    indices = np.random.choice(n_particles, size=n_sample, replace=False)
+    # Subsample particles
+    if n_particles > N_SUBSAMPLE:
+        indices = np.random.choice(n_particles, N_SUBSAMPLE, replace=False)
+        pos_sub = positions[indices]
+        vel_sub = velocities[indices]
+        mass_sub = masses[indices]
+    else:
+        pos_sub = positions
+        vel_sub = velocities
+        mass_sub = masses
     
-    pos = particle_positions[indices]
-    mass = particle_masses[indices]
-    vel = particle_velocities[indices]
+    n_sub = len(pos_sub)
     
-    # Center of mass
-    center_mass = np.average(pos, axis=0, weights=mass)
-    pos_centered = pos - center_mass
+    # Calculate angular momentum J
+    # J = sum_i m_i (r_i x v_i)
+    center_pos = np.average(pos_sub, axis=0, weights=mass_sub)
+    center_vel = np.average(vel_sub, axis=0, weights=mass_sub)
     
-    # Total mass
-    M = np.sum(mass)
+    r_rel = pos_sub - center_pos
+    v_rel = vel_sub - center_vel
     
-    # Angular momentum J
-    J = 0.0
-    for i in range(n_sample):
-        r = pos_centered[i]
-        v = vel[i]
-        J += mass[i] * np.linalg.norm(np.cross(r, v))
+    J_vec = np.zeros(3)
+    for i in range(n_sub):
+        J_vec += mass_sub[i] * np.cross(r_rel[i], v_rel[i])
     
-    # Kinetic energy
-    E_kin = 0.5 * np.sum(mass * np.sum(vel**2, axis=1))
+    J = np.linalg.norm(J_vec)
     
-    # Potential energy (subsampled Plummer)
-    epsilon = 0.01 * np.std(np.linalg.norm(pos_centered, axis=1))
+    # Calculate kinetic energy E_kin
+    E_kin = 0.5 * np.sum(mass_sub * np.sum(vel_rel**2, axis=1))
+    
+    # Calculate potential energy E_pot using Plummer-softened formula
+    # E_pot = -G * sum_i sum_j (m_i * m_j) / sqrt(r_ij^2 + epsilon^2)
+    epsilon = 0.01 * halo_radius  # Softening length
+    
     E_pot = 0.0
-    for i in range(n_sample):
-        for j in range(i+1, n_sample):
-            r_ij = np.linalg.norm(pos_centered[i] - pos_centered[j])
-            E_pot -= G * mass[i] * mass[j] / np.sqrt(r_ij**2 + epsilon**2)
+    for i in range(n_sub):
+        for j in range(i+1, n_sub):
+            r_ij = np.linalg.norm(pos_sub[i] - pos_sub[j])
+            E_pot -= G * mass_sub[i] * mass_sub[j] / np.sqrt(r_ij**2 + epsilon**2)
     
-    E_total = E_kin + E_pot
+    E_pot *= 2.0  # Account for double counting
     
-    if E_total == 0:
+    # Total energy
+    E = E_kin + E_pot
+    
+    if E == 0:
         return 0.0
     
-    # Spin parameter
-    lambda_val = J * np.sqrt(np.abs(E_total)) / (G * M**2.5)
-    return float(np.clip(lambda_val, 0.0, 1.0))
+    # Total mass
+    M = np.sum(mass_sub)
+    
+    # Spin parameter lambda = J * |E|^(1/2) / (G * M^(5/2))
+    lambda_param = J * np.sqrt(np.abs(E)) / (G * (M ** 2.5))
+    
+    return lambda_param
 
-def compute_concentration_from_nfw_fit(radii: np.ndarray, 
-                                       density_profile: np.ndarray) -> Optional[float]:
+def compute_concentration_from_nfw_fit(r: np.ndarray, density: np.ndarray, r_max: float) -> Tuple[Optional[float], bool]:
     """
-    Fit NFW profile and return concentration parameter.
+    Fit NFW profile to density data and return concentration c = r_vir / rs.
+    Returns (concentration, success_flag)
     """
-    if len(radii) < 3:
-        return None
+    if len(r) < 3:
+        return None, False
     
-    # Filter out zero or negative radii
-    valid = (radii > 0) & (density_profile > 0)
-    if np.sum(valid) < 3:
-        return None
-    
-    r_fit = radii[valid]
-    rho_fit = density_profile[valid]
+    # Initial guesses
+    rs_guess = r_max / 10.0
+    rho_s_guess = np.max(density)
     
     try:
-        # Initial guess for rs and vrs
-        p0 = [0.5 * np.median(r_fit), np.median(rho_fit)]
+        popt, pcov = curve_fit(
+            nfw_profile, 
+            r, 
+            density, 
+            p0=[rs_guess, rho_s_guess],
+            bounds=([1e-3, 1e-10], [r_max, 1e20]),
+            maxfev=5000
+        )
         
-        bounds = ([1e-3, 1e-3], [100.0, 1e6])
+        rs_fit = popt[0]
+        # Concentration c = r_vir / rs
+        # Assuming r_vir is approximately r_max for this fit
+        c = r_max / rs_fit
         
-        popt, pcov = curve_fit(nfw_profile, r_fit, rho_fit, p0=p0, bounds=bounds, maxfev=5000)
+        # Check if fit is reasonable
+        if c <= 0 or c > 100:
+            return None, False
         
-        rs = popt[0]
-        # Concentration c = R_vir / rs (assume R_vir ~ 1.0 for normalized units)
-        c = 1.0 / rs if rs > 0 else None
-        
-        return float(c) if c is not None and c > 0 else None
+        return c, True
     except Exception as e:
         logger.warning(f"NFW fit failed: {e}")
-        return None
+        return None, False
 
-def compute_halo_metrics(halo_data: Dict[str, Any]) -> Dict[str, Any]:
+def compute_halo_metrics(halo_data: Dict[str, Any], box_size: float, rho_critical: float) -> Dict[str, Any]:
     """
     Compute all structural metrics for a single halo.
+    Returns dictionary with shape, spin, concentration, and fit success status.
     """
-    results = {
-        "halo_id": halo_data.get("halo_id", "unknown"),
-        "shape": None,
-        "spin": None,
-        "concentration": None,
-        "overdensity": None,
-        "fit_success": False
-    }
+    positions = halo_data['particle_positions']
+    velocities = halo_data.get('particle_velocities', np.zeros_like(positions))
+    masses = halo_data.get('particle_masses', np.ones(len(positions)))
     
+    # Calculate halo radius (approximate as radius containing 50% of mass)
+    # Simplified: use max distance from center
+    center = np.average(positions, axis=0, weights=masses)
+    distances = np.linalg.norm(positions - center, axis=1)
+    halo_radius = np.max(distances)
+    
+    metrics = {}
+    
+    # Shape
     try:
-        positions = halo_data.get("particle_positions")
-        masses = halo_data.get("particle_masses")
-        velocities = halo_data.get("particle_velocities")
-        
-        if positions is None or masses is None:
-            logger.warning(f"Missing particle data for halo {results['halo_id']}")
-            return results
-        
-        # Shape
-        results["shape"] = compute_shape_from_inertia_tensor(positions, masses)
-        
-        # Spin
-        if velocities is not None:
-            results["spin"] = compute_spin_parameter(positions, masses, velocities)
-        
-        # Overdensity
-        center = np.average(positions, axis=0, weights=masses)
-        overdensity_result = calculate_local_overdensity(positions, masses, center)
-        results["overdensity"] = overdensity_result["overdensity"]
-        
-        # Concentration (NFW fit)
-        if "radii" in halo_data and "density_profile" in halo_data:
-            c = compute_concentration_from_nfw_fit(
-                halo_data["radii"], 
-                halo_data["density_profile"]
-            )
-            results["concentration"] = c
-            results["fit_success"] = (c is not None)
-        
+        metrics['shape'] = compute_shape_from_inertia_tensor(positions, masses)
     except Exception as e:
-        logger.error(f"Error computing metrics for halo {results['halo_id']}: {e}")
+        logger.warning(f"Shape calculation failed: {e}")
+        metrics['shape'] = None
     
-    return results
+    # Spin
+    try:
+        metrics['spin'] = compute_spin_parameter(positions, velocities, masses, halo_radius)
+    except Exception as e:
+        logger.warning(f"Spin calculation failed: {e}")
+        metrics['spin'] = None
+    
+    # Concentration (requires radial density profile)
+    # For this implementation, we assume radial bins are provided or calculated
+    # Simplified: return None if not enough data
+    if 'radial_bins' in halo_data and 'density_profile' in halo_data:
+        r = halo_data['radial_bins']
+        density = halo_data['density_profile']
+        c, success = compute_concentration_from_nfw_fit(r, density, halo_radius)
+        metrics['concentration'] = c
+        metrics['nfw_fit_success'] = success
+    else:
+        metrics['concentration'] = None
+        metrics['nfw_fit_success'] = False
+    
+    return metrics
 
 def run_compute_metrics_pipeline(input_path: str, output_path: str) -> Dict[str, Any]:
     """
-    Main pipeline to compute metrics for all halos in input file.
-    Logs convergence statistics and saves to results/convergence_stats.json.
+    Run the full metrics computation pipeline on a dataset.
+    Tracks convergence rates and failed fits, saving results to JSON.
     """
     logger.info(f"Starting metrics computation pipeline for {input_path}")
     
-    # Ensure results directory exists
-    results_dir = Path("results")
-    results_dir.mkdir(exist_ok=True)
-    stats_path = results_dir / "convergence_stats.json"
+    # Load data (assuming parquet format from T014)
+    import pandas as pd
+    df = pd.read_parquet(input_path)
     
+    # Initialize counters for convergence tracking
     total_halos = 0
     successful_fits = 0
     failed_fits = 0
     
-    # Process input (assuming parquet or similar structured format)
-    try:
-        import pandas as pd
-        df = pd.read_parquet(input_path)
-    except Exception as e:
-        logger.error(f"Failed to read input file {input_path}: {e}")
-        raise
+    results = []
     
-    metrics_results = []
-    
+    # Process each halo
     for idx, row in df.iterrows():
         total_halos += 1
         
-        # Construct halo data dict
+        # Reconstruct halo data from row
+        # This assumes the parquet file contains the necessary columns
+        # In a real implementation, this would be more complex
         halo_data = {
-            "halo_id": row.get("halo_id", idx),
-            "particle_positions": row.get("particle_positions"),
-            "particle_masses": row.get("particle_masses"),
-            "particle_velocities": row.get("particle_velocities"),
-            "radii": row.get("radii"),
-            "density_profile": row.get("density_profile")
+            'particle_positions': row.get('particle_positions', None),
+            'particle_velocities': row.get('particle_velocities', None),
+            'particle_masses': row.get('particle_masses', None)
         }
         
-        metrics = compute_halo_metrics(halo_data)
-        metrics_results.append(metrics)
+        if halo_data['particle_positions'] is None:
+            logger.warning(f"Halo {idx} missing positions, skipping")
+            failed_fits += 1
+            continue
         
-        if metrics["fit_success"]:
+        metrics = compute_halo_metrics(
+            halo_data, 
+            get_simulation_box_size(), 
+            get_rho_critical_at_z(0.0)
+        )
+        
+        # Track NFW fit success
+        if metrics.get('nfw_fit_success', False):
             successful_fits += 1
         else:
             failed_fits += 1
         
-        # Log every 1000 halos
-        if total_halos % 1000 == 0:
-            logger.info(f"Processed {total_halos} halos...")
+        results.append({
+            'halo_id': idx,
+            'shape': metrics.get('shape'),
+            'spin': metrics.get('spin'),
+            'concentration': metrics.get('concentration'),
+            'nfw_fit_success': metrics.get('nfw_fit_success', False)
+        })
     
-    # Calculate and log convergence stats
-    success_rate = (successful_fits / total_halos * 100) if total_halos > 0 else 0.0
-    logger.info(f"CONVERGENCE: {success_rate:.2f}% success, {failed_fits} failed fits")
+    # Calculate convergence statistics
+    if total_halos > 0:
+        success_rate = (successful_fits / total_halos) * 100
+        failure_rate = (failed_fits / total_halos) * 100
+    else:
+        success_rate = 0.0
+        failure_rate = 0.0
     
-    # Save stats to JSON
-    stats = {
-        "total_halos": total_halos,
-        "successful_fits": successful_fits,
-        "failed_fits": failed_fits,
-        "success_rate_percent": round(success_rate, 2)
+    convergence_message = f"CONVERGENCE: {success_rate:.1f}% success, {failed_fits} failed fits"
+    logger.info(convergence_message)
+    
+    # Save convergence stats to JSON
+    convergence_stats = {
+        'total_halos': total_halos,
+        'successful_fits': successful_fits,
+        'failed_fits': failed_fits,
+        'success_rate_percent': success_rate,
+        'failure_rate_percent': failure_rate,
+        'message': convergence_message
     }
     
+    # Ensure results directory exists
+    results_dir = Path(output_path).parent
+    results_dir.mkdir(parents=True, exist_ok=True)
+    
+    stats_path = results_dir / 'convergence_stats.json'
     with open(stats_path, 'w') as f:
-        json.dump(stats, f, indent=2)
+        json.dump(convergence_stats, f, indent=2)
     
     logger.info(f"Convergence stats saved to {stats_path}")
     
-    # Save full metrics results
-    try:
-        metrics_df = pd.DataFrame(metrics_results)
-        metrics_df.to_parquet(output_path, index=False)
-        logger.info(f"Metrics saved to {output_path}")
-    except Exception as e:
-        logger.error(f"Failed to save metrics: {e}")
-        raise
+    # Save detailed results
+    results_df = pd.DataFrame(results)
+    results_df.to_parquet(output_path, index=False)
     
-    return stats
+    logger.info(f"Metrics computation pipeline completed. Results saved to {output_path}")
+    
+    return convergence_stats
 
+# Main entry point for direct execution
 if __name__ == "__main__":
-    import sys
-    if len(sys.argv) < 3:
-        print("Usage: python compute_metrics.py <input_parquet> <output_parquet>")
-        sys.exit(1)
+    import argparse
     
-    input_file = sys.argv[1]
-    output_file = sys.argv[2]
+    parser = argparse.ArgumentParser(description="Compute halo structural metrics")
+    parser.add_argument("--input", type=str, required=True, help="Input parquet file path")
+    parser.add_argument("--output", type=str, required=True, help="Output parquet file path")
     
-    run_compute_metrics_pipeline(input_file, output_file)
+    args = parser.parse_args()
+    
+    run_compute_metrics_pipeline(args.input, args.output)

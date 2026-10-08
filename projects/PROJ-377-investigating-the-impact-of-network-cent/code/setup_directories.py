@@ -1,47 +1,45 @@
 """
-Setup script to initialize the project directory structure.
-Creates the required directories for code, data, and tests as per project specifications.
+Script to initialize the project directory structure for llmXive research pipeline.
+Creates the required directory hierarchy under 'code/' as specified in T005a.
 """
 import os
 from pathlib import Path
 
 def setup_directories():
-    """Create the project directory structure."""
-    # Define the base directory (project root)
+    """
+    Creates the core project directories:
+    - code/
+    - code/data/
+    - code/analysis/
+    - code/utils/
+    
+    This function is idempotent and will not fail if directories already exist.
+    """
     base_dir = Path(__file__).resolve().parent.parent
-
-    # Define the directory structure to create
+    code_dir = base_dir / "code"
+    
     directories = [
-        # Code structure
-        base_dir / "code",
-        base_dir / "code" / "data",
-        base_dir / "code" / "analysis",
-        base_dir / "code" / "utils",
-        
-        # Data structure
-        base_dir / "data",
-        base_dir / "data" / "raw",
-        base_dir / "data" / "processed",
-        base_dir / "data" / "artifacts",
-        
-        # Tests structure
-        base_dir / "tests",
-        base_dir / "tests" / "contract",
-        base_dir / "tests" / "integration",
-        base_dir / "tests" / "unit"
+        code_dir,
+        code_dir / "data",
+        code_dir / "analysis",
+        code_dir / "utils",
     ]
-
-    created_count = 0
-    for directory in directories:
-        if not directory.exists():
-            directory.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {directory}")
-            created_count += 1
+    
+    created = []
+    for dir_path in directories:
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            created.append(str(dir_path.relative_to(base_dir)))
+            print(f"Created directory: {dir_path.relative_to(base_dir)}")
         else:
-            print(f"Directory already exists: {directory}")
-
-    print(f"\nSetup complete. Created {created_count} new directories.")
-    return True
+            print(f"Directory already exists: {dir_path.relative_to(base_dir)}")
+    
+    if not created:
+        print("All required directories already exist.")
+    else:
+        print(f"Successfully created {len(created)} directories.")
+    
+    return created
 
 if __name__ == "__main__":
     setup_directories()

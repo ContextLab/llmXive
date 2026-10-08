@@ -1,72 +1,65 @@
-"""
-Unit tests for plan_updater.py
-"""
 import os
 import tempfile
 from pathlib import Path
 import pytest
+
 from code.plan_updater import update_plan_file
 
-def test_removes_100_methods():
-    """Test that '100 methods' is replaced by '1000 methods'."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        plan_path = Path(tmpdir) / "plan.md"
-        content = "The limit is 100 methods per repo."
-        plan_path.write_text(content)
-        
-        update_plan_file(plan_path)
-        
-        updated = plan_path.read_text()
-        assert "100 methods" not in updated
-        assert "1000 methods" in updated
+def test_update_plan_removes_100_methods():
+    """Test that '100 methods' is removed/replaced."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False) as f:
+        f.write("# Plan\n\n## Constraints\nMax 100 methods per repo.\n")
+        temp_path = f.name
 
-def test_inserts_total_sample_size():
-    """Test that the total sample size string is inserted if missing."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        plan_path = Path(tmpdir) / "plan.md"
-        content = """# Plan
-        ## Constraints
-        Some constraints here.
-        """
-        plan_path.write_text(content)
-        
-        update_plan_file(plan_path)
-        
-        updated = plan_path.read_text()
-        assert "20 repos × [deferred] methods = 20,000 total" in updated
+    try:
+        update_plan_file(temp_path)
+        content = Path(temp_path).read_text()
+        assert "100 methods" not in content
+        assert "[deferred] methods" in content
+    finally:
+        os.unlink(temp_path)
 
-def test_preserves_deferred_marker():
-    """Test that [deferred] methods remains in the file."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        plan_path = Path(tmpdir) / "plan.md"
-        content = """# Plan
-        ## Constraints
-        20 repos × [deferred] methods = 20,000 total
-        """
-        plan_path.write_text(content)
-        
-        update_plan_file(plan_path)
-        
-        updated = plan_path.read_text()
-        assert "[deferred] methods" in updated
+def test_update_plan_removes_fallback_note():
+    """Test that the 8-bit fallback note is removed."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False) as f:
+        f.write("# Plan\n\nNote: If 4-bit fails, fallback to 8-bit.\n")
+        temp_path = f.name
 
-def test_fails_if_100_methods_remains():
-    """Test that an error is raised if '100 methods' cannot be removed."""
-    # This is hard to test without a specific scenario where regex fails,
-    # but we trust the logic. The main test is that it raises ValueError
-    # if the post-check fails.
-    with tempfile.TemporaryDirectory() as tmpdir:
-        plan_path = Path(tmpdir) / "plan.md"
-        # Simulate a case where we manually force the error by not replacing
-        # But the function does the replacement. 
-        # We can test the exception by creating a file that somehow bypasses replacement
-        # and then the check fails. However, the replacement is a simple string replace.
-        # We'll rely on the logic being sound.
-        pass
+    try:
+        update_plan_file(temp_path)
+        content = Path(temp_path).read_text()
+        assert "fallback to 8-bit" not in content
+        assert "fallback to full precision" not in content
+    finally:
+        os.unlink(temp_path)
 
-def test_file_not_found():
+def test_update_plan_adds_hard_cap():
+    """Test that the hard cap statement is added if missing."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False) as f:
+        f.write("# Plan\n\n## Constraints\nSome constraint.\n")
+        temp_path = f.name
+
+    try:
+        update_plan_file(temp_path)
+        content = Path(temp_path).read_text()
+        assert "Max a reasonable number of methods per repository to ensure manageability and coherence." in content
+    finally:
+        os.unlink(temp_path)
+
+def test_update_plan_adds_total_count():
+    """Test that the total count statement is added if missing."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False) as f:
+        f.write("# Plan\n\n## Constraints\nMax a reasonable number of methods per repository to ensure manageability and coherence.\n")
+        temp_path = f.name
+
+    try:
+        update_plan_file(temp_path)
+        content = Path(temp_path).read_text()
+        assert "up to 20,000 (20 repos * [deferred])" in content
+    finally:
+        os.unlink(temp_path)
+
+def test_update_plan_file_not_found():
     """Test that FileNotFoundError is raised if plan.md is missing."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        plan_path = Path(tmpdir) / "nonexistent.md"
-        with pytest.raises(FileNotFoundError):
-            update_plan_file(plan_path)
+    with pytest.raises(FileNotFoundError):
+        update_plan_file("non_existent_plan.md")
