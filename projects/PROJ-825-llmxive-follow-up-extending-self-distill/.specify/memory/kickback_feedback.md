@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T021` (rejected 1x): The repository contains a partially‑written `code/statistical_analysis.py` that is truncated and never writes `data/merged_analysis.json`. Moreover, the required source files `data/static_baseline.csv` and `data/processed/semantic_results.json` are absent, so the script cannot perform the merge nor produce the specified JSON output. The deliverable is therefore missing.
+- `T005` (rejected 1x): No linting or formatting configuration files (e.g., `pyproject.toml` with Black settings, `.ruff.toml` or `ruff.toml`, or any setup scripts) are present in the provided evidence, and the artifacts shown relate only to the SDAR student‑only gating feature, not to configuring Ruff or Black. The required linting/formatting setup is therefore missing.
 
 ## Required change
 

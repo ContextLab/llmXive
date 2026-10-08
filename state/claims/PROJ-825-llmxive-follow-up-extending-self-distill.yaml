@@ -901,3 +901,338 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-01T15:33:01Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 0
+  canonical: training loop terminates when average per-episode cumulative reward reaches
+    0.8 for 3 consecutive episodes
+  claim_id: c_8713d981
+  context: 'T015 [P] [US1] TDD: Integration test for Student-Only loop termination
+    in `code/tests/test_training_loop.py` (verify stop when **average per-episode
+    cumulative reward reaches 0.8 for 3 consecutive episodes** OR step cap, as per
+    US-1 Acceptance Scenario 1)'
+  evidence:
+    asserted: '0.8'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: verify stop when average per-episode cumulative reward reaches 0.8 for
+    3 consecutive episodes OR step cap
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T09:45:36Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: combined RSS memory of 8-bit quantized Qwen2.5-1.7B and quantized sentence-transformers
+    must be less than or equal to 7GB
+  claim_id: c_0248e15b
+  context: T011 [P] Verify Qwen2.5-1.7B availability AND measure peak RSS memory of
+    combined Qwen2.5-1.7B (8-bit quantized) + sentence-transformers ({{claim:c_47307b3b}}
+    (2607.07974, https://arxiv.org/abs/2607.07974) quantized) in a dry-run script;
+    FAIL if combined RSS >7GB RAM (Constitution VI)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Combined_RSS_memory_of_8-bit_quantized_Qwen2.5-1.7B_and_quan
+  kind: magnitude
+  raw_text: Verify Qwen2.5-1.7B availability AND measure peak RSS memory of combined
+    Qwen2.5-1.7B (8-bit quantized) + sentence-transformers (2607.07974 quantized)
+    in a dry-run script; FAIL if combined RSS >7GB RAM
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:46:47Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: Pearson correlation coefficient computed between Student-Only scores
+    and Baseline Teacher-Student gaps
+  claim_id: c_f825114c
+  context: T026 [US2] ... **compute and report Pearson correlation coefficient** between
+    Student-Only scores and Baseline Teacher-Student gaps (FR-007, Constitution VII)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pearson_correlation_coefficient_computed_between_Student-Onl
+  kind: entity_fact
+  raw_text: compute and report Pearson correlation coefficient between Student-Only
+    scores and Baseline Teacher-Student gaps
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:47:36Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: Cost reduction percentage for Student-Only vs Baseline targeting at least
+    60%
+  claim_id: c_8c1a199b
+  context: "T031 [US3] Implement `code/scripts/analyze_results.py` to calculate: -\
+    \ Cost reduction % (CPU time) comparing Student-Only vs. Baseline (target \u2265\
+    60%)"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cost_reduction_percentage_for_Student-Only_vs_Baseline_targe
+  kind: magnitude
+  raw_text: "Cost reduction % (CPU time) comparing Student-Only vs. Baseline (target\
+    \ \u226560%)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:48:23Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: Performance retention percentage formula is (Success_Student - Success_GRPO)
+    / (Success_Baseline - Success_GRPO) * 100
+  claim_id: c_7bff67aa
+  context: 'T031 [US3] ... - Performance retention % using formula: `(Success_Student
+    - Success_GRPO) / (Success_Baseline - Success_GRPO) * 100` (SC-001 metric)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Performance retention % using formula: (Success_Student - Success_GRPO)
+    / (Success_Baseline - Success_GRPO) * 100'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:49:00Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: Performance retention inequality requires (Success_Student - Success_GRPO)
+    to be greater than or equal to 0.8 times (Success_Baseline - Success_GRPO)
+  claim_id: c_7d03d3c1
+  context: "T031 [US3] ... - **Explicitly verify the performance retention inequality**:\
+    \ `(Success_Student - Success_GRPO) \u2265 0.8 \xD7 (Success_Baseline - Success_GRPO)`\
+    \ and output a **PASS/FAIL boolean** result as required by SC-001"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_retention_inequality_requires_(Success_Student_-
+  kind: magnitude
+  raw_text: "verify the performance retention inequality: (Success_Student - Success_GRPO)\
+    \ \u2265 0.8 \xD7 (Success_Baseline - Success_GRPO)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:49:28Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 0
+  canonical: training loop termination threshold is 0.8 average per-episode cumulative
+    reward for 3 consecutive episodes
+  claim_id: c_453f1560
+  context: 'T015 [P] [US1] TDD: Integration test for Student-Only loop termination
+    in `code/tests/test_training_loop.py` (verify stop when **average per-episode
+    cumulative reward reaches 0.8 for 3 consecutive episodes** OR step cap, as per
+    US-1 Acceptance Scenario 1)'
+  evidence:
+    asserted: '0.8'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: verify stop when average per-episode cumulative reward reaches 0.8 for
+    3 consecutive episodes OR step cap
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T09:50:15Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: combined Qwen2.5-1.7B 8-bit and sentence-transformers RSS memory threshold
+    is 7GB
+  claim_id: c_6f178ed3
+  context: T011 [P] Verify Qwen2.5-1.7B availability AND measure peak RSS memory of
+    combined Qwen2.5-1.7B (8-bit quantized) + sentence-transformers ({{claim:c_47307b3b}}
+    (2607.07974, https://arxiv.org/abs/2607.07974) quantized) in a dry-run script;
+    FAIL if combined RSS >7GB RAM (Constitution VI)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify Qwen2.5-1.7B availability AND measure peak RSS memory of combined
+    Qwen2.5-1.7B (8-bit quantized) + sentence-transformers (2607.07974 quantized)
+    in a dry-run script; FAIL if combined RSS >7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:50:16Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: comparison table includes steps-to-threshold at 0.8 reward
+  claim_id: c_7479bc8b
+  context: T025 [US2] Create `code/scripts/compare_variants.py` to aggregate logs
+    and output a comparison table of final task success rates and steps-to-threshold
+    (0.8 reward) for all three variants
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: generate a comparison table of final task success rates and steps-to-threshold
+    (0.8 reward) for all three variants
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:51:12Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: target cost reduction percentage for Student-Only vs Baseline is 60%
+  claim_id: c_1ba18008
+  context: "T031 [US3] Implement `code/scripts/analyze_results.py` to calculate: -\
+    \ Cost reduction % (CPU time) comparing Student-Only vs. Baseline (target \u2265\
+    60%)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Cost reduction % (CPU time) comparing Student-Only vs. Baseline (target\
+    \ \u226560%)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:51:12Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: performance retention inequality threshold is 0.8
+  claim_id: c_7a1a4526
+  context: "T031 [US3] - **Explicitly verify the performance retention inequality**:\
+    \ `(Success_Student - Success_GRPO) \u2265 0.8 \xD7 (Success_Baseline - Success_GRPO)`\
+    \ and output a **PASS/FAIL boolean** result as required by SC-001"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "performance retention inequality: (Success_Student - Success_GRPO) \u2265\
+    \ 0.8 \xD7 (Success_Baseline - Success_GRPO)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:51:12Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: bootstrapping sample size is 5
+  claim_id: c_e35b728f
+  context: T030 [P] [US3] Implement `code/metrics/statistical_test.py` with **Bootstrapping
+    only** for N=5 bounded data (per FR-005 and Plan "Complexity Tracking"); remove
+    any conditional logic for Mann-Whitney U or normality tests as these are explicitly
+    rejected for this data regime.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrapping only for N=5 bounded data
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:51:44Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 0
+  canonical: Training stops when average per-episode cumulative reward reaches 0.8
+    for 3 consecutive episodes
+  claim_id: c_fa7c7732
+  context: 'T015 [P] [US1] TDD: Integration test for Student-Only loop termination
+    in `code/tests/test_training_loop.py` (verify stop when **average per-episode
+    cumulative reward reaches 0.8 for 3 consecutive episodes** OR step cap, as per
+    US-1 Acceptance Scenario 1)'
+  evidence:
+    asserted: '0.8'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: verify stop when average per-episode cumulative reward reaches 0.8 for
+    3 consecutive episodes
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T09:53:58Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: Combined RSS memory of 8-bit quantized Qwen2.5-1.7B and quantized sentence-transformers
+    exceeds 7GB RAM
+  claim_id: c_c3459a9b
+  context: T011 [P] Verify Qwen2.5-1.7B availability AND measure peak RSS memory of
+    combined Qwen2.5-1.7B (8-bit quantized) + sentence-transformers ({{claim:c_47307b3b}}
+    (2607.07974, https://arxiv.org/abs/2607.07974) quantized) in a dry-run script;
+    FAIL if combined RSS >7GB RAM (Constitution VI)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify Qwen2.5-1.7B availability AND measure peak RSS memory of combined
+    Qwen2.5-1.7B (8-bit quantized) + sentence-transformers (2607.07974 quantized)
+    in a dry-run script; FAIL if combined RSS >7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:53:59Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: Target cost reduction of 60% in CPU time for Student-Only vs Baseline
+  claim_id: c_6e85e9d3
+  context: "T031 [US3] Implement `code/scripts/analyze_results.py` to calculate: -\
+    \ Cost reduction % (CPU time) comparing Student-Only vs. Baseline (target \u2265\
+    60%)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "target \u226560% cost reduction (CPU time) comparing Student-Only vs.\
+    \ Baseline"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:53:59Z'
+- artifact_path: projects/PROJ-825-llmxive-follow-up-extending-self-distill/specs/001-llmxive-follow-up-extending-self-distill/tasks.md
+  attempts: 1
+  canonical: Performance retention inequality requires (Success_Student - Success_GRPO)
+    to be greater than or equal to 0.8 times (Success_Baseline - Success_GRPO)
+  claim_id: c_8600dd82
+  context: "T031 [US3] Implement `code/scripts/analyze_results.py` to calculate: -\
+    \ **Explicitly verify the performance retention inequality**: `(Success_Student\
+    \ - Success_GRPO) \u2265 0.8 \xD7 (Success_Baseline - Success_GRPO)` and output\
+    \ a **PASS/FAIL boolean** result as required by SC-001"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_retention_inequality_requires_(Success_Student_-
+  kind: magnitude
+  raw_text: "Explicitly verify the performance retention inequality: (Success_Student\
+    \ - Success_GRPO) \u2265 0.8 \xD7 (Success_Baseline - Success_GRPO)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:54:26Z'

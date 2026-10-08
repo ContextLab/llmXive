@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T08:42:52.942608Z'
-current_stage: flesh_out_complete
+current_stage: flesh_out_in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-935-llmxive-follow-up-extending-on-the-scali
-last_run_id: 62378832-7f5a-4920-8f0e-73ad086ccd8d
+last_run_id: cbce32e7-6c19-43e0-b6d0-aee60c8e2cd0
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "On the Scaling of PEFT: Towards Million Personal
   Models of Trillion Pa"'
-updated_at: '2026-10-04T16:34:03.225176Z'
+updated_at: '2026-10-08T09:35:02.559198Z'

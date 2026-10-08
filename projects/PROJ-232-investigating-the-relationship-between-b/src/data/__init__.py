@@ -1,1 +1,3 @@
-"""Data acquisition and preprocessing module."""
+"""
+Data acquisition and preprocessing modules.
+"""

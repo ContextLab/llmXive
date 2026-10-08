@@ -1,1 +1,3 @@
-"""Analysis module for connectivity, graph metrics, and statistics."""
+"""
+Analysis, connectivity, and graph metrics modules.
+"""

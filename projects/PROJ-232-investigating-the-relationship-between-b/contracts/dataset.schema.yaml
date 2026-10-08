@@ -1,132 +1,147 @@
-%YAML 1.2
----
-# Schema for raw and preprocessed dataset inputs
-# Used to validate data downloaded from OpenNeuro/HCP before processing
-$schema: http://json-schema.org/draft-07/schema#
-title: DatasetInputSchema
-description: >-
-  Defines the expected structure for raw behavioral data (CSV) and
-  preprocessed neuroimaging metadata (JSON) to ensure downstream compatibility.
-
-definitions:
-  subject_info:
-    type: object
-    required:
-      - subject_id
-      - age
-      - sex
-      - handedness
-    properties:
-      subject_id:
-        type: string
-        pattern: "^sub-[A-Za-z0-9]+$"
-        description: "Standard BIDS subject identifier"
-      age:
-        type: integer
-        minimum: 0
-        maximum: 120
-      sex:
-        type: string
-        enum: ["M", "F", "Other"]
-      handedness:
-        type: string
-        enum: ["R", "L", "A"]
-
-  behavioral_scores:
-    type: object
-    required:
-      - subject_id
-      - BMRQ_Total
-    properties:
-      subject_id:
-        type: string
-        pattern: "^sub-[A-Za-z0-9]+$"
-      BMRQ_Total:
-        type: number
-        description: "Total score from the Basic Musical Questionnaire"
-      BMRQ_Score_1:
-        type: number
-        description: "Individual item scores if available"
-      # Add other BMRQ dimensions if present in the dataset
-      age:
-        type: integer
-      sex:
-        type: string
-
-  fmri_metadata:
-    type: object
-    required:
-      - subject_id
-      - task
-      - run
-      - repetition_time
-      - acquisition_time
-    properties:
-      subject_id:
-        type: string
-      task:
-        type: string
-        const: "rest"
-      run:
-        type: integer
-      repetition_time:
-        type: number
-        minimum: 0.5
-      acquisition_time:
-        type: number
-
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "HCP/OpenNeuro rs-fMRI and Behavioral Dataset Schema"
+description: >
+  Schema for validating the raw and preprocessed dataset structure
+  downloaded from OpenNeuro ds000233 (or similar HCP-derived datasets).
+  This schema ensures that the BMRQ behavioral data and rs-fMRI NIfTI
+  files are present and correctly formatted before downstream analysis.
 type: object
+required:
+  - dataset_id
+  - data_type
+  - subjects
+  - behavioral
+  - imaging
 properties:
-  behavioral_csv:
-    type: object
-    description: "Structure of the downloaded behavioral CSV file"
-    additionalProperties: false
-    required:
-      - header
-      - rows
-    properties:
-      header:
-        type: array
-        items:
+  dataset_id:
+    type: string
+    description: "Identifier of the dataset (e.g., 'ds000233')"
+    pattern: "^ds[0-9]{6}$"
+  data_type:
+    type: string
+    enum:
+      - "rs-fMRI"
+      - "task-fMRI"
+      - "mixed"
+    description: "Type of fMRI data available"
+  subjects:
+    type: array
+    description: "List of subject identifiers included in the dataset"
+    items:
+      type: object
+      required:
+        - subject_id
+        - has_fMRI
+        - has_behavioral
+      properties:
+        subject_id:
           type: string
-        minItems: 2
-        contains:
-          const: "subject_id"
-      rows:
-        type: array
-        items:
-          type: object
-          additionalProperties: false
-          required:
-            - subject_id
-            - BMRQ_Total
-
-  preprocessed_nifti_info:
+          description: "Subject identifier (e.g., 'sub-001')"
+        has_fMRI:
+          type: boolean
+          description: "Whether rs-fMRI NIfTI file exists for this subject"
+        has_behavioral:
+          type: boolean
+          description: "Whether behavioral CSV exists for this subject"
+  behavioral:
     type: object
-    description: "Metadata extracted from preprocessed NIfTI files"
-    additionalProperties: false
+    description: "Metadata about the behavioral data file"
     required:
-      - subject_id
       - file_path
-      - dimensions
-      - voxelsize
+      - format
+      - required_columns
     properties:
-      subject_id:
-        type: string
       file_path:
         type: string
-      dimensions:
+        description: "Relative path to the behavioral CSV file"
+        pattern: "^data/.*\\.csv$"
+      format:
+        type: string
+        enum:
+          - "csv"
+        description: "Format of the behavioral data file"
+      required_columns:
         type: array
+        description: "List of required columns that must exist in the behavioral CSV"
         items:
-          type: integer
-        minItems: 3
-      voxelsize:
+          type: string
+        minItems: 1
+        uniqueItems: true
+      column_types:
+        type: object
+        description: "Expected data types for each required column"
+        additionalProperties:
+          type: string
+          enum:
+            - "integer"
+            - "float"
+            - "string"
+            - "boolean"
+  imaging:
+    type: object
+    description: "Metadata about the imaging data files"
+    required:
+      - file_extension
+      - required_fields
+      - preprocessing_status
+    properties:
+      file_extension:
+        type: string
+        enum:
+          - ".nii.gz"
+          - ".nii"
+        description: "Expected file extension for NIfTI files"
+      required_fields:
         type: array
+        description: "Required fields in the NIfTI filename (e.g., sub-, ses-, run-)"
         items:
-          type: number
-        minItems: 3
-
-required:
-  - behavioral_csv
-  - preprocessed_nifti_info
+          type: string
+        minItems: 1
+      preprocessing_status:
+        type: string
+        enum:
+          - "raw"
+          - "preprocessed"
+          - "both"
+        description: "Current preprocessing status of the imaging data"
+  validation_metadata:
+    type: object
+    description: "Metadata about the validation process"
+    required:
+      - validated_at
+      - validator_version
+      - validation_result
+    properties:
+      validated_at:
+        type: string
+        format: date-time
+        description: "ISO 8601 timestamp of validation"
+      validator_version:
+        type: string
+        description: "Version of the validation script"
+      validation_result:
+        type: string
+        enum:
+          - "pass"
+          - "fail"
+        description: "Result of the validation check"
+      errors:
+        type: array
+        description: "List of validation errors (if any)"
+        items:
+          type: object
+          required:
+            - error_type
+            - message
+            - location
+          properties:
+            error_type:
+              type: string
+              description: "Type of error (e.g., 'missing_file', 'invalid_column')"
+            message:
+              type: string
+              description: "Human-readable error message"
+            location:
+              type: string
+              description: "Path or identifier where the error occurred"
 additionalProperties: false

@@ -11,5 +11,5 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T012c** — declared artifact(s) missing/empty/invalid: src/data/preprocess.py, data/preprocessing/run_log.json
 - **T012d** — declared artifact(s) missing/empty/invalid: src/data/preprocess.py
 - **T012e** — declared artifact(s) missing/empty/invalid: src/data/preprocess.py, data/preprocessing/run_log.json
-- **T013** — declared artifact(s) missing/empty/invalid: src/analysis/connectivity.py
 - **T018a** — declared artifact(s) missing/empty/invalid: src/analysis/graph_metrics.py
+- **T018b** — declared artifact(s) missing/empty/invalid: src/analysis/graph_metrics.py

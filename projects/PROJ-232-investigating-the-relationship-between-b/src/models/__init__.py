@@ -1,1 +1,3 @@
-"""Data models and schema definitions."""
+"""
+Pydantic models and schema definitions.
+"""

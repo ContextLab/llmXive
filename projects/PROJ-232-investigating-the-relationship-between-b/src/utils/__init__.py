@@ -1,1 +1,3 @@
-"""Utilities package for logging, configuration, and helper functions."""
+"""
+Utility modules for logging and configuration.
+"""

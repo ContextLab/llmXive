@@ -1,163 +1,249 @@
+"""
+Data download module for OpenNeuro ds000233.
+Handles streaming metadata, verifying BMRQ columns, and downloading raw data.
+"""
 import os
 import sys
 import json
 import hashlib
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple
-import logging
 
-from src.utils.logging import setup_logging, get_logger
-from src.config.env_config import get_data_path
+# Local imports from project structure
+from src.utils.logging import get_logger, log_gap_report_generation, log_download_integrity
 
-# Configure logging
 logger = get_logger(__name__)
 
+# Required BMRQ columns for the study
 REQUIRED_BMRQ_COLUMNS = {
+    "subject_id",
     "BMRQ_Total",
-    "BMRQ_Emotionality",
-    "BMRQ_Physiological",
-    "BMRQ_Social",
-    "BMRQ_Aesthetic"
+    "BMRQ_Subscale_1",
+    "BMRQ_Subscale_2",
+    "BMRQ_Subscale_3",
+    "BMRQ_Subscale_4",
+    "BMRQ_Subscale_5",
+    "BMRQ_Subscale_6",
+    "BMRQ_Subscale_7",
+    "BMRQ_Subscale_8",
+    "age",
+    "sex"
 }
 
-def verify_bmrq_column(df, required_columns: Set[str]) -> Tuple[bool, List[str]]:
+def calculate_file_checksum(file_path: Path, algorithm: str = "sha256") -> str:
+    """Calculate SHA256 checksum of a file."""
+    sha256_hash = hashlib.new(algorithm)
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(chunk)
+    return sha256_hash.hexdigest()
+
+def verify_bmrq_column(csv_path: Path, required_columns: Set[str] = None) -> Tuple[bool, Set[str]]:
     """
-    Verify that the DataFrame contains all required BMRQ columns.
+    Verify that the BMRQ CSV contains all required columns.
     
     Args:
-        df: Pandas DataFrame containing behavioral data
-        required_columns: Set of required column names
+        csv_path: Path to the behavioral CSV file
+        required_columns: Set of required column names (defaults to REQUIRED_BMRQ_COLUMNS)
         
     Returns:
-        Tuple of (is_valid, list of missing columns)
+        Tuple of (all_present, missing_columns)
     """
-    missing_columns = required_columns - set(df.columns)
-    is_valid = len(missing_columns) == 0
-    return is_valid, list(missing_columns)
+    if required_columns is None:
+        required_columns = REQUIRED_BMRQ_COLUMNS
+        
+    if not csv_path.exists():
+        logger.error(f"BMRQ CSV file not found: {csv_path}")
+        return False, required_columns
+    
+    try:
+        import pandas as pd
+        df = pd.read_csv(csv_path)
+        available_columns = set(df.columns)
+        missing = required_columns - available_columns
+        all_present = len(missing) == 0
+        
+        if all_present:
+            logger.info(f"BMRQ verification passed: all {len(required_columns)} required columns present")
+        else:
+            logger.warning(f"BMRQ verification failed: missing {len(missing)} columns: {missing}")
+            
+        return all_present, missing
+        
+    except Exception as e:
+        logger.error(f"Error reading BMRQ CSV: {e}")
+        return False, required_columns
 
-def generate_data_gap_report(missing_columns: List[str], output_path: Path) -> None:
+def generate_data_gap_report(missing_columns: Set[str], output_path: Path) -> None:
     """
-    Generate a markdown report listing missing BMRQ variables and exit with code 1.
+    Generate a markdown report listing missing BMRQ variables and exit conditions.
     
     Args:
-        missing_columns: List of missing column names
-        output_path: Path to write the report
+        missing_columns: Set of column names that are missing from the dataset
+        output_path: Path where the report will be saved
     """
     report_content = f"""# Data Gap Report
 
-**Generated**: {Path(output_path).parent.name}
-**Status**: CRITICAL - Missing Required Data
+**Generated**: {__import__('datetime').datetime.now().isoformat()}
+**Dataset**: OpenNeuro ds000233 (HCP rs-fMRI + BMRQ)
+**Status**: CRITICAL - Missing Required Variables
 
-## Missing BMRQ Variables
+## Missing Variables
 
-The following required columns are missing from the dataset:
+The following required BMRQ columns were not found in the dataset:
 
 """
-    for col in missing_columns:
+    for col in sorted(missing_columns):
         report_content += f"- `{col}`\n"
     
     report_content += f"""
 ## Impact
 
-The analysis cannot proceed without these variables. The pipeline has halted to prevent
-fabrication of data or analysis on incomplete datasets.
+These missing variables prevent the execution of the following analysis steps:
+- Calculation of BMRQ total and subscale scores
+- Correlation analysis between brain network metrics and musical emotion perception
+- Statistical modeling and hypothesis testing
+
+## Required Action
+
+1. Verify the data source (OpenNeuro ds000233) contains the complete BMRQ file
+2. Check for data corruption or incomplete downloads
+3. If the data source is incomplete, contact the data provider or use an alternative verified dataset
 
 ## Next Steps
 
-1. Verify the data source (OpenNeuro ds000233) contains the BMRQ questionnaire data.
-2. Check if the correct version of the dataset was downloaded.
-3. Contact the data provider if the columns are expected but missing.
-
-## Technical Details
-
-- **Expected Columns**: {', '.join(sorted(REQUIRED_BMRQ_COLUMNS))}
-- **Missing Columns**: {', '.join(sorted(missing_columns))}
-- **Missing Count**: {len(missing_columns)}
+The pipeline has halted. Please resolve the data gap before proceeding.
 
 ---
-*This report was automatically generated by the llmXive pipeline.*
+*This report was automatically generated by the llmXive data pipeline.*
 """
     
     # Ensure parent directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Write report
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(report_content)
     
-    logger.error(f"Data gap report generated at: {output_path}")
-    logger.error(f"Missing {len(missing_columns)} required columns: {missing_columns}")
+    log_gap_report_generation(output_path, missing_columns)
+    logger.error(f"Data gap report generated: {output_path}")
 
-def download_behavioral_data(subject_ids: List[str], output_dir: Path) -> Tuple[Dict[str, str], Dict[str, str]]:
+def download_behavioral_data(data_dir: Path, dataset: str = "ds000233") -> Path:
     """
-    Download behavioral data (BMRQ) for specified subjects from OpenNeuro.
-    
-    This function attempts to download the BMRQ CSV file. If the file is missing
-    or lacks required columns, it generates a data gap report and exits.
+    Download behavioral data (BMRQ) from OpenNeuro.
     
     Args:
-        subject_ids: List of subject IDs to download data for
-        output_dir: Directory to save downloaded files
+        data_dir: Base directory for data storage
+        dataset: OpenNeuro dataset identifier
         
     Returns:
-        Tuple of (downloaded_files, checksums)
+        Path to the downloaded behavioral CSV file
         
     Raises:
-        SystemExit: If BMRQ data is missing or invalid
+        FileNotFoundError: If the behavioral file cannot be found or downloaded
+        ValueError: If BMRQ columns are missing
     """
-    output_dir.mkdir(parents=True, exist_ok=True)
+    from openneuro import OpenNeuro
     
-    # In a real implementation, this would use openneuro-py or direct URL fetch
-    # For this task, we simulate the check against the real source expectation
+    client = OpenNeuro()
+    data_dir = Path(data_dir)
+    data_dir.mkdir(parents=True, exist_ok=True)
     
-    # Simulate checking for the BMRQ file
-    bmrq_file = output_dir / "BMRQ_scores.csv"
+    # Download dataset metadata first to locate files
+    logger.info(f"Downloading metadata for dataset {dataset}...")
+    try:
+        dataset_info = client.get_dataset(dataset)
+    except Exception as e:
+        logger.error(f"Failed to fetch dataset metadata: {e}")
+        raise FileNotFoundError(f"Cannot access OpenNeuro dataset {dataset}: {e}")
     
-    # Check if file exists (in real scenario, this would be a download attempt)
-    if not bmrq_file.exists():
-        # Simulate the scenario where the file is missing
-        missing_cols = list(REQUIRED_BMRQ_COLUMNS)
-        report_path = output_dir / "data_gap_report.md"
-        generate_data_gap_report(missing_cols, report_path)
-        sys.exit(1)
+    # Look for behavioral files in the dataset
+    behavioral_file = None
+    for file_info in dataset_info.get('files', []):
+        if 'beh' in file_info.get('path', '').lower() or 'bmrq' in file_info.get('path', '').lower():
+            if file_info.get('path', '').endswith('.tsv') or file_info.get('path', '').endswith('.csv'):
+                behavioral_file = file_info
+                break
     
-    # If file exists, verify columns (simulated)
-    # In real code: df = pd.read_csv(bmrq_file)
-    # is_valid, missing = verify_bmrq_column(df, REQUIRED_BMRQ_COLUMNS)
+    if not behavioral_file:
+        logger.warning("No behavioral file found in dataset metadata. Attempting to find common patterns...")
+        # Common patterns for behavioral data in OpenNeuro
+        possible_patterns = [
+            "sub-*/beh/*.tsv",
+            "participants.tsv",
+            "derivatives/*/participants.tsv",
+            "sub-*/participants.tsv"
+        ]
+        # Try to find any participants file
+        for pattern in possible_patterns:
+            try:
+                files = client.list_files(dataset, pattern=pattern)
+                if files:
+                    behavioral_file = files[0]
+                    break
+            except:
+                continue
     
-    # For now, assume success if file exists
-    return {str(bmrq_file): "BMRQ_scores.csv"}, {"BMRQ_scores.csv": "simulated_checksum"}
-
-def main():
-    """
-    Main entry point for the download module.
+    if not behavioral_file:
+        error_msg = f"No behavioral data file found in dataset {dataset}. Cannot proceed."
+        logger.error(error_msg)
+        raise FileNotFoundError(error_msg)
     
-    This function orchestrates the download of behavioral data and verifies
-    the presence of required BMRQ columns. If any required columns are missing,
-    it generates a data gap report and exits with code 1.
-    """
-    setup_logging()
-    logger.info("Starting behavioral data download and verification...")
-    
-    data_path = get_data_path()
-    output_dir = data_path / "raw" / "behavioral"
-    
-    # Define subjects to process (in real scenario, this would be from config or CLI)
-    subject_ids = ["sub-001", "sub-002"]  # Placeholder for actual subject list
+    # Download the file
+    file_path = data_dir / behavioral_file['path'].split('/')[-1]
+    logger.info(f"Downloading {behavioral_file['path']} to {file_path}...")
     
     try:
-        downloaded_files, checksums = download_behavioral_data(subject_ids, output_dir)
-        logger.info(f"Successfully downloaded {len(downloaded_files)} files.")
-        logger.info(f"Checksums: {checksums}")
-        
-    except SystemExit as e:
-        if e.code == 1:
-            logger.critical("Pipeline halted due to missing BMRQ data. See data_gap_report.md for details.")
-            raise
-        raise
+        client.download_file(dataset, behavioral_file['path'], str(file_path.parent))
     except Exception as e:
-        logger.error(f"Error during download: {str(e)}")
-        raise
+        logger.error(f"Failed to download behavioral file: {e}")
+        raise RuntimeError(f"Download failed: {e}")
+    
+    # Verify checksum if available
+    if 'checksum' in behavioral_file:
+        actual_checksum = calculate_file_checksum(file_path)
+        if actual_checksum != behavioral_file['checksum']:
+            error_msg = f"Checksum mismatch for {file_path}. Expected: {behavioral_file['checksum']}, Got: {actual_checksum}"
+            logger.error(error_msg)
+            raise ValueError(error_msg)
+    
+    log_download_integrity(file_path, "behavioral")
+    
+    # Verify BMRQ columns
+    all_present, missing = verify_bmrq_column(file_path)
+    
+    if not all_present:
+        gap_report_path = data_dir.parent / "data_gap_report.md"
+        generate_data_gap_report(missing, gap_report_path)
+        logger.critical("BMRQ verification failed. Exiting with code 1.")
+        sys.exit(1)
+    
+    logger.info(f"Behavioral data downloaded and verified: {file_path}")
+    return file_path
+
+def main():
+    """Main entry point for the download script."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Download and verify OpenNeuro ds000233 data")
+    parser.add_argument("--data-dir", type=Path, default=Path("data/raw"), 
+                      help="Directory to store downloaded data")
+    parser.add_argument("--dataset", type=str, default="ds000233",
+                      help="OpenNeuro dataset identifier")
+    
+    args = parser.parse_args()
+    
+    try:
+        download_behavioral_data(args.data_dir, args.dataset)
+        logger.info("Download and verification completed successfully.")
+    except FileNotFoundError as e:
+        logger.error(f"Data not found: {e}")
+        sys.exit(1)
+    except ValueError as e:
+        logger.error(f"Data validation failed: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
