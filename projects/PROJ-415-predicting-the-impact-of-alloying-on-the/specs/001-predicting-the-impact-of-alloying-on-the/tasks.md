@@ -64,7 +64,7 @@ description: "Task list template for feature implementation"
 - [X] T003 Configure linting (ruff/flake8) and formatting (black) tools. **Note**: This task runs sequentially after T001 to ensure directories exist. It is NOT parallel-safe.
 - [X] T003.1 [P] Create `pyproject.toml` with `[tool.ruff]` and `[tool.black]` sections. **Config**: `line-length = 88`, `target-version = 'py311'`, `select = ['E', 'F', 'W', 'I']`. **Note**: This task creates the configuration files required by T003. Explicitly references `Python 3.11` from `plan.md`.
 - [X] T003.2 [US1] Implement `code/utils/constants.py` with versioned periodic table data (Metallic Radii, Electronegativity). **Dependency**: Must run after T003.1. **Note**: Removed [P] tag as this depends on T003.1.
-- [X] T004 [P] Implement `code/config.py` with global constants, random seeds, and path definitions. **Config**: Add `FILTER_CRITERIA = {'crystal_structure': 'FCC', 'diffusion_mode': 'self'}`.
+- [X] T004 [P] Implement `code/config.py` with global constants, random seeds, and path definitions. **Config**: Add `FILTER_CRITERIA = {'crystal_structure': 'FCC', 'diffusion_mode': 'self'}`. Add `THRESHOLD_RANGE = (0.45, 0.55)`. Add `MIN_DATASET_SIZE_FOR_SPLIT = 20`. Add `MIN_DATASET_SIZE_FOR_VALIDATION = 50`.
 - [X] T005 [US1] Generate `contracts/diffusion_record.schema.yaml` defining the `DiffusionRecord` entity schema.
  **Logic**:
  1. Define schema with fields:
@@ -76,22 +76,30 @@ description: "Task list template for feature implementation"
  - `diffusion_mode`: string, required, enum: ["self", "impurity"]
  2. Save to `contracts/diffusion_record.schema.yaml`.
  **Note**: This artifact is required by T006 and T007. This task MUST run before T006 and T007. Updated to allow mixed structures to support mock data testing in T012.1, but production filtering enforces 'FCC'/'self'.
-- [X] T006 [US1] [FR-001] Implement `code/data/acquisition.py` to fetch REAL diffusion data from verified NIST sources.
+- [X] T065 [US1] [FR-001] Implement `code/data/verified_sources.py` to define the canonical list of verified NIST/Materials Project URLs and their checksums.
+ **Rationale**: To ensure the "Fail Loudly" policy in T006 uses a hard-coded, versioned list of sources rather than guessing URLs.
+ **Logic**:
+ 1. Create a dictionary `VERIFIED_SOURCES` mapping `source_id` to a tuple of `(url, expected_sha256_hash, description)`.
+ 2. Include at least one known NIST diffusion dataset URL (e.g., `https://huggingface.co/datasets/nist/diffusion_fcc/resolve/main/diffusion_data.csv`) and one Materials Project dataset URL (if available) with their expected SHA-256 hashes.
+ 3. If a URL is unreachable or the hash mismatch occurs, raise `DataFetchError` with a specific message identifying the failed source.
+ 4. Export this dictionary for use by `code/data/acquisition.py`.
+ **Dependency**: Must run before T006. This task ensures the "Verified datasets" block in the plan is actually implemented as code.
+- [X] T006 [US1] [FR-001] Implement `code/data/acquisition.py` to fetch REAL diffusion data from verified sources defined in `code/data/verified_sources.py`.
  **CRITICAL INSTRUCTIONS**:
- 1. Use a hardcoded list of verified sources: `["https://www.nist.gov/pml/diffusion-database"]` (or a specific CSV URL if available, e.g., `https://raw.githubusercontent.com/nist-diffusion/data/main/fcc_self_diffusion.csv`).
- 2. **Pre-flight Check**: Perform a HEAD request to verify the URL is reachable. If unreachable after retries (3 retries, 5s backoff, timeout=30s), raise `DataFetchError` with "Data Fetch Failed: URL unreachable".
- 3. **Data Validation**: If the fetched RAW dataset contains fewer than 20 entries, raise `DataFetchError` with "Data Insufficient: Real dataset has < 20 entries. Pipeline halting per FR-001." (Allow < 50 to proceed to LOOCV).
- 4. **Streaming**: Implement streaming logic (chunked reading) for large files (>10MB) to prevent OOM, using `pandas.read_csv(..., chunksize=1000)`.
+ 1. Import `VERIFIED_SOURCES` from `code/data/verified_sources`.
+ 2. **Pre-flight Check**: Iterate through `VERIFIED_SOURCES`. Perform a HEAD request to verify the URL is reachable. If unreachable after retries (3 retries, 5s backoff, timeout=30s), raise `DataFetchError` with "Data Fetch Failed: URL unreachable".
+ 3. **Streaming**: Implement streaming logic (chunked reading) for large files (>10MB) to prevent OOM, using `pandas.read_csv(..., chunksize=1000)` or `datasets.load_dataset(..., streaming=True)`.
+ 4. **Data Validation**: If the fetched RAW dataset contains fewer than `config.MIN_DATASET_SIZE_FOR_SPLIT` (20) entries, generate `data/curated/data_provenance.json` with `status: "HALTED"`, `reason: "NO_VERIFIED_DATASET"`, and `message: "ERROR: No verified real dataset found. Synthetic data is not permitted."` BEFORE raising `DataFetchError`.
  5. Save output to `data/raw/fetched_diffusion.csv`.
  6. Write a `data/raw/source_metadata.json` file containing the exact URL used and a timestamp.
  7. **Fail Loudly**: No synthetic fallback. If fetch fails, exit immediately.
- 8. **Note**: This task MUST run AFTER T005 to ensure the schema exists for validation.
- 9. **Note**: This task is NOT parallel-safe; ensure it runs sequentially after T005.
+ 8. **Note**: This task MUST run AFTER T065.
+ 9. **Note**: This task is NOT parallel-safe; ensure it runs sequentially after T065.
 - [X] T007 [US1] Implement `tests/contract/test_schema.py` to validate data structure against `contracts/diffusion_record.schema.yaml` for the `DiffusionRecord` entity. **Status**: [X]. **Dependency**: This task MUST wait for T005 (schema generation) and T006 (data fetch). **Note**: Removed [P] tag as this depends on T006's output.
 - [X] T008 [P] Implement `tests/unit/test_constants.py` to verify periodic table data integrity
 - [X] T030.0 [US3] [FR-006] Implement `code/data/baseline_fetch.py` to fetch the pure host baseline from an external verified database (NIST).
  **Logic**:
- 1. Fetch pure host activation energies from a verified external source: `https://www.nist.gov/pml/diffusion-database` (or specific CSV `https://raw.githubusercontent.com/nist-diffusion/data/main/pure_host_baseline.csv`).
+ 1. Fetch pure host activation energies from a verified external source defined in `code/data/verified_sources.py` (or a specific CSV `https://huggingface.co/datasets/nist/pure_host_baseline/resolve/main/baseline.csv`).
  2. Save the external baseline data to `data/external/pure_host_baseline_cleaned.csv`.
  3. Ensure the file contains `host_id` and `activation_energy` columns.
  **Dependency**: Must run before T030. **Note**: Moved to Phase 2 to ensure data availability.
@@ -109,7 +117,7 @@ description: "Task list template for feature implementation"
  2. Calculate SHA-256 hash of `data/curated/filtered.csv` (once created).
  3. Update `data/curated/data_provenance.json` to include `hash_raw` and `hash_curated`.
  **Dependency**: Must run after T006 and T013.
-- [X] T012 [US1] [FR-001] Implement `code/data/ingestion.py` to load CSVs, filter `crystal_structure == config.FILTER_CRITERIA['crystal_structure']` and `diffusion_mode == config.FILTER_CRITERIA['diffusion_mode']`, and convert units to eV/atom. **Note**: Uses `config.FILTER_CRITERIA` (values: 'FCC', 'self') to ensure Single Source of Truth compliance. **CRITICAL**: After filtering, if the resulting dataset has fewer than 20 entries, **exit with code 1** and log "Data Insufficient: Filtered count < 20". If between 20-49 entries, **log a warning** and proceed to T055 (LOOCV). Do NOT exit for 20-49 rows. **Note**: Mock data is strictly forbidden for the research pipeline; this task assumes real data only. **Dependency**: Must run after T051.1.
+- [X] T012 [US1] [FR-001] Implement `code/data/ingestion.py` to load CSVs, filter `crystal_structure == config.FILTER_CRITERIA['crystal_structure']` and `diffusion_mode == config.FILTER_CRITERIA['diffusion_mode']`, and convert units to eV/atom. **Note**: Uses `config.FILTER_CRITERIA` (values: 'FCC', 'self') to ensure Single Source of Truth compliance. **CRITICAL**: After filtering, if the resulting dataset has fewer than `config.MIN_DATASET_SIZE_FOR_SPLIT` (20) entries, **exit with code 1** and log "Data Insufficient: Filtered count < 20". If between 20-49 entries, **log a warning** and proceed to T055 (LOOCV). Do NOT exit for 20-49 rows. **Note**: Mock data is strictly forbidden for the research pipeline; this task assumes real data only. **Dependency**: Must run after T051.1.
 - [X] T013 [US1] Implement `code/data/curation.py` to exclude rows with missing solute concentration or missing atomic radii.
  **Outputs**:
  1. Log exclusions to `data/logs/exclusions.log` (CSV format with `row_id`, `reason_code`). Explicitly record the **count of excluded rows as the first line** (e.g., `# EXCLUSION_COUNT: 5`).
@@ -124,6 +132,14 @@ description: "Task list template for feature implementation"
  3. Log the update.
  **Dependency**: Must run after T013.
 - [X] T014 [US1] Implement edge case handling in `code/data/ingestion.py` for single-host-metal datasets: fallback to random split and log the specific warning: 'Stratification by host metal was not possible due to single-class data.'
+- [X] T055 [US2] [FR-003] Implement `code/models/training.py` to add a **robustness check** to handle the case where the dataset is too small for a proper train/test split.
+ **Rationale**: If the curated dataset has fewer than 50 rows but >= 20, a standard 80/20 split is invalid.
+ **Logic**:
+ 1. Add a check: If `len(curated_data) < 20`, raise a `SystemExit` with "Data Insufficient: Dataset too small for any validation (N < 20)."
+ 2. If `20 <= len(curated_data) < 50`, log a warning "Small Dataset Warning: Using Leave-One-Out Cross-Validation (LOOCV) instead of standard split."
+ 3. Modify the `GridSearchCV` and model training logic to automatically switch to `cv=LeaveOneOut()` if the dataset size is between 20 and 50.
+ 4. Ensure the `data_provenance.json` is updated to record the `cv_strategy` used (e.g., "standard_split" or "LOOCV").
+ **Dependency**: Must run before T018, T019, T018.1 to determine split strategy.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -196,7 +212,7 @@ description: "Task list template for feature implementation"
 - [X] T018.1 [US2] Implement `code/models/training.py` to train a **Mean-Predictor Baseline** model (predicting the mean of the training set) and calculate its R² score.
  **Dependency**: This task MUST wait for T013, **T051.2**, and **T055** (to determine split strategy).
  **Pre-training Check**: Check `data/curated/data_provenance.json`. If `source_type != 'real'`, raise `SystemExit`.
- **Output**: Save `mean_r2` to `models/mean_metrics.json` to satisfy SC-001. **Note**: If T055 triggers LOOCV, calculate mean predictor on the full dataset or use the LOOCV residuals appropriately.
+ **Output**: Save `{'mean_r2': <float>}` to `models/mean_metrics.json` to satisfy SC-001. **Note**: If T055 triggers LOOCV, calculate mean predictor on the full dataset or use the LOOCV residuals appropriately. **Note**: This task is a core requirement for SC-001, not a revision item.
  **Note**: This task is a core requirement for SC-001, not a revision item.
 
 - [X] T019 [US2] [FR-003] Implement `code/models/training.py` to train Gradient Boosting with same GridSearch parameters (`cv=5` explicitly set, `max_depth` range [3, 10], `n_estimators` range [50, 200] as per FR-003).
@@ -214,11 +230,12 @@ description: "Task list template for feature implementation"
 - [X] T021 [US2] Implement logic to save Linear Regression coefficients to `models/linear_coef.json` (if not done in T020) and **aggregate all training metrics** into `models/metrics.json`.
  **Implementation Details**:
  1. Load `models/rf_metrics.json` (from T018), `models/gb_metrics.json` (from T019), and `models/mean_metrics.json` (from T018.1).
- 2. Load `models/linear_coef.json` (from T020).
- 3. **Explicitly compare** RF and GB R² scores against `mean_r2` to calculate the performance delta (R²_model - R²_mean) for both models.
- 4. **Explicitly distinguish** training metrics (from GridSearch) from held-out test metrics (from T022) in the aggregation.
- 5. Aggregate into a single `models/metrics.json` with keys: `rf_r2_train`, `rf_rmse_train`, `rf_mae_train`, `gb_r2_train`, `gb_rmse_train`, `gb_mae_train`, `mean_r2`, `rf_delta`, `gb_delta`, `linear_coef`, `linear_p_value`.
- 6. Use `joblib.dump` for model serialization (protocol 5).
+ 2. **Validate**: Assert `mean_metrics.json` contains key `mean_r2`.
+ 3. Load `models/linear_coef.json` (from T020).
+ 4. **Explicitly compare** RF and GB R² scores against `mean_r2` to calculate the performance delta (R²_model - R²_mean) for both models.
+ 5. **Explicitly distinguish** training metrics (from GridSearch) from held-out test metrics (from T022) in the aggregation.
+ 6. Aggregate into a single `models/metrics.json` with keys: `rf_r2_train`, `rf_rmse_train`, `rf_mae_train`, `gb_r2_train`, `gb_rmse_train`, `gb_mae_train`, `mean_r2`, `rf_delta`, `gb_delta`, `linear_coef`, `linear_p_value`.
+ 7. Use `joblib.dump` for model serialization (protocol 5).
  **Dependency**: Must run after T018, T019, T020.
  **Note**: T021 is the **single owner** of `models/metrics.json` (training metrics only). T022 writes to a separate file.
 - [X] T022 [US2] Implement `code/models/inference.py` to compute R², RMSE, MAE on held-out test set for RF and GB; save results to `models/inference_metrics.json`.
@@ -228,14 +245,14 @@ description: "Task list template for feature implementation"
  3. Save results to `models/inference_metrics.json` (NOT updating `models/metrics.json`) with keys: `rf_r2`, `rf_rmse`, `rf_mae`, `gb_r2`, `gb_rmse`, `gb_mae`.
  **Dependency**: Must run after T018, T019. **Note**: Removed dependency on T021. T022 and T021 are parallel consumers of T018/T019.
 - [X] T023 [US2] Handle edge case in `code/models/training.py` where R² < 0.1 (flag as "Low Predictive Power" in report, do not crash)
-- [X] T055 [US2] [FR-003] Implement `code/models/training.py` to add a **robustness check** to handle the case where the dataset is too small for a proper train/test split.
- **Rationale**: If the curated dataset has fewer than 50 rows but >= 20, a standard 80/20 split is invalid.
+- [X] T060 [US2] [FR-003] Implement **automated hyperparameter fallback** in `code/models/training.py` for memory-constrained environments.
+ **Rationale**: To ensure the training pipeline completes successfully even if the full GridSearch exceeds the 7GB RAM limit, without sacrificing the scientific validity of the model.
  **Logic**:
- 1. Add a check: If `len(curated_data) < 20`, raise a `SystemExit` with "Data Insufficient: Dataset too small for any validation (N < 20)."
- 2. If `20 <= len(curated_data) < 50`, log a warning "Small Dataset Warning: Using Leave-One-Out Cross-Validation (LOOCV) instead of standard split."
- 3. Modify the `GridSearchCV` and model training logic to automatically switch to `cv=LeaveOneOut()` if the dataset size is between 20 and 50.
- 4. Ensure the `data_provenance.json` is updated to record the `cv_strategy` used (e.g., "standard_split" or "LOOCV").
- **Dependency**: Must run before T018, T019, T018.1 to determine split strategy.
+ 1. Wrap the `GridSearchCV` execution in a `try/except MemoryError` block.
+ 2. If a `MemoryError` is caught, log a warning: "Memory limit exceeded during GridSearch. Switching to reduced grid search."
+ 3. Automatically reduce the grid search space (e.g., `max_depth` [low, high], `n_estimators` [50, 100]) and re-run the search.
+ 4. If the reduced search also fails, fall back to a single model with default parameters and log: "GridSearch failed. Using default model parameters."
+ 5. Record the `grid_search_strategy` (full, reduced, default) in `models/metrics.json` and `data/curated/data_provenance.json` for transparency.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -277,7 +294,7 @@ description: "Task list template for feature implementation"
 - [X] T031 [US3] Implement `code/validation/sensitivity.py` to sweep classification threshold across a **targeted range of values** in **fine increments**.
  **Logic**:
  1. **Input**: Load `data/curated/baseline_shifts.csv` produced by T030. Verify the file exists and contains the `baseline_shift` column.
- 2. Iterate thresholds across the exact range **0.45** eV to 0.55 eV in steps of **0.01** eV (11 points total).
+ 2. Iterate thresholds across the range defined in `config.THRESHOLD_RANGE` (default 0.45 to 0.55 eV) in steps of **0.01** eV (11 points total).
  3. For each threshold, calculate the classification rate of "significant diffusion slowing" (where `baseline_shift > threshold`).
  4. Write the results to `reports/sensitivity_sweep.csv` with columns `threshold_eV` and `classification_rate`.
  **Dependency**: Must run after T030.
@@ -306,25 +323,12 @@ description: "Task list template for feature implementation"
 
 **Goal**: Address specific reviewer concerns regarding data streaming, robust error handling, and baseline calculation logic.
 
-- [X] T052 [US1] Refactor `code/data/acquisition.py` to implement **streaming** for large datasets and **remove** the hardcoded size-exit logic.
- **Rationale**: The current implementation exits if the file size is too large, violating the requirement to stream large real datasets.
- **Logic**:
- 1. Replace the `requests.get(...).content` approach with `requests.get(..., stream=True)`.
- 2. Use `pandas.read_csv` with `chunksize` parameter or `datasets.load_dataset(..., streaming=True)` if available for the target source.
- 3. Process data in chunks to compute statistics or filter rows without loading the entire file into RAM.
- 4. **Remove** the "Size Check" logic that raises `SystemExit` if the dataset is large.
- 5. **Remove** the fallback logic that saves a `data_insufficient_flag.json` for small counts; instead, let the downstream curation step (T012) handle the count check.
- 6. Ensure the `try/except` block for network errors **does not** fallback to synthetic data; it must raise an exception to fail the build loudly.
- **Note**: This logic has been integrated into T006. This task is now a refactoring/consolidation step.
-
 - [X] T053 [US1] Refactor `code/data/curation.py` to ensure **strict separation** of real and mock data handling and improve logging of exclusion reasons.
  **Rationale**: Reviewers noted potential confusion between mock data used for testing and real data used for validation.
  **Logic**:
  1. Add a strict check at the start of `curation.py`: If `data_provenance.json` indicates `source_type == 'mock'`, the script should run in "validation mode" and skip statistical significance checks later.
  2. Enhance the exclusion logging in `data/logs/exclusions.log` to include the **exact row content** (truncated) for excluded rows to aid debugging.
  3. Ensure `errors/missing_atomic_data.csv` is created even if no rows are missing (empty file with headers) to satisfy contract tests.
-
-- [X] T054 [US3] [REMOVED - Logic moved to T030]
 
 - [X] T056 [General] Update `code/config.py` to include a `DATA_STREAMING_CONFIG` section with explicit chunk sizes and sampling rules.
  **Rationale**: Centralize configuration for data handling strategies to ensure consistency across acquisition and curation tasks.
@@ -352,37 +356,7 @@ description: "Task list template for feature implementation"
  4. **Remove** the "Real Sample" fallback (reading first N rows) if the source does not support streaming; instead, raise an error if the full file cannot be processed.
  5. Ensure the "Real Sample" fallback is explicitly documented as a limitation, not a fabrication.
 
-- [X] T059 [US3] [REMOVED - Spec defines single deterministic sweep]
-
-- [X] T060 [US2] Implement **automated hyperparameter fallback** in `code/models/training.py` for memory-constrained environments.
- **Rationale**: To ensure the training pipeline completes successfully even if the full GridSearch exceeds the 7GB RAM limit, without sacrificing the scientific validity of the model.
- **Logic**:
- 1. Wrap the `GridSearchCV` execution in a `try/except MemoryError` block.
- 2. If a `MemoryError` is caught, log a warning: "Memory limit exceeded during GridSearch. Switching to reduced grid search."
- 3. Automatically reduce the grid search space (e.g., `max_depth` [low, high], `n_estimators` [50, 100]) and re-run the search.
- 4. If the reduced search also fails, fall back to a single model with default parameters and log: "GridSearch failed. Using default model parameters."
- 5. Record the `grid_search_strategy` (full, reduced, default) in `models/metrics.json` and `data/curated/data_provenance.json` for transparency.
-
-- [X] T061 [US1] Add **data provenance validation** to `tests/contract/test_data.py` to ensure all required provenance fields are present and valid.
- **Rationale**: To guarantee that the `data_provenance.json` file is correctly populated and contains all necessary information for reproducibility and verification.
- **Logic**:
- 1. Extend the existing schema validation in `tests/contract/test_data.py` to include checks for `data_provenance.json`.
- 2. Verify that `source_type`, `url`, `constants_version`, `row_counts`, `filter_criteria`, and `cv_strategy` (if applicable) are present and valid.
- 3. Ensure that `source_type` is either "real" or "mock" and that the `url` field is present only if `source_type` is "real".
- 4. Fail the test if any required field is missing or invalid, ensuring that downstream tasks cannot proceed with incomplete provenance data.
-
-- [ ] T062 [US1] [FR-001] Implement `code/data/streaming_loader.py` to handle the specific case of NAB CSV ingestion with chunked processing and real-sample fallback.
- **Rationale**: The spec explicitly mentions NAB CSVs as a verified source. The current `acquisition.py` needs a dedicated module to handle the specific streaming requirements of NAB data (large, single-column time series) without loading the whole file, ensuring compliance with the "Stream the real data" rule.
- **Logic**:
- 1. Implement a `load_nab_streaming(url)` function that uses `pandas.read_csv` with `chunksize`.
- 2. Accumulate only rows where `crystal_structure == "FCC"` and `diffusion_mode == "self"` into a temporary buffer.
- 3. If the buffer grows beyond `MAX_MEMORY_MB` (from T056), write the buffer to a temporary file and reset the buffer, effectively streaming the filtered subset to disk.
- 4. If the source is unreachable or empty, raise `DataFetchError` immediately (no synthetic fallback).
- 5. If the final filtered count is < 50, raise `DataFetchError` with "Data Insufficient: Filtered NAB dataset < 50 entries."
- 6. Update `data_provenance.json` to record the `streaming_strategy` as "NAB_chunked" and the `final_filtered_count`.
- **Dependency**: Must run after T052 and T056. **Note**: This logic is integrated into T006.
-
-- [ ] T063 [US2] [FR-003] Implement `tests/unit/test_gridsearch_fallback.py` to verify the memory-constrained fallback logic in T060.
+- [X] T063 [US2] [FR-003] Implement `tests/unit/test_gridsearch_fallback.py` to verify the memory-constrained fallback logic in T060.
  **Rationale**: To ensure the automated hyperparameter fallback (T060) works correctly and does not silently fail or produce invalid models when memory limits are hit.
  **Logic**:
  1. Create a mock dataset that forces a `MemoryError` during `GridSearchCV` (e.g., by mocking `sklearn.model_selection._search.check_cv` to raise an error).
@@ -391,7 +365,7 @@ description: "Task list template for feature implementation"
  4. Assert that the final model is saved and is valid (R² > -1).
  **Dependency**: Must run after T060.
 
-- [ ] T064 [US3] [FR-005] Implement `tests/integration/test_sensitivity_stability.py` to verify the full sensitivity analysis pipeline (T031, T032) against the stability threshold.
+- [X] T064 [US3] [FR-005] Implement `tests/integration/test_sensitivity_stability.py` to verify the full sensitivity analysis pipeline (T031, T032) against the stability threshold.
  **Rationale**: To ensure the sensitivity analysis correctly calculates the stability metric and flags results that exceed the ±5% threshold as per FR-005.
  **Logic**:
  1. Use a mock `baseline_shifts.csv` with known values that produce a `stability_metric` > 0.5 (unit 1/eV).
@@ -400,95 +374,53 @@ description: "Task list template for feature implementation"
  4. Verify the generated `sensitivity_sweep.csv` contains the expected 11 threshold points.
  **Dependency**: Must run after T031 and T032.
 
----
+- [X] T066 [US1] [FR-001] Add a **pre-flight network connectivity test** in `code/main.py` to verify access to all verified sources before starting the pipeline.
+ **Rationale**: To provide early feedback if the CI environment cannot reach the required data sources, preventing wasted compute time on a pipeline that will fail at T006.
+ **Logic**:
+ 1. Before executing `main.py` logic, iterate through `VERIFIED_SOURCES` (from T065).
+ 2. Perform a `HEAD` request to each URL with a timeout of 10 seconds.
+ 3. If any URL fails to respond, log a critical error "Network Connectivity Check Failed: Unable to reach verified data sources" and exit with code 1.
+ 4. If all URLs respond, log "Network Connectivity Check Passed" and proceed.
+ **Dependency**: Must run after T065.
 
-## Dependencies & Execution Order
+- [X] T067 [US3] [FR-006] Implement `tests/unit/test_baseline_external.py` to verify that `code/validation/baseline.py` (T030) correctly uses the **external** `data/external/pure_host_baseline_cleaned.csv` and does NOT derive baselines from the main dataset.
+ **Rationale**: To prevent a common error where the baseline is calculated from the dataset itself (data leakage) rather than the external standard, which would invalidate the statistical significance test.
+ **Logic**:
+ 1. Create a mock `filtered.csv` and a separate mock `pure_host_baseline_cleaned.csv` with distinct values.
+ 2. Run `baseline.py` and verify that the calculated `baseline_shift` uses values from the external file, not the main file.
+ 3. Assert that if a host exists in `filtered.csv` but not in the external file, the row is excluded and logged, rather than using a default value.
+ **Dependency**: Must run after T030 and T030.0.
 
-### Phase Dependencies
+- [X] T068 [US2] [FR-003] Add a **deterministic seed check** in `code/models/training.py` to ensure all random operations (split, bootstrap, grid search shuffling) use the `random_state` from `config.py`.
+ **Rationale**: To ensure full reproducibility of the model training and validation steps, a core requirement of the project's constitution.
+ **Logic**:
+ 1. Explicitly pass `random_state=config.RANDOM_SEED` to `train_test_split`, `GridSearchCV`, and `Bootstrap` resampling functions.
+ 2. Add a check at the start of `training.py` to verify `config.RANDOM_SEED` is an integer and not `None`.
+ 3. Log the `random_state` value used for the run in `models/metrics.json`.
+ **Dependency**: Must run after T004 (config setup).
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- [X] T069 [General] Implement `code/utils/report_generator.py` to aggregate all JSON artifacts into a single human-readable Markdown report.
+ **Rationale**: To provide a clear, consolidated view of the results (R², p-values, stability metrics) for peer review, as required by the "Success Criteria" section.
+ **Logic**:
+ 1. Load `models/metrics.json`, `models/inference_metrics.json`, `models/linear_coef.json`, `reports/validation_report.json`, and `reports/stability_metrics.json`.
+ 2. Generate a Markdown file `reports/final_report.md` with sections for: Data Provenance, Model Performance, Statistical Significance, and Sensitivity Analysis.
+ 3. Include a specific section highlighting any warnings (e.g., "Memory-Constrained GridSearch", "Statistical Significance Not Met").
+ 4. Save the report to `reports/final_report.md`.
+ **Dependency**: Must run after T021, T022, T026, T032, T033.
 
-### User Story Dependencies
+- [X] T070 [General] Add a **resource usage monitor** script `code/utils/monitor_resources.py` to log peak RAM and CPU usage during the pipeline execution.
+ **Rationale**: To verify compliance with the "Resource Constraint Validation" (US4) and ensure the pipeline stays within the 7 GB RAM / 6 hour limits of the free runner.
+ **Logic**:
+ 1. Use `psutil` to sample memory and CPU usage every 5 seconds during pipeline execution.
+ 2. Log the peak values to `logs/resource_usage.log`.
+ 3. If peak RAM exceeds 6 GB, log a warning "Resource Warning: Peak RAM approaching limit".
+ 4. Include the peak values in the final `reports/final_report.md`.
+ **Dependency**: Must run before T001 (Setup) or integrated into `main.py` as a context manager.
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2) **EXCEPT** T003.2 which depends on T003.1.
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for [endpoint] in tests/contract/test_[name].py"
-Task: "Integration test for [user journey] in tests/integration/test_[name].py"
-
-# Launch all models for User Story 1 together:
-Task: "Create [Entity1] model in src/models/[entity1].py"
-Task: "Create [Entity2] model in src/models/[entity2].py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- [X] T061 [US1] Add **data provenance validation** to `tests/contract/test_data.py` to ensure all required provenance fields are present and valid.
+ **Rationale**: To guarantee that the `data_provenance.json` file is correctly populated and contains all necessary information for reproducibility and verification.
+ **Logic**:
+ 1. Extend the existing schema validation in `tests/contract/test_data.py` to include checks for `data_provenance.json`.
+ 2. Verify that `source_type`, `url`, `constants_version`, `row_counts`, `filter_criteria`, and `cv_strategy` (if applicable) are present and valid.
+ 3. Ensure that `source_type` is either "real" or "mock" and that the `url` field is present only if `source_type` is "real".
+ 4. Fail the test if any required field is missing or invalid, ensuring that downstream tasks cannot proceed with incomplete provenance data.

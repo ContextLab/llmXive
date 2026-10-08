@@ -3,53 +3,94 @@
 ## Entity Definitions
 
 ### DiffusionRecord
-Represents a single experimental or simulation data point.
-- `id`: Unique identifier (string)
-- `host_element`: Chemical symbol (e.g., "Ni", "Cu") (string)
-- `solute_element`: Chemical symbol (e.g., "Co", "Fe") (string)
-- `crystal_structure`: Crystal lattice type (e.g., "FCC", "BCC", "HCP") (string)
-- `diffusion_mode`: Diffusion mechanism (e.g., "self", "solute") (string)
-- `activation_energy_eV`: Activation energy in electron-volts (float)
-- `solute_concentration_at_pct`: Concentration in atomic percent (float)
-- `source_url`: URL of the original data source (string)
+Represents a single experimental data point.
+*   **host_element**: string (e.g., "Ni", "Al")
+*   **solute_element**: string (e.g., "Cu", "Fe")
+*   **crystal_structure**: string (Enum: "FCC", "BCC", "HCP")
+*   **diffusion_mode**: string (Enum: "self", "solute", "impurity")
+*   **concentration_at_percent**: float
+*   **activation_energy_eV**: float
+*   **temperature_range_K**: string (optional, e.g., "800-1200")
+*   **source_id**: string (Reference to original NIST entry)
 
 ### AtomicDescriptor
-Derived features for a specific solute-host pair.
-- `host_radius_angstrom`: Atomic radius of host (float)
-- `solute_radius_angstrom`: Atomic radius of solute (float)
-- `size_mismatch`: Normalized radius difference (float)
-- `electronegativity_diff`: Difference in Pauling electronegativity (float)
-- `valence_electron_count`: Valence electrons of solute (int)
-
-### BaselineShift
-Represents the calculated shift in activation energy relative to the pure host.
-- `solute_element`: Chemical symbol of the solute (string)
-- `host_element`: Chemical symbol of the host (string)
-- `predicted_energy_eV`: Predicted activation energy (float)
-- `pure_host_energy_eV`: Activation energy of the pure host (float)
-- `baseline_shift_eV`: Difference (predicted - pure) (float)
+Computed features for a specific solute-host pair.
+*   **host_radius_angstrom**: float
+*   **solute_radius_angstrom**: float
+*   **host_electronegativity**: float
+*   **solute_electronegativity**: float
+*   **size_mismatch**: float (Derived: `(solute_radius - host_radius) / host_radius`)
+*   **electronegativity_diff**: float (Derived: `abs(host_electronegativity - solute_electronegativity)`)
+*   **valence_electron_count**: int
 
 ### ModelArtifact
-Trained model metadata.
-- `model_type`: "RandomForest", "GradientBoosting", "LinearRegression" (string)
-- `hyperparameters`: JSON object of parameters (object)
-- `metrics`: JSON object of R², RMSE, MAE (object)
-- `coefficients`: JSON object of model coefficients (if applicable) (object)
-- `p_values`: JSON object of p-values (if applicable) (object)
+Representation of a trained model.
+*   **model_type**: string (Enum: "RandomForest", "GradientBoosting", "LinearRegression")
+*   **hyperparameters**: JSON object
+*   **metrics**: JSON object (R², RMSE, MAE)
+*   **coefficients**: JSON object (for Linear Regression)
+*   **timestamp**: ISO8601
+*   **seed**: int
 
-## Data Flow
+## File Schema
 
-1.  **Ingestion**: Raw CSV/Parquet → `data/raw/`
-2.  **Curation**: `data/raw/` → Filter (FCC primary, HCP fallback) → `data/curated/filtered.csv`
-3.  **Feature Engineering**: `filtered.csv` + Periodic Table → `data/curated/features.csv`
-4.  **Baseline Calculation**: `filtered.csv` → `code/validation/baseline.py` → `data/curated/baseline_shifts.csv` (FR-008)
-5.  **Training**: `features.csv` → Split (Train/Test) → Model Artifacts (`models/`)
-6.  **Validation**: Model + Test Set → `reports/validation_report.json`
+### Input: `data/raw/nist_diffusion_raw.csv`
+*   Source: NIST SRD 150 (or verified mirror).
+*   Format: CSV.
+*   Content: Raw experimental data.
+
+### Output: `data/curated/baselines.csv`
+*   **Filter Criteria**: `crystal_structure == "FCC"` AND `diffusion_mode == "self"`.
+*   **Columns**:
+    *   `host_element`
+    *   `activation_energy_eV` (Pure host $Q_{host}$)
+
+### Output: `data/curated/filtered.csv` (Single Source of Truth)
+*   **Filter Criteria**: `crystal_structure == "FCC"` AND `diffusion_mode == "solute"`.
+*   **Columns**:
+    *   `host_element`
+    *   `solute_element`
+    *   `concentration_at_percent`
+    *   `activation_energy_eV`
+    *   `size_mismatch`
+    *   `electronegativity_diff`
+    *   `baseline_shift_eV` (Calculated: `activation_energy_eV` - `Q_host` from `baselines.csv`)
+
+### Output: `models/final_rf.pkl`
+*   Format: Pickle.
+*   Content: Trained Random Forest model.
+
+### Output: `models/linear_coef.json`
+*   Format: JSON.
+*   Content: Coefficients, p-values, and confidence intervals.
+
+### Output: `validation/stability_index_report.json`
+*   Format: JSON.
+*   Content: Threshold sweep data and calculated stability index.
+
+## Data Flow Diagram
+
+```mermaid
+graph TD
+    A[NIST Raw Data] -->|streaming_loader.py| B{Data Availability Check}
+    B -- Fail --> C[HALT: No Data Error]
+    B -- Pass --> D[Split: Self vs Solute]
+    D --> E[Baseline Set: Filter 'self']
+    D --> F[Training Set: Filter 'solute']
+    E --> G[Extract Q_host per Host]
+    F --> H[Feature Eng: Size Mismatch]
+    G --> I[Merge: Calculate baseline_shift]
+    H --> I
+    I --> J[Train RF & GB]
+    I --> K[Train Linear Regression]
+    J --> L[Performance Metrics]
+    K --> M[Significance Test]
+    M --> N[Sensitivity Analysis]
+    N --> O[Stability Report]
+```
 
 ## Assumptions & Constraints
 
--   **Atomic Data**: All atomic properties are derived from the `periodictable` library (version pinned).
--   **Missing Data**: Rows with missing atomic radii are excluded and logged.
--   **Unit Standardization**: All activation energies must be in eV. All concentrations in at.%.
--   **No Synthetic Data**: The `data/curated/` directory must not contain generated rows unless explicitly marked as "synthetic" (which is forbidden by FR-001).
--   **Pivot Logic**: If FCC data is unavailable, the flow automatically switches to HCP data without altering the schema.
+*   **Atomic Radii**: Derived from a fixed version of the `periodictable` library (0.20.1).
+*   **Baseline**: Pure host activation energy is sourced from `diffusion_mode == 'self'` rows in the same dataset.
+*   **No PII**: No personally identifiable information is present in scientific diffusion data.

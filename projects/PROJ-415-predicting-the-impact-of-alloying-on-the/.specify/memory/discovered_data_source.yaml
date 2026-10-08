@@ -1,16 +1,14 @@
 status: none
-intent: Materials Project diffusion dataset and NIST diffusion database FCC self diffusion
-  python package dataset
+intent: download NIST SRD 150 diffusion in solids dataset csv python package dataset
 required_fields:
-- material_id
-- chemical_formula
+- material
 - crystal_structure
-- diffusion_type
+- diffusion_mode
 - activation_energy_eV_per_atom
 - solute_concentration_at_percent
 - temperature_K
 - diffusion_coefficient
-- reference_source
-cache_key: e00f0872330fa800967ec2a850eba4746421f7ed9cc7cf8af4f164936e1672fa
-searched_at: '2026-10-06T11:26:14.535956+00:00'
+- reference
+cache_key: 0c84ae3675c6e82fce6f740aa60a27a921eeb2a2a8171bfd03dae0c5a19593b1
+searched_at: '2026-10-08T14:52:21.569619+00:00'
 retry_count: 1

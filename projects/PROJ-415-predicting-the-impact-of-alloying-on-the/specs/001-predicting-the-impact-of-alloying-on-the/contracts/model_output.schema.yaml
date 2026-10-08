@@ -1,18 +1,40 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Model Output Schema"
-description: "Schema for the trained model artifacts and metrics"
+title: "Linear Regression Model Output Schema"
+description: "Schema for the linear regression coefficients and statistical significance metrics."
 type: "object"
 properties:
   model_type:
     type: "string"
-    description: "Type of model: 'RF', 'GB', or 'Linear'"
-    enum: ["RF", "GB", "Linear"]
-  hyperparameters:
+    const: "LinearRegression"
+  coefficients:
     type: "object"
-    description: "Dictionary of hyperparameters used"
+    properties:
+      size_mismatch:
+        type: "number"
+        description: "Coefficient for the size_mismatch feature."
+      intercept:
+        type: "number"
+    required:
+      - size_mismatch
+      - intercept
+  statistics:
+    type: "object"
+    properties:
+      size_mismatch_p_value:
+        type: "number"
+        description: "P-value for the size_mismatch coefficient."
+      size_mismatch_ci_95:
+        type: "array"
+        items:
+          type: "number"
+        minItems: 2
+        maxItems: 2
+        description: "95% Bootstrap confidence interval [lower, upper]."
+    required:
+      - size_mismatch_p_value
+      - size_mismatch_ci_95
   metrics:
     type: "object"
-    description: "Performance metrics"
     properties:
       r_squared:
         type: "number"
@@ -20,28 +42,12 @@ properties:
         type: "number"
       mae:
         type: "number"
-  coefficients:
-    type: "object"
-    description: "Coefficients and p-values (only for Linear)"
-    properties:
-      size_mismatch:
-        type: "object"
-        properties:
-          coef:
-            type: "number"
-          p_value:
-            type: "number"
-          std_error:
-            type: "number"
-  timestamp:
-    type: "string"
-    format: "date-time"
-  random_seed:
-    type: "integer"
+    required:
+      - r_squared
+      - rmse
+      - mae
 required:
   - model_type
-  - hyperparameters
+  - coefficients
+  - statistics
   - metrics
-  - timestamp
-  - random_seed
-additionalProperties: true

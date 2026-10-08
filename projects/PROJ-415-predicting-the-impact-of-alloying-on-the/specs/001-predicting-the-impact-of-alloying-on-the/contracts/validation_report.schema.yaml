@@ -1,79 +1,41 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "ValidationReport"
-description: "Schema for the final validation report including model metrics and sensitivity analysis."
+title: "Stability Index Report Schema"
+description: "Schema for the threshold sensitivity analysis and stability index report."
 type: "object"
 properties:
-  model_performance:
-    type: "object"
-    description: "Metrics for RF and GB models."
-    properties:
-      random_forest:
-        type: "object"
-        properties:
-          r2:
-            type: "number"
-          rmse:
-            type: "number"
-          mae:
-            type: "number"
-          hyperparameters:
-            type: "object"
-      gradient_boosting:
-        type: "object"
-        properties:
-          r2:
-            type: "number"
-          rmse:
-            type: "number"
-          mae:
-            type: "number"
-          hyperparameters:
-            type: "object"
-  linear_regression:
-    type: "object"
-    description: "Statistical inference results."
-    properties:
-      size_mismatch_coefficient:
-        type: "number"
-      p_value:
-        type: "number"
-      confidence_interval_95:
-        type: "array"
-        items:
+  threshold_sweep:
+    type: "array"
+    description: "List of threshold values and corresponding classification rates."
+    items:
+      type: "object"
+      properties:
+        threshold_eV:
           type: "number"
-        minItems: 2
-        maxItems: 2
-  sensitivity_analysis:
+        classification_rate:
+          type: "number"
+          minimum: 0
+          maximum: 1
+      required:
+        - threshold_eV
+        - classification_rate
+  stability_index:
+    type: "number"
+    description: "Standard deviation of rates divided by threshold range (1/eV)."
+  stability_target_met:
+    type: "boolean"
+    description: "True if stability_index <= 0.05."
+  sweep_range:
     type: "object"
-    description: "Threshold stability results."
     properties:
-      threshold_range:
-        type: "array"
-        items:
-          type: "number"
-        description: "List of thresholds tested (0.45 to 0.55)."
-      classification_rates:
-        type: "array"
-        items:
-          type: "number"
-        description: "Classification rate at each threshold."
-      stability_index:
+      min_threshold:
         type: "number"
-        description: "std(rate) / range (unit: 1/eV)."
-  data_provenance:
-    type: "object"
-    description: "Source and hash of the dataset used."
-    properties:
-      source_url:
-        type: "string"
-      hash:
-        type: "string"
-      timestamp:
-        type: "string"
-        format: "date-time"
+      max_threshold:
+        type: "number"
+    required:
+      - min_threshold
+      - max_threshold
 required:
-  - model_performance
-  - linear_regression
-  - sensitivity_analysis
-  - data_provenance
-additionalProperties: false
+  - threshold_sweep
+  - stability_index
+  - stability_target_met
+  - sweep_range

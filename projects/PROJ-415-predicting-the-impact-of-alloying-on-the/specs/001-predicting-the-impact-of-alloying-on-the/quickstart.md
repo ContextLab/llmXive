@@ -2,19 +2,19 @@
 
 ## Prerequisites
 
--   Python 3.11+
--   Git
--   Access to a GitHub Actions runner (or local environment for testing)
+*   Python 3.11+
+*   Git
+*   Access to a verified NIST SRD 150 dataset (or a pre-cached copy in `data/raw/`).
 
 ## Installation
 
 1.  **Clone the repository**:
     ```bash
     git clone <repo-url>
-    cd <project-dir>
+    cd projects/PROJ-415-predicting-the-impact-of-alloying-on-the
     ```
 
-2.  **Create a virtual environment**:
+2.  **Create and activate a virtual environment**:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
@@ -25,56 +25,56 @@
     pip install -r requirements.txt
     ```
 
+## Data Setup
+
+1.  **Verify Data Availability**:
+    Ensure the file `data/raw/nist_diffusion_raw.csv` (or the verified source file) exists.
+    *   *Note*: If the dataset is not present, the pipeline will halt with an error. Do not use synthetic data.
+
+2.  **Run the Ingestion Script**:
+    ```bash
+    python code/data/streaming_loader.py
+    ```
+    *   This script checks for FCC self-diffusion and solute-diffusion data.
+    *   Output: `data/curated/baselines.csv`, `data/curated/filtered.csv`, `data/curated/data_provenance.json`.
+
 ## Running the Pipeline
 
-### Step 1: Data Ingestion & Curation
-This step attempts to download the verified dataset. **If no valid FCC self-diffusion data is found, the pipeline halts.**
-
+### 1. Feature Engineering
 ```bash
-python code/main.py --step ingest
+python code/processing/feature_engineering.py
+```
+*   Generates atomic descriptors and baseline shifts.
+
+### 2. Model Training
+```bash
+# Train Random Forest
+python code/models/train_rf.py
+
+# Train Gradient Boosting
+python code/models/train_gb.py
+
+# Train Linear Regression
+python code/models/train_linear.py
 ```
 
-*Expected Output*:
--   `data/curated/filtered.csv` (if data found)
--   `data/curated/data_provenance.json`
--   **OR** `ERROR: No verified real dataset found...` (if data missing)
-
-### Step 2: Feature Engineering
-Calculates atomic descriptors and size mismatch.
-
+### 3. Validation & Sensitivity Analysis
 ```bash
-python code/main.py --step features
+python code/validation/sensitivity_analysis.py
 ```
-
-*Expected Output*: `data/curated/features.csv`, `errors/missing_atomic_data.csv` (if any).
-
-### Step 3: Model Training
-Trains RF, GB, and Linear models with Grid Search.
-
-```bash
-python code/main.py --step train
-```
-
-*Expected Output*: `models/final_rf.pkl`, `models/final_gb.pkl`, `models/linear_coef.json`.
-
-### Step 4: Validation & Reporting
-Performs nested CV, sensitivity analysis, and generates the final report.
-
-```bash
-python code/main.py --step validate
-```
-
-*Expected Output*: `reports/validation_report.json`, `reports/sensitivity_plot.png`.
+*   Generates `validation/stability_index_report.json` and plots.
 
 ## Verification
 
-To verify the pipeline on a local machine:
+Run the test suite to ensure all components function correctly:
 ```bash
-pytest tests/
+pytest tests/ -v
 ```
 
-## Troubleshooting
+## Expected Outputs
 
--   **"No verified real dataset found"**: This is expected behavior if the verified dataset list does not contain FCC metal diffusion data. The pipeline is designed to halt rather than use synthetic data.
--   **Missing Atomic Radius**: Check `errors/missing_atomic_data.csv` for the solute causing the issue.
--   **Memory Error**: Ensure the dataset size is < 10 MB. If streaming is required, verify `streaming=True` is used in `code/data/ingestion.py`.
+*   `data/curated/filtered.csv`: Curated dataset (Solute diffusion).
+*   `data/curated/baselines.csv`: Baseline dataset (Self diffusion).
+*   `models/final_rf.pkl`, `models/final_gb.pkl`, `models/linear_coef.json`: Trained models.
+*   `validation/stability_index_report.json`: Stability analysis results.
+*   `plots/`: Generated figures (threshold sensitivity, feature importance).

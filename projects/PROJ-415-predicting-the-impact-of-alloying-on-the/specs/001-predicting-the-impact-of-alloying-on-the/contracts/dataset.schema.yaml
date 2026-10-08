@@ -1,43 +1,41 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "FCC Diffusion Dataset Schema"
-description: "Schema for the curated FCC self-diffusion dataset (data/curated/filtered.csv)"
+title: "Curated Diffusion Dataset Schema"
+description: "Schema for the filtered FCC solute-diffusion dataset used in the analysis."
 type: "object"
 properties:
-  id:
+  host_element:
     type: "string"
-    description: "Unique identifier for the record"
-  host_metal:
+    description: "Symbol of the host metal (e.g., Ni, Al)."
+  solute_element:
     type: "string"
-    description: "Host metal symbol (e.g., 'Ni', 'Cu')"
-  solute_metal:
-    type: "string"
-    description: "Solute metal symbol"
+    description: "Symbol of the solute element."
   crystal_structure:
     type: "string"
-    description: "Must be 'FCC'"
     enum: ["FCC"]
+    description: "Must be FCC."
   diffusion_mode:
     type: "string"
-    description: "Must be 'self'"
-    enum: ["self"]
+    enum: ["solute", "impurity"]
+    description: "Must be solute or impurity diffusion (not self)."
+  concentration_at_percent:
+    type: "number"
+    minimum: 0
+    description: "Solute concentration in atomic percent."
   activation_energy_eV:
     type: "number"
-    description: "Activation energy in eV/atom"
     minimum: 0
-  concentration_at_pct:
+    description: "Activation energy in eV."
+  size_mismatch:
     type: "number"
-    description: "Solute concentration in atomic percent"
-    minimum: 0
-  source_url:
-    type: "string"
-    description: "Source URL of the data point"
+    description: "Calculated size mismatch: (r_solute - r_host) / r_host."
+  baseline_shift_eV:
+    type: "number"
+    description: "Difference between alloy activation energy and pure host baseline."
 required:
-  - id
-  - host_metal
-  - solute_metal
-  - crystal_structure
-  - diffusion_mode
+  - host_element
+  - solute_element
+  - concentration_at_percent
   - activation_energy_eV
-  - concentration_at_pct
-  - source_url
+  - size_mismatch
+  - baseline_shift_eV
 additionalProperties: false
