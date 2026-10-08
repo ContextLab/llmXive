@@ -203,13 +203,13 @@
 - [X] T025a [P] Documentation updates: Write API usage and data schema sections in `README.md` and `docs/`, ensuring traceability to `data/metadata.yaml` as per Constitution Principle IV.
 - [X] T025b [P] Documentation updates: Write Installation and Environment setup sections in `README.md`.
 - [X] T026a [P] Code cleanup: Remove unused imports from `code/utils.py`. <!-- FAILED: unspecified -->
-- [ ] T026b [P] Code cleanup: Standardize logging format in `code/utils.py`.
+- [X] T026b [P] Code cleanup: Standardize logging format in `code/utils.py`.
 - [X] T029 Verify `state.yaml` updates with content hashes after successful pipeline run.
-- [ ] T034 [US1] Add unit tests in `tests/unit/test_download.py` to verify that the download script logs the raw count but does NOT halt on insufficiency (delegating to T011), ensuring no synthetic fallback is used (addressing edge case: data insufficiency).
-- [ ] T036 [US1] Update `code/download.py` (and sub-modules) to include exponential backoff logic for API rate limits (Materials Project, OpenKIM) to prevent premature failures during bulk fetches.
-- [ ] T037 [US1] Update `code/preprocess.py` to explicitly log the count of excluded records due to missing `Σ value` or `boundary plane normal` and verify these counts are non-zero if the dataset is incomplete, ensuring transparency in data filtering.
-- [ ] T038 [US2] Add a unit test in `tests/unit/test_validate.py` to verify the Bonferroni correction calculation (α_adj = 0.05 / 3) and ensure the p-value adjustment logic is correctly applied to the bias test results.
-- [ ] T039 [US3] Add a unit test in `tests/unit/test_interpret.py` to verify the "False Positive Rate Proxy" metric calculation logic (predicted > threshold AND actual <= threshold), ensuring it correctly measures the rate of incorrect high predictions.
+- [X] T034 [US1] Add unit tests in `tests/unit/test_download.py` to verify that the download script logs the raw count but does NOT halt on insufficiency (delegating to T011), ensuring no synthetic fallback is used (addressing edge case: data insufficiency).
+- [X] T036 [US1] Update `code/download.py` (and sub-modules) to include exponential backoff logic for API rate limits (Materials Project, OpenKIM) to prevent premature failures during bulk fetches.
+- [X] T037 [US1] Update `code/preprocess.py` to explicitly log the count of excluded records due to missing `Σ value` or `boundary plane normal` and verify these counts are non-zero if the dataset is incomplete, ensuring transparency in data filtering.
+- [X] T038 [US2] Add a unit test in `tests/unit/test_validate.py` to verify the Bonferroni correction calculation (α_adj = 0.05 / 3) and ensure the p-value adjustment logic is correctly applied to the bias test results.
+- [X] T039 [US3] Add a unit test in `tests/unit/test_interpret.py` to verify the "False Positive Rate Proxy" metric calculation logic (predicted > threshold AND actual <= threshold), ensuring it correctly measures the rate of incorrect high predictions.
 - [ ] T040 [US1] Implement a `data/sample_config.yaml` that defines a specific, reproducible sampling strategy (e.g., `itertools.islice` first N rows or fixed-seed random sample) with explicit documentation of the sample size and its representativeness limitations, to be used only if the full dataset cannot be processed within compute constraints.
 
 ---

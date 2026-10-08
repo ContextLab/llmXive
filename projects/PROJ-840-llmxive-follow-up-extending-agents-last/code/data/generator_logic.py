@@ -1,226 +1,259 @@
 """
-Generator Logic for Synthetic ALE Execution Traces (T015a).
+Logic for generating ALE Execution Traces.
 
-This module defines the strict mapping rules and hardcoded constants for generating
-synthetic traces. It contains the 5 "State Persistence Error" scenarios and 5
+This module defines the strict mapping rules and data structures for
+generating synthetic traces representing "State Persistence Error" and
 "Reasoning Deficit" scenarios.
-
-It provides functions to generate a single trace given a seed and scenario index.
-It does NOT generate the full dataset file; that is the responsibility of the
-orchestrator in T015b (code/data/generator.py).
 """
-
 import hashlib
 import random
 from typing import Dict, Any, List, Optional
 from dataclasses import dataclass, field
 
-# Scenario Types
-SCENARIO_STATE_PERSISTENCE = "state_persistence_error"
-SCENARIO_REASONING_DEFICIT = "reasoning_deficit"
-
-# --- Hardcoded Scenario Definitions ---
-
-STATE_PERSISTENCE_SCENARIOS = [
-    {
-        "id": "SP01",
-        "description": "Agent edits a file that was explicitly deleted in the previous step.",
-        "action_pattern": "write",
-        "target_state": "deleted",
-        "expected_error": "FileNotFoundError: [Errno 2] No such file or directory"
-    },
-    {
-        "id": "SP02",
-        "description": "Agent attempts to read a file after moving it to a non-existent directory.",
-        "action_pattern": "read",
-        "target_state": "moved_to_missing",
-        "expected_error": "FileNotFoundError: [Errno 2] No such file or directory"
-    },
-    {
-        "id": "SP03",
-        "description": "Agent modifies a variable that was reset to None in the previous step.",
-        "action_pattern": "update_variable",
-        "target_state": "null",
-        "expected_error": "TypeError: 'NoneType' object is not subscriptable"
-    },
-    {
-        "id": "SP04",
-        "description": "Agent writes to a file path that was truncated to a directory in the previous step.",
-        "action_pattern": "write",
-        "target_state": "directory_truncation",
-        "expected_error": "IsADirectoryError: [Errno 21] Is a directory"
-    },
-    {
-        "id": "SP05",
-        "description": "Agent attempts to execute a command on a process that was terminated.",
-        "action_pattern": "execute",
-        "target_state": "terminated",
-        "expected_error": "ProcessLookupError: [Errno 3] No such process"
-    }
-]
-
-REASONING_DEFICIT_SCENARIOS = [
-    {
-        "id": "RD01",
-        "description": "Agent creates a file with the wrong extension despite instructions.",
-        "action_pattern": "write",
-        "target_state": "wrong_extension",
-        "expected_error": "ValidationError: File extension must be .txt"
-    },
-    {
-        "id": "RD02",
-        "description": "Agent calculates a sum incorrectly in a logic block.",
-        "action_pattern": "compute",
-        "target_state": "incorrect_value",
-        "expected_error": "AssertionError: Expected 42, got 41"
-    },
-    {
-        "id": "RD03",
-        "description": "Agent ignores a constraint to not delete specific files.",
-        "action_pattern": "delete",
-        "target_state": "forbidden_deletion",
-        "expected_error": "ConstraintViolationError: Deletion of 'config.json' is forbidden"
-    },
-    {
-        "id": "RD04",
-        "description": "Agent fails to handle a race condition in a loop.",
-        "action_pattern": "loop_update",
-        "target_state": "race_condition",
-        "expected_error": "KeyError: 'item_42' not found in concurrent map"
-    },
-    {
-        "id": "RD05",
-        "description": "Agent misinterprets a natural language instruction regarding order.",
-        "action_pattern": "sequence",
-        "target_state": "wrong_order",
-        "expected_error": "SequenceError: Step 2 must precede Step 1"
-    }
-]
-
 @dataclass
 class StepState:
-    """Represents the state of the environment after a single step."""
+    """Represents the state of the environment at a specific step."""
     step_id: int
     action: str
     target: str
     result: str
     error: Optional[str] = None
-    state_hash: str = ""
 
 @dataclass
 class ExecutionTrace:
-    """Represents a full execution trace for a single task."""
-    trace_id: str
-    scenario_type: str
-    scenario_id: str
+    """Represents a full execution trace."""
+    task_id: str
     task_description: str
-    steps: List[StepState] = field(default_factory=list)
-    ground_truth_label: str = ""
-    seed: int = 0
+    steps: List[StepState]
+    final_state: Dict[str, Any]
+    ground_truth: str
 
-def _generate_hash(content: str) -> str:
-    """Generate a deterministic hash for content."""
-    return hashlib.sha256(content.encode('utf-8')).hexdigest()[:16]
-
-def generate_task_description(scenario_type: str, scenario_id: str, seed: int) -> str:
+def generate_task_description(scenario_type: str, scenario_description: str, seed: int) -> str:
     """
-    Generates a deterministic task description based on the scenario.
-    Uses the seed to introduce minor variations while keeping the core logic deterministic.
+    Generate a deterministic task description based on the scenario.
     """
-    rng = random.Random(seed)
-    base_templates = {
-        SCENARIO_STATE_PERSISTENCE: [
-            "Perform a sequence of file operations. Ensure you track the state of 'data.txt' carefully.",
-            "Manage the lifecycle of 'config.json'. It may be deleted or moved unexpectedly.",
-            "Execute a series of variable updates. Be aware that some variables may be reset."
-        ],
-        SCENARIO_REASONING_DEFICIT: [
-            "Calculate the sum of a list of numbers. Precision is critical.",
-            "Process a list of files in a specific order. Do not violate constraints.",
-            "Execute a loop that updates a shared resource. Handle concurrency safely."
-        ]
+    random.seed(seed)
+    # Base template
+    templates = {
+        "State Persistence Error": "Perform the following sequence of operations. Note the state changes carefully.",
+        "Reasoning Deficit": "Solve the following logic puzzle. Pay attention to the order of operations."
     }
-    
-    templates = base_templates.get(scenario_type, ["Perform general task operations."])
-    base_desc = rng.choice(templates)
-    
-    # Add a deterministic variation based on seed
-    variation_id = seed % 10
-    return f"{base_desc} [Variation: {variation_id}]"
+    base = templates.get(scenario_type, "Perform the task.")
+    # Add a deterministic random suffix to make it unique per seed
+    suffix = f" [Context ID: {hashlib.sha256(str(seed).encode()).hexdigest()[:8]}]"
+    return f"{base} {scenario_description}{suffix}"
 
-def generate_step_state(scenario: Dict[str, Any], step_idx: int, seed: int) -> StepState:
+def generate_step_state(step_id: int, scenario_type: str, scenario_description: str, seed: int) -> StepState:
     """
-    Generates a single step state based on the scenario definition.
+    Generate a single step state based on the scenario.
     """
-    rng = random.Random(seed + step_idx)
-    
-    action = scenario["action_pattern"]
-    target = f"target_{scenario['id']}_{step_idx}"
-    
-    # Simulate the error only on the specific step that triggers the scenario
-    error = None
-    result = "success"
-    
-    # Determine if this is the trigger step (e.g., step 2 for most scenarios)
-    trigger_step = 2 
-    if step_idx == trigger_step:
-        result = "failure"
-        error = scenario["expected_error"]
-    
-    content = f"{action}:{target}:{result}"
-    state_hash = _generate_hash(content)
-    
+    random.seed(seed + step_id)
+
+    action, target, result, error = "", "", "", None
+
+    if "SP_01" in scenario_description:
+        # Edit file A.txt after it was deleted
+        if step_id == 1:
+            action = "delete"
+            target = "A.txt"
+            result = "success"
+        elif step_id == 2:
+            action = "edit"
+            target = "A.txt"
+            result = "failure"
+            error = "FileNotFoundError: A.txt does not exist"
+        else:
+            action = "read"
+            target = "B.txt"
+            result = "success"
+
+    elif "SP_02" in scenario_description:
+        # Read variable x after reset to None
+        if step_id == 1:
+            action = "assign"
+            target = "x"
+            result = "success"
+        elif step_id == 2:
+            action = "reset"
+            target = "x"
+            result = "success"
+        elif step_id == 3:
+            action = "read"
+            target = "x"
+            result = "failure"
+            error = "ValueError: x is None"
+        else:
+            action = "read"
+            target = "y"
+            result = "success"
+
+    elif "SP_03" in scenario_description:
+        # Move file B.txt to deleted directory
+        if step_id == 1:
+            action = "create_dir"
+            target = "temp_dir"
+            result = "success"
+        elif step_id == 2:
+            action = "delete_dir"
+            target = "temp_dir"
+            result = "success"
+        elif step_id == 3:
+            action = "move"
+            target = "B.txt -> temp_dir"
+            result = "failure"
+            error = "FileNotFoundError: temp_dir does not exist"
+        else:
+            action = "read"
+            target = "B.txt"
+            result = "success"
+
+    elif "SP_04" in scenario_description:
+        # Write to file C.txt after handle closed
+        if step_id == 1:
+            action = "open"
+            target = "C.txt"
+            result = "success"
+        elif step_id == 2:
+            action = "close"
+            target = "C.txt"
+            result = "success"
+        elif step_id == 3:
+            action = "write"
+            target = "C.txt"
+            result = "failure"
+            error = "ValueError: I/O operation on closed file"
+        else:
+            action = "read"
+            target = "D.txt"
+            result = "success"
+
+    elif "SP_05" in scenario_description:
+        # Execute command on terminated process P1
+        if step_id == 1:
+            action = "start"
+            target = "P1"
+            result = "success"
+        elif step_id == 2:
+            action = "terminate"
+            target = "P1"
+            result = "success"
+        elif step_id == 3:
+            action = "send_command"
+            target = "P1"
+            result = "failure"
+            error = "ProcessLookupError: P1 is not running"
+        else:
+            action = "read"
+            target = "log.txt"
+            result = "success"
+
+    elif "RD_01" in scenario_description:
+        # Read wrong line
+        if step_id == 1:
+            action = "open"
+            target = "A.txt"
+            result = "success"
+        elif step_id == 2:
+            action = "read_line"
+            target = "A.txt"
+            result = "Line 2 (Expected Line 1)"
+            error = None # Logical error, not runtime
+        else:
+            action = "close"
+            target = "A.txt"
+            result = "success"
+
+    elif "RD_02" in scenario_description:
+        # Arithmetic error
+        if step_id == 1:
+            action = "calculate"
+            target = "sum([1, 2])"
+            result = "4" # Wrong, should be 3
+            error = None
+        else:
+            action = "return"
+            target = "result"
+            result = "4"
+
+    elif "RD_03" in scenario_description:
+        # Sorting error
+        if step_id == 1:
+            action = "sort"
+            target = "[3, 1, 2]"
+            result = "[1, 3, 2]" # Wrong
+            error = None
+        else:
+            action = "return"
+            target = "sorted_list"
+            result = "[1, 3, 2]"
+
+    elif "RD_04" in scenario_description:
+        # Filtering error
+        if step_id == 1:
+            action = "filter"
+            target = "[1, 2, 3] > 1"
+            result = "[2]" # Wrong, missing 3
+            error = None
+        else:
+            action = "return"
+            target = "filtered_list"
+            result = "[2]"
+
+    elif "RD_05" in scenario_description:
+        # Concatenation order error
+        if step_id == 1:
+            action = "concat"
+            target = '"a" + "b"'
+            result = "ba" # Wrong
+            error = None
+        else:
+            action = "return"
+            target = "string"
+            result = "ba"
+    else:
+        # Fallback for unknown scenarios
+        action = "unknown"
+        target = "unknown"
+        result = "unknown"
+
     return StepState(
-        step_id=step_idx,
+        step_id=step_id,
         action=action,
         target=target,
         result=result,
-        error=error,
-        state_hash=state_hash
+        error=error
     )
 
-def generate_trace(seed: int, scenario_index: int) -> ExecutionTrace:
+def generate_trace(scenario_type: str, scenario_description: str, seed: int) -> Dict[str, Any]:
     """
-    Generates a single ExecutionTrace given a seed and a scenario index.
-    
-    Args:
-        seed: The base seed for reproducibility.
-        scenario_index: The index of the scenario to generate (0-9).
-    
-    Returns:
-        An ExecutionTrace object.
+    Generate a full execution trace for a given scenario.
     """
-    # Determine scenario type and details
-    if scenario_index < 5:
-        scenario_type = SCENARIO_STATE_PERSISTENCE
-        scenario = STATE_PERSISTENCE_SCENARIOS[scenario_index]
-    else:
-        scenario_type = SCENARIO_REASONING_DEFICIT
-        scenario = REASONING_DEFICIT_SCENARIOS[scenario_index - 5]
-    
-    scenario_id = scenario["id"]
-    
-    # Generate task description
-    task_description = generate_task_description(scenario_type, scenario_id, seed)
-    
-    # Generate steps (e.g., 5 steps per trace)
+    random.seed(seed)
+    task_id = f"trace_{hashlib.sha256(str(seed).encode()).hexdigest()[:8]}"
+    task_description = generate_task_description(scenario_type, scenario_description, seed)
+
+    # Generate 3-5 steps based on the scenario
+    num_steps = 3 if "SP" in scenario_description or "RD" in scenario_description else 4
     steps = []
-    for i in range(5):
-        step = generate_step_state(scenario, i, seed)
-        steps.append(step)
-    
-    # Determine ground truth label
-    # In this synthetic setup, the label is derived from the scenario type
-    label = "state_persistence_error" if scenario_type == SCENARIO_STATE_PERSISTENCE else "reasoning_deficit"
-    
-    trace_id = f"trace_{scenario_id}_{seed}"
-    
-    return ExecutionTrace(
-        trace_id=trace_id,
-        scenario_type=scenario_type,
-        scenario_id=scenario_id,
-        task_description=task_description,
-        steps=steps,
-        ground_truth_label=label,
-        seed=seed
-    )
+    for i in range(num_steps):
+        step = generate_step_state(i, scenario_type, scenario_description, seed)
+        steps.append({
+            "step_id": step.step_id,
+            "action": step.action,
+            "target": step.target,
+            "result": step.result,
+            "error": step.error
+        })
+
+    final_state = {
+        "status": "completed_with_errors" if any(s.get("error") for s in steps) else "success",
+        "errors": [s.get("error") for s in steps if s.get("error")]
+    }
+
+    return {
+        "task_id": task_id,
+        "task_description": task_description,
+        "steps": steps,
+        "final_state": final_state,
+        "ground_truth": scenario_type
+    }

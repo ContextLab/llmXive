@@ -1,7 +1,7 @@
 # Feature Specification: Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mechanisms
 
 **Feature Branch**: `001-predict-reaction-yields-from-spectra`  
-**Created**: 2026-08-14  
+**Created**: 2026-08-26  
 **Status**: Draft  
 **Input**: User description: "Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mechanisms"
 
@@ -42,7 +42,7 @@
 
 ### User Story 3 - Model Evaluation, Statistical Significance, and Interpretability (Priority: P3)
 
-**User Journey**: A researcher evaluates the trained model against three baselines: (1) Fingerprint-only (ECFP4), (2) Spectrum-only (concatenated IR+NMR), and (3) Condition-only. The system computes RMSE, MAE, and R² for all models, performs a Wilcoxon signed-rank test on absolute errors to assess significance, and generates attention heatmaps. The system also runs a permutation test (shuffling yield labels 100 times) to verify the model is not learning noise. The system retrieves raw spectral data from the NIST Chemistry WebBook, performs peak detection, and validates that the model's top-attended spectral peaks align with known functional group frequencies within defined tolerances. Additionally, the system runs a linear baseline (Ridge Regression, alpha=1.0) on spectra alone and compares its performance to the PLS variance metrics to confirm the spectral signal is not redundant with fingerprints.
+**User Journey**: A researcher evaluates the trained model against three baselines: (1) Fingerprint-only (ECFP4), (2) Spectrum-only (concatenated IR+NMR), and (3) Condition-only. The system computes RMSE, MAE, and R² for all models, performs a Wilcoxon signed-rank test on absolute errors to assess significance, and generates attention heatmaps. The system also runs a permutation test (shuffling yield labels multiple times) to verify the model is not learning noise. The system retrieves raw spectral data from the NIST Chemistry WebBook, performs peak detection, and validates that the model's top-attended spectral peaks align with known functional group frequencies within defined tolerances. Additionally, the system runs a linear baseline (Ridge Regression, alpha=1.0) on spectra alone and compares its performance to the PLS variance metrics to confirm the spectral signal is not redundant with fingerprints.
 
 **Why this priority**: This delivers the scientific insight required by the research question: quantifying the "independent predictive signal" and identifying "specific spectral regions." It also validates the statistical robustness of the findings.
 
@@ -108,7 +108,7 @@
 ## Assumptions
 
 - **Dataset Availability**: It is assumed that a sufficient subset of reactions with paired *real* experimental IR and ¹H-NMR spectra can be retrieved from the NIST Chemistry WebBook and PubChem APIs within the USPTO-50k dataset. If the API retrieval rate is < 50 samples OR the failure rate exceeds 80%, the project is considered infeasible for this specific research question and will be terminated with a `DATA_NOT_FOUND` report.
-- **Compute Constraints**: The entire training and evaluation pipeline is assumed to run on a GitHub Actions free-tier runner (limited CPU cores, ~7 GB RAM, no GPU). The model architecture and dataset size are scoped to fit within these constraints.
+- **Compute Constraints**: The entire training and evaluation pipeline is assumed to run on a GitHub Actions free-tier runner (limited CPU cores, ~ GB RAM, no GPU). The model architecture and dataset size are scoped to fit within these constraints.
 - **Spectral Normalization**: It is assumed that resampling to a common grid and normalizing to unit variance is sufficient to align spectra from different sources (e.g., different instruments) for model ingestion.
 - **Reaction Yield Definition**: It is assumed that the "yield" values in the USPTO-50k dataset are consistent (0–100) and represent the final isolated yield, not conversion or theoretical yield.
 - **Template Leakage Prevention**: Splitting by reaction template (reaction center substructure), combined with explicit encoding of reaction conditions, reduces but does not guarantee full chemical environment independence. Scaffold splitting (FR-017) is required to address residual leakage risks.

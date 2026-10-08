@@ -12,29 +12,37 @@ from typing import Dict, Any, Optional
 import yaml
 import sys
 
-def setup_logging(name: str, level: int = logging.INFO) -> logging.Logger:
+# Standardized logging configuration
+_LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+_LOG_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
+_DEFAULT_LOG_LEVEL = logging.INFO
+
+def setup_logging(name: str, level: int = _DEFAULT_LOG_LEVEL) -> logging.Logger:
     """
-    Configure and return a logger instance.
+    Configure and return a logger instance with a standardized format.
     
     Args:
         name: Name of the logger (e.g., "download", "preprocess").
-        level: Logging level (default: INFO).
-        
+        level: Logging level (default: logging.INFO).
+            
     Returns:
         Configured logger.
     """
     logger = logging.getLogger(name)
     logger.setLevel(level)
     
+    # Avoid adding duplicate handlers if logger already configured
     if not logger.handlers:
         handler = logging.StreamHandler(sys.stdout)
         formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
+            _LOG_FORMAT,
+            datefmt=_LOG_DATE_FORMAT
         )
         handler.setFormatter(formatter)
         logger.addHandler(handler)
-        
+        # Ensure log messages propagate to root if needed, but usually handled by handlers
+        logger.propagate = False 
+            
     return logger
 
 def compute_sha256(filepath: Path) -> str:
@@ -43,7 +51,7 @@ def compute_sha256(filepath: Path) -> str:
     
     Args:
         filepath: Path to the file.
-        
+            
     Returns:
         Hexadecimal checksum string.
     """
@@ -69,7 +77,7 @@ def load_metadata(filepath: Path) -> Dict[str, Any]:
     
     Args:
         filepath: Path to the metadata file.
-        
+            
     Returns:
         Dictionary of metadata.
     """
@@ -87,7 +95,7 @@ def update_metadata_entry(metadata: Dict[str, Any], key: str, value: Any) -> Dic
         metadata: Metadata dictionary.
         key: Key to update.
         value: New value.
-        
+            
     Returns:
         Updated metadata dictionary.
     """

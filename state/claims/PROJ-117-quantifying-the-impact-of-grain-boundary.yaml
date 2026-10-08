@@ -3780,26 +3780,6 @@
   status: verified
   updated_at: '2026-07-19T21:37:58Z'
 - artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
-  attempts: 3
-  canonical: GitHub Actions free-tier CPU limit is 2 cores
-  claim_id: c_2a899a14
-  context: 'Critical Constraint: All tasks must run on CPU-only CI (limited cores,
-    constrained RAM, within a fixed time budget). No GPU/CUDA, no 8-bit quantization,
-    no large LLMs. CPU Limit: The GitHub Actions free-tier limit is a hard constraint
-    of 2 CPU cores.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/GitHub_Actions_free-tier_CPU_limit_is_2_cores
-  kind: entity_fact
-  raw_text: The GitHub Actions free-tier limit is a hard constraint of 2 CPU cores.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-19T21:38:03Z'
-- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
   attempts: 1
   canonical: Pipeline raises validation error if R2 threshold citation is missing
   claim_id: c_507409df
@@ -4900,25 +4880,6 @@
   status: not_enough_info
   updated_at: '2026-07-27T07:38:59Z'
 - artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
-  attempts: 3
-  canonical: GitHub Actions free-tier limit is 2 CPU cores
-  claim_id: c_a8854695
-  context: 'Critical Constraint: All tasks must run on CPU-only CI (limited cores,
-    constrained RAM, within a fixed time budget). No GPU/CUDA, no 8-bit quantization,
-    no large LLMs.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/GitHub_Actions_free-tier_limit_is_2_CPU_cores
-  kind: entity_fact
-  raw_text: The GitHub Actions free-tier limit is a hard constraint of 2 CPU cores.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-27T07:40:18Z'
-- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
   attempts: 1
   canonical: Bonferroni correction alpha adjusted to 0.017 for 3 tests
   claim_id: c_3454627e
@@ -5203,26 +5164,6 @@
   status: not_enough_info
   updated_at: '2026-08-27T09:23:57Z'
 - artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
-  attempts: 16
-  canonical: GitHub Actions free-tier limit is 2 CPU cores
-  claim_id: c_4ec901a6
-  context: 'Critical Constraint: All tasks must run on CPU-only CI (limited cores,
-    constrained RAM, within a fixed time budget). No GPU/CUDA, no 8-bit quantization,
-    no large LLMs. CPU Limit: The GitHub Actions free-tier limit is a hard constraint
-    of 2 CPU cores.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/GitHub_Actions_free-tier_limit_is_2_CPU_cores
-  kind: entity_fact
-  raw_text: The GitHub Actions free-tier limit is a hard constraint of 2 CPU cores.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-27T09:24:41Z'
-- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
   attempts: 1
   canonical: Pipeline exits with code 1 if valid records are fewer than 500
   claim_id: c_4479a958
@@ -5397,3 +5338,275 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-27T09:29:57Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 17
+  canonical: GitHub Actions free-tier limit is 2 CPU cores
+  claim_id: c_4ec901a6
+  context: 'Critical Constraint: All tasks must run on CPU-only CI (limited cores,
+    constrained RAM, within a fixed time budget). No GPU/CUDA, no 8-bit quantization,
+    no large LLMs. CPU Limit: The GitHub Actions free-tier limit is a hard constraint
+    of 2 CPU cores.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GitHub_Actions_free-tier_limit_is_2_CPU_cores
+  kind: entity_fact
+  raw_text: The GitHub Actions free-tier limit is a hard constraint of 2 CPU cores.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T06:46:05Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 0
+  canonical: Wikidata Q37499364
+  claim_id: c_5ea37d59
+  context: 'Data Source Constraint: {{claim:c_919349f5}} ({{claim:c_100df441}}, https://www.wikidata.org/wiki/Q37499364)
+    No fallbacks are permitted.'
+  evidence:
+    entailment_evidence: 'Look for Wikidata Q37499364 on one of Wikipedia''s sister
+      projects : ... Wikidata (linked database)'
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q37499364
+  kind: entity_fact
+  raw_text: Wikidata Q37499364
+  resolved_value: Wikidata Q37499364
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T06:47:36Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: Wikidata Q4503831
+  claim_id: c_810726e7
+  context: 'Volume Goal: {{claim:c_87038c32}} (Wikidata Q4503831, https://www.wikidata.org/wiki/Q4503831)
+    (per FR-001).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q4503831
+  kind: entity_fact
+  raw_text: Wikidata Q4503831
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T06:47:57Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 4
+  canonical: GitHub Actions free-tier limit is 2 CPU cores
+  claim_id: c_a8854695
+  context: 'Critical Constraint: All tasks must run on CPU-only CI (limited cores,
+    constrained RAM, within a fixed time budget). No GPU/CUDA, no 8-bit quantization,
+    no large LLMs.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GitHub_Actions_free-tier_limit_is_2_CPU_cores
+  kind: entity_fact
+  raw_text: The GitHub Actions free-tier limit is a hard constraint of 2 CPU cores.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T06:49:35Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 4
+  canonical: GitHub Actions free-tier CPU limit is 2 cores
+  claim_id: c_2a899a14
+  context: 'Critical Constraint: All tasks must run on CPU-only CI (limited cores,
+    constrained RAM, within a fixed time budget). No GPU/CUDA, no 8-bit quantization,
+    no large LLMs. CPU Limit: The GitHub Actions free-tier limit is a hard constraint
+    of 2 CPU cores.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GitHub_Actions_free-tier_CPU_limit_is_2_cores
+  kind: entity_fact
+  raw_text: The GitHub Actions free-tier limit is a hard constraint of 2 CPU cores.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T06:50:14Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: Wikidata Q4503831 volume goal
+  claim_id: c_1f7a37f4
+  context: 'T009a SearchStrategy: Use query parameters keywords=[''grain boundary'',
+    ''bicrystal''] and properties=[''diffusivity'']. Volume Goal: {{claim:c_87038c32}}
+    (Wikidata Q4503831, https://www.wikidata.org/wiki/Q4503831) (per FR-001).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q4503831_volume_goal
+  kind: entity_fact
+  raw_text: 'Volume Goal: {{claim:c_87038c32}} (Wikidata Q4503831, https://www.wikidata.org/wiki/Q4503831)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T06:51:44Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: Data insufficiency constraint n >= 500
+  claim_id: c_9ddef0fd
+  context: 'T011 Enforce n >= 500 constraint: If fewer than 500 valid records remain,
+    MUST log ''Data Insufficiency: Retrieved {retrieved_count}, Valid {valid_count},
+    Required 500. Missing features: {missing_feature_list}'' and exit with code 1.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_insufficiency_constraint_n_%3E=_500
+  kind: magnitude
+  raw_text: 'Enforce n >= 500 constraint: If fewer than 500 valid records remain,
+    MUST log ''Data Insufficiency'' and exit with code 1.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T06:52:43Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction alpha 0.017
+  claim_id: c_6bb73975
+  context: T017 Execute regression bias test (y_true ~ y_pred) on the held-out test
+    set to calculate intercept, slope, and p-values. Apply Bonferroni correction (alpha_adj
+    = 0.05 / 3 approx 0.017) for multiple hypothesis tests
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni correction alpha_adj = 0.05 / 3 approx 0.017
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T06:54:01Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: GitHub Actions free-tier 2 CPU cores limit
+  claim_id: c_a5607bec
+  context: 'Critical Constraint: All tasks must run on CPU-only CI (limited cores,
+    constrained RAM, within a fixed time budget). No GPU/CUDA, no 8-bit quantization,
+    no large LLMs. CPU Limit: The GitHub Actions free-tier limit is a hard constraint
+    of 2 CPU cores.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GitHub_Actions_free-tier_2_CPU_cores_limit
+  kind: entity_fact
+  raw_text: GitHub Actions free-tier limit is a hard constraint of 2 CPU cores
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T06:54:04Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: Wikidata Q37499364 data source
+  claim_id: c_cfac4719
+  context: 'CPU Limit: The GitHub Actions free-tier limit is a hard constraint of
+    2 CPU cores. Data Source Constraint: {{claim:c_919349f5}} ({{claim:c_100df441}},
+    https://www.wikidata.org/wiki/Q37499364) No fallbacks are permitted.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q37499364_data_source
+  kind: entity_fact
+  raw_text: 'Data Source Constraint: {{claim:c_919349f5}} ({{claim:c_100df441}}, https://www.wikidata.org/wiki/Q37499364)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T06:54:27Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: R-squared SD threshold 0.05
+  claim_id: c_fc7277f7
+  context: T017 Report average R2, RMSE, MAPE and calculate standard deviation of
+    R2 across the k=5 folds on the test set (must be <= 0.05). This metric satisfies
+    SC-001.
+  evidence:
+    asserted: '5.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: R-squared standard deviation across k=5 folds on the test set must be
+    <= 0.05
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T06:54:28Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time 6 hours RAM 7 GB
+  claim_id: c_666382bb
+  context: T015 Add integration test in tests/integration/test_pipeline.py to verify
+    end-to-end execution (T009a-c -> T010 -> T011 -> T016 -> T012a -> T012b) within
+    6 hours and <7 GB RAM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Integration test must verify end-to-end execution within 6 hours and <7
+    GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T06:54:57Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: Wikidata Q4503831
+  claim_id: c_4e79e093
+  context: 'Fetch raw structures from Materials Project API using query parameters
+    keywords=[''grain boundary'', ''bicrystal''] and properties=[''diffusivity''].
+    Volume Goal: {{claim:c_87038c32}} (Wikidata Q4503831, https://www.wikidata.org/wiki/Q4503831)
+    (per FR-001).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q4503831
+  kind: entity_fact
+  raw_text: 'Volume Goal: {{claim:c_87038c32}} (Wikidata Q4503831, https://www.wikidata.org/wiki/Q4503831)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T06:55:41Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  attempts: 1
+  canonical: Wikidata Q37499364
+  claim_id: c_1b30e89c
+  context: 'Critical Constraint: All tasks must run on CPU-only CI. Data Source Constraint:
+    {{claim:c_919349f5}} ({{claim:c_100df441}}, https://www.wikidata.org/wiki/Q37499364)
+    No fallbacks are permitted.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q37499364
+  kind: entity_fact
+  raw_text: 'Data Source Constraint: {{claim:c_919349f5}} ({{claim:c_100df441}}, https://www.wikidata.org/wiki/Q37499364)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T06:55:44Z'
