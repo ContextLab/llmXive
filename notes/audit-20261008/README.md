@@ -246,6 +246,15 @@ notification was created.
 
 ## Acceptance and deployment boundaries
 
+Deployment inspection found the advance matrix still capped the entire job at
+90 minutes, below the observed 94-minute planning attempt. Its 2,400-second CLI
+budget is checked between stages and cannot cap one long stage. The matrix now
+uses a 330-minute job cap with a separate 300-minute advance-step cap, and
+always attempts to persist state after a failed step. The single-worker
+pipeline also reserves a persistence window with a 300-minute step cap.
+Existing per-worker concurrency remains in place. These changes preserve
+diagnostics/partial work; they do not claim that slow convergence is resolved.
+
 The [issue consolidation report](issue-consolidation/report.md) records the
 completed backlog review: 199 initially open issues, two new recurring-cause
 umbrellas and two new incident reports yielded 203 tracked dispositions.
