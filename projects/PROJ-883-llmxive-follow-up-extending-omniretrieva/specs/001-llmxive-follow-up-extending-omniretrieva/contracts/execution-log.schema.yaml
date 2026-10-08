@@ -19,7 +19,7 @@ properties:
     description: "Exact integer plan depth (1, 2, 3, 4+). FR-002 compliance."
   latency_ms:
     type: "number"
-    description: "End-to-end wall-clock latency in milliseconds. Strictly real execution time."
+    description: "End-to-end wall-clock latency in milliseconds."
   translation_error:
     type: "integer"
     enum:

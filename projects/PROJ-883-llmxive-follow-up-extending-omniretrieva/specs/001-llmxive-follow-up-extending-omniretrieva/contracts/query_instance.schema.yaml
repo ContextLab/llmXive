@@ -36,11 +36,11 @@ properties:
       - "high"
     description: "Categorical grouping based on complexity_level (low: <=2, high: >=3)."
 required:
-  - query_id
-  - logical_plan
-  - source_type
-  - complexity_level
-  - ground_truth_plan
-  - sut_plan
-  - complexity_group
+  - "query_id"
+  - "logical_plan"
+  - "source_type"
+  - "complexity_level"
+  - "ground_truth_plan"
+  - "sut_plan"
+  - "complexity_group"
 additionalProperties: false

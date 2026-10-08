@@ -1,0 +1,12 @@
+status: none
+intent: download MS MARCO dataset DBpedia dataset Spider benchmark python package
+  dataset
+required_fields:
+- query_id
+- query_text
+- plan_depth
+- source_type
+- latency_ms
+cache_key: d703309e145fd50c1d67d379f3b82b6cd11eca59481924654419ed39dc6c0a13
+searched_at: '2026-10-08T22:24:07.385314+00:00'
+retry_count: 1

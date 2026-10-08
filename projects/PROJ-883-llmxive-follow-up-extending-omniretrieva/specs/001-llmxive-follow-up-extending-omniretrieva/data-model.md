@@ -2,83 +2,100 @@
 
 ## Overview
 
-This document defines the data structures used for synthetic query generation, execution logging, and statistical analysis. All data is stored in `data/` (raw/processed) and `data/results/`. Artifact hashes for these files are tracked in `state/state.yaml` (Constitution Principle V).
+This document defines the data structures for the benchmarking pipeline. All data is stored in local files under `data/`. The model ensures strict adherence to FR-002 (integer depth persistence) and FR-003 (JSON/CSV logging).
 
-## Entity Definitions
+## Entities
 
-### 1. Query Instance
-Represents a single synthetic retrieval request.
+### 1. Query Instance (Intermediate SSoT)
+Represents a single synthetic query generated for the benchmark.
+- `query_id`: UUID (unique identifier).
+- `logical_plan`: List of steps (e.g., `[{"op": "lookup", "arg": "X"}, {"op": "join", "arg": "Y"}]`).
+- `source_type`: Enum (`text`, `relational`, `graph`).
+- `complexity_level`: Integer (1, 2, 3, 4+). **Critical**: Must be persisted as an integer.
+- `ground_truth_plan`: JSON string of the optimal path (from `ground_truth_engine.py`).
+- `synthetic_flag`: Boolean (True if generated from synthetic topology fallback).
 
-| Field | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `query_id` | `str` | Unique UUID for the query. | Generated |
-| `source_type` | `str` | One of: `text`, `relational`, `graph`. | Generated |
-| `complexity_level` | `int` | Exact plan depth (1, 2, 3, 4+). | Generated |
-| `logical_plan` | `list[str]` | Sequence of operations (e.g., `["join", "filter"]`). | Generated |
-| `ground_truth_plan` | `list[str]` | Optimal plan from CBO (full lookahead). | Generated |
-| `sut_plan` | `list[str]` | Plan from SUT (limited lookahead heuristic). | Generated |
-| `parameters` | `dict` | Query-specific args (e.g., `{"tables": ["A", "B"]}`). | Generated |
+### 2. Execution Metric (Final SSoT)
+Represents the outcome of a single query execution.
+- `query_id`: UUID (foreign key to Query Instance).
+- `latency_ms`: Float (milliseconds). **Strictly real execution time.**
+- `translation_error`: Boolean (True if generated plan != ground truth).
+- `timeout_flag`: Boolean (True if >60s).
+- `success_flag`: Boolean (1 if success, 0 otherwise).
+- `timestamp`: ISO8601 string.
+- `throttling_mode`: String (`cgroups`, `time_only`, `failed`).
+- `synthetic_flag`: Boolean (inherited from Query Instance).
 
-### 2. Execution Metric
-Represents the outcome of a single query run.
-
-| Field | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `query_id` | `str` | FK to Query Instance. | From Query |
-| `latency_ms` | `float` | Wall-clock time in milliseconds. | Measured |
-| `mismatch_flag` | `bool` | `True` if SUT selected a wrong source type. | Computed |
-| `delta_latency` | `float` | `Latency_Mismatched - Latency_Optimal` (if mismatch). | Computed |
-| `translation_error` | `bool` | `True` if `sut_plan` != `ground_truth_plan`. | Computed |
-| `timeout_flag` | `bool` | `True` if execution > 60s. | Measured |
-| `success_flag` | `bool` | `True` if `not timeout_flag` and no exception. | Computed |
-| `timestamp` | `str` | ISO 8601 timestamp. | System |
-
-### 3. Statistical Summary
-Aggregated results for ANOVA and visualization.
-
-| Field | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `source_type` | `str` | Grouping variable. | Aggregated |
-| `complexity_level` | `int` | Grouping variable. | Aggregated |
-| `mean_delta_latency` | `float` | Average mismatch cost for group. | Calculated |
-| `std_delta_latency` | `float` | Standard deviation. | Calculated |
-| `n_samples` | `int` | Count of queries in group. | Calculated |
-| `knee_point` | `float` | Identified complexity level of spike (from Segmented Regression). | Calculated |
+### 3. Statistical Result
+Aggregated results from the analysis.
+- `test_type`: String (`ancova`, `tukey`, `sensitivity`).
+- `parameters`: JSON (e.g., `{"cutoff": 3}`).
+- `statistics`: JSON (e.g., `{"F": 12.5, "p": 0.001}`).
+- `interpretation`: String (e.g., "Interaction significant").
 
 ## File Formats
 
-### Raw Logs (JSONL)
-Stored in `data/results/raw_logs.jsonl`.
-```json
-{"query_id": "uuid-1", "source_type": "graph", "complexity_level": 3, "latency_ms": 120.5, "mismatch_flag": true, "delta_latency": 45.2, "translation_error": true, "timeout_flag": false, "success_flag": true}
-```
+### `data/processed/generation_log.json` (Intermediate SSoT)
+**Purpose**: Stores query definitions and ground truth plans before execution.
+**Schema**: Validated by `contracts/generation_log.schema.yaml`.
+**Structure**: Array of Query Instances.
 
-### Statistical Output (CSV)
-Stored in `data/results/analysis_summary.csv`.
-```csv
-source_type,complexity_level,mean_delta_latency,std_delta_latency,n_samples,knee_point
-graph,1,5.2,1.1,100,3.0
-graph,2,12.4,2.5,100,3.0
-graph,3,55.1,8.2,100,3.0
-graph,4,120.5,15.0,100,3.0
+### `data/processed/execution_logs.csv` (Final SSoT)
+**Purpose**: Single source of truth for all latency and error metrics.
+**Columns**:
+- `query_id` (string)
+- `source_type` (string)
+- `complexity_level` (integer) **FR-002 Compliance**
+- `latency_ms` (float)
+- `translation_error` (integer 0/1)
+- `success_flag` (integer 0/1)
+- `synthetic_flag` (integer 0/1)
+- `throttling_mode` (string)
+
+*Note: `complexity_level` is explicitly typed as integer to satisfy FR-002. This file is written by `benchmark_runner.py` (T021).*
+
+### `data/results/anova_results.json`
+**Purpose**: Output of the ANCOVA test.
+**Structure**:
+```json
+{
+  "ancova": {
+    "f_statistic": 12.34,
+    "p_value": 0.0001,
+    "interaction_p_value": 0.0045,
+    "significant": true
+  },
+  "tukey": [
+    {"group1": "graph_4", "group2": "text_4", "p_adj": 0.001},
+    ...
+  ]
+}
 ```
+*Written by `stats.py` (T018).*
+
+### `data/results/sensitivity_analysis.json`
+**Purpose**: Output of the threshold sweep (FR-007).
+**Structure**:
+```json
+[
+  {"cutoff": 2, "spike_point": 2.5, "slope_change": 15.2},
+  {"cutoff": 3, "spike_point": 3.1, "slope_change": 18.4},
+  {"cutoff": 4, "spike_point": 4.0, "slope_change": 22.1}
+]
+```
+*Written by `stats.py` (T020).*
 
 ## Data Flow
 
-1. **Generation**: `synthetic_queries.py` creates `QueryInstance` objects -> Saved to `data/processed/queries.jsonl`.
-2. **Execution**: `main.py` loops through queries -> Measures latency -> Saves `ExecutionMetric` to `data/results/raw_logs.jsonl`.
-3. **Analysis**: `latency_analyzer.py` reads logs -> Computes aggregates and Segmented Regression -> Saves `StatisticalSummary` to `data/results/analysis_summary.csv`.
-4. **State Tracking**: `state/state.yaml` is updated with checksums of all generated files (Constitution Principle V).
-5. **Visualization**: `visualizer.py` reads CSV -> Generates `figures/latency_interaction.png`.
+1. **Generation**: `query_generator.py` creates Query Instances -> Writes `data/processed/generation_log.json`.
+2. **Ground Truth**: `ground_truth_engine.py` reads generation log -> Writes `ground_truth_plan` to `generation_log.json`.
+3. **Execution**: `benchmark_runner.py` reads `generation_log.json` -> Executes -> Writes `data/processed/execution_logs.csv` (T021).
+4. **Analysis**: `stats.py` reads `execution_logs.csv` -> Computes stats -> Writes `data/results/anova_results.json` and `data/results/sensitivity_analysis.json` (T018, T020).
 
-## State Tracking (Constitution Principle V)
+## Constraints
 
-The `state/state.yaml` file tracks artifact hashes to ensure reproducibility.
-```yaml
-artifacts:
-  data/processed/queries.jsonl: <sha256_hash>
-  data/results/raw_logs.jsonl: <sha256_hash>
-  data/results/analysis_summary.csv: <sha256_hash>
-  code/generators/synthetic_queries.py: <sha256_hash>
-updated_at: "2026-07-10T12:00:00Z"
-```
+- No PII is stored.
+- All files are checksummed.
+- `complexity_level` must be an integer; any non-integer input is rejected by the generator.
+- Synthetic fallbacks must be logged with `synthetic_flag=1`.
+- **Primary Analysis**: Only queries with `synthetic_flag=0` are included in the ANCOVA.

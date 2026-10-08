@@ -3,63 +3,79 @@
 ## Prerequisites
 
 - Python 3.11+
-- Linux environment (required for `resource` module CPU accounting)
-- Sufficient free disk space is required to accommodate the data and computational artifacts generated during the study.
+- Access to a Linux environment (GitHub Actions or local Linux).
+- 7GB+ RAM, 2+ CPU cores.
+- Internet access to download HuggingFace datasets and DBpedia.
 
 ## Installation
 
-1. **Clone and Setup Environment**
+1. **Clone and Setup**:
    ```bash
-   cd projects/PROJ-883-llmxive-follow-up-extending-omniretrieva/code/
+   cd projects/PROJ-883-llmxive-follow-up-extending-omniretrieva
    python -m venv venv
    source venv/bin/activate
    pip install -r requirements.txt
    ```
 
-2. **Download Datasets**
-   Run the data preparation script to fetch verified datasets:
+2. **Verify Dependencies**:
    ```bash
-   python scripts/download_data.py
+   python -c "import pandas, scipy, statsmodels, networkx, rdflib; print('All dependencies OK')"
    ```
-   *This downloads MS MARCO and DBpedia subsets to `data/raw/`.*
 
-## Running the Experiment
+3. **Linting Configuration**:
+   Ensure `.ruff.toml` and `pyproject.toml` are present.
+   ```bash
+   ruff check code/
+   ```
 
-Execute the full pipeline (Generation -> Execution -> Analysis):
+## Running the Benchmark
+
+### 1. Data Preparation
+The system will automatically download and verify datasets from the verified URLs upon the first run.
 ```bash
-python main.py
+python code/data_loader.py --prepare
 ```
+*Output*: `data/raw/` populated with parquet and RDF files. Checksums recorded.
 
-**What this does:**
-1. Generates a set of synthetic queries (Text, Relational, Graph) with varying complexity.
-2. Simulates CPU throttling via `resource` accounting and I/O throttling via delay queues.
-3. Executes queries against simulated engines (Optimal vs. Mismatched routing).
-4. Runs Segmented Regression and ANOVA.
-5. Saves results to `data/results/` and updates `state/state.yaml`.
-
-## Expected Outputs
-
-- `data/results/raw_logs.jsonl`: Individual query metrics.
-- `data/results/analysis_summary.csv`: Aggregated statistics.
-- `data/results/figures/latency_interaction.png`: The key visualization.
-- `data/results/stats_report.txt`: ANOVA F-statistics, p-values, and knee points.
-- `state/state.yaml`: Artifact hashes for reproducibility.
-
-## Verification
-
-To verify the run completed successfully:
+### 2. Generate Queries & Ground Truth
+Generates synthetic queries with known complexity levels and computes ground truth plans.
 ```bash
-python scripts/verify_results.py
+python code/query_generator.py --levels 1 2 3 4 --count 500 --seed 42
+python code/ground_truth_engine.py --input data/processed/generation_log.json --output data/processed/generation_log.json
 ```
-*Checks for:*
-- Presence of all query records.
-- Segmented Regression p-value < 0.05 (if hypothesis holds).
-- Plot file existence.
-- `state/state.yaml` update.
+*Output*: `data/processed/generation_log.json` (with `ground_truth_plan` populated).
+
+### 3. Execute Benchmark
+Runs the queries against simulated engines with CPU throttling.
+```bash
+python code/benchmark_runner.py --throttle cgroups --timeout 60
+```
+*Note*: If `cgroups` fails (no root), it falls back to `time_only` and logs the mode.
+*Output*: `data/processed/execution_logs.csv`.
+
+### 4. Statistical Analysis
+Performs ANCOVA and sensitivity analysis.
+```bash
+python code/stats.py --input data/processed/execution_logs.csv
+```
+*Output*: `data/results/anova_results.json`, `data/results/sensitivity_analysis.json`.
+
+### 5. Visualization (Optional)
+Generates the interaction plot.
+```bash
+python code/visualize.py --input data/processed/execution_logs.csv --output data/results/interaction_plot.png
+```
 
 ## Troubleshooting
 
-- **Error: `resource` module not available**: Ensure you are running on Linux. macOS/Windows do not support `getrusage` in the same way.
-- **Error: Dataset download failed**: Check network connection. URLs are verified in `research.md`.
-- **Error: Timeout on all queries**: The CPU limit might be too strict. Check `config.py` for `CPU_TIME_LIMIT_SEC`.
-- **Error: State file missing**: Ensure `state/` directory exists.
+- **Error: "cgroups not available"**: The runner will log a warning and proceed with `time_only` mode. This is acceptable for relative latency comparisons but not absolute CPU constraints.
+- **Error: "Dataset missing"**: Ensure you have network access. The script uses `datasets.load_dataset` with the verified URLs.
+- **Error: "Complexity level non-integer"**: The generator enforces integer depth. If this occurs, check the `query_generator.py` logic.
+- **Error: "Depth insufficient"**: The run aborted because real data (Spider/DBpedia) did not support the required depth. Check the dataset source.
+
+## Reproducibility
+
+To reproduce the exact results:
+1. Set `SEED=42` in `code/config.py`.
+2. Use the same dataset versions (checksums in `state/...yaml`).
+3. Run the full pipeline in order.

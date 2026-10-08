@@ -1,0 +1,21 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistics Result Schema"
+description: "Schema for data/results/sensitivity_analysis.json. Validates the output of the sensitivity analysis (FR-007)."
+type: "array"
+items:
+  type: "object"
+  properties:
+    cutoff:
+      type: "integer"
+      description: "The complexity depth cutoff used."
+    spike_point:
+      type: "number"
+      description: "The identified latency spike point (x-value where slope change is maximized)."
+    slope_change:
+      type: "number"
+      description: "The calculated change in slope (slope_high - slope_low)."
+  required:
+    - "cutoff"
+    - "spike_point"
+    - "slope_change"
+additionalProperties: false

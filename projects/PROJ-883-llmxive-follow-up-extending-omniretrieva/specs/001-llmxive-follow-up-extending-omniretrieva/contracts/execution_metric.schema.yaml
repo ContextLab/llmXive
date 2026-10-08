@@ -29,12 +29,12 @@ properties:
     type: "string"
     description: "Description of the CPU throttling configuration applied."
 required:
-  - query_id
-  - latency_ms
-  - mismatch_flag
-  - delta_latency
-  - translation_error
-  - timeout_flag
-  - engine_version
-  - throttle_config
+  - "query_id"
+  - "latency_ms"
+  - "mismatch_flag"
+  - "delta_latency"
+  - "translation_error"
+  - "timeout_flag"
+  - "engine_version"
+  - "throttle_config"
 additionalProperties: false
