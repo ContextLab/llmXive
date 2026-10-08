@@ -1,3 +1,7 @@
-# Black configuration is primarily in pyproject.toml
-# This file serves as a marker for legacy tooling if present
-# No additional configuration needed here
+# Black Configuration for llmXive BMG Project
+# Implements formatting rules as per project standards
+
+line-length = 100
+target-version = ['py311']
+skip-string-normalization = false
+preview = true

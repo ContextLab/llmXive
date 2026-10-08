@@ -1,21 +1,23 @@
 [lint]
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
+  "E",  # pycodestyle errors
+  "W",  # pycodestyle warnings
+  "F",  # Pyflakes
+  "I",  # isort
+  "B",  # flake8-bugbear
+  "C4", # flake8-comprehensions
+  "UP", # pyupgrade
 ]
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults (common in ML pipelines)
+  "E501", # line too long (handled by black)
+  "B008", # do not perform function calls in argument defaults
 ]
-per-file-ignores = {}
+
+[lint.isort]
+known-first-party = ["data", "models", "viz", "utils"]
+force-to-top = ["os", "sys", "logging"]
 
 [format]
 quote-style = "double"
 indent-style = "space"
-skip-magic-trailing-comma = false
 line-ending = "auto"

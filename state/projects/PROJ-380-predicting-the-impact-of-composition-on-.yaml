@@ -6,7 +6,7 @@ failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-380-predicting-the-impact-of-composition-on-
-last_run_id: 2a246ab6-5655-46f9-b03d-b38fecc8de7a
+last_run_id: ded708bd-781a-4490-b774-51a6197b23bc
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-380-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on
 title: Predicting the Impact of Composition on the Shear Modulus of Bulk Metallic
   Glasses
-updated_at: '2026-10-04T08:30:18.156046Z'
+updated_at: '2026-10-08T01:51:44.339992Z'

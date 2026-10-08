@@ -73,13 +73,6 @@ T040:
   r: "No `artifacts/importance_report.json` file was presented or described, and no\
     \ content showing ranked descriptors and p\u2011values was provided. The required\
     \ artifact is missing, so the task is not satisfied."
-T041:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of an updated `README.md` is provided; the claim lacks the actual
-    file content showing the added usage instructions for `make all` and the synthetic
-    data fallback explanation. The required artifact is missing, so the task is not
-    verified as completed.
 T042:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
