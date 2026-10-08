@@ -1,60 +1,51 @@
 """
-Script to execute T050: Validate descriptors, model results, and analysis summary against schemas.
+Execution script for T050: Validation of processed artifacts against schemas.
+Runs the validators.py CLI to check descriptors.csv, model_results.json, and analysis_summary.json.
 """
 import os
 import sys
 import logging
-
 from code.logging_config import setup_logging
 from code.validators import validate_file
 
+# Setup logging
+logger = setup_logging(__name__)
+
 def main():
-    """Run validation for T050."""
-    setup_logging(level=logging.INFO)
-    logger = logging.getLogger(__name__)
-
-    # Define paths
-    base_dir = os.path.dirname(os.path.dirname(os.abspath(__file__)))
-    data_dir = os.path.join(base_dir, "data", "processed")
-    contracts_dir = os.path.join(base_dir, "contracts")
-
-    files_to_validate = [
-        ("descriptors.csv", "descriptor_schema.yaml"),
-        ("model_results.json", "model_results_schema.yaml"),
-        ("analysis_summary.json", "model_results_schema.yaml"), # Using model_results schema as placeholder for summary if no specific one exists, or adjust if specific schema exists
+    """Run validation for all key artifacts."""
+    # Define artifacts and their schemas
+    validations = [
+        ('data/processed/descriptors.csv', 'contracts/descriptor_schema.yaml'),
+        ('data/processed/model_results.json', 'contracts/model_results_schema.yaml'),
+        ('data/processed/analysis_summary.json', 'contracts/model_results_schema.yaml'), # Using model_results schema for analysis_summary as per task description logic
     ]
 
-    all_success = True
+    all_passed = True
 
-    for data_file, schema_file in files_to_validate:
-        data_path = os.path.join(data_dir, data_file)
-        schema_path = os.path.join(contracts_dir, schema_file)
+    for data_file, schema_file in validations:
+        if not os.path.exists(data_file):
+            logger.error(f"Artifact missing: {data_file}")
+            all_passed = False
+            continue
+
+        if not os.path.exists(schema_file):
+            logger.error(f"Schema missing: {schema_file}")
+            all_passed = False
+            continue
 
         logger.info(f"Validating {data_file} against {schema_file}...")
-
-        if not os.path.exists(data_path):
-            logger.error(f"Data file not found: {data_path}")
-            all_success = False
-            continue
-
-        if not os.path.exists(schema_path):
-            logger.error(f"Schema file not found: {schema_path}")
-            all_success = False
-            continue
-
-        success = validate_file(data_path, schema_path)
-        if not success:
-            logger.error(f"Validation failed for {data_file}")
-            all_success = False
+        if validate_file(data_file, schema_file):
+            logger.info(f"PASS: {data_file}")
         else:
-            logger.info(f"Validation passed for {data_file}")
+            logger.error(f"FAIL: {data_file}")
+            all_passed = False
 
-    if all_success:
+    if all_passed:
         logger.info("All validations passed.")
         sys.exit(0)
     else:
         logger.error("One or more validations failed.")
         sys.exit(1)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

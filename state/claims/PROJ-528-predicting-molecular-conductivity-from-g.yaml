@@ -2370,3 +2370,221 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-29T23:45:54Z'
+- artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/tasks.md
+  attempts: 1
+  canonical: 'Configuration constants: SEED=42, OUTLIER_SIGMA=3.0, VIF_THRESHOLD=10.0,
+    SENSITIVITY_THRESHOLDS=[2.5, 3.0, 3.5], CONFIDENCE_INTERVAL_TARGET=0.95, HUCKEL_ALPHA=0.0,
+    HUCKEL_SCALING=200.0'
+  claim_id: c_709a2e77
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T004 Setup configuration
+    module'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The configuration module defines constants: DATA_PATH, SEED=42, OUTLIER_SIGMA=3.0,
+    VIF_THRESHOLD=10.0, TARGET_VAR (default: ''conductivity''), RAW_DATA_PATH (default:
+    ''data/raw/smiles.csv''), SENSITIVITY_THRESHOLDS (default: [2.5, 3.0, 3.5]), CONFIDENCE_INTERVAL_TARGET
+    (default: 0.95), HUCKEL_ALPHA=0.0, HUCKEL_SCALING=200.0.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:37:33Z'
+- artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/tasks.md
+  attempts: 1
+  canonical: "H\xFCckel beta set to negative value"
+  claim_id: c_4e93f26b
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T004 Setup configuration
+    module'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/H%C3%BCckel_beta_set_to_negative_value
+  kind: entity_fact
+  raw_text: "H\xFCckel beta is set to a negative value consistent with standard parameterization\
+    \ conventions."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:37:53Z'
+- artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/tasks.md
+  attempts: 1
+  canonical: 'Proxy formula: log_conductivity_proxy = 0.5 * log(MW) + 0.3 * aromaticity_index
+    + 0.2 * conjugation_length'
+  claim_id: c_50120ec7
+  context: 'Phase 3: User Story 1 - T026 Target Variable Validation & Selection'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The proxy computation formula is log_conductivity_proxy = 0.5 * log(MW)
+    + 0.3 * aromaticity_index + 0.2 * conjugation_length.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:38:13Z'
+- artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/tasks.md
+  attempts: 1
+  canonical: 'Descriptor computation warning threshold: 5.0 seconds'
+  claim_id: c_edd85ce2
+  context: 'Phase 3: User Story 1 - T014d Implement Resonance Proxies (RDKit Only)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Runtime monitoring logs a warning if descriptor computation for a single
+    molecule exceeds a predefined time threshold of 5.0 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:38:33Z'
+- artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/tasks.md
+  attempts: 1
+  canonical: 'Random Forest hyperparameters: n_estimators=100, max_depth=None'
+  claim_id: c_9d7f9805
+  context: 'Phase 4: User Story 2 - T029 Train Random Forest and Gradient Boosting
+    regressors'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random Forest model uses n_estimators=100, max_depth=None, random_state=SEED.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:38:58Z'
+- artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/tasks.md
+  attempts: 1
+  canonical: 'Gradient Boosting hyperparameters: n_estimators=100, learning_rate=0.1'
+  claim_id: c_a480aa95
+  context: 'Phase 4: User Story 2 - T029 Train Random Forest and Gradient Boosting
+    regressors'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Gradient Boosting model uses n_estimators=100, learning_rate=0.1, random_state=SEED.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:39:17Z'
+- artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/tasks.md
+  attempts: 1
+  canonical: 'Cross-validation parameters: cv=5, scoring=''r'''
+  claim_id: c_c9ccc08d
+  context: 'Phase 4: User Story 2 - T030 Implement k-fold cross-validation and metric
+    recording'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cross-validation uses cv=5 and scoring='r'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:39:46Z'
+- artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/tasks.md
+  attempts: 1
+  canonical: 'Permutation importance parameters: n_repeats=10'
+  claim_id: c_1cd1bff7
+  context: 'Phase 5: User Story 3 - T040 Compute feature importance rankings'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation importance uses n_repeats=10 and random_state=SEED.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:40:06Z'
+- artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/tasks.md
+  attempts: 1
+  canonical: 'Plot parameters: ci=95, size 10x8 inches, DPI 300'
+  claim_id: c_8c2647d0
+  context: 'Phase 5: User Story 3 - T043 Generate scatter plots with regression lines'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Scatter plots use ci=95, Figure Size 10x8 inches, and DPI 300.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:40:25Z'
+- artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/tasks.md
+  attempts: 1
+  canonical: 'CI coverage target: 0.95'
+  claim_id: c_2e2b1adb
+  context: 'Phase 5: User Story 3 - T044 Verify CI Coverage'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The nominal coverage target for CI coverage verification is 0.95.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:40:45Z'
+- artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/tasks.md
+  attempts: 1
+  canonical: "Bond length estimates: Single 1.54 \xC5, Double 1.34 \xC5, Aromatic\
+    \ 1.39 \xC5, Triple 1.20 \xC5"
+  claim_id: c_b52ab2ab
+  context: 'Phase 6: Resonance & Bond-Order Augmentation - T062 Annotate Edges with
+    Bond Order and Length'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Estimated bond lengths are: Single=1.54 \xC5, Double=1.34 \xC5, Aromatic=1.39\
+    \ \xC5, Triple=1.20 \xC5."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:41:09Z'
+- artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/tasks.md
+  attempts: 1
+  canonical: 'Integration test duration limit: 6 hours'
+  claim_id: c_6e64e0b8
+  context: 'Phase 7: Polish & Cross-Cutting Concerns - T049-x Integration tests'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Integration test duration must not exceed 6 hours aggregate.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:41:25Z'
+- artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/tasks.md
+  attempts: 1
+  canonical: Reviewer linus-pauling-simulated recommended quantum-chemical parameter
+    augmentation
+  claim_id: c_3043431b
+  context: 'Phase 6: Resonance & Bond-Order Augmentation - Goal description'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Reviewer_linus-pauling-simulated_recommended_quantum-chemica
+  kind: entity_fact
+  raw_text: Reviewer 'linus-pauling-simulated' recommended augmenting descriptors
+    with quantum-chemical parameters.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:41:53Z'

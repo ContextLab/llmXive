@@ -1,16 +1,25 @@
 status: verified
 kind: pypi_package
 ref: datasets
-access_python: "import itertools\nfrom datasets import load_dataset\n\nds = load_dataset(\"\
-  sagawa/pubchem-10m-canonicalized\", split=\"train\", streaming=True)\n# Sample a\
-  \ manageable number of records\nsample = list(itertools.islice(ds, 5000))\nprint(f\"\
-  RECORDS={len(sample)}\")\nif sample:\n    fields = sample[0].keys()\n    print(\"\
-  FIELDS=\" + \",\".join(fields))"
-record_count: 5000
+access_python: 'import datasets, sys
+
+
+  ds = datasets.load_dataset("sagawa/pubchem-10m-canonicalized", split="train")
+
+  records = len(ds)
+
+  print(f"RECORDS={records}")
+
+  fields = ds.column_names
+
+  print("FIELDS=" + ",".join(fields))'
+record_count: 8999964
 sample_fields:
 - smiles
-field_coverage: 1.0
+field_coverage: 0.5
 required_fields:
+- cid
 - smiles
-intent: PubChem SMILES 10M canonicalized dataset download python package dataset
-cache_key: 5943ffa0e2881d5b59d8b5cae3980f5a030e3b2402709e3fe570b666e88a6d17
+intent: PubChem 10M canonicalized SMILES dataset Materials Project reference download
+  python package dataset
+cache_key: 97730282ce1c2bd550eddb44f48bbbb0837301ce87a871f2303aa126d80bc0ef

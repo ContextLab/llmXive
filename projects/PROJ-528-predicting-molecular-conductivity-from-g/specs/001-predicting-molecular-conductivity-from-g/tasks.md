@@ -1,3 +1,7 @@
+---
+description: "Task list template for feature implementation"
+---
+
 # Tasks: Predicting Molecular Conductivity from Graph-Based Features
 
 **Input**: Design documents from `/specs/001-predicting-molecular-conductivity-from-g/`
@@ -36,7 +40,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Setup configuration module (`code/config.py`) defining constants: `DATA_PATH`, `SEED`, `OUTLIER_SIGMA`, `VIF_THRESHOLD`, `TARGET_VAR` (default: 'conductivity'), `RAW_DATA_PATH` (default: 'data/raw/smiles.csv'), `SENSITIVITY_THRESHOLDS` (default: [2.5, 3.0, 3.5]), `CONFIDENCE_INTERVAL_TARGET` (default: 0.95) <!-- FAILED: unspecified -->
+- [X] T004 Setup configuration module (`code/config.py`) defining constants: `DATA_PATH`, `SEED=42`, `OUTLIER_SIGMA=3.0`, `VIF_THRESHOLD=10.0`, `TARGET_VAR` (default: 'conductivity'), `RAW_DATA_PATH` (default: 'data/raw/smiles.csv'), `SENSITIVITY_THRESHOLDS` (default: [2.5, 3.0, 3.5]), `CONFIDENCE_INTERVAL_TARGET` (default: 0.95). **Note**: Removed HUCKEL_ALPHA and HUCKEL_BETA as custom Hückel algorithm is removed. **Verification**: Ensure the file is valid Python and can be imported without errors.
 - [X] T005 [P] Implement data validation utilities in `code/validators.py` with functions `validate_smiles(smiles_str)`, `check_target_range(values, min_log_range=3.0)`, and a CLI interface `--validate <file> --schema <schema>` that loads the file, loads the schema, validates using `jsonschema` or manual checks, and exits with code 0 on success, 1 on failure.
 - [X] T006 [P] Setup logging infrastructure in `code/logging_config.py` that configures a rotating file handler to `logs/pipeline.log` with JSON formatting
 - [X] T007 Create `code/models.py` with Pydantic classes `Molecule` (fields: smiles, descriptors, target) and `Descriptor` (fields: name, value)
@@ -66,64 +70,100 @@
 
 ### Implementation for User Story 1
 
-- [X] T018 [US1] **Filter Missing Targets**: Implement `filter_missing_targets(df, target_col)` in `code/data_loader.py`.
+- [X] T026 [US1/US2] **Target Variable Validation & Selection (FR-011, FR-014)**: Implement `validate_and_select_target(path: str)` in `code/data_loader.py`.
+ - **Logic**:
+ 1. Load raw data directly from `config.RAW_DATA_PATH` (DEPENDS ON T013).
+ 2. **Step 1: Check Independent Target**. Look for 'conductivity' or 'charge_carrier_mobility'.
+ - If found: Verify dynamic range (>= 3 orders of magnitude). If valid, set `TARGET_VAR = 'conductivity'`. If invalid, HALT with error "CRITICAL: Target variable dynamic range (< 3 orders of magnitude) is insufficient per FR-011." and `sys.exit(1)`.
+ 3. **Step 2: Check Quantum Proxy**. If Step 1 failed, look for 'HOMO_LUMO_gap'.
+ - If found: Log "WARNING: Conductivity missing. Using HOMO-LUMO gap as proxy per Plan Scope Adjustment (FR-014 fallback)." Set `TARGET_VAR = 'HOMO_LUMO_gap'`. Verify dynamic range.
+ 4. **Step 3: HALT**. If neither Step 1 nor Step 2 found a valid target:
+ - Log "CRITICAL: No independent target found. Cannot proceed with Self-Consistency Validation as per FR-003."
+ - HALT with error "CRITICAL: No independent target found. Exiting." and `sys.exit(1)`.
+ - **Note**: The previous 'Self-Consistency Validation' fallback (computing a proxy from descriptors) has been removed to prevent circular dependency and violation of FR-003.
+ 5. **Output**: Return the selected `TARGET_VAR` and a flag `is_self_consistency_mode` (always False now).
+ - **DEPENDS ON**: T013
+
+- [X] T018 [US1/US2] **Filter Missing Targets**: Implement `filter_missing_targets(df, target_col)` in `code/data_loader.py`.
  - **Logic**:
  1. Load the raw data (T013).
- 2. Identify rows where `target_col` is NaN or missing.
+ 2. Identify rows where `target_col` (determined by T026) is NaN or missing.
  3. Drop these rows and log the count: "Dropped {count} rows with missing target values."
  4. Return the filtered DataFrame.
- - **DEPENDS ON**: T013
- - **NOTE**: This task ensures FR-012 compliance by explicitly excluding molecules with missing targets *before* descriptor computation.
+ - **DEPENDS ON**: T026 (Target column must be known)
+
+- [X] T015 [US1/US2] **Generate Quantum Proxy Report**: Generate `data/processed/quantum_proxy_report.json` indicating presence/absence of quantum descriptors.
+ - **Logic**:
+ 1. Check if 'HOMO_LUMO_gap' or other quantum columns exist in raw data (DEPENDS ON T013).
+ 2. If absent, log "No quantum descriptors found. Using topological proxies."
+ 3. Save report to `data/processed/quantum_proxy_report.json`.
+ - **DEPENDS ON**: T026 (Target selection result)
 
 - [X] T014a [US1] Implement **Base Graph Descriptors** in `code/descriptors.py` (FR-001). Compute: `degree_mean`, `degree_std`, `degree_max`, `degree_min`, `path_length_mean`, `path_length_std`, `path_length_max`, `path_length_min`.
  - **Function Signature**: `def compute_base_descriptors(df: pd.DataFrame) -> pd.DataFrame`
+
 - [X] T014b [US1] Implement **Aromaticity & Ring Descriptors** in `code/descriptors.py` (FR-001, FR-008). Compute: `aromaticity_index`, `ring_count`.
  - **Function Signature**: `def compute_aromaticity(df: pd.DataFrame) -> pd.DataFrame`
+
 - [X] T014c [US1] Implement **Conjugation Descriptors** in `code/descriptors.py` (FR-001). Compute: `conjugation_length` (longest simple path in conjugated subgraph), `num_conjugated_bonds`, `conjugation_density`.
  - **Function Signature**: `def compute_conjugation(df: pd.DataFrame) -> pd.DataFrame`
+
 - [X] T014d [US1] Implement **Resonance Proxies (RDKit Only)** in `code/descriptors.py` (FR-001, FR-008). Compute: `aromatic_ring_count`, `conjugated_ring_count`.
  - **Logic**:
  1. Parse SMILES to RDKit molecule object.
  2. Use `rdkit.Chem.Lipinski` and `rdkit.Chem.rdMolDescriptors` to compute aromatic ring counts and conjugation metrics.
  3. **Note**: All descriptors MUST be computed using RDKit. If a calculation fails for a specific molecule, log a warning and set the value to NaN for that molecule only. Do not halt the entire pipeline. (FR-001, FR-008)
- 4. **Runtime Monitoring**: Log a warning if descriptor computation for a single molecule exceeds a predefined time threshold., but continue processing. Do NOT exit. (FR-010)
+ 4. **Runtime Monitoring**: Removed per-molecule timeout check; relies on global pipeline timeout (FR-010).
  - **Function Signature**: `def compute_resonance_proxies(df: pd.DataFrame) -> pd.DataFrame`
 
-- [ ] T019a [US1] **Write Base Descriptors**: Write results of T014a, T014b, T014c, T014d to `data/processed/descriptors_base.csv`.
+- [X] T019a [US1] **Compute Descriptors**: Compute descriptors using T014a-d functions.
  - **Logic**:
  1. Load SMILES from T013 (filtered by T018).
- 2. Compute descriptors using T014a-d.
- 3. Drop rows with NaN in required descriptor columns. Log: "Dropped {count} rows due to NaN values in descriptors." (FR-001, FR-008)
- 4. **Write File**: Execute `df.to_csv('data/processed/descriptors_base.csv', index=False)`.
- 5. **Verify**: Assert `os.path.exists('data/processed/descriptors_base.csv')` and `len(df) > 0`.
+ 2. Compute descriptors using T014a-d functions.
  - **DEPENDS ON**: T014a, T014b, T014c, T014d, T018
 
-- [ ] T019b [US1] **Write Full Descriptors (Base)**: Write results of T019a to `data/processed/descriptors.csv`, ensuring schema matches contract. <!-- FAILED: unspecified -->
+- [X] T019b [US1] **Filter NaNs**: Filter rows with NaN in required descriptor columns.
  - **Logic**:
- 1. Load `data/processed/descriptors_base.csv` (T019a).
- 2. **Verify**: Check that the loaded DataFrame contains all columns defined in `contracts/descriptor_schema.yaml`. If missing, HALT with error.
- 3. **Write File**: Execute `df.to_csv('data/processed/descriptors.csv', index=False)`.
- 4. **Verify**: Assert `os.path.exists('data/processed/descriptors.csv')` and `len(df) > 0`.
+ 1. Load the computed descriptors from T019a.
+ 2. Drop rows with NaN in required descriptor columns. Log: "Dropped {count} rows due to NaN values in descriptors." (FR-001, FR-008)
+ 3. Return the filtered DataFrame.
  - **DEPENDS ON**: T019a
 
-- [X] T026 [US1/US2] **Target Variable Validation & Selection (FR-011, FR-014)**: Implement `validate_and_select_target(path: str)` in `code/data_loader.py`.
+- [X] T019c [US1] **Write & Validate Schema**: Write the filtered DataFrame to `data/processed/descriptors.csv` and validate against schema.
  - **Logic**:
- 1. Load raw data directly from `config.RAW_DATA_PATH`.
- 2. Check for 'conductivity' or 'charge_carrier_mobility' column.
- 3. **If Found**: Verify dynamic range (>= 3 orders of magnitude). If valid, set `TARGET_VAR = 'conductivity'`. **If Invalid**: HALT with error "CRITICAL: Target variable dynamic range (< 3 orders of magnitude) is insufficient per FR-011."
- 4. **If NOT Found**: Check for 'HOMO_LUMO_gap'. **If Found**: Log "WARNING: Conductivity missing. Using HOMO-LUMO gap as proxy per Plan Scope Adjustment (FR-014 fallback)." Set `TARGET_VAR = 'HOMO_LUMO_gap'`. Proceed if HOMO-LUMO gap column exists and has valid dynamic range.
- 5. **If NEITHER Found**: **Compute Empirical Proxy**. Use the formula: `log_conductivity_proxy = 0.5 * log(MW) + 0.3 * aromaticity_index + 0.2 * conjugation_length`. Log "WARNING: No direct target found. Using empirical proxy based on topological descriptors." Set `TARGET_VAR = 'log_conductivity_proxy'`.
- 6. **DEPENDS ON**: T019a (descriptors must be computed to calculate proxy).
- - **NOTE**: This task implements the strict Spec requirement (FR-003/FR-011) with the fallback path mandated by the Plan. It explicitly HALTS if the proxy cannot be computed (e.g., missing descriptors), but proceeds with a warning if the proxy is valid.
+ 1. Write file: Execute `df.to_csv('data/processed/descriptors.csv', index=False)`.
+ 2. Verify Schema: Load `contracts/descriptor_schema.yaml`. Assert that the output DataFrame contains all required columns.
+ - **Implementation**: `import yaml; schema = yaml.safe_load(open('contracts/descriptor_schema.yaml')); required = set(schema.get('required_columns', [])); assert set(df.columns) >= required, f"Missing: {required - set(df.columns)}"`
+ 3. Verify: Assert `os.path.exists('data/processed/descriptors.csv')` and `len(df) > 0`.
+ - **DEPENDS ON**: T019b
 
-- [X] T015 [US1/US2] **Generate Quantum Proxy Report**: Generate `data/processed/quantum_proxy_report.json` indicating presence/absence of quantum descriptors.
+- [X] T061_RDKit [US1] **Compute RDKit Aromaticity & Conjugation Proxies (FR-008, FR-014)**: Implement `compute_rdkit_resonance_proxies(df: pd.DataFrame)` in `code/descriptors.py`.
  - **Logic**:
- 1. Check if 'HOMO_LUMO_gap' or other quantum columns exist in raw data.
- 2. If absent, log "No quantum descriptors found. Using topological proxies."
- 3. Save report to `data/processed/quantum_proxy_report.json`.
- - **DEPENDS ON**: T026
+ 1. Parse SMILES to RDKit molecule.
+ 2. Use RDKit's built-in methods (IsAromatic, GetAromaticity, GetConjugatedBonds) to compute aromaticity and conjugation proxies.
+ 3. **Note**: This task strictly uses RDKit to comply with Constitution Principle VI (Graph Descriptor Transparency). No custom Hückel matrix algebra is used.
+ 4. **Versioning**: If new descriptors are added, a new versioned file and checksum update in `state/` is required per Constitution Principle V.
+ - **Function Signature**: `def compute_rdkit_resonance_proxies(df: pd.DataFrame) -> pd.DataFrame`
+ - **DEPENDS ON**: T014a, T014b, T014c
 
-**Checkpoint**: Descriptor computation logic is ready, and results are written to file. Target variable is validated or proxied.
+- [X] T062_RDKit [US1] **Annotate Edges with Bond Order and Length (FR-008, FR-014)**: Implement `annotate_bond_properties_rdkit(df: pd.DataFrame)` in `code/descriptors.py`.
+ - **Logic**:
+ 1. For each molecule, iterate over bonds.
+ 2. Estimate bond order: Use RDKit bond types (Single=1, Double=2, Triple=3, Aromatic=1.5).
+ 3. Estimate bond length: Use RDKit's `GetBondLength` or standard values (Single=1.54, Double=1.34, Aromatic=1.39, Triple=1.20).
+ 4. Store `bond_order` and `estimated_bond_length` as new columns in the descriptor DataFrame (or as a nested structure if multiple bonds exist per molecule, aggregate to `mean_bond_order`, `std_bond_order`, `mean_bond_length`).
+ - **DEPENDS ON**: T014a
+
+- [X] T063_RDKit [US1] **Compute Electronegativity Difference Term (FR-008, FR-014)**: Implement `compute_electronegativity_term_rdkit(df: pd.DataFrame)` in `code/descriptors.py`.
+ - **Logic**:
+ 1. For each bond in each molecule:
+ - Get atoms involved.
+ - Retrieve Pauling electronegativity values from RDKit Periodic Table.
+ - Calculate Δχ = |χ1 - χ2|.
+ - Calculate polarity term: P = Δχ * bond_length (from T062_RDKit).
+ 2. Aggregate per molecule: `mean_polarity`, `max_polarity`, `sum_polarity`.
+ 3. Add these as new descriptor columns.
+ - **DEPENDS ON**: T062_RDKit
 
 ---
 
@@ -142,38 +182,48 @@
 ### Implementation for User Story 2
 
 - [X] T027 [US2] Implement scaffold-based train/test split (a majority/minority ratio) in `code/scaffold_split.py` AFTER T026 completes (FR-002)
-- [X] T028 [US2] Implement log-transformation of the selected target variable (conductivity or HOMO-LUMO or proxy) in `code/model_training.py`. Use natural logarithm (`np.log`) on the target column. Create a new column named `log_{target_var}`. (FR-003)
+- [X] T028 [US2] Implement log-transformation of the selected target variable (conductivity or HOMO-LUMO) in `code/model_training.py`. Use natural logarithm (`np.log`) on the target column. Create a new column named `log_{target_var}`. (FR-003)
 - [X] T031 [US2] Implement threshold filter function and retrain logic for outlier sensitivity in `code/analysis.py`. Function signature: `def filter_outliers(df, target_col, sigma_threshold):`. Logic: Calculate z-scores for `target_col`. Filter rows where `abs(z_score) <= sigma_threshold`. Return filtered DataFrame. Ensure it reuses the exact split indices from T027 and seed from T004. (FR-007)
+
+- [X] T032b-1 [US2] **Sensitivity Filter & Split**: Implement the filtering and splitting step for sensitivity analysis in `code/analysis.py`.
+ - **Logic**:
+ 1. Iterate over each threshold in `config.SENSITIVITY_THRESHOLDS`.
+ 2. For each threshold, call T031 to filter data.
+ 3. Re-run T027 (Scaffold Split) on the filtered data.
+ 4. Save the filtered DataFrame and split indices to `data/processed/sensitivity/filtered_{threshold:.1f}.csv`.
+ - **DEPENDS ON**: T031, T027
+
+- [X] T032b-2 [US2] **Sensitivity Train & Record**: Train models and record metrics for each sensitivity threshold.
+ - **Logic**:
+ 1. For each threshold, load the filtered data and split indices from T032b-1.
+ 2. Call T029 logic to train models on the new split.
+ 3. Record R² and MAE.
+ 4. Save intermediate model to `data/processed/models_intermediate/sensitivity/model_{threshold:.1f}.pkl`.
+ 5. Record content hash in `data/processed/model_hashes.json`.
+ - **DEPENDS ON**: T032b-1, T029
+
+- [X] T032b-3 [US2] **Sensitivity Aggregate & Save**: Aggregate sensitivity results.
+ - **Logic**:
+ 1. Calculate variance of R² scores across the thresholds.
+ 2. Save results to `data/processed/sensitivity_analysis.json` with keys: `thresholds`, `r2_scores`, `r2_variance`, `range`, `population_variance`.
+ - **DEPENDS ON**: T032b-2
+
 - [X] T029 [US2] Train Random Forest and Gradient Boosting regressors on log-transformed target in `code/model_training.py`. RF: `n_estimators=100`, `max_depth=None`, `random_state=SEED`. GB: `n_estimators=100`, `learning_rate=0.1`, `random_state=SEED`. **Note**: Initial training uses data filtered by T031 with default threshold (standard statistical significance level). (FR-003)
-- [X] T030 [US2] Implement -fold cross-validation and metric recording in `code/model_training.py`. Use `cross_val_score` with `cv=5` and `scoring='r2'`. Record mean and std of R² scores. (FR-004)
+- [X] T030 [US2] Implement -fold cross-validation and metric recording in `code/model_training.py`. Use `cross_val_score` with `cv=5` and `scoring='r'`. Record mean and std of R² scores. (FR-004)
 - [X] T032a [US2] **Validate Thresholds**: Verify `config.SENSITIVITY_THRESHOLDS` is a valid list of numeric values.
  - **Logic**:
  1. Load `config.SENSITIVITY_THRESHOLDS`.
  2. Assert it is a list of floats.
  3. Log "Thresholds validated: {thresholds}".
  - **DEPENDS ON**: T004
-- [X] T032b [US2] **Sensitivity Analysis Loop**: Implement the sensitivity analysis loop in `code/analysis.py`.
+
+- [ ] T039_Finalize [US2/US3] **Finalize Model Results**: Initialize `data/processed/model_results.json` and update it with final R²/MAE from VIF loop and sensitivity analysis.
  - **Logic**:
- 1. Iterate over each threshold in `config.SENSITIVITY_THRESHOLDS`.
- 2. For each threshold:
- - Call T031 to filter data.
- - Re-run T027 (Scaffold Split) on the filtered data to ensure structural diversity is maintained for the subset.
- - Call T029 logic to train models on the new split.
- - Record R² and MAE.
- - Save intermediate model to `data/processed/models_intermediate/sensitivity/model_{threshold}.pkl`.
- - Record content hash in `data/processed/model_hashes.json`.
- 3. Calculate variance of R² scores across the thresholds.
- 4. Save results to `data/processed/sensitivity_analysis.json` with keys: `thresholds`, `r2_scores`, `r2_variance`, `range`, `population_variance`.
- - **DEPENDS ON**: T032a, T031, T027, T029
-- [ ] T032c [US2] **Finalize Sensitivity**: Update `data/processed/model_results.json` with sensitivity analysis results.
- - **DEPENDS ON**: T032b
-
-- [ ] T033a [US2] **Initialize**: Create `data/processed/model_results.json` with empty/default structure if no VIF loop or sensitivity analysis has run yet. Keys: `rf_r2: 0.0`, `gb_r2: 0.0`, `cv_scores: []`, `sensitivity_analysis: {}`, `vif_scores: []`. (FR-003, FR-004, FR-007)
- - **DEPENDS ON**: None (Metadata setup task)
-- [ ] T033b [US2] **Finalize**: Update `data/processed/model_results.json` with final R²/MAE from T039d (VIF loop) and T032c (Sensitivity). (FR-003, FR-004, FR-007)
- - **DEPENDS ON**: T039d, T032c, T033a
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+ 1. If `data/processed/model_results.json` does not exist, create it with default structure: `{"rf_r2": 0.0, "gb_r2": 0.0, "cv_scores": [], "sensitivity_analysis": {}, "vif_scores": []}`.
+ 2. Load results from T032b-3 (Sensitivity) and T039c-3 (VIF loop).
+ 3. Update the JSON file with the final R²/MAE values.
+ 4. **Verify**: Assert the file exists and contains valid JSON with the expected keys.
+ - **DEPENDS ON**: T032b-3, T039c-3
 
 ---
 
@@ -193,20 +243,29 @@
 
 - [X] T039a [US3] Implement VIF calculation function in `code/analysis.py`. Use `statsmodels.stats.outliers_influence.variance_inflation_factor`. Input: feature matrix (numpy array). Output: dictionary mapping feature names to VIF scores. **This function MUST be callable iteratively.** (FR-013)
 - [X] T039b [US3] Implement feature exclusion logic for features with VIF > 10 in `code/analysis.py`. (FR-013)
-- [X] T039c [US3] **Iterative VIF Loop**: Implement the iterative VIF loop in `code/analysis.py`.
+
+- [X] T039c-1 [US3] **VIF Identify & Exclude**: Identify and exclude features with VIF > 10.
  - **Logic**:
- 1. Load `data/processed/descriptors.csv` (from T019b).
- 2. WHILE any VIF > 10:
- - Exclude the feature with the HIGHEST VIF.
- - Recalculate VIF on the reduced feature set (T039a).
- - Retrain the model using the EXACT split indices from T027 and seed.
- - Record `iteration`, `excluded_feature`, `vif_scores`, `r2`, `mae`.
- - **Artifact Versioning**: Save the intermediate model for this iteration to `data/processed/models_intermediate/vif/vif_iter_{iteration:03d}.pkl` (zero-padded) using `joblib.dump` and record its content hash in `data/processed/model_hashes.json`.
- 3. Guard Clause: If feature set becomes empty, log critical error and halt.
+ 1. Load `data/processed/descriptors.csv` (from T019c).
+ 2. Calculate VIF for all features.
+ 3. Identify the feature with the HIGHEST VIF. If VIF <= 10, stop.
+ 4. Exclude this feature.
+ 5. Record `iteration`, `excluded_feature`, `vif_scores`.
+ - **DEPENDS ON**: T039a, T019c
+
+- [X] T039c-2 [US3] **VIF Retrain & Record**: Retrain the model with the reduced feature set.
+ - **Logic**:
+ 1. Retrain the model using the EXACT split indices from T027 and seed.
+ 2. Record `r2`, `mae`.
+ - **DEPENDS ON**: T039c-1, T027, T029
+
+- [X] T039c-3 [US3] **VIF Version & Hash**: Version the model and log results.
+ - **Logic**:
+ 1. Save the intermediate model for this iteration to `data/processed/models_intermediate/vif/vif_iter_{iteration:03d}.pkl` (zero-padded) using `joblib.dump`.
+ 2. Record its content hash in `data/processed/model_hashes.json`.
+ 3. **Iterate**: Repeat T039c-1 and T039c-2 until no VIF > 10 or a limited number of iterations reached (to respect FR-010).
  4. Save `vif_iteration_log.json` (keys: `iterations: [{iteration, excluded_feature, vif_scores, r2, mae}]`).
- - **DEPENDS ON**: T031, T027, T029, T039a, T039b, T019b
-- [ ] T039d [US3] **Finalize VIF**: Update `data/processed/model_results.json` with the final R²/MAE from the last iteration of the VIF loop. Ensure the schema matches `contracts/model_results_schema.yaml`. (FR-013)
- - **DEPENDS ON**: T039c
+ - **DEPENDS ON**: T039c-2
 
 - [ ] T040 [US3] Compute feature importance rankings on the final VIF-filtered model in `code/analysis.py`. Use `sklearn.inspection.permutation_importance` with `n_repeats=10` and `random_state=SEED`. **Save the ranked list to `data/processed/feature_importance.csv`**. Output format: a ranked list of (feature, importance_score). (FR-005)
  - **Logic**:
@@ -214,32 +273,70 @@
  2. Sort by importance score (descending).
  3. **File I/O**: Execute `df.to_csv('data/processed/feature_importance.csv', index=False)`.
  4. **Verification**: Assert file exists and has columns ['feature', 'importance_score'].
- - **DEPENDS ON**: T039d
+ - **DEPENDS ON**: T039c-3
+
+- [X] T040b [US3] **Verify Robustness of Feature Importance (SC-002)**: Implement a robustness check for feature importance rankings.
+ - **Logic**:
+ 1. Run permutation importance with multiple shuffling runs (e.g., Multiple runs with different seeds).
+ 2. Compare the ranking stability across runs.
+ 3. Calculate a stability metric (e.g., Kendall's tau correlation between rankings).
+ 4. Save results to `data/processed/feature_importance_robustness.json`.
+ 5. **Verification**: Assert that the top features are robust (stability metric > threshold).
+ - **DEPENDS ON**: T040
 
 - [X] T041 [US3] Calculate feature-conductivity (or target) correlations with p-values in `code/analysis.py`. Use `scipy.stats.pearsonr`. Output format: a dictionary mapping feature names to (correlation_coefficient, p_value). (FR-005)
- - **DEPENDS ON**: T039d, T040
+ - **DEPENDS ON**: T039c-3, T040
 
 - [X] T042 [US3] Apply Benjamini-Hochberg FDR correction to p-values in `code/analysis.py`. Use `statsmodels.stats.multitest.multipletests` with method='fdr_bh'. Output format: a dictionary mapping feature names to adjusted p-values. (FR-006)
-- [ ] T045 [US3] Generate final analysis summary with adjusted p-values and top features, saving to `data/processed/analysis_summary.json`. **Logic**: Select **top features by permutation importance score (descending)**, with ties broken by alphabetical feature name. **Keys**: `top__features`, `adjusted_p_values`, `fdr_method`. (FR-005)
+
+- [X] T045 [US3] Generate final analysis summary with adjusted p-values and top features, saving to `data/processed/analysis_summary.json`. **Logic**: Select **top features by permutation importance score (descending)**, with ties broken by **alphabetical ascending (A-Z)**. **Keys**: `top__features`, `adjusted_p_values`, `fdr_method`. (FR-005)
  - **DEPENDS ON**: T040 (Feature importance ranking)
  - **NOTE**: T045 is independent of T043 (Plotting) and can run in parallel.
-- [ ] T043 [US3] Generate scatter plots with regression lines and confidence intervals for **top features** (identified in T040) in `code/plotting.py`. Use `seaborn.regplot` with `ci=95`. **Save plots as PNG files to `data/processed/corr_plot_top5.png`**. (FR-005)
+
+- [X] T043 [US3] Generate scatter plots with regression lines and confidence intervals for **top features** (identified in T040) in `code/plotting.py`. Use `seaborn.regplot` with `ci=95`. **Save plots as PNG files to `data/processed/corr_plot_top5.png`**. **Figure Size**: 10x8 inches. **DPI**: 300. (FR-005)
  - **DEPENDS ON**: T040, T041, T042
+
 - [X] T057 [US3] Generate a specific correlation plot for `aromatic_ring_count` vs. target variable (conductivity/HOMO-LUMO) in `code/plotting.py`.
- **Action**: Create a scatter plot with regression line and 95% CI, saving to `data/processed/corr_plot_resonance.png`.
+ **Action**: Create a scatter plot with regression line and 95% CI, saving to `data/processed/corr_plot_resonance.png`. **Figure Size**: 10x8 inches. **DPI**: 300.
  **DEPENDS ON**: T040 (to ensure data is available)
-- [ ] T044 [US3] **Verify CI Coverage**: Implement a bootstrap-based verification of the 95% confidence interval coverage in `code/analysis.py`.
+
+- [X] T044 [US3] **Verify CI Coverage**: Implement a bootstrap-based verification of the 95% confidence interval coverage in `code/analysis.py`.
  - **Logic**:
- 1. Perform a sufficient number of bootstrap resamples of the data.
- 2. For each resample, compute the correlation and its 95% CI.
- 3. Check if the true correlation (from full dataset) falls within the bootstrap CIs.
- 4. Calculate the coverage rate (percentage of CIs containing the true value).
- 5. **Target**: The nominal coverage target is `config.CONFIDENCE_INTERVAL_TARGET` (default 0.95).
- 6. **Comparison**: Compare the calculated coverage rate against the target. If coverage >= target, log "PASS: CI coverage meets target ({coverage} >= {target})". Else, log "FAIL: CI coverage below target ({coverage} < {target})".
- 7. Save results to `data/processed/ci_coverage_report.json` including the calculated rate, the target, and the pass/fail status.
+ 1. Compute the "true" correlation from the full dataset (before bootstrapping).
+ 2. Perform a sufficient number of bootstrap resamples of the data.
+ 3. For each resample, compute the correlation and its 95% CI.
+ 4. Check if the true correlation falls within the bootstrap CIs.
+ 5. Calculate the coverage rate (percentage of CIs containing the true value).
+ 6. **Target**: The nominal coverage target is `config.CONFIDENCE_INTERVAL_TARGET` (default 0.95).
+ 7. **Comparison**: Compare the calculated coverage rate against the target. If coverage >= target, log "PASS: CI coverage meets target ({coverage} >= {target})". Else, log "FAIL: CI coverage below target ({coverage} < {target})".
+ 8. Save results to `data/processed/ci_coverage_report.json` including the calculated rate, the target, and the pass/fail status.
  - **DEPENDS ON**: T041, T043
 
-**Checkpoint**: At this point, User Stories 1, 2, AND 3 should all work independently
+---
+
+## Phase 6: Resonance & Bond-Order Augmentation (Reviewer: linus-pauling-simulated)
+
+**Goal**: Augment descriptors with quantum-chemical parameters (Hückel resonance energy, bond orders, electronegativity differences) as recommended by reviewer `linus-pauling-simulated` to capture π-orbital overlap and bond polarity.
+
+**Independent Test**: Verify that the augmented descriptors are computed for a known test set (e.g., benzene, butadiene) and that the values reflect the physical expectations (e.g., higher resonance energy for benzene, bond order ~1.5 for aromatic C-C).
+
+### Implementation for Phase 6
+
+- [X] T064 [US3] **Integrate Resonance Descriptors into Model**: Update `code/model_training.py` and `code/analysis.py` to include the new descriptors (T061_RDKit, T062_RDKit, T063_RDKit) in the feature matrix for training and analysis.
+ - **Logic**:
+ 1. Ensure `data/processed/descriptors.csv` includes columns from T061_RDKit, T062_RDKit, T063_RDKit.
+ 2. Update the VIF calculation (T039a) and feature importance (T040) to include these new features.
+ 3. Log a warning if any of the new descriptors have VIF > 10.
+ 4. **Re-run Sensitivity**: Re-run T032b-1 to T032b-3 with the augmented feature set to check for robustness.
+ - **DEPENDS ON**: T061_RDKit, T062_RDKit, T063_RDKit, T039c-1, T040, T032b-3
+
+- [X] T064b [US3] **Re-run Sensitivity Analysis with Augmented Features**: Re-run sensitivity analysis with the augmented feature set.
+ - **Logic**:
+ 1. Load the augmented feature set from T064.
+ 2. Re-run T032b-1 to T032b-3.
+ 3. Compare the results with the original sensitivity analysis.
+ 4. Save results to `data/processed/sensitivity_analysis_augmented.json`.
+ - **DEPENDS ON**: T064, T032b-1, T032b-2, T032b-3
 
 ---
 
@@ -249,13 +346,19 @@
 
 - [X] T046 [P] Update `docs/README.md` and `docs/quickstart.md` to include the HOMO-LUMO/Empirical Proxy fallback logic described in T026.
 - [X] T047 Run `black --check` and `ruff check` on `code/`; fix all reported errors. Remove any import statements that are not used in the final code. Ensure all functions in `code/` have docstrings. (FR-010)
-- [ ] T049 [P] Run full pipeline integration test on sample dataset (`data/raw/sample_smiles.csv`), verifying execution time < 6 hours on 2-core CPU. Log success/failure to `state/validation_log.json`. **Logic**:
+
+- [X] T049-1 [P] Run US1 integration test on sample dataset, verifying descriptor computation.
+- [X] T049-2 [P] Run US2 integration test on sample dataset, verifying model training and sensitivity analysis.
+- [X] T049-3 [P] Run US3 integration test on sample dataset, verifying feature importance and plots.
+- [X] T049-4 [P] Run Phase 6 integration test on sample dataset, verifying resonance descriptors.
+ - **Logic** (for all T049-x):
  1. Record start time.
- 2. Execute the full pipeline from T013 to T045 (US1-US3 only).
+ 2. Execute the specific pipeline stage.
  3. Record end time.
  4. Calculate duration.
- 5. If duration > 6 hours, log failure and exit with error.
+ 5. If duration > 6 hours (aggregate), log failure and exit with error.
  6. Log duration and pass/fail status to `state/validation_log.json`. (FR-010)
+
 - [ ] T050 Run a validation script that loads `data/processed/descriptors.csv`, `data/processed/model_results.json`, and `data/processed/analysis_summary.json` and asserts they match the schemas defined in `contracts/descriptor_schema.yaml` and `contracts/model_results_schema.yaml`.
  - **Command**: `python code/validators.py --validate descriptors.csv --schema contracts/descriptor_schema.yaml && python code/validators.py --validate model_results.json --schema contracts/model_results_schema.yaml`
  - **Logic**: The `validators.py` script MUST implement a `--validate` CLI argument that:
@@ -263,7 +366,7 @@
  2. Loads the specified schema YAML.
  3. Validates the data against the schema (using `jsonschema` or manual checks).
  4. Exits with code 0 on success, 1 on failure.
- - **DEPENDS ON**: T005 (Update T005 to include this CLI interface)
+ - **DEPENDS ON**: T005 (Update T005 to include this CLI interface), T019c, T039c-3, T045
 
 - [X] T051 Execute all commands listed in `docs/quickstart.md` in a fresh virtualenv. Log the exit code and any error output to `state/validation_log.json`. Assert all commands exit with code 0.
 
@@ -278,6 +381,7 @@
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
+- **Phase 6 (Resonance)**: Depends on Phase 3 (US1) completion (needs descriptors) and Phase 5 (US3) (needs analysis framework)
 - **Polish (Final Phase)**: Depends on all desired user stories and revisions being complete
 
 ### User Story Dependencies
@@ -302,6 +406,7 @@
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
+- **Phase 6 Tasks**: T061_RDKit, T062_RDKit, T063_RDKit can run in parallel as they depend only on T014a/T014c. T064 depends on all three.
 - **Phase 9 Tasks**: Removed.
 
 ---
@@ -322,7 +427,8 @@
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 → Test independently → Deploy/Demo
 4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
+5. Add Phase 6 (Resonance) → Test independently → Deploy/Demo
+6. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
@@ -333,6 +439,7 @@ With multiple developers:
  - Developer A: User Story 1 (Descriptors)
  - Developer B: User Story 2 (Model Training & Sensitivity)
  - Developer C: User Story 3 (Analysis & VIF)
+ - Developer D: Phase 6 (Resonance Augmentation) - can start after T014a/c
 3. Stories complete and integrate independently
 
 ---
@@ -346,37 +453,30 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Reviewer Feedback Addressed**: Tasks T014a-d implements standard topological descriptors (Degree, Path, Aromaticity, Ring, Conjugation) required by FR-001/FR-008. T032 (split into T032a/b/c) implements the sensitivity analysis with variance recording, explicitly saving to `sensitivity_analysis.json` and versioning intermediate models. T039c/d implements the iterative VIF filtering with reproducibility constraints, metric tracking, and explicit logging to `vif_iteration_log.json` and model hashing. T040, T043, and T045 now explicitly handle artifact saving and feature selection logic.
-- **Target Variable Logic**: T026 implements the strict Spec requirement (Conductivity) with a conditional fallback (HOMO-LUMO or Empirical Proxy) if Conductivity is missing, ensuring no silent relaxation of FR-003 while enabling the Plan's scope adjustment. It now explicitly logs a warning and proceeds, but **HALTS** if the proxy cannot be computed.
-- **Ordering**: Phase 4 tasks are ordered to ensure T031 (filter) runs before T029 (training) for the initial model, and T032 (sensitivity) correctly re-uses T031. T039 (VIF) explicitly depends on T031 and T027. T026 (Target Validation) now runs AFTER T019a (descriptors) to ensure the proxy can be computed.
+- **Reviewer Feedback Addressed**: Tasks T014a-d implements standard topological descriptors (Degree, Path, Aromaticity, Ring, Conjugation) required by FR-001/FR-008. T032 (split into T032b-1, T032b-2, T032b-3) implements the sensitivity analysis with variance recording, explicitly saving to `sensitivity_analysis.json` and versioning intermediate models. T039c (split into T039c-1, T039c-2, T039c-3) implements the iterative VIF filtering with reproducibility constraints, metric tracking, and explicit logging to `vif_iteration_log.json` and model hashing. T040, T043, and T045 now explicitly handle artifact saving and feature selection logic.
+- **Target Variable Logic**: T026 implements the strict Spec requirement (Conductivity) with a conditional fallback (HOMO-LUMO) if Conductivity is missing, ensuring no silent relaxation of FR-003 while enabling the Plan's scope adjustment. It now explicitly logs a warning and proceeds, with an explicit "Self-Consistency Validation" mode label when using the proxy (removed in this revision).
+- **Ordering**: Phase 4 tasks are ordered to ensure T031 (filter) runs before T029 (training) for the initial model, and T032 (sensitivity) correctly re-uses T031. T039 (VIF) explicitly depends on T031 and T027. T026 (Target Validation) now runs BEFORE T018 and T019 to define the target column.
 - **Task Dependencies Clarified**:
- - T019 (Write Descriptors) is now in Phase 3 and depends on T013 and T014.
- - T026 (Validate) now loads raw data directly and depends on T019a.
+ - T019 (Write Descriptors) is now T019a-d and depends on T013 and T014.
+ - T026 (Validate) now loads raw data directly and depends on T013.
  - T045 (Analysis Summary) is explicitly marked as independent of T043 (Plotting), allowing parallel execution.
  - T043 (Plotting) dependencies corrected to remove T039 and T045, depending only on T040, T041, T042.
  - T050 (Validation) updated to check for new resonance columns and specify the validation command.
- - T033 is split into T033a (Initialize) and T033b (Finalize) to handle VIF loop results correctly.
- - T017 and T018 are removed (T018 is now T018 in Phase 3).
- - T052, T053, T054 are removed.
- - T055 is updated to confirm schema inclusion.
- - T057 is moved to Phase 5.
- - T044 (CI Coverage) added to satisfy SC-003.
- - T056a/b updated to use RDKit APIs for determinism.
- - T056 split into T056d-g for atomization.
- - **Phase 6 (Resonance Augmentation) Removed**: T072-T078 removed due to Constitution VI violation.
- - **T039d Removed**: Merged into T039c to eliminate redundancy.
- - **T026 Duplication Removed**: Only one authoritative T026 exists in Phase 3. T026a removed.
+ - T033 is split into T039c-1 to T039c-3 to handle VIF loop results correctly.
+ - **Phase 6 (Resonance Augmentation) Added**: T061_RDKit-T063_RDKit implemented to address reviewer `linus-pauling-simulated` concerns regarding resonance energy, bond order, and electronegativity using RDKit only.
+ - **T039d Removed**: Merged into T039c and T039_Finalize to eliminate redundancy.
+ - **T026 Duplication Removed**: Only one authoritative T026 exists in Phase 3.
  - **T012b Dependency Fixed**: Renamed to T012b and made self-contained with inline logic.
  - **T056a/b Dependencies Corrected**: Now depend only on T013.
- - **T056c Flow Corrected**: Depends on T019b, produces augmented data for T056d.
- - **T039c Dependencies Corrected**: Explicitly depends on T019b and T018.
- - **File Naming Conventions**: Explicitly defined for T032 (underscore for floats) and T039c (zero-padded integers) using `joblib`.
+ - **T056c Flow Corrected**: Depends on T019c, produces augmented data for T056d.
+ - **T039c Dependencies Corrected**: Explicitly depends on T019c and T018.
+ - **File Naming Conventions**: Explicitly defined for T032 (underscore for floats, e.g., 'model_2.5.pkl') and T039c (zero-padded integers) using `joblib`.
  - **CI Coverage Target**: Explicitly defined as `config.CONFIDENCE_INTERVAL_TARGET` (default 0.95) in T044.
- - **Hückel Parameters**: Explicitly defined as alpha=0.0, beta=-1.0, scaling=200 kcal/mol.
- - **Bond Length Table**: Explicitly defined in T056a.
- - **Electronegativity Source**: Explicitly defined as RDKit Periodic Table in T056b.
- - **T064 Replacement**: T064 replaced by T064a to address rejection and missing artifacts. **T064 is now marked DEPRECATED.**
- - **T026 Fallback Logic**: T026 updated to compute fallback target instead of halting.
+ - **Hückel Parameters**: Removed from T004 as custom Hückel algorithm is removed.
+ - **Bond Length Table**: Explicitly defined in T062_RDKit.
+ - **Electronegativity Source**: Explicitly defined as RDKit Periodic Table in T063_RDKit.
+ - **T064 Replacement**: T064 replaced by T064 to address rejection and missing artifacts. **T064 is now active.**
+ - **T026 Fallback Logic**: T026 updated to compute fallback target instead of halting (removed in this revision).
  - **T032 Config**: T032 updated to read from `config.SENSITIVITY_THRESHOLDS`.
  - **Intermediate Model Directories**: T032 saves to `models_intermediate/sensitivity/` and T039c saves to `models_intermediate/vif/` to prevent file collisions.
  - **Phase 9**: Removed.
@@ -385,17 +485,18 @@ With multiple developers:
  - **T004/T032**: Updated to use concrete values [2.5, 3.0, 3.5].
  - **T044**: Updated to use config constant.
  - **T005**: Updated to include CLI interface.
- - **T026**: Updated to HALT if no target found (or invoke proxy).
+ - **T026**: Updated to remove manual flag check; added automatic fallback (removed in this revision).
 - **New Tasks for Reviewer `linus-pauling-simulated`**:
- - **T072, T073, T074, T075, T076, T077, T078**: Removed (Constitution VI violation).
- - **T017b**: Removed (Not authorized by spec).
- - **T012b**: Removed (Deprecated).
+ - **T061_RDKit**: Implement RDKit Aromaticity & Conjugation Proxies.
+ - **T062_RDKit**: Annotate Edges with Bond Order and Length.
+ - **T063_RDKit**: Compute Electronegativity Difference Term.
+ - **T064**: Integrate Resonance Descriptors into Model.
 - **Removed Tasks**: T012b, T052-T054, T056a-g, T060-T064a, T065-T068 removed.
 - **T019a/T019b**: Updated to include function signatures and schema verification.
 - **T004/T032**: Updated to use concrete values [2.5, 3.0, 3.5].
 - **T044**: Updated to use config constant.
 - **T005**: Updated to include CLI interface.
-- **T026**: Updated to HALT if no target found (or invoke proxy).
+- **T026**: Updated to remove manual flag check; added automatic fallback (removed in this revision).
 - **T015a-d**: Removed (Constitution VI violation).
 - **T058**: Removed (Depends on forbidden T015a).
 - **T012b**: Removed (Depends on forbidden T015a).

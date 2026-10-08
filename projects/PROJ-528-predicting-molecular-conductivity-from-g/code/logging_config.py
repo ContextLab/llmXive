@@ -2,15 +2,23 @@
 Logging Configuration (T006)
 
 Configures a rotating file handler with JSON formatting.
+Fixes the ValueError: Unknown level by ensuring the input `level` is a valid
+logging integer constant (e.g., logging.INFO, logging.DEBUG), not a string
+logger name.
 """
 
 import logging
 import os
 import json
 from logging.handlers import RotatingFileHandler
-from typing import Any, Dict
+from typing import Any, Dict, Union
 
-from code.config import LOG_FILE
+# Ensure the logs directory exists
+LOG_DIR = "logs"
+LOG_FILE = os.path.join(LOG_DIR, "pipeline.log")
+
+if not os.path.exists(LOG_DIR):
+    os.makedirs(LOG_DIR)
 
 class JsonFormatter(logging.Formatter):
     """Custom JSON formatter for log records."""
@@ -28,15 +36,40 @@ class JsonFormatter(logging.Formatter):
             log_record['exception'] = self.formatException(record.exc_info)
         return json.dumps(log_record)
 
-def setup_logging(level: int = logging.INFO) -> logging.Logger:
+def setup_logging(name: str, level: Union[int, str] = logging.INFO) -> logging.Logger:
     """
-    Setup logging infrastructure.
-    Returns the root logger.
+    Setup logging infrastructure for a specific module.
+    
+    Args:
+        name: The name of the logger (usually __name__).
+        level: Logging level (int constant like logging.INFO or string like 'INFO').
+               Defaults to logging.INFO.
+    
+    Returns:
+        A configured logger instance.
+    
+    Raises:
+        ValueError: If the provided level string is invalid.
     """
-    logger = logging.getLogger()
+    # Convert string level to int if necessary, but strictly validate
+    if isinstance(level, str):
+        level = getattr(logging, level.upper(), None)
+        if level is None:
+            raise ValueError(f"Unknown level: {level}")
+    
+    # Ensure we have a valid integer level
+    if not isinstance(level, int):
+        level = logging.INFO
+
+    logger = logging.getLogger(name)
+    
+    # Only configure if not already configured to avoid duplicates in tests
+    if logger.handlers:
+        return logger
+
     logger.setLevel(level)
 
-    # Remove existing handlers to avoid duplicates
+    # Remove existing handlers to avoid duplicates if called multiple times
     logger.handlers.clear()
 
     # File handler with rotation
@@ -58,5 +91,12 @@ def setup_logging(level: int = logging.INFO) -> logging.Logger:
 
     return logger
 
-# Initialize logging on module import
-setup_logging()
+# Initialize root logging on module import if needed, 
+# but prefer explicit setup_logging(__name__) calls in modules.
+# We provide a helper to setup the root logger for general usage.
+def setup_root_logging(level: Union[int, str] = logging.INFO) -> logging.Logger:
+    """Setup the root logger."""
+    return setup_logging("root", level)
+
+# Initialize root logger immediately to satisfy any global imports
+setup_root_logging()
