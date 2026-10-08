@@ -4,271 +4,323 @@ import json
 import csv
 import logging
 import time
+import argparse
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional
 
-# Import existing utilities from the project API surface
-from utils.logging_utils import configure_logging, log_experiment_metadata
-from utils.graph_utils import is_dag, longest_path, branching_factor, get_all_simple_paths_from_source_to_target
-from execution_metrics import load_execution_log, load_puzzles_metadata, calculate_divergence_metrics, write_execution_log_with_metrics
+import torch
+from transformers import AutoModelForMaskedLM, AutoTokenizer
+from dotenv import load_dotenv
+
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from utils.logging_utils import configure_logging
+from utils.graph_utils import is_dag, nesting_depth, branching_factor, longest_path
+
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-# Hard turn limit constant as per task requirement
-HARD_TURN_LIMIT = 50
-
 class ReflectiveMaskingExecutor:
     """
-    Executes the Reflective Masking (RM) loop on logical puzzles.
-    Implements hard turn limit enforcement (T025) and marks runs as "failure" (censored) if exceeded.
+    Executes the Reflective Masking loop on a CPU-feasible baseline.
+    Loads a pre-trained Mask Diffusion Model (or equivalent MDM) and
+    performs token-level masking, prediction, and unmasking to solve logical puzzles.
     """
 
-    def __init__(self, model_path: Optional[str] = None, device: str = "cpu", seed: int = 42):
+    def __init__(self, model_path: str, device: str = "cpu", max_turns: int = 50):
         """
-        Initialize the executor.
+        Initialize the executor with the model and tokenizer.
 
         Args:
-            model_path: Path to the pre-trained Mask Diffusion Model.
-            device: Device to run inference on ("cpu" or "cuda").
-            seed: Random seed for reproducibility.
+            model_path: HuggingFace repo ID or local path to the model.
+            device: Device to run inference on ('cpu' or 'cuda').
+            max_turns: Maximum number of reflective turns allowed per instance.
         """
+        self.device = torch.device(device)
+        self.max_turns = max_turns
         self.model_path = model_path
-        self.device = device
-        self.seed = seed
-        self.turn_limit = HARD_TURN_LIMIT
-        logger.info(f"ReflectiveMaskingExecutor initialized with turn limit: {self.turn_limit}")
 
-    def _simulate_model_step(self, current_state: Dict[str, Any], turn: int) -> Tuple[Dict[str, Any], bool]:
+        logger.info(f"Loading model from {model_path} on {device}...")
+        try:
+            self.tokenizer = AutoTokenizer.from_pretrained(model_path)
+            self.model = AutoModelForMaskedLM.from_pretrained(model_path)
+            self.model.to(self.device)
+            self.model.eval()
+            logger.info("Model loaded successfully.")
+        except Exception as e:
+            logger.error(f"Failed to load model: {e}")
+            raise
+
+    def _mask_tokens(self, input_ids: torch.Tensor, mask_indices: List[int]) -> torch.Tensor:
         """
-        Simulate one step of the Reflective Masking loop.
-        
-        In a real implementation, this would:
-        1. Mask the current state based on the model's attention.
-        2. Predict the next logical step.
-        3. Unmask and update the state.
-        4. Check for convergence.
-        
-        For this implementation, we simulate the logic using the graph structure
-        to ensure deterministic and verifiable behavior for testing.
+        Apply masking to specific token indices.
 
         Args:
-            current_state: The current state of the puzzle solving process.
-            turn: The current turn number.
+            input_ids: Tensor of token IDs.
+            mask_indices: List of indices to mask.
 
         Returns:
-            Tuple of (updated_state, converged)
+            Tensor with masked tokens replaced by mask token ID.
         """
-        # Simulate progress: In a real scenario, the model might get stuck or make errors.
-        # Here we simulate a scenario where the model converges based on graph properties.
-        # If the graph is too deep or complex, it might fail to converge within the limit.
+        masked_ids = input_ids.clone()
+        mask_token_id = self.tokenizer.mask_token_id
+        if mask_token_id is None:
+            raise ValueError("Tokenizer does not have a mask token.")
         
-        graph_data = current_state.get("graph_structure")
-        if not graph_data:
-            return current_state, False
+        for idx in mask_indices:
+            if 0 <= idx < masked_ids.shape[1]:
+                masked_ids[0, idx] = mask_token_id
+        return masked_ids
 
-        # Reconstruct graph for simulation
-        import networkx as nx
-        G = nx.DiGraph()
-        G.add_nodes_from(graph_data.get("nodes", []))
-        G.add_edges_from(graph_data.get("edges", []))
-
-        if not is_dag(G):
-            logger.warning("Detected non-DAG in state, cannot converge.")
-            return current_state, False
-
-        # Simulate convergence:
-        # If the current path length is close to the longest path, we consider it converged.
-        # This is a simplified logic to demonstrate the turn limit mechanism.
-        current_path = current_state.get("current_path", [])
-        longest = longest_path(G)
-        
-        # Simulate a "failure" if the graph is too complex relative to the turn limit
-        # This ensures we generate some "failure" cases for the censored data analysis
-        nesting = len(longest)
-        branch = branching_factor(G)
-        
-        # Heuristic: If depth > 5 and branching > 3, it's likely to exceed the limit in simulation
-        # In a real run, this would depend on the actual model performance
-        if nesting > 5 and branch > 3 and turn > 10:
-            # Simulate a stall that never converges
-            return current_state, False
-
-        # Normal progression: advance towards convergence
-        # In a real system, this would be the model's prediction
-        if len(current_path) >= len(longest) * 0.9:
-            return current_state, True
-        
-        # Advance path by one node for simulation
-        # (In reality, the model predicts the next node)
-        if current_path and G.has_edge(current_path[-1], longest[len(current_path)]):
-            current_path.append(longest[len(current_path)])
-        elif current_path and G.has_edge(current_path[-1], longest[0]):
-             current_path.append(longest[0])
-        else:
-             # Try to extend from source if possible
-             if G.has_edge("source", longest[1] if len(longest) > 1 else "target"):
-                 current_path.append(longest[1] if len(longest) > 1 else "target")
-             else:
-                 return current_state, False
-
-        current_state["current_path"] = current_path
-        return current_state, len(current_path) == len(longest)
-
-    def execute_single_puzzle(self, puzzle: Dict[str, Any]) -> Dict[str, Any]:
+    def _predict_tokens(self, input_ids: torch.Tensor, mask_indices: List[int]) -> List[int]:
         """
-        Execute the RM loop on a single puzzle instance.
-        
-        Implements the hard turn limit (T025). If the loop exceeds HARD_TURN_LIMIT
-        without convergence, the run is marked as "failure" (censored data).
+        Predict tokens at masked positions.
 
         Args:
-            puzzle: A dictionary containing the puzzle data and metadata.
+            input_ids: Tensor of token IDs (with mask tokens).
+            mask_indices: List of indices that are masked.
 
         Returns:
-            A dictionary with execution results:
-            - instance_id
-            - turns_to_converge (or -1 if failure)
-            - convergence_status ("converged" or "failure")
-            - final_accuracy
-            - path_coverage
-            - divergence_from_ground_truth
+            List of predicted token IDs for the masked positions.
         """
-        instance_id = puzzle.get("instance_id", "unknown")
-        logger.info(f"Starting execution for instance {instance_id}")
+        with torch.no_grad():
+            outputs = self.model(input_ids)
+            logits = outputs.logits
 
-        # Initialize state
-        state = {
-            "graph_structure": puzzle.get("graph_structure"),
-            "current_path": [],
-            "ground_truth_path": puzzle.get("ground_truth_path"),
-            "text": puzzle.get("text")
+        predictions = []
+        for idx in mask_indices:
+            if 0 <= idx < logits.shape[1]:
+                token_logits = logits[0, idx, :]
+                predicted_token = torch.argmax(token_logits).item()
+                predictions.append(predicted_token)
+            else:
+                predictions.append(self.tokenizer.unk_token_id)
+        
+        return predictions
+
+    def _extract_path_from_output(self, output_text: str) -> List[str]:
+        """
+        Extract the logical path from the model's output text.
+        This is a placeholder implementation; real logic depends on the prompt template.
+        """
+        # Simple heuristic: assume path is in a specific format or extract keywords
+        # In a real scenario, this would parse the specific output structure
+        words = output_text.split()
+        # Filter for potential path elements (e.g., starting with 'step', 'node', etc.)
+        path_elements = [w.strip(".,") for w in words if w.strip(".,").lower().startswith(('step', 'node', 'path'))]
+        return path_elements if path_elements else ["unknown_path"]
+
+    def execute_turn(self, text: str, current_path: List[str], turn: int) -> Dict[str, Any]:
+        """
+        Perform a single turn of the reflective masking loop.
+
+        Args:
+            text: The puzzle text.
+            current_path: The path accumulated so far.
+            turn: Current turn number.
+
+        Returns:
+            Dictionary containing the new path, status, and intermediate data.
+        """
+        # Prepare input
+        prompt = f"Current Path: {', '.join(current_path)}\nSolve the puzzle: {text}"
+        inputs = self.tokenizer(prompt, return_tensors="pt", truncation=True, max_length=512)
+        input_ids = inputs["input_ids"].to(self.device)
+
+        # Identify indices to mask (e.g., the last few tokens or specific logical steps)
+        # For demonstration, we mask the last 10% of tokens
+        seq_len = input_ids.shape[1]
+        mask_count = max(1, seq_len // 10)
+        mask_indices = list(range(seq_len - mask_count, seq_len))
+
+        # Apply masking
+        masked_input_ids = self._mask_tokens(input_ids, mask_indices)
+
+        # Predict
+        predicted_tokens = self._predict_tokens(masked_input_ids, mask_indices)
+
+        # Construct new input
+        new_input_ids = masked_input_ids.clone()
+        for i, idx in enumerate(mask_indices):
+            if i < len(predicted_tokens):
+                new_input_ids[0, idx] = predicted_tokens[i]
+
+        # Decode
+        output_text = self.tokenizer.decode(new_input_ids[0], skip_special_tokens=True)
+
+        # Extract path
+        new_path = self._extract_path_from_output(output_text)
+
+        # Check convergence (simplified: check if path length increased or changed)
+        converged = len(new_path) > len(current_path) and new_path[-1] != current_path[-1] if current_path else True
+
+        return {
+            "turn": turn,
+            "output_text": output_text,
+            "path": new_path,
+            "converged": converged
         }
 
-        start_time = time.time()
-        converged = False
+    def run(self, puzzle_text: str, ground_truth_path: List[str]) -> Dict[str, Any]:
+        """
+        Run the full reflective masking loop for a single puzzle.
+
+        Args:
+            puzzle_text: The text of the puzzle.
+            ground_truth_path: The expected ground truth path.
+
+        Returns:
+            Dictionary with execution results.
+        """
+        current_path = []
         turns = 0
+        status = "timeout"
+        final_path = []
 
-        # Main RM Loop with Hard Turn Limit
-        while turns < self.turn_limit:
-            turns += 1
-            state, converged = self._simulate_model_step(state, turns)
-            
-            if converged:
-                logger.info(f"Instance {instance_id} converged at turn {turns}")
-                break
+        for turn in range(1, self.max_turns + 1):
+            result = self.execute_turn(puzzle_text, current_path, turn)
+            current_path = result["path"]
+            turns = turn
 
-        end_time = time.time()
-        duration = end_time - start_time
+            if result["converged"]:
+                # Check if we reached a stable state or matched ground truth (simplified)
+                if len(current_path) > 0:
+                    status = "success"
+                    final_path = current_path
+                    break
 
-        # Determine status
-        if converged:
-            status = "converged"
-            turns_to_converge = turns
-        else:
-            # HARD TURN LIMIT REACHED - Mark as failure (censored)
-            status = "failure"
-            turns_to_converge = -1
-            logger.warning(f"Instance {instance_id} exceeded hard turn limit ({self.turn_limit}). Marked as failure.")
+        # If loop finished without convergence
+        if status == "timeout" and len(current_path) > 0:
+            final_path = current_path
+            # Check if it actually converged on the last step
+            # In a real implementation, we'd have a more robust convergence check
+            if turns == self.max_turns:
+                status = "timeout"
 
-        # Calculate metrics
-        # Path coverage: how much of the graph was explored? (Simplified for simulation)
-        path_coverage = 1.0 if converged else 0.0
-        
-        # Divergence from ground truth
-        divergence = 0.0
-        if converged and state.get("current_path") and state.get("ground_truth_path"):
-            from execution_metrics import jaccard_distance
-            divergence = jaccard_distance(
-                set(state["current_path"]), 
-                set(state["ground_truth_path"])
-            )
-
-        result = {
-            "instance_id": instance_id,
-            "turns_to_converge": turns_to_converge,
+        return {
+            "turns_to_converge": turns,
             "convergence_status": status,
-            "path_coverage": path_coverage,
-            "divergence_from_ground_truth": divergence,
-            "duration_seconds": duration,
-            "turn_limit": self.turn_limit,
-            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+            "final_path": final_path,
+            "ground_truth_path": ground_truth_path
         }
 
-        logger.info(f"Execution for {instance_id} completed: status={status}, turns={turns_to_converge}")
-        return result
-
-    def run_batch(self, puzzles: List[Dict[str, Any]], output_path: str) -> List[Dict[str, Any]]:
-        """
-        Run the executor on a batch of puzzles and write results to CSV.
-
-        Args:
-            puzzles: List of puzzle dictionaries.
-            output_path: Path to write the execution log CSV.
-
-        Returns:
-            List of result dictionaries.
-        """
-        results = []
-        for puzzle in puzzles:
-            result = self.execute_single_puzzle(puzzle)
-            results.append(result)
-
-        # Ensure output directory exists
-        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-
-        # Write results to CSV
-        fieldnames = [
-            "instance_id", "turns_to_converge", "convergence_status", 
-            "path_coverage", "divergence_from_ground_truth", 
-            "duration_seconds", "turn_limit", "timestamp"
-        ]
-
-        with open(output_path, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(results)
-
-        logger.info(f"Wrote {len(results)} results to {output_path}")
-        return results
-
-
-def main():
+def load_puzzles(input_path: str) -> List[Dict[str, Any]]:
     """
-    Main entry point for the RM Executor.
-    Reads puzzles from data/raw/logical_puzzles.jsonl and writes results to data/processed/execution_log.csv.
+    Load puzzles from a JSONL file.
     """
-    configure_logging()
-    
-    # Load puzzles
-    input_path = "data/raw/logical_puzzles.jsonl"
-    output_path = "data/processed/execution_log.csv"
-    
-    if not os.path.exists(input_path):
-        logger.error(f"Input file not found: {input_path}. Please run data generation first.")
-        sys.exit(1)
-
-    logger.info(f"Loading puzzles from {input_path}")
     puzzles = []
-    with open(input_path, 'r') as f:
+    with open(input_path, 'r', encoding='utf-8') as f:
         for line in f:
             if line.strip():
                 puzzles.append(json.loads(line))
+    return puzzles
 
-    logger.info(f"Loaded {len(puzzles)} puzzles")
+def write_results(results: List[Dict[str, Any]], output_path: str):
+    """
+    Write execution results to a CSV file.
+    """
+    if not results:
+        logger.warning("No results to write.")
+        return
+
+    fieldnames = [
+        "instance_id",
+        "turns_to_converge",
+        "convergence_status",
+        "path_coverage",
+        "divergence_from_ground_truth"
+    ]
+
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for res in results:
+            # Calculate divergence (Jaccard distance placeholder)
+            # In a real scenario, this would be computed based on actual paths
+            gt = set(res.get("ground_truth_path", []))
+            pred = set(res.get("final_path", []))
+            intersection = len(gt.intersection(pred))
+            union = len(gt.union(pred))
+            jaccard_sim = intersection / union if union > 0 else 0.0
+            divergence = 1.0 - jaccard_sim
+
+            row = {
+                "instance_id": res.get("instance_id", "unknown"),
+                "turns_to_converge": res["turns_to_converge"],
+                "convergence_status": res["convergence_status"],
+                "path_coverage": 0.0, # Placeholder, to be calculated by ILV
+                "divergence_from_ground_truth": divergence
+            }
+            writer.writerow(row)
+
+def main():
+    parser = argparse.ArgumentParser(description="Reflective Masking Executor")
+    parser.add_argument("--input", type=str, required=True, help="Path to input JSONL file")
+    parser.add_argument("--output", type=str, required=True, help="Path to output CSV file")
+    parser.add_argument("--max-turns", type=int, default=50, help="Maximum turns per instance")
+    parser.add_argument("--batch-size", type=int, default=4, help="Batch size (not used in CPU single-threaded)")
+    parser.add_argument("--device", type=str, default="cpu", help="Device to run on")
+    args = parser.parse_args()
+
+    configure_logging()
+
+    # Load environment config
+    model_path = os.getenv("MODEL_PATH")
+    if not model_path:
+        logger.error("MODEL_PATH not found in .env. Please set it.")
+        sys.exit(1)
+
+    logger.info(f"Starting execution with model: {model_path}, device: {args.device}")
+
+    # Check input file
+    if not os.path.exists(args.input):
+        logger.error(f"Input file not found: {args.input}")
+        sys.exit(1)
 
     # Initialize executor
-    executor = ReflectiveMaskingExecutor(device="cpu")
+    executor = ReflectiveMaskingExecutor(model_path=model_path, device=args.device, max_turns=args.max_turns)
 
-    # Run batch
-    results = executor.run_batch(puzzles, output_path)
+    # Load puzzles
+    puzzles = load_puzzles(args.input)
+    logger.info(f"Loaded {len(puzzles)} puzzles.")
 
-    # Summary
-    converged_count = sum(1 for r in results if r["convergence_status"] == "converged")
-    failure_count = sum(1 for r in results if r["convergence_status"] == "failure")
-    
-    logger.info(f"Batch execution complete. Converged: {converged_count}, Failed (censored): {failure_count}")
-    logger.info(f"Results written to {output_path}")
+    results = []
+    start_time = time.time()
 
+    for i, puzzle in enumerate(puzzles):
+        instance_id = puzzle.get("instance_id", f"puzzle_{i}")
+        text = puzzle.get("text", "")
+        ground_truth_path = puzzle.get("ground_truth_path", [])
+
+        logger.info(f"Processing {instance_id} ({i+1}/{len(puzzles)})")
+
+        try:
+            result = executor.run(text, ground_truth_path)
+            result["instance_id"] = instance_id
+            result["ground_truth_path"] = ground_truth_path
+            results.append(result)
+        except Exception as e:
+            logger.error(f"Error processing {instance_id}: {e}")
+            results.append({
+                "instance_id": instance_id,
+                "turns_to_converge": 0,
+                "convergence_status": "failure",
+                "final_path": [],
+                "ground_truth_path": ground_truth_path
+            })
+
+    end_time = time.time()
+    logger.info(f"Execution completed in {end_time - start_time:.2f} seconds.")
+
+    # Ensure output directory exists
+    output_dir = os.path.dirname(args.output)
+    if output_dir:
+        Path(output_dir).mkdir(parents=True, exist_ok=True)
+
+    write_results(results, args.output)
+    logger.info(f"Results written to {args.output}")
 
 if __name__ == "__main__":
     main()

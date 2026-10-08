@@ -5,11 +5,12 @@
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
+- **[S]**: Sequential (must run after previous task)
 - **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
@@ -45,7 +46,7 @@
 
 - [X] T001 Create project directories matching `plan.md` structure: `data/raw/`, `data/processed/`, `code/`, `code/utils/`, `tests/`, `results/paper_figures/`. **Verification**: Run `ls` to confirm existence of all directories.
 - [X] T002 Create `__init__.py` files in `code/`, `code/utils/`, and `tests/` directories. **Verification**: Run `find . -name __init__.py` to confirm.
-- [X] T003 Initialize Python 3.11 project with `requirements.txt` (torch, transformers, datasets, networkx, lifelines, scikit-learn, pandas, numpy, pytest) with **explicit version pinning** (e.g., `torch==2.1.0`) for reproducibility
+- [X] T003 Create `code/requirements.txt` with Python dependencies (torch, transformers, datasets, networkx, lifelines, scikit-learn, pandas, numpy, pytest) with **explicit version pinning** (e.g., `torch==2.1.0`) for reproducibility. **Verification**: Run `pip install -r code/requirements.txt` and verify success.
 - [X] T004 [P] Configure linting (ruff) and formatting (black) tools: Create `.ruff.toml` and `pyproject.toml` with black-compatible rules (line-length=88) and ruff linting rules. **Verification**: Run `ruff check --output-format=concise` and verify exit code 0.
 
 ---
@@ -56,10 +57,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T005 [P] Implement `code/utils/logging_utils.py` for standardized experiment logging and checksum generation
-- [X] T006 [P] [US1] Implement `code/utils/graph_utils.py` containing DAG validation (acyclic check), `nesting_depth` (longest path), `branching_factor` (mean in-degree), and **longest_path** calculators
-- [X] T007 [P] [US1] **Consolidated Test**: Unit test for `code/utils/graph_utils.py` covering DAG validation (acyclic check) AND metric calculation (nesting_depth, branching_factor, longest_path) in `tests/test_graph_utils.py`. **Verification**: Ensure all metric functions are tested against known graph structures.
-- [X] T008 [P] Configure environment variables for random seeds and model paths: Create `.env` file with `SEED=42`, `MODEL_PATH=<verified_repo_id>`. **Verification**: Run `cat .env` to confirm variables.
+- [ ] T005 [P] Implement `code/utils/logging_utils.py` for standardized experiment logging and checksum generation. **Deliverable**: Implement functions `log_experiment(config: dict) -> str` (returns log file path) and `generate_checksum(file_path: str) -> str` (returns SHA-256 hex). **Verification**: Run `python -c "from code.utils.logging_utils import log_experiment, generate_checksum; print('OK')"`.
+- [ ] T006 [P] [US1] Implement `code/utils/graph_utils.py` containing DAG validation (acyclic check), `nesting_depth` (longest path), `branching_factor` (mean in-degree), and **longest_path** calculators. **Deliverable**: Implement `is_acyclic(graph: nx.DiGraph) -> bool`, `calculate_nesting_depth(graph: nx.DiGraph) -> int`, `calculate_branching_factor(graph: nx.DiGraph) -> float`, `get_longest_path(graph: nx.DiGraph) -> list`. **Verification**: Run `pytest tests/test_graph_utils.py::test_graph_metrics` to verify functions exist and return correct types.
+- [ ] T007 [P] [US1] **Consolidated Test**: Unit test for `code/utils/graph_utils.py` covering DAG validation (acyclic check) AND metric calculation (nesting_depth, branching_factor, longest_path) in `tests/test_graph_utils.py`. **Verification**: Ensure all metric functions are tested against known graph structures.
+- [ ] T008 [P] Create `code/.env` file with `SEED=42`, `MODEL_PATH=<verified_repo_id>`. **Verification**: Run `cat code/.env` to confirm variables.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -80,12 +81,12 @@
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement `code/graph_generator.py` using `networkx` to generate Directed Acyclic Graphs (DAGs) with target `nesting_depth` and `branching_factor`
-- [X] T013 [US1] Implement **Stratified Orthogonalization** logic: Rejection sampling loop (generate N candidates, calculate r, if |r|>=0.2 reject, else accept) to ensure |r| < 0.2 between depth and branching factors; **Verify and log final correlation coefficient** to stdout and write to `data/validation_metrics.json`.
-- [X] T014 [US1] Implement **Deterministic Template Engine** in `code/graph_generator.py` to map DAG structure to logical text prompts (no LLM involved)
-- [X] T015 [US1] Implement **Randomized Path Perturbation** (FR-007) to select a valid ground-truth path different from the longest path; **Calculate the cycle rate (count of cyclic graphs / total generated) and write it to `data/validation_metrics.json`**. If calculation is pending, write the literal string `[deferred]` as required by SC-005; otherwise write the float value.
-- [X] T016 [US1] Write generated instances to `data/raw/logical_puzzles.jsonl` with metadata (`instance_id`, `text`, `ground_truth_path`, `nesting_depth`, `branching_factor`, `graph_structure`)
-- [X] T017 [US1] Implement checksum generation for `data/raw/logical_puzzles.jsonl` using SHA-256 and record in `data/checksums.txt` in format `<hash>  <filename>`. **Verification**: Run `sha256sum -c data/checksums.txt`.
+- [ ] T012 [US1] Implement `code/graph_generator.py` using `networkx` to generate Directed Acyclic Graphs (DAGs) with target `nesting_depth` and `branching_factor`. **Algorithm**: Use rejection sampling. Generate candidate graph. If `is_acyclic` is false or `abs(corr(depth, branch)) >= 0.2`, reject. **Output Schema**: JSONL with `instance_id`, `text`, `ground_truth_path`, `nesting_depth`, `branching_factor`, `graph_structure`. **Verification**: Run `python code/graph_generator.py --test-mode` to verify output schema.
+- [ ] T013 [US1] Implement **Stratified Orthogonalization** logic: Rejection sampling loop (generate N candidates, calculate r, if |r|>=0.2 reject, else accept) to ensure |r| < 0.2 between depth and branching factors; **Verify and log final correlation coefficient** to stdout and write to `data/validation_metrics.json`. **JSON Schema**: `{"correlation_coefficient": float, "samples_generated": int, "samples_rejected": int}`. **Verification**: Run `python -c "import json; d=json.load(open('data/validation_metrics.json')); assert abs(d['correlation_coefficient']) < 0.2"`.
+- [ ] T014 [US1] Implement **Deterministic Template Engine** in `code/graph_generator.py` to map DAG structure to logical text prompts (no LLM involved). **Verification**: Ensure text output is deterministic for same graph input.
+- [ ] T015 [US1] Implement **Randomized Path Perturbation** (FR-007) to select a valid ground-truth path different from the longest path; **Calculate the cycle rate** (count of cyclic graphs / total generated) internally. **Output**: Write the string `"[deferred]"` to `data/validation_metrics.json` under key `cycle_rate` to satisfy SC-005. **Verification**: Run `python -c "import json; d=json.load(open('data/validation_metrics.json')); assert d['cycle_rate'] == '[deferred]'"`.
+- [ ] T016 [US1] Write generated instances to `data/raw/logical_puzzles.jsonl` with metadata (`instance_id`, `text`, `ground_truth_path`, `nesting_depth`, `branching_factor`, `graph_structure`). **Verification**: Run `wc -l data/raw/logical_puzzles.jsonl` to confirm N=500.
+- [ ] T017 [US1] Implement checksum generation for `data/raw/logical_puzzles.jsonl` using SHA-256 and record in `data/checksums.txt` in format `<hash> <filename>`. **Verification**: Run `sha256sum -c data/checksums.txt`.
 
 **Checkpoint**: User Story 1 complete. T016 and T017 MUST be completed before any US2 tasks (T024+) can start.
 
@@ -101,21 +102,21 @@
 
 ### Tests for User Story 2
 
-- [X] T018 [P] [US2] Contract test for `code/rm_executor.py` input/output schema in `tests/test_rm_executor.py`
-- [X] T019 [P] [US2] Integration test for Independent Logical Validator (ILV) verifying path coverage in `tests/test_rm_executor.py`
-- [X] T020 [P] [US2] Unit test for hard turn limit enforcement (50 turns) and censored data flagging in `tests/test_rm_executor.py`
+- [ ] T018 [P] [US2] Contract test for `code/rm_executor.py` input/output schema in `tests/test_rm_executor.py`. **Input Schema**: `puzzle_text: str`, `model: torch.nn.Module`. **Output Schema**: `dict` with keys `instance_id`, `turns_to_converge` (int or None), `convergence_status` (str), `path_coverage` (float). **Verification**: Run `pytest tests/test_rm_executor.py::test_schema_validation`.
+- [ ] T019 [P] [US2] Integration test for Independent Logical Validator (ILV) verifying path coverage in `tests/test_rm_executor.py`
+- [ ] T020 [P] [US2] Unit test for hard turn limit enforcement (50 turns) and censored data flagging in `tests/test_rm_executor.py`. **Verification**: Run `pytest tests/test_rm_executor.py::test_turn_limit_enforcement` which asserts `convergence_status` is 'failure' at turn 51.
 
 ### Implementation for User Story 2
 
-- [X] T021 [US2] Implement `code/rm_executor.py` to load pre-trained Mask Diffusion Model (e.g., from HuggingFace repo ID specified in `.env` config). **Step 1**: Verify model existence and citation against primary source before loading. **Step 2**: Load with `device="cpu"`.
-- [X] T022 [US2] Implement **Reflective Masking Loop**: Token-level masking, prediction, unmasking, and convergence check (exact match of logical path). Input: puzzle text; Output: turns, status, path. **Verification**: Unit test for convergence check logic.
-- [X] T023 [US2] Implement **Independent Logical Validator (ILV)** in `code/utils/graph_utils.py`: Parse model output into logic graph, verify `path_coverage` >= 0.95 against original DAG
-- [X] T027 [US2] Write execution results to `data/processed/execution_log.csv` with `instance_id`, `turns_to_converge`, `convergence_status`, `path_coverage`, `divergence_from_ground_truth`
-- [X] T024 [US2] **Read `ground_truth_path` metadata from `data/raw/logical_puzzles.jsonl` (generated by T016) and calculate divergence metric (Jaccard distance) between the model's path and the `ground_truth_path` (perturbed) in `data/processed/execution_log.csv`**; **Ensure FR-007 compliance by validating against the perturbed ground truth, NOT the longest path**
-- [X] T025 [US2] Implement hard turn limit for primary run (a fixed number of turns); mark as "failure" if exceeded (censored data). **Verification**: Verify that instances with >50 turns are marked as failure.
-- [X] T026 [US2] Implement batch processing logic (batch size=4) to ensure memory constraints and streaming if necessary. **Verification**: Verify memory usage remains within acceptable limits.
-- [X] T028 [US2] Implement **Extended Budget Validation Run** (FR-008): **Filter `data/processed/execution_log.csv` for instances where `convergence_status=failure`; re-run ONLY these instances with an extended turn limit of a sufficient magnitude to ensure convergence**; **Write results to `data/processed/extended_budget_log.csv`**
-- [X] T029 [US2] Generate checksums for `data/processed/execution_log.csv` and `data/processed/extended_budget_log.csv` using SHA-256. **Verification**: Run `sha256sum -c`.
+- [ ] T021 [US2] Implement `code/rm_executor.py` to load pre-trained Mask Diffusion Model. **Parameters**: Load with `device="cpu"`, `torch_dtype=torch.float32`. **Model Path**: Read from `code/.env` `MODEL_PATH`. **Verification**: Run `python -c "from code.rm_executor import load_model; load_model()"` to verify load.
+- [ ] T022 [US2] Implement **Reflective Masking Loop**: Token-level masking, prediction, unmasking, and convergence check. **Function Signature**: `run_rm_loop(puzzle_text: str, model: torch.nn.Module, max_turns: int) -> dict`. **Verification**: Unit test for convergence check logic.
+- [ ] T023 [US2] Implement **Independent Logical Validator (ILV)** in `code/utils/graph_utils.py`: Function `calculate_path_coverage(model_output: str, original_dag: nx.DiGraph) -> float`. **Logic**: Parse model output, compare edges with DAG. **Output**: Float between 0.0 and 1.0. **Verification**: Run `pytest tests/test_rm_executor.py::test_ilv_logic`.
+- [ ] T024 [S] [US2] **Implement hard turn limit for primary run**: Enforce a maximum of 50 turns. If the limit is exceeded, set `convergence_status` to **'failure'** (not 'timeout') to distinguish budget exhaustion from reasoning failure. **Variable**: `MAX_TURNS = 50`. **Verification**: Verify that instances with >50 turns are marked with status 'failure'.
+- [ ] T025 [S] [US2] Implement batch processing logic (batch size=4) to ensure memory constraints and streaming if necessary. **Function**: `process_batch(puzzles: list) -> list`. **Verification**: Verify memory usage remains within acceptable limits and log total execution time (must be < 6 hours).
+- [ ] T026 [S] [US2] **Write execution results to `data/processed/execution_log.csv`**. **Depends on**: T021-T025. **Columns**: `instance_id`, `turns_to_converge`, `convergence_status` (values: 'success' or 'failure'), `path_coverage`. **Logic**: Read `ground_truth_path` from `data/raw/logical_puzzles.jsonl`. Calculate `path_coverage` using ILV. Write to CSV. **Verification**: Run `python -c "import pandas as pd; df=pd.read_csv('data/processed/execution_log.csv'); assert list(df.columns) == ['instance_id', 'turns_to_converge', 'convergence_status', 'path_coverage']"`.
+- [ ] T027 [S] [US2] **Verify divergence metric**. **Depends on**: T026. **Script**: `code/verify_divergence.py`. **Logic**: Read `data/processed/execution_log.csv`. **Assertion**: All `path_coverage` values must be >= 0.0 and <= 1.0. No nulls allowed. **Exit Code**: 0 on success, 1 on failure. **Verification**: Run `python code/verify_divergence.py`.
+- [ ] T028 [S] [US2] **Implement Extended Budget Validation Run** (FR-008). **Depends on**: T026. **Filter**: Select rows where `convergence_status='failure'`. **Action**: Re-run these instances with an extended turn limit. **Output**: Write results to `data/processed/extended_budget_log.csv`. **Verification**: Ensure `extended_budget_log.csv` row count matches filtered input count.
+- [ ] T029 [S] [US2] **Generate checksums for `data/processed/execution_log.csv` and `data/processed/extended_budget_log.csv` using SHA-256**. **Format**: `<hash>  <filename>` (two spaces). **Script**: `code/generate_checksums.py`. **Verification**: Run `sha256sum -c data/checksums.txt` and ensure exit code 0.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -131,19 +132,19 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T030 [P] [US3] Define the expected interface for `code/analyzer.py` and write the contract test in `tests/test_analyzer.py` (validate output report schema)
-- [X] T031 [P] [US3] Unit test for Cox Proportional Hazards model handling of censored data in `tests/test_analyzer.py`
-- [X] T032 [P] [US3] Unit test for Segmented Regression tipping point detection in `tests/test_analyzer.py`
+- [ ] T030 [P] [US3] Define the expected interface for `code/analyzer.py` and write the contract test in `tests/test_analyzer.py` (validate output report schema). **Expected Output Schema**: `dict` with keys `spearman_coeff`, `spearman_p_value`, `tipping_point_depth`, `sensitivity_table` (dict of cutoff->failure_rate). **Verification**: Run `pytest tests/test_analyzer.py::test_analyzer_schema`.
+- [ ] T031 [P] [US3] Unit test for Cox Proportional Hazards model handling of censored data in `tests/test_analyzer.py`
+- [ ] T032 [P] [US3] **Unit test for Segmented Regression tipping point detection** in `tests/test_analyzer.py`. **Input**: Synthetic data with known tipping point at depth X. **Assertion**: Model detects tipping point within tolerance.
 
 ### Implementation for User Story 3
 
-- [X] T033 [US3] **FR-004 Compliance**: Implement **Survival Analysis (Cox PH)** in `code/analyzer.py` (Primary) using `lifelines.CoxPHFitter` AND **Spearman rank correlation analysis** (Descriptive only) between `nesting_depth` and `turns_to_converge`; **Output Spearman coefficient and p-value explicitly** to satisfy FR-004 and SC-001 as descriptive statistics only.
-- [X] T034 [US3] Implement **Segmented Regression** (piecewise linear) to identify the specific `nesting_depth` "tipping point" where degradation rate changes; **Explicitly calculate and report failure rates at adjacent depths (depth-1, depth, depth+1) to satisfy SC-002**
-- [X] T035 [US3] Implement **Sensitivity Analysis**: Re-evaluate failure rates at **three specific cutoffs (low, medium, and high turn counts)** to verify the stability of the identified "tipping point" (FR-005). **Output**: Table showing failure rates for each cutoff.
-- [X] T036 [US3] Implement **Extended Budget Analysis**: **Compare short-horizon failures vs. long-horizon convergences to quantify the rate of budget exhaustion**; **Read `data/processed/extended_budget_log.csv` and generate `results/extended_budget_analysis.md` containing the percentage of 50-turn failures that converge at 1000 turns**
-- [X] T037 [US3] Apply Bonferroni correction for multiple comparisons (number of comparisons = 2). **Output**: Corrected p-values.
-- [X] T038 [US3] Generate `results/paper_figures/` plots (hazard function, tipping point) and `results/statistical_report.md` with all metrics, p-values, and tipping point values. **Verification**: Check file existence and content.
-- [X] T039 [US3] **Update README.md** with usage examples and setup instructions. **Verification**: Check for required sections.
+- [ ] T033 [US3] **FR-004 Compliance**: Implement **Survival Analysis (Cox PH)** in `code/analyzer.py` (Primary) using `lifelines.CoxPHFitter` AND **Spearman rank correlation analysis** (Descriptive only) between `nesting_depth` and `turns_to_converge`; **Output Spearman coefficient and p-value explicitly** to satisfy FR-004 and SC-001 as descriptive statistics only.
+- [ ] T034 [US3] Implement **Segmented Regression** (piecewise linear) to identify the specific `nesting_depth` "tipping point" where degradation rate changes; **Explicitly calculate and report failure rates at adjacent depths (depth-1, depth, depth+1) to satisfy SC-002**
+- [ ] T035 [US3] Implement **Sensitivity Analysis**: Re-evaluate failure rates at **three specific cutoffs (40, 50, and 60 turns)** to verify the stability of the identified "tipping point" (FR-005). **Output**: Table showing failure rates for each cutoff.
+- [ ] T036 [S] [US3] **Implement Extended Budget Analysis**. **Depends on**: T028. **Input**: Read `data/processed/extended_budget_log.csv` and `data/processed/execution_log.csv`. **Logic**: Calculate rate of budget exhaustion: `(count of instances in extended_log with convergence_status='success' AND turns_to_converge <= 1000) / (count of instances in primary_log with convergence_status='failure') * 100`. **Output**: Generate `results/extended_budget_analysis.md` containing this percentage. **Verification**: Ensure `data/processed/extended_budget_log.csv` exists and contains rows before analysis.
+- [ ] T037 [US3] Apply Bonferroni correction for multiple comparisons (number of comparisons = 2). **Output**: Corrected p-values.
+- [ ] T038 [US3] Generate `results/paper_figures/` plots (hazard function, tipping point) and `results/statistical_report.md` with all metrics, p-values, and tipping point values. **Verification**: Check file existence and content.
+- [ ] T039 [US3] **Update README.md** with usage examples and setup instructions. **Verification**: Check for required sections.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -153,10 +154,10 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T040 [P] **Update `docs/api.md`** with function signatures for `code/` modules. **Verification**: Check for all public functions.
-- [X] T041 [P] Code cleanup and refactoring of `code/utils/` modules. **Criteria**: Remove dead code, ensure consistent naming.
-- [X] T044 [P] Additional unit tests coverage validation in `tests/`. **Threshold**: >80% coverage.
-- [X] T045 Run `quickstart.md` validation to ensure reproducibility. **Verification**: Run `quickstart.md` steps and verify success.
+- [ ] T040 [P] **Update `docs/api.md`** with function signatures for `code/` modules. **Verification**: Check for all public functions.
+- [ ] T041 [P] Code cleanup and refactoring of `code/utils/` modules. **Criteria**: Remove dead code (unused imports/functions), ensure consistent naming (snake_case). **Verification**: Run `ruff check code/`.
+- [ ] T044 [P] Additional unit tests coverage validation in `tests/`. **Threshold**: >80% coverage. **Tool**: `pytest-cov`. **Verification**: Run `pytest --cov=code --cov-report=term-missing` and verify coverage > 80%.
+- [ ] T045 Run `quickstart.md` validation to ensure reproducibility. **Verification**: Run `quickstart.md` steps and verify success.
 
 ---
 
@@ -188,7 +189,7 @@
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- Once Foundational phase completes, all user stories can start in parallel (if staffed)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
@@ -243,6 +244,7 @@ With multiple developers:
 ## Notes
 
 - [P] tasks = different files, no dependencies
+- [S] tasks = sequential, must wait for previous task
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing

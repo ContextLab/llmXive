@@ -1,17 +1,18 @@
 {
   "project_id": "PROJ-878-llmxive-follow-up-extending-multi-turn-r",
   "ok": false,
-  "reason": "",
+  "reason": "2 command(s) failed: python code/rm_executor.py  --input data/raw/synthetic_puzzles.jsonl  --output data/processed/execution_log.csv  --max-turns 50  --batch-size 5  --device cpu (rc=1); python code/analyzer.py  --puzzles data/raw/synthetic_puzzles.jsonl  --results data/processed/execution_log.csv  --output results/statistical_report.json  --thresholds 40 50 60 (rc=1); 2 declared deliverable(s) absent: data/processed/execution_log.csv; data/processed/extended_budget_log.csv",
   "artifacts": [],
-  "failures": [],
-  "fix_rounds": 0,
+  "failures": [
+    "python code/rm_executor.py  --input data/raw/synthetic_puzzles.jsonl  --output data/processed/execution_log.csv  --max-turns 50  --batch-size 5  --device cpu -> rc=1\n    2026-10-08 21:29:37,848 - __main__ - ERROR - Input file not found: data/raw/logical_puzzles.jsonl. Please run data generation first.",
+    "python code/analyzer.py  --puzzles data/raw/synthetic_puzzles.jsonl  --results data/processed/execution_log.csv  --output results/statistical_report.json  --thresholds 40 50 60 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r/code/analyzer.py\", line 9, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python -c \"import json; data = [json.loads(l) for l in open('data/raw/synthetic_puzzles.jsonl')]; print(f'Count: {len(data)}'); print(f'Depth Range: {min(d[\\\"nesting_depth\\\"] for d in data)}-{max(d[\\\"nesting_depth\\\"] for d in data)}')\" -> rc=1\n    Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\nFileNotFoundError: [Errno 2] No such file or directory: 'data/raw/synthetic_puzzles.jsonl'"
+  ],
+  "fix_rounds": 2,
   "model_tier": 0,
-  "offload": {
-    "status": "running",
-    "kernel_ref": "jeremy9/llmxive-proj-878-llmxive-follow-up-extending-multi",
-    "submitted_at": "2026-10-08T20:22:44Z",
-    "reason": "",
-    "evidence": []
-  },
-  "updated_at": "2026-10-08T20:22:48Z"
+  "total_attempts": 2,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-10-08T21:29:38Z"
 }

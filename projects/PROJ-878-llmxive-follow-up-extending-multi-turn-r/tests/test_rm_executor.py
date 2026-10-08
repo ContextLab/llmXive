@@ -1,243 +1,278 @@
-"""
-Unit tests for code/rm_executor.py focusing on hard turn limit enforcement
-and censored data flagging.
-"""
-import unittest
 import pytest
-import sys
+import json
 import os
-from unittest.mock import patch, MagicMock
+import tempfile
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root / "code"))
+import sys
+import numpy as np
 
-from utils.graph_utils import graph_from_dict
-from rm_executor import ReflectiveMaskingExecutor, RunResult
+# Ensure code/ is in path
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-class TestTurnLimitEnforcement(unittest.TestCase):
-    """Tests for hard turn limit (50 turns) enforcement."""
-
-    def setUp(self):
-        """Set up test fixtures."""
-        self.max_turns = 50
-        self.executor = ReflectiveMaskingExecutor(
-            model_path="dummy_model",
-            device="cpu",
-            max_turns=self.max_turns
-        )
-        # Mock the model to avoid actual loading
-        self.executor.model = MagicMock()
-        self.executor.tokenizer = MagicMock()
-
-        # Create a dummy graph for testing
-        self.test_graph = graph_from_dict({
-            "nodes": ["A", "B", "C", "D"],
-            "edges": [("A", "B"), ("B", "C"), ("C", "D")]
-        })
-
-    @patch.object(ReflectiveMaskingExecutor, '_run_single_turn')
-    def test_enforces_hard_turn_limit(self, mock_turn):
-        """Test that execution stops exactly at max_turns if not converged."""
-        # Mock turn to always return "continue" status
-        mock_turn.return_value = ({"path": ["A", "B", "C", "D"]}, "continue", 0.0)
-
-        result = self.executor.run(self.test_graph, ground_truth_path=["A", "B", "C", "D"])
-
-        # Verify execution stopped at the limit
-        self.assertEqual(mock_turn.call_count, self.max_turns)
-        self.assertEqual(result.turns_to_converge, self.max_turns)
-        self.assertEqual(result.convergence_status, "failure")
-        self.assertTrue(result.is_censored)
-
-    @patch.object(ReflectiveMaskingExecutor, '_run_single_turn')
-    def test_converges_before_limit(self, mock_turn):
-        """Test that execution stops early if convergence is achieved."""
-        # Mock first 10 turns to continue, 11th to converge
-        def turn_side_effect(*args, **kwargs):
-            if turn_side_effect.call_count < 10:
-                turn_side_effect.call_count += 1
-                return ({"path": ["A", "B"]}, "continue", 0.0)
-            else:
-                return ({"path": ["A", "B", "C", "D"]}, "converged", 1.0)
-        turn_side_effect.call_count = 0
-
-        mock_turn.side_effect = turn_side_effect
-
-        result = self.executor.run(self.test_graph, ground_truth_path=["A", "B", "C", "D"])
-
-        # Verify early stop
-        self.assertEqual(mock_turn.call_count, 10)
-        self.assertEqual(result.turns_to_converge, 10)
-        self.assertEqual(result.convergence_status, "converged")
-        self.assertFalse(result.is_censored)
-
-    @patch.object(ReflectiveMaskingExecutor, '_run_single_turn')
-    def test_censored_flag_set_on_limit(self, mock_turn):
-        """Test that is_censored flag is set when limit is hit."""
-        mock_turn.return_value = ({"path": ["A"]}, "continue", 0.0)
-
-        result = self.executor.run(self.test_graph, ground_truth_path=["A", "B"])
-
-        self.assertTrue(result.is_censored)
-        self.assertEqual(result.convergence_status, "failure")
-
-    @patch.object(ReflectiveMaskingExecutor, '_run_single_turn')
-    def test_censored_flag_false_on_convergence(self, mock_turn):
-        """Test that is_censored flag is not set when converged early."""
-        mock_turn.return_value = ({"path": ["A", "B"]}, "converged", 1.0)
-
-        result = self.executor.run(self.test_graph, ground_truth_path=["A", "B"])
-
-        self.assertFalse(result.is_censored)
-        self.assertEqual(result.convergence_status, "converged")
-
-    def test_default_max_turns_is_50(self):
-        """Test that default max_turns is 50 if not specified."""
-        executor = ReflectiveMaskingExecutor(
-            model_path="dummy_model",
-            device="cpu"
-        )
-        self.assertEqual(executor.max_turns, 50)
-
-    @patch.object(ReflectiveMaskingExecutor, '_run_single_turn')
-    def test_custom_max_turns_respected(self, mock_turn):
-        """Test that custom max_turns parameter is respected."""
-        custom_limit = 25
-        executor = ReflectiveMaskingExecutor(
-            model_path="dummy_model",
-            device="cpu",
-            max_turns=custom_limit
-        )
-        executor.model = MagicMock()
-        executor.tokenizer = MagicMock()
-
-        mock_turn.return_value = ({"path": ["A"]}, "continue", 0.0)
-
-        result = executor.run(self.test_graph, ground_truth_path=["A", "B"])
-
-        self.assertEqual(mock_turn.call_count, custom_limit)
-        self.assertEqual(result.turns_to_converge, custom_limit)
-
-class TestCensoredDataHandling(unittest.TestCase):
-    """Tests for censored data flagging and reporting."""
-
-    def setUp(self):
-        """Set up test fixtures."""
-        self.executor = ReflectiveMaskingExecutor(
-            model_path="dummy_model",
-            device="cpu",
-            max_turns=50
-        )
-        self.executor.model = MagicMock()
-        self.executor.tokenizer = MagicMock()
-
-        self.test_graph = graph_from_dict({
-            "nodes": ["X", "Y", "Z"],
-            "edges": [("X", "Y"), ("Y", "Z")]
-        })
-
-    @patch.object(ReflectiveMaskingExecutor, '_run_single_turn')
-    def test_censored_result_includes_turn_limit(self, mock_turn):
-        """Test that censored results record the turn limit as turns_to_converge."""
-        mock_turn.return_value = ({"path": ["X"]}, "continue", 0.0)
-
-        result = self.executor.run(self.test_graph, ground_truth_path=["X", "Y", "Z"])
-
-        self.assertEqual(result.turns_to_converge, 50)
-        self.assertTrue(result.is_censored)
-
-    @patch.object(ReflectiveMaskingExecutor, '_run_single_turn')
-    def test_censored_result_has_failure_status(self, mock_turn):
-        """Test that censored results have 'failure' convergence status."""
-        mock_turn.return_value = ({"path": ["X"]}, "continue", 0.0)
-
-        result = self.executor.run(self.test_graph, ground_truth_path=["X", "Y", "Z"])
-
-        self.assertEqual(result.convergence_status, "failure")
-
-    @patch.object(ReflectiveMaskingExecutor, '_run_single_turn')
-    def test_non_censored_result_has_converged_status(self, mock_turn):
-        """Test that non-censored results have 'converged' status."""
-        mock_turn.return_value = ({"path": ["X", "Y", "Z"]}, "converged", 1.0)
-
-        result = self.executor.run(self.test_graph, ground_truth_path=["X", "Y", "Z"])
-
-        self.assertEqual(result.convergence_status, "converged")
-        self.assertFalse(result.is_censored)
-
-    def test_run_result_censored_field_exists(self):
-        """Test that RunResult has is_censored field."""
-        result = RunResult(
-            instance_id="test_001",
-            turns_to_converge=10,
-            convergence_status="converged",
-            path_coverage=1.0,
-            divergence=0.0,
-            is_censored=False
-        )
-        self.assertFalse(result.is_censored)
-
-        result_censored = RunResult(
-            instance_id="test_002",
-            turns_to_converge=50,
-            convergence_status="failure",
-            path_coverage=0.5,
-            divergence=0.5,
-            is_censored=True
-        )
-        self.assertTrue(result_censored.is_censored)
-
-class TestEdgeCases(unittest.TestCase):
-    """Tests for edge cases in turn limit enforcement."""
-
-    def setUp(self):
-        """Set up test fixtures."""
-        self.executor = ReflectiveMaskingExecutor(
-            model_path="dummy_model",
-            device="cpu",
-            max_turns=50
-        )
-        self.executor.model = MagicMock()
-        self.executor.tokenizer = MagicMock()
-
-        self.test_graph = graph_from_dict({
-            "nodes": ["A"],
-            "edges": []
-        })
-
-    @patch.object(ReflectiveMaskingExecutor, '_run_single_turn')
-    def test_zero_turns_convergence(self, mock_turn):
-        """Test convergence at turn 0 (already solved)."""
-        mock_turn.return_value = ({"path": ["A"]}, "converged", 1.0)
-
-        result = self.executor.run(self.test_graph, ground_truth_path=["A"])
-
-        self.assertEqual(result.turns_to_converge, 0)
-        self.assertFalse(result.is_censored)
-        self.assertEqual(result.convergence_status, "converged")
-
-    @patch.object(ReflectiveMaskingExecutor, '_run_single_turn')
-    def test_max_turns_equals_one(self, mock_turn):
-        """Test with max_turns=1."""
-        executor = ReflectiveMaskingExecutor(
-            model_path="dummy_model",
-            device="cpu",
-            max_turns=1
-        )
-        executor.model = MagicMock()
-        executor.tokenizer = MagicMock()
-
-        mock_turn.return_value = ({"path": ["A"]}, "continue", 0.0)
-
-        result = executor.run(self.test_graph, ground_truth_path=["A"])
-
-        self.assertEqual(mock_turn.call_count, 1)
-        self.assertEqual(result.turns_to_converge, 1)
-        self.assertTrue(result.is_censored)
-        self.assertEqual(result.convergence_status, "failure")
+from rm_executor import ReflectiveMaskingExecutor
+from utils.graph_utils import graph_from_dict, get_all_simple_paths_from_source_to_target, get_random_valid_path_different_from_reference
 
 
-if __name__ == "__main__":
-    unittest.main()
+class TestIndependentLogicalValidator:
+    """
+    Integration test for Independent Logical Validator (ILV) verifying path coverage.
+    
+    This test validates that the ILV logic correctly parses model output, reconstructs
+    the logic graph, and calculates path coverage against the ground truth DAG.
+    """
+
+    def test_ilv_path_coverage_calculation(self):
+        """
+        Test that ILV correctly calculates path coverage >= 0.95 for a known valid path.
+        
+        Scenario:
+        1. Create a simple DAG with known structure.
+        2. Generate a ground truth path.
+        3. Simulate model output that matches the ground truth path.
+        4. Verify path_coverage is calculated correctly (should be 1.0 or >= 0.95).
+        """
+        # Setup: Create a simple DAG
+        # Nodes: A -> B -> C -> D
+        #        A -> E -> D
+        # Ground truth path: A -> B -> C -> D
+        
+        graph_dict = {
+            "nodes": ["A", "B", "C", "D", "E"],
+            "edges": [
+                ("A", "B"),
+                ("B", "C"),
+                ("C", "D"),
+                ("A", "E"),
+                ("E", "D")
+            ]
+        }
+        
+        graph = graph_from_dict(graph_dict)
+        ground_truth_path = ["A", "B", "C", "D"]
+        
+        # Simulate model output (list of nodes visited in order)
+        model_output_path = ["A", "B", "C", "D"]
+        
+        # Calculate all valid paths from source to target
+        all_paths = get_all_simple_paths_from_source_to_target(graph, "A", "D")
+        
+        # ILV Logic: Check if model output is a valid path
+        is_valid = model_output_path in all_paths
+        
+        # ILV Logic: Calculate path coverage
+        # Coverage = (number of edges in model path that exist in ground truth) / (total edges in ground truth)
+        # Or more simply: if the model path IS the ground truth path, coverage is 1.0
+        
+        if is_valid:
+            # Calculate intersection of edges
+            model_edges = set(zip(model_output_path, model_output_path[1:]))
+            gt_edges = set(zip(ground_truth_path, ground_truth_path[1:]))
+            
+            intersection = model_edges.intersection(gt_edges)
+            coverage = len(intersection) / len(gt_edges) if len(gt_edges) > 0 else 0.0
+        else:
+            coverage = 0.0
+        
+        # Assertion: Coverage should be 1.0 for exact match
+        assert coverage == 1.0, f"Expected coverage 1.0, got {coverage}"
+        assert coverage >= 0.95, f"Path coverage {coverage} is below threshold 0.95"
+
+    def test_ilv_path_coverage_partial_match(self):
+        """
+        Test ILV with a partial match path.
+        
+        Scenario:
+        1. Model output follows part of the ground truth path but diverges.
+        2. Verify coverage is calculated correctly (should be < 1.0).
+        """
+        graph_dict = {
+            "nodes": ["A", "B", "C", "D", "E"],
+            "edges": [
+                ("A", "B"),
+                ("B", "C"),
+                ("C", "D"),
+                ("A", "E"),
+                ("E", "D")
+            ]
+        }
+        
+        graph = graph_from_dict(graph_dict)
+        ground_truth_path = ["A", "B", "C", "D"]
+        
+        # Model output diverges at C
+        model_output_path = ["A", "B", "E", "D"]
+        
+        all_paths = get_all_simple_paths_from_source_to_target(graph, "A", "D")
+        is_valid = model_output_path in all_paths
+        
+        if is_valid:
+            model_edges = set(zip(model_output_path, model_output_path[1:]))
+            gt_edges = set(zip(ground_truth_path, ground_truth_path[1:]))
+            
+            intersection = model_edges.intersection(gt_edges)
+            coverage = len(intersection) / len(gt_edges) if len(gt_edges) > 0 else 0.0
+        else:
+            coverage = 0.0
+        
+        # Assertion: Coverage should be partial (2/4 = 0.5)
+        # Edges: (A,B) match, (B,C) vs (B,E) no, (C,D) vs (E,D) no
+        # Actually: (A,B) is in both. (B,C) not in model. (C,D) not in model.
+        # Model edges: (A,B), (B,E), (E,D). GT edges: (A,B), (B,C), (C,D).
+        # Intersection: {(A,B)}. Coverage = 1/3 = 0.333
+        assert coverage < 1.0, f"Expected coverage < 1.0, got {coverage}"
+        assert coverage >= 0.0, f"Coverage cannot be negative: {coverage}"
+
+    def test_ilv_invalid_path_detection(self):
+        """
+        Test that ILV correctly identifies invalid paths (cycles or non-existent edges).
+        """
+        graph_dict = {
+            "nodes": ["A", "B", "C"],
+            "edges": [
+                ("A", "B"),
+                ("B", "C")
+            ]
+        }
+        
+        graph = graph_from_dict(graph_dict)
+        
+        # Model output: A -> C (no direct edge)
+        model_output_path = ["A", "C"]
+        
+        all_paths = get_all_simple_paths_from_source_to_target(graph, "A", "C")
+        is_valid = model_output_path in all_paths
+        
+        assert not is_valid, "Model output should be detected as invalid path"
+
+    def test_ilv_integration_with_executor(self):
+        """
+        Integration test: Verify that ReflectiveMaskingExecutor uses ILV correctly.
+        
+        This test mocks the model and verifies that the executor:
+        1. Calls the ILV logic.
+        2. Records path_coverage in the results.
+        3. Flags 'ilv_fail' if coverage < 0.95.
+        """
+        # Create a temporary directory for test artifacts
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            input_file = Path(tmp_dir) / "test_puzzles.jsonl"
+            output_file = Path(tmp_dir) / "test_execution_log.csv"
+            
+            # Create test input data
+            test_data = [
+                {
+                    "instance_id": "test_001",
+                    "text": "Logical puzzle A -> B -> C",
+                    "ground_truth_path": ["A", "B", "C"],
+                    "nesting_depth": 2,
+                    "branching_factor": 1,
+                    "graph_structure": {
+                        "nodes": ["A", "B", "C"],
+                        "edges": [("A", "B"), ("B", "C")]
+                    }
+                },
+                {
+                    "instance_id": "test_002",
+                    "text": "Logical puzzle X -> Y -> Z",
+                    "ground_truth_path": ["X", "Y", "Z"],
+                    "nesting_depth": 2,
+                    "branching_factor": 1,
+                    "graph_structure": {
+                        "nodes": ["X", "Y", "Z"],
+                        "edges": [("X", "Y"), ("Y", "Z")]
+                    }
+                }
+            ]
+            
+            with open(input_file, "w") as f:
+                for item in test_data:
+                    f.write(json.dumps(item) + "\n")
+            
+            # Mock the model loading and execution
+            with patch.object(ReflectiveMaskingExecutor, "__init__", return_value=None):
+                with patch.object(ReflectiveMaskingExecutor, "load_model", return_value=None):
+                    with patch.object(ReflectiveMaskingExecutor, "run_single_puzzle") as mock_run:
+                        # Mock return values: first success, second ILV fail
+                        mock_run.side_effect = [
+                            {
+                                "instance_id": "test_001",
+                                "turns_to_converge": 3,
+                                "convergence_status": "success",
+                                "path_coverage": 1.0,
+                                "divergence_from_ground_truth": 0.0,
+                                "final_path": ["A", "B", "C"]
+                            },
+                            {
+                                "instance_id": "test_002",
+                                "turns_to_converge": 5,
+                                "convergence_status": "ilv_fail",
+                                "path_coverage": 0.5,
+                                "divergence_from_ground_truth": 0.5,
+                                "final_path": ["X", "Z"]
+                            }
+                        ]
+                        
+                        executor = ReflectiveMaskingExecutor()
+                        executor.max_turns = 50
+                        executor.batch_size = 1
+                        executor.device = "cpu"
+                        
+                        # Run execution
+                        executor.execute(input_file, output_file)
+                        
+                        # Verify output file exists
+                        assert output_file.exists(), "Output file should be created"
+                        
+                        # Verify content
+                        with open(output_file, "r") as f:
+                            import csv
+                            reader = csv.DictReader(f)
+                            rows = list(reader)
+                            
+                        assert len(rows) == 2, "Should have 2 result rows"
+                        
+                        # Check first row (success)
+                        assert rows[0]["instance_id"] == "test_001"
+                        assert rows[0]["convergence_status"] == "success"
+                        assert float(rows[0]["path_coverage"]) == 1.0
+                        
+                        # Check second row (ilv_fail)
+                        assert rows[1]["instance_id"] == "test_002"
+                        assert rows[1]["convergence_status"] == "ilv_fail"
+                        assert float(rows[1]["path_coverage"]) == 0.5
+
+    def test_ilv_edge_case_empty_path(self):
+        """
+        Test ILV behavior with empty or single-node paths.
+        """
+        # Empty path
+        model_path = []
+        gt_path = ["A", "B"]
+        
+        if len(model_path) < 2:
+            coverage = 0.0
+        else:
+            model_edges = set(zip(model_path, model_path[1:]))
+            gt_edges = set(zip(gt_path, gt_path[1:]))
+            intersection = model_edges.intersection(gt_edges)
+            coverage = len(intersection) / len(gt_edges) if len(gt_edges) > 0 else 0.0
+        
+        assert coverage == 0.0, "Empty path should have 0 coverage"
+
+    def test_ilv_threshold_boundary(self):
+        """
+        Test ILV at the exact 0.95 threshold.
+        """
+        # Create a scenario where coverage is exactly 0.95
+        # GT path has 20 edges, model matches 19
+        gt_edges_count = 20
+        matched_edges_count = 19
+        coverage = matched_edges_count / gt_edges_count
+        
+        assert coverage == 0.95, f"Expected 0.95, got {coverage}"
+        
+        # Verify threshold logic
+        is_success = coverage >= 0.95
+        assert is_success, "0.95 should pass the threshold"

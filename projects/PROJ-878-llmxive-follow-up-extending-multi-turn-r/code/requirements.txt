@@ -1,4 +1,12 @@
-python-dotenv  # auto-added: imported by run-book but missing from venv
-networkx  # auto-added: imported by run-book but missing from venv
-numpy  # auto-added: imported by run-book but missing from venv
-torch  # auto-added: imported by run-book but missing from venv
+torch==2.1.0
+transformers==4.36.0
+datasets==2.14.0
+networkx==3.2.1
+lifelines==0.28.0
+scikit-learn==1.3.2
+pandas==2.1.3
+numpy==1.26.2
+pytest==7.4.3
+python-dotenv==1.0.0
+ruff==0.1.6
+black==23.11.0
