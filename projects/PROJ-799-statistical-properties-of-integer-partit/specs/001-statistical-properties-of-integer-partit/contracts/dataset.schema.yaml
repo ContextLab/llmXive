@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PartitionFeaturesSchema"
+description: "Schema for the features.csv dataset containing partition counts and density features."
+type: "object"
+properties:
+  n:
+    type: "integer"
+    description: "The integer being partitioned."
+    minimum: 1
+  p_P_n:
+    type: "integer"
+    description: "Exact count of partitions of n into distinct primes."
+    minimum: 0
+  Q_as_n:
+    type: "number"
+    description: "Asymptotic baseline prediction from Meinardus' theorem."
+    exclusiveMinimum: 0
+  R_n:
+    type: "number"
+    description: "Log-residual: log(p_P_n) - log(Q_as_n)."
+  pi_n:
+    type: "integer"
+    description: "Prime-counting function pi(n)."
+    minimum: 0
+  inv_log_n:
+    type: "number"
+    description: "Inverse natural logarithm 1/ln(n)."
+    exclusiveMinimum: 0
+  cum_density:
+    type: "number"
+    description: "Cumulative sum of 1/p for p <= n."
+    minimum: 0
+required:
+  - n
+  - p_P_n
+  - Q_as_n
+  - R_n
+  - pi_n
+  - inv_log_n
+  - cum_density
+additionalProperties: false

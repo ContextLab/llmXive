@@ -1,156 +1,88 @@
 # Research: Statistical Properties of Integer Partitions Into Distinct Prime Summands
 
-## Overview
+## 1. Problem Formulation
 
-This research investigates the deviation of the partition function $p_{\mathcal{P}}(n)$ (partitions of $n$ into distinct primes) from the asymptotic predictions of Meinardus' theorem. The core hypothesis is that the finite-regime error term $R(n) = \log(p_{\mathcal{P}}(n)) - \log(Q_{as}(n))$ is systematically correlated with prime density features, indicating a correction term dependent on the distribution of primes.
+The core research question is: *How does the asymptotic growth rate of the partition function $p_{\mathcal{P}}(n)$ (counting partitions of $n$ into distinct primes) deviate from the predictions of Meinardus' theorem when applied to the prime set, and can these deviations be modeled as a systematic correction term dependent on the prime density?*
 
-## Asymptotic Baseline: Meinardus' Theorem for Distinct Primes
+This extends the classical partition problem $p(n)$ (unrestricted parts) to $p_{\mathcal{P}}(n)$ (distinct prime parts). The generating function for $p_{\mathcal{P}}(n)$ is:
+$$ \sum_{n=0}^{\infty} p_{\mathcal{P}}(n) q^n = \prod_{p \in \mathbb{P}} (1 + q^p) $$
+This differs fundamentally from the unrestricted partition generating function $\prod_{k=1}^{\infty} (1-q^k)^{-1}$. The distinctness constraint and the sparsity of primes ($\pi(x) \sim x/\ln x$) introduce unique combinatorial behaviors.
 
-### Theoretical Background
+## 2. Theoretical Background: Meinardus' Theorem
 
-Meinardus' theorem provides an asymptotic formula for the coefficients of Dirichlet series generating functions. For unrestricted partitions, the generating function is $\prod_{k=1}^\infty (1-q^k)^{-1}$. For distinct prime partitions, the generating function is:
-$$ \prod_{p \in \mathbb{P}} (1 + q^p) $$
-This is a product over primes only, with each prime appearing at most once (distinct parts).
+Meinardus' theorem (1954) provides asymptotic formulas for coefficients of infinite products of the form $\prod (1-q^{a_k})^{-b_k}$. For distinct parts, the generating function is $\prod (1+q^{a_k}) = \prod (1-q^{2a_k}) / (1-q^{a_k})$.
 
-The asymptotic behavior of $p_{\mathcal{P}}(n)$ is given by:
-$$ Q_{as}(n) \sim C n^{-\alpha} \exp\left( A n^{\beta} \right) $$
-where $A$, $\alpha$, and $\beta$ are constants derived from the Dirichlet series of the prime set. Specifically, for distinct prime partitions, the exponent $\beta = 1/2$ (similar to unrestricted partitions), but the constant $A$ is derived from the prime zeta function $P(s) = \sum_{p} p^{-s}$.
+**Applicability Check**:
+Meinardus' conditions require:
+1.  The Dirichlet series $D(s) = \sum a_k^{-s} b_k$ to converge for $\Re(s) > \alpha$.
+2.  $D(s)$ to have a simple pole at $s=\alpha$ with residue $A$.
+3.  Analytic continuation and growth conditions in the complex plane.
 
-### Derivation of $Q_{as}(n)$
+For distinct primes ($a_k = p_k, b_k = 1$), the relevant Dirichlet series is the Prime Zeta Function $P(s) = \sum p^{-s}$.
+-   **Pole Structure**: $P(s)$ has a singularity at $s=1$ (related to the pole of the Riemann zeta function $\zeta(s)$).
+-   **Derivation of Constants**: The asymptotic form $Q_{as}(n)$ depends on the residue $A$ of $P(s)$ at $s=1$ and the constant $C$ derived from the analytic continuation. Specifically, $Q_{as}(n) \sim C \cdot n^{-3/4} \exp(2\sqrt{\frac{n}{2} \cdot \frac{1}{\ln n}})$.
+-   **Fallback Strategy**: If the pole structure or growth conditions are not strictly met for the finite range (or if numerical instability occurs), the plan will use a **truncated Dirichlet series approximation** to compute $Q_{as}(n)$, explicitly documenting the deviation in `applicability_report.json`.
 
-Following Meinardus and Andrews (1998), the leading term for $p_{\mathcal{P}}(n)$ is derived from the generating function $\prod (1+q^p)$. The constant $A$ is given by:
-$$ A = \sqrt{2 P(2)/3} $$
-where $P(2) = \sum_{p} p^{-2}$ is the prime zeta function evaluated at $s=2$. Note that $P(s)$ yields a value distinct from $\zeta(s)$, where $\zeta(s)$ is the Riemann zeta function. The formula is:
-$$ \log Q_{as}(n) \approx \sqrt{\frac{2 P(2) n}{3}} $$
-The leading-order term depends on $\sqrt{n}$ and the constant $P(2)$. **Crucially, the term $1/\ln(n)$ does NOT appear in the leading-order exponent of $Q_{as}(n)$**. The $1/\ln(n)$ term appears in the *error* of the Prime Number Theorem, which drives the deviation.
+## 3. Dataset Strategy
 
-**Verification**: This formula will be validated against known small values ($n \le 100$) where $p_{\mathcal{P}}(n)$ is known. Discrepancies will be analyzed as part of the residual study. The constant $A$ is fixed based on the Prime Zeta function to ensure the baseline is independent of the higher-order predictors used in the regression.
+The study relies on computationally generated data, not external static datasets. The "dataset" is the sequence of primes and the resulting partition counts.
 
-## Dataset Strategy
+| Variable | Source/Method | Verification |
+| :--- | :--- | :--- |
+| **Primes ($p \le [deferred]$)** | Sieve of Eratosthenes | Verified against OEIS A000040 (first few terms) and $n=50,000$ count $\pi(50000) = 5133$. |
+| **$p_{\mathcal{P}}(n)$** | Dynamic Programming (Batch/Stream) | Verified against known small values ($n=5, 6, 10$) and reference values for $n \le 100$. |
+| **$Q_{as}(n)$** | Meinardus formula / Truncated Dirichlet | Derived from analytic number theory; constants calculated from $P(s)$ residues. |
+| **Density Features** | $\pi(n)$, $1/\ln(n)$, $\sum_{p \le n} 1/p$ | Computed from the generated prime list. |
 
-### Data Source: Primes
+**Data Availability Note**: No external gated datasets are required. The prime list is generated on-the-fly, ensuring reproducibility and avoiding access-gated data issues.
 
-- **Source**: Generated on-the-fly using Sieve of Eratosthenes.
-- **Range**: Primes up to $n_{max} = 50,000$.
-- **Verification**: The sieve is deterministic and verified against known prime counts ($\pi([deferred]) = 5,133$).
-- **No External Download**: Eliminates dependency on external datasets, ensuring reproducibility.
+## 4. Methodological Rigor & Statistical Plan
 
-### Data Generation: $p_{\mathcal{P}}(n)$
+### 4.1. Exact Computation (FR-001)
+-   **Algorithm**: 1D Dynamic Programming.
+    -   Initialize `dp[0] = 1`, `dp[1..N] = 0`.
+    -   Iterate through each prime $p$: `for j from N down to p: dp[j] += dp[j-p]`.
+    -   **Memory Optimization**: To handle the super-polynomial growth of $p_{\mathcal{P}}(n)$ (thousands of digits at $n=50,000$), the algorithm will compute values in **batches** (e.g., $n \in [1, 1000], [1001, 2000], \dots$). Each batch is written to `partition_counts.csv` immediately and discarded from RAM. This ensures the process fits within the available RAM limit.
+-   **Edge Cases**: Handle $n < 5$ (no partitions) by setting $p_{\mathcal{P}}(n)=0$. Log-residuals will exclude these cases.
 
-- **Method**: Dynamic programming with 1D array optimization.
-- **Memory**: Array size $\approx [deferred]$ arbitrary-precision integers (estimated ~2-3 GB), well within 7 GB RAM.
-- **Algorithm**:
-  ```python
-  dp = [0] * (n_max + 1)
-  dp[0] = 1
-  for p in primes:
-      for n in range(n_max, p - 1, -1):
-          dp[n] += dp[n - p]
-  ```
-  This ensures each prime is used at most once (distinct parts).
+### 4.2. Asymptotic Baseline (FR-002)
+-   **Formula**: The distinct-partition asymptotic is roughly $Q_{as}(n) \sim C \cdot n^{-3/4} \exp(2\sqrt{\frac{n}{2} \cdot \frac{1}{\ln n}})$. (Specific constants derived from $P(1)$ and residues).
+-   **Validation**: The `validate_meinardus.py` script will explicitly check the pole conditions. If conditions fail, it will switch to a truncated Dirichlet series and record the switch in `applicability_report.json`.
+-   **Fallback**: If the formula yields negative/zero due to precision, clamp to $10^{-10}$.
 
-### Data Generation: $Q_{as}(n)$
+### 4.3. Residual Analysis & Modeling (FR-003, FR-004, FR-005)
+-   **Target**: $R(n) = \log(p_{\mathcal{P}}(n)) - \log(Q_{as}(n))$.
+-   **Predictors**:
+    1.  $X_1 = \pi(n)$ (Prime counting function).
+    2.  $X_2 = 1/\ln(n)$ (Asymptotic density).
+    3.  $X_3 = \sum_{p \le n} \frac{1}{p}$ (Cumulative density weighted by partition weight).
+    -   *Note*: We explicitly **exclude** arbitrary trigonometric terms (sin/cos log n) as per FR-005 to avoid overfitting noise.
+-   **Model**: Generalized Additive Model (GAM) or Linear Regression.
+    -   $R(n) = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \beta_3 X_3 + \epsilon$.
+    -   **Null Model**: Intercept only ($R(n) = \beta_0 + \epsilon$). This is critical to ensure the correlation is not a tautology of the baseline definition.
+-   **Statistical Corrections**:
+    -   **Multiple Comparisons**: Apply **Benjamini-Hochberg** procedure to p-values of predictors to control False Discovery Rate (FDR).
+    -   **Collinearity**: Check Variance Inflation Factor (VIF). If $X_1$ and $X_2$ are highly collinear (expected), report coefficients with caution or use regularization (Ridge).
+    -   **Autocorrelation**: Since $n$ is sequential, residuals may be autocorrelated. We will use **Time-Series Cross-Validation** (blocking by $n$) and **Newey-West** standard errors to correct p-values.
 
-- **Method**: Direct evaluation of the asymptotic formula using $A = \sqrt{2 P(2)/3}$.
-- **Edge Cases**: $Q_{as}(n)$ clamped to $\ge 10^{-10}$ to avoid log(0).
+### 4.4. Validation (FR-006, FR-007)
+-   **Cross-Validation**: 10-fold **Time-Series CV** (blocking) on the regression model. Report Mean Squared Error (MSE) per fold and mean MSE.
+-   **Visualization**: Plot $n$ vs. $R(n)$ (raw) and $n$ vs. $\hat{R}(n)$ (fitted).
+-   **Success Criteria**:
+    -   **SC-001**: $p < 0.05$ (adjusted) for at least one density predictor.
+    -   **SC-002**: The model must show a statistically significant improvement over the Null Model (F-test or AIC comparison), rather than a fixed $R^2$ threshold, acknowledging that number-theoretic noise may keep $R^2$ low.
 
-### Residual Calculation
+## 5. Compute Feasibility
 
-- **Formula**: $R(n) = \log(p_{\mathcal{P}}(n)) - \log(Q_{as}(n))$.
-- **Filtering**: Rows with $p_{\mathcal{P}}(n) = 0$ or $Q_{as}(n) \le 0$ are excluded.
+- **CPU-First**: The DP algorithm is $O(N \cdot \pi(N))$. For $N=50,000$, $\pi(N) \approx [deferred]$. Operations $\approx 2.5 \times 10^8$, easily handled by 2 vCPU in < 1 hour.
+- **Memory**: Batch processing ensures peak RAM < 1GB (storing only [deferred] large integers at a time).
+-   **GPU**: Not required. No deep learning or large matrix inversions.
+-   **Time Limit**: Full pipeline (gen, baseline, model, viz) estimated < 2 hours on free-tier runner.
 
-## Feature Engineering
+## 6. Decision Rationale
 
-### Density Features
-
-1. **$\pi(n)$**: Prime-counting function (number of primes $\le n$).
-2. **$1/(\ln n)^2$**: Inverse squared logarithmic density (to avoid direct coupling with $Q_{as}(n)$ which uses $\sqrt{n}$ and $P(2)$).
-3. **Distance to Nearest Prime**: $|n - \text{nearest\_prime}(n)|$ (absolute difference to the closest prime, either smaller or larger). This captures local fluctuations in the prime distribution. While $p_{\mathcal{P}}(n)$ is global, the *error term* in the Prime Number Theorem (which drives the asymptotic approximation) is locally sensitive to prime gaps. Thus, local gap features may capture systematic deviations in the approximation error.
-4. **Oscillatory Terms**: $\sin(\log n)$, $\cos(\log n)$ to capture periodic fluctuations related to Riemann zeros.
-5. **Global Gap Variance**: Variance of prime gaps up to $n$ (to capture global fluctuations and balance the local feature).
-
-### Rationale
-
-- **$\pi(n)$ and $1/(\ln n)^2$**: Capture global prime density trends and higher-order corrections.
-- **Distance to Nearest Prime**: Captures local fluctuations. Justified by the sensitivity of the PNT error term to local prime gaps.
-- **Oscillatory Terms**: Account for potential periodic components in the error term (e.g., related to the Riemann zeros).
-- **Avoiding Circularity**: Predictors are explicitly chosen to be orthogonal to the leading-order term of $Q_{as}(n)$ (which uses $\sqrt{P(2)}$ and $\sqrt{n}$) to ensure the residual analysis is not tautological. Specifically, $1/(\ln n)^2$ is used instead of $1/\ln(n)$ to ensure no direct coupling, and the leading term of $Q_{as}(n)$ does not contain $1/\ln(n)$.
-
-## Regression Model
-
-### Model Choice
-
-- **Primary**: Linear regression with regularization (Ridge/Lasso) to handle collinearity.
-- **Secondary**: Generalized Additive Model (GAM) for non-linear relationships.
-- **Null Model**: Intercept-only model to establish baseline (FR-008).
-
-### Hypothesis Testing
-
-- **Null Hypothesis**: Coefficients for density features are zero ($H_0: \beta_i = 0$).
-- **Alternative**: At least one coefficient is non-zero.
-- **Correction**: Bonferroni and Benjamini-Hochberg corrections for multiple comparisons (SC-005).
-- **Autocorrelation**: Newey-West standard errors (or HAC estimators) will be used to correct p-values for serial correlation in $R(n)$.
-
-### Cross-Validation
-
-- **Method**: 10-fold cross-validation.
-- **Metric**: Mean Squared Error (MSE).
-- **Goal**: Assess generalizability and avoid overfitting.
-
-## Statistical Rigor
-
-### Multiple Comparisons
-
-- **Method**: Bonferroni and Benjamini-Hochberg corrections applied to p-values.
-- **Threshold**: $\alpha_{corrected} = 0.05 / k$, where $k$ is the number of predictors.
-
-### Power Analysis
-
-- **Sample Size**: $n=50,000$ provides high power to detect small effect sizes.
-- **Effect Size**: Expected $R^2 \ge 0.05$ (SC-002).
-
-### Collinearity
-
-- **Check**: Variance Inflation Factor (VIF) for each predictor.
-- **Mitigation**: Regularization (Ridge) if VIF $> 5$.
-
-### Measurement Validity
-
-- **Primes**: Exact by definition.
-- **Partitions**: Exact via DP (no approximation).
-- **Asymptotics**: Theoretical formula with known error bounds (verified against Meinardus/Andrews).
-
-### Circularity Avoidance
-
-- The leading-order term of $Q_{as}(n)$ is derived solely from the Prime Zeta function constant $P(2)$ and $\sqrt{n}$.
-- Predictors such as $1/(\ln n)^2$, oscillatory terms, and gap variance are distinct from this leading term.
-- The residual $R(n)$ measures the deviation of the *true* partition count from this specific leading-order baseline.
-- Regressing $R(n)$ on these predictors tests if the *error* in the leading-order approximation correlates with higher-order density features, which is a valid non-tautological inquiry.
-
-### Null Model
-
-- An intercept-only model (constant prediction) will be fitted.
-- Its performance (MSE, $R^2$) will be compared to the full model to ensure the density features add explanatory power.
-
-## Decision/Rationale
-
-- **CPU-First**: All computations are CPU-tractable; no GPU needed.
-- **Data Generation**: On-the-fly prime generation ensures reproducibility and avoids external dependencies.
-- **Model Choice**: Linear regression with regularization balances interpretability and performance. GAMs provide a robustness check for non-linearities.
-- **Feature Set**: Includes global density, local gaps (justified by PNT error sensitivity), and oscillatory terms to capture the full spectrum of potential deviations. Predictors are orthogonal to the leading-order asymptotic term to avoid tautology.
-
-## Risks & Mitigations
-
-| Risk | Mitigation |
-|------|------------|
-| $Q_{as}(n)$ inaccurate for small $n$ | Exclude $n < 5$ from residual analysis; validate against known values. |
-| Collinearity between $\pi(n)$ and $1/(\ln n)^2$ | Use Ridge regression; check VIF. |
-| Overfitting in regression | 10-fold cross-validation; regularization. |
-| Memory overflow in DP | 1D array optimization; monitor memory usage (expected ~2-3 GB). |
-| Autocorrelation in residuals | Use Newey-West standard errors. |
-
-## References
-
-- Meinardus, G. (1954). *Asymptotische Aussagen über Partitionen*. Mathematische Zeitschrift.
-- Andrews, G. E. (1998). *The Theory of Partitions*. Cambridge University Press.
-- Hardy, G. H., & Ramanujan, S. (1918). *Asymptotic formulae for the distribution of integers*. Proceedings of the London Mathematical Society.
+-   **Why DP over recursion?** Recursion depth and overhead would be prohibitive. DP is optimal for partition counting.
+- **Why Batch Processing?** Storing [deferred] integers with thousands of digits each would exceed 7GB RAM. Batch processing is the only feasible CPU-first approach.
+-   **Why GAM/Linear over Neural Nets?** The sample size (50k) is small for deep learning, and the relationship is expected to be smooth/monotonic. Linear/GAM provides interpretable coefficients for the "systematic correction" hypothesis.
+-   **Why Benjamini-Hochberg?** We are testing multiple predictors ($\pi(n)$, $1/\ln n$, etc.). Bonferroni is too conservative for exploratory analysis; BH controls FDR while maintaining power.
+-   **Why Time-Series CV?** Standard K-fold CV assumes i.i.d. data. Since $n$ is sequential, blocking is required to prevent data leakage and ensure valid p-values.

@@ -1,23 +1,24 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "PartitionRecord"
-description: "Schema for a single partition data point"
+description: "Schema for a single partition record containing n, exact count, and asymptotic prediction."
 type: "object"
 properties:
   n:
     type: "integer"
+    description: "The integer being partitioned."
     minimum: 1
-    description: "The integer being partitioned"
+    maximum: 50000
   p_P_n:
     type: "integer"
+    description: "Exact count of partitions of n into distinct primes."
     minimum: 0
-    description: "Exact count of partitions into distinct primes (arbitrary precision)"
   Q_as_n:
     type: "number"
-    exclusiveMinimum: 0
-    description: "Asymptotic prediction from Meinardus' theorem"
+    description: "Asymptotic prediction from Meinardus' theorem."
+    minimum: 0
   R_n:
     type: ["number", "null"]
-    description: "Log-residual: log(p_P_n) - log(Q_as_n); null if invalid"
+    description: "Log-residual (log(p_P_n) - log(Q_as_n)). Null if p_P_n or Q_as_n is non-positive."
 required:
   - n
   - p_P_n

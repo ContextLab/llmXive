@@ -14,30 +14,18 @@ properties:
     type: "integer"
     minimum: 0
     description: "Prime-counting function π(n)"
-  inv_sq_ln_n:
+  inv_log_n:
     type: "number"
     exclusiveMinimum: 0
-    description: "Inverse squared logarithmic density 1/(ln n)^2"
-  dist_nearest_prime:
-    type: "integer"
+    description: "Inverse natural logarithm 1/ln(n)"
+  cum_density:
+    type: "number"
     minimum: 0
-    description: "Distance to nearest prime (absolute difference)"
-  sin_log_n:
-    type: "number"
-    description: "Sin(log n)"
-  cos_log_n:
-    type: "number"
-    description: "Cos(log n)"
-  gap_variance:
-    type: "number"
-    description: "Variance of prime gaps up to n"
+    description: "Cumulative sum of 1/p for p <= n"
 required:
   - n
   - R_n
   - pi_n
-  - inv_sq_ln_n
-  - dist_nearest_prime
-  - sin_log_n
-  - cos_log_n
-  - gap_variance
+  - inv_log_n
+  - cum_density
 additionalProperties: false

@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelOutput"
+description: "Schema for the regression model results and statistics."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    description: "Type of model used (e.g., 'OLS', 'Ridge')."
+  coefficients:
+    type: "object"
+    description: "Mapping of feature names to coefficient values."
+    additionalProperties:
+      type: "number"
+  p_values:
+    type: "object"
+    description: "Mapping of feature names to p-values."
+    additionalProperties:
+      type: "number"
+  R2_cv:
+    type: "number"
+    description: "Cross-validated R-squared score."
+    minimum: 0
+    maximum: 1
+  mse_cv:
+    type: "number"
+    description: "Cross-validated Mean Squared Error."
+    minimum: 0
+  fdr_corrected_p_values:
+    type: "object"
+    description: "P-values after Benjamini-Hochberg correction."
+    additionalProperties:
+      type: "number"
+  null_model_R2:
+    type: "number"
+    description: "R-squared of the null (intercept-only) model."
+    minimum: 0
+    maximum: 1
+  null_model_MSE:
+    type: "number"
+    description: "MSE of the null (intercept-only) model."
+    minimum: 0
+required:
+  - model_type
+  - coefficients
+  - p_values
+  - R2_cv
+  - mse_cv
+  - fdr_corrected_p_values
+  - null_model_R2
+  - null_model_MSE
+additionalProperties: false

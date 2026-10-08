@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "FeatureSet"
+description: "Schema for the enriched feature set used in regression analysis."
+type: "object"
+properties:
+  n:
+    type: "integer"
+    description: "The integer being partitioned."
+  pi_n:
+    type: "integer"
+    description: "Prime-counting function pi(n)."
+  inv_ln_n:
+    type: "number"
+    description: "Inverse natural log of n (1/ln(n))."
+  cum_density:
+    type: "number"
+    description: "Cumulative sum of 1/p for p <= n."
+  R_n:
+    type: "number"
+    description: "Target variable: log-residual."
+required:
+  - n
+  - pi_n
+  - inv_ln_n
+  - cum_density
+  - R_n
+additionalProperties: false
