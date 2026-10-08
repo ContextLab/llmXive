@@ -4,384 +4,310 @@ import json
 import numpy as np
 import pandas as pd
 from scipy.stats import median_abs_deviation
-from skbio import DistanceMatrix
-from skbio.diversity import alpha_diversity
-from skbio.diversity.beta import beta_diversity
-from skbio.stats.distance import permanova
-from skbio.tree import TreeNode
-from biom import Table
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple, Union
-import warnings
-
-from code.config import get_output_path, ensure_directories
-from code.utils.logging import get_logger
+from typing import Dict, Any, Optional, Tuple, Union
+import biom
+from sklearn.preprocessing import PowerTransformer
+from config import get_output_path, ensure_directories
+from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-def calculate_sequencing_depth(otu_table: Table) -> float:
+def calculate_sequencing_depth(input_path: str) -> Dict[str, float]:
     """
-    Calculate median sequencing depth (sum of non-zero counts per sample).
+    Step 1: Calculate median sequencing depth.
+    Input: data/raw/otu_table.biom (filtered by T013)
+    Logic: Sum counts per sample (row-wise, axis=1), filter non-zero, take median.
+    Output: data/interior/median_depth.json
+    """
+    logger.info(f"Calculating sequencing depth for {input_path}")
     
-    Args:
-        otu_table: BIOM Table object
+    # Load BIOM table
+    table = biom.load_table(input_path)
+    
+    # Get observation matrix (samples x taxa)
+    # In biom format, observations are usually rows (taxa), samples are columns.
+    # However, the task description says "sum of counts per sample (row-wise, axis=1)".
+    # We need to be careful with orientation. biom.Table is typically (observation, sample).
+    # Let's assume standard: rows=taxa, cols=samples.
+    # So we sum along axis=0 (across taxa) to get depth per sample.
+    
+    # Convert to dense array for calculation (assuming manageable size for this step)
+    # If too large, we would need to iterate.
+    dense = table.matrix_data.toarray()
+    
+    # Sum across taxa (axis=0) to get depth per sample
+    sample_depths = np.sum(dense, axis=0)
+    
+    # Filter non-zero depths
+    non_zero_depths = sample_depths[sample_depths > 0]
+    
+    if len(non_zero_depths) == 0:
+        raise ValueError("No samples with non-zero sequencing depth found.")
         
-    Returns:
-        Median sequencing depth as float
-    """
-    # Convert to dense array for summing, but handle large tables carefully
-    # Use sum(axis=1) to get per-sample counts
-    sample_sums = otu_table.sum(axis=1)
-    # Filter out zero-depth samples
-    non_zero_sums = [s for s in sample_sums if s > 0]
-    if not non_zero_sums:
-        logger.warning("No samples with non-zero sequencing depth found.")
-        return 0.0
+    median_depth = float(np.median(non_zero_depths))
     
-    median_depth = float(np.median(non_zero_sums))
-    logger.info(f"Calculated median sequencing depth: {median_depth:.2f}")
-    return median_depth
+    logger.info(f"Median sequencing depth calculated: {median_depth}")
+    
+    return {"median_depth": median_depth}
 
-def estimate_rarefaction_loss(otu_table: Table, depth: float) -> Dict[str, Any]:
+def estimate_rarefaction_loss(input_path: str, median_depth: float) -> Dict[str, float]:
     """
-    Estimate the percentage of samples that would be lost if rarefied to a given depth.
-    
-    Args:
-        otu_table: BIOM Table object
-        depth: Target rarefaction depth
-        
-    Returns:
-        Dictionary with 'loss_percentage' and 'samples_lost' count
+    Step 2: Estimate sample loss if rarefying to median depth.
+    Input: data/interior/median_depth.json (from T014a)
+    Algorithm: Simulate rarefaction to median depth, count samples with zero depth.
+    Output: data/interior/estimated_loss.json
     """
-    sample_sums = otu_table.sum(axis=1)
-    total_samples = len(sample_sums)
-    if total_samples == 0:
-        return {'loss_percentage': 0.0, 'samples_lost': 0, 'total_samples': 0}
+    logger.info(f"Estimating rarefaction loss for {input_path} at depth {median_depth}")
     
-    samples_below_depth = sum(1 for s in sample_sums if s < depth)
-    loss_percentage = (samples_below_depth / total_samples) * 100
+    table = biom.load_table(input_path)
+    dense = table.matrix_data.toarray()
     
-    logger.info(f"Estimated rarefaction loss at depth {depth:.2f}: {loss_percentage:.2f}% ({samples_below_depth}/{total_samples} samples)")
+    # Count samples with total depth < median_depth
+    # If we rarefy to median_depth, any sample with total depth < median_depth will be lost (zero depth after rarefaction)
+    sample_depths = np.sum(dense, axis=0)
+    
+    total_samples = len(sample_depths)
+    lost_samples = np.sum(sample_depths < median_depth)
+    loss_rate = float(lost_samples / total_samples) if total_samples > 0 else 0.0
+    
+    logger.info(f"Estimated rarefaction loss: {loss_rate * 100:.2f}%")
     
     return {
-        'loss_percentage': loss_percentage,
-        'samples_lost': samples_below_depth,
-        'total_samples': total_samples,
-        'target_depth': depth
+        "median_depth": median_depth,
+        "total_samples": int(total_samples),
+        "lost_samples": int(lost_samples),
+        "loss_rate": loss_rate
     }
 
-def apply_rarefaction(otu_table: Table, depth: int) -> Table:
+def apply_rarefaction(input_path: str, output_path: str, depth: int) -> None:
     """
-    Apply rarefaction (subsampling without replacement) to a BIOM table.
+    Apply rarefaction to the OTU table.
+    """
+    logger.info(f"Applying rarefaction to depth {depth}")
+    table = biom.load_table(input_path)
     
-    Args:
-        otu_table: BIOM Table object
-        depth: Target rarefaction depth
-        
-    Returns:
-        Rarefied BIOM Table
-    """
-    logger.info(f"Rarefying OTU table to depth {depth}")
-    rarefied_table = otu_table.subsample(depth, axis='sample', replace=False)
-    logger.info(f"Rarefaction complete. Samples retained: {rarefied_table.shape[1]}")
-    return rarefied_table
+    # Use biom's rarefaction method
+    # Note: biom.rarefy requires a random seed for reproducibility
+    rarefied_table = table.rarefy(depth=depth, seed=42)
+    
+    # Save
+    with open(output_path, 'w') as f:
+        biom.write_table(rarefied_table, f)
+    
+    logger.info(f"Rarefied table saved to {output_path}")
 
-def apply_vst(otu_table: Table) -> Table:
+def apply_vst(input_path: str, output_path: str) -> None:
     """
-    Apply Variance-Stabilizing Transformation (VST) as a fallback.
-    Note: This is a simplified implementation using log1p transform.
-    For true VST, DESeq2 or similar would be required, but skbio doesn't have it.
-    
-    Args:
-        otu_table: BIOM Table object
-        
-    Returns:
-        Transformed BIOM Table
+    Apply Variance-Stabilizing Transformation (VST) using sklearn's PowerTransformer.
+    This is a fallback when rarefaction loss > 20%.
     """
-    logger.info("Applying VST (log1p transformation) as fallback for rarefaction")
+    logger.info("Applying Variance-Stabilizing Transformation (VST)")
     
-    # Convert to numpy array
-    data = otu_table.matrix_data.toarray()
-    # Apply log1p transformation
-    transformed_data = np.log1p(data)
+    table = biom.load_table(input_path)
+    dense = table.matrix_data.toarray()
     
-    # Create new table with same observation/sample IDs
-    new_table = Table(transformed_data, otu_table.ids(axis='observation'), otu_table.ids(axis='sample'))
-    logger.info("VST transformation complete")
-    return new_table
+    # PowerTransformer with Yeo-Johnson can handle zeros and negative values
+    # However, microbiome data is non-negative. Box-Cox requires strictly positive.
+    # We'll use Yeo-Johnson which is more robust.
+    # Add a small constant to avoid log(0) issues if using Box-Cox, but Yeo-Johnson handles 0.
+    
+    pt = PowerTransformer(method='yeo-johnson', standardize=True)
+    
+    # Apply VST
+    # We transform across samples (axis=0) for each taxon (row)
+    # Or across taxa? Usually we want to stabilize variance across samples for each feature.
+    # Let's transform each row (taxon) across samples.
+    transformed = pt.fit_transform(dense.T).T  # Transpose to transform rows, then transpose back
+    
+    # Create new BIOM table
+    new_table = biom.Table(transformed, observation_ids=table.observation_ids, sample_ids=table.sample_ids)
+    
+    with open(output_path, 'w') as f:
+        biom.write_table(new_table, f)
+    
+    logger.info(f"VST applied and saved to {output_path}")
 
-def filter_low_prevalence(otu_table: Table, prevalence_threshold: float = 0.001) -> Table:
+def filter_low_prevalence(input_path: str, output_path: str, prevalence_threshold: float = 0.001) -> None:
     """
-    Filter taxa with prevalence below a threshold.
-    
-    Args:
-        otu_table: BIOM Table object
-        prevalence_threshold: Minimum prevalence (e.g., 0.001 for 0.1%)
-        
-    Returns:
-        Filtered BIOM Table
+    Filter taxa with < 0.1% prevalence.
     """
-    # Calculate prevalence (fraction of samples where taxon is present)
-    sample_count = otu_table.shape[1]
-    taxon_presence = (otu_table.matrix_data > 0).sum(axis=1)
-    prevalence = taxon_presence / sample_count
+    logger.info(f"Filtering taxa with prevalence < {prevalence_threshold * 100}%")
+    table = biom.load_table(input_path)
+    dense = table.matrix_data.toarray()
     
-    # Keep taxa above threshold
-    keep_mask = np.array(prevalence) >= prevalence_threshold
-    logger.info(f"Filtering taxa with prevalence < {prevalence_threshold*100:.2f}%. Keeping {keep_mask.sum()} of {len(prevalence)} taxa.")
+    # Calculate prevalence (fraction of samples with non-zero count)
+    prevalence = np.sum(dense > 0, axis=1) / dense.shape[1]
     
-    kept_taxa_ids = [tax_id for i, tax_id in enumerate(otu_table.ids(axis='observation')) if keep_mask[i]]
-    filtered_table = otu_table.filter(kept_taxa_ids, axis='observation')
+    # Keep taxa with prevalence >= threshold
+    keep_mask = prevalence >= prevalence_threshold
     
-    return filtered_table
+    if not np.any(keep_mask):
+        logger.warning("No taxa meet the prevalence threshold. Keeping all.")
+        keep_mask = np.ones(dense.shape[0], dtype=bool)
+    
+    # Filter table
+    filtered_obs_ids = table.observation_ids[keep_mask]
+    filtered_dense = dense[keep_mask, :]
+    
+    new_table = biom.Table(filtered_dense, observation_ids=filtered_obs_ids, sample_ids=table.sample_ids)
+    
+    with open(output_path, 'w') as f:
+        biom.write_table(new_table, f)
+    
+    logger.info(f"Filtered table saved to {output_path}")
 
-def calculate_alpha_diversity(otu_table: Table, metrics: List[str] = None) -> pd.DataFrame:
+def calculate_alpha_diversity(input_path: str, output_path: str) -> None:
     """
-    Calculate alpha diversity metrics for all samples.
-    
-    Args:
-        otu_table: BIOM Table object
-        metrics: List of metrics to calculate (default: ['shannon', 'simpson'])
-        
-    Returns:
-        DataFrame with sample_id and diversity metrics
+    Calculate Alpha diversity metrics (Shannon, Simpson).
     """
-    if metrics is None:
-        metrics = ['shannon', 'simpson']
+    logger.info("Calculating alpha diversity metrics")
+    table = biom.load_table(input_path)
+    dense = table.matrix_data.toarray()
     
-    logger.info(f"Calculating alpha diversity metrics: {metrics}")
+    # Shannon entropy
+    shannon = -np.sum(dense * np.log(dense + 1e-10), axis=1)  # +1e-10 to avoid log(0)
+    # Simpson index (1 - sum(p^2))
+    simpson = 1 - np.sum((dense / np.sum(dense, axis=1, keepdims=True))**2, axis=1)
     
-    # skbio.alpha_diversity expects a 2D array (samples x taxa)
-    # BIOM table is stored as (taxa x samples), so we transpose
-    data = otu_table.matrix_data.toarray().T
-    sample_ids = otu_table.ids(axis='sample')
+    # Create DataFrame
+    df = pd.DataFrame({
+        'sample_id': table.sample_ids,
+        'shannon': shannon,
+        'simpson': simpson
+    })
     
-    results = {}
-    for metric in metrics:
-        try:
-            alpha_vals = alpha_diversity(metric, data, ids=sample_ids)
-            results[metric] = alpha_vals
-        except Exception as e:
-            logger.error(f"Error calculating {metric}: {e}")
-            results[metric] = np.zeros(len(sample_ids))
-    
-    df = pd.DataFrame(results, index=sample_ids)
-    df.index.name = 'sample_id'
-    df = df.reset_index()
-    
-    logger.info(f"Alpha diversity calculated for {len(df)} samples")
-    return df
+    df.to_csv(output_path, index=False)
+    logger.info(f"Alpha diversity metrics saved to {output_path}")
 
-def generate_beta_diversity_matrices(
-    otu_table: Table,
-    metadata: Optional[pd.DataFrame] = None,
-    phylogenetic_tree: Optional[TreeNode] = None
-) -> Dict[str, str]:
+def generate_beta_diversity_matrices(input_path: str, output_dir: str, tree_path: Optional[str] = None) -> Dict[str, str]:
     """
-    Generate beta diversity distance matrices.
-    
-    Args:
-        otu_table: BIOM Table object
-        metadata: Optional metadata DataFrame (for sample ordering)
-        phylogenetic_tree: Optional phylogenetic tree for UniFrac
-        
-    Returns:
-        Dictionary mapping metric name to output file path
+    Generate beta diversity metrics: Bray-Curtis, Weighted/Unweighted UniFrac (if tree available).
     """
     logger.info("Generating beta diversity matrices")
+    from skbio.diversity import beta_diversity
+    from skbio.stats.distance import DistanceMatrix
+    import scipy.spatial.distance as spdist
     
-    output_files = {}
+    table = biom.load_table(input_path)
+    dense = table.matrix_data.toarray()
     
-    # Ensure output directory exists
-    output_dir = Path(get_output_path('data/processed'))
-    ensure_directories([output_dir])
+    # Bray-Curtis
+    bray_curtis = beta_diversity('braycurtis', dense, ids=table.sample_ids)
+    bray_curtis_path = os.path.join(output_dir, "bray_curtis.npz")
+    np.savez(bray_curtis_path, data=bray_curtis.data, ids=bray_curtis.ids)
+    logger.info(f"Bray-Curtis saved to {bray_curtis_path}")
     
-    # Prepare data for skbio
-    # skbio expects samples as rows, so transpose
-    data = otu_table.matrix_data.toarray().T
-    sample_ids = list(otu_table.ids(axis='sample'))
+    results = {"bray_curtis": bray_curtis_path}
     
-    # 1. Bray-Curtis (always)
-    try:
-        logger.info("Calculating Bray-Curtis distance matrix")
-        bray_curtis_dm = beta_diversity('braycurtis', data, ids=sample_ids)
-        bray_curtis_path = output_dir / 'bray_curtis.npz'
+    # UniFrac (if tree available)
+    if tree_path and os.path.exists(tree_path):
+        from skbio import TreeNode
+        from skbio.diversity import beta_diversity as skbio_beta_diversity
         
-        # Save as .npz with condensed distances and sample_ids
-        # DistanceMatrix.condensed_form() returns a 1D array
-        condensed = bray_curtis_dm.condensed_form()
-        np.savez(
-            bray_curtis_path,
-            distances=condensed.astype(np.float64),
-            sample_ids=np.array(sample_ids, dtype=object)
-        )
-        output_files['bray_curtis'] = str(bray_curtis_path)
-        logger.info(f"Bray-Curtis matrix saved to {bray_curtis_path}")
+        tree = TreeNode.read(tree_path)
         
-        # Verify non-zero shape
-        assert condensed.size > 0, "Bray-Curtis matrix is empty"
-        
-    except Exception as e:
-        logger.error(f"Failed to calculate Bray-Curtis: {e}")
-        # Re-raise to fail loudly
-        raise RuntimeError(f"Bray-Curtis calculation failed: {e}")
-    
-    # 2. Weighted UniFrac (if tree present)
-    if phylogenetic_tree is not None:
+        # Weighted UniFrac
         try:
-            logger.info("Calculating Weighted UniFrac distance matrix")
-            weighted_unifrac_dm = beta_diversity('weighted_unifrac', data, ids=sample_ids, tree=phylogenetic_tree)
-            weighted_unifrac_path = output_dir / 'weighted_unifrac.npz'
-            
-            condensed = weighted_unifrac_dm.condensed_form()
-            np.savez(
-                weighted_unifrac_path,
-                distances=condensed.astype(np.float64),
-                sample_ids=np.array(sample_ids, dtype=object)
-            )
-            output_files['weighted_unifrac'] = str(weighted_unifrac_path)
-            logger.info(f"Weighted UniFrac matrix saved to {weighted_unifrac_path}")
-            
-            assert condensed.size > 0, "Weighted UniFrac matrix is empty"
-            
+            weighted_unifrac = skbio_beta_diversity('weighted_unifrac', dense, table.sample_ids, tree)
+            weighted_path = os.path.join(output_dir, "weighted_unifrac.npz")
+            np.savez(weighted_path, data=weighted_unifrac.data, ids=weighted_unifrac.ids)
+            results["weighted_unifrac"] = weighted_path
+            logger.info(f"Weighted UniFrac saved to {weighted_path}")
         except Exception as e:
-            logger.error(f"Failed to calculate Weighted UniFrac: {e}")
-            # Log but don't fail the whole pipeline if tree is problematic
-            logger.warning("Weighted UniFrac calculation skipped due to error")
-    else:
-        logger.warning("No phylogenetic tree provided. Skipping Weighted UniFrac.")
-    
-    # 3. Unweighted UniFrac (if tree present)
-    if phylogenetic_tree is not None:
+            logger.warning(f"Weighted UniFrac failed: {e}")
+            # Create empty file with flag
+            empty_path = os.path.join(output_dir, "weighted_unifrac.npz")
+            np.savez(empty_path, data=np.array([]), ids=np.array([]), skipped=True)
+            results["weighted_unifrac"] = empty_path
+        
+        # Unweighted UniFrac
         try:
-            logger.info("Calculating Unweighted UniFrac distance matrix")
-            unweighted_unifrac_dm = beta_diversity('unweighted_unifrac', data, ids=sample_ids, tree=phylogenetic_tree)
-            unweighted_unifrac_path = output_dir / 'unweighted_unifrac.npz'
-            
-            condensed = unweighted_unifrac_dm.condensed_form()
-            np.savez(
-                unweighted_unifrac_path,
-                distances=condensed.astype(np.float64),
-                sample_ids=np.array(sample_ids, dtype=object)
-            )
-            output_files['unweighted_unifrac'] = str(unweighted_unifrac_path)
-            logger.info(f"Unweighted UniFrac matrix saved to {unweighted_unifrac_path}")
-            
-            assert condensed.size > 0, "Unweighted UniFrac matrix is empty"
-            
+            unweighted_unifrac = skbio_beta_diversity('unweighted_unifrac', dense, table.sample_ids, tree)
+            unweighted_path = os.path.join(output_dir, "unweighted_unifrac.npz")
+            np.savez(unweighted_path, data=unweighted_unifrac.data, ids=unweighted_unifrac.ids)
+            results["unweighted_unifrac"] = unweighted_path
+            logger.info(f"Unweighted UniFrac saved to {unweighted_path}")
         except Exception as e:
-            logger.error(f"Failed to calculate Unweighted UniFrac: {e}")
-            logger.warning("Unweighted UniFrac calculation skipped due to error")
+            logger.warning(f"Unweighted UniFrac failed: {e}")
+            empty_path = os.path.join(output_dir, "unweighted_unifrac.npz")
+            np.savez(empty_path, data=np.array([]), ids=np.array([]), skipped=True)
+            results["unweighted_unifrac"] = empty_path
     else:
-        logger.warning("No phylogenetic tree provided. Skipping Unweighted UniFrac.")
+        logger.warning("No tree available, skipping UniFrac.")
+        # Create empty files with skipped flag
+        empty_path = os.path.join(output_dir, "weighted_unifrac.npz")
+        np.savez(empty_path, data=np.array([]), ids=np.array([]), skipped=True)
+        results["weighted_unifrac"] = empty_path
+        
+        empty_path = os.path.join(output_dir, "unweighted_unifrac.npz")
+        np.savez(empty_path, data=np.array([]), ids=np.array([]), skipped=True)
+        results["unweighted_unifrac"] = empty_path
     
-    return output_files
+    return results
 
 def run_preprocessing(
     input_path: str,
-    output_dir: str = 'data/processed',
-    prevalence_threshold: float = 0.001,
-    rarefaction_loss_threshold: float = 0.20
-) -> Dict[str, Any]:
+    output_path: str,
+    median_depth_path: str,
+    loss_path: str,
+    loss_threshold: float = 0.2
+) -> None:
     """
-    Run the full preprocessing pipeline.
-    
-    Args:
-        input_path: Path to input BIOM table
-        output_dir: Output directory
-        prevalence_threshold: Threshold for filtering low-prevalence taxa
-        rarefaction_loss_threshold: Threshold for switching to VST
-        
-    Returns:
-        Dictionary with output file paths and metrics
+    Step 3: Main preprocessing logic.
+    If estimated loss > 20%, apply VST; otherwise, apply rarefaction.
     """
-    logger.info(f"Starting preprocessing pipeline from {input_path}")
+    logger.info("Running preprocessing step 3")
     
-    # Load BIOM table
-    otu_table = Table.load(input_path)
-    logger.info(f"Loaded OTU table: {otu_table.shape[1]} samples, {otu_table.shape[0]} taxa")
+    # Load median depth
+    with open(median_depth_path, 'r') as f:
+        median_depth_data = json.load(f)
+    median_depth = median_depth_data['median_depth']
     
-    # Step 1: Calculate median sequencing depth
-    median_depth = calculate_sequencing_depth(otu_table)
-    median_depth_path = Path(output_dir).parent / 'interior' / 'median_depth.json'
-    ensure_directories([median_depth_path.parent])
-    with open(median_depth_path, 'w') as f:
-        json.dump({'median_depth': median_depth}, f, indent=2)
-    logger.info(f"Saved median depth to {median_depth_path}")
+    # Load estimated loss
+    with open(loss_path, 'r') as f:
+        loss_data = json.load(f)
+    loss_rate = loss_data['loss_rate']
     
-    # Step 2: Estimate rarefaction loss
-    loss_info = estimate_rarefaction_loss(otu_table, median_depth)
-    loss_path = Path(output_dir).parent / 'interior' / 'estimated_loss.json'
-    with open(loss_path, 'w') as f:
-        json.dump(loss_info, f, indent=2)
-    logger.info(f"Saved estimated loss to {loss_path}")
+    logger.info(f"Median depth: {median_depth}, Estimated loss: {loss_rate * 100:.2f}%")
     
-    # Step 3: Apply rarefaction or VST based on loss threshold
-    if loss_info['loss_percentage'] > rarefaction_loss_threshold * 100:
-        logger.warning(f"Rarefaction loss ({loss_info['loss_percentage']:.2f}%) exceeds threshold ({rarefaction_loss_threshold*100:.2f}%). Using VST.")
-        preprocessed_table = apply_vst(otu_table)
-        method = 'vst'
+    # Ensure output directory exists
+    ensure_directories([Path(output_path).parent])
+    
+    if loss_rate > loss_threshold:
+        logger.warning(f"Estimated loss ({loss_rate * 100:.2f}%) exceeds threshold ({loss_threshold * 100}%). Applying VST.")
+        apply_vst(input_path, output_path)
     else:
-        logger.info(f"Rarefaction loss ({loss_info['loss_percentage']:.2f}%) within threshold. Applying rarefaction.")
-        preprocessed_table = apply_rarefaction(otu_table, int(median_depth))
-        method = 'rarefaction'
+        logger.info(f"Estimated loss ({loss_rate * 100:.2f}%) within threshold. Applying rarefaction.")
+        apply_rarefaction(input_path, output_path, int(median_depth))
     
-    preprocessed_path = Path(output_dir) / 'preprocessed_otu_table.biom'
-    preprocessed_table.to_hdf5(preprocessed_path, "Preprocessing pipeline")
-    logger.info(f"Saved preprocessed table to {preprocessed_path}")
-    
-    # Step 4: Filter low prevalence taxa
-    filtered_table = filter_low_prevalence(preprocessed_table, prevalence_threshold)
-    filtered_path = Path(output_dir) / 'filtered_otu_table.biom'
-    filtered_table.to_hdf5(filtered_path, "Filtered OTU table")
-    logger.info(f"Saved filtered table to {filtered_path}")
-    
-    # Step 5: Calculate alpha diversity
-    alpha_metrics = calculate_alpha_diversity(filtered_table)
-    alpha_path = Path(output_dir) / 'alpha_metrics.csv'
-    alpha_metrics.to_csv(alpha_path, index=False)
-    logger.info(f"Saved alpha metrics to {alpha_path}")
-    
-    # Step 6: Generate beta diversity matrices (T016b)
-    # Note: We need a phylogenetic tree for UniFrac. If not provided, skip.
-    # For now, we assume tree is not available unless explicitly loaded.
-    beta_outputs = generate_beta_diversity_matrices(filtered_table, phylogenetic_tree=None)
-    
-    results = {
-        'method': method,
-        'median_depth': median_depth,
-        'loss_percentage': loss_info['loss_percentage'],
-        'samples_retained': filtered_table.shape[1],
-        'taxa_retained': filtered_table.shape[0],
-        'alpha_metrics_path': str(alpha_path),
-        'beta_diversity_files': beta_outputs
-    }
-    
-    logger.info(f"Preprocessing complete. Results: {results}")
-    return results
+    logger.info(f"Preprocessed OTU table saved to {output_path}")
 
 def main():
-    """Main entry point for preprocessing script."""
+    """
+    Main entry point for preprocessing script.
+    """
     import argparse
     
-    parser = argparse.ArgumentParser(description='Preprocess microbiome data')
-    parser.add_argument('--input', type=str, required=True, help='Input BIOM table path')
-    parser.add_argument('--output', type=str, default='data/processed', help='Output directory')
-    parser.add_argument('--prevalence-threshold', type=float, default=0.001, help='Prevalence threshold for filtering')
-    parser.add_argument('--rarefaction-loss-threshold', type=float, default=0.20, help='Loss threshold for VST fallback')
+    parser = argparse.ArgumentParser(description="Preprocess OTU table")
+    parser.add_argument("--input", required=True, help="Input OTU table path")
+    parser.add_argument("--output", required=True, help="Output OTU table path")
+    parser.add_argument("--median-depth", required=True, help="Path to median depth JSON")
+    parser.add_argument("--loss", required=True, help="Path to estimated loss JSON")
+    parser.add_argument("--loss-threshold", type=float, default=0.2, help="Loss threshold (default: 0.2)")
     
     args = parser.parse_args()
     
-    logging.basicConfig(level=logging.INFO)
+    # Setup logging
+    logger.setLevel(logging.INFO)
     
-    results = run_preprocessing(
+    run_preprocessing(
         input_path=args.input,
-        output_dir=args.output,
-        prevalence_threshold=args.prevalence_threshold,
-        rarefaction_loss_threshold=args.rarefaction_loss_threshold
+        output_path=args.output,
+        median_depth_path=args.median_depth,
+        loss_path=args.loss,
+        loss_threshold=args.loss_threshold
     )
-    
-    print(json.dumps(results, indent=2))
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

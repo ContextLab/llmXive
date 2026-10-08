@@ -1,27 +1,23 @@
-T014a:
+T007:
   c: false
-  h: 8c6a58006d1bc9021bec4910c56cd7a869dcbc696b9e2112b9e1a85c7ec73ca2
-  r: "The repository contains a `code/preprocessing.py` with a `calculate_sequencing_depth`\
-    \ function, but it never writes the result to `data/interior/median_depth.json`\
-    \ (the file is missing). Moreover, the function computes the median of per\u2011\
-    sample sums (`axis=1`) rather than the required median of non\u2011zero column\
-    \ sums. Both the output artifact and the correct calculation are absent."
-T014b:
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `.env` file, loading logic (e.g., use of python\u2011dotenv\
+    \ or similar), or documentation of environment configuration management is present.\
+    \ The required artifact for task T007 is missing, so the requirement is not satisfied."
+T009:
   c: false
-  h: 71a0a56555cd196412be5bc54e6cf8b20b54868661d7de171a0072355642e6e7
-  r: "The repository contains `code/preprocessing.py` with functions for calculating\
-    \ median depth and estimating rarefaction loss, but the script never invokes these\
-    \ functions nor writes the result to `data/interior/estimated_loss.json`. Moreover,\
-    \ the required JSON file is absent from the project. The task\u2019s output artifact\
-    \ is missing, so the implementation does not meet the specification."
-T014c:
+  h: 831e8572fba666146c976b67c49c5d407131b4e31c44838dff04449187c34551
+  r: "The provided `code/data_ingestion.py` only logs errors and returns `None` on\
+    \ fetch failures; it never calls the Data Gap Report generation (T000b) nor creates\
+    \ `results/data_gap_report.md` (the file is missing). Consequently the hard\u2011\
+    fail logic required by the task is not implemented."
+T012b:
   c: false
-  h: 173c80d3524c4b689e0b98fd53d3cc34d91a5a06effec2994b6f56f1c2c97e7a
-  r: "The repository contains a partially shown `code/preprocessing.py` but it does\
-    \ not demonstrate the required conditional logic (loss\u202F>\u202F20\u202F% \u2192\
-    \ VST fallback, else rarefaction) nor any code that writes the preprocessed OTU\
-    \ table to `data/processed/preprocessed_otu_table.biom`. Moreover, the expected\
-    \ output file is missing from the project. The task therefore remains unfinished."
+  h: 4e666f1443b88260cf43fa40e932d268496cb9591eaaef1dedf5fe14e35db0d8
+  r: The required output files `data/raw/checksums.txt` and the project `state.yaml`
+    (under `state/projects/PROJ-215-.../`) are absent, so the checksum computation
+    and state update have not been materialized. The script exists but does not produce
+    the mandated artifacts.
 T015:
   c: false
   h: ea2060fecd965fc318cbba38f9239466641b0155d2b895213a833bb6e7bcb726

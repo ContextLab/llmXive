@@ -3,68 +3,70 @@ import os
 from pathlib import Path
 from typing import Optional
 
-def setup_logging(
-    log_level: int = logging.INFO,
-    log_file: Optional[str] = None,
-    project_root: Optional[str] = None
-) -> None:
+from code.config import LOGS_DIR
+
+def setup_logging(log_file: Optional[str] = None, level: int = logging.INFO) -> logging.Logger:
     """
-    Configure logging for the project.
+    Setup logging infrastructure.
     
     Args:
-        log_level: Logging level (e.g., logging.DEBUG, logging.INFO)
-        log_file: Optional path to a log file. If None, logs to console only.
-        project_root: Optional root directory for the project. Used to resolve log_file path.
-    """
-    if project_root:
-        log_dir = Path(project_root) / "logs"
-        log_dir.mkdir(parents=True, exist_ok=True)
-        if log_file:
-            log_file = str(log_dir / log_file)
-        else:
-            log_file = str(log_dir / "pipeline.log")
-
-    handlers = []
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(log_level)
-    console_formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    console_handler.setFormatter(console_formatter)
-    handlers.append(console_handler)
-
-    if log_file:
-        try:
-            file_handler = logging.FileHandler(log_file)
-            file_handler.setLevel(log_level)
-            file_formatter = logging.Formatter(
-                '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-            )
-            file_handler.setFormatter(file_formatter)
-            handlers.append(file_handler)
-        except (OSError, PermissionError) as e:
-            print(f"Warning: Could not create log file {log_file}: {e}")
-
-    root_logger = logging.getLogger()
-    root_logger.setLevel(log_level)
-    
-    # Clear existing handlers to avoid duplicates
-    for handler in root_logger.handlers[:]:
-        root_logger.removeHandler(handler)
-        
-    for handler in handlers:
-        root_logger.addHandler(handler)
-
-def get_logger(name: Optional[str] = None) -> logging.Logger:
-    """
-    Get a logger instance.
-    
-    Args:
-        name: Name of the logger. If None, returns the root logger.
+        log_file: Optional relative path to log file (e.g., "pipeline.log"). 
+                  Defaults to LOGS_DIR/pipeline.log if not provided.
+        level: Logging level (default: INFO).
     
     Returns:
-        A configured logger instance.
+        The root logger configured.
+    """
+    logger = logging.getLogger()
+    logger.setLevel(level)
+    
+    # Clear existing handlers to avoid duplicates on re-run
+    if logger.handlers:
+        logger.handlers.clear()
+    
+    # Formatter
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    
+    # Console Handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(level)
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
+    
+    # File Handler
+    if log_file is None:
+        log_file = "pipeline.log"
+    
+    log_path = Path(log_file)
+    if not log_path.is_absolute():
+        log_path = LOGS_DIR / log_file
+    
+    # Ensure log directory exists
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    file_handler = logging.FileHandler(log_path)
+    file_handler.setLevel(level)
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+    
+    return logger
+
+def get_logger(name: Optional[str] = None, level: int = logging.INFO) -> logging.Logger:
+    """
+    Get a logger instance. If name is provided, returns a named logger.
+    Otherwise returns the root logger (which is configured by setup_logging).
     """
     if name:
-        return logging.getLogger(name)
-    return logging.getLogger()
+        logger = logging.getLogger(name)
+    else:
+        logger = logging.getLogger()
+    
+    # If not configured yet, configure it
+    if not logger.handlers:
+        setup_logging(level=level)
+    
+    logger.setLevel(level)
+    return logger
