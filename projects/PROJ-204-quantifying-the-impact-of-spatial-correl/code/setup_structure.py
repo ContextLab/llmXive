@@ -2,21 +2,27 @@ import os
 import logging
 from pathlib import Path
 
-# Configure logging for the setup process
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
-def create_project_structure(root_dir: Path) -> None:
+def create_project_structure(root: Path) -> None:
     """
     Create the required directory structure for the project.
     
+    This function ensures the following directories exist relative to the root:
+    - data/raw/
+    - data/processed/
+    - code/data/
+    - code/preprocess/
+    - code/analysis/
+    - code/modeling/
+    - code/validation/
+    - code/report/
+    - tests/
+    
     Args:
-        root_dir: The root directory of the project.
+        root: The project root directory path.
     """
-    # Define the required directories relative to the project root
+    # Define the required directory paths relative to the project root
     required_dirs = [
         "data/raw",
         "data/processed",
@@ -27,52 +33,44 @@ def create_project_structure(root_dir: Path) -> None:
         "code/validation",
         "code/report",
         "tests",
-        "state",
-        "docs",
-        "logs",
-        "figures",
     ]
 
-    logger.info(f"Creating project structure in: {root_dir}")
+    for dir_name in required_dirs:
+        dir_path = root / dir_name
+        try:
+            dir_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {dir_path}")
+        except OSError as e:
+            logger.error(f"Failed to create directory {dir_path}: {e}")
+            raise
 
-    created_count = 0
-    for dir_path in required_dirs:
-        full_path = root_dir / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created directory: {full_path}")
-            created_count += 1
-        else:
-            logger.debug(f"Directory already exists: {full_path}")
-
-    logger.info(f"Project structure setup complete. Created {created_count} new directories.")
-
-def ensure_init_files(root_dir: Path) -> None:
+def ensure_init_files(root: Path) -> None:
     """
-    Ensure __init__.py files exist in all Python package directories.
+    Create __init__.py files in all code and tests subdirectories to make them Python packages.
     
     Args:
-        root_dir: The root directory of the project.
+        root: The project root directory path.
     """
-    python_dirs = [
+    # Define the directories that need __init__.py files
+    package_dirs = [
+        "code",
         "code/data",
         "code/preprocess",
         "code/analysis",
         "code/modeling",
         "code/validation",
         "code/report",
-        "code/utils",
         "tests",
     ]
 
-    for dir_path_str in python_dirs:
-        full_path = root_dir / dir_path_str
-        init_file = full_path / "__init__.py"
+    for dir_name in package_dirs:
+        dir_path = root / dir_name
+        init_file = dir_path / "__init__.py"
         
-        # Create directory if it doesn't exist (should be handled by create_project_structure)
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
+        # Create the directory if it doesn't exist
+        dir_path.mkdir(parents=True, exist_ok=True)
         
+        # Create __init__.py if it doesn't exist
         if not init_file.exists():
             init_file.touch()
             logger.info(f"Created __init__.py: {init_file}")
@@ -81,23 +79,30 @@ def ensure_init_files(root_dir: Path) -> None:
 
 def main() -> None:
     """
-    Main entry point for the setup script.
-    Creates the project directory structure and initializes Python packages.
+    Main entry point for setting up the project structure.
+    
+    This function sets up logging, determines the project root,
+    creates the directory structure, and ensures __init__.py files exist.
     """
-    # Determine project root (parent of the code directory)
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    
+    # Determine the project root (assumes this script is in code/setup_structure.py)
     current_file = Path(__file__).resolve()
-    code_dir = current_file.parent
-    project_root = code_dir.parent
-
-    logger.info(f"Project root detected at: {project_root}")
-
-    try:
-        create_project_structure(project_root)
-        ensure_init_files(project_root)
-        logger.info("Setup completed successfully.")
-    except Exception as e:
-        logger.error(f"Setup failed: {e}", exc_info=True)
-        raise
+    project_root = current_file.parent.parent
+    
+    logger.info(f"Project root: {project_root}")
+    
+    # Create directory structure
+    create_project_structure(project_root)
+    
+    # Ensure __init__.py files exist
+    ensure_init_files(project_root)
+    
+    logger.info("Project structure setup complete.")
 
 if __name__ == "__main__":
     main()

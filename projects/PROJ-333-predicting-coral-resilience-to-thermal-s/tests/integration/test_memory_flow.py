@@ -1,50 +1,48 @@
 """
-Integration test for memory flow (T014 dependency).
-Verifies that the pipeline components can handle data streams without
-excessive memory usage, using mock data.
-"""
-import os
-import sys
-import tempfile
-import gc
-from pathlib import Path
-import logging
+Memory flow integration test using mock data.
 
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root / "code"))
+This test verifies that the pipeline can process data without
+exceeding memory limits, using small mock FASTQ files.
+"""
+import pytest
+import gzip
+import json
+from pathlib import Path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from utils.logging import get_memory_usage_mb, setup_logger
 
-logger = setup_logger("integration_memory_test", level=logging.INFO)
+MOCK_FASTQ_DIR = Path(__file__).parent / "data" / "mock_fastq"
 
-def test_memory_tracking():
+def test_memory_tracking_with_mock_files():
     """
-    Verify that memory tracking utilities work correctly.
+    Test that memory tracking works correctly during mock file processing.
     """
-    logger.info("Starting memory tracking test...")
+    logger = setup_logger("mem_test", "data/processed/test_logs")
     
-    initial_memory = get_memory_usage_mb()
-    logger.info(f"Initial memory usage: {initial_memory:.2f} MB")
+    initial_mem = get_memory_usage_mb()
+    logger.info(f"Initial memory usage: {initial_mem:.2f} MB")
     
-    # Create some data to simulate processing
-    data_buffer = []
-    for i in range(10000):
-        data_buffer.append("A" * 1000)
+    # Process mock files
+    if not MOCK_FASTQ_DIR.exists():
+        pytest.skip("Mock data not generated. Run test_pipeline_flow.py first.")
     
-    current_memory = get_memory_usage_mb()
-    logger.info(f"Memory after data allocation: {current_memory:.2f} MB")
+    total_reads = 0
+    for f in MOCK_FASTQ_DIR.glob("*.fastq.gz"):
+        with gzip.open(f, 'rt') as fh:
+            lines = fh.readlines()
+            # Count reads (every 4 lines is one read)
+            total_reads += len(lines) // 4
     
-    # Clean up
-    data_buffer.clear()
-    gc.collect()
+    current_mem = get_memory_usage_mb()
+    mem_diff = current_mem - initial_mem
     
-    final_memory = get_memory_usage_mb()
-    logger.info(f"Final memory usage: {final_memory:.2f} MB")
+    logger.info(f"Processed {total_reads} reads. Memory delta: {mem_diff:.2f} MB")
     
-    # The test passes if we can track memory without crashing
-    # We don't assert specific values as they vary by environment
-    assert current_memory >= initial_memory, "Memory tracking seems broken (memory decreased after allocation?)"
-    logger.info("Memory tracking test PASSED.")
-
-if __name__ == "__main__":
-    test_memory_tracking()
+    # Assert that memory usage is reasonable (should be very low for mock data)
+    # 7GB is the limit, but for 20 reads per file, it should be < 100MB
+    assert mem_diff < 100, f"Memory usage spiked unexpectedly: {mem_diff} MB"
+    
+    print(f"Memory flow test passed. Delta: {mem_diff:.2f} MB")

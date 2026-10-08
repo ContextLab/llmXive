@@ -1,11 +1,21 @@
-T011:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: I looked for a `tests/integration/` directory containing test scaffolding and
-    mock FASTQ files, but no such files or code were provided. Without the integration
-    test files, the requirement to verify pipeline flow with mock data is not satisfied.
-    The next implementer must add the integration test suite and include small mock
-    FASTQ files in the specified location.
+  r: No evidence of the required directories (`code/`, `tests/`, `data/raw`, `data/processed`,
+    `results/plots`, `specs/001-coral-resilience-prediction/`) is provided; the claim
+    cannot be verified. The implementer must create and show the populated project
+    folder structure.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.gitignore` file was presented in the evidence, and no content showing the
+    required exclusion patterns (`data/raw/*.fastq.gz`, `data/processed/*.rds`, `__pycache__`,
+    `*.pyc`) was provided. The required artifact is therefore missing.
+T003a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.flake8` file was presented in the evidence; the required configuration with
+    `max-line-length=88` and `ignore=E203,W503` is absent, so the task is not satisfied.
 T015:
   c: false
   h: 963737de36f3e61c8c07ffeafd2f10954465f032da7a4ae6104b8f9e1a46ee18

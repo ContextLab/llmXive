@@ -1,51 +1,48 @@
 """
-Verification script for task T001b: Initialize Python packages.
+Verification script for T001b: Initialize Python packages.
 Ensures __init__.py files exist in all required package directories
-and that the 'code' package is importable.
+and verifies that the 'code' package is importable.
 """
 import os
 import sys
 from pathlib import Path
 
 def main():
+    """Verify package initialization for T001b."""
     project_root = Path(__file__).resolve().parent.parent
     packages = [
-        "code",
-        "tests",
-        "code/utils",
-        "code/models"
+        project_root / "code",
+        project_root / "tests",
+        project_root / "code" / "utils",
+        project_root / "code" / "models",
     ]
 
-    missing = []
+    all_present = True
     for pkg in packages:
-        pkg_path = project_root / pkg
-        init_file = pkg_path / "__init__.py"
-        
-        if not pkg_path.exists():
-            missing.append(f"Directory missing: {pkg_path}")
-        elif not init_file.exists():
-            missing.append(f"__init__.py missing: {init_file}")
+        init_file = pkg / "__init__.py"
+        if not init_file.exists():
+            print(f"ERROR: Missing __init__.py at {init_file}")
+            all_present = False
+        else:
+            print(f"OK: Found {init_file}")
 
-    if missing:
-        for msg in missing:
-            print(f"ERROR: {msg}", file=sys.stderr)
-        print("Directory/Package initialization failed.", file=sys.stderr)
+    if not all_present:
+        print("FAILURE: Not all __init__.py files are present.")
         sys.exit(1)
 
-    # Verification: Ensure 'code' is importable
+    # Verification: Ensure importability
     try:
-        # Add project root to path temporarily if not already there
+        # Add project root to path if not already there
         if str(project_root) not in sys.path:
             sys.path.insert(0, str(project_root))
         
         import code
-        print("Verification successful: 'code' package is importable.")
+        print("OK: 'import code' succeeded.")
     except ImportError as e:
-        print(f"ERROR: Failed to import 'code' package: {e}", file=sys.stderr)
+        print(f"FAILURE: 'import code' failed with error: {e}")
         sys.exit(1)
 
-    print("All package initializations verified.")
-    sys.exit(0)
+    print("T001b Verification: SUCCESS")
 
 if __name__ == "__main__":
     main()

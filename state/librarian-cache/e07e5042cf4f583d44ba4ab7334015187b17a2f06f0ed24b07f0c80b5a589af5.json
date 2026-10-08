@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-06-16T16:46:29Z",
+  "fetched_at": "2026-10-08T00:59:24Z",
   "field": "physics",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,15 +9,15 @@
       "idea_body_excerpt": "Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra",
       "target_n": 5
     },
-    "duration_seconds": 98.421,
-    "ended_at": "2026-06-16T16:46:29Z",
+    "duration_seconds": 40.414,
+    "ended_at": "2026-10-08T00:59:24Z",
     "expansion": null,
     "extracted_queries": [
-      "Lorentz symmetry breaking",
-      "Fermi LAT gamma‑ray bursts",
-      "spectral lag photon dispersion",
-      "LIV upper limits quantum gravity",
-      "effective field theory modified dispersion"
+      "quantum gravity energy scale dispersion relation",
+      "Fermi GBM GRB photon time lag",
+      "LIV linear quadratic order modified dispersion",
+      "high-energy photon arrival time spectral analysis",
+      "Planck-scale Lorentz symmetry breaking threshold"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -26,51 +26,186 @@
       "invoked": true,
       "verdict": false
     },
-    "outcome": "exhausted",
+    "outcome": "success",
     "pdf_sample": {
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "1503.01182"
+        "2512.03702"
       ]
     },
     "per_query_hit_count": {
       "Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra physics": 3,
-      "Fermi LAT gamma‑ray bursts": 3,
-      "LIV upper limits quantum gravity": 3,
-      "Lorentz symmetry breaking": 2,
-      "effective field theory modified dispersion": 3,
-      "spectral lag photon dispersion": 3
+      "Fermi GBM GRB photon time lag": 3,
+      "LIV linear quadratic order modified dispersion": 3,
+      "Planck-scale Lorentz symmetry breaking threshold": 2,
+      "high-energy photon arrival time spectral analysis": 3,
+      "quantum gravity energy scale dispersion relation": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 3,
+      "rejected_count": 1,
       "rejections": [
         {
-          "primary_pointer": "0912.3666",
-          "rationale": "The paper studies gamma‑ray pulsars observed with the Fermi LAT and does not investigate Lorentz invariance violation, gamma‑ray burst spectra, or related constraints, thus it is off‑domain for the user's question.",
-          "title": "Pulsar observations with the Fermi LAT: what we have seen"
-        },
-        {
-          "primary_pointer": "0910.0908",
-          "rationale": "The paper studies gamma‑ray emission from a supernova remnant, not gamma‑ray bursts, and does not address Lorentz invariance violation or its constraints, thus it is off‑domain for the user's question.",
-          "title": "Fermi-LAT Discovery of Extended Gamma-ray Emission in the Direction of Supernova Remnant W51C"
-        },
-        {
-          "primary_pointer": "0910.2249",
-          "rationale": "The paper studies gamma‑ray pulsations from two pulsars and does not address Lorentz invariance violation, nor does it use GRB spectra to constrain such effects; it is off‑topic relative to the user's focus on LIV constraints with Fermi GRB data.",
-          "title": "Fermi LAT detection of pulsed gamma-rays from the Vela-like pulsars PSR J1048-5832 and PSR J2229+6114"
+          "primary_pointer": "1111.7026",
+          "rationale": "The paper focuses on solar flare particle acceleration mechanisms and does not address Lorentz Invariance Violation (LIV) or use Fermi Gamma-Ray Burst (GRB) spectra to constrain LIV parameters. While it shares the \"Fermi\" instrument and \"gamma-ray\" domain, it studies a distinct physical construct (solar flare dynamics) rather than the specific mechanism (LIV constraints) or population (GRBs) required by the user's question, failing all inclusion criteria (a-f).",
+          "title": "Fermi Detection of γ-ray emission from the M2 Soft X-ray Flare on 2010 June 12"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-06-16T16:44:51Z",
+    "started_at": "2026-10-08T00:58:43Z",
     "term_input": {
       "normalized": "constraining lorentz invariance violation with fermi gamma‑ray burst spectra physics",
       "raw": "Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra physics"
     },
     "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We offer a brief survey of existent and planned experimental tests for quantum gravity. First, we outline the questions we wish to address, and then introduce some of the phenomenological models that are currently used in quantum gravity, both with and without a lowered Planck scale. After that, we summarize experimental areas where these models can be tested or constrained and discuss the status of the field.",
+          "claimed_authors": [
+            "Sabine Hossenfelder"
+          ],
+          "claimed_title": "Experimental Search for Quantum Gravity",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1010.3420"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra phy', candidate_title='Experimental Search for Quantum Gravity')",
+        "failed_at": "2026-10-08T00:59:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We summarize recent developments at the interface of quantum gravity and quantum information, and discuss applications to the quantum geometry of space in loop quantum gravity. In particular, we describe the notions of link entanglement, intertwiner entanglement, and boundary spin entanglement in a spin-network state. We discuss how these notions encode the gluing of quanta of space and their relevance for the reconstruction of a quantum geometry from a network of entanglement structures. We then focus on the geometric entanglement entropy of spin-network states at fixed spins, treated as a many-body system of quantum polyhedra, and discuss the hierarchy of volume-law, area-law and zero-law states. Using information theoretic bounds on the uncertainty of geometric observables and on their correlations, we identify area-law states as the corner of the Hilbert space that encodes a semiclassical geometry, and the geometric entanglement entropy as a probe of semiclassicality.",
+          "claimed_authors": [
+            "Eugenio Bianchi",
+            "Etera R. Livine"
+          ],
+          "claimed_title": "Loop Quantum Gravity and Quantum Information",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.05922"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra phy', candidate_title='Loop Quantum Gravity and Quantum Information')",
+        "failed_at": "2026-10-08T00:59:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The current understanding of renormalization in quantum gravity (QG) is based on the fact that UV divergences of effective actions in the covariant QG models are covariant local expressions. This fundamental statement plays a central role in QG and, therefore, it is important to prove it for the widest possible range of the QG theories. Using the Batalin-Vilkovisky technique and the background field method, we elaborate the proof of gauge invariant renormalizability for a generic model of quantum gravity that is diffeomorphism invariant and does not have additional, potentially anomalous, symmetries.",
+          "claimed_authors": [
+            "P. M. Lavrov",
+            "I. L. Shapiro"
+          ],
+          "claimed_title": "Gauge invariant renormalizability of quantum gravity",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.09271"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra phy', candidate_title='Gauge invariant renormalizability of quantum gravity')",
+        "failed_at": "2026-10-08T00:59:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We suggest that the dark side of the universe builds a dark medium modifying the Standard Model particle dispersion relations. We introduce the generic form for the modified dispersion relations and provide explicit models of the dark medium. We use the derived neutrino dispersion relations to show that the size of the corrections are smaller than the SN1987a bounds. We argue that before invoking modifications of Einstein's theory of relativity one should investigate the dark medium effects.",
+          "claimed_authors": [
+            "Isabella Masina",
+            "Francesco Sannino"
+          ],
+          "claimed_title": "Dark Medium Modified Dispersion Relations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1110.1853"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra phy', candidate_title='Dark Medium Modified Dispersion Relations')",
+        "failed_at": "2026-10-08T00:59:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present Language-Image Value learning (LIV), a unified objective for vision-language representation and reward learning from action-free videos with text annotations. Exploiting a novel connection between dual reinforcement learning and mutual information contrastive learning, the LIV objective trains a multi-modal representation that implicitly encodes a universal value function for tasks specified as language or image goals. We use LIV to pre-train the first control-centric vision-language representation from large human video datasets such as EpicKitchen. Given only a language or image goal, the pre-trained LIV model can assign dense rewards to each frame in videos of unseen robots or humans attempting that task in unseen environments. Further, when some target domain-specific data is available, the same objective can be used to fine-tune and improve LIV and even other pre-trained representations for robotic control and reward specification in that domain. In our experiments on several simulated and real-world robot environments, LIV models consistently outperform the best prior input state representations for imitation learning, as well as reward specification methods for policy synthesis. Our results validate the advantages of joint vision-language representation and reward learning within the unified, compact LIV framework.",
+          "claimed_authors": [
+            "Yecheng Jason Ma",
+            "William Liang",
+            "Vaidehi Som",
+            "Vikash Kumar",
+            "Amy Zhang",
+            "Osbert Bastani",
+            "Dinesh Jayaraman"
+          ],
+          "claimed_title": "LIV: Language-Image Representations and Rewards for Robotic Control",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.00958"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra phy', candidate_title='LIV: Language-Image Representations and Rewards for Robotic Control')",
+        "failed_at": "2026-10-08T00:59:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study the performance of the certainty equivalent controller on Linear Quadratic (LQ) control problems with unknown transition dynamics. We show that for both the fully and partially observed settings, the sub-optimality gap between the cost incurred by playing the certainty equivalent controller on the true system and the cost incurred by using the optimal LQ controller enjoys a fast statistical rate, scaling as the square of the parameter error. To the best of our knowledge, our result is the first sub-optimality guarantee in the partially observed Linear Quadratic Gaussian (LQG) setting. Furthermore, in the fully observed Linear Quadratic Regulator (LQR), our result improves upon recent work by Dean et al. (2017), who present an algorithm achieving a sub-optimality gap linear in the parameter error. A key part of our analysis relies on perturbation bounds for discrete Riccati equations. We provide two new perturbation bounds, one that expands on an existing result from Konstantinov et al. (1993), and another based on a new elementary proof strategy.",
+          "claimed_authors": [
+            "Horia Mania",
+            "Stephen Tu",
+            "Benjamin Recht"
+          ],
+          "claimed_title": "Certainty Equivalence is Efficient for Linear Quadratic Control",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1902.07826"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra phy', candidate_title='Certainty Equivalence is Efficient for Linear Quadratic Control')",
+        "failed_at": "2026-10-08T00:59:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this minireview article, we examine the inconsistent results of thermal parameters derived from various models in high-energy collisions. Through a comprehensive literature review and based on the average transverse momentum or the root-mean-square transverse momentum, we propose model-independent parameters to address these inconsistencies. The relevant parameters include: the initial temperature, the effective temperature, the kinetic freeze-out temperature, and the average transverse velocity. Our findings indicate that these four parameters are larger in central collisions, within central rapidity regions, at higher energies, and in larger collision systems. As collision energy increases, excitation functions for all four parameters rise rapidly (slowly) within ranges below (above) approximately 7.7 GeV. At higher energies (>39) GeV, fluctuations occur in trends for these excitation functions, with only slight changes observed in their growth rates. Additionally, this work reveals a mass-dependent multi-temperature scenario pertaining to both initial states and kinetic freeze-out processes.",
+          "claimed_authors": [
+            "Ting-Ting Duan",
+            "Sahanaa Büriechin",
+            "Hai-Ling Lao",
+            "Fu-Hu Liu",
+            "Khusniddin K. Olimov"
+          ],
+          "claimed_title": "On Extracting Thermal Parameters and Scenario in High-Energy Collisions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.20945"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra phy', candidate_title='On Extracting Thermal Parameters and Scenario in High-Energy Collisions')",
+        "failed_at": "2026-10-08T00:59:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "After reviewing the sound speeds in various forms and conditions of matter, we investigate the sound speed of hadronic matter that has decoupled from the hot and dense system formed during high-energy collisions. We comprehensively consider factors such as energy loss of the incident beam, rapidity shift of leading nucleons, and the Landau hydrodynamic model for hadron production. The sound speed is related to the width or standard deviation of the Gaussian rapidity distribution of hadrons. The extracted square speed of sound lies within a range from 0 to 1/3 in most cases. For scenarios exceeding this limit, we also provide an explanation.",
+          "claimed_authors": [
+            "Ting-Ting Duan",
+            "Fu-Hu Liu",
+            "Khusniddin K. Olimov"
+          ],
+          "claimed_title": "On the Square Speed of Sound in High-Energy Collisions: Range of Values and How to Understand It",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.01467"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra phy', candidate_title='On the Square Speed of Sound in High-Energy Collisions: Range of Values and How to Understand It')",
+        "failed_at": "2026-10-08T00:59:14Z",
+        "reason": "query_irrelevant"
+      },
       {
         "candidate": {
           "backend": "arxiv",
@@ -85,7 +220,7 @@
           "primary_pointer": "2206.11002"
         },
         "details": "query-relevance 0.100 < 0.3 (query='Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra phy', candidate_title='Lorentz symmetry breaking and supersymmetry')",
-        "failed_at": "2026-06-16T16:45:34Z",
+        "failed_at": "2026-10-08T00:59:14Z",
         "reason": "query_irrelevant"
       },
       {
@@ -104,157 +239,7 @@
           "primary_pointer": "2212.09504"
         },
         "details": "query-relevance 0.100 < 0.3 (query='Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra phy', candidate_title='Calculations in Lorentz-breaking scalar QED')",
-        "failed_at": "2026-06-16T16:45:34Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The spectral behavior of the difference between the resolvents of two realizations $\\tilde A_1$ and $\\tilde A_2$ of a second-order strongly elliptic symmetric differential operator $A$, defined by different Robin conditions $νu=b_1γ_0u$ and $νu=b_2γ_0u$, can in the case where all coefficients are $C^\\infty$ be determined by use of a general result by the author in 1984 on singular Green operators. We here treat the problem for nonsmooth $b_i$. Using a Krein resolvent formula, we show that if $b_1$ and $b_2$ are in $L_\\infty$, the s-numbers $s_j$ of $(\\tilde A_1 -λ)^{-1}-(\\tilde A_2 -λ)^{-1}$ satisfy $s_j j^{3/(n-1)}\\le C$ for all $j$; this improves a recent result for $A=-Δ$ by Behrndt et al., that $\\sum_js_j ^p<\\infty$ for $p>(n-1)/3$. A sharper estimate is obtained when $b_1$ and $b_2$ are in $C^ε$ for some $ε>0$, with jumps at a smooth hypersurface, namely that $s_j j^{3/(n-1)}\\to c$ for $j\\to \\infty$, with a constant $c$ defined from the principal symbol of $A$ and $b_2-b_1$.\n  As an auxiliary result we show that the usual principal spectral asymptotic estimate for pseudodifferential operators of negative order on a closed manifold extends to products of pseudodifferential operators interspersed with piecewise continuous functions.",
-          "claimed_authors": [
-            "Gerd Grubb"
-          ],
-          "claimed_title": "Spectral asymptotics for Robin problems with a discontinuous coefficient",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2010,
-          "primary_pointer": "1009.0997"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra phy', candidate_title='Spectral asymptotics for Robin problems with a discontinuous coefficient')",
-        "failed_at": "2026-06-16T16:45:36Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Consider an elliptic self-adjoint pseudodifferential operator $A$ acting on $m$-columns of half-densities on a closed manifold $M$, whose principal symbol is assumed to have simple eigenvalues. We show that the spectrum of $A$ decomposes, up to an error with superpolynomial decay, into $m$ distinct series, each associated with one of the eigenvalues of the principal symbol of $A$. These spectral results are then applied to the study of propagation of singularities in hyperbolic systems. The key technical ingredient is the use of the carefully devised pseudodifferential projections introduced in the first part of this work, which decompose $L^2(M)$ into almost-orthogonal almost-invariant subspaces under the action of both $A$ and the hyperbolic evolution.",
-          "claimed_authors": [
-            "Matteo Capoferri",
-            "Dmitri Vassiliev"
-          ],
-          "claimed_title": "Invariant subspaces of elliptic systems II: spectral theory",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2103.14334"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra phy', candidate_title='Invariant subspaces of elliptic systems II: spectral theory')",
-        "failed_at": "2026-06-16T16:45:36Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We consider an elliptic self-adjoint first order pseudodifferential operator acting on columns of complex-valued half-densities over a connected compact manifold without boundary. The eigenvalues of the principal symbol are assumed to be simple but no assumptions are made on their sign, so the operator is not necessarily semi-bounded. We study the following objects: the propagator (time-dependent operator which solves the Cauchy problem for the dynamic equation), the spectral function (sum of squares of Euclidean norms of eigenfunctions evaluated at a given point of the manifold, with summation carried out over all eigenvalues between zero and a positive lambda) and the counting function (number of eigenvalues between zero and a positive lambda). We derive explicit two-term asymptotic formulae for all three. For the propagator \"asymptotic\" is understood as asymptotic in terms of smoothness, whereas for the spectral and counting functions \"asymptotic\" is understood as asymptotic with respect to lambda tending to plus infinity.",
-          "claimed_authors": [
-            "Olga Chervova",
-            "Robert J. Downes",
-            "Dmitri Vassiliev"
-          ],
-          "claimed_title": "The spectral function of a first order elliptic system",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2012,
-          "primary_pointer": "1208.6015"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra phy', candidate_title='The spectral function of a first order elliptic system')",
-        "failed_at": "2026-06-16T16:45:36Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We offer a brief survey of existent and planned experimental tests for quantum gravity. First, we outline the questions we wish to address, and then introduce some of the phenomenological models that are currently used in quantum gravity, both with and without a lowered Planck scale. After that, we summarize experimental areas where these models can be tested or constrained and discuss the status of the field.",
-          "claimed_authors": [
-            "Sabine Hossenfelder"
-          ],
-          "claimed_title": "Experimental Search for Quantum Gravity",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2010,
-          "primary_pointer": "1010.3420"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra phy', candidate_title='Experimental Search for Quantum Gravity')",
-        "failed_at": "2026-06-16T16:45:36Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We summarize recent developments at the interface of quantum gravity and quantum information, and discuss applications to the quantum geometry of space in loop quantum gravity. In particular, we describe the notions of link entanglement, intertwiner entanglement, and boundary spin entanglement in a spin-network state. We discuss how these notions encode the gluing of quanta of space and their relevance for the reconstruction of a quantum geometry from a network of entanglement structures. We then focus on the geometric entanglement entropy of spin-network states at fixed spins, treated as a many-body system of quantum polyhedra, and discuss the hierarchy of volume-law, area-law and zero-law states. Using information theoretic bounds on the uncertainty of geometric observables and on their correlations, we identify area-law states as the corner of the Hilbert space that encodes a semiclassical geometry, and the geometric entanglement entropy as a probe of semiclassicality.",
-          "claimed_authors": [
-            "Eugenio Bianchi",
-            "Etera R. Livine"
-          ],
-          "claimed_title": "Loop Quantum Gravity and Quantum Information",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2302.05922"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra phy', candidate_title='Loop Quantum Gravity and Quantum Information')",
-        "failed_at": "2026-06-16T16:45:36Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The current understanding of renormalization in quantum gravity (QG) is based on the fact that UV divergences of effective actions in the covariant QG models are covariant local expressions. This fundamental statement plays a central role in QG and, therefore, it is important to prove it for the widest possible range of the QG theories. Using the Batalin-Vilkovisky technique and the background field method, we elaborate the proof of gauge invariant renormalizability for a generic model of quantum gravity that is diffeomorphism invariant and does not have additional, potentially anomalous, symmetries.",
-          "claimed_authors": [
-            "P. M. Lavrov",
-            "I. L. Shapiro"
-          ],
-          "claimed_title": "Gauge invariant renormalizability of quantum gravity",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2022,
-          "primary_pointer": "2210.09271"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra phy', candidate_title='Gauge invariant renormalizability of quantum gravity')",
-        "failed_at": "2026-06-16T16:45:36Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The functional Schrodinger picture formulation of quantum field theory and the variational Gaussian approximation method based on the formulation are briefly reviewed. After presenting recent attempts to improve the variational approximation, we introduce a new systematic method based on the background field method, which enables one to compute the order-by-order correction terms to the Gaussian approximation of the effective action.",
-          "claimed_authors": [
-            "Jae Hyung Yee"
-          ],
-          "claimed_title": "Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It",
-          "claimed_venue": "arXiv",
-          "claimed_year": 1997,
-          "primary_pointer": "hep-th/9707234"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra phy', candidate_title='Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It')",
-        "failed_at": "2026-06-16T16:45:36Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We suggest that the dark side of the universe builds a dark medium modifying the Standard Model particle dispersion relations. We introduce the generic form for the modified dispersion relations and provide explicit models of the dark medium. We use the derived neutrino dispersion relations to show that the size of the corrections are smaller than the SN1987a bounds. We argue that before invoking modifications of Einstein's theory of relativity one should investigate the dark medium effects.",
-          "claimed_authors": [
-            "Isabella Masina",
-            "Francesco Sannino"
-          ],
-          "claimed_title": "Dark Medium Modified Dispersion Relations",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2011,
-          "primary_pointer": "1110.1853"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra phy', candidate_title='Dark Medium Modified Dispersion Relations')",
-        "failed_at": "2026-06-16T16:45:36Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The techniques of dispersion relations match very well with those of effective field theory. I describe the techniques for using dispersion relations effectively, and give some pedagogical examples to illustrate the range of applications.",
-          "claimed_authors": [
-            "John F. Donoghue"
-          ],
-          "claimed_title": "Dispersion Relations and Effective Field Theory",
-          "claimed_venue": "arXiv",
-          "claimed_year": 1996,
-          "primary_pointer": "hep-ph/9607351"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra phy', candidate_title='Dispersion Relations and Effective Field Theory')",
-        "failed_at": "2026-06-16T16:45:36Z",
+        "failed_at": "2026-10-08T00:59:14Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -282,7 +267,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-16T16:45:33Z"
+          "verified_at": "2026-10-08T00:59:11Z"
         }
       },
       {
@@ -307,7 +292,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-16T16:45:33Z"
+          "verified_at": "2026-10-08T00:59:11Z"
         }
       },
       {
@@ -337,13 +322,90 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/1503.01182",
           "http_status": 200,
-          "pdf_sample_score": 0.2185,
+          "pdf_sample_score": null,
           "query_relevance_score": 0.3,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-16T16:45:34Z"
+          "verified_at": "2026-10-08T00:59:11Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "The Fermi LAT",
+            "GBM Collaborations"
+          ],
+          "title": "Fermi Observations of GRB 090510: A Short Hard Gamma-Ray Burst with an Additional, Hard Power-Law Component from 10 keV to GeV Energies",
+          "venue": "arXiv",
+          "year": 2010
+        },
+        "primary_pointer": "1005.2141",
+        "summary": "We present detailed observations of the bright short-hard gamma-ray burst GRB 090510 made with the Gamma-ray Burst Monitor (GBM) and Large Area Telescope (LAT) on board the Fermi observatory.  GRB 090510 is the first burst detected by the LAT that shows strong evidence for a deviation from a Band spectral fitting function during the prompt emission phase.  The time-integrated spectrum is fit by the sum of a Band function with $\\Epeak = 3.9\\pm 0.3$\\,MeV, which is the highest yet measured, and a hard power-law component with photon index $-1.62\\pm 0.03$ that dominates the emission below $\\approx$\\,20\\,keV and above $\\approx$\\,100\\,MeV.  The onset of the high-energy spectral component appears to be delayed by $\\sim$\\,0.1\\,s with respect to the onset of a component well fit with a single Band function. A faint GBM pulse and a LAT photon are detected 0.5\\,s before the main pulse. During the prompt phase, the LAT detected a photon with energy $30.5^{+5.8}_{-2.6}$ GeV, the highest ever measured from a short GRB. Observation of this photon sets a minimum bulk outflow Lorentz factor, $Γ\\ga$\\,1200, using simple $γγ$ opacity arguments for this GRB at redshift $z = 0.903$ and a variability time scale on the order of tens of ms for the $\\approx$\\,100\\,keV--few MeV flux. Stricter high confidence estimates imply $Γ\\ga 1000$ and still require that the outflows powering short GRBs are at least as highly relativistic as those of long duration GRBs.  Implications of the temporal behavior and power-law shape of the additional component on synchrotron/synchrotron self-Compton (SSC), external-shock synchrotron, and hadronic models are considered.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1005.2141",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-08T00:59:12Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            " Fermi LAT Collaboration",
+            " Fermi GBM Collaboration"
+          ],
+          "title": "Fermi detection of delayed GeV emission from the short GRB 081024B",
+          "venue": "arXiv",
+          "year": 2010
+        },
+        "primary_pointer": "1002.3205",
+        "summary": "We report on the detailed analysis of the high-energy extended emission from the short Gamma-Ray Burst (GRB) 081024B, detected by the Fermi Gamma-ray Space Telescope. Historically, this represents the first clear detection of temporal extended emission from a short GRB. The light curve observed by the Fermi Gamma-ray Burst Monitor lasts approximately 0.8 seconds whereas the emission in the Fermi Large Area Telescope lasts for about 3 seconds. Evidence of longer lasting high-energy emission associated with long bursts has been already reported by previous experiments. Our observations, together with the earlier reported study of the bright short GRB 090510, indicate similarities in the high-energy emission of short and long GRBs and open the path to new interpretations.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1002.3205",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-08T00:59:13Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "She-Sheng Xue"
+          ],
+          "title": "Trapped fireshell (halo) of photons and pairs around black-hole horizon: source for ultra-high-energy particles",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2512.03702",
+        "summary": "We study the Compton-rocket effect of strong radiation force accelerating electrons in an opaque fireshell (or fire spot) of dense photons and electron-positron pairs, whose temperature is spatially inhomogeneous and exceeds the electron mass. We find the possibility of the charged-particle acceleration and the avalanche runaway process, leading to a non-trivial probability of ultra-high-energy (UHE) electrons and protons, which subsequently produce very-high-energy (VHE) photons and neutrinos. In a simplified one-dimensional model, we qualitatively show such peculiar dynamics using the fireball, Gamma-Ray Burst central engine, whose inner part inflows and forms a gravitationally trapped fireshell (halo) around the horizon of a black hole. The fireshell is metastable, cooling via UHE particle emissions and blackbody radiation. We calculate the UHE particle luminosity varying in time, and discuss the peculiar features of such produced UHE particles, which lead to VHE particles, in connection with possible numerical simulations, observations and experiments.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2512.03702",
+          "http_status": 200,
+          "pdf_sample_score": 0.2687,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-08T00:59:13Z"
         }
       }
     ]

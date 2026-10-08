@@ -129,13 +129,13 @@
 ### Implementation for User Story 3
 
 - [X] T034 [US3] **Unified Sample Filtering**: Implement `code/modeling/filter.py` to consume `validation_flag` (T016) and `depth_flag` (T023), filtering out mismatched samples from the dataset produced by T014c. This task produces the **primary_analysis_dataset** used for all subsequent correlation calculations (T027, T028, T029, AND T031c). (FR-007, FR-008)
-- [~] T031c [US3] **Sensitivity Analysis (Counter-Factual)**: Implement `code/modeling/sensitivity.py` to calculate the impact of excluding depth-confounded samples. **Input**: The "pre-filter" valid dataset from T014c and the **primary_analysis_dataset** from T034. **Execution Order**: This task runs AFTER T034 completes, but CAN run in parallel with T027, T028, and T029 as it consumes T034's output. **Action**: Compute correlation coefficients on both datasets, calculate the delta (Δr), and define the quantitative threshold for "high sensitivity" (default: [deferred] change in correlation coefficient, configurable via `config.yaml`). Report whether the exclusion of flagged samples significantly alters the conclusion. (FR-008)
+- [ ] T031c [US3] **Sensitivity Analysis (Counter-Factual)**: Implement `code/modeling/sensitivity.py` to calculate the impact of excluding depth-confounded samples. **Input**: The "pre-filter" valid dataset from T014c and the **primary_analysis_dataset** from T034. **Execution Order**: This task runs AFTER T034 completes, but CAN run in parallel with T027, T028, and T029 as it consumes T034's output. **Action**: Compute correlation coefficients on both datasets, calculate the delta (Δr), and define the quantitative threshold for "high sensitivity" (default: [deferred] change in correlation coefficient, configurable via `config.yaml`). Report whether the exclusion of flagged samples significantly alters the conclusion. (FR-008)
 - [X] T027 [US3] Implement `code/modeling/correlation.py` to calculate Pearson and Spearman correlation coefficients and p-values between spatial metrics and PCE using the **primary_analysis_dataset from T034** (FR-004)
 - [X] T028 [US3] Implement Benjamini-Hochberg correction for multiple comparisons in `code/modeling/correlation.py` and report raw/adjusted p-values (FR-004)
 - [X] T029 [US3] Implement `code/modeling/gam.py` to fit Generalized Additive Models (GAM) for detecting non-linear relationships (FR-004)
 - [X] T030 [US3] Implement `code/analysis/robustness.py` to perform leave-one-out cross-validation and report Δr changes for each sample (FR-005, SC-003)
-- [~] T032 [US3] Implement `code/report/generate.py` to generate summary report (CSV at `data/report/summary.csv` and PDF at `data/report/summary.pdf`) with fields: correlation coefficient, p-value, sample count, best-fit model, AIC, Δr max, **ingestion_success_rate** (read from `state/ingestion_stats.json`), and **sensitivity_delta_r** (from T031c) (FR-006)
-- [~] T033 [US3] Add logic to calculate statistical power; if N < `config.min_sample_count` (default a moderate number), flag results as 'non-definitive' and halt interpretation (Assumptions)
+- [ ] T032 [US3] Implement `code/report/generate.py` to generate summary report (CSV at `data/report/summary.csv` and PDF at `data/report/summary.pdf`) with fields: correlation coefficient, p-value, sample count, best-fit model, AIC, Δr max, **ingestion_success_rate** (read from `state/ingestion_stats.json`), and **sensitivity_delta_r** (from T031c) (FR-006)
+- [ ] T033 [US3] Add logic to calculate statistical power; if N < `config.min_sample_count` (default a moderate number), flag results as 'non-definitive' and halt interpretation (Assumptions)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -145,7 +145,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T034a [P] Update `README.md` with usage instructions and example commands
+- [ ] T034a [P] Update `README.md` with usage instructions and example commands
 - [~] T035 Add docstrings to all public functions in `code/` (Complete coverage of public API)
 - [~] T036 Optimize memory usage: ensure peak RAM < 7GB during full pipeline run on CPU-only CI
 - [~] T037 [P] Add additional unit tests to achieve >80% code coverage in `tests/unit/`

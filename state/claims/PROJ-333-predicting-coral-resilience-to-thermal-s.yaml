@@ -2056,3 +2056,446 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-03T06:54:13Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Assembly ID GCF_000163615.2 authorized by Plan.md Technical Context
+  claim_id: c_05f9e394
+  context: The assembly ID GCF_000163615.2 is authorized by Plan.md Section 'Technical
+    Context', not by AMEND-001 (which only covers BioProject ID).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The assembly ID GCF_000163615.2 is authorized by Plan.md Section 'Technical
+    Context'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:49:00Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: BioProject ID changed to PRJNA321023
+  claim_id: c_d3efbfdd
+  context: 'Content: Must explicitly state: ''AMEND-001: BioProject ID changed from
+    PRJNA to PRJNA321023 per Plan.md Summary.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BioProject_ID_changed_to_PRJNA321023
+  kind: entity_fact
+  raw_text: The BioProject ID was changed from PRJNA to PRJNA321023.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:49:22Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Reference transcriptome assembly ID GCF_000163615.2
+  claim_id: c_17386eeb
+  context: MUST fetch the official SHA256 checksum from the NCBI RefSeq FTP manifest
+    for assembly GCF_000163615.2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The reference transcriptome assembly ID is GCF_000163615.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:50:05Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: BioProject ID changed from PRJNA to PRJNA321023
+  claim_id: c_70898dc9
+  context: 'AMEND-001: BioProject ID changed from PRJNA to PRJNA321023 per Plan.md
+    Summary. Spec.md is the frozen SSoT; this document records the plan-level deviation
+    for implementation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BioProject_ID_changed_from_PRJNA_to_PRJNA321023
+  kind: entity_fact
+  raw_text: Updated BioProject ID to PRJNA321023 per Plan.md Summary.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:50:56Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Acropora millepora reference transcriptome assembly GCF_000163615.2
+  claim_id: c_8aa661c6
+  context: Download *Acropora millepora* reference transcriptome (NCBI RefSeq) to
+    `data/raw/reference/`. MUST fetch the official SHA256 checksum from the NCBI RefSeq
+    FTP manifest for assembly GCF_000163615.2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download *Acropora millepora* reference transcriptome (NCBI RefSeq) to
+    `data/raw/reference/`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:50:56Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Assembly GCF_000163615.2 authorized by Plan.md
+  claim_id: c_37c11233
+  context: The assembly ID GCF_000163615.2 is authorized by Plan.md Section 'Technical
+    Context', not by AMEND-001 (which only covers BioProject ID).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The assembly ID GCF_000163615.2 is authorized by Plan.md Section 'Technical
+    Context'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:50:57Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: NCBI RefSeq FTP manifest URL
+  claim_id: c_3323a3fa
+  context: 'MUST fetch the official SHA256 checksum from the NCBI RefSeq FTP manifest
+    for assembly GCF_000163615.2 using the URL: `ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/other/assembly_summary_refseq.txt`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NCBI_RefSeq_FTP_manifest_URL
+  kind: entity_fact
+  raw_text: The URL for the NCBI RefSeq FTP manifest is `ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/other/assembly_summary_refseq.txt`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:51:19Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: g:Profiler API URL
+  claim_id: c_d93bc526
+  context: Implement `code/enrichment.py` to query g:Profiler API (`https://biit.cs.ut.ee/gprofiler/gost`)
+    using the mapped gene IDs from T033.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/G:Profiler_API_URL
+  kind: entity_fact
+  raw_text: g:Profiler API is located at `https://biit.cs.ut.ee/gprofiler/gost`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:51:51Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Acropora millepora g:Profiler organism code ammi
+  claim_id: c_f273845a
+  context: 'MUST use the specific query parameters: `query`, `organism=ammi` (or appropriate
+    code). MUST verify that `organism=ammi` is a valid code.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Acropora_millepora_g:Profiler_organism_code_ammi
+  kind: entity_fact
+  raw_text: The organism code for Acropora millepora in g:Profiler is `ammi`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:51:53Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: BioProject ID changed from PRJNA to PRJNA321023
+  claim_id: c_fdd90dde
+  context: 'AMEND-001: BioProject ID changed from PRJNA to PRJNA321023 per Plan.md
+    Summary.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BioProject_ID_changed_from_PRJNA_to_PRJNA321023
+  kind: entity_fact
+  raw_text: Updated BioProject ID to PRJNA321023 per Plan.md Summary.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:52:15Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Assembly ID GCF_000163615.2 authorized for Acropora millepora
+  claim_id: c_978d4f16
+  context: The assembly ID GCF_000163615.2 is authorized by Plan.md Section 'Technical
+    Context', not by AMEND-001.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The assembly ID GCF_000163615.2 is authorized by Plan.md Section 'Technical
+    Context'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:52:15Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 2
+  canonical: g:Profiler organism code ammi for Acropora millepora
+  claim_id: c_1ce75291
+  context: 'MUST use the specific query parameters: query, organism=ammi (or appropriate
+    code).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/G:Profiler_organism_code_ammi_for_Acropora_millepora
+  kind: entity_fact
+  raw_text: The g:Profiler organism code for Acropora millepora is 'ammi'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:52:18Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Chi-Square Goodness-of-Fit Test used for statistical rigor validation
+  claim_id: c_df7e4670
+  context: MUST use a Chi-Square Goodness-of-Fit Test to compare the observed count
+    against the expected count (Poisson-like distribution).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Chi-Square_Goodness-of-Fit_Test_used_for_statistical_rigor_v
+  kind: entity_fact
+  raw_text: The Chi-Square Goodness-of-Fit Test compares the observed count against
+    the expected count.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:52:48Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: 'Null expectation formula: total_genes multiplied by significance_threshold'
+  claim_id: c_e06473fc
+  context: 'Calculate the theoretical expected count of significant genes under the
+    null hypothesis: expected_count = total_genes * significance_threshold.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Null_expectation_formula:_total_genes_multiplied_by_signific
+  kind: entity_fact
+  raw_text: 'The null expectation calculation uses the formula: expected_count = total_genes
+    * significance_threshold.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:53:27Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: BioProject ID updated to PRJNA321023
+  claim_id: c_5d3df75d
+  context: 'Formal Plan Amendment Record: Create amendments.md to document the change
+    from PRJNA292777 to PRJNA321023. Content: Must explicitly state: AMEND-001: BioProject
+    ID changed from PRJNA to PRJNA321023 per Plan.md Summary.'
+  evidence:
+    entailment_evidence: BioProject ID updated to PRJNA321023
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/BioProject_ID_updated_to_PRJNA321023
+  kind: entity_fact
+  raw_text: Updated BioProject ID to PRJNA321023 per Plan.md Summary.
+  resolved_value: BioProject ID updated to PRJNA321023
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T00:54:56Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Acropora millepora assembly GCF_000163615.2 authorized
+  claim_id: c_8d54000c
+  context: 'Note: T018 is resource-intensive... The assembly ID GCF_000163615.2 is
+    authorized by Plan.md Section Technical Context, not by AMEND-001 (which only
+    covers BioProject ID).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The assembly ID GCF_000163615.2 is authorized by Plan.md Section Technical
+    Context.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:54:56Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: g:Profiler organism code ammi used
+  claim_id: c_91cc83d3
+  context: 'MUST use the specific query parameters: query, organism=ammi (or appropriate
+    code). MUST verify that organism=ammi is a valid code by querying the g:Profiler
+    organism list first.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/G:Profiler_organism_code_ammi_used
+  kind: entity_fact
+  raw_text: The specific query parameters for g:Profiler include organism=ammi.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:55:24Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: g:Profiler sources GO:BP KEGG Reactome
+  claim_id: c_88a4a6c7
+  context: 'MUST use the specific query parameters: sources=[GO:BP, KEGG, Reactome].'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/G:Profiler_sources_GO:BP_KEGG_Reactome
+  kind: entity_fact
+  raw_text: The g:Profiler query must use sources GO:BP, KEGG, and Reactome.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:55:44Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Biological plausibility FDR threshold 0.1
+  claim_id: c_cf62cc63
+  context: 'If specific p-values/FDRs for HSP or Oxidative Stress pathways are present,
+    compare against FDR < 0.1 threshold (SC-003). Success Criterion: PASS if at least
+    one pathway from [HSP, Oxidative] has FDR < 0.1.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: https://doi.org/10.1145/3511808.3557672
+      source_id: '2210.03178'
+      url: https://arxiv.org/abs/2210.03178
+      value: '0.1'
+    filled: true
+  kind: numeric
+  raw_text: The threshold for FDR in the biological plausibility validation is 0.1.
+  resolved_value: '0.1'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T00:56:10Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: DGE FDR threshold 0.05
+  claim_id: c_fb52588b
+  context: 'Assert FDR Threshold: Calculate the final False Discovery Rate (FDR) of
+    the reported significant hits (FDR <= 0.05). MUST fail the pipeline if FDR > 0.05
+    (SC-005).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The threshold for FDR in the DGE analysis is 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:56:31Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: MIN_COUNT_THRESHOLD placeholder 10
+  claim_id: c_15998000
+  context: MUST set MIN_COUNT_THRESHOLD = 10 as a temporary placeholder to satisfy
+    Constitution Check VII (Uniform Filtering) for the build system.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The placeholder value for MIN_COUNT_THRESHOLD is 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:56:58Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Project RAM limit 7 GB
+  claim_id: c_f72f651c
+  context: 'Create code/config.py defining all project constants: paths, NCBI BioProject
+    ID, RAM thresholds (MAX_RAM_GB = 7), and MIN_SAMPLES_FOR_FILTER.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum RAM threshold for the project is 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:57:22Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time limit 6 hours
+  claim_id: c_89c48a64
+  context: Run quickstart.md validation to ensure full pipeline execution time is
+    < 6 hours on free-tier runner.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum execution time for the pipeline on a free-tier runner is 6
+    hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:57:50Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Flake8 max line length 88
+  claim_id: c_9d0ef4d5
+  context: Create .flake8 configuration file with max-line-length=88 and ignore=E203,W503.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum line length for flake8 is 88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:58:12Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Black max line length 88
+  claim_id: c_d9790f65
+  context: Create pyproject.toml configuration for black (line length 88) and isort.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum line length for black is 88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T00:58:36Z'

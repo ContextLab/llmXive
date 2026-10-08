@@ -1,1 +1,1 @@
-# Data management package
+# Data package for llmXive Project

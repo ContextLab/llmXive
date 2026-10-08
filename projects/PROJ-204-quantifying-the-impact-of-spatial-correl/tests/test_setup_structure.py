@@ -1,79 +1,22 @@
-"""
-Tests for the project structure setup script.
-Verifies that the directory creation logic works correctly.
-"""
 import os
 import pytest
 from pathlib import Path
-import tempfile
 import shutil
+import tempfile
+from setup_structure import create_project_structure, ensure_init_files
 
-# Import the function to test
-import sys
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "code"))
-from setup_structure import create_project_structure
+@pytest.fixture
+def temp_project_root():
+    """Create a temporary directory to simulate project root."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        root = Path(tmp_dir)
+        yield root
+        # Cleanup is handled by TemporaryDirectory context manager
 
-def test_create_project_structure_creates_directories(tmp_path):
-    """
-    Test that create_project_structure creates the expected directories.
-    We run this in a temporary directory to avoid polluting the actual repo.
-    """
-    # Save current directory
-    original_cwd = os.getcwd()
-    
-    try:
-        # Change to temp directory
-        os.chdir(tmp_path)
-        
-        # Mock the root path detection in the function by temporarily
-        # modifying the working directory behavior or passing a specific context.
-        # Since the function uses __file__ relative path, we need to ensure
-        # the script is run in a way that respects the temp directory.
-        # For this test, we will directly verify the logic by calling the function
-        # after ensuring the script's parent context is correct.
-        
-        # Actually, the function uses Path(__file__).resolve().parent.parent
-        # To test this reliably in tmp_path, we need to copy the script or adjust logic.
-        # A simpler approach for this specific test:
-        # We will create the directories manually based on the list in the function
-        # and assert they exist, effectively testing the *intent* of the function.
-        
-        root = tmp_path
-        directories = [
-            "data/raw",
-            "data/processed",
-            "code/data",
-            "code/preprocess",
-            "code/analysis",
-            "code/modeling",
-            "code/validation",
-            "code/report",
-            "code/utils",
-            "tests",
-            "state",
-            "state/projects",
-            "docs",
-            "logs",
-            "figures",
-        ]
-
-        for dir_path in directories:
-            full_path = root / dir_path
-            full_path.mkdir(parents=True, exist_ok=True)
-            assert full_path.exists(), f"Directory {full_path} was not created"
-            assert full_path.is_dir(), f"{full_path} is not a directory"
-
-    finally:
-        # Restore original directory
-        os.chdir(original_cwd)
-
-def test_create_project_structure_submodules_exist(tmp_path):
-    """
-    Verify that the created directories can serve as Python packages (contain __init__.py).
-    This ensures the structure supports imports.
-    """
-    root = tmp_path
-    code_dirs = [
+def test_create_project_structure_creates_directories(temp_project_root):
+    """Test that all required directories are created."""
+    required_dirs = [
+        "code",
         "code/data",
         "code/preprocess",
         "code/analysis",
@@ -81,12 +24,51 @@ def test_create_project_structure_submodules_exist(tmp_path):
         "code/validation",
         "code/report",
         "code/utils",
+        "data/raw",
+        "data/processed",
+        "tests",
+        "state",
+        "docs",
+        "logs",
+        "figures",
     ]
+    
+    create_project_structure(temp_project_root)
+    
+    for dir_name in required_dirs:
+        dir_path = temp_project_root / dir_name
+        assert dir_path.exists(), f"Directory {dir_name} was not created"
+        assert dir_path.is_dir(), f"{dir_name} exists but is not a directory"
 
-    for dir_path in code_dirs:
-        full_path = root / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
-        init_file = full_path / "__init__.py"
-        # Create an empty __init__.py to validate package structure
-        init_file.touch()
-        assert init_file.exists(), f"__init__.py missing in {full_path}"
+def test_create_project_structure_creates_submodules(temp_project_root):
+    """Test that specific code subdirectories exist."""
+    create_project_structure(temp_project_root)
+    
+    code_subdirs = ["data", "preprocess", "analysis", "modeling", "validation", "report", "utils"]
+    for subdir in code_subdirs:
+        dir_path = temp_project_root / "code" / subdir
+        assert dir_path.exists(), f"Code submodule {subdir} was not created"
+
+def test_ensure_init_files_creates_init(temp_project_root):
+    """Test that __init__.py files are created."""
+    create_project_structure(temp_project_root)
+    ensure_init_files(temp_project_root)
+    
+    init_dirs = ["code", "code/data", "code/analysis", "code/modeling", "tests"]
+    for dir_name in init_dirs:
+        init_file = temp_project_root / dir_name / "__init__.py"
+        assert init_file.exists(), f"__init__.py missing in {dir_name}"
+
+def test_idempotency(temp_project_root):
+    """Test that running the setup multiple times doesn't cause errors."""
+    create_project_structure(temp_project_root)
+    ensure_init_files(temp_project_root)
+    
+    # Run again
+    create_project_structure(temp_project_root)
+    ensure_init_files(temp_project_root)
+    
+    # Verify structure still exists
+    assert (temp_project_root / "code").exists()
+    assert (temp_project_root / "data/raw").exists()
+    assert (temp_project_root / "code" / "__init__.py").exists()

@@ -1,6 +1,9 @@
-# Data files - large binary formats
+# Data artifacts (large files)
 data/raw/*.fastq.gz
 data/processed/*.rds
+data/raw/reference/*.fasta
+data/raw/reference/*.fna
+data/raw/sra_cache/*
 
 # Python cache and bytecode
 __pycache__/
@@ -31,21 +34,32 @@ wheels/
 *.swo
 *~
 .DS_Store
+.project
+.settings/
 
 # Logs and temporary files
 *.log
+.cache/
 .pytest_cache/
 .coverage
 htmlcov/
+.mypy_cache/
 
-# Environment files
+# Environment and secrets
 .env
 .env.local
+.env.*.local
+*.pem
+*.key
 
-# Results and plots (generated artifacts)
-results/plots/*.png
-results/plots/*.pdf
-results/plots/*.svg
-data/processed/*.png
-data/processed/*.pdf
-data/processed/*.svg
+# R artifacts
+.Rhistory
+.Rdata
+.Rproj.user/
+
+# Jupyter notebooks cache
+.ipynb_checkpoints/
+
+# OS specific
+Thumbs.db
+.Spotlight-V100

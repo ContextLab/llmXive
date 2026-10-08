@@ -1,26 +1,29 @@
-# Ruff configuration for llmXive catalytic activity project
-# Enforces rules: E (pycodestyle), F (Pyflakes), W (pycodestyle warnings), I (isort)
+# Ruff Configuration for llmXive Project
+# Rules: E (pycodestyle), F (Pyflakes), W (pycodestyle warnings), I (isort)
 
-line-length = 88
+line-length = 100
 target-version = "py311"
 
 [lint]
 select = [
-    "E", # pycodestyle errors
-    "F", # Pyflakes
-    "W", # pycodestyle warnings
-    "I", # isort
-]
-ignore = [
-    "E501", # Line too long (handled by black)
+    "E",  # pycodestyle errors
+    "F",  # Pyflakes
+    "W",  # pycodestyle warnings
+    "I",  # isort
 ]
 
-[lint.isort]
-known-first-party = ["code"]
-force-sort-within-sections = false
-lines-after-imports = 2
-combine-as-imports = true
-split-on-trailing-comma = false
+ignore = []
 
 [lint.per-file-ignores]
-"__init__.py" = ["F401"] # Allow unused imports in __init__.py for package exposure
+"__init__.py" = ["F401"]
+
+[lint.isort]
+known-first-party = ["code", "tests"]
+force-single-line = false
+lines-after-imports = 2
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

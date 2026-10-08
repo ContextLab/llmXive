@@ -47,7 +47,7 @@
 - [ ] T001b [P] Create `.gitignore` file excluding `data/raw/*.fastq.gz`, `data/processed/*.rds`, `__pycache__`, `*.pyc`
 - [X] T002 Initialize Python project with pinned dependencies (`biopython`, `pysam`, `scipy`, `pandas`, `matplotlib`, `gprofiler-official`, `rpy2`) in `requirements.txt`
 - [ ] T003a [P] Create `.flake8` configuration file with `max-line-length=88` and `ignore=E203,W503`
-- [ ] T003b [P] Create `pyproject.toml` configuration for `black` (line length 88) and `isort`
+- [X] T003b [P] Create `pyproject.toml` configuration for `black` (line length 88) and `isort`
 
 ---
 
@@ -61,7 +61,7 @@
  - **MUST set `MIN_COUNT_THRESHOLD = 10`** as a **temporary placeholder** to satisfy Constitution Check VII (Uniform Filtering) for the build system.
  - **MUST include a code comment** referencing the provisional nature: `# MIN_COUNT_THRESHOLD=10 is a temporary placeholder. Research phase MUST update this value via T020b before final analysis.`
 - [X] T004b [P] **Formal Plan Amendment Record**: Create `specs/001-coral-resilience-prediction/amendments.md` to document the change from PRJNA292777 to PRJNA321023.
- - **MUST create a formal amendment record** with ID `AMEND-001`, date, and description: "Updated BioProject ID to PRJNA321023 per Plan.md Summary. Spec.md is the frozen SSoT; this document records the plan-level deviation for implementation."
+ - **MUST create a formal amendment record** with ID `AMEND-001`, date, and description: "{{claim:c_5d3df75d}} Spec.md is the frozen SSoT; this document records the plan-level deviation for implementation."
  - **MUST NOT** modify `spec.md` directly in this task; `spec.md` is frozen. The record documents the required change for implementation.
  - **Content**: Must explicitly state: "AMEND-001: BioProject ID changed from PRJNA to PRJNA321023 per Plan.md Summary."
  - **Output**: `specs/001-coral-resilience-prediction/amendments.md`.
@@ -225,7 +225,7 @@
  - **MUST first verify that the Statistical Significance Summary section exists** before parsing.
  - If specific p-values/FDRs for HSP or Oxidative Stress pathways are present, compare against FDR < 0.1 threshold (SC-003).
  - **Success Criterion**: PASS if **at least one** pathway from [HSP, Oxidative] has FDR < 0.1.
- - **Failure Verdict Format**: If neither pathway is enriched, append the string `"Biological Plausibility: FAIL (No predefined pathways enriched at FDR < 0.1)"` to the report.
+ - **Failure Verdict Format**: If neither pathway is enriched, append the string `"Biological Plausibility: FAIL (No predefined pathways enriched at FDR < 0.1 (2210.03178, https://arxiv.org/abs/2210.03178))"` to the report.
  - Record FDR=1.0 for missing pathways.
  - Append the "Biological Plausibility" verdict to `data/processed/enrichment_report.md`.
 

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.03702",
+  "judged_at": "2026-10-08T00:59:23Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "constraining lorentz invariance violation with fermi gamma‑ray burst spectra physics",
+  "rationale": "The paper addresses the user's domain by modeling the central engine and spectral production mechanisms of Gamma-Ray Bursts (GRBs), which provides the necessary astrophysical baseline and physical context for constraining Lorentz Invariance Violation using Fermi GRB spectra (Category b). While it does not explicitly perform the Lorentz violation constraint analysis itself, it establishes the canonical \"fireshell\" model and high-energy particle dynamics that serve as the foundational framework fo",
+  "relevant": true
+}

@@ -1,3 +1,3 @@
 """
-Utility modules for hashing, validation, and runtime estimation.
+Utility modules for llmXive Project.
 """

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "llmXive-proj-204"
 version = "0.1.0"
-description = "Quantifying Spatial Correlations in Perovskite Solar Cell Efficiency"
+description = "Quantifying the impact of spatial correlations in perovskite solar cell efficiency"
 requires-python = ">=3.9"
 dependencies = [
     "numpy",
@@ -18,30 +18,46 @@ dependencies = [
     "statsmodels",
     "pygam",
     "pytest",
+    "requests",
+    "pydantic>=2.0",
+]
+
+[project.optional-dependencies]
+dev = [
     "ruff",
     "black",
+    "pre-commit",
 ]
 
 [tool.black]
 line-length = 88
-target-version = ['py39', 'py310', 'py311']
+target-version = ['py39']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | data
+    | state
 )/
 '''
 
 [tool.ruff]
-# This section is redundant if .ruff.toml exists, but kept for compatibility
 line-length = 88
-select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C4"]
 ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

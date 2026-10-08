@@ -1,3 +1,3 @@
 """
-Model storage and loading utilities.
+Model definitions and storage for llmXive Project.
 """

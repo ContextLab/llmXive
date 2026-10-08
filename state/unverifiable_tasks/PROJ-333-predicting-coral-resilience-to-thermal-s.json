@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-333-predicting-coral-resilience-to-thermal-s",
+  "tasks": [
+    {
+      "task_key": "T011",
+      "reject_count": 1,
+      "last_reason": "I looked for a `tests/integration/` directory containing test scaffolding and mock FASTQ files, but no such files or code were provided. Without the integration test files, the requirement to verify pipeline flow with mock data is not satisfied. The next implementer must add the integration test suite and include small mock FASTQ files in the specified location.",
+      "first_seen": "2026-10-08T00:58:42.179840+00:00",
+      "last_seen": "2026-10-08T00:58:42.179840+00:00"
+    }
+  ],
+  "updated_at": "2026-10-08T00:58:42.179840+00:00"
+}

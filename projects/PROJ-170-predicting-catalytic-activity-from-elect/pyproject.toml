@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-catalysis"
+name = "llmxive-catalyst-predictor"
 version = "0.1.0"
 description = "Predicting Catalytic Activity from Electronic Structure and Reaction Path Features"
 requires-python = ">=3.11"
@@ -15,31 +15,32 @@ dependencies = [
     "shap>=0.42.0",
     "matplotlib>=3.7.0",
     "seaborn>=0.12.0",
-    "requests>=2.31.0",
-    "huggingface-hub>=0.16.0",
-    "datasets>=2.14.0",
+    "h5py>=3.8.0",
+    "datasets>=2.12.0",
     "pymatgen>=2023.0.0",
-    "pydantic>=2.0.0",
+    "requests>=2.31.0",
+    "tqdm>=4.65.0",
+    "pyarrow>=12.0.0",
 ]
 
 [tool.black]
-line-length = 88
+line-length = 100
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
 
 [tool.setuptools.packages.find]
-where = ["code"]
-include = ["*"]
+where = ["."]
+include = ["code*", "tests*"]

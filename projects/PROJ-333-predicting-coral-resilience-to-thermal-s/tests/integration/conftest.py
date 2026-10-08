@@ -1,16 +1,16 @@
 """
-Pytest configuration for integration tests.
-Ensures the mock data directory is set up before tests run.
+Pytest configuration and fixtures for integration tests.
 """
 import pytest
+import sys
 from pathlib import Path
 
-@pytest.fixture(scope="session")
-def project_root():
-    """Return the project root directory."""
-    return Path(__file__).parent.parent.parent
-
-@pytest.fixture(scope="session")
-def mock_data_dir(project_root):
-    """Return the path to the mock data directory."""
-    return project_root / "tests" / "integration" / "data" / "mock_fastq"
+# Ensure the project root is in the path
+@pytest.fixture(autouse=True)
+def add_project_root():
+    project_root = Path(__file__).parent.parent.parent
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
+    yield
+    if str(project_root) in sys.path:
+        sys.path.remove(str(project_root))

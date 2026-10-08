@@ -1,0 +1,5 @@
+'|biological fdr plausibility threshold validation':
+  quote: https://doi.org/10.1145/3511808.3557672
+  source_id: '2210.03178'
+  url: https://arxiv.org/abs/2210.03178
+  value: '0.1'

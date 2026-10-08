@@ -883,3 +883,306 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-01T10:35:45Z'
+- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
+  attempts: 1
+  canonical: Verify DataFrame shape is (N, M) and columns match schema
+  claim_id: c_74514ec3
+  context: 'T013a [US1] Implement code/preprocess.py: Parse OC20 into DataFrame. Load
+    oc20_sample.h5 and parse into a single Pandas DataFrame with columns: composition,
+    surface_facet, experimental_tof, d_band_center, adsorption_energy. Verification:
+    Verify DataFrame shape is (N, M) and columns match schema.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_DataFrame_shape_is_(N,_M)_and_columns_match_schema
+  kind: entity_fact
+  raw_text: 'T013a: Verify DataFrame shape is (N, M) and columns match schema.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T01:04:35Z'
+- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
+  attempts: 1
+  canonical: Implement k-nearest-neighbors with k=5 based on Euclidean distance in
+    stoichiometry space
+  claim_id: c_fc2f3643
+  context: T017a [US1] Strict Stoichiometry KNN Imputation. Implement k-nearest-neighbors
+    (k=5) based on Euclidean distance in stoichiometry space (normalized element counts)
+    as required by FR-003.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'T017a: Implement k-nearest-neighbors (k=5) based on Euclidean distance
+    in stoichiometry space.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T01:04:39Z'
+- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
+  attempts: 1
+  canonical: Shapiro-Wilk test alpha is 0.05
+  claim_id: c_397c4495
+  context: 'T028a [US2] Statistical Test Logic (Normality Check on Paired Differences).
+    ... Perform Shapiro-Wilk test on the distribution of paired differences to satisfy
+    FR-005. Alpha: 0.05.'
+  evidence:
+    asserted: '28.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'T028a: Shapiro-Wilk test alpha is 0.05.'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T01:04:40Z'
+- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
+  attempts: 1
+  canonical: Feasibility verification fails if duration exceeds 6 hours
+  claim_id: c_2c045c0f
+  context: 'T042c [US3] Adaptive Runtime Check & Feasibility Verification. ... If
+    duration > 6 hours, set feasibility_status: FAIL in outputs/feasibility_verification.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'T042c: Feasibility verification fails if duration exceeds 6 hours.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T01:04:42Z'
+- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
+  attempts: 1
+  canonical: Pipeline relies exclusively on verified OC20 dataset
+  claim_id: c_87955592
+  context: 'Scope Note: Per plan.md ''Critical Scope Adjustment'', this pipeline relies
+    exclusively on the verified OC20 dataset. External datasets (Materials Project,
+    2025 CO2 study) are excluded due to data unavailability.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_relies_exclusively_on_verified_OC20_dataset
+  kind: entity_fact
+  raw_text: The pipeline relies exclusively on the verified OC20 dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T01:10:32Z'
+- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
+  attempts: 1
+  canonical: Download OC20 dataset from HuggingFace ID Open-Catalyst/oc20-experimental
+  claim_id: c_1a74b02b
+  context: 'Implement `code/download_data.py`: Download stratified sample of OC20
+    dataset from HuggingFace. **Dataset ID**: `Open-Catalyst/oc20-experimental`. **File**:
+    `oc20.h5`.'
+  evidence:
+    entailment_evidence: Download OC20 dataset from HuggingFace ID Open-Catalyst/oc20
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Download_OC20_dataset_from_HuggingFace_ID_Open-Catalyst/oc20
+  kind: entity_fact
+  raw_text: Download stratified sample of OC20 dataset from HuggingFace with Dataset
+    ID 'Open-Catalyst/oc20-experimental'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-10-08T01:13:25Z'
+- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
+  attempts: 1
+  canonical: Final dataset schema columns composition surface_facet entry_id experimental_tof
+    d_band_center adsorption_energy stoich
+  claim_id: c_15f18b0e
+  context: 'Generate `data/processed/aligned_dataset.csv` with final schema. **Schema**:
+    `composition` (str), `surface_facet` (str), `entry_id` (str), `experimental_tof`
+    (float), `d_band_center` (float), `adsorption_energy` (float), `stoich_*` (float).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Final_dataset_schema_columns_composition_surface_facet_entry
+  kind: entity_fact
+  raw_text: 'The final dataset schema includes columns: composition, surface_facet,
+    entry_id, experimental_tof, d_band_center, adsorption_energy, and stoich_*.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T01:14:39Z'
+- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
+  attempts: 1
+  canonical: KNN imputation uses k=5 Euclidean distance in stoichiometry space
+  claim_id: c_71119591
+  context: Implement k-nearest-neighbors (k=5) based on Euclidean distance in stoichiometry
+    space (normalized element counts) as required by FR-003.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The k-nearest-neighbors imputation uses k=5 based on Euclidean distance
+    in stoichiometry space.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T01:17:26Z'
+- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
+  attempts: 1
+  canonical: XGBoost training uses 5-fold outer loop cross-validation
+  claim_id: c_900e6b72
+  context: 'Train XGBoost with nested cross-validation. **Outer loop**: 5-fold. **Inner
+    loop**: Grid search `max_depth` across a range of low to moderate depths.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The XGBoost model training uses an outer loop of 5-fold cross-validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T01:18:22Z'
+- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
+  attempts: 1
+  canonical: XGBoost grid search n_estimators <= 200
+  claim_id: c_3d95d5da
+  context: "Grid search `max_depth` across a range of low to moderate depths., `learning_rate`\
+    \ \u2208 {0.01, 0.1}, `n_estimators` \u2264 200 (Fixed grid per FR-004)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/XGBoost_grid_search_n_estimators_%3C=_200
+  kind: magnitude
+  raw_text: The XGBoost grid search includes n_estimators values less than or equal
+    to 200.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T01:19:10Z'
+- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
+  attempts: 1
+  canonical: XGBoost training uses random seed 42
+  claim_id: c_6565dac5
+  context: 'Train XGBoost with nested cross-validation. ... **Seed**: 42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The XGBoost model training uses a random seed of 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T01:19:32Z'
+- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
+  attempts: 1
+  canonical: Statistical test uses alpha 0.05
+  claim_id: c_fc9cc9cd
+  context: 'Perform Shapiro-Wilk test on the **distribution of paired differences**
+    to satisfy FR-005. **Alpha**: 0.05.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The statistical significance test uses an alpha level of 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T01:19:43Z'
+- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
+  attempts: 1
+  canonical: Reduced model trained using top 5 SHAP-ranked descriptors
+  claim_id: c_4d394724
+  context: Train a reduced model using **exactly the top 5** SHAP-ranked descriptors
+    (no other features).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The reduced model is trained using exactly the top 5 SHAP-ranked descriptors.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T01:20:05Z'
+- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
+  attempts: 1
+  canonical: Reduced model training uses random seed 42
+  claim_id: c_f56a040d
+  context: 'Perform independent hyperparameter tuning using the grid search defined
+    in T036a. **Seed**: 42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The reduced model training uses a random seed of 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T01:20:34Z'
+- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
+  attempts: 1
+  canonical: Feasibility verification fails if duration exceeds 6 hours
+  claim_id: c_9b133b12
+  context: 'If duration > 6 hours, set `feasibility_status`: ''FAIL'' in `outputs/feasibility_verification.json`.
+    If duration <= 6 hours, set `feasibility_status`: ''PASS''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The feasibility verification fails if the pipeline duration exceeds 6
+    hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T01:20:58Z'
+- artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/tasks.md
+  attempts: 1
+  canonical: "N\xF8rskov reference list contains d_band_center reaction_energy activation_barrier"
+  claim_id: c_2f8986cb
+  context: "Create a static local file `code/data/norskov_2005_descriptors.json` containing\
+    \ the hardcoded list of descriptors from N\xF8rskov et al. ... **Content**: Hardcode\
+    \ these three strings exactly as the reference set."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/N%C3%B8rskov_reference_list_contains_d_band_center_reaction_energ
+  kind: entity_fact
+  raw_text: "The N\xF8rskov reference list contains the descriptors 'd_band_center',\
+    \ 'reaction_energy', and 'activation_barrier'."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T01:21:29Z'

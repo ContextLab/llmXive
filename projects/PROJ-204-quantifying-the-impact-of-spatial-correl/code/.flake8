@@ -4,9 +4,10 @@ extend-ignore = E203, W503
 exclude =
     .git,
     __pycache__,
-    build,
-    dist,
-    .eggs,
-    *.egg-info
+    .venv,
+    venv,
+    data,
+    state,
+    docs
 per-file-ignores =
-    __init__.py:F401
+    __init__.py: F401

@@ -1,3 +1,3 @@
 """
-Test suite for the catalytic activity prediction pipeline.
+Test suite for llmXive Project.
 """
