@@ -1,117 +1,168 @@
 """
-Task T038: Code cleanup and refactoring using black and flake8.
+Code cleanup and formatting utilities for the llmXive pipeline.
 
-This script automates the formatting and linting process for the project.
-It installs the necessary tools (if missing), runs black to format code,
-and runs flake8 to check for linting issues.
-
-Usage:
-    python code/cleanup_and_format.py
+This module provides functions to run black and flake8 checks
+and automatically format code to meet project standards.
 """
 import subprocess
 import sys
 import os
 from pathlib import Path
+import logging
 
-def run_command(cmd: list, description: str) -> bool:
-    """Run a shell command and report status."""
-    print(f"Running: {description}")
-    print(f"Command: {' '.join(cmd)}")
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+
+def run_command(command: list, description: str = "") -> bool:
+    """
+    Run a shell command and return success status.
+    
+    Args:
+        command: List of command arguments
+        description: Optional description for logging
+        
+    Returns:
+        True if command succeeded, False otherwise
+    """
+    cmd_str = ' '.join(command)
+    if description:
+        logger.info(f"Running: {description}")
+    else:
+        logger.info(f"Running: {cmd_str}")
+        
     try:
         result = subprocess.run(
-            cmd,
-            check=True,
+            command,
             capture_output=True,
             text=True,
-            cwd=Path(__file__).parent.parent
+            check=False
         )
-        if result.stdout:
-            print(result.stdout)
-        if result.stderr:
-            print(result.stderr)
-        print(f"✓ {description} completed successfully.")
-        return True
-    except subprocess.CalledProcessError as e:
-        print(f"✗ {description} failed with exit code {e.returncode}")
-        if e.stdout:
-            print(e.stdout)
-        if e.stderr:
-            print(e.stderr)
+        
+        if result.returncode == 0:
+            logger.info("Success")
+            return True
+        else:
+            logger.error(f"Command failed with return code {result.returncode}")
+            if result.stdout:
+                logger.error(f"STDOUT:\n{result.stdout}")
+            if result.stderr:
+                logger.error(f"STDERR:\n{result.stderr}")
+            return False
+            
+    except Exception as e:
+        logger.error(f"Exception running command: {e}")
         return False
 
+
+def format_code_with_black() -> bool:
+    """
+    Format all Python files in the code/ directory using black.
+    
+    Returns:
+        True if formatting succeeded, False otherwise
+    """
+    logger.info("Starting code formatting with black...")
+    
+    # Check if black is installed
+    try:
+        subprocess.run(
+            [sys.executable, "-m", "black", "--version"],
+            capture_output=True,
+            check=True
+        )
+    except subprocess.CalledProcessError:
+        logger.error("black is not installed. Installing...")
+        install_result = subprocess.run(
+            [sys.executable, "-m", "pip", "install", "black"],
+            capture_output=True,
+            text=True
+        )
+        if install_result.returncode != 0:
+            logger.error(f"Failed to install black: {install_result.stderr}")
+            return False
+    
+    # Run black on the code directory
+    success = run_command(
+        [sys.executable, "-m", "black", "code/"],
+        "Formatting code/ directory with black"
+    )
+    
+    return success
+
+
+def check_with_flake8() -> bool:
+    """
+    Check code quality with flake8.
+    
+    Returns:
+        True if no errors found, False otherwise
+    """
+    logger.info("Running flake8 code quality check...")
+    
+    # Check if flake8 is installed
+    try:
+        subprocess.run(
+            [sys.executable, "-m", "flake8", "--version"],
+            capture_output=True,
+            check=True
+        )
+    except subprocess.CalledProcessError:
+        logger.error("flake8 is not installed. Installing...")
+        install_result = subprocess.run(
+            [sys.executable, "-m", "pip", "install", "flake8"],
+            capture_output=True,
+            text=True
+        )
+        if install_result.returncode != 0:
+            logger.error(f"Failed to install flake8: {install_result.stderr}")
+            return False
+    
+    # Run flake8 on the code directory
+    success = run_command(
+        [sys.executable, "-m", "flake8", "code/"],
+        "Checking code quality with flake8"
+    )
+    
+    return success
+
+
 def main():
-    project_root = Path(__file__).parent.parent
-    code_dir = project_root / "code"
-    tests_dir = project_root / "tests"
+    """
+    Main entry point for code cleanup and formatting.
     
-    if not code_dir.exists() or not tests_dir.exists():
-        print("Error: code/ or tests/ directory not found.")
+    This function:
+    1. Formats all Python files with black
+    2. Runs flake8 to verify code quality
+    3. Returns appropriate exit code
+    """
+    logger.info("=" * 60)
+    logger.info("Starting code cleanup and formatting (T038)")
+    logger.info("=" * 60)
+    
+    # Step 1: Format with black
+    black_success = format_code_with_black()
+    if not black_success:
+        logger.error("Black formatting failed")
         sys.exit(1)
-
-    # 1. Ensure tools are installed
-    print("Checking dependencies...")
-    tools = ["black", "flake8"]
-    missing_tools = []
     
-    for tool in tools:
-        try:
-            __import__(tool.replace("-", "_"))
-        except ImportError:
-            missing_tools.append(tool)
-
-    if missing_tools:
-        print(f"Installing missing tools: {missing_tools}")
-        subprocess.run([sys.executable, "-m", "pip", "install", "--upgrade", "pip"], check=True)
-        subprocess.run([sys.executable, "-m", "pip", "install"] + missing_tools, check=True)
-
-    # 2. Run Black (Format)
-    # We target the code and tests directories
-    black_cmd = [
-        sys.executable, "-m", "black",
-        "--line-length", "88",
-        "--target-version", "py310",
-        "code/",
-        "tests/"
-    ]
+    # Step 2: Check with flake8
+    flake8_success = check_with_flake8()
+    if not flake8_success:
+        logger.error("flake8 check failed")
+        sys.exit(1)
     
-    black_success = run_command(black_cmd, "Running Black formatter")
-
-    # 3. Run Flake8 (Lint)
-    # We use the .flake8 config if it exists (created in T003), 
-    # otherwise we pass common defaults compatible with the project.
-    flake8_cmd = [
-        sys.executable, "-m", "flake8",
-        "code/",
-        "tests/"
-    ]
+    logger.info("=" * 60)
+    logger.info("Code cleanup and formatting completed successfully!")
+    logger.info("All files pass black formatting and flake8 checks.")
+    logger.info("=" * 60)
     
-    # Check if .flake8 exists to avoid passing conflicting args if config exists
-    flake8_config = project_root / ".flake8"
-    if not flake8_config.exists():
-        # Fallback config if T003 didn't create it or it was deleted
-        print("Note: .flake8 not found, using default arguments.")
-        flake8_cmd.extend([
-            "--max-line-length=88",
-            "--ignore=E203,W503", # Black compatible ignores
-            "--exclude=venv,__pycache__,.git"
-        ])
+    sys.exit(0)
 
-    flake8_success = run_command(flake8_cmd, "Running Flake8 linter")
-
-    if black_success and flake8_success:
-        print("\n" + "="*50)
-        print("T038: Code cleanup and refactoring completed successfully.")
-        print("="*50)
-    else:
-        print("\n" + "="*50)
-        print("T038: Cleanup finished with linting errors or formatting issues.")
-        print("Please review the output above and fix manually if necessary.")
-        print("="*50)
-        # Exit with 0 to not fail the pipeline immediately, 
-        # as the task is to 'run' the cleanup, but report the state.
-        # However, if flake8 finds errors, the code isn't 'cleaned' yet.
-        # We assume the task is to execute the cleanup process.
-        sys.exit(0) 
 
 if __name__ == "__main__":
     main()

@@ -13,6 +13,14 @@ T022:
     \ adds a regression line and a 95\u202F% confidence band, ensures the output directory\
     \ exists, and saves the figure to `docs/outputs/flexibility_vs_creativity.png`.\
     \ The required code artifact is present and implements the specified behavior."
+T023:
+  c: false
+  h: 36d080b9b399e971c6e343768f2e02dced39031f4f9fdec4d8ecd750a79adf6c
+  r: "The `plot_residuals` function in `code/viz/plots.py` is truncated and references\
+    \ a non\u2011existent `model.fitted` attribute (the dataclass defines `fitted_values`).\
+    \ Moreover, the required output files `docs/outputs/model_residuals.png` and `docs/outputs/model_qq.png`\
+    \ are not present, indicating the plots were never generated. The task\u2019s\
+    \ requirement is therefore not satisfied."
 T026:
   c: false
   h: 574e045362ad32b361607a91f1c348b33efa6511b2569335dc87e46cd4d8509b
@@ -93,9 +101,8 @@ T058:
     \ requirement is not satisfied."
 T060:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, profiling logs, benchmark results, or memory\u2011usage evidence for\
-    \ the `run_permutation_test` function are present; thus we cannot confirm that\
-    \ it has been vectorised, profiled, and shown to run \u22646\u202Fh on 2 cores\
-    \ and <7\u202FGB RAM. The required artifact (optimized implementation with performance\
-    \ validation) is missing."
+  h: 1808fed72de4f18ef3962f6ad6fa719e3f073624cbd0345660677b0a092a3584
+  r: "The profiling report file is present, but the required dummy NIfTI file `tests/fixtures/dummy_fmri.nii.gz`\
+    \ is missing, and the benchmark test `tests/benchmark/test_runtime.py` is truncated\
+    \ (syntax\u2011incomplete), so the verification step cannot run. Both missing\
+    \ artifacts must be provided/fixed for the task to be considered complete."

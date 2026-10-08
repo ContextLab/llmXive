@@ -1,0 +1,429 @@
+- artifact_path: projects/PROJ-518-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: HCP S1200 Release dataset source
+  claim_id: c_832a0bbd
+  context: 'T012 [US1] Implement code/data/loader.py function fetch_hcp_data(subject_id:
+    str) that downloads raw fMRI and behavioral JSON from OpenNeuro (dataset ID: the
+    HCP S1200 Release).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HCP_S1200_Release_dataset_source
+  kind: entity_fact
+  raw_text: The HCP S1200 Release dataset is the source for raw fMRI and behavioral
+    JSON data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:18:26Z'
+- artifact_path: projects/PROJ-518-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: nilearn version 0.10.0
+  claim_id: c_cdacecc6
+  context: T002 Initialize Python 3.10 project with pinned requirements.txt containing
+    nilearn==0.10.0...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis uses Nilearn version 0.10.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:18:55Z'
+- artifact_path: projects/PROJ-518-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: networkx version 3.2.1
+  claim_id: c_65a11482
+  context: T002 Initialize Python 3.10 project with pinned requirements.txt containing
+    ... networkx==3.2.1 ...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis uses NetworkX version 3.2.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:19:17Z'
+- artifact_path: projects/PROJ-518-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.4.2
+  claim_id: c_5cf0a43a
+  context: T002 Initialize Python 3.10 project with pinned requirements.txt containing
+    ... scikit-learn==1.4.2 ...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis uses scikit-learn version 1.4.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:19:44Z'
+- artifact_path: projects/PROJ-518-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.4
+  claim_id: c_96bda84a
+  context: T002 Initialize Python 3.10 project with pinned requirements.txt containing
+    ... numpy==1.26.4 ...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis uses NumPy version 1.26.4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:20:05Z'
+- artifact_path: projects/PROJ-518-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: pandas version 2.2.2
+  claim_id: c_7b391189
+  context: T002 Initialize Python 3.10 project with pinned requirements.txt containing
+    ... pandas==2.2.2 ...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis uses pandas version 2.2.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:20:31Z'
+- artifact_path: projects/PROJ-518-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: matplotlib version 3.8.4
+  claim_id: c_2d917b71
+  context: T002 Initialize Python 3.10 project with pinned requirements.txt containing
+    ... matplotlib==3.8.4 ...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis uses Matplotlib version 3.8.4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:20:52Z'
+- artifact_path: projects/PROJ-518-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: scipy version 1.12.0
+  claim_id: c_868d8d13
+  context: T002 Initialize Python 3.10 project with pinned requirements.txt containing
+    ... scipy==1.12.0 ...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis uses SciPy version 1.12.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:21:14Z'
+- artifact_path: projects/PROJ-518-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: brainconn version 0.1.0
+  claim_id: c_010c069a
+  context: T002 Initialize Python 3.10 project with pinned requirements.txt containing
+    ... brainconn==0.1.0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis uses brainconn version 0.1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:21:38Z'
+- artifact_path: projects/PROJ-518-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: python version 3.10
+  claim_id: c_dd97ce21
+  context: T002 Initialize Python 3.10 project with pinned requirements.txt...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python version 3.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:22:12Z'
+- artifact_path: projects/PROJ-518-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: default FWE method max-t
+  claim_id: c_ff642dcd
+  context: T005 [P] Implement code/config.py with a Config dataclass containing ...
+    FWE_METHOD = 'max-t' (or 'bonferroni')...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Default_FWE_method_max-t
+  kind: entity_fact
+  raw_text: The default family-wise error correction method is 'max-t'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:22:44Z'
+- artifact_path: projects/PROJ-518-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: default window sizes 20 30 40
+  claim_id: c_140b5d5b
+  context: T005 [P] Implement code/config.py with a Config dataclass containing WINDOW_SIZES
+    = [20,30,40]...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default sliding window sizes are 20, 30, and 40.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:23:17Z'
+- artifact_path: projects/PROJ-518-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: default step size 5
+  claim_id: c_5f70426a
+  context: T005 [P] Implement code/config.py with a Config dataclass containing ...
+    STEP = 5...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default step size for sliding windows is 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:23:47Z'
+- artifact_path: projects/PROJ-518-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: default FD threshold 0.5
+  claim_id: c_0e01916d
+  context: 'T019 [US1] Implement code/data/loader.py function filter_by_motion(subjects:
+    List[Participant], fd_thresh: float = 0.5, vol_thresh: float = 0.2)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default frame displacement (FD) threshold for motion filtering is
+    0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:24:18Z'
+- artifact_path: projects/PROJ-518-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: default volume threshold 0.2
+  claim_id: c_8b4c261a
+  context: 'T019 [US1] Implement code/data/loader.py function filter_by_motion(subjects:
+    List[Participant], fd_thresh: float = 0.5, vol_thresh: float = 0.2)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default volume threshold for motion filtering is 0.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:24:46Z'
+- artifact_path: projects/PROJ-518-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: default louvain gamma 1.0
+  claim_id: c_68c52941
+  context: "T015 [US1] Implement code/analysis/dynamics.py function detect_communities(connectivity_matrix:\
+    \ np.ndarray, gamma: float = 1.0) using Louvain with \u03B3 = 1.0."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default gamma parameter for Louvain community detection is 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:25:04Z'
+- artifact_path: projects/PROJ-518-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: default permutations 10000
+  claim_id: c_bd24bd45
+  context: 'T027 [P] [US3] Implement run_permutation_test(flexibility, creativity,
+    n_permutations=10000, seed: int = 42)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default number of permutations for the significance test is 10,000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:25:31Z'
+- artifact_path: projects/PROJ-518-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: default random seed 42
+  claim_id: c_accda732
+  context: 'T027 [P] [US3] Implement run_permutation_test(flexibility, creativity,
+    n_permutations=10000, seed: int = 42)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default random seed for permutation tests is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:26:11Z'
+- artifact_path: projects/PROJ-518-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: regression covariates age sex education static connectivity strength
+  claim_id: c_99230e80
+  context: T051 [US1] Implement code/analysis/statistics.py function fit_regression(...)
+    using statsmodels OLS to fit the full model creativity ~ network_flexibility +
+    age + sex + education + static_connectivity_strength.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Regression_covariates_age_sex_education_static_connectivity
+  kind: entity_fact
+  raw_text: The regression model includes age, sex, education, and static connectivity
+    strength as covariates.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:26:35Z'
+- artifact_path: projects/PROJ-518-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: baseline regression covariates age sex education
+  claim_id: c_2beba501
+  context: T051b [US1] Implement code/analysis/statistics.py function fit_baseline_regression(...)
+    that fits the baseline model creativity ~ static_connectivity_strength + age +
+    sex + education.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_regression_covariates_age_sex_education
+  kind: entity_fact
+  raw_text: The baseline regression model includes age, sex, and education as covariates
+    but excludes network flexibility.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:27:15Z'
+- artifact_path: projects/PROJ-518-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: delta r2 formatted to 4 decimal places
+  claim_id: c_5d0c1741
+  context: 'T043 [US1] Implement code/analysis/statistics.py function format_delta_r2(delta_r2:
+    float) -> str returning a string with four decimal places (e.g., 0.1234).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Delta R-squared values are formatted to four decimal places.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:27:15Z'
+- artifact_path: projects/PROJ-518-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: permutation test runtime 6 hours 2 cpu cores
+  claim_id: c_ce3189d3
+  context: "T060 [US3] Profile and optimise run_permutation_test (vectorised NumPy)\
+    \ to complete \u2264 6 hours on 2 CPU cores..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The performance profile requires completion within 6 hours on 2 CPU cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:27:40Z'
+- artifact_path: projects/PROJ-518-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: memory usage 7 GB
+  claim_id: c_3af8dbd4
+  context: "T060 [US3] Profile and optimise run_permutation_test (vectorised NumPy)\
+    \ to complete \u2264 6 hours on 2 CPU cores and < 7 GB RAM."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The performance profile requires memory usage under 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:28:11Z'
+- artifact_path: projects/PROJ-518-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis window lengths 20 30 40
+  claim_id: c_b8da2662
+  context: T046 [US3] Implement run_sensitivity_analysis(flexibility, creativity,
+    window_lengths=[20,30,40])...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis tests window lengths of 20, 30, and 40.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:28:52Z'
+- artifact_path: projects/PROJ-518-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: benchmark test 10 subjects
+  claim_id: c_f5d30140
+  context: T060 [US3] ... Unit test tests/benchmark/test_runtime.py must assert runtime
+    < 6h using a subset of 10 subjects.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The benchmark test uses a subset of 10 subjects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:29:18Z'
+- artifact_path: projects/PROJ-518-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: scaling projection 1000 participants
+  claim_id: c_8c32fb1d
+  context: T060.1 [US3] ... extrapolate runtime for ~1000 participants.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis projection targets approximately 1000 participants.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T19:29:49Z'

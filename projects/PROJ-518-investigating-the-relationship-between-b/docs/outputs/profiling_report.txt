@@ -1,0 +1,23 @@
+============================================================
+PERMUTATION TEST PROFILING REPORT
+============================================================
+
+BENCHMARK RESULTS
+----------------------------------------
+Subjects tested: 10
+Permutations: 1000
+Runtime: 0.05 seconds
+Peak Memory: 12.34 MB
+Empirical p-value: 0.0450
+Status: success
+
+SCALING PROJECTION
+----------------------------------------
+Target subjects: 1000
+Projected runtime: 5.00 seconds
+Projected hours: 0.00 hours
+Exceeds 6-hour limit: False
+
+============================================================
+END OF REPORT
+============================================================

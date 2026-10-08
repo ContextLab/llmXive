@@ -1,125 +1,91 @@
 """
-Module for saving analysis results to CSV files.
-Implements T030: Save permutation results and sensitivity summary.
+Module for saving analysis results to disk.
+
+Implements T030 requirements:
+- save_permutation_results: Saves to data/interim/permutation_results.csv
+- save_sensitivity_summary: Saves to data/interim/sensitivity_summary.csv
 """
 import os
 import pandas as pd
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 import logging
-
 from config import get_config
 
 logger = logging.getLogger(__name__)
 
-def save_permutation_results(
-    p_values: List[float],
-    distribution_of_max_stats: List[float],
-    output_path: Optional[str] = None
-) -> Path:
+def save_permutation_results(df: pd.DataFrame, output_path: str = "data/interim/permutation_results.csv") -> None:
     """
-    Save permutation test results to a CSV file.
-
-    Args:
-        p_values: List of empirical p-values from permutation tests.
-        distribution_of_max_stats: List of max statistics from permutation distribution.
-        output_path: Path to save the CSV file. Defaults to config.INTERIM_PATH / 'permutation_results.csv'.
-
-    Returns:
-        Path to the saved file.
-
-    Raises:
-        ValueError: If input lists are empty or of different lengths.
-    """
-    config = get_config()
-    if output_path is None:
-        output_path = str(config.DATA_PATH / "interim" / "permutation_results.csv")
-
-    if not p_values or not distribution_of_max_stats:
-        raise ValueError("p_values and distribution_of_max_stats lists cannot be empty")
+    Saves permutation test results to a CSV file.
     
-    if len(p_values) != len(distribution_of_max_stats):
-        raise ValueError("p_values and distribution_of_max_stats must have the same length")
-
-    df = pd.DataFrame({
-        'p_value': p_values,
-        'max_stat': distribution_of_max_stats
-    })
-
-    # Ensure directory exists
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-
+    Args:
+        df: DataFrame with columns 'shuffle_id' and 'correlation'.
+        output_path: Path to the output CSV file.
+    
+    Raises:
+        ValueError: If the DataFrame does not contain the required columns.
+    """
+    required_cols = ['shuffle_id', 'correlation']
+    if not all(col in df.columns for col in required_cols):
+        raise ValueError(f"DataFrame must contain columns: {required_cols}")
+    
+    config = get_config()
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Ensure the file is written to the correct location relative to project root
+    # If output_path is relative, make it absolute based on config or project root
+    if not os.path.isabs(output_path):
+        # Assuming output_path is relative to project root
+        # We need to resolve it relative to the project root
+        # The config might have a DATA_PATH, but for interim, we use the default
+        project_root = Path(__file__).parent.parent.parent
+        output_path = str(project_root / output_path)
+    
     df.to_csv(output_path, index=False)
     logger.info(f"Saved permutation results to {output_path}")
-    return output_file
 
-def save_sensitivity_summary(
-    sensitivity_df: pd.DataFrame,
-    output_path: Optional[str] = None
-) -> Path:
+def save_sensitivity_summary(df: pd.DataFrame, output_path: str = "data/interim/sensitivity_summary.csv") -> None:
     """
-    Save sensitivity analysis summary to a CSV file.
-
+    Saves sensitivity analysis summary to a CSV file.
+    
     Args:
-        sensitivity_df: DataFrame containing sensitivity analysis results
-                       (must have columns: window_length, correlation, p_value).
-        output_path: Path to save the CSV file. Defaults to config.INTERIM_PATH / 'sensitivity_summary.csv'.
-
-    Returns:
-        Path to the saved file.
-
+        df: DataFrame with columns 'window_length', 'correlation', 'empirical_p_value'.
+        output_path: Path to the output CSV file.
+    
     Raises:
-        ValueError: If DataFrame is missing required columns.
+        ValueError: If the DataFrame does not contain the required columns.
     """
+    required_cols = ['window_length', 'correlation', 'empirical_p_value']
+    if not all(col in df.columns for col in required_cols):
+        raise ValueError(f"DataFrame must contain columns: {required_cols}")
+    
     config = get_config()
-    if output_path is None:
-        output_path = str(config.DATA_PATH / "interim" / "sensitivity_summary.csv")
-
-    required_columns = {'window_length', 'correlation', 'p_value'}
-    if not required_columns.issubset(sensitivity_df.columns):
-        missing = required_columns - set(sensitivity_df.columns)
-        raise ValueError(f"Sensitivity DataFrame missing required columns: {missing}")
-
-    # Ensure directory exists
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-
-    sensitivity_df.to_csv(output_path, index=False)
-    logger.info(f"Saved sensitivity summary to {output_path}")
-    return output_file
-
-def save_fwe_corrected_results(
-    adjusted_p_values: List[float],
-    original_p_values: List[float],
-    method: str,
-    output_path: Optional[str] = None
-) -> Path:
-    """
-    Save FWE-corrected p-values alongside original values.
-
-    Args:
-        adjusted_p_values: List of FWE-corrected p-values.
-        original_p_values: List of original p-values.
-        method: The correction method used (e.g., 'max-t', 'bonferroni').
-        output_path: Path to save the CSV file.
-
-    Returns:
-        Path to the saved file.
-    """
-    config = get_config()
-    if output_path is None:
-        output_path = str(config.DATA_PATH / "interim" / "fwe_corrected_results.csv")
-
-    df = pd.DataFrame({
-        'original_p_value': original_p_values,
-        'adjusted_p_value': adjusted_p_values,
-        'correction_method': method
-    })
-
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Ensure the file is written to the correct location relative to project root
+    if not os.path.isabs(output_path):
+        project_root = Path(__file__).parent.parent.parent
+        output_path = str(project_root / output_path)
+    
     df.to_csv(output_path, index=False)
-    logger.info(f"Saved FWE-corrected results to {output_path}")
-    return output_file
+    logger.info(f"Saved sensitivity summary to {output_path}")
+
+def save_fwe_corrected_results(df: pd.DataFrame, output_path: str = "data/interim/fwe_corrected_results.csv") -> None:
+    """
+    Saves FWE corrected results to a CSV file.
+    
+    Args:
+        df: DataFrame with corrected p-values and test statistics.
+        output_path: Path to the output CSV file.
+    """
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    if not os.path.isabs(output_path):
+        project_root = Path(__file__).parent.parent.parent
+        output_path = str(project_root / output_path)
+    
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved FWE corrected results to {output_path}")
