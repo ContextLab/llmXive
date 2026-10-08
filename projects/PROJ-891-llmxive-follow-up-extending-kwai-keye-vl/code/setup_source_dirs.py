@@ -3,25 +3,31 @@ from pathlib import Path
 
 def main():
     """
-    Execute Source Directory Creation for the llmXive project.
-    Creates the necessary directory structure for generators, inference, and analysis modules.
+    Execute Source Directory Creation for llmXive project.
+    Creates: src/generators, src/inference, src/analysis
     """
-    project_root = Path(____).parent.resolve()
+    base_dir = Path(__file__).parent.parent
+    src_dir = base_dir / "src"
     
-    # Define the directories to be created relative to the project root
     directories = [
-        "src/generators",
-        "src/inference",
-        "src/analysis"
+        src_dir / "generators",
+        src_dir / "inference",
+        src_dir / "analysis"
     ]
     
     for dir_path in directories:
-        full_path = project_root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
-        else:
-            print(f"Directory already exists: {full_path}")
+        dir_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {dir_path}")
+    
+    # Verify creation
+    all_created = all(d.exists() and d.is_dir() for d in directories)
+    if all_created:
+        print("SUCCESS: All source directories created successfully.")
+    else:
+        print("ERROR: Some directories failed to create.")
+        return 1
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

@@ -26,7 +26,7 @@ As a researcher, I need to programmatically generate a synthetic video benchmark
 
 ### User Story 2 - CPU-Constrained Inference Execution (Priority: P2)
 
-As a researcher, I need to execute the Kwai Keye-VL model (quantized to INT4) on the generated extreme-aspect and square-cropped datasets using a CPU-only environment, so that I can collect temporal grounding predictions (start/end timestamps) for every video clip within the 6-hour CI time limit and 7GB RAM constraint.
+As a researcher, I need to execute the Kwai Keye-VL model (quantized to INT4) on the generated extreme-aspect and square-cropped datasets using a CPU-only environment, so that I can collect temporal grounding predictions (start/end timestamps) for every video clip within a defined CI time limit and memory constraint.
 
 **Why this priority**: This delivers the raw empirical data (predictions). It is the core "experiment" phase. If this fails due to resource constraints or incorrect model loading, the project cannot proceed to analysis.
 

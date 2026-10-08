@@ -3,33 +3,41 @@ from pathlib import Path
 
 def main():
     """
-    Create the required directory structure for the llmXive project.
-    Ensures all data, output, and metadata directories exist.
+    Create required data and output directories for the project.
+    Implements T001a: Execute Directory Creation.
+    
+    Creates:
+      - data/raw
+      - data/distorted
+      - data/outputs
+      - data/metadata
+      - output/control
+      - output/distorted
     """
-    # Define the base project root (assuming this script is in code/)
-    # We move up one level to get to the project root
-    project_root = Path(__file__).resolve().parent.parent
-
+    project_root = Path(__file__).parent.parent
+    
+    # Define the directories to create relative to the project root
     directories = [
-        project_root / "data" / "raw",
-        project_root / "data" / "distorted",
-        project_root / "data" / "outputs",
-        project_root / "data" / "metadata",
-        project_root / "output" / "control",
+        "data/raw",
+        "data/distorted",
+        "data/outputs",
+        "data/metadata",
+        "output/control",
+        "output/distorted"
     ]
-
+    
     created_count = 0
     for dir_path in directories:
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
+        full_path = project_root / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path}")
             created_count += 1
-            print(f"Created directory: {dir_path}")
         else:
-            print(f"Directory already exists: {dir_path}")
-
-    print(f"Setup complete. {created_count} new directories created.")
+            print(f"Directory already exists: {full_path}")
+    
+    print(f"Directory creation complete. New directories created: {created_count}")
     return 0
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    exit(main())

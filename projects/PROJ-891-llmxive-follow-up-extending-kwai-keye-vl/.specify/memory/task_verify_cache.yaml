@@ -1,3 +1,23 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence (e.g., a directory listing, script output, or screenshots) is provided
+    to show that the required directories (`data/raw`, `data/distorted`, `output/distorted`,
+    etc.) were actually created. Without such proof, we cannot confirm the task was
+    completed.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No concrete evidence (e.g., a directory listing, command output, or screenshot)\
+    \ is provided to show that the `src/generators`, `src/inference`, and `src/analysis`\
+    \ directories were actually created. The claim alone is insufficient to confirm\
+    \ the task\u2019s requirement was fulfilled."
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `tests/unit` and `tests/integration` directories\
+    \ is present; the implementer\u2019s claim is unverified and no artifact confirming\
+    \ the `mkdir -p` execution was provided."
 T007a:
   c: false
   h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e

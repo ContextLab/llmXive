@@ -2,9 +2,6 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001b** — No directory listings, screenshots, or code snippets were provided to demonstrate that the required `src/generators`, `src/inference`, and `src/analysis` folders actually exist in the repository. Without concrete evidence of these paths, the claim cannot be verified. The implementer must supply proof (e.g., a tree view, `ls` output, or a commit diff) showing the three directories are present.
-- **T001c** — No evidence was provided showing that the `tests/unit` and `tests/integration` directories actually exist in the project repository; without such artifacts the requirement to create the test directory structure is not satisfied. The implementer must add the directories (and optionally placeholder test files) and confirm their presence.
-- **T003a** — declared artifact(s) missing/empty/invalid: pyproject.toml, ruff.toml
-- **T005** — No evidence of a `models/` directory is provided; the artifact list is empty, so we cannot confirm that the required cache directory was created. The implementer must add the actual `models/` folder (or a listing showing its creation) to satisfy the task.
-- **T007a** — The required file `specs/001-extreme-aspect-ratio-robustness/contracts/dataset.schema.yaml` does not exist, so the mandatory `source_id` field cannot be verified. The task’s core deliverable is missing.
-- **T007b** — declared artifact(s) missing/empty/invalid: schema.yaml
+- **T001a** — No evidence (e.g., a directory listing, script output, or screenshots) is provided to show that the required directories (`data/raw`, `data/distorted`, `output/distorted`, etc.) were actually created. Without such proof, we cannot confirm the task was completed.
+- **T001b** — No concrete evidence (e.g., a directory listing, command output, or screenshot) is provided to show that the `src/generators`, `src/inference`, and `src/analysis` directories were actually created. The claim alone is insufficient to confirm the task’s requirement was fulfilled.
+- **T001c** — No evidence of the required `tests/unit` and `tests/integration` directories is present; the implementer’s claim is unverified and no artifact confirming the `mkdir -p` execution was provided.

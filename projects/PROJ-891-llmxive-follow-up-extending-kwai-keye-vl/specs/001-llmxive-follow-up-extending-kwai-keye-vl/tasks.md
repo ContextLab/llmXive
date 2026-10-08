@@ -24,7 +24,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] **Execute Directory Creation**: Run `mkdir -p data/raw data/distorted data/outputs data/metadata output/control`.
+- [ ] T001a [P] **Execute Directory Creation**: Run `mkdir -p data/raw data/distorted data/outputs data/metadata output/control output/distorted`. **Creates all required data and output directories including `data/distorted` and `output/distorted`**.
 - [ ] T001b [P] **Execute Source Directory Creation**: Run `mkdir -p src/generators src/inference src/analysis`.
 - [ ] T001c [P] **Execute Test Directory Creation**: Run `mkdir -p tests/unit tests/integration`.
 - [X] T002 [P] **Create/Update `requirements.txt` with pinned versions to ensure reproducibility:**
@@ -39,10 +39,10 @@
  - `requests==2.32.3`
  - `huggingface_hub==0.23.4`
  - `pytest==8.2.2`
- - `psutil==6.0.0` (Note: Used for local dev verification ONLY; CI reproducibility relies on `cgroups` in `setup_limits.sh` and frozen Linux runner environment).
- - `ultralytics==8.2.0` (Added for YOLOv8 bounding box detection).
+ - `ultralytics==8.2.0` (Optional: Used for T012c if YOLO is selected as the detector; not mandatory for the logic definition).
+ - **Note**: `psutil` removed from requirements. CI memory checks rely solely on `cgroups`. `psutil` is not required for reproducibility on fresh runners.
 - [X] T002b [P] **Install and configure system-level `cgroups` and `ulimit` wrappers in CI environment**. Create `scripts/setup_limits.sh` to enforce memory limits via `cgexec` or `ulimit`. **Threshold**: Set limit to **7GB (7340032 KB)**. **Verification**: Verify limit via `/proc/self/status` and assert OOM kill occurs at the configured memory threshold.
-- [X] T002c [P] **Update `plan.md` to resolve control group and test type contradictions**. Modify the "Technical Context" and "Summary" sections to explicitly state that: (1) the control group consists of "square-cropped control clips" generated from the source videos (not "original unmodified source videos"), and (2) the analysis uses "Paired tests" (t-test/Wilcoxon) on `source_id` pairs (not "Independent Samples tests"). This aligns the plan with Spec US-001 Scenario 4 and FR-005.
+- [X] T002c [P] **Execute script to update plan.md**: Run `python scripts/apply_plan_fix.py` to programmatically update `plan.md` Summary and Technical Context to explicitly state the control group is "square-cropped control clips" and the analysis uses "Paired tests". **This task applies the patch defined in the script, ensuring the plan document matches the spec**.
 - [ ] T003a [P] **Create `ruff.toml` and `pyproject.toml`** with configuration for linting (ruff) and formatting (black).
 - [X] T003c [P] **Create `scripts/ci_cgroups_config.sh`** to verify and configure cgroups limits specifically for the CI runner environment. **Action**: Check if cgroups v2 is enabled, create limit group, set memory.max=7GB, and verify via `cgexec` dry-run.
 - [X] T004 [P] **Implement `scripts/validate_citations.py`** to verify ActivityNet and model citations against verified sources before execution (Constitution Principle II). **Must run pre-execution.** **Specifics**: Validate the exact HuggingFace dataset ID and model URL against the primary source.
@@ -57,8 +57,57 @@
 
 - [ ] T005 [P] **Create model cache directory**: `models/`.
 - [ ] T007a [P] **Define `specs/001-extreme-aspect-ratio-robustness/contracts/dataset.schema.yaml`** for synthetic video metadata. **MUST include `source_id` as the mandatory join key for linking Distorted and Square-Cropped pairs.**
+ - **Schema Content**:
+ ```yaml
+ type: object
+ required:
+ - source_id
+ - distorted_path
+ - control_path
+ - aspect_ratio
+ - start_time
+ - end_time
+ properties:
+ source_id: { type: string, description: "Original ActivityNet ID" }
+ distorted_path: { type: string, description: "Path to distorted video" }
+ control_path: { type: string, description: "Path to square-cropped video" }
+ aspect_ratio: { type: string, description: "Target aspect ratio (e.g., '1:10')" }
+ start_time: { type: number, description: "Start timestamp in seconds" }
+ end_time: { type: number, description: "End timestamp in seconds" }
+ ```
 - [ ] T007b [P] **Define `specs/001-extreme-aspect-ratio-robustness/contracts/prediction.schema.yaml`** for inference output.
+ - **Schema Content**:
+ ```yaml
+ type: object
+ required:
+ - source_id
+ - condition
+ - predicted_start
+ - predicted_end
+ properties:
+ source_id: { type: string, description: "Original ActivityNet ID" }
+ condition: { type: string, enum: ["extreme", "control"], description: "Type of video processed" }
+ predicted_start: { type: number, description: "Predicted start timestamp" }
+ predicted_end: { type: number, description: "Predicted end timestamp" }
+ ```
 - [ ] T007c [P] **Define `specs/001-extreme-aspect-ratio-robustness/contracts/metric.schema.yaml`** for evaluation results.
+ - **Schema Content**:
+ ```yaml
+ type: object
+ required:
+ - source_id
+ - condition
+ - mIoU
+ - ground_truth_start
+ - ground_truth_end
+ properties:
+ source_id: { type: string, description: "Original ActivityNet ID" }
+ condition: { type: string, enum: ["extreme", "control"], description: "Type of video" }
+ mIoU: { type: number, description: "Intersection over Union score" }
+ ground_truth_start: { type: number, description: "Ground truth start" }
+ ground_truth_end: { type: number, description: "Ground truth end" }
+ ```
+- [ ] T007d [P] **Execute contract validation**: Run `python scripts/validate_contracts.py` to verify T007a, T007b, T007c files exist and are valid YAML. **Output**: Produce `data/outputs/contract_validation.log` with pass/fail status.
 - [ ] T008a [P] **Create `.env` file** with `MAX_MEMORY_GB=7`.
 - [ ] T008b [P] **Create `config.yaml`** with `time_limit_seconds=21600` (6 hours).
 
@@ -74,11 +123,11 @@
 
 Research Question: How can we ensure data consistency across generated video clips?
 Method: Automated validation of directory contents against predefined formatting constraints.
-References: Smith et al. (2023); arXiv:2301.12345.
+References: Smith et al. (n.d.); arXiv:2301.12345.
 
 ### Tests for User Story 1 (TDD First) ⚠️
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+> **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 > **Note on [P]**: The [P] tag indicates these tests can run in parallel *with each other* (against stubs or before implementation). They cannot run in parallel with the implementation tasks (T013) if the code does not exist.
 
 - [X] T010 [P] [US1] **Unit test for aspect ratio calculation logic** in `tests/unit/test_distort.py`.
@@ -89,9 +138,11 @@ References: Smith et al. (2023); arXiv:2301.12345.
 
 - [ ] T012c [US1] **Implement `src/generators/bbox_detector.py`**:
  - **Goal**: Provide the concrete bounding box detection logic required for FR-001.
- - **Implementation**: Integrate `ultralytics` YOLOv8 model (small/nano) to detect objects in video frames.
- - **Logic**: For each frame, detect the "primary subject" as the object with the largest **bounding box area**.
- - **Output**: Return a list of bounding boxes (x1, y1, x2, y2) for the primary subject across frames.
+ - **Implementation**: Implement logic to detect the **largest contiguous object by area** in a video frame. The specific algorithm (e.g., YOLOv8, OpenCV contours) is left to the implementer but must satisfy the "largest contiguous object" logic.
+ - **Logic**: For each frame, identify the object with the maximum bounding box area.
+ - **Output Contract**:
+ - If a primary subject is detected: Return a list of bounding boxes (x1, y1, x2, y2) for the primary subject across frames.
+ - **If NO bounding box is detected**: **MUST return `None`**. This `None` return value is the trigger for exclusion in T013.
  - **Constraint**: Must handle low FPS and low resolution gracefully.
  - **Dependency**: None (self-contained).
 - [ ] T012d [US1] **Implement `src/generators/generate_control_clips.py`**:
@@ -99,22 +150,32 @@ References: Smith et al. (2023); arXiv:2301.12345.
  - **Logic**: **Center-crop** the original video to a 1:1 aspect ratio while preserving temporal annotations. Do not resize; crop to square.
  - **Output**: Save to `output/control/` with metadata CSV linking to `source_id`.
  - **Dependency**: None (self-contained).
+- [ ] T012e [US1] **Implement `src/generators/validate_detector_accuracy.py`**:
+ - **Goal**: Validate the detector (T012c) on a small set of distorted samples to ensure it can identify subjects in extreme aspect ratios.
+ - **Logic**: Run T012c on a sample of distorted videos. If detection fails on >10% of samples, raise an error or flag for manual review.
+ - **Dependency**: T012c.
 - [ ] T013 [US1] **Implement `src/generators/distort_video.py`**:
  - Stream ActivityNet Captions data using `huggingface_hub.load_dataset('ActivityNet/activitynet-captions', split='train', streaming=True)`.
  - Apply geometric distortions at varying aspect ratios spanning from highly compressed to highly elongated configurations using `ffmpeg` or `opencv-python`.
- - **FR-001 Compliance**: Call `src/generators/bbox_detector.py` (T012c) to get bounding boxes. Calculate the ratio of the **primary subject's bounding box area** (from T012c) after distortion to the original. If area reduction >95%, skip clip and log to `data/outputs/exclusions.json`.
+ - **FR-001 Compliance**: Call `src/generators/bbox_detector.py` (T012c) to get bounding boxes.
+ - **Case 1 (No Subject)**: If T012c returns `None` (no subject detected): **Exclude** the clip, log to `data/outputs/exclusions.json` with `reason="no_subject_detected"`.
+ - **Case 2 (Area Reduction)**: If T012c returns boxes: Calculate the ratio of the **primary subject's bounding box area** after distortion to the original. If area reduction >95%, **exclude** the clip and log to `data/outputs/exclusions.json` with `reason="area_reduction_gt_95"`.
  - **Control Generation**: Call `src/generators/generate_control_clips.py` (T012d) to generate square-cropped clips for the paired test. **Output Path**: Square-cropped clips MUST be saved to `output/control/`.
- - **Dynamic Batch Sizing**: Implement a `BATCH_TIMEOUT` mechanism. Estimate time per clip by measuring a 1-second sample. Stop generation if `(remaining_time < estimated_time_per_clip * 1.2)`.
- - **Generate a representative set of extreme-aspect clips** (1:10, 10:1, 1:20, 20:1) with dynamic reduction allowed if time limits are exceeded (configurable via `MAX_CLIPS` parameter).
+ - **Dynamic Batch Sizing**: Implement a `BATCH_TIMEOUT` mechanism. Estimate time per clip by measuring a 1-second sample. **Minimum Sample Constraint**: Ensure a **minimum of 10 clips per ratio** are generated. If the time limit is reached before the minimum is met for *all* ratios, **complete the run** (exit code 0) but log the specific missing ratios to `data/outputs/sc005_failure_report.json` (schema: `{missing_ratios: [], total_generated: int}`).
+ - **Generate a representative set of extreme-aspect clips** (1:10, 10:1, 1:20, 20:1) with dynamic reduction allowed if time limits are exceeded (configurable via `MAX_CLIPS` parameter), subject to the minimum sample constraint.
  - Preserve original temporal ground-truth annotations.
  - Output metadata CSV linking distorted videos to original IDs and timestamps. **MUST include `source_id` as the join key for the Paired test.**
- - **Dependency**: Requires T012c and T012d completion.
+ - **Dependency**: Requires T012c, T012d, T012e completion. **Also depends on T007a** (dataset.schema.yaml) for metadata structure.
 - [ ] T013c [US1] **Implement `scripts/wrap_generation_memory.sh`**:
  - **Goal**: Wrap the data generation script (T013) with `cgroups`/`ulimit` to enforce the 7GB system-wide limit.
  - **Logic**: Use `cgexec -g memory:limit_group` or `ulimit -v` to run the generation script. Kill process if memory limit exceeded.
  - **Dependency**: T002b, T003c.
-- [ ] T014 [US1] **Implement `src/generators/validate_generation.py`** to verify output dimensions and metadata integrity. **Specific Checks**: 'Verify aspect ratio within 1% tolerance', 'check codec is h264', 'verify metadata CSV columns'.
-- [ ] T015a [US1] **Implement low FPS check**: If FPS < 10, skip/upsample with warning.
+- [ ] T013d [US1] **Implement `scripts/validate_dataset_completeness.py`**:
+ - **Goal**: Verify the generated dataset meets SC-005 (statistical power) before analysis.
+ - **Logic**: Check if `data/outputs/sc005_failure_report.json` indicates missing ratios or insufficient count. **Exit code 1** if dataset is insufficient (e.g., <10 clips per ratio); **Exit code 0** if sufficient.
+ - **Dependency**: T013.
+- [ ] T014 [US1] **Implement `src/generators/validate_generation.py`** to verify output dimensions and metadata integrity. **Specific Checks**: 'Verify aspect ratio within 1% tolerance [UNRESOLVED-CLAIM: c_b3704845 — status=not_enough_info]', 'check codec is h264', 'verify metadata CSV columns'.
+- [ ] T015a [US1] **Implement low FPS check**: If FPS < 10, **upsample using linear interpolation to a target frame rate** and **preserve original audio track** (e.g., `ffmpeg -i input -filter:v fps=30 -i input -c:a copy output.mp4`). Log the event with a warning.
 - [ ] T015b [US1] **Implement 1-pixel line check**: If distortion reduces content to 1-pixel line, flag as "unresolvable", exclude, log.
 - [ ] T016 [US1] **Implement `scripts/validate_distortion.py`** to run automated checks on `data/distorted/` and `output/control/` (assert exit code 0 for valid run). **Verify `output/control/` contains square-cropped clips.**
 
@@ -138,7 +199,7 @@ References: Smith et al. (2023); arXiv:2301.12345.
 - [ ] T020 [US2] **Implement `src/inference/run_inference.py`**:
  - Load the **Kwai-Kyle/Kwai-Keye-VL-2.0-Int4** checkpoint (or verified equivalent from T004) in INT4 quantization. (or FP16 vision encoder fallback per FR-002)
  - Implement CPU-only execution logic using `llama.cpp` or `optimum-intel`.
- - **Prerequisite**: Requires completion of Phase 3 (T013, T014) to ensure validated data exists. **Note**: T020 cannot start until T013 is complete (data dependency).
+ - **Prerequisite**: Requires completion of Phase 3 (T013, T014) to ensure validated data exists. **Note**: T020 cannot start until T013 is complete (data dependency). **Also depends on T007b** (prediction.schema.yaml) for output structure.
  - Process generated distorted and square-cropped clips (from T013).
  - Output predictions (start/end timestamps) in JSON format compatible with mIoU calculation.
  - **Fallback Logging**: Log fallback events to `data/outputs/fallback_log.json` with `{clip_id, error, fallback_mode}` if INT4 fails and FP16 vision encoder is used (FR-002).
@@ -172,7 +233,7 @@ References: Smith et al. (2023); arXiv:2301.12345.
 - [ ] T026 [US3] **Implement `src/analysis/mIoU.py`**:
  - Calculate mean Intersection-over-Union for predicted vs. ground-truth timestamps.
  - Separate results by condition (extreme-aspect vs. square-cropped).
- - Output to `data/outputs/metrics.csv` with columns `video_id`, `condition`, `mIoU`, `source_id`.
+ - Output to `data/outputs/metrics.csv` with columns `video_id`, `condition`, `mIoU`, `source_id`. **Delimiter: comma. No header row.**
  - **Ensure `source_id` is preserved to enable Paired test linking.**
 - [ ] T026c [US3] **Implement `src/analysis/join_paired_data.py`**:
  - **Goal**: Explicitly implement the data joining logic to create the paired dataset.
@@ -186,7 +247,7 @@ References: Smith et al. (2023); arXiv:2301.12345.
  - Generate report stating statistical significance (SC-002).
  - **Requires output of T026c (paired data).**
 - [ ] T028 [US3] **Implement report generation** to output structured JSON/Markdown with all metrics and conclusions.
-- [ ] T026c [US3] **Implement `scripts/wrap_analysis_memory.sh`**:
+- [ ] T026d [US3] **Implement `scripts/wrap_analysis_memory.sh`**:
  - **Goal**: Wrap the analysis script (T026/T027) with `cgroups`/`ulimit` to enforce the 7GB system-wide limit.
  - **Logic**: Use `cgexec -g memory:limit_group` or `ulimit -v` to run the analysis script. Kill process if memory limit exceeded.
  - **Dependency**: T002b, T003c.
@@ -205,7 +266,7 @@ References: Smith et al. (2023); arXiv:2301.12345.
 - [ ] T030d [P] **Implement `scripts/pipeline_memory_wrapper.sh`**:
  - **Goal**: Provide a system-wide memory wrapper for the main pipeline entry point (`quickstart.sh`).
  - **Logic**: Wrap the entire pipeline execution with `cgroups` to catch OOMs if any phase exceeds the limit when run manually.
- - **Dependency**: T002b, T003c, T013c, T021, T026c.
+ - **Dependency**: T002b, T003c, T013c, T021, T026d.
 - [ ] T034 [P] **Run `quickstart.md` validation**: Execute `bash scripts/quickstart.sh` and verify exit code 0 and existence of `data/outputs/report.md`.
 
 ---
@@ -217,8 +278,8 @@ References: Smith et al. (2023); arXiv:2301.12345.
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - **User Story 1 (P1)**: Depends on T012c, T012d (Foundational/US1 Prereqs).
- - **User Story 2 (P2)**: Depends on User Story 1 (requires distorted/control data) AND T014 (Validation). **Note**: T020 cannot start until T013 is complete.
+ - **User Story 1 (P1)**: Depends on T012c, T012d, T012e (Foundational/US1 Prereqs). **Also depends on T007a** (dataset.schema.yaml) for metadata structure.
+ - **User Story 2 (P2)**: Depends on User Story 1 (requires distorted/control data) AND T014 (Validation). **Note**: T020 cannot start until T013 is complete. **Also depends on T007b** (prediction.schema.yaml) for output structure.
  - **User Story 3 (P3)**: Depends on User Story 2 (requires prediction JSON) AND T026 (mIoU).
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
@@ -240,7 +301,7 @@ References: Smith et al. (2023); arXiv:2301.12345.
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, T012c/T012d and T013 can run in parallel (T013 depends on T012c/T012d completion).
+- Once Foundational phase completes, **T012c and T012d can run in parallel**. **T012e depends on T012c (sequential)**. **T013 depends on T012c, T012d, and T012e (sequential)**.
 - **User Story 2 (T020) CANNOT run in parallel with User Story 1** due to data dependency. T020 requires T013 to complete first.
 - **User Story 3 (T027) CANNOT run in parallel with T026/T026c** due to data dependency. T027 requires T026c (paired data) to complete first.
 - All tests for a user story marked [P] can run in parallel
@@ -260,7 +321,8 @@ Task: "Integration test for full generation pipeline in tests/integration/test_g
 # Launch implementation tasks (sequential due to dependencies):
 Task: "Implement src/generators/bbox_detector.py" (T012c)
 Task: "Implement src/generators/generate_control_clips.py" (T012d)
-Task: "Implement src/generators/distort_video.py" (T013) - Requires T012c, T012d
+Task: "Implement src/generators/validate_detector_accuracy.py" (T012e) - Requires T012c
+Task: "Implement src/generators/distort_video.py" (T013) - Requires T012c, T012d, T012e, T007a
 ```
 
 ---
@@ -271,7 +333,7 @@ Task: "Implement src/generators/distort_video.py" (T013) - Requires T012c, T012d
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (including T012c, T012d, T013)
+3. Complete Phase 3: User Story 1 (including T012c, T012d, T012e, T013)
 4. **STOP and VALIDATE**: Test User Story 1 independently
 5. Deploy/demo if ready
 
@@ -289,7 +351,7 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
- - Developer A: User Story 1 (Data Generation: T012c, T012d, T013)
+ - Developer A: User Story 1 (Data Generation: T012c, T012d, T012e, T013)
  - Developer B: User Story 2 (Inference: T020) - **Must wait for T013 data**.
  - Developer C: User Story 3 (Analysis: T026, T027) - **Must wait for T020**.
 3. Stories complete and integrate independently
@@ -308,12 +370,13 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Data Integrity**: Never use synthetic data as a fallback for real data. If ActivityNet fetch fails, the process must fail loudly.
-- **Resource Limits**: Strictly adhere to RAM and time limits via wrappers (T013c, T021, T026c, T030d).
+- **Resource Limits**: Strictly adhere to RAM and time limits via wrappers (T013c, T021, T026d, T030d).
 - **Model Quantization**: Use INT4 for CPU inference; fallback to FP16 Vision + INT4 LLM for specific clips if INT4 crashes (T022c), but log deviations.
 - **Statistical Validity**: Ensure PAIRED tests are used for Primary hypothesis (distorted vs. square-cropped). **Reject Independent Samples tests.**
 - **Control Sets**: T013 provides "Square-Cropped" for Primary Paired Test (output to `output/control/`).
-- **Primary Subject Logic**: T012c uses YOLOv8 bounding box detection to identify the primary subject for FR-001.
-- **Dynamic Reduction**: Extreme-aspect and Square-Cropped counts are flexible and controlled by `BATCH_TIMEOUT` and `MAX_CLIPS` to ensure time limit compliance.
+- **Primary Subject Logic**: T012c uses "largest contiguous object" logic (not hardcoded YOLO) for FR-001. **Returns None if no subject found.**
+- **Dynamic Reduction**: Extreme-aspect and Square-Cropped counts are flexible and controlled by `BATCH_TIMEOUT` and `MAX_CLIPS` to ensure time limit compliance, subject to minimum 10 per ratio constraint.
 - **Data Streaming**: T013 must use `streaming=True` for ActivityNet to respect memory constraints.
 - **Failure Mode**: T013 must raise an exception if the real data source is unreachable; no synthetic fallback allowed.
-- **Memory Wrappers**: System-wide memory limits are enforced by T013c (generation), T021 (inference), T026c (analysis), and T030d (pipeline entry).
+- **Memory Wrappers**: System-wide memory limits are enforced by T013c (generation), T021 (inference), T026d (analysis), and T030d (pipeline entry).
+- **Schema Dependency**: T013 depends on T007a; T020 depends on T007b.
