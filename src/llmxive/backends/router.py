@@ -41,7 +41,12 @@ def make_backend(name: str) -> BaseBackend:
 # pipeline runs alive when one Dartmouth-hosted model has a vLLM
 # outage but other models on the same backend are healthy.
 MODEL_FALLBACKS: dict[str, list[str]] = {
-    # qwen3.5-122b is the primary free reasoning model (maintainer default). The
+    "zai-org.glm-5.3": [
+        "openai.gpt-oss-120b",
+        "google.gemma-4-31B-it",
+        "anthropic.claude-haiku-4-5-20251001",
+    ],
+    # Retain compatibility for callers explicitly requesting the older model. The
     # Dartmouth free models flap on a multi-day cycle, so when the primary's vLLM
     # flaps the router walks the SAME-backend peers in order before falling through
     # to the next backend, keeping runs alive. Free peers first, then the guarded
@@ -55,19 +60,19 @@ MODEL_FALLBACKS: dict[str, list[str]] = {
     #      the router treats that peer-permanent as "skip to next peer", so with
     #      opt-in OFF this entry is a silent no-op.
     "qwen.qwen3.5-122b": [
-        "google.gemma-3-27b-it",
+        "google.gemma-4-31B-it",
         "openai.gpt-oss-120b",
         "anthropic.claude-haiku-4-5-20251001",
     ],
     # gpt-oss as primary (a few modules still pin it) degrades the same way.
     "openai.gpt-oss-120b": [
-        "qwen.qwen3.5-122b",
-        "google.gemma-3-27b-it",
+        "zai-org.glm-5.3",
+        "google.gemma-4-31B-it",
         "anthropic.claude-haiku-4-5-20251001",
     ],
     # gemma as primary (fast default for cheap calls) → reasoning peers → paid.
-    "google.gemma-3-27b-it": [
-        "qwen.qwen3.5-122b",
+    "google.gemma-4-31B-it": [
+        "zai-org.glm-5.3",
         "openai.gpt-oss-120b",
         "anthropic.claude-haiku-4-5-20251001",
     ],
@@ -81,7 +86,7 @@ MODEL_FALLBACKS: dict[str, list[str]] = {
 #: Against Dartmouth a ``model=None`` call dies with ``TypeError: chat() missing 1
 #: required keyword-only argument: 'model'``. Public entry points that build live,
 #: real-backend units must therefore default to THIS rather than to ``None``.
-DEFAULT_MODEL: str = "qwen.qwen3.5-122b"
+DEFAULT_MODEL: str = "zai-org.glm-5.3"
 
 #: Sanctioned PAID models permitted in MODEL_FALLBACKS as guarded fallbacks
 #: (Constitution IV stays satisfied: each is gated by the paid opt-in + daily

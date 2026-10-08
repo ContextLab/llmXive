@@ -1,17 +1,8 @@
-"""Real-call e2e: brainstormed fixture → research_complete (T037).
+"""Real-call dispatch smoke test: one validator step only.
 
-Skipped unless LLMXIVE_REAL_TESTS=1 AND DARTMOUTH_CHAT_API_KEY is set.
-This test does NOT actually run every stage to research_complete in
-CI — that would burn ~7 LLM calls and several minutes per run.
-Instead, it exercises the dispatch path: it loads the fixture
-project state, runs ONE pipeline step, and asserts that:
-
-  1. The step completed without raising.
-  2. The project's current_stage advanced (or, on a fresh fixture, the
-     Project-Initializer scaffolded the .specify/ directory).
-  3. A run-log entry was appended.
-
-A nightly CI run with LLMXIVE_E2E_FULL=1 walks the full chain.
+This test is not evidence of research or paper completion. The separately gated
+``test_pipeline_acceptance.py`` drives both pipelines and requires actual paper
+artifacts and all intervening acceptance stages.
 """
 
 from __future__ import annotations

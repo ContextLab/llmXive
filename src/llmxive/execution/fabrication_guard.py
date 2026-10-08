@@ -281,6 +281,18 @@ _AVOIDANCE_RE = re.compile(
     re.IGNORECASE,
 )
 
+_POST_AVOIDANCE_RE = re.compile(
+    _SYNTH_PHRASE + r"\s+(?:is|are)\s+(?:(?:strictly|explicitly|never)\s+)?"
+    r"(?:prohibited|forbidden|disallowed|not\s+(?:allowed|permitted|used))\b",
+    re.IGNORECASE,
+)
+
+
+def _avoidance_spans(text: str) -> list[tuple[int, int]]:
+    return [m.span() for pattern in (_AVOIDANCE_RE, _POST_AVOIDANCE_RE)
+            for m in pattern.finditer(text)]
+
+
 
 #: A SIMULATION-METHODOLOGY study legitimately generates its own data AS the
 #: research method (a statistics paper whose whole point is Monte-Carlo estimation
@@ -320,7 +332,9 @@ def _synthetic_data_authorized(project_dir: Path) -> bool:
             text = f.read_text(encoding="utf-8", errors="ignore")
         except OSError:
             continue
-        if _SYNTHETIC_DATA_RE.search(text) or _SIMULATION_STUDY_RE.search(text):
+        avoided = _avoidance_spans(text)
+        if any(not any(lo <= m.start() < hi for lo, hi in avoided)
+               for m in _SYNTHETIC_DATA_RE.finditer(text)) or _SIMULATION_STUDY_RE.search(text):
             return True
     return False
 
@@ -343,7 +357,7 @@ def find_synthetic_data_use(project_dir: Path) -> list[str]:
             except OSError:
                 continue
             scanned = text[:40000]
-            avoided = [a.span() for a in _AVOIDANCE_RE.finditer(scanned)]
+            avoided = _avoidance_spans(scanned)
             for m in _SYNTHETIC_DATA_RE.finditer(scanned):
                 # Skip a phrase the code is REFUSING (its match falls inside an
                 # avoidance construct — "avoid fake data", "not … synthetic data").

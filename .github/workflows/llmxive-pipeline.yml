@@ -127,3 +127,12 @@ jobs:
         if: always()
         run: |
           bash scripts/ci/commit-and-push.sh "chore(pipeline): persist run progress [skip ci]"
+
+      - name: Preserve a conflicting tick for recovery
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unpushed-tick-pipeline
+          path: ${{ runner.temp }}/llmxive-unpushed.patch
+          if-no-files-found: ignore
+          retention-days: 30

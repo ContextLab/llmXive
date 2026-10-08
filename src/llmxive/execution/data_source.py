@@ -249,6 +249,21 @@ def _write_cache(project_dir: Path, record: dict) -> None:
     cache.write_text(yaml.safe_dump(record, sort_keys=False), encoding="utf-8")
 
 
+def requires_external_data(project_dir: Path) -> bool:
+    """Honor an explicit no-external-data study design in the original idea.
+
+    Exact mathematical enumerations need execution and verification, not an
+    unrelated downloaded dataset. Default to discovery when the design is silent.
+    This changes procurement only; it does not authorize synthetic observations
+    or bypass the fabrication/execution/review gates.
+    """
+    declaration = re.compile(
+        r"\bno\s+external\s+(?:data(?:set)?s?)\s+(?:(?:is|are)\s+)?(?:needed|required)\b",
+        re.IGNORECASE,
+    )
+    return not any(declaration.search(_read(path)) for path in (project_dir / "idea").glob("*.md"))
+
+
 def ensure_discovered_source(project_dir: Path) -> dict | None:
     """Discover + cache a VERIFIED real data source for the project.
 
@@ -270,6 +285,8 @@ def ensure_discovered_source(project_dir: Path) -> dict | None:
 
     Never raises — discovery is best-effort; a failure just injects no block.
     """
+    if not requires_external_data(project_dir):
+        return None
     raw = _raw_data_sections(project_dir)
     intent, required_fields = _distill_data_need(raw)
     key = _cache_key(intent, required_fields, _plan_hash(raw))

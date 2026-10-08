@@ -189,6 +189,14 @@ def _cmd_run(args: argparse.Namespace) -> int:
             )
             break
         print(f"[run] step on {project.id} (stage={project.current_stage.value})")
+        from llmxive.config import repo_root
+        from llmxive.types import Stage
+        before_stage = project.current_stage
+        implementing = before_stage in {Stage.IN_PROGRESS, Stage.PAPER_IN_PROGRESS}
+        before_remaining = graph._incomplete_task_count(
+            repo_root() / "projects" / project.id,
+            paper=before_stage == Stage.PAPER_IN_PROGRESS,
+        ) if implementing else None
         try:
             updated = graph.run_one_step(project)
         except Exception as exc:
@@ -204,9 +212,17 @@ def _cmd_run(args: argparse.Namespace) -> int:
             _record_advance_error(project, exc)
             break
         print(f"[run]   -> stage={updated.current_stage.value}")
-        # run_one_step returned without raising => the project made progress this
-        # tick (a stage advance, or an in_progress task ticked off). Clear its
-        # advance-error record so consecutive_count reflects CONSECUTIVE failures.
+        if implementing and updated.current_stage == before_stage:
+            remaining = graph._incomplete_task_count(
+                repo_root() / "projects" / project.id,
+                paper=before_stage == Stage.PAPER_IN_PROGRESS,
+            )
+            if before_remaining is None or remaining < 0 or remaining >= before_remaining:
+                exc = RuntimeError("no implementation progress: no stage change or verified task completion")
+                _record_advance_error(updated, exc)
+                print(f"[run] STOP on {project.id}: {exc}", file=sys.stderr)
+                break
+        # Only actual advancement clears the consecutive-failure ledger.
         _clear_advance_error(project)
         completed += 1
         if updated.current_stage == project.current_stage:

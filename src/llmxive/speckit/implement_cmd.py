@@ -23,16 +23,9 @@ from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
 from llmxive.config import LEAF_TASK_BUDGET_SECONDS
 from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
+from llmxive.speckit.task_lines import TASK_LINE_RE as _TASK_RE
+from llmxive.speckit.task_lines import all_complete, mark_task, validate_open_tasks
 from llmxive.speckit.yaml_extract import parse_yaml_lenient
-
-_TASK_RE = re.compile(
-    # T### or T###<letter-suffix> (e.g., T016, T016a, T017b for
-    # revision sub-tasks). The trailing alphanumeric must be followed
-    # by whitespace or end of string — no word-boundary, since 'a' is
-    # itself a word char.
-    r"^- \[(?P<status>[ Xx])\]\s+(?P<id>T\d+[a-z]?)(?=\s|$)(?P<rest>.*)$",
-    re.MULTILINE,
-)
 
 
 class ImplementerAgent(SlashCommandAgent):
@@ -56,12 +49,13 @@ class ImplementerAgent(SlashCommandAgent):
         return None
 
     def _all_complete(self, tasks_text: str) -> bool:
-        return all(m.group("status") in {"X", "x"} for m in _TASK_RE.finditer(tasks_text))
+        return all_complete(tasks_text)
 
     def mechanical_step(self, ctx: SlashCommandContext) -> dict[str, Any]:
         feature_dir = self._feature_dir(ctx)
         tasks_path = feature_dir / "tasks.md"
         tasks_text = tasks_path.read_text(encoding="utf-8") if tasks_path.exists() else ""
+        validate_open_tasks(tasks_text)
         next_task = self._next_incomplete(tasks_text)
         completed = [m.group("id") for m in _TASK_RE.finditer(tasks_text)
                      if m.group("status") in {"X", "x"}]
@@ -72,7 +66,8 @@ class ImplementerAgent(SlashCommandAgent):
             "next_task_id": next_task[0] if next_task else None,
             "next_task_line": next_task[1] if next_task else None,
             "completed_task_ids": completed,
-            "all_complete": next_task is None and bool(completed),
+            "all_complete": self._all_complete(tasks_text),
+            "skip_llm": next_task is None,
         }
 
     def build_prompt(
@@ -208,13 +203,7 @@ class ImplementerAgent(SlashCommandAgent):
         from pathlib import Path as _Path
         text = _Path(tasks_path).read_text(encoding="utf-8")
         # Replace `- [ ] T###` with `- [X] T### <!-- SKIPPED: reason -->`
-        new_text = re.sub(
-            rf"^- \[ \] ({re.escape(task_id)}\b)([^\n]*)$",
-            rf"- [X] \1\2 <!-- SKIPPED: {reason}{f' ({exc!s})' if exc else ''} -->",
-            text,
-            count=1,
-            flags=re.MULTILINE,
-        )
+        new_text = mark_task(text, task_id, "X", f" <!-- SKIPPED: {reason}{f' ({exc!s})' if exc else ''} -->")
         _Path(tasks_path).write_text(new_text, encoding="utf-8")
         print(f"[implementer] marked {task_id} SKIPPED: {reason}")
 
@@ -437,26 +426,14 @@ class ImplementerAgent(SlashCommandAgent):
                     f"{p} exit={r.returncode}{' (TIMEOUT)' if r.timed_out else ''}"
                     for p, r in failed_scripts
                 )
-                text = re.sub(
-                    rf"^- \[ \] ({re.escape(task_id)}\b)([^\n]*)$",
-                    rf"- [X] \1\2 <!-- FAILED-IN-EXECUTION: {fail_summary} -->",
-                    text,
-                    count=1,
-                    flags=re.MULTILINE,
-                )
+                text = mark_task(text, task_id, "X", f" <!-- FAILED-IN-EXECUTION: {fail_summary} -->")
                 tasks_path.write_text(text, encoding="utf-8")
                 written.append(str(tasks_path.relative_to(repo)))
                 print(
                     f"[implementer] task {task_id} marked FAILED-IN-EXECUTION: {fail_summary}"
                 )
                 return written  # do not also run the "completed" check-off below
-            text = re.sub(
-                rf"^- \[ \] ({re.escape(task_id)}\b)",
-                r"- [X] \1",
-                text,
-                count=1,
-                flags=re.MULTILINE,
-            )
+            text = mark_task(text, task_id, "X", "")
             tasks_path.write_text(text, encoding="utf-8")
             written.append(str(tasks_path.relative_to(repo)))
         elif verdict == "failed":
@@ -470,13 +447,7 @@ class ImplementerAgent(SlashCommandAgent):
             tasks_path = Path(mechanical_output["tasks_path"])
             text = tasks_path.read_text(encoding="utf-8")
             failure_reason = doc.get("failure", {}).get("reason", "unspecified")
-            text = re.sub(
-                rf"^- \[ \] ({re.escape(task_id)}\b)([^\n]*)$",
-                rf"- [X] \1\2 <!-- FAILED: {failure_reason} -->",
-                text,
-                count=1,
-                flags=re.MULTILINE,
-            )
+            text = mark_task(text, task_id, "X", f" <!-- FAILED: {failure_reason} -->")
             tasks_path.write_text(text, encoding="utf-8")
             written.append(str(tasks_path.relative_to(repo)))
         elif verdict == "atomize":
@@ -486,13 +457,7 @@ class ImplementerAgent(SlashCommandAgent):
             # waiting for an atomizer agent that may never run.
             tasks_path = Path(mechanical_output["tasks_path"])
             text = tasks_path.read_text(encoding="utf-8")
-            text = re.sub(
-                rf"^- \[ \] ({re.escape(task_id)}\b)([^\n]*)$",
-                r"- [X] \1\2 <!-- ATOMIZE: requested -->",
-                text,
-                count=1,
-                flags=re.MULTILINE,
-            )
+            text = mark_task(text, task_id, "X", " <!-- ATOMIZE: requested -->")
             tasks_path.write_text(text, encoding="utf-8")
             written.append(str(tasks_path.relative_to(repo)))
             atomize_dir = ctx.project_dir / "code" / ".tasks"

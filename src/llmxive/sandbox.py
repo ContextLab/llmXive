@@ -190,6 +190,16 @@ def _analysis_env(project_dir: Path, base_env: dict[str, str]) -> dict[str, str]
     return env
 
 
+def analysis_environment(workspace: Path) -> dict[str, str]:
+    """Environment for generated research code, without the orchestrator's credentials."""
+    allowed = ("PATH", "LANG", "LC_ALL", "SYSTEMROOT", "WINDIR", "SSL_CERT_FILE", "SSL_CERT_DIR")
+    env = {key: os.environ[key] for key in allowed if key in os.environ}
+    home = workspace / ".runtime-home"
+    home.mkdir(parents=True, exist_ok=True)
+    env.update(HOME=str(home.resolve()), PYTHONNOUSERSITE="1", PYTHONUNBUFFERED="1")
+    return env
+
+
 def run_in_venv(
     *,
     project_dir: Path,
@@ -222,7 +232,7 @@ def run_in_venv(
     py = Path(os.path.abspath(ensure_venv(project_dir)))
     _ensure_code_package(project_dir)
     run_cwd = Path(cwd or project_dir).resolve()
-    env = _analysis_env(project_dir, os.environ.copy())
+    env = _analysis_env(project_dir, analysis_environment(project_dir))
     env["PYTHONUNBUFFERED"] = "1"
     if extra_env:
         env.update(extra_env)
@@ -311,7 +321,13 @@ def run_pytest(
 ) -> ExecutionResult:
     """Run pytest inside the project's venv."""
     import time
-    py = ensure_venv(project_dir)
+    # ABSOLUTE but SYMLINK-PRESERVING (same rationale as run_in_venv): the
+    # subprocess below runs with cwd=project_dir/code, so a RELATIVE
+    # venv-python path (e.g. 'projects/PROJ-x/code/.venv/bin/python' when
+    # project_dir itself is relative) would resolve against the changed cwd
+    # and vanish — FileNotFoundError. ``os.path.abspath`` anchors it to the
+    # ORIGINAL cwd without dereferencing the venv's bin/python symlink.
+    py = Path(os.path.abspath(ensure_venv(project_dir)))
     _ensure_code_package(project_dir)
     code_dir = project_dir / "code"
     started = time.time()
@@ -323,7 +339,7 @@ def run_pytest(
             timeout=timeout_s,
             capture_output=True,
             text=True,
-            env=_analysis_env(project_dir, os.environ.copy()),
+            env=_analysis_env(project_dir, analysis_environment(project_dir)),
         )
         rc = proc.returncode
         out = proc.stdout

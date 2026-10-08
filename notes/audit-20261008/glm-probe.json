@@ -1,0 +1,63 @@
+{
+  "catalog": [
+    {
+      "id": "google.gemma-3-27b-it",
+      "costs": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "google.gemma-4-31B-it",
+      "costs": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "zai-org.glm-5.3",
+      "costs": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "openai.gpt-oss-120b",
+      "costs": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "qwen.qwen3.5-122b",
+      "costs": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "meta.llama-3.2-11b-vision-instruct",
+      "costs": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "meta.llama-3-2-3b-instruct",
+      "costs": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "qwen.qwen3-vl:32b",
+      "costs": [
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "elapsed_s": 3.2567350000026636,
+  "response": "{\"status\": \"ok\", \"sum\": 46}",
+  "model": "zai-org.glm-5.3"
+}

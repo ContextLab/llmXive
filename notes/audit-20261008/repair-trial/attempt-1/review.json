@@ -1,0 +1,4 @@
+{
+  "accept": true,
+  "reason": "The patch correctly fixes the FileNotFoundError by converting the venv python path to an absolute path before changing the working directory. It adds comprehensive regression tests that verify both successful and failing test runs with a relative project directory, and all tests now pass. No unrelated changes or scope creep are introduced."
+}

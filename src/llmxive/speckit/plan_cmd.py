@@ -22,6 +22,7 @@ from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
 from llmxive.backends.router import GENERATION_MAX_TOKENS, reasoning_chat
 from llmxive.librarian.dataset_resolver import (
+    ResolvedDatasets,
     render_planner_block,
     resolve_datasets,
 )
@@ -121,11 +122,12 @@ class PlannerAgent(SlashCommandAgent):
         spec_text = spec_path.read_text(encoding="utf-8") if spec_path.exists() else ""
         # Weak resolver: reachable + format-sniffed cite-only candidates (a
         # candidate PROPOSER; no dead write-only manifest is persisted — D7).
+        from llmxive.execution.data_source import requires_external_data
         resolved = resolve_datasets(
             spec_text,
             project_dir=ctx.project_dir,
             repo_root=ctx.project_dir.parent.parent,
-        )
+        ) if requires_external_data(ctx.project_dir) else ResolvedDatasets(datasets=[])
         weak_block = render_planner_block(resolved)
         # PROACTIVE strong discovery at PLAN time (D11): run the SAME
         # records+field HARD-verifier the execution stage uses, sharing the SAME
@@ -192,11 +194,12 @@ class PlannerAgent(SlashCommandAgent):
         # Planner still receives the cite-only block instead of nothing.
         dataset_block = mechanical_output.get("dataset_block")
         if dataset_block is None:
+            from llmxive.execution.data_source import requires_external_data
             resolved = resolve_datasets(
                 spec_text,
                 project_dir=ctx.project_dir,
                 repo_root=repo,
-            )
+            ) if requires_external_data(ctx.project_dir) else ResolvedDatasets(datasets=[])
             dataset_block = render_planner_block(resolved)
         # Trustworthiness Phase 2: feed canonical verified facts back into the
         # planner. Pure addition — empty when no facts exist (byte-identical).

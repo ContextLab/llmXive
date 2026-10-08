@@ -46,6 +46,7 @@ from typing import Any
 
 from llmxive.backends.base import ChatMessage
 from llmxive.backends.router import REASONING_MAX_TOKENS, chat_with_fallback
+from llmxive.speckit.task_lines import TASK_ID_RE as _TASK_ID_RE
 
 LOGGER = logging.getLogger(__name__)
 
@@ -94,13 +95,14 @@ _CONFIG_FILE_RE = re.compile(
 )
 #: Generic config-extension files (…toml/…cfg/…yaml/…ini) referenced under the project.
 _CONFIG_EXT_RE = re.compile(r"\b((?:[\w./-]+/)?[\w-]+\.(?:toml|cfg|ya?ml|ini))\b")
+_SPEC_DOC_RE = re.compile(r"\b((?:specs/[\w./-]+/)?(?:plan|spec|tasks|research|quickstart|data-model)\.md)\b")
 #: Back-compat alias — some callers/tests reference the historical single regex; it
 #: now points at the primary rooted-path pattern (the deterministic detector uses
 #: the full :func:`_declared_paths` union).
 _PATH_RE = _ROOTED_PATH_RE
 
 _MAX_EVIDENCE_FILES = 6
-_MAX_BYTES_PER_FILE = 3000
+_MAX_BYTES_PER_FILE = 12000
 #: Cap bytes read when VALIDATING a data/JSON artifact (parse cheaply, not fully).
 _VALIDATE_MAX_BYTES = 200_000
 _DATA_EXTS = {".csv", ".tsv"}
@@ -138,7 +140,7 @@ def _declared_paths(task_text: str) -> list[str]:
     files), de-duplicated in first-seen order."""
     out: list[str] = []
     seen: set[str] = set()
-    for rx in (_ROOTED_PATH_RE, _CONFIG_FILE_RE, _CONFIG_EXT_RE):
+    for rx in (_ROOTED_PATH_RE, _CONFIG_FILE_RE, _CONFIG_EXT_RE, _SPEC_DOC_RE):
         for m in rx.finditer(task_text):
             rel = m.group(1)
             if rel and rel not in seen:
@@ -147,12 +149,22 @@ def _declared_paths(task_text: str) -> list[str]:
     return out
 
 
+def _evidence_path(project_dir: Path, rel: str) -> Path:
+    path = project_dir / rel
+    if not path.is_file() and "/" not in rel and _SPEC_DOC_RE.fullmatch(rel):
+        from llmxive.state.project import feature_dir_for
+        feature = feature_dir_for(project_dir, track="research")
+        if feature is not None:
+            path = feature / rel
+    return path
+
+
 def _artifact_valid(project_dir: Path, rel: str) -> bool:
     """True iff ``rel`` exists, is non-empty, AND (for declared data outputs) parses
     with at least one data row. Pure filesystem + stdlib parse — never an LLM."""
     import json
 
-    f = project_dir / rel
+    f = _evidence_path(project_dir, rel)
     if not f.is_file():
         return False
     try:
@@ -196,9 +208,8 @@ def _deterministic_verdict(project_dir: Path, task_text: str) -> tuple[str | Non
     if not paths:
         return None, ""
     statuses = [(p, _artifact_valid(project_dir, p)) for p in paths]
-    if all(valid for _, valid in statuses):
-        present = ", ".join(p for p, _ in statuses)
-        return "accept", f"all declared artifacts exist and validate: {present}"
+    # Existence can establish missing work; it cannot establish correct work.
+    # A nonempty stub or arbitrary two-row CSV must still be judged semantically.
     missing = [p for p, valid in statuses if not valid]
     if len(missing) == len(statuses) and _has_production_intent(task_text):
         return "reject", (
@@ -216,18 +227,21 @@ def gather_evidence(project_dir: Path, task_text: str) -> str:
     paths = _declared_paths(task_text)[:_MAX_EVIDENCE_FILES]
     chunks: list[str] = []
     for rel in paths:
-        f = project_dir / rel
+        f = _evidence_path(project_dir, rel)
         if not f.is_file():
             chunks.append(f"- `{rel}`: MISSING (file does not exist)")
             continue
         try:
             size = f.stat().st_size
-            head = f.read_text(encoding="utf-8", errors="ignore")[:_MAX_BYTES_PER_FILE]
+            with f.open("rb") as source:
+                digest = hashlib.file_digest(source, "sha256").hexdigest()
+                source.seek(0)
+                head = source.read(_MAX_BYTES_PER_FILE).decode("utf-8", errors="replace")
         except OSError as exc:
             chunks.append(f"- `{rel}`: unreadable ({exc})")
             continue
         chunks.append(
-            f"- `{rel}` ({size} bytes):\n```\n{head}\n```"
+            f"- `{rel}` ({size} bytes, sha256={digest}):\n```\n{head}\n```"
             + ("" if size <= _MAX_BYTES_PER_FILE else "\n…(truncated)")
         )
     if not chunks:
@@ -322,7 +336,6 @@ DEFAULT_VERIFY_CAP = 6
 #: (``[UNRESOLVED-CLAIM: c_a1b2 — status=not_enough_info]``). They are not identity.
 _VOLATILE_MARK_RE = re.compile(r"\s*\[(?:UNRESOLVED-CLAIM|UNVERIFIED):[^\]]*\]")
 #: The leading speckit task id — ``T009``, ``T005C``, ``PT005C`` — a task's TRUE identity.
-_TASK_ID_RE = re.compile(r"^\*{0,2}([A-Za-z]{1,4}\d+[A-Za-z0-9]*)\b")
 
 
 def _task_key(rest: str) -> str:
@@ -551,7 +564,7 @@ def run_verification_pass(
 
         # (C) Ambiguous residue → evidence-hash cache, else bounded semantic LLM.
         evidence = gather_evidence(project_dir, rest)
-        ev_hash = _evidence_hash(evidence)
+        ev_hash = _evidence_hash(task_text + "\n" + spec_context + "\n" + evidence)
         cached = cache.get(key)
         if (
             isinstance(cached, dict)

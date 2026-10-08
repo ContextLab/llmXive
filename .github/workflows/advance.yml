@@ -154,3 +154,12 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh workflow run pages.yml --ref main
+
+      - name: Preserve a conflicting tick for recovery
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unpushed-tick-${{ matrix.worker }}
+          path: ${{ runner.temp }}/llmxive-unpushed.patch
+          if-no-files-found: ignore
+          retention-days: 30

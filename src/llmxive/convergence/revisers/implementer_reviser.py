@@ -31,6 +31,7 @@ from typing import Any
 
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage
+from llmxive.speckit.task_lines import TASK_LINE_RE as _TASK_LINE_RE
 from llmxive.tools.summarize import summarize
 
 from ..types import Concern, ConcernResponse
@@ -80,10 +81,7 @@ def _is_code_artifact(key: str) -> bool:
 # --- filesystem re-verification (#49) ------------------------------------
 
 
-_TASK_LINE_RE = re.compile(
-    r"^- \[(?P<status>[ Xx])\]\s+(?P<id>T\d+[a-z]?)(?P<rest>.*)$",
-    re.MULTILINE,
-)
+
 # Loose path detector: a file-ish token with a directory separator AND a
 # known extension OR a leading "tests/"/"src/"/"code/"/"data/" segment.
 _FILELIKE_RE = re.compile(

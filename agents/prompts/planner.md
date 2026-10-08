@@ -175,3 +175,20 @@ obtainable data:
   fitted BEFORE any task that evaluates them, and figures are
   generated BEFORE any task that includes them in the paper.
 - Output ONLY the markers + content; no preamble.
+
+## Deliver one bounded research result
+
+Plan the smallest complete study that answers the existing research question:
+one verified input source (or an explicitly authorized mathematical/simulation
+method), one primary analysis, the necessary comparison or sensitivity check,
+and reproducible result tables and figures. Keep all scientific requirements.
+Aim for 8–15 substantive implementation tasks by grouping related changes.
+Do not manufacture separate tasks for mkdir, logging frameworks, architecture
+documents, packaging, dashboards, release automation, or generic API scaffolding
+unless the research question specifically requires them. First run a thin,
+end-to-end analysis on real inputs; then expand the scale and validation.
+On re-plan, preserve working artifacts and completed requirements. Repair the
+specific failing commands/contracts from feedback instead of regenerating a
+larger task list. If the question cannot be answered with available data and
+compute, state the exact mismatch for scope revision; never substitute a different
+question or fabricate observations to satisfy the original one.

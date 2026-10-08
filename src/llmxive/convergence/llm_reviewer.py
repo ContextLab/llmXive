@@ -899,20 +899,13 @@ class LLMReviewer:
             ChatMessage(role="system", content=self._system_prompt),
             ChatMessage(role="user", content=user),
         ]
-        response_text = self._call_backend(messages)
         default_artifact = self._pick_default_artifact(artifacts)
-        verdict, concerns = _parse_response(
-            response_text,
-            lens=self._lens,
-            stage=self._stage,
-            default_artifact=default_artifact,
-        )
+        response_text, verdict, concerns = self._call_and_parse(messages, default_artifact)
         # R1 ACTION-ITEMS GATE (the single shared review protocol): a reviewer that
         # requests revision but enumerates ZERO concerns is self-contradictory —
         # it says "change this" with nothing to act on. Such a review is REJECTED
         # and RESUBMITTED ONCE with an explicit instruction; if it still produces
-        # no actionable items it is taken as an accept (the reviewer had nothing
-        # concrete to say). This guarantees every round-1 non-accept carries the
+        # no actionable items it fails closed (revision is not acceptance). This guarantees every round-1 non-accept carries the
         # action items round 2 will address and round 3 will sign off on.
         if not concerns and (verdict or "").strip().lower() in self._NONACCEPT_VERDICTS:
             resubmit = [
@@ -928,13 +921,9 @@ class LLMReviewer:
                     "Output ONLY the review document."
                 )),
             ]
-            response_text = self._call_backend(resubmit)
-            _, concerns = _parse_response(
-                response_text,
-                lens=self._lens,
-                stage=self._stage,
-                default_artifact=default_artifact,
-            )
+            response_text, verdict, concerns = self._call_and_parse(resubmit, default_artifact)
+            if not concerns and (verdict or "").strip().lower() in self._NONACCEPT_VERDICTS:
+                raise RuntimeError(f"LLMReviewer[{self._lens}]: revision requested without actionable concerns after retry")
         review_cache.store(self._repo_root, cache_key, concerns)
         return concerns
 
@@ -958,14 +947,10 @@ class LLMReviewer:
             ChatMessage(role="system", content=self._system_prompt),
             ChatMessage(role="user", content=user),
         ]
-        response_text = self._call_backend(messages)
         default_artifact = self._pick_default_artifact(artifacts)
-        _, new_concerns = _parse_response(
-            response_text,
-            lens=self._lens,
-            stage=self._stage,
-            default_artifact=default_artifact,
-        )
+        _, verdict, new_concerns = self._call_and_parse(messages, default_artifact)
+        if not new_concerns and (verdict or "").strip().lower() in self._NONACCEPT_VERDICTS:
+            raise RuntimeError(f"LLMReviewer[{self._lens}]: re-review requests revision without actionable concerns")
         # Build verdicts: for each PRIOR concern, fail if it appears in
         # new_concerns (by id) else pass. New concerns (no matching id)
         # are surfaced via the Verdict.new_concerns field on a synthetic
@@ -1084,6 +1069,29 @@ class LLMReviewer:
             if not (key.startswith("__") and key.endswith("__")):
                 return key
         return "(unknown)"
+
+    def _call_and_parse(self, messages: list[ChatMessage], default_artifact: str):
+        """One corrective retry for malformed reviews; never turn parse failure into acceptance."""
+        for attempt in range(2):
+            text = self._call_backend(messages)
+            try:
+                verdict, concerns = _parse_response(
+                    text, lens=self._lens, stage=self._stage,
+                    default_artifact=default_artifact,
+                )
+                return text, verdict, concerns
+            except RuntimeError as exc:
+                if attempt:
+                    raise
+                messages = [*messages, ChatMessage(role="assistant", content=text),
+                            ChatMessage(role="user", content=(
+                                "The review could not be parsed: " + str(exc)[:500]
+                                + "\nReturn a complete, concise review document. Start with "
+                                "verdict: and concerns:. Use the required concern schema. "
+                                "Do not repeat artifact contents or metadata. An empty or "
+                                "truncated response will NOT be accepted."
+                            ))]
+        raise AssertionError("unreachable")
 
     def _call_backend(self, messages: list[ChatMessage]) -> str:
         # Route through the SAME-BACKEND peer-model fallback chain

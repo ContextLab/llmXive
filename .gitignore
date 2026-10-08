@@ -312,5 +312,6 @@ projects/*/paper/.chunk_summaries/
 # Local agent/runtime state (not part of the repo)
 .omc/
 .summaries/
+projects/*/.runtime-home/
 .claude/scheduled_tasks.lock
 projects/PROJ-577-multabench-benchmarking-multimodal-tabul/data/synthetic_multimodal.csv

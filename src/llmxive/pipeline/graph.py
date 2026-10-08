@@ -71,6 +71,7 @@ from llmxive.speckit.paper_tasks_cmd import PaperTaskerAgent
 from llmxive.speckit.plan_cmd import PlannerAgent
 from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
 from llmxive.speckit.specify_cmd import SpecifierAgent
+from llmxive.speckit.task_lines import TaskFormatError
 from llmxive.speckit.tasks_cmd import TaskerAgent
 from llmxive.state import execution_status
 from llmxive.state import project as project_store
@@ -807,6 +808,17 @@ def run_one_step(
             )
             try:
                 speckit_agent.run(sk_ctx)
+            except TaskFormatError as exc:
+                # A malformed task list is actionable Tasker input, not a no-op
+                # implementation run. Preserve artifacts and regenerate identities.
+                _write_unverifiable_replan_feedback(project_dir, [{
+                    "task_key": "task-format", "last_reason": str(exc), "reject_count": 1,
+                }])
+                target = Stage.PAPER_PLANNED if _paper_track else Stage.PLANNED
+                repaired = project.model_copy(update={"current_stage": target,
+                    "updated_at": datetime.now(UTC), "last_run_id": run_id})
+                project_store.save(repaired, repo_root=repo)
+                return repaired
             except StagePanelKickback as exc:
                 # CONTROLLED non-convergence: the panel already wrote its
                 # convergence_kickback.yaml sentinel. Do NOT propagate — fall through

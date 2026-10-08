@@ -19,7 +19,7 @@ permissions:
 jobs:
   real-call-full:
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 330
     env:
       LLMXIVE_REAL_TESTS: "1"
       DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
@@ -72,4 +72,16 @@ jobs:
 
       # The FULL real-call suite — fast subset PLUS the `slow` heavy modules.
       - name: Real-call tests — FULL suite (incl. slow fetch/ground/e2e)
+        env:
+          LLMXIVE_E2E_FULL: '1'
+          LLMXIVE_ACCEPTANCE_ARTIFACTS: ${{ runner.temp }}/llmxive-acceptance
         run: pytest tests/real_call -v
+
+      - name: Preserve full-pipeline research, paper and failure evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-pipeline-acceptance
+          path: ${{ runner.temp }}/llmxive-acceptance
+          if-no-files-found: ignore
+          retention-days: 30

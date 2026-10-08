@@ -31,6 +31,8 @@ import yaml
 
 from llmxive.backends.base import ChatMessage, ChatResponse
 from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
+from llmxive.speckit.task_lines import TASK_LINE_RE as _TASK_RE
+from llmxive.speckit.task_lines import all_complete, mark_task, validate_open_tasks
 
 _LOG = logging.getLogger(__name__)
 
@@ -51,12 +53,7 @@ _PAPER_IMPLEMENT_EXTRA_KEYS = (
 # ``[kind:...]`` capture, kept for back-compat parsing only — the
 # dispatcher itself ignores it (the engine + reviser now decide who
 # handles what).
-_TASK_RE = re.compile(
-    r"^- \[(?P<status>[ Xx])\]\s+(?P<id>T\d+[a-z]?)(?=\s|$)(?P<rest>.*)$",
-    re.MULTILINE,
-)
 _KIND_RE = re.compile(r"\[kind:(?P<kind>[a-z\-_]+)\]", re.IGNORECASE)
-
 
 # Retained for back-compat with tests that probe the legacy mapping; the
 # dispatcher no longer routes through it.
@@ -109,12 +106,13 @@ class PaperImplementerAgent(SlashCommandAgent):
         return None
 
     def _all_complete(self, tasks_text: str) -> bool:
-        return all(m.group("status") in {"X", "x"} for m in _TASK_RE.finditer(tasks_text))
+        return all_complete(tasks_text)
 
     def mechanical_step(self, ctx: SlashCommandContext) -> dict[str, Any]:
         feature_dir = self._feature_dir(ctx)
         tasks_path = feature_dir / "tasks.md"
         tasks_text = tasks_path.read_text(encoding="utf-8") if tasks_path.exists() else ""
+        validate_open_tasks(tasks_text)
         next_task = self._next_incomplete(tasks_text)
         completed = [
             m.group("id") for m in _TASK_RE.finditer(tasks_text)
@@ -128,7 +126,8 @@ class PaperImplementerAgent(SlashCommandAgent):
             "next_task_line": next_task[1] if next_task else None,
             "next_task_kind": next_task[2] if next_task else None,
             "completed_task_ids": completed,
-            "all_complete": next_task is None and bool(completed),
+            "all_complete": self._all_complete(tasks_text),
+            "skip_llm": next_task is None,
         }
 
     # --- LLM prompt (kept for SlashCommandAgent ABC) --------------------
@@ -354,13 +353,7 @@ class PaperImplementerAgent(SlashCommandAgent):
         # Mark the task complete in tasks.md.
         tasks_path = Path(mechanical_output["tasks_path"])
         text = tasks_path.read_text(encoding="utf-8")
-        text = re.sub(
-            rf"^- \[ \] ({re.escape(task_id)}\b)",
-            r"- [X] \1",
-            text,
-            count=1,
-            flags=re.MULTILINE,
-        )
+        text = mark_task(text, task_id, "X", "")
         tasks_path.write_text(text, encoding="utf-8")
         outputs.append(str(tasks_path.relative_to(repo)))
         return outputs

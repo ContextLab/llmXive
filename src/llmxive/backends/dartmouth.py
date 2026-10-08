@@ -82,7 +82,7 @@ _DEFAULT_REASONING_DEADLINE_S = float(
 # Substrings (matched case-insensitively against the model id) that mark a model
 # as a REASONING model needing the longer deadline. Covers the qwen3.5 / qwen3
 # and gpt-oss families served on Dartmouth's vLLM cluster.
-_REASONING_MODELS: tuple[str, ...] = ("qwen3.5", "qwen3", "gpt-oss")
+_REASONING_MODELS: tuple[str, ...] = ("qwen3.5", "qwen3", "gpt-oss", "glm-5")
 
 
 def _is_reasoning_model(model: str) -> bool:
@@ -508,6 +508,7 @@ def _ensure_api_key_env() -> None:
 # PAID_FALLBACK_MODELS + the daily credit guard.
 KNOWN_FREE_MODELS: frozenset[str] = frozenset(
     {
+        "zai-org.glm-5.3",
         "qwen.qwen3.5-122b",
         "google.gemma-3-27b-it",
         "google.gemma-4-31B-it",
@@ -856,6 +857,13 @@ class DartmouthBackend(BaseBackend):
             # to a non-reasoning model.
             meta = getattr(reply, "response_metadata", {}) or {}
             finish_reason = meta.get("finish_reason")
+            if finish_reason == "length" and text_out.strip():
+                # A partial file or YAML verdict is not a successful response.
+                # Use the bounded empty-reply retry budget, then a peer model.
+                raise EmptyReplyError(
+                    f"Dartmouth model {model!r} truncated its response "
+                    "(finish_reason='length'); incomplete content discarded"
+                )
             if not text_out.strip():
                 reply_kwargs = getattr(reply, "additional_kwargs", {}) or {}
                 refusal = reply_kwargs.get("refusal")

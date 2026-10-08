@@ -528,27 +528,29 @@ def _citation_summary(repo: Path, project_id: str) -> dict[str, int]:
     return out
 
 
-def _last_run_log(repo: Path, project_id: str, *, limit: int = 10) -> list[dict[str, Any]]:
+def _index_run_logs(repo: Path) -> dict[str, list[dict[str, Any]]]:
+    """Read the corpus once per dashboard build, grouped by project identity."""
+    index: dict[str, list[dict[str, Any]]] = {}
+    root = repo / "state" / "run-log"
+    if root.is_dir():
+        for month in sorted(root.iterdir()):
+            if not month.is_dir() or month.name.startswith("."):
+                continue
+            for path in sorted(month.glob("*.jsonl")):
+                for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+                    try:
+                        entry = json.loads(line)
+                    except json.JSONDecodeError:
+                        continue
+                    if isinstance(entry, dict):
+                        index.setdefault(entry.get("project_id") or "", []).append(entry)
+    return index
+
+
+def _last_run_log(repo: Path, project_id: str, *, limit: int = 10, run_entries: list[dict[str, Any]] | None = None) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
-    log_root = repo / "state" / "run-log"
-    if not log_root.is_dir():
-        return out
-    # Walk months newest-first and collect entries until we have `limit`.
-    entries: list[dict[str, Any]] = []
-    for month_dir in sorted([d for d in log_root.iterdir() if d.is_dir() and not d.name.startswith(".")], reverse=True):
-        for jsonl in sorted(month_dir.glob("*.jsonl"), reverse=True):
-            for line in jsonl.read_text(encoding="utf-8").splitlines():
-                if not line.strip():
-                    continue
-                try:
-                    e = json.loads(line)
-                except json.JSONDecodeError:
-                    continue
-                if e.get("project_id") != project_id:
-                    continue
-                entries.append(e)
-        if len(entries) >= limit:
-            break
+    entries = list(run_entries if run_entries is not None else
+                   _index_run_logs(repo).get(project_id, []))
     entries.sort(key=lambda e: e.get("ended_at", ""), reverse=True)
     for e in entries[:limit]:
         try:
@@ -881,7 +883,7 @@ def _project_description(repo: Path, project_id: str, *, max_chars: int = 320) -
     return blob
 
 
-def _project_authors(repo: Path, project_id: str) -> list[dict[str, str]]:
+def _project_authors(repo: Path, project_id: str, *, run_entries: list[dict[str, Any]] | None = None) -> list[dict[str, str]]:
     """All entities (models + humans) that contributed to the project.
 
     Aggregates from:
@@ -992,38 +994,25 @@ def _project_authors(repo: Path, project_id: str) -> list[dict[str, str]]:
         add(name, "human", "paper_author")
 
     # 2. Run-log: every successful agent invocation contributes its model
-    runlog_root = repo / "state" / "run-log"
-    if runlog_root.is_dir():
-        for month_dir in runlog_root.iterdir():
-            if not month_dir.is_dir() or month_dir.name.startswith("."):
-                continue
-            for jsonl in month_dir.glob("*.jsonl"):
-                for line in jsonl.read_text(encoding="utf-8", errors="ignore").splitlines():
-                    if not line.strip():
-                        continue
-                    try:
-                        e = json.loads(line)
-                    except json.JSONDecodeError:
-                        continue
-                    if e.get("project_id") != project_id:
-                        continue
-                    # A run that produced a committed artifact counts as a
-                    # contribution. Personality (spec 008) and several other
-                    # agents log a SUCCESSFUL committing run as `committed`, not
-                    # `success` — filtering on `success` alone silently dropped
-                    # every persona (and other committed contributor) from the
-                    # project's Contributors block.
-                    if e.get("outcome") not in ("success", "committed"):
-                        continue
-                    model = (e.get("model_name") or "").strip()
-                    role = (e.get("agent_name") or "").strip()
-                    # Reviewed-Preprint invariant: credit reviewer runs only; a
-                    # modifier run (implementer/planner/tasker/reviser/etc.) must
-                    # never appear as an author of a paper we did not write.
-                    if is_preprint and "reviewer" not in role.lower():
-                        continue
-                    if model:
-                        add(model, "llm", role or "agent")
+    entries = run_entries if run_entries is not None else _index_run_logs(repo).get(project_id, [])
+    for e in entries:
+        # A run that produced a committed artifact counts as a
+        # contribution. Personality (spec 008) and several other
+        # agents log a SUCCESSFUL committing run as `committed`, not
+        # `success` — filtering on `success` alone silently dropped
+        # every persona (and other committed contributor) from the
+        # project's Contributors block.
+        if e.get("outcome") not in ("success", "committed"):
+            continue
+        model = (e.get("model_name") or "").strip()
+        role = (e.get("agent_name") or "").strip()
+        # Reviewed-Preprint invariant: credit reviewer runs only; a
+        # modifier run (implementer/planner/tasker/reviser/etc.) must
+        # never appear as an author of a paper we did not write.
+        if is_preprint and "reviewer" not in role.lower():
+            continue
+        if model:
+            add(model, "llm", role or "agent")
 
     # 3. Review records (both stages)
     for sub in ("reviews/research", "paper/reviews", "reviews/paper"):
@@ -1071,7 +1060,7 @@ def _project_authors(repo: Path, project_id: str) -> list[dict[str, str]]:
     return out
 
 
-def _project_to_entry(repo: Path, project: Project) -> dict[str, Any]:
+def _project_to_entry(repo: Path, project: Project, *, run_entries: list[dict[str, Any]] | None = None) -> dict[str, Any]:
     research_total = float(sum(project.points_research.values()))
     paper_total = float(sum(project.points_paper.values()))
     links = _build_artifact_links(repo, project)
@@ -1088,7 +1077,7 @@ def _project_to_entry(repo: Path, project: Project) -> dict[str, Any]:
         "keywords": _project_keywords(repo, project.id),
         "description": _project_description(repo, project.id),
         "submitter": _project_submitter(repo, project.id),
-        "authors": _project_authors(repo, project.id),
+        "authors": _project_authors(repo, project.id, run_entries=run_entries),
         "speckit_research_dir": project.speckit_research_dir,
         "speckit_paper_dir": project.speckit_paper_dir,
         # Spec 012: revision_spec_path is set only when current_stage is
@@ -1107,7 +1096,7 @@ def _project_to_entry(repo: Path, project: Project) -> dict[str, Any]:
         "artifact_links": links,
         "current_artifact": _current_artifact(repo, project, links),
         "citation_summary": _citation_summary(repo, project.id),
-        "last_run_log": _last_run_log(repo, project.id),
+        "last_run_log": _last_run_log(repo, project.id, run_entries=run_entries),
         # Spec 023 / FR-024: the paper's TRUE compile/audit status from the
         # per-paper status record (state/paper_status/<id>.json) —
         # "audited" | "restyled_unaudited" | "fallback_original" — with
@@ -1659,7 +1648,7 @@ def _preprint_action_items(repo: Path, project_id: str) -> list[dict[str, Any]]:
     return out
 
 
-def _reviewed_preprint_entry(repo: Path, project: Project) -> dict[str, Any]:
+def _reviewed_preprint_entry(repo: Path, project: Project, *, run_entries: list[dict[str, Any]] | None = None) -> dict[str, Any]:
     """Enriched entry for the dashboard's Reviewed Preprints tab.
 
     Extends the standard project entry with a ``preprint`` block: provenance
@@ -1672,13 +1661,13 @@ def _reviewed_preprint_entry(repo: Path, project: Project) -> dict[str, Any]:
         load_preprint_manifest,
     )
 
-    entry = _project_to_entry(repo, project)
+    entry = _project_to_entry(repo, project, run_entries=run_entries)
     pdir = _project_dir(repo, project.id)
     manifest = load_preprint_manifest(pdir) or {}
 
     # Original authors (paper_author role) + review models (any reviewer role),
     # reusing the preprint-aware attribution (SSoT).
-    authors = _project_authors(repo, project.id)
+    authors = _project_authors(repo, project.id, run_entries=run_entries)
     original_authors = [a for a in authors if "paper_author" in (a.get("roles") or [])]
     review_models = [
         a for a in authors
@@ -1729,6 +1718,7 @@ def build_payload(repo: Path) -> dict[str, Any]:
     _ALIAS_CACHE.clear()
     registry_names = _load_agent_names(repo)
     projects = project_store.list_all(repo_root=repo)
+    run_index = _index_run_logs(repo)
     by_kind, human_rows = _collect_reviews(repo)
     ai_rows = _agent_contributors(repo)
     submitter_rows = _submitter_contributors(repo, projects)
@@ -1782,8 +1772,8 @@ def build_payload(repo: Path) -> dict[str, Any]:
         "schema_version": SCHEMA_VERSION,
         "generated_at": datetime.now(UTC).isoformat(),
         "aggregates": aggregates,
-        "projects": [_project_to_entry(repo, p) for p in non_preprints],
-        "reviewed_preprints": [_reviewed_preprint_entry(repo, p) for p in preprints],
+        "projects": [_project_to_entry(repo, p, run_entries=run_index.get(p.id, [])) for p in non_preprints],
+        "reviewed_preprints": [_reviewed_preprint_entry(repo, p, run_entries=run_index.get(p.id, [])) for p in preprints],
         "contributors": contributors,
         "agents": _build_agents_block(repo),
         "personalities": _build_personalities_block(repo),
