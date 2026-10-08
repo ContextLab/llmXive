@@ -1,18 +1,41 @@
-# Project: Investigating Correlations Between Molecular Descriptors and Drug-Likeness Scores
+# PROJ-066: Investigating Correlations Between Molecular Descriptors and Drug-Likeness Scores
 
-## Overview
-This project aims to analyze the relationship between molecular descriptors (e.g., TPSA, logP) and drug-likeness scores using data from ChEMBL.
+## Project Overview
+This project aims to download, process, and analyze molecular data from the ChEMBL database to investigate correlations between molecular descriptors and drug-likeness scores. The pipeline includes data acquisition, preprocessing, model training, and evaluation.
 
-## Status
-- Phase 1 (Setup): In Progress
-- Phase 2 (Foundational): Pending
-- Phase 3 (User Story 1): Pending
+## Quickstart Instructions
+1. **Setup Environment**:
+ ```bash
+ pip install -r code/requirements.txt
+ ```
+2. **Run Data Download (T009)**:
+ ```bash
+ python code/data/download.py
+ ```
+3. **Run Preprocessing Pipeline (T010-T015)**:
+ ```bash
+ python code/data/preprocess.py
+ ```
+4. **Train Models (T017-T020)**:
+ ```bash
+ python code/models/train.py
+ ```
+5. **Evaluate Models (T022-T026)**:
+ ```bash
+ python code/models/evaluate.py
+ ```
 
-## Artifacts
-- Raw Data: `data/raw/chembl_33.db`
-- Processed Data: `data/processed/molecules_processed.csv`
-- Models: `data/processed/model_lr.pkl`, `data/processed/model_rf.pkl`
-- Metrics: `data/processed/metrics_summary.json`
+## Directory Structure
+- `data/raw/`: Raw downloaded data (e.g., ChEMBL database)
+- `data/processed/`: Processed data ready for modeling
+- `code/`: Source code for data processing, modeling, and evaluation
+- `tests/`: Unit and integration tests
+- `state/`: Project state tracking and artifact hashes
 
-## State Tracking
-Pipeline state is managed in `state/projects/PROJ-066-investigating-correlations-between-molec.yaml`.
+## Dependencies
+- Python 3.10+
+- RDKit
+- scikit-learn
+- pandas
+- PyYAML
+- psutil

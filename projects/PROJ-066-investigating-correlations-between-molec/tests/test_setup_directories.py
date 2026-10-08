@@ -1,46 +1,83 @@
 import os
 import pytest
 from pathlib import Path
-from code.setup_directories import setup_directories
+import sys
 
-def test_setup_directories_creates_structure(tmp_path):
+# Add the code directory to the path to allow imports
+code_dir = Path(__file__).parent.parent / "code"
+sys.path.insert(0, str(code_dir))
+
+from setup_directories import setup_directories
+
+def test_setup_directories_creates_processed():
     """
-    Test that setup_directories creates the required directory structure.
-    We mock the project root by changing the current working directory
-    or by temporarily adjusting the script's context. However, since
-    setup_directories uses __file__ to determine root, we need to be careful.
-    
-    For this test, we assume the standard project layout and verify
-    that the directories exist after running the function.
+    Test that setup_directories creates the data/processed directory
+    as required by T008b.
     """
-    # We cannot easily mock __file__ in a simple test without copying the function.
-    # Instead, we verify that the function runs without error and creates dirs.
-    # In a real CI, this would run from the project root.
+    # Run the setup
+    result = setup_directories()
+    assert result is True
+
+    # Verify the specific directory for T008b exists
+    # The script calculates project_root relative to itself.
+    # If running from tests, we need to ensure we check the right path.
+    # setup_directories() uses Path(__file__).resolve().parent of setup_directories.py
+    # which is code/. So project_root is the project root.
     
-    # Let's verify the logic by checking if the directories are created
-    # relative to the current working directory if we were to run it from there.
-    # But since the function is hardcoded to __file__, we rely on the function's logic.
+    # We can verify by checking if the function returns True and 
+    # the directory exists relative to the code folder.
+    current_file_dir = Path(__file__).parent.parent
+    processed_dir = current_file_dir / "data" / "processed"
     
-    # We will just call it and ensure no exception is raised.
-    # The actual verification of paths is hard without mocking __file__.
-    # So we test that it doesn't crash and that the expected relative paths
-    # would be created if run from the right place.
+    assert processed_dir.exists(), "data/processed directory must exist after setup"
+    assert processed_dir.is_dir(), "data/processed must be a directory"
+
+def test_setup_directories_creates_raw():
+    """
+    Test that setup_directories creates the data/raw directory (T008a).
+    """
+    result = setup_directories()
+    assert result is True
+
+    current_file_dir = Path(__file__).parent.parent
+    raw_dir = current_file_dir / "data" / "raw"
     
-    # Alternative: We can check the source code to ensure the paths are defined correctly.
-    # But for a functional test, we assume the environment is set up correctly.
+    assert raw_dir.exists(), "data/raw directory must exist after setup"
+    assert raw_dir.is_dir(), "data/raw must be a directory"
+
+def test_setup_directories_creates_code_modules():
+    """
+    Test that setup_directories creates code/data and code/models (T008c, T008d).
+    """
+    result = setup_directories()
+    assert result is True
+
+    current_file_dir = Path(__file__).parent.parent
+    code_data = current_file_dir / "code" / "data"
+    code_models = current_file_dir / "code" / "models"
     
-    # Let's try to verify by creating a temporary structure and checking.
-    # However, the function uses __file__ of the script itself.
-    # To properly test, we would need to pass a root argument, but the signature is fixed.
-    # We will assume the test environment runs this from the correct root.
+    assert code_data.exists(), "code/data directory must exist"
+    assert code_models.exists(), "code/models directory must exist"
+
+def test_setup_directories_creates_tests():
+    """
+    Test that setup_directories creates the tests directory (T008e).
+    """
+    result = setup_directories()
+    assert result is True
+
+    current_file_dir = Path(__file__).parent.parent
+    tests_dir = current_file_dir / "tests"
     
-    # For the purpose of this task, we verify the function exists and has the correct logic.
-    # We will assert that the directories list contains the required paths.
-    import inspect
-    source = inspect.getsource(setup_directories)
-    assert "data/raw" in source
-    assert "data/processed" in source
-    assert "tests" in source
-    assert "contracts" in source
-    assert "state/projects" in source
-    assert "projects/PROJ-066-investigating-correlations-between-molec" in source
+    assert tests_dir.exists(), "tests directory must exist"
+    assert tests_dir.is_dir(), "tests must be a directory"
+
+def test_idempotency():
+    """
+    Test that running setup_directories twice does not raise errors.
+    """
+    result1 = setup_directories()
+    result2 = setup_directories()
+    
+    assert result1 is True
+    assert result2 is True

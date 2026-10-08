@@ -1,24 +1,91 @@
+T003b:
+  c: true
+  h: 7f09c6b73f321ad3a436b7e634dd4f222b2638083bf9387671af6a03c8aa9107
+  r: "The `projects/PROJ-066-investigating-correlations-between-molec/code/.ruff.toml`\
+    \ file exists, is non\u2011empty, and its contents set `line-length = 88` and\
+    \ ignore `E501` as specified. No required artifact is missing."
+T004a:
+  c: true
+  h: 9b65513f6ed85d8f32664d942ceed21126be17007b0a72b60bfa4914f4edc348
+  r: "The file `code/contracts/molecule.schema.yaml` exists, is non\u2011empty, and\
+    \ contains a JSON\u2011Schema defining SMILES, the required descriptor fields,\
+    \ and the target/experimental value as specified. This matches the task\u2019\
+    s requirement to create the schema file."
+T004b:
+  c: true
+  h: e3e22a4fa54c3c015d1878d0584a6dd46fd16273eab7cebac185de6723746003
+  r: "The `projects/PROJ-066-investigating-correlations-between-molec/code/contracts/model_output.schema.yaml`\
+    \ file exists, is non\u2011empty, and defines a JSON schema covering model metrics\
+    \ (RMSE, Pearson r, runtime, memory) and a `feature_importance` array, fulfilling\
+    \ the task\u2019s requirement."
 T007:
   c: false
-  h: c14b763f180faa31ba22535002a796008e7c4b06c2d2a5178a02e5ae5504a976
-  r: "The `code/utils/update_state.py` file is truncated (ends abruptly with \u201C\
-    w\u201D) and does not contain the logic to write artifact hashes into the state\
-    \ file. Moreover, the required `state/projects/PROJ-066-investigating-correlations-between-molec.yaml`\
-    \ file is missing entirely. Both the script and the target state file need to\
-    \ be completed for the task to be satisfied."
+  h: 49719ddab7374198cc1122d8f6776647ed505c92c0429443b5cd2e1198c5f340
+  r: The `update_state.py` script exists but is located at `code/utils/update_state.py`
+    instead of the required `projects/PROJ-066-investigating-correlations-between-molec/code/utils/update_state.py`,
+    and the target state file `state/projects/PROJ-066-investigating-correlations-between-molec.yaml`
+    is absent, so the script cannot actually update the required YAML with artifact
+    hashes.
+T008b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that the directory `projects/PROJ-066-investigating-correlations-between-molec/data/processed/`
+    actually exists or contains any files; the response only repeats the task description
+    without showing the required artifact. The missing directory must be created (and
+    populated if required) for the task to be considered complete.
+T008c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided showing that the directory `projects/PROJ-066-investigating-correlations-between-molec/code/data/`
+    actually exists (e.g., a directory listing, screenshot, or file manifest). Without
+    such proof, we cannot confirm the required artifact was created.
+T008d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: I could find no evidence that a `projects/PROJ-066-investigating-correlations-between-molec/code/models/`
+    directory actually exists or contains any files; the provided artifacts only include
+    the task description and no filesystem listing. Without a concrete directory present,
+    the requirement is not satisfied.
+T008e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `projects/PROJ-066-investigating-correlations-between-molec/tests/`\
+    \ directory is provided; the response contains only task description and specifications,\
+    \ with no actual filesystem artifact confirming the directory\u2019s existence."
+T009:
+  c: false
+  h: f9c836a6db529ae58c4d532b41a18ab50769765ab05536fe7357ceceaee02e2c
+  r: "The provided `code/data/download.py` is incomplete (truncated, does not download\
+    \ a `.tar.gz`/`.zip`, lacks extraction, checksum\u2011file download, and state\u2011\
+    file update) and the required output files `data/raw/chembl_33.db` and the YAML\
+    \ state file are absent. Consequently the task\u2019s specifications are not met."
+T015:
+  c: false
+  h: 9f9ed6f721c10daaf63de8029ad99068a57cde7ca21b99ed6f48954f0eaa5991
+  r: "The required output file `data/processed/molecules_processed.csv` does not exist,\
+    \ and the provided `preprocess.py` snippet does not show an implementation of\
+    \ `write_processed_data()` that validates each row against the schema or calls\
+    \ `update_state.py`. Consequently the core functional and state\u2011recording\
+    \ requirements are unmet."
 T018:
   c: false
-  h: a2b6b7ae2732edd0571a1cf610d13ce1164d4a878259f09508a39e068fcd35eb
-  r: The repository contains `code/models/train.py` with a stub of `train_linear_regression`,
-    but the required model artifact `data/processed/model_lr.pkl` is not present.
-    Without the saved pickle file (and with the function body apparently incomplete/truncated),
-    the task of fitting and persisting the Linear Regression model is not satisfied.
-    The missing artifact must be generated by a fully implemented `train_linear_regression`
-    function.
+  h: 484bccd5a5bf4b2adc611a9d8348c88884e974f8e17b748f1262b47c60e4f880
+  r: The repository lacks the required `data/processed/model_lr.pkl` file, and the
+    provided `train.py` excerpt does not show a `train_linear_regression()` implementation
+    that fits a Linear Regression model and saves it with joblib. Both the artifact
+    and the specific function are missing, so the task is not genuinely completed.
 T019:
   c: false
-  h: 827388ffb3308cd46698da8017279cb8f4d1d65daa2cbeee53e8d749b005f111
-  r: "The provided `train.py` does not show a `train_random_forest()` implementation\
-    \ with memory\u2011conscious parameters or profiling hooks, and the required output\
-    \ file `data/processed/model_rf.pkl` is absent. Both the function implementation\
-    \ and the saved model artifact are missing, so the task is not satisfied."
+  h: e6c43ac6508bcc3f687306ca1d66d81bd9bbce3ec4d38e8c8f75fee2a209ddd6
+  r: "The repository contains a `train.py` file, but the visible portion does not\
+    \ define a `train_random_forest()` function, nor does it show memory\u2011profiling\
+    \ hooks or a joblib save to `data/processed/model_rf.pkl`. Moreover, the expected\
+    \ model artifact `model_rf.pkl` is absent from the filesystem. These missing pieces\
+    \ mean the task\u2019s core requirements are not met."
+T020:
+  c: false
+  h: f5d59b7be640752fa54f8d23b56c1848392264952d698412bdc02d26f5b3277a
+  r: "The repository contains a `train.py` file, but the shown code does not include\
+    \ a `generate_feature_importance()` function, nor does it produce or save a `feature_importance.json`\
+    \ file (the file is missing). Consequently the required feature\u2011importance\
+    \ extraction, ranking, and JSON report are not implemented."

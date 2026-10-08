@@ -3,48 +3,45 @@ from pathlib import Path
 
 def setup_directories():
     """
-    Creates the required directory structure for the PROJ-066 project.
-    Ensures existence of data/raw, data/processed, code/data, code/models,
-    code/utils, and tests directories relative to the project root.
+    Creates all required project directories for PROJ-066.
+    This function ensures the existence of raw/processed data,
+    code modules, models, tests, and state directories.
     """
-    # Determine project root (assuming script runs from project root or code/)
-    # We use the directory of this script as the anchor if run from code/, 
-    # otherwise we assume current working directory is root.
-    script_path = Path(__file__).resolve()
-    # If the script is in code/, go up one level to root
-    if script_path.parent.name == "code":
-        root = script_path.parent.parent
-    else:
-        # Fallback to cwd if structure is different
-        root = Path.cwd()
+    # Define the project root relative to this script's location
+    # Assuming this script is at: projects/PROJ-.../code/setup_directories.py
+    current_dir = Path(__file__).resolve().parent
+    project_root = current_dir.parent
 
     directories = [
-        "data/raw",
-        "data/processed",
-        "code/data",
-        "code/models",
-        "code/utils",
-        "tests",
-        "figures" # Added for visualization outputs mentioned in tasks
+        # Data directories
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        
+        # Code module directories
+        project_root / "code" / "data",
+        project_root / "code" / "models",
+        project_root / "code" / "utils",
+        project_root / "code" / "contracts",
+        
+        # Tests directory
+        project_root / "tests",
+        
+        # State directory
+        project_root.parent / "state" / "projects",
     ]
 
-    created = []
-    for dir_name in directories:
-        dir_path = root / dir_name
+    created_count = 0
+    for dir_path in directories:
         if not dir_path.exists():
             dir_path.mkdir(parents=True, exist_ok=True)
-            created.append(str(dir_path))
+            print(f"Created directory: {dir_path}")
+            created_count += 1
         else:
-            # Ensure it is a directory, not a file
-            if not dir_path.is_dir():
-                raise RuntimeError(f"Path exists but is not a directory: {dir_path}")
+            print(f"Directory already exists: {dir_path}")
 
-    if created:
-        print(f"Created directories: {', '.join(created)}")
+    if created_count > 0:
+        print(f"Successfully created {created_count} new directories.")
     else:
         print("All required directories already exist.")
-    
-    return created
 
-if __name__ == "__main__":
-    setup_directories()
+    return True

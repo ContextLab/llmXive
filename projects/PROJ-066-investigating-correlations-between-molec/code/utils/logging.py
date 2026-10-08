@@ -9,7 +9,7 @@ import threading
 import traceback
 from pathlib import Path
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Dict, Any
 
 # Add project root to path
 project_root = Path(__file__).resolve().parent.parent.parent
@@ -44,16 +44,19 @@ def log_pipeline_step(task_id: str, step_name: str, status: str = "in_progress")
     logger.info(f"[{task_id}] {step_name} - Status: {status}")
 
 class ResourceMonitor:
-    """Monitor memory and CPU usage."""
+    """Monitor memory and CPU usage during pipeline execution."""
     def __init__(self):
-        self.start_time = None
-        self.peak_memory = 0
-        self._thread = None
+        self.start_time: Optional[float] = None
+        self.peak_memory: float = 0.0
+        self.total_duration: float = 0.0
+        self._thread: Optional[threading.Thread] = None
         self._stop_event = threading.Event()
+        self._monitor_interval: float = 1.0  # Check every second for accuracy
 
     def start(self):
         """Start monitoring."""
         self.start_time = time.time()
+        self.peak_memory = 0.0
         self._stop_event.clear()
         self._thread = threading.Thread(target=self._monitor_loop, daemon=True)
         self._thread.start()
@@ -61,12 +64,20 @@ class ResourceMonitor:
         logger.info("Resource monitoring started.")
 
     def stop(self):
-        """Stop monitoring."""
+        """Stop monitoring and calculate final metrics."""
         self._stop_event.set()
         if self._thread:
-            self._thread.join(timeout=1.0)
+            self._thread.join(timeout=2.0)
+        
+        if self.start_time:
+            self.total_duration = time.time() - self.start_time
+        
         logger = get_logger(__name__)
-        logger.info(f"Resource monitoring stopped. Peak memory: {self.peak_memory} MB")
+        logger.info(
+            f"Resource monitoring stopped. "
+            f"Peak memory: {self.peak_memory:.2f} MB, "
+            f"Duration: {self.total_duration:.2f} seconds"
+        )
 
     def _monitor_loop(self):
         """Periodically check memory usage."""
@@ -74,7 +85,8 @@ class ResourceMonitor:
             import psutil
             process = psutil.Process()
         except ImportError:
-            # Fallback if psutil not available
+            logger = get_logger(__name__)
+            logger.warning("psutil not installed. Cannot monitor resources.")
             return
 
         while not self._stop_event.is_set():
@@ -82,9 +94,31 @@ class ResourceMonitor:
                 mem_mb = process.memory_info().rss / (1024 * 1024)
                 if mem_mb > self.peak_memory:
                     self.peak_memory = mem_mb
-                self._stop_event.wait(10)  # Check every 10 seconds
+                self._stop_event.wait(self._monitor_interval)
             except Exception:
                 break
+
+    def get_metrics(self) -> Dict[str, Any]:
+        """Get current monitoring metrics."""
+        return {
+            "peak_memory_mb": self.peak_memory,
+            "duration_seconds": self.total_duration if self.start_time else 0,
+            "start_time": self.start_time,
+        }
+
+# Global instance for pipeline-wide monitoring
+_global_monitor: Optional[ResourceMonitor] = None
+
+def start_monitoring() -> ResourceMonitor:
+    """Start the global resource monitor."""
+    global _global_monitor
+    _global_monitor = ResourceMonitor()
+    _global_monitor.start()
+    return _global_monitor
+
+def get_global_monitor() -> Optional[ResourceMonitor]:
+    """Retrieve the global resource monitor instance."""
+    return _global_monitor
 
 def log_resource_usage() -> dict:
     """Log current resource usage."""
@@ -99,7 +133,3 @@ def log_resource_usage() -> dict:
     except ImportError:
         logger.warning("psutil not available for resource logging.")
         return {}
-
-def start_monitoring():
-    """Start the global resource monitor."""
-    return ResourceMonitor()

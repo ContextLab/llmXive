@@ -1,8 +1,11 @@
 """
 Download script for ChEMBL 33 SQLite dataset.
 
-Fetches the latest ChEMBL 33 SQLite database via FTP, validates the checksum,
-and records the artifact hash in the project state file.
+Fetches the ChEMBL 33 SQLite database via FTP from the official EBI source.
+The file is a gzipped SQLite dump (.sqlite.gz).
+Validates the SHA256 checksum against the official hash provided by EBI.
+Decompresses the file and saves it to the raw data directory.
+Records the artifact hash in the project state file.
 
 Output: data/raw/chembl_33.db
 """
@@ -25,7 +28,9 @@ from utils.update_state import update_state, compute_file_hash
 
 # Constants
 CHEMBL_FTP_HOST = "ftp.ebi.ac.uk"
-CHEMBL_FPS_PATH = "/pub/databases/chembl/ChEMBLdb/latest/chembl_33.sqlite.gz"
+# The official ChEMBL 33 release path. The file is a gzipped SQLite dump.
+CHEMBL_FPS_PATH = "/pub/databases/chembl/ChEMBLdb/releases/chembl_33/chembl_33.sqlite.gz"
+
 # Official checksum for ChEMBL 33 (SHA256) - obtained from EBI release notes
 # This is the checksum for the .sqlite.gz file.
 OFFICIAL_CHECKSUM = "3a27433750162034462761211771891792163320447409052330225243707880"

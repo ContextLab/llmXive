@@ -1,0 +1,67 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Processed Molecular Data Schema
+description: Schema for validated processed molecular data including SMILES, descriptors, and target values.
+type: object
+required:
+  - SMILES
+  - TPSA
+  - logP
+  - MW
+  - rotatable_bonds
+  - h_bond_donors
+  - h_bond_acceptors
+  - ring_count
+  - target
+  - experimental_value
+properties:
+  SMILES:
+    type: string
+    description: Canonical SMILES string of the molecule.
+    minLength: 1
+  TPSA:
+    type: number
+    description: Topological Polar Surface Area in Angstroms squared.
+    minimum: 0
+  logP:
+    type: number
+    description: Octanol-water partition coefficient (LogP).
+  MW:
+    type: number
+    description: Molecular weight in Daltons.
+    minimum: 0
+  rotatable_bonds:
+    type: integer
+    description: Number of rotatable bonds.
+    minimum: 0
+  h_bond_donors:
+    type: integer
+    description: Number of hydrogen bond donors.
+    minimum: 0
+  h_bond_acceptors:
+    type: integer
+    description: Number of hydrogen bond acceptors.
+    minimum: 0
+  ring_count:
+    type: integer
+    description: Total number of rings in the molecule.
+    minimum: 0
+  target:
+    type: string
+    description: The biological target assay type (e.g., 'bioavailability', 'Papp', 'clearance').
+    minLength: 1
+  experimental_value:
+    type: number
+    description: The measured experimental value for the target.
+    description: "Must not be NaN or null."
+additionalProperties: false
+examples:
+  - SMILES: "CC(C)Cc1ccc(cc1)C(C)C(=O)O"
+    TPSA: 37.3
+    logP: 3.5
+    MW: 206.28
+    rotatable_bonds: 5
+    h_bond_donors: 1
+    h_bond_acceptors: 2
+    ring_count: 1
+    target: "bioavailability"
+    experimental_value: 0.85

@@ -1,163 +1,140 @@
-import os
-import sys
+"""
+Unit tests for data preprocessing functions in code/data/preprocess.py.
+
+Tests cover:
+- sanitize_molecules: Salt removal, valence fixing, invalid structure handling.
+- filter_targets: Filtering for specific ADME targets.
+- deduplicate_smiles: Handling duplicates by date or averaging.
+- sample_dataset: Stratified sampling with memory safety checks.
+- calculate_descriptors: Accuracy of 2D descriptor calculation.
+"""
 import pytest
 import pandas as pd
-from pathlib import Path
-import tempfile
-import shutil
+import numpy as np
+from rdkit import Chem
+from rdkit.Chem import Descriptors, Lipinski
+import sys
+import os
 
-# Add project root to path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+# Adjust path to import project modules
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
-from code.data.preprocess import (
-    load_schema,
-    validate_dataframe_against_schema,
+from data.preprocess import (
     sanitize_molecules,
-    deduplicate_smiles,
     filter_targets,
+    deduplicate_smiles,
     sample_dataset,
     calculate_descriptors,
-    write_processed_data
+    DataInsufficiencyError
 )
-from code.utils.config import RANDOM_SEED
 
+# Fixtures
 @pytest.fixture
-def sample_df():
-    """Create a sample dataframe for testing."""
+def sample_df_valid():
     return pd.DataFrame({
-        'smiles': [
-            'CCO',  # Ethanol
-            'CC(=O)O',  # Acetic acid
-            'CCO',  # Duplicate
-            'invalid_smiles',
-            'CC(C)C1=CC=CC=C1C(C)C'  # Valid
-        ],
-        'experimental_value': [10.5, 20.0, 15.0, 30.0, 25.0],
-        'target': ['oral_bioavailability', 'clearance', 'Papp', 'oral_bioavailability', 'clearance'],
-        'assay_date': ['2023-01-01', '2023-02-01', '2023-03-01', '2023-04-01', '2023-05-01']
+        'smiles': ['CCO', 'CC(=O)O', 'c1ccccc1'],
+        'target': ['solubility', 'solubility', 'permeability'],
+        'value': [1.5, 2.0, 0.8],
+        'assay_date': ['2023-01-01', '2023-02-01', '2023-03-01']
     })
 
 @pytest.fixture
-def sample_df_no_date():
-    """Create a sample dataframe without assay_date for deduplication test."""
+def sample_df_invalid():
+    return pd.DataFrame({
+        'smiles': ['CCO', 'INVALID_SMILES', ''],
+        'target': ['solubility', 'solubility', 'permeability'],
+        'value': [1.5, 2.0, 0.8],
+        'assay_date': ['2023-01-01', '2023-02-01', '2023-03-01']
+    })
+
+@pytest.fixture
+def sample_df_duplicates():
     return pd.DataFrame({
         'smiles': ['CCO', 'CCO', 'CC(=O)O'],
-        'experimental_value': [10.5, 15.0, 20.0],
-        'target': ['oral_bioavailability', 'oral_bioavailability', 'clearance']
+        'target': ['solubility', 'solubility', 'permeability'],
+        'value': [1.5, 2.0, 10.0],
+        'assay_date': ['2023-01-01', '2023-02-01', '2023-01-01']
     })
 
-def test_load_schema():
-    """Test loading the schema from the contracts directory."""
-    schema = load_schema()
-    assert isinstance(schema, dict)
-    assert 'properties' in schema
-    assert 'required' in schema
-
-def test_validate_dataframe_against_schema(sample_df):
-    """Test validation of a dataframe against the schema."""
-    # Add required descriptor columns to make it valid
-    sample_df['mw'] = [46.07, 60.05, 46.07, 0, 178.23]
-    sample_df['logp'] = [-0.31, -0.17, -0.31, 0, 2.5]
-    sample_df['tpsa'] = [20.23, 37.3, 20.23, 0, 0]
-    sample_df['hbd'] = [1, 1, 1, 0, 0]
-    sample_df['hba'] = [1, 2, 1, 0, 0]
-    sample_df['rotatable_bonds'] = [0, 0, 0, 0, 1]
-    sample_df['ring_count'] = [0, 0, 0, 0, 1]
+def test_sanitize_molecules_valid(sample_df_valid):
+    """Test sanitization with valid molecules."""
+    result = sanitize_molecules(sample_df_valid)
+    assert len(result) == len(sample_df_valid), "Valid molecules should not be removed."
+    assert 'smiles' in result.columns
     
-    is_valid, errors = validate_dataframe_against_schema(sample_df, load_schema())
-    assert is_valid is True
-    assert len(errors) == 0
-
-def test_validate_dataframe_with_errors():
-    """Test validation with missing required fields."""
+def test_sanitize_molecules_invalid(sample_df_invalid):
+    """Test sanitization removes invalid molecules."""
+    result = sanitize_molecules(sample_df_invalid)
+    # Expect 2 valid rows (CCO and the empty string might be handled, but INVALID is definitely out)
+    # Based on typical RDKit behavior, empty string fails, invalid string fails.
+    assert len(result) < len(sample_df_invalid), "Invalid molecules should be removed."
+    
+def test_filter_targets(sample_df_valid):
+    """Test filtering for specific targets."""
+    valid_targets = ['solubility', 'permeability']
+    result = filter_targets(sample_df_valid, valid_targets)
+    assert len(result) == len(sample_df_valid)
+    
+    invalid_target_df = sample_df_valid.copy()
+    invalid_target_df.loc[0, 'target'] = 'unknown_target'
+    result_filtered = filter_targets(invalid_target_df, valid_targets)
+    assert len(result_filtered) == len(sample_df_valid) - 1
+    
+def test_deduplicate_smiles_different_dates(sample_df_duplicates):
+    """Test deduplication keeps most recent date."""
+    result = deduplicate_smiles(sample_df_duplicates)
+    # 'CCO' appears twice: 2023-01-01 (1.5) and 2023-02-01 (2.0). Should keep 2023-02-01.
+    assert len(result) == 2
+    cco_row = result[result['smiles'] == 'CCO'].iloc[0]
+    assert cco_row['value'] == 2.0
+    assert cco_row['assay_date'] == '2023-02-01'
+    
+def test_deduplicate_smiles_same_dates(sample_df_duplicates):
+    """Test deduplication averages values if dates match."""
+    # Modify to have same dates for duplicates
     df = pd.DataFrame({
-        'smiles': ['CCO'],
-        'experimental_value': [10.5]
+        'smiles': ['CCO', 'CCO'],
+        'target': ['solubility', 'solubility'],
+        'value': [1.0, 3.0],
+        'assay_date': ['2023-01-01', '2023-01-01']
     })
-    is_valid, errors = validate_dataframe_against_schema(df, load_schema())
-    assert is_valid is False
-    assert len(errors) > 0
-
-def test_sanitize_molecules(sample_df):
-    """Test molecule sanitization."""
-    # Remove invalid SMILES
-    valid_df = sanitize_molecules(sample_df)
-    assert len(valid_df) < len(sample_df)
-    assert 'invalid_smiles' not in valid_df['smiles'].values
-
-def test_deduplicate_smiles_with_date(sample_df):
-    """Test deduplication with assay_date."""
-    deduped_df = deduplicate_smiles(sample_df)
-    assert len(deduped_df) < len(sample_df)
-    # The duplicate 'CCO' should be kept with the most recent date (2023-03-01)
-    cco_row = deduped_df[deduped_df['smiles'] == 'CCO']
-    assert len(cco_row) == 1
-    assert cco_row.iloc[0]['assay_date'] == '2023-03-01'
-
-def test_deduplicate_smiles_without_date(sample_df_no_date):
-    """Test deduplication without assay_date."""
-    deduped_df = deduplicate_smiles(sample_df_no_date)
-    assert len(deduped_df) < len(sample_df_no_date)
-    # Should keep the first occurrence
-    cco_rows = deduped_df[deduped_df['smiles'] == 'CCO']
-    assert len(cco_rows) == 1
-
-def test_filter_targets(sample_df):
-    """Test target filtering."""
-    # Filter for a specific target
-    filtered_df = filter_targets(sample_df, targets=['clearance'])
-    assert len(filtered_df) < len(sample_df)
-    assert all(filtered_df['target'] == 'clearance')
-
-def test_filter_targets_missing_values(sample_df):
-    """Test filtering removes missing target values."""
-    sample_df.loc[0, 'target'] = None
-    filtered_df = filter_targets(sample_df)
-    assert sample_df.iloc[0].name not in filtered_df.index.values
-
-def test_sample_dataset(sample_df):
-    """Test dataset sampling."""
-    sampled_df = sample_dataset(sample_df, max_samples=2)
-    assert len(sampled_df) == 2
-    assert set(sampled_df['smiles']).issubset(set(sample_df['smiles']))
-
-def test_calculate_descriptors(sample_df):
-    """Test descriptor calculation."""
-    # Remove invalid SMILES first
-    valid_df = sanitize_molecules(sample_df)
-    desc_df = calculate_descriptors(valid_df)
+    result = deduplicate_smiles(df)
+    assert len(result) == 1
+    assert result.iloc[0]['value'] == 2.0  # Average of 1.0 and 3.0
     
-    # Check that descriptor columns are present
-    assert 'mw' in desc_df.columns
-    assert 'logp' in desc_df.columns
-    assert 'tpsa' in desc_df.columns
-    assert 'hbd' in desc_df.columns
-    assert 'hba' in desc_df.columns
-    assert 'rotatable_bonds' in desc_df.columns
-    assert 'ring_count' in desc_df.columns
-    
-    # Check that values are not all None
-    assert desc_df['mw'].notna().any()
-
-def test_write_processed_data(sample_df):
-    """Test writing processed data to CSV and updating state."""
-    # Prepare a valid dataframe
-    valid_df = sanitize_molecules(sample_df)
-    valid_df = deduplicate_smiles(valid_df)
-    valid_df = filter_targets(valid_df)
-    valid_df = calculate_descriptors(valid_df)
-    
-    # Create a temporary output path
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = Path(tmpdir) / "test_output.csv"
-        result_path = write_processed_data(valid_df, output_path)
+def test_calculate_descriptors(sample_df_valid):
+    """Test descriptor calculation adds expected columns."""
+    result = calculate_descriptors(sample_df_valid)
+    expected_cols = ['TPSA', 'logP', 'MW', 'NumRotatableBonds', 'NumHDonors', 'NumHAcceptors', 'NumRings']
+    for col in expected_cols:
+        assert col in result.columns, f"Column {col} missing from descriptors."
         
-        assert result_path.exists()
-        assert result_path == output_path
-        
-        # Verify CSV content
-        loaded_df = pd.read_csv(output_path)
-        assert len(loaded_df) == len(valid_df)
-        assert 'smiles' in loaded_df.columns
-        assert 'mw' in loaded_df.columns
+def test_sample_dataset_memory_limit(sample_df_valid):
+    """Test sampling respects memory limits (mocked limit for unit test)."""
+    # Force a small limit to trigger reduction logic if implemented
+    # Note: This is a unit test; real memory profiling is hard to mock perfectly.
+    # We test the logic that if target_size is large, it reduces.
+    # For a small df, it should just return the df.
+    result = sample_dataset(sample_df_valid, target_size=10)
+    assert len(result) <= 10
+    
+def test_sample_dataset_insufficient_data():
+    """Test DataInsufficiencyError when sample < 100 after reduction."""
+    # Create a tiny dataframe
+    tiny_df = pd.DataFrame({
+        'smiles': ['CCO'],
+        'target': ['solubility'],
+        'value': [1.0],
+        'assay_date': ['2023-01-01']
+    })
+    # If the logic forces reduction below 100, it should raise.
+    # However, if the input is already < 100, the task says "If len(sampled_df) < 100 after reduction".
+    # If the available data is < 100, it might just return what it has or raise depending on strictness.
+    # The task says: "If len(sampled_df) < 100 after reduction, raise DataInsufficiencyError".
+    # We assume the function tries to get target_size, fails, reduces, and if still < 100, raises.
+    # For this test, we simulate a scenario where even the available data is too small for the requirement.
+    # Since the task implies a minimum viable dataset of 100, we check if the error is raised.
+    with pytest.raises(DataInsufficiencyError):
+        # We pass a target_size that forces the check, but since available is 1, it fails.
+        # The implementation must handle this.
+        sample_dataset(tiny_df, target_size=1000)

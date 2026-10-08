@@ -1,6 +1,8 @@
 """
-State management utilities for the project pipeline.
-Handles loading, updating, and saving the project state file with artifact hashes.
+State management utilities for the llmXive pipeline.
+
+Handles loading, updating, and saving the project state YAML file,
+including artifact hashes and verification.
 """
 import os
 import yaml
@@ -9,104 +11,155 @@ from datetime import datetime
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 
-# Project root is assumed to be the parent of the 'code' directory
-# This path logic must be consistent with how the script is invoked
-project_root = Path(__file__).resolve().parent.parent.parent
-STATE_DIR = project_root / "state" / "projects"
-STATE_FILE_NAME = "PROJ-066-investigating-correlations-between-molec.yaml"
+# Project root is assumed to be the current working directory when scripts are run.
+# The state file location is relative to the project root.
+STATE_DIR = Path("state") / "projects"
 
-def compute_file_hash(file_path: Path, algorithm: str = "sha256") -> str:
+def compute_file_hash(file_path: Path) -> str:
     """
-    Computes the hash of a file using the specified algorithm.
-    """
-    hash_func = hashlib.new(algorithm)
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            hash_func.update(byte_block)
-    return hash_func.hexdigest()
-
-def get_artifact_hash(file_path: Path, algorithm: str = "sha256") -> str:
-    """
-    Wrapper to compute artifact hash, raising if file not found.
-    """
-    if not file_path.exists():
-        raise FileNotFoundError(f"Cannot compute hash: file not found at {file_path}")
-    return compute_file_hash(file_path, algorithm)
-
-def load_state_file(state_path: Optional[Path] = None) -> Dict[str, Any]:
-    """
-    Loads the state file. If it doesn't exist, returns a default structure.
-    """
-    if state_path is None:
-        state_path = STATE_DIR / STATE_FILE_NAME
+    Computes the SHA-256 hash of a file.
     
-    if not state_path.exists():
-        # Ensure directory exists
-        state_path.parent.mkdir(parents=True, exist_ok=True)
+    Args:
+        file_path: Path to the file to hash.
+        
+    Returns:
+        Hexadecimal string of the SHA-256 hash.
+        
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        RuntimeError: If an error occurs during hashing.
+    """
+    sha256_hash = hashlib.sha256()
+    try:
+        with open(file_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except FileNotFoundError:
+        raise FileNotFoundError(f"File not found for hashing: {file_path}")
+    except Exception as e:
+        raise RuntimeError(f"Error computing hash for {file_path}: {e}")
+
+def get_artifact_hash(file_path: Path) -> str:
+    """
+    Alias for compute_file_hash.
+    
+    Args:
+        file_path: Path to the file to hash.
+        
+    Returns:
+        Hexadecimal string of the SHA-256 hash.
+    """
+    return compute_file_hash(file_path)
+
+def load_state_file(project_id: str) -> Dict[str, Any]:
+    """
+    Loads the state file for a given project.
+    Creates the file and necessary directories if they don't exist.
+    
+    Args:
+        project_id: The unique identifier for the project.
+        
+    Returns:
+        Dictionary containing the project state.
+    """
+    state_file_path = STATE_DIR / f"{project_id}.yaml"
+    
+    # Ensure directory exists
+    state_file_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    if state_file_path.exists():
+        with open(state_file_path, 'r') as f:
+            content = yaml.safe_load(f)
+            return content if content is not None else {}
+    else:
+        # Initialize a new state file
         return {
-            "project_id": "PROJ-066-investigating-correlations-between-molec",
-            "last_updated": None,
-            "artifacts": []
-        }
-    
-    with open(state_path, "r") as f:
-        return yaml.safe_load(f) or {
-            "project_id": "PROJ-066-investigating-correlations-between-molec",
+            "project_id": project_id,
             "last_updated": None,
             "artifacts": []
         }
 
-def save_state_file(state_data: Dict[str, Any], state_path: Optional[Path] = None) -> None:
+def save_state_file(project_id: str, state: Dict[str, Any]) -> None:
     """
-    Saves the state data to the YAML file.
+    Saves the state dictionary to the project's state file.
+    
+    Args:
+        project_id: The unique identifier for the project.
+        state: The dictionary containing the project state to save.
     """
-    if state_path is None:
-        state_path = STATE_DIR / STATE_FILE_NAME
+    state_file_path = STATE_DIR / f"{project_id}.yaml"
+    state_file_path.parent.mkdir(parents=True, exist_ok=True)
     
-    state_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(state_path, "w") as f:
-        yaml.dump(state_data, f, default_flow_style=False, sort_keys=False)
+    with open(state_file_path, 'w') as f:
+        yaml.dump(state, f, default_flow_style=False, sort_keys=False)
 
-def verify_artifact_integrity(file_path: Path, expected_hash: str) -> bool:
+def verify_artifact_integrity(project_id: str, artifact_path: str, expected_hash: str) -> bool:
     """
-    Verifies if a file's hash matches the expected hash.
+    Verifies the integrity of an artifact by recomputing its hash and comparing.
+    
+    Args:
+        project_id: The unique identifier for the project (unused in logic but kept for context).
+        artifact_path: Path to the artifact file.
+        expected_hash: The expected SHA-256 hash string.
+        
+    Returns:
+        True if the artifact hash matches the expected hash, False otherwise.
     """
-    if not file_path.exists():
+    full_path = Path(artifact_path)
+    if not full_path.is_absolute():
+        # Assume relative to project root (CWD)
+        full_path = Path.cwd() / artifact_path
+        
+    if not full_path.exists():
         return False
-    computed_hash = compute_file_hash(file_path)
-    return computed_hash == expected_hash
+        
+    try:
+        actual_hash = compute_file_hash(full_path)
+        return actual_hash == expected_hash
+    except Exception:
+        return False
 
 def update_state(project_id: str, artifacts: List[Dict[str, Any]]) -> None:
     """
     Updates the project state file with new artifact information.
-    This function appends new artifacts or updates existing ones based on artifact_path.
+    
+    This function ensures that the state file exists, updates the timestamp,
+    and appends or updates the provided artifacts list.
     
     Args:
-        project_id: The project identifier.
-        artifacts: List of dicts containing 'artifact_path', 'hash', 'source', 'version', etc.
+        project_id: The unique identifier for the project.
+        artifacts: A list of dictionaries, each containing:
+            - artifact_path: Relative path to the artifact.
+            - hash: The SHA-256 hash of the artifact.
+            - source: Optional source description.
+            - version: Optional version string.
     """
-    state_path = STATE_DIR / f"{project_id}.yaml"
-    state_data = load_state_file(state_path)
+    state = load_state_file(project_id)
     
-    # Ensure project_id matches
-    state_data["project_id"] = project_id
-    state_data["last_updated"] = datetime.now().isoformat()
+    # Update timestamp
+    state["last_updated"] = datetime.now().isoformat()
     
-    # Update or append artifacts
-    if "artifacts" not in state_data:
-        state_data["artifacts"] = []
+    # Add or update artifacts
+    # We use a dictionary to track existing paths to handle updates efficiently
+    existing_paths = {a.get("artifact_path"): a for a in state.get("artifacts", [])}
     
-    current_artifacts = {a.get("artifact_path"): a for a in state_data["artifacts"]}
-    
-    for new_artifact in artifacts:
-        path_key = new_artifact.get("artifact_path")
-        if path_key:
-            current_artifacts[path_key] = new_artifact
+    for artifact in artifacts:
+        path = artifact.get("artifact_path")
+        if not path:
+            raise ValueError("Each artifact must have an 'artifact_path' key.")
+        
+        if path in existing_paths:
+            # Update existing entry
+            existing_paths[path].update(artifact)
+            existing_paths[path]["last_updated"] = datetime.now().isoformat()
         else:
-            # If no path key, just append (shouldn't happen in valid usage)
-            state_data["artifacts"].append(new_artifact)
+            # Add new entry
+            new_artifact = artifact.copy()
+            new_artifact["last_updated"] = datetime.now().isoformat()
+            state["artifacts"].append(new_artifact)
     
-    state_data["artifacts"] = list(current_artifacts.values())
+    # Reconstruct the list to maintain order (though dict order is preserved in Py3.7+)
+    state["artifacts"] = list(existing_paths.values())
     
-    save_state_file(state_data, state_path)
+    save_state_file(project_id, state)
