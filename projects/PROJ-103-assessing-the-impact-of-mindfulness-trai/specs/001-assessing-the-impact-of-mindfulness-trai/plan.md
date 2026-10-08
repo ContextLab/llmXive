@@ -62,7 +62,7 @@ An a priori power analysis will be performed using `statsmodels.stats.power.TTes
 
 | Component | Resource Strategy |
 |-----------|-------------------|
-| fMRIPrep | Docker run with `--nthreads 2 --omp-nthreads 2 --mem-mb 6000`. If RAM > 7 GB, switch to **Nilearn lightweight preprocessing** (motion correction, slice timing, MNI152 normalization, 6 mm smoothing, band‑pass). |
+| fMRIPrep | Docker run with `--nthreads --omp-nthreads --mem-mb`. If RAM > 7 GB, switch to **Nilearn lightweight preprocessing** (motion correction, slice timing, MNI152 normalization, 6 mm smoothing, band‑pass). |
 | ROI extraction & correlation | Nilearn (CPU‑only), negligible RAM. |
 | NBS (10 000 permutations) | Parallelized over 2 cores; expected ≤1 GB RAM. |
 | Meta‑analysis (R metafor) | Minimal CPU/RAM. |

@@ -1,8 +1,8 @@
 """
 Motion parameter extraction from fMRIPrep output.
 
-Extracts 6 rigid-body motion parameters (3 translations, 3 rotations)
-from fMRIPrep confounds TSV files and outputs a consolidated CSV.
+Extracts rigid-body motion parameters (translation and rotation) from
+fMRIPrep confounds TSV files and outputs a consolidated CSV.
 """
 import os
 import csv
@@ -12,251 +12,240 @@ from typing import List, Dict, Any, Optional
 
 import pandas as pd
 
+from src.config.env import get_data_dir
+
 logger = logging.getLogger(__name__)
 
 
 class MotionExtractionError(Exception):
-    """Raised when motion extraction fails."""
+    """Raised when motion parameter extraction fails."""
     pass
 
 
 def find_fmriprep_confounds(
     processed_dir: Path,
-    subject_id: str
-) -> Optional[Path]:
+    dataset_id: str
+) -> List[Path]:
     """
-    Locate the fMRIPrep confounds TSV file for a given subject.
-
-    fMRIPrep typically outputs files like:
-    sub-<label>_task-<label>_desc-confounds_timeseries.tsv
+    Find all fMRIPrep confounds TSV files for a given dataset.
 
     Args:
-        processed_dir: Path to the processed data directory (data/processed/).
-        subject_id: Subject identifier (e.g., 'sub-01').
+        processed_dir: Path to the processed data directory.
+        dataset_id: The OpenNeuro dataset ID.
 
     Returns:
-        Path to the confounds TSV file if found, None otherwise.
+        List of paths to confounds TSV files.
+
+    Raises:
+        MotionExtractionError: If no confounds files are found.
     """
-    # Look for confounds files matching the subject pattern
-    pattern = f"{subject_id}_*confounds*.tsv"
-    candidates = list(processed_dir.glob(f"**/{pattern}"))
+    # fMRIPrep output structure: sub-<label>/func/sub-<label>_task-<label>_desc-confounds_timeseries.tsv
+    search_pattern = processed_dir / dataset_id / "sub-*" / "func" / "*_desc-confounds_timeseries.tsv"
+    confounds_files = list(processed_dir.glob(str(search_pattern)))
 
-    if not candidates:
-        logger.warning(f"No confounds file found for {subject_id} in {processed_dir}")
-        return None
+    if not confounds_files:
+        # Fallback: try a broader search in case structure varies slightly
+        search_pattern_alt = processed_dir / dataset_id / "**" / "*_desc-confounds_timeseries.tsv"
+        confounds_files = list(processed_dir.glob(str(search_pattern_alt)))
 
-    # Prefer the most specific match if multiple exist
-    # Usually fMRIPrep outputs one per functional run, we take the first found
-    return candidates[0]
-
-
-def extract_subject_id_from_path(confounds_path: Path) -> str:
-    """
-    Extract subject ID from the confounds file path.
-
-    Args:
-        confounds_path: Path to the confounds TSV file.
-
-    Returns:
-        Extracted subject ID string.
-    """
-    # Expected format: .../sub-XX/.../sub-XX_task-..._desc-confounds_timeseries.tsv
-    # We look for the 'sub-XX' part in the path
-    parts = confounds_path.parts
-    for part in parts:
-        if part.startswith("sub-") and not part.startswith("sub-0"):
-            # Fallback logic if sub-0 exists, but typically sub-XX is unique
-            pass
-        if part.startswith("sub-"):
-            return part
-    
-    # Fallback: extract from filename
-    filename = confounds_path.stem
-    if filename.startswith("sub-"):
-        return filename.split("_")[0]
-    
-    raise MotionExtractionError(
-        f"Could not extract subject ID from path: {confounds_path}"
-    )
-
-
-def extract_motion_parameters(confounds_path: Path) -> pd.DataFrame:
-    """
-    Extract the 6 rigid-body motion parameters from a fMRIPrep confounds file.
-
-    fMRIPrep provides:
-    - trans_x, trans_y, trans_z (translations in mm)
-    - rot_x, rot_y, rot_z (rotations in radians)
-
-    Args:
-        confounds_path: Path to the confounds TSV file.
-
-    Returns:
-        DataFrame with columns: subject_id, translation_x, translation_y, 
-        translation_z, rotation_x, rotation_y, rotation_z.
-        
-        Note: We aggregate across time points (e.g., mean or max) to produce
-        a single row per subject. For this task, we calculate the mean absolute
-        displacement per parameter as a summary metric, or simply the mean if
-        the requirement implies per-timepoint. 
-        
-        Re-reading task: "CSV with columns: subject_id, translation_x/y/z, rotation_x/y/z".
-        Usually, motion analysis uses a summary (max or mean) per subject to filter outliers.
-        However, if the requirement is strictly the parameters, we might output per-volume.
-        Given the downstream task T015 (Motion Filter) which filters subjects based on 
-        thresholds (>3mm), it implies a single value per subject per parameter or a max check.
-        
-        To be most useful for T015, we will output the MAX absolute displacement 
-        for each parameter per subject, as this is the standard for exclusion criteria.
-        Alternatively, we can output the mean. Let's output the MAX absolute value 
-        to safely capture the worst-case motion for the filter.
-    """
-    if not confounds_path.exists():
-        raise MotionExtractionError(f"Confounds file not found: {confounds_path}")
-
-    try:
-        df = pd.read_csv(confounds_path, sep='\t', comment='#')
-    except Exception as e:
-        raise MotionExtractionError(f"Failed to read confounds file {confounds_path}: {e}")
-
-    required_cols = ['trans_x', 'trans_y', 'trans_z', 'rot_x', 'rot_y', 'rot_z']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
+    if not confounds_files:
         raise MotionExtractionError(
-            f"Confounds file missing required columns: {missing}"
+            f"No fMRIPrep confounds files found in {processed_dir / dataset_id}. "
+            "Ensure fMRIPrep has been run successfully."
         )
 
-    # Extract subject ID
-    sub_id = extract_subject_id_from_path(confounds_path)
-
-    # Calculate max absolute displacement for each parameter per subject
-    # This creates a single row per subject, suitable for T015 filtering
-    summary_data = {
-        'subject_id': sub_id,
-        'translation_x': df['trans_x'].abs().max(),
-        'translation_y': df['trans_y'].abs().max(),
-        'translation_z': df['trans_z'].abs().max(),
-        'rotation_x': df['rot_x'].abs().max(),
-        'rotation_y': df['rot_y'].abs().max(),
-        'rotation_z': df['rot_z'].abs().max(),
-    }
-
-    return pd.DataFrame([summary_data])
+    return sorted(confounds_files)
 
 
-def extract_all_motion_parameters(processed_dir: Path) -> pd.DataFrame:
+def extract_subject_id_from_path(file_path: Path) -> str:
     """
-    Process all subjects in the processed directory and extract motion parameters.
+    Extract subject ID from an fMRIPrep file path.
 
     Args:
-        processed_dir: Path to the data/processed/ directory.
+        file_path: Path to the confounds file.
 
     Returns:
-        DataFrame with motion parameters for all valid subjects.
+        Subject ID string (e.g., 'sub-01').
     """
-    results = []
-    
-    # Find all sub- directories
-    sub_dirs = [d for d in processed_dir.iterdir() if d.is_dir() and d.name.startswith("sub-")]
-    
-    if not sub_dirs:
-        logger.warning(f"No subject directories found in {processed_dir}")
-        return pd.DataFrame(columns=[
-            'subject_id', 'translation_x', 'translation_y', 'translation_z',
-            'rotation_x', 'rotation_y', 'rotation_z'
-        ])
-
-    for sub_dir in sub_dirs:
-        subject_id = sub_dir.name
-        confounds_path = find_fmriprep_confounds(processed_dir, subject_id)
-        
-        if confounds_path:
-            try:
-                motion_df = extract_motion_parameters(confounds_path)
-                results.append(motion_df)
-            except MotionExtractionError as e:
-                logger.error(f"Skipping {subject_id}: {e}")
-        else:
-            logger.warning(f"Skipping {subject_id}: No confounds file found")
-
-    if not results:
-        return pd.DataFrame(columns=[
-            'subject_id', 'translation_x', 'translation_y', 'translation_z',
-            'rotation_x', 'rotation_y', 'rotation_z'
-        ])
-
-    return pd.concat(results, ignore_index=True)
+    # Typical path: .../sub-01/func/...
+    # We look for the 'sub-XX' directory component
+    for part in file_path.parts:
+        if part.startswith("sub-") and len(part) == 6: # sub-XX
+            return part
+    # Fallback: extract from filename if directory structure is flat
+    filename = file_path.name
+    if filename.startswith("sub-"):
+        parts = filename.split("_")
+        if parts:
+            return parts[0]
+    raise MotionExtractionError(f"Could not extract subject ID from {file_path}")
 
 
-def write_motion_csv(df: pd.DataFrame, output_path: Path) -> None:
+def extract_motion_parameters(confounds_path: Path) -> Optional[pd.DataFrame]:
     """
-    Write the motion parameters DataFrame to a CSV file.
+    Extract motion parameters from a single fMRIPrep confounds file.
+
+    fMRIPrep typically provides:
+    - trans_x, trans_y, trans_z (translation in mm)
+    - rot_x, rot_y, rot_z (rotation in radians)
 
     Args:
-        df: DataFrame containing motion parameters.
+        confounds_path: Path to the confounds TSV file.
+
+    Returns:
+        DataFrame with subject_id and motion parameters, or None if columns missing.
+    """
+    try:
+        df = pd.read_csv(confounds_path, sep="\t")
+    except Exception as e:
+        logger.error(f"Failed to read confounds file {confounds_path}: {e}")
+        return None
+
+    # Define expected columns for rigid body motion
+    trans_cols = ["trans_x", "trans_y", "trans_z"]
+    rot_cols = ["rot_x", "rot_y", "rot_z"]
+
+    # Check if columns exist (case-insensitive check for robustness)
+    available_cols = set(df.columns.str.lower())
+    needed_trans = {c.lower() for c in trans_cols}
+    needed_rot = {c.lower() for c in rot_cols}
+
+    if not needed_trans.issubset(available_cols) or not needed_rot.issubset(available_cols):
+        logger.warning(
+            f"Missing motion columns in {confounds_path}. "
+            f"Found: {list(df.columns)}. Expected translations: {trans_cols}, rotations: {rot_cols}"
+        )
+        return None
+
+    # Normalize column names to lowercase for consistency
+    df.columns = df.columns.str.lower()
+
+    # Select and rename columns
+    motion_data = df[trans_cols + rot_cols].copy()
+    motion_data.columns = ["translation_x", "translation_y", "translation_z",
+                           "rotation_x", "rotation_y", "rotation_z"]
+
+    subject_id = extract_subject_id_from_path(confounds_path)
+    motion_data["subject_id"] = subject_id
+
+    # Reorder to put subject_id first
+    cols = ["subject_id"] + [c for c in motion_data.columns if c != "subject_id"]
+    return motion_data[cols]
+
+
+def extract_all_motion_parameters(
+    processed_dir: Path,
+    dataset_id: str
+) -> pd.DataFrame:
+    """
+    Extract motion parameters from all subjects in a dataset.
+
+    Args:
+        processed_dir: Path to the processed data directory.
+        dataset_id: The OpenNeuro dataset ID.
+
+    Returns:
+        Consolidated DataFrame with motion parameters for all subjects.
+    """
+    confounds_files = find_fmriprep_confounds(processed_dir, dataset_id)
+    logger.info(f"Found {len(confounds_files)} confounds files for dataset {dataset_id}")
+
+    all_data = []
+    for file_path in confounds_files:
+        try:
+            motion_df = extract_motion_parameters(file_path)
+            if motion_df is not None:
+                all_data.append(motion_df)
+        except Exception as e:
+            logger.error(f"Error processing {file_path}: {e}")
+            continue
+
+    if not all_data:
+        raise MotionExtractionError(
+            "No motion data extracted from any confounds files. "
+            "Check that fMRIPrep output contains valid motion parameters."
+        )
+
+    return pd.concat(all_data, ignore_index=True)
+
+
+def write_motion_csv(dataframe: pd.DataFrame, output_path: Path) -> None:
+    """
+    Write motion parameters to a CSV file.
+
+    Args:
+        dataframe: DataFrame with motion parameters.
         output_path: Path to the output CSV file.
     """
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Wrote motion parameters to {output_path}")
+    dataframe.to_csv(output_path, index=False)
+    logger.info(f"Wrote motion data to {output_path} ({len(dataframe)} rows)")
 
 
 def run_motion_extraction(
-    processed_dir: Path,
-    output_path: Path
-) -> pd.DataFrame:
+    dataset_id: str,
+    output_filename: str = "motion_parameters.csv"
+) -> Path:
     """
-    Main entry point for running the motion extraction pipeline.
+    Main entry point for motion parameter extraction.
+
+    Reads fMRIPrep confounds for the specified dataset and writes a
+    consolidated CSV file.
 
     Args:
-        processed_dir: Path to the data/processed/ directory.
-        output_path: Path where the output CSV will be written.
+        dataset_id: The OpenNeuro dataset ID to process.
+        output_filename: Name of the output CSV file.
 
     Returns:
-        The DataFrame of extracted motion parameters.
+        Path to the generated CSV file.
     """
-    logger.info(f"Starting motion extraction from {processed_dir}")
-    
-    motion_df = extract_all_motion_parameters(processed_dir)
-    
-    if motion_df.empty:
-        logger.warning("No motion data extracted. Output file will be empty.")
-    
+    data_dir = Path(get_data_dir())
+    processed_dir = data_dir / "processed"
+    output_dir = data_dir / "results"
+
+    logger.info(f"Starting motion extraction for dataset {dataset_id}")
+
+    try:
+        motion_df = extract_all_motion_parameters(processed_dir, dataset_id)
+    except MotionExtractionError as e:
+        logger.error(str(e))
+        raise
+
+    output_path = output_dir / output_filename
     write_motion_csv(motion_df, output_path)
-    
-    return motion_df
+
+    return output_path
 
 
 def main() -> None:
     """
-    CLI entry point for motion extraction.
-    Reads configuration from environment or defaults.
+    Command-line entry point.
+
+    Expects dataset_id as a command-line argument or falls back to a default
+    if not provided (for testing purposes only).
     """
     import sys
-    from src.config.env import get_data_dir
 
-    # Setup logging
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
 
+    if len(sys.argv) > 1:
+        dataset_id = sys.argv[1]
+    else:
+        # Default for local testing if no arg provided
+        # In production, this should be provided or fail
+        dataset_id = "ds000001"
+        logger.warning(f"No dataset ID provided. Using default: {dataset_id}")
+
     try:
-        data_dir = Path(get_data_dir())
-        processed_dir = data_dir / "processed"
-        output_file = data_dir / "results" / "motion_parameters.csv"
-
-        if not processed_dir.exists():
-            raise FileNotFoundError(
-                f"Processed data directory not found: {processed_dir}. "
-                "Please run preprocessing first."
-            )
-
-        run_motion_extraction(processed_dir, output_file)
-        print(f"Motion extraction complete. Output: {output_file}")
-
+        run_motion_extraction(dataset_id)
+    except MotionExtractionError as e:
+        logger.error(f"Motion extraction failed: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Motion extraction failed: {e}", exc_info=True)
+        logger.error(f"Unexpected error: {e}")
         sys.exit(1)
 
 

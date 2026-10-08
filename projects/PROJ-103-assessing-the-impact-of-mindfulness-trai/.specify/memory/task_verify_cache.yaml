@@ -1,0 +1,6 @@
+T012a:
+  c: false
+  h: 74a9e28ee6c187a98238f03689d6f83284d5a7b263335ac02cf920a950837c71
+  r: "The required file `src/datasets/metadata_schema.py` does not exist, so no schema\
+    \ is defined and no validation can be performed. The task\u2019s core deliverable\
+    \ is missing."

@@ -1,5 +1,8 @@
 """
-Unit tests for the dataset design verification module.
+Unit tests for design verification logic.
+
+Tests the mindfulness intervention metadata filtering functionality
+to ensure correct identification of mindfulness-related datasets.
 """
 import pytest
 import json
@@ -7,221 +10,368 @@ import tempfile
 import os
 from pathlib import Path
 from unittest.mock import patch, MagicMock
-
 from src.datasets.verify_design import (
-    DesignVerificationError,
-    DesignMetadata,
+    normalize_text,
+    match_intervention_type,
     validate_metadata_fields,
     validate_design_logic,
     verify_dataset_design,
-    verify_all_datasets
+    verify_all_datasets,
+    InterventionType,
+    DesignMetadata,
+    DesignVerificationError
 )
 
 
-class TestValidateMetadataFields:
-    """Tests for validate_metadata_fields function."""
+class TestNormalizeText:
+    """Tests for text normalization function."""
+    
+    def test_empty_string(self):
+        assert normalize_text("") == ""
+        assert normalize_text(None) == ""
+    
+    def test_case_normalization(self):
+        assert normalize_text("MINDFULNESS") == "mindfulness"
+        assert normalize_text("MiNdFuLnEsS") == "mindfulness"
+    
+    def test_whitespace_normalization(self):
+        assert normalize_text("  mindfulness  training  ") == "mindfulness training"
+        assert normalize_text("mindfulness\t\ttraining") == "mindfulness training"
+        assert normalize_text("mindfulness\n\ntraining") == "mindfulness training"
+    
+    def test_combined_normalization(self):
+        assert normalize_text("  MBSR  Program  ") == "mbsr program"
 
+
+class TestMatchInterventionType:
+    """Tests for intervention type matching."""
+    
+    def test_mindfulness_direct(self):
+        assert match_intervention_type("mindfulness") == InterventionType.MINDFULNESS
+        assert match_intervention_type("Mindfulness") == InterventionType.MINDFULNESS
+        assert match_intervention_type("MINDFULNESS") == InterventionType.MINDFULNESS
+    
+    def test_mbsr_variations(self):
+        assert match_intervention_type("MBSR") == InterventionType.MBSR
+        assert match_intervention_type("mindfulness-based stress reduction") == InterventionType.MBSR
+        assert match_intervention_type("Mindfulness Based Stress Reduction") == InterventionType.MBSR
+    
+    def test_mbct_variations(self):
+        assert match_intervention_type("MBCT") == InterventionType.MBCT
+        assert match_intervention_type("mindfulness-based cognitive therapy") == InterventionType.MBCT
+    
+    def test_meditation_variations(self):
+        assert match_intervention_type("meditation") == InterventionType.MEDITATION
+        assert match_intervention_type("vipassana") == InterventionType.MEDITATION
+        assert match_intervention_type("zen meditation") == InterventionType.MEDITATION
+        assert match_intervention_type("loving-kindness") == InterventionType.MEDITATION
+    
+    def test_non_mindfulness(self):
+        assert match_intervention_type("cognitive behavioral therapy") == InterventionType.OTHER
+        assert match_intervention_type("exercise") == InterventionType.OTHER
+        assert match_intervention_type("pharmacological") == InterventionType.OTHER
+    
+    def test_unknown(self):
+        assert match_intervention_type("") == InterventionType.UNKNOWN
+        assert match_intervention_type(None) == InterventionType.UNKNOWN
+    
+    def test_mindfulness_based_programs(self):
+        assert match_intervention_type("mindfulness-based program") == InterventionType.MINDFULNESS
+        assert match_intervention_type("mindfulness based training") == InterventionType.MINDFULNESS
+    
+    def test_march_program(self):
+        assert match_intervention_type("MARCH") == InterventionType.MINDFULNESS
+        assert match_intervention_type("mindfulness and resilience training") == InterventionType.MINDFULNESS
+
+
+class TestValidateMetadataFields:
+    """Tests for metadata field validation."""
+    
     def test_valid_metadata(self):
-        """Test with fully valid metadata."""
         metadata = {
-            "pre_scan_count": 10,
-            "post_scan_count": 10,
             "intervention_type": "mindfulness",
-            "scan_type": "rs-fMRI"
+            "pre_scan_count": 10,
+            "post_scan_count": 10
         }
         is_valid, errors = validate_metadata_fields(metadata)
-        assert is_valid is True
+        assert is_valid
         assert len(errors) == 0
-
-    def test_missing_field(self):
-        """Test with a missing required field."""
+    
+    def test_missing_intervention_type(self):
         metadata = {
             "pre_scan_count": 10,
-            "post_scan_count": 10,
+            "post_scan_count": 10
+        }
+        is_valid, errors = validate_metadata_fields(metadata)
+        assert not is_valid
+        assert "Missing required field: intervention_type" in errors
+    
+    def test_invalid_intervention_type_type(self):
+        metadata = {
+            "intervention_type": 123,
+            "pre_scan_count": 10,
+            "post_scan_count": 10
+        }
+        is_valid, errors = validate_metadata_fields(metadata)
+        assert not is_valid
+        assert "intervention_type must be a string" in errors
+    
+    def test_negative_scan_count(self):
+        metadata = {
+            "intervention_type": "mindfulness",
+            "pre_scan_count": -1,
+            "post_scan_count": 10
+        }
+        is_valid, errors = validate_metadata_fields(metadata)
+        assert not is_valid
+        assert "pre_scan_count must be a non-negative integer" in errors
+    
+    def test_optional_fields(self):
+        metadata = {
             "intervention_type": "mindfulness"
         }
         is_valid, errors = validate_metadata_fields(metadata)
-        assert is_valid is False
-        assert "Missing required field: scan_type" in errors
-
-    def test_invalid_pre_scan_count_zero(self):
-        """Test with pre_scan_count = 0."""
-        metadata = {
-            "pre_scan_count": 0,
-            "post_scan_count": 10,
-            "intervention_type": "mindfulness",
-            "scan_type": "rs-fMRI"
-        }
-        is_valid, errors = validate_metadata_fields(metadata)
-        assert is_valid is False
-        assert any("pre_scan_count must be > 0" in e for e in errors)
-
-    def test_invalid_intervention_type(self):
-        """Test with invalid intervention type."""
-        metadata = {
-            "pre_scan_count": 10,
-            "post_scan_count": 10,
-            "intervention_type": "yoga",
-            "scan_type": "rs-fMRI"
-        }
-        is_valid, errors = validate_metadata_fields(metadata)
-        assert is_valid is False
-        assert any("intervention_type must match" in e for e in errors)
-
-    def test_case_insensitive_intervention(self):
-        """Test case-insensitive intervention type matching."""
-        metadata = {
-            "pre_scan_count": 10,
-            "post_scan_count": 10,
-            "intervention_type": "MBSR",
-            "scan_type": "resting"
-        }
-        is_valid, errors = validate_metadata_fields(metadata)
-        assert is_valid is True
-
-    def test_invalid_scan_type(self):
-        """Test with invalid scan type."""
-        metadata = {
-            "pre_scan_count": 10,
-            "post_scan_count": 10,
-            "intervention_type": "mindfulness",
-            "scan_type": "task-fMRI"
-        }
-        is_valid, errors = validate_metadata_fields(metadata)
-        assert is_valid is False
-        assert any("scan_type must be one of" in e for e in errors)
+        assert is_valid
+        assert len(errors) == 0
 
 
 class TestValidateDesignLogic:
-    """Tests for validate_design_logic function."""
-
-    def test_valid_logic(self):
-        """Test with valid design logic."""
+    """Tests for design logic validation."""
+    
+    def test_valid_pre_post_design(self):
         metadata = {
-            "pre_scan_count": 5,
-            "post_scan_count": 5,
-            "intervention_type": "MBC",
-            "scan_type": "resting"
-        }
-        is_valid, errors = validate_design_logic(metadata)
-        assert is_valid is True
-        assert len(errors) == 0
-
-    def test_zero_pre_scan(self):
-        """Test with zero pre_scan_count."""
-        metadata = {
-            "pre_scan_count": 0,
-            "post_scan_count": 5,
             "intervention_type": "mindfulness",
-            "scan_type": "rs-fMRI"
+            "pre_scan_count": 10,
+            "post_scan_count": 10
         }
         is_valid, errors = validate_design_logic(metadata)
-        assert is_valid is False
-        assert any("pre and post scans" in e for e in errors)
+        assert is_valid
+        assert len(errors) == 0
+    
+    def test_missing_scan_counts_warning(self):
+        metadata = {
+            "intervention_type": "mindfulness"
+        }
+        is_valid, errors = validate_design_logic(metadata)
+        # Should be valid but with a warning logged
+        assert is_valid
+        assert len(errors) == 0
+    
+    def test_zero_scan_count_error(self):
+        metadata = {
+            "intervention_type": "mindfulness",
+            "pre_scan_count": 0,
+            "post_scan_count": 10
+        }
+        is_valid, errors = validate_design_logic(metadata)
+        assert not is_valid
+        assert len(errors) > 0
+    
+    def test_non_mindfulness_skips_validation(self):
+        metadata = {
+            "intervention_type": "exercise",
+            "pre_scan_count": 10,
+            "post_scan_count": 10
+        }
+        is_valid, errors = validate_design_logic(metadata)
+        assert is_valid
+        assert len(errors) == 0
+    
+    def test_empty_intervention_skips_validation(self):
+        metadata = {
+            "intervention_type": "",
+            "pre_scan_count": 10,
+            "post_scan_count": 10
+        }
+        is_valid, errors = validate_design_logic(metadata)
+        assert is_valid
+        assert len(errors) == 0
 
 
 class TestVerifyDatasetDesign:
-    """Tests for verify_dataset_design function."""
-
-    @patch("src.datasets.verify_design.get_data_dir")
-    def test_missing_design_file(self, mock_get_data_dir):
-        """Test when design.json is missing."""
-        mock_get_data_dir.return_value = "/mock/data"
-        dataset_id = "ds000001"
-
-        result = verify_dataset_design(dataset_id)
-
-        assert result.is_valid is False
-        assert "Design metadata file not found" in result.validation_errors[0]
-
-    @patch("src.datasets.verify_design.get_data_dir")
-    def test_valid_design_file(self, mock_get_data_dir):
-        """Test with a valid design.json file."""
-        mock_get_data_dir.return_value = "/mock/data"
-        dataset_id = "ds000001"
-
-        # Create a temporary directory structure
-        with tempfile.TemporaryDirectory() as tmpdir:
-            raw_dir = Path(tmpdir) / "raw" / dataset_id
-            raw_dir.mkdir(parents=True)
-            design_file = raw_dir / "design.json"
-
-            metadata = {
-                "pre_scan_count": 10,
-                "post_scan_count": 10,
-                "intervention_type": "mindfulness",
-                "scan_type": "rs-fMRI"
-            }
-            with open(design_file, "w") as f:
-                json.dump(metadata, f)
-
-            with patch("src.datasets.verify_design.get_data_dir", return_value=tmpdir):
-                result = verify_dataset_design(dataset_id)
-
-            assert result.is_valid is True
-            assert result.pre_scan_count == 10
-            assert result.post_scan_count == 10
-            assert result.intervention_type == "mindfulness"
-            assert result.scan_type == "rs-fMRI"
-
-    @patch("src.datasets.verify_design.get_data_dir")
-    def test_invalid_json(self, mock_get_data_dir):
-        """Test with invalid JSON in design file."""
-        mock_get_data_dir.return_value = "/mock/data"
-        dataset_id = "ds000001"
-
-        with tempfile.TemporaryDirectory() as tmpdir:
-            raw_dir = Path(tmpdir) / "raw" / dataset_id
-            raw_dir.mkdir(parents=True)
-            design_file = raw_dir / "design.json"
-
-            with open(design_file, "w") as f:
-                f.write("{ invalid json }")
-
-            with patch("src.datasets.verify_design.get_data_dir", return_value=tmpdir):
-                result = verify_dataset_design(dataset_id)
-
-            assert result.is_valid is False
-            assert any("Invalid JSON" in e for e in result.validation_errors)
+    """Tests for complete dataset design verification."""
+    
+    def test_valid_mindfulness_dataset(self):
+        metadata = {
+            "intervention_type": "MBSR",
+            "pre_scan_count": 15,
+            "post_scan_count": 15
+        }
+        is_valid, details = verify_dataset_design(metadata)
+        assert is_valid
+        assert details["is_mindfulness"]
+        assert details["intervention_match"] == "MBSR"
+    
+    def test_invalid_missing_fields(self):
+        metadata = {
+            "pre_scan_count": 10
+        }
+        is_valid, details = verify_dataset_design(metadata)
+        assert not is_valid
+        assert not details["field_validation"]["is_valid"]
+    
+    def test_non_mindfulness_intervention(self):
+        metadata = {
+            "intervention_type": "cognitive behavioral therapy",
+            "pre_scan_count": 10,
+            "post_scan_count": 10
+        }
+        is_valid, details = verify_dataset_design(metadata)
+        assert not is_valid
+        assert not details["is_mindfulness"]
+        assert len(details["warnings"]) > 0
+    
+    def test_meditation_intervention(self):
+        metadata = {
+            "intervention_type": "vipassana meditation",
+            "pre_scan_count": 10,
+            "post_scan_count": 10
+        }
+        is_valid, details = verify_dataset_design(metadata)
+        assert is_valid
+        assert details["is_mindfulness"]
+        assert details["intervention_match"] == "meditation"
+    
+    def test_mbct_intervention(self):
+        metadata = {
+            "intervention_type": "mindfulness-based cognitive therapy",
+            "pre_scan_count": 12,
+            "post_scan_count": 12
+        }
+        is_valid, details = verify_dataset_design(metadata)
+        assert is_valid
+        assert details["is_mindfulness"]
+        assert details["intervention_match"] == "MBCT"
 
 
 class TestVerifyAllDatasets:
-    """Tests for verify_all_datasets function."""
-
-    @patch("src.datasets.verify_design.get_data_dir")
-    def test_verify_all_discovered(self, mock_get_data_dir):
-        """Test verifying all datasets in the raw directory."""
-        mock_get_data_dir.return_value = "/mock/data"
-
+    """Tests for batch dataset verification."""
+    
+    def test_verify_multiple_datasets(self):
         with tempfile.TemporaryDirectory() as tmpdir:
-            raw_dir = Path(tmpdir) / "raw"
-            raw_dir.mkdir()
+            tmpdir_path = Path(tmpdir)
+            
+            # Create valid mindfulness dataset
+            dataset1 = {
+                "intervention_type": "MBSR",
+                "pre_scan_count": 10,
+                "post_scan_count": 10
+            }
+            with open(tmpdir_path / "dataset1.json", 'w') as f:
+                json.dump(dataset1, f)
+            
+            # Create non-mindfulness dataset
+            dataset2 = {
+                "intervention_type": "exercise",
+                "pre_scan_count": 10,
+                "post_scan_count": 10
+            }
+            with open(tmpdir_path / "dataset2.json", 'w') as f:
+                json.dump(dataset2, f)
+            
+            # Create meditation dataset
+            dataset3 = {
+                "intervention_type": "vipassana",
+                "pre_scan_count": 8,
+                "post_scan_count": 8
+            }
+            with open(tmpdir_path / "dataset3.json", 'w') as f:
+                json.dump(dataset3, f)
+            
+            results = verify_all_datasets(tmpdir_path)
+            
+            assert len(results) == 3
+            assert results["dataset1"]["is_valid"]
+            assert not results["dataset2"]["is_valid"]
+            assert results["dataset3"]["is_valid"]
+    
+    def test_empty_directory(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir_path = Path(tmpdir)
+            results = verify_all_datasets(tmpdir_path)
+            assert len(results) == 0
+    
+    def test_nonexistent_directory(self):
+        with pytest.raises(DesignVerificationError):
+            verify_all_datasets(Path("/nonexistent/path"))
+    
+    def test_invalid_json_file(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir_path = Path(tmpdir)
+            
+            # Create invalid JSON file
+            with open(tmpdir_path / "invalid.json", 'w') as f:
+                f.write("{ invalid json }")
+            
+            results = verify_all_datasets(tmpdir_path)
+            
+            assert len(results) == 1
+            assert "invalid" in list(results.keys())[0]
+            assert not results[list(results.keys())[0]]["is_valid"]
 
-            # Create two valid datasets
-            for ds_id in ["ds000001", "ds000002"]:
-                ds_dir = raw_dir / ds_id
-                ds_dir.mkdir()
-                design_file = ds_dir / "design.json"
-                with open(design_file, "w") as f:
-                    json.dump({
-                        "pre_scan_count": 5,
-                        "post_scan_count": 5,
-                        "intervention_type": "mindfulness",
-                        "scan_type": "rs-fMRI"
-                    }, f)
 
-            with patch("src.datasets.verify_design.get_data_dir", return_value=tmpdir):
-                results = verify_all_datasets()
-
-            assert len(results) == 2
-            assert all(r.is_valid for r in results)
-
-    def test_verify_specific_ids(self):
-        """Test verifying a specific list of dataset IDs."""
-        # This test would require mocking the file system access
-        # For now, we verify the function signature and basic logic
-        # by ensuring it returns an empty list if directory doesn't exist
-        with patch("src.datasets.verify_design.get_data_dir") as mock_get:
-            mock_get.return_value = "/nonexistent/path"
-            results = verify_all_datasets(["ds000001"])
-            assert results == []
+class TestFilteringNonMindfulness:
+    """Tests specifically for filtering non-mindfulness datasets."""
+    
+    def test_filter_exercise(self):
+        metadata = {
+            "intervention_type": "aerobic exercise",
+            "pre_scan_count": 10,
+            "post_scan_count": 10
+        }
+        is_valid, _ = verify_dataset_design(metadata)
+        assert not is_valid
+    
+    def test_filter_pharmacological(self):
+        metadata = {
+            "intervention_type": "SSRI medication",
+            "pre_scan_count": 10,
+            "post_scan_count": 10
+        }
+        is_valid, _ = verify_dataset_design(metadata)
+        assert not is_valid
+    
+    def test_filter_cbt(self):
+        metadata = {
+            "intervention_type": "cognitive behavioral therapy",
+            "pre_scan_count": 10,
+            "post_scan_count": 10
+        }
+        is_valid, _ = verify_dataset_design(metadata)
+        assert not is_valid
+    
+    def test_filter_sleep_intervention(self):
+        metadata = {
+            "intervention_type": "sleep hygiene program",
+            "pre_scan_count": 10,
+            "post_scan_count": 10
+        }
+        is_valid, _ = verify_dataset_design(metadata)
+        assert not is_valid
+    
+    def test_accept_mbsr(self):
+        metadata = {
+            "intervention_type": "mindfulness-based stress reduction",
+            "pre_scan_count": 10,
+            "post_scan_count": 10
+        }
+        is_valid, _ = verify_dataset_design(metadata)
+        assert is_valid
+    
+    def test_accept_mbct(self):
+        metadata = {
+            "intervention_type": "mindfulness-based cognitive therapy",
+            "pre_scan_count": 10,
+            "post_scan_count": 10
+        }
+        is_valid, _ = verify_dataset_design(metadata)
+        assert is_valid
+    
+    def test_accept_meditation(self):
+        metadata = {
+            "intervention_type": "mindfulness meditation",
+            "pre_scan_count": 10,
+            "post_scan_count": 10
+        }
+        is_valid, _ = verify_dataset_design(metadata)
+        assert is_valid

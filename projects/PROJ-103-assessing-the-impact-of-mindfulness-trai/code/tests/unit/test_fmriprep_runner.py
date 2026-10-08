@@ -1,3 +1,6 @@
+"""
+Unit tests for the fMRIPrep Docker Runner.
+"""
 import os
 import tempfile
 import pytest
@@ -7,202 +10,170 @@ from src.preprocessing.fmriprep_runner import (
     FMRIPrepRunnerError,
     get_fmriprep_config,
     build_fmriprep_command,
-    run_fmriprep,
-    main
+    run_fmriprep
 )
-from src.config.env import get_data_dir
+from src.config.settings import get_config
+
 
 class TestGetFMRIPrepConfig:
     def test_default_config_values(self):
-        """Test that default resource constraints are returned when not specified."""
+        """Test that default config values are returned when not overridden."""
         with patch('src.preprocessing.fmriprep_runner.get_config') as mock_get_config:
-            mock_get_config.return_value = {
-                'preprocessing_params': {}
-            }
-            
+            mock_get_config.return_value = {}
             config = get_fmriprep_config()
             
-            assert config['omp_num_threads'] == 2
-            assert config['mem_mb'] == 2048
-            assert config['nprocs'] == 2
-            assert config['use_plugin'] == 'single'
+            assert config['docker_image'] == 'nipreps/fmriprep:23.1.3'
+            assert config['nthreads'] == 4
+            assert config['mem_mb'] == 8000
+            assert config['omp_nthreads'] == 4
+            assert config['skull_strip_mode'] == 'slap'
 
     def test_custom_config_values(self):
-        """Test that custom resource constraints are respected."""
-        with patch('src.preprocessing.fmriprep_runner.get_config') as mock_get_config:
-            mock_get_config.return_value = {
-                'preprocessing_params': {
-                    'omp_num_threads': 4,
-                    'mem_mb': 4096,
-                    'nprocs': 4
-                }
+        """Test that custom config values from settings are used."""
+        custom_config = {
+            'fmriprep': {
+                'docker_image': 'custom/fmriprep:latest',
+                'resources': {
+                    'nthreads': 8,
+                    'mem_mb': 16000,
+                    'omp_nthreads': 8
+                },
+                'ignore': ['slicetiming'],
+                'skull_strip_mode': 'auto'
             }
-            
+        }
+        with patch('src.preprocessing.fmriprep_runner.get_config', return_value=custom_config):
             config = get_fmriprep_config()
             
-            assert config['omp_num_threads'] == 4
-            assert config['mem_mb'] == 4096
-            assert config['nprocs'] == 4
+            assert config['docker_image'] == 'custom/fmriprep:latest'
+            assert config['nthreads'] == 8
+            assert config['mem_mb'] == 16000
+            assert config['ignore'] == ['slicetiming']
+            assert config['skull_strip_mode'] == 'auto'
+
 
 class TestBuildFMRIPrepCommand:
-    def test_basic_command_structure(self):
-        """Test that the command includes essential Docker arguments."""
+    def test_command_structure(self):
+        """Test that the command list has the correct structure."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            dataset_path = Path(tmpdir) / "dataset"
-            output_path = Path(tmpdir) / "output"
-            dataset_path.mkdir()
+            bids_root = Path(tmpdir) / "bids"
+            bids_root.mkdir()
+            output_dir = Path(tmpdir) / "output"
+            output_dir.mkdir()
             
-            cmd = build_fmriprep_command(dataset_path, output_path)
+            config = get_fmriprep_config()
+            cmd = build_fmriprep_command(bids_root, output_dir, "sub-01", config)
             
-            assert "docker" in cmd
-            assert "run" in cmd
+            assert cmd[0] == "docker"
+            assert cmd[1] == "run"
             assert "--rm" in cmd
+            assert f"{bids_root}:/data:ro" in cmd
+            assert f"{output_dir}:/out" in cmd
+            assert "sub-01" in cmd
+            assert config['docker_image'] in cmd
             assert "participant" in cmd
-            assert str(dataset_path) in cmd[cmd.index("-v") + 1].split(":")[0]
 
-    def test_thread_memory_settings(self):
-        """Test that thread and memory settings are included."""
+    def test_mount_paths(self):
+        """Test that mount paths are correctly formatted."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            dataset_path = Path(tmpdir) / "dataset"
-            output_path = Path(tmpdir) / "output"
-            dataset_path.mkdir()
+            bids_root = Path(tmpdir) / "bids"
+            bids_root.mkdir()
+            output_dir = Path(tmpdir) / "output"
+            output_dir.mkdir()
             
-            with patch('src.preprocessing.fmriprep_runner.get_fmriprep_config') as mock_config:
-                mock_config.return_value = {
-                    'omp_num_threads': 4,
-                    'mem_mb': 4096,
-                    'nprocs': 4,
-                    'use_plugin': 'single',
-                    'plugin_args': {}
-                }
-                
-                cmd = build_fmriprep_command(dataset_path, output_path)
-                
-                assert "--nthreads" in cmd
-                assert "4" in cmd[cmd.index("--nthreads") + 1]
-                assert "--mem-mb" in cmd
-                assert "4096" in cmd[cmd.index("--mem-mb") + 1]
+            config = get_fmriprep_config()
+            cmd = build_fmriprep_command(bids_root, output_dir, "sub-01", config)
+            
+            # Check for -v flags
+            v_indices = [i for i, x in enumerate(cmd) if x == "-v"]
+            assert len(v_indices) >= 2
+            
+            # Check read-only mount for bids
+            assert f"{bids_root}:/data:ro" in cmd
+            # Check output mount
+            assert f"{output_dir}:/out" in cmd
 
-    def test_participant_label_included(self):
-        """Test that participant label is included when provided."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            dataset_path = Path(tmpdir) / "dataset"
-            output_path = Path(tmpdir) / "output"
-            dataset_path.mkdir()
-            
-            cmd = build_fmriprep_command(
-                dataset_path, 
-                output_path, 
-                participant_label="sub-01"
-            )
-            
-            assert "--participant-label=sub-01" in cmd
+    def test_nonexistent_subject_dir(self):
+        """Test that an error is raised if the subject directory doesn't exist."""
+        bids_root = Path("/nonexistent/path")
+        output_dir = Path("/tmp/output")
+        config = get_fmriprep_config()
+        
+        with pytest.raises(FMRIPrepRunnerError, match="does not exist"):
+            build_fmriprep_command(bids_root, output_dir, "sub-01", config)
 
-    def test_skip_bids_validation_flag(self):
-        """Test that skip-bids-validation flag is included when requested."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            dataset_path = Path(tmpdir) / "dataset"
-            output_path = Path(tmpdir) / "output"
-            dataset_path.mkdir()
-            
-            cmd = build_fmriprep_command(
-                dataset_path, 
-                output_path, 
-                skip_bids_validation=True
-            )
-            
-            assert "--skip-bids-validation" in cmd
-
-    def test_nonexistent_dataset_raises_error(self):
-        """Test that a nonexistent dataset path raises an error."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            dataset_path = Path(tmpdir) / "nonexistent"
-            output_path = Path(tmpdir) / "output"
-            
-            with pytest.raises(FMRIPrepRunnerError):
-                build_fmriprep_command(dataset_path, output_path)
 
 class TestRunFMRIPrep:
     @patch('src.preprocessing.fmriprep_runner.subprocess.run')
     @patch('src.preprocessing.fmriprep_runner.get_data_dir')
-    @patch('pathlib.Path.exists', return_value=True)
-    def test_successful_run(self, mock_exists, mock_get_data_dir, mock_run):
-        """Test successful execution of fMRIPrep."""
-        mock_get_data_dir.return_value = "/tmp/data"
-        mock_run.return_value = MagicMock(returncode=0, stdout="Success", stderr="")
+    @patch('pathlib.Path.mkdir')
+    def test_successful_run(self, mock_mkdir, mock_get_data_dir, mock_run):
+        """Test a successful fMRIPrep run."""
+        mock_get_data_dir.return_value = Path("/data")
+        mock_run.return_value = MagicMock(returncode=0)
         
-        result = run_fmriprep("ds000001", participant_label="sub-01")
-        
-        assert result.returncode == 0
-        mock_run.assert_called_once()
+        # Mock the existence check
+        with patch('pathlib.Path.exists', return_value=True):
+            result = run_fmriprep("sub-01")
+            
+            assert result is True
+            mock_run.assert_called_once()
+            call_args = mock_run.call_args
+            assert "check=True" in str(call_args)
 
     @patch('src.preprocessing.fmriprep_runner.subprocess.run')
     @patch('src.preprocessing.fmriprep_runner.get_data_dir')
-    @patch('pathlib.Path.exists', return_value=True)
-    def test_failed_run_raises_error(self, mock_exists, mock_get_data_dir, mock_run):
-        """Test that a failed run raises FMRIPrepRunnerError."""
-        mock_get_data_dir.return_value = "/tmp/data"
-        mock_run.return_value = MagicMock(
-            returncode=1, 
-            stdout="Error output", 
-            stderr="Error details"
-        )
-        
-        with pytest.raises(FMRIPrepRunnerError):
-            run_fmriprep("ds000001")
-
-    @patch('src.preprocessing.fmriprep_runner.subprocess.run')
-    @patch('src.preprocessing.fmriprep_runner.get_data_dir')
-    @patch('pathlib.Path.exists', return_value=False)
-    def test_missing_dataset_raises_error(self, mock_exists, mock_get_data_dir, mock_run):
-        """Test that missing dataset raises appropriate error."""
-        mock_get_data_dir.return_value = "/tmp/data"
-        
-        with pytest.raises(FMRIPrepRunnerError):
-            run_fmriprep("ds000001")
-
-    @patch('src.preprocessing.fmriprep_runner.subprocess.run')
-    @patch('src.preprocessing.fmriprep_runner.get_data_dir')
-    @patch('pathlib.Path.exists', return_value=True)
-    def test_docker_not_found_raises_error(self, mock_exists, mock_get_data_dir, mock_run):
-        """Test that missing Docker executable raises appropriate error."""
-        mock_get_data_dir.return_value = "/tmp/data"
+    def test_docker_not_found(self, mock_get_data_dir, mock_run):
+        """Test handling of Docker not found error."""
+        mock_get_data_dir.return_value = Path("/data")
         mock_run.side_effect = FileNotFoundError("Docker not found")
         
-        with pytest.raises(FMRIPrepRunnerError):
-            run_fmriprep("ds000001")
+        with patch('pathlib.Path.exists', return_value=True):
+            with pytest.raises(FMRIPrepRunnerError, match="Docker command not found"):
+                run_fmriprep("sub-01")
 
     @patch('src.preprocessing.fmriprep_runner.subprocess.run')
     @patch('src.preprocessing.fmriprep_runner.get_data_dir')
-    @patch('pathlib.Path.exists', return_value=True)
-    def test_timeout_raises_error(self, mock_exists, mock_get_data_dir, mock_run):
-        """Test that timeout raises appropriate error."""
-        mock_get_data_dir.return_value = "/tmp/data"
-        mock_run.side_effect = subprocess.TimeoutExpired(cmd=[], timeout=7200)
+    def test_preprocessing_failure(self, mock_get_data_dir, mock_run):
+        """Test handling of fMRIPrep process failure."""
+        mock_get_data_dir.return_value = Path("/data")
+        mock_run.side_effect = subprocess.CalledProcessError(1, "cmd", output="Error log")
         
-        with pytest.raises(FMRIPrepRunnerError):
-            run_fmriprep("ds000001")
+        with patch('pathlib.Path.exists', return_value=True):
+            with pytest.raises(FMRIPrepRunnerError, match="execution failed"):
+                run_fmriprep("sub-01")
+
+    @patch('src.preprocessing.fmriprep_runner.get_data_dir')
+    def test_bids_root_not_found(self, mock_get_data_dir):
+        """Test handling of missing BIDS root."""
+        mock_get_data_dir.return_value = Path("/data")
+        
+        with patch('pathlib.Path.exists', return_value=False):
+            with pytest.raises(FMRIPrepRunnerError, match="does not exist"):
+                run_fmriprep("sub-01")
+
 
 class TestMain:
-    @patch('sys.argv', ['fmriprep_runner.py', 'ds000001'])
     @patch('src.preprocessing.fmriprep_runner.run_fmriprep')
-    def test_main_with_dataset_id(self, mock_run):
-        """Test main function with dataset ID argument."""
-        main()
-        mock_run.assert_called_once()
+    @patch('src.preprocessing.fmriprep_runner.sys.exit')
+    def test_main_success(self, mock_exit, mock_run):
+        """Test main function on success."""
+        mock_run.return_value = True
         
-    @patch('sys.argv', ['fmriprep_runner.py'])
-    @patch('src.preprocessing.fmriprep_runner.logger')
-    def test_main_without_arguments_exits(self, mock_logger):
-        """Test main function exits gracefully without arguments."""
-        with pytest.raises(SystemExit):
+        with patch('sys.argv', ['fmriprep_runner.py', '--subject', 'sub-01']):
+            from src.preprocessing.fmriprep_runner import main
             main()
-        
-    @patch('sys.argv', ['fmriprep_runner.py', 'ds000001', 'sub-01'])
+            
+            mock_exit.assert_called_once_with(0)
+
     @patch('src.preprocessing.fmriprep_runner.run_fmriprep')
-    def test_main_with_participant_label(self, mock_run):
-        """Test main function with participant label."""
-        main()
-        mock_run.assert_called_once()
-        call_args = mock_run.call_args
-        assert call_args[1]['participant_label'] == 'sub-01'
+    @patch('src.preprocessing.fmriprep_runner.sys.exit')
+    def test_main_failure(self, mock_exit, mock_run):
+        """Test main function on failure."""
+        mock_run.side_effect = FMRIPrepRunnerError("Test error")
+        
+        with patch('sys.argv', ['fmriprep_runner.py', '--subject', 'sub-01']):
+            from src.preprocessing.fmriprep_runner import main
+            main()
+            
+            mock_exit.assert_called_once_with(1)

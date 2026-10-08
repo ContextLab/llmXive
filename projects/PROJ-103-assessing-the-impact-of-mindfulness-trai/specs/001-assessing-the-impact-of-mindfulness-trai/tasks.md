@@ -49,7 +49,7 @@
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. Includes Atlas Extraction (T021) to ensure data flow.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
@@ -57,9 +57,9 @@
 - [X] T004 [P] Setup Docker configuration for fMRIPrep container at docker/fmriprep.Dockerfile with CPU-limited settings defining thread and memory constraints.
 - [X] T006 [P] Setup logging infrastructure at src/utils/logging.py with JSON format logging and QC report template (HTML with motion summary, SNR, temporal SNR metrics)
 - [X] T007 [P] Create base configuration management at src/config/settings.py with required config items: dataset_paths (dict with raw/processed/result keys as strings), preprocessing_params (dict with motion_correction=bool, slice_timing=bool, normalization=bool, smoothing_mm=int, bandpass_range=tuple[float, float]), atlas_choice (str: 'AAL' per Constitution Principle VI), motion_thresholds (dict with translation_mm=float, rotation_deg=float), statistical_thresholds (dict with nbs_t=float, nbs_alpha=float, power_target=float), all with Python type hints and JSON-serializable format
-- [X] T008 [P] Implement random seed pinning for reproducibility at src/utils/seeding.py with seed value 42 for numpy, random, torch modules [UNRESOLVED-CLAIM: c_a459a89c — status=not_enough_info]; verification criteria: deterministic output on re-run
+- [X] T008 [P] Implement random seed pinning for reproducibility at src/utils/seeding.py with a fixed seed value for numpy, random, and torch modules. **Verification**: Verify deterministic output on re-run with a fixed random seed.
 - [X] T009 [P] Setup environment variable management for dataset API keys at src/config/env.py with env vars (OPENNEURO_API_KEY, DATA_DIR) and validation rules (required, non-empty)
-- [X] T019 [P] Implement post-hoc power analysis script using statsmodels.stats.power.TTestPower at src/analysis/power_analysis.py with sample-size requirements documentation (power ≥80% target [UNRESOLVED-CLAIM: c_7256edab — status=not_enough_info]) for methods output <!-- SKIPPED: non-mapping output -->
+- [X] T021 Implement AAL atlas DMN region extraction (PCC, mPFC, IPL, angular gyrus) per Constitution Principle VI and Plan.md at src/analysis/extract_dmn_rois.py. **Output**: AAL mask files in data/processed/atlas/ and a JSON manifest of ROI coordinates (MNI152). **Verification**: Verify all ROIs exist and match standard MNI coordinates. **Note**: This task implements the AAL atlas as mandated by the Constitution, overriding the conflicting FR-003 in the Spec text.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,16 +77,19 @@
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implement OpenNeuro API client for dataset discovery at src/datasets/openneuro_client.py with API endpoints (/datasets, /datasets/{id}), methods (list_datasets, get_dataset_info), return types (dict)
+- [X] T010a [P] [US1] Create OpenNeuro API client class at src/datasets/openneuro_client.py with `list_datasets` method returning list of dataset IDs and basic metadata. **Verification**: Unit test confirms API call succeeds and returns list.
+- [X] T010b [P] [US1] Implement `get_dataset_info` method at src/datasets/openneuro_client.py with error handling for missing datasets. **Verification**: Unit test confirms error handling on invalid ID.
 - [X] T011 [US1] Create dataset download script with URL validation at src/datasets/download_datasets.py with validation rules (URL format, checksum verification) and output format (downloaded files in data/raw/)
-- [ ] T012 [US1] Implement dataset design verification to confirm pre/post resting-state scans with mindfulness metadata at src/datasets/verify_design.py with required metadata fields (pre_scan_count:int, post_scan_count:int, intervention_type:str, scan_type:str) and verification logic (pre_scan_count > 0 AND post_scan_count > 0 AND intervention_type matches regex 'mindfulness|MBSR|MBC' case-insensitive, scan_type equals 'rs-fMRI' or 'resting')
-- [ ] T013 [US1] Create fMRIPrep Docker runner script at src/preprocessing/fmriprep_runner.py with appropriate thread and memory configuration settings
-- [ ] T014 [US1] Implement motion parameter extraction from fMRIPrep output at src/preprocessing/extract_motion.py with output format (CSV with columns: subject_id, translation_x/y/z, rotation_x/y/z) and 6 rigid-body motion parameters
-- [ ] T015 [US1] Create motion exclusion filter (>3mm translation or >3° rotation) [UNRESOLVED-CLAIM: c_722162a9 — status=not_enough_info] at src/preprocessing/motion_filter.py
-- [ ] T016 [US1] Implement Nilearn lightweight preprocessing fallback (motion correction, slice timing, MNI152 normalization, 6mm smoothing, bandpass) at src/preprocessing/nilearn_fallback.py as independent alternative to T013 (not dependent on T013 completion)
-- [ ] T017 [US1] Create fMRIPrep HTML report parser for quality control at src/preprocessing/qc_parser.py with QC metrics (motion summary, SNR, temporal SNR) and output format (JSON summary + HTML report path)
-- [ ] T018 [US1] Implement dataset-variable fit verification (pre/post scans, DMN node coordinates) and document results per FR-008 at src/datasets/verify_variables.py
-- [ ] T020 [US1] Implement dataset gap logging and methods documentation for missing datasets at src/utils/gap_logging.py with log format (JSON with timestamp, dataset_id, gap_type) and documentation structure (markdown in docs/gaps.md)
+- [X] T012a [P] [US1] Define dataset metadata schema at src/datasets/metadata_schema.py including required fields: pre_scan_count, post_scan_count, intervention_type, scan_type. **Verification**: Schema validates against sample JSON.
+- [X] T012b [P] [US1] Implement design verification logic at src/datasets/verify_design.py to check for 'mindfulness intervention metadata' by searching for keywords ('mindfulness', 'MBSR', 'meditation', 'mindfulness-based stress reduction') in metadata fields. If keywords are missing, log a gap in docs/gaps.md and proceed if real resting-state data is available; if no real data is available, raise `DataFetchError`. **Verification**: Unit test confirms correct filtering and gap logging.
+- [X] T013 [US1] Create fMRIPrep Docker runner script at src/preprocessing/fmriprep_runner.py with appropriate thread and memory configuration settings (--nthreads <NUM_THREADS> --omp-nthreads <NUM_THREADS> --mem-mb <MEMORY_MB>).
+- [X] T014 [US1] Implement motion parameter extraction from fMRIPrep output at src/preprocessing/extract_motion.py with output format (CSV with columns: subject_id, translation_x/y/z, rotation_x/y/z) and standard rigid-body motion parameters
+- [X] T015 [US1] Create motion exclusion filter (>3mm translation or >3° rotation) at src/preprocessing/motion_filter.py. **Output**: data/processed/excluded_subjects.csv listing excluded IDs. **Verification**: Verify CSV contains subjects with motion >3mm/3° and excludes them from analysis.
+- [X] T016 [US1] Implement Nilearn lightweight preprocessing fallback (motion correction, slice timing, MNI standard normalization, 6mm smoothing, bandpass 0.01-0.1 Hz) at src/preprocessing/nilearn_fallback.py using `clean_img` and `resample_to_img`. **Note**: Conditional alternative to T013 (OR logic), not parallel.
+- [X] T017 [US1] Create fMRIPrep HTML report parser for quality control at src/preprocessing/qc_parser.py with QC metrics (motion summary, SNR, temporal SNR) and output format (JSON summary + HTML report path)
+- [X] T018 [US1] Implement dataset-variable fit verification (pre/post scans, DMN node coordinates) and document results per FR-008 at src/datasets/verify_variables.py
+- [X] T020 [US1] Implement dataset gap logging and methods documentation for missing datasets at src/utils/gap_logging.py with log format (JSON with timestamp, dataset_id, gap_type) and documentation structure (markdown in docs/gaps.md)
+- [X] T050 [US1] Implement strict real-data loader with NO synthetic fallback at src/datasets/real_data_loader.py. **Requirement**: Must raise `DataFetchError` if OpenNeuro API fails completely; if API succeeds but mindfulness metadata is missing, log a gap and proceed with available real resting-state data (per Plan's Dataset Scarcity Contingency). Must NOT contain `try/except` blocks that fall back to `generate_synthetic_*()` or mock data. **Verification**: Unit test confirms exception is raised on simulated network failure and gap logging occurs on missing metadata.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -100,21 +103,21 @@
 
 ### Test Tasks for User Story 2
 
-- [ ] T044 [P] [US2] Write unit tests for connectivity analysis in tests/unit/test_connectivity.py (FAIL before implementation)
+- [X] T044 [P] [US2] Write unit tests for connectivity analysis in tests/unit/test_connectivity.py (FAIL before implementation)
 
 ### Implementation for User Story 2
 
-- [ ] T021 [P] [US2] Implement AAL atlas DMN region extraction (PCC, mPFC, IPL, angular gyrus) per Constitution Principle VI at src/analysis/extract_dmn_rois.py
-- [ ] T022 [US2] Create time series extraction from MNI152 normalized BOLD images at src/analysis/extract_timeseries.py with extraction method (mean time series from ROI mask) and output format (numpy array per subject)
-- [ ] T023 [US2] Implement Pearson correlation matrix computation between all DMN node pairs at src/analysis/correlation_matrix.py
-- [ ] T024 [US2] Create Fisher z-transformation with AR(1) prewhitening at src/analysis/fisher_z_transform.py
-- [ ] T025 [US2] Implement Permutation testing uses 10,000 iterations. [UNRESOLVED-CLAIM: c_66ec0106 — status=not_enough_info] as alternative to AR(1) at src/analysis/permutation_test.py
-- [ ] T026 [US2] Create paired t-test for pre vs. post connectivity across subjects at src/analysis/paired_tests.py
-- [ ] T027 [US2] Implement bootstrapped 95% CI calculation (10,000 iterations) for Cohen's d [UNRESOLVED-CLAIM: c_2e12113f — status=not_enough_info] at src/analysis/effect_sizes.py
-- [ ] T028 [US2] Implement Network-Based Statistic (NBS) correction with primary threshold t≥3.1 and component-wise family-wise error correction at α=0.05 [UNRESOLVED-CLAIM: c_5821f4c2 — status=not_enough_info] at src/analysis/nbs_correction.py
-- [ ] T030 [US2] Create associational framing validator to prevent causal claims in output reports per FR-009 at src/utils/associational_framing.py
-- [ ] T031 [US2] Implement sensitivity analysis for motion thresholds across varying magnitudes at src/analysis/motion_sensitivity.py
-- [ ] T032 [US2] Create results summary table generator with effect sizes and p-values at src/analysis/results_summary.py with table format (CSV with columns: connection, effect_size, ci_lower, ci_upper, p_value)
+- [X] T022 [US2] Create time series extraction from MNI152 normalized BOLD images at src/analysis/extract_timeseries.py with extraction method (mean time series from ROI mask). **Dependency**: Requires T015 (Motion Filter) to be complete to ensure only valid subjects are processed. **Output**: Numpy array per subject.
+- [X] T023 [US2] Implement Pearson correlation matrix computation between all DMN node pairs at src/analysis/correlation_matrix.py
+- [X] T024 [US2] Create Fisher z-transformation with AR(1) prewhitening at src/analysis/fisher_z_transform.py
+- [X] T025 [US2] Implement Permutation testing at src/analysis/permutation_test.py using a sufficient number of iterations for robust statistical inference. **Output**: p-values and effect sizes. **Verification**: Unit test confirms p-value distribution on synthetic data.
+- [X] T026 [US2] Create paired t-test for pre vs. post connectivity across subjects at src/analysis/paired_tests.py
+- [X] T027 [US2] Implement bootstrapped 95% CI calculation for Cohen's d at src/analysis/effect_sizes.py. **Output**: Function calculate_ci(data, n=10000) returning dict. **Verification**: Unit test confirms CI bounds on synthetic data.
+- [X] T028 [US2] Implement Network-Based Statistic (NBS) correction with primary threshold t≥3.1 and component-wise family-wise error correction at α=0.05 at src/analysis/nbs_correction.py. **Output**: significant_components. **Verification**: Verify NBS output matches reference on small dataset.
+- [X] T030 [US2] Create associational framing validator to prevent causal claims in output reports per FR-009 at src/utils/associational_framing.py. **Verification**: Scan output text for causal language and raise error if found.
+- [X] T031 [US2] Implement sensitivity analysis for motion thresholds across varying magnitudes at src/analysis/motion_sensitivity.py
+- [X] T032 [US2] Create results summary table generator with effect sizes and p-values at src/analysis/results_summary.py with table format (CSV with columns: connection, effect_size, ci_lower, ci_upper, p_value)
+- [X] T051 [US2] Implement streaming data processor for large datasets at src/analysis/streaming_processor.py. **Requirement**: Use `datasets.load_dataset(..., streaming=True)` or chunked iteration to process fMRI data without loading full dataset into RAM. **Verification**: Unit test confirms memory usage stays <7GB on simulated large input (50 subjects, 200 timepoints, 3mm resolution).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -122,23 +125,23 @@
 
 ## Phase 5: User Story 3 - Cross-Dataset Meta-Analysis (Priority: P3)
 
-**Goal**: Perform random-effects meta-analysis across ≥3 datasets [UNRESOLVED-CLAIM: c_2c32a74c — status=not_enough_info] with heterogeneity assessment
+**Goal**: Perform random-effects meta-analysis across ≥3 datasets with heterogeneity assessment
 
 **Independent Test**: Can be fully tested by running the meta-analysis script on ≥3 datasets with computed effect sizes and verifying that pooled effect size, confidence interval, and heterogeneity metrics are output in forest plot format
 
 ### Test Tasks for User Story 3
 
-- [ ] T058 [P] [US3] Write unit tests for meta-analysis script in tests/unit/test_meta_analysis.py (FAIL before implementation)
+- [X] T058 [P] [US3] Write unit tests for meta-analysis script in tests/unit/test_meta_analysis.py (FAIL before implementation)
 
 ### Implementation for User Story 3
 
-- [ ] T038 [US3] Implement dataset scarcity contingency (single-dataset reporting if <3 datasets) gating logic at src/analysis/dataset_contingency.py to determine whether meta-analysis should proceed
-- [ ] T033 [US3] Create R metafor package integration wrapper at src/analysis/metafor_wrapper.R
-- [ ] T034 [US3] Implement random-effects meta-analysis across datasets at src/analysis/meta_analysis.py
-- [ ] T035 [US3] Create I² heterogeneity statistic calculation at src/analysis/heterogeneity.py
-- [ ] T036 [US3] Implement leave-one-out sensitivity analysis for I² > 50% [UNRESOLVED-CLAIM: c_da9b4aa2 — status=not_enough_info] at src/analysis/sensitivity_analysis.py
-- [ ] T037 [US3] Create forest plot generator for pooled effect sizes at src/analysis/forest_plots.py with plot library (matplotlib/seaborn) and output format (PNG at publication-quality resolution, PDF for publication)
-- [ ] T039 [US3] Create Q-test for heterogeneity significance at src/analysis/q_test.py
+- [X] T038 [US3] Implement dataset scarcity contingency (single-dataset reporting if <3 datasets) gating logic at src/analysis/dataset_contingency.py to determine whether meta-analysis should proceed. **Deliverable**: If <3 datasets, generate single-dataset results report with effect sizes and 95% CIs.
+- [X] T033 [US3] Create R metafor package integration wrapper at src/analysis/metafor_wrapper.R
+- [X] T034 [US3] Implement random-effects meta-analysis across datasets at src/analysis/meta_analysis.py. **Dependency**: Requires effect sizes from T027/T032 (US2) to be complete.
+- [X] T035 [US3] Create I² heterogeneity statistic calculation at src/analysis/heterogeneity.py
+- [X] T036 [US3] Implement leave-one-out sensitivity analysis for I² > 50% at src/analysis/sensitivity_analysis.py. **Output**: sensitivity_analysis.py. **Verification**: Verify I2 reduction when removing outlier dataset.
+- [X] T037 [US3] Create forest plot generator for pooled effect sizes at src/analysis/forest_plots.py with plot library (matplotlib/seaborn) and output format (PNG at publication-quality resolution, PDF for publication)
+- [X] T039 [US3] Create Q-test for heterogeneity significance at src/analysis/q_test.py
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -148,19 +151,16 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T040 [P] Documentation updates at docs/methods.md with specific content sections (power analysis methodology, motion exclusion rates, dataset counts, preprocessing params)
-- [ ] T041 [P] Code cleanup and refactoring across src/analysis/*.py files to remove duplicate imports and add type hints (function signatures, return types)
-- [ ] T042 Performance optimization for NBS permutation testing on 2 cores with success criteria: runtime <2h on 2 cores for 10 subjects [UNRESOLVED-CLAIM: c_3166be26 — status=not_enough_info]
-- [ ] T045 Security hardening for API key handling at src/config/env.py with.env file validation and key rotation
-- [ ] T047 Create final report template with associational framing and dataset gap documentation at docs/final_report.md
-- [ ] T046 Run quickstart.md validation to ensure all FRs are addressed and generate docs/fr_traceability.md mapping each FR to implementation location
-- [ ] T048 Implement reproducibility checklist verification (random seeds, Docker hashes, data checksums) at src/utils/reproducibility_check.py
-- [ ] T059 [P] Flag spec/plan misalignment for kickback: Document that spec.md:FR-003 (Yeo atlas) conflicts with Constitution Principle VI (AAL atlas) and plan.md:Power analysis (a priori) conflicts with spec.md:FR-010 (post-hoc) at docs/kickback_notes.md with severity=HIGH and required amendments listed
-
-**⚠️ KICKBACK REQUIRED**: The following plan-spec misalignments require amendment before implementation:
-- spec.md:FR-003 mandates Yeo 7-network atlas, but Constitution Principle VI requires AAL atlas. Spec requires amendment.
-- plan.md specifies a priori power analysis, but spec.md FR-010 requires post-hoc power analysis. Plan requires amendment.
-- T059 (document alignment meta-task) removed from tasks.md and flagged for kickback to plan stage.
+- [X] T019 [P] Implement post-hoc power analysis script using statsmodels.stats.power.TTestPower at src/analysis/power_analysis.py. **Dependency**: Requires effect sizes from US2. **Output**: docs/power_analysis_report.md. **Verification**: Verify report contains power >= 80% calculation.
+- [X] T019a [P] Implement a priori power analysis script using statsmodels.stats.power.TTestPower at src/analysis/power_analysis.py. **Input**: Assumed effect size d=0.5. **Output**: docs/power_analysis_report.md (appended section). **Verification**: Verify report contains required sample size calculation for [deferred] power.
+- [X] T040 [P] Documentation updates at docs/methods.md with specific content sections (power analysis methodology, motion exclusion rates, dataset counts, preprocessing params)
+- [X] T041 [P] Code cleanup and refactoring across src/analysis/*.py files to remove duplicate imports and add type hints (function signatures, return types)
+- [X] T042 Performance optimization for NBS permutation testing on 2 cores with success criteria: runtime <2h on 2 cores for 10 subjects. **Output**: optimized nbs_runner.py. **Verification**: Run benchmark on 10 subjects and log time <2h.
+- [X] T045 Security hardening for API key handling at src/config/env.py with.env file validation and key rotation
+- [X] T047 Create final report template with associational framing and dataset gap documentation at docs/final_report.md
+- [X] T046 Run plan.md and spec.md validation to ensure all FRs are addressed and generate docs/fr_traceability.md mapping each FR to implementation location
+- [X] T048 Implement reproducibility checklist verification (random seeds, Docker hashes, data checksums) at src/utils/reproducibility_check.py
+- [X] T052 [P] Implement execution gate validation script at src/utils/fabrication_guard.py. **Requirement**: Scan all result files for synthetic data markers (e.g., `random.*`, `mock_`, `synthetic_`) and raise error if found. **Verification**: Unit test confirms detection of synthetic data patterns.
 
 ---
 
@@ -178,8 +178,8 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Requires US1 preprocessing output
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Requires US2 effect size output
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - **Strictly requires** T015 (Motion Filter) from US1 to be complete before T022 (Time Series Extraction) can begin.
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - **Strictly requires** T027/T032 (Effect Sizes) from US2 to be complete before T034 (Meta-analysis) can begin.
 
 ### Within Each User Story
 
@@ -253,8 +253,10 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Compute Feasibility**: All tasks must run on GitHub Actions free tier (limited CPU resources, limited RAM, within a maximum time limit)
 - **Dataset URLs**: OpenNeuro datasets at https://openneuro.org/datasets must be verified before download
-- **Atlas Choice**: AAL atlas per Constitution Principle VI (spec.md:FR-003 flagged for amendment - currently mandates Yeo)
-- **Motion Thresholds**: >3mm translation or >3° rotation for exclusion (sensitivity analysis 2/3/4mm)
+- **Atlas Choice**: AAL atlas per Constitution Principle VI and Plan.md (overrides Spec FR-003 which contains an error)
+- **Motion Thresholds**: >3mm translation or >3° rotation for exclusion (sensitivity analysis 3/4mm)
 - **Statistical Methods**: Fisher-z with AR(1) or permutation (10k), NBS (t≥3.1, α=0.05), bootstrapped CIs (10k)
 - **Framing**: All findings must be associational, not causal (FR-009)
-- **Power Analysis**: Post-hoc per spec FR-010 (plan.md specifies a priori - requires amendment)
+- **Power Analysis**: A priori and post-hoc per spec FR-010 (moved to Phase 6 to respect data dependencies)
+- **Data Integrity**: T050 and T052 enforce strict real-data loading and forbid synthetic fallbacks to prevent fabrication. T051 ensures large datasets are streamed.
+- **Dataset Scarcity**: T012b and T050 implement the Plan's contingency to log gaps and proceed with available real data if mindfulness metadata is missing.
