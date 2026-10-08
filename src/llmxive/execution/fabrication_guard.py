@@ -199,10 +199,9 @@ def _skip_path(p: Path) -> bool:
 def find_code_fabrication(project_dir: Path) -> list[str]:
     """Scan a project's analysis code (``code/**/*.py``) for fabrication signals."""
     out: list[str] = []
-    code_dir = project_dir / "code"
-    if not code_dir.is_dir():
-        return out
-    for py in sorted(code_dir.rglob("*.py")):
+    from llmxive.project_files import source_files
+
+    for py in source_files(project_dir):
         if _skip_path(py):
             continue
         try:
@@ -281,6 +280,24 @@ _AVOIDANCE_RE = re.compile(
     re.IGNORECASE,
 )
 
+_POST_AVOIDANCE_RE = re.compile(
+    _SYNTH_PHRASE + r"\s+(?:is|are)\s+(?:(?:strictly|explicitly|never)\s+)?"
+    r"(?:prohibited|forbidden|disallowed|not\s+(?:allowed|permitted|used))\b",
+    re.IGNORECASE,
+)
+
+_WRAPPED_REFUSAL_RE = re.compile(
+    r"\b(?:never|do(?:es)?\s+not|don'?t|doesn'?t)\s+"
+    r"(?:fall(?:s)?\s+back\s+to|use|uses|generate|generates)\s+" + _SYNTH_PHRASE,
+    re.IGNORECASE,
+)
+
+
+def _avoidance_spans(text: str) -> list[tuple[int, int]]:
+    return [m.span() for pattern in (_AVOIDANCE_RE, _POST_AVOIDANCE_RE, _WRAPPED_REFUSAL_RE)
+            for m in pattern.finditer(text)]
+
+
 
 #: A SIMULATION-METHODOLOGY study legitimately generates its own data AS the
 #: research method (a statistics paper whose whole point is Monte-Carlo estimation
@@ -320,7 +337,9 @@ def _synthetic_data_authorized(project_dir: Path) -> bool:
             text = f.read_text(encoding="utf-8", errors="ignore")
         except OSError:
             continue
-        if _SYNTHETIC_DATA_RE.search(text) or _SIMULATION_STUDY_RE.search(text):
+        avoided = _avoidance_spans(text)
+        if any(not any(lo <= m.start() < hi for lo, hi in avoided)
+               for m in _SYNTHETIC_DATA_RE.finditer(text)) or _SIMULATION_STUDY_RE.search(text):
             return True
     return False
 
@@ -329,7 +348,7 @@ def find_synthetic_data_use(project_dir: Path) -> list[str]:
     """Findings where the project's code/results use SYNTHETIC input data (by the
     code's own label). The caller suppresses these when the spec authorizes it."""
     out: list[str] = []
-    for sub in ("code", "data", "results", "outputs"):
+    for sub in ("code", "src", "scripts", "data", "results", "outputs"):
         d = project_dir / sub
         if not d.is_dir():
             continue
@@ -343,7 +362,7 @@ def find_synthetic_data_use(project_dir: Path) -> list[str]:
             except OSError:
                 continue
             scanned = text[:40000]
-            avoided = [a.span() for a in _AVOIDANCE_RE.finditer(scanned)]
+            avoided = _avoidance_spans(scanned)
             for m in _SYNTHETIC_DATA_RE.finditer(scanned):
                 # Skip a phrase the code is REFUSING (its match falls inside an
                 # avoidance construct — "avoid fake data", "not … synthetic data").

@@ -89,9 +89,9 @@ _LEAD = re.compile(
 
 # A value sitting in a statistical / numeric DESIGN-PARAMETER context is the
 # operator's CHOSEN setting, not an empirical claim about the world, and must
-# stay concrete — exactly like a bound-led target or ``α = 0.05``:
+# stay concrete — exactly like a bound-led target or ``alpha = 0.05``:
 #   * confidence / significance — ``95% confidence``, ``Wilson 95% CI``,
-#     ``significance level of 0.05``, ``α = 0.05``;
+#     ``significance level of 0.05``, ``alpha = 0.05``;
 #   * tolerance / threshold / margin — ``relative tolerance of 0.05``,
 #     ``discrepancy threshold of 0.1``, ``margin of 0.02`` — the cutoff a rule
 #     compares against, which the operator picks, not measures.
@@ -115,7 +115,7 @@ _LEAD = re.compile(
 # (correctly) re-flag as unverifiable forever: the reviser sets the value, the
 # strip re-defers it next render. KEEP these concrete.
 _STAT_DESIGN_CONTEXT = re.compile(
-    r"confidence|\bCIs?\b|credible\s+interval|significance\s+level|\balpha\b|α"
+    r"confidence|\bCIs?\b|credible\s+interval|significance\s+level|\balpha\b|\u03b1"
     r"|toleranc|threshold|\bmargin\b"
     r"|of\s+the\s+(?:reported|reconstructed|expected|observed|nominal|larger"
     r"|smaller|total|reference|baseline|true|actual|predicted)"
@@ -141,6 +141,14 @@ _DESIGN_TARGET = re.compile(
     re.IGNORECASE,
 )
 
+# An enumerated parameter domain is part of the method, not an observed result.
+# The October canary's p ∈ {5, 7, 11} was repeatedly smoothed into {, 7, 11},
+# changing the experiment and creating an endless reviewer/rewriter disagreement.
+_PARAMETER_DOMAIN = re.compile(
+    r"\b[A-Za-z][A-Za-z0-9_]*\s*(?:∈|\\in|=)\s*"
+    r"(?:\\?\{[^{}\n]+\\?\}|\[[^\]\n]+\])"
+)
+
 
 def is_design_target(text: str) -> bool:
     """True iff ``text`` contains a bound-led DESIGN TARGET (a threshold the
@@ -153,7 +161,7 @@ def is_design_target(text: str) -> bool:
     of knots ..." re-introduces the exact unquantified wording testability
     reviewers reject, and the reviser re-vagues it differently every round
     (the PROJ-552 spec non-convergence loop)."""
-    return _DESIGN_TARGET.search(text) is not None
+    return _DESIGN_TARGET.search(text) is not None or _PARAMETER_DOMAIN.search(text) is not None
 
 
 def _tidy(line: str) -> str:
@@ -237,6 +245,10 @@ def strip_empirical_values(
             m = _EMPIRICAL_TOKEN.search(new, pos)
             if m is None:
                 break
+            if any(domain.start() <= m.start() and m.end() <= domain.end()
+                   for domain in _PARAMETER_DOMAIN.finditer(new)):
+                pos = m.end()
+                continue
             if _normalize_value(m.group(0)) in exempt_norm:
                 pos = m.end()
                 continue

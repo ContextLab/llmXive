@@ -1,0 +1,22 @@
+{
+  "status": "validated_candidate",
+  "title": "Resolve venv python to an absolute path in run_pytest before changing cwd",
+  "explanation": "run_pytest called ensure_venv(project_dir), which returns a path like 'projects/PROJ-relative/code/.venv/bin/python' when project_dir is relative, then spawned the subprocess with cwd=project_dir/code. The relative executable no longer resolves from the new cwd, so subprocess raises FileNotFoundError. Fix: make the venv python absolute (os.path.abspath, preserving the venv symlink, same as run_in_venv) while keeping the pytest target path relative to the code dir.",
+  "model": "zai-org.glm-5.3",
+  "evidence_sha256": "d95be2327ab38be9e63ca2f8ac0d75b873665420fc1e61881248342c3ae91d52",
+  "regression": "tests/unit/test_repair_run_pytest_relative_venv.py",
+  "related_tests": [
+    "tests/unit/test_sandbox_venv.py"
+  ],
+  "before_exit": 1,
+  "after_exit": 0,
+  "reviewer_model": "openai.gpt-oss-120b",
+  "review": {
+    "accept": true,
+    "reason": "The patch correctly fixes the FileNotFoundError by converting the venv python path to an absolute path before changing the working directory. It adds comprehensive regression tests that verify both successful and failing test runs with a relative project directory, and all tests now pass. No unrelated changes or scope creep are introduced."
+  },
+  "base_files": {
+    "src/llmxive/sandbox.py": "3cb345657a1abdfed22570a23c0bfe9cf9345105d9104de104fc040b0ba7212c",
+    "tests/unit/test_repair_run_pytest_relative_venv.py": null
+  }
+}

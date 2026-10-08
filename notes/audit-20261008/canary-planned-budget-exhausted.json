@@ -1,0 +1,74 @@
+{
+  "project_id": "PROJ-9999-totient-canary",
+  "status": "failed",
+  "steps": [
+    {
+      "step": 1,
+      "before": "flesh_out_complete",
+      "after": "validated",
+      "elapsed_s": 82.388
+    },
+    {
+      "step": 2,
+      "before": "validated",
+      "after": "project_initialized",
+      "elapsed_s": 268.466
+    },
+    {
+      "step": 3,
+      "before": "project_initialized",
+      "after": "specified",
+      "elapsed_s": 402.839
+    },
+    {
+      "step": 4,
+      "before": "specified",
+      "after": "clarified",
+      "elapsed_s": 529.113
+    },
+    {
+      "step": 5,
+      "before": "clarified",
+      "after": "specified",
+      "elapsed_s": 1035.489
+    },
+    {
+      "step": 6,
+      "before": "specified",
+      "after": "clarified",
+      "elapsed_s": 762.625
+    },
+    {
+      "step": 7,
+      "before": "clarified",
+      "after": "specified",
+      "elapsed_s": 5655.854
+    },
+    {
+      "step": 8,
+      "before": "specified",
+      "after": "clarified",
+      "elapsed_s": 847.213
+    },
+    {
+      "step": 9,
+      "before": "clarified",
+      "after": "specified",
+      "elapsed_s": 1036.697
+    },
+    {
+      "step": 10,
+      "before": "specified",
+      "after": "clarified",
+      "elapsed_s": 1071.234
+    },
+    {
+      "step": 11,
+      "before": "clarified",
+      "after": "planned",
+      "elapsed_s": 3631.862
+    }
+  ],
+  "reason": "full-pipeline acceptance budget exhausted",
+  "elapsed_s": 12242.878
+}

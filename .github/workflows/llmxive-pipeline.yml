@@ -73,7 +73,10 @@ jobs:
           DARTMOUTH_API_KEY: ${{ secrets.DARTMOUTH_API_KEY }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: python -m llmxive preflight
-      - name: Run pipeline (stub until US1)
+      - name: Run pipeline
+        # Reserve the remainder of the job budget for the always-run state
+        # persistence and conflict-evidence steps below.
+        timeout-minutes: 300
         env:
           DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
           DARTMOUTH_API_KEY: ${{ secrets.DARTMOUTH_API_KEY }}
@@ -127,3 +130,12 @@ jobs:
         if: always()
         run: |
           bash scripts/ci/commit-and-push.sh "chore(pipeline): persist run progress [skip ci]"
+
+      - name: Preserve a conflicting tick for recovery
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unpushed-tick-pipeline
+          path: ${{ runner.temp }}/llmxive-unpushed.patch
+          if-no-files-found: ignore
+          retention-days: 30

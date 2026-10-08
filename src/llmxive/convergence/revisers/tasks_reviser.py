@@ -33,6 +33,7 @@ from typing import Any
 
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage
+from llmxive.backends.router import DEFAULT_MODEL
 from llmxive.tools.summarize import summarize
 
 from ..types import Concern, ConcernResponse
@@ -128,7 +129,7 @@ class _AbstractTasksReviser:
                         "extract every FR/SC id verbatim and every spec "
                         "constraint; the tasks must cover all of them"
                     ),
-                    model=self._model or "qwen3.5-122b",
+                    model=self._model or DEFAULT_MODEL,
                     token_budget=max(2_000, self._token_budget // 4),
                     cache_dir=self._summarize_cache_dir,
                 )
@@ -139,7 +140,7 @@ class _AbstractTasksReviser:
                         "extract every plan element (phases, contracts, "
                         "entities, quickstart steps) the tasks must cover"
                     ),
-                    model=self._model or "qwen3.5-122b",
+                    model=self._model or DEFAULT_MODEL,
                     token_budget=max(2_000, self._token_budget // 4),
                     cache_dir=self._summarize_cache_dir,
                 )
@@ -150,7 +151,7 @@ class _AbstractTasksReviser:
                         "extract every reviewer concern and the FR/SC/task "
                         "ids each refers to"
                     ),
-                    model=self._model or "qwen3.5-122b",
+                    model=self._model or DEFAULT_MODEL,
                     token_budget=max(1_500, self._token_budget // 6),
                     cache_dir=self._summarize_cache_dir,
                 )
@@ -161,7 +162,7 @@ class _AbstractTasksReviser:
                         "extract every prior reviewer's outstanding "
                         "concerns with original concern ids verbatim"
                     ),
-                    model=self._model or "qwen3.5-122b",
+                    model=self._model or DEFAULT_MODEL,
                     token_budget=max(2_000, self._token_budget // 4),
                     cache_dir=self._summarize_cache_dir,
                 )

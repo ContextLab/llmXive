@@ -16,6 +16,7 @@ import json
 from pathlib import Path
 
 import pytest
+import yaml
 
 from llmxive.backends.base import BackendUnavailable, TransientBackendError
 from llmxive.speckit import _stage_panel
@@ -68,6 +69,41 @@ def test_engine_failure_filing_is_best_effort(tmp_path: Path) -> None:
         error="ValueError: boom", repo_root=tmp_path, gh=gh_down,
     )
     assert n is None  # no crash, no park — the project just retries later
+
+
+def test_recurring_failure_reuses_shared_issue_across_projects(tmp_path, monkeypatch):
+    monkeypatch.setattr(escalations, "RECURRING_ENGINE_ISSUES", {"reviewer-schema": 9876})
+    gh = _RecordingGh()
+    error = "RuntimeError: LLMReviewer[coverage]: review frontmatter has neither verdict nor concerns"
+    for project in range(30):
+        assert escalations.file_engine_failure_issue(
+            project_id=f"PROJ-{project}", stage="tasks", error=error,
+            evidence="trace", run_id=f"run-{project}", repo_root=tmp_path, gh=gh,
+        ) == 9876
+    assert len(gh.calls) == 1  # one status check; no per-project ticket/comment
+    assert not any("POST" in c for c in gh.calls)
+    ledger = tmp_path / "state/escalations/issues/recurring-reviewer-schema.yaml"
+    data = yaml.safe_load(ledger.read_text())
+    assert len(data["recent_occurrences"]) == 20
+    assert data["recent_occurrences"][-1]["project_id"] == "PROJ-29"
+    assert data["recent_occurrences"][-1]["run_id"] == "run-29"
+
+
+def test_recurring_failure_reopens_closed_tracking_issue(tmp_path, monkeypatch):
+    monkeypatch.setattr(escalations, "RECURRING_ENGINE_ISSUES", {"provider-availability": 9877})
+    calls = []
+
+    def gh(*args):
+        calls.append(args)
+        return 0, json.dumps({"number": 9877, "state": "closed"}), ""
+
+    assert escalations.file_engine_failure_issue(
+        project_id="PROJ-1", stage="plan", error="PermanentBackendError: no available server",
+        repo_root=tmp_path, gh=gh,
+    ) == 9877
+    assert len(calls) == 2
+    assert "PATCH" in calls[1] and "state=open" in calls[1]
+    assert escalations._recurring_failure_category("RuntimeError: unrelated computation failed") is None
 
 
 def test_stage_panel_engine_failure_files_issue_not_marker(

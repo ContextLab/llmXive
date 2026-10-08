@@ -1,0 +1,101 @@
+name: Platform repair candidates
+
+on:
+  schedule:
+    - cron: '0 7 * * *'
+    - cron: '0 19 * * *'
+  workflow_dispatch:
+    inputs:
+      source:
+        type: choice
+        options: [errors, issues]
+        default: errors
+        description: Evidence source for one bounded platform repair
+
+concurrency:
+  group: platform-repair
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
+jobs:
+  candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    outputs:
+      ready: ${{ steps.result.outputs.ready }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with: {python-version: '3.11', cache: pip}
+      - name: Keep only one outstanding repair candidate
+        id: pending
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          count=$(gh pr list --state open --json headRefName --jq '[.[] | select(.headRefName | startswith("repair/"))] | length')
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+      - if: steps.pending.outputs.count == '0'
+        run: pip install -e '.[dev]'
+      - if: steps.pending.outputs.count == '0'
+        run: bash scripts/repair/build-image.sh
+      - name: Reproduce, repair and independently review
+        if: steps.pending.outputs.count == '0'
+        env:
+          DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+          GH_TOKEN: ${{ github.token }}
+          LLMXIVE_PAID_OPT_IN: '0'
+          SOURCE: ${{ inputs.source || (github.event.schedule == '0 19 * * *' && 'issues' || 'errors') }}
+        run: python -m llmxive.repair.runner --source "$SOURCE" --output .repair-output
+      - name: Candidate status
+        id: result
+        if: success() && steps.pending.outputs.count == '0'
+        run: |
+          if test -f .repair-output/result.json && jq -e '.status == "validated_candidate"' .repair-output/result.json >/dev/null; then
+            echo 'ready=true' >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always() && steps.pending.outputs.count == '0'
+        with:
+          name: repair-evidence
+          path: .repair-output/
+          if-no-files-found: ignore
+          retention-days: 30
+
+  propose:
+    needs: candidate
+    if: needs.candidate.outputs.ready == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v5
+        with: {ref: main}
+      - uses: actions/setup-python@v6
+        with: {python-version: '3.11', cache: pip}
+      - run: pip install -e .
+      - uses: actions/download-artifact@v4
+        with: {name: repair-evidence, path: .repair-output}
+      - name: Apply only the validated patch to its unchanged baseline
+        run: python -m llmxive.repair.publish .repair-output
+      - name: Open a reviewable repair PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          git switch -c "repair/$RUN_ID"
+          git add -- src/llmxive agents/prompts tests/unit
+          git diff --cached --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m "$(cat .repair-output/pr-title.txt)"
+          git push origin "repair/$RUN_ID"
+          gh pr create --base main --head "repair/$RUN_ID" --title "$(cat .repair-output/pr-title.txt)" --body-file .repair-output/pr-body.md

@@ -1,0 +1,1 @@
+Resolve venv python to an absolute path in run_pytest before changing cwd

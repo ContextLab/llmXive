@@ -1,0 +1,106 @@
+{
+  "offline_suite": {
+    "passed": 7569,
+    "skipped": 17,
+    "deselected_slow": 4,
+    "duration_s": 394.4
+  },
+  "post_suite_focused_checks": {
+    "data_source_and_audit": 26,
+    "concurrent_git_persistence": 2,
+    "planner_and_persistence": 62,
+    "claim_design_preservation": 64,
+    "execution_verification_and_fabrication": 38,
+    "tasker_production_and_bridge": 13,
+    "execution_status_consumers": 176,
+    "real_pytest_execution_and_fingerprint": 41,
+    "multiline_implementation_and_verification": 26,
+    "implementation_and_execution_consumers": 164,
+    "recurring_issue_and_provider_routing": 50
+  },
+  "lint": "changed Python files pass ruff",
+  "live_model_probe": "GLM-5.3 free catalog entry and real JSON response verified",
+  "live_task": "PROJ-591 T003.5 implemented by GLM-5.3 and independently accepted by GPT-OSS",
+  "repair_trial": "baseline regression fails; candidate plus related tests 5 passed; independent GPT-OSS acceptance",
+  "full_pipeline_acceptance": "in progress, not yet accepted",
+  "deployment": "not yet deployed; draft PR https://github.com/ContextLab/llmXive/pull/1472",
+  "template_audit": {
+    "artifacts": 6905,
+    "template_classified": 0
+  },
+  "workflow_validation": "actionlint passed for all four changed workflows",
+  "live_claim_processing": "parameter domains and runtime target preserved verbatim",
+  "source_layout_and_response_validation": {
+    "unit_integration_initial": {
+      "passed": 7458,
+      "skipped": 15,
+      "deselected_slow": 4,
+      "sandbox_failures_or_errors": 37,
+      "duration_s": 1495.65
+    },
+    "network_allowed_rerun": {
+      "passed": 37,
+      "failed": 0,
+      "duration_s": 21.13
+    },
+    "contracts_and_reviser_followup": {
+      "passed": 142,
+      "skipped": 2
+    },
+    "source_layout_focused": {
+      "passed": 59,
+      "deselected_slow": 1
+    },
+    "repair_feedback_followup": {
+      "passed": 21
+    },
+    "concern_response_focused": {
+      "passed": 64
+    },
+    "note": "Network-requiring checks passed on rerun; no suite failures remain. Full-pipeline canary remains unaccepted."
+  },
+  "recurring_issue_targets": {
+    "reviewer_schema": 1474,
+    "provider_failures": 1475,
+    "deployment": "pending"
+  },
+  "independent_scientific_reference": "Twelve exact totient residue distributions computed independently; not pipeline-generated acceptance evidence",
+  "concern_hash_identity_followup": {
+    "passed": 44,
+    "lint": "passed",
+    "evidence": "canary-plan-hash-response-failure.jsonl",
+    "live_acceptance": "pending"
+  },
+  "ci_timeout_followup": {
+    "run": 37826932550,
+    "reason": "60-minute job limit",
+    "unit_passed": 7053,
+    "unit_skipped": 7,
+    "unit_deselected": 4,
+    "change": "15-persona rotation retained in nightly-only tests",
+    "fresh_pr_gate": {
+      "run": 37835730308,
+      "head": "8cb06dc8602",
+      "result": "passed",
+      "duration": "17m12s",
+      "all_six_pr_checks": "passed"
+    }
+  },
+  "canary_planning_followup": {
+    "status": "budget_exhausted_after_planned",
+    "elapsed_s": 12242.878,
+    "evidence": "canary-planned-budget-exhausted.json",
+    "resumed_from": "planned",
+    "full_acceptance": false
+  },
+  "issue_consolidation": {
+    "initial_open": 199,
+    "new_umbrellas": 2,
+    "new_incidents": 2,
+    "tracked": 203,
+    "closed": 195,
+    "remaining_open": 8,
+    "evidence": "issue-consolidation/report.md",
+    "ongoing_emission": "possible until routing fix deployed"
+  }
+}

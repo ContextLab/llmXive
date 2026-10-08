@@ -128,19 +128,26 @@ class TaskerAgent(SlashCommandAgent):
             f"# plan.md\n\n{plan_text}",
             f"# tasks template\n\n{tasks_template}",
         ]
+        idea_dir = ctx.project_dir / "idea"
+        if idea_dir.is_dir():
+            for idea in sorted(idea_dir.glob("*.md")):
+                user_parts.append(f"# Original idea: {idea.name}\n\n{idea.read_text(encoding='utf-8')}")
         if existing_tasks.strip():
             user_parts.append(
-                "# Existing tasks.md (revise — keep [X] tasks already done, "
-                "add new [ ] tasks that address review concerns)\n\n" + existing_tasks
+                "# Existing tasks.md (preserve working artifacts and satisfied requirements; "
+                "repair contradictory or corrupted instructions against the original idea "
+                "and active specification)\n\n" + existing_tasks
             )
         if review_block:
             user_parts.append(review_block)
         user_parts.append(
             "# Task\n\nReturn the FULL contents of tasks.md as Markdown. "
             "DO NOT return a diff or partial patch — return the entire "
-            "file from the first line to the last. Preserve all existing "
-            "[X]-marked tasks verbatim and append new [ ]-marked tasks "
-            "for the revision concerns. The output MUST contain at least "
+            "file from the first line to the last. Preserve verified work; a checked "
+            "box does not justify retaining a malformed parameter set, wrong path, "
+            "or instruction conflicting with the original study. Reopen only the "
+            "requirements affected by a correction, and address revision concerns "
+            "without duplicating completed tasks. The output MUST contain at least "
             "one line beginning with `- [ ] T###`."
         )
         user = "\n\n".join(user_parts)

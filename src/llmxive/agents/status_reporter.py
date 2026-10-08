@@ -56,11 +56,11 @@ def _collect_run_metrics(repo: Path) -> dict[str, Any]:
                 elif status in ("unreachable", "mismatch"):
                     citations_blocked += 1
 
-    # Advancement rate over the configured window: count distinct
-    # (project_id, project_id-current_stage) transitions in run-logs
-    # whose `ended_at` falls inside the window.
+    # Successful invocations are activity, not advancement. Real advancement
+    # comes only from persisted project history, excluding revision kickbacks
+    # and the separate external-preprint track.
     cutoff = datetime.now(UTC) - timedelta(days=STAGE_ADVANCEMENT_RATE_WINDOW_DAYS)
-    advancements = 0
+    successful_invocations = 0
     paid_api_calls = 0
     if runlog_dir.is_dir():
         for month_dir in runlog_dir.iterdir():
@@ -85,7 +85,28 @@ def _collect_run_metrics(repo: Path) -> dict[str, Any]:
                     except ValueError:
                         continue
                     if end_dt >= cutoff and entry.get("outcome") == "success":
-                        advancements += 1
+                        successful_invocations += 1
+
+    from llmxive.types import Stage
+    excluded = {
+        Stage.VALIDATOR_REVISE, Stage.VALIDATOR_REJECTED,
+        Stage.RESEARCH_FULL_REVISION, Stage.RESEARCH_REJECTED,
+        Stage.PAPER_INGESTED, Stage.REVIEWED_PREPRINT,
+        Stage.PAPER_FUNDAMENTAL_FLAWS, Stage.PUBLISH_BLOCKED,
+        Stage.HUMAN_INPUT_NEEDED, Stage.BLOCKED, Stage.AGENT_BLOCKED,
+    }
+    order = {s.value: i for i, s in enumerate(Stage) if s not in excluded}
+    advancements = 0
+    for history in (state_dir / "projects").glob("*.history.jsonl"):
+        for line in history.read_text(encoding="utf-8").splitlines():
+            try:
+                event = json.loads(line)
+                at = datetime.fromisoformat(event["at"].replace("Z", "+00:00"))
+                before, after = event["from_stage"], event["to_stage"]
+                if at >= cutoff and before in order and after in order and order[after] > order[before]:
+                    advancements += 1
+            except (ValueError, KeyError, TypeError):
+                continue
 
     revision_distribution: dict[str, int] = {str(i): 0 for i in range(1, 6)}
     for project in projects:
@@ -113,6 +134,7 @@ def _collect_run_metrics(repo: Path) -> dict[str, Any]:
 
     return {
         "advancement_rate_7d": float(advancements),
+        "successful_invocations_7d": successful_invocations,
         "paid_api_calls": paid_api_calls,
         "citations_verified": citations_verified,
         "citations_blocked": citations_blocked,

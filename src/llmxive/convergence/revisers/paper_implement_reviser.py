@@ -23,6 +23,7 @@ from typing import Any
 
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage
+from llmxive.backends.router import DEFAULT_MODEL
 from llmxive.tools.summarize import summarize
 
 from ..types import Concern, ConcernResponse
@@ -156,7 +157,7 @@ class PaperImplementReviser:
                         "preserve every declared section, figure, numerical "
                         "fence, and citation requirement verbatim"
                     ),
-                    model=self._model or "qwen3.5-122b",
+                    model=self._model or DEFAULT_MODEL,
                     token_budget=max(2_000, self._token_budget // 6),
                     cache_dir=self._summarize_cache_dir,
                 )
@@ -167,7 +168,7 @@ class PaperImplementReviser:
                         "preserve every section plan + figure plan + "
                         "numerical-fence plan"
                     ),
-                    model=self._model or "qwen3.5-122b",
+                    model=self._model or DEFAULT_MODEL,
                     token_budget=max(2_000, self._token_budget // 6),
                     cache_dir=self._summarize_cache_dir,
                 )
@@ -178,7 +179,7 @@ class PaperImplementReviser:
                         "preserve every numerical result, every effect size, "
                         "every p-value, every statistical test reported"
                     ),
-                    model=self._model or "qwen3.5-122b",
+                    model=self._model or DEFAULT_MODEL,
                     token_budget=max(2_000, self._token_budget // 6),
                     cache_dir=self._summarize_cache_dir,
                 )
@@ -186,7 +187,7 @@ class PaperImplementReviser:
                 comments_block = summarize(
                     comments_block,
                     goal="extract every reviewer concern + every requested change",
-                    model=self._model or "qwen3.5-122b",
+                    model=self._model or DEFAULT_MODEL,
                     token_budget=max(1_500, self._token_budget // 8),
                     cache_dir=self._summarize_cache_dir,
                 )
@@ -238,7 +239,7 @@ class PaperImplementReviser:
                 "numerical literal, every \\cite{...} key, and every figure "
                 "caption verbatim"
             ),
-            model=self._model or "qwen3.5-122b",
+            model=self._model or DEFAULT_MODEL,
             token_budget=_PER_ARTIFACT_SUMMARIZE_THRESHOLD_TOKENS,
             cache_dir=self._summarize_cache_dir,
         )

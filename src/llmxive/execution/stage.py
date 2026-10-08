@@ -178,7 +178,7 @@ _IMPORT_TO_PIP = {
 
 def _declare_missing_imports(project_dir: Path, failures: list[str]) -> list[str]:
     """Add third-party modules the run-book imports-but-can't-find to
-    ``code/requirements.txt`` so the next ``ensure_venv`` installs them.
+    the project's requirements manifest so the next ``ensure_venv`` installs them.
 
     Generalizable self-heal for the implementer dropping deps from
     requirements.txt. Skips the stdlib and the project's OWN ``code/`` modules
@@ -190,19 +190,20 @@ def _declare_missing_imports(project_dir: Path, failures: list[str]) -> list[str
     import os
     import sys
 
-    code = project_dir / "code"
+    from llmxive.project_files import SOURCE_DIRS, requirements_path, source_files
+
     # All module/package names defined ANYWHERE under code/ (not just the top
     # level): scripts in code/analysis/ import siblings by bare name, so
     # `data_quality` (code/analysis/data_quality.py) is LOCAL, not a pip dep.
     # Include directory (package) names too — even empty ones — and prune .venv.
-    local_names: set[str] = set()
-    for root, dirs, files in os.walk(code):
-        if ".venv" in Path(root).parts:
-            dirs[:] = []
-            continue
-        local_names.add(Path(root).name)
-        local_names.update(dirs)
-        local_names.update(f[:-3] for f in files if f.endswith(".py"))
+    local_names: set[str] = set(SOURCE_DIRS)
+    for directory in SOURCE_DIRS:
+        for _, dirs, _ in os.walk(project_dir / directory):
+            dirs[:] = [d for d in dirs if d not in {".venv", "__pycache__", ".tasks", ".git"}]
+            local_names.update(dirs)
+    for source in source_files(project_dir):
+        local_names.update(source.relative_to(project_dir).parts[:-1])
+        local_names.add(source.stem)
 
     def _third_party(mod: str) -> str | None:
         """Top-level pip-installable module name, or None for stdlib/local."""
@@ -220,9 +221,7 @@ def _declare_missing_imports(project_dir: Path, failures: list[str]) -> list[str
     # (b) STATIC scan of every code/*.py import — declares the whole third-party
     # stack in ONE pass so deps don't peel one-failed-import-per-round (which
     # would burn the bounded fix-round budget). ast only, no execution.
-    for py in code.rglob("*.py"):
-        if "/.venv/" in str(py):
-            continue
+    for py in source_files(project_dir):
         try:
             tree = ast.parse(py.read_text(encoding="utf-8", errors="replace"))
         except (SyntaxError, ValueError, OSError):
@@ -239,7 +238,7 @@ def _declare_missing_imports(project_dir: Path, failures: list[str]) -> list[str
                     candidates.add(top)
     if not candidates:
         return []
-    req = code / "requirements.txt"
+    req = requirements_path(project_dir)
     existing = req.read_text(encoding="utf-8") if req.is_file() else ""
 
     def _bare(line: str) -> str:
@@ -253,7 +252,7 @@ def _declare_missing_imports(project_dir: Path, failures: list[str]) -> list[str
             added.append(pip)
     if not added:
         return []
-    code.mkdir(parents=True, exist_ok=True)
+    req.parent.mkdir(parents=True, exist_ok=True)
     sep = "" if (not existing or existing.endswith("\n")) else "\n"
     block = "\n".join(f"{pip}  # auto-added: imported by run-book but missing from venv" for pip in added)
     req.write_text(existing + sep + block + "\n", encoding="utf-8")
@@ -272,15 +271,14 @@ def _deliverable_repair_feedback(project_dir: Path, res: AnalysisRunResult) -> s
     """
     if not res.declared_missing:
         return ""
-    code = project_dir / "code"
-    if not code.is_dir():
+    from llmxive.project_files import source_files
+
+    py_files = list(source_files(project_dir))
+    if not py_files:
         return ""
     runbook: set[str] = set()
     for c in res.commands:
-        m = re.search(r"\b(code/[\w./-]+\.py)\b", c.command)
-        if m:
-            runbook.add(m.group(1))
-    py_files = [p for p in code.rglob("*.py") if "/.venv/" not in str(p)]
+        runbook.update(_code_paths_in_text(c.command))
 
     blocks: list[str] = []
     for d in res.declared_missing:
@@ -293,14 +291,14 @@ def _deliverable_repair_feedback(project_dir: Path, res: AnalysisRunResult) -> s
                 continue
             if base in txt or (stem and stem in txt):
                 rel = str(p.relative_to(project_dir))
-                refs.append((rel, ("code/" + str(p.relative_to(code))) in runbook))
+                refs.append((rel, rel in runbook))
         if refs:
             ln = [f"- `{d}` is declared but was NOT written. Scripts referencing it:"]
             for rel, in_rb in refs[:8]:
                 ln.append(f"    - `{rel}` — {'IS a run-book command' if in_rb else 'NOT invoked by the run-book'}")
             ln.append(
                 f"  Make ONE of these WRITE `{d}` to that EXACT path. If its producing "
-                "script is not a run-book command, ADD `python code/<script>.py` to "
+                "script is not a run-book command, ADD `python <source-path>.py` to "
                 "quickstart.md so the run-book invokes it."
             )
             blocks.append("\n".join(ln))
@@ -322,6 +320,31 @@ def _deliverable_repair_feedback(project_dir: Path, res: AnalysisRunResult) -> s
         "",
         *blocks,
     ])
+
+
+def run_implementation_preview(project_dir: Path) -> None:
+    """Produce execution evidence before verifying output-producing tasks.
+
+    Waiting for all task checkboxes before running their generators deadlocks:
+    the verifier correctly rejects the absent outputs. Run the evolving run-book
+    once per implementation batch, with a short budget. This is feedback only;
+    it never marks execution accepted, consumes final-gate fix rounds, or opens
+    tasks that the implementer has not reached yet.
+    """
+    from llmxive.project_files import source_files
+
+    if not any(source_files(project_dir)):
+        return
+    res = run_analysis(project_dir, per_cmd_timeout_s=120, overall_deadline_s=300)
+    mem = project_dir / ".specify" / "memory"
+    failures = [
+        f"{r.command} -> rc={r.returncode}\n{r.tail}"
+        for r in res.commands if not r.ok
+    ]
+    if not res.ok:
+        _write_execution_feedback(mem, res, failures)
+    else:
+        (mem / _FEEDBACK_FILENAME).unlink(missing_ok=True)
 
 
 def execute_and_gate(project_dir: Path, *, repo_root: Path | None = None) -> bool:
@@ -886,14 +909,14 @@ def _code_paths_in_text(text: str) -> set[str]:
     #    path separator is fine; a preceding WORD char (``decode/x.py``,
     #    ``encode/...``) would make ``code`` part of another identifier, so reject
     #    that with a word-char lookbehind.
-    for m in re.finditer(r"(?<!\w)(code/[\w./-]+\.py)", text):
+    for m in re.finditer(r"(?<!\w)((?:code|src|scripts)/[\w./-]+\.py)", text):
         rel = m.group(1)
         if not any(mark in rel for mark in _VENV_PATH_MARKERS):
             out.add(rel)
     # b) dotted-module form — ``code.<pkg>.<mod>`` → ``code/<pkg>/<mod>.py``. Not
     #    preceded by a word char or dot (so ``mypkg.code.x`` is not mistaken for
     #    our top-level ``code`` package).
-    for m in re.finditer(r"(?<![\w.])(code(?:\.[A-Za-z_]\w*)+)", text):
+    for m in re.finditer(r"(?<![\w.])((?:code|src|scripts)(?:\.[A-Za-z_]\w*)+)", text):
         rel = m.group(1).replace(".", "/") + ".py"
         if not any(mark in rel for mark in _VENV_PATH_MARKERS):
             out.add(rel)

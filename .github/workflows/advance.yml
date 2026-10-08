@@ -68,13 +68,11 @@ jobs:
     concurrency:
       group: advance-${{ matrix.worker }}
       cancel-in-progress: false
-    # Fits the worst single convergence step (a live tasked/review panel
-    # convergence was observed at ~77 min) + setup/commit slack; the 2400s wall
-    # budget breaks the multi-tick loop early so the final step + commit always
-    # land. Lowered 150→90 (issue #1139 round 2) so a job cannot outlive the
-    # hourly cadence by more than one interval — bounding the concurrency-eviction
-    # window (a 150-min hang used to cancel up to 4 intervening scheduled ticks).
-    timeout-minutes: 90
+    # The October audit observed a single planning step taking 94 minutes.
+    # The CLI wall budget is checked BETWEEN steps, so it cannot enforce a
+    # 90-minute job limit. Bound the advance step separately and leave time
+    # to persist its state/diagnostics; per-worker concurrency prevents overlap.
+    timeout-minutes: 330
     strategy:
       fail-fast: false            # preserved (issue #1139): one worker failing
                                   # must NOT abort the rest of the matrix.
@@ -108,6 +106,7 @@ jobs:
       - run: pip install "kaggle==2.2.3" "kagglesdk==0.1.31"
       - run: python -m llmxive preflight
       - name: Advance pass (deterministic worker ${{ matrix.worker }})
+        timeout-minutes: 300
         run: |
           python -m llmxive run \
             --worker "${{ matrix.worker }}" \
@@ -126,6 +125,7 @@ jobs:
       # web-data churn into its own commit below.
       - name: Commit + push (project state)
         id: commit
+        if: always()
         run: |
           bash scripts/ci/commit-and-push.sh "advance(worker ${{ matrix.worker }}): tick"
       # Only worker 0 regenerates web data + triggers Pages — otherwise all 6
@@ -154,3 +154,12 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh workflow run pages.yml --ref main
+
+      - name: Preserve a conflicting tick for recovery
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unpushed-tick-${{ matrix.worker }}
+          path: ${{ runner.temp }}/llmxive-unpushed.patch
+          if-no-files-found: ignore
+          retention-days: 30

@@ -21,8 +21,11 @@ are provided in the messages that follow.
    names that sibling files already define (don't invent mismatched names). When a task
    references an existing file, extend it coherently rather than replacing it wholesale.
 4. **Stay inside the project tree.** All artifact paths are relative to the project root
-   and MUST live under `code/`, `data/`, `tests/`, or the project's `specs/` feature
-   directory. Never write to absolute paths or the repository's own source.
+   and MUST live under `code/`, existing `src/` or `scripts/`, `data/`, `tests/`, `contracts/`, `figures/`,
+   `paper/figures/`, `results/`, or the project's `specs/` feature directory.
+   Never write to absolute paths, platform state, or the repository's own source.
+   A project's root `requirements.txt` is also allowed when that is its existing
+   dependency manifest; do not scatter competing manifests across directories.
 5. **Whole-file contents only — NO diffs.** Each artifact's `contents` is the COMPLETE
    final text of that file. Do NOT emit unified diffs (`--- a/`, `+++ b/`, `@@`) or
    search-and-replace fragments — they will be rejected.
@@ -69,6 +72,14 @@ are provided in the messages that follow.
    the messages, the root cause it describes for this task's script takes precedence: make
    that script run cleanly end-to-end and write its real output before anything else. Do
    not re-emit code that produced the reported traceback.
+11. **Request execution for output-producing work.** The runtime can execute a
+   Python artifact when you set `execute: true` on that artifact. Use this for a
+   generator or setup script whose task requires files/directories to exist now;
+   writing the script alone does not complete that task. Its entry point must
+   perform the work without interactive input and within `timeout_s` (at most
+   600 seconds). Keep the project's quickstart run-book synchronized so a clean
+   rerun invokes the same generators in dependency order. Never emit computed
+   result rows or figure bytes yourself; let the executed code create them.
 
 ## Output format (STRICT)
 
@@ -80,6 +91,8 @@ task_id: {{next_task_id}}
 verdict: completed        # one of: completed | failed | atomize
 artifacts:
   - path: code/<relative/path>.py
+    execute: true          # for an output-producing script; false for a library
+    timeout_s: 300
     contents: |
       <the COMPLETE contents of this file, indented under the block scalar>
   - path: tests/<relative/path>.py

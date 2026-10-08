@@ -433,16 +433,21 @@ def _pip_install(py: Path, name: str) -> tuple[bool, str]:
 
 def _run_snippet(py: Path, snippet: str) -> tuple[int, str, str]:
     """Run ``snippet`` via ``<py> -c <snippet>``. Return (returncode, out, err)."""
-    try:
-        proc = subprocess.run(
-            [str(py), "-c", snippet],
-            capture_output=True,
-            text=True,
-            timeout=_SNIPPET_TIMEOUT,
-        )
-    except subprocess.TimeoutExpired:
-        return 1, "", "snippet execution timed out"
-    return proc.returncode, proc.stdout, proc.stderr
+    from llmxive.sandbox import analysis_environment
+
+    with tempfile.TemporaryDirectory(prefix="llmxive-recipe-") as work:
+        try:
+            proc = subprocess.run(
+                [str(py.absolute()), "-c", snippet],
+                cwd=work,
+                env=analysis_environment(Path(work)),
+                capture_output=True,
+                text=True,
+                timeout=_SNIPPET_TIMEOUT,
+            )
+        except subprocess.TimeoutExpired:
+            return 1, "", "snippet execution timed out"
+        return proc.returncode, proc.stdout, proc.stderr
 
 
 def _introspect_package(py: Path, ref: str) -> str:

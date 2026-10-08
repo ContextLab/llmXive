@@ -31,8 +31,10 @@ def test_oversized_file_dropped_small_result_pushed(tmp_path: Path) -> None:
     _git(["push", "-q", "origin", "main"], work)
 
     # a small real result + an oversized regenerable data artifact
-    (work / "small_result.md").write_text("real analysis result\n")
-    (work / "big.csv").write_bytes(b"\0" * (100 * 1024 * 1024))  # 100MiB > 95MB
+    project = work / "projects" / "PROJ-001-test"
+    project.mkdir(parents=True)
+    (project / "small_result.md").write_text("real analysis result\n")
+    (project / "big.csv").write_bytes(b"\0" * (100 * 1024 * 1024))  # 100MiB > 95MB
 
     r = subprocess.run(["bash", str(SCRIPT), "test: tick"],
                        cwd=work, capture_output=True, text=True)
@@ -42,3 +44,37 @@ def test_oversized_file_dropped_small_result_pushed(tmp_path: Path) -> None:
     assert "small_result.md" in files, files       # the real result is persisted
     assert "big.csv" not in files, files           # the oversized blob is dropped
     assert "SKIP oversized" in r.stderr             # and the skip is logged, never silent
+
+
+def test_conflicting_tick_does_not_overwrite_newer_project_work(tmp_path: Path) -> None:
+    origin = tmp_path / "origin.git"
+    work = tmp_path / "work"
+    subprocess.run(["git", "init", "--bare", "-q", str(origin)], check=True)
+    subprocess.run(["git", "clone", "-q", str(origin), str(work)], check=True)
+    _git(["config", "user.email", "t@t.t"], work)
+    _git(["config", "user.name", "test"], work)
+    rel = "projects/PROJ-001-test/result.md"
+    result = work / rel
+    result.parent.mkdir(parents=True)
+    result.write_text("baseline\n")
+    _git(["add", "."], work)
+    _git(["commit", "-qm", "baseline"], work)
+    _git(["branch", "-M", "main"], work)
+    _git(["push", "-q", "origin", "main"], work)
+    peer = tmp_path / "peer"
+    subprocess.run(["git", "clone", "-q", "-b", "main", str(origin), str(peer)], check=True)
+    _git(["config", "user.email", "t@t.t"], peer)
+    _git(["config", "user.name", "test"], peer)
+    (peer / rel).write_text("newer verified results\n")
+    _git(["add", "."], peer)
+    _git(["commit", "-qm", "concurrent advance"], peer)
+    _git(["push", "-q", "origin", "main"], peer)
+    result.write_text("stale worker results\n")
+    import os
+    env = dict(os.environ, RUNNER_TEMP=str(tmp_path))
+    proc = subprocess.run(["bash", str(SCRIPT), "stale tick"], cwd=work,
+                          capture_output=True, text=True, env=env)
+    assert proc.returncode == 1
+    assert "refusing to overwrite" in proc.stderr
+    assert (tmp_path / "llmxive-unpushed.patch").is_file()
+    assert _git(["show", f"origin/main:{rel}"], work).stdout == "newer verified results\n"

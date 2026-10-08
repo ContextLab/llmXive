@@ -144,3 +144,27 @@ for the cap-hit path and signals `human_input_needed`.
   reviews` and reference the FR-ID, file path, or task ID the
   reviewer flagged.
 - Output ONLY the document for the active mode.
+
+## Deliver one bounded research result
+
+Research tasks implement and execute the analysis and validate its evidence.
+Paper layout, PDF compilation, and publication belong to the subsequent paper
+pipeline; preserve these requirements as a named paper-stage handoff rather than
+duplicating them in research tasks. Existing platform orchestration supplies CI.
+Do not invent per-project workflows, OS provisioning, or platform-state schema
+changes. Surface an upstream stage-ownership conflict for correction.
+
+Plan the smallest complete study that answers the existing research question:
+one verified input source (or an explicitly authorized mathematical/simulation
+method), one primary analysis, the necessary comparison or sensitivity check,
+and reproducible result tables and figures. Keep all scientific requirements.
+Aim for 8–15 substantive implementation tasks by grouping related changes.
+Do not manufacture separate tasks for mkdir, logging frameworks, architecture
+documents, packaging, dashboards, release automation, or generic API scaffolding
+unless the research question specifically requires them. First run a thin,
+end-to-end analysis on real inputs; then expand the scale and validation.
+On re-plan, preserve working artifacts and completed requirements. Repair the
+specific failing commands/contracts from feedback instead of regenerating a
+larger task list. If the question cannot be answered with available data and
+compute, state the exact mismatch for scope revision; never substitute a different
+question or fabricate observations to satisfy the original one.

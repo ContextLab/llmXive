@@ -32,6 +32,7 @@ from typing import Any
 
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage
+from llmxive.backends.router import DEFAULT_MODEL
 from llmxive.tools.summarize import summarize
 
 from ..types import Concern, ConcernResponse
@@ -205,7 +206,7 @@ class _AbstractPlanReviser:
                         "extract every FR/SC id verbatim, every constraint, "
                         "every named dataset, and the exact research question"
                     ),
-                    model=self._model or "qwen3.5-122b",
+                    model=self._model or DEFAULT_MODEL,
                     token_budget=max(3_000, self._token_budget // 3),
                     cache_dir=self._summarize_cache_dir,
                 )
@@ -216,7 +217,7 @@ class _AbstractPlanReviser:
                         "extract every reviewer concern, requested change, "
                         "and the FR/SC ids each refers to"
                     ),
-                    model=self._model or "qwen3.5-122b",
+                    model=self._model or DEFAULT_MODEL,
                     token_budget=max(1_500, self._token_budget // 6),
                     cache_dir=self._summarize_cache_dir,
                 )

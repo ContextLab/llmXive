@@ -28,6 +28,9 @@ _SLOW_MODULES = frozenset({
     "test_publisher_zenodo_sandbox",
     "test_resume_progression",
     "test_paper_reviewer_chunk_summary",
+    # Fifteen sequential persona generations, each with validation/fallbacks.
+    # Run 37826932550 exhausted the PR hour after the preceding liveness tests.
+    "test_personality_per_persona_real",
     # real fetch + grounding (arXiv / DOI / OEIS / Wikidata / Wikipedia)
     "test_grounding_end_to_end",
     "test_grounding_retrieval",

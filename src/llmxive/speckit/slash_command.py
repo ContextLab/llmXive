@@ -113,22 +113,28 @@ class SlashCommandAgent(abc.ABC):
 
         try:
             mechanical_output = self.mechanical_step(ctx)
-            messages = self.build_prompt(ctx, mechanical_output)
-            llm_response = chat_with_fallback(
-                messages,
-                default_backend=ctx.default_backend.value,
-                fallback_backends=[b.value for b in ctx.fallback_backends],
-                model=ctx.default_model,
-            )
-            backend_used = BackendName(llm_response.backend)
-            model_used = llm_response.model
-            llm_response_text = llm_response.text
-            outputs = self.write_artifacts(ctx, mechanical_output, llm_response)
-            # FR-026 point 1: validate citations on every artifact write.
-            # spec 020 FR-001: thread the planning/full stage class to the claim layer.
-            _validate_artifact_citations(
-                ctx, outputs, stage_label=self.claim_stage_label()
-            )
+            if mechanical_output.get("skip_llm"):
+                outcome = Outcome.SKIPPED
+                model_used = "deterministic-no-llm"
+            else:
+                messages = self.build_prompt(ctx, mechanical_output)
+                llm_response = chat_with_fallback(
+                    messages,
+                    default_backend=ctx.default_backend.value,
+                    fallback_backends=[b.value for b in ctx.fallback_backends],
+                    model=ctx.default_model,
+                )
+                backend_used = BackendName(llm_response.backend)
+                model_used = llm_response.model
+                llm_response_text = llm_response.text
+                outputs = self.write_artifacts(ctx, mechanical_output, llm_response)
+                # FR-026 point 1: validate citations on every artifact write.
+                # spec 020 FR-001: thread the planning/full stage class to the claim layer.
+                _validate_artifact_citations(
+                    ctx, outputs, stage_label=self.claim_stage_label()
+                )
+                if not outputs:
+                    outcome = Outcome.SKIPPED
         except Exception as exc:
             outcome = Outcome.FAILED
             failure_reason = f"{type(exc).__name__}: {exc}"
@@ -152,7 +158,7 @@ class SlashCommandAgent(abc.ABC):
                 failure_reason=failure_reason,
                 cost_estimate_usd=0.0,
             )
-            runlog.append_entry(entry)
+            runlog.append_entry(entry, repo_root=ctx.project_dir.parent.parent)
             _maybe_write_inspection(
                 agent=self,
                 ctx=ctx, started=started, ended=ended, outcome=outcome,
