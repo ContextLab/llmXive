@@ -403,6 +403,18 @@ def test_client_closed_request_is_transient():
         assert _is_transient_error_text(txt), txt
 
 
+def test_no_available_server_is_model_down_but_budget_remains_hard_limit():
+    from llmxive.backends.dartmouth import _raise_for_backend_error
+
+    message = "no available server"
+    with pytest.raises(ModelDownError):
+        _raise_for_backend_error(message, RuntimeError(message))
+    assert _is_transient_error_text(message)
+    budget = "Error code: 400 - Budget has been exceeded!"
+    with pytest.raises(PermanentBackendError):
+        _raise_for_backend_error(budget, RuntimeError(budget))
+
+
 def test_auth_error_text_matches_gateway_reject_strings():
     """The auth-error matcher recognizes the gateway's key-rejection strings
     (both word orders) without over-matching unrelated errors."""

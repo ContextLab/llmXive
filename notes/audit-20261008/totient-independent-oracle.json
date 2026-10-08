@@ -1,0 +1,232 @@
+{
+  "method": "Independent per-integer trial factorization using Euler product; gcd oracle checked n=1..500",
+  "input_domain": "1 <= n <= N; conditional population excludes phi(n) divisible by p",
+  "pipeline_generated": false,
+  "elapsed_s": 1.825,
+  "rows": [
+    {
+      "N": 1000,
+      "p": 5,
+      "residue_counts": [
+        289,
+        196,
+        213,
+        168,
+        134
+      ],
+      "conditional_denominator": 711,
+      "unconditional_tv": 0.102,
+      "conditional_tv": 0.07524613220815753,
+      "unconditional_tv_exact": "51/500",
+      "conditional_tv_exact": "107/1422"
+    },
+    {
+      "N": 1000,
+      "p": 7,
+      "residue_counts": [
+        147,
+        148,
+        162,
+        141,
+        155,
+        134,
+        113
+      ],
+      "conditional_denominator": 853,
+      "unconditional_tv": 0.04057142857142857,
+      "conditional_tv": 0.045134818288393906,
+      "unconditional_tv_exact": "71/1750",
+      "conditional_tv_exact": "77/1706"
+    },
+    {
+      "N": 1000,
+      "p": 11,
+      "residue_counts": [
+        100,
+        95,
+        99,
+        92,
+        89,
+        88,
+        89,
+        90,
+        94,
+        94,
+        70
+      ],
+      "conditional_denominator": 900,
+      "unconditional_tv": 0.028545454545454544,
+      "conditional_tv": 0.02666666666666667,
+      "unconditional_tv_exact": "157/5500",
+      "conditional_tv_exact": "2/75"
+    },
+    {
+      "N": 10000,
+      "p": 5,
+      "residue_counts": [
+        3452,
+        1775,
+        1874,
+        1573,
+        1326
+      ],
+      "conditional_denominator": 6548,
+      "unconditional_tv": 0.1452,
+      "conditional_tv": 0.057269395235186316,
+      "unconditional_tv_exact": "363/2500",
+      "conditional_tv_exact": "375/6548"
+    },
+    {
+      "N": 10000,
+      "p": 7,
+      "residue_counts": [
+        1901,
+        1410,
+        1471,
+        1340,
+        1456,
+        1295,
+        1127
+      ],
+      "conditional_denominator": 8099,
+      "unconditional_tv": 0.05422857142857143,
+      "conditional_tv": 0.03549820965551303,
+      "unconditional_tv_exact": "949/17500",
+      "conditional_tv_exact": "575/16198"
+    },
+    {
+      "N": 10000,
+      "p": 11,
+      "residue_counts": [
+        1263,
+        935,
+        933,
+        878,
+        912,
+        868,
+        903,
+        852,
+        935,
+        802,
+        719
+      ],
+      "conditional_denominator": 8737,
+      "unconditional_tv": 0.043254545454545455,
+      "conditional_tv": 0.02904887261073595,
+      "unconditional_tv_exact": "2379/55000",
+      "conditional_tv_exact": "1269/43685"
+    },
+    {
+      "N": 100000,
+      "p": 5,
+      "residue_counts": [
+        38433,
+        16725,
+        17241,
+        14772,
+        12829
+      ],
+      "conditional_denominator": 61567,
+      "unconditional_tv": 0.18433,
+      "conditional_tv": 0.05169165299592314,
+      "unconditional_tv_exact": "18433/100000",
+      "conditional_tv_exact": "6365/123134"
+    },
+    {
+      "N": 100000,
+      "p": 7,
+      "residue_counts": [
+        22290,
+        13511,
+        13804,
+        12947,
+        13802,
+        12479,
+        11167
+      ],
+      "conditional_denominator": 77710,
+      "unconditional_tv": 0.08004285714285714,
+      "conditional_tv": 0.029108222879938233,
+      "unconditional_tv_exact": "5603/70000",
+      "conditional_tv_exact": "1131/38855"
+    },
+    {
+      "N": 100000,
+      "p": 11,
+      "residue_counts": [
+        14681,
+        8892,
+        8833,
+        8665,
+        8779,
+        8533,
+        8817,
+        8451,
+        8980,
+        8071,
+        7298
+      ],
+      "conditional_denominator": 85319,
+      "unconditional_tv": 0.05590090909090909,
+      "conditional_tv": 0.02081248022128717,
+      "unconditional_tv_exact": "61491/1100000",
+      "conditional_tv_exact": "17757/853190"
+    },
+    {
+      "N": 1000000,
+      "p": 5,
+      "residue_counts": [
+        414281,
+        159069,
+        161401,
+        140450,
+        124799
+      ],
+      "conditional_denominator": 585719,
+      "unconditional_tv": 0.214281,
+      "conditional_tv": 0.04713949863330368,
+      "unconditional_tv_exact": "214281/1000000",
+      "conditional_tv_exact": "55221/1171438"
+    },
+    {
+      "N": 1000000,
+      "p": 7,
+      "residue_counts": [
+        248344,
+        130793,
+        132191,
+        124771,
+        132409,
+        121103,
+        110389
+      ],
+      "conditional_denominator": 751656,
+      "unconditional_tv": 0.10548685714285715,
+      "conditional_tv": 0.026029194205860126,
+      "unconditional_tv_exact": "92301/875000",
+      "conditional_tv_exact": "19565/751656"
+    },
+    {
+      "N": 1000000,
+      "p": 11,
+      "residue_counts": [
+        163325,
+        86785,
+        86245,
+        84895,
+        85911,
+        83528,
+        86127,
+        82999,
+        87093,
+        79801,
+        73291
+      ],
+      "conditional_denominator": 836675,
+      "unconditional_tv": 0.07241590909090909,
+      "conditional_tv": 0.017989063853945678,
+      "unconditional_tv_exact": "31863/440000",
+      "conditional_tv_exact": "15051/836675"
+    }
+  ]
+}

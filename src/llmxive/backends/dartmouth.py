@@ -247,6 +247,7 @@ _TRANSIENT_ERROR_MARKERS: tuple[str, ...] = (
     "litellm.internalservererror",
     # A listed model can be transiently unloaded on the vLLM cluster.
     "not found", "no such model", "does not exist", "model_not_found",
+    "no available server",
     # Network-level transients:
     "temporary failure", "name resolution", "connection error",
     # HTTP 499: an upstream proxy/gateway closed the connection before the model
@@ -281,7 +282,9 @@ def _is_transient_error_text(text: str) -> bool:
 # it surfaces as a ModelDownError (fast-fail to a peer). Kept narrower than the
 # transient set on purpose (a bare ``<!doctype html`` error page from some other
 # cause stays a plain retryable transient).
-_MODEL_DOWN_MARKERS = ("outage.dartmouth.edu", "302 moved", "moved temporarily")
+_MODEL_DOWN_MARKERS = (
+    "outage.dartmouth.edu", "302 moved", "moved temporarily", "no available server",
+)
 
 
 def _is_model_down_text(text: str) -> bool:

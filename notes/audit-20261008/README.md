@@ -164,6 +164,26 @@ and model/outcome counts; `progress-metrics.json` uses persisted stage history.
     tolerate that explicit wrapper only when the remaining literal ID is a
     supplied concern. Unknown IDs and duplicate answers still fail closed; the
     independent panel still decides whether the correction resolves the concern.
+18. **An unavailable model server was classified as a permanent engine bug.**
+    The issue census found three `no available server` failures filed separately
+    for different projects. That explicit availability signal now fast-fails to
+    the existing peer-model fallback instead of opening a permanent engine
+    failure. A regression exercises the backend's actual classification entry
+    point and verifies that budget-exceeded errors remain hard limits.
+
+### Independent scientific acceptance reference
+
+`totient-independent-oracle.py` computes the full twelve `(N, p)` combinations
+using per-integer trial factorization, with a separate GCD count check for
+`n = 1..500`. Its exact counts and rational TV distances are saved alongside it.
+This is an external acceptance reference, explicitly **not pipeline-generated
+research output** and not evidence that the canary passed. Unconditional TV uses
+uniform mass `1/p`; conditional TV excludes zero residues and uses `1/(p-1)`.
+For the four specified sizes, conditional TV falls throughout for primes 5 and
+7, while prime 11 rises from about 0.02667 to 0.02905 before falling. The eventual
+pipeline artifacts must reproduce these observations and preserve their
+finite-range interpretation. The live planning reviewers independently flagged
+the plan's incorrect use of `1/p` for conditional TV; its correction is pending.
 
 ## Models: verified, not inferred from names
 
