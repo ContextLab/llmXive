@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-10-08T19:43:29.315473+00:00'
+issue_number: 1476
+project_id: PROJ-754-linking-resting-state-fmri-entropy-to-re

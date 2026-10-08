@@ -20,7 +20,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/HumanConnectomeProject/HCP-1200/resolve/main/behavioral_data.csv
   verified_at: '2026-07-03T22:37:28.379033Z'
-- artifact_hash: c4b6dabe78d41af2489889371aaccfc3a6f30ff7f5b192ac7e87aa1238581870
+- artifact_hash: 83217524e7115323088e4da8ace9051b766bc6c0ef7b94c5ed8ea8678e9da603
   artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,4 +30,4 @@
   value: https://www.wikidata.org/wiki/Q113106917
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q113106917
-  verified_at: '2026-10-05T03:56:07.454307Z'
+  verified_at: '2026-10-08T19:30:57.835657Z'
