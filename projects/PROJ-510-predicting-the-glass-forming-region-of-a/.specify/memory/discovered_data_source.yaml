@@ -1,15 +1,13 @@
 status: none
-intent: bulk metallic glass critical cooling rate dataset python package dataset
+intent: download experimental ternary alloy dataset OQMD elemental properties python
+  package
 required_fields:
-- alloy_formula
-- critical_cooling_rate
-- element1
-- element2
-- element3
-- fraction1
-- fraction2
-- fraction3
-- glass_former_flag
-cache_key: 77c87f3981e3041ebe8740027215aa66a475e823f2f3df713ef3ca035c327709
-searched_at: '2026-10-04T16:03:09.342272+00:00'
+- composition
+- element_symbols
+- element_fractions
+- target_property_value
+- measurement_units
+- dataset_source_id
+cache_key: 3e70e7bf5363060691cfdfcf2626bb96f9c9aa6300259cea48db42664b043ced
+searched_at: '2026-10-08T07:47:02.479708+00:00'
 retry_count: 1

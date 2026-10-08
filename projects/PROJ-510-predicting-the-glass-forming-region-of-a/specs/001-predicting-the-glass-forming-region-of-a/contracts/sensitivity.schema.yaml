@@ -1,60 +1,54 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Sensitivity Report Schema"
-type: "object"
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: "Sensitivity Report"
+type: object
+required:
+  - thresholds
+  - rmse_at_thresholds
+  - rmse_variance
+  - collinearity_flags
+  - stability_status
+  - top_2_features_valid
 properties:
   thresholds:
-    type: "array"
+    type: array
     items:
-      type: "number"
-    description: "List of tested K/s thresholds (must be [50, 100, 150])"
+      type: integer
     minItems: 3
     maxItems: 3
-    prefixItems:
-      - type: "number"
-        const: 50
-      - type: "number"
-        const: 100
-      - type: "number"
-        const: 150
+    const: [small, 100, 150]
+    description: "CCR thresholds evaluated (K/s)."
   rmse_at_thresholds:
-    type: "array"
+    type: array
     items:
-      type: "number"
-    description: "RMSE corresponding to each threshold"
+      type: number
     minItems: 3
     maxItems: 3
+    description: "RMSE corresponding to each threshold."
   rmse_variance:
-    type: "number"
-    description: "Variance of RMSE across thresholds"
+    type: number
+    description: "Variance of RMSE across thresholds."
   collinearity_flags:
-    type: "array"
+    type: array
     items:
-      type: "object"
+      type: object
+      required:
+        - feature_pair
+        - correlation
       properties:
         feature_pair:
-          type: "array"
+          type: array
           items:
-            type: "string"
-          description: "Pair of collinear features"
+            type: string
+          description: "Pair of collinear features."
         correlation:
-          type: "number"
-          description: "Correlation coefficient (>0.8)"
-      required:
-        - "feature_pair"
-        - "correlation"
-    description: "List of flagged collinear pairs"
+          type: number
+          description: "Correlation coefficient (>0.8)."
+    description: "List of flagged collinear pairs."
   stability_status:
-    type: "string"
+    type: string
     enum: ["PASS", "FAIL"]
-    description: "PASS if variance < 5% of mean"
+    description: "PASS if RMSE variance < 5 % of mean RMSE."
   top_2_features_valid:
-    type: "boolean"
-    description: "True if top-2 features have p < 0.05"
-required:
-  - "thresholds"
-  - "rmse_at_thresholds"
-  - "rmse_variance"
-  - "collinearity_flags"
-  - "stability_status"
-  - "top_2_features_valid"
+    type: boolean
+    description: "True if the top‑2 features have p < 0.05."
 additionalProperties: false

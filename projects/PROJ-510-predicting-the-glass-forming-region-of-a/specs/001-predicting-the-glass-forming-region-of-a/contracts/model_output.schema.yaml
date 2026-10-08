@@ -1,54 +1,27 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Model Metrics Schema"
-type: "object"
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: "ModelOutput"
+description: "Artifacts produced after training and evaluation."
+type: object
 properties:
-  mean_cv_rmse:
-    type: "number"
-    description: "Mean RMSE from 5-fold CV"
-  cv_rmse_std:
-    type: "number"
-    description: "Standard deviation of fold RMSEs"
-  test_rmse:
-    type: "number"
-    description: "RMSE on held-out test set"
-  dummy_rmse:
-    type: "number"
-    description: "RMSE of dummy baseline"
-  p_value_baseline:
-    type: "number"
-    description: "p-value from two-sided t-test against dummy"
-  feature_importance:
-    type: "object"
-    description: "Map of feature name to importance score"
-    additionalProperties:
-      type: "number"
-  feature_p_values:
-    type: "object"
-    description: "Map of feature name to permutation p-value"
-    additionalProperties:
-      type: "number"
-  final_dataset_size:
-    type: "integer"
-    description: "Count of valid entries after filtering (SC-001)"
-  valid_entry_count:
-    type: "integer"
-    description: "Redundant check for SC-001"
-  oob_score:
-    type: "number"
-    description: "Out-of-bag score"
-  learning_curve_slope:
-    type: "number"
-    description: "Learning curve slope"
+  model_path:
+    type: string
+    const: "data/models/random_forest_model.pkl"
+  cv_metrics_path:
+    type: string
+    const: "data/models/cv_metrics.json"
+  feature_importance_path:
+    type: string
+    const: "data/reports/feature_importance.csv"
+  sensitivity_report_path:
+    type: string
+    const: "data/reports/sensitivity_report.json"
+  model_sha256:
+    type: string
+    description: "SHA‑256 checksum of the serialized model."
 required:
-  - "mean_cv_rmse"
-  - "cv_rmse_std"
-  - "test_rmse"
-  - "dummy_rmse"
-  - "p_value_baseline"
-  - "feature_importance"
-  - "feature_p_values"
-  - "final_dataset_size"
-  - "valid_entry_count"
-  - "oob_score"
-  - "learning_curve_slope"
+  - model_path
+  - cv_metrics_path
+  - feature_importance_path
+  - sensitivity_report_path
+  - model_sha256
 additionalProperties: false

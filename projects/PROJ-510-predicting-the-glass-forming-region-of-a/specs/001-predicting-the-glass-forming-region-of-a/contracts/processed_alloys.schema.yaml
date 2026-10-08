@@ -1,0 +1,31 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: "Processed Alloys"
+type: object
+required:
+  - path
+  - sha256
+  - columns
+  - row_count
+properties:
+  path:
+    type: string
+    const: "data/processed/processed_alloys.csv"
+  sha256:
+    type: string
+    description: "SHA‑256 checksum of the CSV file."
+  columns:
+    type: array
+    items:
+      type: string
+    enum:
+      - composition
+      - critical_cooling_rate
+      - mixing_enthalpy
+      - atomic_size_mismatch
+      - electronegativity_variance
+      - source_label
+  row_count:
+    type: integer
+    minimum: 500
+    description: "Number of rows after filtering; must be ≥ 500 to satisfy FR‑001."
+additionalProperties: false

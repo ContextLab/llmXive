@@ -1,0 +1,27 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: "Alloy Feature Record"
+type: object
+required:
+  - composition
+  - critical_cooling_rate
+  - mixing_enthalpy
+  - atomic_size_mismatch
+  - electronegativity_variance
+properties:
+  composition:
+    type: string
+    description: "Ternary composition expressed as Element1_x1Element2_x2Element3_x3"
+  critical_cooling_rate:
+    type: number
+    description: "Measured critical cooling rate in Kelvin per second (K/s)"
+    minimum: 0
+  mixing_enthalpy:
+    type: number
+    description: "Mixing enthalpy (eV/atom) computed from OQMD elemental formation energies"
+  atomic_size_mismatch:
+    type: number
+    description: "Root‑mean‑square deviation of atomic radii (Å) across the three elements"
+  electronegativity_variance:
+    type: number
+    description: "Variance of Pauling electronegativity values across the three elements"
+additionalProperties: false

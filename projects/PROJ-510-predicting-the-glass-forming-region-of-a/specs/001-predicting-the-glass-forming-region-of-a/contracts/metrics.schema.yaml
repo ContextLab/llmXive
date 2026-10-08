@@ -1,6 +1,17 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: ModelMetrics Schema
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: "Model Metrics"
 type: object
+required:
+  - fold_scores
+  - mean_rmse
+  - std_rmse
+  - test_rmse
+  - dummy_rmse
+  - p_value
+  - feature_importance
+  - permutation_p_values
+  - oob_score
+  - learning_curve_slope
 properties:
   fold_scores:
     type: array
@@ -8,7 +19,7 @@ properties:
       type: number
     minItems: 5
     maxItems: 5
-    description: "RMSE for each of 5 CV folds"
+    description: "RMSE for each CV fold"
   mean_rmse:
     type: number
     description: "Mean RMSE across folds"
@@ -42,15 +53,4 @@ properties:
   learning_curve_slope:
     type: number
     description: "Slope of learning curve for overfitting check"
-required:
-  - fold_scores
-  - mean_rmse
-  - std_rmse
-  - test_rmse
-  - dummy_rmse
-  - p_value
-  - feature_importance
-  - permutation_p_values
-  - oob_score
-  - learning_curve_slope
 additionalProperties: false

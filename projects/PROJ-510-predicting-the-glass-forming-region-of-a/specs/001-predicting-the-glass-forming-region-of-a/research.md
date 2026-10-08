@@ -1,75 +1,64 @@
 # Research: Predicting the Glass Forming Region of Alloy Systems with Machine Learning
 
-## Domain Overview
-
-Glass-forming alloys (amorphous metals) exhibit unique mechanical properties. The ability to form a glass depends on the critical cooling rate (CCR). Predicting CCR from composition is a key inverse design problem. Thermodynamic parameters—mixing enthalpy ($\Delta H_{mix}$), atomic size mismatch ($\delta$), and electronegativity variance ($\sigma_{\chi}$)—are hypothesized to be strong predictors. **Note:** This study is observational. All findings are framed as associational.
+## Objective
+Develop a reproducible, CPU‑only machine‑learning pipeline that predicts the continuous **critical cooling rate (CCR)** of ternary alloy systems from three thermodynamic descriptors derived strictly from the Open Quantum Materials Database (OQMD). The study must quantify predictive performance, rank descriptor importance, and assess robustness to physically‑grounded CCR thresholds **[50, 100, 150] K/s**.
 
 ## Dataset Strategy
+| Role | Source | Access Method | Variables Provided | Notes |
+|------|--------|---------------|--------------------|-------|
+| **Elemental properties** | OQMD (periodic‑table subset) | `datasets.load_dataset("materials-toolkits/oqmd", revision="v1.0.0", streaming=True)` | atomic radius, electronegativity, formation enthalpy per element | Verified URL in the Constitution “Verified Datasets” table. |
+| **Experimental alloy CCR** | Open Glass‑Formability dataset (HuggingFace) | `datasets.load_dataset("materials-project/glass_formability")` | composition, CCR (continuous) | Open, programmatic download; must contain ≥ 500 valid ternary entries after filtering. No synthetic dataset is used; the pipeline aborts if insufficient data. |
 
-### Verified Datasets
-The project relies on **experimental** datasets containing `critical_cooling_rate`.
-1. **Primary Source**: `bulk-metallic-glasses/CCR-experimental` (Zenodo).
- - URL: `
- - **Verification**: This URL is listed in the "Verified datasets" block. It contains experimental CCR values for ternary alloys.
- - **Target Variable Check**: The dataset contains `critical_cooling_rate` (K/s).
-2. **Fallback Source**: `bmgliterature/CCR-curated` (Figshare).
- - URL: `
- - **Verification**: Curated from literature, contains experimental CCR.
+## Feature Engineering (US‑1)
+1. **Parse compositions** → extract constituent elements and stoichiometric fractions.  
+2. **Thermodynamic descriptors** (per VI):  
+   - *Mixing Enthalpy*: Σ_i x_i H_i – H_mix (standard alloy thermodynamics).  
+   - *Atomic Size Mismatch*: √( Σ_i x_i (r_i – r̄)² ).  
+   - *Electronegativity Variance*: √( Σ_i x_i (χ_i – χ̄)² ).  
+3. **Validation**: tolerance ±0.01 against hand‑computed examples (US‑1‑4).  
+4. **Filtering**: exclude rows with missing elemental data; log to `data/logs/exclusion_log.txt`.  
+5. **Empty‑dataset guard**: raise `RuntimeError("Insufficient experimental CCR data (≥ 500 rows required).")` and write to `data/logs/empty_dataset_error.log` if the filtered set is too small.  
 
-### Data Feability Plan
-- **Streaming**: Datasets are CSVs (< 100MB). Full load is safe on sufficient RAM.
-- **Filtering**: The script filters for ternary alloys (3 elements) and non-zero CCR.
-- **Size**: Target N ≥ 500. If the filtered count < 500 after both sources, the pipeline halts with `DataInsufficiencyError`.
-- **Bias Mitigation**: If the dataset is biased towards specific alloy systems (e.g., Zr-based), the `Learning Curve` and `OOB Score` will be used to detect overfitting.
+All descriptors are stored in `data/processed/processed_alloys.csv` and validated against `contracts/processed_alloys.schema.yaml`.
 
-### Data Scarcity & Bias Mitigation
-- **Scenario**: If N < 500 after primary and fallback sources.
-- **Action**: Halt pipeline. Report "Data Insufficiency". Do not proceed with synthetic data.
-- **Rationale**: Statistical power (SC-001) cannot be guaranteed with N < 500.
+## Modeling (US‑2)
+- **Train‑Test Split**: stratified 80/20 split (`random_state=42`, `test_size=0.2`) stratified by binned CCR to respect FR‑008 (no element family > 30 %).  
+- **Model**: `RandomForestRegressor(n_estimators=500, random_state=42, n_jobs=2)`.  
+- **Cross‑Validation**: 5‑fold CV on the training set; compute RMSE per fold, mean RMSE, and variance.  
+- **Test Evaluation**: Predict on held‑out test set, compute RMSE.  
+- **Associational Framing**: All claims are labeled as *associational* per FR‑006.
 
-## Methodology
+### Statistical Rigor
+- **Power analysis**: Using the observed standard deviation of CCR (to be computed after ingestion) a detectable RMSE reduction of 30 K/s corresponds to an effect size d ≈ 0.5. With N = 500, α = 0.05, a two‑sided t‑test attains **[deferred]** power > 0.9, satisfying SC‑001. The exact variance will be reported after data loading.  
+- **Null comparison**: Dummy regressor predicting the training‑set mean CCR; two‑sided paired t‑test (α = 0.05) required for SC‑002.  
 
-### Feature Engineering
-Descriptors are calculated using `mendeleev` (Periodic Table) for:
-1. **Mixing Enthalpy** ($\Delta H_{mix}$): Weighted average of binary enthalpies.
-2. **Atomic Size Mismatch** ($\delta$): Standard deviation of **Covalent** radii weighted by composition.
-3. **Electronegativity Variance** ($\sigma_{\chi}$): Variance of **Pauling** electronegativity.
+## Evaluation Rigor
+- **Permutation Importance**: `sklearn.inspection.permutation_importance` with `n_permutations=1000`, `random_state=42`. Empirical p‑value = proportion of permutations with higher importance. Top‑2 features must have p < 0.05 (SC‑004).  
+- **Sensitivity Analysis**: Sweep CCR thresholds **[50, 100, 150] K/s**; for each compute **RMSE** (primary hypothesis). Apply **Bonferroni correction** across the three RMSE tests (α ≈ 0.0167). Optionally compute binary F1‑score (exploratory, no correction). Stability criterion: RMSE variance ≤ 0.01 K/s across thresholds (or ≤ 5 % for F1) (SC‑003).  
 
-*Constraint*: All calculations use standard elemental properties (Pauling, Covalent). No fallbacks.
+## Collinearity Check
+- Compute Pearson correlation matrix of the three descriptors.  
+- **Pre‑registered rule**: If any |r| > 0.8, drop the descriptor with lower a priori theoretical relevance (electronegativity variance) **before** any model fitting. Re‑run the model to verify stability (addresses CE39A1E8).  
 
-### Modeling
-- **Algorithm**: Random Forest Regressor (`sklearn.ensemble.RandomForestRegressor`).
-- **Validation**: 5-fold Cross-Validation.
-- **Split**: 80/20 Train-Test Split (`random_state=42`).
-- **Metric**: RMSE (Root Mean Squared Error).
-- **Baseline**: Dummy Regressor (mean prediction).
-- **Hypothesis Test**: Two-sided paired t-test (`scipy.stats.ttest_rel`) comparing RF RMSE vs. Dummy RMSE (SC-002).
+## Risks & Contingencies
+- **No open experimental CCR dataset**: Phase 0 aborts with a clear error; synthetic fallback is *not* used (addresses FR‑001).  
+- **Large OQMD files**: Streamed loading keeps memory ≤ 2 GB.  
+- **Training time**: `n_estimators` capped at 500, `n_jobs=2`; if runtime > 4 h, automatically reduce to 200 trees (fallback).  
 
-### Causal Inference & Confounding
-- **Observational Nature**: The dataset is observational. No randomization exists.
-- **Claim Limitation**: All claims are framed as "associational". We cannot claim thermodynamic descriptors *cause* glass formation.
-- **Negative Control**: To ensure the signal is not due to dataset artifacts (e.g., element selection bias), the pipeline will:
- 1. Shuffle the `critical_cooling_rate` column 10 times.
- 2. Retrain the model for each shuffle.
- 3. Compare the mean RMSE of the shuffled models to the real model.
- 4. **Rejection Criteria**: If the real model's RMSE is not significantly lower (p < 0.05) than the shuffled baseline, the hypothesis is rejected (signal is spurious).
+## Timeline (aligned with Phase mapping)
+| Week | Milestone |
+|------|-----------|
+| 1 | Contract dry‑run, download OQMD & experimental CCR dataset, ingestion, checksum generation (Phase 0‑1). |
+| 2 | Train‑test split, Random Forest fit, CV, model serialization, checksum update (Phase 2). |
+| 3 | Permutation importance, sensitivity sweep, schema validation for all contracts (Phase 3‑5). |
+| 4 | Limitations discussion (FR‑007), quickstart authoring, final artifact archiving, hash finalisation (Phase 6). |
 
-### Sensitivity & Robustness
-- **Threshold Sweep**: Binarize CCR at **50 (Low)**, **100 (Medium)**, **150 (High)** K/s. These values are physically grounded in typical cooling rates for bulk metallic glasses vs. crystalline alloys.
-- **Stability**: "Negligible margin" is defined as variance < 5% of mean RMSE (SC-003).
-- **Collinearity**: Check correlation matrix. If $r > 0.8$, flag and re-run model excluding one feature (US-3).
-- **Permutation Importance**: $n=1000$ permutations. P-value < 0.05 for **top-2** features (SC-004).
-- **Overfitting Check**: Report `oob_score` and `learning_curve_slope` to verify small sample size (N~500) does not lead to overfitting.
+## Deliverables
+- `data/processed/processed_alloys.csv` (schema‑validated).  
+- `data/models/random_forest_model.pkl` and `data/models/cv_metrics.json`.  
+- `data/reports/feature_importance.csv`, `data/reports/sensitivity_report.json`.  
+- `quickstart.md`.  
+- Contract validation logs confirming zero errors (SC‑006).  
 
-## Compute Feasibility
-
-- **CPU-First**: Random Forest on N=500, K=3 features is trivial for CPU.
-- **No GPU Needed**: No deep learning or large transformers.
-- **Time**: < 1 hour total runtime.
-
-## Decision/Rationale
-
-- **Why Random Forest**: Handles non-linear relationships between thermodynamics and CCR; robust to outliers; provides feature importance.
-- **Why No GPU**: Method is classical ML on tabular data.
-- **Data Risk**: If both verified experimental sources lack the target, the project halts. This is a **fatal feasibility flaw** if true, but the plan handles it by failing gracefully rather than fabricating data.
-- **Associational Framing**: The report generator will prepend a disclaimer to all "prediction" claims to ensure compliance with FR-006.
+## Limitations (FR‑007)
+Only three thermodynamic descriptors are employed. Additional predictors (e.g., electronic structure, processing history) are omitted and may introduce bias; this limitation is explicitly discussed in the final report (Phase 6‑1).  
