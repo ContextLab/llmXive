@@ -1,12 +1,9 @@
 """
 Utility functions for logging, error handling, and result checksumming.
 
-This module provides core infrastructure utilities used across the pipeline:
-- setup_logging: Configure logging to file and console
-- compute_checksum: Generate SHA-256 checksums for result files
-- log_error: Standardized error logging
-- safe_exit: Graceful shutdown with status code
-- timing_decorator: Measure execution time of functions
+This module provides centralized utilities used across the llmXive pipeline
+to ensure consistent logging, robust error handling, and data integrity
+verification via checksums.
 """
 import hashlib
 import json
@@ -15,60 +12,66 @@ import sys
 import os
 import time
 from pathlib import Path
-from typing import Any, Dict, Union, Optional
+from typing import Any, Dict, Union, Optional, Callable
 from functools import wraps
 
 
-def setup_logging(log_file: Optional[Union[str, Path]] = None, level: int = logging.INFO) -> logging.Logger:
+def setup_logging(
+    log_file: Optional[Union[str, Path]] = None,
+    level: int = logging.INFO,
+    console: bool = True
+) -> logging.Logger:
     """
-    Configure logging to write to both file and console.
-
+    Configure and return a logger with file and/or console handlers.
+    
     Args:
-        log_file: Path to the log file. If None, logs only to console.
+        log_file: Path to the log file. If None, only console logging is configured.
         level: Logging level (e.g., logging.DEBUG, logging.INFO).
-
+        console: If True, also log to stderr.
+        
     Returns:
-        The root logger instance configured with the specified handlers.
+        A configured logger instance.
     """
-    root_logger = logging.getLogger()
-    root_logger.setLevel(level)
-
-    # Clear existing handlers to avoid duplicates
-    root_logger.handlers.clear()
-
-    # Formatter
+    logger = logging.getLogger("llmXive")
+    logger.setLevel(level)
+    
+    # Prevent duplicate handlers if called multiple times
+    if logger.handlers:
+        return logger
+    
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )
-
-    # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setFormatter(formatter)
-    root_logger.addHandler(console_handler)
-
-    # File handler if specified
+    
+    if console:
+        console_handler = logging.StreamHandler(sys.stderr)
+        console_handler.setLevel(level)
+        console_handler.setFormatter(formatter)
+        logger.addHandler(console_handler)
+    
     if log_file:
         log_path = Path(log_file)
         log_path.parent.mkdir(parents=True, exist_ok=True)
         file_handler = logging.FileHandler(log_path)
+        file_handler.setLevel(level)
         file_handler.setFormatter(formatter)
-        root_logger.addHandler(file_handler)
-
-    return root_logger
+        logger.addHandler(file_handler)
+        
+    return logger
 
 
 def compute_checksum(file_path: Union[str, Path], algorithm: str = 'sha256') -> str:
     """
     Compute the cryptographic checksum of a file.
-
+    
     Args:
         file_path: Path to the file to checksum.
         algorithm: Hash algorithm to use (default: 'sha256').
-
+        
     Returns:
-        Hexadecimal string of the checksum.
-
+        Hexadecimal string of the file's checksum.
+        
     Raises:
         FileNotFoundError: If the file does not exist.
         ValueError: If the algorithm is not supported.
@@ -76,75 +79,91 @@ def compute_checksum(file_path: Union[str, Path], algorithm: str = 'sha256') -> 
     file_path = Path(file_path)
     if not file_path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
-
+        
     try:
-        hash_func = hashlib.new(algorithm)
-    except ValueError as e:
-        raise ValueError(f"Unsupported hash algorithm: {algorithm}") from e
-
+        hasher = hashlib.new(algorithm)
+    except ValueError:
+        raise ValueError(f"Unsupported hash algorithm: {algorithm}")
+        
     with open(file_path, 'rb') as f:
-        # Read in chunks for large files
+        # Read in chunks to handle large files
         for chunk in iter(lambda: f.read(8192), b''):
-            hash_func.update(chunk)
+            hasher.update(chunk)
+            
+    return hasher.hexdigest()
 
-    return hash_func.hexdigest()
 
-
-def log_error(logger: logging.Logger, error: Exception, context: Optional[Dict[str, Any]] = None) -> None:
+def log_error(
+    logger: logging.Logger,
+    message: str,
+    exception: Optional[Exception] = None,
+    extra_context: Optional[Dict[str, Any]] = None
+) -> None:
     """
-    Log an error with optional context information.
-
+    Log an error message with optional exception traceback and context.
+    
     Args:
         logger: The logger instance to use.
-        error: The exception that occurred.
-        context: Optional dictionary of contextual data (e.g., input parameters, state).
+        message: The error message.
+        exception: Optional exception instance to log traceback for.
+        extra_context: Optional dictionary of extra context to log.
     """
-    error_msg = f"Error: {type(error).__name__}: {str(error)}"
-    if context:
-        context_str = json.dumps(context, default=str)
-        error_msg += f" | Context: {context_str}"
-    logger.error(error_msg, exc_info=True)
+    log_message = message
+    if extra_context:
+        context_str = json.dumps(extra_context, default=str)
+        log_message = f"{message} | Context: {context_str}"
+        
+    if exception:
+        logger.exception(log_message)
+    else:
+        logger.error(log_message)
 
 
-def safe_exit(logger: Optional[logging.Logger] = None, status: int = 0, message: Optional[str] = None) -> None:
+def safe_exit(
+    logger: logging.Logger,
+    exit_code: int = 0,
+    message: Optional[str] = None
+) -> None:
     """
-    Perform a graceful exit, optionally logging a status message.
-
+    Log an exit message and terminate the program safely.
+    
     Args:
-        logger: Optional logger to record the exit.
-        status: Exit code (0 for success, non-zero for failure).
+        logger: The logger instance to use.
+        exit_code: The exit code (0 for success, non-zero for failure).
         message: Optional message to log before exiting.
     """
-    if logger:
-        if status == 0:
-            logger.info(message or "Pipeline completed successfully.")
+    if message:
+        if exit_code == 0:
+            logger.info(message)
         else:
-            logger.error(message or f"Pipeline exited with status code {status}.")
-    sys.exit(status)
+            logger.error(message)
+    sys.exit(exit_code)
 
 
-def timing_decorator(func):
+def timing_decorator(logger: Optional[logging.Logger] = None) -> Callable:
     """
-    Decorator to measure and log the execution time of a function.
-
+    Decorator to log the execution time of a function.
+    
     Args:
-        func: The function to wrap.
-
+        logger: Optional logger instance. If None, prints to console.
+        
     Returns:
-        The wrapped function.
+        A decorator function.
     """
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        start_time = time.time()
-        try:
-            result = func(*args, **kwargs)
-            return result
-        finally:
-            end_time = time.time()
-            elapsed = end_time - start_time
-            # Log to the module logger if available, otherwise to root
-            logger = logging.getLogger(func.__module__)
-            if not logger.handlers:
-                logger = logging.getLogger()
-            logger.info(f"{func.__name__} completed in {elapsed:.4f} seconds")
-    return wrapper
+    def decorator(func: Callable) -> Callable:
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            start_time = time.time()
+            try:
+                result = func(*args, **kwargs)
+                return result
+            finally:
+                end_time = time.time()
+                duration = end_time - start_time
+                msg = f"Function '{func.__name__}' completed in {duration:.4f} seconds"
+                if logger:
+                    logger.info(msg)
+                else:
+                    print(msg)
+        return wrapper
+    return decorator

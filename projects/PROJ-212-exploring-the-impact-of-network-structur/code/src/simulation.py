@@ -9,8 +9,8 @@ logger = logging.getLogger(__name__)
 
 def check_disconnected(G: nx.Graph) -> bool:
     """
-    Check if the graph G is disconnected.
-    Returns True if disconnected, False otherwise.
+    Check if the graph is disconnected.
+    Returns True if the graph is disconnected, False otherwise.
     """
     if G.number_of_nodes() == 0:
         return True
@@ -27,200 +27,251 @@ def compute_order_parameter(phases: np.ndarray) -> float:
     r = np.abs(np.mean(complex_phases))
     return float(r)
 
-def kuramoto_derivative(t: float, y: np.ndarray, K: float, omega: np.ndarray, adj_matrix: np.ndarray) -> np.ndarray:
+def kuramoto_derivative(t: float, y: np.ndarray, K: float, adj_matrix: np.ndarray, natural_freqs: np.ndarray) -> np.ndarray:
     """
-    Compute the derivative of the Kuramoto model phases.
-    d(theta_i)/dt = omega_i + (K/N) * sum_{j} A_{ij} * sin(theta_j - theta_i)
+    Compute the derivative for the Kuramoto model:
+    d(theta_i)/dt = omega_i + (K/N) * sum_j( A_ij * sin(theta_j - theta_i) )
     """
     N = len(y)
     dtheta = np.zeros(N)
     sin_diff = np.sin(y[:, None] - y[None, :])
-    coupling_term = (K / N) * (adj_matrix @ sin_diff).sum(axis=1)
-    dtheta = omega + coupling_term
+    coupling_term = (K / N) * adj_matrix @ sin_diff
+    dtheta = natural_freqs + np.sum(coupling_term, axis=1)
     return dtheta
 
 def run_kuramoto_simulation(
     G: nx.Graph,
     K: float,
-    T: float = 100.0,
-    dt: float = 0.01,
+    t_max: float = 200.0,
+    dt: float = 0.1,
     seed: Optional[int] = None
-) -> Tuple[float, float, SynchronizationStatus]:
+) -> SimulationResult:
     """
-    Run a single Kuramoto simulation on graph G with coupling strength K.
-    Returns (final_r, mean_r, status).
+    Run the Kuramoto simulation for a given coupling strength K.
+    
+    Args:
+        G: The network graph.
+        K: Coupling strength.
+        t_max: Maximum simulation time.
+        dt: Time step for output.
+        seed: Random seed for initial phases.
+        
+    Returns:
+        SimulationResult object.
     """
     if seed is not None:
         np.random.seed(seed)
 
     N = G.number_of_nodes()
     if N == 0:
-        return 0.0, 0.0, SynchronizationStatus.DIVERGED
+        return SimulationResult(
+            network_id="empty",
+            K=K,
+            status=SynchronizationStatus.FAILED,
+            threshold=None,
+            final_order_parameter=0.0,
+            metrics={}
+        )
 
-    omega = np.random.uniform(-0.5, 0.5, N)
-    theta_0 = np.random.uniform(0, 2 * np.pi, N)
+    adj_matrix = nx.to_numpy_array(G)
+    natural_freqs = np.random.uniform(-1.0, 1.0, N)
+    phases = np.random.uniform(0, 2 * np.pi, N)
 
-    adj_matrix = nx.to_numpy_array(G, dtype=np.float64)
-
-    def ode_func(t, y):
-        return kuramoto_derivative(t, y, K, omega, adj_matrix)
-
-    t_eval = np.arange(0, T, dt)
-
+    t_eval = np.arange(0, t_max, dt)
+    
     try:
         sol = solve_ivp(
-            ode_func,
-            (0, T),
-            theta_0,
-            t_eval=t_eval,
+            kuramoto_derivative,
+            (0, t_max),
+            phases,
+            args=(K, adj_matrix, natural_freqs),
             method='RK45',
-            rtol=1e-4,
-            atol=1e-6
+            t_eval=t_eval,
+            rtol=1e-6,
+            atol=1e-9
         )
+        
+        if not sol.success:
+            logger.error(f"Integration failed: {sol.message}")
+            return SimulationResult(
+                network_id="error",
+                K=K,
+                status=SynchronizationStatus.FAILED,
+                threshold=None,
+                final_order_parameter=0.0,
+                metrics={}
+            )
+        
+        final_phases = sol.y[:, -1]
+        final_r = compute_order_parameter(final_phases)
+        
+        # Check for sustained synchronization (r > 0.8 for t > 100)
+        # We look at the last 100 time units (or remaining if less)
+        last_100_indices = t_eval >= (t_max - 100)
+        if np.any(last_100_indices):
+            r_last_100 = [compute_order_parameter(sol.y[:, i]) for i, t in enumerate(t_eval) if last_100_indices[i]]
+            sustained = all(r > 0.8 for r in r_last_100) if r_last_100 else False
+        else:
+            sustained = False
+
+        status = SynchronizationStatus.SYNCHRONIZED if sustained else SynchronizationStatus.NOT_SYNCHRONIZED
+
+        return SimulationResult(
+            network_id="simulated",
+            K=K,
+            status=status,
+            threshold=None,
+            final_order_parameter=final_r,
+            metrics={"duration": t_max, "nodes": N}
+        )
+        
     except Exception as e:
-        logger.warning(f"Integration failed for K={K}: {e}")
-        return 0.0, 0.0, SynchronizationStatus.DIVERGED
-
-    if not sol.success:
-        logger.warning(f"Integration failed for K={K}: {sol.message}")
-        return 0.0, 0.0, SynchronizationStatus.DIVERGED
-
-    phases = sol.y.T
-    r_values = [compute_order_parameter(p) for p in phases]
-
-    # Check synchronization criteria: r > 0.8 for last 100 time units
-    # Assuming dt=0.01, last 100 units is last 10000 steps
-    # If T is small, we check the tail of the simulation
-    tail_start_idx = max(0, len(r_values) - int(100 / dt))
-    tail_r_values = r_values[tail_start_idx:]
-
-    if len(tail_r_values) == 0:
-        return 0.0, 0.0, SynchronizationStatus.UNSTABLE
-
-    mean_r_tail = np.mean(tail_r_values)
-    final_r = r_values[-1]
-
-    # Criteria: mean r in tail > 0.8 (approximating "r > 0.8 for t > 100")
-    # Spec says: r > 0.8 for t > 100. We interpret as mean(r) in last 100 time units > 0.8
-    if mean_r_tail > 0.8:
-        status = SynchronizationStatus.SYNCHRONIZED
-    elif mean_r_tail > 0.5:
-        status = SynchronizationStatus.PARTIAL
-    else:
-        status = SynchronizationStatus.UNSTABLE
-
-    return final_r, mean_r_tail, status
+        logger.error(f"Simulation error: {e}")
+        return SimulationResult(
+            network_id="error",
+            K=K,
+            status=SynchronizationStatus.FAILED,
+            threshold=None,
+            final_order_parameter=0.0,
+            metrics={}
+        )
 
 def find_critical_coupling(
     G: nx.Graph,
     K_min: float = 0.0,
     K_max: float = 5.0,
     tol: float = 0.001,
-    max_iter: int = 50
+    max_iter: int = 50,
+    seed: Optional[int] = None
 ) -> Optional[float]:
     """
-    Find the critical coupling strength K_c where synchronization emerges.
-    Uses bisection search on K in [K_min, K_max].
-    Returns K_c if found, None if not converged or graph is disconnected.
+    Find the critical coupling strength K_c using bisection search.
+    K_c is the minimum K where the system sustains synchronization (r > 0.8 for t > 100).
+    
+    Args:
+        G: The network graph.
+        K_min: Lower bound for K.
+        K_max: Upper bound for K.
+        tol: Tolerance for bisection.
+        max_iter: Maximum iterations for bisection.
+        seed: Random seed.
+        
+    Returns:
+        Critical coupling K_c, or None if not found.
     """
     if check_disconnected(G):
-        logger.info("Graph is disconnected. Skipping K-sweep.")
+        logger.info("Graph is disconnected. Returning infinity for critical coupling.")
         return float('inf')
 
-    N = G.number_of_nodes()
-    if N < 2:
-        logger.warning("Graph has fewer than 2 nodes.")
-        return float('inf')
-
-    # Bisection search for K_c
-    # We look for the smallest K where synchronization status is SYNCHRONIZED
-    # Strategy: Binary search for the transition point.
-    # However, synchronization is not monotonic in a simple way for all graphs,
-    # but generally higher K leads to synchronization.
-    # We'll search for the K where status changes from UNSTABLE to SYNCHRONIZED.
-
-    # First, check boundaries
-    _, _, status_low = run_kuramoto_simulation(G, K_min)
-    if status_low == SynchronizationStatus.SYNCHRONIZED:
-        return K_min
-
-    _, _, status_high = run_kuramoto_simulation(G, K_max)
-    if status_high != SynchronizationStatus.SYNCHRONIZED:
-        logger.warning(f"K_max={K_max} did not achieve synchronization. Returning None.")
+    # Check if K_max is sufficient
+    res_max = run_kuramoto_simulation(G, K_max, seed=seed)
+    if res_max.status != SynchronizationStatus.SYNCHRONIZED:
+        logger.warning(f"K_max={K_max} is insufficient for synchronization. Returning None.")
         return None
 
-    # Bisection
-    K_low, K_high = K_min, K_max
-    K_mid = (K_low + K_high) / 2.0
-    iterations = 0
+    # Check if K_min is already synchronized (unlikely but possible)
+    res_min = run_kuramoto_simulation(G, K_min, seed=seed)
+    if res_min.status == SynchronizationStatus.SYNCHRONIZED:
+        return K_min
 
-    while (K_high - K_low) > tol and iterations < max_iter:
-        _, _, status_mid = run_kuramoto_simulation(G, K_mid)
+    low = K_min
+    high = K_max
+    best_k = None
 
-        if status_mid == SynchronizationStatus.SYNCHRONIZED:
-            K_high = K_mid
+    for i in range(max_iter):
+        mid = (low + high) / 2.0
+        res_mid = run_kuramoto_simulation(G, mid, seed=seed)
+
+        if res_mid.status == SynchronizationStatus.SYNCHRONIZED:
+            best_k = mid
+            high = mid
         else:
-            K_low = K_mid
+            low = mid
 
-        K_mid = (K_low + K_high) / 2.0
-        iterations += 1
+        if (high - low) < tol:
+            break
 
-    if iterations >= max_iter:
-        logger.warning(f"Bisection did not converge within {max_iter} iterations.")
-        # Fallback to discrete sweep if bisection fails
-        logger.info("Attempting discrete sweep fallback.")
-        return discrete_sweep_fallback(G, K_min, K_max)
+    if best_k is None:
+        logger.warning("Bisection search did not converge. Falling back to discrete sweep.")
+        return discrete_sweep_fallback(G, K_min, K_max, seed=seed)
 
-    return K_mid
+    return best_k
 
 def discrete_sweep_fallback(
     G: nx.Graph,
-    K_min: float,
-    K_max: float,
-    step: float = 0.1
+    K_min: float = 0.0,
+    K_max: float = 5.0,
+    step: float = 0.1,
+    seed: Optional[int] = None
 ) -> Optional[float]:
     """
-    Fallback to discrete sweep if bisection fails.
+    Fallback method: Discrete sweep of K values to find critical coupling.
+    Used if bisection fails to converge.
     """
-    K_values = np.arange(K_min, K_max + step, step)
-    for K in K_values:
-        _, _, status = run_kuramoto_simulation(G, K)
-        if status == SynchronizationStatus.SYNCHRONIZED:
-            return K
-    return None
+    K_vals = np.arange(K_min, K_max + step, step)
+    best_k = None
+    
+    for K in K_vals:
+        res = run_kuramoto_simulation(G, K, seed=seed)
+        if res.status == SynchronizationStatus.SYNCHRONIZED:
+            best_k = K
+            break
+    
+    if best_k is None:
+        logger.warning(f"Discrete sweep up to {K_max} found no synchronization.")
+        return None
+    
+    return best_k
 
 def process_single_network(
     G: nx.Graph,
-    config: Dict[str, Any]
+    network_id: str,
+    K_min: float = 0.0,
+    K_max: float = 5.0,
+    tol: float = 0.001,
+    max_iter: int = 50,
+    seed: Optional[int] = None
 ) -> SimulationResult:
     """
-    Process a single network: compute metrics, find critical coupling.
-    Returns a SimulationResult object.
+    Process a single network: check connectivity, run simulation, find critical coupling.
+    
+    Args:
+        G: The network graph.
+        network_id: Identifier for the network.
+        K_min, K_max, tol, max_iter: Parameters for find_critical_coupling.
+        seed: Random seed.
+        
+    Returns:
+        SimulationResult object with all fields populated.
     """
-    # Pre-check guard clause for disconnected graphs (T015)
     if check_disconnected(G):
-        logger.info(f"Graph is disconnected. Returning infinity threshold.")
+        logger.info(f"Network {network_id} is disconnected. Skipping simulation.")
         return SimulationResult(
-            network_id="unknown", # Should be set by caller
-            metrics={},
+            network_id=network_id,
+            K=float('inf'),
+            status=SynchronizationStatus.DISCONNECTED,
             threshold=float('inf'),
-            status=SynchronizationStatus.DISCONNECTED
+            final_order_parameter=0.0,
+            metrics={"nodes": G.number_of_nodes(), "edges": G.number_of_edges()}
         )
 
-    # If connected, proceed with normal logic (T014)
-    K_c = find_critical_coupling(
-        G,
-        K_min=config.get('K_min', 0.0),
-        K_max=config.get('K_max', 5.0),
-        tol=config.get('tol', 0.001)
-    )
-
-    if K_c is None:
-        K_c = float('inf')
+    threshold = find_critical_coupling(G, K_min, K_max, tol, max_iter, seed)
+    
+    if threshold is None:
+        logger.warning(f"Could not determine threshold for {network_id}.")
+        status = SynchronizationStatus.FAILED
+        final_r = 0.0
+    else:
+        # Run one final simulation at the threshold to get the final order parameter
+        final_sim = run_kuramoto_simulation(G, threshold, seed=seed)
+        status = final_sim.status
+        final_r = final_sim.final_order_parameter
 
     return SimulationResult(
-        network_id="unknown",
-        metrics={},
-        threshold=K_c,
-        status=SynchronizationStatus.SYNCHRONIZED if K_c != float('inf') else SynchronizationStatus.UNSTABLE
+        network_id=network_id,
+        K=threshold if threshold is not None else 0.0,
+        status=status,
+        threshold=threshold,
+        final_order_parameter=final_r,
+        metrics={"nodes": G.number_of_nodes(), "edges": G.number_of_edges()}
     )

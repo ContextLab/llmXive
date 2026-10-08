@@ -4,143 +4,137 @@ import tempfile
 import os
 from pathlib import Path
 from unittest.mock import patch, MagicMock
-
-import sys
-import logging
-
-# Add parent directory to path for imports if running directly
-sys.path.insert(0, str(Path(__file__).parent.parent))
+import csv
 
 from src.verify_snap import (
     get_sorted_network_files,
     load_simulation_results,
     generate_verification_report,
-    generate_manual_verification_log
+    generate_manual_verification_log,
+    main
 )
 
 @pytest.fixture
 def temp_dirs():
-    """Create temporary directories for testing."""
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_path = Path(tmp_dir)
+        # Create raw directory with mock SNAP files
         raw_dir = tmp_path / 'data' / 'raw'
         raw_dir.mkdir(parents=True)
+        (raw_dir / 'snap_001.mtx').touch()
+        (raw_dir / 'snap_002.mtx').touch()
+        (raw_dir / 'snap_010.mtx').touch()
+        (raw_dir / 'random_graph.txt').touch() # Should be ignored
+
+        # Create results directory
         results_dir = tmp_path / 'results'
         results_dir.mkdir()
+
         yield {
-            'raw_dir': raw_dir,
-            'results_dir': results_dir,
-            'base': tmp_path
+            'root': tmp_path,
+            'raw': raw_dir,
+            'results': results_dir
         }
 
 def test_get_sorted_network_files(temp_dirs):
-    """Test that network files are correctly identified and sorted."""
-    raw_dir = temp_dirs['raw_dir']
-    
-    # Create some dummy files
-    (raw_dir / 'z_network.mtx').touch()
-    (raw_dir / 'a_network.csv').touch()
-    (raw_dir / 'm_network.gml').touch()
-    (raw_dir / 'ignore.txt').touch()
-    
-    files = get_sorted_network_files(raw_dir)
-    
+    files = get_sorted_network_files(temp_dirs['raw'])
     assert len(files) == 3
-    assert files == ['a_network.csv', 'm_network.gml', 'z_network.mtx']
+    assert files == ['snap_001.mtx', 'snap_002.mtx', 'snap_010.mtx']
 
 def test_get_sorted_network_files_empty(temp_dirs):
-    """Test behavior when no network files exist."""
-    files = get_sorted_network_files(temp_dirs['raw_dir'])
-    assert files == []
+    # Remove all files
+    for f in temp_dirs['raw'].iterdir():
+        f.unlink()
+    files = get_sorted_network_files(temp_dirs['raw'])
+    assert len(files) == 0
 
 def test_load_simulation_results_valid(temp_dirs):
-    """Test loading valid simulation results."""
-    results_path = temp_dirs['results_dir'] / 'sim_results.json'
+    results_file = temp_dirs['results'] / 'sim_results.json'
     data = [
-        {"network_id": "test.mtx", "threshold": 0.5},
-        {"id": "test2.csv", "threshold": 0.8}
+        {'network_id': 'snap_001', 'threshold': 0.5},
+        {'network_id': 'snap_002', 'threshold': 0.6}
     ]
-    with open(results_path, 'w') as f:
+    with open(results_file, 'w') as f:
         json.dump(data, f)
-    
-    loaded = load_simulation_results(results_path)
-    assert len(loaded) == 2
-    assert loaded[0]['network_id'] == 'test.mtx'
-    assert loaded[1]['id'] == 'test2.csv'
+
+    loaded = load_simulation_results(results_file)
+    assert 'snap_001' in loaded
+    assert loaded['snap_001']['threshold'] == 0.5
 
 def test_load_simulation_results_missing_file(temp_dirs):
-    """Test loading when file does not exist."""
-    results_path = temp_dirs['results_dir'] / 'nonexistent.json'
     with pytest.raises(FileNotFoundError):
-        load_simulation_results(results_path)
+        load_simulation_results(temp_dirs['results'] / 'nonexistent.json')
 
 def test_generate_verification_report(temp_dirs):
-    """Test generation of verification report."""
-    sorted_files = ['a.mtx', 'b.csv']
-    sim_results = [
-        {"network_id": "a.mtx", "threshold": 0.5},
-        {"network_id": "b.csv", "threshold": 0.8}
-    ]
-    output_path = temp_dirs['results_dir'] / 'verification_report.json'
-    
-    generate_verification_report(sorted_files, sim_results, output_path)
-    
+    sim_data = {
+        'snap_001': {'threshold': 0.5},
+        'snap_002': {'threshold': 0.6},
+        'snap_010': {'threshold': None}
+    }
+    sorted_files = ['snap_001.mtx', 'snap_002.mtx', 'snap_010.mtx']
+    output_path = temp_dirs['results'] / 'verification_report.json'
+
+    generate_verification_report(sorted_files, sim_data, output_path)
+
     assert output_path.exists()
     with open(output_path, 'r') as f:
         report = json.load(f)
-    
+
     assert 'networks' in report
-    assert len(report['networks']) == 2
-    assert report['networks'][0]['id'] == 'a.mtx'
+    assert len(report['networks']) == 3
+    assert report['networks'][0]['id'] == 'snap_001'
     assert report['networks'][0]['threshold'] == 0.5
-    assert report['networks'][1]['id'] == 'b.csv'
-    assert report['networks'][1]['threshold'] == 0.8
+    assert report['networks'][2]['threshold'] is None
 
 def test_generate_verification_report_missing_threshold(temp_dirs):
-    """Test generation when some thresholds are missing."""
-    sorted_files = ['a.mtx', 'b.csv']
-    sim_results = [
-        {"network_id": "a.mtx", "threshold": 0.5}
-    ]
-    output_path = temp_dirs['results_dir'] / 'verification_report.json'
-    
-    generate_verification_report(sorted_files, sim_results, output_path)
-    
+    sim_data = {
+        'snap_001': {} # Missing threshold key
+    }
+    sorted_files = ['snap_001.mtx']
+    output_path = temp_dirs['results'] / 'verification_report.json'
+
+    generate_verification_report(sorted_files, sim_data, output_path)
+
     with open(output_path, 'r') as f:
         report = json.load(f)
     
-    assert report['networks'][1]['threshold'] is None
+    assert report['networks'][0]['threshold'] is None
 
 def test_generate_manual_verification_log(temp_dirs):
-    """Test generation of manual verification log."""
-    sorted_files = ['a.mtx', 'b.csv', 'c.gml', 'd.mtx', 'e.csv', 'f.gml']
-    output_path = temp_dirs['results_dir'] / 'manual_verification_log.txt'
-    
-    generate_manual_verification_log(sorted_files, output_path)
-    
+    sim_data = {
+        'snap_001': {'threshold': 0.5},
+        'snap_002': {'threshold': 0.6},
+        'snap_010': {'threshold': 0.7}
+    }
+    sorted_files = ['snap_001.mtx', 'snap_002.mtx', 'snap_010.mtx']
+    output_path = temp_dirs['results'] / 'manual_verification_log.csv'
+
+    generate_manual_verification_log(sorted_files, sim_data, output_path, max_rows=5)
+
     assert output_path.exists()
     with open(output_path, 'r') as f:
-        content = f.read()
-    
-    assert "Manual Verification Log" in content
-    assert "a.mtx" in content
-    assert "b.csv" in content
-    assert "c.gml" in content
-    assert "d.mtx" in content
-    assert "e.csv" in content
-    assert "f.gml" not in content # Only first 5
-    assert "Sign-off:" in content
+        reader = csv.DictReader(f)
+        rows = list(reader)
+
+    assert len(rows) == 3
+    assert rows[0]['network_id'] == 'snap_001'
+    assert rows[0]['threshold'] == '0.5'
+    assert rows[0]['verified_by'] == '' # Empty for human
+    assert rows[0]['timestamp'] == '' # Empty for human
 
 def test_generate_manual_verification_log_fewer_than_5(temp_dirs):
-    """Test generation when fewer than 5 files exist."""
-    sorted_files = ['a.mtx', 'b.csv']
-    output_path = temp_dirs['results_dir'] / 'manual_verification_log.txt'
-    
-    generate_manual_verification_log(sorted_files, output_path)
-    
+    # Only 2 files exist
+    sorted_files = ['snap_001.mtx', 'snap_002.mtx']
+    sim_data = {
+        'snap_001': {'threshold': 0.5},
+        'snap_002': {'threshold': 0.6}
+    }
+    output_path = temp_dirs['results'] / 'manual_verification_log.csv'
+
+    generate_manual_verification_log(sorted_files, sim_data, output_path, max_rows=5)
+
     with open(output_path, 'r') as f:
-        content = f.read()
-    
-    assert "a.mtx" in content
-    assert "b.csv" in content
-    assert content.count("Verifier Name:") == 1
+        reader = csv.DictReader(f)
+        rows = list(reader)
+
+    assert len(rows) == 2

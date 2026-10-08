@@ -1,0 +1,186 @@
+- artifact_path: projects/PROJ-212-exploring-the-impact-of-network-structur/specs/001-exploring-the-impact-of-network-structur/tasks.md
+  attempts: 1
+  canonical: Simulation uses N=200 nodes and RK45 integration
+  claim_id: c_9a403523
+  context: Implement src/simulation.py with Kuramoto model (N=200, RK45) and robustness
+    threshold logic...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation uses N=200 nodes and RK45 integration.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T05:20:58Z'
+- artifact_path: projects/PROJ-212-exploring-the-impact-of-network-structur/specs/001-exploring-the-impact-of-network-structur/tasks.md
+  attempts: 1
+  canonical: Bisection search tolerance 0.001 with max 50 iterations
+  claim_id: c_08379581
+  context: 'Primary Method: Bisection search on K within a bounded interval with tolerance
+    0.001 and max 50 iterations.'
+  evidence:
+    asserted: '0.001'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: The bisection search for K uses a tolerance of 0.001 and a maximum of
+    50 iterations.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T05:20:58Z'
+- artifact_path: projects/PROJ-212-exploring-the-impact-of-network-structur/specs/001-exploring-the-impact-of-network-structur/tasks.md
+  attempts: 1
+  canonical: Fallback discrete sweep step size 0.1
+  claim_id: c_42bec8f2
+  context: 'Fallback: If bisection fails to converge within 50 iterations, fallback
+    to discrete sweep (step=0.1)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fallback discrete sweep uses a step size of 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T05:21:29Z'
+- artifact_path: projects/PROJ-212-exploring-the-impact-of-network-structur/specs/001-exploring-the-impact-of-network-structur/tasks.md
+  attempts: 1
+  canonical: Regression analysis blocked if dataset count < 10
+  claim_id: c_4a82894f
+  context: 'IF count < 10: Generate results/descriptive_stats.json... set state/data_availability.yaml
+    flag regression_blocked: true...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Regression_analysis_blocked_if_dataset_count_%3C_10
+  kind: magnitude
+  raw_text: Regression analysis is blocked if the dataset count is less than 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T05:22:40Z'
+- artifact_path: projects/PROJ-212-exploring-the-impact-of-network-structur/specs/001-exploring-the-impact-of-network-structur/tasks.md
+  attempts: 1
+  canonical: LOOCV executed if dataset size < 50
+  claim_id: c_7857dc71
+  context: IF dataset size < 50, execute Leave-One-Out Cross-Validation (LOOCV).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/LOOCV_executed_if_dataset_size_%3C_50
+  kind: magnitude
+  raw_text: Leave-One-Out Cross-Validation is executed if the dataset size is less
+    than 50.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T05:23:20Z'
+- artifact_path: projects/PROJ-212-exploring-the-impact-of-network-structur/specs/001-exploring-the-impact-of-network-structur/tasks.md
+  attempts: 1
+  canonical: 10-fold CV executed if dataset size >= 50
+  claim_id: c_ac322e91
+  context: IF dataset size >= 50, execute 10-fold Cross-Validation (with fixed seed).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/10-fold_CV_executed_if_dataset_size_%3E=_50
+  kind: magnitude
+  raw_text: 10-fold Cross-Validation is executed if the dataset size is greater than
+    or equal to 50.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T05:23:56Z'
+- artifact_path: projects/PROJ-212-exploring-the-impact-of-network-structur/specs/001-exploring-the-impact-of-network-structur/tasks.md
+  attempts: 1
+  canonical: Instability flag triggered if CV std dev > 0.1
+  claim_id: c_b14c4c61
+  context: Check if CV std dev > 0.1 using results from T028.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Instability_flag_triggered_if_CV_std_dev_%3E_0.1
+  kind: magnitude
+  raw_text: The instability flag is triggered if the cross-validation standard deviation
+    is greater than 0.1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T05:24:27Z'
+- artifact_path: projects/PROJ-212-exploring-the-impact-of-network-structur/specs/001-exploring-the-impact-of-network-structur/tasks.md
+  attempts: 1
+  canonical: VIF threshold for remediation > 5
+  claim_id: c_d5a89a24
+  context: if VIF > 5, perform (A) Remove predictor and re-run regression, OR (B)
+    Switch to Ridge Regression...
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_threshold_for_remediation_%3E_5
+  kind: magnitude
+  raw_text: The Variance Inflation Factor (VIF) threshold for remediation is greater
+    than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T05:24:50Z'
+- artifact_path: projects/PROJ-212-exploring-the-impact-of-network-structur/specs/001-exploring-the-impact-of-network-structur/tasks.md
+  attempts: 1
+  canonical: Null hypothesis support requires p < 0.05
+  claim_id: c_251d07e4
+  context: Implement null hypothesis testing logic (p < 0.05 required for support)
+    in src/stats.py.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Null_hypothesis_support_requires_p_%3C_0.05
+  kind: magnitude
+  raw_text: The null hypothesis test requires a p-value less than 0.05 for support.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T05:26:06Z'
+- artifact_path: projects/PROJ-212-exploring-the-impact-of-network-structur/specs/001-exploring-the-impact-of-network-structur/tasks.md
+  attempts: 1
+  canonical: Analytical solution check uses Ring Graph N=200 K=0.5
+  claim_id: c_e85ab733
+  context: Implement validation for analytical solution check (Ring Graph N=200, K=0.5)
+    within tests/test_simulation.py.
+  evidence:
+    asserted: '200.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: The analytical solution check uses a Ring Graph with N=200 and K=0.5.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T05:26:06Z'

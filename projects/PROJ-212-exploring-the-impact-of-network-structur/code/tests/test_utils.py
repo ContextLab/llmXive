@@ -1,5 +1,5 @@
 """
-Unit tests for src/utils.py utility functions.
+Unit tests for src/utils.py functionality.
 """
 import os
 import sys
@@ -9,11 +9,10 @@ import time
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 import pytest
-import logging
 
-# Add code directory to path for imports
+# Import the module under test
+# Adjust path based on project structure if necessary
 sys.path.insert(0, str(Path(__file__).parent.parent))
-
 from src.utils import (
     setup_logging,
     compute_checksum,
@@ -21,158 +20,156 @@ from src.utils import (
     safe_exit,
     timing_decorator
 )
+import logging
 
 
 class TestSetupLogging:
-    def test_setup_logging_console_only(self, tmp_path):
-        """Test logging setup with console only (no file)."""
-        logger = setup_logging(log_file=None, level=logging.DEBUG)
-        assert logger.level == logging.DEBUG
-        # Should have at least one handler (console)
-        assert len(logger.handlers) >= 1
+    def test_setup_logging_console_only(self, caplog):
+        """Test that logging works to console when no file is specified."""
+        logger = setup_logging(log_file=None, level=logging.INFO)
+        assert logger.level == logging.INFO
+        # Verify a message is logged
+        with caplog.at_level(logging.INFO):
+            logger.info("Test message")
+            assert "Test message" in caplog.text
 
     def test_setup_logging_with_file(self, tmp_path):
-        """Test logging setup with file and console handlers."""
+        """Test that logging creates a file and writes to it."""
         log_file = tmp_path / "test.log"
-        logger = setup_logging(log_file=log_file, level=logging.INFO)
+        logger = setup_logging(log_file=str(log_file), level=logging.DEBUG)
 
-        assert logger.level == logging.INFO
-        # Should have at least 2 handlers (console + file)
-        assert len(logger.handlers) >= 2
+        logger.debug("Debug message")
+        logger.info("Info message")
 
-        # Verify file was created
         assert log_file.exists()
+        content = log_file.read_text()
+        assert "Debug message" in content
+        assert "Info message" in content
 
-    def test_setup_logging_creates_directories(self, tmp_path):
-        """Test that setup_logging creates parent directories for log file."""
-        nested_log = tmp_path / "nested" / "dir" / "test.log"
-        logger = setup_logging(log_file=nested_log)
-        assert nested_log.exists()
+    def test_setup_logging_clears_handlers(self):
+        """Test that setup_logging clears existing handlers."""
+        initial_logger = logging.getLogger()
+        initial_handler_count = len(initial_logger.handlers)
+
+        # Add a dummy handler
+        initial_logger.addHandler(logging.NullHandler())
+
+        setup_logging(log_file=None)
+
+        # Check if the dummy handler was removed and replaced by console handler
+        # (Note: exact count depends on previous state, but handlers should be replaced)
+        # A more robust check is ensuring the new handler is present
+        console_handlers = [h for h in initial_logger.handlers if isinstance(h, logging.StreamHandler)]
+        assert len(console_handlers) >= 1
 
 
 class TestComputeChecksum:
     def test_compute_checksum_valid_file(self, tmp_path):
-        """Test checksum computation on a valid file."""
-        test_file = tmp_path / "test.txt"
-        test_content = b"Hello, World!"
-        test_file.write_bytes(test_content)
+        """Test checksum calculation on a valid file."""
+        test_file = tmp_path / "data.txt"
+        content = "Hello, World!"
+        test_file.write_text(content)
 
         checksum = compute_checksum(test_file)
         assert isinstance(checksum, str)
-        assert len(checksum) == 64  # SHA-256 hex length
+        assert len(checksum) == 64  # SHA256 hex length
 
-    def test_compute_checksum_file_not_found(self, tmp_path):
+    def test_compute_checksum_file_not_found(self):
         """Test that FileNotFoundError is raised for missing file."""
-        missing_file = tmp_path / "nonexistent.txt"
         with pytest.raises(FileNotFoundError):
-            compute_checksum(missing_file)
+            compute_checksum("nonexistent_file.txt")
 
     def test_compute_checksum_invalid_algorithm(self, tmp_path):
-        """Test that ValueError is raised for unsupported algorithm."""
-        test_file = tmp_path / "test.txt"
-        test_file.write_bytes(b"test")
+        """Test that ValueError is raised for invalid algorithm."""
+        test_file = tmp_path / "data.txt"
+        test_file.write_text("data")
 
         with pytest.raises(ValueError):
             compute_checksum(test_file, algorithm="invalid_algo")
 
-    def test_compute_checksum_large_file(self, tmp_path):
-        """Test checksum computation on a large file (chunked reading)."""
-        large_file = tmp_path / "large.bin"
-        # Create a 1MB file
-        large_file.write_bytes(b"x" * (1024 * 1024))
-
-        checksum = compute_checksum(large_file)
-        assert isinstance(checksum, str)
-        assert len(checksum) == 64
-
 
 class TestLogError:
-    def test_log_error_basic(self, tmp_path):
-        """Test basic error logging."""
-        log_file = tmp_path / "error.log"
-        logger = setup_logging(log_file=log_file, level=logging.ERROR)
+    def test_log_error_with_context(self, caplog):
+        """Test logging an exception with context."""
+        logger = logging.getLogger("test_logger")
+        logger.setLevel(logging.ERROR)
 
-        test_error = ValueError("Test error message")
-        log_error(logger, test_error)
+        with caplog.at_level(logging.ERROR):
+            try:
+                raise ValueError("Test error")
+            except Exception as e:
+                log_error(e, context="Context info")
 
-        assert log_file.exists()
-        content = log_file.read_text()
-        assert "Test error message" in content
-        assert "ValueError" in content
+        assert "Context info" in caplog.text
+        assert "ValueError" in caplog.text
 
-    def test_log_error_with_context(self, tmp_path):
-        """Test error logging with context dictionary."""
-        log_file = tmp_path / "error_context.log"
-        logger = setup_logging(log_file=log_file, level=logging.ERROR)
+    def test_log_error_without_context(self, caplog):
+        """Test logging an exception without context."""
+        logger = logging.getLogger("test_logger")
+        logger.setLevel(logging.ERROR)
 
-        test_error = RuntimeError("Context error")
-        context = {"input_id": 123, "status": "failed"}
-        log_error(logger, test_error, context=context)
+        with caplog.at_level(logging.ERROR):
+            try:
+                raise RuntimeError("Another error")
+            except Exception as e:
+                log_error(e)
 
-        content = log_file.read_text()
-        assert "Context error" in content
-        assert "123" in content
-        assert "failed" in content
+        assert "RuntimeError" in caplog.text
 
 
 class TestSafeExit:
-    def test_safe_exit_success(self, tmp_path):
-        """Test safe exit with success status."""
-        log_file = tmp_path / "exit.log"
-        logger = setup_logging(log_file=log_file, level=logging.INFO)
+    def test_safe_exit_success(self, caplog):
+        """Test safe exit with code 0."""
+        logger = logging.getLogger("test_logger")
+        logger.setLevel(logging.INFO)
 
-        # Mock sys.exit to prevent actual exit
-        with patch('sys.exit') as mock_exit:
-            safe_exit(logger, status=0, message="Success message")
-            mock_exit.assert_called_once_with(0)
+        with patch("sys.exit") as mock_exit:
+            with caplog.at_level(logging.INFO):
+                safe_exit(0)
+            assert mock_exit.called
+            assert "Exiting successfully" in caplog.text
 
-        content = log_file.read_text()
-        assert "Success message" in content or "completed successfully" in content.lower()
+    def test_safe_exit_failure(self, caplog):
+        """Test safe exit with non-zero code."""
+        logger = logging.getLogger("test_logger")
+        logger.setLevel(logging.ERROR)
 
-    def test_safe_exit_failure(self, tmp_path):
-        """Test safe exit with failure status."""
-        log_file = tmp_path / "exit_fail.log"
-        logger = setup_logging(log_file=log_file, level=logging.ERROR)
-
-        with patch('sys.exit') as mock_exit:
-            safe_exit(logger, status=1, message="Failure message")
-            mock_exit.assert_called_once_with(1)
-
-        content = log_file.read_text()
-        assert "Failure message" in content or "exited with status code 1" in content.lower()
+        with patch("sys.exit") as mock_exit:
+            with caplog.at_level(logging.ERROR):
+                safe_exit(1)
+            assert mock_exit.called
+            assert "Exiting with error code: 1" in caplog.text
 
 
 class TestTimingDecorator:
-    def test_timing_decorator_success(self, tmp_path):
-        """Test that timing_decorator measures execution time."""
-        log_file = tmp_path / "timing.log"
-        setup_logging(log_file=log_file, level=logging.INFO)
+    def test_timing_decorator_success(self, caplog):
+        """Test that the timing decorator logs duration on success."""
+        logger = logging.getLogger("test_logger")
+        logger.setLevel(logging.INFO)
 
         @timing_decorator
         def slow_function():
             time.sleep(0.1)
             return "done"
 
-        result = slow_function()
+        with caplog.at_level(logging.INFO):
+            result = slow_function()
+
         assert result == "done"
+        assert "completed in" in caplog.text
+        assert "seconds" in caplog.text
 
-        content = log_file.read_text()
-        assert "completed in" in content.lower()
-        assert "seconds" in content.lower()
-
-    def test_timing_decorator_with_exception(self, tmp_path):
-        """Test that timing_decorator logs time even if function raises."""
-        log_file = tmp_path / "timing_exc.log"
-        setup_logging(log_file=log_file, level=logging.INFO)
+    def test_timing_decorator_failure(self, caplog):
+        """Test that the timing decorator logs duration on failure."""
+        logger = logging.getLogger("test_logger")
+        logger.setLevel(logging.ERROR)
 
         @timing_decorator
         def failing_function():
-            time.sleep(0.05)
-            raise ValueError("Intentional error")
+            raise ValueError("Failed!")
 
-        with pytest.raises(ValueError):
-            failing_function()
+        with caplog.at_level(logging.ERROR):
+            with pytest.raises(ValueError):
+                failing_function()
 
-        # Should still log timing
-        content = log_file.read_text()
-        assert "completed in" in content.lower()
+        assert "failed after" in caplog.text

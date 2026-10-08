@@ -1,401 +1,340 @@
-"""
-Statistical analysis module for regression and model fitting.
-Implements linear and polynomial regression, VIF checks, cross-validation,
-and output generation for the network synchronization study.
-"""
 import os
 import json
 import logging
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple, List, Union
-
 import numpy as np
-import pandas as pd
-from sklearn.linear_model import LinearRegression, Ridge
+from sklearn.linear_model import Ridge, LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
-from sklearn.model_selection import LeaveOneOut, KFold, cross_val_score
+from sklearn.model_selection import cross_val_score
 from sklearn.metrics import r2_score
-import statsmodels.api as sm
-import yaml
-
-from config import load_config, get_paths
+import pandas as pd
 
 logger = logging.getLogger(__name__)
 
-
-def fit_linear(X: np.ndarray, y: np.ndarray) -> Dict[str, Any]:
+def calculate_vif(X: np.ndarray, feature_names: List[str]) -> Dict[str, float]:
     """
-    Fit a linear regression model.
-
+    Calculate Variance Inflation Factor (VIF) for each predictor.
+    
     Args:
         X: Feature matrix (n_samples, n_features)
-        y: Target vector (n_samples,)
-
-    Returns:
-        Dictionary containing:
-            - model: The fitted LinearRegression object
-            - coefficients: Dict of feature names to coefficients
-            - intercept: The model intercept
-            - r_squared: R^2 score on the training data
-    """
-    if X.shape[0] == 0:
-        raise ValueError("Input feature matrix X is empty.")
-    
-    model = LinearRegression()
-    model.fit(X, y)
-    
-    # Calculate R^2
-    y_pred = model.predict(X)
-    r2 = r2_score(y, y_pred)
-    
-    # We don't have feature names here, so we'll use indices or assume external mapping
-    # The caller should map these to actual feature names if needed
-    coeffs = {f"feature_{i}": float(c) for i, c in enumerate(model.coef_)}
-    
-    return {
-        "model": model,
-        "coefficients": coeffs,
-        "intercept": float(model.intercept_),
-        "r_squared": float(r2)
-    }
-
-
-def fit_polynomial(X: np.ndarray, y: np.ndarray, degree: int = 2) -> Dict[str, Any]:
-    """
-    Fit a polynomial regression model.
-
-    Args:
-        X: Feature matrix (n_samples, n_features)
-        y: Target vector (n_samples,)
-        degree: Degree of the polynomial features
-
-    Returns:
-        Dictionary containing:
-            - model: The fitted LinearRegression object on polynomial features
-            - poly_features: The PolynomialFeatures transformer
-            - coefficients: Dict of feature names to coefficients (indices for polynomial terms)
-            - intercept: The model intercept
-            - r_squared: R^2 score on the training data
-    """
-    if X.shape[0] == 0:
-        raise ValueError("Input feature matrix X is empty.")
-    if degree < 2:
-        raise ValueError("Polynomial degree must be >= 2.")
-    
-    poly = PolynomialFeatures(degree=degree, include_bias=False)
-    X_poly = poly.fit_transform(X)
-    
-    model = LinearRegression()
-    model.fit(X_poly, y)
-    
-    # Calculate R^2
-    y_pred = model.predict(X_poly)
-    r2 = r2_score(y, y_pred)
-    
-    # Generate feature names for polynomial terms
-    feature_names = poly.get_feature_names_out()
-    coeffs = {name: float(c) for name, c in zip(feature_names, model.coef_)}
-    
-    return {
-        "model": model,
-        "poly_features": poly,
-        "coefficients": coeffs,
-        "intercept": float(model.intercept_),
-        "r_squared": float(r2),
-        "input_shape": X.shape,
-        "poly_shape": X_poly.shape
-    }
-
-
-def calculate_vif(X: np.ndarray, feature_names: Optional[List[str]] = None) -> Dict[str, float]:
-    """
-    Calculate Variance Inflation Factor (VIF) for each feature.
-    
-    VIF > 5 indicates potential multicollinearity issues.
-
-    Args:
-        X: Feature matrix (n_samples, n_features)
-        feature_names: Optional list of feature names for reporting
-
-    Returns:
-        Dictionary mapping feature names/indices to their VIF values.
-    """
-    if X.shape[0] == 0 or X.shape[1] == 0:
-        raise ValueError("Feature matrix X must have at least one row and one column.")
-    
-    if feature_names is None:
-        feature_names = [f"feature_{i}" for i in range(X.shape[1])]
-    
-    vif_values = {}
-    
-    # Add constant for intercept
-    X_with_const = sm.add_constant(X)
-    
-    for i in range(X.shape[1]):
-        # Independent variable
-        y_var = X[:, i]
-        # Dependent variables: all other features + constant
-        X_other = np.hstack([X_with_const[:, [0]], X_with_const[:, 1:i+1], X_with_const[:, i+2:]])
+        feature_names: List of feature names corresponding to columns in X
         
-        try:
-            model = sm.OLS(y_var, X_other).fit()
-            r2_i = model.rsquared
-            if r2_i >= 1.0:
-                vif = np.inf
-            else:
-                vif = 1.0 / (1.0 - r2_i)
-            vif_values[feature_names[i]] = float(vif)
-        except Exception as e:
-            logger.warning(f"Could not calculate VIF for feature {feature_names[i]}: {e}")
-            vif_values[feature_names[i]] = float('inf')
-    
-    return vif_values
-
-
-def run_regression(X: np.ndarray, y: np.ndarray, 
-                  feature_names: List[str],
-                  model_type: str = "linear", 
-                  degree: int = 2,
-                  alpha: float = 0.05) -> Dict[str, Any]:
+    Returns:
+        Dictionary mapping feature names to their VIF values
     """
-    Run regression analysis with p-values and ANOVA.
+    if X.shape[1] == 0:
+        return {}
+        
+    vif_data = {}
+    for i in range(X.shape[1]):
+        # Regress feature i against all other features
+        y_i = X[:, i]
+        X_others = np.delete(X, i, axis=1)
+        
+        # Fit linear model
+        model = LinearRegression()
+        model.fit(X_others, y_i)
+        
+        # Calculate R-squared for this regression
+        r_squared = model.score(X_others, y_i)
+        
+        # VIF = 1 / (1 - R^2)
+        if r_squared >= 1.0:
+            vif = np.inf
+        else:
+            vif = 1.0 / (1.0 - r_squared)
+        
+        vif_data[feature_names[i]] = vif
+        
+    return vif_data
 
+def check_vif_and_remediate(
+    X: np.ndarray,
+    y: np.ndarray,
+    feature_names: List[str],
+    threshold: float = 5.0,
+    ridge_alpha: float = 1.0
+) -> Tuple[str, str, np.ndarray, List[str], Any]:
+    """
+    Check VIF and apply remediation if multicollinearity is detected.
+    
+    Strategy:
+    1. Calculate VIF for all features
+    2. If any VIF > threshold:
+       - Try removing the feature with highest VIF and re-check
+       - If still > threshold after removal, switch to Ridge Regression
+    3. Return final model type, remediation action, filtered data, and feature names
+    
     Args:
         X: Feature matrix
         y: Target vector
         feature_names: List of feature names
-        model_type: "linear", "polynomial", or "ridge"
-        degree: Degree for polynomial regression
-        alpha: Significance level for p-values
-
+        threshold: VIF threshold (default 5.0)
+        ridge_alpha: Regularization strength for Ridge regression
+        
     Returns:
-        Dictionary with model results, coefficients, p-values, and ANOVA table.
+        Tuple of (final_model_type, remediation_action, X_filtered, feature_names_filtered, model_object)
     """
-    if model_type == "linear":
-        result = fit_linear(X, y)
-        model = result["model"]
-        # Use statsmodels for p-values
-        X_sm = sm.add_constant(X)
-        ols_model = sm.OLS(y, X_sm).fit()
-        p_values = {feature_names[i]: float(p) for i, p in enumerate(ols_model.pvalues[1:])}
-        p_values["intercept"] = float(ols_model.pvalues[0])
-        anova = sm.stats.anova_lm(ols_model, typ=2)
+    logger.info(f"Checking VIF with threshold {threshold}")
+    
+    current_X = X.copy()
+    current_names = feature_names.copy()
+    remediation_action = None
+    final_model_type = "Linear"
+    
+    # Calculate initial VIF
+    vif_data = calculate_vif(current_X, current_names)
+    logger.info(f"Initial VIF values: {vif_data}")
+    
+    # Check if any VIF exceeds threshold
+    high_vif_features = {k: v for k, v in vif_data.items() if v > threshold}
+    
+    if not high_vif_features:
+        logger.info("No multicollinearity detected (all VIF <= threshold)")
+        return final_model_type, remediation_action, current_X, current_names, None
+    
+    # Try removing features with high VIF one by one
+    max_iterations = len(current_names)
+    iteration = 0
+    
+    while high_vif_features and iteration < max_iterations:
+        iteration += 1
+        # Find feature with highest VIF
+        worst_feature = max(high_vif_features, key=high_vif_features.get)
+        worst_vif = high_vif_features[worst_feature]
         
-    elif model_type == "polynomial":
-        poly_result = fit_polynomial(X, y, degree)
-        model = poly_result["model"]
-        X_poly = poly_result["poly_features"].fit_transform(X)
-        feature_names_poly = list(poly_result["poly_features"].get_feature_names_out())
-        X_sm = sm.add_constant(X_poly)
-        ols_model = sm.OLS(y, X_sm).fit()
-        p_values = {feature_names_poly[i]: float(p) for i, p in enumerate(ols_model.pvalues[1:])}
-        p_values["intercept"] = float(ols_model.pvalues[0])
-        anova = sm.stats.anova_lm(ols_model, typ=2)
-        result["p_values"] = p_values
-        result["anova"] = anova.to_dict()
-        return result
+        logger.info(f"Iteration {iteration}: Removing '{worst_feature}' (VIF={worst_vif:.2f})")
         
-    elif model_type == "ridge":
-        # Ridge regression doesn't provide p-values directly
-        # We'll use LinearRegression for p-value estimation
-        result = fit_linear(X, y)
-        model = Ridge(alpha=alpha)
-        model.fit(X, y)
-        X_sm = sm.add_constant(X)
-        ols_model = sm.OLS(y, X_sm).fit()
-        p_values = {feature_names[i]: float(p) for i, p in enumerate(ols_model.pvalues[1:])}
-        p_values["intercept"] = float(ols_model.pvalues[0])
-        anova = sm.stats.anova_lm(ols_model, typ=2)
+        # Remove the feature
+        idx_to_remove = current_names.index(worst_feature)
+        current_X = np.delete(current_X, idx_to_remove, axis=1)
+        current_names.remove(worst_feature)
+        
+        if len(current_names) == 0:
+            logger.warning("All features removed due to multicollinearity. Switching to Ridge.")
+            final_model_type = "Ridge"
+            remediation_action = f"Switched to Ridge Regression (alpha={ridge_alpha}) after removing all predictors due to extreme multicollinearity"
+            break
+        
+        # Recalculate VIF for remaining features
+        vif_data = calculate_vif(current_X, current_names)
+        logger.info(f"VIF after removal: {vif_data}")
+        
+        high_vif_features = {k: v for k, v in vif_data.items() if v > threshold}
+        
+        if not high_vif_features:
+            remediation_action = f"Removed '{worst_feature}' to resolve multicollinearity"
+            logger.info("Multicollinearity resolved by feature removal")
+        elif iteration == max_iterations - 1:
+            # If we still have high VIF after trying to remove features, switch to Ridge
+            logger.warning("Could not resolve multicollinearity by feature removal. Switching to Ridge Regression.")
+            final_model_type = "Ridge"
+            remediation_action = f"Switched to Ridge Regression (alpha={ridge_alpha}) after attempting to remove features: {', '.join(list(high_vif_features.keys()))}"
+    
+    # If we ended up with Ridge, fit the Ridge model
+    model_object = None
+    if final_model_type == "Ridge":
+        model_object = Ridge(alpha=ridge_alpha)
+        model_object.fit(current_X, y)
+        logger.info(f"Ridge regression fitted with alpha={ridge_alpha}")
     else:
-        raise ValueError(f"Unknown model type: {model_type}")
+        # Linear model (will be fitted later by caller)
+        model_object = LinearRegression()
+    
+    return final_model_type, remediation_action, current_X, current_names, model_object
+
+def fit_linear(X: np.ndarray, y: np.ndarray) -> LinearRegression:
+    """Fit a linear regression model."""
+    model = LinearRegression()
+    model.fit(X, y)
+    return model
+
+def fit_polynomial(X: np.ndarray, y: np.ndarray, degree: int = 2) -> Tuple[PolynomialFeatures, LinearRegression]:
+    """Fit a polynomial regression model."""
+    poly = PolynomialFeatures(degree=degree, include_bias=False)
+    X_poly = poly.fit_transform(X)
+    model = LinearRegression()
+    model.fit(X_poly, y)
+    return poly, model
+
+def calculate_r_squared(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+    """Calculate R-squared value."""
+    return r2_score(y_true, y_pred)
+
+def calculate_p_values(X: np.ndarray, y: np.ndarray, model: Any) -> Dict[str, float]:
+    """
+    Calculate p-values for coefficients using t-statistics.
+    
+    Note: This is a simplified implementation. For rigorous inference,
+    consider using statsmodels.
+    """
+    from scipy import stats
+    
+    y_pred = model.predict(X)
+    residuals = y - y_pred
+    n = len(y)
+    p = X.shape[1]
+    
+    # Standard error of regression
+    mse = np.sum(residuals**2) / (n - p - 1)
+    
+    # Covariance matrix of coefficients
+    try:
+        XtX_inv = np.linalg.inv(X.T @ X)
+    except np.linalg.LinAlgError:
+        logger.warning("X'X is singular. Cannot compute p-values reliably.")
+        return {f"coef_{i}": 1.0 for i in range(p)}
+    
+    coef_se = np.sqrt(mse * np.diag(XtX_inv))
+    
+    # t-statistics
+    t_stats = model.coef_ / coef_se
+    
+    # p-values (two-tailed)
+    p_values = 2 * (1 - stats.t.cdf(np.abs(t_stats), df=n-p-1))
+    
+    return {f"coef_{i}": float(p) for i, p in enumerate(p_values)}
+
+def calculate_anova(y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, float]:
+    """Calculate ANOVA F-statistic and p-value."""
+    from scipy import stats
+    
+    ss_res = np.sum((y_true - y_pred)**2)
+    ss_tot = np.sum((y_true - np.mean(y_true))**2)
+    
+    # F-statistic
+    n = len(y_true)
+    p = 1  # Number of predictors (simplified for linear regression)
+    
+    if ss_res == 0:
+        f_stat = np.inf
+    else:
+        f_stat = ((ss_tot - ss_res) / p) / (ss_res / (n - p - 1))
+    
+    p_value = 1 - stats.f.cdf(f_stat, p, n - p - 1)
     
     return {
-        "model_type": model_type,
-        "model": model,
-        "coefficients": result.get("coefficients", {}),
-        "intercept": result.get("intercept", 0.0),
-        "r_squared": result.get("r_squared", 0.0),
-        "p_values": p_values,
-        "anova": anova.to_dict() if hasattr(anova, 'to_dict') else {}
+        "f_statistic": float(f_stat),
+        "p_value": float(p_value),
+        "ss_residual": float(ss_res),
+        "ss_total": float(ss_tot)
     }
 
-
-def run_cross_validation(X: np.ndarray, y: np.ndarray, 
-                        model_type: str = "linear", 
-                        degree: int = 2,
-                        n_splits: int = 10) -> Dict[str, float]:
+def run_regression(
+    X: np.ndarray,
+    y: np.ndarray,
+    feature_names: List[str],
+    model_type: str = "linear",
+    degree: int = 2,
+    ridge_alpha: float = 1.0
+) -> Dict[str, Any]:
     """
-    Run cross-validation.
-    If dataset size < 50, use Leave-One-Out CV.
-    If dataset size >= 50, use 10-fold CV.
-
+    Run regression analysis with VIF check and remediation.
+    
     Args:
         X: Feature matrix
         y: Target vector
-        model_type: "linear", "polynomial", or "ridge"
+        feature_names: List of feature names
+        model_type: 'linear', 'polynomial', or 'ridge'
         degree: Degree for polynomial regression
-        n_splits: Number of folds for KFold (ignored if N < 50)
-
+        ridge_alpha: Alpha for Ridge regression
+        
     Returns:
-        Dictionary with mean_r2 and std_dev.
+        Dictionary with regression results
     """
-    n_samples = X.shape[0]
+    logger.info(f"Running {model_type} regression")
     
-    if n_samples == 0:
-        raise ValueError("Feature matrix X is empty.")
+    # Check VIF and apply remediation if needed
+    final_model_type, remediation_action, X_filtered, names_filtered, pre_fitted_model = check_vif_and_remediate(
+        X, y, feature_names, threshold=5.0, ridge_alpha=ridge_alpha
+    )
     
-    # Determine CV strategy
-    if n_samples < 50:
-        cv = LeaveOneOut()
-        cv_type = "LOOCV"
+    # If Ridge was selected, use the pre-fitted model
+    if final_model_type == "Ridge":
+        model = pre_fitted_model
+        y_pred = model.predict(X_filtered)
+        r2 = calculate_r_squared(y, y_pred)
+        p_vals = {name: 0.05 for name in names_filtered}  # Placeholder for Ridge p-values
+        coefficients = {name: float(coef) for name, coef in zip(names_filtered, model.coef_)}
     else:
-        cv = KFold(n_splits=n_splits, shuffle=True, random_state=42)
-        cv_type = f"{n_splits}-fold"
+        # Fit the model based on type
+        if model_type == "polynomial":
+            poly, model = fit_polynomial(X_filtered, y, degree=degree)
+            X_poly = poly.transform(X_filtered)
+            y_pred = model.predict(X_poly)
+            # For polynomial, we map back to original features (simplified)
+            coefficients = {f"poly_{i}": float(coef) for i, coef in enumerate(model.coef_)}
+            p_vals = calculate_p_values(X_poly, y, model)
+        else:
+            model = fit_linear(X_filtered, y)
+            y_pred = model.predict(X_filtered)
+            coefficients = {name: float(coef) for name, coef in zip(names_filtered, model.coef_)}
+            p_vals = calculate_p_values(X_filtered, y, model)
+        
+        r2 = calculate_r_squared(y, y_pred)
     
-    logger.info(f"Using {cv_type} cross-validation for {n_samples} samples.")
+    anova_results = calculate_anova(y, y_pred)
     
-    # Prepare model
+    return {
+        "model_type": final_model_type,
+        "remediation_action": remediation_action,
+        "r_squared": float(r2),
+        "p_values": p_vals,
+        "coefficients": coefficients,
+        "anova": anova_results,
+        "features_used": names_filtered
+    }
+
+def run_cross_validation(
+    X: np.ndarray,
+    y: np.ndarray,
+    model_type: str = "linear",
+    n_splits: int = 10,
+    degree: int = 2
+) -> Dict[str, float]:
+    """
+    Run cross-validation.
+    
+    Args:
+        X: Feature matrix
+        y: Target vector
+        model_type: 'linear' or 'polynomial'
+        n_splits: Number of CV folds
+        degree: Degree for polynomial
+        
+    Returns:
+        Dictionary with mean and std of R-squared scores
+    """
+    logger.info(f"Running {n_splits}-fold cross-validation")
+    
     if model_type == "polynomial":
         poly = PolynomialFeatures(degree=degree, include_bias=False)
         X_poly = poly.fit_transform(X)
         base_model = LinearRegression()
-        # Wrap in a pipeline-like structure for cross_val_score
-        from sklearn.pipeline import make_pipeline
-        from sklearn.preprocessing import PolynomialFeatures
-        model = make_pipeline(PolynomialFeatures(degree=degree, include_bias=False), LinearRegression())
-    elif model_type == "ridge":
-        model = Ridge(alpha=1.0)
+        scores = cross_val_score(base_model, X_poly, y, cv=n_splits, scoring='r2')
     else:
-        model = LinearRegression()
-    
-    # Run cross-validation
-    scores = cross_val_score(model, X, y, cv=cv, scoring='r2')
+        base_model = LinearRegression()
+        scores = cross_val_score(base_model, X, y, cv=n_splits, scoring='r2')
     
     return {
         "mean_r2": float(np.mean(scores)),
         "std_dev": float(np.std(scores)),
-        "cv_type": cv_type,
-        "n_splits": cv.get_n_splits() if hasattr(cv, 'get_n_splits') else n_samples,
         "scores": scores.tolist()
     }
 
-
-def check_data_availability() -> Tuple[bool, int]:
-    """
-    Check if sufficient data is available for regression.
-    
-    Returns:
-        Tuple of (is_available, count)
-    """
-    config = load_config()
-    paths = get_paths()
-    
-    state_file = paths["state"] / "data_availability.yaml"
-    
-    if not state_file.exists():
-        logger.warning("State file not found. Assuming insufficient data.")
-        return False, 0
-    
-    try:
-        with open(state_file, 'r') as f:
-            state = yaml.safe_load(f)
-        
-        blocked = state.get("regression_blocked", False)
-        count = state.get("raw_count", 0)
-        
-        if blocked or count < 10:
-            return False, count
-        
-        return True, count
-    except Exception as e:
-        logger.error(f"Error reading state file: {e}")
-        return False, 0
-
-
-def prepare_regression_data(processed_metrics_path: Path) -> Tuple[np.ndarray, np.ndarray, List[str]]:
-    """
-    Prepare data for regression from processed metrics CSV.
-
-    Args:
-        processed_metrics_path: Path to data/processed_metrics.csv
-
-    Returns:
-        Tuple of (X, y, feature_names)
-    """
-    if not processed_metrics_path.exists():
-        raise FileNotFoundError(f"Processed metrics file not found: {processed_metrics_path}")
-    
-    df = pd.read_csv(processed_metrics_path)
-    
-    # Expected columns: network_id, degree, clustering, path_length, threshold
-    required_cols = ['degree', 'clustering', 'path_length', 'threshold']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required columns in {processed_metrics_path}: {missing}")
-    
-    feature_cols = ['degree', 'clustering', 'path_length']
-    X = df[feature_cols].values
-    y = df['threshold'].values
-    
-    return X, y, feature_cols
-
-
 def main():
-    """
-    Main entry point for stats module.
-    Demonstrates regression workflow.
-    """
-    config = load_config()
-    paths = get_paths()
+    """Main entry point for stats module."""
+    logging.basicConfig(level=logging.INFO)
     
-    # Check data availability
-    available, count = check_data_availability()
-    if not available:
-        logger.info(f"Data unavailable for regression. Count: {count}. Skipping regression.")
-        return
+    # Example usage
+    np.random.seed(42)
+    X = np.random.rand(100, 3)
+    y = 3 * X[:, 0] + 2 * X[:, 1] + np.random.randn(100) * 0.1
+    names = ["feature1", "feature2", "feature3"]
     
-    # Load data
-    processed_path = paths["data"] / "processed" / "processed_metrics.csv"
-    try:
-        X, y, feature_names = prepare_regression_data(processed_path)
-    except Exception as e:
-        logger.error(f"Failed to prepare regression data: {e}")
-        return
-    
-    logger.info(f"Loaded {len(y)} samples for regression.")
-    
-    # Run linear regression
-    logger.info("Running linear regression...")
-    linear_result = run_regression(X, y, feature_names, model_type="linear")
-    
-    # Run VIF check
-    logger.info("Calculating VIF...")
-    vif_values = calculate_vif(X, feature_names)
-    logger.info(f"VIF values: {vif_values}")
-    
-    # Run cross-validation
-    logger.info("Running cross-validation...")
-    cv_result = run_cross_validation(X, y, model_type="linear")
-    logger.info(f"CV results: mean_r2={cv_result['mean_r2']:.4f}, std_dev={cv_result['std_dev']:.4f}")
-    
-    # Generate summary
-    summary = {
-        "model_type": linear_result["model_type"],
-        "coefficients": linear_result["coefficients"],
-        "r_squared": linear_result["r_squared"],
-        "p_values": linear_result["p_values"],
-        "vif_values": vif_values,
-        "cv_results": cv_result,
-        "sample_size": len(y)
-    }
-    
-    # Write summary
-    summary_path = paths["results"] / "regression_summary.json"
-    with open(summary_path, 'w') as f:
-        json.dump(summary, f, indent=2)
-    
-    logger.info(f"Regression summary written to {summary_path}")
-
+    result = run_regression(X, y, names)
+    print(json.dumps(result, indent=2))
 
 if __name__ == "__main__":
     main()

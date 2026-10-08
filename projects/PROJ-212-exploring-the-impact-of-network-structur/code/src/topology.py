@@ -3,6 +3,7 @@ import logging
 from typing import Dict, Any, List, Tuple, Optional, Union
 from data_models import NetworkGraph
 import numpy as np
+import math
 
 logger = logging.getLogger(__name__)
 
@@ -11,81 +12,73 @@ def compute_metrics(graph: Union[nx.Graph, NetworkGraph]) -> Dict[str, Any]:
     Compute topological metrics for a given network graph.
 
     Metrics computed:
-    - degree_distribution: Dictionary mapping degree to frequency count
-    - mean_degree: Average degree of the graph
-    - clustering_coefficient: Average clustering coefficient
-    - average_path_length: Average shortest path length (infinity if disconnected)
-    - is_connected: Boolean indicating if the graph is connected
-    - num_nodes: Number of nodes
-    - num_edges: Number of edges
-    - density: Graph density
+    - degree_distribution: Dict mapping degree to frequency
+    - mean_degree: float
+    - clustering_coefficient: float (average local clustering)
+    - average_path_length: float (infinity if graph is disconnected)
+    - num_nodes: int
+    - num_edges: int
+    - is_connected: bool
 
     Args:
-        graph: A NetworkX Graph or NetworkGraph dataclass instance
+        graph: A NetworkX graph or NetworkGraph dataclass instance.
 
     Returns:
-        Dictionary containing all computed metrics
+        Dictionary containing the computed metrics.
     """
-    # Convert NetworkGraph dataclass to NetworkX Graph if necessary
+    # Handle NetworkGraph wrapper if passed
     if isinstance(graph, NetworkGraph):
-        # Assuming NetworkGraph has a 'graph' attribute that is a NetworkX Graph
-        # or we reconstruct it from edges/node list
-        if hasattr(graph, 'graph') and isinstance(graph.graph, nx.Graph):
-            nx_graph = graph.graph
-        elif hasattr(graph, 'edges') and hasattr(graph, 'nodes'):
-            nx_graph = nx.Graph()
-            nx_graph.add_nodes_from(graph.nodes)
-            nx_graph.add_edges_from(graph.edges)
-        else:
-            raise ValueError("NetworkGraph instance does not contain valid graph data")
-    elif isinstance(graph, nx.Graph):
-        nx_graph = graph
+        nx_graph = graph.graph
     else:
-        raise TypeError(f"Expected nx.Graph or NetworkGraph, got {type(graph)}")
+        nx_graph = graph
 
-    # Basic graph properties
+    if nx_graph is None:
+        logger.error("Graph is None")
+        return {
+            "degree_distribution": {},
+            "mean_degree": 0.0,
+            "clustering_coefficient": 0.0,
+            "average_path_length": float('inf'),
+            "num_nodes": 0,
+            "num_edges": 0,
+            "is_connected": False
+        }
+
     num_nodes = nx_graph.number_of_nodes()
     num_edges = nx_graph.number_of_edges()
-    density = nx.density(nx_graph)
-    is_connected = nx.is_connected(nx_graph)
 
-    # Degree distribution
+    # Degree Distribution
     degrees = [d for n, d in nx_graph.degree()]
     degree_counts = {}
     for d in degrees:
         degree_counts[d] = degree_counts.get(d, 0) + 1
-    degree_distribution = dict(sorted(degree_counts.items()))
 
-    # Mean degree
-    mean_degree = np.mean(degrees) if degrees else 0.0
+    mean_degree = float(np.mean(degrees)) if degrees else 0.0
 
-    # Clustering coefficient (average)
-    clustering_coeff = nx.average_clustering(nx_graph) if num_nodes > 0 else 0.0
+    # Clustering Coefficient (Average Local Clustering)
+    clustering_coeffs = nx.clustering(nx_graph)
+    avg_clustering = float(np.mean(list(clustering_coeffs.values()))) if clustering_coeffs else 0.0
 
-    # Average path length
-    # Handle disconnected graphs: if not connected, average path length is infinity
+    # Average Path Length (Handle Disconnected Graphs)
+    is_connected = nx.is_connected(nx_graph) if num_nodes > 0 else False
     if is_connected:
         try:
-            avg_path_length = nx.average_shortest_path_length(nx_graph)
-        except nx.NetworkXError as e:
-            logger.warning(f"Error computing average shortest path length: {e}")
+            avg_path_length = float(nx.average_shortest_path_length(nx_graph))
+        except Exception as e:
+            logger.warning(f"Failed to compute average shortest path: {e}")
             avg_path_length = float('inf')
     else:
+        # For disconnected graphs, we define average path length as infinity
+        # as per the task requirement
         avg_path_length = float('inf')
-        logger.info(f"Graph is disconnected. Average path length set to infinity.")
+        logger.info(f"Graph is disconnected. Setting average path length to infinity.")
 
-    metrics = {
+    return {
+        "degree_distribution": degree_counts,
+        "mean_degree": mean_degree,
+        "clustering_coefficient": avg_clustering,
+        "average_path_length": avg_path_length,
         "num_nodes": num_nodes,
         "num_edges": num_edges,
-        "density": density,
-        "is_connected": is_connected,
-        "mean_degree": float(mean_degree),
-        "clustering_coefficient": float(clustering_coeff),
-        "average_path_length": float(avg_path_length) if not np.isinf(avg_path_length) else float('inf'),
-        "degree_distribution": degree_distribution
+        "is_connected": is_connected
     }
-
-    logger.info(f"Computed metrics for graph with {num_nodes} nodes and {num_edges} edges. "
-                f"Connected: {is_connected}, Avg Path Length: {avg_path_length}")
-
-    return metrics

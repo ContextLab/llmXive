@@ -1,39 +1,14 @@
-T001:
+T022:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`src/`, `tests/`, `data/`, `results/`,
-    `data/raw`, `data/processed`, `state`) is provided; the claim lacks any artifact
-    showing that the `mkdir -p` command was executed and the structure exists. The
-    implementer must supply a view of the repository (e.g., a directory listing or
-    screenshots) confirming that all specified folders are present.
-T003:
+  h: 77f62d7b411d927a4d5c7f9c43b99526e7fa2786b44c44abf1f5e09127e04832
+  r: "Both required artifacts are missing: `results/sim_results.json` does not exist,\
+    \ and consequently `data/processed_metrics.csv` is also absent, so the aggregation\
+    \ logic cannot have been implemented or verified. The task\u2019s verification\
+    \ condition is not satisfied."
+T024:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
-    `.pre-commit-config.yaml`, or similar) were provided or referenced, and there
-    is no evidence of ruff/black being set up in the repository. The required artifacts
-    to demonstrate that linting and formatting tools are configured are missing.
-T005d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `logs/warning.log` file was provided, nor any output showing
-    the required warning message when the file count in `data/raw/` is below 10. The
-    implementer did not supply the artifact needed to verify the task.
-T010:
-  c: false
-  h: f48447422f687110a96b2ac964e6947e49451836208b13b912ca7480f8ed1653
-  r: The `tests/test_topology.py` file exists and defines the first two required test
-    functions, but the repository lacks `src/topology.py`, so the import `from src.topology
-    import compute_metrics` will fail and the tests cannot be executed. Additionally,
-    the displayed snippet truncates the `test_path_length_disconnected_graph` implementation,
-    leaving it unclear whether that test is fully realized. The missing source module
-    (and possible incomplete third test) must be added/fixed for the task to be truly
-    complete.
-T011:
-  c: false
-  h: 05616c9c76a3cd532ac4302fd660284b77cc03bda6ea99ecea65d0d3816617ef
-  r: The repository lacks the required `src/simulation.py` file, so the imported functions
-    cannot be tested. Moreover, the `tests/test_simulation.py` file does not contain
-    the specific test cases `test_ring_graph_analytical_match_5pct` and `test_bisection_search_logic`
-    that the task demanded. Both the implementation file and the exact unit tests
-    are missing.
+  h: 257bf310a9708746576e6a12c8190ff2a7d3eb3de9dcdd294d2e0e0215e7da7c
+  r: The required `src/stats.py` file does not exist, and the expected `results/regression_summary.json`
+    output is also missing, so the VIF check logic and its verification cannot be
+    evaluated. The implementer must add the module and generate the JSON file with
+    the required fields.
