@@ -1,0 +1,68 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EvaluationResult"
+description: "Schema for model evaluation results and statistical tests."
+type: object
+properties:
+  model_id:
+    type: string
+    description: "Reference to the trained model"
+  model_type:
+    type: string
+    enum:
+      - "GCN"
+      - "Baseline"
+    description: "Type of model evaluated"
+  mae:
+    type: number
+    description: "Mean Absolute Error"
+  rmse:
+    type: number
+    description: "Root Mean Squared Error"
+  r_squared:
+    type: number
+    description: "R² score"
+  statistical_test:
+    type: object
+    properties:
+      test_type:
+        type: string
+        enum:
+          - "paired_t_test"
+        description: "Type of statistical test performed"
+      p_value:
+        type: number
+        description: "P-value of the test"
+      effect_size:
+        type: number
+        description: "Cohen's d effect size"
+      correction_method:
+        type: ["string", "null"]
+        description: "Multiple comparison correction method (e.g., Bonferroni)"
+    required:
+      - test_type
+      - p_value
+      - effect_size
+  sensitivity_analysis:
+    type: array
+    items:
+      type: object
+      properties:
+        threshold:
+          type: number
+          description: "MAE cutoff threshold (Å²)"
+        success_rate:
+          type: number
+          description: "Percentage of molecules with MAE < threshold"
+        adjusted_p_value:
+          type: ["number", "null"]
+          description: "Adjusted p-value if multiple tests were run"
+      required:
+        - threshold
+        - success_rate
+required:
+  - model_id
+  - model_type
+  - mae
+  - rmse
+  - r_squared
+additionalProperties: false

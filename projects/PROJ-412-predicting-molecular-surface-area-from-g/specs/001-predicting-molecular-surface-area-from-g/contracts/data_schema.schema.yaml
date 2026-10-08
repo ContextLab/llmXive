@@ -29,11 +29,15 @@ properties:
       conformer_success:
         type: "boolean"
         description: "Whether 3D conformer was generated."
+      conformer_params:
+        type: "string"
+        description: "JSON string of RDKit conformer generation parameters."
     required:
       - smiles
       - sasa_label
       - graph_features
       - conformer_success
+      - conformer_params
 required:
   - columns
   - sample_record

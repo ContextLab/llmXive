@@ -1,200 +1,133 @@
 # Implementation Plan: Predicting Molecular Surface Area from Graph Convolutional Networks
 
-**Branch**: `001-predict-molecular-surface-area` | **Date**: 2026-07-14 | **Spec**: `specs/001-predicting-molecular-surface-area/spec.md`
-**Input**: Feature specification from `/specs/001-predicting-molecular-surface-area/spec.md`
+**Branch**: `001-predict-molecular-surface-area` | **Date**: 2026-07-13 | **Spec**: `specs/001-predicting-molecular-surface-area-from-g/spec.md`
+**Input**: Feature specification from `/specs/001-predicting-molecular-surface-area-from-g/spec.md`
 
 ## Summary
 
-This project implements a pipeline to predict molecular surface area (SASA) using Graph Convolutional Networks (GCNs) trained on 2D topological features. The core research question investigates whether 2D graph topology contains sufficient information to predict 3D geometric properties, compared against a Geometry-Based Baseline that explicitly uses 3D conformer data (volume, shape indices, moment of inertia) but NOT 3D coordinates. The implementation prioritizes CPU-first execution on GitHub Actions free-tier runners with limited CPU and RAM resources, utilizing a canonical ZINC15 dataset (streaming) and a stratified sample size determined by a pilot study to ensure feasibility within 6 hours.
+This project implements a comparative study between a 2D-only Graph Convolutional Network (GCN) and a Geometry-Based Baseline (a predictive model using 3D descriptors) to predict molecular surface area (SA). The primary goal is to quantify the information loss incurred by omitting 3D conformational data (Constitution Principle VI). The pipeline ingests SMILES from verified HuggingFace datasets (ZINC with a QM9 fallback), generates 2D graph features and 3D SA labels (or uses pre-computed labels from QM9), trains both models on CPU, and performs rigorous statistical comparisons including paired t-tests and sensitivity analysis with multiple-comparison correction.
+
+**Critical Note on Baseline Validity & Circularity Mitigation**: 
+The "Geometry-Based Baseline" is defined as a predictive model (e.g., Ridge Regression) trained on 3D geometric descriptors. To strictly avoid circularity (where the baseline simply recalls the label generation noise), we enforce **Conformer Seed Separation**:
+1.  **Label Generation**: The "Ground Truth" SA is calculated from a 3D conformer generated using **Seed A** (e.g., `seed=42`).
+2.  **Baseline Feature Extraction**: The 3D descriptors used as input for the Baseline model are calculated from a *different* 3D conformer generated using **Seed B** (e.g., `seed=123`), where Seed B != Seed A.
+3.  **Rationale**: Since 3D conformer generation is stochastic, Seed A and Seed B will yield slightly different geometries. The Baseline model must therefore learn the generalizable relationship between 3D geometry and SA, rather than overfitting to the specific noise of the label's conformer. This ensures the Baseline has non-zero error, making the comparison with the 2D GCN scientifically valid and the t-test meaningful.
 
 ## Technical Context
 
-**Language/Version**: Python 3.10+
-**Primary Dependencies**: PyTorch (CPU wheel), PyTorch Geometric (CPU), RDKit, pandas, scikit-learn, datasets (HuggingFace), pyarrow, ruff, pytest
-**Storage**: Local filesystem (CSV/Parquet), HuggingFace Datasets (streaming)
-**Testing**: pytest (unit, integration, contract), ruff (linting)
-**Target Platform**: Linux (GitHub Actions free-tier runner)
-**Project Type**: Computational Research / Machine Learning Pipeline
-**Performance Goals**: Complete full pipeline (ingest -> preprocess -> train -> eval -> report) within 6 hours on CPU.
-**Constraints**: 
-- Max limited RAM, limited disk.
-- No local GPU (GPU tasks offloaded to Kaggle if triggered).
-- Dataset must be open and directly downloadable (ZINC15 via HuggingFace canonical repo).
-- Ground truth is RDKit-computed SASA of a specific generated conformer.
+**Language/Version**: Python 3.11
+**Primary Dependencies**: `rdkit`, `torch`, `torch-geometric`, `scikit-learn`, `pandas`, `numpy`, `datasets` (HuggingFace)
+**Storage**: Local filesystem (`data/` for raw/processed, `artifacts/` for models)
+**Testing**: `pytest`
+**Target Platform**: Linux (GitHub Actions CPU runner: 2 cores, ~7 GB RAM)
+**Project Type**: Data Science / Machine Learning Research Pipeline
+**Performance Goals**: Complete full training and evaluation cycle within 6 hours on CPU.
+**Constraints**:
+- Memory: Must fit within a constrained RAM footprint consistent with standard workstation capabilities, as discussed in [Citation]. (use streaming for datasets, batched processing).
+- Compute: No local GPU; CPU-only training for GCN.
+- Data: Must use verified HuggingFace sources; no fabricated or gated data.
+- Reproducibility: Fixed random seeds (including distinct seeds for label/baseline conformers), checksummed data (Constitution Principles I, III).
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+> **Note on Compute Feasibility**: The GCN models are designed to be "lightweight" (shallow architecture, small batch size) to ensure they run within the 6-hour CPU limit. A **Pilot Phase** is implemented to verify that the target sample size (N=1000 successful 3D conformers) can be achieved within 4 hours on ZINC15. If the pilot fails, the pipeline automatically switches to the QM9 dataset (which has pre-computed 3D properties) to ensure statistical validity without the CPU bottleneck of conformer generation.
 
 ## Constitution Check
 
-*Gates determined based on constitution file*
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Evidence/Action |
+| Principle | Status | Action/Verification |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | **Pass** | `requirements.txt` pins all deps. Random seeds fixed in `code/`. Data fetched from canonical HF sources (`zinc15`). |
-| **II. Verified Accuracy** | **Pass** | All dataset URLs in `research.md` cite the canonical HuggingFace repository `zinc15`. No user-uploaded URLs. |
-| **III. Data Hygiene** | **Pass** | Pipeline includes checksum generation (`data/raw/checksums.json`). Raw data preserved; derivations written to new files. |
-| **IV. Single Source of Truth** | **Pass** | All metrics (MAE, R²) traced to specific output artifacts in `results/`. `contracts/evaluation_schema.schema.yaml` is SSoT for baseline metrics. `contracts/output.schema.yaml` is DEPRECATED. |
-| **V. Versioning Discipline** | **Pass** | Artifact hashes recorded in state file upon generation. |
-| **VI. Geometric Fidelity** | **Pass** | Plan explicitly compares GCN (2D) vs. Geometry Baseline (3D descriptors only) via paired t-test. Baseline uses independent 3D descriptors (Volume, Shape). No 3D coordinates used. |
-| **VII. Conformational Sampling** | **Pass** | `conformer_params` stored in `data/processed/graphs_with_features.parquet` (column) and `data/processed/conformer_params.json` (summary). `failure_report.csv` logs excluded molecules for bias analysis. |
+| **I. Reproducibility** | **PASS** | Random seeds pinned in `code/config.py` (including `SEED_LABEL` and `SEED_BASELINE`); datasets fetched from canonical HuggingFace URLs; `requirements.txt` pins versions. |
+| **II. Verified Accuracy** | **PASS** | All dataset URLs cited are from the "Verified datasets" block. No external citations invented. |
+| **III. Data Hygiene** | **PASS** | Pipeline will generate checksums for raw and processed data. No in-place modifications. |
+| **IV. Single Source of Truth** | **PASS** | Evaluation results (MAE, R², p-values) will be written to JSON/CSV artifacts; paper will reference these files, not hard-coded values. |
+| **V. Versioning Discipline** | **PASS** | Artifacts will be named with content hashes; state file updated on change. |
+| **VI. Geometric Fidelity** | **PASS** | Plan explicitly includes a Geometry-Based Baseline using 3D descriptors from a *distinct* conformer generation process (Seed B) compared to the label (Seed A) to ensure valid comparison. The baseline is distinct from the label generation to avoid circularity. |
+| **VII. Conformational Sampling** | **PASS** | Pipeline will log RDKit conformer generation parameters (attempts, minimization steps) AND the specific seeds used for both label generation and baseline feature extraction in `conformer_params` field. |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-predicting-molecular-surface-area/
+specs/001-predicting-molecular-surface-area-from-g/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
-    ├── data_schema.schema.yaml
-    ├── dataset.schema.yaml        # Active: SSoT for Parquet dataset
-    ├── dataset_schema.schema.yaml
-    ├── evaluation_schema.schema.yaml  # Active: SSoT for baseline metrics
-    ├── gcn_output.schema.yaml
-    ├── molecule.schema.yaml
-    ├── output.schema.yaml (DEPRECATED: Legacy 2D baseline schema)
-    ├── prediction.schema.yaml
-    └── sensitivity.schema.yaml      # Active: SSoT for sensitivity results
+├── contracts/           # Phase 1 output
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
-code/
+projects/PROJ-412-predicting-molecular-surface-area-from-g/
 ├── data/
-│   ├── ingest.py            # Download & checksum ZINC15
-│   ├── preprocess.py        # 2D graph feat + 3D SASA gen + Bias Analysis
-│   └── utils.py             # RDKit helpers
-├── models/
-│   ├── gcn.py               # GCN Model definition
-│   └── baseline.py          # Geometry Baseline (RF on 3D desc)
-├── train/
-│   └── train_gcn.py         # Training loop, early stopping
-├── eval/
-│   ├── evaluate.py          # MAE, RMSE, R², t-test
-│   └── sensitivity.py       # Threshold sweep + Conformer Noise Check
-├── utils/
-│   └── logger.py
-└── requirements.txt
-
-tests/
-├── contract/
-│   └── test_schemas.py      # Validates parquet against YAML
-├── unit/
-│   ├── test_ingest.py
-│   └── test_preprocess.py
-└── integration/
-    └── test_pipeline.py
-
-results/
-├── reports/                 # Final comparison tables, sensitivity, runtime
-├── plots/                   # Sensitivity curves
-├── predictions/             # Parquet of predictions
-└── baseline/                # Baseline metrics
-
-data/
-├── raw/                     # Downloaded parquet, checksums.json
-├── processed/               # Graph features, SASA labels, splits, failure_report.csv
-└── schemas/                 # JSON schema for validation
-
-logs/
+│   ├── raw/             # Downloaded parquet files
+│   ├── processed/       # Graph features, 3D labels, splits
+│   └── checksums.json   # Data integrity hashes
+├── code/
+│   ├── __init__.py
+│   ├── config.py        # Seeds, thresholds, paths
+│   ├── data/
+│   │   ├── ingest.py    # SMILES -> Graph + 3D Label (or load QM9)
+│   │   ├── pilot.py     # Feasibility check for N=1000
+│   │   └── split.py     # Stratified split (KS test)
+│   ├── models/
+│   │   ├── gcn_2d.py    # 2D-Only GCN Model Definition
+│   │   └── baseline_3d.py # Geometry-Based Baseline (Predictive Model)
+│   ├── train.py         # Training loop (CPU)
+│   ├── eval.py          # Evaluation & Statistical Tests
+│   └── sensitivity.py   # Threshold sweep & McNemar correction
+├── tests/
+│   ├── unit/            # Unit tests for RDKit parsing, graph conversion
+│   ├── integration/     # End-to-end pipeline test (small subset)
+│   └── contract/        # Schema validation tests
+├── artifacts/           # Model weights, results JSON
+└── requirements.txt     # Pinned dependencies
 ```
 
-**Structure Decision**: Single project structure selected. Separation of `data`, `models`, `train`, and `eval` ensures modularity and clear data flow from ingestion to reporting. This aligns with the computational nature of the project and the need for reproducible pipelines.
-
-**Contract References**:
-- **Ground Truth (SASA)**: `contracts/dataset.schema.yaml` (column `sasa`) and `contracts/molecule.schema.yaml`.
-- **Baseline Metrics**: `contracts/evaluation_schema.schema.yaml` (object `baseline`). *Note: `contracts/output.schema.yaml` is DEPRECATED as it defines a 2D baseline, not the required Geometry-Based Baseline.*
-- **Sensitivity Results**: `contracts/sensitivity.schema.yaml`.
+**Structure Decision**: Single-project structure chosen. The workflow is linear (Ingest -> Process -> Train -> Eval), making a monolithic `code/` directory with modular sub-packages appropriate. No separate frontend/backend is needed.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 | :--- | :--- | :--- |
-| **3D Baseline vs 2D GCN** | Required by Spec FR-004 & Constitution Principle VI to quantify info loss. | A pure 2D baseline would fail to address the core hypothesis (2D -> 3D prediction). |
-| **Streaming Dataset** | ZINC exceeds substantial RAM requirements if fully loaded. | Loading full dataset would cause OOM on CI runner. Streaming is mandatory for feasibility. |
-| **Sensitivity Analysis** | Required by Spec FR-006 to avoid cherry-picking thresholds. | Single threshold evaluation lacks robustness and fails methodological rigor. |
-| **Conformer Noise Analysis** | Required to ensure thresholds are valid (larger than noise floor). | Without this, success rates may reflect conformer generation noise rather than model performance. |
+| **Dual Model Architecture (2D GCN + Geometry-Based Baseline)** | Required by Constitution Principle VI to quantify information loss. A direct calculator (Oracle) was rejected as tautological. | A single model would fail to answer the research question of "2D vs 3D" fidelity. |
+| **Conformer Seed Separation** | Required to resolve circularity concerns. Using the same conformer for label and baseline features would result in near-zero error for the baseline, invalidating the t-test. | Using a single conformer seed creates a methodological flaw where the baseline is essentially an oracle for its own noise. |
+| **Sensitivity Analysis + Correction** | Required by FR-006/FR-007 to prevent cherry-picking and ensure robustness. | A single threshold evaluation would be methodologically unsound and prone to false positives. |
+| **Streaming Data Processing + Pilot Phase** | Required to fit large HuggingFace datasets into 7 GB RAM and ensure N=1000 validity. | Loading full datasets into memory would cause OOM errors; post-hoc sampling risks underpowering. |
 
-## Implementation Phases
+## FR/SC Mapping
 
-### Phase 1: Data Ingestion & Preprocessing (FR-001, FR-002)
-**Goal**: Create a validated, paired dataset of 2D graphs and 3D SASA labels.
-**Inputs**: Canonical ZINC15 dataset (HuggingFace `zinc15`).
-**Outputs**: `data/processed/graphs_with_features.parquet`, `data/raw/checksums.json`, `data/processed/failure_report.csv`, `data/processed/conformer_params.json`.
+| ID | Requirement/Scenario | Plan Component |
+| :--- | :--- | :--- |
+| **FR-001** | Ingest SMILES, convert to 2D graph (RDKit). | `code/data/ingest.py` (Graph conversion logic). |
+| **FR-002** | Generate 3D SA labels (RDKit 3D). | `code/data/ingest.py` (Conformer generation with Seed A & SA calc) OR load QM9. |
+| **FR-003** | Train lightweight GCN (CPU, early stopping). | `code/train.py` (2D GCN class, training loop, early stopping). |
+| **FR-004** | Train Geometry-Based Baseline (RDKit 3D). | `code/models/baseline_3d.py` (Predictive model using 3D descriptors from Seed B). |
+| **FR-005** | Paired t-test (MAE comparison, p-value, effect size). | `code/eval.py` (Statistical testing module). |
+| **FR-006** | Sensitivity analysis (thresholds, standard significance levels). | `code/sensitivity.py` (Sweep logic). |
+| **FR-007** | Multiple-comparison correction (Bonferroni/FDR). | `code/sensitivity.py` (McNemar's test + Bonferroni correction). |
+| **SC-001** | Measure R² (GCN vs Baseline). | `code/eval.py` (Metric calculation). |
+| **SC-002** | Measure MAE (GCN vs Baseline). | `code/eval.py` (Metric calculation). |
+| **SC-003** | Measure statistical significance (p-value, Cohen's d). | `code/eval.py` (Statistical testing). |
+| **SC-004** | Measure robustness (threshold variation). | `code/sensitivity.py` (Sweep results). |
+| **SC-005** | Measure computational feasibility (runtime). | `code/train.py` (Timing logs). |
+| **US-1.3** | Stratified split (KS test p > 0.05). | `code/data/split.py` (KS test implementation). |
+| **US-3.3** | Bonferroni/FDR correction. | `code/sensitivity.py` (Correction implementation). |
 
-1.  **Ingest**: Download ZINC15 using `datasets.load_dataset('zinc15', streaming=True)`. Write `data/raw/checksums.json` (Task T057).
-2.  **Parse & Filter**: Convert SMILES to RDKit `Mol`. Exclude invalid SMILES and molecules >100 atoms.
-3.  **Conformer Gen**: Generate 3D conformers (ETKDG). If >10% fail, halt and log to `failure_report.csv` (Task T015a).
-4.  **Bias Analysis**: Compare MW distribution of excluded vs. included molecules.
-    - **Action**: If KS test p-value < 0.05 (bias detected), halt with "Bias Critical" flag OR re-sample using stratified exclusion until p > 0.05.
-5.  **Feature Extraction**:
-    -   2D: Atom features (type, hybridization, charge), Edge features (bond type).
-    -   3D: Compute SASA, Volume, Shape Indices, Moment of Inertia.
-6.  **Pilot & Sample**: Run a pilot on a representative sample of molecules to estimate runtime. Select a stratified sample (by MW) such that total estimated runtime < 5.5 hours.
-7.  **Conformer Noise Check**: Calculate SASA variance across multiple conformers for a subset. Verify thresholds (representative magnitudes) > noise floor.
-    - **Clarification**: Ground truth is SASA of a SINGLE conformer. Noise is variance across multiple conformers.
-8.  **Split**: Stratified split by Molecular Weight (KS test p-value > 0.05).
-9.  **Write**: Save to `graphs_with_features.parquet` (Task T014). `conformer_params` stored as JSON string in Parquet column.
+## Computational Feasibility Strategy
 
-### Phase 2: GCN Model Training (FR-003)
-**Goal**: Train a lightweight GCN on 2D features.
-**Inputs**: `data/processed/graphs_with_features.parquet` (train split).
-**Outputs**: `results/models/gcn_model.pt`, `results/reports/training_log.json`.
+1.  **Pilot Phase**: Before full processing, a pilot of 10 molecules is run on ZINC15 to estimate conformer generation time. If `1000 * pilot_time > 4 hours`, the pipeline switches to QM9 (pre-computed 3D) to ensure N=1000 is achieved within the 6-hour limit.
+2.  **CPU-First**: The GCNs are shallow networks (2-3 layers) with small embedding dimensions to ensure training completes within 6 hours on 2 CPU cores.
+3.  **Data Streaming**: The `datasets` library will be used in streaming mode to avoid loading the entire ZINC15/SMILES dataset into RAM.
+4.  **Minimum Viable Sample (MVS)**: The study targets N=1000 *successful* 3D conformers. If the dataset (ZINC) cannot yield this number within the time budget, the fallback to QM9 is triggered. This ensures the study is never underpowered by accident.
+5.  **No Fabrication**: No synthetic data, hard-coded results, or placeholder metrics will be used. All metrics will be derived from the actual model runs on real data.
 
-1.  **Model**: 2-3 Graph Convolutional layers + Global Pooling + MLP.
-2.  **Train**: Max 50 epochs, Early Stopping (patience=5), CPU-only.
-3.  **Validate**: Track MAE on validation set.
+## Data Availability & Fallback
 
-### Phase 3: Geometry-Based Baseline Training (FR-004)
-**Goal**: Train a Random Forest on 3D geometric descriptors (Volume, Shape, Moment) to predict SASA.
-**Inputs**: `data/processed/graphs_with_features.parquet` (train split).
-**Outputs**: `results/models/baseline_model.pkl`.
-
-1.  **Features**: Extract 3D descriptors (Volume, Shape Indices, Moment of Inertia) from the *same* conformers used for SASA. **Do NOT use 3D coordinates.**
-2.  **Train**: Random Forest Regressor.
-    - **Clarification**: This is a learned model with expected non-zero error, NOT an oracle.
-3.  **Validate**: Track MAE on validation set.
-    - **Constraint**: Must use the exact same test split indices as the GCN (Phase 4) to ensure paired comparison.
-
-### Phase 4: Sensitivity Analysis & Reporting (FR-005, FR-006, FR-007, SC-004)
-**Goal**: Compare models and assess robustness.
-**Inputs**: `results/models/gcn_model.pt`, `results/models/baseline_model.pkl`, `data/processed/graphs_with_features.parquet` (test split).
-**Outputs**: `results/reports/comparison_report.json`, `results/reports/sensitivity_analysis.json`, `results/predictions/gcn_predictions.parquet`.
-
-1.  **Predict**: Generate predictions for GCN and Baseline on test set.
-2.  **Metrics**: Calculate MAE, RMSE, R² for both.
-3.  **Stat Test**: Paired t-test on errors (GCN vs. Baseline). Report p-value, Cohen's d.
-4.  **Sensitivity**:
-    -   Sweep thresholds: **{, 5.0, 10.0} Å²** (physically realistic, > conformer noise).
-    -   Calculate success rates (error < threshold) for both models.
-    -   Perform **McNemar's test** for paired proportions at each threshold.
-    -   Apply **Bonferroni correction** to the resulting p-values and record in `adjusted_p_value` field of `contracts/sensitivity.schema.yaml`.
-5.  **Report**: Save results to `sensitivity_analysis.json` (schema: `contracts/sensitivity.schema.yaml`). This is a hard gate for SC-004.
-
-### Phase 5: Runtime Measurement & Verification (SC-005)
-**Goal**: Verify computational feasibility.
-**Inputs**: All pipeline logs.
-**Outputs**: `results/reports/runtime.json`.
-
-1.  **Measure**: Record total runtime (ingest + preprocess + train + eval).
-2.  **Verify**: Check if total < 6 hours.
-3.  **Report**: Save to `runtime.json` (schema: `contracts/gcn_output.schema.yaml`). This is a hard gate for SC-005.
-
-## Verification & Testing
-
--   **Unit Tests**: `test_ingest.py` (checksum), `test_preprocess.py` (feature extraction).
--   **Contract Tests**: `test_schemas.py` validates `parquet` against `contracts/*.yaml`.
--   **Integration Tests**: `test_pipeline.py` runs full flow on a small subset.
--   **Hygiene**: `ruff` linting (Task T003a). `pytest` coverage.
-
-## Risk Management
-
--   **Risk**: Conformer generation fails for >10%. **Mitigation**: Halt pipeline, report bias.
-- **Risk**: OOM on 7 GB RAM. **Mitigation**: Streaming, sample size fixed by pilot study.
--   **Risk**: Thresholds too small (noise floor). **Mitigation**: Conformer Noise Analysis in Phase 1.
--   **Risk**: Baseline tautology. **Mitigation**: Use independent 3D descriptors (Volume, Shape), NO coordinates.
--   **Risk**: Bias in excluded molecules. **Mitigation**: Bias Analysis + Re-sampling or Halt.
+- **Primary**: ZINC15 (verified URL).
+- **Fallback**: QM9 (verified URL). QM9 contains pre-computed 3D properties (including surface area) and is computationally feasible for the CI runner.
+- **Switch Condition**: If the ZINC15 pilot phase indicates the N=1000 target cannot be met within 4 hours, the pipeline switches to QM9.
+- **Verification**: Both datasets are verified open sources with programmatic access.

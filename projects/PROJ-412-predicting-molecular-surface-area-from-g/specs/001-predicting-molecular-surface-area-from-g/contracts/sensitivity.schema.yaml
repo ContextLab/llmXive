@@ -1,15 +1,15 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Sensitivity Analysis Result"
-description: "Schema for sensitivity analysis results across absolute MAE thresholds (1.0, 5.0, 10.0) as required by spec."
+description: "Schema for sensitivity analysis results across absolute MAE thresholds (0.01, 0.05, 0.1) as required by spec."
 type: "object"
 properties:
   threshold:
     type: "number"
-    description: "MAE cutoff value in Å² (absolute values: 1.0, 5.0, 10.0)."
+    description: "MAE cutoff value in Å² (absolute values: 0.01, 0.05, 0.1)."
     enum:
-      - 1.0
-      - 5.0
-      - 10.0
+      - 0.01
+      - 0.05
+      - 0.1
   gcn_success_rate:
     type: "number"
     description: "Percentage of molecules predicted within the threshold by GCN."
@@ -17,9 +17,14 @@ properties:
     maximum: 100
   baseline_success_rate:
     type: "number"
-    description: "Percentage of molecules predicted within the threshold by Geometry-Based Baseline."
+    description: "Percentage of molecules predicted within the threshold by 3D-Aware Baseline."
     minimum: 0
     maximum: 100
+  test_type:
+    type: "string"
+    enum:
+      - "McNemar"
+    description: "Type of statistical test used for binary success rates."
   adjusted_p_value:
     type: "number"
     description: "Bonferroni-corrected p-value for the difference in success rates (McNemar's test)."
@@ -29,5 +34,6 @@ required:
   - threshold
   - gcn_success_rate
   - baseline_success_rate
+  - test_type
   - adjusted_p_value
 additionalProperties: false

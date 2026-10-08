@@ -12,7 +12,7 @@ properties:
         description: "Mean Absolute Error in Å²"
       rmse:
         type: "number"
-        description: "Root Mean Squared Error in Å²"
+        description: "Root Mean Square Error in Å²"
       r2:
         type: "number"
         description: "Coefficient of determination"
@@ -22,14 +22,14 @@ properties:
       - r2
   baseline:
     type: "object"
-    description: "2D Topology Baseline (GBR on 2D descriptors) metrics"
+    description: "Geometry-Based Baseline (3D descriptors from distinct conformer seed) metrics"
     properties:
       mae:
         type: "number"
         description: "Mean Absolute Error in Å²"
       rmse:
         type: "number"
-        description: "Root Mean Squared Error in Å²"
+        description: "Root Mean Square Error in Å²"
       r2:
         type: "number"
         description: "Coefficient of determination"
@@ -39,24 +39,24 @@ properties:
       - r2
   oracle:
     type: "object"
-    description: "Geometry Oracle (Direct 3D Computation) metrics"
+    description: "Geometry Oracle (Direct 3D Computation from label conformer) metrics"
     properties:
       mae:
         type: "number"
-        description: "Mean Absolute Error (expected 0.0)"
+        description: "Mean Absolute Error (expected ~0.0)"
       rmse:
         type: "number"
-        description: "Root Mean Squared Error (expected 0.0)"
+        description: "Root Mean Square Error (expected ~0.0)"
       r2:
         type: "number"
-        description: "Coefficient of determination (expected 1.0)"
+        description: "Coefficient of determination (expected ~1.0)"
     required:
       - mae
       - rmse
       - r2
   comparison:
     type: "object"
-    description: "Statistical comparison between GCN and 2D Topology Baseline"
+    description: "Statistical comparison between GCN and Geometry-Based Baseline"
     properties:
       p_value:
         type: "number"

@@ -1,86 +1,54 @@
 # Data Model: Predicting Molecular Surface Area from Graph Convolutional Networks
 
-## 1. Conceptual Model
+## 1. Entities
 
-The data model represents a molecular entity with both 2D topological and 3D geometric properties.
+### Molecule
+Represents a chemical compound.
+- `smiles` (string): Canonical SMILES string.
+- `mol_id` (string): Unique identifier (hash of SMILES).
+- `molecular_weight` (float): Calculated MW.
+- `node_features` (list[float]): Vector of atom properties (type, hybridization, charge).
+- `edge_features` (list[float]): Vector of bond properties (type, conjugation).
+- `surface_area_3d` (float): Computed 3D surface area (Å²).
+- `conformer_success` (bool): Whether 3D conformer was generated.
+- `conformer_params` (string): JSON string of RDKit conformer generation parameters (attempts, minimization steps).
 
--   **Molecule**: The atomic unit.
-    -   `smiles`: String (Canonical SMILES).
-    -   `molecular_weight`: Float.
-    -   `atom_count`: Integer.
-    -   `node_features`: List of Float (Atom type, hybridization, charge, etc.).
-    -   `edge_features`: List of Float (Bond type, conjugation, etc.).
-    -   `sasa`: Float (Computed 3D Surface Area).
-    -   `conformer_id`: String (Identifier for the specific 3D conformation used).
-    -   `conformer_params`: String (JSON string of RDKit parameters).
+### Graph
+Represents the 2D topological structure.
+- `adjacency_matrix` (2D array): Node connectivity.
+- `node_matrix` (2D array): Node feature vectors.
+- `edge_index` (2D array): Edge connectivity for PyTorch Geometric.
 
--   **Graph**: The 2D representation of a Molecule.
-    -   `nodes`: List of Node objects.
-    -   `edges`: List of Edge objects.
+### ModelArtifact
+Represents a trained model.
+- `model_id` (string): Unique hash.
+- `model_type` (enum): `GCN_2D` | `GCN_3D`.
+- `hyperparameters` (dict): Architecture details.
+- `weights_path` (string): Path to serialized weights.
+- `training_metrics` (dict): Final loss, epochs.
 
--   **Prediction**: The output of the model.
-    -   `smiles`: String.
-    -   `predicted_sasa`: Float.
-    -   `actual_sasa`: Float.
-    -   `error`: Float (Absolute difference).
+### EvaluationResult
+Represents the outcome of a test.
+- `model_id` (string): Reference to model.
+- `test_set_id` (string): Reference to test split.
+- `mae` (float): Mean Absolute Error.
+- `rmse` (float): Root Mean Squared Error.
+- `r_squared` (float): R² score.
+- `p_value` (float): Statistical significance (if applicable).
+- `effect_size` (float): Cohen's d.
 
-## 2. Physical Data Model (Parquet Schema)
+## 2. Data Flow
 
-The primary storage format is Apache Parquet for efficient columnar access and streaming.
+1.  **Raw Input**: SMILES strings from HuggingFace (Parquet).
+2.  **Processed Input**: `processed_molecules.parquet` (SMILES, 2D features, 3D labels, conformer_params).
+3.  **Training Data**: `train_graphs.pt`, `train_labels.pt`.
+4.  **Test Data**: `test_graphs.pt`, `test_labels.pt`.
+5.  **Outputs**: `results.json` (metrics), `models/` (weights).
 
-### 2.1 Dataset Schema (`data/processed/graphs_with_features.parquet`)
-*SSoT: `contracts/dataset.schema.yaml`*
+## 3. Constraints
 
-| Column Name | Data Type | Description | Nullable |
-| :--- | :--- | :--- | :--- |
-| `smiles` | String | Canonical SMILES string | False |
-| `molecular_weight` | Float64 | Molecular weight in g/mol | False |
-| `atom_count` | Int64 | Number of atoms in the molecule | False |
-| `node_features` | List<Float32> | Flattened atom feature vectors | False |
-| `edge_features` | List<Float32> | Flattened bond feature vectors | False |
-| `sasa` | Float64 | Computed 3D Surface Area (Å²) | False |
-| `conformer_params` | String | JSON string of RDKit parameters used | False |
-| `split` | String | 'train', 'test', or 'val' | False |
-
-### 2.2 Prediction Schema (`results/predictions/gcn_predictions.parquet`)
-
-| Column Name | Data Type | Description | Nullable |
-| :--- | :--- | :--- | :--- |
-| `smiles` | String | Canonical SMILES string | False |
-| `predicted_sasa` | Float64 | GCN predicted SASA (Å²) | False |
-| `actual_sasa` | Float64 | Ground truth SASA (Å²) | False |
-| `error` | Float64 | |predicted - actual| | False |
-| `model_version` | String | Git commit hash or model ID | False |
-
-## 3. In-Memory Data Structures
-
-### 3.1 Molecule Class (Python)
-```python
-class Molecule:
-    def __init__(self, smiles: str, mol: rdkit.Chem.Mol):
-        self.smiles = smiles
-        self.mol = mol
-        self.molecular_weight = ...
-        self.atom_count = ...
-        self.node_features = ...
-        self.edge_features = ...
-        self.sasa = None  # Computed later
-        self.conformer_params = None
-```
-
-### 3.2 Graph Data (PyTorch Geometric)
-```python
-class MolGraph(Data):
-    x: Tensor  # Node features [num_nodes, node_dim]
-    edge_index: Tensor  # Edge connectivity [2, num_edges]
-    edge_attr: Tensor  # Edge features [num_edges, edge_dim]
-    y: Tensor  # Target SASA (scalar)
-```
-
-## 4. Data Flow
-
-1.  **Ingest**: `smiles` (raw) -> `Mol` (RDKit) -> `Molecule` (filtered).
-2.  **Preprocess**: `Molecule` -> `MolGraph` (2D) + `sasa` (3D) -> `Parquet`.
-    - **Note**: `conformer_params` stored in Parquet column AND separate JSON summary file.
-3.  **Train**: `Parquet` -> `DataLoader` -> `MolGraph` batches -> `GCN` -> `predictions`.
-4.  **Eval**: `predictions` + `actual` -> `EvaluationResult` (MAE, RMSE, R², p-value).
+- **Missing Values**: `surface_area_3d` must not be NaN for training rows.
+- **Invalid SMILES**: Excluded from dataset; logged.
+- **Conformer Failure**: Excluded from dataset; logged.
+- **Max Atoms**: Molecules > 100 atoms excluded (memory constraint).
+- **Conformer Params**: `conformer_params` field must be present and non-empty for all molecules with `conformer_success=true`.

@@ -1,10 +1,14 @@
 status: none
-intent: download ZINC15 HuggingFace zhangh1990 zinc and PubChem python package dataset
+intent: download ZINC15 SMILES dataset with PubChem 3D surface area labels python
+  package dataset
 required_fields:
 - smiles
-- atom_features
-- bond_features
+- atom_type
+- atom_hybridization
+- atom_formal_charge
+- edge_index
+- edge_type
 - surface_area
-cache_key: 7100d1495a809611f19328152d772500c95390309915a1c48fb908f26d2e692c
-searched_at: '2026-08-23T09:54:37.406270+00:00'
+cache_key: f863eefe25ac0c711e3ebc269867b6462d657a9b1354c68072f42881597ab291
+searched_at: '2026-10-08T03:38:59.699610+00:00'
 retry_count: 1
