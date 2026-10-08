@@ -95,3 +95,70 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-09T08:47:38Z'
+- artifact_path: projects/PROJ-589-dream-state-learning-implementing-rem-li/specs/001-dream-state-learning-implementing-rem-li/tasks.md
+  attempts: 1
+  canonical: low entropy threshold 0.5 bits per token retry 3 times
+  claim_id: c_00c21945
+  context: 'Phase 3, Task T017b: Implement entropy check'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Detect low-entropy outputs (<0.5 bits per token), calculated as average
+    of -p*log2(p) per token (excluding padding tokens, base-2 log), trigger retry
+    up to 3 times with local retry counter increment.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T16:29:07Z'
+- artifact_path: projects/PROJ-589-dream-state-learning-implementing-rem-li/specs/001-dream-state-learning-implementing-rem-li/tasks.md
+  attempts: 1
+  canonical: mask rate 0.15
+  claim_id: c_9ea1f87a
+  context: 'Phase 3, Task T013a: Define masking constant'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define MASK_RATE = 0.15 constant in code/config.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T16:29:26Z'
+- artifact_path: projects/PROJ-589-dream-state-learning-implementing-rem-li/specs/001-dream-state-learning-implementing-rem-li/tasks.md
+  attempts: 1
+  canonical: wall clock time limit 5.5 hours
+  claim_id: c_5d966c05
+  context: 'Phase 5, Task T031: Implement time monitoring and abort logic'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/main.py time monitoring and abort logic if wall-clock >
+    5.5 hours (read MAX_WALL_CLOCK_HOURS from config.py, raise TimeLimitExceeded)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T16:29:26Z'
+- artifact_path: projects/PROJ-589-dream-state-learning-implementing-rem-li/specs/001-dream-state-learning-implementing-rem-li/tasks.md
+  attempts: 1
+  canonical: verify time less than 5 hours
+  claim_id: c_80a4f54e
+  context: 'Phase 5 Goal: Ensure the pipeline runs within GitHub Actions free-tier
+    limits'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_time_less_than_5_hours
+  kind: magnitude
+  raw_text: Run full pipeline on local resource-limited environment, verify no OOM
+    and time < 5h.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T16:30:01Z'

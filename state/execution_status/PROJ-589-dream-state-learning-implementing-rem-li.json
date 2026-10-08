@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-589-dream-state-learning-implementing-rem-li",
+  "ok": false,
+  "reason": "4 run-book script(s) missing (plan/impl path mismatch): python code/data_loader.py --download; python code/train.py --seed 42 --steps 10 --mode debug; python code/train.py --seeds 0,1,2,3,4 --ratio 4:1 --warmup 20",
+  "artifacts": [],
+  "failures": [
+    "python code/data_loader.py --download -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-589-dream-state-learning-implementing-rem-li/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-589-dream-state-learning-implementing-rem-li/code/data_loader.py': [Errno 2] No such file or directory",
+    "python code/train.py --seed 42 --steps 10 --mode debug -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-589-dream-state-learning-implementing-rem-li/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-589-dream-state-learning-implementing-rem-li/code/train.py': [Errno 2] No such file or directory",
+    "python code/train.py --seeds 0,1,2,3,4 --ratio 4:1 --warmup 20 -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-589-dream-state-learning-implementing-rem-li/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-589-dream-state-learning-implementing-rem-li/code/train.py': [Errno 2] No such file or directory",
+    "python code/eval.py --results-dir data/results/ -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-589-dream-state-learning-implementing-rem-li/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-589-dream-state-learning-implementing-rem-li/code/eval.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-10-08T16:26:23Z"
+}

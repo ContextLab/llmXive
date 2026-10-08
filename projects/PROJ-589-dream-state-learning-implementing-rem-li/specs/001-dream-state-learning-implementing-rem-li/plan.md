@@ -113,14 +113,14 @@ projects/PROJ-589-dream-state-learning-implementing-rem-li/
 - Validate schema consistency with plan.
 
 ### Phase 2: Core Training Pipeline
-- Implement wake/dream loop with 4:1 ratio.
+- Implement wake/dream loop with an asymmetric ratio.
 - Implement [deferred] random token masking (BERT style).
 - Implement "Teacher-Student" loss (reconstruct ground truth from noisy generation).
 - Implement memory monitor and abort logic.
 - Implement logging for transitions and entropy (T019).
 
 ### Phase 3: Sensitivity Analysis (FR-006, SC-005)
-- Execute temperature sweep [, 1.0, 1.5, 2.0].
+- Execute temperature sweep across a defined range.
 - Aggregate results to measure variance in accuracy.
 
 ### Phase 4: Evaluation & Statistical Analysis
