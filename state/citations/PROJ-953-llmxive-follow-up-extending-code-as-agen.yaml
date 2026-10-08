@@ -20,3 +20,14 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/datasets/iFurySt/AgentBench
   verified_at: '2026-07-11T11:21:39.223837Z'
+- artifact_hash: 3312cd9bbe41ffb80d88a4826b281951de547903d022351b101df18f33918fa8
+  artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/docs/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/llmxive-follow-up-extending-code-as-agen.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/llmxive-follow-up-extending-code-as-agen
+  verified_at: '2026-10-08T13:37:13.194833Z'

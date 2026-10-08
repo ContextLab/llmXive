@@ -6,7 +6,7 @@ failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-953-llmxive-follow-up-extending-code-as-agen
-last_run_id: 7924f989-f03c-4f43-9b00-8a246fc37d8c
+last_run_id: 7b258620-b84e-46fe-9e57-4209fe502861
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/specs/001-llmxive-follow-up-extending-code-as-agen
 title: 'llmXive follow-up: extending "Code as Agent Harness"'
-updated_at: '2026-10-04T21:55:10.653785Z'
+updated_at: '2026-10-08T14:05:59.212716Z'

@@ -14,37 +14,34 @@ lib/
 lib64/
 parts/
 sdist/
-venv/
-ENV/
+var/
+wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 
-# Data
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-data/graphs/*
-!data/graphs/.gitkeep
-
-# Models
-models/*
-!models/.gitkeep
+# Virtual Environments
+venv/
+ENV/
+env/
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
-*~
+
+# Data & Models (Generated artifacts)
+data/raw/*.parquet
+data/processed/*.csv
+data/processed/*.json
+data/graphs/*.json
+data/logs/*.log
+data/logs/*.json
+models/*.pkl
+models/*.json
+state/*.yaml
 
 # OS
 .DS_Store
 Thumbs.db
-
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-.mypy_cache/

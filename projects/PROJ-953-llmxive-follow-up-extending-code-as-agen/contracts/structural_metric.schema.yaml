@@ -1,8 +1,16 @@
-# Structural Metric Schema
-# This schema defines the structure for structural metric artifacts.
-# It enforces that 'lines_of_code' (and other fallback metrics) are required,
-# while 'semantic_complexity_score' is optional (used when semantic nodes are present).
+%YAML 1.2
+---
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Structural Metric Schema
+description: >
+  Schema for validating structural metrics extracted from code artifacts.
+  Implements the fallback logic: if semantic_complexity_score is missing,
+  lines_of_code must be present.
 type: object
+required:
+  - task_id
+  - dependency_depth
+  - cyclomatic_complexity
 properties:
   task_id:
     type: string
@@ -10,25 +18,26 @@ properties:
   dependency_depth:
     type: integer
     description: Maximum depth of the dependency graph
+    minimum: 0
   cyclomatic_complexity:
     type: integer
-    description: Cyclomatic complexity metric (McCabe)
+    description: Cyclomatic complexity of the code
+    minimum: 1
   semantic_complexity_score:
     type: number
-    format: float
-    description: Semantic complexity score derived from AST nodes. Optional; may be null if semantic analysis fails.
+    description: >
+      Semantic complexity score derived from AST node analysis.
+      OPTIONAL: If missing, lines_of_code MUST be present.
+    minimum: 0.0
   lines_of_code:
     type: integer
-    description: Lines of code (fallback metric). REQUIRED when semantic nodes are missing.
-  node_count:
-    type: integer
-    description: Total number of AST nodes (optional)
-  function_count:
-    type: integer
-    description: Number of functions detected (optional)
-required:
-  - task_id
-  - dependency_depth
-  - cyclomatic_complexity
-  - lines_of_code
-additionalProperties: true
+    description: >
+      Fallback metric: Total lines of code.
+      REQUIRED if semantic_complexity_score is missing.
+    minimum: 0
+anyOf:
+  - required:
+      - semantic_complexity_score
+  - required:
+      - lines_of_code
+additionalProperties: false

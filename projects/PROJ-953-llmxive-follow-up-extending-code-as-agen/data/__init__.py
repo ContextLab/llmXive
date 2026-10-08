@@ -1,4 +1,4 @@
 """
-Data artifacts directory for llmXive pipeline.
-Contains raw, processed, and graph data outputs.
+Data package for llmXive.
+Contains raw, processed, and graph artifacts.
 """

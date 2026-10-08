@@ -1,4 +1,4 @@
 """
-llmXive automated science pipeline code module.
-Contains implementation scripts for data ingestion, feature extraction, and modeling.
+llmXive follow-up: extending "Code as Agent Harness"
+Core code package for the automated science pipeline.
 """

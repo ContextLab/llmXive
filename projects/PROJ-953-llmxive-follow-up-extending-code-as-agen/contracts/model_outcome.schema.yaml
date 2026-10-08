@@ -1,71 +1,45 @@
+%YAML 1.2
+---
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Model Outcome Schema"
-description: "Schema for validating model training outcomes and threshold analysis results."
+title: Model Outcome Schema
+description: >
+  Schema for validating model training outcomes and threshold analysis results.
 type: object
 required:
   - model_type
-  - thresholds
-  - correlation_coefficient
-  - is_safe
+  - threshold
+  - fnr
+  - framing
 properties:
   model_type:
     type: string
+    description: Type of model trained
     enum:
       - logistic_regression
       - random_forest
-    description: "Type of model trained."
-  thresholds:
-    type: object
-    description: "False negative rates for each tested threshold."
-    required:
-      - 0.01
-      - 0.05
-      - 0.1
-    properties:
-      0.01:
-        type: number
-        minimum: 0
-        maximum: 1
-        description: "FNR at threshold 0.01."
-      0.05:
-        type: number
-        minimum: 0
-        maximum: 1
-        description: "FNR at threshold 0.05."
-      0.1:
-        type: number
-        minimum: 0
-        maximum: 1
-        description: "FNR at threshold 0.1."
-    additionalProperties: false
-  minimum_achievable_fnr:
+  threshold:
     type: number
-    minimum: 0
-    maximum: 1
-    description: "Minimum achievable FNR if target is not met."
-  target_fnr:
+    description: Decision boundary threshold used
+    minimum: 0.0
+    maximum: 1.0
+  fnr:
     type: number
-    minimum: 0
-    maximum: 1
-    description: "Target FNR constraint (0.001 for 0.1%)."
-    default: 0.001
-  is_safe:
-    type: boolean
-    description: "Whether the model meets the safety constraint (FNR ≤ 0.1%)."
+    description: False Negative Rate achieved at this threshold
+    minimum: 0.0
+    maximum: 1.0
+  framing:
+    type: string
+    description: Explicit framing of the results
+    enum:
+      - associational
   correlation_coefficient:
     type: number
-    description: "Correlation coefficient between structural features and execution necessity."
-  training_timestamp:
-    type: string
-    format: date-time
-    description: "ISO 8601 timestamp of model training."
-  random_seed:
-    type: integer
-    description: "Random seed used for reproducibility."
-  model_artifact_path:
-    type: string
-    description: "Path to the saved model artifact."
-  note:
-    type: string
-    description: "Additional notes, e.g., 'Results are associational, not causal'."
+    description: Correlation between features and target
+  unsafe:
+    type: boolean
+    description: Flag indicating if FNR exceeds safety threshold (0.1%)
+  metadata:
+    type: object
+    description: Additional model metadata
+    additionalProperties: true
 additionalProperties: false

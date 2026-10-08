@@ -1,19 +1,17 @@
-T004:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The repository contains no `docs/` directory nor the required `quickstart.md`,\
-    \ `usage_guide.md`, `api_reference.md`, or `README.md` files; therefore the documentation\
-    \ bundle is missing entirely. The implementer must add a non\u2011empty `docs/`\
-    \ folder with all four markdown files."
-T005a:
+  r: "No directory structure (`code/`, `data/`, `tests/`) was presented or described\
+    \ in the provided evidence, so we cannot confirm that the required project layout\
+    \ was actually created. The implementer must supply proof (e.g., a directory tree\
+    \ listing) that these folders exist and are non\u2011empty."
+T005b:
   c: false
-  h: 814d1f5293409da5ea87799e9039c8924e00fd6414034da27efd7538f127de2f
-  r: The `tests/unit/test_schema_validation.py` file is present but its content is
-    truncated (the `test_fallback_metrics_required_when_semantic_missing` method is
-    incomplete) and it relies on a `structural_metric.schema.yaml` file that does
-    not exist in the repository. Without the schema file and a complete test suite,
-    the requirement to verify the conditional logic cannot be met. The missing schema
-    file and incomplete test need to be added/fixed.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `data-model.md` file was presented in the evidence, nor any excerpt showing
+    its contents in `specs/001-llmxive-harness-extension/`. Without the actual markdown
+    documenting the data flow, schemas, and artifact relationships, the task requirement
+    is not satisfied. The implementer must add the file with the required documentation.
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -22,12 +20,6 @@ T020:
     were supplied or referenced, so the required outputs cannot be verified. The implementer
     must provide the actual dataset ingestion results, feature extraction outputs,
     and predictive model artifacts to satisfy the task.
-T035:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No ingestion script, no generated CSV with `task_id`, `code_diff`, and `dynamic_execution_outcome`,\
-    \ and no feature\u2011extraction code or metric outputs are present. The required\
-    \ artifacts are missing, so the task\u2019s core requirements are not satisfied."
 T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
