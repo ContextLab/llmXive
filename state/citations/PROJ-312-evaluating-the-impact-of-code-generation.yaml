@@ -31,3 +31,14 @@
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Fisher%27s_method
   verified_at: '2026-09-21T17:54:04.040652Z'
+- artifact_hash: 197f31a5d185f9e14fe92593d8e509dcb08dba90471b9d36ade0695d952021df
+  artifact_path: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: schema#
+  kind: url
+  value: http://json-schema.org/draft-07/schema#
+  verification_status: pending
+  verified_against_url: https://json-schema.org/draft-07/schema
+  verified_at: '2026-10-08T20:45:24.259681Z'

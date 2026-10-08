@@ -1,8 +1,22 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: StatisticalResult
 type: object
 properties:
-  test_type: {type: string}
-  u_statistic: {type: number}
-  p_value: {type: number}
-  effect_size: {type: number}
-  sample_sizes: {type: object}
-required: [test_type, u_statistic, p_value]
+  u_statistic:
+    type: number
+  p_value:
+    type: number
+  effect_size:
+    type: number
+  sample_sizes:
+    type: object
+    properties:
+      ai:
+        type: integer
+      non_ai:
+        type: integer
+required:
+  - u_statistic
+  - p_value
+  - effect_size
+  - sample_sizes

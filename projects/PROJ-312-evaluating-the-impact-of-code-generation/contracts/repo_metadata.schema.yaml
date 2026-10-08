@@ -1,6 +1,14 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: RepoMetadata
 type: object
 properties:
-  repo_name: {type: string}
-  stars: {type: number}
-  contributors: {type: number}
-  required: [repo_name, stars]
+  repo_name:
+    type: string
+  stars:
+    type: integer
+  contributors:
+    type: integer
+required:
+  - repo_name
+  - stars
+  - contributors

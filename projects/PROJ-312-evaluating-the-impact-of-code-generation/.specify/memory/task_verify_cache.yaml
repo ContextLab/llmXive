@@ -1,3 +1,38 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `projects/PROJ-312-evaluating-the-impact-of-code-generation/{code,data,tests,contracts,artifacts,state}`
+    directory tree is present; the implementer did not supply any filesystem listing
+    or screenshots confirming the directories exist. The task remains undone until
+    the specified folder hierarchy is created and verified.
+T002c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `requirements.lock` file is presented at `projects/PROJ-312-evaluating-the-impact-of-code-generation/requirements.lock`,
+    nor any content showing the result of `pip freeze`. The required lock file is
+    missing, so the task is not satisfied.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided showing that the required directories (`data/raw/`,\
+    \ `data/processed/`, `data/spot_check/`, `artifacts/`, `tests/`) actually exist\
+    \ in the repository; the claim is unsubstantiated. The implementer must create\
+    \ and show these directories (non\u2011empty or at least present) to satisfy the\
+    \ task."
+T012c:
+  c: false
+  h: f35aacdc4040331d95d82bcc96a4cdc2cb2cbaebf5684e43bd4b91b8c3b3b8a9
+  r: "The required `data/processed/pr_turnaround.csv` was not created (the partial\
+    \ file was left unchanged), `data_quality_warning.log` is missing, and `truncated_repos.txt`\
+    \ was not updated with any repo names. No merge or promotion of the partial data\
+    \ was performed, so the task\u2019s output artifacts are absent."
+T014:
+  c: false
+  h: 0dca4b5c38b656fad5184e368612c985396ac2935d179ff7d5d72b9ea5ddf6f0
+  r: "The repository does not contain the required `data/processed/excluded_repos.txt`\
+    \ file, and the provided excerpt of `code/fetch_data.py` does not show any logic\
+    \ that checks `MIN_PR_THRESHOLD` or writes skipped repository names to that file.\
+    \ Consequently the task\u2019s core requirement is not met."
 T019a:
   c: false
   h: d1df6b18a70027fc7f2622019da5babf5ff004bb0db569c9ebda2a7564ac742d
@@ -8,11 +43,11 @@ T019a:
     AI PR IDs\u2014is therefore not met."
 T019b:
   c: false
-  h: 63c8cc79cadb4b85700d97f73e116092f27e2a1a10671bee8b2e01521e1d0eb1
-  r: "The required `data/spot_check/annotation_template.csv` file does not exist,\
-    \ and the provided `code/validate_spot_check.py` contains only data\u2011loading\
-    \ utilities (truncated) with no logic to create the blank CSV template or write\
-    \ the required header comment. The task\u2019s core output is therefore missing."
+  h: 14fbc1eb3b16de7b1937e9a62cdf8f42f0658760dd33d20700e4d4c6f6be527f
+  r: "The repository contains a partially\u2011implemented `code/validate_spot_check.py`\
+    \ that stops before actually writing the CSV template, and the required `data/spot_check/annotation_template.csv`\
+    \ file is absent. Consequently the script does not generate the requested template\
+    \ with the specified columns and header comment."
 T019c:
   c: false
   h: e66e94be0a9522ccadf5e29d0253bdaadbf1a53f138b463f186242e651952029

@@ -1,79 +1,109 @@
-import pytest
-from unittest.mock import patch, MagicMock
+"""
+Unit tests for fetch_repos module.
+Tests T012a logic: fetching repos and saving to JSON.
+"""
 import json
-import sys
 import os
+import tempfile
+from pathlib import Path
+from unittest.mock import patch, MagicMock
 
-# Add code directory to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
+import pytest
 
-from fetch_repos import fetch_repos_from_github, TARGET_COUNT
+# Import the module to test
+# We need to adjust the import path if running from tests/
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+
+from fetch_repos import fetch_repos_from_github, main, REPO_LIMIT
 
 @pytest.fixture
-def mock_response_data():
-    return {
-        "items": [
-            {"full_name": f"test/repo-{i}", "stargazers_count": 10000 - i}
-            for i in range(10)
-        ]
-    }
+def mock_logger():
+    """Create a mock logger for testing."""
+    mock = MagicMock()
+    return mock
 
 @patch('fetch_repos.api_request_with_backoff')
-def test_fetch_repos_success(mock_api_call, mock_response_data):
-    """Test that fetch_repos_from_github correctly parses and limits results."""
+def test_fetch_repos_from_github_success(mock_request, mock_logger):
+    """Test successful fetching of repositories."""
+    # Mock response data
     mock_response = MagicMock()
-    mock_response.json.return_value = mock_response_data
     mock_response.status_code = 200
-    mock_api_call.return_value = mock_response
-
-    # Request 5 repos, but mock only provides 10 per page
-    result = fetch_repos_from_github("Test", "test_query", target_count=5)
-
-    assert len(result) == 5
-    assert result[0]["name"] == "test/repo-0"
-    assert result[0]["stars"] == 10000
-    assert "stars" in result[0]
-
-@patch('fetch_repos.api_request_with_backoff')
-def test_fetch_repos_pagination(mock_api_call, mock_response_data):
-    """Test that pagination logic works when target count > per_page."""
-    # Mock response for page 1
-    page1_data = mock_response_data
-    # Mock response for page 2 (different items)
-    page2_data = {
+    mock_response.json.return_value = {
         "items": [
-            {"full_name": f"test/repo-page2-{i}", "stargazers_count": 5000 - i}
-            for i in range(10)
+            {"full_name": "repo1/repo1", "stargazers_count": 10000},
+            {"full_name": "repo2/repo2", "stargazers_count": 9000}
         ]
     }
+    mock_request.return_value = mock_response
 
-    mock_response1 = MagicMock()
-    mock_response1.json.return_value = page1_data
-    mock_response1.status_code = 200
+    repos = fetch_repos_from_github("test=query", "TestLang", mock_logger)
 
-    mock_response2 = MagicMock()
-    mock_response2.json.return_value = page2_data
-    mock_response2.status_code = 200
+    assert len(repos) == 2
+    assert repos[0]["name"] == "repo1/repo1"
+    assert repos[0]["stars"] == 10000
+    assert mock_logger.info.called
 
-    # Return page 1 first, then page 2
-    mock_api_call.side_effect = [mock_response1, mock_response2]
-
-    # Request 15 repos (need 2 pages)
-    result = fetch_repos_from_github("Test", "test_query", target_count=15)
-
-    assert len(result) == 15
-    assert "repo-page2-0" in result[10]["name"]
-    assert mock_api_call.call_count == 2
-
-@patch('fetch_repos.api_request_with_github')
-def test_fetch_repos_empty_response(mock_api_call):
-    """Test handling of empty API response."""
+@patch('fetch_repos.api_request_with_backoff')
+def test_fetch_repos_handles_empty_response(mock_request, mock_logger):
+    """Test handling of empty response."""
     mock_response = MagicMock()
+    mock_response.status_code = 200
     mock_response.json.return_value = {"items": []}
+    mock_request.return_value = mock_response
+
+    repos = fetch_repos_from_github("test=query", "TestLang", mock_logger)
+
+    assert len(repos) == 0
+    mock_logger.info.assert_any_call("No more items found.")
+
+@patch('fetch_repos.api_request_with_backoff')
+def test_fetch_repos_stops_at_limit(mock_request, mock_logger):
+    """Test that fetching stops at REPO_LIMIT."""
+    # Create enough items to exceed the limit
+    items = [{"full_name": f"repo{i}/repo{i}", "stargazers_count": 10000} for i in range(REPO_LIMIT + 10)]
+    
+    mock_response = MagicMock()
     mock_response.status_code = 200
-    mock_api_call.return_value = mock_response
+    mock_response.json.return_value = {"items": items}
+    mock_request.return_value = mock_response
 
-    result = fetch_repos_from_github("Test", "test_query", target_count=5)
+    repos = fetch_repos_from_github("test=query", "TestLang", mock_logger)
 
-    assert len(result) == 0
-    mock_api_call.assert_called_once()
+    assert len(repos) == REPO_LIMIT
+    assert mock_logger.info.called
+
+@patch('fetch_repos.api_request_with_backoff')
+def test_fetch_repos_handles_error(mock_request, mock_logger):
+    """Test handling of API error."""
+    mock_response = MagicMock()
+    mock_response.status_code = 500
+    mock_request.return_value = mock_response
+
+    repos = fetch_repos_from_github("test=query", "TestLang", mock_logger)
+
+    assert len(repos) == 0
+    mock_logger.error.assert_called()
+
+def test_main_creates_output_file():
+    """Test that main() creates the output JSON file."""
+    # Create a temporary directory for testing
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = Path(tmpdir) / "data" / "raw" / "repos.json"
+        
+        # Patch the OUTPUT_PATH in the module
+        with patch('fetch_repos.OUTPUT_PATH', output_path):
+            # Mock the fetch functions to return empty lists to avoid real API calls
+            with patch('fetch_repos.fetch_repos_from_github') as mock_fetch:
+                mock_fetch.return_value = []
+                
+                # Run main
+                main()
+                
+                # Check if file was created
+                assert output_path.exists()
+                
+                # Check content
+                with open(output_path, 'r') as f:
+                    data = json.load(f)
+                    assert data == []

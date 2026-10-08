@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-312-evaluating-the-impact-of-code-generation",
+  "tasks": [
+    {
+      "task_key": "T002a",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: projects/PROJ-312-evaluating-the-impact-of-code-generation/requirements.txt",
+      "first_seen": "2026-10-08T20:50:30.503681+00:00",
+      "last_seen": "2026-10-08T20:50:30.503681+00:00"
+    },
+    {
+      "task_key": "T002b",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: projects/PROJ-312-evaluating-the-impact-of-code-generation/requirements.txt",
+      "first_seen": "2026-10-08T20:50:30.504915+00:00",
+      "last_seen": "2026-10-08T20:50:30.504915+00:00"
+    }
+  ],
+  "updated_at": "2026-10-08T20:50:30.504915+00:00"
+}

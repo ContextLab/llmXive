@@ -433,3 +433,183 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-05T07:11:02Z'
+- artifact_path: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Data fetching stops at page 50 or 30 minutes
+  claim_id: c_576f0645
+  context: 'T012b [US1] For each repo from T012a, fetch PRs and iterate through commits.
+    **Goal**: Fetch ALL PRs for each repo in the representative set. **Stop Condition**:
+    Stop after fetching **page N=50** OR after **30 minutes of wall-clock time**,
+    whichever comes first.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline will stop after fetching page N=50 OR after 30 minutes of
+    wall-clock time, whichever comes first.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T20:46:05Z'
+- artifact_path: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Repositories with fewer than 50 PRs are excluded
+  claim_id: c_1bd08c7c
+  context: 'T014 [US1] Implement logic in `code/fetch_data.py` to skip repos with
+    fewer than **50** PRs after filtering and log warnings; **explicitly write the
+    list of skipped repository names to `data/processed/excluded_repos.txt`** (Edge
+    Case: Repo Size < 50).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Repositories_with_fewer_than_50_PRs_are_excluded
+  kind: magnitude
+  raw_text: Repos with fewer than 50 PRs after filtering will be skipped.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T20:46:47Z'
+- artifact_path: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Data quality warning triggered if success rate below 95%
+  claim_id: c_0a34cdb9
+  context: T018c [US1] Calculate overall data quality success rate (processed/total
+    PRs). If < 95%, log a warning, save a detailed error log to `data/processed/data_quality_warning.log`...
+  evidence:
+    candidates:
+    - - ''
+      - 95.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Data_quality_warning_triggered_if_success_rate_below_95%25
+  kind: magnitude
+  raw_text: If the overall data quality success rate is less than 95%, a warning will
+    be logged.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-10-08T20:47:16Z'
+- artifact_path: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Annotation polling interval 5 minutes for 1 hour
+  claim_id: c_fc01bd8e
+  context: 'T019c [US1] Wait for Annotations: Implement `code/validate_spot_check.py`
+    to check for the existence of `data/spot_check/annotations.csv`. **Polling Mechanism**:
+    Check for file existence **every 5 minutes for a maximum of 1 hour**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The annotation polling mechanism checks for file existence every 5 minutes
+    for a maximum of 1 hour.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T20:47:36Z'
+- artifact_path: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Pipeline aborts if AI sample size less than 30
+  claim_id: c_28fabcbc
+  context: 'T027a [US2] Implement power check in `code/analyze.py`: if AI group count
+    < 30, raise `SampleSizeError` with message "Sample size too small: AI group <
+    30" to abort pipeline (Plan Phase 1)'
+  evidence:
+    asserted: '30.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The pipeline will abort if the AI group count is less than 30.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T20:47:36Z'
+- artifact_path: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Boxplot resolution at least 300 DPI
+  claim_id: c_a87bca0f
+  context: "T033 [US3] Save visualization to `artifacts/boxplot.png` with \u2265300\
+    \ DPI resolution (FR-008, SC-005)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Boxplot_resolution_at_least_300_DPI
+  kind: magnitude
+  raw_text: The boxplot visualization will be saved with a resolution of at least
+    300 DPI.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T20:48:37Z'
+- artifact_path: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Limitation injected if false-negative rate exceeds 10%
+  claim_id: c_ee2e8aec
+  context: 'T035 [US3] Implement conditional logic in `code/report.py`: ... If `false_negative_rate`
+    > 0.10, inject limitation: "Limitation: False-negative rate exceeds 10% threshold,
+    indicating potential misclassification in non-AI group."'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A limitation statement will be injected into the final report if the false-negative
+    rate exceeds 10%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T20:48:37Z'
+- artifact_path: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Primary test is Standard Mann-Whitney U on cleaned dataset
+  claim_id: c_415c2537
+  context: 'T026a [US2] Execute **Standard Mann-Whitney U test** in `code/analyze.py`.
+    **Input**: Must use the **Cleaned Dataset** (`data/processed/pr_turnaround_cleaned.csv`
+    from T024) to comply with Spec FR-005 (outliers excluded for analysis).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_test_is_Standard_Mann-Whitney_U_on_cleaned_dataset
+  kind: entity_fact
+  raw_text: The statistical analysis uses a Standard Mann-Whitney U test on the cleaned
+    dataset (outliers excluded).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T20:49:30Z'
+- artifact_path: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Target repositories have more than 10000 stars
+  claim_id: c_bd2da759
+  context: 'T012a [P] [US1] Fetch a representative set of top Python and JavaScript
+    repositories by star count using GitHub API endpoints: `search/repositories?q=language:Python+stars:>10000&sort=stars&order=desc`
+    and `search/repositories?q=language:JavaScript+stars:>10000&sort=stars&order=desc`.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_repositories_have_more_than_10000_stars
+  kind: magnitude
+  raw_text: The data acquisition targets a representative set of Python and JavaScript
+    repositories with more than 10,000 stars.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T20:50:26Z'
