@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T025` (rejected 1x): The required output file `data/derived/final_report.csv` does not exist, and the provided `merge_results.py` script (as shown) does not demonstrate that it writes a CSV with the exact schema `ICC, Alpha, Method, Empirical_Error_Rate, CI_Lower, CI_Upper` nor that it enforces the verification checks on input DataFrames. The missing final report file means the task’s primary deliverable is absent.
+- `T007` (rejected 1x): The required `.github/workflows/ci.yml` file is missing from the repository, so the CI configuration deliverable is not present. Consequently the verification script cannot be run, and the task is not satisfied.
 
 ## Required change
 

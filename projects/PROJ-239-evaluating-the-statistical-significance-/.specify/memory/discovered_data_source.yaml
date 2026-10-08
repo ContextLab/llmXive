@@ -1,11 +1,9 @@
 status: none
-intent: download UCI Online Retail dataset csv from UCI Machine Learning Repository
-  python package dataset
+intent: download UCI Online Retail dataset from UCI repository python package dataset
 required_fields:
 - cluster_id
-- subject_id
 - outcome
 - treatment
-cache_key: 81d9aa8c658c0ec2c6892bcce75f759b868361316ff6b30e3864d2ac464bd260
-searched_at: '2026-09-22T22:50:15.274240+00:00'
+cache_key: 5d2d19810b6c5d80ee469aa2c0f56fb85662ab6e8d3dedc2b67773e5311a28ef
+searched_at: '2026-10-08T12:39:44.019785+00:00'
 retry_count: 1

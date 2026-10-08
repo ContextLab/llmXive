@@ -6482,3 +6482,500 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-04T19:57:45Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: 'requirements.txt pins: numpy 1.26.0, scipy 1.12.0, statsmodels 0.14.1,
+    pandas 2.2.0, pytest 7.4.0, pyyaml 6.0.1'
+  claim_id: c_92244b29
+  context: 'Task T002 Initialize Python project with dependencies. Deliverable: Create
+    requirements.txt with exact pins.'
+  evidence:
+    asserted: '-239.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Create projects/PROJ-239-evaluating-the-statistical-significance-/requirements.txt
+    with exact pins: numpy==1.26.0, scipy==1.12.0, statsmodels==0.14.1, pandas==2.2.0,
+    pytest==7.4.0, pyyaml==6.0.1.'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T12:44:08Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: 'simulation parameters: ICC range 0.0-0.5 step 0.1, alpha levels 0.01/0.05/0.10,
+    100 clusters, mean size 12.5, std size 8.2, seed 42, 1000 iterations'
+  claim_id: c_ac7fc82a
+  context: Task T004 Create code/config.py to define simulation parameters and validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define constants ICC_RANGE = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5], ICC_STEP
+    = 0.1, ALPHA_LEVELS = [0.01, 0.05, 0.10], DEFAULT_N_CLUSTERS = 100, CLUSTER_MEAN_SIZE
+    = 12.5, CLUSTER_STD_SIZE = 8.2, DEFAULT_SEED = 42, DEFAULT_ITERATIONS = 1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T12:44:43Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: memory limit enforced at 7000 MB
+  claim_id: c_fddd947e
+  context: Task T027 Implement pre-run validation and strict time enforcement in code/simulation_runner.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If estimated_mb > 7000, raise RuntimeError immediately with message ''Memory
+    limit exceeded: 7GB.'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T12:45:07Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: time limit enforced at 21600 seconds
+  claim_id: c_1f280e63
+  context: Task T027 Implement pre-run validation and strict time enforcement in code/simulation_runner.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If total elapsed time > 6 hours (21600 seconds), raise RuntimeError(''Time
+    limit exceeded: 6 hours.'')'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T12:45:32Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: cluster sizes generated via log-normal with mean 12.5 and std 8.2
+  claim_id: c_63793786
+  context: 'Task T010 Implement code/data_generator.py. Cluster Structure: Generates
+    cluster sizes dynamically using a log-normal distribution.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cluster sizes are generated using a log-normal distribution with parameters
+    derived from cluster_mean=12.5 and cluster_std=8.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T12:46:02Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: treatment labels assigned at cluster level
+  claim_id: c_6ff9bcf0
+  context: Task T010 Implement code/data_generator.py. Treatment labels are assigned
+    randomly at the cluster level.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Treatment_labels_assigned_at_cluster_level
+  kind: entity_fact
+  raw_text: Treatment labels are assigned randomly at the cluster level.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T12:46:43Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: block permutation test uses 1000 permutations
+  claim_id: c_55dab906
+  context: 'Task T018 Implement block permutation test in code/estimators.py. Deliverable:
+    Function run_block_permutation(data, treatment_col, outcome_col, cluster_id_col,
+    n_permutations=1000).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Function run_block_permutation uses n_permutations=1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T12:47:13Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: minimum alpha levels required is 3
+  claim_id: c_375f942a
+  context: 'Task T022b CLI Validation for Alpha Levels. Deliverable: Extend code/config.py
+    to include a validation function validate_alpha_levels(alphas) that raises ValueError
+    if len(alphas) < 3.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_alpha_levels_required_is_3
+  kind: magnitude
+  raw_text: The system raises a ValueError if the number of alpha levels provided
+    is less than 3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T12:48:15Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: CI workflow runs on ubuntu-latest
+  claim_id: c_b134a8b6
+  context: 'Task T007 Add basic CI configuration. Verification: Write a Python script
+    verify_ci.py that parses the YAML file and asserts workflow[''jobs''][''build''][''runs-on'']
+    == ''ubuntu-latest''.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CI_workflow_runs_on_ubuntu-latest
+  kind: magnitude
+  raw_text: The verification script asserts workflow['jobs']['build']['runs-on'] ==
+    'ubuntu-latest'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T12:49:11Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: CI uses actions/checkout v4, setup-python v5, cache v4
+  claim_id: c_1b441314
+  context: 'Task T007 Add basic CI configuration. Deliverable: Create .github/workflows/ci.yml
+    with runs-on: ubuntu-latest, python-version: ''3.x''. Steps must include: actions/checkout@v4,
+    actions/setup-python@v5, actions/cache@v4.'
+  evidence:
+    entailment_evidence: CI uses actions/checkout v4, setup-python v5, cache v4
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/CI_uses_actions/checkout_v4,_setup-python_v5,_cache_v4
+  kind: entity_fact
+  raw_text: The CI configuration uses actions/checkout@v4, actions/setup-python@v5,
+    and actions/cache@v4.
+  resolved_value: CI uses actions/checkout v4, setup-python v5, cache v4
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T12:49:15Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: 'memory estimation formula: (n_clusters * n_obs_per_cluster * 8 * 5)
+    / 1e6'
+  claim_id: c_753c4255
+  context: 'Task T027 Implement pre-run validation. Before the simulation loop starts,
+    calculate the theoretical memory footprint using the formula: estimated_mb = (n_clusters
+    * n_obs_per_cluster * 8 * 5) / 1e6.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The formula for estimating memory footprint is estimated_mb = (n_clusters
+    * n_obs_per_cluster * 8 * 5) / 1e6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T12:49:39Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: minimum cluster count is 50
+  claim_id: c_6582703d
+  context: Task T004 Create code/config.py. Implement validate_config(cfg) that raises
+    ValueError if cfg['n_clusters'] < 50.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation function validate_config(cfg) raises ValueError if cfg['n_clusters']
+    < 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T12:49:40Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: 'baseline results verification: rows >= len(ICC_RANGE) * iterations -
+    skipped_rows'
+  claim_id: c_61ec6263
+  context: 'Task T014 Create script run_simulation_baseline.py. Verification: Script
+    must verify that data/derived/baseline_results.csv exists and contains at least
+    len(ICC_RANGE) * iterations - skipped_rows rows.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/baseline_results_verification:_rows_%3E=_len(ICC_RANGE)_*_iter
+  kind: magnitude
+  raw_text: The script run_simulation_baseline.py verifies that data/derived/baseline_results.csv
+    contains at least len(ICC_RANGE) * iterations - skipped_rows rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T12:49:56Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: success requires total_time_sec < 21600
+  claim_id: c_7b512180
+  context: 'Task T050 Aggregate Performance Metrics. Verification: Must assert total_time_sec
+    < 21600 if status is ''success''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The performance summary script asserts total_time_sec < 21600 if status
+    is 'success'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T12:49:58Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 0
+  canonical: Python dependencies pinned to numpy 1.26.0, scipy 1.12.0, statsmodels
+    0.14.1, pandas 2.2.0, pytest 7.4.0, pyyaml 6.0.1
+  claim_id: c_4d38a416
+  context: 'Task T002 Initialize Python project with dependencies. Deliverable: Create
+    requirements.txt with exact pins.'
+  evidence:
+    asserted: '-239.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Create projects/PROJ-239-evaluating-the-statistical-significance-/requirements.txt
+    with exact pins: numpy==1.26.0, scipy==1.12.0, statsmodels==0.14.1, pandas==2.2.0,
+    pytest==7.4.0, pyyaml==6.0.1.'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T12:56:18Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: 'Simulation parameters: ICC range 0.0 to 0.5 step 0.1, alpha levels 0.01
+    0.05 0.10, 100 clusters, mean cluster size 12.5, std 8.2, seed 42, 1000 iterations'
+  claim_id: c_5c449a22
+  context: Task T004 Create code/config.py to define simulation parameters and validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define constants ICC_RANGE = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5], ICC_STEP
+    = 0.1, ALPHA_LEVELS = [0.01, 0.05, 0.10], DEFAULT_N_CLUSTERS = 100, CLUSTER_MEAN_SIZE
+    = 12.5, CLUSTER_STD_SIZE = 8.2, DEFAULT_SEED = 42, DEFAULT_ITERATIONS = 1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T12:56:35Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Validation raises error if cluster count is less than 50
+  claim_id: c_5134aa56
+  context: Task T004 Create code/config.py to define simulation parameters and validation.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_raises_error_if_cluster_count_is_less_than_50
+  kind: magnitude
+  raw_text: Implement validate_config(cfg) that raises ValueError if cfg['n_clusters']
+    < 50.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T12:57:05Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: 'Memory footprint formula: (n_clusters * n_obs_per_cluster * 8 * 5) /
+    1e6'
+  claim_id: c_4bed639c
+  context: 'Task T027 Pre-Run Validation: Before the simulation loop starts, calculate
+    the theoretical memory footprint using the formula.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Calculate the theoretical memory footprint using the formula: estimated_mb
+    = (n_clusters * n_obs_per_cluster * 8 * 5) / 1e6.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T12:57:31Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Runtime error raised if estimated memory exceeds 7000 MB (7 GB)
+  claim_id: c_67c613da
+  context: 'Task T027 Pre-Run Validation: If estimated_mb > 7000 (targeting the 7GB
+    limit), raise RuntimeError immediately.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If estimated_mb > 7000 (targeting the 7GB limit), raise RuntimeError immediately.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T12:57:32Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Runtime error raised if simulation exceeds 21600 seconds (6 hours)
+  claim_id: c_42043313
+  context: 'Task T027 Time Enforcement: Wrap the entire simulation loop in a timer.
+    If total elapsed time > 6 hours (21600 seconds), raise RuntimeError.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If total elapsed time > 6 hours (21600 seconds), raise RuntimeError.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T12:57:33Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Log-normal parameters derived via sigma = sqrt(log(1 + (cluster_std/cluster_mean)^2))
+    and mu = log(cluster_mean) - 0.5 * sigma^2
+  claim_id: c_5ebdfb8a
+  context: 'Task T010 Cluster Structure: Generates cluster sizes dynamically using
+    a log-normal distribution with analytical conversion.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The parameters mu and sigma for the log-normal distribution MUST be derived
+    from the input cluster_mean and cluster_std using the analytical conversion: sigma
+    = sqrt(log(1 + (cluster_std/cluster_mean)^2)), mu = log(cluster_mean) - 0.5 *
+    sigma^2.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T12:58:11Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Default cluster mean 12.5 and standard deviation 8.2
+  claim_id: c_b54f1422
+  context: 'Task T010 Cluster Structure: Default values are cluster_mean=12.5, cluster_std=8.2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default values are cluster_mean=12.5, cluster_std=8.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T12:58:43Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Block permutation test uses 1000 permutations
+  claim_id: c_2109d927
+  context: Task T018 Implement block permutation test in code/estimators.py with n_permutations=1000.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Function run_block_permutation uses n_permutations=1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T12:58:44Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Final report generation requires simulation completion within 6-hour
+    time limit
+  claim_id: c_6e70453c
+  context: Task T045 Verify that the final report generation (T026) only proceeds
+    if the simulation completes within the time limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the final report generation only proceeds if the simulation
+    completes within the time limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T12:58:45Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Success status requires total time less than 21600 seconds
+  claim_id: c_336eb1f4
+  context: 'Task T050 Verification: Must assert total_time_sec < 21600 if status is
+    ''success''.'
+  evidence:
+    entailment_evidence: Success status requires total time less than 21600 seconds
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Success_status_requires_total_time_less_than_21600_seconds
+  kind: magnitude
+  raw_text: Assert total_time_sec < 21600 if status is 'success'.
+  resolved_value: Success status requires total time less than 21600 seconds
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T12:58:49Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: CLI raises ValueError if alpha list has fewer than 3 levels
+  claim_id: c_3f78786b
+  context: 'Task T022 Integration test for report generation. Critical Requirement:
+    The test must also verify that if a custom --alpha-list with fewer than a minimum
+    number of levels is provided to the CLI, the system raises a ValueError.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CLI_raises_ValueError_if_alpha_list_has_fewer_than_3_levels
+  kind: magnitude
+  raw_text: The test must also verify that if a custom --alpha-list with fewer than
+    a minimum number of levels is provided to the CLI, the system raises a ValueError.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T13:00:00Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Validation function raises error if alpha list length is less than 3
+  claim_id: c_2f23fcbb
+  context: 'Task T022b CLI Validation for Alpha Levels. Deliverable: Extend code/config.py
+    to include a validation function that raises ValueError if len(alphas) < 3.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_function_raises_error_if_alpha_list_length_is_les
+  kind: magnitude
+  raw_text: Extend code/config.py to include a validation function validate_alpha_levels(alphas)
+    that raises ValueError if len(alphas) < 3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T13:00:48Z'

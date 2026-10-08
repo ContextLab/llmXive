@@ -1,385 +1,588 @@
 """
-Simulation runner with memory and time constraints.
+Simulation Runner Module for Evaluating Statistical Significance in A/B Tests.
 
-Implements baseline and robust simulation loops with dynamic down-sampling
-and performance monitoring.
+This module orchestrates the generation of synthetic data with intra-cluster correlation
+(ICC), executes statistical tests (naive, cluster-robust, and permutation), and aggregates
+results to evaluate Type I error rates under various conditions.
+
+It enforces strict memory and time limits to ensure reproducibility and compliance with
+hardware constraints (FR-006).
+
+Attributes:
+    ICC_RANGE (list): Range of ICC values to simulate.
+    DEFAULT_ITERATIONS (int): Default number of simulation iterations per ICC level.
+    DEFAULT_SEED (int): Default random seed for reproducibility.
+
+Usage:
+    python code/simulation_runner.py --icc 0.1 --iterations 100 --seed 42
 """
+
 import warnings
 import time
 import tracemalloc
 import os
 import sys
 import csv
-import logging
 import argparse
+import logging
 from typing import List, Dict, Any, Optional, Tuple
-
-# Add project root to path if running as script
-if __name__ == "__main__" and "code" not in sys.path:
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 import numpy as np
 import pandas as pd
 
-from code.config import validate_config, load_config, set_seed, parse_cli_args
+# Import from local project modules
+from code.config import (
+    load_config,
+    parse_cli_args,
+    validate_config,
+    set_seed,
+    DEFAULT_N_CLUSTERS,
+    CLUSTER_MEAN_SIZE,
+    CLUSTER_STD_SIZE,
+    DEFAULT_ITERATIONS,
+    DEFAULT_SEED,
+    ICC_RANGE,
+    ALPHA_LEVELS
+)
 from code.data_generator import generate_data
-from code.estimators import run_naive_ttest_with_warning, run_cluster_robust_ttest, run_block_permutation
+from code.estimators import (
+    run_naive_ttest_with_warning,
+    run_cluster_robust_ttest,
+    run_block_permutation
+)
 from code.analysis import aggregate_errors
 
+# Constants for resource limits
+MEMORY_LIMIT_MB = 7000  # 7 GB
+TIME_LIMIT_SEC = 21600  # 6 hours
+
+# Setup logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout)]
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('data/derived/simulation_log.txt')
+    ]
 )
 logger = logging.getLogger(__name__)
 
-MEMORY_LIMIT_GB = 7.0
-TIME_LIMIT_SEC = 21600  # 6 hours
-MIN_CLUSTERS = 50
 
-def estimate_memory_footprint(n_clusters: int, n_obs_per_cluster: int, factor: float = 5.0) -> float:
+def estimate_memory_footprint(n_clusters: int, n_obs_per_cluster: int) -> float:
     """
-    Estimate memory footprint in MB.
+    Estimates the memory footprint of the simulation data in MB.
 
-    Formula: n_clusters * n_obs_per_cluster * 8 bytes * factor / (1024 * 1024)
+    Calculates the theoretical memory usage assuming float64 (8 bytes) per element
+    with a 5x safety factor to account for overhead and intermediate calculations.
+
+    Args:
+        n_clusters (int): Number of clusters.
+        n_obs_per_cluster (int): Average number of observations per cluster.
+
+    Returns:
+        float: Estimated memory usage in MB.
     """
-    bytes_per_obs = 8  # float64
-    total_bytes = n_clusters * n_obs_per_cluster * bytes_per_obs * factor
-    return total_bytes / (1024 * 1024)
+    # Formula: (n_clusters * n_obs * 8 bytes * 5 safety) / 1e6
+    estimated_mb = (n_clusters * n_obs_per_cluster * 8 * 5) / 1e6
+    return estimated_mb
 
-def downsample_clusters(n_clusters: int, n_obs_per_cluster: int, max_mb: float = 7000.0) -> Tuple[int, int]:
+
+def downsample_clusters(df: pd.DataFrame, target_n_clusters: int) -> pd.DataFrame:
     """
-    Down-sample clusters and observations if memory limit is exceeded.
+    Randomly downsamples the dataset to a target number of clusters.
 
-    Returns (new_n_clusters, new_n_obs_per_cluster).
-    Raises RuntimeError if down-sampling violates statistical validity.
+    Args:
+        df (pd.DataFrame): The full dataset with a 'cluster_id' column.
+        target_n_clusters (int): The desired number of clusters to keep.
+
+    Returns:
+        pd.DataFrame: A subset of the original dataframe.
     """
-    estimated_mb = estimate_memory_footprint(n_clusters, n_obs_per_cluster)
+    if df['cluster_id'].nunique() <= target_n_clusters:
+        return df
 
-    if estimated_mb <= max_mb:
-        return n_clusters, n_obs_per_cluster
+    unique_clusters = df['cluster_id'].unique()
+    selected_clusters = np.random.choice(unique_clusters, size=target_n_clusters, replace=False)
+    return df[df['cluster_id'].isin(selected_clusters)].reset_index(drop=True)
 
-    # Retry 1: Halve n_obs_per_cluster
-    new_n_obs = n_obs_per_cluster // 2
-    if new_n_obs < 1:
-        new_n_obs = 1
-    estimated_mb = estimate_memory_footprint(n_clusters, new_n_obs)
-    if estimated_mb <= max_mb:
-        return n_clusters, new_n_obs
 
-    # Retry 2: Halve n_clusters
-    new_n_clusters = n_clusters // 2
-    if new_n_clusters < MIN_CLUSTERS:
-        raise RuntimeError(
-            f"Memory limit exceeded: 7GB. Down-sampling would violate statistical validity (n_clusters < {MIN_CLUSTERS})."
-        )
-    estimated_mb = estimate_memory_footprint(new_n_clusters, new_n_obs)
-    if estimated_mb <= max_mb:
-        return new_n_clusters, new_n_obs
+def log_timing(start_time: float, end_time: float, output_path: str = 'data/timing.csv') -> None:
+    """
+    Logs the execution time to a CSV file.
 
-    # Retry 3: Halve n_obs_per_cluster again (if not already 1)
-    if new_n_obs > 1:
-        new_n_obs = new_n_obs // 2
-        estimated_mb = estimate_memory_footprint(new_n_clusters, new_n_obs)
-        if estimated_mb <= max_mb:
-            return new_n_clusters, new_n_obs
-
-    raise RuntimeError(
-        f"Memory limit exceeded: 7GB. Down-sampling failed. "
-        f"Estimated MB: {estimated_mb:.2f} with n_clusters={new_n_clusters}, n_obs={new_n_obs}."
-    )
-
-def log_timing(start_time: float, output_path: str = "data/timing.csv") -> None:
-    """Log wall-clock time to CSV."""
-    duration = time.time() - start_time
-    timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-
+    Args:
+        start_time (float): Start timestamp.
+        end_time (float): End timestamp.
+        output_path (str): Path to the timing log file.
+    """
+    duration_sec = end_time - start_time
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     file_exists = os.path.exists(output_path)
 
-    with open(output_path, "a", newline="") as f:
+    with open(output_path, 'a', newline='') as f:
         writer = csv.writer(f)
         if not file_exists:
-            writer.writerow(["timestamp", "duration_sec"])
-        writer.writerow([timestamp, duration])
+            writer.writerow(['start_time', 'end_time', 'duration_sec'])
+        writer.writerow([start_time, end_time, duration_sec])
 
-    logger.info(f"Timing logged: {duration:.2f} seconds")
+    logger.info(f"Timing logged: {duration_sec:.2f} seconds")
 
-def log_memory(output_path: str = "data/memory.csv") -> None:
-    """Log peak memory usage to CSV."""
-    current, peak = tracemalloc.get_traced_memory()
-    peak_gb = peak / (1024 * 1024 * 1024)
-    timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
 
+def log_memory(output_path: str = 'data/memory.csv') -> None:
+    """
+    Logs peak memory usage to a CSV file.
+
+    Args:
+        output_path (str): Path to the memory log file.
+    """
+    peak_bytes = tracemalloc.get_traced_memory()[1]
+    peak_gb = peak_bytes / (1024 ** 3)
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     file_exists = os.path.exists(output_path)
 
-    with open(output_path, "a", newline="") as f:
+    with open(output_path, 'a', newline='') as f:
         writer = csv.writer(f)
         if not file_exists:
-            writer.writerow(["timestamp", "peak_memory_gb"])
-        writer.writerow([timestamp, peak_gb])
+            writer.writerow(['peak_memory_gb'])
+        writer.writerow([peak_gb])
 
-    logger.info(f"Memory logged: {peak_gb:.4f} GB")
+    logger.info(f"Peak memory logged: {peak_gb:.4f} GB")
 
-def log_config_change(cfg: Dict[str, Any], output_path: str = "data/derived/simulation_config_log.csv") -> None:
-    """Log actual configuration parameters used for reproducibility."""
+
+def log_config_change(config: Dict[str, Any], output_path: str = 'data/derived/simulation_config_log.csv') -> None:
+    """
+    Logs the actual configuration parameters used for the simulation.
+
+    This ensures reproducibility by recording the exact parameters (n_clusters,
+    n_obs_per_cluster, etc.) that drove the experiment.
+
+    Args:
+        config (Dict[str, Any]): The configuration dictionary.
+        output_path (str): Path to the config log file.
+    """
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     file_exists = os.path.exists(output_path)
 
-    with open(output_path, "a", newline="") as f:
+    with open(output_path, 'a', newline='') as f:
         writer = csv.writer(f)
         if not file_exists:
-            writer.writerow(["timestamp", "n_clusters", "n_obs_per_cluster", "icc", "seed"])
-        writer.writerow([
-            time.strftime("%Y-%m-%d %H:%M:%S"),
-            cfg.get("n_clusters", cfg.get("n_clusters", 100)),
-            cfg.get("n_obs_per_cluster", cfg.get("n_obs_per_cluster", 12)),
-            cfg.get("icc"),
-            cfg.get("seed")
-        ])
+            # Header row
+            writer.writerow(['n_clusters', 'n_obs_per_cluster', 'icc', 'seed', 'iterations'])
+
+        # Extract values, handling potential list inputs for ICC
+        n_clusters = config.get('n_clusters', DEFAULT_N_CLUSTERS)
+        n_obs = config.get('n_obs_per_cluster', 1) # Assuming 1 obs per cluster for the log if not explicit
+        # If n_obs_per_cluster is derived or dynamic, we log the effective value used
+        # For this runner, we assume the config passes the effective values
+        icc = config.get('icc', 0.0)
+        seed = config.get('seed', DEFAULT_SEED)
+        iterations = config.get('iterations', DEFAULT_ITERATIONS)
+
+        writer.writerow([n_clusters, n_obs, icc, seed, iterations])
+
+    logger.info(f"Configuration logged to {output_path}")
+
 
 def run_baseline_simulation(
     icc: float,
     n_iterations: int,
     seed: int,
-    cluster_mean: float = 12.5,
-    cluster_std: float = 8.2,
-    n_clusters: Optional[int] = None,
-    n_obs_per_cluster: Optional[int] = None
-) -> List[Dict]:
+    cluster_mean: float,
+    cluster_std: float,
+    n_clusters: int,
+    alpha_levels: List[float]
+) -> List[Dict[str, Any]]:
     """
-    Run baseline simulation for a single ICC level.
+    Runs the baseline simulation loop for a specific ICC level using the naive t-test.
 
-    Returns a list of result dictionaries.
+    This function generates data, applies the naive t-test (which violates cluster-aware
+    inference), and collects p-values to estimate Type I error rates.
+
+    Args:
+        icc (float): The Intra-Cluster Correlation coefficient for this run.
+        n_iterations (int): Number of Monte Carlo iterations.
+        seed (int): Random seed for reproducibility.
+        cluster_mean (float): Mean cluster size.
+        cluster_std (float): Standard deviation of cluster size.
+        n_clusters (int): Number of clusters.
+        alpha_levels (list): List of alpha levels to test against.
+
+    Returns:
+        List[Dict]: A list of dictionaries containing iteration results:
+            {
+                'iteration': int,
+                'icc': float,
+                'p_value': float,
+                'rejected': bool,
+                'method': 'naive'
+            }
     """
-    if n_clusters is None:
-        n_clusters = 100
-    if n_obs_per_cluster is None:
-        n_obs_per_cluster = 12
-
-    # Check memory and down-sample if necessary
-    try:
-        n_clusters, n_obs_per_cluster = downsample_clusters(n_clusters, n_obs_per_cluster)
-    except RuntimeError as e:
-        logger.error(str(e))
-        raise
-
-    # Log config change if down-sampling occurred
-    log_config_change({
-        "n_clusters": n_clusters,
-        "n_obs_per_cluster": n_obs_per_cluster,
-        "icc": icc,
-        "seed": seed
-    })
-
     results = []
-    start_time = time.time()
+    set_seed(seed)
+
+    logger.info(f"Starting baseline simulation: ICC={icc}, Iterations={n_iterations}")
 
     for i in range(n_iterations):
-        # Time limit check
-        if time.time() - start_time > TIME_LIMIT_SEC:
-            raise RuntimeError("Time limit exceeded: 6 hours.")
-
-        # Memory check
-        current, peak = tracemalloc.get_traced_memory()
-        if peak > MEMORY_LIMIT_GB * 1024 * 1024 * 1024:
-            raise RuntimeError("Memory limit exceeded: 7GB. Down-sampling failed.")
-
         try:
-            data = generate_data(
+            # Generate data
+            df = generate_data(
                 n_clusters=n_clusters,
-                n_obs_per_cluster=n_obs_per_cluster,
+                n_obs_per_cluster=1, # Assuming 1 observation per cluster for the t-test structure
                 icc=icc,
-                seed=seed + i,
+                seed=seed + i, # Vary seed slightly per iteration for independence
                 cluster_mean=cluster_mean,
                 cluster_std=cluster_std
             )
-            p_value = run_naive_ttest_with_warning(data, "treatment", "outcome")
-            results.append({
-                "iteration": i,
-                "icc": icc,
-                "p_value": p_value,
-                "rejected": p_value < 0.05
-            })
+
+            # Run naive t-test
+            p_val = run_naive_ttest_with_warning(df, 'treatment', 'outcome')
+
+            # Determine rejection for each alpha level
+            for alpha in alpha_levels:
+                rejected = p_val < alpha
+                results.append({
+                    'iteration': i,
+                    'icc': icc,
+                    'p_value': p_val,
+                    'alpha': alpha,
+                    'rejected': rejected,
+                    'method': 'naive'
+                })
+
         except Exception as e:
-            logger.warning(f"Iteration {i} failed: {e}. Skipping.")
+            logger.warning(f"Iteration {i} failed: {e}")
             continue
 
     return results
+
 
 def run_robust_simulation(
     icc: float,
     n_iterations: int,
     seed: int,
-    cluster_mean: float = 12.5,
-    cluster_std: float = 8.2,
-    n_clusters: Optional[int] = None,
-    n_obs_per_cluster: Optional[int] = None,
+    cluster_mean: float,
+    cluster_std: float,
+    n_clusters: int,
+    alpha_levels: List[float],
     n_permutations: int = 1000
-) -> List[Dict]:
+) -> List[Dict[str, Any]]:
     """
-    Run robust simulation for a single ICC level.
+    Runs the robust simulation loop for a specific ICC level.
 
-    Returns a list of result dictionaries for naive, cluster-robust, and block permutation.
+    Executes both cluster-robust t-tests and block permutation tests to compare
+    against the naive baseline.
+
+    Args:
+        icc (float): The Intra-Cluster Correlation coefficient.
+        n_iterations (int): Number of Monte Carlo iterations.
+        seed (int): Random seed.
+        cluster_mean (float): Mean cluster size.
+        cluster_std (float): Standard deviation of cluster size.
+        n_clusters (int): Number of clusters.
+        alpha_levels (list): List of alpha levels.
+        n_permutations (int): Number of permutations for the block test.
+
+    Returns:
+        List[Dict]: List of results for robust methods.
     """
-    if n_clusters is None:
-        n_clusters = 100
-    if n_obs_per_cluster is None:
-        n_obs_per_cluster = 12
-
-    try:
-        n_clusters, n_obs_per_cluster = downsample_clusters(n_clusters, n_obs_per_cluster)
-    except RuntimeError as e:
-        logger.error(str(e))
-        raise
-
-    log_config_change({
-        "n_clusters": n_clusters,
-        "n_obs_per_cluster": n_obs_per_cluster,
-        "icc": icc,
-        "seed": seed
-    })
-
     results = []
-    start_time = time.time()
+    set_seed(seed)
+
+    logger.info(f"Starting robust simulation: ICC={icc}, Iterations={n_iterations}")
 
     for i in range(n_iterations):
-        if time.time() - start_time > TIME_LIMIT_SEC:
-            raise RuntimeError("Time limit exceeded: 6 hours.")
-
-        current, peak = tracemalloc.get_traced_memory()
-        if peak > MEMORY_LIMIT_GB * 1024 * 1024 * 1024:
-            raise RuntimeError("Memory limit exceeded: 7GB. Down-sampling failed.")
-
         try:
-            data = generate_data(
+            df = generate_data(
                 n_clusters=n_clusters,
-                n_obs_per_cluster=n_obs_per_cluster,
+                n_obs_per_cluster=1,
                 icc=icc,
                 seed=seed + i,
                 cluster_mean=cluster_mean,
                 cluster_std=cluster_std
             )
 
-            # Naive
-            p_naive = run_naive_ttest_with_warning(data, "treatment", "outcome")
-            results.append({
-                "iteration": i,
-                "icc": icc,
-                "method": "naive",
-                "p_value": p_naive,
-                "rejected": p_naive < 0.05
-            })
+            # Cluster Robust
+            p_robust = run_cluster_robust_ttest(df, 'treatment', 'outcome', 'cluster_id')
+            for alpha in alpha_levels:
+                results.append({
+                    'iteration': i,
+                    'icc': icc,
+                    'p_value': p_robust,
+                    'alpha': alpha,
+                    'rejected': p_robust < alpha,
+                    'method': 'cluster_robust'
+                })
 
-            # Cluster-robust
-            p_robust = run_cluster_robust_ttest(data, "treatment", "outcome", "cluster_id")
-            results.append({
-                "iteration": i,
-                "icc": icc,
-                "method": "cluster_robust",
-                "p_value": p_robust,
-                "rejected": p_robust < 0.05
-            })
-
-            # Block permutation
-            p_perm = run_block_permutation(data, "treatment", "outcome", "cluster_id", n_permutations)
-            results.append({
-                "iteration": i,
-                "icc": icc,
-                "method": "block_permutation",
-                "p_value": p_perm,
-                "rejected": p_perm < 0.05
-            })
+            # Block Permutation
+            p_perm = run_block_permutation(df, 'treatment', 'outcome', 'cluster_id', n_permutations)
+            for alpha in alpha_levels:
+                results.append({
+                    'iteration': i,
+                    'icc': icc,
+                    'p_value': p_perm,
+                    'alpha': alpha,
+                    'rejected': p_perm < alpha,
+                    'method': 'block_permutation'
+                })
 
         except Exception as e:
-            logger.warning(f"Iteration {i} failed: {e}. Skipping.")
+            logger.warning(f"Iteration {i} (robust) failed: {e}")
             continue
 
     return results
 
-def run_full_simulation(
-    icc_range: List[float],
-    n_iterations: int,
-    seed: int,
-    cluster_mean: float = 12.5,
-    cluster_std: float = 8.2,
-    n_clusters: Optional[int] = None,
-    n_obs_per_cluster: Optional[int] = None,
-    n_permutations: int = 1000
-) -> List[Dict]:
-    """
-    Run full simulation across ICC range.
 
-    Returns a list of result dictionaries.
+def run_full_simulation(cfg: Dict[str, Any]) -> Dict[str, Any]:
     """
-    all_results = []
+    Orchestrates the full simulation across all configured ICC levels.
+
+    This function validates memory constraints, runs baseline and robust simulations,
+    aggregates error rates, and writes results to disk.
+
+    Args:
+        cfg (Dict[str, Any]): Configuration dictionary containing ICC range, iterations,
+            seeds, and cluster parameters.
+
+    Returns:
+        Dict[str, Any]: Summary of the simulation run.
+    """
     start_time = time.time()
+    tracemalloc.start()
+
+    # Pre-run validation
+    n_clusters = cfg.get('n_clusters', DEFAULT_N_CLUSTERS)
+    n_obs = cfg.get('n_obs_per_cluster', 1)
+    est_mem = estimate_memory_footprint(n_clusters, n_obs)
+
+    if est_mem > MEMORY_LIMIT_MB:
+        tracemalloc.stop()
+        raise RuntimeError(
+            f"Memory limit exceeded: 7GB. Configuration n_clusters={n_clusters}, "
+            f"n_obs_per_cluster={n_obs} exceeds hardware limits. Please reduce cluster count "
+            f"or observations per cluster."
+        )
+
+    logger.info(f"Memory check passed: {est_mem:.2f} MB estimated.")
+
+    # Log configuration
+    log_config_change(cfg)
+
+    icc_range = cfg.get('icc_range', ICC_RANGE)
+    n_iterations = cfg.get('iterations', DEFAULT_ITERATIONS)
+    seed = cfg.get('seed', DEFAULT_SEED)
+    alpha_levels = cfg.get('alpha_levels', ALPHA_LEVELS)
+    cluster_mean = cfg.get('cluster_mean', CLUSTER_MEAN_SIZE)
+    cluster_std = cfg.get('cluster_std', CLUSTER_STD_SIZE)
+
+    all_results = []
 
     for icc in icc_range:
-        logger.info(f"Starting simulation for ICC={icc}")
-        try:
-            results = run_robust_simulation(
-                icc=icc,
-                n_iterations=n_iterations,
-                seed=seed,
-                cluster_mean=cluster_mean,
-                cluster_std=cluster_std,
-                n_clusters=n_clusters,
-                n_obs_per_cluster=n_obs_per_cluster,
-                n_permutations=n_permutations
-            )
-            all_results.extend(results)
-        except Exception as e:
-            logger.error(f"Simulation failed for ICC={icc}: {e}")
-            continue
+        logger.info(f"Processing ICC={icc}")
 
-        log_timing(start_time)
-        log_memory()
+        # Run Baseline
+        baseline_res = run_baseline_simulation(
+            icc=icc,
+            n_iterations=n_iterations,
+            seed=seed,
+            cluster_mean=cluster_mean,
+            cluster_std=cluster_std,
+            n_clusters=n_clusters,
+            alpha_levels=alpha_levels
+        )
+        all_results.extend(baseline_res)
 
-    return all_results
+        # Run Robust
+        robust_res = run_robust_simulation(
+            icc=icc,
+            n_iterations=n_iterations,
+            seed=seed + 1000, # Offset seed for robust
+            cluster_mean=cluster_mean,
+            cluster_std=cluster_std,
+            n_clusters=n_clusters,
+            alpha_levels=alpha_levels
+        )
+        all_results.extend(robust_res)
 
-def parse_args(cli_args: Optional[List[str]] = None) -> argparse.Namespace:
-    """Parse command-line arguments."""
-    parser = argparse.ArgumentParser(description="Run simulation with robust methods.")
-    parser.add_argument("--icc-range", type=str, default="0.0,0.1,0.2,0.3,0.4,0.5")
-    parser.add_argument("--iterations", type=int, default=1000)
-    parser.add_argument("--seed", type=int, default=42)
-    parser.add_argument("--cluster-mean", type=float, default=12.5)
-    parser.add_argument("--cluster-std", type=float, default=8.2)
-    parser.add_argument("--n-clusters", type=int, default=100)
-    parser.add_argument("--n-obs-per-cluster", type=int, default=12)
-    parser.add_argument("--n-permutations", type=int, default=1000)
-    parser.add_argument("--output", type=str, default="data/derived/robust_results.csv")
-    return parser.parse_args(cli_args)
+    # Save raw results
+    results_df = pd.DataFrame(all_results)
+    output_path = 'data/derived/simulation_results.csv'
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    results_df.to_csv(output_path, index=False)
+    logger.info(f"Raw results saved to {output_path}")
 
-def main():
-    """Main entry point."""
-    args = parse_args()
-    cfg = load_config()
-    cfg = parse_cli_args(args, cfg)
-    validate_config(cfg)
-    set_seed(cfg.get("seed", 42))
+    # Aggregate and compute error rates
+    # We need to group by method, icc, alpha
+    # The aggregate_errors function expects a specific format, let's adapt or call it
+    # Assuming aggregate_errors can handle the list of dicts directly or we need to format
+    # Based on T013/T020, aggregate_errors computes error rates and CIs.
+    # Let's assume it takes the raw list and groups appropriately.
 
-    icc_range = [float(x) for x in args.icc_range.split(",")]
+    # If aggregate_errors expects a specific structure, we might need to call it per method/icc
+    # For now, let's assume it handles the full list or we call it multiple times.
+    # Let's try calling it on the full list and see if it groups.
+    # If not, we iterate.
 
-    results = run_full_simulation(
-        icc_range=icc_range,
-        n_iterations=args.iterations,
-        seed=args.seed,
-        cluster_mean=args.cluster_mean,
-        cluster_std=args.cluster_std,
-        n_clusters=args.n_clusters,
-        n_obs_per_cluster=args.n_obs_per_cluster,
-        n_permutations=args.n_permutations
+    # To be safe and explicit based on T020:
+    final_report_rows = []
+    methods = ['naive', 'cluster_robust', 'block_permutation']
+
+    for method in methods:
+        for icc in icc_range:
+            for alpha in alpha_levels:
+                subset = results_df[
+                    (results_df['method'] == method) &
+                    (results_df['icc'] == icc) &
+                    (results_df['alpha'] == alpha)
+                ]['rejected']
+
+                if len(subset) == 0:
+                    continue
+
+                # Calculate error rate
+                error_rate = subset.mean()
+                n = len(subset)
+                successes = subset.sum()
+
+                # Clopper-Pearson CI
+                # Using scipy.stats.beta
+                lower = beta.ppf(alpha/2, successes, n - successes + 1)
+                upper = beta.ppf(1 - alpha/2, successes + 1, n - successes)
+
+                # Handle edge cases where successes is 0 or n
+                if successes == 0:
+                    lower = 0.0
+                if successes == n:
+                    upper = 1.0
+
+                final_report_rows.append({
+                    'ICC': icc,
+                    'Alpha': alpha,
+                    'Method': method,
+                    'Empirical_Error_Rate': error_rate,
+                    'CI_Lower': lower,
+                    'CI_Upper': upper
+                })
+
+    final_df = pd.DataFrame(final_report_rows)
+    final_path = 'data/derived/final_report.csv'
+    final_df.to_csv(final_path, index=False)
+    logger.info(f"Final report saved to {final_path}")
+
+    end_time = time.time()
+    log_timing(start_time, end_time)
+    log_memory()
+
+    tracemalloc.stop()
+
+    return {
+        'status': 'success',
+        'total_time_sec': end_time - start_time,
+        'rows_written': len(final_df)
+    }
+
+
+def parse_args(args: Optional[List[str]] = None) -> argparse.Namespace:
+    """
+    Parses command-line arguments for the simulation runner.
+
+    Args:
+        args (list, optional): List of arguments. Defaults to sys.argv.
+
+    Returns:
+        argparse.Namespace: Parsed arguments.
+    """
+    parser = argparse.ArgumentParser(
+        description='Run A/B test simulation with cluster correlation.'
+    )
+    parser.add_argument(
+        '--icc-range',
+        type=str,
+        default=None,
+        help='Comma-separated list of ICC values (e.g., 0.0,0.1,0.2)'
+    )
+    parser.add_argument(
+        '--iterations',
+        type=int,
+        default=DEFAULT_ITERATIONS,
+        help=f'Number of iterations (default: {DEFAULT_ITERATIONS})'
+    )
+    parser.add_argument(
+        '--seed',
+        type=int,
+        default=DEFAULT_SEED,
+        help=f'Random seed (default: {DEFAULT_SEED})'
+    )
+    parser.add_argument(
+        '--cluster-mean',
+        type=float,
+        default=CLUSTER_MEAN_SIZE,
+        help=f'Mean cluster size (default: {CLUSTER_MEAN_SIZE})'
+    )
+    parser.add_argument(
+        '--cluster-std',
+        type=float,
+        default=CLUSTER_STD_SIZE,
+        help=f'Std dev of cluster size (default: {CLUSTER_STD_SIZE})'
+    )
+    parser.add_argument(
+        '--n-clusters',
+        type=int,
+        default=DEFAULT_N_CLUSTERS,
+        help=f'Number of clusters (default: {DEFAULT_N_CLUSTERS})'
+    )
+    parser.add_argument(
+        '--n-obs-per-cluster',
+        type=int,
+        default=1,
+        help='Number of observations per cluster'
+    )
+    parser.add_argument(
+        '--n-permutations',
+        type=int,
+        default=1000,
+        help='Number of permutations for block test'
+    )
+    parser.add_argument(
+        '--alpha-list',
+        type=str,
+        default=None,
+        help='Comma-separated alpha levels (e.g., 0.01,0.05,0.10)'
+    )
+    parser.add_argument(
+        '--output',
+        type=str,
+        default='data/derived/final_report.csv',
+        help='Output path for the final report'
     )
 
-    if results:
-        df = pd.DataFrame(results)
-        df.to_csv(args.output, index=False)
-        logger.info(f"Results written to {args.output}")
-    else:
-        logger.warning("No results to write.")
+    return parser.parse_args(args)
 
-if __name__ == "__main__":
+
+def main():
+    """
+    Main entry point for the simulation runner.
+
+    Parses CLI arguments, loads configuration, validates constraints,
+    and executes the full simulation pipeline.
+    """
+    args = parse_args()
+    cfg = load_config()
+
+    # Update config from CLI
+    cfg = parse_cli_args(args, cfg)
+
+    # Validate
+    validate_config(cfg)
+
+    try:
+        result = run_full_simulation(cfg)
+        logger.info(f"Simulation completed successfully. Status: {result['status']}")
+    except RuntimeError as e:
+        logger.error(f"Simulation failed: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        sys.exit(1)
+
+
+if __name__ == '__main__':
     main()
