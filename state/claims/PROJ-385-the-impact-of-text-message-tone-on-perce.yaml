@@ -3662,3 +3662,34 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-30T01:04:35Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/README.md
+  attempts: 1
+  canonical: minimum 60 participants required for real data from Prolific
+  claim_id: c_8819faf1
+  context: Data Sources section listing requirements for stimuli, ratings, and mock
+    data.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Real data from Prolific (minimum 60 participants) required in data/raw/real_ratings.csv
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T08:47:59Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/README.md
+  attempts: 1
+  canonical: Python 3.9+ required
+  claim_id: c_1a3a015e
+  context: Requirements section listing software dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Python 3.9+ is required for the project.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T08:48:18Z'

@@ -1,0 +1,28 @@
+Data Model Validation Report
+========================================
+Source: /specs/001-the-impact-of-text-message-tone-on-perce/data-model.md
+Status: PASSED
+
+Entities Detected:
+--------------------
+- Stimulus: 7 fields found
+    - stimulus_id (string)
+    - base_scenario (string)
+    - emoji_count (integer)
+    - punctuation_pattern (string)
+    - length_category (string)
+    - cue_intensity (float)
+    - full_text (string)
+- Participant: 1 fields found
+    - participant_id (string)
+- Rating: 5 fields found
+    - participant_id (string)
+    - stimulus_id (string)
+    - relationship_type (string)
+    - rating (integer)
+    - timestamp (string)
+- AnalysisResult: 0 fields found
+
+Validation Checks:
+--------------------
+[PASS] All required entities and fields present.

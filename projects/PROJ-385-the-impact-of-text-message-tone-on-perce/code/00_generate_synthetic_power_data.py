@@ -1,191 +1,238 @@
+"""
+Synthetic Power-Analysis Dataset Generator.
+
+Generates synthetic datasets for power analysis based on the specified parameters:
+- Variance components: sigma_participant=0.5, sigma_stimulus=0.3, residual=1.0
+- Effect size: 0.25
+- N participants: 60
+- Uses RANDOM_SEED from config.py for reproducibility.
+
+Outputs a ZIP file containing CSVs with the synthetic data.
+"""
 import argparse
 import csv
 import io
 import logging
 import random
 import sys
+import zipfile
+import json
+import hashlib
 from pathlib import Path
 
-# Import from existing project modules to get paths
-# The API surface indicates these exist in config.py
-try:
-    from config import get_processed_data_dir
-except ImportError:
-    # Fallback for standalone execution if config isn't in path yet
-    from pathlib import Path
-    import sys
-    sys.path.insert(0, str(Path(__file__).parent))
-    from config import get_processed_data_dir
-
+# Local imports based on provided API surface
+from config import get_processed_data_dir, RANDOM_SEED
 from logging_config import setup_logging, get_logger
 
 logger = get_logger(__name__)
 
-def setup_simulation(seed: int = 42):
+def setup_simulation(seed: int):
     """Initialize random state for reproducibility."""
     random.seed(seed)
-    logger.info(f"Simulation seeded with {seed}")
+    logger.info(f"Simulation initialized with seed: {seed}")
 
 def generate_stimulus_ids(n_stimuli: int) -> list:
-    """Generate unique stimulus identifiers."""
-    return [f"stim_{i:03d}" for i in range(1, n_stimuli + 1)]
+    """Generate unique stimulus IDs."""
+    return [f"STIM_{i:04d}" for i in range(n_stimuli)]
 
 def generate_participant_ids(n_participants: int) -> list:
-    """Generate unique participant identifiers."""
-    return [f"part_{i:03d}" for i in range(1, n_participants + 1)]
+    """Generate unique participant IDs (Prolific-style)."""
+    return [f"P{random.randint(100000, 999999)}" for _ in range(n_participants)]
 
-def calculate_cue_intensity(emoji_count: int, punctuation_type: str, length: int, weights: dict) -> float:
+def calculate_cue_intensity(emoji_count: int, punct_type: str, length_cat: str, weights: dict) -> float:
     """
     Calculate cue intensity based on features and weights.
-    Normalized to roughly 0-1 range for simulation.
+    Tuple order: (emoji, punctuation, length)
     """
-    # Simple normalization logic for synthetic generation
-    emoji_score = min(emoji_count, 3) / 3.0
-    punct_score = 1.0 if punctuation_type in ['exclamation', 'question'] else 0.5
-    len_score = min(length, 50) / 50.0
+    # Normalize inputs to 0-1 scale for calculation
+    emoji_score = min(emoji_count, 2) / 2.0
+    punct_score = 1.0 if punct_type == "Excessive" else 0.0
+    length_score = 1.0 if length_cat == "Long" else 0.0
 
+    # Apply weights
     intensity = (
         weights['emoji'] * emoji_score +
         weights['punctuation'] * punct_score +
-        weights['length'] * len_score
+        weights['length'] * length_score
     )
     return intensity
 
-def simulate_rating(
-    participant_id: str,
-    stimulus_id: str,
-    relationship: str,
-    cue_intensity: float,
-    effect_size: float,
-    noise_scale: float = 0.5
-) -> float:
+def simulate_rating(participant_id: str, stimulus_id: str, cue_intensity: float, 
+                    relationship: str, params: dict) -> float:
     """
     Simulate a rating based on a linear mixed model structure.
-    rating = intercept + effect_size * cue_intensity + noise
+    
+    Model: rating ~ relationship * cue_intensity + (1|participant) + (1|stimulus) + residual
+    Effect size 0.25 is simulated as the coefficient for the interaction or main effect
+    depending on the specific power analysis goal. Here we model the interaction effect.
     """
-    base_rating = 3.0
-    # Relationship effect (friend > acquaintance)
-    rel_effect = 0.5 if relationship == 'friend' else -0.2
-    
-    # Main effect of cue intensity
-    intensity_effect = effect_size * cue_intensity
+    # Fixed effects
+    intercept = 3.0
+    beta_relationship = 0.2 if relationship == "friend" else 0.0
+    beta_cue = 0.5
+    beta_interaction = 0.25  # Target effect size
 
-    # Random noise (simulating residual + random effects for simplicity in generation)
-    noise = random.gauss(0, noise_scale)
+    # Linear predictor
+    fixed_effect = intercept + beta_relationship + (beta_cue * cue_intensity) + (beta_interaction * cue_intensity * (1 if relationship == "friend" else 0))
 
-    rating = base_rating + rel_effect + intensity_effect + noise
-    # Clamp to 1-5 scale
-    return max(1.0, min(5.0, rating))
+    # Random effects
+    # Map IDs to random values for reproducibility within this run
+    p_idx = int(participant_id[1:]) % 1000000 # Simple hash
+    random.seed(p_idx + params['seed'])
+    u_participant = random.gauss(0, params['sigma_participant'])
+    
+    s_idx = int(stimulus_id.split('_')[1])
+    random.seed(s_idx + params['seed'])
+    u_stimulus = random.gauss(0, params['sigma_stimulus'])
 
-def generate_dataset(
-    n_participants: int,
-    n_stimuli: int,
-    effect_size: float,
-    relationship_contexts: list,
-    weights: dict,
-    seed: int
-) -> list:
-    """
-    Generate the full synthetic dataset for power analysis.
-    Returns a list of dictionaries representing rows.
-    """
-    setup_simulation(seed)
+    # Residual
+    random.seed(int(stimulus_id.split('_')[1]) + int(participant_id[1:]) + params['seed'])
+    e_residual = random.gauss(0, params['residual'])
+
+    rating = fixed_effect + u_participant + u_stimulus + e_residual
+    return round(rating, 2)
+
+def generate_dataset(n_participants: int, n_stimuli: int, params: dict) -> list:
+    """Generate the full synthetic dataset."""
+    setup_simulation(params['seed'])
+    participants = generate_participant_ids(n_participants)
+    stimuli = generate_stimulus_ids(n_stimuli)
     
-    stimulus_ids = generate_stimulus_ids(n_stimuli)
-    participant_ids = generate_participant_ids(n_participants)
+    # Define cue variations for factorial design
+    emoji_counts = [0, 1, 2]
+    punct_types = ["Standard", "Excessive"]
+    length_cats = ["Short", "Long"]
+    relationships = ["friend", "acquaintance"]
     
-    data = []
+    # Weights for calculation (Equal distribution for baseline)
+    weights = {'emoji': 0.3333333333, 'punctuation': 0.3333333333, 'length': 0.3333333334}
+
+    data_rows = []
     
-    # Fully within-subjects: every participant sees every stimulus in every context
-    for p_id in participant_ids:
-        for s_id in stimulus_ids:
-            for rel in relationship_contexts:
-                # Generate synthetic features for this stimulus
-                emoji_count = random.randint(0, 3)
-                punct_type = random.choice(['period', 'exclamation', 'question'])
-                length = random.randint(10, 60)
-                
-                cue_intensity = calculate_cue_intensity(emoji_count, punct_type, length, weights)
-                
-                rating = simulate_rating(
-                    p_id, s_id, rel, cue_intensity, effect_size
-                )
-                
-                data.append({
-                    'participant_id': p_id,
-                    'stimulus_id': s_id,
-                    'relationship_type': rel,
-                    'emoji_count': emoji_count,
-                    'punctuation_type': punct_type,
-                    'length': length,
-                    'cue_intensity': round(cue_intensity, 4),
-                    'rating': round(rating, 2)
-                })
+    # Create a full factorial design for stimuli
+    stimulus_features = []
+    for e in emoji_counts:
+        for p in punct_types:
+            for l in length_cats:
+                for r in relationships:
+                    cue = calculate_cue_intensity(e, p, l, weights)
+                    stimulus_features.append({
+                        'stimulus_id': f"STIM_{len(stimulus_features):04d}",
+                        'text': f"Message {len(stimulus_features)}",
+                        'emoji_count': e,
+                        'punctuation_type': p,
+                        'length_category': l,
+                        'relationship': r,
+                        'cue_intensity': round(cue, 4)
+                    })
     
-    return data
+    # Generate ratings for each participant for each stimulus
+    # To keep N manageable for the zip but representative, we sample or iterate
+    # Task requires N=60 participants.
+    
+    rows = []
+    for p_id in participants:
+        for s_feat in stimulus_features:
+            s_id = s_feat['stimulus_id']
+            cue = s_feat['cue_intensity']
+            rel = s_feat['relationship']
+            
+            rating = simulate_rating(p_id, s_id, cue, rel, params)
+            rows.append({
+                'participant_id': p_id,
+                'stimulus_id': s_id,
+                'relationship_type': rel,
+                'cue_intensity': cue,
+                'rating': rating,
+                'text': s_feat['text']
+            })
+    
+    return rows
 
 def save_dataset_to_csv(data: list, output_path: Path):
-    """Save the generated dataset to a CSV file."""
+    """Save dataset to CSV."""
     if not data:
-        raise ValueError("Cannot save empty dataset")
-        
-    fieldnames = list(data[0].keys())
+        logger.warning("No data to save.")
+        return
     
+    fieldnames = data[0].keys()
     with open(output_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(data)
-    
-    logger.info(f"Saved {len(data)} rows to {output_path}")
+    logger.info(f"Saved dataset to {output_path}")
+
+def save_checksums(checksums: dict, output_path: Path):
+    """Save checksums to JSON."""
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(checksums, f, indent=2)
+    logger.info(f"Saved checksums to {output_path}")
 
 def main():
-    """
-    Main entry point for generating synthetic power analysis datasets.
-    Creates datasets for the three weighting schemes defined in T090.
-    """
-    # Configuration matching T090 requirements
-    n_participants = 60
-    n_stimuli = 20
-    effect_size = 0.25
-    relationships = ['friend', 'acquaintance']
-    seed = 42
+    parser = argparse.ArgumentParser(description="Generate synthetic power analysis datasets.")
+    parser.add_argument("--n_participants", type=int, default=60, help="Number of participants (N)")
+    parser.add_argument("--n_stimuli", type=int, default=12, help="Number of stimuli")
+    parser.add_argument("--output_zip", type=str, default="data/processed/synthetic_power_datasets.zip", help="Output ZIP path")
+    parser.add_argument("--output_checksums", type=str, default="data/checksums.json", help="Output checksums JSON path")
+    args = parser.parse_args()
+
+    setup_logging()
     
-    # Define the three weighting schemes exactly as per T090
-    schemes = {
-        'equal': {'emoji': 0.33, 'punctuation': 0.33, 'length': 0.34},
-        'emoji_dominant': {'emoji': 0.6, 'punctuation': 0.2, 'length': 0.2},
-        'punctuation_dominant': {'emoji': 0.2, 'punctuation': 0.6, 'length': 0.2}
+    # Parameters from task description
+    params = {
+        'seed': RANDOM_SEED,
+        'sigma_participant': 0.5,
+        'sigma_stimulus': 0.3,
+        'residual': 1.0,
+        'effect_size': 0.25
     }
-    
+
     processed_dir = get_processed_data_dir()
     processed_dir.mkdir(parents=True, exist_ok=True)
     
-    output_files = []
-    
-    for scheme_name, weights in schemes.items():
-        logger.info(f"Generating dataset for scheme: {scheme_name}")
-        data = generate_dataset(
-            n_participants, n_stimuli, effect_size, relationships, weights, seed
-        )
-        
-        filename = f"synthetic_power_{scheme_name}.csv"
-        output_path = processed_dir / filename
-        save_dataset_to_csv(data, output_path)
-        output_files.append(filename)
-    
-    # Zip all generated files into the required archive
-    zip_path = processed_dir / "synthetic_power_datasets.zip"
-    import zipfile
-    with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
-        for fname in output_files:
-            file_path = processed_dir / fname
-            zf.write(file_path, arcname=fname)
-            # Remove individual CSVs after zipping to keep directory clean
-            file_path.unlink()
-    
-    logger.info(f"Created zip archive: {zip_path}")
-    logger.info(f"Archived files: {output_files}")
+    csv_path = processed_dir / "synthetic_power_data.csv"
+    zip_path = Path(args.output_zip)
+    checksums_path = Path(args.output_checksums)
 
-if __name__ == '__main__':
-    setup_logging()
+    logger.info(f"Generating synthetic dataset with N={args.n_participants}...")
+    data = generate_dataset(args.n_participants, args.n_stimuli, params)
+    
+    logger.info(f"Saving CSV to {csv_path}...")
+    save_dataset_to_csv(data, csv_path)
+
+    # Compute checksum of the CSV
+    sha256_hash = hashlib.sha256()
+    with open(csv_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    csv_checksum = sha256_hash.hexdigest()
+
+    # Create ZIP file
+    logger.info(f"Creating ZIP archive {zip_path}...")
+    with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        zipf.write(csv_path, csv_path.name)
+    
+    # Compute checksum of ZIP
+    sha256_zip = hashlib.sha256()
+    with open(zip_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_zip.update(byte_block)
+    zip_checksum = sha256_zip.hexdigest()
+
+    # Update checksums file
+    checksums = {}
+    if checksums_path.exists():
+        with open(checksums_path, 'r') as f:
+            checksums = json.load(f)
+    
+    checksums["synthetic_power_data.csv"] = csv_checksum
+    checksums["synthetic_power_datasets.zip"] = zip_checksum
+    
+    save_checksums(checksums, checksums_path)
+
+    logger.info("Synthetic power analysis datasets generated successfully.")
+    print(f"Output: {zip_path}")
+    print(f"Checksum (ZIP): {zip_checksum}")
+
+if __name__ == "__main__":
     main()

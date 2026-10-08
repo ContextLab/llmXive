@@ -1,19 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory tree or README.md was presented; the claim that `ls -R` matches\
-    \ the expected hierarchy cannot be verified because the required artifacts (code/,\
-    \ data/, tests/ directories and a non\u2011empty README.md) are missing from the\
-    \ provided evidence."
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No validation artifact (e.g., a report, checklist, or updated `data-model.md`
-    with comments) was provided to show that the `specs/001-the-impact-of-text-message-tone-on-perce/data-model.md`
-    file was examined and confirmed to meet the current spec requirements for the
-    Stimulus, Participant, Rating, and AnalysisResult entities. The implementer must
-    supply a concrete validation output (e.g., a markdown file or summary) demonstrating
-    the compliance check.
 T005:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -28,35 +12,23 @@ T006:
     path `specs/001-the-impact-of-text-message-tone-on-perce/contracts/`. Without
     actual files (or a directory listing) the claim cannot be verified. The implementer
     must add the schema files (or a proof of their existence) in that location.
-T008:
+T009:
   c: false
-  h: 21c7be70cb44df4e320ec2357e29abaff6c8dc82ebe73c7b20be5f766eb859c6
-  r: "The repository contains `code/logging_config.py`, but the module does not create\
-    \ `data/pipeline.log` on import (the logging setup is only executed when `setup_logging()`\
-    \ is called). Consequently the expected log file is missing, and the startup message\
-    \ is never written. The task\u2019s requirement is therefore not met."
-T010a:
-  c: false
-  h: cc92d0c43e5381fd370fb82598865015f08eb09b3dcdf760944a6653e929e57b
-  r: The repository contains the requested test file, but the essential data file
-    `data/raw/stimuli.csv` and the schema file `stimulus.schema.yaml` are absent,
-    so the test cannot run successfully and `pytest` will fail. These missing artifacts
-    must be added for the task to be considered complete.
-T013:
-  c: false
-  h: 1030ebdf9ffb8b256df36283544e586bccbb293cd70553aae56d22e3f28c0f3c
-  r: "The repository contains the generator script, but the required output file `data/raw/stimuli.csv`\
-    \ is missing, and there is no evidence that the script runs with `--verify` to\
-    \ confirm unique feature combinations. The task\u2019s core deliverable has not\
-    \ been produced."
+  h: 99027be1cb025e6fecb8089e5607f60de30fad554a1ac4bda8a8076d78097fe2
+  r: "The provided `code/00_verify_consent.py` is truncated and does not show a complete\
+    \ implementation (e.g., no `if __name__ == \"__main__\":` block to actually exit\
+    \ with the returned code, and no logic for detecting \u201Cinvalid keys\u201D\
+    \ to return exit code\u202F2). Consequently, we cannot verify that the script\
+    \ meets all required exit\u2011code behaviors. The missing parts must be added\
+    \ for the task to be considered complete."
 T014:
   c: false
-  h: cbc0040203ebfa5b5fa3c47142d02c81994bb1f478da4458bcf2107943300509
-  r: The required output file `data/processed/counterbalanced_trials.csv` does not
-    exist, and the provided `code/02_counterbalance.py` is truncated and contains
-    errors (e.g., undefined variable `stim`, no CSV writing logic). Consequently the
-    script cannot generate the required counterbalanced trials, and the contract test
-    cannot be satisfied.
+  h: 0f0c4819a9210944088fea6bad295c03aacc97e869d26025387422027d6e8334
+  r: "The repository contains a `code/02_counterbalance.py` file, but its contents\
+    \ are truncated and do not include the full implementation (e.g., the `create_counterbalanced_trials`\
+    \ function is cut off and there is no code that writes `counterbalanced_trials.csv`).\
+    \ Moreover, the required output file `data/processed/counterbalanced_trials.csv`\
+    \ is absent. The task\u2019s core deliverables are therefore not present."
 T015c:
   c: false
   h: 5fa336182c23e4da154c211b33de8fa974ae9099947f73dc1bf4230e29fb71d7
@@ -118,19 +90,11 @@ T084:
   r: The required files `data/processed/analysis_ready.csv` and `analysis_ready.schema.yaml`
     are missing, so no validation could have been performed. Without these artifacts
     the claimed test cannot be verified.
-T090b:
-  c: false
-  h: faccf438fef141ecc86a6810466818285da4a24ccbe9cecebb7bcf56cf64605f
-  r: "The required output file `data/processed/synthetic_power_datasets.zip` is missing,\
-    \ and the provided script `code/00_generate_synthetic_power_data.py` is incomplete\
-    \ (truncated and contains a syntax error). Without a generated zip containing\
-    \ the synthetic datasets, the task\u2019s deliverable is not satisfied."
 T091:
   c: false
-  h: 5c38ece65c17b2525587e9bac1cb9e0b69d83d1630bdaeb622a791ff2e33382c
-  r: "The required output file `data/processed/power_analysis_results.json` is not\
-    \ present, so the task\u2019s deliverable cannot be verified. Additionally, the\
-    \ provided `code/00_run_power_simulation.py` is truncated and does not show a\
-    \ complete implementation that would generate the JSON. The missing result file\
-    \ (and incomplete script) means the power\u2011analysis simulation has not been\
-    \ demonstrably executed."
+  h: d33e1c579b7a76e9e80f4c021113c65733bbee42a5ce26fd905c3b5390e2eb62
+  r: "The required output file `data/processed/power_analysis_results.json` does not\
+    \ exist, so the power\u2011analysis simulation was not completed. Additionally,\
+    \ the provided script is truncated (e.g., an unfinished `except Import` block),\
+    \ indicating it cannot be executed as\u2011is. The missing JSON result must be\
+    \ generated by running a complete script on synthetic data."

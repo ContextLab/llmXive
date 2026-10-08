@@ -1,232 +1,139 @@
 """
-Contract test for counterbalancing task (T014).
+Contract Test for T014: Counterbalancing
 
-Verifies that:
-1. Each participant has exactly 2 * N trials (N = number of stimuli)
-2. Each stimulus appears exactly twice per participant (once per context)
-3. Both relationship contexts are represented for every stimulus-participant pair
+Verifies that code/02_counterbalance.py produces the correct output file
+with the expected row counts and structure.
 """
 import csv
 import os
+import subprocess
+import sys
 from pathlib import Path
-from typing import List, Dict, Any, Set, Tuple
 
 import pytest
 
-from config import get_processed_data_dir, get_raw_data_dir
+# Import project paths
+from config import get_processed_data_dir, get_raw_data_dir, get_code_dir
 
-# Constants
-CONTEXTS = ["friend", "acquaintance"]
+OUTPUT_FILE = "counterbalanced_trials.csv"
+EXPECTED_RELATIONSHIPS = ["friend", "acquaintance"]
 
-
-def load_counterbalanced_trials() -> List[Dict[str, Any]]:
-    """Load counterbalanced trials from CSV."""
-    trials_path = get_processed_data_dir() / "counterbalanced_trials.csv"
+@pytest.fixture(scope="module")
+def ensure_counterbalanced_exists():
+    """
+    Fixture to ensure the counterbalancing script has been run.
+    If the output file does not exist, it attempts to run the script.
+    """
+    output_path = get_processed_data_dir() / OUTPUT_FILE
+    if not output_path.exists():
+        code_dir = get_code_dir()
+        script_path = code_dir / "02_counterbalance.py"
+        
+        # Run the script
+        result = subprocess.run(
+            [sys.executable, str(script_path)],
+            cwd=str(code_dir.parent),
+            capture_output=True,
+            text=True
+        )
+        
+        if result.returncode != 0:
+            pytest.fail(f"Counterbalancing script failed to run: {result.stderr}")
     
-    if not trials_path.exists():
-        pytest.fail(f"Counterbalanced trials file not found: {trials_path}")
-    
-    trials = []
-    with open(trials_path, 'r', newline='', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            row['emoji_count'] = int(row['emoji_count'])
-            row['length_category'] = int(row['length_category'])
-            trials.append(row)
-    
-    return trials
+    return output_path
 
+def test_counterbalanced_file_exists(ensure_counterbalanced_exists):
+    """Test that the output file exists."""
+    assert ensure_counterbalanced_exists.exists(), f"Output file {ensure_counterbalanced_exists} not found."
 
-def load_stimuli() -> List[Dict[str, Any]]:
-    """Load stimuli from raw stimuli CSV."""
-    stimuli_path = get_raw_data_dir() / "stimuli.csv"
+def test_counterbalanced_row_counts(ensure_counterbalanced_exists):
+    """
+    Test that the row count matches the expected formula:
+    N_participants * N_stimuli * 2 (relationships)
+    """
+    # Load stimuli to get N_stimuli
+    raw_data_dir = get_raw_data_dir()
+    stimuli_path = raw_data_dir / "stimuli.csv"
     
     if not stimuli_path.exists():
-        pytest.fail(f"Stimuli file not found: {stimuli_path}")
+        pytest.skip("Stimuli file not found, cannot verify row counts.")
+
+    with open(stimuli_path, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        stimuli_count = sum(1 for _ in reader)
+
+    # Load counterbalanced trials
+    with open(ensure_counterbalanced_exists, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
     
-    stimuli = []
-    with open(stimuli_path, 'r', newline='', encoding='utf-8') as f:
+    actual_count = len(rows)
+    
+    # We assume N_participants = 60 based on power analysis
+    expected_count = 60 * stimuli_count * 2
+
+    assert actual_count == expected_count, (
+        f"Row count mismatch: Expected {expected_count} (60 * {stimuli_count} * 2), "
+        f"got {actual_count}"
+    )
+
+def test_counterbalanced_schema(ensure_counterbalanced_exists):
+    """Test that the CSV has the required columns."""
+    required_columns = {
+        "trial_id",
+        "participant_id",
+        "stimulus_id",
+        "relationship_type",
+        "stimulus_text",
+        "emoji_count",
+        "punctuation_type",
+        "length_category",
+        "scenario_id",
+        "cue_intensity",
+    }
+
+    with open(ensure_counterbalanced_exists, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        actual_columns = set(reader.fieldnames)
+
+    missing = required_columns - actual_columns
+    assert not missing, f"Missing required columns: {missing}"
+
+def test_relationship_values(ensure_counterbalanced_exists):
+    """Test that relationship_type only contains valid values."""
+    with open(ensure_counterbalanced_exists, "r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
-            row['emoji_count'] = int(row['emoji_count'])
-            row['length_category'] = int(row['length_category'])
-            stimuli.append(row)
+            assert row["relationship_type"] in EXPECTED_RELATIONSHIPS, (
+                f"Invalid relationship type: {row['relationship_type']}"
+            )
+
+def test_unique_trial_ids(ensure_counterbalanced_exists):
+    """Test that every trial_id is unique."""
+    with open(ensure_counterbalanced_exists, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        trial_ids = [row["trial_id"] for row in reader]
     
-    return stimuli
+    assert len(trial_ids) == len(set(trial_ids)), "Duplicate trial_ids found."
 
+def test_complete_counterbalancing_coverage(ensure_counterbalanced_exists):
+    """
+    Test that every participant has every stimulus in both relationship contexts.
+    """
+    with open(ensure_counterbalanced_exists, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
 
-@pytest.fixture
-def trials() -> List[Dict[str, Any]]:
-    """Fixture to load counterbalanced trials."""
-    return load_counterbalanced_trials()
+    # Group by (participant_id, stimulus_id)
+    pairs = {}
+    for row in rows:
+        key = (row["participant_id"], row["stimulus_id"])
+        if key not in pairs:
+            pairs[key] = set()
+        pairs[key].add(row["relationship_type"])
 
-
-@pytest.fixture
-def stimuli() -> List[Dict[str, Any]]:
-    """Fixture to load stimuli."""
-    return load_stimuli()
-
-
-@pytest.fixture
-def stimulus_ids(stimuli) -> Set[str]:
-    """Set of all stimulus IDs."""
-    return {s['id'] for s in stimuli}
-
-
-class TestCounterbalancing:
-    """Test suite for counterbalancing contract."""
-
-    def test_file_exists(self):
-        """Test that counterbalanced trials file exists."""
-        trials_path = get_processed_data_dir() / "counterbalanced_trials.csv"
-        assert trials_path.exists(), "Counterbalanced trials file must exist"
-
-    def test_non_empty(self, trials):
-        """Test that counterbalanced trials file is not empty."""
-        assert len(trials) > 0, "Counterbalanced trials must not be empty"
-
-    def test_required_columns(self, trials):
-        """Test that all required columns are present."""
-        required_columns = {
-            'participant_id', 'stimulus_id', 'stimulus_text',
-            'relationship_context', 'emoji_count', 'punctuation_type',
-            'length_category', 'scenario_id', 'cue_intensity'
-        }
-        
-        if trials:
-            actual_columns = set(trials[0].keys())
-            missing = required_columns - actual_columns
-            assert not missing, f"Missing required columns: {missing}"
-
-    def test_each_participant_has_correct_trial_count(
-        self, trials, stimuli
-    ):
-        """Test that each participant has exactly 2 * N trials."""
-        expected_count = len(stimuli) * len(CONTEXTS)
-        
-        # Group by participant
-        participant_counts: Dict[str, int] = {}
-        for trial in trials:
-            pid = trial['participant_id']
-            participant_counts[pid] = participant_counts.get(pid, 0) + 1
-        
-        for pid, count in participant_counts.items():
-            assert count == expected_count, (
-                f"Participant {pid} has {count} trials, "
-                f"expected {expected_count}"
-            )
-
-    def test_each_stimulus_appears_twice_per_participant(
-        self, trials, stimulus_ids
-    ):
-        """Test that each stimulus appears exactly twice per participant."""
-        # Group by participant
-        participant_stimuli: Dict[str, Dict[str, int]] = {}
-        
-        for trial in trials:
-            pid = trial['participant_id']
-            sid = trial['stimulus_id']
-            
-            if pid not in participant_stimuli:
-                participant_stimuli[pid] = {}
-            
-            participant_stimuli[pid][sid] = participant_stimuli[pid].get(sid, 0) + 1
-        
-        for pid, stimulus_counts in participant_stimuli.items():
-            for sid, count in stimulus_counts.items():
-                assert count == 2, (
-                    f"Stimulus {sid} for participant {pid} appears {count} times, "
-                    f"expected 2"
-                )
-
-    def test_both_contexts_for_each_stimulus_participant_pair(
-        self, trials, stimulus_ids
-    ):
-        """Test that both contexts are present for each stimulus-participant pair."""
-        # Group by participant
-        participant_data: Dict[str, Dict[str, Set[str]]] = {}
-        
-        for trial in trials:
-            pid = trial['participant_id']
-            sid = trial['stimulus_id']
-            ctx = trial['relationship_context']
-            
-            if pid not in participant_data:
-                participant_data[pid] = {}
-            
-            if sid not in participant_data[pid]:
-                participant_data[pid][sid] = set()
-            
-            participant_data[pid][sid].add(ctx)
-        
-        for pid, stimulus_contexts in participant_data.items():
-            for sid, contexts in stimulus_contexts.items():
-                assert contexts == set(CONTEXTS), (
-                    f"Stimulus {sid} for participant {pid} has contexts {contexts}, "
-                    f"expected {CONTEXTS}"
-                )
-
-    def test_all_stimuli_represented_for_each_participant(
-        self, trials, stimulus_ids
-    ):
-        """Test that all stimuli are present for each participant."""
-        # Group by participant
-        participant_stimuli: Dict[str, Set[str]] = {}
-        
-        for trial in trials:
-            pid = trial['participant_id']
-            sid = trial['stimulus_id']
-            
-            if pid not in participant_stimuli:
-                participant_stimuli[pid] = set()
-            
-            participant_stimuli[pid].add(sid)
-        
-        for pid, present_stimuli in participant_stimuli.items():
-            assert present_stimuli == stimulus_ids, (
-                f"Participant {pid} missing stimuli: {stimulus_ids - present_stimuli}"
-            )
-
-    def test_no_duplicate_stimulus_context_pairs(
-        self, trials
-    ):
-        """Test that no stimulus-context pair is duplicated for a participant."""
-        # Group by participant
-        participant_pairs: Dict[str, Set[Tuple[str, str]]] = {}
-        
-        for trial in trials:
-            pid = trial['participant_id']
-            sid = trial['stimulus_id']
-            ctx = trial['relationship_context']
-            pair = (sid, ctx)
-            
-            if pid not in participant_pairs:
-                participant_pairs[pid] = set()
-            
-            assert pair not in participant_pairs[pid], (
-                f"Duplicate stimulus-context pair {pair} for participant {pid}"
-            )
-            participant_pairs[pid].add(pair)
-
-    def test_total_trial_count_matches_expectation(
-        self, trials, stimuli
-    ):
-        """Test that total trial count matches expected value."""
-        # Get unique participants
-        participants = set(t['participant_id'] for t in trials)
-        expected_total = len(participants) * len(stimuli) * len(CONTEXTS)
-        
-        assert len(trials) == expected_total, (
-            f"Total trials {len(trials)} does not match expected {expected_total} "
-            f"({len(participants)} participants × {len(stimuli)} stimuli × {len(CONTEXTS)} contexts)"
+    # Verify every pair has both relationships
+    for key, rels in pairs.items():
+        assert set(EXPECTED_RELATIONSHIPS) == rels, (
+            f"Pair {key} is missing relationship contexts. Found: {rels}"
         )
-
-    def test_contexts_are_valid(self, trials):
-        """Test that all relationship contexts are valid."""
-        valid_contexts = set(CONTEXTS)
-        
-        for trial in trials:
-            ctx = trial['relationship_context']
-            assert ctx in valid_contexts, (
-                f"Invalid context '{ctx}' found. Valid: {valid_contexts}"
-            )

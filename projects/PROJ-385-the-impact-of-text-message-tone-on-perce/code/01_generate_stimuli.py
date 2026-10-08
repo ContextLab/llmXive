@@ -1,22 +1,22 @@
 """
-Stimulus Generation Module (T013)
+Stimulus Generation Module for Text Message Tone Study.
 
-Implements a factorial generator for text message stimuli based on:
-- Emoji presence/count
-- Punctuation type
-- Message length
-- Scenario context
-
-Output: data/raw/stimuli.csv
+This module implements the factorial generator for creating text message stimuli
+based on base scenarios, varying emoji count, punctuation type, and message length.
+It calculates cue intensity based on defined weighting schemes and outputs a
+CSV file with all required metadata.
 """
+
 import argparse
 import csv
 import itertools
 import logging
 import os
 import random
+import re
 import json
 from pathlib import Path
+from typing import List, Dict, Any, Tuple, Optional
 
 from config import get_raw_data_dir, get_processed_data_dir
 from logging_config import setup_logging, get_logger
@@ -24,229 +24,196 @@ from logging_config import setup_logging, get_logger
 # Initialize logger
 logger = get_logger(__name__)
 
-# Constants
-RANDOM_SEED = 42
-random.seed(RANDOM_SEED)
+# Constants for factorial design
+EMOJI_CATEGORIES = [0, 1, 2]  # 0 emojis, 1 emoji, >1 emojis (2 for factorial simplicity)
+PUNCTUATION_TYPES = ["standard", "excessive"]
+LENGTH_CATEGORIES = ["short", "long"]  # <10 words, >=10 words
 
-# Scenario templates (placeholders for {text})
-SCENARIOS = [
-    "Hey, {text}",
-    "Just wanted to say {text}",
-    "Are you there? {text}",
-    "So about our plans: {text}",
-    "I was thinking {text}",
-    "Can you check {text}",
-    "Oh, {text}",
-    "Wait, {text}",
-]
+# Base scenarios will be loaded from a JSON file
+BASE_SCENARIOS_PATH = Path(get_raw_data_dir()) / "base_scenarios.json"
 
-# Text fragments to vary length and emoji content
-FRAGMENTS = {
-    "short": [
-        "ok",
-        "yes",
-        "no",
-        "bye",
-        "hi",
-        "lol",
-        "wow",
-        "wow",
-        "yep",
-        "nah",
-    ],
-    "medium": [
-        "I think that sounds good",
-        "Let me know what you think",
-        "I'm not sure about that",
-        "That works for me",
-        "Can we do it later?",
-        "I'm on my way now",
-        "See you in a bit",
-        "Sounds like a plan",
-    ],
-    "long": [
-        "I was wondering if we could maybe reschedule our meeting for tomorrow instead of today since I have a conflict",
-        "Actually I think I might be running a bit late so sorry about that but I'll be there as soon as I can",
-        "I just wanted to double check if you are still coming to the event this weekend because I need to know for sure",
-        "Hey I was thinking maybe we could grab coffee sometime next week if you are free let me know what works",
-        "I'm really sorry I forgot to send that file yesterday I'll send it over right now please check your email",
-    ],
-}
+def load_base_scenarios() -> List[str]:
+    """Load base scenarios from the JSON file."""
+    if not BASE_SCENARIOS_PATH.exists():
+        logger.error(f"Base scenarios file not found at {BASE_SCENARIOS_PATH}")
+        raise FileNotFoundError(f"Base scenarios file not found at {BASE_SCENARIOS_PATH}")
+    
+    with open(BASE_SCENARIOS_PATH, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    
+    if 'scenarios' not in data:
+        logger.error("JSON file must contain a 'scenarios' key with a list of strings.")
+        raise ValueError("JSON file must contain a 'scenarios' key with a list of strings.")
+    
+    return data['scenarios']
 
-# Emoji options
-EMOJIS = [
-    "😀", "😂", "😍", "😎", "😢", "😡", "😱", "🤔", "👍", "👎",
-    "❤️", "🔥", "✨", "🎉", "🙏", "💯", "🤝", "👀", "🚀", "💡"
-]
-
-# Punctuation types
-PUNCTUATION_TYPES = ["period", "exclamation", "question", "none"]
+def load_weights() -> Dict[str, float]:
+    """Load the primary cue intensity weighting scheme from the JSON file."""
+    weights_path = Path(get_processed_data_dir()) / "cue_intensity_weights.json"
+    if not weights_path.exists():
+        logger.error(f"Weights file not found at {weights_path}")
+        raise FileNotFoundError(f"Weights file not found at {weights_path}")
+    
+    with open(weights_path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    
+    # We expect the "equal" scheme to be the primary one, or we take the first one
+    # The file structure is a dict of scheme_name -> weights
+    if "equal" in data:
+        return data["equal"]
+    elif len(data) > 0:
+        # Fallback to first scheme if "equal" not found
+        first_key = list(data.keys())[0]
+        logger.warning(f"Scheme 'equal' not found, using first available scheme: {first_key}")
+        return data[first_key]
+    else:
+        logger.error("No weighting schemes found in the file.")
+        raise ValueError("No weighting schemes found in the file.")
 
 def count_emojis(text: str) -> int:
-    """Count the number of emoji characters in the text."""
-    # Simple heuristic: count characters in the emoji range
-    # This is a simplified check; in production, use a dedicated emoji library
-    count = 0
-    for char in text:
-        if '\U0001F600' <= char <= '\U0001F64F' or \
-           '\U0001F300' <= char <= '\U0001F5FF' or \
-           '\U0001F680' <= char <= '\U0001F6FF' or \
-           '\U0001F1E0' <= char <= '\U0001F1FF' or \
-           '\u2600' <= char <= '\u26FF' or \
-           '\u2700' <= char <= '\u27BF':
-            count += 1
-    return count
+    """Count the number of emojis in the text."""
+    # Basic emoji regex for common emojis
+    emoji_pattern = re.compile(
+        "["
+        "\U0001F600-\U0001F64F"  # emoticons
+        "\U0001F300-\U0001F5FF"  # symbols & pictographs
+        "\U0001F680-\U0001F6FF"  # transport & map symbols
+        "\U0001F1E0-\U0001F1FF"  # flags
+        "\U00002702-\U000027B0"  # dingbats
+        "\U000024C2-\U0001F251"
+        "]+", flags=re.UNICODE
+    )
+    matches = emoji_pattern.findall(text)
+    return len(matches)
 
-def get_punctuation_marker(punct_type: str) -> str:
-    """Return the punctuation character based on type."""
-    mapping = {
-        "period": ".",
-        "exclamation": "!",
-        "question": "?",
-        "none": ""
-    }
-    return mapping.get(punct_type, "")
+def get_punctuation_marker(text: str) -> str:
+    """Determine if punctuation is standard or excessive."""
+    # Count punctuation marks
+    punct_count = len(re.findall(r'[.!?;:]', text))
+    word_count = len(text.split())
+    
+    # Excessive if more than 1.5 punctuation marks per sentence (approx)
+    # Or if there are more than 3 punctuation marks in a short message
+    if word_count < 10:
+        return "excessive" if punct_count > 2 else "standard"
+    else:
+        return "excessive" if punct_count > 5 else "standard"
 
 def categorize_length(text: str) -> str:
-    """Categorize text length into short, medium, or long."""
-    length = len(text.split())
-    if length <= 3:
-        return "short"
-    elif length <= 10:
-        return "medium"
+    """Categorize text length as short (<10 words) or long (>=10 words)."""
+    words = text.split()
+    return "long" if len(words) >= 10 else "short"
+
+def generate_message(base_text: str, emoji_count: int, punct_type: str) -> str:
+    """
+    Generate a stimulus message by applying emoji and punctuation variations
+    to a base scenario.
+    """
+    # Start with base text
+    message = base_text.strip()
+    
+    # Apply punctuation variation
+    if punct_type == "excessive":
+        # Add extra punctuation
+        if not message.endswith(('.', '!', '?')):
+            message += "!"
+        message += "!!"  # Excessive punctuation
     else:
-        return "long"
+        # Ensure standard punctuation
+        if not message.endswith(('.', '!', '?')):
+            message += "."
+    
+    # Apply emoji variation
+    emojis = ["😊", "😢", "😠", "😍", "😡", "😔", "🙏", "💪", "❤️", "👍"]
+    selected_emojis = []
+    
+    if emoji_count > 0:
+        # Select random emojis
+        num_to_add = min(emoji_count, len(emojis))
+        selected_emojis = random.sample(emojis, num_to_add)
+        # Append emojis to the end of the message
+        message += " " + " ".join(selected_emojis)
+    
+    return message
 
-def generate_message(scenario: str, fragment: str, punct_type: str, add_emoji: bool) -> str:
-    """Generate a full message from scenario, fragment, punctuation, and optional emoji."""
-    punct = get_punctuation_marker(punct_type)
-    text = f"{fragment}{punct}"
-    
-    if add_emoji:
-        emoji = random.choice(EMOJIS)
-        # Place emoji at the end or beginning randomly
-        if random.random() > 0.5:
-            text = f"{text} {emoji}"
-        else:
-            text = f"{emoji} {text}"
-    
-    return scenario.format(text=text)
-
-def calculate_cue_intensity(emoji_count: int, punct_type: str, length_cat: str, weights: dict) -> float:
+def calculate_cue_intensity(emoji_count: int, punct_type: str, length: str, weights: Dict[str, float]) -> float:
     """
-    Calculate cue intensity score based on weighted features.
-    
-    Args:
-        emoji_count: Number of emojis
-        punct_type: Type of punctuation (period, exclamation, question, none)
-        length_cat: Length category (short, medium, long)
-        weights: Dictionary of weights for each feature from cue_intensity_weights.json
-    
-    Returns:
-        Float score representing cue intensity
+    Calculate cue intensity based on weighted combination of features.
+    Normalized to [0, 1] range.
     """
-    # Normalize emoji count (0-2 emojis considered, cap at 2 for normalization)
-    emoji_score = min(emoji_count, 2) / 2.0 if weights.get("emoji", 0) > 0 else 0.0
+    # Normalize each feature to [0, 1]
+    emoji_score = min(emoji_count / 2.0, 1.0)  # Max 2 emojis = 1.0
     
-    # Normalize punctuation intensity
-    punct_scores = {"none": 0.0, "period": 0.3, "question": 0.5, "exclamation": 1.0}
-    punct_score = punct_scores.get(punct_type, 0.0)
+    punct_score = 1.0 if punct_type == "excessive" else 0.0
     
-    # Normalize length
-    length_scores = {"short": 0.3, "medium": 0.6, "long": 1.0}
-    length_score = length_scores.get(length_cat, 0.5)
+    length_score = 1.0 if length == "long" else 0.0
     
-    # Calculate weighted sum
+    # Weighted sum
     intensity = (
-        emoji_score * weights.get("emoji", 0.33) +
-        punct_score * weights.get("punctuation", 0.33) +
-        length_score * weights.get("length", 0.34)
+        weights.get("emoji", 0.33) * emoji_score +
+        weights.get("punctuation", 0.33) * punct_score +
+        weights.get("length", 0.34) * length_score
     )
     
     return round(intensity, 4)
 
-def load_weights():
-    """Load cue intensity weights from the JSON file."""
-    weights_path = get_processed_data_dir() / "cue_intensity_weights.json"
-    if not weights_path.exists():
-        logger.error(f"Weights file not found: {weights_path}")
-        raise FileNotFoundError(f"Weights file not found: {weights_path}")
-    
-    with open(weights_path, 'r') as f:
-        data = json.load(f)
-    
-    # Return the primary scheme (Equal) for this generation
-    # We can extend this to generate multiple versions if needed
-    return data.get("Equal", {"emoji": 0.33, "punctuation": 0.33, "length": 0.34})
-
-def generate_stimuli():
+def generate_stimuli() -> List[Dict[str, Any]]:
     """
-    Generate all factorial combinations of stimulus features.
-    
-    Returns:
-        List of dictionaries representing each stimulus
+    Generate all factorial combinations of stimuli based on base scenarios.
+    Returns a list of dictionaries with stimulus metadata.
     """
+    scenarios = load_base_scenarios()
     weights = load_weights()
+    
     stimuli = []
-    stimulus_id = 0
+    stimulus_id_counter = 1
     
-    # Factorial design:
-    # - 8 scenarios
-    # - 3 length categories (short, medium, long)
-    # - 4 punctuation types
-    # - 2 emoji conditions (with emoji, without emoji)
-    # - Multiple fragments per length category to ensure variety
+    for scenario_id, base_text in enumerate(scenarios, 1):
+        # Generate all factorial combinations
+        for emoji_count, punct_type, length_cat in itertools.product(
+            EMOJI_CATEGORIES, PUNCTUATION_TYPES, LENGTH_CATEGORIES
+        ):
+            # Generate the message
+            message = generate_message(base_text, emoji_count, punct_type)
+            
+            # Recalculate actual features from generated message
+            actual_emoji_count = count_emojis(message)
+            actual_punct_type = get_punctuation_marker(message)
+            actual_length_cat = categorize_length(message)
+            
+            # Calculate cue intensity
+            cue_intensity = calculate_cue_intensity(
+                actual_emoji_count, actual_punct_type, actual_length_cat, weights
+            )
+            
+            stimulus = {
+                "stimulus_id": f"STIM_{stimulus_id_counter:04d}",
+                "text": message,
+                "emoji_count": actual_emoji_count,
+                "punctuation_type": actual_punct_type,
+                "length_category": actual_length_cat,
+                "scenario_id": f"SCEN_{scenario_id:03d}",
+                "cue_intensity": cue_intensity
+            }
+            
+            stimuli.append(stimulus)
+            stimulus_id_counter += 1
     
-    scenarios = SCENARIOS
-    lengths = ["short", "medium", "long"]
-    punct_types = PUNCTUATION_TYPES
-    emoji_conditions = [False, True]
-    
-    # Create factorial combinations
-    for scenario in scenarios:
-        for length_cat in lengths:
-            fragments = FRAGMENTS[length_cat]
-            for punct_type in punct_types:
-                for add_emoji in emoji_conditions:
-                    # Select a fragment (cycle through if needed)
-                    # Use a deterministic selection based on indices to ensure reproducibility
-                    fragment_idx = stimulus_id % len(fragments)
-                    fragment = fragments[fragment_idx]
-                    
-                    # Generate message
-                    message = generate_message(scenario, fragment, punct_type, add_emoji)
-                    
-                    # Calculate features
-                    emoji_count = count_emojis(message)
-                    length_cat_actual = categorize_length(message)
-                    
-                    # Calculate cue intensity
-                    cue_intensity = calculate_cue_intensity(
-                        emoji_count, punct_type, length_cat_actual, weights
-                    )
-                    
-                    # Create stimulus record
-                    record = {
-                        "id": f"stim_{stimulus_id:04d}",
-                        "text": message,
-                        "emoji_count": emoji_count,
-                        "punctuation_type": punct_type,
-                        "length_category": length_cat_actual,
-                        "scenario_id": scenarios.index(scenario),
-                        "cue_intensity": cue_intensity
-                    }
-                    
-                    stimuli.append(record)
-                    stimulus_id += 1
-    
-    logger.info(f"Generated {len(stimuli)} unique stimuli")
+    logger.info(f"Generated {len(stimuli)} stimuli from {len(scenarios)} scenarios.")
     return stimuli
 
-def save_stimuli(stimuli: list, output_path: Path):
+def save_stimuli(stimuli: List[Dict[str, Any]], output_path: Optional[Path] = None) -> Path:
     """Save stimuli to a CSV file."""
+    if output_path is None:
+        output_path = Path(get_raw_data_dir()) / "stimuli.csv"
+    
+    # Ensure directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    fieldnames = ["id", "text", "emoji_count", "punctuation_type", "length_category", "scenario_id", "cue_intensity"]
+    fieldnames = [
+        "stimulus_id", "text", "emoji_count", "punctuation_type", 
+        "length_category", "scenario_id", "cue_intensity"
+    ]
     
     with open(output_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
@@ -254,45 +221,51 @@ def save_stimuli(stimuli: list, output_path: Path):
         writer.writerows(stimuli)
     
     logger.info(f"Saved {len(stimuli)} stimuli to {output_path}")
+    return output_path
 
-def verify_stimuli(stimuli: list) -> bool:
+def verify_stimuli(stimuli: List[Dict[str, Any]]) -> bool:
     """
     Verify that all feature combinations are unique.
-    
-    Args:
-        stimuli: List of stimulus dictionaries
-    
-    Returns:
-        True if verification passes, False otherwise
+    Returns True if all combinations are unique, False otherwise.
     """
-    combinations = set()
+    seen_combinations = set()
     duplicates = []
     
-    for s in stimuli:
-        # Create a tuple of key features to check uniqueness
-        key = (
-            s["scenario_id"],
-            s["length_category"],
-            s["punctuation_type"],
-            s["emoji_count"] > 0  # Binary: has emoji or not
+    for stim in stimuli:
+        combo = (
+            stim["emoji_count"],
+            stim["punctuation_type"],
+            stim["length_category"],
+            stim["scenario_id"]
         )
         
-        if key in combinations:
-            duplicates.append(s["id"])
+        if combo in seen_combinations:
+            duplicates.append(stim["stimulus_id"])
         else:
-            combinations.add(key)
+            seen_combinations.add(combo)
     
     if duplicates:
-        logger.warning(f"Found duplicate combinations in stimuli: {duplicates[:5]}...")
+        logger.warning(f"Found duplicate feature combinations for stimuli: {duplicates}")
         return False
     
-    logger.info("Verification passed: All feature combinations are unique")
+    logger.info("All feature combinations are unique.")
     return True
 
 def main():
-    """Main entry point for stimulus generation."""
-    parser = argparse.ArgumentParser(description="Generate factorial text message stimuli")
-    parser.add_argument("--verify", action="store_true", help="Verify uniqueness of feature combinations")
+    """Main entry point for the stimulus generation script."""
+    parser = argparse.ArgumentParser(description="Generate text message stimuli for the tone study.")
+    parser.add_argument(
+        "--verify", 
+        action="store_true", 
+        help="Verify that all feature combinations are unique after generation."
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=None,
+        help="Custom output path for the stimuli CSV file."
+    )
+    
     args = parser.parse_args()
     
     # Setup logging
@@ -303,21 +276,24 @@ def main():
         stimuli = generate_stimuli()
         
         # Save to CSV
-        output_path = get_raw_data_dir() / "stimuli.csv"
+        output_path = Path(args.output) if args.output else None
         save_stimuli(stimuli, output_path)
         
         # Verify if requested
         if args.verify:
-            if not verify_stimuli(stimuli):
-                logger.error("Verification failed: Duplicate feature combinations found")
-                return 1
+            is_unique = verify_stimuli(stimuli)
+            if not is_unique:
+                logger.error("Verification failed: duplicate feature combinations found.")
+                exit(1)
+            else:
+                logger.info("Verification passed: all feature combinations are unique.")
         
-        logger.info("Stimulus generation completed successfully")
-        return 0
+        logger.info("Stimulus generation completed successfully.")
+        exit(0)
         
     except Exception as e:
-        logger.error(f"Error during stimulus generation: {e}", exc_info=True)
-        return 1
+        logger.error(f"Error during stimulus generation: {e}")
+        exit(1)
 
 if __name__ == "__main__":
-    exit(main())
+    main()

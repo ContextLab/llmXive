@@ -1,0 +1,41 @@
+{
+  "project_id": "PROJ-385-the-impact-of-text-message-tone-on-perce",
+  "tasks": [
+    {
+      "task_key": "T001",
+      "reject_count": 1,
+      "last_reason": "No directory tree or README.md was presented; the claim that `ls -R` matches the expected hierarchy cannot be verified because the required artifacts (code/, data/, tests/ directories and a non\u2011empty README.md) are missing from the provided evidence.",
+      "first_seen": "2026-10-08T08:57:19.476543+00:00",
+      "last_seen": "2026-10-08T08:57:19.476543+00:00"
+    },
+    {
+      "task_key": "T004",
+      "reject_count": 1,
+      "last_reason": "No validation artifact (e.g., a report, checklist, or updated `data-model.md` with comments) was provided to show that the `specs/001-the-impact-of-text-message-tone-on-perce/data-model.md` file was examined and confirmed to meet the current spec requirements for the Stimulus, Participant, Rating, and AnalysisResult entities. The implementer must supply a concrete validation output (e.g., a markdown file or summary) demonstrating the compliance check.",
+      "first_seen": "2026-10-08T08:57:19.477621+00:00",
+      "last_seen": "2026-10-08T08:57:19.477621+00:00"
+    },
+    {
+      "task_key": "T008",
+      "reject_count": 1,
+      "last_reason": "The `code/logging_config.py` file exists, but it does not create `data/pipeline.log` (or log a startup message) simply by being imported\u2014no function is executed on import. Consequently the required log file is missing from the repository. The task\u2019s verification condition is not met.",
+      "first_seen": "2026-10-08T08:57:21.827463+00:00",
+      "last_seen": "2026-10-08T08:57:21.827463+00:00"
+    },
+    {
+      "task_key": "T090b",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: data/processed/synthetic_power_datasets.zip",
+      "first_seen": "2026-10-08T08:57:25.231873+00:00",
+      "last_seen": "2026-10-08T08:57:25.231873+00:00"
+    },
+    {
+      "task_key": "T013",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: data/raw/stimuli.csv",
+      "first_seen": "2026-10-08T08:57:27.516674+00:00",
+      "last_seen": "2026-10-08T08:57:27.516674+00:00"
+    }
+  ],
+  "updated_at": "2026-10-08T08:57:27.516674+00:00"
+}

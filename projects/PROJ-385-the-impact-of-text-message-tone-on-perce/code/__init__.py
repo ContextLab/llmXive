@@ -1,1 +1,1 @@
-# Code package
+"""Code package for the project."""

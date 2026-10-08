@@ -1,84 +1,89 @@
-"""
-Logging configuration for the research pipeline.
-
-Sets up logging to both console and file.
-"""
 import logging
 import sys
 from pathlib import Path
 from datetime import datetime
 from typing import Optional
-
 from config import get_project_root, get_processed_data_dir
 
-def setup_logging(log_file: Optional[Path] = None) -> logging.Logger:
+# Global logger instance
+_logger = None
+
+def setup_logging(log_file: Optional[str] = None, level: int = logging.INFO):
     """
-    Set up logging configuration.
+    Sets up the logging configuration for the pipeline.
     
     Args:
-        log_file: Optional path to log file. Defaults to data/pipeline.log.
-    
-    Returns:
-        Root logger instance.
+        log_file: Optional path to a log file. If None, logs to data/pipeline.log.
+        level: Logging level (default: INFO).
     """
+    global _logger
+    
+    if _logger is not None:
+        return _logger
+
+    # Determine log file path
     if log_file is None:
-        log_file = get_processed_data_dir() / "pipeline.log"
+        # Ensure we are writing to data/pipeline.log as per task requirement
+        # get_processed_data_dir() points to data/processed, so we need to adjust
+        # The task explicitly says: "write logs to data/pipeline.log"
+        project_root = get_project_root()
+        log_dir = project_root / "data"
+        log_dir.mkdir(parents=True, exist_ok=True)
+        log_file = log_dir / "pipeline.log"
     
-    # Ensure log directory exists
-    log_file.parent.mkdir(parents=True, exist_ok=True)
+    # Create logger
+    logger = logging.getLogger("llmXive")
+    logger.setLevel(level)
     
-    # Create formatter
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
+    # Remove existing handlers to avoid duplicates
+    logger.handlers.clear()
     
     # File handler
     file_handler = logging.FileHandler(log_file)
-    file_handler.setLevel(logging.DEBUG)
-    file_handler.setFormatter(formatter)
+    file_handler.setLevel(level)
     
     # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.INFO)
+    console_handler.setLevel(level)
+    
+    # Formatter
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    file_handler.setFormatter(formatter)
     console_handler.setFormatter(formatter)
     
-    # Root logger
-    root_logger = logging.getLogger()
-    root_logger.setLevel(logging.DEBUG)
+    # Add handlers
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
     
-    # Remove existing handlers to prevent duplicates on re-import
-    for handler in root_logger.handlers[:]:
-        root_logger.removeHandler(handler)
+    _logger = logger
     
-    root_logger.addHandler(file_handler)
-    root_logger.addHandler(console_handler)
+    # Log startup message to verify file creation
+    logger.info("Logging infrastructure initialized. Pipeline log started.")
     
-    # Log startup message immediately
-    root_logger.info("Pipeline logging initialized.")
-    
-    return root_logger
+    return logger
 
-def get_logger(name: str) -> logging.Logger:
-    """
-    Get a logger instance with the specified name.
-    
-    Args:
-        name: Logger name (usually __name__)
-    
-    Returns:
-        Logger instance.
-    """
-    return logging.getLogger(name)
+def get_logger():
+    """Returns the configured logger instance."""
+    if _logger is None:
+        setup_logging()
+    return _logger
 
-def log_pipeline_step(step_name: str, logger: Optional[logging.Logger] = None):
-    """Log the start of a pipeline step."""
-    if logger is None:
-        logger = logging.getLogger(__name__)
-    logger.info(f"Starting pipeline step: {step_name}")
+def log_pipeline_step(step_name: str, details: Optional[str] = None):
+    """Logs a pipeline step start or completion."""
+    logger = get_logger()
+    msg = f"PIPELINE STEP: {step_name}"
+    if details:
+        msg += f" - {details}"
+    logger.info(msg)
 
-def log_exclusion(reason: str, record_id: str, logger: Optional[logging.Logger] = None):
-    """Log an excluded record."""
-    if logger is None:
-        logger = logging.getLogger(__name__)
-    logger.warning(f"Excluded record {record_id}: {reason}")
+def log_exclusion(reason: str, participant_id: Optional[str] = None, stimulus_id: Optional[str] = None):
+    """Logs an exclusion event."""
+    logger = get_logger()
+    msg = f"EXCLUSION: {reason}"
+    if participant_id:
+        msg += f" [Participant: {participant_id}]"
+    if stimulus_id:
+        msg += f" [Stimulus: {stimulus_id}]"
+    logger.warning(msg)
