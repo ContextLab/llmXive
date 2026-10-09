@@ -141,7 +141,12 @@ class TaskerAgent(SlashCommandAgent):
         repo = ctx.project_dir.parent.parent
         spec_text = Path(mechanical_output["spec_path"]).read_text(encoding="utf-8")
         plan_text = Path(mechanical_output["plan_path"]).read_text(encoding="utf-8")
-        tasks_template_path = Path(mechanical_output["tasks_template_path"])
+        # Existing projects carry old copies of the generic application template.
+        # Platform task structure comes from the current research template; the
+        # project's scientific requirements still come from its spec and plan.
+        tasks_template_path = repo / "agents/templates/research-tasks.md"
+        if not tasks_template_path.is_file():
+            tasks_template_path = Path(mechanical_output["tasks_template_path"])
         tasks_template = (
             tasks_template_path.read_text(encoding="utf-8")
             if tasks_template_path.exists()
@@ -158,22 +163,11 @@ class TaskerAgent(SlashCommandAgent):
             if existing_tasks_path.exists()
             else ""
         )
-        reviews_dir = ctx.project_dir / "reviews" / "research"
-        review_block = ""
-        if reviews_dir.is_dir():
-            review_chunks: list[str] = []
-            for md in sorted(reviews_dir.glob("*.md")):
-                try:
-                    text = md.read_text(encoding="utf-8")
-                except OSError:
-                    continue
-                review_chunks.append(f"## {md.name}\n\n{text}")
-            if review_chunks:
-                review_block = (
-                    "\n\n# Prior research-stage reviews "
-                    "(address every reviewer's concerns in the new tasks list)\n\n"
-                    + "\n\n---\n\n".join(review_chunks)
-                )
+        from llmxive.speckit._comments_context import render_recent_comments_block
+
+        # Replanning must receive the diagnosis that caused the kickback, not
+        # only the old tasks and peer-review prose. This includes verifier notes.
+        review_block = render_recent_comments_block(ctx.project_dir)
         system = render_prompt(
             "agents/prompts/tasker.md",
             {"project_id": ctx.project_id, "mode": "A"},
@@ -204,7 +198,10 @@ class TaskerAgent(SlashCommandAgent):
             "box does not justify retaining a malformed parameter set, wrong path, "
             "or instruction conflicting with the original study. Reopen only the "
             "requirements affected by a correction, and address revision concerns "
-            "without duplicating completed tasks. The output MUST contain at least "
+            "without duplicating completed tasks. Group related pending work into "
+            "8-15 substantive research tasks where possible; preserve every scientific "
+            "requirement and include an early executable end-to-end result. "
+            "The output MUST contain at least "
             "one line beginning with `- [ ] T###`."
         )
         user = "\n\n".join(user_parts)

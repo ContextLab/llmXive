@@ -23,12 +23,12 @@ propose patches.
 ### Inputs
 
 - `plan_text`, `spec_text`.
-- `tasks_template`: the project's `.specify/templates/tasks-template.md`.
+- `tasks_template`: the platform's current research task template (project-local fallback for standalone workspaces).
 
 ### Output contract (Mode A)
 
 A single `tasks.md` Markdown document conforming to the template's
-phase structure (Setup → Foundational → User Stories → Polish), with
+research phases (first end-to-end analysis → complete validation → results handoff), with
 each task using the canonical `- [ ] T### [P?] [USx?] description
 with file path` format.
 
