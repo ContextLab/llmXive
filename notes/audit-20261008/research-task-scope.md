@@ -28,3 +28,10 @@ feature, but `contracts/summary.schema.yaml` resolved only at the project root.
 Contract shorthand now resolves to the active feature when no root artifact
 exists. Explicit repo-rooted paths and existing root contracts retain precedence.
 The file-backed regression checks both valid evidence and these boundaries.
+
+Full CI exposed the repository's strict synchronization of 903 project-local
+copies of the vendored Spec Kit template, plus its template-classification test.
+The research template therefore lives at `agents/templates/research-tasks.md`,
+read directly as one platform resource. The vendored template is restored byte
+for byte; its synchronization and classification checks remain intact. This avoids
+rewriting hundreds of irrelevant project scaffolds to deploy research policy.

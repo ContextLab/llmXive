@@ -87,7 +87,7 @@ class TaskerAgent(SlashCommandAgent):
         # Existing projects carry old copies of the generic application template.
         # Platform task structure comes from the current research template; the
         # project's scientific requirements still come from its spec and plan.
-        tasks_template_path = repo / ".specify/templates/tasks-template.md"
+        tasks_template_path = repo / "agents/templates/research-tasks.md"
         if not tasks_template_path.is_file():
             tasks_template_path = Path(mechanical_output["tasks_template_path"])
         tasks_template = (

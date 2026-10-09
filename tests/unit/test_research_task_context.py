@@ -16,7 +16,7 @@ def test_replan_uses_current_template_and_preserves_requirements(tmp_path):
     local_template = project / ".specify/templates/tasks-template.md"
     local_template.parent.mkdir(parents=True)
     local_template.write_text("Stale template: build authentication middleware before any analysis")
-    for name in (".specify/templates/tasks-template.md", "agents/prompts/tasker.md"):
+    for name in ("agents/templates/research-tasks.md", "agents/prompts/tasker.md"):
         dest = tmp_path / name
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_text((root / name).read_text())
@@ -41,7 +41,7 @@ def test_replan_uses_current_template_and_preserves_requirements(tmp_path):
     assert "- [X] T001 Implement code/src/utils/sieve.py" in prompt
     assert "code/src/utils/sieve.py" in prompt
     # Minimal standalone project fixtures still support a project-local template.
-    (tmp_path / ".specify/templates/tasks-template.md").unlink()
+    (tmp_path / "agents/templates/research-tasks.md").unlink()
     fallback = TaskerAgent().build_prompt(context, mechanical)
     assert "Stale template" in fallback[1].content
 
