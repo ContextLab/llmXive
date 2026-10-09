@@ -32,6 +32,20 @@ def render(output: Path) -> str:
                       f"Last phase: {progress.get('phase', 'unknown')}"])
         if selection.get("problem"):
             lines.append("Selected problem: " + str(selection["problem"])[:2000])
+        routes = _read(attempt / "dispatch-context.json").get("routes", [])
+        if isinstance(routes, list):
+            for route in routes:
+                if isinstance(route, dict):
+                    lines.append("Observed stage default: " + str(route.get("stage"))
+                                 + " → " + str(route.get("default_agent")) + " ("
+                                 + str(route.get("agent_source", route.get("source"))) + ")")
+        bindings = _read(attempt / "import-bindings.json")
+        for source, imports in bindings.items():
+            if isinstance(imports, list):
+                lookups = [str(item.get("imported_from")) + " → " + str(item.get("used_as"))
+                           for item in imports if isinstance(item, dict)]
+                if lookups:
+                    lines.append(f"Dependency lookup bindings ({source}): " + "; ".join(lookups[:20]))
         for diagnostic in sorted(attempt.glob("proposal-validation*.json")):
             lines.append("Proposal correction: " + str(_read(diagnostic).get("error", ""))[:2000])
         if context:
@@ -45,6 +59,11 @@ def render(output: Path) -> str:
                     lines.append(label + ": " + ", ".join(f"`{name}`" for name in paths))
         if outcome.get("reason"):
             lines.append("Outcome: " + str(outcome["reason"])[:2000])
+        for name in ("before.log", "after.log", "safety.log"):
+            log = attempt / name
+            if log.is_file():
+                lines.extend(["", f"{name} (tail):", "```text",
+                              log.read_text()[-2000:].replace("```", "'''"), "```"])
     lines.extend(["", "Detailed inputs, responses and test logs are in the repair-evidence artifact."])
     return "\n".join(lines) + "\n"
 
