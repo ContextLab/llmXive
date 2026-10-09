@@ -56,6 +56,38 @@ def test_repair_prompt_keeps_later_issues_and_retry_feedback(tmp_path, monkeypat
     assert json.loads((tmp_path / "output/evidence.json").read_text()) == evidence
 
 
+def test_repair_prompt_preserves_current_umbrella_findings_and_raw_history():
+    from llmxive.repair.runner import render_evidence
+
+    body = (
+        "Deployed recovery summary. " * 150
+        + "\n## Remaining acceptance\n\n"
+        + "- [ ] Preserve originating-panel diagnosis: graph.py deletes "
+        "kickback_feedback.md when any document panel converges.\n"
+        "  Reproduce plan -> specified -> clarified with a passing spec panel.\n"
+        "- [x] Already fixed task parser.\n"
+        "\n<details><summary>Historical evidence</summary>\n"
+        + "Old resolved incident\n" * 2000
+        + "- [ ] Historical requirement that is no longer current.\n</details>\n"
+        "Latest production status: full acceptance still pending."
+    )
+    evidence = {"source": "issues", "issues": [
+        {"number": i, "title": f"Recurring pipeline issue {i}", "body": body}
+        for i in range(5)
+    ]}
+    original = json.dumps(evidence)
+    rendered = render_evidence(evidence)
+    parsed = json.loads(rendered)
+    assert len(rendered) <= 12000
+    for issue in parsed["issues"]:
+        assert len(issue["current_findings"]) == 1
+        assert "graph.py deletes kickback_feedback.md" in issue["current_findings"][0]
+        assert "passing spec panel" in issue["current_findings"][0]
+        assert "Historical requirement" not in issue["body"]
+        assert "Latest production status" in issue["body"]
+    assert json.dumps(evidence) == original
+
+
 @pytest.mark.parametrize(
     "path",
     [
