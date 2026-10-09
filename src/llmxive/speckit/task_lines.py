@@ -24,6 +24,20 @@ class TaskFormatError(ValueError):
     """An unchecked checkbox cannot be mapped to a unique task identity."""
 
 
+def unwrap_task_document(text: str) -> str:
+    """Remove a model's outer Markdown response wrapper, keeping inner examples."""
+    text = text.strip()
+    lines = text.splitlines()
+    if len(lines) >= 2:
+        opening = re.fullmatch(r"(`{3,}|~{3,})(?:markdown|md)?[ \t]*", lines[0], re.IGNORECASE)
+        if opening:
+            fence = opening[1]
+            closing = re.fullmatch(re.escape(fence[0]) + "{" + str(len(fence)) + ",}[ \t]*", lines[-1])
+            if closing:
+                return "\n".join(lines[1:-1]).strip()
+    return text
+
+
 def mask_fenced_code(text: str) -> str:
     """Hide Markdown code examples while preserving every character offset.
 
