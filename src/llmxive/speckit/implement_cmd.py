@@ -414,8 +414,6 @@ class ImplementerAgent(SlashCommandAgent):
                 proj_prefix = f"projects/{project_root.name}/"
                 if relpath.startswith(proj_prefix):
                     relpath = relpath[len(proj_prefix):]
-                if not relpath.endswith(".py"):
-                    continue  # only run python scripts
                 # YAML infers unquoted numeric CLI arguments as numbers. Their
                 # literal decimal representation is safe argv, without a shell.
                 # Preserve other invalid types for the sandbox to reject.
@@ -426,15 +424,22 @@ class ImplementerAgent(SlashCommandAgent):
                         type(arg) is float and math.isfinite(arg)) else arg
                         for arg in script_args]
                 try:
-                    result = _sandbox.run_python_script(
-                        project_dir=project_root,
-                        script_relpath=relpath,
-                        script_args=script_args,
-                        timeout_s=int(art.get("timeout_s", 600)),
-                    )
+                    if relpath.endswith((".py", ".sh")):
+                        runner = (_sandbox.run_shell_script if relpath.endswith(".sh")
+                                  else _sandbox.run_python_script)
+                        result = runner(
+                            project_dir=project_root, script_relpath=relpath,
+                            script_args=script_args,
+                            timeout_s=int(art.get("timeout_s", 600)),
+                        )
+                    else:
+                        result = _sandbox.ExecutionResult(
+                            False, -1, "", "execute:true requires a .py or .sh script", 0.0,
+                        )
                 except Exception as exc:  # pragma: no cover — defensive
-                    print(f"[implementer] sandbox failed for {relpath}: {exc}")
-                    continue
+                    result = _sandbox.ExecutionResult(
+                        False, -1, "", f"execution failed: {exc}", 0.0,
+                    )
                 # Persist execution log next to the script.
                 log_path = (
                     project_root

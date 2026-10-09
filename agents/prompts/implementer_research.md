@@ -73,9 +73,10 @@ are provided in the messages that follow.
    that script run cleanly end-to-end and write its real output before anything else. Do
    not re-emit code that produced the reported traceback.
 11. **Request execution for output-producing work.** The runtime can execute a
-   Python artifact when you set `execute: true` on that artifact. Use this for a
+   Python (`.py`) or Bash (`.sh`) artifact when you set `execute: true` on that artifact. Use this for a
    generator or setup script whose task requires files/directories to exist now;
-   writing the script alone does not complete that task. If it requires CLI
+   writing the script alone does not complete that task. Shell wrappers run with the
+   project venv on PATH; use `set -e` so failed child commands fail the task. If it requires CLI
    flags, include them in `args` as a list of strings, using the active quickstart
    and specification. Arguments are passed literally without a shell; do not use
    shell redirection or command substitution. Library-only tasks do not need an
