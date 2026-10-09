@@ -25,10 +25,15 @@ record instead of an invalid failed-without-error record, and interruption is
 recorded as failure before propagating. Previously either could leave an older
 success in place or falsely record success for an interrupted call.
 
-Validation: 22 repair and inspection tests pass. Two review-routing cases run
+Validation: 23 repair and inspection tests pass. Two review-routing cases run
 real before/after pytest subprocesses (baseline failure, candidate success); they
 inject model replies and do not claim Docker or live model acceptance. Other
 regressions prove raw-response redaction, durable rejection context, no-input
 artifacts, stale-inspection replacement and interruption logging. Actionlint,
 Ruff and diff checks pass. A new production run must verify artifact upload and a
 useful independently reviewed candidate after deployment.
+
+The state-reader CI check caught the new diagnostic files without a production
+consumer. The workflow now renders them into its Actions step summary, including
+an interrupted attempt's last phase and selected problem. No state-reader gate
+was weakened or bypassed; the new files have an actual maintained consumer.

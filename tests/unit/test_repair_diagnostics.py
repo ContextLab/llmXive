@@ -84,3 +84,18 @@ def test_validated_candidate_uses_different_reviewer(tmp_path, monkeypatch, auth
     assert result["status"] == "validated_candidate"
     assert result["before_exit"] == 1 and result["after_exit"] == 0
     assert result["reviewer_model"] == seen[0] != author
+
+
+def test_interrupted_repair_summary_consumes_durable_diagnosis(tmp_path):
+    from llmxive.repair.report import render
+
+    attempt = tmp_path / "attempt-1"
+    attempt.mkdir()
+    (attempt / "progress.json").write_text('{"phase": "proposing_fix"}')
+    (attempt / "selection.json").write_text('{"problem": "tasker accepts duplicate task IDs"}')
+    summary = render(tmp_path)
+    assert "incomplete or interrupted" in summary
+    assert "proposing_fix" in summary
+    assert "tasker accepts duplicate task IDs" in summary
+    (tmp_path / "result.json").write_text('{"status": "no_candidate", "reason": "Already fixed"}')
+    assert "Already fixed" in render(tmp_path)

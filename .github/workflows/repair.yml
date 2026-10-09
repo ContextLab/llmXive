@@ -54,6 +54,9 @@ jobs:
           LLMXIVE_PAID_OPT_IN: '0'
           SOURCE: ${{ inputs.source || (github.event.schedule == '0 19 * * *' && 'issues' || 'errors') }}
         run: python -u -m llmxive.repair.runner --source "$SOURCE" --output .repair-output
+      - name: Summarize repair evidence
+        if: always() && steps.pending.outputs.count == '0'
+        run: python -m llmxive.repair.report .repair-output >> "$GITHUB_STEP_SUMMARY"
       - name: Candidate status
         id: result
         if: success() && steps.pending.outputs.count == '0'
