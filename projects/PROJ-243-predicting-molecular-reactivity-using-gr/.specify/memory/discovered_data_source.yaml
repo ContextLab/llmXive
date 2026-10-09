@@ -1,13 +1,14 @@
 status: none
-intent: QM9 molecular dataset download as python package dataset
+intent: download QM9 dataset as Python package with RDKit graph preprocessing python
+  package dataset
 required_fields:
-- SMILES
+- smiles
 - atomic_number
 - hybridization
 - formal_charge
 - bond_type
-- bond_conjugation
-- HOMO_LUMO_gap
-cache_key: 63f45a493accda2da1b005d5e29c26b1cd7efbfb04009fceda12e24fdc97d503
-searched_at: '2026-10-09T20:22:03.396455+00:00'
+- conjugation
+- homo_lumo_gap
+cache_key: cec69a6f8e5a8a07b86f42e0ecc729429d82606acc687369e85739c19008ed2f
+searched_at: '2026-10-09T20:25:44.620982+00:00'
 retry_count: 1

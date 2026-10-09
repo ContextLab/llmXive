@@ -27,7 +27,7 @@ description: "Task list for Predicting Molecular Reactivity Using Graph Neural N
 
 ## Phase 1 – Data Acquisition & Integrity
 
-- [ ] T003 [P] **Define checksum schema**  
+- [X] T003 [P] **Define checksum schema**  
   Create `data/raw/checksums_schema.yaml` describing the JSON structure (`file_path`, `sha256`). Also create an empty `data/raw/checksums.json`.  
   **Verification**: Both files are present and `yamllint` passes on the schema.
 

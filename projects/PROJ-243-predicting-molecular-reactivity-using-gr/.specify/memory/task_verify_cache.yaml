@@ -1,10 +1,28 @@
+T001:
+  c: false
+  h: 7ae7cc8ce522bdaec5f575ab89a82e2c579872baa2c9210d3ee7e801df4e10ce
+  r: "The evidence does not show any of the required directories (`data/raw`, `data/processed`,\
+    \ `data/assets`, `code`, `artifacts`, `tests`) nor the `.gitkeep` files inside\
+    \ them; no `git ls-files` output or file listings are provided to confirm their\
+    \ existence. The implementer\u2019s claim cannot be verified without concrete\
+    \ artifacts."
+  sig: 544e29e4436b5f621c1197dcc3d7349aa078076d6b04b0baa1fcb253abf32e03
 T002:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `code`, `artifacts`, or `tests` directories (or any
-    files within them) is provided; without these directories the task requirement
-    is not satisfied. The implementer must create the three directories and populate
-    them with appropriate project files.
+  h: fe4e2f3810a13c197bc19c1fd7799f115772afcee7f26d14b4aeb613565594e5
+  r: The `requirements.txt`, `pyproject.toml`, and `ruff.toml` files are present and
+    correctly contain the required configurations, but the required `.flake8` file
+    is missing from the project repository. Adding this linting configuration file
+    is needed to satisfy the task.
+  sig: 97f8e02b740f856be9b73c77c9dba7c8b2bb9b6216d5458aa7810d2c1ee15b10
+T003:
+  c: true
+  h: 4065cc76e45b59b9be124ce8ca82de860ced004d4a5b06080c6947871c659240
+  r: "The `data/raw/checksums_schema.yaml` file (586\u202Fbytes) defines the required\
+    \ `file_path` and `sha256` fields with proper YAML syntax, and the `data/raw/checksums.json`\
+    \ file (2\u202Fbytes) contains an empty JSON object `{}`. Both artifacts exist\
+    \ at the specified locations, and the schema appears syntactically valid for `yamllint`."
+  sig: a39c7ef9e6bf0d3e1978b59cd121a45de07b905be651f69bb271b26b0912efc7
 T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

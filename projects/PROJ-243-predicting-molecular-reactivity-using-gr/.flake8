@@ -1,4 +1,31 @@
 [flake8]
+# Maximum line length to match Black configuration
 max-line-length = 120
-exclude = .git,__pycache__,data,venv,.venv
+# Exclude common directories and files
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    .venv,
+    venv,
+    data,
+    artifacts,
+    .ipynb_checkpoints
+# Ignore specific warnings that conflict with Black formatting
 ignore = E203, W503
+# Enable all default error codes
+select = E,F,W,I,N,B,C,D
+# Per-file-ignores (e.g., allow unused imports in __init__.py)
+per-file-ignores =
+    __init__.py: F401
+# Enable extended plugins if installed
+enable-extensions = G
+# Show source code for each error
+show-source = True
+# Output format
+format = %(path)s:%(row)d:%(col)d: %(code)s %(text)s
+# Enable inline noqa comments
+inline-quotes = double
+# Enable built-in plugin for pyproject.toml integration (if present)
+# (Flake8 will automatically read pyproject.toml for configuration)

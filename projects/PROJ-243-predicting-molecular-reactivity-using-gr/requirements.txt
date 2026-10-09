@@ -1,13 +1,19 @@
-# Existing dependencies
-torch
-torch-geometric
-rdkit
-scikit-learn
-pandas
-datasets
-networkx
-psutil
-pyyaml
-requests
-chembl_webresource_client
-numpy
+# Pinned dependencies for the Predicting Molecular Reactivity project
+#
+# Core scientific libraries
+torch==2.2.0
+torch-geometric==2.5.3
+rdkit-pypi==2022.09.5
+scikit-learn==1.4.2
+pandas==2.2.2
+datasets==2.19.0
+numpy==1.26.4
+
+# Utility libraries
+pyyaml==6.0.1
+requests==2.32.3
+
+# Development / linting / testing tools
+black==24.2.0
+ruff==0.2.1
+pytest==8.2.0
