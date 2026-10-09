@@ -90,16 +90,17 @@ def test_ladder_skips_paid_tiers_when_opt_in_off(
     )
     # Ladder LISTS paid tiers (stable indices) but they're unusable opt-in off.
     assert es.model_tier_ladder() == (
-        "", "openai.gpt-oss-120b", "anthropic.claude-haiku", "anthropic.claude-sonnet"
+        *es.FREE_MODEL_TIERS, "anthropic.claude-haiku", "anthropic.claude-sonnet"
     )
     assert es.next_usable_tier(0) == 1  # free second opinion
-    assert es.next_usable_tier(1) is None  # paid tiers skipped (opt-in off)
+    assert es.next_usable_tier(len(es.FREE_MODEL_TIERS) - 1) is None  # paid tiers skipped (opt-in off)
     pid = "PROJ-011-paid"
     es.record(pid, ok=False, reason="boom", artifacts=[], failures=["x"],
               repo_root=tmp_path)
     es.bump_model_tier(pid, repo_root=tmp_path)  # 0 -> 1 (free)
+    es.bump_model_tier(pid, repo_root=tmp_path)  # 1 -> 2 (free Gemma)
     with pytest.raises(ValueError):
-        es.bump_model_tier(pid, repo_root=tmp_path)  # 1 -> none (paid skipped)
+        es.bump_model_tier(pid, repo_root=tmp_path)  # paid skipped
 
 
 def test_fabrication_escalation_never_climbs_to_a_paid_tier(
@@ -115,16 +116,18 @@ def test_fabrication_escalation_never_climbs_to_a_paid_tier(
     monkeypatch.setenv("LLMXIVE_EXECUTION_PAID_TIERS", "anthropic.claude-haiku")
     monkeypatch.setattr(es, "paid_tier_usable", lambda m: True)  # opt-in ON, has budget
     # A CODE BUG can use the paid tier; fabrication cannot.
-    assert es.next_usable_tier(1) == 2                       # paid reachable in general
-    assert es.next_usable_tier(1, free_only=True) is None    # ...but not free_only
+    last_free = len(es.FREE_MODEL_TIERS) - 1
+    assert es.next_usable_tier(last_free) == last_free + 1  # paid reachable
+    assert es.next_usable_tier(last_free, free_only=True) is None
     assert es.next_usable_tier(0, free_only=True) == 1       # free second opinion is fine
 
     pid = "PROJ-284-fab"
     es.record(pid, ok=False, reason="fabricated results", artifacts=[], failures=["x"],
               repo_root=tmp_path)
     es.bump_model_tier(pid, repo_root=tmp_path, free_only=True)   # 0 -> 1 (free)
+    es.bump_model_tier(pid, repo_root=tmp_path, free_only=True)  # 1 -> 2
     with pytest.raises(ValueError):
-        es.bump_model_tier(pid, repo_root=tmp_path, free_only=True)  # 1 -> none (no paid)
+        es.bump_model_tier(pid, repo_root=tmp_path, free_only=True)  # no paid
 
 
 def test_execution_model_override_resolves_tier(tmp_path: Path) -> None:
@@ -169,9 +172,10 @@ def test_at_cap_last_tier_replans_with_deterministic_report(tmp_path: Path) -> N
     es.record(pid, ok=False, reason="still failing",
               artifacts=["data/results.csv", "figures/plot.png"],
               failures=["code/train.py -> rc=1\n  KeyError: 'col'"], repo_root=repo)
-    # Put the project at the LAST available tier (tier 1) at the cap.
-    es.bump_model_tier(pid, repo_root=repo)
-    assert es.model_tier(pid, repo_root=repo) == 1
+    # Put the project at the last free tier at the cap.
+    for _ in es.FREE_MODEL_TIERS[1:]:
+        es.bump_model_tier(pid, repo_root=repo)
+    assert es.model_tier(pid, repo_root=repo) == len(es.FREE_MODEL_TIERS) - 1
     es.record(pid, ok=False, reason="still failing",
               artifacts=["data/results.csv", "figures/plot.png"],
               failures=["code/train.py -> rc=1\n  KeyError: 'col'"], repo_root=repo)
@@ -342,3 +346,51 @@ def test_human_input_needed_is_auto_recovered_to_planned(tmp_path: Path) -> None
     # deterministic re-plan report written for the planner to ingest
     mem = pdir / ".specify" / "memory"
     assert any(mem.glob("*feedback*")), "no re-plan report written"
+
+
+def test_rejected_tasks_retry_free_models_without_rewriting_scope(tmp_path, monkeypatch):
+    from llmxive.state import unverifiable
+
+    pid = "PROJ-030-verifier"
+    proj, pdir = _project_in_progress(tmp_path, pid)
+    tasks = pdir / "specs/001-research/tasks.md"
+    original = "- [ ] T001 Fix CLI argument validation\n- [X] T002 Keep valid results\n"
+    tasks.write_text(original)
+    feedback = pdir / ".specify/memory/task_verifier_notes.md"
+    feedback.parent.mkdir(parents=True)
+    feedback.write_text("T001: expected exact error text; argparse adds a prefix\n")
+    monkeypatch.setenv("LLMXIVE_EXECUTION_PAID_TIERS", "anthropic.claude-haiku")
+    monkeypatch.setattr(es, "paid_tier_usable", lambda model: True)
+    for tier in range(1, len(es.FREE_MODEL_TIERS)):
+        unverifiable.record_unverifiable(pid, "T001", "wrong error text", repo_root=tmp_path)
+        assert graph._decide_next_stage(proj, pdir, repo_root=tmp_path) == Stage.IN_PROGRESS
+        assert es.model_tier(pid, repo_root=tmp_path) == tier
+        assert not unverifiable.has_unverifiable(pid, repo_root=tmp_path)
+        assert tasks.read_text() == original
+        assert feedback.read_text().startswith("T001: expected exact error text")
+        assert not (feedback.parent / "kickback_feedback.md").exists()
+    # Even with paid opt-in, exhausted verifier retries re-plan within the free budget.
+    unverifiable.record_unverifiable(pid, "T001", "wrong error text", repo_root=tmp_path)
+    assert graph._decide_next_stage(proj, pdir, repo_root=tmp_path) == Stage.PLANNED
+    assert es.model_tier(pid, repo_root=tmp_path) == 0
+    assert es.replan_rounds(pid, repo_root=tmp_path) == 1
+    assert tasks.read_text() == original
+    assert "T001" in (feedback.parent / "kickback_feedback.md").read_text()
+
+
+def test_verifier_replans_are_bounded_and_never_accept_incomplete_tasks(tmp_path):
+    from llmxive.state import unverifiable
+
+    pid = "PROJ-031-verifier-cap"
+    proj, pdir = _project_in_progress(tmp_path, pid)
+    tasks = pdir / "specs/001-research/tasks.md"
+    tasks.write_text("- [ ] T001 Still missing required output\n")
+    for cycle in range(es.MAX_REPLAN_ROUNDS + 1):
+        for _ in es.FREE_MODEL_TIERS[1:]:
+            unverifiable.record_unverifiable(pid, "T001", "missing", repo_root=tmp_path)
+            assert graph._decide_next_stage(proj, pdir, repo_root=tmp_path) == Stage.IN_PROGRESS
+        unverifiable.record_unverifiable(pid, "T001", "missing", repo_root=tmp_path)
+        expected = Stage.PLANNED if cycle < es.MAX_REPLAN_ROUNDS else Stage.AGENT_BLOCKED
+        assert graph._decide_next_stage(proj, pdir, repo_root=tmp_path) == expected
+    assert tasks.read_text() == "- [ ] T001 Still missing required output\n"
+    assert unverifiable.has_unverifiable(pid, repo_root=tmp_path)

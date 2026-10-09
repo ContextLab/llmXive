@@ -1759,27 +1759,38 @@ def _decide_next_stage(
         # next tick observe IN_PROGRESS + all-tasks-done → RESEARCH_COMPLETE.
         return Stage.IN_PROGRESS
     if cur == Stage.IN_PROGRESS:
-        # issue #1139 D6: a task the implementer repeatedly cannot make pass is
-        # recorded UNVERIFIABLE by the task-verifier (reopened `[ ]`, NEVER
-        # force-accepted to `[X]`). Left alone, that reopened task keeps
-        # _all_tasks_done False forever and the project wedges at in_progress. So
-        # RE-PLAN the approach (a legal IN_PROGRESS→PLANNED edge, the same target
-        # as execution exhaustion), write a deterministic note naming the tasks,
-        # and clear the store so the re-planned cycle starts clean. This is the
-        # honest loop-breaker that replaced the fail-open force-accept.
+        # Repeated task-verifier rejection is first a code-repair signal. Keep
+        # the reviewed task definitions and rejection notes while trying the
+        # next free implementation model. Only re-plan after that bounded
+        # ladder is exhausted; never force-accept a rejected task.
         from llmxive.state import unverifiable as _unverifiable
 
         if _unverifiable.has_unverifiable(project.id, repo_root=repo_root):
             _entries = _unverifiable.load(project.id, repo_root=repo_root)
-            _write_unverifiable_replan_feedback(project_dir, _entries)
+            try:
+                new_tier = execution_status.bump_model_tier(
+                    project.id, repo_root=repo_root, free_only=True
+                )
+            except ValueError:
+                _write_unverifiable_replan_feedback(project_dir, _entries)
+                if (execution_status.replan_rounds(project.id, repo_root=repo_root)
+                        >= execution_status.MAX_REPLAN_ROUNDS):
+                    return Stage.AGENT_BLOCKED
+                execution_status.reset_fix_loop(project.id, repo_root=repo_root)
+                _unverifiable.clear(project.id, repo_root=repo_root)
+                logger.warning(
+                    "%s: task verification exhausted free models; re-planning",
+                    project.id,
+                )
+                return Stage.PLANNED
             _unverifiable.clear(project.id, repo_root=repo_root)
-            logger.warning(
-                "%s has %d repeatedly-unverifiable task(s) the implementer could "
-                "not make pass — re-planning (IN_PROGRESS→PLANNED; NOT "
-                "force-accepting incomplete work) [issue #1139 D6]",
-                project.id, len(_entries),
+            logger.info(
+                "%s: %d repeatedly rejected tasks; retrying implementation with "
+                "free model tier %d (%s), preserving task definitions and feedback",
+                project.id, len(_entries), new_tier,
+                execution_status.tier_model(new_tier),
             )
-            return Stage.PLANNED
+            return Stage.IN_PROGRESS
         # Spec 023 defect #25: research_complete now requires the analysis to
         # have actually RUN and produced real artifacts (execution_status.ok),
         # not just all task checkboxes ticked. Until the dedicated execution
