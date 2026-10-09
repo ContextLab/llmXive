@@ -1,0 +1,14 @@
+{
+  "project_id": "PROJ-423-the-influence-of-simulated-social-status",
+  "stage": "planned",
+  "class": "emitter_context",
+  "fingerprint": "tasker_zero_tasks",
+  "consecutive_count": 1,
+  "first_seen": "2026-10-09T11:26:47.921196+00:00",
+  "last_seen": "2026-10-09T11:26:47.921196+00:00",
+  "retry_after": null,
+  "last_error": "Tasker produced only 0 task IDs (need >= 5; total chars: 9408). Re-running on next cycle.",
+  "evidence": "Tasker produced only 0 task IDs (need >= 5; total chars: 9408). Re-running on next cycle.",
+  "remediation": "The emitter produced insufficient output (unresolved markers / no seed draft / zero tasks). Supply the missing inputs/context and re-run; do not blindly re-emit the same empty artifact.",
+  "status": "rerouted"
+}
