@@ -200,12 +200,14 @@ def _analysis_env(project_dir: Path, base_env: dict[str, str]) -> dict[str, str]
 def _explicit_script_package_root(
     project_dir: Path, args: list[str], run_cwd: Path,
 ) -> Path | None:
-    """Honor the package containing an explicitly selected Python entry file.
+    """Honor the package/workspace of an explicitly selected Python entry file.
 
     Generic/module invocations retain the normal source-root order. A file such
     as ``src/cli.py`` must import its own regular ``src`` package rather than a
     same-named stale package under ``code/src``. Stop at the code workspace even
-    when its compatibility ``__init__.py`` exists.
+    when its compatibility ``__init__.py`` exists. Non-package entry files
+    (for example ``tests/check.py`` without ``tests/__init__.py``) use their
+    root/code workspace, matching artifact import validation.
     """
     if not args or args[0].startswith("-") or not args[0].endswith(".py"):
         return None
@@ -218,7 +220,7 @@ def _explicit_script_package_root(
     package_root = script.parent
     while package_root != boundary and (package_root / "__init__.py").is_file():
         package_root = package_root.parent
-    return package_root if package_root != script.parent else None
+    return package_root if package_root != script.parent else boundary
 
 
 def analysis_environment(workspace: Path) -> dict[str, str]:

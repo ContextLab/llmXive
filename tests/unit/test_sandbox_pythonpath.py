@@ -121,3 +121,22 @@ def test_runbook_explicit_nested_script_preserves_selected_package(tmp_path):
     )
     assert result.ok, result.stderr
     assert result.stdout.strip() == "selected package"
+
+
+def test_generic_invocations_keep_code_workspace_first(tmp_path):
+    """-c/-m carry no explicit file selection; preserve their existing lookup."""
+    project = tmp_path / "project"
+    for rel, value in (("src", "root"), ("code/src", "code")):
+        package = project / rel
+        package.mkdir(parents=True)
+        (package / "__init__.py").write_text("")
+        (package / "choice.py").write_text(f"VALUE = {value!r}\n")
+        (package / "main.py").write_text("from src.choice import VALUE\nprint(VALUE)\n")
+    # A neutral cwd keeps Python's automatic cwd insertion from choosing a
+    # package before PYTHONPATH, so this observes the actual source-root order.
+    neutral = project / "working"
+    neutral.mkdir()
+    for args in (["-c", "from src.choice import VALUE; print(VALUE)"], ["-m", "src.main"]):
+        result = sandbox.run_in_venv(project_dir=project, args=args, cwd=neutral, timeout_s=120)
+        assert result.ok, result.stderr
+        assert result.stdout.strip() == "code"

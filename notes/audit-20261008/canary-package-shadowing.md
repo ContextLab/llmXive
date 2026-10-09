@@ -52,3 +52,12 @@ returns exit 2. The final run-book test failure also includes an old test using
 N=10 while the revised CLI restricts N to the four required scales. These are
 unresolved generated-code/test consistency problems, not reasons to weaken the
 execution gate. No useful full-pipeline artifact acceptance is claimed.
+
+Review follow-up: the first patch fixed regular-package entry files but omitted
+scripts under an ordinary `tests/` directory without `__init__.py`. Extending
+the artifact-writer regression to execute its accepted test reproduced the same
+ImportError on that patch. Explicit non-package scripts now select their own
+root/code workspace too. The regression writes and runs the generated test and
+checks its actual result; a separate real-subprocess check confirms generic
+`-c` and `-m` invocations still use the prior code-first lookup from a neutral
+cwd. The combined focused suite now passes 55 checks.

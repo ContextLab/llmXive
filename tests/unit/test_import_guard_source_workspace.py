@@ -1,6 +1,7 @@
 """Root source/test artifacts must not be rejected against legacy code stubs."""
 from types import SimpleNamespace
 
+from llmxive import sandbox
 from llmxive.backends.base import ChatResponse
 from llmxive.speckit.implement_cmd import ImplementerAgent, _find_bad_sibling_imports
 
@@ -26,6 +27,9 @@ artifacts:
       from src.plot_tv import make_plot
       def test_plot():
           assert make_plot() == 42
+      if __name__ == "__main__":
+          test_plot()
+          print(make_plot())
 ''', model='test', backend='dartmouth')
     written = ImplementerAgent().write_artifacts(
         SimpleNamespace(project_dir=project),
@@ -33,6 +37,12 @@ artifacts:
          'next_task_id':'T004', 'all_complete':False}, response)
     assert (project / 'tests/test_plot_verification.py').is_file()
     assert any(path.endswith('tests/test_plot_verification.py') for path in written)
+    # The accepted test is a script in a normal non-package tests directory.
+    assert not (project / 'tests/__init__.py').exists()
+    result = sandbox.run_python_script(
+        project_dir=project, script_relpath='tests/test_plot_verification.py', timeout_s=120)
+    assert result.ok, result.stderr
+    assert result.stdout.strip() == '42'
     assert stub.read_text() == '"""Deprecated stub."""\n'
     # A name absent from the selected real module still fails the guard.
     assert _find_bad_sibling_imports(
