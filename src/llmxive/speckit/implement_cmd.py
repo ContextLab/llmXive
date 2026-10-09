@@ -459,10 +459,17 @@ class ImplementerAgent(SlashCommandAgent):
                 text = mark_task(text, task_id, " ")
                 tasks_path.write_text(text, encoding="utf-8")
                 written.extend([str(refusal_log.relative_to(repo)), str(tasks_path.relative_to(repo))])
+                # Paper delegates writes here but owns a separate bounded
+                # _proposal_failure path and paper: task namespace.
+                if mechanical_output.get("task_log_dir", "code/.tasks") == "code/.tasks":
+                    _record_artifact_refusal(ctx, mechanical_output, llm_response.model,
+                                             _redact("\n".join(refusals)))
                 return written
             # A structurally valid retry supersedes the earlier write refusal;
             # independent task and execution verification still decide completion.
             refusal_log.unlink(missing_ok=True)
+            if mechanical_output.get("task_log_dir", "code/.tasks") == "code/.tasks":
+                _clear_artifact_refusal(ctx, task_id)
 
             # Code-execution step: if the LLM marked any artifact as
             # `execute: true` (a runnable script that produces real
@@ -581,6 +588,72 @@ class ImplementerAgent(SlashCommandAgent):
             )
 
         return written
+
+
+ARTIFACT_REFUSAL_CAP = 3
+
+
+def _artifact_refusal_path(ctx: SlashCommandContext, task_id: str) -> Path:
+    # Task IDs have already passed validate_open_tasks; hash the storage key as
+    # defense in depth for direct callers of write_artifacts.
+    import hashlib
+
+    key = hashlib.sha256(task_id.encode()).hexdigest()
+    path = ctx.project_dir / ".specify/memory/artifact_refusals" / f"{key}.json"
+    if not path.resolve().is_relative_to(ctx.project_dir.resolve()):
+        raise ValueError("artifact refusal store escapes the project")
+    # Refuse even in-project aliases: control state must never read or delete
+    # an unrelated artifact through a final-file or parent-directory symlink.
+    for part in (path, *path.parents):
+        if part == ctx.project_dir:
+            break
+        if part.is_symlink():
+            raise ValueError("artifact refusal store contains a symlink")
+    return path
+
+
+def _clear_artifact_refusal(ctx: SlashCommandContext, task_id: str) -> None:
+    _artifact_refusal_path(ctx, task_id).unlink(missing_ok=True)
+
+
+def _record_artifact_refusal(
+    ctx: SlashCommandContext, mechanical: dict[str, Any], model: str, reason: str,
+) -> None:
+    """Escalate repeated refused proposals through the existing free repair ladder.
+
+    These tasks stay open, so the independent verifier never sees a completion
+    claim to reject. Without this counter an empty or invalid artifact response
+    retries the same model forever. A new task definition, tier, or re-plan gets
+    a fresh allowance; a writable proposal clears the consecutive refusal count.
+    """
+    import hashlib
+    import json
+
+    from llmxive.state import execution_status, unverifiable
+    from llmxive.state._io import atomic_write_text
+
+    repo = ctx.project_dir.parent.parent
+    task_id = mechanical["next_task_id"]
+    tasks_path = Path(mechanical["tasks_path"])
+    selected = ImplementerAgent()._next_incomplete(tasks_path.read_text(encoding="utf-8"))
+    task_line = mechanical.get("next_task_line") or (selected[1] if selected else task_id)
+    identity = [str(tasks_path.relative_to(ctx.project_dir)), task_line,
+                execution_status.model_tier(ctx.project_id, repo_root=repo),
+                execution_status.replan_rounds(ctx.project_id, repo_root=repo)]
+    fingerprint = hashlib.sha256(json.dumps(identity).encode()).hexdigest()
+    path = _artifact_refusal_path(ctx, task_id)
+    try:
+        previous = json.loads(path.read_text())
+    except (OSError, ValueError):
+        previous = {}
+    count = previous.get("count", 0) if isinstance(previous, dict) and previous.get("fingerprint") == fingerprint else 0
+    count = count if type(count) is int and count >= 0 else 0
+    count += 1
+    atomic_write_text(path, json.dumps({"task_id": task_id, "fingerprint": fingerprint,
+        "count": count, "model": model, "reason": reason[:2000]}, indent=2) + "\n")
+    if count >= ARTIFACT_REFUSAL_CAP:
+        unverifiable.record_unverifiable(ctx.project_id, task_id,
+            f"Artifact proposal refused {count} consecutive times: {reason}", repo_root=repo)
 
 
 def _find_bad_sibling_imports(
