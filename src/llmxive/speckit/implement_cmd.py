@@ -583,21 +583,16 @@ def _find_bad_sibling_imports(
                         # star import — sibling re-exports who knows what; bail.
                         return []
                     exposed.add(alias.asname or alias.name)
-        # If the sibling has __all__, restrict to that.
-        for s in sibling_tree.body:
-            if (
-                isinstance(s, ast.Assign)
-                and len(s.targets) == 1
-                and isinstance(s.targets[0], ast.Name)
-                and s.targets[0].id == "__all__"
-                and isinstance(s.value, (ast.List, ast.Tuple))
-            ):
-                all_names = {
-                    e.value for e in s.value.elts
-                    if isinstance(e, ast.Constant) and isinstance(e.value, str)
-                }
-                if all_names:
-                    exposed = all_names
+        # __all__ controls star imports only; explicit imports can name any
+        # bound attribute. Python also resolves `from package import child`
+        # by loading a child module, even when __init__.py is empty.
+        if sibling == candidate_pkg:
+            for child in candidate_pkg.parent.iterdir():
+                if child.is_file() and child.suffix == ".py":
+                    exposed.add(child.stem)
+                elif child.is_dir() and child.name.isidentifier():
+                    # A directory can be a PEP 420 namespace subpackage.
+                    exposed.add(child.name)
         wanted = {alias.name for alias in node.names if alias.name != "*"}
         missing = wanted - exposed
         if missing:
