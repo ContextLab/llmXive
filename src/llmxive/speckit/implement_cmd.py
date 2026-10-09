@@ -354,7 +354,10 @@ class ImplementerAgent(SlashCommandAgent):
                 if target.exists() and target.is_dir():
                     refuse(f"[implementer] skipping directory path: {relpath!r}")
                     continue
-                if not contents:
+                # An explicitly empty Python package marker is valid source,
+                # not a missing substantive deliverable. Preserve/create it.
+                empty_package_marker = "contents" in art and target.name == "__init__.py"
+                if not contents and not empty_package_marker:
                     if not art.get("execute"):
                         refuse(f"[implementer] refused empty contents without execution: {relpath!r}")
                     continue

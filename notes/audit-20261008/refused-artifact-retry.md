@@ -24,12 +24,19 @@ refusals. A completed report with no writable artifact or execution request is
 also kept incomplete. It does not change the separate failed/atomize verdict
 protocol or unrecoverable YAML handling; those are distinct review concerns.
 
-Validation: seven behavioral regressions fail on baseline; eight new checks
+Validation: seven behavioral regressions fail on baseline; nine new checks
 pass including persisted-log redaction. The principal test uses the real writer,
 mechanical task selector and prompt builder: valid source stays on disk, the
 invalid test is absent, T002 remains next, and its exact syntax diagnostic is
 present in the retry prompt. An execute:true sentinel never runs from the
 partially refused report, and a corrected retry writes its test and proceeds.
 Together with related execution, retry, shell, import/binding and context tests,
-56 distinct focused checks pass. No scientific canary state/artifacts were
+57 distinct focused checks pass. No scientific canary state/artifacts were
 edited or promoted. Live recovery remains unverified.
+
+Review follow-up: explicitly empty Python `__init__.py` package markers remain
+valid artifacts and are created/preserved through normal source validation.
+Empty substantive files still refuse. A real subprocess regression proves the
+marker is an ordinary package file (not an implicit namespace), its child module
+imports successfully, and no refusal log remains. This case failed against the
+first patch and passes after the exception.

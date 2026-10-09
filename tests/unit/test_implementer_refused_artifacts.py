@@ -90,3 +90,25 @@ def test_refusal_log_redacts_known_secret_values(tmp_path, monkeypatch):
     assert secret not in log
     assert '<redacted>' in log
     assert '- [ ] T002' in tasks.read_text()
+
+
+def test_empty_package_marker_is_written_and_imported_as_a_real_package(tmp_path):
+    from llmxive import sandbox
+
+    ctx, feature, tasks = _context(tmp_path)
+    _write(ImplementerAgent(), ctx, feature, tasks, [
+        {'path':'code/study/__init__.py', 'contents':''},
+        {'path':'code/study/worker.py', 'contents':'VALUE = 42\n'},
+        {'path':'code/check_package.py', 'contents':
+         'from pathlib import Path\nimport study\nfrom study.worker import VALUE\n'
+         'assert study.__file__ is not None\n'
+         'assert Path(study.__file__).name == "__init__.py"\nprint(VALUE)\n'},
+    ])
+    marker = ctx.project_dir/'code/study/__init__.py'
+    assert marker.is_file() and marker.read_bytes() == b''
+    assert not (ctx.project_dir/'code/.tasks/T002.artifact-write.log').exists()
+    assert '- [X] T002' in tasks.read_text()
+    result = sandbox.run_python_script(
+        project_dir=ctx.project_dir, script_relpath='code/check_package.py', timeout_s=120)
+    assert result.ok, result.stderr
+    assert result.stdout.strip() == '42'
