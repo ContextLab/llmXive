@@ -10,6 +10,7 @@ from __future__ import annotations
 import logging
 import os
 import random
+import threading
 import time
 from collections.abc import Callable, Iterable
 from typing import Any, NoReturn, TypeVar
@@ -147,6 +148,10 @@ _DEFAULT_BREAKER_WINDOW_S = float(
     os.environ.get("LLMXIVE_DARTMOUTH_BREAKER_WINDOW_S", "1800.0")  # 30 min
 )
 
+_DEFAULT_BREAKER_COOLDOWN_S = float(
+    os.environ.get("LLMXIVE_DARTMOUTH_BREAKER_COOLDOWN_S", "900.0")
+)
+
 
 class _CircuitBreaker:
     """Trips OPEN on a sustained outage so callers abort fast.
@@ -161,7 +166,10 @@ class _CircuitBreaker:
 
     whichever comes first. When OPEN, :meth:`call` raises
     :class:`BackendUnavailable` immediately WITHOUT invoking the inner callable
-    (so the retry budget is not burned). ANY success resets the breaker fully.
+    (so the retry budget is not burned). After a cooldown, allow one recovery
+    probe while concurrent callers still fail fast. A failed probe restarts the
+    cooldown; success resets the breaker. An explicit ModelDownError opens the
+    circuit immediately because its full request budget has already been spent.
 
     Only :class:`TransientBackendError` counts as a failure — a
     :class:`PermanentBackendError` (e.g. the paid-model guard) is not an outage
@@ -177,14 +185,21 @@ class _CircuitBreaker:
         max_consecutive: int = _DEFAULT_BREAKER_MAX_CONSECUTIVE,
         window_s: float = _DEFAULT_BREAKER_WINDOW_S,
         clock: Callable[[], float] = time.monotonic,
+        cooldown_s: float = _DEFAULT_BREAKER_COOLDOWN_S,
     ) -> None:
         self._max_consecutive = max_consecutive
         self._window_s = window_s
         self._clock = clock
+        self._cooldown_s = cooldown_s
+        self._opened_at: float | None = None
+        self._probe_in_flight = False
+        self._lock = threading.Lock()
         self._consecutive_failures = 0
         self._first_failure_at: float | None = None
 
     def _is_open(self) -> bool:
+        if self._opened_at is not None:
+            return True
         if self._consecutive_failures >= self._max_consecutive:
             return True
         if (
@@ -208,17 +223,40 @@ class _CircuitBreaker:
         success. Other exceptions (PermanentBackendError, programming bugs)
         pass through unchanged and do NOT advance the breaker.
         """
-        if self._is_open():
-            raise self._open_error()
+        probe = False
+        with self._lock:
+            if self._is_open():
+                now = self._clock()
+                if self._opened_at is None:
+                    self._opened_at = now
+                if self._probe_in_flight or now - self._opened_at < self._cooldown_s:
+                    raise self._open_error()
+                self._probe_in_flight = probe = True
         try:
             result = fn()
-        except TransientBackendError:
-            self._record_failure()
+        except TransientBackendError as exc:
+            with self._lock:
+                self._record_failure()
+                # A hard deadline / explicit model-down response has already
+                # consumed a full request budget. Route around it immediately.
+                if probe or isinstance(exc, ModelDownError) or self._is_open():
+                    self._opened_at = self._clock()
             raise
-        # PermanentBackendError / unrelated exceptions: not an outage signal —
-        # propagate without touching breaker state.
-        self._reset()
-        return result
+        except BaseException:
+            # A failed/cancelled recovery probe must not leave the circuit stuck
+            # half-open, nor cause all waiting callers to immediately retry it.
+            if probe:
+                with self._lock:
+                    self._opened_at = self._clock()
+            raise
+        else:
+            with self._lock:
+                self._reset()
+            return result
+        finally:
+            if probe:
+                with self._lock:
+                    self._probe_in_flight = False
 
     def _record_failure(self) -> None:
         if self._first_failure_at is None:
@@ -226,6 +264,7 @@ class _CircuitBreaker:
         self._consecutive_failures += 1
 
     def _reset(self) -> None:
+        self._opened_at = None
         self._consecutive_failures = 0
         self._first_failure_at = None
 
