@@ -1,6 +1,7 @@
 """Actual author -> production writer -> independent verifier -> optional TeX toolchain."""
 import json
 import os
+import secrets
 import shutil
 from pathlib import Path
 
@@ -19,7 +20,11 @@ pytestmark = pytest.mark.skipif(
 
 
 def test_real_empty_source_paper_bootstrap(tmp_path, monkeypatch):
-    from llmxive.agents import task_verifier
+    from llmxive.agents import _task_verdict_receipt, task_verifier
+    # Exercise durable verification without requiring a production signing key.
+    # Author and independent verifier calls below remain real primary calls.
+    signing_key = secrets.token_bytes(32)
+    monkeypatch.setattr(_task_verdict_receipt, 'load_signing_key', lambda: signing_key)
     verifier_models = []
     real_verify_chat = task_verifier.chat_with_fallback
     def observed_verifier(*args, **kwargs):

@@ -41,6 +41,7 @@ REFERENCE_TESTS = {
 # modules still require external checks until their dependencies are classified.
 RUNTIME_TESTS = {
     "tests/real_call/test_task_verifier_paths.py",
+    "tests/real_call/test_task_verdict_authentication.py",
     "tests/real_call/test_paper_bootstrap.py",
 }
 # These files route/test CI, without changing reference resolution. Their PRs
