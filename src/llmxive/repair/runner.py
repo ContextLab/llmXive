@@ -383,8 +383,11 @@ def validate_baseline_failure(log: Path, baseline: Path) -> None:
             raise ValueError("expected failure records")
         for failure in failures:
             if (not isinstance(failure, dict) or type(failure["import_error"]) is not bool
+                    or failure["phase"] not in ("setup", "call", "teardown")
+                    or not isinstance(failure["exception"], str) or not failure["exception"].strip()
                     or not isinstance(failure["frames"], list)
-                    or not all(isinstance(path, str) for path in failure["frames"])):
+                    or not failure["frames"]
+                    or not all(isinstance(path, str) and path for path in failure["frames"])):
                 raise ValueError("malformed failure record")
             if failure["import_error"]:
                 production_frames = [

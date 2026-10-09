@@ -1,4 +1,5 @@
 """A runtime import failure is not evidence of the observed caller's defect."""
+import json
 import os
 import subprocess
 import sys
@@ -69,4 +70,25 @@ def test_missing_or_malformed_failure_evidence_is_rejected(tmp_path, text):
     log = tmp_path/'before.log'
     log.write_text(text)
     with pytest.raises(RuntimeError, match='pytest failure evidence'):
+        runner.validate_baseline_failure(log, tmp_path)
+
+
+@pytest.mark.parametrize('changes', [
+    {'phase': None}, {'phase': 'unknown'}, {'exception': None}, {'exception': ''},
+    {'exception': '  '}, {'frames': []}, {'frames': [None]}, {'frames': ['']}, {'import_error': 'false'},
+])
+def test_failure_record_schema_rejects_missing_or_invalid_fields(tmp_path, changes):
+    record = {'phase': 'call', 'exception': 'AssertionError', 'import_error': False,
+              'frames': ['tests/unit/test_repair_example.py']}
+    record.update(changes)
+    log = tmp_path/'before.log'
+    log.write_text('REPAIR_PYTEST_FAILURES='+json.dumps([record]))
+    with pytest.raises(RuntimeError, match='invalid baseline pytest failure evidence'):
+        runner.validate_baseline_failure(log, tmp_path)
+
+
+def test_failure_record_cannot_omit_phase_and_exception(tmp_path):
+    log = tmp_path/'before.log'
+    log.write_text('REPAIR_PYTEST_FAILURES=[{"import_error":false,"frames":[]}]')
+    with pytest.raises(RuntimeError, match='invalid baseline pytest failure evidence'):
         runner.validate_baseline_failure(log, tmp_path)
