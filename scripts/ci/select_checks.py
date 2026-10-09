@@ -34,7 +34,10 @@ REFERENCE_TESTS = {
 }
 # Reviewed runtime-only live modules retain Dartmouth coverage. Unknown live
 # modules still require external checks until their dependencies are classified.
-RUNTIME_TESTS = {"tests/real_call/test_task_verifier_paths.py"}
+RUNTIME_TESTS = {
+    "tests/real_call/test_task_verifier_paths.py",
+    "tests/real_call/test_paper_bootstrap.py",
+}
 # These files route/test CI, without changing reference resolution. Their PRs
 # must prove selection/collection invariants and still run Dartmouth; requiring
 # registrar uptime here does not validate the changed routing behavior.
@@ -45,7 +48,6 @@ ROUTING_FILES = {
     ".github/workflows/audit.yml", "scripts/ci/verify-audit-corpus.py",
     "scripts/verify_root_file_recovery.py",
 }
-
 
 def needs_references(path: str) -> bool:
     if path in REFERENCE_FILES | REFERENCE_TESTS or path.startswith(REFERENCE_PREFIXES):

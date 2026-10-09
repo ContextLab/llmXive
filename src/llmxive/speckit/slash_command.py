@@ -117,13 +117,16 @@ class SlashCommandAgent(abc.ABC):
                 outcome = Outcome.SKIPPED
                 model_used = "deterministic-no-llm"
             else:
-                messages = self.build_prompt(ctx, mechanical_output)
-                llm_response = chat_with_fallback(
-                    messages,
-                    default_backend=ctx.default_backend.value,
-                    fallback_backends=[b.value for b in ctx.fallback_backends],
-                    model=ctx.default_model,
-                )
+                if mechanical_output.get("deterministic_write"):
+                    llm_response = ChatResponse("", "deterministic-no-llm", ctx.default_backend.value)
+                else:
+                    messages = self.build_prompt(ctx, mechanical_output)
+                    llm_response = chat_with_fallback(
+                        messages,
+                        default_backend=ctx.default_backend.value,
+                        fallback_backends=[b.value for b in ctx.fallback_backends],
+                        model=ctx.default_model,
+                    )
                 backend_used = BackendName(llm_response.backend)
                 model_used = llm_response.model
                 llm_response_text = llm_response.text

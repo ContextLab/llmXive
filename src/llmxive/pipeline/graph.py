@@ -382,6 +382,10 @@ def _paper_complete_preconditions_met(
     """
     if not _all_paper_tasks_done(project_dir):
         return False
+    from llmxive.speckit.paper_implement_cmd import paper_implementation_review_current
+    tasks_path = _active_tasks_md(project_dir, track="paper")
+    if tasks_path is None or not paper_implementation_review_current(project_dir, tasks_path.parent):
+        return False
     # F-18 hard-block: a paper artifact that still carries an
     # ``[UNVERIFIED: ...]`` citation-guard marker (a fabricated / unverifiable
     # reference) must NOT advance to paper_complete. Checked BEFORE the
@@ -781,7 +785,8 @@ def run_one_step(
         # Tier 0 = no override = the registered default.
         _model_for_run = entry.default_model
         _exec_fix = (
-            agent_name == "implementer" and project.current_stage == Stage.IN_PROGRESS
+            (agent_name == "implementer" and project.current_stage == Stage.IN_PROGRESS)
+            or (agent_name == "paper_implementer" and project.current_stage in {Stage.PAPER_ANALYZED, Stage.PAPER_IN_PROGRESS})
         )
         _panel_stage = project.current_stage in _STAGE_PANEL_LABEL
         if _exec_fix or _panel_stage:
@@ -1154,7 +1159,7 @@ def _write_convergence_replan_feedback(
 
 
 def _write_unverifiable_replan_feedback(
-    project_dir: Path, entries: list[dict[str, Any]]
+    project_dir: Path, entries: list[dict[str, Any]], *, paper: bool = False
 ) -> str:
     """DETERMINISTIC re-plan note (NO LLM) for tasks the implementer repeatedly
     could not make pass verification (issue #1139 D6). Written to the SAME
@@ -1191,7 +1196,7 @@ def _write_unverifiable_replan_feedback(
         "",
     ]
     text = "\n".join(lines) + "\n"
-    memory_dir = project_dir / ".specify" / "memory"
+    memory_dir = (project_dir / "paper" if paper else project_dir) / ".specify" / "memory"
     memory_dir.mkdir(parents=True, exist_ok=True)
     (memory_dir / KICKBACK_FEEDBACK_FILENAME).write_text(text, encoding="utf-8")
     return text
@@ -1754,8 +1759,9 @@ def _decide_next_stage(
         # ladder is exhausted; never force-accept a rejected task.
         from llmxive.state import unverifiable as _unverifiable
 
-        if _unverifiable.has_unverifiable(project.id, repo_root=repo_root):
-            _entries = _unverifiable.load(project.id, repo_root=repo_root)
+        _entries = [e for e in _unverifiable.load(project.id, repo_root=repo_root)
+                    if not str(e.get("task_key", "")).startswith("paper:")]
+        if _entries:
             try:
                 new_tier = execution_status.bump_model_tier(
                     project.id, repo_root=repo_root, free_only=True
@@ -1766,7 +1772,7 @@ def _decide_next_stage(
                         >= execution_status.MAX_REPLAN_ROUNDS):
                     return Stage.AGENT_BLOCKED
                 execution_status.reset_fix_loop(project.id, repo_root=repo_root)
-                _unverifiable.clear(project.id, repo_root=repo_root)
+                _unverifiable.clear(project.id, repo_root=repo_root, track="research")
                 logger.warning(
                     "%s: task verification exhausted free models; re-planning",
                     project.id,
@@ -1774,7 +1780,7 @@ def _decide_next_stage(
                 # Stages name completed work: CLARIFIED dispatches the planner;
                 # PLANNED dispatches the tasker and would leave the failed plan intact.
                 return Stage.CLARIFIED
-            _unverifiable.clear(project.id, repo_root=repo_root)
+            _unverifiable.clear(project.id, repo_root=repo_root, track="research")
             logger.info(
                 "%s: %d repeatedly rejected tasks; retrying implementation with "
                 "free model tier %d (%s), preserving task definitions and feedback",
@@ -1873,6 +1879,21 @@ def _decide_next_stage(
     # preconditions are met (tasks done + LaTeX builds + citations
     # verified + proofreader clean).
     if cur in {Stage.PAPER_ANALYZED, Stage.PAPER_IN_PROGRESS}:
+        from llmxive.state import unverifiable as _unverifiable
+        entries = [e for e in _unverifiable.load(project.id, repo_root=repo_root)
+                   if str(e.get("task_key", "")).startswith("paper:")]
+        if entries:
+            try:
+                execution_status.bump_model_tier(project.id, repo_root=repo_root, free_only=True)
+            except ValueError:
+                _write_unverifiable_replan_feedback(project_dir, entries, paper=True)
+                if execution_status.replan_rounds(project.id, repo_root=repo_root) >= execution_status.MAX_REPLAN_ROUNDS:
+                    return Stage.AGENT_BLOCKED
+                execution_status.reset_fix_loop(project.id, repo_root=repo_root)
+                _unverifiable.clear(project.id, repo_root=repo_root, track="paper")
+                return Stage.PAPER_CLARIFIED
+            _unverifiable.clear(project.id, repo_root=repo_root, track="paper")
+            return Stage.PAPER_IN_PROGRESS
         if _paper_complete_preconditions_met(project.id, project_dir, repo_root=repo_root):
             return Stage.PAPER_COMPLETE
         return Stage.PAPER_IN_PROGRESS

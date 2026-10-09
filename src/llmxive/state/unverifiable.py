@@ -121,11 +121,21 @@ def record_unverifiable(
     return rec
 
 
-def clear(project_id: str, *, repo_root: Path | None = None) -> None:
+def clear(project_id: str, *, repo_root: Path | None = None, track: str | None = None) -> None:
     """Drop ALL unverifiable records for ``project_id`` (the whole file).
 
     CORE calls this after selecting a new free model or routing to ``planned``
     so the next implementation cycle verifies rejected tasks afresh."""
+    if track not in {None, "research", "paper"}:
+        raise ValueError(f"unknown task track: {track}")
+    if track is not None:
+        remaining = [entry for entry in load(project_id, repo_root=repo_root)
+                     if str(entry.get("task_key", "")).startswith("paper:") != (track == "paper")]
+        if remaining:
+            atomic_write_text(_path(project_id, repo_root=repo_root), json.dumps({
+                "project_id": project_id, "tasks": remaining, "updated_at": _now(),
+            }, indent=2) + "\n")
+            return
     _path(project_id, repo_root=repo_root).unlink(missing_ok=True)
 
 

@@ -196,8 +196,8 @@ ALLOWED_TRANSITIONS: dict[Stage, set[Stage]] = {
     Stage.PAPER_TASKED: {
         Stage.PAPER_ANALYZED, Stage.PAPER_CLARIFIED, Stage.HUMAN_INPUT_NEEDED,
     },
-    Stage.PAPER_ANALYZED: {Stage.PAPER_IN_PROGRESS},
-    Stage.PAPER_IN_PROGRESS: {Stage.PAPER_COMPLETE, Stage.PAPER_IN_PROGRESS},
+    Stage.PAPER_ANALYZED: {Stage.PAPER_IN_PROGRESS, Stage.PAPER_CLARIFIED, Stage.AGENT_BLOCKED},
+    Stage.PAPER_IN_PROGRESS: {Stage.PAPER_COMPLETE, Stage.PAPER_IN_PROGRESS, Stage.PAPER_CLARIFIED, Stage.AGENT_BLOCKED},
     # paper_complete is now a brief checkpoint where the 12 paper
     # specialists run before paper_review.
     Stage.PAPER_COMPLETE: {

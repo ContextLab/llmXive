@@ -243,3 +243,9 @@ def test_sparse_checkout_preserves_exact_current_pdf_sample(tmp_path):
     assert not dataset.exists()
     for name in result:
         assert (tmp_path / name).read_bytes() == Path(name).name.encode()
+
+
+def test_paper_bootstrap_live_test_keeps_dartmouth_without_external_services():
+    assert load("select_checks").select(["tests/real_call/test_paper_bootstrap.py"]) == {
+        "offline": True, "live": True, "references": False,
+    }

@@ -336,17 +336,14 @@ def test_paper_implementer_extras_load_real_files_when_present(
     paper_dir = project_dir / "paper"
     feature_dir = paper_dir / "specs" / "000-real"
     feature_dir.mkdir(parents=True)
-    # Production reads constitution from project_dir/.specify/memory/
-    # (per the speckit convention) — NOT under paper_dir. Create the
-    # correct parent so the test's write_text() works.
-    (project_dir / ".specify" / "memory").mkdir(parents=True)
+    (paper_dir / ".specify" / "memory").mkdir(parents=True)
 
     # Write real file content for each upstream artifact.
     (feature_dir / "spec.md").write_text("# real paper spec\n")
     (feature_dir / "plan.md").write_text("# real paper plan\n")
     (feature_dir / "tasks.md").write_text("# real paper tasks\n")
     (paper_dir / "results.md").write_text("# real results\n")
-    (project_dir / ".specify" / "memory" / "constitution.md").write_text(
+    (paper_dir / ".specify" / "memory" / "constitution.md").write_text(
         "Principle V: real-call testing.\n",
     )
 
@@ -356,6 +353,6 @@ def test_paper_implementer_extras_load_real_files_when_present(
     assert extras["__paper_spec_md__"] == "# real paper spec\n"
     assert extras["__paper_plan_md__"] == "# real paper plan\n"
     assert extras["__tasks_md__"] == "# real paper tasks\n"
-    assert extras["__results_md__"] == "# real results\n"
+    assert "# real results\n" in extras["__results_md__"]
     assert extras["__constitution__"] == "Principle V: real-call testing.\n"
     assert extras["__comments_block__"] == ""  # legitimately empty

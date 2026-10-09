@@ -375,9 +375,7 @@ def reset_fix_loop(project_id: str, *, repo_root: Path | None = None) -> None:
     that the project has already been all the way round the ladder. Without it the
     outer loop was UNBOUNDED — a project whose analysis simply cannot run climbed
     every tier, re-planned to a clean slate, and climbed them all again forever."""
-    existing = load(project_id, repo_root=repo_root)
-    if not existing:
-        return
+    existing = load(project_id, repo_root=repo_root) or {"project_id": project_id}
     existing["fix_rounds"] = 0
     existing["model_tier"] = 0
     existing["replan_rounds"] = _nonneg_int(existing.get("replan_rounds")) + 1

@@ -431,7 +431,7 @@ class ImplementerAgent(SlashCommandAgent):
                 target.write_text(contents, encoding="utf-8")
                 written.append(str(target.relative_to(repo)))
 
-            refusal_log = project_root / "code/.tasks" / f"{task_id}.artifact-write.log"
+            refusal_log = project_root / mechanical_output.get("task_log_dir", "code/.tasks") / f"{task_id}.artifact-write.log"
             if not written and not any(art.get("execute") for art in doc.get("artifacts", []) or []):
                 if not refusals:
                     refuse("[implementer] completed report supplied no writable artifacts or execution requests")
@@ -497,8 +497,7 @@ class ImplementerAgent(SlashCommandAgent):
                 # Persist execution log next to the script.
                 log_path = (
                     project_root
-                    / "code"
-                    / ".tasks"
+                    / mechanical_output.get("task_log_dir", "code/.tasks")
                     / f"{task_id}.{relpath.replace('/', '_')}.log"
                 )
                 log_path.parent.mkdir(parents=True, exist_ok=True)

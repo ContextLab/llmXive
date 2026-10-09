@@ -211,7 +211,7 @@ def _deterministic_verdict(project_dir: Path, task_text: str) -> tuple[str | Non
     return None, ""
 
 
-def gather_evidence(project_dir: Path, task_text: str) -> str:
+def gather_evidence(project_dir: Path, task_text: str, *, execution_log_dir: str = "code/.tasks") -> str:
     """Collect the artifacts a task references (head of each) as evidence text.
 
     Uses the broadened :func:`_declared_paths` detector, so a setup/config/test
@@ -278,7 +278,7 @@ def gather_evidence(project_dir: Path, task_text: str) -> str:
         data = _current_data_context(project_dir, preferred_paths=tuple(paths))
         chunks.append("# Underlying data evidence (not proof of run/test success)\n"
                       + (data or "No data artifacts available; do not infer measured results from report prose."))
-    execution = _task_execution_evidence(project_dir, task_text)
+    execution = _task_execution_evidence(project_dir, task_text, execution_log_dir=execution_log_dir)
     if execution:
         chunks.append(execution)
     if repository_root is not None:
@@ -292,7 +292,7 @@ def gather_evidence(project_dir: Path, task_text: str) -> str:
     return "\n".join(chunks)
 
 
-def _task_execution_evidence(project_dir: Path, task_text: str) -> str:
+def _task_execution_evidence(project_dir: Path, task_text: str, *, execution_log_dir: str = "code/.tasks") -> str:
     """Expose bounded, task-specific execution records rather than hiding success.
 
     These are historical observations, not approval of the current project.
@@ -304,7 +304,7 @@ def _task_execution_evidence(project_dir: Path, task_text: str) -> str:
     task_id = match.group(1)
     root = project_dir.resolve()
     records = []
-    candidates = sorted((project_dir / "code/.tasks").glob(f"{task_id}.*.log"),
+    candidates = sorted((project_dir / execution_log_dir).glob(f"{task_id}.*.log"),
                         key=lambda p: p.stat().st_mtime_ns, reverse=True)
     for path in candidates:
         if path.is_symlink() or not path.is_file() or not path.resolve().is_relative_to(root):
@@ -485,6 +485,11 @@ def claimed_done_keys(tasks_text: str) -> set[str]:
     return out
 
 
+def task_verification_state_path(project_dir: Path, tasks_path: Path) -> Path:
+    root = project_dir / "paper" if tasks_path.resolve().is_relative_to((project_dir / "paper").resolve()) else project_dir
+    return root / ".specify/memory/task_verify.yaml"
+
+
 def verified_done_keys(
     project_dir: Path, tasks_path: Path, *, tasks_text: str | None = None,
     model: str = DEFAULT_MODEL,
@@ -496,7 +501,7 @@ def verified_done_keys(
     """
     import yaml
 
-    state_path = project_dir / ".specify/memory/task_verify.yaml"
+    state_path = task_verification_state_path(project_dir, tasks_path)
     try:
         cache = yaml.safe_load(_cache_path(state_path).read_text()) or {}
     except (OSError, yaml.YAMLError):
@@ -520,7 +525,7 @@ def verified_done_keys(
         task_text = match.group(3).strip() + task_continuation(lines, i)
         if _deterministic_verdict(project_dir, task_text)[0] == "reject":
             continue
-        digest = _verification_hash(task_text, spec, gather_evidence(project_dir, task_text), model=model)
+        digest = _verification_hash(task_text, spec, gather_evidence(project_dir, task_text, execution_log_dir=("paper/.tasks" if state_path.is_relative_to(project_dir / "paper") else "code/.tasks")), model=model)
         receipt = cache.get(key)
         if isinstance(receipt, dict) and receipt.get("c") is True and receipt.get("h") == digest:
             verified.add(key)
@@ -653,7 +658,9 @@ def run_verification_pass(
         feedback = {}
     if not isinstance(feedback, dict):
         feedback = {}
-    unv_keys = _unv.recorded_keys(project_id, repo_root=repo_root)
+    namespace = "paper:" if tasks_path.resolve().is_relative_to((project_dir / "paper").resolve()) else ""
+    unv_keys = {key.removeprefix(namespace) for key in _unv.recorded_keys(project_id, repo_root=repo_root)
+                if key.startswith(namespace) and (namespace or not key.startswith("paper:"))}
 
     accepted = 0
     rejected: list[tuple[str, str]] = []
@@ -709,7 +716,7 @@ def run_verification_pass(
         rejected.append((key, reason))
         feedback[key]["reason"] = reason.strip()[:600]
         if count >= REJECT_CAP:
-            _unv.record_unverifiable(project_id, key, reason, repo_root=repo_root)
+            _unv.record_unverifiable(project_id, namespace + key, reason, repo_root=repo_root)
             reject_counts.pop(key, None)
             cache.pop(key, None)
             unv_keys.add(key)
@@ -755,7 +762,7 @@ def run_verification_pass(
             continue
 
         # (C) Ambiguous residue → evidence-hash cache, else bounded semantic LLM.
-        evidence = gather_evidence(project_dir, task_text)
+        evidence = gather_evidence(project_dir, task_text, execution_log_dir="paper/.tasks" if namespace else "code/.tasks")
         ev_hash = _verification_hash(task_text, spec_context, evidence, model=model)
         cached = cache.get(key)
         if (
