@@ -1,22 +1,53 @@
+T000-BOOTSTRAP:
+  c: false
+  h: 0db536877cc2d0671d5a3c195e86bcc2961538a044d58c39da67b7ccf7f90608
+  r: "The `research.md` does not contain the exact \u201CSummary\u201D text from `spec.md`\
+    \ (the spec has no explicit Summary section) nor the exact \u201CTechnical Context\u201D\
+    \ text from `plan.md` (the file lacks a Technical Context section). Additionally,\
+    \ the state file uses `last_updated` instead of the required `updated_at` field,\
+    \ so the timestamp was not correctly updated. These missing/incorrect artifacts\
+    \ prevent the task from being considered complete."
+  sig: bea3f8a333d2383eb1bea1683ea6726479296f4ba6a134c83ae3c130fc91c22f
+T000-VERIFY-SPEC:
+  c: false
+  h: 81193f5cb14bf1c7142be101a0c684c9c66f935eb908fdbe88cc7b255706ba96
+  r: "The required script `code/utils/verify_spec.py` is missing; without this file\
+    \ the spec cannot be programmatically checked for the presence of the string `\"\
+    {1, 2, 3, 7, 14}\"` in FR\u2011005."
+  sig: e1071b47d7d404e0117a0f90dc691226883c558ddd3f173e3a1c647efd8dbd65
 T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `.project_init.json` file in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`
-    was provided, nor any content shown matching the required JSON. The required marker
-    file is missing, so the task is not satisfied.
+  h: e12a15ee6c8e3691ef921cc1a12db779afb36b90424f48c91ab5f0528c183b73
+  r: "The directory contains a `.project_init.json` file, but the provided evidence\
+    \ does not show its contents, so we cannot confirm it matches the required JSON\
+    \ (`{\"project_id\": \"PROJ-487\", \"branch\": \"001-news-volume-anxiety\", \"\
+    created\": \"2026-06-27\"}`). The task remains incomplete until the file\u2019\
+    s exact content is verified."
+  sig: 1967e5786d44c6637499aeed5d50db0f77d6c2e1a88e44ecab857a61d942da56
 T002:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory structure or `.gitkeep` files were presented as evidence; the claim
-    that `data/raw/`, `data/processed/`, and `data/reports/` (each containing a `.gitkeep`)
-    exist in the specified project path cannot be verified. The implementer must provide
-    a listing or screenshots showing the created folders and placeholder files.
+  c: true
+  h: a4b96d6cf42fb3f24cbf0f2e375807c1ce8bce8f03f3c918478f016c41399371
+  r: "Checked the three required directories under `projects/PROJ-487-the-impact-of-social-media-doomscrolling/data/`\
+    \ \u2013 `raw/`, `processed/`, and `reports/` \u2013 each contains a `.gitkeep`\
+    \ file (and `raw/` also has a README), confirming the task\u2019s directory and\
+    \ placeholder file creation was fulfilled."
+  sig: 638119a3454ab0b8fccf581319f29e200775da385070678a7809072ea0536a75
 T003:
+  c: true
+  h: c3f042f7966807b493549d522a297afcb2751fd25cae3f2a3c179f3b385a2738
+  r: "The collector shows that `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/data/`,\
+    \ `code/tests/`, and `code/utils/` all exist and each contains an `__init__.py`\
+    \ file (along with additional module files), fulfilling the task\u2019s requirement\
+    \ to create the directories and make them Python packages."
+  sig: 0fdde820ecdf356aa5a3fe101bae015d7aba1a1ba86222c98ed949d00044f60f
+T004a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directories (`code/data/`, `code/tests/`, `code/utils/`)\
-    \ or the `__init__.py` files within them is provided. The implementer\u2019s claim\
-    \ cannot be verified because the artifacts are missing from the supplied information."
+  h: f0ed587ec48ec1a4fe95ee599bba39ba3ec24e5144542e0515c19e7e9b99b8b8
+  r: The project contains a hidden directory `.venv/` but no `venv/` directory created
+    by `python -m venv venv`, nor any logs or scripts showing that exact command was
+    run. The task specifically requires a `venv` folder at `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/`;
+    this artifact is missing.
+  sig: c65b95b02b87e903371d25903990ded075046826c2bb9c489d57f12463e29679
 T007a:
   c: true
   h: d838f12221c9a5856f636988e08d13d93267c769e6a546f7ea811f0fe9e6962f
@@ -30,25 +61,6 @@ T010:
   r: "No `test_fetch_gdelt.py` file was found in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/tests/`,\
     \ nor any accompanying T015d real\u2011call verification artifact. Without these\
     \ files the required test and its supporting verification are missing."
-T012:
-  c: false
-  h: 983383fcfe9357ea6c04c258c9c23644ef3e23988e1438f8c698f4c1eacd1baa
-  r: "The `fetch_gdelt.py` script is present but only shows generic request/retry\
-    \ code; there is no visible logic that queries the GDELT API for the `EventCount`\
-    \ metric of negative\u2011sentiment events, processes the response, or writes\
-    \ a CSV file. Moreover, the required output file `data/raw/gdelt_events.csv` does\
-    \ not exist. The task\u2019s core deliverables are therefore missing."
-T013:
-  c: false
-  h: 8d0f38d3d1c16dfb8be77bc61c70b669fe9918d3c0a7c2d8f3d3bf39667b3b25
-  r: "The repository contains a `fetch_google_trends.py` script with retry logic,\
-    \ but the required output file `data/raw/google_trends.csv` is missing, and the\
-    \ provided code snippet does not show any logic that writes the fetched data to\
-    \ that CSV path. Without the CSV file (or code that creates it), the task\u2019\
-    s core requirement\u2014saving the Google Trends data to `data/raw/google_trends.csv`\u2014\
-    is not fulfilled. The implementer must add the CSV\u2011writing step (or run the\
-    \ script to generate the file) and ensure the file exists and contains the expected\
-    \ data for the specified keywords and date range."
 T017:
   c: false
   h: b78606058de20d14f4ad7e37a37235c1b876985bfd7a9a6cb7fca3521208d944
@@ -57,14 +69,6 @@ T017:
     required input files `data/raw/gdelt_events.csv` and `data/raw/google_trends.csv`
     are missing, so the script cannot be executed as specified. The missing data and
     incomplete code mean the task is not genuinely completed.
-T018:
-  c: false
-  h: 6625847e9c58c1d3e2a4822af17eb4f1f676c922067cb10b011f1d2156c6b49e
-  r: "The `preprocess.py` file contains the alignment and linear\u2011interpolation\
-    \ logic as specified, but the required input files `data/raw/gdelt_events.csv`\
-    \ and `data/raw/google_trends.csv` are missing, so the script cannot be run or\
-    \ validated against real data. The missing raw CSVs must be provided (or stub\
-    \ data added) for the implementation to be considered complete."
 T031:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

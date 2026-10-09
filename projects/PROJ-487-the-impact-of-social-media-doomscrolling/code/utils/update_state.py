@@ -4,6 +4,10 @@ Update State File Task (T037)
 Calculates MD5 checksums for raw data artifacts and updates the project state file.
 This script is designed to be run manually after data acquisition tasks (T012, T013)
 have successfully generated the CSV files.
+
+Adjusted to match the actual raw data filenames used in the pipeline:
+- GDELT events file: `gdelt_events_raw.csv`
+- Google Trends file: `google_trends.csv`
 """
 
 import os
@@ -26,9 +30,9 @@ RAW_DATA_DIR = project_root / "data" / "raw"
 STATE_DIR = project_root / "state" / "projects"
 STATE_FILE = STATE_DIR / f"{PROJECT_ID}.yaml"
 
-# Artifacts to checksum
+# Artifacts to checksum – filenames must match the ones produced by the fetch scripts
 ARTIFACTS = {
-    "gdelt_events": "gdelt_events.csv",
+    "gdelt_events": "gdelt_events_raw.csv",
     "google_trends": "google_trends.csv"
 }
 
@@ -76,8 +80,6 @@ def save_state(state_path: Path, state: Dict[str, Any]) -> None:
 
 def update_artifact_hashes(state: Dict[str, Any]) -> Dict[str, str]:
     """Calculate hashes for defined artifacts and update state."""
-    import yaml
-
     new_hashes = {}
 
     for key, filename in ARTIFACTS.items():
@@ -85,7 +87,7 @@ def update_artifact_hashes(state: Dict[str, Any]) -> Dict[str, str]:
 
         if not file_path.exists():
             logger.error(f"Required artifact missing: {file_path}")
-            logger.error(f"Please ensure T012 and T013 have completed successfully.")
+            logger.error("Please ensure T012 (GDELT fetch) and T013 (Google Trends fetch) have completed successfully.")
             raise FileNotFoundError(f"Missing artifact: {filename}")
 
         try:
@@ -99,38 +101,34 @@ def update_artifact_hashes(state: Dict[str, Any]) -> Dict[str, str]:
     state["artifact_hashes"] = new_hashes
     return new_hashes
 
-def main():
+def main() -> None:
     """Main entry point for T037."""
     logger.info("Starting T037: Update State File")
     logger.info(f"Project ID: {PROJECT_ID}")
     logger.info(f"Raw Data Directory: {RAW_DATA_DIR}")
     logger.info(f"State File Target: {STATE_FILE}")
 
-    # Pre-check: Verify raw data files exist before attempting update
-    missing_files = []
-    for key, filename in ARTIFACTS.items():
-        if not (RAW_DATA_DIR / filename).exists():
-            missing_files.append(filename)
-
+    # Pre‑check: Verify raw data files exist before attempting update
+    missing_files = [fname for fname in ARTIFACTS.values() if not (RAW_DATA_DIR / fname).exists()]
     if missing_files:
         logger.error(f"Aborting: Missing required raw data files: {missing_files}")
         logger.error("Ensure T012 (GDELT fetch) and T013 (Google Trends fetch) have completed.")
         sys.exit(1)
 
     try:
-        # Load current state
+        # Load current state (or create a new one)
         state = load_state(STATE_FILE)
 
-        # Update hashes
+        # Update hashes in the state dict
         new_hashes = update_artifact_hashes(state)
 
-        # Save updated state
+        # Persist the updated state
         save_state(STATE_FILE, state)
 
         logger.info("State file updated successfully.")
         logger.info(f"New artifact hashes: {new_hashes}")
 
-        # Verify the file was written
+        # Verify the state file was written
         if STATE_FILE.exists():
             logger.info(f"Verification: State file exists at {STATE_FILE}")
         else:
