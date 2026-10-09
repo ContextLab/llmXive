@@ -436,7 +436,7 @@ def resolve_result(claim: Claim, *, backend: Any, model: str | None,
     - No matching receipt, or HMAC verification fails (SC-004)  →
       NOT_ENOUGH_INFO (block; absence of receipt ≠ REFUTED).
     """
-    from llmxive.results.harness import result_backed
+    from llmxive.results.harness import result_backed, source_fingerprint
 
     # The canonical field holds the value the model wrote; extract it.
     candidate_value = claim.canonical or claim.raw_text
@@ -468,6 +468,7 @@ def resolve_result(claim: Claim, *, backend: Any, model: str | None,
         evidence={
             "result_id": receipt.result_id,
             "output_sha256": receipt.output_sha256,
+            "artifact_sha256": source_fingerprint(receipt),
             "created_at": receipt.created_at,
             "source": f"result:{receipt.result_id}",
         },

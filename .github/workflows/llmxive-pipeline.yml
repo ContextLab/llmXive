@@ -70,6 +70,7 @@ jobs:
       - name: Preflight (FR-024 fail-fast preconditions)
         env:
           DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+          LLMXIVE_RECEIPT_KEY: ${{ secrets.LLMXIVE_RECEIPT_KEY }}
           DARTMOUTH_API_KEY: ${{ secrets.DARTMOUTH_API_KEY }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: python -m llmxive preflight
@@ -79,6 +80,7 @@ jobs:
         timeout-minutes: 300
         env:
           DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+          LLMXIVE_RECEIPT_KEY: ${{ secrets.LLMXIVE_RECEIPT_KEY }}
           DARTMOUTH_API_KEY: ${{ secrets.DARTMOUTH_API_KEY }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -23,6 +23,7 @@ jobs:
     env:
       LLMXIVE_REAL_TESTS: "1"
       DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+      LLMXIVE_RECEIPT_KEY: ${{ secrets.LLMXIVE_RECEIPT_KEY }}
       DARTMOUTH_API_KEY: ${{ secrets.DARTMOUTH_API_KEY }}
       HF_TOKEN: ${{ secrets.HF_TOKEN }}
       ZENODO_API_TOKEN: ${{ secrets.ZENODO_API_TOKEN }}

@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import datetime
 import hashlib
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 from llmxive.results.receipt import (
@@ -142,7 +142,7 @@ def result_backed(
 
     for receipt in _result_store.load_all(project_id, repo_root=repo_root):
         if receipt.output_sha256 == target_sha:
-            if verify_receipt(receipt, key=key):
+            if verify_receipt(receipt, key=key) and _artifact_current(receipt, project_id, repo_root):
                 return receipt
             # HMAC mismatch — receipt was tampered with; do NOT return it.
             return None
@@ -150,4 +150,38 @@ def result_backed(
     return None
 
 
-__all__ = ["mint_receipt", "result_backed"]
+def _artifact_current(receipt: Receipt, project_id: str, repo_root: Path) -> bool:
+    """A valid signature authenticates the receipt, not today's artifact bytes."""
+    if receipt.kind == "scalar":
+        return True
+    if receipt.kind not in {"table", "figure"}:
+        return False
+    relative = receipt.captured.get("path")
+    digest = receipt.captured.get("sha256")
+    if not isinstance(relative, str) or relative != receipt.value or not isinstance(digest, str):
+        return False
+    path = PurePosixPath(relative)
+    if path.is_absolute() or ".." in path.parts or str(path) != relative:
+        return False
+    if Path(project_id).name != project_id:
+        return False
+    project = repo_root / "projects" / project_id
+    artifact = project / relative
+    try:
+        if project.is_symlink() or artifact.is_symlink() or not artifact.is_file():
+            return False
+        if not artifact.resolve().is_relative_to(project.resolve()):
+            return False
+        with artifact.open("rb") as stream:
+            return hashlib.file_digest(stream, "sha256").hexdigest() == digest
+    except OSError:
+        return False
+
+
+def source_fingerprint(receipt: Receipt) -> str:
+    """Fingerprint the measured content, not the path used to identify it."""
+    return (str(receipt.captured.get("sha256", ""))
+            if receipt.kind in {"table", "figure"} else receipt.output_sha256)
+
+
+__all__ = ["mint_receipt", "result_backed", "source_fingerprint"]
