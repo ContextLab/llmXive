@@ -39,6 +39,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Keep every audited input; omit unrelated downloaded research data.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /src/
+            /pyproject.toml
+            /README.md
+            /LICENSE
+            /scripts/ci/verify-audit-corpus.py
+            /.specify/templates/
+            /projects/PROJ-*/specs/
+            /state/projects/
+      - name: Verify complete tracked audit corpus
+        run: python scripts/ci/verify-audit-corpus.py speckit
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -66,6 +80,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Keep every audited input; omit unrelated downloaded research data.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /src/
+            /pyproject.toml
+            /README.md
+            /LICENSE
+            /scripts/ci/verify-audit-corpus.py
+            /papers/
+      - name: Verify complete tracked audit corpus
+        run: python scripts/ci/verify-audit-corpus.py pdf
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -103,6 +129,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Keep every audited input; omit unrelated downloaded research data.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /src/
+            /pyproject.toml
+            /README.md
+            /LICENSE
+            /scripts/ci/verify-audit-corpus.py
+            /agents/prompts/personalities/
+            /scripts/verify_persona_evidence.py
+            /projects/PROJ-*/activity.jsonl
+      - name: Verify complete tracked audit corpus
+        run: python scripts/ci/verify-audit-corpus.py personality
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -123,6 +163,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Keep every audited input; omit unrelated downloaded research data.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /src/
+            /pyproject.toml
+            /README.md
+            /LICENSE
+            /scripts/ci/verify-audit-corpus.py
+            /projects/PROJ-*/activity.jsonl
+            /projects/PROJ-*/.audit/dispatches/
+      - name: Verify complete tracked audit corpus
+        run: python scripts/ci/verify-audit-corpus.py feedback-loop
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
