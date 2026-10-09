@@ -1,5 +1,6 @@
 status: none
-intent: GitHub Public API v3 GitHub Archive BigQuery dataset python package dataset
+intent: GitHub repository metadata download GitHub Archive GHTorrent python package
+  dataset
 required_fields:
 - repo_id
 - repo_name
@@ -7,12 +8,12 @@ required_fields:
 - owner_id
 - pull_number
 - pull_id
+- pull_title
+- pull_body
 - pull_state
 - pull_created_at
 - pull_closed_at
 - pull_merged_at
-- pull_user_login
-- pull_user_id
-cache_key: a43092e3d0c60be8839e02a5fd3e09f0582da356696d2315ea594c042192d1ea
-searched_at: '2026-08-16T17:35:09.940072+00:00'
+cache_key: c2602013d2d854f408cc9e49e2ee99e8a5029e9d51441c5123eb28619d076821
+searched_at: '2026-10-09T17:18:28.831984+00:00'
 retry_count: 1

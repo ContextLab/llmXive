@@ -1,32 +1,50 @@
 T004:
   c: true
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided specification excerpt includes FR\u2011008 with the exact required\
-    \ sentence about calculating `diff_complexity_score` and flagging \u201CAI Noise\u201D\
-    \ when the score\u202F>\u202F0.3 and the commit message contains \u201Cfix\u201D\
-    , \u201Chotfix\u201D, or \u201Cpatch\u201D. This confirms that `spec.md` contains\
-    \ the requested FR\u2011008 text."
+  h: 2ffd7960877c8b5d7c38e6001428e314ca1c43a27df28045cc39609825298d84
+  r: "Checked `spec.md` (resolved at `specs/001-evaluating-the-impact-of-llm-based-code/spec.md`),\
+    \ which contains FR\u2011008 with the exact required formula and AI\u2011Noise\
+    \ flag condition. The file is present and non\u2011empty."
+  sig: 66bebc92c57308efa80c73660262fb222f77a0bd2d67cd209242e6220c5d7464
 T005:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided spec excerpt ends with a truncated SC-009 entry (\"Note: This study\
-    \ uses proxy metrics for cogn\") and does not contain the full required sentence,\
-    \ including the clause about self\u2011report measures (e.g., NASA\u2011TLX).\
-    \ The complete text required by the task is missing."
+  c: true
+  h: 7f63ed1005773461b16046416fdf0bead088e3bb59fbec8a5512ab67bb45e0ee
+  r: "Checked `spec.md` (resolved at `specs/001-evaluating-the-impact-of-llm-based-code/spec.md`)\
+    \ and confirmed it contains the SC\u2011009 entry with the exact required sentence:\
+    \ \u201CNote: This study uses proxy metrics for cognitive load. Self\u2011report\
+    \ measures (e.g., NASA\u2011TLX) were not available.\u201D."
+  sig: 15ac0226fc4d563fcf1985fedbf2218cd7640038e18dddaf6c9a7922d70858a0
 T006:
   c: true
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided specification excerpt includes FR-003 stating the use of Mixed\u2011\
-    Effects Models (GLMM) with random intercepts for repositories and the requirement\
-    \ to apply Zero\u2011Inflated Negative Binomial (ZINB) or Hurdle models for zero\u2011\
-    inflated outcomes, satisfying the task."
+  h: 32d4dbb5f0cbb3e43d9d1dc75c6bb9ee4fe8a821c3819d418a9309af43ee268d
+  r: "Checked `specs/001-evaluating-the-impact-of-llm-based-code/spec.md` (4584\u202F\
+    bytes) and confirmed that FR\u2011003 contains the exact wording: \u201CMixed\u2011\
+    Effects Models (GLMM) with random intercepts for repositories\u2026 Zero\u2011\
+    Inflated Negative Binomial (ZINB) or Hurdle models for zero\u2011inflated outcomes.\u201D"
+  sig: df70c3a0128addfa61607a9034a26979d17ed5511cc8132b14fd414a41beac57
 T007:
+  c: false
+  h: db7c2396436759a15a588fdc681ac7c46ae6e5adf22476a67dee8e6d89cb5dc2
+  r: "Checked `specs/001-evaluating-the-impact-of-llm-based-code/spec.md`; FR\u2011\
+    002 is present but its wording is \u201Ccalculate `iteration_count` as the total\
+    \ number of push events \u2026 **Constraint**: NO exclusions \u2026\u201D, not\
+    \ the exact required sentence \u201CCount TOTAL push events between PR open and\
+    \ merge (no exclusions).\u201D. The spec must be updated to contain that exact\
+    \ phrasing."
+  sig: 447ba5a8984bb8551a6104f4c732a9d2999aefa7b7e2841d65bd725c61f006d7
+T008:
   c: true
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The provided specification excerpt shows that `spec.md` includes FR-002 stating
-    the iteration count is the total number of push events between PR open and merge
-    with no exclusions, matching the required wording. The artifact is present and
-    contains the correct updated content.
+  h: 356ba716336f8246f939a783383751c31d9c9956d8bfdeb9d1ebf3eadb0e9b9c
+  r: "The evidence shows the directory `projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/data/raw/`\
+    \ exists (sha256\u202F9a9f5d\u2026) and contains a `.gitkeep` file, confirming\
+    \ the required folder was created."
+  sig: 3d5b105e60526d6bcba50272a8a41f9b93826cef5cafea96d0a7bd604eec3e3d
+T009:
+  c: true
+  h: b63d38bdc011bdea6507a22eb8e1891282c00007b9bb10bfbb990c36d6f3ec2c
+  r: The collector shows that `projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/data/derived/`
+    exists (contains `.gitkeep` and `vif_report.json`). This fulfills the sole requirement
+    of creating the directory.
+  sig: 4a309edb4632b8638b9b34ba68226c8e757b48f8d452a6acdff197c1ecd0f6fa
 T012:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
