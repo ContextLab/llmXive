@@ -9,17 +9,14 @@ required:
 properties:
   model_pair:
     type: string
-    description: "Identifier for the compared models, e.g., 'llama3‑en vs bloom‑fr'."
   delta_similarity:
     type: number
     minimum: -1
     maximum: 1
-    description: "Adjusted similarity (observed – control mean)."
   ci:
     type: array
     minItems: 2
     maxItems: 2
-    description: "A bootstrap confidence interval for Δ similarity at a conventional confidence level."
     items:
       type: number
   generated_at:

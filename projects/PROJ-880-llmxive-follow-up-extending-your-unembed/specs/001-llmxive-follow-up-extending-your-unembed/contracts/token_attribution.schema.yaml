@@ -7,10 +7,8 @@ required:
 properties:
   model_id:
     type: string
-    description: "Model identifier."
   top_tokens:
     type: array
-    description: "List of tokens with highest logit weights in the edge spectrum."
     items:
       type: object
       required:
@@ -19,12 +17,9 @@ properties:
       properties:
         token_id:
           type: integer
-          description: "Token identifier in the model's vocabulary."
         logit_weight:
           type: number
-          description: "Logit weight (scalar) projected onto the edge spectrum."
   vocab_mapping:
     type: object
-    description: "Optional mapping from source model token IDs to a shared vocabulary."
     additionalProperties:
       type: integer

@@ -1,6 +1,9 @@
+# Deprecated: retained for backward compatibility only. Not used by the pipeline.
+$comment: "Replaced by statistical_results.schema.yaml (active) and permutation_test.schema.yaml (active)."
+
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Statistical Results Schema"
-description: "Schema for final permutation test results and p-values."
+description: "Schema for final permutation test results and p‑values."
 type: object
 required:
   - metadata
@@ -32,20 +35,20 @@ properties:
           description: "The cosine similarity of the observed average vector."
         p_value_n100:
           type: number
-          description: "P-value from a series of permutations."
+          description: "P‑value from a series of permutations."
         p_value_n1000:
           type: number
-          description: "P-value from a sufficiently large number of permutations."
+          description: "P‑value from a sufficiently large number of permutations."
         p_value_n10000:
           type: number
-          description: "P-value from a large number of permutations."
+          description: "P‑value from a large‑number of permutations."
         convergence_status:
           type: string
           enum: ["converged", "inconclusive"]
-          description: "Whether the p-value stabilized across sweeps."
+          description: "Whether the p‑value stabilized across sweeps."
         significance:
           type: boolean
-          description: "True if p-value < alpha (0.05) after Bonferroni correction."
+          description: "True if p‑value < alpha (0.05) after Bonferroni correction."
       required:
         - pair
         - observed_similarity

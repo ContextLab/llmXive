@@ -1,6 +1,8 @@
+# DEPRECATED – not used in pipeline
+$comment: "This schema is superseded by permutation_test.schema.yaml and should not be referenced in new code."
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Permutation Result Schema"
-description: "Schema for the output of the permutation test and statistical analysis using within-language similarity samples."
+description: "Schema for the output of the permutation test and statistical analysis using within-language samples."
 type: object
 required:
   - observed_similarity

@@ -14,23 +14,21 @@ properties:
     description: "Name of the language model (e.g., 'llama3', 'mistral', 'bloom')."
   language:
     type: string
-    description: "ISO‑639‑1 code of the language for which the subspace was extracted."
+    description: "ISO-639-1 code of the language for which the subspace was extracted."
   top_k:
     type: integer
     minimum: 1
-    description: "Number of singular vectors retained (e.g., a suitably large set to capture the dominant variance)."
+    description: "Number of singular vectors retained."
   edge_vectors:
     type: array
-    description: "List of top‑k singular vectors; each vector is an array of floats."
+    description: "List of top-k singular vectors; each vector is an array of floats."
     items:
       type: array
       items:
         type: number
-        format: float
   checksum:
     type: string
-    description: "SHA‑256 checksum of the source unembedding matrix."
+    description: "SHA-256 checksum of the source unembedding matrix."
   generated_at:
     type: string
     format: date-time
-    description: "UTC timestamp of artifact creation."

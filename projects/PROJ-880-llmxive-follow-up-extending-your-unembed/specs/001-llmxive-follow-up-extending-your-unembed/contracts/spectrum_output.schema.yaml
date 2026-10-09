@@ -1,6 +1,9 @@
+# Deprecated: retained for backward compatibility only. Not used by the pipeline.
+$comment: "Legacy schema; the active schema for edge‑spectrum output is edge_spectrum.schema.yaml."
+
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "SpectrumOutputSchema"
-description: "Schema for the output of the SVD extraction step (Top-k singular vectors) including symmetry diagnostics."
+description: "Schema for the output of the SVD extraction step (Top‑k singular vectors) including symmetry diagnostics."
 type: object
 required:
   - model_id
@@ -19,12 +22,12 @@ properties:
     minimum: 1
   singular_values:
     type: array
-    description: "List of the top-k singular values in descending order."
+    description: "List of the top‑k singular values in descending order."
     items:
       type: number
   variance_explained:
     type: number
-    description: "Ratio of total variance captured by the top-k vectors."
+    description: "Ratio of total variance captured by the top‑k vectors."
     minimum: 0
     maximum: 1
   U:

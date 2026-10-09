@@ -1,3 +1,5 @@
+# DEPRECATED – not used in pipeline
+$comment: "Superseded by permutation_test.schema.yaml; kept only for historical reference."
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "PermutationResultsSchema"
 description: "Schema for the output of the permutation test and statistical analysis using label permutation."

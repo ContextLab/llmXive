@@ -1,14 +1,15 @@
 status: none
-intent: download Common Crawl language subset token frequencies and WALS typological
-  features python package dataset
+intent: download huggingface model hub unembedding matrices Llama 3 Mistral BLOOM
+  python package dataset
 required_fields:
-- token
-- frequency
-- language_code
-- wals_feature_id
-- wals_feature_name
-- wals_value
-- language_iso
-cache_key: 0dfbfde7a97577bb9ff47caa97e77bfabea2e9c1a3ca69e8468293737d7902a6
-searched_at: '2026-09-28T19:25:29.209378+00:00'
+- model_name
+- unembedding_matrix (W_U) tensor
+- vocab_size
+- embedding_dimension
+- language (e.g., English, multilingual)
+- WALS_language_id
+- WALS_feature_name
+- WALS_feature_value
+cache_key: aacb02e47b290ea3ae538d44ff1460540e30e9371a06ce960ca6c27332c85928
+searched_at: '2026-10-09T14:21:32.267837+00:00'
 retry_count: 1

@@ -20,7 +20,7 @@ properties:
     description: "Lower bound of a confidence interval at a conventional high confidence level."
   ci_upper:
     type: number
-    description: "Upper bound of a high‑confidence interval."
+    description: "Upper bound of a high-confidence interval."
   generated_at:
     type: string
     format: date-time

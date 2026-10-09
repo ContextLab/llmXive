@@ -9,7 +9,7 @@ required:
 properties:
   language:
     type: string
-    description: "ISO‑639‑1 language code."
+    description: "ISO-1 language code."
   token_counts:
     type: object
     description: "Mapping from token ID (as string) to integer count."
@@ -19,8 +19,7 @@ properties:
   total_tokens:
     type: integer
     minimum: 0
-    description: "Sum of all token counts (should be ≥ 1,000,000)."
+    description: "Sum of all token counts (should be >= 1,000,000)."
   generated_at:
     type: string
     format: date-time
-    description: "UTC timestamp of generation."

@@ -1,59 +1,45 @@
-# Quickstart: llmXive cross‑lingual edge‑spectrum analysis
+# Quickstart: llmXive cross-lingual edge-spectrum analysis
 
-These instructions let a new researcher reproduce the full experiment on a fresh GitHub Actions runner.
+This guide enables the reproduction of the cross‑lingual subspace analysis on a GitHub Actions runner.
 
-## Prerequisites
-- Python 3.11 (installed by the CI environment).  
-- Internet access (to download model checkpoints and verified datasets).  
+## Environment Setup
+```bash
+# 1. Setup virtual environment
+python -m venv .venv
+source .venv/bin/activate
 
-## Step‑by‑Step
+# 2. Install pinned dependencies
+pip install -r requirements.txt
+```
 
-1. **Clone the repository and install dependencies**  
-   ```bash
-   git clone <repo-url>
-   cd <repo-root>
-   python -m venv .venv
-   source .venv/bin/activate
-   pip install -r requirements.txt
-   ```
+## Running the Pipeline
+The pipeline is orchestrated by `src/pipeline/run_all.py`. It handles data acquisition, SVD, and statistical validation in sequence.
 
-2. **Run the pipeline**  
-   The entry‑point script orchestrates all phases in order:
-   ```bash
-   python -m src.pipeline.run_all \
-       --models llama3 mistral bloom \
-       --languages en fr zh ar sw de es hi ja pt \
-       --top-k 100 \
-       --bootstrap-replicates 1000 \
-       --perm-iterations 10000 \
-       --seed 0
-   ```
-   - The script writes every artifact under `data/derived/`.  
-   - If any language‑subset fails the ≥ 1 M token guard (Phase 2), the run **aborts with a clear error message** (FR‑009). No fallback to an unverified corpus is performed.
+```bash
+python -m src.pipeline.run_all \
+    --models llama3 mistral bloom \
+    --languages en fr zh ar sw de es hi ja pt \
+    --top-k 100 \
+    --bootstrap-replicates 1000 \
+    --perm-iterations 10000 \
+    --seed 42
+```
 
-3. **Validate contracts** (optional)  
-   ```bash
-   pytest -m contract
-   ```
-   This exercise runs `jsonschema` validation against all schemas in `contracts/`.
+## Key Guards & Behavior
+- **Data Guard**: If any Common Crawl language subset contains $< 1{,}000{,}000$ tokens, the pipeline will raise a `DataInsufficiencyError` and abort.
+- **Time Guard**: If the permutation phase exceeds 5 hours, the system will log a warning to `feasibility_report.json` and abort to prevent CI timeout.
+- **Memory Guard**: The system loads only the `lm_head` weights from the models to fit within the 7 GB RAM limit.
 
-4. **Inspect results**  
-   - Subspace similarities: `data/derived/similarity_matrix_<hash>.json`  
-   - Δ‑similarity metrics: `data/derived/similarity_metric_<hash>.json`  
-   - Anisotropy bias CI: `data/derived/anisotropy_bias_<lang>_<hash>.json`  
-   - Correlations (exploratory): `data/derived/validation_<hash>.json`  
-   - Full human‑readable summary: `final_report.md` (generated automatically).
+## Expected Artifacts
+- `edge_spectrum_{model}_{lang}_{hash}.json` (subspace bases)
+- `frequency_list_{lang}_{hash}.json` (token frequency distributions)
+- `token_attribution_{model}_{hash}.json` (top‑logit tokens)
+- `mean_embedding_{lang}_{hash}.json` (mean embeddings and baselines)
+- `similarity_matrix_{hash}.json` (pairwise cosine similarity matrix with bootstrap CIs)
+- `similarity_report_{hash}.json` (detailed similarity metrics)
+- `permutation_test_{hash}.json` (combined p‑values and significance flag)
+- `validation_{hash}.json` (WALS and SentEval correlations)
+- `ablation_report_{hash}.json` (ablation outcomes)
+- `feasibility_report_{hash}.json` (resource usage)
 
-5. **Re‑run with a smaller sample (debug mode)**  
-   For quick debugging, add `--debug` to process only the first 10 k tokens per language and reduce permutation iterations to 1 000.
-
-## Expected Runtime & Resources
-- Total wall‑clock time ≤ 4.5 h on the default GitHub Actions runner.  
-- Peak RAM ≈ a few GB.  
-- No GPU is required; the pipeline runs entirely on CPU.
-
-If the permutation phase exceeds 5 h, the script aborts with a warning, as mandated by **FR‑004**.
-
----
-
-
+All artifacts are validated against their JSON‑Schema contracts (see `contracts/`). 

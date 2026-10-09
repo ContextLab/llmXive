@@ -9,19 +9,16 @@ required:
 properties:
   model_pairs:
     type: array
-    description: "List of model pair identifiers, e.g., ['llama3‑en vs bloom‑fr']."
     items:
       type: string
   similarity_scores:
     type: array
-    description: "Cosine similarity values for each pair (range ‑1 to 1)."
     items:
       type: number
       minimum: -1
       maximum: 1
   bootstrap_ci:
     type: array
-    description: "Confidence intervals for each similarity score; each item is [lower, upper]."
     items:
       type: array
       minItems: 2

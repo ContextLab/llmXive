@@ -1,3 +1,5 @@
+# DEPRECATED – not used in pipeline
+$comment: "Replaced by svd_result.schema.yaml (active) and spectrum_output.schema.yaml (active)."
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "SVD Result"
 description: "Schema for SVD results of unembedding matrix"
@@ -16,7 +18,7 @@ properties:
     description: "Number of singular vectors extracted"
   singular_vectors:
     type: array
-    description: "Top-k left singular vectors (U matrix)"
+    description: "Top‑k left singular vectors (U matrix)"
     items:
       type: array
       items:
@@ -24,7 +26,7 @@ properties:
         description: "Singular vector component"
   singular_values:
     type: array
-    description: "Top-k singular values"
+    description: "Top‑k singular values"
     items:
       type: number
       description: "Singular value"

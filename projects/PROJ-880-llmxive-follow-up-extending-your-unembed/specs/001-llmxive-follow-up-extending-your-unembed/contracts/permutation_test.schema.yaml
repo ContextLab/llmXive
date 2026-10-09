@@ -13,28 +13,22 @@ properties:
     type: number
     minimum: -1
     maximum: 1
-    description: "Cosine similarity observed between the target cross‑lingual subspaces."
   null_distribution_mean:
     type: number
-    description: "Mean of similarity scores under the combined null."
   null_distribution_std:
     type: number
-    description: "Standard deviation of the null distribution."
   p_value:
     type: number
     minimum: 0
     maximum: 1
-    description: "Two‑tailed p‑value with at least four decimal places."
+    description: "Two-tailed p-value with at least four decimal places."
   iterations:
     type: integer
-    minimum: a sufficiently large sample size
-    description: "Number of permutation iterations performed."
+    minimum: 10000
   significance_flag:
     type: boolean
-    description: "True if p_value < 0.05, else False."
   null_components:
     type: object
-    description: "Counts of each null‑type sample used."
     properties:
       within_language:
         type: integer
@@ -42,9 +36,6 @@ properties:
         type: integer
       model_specific:
         type: integer
-  checksum:
-    type: string
   generated_at:
     type: string
     format: date-time
-additionalProperties: false

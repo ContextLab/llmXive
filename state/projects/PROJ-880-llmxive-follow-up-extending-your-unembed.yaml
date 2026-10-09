@@ -6,7 +6,7 @@ failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-880-llmxive-follow-up-extending-your-unembed
-last_run_id: 8a68c9d1-3ed1-4f25-b698-6d605b8b3d1f
+last_run_id: 0d6c80e8-aad6-49da-ad09-d85ac71c9029
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed
 title: 'llmXive follow-up: extending "Your UnEmbedding Matrix is Secretly a Feature
   Lens for Text Embeddings"'
-updated_at: '2026-09-05T20:11:09.215296Z'
+updated_at: '2026-10-09T15:04:47.882346Z'
