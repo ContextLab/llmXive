@@ -1,105 +1,67 @@
 # Predicting the Impact of Impurity Clustering on Grain Boundary Segregation
 
-**Project ID**: PROJ-355
-**Status**: Active Research Pipeline
+This project implements a computational pipeline to quantify the relationship between impurity clustering descriptors (RDF peaks, pair correlations, Voronoi counts) at grain boundary (GB) interfaces and segregation energies. The goal is to determine how the spatial clustering of impurity atoms in the bulk lattice influences the thermodynamic driving force for their segregation to grain boundaries in polycrystalline alloys.
 
-## Overview
+## Project Overview
 
-This project implements a scientific pipeline to investigate how impurity clustering at grain boundaries (GBs) affects segregation energies. We combine materials data from public repositories (Materials Project, OQMD) with atomistic simulations using NIST EAM potentials to compute clustering descriptors (RDF, pair correlation, Voronoi counts) and model their relationship with segregation energy.
-
-## Data Provenance
-
-- **Bulk Configurations**: Sourced from the Materials Project (MP) and Open Quantum Materials Database (OQMD).
- - MP URL: ` Name or service not known)"))]
- - OQMD URL: ` Name or service not known)"))]
-- **Potentials**: NIST Interatomic Potentials Repository (EAM/FS format).
-- **Validation**: Ground truth validation performed against a pre-computed DFT subset from NIST/MP benchmarks.
-- **Generated Data**: All processed data (GB supercells, descriptors, energies) are generated locally via simulation and stored in `data/processed/`.
-
-## Prerequisites
-
-- Python 3.9+
-- Required packages listed in `requirements.txt` (install via `pip install -r requirements.txt`).
-- Access to the internet for downloading initial bulk configurations and potentials.
+The pipeline performs the following high-level steps:
+1. **Data Acquisition**: Downloads bulk configurations from OQMD and Materials Project.
+2. **Structure Generation**: Constructs GB supercells and inserts impurities at the interface.
+3. **Descriptor Computation**: Extracts clustering metrics (RDF, pair correlation, Voronoi neighbor counts) specifically from the GB interface region.
+4. **Simulation**: Generates segregation energies using NIST EAM potentials via atomistic simulations.
+5. **Modeling**: Trains a Linear Regression model to map clustering descriptors to segregation energies, employing k-fold cross-validation and collinearity diagnostics (VIF).
+6. **Analysis**: Performs threshold sensitivity analysis and hypothesis testing with multiple-comparison correction.
 
 ## Execution Instructions
 
-### 1. Setup Environment
+### Prerequisites
+- Python 3.11+
+- `pip` and `venv`
+- Network access to OQMD and Materials Project.
 
+### Installation
 ```bash
-cd projects/PROJ-355-predicting-the-impact-of-impurity-cluste
+# Clone the repository and navigate to the project root
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 2. Run the Pipeline
-
-The main orchestration script is located at `code/main.py`. It executes the following logical sequence:
-1. **Download**: Fetches bulk configurations from MP/OQMD.
-2. **Build**: Constructs GB supercells and inserts impurities.
-3. **Descriptors**: Computes RDF, pair correlation, and Voronoi counts.
-4. **Simulate**: Calculates segregation energies using EAM potentials.
-5. **Model**: Trains regression models and performs cross-validation.
-
-To run the full pipeline:
-```bash
-python code/main.py
-```
-
-### 3. Run Specific Modules
-
-- **Download Data**:
- ```bash
- python code/data/download.py
- ```
-- **Compute Descriptors**:
- ```bash
- python code/run_descriptors.py
- ```
-- **Simulate Energies**:
- ```bash
- python code/data/simulate_energy.py
- ```
-- **Train Model**:
- ```bash
- python code/modeling/train.py
- ```
-
-### 4. Validation & Testing
-
-- **Ground Truth Validation**:
+### Running the Pipeline
+1. **Validate the empirical potential against DFT reference data**:
  ```bash
  python code/data/validate_potential.py
  ```
-- **Unit Tests**:
+ This ensures the EAM potential is accurate (MAE < 0.1 eV) before proceeding.
+
+2. **Run the full pipeline**:
  ```bash
- python -m pytest tests/unit/ -v
+ python code/main.py --mode full
  ```
-- **Integration Tests**:
+ This executes the entire sequence: download $\rightarrow$ build $\rightarrow$ descriptors $\rightarrow$ simulate $\rightarrow$ train.
+
+3. **Run analysis separately** (if data is already prepared):
  ```bash
- python -m pytest tests/integration/ -v
+ python code/train_model.py --input data/processed/training_set.csv --output results/metrics.json
  ```
 
-## Output Artifacts
+## Data Provenance
 
-Upon successful execution, the following artifacts will be generated:
+To ensure reproducibility and scientific integrity, the project tracks data provenance as follows:
 
-- `data/processed/gb_supercells/`: Directory containing GB supercell structures.
-- `data/processed/descriptors.csv`: Clustering descriptors (RDF, pair_corr, voronoi_count).
-- `data/processed/segregation_energies.csv`: Computed segregation energies linked to descriptors.
-- `results/metrics.json`: Model performance metrics (R², RMSE, p-values).
-- `results/sensitivity_report.json`: Sensitivity analysis results.
-- `data/processed/collinearity_report.md`: VIF analysis report.
+- **Bulk Configurations**: Sourced from the Open Quantum Materials Database (OQMD) and the Materials Project. All downloads are validated against a whitelist of verified URLs.
+- **Interatomic Potentials**: Uses NIST EAM potentials (e.g., Fe-Cr) downloaded from verified public mirrors.
+- **Derived Artifacts**:
+ - Grain boundary supercells are generated deterministically using `pymatgen`.
+ - Segregation energies are computed via CPU-tractable atomistic simulations using the `ase` library and the NIST EAM potential.
+- **Metadata**: All external data sources, including URLs and SHA256 checksums, are recorded in `data/metadata.yaml`.
 
-## Configuration
+## Project Structure
 
-Configuration parameters (random seeds, paths, hyperparameters) are defined in `code/config.py`.
-- **Random Seed**: Fixed in `config.py` for reproducibility.
-- **Scope**: Defined in `data/scope_config.yaml` (alloy systems, sample size limits).
-
-## License
-
-This project is part of the llmXive automated science pipeline. See the repository root for license details.
-
-## Contact
-
-For issues or questions, please refer to the project's issue tracker or contact the research team.
+- `code/`: Source code for the pipeline (data acquisition, simulation, and modeling).
+- `data/raw/`: Original bulk configurations from OQMD/MP.
+- `data/processed/`: GB supercells, computed descriptors, and simulation results.
+- `data/potentials/`: Stored EAM potential files.
+- `results/`: Final model metrics, sensitivity reports, and performance logs.
+- `tests/`: Unit and integration tests.
+- `contracts/`: Schema definitions for input and output data validation.

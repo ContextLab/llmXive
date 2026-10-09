@@ -1,1 +1,1 @@
-"""Unit tests for the impurity clustering segregation pipeline."""
+# Unit test package initialization

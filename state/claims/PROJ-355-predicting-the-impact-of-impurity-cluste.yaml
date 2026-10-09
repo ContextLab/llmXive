@@ -5316,3 +5316,296 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-02T23:59:32Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: tests fail on first run and pass after pipeline generates files
+  claim_id: c_f7fd32ec
+  context: Tests cover data download retry logic, descriptor computation, GB construction,
+    simulation stability, and model evaluation. They are designed to fail on the first
+    run (when data is absent) and pass once the pipeline produces the expected files.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Tests are designed to fail on the first run (when data is absent) and
+    pass once the pipeline produces the expected files.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T13:24:23Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: script creates descriptors.csv, segregation_energies.csv, metrics.json,
+    sensitivity_report.json, metadata.yaml
+  claim_id: c_f94f63e0
+  context: Running the full pipeline will generate these files in the data/processed
+    and results directories.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'The script will create the following key outputs: descriptors.csv, segregation_energies.csv,
+    metrics.json, sensitivity_report.json, metadata.yaml.'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T13:24:24Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: bulk configurations retrieved from Materials Project and OQMD
+  claim_id: c_a91f6a93
+  context: Data provenance section states bulk configurations are retrieved directly
+    from the Materials Project and OQMD.
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: Bulk configurations are retrieved directly from the Materials Project
+    and OQMD.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T13:25:03Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: bulk configurations fetched from OQMD and Materials Project
+  claim_id: c_70e059ad
+  context: Data provenance section describing where bulk configurations are obtained.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Bulk configurations are fetched directly from the OQMD dataset (via its
+    public API) and, if unavailable, from the Materials Project (requires an API key).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T13:27:02Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: downloaded files stored in data/raw with SHA-256 checksums recorded
+  claim_id: c_d94e4d44
+  context: Data provenance section explaining file storage and integrity verification.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "All downloaded files are stored under data/raw/ and their SHA\u2011256\
+    \ checksums are recorded in data/metadata.yaml."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T13:27:03Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: modeling metrics saved in results/metrics.json with configuration snapshot
+  claim_id: c_2098f619
+  context: Description of output artifacts for the modeling step.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The final modeling metrics are saved in results/metrics.json with a copy
+    of the configuration snapshot for reproducibility.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T13:27:04Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/docs/methodology.md
+  attempts: 1
+  canonical: 5-Fold CV is statistically unstable or impossible when sample size is
+    less than 5
+  claim_id: c_bdf6576e
+  context: In the fallback strategy description, the document states that if N < 5,
+    5-Fold CV is statistically unstable or impossible, leading to use of LOOCV.
+  evidence:
+    reason: no source found to validate superlative claim
+  kind: magnitude
+  raw_text: If the total number of samples N is less than 5, 5-Fold CV is statistically
+    unstable or impossible.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T13:29:18Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: Bulk configurations fetched from Materials Project and OQMD
+  claim_id: c_af3ac1f7
+  context: The Data Provenance section lists the sources used for bulk configurations.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: Materials Project
+      source_id: Q105085929
+      url: https://www.wikidata.org/wiki/Q105085929
+      value: Materials Project
+    filled: true
+  kind: entity_fact
+  raw_text: 'Bulk configurations are fetched from the following publicly accessible
+    sources: Materials Project and OQMD.'
+  resolved_value: Materials Project
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-09T13:34:23Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: Interatomic potentials downloaded from NIST repository
+  claim_id: c_eabf4b5c
+  context: The Data Provenance section describes where interatomic potentials are
+    obtained.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: EAM-like potentials are usually implemented as numerical tables. A collection
+        of tables is available at the interatomic potential repository at NIST (see
+        here).
+      source_id: Interatomic potential
+      url: https://en.wikipedia.org/wiki/Interatomic_potential
+      value: interatomic potential repository at NIST
+    filled: true
+  kind: entity_fact
+  raw_text: Interatomic potentials are downloaded from the NIST repository (e.g.,
+    Fe_Cr.eam.fs).
+  resolved_value: interatomic potential repository at NIST
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-09T13:34:46Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: EAM potential energies compared against DFT reference dataset from Materials
+    Project
+  claim_id: c_98cc3bf0
+  context: Potential validation is performed by code/data/validate_potential.py as
+    described in Data Provenance.
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: "The script compares the EAM potential energies against a small DFT reference\
+    \ dataset (sourced from the Materials Project\u2019s public CSV)."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T13:35:28Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: DFT reference dataset provides formation energies per atom for elemental
+    solids
+  claim_id: c_a90896bb
+  context: The DFT reference dataset for potential validation is a publicly hosted
+    CSV in the pymatgen repository, providing formation energies per atom for elemental
+    solids.
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: The DFT reference dataset for potential validation is a publicly hosted
+    CSV in the pymatgen repository that provides formation energies per atom for elemental
+    solids.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T13:38:51Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: Bulk configuration files are sourced from OQMD and Materials Project
+  claim_id: c_c24854f2
+  context: 'The pipeline automates the process of: 1. Data Acquisition: Downloading
+    bulk configuration files from the Open Quantum Materials Database (OQMD) and Materials
+    Project (MP).'
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: Downloading bulk configuration files from the Open Quantum Materials Database
+    (OQMD) and Materials Project (MP).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T13:44:23Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: Segregation energy measurements are generated using NIST EAM potentials
+  claim_id: c_24532bdb
+  context: 'The pipeline automates the process of: ... 4. Simulation: Generating segregation
+    energy measurements using NIST EAM potentials.'
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: Generating segregation energy measurements using NIST EAM potentials.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T13:46:25Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: NIST EAM potentials are used for target alloy systems such as Fe-Cr
+  claim_id: c_9ea126ff
+  context: 'Interatomic Potentials: Uses verified NIST EAM (Embedded Atom Method)
+    potentials for the target alloy systems (e.g., Fe-Cr).'
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: Uses verified NIST EAM (Embedded Atom Method) potentials for the target
+    alloy systems (e.g., Fe-Cr).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T13:49:15Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: Bulk configurations sourced from OQMD and Materials Project
+  claim_id: c_626ddb1b
+  context: 'To ensure reproducibility and scientific integrity, the project tracks
+    data provenance as follows: Bulk Configurations: Sourced from the Open Quantum
+    Materials Database (OQMD) and the Materials Project.'
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: 'Bulk Configurations: Sourced from the Open Quantum Materials Database
+    (OQMD) and the Materials Project.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T13:56:35Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: Interatomic potentials sourced from NIST EAM
+  claim_id: c_a3a6c150
+  context: 'To ensure reproducibility and scientific integrity, the project tracks
+    data provenance as follows: Interatomic Potentials: Uses NIST EAM potentials (e.g.,
+    Fe-Cr) downloaded from verified public mirrors.'
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: 'Interatomic Potentials: Uses NIST EAM potentials (e.g., Fe-Cr) downloaded
+    from verified public mirrors.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T13:57:50Z'

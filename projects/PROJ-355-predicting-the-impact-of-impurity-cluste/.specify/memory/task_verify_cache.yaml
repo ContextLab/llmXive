@@ -1,14 +1,124 @@
+T000:
+  c: true
+  h: f7158f919ee6ef83c77ddfa52299ff5d27f5d5f83ecf856a306dc5e82811a49c
+  r: "The `data/metadata.yaml` file exists inside the project directory, is non\u2011\
+    empty (355\u202Fbytes), and contains the required empty `sources` and `potentials`\
+    \ lists with a `last_updated: null` placeholder, matching the specified initial\
+    \ empty structure for URL tracking."
+T001a:
+  c: true
+  h: 9ecc616325f207dcc8651a9ed9d95beb0eef369bfb09aee230df4bb789fddbe0
+  r: "The root project folder and all required subdirectories (`code/`, `data/raw/`,\
+    \ `data/processed/`, `results/`, `tests/unit/`, `tests/integration/`) are present\
+    \ and contain placeholder files, and the log `code/.tasks/T001a.code_init_structure.py.log`\
+    \ confirms the initialization script ran successfully and was idempotent (no new\
+    \ directories created on re\u2011run)."
+T003:
+  c: true
+  h: e30400668050f48f1c21fbbd94a9ed41bfe8163a9480910015c6cf588a780fa3
+  r: "The directory contains non\u2011empty configuration files for both tools (`.ruff.toml`/`ruff.toml`\
+    \ and `.black.toml`), satisfying the requirement to set up linting with ruff and\
+    \ formatting with black."
+T004a:
+  c: true
+  h: 6ace25b05e9465803562e44f70c6c29b389d95b0b323d4fad30c68d047d4930c
+  r: The `contracts/dataset.schema.yaml` file exists at the required project path
+    and its contents exactly match the specified schema, including all required fields,
+    types, and the optional `segregation_energy` property.
+T004b:
+  c: true
+  h: 9e7a1b8ab87d998318e60355056b72c65099ad990a6c2e8fd9e1b57ff684b8b7
+  r: "The file `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/contracts/output.schema.yaml`\
+    \ exists, is non\u2011empty, and its YAML content exactly matches the schema specified\
+    \ in the task description."
+T004c:
+  c: true
+  h: 57753369929d7bb41675bea00d6828b1ad9ba43daf9fdc2a19f1f6ed5ac20058
+  r: "The repository contains `code/validators.py` defining `validate_citations` with\
+    \ the required signature, whitelist (without an empty string), URL extraction\
+    \ from the given `metadata.yaml`, whitelist check, HTTP\u2011GET reachability\
+    \ test, and the exact success/failure dicts. The referenced `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/data/metadata.yaml`\
+    \ file is present for parsing."
+T005:
+  c: true
+  h: 1618f51fa55a32fd7f456719e149acb9fd14727c326a8dde1f1451238eb4bfc0
+  r: "The `code/config.py` file is present (4459\u202Fbytes) and defines `RANDOM_SEED`,\
+    \ a `HYPERPARAMETERS` dict, a `VALIDATED_SOURCE_WHITELIST` with the required Materials\
+    \ Project and OQMD URLs, plus helper functions for project and data paths."
+T005b:
+  c: true
+  h: 5563f0c2cd8f6090ed875089045024de57fe6e3a8483b62eea7aa134fc82d659
+  r: "The `docs/methodology.md` file exists, is non\u2011empty, and contains a clear\
+    \ description of a 5\u2011fold k\u2011fold CV procedure, the LOOCV fallback logic\
+    \ (including decision code), and explicitly references the `RANDOM_SEED` constant\
+    \ from `code/config.py`."
+T006:
+  c: true
+  h: e0fe83e5036a201c5427aefe179451ebc40e53678f0681480bc023813921b430
+  r: "Both `code/data/__init__.py` and `code/modeling/__init__.py` are present, non\u2011\
+    empty, and contain concrete import statements and `__all__` definitions that set\
+    \ up the respective packages as required."
+T007:
+  c: true
+  h: b3f9c9cfb2718ce1cdb8c976fe6fbd00364b7450b0a6c12fa2ee176b2802f97d
+  r: "The provided `code/main.py` exists, contains the required orchestration steps\
+    \ in the correct order, includes lazy imports, logging, argument parsing, and\
+    \ explicit handling of a `[DATA_UNAVAILABLE]` RuntimeError that logs the error\
+    \ and exits with status\u202F1. The execution log shows the script runs, logs\
+    \ warnings for missing modules, and completes without error, confirming the skeleton\
+    \ behaves as specified."
 T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `data/raw/`, `data/processed/`, or `results/` directories
-    (each containing a `.gitkeep` file) was provided; the artifact is missing.
+  c: true
+  h: 3c5cf2cb72a216c2cb24234bfa135e5cf1cc3de7226ff762458b4dd689dea377
+  r: The repository contains the three required directories (`data/raw/`, `data/processed/`,
+    `results/`) each holding a `.gitkeep` file, confirming the prescribed directory
+    structure was created.
 T009:
+  c: true
+  h: 39dad183cd9af678f60a5e620655134eec4029c40627a3d4e4faca73887dd897
+  r: "The repository contains non\u2011empty `tests/unit/` and `tests/integration/`\
+    \ directories, each populated with numerous test modules (e.g., `test_alloy_system_id.py`,\
+    \ `test_data_pipeline.py`), confirming the required scaffolding was created."
+T010:
+  c: true
+  h: 070b77666b7055eef69f542c2969fbb08a49906f8832f038b85fc7444ce2ae18
+  r: "The `tests/unit/test_download_retry.py` file is present, non\u2011empty, and\
+    \ contains concrete pytest functions that mock failures, verify retry attempts,\
+    \ check logging, and ensure proper handling of success and exhaustion cases, directly\
+    \ testing the retry logic of `download_bulk_configs`."
+T011:
+  c: true
+  h: ebbfa34e9648451b8d593ce13a965a464b6aae5f58c8e70de3b9bbd4ae09accd
+  r: "The `tests/unit/test_descriptor_interface.py` file exists (\u22483\u202FKB)\
+    \ and contains three concrete pytest functions that verify `get_interface_atoms`\
+    \ correctly filters atoms by distance to a plane, handles the no\u2011atom case,\
+    \ and works with multiple species\u2014fulfilling the required unit test for interface\u2011\
+    region descriptor filtering."
+T012a:
+  c: true
+  h: 87c025d1b9c3bb149978d2228926887fd8e9ce8247cdb108d16c3e955b720c07
+  r: "The repository contains a non\u2011empty `tests/integration/test_data_pipeline.py`\
+    \ that loads ten bulk configurations, runs preprocessing, GB supercell construction,\
+    \ descriptor computation, and energy simulation, and asserts that the resulting\
+    \ files and directories exist, contain rows, have the required columns, and include\
+    \ non\u2011NaN energy values. This matches the task\u2019s requirement for an\
+    \ integration test verifying the full pipeline."
+T012b:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `tests/unit/` or `tests/integration/` directories or any scaffold files (e.g.,
-    `__init__.py`, sample test modules) are present in the provided evidence, so the
-    required scaffolding has not been delivered.
+  h: 7951cfb81cbf5efb91355f5ebf8b5525502751b235eef93c05731f5e8fec41f0
+  r: "The required artifacts `data/processed/gb_supercells/`, `data/processed/descriptors.csv`,\
+    \ and `data/processed/segregation_energies.csv` are all missing, so the verification\
+    \ test cannot be satisfied. The implementer must generate and store these non\u2011\
+    empty files in the specified locations."
+T012c:
+  c: true
+  h: e38751a716b19154ee1e191499400b306e74c68b74d23230cd7f2e1cd5cf3cb3
+  r: "The repository contains a non\u2011empty `tests/unit/test_energy_generation.py`\
+    \ file with a unit test (`test_run_simulation_produces_non_empty_results`) that\
+    \ mocks `run_simulation`, asserts the returned results list is non\u2011empty,\
+    \ checks each entry has a numeric `energy`, and captures the logger to verify\
+    \ that a count of generated energies is logged. This directly fulfills the FR\u2011\
+    003 requirement."
 T013b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -16,12 +126,13 @@ T013b:
     \ the claim lacks any concrete artifact demonstrating the `[DATA_UNAVAILABLE]`\
     \ log format, the 3\u2011attempt retry behavior, or the manifest modification.\
     \ The required evidence is missing."
-T017a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No NIST EAM potential file for Fe\u2011Cr was provided, nor any script or log\
-    \ showing it was downloaded and its integrity verified. The required artifact\
-    \ is missing, so the task is not satisfied."
+T017a-0:
+  c: true
+  h: 48decd6972a50269e996a834dd7aa721ec3e4077e18ae32f4191d9c1bb54b705
+  r: "The `data/scope_config.yaml` file exists, is non\u2011empty (197\u202Fbytes),\
+    \ and contains all required keys (`min_alloy_systems`, `alloy_systems`, `power_analysis_params`\
+    \ with `alpha`, `power`, `effect_size`, `initial_seed_size`, `max_samples`, `deferred_min_count`)\
+    \ with concrete values matching the task specification."
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

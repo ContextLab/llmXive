@@ -26,7 +26,15 @@
 
 The pipeline automatically downloads and processes data.
 
-1. **Run the main pipeline**:
+1. **Validate the empirical potential against DFT reference data**:
+   ```bash
+   python code/data/validate_potential.py
+   ```
+   This will create `data/processed/potential_validation.json`.  If the
+   mean absolute error exceeds 0.1 eV the script aborts with a clear
+   error message.
+
+2. **Run the main pipeline**:
    ```bash
    python code/main.py --mode full
    ```
@@ -37,9 +45,9 @@ The pipeline automatically downloads and processes data.
    - `simulate_energy.py`: Computes segregation energies (NIST EAM potential, Leave-One-Out method).
    - `train_model.py`: Trains the model, runs power analysis, and performs sensitivity analysis.
 
-2. **Verify data**:
-   Check `data/processed/training_set.csv` for non-empty rows.
-   Check `data/metadata.yaml` for checksums and validation results.
+3. **Verify data**:
+   Check `data/processed/training_set.csv` for non‑empty rows.
+   Check `data/processed/potential_validation.json` for the validation status.
 
 ## Running the Analysis
 
@@ -54,6 +62,7 @@ python code/train_model.py --input data/processed/training_set.csv --output resu
 - `results/metrics.json`: Contains R², RMSE, p-values (raw and adjusted), VIF scores, and descriptive framing.
 - `results/sensitivity.json`: RMSE variance across 3 threshold values (25th, 50th, 75th percentiles).
 - `data/processed/training_set.csv`: The final dataset used for modeling.
+- `data/processed/potential_validation.json`: Result of the ground‑truth potential validation.
 
 ## Troubleshooting
 

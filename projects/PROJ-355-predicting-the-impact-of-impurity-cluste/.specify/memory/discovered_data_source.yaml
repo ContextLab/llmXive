@@ -1,0 +1,17 @@
+status: none
+intent: OQMD bulk configurations Materials Project reference python package dataset
+required_fields:
+- material_id
+- formula
+- composition
+- spacegroup
+- lattice_parameters
+- lattice_vectors
+- atomic_species
+- atomic_positions
+- total_energy
+- formation_energy_per_atom
+- structure_file_path
+cache_key: 62f422bbed7a6fee90315acd599337680e7fc4493a01fe5256d2083be7eee7a0
+searched_at: '2026-10-09T14:01:40.251957+00:00'
+retry_count: 1

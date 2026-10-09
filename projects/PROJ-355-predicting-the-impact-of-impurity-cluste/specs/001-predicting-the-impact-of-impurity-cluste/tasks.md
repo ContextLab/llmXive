@@ -26,12 +26,12 @@
 **Purpose**: Project initialization, basic structure, and core validation utilities required by downstream tasks.
 **Note**: Tasks marked [B] in this phase MUST execute sequentially. Tasks marked [P] can run in parallel.
 
-- [ ] T000 [B] **REVISED**: Create project metadata file: Create `data/metadata.yaml` in `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/` with initial empty structure for URL tracking. This is a blocking prerequisite for T004c.
-- [ ] T001a [P] **REVISED**: Initialize project directory structure: Create root directory `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/` and subdirectories `code/`, `data/raw/`, `data/processed/`, `results/`, `tests/unit/`, `tests/integration/` idempotently.
+- [X] T000 [B] **REVISED**: Create project metadata file: Create `data/metadata.yaml` in `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/` with initial empty structure for URL tracking. This is a blocking prerequisite for T004c.
+- [X] T001a [P] **REVISED**: Initialize project directory structure: Create root directory `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/` and subdirectories `code/`, `data/raw/`, `data/processed/`, `results/`, `tests/unit/`, `tests/integration/` idempotently.
 - [ ] T001b [P] **REVISED**: Initialize project metadata: Create `.gitignore` (excluding `data/`, `results/`, `*.pyc`, `__pycache__`) in `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/`.
 - [ ] T001c [P] **REVISED**: Create `README.md` content with project title, execution instructions, and data provenance details in `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/`.
-- [ ] T003 [P] **REVISED**: Configure linting (ruff) and formatting (black) tools in `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/`.
-- [ ] T004a [P] **REVISED**: Implement `contracts/dataset.schema.yaml` defining required fields and types. **Action**: Create the file with the following content:
+- [X] T003 [P] **REVISED**: Configure linting (ruff) and formatting (black) tools in `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/`.
+- [X] T004a [P] **REVISED**: Implement `contracts/dataset.schema.yaml` defining required fields and types. **Action**: Create the file with the following content:
  ```yaml
  $schema: http://json-schema.org/draft-07/schema#
  type: object
@@ -65,7 +65,7 @@
  nullable: true
  ```
  Save to `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/contracts/dataset.schema.yaml`.
-- [ ] T004b [P] **REVISED**: Implement `contracts/output.schema.yaml` defining required fields and types. **Action**: Create the file with the following content:
+- [X] T004b [P] **REVISED**: Implement `contracts/output.schema.yaml` defining required fields and types. **Action**: Create the file with the following content:
  ```yaml
  $schema: http://json-schema.org/draft-07/schema#
  type: object
@@ -108,7 +108,7 @@
  type: number
  ```
  Save to `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/contracts/output.schema.yaml`.
-- [ ] T004c [B] **REVISED**: Implement `code/validators.py` with function `def validate_citations(url: str, metadata_path: str) -> dict`.
+- [X] T004c [B] **REVISED**: Implement `code/validators.py` with function `def validate_citations(url: str, metadata_path: str) -> dict`.
  1. Parse `metadata_path` (specifically `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/data/metadata.yaml`) to extract URLs.
  2. Check extracted URLs against a hardcoded whitelist: `['https://materialsproject.org', '']`. **CRITICAL: Do NOT include an empty string.**
  3. Verify the URL exists via HTTP GET (status 200). **Do NOT check specific API endpoints or require API keys in this validator.**
@@ -116,12 +116,12 @@
  5. Return `{"success": False, "error_code": "URL_INVALID", "message": "URL not in whitelist or unreachable"}` if invalid.
  6. **Note**: This task returns a status object instead of raising an exception to support graceful error handling in the pipeline.
  7. **Dependency**: Must be completed after T000. **Constraint**: Do NOT mark as [P] (parallel-safe) as it is a blocking prerequisite for Phase 3.
-- [ ] T005 [P] Create `code/config.py` for paths, random seeds, hyperparameters, and the `VALIDATED_SOURCE_WHITELIST` list (MP/OQMD URLs).
-- [ ] T005b [P] Generate the methodology sketch in `docs/methodology.md` defining the k-fold CV procedure, random seed (fixed), and LOOCV fallback logic. **Constraint**: Must explicitly reference the random seed key from `code/config.py` to satisfy Constitution Principle I.
-- [ ] T006 [P] Setup `code/data/__init__.py` and `code/modeling/__init__.py`.
-- [ ] T008 [P] Setup `data/raw/`, `data/processed/`, and `results/` directory structure with `.gitkeep`.
-- [ ] T009 [P] Create `tests/unit/` and `tests/integration/` scaffolding.
-- [ ] T017a-0 [B] **REVISED**: **Scope Definition**: Define the dynamic resolution logic for the 'deferred' sample size and alloy systems required by FR-003.
+- [X] T005 [P] Create `code/config.py` for paths, random seeds, hyperparameters, and the `VALIDATED_SOURCE_WHITELIST` list (MP/OQMD URLs).
+- [X] T005b [P] Generate the methodology sketch in `docs/methodology.md` defining the k-fold CV procedure, random seed (fixed), and LOOCV fallback logic. **Constraint**: Must explicitly reference the random seed key from `code/config.py` to satisfy Constitution Principle I.
+- [X] T006 [P] Setup `code/data/__init__.py` and `code/modeling/__init__.py`.
+- [X] T008 [P] Setup `data/raw/`, `data/processed/`, and `results/` directory structure with `.gitkeep`.
+- [X] T009 [P] Create `tests/unit/` and `tests/integration/` scaffolding.
+- [X] T017a-0 [B] **REVISED**: **Scope Definition**: Define the dynamic resolution logic for the 'deferred' sample size and alloy systems required by FR-003.
  1. **Logic**: Create a configuration file `data/scope_config.yaml` defining:
  - `min_alloy_systems`: 3 (target)
  - `alloy_systems`: ['Fe-Cr', 'Ni-Mo', 'Cu-Zn'] (candidate list)
@@ -143,18 +143,18 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T007 [US1] Implement `code/main.py` pipeline orchestration with error handling and logging. Logic:
+- [X] T007 [US1] Implement `code/main.py` pipeline orchestration with error handling and logging. Logic:
  1. Define the *logical* sequence: `download_bulk_configs` -> `build_gb_supercells` -> `compute_descriptors` -> `run_simulation`.
  2. **Note**: This task defines the orchestration flow. The actual implementation of `download.py` (T013), `gb_builder.py` (T014), etc., occurs in Phase 3. The code in T007 will call these modules once they are implemented.
  3. Ensure the script handles the `[DATA_UNAVAILABLE]` error from T013 gracefully by logging and exiting cleanly.
  4. This task is a skeleton and cannot be fully executed until Phase 3 modules exist.
  5. **Constraint**: Do NOT mark as [P] (parallel-safe) as it implies independent execution, which is not true for a skeleton calling unimplemented modules.
-- [ ] T010 [P] [US1] Unit test for retry logic in `tests/unit/test_download_retry.py`.
-- [ ] T011 [P] [US1] Unit test for interface-region descriptor filtering in `tests/unit/test_descriptor_interface.py`.
-- [ ] T012a [P] [US1] **REVISED**: Integration test for full data pipeline in `tests/integration/test_data_pipeline.py`. Logic: Execute the pipeline on a small sample of bulk configurations (N=10) and verify that GB supercells are constructed, descriptors are computed, and energies are generated with non-empty values saved to disk.
-- [ ] T012b [P] [US1] **REVISED**: Artifact verification test. Logic: Verify that `data/processed/gb_supercells/`, `data/processed/descriptors.csv`, and `data/processed/segregation_energies.csv` exist and contain non-empty data.
-- [ ] T012c [P] [US1] Unit test for segregation energy generation verification in `tests/unit/test_energy_generation.py`. Logic: Verify that `simulate_energy.py` produces non-empty results and logs the count of generated energies. Tag [FR-003].
-- [ ] T017f [B] **REVISED**: **Ground Truth Validation**: Implement a script `code/data/validate_potential.py` to download a small pre-computed DFT subset from NIST/MP and compare simulated energies against DFT energies.
+- [X] T010 [P] [US1] Unit test for retry logic in `tests/unit/test_download_retry.py`.
+- [X] T011 [P] [US1] Unit test for interface-region descriptor filtering in `tests/unit/test_descriptor_interface.py`.
+- [X] T012a [P] [US1] **REVISED**: Integration test for full data pipeline in `tests/integration/test_data_pipeline.py`. Logic: Execute the pipeline on a small sample of bulk configurations (N=10) and verify that GB supercells are constructed, descriptors are computed, and energies are generated with non-empty values saved to disk.
+- [ ] T012b [P] [US1] **REVISED**: Artifact verification test. Logic: Verify that `data/processed/gb_supercells/`, `data/processed/descriptors.csv`, and `data/processed/segregation_energies.csv` exist and contain non-empty data. <!-- FAILED-IN-EXECUTION: tests/integration/test_artifact_verification.py exit=1 -->
+- [X] T012c [P] [US1] Unit test for segregation energy generation verification in `tests/unit/test_energy_generation.py`. Logic: Verify that `simulate_energy.py` produces non-empty results and logs the count of generated energies. Tag [FR-003].
+- [ ] T017f [B] **REVISED**: **Ground Truth Validation**: Implement a script `code/data/validate_potential.py` to download a small pre-computed DFT subset from NIST/MP and compare simulated energies against DFT energies. <!-- FAILED-IN-EXECUTION: code/data/validate_potential.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/validate_potential.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/validate_potential.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/validate_potential.py exit=1 -->
  1. **Logic**: Download DFT energies from a verified source. Simulate the same structures using the NIST EAM potential. Calculate the mean absolute error (MAE).
  2. **Validation**: If MAE > 0.1 eV, raise a `RuntimeError` with message "Potential validation failed: MAE > 0.1 eV".
  3. **Output**: Log validation result to `data/processed/potential_validation.json`.

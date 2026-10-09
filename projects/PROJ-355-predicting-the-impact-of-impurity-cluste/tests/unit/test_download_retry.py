@@ -62,7 +62,6 @@ def test_download_retry_logic_success_after_retries(mock_config_paths, caplog):
             # Simulate network success for the HEAD request after validation passes
             mock_response = MagicMock()
             mock_response.status_code = 200
-            mock_response.headers = {'Content-Length': '1024'}
             mock_head.return_value = mock_response
 
             with patch('data.download.Path') as mock_path_class:

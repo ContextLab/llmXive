@@ -16,7 +16,7 @@ trained on 4 folds and validated on the remaining fold. This process is repeated
 
 **Algorithm:**
 1. Shuffle the dataset using the fixed random seed (see Section 2).
-2. Partition the data into $k=5$ disjoint sets $F_1, F_2,..., F_5$.
+2. Partition the data into $k=5$ disjoint sets $F_1, F_2,\dots,F_5$.
 3. For each fold $i$ from 1 to 5:
  - **Training Set**: $\bigcup_{j \neq i} F_j$
  - **Validation Set**: $F_i$
@@ -52,7 +52,7 @@ else:
 To ensure that results are exactly reproducible across different runs and environments,
 a single, fixed random seed is used for all stochastic operations.
 
-- **Seed Value**: Defined in `code/config.py` (e.g., `RANDOM_SEED = 42`).
+- **Seed Value**: Defined in `code/config.py` as `RANDOM_SEED` (e.g., `RANDOM_SEED = 42`).
 - **Scope of Application**:
  - Dataset shuffling prior to CV splitting.
  - Random perturbations in structural simulations (if applicable).
@@ -85,6 +85,7 @@ The following metrics are computed for each fold and aggregated:
 
 As per project requirements (FR-007), features are **not** removed even if
 collinearity is detected.
+
 - **Detection**: Variance Inflation Factor (VIF) is calculated prior to training.
 - **Reporting**: If VIF $\ge$ 10, a warning is logged, and the collinearity report
  is generated (`data/processed/collinearity_report.md`).
@@ -99,4 +100,5 @@ collinearity is detected.
 3. **Split Selection**: Determine if $N \ge 5$ to select CV strategy.
 4. **Model Training Loop**: Execute the chosen CV strategy.
 5. **Aggregation**: Compute mean and standard deviation of metrics.
-6. **Output**: Save results to `results/metrics.json` and `results/metrics_per_fold.json`.
+6. **Output**: Save results to `results/metrics.json` and
+ `results/metrics_per_fold.json`.

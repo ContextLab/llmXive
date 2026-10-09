@@ -1,42 +1,4 @@
-# Data and Results (never commit raw or processed data)
 data/
 results/
-
-# Python bytecode and cache
 *.pyc
 __pycache__/
-*.pyo
-*.pyd
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# IDE and OS files
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-
-# Environment variables
-.env
-.env.local
-.env.*.local
