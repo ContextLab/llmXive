@@ -122,7 +122,9 @@ def _ask(prompt: str, *, response_path: Path | None = None, format_retry: bool =
     return value
 
 
-def select_evidence(repo: Path, source: str) -> dict | None:
+def select_evidence(repo: Path, source: str, *, project_id: str | None = None) -> dict | None:
+    if project_id and source != "errors":
+        raise ValueError("project_id requires the recorded errors source")
     if source == "errors":
         records = []
         for path in (repo / "state/advance_errors").glob("*.json"):
@@ -132,6 +134,12 @@ def select_evidence(repo: Path, source: str) -> dict | None:
                     records.append(item)
             except (ValueError, OSError):
                 continue
+        if project_id:
+            records = [item for item in records if item.get("project_id") == project_id]
+            if len(records) != 1:
+                raise ValueError(
+                    f"project_id must match exactly one actionable error record; found {len(records)}"
+                )
         if not records:
             return None
         # Repeated failures first, recent evidence breaks ties.
@@ -347,17 +355,50 @@ def isolated_tests(source: Path, tests: list[str], log: Path, *, image: str = IM
         "/tmp:rw,exec,size=1g",
         "--mount",
         f"type=bind,src={source.resolve()},dst=/input,readonly",
+        "--mount",
+        f"type=bind,src={Path(__file__).with_name('pytest_evidence.py').resolve()},"
+        "dst=/trusted/pytest_evidence.py,readonly",
         image,
         "sh",
         "-c",
         "cp -R /input /tmp/work && cd /tmp/work && HOME=/tmp XDG_CONFIG_HOME=/tmp/empty "
-        'PYTHONPATH=/tmp/work/src python -m pytest -q -m "not slow" -p no:cacheprovider "$@"',
+        'PYTHONPATH=/trusted:/tmp/work/src python -m pytest -q -m "not slow" '
+        '-p no:cacheprovider -p pytest_evidence "$@"',
         "pytest",
         *tests,
     ]
     result = subprocess.run(command, capture_output=True, text=True, timeout=600)
     log.write_text(result.stdout + "\n" + result.stderr)
     return result.returncode
+
+
+def validate_baseline_failure(log: Path, baseline: Path) -> None:
+    """Reject test setup/new-helper imports; retain real production import bugs."""
+    reports = re.findall(r"^REPAIR_PYTEST_FAILURES=(.*)$", log.read_text(), re.MULTILINE)
+    if len(reports) != 1:
+        raise RuntimeError("baseline pytest failure evidence is missing or ambiguous")
+    try:
+        failures = json.loads(reports[0])
+        if not isinstance(failures, list) or not failures:
+            raise ValueError("expected failure records")
+        for failure in failures:
+            if (not isinstance(failure, dict) or type(failure["import_error"]) is not bool
+                    or not isinstance(failure["frames"], list)
+                    or not all(isinstance(path, str) for path in failure["frames"])):
+                raise ValueError("malformed failure record")
+            if failure["import_error"]:
+                production_frames = [
+                    path for path in failure["frames"] if path.startswith("src/llmxive/")
+                    and (baseline / path).is_file()
+                    and (baseline / path).resolve().is_relative_to((baseline / "src").resolve())
+                ]
+                if failure["phase"] != "call" or not production_frames:
+                    raise RuntimeError(
+                        "baseline import failure is test setup, not defect reproduction; "
+                        "exercise an existing production caller, not a candidate-only helper"
+                    )
+    except (ValueError, KeyError, TypeError, AttributeError) as exc:
+        raise RuntimeError("invalid baseline pytest failure evidence") from exc
 
 
 def _progress(output: Path, phase: str) -> None:
@@ -590,17 +631,7 @@ def run(repo: Path, evidence: dict, output: Path, *, image: str = IMAGE) -> dict
         # evidence of a reproduced defect and Docker failure is never acceptance.
         if before != 1:
             raise RuntimeError(f"regression did not reproduce a test failure (exit {before})")
-        # Imports inside test functions are pytest failures (exit 1), unlike
-        # collection imports (exit 2). Neither demonstrates the observed bug.
-        import_failure = re.search(
-            r"^E\s+(?:ImportError|ModuleNotFoundError):[^\n]*",
-            (output / "before.log").read_text(), re.MULTILINE,
-        )
-        if import_failure:
-            raise RuntimeError(
-                "baseline import failure is not defect reproduction; exercise an existing "
-                "production caller, not a candidate-only helper: " + import_failure.group(0)
-            )
+        validate_baseline_failure(output / "before.log", baseline)
         shutil.copytree(baseline, candidate)
         for name, content in files.items():
             path = candidate / name
@@ -730,16 +761,20 @@ def main() -> int:
     parser.add_argument("--repo", type=Path, default=Path.cwd())
     parser.add_argument("--source", choices=("errors", "issues"), default="errors")
     parser.add_argument("--evidence-file", type=Path)
+    parser.add_argument("--project-id", help="Select exactly one actionable recorded project error")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--image", default=IMAGE)
     args = parser.parse_args()
+    if args.project_id and args.evidence_file:
+        parser.error("--project-id cannot be combined with --evidence-file")
     os.environ["LLMXIVE_PAID_OPT_IN"] = "0"
     args.output.mkdir(parents=True, exist_ok=True)
     _progress(args.output, "selecting_evidence")
     evidence = (
         json.loads(args.evidence_file.read_text())
         if args.evidence_file
-        else select_evidence(args.repo, args.source)
+        else (select_evidence(args.repo, args.source, project_id=args.project_id)
+              if args.project_id else select_evidence(args.repo, args.source))
     )
     if evidence is None:
         (args.output / "result.json").write_text(json.dumps({

@@ -11,6 +11,11 @@ on:
         options: [errors, issues]
         default: errors
         description: Evidence source for one bounded platform repair
+      project_id:
+        type: string
+        required: false
+        default: ''
+        description: Optional exact project ID for a single recorded error (errors source only)
 
 concurrency:
   group: platform-repair
@@ -55,7 +60,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           LLMXIVE_PAID_OPT_IN: '0'
           SOURCE: ${{ inputs.source || (github.event.schedule == '0 19 * * *' && 'issues' || 'errors') }}
-        run: python -u -m llmxive.repair.runner --source "$SOURCE" --output .repair-output
+          PROJECT_ID: ${{ inputs.project_id || '' }}
+        run: python -u -m llmxive.repair.runner --source "$SOURCE" --project-id "$PROJECT_ID" --output .repair-output
       - name: Summarize repair evidence
         if: always() && steps.pending.outputs.count == '0'
         run: python -m llmxive.repair.report .repair-output >> "$GITHUB_STEP_SUMMARY"

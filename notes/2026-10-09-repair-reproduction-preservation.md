@@ -8,8 +8,11 @@ existing caller. Its third candidate genuinely reproduced the implementation
 writer's file/directory collision, but materialized invalid indentation and
 would delete an existing `.bak` before moving the current file.
 
-The runner now rejects baseline runtime ImportError/ModuleNotFoundError traces,
-in addition to the existing exit-code requirement. Regressions must exercise
+The runner now uses a trusted pytest plugin, mounted read-only separately from
+the candidate, to retain exception types and relative traceback frames in logs.
+Direct test/setup imports of candidate-only helpers are rejected, while genuine
+ImportErrors inside existing production callers remain valid reproductions.
+Missing or malformed structured evidence fails closed. Regressions must exercise
 existing production callers. Materialized Python is compiled without execution
 during proposal validation; syntax errors include exact file, line, column and
 source text in the existing three-round correction loop before any sandbox run.
@@ -23,6 +26,8 @@ in all three regular-file cases. It is a gate probe, not an adopted or manually
 repaired model candidate.
 
 The runtime-import regressions and syntax-correction regression fail on the
-previous runner. The focused repair/state-reader suite passes 75 tests. These
+previous runner. An optional exact project ID dispatch filter selects one real
+actionable error record; missing, cleared, zero-count or ambiguous matches fail
+closed. Scheduled/default selection remains unchanged. These
 framework checks are not live autonomous repair acceptance; the original failed
 trial and its proposals remain unchanged.
