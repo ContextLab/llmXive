@@ -36,6 +36,9 @@ from typing import Any
 
 from llmxive.backends.base import ChatMessage
 from llmxive.backends.router import REASONING_MAX_TOKENS, chat_with_fallback
+from llmxive.project_paths import _ROOTED_PATH_RE
+from llmxive.project_paths import declared_paths as _declared_paths
+from llmxive.project_paths import resolve_project_path as _evidence_path
 from llmxive.speckit.task_lines import TASK_ID_RE as _TASK_ID_RE
 from llmxive.speckit.task_lines import task_continuation
 
@@ -69,27 +72,7 @@ Then 1-3 sentences naming the evidence you checked. If INCOMPLETE, state CONCRET
 what is missing or wrong, so the next implementer can fix it.
 """
 
-# --- Artifact-path detection (the deterministic evidence a task line references) ---
-#
-# Broadened well beyond the original code/data/figures/results/outputs roots so
-# scaffolding / config / test tasks are judged from real files, not prose.
-#: Directory-rooted artifact paths with a real dotted extension.
-_ROOTED_PATH_RE = re.compile(
-    r"(?<![\w./-])((?:code|data|figures|results|outputs|src|tests?|scripts|config|configs|"
-    r"notebooks|docs|assets|models|reports|paper|contracts|state)/[\w./-]+\.\w+)"
-)
-#: Bare (optionally path-prefixed) build/config filenames a task may reference.
-_CONFIG_FILE_RE = re.compile(
-    r"\b((?:[\w./-]+/)?(?:pyproject\.toml|setup\.cfg|setup\.py|"
-    r"requirements(?:-[\w.]+)?\.txt|environment\.ya?ml|tox\.ini|noxfile\.py|"
-    r"conftest\.py|pytest\.ini|mkdocs\.ya?ml|Makefile|Dockerfile))\b"
-)
-#: Generic config-extension files (…toml/…cfg/…yaml/…ini) referenced under the project.
-_CONFIG_EXT_RE = re.compile(r"(?<![\w./-])((?:[\w./-]+/)?[\w.-]+\.(?:toml|cfg|ya?ml|ini))\b")
-_SPEC_DOC_RE = re.compile(r"\b((?:specs/[\w./-]+/)?(?:plan|spec|tasks|research|quickstart|data-model)\.md)\b")
-#: Back-compat alias — some callers/tests reference the historical single regex; it
-#: now points at the primary rooted-path pattern (the deterministic detector uses
-#: the full :func:`_declared_paths` union).
+# Compatibility aliases retained for existing verifier callers.
 _PATH_RE = _ROOTED_PATH_RE
 
 _MAX_EVIDENCE_FILES = 6
@@ -126,37 +109,15 @@ class TaskVerdict:
         return self.complete is None
 
 
-def _declared_paths(task_text: str) -> list[str]:
-    """Every artifact path a task line references (rooted paths + build/config
-    files), de-duplicated in first-seen order."""
-    out: list[str] = []
-    seen: set[str] = set()
-    for rx in (_ROOTED_PATH_RE, _CONFIG_FILE_RE, _CONFIG_EXT_RE, _SPEC_DOC_RE):
-        for m in rx.finditer(task_text):
-            rel = m.group(1)
-            if rel and rel not in seen:
-                seen.add(rel)
-                out.append(rel)
-    return out
-
-
-def _evidence_path(project_dir: Path, rel: str) -> Path:
-    path = project_dir / rel
-    if not path.is_file() and "/" not in rel and _SPEC_DOC_RE.fullmatch(rel):
-        from llmxive.state.project import feature_dir_for
-        feature = feature_dir_for(project_dir, track="research")
-        if feature is not None:
-            path = feature / rel
-    return path
-
-
 def _artifact_valid(project_dir: Path, rel: str) -> bool:
     """True iff ``rel`` exists, is non-empty, AND (for declared data outputs) parses
     with at least one data row. Pure filesystem + stdlib parse — never an LLM."""
     import json
 
     f = _evidence_path(project_dir, rel)
-    if not f.is_file():
+    if f is not None and rel.endswith("/") and f.is_dir():
+        return True  # Scaffolding can legitimately require an empty directory.
+    if f is None or not f.is_file():
         return False
     try:
         size = f.stat().st_size
@@ -214,12 +175,26 @@ def gather_evidence(project_dir: Path, task_text: str) -> str:
     Uses the broadened :func:`_declared_paths` detector, so a setup/config/test
     task (``pyproject.toml``, ``tests/…``, ``src/…``) yields REAL file evidence
     instead of the "no artifact path" prose fallback."""
-    paths = _declared_paths(task_text)[:_MAX_EVIDENCE_FILES]
+    paths = _declared_paths(task_text)
+    file_count = 0
     chunks: list[str] = []
     for rel in paths:
         f = _evidence_path(project_dir, rel)
-        if not f.is_file():
+        if f is not None and rel.endswith("/") and f.is_dir():
+            entries = sorted(p.name + ("/" if p.is_dir() else "") for p in f.iterdir())
+            digest = hashlib.sha256("\n".join(entries).encode()).hexdigest()
+            chunks.append(
+                f"- `{rel}`: directory exists ({len(entries)} entries, sha256={digest})\n"
+                + "\n".join(entries[:200])
+                + ("\n…(listing truncated)" if len(entries) > 200 else "")
+            )
+            continue
+        if f is None or not f.is_file():
             chunks.append(f"- `{rel}`: MISSING (file does not exist)")
+            continue
+        file_count += 1
+        if file_count > _MAX_EVIDENCE_FILES:
+            chunks.append(f"- `{rel}`: NOT INSPECTED (file evidence limit reached)")
             continue
         try:
             size = f.stat().st_size
@@ -231,7 +206,8 @@ def gather_evidence(project_dir: Path, task_text: str) -> str:
             chunks.append(f"- `{rel}`: unreadable ({exc})")
             continue
         chunks.append(
-            f"- `{rel}` ({size} bytes, sha256={digest}):\n```\n{head}\n```"
+            f"- `{rel}` (resolved: `{f.relative_to(project_dir.resolve())}`, "
+            f"{size} bytes, sha256={digest}):\n```\n{head}\n```"
             + ("" if size <= _MAX_BYTES_PER_FILE else "\n…(truncated)")
         )
     if not chunks:

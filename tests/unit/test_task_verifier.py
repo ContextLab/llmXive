@@ -36,6 +36,160 @@ def test_gather_evidence_flags_missing_artifact(tmp_path: Path) -> None:
     assert "data/missing.json" in ev and "MISSING" in ev
 
 
+def test_verification_reads_repo_rooted_and_code_relative_files(tmp_path, monkeypatch):
+    """Reproduce the live canary's false missing-file rejection through the pass."""
+    project = tmp_path / "projects" / "PROJ-9999-totient-canary"
+    code = project / "code"
+    (code / "src/utils").mkdir(parents=True)
+    (code / "src/utils/sieve.py").write_text("def phi(n):\n    return 0  # incorrect\n")
+    (code / "requirements.txt").write_text("pytest\n")
+    tasks = project / "tasks.md"
+    tasks.write_text(
+        "- [X] T001 Set up src/utils/sieve.py and requirements.txt\n"
+        "- [X] T002 Implement projects/PROJ-9999-totient-canary/code/src/utils/sieve.py\n"
+    )
+    judged = []
+
+    def judge(**kwargs):
+        judged.append(kwargs)
+        assert "def phi(n):" in kwargs["evidence"]
+        assert "MISSING" not in kwargs["evidence"]
+        # Finding the artifact must not bypass semantic review of bad science.
+        return tv.TaskVerdict(False, "phi returns zero instead of the totient")
+
+    monkeypatch.setattr(tv, "verify_task", judge)
+    result = tv.run_verification_pass(
+        project, tasks, already_verified=set(), notes_path=project / "notes.md",
+        state_path=project / "verify.yaml",
+    )
+    assert len(judged) == 2
+    assert "pytest" in judged[0]["evidence"]
+    assert len(result["rejected"]) == 2
+    assert "[X]" not in tasks.read_text()
+
+
+def test_repo_rooted_spec_not_duplicated_or_replaced_by_bare_name(tmp_path):
+    project = tmp_path / "PROJ-1"
+    spec = project / "specs/001-study/spec.md"
+    spec.parent.mkdir(parents=True)
+    spec.write_text("The actual study contract")
+    task = "Read projects/PROJ-1/specs/001-study/spec.md and code/main.py"
+    assert tv._declared_paths(task) == [
+        "projects/PROJ-1/specs/001-study/spec.md", "code/main.py",
+    ]
+    assert "The actual study contract" in tv.gather_evidence(project, task)
+
+
+def test_evidence_respects_explicit_paths_and_project_boundary(tmp_path):
+    project = tmp_path / "PROJ-1"
+    (project / "code/src").mkdir(parents=True)
+    (project / "src").mkdir()
+    (project / "code/src/main.py").write_text("nested source")
+    (project / "src/main.py").write_text("root source")
+    (tmp_path / "secret.py").write_text("outside secret")
+    (project / "code/leak.py").symlink_to(tmp_path / "secret.py")
+    assert "root source" in tv.gather_evidence(project, "Implement src/main.py")
+    assert "nested source" not in tv.gather_evidence(project, "Implement src/main.py")
+    for rel in (
+        "projects/PROJ-2/code/src/main.py", "../secret.py", str(tmp_path / "secret.py"),
+        "code/leak.py",
+    ):
+        assert tv._evidence_path(project, rel) is None
+        assert not tv._artifact_valid(project, rel)
+    (project / "src/main.py").unlink()
+    assert "nested source" in tv.gather_evidence(project, "Implement src/main.py")
+    assert "MISSING" in tv.gather_evidence(project, "Implement projects/PROJ-1/src/main.py")
+
+
+def test_nested_evidence_changes_invalidate_verdict_hash(tmp_path):
+    path = tmp_path / "code/src/main.py"
+    path.parent.mkdir(parents=True)
+    path.write_text("wrong implementation")
+    task = "Implement src/main.py"
+    before = tv.gather_evidence(tmp_path, task)
+    path.write_text("corrected implementation")
+    after = tv.gather_evidence(tmp_path, task)
+    assert before != after and "sha256=" in after
+
+
+def test_setup_directory_evidence_includes_actual_layout(tmp_path):
+    project = tmp_path / "PROJ-1"
+    (project / "code/src/utils").mkdir(parents=True)
+    task = "Create projects/PROJ-1/, src/, src/utils/, and tests/unit/."
+    evidence = tv.gather_evidence(project, task)
+    assert tv._declared_paths(task) == [
+        "projects/PROJ-1/", "src/", "src/utils/", "tests/unit/",
+    ]
+    assert "`projects/PROJ-1/`: directory exists" in evidence
+    assert "`src/`: directory exists" in evidence
+    assert "`src/utils/`: directory exists" in evidence
+    assert "`tests/unit/`: MISSING" in evidence
+    assert "utils/" in evidence
+    before = evidence
+    (project / "code/src/new.py").write_text("new code")
+    assert tv.gather_evidence(project, task) != before
+    # Directory scaffolding must not crowd the dependency file out of review.
+    for directory in ("data", "results", "contracts", "tests"):
+        (project / directory).mkdir()
+    (project / "requirements.txt").write_text("pytest>=8.0\n")
+    setup = (
+        "Create src/, src/utils/, data/, results/, contracts/, tests/, code/, "
+        "and requirements.txt"
+    )
+    assert "pytest>=8.0" in tv.gather_evidence(project, setup)
+
+
+def test_evidence_follows_implementer_feature_slug_canonicalization(tmp_path, monkeypatch):
+    from llmxive.state import project as store
+
+    feature = tmp_path / "specs/001-canonical"
+    (feature / "contracts").mkdir(parents=True)
+    (feature / "contracts/summary.schema.yaml").write_text("type: object\n")
+    monkeypatch.setattr(store, "feature_dir_for", lambda *a, **kw: feature)
+    task = "Write specs/001-invented/contracts/summary.schema.yaml"
+    evidence = tv.gather_evidence(tmp_path, task)
+    assert "type: object" in evidence
+    assert "resolved: `specs/001-canonical/contracts/summary.schema.yaml`" in evidence
+    # Live setup tasks can leave an empty contracts/ directory under the
+    # invented slug; that scaffold must not hide the canonical artifact.
+    (tmp_path / "specs/001-invented/contracts").mkdir(parents=True)
+    assert "type: object" in tv.gather_evidence(tmp_path, task)
+    # Never borrow evidence from another feature that actually exists.
+    (tmp_path / "specs/001-invented/spec.md").write_text("A distinct real feature")
+    assert "MISSING" in tv.gather_evidence(tmp_path, task)
+
+
+def test_implementer_gets_same_existing_source_as_verifier(tmp_path):
+    from llmxive.speckit.implement_cmd import _inline_referenced_files
+
+    source = tmp_path / "code/src/sieve.py"
+    source.parent.mkdir(parents=True)
+    source.write_text("def phi(n):\n    return n  # must be repaired\n")
+    task = "Fix src/sieve.py"
+    assert source.read_text() in _inline_referenced_files(tmp_path, task)
+    assert source.read_text() in tv.gather_evidence(tmp_path, task)
+    outside = tmp_path.parent / "outside.py"
+    outside.write_text("private contents")
+    (tmp_path / "code/leak.py").symlink_to(outside)
+    assert _inline_referenced_files(tmp_path, "Fix code/leak.py") == ""
+
+
+def test_implementer_preserves_full_context_for_typical_analysis_module(tmp_path):
+    from llmxive.speckit.implement_cmd import _inline_referenced_files
+
+    source = tmp_path / "code/analysis.py"
+    source.parent.mkdir()
+    # The live canary's incrementally implemented driver exceeded the old 6k
+    # ceiling, hiding all its prior behavior from later implementation tasks.
+    contents = "# analysis context\n" * 700 + "def final_step():\n    return 1\n"
+    source.write_text(contents)
+    context = _inline_referenced_files(tmp_path, "Extend code/analysis.py")
+    assert contents in context
+    constrained = _inline_referenced_files(tmp_path, "Extend code/analysis.py", max_chars=100)
+    assert "Do not replace this file blindly" in constrained
+    assert "extend it on disk" not in constrained
+
+
 def test_verify_task_defers_on_backend_failure(monkeypatch) -> None:
     """A transient backend outage DEFERS (complete=None) — an unverifiable task is
     never accepted as done (fail-closed, unlike the relevance judge's fail-open)."""

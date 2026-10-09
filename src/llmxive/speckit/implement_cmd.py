@@ -754,13 +754,8 @@ def _summarize_existing_code(project_dir: Path, *, max_chars: int = 16000) -> st
     return body
 
 
-_PATH_RE = re.compile(
-    r"\b(?:code|src|scripts|specs|paper|data|tests|contracts)/[A-Za-z0-9_./\-]+\.(?:py|md|yaml|yml|json|toml|txt)\b"
-)
-
-
 def _inline_referenced_files(
-    project_dir: Path, task_line: str, *, max_files: int = 5, max_chars: int = 6000
+    project_dir: Path, task_line: str, *, max_files: int = 5, max_chars: int = 48000
 ) -> str:
     """Inline the full contents of any file path mentioned in the task line.
 
@@ -769,7 +764,9 @@ def _inline_referenced_files(
     code/models/dpgmm.py"). If that file already exists, the LLM
     should EXTEND it rather than re-author it from scratch.
     """
-    paths = _PATH_RE.findall(task_line)
+    from llmxive.project_paths import declared_paths, resolve_project_path
+
+    paths = declared_paths(task_line)
     seen: set[str] = set()
     chunks: list[str] = []
     used = 0
@@ -777,17 +774,20 @@ def _inline_referenced_files(
         if p in seen:
             continue
         seen.add(p)
-        target = project_dir / p
-        if not target.exists() or not target.is_file():
+        target = resolve_project_path(project_dir, p)
+        if target is None or not target.is_file():
             continue
         try:
             text = target.read_text(encoding="utf-8", errors="replace")
         except OSError:
             continue
-        chunk = f"### {p}\n\n```\n{text}\n```"
+        resolved = target.relative_to(project_dir.resolve())
+        chunk = f"### {p} (resolved: {resolved})\n\n```\n{text}\n```"
         if used + len(chunk) > max_chars:
             chunks.append(f"### {p}\n\n(file exists, {len(text)} chars; "
-                          "omitted for prompt budget — extend it on disk)")
+                          "omitted for prompt budget — its contents are unavailable. "
+                          "Do not replace this file blindly; return failed with the "
+                          "context-size limitation if this task requires editing it.)")
         else:
             chunks.append(chunk)
             used += len(chunk)
