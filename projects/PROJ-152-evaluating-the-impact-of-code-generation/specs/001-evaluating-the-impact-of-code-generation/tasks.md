@@ -15,7 +15,7 @@ description: "Task list for Evaluating the Impact of Code Generation Models on C
 `- [ ] T### [P?] [Story] Description (file path)`
 
 - **[P]** – can run in parallel (different files, no dependencies)  
-- **[Story]** – which user story this task belongs to (e.g., US1, US2, US3)  
+- **[Story]** – which user story this task belongs to (e.g., US1, US2, US3) – omitted for foundational tasks.
 
 ---
 
@@ -44,31 +44,28 @@ description: "Task list for Evaluating the Impact of Code Generation Models on C
 
 **Purpose**: Core infrastructure that must be in place before any user story can start.
 
-- [X] T003 [P] Create `projects/PROJ-152-evaluating-the-impact-of-code-generation/code/config.py` with:
-  - Global random seeds,
-  - Path constants (`DATA_ROOT`, `PROMPT_MANIFEST`, etc.),
-  - Model hyper‑parameters (`max_tokens=256`, `batch_size=1`).
-- [X] T004 [P] Implement `projects/PROJ-152-evaluating-the-impact-of-code-generation/code/update_state.py` to manage `state.yaml` and compute SHA‑256 hashes for all artefacts (Constitution Principle V).  
+- [X] T003 [P] Create `projects/PROJ-152-evaluating-the-impact-of-code-generation/code/config.py` with global seeds, path constants (`DATA_ROOT`, `PROMPT_MANIFEST`, …), and model hyper‑parameters (`max_tokens=256`, `batch_size=1`). *(projects/PROJ-152-evaluating-the-impact-of-code-generation/code/config.py)*
+- [X] T004 [P] Implement `projects/PROJ-152-evaluating-the-impact-of-code-generation/code/update_state.py` to manage `state.yaml` and compute SHA‑256 hashes for all artefacts (Constitution Principle V). *(projects/PROJ-152-evaluating-the-impact-of-code-generation/code/update_state.py)*
 - [X] T005 [P] Implement `projects/PROJ-152-evaluating-the-impact-of-code-generation/code/download.py` that:
   1. Downloads the CodeXGLUE *code‑to‑text* dataset via `datasets.load_dataset`,
   2. Filters prompts containing security keywords (`SQL`, `XSS`, `auth`, `injection`, `sanitize`, `password`, `token`),
-  3. Selects the **10 most relevant** prompts (manual review step documented),
-  4. Writes `data/prompts/filtered_codexglue.json` and records its SHA‑256 checksum.  
-- [X] T006 [P] Create `projects/PROJ-152-evaluating-the-impact-of-code-generation/data/prompts/handcrafted.json` containing **20 handcrafted web‑security prompts** (5 each for Database Access, HTML Rendering, Authentication, Injection) and generate its checksum.  
-- [X] T007 [P] Add `projects/PROJ-152-evaluating-the-impact-of-code-generation/data/mappings/nist_severity_map.yaml` mapping textual severity levels to an ordinal scale (e.g., `HIGH: 4`, `MEDIUM: 3`, `LOW: 2`, `INFO: 1`).  
-- [X] T008a [P] Implement `projects/PROJ-152-evaluating-the-impact-of-code-generation/code/generate.py`:
-  - Loads the three models (StarCoder‑Base, CodeGen‑2B, GPT‑NeoX‑1.3B) with **4‑bit CPU quantization** via `bitsandbytes`,
-  - Provides a **per‑snippet timeout** (default 120 s) using `signal.alarm`,
-  - Logs any timeouts or generation failures to `data/failures.log`.  
+  3. Selects the **10 most relevant** prompts (manual review documented),
+  4. Writes `data/prompts/filtered_codexglue.json` and records its checksum. *(projects/PROJ-152-evaluating-the-impact-of-code-generation/code/download.py)*
+- [X] T006 [P] Create `projects/PROJ-152-evaluating-the-impact-of-code-generation/data/prompts/handcrafted.json` containing **20 handcrafted web‑security prompts** (5 each for Database Access, HTML Rendering, Authentication, Injection) and generate its checksum. *(projects/PROJ-152-evaluating-the-impact-of-code-generation/data/prompts/handcrafted.json)*
+- [X] T007 [P] Add `projects/PROJ-152-evaluating-the-impact-of-code-generation/data/mappings/nist_severity_map.yaml` mapping textual severity levels to an ordinal scale (e.g., `HIGH: 4`, `MEDIUM: 3`, `LOW: 2`, `INFO: 1`). *(projects/PROJ-152-evaluating-the-impact-of-code-generation/data/mappings/nist_severity_map.yaml)*
+- [X] T008a [P] Implement `projects/PROJ-152-evaluating-the-impact-of-code-generation/code/generate.py` that:
+  - Loads StarCoder‑Base, CodeGen‑2B, and GPT‑NeoX‑1.3B with **4‑bit CPU quantization** via `bitsandbytes`,
+  - Enforces a per‑snippet generation timeout of 120 s using `signal.alarm`,
+  - Logs timeouts or generation failures to `data/failures.log`. *(projects/PROJ-152-evaluating-the-impact-of-code-generation/code/generate.py)*
 - [X] T008b [P] Implement `projects/PROJ-152-evaluating-the-impact-of-code-generation/code/orchestrator.py` that:
   - Tracks cumulative wall‑clock time,
   - Stops the pipeline early if `elapsed + estimated_remaining > 6 h` and writes a “Time Budget Exceeded” warning to `data/failures.log`,
-  - Emits `data/runtime_log.json` with start/end timestamps and status flags.  
+  - Emits `data/runtime_log.json` with start/end timestamps and status flags. *(projects/PROJ-152-evaluating-the-impact-of-code-generation/code/orchestrator.py)*
 - [X] T009 [P] Implement `projects/PROJ-152-evaluating-the-impact-of-code-generation/code/analyze.py` that:
   - Invokes Bandit (Python), Semgrep (security‑best‑practices ruleset), and CodeQL (Java/JS) on each generated snippet,
-  - Enforces a **configurable per‑scanner timeout** (e.g., 60 s) via `subprocess.run(..., timeout=…)`,
-  - Writes raw scanner outputs to `data/findings/raw/<model>_<scanner>.jsonl`.  
-- [X] T010 [P] Implement `projects/PROJ-152-evaluating-the-impact-of-code-generation/code/prompts.py` that merges `filtered_codexglue.json` (T005) and `handcrafted.json` (T006) into a single `data/prompts/manifest.json`, adds source attribution, and records a checksum.  
+  - Enforces a configurable per‑scanner timeout (e.g., 60 s) via `subprocess.run(..., timeout=…)`,
+  - Writes raw scanner outputs to `data/findings/raw/<model>_<scanner>.jsonl`. *(projects/PROJ-152-evaluating-the-impact-of-code-generation/code/analyze.py)*
+- [X] T010 [P] Implement `projects/PROJ-152-evaluating-the-impact-of-code-generation/code/prompts.py` that merges `filtered_codexglue.json` (T005) and `handcrafted.json` (T006) into a single `data/prompts/manifest.json`, adds source attribution, and records a checksum. *(projects/PROJ-152-evaluating-the-impact-of-code-generation/code/prompts.py)*
 
 **Checkpoint** – All foundational artefacts are in place; user‑story work may now proceed.
 
@@ -80,23 +77,23 @@ description: "Task list for Evaluating the Impact of Code Generation Models on C
 
 ### Tests (optional)
 
-- [X] T011 [P] [US1] Integration test for the generation pipeline with timeout handling (`tests/integration/test_generate.py`).  
-- [X] T012 [P] [US1] Contract test asserting the CSV schema of scanner outputs (`tests/contract/test_scanner_output.py`).  
+- [X] T011 [P] [US1] Integration test for the generation pipeline with timeout handling (`tests/integration/test_generate.py`). *(tests/integration/test_generate.py)*
+- [X] T012 [P] [US1] Contract test asserting the CSV schema of scanner outputs (`tests/contract/test_scanner_output.py`). *(tests/contract/test_scanner_output.py)*
 
 ### Implementation
 
 - [X] T013 [P] [US1] Extend `code/generate.py` with a **model‑loader** that:
   - Instantiates each model once,
   - Keeps them in memory (≈ 4 GB total) using 4‑bit quantization,
-  - Releases a model before loading the next if memory pressure is detected.  
-- [ ] T014 [US1] **Generation Loop** – In `code/generate.py`, iterate over `data/prompts/manifest.json` (30 prompts) and generate code for each model (total 90 snippets). Write a CSV `data/generated/snippets.csv` with columns:
+  - Releases a model before loading the next if memory pressure is detected. *(projects/PROJ-152-evaluating-the-impact-of-code-generation/code/generate.py)*
+- [ ] T014 [US1] **Generation Loop** – In `code/generate.py`, iterate over `data/prompts/manifest.json` (30 prompts) and generate code for each model (total 90 snippets). Write a CSV `data/generated/snippets.csv` with columns  
   `snippet_id, model, prompt_id, code, line_count, generation_timestamp`.  
-  Produce a SHA‑256 checksum file `snippets.csv.sha256` and log any generation failures to `data/failures.log`.  
-- [X] T015 [US1] **Scanner Runner** – In `code/analyze.py`, read `snippets.csv` and pipe each snippet through Bandit, Semgrep, and CodeQL, respecting the per‑scanner timeout. Store unified CSV `data/findings/raw_findings.csv` with columns:
-  `snippet_id, model, scanner, finding_id, cwe_id, severity_label, severity_score, file_path, line`.  
-- [X] T016a [US1] **Severity Mapping** – Implement `code/metrics.py` to translate scanner‑specific severity labels to the NIST ordinal scale defined in `nist_severity_map.yaml`.  
-- [ ] T016b [US1] **CWE Extraction** – Extend `code/metrics.py` to reliably parse CWE identifiers from each scanner’s output (Bandit, Semgrep, CodeQL) and add a `cwe_id` column to `raw_findings.csv`.  
-- [X] T017 [US1] **Failure Logging** – Ensure `code/analyze.py` logs empty snippets, unsupported languages, and scanner crashes to `data/failures.log` with clear error codes.  
+  Produce a SHA‑256 checksum file `snippets.csv.sha256` and log any generation failures to `data/failures.log`. *(projects/PROJ-152-evaluating-the-impact-of-code-generation/data/generated/snippets.csv)*
+- [X] T015 [US1] **Scanner Runner** – In `code/analyze.py`, read `snippets.csv` and pipe each snippet through Bandit, Semgrep, and CodeQL, respecting the per‑scanner timeout. Store a unified CSV `data/findings/raw_findings.csv` with columns  
+  `snippet_id, model, scanner, finding_id, cwe_id, severity_label, severity_score, file_path, line`. *(projects/PROJ-152-evaluating-the-impact-of-code-generation/data/findings/raw_findings.csv)*
+- [X] T016a [US1] **Severity Mapping** – Implement `code/metrics.py` to translate scanner‑specific severity labels to the NIST ordinal scale defined in `nist_severity_map.yaml`. *(projects/PROJ-152-evaluating-the-impact-of-code-generation/code/metrics.py)*
+- [ ] T016b [US1] **CWE Extraction** – Extend `code/metrics.py` to reliably parse CWE identifiers from each scanner’s output (Bandit, Semgrep, CodeQL) and add a `cwe_id` column to `raw_findings.csv`. *(projects/PROJ-152-evaluating-the-impact-of-code-generation/code/metrics.py)*
+- [X] T017 [US1] **Failure Logging** – Ensure `code/analyze.py` logs empty snippets, unsupported languages, and scanner crashes to `data/failures.log` with clear error codes. *(projects/PROJ-152-evaluating-the-impact-of-code-generation/code/analyze.py)*
 
 **Checkpoint** – Generation and raw analysis artefacts (`snippets.csv`, `raw_findings.csv`) are ready for downstream metrics.
 
@@ -108,28 +105,27 @@ description: "Task list for Evaluating the Impact of Code Generation Models on C
 
 ### Tests (optional)
 
-- [X] T020 [P] [US2] Unit test for V/100LOC calculation (`tests/unit/test_metrics.py`).  
-- [X] T021 [P] [US2] Unit test for Bonferroni‑adjusted p‑values (`tests/unit/test_stats.py`).  
+- [X] T020 [P] [US2] Unit test for V/100 LOC calculation (`tests/unit/test_metrics.py`). *(tests/unit/test_metrics.py)*
+- [X] T021 [P] [US2] Unit test for Bonferroni‑adjusted p‑values (`tests/unit/test_stats.py`). *(tests/unit/test_stats.py)*
 
 ### Implementation
 
-- [ ] T022a [US2] **Calibration Template** – In `code/calibration.py`, generate `data/calibration/calibration_template.csv` containing `snippet_id, model, prompt_id, human_label (empty)`. Also produce `data/calibration/instructions.md` that guides human experts on labeling true vulnerabilities.  
-- [ ] T022b **MANUAL** – Human experts label the **30 calibration snippets** (10 per model) using the template from T022a. Output stored as `data/calibration/human_labels.csv`. *(placeholder for manual work)*  
-- [ ] T022c [US2] **FPR Computation** – Extend `code/calibration.py` to read `raw_findings.csv` and `human_labels.csv`, compute per‑scanner & per‑model Inter‑Rater Reliability (Cohen’s κ) and **False Positive Rate (FPR)**. Write `data/calibration/fpr_stats.csv`.  
-- [ ] T022d [US2] **Label Validation** – Add a validation step in `code/calibration.py` that checks `human_labels.csv` for required columns, non‑empty rows, and consistent `snippet_id`s. Emit `data/calibration/validation_report.json`; abort the pipeline if validation fails.  
+- [ ] T022a [US2] **Calibration Template** – In `code/calibration.py`, generate `data/calibration/calibration_template.csv` containing `snippet_id, model, prompt_id, human_label (empty)`. Also produce `data/calibration/instructions.md` that guides human experts on labeling true vulnerabilities. *(projects/PROJ-152-evaluating-the-impact-of-code-generation/code/calibration.py)*
+- [ ] T022b **MANUAL** – Human experts label the **30 calibration snippets** (10 per model) using the template from T022a. Output stored as `data/calibration/human_labels.csv`. *(data/calibration/human_labels.csv)*
+- [ ] T022c [US2] **FPR Computation** – Extend `code/calibration.py` to read `raw_findings.csv` and `human_labels.csv`, compute per‑scanner & per‑model Inter‑Rater Reliability (Cohen’s κ) and **False Positive Rate (FPR)**. Write `data/calibration/fpr_stats.csv`. *(projects/PROJ-152-evaluating-the-impact-of-code-generation/data/calibration/fpr_stats.csv)*
+- [ ] T022d [US2] **Label Validation** – Add a validation step in `code/calibration.py` that checks `human_labels.csv` for required columns, non‑empty rows, and consistent `snippet_id`s. Emit `data/calibration/validation_report.json`; abort the pipeline if validation fails. *(projects/PROJ-152-evaluating-the-impact-of-code-generation/data/calibration/validation_report.json)*
 - [ ] T023 [US2] **Raw Metrics** – In `code/metrics.py`, join `raw_findings.csv` with `snippets.csv` to compute:
-  - Vulnerabilities per 100 LOC (V/100LOC),
-  - Mean severity (using the ordinal scale from T016a).
-  Output `data/results/raw_metrics.csv`.  
-- [ ] T023b [US2] **FPR‑Corrected Metrics** – Using `fpr_stats.csv` (T022c), adjust vulnerability counts to compensate for scanner false positives. Write `data/results/corrected_metrics.csv`. *Note: corrected metrics are used only for sensitivity analysis, not for primary hypothesis testing (per Spec limitation).*  
-- [X] T024 [US2] **Kruskal‑Wallis Test** – Implement `code/stats.py` to run a Kruskal‑Wallis test on **raw** V/100LOC across the three models (input `raw_metrics.csv`). Store results in `data/results/kw_results.csv`.  
-- [X] T025 [US2] **Dunn Post‑hoc** – If the KW p‑value < 0.05, run Dunn’s test with Bonferroni correction (α = 0.0167). Write `data/results/dunn_results.csv`.  
-- [ ] T026 [US2] **Zero‑Inflated Negative Binomial (ZINB)** – Conditional execution: if the proportion of zero V/100LOC observations > 50 % (computed from `raw_metrics.csv`), fit a ZINB model (`statsmodels.discrete.ZeroInflatedNegativeBinomialP`) with formula  
-  `vuln_count ~ C(model) + offset(log(loc))`.  
-  Output `data/results/zinb_results.csv`.  
-- [ ] T027 [US2] **Sensitivity Sweep** – In `code/sensitivity.py`, vary the high‑severity cutoff (e.g., severity ≥ 4, ≥ 5) and recompute the proportion of “high‑risk” snippets using `corrected_metrics.csv`. Store results in `data/results/sensitivity_analysis.csv`.  
-- [ ] T028 [US2] **Statistical Summary** – Consolidate all test outputs (`kw_results.csv`, `dunn_results.csv`, optional `zinb_results.csv`) into a single `data/results/statistical_summary.csv` containing: test name, statistic, raw p‑value, adjusted p‑value, and a pass/fail conclusion.  
-- [ ] T029 [US2] **Final Sensitivity Table** – Produce `data/results/sensitivity_table.csv` summarising each severity cutoff, the corresponding high‑risk proportion per model, and confidence intervals.  
+  - Vulnerabilities per 100 LOC (V/100 LOC),
+  - Mean severity (using the ordinal scale from T016a).  
+  Output `data/results/raw_metrics.csv`. *(projects/PROJ-152-evaluating-the-impact-of-code-generation/data/results/raw_metrics.csv)*
+- [ ] T023b [US2] **FPR‑Corrected Metrics** – Using `fpr_stats.csv` (T022c), adjust vulnerability counts to compensate for scanner false positives. Write `data/results/corrected_metrics.csv`. *(projects/PROJ-152-evaluating-the-impact-of-code-generation/data/results/corrected_metrics.csv)*
+- [X] T024 [US2] **Kruskal‑Wallis Test** – Implement `code/stats.py` to run a Kruskal‑Wallis test on **raw** V/100 LOC across the three models (input `raw_metrics.csv`). Store results in `data/results/kw_results.csv`. *(projects/PROJ-152-evaluating-the-impact-of-code-generation/data/results/kw_results.csv)*
+- [X] T025 [US2] **Dunn Post‑hoc** – If the KW p‑value < 0.05, run Dunn’s test with Bonferroni correction (α = 0.0167). Write `data/results/dunn_results.csv`. *(projects/PROJ-152-evaluating-the-impact-of-code-generation/data/results/dunn_results.csv)*
+- [ ] T026 [US2] **Zero‑Inflated Negative Binomial (ZINB)** – Conditional execution: if the proportion of zero V/100 LOC observations > 50 % (computed from `raw_metrics.csv`), fit a ZINB model (`statsmodels.discrete.ZeroInflatedNegativeBinomialP`) with formula  
+  `vuln_count ~ C(model) + offset(log(loc))`. Output `data/results/zinb_results.csv`. *(projects/PROJ-152-evaluating-the-impact-of-code-generation/data/results/zinb_results.csv)*
+- [ ] T027 [US2] **Sensitivity Sweep** – In `code/sensitivity.py`, vary the high‑severity cutoff (e.g., severity ≥ 4, ≥ 5) and recompute the proportion of “high‑risk” snippets using `corrected_metrics.csv`. Store results in `data/results/sensitivity_analysis.csv`. *(projects/PROJ-152-evaluating-the-impact-of-code-generation/data/results/sensitivity_analysis.csv)*
+- [ ] T028 [US2] **Statistical Summary** – Consolidate all test outputs (`kw_results.csv`, `dunn_results.csv`, optional `zinb_results.csv`) into a single `data/results/statistical_summary.csv` containing: test name, statistic, raw p‑value, adjusted p‑value, and a pass/fail conclusion. *(projects/PROJ-152-evaluating-the-impact-of-code-generation/data/results/statistical_summary.csv)*
+- [ ] T029 [US2] **Final Sensitivity Table** – Produce `data/results/sensitivity_table.csv` summarising each severity cutoff, the corresponding high‑risk proportion per model, and confidence intervals. *(projects/PROJ-152-evaluating-the-impact-of-code-generation/data/results/sensitivity_table.csv)*
 
 **Checkpoint** – All metric, calibration, and statistical artefacts are ready for reporting.
 
@@ -141,19 +137,19 @@ description: "Task list for Evaluating the Impact of Code Generation Models on C
 
 ### Tests (optional)
 
-- [ ] T030 [P] [US3] Integration test that runs the full visualization pipeline and checks that three output files are produced (`boxplot.png`, `cwe_heatmap.png`, `run_summary.csv`).  
+- [ ] T030 [P] [US3] Integration test that runs the full visualization pipeline and checks that three output files are produced (`figures/boxplot_vuln_density.png`, `figures/cwe_heatmap.png`, `data/results/run_summary.csv`). *(tests/integration/test_viz.py)*
 
 ### Implementation
 
-- [ ] T031 [US3] In `code/viz.py`, generate a **box‑plot** (`figures/boxplot_vuln_density.png`) of V/100LOC per model (median, quartiles, outliers).  
-- [ ] T032 [US3] In `code/viz.py`, generate a **CWE heat‑map** (`figures/cwe_heatmap.png`) showing frequency of each CWE across prompt categories and models.  
+- [ ] T031 [US3] In `code/viz.py`, generate a **box‑plot** (`figures/boxplot_vuln_density.png`) of V/100 LOC per model (median, quartiles, outliers). *(projects/PROJ-152-evaluating-the-impact-of-code-generation/code/viz.py)*
+- [ ] T032 [US3] In `code/viz.py`, generate a **CWE heat‑map** (`figures/cwe_heatmap.png`) showing frequency of each CWE across prompt categories and models. *(projects/PROJ-152-evaluating-the-impact-of-code-generation/code/viz.py)*
 - [ ] T034 [US3] Create `data/results/run_summary.csv` containing:
   - Total snippets (90),
   - Completion rate (≥ 90 % as required by SC‑005),
   - Number of generation failures,
   - Number of analysis failures,
-  - Wall‑clock time (from `runtime_log.json`).  
-- [ ] T035 [US3] Update `state.yaml` (via `code/update_state.py`) with SHA‑256 hashes for all new artefacts and a fresh `updated_at` timestamp.  
+  - Wall‑clock time (from `runtime_log.json`). *(projects/PROJ-152-evaluating-the-impact-of-code-generation/data/results/run_summary.csv)*
+- [ ] T035 [US3] Update `state.yaml` (via `code/update_state.py`) with SHA‑256 hashes for all new artefacts and a fresh `updated_at` timestamp. *(projects/PROJ-152-evaluating-the-impact-of-code-generation/state.yaml)*
 
 **Checkpoint** – Visual assets and the final run‑summary are ready for inclusion in the manuscript.
 
@@ -163,16 +159,16 @@ description: "Task list for Evaluating the Impact of Code Generation Models on C
 
 **Purpose**: Final cleanup, documentation, and quality‑of‑life improvements.
 
-- [ ] T036a [P] Refresh `README.md` with an overview, installation steps, and the **N = 30 prompt** scope.  
-- [ ] T036b [P] Populate `docs/quickstart.md` with a step‑by‑step guide to run the entire pipeline on the GitHub‑Actions runner.  
-- [ ] T036c [P] Update `docs/research.md` with the finalized methodology, limitations, and a justification of the FPR‑correction approach.  
-- [ ] T037a [P] Code cleanup – remove any unused imports across all modules in `code/`.  
-- [ ] T037b [P] Run `black` (and `ruff` lint) across the repository to enforce formatting standards.  
-- [ ] T037c [P] Add docstrings to every public function and class in `code/`.  
-- [ ] T038 [P] Optimise model loading/unloading order to minimise peak RAM usage (e.g., load StarCoder, generate, unload, then load next model).  
-- [ ] T039 [P] Add edge‑case unit tests in `tests/unit/` (e.g., empty prompt, unsupported language).  
-- [ ] T040 [P] Harden the handling of generated code: ensure snippets are never executed, only written to disk and analysed statically.  
-- [ ] T041 [P] Execute `quickstart.md` validation script to confirm the documentation matches the actual pipeline behaviour.  
+- [ ] T036a [P] Refresh `README.md` with an overview, installation steps, and a clear statement of the **N = 30 prompt** scope. *(README.md)*
+- [ ] T036b [P] Populate `docs/quickstart.md` with a step‑by‑step guide to run the entire pipeline on the GitHub‑Actions runner. *(docs/quickstart.md)*
+- [ ] T036c [P] Update `docs/research.md` with the finalized methodology, limitations, and justification of the FPR‑correction approach. *(docs/research.md)*
+- [ ] T037a [P] Code cleanup – remove any unused imports across all modules in `code/`. *(code/*)*
+- [ ] T037b [P] Run `black` (and `ruff` lint) across the repository to enforce formatting standards. *(.)*
+- [ ] T037c [P] Add docstrings to every public function and class in `code/`. *(code/*)*
+- [ ] T038 [P] Optimise model loading/unloading order to minimise peak RAM usage (e.g., load StarCoder, generate, unload, then load next model). *(code/generate.py)*
+- [ ] T039 [P] Add edge‑case unit tests in `tests/unit/` (e.g., empty prompt, unsupported language). *(tests/unit/*)*
+- [ ] T040 [P] Harden handling of generated code: ensure snippets are never executed, only written to disk and analysed statically. *(code/generate.py, code/analyze.py)*
+- [ ] T041 [P] Execute `quickstart.md` validation script to confirm the documentation matches the actual pipeline behaviour. *(docs/quickstart.md)*
 
 ---
 
@@ -189,5 +185,3 @@ description: "Task list for Evaluating the Impact of Code Generation Models on C
 | **Polish** | All prior phases |
 
 Within each user story, tasks marked `[P]` may run in parallel as long as their file targets do not overlap. Sequential dependencies are explicitly noted in the descriptions.
-
----
