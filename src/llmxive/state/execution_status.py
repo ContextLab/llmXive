@@ -52,16 +52,19 @@ MAX_REPLAN_ROUNDS = 3
 #:   tier 0 → "" (empty) means NO override: the implementer's REGISTERED default
 #:            model (do not hardcode it here — the registry is the SSoT).
 #:   tier 1 → a DIFFERENT capable FREE model (a free "second opinion"). Both
-#:            qwen.qwen3.5-122b and openai.gpt-oss-120b are confirmed live + free
+#:            zai-org.glm-5.3 and openai.gpt-oss-120b are confirmed live + free
 #:            on Dartmouth; gpt-oss-120b is the canonical second free model.
-#:   tiers 2+ → OPTIONAL paid tiers, read at runtime from
+#:   tier 2 → google.gemma-4-31B-it, another free model family.
+#:   tiers 3+ → OPTIONAL paid tiers, read at runtime from
 #:            ``LLMXIVE_EXECUTION_PAID_TIERS`` (comma-separated model ids,
 #:            DEFAULT EMPTY). A paid tier is usable ONLY when paid opt-in is on
 #:            AND it passes the credit-budget guard; otherwise it is SKIPPED.
 #:
-#: This keeps the default behavior FREE-FIRST (tier0 → tier1 → re-plan); paid
+#: This keeps the default behavior FREE-FIRST (tier0 → tier1 → tier2 → re-plan); paid
 #: escalation (e.g. haiku/sonnet/opus) is enabled later by config, no code change.
-FREE_MODEL_TIERS: tuple[str, ...] = ("", "openai.gpt-oss-120b")
+FREE_MODEL_TIERS: tuple[str, ...] = (
+    "", "openai.gpt-oss-120b", "google.gemma-4-31B-it",
+)
 
 #: Env hook for OPTIONAL paid escalation tiers (comma-separated model ids).
 EXECUTION_PAID_TIERS_ENV = "LLMXIVE_EXECUTION_PAID_TIERS"
