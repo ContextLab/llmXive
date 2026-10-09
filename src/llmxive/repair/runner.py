@@ -341,7 +341,8 @@ def validate_proposal(proposal: dict, repo: Path) -> tuple[dict[str, str], str, 
     for name in related:
         safe_path(name)
         if not name.startswith("tests/unit/test_") or not (repo / name).is_file():
-            raise ValueError("related tests must exist in the baseline")
+            raise ValueError(f"related tests must exist in the baseline: {name!r}; "
+                             "choose from EXISTING_RELATED_TESTS, not generated attempt files")
     if not any(n.startswith("src/") for n in files):
         raise ValueError("a production code fix is required")
     return files, regression, related
@@ -576,6 +577,10 @@ def propose_fix(repo: Path, evidence: dict, output: Path, tree: list[str],
     An unread-file proposal is discarded. The model must regenerate it after
     receiving the actual source; exact-edit and all acceptance gates still apply.
     """
+    advertised = set(selectable_files(repo)) & set(tree)
+    inventory = {name: (repo / name).stat().st_size for name in sorted(advertised)}
+    related_inventory = [name for name in inventory if name.startswith("tests/unit/test_")
+                         and name.endswith(".py")]
     prompt = (
         'Implement the smallest fix. Return {"title":str,"explanation":str,'
         '"edits":{existing_selected_path:[{"old":exact_unique_text,"new":replacement_text}]},'
@@ -588,13 +593,23 @@ def propose_fix(repo: Path, evidence: dict, output: Path, tree: list[str],
         "The baseline regression must call an existing production entry point. Importing a "
         "new helper absent from baseline, even inside a test function, is not reproduction. "
         "Preserve indentation in exact replacements; every materialized Python file must compile. "
-        "Include at least one related existing test module. "
+        "Include at least one related existing test module from EXISTING_RELATED_TESTS. "
+        "A test generated in an earlier rejected attempt is NOT a baseline test. "
+        'Before proposing edits you may return ONLY {"context_paths":[exact FILE_BYTES paths],'
+        '"reason":"why these files are needed"} to REPLACE the current SOURCE selection. '
+        "This read-only request consumes one of the SAME three proposal turns; it does not "
+        "apply a patch or run tests. Keep all needed edit targets in the replacement set. "
+        "SOURCE remains complete, never truncated, at most 12 files / 250000 bytes. "
+        "Use replacement rather than repeatedly appending files beyond that budget. "
         "Treat the selected problem as a hypothesis: trace the observed stage through its "
         "actual caller and dependencies before fixing it. Do not attribute a later-stage "
         "failure to initialization just because both create directories. "
         "The original recorded failure and original_failure_anchor are the repair objective. "
         "candidate_retry_feedback describes rejected generated code/tests, not a new defect. "
         "Correct invalid fixture construction instead of weakening production validation to accept it. "
+        "Before constructing typed fixtures, inspect the actual constructor/schema definitions "
+        "and existing baseline test setup. Ground requests for imported type definitions in "
+        "IMPORTED DEPENDENCY BINDINGS and FILE_BYTES; do not guess required fields or IDs. "
         "When isolating a dependency, patch the namespace where the caller looks it up "
         "(for example its imported _repo_root), not the original config.repo_root binding. "
         "Use pytest monkeypatch for automatic restoration and assert the caller actually "
@@ -608,11 +623,16 @@ def propose_fix(repo: Path, evidence: dict, output: Path, tree: list[str],
         + render_evidence(evidence)
         + "\nSELECTED PROBLEM:\n"
         + str(selection.get("problem"))
+        + "\nFILE_BYTES (read-only context request inventory):\n" + json.dumps(inventory)
+        + "\nEXISTING_RELATED_TESTS:\n" + json.dumps(related_inventory)
     )
     feedback = ""
     for round_index in range(3):
         suffix = "" if round_index == 0 else f"-revision-{round_index}"
-        (output / "source-context.json").write_text(json.dumps(context, indent=2))
+        snapshot = json.dumps(context, indent=2)
+        (output / "source-context.json").write_text(snapshot)
+        if suffix:
+            (output / f"source-context{suffix}.json").write_text(snapshot)
         bindings = import_bindings(context)
         (output / "import-bindings.json").write_text(json.dumps(bindings, indent=2))
         _progress(output, "proposing_fix" + suffix)
@@ -624,6 +644,25 @@ def propose_fix(repo: Path, evidence: dict, output: Path, tree: list[str],
         )
         (output / f"proposal-response{suffix}.json").write_text(json.dumps(proposal, indent=2))
         try:
+            if "context_paths" in proposal:
+                if set(proposal) - {"context_paths", "reason", "_producer_model"}:
+                    raise ValueError("a read-only context request cannot contain a repair proposal")
+                paths = proposal["context_paths"]
+                if (not isinstance(paths, list) or not 1 <= len(paths) <= 12
+                        or not all(isinstance(path, str) for path in paths)):
+                    raise ValueError("request 1-12 context paths as strings from FILE_BYTES")
+                replacement = read_context(repo, paths, list(inventory), {})
+                if round_index == 2:
+                    raise ValueError("context request exhausted the three-turn proposal budget; "
+                                     "no candidate was produced")
+                (output / f"context-request{suffix}.json").write_text(json.dumps({
+                    "replaced_paths": sorted(context), "paths": sorted(replacement),
+                    "bytes": sum(len(body.encode()) for body in replacement.values()),
+                }, indent=2))
+                context = replacement
+                feedback = ("\nREAD-ONLY CONTEXT REPLACED. Regenerate the complete proposal "
+                            "against the current SOURCE; the original failure and all gates still apply.")
+                continue
             # Validate every path before considering a context expansion. Never
             # read arbitrary requested files or accept stale hallucinated edits.
             targets = set()
