@@ -98,7 +98,9 @@ def test_retry_diagnostics_keep_baseline_and_candidate_distinct(tmp_path, monkey
             'after.log': 'candidate failed: wrong lookup namespace',
         }
         # Compaction must preserve the labels rather than concatenating logs.
-        assert json.loads(runner.render_evidence(evidence))['test_diagnostics'] == evidence['test_diagnostics']
+        rendered = json.loads(runner.render_evidence(evidence))
+        assert rendered['candidate_retry_feedback']['test_diagnostics'] == evidence['test_diagnostics']
+        assert rendered['failures'] == [{'stage': 'in_progress'}]
         return {'status': 'no_candidate'}
 
     monkeypatch.setattr(runner, 'run', attempt)

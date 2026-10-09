@@ -221,6 +221,13 @@ def render_evidence(evidence: dict, *, budget: int = 12000) -> str:
     cannot hide all actionable defects in the middle of one truncated body.
     """
     prepared = dict(evidence)
+    retry = {key: prepared.pop(key) for key in ("previous_attempt_failure", "test_diagnostics")
+             if key in prepared}
+    if retry:
+        prepared["candidate_retry_feedback"] = {
+            "purpose": "Debug rejected generated code/tests; not a new production defect or repair objective",
+            **retry,
+        }
     if "issues" in evidence:
         prepared["issues"] = []
         for issue in evidence["issues"]:
@@ -373,7 +380,49 @@ def isolated_tests(source: Path, tests: list[str], log: Path, *, image: str = IM
     return result.returncode
 
 
-def validate_baseline_failure(log: Path, baseline: Path) -> None:
+def original_failure_anchor(evidence: dict) -> dict | None:
+    """Derive the supported collision contract only from original recorded evidence.
+
+    Ambiguous/missing data for this targeted class is unsupported, never silently
+    downgraded to accepting an arbitrary red generated test.
+    """
+    failures = evidence.get("failures", [])
+    targeted = [f for f in failures if f.get("fingerprint") == "filesystem_file_exists"]
+    if not targeted:
+        return None
+    message = "unsupported filesystem collision reproduction anchor: "
+    if len(failures) != 1:
+        raise ValueError(message + "select one recorded error")
+    failure = targeted[0]
+    project_id = failure.get("project_id")
+    error = failure.get("last_error", "")
+    prefix = "[Errno 17] File exists: "
+    try:
+        if not isinstance(project_id, str) or not project_id or not error.startswith(prefix):
+            raise ValueError("missing project/error identity")
+        collision = ast.literal_eval(error[len(prefix):])
+        if not isinstance(collision, str):
+            raise ValueError("missing error filename")
+        parts = Path(collision).parts
+        marker = ("projects", project_id)
+        offsets = [i for i in range(len(parts)-1) if parts[i:i+2] == marker]
+        if len(offsets) != 1:
+            raise ValueError("ambiguous project path")
+        relative = parts[offsets[0]+2:]
+        if not relative or any(p in (".", "..") for p in relative):
+            raise ValueError("missing project-relative collision path")
+        observed = "projects/" + project_id + "/" + "/".join(relative)
+        if not any(o.get("path") == observed and o.get("kind") == "file"
+                   for o in failure.get("filesystem_observations", [])):
+            raise ValueError("recorded collision lacks a matching current file observation")
+    except (ValueError, TypeError, SyntaxError, AttributeError) as exc:
+        raise ValueError(message + str(exc)) from exc
+    return {"fingerprint": "filesystem_file_exists", "project_id": project_id,
+            "exception": "FileExistsError", "os_errno": 17,
+            "project_relative_path": "/".join(relative)}
+
+
+def validate_baseline_failure(log: Path, baseline: Path, *, anchor: dict | None = None) -> None:
     """Reject test setup/new-helper imports; retain real production import bugs."""
     reports = re.findall(r"^REPAIR_PYTEST_FAILURES=(.*)$", log.read_text(), re.MULTILINE)
     if len(reports) != 1:
@@ -390,12 +439,26 @@ def validate_baseline_failure(log: Path, baseline: Path) -> None:
                     or not failure["frames"]
                     or not all(isinstance(path, str) and path for path in failure["frames"])):
                 raise ValueError("malformed failure record")
+            production_frames = [
+                path for path in failure["frames"] if path.startswith("src/llmxive/")
+                and (baseline / path).is_file()
+                and (baseline / path).resolve().is_relative_to((baseline / "src").resolve())
+            ]
+            if anchor:
+                filename = failure.get("filename")
+                suffix = Path(anchor["project_relative_path"]).parts
+                if (failure["phase"] != "call" or not production_frames
+                        or failure["exception"] != anchor["exception"]
+                        or failure.get("os_errno") != anchor["os_errno"]
+                        or not isinstance(filename, str)
+                        or Path(filename).parts[-len(suffix):] != suffix):
+                    raise RuntimeError(
+                        "baseline does not reproduce original FileExistsError at "
+                        + anchor["project_relative_path"]
+                        + " through an existing production caller; generated fixture/test failures "
+                        "are retry feedback, not a replacement repair objective"
+                    )
             if failure["import_error"]:
-                production_frames = [
-                    path for path in failure["frames"] if path.startswith("src/llmxive/")
-                    and (baseline / path).is_file()
-                    and (baseline / path).resolve().is_relative_to((baseline / "src").resolve())
-                ]
                 if failure["phase"] != "call" or not production_frames:
                     raise RuntimeError(
                         "baseline import failure is test setup, not defect reproduction; "
@@ -527,6 +590,9 @@ def propose_fix(repo: Path, evidence: dict, output: Path, tree: list[str],
         "Treat the selected problem as a hypothesis: trace the observed stage through its "
         "actual caller and dependencies before fixing it. Do not attribute a later-stage "
         "failure to initialization just because both create directories. "
+        "The original recorded failure and original_failure_anchor are the repair objective. "
+        "candidate_retry_feedback describes rejected generated code/tests, not a new defect. "
+        "Correct invalid fixture construction instead of weakening production validation to accept it. "
         "When isolating a dependency, patch the namespace where the caller looks it up "
         "(for example its imported _repo_root), not the original config.repo_root binding. "
         "Use pytest monkeypatch for automatic restoration and assert the caller actually "
@@ -591,12 +657,18 @@ def run(repo: Path, evidence: dict, output: Path, *, image: str = IMAGE) -> dict
     (output / "evidence.json").write_text(json.dumps(evidence, indent=2))
     # Publication verifies the preserved input, not prompt-only derived hints.
     evidence_sha256 = hashlib.sha256(json.dumps(evidence, sort_keys=True).encode()).hexdigest()
+    anchor = original_failure_anchor(evidence)
+    (output / "failure-anchor.json").write_text(json.dumps(anchor, indent=2))
     dispatch = stage_context(repo, evidence)
     (output / "dispatch-context.json").write_text(json.dumps({"routes": dispatch}, indent=2))
-    evidence = dict(evidence, stage_dispatch_context=dispatch)
+    evidence = dict(evidence, stage_dispatch_context=dispatch, original_failure_anchor=anchor)
     tree = selectable_files(repo)
     selection_prompt = (
         "Choose up to 6 source/test files needed to fix ONE concrete defect from this evidence. "
+        "Keep the original recorded failure and original_failure_anchor as the repair objective. "
+        "candidate_retry_feedback is subordinate feedback from generated code/tests, not a new "
+        "production incident. Do not replace the original defect with a fixture validation failure "
+        "or weaken production constraints to accommodate an invalid generated fixture. "
         "Complete source context must total at most 250000 bytes; FILE_BYTES gives on-disk sizes. "
         "Choose a smaller relevant set if necessary; source contents are never truncated. "
         "Every selected path must be copied exactly from FILES; do not guess filenames. "
@@ -663,7 +735,7 @@ def run(repo: Path, evidence: dict, output: Path, *, image: str = IMAGE) -> dict
         # evidence of a reproduced defect and Docker failure is never acceptance.
         if before != 1:
             raise RuntimeError(f"regression did not reproduce a test failure (exit {before})")
-        validate_baseline_failure(output / "before.log", baseline)
+        validate_baseline_failure(output / "before.log", baseline, anchor=anchor)
         shutil.copytree(baseline, candidate)
         for name, content in files.items():
             path = candidate / name
