@@ -109,14 +109,19 @@ jobs:
       - name: Advance pass (deterministic worker ${{ matrix.worker }})
         timeout-minutes: 300
         run: |
-          python -m llmxive run \
+          python -u -m llmxive run --checkpoint \
             --worker "${{ matrix.worker }}" \
             --workers "${WORKERS:-6}" \
             --max-tasks "${MAX_TASKS:-10}"
         env:
           WORKERS: ${{ github.event.inputs.workers }}
           MAX_TASKS: ${{ github.event.inputs.max_tasks }}
-      # Persist this tick's PROJECT STATE first (issue #1139, defect D16): commit
+      # --checkpoint publishes each completed graph tick (or recorded failure)
+      # before another starts, using the same research write/rebase guards. The
+      # single CLI process retains one project selection and one 40-minute
+      # admission budget; checkpoints do not restart either budget. A runner
+      # shutdown inside a tick can still lose that in-flight work.
+      # Persist any remaining PROJECT STATE first (issue #1139, defect D16): commit
       # + push BEFORE the (worker-0-only) web-data regeneration. Previously the
       # long, wholesale web-gen ran while this checkout was still holding the
       # tick's uncommitted state, and its regenerated web/data/projects.json was
