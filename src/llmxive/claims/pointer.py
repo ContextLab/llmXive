@@ -195,6 +195,9 @@ def _render_verified(claim: Claim) -> str:
     resolved = claim.resolved_value or ""
     if not resolved:
         return raw_text
+    if claim.kind == ClaimKind.RESULT and (claim.evidence or {}).get("result_artifacts"):
+        # Entailment authenticates this exact prose, not a replacement scalar.
+        return raw_text
     if claim.kind in (ClaimKind.NUMERIC, ClaimKind.RESULT):
         return _render_numeric(raw_text, resolved)
     if claim.kind in (

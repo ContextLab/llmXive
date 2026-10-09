@@ -344,6 +344,11 @@ def run_implementation_preview(project_dir: Path) -> None:
     if not res.ok:
         _write_execution_feedback(mem, res, failures)
     else:
+        # Output-writing tasks need authenticated evidence before final task
+        # acceptance. A receipt records this successful computation, not a
+        # project-stage promotion or final execution approval.
+        _mint_artifact_receipts(project_dir, res, project_dir.resolve().parent.parent,
+                                stage="implementation_preview")
         (mem / _FEEDBACK_FILENAME).unlink(missing_ok=True)
 
 
@@ -1089,7 +1094,8 @@ def _reopen_failing_tasks(
 
 
 def _mint_artifact_receipts(
-    project_dir: Path, res: AnalysisRunResult, repo: Path
+    project_dir: Path, res: AnalysisRunResult, repo: Path,
+    *, stage: str = "research_executing",
 ) -> None:
     """Best-effort: mint a harness receipt per produced artifact so report
     numbers can trace to receipts (Constitution: no hallucinated results).
@@ -1106,7 +1112,7 @@ def _mint_artifact_receipts(
             digest = hashlib.sha256(p.read_bytes()).hexdigest()
             mint_receipt(
                 value=rel, kind=kind,
-                producer={"stage": "research_executing", "artifact": rel},
+                producer={"stage": stage, "artifact": rel},
                 inputs={"command": "quickstart run-book"},
                 env_sha=digest[:16],
                 captured={"path": rel, "sha256": digest},

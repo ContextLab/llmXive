@@ -74,6 +74,9 @@ def _live_source_hash(claim: Claim, project_id: str, repo_root: Path) -> str | N
     if claim.kind == ClaimKind.RESULT:
         from llmxive.results.harness import result_backed, source_fingerprint
 
+        if claim.evidence and "result_artifacts" in claim.evidence:
+            from llmxive.results.claims import evidence_fingerprint
+            return evidence_fingerprint(claim.evidence, project_id, repo_root)
         candidate = claim.resolved_value or claim.canonical or claim.raw_text
         receipt = result_backed(candidate, project_id, repo_root=repo_root)
         return source_fingerprint(receipt) if receipt is not None else None
@@ -115,6 +118,7 @@ def resolve_registered_claims(
             sk = subject_key(current)
             twin = verified_by_subject.get((current.kind, sk)) if sk else None
             if (twin is not None and twin.claim_id != current.claim_id
+                    and not (twin.evidence or {}).get("result_artifacts")
                     and (twin.kind != ClaimKind.RESULT or (
                         twin.source_hash is not None
                         and _live_source_hash(twin, project_id, repo_root) == twin.source_hash))):

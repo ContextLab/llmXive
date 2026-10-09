@@ -433,8 +433,10 @@ def resolve_result(claim: Claim, *, backend: Any, model: str | None,
       canonical value AND verify_receipt passes  → VERIFIED.
       The verdict carries ``result_id`` in ``evidence`` so a downstream
       citation pointer ``result:<result_id>`` (FR-010) can be formed.
-    - No matching receipt, or HMAC verification fails (SC-004)  →
-      NOT_ENOUGH_INFO (block; absence of receipt ≠ REFUTED).
+    - For prose, authenticated current text artifacts must substantiate the
+      claim through source-grounded entailment and a verbatim quotation.
+    - No supporting current signed evidence → NOT_ENOUGH_INFO. Contradictory
+      authenticated evidence → REFUTED. Neither case permits result filling.
     """
     from llmxive.results.harness import result_backed, source_fingerprint
 
@@ -449,6 +451,11 @@ def resolve_result(claim: Claim, *, backend: Any, model: str | None,
     if project_id:
         receipt = result_backed(candidate_value, project_id,
                                 repo_root=repo_root)
+
+    if receipt is None and project_id:
+        from llmxive.results.claims import resolve_artifact_claim
+        return resolve_artifact_claim(claim, project_id=project_id, backend=backend,
+                                      model=model, repo_root=repo_root)
 
     if receipt is None:
         return Verdict(
