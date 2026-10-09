@@ -75,6 +75,14 @@ def test_empty_truncated_or_runtime_rename_cannot_skip_live(pages, tmp_path):
     ("src/llmxive/librarian/verify.py", True),
     ("agents/tools/citation_fetcher.py", True),
     ("src/llmxive/state/_io.py", True),
+    ("src/llmxive/state/citations.py", True),
+    ("src/llmxive/state/claims.py", True),
+    ("src/llmxive/state/results.py", True),
+    ("src/llmxive/state/execution_status.py", False),
+    ("src/llmxive/state/unverifiable.py", False),
+    ("src/llmxive/state/future_unknown_module.py", True),
+    ("agents/prompts/paper_task_implementer.md", False),
+    ("agents/prompts/future_unknown_prompt.md", True),
     ("src/llmxive/config.py", True),
     ("contracts/citation.schema.json", True),
     ("tests/real_call/test_resolve_reference_registrar_agnostic.py", True),
@@ -127,6 +135,11 @@ def test_reference_local_import_closure_stays_in_selected_paths():
             continue
         visited.add(path)
         assert selection.needs_references(path.relative_to(ROOT).as_posix()), path
+        # A reviewed runtime-only prompt must not become an input to an
+        # external-service dependency without being reclassified.
+        literals = {node.value for node in ast.walk(ast.parse(path.read_text()))
+                    if isinstance(node, ast.Constant) and isinstance(node.value, str)}
+        assert not (literals & selection.RUNTIME_PROMPTS)
         name = next((n for n, p in modules.items() if p == path), "")
         package = name if path.name == "__init__.py" else name.rpartition(".")[0]
         for node in ast.walk(ast.parse(path.read_text())):

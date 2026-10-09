@@ -13,12 +13,17 @@ ROOT = Path(__file__).resolve().parents[2]
 # agents.tools.citation_fetcher import in reference_validator. A unit test walks
 # that local import closure so new shared dependencies cannot silently escape.
 REFERENCE_PREFIXES = (
-    "src/llmxive/librarian/", "src/llmxive/claims/", "src/llmxive/state/",
+    "src/llmxive/librarian/", "src/llmxive/claims/",
     "src/llmxive/backends/", "src/llmxive/fill/", "src/llmxive/grounding/",
     "src/llmxive/results/", "src/llmxive/verify/",
     "agents/tools/", "contracts/", "tests/fixtures/",
 )
 REFERENCE_FILES = {
+    # Exact external-service state dependencies; execution/replan state is not
+    # imported by these tests. The transitive AST closure guard enforces this.
+    "src/llmxive/state/__init__.py", "src/llmxive/state/_io.py",
+    "src/llmxive/state/citations.py", "src/llmxive/state/claims.py",
+    "src/llmxive/state/results.py",
     "web/about.html",  # config.py reads citation overlap thresholds from this page
     "src/llmxive/agents/citation_guard.py", "src/llmxive/agents/reference_validator.py",
     "src/llmxive/config.py", "src/llmxive/types.py", "src/llmxive/credentials.py",
@@ -41,6 +46,8 @@ RUNTIME_TESTS = {
 # These files route/test CI, without changing reference resolution. Their PRs
 # must prove selection/collection invariants and still run Dartmouth; requiring
 # registrar uptime here does not validate the changed routing behavior.
+RUNTIME_PROMPTS = {"agents/prompts/paper_task_implementer.md"}
+
 ROUTING_FILES = {
     "scripts/ci/select_checks.py", "tests/real_call/conftest.py",
     ".github/workflows/llmxive-real-call-tests.yml",
@@ -55,7 +62,7 @@ def needs_references(path: str) -> bool:
     # Package initialization and test harness changes can affect every import.
     if path.endswith("/__init__.py") or path == "tests/conftest.py":
         return True
-    if path in ROUTING_FILES | RUNTIME_TESTS:
+    if path in ROUTING_FILES | RUNTIME_TESTS | RUNTIME_PROMPTS:
         return False
     if path.startswith(("tests/unit/", "tests/contract/", "web/", "docs/", "notes/")):
         return False

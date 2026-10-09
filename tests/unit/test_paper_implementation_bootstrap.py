@@ -293,3 +293,11 @@ def test_track_specific_recovery_preserves_other_track_records(paper):
     unverifiable.record_unverifiable(ctx.project_id, 'paper:T001', 'paper failure', repo_root=repo)
     unverifiable.clear(ctx.project_id, repo_root=repo, track='research')
     assert unverifiable.recorded_keys(ctx.project_id, repo_root=repo) == {'paper:T001'}
+
+
+def test_pending_marker_in_task_prose_does_not_skip_authoring(paper):
+    agent, ctx, tasks = paper
+    tasks.write_text('- [ ] T001 [kind:prose] Explain the `[~]` status in paper/source/workflow.tex.\n')
+    step = agent.mechanical_step(ctx)
+    assert not step['deterministic_write']
+    assert step['next_task_id'] == 'T001'

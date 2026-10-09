@@ -109,7 +109,7 @@ class PaperImplementerAgent(SlashCommandAgent):
             "completed_task_ids": completed,
             "all_complete": self._all_complete(tasks_text),
             "skip_llm": False,
-            "deterministic_write": next_task is None or "[~]" in next_task[1],
+            "deterministic_write": next_task is None or _TASK_RE.match(next_task[1]).group("status") == "~",
         }
 
     def build_prompt(self, ctx: SlashCommandContext, mechanical_output: dict[str, Any]) -> list[ChatMessage]:
