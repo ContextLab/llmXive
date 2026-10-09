@@ -1,0 +1,7 @@
+{
+  "observed_at": "2026-10-09T07:04:13.077037+00:00",
+  "manifest_sha256": "4842d6513508dae750823b40ae00a6248e72c994eb82ad91175e9a3be31aedc2",
+  "artifact_valid": false,
+  "t014_verified": false,
+  "scope": "Read-only live artifact check; no scientific files or state modified"
+}
