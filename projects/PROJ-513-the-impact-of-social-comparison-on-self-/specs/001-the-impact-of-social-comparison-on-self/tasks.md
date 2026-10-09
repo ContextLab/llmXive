@@ -164,7 +164,7 @@
 - [X] T028-impl [P] [US3] Implement Z-score based outlier detection (|Z| > 3.0) using `scipy.stats.zscore` for extreme INCOM scores as per Spec Edge Cases; flag outliers for sensitivity analysis. **Depends on T025**.
  - *Note*: Z-score chosen as specific method for this prototype to satisfy "flag for sensitivity analysis" requirement.
  - *Output*: Store `outlier_ids` (list of participant IDs) in `data/analysis_results.json`.
-- [ ] T028-exec [P] [US3] Execute sensitivity analysis: Run the outlier detection logic implemented in T028-impl on the loaded dataset and update `data/analysis_results.json` with the flagged outlier IDs. **Depends on T025**.
+- [X] T028-exec [P] [US3] Execute sensitivity analysis: Run the outlier detection logic implemented in T028-impl on the loaded dataset and update `data/analysis_results.json` with the flagged outlier IDs. **Depends on T025**. <!-- FAILED: unspecified -->
 - [ ] T028-sens [US3] Re-run the LME model excluding participants in `outlier_ids` to perform sensitivity analysis. Compare results with full model and store delta in `data/analysis_results.json`. **Depends on T025**.
 - [X] T029 [US3] Generate `data/analysis_results.json` containing `f_stat`, `p_value`, `eta_squared`, `n`, and corrected p-values <!-- FAILED: unspecified -->
 - [X] T030 [US3] Implement `code/traceability.py` to extract results and inject into paper template (Principle IV)
