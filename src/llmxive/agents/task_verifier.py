@@ -494,6 +494,15 @@ def run_verification_pass(
         cache = {}
     if not isinstance(cache, dict):
         cache = {}
+    # Feedback outlives a single verification batch. Bind it to the task's
+    # requirements so a replan reusing T001 cannot inherit old diagnoses/counts.
+    feedback_path = state_path.with_suffix(".feedback.yaml")
+    try:
+        feedback = yaml.safe_load(feedback_path.read_text(encoding="utf-8")) or {}
+    except (OSError, yaml.YAMLError):
+        feedback = {}
+    if not isinstance(feedback, dict):
+        feedback = {}
     unv_keys = _unv.recorded_keys(project_id, repo_root=repo_root)
 
     accepted = 0
@@ -502,13 +511,36 @@ def run_verification_pass(
     unverifiable_flagged: list[str] = []
     budget = cap
     keys = task_keys(lines)  # unique + churn-stable; see task_keys()
+    current_feedback: dict[str, dict[str, str]] = {}
+    changed_keys: set[str] = set()
+    for i, key in keys.items():
+        match = _TASK_LINE_RE.match(lines[i])
+        assert match is not None
+        definition = match.group(3).strip() + task_continuation(lines, i)
+        definition = re.sub(r"<!--.*?-->", "", definition, flags=re.DOTALL)
+        definition = " ".join(_VOLATILE_MARK_RE.sub("", definition).split())
+        signature = _evidence_hash(definition)
+        previous = feedback.get(key)
+        if isinstance(previous, dict) and previous.get("task") == signature:
+            current_feedback[key] = {"task": signature}
+            if previous.get("reason"):
+                current_feedback[key]["reason"] = str(previous["reason"])
+        else:
+            current_feedback[key] = {"task": signature}
+            # Unbound legacy counts cannot establish repeated failure of THIS
+            # definition. A new rejection starts its own bounded attempt count.
+            reject_counts.pop(key, None)
+            if isinstance(previous, dict):
+                cache.pop(key, None)
+                changed_keys.add(key)
+    feedback = current_feedback
 
     # Persist pending review BEFORE calling a backend. A crash/interruption must
     # not leave an unreviewed [X] that the next tick mistakes for an acceptance.
     pending = list(lines)
     for i, key in keys.items():
         match = _TASK_LINE_RE.match(lines[i])
-        if match and match.group(2) in {"X", "x"} and key not in already_verified:
+        if match and match.group(2) in {"X", "x"} and (key not in already_verified or key in changed_keys):
             pending[i] = f"{match.group(1)}[~]{match.group(3)}"
     if pending != lines:
         atomic_write_text(tasks_path, "\n".join(pending) + ("\n" if text.endswith("\n") else ""))
@@ -518,12 +550,14 @@ def run_verification_pass(
         lines[i] = f"{m.group(1)}[X]{rest}"
         accepted += 1
         reject_counts.pop(key, None)
+        feedback[key].pop("reason", None)
 
     def _reject(i: int, m: re.Match[str], rest: str, key: str, reason: str) -> None:
         count = int(reject_counts.get(key, 0)) + 1
         reject_counts[key] = count
         lines[i] = f"{m.group(1)}[ ]{rest}"
         rejected.append((key, reason))
+        feedback[key]["reason"] = reason.strip()[:600]
         if count >= REJECT_CAP:
             _unv.record_unverifiable(project_id, key, reason, repo_root=repo_root)
             reject_counts.pop(key, None)
@@ -544,7 +578,7 @@ def run_verification_pass(
             continue
         mark, rest = m.group(2), m.group(3)
         key = keys[i]
-        newly_claimed = mark in ("x", "X") and key not in already_verified
+        newly_claimed = mark in ("x", "X") and (key not in already_verified or key in changed_keys)
         under_review = mark == "~"
         if not (newly_claimed or under_review):
             continue
@@ -630,7 +664,13 @@ def run_verification_pass(
     else:
         cache_path.unlink(missing_ok=True)
 
-    _write_notes(notes_path, rejected)
+    if feedback:
+        atomic_write_text(feedback_path, yaml.safe_dump(feedback, sort_keys=True))
+    else:
+        feedback_path.unlink(missing_ok=True)
+    _write_notes(notes_path, [
+        (key, entry["reason"]) for key, entry in feedback.items() if entry.get("reason")
+    ])
     return {
         "accepted": accepted,
         "rejected": rejected,
