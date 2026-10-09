@@ -1,0 +1,113 @@
+T001A:
+  reason: "The repository does not contain the required directories (`data/raw`, `data/processed`,\
+    \ `logs`, `paper/figures`) \u2013 only the `plan.md` file is present, and no evidence\
+    \ of those folders being created is provided. The implementer must add the missing\
+    \ directories at the repository root."
+  task: 8d81dabfd4125b5a57df1c56fa8f233d914b36b2b0e73788c68201cce74fb9a9
+T001B:
+  reason: "No evidence was provided showing that the required directories `code/analysis`\
+    \ and `code/tests` actually exist (or contain any files). The implementer\u2019\
+    s claim cannot be verified without such artifacts."
+  task: d2e2c718c45282a35d7fd38f388d37b92a45f2b355663831a27c97c37bc3b9ac
+T002:
+  reason: The provided `requirements.txt` lists the required packages but does not
+    pin their versions, and there is no evidence that `pip check` was run or that
+    the environment integrity was verified. Both version pinning and verification
+    are required by the task.
+  task: 5c45e05d0d5827f54dde5a43f3b6efa3706adf26ba5eb8d4fdf55f01da72fac9
+T003:
+  task: 9af88fbb3ef47c246afb4e5b46694e6c6d4418f2cfbb2221d8c4b889f2dec808
+T005:
+  task: 73e5bfe5419d0e2669c1b36f147161ade9063b4f5d215a02f4c820d43e5d5719
+T006A:
+  reason: 'declared artifact(s) missing/empty/invalid: code/contracts/dataset.schema.yaml'
+  task: 7d08db8e0d169c2cf4c607066ae4d9efe129375f862f128c41ab5db2cbb1e102
+T006B:
+  reason: 'declared artifact(s) missing/empty/invalid: code/contracts/output.schema.yaml'
+  task: a1a76721725f8204eef3c0202bf15f3c6870dc04dc26a6ea2dde1f3733d30e0c
+T007A:
+  reason: "The required artifact `data/validation/log_age_column.json` does not exist,\
+    \ so the pipeline cannot have logged the missing\u2011age error nor halted as\
+    \ specified. Without this file (or any evidence of the halt), the task\u2019s\
+    \ core requirement is unmet."
+  task: 450c517880444cecb6b78d16c0dc8cc7d7cd4426d2d685e7203214988bb40fd2
+T007B:
+  reason: 'declared artifact(s) missing/empty/invalid: data/validation/source_verification.log'
+  task: 61298cf89b9aff439cdbd8436ed499a3d96377111d62922ef909d1008f8b7b61
+T009:
+  reason: 'declared artifact(s) missing/empty/invalid: code/config.yaml, code/logs/url_verification.log'
+  task: c2eaae8a45144fc15d4dea66b8339d80b383c4f94e97f8d33c11e570606b7f24
+T010:
+  task: 155af879b49dc4219bccb63515a3adade5c6db9d8de002b9ffee5b38bc8e9a0b
+T011:
+  task: 641b14ae4128506068c950f57a039fe5cb597eb524853cc6469c2eae08b7db9e
+T012:
+  task: a39b92f332bdc914280f41320f12eb880589bace5e4c008cf03911d18319efee
+T013:
+  task: 4fc71f458e5da1564c6b27a6ea36bfe9c2437891637e9d13544187a1ac5fd403
+T014:
+  task: a3fd438356f9bf5b903e37a3a68dc40004cd27eb984b6076f453f27b14523a64
+T015:
+  task: ca38080ba3a71c7473fe01733fb04e2c876ccdc4559cf773b70e198e4c8d3b43
+T016:
+  task: 98b310c6500d623d5157f4856b73e4e9737de3be65fd4c7bafbe405d54d401ca
+T017:
+  task: 1c77566ea75b0395f453c7053409e611b9be0ff3f6724b0e9637bd7ef0fc1152
+T018:
+  task: 2f0813ffe29c1aa116f022c95f83c80b87f8c941ae6099a633fc817a3437ae01
+T019:
+  task: bb273342b4442f910f8eac90ff6e03edde01a4f0effbe000696fb5f65aee9a67
+T019A:
+  reason: 'declared artifact(s) missing/empty/invalid: code/logs/haplogroup_success_rate.txt'
+  task: 5477d3fdbdac2b5dff99c785d45edbaab5c7ec8e3d1e7129066aedb2782d6bf2
+T020:
+  task: 436c46b2f9f6c901173b52f9b22dd47dbd037a2afce51d25d78fd69cbd1aa680
+T021:
+  task: 5cab5369d44ae4c26b860c6c5d20d10ede1b7ace6b4338183edaef6d69c0c9b1
+T022:
+  task: 901f4fb0e8731242110233ee1cb14b49662ca6bb3a6805fef2936db5a54da552
+T023A:
+  task: 048003daf849a644dcbcde56b580af18943461277eeea580e59c8de502e8f85f
+T024:
+  task: a03c959dfb30ef3f33c6b94435678d806d99892b7c5119d5b292ab32b0a7ee46
+T025:
+  task: 20ccb4cc5e333bcb92f7fedb51eb44a8aa1152f8c5df47203a26934ec2573132
+T027:
+  task: a3380e66fe9a864d2cb3fa834c545fcd7e9af7f15ed24d3c21404c4ceacacf6c
+T030:
+  task: 47f6f8913d229a1a97e8a7349be55229c497e517642d8ddd0be94bdac185ee45
+T031:
+  task: 901c09d8019b17131be02556200341069e0a05b037bd75045bcda74ba2f01595
+T032:
+  task: 59a7aa201763ebb24cb6b90a5bdcbccda25a190b5540d0d2e3bc940f772c0b16
+T032A:
+  task: 47fc53471a08868beb7aa5dece2c8bd94d24c8c1d3e02d99495e024ff82d12b0
+T033:
+  task: 2587e88a0a55b96b6860723f591b01a53c3f4e406ac385e17134204a78e2c6c4
+T033A:
+  task: db38b7b8bd069a75538870cfa935d4e181b9bda2d1c6b577dbb48fc90fccf81a
+T034:
+  task: 28febbaadf2748a4e09804865a15eb295540ec911bf3a806becb14bc94bcaadc
+T036:
+  task: 35e2d923f18ee3225796754c2a5e008533d80b5705eae49d602bfe801d463ef0
+T037:
+  task: 7ed58acf2a994abcc8be2de7d9c47d3de8f93943a763b809b26435b7bf1e64d2
+T038:
+  task: a2b2c563982f79e9af64e3425ff90ec745daf8b81b59fe195ea330e0d0c84fc9
+T041:
+  task: 653bf5826a0f6b443a27294b5762076d775a097cb1fd8d385c6c6abd00ff2f8e
+T049:
+  task: 56ad5dea44ecb71e81b61b7afa0417c3072fea4824b8e6dc935385f2c4dd3de9
+T050:
+  task: 7cdbda282669307398c84cad1139fa407f494fa7edeabce9d17cb02e3d491692
+T051:
+  task: 0e2152b5425e69e06f10f9b675fbfac849f50b6f61bc516808c2437938a4284b
+T052:
+  reason: 'declared artifact(s) missing/empty/invalid: code/logs/memory_profile.log'
+  task: 00b31af1b3bd6babf3fc92766fe67ee9be7baa3dc2c8147d2f07b8b20e4c2cd3
+T053:
+  task: 4e0d0b78b94a98949ab02546cb0c205019b17855c2cd31a4762c9b154a94f10a
+T054A:
+  task: d577afd4af8e9eb5c60bfc78d1b079eec525087901da72ea39cb75462097d722
+T055:
+  task: d3060ba3562c03e8d9209ee577862101db88747f38bac83588fc9ce7fc204404

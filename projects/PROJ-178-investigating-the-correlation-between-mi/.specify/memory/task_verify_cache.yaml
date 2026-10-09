@@ -1,3 +1,44 @@
+T001A:
+  c: false
+  h: 92eaf7bf0334657da790661a4257fe7edc6a933e006449c913fb17710ece3e0b
+  r: "The repository does not contain the required directories (`data/raw`, `data/processed`,\
+    \ `logs`, `paper/figures`) \u2013 only the `plan.md` file is present, and no evidence\
+    \ of those folders being created is provided. The implementer must add the missing\
+    \ directories at the repository root."
+T001B:
+  c: false
+  h: ee937bbd7b1ed750bfa107bc166abfa8338dd7a2f71490d0ab9e0c80d2a1a844
+  r: "No evidence was provided showing that the required directories `code/analysis`\
+    \ and `code/tests` actually exist (or contain any files). The implementer\u2019\
+    s claim cannot be verified without such artifacts."
+T002:
+  c: false
+  h: ecf9f06fede3ee24d701b0606bd559ebb9c73332c6577addd9c54f6d86d3cc57
+  r: The provided `requirements.txt` lists the required packages but does not pin
+    their versions, and there is no evidence that `pip check` was run or that the
+    environment integrity was verified. Both version pinning and verification are
+    required by the task.
+T003:
+  c: true
+  h: c369876419d8e6315f8e8b74113b6d5a73f6c300f3cf225d93d0de39d4449817
+  r: "Checked the presence of linting and formatting configuration files in `code/`\
+    \ \u2013 `.flake8`, `pyproject.toml` (which includes Black settings), `.pre-commit-config.yaml`,\
+    \ and the helper script `setup_linting.py` \u2013 all of which constitute the\
+    \ required linting/formatting setup."
+T005:
+  c: true
+  h: c613b64c0d8f36434cde5d728daebf941989779767d1a75886088650b7c435e6
+  r: The file `code/run_analysis.py` defines a `setup_logging()` function that configures
+    file and console logging, and an `AnalysisTimer` class that records start/stop
+    times and logs the elapsed runtime. These are used in `run_pipeline()` to provide
+    the required timer and logging infrastructure.
+T007A:
+  c: false
+  h: 5d215ae0d26cda1168c7d23f0e3422c55a6765368dd266a27a81c30cf870c829
+  r: "The required artifact `data/validation/log_age_column.json` does not exist,\
+    \ so the pipeline cannot have logged the missing\u2011age error nor halted as\
+    \ specified. Without this file (or any evidence of the halt), the task\u2019s\
+    \ core requirement is unmet."
 T027:
   c: false
   h: eca5992662b913324ddd32d3e787ba2792ddc04cb8727401f97deff5019c542f
