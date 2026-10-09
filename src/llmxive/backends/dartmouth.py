@@ -122,7 +122,12 @@ def _dartmouth_model_kwargs(model: str) -> dict[str, object]:
     for a stage that genuinely needs chain-of-thought. gpt-oss reasons far less and
     is left alone; non-reasoning peers (gemma/llama) ignore the kwarg.
     """
-    kwargs: dict[str, object] = {"timeout": _deadline_for_model(model)}
+    kwargs: dict[str, object] = {
+        "timeout": _deadline_for_model(model),
+        # The router/backend own bounded retries. SDK retries otherwise keep
+        # making requests after our outer deadline has abandoned this worker.
+        "max_retries": 0,
+    }
     if "qwen" in model.lower() and os.environ.get("LLMXIVE_QWEN_ENABLE_THINKING") != "1":
         kwargs["extra_body"] = {"chat_template_kwargs": {"enable_thinking": False}}
     return kwargs
@@ -751,17 +756,10 @@ class DartmouthBackend(BaseBackend):
             raise PermanentBackendError(
                 "langchain-dartmouth is not installed; pip install -e ."
             ) from exc
-        # 3 min per-request timeout. The router can retry the same
-        # model 3x and walk through 3 fallback models, so worst-case
-        # per-stage delay is bounded at 6x3=18 min instead of 6x10=60.
-        # Healthy 32K-token completions on Dartmouth's vLLM cluster
-        # finish in 30s-2min; anything past 3 min is a sick connection
-        # we want to abandon and try a peer model on.
-        # ChatDartmouth.__init__ doesn't expose `timeout` directly but
-        # accepts it via model_kwargs (forwarded to underlying
-        # ChatOpenAI which DOES have a timeout field). Suppress the
-        # noisy "should be specified explicitly" warning since this
-        # is the intended escape hatch.
+        # ChatDartmouth exposes client settings through model_kwargs. The
+        # installed ChatOpenAI promotes timeout/max_retries to client fields;
+        # suppress its advisory warning about using explicit constructor args,
+        # which ChatDartmouth's narrower constructor does not expose.
         import warnings as _warnings
 
         model_kwargs = _dartmouth_model_kwargs(model)
@@ -840,10 +838,9 @@ class DartmouthBackend(BaseBackend):
             kwargs["temperature"] = temperature
 
         def _invoke(call_kwargs: dict[str, object]):  # type: ignore[no-untyped-def]
-            # Hard-enforce a per-request wall-clock deadline. ChatDartmouth's
-            # nominal `timeout` model_kwarg is forwarded as a chat-completion
-            # body param, NOT as an HTTP/socket timeout, so a sick connection
-            # can block indefinitely (observed in CI as a ~54-min hang). Run
+            # Hard-enforce a total wall-clock deadline in addition to the SDK's
+            # transport timeout. Socket timeouts alone do not bound every kind
+            # of stalled request. Run
             # the call on a daemon thread and abandon it past the deadline so
             # the router falls through to a peer model. The deadline is
             # reasoning-aware (longer for qwen3.5/gpt-oss, which reason before
