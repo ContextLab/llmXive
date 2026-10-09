@@ -1,389 +1,340 @@
 """
-Fetch Pull Requests from GitHub for target repositories.
+Fetch Pull Requests and associated data from GitHub for target repositories.
 
-This module implements T012:
-(a) Load and validate target repos from config
-(b) Fetch PRs using GitHub API
-(c) Handle missing linked issues (empty list)
-(d) Log unverified issues
-(e) Output raw JSON to data/raw/
+This module implements Task T007:
+(a) Load target repositories from ``code/config/settings.py``.
+(b) Fetch up to ``max_prs`` PRs per repository via the GitHub REST API.
+(c) Compute SHA‑256 checksums for each PR payload.
+(d) Write the raw PR payloads to ``data/raw/prs.json``.
+(e) Write the checksum mapping to ``data/raw/checksums.json``.
 """
+
 import os
 import json
 import time
 import logging
+import hashlib
 from pathlib import Path
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 
-# Import from project API surface
-from code.config.settings import get_target_repos, get_paths, ensure_directories
-from code.src.utils.logger import get_logger, increment_pr_processed, increment_pr_skipped, increment_errors
+# Use the standard library for HTTP requests to avoid an external ``requests`` dependency.
+from urllib import request as urllib_request
+from urllib import error as urllib_error
 
-# Configure module logger
-logger = get_logger(__name__)
+# Import configuration utilities from the project's settings module
+from code.config.settings import (
+    get_target_repos,
+    get_paths,
+    ensure_directories,
+    HYPERPARAMS,
+)
 
-# GitHub API rate limit handling
-# GitHub API allows 60 unauthenticated requests per hour per IP
-# We implement exponential backoff for rate limit errors
-MAX_RETRIES = 5
-BASE_DELAY = 1.0  # seconds
+# Configure logger for this module
+logger = logging.getLogger(__name__)
 
-def make_github_request(url: str, headers: Optional[Dict[str, str]] = None) -> Optional[Dict[str, Any]]:
-    """
-    Make a request to the GitHub API with rate limit handling.
+GITHUB_API_BASE = "https://api.github.com"
+RATE_LIMIT_SLEEP = 60  # Seconds to sleep if rate limit hit
 
-    Args:
-        url: The API endpoint URL
-        headers: Optional headers (for authentication)
 
-    Returns:
-        JSON response as dict, or None on failure
-    """
-    import urllib.request
-    import urllib.error
-
-    if headers is None:
-        headers = {}
-        # Add default user-agent (required by GitHub API)
-        headers['User-Agent'] = 'llmXive-research-agent'
-
-    retry_count = 0
-    last_error = None
-
-    while retry_count < MAX_RETRIES:
-        try:
-            req = urllib.request.Request(url, headers=headers)
-
-            with urllib.request.urlopen(req, timeout=30) as response:
-                data = response.read().decode('utf-8')
-                return json.loads(data)
-
-        except urllib.error.HTTPError as e:
-            last_error = e
-            if e.code == 403 and 'rate limit' in str(e.reason).lower():
-                # Rate limited - check for retry-after header
-                retry_after = e.headers.get('Retry-After')
-                if retry_after:
-                    delay = int(retry_after)
-                    logger.warning(f"Rate limit exceeded. Waiting {delay} seconds...")
-                    time.sleep(delay)
-                    continue
-                else:
-                    # Default exponential backoff
-                    delay = BASE_DELAY * (2 ** retry_count)
-                    logger.warning(f"Rate limit exceeded. Waiting {delay} seconds... (retry {retry_count + 1}/{MAX_RETRIES})")
-                    time.sleep(delay)
-                    retry_count += 1
-            elif e.code == 404:
-                # Resource not found - don't retry
-                logger.error(f"Resource not found: {url}")
-                return None
-            else:
-                # Other HTTP error - retry with backoff
-                delay = BASE_DELAY * (2 ** retry_count)
-                logger.warning(f"HTTP error {e.code}: {e.reason}. Retrying in {delay}s...")
-                time.sleep(delay)
-                retry_count += 1
-
-        except urllib.error.URLError as e:
-            last_error = e
-            delay = BASE_DELAY * (2 ** retry_count)
-            logger.warning(f"Network error: {e.reason}. Retrying in {delay}s...")
-            time.sleep(delay)
-            retry_count += 1
-
-        except Exception as e:
-            last_error = e
-            delay = BASE_DELAY * (2 ** retry_count)
-            logger.warning(f"Unexpected error: {str(e)}. Retrying in {delay}s...")
-            time.sleep(delay)
-            retry_count += 1
-
-    logger.error(f"Failed to fetch {url} after {MAX_RETRIES} retries. Last error: {last_error}")
-    return None
-
-def fetch_prs_for_repo(repo_name: str, max_prs: int = 100) -> List[Dict[str, Any]]:
-    """
-    Fetch pull requests for a specific repository.
-
-    Args:
-        repo_name: Repository name in format 'owner/repo'
-        max_prs: Maximum number of PRs to fetch
-
-    Returns:
-        List of PR data dictionaries
-    """
-    # GitHub API endpoint for PRs
-    base_url = f"https://api.github.com/repos/{repo_name}/pulls"
-    headers = {}
-    headers['User-Agent'] = 'llmXive-research-agent'
-
-    # Check for GitHub token in environment
-    token = os.environ.get('GITHUB_TOKEN')
-    if token:
-        headers['Authorization'] = f'Bearer {token}'
-
-    all_prs = []
-    page = 1
-    per_page = 100  # GitHub API max per page
-
-    logger.info(f"Fetching PRs for {repo_name}...")
-
-    while len(all_prs) < max_prs:
-        url = f"{base_url}?state=all&per_page={per_page}&page={page}"
-        logger.debug(f"Fetching page {page} from {url}")
-
-        response = make_github_request(url, headers)
-
-        if response is None:
-            logger.error(f"Failed to fetch page {page} for {repo_name}")
-            break
-
-        if len(response) == 0:
-            # No more PRs
-            break
-
-        for pr in response:
-            if len(all_prs) >= max_prs:
-                break
-
-            # Extract relevant PR data
-            pr_data = {
-                'pr_id': pr['number'],
-                'title': pr['title'],
-                'state': pr['state'],
-                'created_at': pr['created_at'],
-                'updated_at': pr['updated_at'],
-                'merged_at': pr['merged_at'],
-                'user': {
-                    'login': pr['user']['login'],
-                    'id': pr['user']['id']
-                },
-                'html_url': pr['html_url'],
-                'diff_url': pr['diff_url'],
-                'patch_url': pr['patch_url'],
-                'body': pr['body'],
-                'base': {
-                    'ref': pr['base']['ref'],
-                    'sha': pr['base']['sha'],
-                    'repo': {
-                        'full_name': pr['base']['repo']['full_name']
-                    }
-                },
-                'head': {
-                    'ref': pr['head']['ref'],
-                    'sha': pr['head']['sha'],
-                    'repo': {
-                        'full_name': pr['head']['repo']['full_name']
-                    }
-                },
-                'linked_issues': [],
-                'comments_count': pr['comments'],
-                'review_comments_count': pr['review_comments'],
-                'commits_count': pr['commits'],
-                'additions': pr['additions'],
-                'deletions': pr['deletions'],
-                'changed_files': pr['changed_files']
-            }
-
-            # Fetch linked issues (closes references)
-            linked_issues = _fetch_linked_issues(repo_name, pr['number'], headers)
-            pr_data['linked_issues'] = linked_issues
-
-            # Fetch diff content
-            diff_content = _fetch_diff_content(pr['diff_url'], headers)
-            if diff_content:
-                pr_data['diff_content'] = diff_content
-            else:
-                pr_data['diff_content'] = None
-                logger.warning(f"Could not fetch diff for PR #{pr['number']} in {repo_name}")
-
-            all_prs.append(pr_data)
-
-        page += 1
-
-        # Rate limit safety - add small delay between pages
-        time.sleep(0.5)
-
-    logger.info(f"Fetched {len(all_prs)} PRs for {repo_name}")
-    return all_prs
-
-def _fetch_linked_issues(repo_name: str, pr_number: int, headers: Dict[str, str]) -> List[Dict[str, Any]]:
-    """
-    Fetch issues linked to a PR via 'closes' or 'fixes' keywords.
-
-    Args:
-        repo_name: Repository name
-        pr_number: PR number
-        headers: API headers
-
-    Returns:
-        List of linked issue dictionaries
-    """
-    # Fetch PR comments to find issue references
-    issues_url = f"https://api.github.com/repos/{repo_name}/issues/{pr_number}/timeline"
-    response = make_github_request(issues_url, headers)
-
-    if response is None:
-        logger.warning(f"Could not fetch timeline for PR #{pr_number}")
-        return []
-
-    linked_issues = []
-    seen_issue_ids = set()
-
-    for event in response:
-        if event.get('event') in ['cross-referenced', 'closed', 'reopened']:
-            # Check if this is an issue reference
-            source = event.get('source', {})
-            if source.get('issue'):
-                issue = source['issue']
-                issue_id = issue.get('number')
-
-                if issue_id and issue_id not in seen_issue_ids:
-                    seen_issue_ids.add(issue_id)
-                    linked_issues.append({
-                        'issue_id': issue_id,
-                        'title': issue.get('title', ''),
-                        'state': issue.get('state', ''),
-                        'html_url': issue.get('html_url', ''),
-                        'is_verified': False  # Mark as unverified initially
-                    })
-                    logger.info(f"Found linked issue #{issue_id} for PR #{pr_number}")
-
-    return linked_issues
-
-def _fetch_diff_content(diff_url: str, headers: Dict[str, str]) -> Optional[str]:
-    """
-    Fetch the raw diff content for a PR.
-
-    Args:
-        diff_url: URL to the diff
-        headers: API headers
-
-    Returns:
-        Diff content as string, or None on failure
-    """
-    response = make_github_request(diff_url, headers)
-
-    if response is None:
-        return None
-
-    # If response is already a string (diff format), return it
-    if isinstance(response, str):
-        return response
-
-    # If response is dict, try to extract diff content
-    if isinstance(response, dict):
-        # Sometimes GitHub returns diff as text in raw response
-        # But our make_github_request parses JSON, so this shouldn't happen
-        return None
-
-    return None
-
-def main():
-    """
-    Main entry point for fetching PRs from target repositories.
-
-    This function:
-    1. Loads target repos from config
-    2. Validates repo list (3-5 repos required)
-    3. Fetches PRs for each repo
-    4. Handles missing linked issues (empty list)
-    5. Logs unverified issues
-    6. Outputs raw JSON to data/raw/
-    """
-    logger.info("Starting PR fetch process...")
-
-    # Get configuration
+def _http_get(url: str, headers: Dict[str, str]) -> bytes:
+    """Perform a GET request and return raw bytes using ``urllib``."""
+    req = urllib_request.Request(url, headers=headers, method="GET")
     try:
-        target_repos = get_target_repos()
-        paths = get_paths()
-    except Exception as e:
-        logger.error(f"Failed to load configuration: {e}")
-        increment_errors()
-        return
-
-    # Validate target repos (FR-001: 3-5 repos required)
-    if not target_repos:
-        logger.error("No target repositories found in config/settings.py")
-        increment_errors()
-        return
-
-    if len(target_repos) < 3 or len(target_repos) > 5:
-        logger.warning(f"Expected 3-5 target repos, found {len(target_repos)}. Proceeding with {len(target_repos)} repos.")
-
-    logger.info(f"Target repositories: {target_repos}")
-
-    # Ensure output directory exists
-    ensure_directories()
-    raw_data_path = Path(paths['data_raw'])
-
-    # Process each repository
-    all_prs = []
-    repos_processed = 0
-    repos_failed = 0
-
-    for repo in target_repos:
-        logger.info(f"Processing repository: {repo}")
-
-        try:
-            prs = fetch_prs_for_repo(repo)
-
-            if prs:
-                all_prs.extend(prs)
-                repos_processed += 1
-
-                # Log unverified issues
-                for pr in prs:
-                    unverified_count = sum(1 for issue in pr.get('linked_issues', []) if not issue.get('is_verified', False))
-                    if unverified_count > 0:
-                        logger.warning(f"PR #{pr['pr_id']} in {repo} has {unverified_count} unverified linked issues")
-
-                logger.info(f"Successfully fetched {len(prs)} PRs from {repo}")
+        with urllib_request.urlopen(req, timeout=30) as resp:
+            return resp.read()
+    except urllib_error.HTTPError as e:
+        if e.code == 403:
+            # GitHub rate limiting returns 403 with a message containing "rate limit"
+            body = e.read().decode()
+            if "rate limit" in body.lower():
+                logger.warning(f"Rate limit hit for {url}.")
+                raise RuntimeError("rate_limit")
             else:
-                logger.warning(f"No PRs fetched for {repo}")
-                repos_failed += 1
+                raise
+        else:
+            raise
 
-        except Exception as e:
-            logger.error(f"Failed to fetch PRs for {repo}: {e}")
-            increment_errors()
-            repos_failed += 1
-            continue
 
-    if not all_prs:
-        logger.error("No PRs fetched from any repository")
-        increment_errors()
-        return
+def make_github_request(
+    endpoint: str, params: Optional[Dict[str, Any]] = None
+) -> List[Dict[str, Any]]:
+    """
+    Make a paginated request to the GitHub API.
 
-    # Add metadata to the output
-    output_data = {
-        'metadata': {
-            'fetched_at': datetime.utcnow().isoformat(),
-            'target_repos': target_repos,
-            'repos_processed': repos_processed,
-            'repos_failed': repos_failed,
-            'total_prs': len(all_prs)
-        },
-        'pull_requests': all_prs
+    Args:
+        endpoint: API endpoint (e.g., '/repos/owner/repo/pulls')
+        params: Query parameters
+
+    Returns:
+        List of items from all pages of the response.
+
+    Raises:
+        RuntimeError: If rate limiting is encountered.
+        urllib.error.URLError / HTTPError for other failures.
+    """
+    url = f"{GITHUB_API_BASE}{endpoint}"
+    headers = {
+        "Accept": "application/vnd.github.v3+json",
+        "User-Agent": "llmXive-research-pipeline",
     }
 
-    # Write raw JSON output
-    output_file = raw_data_path / f"pr_data_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.json"
+    token = os.getenv("GITHUB_TOKEN")
+    if token:
+        headers["Authorization"] = f"token {token}"
+
+    all_items: List[Dict[str, Any]] = []
+    page = 1
+
+    while True:
+        query_params = params.copy() if params else {}
+        query_params["page"] = page
+        query_params["per_page"] = 100
+
+        # Build query string
+        if query_params:
+            query_string = "&".join(f"{k}={v}" for k, v in query_params.items())
+            full_url = f"{url}?{query_string}"
+        else:
+            full_url = url
+
+        try:
+            raw = _http_get(full_url, headers)
+            data = json.loads(raw.decode())
+        except RuntimeError as rl:
+            if str(rl) == "rate_limit":
+                logger.warning(
+                    f"Rate limit hit. Sleeping for {RATE_LIMIT_SLEEP} seconds."
+                )
+                time.sleep(RATE_LIMIT_SLEEP)
+                continue
+            else:
+                raise
+        except Exception as e:
+            logger.error(f"Request failed for {full_url}: {e}")
+            raise
+
+        if not isinstance(data, list):
+            logger.warning(f"Expected list from {full_url}, got {type(data)}")
+            break
+
+        if not data:
+            # No more items
+            break
+
+        all_items.extend(data)
+        page += 1
+
+        # GitHub returns max 100 items per page; if fewer, we are done.
+        if len(data) < 100:
+            break
+
+        # Polite delay
+        time.sleep(1)
+
+    return all_items
+
+
+def fetch_linked_issues(pr_data: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """
+    Fetch linked issues for a specific PR by scanning the PR body for
+    ``Fixes #123`` / ``Closes #456`` patterns.
+
+    Args:
+        pr_data: PR data dictionary containing ``number`` and repository info.
+
+    Returns:
+        List of issue objects linked to the PR.
+    """
+    pr_number = pr_data.get("number")
+    repo_full_name = pr_data.get("base", {}).get("repo", {}).get("full_name")
+    if not repo_full_name:
+        repo_full_name = pr_data.get("repository_url", "").replace(
+            "https://api.github.com/repos/", ""
+        )
+    if not repo_full_name:
+        return []
+
+    body = pr_data.get("body", "") or ""
+    import re
+
+    # Look for explicit closing keywords followed by an issue number
+    pattern = r"(?:Fixes|Closes|Resolves|Related to)\s*#(\d+)"
+    matches = re.findall(pattern, body, re.IGNORECASE)
+
+    linked_issues: List[Dict[str, Any]] = []
+    for issue_num in matches:
+        try:
+            issue_endpoint = f"/repos/{repo_full_name}/issues/{issue_num}"
+            issue_data = make_github_request(issue_endpoint)
+            if issue_data:
+                linked_issues.append(
+                    {
+                        "issue_number": int(issue_num),
+                        "title": issue_data.get("title"),
+                        "state": issue_data.get("state"),
+                        "url": issue_data.get("html_url"),
+                        "labels": [
+                            l.get("name") for l in issue_data.get("labels", [])
+                        ],
+                    }
+                )
+        except Exception as e:
+            logger.warning(
+                f"Failed to fetch issue #{issue_num} for PR #{pr_number}: {e}"
+            )
+    return linked_issues
+
+
+def fetch_prs_for_repo(
+    owner: str, repo: str, max_prs: Optional[int] = None
+) -> List[Dict[str, Any]]:
+    """
+    Fetch PRs for a specific repository and enrich each with linked issues.
+
+    Args:
+        owner: Repository owner.
+        repo: Repository name.
+        max_prs: Maximum number of PRs to fetch (None means all).
+
+    Returns:
+        List of enriched PR dictionaries.
+    """
+    logger.info(f"Fetching PRs for {owner}/{repo}...")
+
+    endpoint = f"/repos/{owner}/{repo}/pulls"
+    params = {"state": "all"}  # Fetch both open and closed PRs
+
+    prs = make_github_request(endpoint, params)
+
+    if max_prs is not None:
+        prs = prs[:max_prs]
+
+    enriched_prs: List[Dict[str, Any]] = []
+    for pr in prs:
+        pr_number = pr.get("number")
+        logger.debug(f"Processing PR #{pr_number}")
+
+        linked_issues = fetch_linked_issues(pr)
+
+        enriched_pr = {
+            "pr_id": pr.get("id"),
+            "pr_number": pr_number,
+            "owner": owner,
+            "repo": repo,
+            "title": pr.get("title"),
+            "state": pr.get("state"),
+            "created_at": pr.get("created_at"),
+            "updated_at": pr.get("updated_at"),
+            "merged_at": pr.get("merged_at"),
+            "user": pr.get("user", {}).get("login"),
+            "body": pr.get("body"),
+            "html_url": pr.get("html_url"),
+            "diff_url": pr.get("diff_url"),
+            "patch_url": pr.get("patch_url"),
+            "linked_issues": linked_issues,
+            "fetched_at": datetime.utcnow().isoformat() + "Z",
+        }
+
+        if not linked_issues:
+            logger.debug(f"PR #{pr_number} has no linked issues found.")
+
+        enriched_prs.append(enriched_pr)
+
+    logger.info(f"Fetched {len(enriched_prs)} PRs for {owner}/{repo}.")
+    return enriched_prs
+
+
+def _write_json(path: Path, data: Any) -> None:
+    """Helper to write JSON data with UTF‑8 encoding and pretty formatting."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False, sort_keys=True)
+
+
+def main() -> None:
+    """
+    Main entry point for Task T007.
+    1. Load target repositories from ``code/config/settings.py``.
+    2. Fetch up to ``max_prs`` PRs per repository.
+    3. Write the raw PR payloads to ``data/raw/prs.json``.
+    4. Compute SHA‑256 checksums for each PR and write them to ``data/raw/checksums.json``.
+    """
+    # Configure basic logging (if not already configured by a parent script)
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    )
 
     try:
-        with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(output_data, f, indent=2, ensure_ascii=False)
+        # (a) Load and validate target repositories
+        target_repos = get_target_repos()
+        if not target_repos:
+            logger.error("No target repositories found in configuration.")
+            return
 
-        logger.info(f"Successfully wrote {len(all_prs)} PRs to {output_file}")
-        increment_pr_processed(len(all_prs))
+        logger.info(f"Target repositories: {target_repos}")
+
+        # (b) Determine maximum PRs per repository from hyper‑parameters
+        max_prs = HYPERPARAMS.get("max_prs", 500)
+
+        # Ensure output directories exist
+        paths = get_paths()
+        raw_dir = Path(paths["data_raw"])
+        ensure_directories()
+
+        all_prs: List[Dict[str, Any]] = []
+        fetch_errors: List[Dict[str, str]] = []
+
+        for repo_str in target_repos:
+            if "/" not in repo_str:
+                logger.warning(f"Invalid repo format '{repo_str}', skipping.")
+                continue
+
+            owner, repo = repo_str.split("/", 1)
+            try:
+                prs = fetch_prs_for_repo(owner, repo, max_prs=max_prs)
+                all_prs.extend(prs)
+            except Exception as e:
+                logger.error(f"Failed to fetch PRs for {repo_str}: {e}")
+                fetch_errors.append({"repo": repo_str, "error": str(e)})
+
+        if not all_prs:
+            logger.warning("No PRs fetched. Creating empty output files.")
+            _write_json(raw_dir / "prs.json", [])
+            _write_json(raw_dir / "checksums.json", {})
+            return
+
+        # (c) Write raw PR data to a deterministic filename
+        prs_path = raw_dir / "prs.json"
+        _write_json(prs_path, all_prs)
+        logger.info(f"Saved {len(all_prs)} PRs to {prs_path}")
+
+        # (d) Compute SHA‑256 checksums for each PR
+        checksums: Dict[str, str] = {}
+        for pr in all_prs:
+            # Use ``pr_id`` if present, otherwise fall back to ``pr_number``
+            pr_key = str(pr.get("pr_id") or pr.get("pr_number"))
+            pr_json = json.dumps(pr, sort_keys=True).encode("utf-8")
+            checksum = hashlib.sha256(pr_json).hexdigest()
+            checksums[pr_key] = checksum
+
+        checksums_path = raw_dir / "checksums.json"
+        _write_json(checksums_path, checksums)
+        logger.info(f"Wrote checksums for {len(checksums)} PRs to {checksums_path}")
+
+        # (e) Log any fetch errors
+        if fetch_errors:
+            error_path = raw_dir / "fetch_errors.json"
+            _write_json(error_path, fetch_errors)
+            logger.warning(
+                f"Encountered errors for {len(fetch_errors)} repositories; details in {error_path}"
+            )
 
     except Exception as e:
-        logger.error(f"Failed to write output file: {e}")
-        increment_errors()
-        return
+        logger.critical(f"Fatal error in fetch_prs pipeline: {e}", exc_info=True)
+        raise
 
-    logger.info(f"PR fetch complete. Processed {repos_processed} repos, failed {repos_failed}. Total PRs: {len(all_prs)}")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -1,73 +1,84 @@
-import os
 import json
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 
-# Project root directory
-PROJECT_ROOT = Path(__file__).parent.parent
+# ----------------------------------------------------------------------
+# Project-wide constants
+# ----------------------------------------------------------------------
+# Random seed for reproducibility
+SEED: int = 42
 
-# Configuration dictionary
-CONFIG = {
-    'target_repos': [
-        'microsoft/vscode',
-        'psf/requests',
-        'pallets/flask',
-        'numpy/numpy',
-        'scikit-learn/scikit-learn'
-    ],
-    'github_token': os.getenv('GITHUB_TOKEN', ''),
-    'max_retries': 3,
-    'retry_delay_seconds': 2,
-    'timeout_seconds': 300,
-    'random_seed': 42,
-    'max_prs_per_repo': 100,
-    'context_window_tokens': 4096,
-    'truncation_strategy': 'tail',
-    'llm_model_id': 'bigcode/starcoder2-3b',
-    'max_memory_gb': 7,
-    'alignment_similarity_threshold': 0.85,
-    'jaccard_threshold': 0.5,
-    'line_shift_tolerance': 5,
+# List of target repositories for PR extraction
+TARGET_REPOS: List[str] = [
+    "microsoft/vscode",
+    "pytorch/pytorch",
+    "tensorflow/tensorflow",
+]
+
+# Hyper‑parameters that control the pipeline behaviour
+HYPERPARAMS: Dict[str, Any] = {
+    "max_prs": 500,
+    "inference_timeout_seconds": 300,
+    "similarity_threshold": 0.85,
+    "jaccard_threshold": 0.5,
+    "line_tolerance": 5,
+    "batch_size": 8,
 }
 
+# Base directory (project root) – resolved relative to this file
+BASE_DIR = Path(__file__).resolve().parents[1]
+
+# Standardised paths used throughout the project
+PATHS: Dict[str, Path] = {
+    "base": BASE_DIR,
+    "data_raw": BASE_DIR / "data" / "raw",
+    "data_derived": BASE_DIR / "data" / "derived",
+    "data_annotations": BASE_DIR / "data" / "annotations",
+    "results": BASE_DIR / "results",
+    "specs": BASE_DIR / "specs",
+    "logs": BASE_DIR / "logs",
+    "tests": BASE_DIR / "tests",
+}
+
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
 def get_config() -> Dict[str, Any]:
-    """Get the full configuration dictionary."""
-    return CONFIG.copy()
+    """Load optional user configuration from ``config/config.json``."""
+    config_path = BASE_DIR / "config" / "config.json"
+    if config_path.is_file():
+        with config_path.open("r", encoding="utf-8") as f:
+            return json.load(f)
+    return {}
 
 def get_target_repos() -> List[str]:
-    """Get the list of target repositories."""
-    return CONFIG['target_repos'].copy()
+    """Return the list of repositories to process."""
+    # Allow overriding via a user config file
+    cfg = get_config()
+    return cfg.get("target_repos", TARGET_REPOS)
 
 def get_paths() -> Dict[str, Path]:
-    """Get all project paths."""
-    return {
-        'project_root': PROJECT_ROOT,
-        'code': PROJECT_ROOT / 'code',
-        'data_raw': PROJECT_ROOT / 'data' / 'raw',
-        'data_derived': PROJECT_ROOT / 'data' / 'derived',
-        'data_annotations': PROJECT_ROOT / 'data' / 'annotations',
-        'results': PROJECT_ROOT / 'results',
-        'tests': PROJECT_ROOT / 'tests',
-        'specs': PROJECT_ROOT / 'specs',
-        'logs': PROJECT_ROOT / 'logs',
-        'state': PROJECT_ROOT / 'state',
-        'figures': PROJECT_ROOT / 'figures',
-    }
+    """Return the dictionary of project paths."""
+    return PATHS
 
 def ensure_directories() -> None:
-    """Create all required directories if they don't exist."""
-    paths = get_paths()
-    for path in paths.values():
-        path.mkdir(parents=True, exist_ok=True)
+    """Create all required directories if they do not exist."""
+    for p in PATHS.values():
+        p.mkdir(parents=True, exist_ok=True)
 
-def save_config(config_path: Path) -> None:
-    """Save configuration to a JSON file."""
-    with open(config_path, 'w') as f:
-        json.dump(CONFIG, f, indent=2)
+def save_config(config: Dict[str, Any], config_path: Path | None = None) -> None:
+    """Write a configuration dictionary to ``config.json``."""
+    if config_path is None:
+        config_path = BASE_DIR / "config" / "config.json"
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    with config_path.open("w", encoding="utf-8") as f:
+        json.dump(config, f, indent=2, sort_keys=True)
 
-def load_config(config_path: Path) -> None:
-    """Load configuration from a JSON file."""
-    if config_path.exists():
-        with open(config_path, 'r') as f:
-            loaded_config = json.load(f)
-            CONFIG.update(loaded_config)
+def load_config(config_path: Path | None = None) -> Dict[str, Any]:
+    """Load a configuration dictionary from ``config.json``."""
+    if config_path is None:
+        config_path = BASE_DIR / "config" / "config.json"
+    if not config_path.is_file():
+        raise FileNotFoundError(f"Configuration file not found: {config_path}")
+    with config_path.open("r", encoding="utf-8") as f:
+        return json.load(f)

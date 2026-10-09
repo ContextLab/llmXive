@@ -26,10 +26,10 @@ The pipeline is executed via the CLI. It performs extraction, inference, alignme
 
 ### 1. Run Full Analysis
 ```bash
-python -m src.cli.main --max-prs 500 --thresholds 0.80,0.85,0.90
+python -m src.cli.main --config config/settings.py --run all
 ```
-- **`--max-prs`**: Limits the dataset size to fit memory (default 500).
-- **`--thresholds`**: Specifies the sensitivity analysis thresholds.
+- **`--config`**: Optional path to a user‑provided configuration module.
+- **`--run all`**: Executes every pipeline phase (extraction → detection → inference → analysis → reporting).
 
 ### 2. Run Unit Tests
 ```bash
@@ -44,9 +44,9 @@ pytest tests/contract/
 - Validates that all output files conform to the YAML schemas defined in `contracts/`.
 
 ### 4. Reproduce Results
-To ensure reproducibility (Constitution Principle I), run with the same seed:
+To ensure reproducibility (Constitution I), run with the same seed:
 ```bash
-python -m src.cli.main --seed 42 --max-prs 500
+python -m src.cli.main --config config/settings.py --run all --seed 42
 ```
 *Random seeds are pinned in `src/config/settings.py`.*
 

@@ -1,0 +1,48 @@
+T001:
+  task: 5aa66b9f1398c5eb66c3ada2e806cfe8b6155b27e7a6aacec5b5a32f7f8e0b69
+T002:
+  task: c709a2a07e0a144a110062f0e56fb7e9d8ce36935e9ecf00a67a36ff10fbf460
+T003:
+  task: 8ed99c05047b0e900afcf2c0f5fc42a4d3d50229c0aee737fb43d25ba69d4481
+T004:
+  reason: "The only evidence is that `src/utils/logger.py` and `src/utils/timeout_wrapper.py`\
+    \ exist; no code, test results, or logs are provided to show they enforce a 6\u202F\
+    h limit, write to `logs/timeout.log`, exit with code\u202F143, or emit valid JSON\u2011\
+    line logs. Without this concrete implementation or test output, the task requirements\
+    \ are not demonstrated."
+  task: 3fab66ba80eeee3b370f33be2efb6db7474269a87ae92b3b21ab8a2250866041
+T005:
+  reason: 'Requested task execution failed; rerun successfully: src/cli/main.py exit=1'
+  task: 2b3140e518bd345beea342140e72823892b533f5ecda5257a10fcdeefa2eae0e
+T006:
+  reason: "The three contract YAML files exist, and the schema modules import without\
+    \ syntax errors, but the required `BugDetection` dataclass is **not** defined\
+    \ in `src/detection/schema.py` (it is incorrectly placed in `src/extraction/schema.py`).\
+    \ The detection schema currently only defines `LLMCodeDetectionResult`, so the\
+    \ task\u2019s core requirement of providing a `BugDetection` model in the detection\
+    \ package is missing."
+  task: 16f0816d374323852f1385520db0a44de11360ccb878f2af4e074e8dad9dbd2d
+T007:
+  reason: 'Requested task execution failed; rerun successfully: code/src/extraction/fetch_prs.py
+    exit=1'
+  task: 68a22d024025ae77009fcd4c82f48175258403c9578f0a72f153ef68c1693b71
+T008:
+  reason: 'Requested task execution failed; rerun successfully: src/extraction/preprocess_and_ground_truth.py
+    exit=1'
+  task: 160b6b5f317b84a0f19be02c1ce4367e5822d45c4c2b2ea51001cec4d7fa9a0c
+T009:
+  task: e720ce556007b2f65a6ee9a68d11a1286cf6049f667e41c2217a6a95b9a98808
+T009a:
+  task: f7184169989b294b8b78b5a777604a838c0314144d23d8693d551e4d2b432cea
+T010:
+  task: 0cecfd1158112087be68222e60a7d00c0b2562d48d44ca4e55d6396475cfcd4f
+T011:
+  task: 5afce0fc5bf0e02e3a92daca7b126ec309522e890fe809d1683f8d20fe9b0bbd
+T012:
+  task: bf57c36c2011b3245fadb038e1e7d600c888367389485c87ad4b6375ad4fcbbe
+T013:
+  task: 501b9b99721b5735eb569a113f3145cb98b6a9c722f5a00f282c9e863b2ca135
+T014:
+  task: 74c7d9c9fda25ada63eb4693898000fd037f4d90bef27a6fe8f1ff0314b90cb1
+T016:
+  task: c53828c8e30aa28e03d6f31acb75aa37275d18200c876a3ecdfca728abc752da

@@ -1,52 +1,90 @@
-import os
+"""
+setup_project_structure.py
+--------------------------
+
+This script creates the required project directory layout for the
+llmXive research pipeline. It is used by task T001 to ensure that all
+necessary top‑level directories exist before any further processing.
+
+Required directories (all relative to the repository root):
+  - src/
+  - src/utils/
+  - data/raw/
+  - data/derived/
+  - data/annotations/
+  - results/
+  - tests/
+  - specs/
+  - contracts/
+
+The script can be imported and the ``create_directories`` function called
+directly, or executed as a module/script. When run, it creates any missing
+directories and exits with status code ``0``. Errors raise an exception,
+causing a non‑zero exit code.
+"""
+
 import sys
 from pathlib import Path
+from typing import List
 
-def create_directories():
+def _project_root() -> Path:
     """
-    Creates the required project directory structure for the llmXive research pipeline.
-    Directories created:
-      - src/
-      - data/raw/
-      - data/derived/
-      - data/annotations/
-      - results/
-      - tests/
-      - specs/
+    Return the absolute path to the repository root (the directory that
+    contains the top‑level ``code`` package).
     """
-    # Define the base path relative to the script location (project root)
-    # Assuming the script is run from the project root or the path is passed correctly.
-    # Based on the API surface, we assume the script is at code/setup_project_structure.py
-    # and needs to create dirs relative to the repo root (parent of code/).
-    
-    current_file = Path(__file__).resolve()
-    project_root = current_file.parent.parent
-    
-    directories = [
-        project_root / "src",
-        project_root / "data" / "raw",
-        project_root / "data" / "derived",
-        project_root / "data" / "annotations",
-        project_root / "results",
-        project_root / "tests",
-        project_root / "specs"
+    # This file lives in <repo_root>/code/setup_project_structure.py
+    return Path(__file__).resolve().parent.parent
+
+def _required_directories(root: Path) -> List[Path]:
+    """
+    Return a list of all directories that must exist for the pipeline.
+    """
+    return [
+        root / "src",
+        root / "src" / "utils",
+        root / "data" / "raw",
+        root / "data" / "derived",
+        root / "data" / "annotations",
+        root / "results",
+        root / "tests",
+        root / "specs",
+        root / "contracts",
     ]
-    
-    created_count = 0
-    for directory in directories:
-        if not directory.exists():
-            directory.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {directory}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {directory}")
-    
-    print(f"Project structure setup complete. {created_count} new directories created.")
-    return created_count
 
-def main():
-    """Entry point for the script."""
-    create_directories()
+def create_directories() -> List[Path]:
+    """
+    Create the required directory layout.
+
+    Returns
+    -------
+    List[Path]
+        The list of directories that were ensured to exist.
+    """
+    root = _project_root()
+    dirs = _required_directories(root)
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
+    return dirs
+
+def main() -> int:
+    """
+    Entry point for ``python -m code.setup_project_structure`` or direct
+    execution. Creates the directories and prints a short summary.
+
+    Returns
+    -------
+    int
+        Exit code: ``0`` on success, ``1`` on unexpected error.
+    """
+    try:
+        created = create_directories()
+        print("Created/verified the following directories:")
+        for d in created:
+            print(f" - {d}")
+        return 0
+    except Exception as exc:  # pragma: no cover – unexpected failures are fatal
+        print(f"Error while creating project layout: {exc}", file=sys.stderr)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

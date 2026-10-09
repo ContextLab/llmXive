@@ -1,30 +1,32 @@
 T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory structure is shown or listed in the provided evidence; the implementer
-    did not supply any proof that the required folders (`src/`, `data/raw/`, `data/derived/`,
-    `data/annotations/`, `results/`, `tests/`, `specs/`) actually exist. The task
-    remains undone.
+  c: true
+  h: 6e75e719354190a6113478e3921ac2a3e732e3797463e75be9f04173cc697f0d
+  r: All listed directories (`src/`, `src/utils/`, `data/raw/`, `data/derived/`, `data/annotations/`,
+    `results/`, `tests/`, `specs/`, `contracts/`) are present in the repository as
+    shown by the provided directory listings.
+T002:
+  c: true
+  h: 5605fadfd6d24cc1f90c7bb2018d9e315409ded4127e603953452c92f0ad2027
+  r: "Checked that `requirements.txt` exists, is non\u2011empty, and pins all listed\
+    \ packages, and that `config/settings.py` exists, defines `TARGET_REPOS` with\
+    \ the three required repos, and includes hyper\u2011parameters, path constants,\
+    \ and a random seed."
+T003:
+  c: true
+  h: 30ee0b51334b9ca6ae17ec1ef31fc107b2fc79577e88aaf19608cf0d0dd4ce1b
+  r: "The repository contains a non\u2011empty `pyproject.toml` with `[tool.black]`\
+    \ (line\u2011length\u202F=\u202F88, extend\u2011exclude) and `[tool.ruff]` (line\u2011\
+    length\u202F=\u202F88, extend\u2011exclude) sections, and a `.github/workflows/ci.yml`\
+    \ file that installs ruff and black and runs `ruff check .` and `black --check\
+    \ .`."
 T004:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
-    settings, `.ruff.toml` or ruff section in `pyproject.toml`, or corresponding CI
-    scripts) were presented. Without these artifacts, the requirement to configure
-    ruff and black cannot be confirmed as satisfied. The implementer must add the
-    actual configuration files and, optionally, demonstrate they are active (e.g.,
-    via a lint/format run).
-T008b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that a `src/utils/` directory exists in the repository;
-    the claim is unsupported and the required artifact is missing.
-T009b:
-  c: false
-  h: b2cefd6bc4b513ae270b9e3bd5d758bf8b3ff69bc3bb24776898ab94fa1864aa
-  r: "The required source files `src/utils/timeout_wrapper.py` and `src/cli/main.py`\
-    \ are absent, so no integration, runtime tracking, or graceful skipping logic\
-    \ exists. The task\u2019s core deliverable cannot be verified."
+  h: bfc99d65fd2e738022cd9a005efc88dc9fec15f36d7587d21145be23ebf51e51
+  r: "The only evidence is that `src/utils/logger.py` and `src/utils/timeout_wrapper.py`\
+    \ exist; no code, test results, or logs are provided to show they enforce a 6\u202F\
+    h limit, write to `logs/timeout.log`, exit with code\u202F143, or emit valid JSON\u2011\
+    line logs. Without this concrete implementation or test output, the task requirements\
+    \ are not demonstrated."
 T011:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -45,11 +47,3 @@ T016:
     \ for `linked_issue_ids` was added, nor any evidence that the IDs are checked\
     \ to be labeled \u201Creported\u201D and not ground\u2011truth. The required implementation\
     \ artifact is missing."
-T017:
-  c: false
-  h: 6535c27526a0876ceed71f343f60530b7ad5268e4582620966925b8e2e9aa2ba
-  r: "The repository contains a `src/extraction/preprocess.py` file, but its content\
-    \ focuses on comment extraction and does not implement the required triangulation\
-    \ logic or write `data/derived/human_baseline.json`. Moreover, the expected output\
-    \ file `data/derived/human_baseline.json` is absent. The task\u2019s output schema\
-    \ and exclusion/flagging requirements are not met."

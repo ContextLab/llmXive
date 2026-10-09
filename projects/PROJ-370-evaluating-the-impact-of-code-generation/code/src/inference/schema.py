@@ -9,8 +9,9 @@ from typing import List, Optional, Dict, Any
 from enum import Enum
 import json
 
-from code.src.extraction.schema import Severity
-from code.src.detection.schema import LLMCodeDetectionResult
+# Correct import path for Severity enum from the extraction schema
+from src.extraction.schema import Severity
+from src.detection.schema import LLMCodeDetectionResult
 
 
 class InferenceStatus(Enum):

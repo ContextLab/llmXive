@@ -1,0 +1,12 @@
+status: none
+intent: download huggingface prs-v2-sample pull request diffs dataset python package
+  dataset
+required_fields:
+- pr_id
+- diff_text
+- review_comments
+- linked_issue_ids
+- repository_name
+cache_key: 391a0ad1104deafcee5a13c550593dcbf99a9d3e51f50aa2d308705dd54fcea9
+searched_at: '2026-10-09T09:42:03.109412+00:00'
+retry_count: 1

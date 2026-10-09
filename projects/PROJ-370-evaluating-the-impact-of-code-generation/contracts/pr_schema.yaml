@@ -1,0 +1,72 @@
+# Contract: Pull Request Schema
+# Defines the structure for raw Pull Request data produced by the extraction phase.
+$schema: http://json-schema.org/draft-07/schema#
+type: object
+required:
+  - pr_id
+  - repo_name
+  - title
+  - state
+  - created_at
+  - updated_at
+  - author
+  - diff
+  - linked_issue_ids
+  - comments
+  - llm_code_flag
+  - truncation_flag
+properties:
+  pr_id:
+    type: integer
+    description: Unique identifier for the Pull Request.
+  repo_name:
+    type: string
+    description: Repository in "owner/repo" format.
+  title:
+    type: string
+    description: Title of the Pull Request.
+  body:
+    type: [string, "null"]
+    description: Body/description of the Pull Request (optional).
+  state:
+    type: string
+    enum: [open, closed, merged]
+    description: Current state of the PR.
+  created_at:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of PR creation.
+  updated_at:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of the last update.
+  merged_at:
+    type: [string, "null"]
+    format: date-time
+    description: ISO 8601 timestamp when PR was merged, if applicable.
+  author:
+    type: string
+    description: Username of the PR author.
+  diff:
+    type: string
+    description: Full diff content of the PR.
+  linked_issue_ids:
+    type: array
+    items:
+      type: integer
+    description: List of issue IDs linked to this PR.
+  comments:
+    type: array
+    items:
+      type: object
+      additionalProperties: true
+    description: List of comment objects associated with the PR.
+  llm_code_flag:
+    type: boolean
+    description: Whether LLM-generated code was detected in the diff.
+  truncation_flag:
+    type: boolean
+    description: Whether the diff was truncated due to size limits.
+  raw_json:
+    type: [object, "null"]
+    description: Original raw JSON payload from GitHub API (optional).
