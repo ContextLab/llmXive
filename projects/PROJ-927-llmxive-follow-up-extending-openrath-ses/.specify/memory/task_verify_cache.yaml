@@ -1,11 +1,51 @@
+T001a:
+  c: false
+  h: 7aa7346b840950cb42cf28d2d2ccfee8fb36205d5e4642f255c5047b300ded94
+  r: The required directories `data/processed/corrupted_logs/`, `data/processed/reconstruction_results/`,
+    and `scripts/` are missing, even though all `__init__.py` files in the `code/`
+    subfolders are present. The task is not fully satisfied until these directories
+    are created.
+T001b:
+  c: false
+  h: b66b2f30ca819b9902fe38da57541cdd3209c9b357cb0912fe298db3b186c0ac
+  r: "The `code/simulators/` directory exists, but there is no evidence shown that\
+    \ `__init__.py` is empty as required; the file\u2019s contents were not provided.\
+    \ The implementer must supply the content of `__init__.py` (or a statement confirming\
+    \ it is empty) to satisfy the task."
+T002:
+  c: false
+  h: 5751d14c37be7304b80b6afe40df9ffd65f52e1bb261393b4f5dc16c944df159
+  r: The `requirements.txt` file exists at the required path and contains the exact
+    versions for `pytest`, `scipy`, `pyyaml`, `jsonschema`, and `ruff`, but it also
+    includes additional packages (`pydantic`, `numpy`, `matplotlib`) that were not
+    part of the task specification. The task required only the listed dependencies
+    to be pinned, so the artifact does not precisely match the requirement.
+T003:
+  c: false
+  h: 88c55b38af0c13bfe65130d66642ce9a9e274e2f06502dcc978d4b9ac7d78260
+  r: 'The provided `pyproject.toml` correctly contains a `[tool.black]` section with
+    `line-length = 88`, but the `.ruff.toml` does not satisfy the linting requirement:
+    it lists `E501` in the `ignore` list (disabling the rule) and does not explicitly
+    enable `F401` and `W293` as the task specifies. The file must be edited to select
+    those three rules (and not ignore `E501`).'
+T004:
+  c: true
+  h: 08d4f2c2e18c78bc24ac46447f805ffe232ea0695ad449a0f0bbd93810657387
+  r: The `code/config.py` file exists, defines `SEED`, `CORRUPTION_RATE`, `WORKFLOW_COUNT`,
+    `SWEEP_RATES` with the exact requested values, and provides the `RAW_DATA_DIR`,
+    `PROCESSED_DATA_DIR`, and `STATE_DIR` path variables. No placeholders or missing
+    definitions are present.
 T009:
   c: false
-  h: f601d9d5bf359edccce9424759cb6f5157764513098edc24a83d55463b322c93
-  r: "`code/main.py` exists and defines the required CLI arguments and checkpoint\u2011\
-    loading logic, but the required checkpoint file `state/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses.yaml`\
-    \ is absent, so the checkpoint format cannot be verified nor the resume flow exercised.\
-    \ The missing YAML file must be added/updated with a `checkpoint` section containing\
-    \ `last_workflow_id` and `status`."
+  h: 86847e9c7ed2012c46d56b59369ab35da43063521c7b77da03043e11f9a01df1
+  r: "The repository contains a non\u2011empty `code/main.py` with the required `--seed`,\
+    \ `--count`, and `--resume` arguments and a checkpoint YAML file that includes\
+    \ `last_workflow_id` and `status`. However, the checkpoint logic only records\
+    \ a single `last_workflow_id`/`status` pair and does not distinguish between the\
+    \ generation (US1) and execution (US2) phases, so it cannot reliably resume each\
+    \ phase independently if an interruption occurs. The implementation needs per\u2011\
+    phase or per\u2011workflow phase tracking in the checkpoint to satisfy the \u201C\
+    must support resuming both the generation phase and the executi"
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

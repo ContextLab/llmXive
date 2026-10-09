@@ -1,18 +1,16 @@
 status: none
-intent: PettingZoo multi-agent environment dataset with ground truth state logs Gymnasium
-  python package dataset
+intent: PettingZoo synthetic multi-agent debugging workflow dataset python package
+  dataset
 required_fields:
 - workflow_id
+- seed
 - agent_roles
-- workflow_definition
 - action_sequence
 - state_transitions
-- execution_log
-- final_state
-- ground_truth_hash
-- corruption_map
+- final_state_hash
+- decision_tree_structure
 - timestamp
 - metadata
-cache_key: 7512898a2c5860440846abdd57addfa3da451e72fb8670aafcac4db20329b275
-searched_at: '2026-07-31T12:12:04.078752+00:00'
+cache_key: 21782537b7ed25e65a6213349d7975d5e89f39a8f7da794adf7252cbfa8d0c94
+searched_at: '2026-10-09T02:49:43.032888+00:00'
 retry_count: 1

@@ -1,0 +1,136 @@
+T001a:
+  reason: The required directories `data/processed/corrupted_logs/`, `data/processed/reconstruction_results/`,
+    and `scripts/` are missing, even though all `__init__.py` files in the `code/`
+    subfolders are present. The task is not fully satisfied until these directories
+    are created.
+  task: b9e5b284b00970081301a79ed0cc04544a472d6419b151286b9b5c3432222563
+T001b:
+  reason: "The `code/simulators/` directory exists, but there is no evidence shown\
+    \ that `__init__.py` is empty as required; the file\u2019s contents were not provided.\
+    \ The implementer must supply the content of `__init__.py` (or a statement confirming\
+    \ it is empty) to satisfy the task."
+  task: c172588f385ce7536d675ff961bd33b4b48242547231788bc0fe5cf2adaa2461
+T001c:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/corrupted_logs/,
+    data/processed/reconstruction_results/'
+  task: 56824f6ccb5f2d9335f03d189abe0d17ed01eb677f654873eaf0d16ff68d320c
+T002:
+  reason: The `requirements.txt` file exists at the required path and contains the
+    exact versions for `pytest`, `scipy`, `pyyaml`, `jsonschema`, and `ruff`, but
+    it also includes additional packages (`pydantic`, `numpy`, `matplotlib`) that
+    were not part of the task specification. The task required only the listed dependencies
+    to be pinned, so the artifact does not precisely match the requirement.
+  task: 8b9df5e9d16753f1c5cfc4960231979f64cbc2ef1b09eb47504f9f4fa32e3a8d
+T003:
+  reason: 'The provided `pyproject.toml` correctly contains a `[tool.black]` section
+    with `line-length = 88`, but the `.ruff.toml` does not satisfy the linting requirement:
+    it lists `E501` in the `ignore` list (disabling the rule) and does not explicitly
+    enable `F401` and `W293` as the task specifies. The file must be edited to select
+    those three rules (and not ignore `E501`).'
+  task: 0ba6ebf4b19fef3a5a5419cde3e7fac4500044af7861ae57142fcf2443b01c90
+T004:
+  task: ff842c273662225677250217b99701249aeda71c6cd4e113e459404e5599b498
+T006:
+  task: 75b6f66719945f4484b7b0fafe4ededac76962f9d5b1f97618d50c1475d03a0d
+T006b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/generators/schemas.py'
+  task: 1e17c2a994b0c02b590f227dea65ee7f243c5bf2a33588c4055d404acc2f232c
+T007:
+  task: 5ab2f081a08d39183d6ad95170fc36101ab4a8bfc5d154daf471b11a7930adfd
+T008:
+  task: 32c85a59b290f776a857aa23893ef7c976caac8f178f74a4ef7fa744dc65d797
+T009:
+  reason: "The repository contains a non\u2011empty `code/main.py` with the required\
+    \ `--seed`, `--count`, and `--resume` arguments and a checkpoint YAML file that\
+    \ includes `last_workflow_id` and `status`. However, the checkpoint logic only\
+    \ records a single `last_workflow_id`/`status` pair and does not distinguish between\
+    \ the generation (US1) and execution (US2) phases, so it cannot reliably resume\
+    \ each phase independently if an interruption occurs. The implementation needs\
+    \ per\u2011phase or per\u2011workflow phase tracking in the checkpoint to satisfy\
+    \ the \u201Cmust support resuming both the generation phase and the executi"
+  task: 127b8a611a084902f05c4aec628f5764998d236cd603d0639d8a2a9a4770b2b2
+T010:
+  task: b9202a5551605287d026203bbd842b89aa9bde760e97d46179cfae30cdfdb495
+T011:
+  task: c0f9882309ec10e780a1feefcffec467e91fa32953c008b634965d8faba954ed
+T012:
+  task: 56d79be310848fe7d9430742e1e4d88d8d8cd7c0321f4660895e26f4196d9757
+T013:
+  task: 4592b8b4495b478d5f09b5911d4120f32c9b6e9cf7855d7d96d267f4a4cf0639
+T014:
+  task: 8373e18ab358683cd4cb4dc8cbe3c9d0944fbeb98e0168a456a2d7d633109d8c
+T015:
+  task: d40727ba6d7d4d972a98888068f54e4e5bf6e2b8426b5804013206e19a394bed
+T015b:
+  task: b4de28f966a2e6fee50159db12804e1738a9ff6b3ed9aaee09b9e035c8ebb996
+T016:
+  task: ea612a62b78e88ae5695d94e2ee538587e729646da61d294e2013feb39eeb940
+T017a:
+  task: d0c37086b5381a03d45074c35113c6e7bcbd16d9fc2318d052dc900f53e26066
+T017b:
+  task: fc95b0d8f11eac8cfaf5defbf400c895d2e0bbeb2f385e22c0fddca879b67baa
+T017c:
+  task: 91c171693295f40f05fc3cc501dc829c243fea1a90d92473c0b05c04d3672d70
+T018:
+  task: bb8354c42a28b218c1eed9242ca3738541fe2e38137cab84d3e670d876fa211a
+T019:
+  task: c9efe14057ac88dac7897c418a8f937b9bddf52862599f639650eeac28053580
+T020:
+  task: 935467a53d6cd0fdf15ae20c0b694118cdd7e3fb701481841499878a9821e77e
+T021:
+  task: 3754aa40d1a3c69c82bcc8df085955edfc76a746dca3cf70910670f9d233dac3
+T022:
+  task: a25ff1d0edf652bb3693f8ab1f58b52d41ade86e2e74fe6bdeb14f3d88acf04b
+T023:
+  task: 79f22cf02d9d1a6ea74ac46931a8b5c2e3254d9ed93b11d4b923a54ea07295b9
+T023-Exec:
+  task: 082e0dc7c2a9c55e6c01cb9ca2fa015f4fdf5c2d55044b684e6034c183d80dc4
+T023b:
+  task: 6c4d3b0c04cda726f6c1382080e6e6bb5db19baab7748be802a30267395eae41
+T024a:
+  task: d165386649c69d9fa9bb3fa12810fa4eceee823e8202c5f5d8462b24c6574fb4
+T024b:
+  task: d3cbb6d14722c155361f4b99d4f18ce89fe7d7ec9508f7826f2924192b1dcac4
+T025:
+  task: e371a99bbb680a629c53a9a8cf71a4533b6303ce1cb8e5feec5df2fa9dfc13a5
+T026:
+  task: 813af115ca0849acef1baac327f2b2faf2631e503eb5dd0e8ca8c6f680561ce6
+T026-Exec:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/corruption_map.json'
+  task: bfdea6ee6e91a583c621b0d0afa774845254d94822193aaa17d8a36e1c93c01f
+T026a:
+  reason: 'declared artifact(s) missing/empty/invalid: code/simulators/schemas.py'
+  task: d391a28185e44a6dc1eaddf55cf6f58b6ad7cf651a34cb4a6ccebb4b956a0057
+T028:
+  task: fda9608f498c2d94ad61c220c3ecd072684b65146b17ef87e86af9a9cffa72e0
+T029:
+  task: ca80f4f1f69602047645f3aa4a96a056c68d07064ce00e9eef5eb2c65aefd36e
+T030:
+  reason: 'declared artifact(s) missing/empty/invalid: code/reconstructors/reconstruction_engine.py'
+  task: 7cc21053087d148399f88a192a9016836700492251cd52001802e50b48023662
+T031:
+  task: 960a7560eb20c70bc34af42f24ea465f585554fed76f512326047da5cc9bd668
+T034a:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analyzers/statistical_test.py,
+    data/processed/results/aggregated_metrics.json'
+  task: 485826d5843372761c444e812356c20c930b5ad3b5ae40c433231f3d2b95bd8c
+T034b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analyzers/statistical_test.py'
+  task: 1aff447d76e6ff5dcc8213b16cc0a3a8bd6468519bb67e0d182c5a58b3b0d227
+T034c:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analyzers/statistical_test.py'
+  task: e0d3584311b3a548aa8c29320eab21637d433877423dfa9b748a1e5a007277f4
+T035:
+  task: 70356d8252fcd0256ecc51523d7fd9b042b17a03c2af2d5602671d91f86c0555
+T038:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analyzers/statistical_test.py'
+  task: 7d3892447362673c3b92648aa9c83089d2d67ebe6851915ded1220df15c9dd26
+T041:
+  task: 0c875cd86824ab1981f36f36acc512f7d84b077edf6f3a61b4db4a9ed88cd1f4
+T043:
+  task: f38ab369d5b1446fad6c47bd474008c02b1b264ef7d140076104e89924bbdf64
+T044a:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_config.py'
+  task: 62528007a214d6d94fc3e0ead0c2899423e24732f5f43d1cb8d389634f283524
+T044b:
+  task: 8ce5de478e3247cb30b906741ab03cf990f5f6eb8b1226cc34af05635dca1d96
