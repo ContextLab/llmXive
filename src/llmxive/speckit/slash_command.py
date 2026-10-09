@@ -135,7 +135,7 @@ class SlashCommandAgent(abc.ABC):
                 )
                 if not outputs:
                     outcome = Outcome.SKIPPED
-        except Exception as exc:
+        except BaseException as exc:
             outcome = Outcome.FAILED
             failure_reason = f"{type(exc).__name__}: {exc}"
             raise
@@ -211,7 +211,8 @@ def _maybe_write_inspection(
             backend=backend_used.value if hasattr(backend_used, "value") else str(backend_used),
             started_at=started,
             ended_at=ended,
-            outcome=("committed" if outcome == Outcome.SUCCESS else "failed"),
+            outcome=("committed" if outcome == Outcome.SUCCESS else
+                     "no-op" if outcome == Outcome.SKIPPED else "failed"),
             prompts={"system": sys_prompt, "user": usr_prompt},
             raw_response=llm_response_text,
             parsed_output={},

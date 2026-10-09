@@ -24,7 +24,7 @@ permissions:
 jobs:
   candidate:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 45
     outputs:
       ready: ${{ steps.result.outputs.ready }}
     steps:
@@ -46,13 +46,14 @@ jobs:
       - if: steps.pending.outputs.count == '0'
         run: bash scripts/repair/build-image.sh
       - name: Reproduce, repair and independently review
+        timeout-minutes: 30
         if: steps.pending.outputs.count == '0'
         env:
           DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
           GH_TOKEN: ${{ github.token }}
           LLMXIVE_PAID_OPT_IN: '0'
           SOURCE: ${{ inputs.source || (github.event.schedule == '0 19 * * *' && 'issues' || 'errors') }}
-        run: python -m llmxive.repair.runner --source "$SOURCE" --output .repair-output
+        run: python -u -m llmxive.repair.runner --source "$SOURCE" --output .repair-output
       - name: Candidate status
         id: result
         if: success() && steps.pending.outputs.count == '0'
@@ -65,7 +66,8 @@ jobs:
         with:
           name: repair-evidence
           path: .repair-output/
-          if-no-files-found: ignore
+          include-hidden-files: true
+          if-no-files-found: error
           retention-days: 30
 
   propose:
