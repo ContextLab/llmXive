@@ -1,0 +1,15 @@
+status: none
+intent: PlanBench-XL and PlanBench dataset download huggingface python package dataset
+required_fields:
+- task_id
+- instruction
+- initial_state
+- goal_state
+- tool_calls
+- ground_truth_success
+- implicit_failure_flag
+- evaluation_metrics
+- metadata
+cache_key: ad255e199cd34781fa24a10878d13a5444019e7be4d3f8b4e81ed886dda992f9
+searched_at: '2026-10-09T08:31:31.633388+00:00'
+retry_count: 1

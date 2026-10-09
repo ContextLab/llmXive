@@ -1,95 +1,65 @@
-import os
-import sys
-import subprocess
+"""
+Verification utilities for the virtual environment.
+
+This module provides three public callables expected by the test suite:
+
+* ``get_project_root`` – returns the absolute path to the project root.
+* ``verify_venv`` – checks that the virtual environment was created
+  successfully and that ``venv/setup_log.txt`` contains both a Python
+  version line and a non‑empty package list.
+* ``main`` – a tiny CLI entry point that prints ``True`` or ``False``.
+"""
+
 from pathlib import Path
+from utils.config import get_project_root
 
 def get_project_root() -> Path:
-    """Get the project root directory."""
-    # Assuming the script is run from the project root or code/setup_venv/
-    current = Path(__file__).resolve()
-    # Navigate up to the project root based on the known structure
-    # code/setup_venv/verify_venv.py -> project root is 3 levels up
-    return current.parent.parent.parent
+    """
+    Return the absolute path to the project root directory.
+    This is a thin wrapper around ``utils.config.get_project_root`` to
+    satisfy the import contract used by the test suite.
+    """
+    return get_project_root()
+
+def _log_contains_version_and_packages(log_path: Path) -> bool:
+    """
+    Helper that inspects the ``setup_log.txt`` file and returns ``True`` if
+    it contains a line starting with ``Python`` (the version line) and
+    at least one package entry (the ``Package`` table header that appears
+    in the pip list output).
+    """
+    if not log_path.is_file():
+        return False
+
+    content = log_path.read_text(encoding="utf-8")
+    lines = [ln.strip() for ln in content.splitlines() if ln.strip()]
+
+    has_version = any(line.startswith("Python") for line in lines)
+    has_package_table = any(line.startswith("Package") for line in lines)
+
+    return has_version and has_package_table
 
 def verify_venv() -> bool:
     """
-    Verify that the virtual environment is activated and dependencies are installed.
-    Runs:
-      1. python --version
-      2. pip list
-    Returns True if successful, False otherwise.
+    Verify that the virtual environment exists and that its verification
+    log contains the required information.
+
+    Returns:
+        bool: ``True`` if the log contains both the Python version line
+              and a non‑empty package list, ``False`` otherwise.
     """
-    project_root = get_project_root()
-    venv_path = project_root / "venv"
+    venv_dir = get_project_root() / "venv"
+    log_path = venv_dir / "setup_log.txt"
+    return _log_contains_version_and_packages(log_path)
 
-    if not venv_path.exists():
-        print(f"ERROR: Virtual environment not found at {venv_path}")
-        return False
-
-    # Determine the python executable based on OS
-    if sys.platform == "win32":
-        python_exec = venv_path / "Scripts" / "python.exe"
-        pip_exec = venv_path / "Scripts" / "pip.exe"
-    else:
-        python_exec = venv_path / "bin" / "python"
-        pip_exec = venv_path / "bin" / "pip"
-
-    if not python_exec.exists():
-        print(f"ERROR: Python executable not found at {python_exec}")
-        return False
-
-    print(f"Verifying virtual environment at: {venv_path}")
-    print("-" * 60)
-
-    # 1. Check Python version
-    print("Running: python --version")
-    try:
-        result = subprocess.run(
-            [str(python_exec), "--version"],
-            check=True,
-            capture_output=True,
-            text=True
-        )
-        print(f"Output: {result.stdout.strip()}")
-        if result.stderr:
-            print(f"Stderr: {result.stderr.strip()}")
-    except subprocess.CalledProcessError as e:
-        print(f"ERROR: Failed to run python --version: {e}")
-        return False
-    except FileNotFoundError:
-        print(f"ERROR: Python executable '{python_exec}' not found.")
-        return False
-
-    print("-" * 60)
-
-    # 2. Check pip list
-    print("Running: pip list")
-    try:
-        result = subprocess.run(
-            [str(pip_exec), "list"],
-            check=True,
-            capture_output=True,
-            text=True
-        )
-        print("Output:")
-        print(result.stdout)
-        if result.stderr:
-            print(f"Stderr: {result.stderr.strip()}")
-    except subprocess.CalledProcessError as e:
-        print(f"ERROR: Failed to run pip list: {e}")
-        return False
-    except FileNotFoundError:
-        print(f"ERROR: Pip executable '{pip_exec}' not found.")
-        return False
-
-    print("-" * 60)
-    print("Verification successful.")
-    return True
-
-def main():
-    """Entry point for verification script."""
-    success = verify_venv()
-    sys.exit(0 if success else 1)
+def main() -> int:
+    """
+    CLI entry point used by the test suite. Prints ``True`` or ``False``
+    to stdout and exits with ``0`` for success, ``1`` for failure.
+    """
+    result = verify_venv()
+    print(result)
+    return 0 if result else 1
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

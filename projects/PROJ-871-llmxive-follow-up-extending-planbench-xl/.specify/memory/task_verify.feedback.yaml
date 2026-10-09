@@ -1,0 +1,61 @@
+T001:
+  reason: "The required directories `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/`,\
+    \ `data/`, and `tests/` do exist, but they are populated with many files and sub\u2011\
+    folders rather than being empty as the task specifies. The artifact therefore\
+    \ does not meet the \u201Cempty directories\u201D requirement. The implementer\
+    \ must provide truly empty `code/`, `data/`, and `tests/` directories (or at least\
+    \ no files beyond the required placeholder structure)."
+  task: a7e90cb3f3caf66afdca832e1b96310acebd921a5b895f1ba540129131159dfd
+T002:
+  reason: "The provided `requirements.txt` matches the requested pinned versions,\
+    \ but the required `requirements_checksum.txt` (containing the SHA\u2011256 checksum)\
+    \ and the `setup_log.txt` showing a successful `pip install -r requirements.txt`\
+    \ and `pip list` are absent. Without these verification artifacts the task is\
+    \ not fully satisfied."
+  task: b3285e51b0e711140fafd47a9922ee03d0f97c5a4781bb43ec9225ecaf98c520
+T003:
+  reason: The required `.gitignore` file at `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/.gitignore`
+    is not present in the provided artifacts, and therefore its contents cannot be
+    verified. The implementer must add the file with the specified ignore patterns.
+  task: a84b67d7e4d707537b4ba5704d672b3347478a98a1acba0579fc8d302659b41c
+T004:
+  reason: "The `setup_log.txt` file exists but only shows pip install output; it does\
+    \ not contain the required `python --version` line nor the `pip list` output showing\
+    \ a non\u2011empty package list. The verification output is therefore missing."
+  task: 2beb1bb95d2e4823e86994a928ffa8d5b4a3809ba194ab1d0460381d20e7dd0a
+T005:
+  reason: 'Requested task execution failed; rerun successfully: code/dataset/loader.py
+    exit=1'
+  task: 51388cc744fc3e7a5c82ee0c31f712864e24247395bde7fb8b53183272356e71
+T006:
+  reason: 'Requested task execution failed; rerun successfully: code/dataset/extractor.py
+    exit=1'
+  task: 7a1b9dada8897b410c149113cccd1d8490b96e69e27db053ac1389a82536bcf6
+T007:
+  task: 20eeec14251e87008bf5de54764f93bd6169fd6224825814128ff9bfa13e82a5
+T008:
+  task: 3a4cbc987a4e2dc6e62253c2ae1604ef15ccc5114dbb3831f41126ead9e87333
+T009:
+  task: 40fb7ae7f712263b768edd55b5414a666410c51eefc490c7bc89db383be7966c
+T010:
+  task: c1a0ad2bcdf42f0b1ae12517279116201d738f51646f5d7c9c2e41ecbb575126
+T011:
+  task: 335259627599f07cee19de0cedddd2289773c9382ea21708e03b43110f8db29a
+T012:
+  task: 20c922adf1361f9a4210c21794b3ce993f7b14119f486a596728c21bbdf75de0
+T013:
+  task: 74c55e03e518d6b047585798a3ee4e37bcebedb8b198b7f5bc2c72e5a951475c
+T014:
+  task: 891e5d624c87539db166c6d0a702cb93c86eada8e0b2ff64735516f057b5f628
+T015:
+  task: 0bc29c86f57d083e3d5d70f980637b6216bd6e3be39bfb44afbfb15bdda1e93c
+T016:
+  task: 9b1380b23bb990aad880ebb77c0f76c44b5e87272c30b688ce3b9d94cca9bcad
+T017:
+  task: 54f789567d612dc343b5fbc802bf135a6565b75ccc8036ed82fb9732d64fb7f6
+T018:
+  task: 00582e7ae093240f07dcb0bd5298a5902443dca04e706fa77db31e4871673e6f
+T019:
+  task: c6d6b71c031b01efbf7965e8f8542595a6f8b13f129909036935742c703e3121
+T020:
+  task: 1d32408d850eb9ffc828d324ebbbee04cab32191f4ac13750adc2985f6554ead

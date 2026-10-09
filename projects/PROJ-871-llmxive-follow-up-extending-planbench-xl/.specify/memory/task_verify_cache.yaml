@@ -1,33 +1,38 @@
+T001:
+  c: false
+  h: d241cae35b9bf9be7c78adc4fea493d60165443f8888e55e2002755b0c806a2c
+  r: "The required directories `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/`,\
+    \ `data/`, and `tests/` do exist, but they are populated with many files and sub\u2011\
+    folders rather than being empty as the task specifies. The artifact therefore\
+    \ does not meet the \u201Cempty directories\u201D requirement. The implementer\
+    \ must provide truly empty `code/`, `data/`, and `tests/` directories (or at least\
+    \ no files beyond the required placeholder structure)."
+T002:
+  c: false
+  h: aeeb940ab1158897ca224ec25014e54dbd7789a7e7edd7c4dd7f76c9534aa199
+  r: "The provided `requirements.txt` matches the requested pinned versions, but the\
+    \ required `requirements_checksum.txt` (containing the SHA\u2011256 checksum)\
+    \ and the `setup_log.txt` showing a successful `pip install -r requirements.txt`\
+    \ and `pip list` are absent. Without these verification artifacts the task is\
+    \ not fully satisfied."
 T003:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., .flake8, pyproject.toml/black\
-    \ config, pre\u2011commit hooks) are present in the indicated project directory,\
-    \ and no evidence of them being set up is provided. The task requires actual configuration\
-    \ of flake8 and black, which is missing."
+  h: f3cb94143bf25cc749091ff8105c6ef61841c9fdd1387f273ed7f4f5279f8e06
+  r: The required `.gitignore` file at `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/.gitignore`
+    is not present in the provided artifacts, and therefore its contents cannot be
+    verified. The implementer must add the file with the specified ignore patterns.
+T004:
+  c: false
+  h: 83096bc77b58d34657838aea365a9c7be62cf11039e743a003cfe574cac9c361
+  r: "The `setup_log.txt` file exists but only shows pip install output; it does not\
+    \ contain the required `python --version` line nor the `pip list` output showing\
+    \ a non\u2011empty package list. The verification output is therefore missing."
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: "No evidence of the required `data/raw`, `data/derived`, `data/logs`, `data/results`\
     \ directories or a `.gitignore` file was presented. The implementer\u2019s claim\
     \ lacks the actual artifacts, so the task is not satisfied."
-T009a:
-  c: false
-  h: 867e001611a9cd9324cd7fb1cd0813602aaed29e37e854977cc57c00851ef608
-  r: "The repository contains `code/dataset/injector.py`, but the file is truncated\
-    \ and does not show the full implementation (e.g., writing the injected records\
-    \ to `data/derived/implicit_failure_subset.jsonl`). Moreover, the required output\
-    \ file `data/derived/implicit_failure_subset.jsonl` is absent. The task\u2019\
-    s core deliverable \u2013 a saved JSONL subset with injected error flags \u2013\
-    \ is therefore missing."
-T009b:
-  c: false
-  h: 38cd4f2e95f072e617826eee2b556e07355fe2d54f3b258002dc9acb3b2e6c11
-  r: "The provided `code/dataset/indexer.py` is truncated and never writes a `failure_signatures.json`\
-    \ file, nor does it enforce the required `\"recovery_strategy\": \"replan\"` schema.\
-    \ Moreover, the required input file `data/derived/implicit_failure_subset.jsonl`\
-    \ and the output file `data/derived/failure_signatures.json` are absent. Consequently\
-    \ the implementation does not fulfill the task\u2019s specifications."
 T011:
   c: false
   h: 4342c86912f585d0263daeac2dc8c8ba6ac6f5a1f1565aa6fbe72985e520d792
@@ -59,33 +64,3 @@ T020:
     does not exist, and the expected output log `data/logs/augmented_execution.jsonl`
     was never created. Without the input dataset and resulting log, the runner cannot
     be verified as processing the data as required.
-T024:
-  c: false
-  h: e942a8e2183004ca92374c788e2d6e3d36da87fb34775b2f477ad1324ef18e07
-  r: The `log_parser.py` is only partially shown (the `get_aggregated_counts` function
-    is truncated) and the required log files `data/logs/baseline_execution.jsonl`
-    and `data/logs/augmented_execution.jsonl` are absent, so the parser cannot actually
-    aggregate the needed success/failure counts. The missing files and incomplete
-    code must be provided for the task to be considered complete.
-T025:
-  c: false
-  h: 216a240549eed5b821129a1118a00c7a7967d78d1127089c331a585dba180123
-  r: "The `report.py` file is incomplete (truncated function, recursive `get_project_root`\
-    \ bug) and the required output file `data/results/final_report.json` does not\
-    \ exist. The task\u2019s required artifact is missing and the implementation is\
-    \ not functional."
-T027:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No README.md or quickstart.md files from the specified project path were presented,\
-    \ and no content showing the required documentation updates was provided. Without\
-    \ the actual artifacts, we cannot confirm that the documentation was modified\
-    \ as required. The implementer must supply the updated files (non\u2011empty)\
-    \ showing the changes."
-T029c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The implementer supplied only a feature specification and user story documentation;
-    there is no evidence of any code cleanup, verification that all paths in `code/`
-    use the config loader, nor any linting output from flake8 or black. The required
-    artifacts (updated code and linting reports) are missing.

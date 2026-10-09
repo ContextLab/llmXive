@@ -1,173 +1,154 @@
 """
-Virtual Environment Setup Script for llmXive Project.
+Virtual environment setup script for the llmXive follow‑up project.
 
-This script handles the creation of a Python virtual environment,
-installation of dependencies from requirements.txt, and verification.
+This script creates a Python ``venv`` in ``projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/venv/``,
+installs the pinned requirements from the project's ``requirements.txt`` and writes a
+verification log (Python version and ``pip list`` output) to ``venv/setup_log.txt``.
 """
-import os
+
 import subprocess
 import sys
+import os
 from pathlib import Path
-from datetime import datetime
+from typing import Tuple
 
-def get_project_root() -> Path:
-    """Get the root directory of the project."""
-    # The script is located at code/setup_venv.py, so root is parent of parent
-    return Path(__file__).resolve().parent.parent
+# Local utility imports
+from utils.config import get_project_root, get_path, ensure_dirs_exist
+
+def _venv_python_executable(venv_path: Path) -> Path:
+    """
+    Return the absolute path to the Python interpreter inside the virtual environment.
+    Handles both POSIX (bin/python) and Windows (Scripts/python.exe) layouts.
+    """
+    if os.name == "nt":
+        return venv_path / "Scripts" / "python.exe"
+    else:
+        return venv_path / "bin" / "python"
+
+def _venv_pip_executable(venv_path: Path) -> Path:
+    """
+    Return the absolute path to the ``pip`` executable inside the virtual environment.
+    """
+    if os.name == "nt":
+        return venv_path / "Scripts" / "pip.exe"
+    else:
+        return venv_path / "bin" / "pip"
 
 def create_venv(venv_path: Path) -> bool:
     """
-    Create a Python virtual environment at the specified path.
-
-    Args:
-        venv_path: Path where the virtual environment should be created.
-
-    Returns:
-        True if successful, False otherwise.
+    Create a Python virtual environment at ``venv_path`` using ``python -m venv``.
+    Returns ``True`` if creation succeeded, ``False`` otherwise.
     """
-    if venv_path.exists():
-        print(f"Virtual environment already exists at {venv_path}. Skipping creation.")
-        return True
-
-    print(f"Creating virtual environment at {venv_path}...")
     try:
+        # Ensure parent directories exist
+        ensure_dirs_exist(venv_path.parent)
         subprocess.run(
             [sys.executable, "-m", "venv", str(venv_path)],
             check=True,
-            capture_output=True,
-            text=True
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
         )
-        print("Virtual environment created successfully.")
         return True
     except subprocess.CalledProcessError as e:
-        print(f"Failed to create virtual environment: {e.stderr}")
+        print(f"[ERROR] Failed to create virtual environment: {e}", file=sys.stderr)
         return False
 
-def install_dependencies(venv_path: Path, requirements_path: Path) -> bool:
+def install_dependencies(venv_path: Path, requirements_path: Path) -> Tuple[bool, str]:
     """
-    Install dependencies from requirements.txt into the virtual environment.
-
-    Args:
-        venv_path: Path to the virtual environment.
-        requirements_path: Path to the requirements.txt file.
-
-    Returns:
-        True if successful, False otherwise.
+    Install the packages listed in ``requirements_path`` into the virtual environment.
+    Returns a tuple ``(success, output)`` where ``output`` contains the combined
+    stdout/stderr of the ``pip install`` command.
     """
-    if not requirements_path.exists():
-        print(f"Error: requirements.txt not found at {requirements_path}")
-        return False
-
-    # Determine the pip path based on OS
-    if os.name == 'nt':  # Windows
-        pip_path = venv_path / "Scripts" / "pip.exe"
-    else:  # Unix/Linux/macOS
-        pip_path = venv_path / "bin" / "pip"
-
-    if not pip_path.exists():
-        print(f"Error: pip not found in virtual environment at {pip_path}")
-        return False
-
-    print(f"Installing dependencies from {requirements_path}...")
+    pip_exe = _venv_pip_executable(venv_path)
     try:
-        # Upgrade pip first
-        subprocess.run(
-            [str(pip_path), "install", "--upgrade", "pip"],
-            check=True,
-            capture_output=True,
-            text=True
-        )
-
-        # Install requirements
         result = subprocess.run(
-            [str(pip_path), "install", "-r", str(requirements_path)],
+            [str(pip_exe), "install", "-r", str(requirements_path)],
             check=True,
-            capture_output=True,
-            text=True
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
         )
-        print("Dependencies installed successfully.")
-        return True
+        return True, result.stdout
     except subprocess.CalledProcessError as e:
-        print(f"Failed to install dependencies: {e.stderr}")
-        return False
+        return False, e.stdout or e.stderr
 
-def verify_venv(venv_path: Path) -> bool:
+def verify_venv(venv_path: Path) -> Tuple[bool, str]:
     """
-    Verify the virtual environment is functional.
-
-    Args:
-        venv_path: Path to the virtual environment.
-
-    Returns:
-        True if verification passes, False otherwise.
+    Run ``python --version`` and ``pip list`` inside the virtual environment.
+    Returns ``(success, combined_output)``.
     """
-    if os.name == 'nt':  # Windows
-        python_path = venv_path / "Scripts" / "python.exe"
-    else:  # Unix/Linux/macOS
-        python_path = venv_path / "bin" / "python"
+    python_exe = _venv_python_executable(venv_path)
+    pip_exe = _venv_pip_executable(venv_path)
 
-    if not python_path.exists():
-        print(f"Error: Python executable not found at {python_path}")
-        return False
-
-    print("Verifying virtual environment...")
     try:
-        # Check Python version
-        result = subprocess.run(
-            [str(python_path), "--version"],
+        version_res = subprocess.run(
+            [str(python_exe), "--version"],
             check=True,
-            capture_output=True,
-            text=True
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
         )
-        print(f"Python version: {result.stdout.strip()}")
-
-        # Check pip list
-        result = subprocess.run(
-            [str(python_path), "-m", "pip", "list"],
+        pip_res = subprocess.run(
+            [str(pip_exe), "list"],
             check=True,
-            capture_output=True,
-            text=True
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
         )
-        print("Installed packages:")
-        print(result.stdout)
-        return True
+        combined = version_res.stdout + "\n" + pip_res.stdout
+        return True, combined
     except subprocess.CalledProcessError as e:
-        print(f"Verification failed: {e.stderr}")
-        return False
+        return False, e.stdout or e.stderr
 
-def main():
-    """Main entry point for the setup script."""
+def write_setup_log(venv_path: Path, content: str) -> Path:
+    """
+    Write ``content`` to ``venv/setup_log.txt`` and return the path.
+    """
+    log_path = venv_path / "setup_log.txt"
+    log_path.write_text(content, encoding="utf-8")
+    return log_path
+
+def main() -> int:
+    """
+    Orchestrates:
+    1. Creation of the virtual environment.
+    2. Installation of the pinned requirements.
+    3. Verification of the environment (python version + pip list).
+    4. Writing of a log file ``venv/setup_log.txt``.
+    Exits with ``0`` on success, ``1`` on any failure.
+    """
     project_root = get_project_root()
     venv_path = project_root / "venv"
     requirements_path = project_root / "requirements.txt"
 
-    print(f"Project Root: {project_root}")
-    print(f"Virtual Environment Path: {venv_path}")
-    print(f"Requirements Path: {requirements_path}")
-    print("-" * 50)
-
-    # Step 1: Create venv
+    # Step 1: create venv
     if not create_venv(venv_path):
-        print("ERROR: Failed to create virtual environment.")
-        sys.exit(1)
+        print("[FAIL] Virtual environment creation failed.", file=sys.stderr)
+        return 1
 
-    # Step 2: Install dependencies
-    if not install_dependencies(venv_path, requirements_path):
-        print("ERROR: Failed to install dependencies.")
-        sys.exit(1)
+    # Step 2: install dependencies
+    success, install_output = install_dependencies(venv_path, requirements_path)
+    if not success:
+        print("[FAIL] Dependency installation failed.", file=sys.stderr)
+        print(install_output, file=sys.stderr)
+        write_setup_log(venv_path, install_output)
+        return 1
 
-    # Step 3: Verify
-    if not verify_venv(venv_path):
-        print("ERROR: Failed to verify virtual environment.")
-        sys.exit(1)
+    # Step 3: verify installation
+    success, verify_output = verify_venv(venv_path)
+    if not success:
+        print("[FAIL] Verification of virtual environment failed.", file=sys.stderr)
 
-    print("-" * 50)
-    print("Setup completed successfully!")
-    print(f"To activate the environment, run:")
-    if os.name == 'nt':
-        print(f"  {venv_path}\\Scripts\\activate.bat")
-    else:
-        print(f"  source {venv_path}/bin/activate")
+    # Step 4: write log (always write, even if verification failed)
+    full_log = (
+        "=== Dependency Installation Output ===\n"
+        + install_output
+        + "\n=== Verification Output ===\n"
+        + verify_output
+    )
+    write_setup_log(venv_path, full_log)
+
+    return 0 if success else 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
