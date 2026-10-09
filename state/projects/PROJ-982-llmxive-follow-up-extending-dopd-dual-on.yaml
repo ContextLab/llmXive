@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-04T01:25:45.890574Z'
-current_stage: planned
+current_stage: clarified
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-982-llmxive-follow-up-extending-dopd-dual-on
-last_run_id: edc07853-4d9a-4ab2-bd3d-ce5db9718bcb
+last_run_id: ec4bc8ad-0252-483e-9443-55c6534b4d4a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-982-llmxive-follow-up-extending-dopd-dual-on/specs/001-llmxive-follow-up-extending-dopd-dual-on
 title: 'llmXive follow-up: extending "DOPD: Dual On-policy Distillation"'
-updated_at: '2026-10-09T19:09:25.852229Z'
+updated_at: '2026-10-09T19:22:11.788442Z'
