@@ -7,7 +7,10 @@ those declarations.
 
 from __future__ import annotations
 
+import hashlib
+import os
 from collections.abc import Iterable
+from functools import lru_cache
 
 from llmxive.backends.base import (
     BackendError,
@@ -32,7 +35,22 @@ def make_backend(name: str) -> BaseBackend:
     cls = _REGISTRY.get(name)
     if cls is None:
         raise PermanentBackendError(f"unknown backend: {name!r}")
+    if cls is DartmouthBackend:
+        from llmxive.backends.dartmouth import _cloud_models_url, _ensure_api_key_env
+
+        _ensure_api_key_env()
+        # Keep outage history across agent calls, isolated by endpoint and auth.
+        # No raw credential is retained in the cache key or diagnostic output.
+        context = hashlib.sha256((
+            _cloud_models_url() + "\0" + os.environ.get("DARTMOUTH_CHAT_API_KEY", "")
+        ).encode()).hexdigest()
+        return _dartmouth_backend(context)
     return cls()
+
+
+@lru_cache(maxsize=8)
+def _dartmouth_backend(context: str) -> DartmouthBackend:
+    return DartmouthBackend()
 
 
 # Per-backend model-fallback chain. When the primary model on a
