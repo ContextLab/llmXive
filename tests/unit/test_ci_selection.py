@@ -42,7 +42,9 @@ def load(name):
     ids=lambda value: value.replace("/", "_") if isinstance(value, str) else None,
 )
 def test_conservative_selection(path, offline, live):
-    assert load("select_checks").select([path]) == {"offline": offline, "live": live}
+    selected = load("select_checks").select([path])
+    assert selected["offline"] == offline
+    assert selected["live"] == live
 
 
 @pytest.mark.parametrize(
@@ -67,6 +69,122 @@ def test_empty_truncated_or_runtime_rename_cannot_skip_live(pages, tmp_path):
     )
     assert "offline=true" in output.read_text()
     assert "live=true" in output.read_text()
+
+
+@pytest.mark.parametrize("path,required", [
+    ("src/llmxive/librarian/verify.py", True),
+    ("agents/tools/citation_fetcher.py", True),
+    ("src/llmxive/state/_io.py", True),
+    ("src/llmxive/config.py", True),
+    ("contracts/citation.schema.json", True),
+    ("tests/real_call/test_resolve_reference_registrar_agnostic.py", True),
+    ("web/about.html", True),
+    ("pyproject.toml", True),
+    ("requirements.lock", True),
+    ("tests/conftest.py", True),
+    ("src/llmxive/future_unknown_module.py", True),
+    ("future_runtime/input.yaml", True),
+    ("src/llmxive/speckit/paper_implement_cmd.py", False),
+    ("src/llmxive/backends/router.py", True),
+    ("scripts/ci/select_checks.py", False),
+    ("scripts/ci/verify-audit-corpus.py", False),
+    (".github/workflows/audit.yml", False),
+    (".github/workflows/llmxive-real-call-tests.yml", False),
+    ("tests/unit/test_ci_selection.py", False),
+], ids=lambda value: value.replace("/", "_") if isinstance(value, str) else None)
+def test_external_references_follow_changed_dependencies(path, required):
+    assert load("select_checks").select([path])["references"] is required
+
+
+def test_reference_local_import_closure_stays_in_selected_paths():
+    """Includes function-local imports and package initialization, not just top-level imports."""
+    import ast
+
+    selection = load("select_checks")
+    modules = {}
+    for directory in (ROOT / "src/llmxive", ROOT / "agents/tools"):
+        for path in directory.rglob("*.py"):
+            relative = path.relative_to(ROOT / "src" if path.is_relative_to(ROOT / "src") else ROOT)
+            name = ".".join(relative.with_suffix("").parts)
+            if name.endswith(".__init__"):
+                name = name.removesuffix(".__init__")
+            modules[name] = path
+    pending = [ROOT / p for p in selection.REFERENCE_TESTS]
+    visited = set()
+    while pending:
+        path = pending.pop()
+        if path in visited:
+            continue
+        visited.add(path)
+        assert selection.needs_references(path.relative_to(ROOT).as_posix()), path
+        name = next((n for n, p in modules.items() if p == path), "")
+        package = name if path.name == "__init__.py" else name.rpartition(".")[0]
+        for node in ast.walk(ast.parse(path.read_text())):
+            names = []
+            if isinstance(node, ast.Import):
+                names = [alias.name for alias in node.names]
+            elif isinstance(node, ast.ImportFrom):
+                base = node.module or ""
+                if node.level:
+                    base = importlib.util.resolve_name("." * node.level + base, package)
+                names = [base, *(base + "." + alias.name for alias in node.names)]
+            for imported in names:
+                parts = imported.split(".")
+                for i in range(1, len(parts) + 1):
+                    local = modules.get(".".join(parts[:i]))
+                    if local is not None:
+                        pending.append(local)
+    assert ROOT / "agents/tools/citation_fetcher.py" in visited
+    assert ROOT / "src/llmxive/librarian/verify.py" in visited
+
+
+def test_fast_collection_is_exact_partition_and_nightly_keeps_references():
+    import shlex
+
+    import yaml
+
+    def collect(marker):
+        result = subprocess.run(
+            [sys.executable, "-m", "pytest", "tests/real_call", "--collect-only", "-q", "-m", marker],
+            cwd=ROOT, text=True, capture_output=True, check=True,
+        )
+        return {line for line in result.stdout.splitlines() if line.startswith("tests/real_call/") and "::" in line}
+
+    workflow = yaml.safe_load((ROOT / ".github/workflows/llmxive-real-call-tests.yml").read_text())
+
+    def workflow_marker(job):
+        command = next(step["run"] for step in workflow["jobs"][job]["steps"]
+                       if step.get("run", "").startswith("pytest tests/real_call"))
+        args = shlex.split(command)
+        return args[args.index("-m") + 1]
+
+    all_fast = collect("not slow")
+    runtime = collect(workflow_marker("dartmouth"))
+    references = collect(workflow_marker("references"))
+    assert runtime and references and not (runtime & references)
+    assert runtime | references == all_fast
+    assert any("test_dartmouth_real_chat[configured-primary]" in node for node in runtime)
+    assert any("test_resolve_reference_present_for_every_service[zenodo" in node for node in references)
+    assert {node.split("::")[0] for node in references} == load("select_checks").REFERENCE_TESTS
+    assert any(step.get("run") == "pytest tests/contract -v"
+               for step in workflow["jobs"]["dartmouth"]["steps"])
+    assert "references" in workflow["jobs"]["real-call"]["needs"]
+    nightly = yaml.safe_load((ROOT / ".github/workflows/llmxive-real-call-nightly.yml").read_text())
+    commands = [step.get("run", "") for job in nightly["jobs"].values() for step in job["steps"]]
+    assert "pytest tests/real_call -v" in commands  # no exclusion of the new marker
+
+
+@pytest.mark.parametrize("pages", [[], [[]], [[{"filename": "notes/x"}] * 3000],
+    [[{"filename": "notes/renamed.md", "previous_filename": "src/llmxive/librarian/verify.py"}]]])
+def test_ambiguous_lists_and_reference_renames_keep_external_gate(pages, tmp_path):
+    import os
+
+    source = tmp_path / "files.json"
+    source.write_text(json.dumps(pages))
+    output = tmp_path / "output"
+    subprocess.run([sys.executable, str(ROOT / "scripts/ci/select_checks.py"), str(source)],
+                   env={**os.environ, "GITHUB_OUTPUT": str(output)}, check=True)
+    assert "references=true" in output.read_text()
 
 
 def test_sparse_checkout_preserves_exact_current_pdf_sample(tmp_path):
