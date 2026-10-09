@@ -1,3 +1,41 @@
+T001a:
+  c: true
+  h: 3192ae025f5206a4f08da29459880a7197ee10465503696be8051d6b9055ad3b
+  r: The `code/` directory is present in the repository and contains 11 entries (including
+    scripts, modules, and subdirectories), confirming that the required directory
+    structure has been created. This satisfies the sole requirement of task T001a.
+T001b:
+  c: true
+  h: 430a664ca3727faa2359a3670a05f42363d18fcd3c317eaa41cc37bd9b8ef5df
+  r: The `tests/` directory is present and contains multiple test files (e.g., `test_align_data.py`,
+    `test_correlation.py`, etc.), satisfying the requirement to create the test directory
+    structure.
+T001c:
+  c: true
+  h: 5da510491481ea9a49cd013644c86cb0eda2e30e5f8aa5c875c32c9e02fa9fd2
+  r: The `data/` directory contains the required subdirectories `raw/` and `processed/`,
+    and the file `checksums.txt` is present, fulfilling the specified structure.
+T002:
+  c: false
+  h: 3c29c208f85080044a0992d0157554964fa7a483b753c773683d01d9d8185f52
+  r: "No project files (e.g., pyproject.toml, requirements.txt, or a virtual environment\
+    \ setup) were provided to demonstrate that a Python\u202F3.11 project was created\
+    \ and that the listed dependencies are specified. Without these artifacts, the\
+    \ claim that the initialization task is done cannot be verified."
+T003:
+  c: false
+  h: d7ec3dfe4b89c54d3cc5bdca8980bbf06301cc8ac508d58f5798f8875df682e9
+  r: "No linting or formatting configuration files (e.g., .flake8, pyproject.toml\
+    \ with Black settings, or pre\u2011commit hooks) are present in the provided artifacts,\
+    \ so the requirement to configure flake8/black is not satisfied."
+T004:
+  c: true
+  h: cf8f4e9581b165acaf1fe68e5dc98222a1d845bb5f25267b6454f0990bf006ca
+  r: "The `code/utils/config.py` file is present, non\u2011empty, and defines concrete\
+    \ URLs for AMS\u201102 and NOAA sunspot data as well as a set of run parameters\
+    \ (lag window, gap threshold, significance level, bootstrap settings, rigidity\
+    \ bins, etc.). The implementation is functional code, not a stub, thus meeting\
+    \ the task\u2019s requirement."
 T015:
   c: false
   h: 5ce5722a655e39cf3e2e078e71b6f139458e92afe92f1875dca495353bdbf645
