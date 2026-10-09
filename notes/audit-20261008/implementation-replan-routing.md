@@ -35,3 +35,13 @@ Validation:
   unchanged spec/prior plan reach the planner. They stop at the model boundary;
   no model-generated plan, scientific acceptance, or full-pipeline success is
   claimed by these tests.
+
+CI follow-up: the first full suite found an older test asserting that
+`IN_PROGRESS -> CLARIFIED` must always be illegal. That assertion is obsolete
+for explicit exhausted-implementation recovery. Cross-stage convergence
+sentinels are independently rejected by their panel identity. Three added
+real-file regressions show stale plan/tasks sentinels cannot route an
+implementation project to `CLARIFIED` or `SPECIFIED`, even when the lifecycle
+edge itself is legal. They preserve task bytes, consume the stale sentinel, and
+leave replan counts and recovery feedback untouched. The expanded focused suite
+passes all 59 checks; exact-head remote CI remains required.

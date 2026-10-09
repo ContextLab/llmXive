@@ -398,12 +398,13 @@ def test_decide_next_stage_ignores_stale_cross_stage_kickback(
     """A leftover convergence sentinel naming to_stage=paper_planned, consumed at
     PAPER_ANALYZED (whose only legal edge is PAPER_IN_PROGRESS), must be IGNORED —
     _decide_next_stage returns the LEGAL edge, never paper_planned, never raises.
-    Also pins the edge-registry invariant for the recorded advance-error pairs."""
+    Also pins the remaining illegal recorded advance-error pairs."""
     # The invariant that made the recorded advance_errors illegal in the first
-    # place: none of these cross-stage sentinel edges are valid transitions.
+    # place still holds for these pairs. IN_PROGRESS -> CLARIFIED is now
+    # allowed for explicit exhausted-implementation recovery; stale sentinels
+    # must remain ignored independently of whether their target edge is legal.
     illegal_pairs = [
         (Stage.PAPER_ANALYZED, Stage.PAPER_PLANNED),  # PROJ-575, 601
-        (Stage.IN_PROGRESS, Stage.CLARIFIED),         # PROJ-577, 606
         (Stage.IN_PROGRESS, Stage.SPECIFIED),         # PROJ-644
     ]
     for src, dst in illegal_pairs:
@@ -442,3 +443,42 @@ def test_decide_next_stage_ignores_stale_cross_stage_kickback(
     assert result != Stage.PAPER_PLANNED
     assert result == Stage.PAPER_IN_PROGRESS
     assert is_valid_transition(project.current_stage, result) is True
+
+
+@pytest.mark.parametrize("panel,target", [
+    ("plan", Stage.CLARIFIED),
+    ("tasks", Stage.CLARIFIED),
+    ("plan", Stage.SPECIFIED),
+])
+def test_implementation_ignores_stale_panel_even_when_recovery_edge_is_legal(
+    tmp_path: Path, panel: str, target: Stage,
+) -> None:
+    """Allowing planner recovery must not revive old doc-panel sentinels."""
+    pid = "PROJ-577-stale-research-kb"
+    proj = _mk_project_dir(tmp_path, pid)
+    feature = proj / "specs/001-research"
+    feature.mkdir(parents=True)
+    tasks = feature / "tasks.md"
+    tasks.write_text("- [ ] T001 Produce required results\n")
+    now = datetime.now(UTC)
+    project = Project(
+        id=pid, title="stale research kickback", field="test",
+        current_stage=Stage.IN_PROGRESS, created_at=now, updated_at=now,
+        speckit_research_dir=f"projects/{pid}/specs/001-research",
+    )
+    project_store.save(project, repo_root=tmp_path)
+    mem = proj / ".specify/memory"
+    mem.mkdir(parents=True)
+    sentinel = mem / "convergence_kickback.yaml"
+    sentinel.write_text(yaml.safe_dump({
+        "to_stage": target.value, "stage": panel,
+        "reason": "outdated doc-panel concern",
+        "worst_severity": "requirement", "unresolved_concerns": [],
+    }))
+    assert is_valid_transition(Stage.IN_PROGRESS, Stage.CLARIFIED)
+    result = graph._decide_next_stage(project, proj, repo_root=tmp_path)
+    assert result == Stage.IN_PROGRESS
+    assert not sentinel.exists()
+    assert not (mem / "kickback_feedback.md").exists()
+    assert execution_status.replan_rounds(pid, repo_root=tmp_path) == 0
+    assert tasks.read_text() == "- [ ] T001 Produce required results\n"
