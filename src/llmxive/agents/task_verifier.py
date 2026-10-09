@@ -40,7 +40,7 @@ from llmxive.project_paths import _ROOTED_PATH_RE
 from llmxive.project_paths import declared_paths as _declared_paths
 from llmxive.project_paths import resolve_project_path as _evidence_path
 from llmxive.speckit.task_lines import TASK_ID_RE as _TASK_ID_RE
-from llmxive.speckit.task_lines import task_continuation
+from llmxive.speckit.task_lines import mask_fenced_code, task_continuation
 
 LOGGER = logging.getLogger(__name__)
 
@@ -338,7 +338,7 @@ def task_keys(tasks_text: str | list[str]) -> dict[int, str]:
     lines = tasks_text.splitlines() if isinstance(tasks_text, str) else tasks_text
     seen: dict[str, int] = {}
     out: dict[int, str] = {}
-    for i, line in enumerate(lines):
+    for i, line in enumerate(mask_fenced_code("\n".join(lines)).splitlines()):
         m = _TASK_LINE_RE.match(line)
         if not m:
             continue
@@ -423,8 +423,8 @@ def _cache_path(state_path: Path) -> Path:
 def _mark_counts(lines: list[str]) -> dict[str, int]:
     """Count real checkbox marks by kind (``X`` done / `` `` open / ``~`` under-review)."""
     out = {"X": 0, " ": 0, "~": 0}
-    for line in lines:
-        m = _TASK_LINE_RE.match(line)
+    for i in task_keys(lines):
+        m = _TASK_LINE_RE.match(lines[i])
         if not m:
             continue
         mk = m.group(2)
@@ -572,7 +572,8 @@ def run_verification_pass(
                 key, count,
             )
 
-    for i, line in enumerate(lines):
+    for i in keys:
+        line = lines[i]
         m = _TASK_LINE_RE.match(line)
         if not m:
             continue
@@ -724,7 +725,8 @@ def drain_under_review(
 
     accepted = reopened = ambiguous = 0
     newly_unverifiable: list[str] = []
-    for i, line in enumerate(lines):
+    for i in keys:
+        line = lines[i]
         m = _TASK_LINE_RE.match(line)
         if not m or m.group(2) != "~":
             continue
