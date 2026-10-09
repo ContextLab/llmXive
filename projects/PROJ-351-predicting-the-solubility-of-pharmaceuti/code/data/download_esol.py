@@ -16,13 +16,21 @@ import logging
 import urllib.request
 import urllib.error
 from pathlib import Path
-from typing import Optional, Tuple, List, Dict, Any
+from typing import Dict, Any
 
 # Ensure project root is in path for imports if running as script
 project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(project_root))
 
+# Import local logging configuration
 from config.logging_config import setup_logger
+
+# Optional: huggingface_hub for robust mirror download
+try:
+    from huggingface_hub import hf_hub_download
+    _HAS_HF_HUB = True
+except Exception:
+    _HAS_HF_HUB = False
 
 # Configuration
 PRIMARY_SOURCE = "https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv"
@@ -32,7 +40,7 @@ OUTPUT_DIR = "data/raw"
 STATE_MANIFEST_PATH = "state/projects/PROJ-351-predicting-the-solubility-of-pharmaceuti.yaml"
 REQUIRED_COLUMNS = ["logS"]
 
-# Setup logging
+# Setup logger
 logger = setup_logger("download_esol")
 
 def compute_sha256(filepath: Path) -> str:
@@ -48,8 +56,7 @@ def fetch_url(url: str, output_path: Path) -> None:
     logger.info(f"Attempting to fetch from: {url}")
     try:
         with urllib.request.urlopen(url, timeout=30) as response:
-            with open(output_path, 'wb') as out_file:
-                # Read in chunks to handle large files gracefully
+            with open(output_path, "wb") as out_file:
                 while True:
                     chunk = response.read(8192)
                     if not chunk:
@@ -70,7 +77,7 @@ def validate_csv(filepath: Path) -> bool:
     """Validate that the CSV contains required columns."""
     try:
         import pandas as pd
-        df = pd.read_csv(filepath, nrows=5) # Read header and a few rows
+        df = pd.read_csv(filepath, nrows=5)  # Read header and a few rows
         missing_cols = [col for col in REQUIRED_COLUMNS if col not in df.columns]
         if missing_cols:
             logger.error(f"Validation failed: Missing required columns: {missing_cols}")
@@ -87,26 +94,23 @@ def load_yaml_manifest(filepath: Path) -> Dict[str, Any]:
         import yaml
         if not filepath.exists():
             return {"artifact_hashes": {}}
-        with open(filepath, 'r') as f:
+        with open(filepath, "r") as f:
             return yaml.safe_load(f) or {"artifact_hashes": {}}
     except ImportError:
-        # Fallback if pyyaml not installed (unlikely given T002) but handle gracefully
-        logger.warning("PyYAML not installed. Attempting simple parse or failing.")
+        logger.warning("PyYAML not installed. Returning empty manifest.")
         if not filepath.exists():
             return {"artifact_hashes": {}}
-        # Simple parser for the specific expected format if yaml is missing
-        # This is a last resort; ideally pyyaml is installed.
-        return {"artifact_hashes": {}} 
+        return {"artifact_hashes": {}}
 
 def save_yaml_manifest(filepath: Path, data: Dict[str, Any]) -> None:
     """Save data to a YAML file."""
     try:
         import yaml
         filepath.parent.mkdir(parents=True, exist_ok=True)
-        with open(filepath, 'w') as f:
+        with open(filepath, "w") as f:
             yaml.dump(data, f, default_flow_style=False)
         logger.info(f"Updated state manifest at {filepath}")
-    except ImportError:
+    except ImportError as e:
         logger.error("PyYAML is required to update the state manifest.")
         raise
 
@@ -114,27 +118,28 @@ def update_state_manifest(output_file: Path, checksum: str) -> None:
     """Update the project state manifest with the new checksum."""
     manifest_path = project_root / STATE_MANIFEST_PATH
     data = load_yaml_manifest(manifest_path)
-    
+
     # Ensure artifact_hashes key exists
     if "artifact_hashes" not in data:
         data["artifact_hashes"] = {}
-    
-    # Update the specific hash
+
+    # Update the specific hash using a relative path from the project root
     relative_path = str(output_file.relative_to(project_root))
     data["artifact_hashes"][relative_path] = f"sha256:{checksum}"
-    
+
     save_yaml_manifest(manifest_path, data)
 
 def fetch_esol_dataset(output_dir: Path) -> Path:
     """
-    Fetch ESOL dataset from primary source, fallback to mirror if needed.
-    Raises RuntimeError if both fail.
+    Fetch ESOL dataset from primary source, fallback to mirror if needed,
+    and finally try huggingface_hub if both URLs fail.
+    Raises RuntimeError if all attempts fail.
     """
     output_dir.mkdir(parents=True, exist_ok=True)
     output_path = output_dir / OUTPUT_FILENAME
 
     sources = [PRIMARY_SOURCE, FALLBACK_SOURCE]
-    
+
     for url in sources:
         try:
             fetch_url(url, output_path)
@@ -142,36 +147,54 @@ def fetch_esol_dataset(output_dir: Path) -> Path:
                 return output_path
             else:
                 logger.warning(f"Validation failed for {url}, removing file.")
-                output_path.unlink()
+                output_path.unlink(missing_ok=True)
         except Exception as e:
             logger.warning(f"Failed to fetch or validate from {url}: {e}")
             if output_path.exists():
-                output_path.unlink()
+                output_path.unlink(missing_ok=True)
             continue
+
+    # Final attempt: use huggingface_hub if available
+    if _HAS_HF_HUB:
+        try:
+            logger.info("Attempting download via huggingface_hub...")
+            hf_path = hf_hub_download(
+                repo_id="deepchem/delaney-processed",
+                filename=OUTPUT_FILENAME,
+                repo_type="dataset"
+            )
+            # Copy the downloaded file to the desired location
+            Path(hf_path).rename(output_path)
+            if validate_csv(output_path):
+                return output_path
+            else:
+                logger.error("Validation failed for file downloaded via huggingface_hub.")
+                output_path.unlink(missing_ok=True)
+        except Exception as e:
+            logger.error(f"HuggingFace hub download failed: {e}")
 
     raise RuntimeError(
         f"CRITICAL: Could not fetch real ESOL data from any source. "
-        f"Primary: {PRIMARY_SOURCE}, Fallback: {FALLBACK_SOURCE}. "
-        "Aborting. No synthetic data allowed."
+        f"Primary: {PRIMARY_SOURCE}, Fallback: {FALLBACK_SOURCE}, "
+        "HuggingFace hub also failed. No synthetic data allowed."
     )
 
 def main():
     """Main entry point for the download task."""
     logger.info("Starting ESOL dataset download (Task T004)...")
-    
+
     output_path = project_root / OUTPUT_DIR
     try:
         csv_path = fetch_esol_dataset(output_path)
-        
+
         # Compute checksum
         checksum = compute_sha256(csv_path)
         logger.info(f"SHA-256 Checksum: {checksum}")
-        
+
         # Update manifest
         update_state_manifest(csv_path, checksum)
-        
+
         logger.info("Task T004 completed successfully.")
-        
     except Exception as e:
         logger.error(f"Task T004 failed: {e}")
         raise

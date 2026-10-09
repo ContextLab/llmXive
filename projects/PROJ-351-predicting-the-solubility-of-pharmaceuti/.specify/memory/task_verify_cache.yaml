@@ -1,3 +1,30 @@
+T001:
+  c: true
+  h: 3db4acb5a7c760e0bd9a51393208c64377117bae03b73f624183cc92495f7ee3
+  r: "I verified that the top\u2011level directories `code/`, `data/`, `models/`,\
+    \ `results/`, and `tests/` all exist in the repository and each contains files\
+    \ (e.g., `code/main_pipeline.py`, `data/.gitkeep`, `models/.gitkeep`, `results/baseline_metrics.json`,\
+    \ `tests/unit/`). This fulfills the stated project\u2011structure requirement."
+T002:
+  c: true
+  h: 7125931fe81637fe3b33c4eca075d963cad576ef286f3923406ad7ce119ae188
+  r: "The provided `requirements.txt` exists, is non\u2011empty, and pins all required\
+    \ packages (rdkit, torch\u202FCPU, torch\u2011geometric, scikit\u2011learn, pandas,\
+    \ numpy, matplotlib, scipy) with specific versions. This satisfies the initialization\
+    \ task."
+T003:
+  c: false
+  h: 81af33f8c8c0dc282a6110e7cc79b45cfc1ccb73a75df1c44b9e02eac31e2f2a
+  r: "No linting or formatting configuration files (e.g., .flake8, pyproject.toml/black\
+    \ settings, or pre\u2011commit hooks) are present in the provided artifacts, so\
+    \ the requirement to configure flake8/black is not satisfied."
+T003b:
+  c: false
+  h: f485188c3e72ee70a9af09e0d0a47cf5a2a1f03d8a9af844deb85960ccd6d0ce
+  r: "The `contracts/model_output.schema.yaml` file is present, but its contents only\
+    \ define `status`, `artifacts`, and `errors`; it does not define the required\
+    \ structures for `metrics`, `statistical_test`, or `viz_manifest` as the task\
+    \ specifies. The schema therefore does not satisfy the task\u2019s requirement."
 T004:
   c: false
   h: 4e507c7a894cb5a77ccdeb40dd9c7ca2609808edb18a00aa6d52c1a719420a26
@@ -8,6 +35,21 @@ T004:
     \ the implementation is incomplete. The missing artifacts must be created and\
     \ the script must contain the full fallback and checksum\u2011recording logic\
     \ to satisfy the task."
+T005:
+  c: false
+  h: 0e30ced05bb4a51b18c81ad1e8d7c6d192b0225d2206e59bd707f8629e3bd559
+  r: The script does not produce the required `data/processed/cleaned_graphs.pkl`
+    (file is missing) and its output dictionaries lack the mandated keys (`mol` and
+    a combined `features` dict) while also omitting SMILES canonicalization. Additionally,
+    the exclusion log is written to the output directory rather than `data/logs/exclusions.log`,
+    violating the logging location requirement.
+T007:
+  c: true
+  h: 2720aca039347ae9228687909b3c86a5161e5f59093813284e7c0611be15b22e
+  r: "The repository contains a non\u2011empty `code/models.py` defining fully\u2011\
+    featured `Molecule` and `DatasetSplit` dataclasses (with serialization helpers,\
+    \ validation, and statistics), and `code/__init__.py` correctly re\u2011exports\
+    \ them. This meets the task\u2019s requirement for base data models."
 T012a:
   c: false
   h: 877622d2c4e86bafb482ac98c019e2352650de4d9117448720865ebf49c82bf3

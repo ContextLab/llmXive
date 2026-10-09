@@ -1,8 +1,9 @@
 status: none
-intent: ESOL dataset MoleculeNet download RDKit python package dataset
+intent: download ESOL dataset from MoleculeNet using DeepChem python package dataset
 required_fields:
 - SMILES
-- logS
-cache_key: 4e2c4c96902c1e8c1fc662118191168dc4143d42015e3250706d886c10e57337
-searched_at: '2026-10-01T10:36:52.519407+00:00'
+- measured_logS
+- exp
+cache_key: 87459f8907ee71d0ba301a21974cc910d4869272fb36ab2d9c2c172a3460e095
+searched_at: '2026-10-09T09:22:39.328198+00:00'
 retry_count: 1
