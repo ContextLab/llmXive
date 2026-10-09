@@ -122,7 +122,12 @@ def _dartmouth_model_kwargs(model: str) -> dict[str, object]:
     for a stage that genuinely needs chain-of-thought. gpt-oss reasons far less and
     is left alone; non-reasoning peers (gemma/llama) ignore the kwarg.
     """
-    kwargs: dict[str, object] = {"timeout": _deadline_for_model(model)}
+    kwargs: dict[str, object] = {
+        "timeout": _deadline_for_model(model),
+        # The router/backend own bounded retries. SDK retries otherwise keep
+        # making requests after our outer deadline has abandoned this worker.
+        "max_retries": 0,
+    }
     if "qwen" in model.lower() and os.environ.get("LLMXIVE_QWEN_ENABLE_THINKING") != "1":
         kwargs["extra_body"] = {"chat_template_kwargs": {"enable_thinking": False}}
     return kwargs
