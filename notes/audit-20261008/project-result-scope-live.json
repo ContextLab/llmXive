@@ -1,0 +1,26 @@
+[
+  {
+    "kind": "result",
+    "text": "The run reports all totients match validation.",
+    "canonical": "all totients match validation",
+    "source_type": "result"
+  },
+  {
+    "kind": "result",
+    "text": "For all three primes the conditional TV sequence is non-increasing across the sorted N values. No reversals were detected.",
+    "canonical": "conditional TV sequence is non-increasing for three primes with no reversals",
+    "source_type": "result"
+  },
+  {
+    "kind": "result",
+    "text": "The generated summary CSV contains 12 rows.",
+    "canonical": "generated summary CSV contains 12 rows",
+    "source_type": "result"
+  },
+  {
+    "kind": "numeric",
+    "text": "The cited 2021 paper proves an asymptotic equidistribution theorem for totients restricted to coprime residue classes.",
+    "canonical": "2021 paper proves asymptotic equidistribution theorem for totients in coprime residue classes",
+    "source_type": "external"
+  }
+]

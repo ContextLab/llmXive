@@ -73,7 +73,7 @@ _ENTITY_FACT_RE = re.compile(
 # ---------------------------------------------------------------------------
 
 
-def classify(raw_text: str, canonical: str) -> ClaimKind:
+def classify(raw_text: str, canonical: str, *, allow_result: bool = True) -> ClaimKind:
     """Return the most specific ClaimKind for this claim (rule-based, pure)."""
     combined = raw_text + " " + canonical
 
@@ -86,7 +86,7 @@ def classify(raw_text: str, canonical: str) -> ClaimKind:
     if _RELATIONAL_RE.search(combined) or _TRIPLE_SEP_RE.search(canonical):
         return ClaimKind.RELATIONAL
 
-    if _RESULT_RE.search(combined):
+    if allow_result and _RESULT_RE.search(combined):
         return ClaimKind.RESULT
 
     if _CITATION_RE.search(combined):

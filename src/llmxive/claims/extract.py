@@ -18,7 +18,7 @@ from typing import Any
 
 from llmxive.backends.router import reasoning_chat
 from llmxive.claims.classify import classify
-from llmxive.claims.models import Claim, ClaimStatus, compute_claim_id
+from llmxive.claims.models import Claim, ClaimKind, ClaimStatus, compute_claim_id
 
 logger = logging.getLogger(__name__)
 
@@ -123,7 +123,7 @@ def _strip_outer_quotes(value: str) -> str:
 
 # Recognized field keys in the extraction contract (Output format §).
 _FIELD_RE = re.compile(
-    r"^\s*-?\s*(claim_text|canonical|context|number|source)\s*:\s*(.*)$"
+    r"^\s*-?\s*(claim_text|canonical|context|number|source|evidence_scope)\s*:\s*(.*)$"
 )
 
 
@@ -152,7 +152,7 @@ def tolerant_field_entries(raw: str) -> list[dict[str, str]]:
         if not m:
             continue
         key, val = m.group(1), _strip_outer_quotes(m.group(2))
-        if key == "number":
+        if key in {"number", "evidence_scope"}:
             # The prompt's example carries an inline "# ..." comment; strip it
             # ONLY here (claim_text/canonical/context may legitimately contain #).
             val = val.split("#", 1)[0].strip()
@@ -184,7 +184,9 @@ def _tolerant_parse_claims(raw: str, artifact_path: str) -> list[Claim]:
             continue
         canonical = (entry.get("canonical") or claim_text).strip()
         context = (entry.get("context") or "").strip()
-        kind = classify(claim_text, canonical)
+        kind = (ClaimKind.RESULT if entry.get("evidence_scope") == "project_result"
+                else classify(claim_text, canonical,
+                              allow_result=entry.get("evidence_scope") != "external"))
         claim_id = compute_claim_id(kind, canonical, context)
         out.append(Claim(
             claim_id=claim_id,
@@ -193,7 +195,7 @@ def _tolerant_parse_claims(raw: str, artifact_path: str) -> list[Claim]:
             canonical=canonical,
             context=context,
             artifact_path=artifact_path,
-            source_type="external",
+            source_type="result" if kind == ClaimKind.RESULT else "external",
             status=ClaimStatus.PENDING,
             resolved_value=None,
             evidence=None,
@@ -250,7 +252,9 @@ def _parse_extraction_reply(reply_text: str, artifact_path: str) -> list[Claim]:
             continue
         canonical = str(entry.get("canonical") or claim_text).strip()
         context = str(entry.get("context") or "").strip()
-        kind = classify(claim_text, canonical)
+        kind = (ClaimKind.RESULT if entry.get("evidence_scope") == "project_result"
+                else classify(claim_text, canonical,
+                              allow_result=entry.get("evidence_scope") != "external"))
         claim_id = compute_claim_id(kind, canonical, context)
         out.append(Claim(
             claim_id=claim_id,
@@ -259,7 +263,7 @@ def _parse_extraction_reply(reply_text: str, artifact_path: str) -> list[Claim]:
             canonical=canonical,
             context=context,
             artifact_path=artifact_path,
-            source_type="external",
+            source_type="result" if kind == ClaimKind.RESULT else "external",
             status=ClaimStatus.PENDING,
             resolved_value=None,
             evidence=None,
@@ -432,7 +436,7 @@ def extract_claims(
         ChatMessage(
             role="system",
             content=(
-                "You extract check-worthy, externally-attributable claims "
+                "You extract check-worthy external facts and project-result claims "
                 "from scientific documents.\n\n" + prompt_block
             ),
         ),
