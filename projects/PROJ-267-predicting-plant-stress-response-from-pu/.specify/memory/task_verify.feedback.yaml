@@ -1,0 +1,45 @@
+T001:
+  reason: "The skeleton includes the required directories `data/raw/`, `data/processed/`,\
+    \ `docs/`, `results/`, the `requirements.txt`, `code/main.py` with a functional\
+    \ `--stage noop` option, and `docs/structure.txt`. However, the `logs/` directory\
+    \ is not present in the repository snapshot, violating the task\u2019s requirement\
+    \ for a `logs/` folder. Adding an empty `logs/` (e.g., with a `.gitkeep`) will\
+    \ complete the skeleton."
+  task: 38123298df576f68cc50fe6c6f6ed3bdc00ff0b06cb24880855ddd8ed7f92eb0
+T002:
+  task: 3284aeae70b5c17b95c4dc406e6e1cd30449b590d05719c2ae79b6ef5543cf89
+T003:
+  task: 958dcd1a06adecf900342109128806160755d9f76a6406086cfaa8de0dd5bcdc
+T004:
+  task: 21000761181ea7d5169d4281fbf1574ca8af1ad55252459903cd174cc8d21cf5
+T005:
+  task: 07f218c7a9f63a69fd8cd0ddfcba0797ef90d67c304eebd5bdd448101aa948b9
+T006:
+  reason: The repository contains the required `code/utils/logger.py`, but there is
+    no evidence that other pipeline modules import and use this logger, nor any proof
+    that a pipeline run creates `logs/pipeline.log` with entries for dropped rows,
+    missing columns, or errors. The missing execution logs and import usage must be
+    provided.
+  task: 8bed239b54ddad9c050d9babcf06e9832a33ab2be20f850d1d87661268ddeddb
+T007:
+  task: 3a1ec68fcd0962655d5f16bfacf1ee07747ecc67fb79a51a8304503f42be69da
+T008:
+  task: 140c7314dc12c4e7df0a8697ad967a549d71c29f5a90d72d1d766ab0fefa47f6
+T009:
+  task: 54ecf8a3fd1968ca4150892df8f621382c686fa21a04114ba828d713be9839e4
+T010:
+  task: 309a3caaa008c9d33f3b009f08f79ae28cc2eb49307016d5c97c54e26f0b1f2b
+T011:
+  task: b7eb95c319d9d795d0178b4ed0c45826de27faa84fa6ec38d6708c22ae3b5829
+T012:
+  task: 4abab73e8128aaaefd571f63a3b15050eed9de6b1aea82e9c35a8055161c9cd1
+T013:
+  task: fb4a21e3f7db08e1cddf2a8a706c9c44e1ecebbdbb35a031628189c8929ca5f2
+T014:
+  task: 2f98934cf3429fd086b03972f2a544c3605266d977a21103bd4a595210752c80
+T015:
+  task: 835870e4bfa138cae4ad1ea2e4c56de489223e3eb39540bc17d95aeb8a461cf8
+T016:
+  task: ae15076cf3daabc924762538a0744bf1143671d6207dc5bf810a8c598a58265f
+T017:
+  task: ec51559558026a8432ec4849c8cc3068f5e81a9b243d63c0c4b99b17e3b15741

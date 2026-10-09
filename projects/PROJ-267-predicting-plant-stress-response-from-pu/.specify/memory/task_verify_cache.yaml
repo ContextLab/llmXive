@@ -1,11 +1,13 @@
-T001b:
+T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `data/raw/` and `data/processed/` directories is
-    provided; the response contains only the task description and specifications,
-    with no file system listing or screenshots confirming the directories exist. The
-    implementer must create the directories and supply proof (e.g., a directory tree
-    listing).
+  h: 9a9e060d6351f230b995c3ab82dc19f57c34dfd5bc5209b8ffb90fc700b50865
+  r: "The skeleton includes the required directories `data/raw/`, `data/processed/`,\
+    \ `docs/`, `results/`, the `requirements.txt`, `code/main.py` with a functional\
+    \ `--stage noop` option, and `docs/structure.txt`. However, the `logs/` directory\
+    \ is not present in the repository snapshot, violating the task\u2019s requirement\
+    \ for a `logs/` folder. Adding an empty `logs/` (e.g., with a `.gitkeep`) will\
+    \ complete the skeleton."
+  sig: 586ffee8afe4d3af9092349ce80e5b05e8a9294639ca5a39a76cba552b64dcf5
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -23,10 +25,13 @@ T005:
     \ task is not satisfied."
 T006:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No logging configuration, code, or `logs/pipeline.log` file is presented; the
-    evidence does not show that warnings (e.g., dropped rows, missing data) are being
-    captured to the specified log path. The required artifact is missing.
+  h: 632556280e45995ee3558ae75f558b3b922c10196c63aa8a9ad50968dd283363
+  r: The repository contains the required `code/utils/logger.py`, but there is no
+    evidence that other pipeline modules import and use this logger, nor any proof
+    that a pipeline run creates `logs/pipeline.log` with entries for dropped rows,
+    missing columns, or errors. The missing execution logs and import usage must be
+    provided.
+  sig: 0d6fa9d5389869e0430a958a35c51f0bad4653861405ef7da6a361060e53de0e
 T012:
   c: false
   h: 4196c01992af3b9c57e273d5a0d9687585e94c1533e876bf1e995b8d147e7541
@@ -35,62 +40,3 @@ T012:
     \ entirely, so the required version pin for `imp3` is not present. The `docs/deviation_log.md`\
     \ documents a different deviation (cross\u2011validation) and does not note any\
     \ fallback for an unavailable `imp3` library."
-T018:
-  c: false
-  h: 1fede6c0126cba44057690a1cf824839dad4b534b4dca31288c2382bb4a52043
-  r: "The `code/data_ingestion/completeness.py` file is present but its content is\
-    \ truncated and does not show the logic that writes `results/data_completeness.json`.\
-    \ Moreover, the required output file `results/data_completeness.json` is missing\
-    \ from the repository. The task\u2019s core deliverable \u2013 a JSON file with\
-    \ the calculated completeness metric \u2013 has not been produced."
-T027:
-  c: false
-  h: 2b04cc9de316109c5368eb2ece5b52c20a18f4cc724a2cd15b6be5afeb34797b
-  r: "The `metrics.py` file defines functions to collect runtime stats and check limits,\
-    \ but it never writes those stats to `results/runtime_metrics.json` and does not\
-    \ contain an assertion or `sys.exit` that forces a non\u2011zero exit when limits\
-    \ are exceeded. Moreover, the required `results/runtime_metrics.json` file is\
-    \ missing from the repository. The task\u2019s core requirement\u2014logging metrics\
-    \ to the JSON file and enforcing the resource\u2011limit assertion\u2014is not\
-    \ satisfied."
-T029:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `metrics.py` file (or any code changes) was provided, and there\
-    \ is no snippet showing a sanity\u2011check that validates input data (e.g., checks\
-    \ for non\u2011zero variance or required attributes) before writing runtime metrics.\
-    \ The required artifact is missing, so the task is not satisfied."
-T030a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No updated `README.md` file was provided or shown, and there is no evidence that
-    the required installation steps, usage examples, Data Sources, and Results sections
-    have been added. The implementer must supply the modified README containing those
-    sections.
-T030b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No files from the `code/` directory were presented, and there is no evidence
-    showing that any public functions now contain docstrings. The implementer must
-    provide the source files (or a diff) demonstrating that every public function
-    in `code/` has an appropriate docstring.
-T033:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `tests/unit/` directory or any unit test files was provided,\
-    \ and there are no shown test cases that address the specified edge cases (all\u2011\
-    missing columns, mismatched IDs). The required additional unit tests are therefore\
-    \ missing."
-T034:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact showing that `quickstart.md` was executed and validated is present;
-    there are no logs, screenshots, or reports confirming the pipeline runs reproducibly,
-    so the requirement is not satisfied.
-T041:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `download.py` file or diff showing the removal of try/except blocks and the
-    introduction of loud exceptions is provided. Without the actual code changes,
-    we cannot confirm that synthetic fallbacks were eliminated or that failures now
-    raise immediate exceptions. The required artifact is missing.

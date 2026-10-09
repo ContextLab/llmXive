@@ -1,6 +1,6 @@
 status: none
-intent: plant abiotic stress GEO proteomics transcriptomics dataset python package
-  dataset
+intent: download GEO and ProteomeXchange plant proteomics transcriptomics dataset
+  biomaRt reference python package dataset
 required_fields:
 - sample_id
 - species
@@ -10,8 +10,8 @@ required_fields:
 - gene_id
 - gene_expression
 - detection_rate
+- imputed_flag
 - publication_date
-- dataset_accession
-cache_key: 025642bf8a14ba29484d96028bced31625477cc0144f215b36bf5831f34083e8
-searched_at: '2026-10-09T18:30:16.954272+00:00'
+cache_key: 15a73ffeda99dab5b4cec12bc211dae6a9ca4708c6b1450aa1ff6ee864d0ef81
+searched_at: '2026-10-09T18:50:16.052527+00:00'
 retry_count: 1

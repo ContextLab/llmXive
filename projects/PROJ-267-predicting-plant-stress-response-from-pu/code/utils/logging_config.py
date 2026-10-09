@@ -1,90 +1,51 @@
-import logging
-import os
-import sys
-from pathlib import Path
-from logging.handlers import RotatingFileHandler
-from .config import LOG_LEVEL, LOG_PATH, LOG_MAX_BYTES, LOG_BACKUP_COUNT
+"""
+Compatibility layer for the original ``utils.logging_config`` API.
 
-# Ensure log directory exists
-if LOG_PATH:
-    LOG_PATH.mkdir(parents=True, exist_ok=True)
+Historical pipeline code imports ``setup_logging``, ``get_logger`` and
+``log_warning`` from ``code.utils.logging_config``.  The actual
+implementation now lives in :pymod:`code.utils.logger`.  This module
+re‑exports those callables so that existing imports continue to work
+without modification.
+"""
 
-_loggers = {}
+from .logger import get_logger as _get_logger
+from .logger import log_warning as _log_warning
+from .logger import setup_logging as _setup_logging
 
 
 def setup_logging() -> None:
     """
-    Configure the root logger for the application.
+    Initialise the logging system.
 
-    Sets up a rotating file handler for logs and a console handler.
+    Delegates to :func:`code.utils.logger.setup_logging`.
     """
-    if not os.path.exists(LOG_PATH):
-        os.makedirs(LOG_PATH, exist_ok=True)
-
-    log_file = LOG_PATH / "pipeline.log"
-
-    # Configure root logger
-    root_logger = logging.getLogger()
-    root_logger.setLevel(LOG_LEVEL)
-
-    # Clear existing handlers to avoid duplicates
-    if root_logger.handlers:
-        root_logger.handlers.clear()
-
-    # File handler with rotation
-    file_handler = RotatingFileHandler(
-        log_file,
-        maxBytes=LOG_MAX_BYTES,
-        backupCount=LOG_BACKUP_COUNT,
-        encoding='utf-8'
-    )
-    file_handler.setLevel(LOG_LEVEL)
-
-    # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(LOG_LEVEL)
-
-    # Formatter
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    file_handler.setFormatter(formatter)
-    console_handler.setFormatter(formatter)
-
-    root_logger.addHandler(file_handler)
-    root_logger.addHandler(console_handler)
+    _setup_logging()
 
 
-def get_logger(name: str) -> logging.Logger:
+def get_logger(name: str = "pipeline"):
     """
-    Get a named logger instance.
+    Retrieve the project‑wide logger.
 
-    Args:
-        name: The name of the logger (usually __name__).
+    Parameters
+    ----------
+    name: str, optional
+        Name of the logger to retrieve.  Defaults to ``\"pipeline\"``.
 
-    Returns:
-        A configured logger instance.
+    Returns
+    -------
+    logging.Logger
+        Configured logger instance.
     """
-    if name in _loggers:
-        return _loggers[name]
-
-    logger = logging.getLogger(name)
-    if not logger.handlers:
-        # Ensure root logging is set up
-        if not logging.getLogger().handlers:
-            setup_logging()
-        logger.setLevel(LOG_LEVEL)
-        # Handlers are inherited from root, but we ensure propagation is true
-        logger.propagate = True
-    _loggers[name] = logger
-    return logger
+    return _get_logger(name)
 
 
 def log_warning(message: str) -> None:
     """
-    Log a warning message to the root logger.
+    Log a warning message via the shared logger.
 
-    Args:
-        message: The warning message to log.
+    Parameters
+    ----------
+    message: str
+        Warning text.
     """
-    logging.warning(message)
+    _log_warning(message)

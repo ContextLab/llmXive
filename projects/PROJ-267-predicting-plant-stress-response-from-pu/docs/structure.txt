@@ -1,0 +1,24 @@
+.
+├── code
+│   ├── __init__.py
+│   ├── main.py
+│   └── utils
+│       ├── __init__.py
+│       ├── config.py
+│       └── logging_config.py
+├── data
+│   ├── raw
+│   │   └── .gitkeep
+│   └── processed
+│       └── .gitkeep
+├── docs
+│   ├── structure.txt
+│   └── .gitkeep
+├── logs
+│   └── .gitkeep
+├── results
+│   └── .gitkeep
+├── requirements.txt
+├── quickstart.md
+└── tests
+    └── .gitkeep
