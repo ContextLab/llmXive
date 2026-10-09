@@ -1,7 +1,0 @@
-{
-  "task_id": "T001b_v",
-  "fingerprint": "f2ad3aaa7f7e9b38ea3e13238d14294ad16799961e4da7767e198d045602ebe4",
-  "count": 1,
-  "model": "openai.gpt-oss-120b",
-  "reason": "[implementer] refused empty contents without execution: 'data/minigrid_ground_truth.jsonl'"
-}

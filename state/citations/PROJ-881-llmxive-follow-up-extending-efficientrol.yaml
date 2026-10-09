@@ -31,14 +31,47 @@
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
   verified_at: '2026-07-29T11:30:28.831316Z'
-- artifact_hash: 28f8dc57b437f628f86441943fa62765800d278df9dd24771319f28ed7e31ddc
-  artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/glmm_design.md
+- artifact_hash: 777ef9d35e6339237e641b8d0fc73fa60f0ce8882305c9d5e4622aa1ba71cfdd
+  artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/model_selection.md
   cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "Qwen/Qwen1.5-0.5B \xB7 Hugging Face"
+  kind: url
+  value: https://huggingface.co/Qwen/Qwen1.5-0.5B
+  verification_status: pending
+  verified_against_url: https://huggingface.co/Qwen/Qwen1.5-0.5B
+  verified_at: '2026-10-09T21:27:51.356919Z'
+- artifact_hash: 777ef9d35e6339237e641b8d0fc73fa60f0ce8882305c9d5e4622aa1ba71cfdd
+  artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/model_selection.md
+  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://github.com/jaekwon/pymer4
-  verification_status: mismatch
-  verified_against_url: https://github.com/jaekwon/pymer4
-  verified_at: '2026-09-27T04:41:16.510261Z'
+  value: https://huggingface.co/Qwen/Qwen1.5-1.5B
+  verification_status: pending
+  verified_against_url: https://huggingface.co/Qwen/Qwen1.5-1.5B
+  verified_at: '2026-10-09T21:27:51.356919Z'
+- artifact_hash: 777ef9d35e6339237e641b8d0fc73fa60f0ce8882305c9d5e4622aa1ba71cfdd
+  artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/model_selection.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/Qwen/Qwen1.5-7B-Int4
+  verification_status: pending
+  verified_against_url: https://huggingface.co/Qwen/Qwen1.5-7B-Int4
+  verified_at: '2026-10-09T21:27:51.356919Z'
+- artifact_hash: 777ef9d35e6339237e641b8d0fc73fa60f0ce8882305c9d5e4622aa1ba71cfdd
+  artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/model_selection.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: "meta-llama/Llama-2-7b-hf \xB7 Hugging Face"
+  kind: url
+  value: https://huggingface.co/meta-llama/Llama-2-7b-hf
+  verification_status: pending
+  verified_against_url: https://huggingface.co/meta-llama/Llama-2-7b-hf
+  verified_at: '2026-10-09T21:27:51.356919Z'

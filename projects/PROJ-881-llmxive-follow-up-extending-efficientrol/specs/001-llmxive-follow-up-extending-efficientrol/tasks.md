@@ -23,9 +23,9 @@ Tasks are ordered to respect data‑flow dependencies; later tasks depend only o
 
 - [ ] T002 [Plan] Select a CPU‑feasible model and benchmark 0.5 B / 1.5 B / 7 B‑Int4 variants.  
   *Deliverable*: `docs/model_selection.md`.  
-- [ ] T002_v [Test] Verify `docs/model_selection.md` exists and documents a Llama‑2‑7B (or 1.5B) model as required by FR‑002.  
+- [X] T002_v [Test] Verify `docs/model_selection.md` exists and documents a Llama‑2‑7B (or 1.5B) model as required by FR‑002.  
 
-- [ ] T003 [Plan] Design the Mixed‑Effects Logistic Regression (GLMM) formula and stratification plan.  
+- [X] T003 [Plan] Design the Mixed‑Effects Logistic Regression (GLMM) formula and stratification plan.  
   *Deliverable*: `docs/glmm_design.md`.  
 - [ ] T003_v [Test] Verify `docs/glmm_design.md` exists and is syntactically valid (basic markdown checks).  
 

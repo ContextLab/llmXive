@@ -9,8 +9,23 @@ T001a_v:
 T001b:
   task: ff3f90d9f66dfa18cfb71a36782d8fd1b2b7c61d6bac4456d380374d2a156e2b
 T001b_v:
+  reason: "The test file `tests/contract/test_semantic_alignment_minigrid.py` exists\
+    \ and is a substantive, non-stub contract test checking the required schema keys\
+    \ (task_type, description, validity_criteria, ground_truth_source). However, there\
+    \ is no evidence that the contract file `specs/001-entropy-validity-prediction/contracts/semantic_alignment_minigrid.md`\
+    \ actually exists on disk, nor any pytest execution output showing the test passes\
+    \ \u2014 the test's whole purpose is to verify that contract, and an unexecuted\
+    \ test whose target file is unconfirmed cannot establish conformance. The next\
+    \ implementer shou"
   task: ffc72f165bd74433745fac0951eb1f1e575a6e1e039469499cf60f54433e4c65
 T002:
+  reason: The only artifact is `docs/model_selection.md`; the referenced benchmark
+    script `scripts/evaluate_model_feasibility.py` and output `results/model_benchmarks.json`
+    do not exist, and no execution evidence backs the reported RAM/latency numbers
+    (e.g., 4.2 GB, 0.68 s), which appear fabricated. The document also cites a nonexistent
+    model identifier (`Qwen/Qwen1.5-7B-Int4`) and "internal validation logs" that
+    are not on disk. The implementer must actually run a benchmark script and produce
+    the underlying results JSON before the selection document can be accepted.
   task: ab1b514cdede5a3c749709c6ba5d8f615b69d77af526debe96ed0eb4ee44b8b1
 T002_v:
   task: 41ed9e448d3ee840f600cb1d349db7367410d778aac1330c457bbebb46751974

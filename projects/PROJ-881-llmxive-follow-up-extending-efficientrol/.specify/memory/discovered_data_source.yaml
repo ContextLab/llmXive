@@ -1,12 +1,12 @@
 status: none
-intent: download GSM8K and MiniGrid datasets from Hugging Face Datasets python package
-  dataset
+intent: download GSM8K MiniGrid tokenized sequences with per-token validity flags
+  from HuggingFace python package dataset
 required_fields:
-- example_id
+- task
 - prompt
 - ground_truth_solution
 - generated_token_sequence
-- validity_flags
-cache_key: 7d3f172dd18cf922bb4dc6f3e5025eb2fcba6886312c7d4beb2aa9046ea00dca
-searched_at: '2026-10-09T21:26:08.349690+00:00'
+- token_validity_flags
+cache_key: 5eefbbcfb8591c3f30e9a0d00b5a86b31c02c48a2144f218fa7ca94aec24273d
+searched_at: '2026-10-09T21:30:33.828165+00:00'
 retry_count: 1

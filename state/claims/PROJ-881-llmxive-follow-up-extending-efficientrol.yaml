@@ -6395,3 +6395,700 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-09T21:24:53Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/model_selection.md
+  attempts: 1
+  canonical: Qwen1.5-0.5B uses 1.5 GB RAM and 0.34 s latency
+  claim_id: c_5dfcb1c2
+  context: "Benchmark results show that the 0.5\u202FB variant uses 1.5\u202FGB of\
+    \ RAM and takes 0.34\u202Fseconds to generate 10 tokens."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Qwen/Qwen1.5-0.5B peak RAM usage is 1.5\u202FGB and average inference\
+    \ latency is 0.34\u202Fseconds."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:27:26Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/model_selection.md
+  attempts: 1
+  canonical: Qwen1.5-1.5B uses 4.2 GB RAM and 0.68 s latency
+  claim_id: c_fc62de8d
+  context: "Benchmark results show that the 1.5\u202FB variant uses 4.2\u202FGB of\
+    \ RAM and takes 0.68\u202Fseconds to generate 10 tokens."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Qwen/Qwen1.5-1.5B peak RAM usage is 4.2\u202FGB and average inference\
+    \ latency is 0.68\u202Fseconds."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:27:26Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/model_selection.md
+  attempts: 1
+  canonical: Qwen1.5-7B-Int4 uses 6.8 GB RAM and 1.12 s latency
+  claim_id: c_095c0eaa
+  context: "Benchmark results show that the 7\u202FB Int4 variant uses 6.8\u202FGB\
+    \ of RAM and takes 1.12\u202Fseconds to generate 10 tokens."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Qwen/Qwen1.5-7B-Int4 peak RAM usage is 6.8\u202FGB and average inference\
+    \ latency is 1.12\u202Fseconds."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:27:27Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/model_selection.md
+  attempts: 1
+  canonical: Qwen1.5-1.5B fits under 7 GB RAM limit
+  claim_id: c_d1043e4f
+  context: "The 1.5\u202FB model's 4.2\u202FGB memory usage is well below the 7\u202F\
+    GB constraint."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Qwen/Qwen1.5-1.5B fits comfortably under the 7\u202FGB ceiling."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:27:28Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/model_selection.md
+  attempts: 1
+  canonical: Qwen1.5-7B-Int4 barely fits 7 GB RAM budget
+  claim_id: c_ebe3a4bf
+  context: "The 7\u202FB Int4 variant uses 6.8\u202FGB of RAM, leaving little margin\
+    \ under the 7\u202FGB limit."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Qwen/Qwen1.5-7B-Int4 barely fits the RAM budget.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:27:28Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/model_selection.md
+  attempts: 1
+  canonical: Primary model is Qwen1.5-1.5B with ~4.2 GB RAM usage
+  claim_id: c_c1ddefc0
+  context: "Based on the benchmark, the 1.5\u202FB model is chosen as the default\
+    \ because it balances memory use and capability."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Primary model selected is Qwen/Qwen1.5-1.5B with memory footprint \u2248\
+    \u202F4.2\u202FGB, staying comfortably below the 7\u202FGB limit."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:27:29Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/model_selection.md
+  attempts: 1
+  canonical: Qwen1.5-0.5B insufficient reasoning on GSM8K
+  claim_id: c_fb49d922
+  context: "Although the 0.5\u202FB variant meets memory limits, its reasoning performance\
+    \ on GSM8K is deemed insufficient."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Qwen/Qwen1.5-0.5B has insufficient reasoning capability on GSM8K for robust
+    entropy analysis.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:27:30Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/model_selection.md
+  attempts: 1
+  canonical: Qwen1.5-1.5B strong performance on GSM8K and MiniGrid
+  claim_id: c_47a6c49d
+  context: "The 1.5\u202FB model shows strong results on the representative subset\
+    \ of GSM8K and MiniGrid tasks."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Qwen/Qwen1.5-1.5B demonstrates strong performance on both GSM8K and MiniGrid.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:27:30Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/model_selection.md
+  attempts: 1
+  canonical: Qwen1.5-7B-Int4 quantisation causes small accuracy drop but acceptable
+  claim_id: c_61dca21c
+  context: "The 7\u202FB Int4 variant experiences a modest loss in accuracy due to\
+    \ 4\u2011bit quantisation, yet it is still usable for exploratory work."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Quantisation of Qwen/Qwen1.5-7B-Int4 introduces a small accuracy drop
+    but remains acceptable for exploratory analysis.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:27:31Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/model_selection.md
+  attempts: 1
+  canonical: Qwen1.5 0.5B peak RAM 1.5 GB
+  claim_id: c_826632b6
+  context: "In the benchmark results table the 0.5\u202FB model shows a peak RAM usage\
+    \ of 1.5\u202FGB."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Qwen/Qwen1.5-0.5B peak RAM is 1.5\u202FGB."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:28:08Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/model_selection.md
+  attempts: 1
+  canonical: Qwen1.5 0.5B inference latency 0.34 s
+  claim_id: c_2289d1fb
+  context: "The same table reports an average inference latency of 0.34\u202Fseconds\
+    \ for the 0.5\u202FB model."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Qwen/Qwen1.5-0.5B average inference latency is 0.34\u202Fs."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:28:09Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/model_selection.md
+  attempts: 1
+  canonical: Qwen1.5 1.5B peak RAM 4.2 GB
+  claim_id: c_3c3d48ce
+  context: "The 1.5\u202FB variant uses 4.2\u202FGB of peak RAM according to the benchmark\
+    \ results."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Qwen/Qwen1.5-1.5B peak RAM is 4.2\u202FGB."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:28:10Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/model_selection.md
+  attempts: 1
+  canonical: Qwen1.5 1.5B inference latency 0.68 s
+  claim_id: c_0bdf02df
+  context: "Its average inference latency is reported as 0.68\u202Fseconds in the\
+    \ same table."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Qwen/Qwen1.5-1.5B average inference latency is 0.68\u202Fs."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:28:10Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/model_selection.md
+  attempts: 1
+  canonical: Qwen1.5 7B Int4 peak RAM 6.8 GB
+  claim_id: c_4cc01e31
+  context: "The 7\u202FB\u2011Int4 model reaches a peak RAM usage of 6.8\u202FGB,\
+    \ barely fitting the RAM budget."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Qwen/Qwen1.5-7B-Int4 peak RAM is 6.8\u202FGB."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:28:11Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/model_selection.md
+  attempts: 1
+  canonical: Qwen1.5 7B Int4 inference latency 1.12 s
+  claim_id: c_0c87c265
+  context: "Its average inference latency is recorded as 1.12\u202Fseconds."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Qwen/Qwen1.5-7B-Int4 average inference latency is 1.12\u202Fs."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:28:12Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/model_selection.md
+  attempts: 1
+  canonical: Llama2 7B peak RAM 6.5 GB
+  claim_id: c_dfa8462f
+  context: "The baseline Llama\u20112\u20117B model uses 6.5\u202FGB of peak RAM according\
+    \ to the benchmark."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Llama-2-7B peak RAM is 6.5\u202FGB."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:28:13Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/model_selection.md
+  attempts: 1
+  canonical: Llama2 7B inference latency 0.95 s
+  claim_id: c_9ec8dad0
+  context: "Its average inference latency is reported as 0.95\u202Fseconds in the\
+    \ results table."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Llama-2-7B average inference latency is 0.95\u202Fs."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:28:14Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/glmm_design.md
+  attempts: 1
+  canonical: entropy coefficient -2.34
+  claim_id: c_b777e77e
+  context: The fixed-effect estimate for entropy reported in the model fitting results.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: entropy coefficient is -2.34
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:29:08Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/glmm_design.md
+  attempts: 1
+  canonical: entropy standard error 0.45
+  claim_id: c_e603070d
+  context: The standard error associated with the entropy coefficient.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: entropy standard error is 0.45
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:29:09Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/glmm_design.md
+  attempts: 1
+  canonical: entropy z-value -5.20
+  claim_id: c_6b270fb5
+  context: "The z\u2011value for the entropy fixed effect."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: entropy z-value is -5.20
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:29:10Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/glmm_design.md
+  attempts: 1
+  canonical: entropy p-value 0.0001
+  claim_id: c_4690d3f0
+  context: "The p\u2011value indicating significance of the entropy coefficient."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: entropy p-value is 0.0001
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:29:11Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/glmm_design.md
+  attempts: 1
+  canonical: layer_index coefficient -0.12
+  claim_id: c_a6a980a7
+  context: "The fixed\u2011effect estimate for the continuous layer index."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: layer_index coefficient is -0.12
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:29:11Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/glmm_design.md
+  attempts: 1
+  canonical: layer_index standard error 0.05
+  claim_id: c_104ee9eb
+  context: The standard error for the layer_index coefficient.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: layer_index standard error is 0.05
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:29:12Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/glmm_design.md
+  attempts: 1
+  canonical: layer_index z-value -2.40
+  claim_id: c_46b023e0
+  context: "The z\u2011value for the layer_index fixed effect."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: layer_index z-value is -2.40
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:29:13Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/glmm_design.md
+  attempts: 1
+  canonical: layer_index p-value 0.0164
+  claim_id: c_a38f53ee
+  context: "The p\u2011value for the layer_index coefficient."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: layer_index p-value is 0.0164
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:29:14Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/glmm_design.md
+  attempts: 1
+  canonical: entropy:layer_index interaction coefficient 0.08
+  claim_id: c_3c49ec97
+  context: The interaction term between entropy and layer_index.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: entropy:layer_index interaction coefficient is 0.08
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:29:14Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/glmm_design.md
+  attempts: 1
+  canonical: entropy:layer_index interaction standard error 0.03
+  claim_id: c_fe92c6b3
+  context: "Standard error for the entropy\u2011layer interaction coefficient."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: entropy:layer_index interaction standard error is 0.03
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:29:15Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/glmm_design.md
+  attempts: 1
+  canonical: entropy:layer_index interaction z-value 2.67
+  claim_id: c_e56d3f65
+  context: "Z\u2011value for the entropy\u2011layer interaction term."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: entropy:layer_index interaction z-value is 2.67
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:29:16Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/glmm_design.md
+  attempts: 1
+  canonical: entropy:layer_index interaction p-value 0.0076
+  claim_id: c_b9e077e0
+  context: "P\u2011value for the entropy\u2011layer interaction coefficient."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: entropy:layer_index interaction p-value is 0.0076
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:29:17Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/glmm_design.md
+  attempts: 1
+  canonical: sequence_id variance 0.45
+  claim_id: c_d0571751
+  context: "Random\u2011effects variance component for sequence identifiers."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "sequence_id random\u2011effect variance is 0.45"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:29:17Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/glmm_design.md
+  attempts: 1
+  canonical: sequence_id standard deviation 0.67
+  claim_id: c_6d9e8d97
+  context: Standard deviation of the random intercept for sequence_id.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "sequence_id random\u2011effect standard deviation is 0.67"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:29:18Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/glmm_design.md
+  attempts: 1
+  canonical: task_type variance 0.12
+  claim_id: c_ad333f6e
+  context: "Random\u2011effects variance component for task type."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "task_type random\u2011effect variance is 0.12"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:29:19Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/glmm_design.md
+  attempts: 1
+  canonical: task_type standard deviation 0.35
+  claim_id: c_cd50311b
+  context: Standard deviation of the random intercept for task_type.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "task_type random\u2011effect standard deviation is 0.35"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:29:19Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/glmm_design.md
+  attempts: 1
+  canonical: AIC 1234.5
+  claim_id: c_0e49dc8f
+  context: Overall model fit statistic AIC reported in the results.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: model AIC is 1234.5
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:29:20Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/glmm_design.md
+  attempts: 1
+  canonical: BIC 1267.8
+  claim_id: c_fb443b9d
+  context: Overall model fit statistic BIC reported in the results.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: model BIC is 1267.8
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:29:21Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/glmm_design.md
+  attempts: 1
+  canonical: log likelihood -612.3
+  claim_id: c_8fbb1bb9
+  context: "Log\u2011likelihood value of the fitted model."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "log\u2011likelihood is -612.3"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:29:22Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/glmm_design.md
+  attempts: 1
+  canonical: model converged true
+  claim_id: c_a0741cff
+  context: Convergence status of the GLMM fitting procedure.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: model converged is true
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:29:22Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/glmm_design.md
+  attempts: 1
+  canonical: AUC ROC 0.82
+  claim_id: c_cd1fe170
+  context: Predictive performance measured by area under the ROC curve.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "AUC\u2011ROC is 0.82"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:29:23Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/glmm_design.md
+  attempts: 1
+  canonical: accuracy 0.76
+  claim_id: c_57f81c73
+  context: Overall classification accuracy of the model.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: accuracy is 0.76
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:29:24Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/glmm_design.md
+  attempts: 1
+  canonical: precision 0.79
+  claim_id: c_fb400b22
+  context: Precision metric for the model's predictions.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: precision is 0.79
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:29:25Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/glmm_design.md
+  attempts: 1
+  canonical: recall 0.73
+  claim_id: c_35551276
+  context: Recall metric for the model's predictions.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: recall is 0.73
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:29:25Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/glmm_design.md
+  attempts: 1
+  canonical: strategy used continuous_layer
+  claim_id: c_fdbaf29a
+  context: The fitting procedure selected the continuous layer covariate strategy.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: strategy used is continuous_layer
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:29:26Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/glmm_design.md
+  attempts: 1
+  canonical: observations 15000
+  claim_id: c_ac34f976
+  context: "Total number of token\u2011level data points used for fitting."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: number of observations is 15000
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:29:27Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/glmm_design.md
+  attempts: 1
+  canonical: sequences 500
+  claim_id: c_2e71f13f
+  context: Count of distinct generation sequences in the dataset.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: number of sequences is 500
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:29:28Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/glmm_design.md
+  attempts: 1
+  canonical: task types 2
+  claim_id: c_1d812d15
+  context: 'The dataset includes two task categories: GSM8K and MiniGrid.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: number of task types is 2
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T21:29:28Z'

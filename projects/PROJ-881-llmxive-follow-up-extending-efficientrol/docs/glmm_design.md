@@ -102,9 +102,9 @@ Formula component: `(1 | task_type)`
 
 1. **Data Preparation**
  - Load entropy profiles from `data/entropy_profiles_merged.jsonl`
- - Filter for non-null entropy values
+ - Filter for non‑null entropy values
  - Encode validity as binary (0/1)
- - Create sequence_id and task_type identifiers
+ - Create `sequence_id` and `task_type` identifiers
 
 2. **Model Selection**
  - Check layer sparsity
@@ -183,7 +183,7 @@ Formula component: `(1 | task_type)`
 ### Model Assumptions
 
 1. **Independence**: Tokens are independent given random effects
-2. **Linearity**: Log-odds of validity is linear in entropy and layer
+2. **Linearity**: Log‑odds of validity is linear in entropy and layer
 3. **Normality**: Random effects follow normal distribution
 4. **Homoscedasticity**: Residual variance is constant
 
@@ -204,8 +204,8 @@ Formula component: `(1 | task_type)`
 ### Downstream Consumers
 
 1. **Threshold Optimization** (T032): Uses model coefficients to find optimal entropy threshold
-2. **Sensitivity Analysis** (T033a): Extracts p-values for multiple-comparison correction
-3. **Decay Analysis** (T035): Compares AUC-ROC across short/long sequence subsets
+2. **Sensitivity Analysis** (T033a): Extracts p‑values for multiple‑comparison correction
+3. **Decay Analysis** (T035): Compares AUC‑ROC across short/long sequence subsets
 4. **Final Report** (T037): Aggregates all model metrics
 
 ## Error Handling
@@ -214,17 +214,18 @@ Formula component: `(1 | task_type)`
 
 - **Single task type**: Drop `task_type` from formula
 - **Convergence failure**: Try alternative optimizer, then pooling strategy
-- **Perfect separation**: Skip fit, return non-significant result
+- **Perfect separation**: Skip fit, return non‑significant result
 - **Empty dataset**: Raise `RuntimeError` with descriptive message
 
 ### Logging
 
-- Warnings logged for non-significant results (p >= 0.05)
+- Warnings logged for non‑significant results (p ≥ 0.05)
 - Information logged for strategy switches
 - Errors logged with full traceback for debugging
 
 ## References
 
-- Barr, D. J., et al. (2013). Random effects structure for confirmatory hypothesis testing. *Journal of Memory and Language*
-- Bates, D., et al. (2015). Fitting linear mixed-effects models using lme4. *Journal of Statistical Software*
-- pymer4 documentation: 
+- Barr, D. J., et al. (2013). Random effects structure for confirmatory hypothesis testing. *Journal of Memory and Language*
+- Bates, D., et al. (2015). Fitting linear mixed‑effects models using lme4. *Journal of Statistical Software*
+- pymer4 documentation:
+```
