@@ -45,6 +45,7 @@ class PaperTaskerAgent(SlashCommandAgent):
                   "flags": {k: v for k, v in os.environ.items()
                             if k.startswith("LLMXIVE_") and not any(
                                 word in k for word in ("TOKEN", "SECRET", "KEY", "PASSWORD"))}}
+        paths.update((repo / ".specify/templates").glob("*.md"))
         paths.add(repo / "web/about.html")  # Authoritative convergence/citation policy.
         digest = hashlib.sha256(b"paper-task-analysis-v1\0")
         digest.update(json.dumps(policy, sort_keys=True).encode())

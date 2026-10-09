@@ -119,3 +119,10 @@ def test_changed_authoritative_web_policy_invalidates_receipt(reviewed):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text('<script>citation_title_overlap_threshold: 0.99</script>')
     assert not TaskerAgent().mechanical_step(ctx).get('skip_llm')
+
+
+def test_changed_root_template_guard_invalidates_receipt(reviewed):
+    ctx, _, _, _ = reviewed
+    path = ctx.project_dir.parent.parent / '.specify/templates/tasks-template.md'
+    path.write_text('New template refusal policy')
+    assert not TaskerAgent().mechanical_step(ctx).get('skip_llm')
