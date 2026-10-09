@@ -8,6 +8,11 @@ atop the deterministic FR-010 (foundational-tasks-first) check.
 Does the task order respect the data-flow / artifact-flow dependencies the
 plan implies?
 
+Evaluate the proposed order, not whether unchecked future outputs already
+exist. Their absence is expected before implementation. Flag a missing producer
+task or an actual consumer-before-producer dependency, not the lack of a
+completed artifact. Treat claimed completed work separately from planned work.
+
 - **Foundational tasks first**: setup / contract / data-model tasks BEFORE
   any task that consumes them. (The deterministic FR-010 pre-filter handles
   the gross cases; you catch semantic-level violations the regex can't.)

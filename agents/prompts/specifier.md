@@ -28,12 +28,13 @@ A Markdown document conforming to the `spec_template` structure:
 
 - `# Feature Specification: <title>`
 - Front-matter block (Feature Branch, Created, Status: Draft, Input).
-- `## User Scenarios & Testing` with at least three independently-
-  testable user stories prioritized P1/P2/P3, each with
-  acceptance scenarios.
+- `## User Scenarios & Testing` with the smallest set of independently
+  testable research workflows the idea requires, each prioritized and given
+  acceptance scenarios. One coherent workflow is enough for a small study;
+  do not invent stories to fill P1/P2/P3 slots.
 - `### Edge Cases`
-- `## Requirements` with ≥ 5 functional requirements (`FR-001`, …)
-  and ≥ 3 success criteria (`SC-001`, …) that are measurable and
+- `## Requirements` with functional requirements (`FR-001`, …)
+  and success criteria (`SC-001`, …) that are measurable and
   technology-agnostic. EVERY FR and SC MUST explicitly cite the User
   Story it serves — append `(See US-N)` to each — so the panel's
   requirement-to-story traceability lenses see the link (an orphaned
@@ -51,6 +52,25 @@ completion or require a project-specific CI workflow to duplicate the platform.
 Scientific success means an informative, reproducible answer, including null or
 negative results; never require a favorable effect size or significant result
 as a completion criterion.
+
+## Scope discipline
+
+Preserve the idea's stated task, runtime, data and output bounds. Every added
+requirement must serve the research question, an independent validation, or a
+necessary reproducible execution step. State that rationale; a template slot
+or a reviewer preference is not a scientific need. Combine related checks into
+one deliverable instead of adding a task for each assertion. Put optional
+engineering enhancements outside the acceptance criteria.
+
+Specify observable behavior and numerical invariants, not internal variable
+names, exact error-message typography, extra wrappers, production services or
+project-specific CI unless the idea actually requires them. Reproducibility
+means equivalent measured results and documented commands; byte-identical plots,
+runtime logs and environment-dependent metadata are not universal requirements.
+Every edge-case acceptance test must have a reachable input under its stated
+preconditions. If a branch is unreachable for valid study inputs, document the
+invariant, or test a general helper with an explicitly artificial unit fixture;
+do not demand an impossible end-to-end failure or fabricate study observations.
 
 For any empirical / quantitative study, the spec's FRs and SCs MUST make the
 design methodologically defensible — these are the concerns the downstream
@@ -77,9 +97,10 @@ methodology panel raises and that no later stage can paper over:
   sensitivity analysis that sweeps the cutoff over a small concrete set (e.g.
   absolute diff ∈ {0.01, 0.05, 0.1}) and reports how the headline rates
   (false-positive / false-negative, or inconsistency rate) vary across it. The
-  scope/soundness panel blocks any threshold "introduced without justification
-  or sensitivity analysis" — bake both in so the concern never arises. A
-  threshold sweep is CPU-trivial, so this never threatens free-CPU feasibility.
+  scope/soundness panel blocks unexplained scientific decision thresholds.
+  Apply sensitivity analysis to scientific cutoffs that affect conclusions,
+  not exact identities, numerical correctness tolerances, or runtime limits.
+  Estimate the sweep's actual cost; it is not inherently CPU-trivial.
 - **Measurement validity.** When using questionnaires/instruments, require that
   validated instruments (with citable validation) be used.
 - **Predictor collinearity.** If two predictors are definitionally related (one
@@ -124,8 +145,9 @@ Assumptions`:
   as "a specified threshold", "high completeness", "acceptable
   precision", "sufficiently large", or "reasonable performance" —
   testability reviewers reject every one of them, wasting a full
-  review cycle. If the idea does not fix the value, pick a defensible
-  community-standard default and record it under `## Assumptions`.
+  review cycle. Add a numeric target only when the study needs it. If the
+  idea does not fix a necessary value, justify the chosen value under
+  `## Assumptions`; do not call it community-standard without evidence.
   (Bound-led design targets are kept by the claims layer; only
   world-claims are deferred — stating a concrete target is safe.)
 - NEVER invent URLs or citations. If the idea Markdown's

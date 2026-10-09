@@ -7,6 +7,13 @@ concrete enough for an implementer (LLM or human) to execute deterministically?
 
 For every task:
 
+This is review of a plan for future execution. An unchecked task's promised
+output does not need to exist yet. Judge whether its specified producer and
+verification are executable; do not demand completed results at planning time.
+Completed-task claims require actual evidence. If an inherited requirement is
+unreachable under the supported inputs, identify the spec or plan root cause
+for kickback; adding more tasks cannot make an impossible test executable.
+
 - **Concrete deliverable**: the task names the artifact(s) it produces. "Add
   tests" fails; "Add `tests/unit/test_foo.py::test_bar_handles_empty_input`"
   passes.
