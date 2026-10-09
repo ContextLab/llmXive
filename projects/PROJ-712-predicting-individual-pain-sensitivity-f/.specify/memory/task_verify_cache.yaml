@@ -12,32 +12,3 @@ T023:
     \ bootstrap for Pearson\u202Fr (with the required runtime\u2011limit logic) was\
     \ provided. Consequently the required artifact is missing, so the task is not\
     \ satisfied."
-T024:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, function, notebook, or output file implementing the empirical\
-    \ p\u2011value calculation is present. The claim cannot be verified because the\
-    \ required artifact (e.g., a module that takes the observed Pearson\u202Fr, the\
-    \ null distribution from T022, and returns the empirical p\u2011value) is missing.\
-    \ The next implementer must add the implementation and provide the resulting artifact\
-    \ (e.g., a Python function or report) showing the computed p\u2011value."
-T026a:
-  c: false
-  h: f5b307da3f32df57f62fd6b5bd7ce11a445c3b8da01f4e3814bc560d3737d038
-  r: "The provided `code/utils.py` contains seed, logging, and checksum utilities\
-    \ but no function that records start/end times or asserts that the duration is\
-    \ under 6\u202Fhours. Moreover, `code/config.py` is missing entirely, so there\
-    \ is no alternative location for the required instrumentation. The task\u2019\
-    s timing\u2011instrumentation requirement is therefore not satisfied."
-T034:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `artifacts/diagnostics_report.md` file was presented, and no content showing\
-    \ an FDR table, VIF flags, or sensitivity\u2011analysis plots/tables was provided.\
-    \ The required diagnostic report is therefore missing."
-T036a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `README.md` file or its contents were presented, so we cannot confirm that
-    installation instructions and usage examples have been added. The required artifact
-    is missing from the evidence.

@@ -1,0 +1,11 @@
+status: none
+intent: OpenNeuro ds003XXX EEG dataset download python package dataset
+required_fields:
+- participant_id
+- eeg_signal
+- sampling_rate
+- channel_names
+- heat_pain_threshold_celsius
+cache_key: 2b14301ff5e0165cb812d671f6336c99548e614439aea842d9c3ca49c4aa557d
+searched_at: '2026-10-09T20:23:24.838777+00:00'
+retry_count: 1

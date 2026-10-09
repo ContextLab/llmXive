@@ -1,9 +1,0 @@
-# Tasks an independent verifier REJECTED (redo these)
-
-A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
-
-- **T001** — No directory structure is presented or listed in the provided artifacts; there is no evidence that the required `data/raw/`, `data/processed/`, `artifacts/`, `state/`, `code/`, and `tests/` folders have been created. The implementer’s claim cannot be verified without concrete file system evidence.
-- **T023** — No code, script, notebook, or output file implementing the 200‑iteration bootstrap for Pearson r (with the required runtime‑limit logic) was provided. Consequently the required artifact is missing, so the task is not satisfied.
-- **T024** — No code, script, function, notebook, or output file implementing the empirical p‑value calculation is present. The claim cannot be verified because the required artifact (e.g., a module that takes the observed Pearson r, the null distribution from T022, and returns the empirical p‑value) is missing. The next implementer must add the implementation and provide the resulting artifact (e.g., a Python function or report) showing the computed p‑value.
-- **T034** — No `artifacts/diagnostics_report.md` file was presented, and no content showing an FDR table, VIF flags, or sensitivity‑analysis plots/tables was provided. The required diagnostic report is therefore missing.
-- **T036a** — No `README.md` file or its contents were presented, so we cannot confirm that installation instructions and usage examples have been added. The required artifact is missing from the evidence.
