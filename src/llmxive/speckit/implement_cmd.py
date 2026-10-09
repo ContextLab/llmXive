@@ -462,7 +462,7 @@ class ImplementerAgent(SlashCommandAgent):
                 # Paper delegates writes here but owns a separate bounded
                 # _proposal_failure path and paper: task namespace.
                 if mechanical_output.get("task_log_dir", "code/.tasks") == "code/.tasks":
-                    _record_artifact_refusal(ctx, mechanical_output, llm_response.model,
+                    _record_artifact_refusal(ctx, mechanical_output, getattr(llm_response, "model", "unknown"),
                                              _redact("\n".join(refusals)))
                 return written
             # A structurally valid retry supersedes the earlier write refusal;

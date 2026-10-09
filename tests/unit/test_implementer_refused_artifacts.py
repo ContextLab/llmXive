@@ -263,3 +263,16 @@ def test_refusal_store_never_reads_writes_or_deletes_symlink_target(tmp_path, li
         _write(ImplementerAgent(), ctx, feature, tasks, artifacts)
     assert target.read_bytes() == b'private preserved bytes'
     assert '- [ ] T002' in tasks.read_text()
+
+
+def test_missing_optional_model_metadata_does_not_break_refusal_recording(tmp_path):
+    from llmxive.state import unverifiable
+
+    ctx, feature, tasks = _context(tmp_path)
+    for _ in range(3):
+        ImplementerAgent().write_artifacts(ctx,
+            {'tasks_path':str(tasks), 'feature_dir':str(feature),
+             'next_task_id':'T002', 'all_complete':False},
+            SimpleNamespace(text='task_id: T002\nverdict: completed\nartifacts: []\n'))
+    assert unverifiable.recorded_keys(ctx.project_id, repo_root=tmp_path) == {'T002'}
+    assert '- [ ] T002' in tasks.read_text()
