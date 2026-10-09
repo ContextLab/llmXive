@@ -64,7 +64,7 @@ def _json(text: str) -> dict:
     return value
 
 
-def _ask(prompt: str, *, response_path: Path | None = None) -> dict:
+def _ask(prompt: str, *, response_path: Path | None = None, format_retry: bool = True) -> dict:
     response = chat_with_fallback(
         [
             ChatMessage(
@@ -88,7 +88,17 @@ def _ask(prompt: str, *, response_path: Path | None = None) -> dict:
         from llmxive.speckit._inspection import _redact
         response_path.write_text(_redact(response.text), encoding="utf-8")
     print(f"Repair model response: {response.model}", flush=True)
-    value = _json(response.text)
+    try:
+        value = _json(response.text)
+    except (ValueError, TypeError) as exc:
+        if not format_retry:
+            raise
+        repair_path = (response_path.with_name(response_path.stem + '-format-retry.txt')
+                       if response_path is not None else None)
+        return _ask(prompt + '\nYour previous response failed JSON parsing: ' + str(exc)
+                    + '\nReturn one valid JSON object matching the requested schema, with '
+                    'no Markdown emphasis or prose around keys. Previous response:\n'
+                    + response.text, response_path=repair_path, format_retry=False)
     value["_producer_model"] = response.model
     return value
 
@@ -109,7 +119,10 @@ def select_evidence(repo: Path, source: str) -> dict | None:
         records.sort(
             key=lambda e: (e.get("consecutive_count", 0), e.get("last_seen", "")), reverse=True
         )
-        return {"source": source, "failures": records[:5]}
+        selected = records[:5]
+        for item in selected:
+            item["filesystem_observations"] = observe_failure_paths(repo, item)
+        return {"source": source, "failures": selected}
     result = subprocess.run(
         [
             "gh",
@@ -138,6 +151,36 @@ def select_evidence(repo: Path, source: str) -> dict | None:
         )
     ]
     return {"source": source, "issues": candidates[:5]} if candidates else None
+
+
+def observe_failure_paths(repo: Path, item: dict) -> list[dict]:
+    """Inspect cited project paths and parents without changing research files."""
+    project_id = item.get("project_id", "")
+    if not project_id or Path(project_id).name != project_id:
+        return []
+    observations = {}
+    pattern = r"projects/" + re.escape(project_id) + r"(?:/[^'\"\s]+)?"
+    for relative in re.findall(pattern, str(item.get("last_error", ""))):
+        path = repo / relative
+        if not path.resolve().is_relative_to((repo / "projects" / project_id).resolve()):
+            continue
+        for current in [path, *path.parents]:
+            if current == repo / "projects" or current == repo:
+                break
+            name = str(current.relative_to(repo))
+            if current.is_symlink():
+                observations[name] = {"path": name, "kind": "symlink (not followed)"}
+            elif current.is_file():
+                size = current.stat().st_size
+                entry = {"path": name, "kind": "file", "bytes": size}
+                if size <= 2048:
+                    entry["content"] = current.read_text(errors="replace")
+                observations[name] = entry
+            elif current.is_dir():
+                observations[name] = {"path": name, "kind": "directory"}
+            else:
+                observations[name] = {"path": name, "kind": "absent or blocked by a file parent"}
+    return list(observations.values())
 
 
 def render_evidence(evidence: dict, *, budget: int = 12000) -> str:
@@ -202,6 +245,32 @@ def copy_platform(repo: Path, target: Path) -> None:
         elif source.is_file():
             dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source, dest)
+
+
+def materialize_edits(proposal: dict, context: dict[str, str], repo: Path) -> dict:
+    """Resolve exact, unique edits against complete observed source snapshots."""
+    files = dict(proposal.get("files", {}))
+    edits = proposal.get("edits", {})
+    if not isinstance(edits, dict):
+        raise ValueError("edits must map source paths to exact replacements")
+    for name, replacements in edits.items():
+        if name not in context or name in files:
+            raise ValueError(f"edit requires a uniquely selected source file: {name}")
+        if not isinstance(replacements, list) or not 1 <= len(replacements) <= 20:
+            raise ValueError("each edited file needs 1-20 exact replacements")
+        text = context[name]
+        for replacement in replacements:
+            before, after = replacement.get("old"), replacement.get("new")
+            if not isinstance(before, str) or not before or not isinstance(after, str):
+                raise ValueError("edit needs nonempty old text and string new text")
+            if text.count(before) != 1:
+                raise ValueError(f"edit old text must match exactly once: {name}")
+            text = text.replace(before, after, 1)
+        files[name] = text
+    for name in files:
+        if (repo / name).exists() and name not in context:
+            raise ValueError(f"cannot replace an existing file that was not read: {name}")
+    return dict(proposal, files=files)
 
 
 def validate_proposal(proposal: dict, repo: Path) -> tuple[dict[str, str], str, list[str]]:
@@ -284,6 +353,9 @@ def run(repo: Path, evidence: dict, output: Path, *, image: str = IMAGE) -> dict
     _progress(output, "selecting_files")
     selection = _ask(
         "Choose up to 6 source/test files needed to fix ONE concrete defect from this evidence. "
+        "Every selected path must be copied exactly from FILES; do not guess filenames. "
+        "Filesystem observations distinguish regular files from directories. A file at a "
+        "required directory path is not fixed by exist_ok=True. "
         'If the evidence is insufficient or already fixed, return {"skip":"reason"}. '
         'Otherwise return {"paths":[...],"problem":"..."}.\nEVIDENCE:\n'
         + render_evidence(evidence)
@@ -296,20 +368,26 @@ def run(repo: Path, evidence: dict, output: Path, *, image: str = IMAGE) -> dict
         result = {"status": "no_candidate", "reason": selection["skip"]}
         (output / "result.json").write_text(json.dumps(result, indent=2))
         return result
-    paths = selection["paths"]
+    paths = selection.get("paths")
     if not isinstance(paths, list) or not 1 <= len(paths) <= 6:
         raise ValueError("select 1-6 context files")
     context = {}
     for path in paths:
+        if path not in tree:
+            raise ValueError(f"selected path is not in FILES: {path!r}; choose only listed paths")
         safe_path(path)
         file = repo / path
         if not file.resolve().is_relative_to(repo.resolve()) or file.is_symlink():
             raise ValueError("context cannot leave platform")
-        context[path] = file.read_text()[:40000]
+        context[path] = file.read_text()
+    if sum(len(text.encode()) for text in context.values()) > 250_000:
+        raise ValueError("complete context exceeds 250 KB; select fewer relevant files")
+    (output / "source-context.json").write_text(json.dumps(context, indent=2))
     _progress(output, "proposing_fix")
     proposal = _ask(
         'Implement the smallest fix. Return {"title":str,"explanation":str,'
-        '"files":{relative_path:complete_file_contents},"regression":new_test_path,'
+        '"edits":{existing_selected_path:[{"old":exact_unique_text,"new":replacement_text}]},'
+        '"files":{new_path:complete_file_contents},"regression":new_test_path,'
         '"related_tests":[existing_test_paths]}. Only 2-5 files. Add a new '
         "tests/unit/test_repair_*.py regression; it MUST FAIL on the current production "
         "code for this defect and pass with the fix. Prefer real subprocess/file behavior. "
@@ -324,6 +402,8 @@ def run(repo: Path, evidence: dict, output: Path, *, image: str = IMAGE) -> dict
         + json.dumps(context),
         response_path=output / "proposal-response.txt",
     )
+    (output / "proposal-response.json").write_text(json.dumps(proposal, indent=2))
+    proposal = materialize_edits(proposal, context, repo)
     (output / "proposal.json").write_text(json.dumps(proposal, indent=2))
     files, regression, related = validate_proposal(proposal, repo)
     with tempfile.TemporaryDirectory(prefix="llmxive-repair-") as tmp:

@@ -25,10 +25,21 @@ def render(output: Path) -> str:
         progress = _read(attempt / "progress.json")
         selection = _read(attempt / "selection.json")
         outcome = _read(attempt / "result.json")
+        context = _read(attempt / "source-context.json")
+        proposal = _read(attempt / "proposal-response.json")
         lines.extend(["", f"### {attempt.name}", "",
                       f"Last phase: {progress.get('phase', 'unknown')}"])
         if selection.get("problem"):
             lines.append("Selected problem: " + str(selection["problem"])[:2000])
+        if context:
+            lines.append("Complete source inspected: " + ", ".join(
+                f"`{name}` ({len(text.encode())} bytes)"
+                for name, text in context.items() if isinstance(text, str)))
+        if proposal:
+            for field, label in (("edits", "Exact-edit targets"), ("files", "File proposals")):
+                paths = proposal.get(field)
+                if isinstance(paths, dict) and paths:
+                    lines.append(label + ": " + ", ".join(f"`{name}`" for name in paths))
         if outcome.get("reason"):
             lines.append("Outcome: " + str(outcome["reason"])[:2000])
     lines.extend(["", "Detailed inputs, responses and test logs are in the repair-evidence artifact."])

@@ -30,7 +30,9 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          ref: main
+          # Dispatches test the selected revision; schedules still use main.
+          # Publication independently checks each patched file against main.
+          ref: ${{ github.sha }}
           persist-credentials: false
       - uses: actions/setup-python@v6
         with: {python-version: '3.11', cache: pip}
