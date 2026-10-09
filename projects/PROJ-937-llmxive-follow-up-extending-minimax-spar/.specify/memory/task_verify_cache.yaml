@@ -1,19 +1,51 @@
 T001a:
+  c: true
+  h: a2ea640b07e164bc5b80bb167b29bba621926d0a61989651130262aa1130edf7
+  r: "The evidence shows the `code/` directory exists (16 entries, including `main.py`,\
+    \ `utils/`, etc.) at the project root, fulfilling the task\u2019s requirement\
+    \ to create the `code/` directory."
+  sig: dd4c6fb5c20fcd6f2de3b71abd1adab48504e8ff4def218d166e16b9884f925f
+T001b:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`code/`, `data/raw`, `data/processed`,
-    `results`, `tests/unit`, `tests/integration`) is provided; the artifacts listed
-    pertain only to feature specifications and testing scenarios, not to the filesystem
-    structure. The implementer must create and show these directories (e.g., a directory
-    listing or file tree) to satisfy the task.
+  h: 907f54f9a431d4f619a44a44bfb357649c4d66f0bc92ef8a9d334b61be1dc7b3
+  r: "The evidence does not show the existence of the required `data/raw` and `data/processed`\
+    \ directories in the project; no artifacts confirming these folders are present\
+    \ were provided. The implementer must create these two directories (non\u2011\
+    empty or placeholder files) at the project root."
+  sig: c5d3dd54860c6f0d3a529ed57899312b62994beca7c88f4644e1ef802e77da4a
+T001c:
+  c: false
+  h: 9725848ee5ada87adcf2dedae7bdd1ba5865ed8a01e94490624fa29a435066ba
+  r: The evidence does not show the existence of the required `tests/unit` and `tests/integration`
+    directories under the project root; no such paths were listed or confirmed by
+    the collector. These directories must be present (even if empty) to satisfy task
+    T001c.
+  sig: 4c698bb0edf83a147a87779ae4b55cf0f85d0ad52688801a6747674f00e78653
+T001d:
+  c: false
+  h: 7ceb0eecd7dfab82134ea85138c07eca0429c0ef3a7bd72da8b842606faf3342
+  r: The evidence provided contains no confirmed artifact named `results` (or `results/`
+    directory) under the project root `projects/PROJ-937-llmxive-follow-up-extending-minimax-spar`.
+    Without a verified existence of the required `results` directory, the task is
+    not satisfied. The implementer must add the `results` directory (even if empty)
+    and ensure it is present in the repository.
+  sig: 771bb7f90f7ba97479eba0003bc80934819bee0a141d6f7f026c8583c27cdc13
+T002:
+  c: true
+  h: ad524d2e259fd035d320b273cd48208d0d7b132fe862066c302a9ad36a0fd9be
+  r: "Checked the `requirements.txt` file (159\u202Fbytes) present at the project\
+    \ root; it lists all required packages (`transformers`, `torch`, `datasets`, `scipy`,\
+    \ `pandas`, `numpy`, `pytest`) and thus satisfies the initialization requirement.\
+    \ No missing or placeholder artifacts were found."
+  sig: bb310fdcfacab252260ab1b0baba98269c1bfe948e810f520ef5de4c04d6336d
 T003:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided evidence contains only the feature specification for sparse\u2011\
-    attention heuristics and no configuration files, scripts, or documentation for\
-    \ ruff or black. There is no `.ruff.toml`, `pyproject.toml` with black settings,\
-    \ or any other artifact showing that linting/formatting tools have been set up,\
-    \ so the task requirement is not met."
+  h: 1ce7ad21a2f3ecd903a592d0bca981184f061456670423119502cf2d1cdd8ce9
+  r: "The `pyproject.toml` with Black configuration exists at the repository root,\
+    \ but the `ruff.toml` is placed under `code/ruff.toml` instead of the repository\
+    \ root as the task explicitly requires. Move or copy `ruff.toml` to the top\u2011\
+    level directory (or create a duplicate there) to satisfy the specification."
+  sig: bfdadca323f34c22ce83ac61d7debecbef4f8bbe73fed8b69f0c47bec29ac8d8
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

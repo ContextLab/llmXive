@@ -25,11 +25,11 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001a [P] Create `code/` directory
-- [X] T001b [P] Create `data/raw` and `data/processed` directories
-- [X] T001c [P] Create `tests/unit` and `tests/integration` directories
-- [X] T001d [P] Create `results` directory
+- [ ] T001b [P] Create `data/raw` and `data/processed` directories
+- [ ] T001c [P] Create `tests/unit` and `tests/integration` directories
+- [ ] T001d [P] Create `results` directory
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` (dependencies: `transformers`, `torch`, `datasets`, `scipy`, `pandas`, `numpy`, `pytest`)
-- [X] T003 [P] Configure linting (ruff) and formatting (black) tools: Create `ruff.toml` and `pyproject.toml` (black config) in repository root.
+- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools: Create `ruff.toml` and `pyproject.toml` (black config) in repository root.
 
 ---
 
@@ -39,17 +39,17 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Implement `code/utils/config.py` for seed pinning, threshold configs, and CPU device enforcement
-- [X] T005 [P] Implement `code/utils/logger.py` for structured logging and memory/CPU usage tracking
-- [X] T006 [P] Implement `code/data/loader.py` to fetch RULER dataset from HuggingFace `datasets` library (verified URL)
-- [X] T007a [P] Implement `code/data/preprocess.py` chunking logic: `split_context(context, chunk_size)` returning generator of chunks.
-- [X] T007b [P] Implement `code/data/preprocess.py` memory check: `check_memory_usage()` returning boolean if usage > 6.5 GB.
-- [X] T007c [P] Implement `code/data/preprocess.py` batch reduction: `reduce_batch_size(batch)` returning smaller batch if memory check fails.
-- [X] T007d [P] Implement `code/data/preprocess.py` exit logic: `exit_on_memory_exceeded()` raising RuntimeError with "Memory constraint exceeded" if all reduction modes fail.
-- [X] T008 [P] Implement `code/heuristics/__init__.py` and base abstract class `HeuristicSelector`
-- [X] T009 [P] [US1] Setup `tests/unit/test_heuristics.py` and `tests/unit/test_metrics.py` with failing placeholders: Implement `test_entropy_returns_float` (assert `isinstance(entropy_score, float)`), `test_gradient_returns_float` (assert `isinstance(grad_score, float)`), `test_recency_returns_float` (assert `isinstance(recency_score, float)`) in `test_heuristics.py` and `test_exact_match_returns_float` (assert `isinstance(em, float)`), `test_f1_returns_float` (assert `isinstance(f1, float)`) in `test_metrics.py` with `assert False` to ensure they fail initially.
-- [X] T048 [P] [US1] Implement `code/main.py` model loading mechanism: Use `transformers` pipeline with `device_map="cpu"` and manual layer sharding ONLY. **CRITICAL**: Explicitly forbid 4-bit/8-bit quantization libraries (e.g., `bitsandbytes`, `accelerate` quantization) as a fallback. If memory constraints prevent loading the full model, the system MUST reduce context to [deferred] tokens OR reduce batch size to a minimal setting. If extended context + batch still exceeds 7 GB RAM, the system MUST exit with code 1 and log "Memory constraint exceeded".
-- [X] T047 [P] [US1] Implement `code/main.py` context reduction logic: Check memory -> If exceeded, set config for reduced context (truncate input tokens) OR reduce batch size to 1 -> THEN load model. Must handle "reduce context to [deferred] tokens" clause of FR-003. **CRITICAL**: If reduction strategies fail, the system MUST explicitly `exit with code 1` and log the exact message "Memory constraint exceeded". **Implementation Detail**: Call `preprocess.exit_on_memory_exceeded()` (T007d) to enforce this.
+- [~] T004 Implement `code/utils/config.py` for seed pinning, threshold configs, and CPU device enforcement
+- [~] T005 [P] Implement `code/utils/logger.py` for structured logging and memory/CPU usage tracking
+- [~] T006 [P] Implement `code/data/loader.py` to fetch RULER dataset from HuggingFace `datasets` library (verified URL)
+- [~] T007a [P] Implement `code/data/preprocess.py` chunking logic: `split_context(context, chunk_size)` returning generator of chunks.
+- [~] T007b [P] Implement `code/data/preprocess.py` memory check: `check_memory_usage()` returning boolean if usage > 6.5 GB.
+- [~] T007c [P] Implement `code/data/preprocess.py` batch reduction: `reduce_batch_size(batch)` returning smaller batch if memory check fails.
+- [~] T007d [P] Implement `code/data/preprocess.py` exit logic: `exit_on_memory_exceeded()` raising RuntimeError with "Memory constraint exceeded" if all reduction modes fail.
+- [~] T008 [P] Implement `code/heuristics/__init__.py` and base abstract class `HeuristicSelector`
+- [~] T009 [P] [US1] Setup `tests/unit/test_heuristics.py` and `tests/unit/test_metrics.py` with failing placeholders: Implement `test_entropy_returns_float` (assert `isinstance(entropy_score, float)`), `test_gradient_returns_float` (assert `isinstance(grad_score, float)`), `test_recency_returns_float` (assert `isinstance(recency_score, float)`) in `test_heuristics.py` and `test_exact_match_returns_float` (assert `isinstance(em, float)`), `test_f1_returns_float` (assert `isinstance(f1, float)`) in `test_metrics.py` with `assert False` to ensure they fail initially.
+- [~] T048 [P] [US1] Implement `code/main.py` model loading mechanism: Use `transformers` pipeline with `device_map="cpu"` and manual layer sharding ONLY. **CRITICAL**: Explicitly forbid 4-bit/8-bit quantization libraries (e.g., `bitsandbytes`, `accelerate` quantization) as a fallback. If memory constraints prevent loading the full model, the system MUST reduce context to [deferred] tokens OR reduce batch size to a minimal setting. If extended context + batch still exceeds 7 GB RAM, the system MUST exit with code 1 and log "Memory constraint exceeded".
+- [~] T047 [P] [US1] Implement `code/main.py` context reduction logic: Check memory -> If exceeded, set config for reduced context (truncate input tokens) OR reduce batch size to 1 -> THEN load model. Must handle "reduce context to [deferred] tokens" clause of FR-003. **CRITICAL**: If reduction strategies fail, the system MUST explicitly `exit with code 1` and log the exact message "Memory constraint exceeded". **Implementation Detail**: Call `preprocess.exit_on_memory_exceeded()` (T007d) to enforce this.
 
 ---
 
@@ -57,8 +57,8 @@
 
 **Purpose**: Ensure data integrity before processing (Sequential dependency on T006)
 
-- [X] T037a [P] Implement `code/data/loader.py` checksum calculation: Add SHA-256 checksum calculation for downloaded RULER files.
-- [X] T037b [US2] Implement `code/data/loader.py` checksum validation: Add logic to compare calculated checksum against expected value; raise `RuntimeError` if mismatch.
+- [~] T037a [P] Implement `code/data/loader.py` checksum calculation: Add SHA-256 checksum calculation for downloaded RULER files.
+- [~] T037b [US2] Implement `code/data/loader.py` checksum validation: Add logic to compare calculated checksum against expected value; raise `RuntimeError` if mismatch.
 
 ---
 
@@ -70,21 +70,21 @@
 
 ### Tests for User Story 1 (Must run BEFORE implementation)
 
-- [X] T010 [P] [US1] Unit test for `code/heuristics/entropy.py` in `tests/unit/test_heuristics.py`: Implement `test_entropy_block_returns_expected` (asserting float output for known input) to verify Block Entropy calculation.
-- [X] T011 [P] [US1] Unit test for `code/heuristics/gradient.py` in `tests/unit/test_heuristics.py`: Implement `test_gradient_norms_match_proxy_loss` (asserting gradient norms correlate with proxy loss) to verify Local Gradient Magnitude.
-- [X] T012 [P] [US1] Unit test for `code/heuristics/recency.py` in `tests/unit/test_heuristics.py`: Implement `test_recency_bias_weights_sum_to_one` to verify Recency Bias weighting.
-- [X] T018 [P] [US1] Unit test: `test_fallback_selects_first_k_when_scores_zero` in `tests/unit/test_heuristics.py`: Verify that when all heuristic scores are near-zero, the selector defaults to the first k blocks.
+- [~] T010 [P] [US1] Unit test for `code/heuristics/entropy.py` in `tests/unit/test_heuristics.py`: Implement `test_entropy_block_returns_expected` (asserting float output for known input) to verify Block Entropy calculation.
+- [~] T011 [P] [US1] Unit test for `code/heuristics/gradient.py` in `tests/unit/test_heuristics.py`: Implement `test_gradient_norms_match_proxy_loss` (asserting gradient norms correlate with proxy loss) to verify Local Gradient Magnitude.
+- [~] T012 [P] [US1] Unit test for `code/heuristics/recency.py` in `tests/unit/test_heuristics.py`: Implement `test_recency_bias_weights_sum_to_one` to verify Recency Bias weighting.
+- [~] T018 [P] [US1] Unit test: `test_fallback_selects_first_k_when_scores_zero` in `tests/unit/test_heuristics.py`: Verify that when all heuristic scores are near-zero, the selector defaults to the first k blocks.
 
 ### Implementation for User Story 1
 
-- [X] T017a [P] [US1] Implement `code/main.py` model loading logic: Load MiniMax-M3 (frozen) using T048 mechanism. <!-- FAILED: unspecified -->
-- [X] T017b [P] [US1] Implement `code/main.py` Dense Attention mode: Implement "Dense Attention mode (full context, no sparsity, no Index Branch)" as the baseline for comparison, aligning with the Plan's definition. This replaces the ambiguous "disable Index Branch" description. <!-- FAILED: unspecified -->
-- [X] T017e [P] [US1] Implement `code/main.py` Index Branch Disable logic: Explicitly implement the logic to disable/bypass the 'Learned Index Branch' parameters in the model's forward pass when running heuristics, ensuring FR-001 compliance. (Depends on T017a).
-- [X] T014 [P] [US1] Implement `code/heuristics/entropy.py`: Calculate block entropy from attention logits
-- [X] T015 [P] [US1] Implement `code/heuristics/gradient.py`: Compute local gradient magnitude via proxy next-token prediction loss (frozen model)
-- [X] T016 [P] [US1] Implement `code/heuristics/recency.py`: Apply recency bias weighting to block selection
-- [X] T017d [P] [US1] Implement `code/heuristics/selector.py`: Implement the core 'HeuristicSelector' class that aggregates scores from T014-T016 and performs the Top-k selection logic. (Depends on T014, T015, T016).
-- [X] T017c [P] [US1] Implement `code/main.py` heuristic routing logic: Route to T018 fallback if scores are near-zero, otherwise route to HeuristicSelector (T017d). (Depends on T014, T015, T016, T017d, T018).
+- [~] T017a [P] [US1] Implement `code/main.py` model loading logic: Load MiniMax-M3 (frozen) using T048 mechanism. <!-- FAILED: unspecified -->
+- [~] T017b [P] [US1] Implement `code/main.py` Dense Attention mode: Implement "Dense Attention mode (full context, no sparsity, no Index Branch)" as the baseline for comparison, aligning with the Plan's definition. This replaces the ambiguous "disable Index Branch" description. <!-- FAILED: unspecified -->
+- [~] T017e [P] [US1] Implement `code/main.py` Index Branch Disable logic: Explicitly implement the logic to disable/bypass the 'Learned Index Branch' parameters in the model's forward pass when running heuristics, ensuring FR-001 compliance. (Depends on T017a).
+- [~] T014 [P] [US1] Implement `code/heuristics/entropy.py`: Calculate block entropy from attention logits
+- [~] T015 [P] [US1] Implement `code/heuristics/gradient.py`: Compute local gradient magnitude via proxy next-token prediction loss (frozen model)
+- [~] T016 [P] [US1] Implement `code/heuristics/recency.py`: Apply recency bias weighting to block selection
+- [ ] T017d [P] [US1] Implement `code/heuristics/selector.py`: Implement the core 'HeuristicSelector' class that aggregates scores from T014-T016 and performs the Top-k selection logic. (Depends on T014, T015, T016).
+- [~] T017c [P] [US1] Implement `code/main.py` heuristic routing logic: Route to T018 fallback if scores are near-zero, otherwise route to HeuristicSelector (T017d). (Depends on T014, T015, T016, T017d, T018).
 
 **Checkpoint**: US1 fully functional; heuristics run on CPU without errors.
 
@@ -98,19 +98,19 @@
 
 ### Tests for User Story 2
 
-- [X] T020 [P] [US2] Unit test for `code/eval/metrics.py` (Exact Match, F1, Perplexity calculators) in `tests/unit/test_metrics.py`
+- [~] T020 [P] [US2] Unit test for `code/eval/metrics.py` (Exact Match, F1, Perplexity calculators) in `tests/unit/test_metrics.py`
 
 ### Implementation for User Story 2
 
-- [X] T021b [P] [US2] Implement `code/eval/metrics.py` proxy loss calculation: Calculate perplexity on a frozen model using a proxy next-token prediction loss (cross-entropy) without backpropagation.
-- [X] T021 [P] [US2] Implement `code/eval/metrics.py`: Functions to calculate Exact Match, F1, and Perplexity (depends on T021b)
-- [X] T022c [US2] Implement `code/eval/baseline_runner.py`: A dedicated runner that executes the model in "Dense Attention" mode (Full Context, no sparsity, no Index Branch) to generate the ground truth selection set and baseline metrics for comparison, satisfying FR-004.
-- [X] T024 [US2] Implement result aggregation: Define function `aggregate_metrics(results_dict: dict) -> dict` in `code/eval/metrics.py`. Input `results_dict` comes from T023 output. Output must include all core keys: `f1_score`, `p_value` (placeholder), `ttest_stat`, `wilcoxon_stat`, `significance_statement`. **Output Artifact**: Write aggregated data to `results/intermediate_metrics.json`. **Note**: `sensitivity_table` and `false_positive_rate` are added in Phase 5.
-- [X] T023a [US2] Integrate heuristic runner in `code/main.py` to execute heuristics and generate selection sets.
-- [X] T023b [US2] Integrate metric calculator in `code/main.py` to compute metrics using T021/T021b. <!-- FAILED: unspecified -->
-- [X] T023c [US2] Implement output formatting in `code/main.py` to structure results for T024. <!-- FAILED: unspecified -->
-- [X] T023 [US2] Integrate heuristic execution with metric calculation in `code/main.py` to output results per task, comparing against T022c's Dense Attention baseline. (Depends on T024, T022c, T021b, T014-T016, T017c). <!-- FAILED: unspecified -->
-- [X] T025 [US2] Add logging for exclusion counts if RULER dataset samples are corrupted or missing "needle" strings
+- [~] T021b [P] [US2] Implement `code/eval/metrics.py` proxy loss calculation: Calculate perplexity on a frozen model using a proxy next-token prediction loss (cross-entropy) without backpropagation.
+- [~] T021 [P] [US2] Implement `code/eval/metrics.py`: Functions to calculate Exact Match, F1, and Perplexity (depends on T021b)
+- [~] T022c [US2] Implement `code/eval/baseline_runner.py`: A dedicated runner that executes the model in "Dense Attention" mode (Full Context, no sparsity, no Index Branch) to generate the ground truth selection set and baseline metrics for comparison, satisfying FR-004.
+- [~] T024 [US2] Implement result aggregation: Define function `aggregate_metrics(results_dict: dict) -> dict` in `code/eval/metrics.py`. Input `results_dict` comes from T023 output. Output must include all core keys: `f1_score`, `p_value` (placeholder), `ttest_stat`, `wilcoxon_stat`, `significance_statement`. **Output Artifact**: Write aggregated data to `results/intermediate_metrics.json`. **Note**: `sensitivity_table` and `false_positive_rate` are added in Phase 5.
+- [~] T023a [US2] Integrate heuristic runner in `code/main.py` to execute heuristics and generate selection sets.
+- [~] T023b [US2] Integrate metric calculator in `code/main.py` to compute metrics using T021/T021b. <!-- FAILED: unspecified -->
+- [~] T023c [US2] Implement output formatting in `code/main.py` to structure results for T024. <!-- FAILED: unspecified -->
+- [~] T023 [US2] Integrate heuristic execution with metric calculation in `code/main.py` to output results per task, comparing against T022c's Dense Attention baseline. (Depends on T024, T022c, T021b, T014-T016, T017c). <!-- FAILED: unspecified -->
+- [~] T025 [US2] Add logging for exclusion counts if RULER dataset samples are corrupted or missing "needle" strings
 
 **Checkpoint**: US2 complete; accuracy and perplexity measured against baseline.
 
@@ -124,22 +124,22 @@
 
 ### Tests for User Story 3
 
-- [X] T026b [P] [US3] Unit test for `code/eval/statistical.py` (Wilcoxon, Paired t-test) in `tests/unit/test_statistical.py`: Implement `test_wilcoxon_returns_p_value`, `test_ttest_returns_p_value`, `test_holm_bonferroni_corrects_p_values` with specific assertions.
+- [~] T026b [P] [US3] Unit test for `code/eval/statistical.py` (Wilcoxon, Paired t-test) in `tests/unit/test_statistical.py`: Implement `test_wilcoxon_returns_p_value`, `test_ttest_returns_p_value`, `test_holm_bonferroni_corrects_p_values` with specific assertions.
 
 ### Implementation for User Story 3
 
-- [X] T027a [P] [US3] Implement `code/eval/statistical.py`: **SECONDARY** Wilcoxon signed-rank test (per Spec FR-005/SC-003). This test is executed but is NOT the primary method for significance claims. <!-- FAILED: unspecified -->
-- [X] T027b [P] [US3] Implement `code/eval/statistical.py`: **PRIMARY** Paired t-test with **Holm-Bonferroni correction** (per Constitution Principle VII and Plan). This is the primary method for determining statistical significance. <!-- FAILED: unspecified -->
-- [X] T028a [P] [US3] Define threshold list: Create a list of representative sensitivity parameters in `code/utils/config.py` for sensitivity analysis with values {0.05, 0.1, and other small significance thresholds}.
-- [X] T028b [P] [US3] Implement sensitivity sweep loop: In `code/eval/statistical.py`, implement loop over T028a thresholds.
-- [X] T028c [P] [US3] Implement sensitivity output format: Define output structure for sensitivity sweep results, including `sensitivity_table` and `false_positive_rate` as per SC-004 and Edge Cases.
-- [X] T029 [US3] (Note: T028a already includes the required thresholds {, 0.05, 0.1} as a strict constraint).
-- [X] T032a [US3] Implement false-positive rate calculation: Calculate "Percentage of blocks selected by the heuristic that DO NOT contain the 'needle' string" (since Dense Baseline selects ALL blocks). Logic: Compare heuristic selection set vs. Dense Attention baseline selection set (from T022c). **Definition**: Explicitly use the spec's Edge Case definition: "selecting a block that does NOT contain the target 'needle' string when the Learned Index Branch would have selected it" (where Learned Index Branch is disabled, so we compare against Dense Attention's full selection).
-- [X] T032b [US3] Write false-positive rate to report: Ensure `false_positive_rate` is explicitly calculated and written to `results/benchmark_report.json` for each threshold in the sensitivity sweep, verifying SC-004.
-- [X] T030a [US3] Implement statistical test runner in `code/main.py` to execute T027a/T027b tests.
-- [X] T030b [US3] Implement report prioritization logic in `code/main.py` to prioritize **Paired t-test** p-values in the report (per Plan/Constitution), while including Wilcoxon results as secondary checks. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [X] T030 [US3] Integrate statistical tests into `code/main.py` to compare best heuristic vs Dense Attention baseline (from T022c), prioritizing Paired t-test p-values in the report. (Depends on T032a, T030a, T030b, T023, T024).
-- [X] T031 [US3] Generate final `results/benchmark_report.json`: Read aggregated metrics from T024 output (core metrics) and statistical results from T030 output (t-test primary, Wilcoxon secondary) and sensitivity results from T028c/T032b to populate fields: `f1_score`, `p_value` (Paired t-test primary), `significance_statement`, `sensitivity_table` (from T028c), `ttest_stat`, `wilcoxon_stat`, `false_positive_rate` (from T032b). Format: `{"p_value": float, "significance_statement": "p < 0.05" or "p >= 0.05", "sensitivity_table": [{"threshold": float, "accuracy": float, "false_positive_rate": float}]}`. (Note: Must include all keys from T024 schema plus Phase 5 additions).
+- [~] T027a [P] [US3] Implement `code/eval/statistical.py`: **SECONDARY** Wilcoxon signed-rank test (per Spec FR-005/SC-003). This test is executed but is NOT the primary method for significance claims. <!-- FAILED: unspecified -->
+- [~] T027b [P] [US3] Implement `code/eval/statistical.py`: **PRIMARY** Paired t-test with **Holm-Bonferroni correction** (per Constitution Principle VII and Plan). This is the primary method for determining statistical significance. <!-- FAILED: unspecified -->
+- [~] T028a [P] [US3] Define threshold list: Create a list of representative sensitivity parameters in `code/utils/config.py` for sensitivity analysis with values {0.05, 0.1, and other small significance thresholds}.
+- [~] T028b [P] [US3] Implement sensitivity sweep loop: In `code/eval/statistical.py`, implement loop over T028a thresholds.
+- [~] T028c [P] [US3] Implement sensitivity output format: Define output structure for sensitivity sweep results, including `sensitivity_table` and `false_positive_rate` as per SC-004 and Edge Cases.
+- [~] T029 [US3] (Note: T028a already includes the required thresholds {, 0.05, 0.1} as a strict constraint).
+- [~] T032a [US3] Implement false-positive rate calculation: Calculate "Percentage of blocks selected by the heuristic that DO NOT contain the 'needle' string" (since Dense Baseline selects ALL blocks). Logic: Compare heuristic selection set vs. Dense Attention baseline selection set (from T022c). **Definition**: Explicitly use the spec's Edge Case definition: "selecting a block that does NOT contain the target 'needle' string when the Learned Index Branch would have selected it" (where Learned Index Branch is disabled, so we compare against Dense Attention's full selection).
+- [ ] T032b [US3] Write false-positive rate to report: Ensure `false_positive_rate` is explicitly calculated and written to `results/benchmark_report.json` for each threshold in the sensitivity sweep, verifying SC-004.
+- [~] T030a [US3] Implement statistical test runner in `code/main.py` to execute T027a/T027b tests.
+- [~] T030b [US3] Implement report prioritization logic in `code/main.py` to prioritize **Paired t-test** p-values in the report (per Plan/Constitution), while including Wilcoxon results as secondary checks. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [~] T030 [US3] Integrate statistical tests into `code/main.py` to compare best heuristic vs Dense Attention baseline (from T022c), prioritizing Paired t-test p-values in the report. (Depends on T032a, T030a, T030b, T023, T024).
+- [ ] T031 [US3] Generate final `results/benchmark_report.json`: Read aggregated metrics from T024 output (core metrics) and statistical results from T030 output (t-test primary, Wilcoxon secondary) and sensitivity results from T028c/T032b to populate fields: `f1_score`, `p_value` (Paired t-test primary), `significance_statement`, `sensitivity_table` (from T028c), `ttest_stat`, `wilcoxon_stat`, `false_positive_rate` (from T032b). Format: `{"p_value": float, "significance_statement": "p < 0.05" or "p >= 0.05", "sensitivity_table": [{"threshold": float, "accuracy": float, "false_positive_rate": float}]}`. (Note: Must include all keys from T024 schema plus Phase 5 additions).
 
 **Checkpoint**: All user stories complete; statistical validation and robustness checks implemented.
 
@@ -149,9 +149,9 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T033 [P] Documentation updates: Add `quickstart.md` with CPU-only execution instructions
-- [X] T035 [P] Run full `pytest` suite on CPU-only runner to verify all tests pass
-- [X] T036 Verify `results/benchmark_report.json` contains all required metrics and statistical tests, specifically checking for keys: `f1_score`, `p_value`, `false_positive_rate`, `sensitivity_table`, `ttest_stat`, `wilcoxon_stat`, `significance_statement`.
+- [~] T033 [P] Documentation updates: Add `quickstart.md` with CPU-only execution instructions
+- [~] T035 [P] Run full `pytest` suite on CPU-only runner to verify all tests pass
+- [~] T036 Verify `results/benchmark_report.json` contains all required metrics and statistical tests, specifically checking for keys: `f1_score`, `p_value`, `false_positive_rate`, `sensitivity_table`, `ttest_stat`, `wilcoxon_stat`, `significance_statement`.
 
 ---
 
@@ -159,8 +159,8 @@
 
 **Purpose**: Address reviewer concerns regarding strict adherence to 7GB RAM and 6-hour time limits (Review Concern: "Compute feasibility")
 
-- [X] T040 [P] [US1] Implement `code/utils/resource_monitor.py`: A background thread that logs RAM usage at regular intervals and triggers an early exit with a failure code if usage exceeds a predefined safety threshold (a defined memory limit). **Note**: This GB threshold is a documented safety buffer derived from the 7 GB spec limit (FR-007) to prevent OOM crashes on the runner.
-- [ ] T041 [US1] Add a "Timeout Guard" to `code/main.py`: Implement signal-based timeout of 21600 seconds (6 hours) to forcibly terminate the process if the RULER subset run exceeds the time threshold.
+- [~] T040 [P] [US1] Implement `code/utils/resource_monitor.py`: A background thread that logs RAM usage at regular intervals and triggers an early exit with a failure code if usage exceeds a predefined safety threshold (a defined memory limit). **Note**: This GB threshold is a documented safety buffer derived from the 7 GB spec limit (FR-007) to prevent OOM crashes on the runner.
+- [~] T041 [US1] Add a "Timeout Guard" to `code/main.py`: Implement signal-based timeout of 21600 seconds (6 hours) to forcibly terminate the process if the RULER subset run exceeds the time threshold.
 - [ ] T042 [P] [US3] Implement a "Batch Size Auto-Reducer" in `code/data/preprocess.py`: If a single batch causes memory pressure, automatically split the batch into smaller chunks (size reduced to unit level) and re-aggregate results, logging the auto-reduction event.
 
 ---
@@ -169,10 +169,10 @@
 
 **Purpose**: Address reviewer concerns regarding "Real data + real results only" and "Loader must fail loudly" (Review Concern: "Data Hygiene & Fabrication Gate")
 
-- [X] T043 [P] [US1] Refactor `code/data/loader.py` to REMOVE any `try/except` blocks that catch download failures and fall back to `generate_synthetic_*()` or `mock_*()` functions; ensure that any failure to fetch the RULER dataset from the verified HuggingFace URL raises a `RuntimeError` immediately. **CRITICAL**: The refactored loader MUST enforce the 'checksum validation' step required by Constitution Principle III (Data Hygiene) before returning data.
-- [X] T044a [P] [US2] Implement `code/data/streaming_chunker.py` API definition: Define the `stream_chunker(dataset, chunk_size)` function signature and return type (generator) for handling the RULER dataset using `datasets.load_dataset(..., streaming=True)`.
-- [X] T044b [P] [US2] Implement `code/data/streaming_chunker.py` streaming loader integration: Integrate `datasets.load_dataset(..., streaming=True)` to process the full dataset in chunks without loading it all into RAM, ensuring compliance with FR-007 and SC-002.
-- [X] T044c [P] [US2] Implement `code/data/streaming_chunker.py` chunking logic: Implement the internal logic to yield chunks of specified size and handle memory safety checks.
+- [~] T043 [P] [US1] Refactor `code/data/loader.py` to REMOVE any `try/except` blocks that catch download failures and fall back to `generate_synthetic_*()` or `mock_*()` functions; ensure that any failure to fetch the RULER dataset from the verified HuggingFace URL raises a `RuntimeError` immediately. **CRITICAL**: The refactored loader MUST enforce the 'checksum validation' step required by Constitution Principle III (Data Hygiene) before returning data.
+- [~] T044a [P] [US2] Implement `code/data/streaming_chunker.py` API definition: Define the `stream_chunker(dataset, chunk_size)` function signature and return type (generator) for handling the RULER dataset using `datasets.load_dataset(..., streaming=True)`.
+- [~] T044b [P] [US2] Implement `code/data/streaming_chunker.py` streaming loader integration: Integrate `datasets.load_dataset(..., streaming=True)` to process the full dataset in chunks without loading it all into RAM, ensuring compliance with FR-007 and SC-002.
+- [~] T044c [P] [US2] Implement `code/data/streaming_chunker.py` chunking logic: Implement the internal logic to yield chunks of specified size and handle memory safety checks.
 - [ ] T045 [US2] Add a "Data Source Verification" task in `code/main.py`: Implement `verify_needle_presence(sample: dict) -> bool` function that checks for the presence of the "needle" string (key `sample['needle']`) in the loaded sample before processing; if the needle is missing, **log a warning** and skip the sample, updating the exclusion count in `results/benchmark_report.json` under the key `excluded_samples_count`. <!-- FAILED: unspecified -->
 - [ ] T046 [US3] Implement a "Sample Representativeness" check in `code/eval/statistical.py`: Add field `sampling_method` to `results/benchmark_report.json` documenting the exact number of rows processed and the sampling method (streaming vs. fixed seed random sample) to satisfy SC-004 requirements for transparency. (Depends on T045 for exclusion count). <!-- FAILED: unspecified -->
 
@@ -182,9 +182,9 @@
 
 **Purpose**: Address reviewer concerns regarding "CPU-first feasibility" and "Real GPU escape hatch" to ensure the execution stage can correctly identify when a task *should* fail on CPU and trigger a GPU re-run if scientifically necessary.
 
-- [X] T050 [P] [US1] Implement `code/utils/env_check.py`: Create a utility function `detect_cuda_availability()` that explicitly checks for `torch.cuda.is_available()` and logs a clear warning if CUDA is detected when `device="cpu"` is forced, ensuring the execution gate can distinguish between "intentional CPU run" and "accidental GPU fallback".
+- [~] T050 [P] [US1] Implement `code/utils/env_check.py`: Create a utility function `detect_cuda_availability()` that explicitly checks for `torch.cuda.is_available()` and logs a clear warning if CUDA is detected when `device="cpu"` is forced, ensuring the execution gate can distinguish between "intentional CPU run" and "accidental GPU fallback".
 - [ ] T051 [US2] Add explicit "No Quantization" assertion in `code/main.py`: Insert a runtime check that raises `RuntimeError` if any quantization flags (e.g., `load_in_8bit`, `load_in_4bit`) are detected in the model config, reinforcing FR-003 and preventing accidental degradation of the CPU feasibility test.
-- [X] T052 [US1] Implement `code/data/streaming_chunker.py` fallback guard: Ensure the streaming chunker (T044a-T044c) explicitly logs the `streaming=True` flag and the chunk size used in the execution log, providing a verifiable record that the full dataset was processed in chunks rather than loaded into memory, satisfying the "Stream the real data" rule.
+- [~] T052 [US1] Implement `code/data/streaming_chunker.py` fallback guard: Ensure the streaming chunker (T044a-T044c) explicitly logs the `streaming=True` flag and the chunk size used in the execution log, providing a verifiable record that the full dataset was processed in chunks rather than loaded into memory, satisfying the "Stream the real data" rule.
 
 ---
 

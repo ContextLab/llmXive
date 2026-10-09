@@ -12,7 +12,7 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/data/ruler_loader.py: synthetic/fake INPUT data not authorized by the spec — “…Optional import yaml  # Mock dataset for MVP if real download…”
 - code/data/ruler_loader.py: synthetic/fake INPUT data not authorized by the spec — “…For this MVP, returns a mock dataset if real download is not…”
 - code/data/ruler_loader.py: synthetic/fake INPUT data not authorized by the spec — “…For T012, we return the mock data to ensure the script run…”
-- code/eval/statistical.py: synthetic/fake INPUT data not authorized by the spec — “…# Example usage with mock data (for API verification on…”
+- code/eval/statistical.py: synthetic/fake INPUT data not authorized by the spec — “…1, 0.05, 0.1]          # Mock data for API verification onl…”
 - code/heuristics/block_entropy.py: synthetic/fake INPUT data not authorized by the spec — “…nfig, logger)          # Generate synthetic attention scores for tes…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
@@ -22,23 +22,29 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py --action download -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/code/main.py", line 16, in <module>
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/code/main.py", line 17, in <module>
     from data.loader import download_and_verify_ruler, verify_ruler_data_integrity
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/code/data/__init__.py", line 12, in <module>
     from .preprocess import (
 ImportError: cannot import name 'check_memory_pressure' from 'data.preprocess' (/home/runner/work/llmXive/llmXive/projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/code/data/preprocess.py)
+
 - python code/main.py --action run --heuristic all --threshold 0.05 -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/code/main.py", line 16, in <module>
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/code/main.py", line 17, in <module>
     from data.loader import download_and_verify_ruler, verify_ruler_data_integrity
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/code/data/__init__.py", line 12, in <module>
     from .preprocess import (
 ImportError: cannot import name 'check_memory_pressure' from 'data.preprocess' (/home/runner/work/llmXive/llmXive/projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/code/data/preprocess.py)
+
 - python code/main.py --action analyze -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/code/main.py", line 16, in <module>
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/code/main.py", line 17, in <module>
     from data.loader import download_and_verify_ruler, verify_ruler_data_integrity
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/code/data/__init__.py", line 12, in <module>
     from .preprocess import (
 ImportError: cannot import name 'check_memory_pressure' from 'data.preprocess' (/home/runner/work/llmXive/llmXive/projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/code/data/preprocess.py)
+

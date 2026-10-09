@@ -1,0 +1,158 @@
+T001a:
+  task: c111c730446c22c3096f40eec1bb740d7b7ab93e3da2a98133fa3930e7143071
+T001b:
+  reason: "The evidence does not show the existence of the required `data/raw` and\
+    \ `data/processed` directories in the project; no artifacts confirming these folders\
+    \ are present were provided. The implementer must create these two directories\
+    \ (non\u2011empty or placeholder files) at the project root."
+  task: 483c50d7785dc015dba69911d242f68f7c76bec7fce0947845cfb7538294960a
+T001c:
+  reason: The evidence does not show the existence of the required `tests/unit` and
+    `tests/integration` directories under the project root; no such paths were listed
+    or confirmed by the collector. These directories must be present (even if empty)
+    to satisfy task T001c.
+  task: 274ffacd30e2a7f4407a581c8dd265f5739b0898fea93948ca15c7916df4d5bf
+T001d:
+  reason: The evidence provided contains no confirmed artifact named `results` (or
+    `results/` directory) under the project root `projects/PROJ-937-llmxive-follow-up-extending-minimax-spar`.
+    Without a verified existence of the required `results` directory, the task is
+    not satisfied. The implementer must add the `results` directory (even if empty)
+    and ensure it is present in the repository.
+  task: a43dc82dc32d923183224548a5415b119dbc23e01464a0b5067d86122d292f28
+T002:
+  task: ea203c81c035187f300db414a48cfcebbaa31e61e09d0f52aa8c12e00f03b3f6
+T003:
+  reason: "The `pyproject.toml` with Black configuration exists at the repository\
+    \ root, but the `ruff.toml` is placed under `code/ruff.toml` instead of the repository\
+    \ root as the task explicitly requires. Move or copy `ruff.toml` to the top\u2011\
+    level directory (or create a duplicate there) to satisfy the specification."
+  task: 00c5c0100ae404341767d7f385a06e622077d45a8e8911f8df5a2536ff68c2e6
+T004:
+  task: 0989ff2cc908d0a3dad577423d473d4a4ff54debcc07b2fa2c63408d722ca61e
+T005:
+  task: 712f8c9b9e6ff08e5afdb44e1f1fe31dc943a6396dda8354cebdcdb7eb50b63a
+T006:
+  task: 38dd340068e30f924d6958441b6b9164d793da34db64621ce3ef68229e5dfcb1
+T007a:
+  task: d1484d2cf7bfe9bc2e4095daa05ceb0ee71b60f3a162a42db036cb91cc6965ef
+T007b:
+  task: 5ae4001aed6c5e89150646946f3cb6edeb49443370aeec7e60489a3352fb2a93
+T007c:
+  task: 17dcdf0016f80019b1ce705f66180c9acd93401430d63ab87ff8d08aeae24d09
+T007d:
+  task: 725795636df829c1a381720c193005328f5683b66bfef5669081c1d65c788c68
+T008:
+  task: 90a8ccf80ab32af4c0d961350d29ecc73831b76c5075c8e8ea639448363dd7cb
+T009:
+  task: 1363a8fc7db6d685ae893f55251d13a2a52b9363ad951fee428d6459ba5fffb6
+T010:
+  task: 483abcd3d0ef6b6d0d08c49dded5d516e343535468d9e28adef5b5bb8ca15bae
+T011:
+  task: 141d75e17fee262656936f95399a4233a55b45b600aa7081f15b1d2c18a68fc7
+T012:
+  task: 1596b74c647675bfdbea83d0fcda4abcc4dea4eaa05989f19a46f77ffbafde73
+T014:
+  task: fa40ae8224b898fb7e60db8ab8daf123729d0dc9d5dd45d82ed1645e3d550372
+T015:
+  task: b7ae55d5622e21fbe42298308553cdb4f21e1b1ed0bb5b56c05a0771db12377c
+T016:
+  task: 1bd20a9348ab29fcd9a4a98090b790abfbad9e854c170809e25208b73bb3bb40
+T017a:
+  task: ad7635d35bf8ebe38a49c5dd473128851e0cbf4574c60a4d94f35df49171b0a5
+T017b:
+  task: 54d683d4f8495d0d28ed88cb2da43616728edc49ab069ac13ba3b3ed597fdeb9
+T017c:
+  task: f305f62200e47b8346ebd9fe0206254766e96bb9397903e97bb04cbaa0a663ff
+T017d:
+  reason: 'declared artifact(s) missing/empty/invalid: code/heuristics/selector.py'
+  task: 1d3091c134aa9b1bcc962045c414ddf41aca632c1d06e6ca725f25e3f06443b8
+T017e:
+  task: dafb9f02c0af0681e24b80482ce0208096e1b2b999c2b84f5c41e5912df4c6ec
+T018:
+  task: bb4e3dc298e1a24adc384e0edbe2904ed216dfca06ea1ded91ced8927db9ac25
+T020:
+  task: f78c0085a88e0be1454df9c8a8cfd172b66931d108098119e2efc1a3b0124add
+T021:
+  task: 927213dc5c013bd42ffbce4dc995774a69118d22ec5e6d0936f01db3f1cdbc79
+T021b:
+  task: f747fd22332edfc3b6e4c73374777eb0f04414a623f1a52b395de5e387141ffd
+T022c:
+  task: 386ec5b2cb9b9564390d23498e2407f1552f583ba8e6f5f8047518322f96f472
+T023:
+  task: 95e849a85f485a03467d398330866fafa1984e740044f18db98e9527b1478e2c
+T023a:
+  task: b13bf6176ff048a8d665ed3caa9e55386bd844236cdb2a32abc600d386393fde
+T023b:
+  task: c56de2e62e245ae020f855777d65c96519a59045ea76cf4304a828476cf9aa71
+T023c:
+  task: e6e5e0f17c9108b5465b65f5eb08bdbc7a70771ab367c1da3debd2c6b8ea7294
+T024:
+  task: 0588fdede8dbb9d058e941d66825d067f9305d396ab169a1ecd453f51f67b20c
+T025:
+  task: 6a003f5dc74a5901ea3a614e3ae9fc05abc2149509ceb34ed8b2bc035c234fd9
+T026b:
+  task: 2b902eb4e1d415b64ffacbfab721c08ee961c47bc582e4699911d4d3be175996
+T027a:
+  task: f9b87261697a20a06c29e37be7f7d14524c73c152f418a667c1577be693dd120
+T027b:
+  task: 88e29f1161fcd12398a0cc20df5231b2c5caf408f0161795b88351bd78fdd3a2
+T028a:
+  task: 0cd644ea9ed9f5bd08f809f09b100454ab769b4651b8ec14e7cabc08d5f2363a
+T028b:
+  task: 1cf438ae06976fb769d083d9b66aa59889ea90661c1b737d18ed5cea708f2854
+T028c:
+  task: 0a90dd4629dc3ed3fe5be58059fe4c3da80167642d977f33704415a425eb6a66
+T029:
+  task: af88f28e51767a7909aa4c7398c3d7d3812d30e06ebc339d12ee734efa6a80b4
+T030:
+  task: 1ca3e4ed790e3a09578f0b65a9e43be77956dc947eab897df38f140c750f6424
+T030a:
+  task: 28e9beeaeac5faded397e90df9c90fef3e76849316883c5cc5f26590fbe28568
+T030b:
+  task: 477dceddac9e0e908c4f295858de5e2d10bc57cdd8e55ff7f1ce570740721957
+T031:
+  reason: 'declared artifact(s) missing/empty/invalid: results/benchmark_report.json'
+  task: 990ec06c01fba088ab214635fdc74ef4489b041ee7500defa74b96c383453830
+T032a:
+  task: 792eadbb799bf07f2163f207eb12c7a1bc1f14c2f4ff9d699eae94e0c1b63343
+T032b:
+  reason: 'declared artifact(s) missing/empty/invalid: results/benchmark_report.json'
+  task: 3525f3a2fb5fb646dafc59513cc9b68ec831b9c39d783c5920ac665ad207ec87
+T033:
+  task: 82204f6521c1970d16e43f2fb1c50242f755bbdaf0e3ba6467e4192a6877fd0f
+T035:
+  task: 510db4c827b74d7a16481d4bb7e2c2c0460a37584a3f9483a43a16e4a367dc3e
+T036:
+  task: ced1434b0e86abc8c6f832d13ccf6f99a6002d42a8b624fa4a7b899b343f5c7d
+T037a:
+  task: fd32962ddf4e5d9353f4db3d13518d2f576faf6b662e7a861f55e35da07d8d56
+T037b:
+  task: 0de708e89b054075bb9ef6bf3260b69378814c21d26b3db80455c7f7923a35c8
+T040:
+  task: 5102b29a592a9e9748cabb02f86c6da350fcad8949b4793b3d532521c2b13459
+T041:
+  task: 8fdc0bada05c8eca6307fbc24b6c37505262090883ad3116e6299629c3e506f4
+T042:
+  task: 83f9537f56496100124f8974a8b4dd905f1e1a03d0cd0dd5060673d64b7b5fe3
+T043:
+  task: bdccf81e4d3a8f9d9220cd49fd8dcba1f60476d8b8c4ba74cfc81a9f7453eeee
+T044a:
+  task: 917a0210df0349ccc158c3d2a57e33d43772aa5a12bab37bdebf015db96eba6f
+T044b:
+  task: a186fbaa23dcb910d67df82ad67d84cebb332ce89c33a955420453e288d118e3
+T044c:
+  task: a5fefacc5d6b9538fd2b22f929e01fc22669dd38413f69c0d52072134b385696
+T045:
+  task: dac19e79b643f8e6862335d824349857540e5d27c67d2b3dc5325dad8599ede7
+T046:
+  task: 57c3c2fae930be9b531d096623687e8f5cf842587e8abfd4a61b89ceb9d430be
+T047:
+  task: c5fa00ec453faf3e813ad8fcf08634186ba30eed7cd69af96cdcf8644131b88a
+T048:
+  task: f6af3fb2f53ceb2698594d8b84771326d85025fe2fbc0a112aaafa18de84bf70
+T050:
+  task: bdb26e002010b29d4dc3f62af5cfd6a3da064664e6e717c78274063dae388549
+T051:
+  task: 5b22c768048f6394127cf40367f7de7a6d52cc5a1823529f46588ceb7bc7d9c7
+T052:
+  task: a5100ceffc386ee3715429e46a00967e2654be592c65dca6787cf803e7b4366c
