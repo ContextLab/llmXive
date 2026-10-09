@@ -150,8 +150,12 @@ def test_evidence_follows_implementer_feature_slug_canonicalization(tmp_path, mo
     evidence = tv.gather_evidence(tmp_path, task)
     assert "type: object" in evidence
     assert "resolved: `specs/001-canonical/contracts/summary.schema.yaml`" in evidence
+    # Live setup tasks can leave an empty contracts/ directory under the
+    # invented slug; that scaffold must not hide the canonical artifact.
+    (tmp_path / "specs/001-invented/contracts").mkdir(parents=True)
+    assert "type: object" in tv.gather_evidence(tmp_path, task)
     # Never borrow evidence from another feature that actually exists.
-    (tmp_path / "specs/001-invented").mkdir()
+    (tmp_path / "specs/001-invented/spec.md").write_text("A distinct real feature")
     assert "MISSING" in tv.gather_evidence(tmp_path, task)
 
 

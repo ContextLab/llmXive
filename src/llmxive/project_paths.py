@@ -75,9 +75,11 @@ def resolve_project_path(project_dir: Path, rel: str) -> Path | None:
     if not path.resolve().is_relative_to(root):
         return None
     if (not path.exists() and len(relative.parts) >= 3 and relative.parts[0] == "specs"
-            and not (root / "specs" / relative.parts[1]).exists()):
+            and not (root / "specs" / relative.parts[1] / "spec.md").is_file()):
         # The implementer canonicalizes invented feature slugs on write. Read
         # the same authoritative feature, without aliasing an existing feature.
+        # A scaffold-only directory is not a feature: setup tasks often create
+        # an invented slug's contracts/ before artifact writes canonicalize it.
         from llmxive.state.project import feature_dir_for
         feature = feature_dir_for(project_dir, track="research")
         if feature is not None:

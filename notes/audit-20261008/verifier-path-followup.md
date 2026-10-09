@@ -42,6 +42,24 @@ project confinement. The full canary was resumed with this follow-up source;
 it was stopped during follow-up development to load the context corrections;
 research and paper acceptance remain unproven.
 
+The next live verification pass accepted setup, sieve, and TV helper tasks.
+An independent GCD check for n=1..500 found no mismatch, and the generated
+sieve/TV libraries matched all 12 reference combinations through N=1,000,000
+(sieve: 0.285 seconds; comparison evidence in `canary-math-library-check.json`).
+The generated sieve and TV tests pass (19 tests, with pytest's importlib mode).
+These are read-only checks of generated library code, not pipeline-generated
+result tables or paper acceptance. No research code was corrected manually.
+
+The pass also exposed a remaining resolver edge case: setup had created an
+invented spec slug containing only `contracts/`. That scaffold prevented the
+missing-file fallback even though the implementer had written the document in
+the canonical feature. Distinguish real features by `spec.md`, keeping existing
+files authoritative while resolving scaffold-only aliases. The live quickstart
+and data-model references now both resolve to real canonical files; the 134
+targeted tests still pass. Execution also identified malformed doubled shell
+continuations and a module-path mismatch in the generated run-book; these
+remain implementation work rather than accepted scientific outputs.
+
 The production repair workflow (37859264827) completed with `no_candidate`:
 the selected umbrella issues described merged fixes and pending acceptance,
 without a concrete reproducible source defect. It did not publish a PR. This
