@@ -1,3 +1,87 @@
+T001a:
+  c: true
+  h: ea6c5d05c187ef3aacff83a1fde5d7c1fc44e91e33fa27f66662f30ffc3e99f0
+  r: 'Checked the project root `projects/PROJ-490-the-effect-of-simulated-social-compariso/`
+    and confirmed the presence of the required subdirectories: `code/`, `data/` (with
+    `raw/` and `processed/`), `tests/` (with `contract/` and `unit/`), `docs/`, and
+    `state/`.'
+T001b:
+  c: false
+  h: 7cc5e05693704ea91d456439a4d6e4b71ce3c0059e9d6b3eb6c1917e4dc25c5a
+  r: "Checked the `requirements.txt` file (present and includes flake8, pylint, black).\
+    \ No `README.md` was found, nor any linting/formatting configuration files (e.g.,\
+    \ `.flake8`, `.pylintrc`, `pyproject.toml`), so the task\u2019s requirement to\
+    \ configure the tools and provide a README is not satisfied."
+T002a:
+  c: false
+  h: 9d3f0684fde02eb6b8072a7e94ef37f7083a07d6aceabbe2e9532890c53f9565
+  r: "The collector reports `dataset.schema.yaml` as MISSING at the requested path,\
+    \ and although a file with that name appears in the `contracts/` directory listing,\
+    \ no content evidence was supplied to verify it contains the required field definitions\
+    \ (participant_id, pre/post_self_esteem, comparison_tendency, avatar_condition\
+    \ with enum [0,1]) or the N \u2265 100 validation rule (FR-001). The next implementer\
+    \ must ensure the schema file exists at `projects/PROJ-490-the-effect-of-simulated-social-compariso/contracts/dataset.schema.yaml`\
+    \ with the full explicit definitions and sample-size validation rule, a"
+T002b:
+  c: false
+  h: 6062bcdd5bc4255f7e25a26026c0aafb7fcd25ec50ad3e9361b7356f98175232
+  r: The collector reports the requested `output.schema.yaml` as MISSING at its expected
+    location, and while a file of that name appears in the `contracts/` directory
+    listing, no content was collected for it, so I cannot verify it contains the required
+    schema (object with required `imputed_data_checksum` and `missingness_report`,
+    with `total_rows`/`rows_excluded`/`missingness_pct` properties). The implementer
+    must ensure the file exists at `projects/PROJ-490-the-effect-of-simulated-social-compariso/contracts/output.schema.yaml`
+    with exactly the specified definitions and provide its content as evide
+T002c:
+  c: false
+  h: 0cd119ed5ad71e8598a80da41ae24b9adaa143263ceae3080ac10b6628682efc
+  r: The file `results.schema.yaml` does exist inside `projects/PROJ-490-the-effect-of-simulated-social-compariso/contracts/`
+    (per the directory listing), but no content was collected for it, so I cannot
+    verify it contains the required schema (object with required `coefficients`/`assumptions`/`data_source_type`,
+    the coefficient item fields `name`/`estimate`/`std_err`/`p_value`, the assumption
+    fields `shapiro_p`/`breusch_pagan_p`/`vif_max`, and the `["real","synthetic"]`
+    enum). The next implementer should re-run evidence collection (or provide the
+    file's contents) so the schema can be checked agains
+T003:
+  c: true
+  h: 5d785f7a16dd93332673650753c7e0bc894d0feaa52e29dc8a9bdb8c71540472
+  r: The file `code/utils/validators.py` exists (5,047 bytes) and contains a real,
+    non-stub implementation of schema validation utilities (schema loading for JSON/YAML,
+    DataFrame and JSON schema validation, pydantic model validation, assertion helpers),
+    and it defines the `DataFetchError` exception class as critically required by
+    the task. No placeholders, TODOs, or fabricated content are present.
+T004:
+  c: true
+  h: 6608d5ab013a36549f0eaf9d790327e2796287021c41d87153c48bb35d08b7fd
+  r: "Checked `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/utils/logger.py`;\
+    \ the file exists, is non\u2011empty, and provides a full logging setup (console/file\
+    \ handlers, JSON formatter, `get_logger`, `configure_root_logger`, and task\u2011\
+    level start/end logging functions) as required."
+T005:
+  c: true
+  h: 2d70fe03fefad03f45c7d4403108bf65e822f4c465fcb86e60b5e832b1b5c189
+  r: "Checked `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/data/config.py`\
+    \ (6161\u202Fbytes). It defines a `Config` class that loads optional YAML settings,\
+    \ creates the required directory structure, and initializes/updates a random seed,\
+    \ exposing path properties (`root`, `data_raw`, `data_processed`, etc.) and a\
+    \ global accessor (`get_config`). This fulfills the task of providing a configuration\
+    \ manager for seeds and paths."
+T006:
+  c: true
+  h: 6ad7688f7a42f11079f983d37f738470cd2fa9168560c0b6aa1d15faf2c3486c
+  r: "Checked the presence and content of `projects/PROJ-490-the-effect-of-simulated-social-compariso/tests/contract/test_dataset_schema.py`,\
+    \ which defines pytest fixtures and three tests that load the schema, validate\
+    \ a correct dataframe, and verify failures for missing columns and wrong types,\
+    \ fulfilling the contract\u2011test requirement."
+T007:
+  c: true
+  h: 60f2201bd290bba4ffeb57f6659048094c0364a0ff097c32734dcf3deb86de22
+  r: "Checked `projects/PROJ-490-the-effect-of-simulated-social-compariso/tests/unit/test_synthetic_gen.py`,\
+    \ which exists and contains a concrete unit test that generates synthetic data,\
+    \ verifies required columns, labels, sample size, avatar values, and recovers\
+    \ the ground\u2011truth regression coefficients within tolerance. This fulfills\
+    \ the task\u2019s requirement for a synthetic data generator parameter\u2011recovery\
+    \ unit test."
 T016:
   c: false
   h: bfc067fe2d262b416b46c8919c34b4fb61d19244f99d638d72d840e475563cd9

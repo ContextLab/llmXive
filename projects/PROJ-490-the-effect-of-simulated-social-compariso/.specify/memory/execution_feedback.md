@@ -8,48 +8,59 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
-- code/analysis/sensitivity.py: self-declared fabricated metric — “…vailable     # or we generate placeholder results for the structure if the fil…”
-- code/analysis/sensitivity.py: self-declared fabricated metric — “…so we skip correction or use dummy values)     # For the purpose of th…”
 - code/analysis/interpretation.py: synthetic/fake INPUT data not authorized by the spec — “…'synthetic' for simulated data.      Returns:         s…”
 - code/analysis/interpretation.py: synthetic/fake INPUT data not authorized by the spec — “…ysis "             "used synthetic data generated with known gro…”
-- code/analysis/sensitivity.py: synthetic/fake INPUT data not authorized by the spec — “…ound truth parameters if synthetic data was used.     Returns No…”
-- code/analysis/sensitivity.py: synthetic/fake INPUT data not authorized by the spec — “…ameter recovery bias for synthetic data.     Compares estimated…”
-- code/analysis/sensitivity.py: synthetic/fake INPUT data not authorized by the spec — “…ter recovery analysis if synthetic data is available.     """…”
-- code/analysis/sensitivity.py: synthetic/fake INPUT data not authorized by the spec — “…generating.")          # Generate synthetic results for the sweep if…”
+- code/analysis/sensitivity.py: synthetic/fake INPUT data not authorized by the spec — “…ound truth parameters if synthetic data was used.          Reads…”
+- code/analysis/sensitivity.py: synthetic/fake INPUT data not authorized by the spec — “…ameter recovery bias for synthetic data.          Compares estim…”
+- code/analysis/sensitivity.py: synthetic/fake INPUT data not authorized by the spec — “…ter recovery analysis if synthetic data is used.          Loads…”
+- code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…d.DataFrame:     """     Generate a synthetic dataset with ground trut…”
+- code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info(f"Generating synthetic dataset with N={n_samples}, seed…”
+- code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…l data or consent fails, generate synthetic.     Returns: (DataFrame…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 21 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/sensitivity.py: self-declared fabricated metric — “…vailable     # or we generate placeholder results for the structure if the fil…”; code/analysis/sensitivity.py: self-declared fabricated metric — “…so we skip correction or use dummy values)     # For the purpose of th…”; code/analysis/interpretation.py: synthetic/fake INPUT data not authorized by the spec — “…'synthetic' for simulated data.      Returns:         s…”; 4 command(s) failed: python code/main.py --action download (rc=1); python code/main.py --action preprocess (rc=1); python code/main.py --action analyze (rc=1); 5 declared deliverable(s) absent: data/processed/final_report.json; data/processed/imputed_data.csv; data/processed/post_imputation_validation.json
+**Summary**: 18 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/interpretation.py: synthetic/fake INPUT data not authorized by the spec — “…'synthetic' for simulated data.      Returns:         s…”; code/analysis/interpretation.py: synthetic/fake INPUT data not authorized by the spec — “…ysis "             "used synthetic data generated with known gro…”; code/analysis/sensitivity.py: synthetic/fake INPUT data not authorized by the spec — “…ound truth parameters if synthetic data was used.          Reads…”; 4 command(s) failed: python code/main.py --action download (rc=1); python code/main.py --action preprocess (rc=1); python code/main.py --action analyze (rc=1); 8 declared deliverable(s) absent: data/processed/final_report.json; data/processed/imputed_data.csv; data/processed/model_diagnostics.json
 
 ## Failing / missing run-book commands
 
 - python code/main.py --action download -> rc=1
-    Traceback (most recent call last):
+
+Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-490-the-effect-of-simulated-social-compariso/code/main.py", line 13, in <module>
     from data.download import load_or_generate_data
 ModuleNotFoundError: No module named 'data.download'
+
 - python code/main.py --action preprocess -> rc=1
-    Traceback (most recent call last):
+
+Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-490-the-effect-of-simulated-social-compariso/code/main.py", line 13, in <module>
     from data.download import load_or_generate_data
 ModuleNotFoundError: No module named 'data.download'
+
 - python code/main.py --action analyze -> rc=1
-    Traceback (most recent call last):
+
+Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-490-the-effect-of-simulated-social-compariso/code/main.py", line 13, in <module>
     from data.download import load_or_generate_data
 ModuleNotFoundError: No module named 'data.download'
+
 - python code/main.py --action validate -> rc=1
-    Traceback (most recent call last):
+
+Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-490-the-effect-of-simulated-social-compariso/code/main.py", line 13, in <module>
     from data.download import load_or_generate_data
 ModuleNotFoundError: No module named 'data.download'
+
 
 ## Declared deliverables still missing
 
 - data/processed/final_report.json
 - data/processed/imputed_data.csv
+- data/processed/model_diagnostics.json
 - data/processed/post_imputation_validation.json
 - data/processed/pre_imputation_validation.json
+- data/processed/regression_coefficients.csv
+- data/processed/sensitivity_sweep_results.csv
 - data/raw/synthetic_seed.json
 
 ## Declared deliverables NOT produced — make the run-book produce them
@@ -57,25 +68,46 @@ ModuleNotFoundError: No module named 'data.download'
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
 - `data/processed/final_report.json` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/sensitivity.py` — NOT invoked by the run-book
     - `code/analysis/report_generator.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/final_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+    - `code/main.py` — IS a run-book command
+    - `code/reproducibility_check.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/final_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/imputed_data.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/data/preprocess.py` — NOT invoked by the run-book
-    - `code/data/validate_imputed.py` — NOT invoked by the run-book
-    - `code/analysis/regression.py` — NOT invoked by the run-book
     - `code/analysis/bootstrap.py` — NOT invoked by the run-book
     - `code/analysis/collinearity_handler.py` — NOT invoked by the run-book
     - `code/analysis/export_results.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/imputed_data.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+    - `code/analysis/regression.py` — NOT invoked by the run-book
+    - `code/data/preprocess.py` — NOT invoked by the run-book
+    - `code/data/validate_imputed.py` — NOT invoked by the run-book
+    - `code/reproducibility_check.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/imputed_data.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/model_diagnostics.json` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/collinearity_handler.py` — NOT invoked by the run-book
+    - `code/analysis/export_results.py` — NOT invoked by the run-book
+    - `code/analysis/interpretation.py` — NOT invoked by the run-book
+    - `code/analysis/report_generator.py` — NOT invoked by the run-book
+    - `code/reproducibility_check.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/model_diagnostics.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/post_imputation_validation.json` is declared but was NOT written. Scripts referencing it:
     - `code/data/validate_imputed.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/post_imputation_validation.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+  Make ONE of these WRITE `data/processed/post_imputation_validation.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/pre_imputation_validation.json` is declared but was NOT written. Scripts referencing it:
     - `code/data/validate_raw.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/pre_imputation_validation.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/raw/synthetic_seed.json` is declared but was NOT written. Scripts referencing it:
-    - `code/data/seed_generator.py` — NOT invoked by the run-book
-    - `code/data/download.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/pre_imputation_validation.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/regression_coefficients.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/collinearity_handler.py` — NOT invoked by the run-book
+    - `code/analysis/export_results.py` — NOT invoked by the run-book
+    - `code/analysis/report_generator.py` — NOT invoked by the run-book
     - `code/analysis/sensitivity.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/raw/synthetic_seed.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+    - `code/reproducibility_check.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/regression_coefficients.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/sensitivity_sweep_results.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/report_generator.py` — NOT invoked by the run-book
+    - `code/analysis/sensitivity.py` — NOT invoked by the run-book
+    - `code/reproducibility_check.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/sensitivity_sweep_results.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/synthetic_seed.json` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/sensitivity.py` — NOT invoked by the run-book
+    - `code/data/download.py` — NOT invoked by the run-book
+    - `code/data/seed_generator.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/synthetic_seed.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

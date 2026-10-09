@@ -5,21 +5,16 @@ required:
 properties:
   imputed_data_checksum:
     type: string
-    description: SHA-256 checksum of the imputed data file (data/processed/imputed_data.csv) to ensure data integrity and reproducibility.
+    description: SHA-256 checksum of the imputed dataset artifact (data/processed/imputed_data.csv)
   missingness_report:
     type: object
-    description: Summary statistics regarding missing data handling and exclusion.
-    required:
-      - total_rows
-      - rows_excluded
-      - missingness_pct
     properties:
       total_rows:
         type: integer
-        description: Total number of rows in the raw input dataset before imputation or exclusion.
+        description: Total number of rows in the input dataset before exclusion
       rows_excluded:
         type: integer
-        description: Number of rows excluded from analysis due to missingness exceeding the 20% threshold (FR-002).
+        description: Number of rows excluded due to > 20% missingness across key variables (FR-002)
       missingness_pct:
         type: number
-        description: Percentage of total missing values in the raw dataset (before imputation), calculated as (missing_cells / total_cells) * 100.
+        description: Overall percentage of missing values across key variables

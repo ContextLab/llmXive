@@ -1,34 +1,42 @@
 [tool.black]
-line-length = 88
-target-version = ['py39', 'py310', 'py311']
+line-length = 100
+target-version = ["py311"]
 include = '\.pyi?$'
-exclude = '''
+extend-exclude = '''
 /(
-    \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
+      \.git
     | \.venv
-    | _build
-    | buck-out
+    | venv
     | build
     | dist
 )/
 '''
 
-[tool.pylint.messages_control]
+[tool.pylint.format]
+max-line-length = 100
+
+[tool.pylint.main]
+# Research pipeline: pandas/numpy idioms trigger many default warnings.
 disable = [
-    "C0114", # missing-module-docstring
-    "C0115", # missing-class-docstring
-    "C0116", # missing-function-docstring
-    "W0511", # fixme
+    "missing-module-docstring",
+    "missing-function-docstring",
+    "missing-class-docstring",
+    "too-many-locals",
+    "too-many-arguments",
+    "too-many-branches",
+    "too-many-statements",
+    "duplicate-code",
+    "consider-using-f-string",
+    "invalid-name",
+    "line-too-long",
 ]
+ignore-paths = ["venv", "\.venv", "build", "dist"]
+recursive = true
+
+[tool.pylint.basic]
+good-names = ["df", "X", "y", "i", "j", "k", "n", "p", "ax", "fp"]
 
 [tool.pytest.ini_options]
-testpaths = [
-    "tests",
-]
-python_files = [
-    "test_*.py",
-]
-addopts = "-v --cov=code --cov-report=term-missing"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-q"

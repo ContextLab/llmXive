@@ -1,15 +1,25 @@
-pandas
-numpy
-statsmodels
-scikit-learn
-pydantic
-pyyaml
-matplotlib
-seaborn
-scipy
-jsonschema
-miceforest
-psutil
-requests
-datasets
-tqdm
+# Core data / analysis dependencies for PROJ-490
+pandas>=2.0
+numpy>=1.24
+scipy>=1.10
+statsmodels>=0.14
+scikit-learn>=1.3
+pyyaml>=6.0
+jsonschema>=4.19
+matplotlib>=3.7
+seaborn>=0.12
+
+# Imputation (primary + fallback handled in code)
+miceforest>=6.0.2 ; python_version >= "3.9"
+psutil>=5.9
+
+# Data fetching
+requests>=2.31
+datasets>=2.14
+tqdm>=4.66
+
+# Tooling: linting, formatting, testing
+flake8>=6.1
+pylint>=3.0
+black>=24.3
+pytest>=7.4

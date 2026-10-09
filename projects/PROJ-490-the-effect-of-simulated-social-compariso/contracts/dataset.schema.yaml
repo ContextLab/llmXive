@@ -1,4 +1,13 @@
+# Dataset schema for the social comparison / self-esteem VR study.
+# Contract target for tests/contract/test_dataset_schema.py and
+# code/utils/validators.py.
 type: object
+title: SocialComparisonSelfEsteemDataset
+description: >
+  Row-level participant data for the simulated social comparison /
+  self-esteem study. Each row is one participant with pre/post RSES
+  self-esteem scores, INCOM comparison tendency, and the experimental
+  avatar condition assignment.
 required:
   - participant_id
   - pre_self_esteem
@@ -8,20 +17,35 @@ required:
 properties:
   participant_id:
     type: string
-    description: Unique identifier for the participant
+    description: Unique identifier
+    minLength: 1
   pre_self_esteem:
     type: number
-    description: Rosenberg Self-Esteem Scale (RSES) score, pre-intervention
+    description: RSES score, pre-intervention
   post_self_esteem:
     type: number
-    description: Rosenberg Self-Esteem Scale (RSES) score, post-intervention
+    description: RSES score, post-intervention
   comparison_tendency:
     type: number
-    description: Incomparability (INCOM) scale score
+    description: INCOM scale score
   avatar_condition:
     type: integer
     enum: [0, 1]
-    description: Experimental condition: 0=Neutral Avatar, 1=Idealized Avatar
-validation_rules:
-  min_participants: 100
-  description: "FR-001: Dataset must contain N >= 100 participants to ensure statistical power."
+    description: 0=Neutral, 1=Idealized
+# FR-001: Sample size enforcement.
+# The dataset must contain at least 100 participants (rows).
+validation:
+  min_rows: 100
+  min_rows_rule: >
+    Datasets with fewer than 100 rows (N < 100) MUST be rejected
+    (FR-001). This applies to the ORIGINAL dataset size before any
+    sampling: sampling cannot increase N.
+  required_columns:
+    - avatar_condition
+    - pre_self_esteem
+    - post_self_esteem
+    - comparison_tendency
+  additional_rules:
+    - "participant_id values must be unique across rows."
+    - "avatar_condition must be binary (0 or 1)."
+    - "Rows with > 20% missingness across key variables are excluded before imputation (FR-002)."

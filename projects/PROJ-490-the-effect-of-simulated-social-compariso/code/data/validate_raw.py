@@ -1,174 +1,226 @@
-import os
-import sys
+"""
+data.validate_raw
+-----------------
+Validation module for raw data before imputation.
+Implements Task T013a: Sample Size Enforcement and Pre-Imputation Variable Check.
+
+This script checks that the raw dataset contains all required variables:
+    - avatar_condition
+    - pre_self_esteem
+    - post_self_esteem
+    - comparison_tendency
+
+It writes a JSON artifact at `data/processed/pre_imputation_validation.json`
+with the following schema:
+    {
+        "status": "pass" | "fail",
+        "missing_vars": [],
+        "timestamp": "ISO8601"
+    }
+
+If any required variables are missing, the script:
+    1. Writes the artifact with status "fail" and lists the missing variables.
+    2. Updates `state/data_path_decision.yaml` to force the synthetic data
+       generation path (decision: synthetic, reason: missing variables).
+    3. Raises a RuntimeError to halt the real‑data pipeline.
+
+The main entry point `run_validation()` is imported by `code/main.py` as
+`run_raw_validation`.
+"""
+
 import json
 import logging
+from datetime import datetime
 from pathlib import Path
-from typing import List, Set, Dict, Any, Optional
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+import yaml
 
 from data.config import get_config
 from utils.logger import get_logger, log_execution_start, log_execution_end
 from utils.validators import DataFetchError
 
-# Required variables for the study
-REQUIRED_VARS = {
+# ----------------------------------------------------------------------
+# Configuration & Logging
+# ----------------------------------------------------------------------
+logger = get_logger(__name__)
+
+# Required variable names as defined in the project specification
+REQUIRED_VARS = [
     "avatar_condition",
     "pre_self_esteem",
     "post_self_esteem",
-    "comparison_tendency"
-}
+    "comparison_tendency",
+]
 
-logger = get_logger(__name__)
 
-def validate_raw_directory(raw_dir: Path) -> bool:
+def _load_raw_dataframe() -> Path:
     """
-    Check if the raw data directory exists and contains files.
-    """
-    if not raw_dir.exists():
-        logger.error(f"Raw data directory does not exist: {raw_dir}")
-        return False
-    
-    files = list(raw_dir.glob("*"))
-    if not files:
-        logger.warning(f"Raw data directory is empty: {raw_dir}")
-        return False
-    
-    logger.info(f"Found {len(files)} file(s) in raw directory.")
-    return True
+    Resolve the path to the raw dataset CSV.
 
-def validate_raw_data_variables(data_path: Path) -> Dict[str, Any]:
+    The configuration may provide an explicit path via `raw_data_path`.
+    If not set, we fall back to the conventional location
+    `data/raw/dataset.csv`.
     """
-    Load the data file (CSV) from the raw directory and verify it contains
-    all required variables: avatar_condition, pre_self_esteem, post_self_esteem, comparison_tendency.
-    
-    Returns a validation object:
-    {
-        "status": "pass" | "fail",
-        "missing_vars": [],
-        "timestamp": "ISO8601",
-        "file": "path_to_file"
-    }
-    
-    If variables are missing, it triggers the synthetic generation path (T010)
-    by raising a specific error or returning a status that the main loop handles.
+    config = get_config()
+    # `raw_data_path` is used elsewhere (e.g., preprocess) – honour it if present
+    raw_path = getattr(config, "raw_data_path", None)
+    if raw_path:
+        raw_path = Path(raw_path)
+    else:
+        # Default location used throughout the code base
+        raw_path = config.PROJECT_ROOT / "data" / "raw" / "dataset.csv"
+
+    if not raw_path.exists():
+        raise FileNotFoundError(f"Raw dataset not found at expected location: {raw_path}")
+
+    return raw_path
+
+
+def _check_required_columns(csv_path: Path) -> list:
+    """
+    Inspect the CSV header and return a list of missing required columns.
     """
     import pandas as pd
-    from datetime import datetime
-
-    # Find CSV files in raw_dir
-    csv_files = list(data_path.glob("*.csv"))
-    
-    if not csv_files:
-        logger.error(f"No CSV files found in {data_path}")
-        return {
-            "status": "fail",
-            "missing_vars": list(REQUIRED_VARS),
-            "timestamp": datetime.utcnow().isoformat(),
-            "file": None,
-            "reason": "No CSV files found"
-        }
-
-    # Assume the first CSV is the data file (or the one matching expected naming if known)
-    # In a real scenario, we might look for specific names, but T012 saves the output.
-    # We'll try to load the first one found.
-    data_file = csv_files[0]
-    logger.info(f"Validating variables in: {data_file}")
 
     try:
-        df = pd.read_csv(data_file)
+        # Read only the header to avoid loading the whole file into memory
+        df_head = pd.read_csv(csv_path, nrows=0)
     except Exception as e:
-        logger.error(f"Failed to read CSV {data_file}: {e}")
-        return {
-            "status": "fail",
-            "missing_vars": list(REQUIRED_VARS),
-            "timestamp": datetime.utcnow().isoformat(),
-            "file": str(data_file),
-            "reason": f"Read error: {str(e)}"
-        }
+        raise DataFetchError(f"Failed to read raw CSV header: {e}")
 
-    actual_vars = set(df.columns)
-    missing = REQUIRED_VARS - actual_vars
+    present = set(df_head.columns.astype(str).str.strip())
+    missing = [var for var in REQUIRED_VARS if var not in present]
+    return missing
 
-    result = {
-        "status": "pass" if not missing else "fail",
-        "missing_vars": list(missing),
+
+def _write_validation_artifact(status: str, missing_vars: list) -> Path:
+    """
+    Write the JSON validation artifact.
+
+    Parameters
+    ----------
+    status : str
+        Either "pass" or "fail".
+    missing_vars : list
+        List of variable names that were not found.
+
+    Returns
+    -------
+    Path
+        Path to the written JSON file.
+    """
+    config = get_config()
+    out_path = config.PROCESSED_DIR / "pre_imputation_validation.json"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+
+    artifact = {
+        "status": status,
+        "missing_vars": missing_vars,
         "timestamp": datetime.utcnow().isoformat(),
-        "file": str(data_file),
-        "row_count": len(df)
     }
 
-    if missing:
-        logger.error(f"Missing required variables: {missing}")
-        logger.error("Triggering synthetic data generation path.")
-        # We do NOT raise an exception here to allow the caller (main.py) to handle the flow,
-        # but we return the fail status which main.py will interpret to trigger T010.
-    else:
-        logger.info("All required variables present.")
+    with open(out_path, "w") as f:
+        json.dump(artifact, f, indent=2)
 
-    return result
+    logger.info(f"Pre‑imputation validation artifact written to {out_path}")
+    return out_path
 
-def run_validation() -> Dict[str, Any]:
+
+def _write_decision_file(decision: str, reason: str, source: str = None) -> Path:
     """
-    Orchestrates the validation of the raw data directory.
-    Writes the result to data/processed/pre_imputation_validation.json.
+    Update `state/data_path_decision.yaml` with the supplied decision.
+
+    Parameters
+    ----------
+    decision : str
+        "real" or "synthetic".
+    reason : str
+        Human‑readable explanation for the decision.
+    source : str, optional
+        Identifier of the dataset source (e.g., HF dataset ID). May be None.
+
+    Returns
+    -------
+    Path
+        Path to the written YAML file.
     """
-    log_execution_start(logger, "T013a")
-    
     config = get_config()
-    raw_dir = config.raw_data_dir
-    processed_dir = config.processed_data_dir
+    state_path = config.PROJECT_ROOT / "state" / "data_path_decision.yaml"
+    state_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Ensure processed directory exists
-    processed_dir.mkdir(parents=True, exist_ok=True)
+    decision_dict = {
+        "decision": decision,
+        "reason": reason,
+        "timestamp": datetime.utcnow().isoformat(),
+        "source": source,
+    }
 
-    # Step 1: Check directory existence
-    if not validate_raw_directory(raw_dir):
-        # If directory doesn't exist, we can't validate variables.
-        # This implies we need to generate data first, but T012 should have run.
-        # We'll treat this as a fail.
-        validation_result = {
-            "status": "fail",
-            "missing_vars": list(REQUIRED_VARS),
-            "timestamp": datetime.utcnow().isoformat(),
-            "file": None,
-            "reason": "Raw directory missing or empty"
-        }
-    else:
-        # Step 2: Check variables
-        validation_result = validate_raw_data_variables(raw_dir)
+    with open(state_path, "w") as f:
+        yaml.safe_dump(decision_dict, f)
 
-    # Step 3: Write output artifact
-    output_path = processed_dir / "pre_imputation_validation.json"
+    logger.info(f"Data path decision updated: {decision_dict}")
+    return state_path
+
+
+def run_validation() -> dict:
+    """
+    Main validation routine called from `code/main.py`.
+
+    Returns
+    -------
+    dict
+        Summary of the validation outcome.
+    """
+    log_execution_start(logger, "pre_imputation_validation")
+
     try:
-        with open(output_path, "w") as f:
-            json.dump(validation_result, f, indent=2)
-        logger.info(f"Validation result written to {output_path}")
-    except Exception as e:
-        logger.error(f"Failed to write validation result: {e}")
+        raw_csv = _load_raw_dataframe()
+        missing = _check_required_columns(raw_csv)
+
+        if not missing:
+            # All required variables are present
+            _write_validation_artifact(status="pass", missing_vars=[])
+            log_execution_end(logger, "pre_imputation_validation")
+            return {"status": "pass", "missing_vars": []}
+
+        # Missing variables – trigger synthetic fallback
+        logger.warning(
+            f"Missing required variables in raw data: {missing}. "
+            "Falling back to synthetic data generation."
+        )
+
+        # Write the failure artifact
+        _write_validation_artifact(status="fail", missing_vars=missing)
+
+        # Record the decision so downstream tasks know to use synthetic data
+        _write_decision_file(
+            decision="synthetic",
+            reason=f"Missing required variables: {', '.join(missing)}",
+            source=None,
+        )
+
+        # Raising an exception aborts the current pipeline run.
+        # The higher‑level `download` step (T009b) will have already
+        # generated the synthetic seed; this stop prevents any further
+        # processing of the incomplete real dataset.
+        raise RuntimeError(
+            "Pre‑imputation validation failed – required variables missing. "
+            "Synthetic data path selected."
+        )
+
+    except Exception as exc:
+        # Ensure any unexpected error is logged and re‑raised so the
+        # pipeline fails loudly (no silent fallback).
+        logger.error(f"Pre‑imputation validation encountered an error: {exc}", exc_info=True)
         raise
 
-    log_execution_end(logger, "T013a")
-    return validation_result
-
-def main():
-    """
-    Entry point for the validation script.
-    """
+# ----------------------------------------------------------------------
+# CLI entry point (useful for manual debugging)
+# ----------------------------------------------------------------------
+if __name__ == "__main__":
     try:
         result = run_validation()
-        if result["status"] == "fail":
-            # In the context of the pipeline, if this fails, main.py should trigger T010.
-            # We return a non-zero exit code to signal failure to the orchestrator if needed,
-            # but the artifact is written so the state is recorded.
-            sys.exit(1)
-        sys.exit(0)
+        print(json.dumps(result, indent=2))
     except Exception as e:
-        logger.critical(f"Validation failed with exception: {e}")
-        sys.exit(2)
-
-if __name__ == "__main__":
-    main()
+        print(f"Validation failed: {e}")
+        exit(1)
