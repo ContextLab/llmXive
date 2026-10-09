@@ -1,30 +1,59 @@
+T001:
+  c: true
+  h: 5d97c17075bdec410baf0bf679bf1ca58cc37c69020679c74d502e0b9c6d60ee
+  r: "The file\u202Fsrc/data/ingest.py\u202Fexists, is non\u2011empty, and defines\
+    \ functions that query HuggingFace and OpenNeuro for datasets using arbitrary\
+    \ query terms, merge the results, and return metadata\u2014fulfilling the required\
+    \ \u201Cmetadata fetcher\u201D for tactile, somatosensory, or odd\u2011ball datasets."
+T002:
+  c: true
+  h: 31a2bd334b11fed4deca0aef5efc1da34cf082b783db071ef1be83df7d8ce5d4
+  r: "The `src/data/ingest.py` file defines `check_and_report_variables` (and `validate_metadata_variables`)\
+    \ which explicitly test for `'stimulus_type'` and `'response_correctness'` in\
+    \ a metadata dict, log warnings, and set the analysis mode accordingly, fulfilling\
+    \ FR\u2011011 and FR\u2011012. The file exists and contains the full implementation."
+T003:
+  c: false
+  h: 82288271bbc9dad87972a32de3aca0d6eb9149015332833224e92a1793d84eb4
+  r: "The JSON file is present and has an `analysis_mode` key, but it lacks the required\
+    \ `power_status` entries (for primary and fallback modes) and does not record\
+    \ the specific under\u2011power flags (`underpowered_primary` or `underpowered_fallback`)\
+    \ as stipulated. The report must include these fields to satisfy the task."
 T004:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, or log files were provided that demonstrate the system\
-    \ detecting missing metadata, issuing a warning, and skipping the affected dataset\
-    \ instead of crashing. Without such an artifact, the requirement of FR\u2011011\
-    \ cannot be verified as satisfied."
+  h: 77461ea62b56a4781a99c63ccbe154df47ad6d63ffd12e151fb2d47fc6daaaa9
+  r: "The `fetch_huggingface_datasets` and `fetch_openneuro_datasets` functions log\
+    \ errors but then re\u2011raise the exception, causing the pipeline to abort instead\
+    \ of skipping the failed dataset. No surrounding logic is present to catch these\
+    \ errors and continue processing other datasets, so graceful degradation is not\
+    \ implemented."
 T005a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directories (`src/`, `tests/`, `contracts/`, `data/`,\
-    \ `analysis/`) is present; the implementer provided no file\u2011system listing\
-    \ or screenshots showing that the project structure exists. The task remains undone\
-    \ until the specified folder hierarchy is created and verified."
+  c: true
+  h: ee7556bdfc27033517886103a5d8ad4f1f7922fe44c465a0380b07b99ed95d83
+  r: "The required top\u2011level directories `src/`, `tests/`, `contracts/`, `data/`,\
+    \ and `analysis/` are present on disk, each containing files/sub\u2011folders\
+    \ (e.g., `src/` with three entries, `tests/` with four entries, etc.). This matches\
+    \ the task\u2019s sole requirement of establishing the project directory structure."
+T005b:
+  c: true
+  h: bf80f63a99b79f8d98b70de3aa31022155c1afdc6b69a6c200a6e04e356dbd6c
+  r: "The repository contains a non\u2011empty `pyproject.toml` declaring a Python\u202F\
+    \u22653.11 project and listing all required dependencies, and a non\u2011empty\
+    \ `requirements.txt` that includes each of the specified packages (mne, pandas,\
+    \ numpy, statsmodels, scikit-learn, pyyaml, requests, datasets, joblet). Both\
+    \ files satisfy the initialization task."
 T005c:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a Git repository being initialized in the `src/` directory is
-    provided (e.g., no `.git` folder, no `git init` command output, or related commit
-    history). Without such artifact, the requirement that `git init` be run before
-    any other Git operations is not satisfied.
+  h: 235067bddc67a18b1ed8003a797eea3ec84ee9cb51e0e3149fb0a7324289a990
+  r: "Checked the repository root for a `.git` directory or any record of `git init`\
+    \ having been run; none is present among the listed top\u2011level items (src/,\
+    \ analysis/, data/, utils/). Without a `.git` folder or other proof of initialization,\
+    \ the required Git repository does not exist."
 T005d:
-  c: false
-  h: 3f4e25fb9a3a1a11cbb3edc4c579df18664d45cf931d7eb32a00c7f32e21e33c
-  r: "The required `state/projects/PROJ-500-neural-correlates-of-predictive-error-si.yaml`\
-    \ file does not exist, so no content hashes for `requirements.txt` and `pyproject.toml`\
-    \ are provided. The task\u2019s core artifact is missing."
+  c: true
+  h: 7492948231ba4d540ee809caae6005720d615045f0c7c07d5a56a51914e0dc96
+  r: "The state file exists, is valid YAML, and its `artifact_hashes` map contains\
+    \ the correct SHA\u2011256 hashes for both `requirements.txt` and `pyproject.toml`."
 T006:
   c: false
   h: 4fa292b7ba97d2cdae98c01b7aab5fbb9bad51cc7544b7186b06f448f662473a

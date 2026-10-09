@@ -1,0 +1,124 @@
+T001:
+  task: 8d7e5bf07a4defc0d2609457c18984da6d0db38b7d54f82624c96efd8ee06a4b
+T002:
+  task: 5e96aff4e9ab01a0c266c9b22e89bb9827d8df489fd47e1e31ced4b2fae887cd
+T003:
+  reason: "The JSON file is present and has an `analysis_mode` key, but it lacks the\
+    \ required `power_status` entries (for primary and fallback modes) and does not\
+    \ record the specific under\u2011power flags (`underpowered_primary` or `underpowered_fallback`)\
+    \ as stipulated. The report must include these fields to satisfy the task."
+  task: 7f93e94fac092d220fee6846ea92c043257b4a72f49a69f40eb528df27317da8
+T004:
+  reason: "The `fetch_huggingface_datasets` and `fetch_openneuro_datasets` functions\
+    \ log errors but then re\u2011raise the exception, causing the pipeline to abort\
+    \ instead of skipping the failed dataset. No surrounding logic is present to catch\
+    \ these errors and continue processing other datasets, so graceful degradation\
+    \ is not implemented."
+  task: 6acb4d21ea10b3dd1e402f91789bf9aa49be9d32a8516ab8c56eb435f8c62358
+T005a:
+  task: c8728bd8b775d066bbc7364152801c9ba8fc91573c073cf3acfe221760788466
+T005b:
+  task: c66c7b3f3b4fda3e0f0ac303ff3dce9da1afa1e833a2e5d551b9aaad4dded3db
+T005c:
+  reason: "Checked the repository root for a `.git` directory or any record of `git\
+    \ init` having been run; none is present among the listed top\u2011level items\
+    \ (src/, analysis/, data/, utils/). Without a `.git` folder or other proof of\
+    \ initialization, the required Git repository does not exist."
+  task: 6272f98a4ef71a2e505582eff92e850ae983e21fb4867c9001798e13155348c8
+T005d:
+  task: 16938be1d0bfc953fbf8c6cfa38be415a12d152717a4fd96329af200111b240d
+T006:
+  task: fad605b1f513e6d8f6ad2499de7e569bd0732f21c76103f9261e0098eddaee91
+T007:
+  task: c9141ed8f3fa8a5885551e0c92b855747816283d1339b91c06749907bfcc4b5a
+T008:
+  task: 3a7a64b37b6087659bb329a33fb30763e1f7995b2810308e727fc66ba4440173
+T009a:
+  task: 46539f4c98c796bee79ee56fb52d4095da3016159f42dc6a00cd8ac1d3e2365c
+T009b:
+  task: 568186e6aff26fc81e95a73fb8e2bff766b0626490c37d49a0a58ad87ddbb134
+T009c:
+  task: e8109e2f2329c06817d6b64d2d2737ce50d26edf4df772a4cca0c6fb64daa221
+T010:
+  task: 415f48dd8c98aa290beb279fd5d80e1f5bad6b46e2325f01b38444933b5ac537
+T011:
+  task: 47655a014593977a9df572f95eebe9fa24a791ccb682b2a33551950362117c64
+T012:
+  task: 77e753dce0ea991263553b9b59cc51a0720452e48b6f29e84fa8488ac7bc2e1e
+T013:
+  task: 2725d03a3dd41f63ca5cc256e6edcdecaef2ec66d4f511cd64d4f7e03ceeabe3
+T014:
+  task: 1f5ee7b0218e6466bd04a9dd1732ec864a092babd11c5a482761acfaf3f8056b
+T015:
+  task: 6e22d2af7da4d5ab40294a5a52a88a319e4261d8e7b928107465484def8d16f1
+T016:
+  task: cf83da7e995a8ac9c178ec3189fe1eb33c2f0cf48ad1b96e879a4ad6544514f7
+T017:
+  task: 22be91fabd3766a83135ca800c6098a45328b69c1b5a6bd3614d3f043810c259
+T018:
+  task: 9f64f053b33f2c32172e8096fd166b2cd9d45d7034c9d73716c56d74f13b5191
+T019:
+  task: 5bd316078e0da2ff4cfccacbe010a17bc9aa006a7f4667b0006b74b9bfec1e95
+T020:
+  task: a0f0f0a333103cba6c3cd616ecac07bb9196172b7e36005ab98e99d85f82946c
+T021:
+  task: 4360e25bb271ceae436fb5dcd8fa25afa6263f11c896095100341b8f3d1269a9
+T022:
+  task: 594f92074a363c7b5ed89411d8eac03e84f8bc469a4fcf1dcfe44db3e36dfb0f
+T022b:
+  task: f4eb5d4ac3b757cea16bafc1ae9c1f9613b18a7507d2522c5d56ddafc870ab13
+T023:
+  task: 349e3f3af6e212a3afaab419d824fbc9a85c6170a1fd0f07cd26217f281d20de
+T024:
+  reason: 'Requested task execution failed; rerun successfully: code/src/data/finalize_aligned.py
+    exit=1'
+  task: e8b3cac5b684eb93fe48ca1d4125a4a3255ac8341c40aa13159bbbf384040fb3
+T025:
+  task: c4af30ccb13d53ac158e3d13d99b526900cb6920d859756280678285df29c9ce
+T026:
+  task: b70e0d43f6e0b2e69fcfb8815def454690b0ce1b1dfa6c6dce2fc4ce70a01ca9
+T027:
+  task: 79d4ca5f953bb4d6ba078528a08bb94561af675907c267d2e79792621c302c2f
+T028:
+  task: e7b156348d9166b7752d187cad3e1860a2f37513de284af584d8e3bd66be9103
+T029:
+  task: 49eef4fba920abc228e32a5692194f504d9eb1aef5df17bb51f8db40325aa768
+T030:
+  reason: 'declared artifact(s) missing/empty/invalid: src/analysis/robustness.py'
+  task: c93aa13c5f4e5954134436b9590f8d74c29a8d0cae817cd790ca734bcdad59eb
+T031:
+  task: 97aa7ba83e72d9c5a5398e02109487a563c29b30b253390435eaefb14da5c36a
+T032:
+  task: 1d494e4e3b147bd4536e919683d7f64b52e96831b7dce7224bdd0ad76bf87ea4
+T033a:
+  task: 633d4bf7c85e054670448c07ee65feff553d48c720092d283ac7ecef75f65908
+T033b:
+  task: 9ca847f3f1dd09a1ff54ab1b44836ae1a253fa9cb2a18e8f121426be78dc90cc
+T034:
+  task: 8d9854c7d69077c415316ff9fdd8a8ed47e12f4f170c35a06214244d6add27a0
+T035:
+  task: 634d04c50ebf1e9682992ed3e3192cb3248757e9ae201e287efdd07bb7e0f5e1
+T036:
+  task: b0f475ce9af1119ba6970b261d65ff033dc778d6e0db8325d3ec65d86efb878a
+T038:
+  task: 389c684cebbdc1abf0f1d34ecf84dae750de611f799ef8afb7f9f4a570a62304
+T040:
+  task: 0f4d9ffb1ffbd723855bcc8cc138f937495ffd975528883be8b2c3394c7c7272
+T042:
+  task: 5b443fdf1e6d12716541d2b6f7522e92b78cce74eb819088125373fad1600414
+T043:
+  task: e481765ec6b05781a942f9e375a4604102a835c88441037ab6bdb49168660d0e
+T044:
+  task: 191207abb78c44f17eca886436e1f924fda6c0e08ddf80a45a55d15b884871b9
+T045:
+  task: 203ac1c09462b841043f62dfa1d23a9b2552057ed11ccd5dc757f225d8725ff3
+T046:
+  task: 26428ccf0d4ed15a9fa85e9e0f54ffa8ade3d73607395edb4a48182f5763c9e7
+T047:
+  task: 09ea7e3121184c59353b5e558900ac9a4e072efcd3b8b126183b6359746bc6ef
+T048:
+  task: c8d75723597ce93509cd2f6f2a6f2c95f044f88639c2be415862d66234dc13d1
+T049:
+  task: 8d398ed23695e9a09aad5ea99efe35c20710f16c544253a60cba4846943ba9a6
+T050:
+  task: 2bf4c7e70ffd5d9f846784d2d67fb864c86750c601265fa0147645cfaebef0ed

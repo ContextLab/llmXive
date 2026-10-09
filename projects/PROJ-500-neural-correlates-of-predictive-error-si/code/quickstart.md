@@ -1,77 +1,70 @@
-# Quickstart Guide: Neural Correlates of Predictive Error Signals
-
-This guide describes how to run the full pipeline for project **PROJ-500-neural-correlates-of-predictive-error-si**.
+# Quickstart: Neural Correlates of Predictive Error Signals During Tactile Discrimination Learning
 
 ## Prerequisites
 
 - Python 3.11+
-- `pip` and `virtualenv`
+- GitHub Actions runner (2-core CPU, 7 GB RAM)
+- Access to HuggingFace/OpenNeuro (no API key required for public datasets)
 
-## Setup
+## Installation
 
-1. **Clone and Setup Environment**
+1. Clone the repository.
+2. Install dependencies:
  ```bash
- cd code
- python -m venv.venv
- source.venv/bin/activate
  pip install -r requirements.txt
  ```
-
-2. **Initialize Project Structure (if not already done)**
+3. Verify environment:
  ```bash
- python scripts/create_project_structure.py
- python scripts/init_git.py
- python scripts/generate_project_state.py
+ python -c "import mne; import statsmodels; print('Dependencies OK')"
  ```
 
 ## Running the Pipeline
 
-The pipeline consists of sequential stages. Run them in order to generate the final `aligned_data.csv`.
-
-### Step 1: Data Ingestion (T014)
-Downloads and streams raw EEG data.
+### 1. Data Ingestion
 ```bash
-python src/data/ingest.py
+python src/main.py --task ingest --dataset openneuro-fslr64k
 ```
-*Output*: `data/interim_raw_chunks/`, `data/streaming_log.json`
+*Downloads and validates the dataset.*
 
-### Step 2: Preprocessing (T015, T016, T017)
-Filters, applies ICA, and epochs data.
+### 2. Preprocessing
 ```bash
-python src/data/preprocess.py
+python src/main.py --task preprocess --subject 001
 ```
-*Output*: `data/epochs/`, `data/power_report.csv`
+*Applies 1–40 Hz filter, ICA, and epoching.*
 
-### Step 3: Alignment (T020, T021, T022, T022b)
-Calculates MMN, bins accuracy, and performs lagged alignment.
+### 3. Alignment
 ```bash
-python src/data/align.py
+python src/main.py --task align --subject 001
 ```
-*Output*: `data/accuracy_blocks.csv`, `data/interim_lagged_mmns.csv`
+*Computes MMN amplitudes and aligns with behavioral blocks.*
 
-### Step 4: Finalization (T023, T024)
-Filters data based on power analysis and merges into the final aligned dataset.
+### 4. Finalization
 ```bash
-python src/data/finalize.py
+python code/src/data/finalize_aligned.py --data-dir data --analysis-mode error_signal
 ```
-*Output*: `data/aligned_data.csv`
+*Merges the filtered aligned data with accuracy blocks to produce `data/aligned_data.csv`.*
 
-### Step 5: Modeling (T027, T028, T029)
-Fits the LME model and runs permutation tests.
+### 5. Statistical Analysis
 ```bash
-python src/analysis/model.py
+python src/main.py --task model --all
 ```
-*Output*: `analysis/results/model_output.json`, `analysis/results/permutation_stability_log.json`
+*Fits GLMM, runs permutation test, and applies corrections.*
 
-## Verification
-
-Verify the final output exists and matches the schema:
+### 6. Robustness Check
 ```bash
-python -m pytest tests/contract/test_schemas.py -v
+python src/main.py --task robustness --windows "140-240,160-260"
 ```
+*Sweeps time windows and reports coefficient variation.*
 
-## Notes
+## Output Locations
 
-- Ensure `DATA_DIR` environment variable is set if not using the default `data/` folder.
-- For large datasets, ensure sufficient disk space and RAM (see `requirements.txt` for memory profiling tools).
-- The `ANALYSIS_MODE` environment variable can be set to `error_signal` or `stimulus_driven` to control filtering logic in T023/T024.
+- **Preprocessed Data**: `data/preprocessed/`
+- **Aligned Data**: `data/aligned/`
+- **Statistical Results**: `analysis/results/`
+- **Logs**: `logs/pipeline.log`
+
+## Troubleshooting
+
+- **OOM Error**: Reduce `--chunk-size` in `ingest.py`.
+- **Convergence Warning**: Check `data/aligned/` for subjects with [deferred] accuracy; they are excluded automatically.
+- **Missing Metadata**: The script will log a warning and skip the dataset. Check `logs/pipeline.log` for details.
