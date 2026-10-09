@@ -1,0 +1,10 @@
+{
+  "repository": "contextlab/llmxive-artifacts",
+  "path": "audits/2026-10-09/root-file-recovery.json",
+  "revision": "1f12322b26adc029d6bfed4a14d6f6c276926de0",
+  "sha256": "3cfe2af26bea1f55a1a0b0df278a1cd074de7caa50682e1d0506ddee8eea0c1c",
+  "bytes": 979254,
+  "source_commit": "a1e106b3c04a0a5413adac4eea2f2cd6b595c3c9",
+  "source_path": "notes/audit-20261008/root-file-recovery.json",
+  "verified_download": true
+}

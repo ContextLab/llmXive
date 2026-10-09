@@ -71,6 +71,10 @@ probes as a health-check loop.
   group billing header: 100 input tokens, 110 output tokens (89 reasoning).
   At the catalog rates observed that day, estimated inference cost was $0.001755;
   the final billing ledger can lag and was not used as proof of exact cost.
+- The group dashboard subsequently displayed **$0.01 / $20.00** spent.
+- The real repository-recovery audit (979,254 bytes) was archived and downloaded
+  byte-for-byte. `pilot-storage-receipt.json` pins its HF revision, SHA-256, and
+  source Git commit. This is an additional copy; source files were not deleted.
 - The private working bucket is provisioned; its data round trip is not yet tested.
 
 ## Next integration steps
