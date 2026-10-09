@@ -40,6 +40,7 @@ jobs:
     timeout-minutes: 150
     env:
       DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+      LLMXIVE_RECEIPT_KEY: ${{ secrets.LLMXIVE_RECEIPT_KEY }}
       # Back-filling a code paper (speckit chain + code_adapter) is longer than a
       # normal advance tick; give the run loop room to finish 1-2 papers per tick.
       LLMXIVE_RUN_WALL_BUDGET_S: "5400"

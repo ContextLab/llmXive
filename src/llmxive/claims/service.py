@@ -52,6 +52,8 @@ def _source_hash_from_evidence(evidence: dict[str, Any] | None, value: str | Non
     """
     if not evidence:
         return None
+    if evidence.get("artifact_sha256"):
+        return str(evidence["artifact_sha256"])
     if evidence.get("output_sha256"):
         return str(evidence["output_sha256"])
     source = evidence.get("source_id") or evidence.get("source") or evidence.get("url")
@@ -70,11 +72,11 @@ def _live_source_hash(claim: Claim, project_id: str, repo_root: Path) -> str | N
     purged or expires. Returns None when the artifact can no longer be found.
     """
     if claim.kind == ClaimKind.RESULT:
-        from llmxive.results.harness import result_backed
+        from llmxive.results.harness import result_backed, source_fingerprint
 
         candidate = claim.resolved_value or claim.canonical or claim.raw_text
         receipt = result_backed(candidate, project_id, repo_root=repo_root)
-        return receipt.output_sha256 if receipt is not None else None
+        return source_fingerprint(receipt) if receipt is not None else None
     return _source_hash_from_evidence(claim.evidence, claim.resolved_value)
 
 
@@ -112,7 +114,10 @@ def resolve_registered_claims(
         if current.status != ClaimStatus.VERIFIED:
             sk = subject_key(current)
             twin = verified_by_subject.get((current.kind, sk)) if sk else None
-            if twin is not None and twin.claim_id != current.claim_id:
+            if (twin is not None and twin.claim_id != current.claim_id
+                    and (twin.kind != ClaimKind.RESULT or (
+                        twin.source_hash is not None
+                        and _live_source_hash(twin, project_id, repo_root) == twin.source_hash))):
                 frozen = replace(
                     current,
                     status=ClaimStatus.VERIFIED,
@@ -128,9 +133,9 @@ def resolve_registered_claims(
 
         if current.status == ClaimStatus.VERIFIED:
             live = _live_source_hash(current, project_id, repo_root)
-            if current.source_hash is None:
+            if current.source_hash is None and current.kind != ClaimKind.RESULT:
                 unchanged = True  # legacy entry without a recorded hash: trust prior verify
-            elif live == current.source_hash:
+            elif live is not None and live == current.source_hash:
                 unchanged = True  # underlying artifact identical → reuse
             elif live is None and current.kind != ClaimKind.RESULT:
                 unchanged = True  # external source not re-derivable here → trust prior verify

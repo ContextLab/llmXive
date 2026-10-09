@@ -293,6 +293,15 @@ LLM calls need a Dartmouth Chat API key (`DARTMOUTH_CHAT_API_KEY`, or
 `python -m llmxive auth set`); without it the backends fall through to local
 transformers (open-weight Hugging Face models run locally; no token required).
 
+Research execution also needs a persistent receipt-signing secret:
+`LLMXIVE_RECEIPT_KEY` in the orchestrator environment and GitHub repository
+secrets. Locally, it can instead be the top-level `llmxive_receipt_key` field in
+`~/.config/llmxive/credentials.toml` (mode `0600`). Use the same randomly generated
+key across workers that verify each other's results; keep it out of the repository
+and research subprocesses. Changing it invalidates receipts signed with the old
+key. Receipts authenticate captured artifact bytes and are rechecked against the
+current files; they do not by themselves establish scientific correctness.
+
 ### Tests & quality gates
 
 ```sh
