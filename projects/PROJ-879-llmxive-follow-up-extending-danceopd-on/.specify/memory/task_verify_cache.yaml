@@ -1,3 +1,53 @@
+T001a:
+  c: true
+  h: 5a8a918617e02b7eafc986af359d1d2b2a7b09af7561a40dacd75247e8f7ad49
+  r: "Checked the repository listing showing the required directories (`code/`, `data/raw/`,\
+    \ `data/processed/`, `data/results/`, `models/`, `tests/\u2026`) all exist (each\
+    \ contains a `.gitkeep` placeholder) and the execution log of `create_structure.py`\
+    \ confirming the directories were created (or already present)."
+  sig: 8dda05ffdab534f195ff0c4de27b2f77f2e268542314306c1d6840809d72723f
+T001b:
+  c: false
+  h: 5dbefb39e1310a23be0aa89ec1d7a8cfb486a6cf056c9a3268e63fc152780bb0
+  r: The listed scripts (`code/main.py`, `code/00_data_fetch.py`, `code/00_data_stream.py`,
+    `code/00_teacher_inference.py`, `code/01_train_trees.py`, `code/02_evaluate_fidelity.py`,
+    etc.) exist, but they contain full implementations rather than being empty starter
+    placeholders as the task required. Consequently the requirement to add *empty*
+    starter scripts is not satisfied.
+  sig: 1e4e5a64725630a17717b27f5511f82de6d7d06373c60ed6fabea26658bd5b58
+T002:
+  c: false
+  h: a9570f531cf28ff2ac37e881d68e23b91310c297c73675266df4d35db44e4e6a
+  r: "Checked the `requirements.txt` file (122\u202Fbytes) which lists all required\
+    \ packages, but it only contains the generic `torch` entry and does not specify\
+    \ a CPU\u2011only build (e.g., `torch==X.Y.Z+cpu` or an explicit CPU\u2011only\
+    \ index). Without that specification the requirement is not satisfied. Adding\
+    \ a CPU\u2011only torch specification will complete the task."
+  sig: 49e464b171f68139da6d6967105c503baf9fdd55014a90ae8c936dc51bc38a5a
+T004:
+  c: true
+  h: 2b2a54ed5d356648c5ba3fcbfd1fb00f0bcce515a68d4c623d86ab836c585e46
+  r: "Checked `code/utils/config.py` (7446\u202Fbytes) which defines defaults `N_TARGET=2500`\
+    \ and `TIMEOUT_HOURS=6`, provides seed handling via `get_seed()`, and includes\
+    \ path and hyper\u2011parameter helper functions as required. The file is fully\
+    \ implemented and non\u2011empty."
+  sig: 3de037c5509af58ad3b9be7fdd7cdcfb99c89eded7af5bacebc722784bba5400
+T005:
+  c: false
+  h: 66d619032f3237ba00bad757618942a1c1cc2a052f574949489f7a925844d05c
+  r: The file `code/utils/metrics.py` is present, but both `calculate_clip_score`
+    and `calculate_fid` contain full implementations instead of stubs that raise `NotImplementedError`
+    as the task required. The required placeholder behavior is missing.
+  sig: acd99c9b3f627f35f2856fcd8f68db24d62548e504164fd82618fe7a4322b796
+T005b:
+  c: false
+  h: 4c2ea78aa4bfb0c99679b9ea093127b65b69a78b00e83919091cd0d3ac3f5060
+  r: "The evidence contains only a high\u2011level project description and no code,\
+    \ tests, or documentation showing that the CLIP\u202FViT\u2011B/32 and `torch\u2011\
+    fidelity` stubs have been replaced with functioning CPU\u2011only implementations.\
+    \ Required implementation files (e.g., Python modules providing the CLIP model\
+    \ and fidelity metrics) and any execution or test logs are missing."
+  sig: e206aa3824b02e92149b4ca9b625861a3ba3f2d134f1db67ac163033982bb8fc
 T020:
   c: true
   h: 0ebccd873271836e6b0723a290a18cbc1353b91bce25f9dc63673e46e4c86e8b
@@ -67,20 +117,3 @@ T043:
     \ was extended with data\u2011source verification and hashing is present. The\
     \ claim lacks concrete files (e.g., modified source files, unit\u2011test results,\
     \ hash\u2011checking scripts) to prove the requirement was met."
-T045:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact showing that T030c now includes an explicit statistical power check\
-    \ was provided; the only evidence relates to data generation and decision\u2011\
-    tree training, not to a power\u2011calculation validation. The required code/documentation\
-    \ confirming the power check is missing."
-T046:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, test results, or documentation were provided showing\
-    \ that explicit overfitting checks were added to the decision\u2011tree training\
-    \ pipeline (T021). Without such artifacts, we cannot confirm that the requirement\
-    \ to prevent overfitting has been implemented. The next implementer must supply\
-    \ the modified training script, description of the overfitting checks (e.g., validation\u2011\
-    train accuracy gap monitoring, early stopping criteria), and evidence (logs or\
-    \ test output) that they are active."

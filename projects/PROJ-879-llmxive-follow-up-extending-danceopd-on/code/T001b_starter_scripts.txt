@@ -1,0 +1,13 @@
+Starter scripts added for the llmXive follow‑up project:
+- code/main.py
+- code/00_data_fetch.py
+- code/00_data_stream.py
+- code/00_teacher_inference.py
+- code/01_train_trees.py
+- code/02_evaluate_fidelity.py
+- code/03_versioning.py
+- code/utils/timer.py
+- code/utils/stats.py
+- code/data/generate_teacher.py
+- code/models/train_tree.py
+All listed files are present in the repository.

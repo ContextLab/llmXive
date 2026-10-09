@@ -7,13 +7,13 @@
 
 ## Phase 1 – Project scaffolding & core utilities (already completed)
 
-- [ ] T001a [P] Create project directory structure (`code/`, `data/raw/`, `data/processed/`, `data/results/`, `models/`, `tests/…`).  
+- [X] T001a [P] Create project directory structure (`code/`, `data/raw/`, `data/processed/`, `data/results/`, `models/`, `tests/…`).  
 - [ ] T001b [P] Add empty starter scripts (`code/main.py`, `code/00_data_fetch.py`, `code/00_data_stream.py`, `code/00_teacher_inference.py`, `code/01_train_trees.py`, `code/02_evaluate_fidelity.py`, `code/03_versioning.py`, `code/utils/timer.py`, `code/utils/stats.py`, `code/data/generate_teacher.py`, `code/models/train_tree.py`).  
 - [ ] T002 Initialize `requirements.txt` (CPU‑only `torch`, `scikit‑learn`, `pandas`, `numpy`, `datasets`, `transformers`, `accelerate`, `pillow`, `scipy`, `torch‑fidelity`, `pyyaml`, `pytest`).  
-- [ ] T004 [P] Implement `code/utils/config.py` (seeds, paths, hyper‑parameters such as `N_TARGET=2500`, `TIMEOUT_HOURS=6`).  
+- [X] T004 [P] Implement `code/utils/config.py` (seeds, paths, hyper‑parameters such as `N_TARGET=2500`, `TIMEOUT_HOURS=6`).  
 - [ ] T005 [P] Stub metric functions in `code/utils/metrics.py` (`calculate_clip_score`, `calculate_fid`) raising `NotImplementedError`.  
 - [ ] T005b [P] Replace stubs with real CPU‑only implementations (CLIP ViT‑B/32, `torch‑fidelity`).  
-- [ ] T006 Create `code/03_versioning.py` (SHA‑256 hashing, writes `state/artifact_hashes.yaml`).  
+- [ ] T006 Create `code/03_versioning.py` (SHA‑256 hashing, writes `state/artifact_hashes.yaml`).   <!-- FAILED-IN-EXECUTION: code/03_versioning.py exit=1 -->
 - [ ] T007 Initialise data directories (`data/raw/`, `data/processed/`, `data/results/`).  
 - [ ] T008 [P] Implement `code/utils/check_weights.py` (manifest verification, abort on missing/invalid checksum).  
 - [ ] T012c [P] Initialise CLIP model for embeddings in `code/utils/models.py` (device=`cpu`).  

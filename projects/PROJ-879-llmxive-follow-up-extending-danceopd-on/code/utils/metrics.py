@@ -1,189 +1,152 @@
 """
-Metrics module for evaluating generative model fidelity.
+Utility functions for computing image‑text similarity (CLIP score) and
+Fréchet Inception Distance (FID) between two sets of images.  Implemented
+for CPU‑only execution using the ViT‑B/32 CLIP model from HuggingFace
+and the `torch‑fidelity` library.
 
-Implements CPU-only CLIP Score and FID calculations.
+The functions are deliberately lightweight and avoid any GPU usage.
+They are used by the fidelity‑evaluation steps of the research pipeline.
 """
-import os
-import tempfile
-import shutil
-from typing import Union, List, Optional
+
 from pathlib import Path
+from typing import Union, List
+
 import torch
-import numpy as np
 from PIL import Image
-from torchvision import transforms
-from transformers import CLIPModel, CLIPProcessor
+from transformers import CLIPProcessor, CLIPModel
+
+# torch‑fidelity provides a high‑level API to compute FID.
+# It works with directories containing image files.
 from torch_fidelity import calculate_metrics
 
-
-class ImageDataset(torch.utils.data.Dataset):
-    """Simple dataset wrapper for image paths."""
-    
-    def __init__(self, image_paths: List[Union[str, Path]]):
-        """
-        Initialize the dataset.
-        
-        Args:
-            image_paths: List of paths to image files.
-        """
-        self.image_paths = [str(p) for p in image_paths]
-        self.transform = transforms.Compose([
-            transforms.Resize((256, 256)),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        ])
-    
-    def __len__(self):
-        return len(self.image_paths)
-    
-    def __getitem__(self, idx):
-        try:
-            image = Image.open(self.image_paths[idx]).convert('RGB')
-            tensor = self.transform(image)
-            return tensor
-        except Exception as e:
-            raise RuntimeError(f"Failed to load image {self.image_paths[idx]}: {e}")
+# Global CLIP model and processor instantiated once to avoid repeated loading.
+_clip_model: CLIPModel = None
+_clip_processor: CLIPProcessor = None
 
 
-def calculate_clip_score(
-    image_path_1: Union[str, Path, List[Union[str, Path]]],
-    image_path_2: Union[str, Path, List[Union[str, Path]]],
-    device: str = "cpu"
-) -> List[float]:
+def _load_clip_model() -> None:
     """
-    Calculate per-sample CLIP similarity scores between two sets of images.
-    
-    This function computes the cosine similarity between the CLIP embeddings
-    of corresponding image pairs. It is designed to be CPU-only.
-    
-    Args:
-        image_path_1: Path(s) to the first set of images (e.g., teacher baseline).
-        image_path_2: Path(s) to the second set of images (e.g., student/tree generated).
-        device: Device to run inference on (default: "cpu").
-    
-    Returns:
-        List[float]: Per-sample CLIP similarity scores.
-    
-    Raises:
-        ValueError: If the number of images in both lists does not match.
-        FileNotFoundError: If any image file cannot be found.
+    Load the CLIP ViT‑B/32 model and processor onto CPU.
+    This helper is called lazily by the public functions.
     """
-    # Normalize inputs to lists
-    if isinstance(image_path_1, (str, Path)):
-        image_path_1 = [image_path_1]
-    if isinstance(image_path_2, (str, Path)):
-        image_path_2 = [image_path_2]
-    
-    if len(image_path_1) != len(image_path_2):
-        raise ValueError(
-            f"Number of images must match. Got {len(image_path_1)} and {len(image_path_2)}."
+    global _clip_model, _clip_processor
+    if _clip_model is None or _clip_processor is None:
+        # Explicitly request the CPU device.
+        _clip_model = CLIPModel.from_pretrained(
+            "openai/clip-vit-base-patch32",
+            torch_dtype=torch.float32,
+            device_map="cpu"
         )
-    
-    if len(image_path_1) == 0:
-        return []
-    
-    # Load CLIP model and processor
-    model_name = "openai/clip-vit-base-patch32"
-    model = CLIPModel.from_pretrained(model_name).to(device)
-    processor = CLIPProcessor.from_pretrained(model_name)
-    model.eval()
-    
-    # Image transform for PIL -> Tensor (CLIP expects specific normalization)
-    # We use the processor's transform logic or standard normalization
-    transform = transforms.Compose([
-        transforms.Resize((224, 224)),
-        transforms.ToTensor(),
-    ])
-    
-    scores = []
-    
+        _clip_model.eval()
+        _clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+
+
+def _load_image(image: Union[str, Path, Image.Image]) -> Image.Image:
+    """
+    Helper to open an image from a path or pass through an already opened PIL.Image.
+
+    Args:
+        image: Path‑like object or a PIL.Image instance.
+
+    Returns:
+        A PIL.Image in RGB mode.
+    """
+    if isinstance(image, Image.Image):
+        return image.convert("RGB")
+    # Assume path‑like
+    img_path = Path(image)
+    if not img_path.exists():
+        raise FileNotFoundError(f"Image file not found: {img_path}")
+    with Image.open(img_path) as img:
+        return img.convert("RGB")
+
+
+def calculate_clip_score(image: Union[str, Path, Image.Image], text: str) -> float:
+    """
+    Compute the cosine similarity between a CLIP image embedding and a CLIP text
+    embedding using the ViT‑B/32 model (CPU‑only).
+
+    Args:
+        image: Path to an image file or a PIL.Image object.
+        text:  Text prompt to compare against the image.
+
+    Returns:
+        A float in the range [-1, 1] representing cosine similarity. Higher is
+        more similar.
+    """
+    _load_clip_model()
+    img = _load_image(image)
+
+    # Tokenise and encode
+    inputs = _clip_processor(
+        text=[text],
+        images=img,
+        return_tensors="pt",
+        padding=True,
+    )
+
+    # Move tensors to CPU explicitly (model is already on CPU)
     with torch.no_grad():
-        for img1_path, img2_path in zip(image_path_1, image_path_2):
-            # Load images
-            try:
-                img1 = Image.open(img1_path).convert('RGB')
-                img2 = Image.open(img2_path).convert('RGB')
-            except Exception as e:
-                raise FileNotFoundError(f"Could not load image: {e}")
-            
-            # Process images
-            inputs1 = processor(images=img1, return_tensors="pt", padding=True).to(device)
-            inputs2 = processor(images=img2, return_tensors="pt", padding=True).to(device)
-            
-            # Get image embeddings
-            with torch.no_grad():
-                emb1 = model.get_image_features(**inputs1)
-                emb2 = model.get_image_features(**inputs2)
-            
-            # Normalize embeddings
-            emb1 = emb1 / emb1.norm(dim=-1, keepdim=True)
-            emb2 = emb2 / emb2.norm(dim=-1, keepdim=True)
-            
-            # Calculate cosine similarity
-            similarity = (emb1 * emb2).sum(dim=-1).item()
-            scores.append(similarity)
-    
-    return scores
+        image_embeds = _clip_model.get_image_features(**{
+            k: v.to("cpu") for k, v in inputs.items() if k.startswith("pixel_values")
+        })
+        text_embeds = _clip_model.get_text_features(**{
+            k: v.to("cpu") for k, v in inputs.items() if k.startswith("input_ids")
+        })
+
+    # Normalise embeddings
+    image_embeds = image_embeds / image_embeds.norm(p=2, dim=-1, keepdim=True)
+    text_embeds = text_embeds / text_embeds.norm(p=2, dim=-1, keepdim=True)
+
+    # Cosine similarity is a dot product of normalised vectors
+    similarity = torch.nn.functional.cosine_similarity(image_embeds, text_embeds).item()
+    return float(similarity)
 
 
-def calculate_fid(
-    img_list_ref: List[Union[str, Path]],
-    img_list_gen: List[Union[str, Path]],
-    device: str = "cpu"
-) -> float:
+def calculate_fid(reference_dir: Union[str, Path], generated_dir: Union[str, Path]) -> float:
     """
-    Calculate the Fréchet Inception Distance (FID) between two sets of images.
-    
-    This function uses the `torch-fidelity` library to compute FID on CPU.
-    It expects lists of image paths.
-    
+    Compute the Fréchet Inception Distance (FID) between two collections of images.
+
+    The function expects two directories, each containing image files (any format
+    supported by Pillow).  It delegates the heavy lifting to ``torch_fidelity``,
+    which internally loads an Inception‑v3 classifier and computes the statistic.
+
     Args:
-        img_list_ref: List of paths to reference images (e.g., teacher baseline).
-        img_list_gen: List of paths to generated images (e.g., student/tree generated).
-        device: Device to run inference on (default: "cpu"). torch-fidelity handles
-                device selection internally, but we ensure CPU usage by not passing GPU args.
-    
+        reference_dir: Path to the directory with ground‑truth images.
+        generated_dir: Path to the directory with images produced by the model.
+
     Returns:
-        float: The calculated FID score.
-    
+        The FID score as a float.  Lower values indicate higher similarity.
+
     Raises:
-        ValueError: If the lists are empty.
-        RuntimeError: If torch-fidelity fails to compute the metric.
+        FileNotFoundError: If either directory does not exist or contains no
+                           image files.
     """
-    if len(img_list_ref) == 0 or len(img_list_gen) == 0:
-        raise ValueError("Input image lists cannot be empty.")
-    
-    # Create temporary directories for torch-fidelity as it expects directory inputs
-    with tempfile.TemporaryDirectory() as tmp_ref, \
-         tempfile.TemporaryDirectory() as tmp_gen:
-        
-        # Copy images to temp directories
-        for i, path in enumerate(img_list_ref):
-            dest = os.path.join(tmp_ref, f"ref_{i:05d}.png")
-            shutil.copy2(str(path), dest)
-        
-        for i, path in enumerate(img_list_gen):
-            dest = os.path.join(tmp_gen, f"gen_{i:05d}.png")
-            shutil.copy2(str(path), dest)
-        
-        # Calculate FID using torch-fidelity
-        # We set 'cuda' to False to force CPU usage
-        metrics_dict = calculate_metrics(
-            input1=tmp_ref,
-            input2=tmp_gen,
-            cuda=False,  # Force CPU
-            verbose=False,
-            quiet=True,
-            fid_batch_size=32,
-            feature_layer='inception_v3',
-            resize=True,
-            resize_height=299,
-            resize_width=299,
-        )
-        
-        fid_score = metrics_dict.get('frechet_inception_distance')
-        
-        if fid_score is None:
-            raise RuntimeError("Failed to compute FID score. Check input image formats.")
-        
-        return float(fid_score)
+    ref_path = Path(reference_dir)
+    gen_path = Path(generated_dir)
+
+    if not ref_path.is_dir():
+        raise FileNotFoundError(f"Reference directory not found: {ref_path}")
+    if not gen_path.is_dir():
+        raise FileNotFoundError(f"Generated images directory not found: {gen_path}")
+
+    # ``torch_fidelity`` expects the inputs as strings or pathlib objects.
+    # We explicitly request the CPU device to respect the CPU‑only constraint.
+    metrics = calculate_metrics(
+        input1=str(ref_path),
+        input2=str(gen_path),
+        fid=True,
+        device="cpu",
+    )
+
+    # The returned dict contains a key ``fid`` when ``fid=True``.
+    fid_score = metrics.get("fid")
+    if fid_score is None:
+        raise RuntimeError("FID computation failed; torch_fidelity did not return a score.")
+    return float(fid_score)
+
+
+__all__ = [
+    "calculate_clip_score",
+    "calculate_fid",
+]
