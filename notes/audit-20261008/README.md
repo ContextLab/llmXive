@@ -6,48 +6,90 @@ GitHub Actions logs/issues, the Dartmouth model catalog, and real model/code
 calls. Counts below describe this frozen snapshot, not a claim about later runs.
 Work is isolated from the user's unfinished `025-self-improvement-lane` branch.
 
-## Current acceptance status — 2026-10-09 11:55 UTC
+## Current acceptance status — 2026-10-09 13:58 UTC
 
-Full pipeline recovery is **not yet demonstrated**. The audit has found defects
-in orchestration, evidence delivery, verification and scope; a model upgrade
-alone cannot resolve them.
+The repaired pipeline has autonomously crossed implementation and research review
+in a fresh isolated run. **Full paper acceptance and production recovery are not
+yet demonstrated.** The defects involve orchestration, scope, artifact boundaries,
+and evidence verification; upgrading the model alone does not resolve them.
 
-- The 11:51 production census (`5ee606a89031bc8d0df7324162508d767325d65c`)
-  has 1,095 projects: 456 implementing, 102 planned, **zero authored research-complete
-  or later**, and 227 external preprint reviews. There are 199 advance-error records,
-  124 uncleared with positive counts; these are records, not 199 distinct current bugs.
-  See `production-20261009-1151.json`.
-- The smaller canary began with 9 functional requirements / 6 success criteria versus
-  17 / 12 in the original attempt. Its initial 15 tasks have grown through replanning.
-  Its full 07:02 numerical sweep still passes all 12 independent count, denominator,
-  and TV comparisons at 11:53 (`fresh-results-validation.json`). Report, figure,
-  execution and paper acceptance remain unproven. Earlier inspection found
-  invented report examples and a stale figure containing a test N=10 point.
-- Both prior runs ended unsuccessfully: original at `agent_blocked` after its
-  bounded recovery attempts; fresh at a Tasker response containing tables and
-  zero canonical checkbox tasks. No scientific artifacts or states were reset.
-- #1515–#1517 are merged: unreadable YAML evidence is rejected, malformed task
-  syntax gets bounded recovery, and verification sees scoped data/execution logs.
-  #1518 fixes exhausted implementation routing to the actual planner; #1521
-  supplies active Tasker mode and routes malformed task counts through recovery.
-  Their CI is pending. The smaller canary resumed at 11:54 with these tested fixes
-  plus #1520 on platform `22048a64fb6b41511661419344d22ab19cda677e`;
-  51 combined checks passed. Platform-prompt refresh preserved scientific files
-  and project states byte-for-byte before resuming autonomous work.
-- GLM-5.3 remains the free primary, with free GPT-OSS/Gemma peers. Its availability
-  is intermittent: recent full-prompt calls succeeded in 138.087s and 125.950s,
-  following earlier full-deadline failures. #1520's live corrective retry recovered
-  an incomplete GPT-OSS task revision by switching to GLM. Gemma separately returned
-  a valid full revision in 129.619s. These prove service/format behavior, not scientific
-  quality or full-pipeline acceptance. See `reviser-peer-retry.md`.
-- Deployed self-improvement trial [37897943625](https://github.com/ContextLab/llmXive/actions/runs/37897943625)
-  reached patch testing after #1514's deadline fix, but failed 1 of 6 candidate tests.
-  The candidate also proposed unconditional deletion of an existing file; it was
-  never published. #1519 adds source-derived stage/caller/import context and
-  distinct baseline/candidate diagnostics. CI and a fresh live repair trial remain
-  pending; preservation tests and independent review are still mandatory.
-- Issue cleanup is complete: eight recurring/actionable issues remain. The
-  Claude web/mobile health-check task is paused with all triggers paused.
+- The 13:29 production census (`c85a8b1306dc19dd0cc4c9011d51b040ae40c775`)
+  contains 1,095 projects: 455 implementing, 103 planned, **zero authored projects
+  at research-complete or later**, and 227 external preprint reviews. See
+  `production-20261009-1329.json`. Scheduled workers are active, but a green worker
+  can report zero forward progress. Run [37934499690](https://github.com/ContextLab/llmXive/actions/runs/37934499690)
+  persisted two no-progress implementation attempts; another worker encountered
+  Dartmouth connection timeouts. These are not authored-paper completions.
+- The fresh bounded totient canary started at 12:49 UTC on platform
+  `d366a5e6ee1d2120b23fc569fee081fd87bb2b3a`. It reached `research_complete` at
+  13:10, `research_accepted` at 13:26, `paper_clarified` at 13:38 and `paper_planned` at 13:47. Paper task
+  convergence is running. Neither scientific artifacts nor task/stage/replanning counters
+  were hand-edited to obtain these transitions. Prior unsuccessful runs remain
+  preserved; the successful research stages belong to this genuinely new run.
+- Independent calculation checked all 12 residue-count tables, all 24 total-
+  variation rows, population denominators, and 1,000 small-n gcd identities.
+  Both primary JSON hashes were unchanged after research review. The plot was
+  visually checked and the report correctly acknowledges the observed p=11
+  conditional reversal instead of claiming monotonic convergence. This is useful
+  numerical verification, not a new theorem or accepted paper. See
+  `canary-20261009-1250-evidence.json`.
+- GLM-5.3 is the free primary. All free models remain subject to service outages;
+  the canary uses no paid fallback. PRs #1518/#1520/#1521 repair actual replanning,
+  malformed-response recovery and task-authoring contracts. #1526 fixes explicit
+  project-root script imports; #1528 keeps refused artifacts uncompleted and
+  supplies exact refusal diagnostics to the next autonomous attempt.
+- Merged #1531 corrects a remaining hidden GPT-OSS task-verifier default, explains trusted
+  canonical-path/cwd evidence without rewriting task commands, accepts valid empty
+  package markers for semantic review, and invalidates cached verdicts when model
+  or verification policy changes. Six local real GLM cases passed, including
+  negative controls; its hosted live job passed in 3m40s. All nine exact-head CI checks passed.
+- #1525 reduced a measured aggregate real-call check from 18m07s to 7m35s. Offline
+  and live checks run concurrently; docs/unit-only changes skip live calls, while
+  runtime or unknown paths retain them. Free peer-model coverage and long tests
+  run nightly. The primary-model contract asserts the actual returned model.
+  PR #1534 preserves complete audited inputs and produces identical manifests
+  on a case-sensitive filesystem. Its hosted audit checkouts took 4–11 seconds
+  and complete audit jobs 47–84 seconds. External Zenodo timeouts independently
+  blocked the live jobs on #1532/#1533/#1534; Dartmouth model checks passed.
+  Separating external reference-service availability from unrelated model checks
+  is in progress.
+- #1523 restored project boundaries for 2,666 leaked files (390.83 MiB), preserving
+  exact bytes and modes, with a committed recovery manifest and root-layout gates.
+  #1530's project-local revision/cache follow-up is merged (1,356 files
+  relocated with exact bytes/modes preserved). Case-colliding paths
+  are separately inventoried; conflicting scientific files are not silently
+  overwritten or assigned guessed ownership.
+- #1529's docs-only write profile passed a real Pages deployment. Public
+  `data/projects.json` returned HTTP 200, 15,693,905 bytes, Git blob
+  `9a55471c265a021f34354a549a950675d9cb4686`, exactly matching deployed commit
+  `c95996fa5e106216da756a75746eaab6e9a370e7`. The preceding deployment produced
+  52 changed paths, all under `docs/`.
+- Self-improvement fixes #1519/#1522 are merged. Fresh bounded trial
+  [37937595531](https://github.com/ContextLab/llmXive/actions/runs/37937595531)
+  failed on `ed81d772fad69a25b0ace248978ce06d79a6b960`. Attempts included
+  a regression that failed only because its proposed helper did not yet exist,
+  malformed Python and unsafe deletion of an existing backup. No candidate
+  reached preservation review or publication. **Self-improvement has not yet
+  delivered an accepted useful repair.** Follow-ups target meaningful baseline
+  failures, syntax diagnostics and backup-preservation tests. PR #1533 also fixes
+  a separately reproduced runner/publisher evidence-digest mismatch without
+  weakening the publisher integrity check.
+- PR #1535 addresses a new observed paper-planning defect: prefixed model file
+  markers produced nested feature directories while the canonical plan initially
+  remained a template. It reuses complete-set guards, confined writes, rollback
+  and corrective retries; eight before/after regressions and 106 related tests
+  pass. The real captured-response corrective replay is pending. An isolated
+  two-step production snapshot probe of PROJ-549 is also running on merged
+  `9e93570fcc8d66af5d0413868e970989f926be1d`; it is not a production mutation or
+  evidence of full-pipeline acceptance.
+- The HF `llmxive` resource group and private storage pilot are configured with
+  a shared $20 monthly cap. Real private-file roundtrip, a bounded CPU job and
+  one stronger-model call passed; credentials are in macOS Keychain. #1524 adds
+  the explicit pilot helper and receipts. This is not automatic paid escalation
+  or production artifact offloading; existing Git blobs remain preserved.
+- Issue cleanup consolidated 203 dispositions into eight recurring/actionable
+  issues (195 closed). The Claude web/mobile health-check task and all its
+  triggers are paused; it was not deleted.
 
 Live acceptance and remaining blockers are tracked in
 [#1139](https://github.com/ContextLab/llmXive/issues/1139), reviewer protocol in

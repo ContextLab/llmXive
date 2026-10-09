@@ -1,0 +1,17 @@
+{
+  "source_commit": "c85a8b1306dc19dd0cc4c9011d51b040ae40c775",
+  "projects": 1095,
+  "stages": {
+    "analyzed": 15,
+    "clarified": 90,
+    "flesh_out_complete": 65,
+    "flesh_out_in_progress": 19,
+    "in_progress": 455,
+    "planned": 103,
+    "project_initialized": 6,
+    "reviewed_preprint": 227,
+    "specified": 59,
+    "tasked": 49,
+    "validated": 7
+  }
+}
