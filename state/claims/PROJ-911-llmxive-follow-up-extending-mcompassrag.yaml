@@ -2282,3 +2282,78 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-01T10:56:43Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline automatically downloads datasets on first run
+  claim_id: c_4d857de9
+  context: 'The pipeline automatically downloads datasets on the first run. To manually
+    verify:'
+  evidence:
+    candidate_value: pipeline automatically downloads datasets on first run
+    note: no signed receipt backing this result value (SC-004)
+    project_id: PROJ-911-llmxive-follow-up-extending-mcompassrag
+  kind: result
+  raw_text: The pipeline automatically downloads datasets on the first run.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T06:17:20Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/docs/quickstart.md
+  attempts: 1
+  canonical: integration tests for full pipeline on small subset of size 10
+  claim_id: c_ddfeb84a
+  context: 'Tests include: - Integration tests for the full pipeline on a small subset
+    (N=10).'
+  evidence:
+    candidate_value: integration tests for full pipeline on small subset of size 10
+    note: no signed receipt backing this result value (SC-004)
+    project_id: PROJ-911-llmxive-follow-up-extending-mcompassrag
+  kind: result
+  raw_text: Integration tests for the full pipeline on a small subset (N=10).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T06:17:21Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/docs/quickstart.md
+  attempts: 1
+  canonical: retrieval_metrics.json contains recall@5/10 scores and aggregated topological
+    metrics
+  claim_id: c_4779512e
+  context: 'After the pipeline completes: - data/results/retrieval_metrics.json: Contains
+    Recall@5/10 scores and aggregated topological metrics.'
+  evidence:
+    candidate_value: retrieval_metrics.json contains recall@5/10 scores and aggregated
+      topological metrics
+    note: no signed receipt backing this result value (SC-004)
+    project_id: PROJ-911-llmxive-follow-up-extending-mcompassrag
+  kind: result
+  raw_text: data/results/retrieval_metrics.json contains Recall@5/10 scores and aggregated
+    topological metrics.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T06:17:21Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/docs/quickstart.md
+  attempts: 1
+  canonical: correlation_analysis.json contains spearman r and p-values
+  claim_id: c_83754e7e
+  context: 'After the pipeline completes: - data/results/correlation_analysis.json:
+    Contains Spearman r and p-values.'
+  evidence:
+    candidate_value: correlation_analysis.json contains spearman r and p-values
+    note: no signed receipt backing this result value (SC-004)
+    project_id: PROJ-911-llmxive-follow-up-extending-mcompassrag
+  kind: result
+  raw_text: data/results/correlation_analysis.json contains Spearman r and p-values.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T06:17:21Z'

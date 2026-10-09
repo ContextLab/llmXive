@@ -25,7 +25,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan (`projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/`)
-- [X] T002 Initialize Python 3.11 project with pinned `requirements.txt` (networkx, scikit-learn, bertopic, datasets, pandas, numpy, pytest)
+- [ ] T002 Initialize Python 3.11 project with pinned `requirements.txt` (networkx, scikit-learn, bertopic, datasets, pandas, numpy, pytest)
 
 ---
 
@@ -36,12 +36,12 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Implement `code/config.py` to define hyperparameters (window=10), random seeds, and path constants
-- [X] T005 [P] Create `code/utils/hash_artifacts.py` to calculate SHA-256 hashes for `data/` and update `state/projects/PROJ-911-llmxive-follow-up-extending-mcompassrag.yaml`
+- [ ] T005 [P] Create `code/utils/hash_artifacts.py` to calculate SHA-256 hashes for `data/` and update `state/projects/PROJ-911-llmxive-follow-up-extending-mcompassrag.yaml`
 - [X] T006 Setup `data/raw/`, `data/processed/`, and `data/results/` directory structure
 - [X] T007 Implement `code/data_loader.py` to fetch HotpotQA (`fullwiki`) and Wikipedia 20231001.en via `datasets.load_dataset` with deterministic sampling (N ≤ 360)
-- [X] T008 [P] Implement sampling logic in `code/data_loader.py` to ensure the sample size N is strictly ≤ 360 before execution, enforcing the -hour time budget constraint (FR‑007). The loader should truncate or randomly sample the dataset to N ≤ 360; it must **not raise an exception** if the raw dataset exceeds this limit. **Output**: `data/raw/sampled_corpus.parquet`. **Function**: `sample_dataset(raw_corpus, n=360)`.
-- [X] T008b [P] Implement pipeline execution timer and timeout enforcement in `code/utils/timer.py` to monitor wall-clock time and enforce the CI budget (FR‑007). The mechanism must wrap the main execution loop, log elapsed time per document, and raise a `TimeoutError` if the total time exceeds a predefined operational threshold. **Verification**: Confirm `TimeoutError` is raised when simulated time exceeds limit.
-- [X] T009 Create `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` for artifact validation
+- [~] T008 [P] Implement sampling logic in `code/data_loader.py` to ensure the sample size N is strictly ≤ 360 before execution, enforcing the -hour time budget constraint (FR‑007). The loader should truncate or randomly sample the dataset to N ≤ 360; it must **not raise an exception** if the raw dataset exceeds this limit. **Output**: `data/raw/sampled_corpus.parquet`. **Function**: `sample_dataset(raw_corpus, n=360)`.
+- [ ] T008b [P] Implement pipeline execution timer and timeout enforcement in `code/utils/timer.py` to monitor wall-clock time and enforce the CI budget (FR‑007). The mechanism must wrap the main execution loop, log elapsed time per document, and raise a `TimeoutError` if the total time exceeds a predefined operational threshold. **Verification**: Confirm `TimeoutError` is raised when simulated time exceeds limit.
+- [~] T009 Create `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` for artifact validation
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -55,18 +55,18 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T010 [P] [US1] Unit test for graph edge case (low term diversity < 5) in `tests/unit/test_graph_builder.py`
-- [X] T011 [P] [US1] Integration test for full graph pipeline on sample data (N=360) in `tests/integration/test_graph_pipeline.py`. **Requirement**: Verify pipeline completes within 60s/doc and handles low-diversity documents by assigning default zeros or logging warnings without crashing. [UNRESOLVED-CLAIM: c_c2794fda — status=not_enough_info]
+- [~] T010 [P] [US1] Unit test for graph edge case (low term diversity < 5) in `tests/unit/test_graph_builder.py`
+- [~] T011 [P] [US1] Integration test for full graph pipeline on sample data (N=360) in `tests/integration/test_graph_pipeline.py`. **Requirement**: Verify pipeline completes within 60s/doc and handles low-diversity documents by assigning default zeros or logging warnings without crashing. [UNRESOLVED-CLAIM: c_c2794fda — status=not_enough_info]
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement TF‑IDF filtering with fixed reference vocabulary and **save the resulting vocabulary to `data/processed/fixed_vocab.json`** (FR‑001) for versioning (Plan Data Traceability). The versioning script will hash this file.
-- [X] T013 [US1] Implement sliding window lexical co-occurrence graph construction in `code/graph_builder.py` (FR‑001). The window size will be sufficiently large to capture relevant lexical relationships. **Dependency**: Requires filtered terms from T012.
-- [X] T014 [US1] Implement topological metric calculation (modularity, avg path length, degree/betweenness centrality) in `code/topology_extractor.py` (FR‑002)
-- [X] T015 [US1] Add error handling for low‑diversity documents (assign default zeros or log warning) in `code/topology_extractor.py`
-- [X] T016a [US1] Write graph objects to `data/processed/graphs.json`. **Schema**: `{"doc_id": str, "nodes": list, "edges": list, "metadata": {}}`. **Verification**: Verify file exists, is valid JSON, and matches `contracts/output.schema.yaml`.
-- [X] T016b [US1] Write feature vectors to `data/processed/features.csv`. **Schema**: Columns `doc_id`, `modularity`, `avg_path_length`, `degree_centrality_mean`, `betweenness_centrality_mean`. **Verification**: Verify file exists and contains the specified columns.
-- [X] T017 [US1] Add logging for document processing time to verify <60s constraint per doc. **Implementation**: Write per-doc duration to `data/results/latency.log` in format "doc_id: <time>s". **Verification**: Verify log contains entries for all documents in the corpus..
+- [ ] T012 [US1] Implement TF‑IDF filtering with fixed reference vocabulary and **save the resulting vocabulary to `data/processed/fixed_vocab.json`** (FR‑001) for versioning (Plan Data Traceability). The versioning script will hash this file.
+- [~] T013 [US1] Implement sliding window lexical co-occurrence graph construction in `code/graph_builder.py` (FR‑001). The window size will be sufficiently large to capture relevant lexical relationships. **Dependency**: Requires filtered terms from T012.
+- [~] T014 [US1] Implement topological metric calculation (modularity, avg path length, degree/betweenness centrality) in `code/topology_extractor.py` (FR‑002)
+- [~] T015 [US1] Add error handling for low‑diversity documents (assign default zeros or log warning) in `code/topology_extractor.py`
+- [~] T016a [US1] Write graph objects to `data/processed/graphs.json`. **Schema**: `{"doc_id": str, "nodes": list, "edges": list, "metadata": {}}`. **Verification**: Verify file exists, is valid JSON, and matches `contracts/output.schema.yaml`.
+- [ ] T016b [US1] Write feature vectors to `data/processed/features.csv`. **Schema**: Columns `doc_id`, `modularity`, `avg_path_length`, `degree_centrality_mean`, `betweenness_centrality_mean`. **Verification**: Verify file exists and contains the specified columns.
+- [ ] T017 [US1] Add logging for document processing time to verify <60s constraint per doc. **Implementation**: Write per-doc duration to `data/results/latency.log` in format "doc_id: <time>s". **Verification**: Verify log contains entries for all documents in the corpus..
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -82,17 +82,17 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T018 [P] [US2] Contract test for Recall@k output schema in `tests/contract/test_recall_schema.py`
-- [X] T019 [P] [US2] Integration test for disjoint train/test split validation in `tests/integration/test_data_split.py`
+- [~] T018 [P] [US2] Contract test for Recall@k output schema in `tests/contract/test_recall_schema.py`
+- [~] T019 [P] [US2] Integration test for disjoint train/test split validation in `tests/integration/test_data_split.py`
 
 ### Implementation for User Story 2
 
-- [X] T020 [US2] Implement BERTopic (CPU‑only mode, no CUDA) for topic embeddings in `code/neural_baseline.py` (FR‑003)
-- [X] T021 [US2] Implement fallback mechanism for BERTopic memory pressure (reduce corpus/window size) in `code/neural_baseline.py`
-- [X] T022 [US2] Implement TF‑IDF Cosine Similarity ranking for query‑document matching in `code/retrieval_sim.py` (FR‑004). **Function**: `rank_documents(query, corpus_tfidf, k)`. **Output**: `data/results/retrieval_scores.csv` with columns `query_id`, `doc_id`, `rank`, `score`. **Dependency**: Requires `fixed_vocab.json` from T012. **Verification**: Verify file exists and contains columns: `query_id`, `doc_id`, `rank`, `score`.
-- [X] T023 [US2] Implement extraction of topological signatures **ONLY from the set of documents returned by the TF‑IDF ranking** (from T022); ensure no topology data is used to generate the ranking scores. **Metrics**: modularity, avg_path_length, degree_centrality_mean, betweenness_centrality_mean. **Output**: `data/results/retrieved_features.csv` with columns `query_id`, `doc_id`, `modularity`, `avg_path_length`, `degree_centrality_mean`, `betweenness_centrality_mean`. **Dependency**: Requires T016a, T016b (graph objects/features) and T022 (ranking). **Verification**: Verify file exists and contains columns: `query_id`, `doc_id`, `modularity`, `avg_path_length`, `degree_centrality_mean`, `betweenness_centrality_mean`.
-- [X] T024 [US2] Implement Recall@K calculation against HotpotQA ground‑truth in `code/evaluator.py` (FR‑004). **Output**: `data/results/retrieval_scores.csv` (ranked lists)
-- [X] T025 [US2] Ensure strict disjointness between training corpus and query set to prevent data leakage in `code/data_loader.py`
+- [~] T020 [US2] Implement BERTopic (CPU‑only mode, no CUDA) for topic embeddings in `code/neural_baseline.py` (FR‑003)
+- [~] T021 [US2] Implement fallback mechanism for BERTopic memory pressure (reduce corpus/window size) in `code/neural_baseline.py`
+- [~] T022 [US2] Implement TF‑IDF Cosine Similarity ranking for query‑document matching in `code/retrieval_sim.py` (FR‑004). **Function**: `rank_documents(query, corpus_tfidf, k)`. **Output**: `data/results/retrieval_scores.csv` with columns `query_id`, `doc_id`, `rank`, `score`. **Dependency**: Requires `fixed_vocab.json` from T012. **Verification**: Verify file exists and contains columns: `query_id`, `doc_id`, `rank`, `score`.
+- [ ] T023 [US2] Implement extraction of topological signatures **ONLY from the set of documents returned by the TF‑IDF ranking** (from T022); ensure no topology data is used to generate the ranking scores. **Metrics**: modularity, avg_path_length, degree_centrality_mean, betweenness_centrality_mean. **Output**: `data/results/retrieved_features.csv` with columns `query_id`, `doc_id`, `modularity`, `avg_path_length`, `degree_centrality_mean`, `betweenness_centrality_mean`. **Dependency**: Requires T016a, T016b (graph objects/features) and T022 (ranking). **Verification**: Verify file exists and contains columns: `query_id`, `doc_id`, `modularity`, `avg_path_length`, `degree_centrality_mean`, `betweenness_centrality_mean`.
+- [~] T024 [US2] Implement Recall@K calculation against HotpotQA ground‑truth in `code/evaluator.py` (FR‑004). **Output**: `data/results/retrieval_scores.csv` (ranked lists)
+- [~] T025 [US2] Ensure strict disjointness between training corpus and query set to prevent data leakage in `code/data_loader.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -106,19 +106,19 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T026 [P] [US3] Unit test for Spearman correlation calculation in `tests/unit/test_evaluator.py`
-- [X] T027 [P] [US3] Integration test for end‑to‑end statistical validation in `tests/integration/test_statistical_validation.py`
+- [~] T026 [P] [US3] Unit test for Spearman correlation calculation in `tests/unit/test_evaluator.py`
+- [~] T027 [P] [US3] Integration test for end‑to‑end statistical validation in `tests/integration/test_statistical_validation.py`
 
 ### Implementation for User Story 3
 
-- [X] T028a [US3] Implement Spearman rank correlation function in `code/evaluator.py` (FR‑005). **Input**: Topological features per query (from T023) and Recall@10 scores (from T024). **Dependency**: Requires T023 and T024 completion.
-- [X] T028b [US3] Write correlation results to `data/results/correlation.csv`. **Schema**: `query_id`, `r_value`, `p_value`, `n_samples`. **Dependency**: Requires T028a completion. **Verification**: Verify file exists and contains columns: `query_id`, `r_value`, `p_value`, `n_samples`.
-- [X] T029a [US3] Implement paired t-test for precision metrics (Graph vs Neural Recall@10) and compare p-value against the significance threshold in `code/evaluator.py` (FR‑006). **Note**: Compare precision of TF-IDF ranking on Graph-features vs TF-IDF ranking on Neural-features. **Output**: `data/results/ttest_results.json` with `p_value`, `statistic`, `significant` (bool).
-- [X] T029b [US3] Calculate the ratio of Graph Recall@10 to Neural Recall@10 and log whether the ratio meets the ≥ 0.70 threshold in `data/results/metrics.json` (FR‑006). **Verification**: Verify file exists and contains key: `ratio_graph_neural_recall`.
-- [X] T030 [US3] Calculate wall‑clock time and percentage reduction in **metadata generation latency** (graph construction time vs BERTopic embedding time) in `code/evaluator.py` (FR‑006). **Note**: Isolate metadata generation phase from total pipeline time. **Verification**: Write result to `data/results/metrics.json` under key `latency_reduction_pct`. Verify key exists.
-- [X] T030b [US3] Monitor and log peak RAM usage during pipeline execution to verify against the CI memory constraint. (SC-004). **Implementation**: Use `psutil` or similar to track peak RSS. **Output**: Log to `data/results/resource_usage.log`. **Verification**: Verify log contains peak RAM value and confirms it is < 7GB. [UNRESOLVED-CLAIM: c_b3a57f82 — status=not_enough_info]
-- [X] T031 [US3] Write final metrics (r, p‑value, Recall@k, latency) to `data/results/metrics.json` and `data/results/correlation.csv`. **Schema**: `metrics.json` must contain `r_value`, `p_value`, `recall_graph`, `recall_neural`, `latency_reduction_pct`, `ttest_significant`. **Verification**: Verify both files exist and `metrics.json` contains all required keys.
-- [X] T032 [US3] Validate results against Success Criteria (SC‑001 to SC‑005) by logging the correlation coefficient r, p‑value and a status field indicating whether the hypothesis was supported (r > 0.6) to `data/results/validation_status.json`. **Requirement**: Explicitly verify correlation is calculated on the **retrieved subset** of documents. **Do NOT raise an exception on low r; only log status.** **Verification**: Verify file exists and contains keys: `correlation_r`, `p_value`, `hypothesis_supported` (bool).
+- [~] T028a [US3] Implement Spearman rank correlation function in `code/evaluator.py` (FR‑005). **Input**: Topological features per query (from T023) and Recall@10 scores (from T024). **Dependency**: Requires T023 and T024 completion.
+- [ ] T028b [US3] Write correlation results to `data/results/correlation.csv`. **Schema**: `query_id`, `r_value`, `p_value`, `n_samples`. **Dependency**: Requires T028a completion. **Verification**: Verify file exists and contains columns: `query_id`, `r_value`, `p_value`, `n_samples`.
+- [~] T029a [US3] Implement paired t-test for precision metrics (Graph vs Neural Recall@10) and compare p-value against the significance threshold in `code/evaluator.py` (FR‑006). **Note**: Compare precision of TF-IDF ranking on Graph-features vs TF-IDF ranking on Neural-features. **Output**: `data/results/ttest_results.json` with `p_value`, `statistic`, `significant` (bool).
+- [~] T029b [US3] Calculate the ratio of Graph Recall@10 to Neural Recall@10 and log whether the ratio meets the ≥ 0.70 threshold in `data/results/metrics.json` (FR‑006). **Verification**: Verify file exists and contains key: `ratio_graph_neural_recall`.
+- [~] T030 [US3] Calculate wall‑clock time and percentage reduction in **metadata generation latency** (graph construction time vs BERTopic embedding time) in `code/evaluator.py` (FR‑006). **Note**: Isolate metadata generation phase from total pipeline time. **Verification**: Write result to `data/results/metrics.json` under key `latency_reduction_pct`. Verify key exists.
+- [ ] T030b [US3] Monitor and log peak RAM usage during pipeline execution to verify against the CI memory constraint. (SC-004). **Implementation**: Use `psutil` or similar to track peak RSS. **Output**: Log to `data/results/resource_usage.log`. **Verification**: Verify log contains peak RAM value and confirms it is < 7GB. [UNRESOLVED-CLAIM: c_b3a57f82 — status=not_enough_info]
+- [~] T031 [US3] Write final metrics (r, p‑value, Recall@k, latency) to `data/results/metrics.json` and `data/results/correlation.csv`. **Schema**: `metrics.json` must contain `r_value`, `p_value`, `recall_graph`, `recall_neural`, `latency_reduction_pct`, `ttest_significant`. **Verification**: Verify both files exist and `metrics.json` contains all required keys.
+- [~] T032 [US3] Validate results against Success Criteria (SC‑001 to SC‑005) by logging the correlation coefficient r, p‑value and a status field indicating whether the hypothesis was supported (r > 0.6) to `data/results/validation_status.json`. **Requirement**: Explicitly verify correlation is calculated on the **retrieved subset** of documents. **Do NOT raise an exception on low r; only log status.** **Verification**: Verify file exists and contains keys: `correlation_r`, `p_value`, `hypothesis_supported` (bool).
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -128,10 +128,10 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T033 [P] Update `docs/` with quickstart.md and architecture diagrams
-- [ ] T034 Code cleanup and refactoring of `code/` scripts
+- [~] T033 [P] Update `docs/` with quickstart.md and architecture diagrams
+- [ ] T034 Code cleanup and refactoring of `code/` scripts <!-- FAILED-IN-EXECUTION: code/cleanup_refactor.py exit=1 -->
 - [ ] T035 Performance optimization for graph construction loop (vectorization where possible)
-- [X] T036 [P] Add comprehensive unit tests for `code/utils/hash_artifacts.py`
+- [~] T036 [P] Add comprehensive unit tests for `code/utils/hash_artifacts.py`
 - [ ] T037 Run `quickstart.md` validation to ensure full pipeline reproducibility
 - [ ] T038 Verify all artifacts are checksummed and state file is updated
 

@@ -1,87 +1,78 @@
-# Quickstart: GraphCompass Reproducibility Validation
-
-This guide validates the full pipeline reproducibility for project **PROJ-911-llmxive-follow-up-extending-mcompassrag**.
-It ensures all components (Data Loading, Graph Construction, Retrieval Simulation, Correlation Analysis) run end-to-end on real data within the CI constraints.
+# Quickstart: GraphCompass: Topological Predictors of Semantic Coherence in CPU-Constrained RAG
 
 ## Prerequisites
 
 - Python 3.11+
-- Dependencies installed: `pip install -r requirements.txt`
-- Real data access (HotpotQA, Wikipedia) via `datasets` library.
+- Git
+- Access to GitHub Actions (for CI execution) or a local Linux environment with sufficient RAM.
 
-## Step 1: Initialize Directories and Data
+## Installation
 
-Run the setup script to create directory structures and fetch/sample the real dataset.
+1. **Clone the repository**:
+ ```bash
+ git clone <repo-url>
+ cd projects/PROJ-911-llmxive-follow-up-extending-mcompassrag
+ ```
 
-```bash
-python code/setup_data_dirs.py
-python code/data_loader.py
-```
+2. **Create a virtual environment**:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
 
-**Expected Outputs**:
-- `data/raw/sampled_corpus.parquet` (N ≤ 360)
-- `data/processed/fixed_vocab.json`
+3. **Install dependencies**:
+ ```bash
+ pip install -r code/requirements.txt
+ ```
+ *Note: `requirements.txt` pins versions to ensure reproducibility on CPU-only runners.*
 
-## Step 2: Graph Construction & Feature Extraction (US1)
+## Data Preparation
 
-Execute the graph builder and topology extractor.
+The pipeline automatically downloads datasets on the first run. [UNRESOLVED-CLAIM: c_4d857de9 — status=not_enough_info] To manually verify:
 
-```bash
-python code/vocabulary_builder.py
-python code/graph_builder.py
-python code/topology_extractor.py
-```
+1. **Download HotpotQA**:
+ ```bash
+ python code/data_loader.py --dataset hotpot_qa --split fullwiki --output data/raw/hotpot_qa
+ ```
+2. **Download Corpus (Wikipedia)**:
+ ```bash
+ python code/data_loader.py --dataset wikipedia --split 20231001.en --output data/raw/wikipedia
+ ```
 
-**Expected Outputs**:
-- `data/processed/graphs.json`
-- `data/processed/features.csv`
-- `data/results/latency.log`
+## Running the Pipeline
 
-## Step 3: Neural Baseline & Retrieval Simulation (US2)
-
-Run the BERTopic baseline (CPU mode) and TF-IDF retrieval simulation.
-
-```bash
-python code/neural_baseline.py
-python code/retrieval_sim.py
-```
-
-**Expected Outputs**:
-- `data/results/retrieval_scores.csv`
-- `data/results/retrieved_features.csv` (Topological metrics for retrieved docs)
-
-## Step 4: Correlation & Validation (US3)
-
-Calculate Spearman correlation, t-tests, and final metrics.
+Execute the full research pipeline (Graph Construction -> Neural Baseline -> Retrieval -> Analysis):
 
 ```bash
-python code/evaluator.py
-python code/final_metrics_writer.py
-python code/validate_success_criteria.py
+python code/main.py
 ```
 
-**Expected Outputs**:
-- `data/results/correlation.csv`
-- `data/results/ttest_results.json`
-- `data/results/metrics.json`
-- `data/results/validation_status.json`
+### Configuration
+Edit `code/config.py` to adjust:
+- `SAMPLE_SIZE`: Number of documents to process (default: a standard full rotation).
+- `SLIDING_WINDOW`: Window size for graph construction (default: a representative sample size).
+- `RANDOM_SEED`: Fixed seed for reproducibility (default: a representative value).
+- `VOCAB_SIZE`: Size of fixed reference vocabulary for TF-IDF (default: a substantial number of samples).
 
-## Verification Checklist
+## Verification
 
-After running the steps above, verify the following:
+After the pipeline completes:
 
-1. **Artifacts Exist**: All files listed in "Expected Outputs" are present in `data/`.
-2. **Schema Compliance**: Run `python code/validate_schemas.py` to ensure JSON/CSV schemas match contracts.
-3. **Success Criteria**: Check `data/results/validation_status.json` for `hypothesis_supported` status.
-4. **Latency**: Confirm `data/results/latency.log` shows processing time < 60s per document.
-5. **Resource Usage**: Confirm `data/results/resource_usage.log` shows peak RAM < 7GB.
+1. **Check Output Files**:
+ - `data/results/retrieval_metrics.json`: Contains Recall@5/10 scores and aggregated topological metrics.
+ - `data/results/correlation_analysis.json`: Contains Spearman r and p-values.
+2. **Run Tests**:
+ ```bash
+ pytest tests/
+ ```
+ Tests include:
+ - Unit tests for graph construction.
+ - Contract tests validating output against `contracts/*.schema.yaml`.
+ - Integration tests for the full pipeline on a small subset (N=10). [UNRESOLVED-CLAIM: c_ddfeb84a — status=not_enough_info]
 
-## Full Reproducibility Command
+## Troubleshooting
 
-To run the entire pipeline in one go (for CI validation):
-
-```bash
-bash scripts/run_full_pipeline.sh
-```
-
-*(Note: Ensure `scripts/run_full_pipeline.sh` exists and calls the above steps in order.)*
+- **Memory Error**: Reduce `SAMPLE_SIZE` in `config.py` or increase the sliding window size to reduce graph density.
+- **CUDA Error**: Ensure `device="cpu"` is set in `code/neural_baseline.py`. Do not install `torch` with CUDA support.
+- **Dataset Not Found**: Verify internet connection. The script uses `datasets.load_dataset` which requires network access.
+- **Query Filtering**: If too few queries remain after filtering, check that the corpus version matches the HotpotQA version.

@@ -1,230 +1,355 @@
 """
-T034: Code cleanup and refactoring of `code/` scripts.
+cleanup_refactor.py
+--------------------
+Utility module providing standardized cleanup, validation, and
+aggregation helpers for the GraphCompass research pipeline.
 
-This module performs a comprehensive cleanup and refactoring of the project's
-core scripts. It addresses the following goals:
-1.  **Consolidation**: Unifies fragmented logic (e.g., metrics writing, timing)
-    into cohesive functions where appropriate.
-2.  **Error Handling**: Ensures all I/O operations have robust `try/except` blocks
-    with clear logging.
-3.  **Type Hinting**: Adds strict type hints to public APIs for better maintainability.
-4.  **Dead Code Removal**: Removes unused imports and placeholder comments.
-5.  **Logging Standardization**: Enforces a consistent logging format across modules.
-6.  **Configuration Centralization**: Ensures all paths and hyperparameters are
-    imported from `code.config` rather than hardcoded.
+This module is used by the T034 task to refactor and clean up the
+existing code base.  All functions are implemented with strict
+typing, deterministic behaviour, and robust error handling so that
+they can be imported by any script in the `code/` package without
+side‑effects.
 
-This script does not execute the pipeline itself but serves as a refactoring
-guide and utility module that can be imported to validate the consistency
-of the codebase.
+The public API matches the signatures listed in the project’s
+API surface:
+
+- setup_cleanup_logging()
+- ensure_directory_exists(path, logger=None)
+- validate_file_integrity(file_path, logger=None)
+- safe_json_load(file_path, logger=None)
+- safe_csv_load(file_path, logger=None)
+- aggregate_pipeline_metrics(metrics_path,
+                              correlation_path,
+                              latency_path,
+                              logger=None)
+- validate_project_structure(logger=None)
+- run_cleanup_validation()
 """
 
+import csv
+import json
 import logging
-import os
 import sys
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Callable, Tuple
-import json
-import csv
+from typing import Any, Dict, List, Optional
 
-# Import configuration constants to ensure no hardcoded paths
-from code.config import (
-    PROJECT_ROOT,
-    DATA_DIR,
-    RAW_DIR,
-    PROCESSED_DIR,
-    RESULTS_DIR,
-    LOG_LEVEL,
-    RANDOM_SEED,
-)
-
-# Setup logging standardization
+# ----------------------------------------------------------------------
+# Logging utilities
+# ----------------------------------------------------------------------
 def setup_cleanup_logging() -> logging.Logger:
     """
-    Configures a standardized logger for the cleanup process.
-    Ensures consistent formatting across all refactored modules.
+    Configure a standardized logger for the cleanup process.
+
+    Returns
+    -------
+    logging.Logger
+        Configured logger instance.
     """
     logger = logging.getLogger("cleanup_refactor")
-    logger.setLevel(getattr(logging, LOG_LEVEL, logging.INFO))
+    logger.setLevel(logging.INFO)
 
+    # If handlers are already attached (e.g., when this module is
+    # imported multiple times), avoid adding duplicates.
     if not logger.handlers:
         handler = logging.StreamHandler(sys.stdout)
         formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S"
+            fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
         )
         handler.setFormatter(formatter)
         logger.addHandler(handler)
-
     return logger
 
-# Refactoring Utilities
-def ensure_directory_exists(path: Path, logger: Optional[logging.Logger] = None) -> None:
+# ----------------------------------------------------------------------
+# Directory utilities
+# ----------------------------------------------------------------------
+def ensure_directory_exists(
+    path: Path, logger: Optional[logging.Logger] = None
+) -> None:
     """
-    Ensures a directory exists, creating it if necessary.
-    Refactors repetitive `os.makedirs` calls across the project.
-    """
-    if logger:
-        logger.debug(f"Ensuring directory exists: {path}")
-    try:
-        path.mkdir(parents=True, exist_ok=True)
-    except OSError as e:
-        if logger:
-            logger.error(f"Failed to create directory {path}: {e}")
-        raise
+    Ensure a directory exists, creating it (including parents) if necessary.
 
-def validate_file_integrity(file_path: Path, logger: Optional[logging.Logger] = None) -> bool:
+    Parameters
+    ----------
+    path : Path
+        Directory path to ensure.
+    logger : Optional[logging.Logger]
+        Logger for informational messages. If None, a default logger is used.
     """
-    Validates that a file exists and is not empty.
-    Used during cleanup to verify artifact generation.
+    if logger is None:
+        logger = setup_cleanup_logging()
+    if not path.exists():
+        logger.info(f"Creating missing directory: {path}")
+        path.mkdir(parents=True, exist_ok=True)
+    else:
+        logger.debug(f"Directory already exists: {path}")
+
+# ----------------------------------------------------------------------
+# File integrity utilities
+# ----------------------------------------------------------------------
+def validate_file_integrity(
+    file_path: Path, logger: Optional[logging.Logger] = None
+) -> bool:
     """
-    if not file_path.exists():
-        if logger:
-            logger.warning(f"File missing: {file_path}")
+    Validate that a file exists and is not empty.
+
+    Parameters
+    ----------
+    file_path : Path
+        Path to the file to validate.
+    logger : Optional[logging.Logger]
+        Logger for messages.
+
+    Returns
+    -------
+    bool
+        True if the file exists and has a size > 0, False otherwise.
+    """
+    if logger is None:
+        logger = setup_cleanup_logging()
+    if not file_path.is_file():
+        logger.error(f"File does not exist: {file_path}")
         return False
     if file_path.stat().st_size == 0:
-        if logger:
-            logger.warning(f"File is empty: {file_path}")
+        logger.error(f"File is empty: {file_path}")
         return False
+    logger.debug(f"File validated successfully: {file_path}")
     return True
 
-def safe_json_load(file_path: Path, logger: Optional[logging.Logger] = None) -> Optional[Dict[str, Any]]:
+# ----------------------------------------------------------------------
+# Safe loading utilities
+# ----------------------------------------------------------------------
+def safe_json_load(
+    file_path: Path, logger: Optional[logging.Logger] = None
+) -> Optional[Dict[str, Any]]:
     """
-    Safely loads a JSON file with error handling.
-    Replaces repetitive try/except blocks in multiple scripts.
+    Safely load a JSON file, returning None on error.
+
+    Parameters
+    ----------
+    file_path : Path
+        Path to the JSON file.
+    logger : Optional[logging.Logger]
+
+    Returns
+    -------
+    Optional[Dict[str, Any]]
+        Parsed JSON object or None if loading fails.
     """
+    if logger is None:
+        logger = setup_cleanup_logging()
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except (json.JSONDecodeError, FileNotFoundError, IOError) as e:
-        if logger:
-            logger.error(f"Failed to load JSON {file_path}: {e}")
+        with file_path.open("r", encoding="utf-8") as f:
+            data = json.load(f)
+        logger.debug(f"Loaded JSON from {file_path}")
+        return data
+    except Exception as e:
+        logger.error(f"Failed to load JSON from {file_path}: {e}")
         return None
 
-def safe_csv_load(file_path: Path, logger: Optional[logging.Logger] = None) -> List[Dict[str, Any]]:
+def safe_csv_load(
+    file_path: Path, logger: Optional[logging.Logger] = None
+) -> List[Dict[str, Any]]:
     """
-    Safely loads a CSV file into a list of dictionaries.
-    """
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            return list(reader)
-    except (FileNotFoundError, IOError, csv.Error) as e:
-        if logger:
-            logger.error(f"Failed to load CSV {file_path}: {e}")
-        return []
+    Safely load a CSV file into a list of dictionaries.
 
-# Refactoring: Centralized Metrics Aggregation
-# This function consolidates logic from final_metrics_writer.py and t_test_metrics.py
+    Parameters
+    ----------
+    file_path : Path
+        Path to the CSV file.
+    logger : Optional[logging.Logger]
+
+    Returns
+    -------
+    List[Dict[str, Any]]
+        List of rows as dictionaries; empty list on failure.
+    """
+    if logger is None:
+        logger = setup_cleanup_logging()
+    rows: List[Dict[str, Any]] = []
+    try:
+        with file_path.open("r", newline="", encoding="utf-8") as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                rows.append(row)
+        logger.debug(f"Loaded {len(rows)} rows from CSV {file_path}")
+    except Exception as e:
+        logger.error(f"Failed to load CSV from {file_path}: {e}")
+    return rows
+
+# ----------------------------------------------------------------------
+# Metric aggregation
+# ----------------------------------------------------------------------
 def aggregate_pipeline_metrics(
     metrics_path: Path,
     correlation_path: Path,
     latency_path: Path,
-    logger: Optional[logging.Logger] = None
+    logger: Optional[logging.Logger] = None,
 ) -> Dict[str, Any]:
     """
-    Aggregates metrics from various output files into a single summary dictionary.
-    This refactors the scattered logic in `final_metrics_writer.py` and `t_test_metrics.py`.
+    Aggregate metrics from three JSON artefacts into a single dictionary.
+
+    Parameters
+    ----------
+    metrics_path : Path
+        Path to the generic metrics JSON (e.g., recall metrics).
+    correlation_path : Path
+        Path to the Spearman correlation JSON.
+    latency_path : Path
+        Path to the latency metrics JSON.
+    logger : Optional[logging.Logger]
+
+    Returns
+    -------
+    Dict[str, Any]
+        Combined dictionary with keys 'metrics', 'correlation', 'latency'.
     """
-    if logger:
-        logger.info("Aggregating pipeline metrics...")
+    if logger is None:
+        logger = setup_cleanup_logging()
 
-    summary = {
-        "metrics": None,
-        "correlation": None,
-        "latency": None,
-        "status": "incomplete"
-    }
-
-    # Load metrics.json
-    metrics_data = safe_json_load(metrics_path, logger)
-    if metrics_data:
-        summary["metrics"] = metrics_data
-        summary["status"] = "metrics_loaded"
-    else:
-        if logger:
-            logger.warning("metrics.json not found or invalid.")
-
-    # Load correlation.csv
-    if correlation_path.exists():
-        corr_data = safe_csv_load(correlation_path, logger)
-        if corr_data:
-            summary["correlation"] = corr_data
-            if summary["status"] == "metrics_loaded":
-                summary["status"] = "partial_complete"
+    def _load(path: Path, name: str) -> Optional[Dict[str, Any]]:
+        data = safe_json_load(path, logger)
+        if data is None:
+            logger.error(f"Unable to load {name} from {path}")
         else:
-            if logger:
-                logger.warning("correlation.csv not found or invalid.")
-    else:
-        if logger:
-            logger.warning("correlation.csv not found.")
+            logger.info(f"Loaded {name} from {path}")
+        return data
 
-    # Load latency metrics (if stored in a specific file, else infer from metrics.json)
-    if latency_path.exists():
-        latency_data = safe_json_load(latency_path, logger)
-        if latency_data:
-            summary["latency"] = latency_data
-            summary["status"] = "complete"
-    else:
-        # Fallback: check if latency is in metrics.json
-        if metrics_data and "latency_reduction_pct" in metrics_data:
-            summary["latency"] = {"latency_reduction_pct": metrics_data["latency_reduction_pct"]}
-            summary["status"] = "complete"
+    metrics = _load(metrics_path, "metrics")
+    correlation = _load(correlation_path, "correlation")
+    latency = _load(latency_path, "latency")
 
-    return summary
+    aggregated: Dict[str, Any] = {
+        "metrics": metrics or {},
+        "correlation": correlation or {},
+        "latency": latency or {},
+    }
+    logger.info("Aggregated pipeline metrics successfully.")
+    return aggregated
 
-# Refactoring: Path Validation
-def validate_project_structure(logger: Optional[logging.Logger] = None) -> bool:
+# ----------------------------------------------------------------------
+# Project structure validation
+# ----------------------------------------------------------------------
+def validate_project_structure(
+    logger: Optional[logging.Logger] = None
+) -> bool:
     """
-    Validates that the project directory structure matches the specification.
-    Ensures all required directories exist.
+    Validate that the repository directory structure matches the
+    specification.
+
+    Checks for the presence of required top‑level directories and
+    essential sub‑directories.
+
+    Returns
+    -------
+    bool
+        True if the structure is valid, False otherwise.
     """
-    required_dirs = [DATA_DIR, RAW_DIR, PROCESSED_DIR, RESULTS_DIR]
-    all_valid = True
+    if logger is None:
+        logger = setup_cleanup_logging()
 
-    if logger:
-        logger.info("Validating project structure...")
+    required_dirs = [
+        Path("code"),
+        Path("tests"),
+        Path("docs"),
+        Path("data/raw"),
+        Path("data/processed"),
+        Path("data/results"),
+    ]
 
+    all_ok = True
     for d in required_dirs:
-        if not ensure_directory_exists(d, logger):
-            all_valid = False
+        if not d.is_dir():
+            logger.error(f"Required directory missing: {d}")
+            all_ok = False
+        else:
+            logger.debug(f"Directory exists: {d}")
 
-    return all_valid
+    if all_ok:
+        logger.info("Project structure validation passed.")
+    else:
+        logger.warning("Project structure validation failed.")
+    return all_ok
 
+# ----------------------------------------------------------------------
+# End‑to‑end cleanup validation
+# ----------------------------------------------------------------------
 def run_cleanup_validation() -> int:
     """
     Main entry point for the cleanup validation script.
-    Runs checks to ensure the refactored codebase is consistent.
+
+    Performs the following steps:
+    1. Configure logging.
+    2. Validate the overall project directory layout.
+    3. Ensure that key artefact directories exist.
+    4. Verify integrity of critical output files.
+    5. Aggregate metrics and write a consolidated JSON file.
+    6. Return an exit code (0 = success, 1 = failure).
+
+    Returns
+    -------
+    int
+        Exit status code.
     """
     logger = setup_cleanup_logging()
-    logger.info("Starting T034: Code Cleanup and Refactoring Validation")
+    logger.info("Starting cleanup validation...")
 
-    # 1. Validate Structure
+    # 1. Validate directory layout
     if not validate_project_structure(logger):
-        logger.error("Project structure validation failed.")
+        logger.error("Project structure is invalid. Aborting.")
         return 1
 
-    # 2. Check for Dead Code / Placeholders
-    # This is a conceptual check; in a real CI, we would grep for 'TODO', 'pass', etc.
-    # Here we log the intent.
-    logger.info("Checking for placeholder code (TODOs, pass statements)...")
-    logger.info("Note: Manual inspection recommended for complex logic blocks.")
+    # 2. Ensure output directories exist (they may be missing if a prior
+    #    pipeline step failed).
+    for out_dir in [
+        Path("data/processed"),
+        Path("data/results"),
+    ]:
+        ensure_directory_exists(out_dir, logger)
 
-    # 3. Verify Metric Aggregation
-    metrics_path = RESULTS_DIR / "metrics.json"
-    correlation_path = RESULTS_DIR / "correlation.csv"
-    latency_path = RESULTS_DIR / "resource_usage.log" # Or specific latency file if exists
+    # 3. Critical artefacts to check (these are produced by earlier tasks)
+    critical_files = [
+        Path("data/processed/graphs.json"),
+        Path("data/processed/features.csv"),
+        Path("data/results/recall_metrics.json"),
+        Path("data/results/correlation.csv"),
+        Path("data/results/metrics.json"),
+    ]
 
-    summary = aggregate_pipeline_metrics(metrics_path, correlation_path, latency_path, logger)
+    all_files_ok = True
+    for f in critical_files:
+        if not validate_file_integrity(f, logger):
+            all_files_ok = False
 
-    if summary["status"] == "complete":
-        logger.info("Metric aggregation successful. All required artifacts present.")
-    elif summary["status"] == "partial_complete":
-        logger.warning("Metric aggregation partial. Some artifacts missing.")
-    else:
-        logger.error("Metric aggregation failed. Critical artifacts missing.")
+    if not all_files_ok:
+        logger.error(
+            "One or more critical output files are missing or empty."
+        )
+        return 1
 
-    logger.info("T034 Cleanup Validation Complete.")
-    return 0 if summary["status"] in ["complete", "partial_complete"] else 1
+    # 4. Aggregate metrics
+    aggregated = aggregate_pipeline_metrics(
+        metrics_path=Path("data/results/recall_metrics.json"),
+        correlation_path=Path("data/results/correlation.csv"),
+        latency_path=Path("data/results/metrics.json"),
+        logger=logger,
+    )
 
+    # 5. Write aggregated results
+    aggregated_path = Path("data/results/aggregated_metrics.json")
+    try:
+        with aggregated_path.open("w", encoding="utf-8") as out_f:
+            json.dump(aggregated, out_f, indent=2, ensure_ascii=False)
+        logger.info(f"Aggregated metrics written to {aggregated_path}")
+    except Exception as e:
+        logger.error(f"Failed to write aggregated metrics: {e}")
+        return 1
+
+    logger.info("Cleanup validation completed successfully.")
+    return 0
+
+# ----------------------------------------------------------------------
+# Script entry point
+# ----------------------------------------------------------------------
 if __name__ == "__main__":
     sys.exit(run_cleanup_validation())

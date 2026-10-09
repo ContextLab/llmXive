@@ -1,3 +1,45 @@
+T001:
+  c: true
+  h: a8324c65f950acb0aa1a738d3a843f264e3b5432f32818cb81d6d32051c149fd
+  r: The `projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/` directory exists
+    and contains the expected hierarchy of files and subfolders (README, code, data,
+    docs, scripts, specs, tests, etc.) as outlined in the implementation plan. No
+    missing or placeholder components were found.
+T002:
+  c: false
+  h: b7512dbf91b98e298ec2a02cc47d84b151ba986e5d0496d3bc3b13e6733e1aa8
+  r: "The provided `requirements.txt` exists, but it uses \u201C>=\u201D version specifiers\
+    \ instead of exact pinned versions (e.g., `networkx==3.1`). Moreover, it lists\
+    \ many additional packages beyond the seven required, which does not meet the\
+    \ task\u2019s specification of a pinned requirements file for those specific dependencies."
+T004:
+  c: true
+  h: fb3fa657bd4daed5a778c30d40e375f458d291550223fda778ad4e2649e71951
+  r: The provided `code/config.py` file exists, defines `WINDOW_SIZE = 10`, sets `RANDOM_SEED`,
+    and includes path constants for project, data, raw, processed, and results directories,
+    fulfilling the task requirements.
+T005:
+  c: false
+  h: 6b8c588223eecffbc7915abd69f1d94a1e528e8124f32a76d8b7b303b585230f
+  r: "The `code/utils/hash_artifacts.py` script exists and implements hashing, but\
+    \ the required state file `state/projects/PROJ-911-llmxive-follow-up-extending-mcompassrag.yaml`\
+    \ is missing, so the task\u2019s requirement to update that YAML file has not\
+    \ been fulfilled. The missing YAML file must be created/updated by the script\
+    \ (or provided) for the task to be complete."
+T006:
+  c: true
+  h: 6d0221d9369b6e96626d9e41ad9cc69dda3298eaea82262954904bcb1ad040cf
+  r: The repository contains the three required directories (`data/raw/`, `data/processed/`,
+    `data/results/`) each with a `.gitkeep` file, confirming the directory structure
+    has been created as specified.
+T007:
+  c: true
+  h: 53a2987597794d3050f8d092165460654dced448cbba45cc0a6641c0db623ac6
+  r: "The file `code/data_loader.py` exists and contains concrete implementations\
+    \ that load the HotpotQA\u202F(fullwiki) and Wikipedia\u202F20231001.en datasets\
+    \ via `datasets.load_dataset`, apply a fixed random seed for deterministic sampling,\
+    \ and cap the number of returned documents at `MAX_DOCS` (\u2264\u202F360). All\
+    \ required functions return real document dictionaries, not stubs."
 T027:
   c: false
   h: 8da1da84084b8830383f62360bb21bce9c30e9c673242cb145d52b2917106a10
