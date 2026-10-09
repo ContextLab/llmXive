@@ -25,6 +25,13 @@ def _stub_task_verifier_backend(
         return
     if "real_call" in str(request.node.fspath):
         return
+    # Isolated offline verdict receipts use a test key at the verifier boundary.
+    # Do not set the process credential env: credential-loader and execution
+    # environment tests must retain their own missing-key/secret behavior.
+    monkeypatch.setattr(
+        "llmxive.agents._task_verdict_receipt.load_signing_key",
+        lambda: b"offline-task-verifier-receipt-test-only",
+    )
     monkeypatch.setattr(
         "llmxive.agents.task_verifier.chat_with_fallback",
         lambda *a, **k: SimpleNamespace(

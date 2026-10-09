@@ -35,6 +35,7 @@ from pathlib import Path
 from typing import Any
 
 from llmxive.agents._task_import_evidence import local_import_evidence
+from llmxive.agents._task_verdict_receipt import authentic_verdict, signed_verdict
 from llmxive.backends.base import ChatMessage
 from llmxive.backends.router import DEFAULT_MODEL, REASONING_MAX_TOKENS, chat_with_fallback
 from llmxive.claims.task_requirements import read_task_document
@@ -534,7 +535,8 @@ def verified_done_keys(
             continue
         digest = _verification_hash(task_text, spec, gather_evidence(project_dir, task_text, execution_log_dir=("paper/.tasks" if state_path.is_relative_to(project_dir / "paper") else "code/.tasks")), model=model)
         receipt = cache.get(key)
-        if isinstance(receipt, dict) and receipt.get("c") is True and receipt.get("h") == digest:
+        if (isinstance(receipt, dict) and receipt.get("c") is True and receipt.get("h") == digest
+                and authentic_verdict(project_dir, tasks_path, key, receipt)):
             verified.add(key)
     return verified
 
@@ -776,6 +778,7 @@ def run_verification_pass(
             isinstance(cached, dict)
             and cached.get("h") == ev_hash
             and isinstance(cached.get("c"), bool)
+            and authentic_verdict(project_dir, tasks_path, key, cached)
         ):
             complete: bool | None = cached["c"]
             reason = str(cached.get("r") or "(cached verdict; evidence unchanged)")
@@ -798,7 +801,14 @@ def run_verification_pass(
             complete = verdict.complete
             reason = verdict.reason
             if complete is not None:
-                cache[key] = {"h": ev_hash, "c": complete, "r": reason[:600]}
+                receipt = signed_verdict(project_dir, tasks_path, key,
+                    {"h": ev_hash, "c": complete, "r": reason[:600]})
+                if receipt is not None:
+                    cache[key] = receipt
+                else:
+                    # Fresh independent decisions remain valid for this pass;
+                    # without a signing key they cannot be reused on later ticks.
+                    cache.pop(key, None)
 
         if complete is True:
             _accept(i, m, rest, key)
