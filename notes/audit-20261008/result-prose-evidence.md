@@ -6,6 +6,8 @@ Keep exact receipt-value resolution, and add bounded CSV/TSV/JSON content ground
 
 Cached prose claims carry hashes of all supporting artifacts and invalidate on any change. Whole prose is preserved during rendering and cannot become a scalar replacement inherited by a different claim.
 
-Validation: 77 focused tests pass. Three new regression cases fail with the old result resolver. A real Dartmouth GPT-OSS probe verifies the correct value, refutes an invented value and a correct value assigned to the wrong prime, and leaves an unsupported test-success claim unresolved. Exact replies/timing are in `result-prose-live.json`; this used an isolated signed fixture, not the scientific canary's acceptance state.
+Successful implementation previews now mint receipts for their real outputs, labeled `implementation_preview`, before results-writing tasks need them. Failed previews mint none. This does not promote stages, accept final execution, consume final fix rounds, or alter task checkboxes.
+
+Validation: 90 focused tests pass, including real successful/failed preview subprocesses. Three new regression cases fail with the old result resolver. A real Dartmouth GPT-OSS probe verifies the correct value, refutes an invented value and a correct value assigned to the wrong prime, and leaves an unsupported test-success claim unresolved. Exact replies/timing are in `result-prose-live.json`; this used an isolated signed fixture, not the scientific canary's acceptance state.
 
 Entailment remains model-mediated. This establishes that a sentence accurately reports authenticated output, not that the underlying scientific method is correct. Independent scientific review remains necessary; the live canary's integer-rounded TV calculations remain unaccepted.

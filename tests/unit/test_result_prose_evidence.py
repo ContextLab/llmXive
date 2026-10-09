@@ -126,3 +126,26 @@ def test_large_authenticated_file_is_not_read_into_prompt(fixture):
     result=resolve_result(claim,backend=model,model=None,repo_root=root)
     assert result.status==ClaimStatus.NOT_ENOUGH_INFO
     assert not model.calls
+
+
+@pytest.mark.parametrize('fail', [False, True])
+def test_real_preview_signs_only_successful_outputs_without_accepting_project(tmp_path, monkeypatch, fail):
+    from tests.unit.test_implementation_preview import _project
+    from llmxive.execution.stage import run_implementation_preview
+    from llmxive.results.harness import result_backed
+    from llmxive.state import execution_status
+    monkeypatch.setenv('LLMXIVE_RECEIPT_KEY','ephemeral-preview-key')
+    script=("from pathlib import Path\nPath('data').mkdir(exist_ok=True)\n"
+            "Path('data/counts.csv').write_text('n,square\\n' + ''.join(f'{n},{n*n}\\n' for n in range(1,11)))\n")
+    if fail:
+        script += "raise RuntimeError('failed after writing output')\n"
+    project,tasks=_project(tmp_path,script)
+    before=tasks.read_bytes()
+    run_implementation_preview(project)
+    receipt=result_backed('data/counts.csv',project.name,repo_root=tmp_path)
+    assert (receipt is not None)==(not fail)
+    if receipt is not None:
+        assert receipt.producer["stage"]=="implementation_preview"
+    assert tasks.read_bytes()==before
+    assert not execution_status.is_ok(project.name,repo_root=tmp_path)
+    assert execution_status.fix_rounds(project.name,repo_root=tmp_path)==0
