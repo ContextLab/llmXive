@@ -1,8 +1,0 @@
-T101:
-  c: false
-  h: a931fae7885bc1b054297a97e39a3669193c8caf727bf7f8d1a839dcd9328a7e
-  r: "The pipeline does not create `data/processed/dataset_validity_report.csv` (no\
-    \ call to `calculate_dataset_validity`/`write_validity_report`), and `preprocess_subjects`\u2019\
-    \ signature does not match the integration test (it expects a DataFrame, not `synthetic_count`\
-    \ or `output_path`), so `pytest tests/integration/test_ingestion.py` would fail.\
-    \ The required three files are therefore not reliably produced."
