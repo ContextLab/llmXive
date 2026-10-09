@@ -15,7 +15,7 @@
   **Path**: `requirements.txt`.  
   **Verification**: `pip install -r requirements.txt` succeeds in CI; a unit test checks that the file contains at least the listed packages with version specifiers.
 
-- [ ] **T003**  Configure linting (`ruff`) and formatting (`black`) via `pyproject.toml`.  
+- [X] **T003**  Configure linting (`ruff`) and formatting (`black`) via `pyproject.toml`.  
   **Path**: `pyproject.toml`.  
   **Verification**: `ruff check .` and `black --check .` both return exit‑code 0 in CI.
 

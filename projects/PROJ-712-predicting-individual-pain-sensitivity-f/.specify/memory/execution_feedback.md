@@ -28,9 +28,9 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 Project Root: /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f
 Checking citations...
 
-2026-10-09 20:30:20 - ERROR - Missing required citations:
-2026-10-09 20:30:20 - ERROR -   - doi:10.1234/example1
-2026-10-09 20:30:20 - ERROR -   - doi:10.5678/example2
+2026-10-09 20:32:25 - ERROR - Missing required citations:
+2026-10-09 20:32:25 - ERROR -   - doi:10.1234/example1
+2026-10-09 20:32:25 - ERROR -   - doi:10.5678/example2
 
 - python code/main.py -> rc=1
 
@@ -94,7 +94,7 @@ ERROR tests/test_config.py
 ERROR tests/unit/test_checksum_manager.py
 ERROR tests/unit/test_diagnostics.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 7 errors in 1.80s ===============================
+============================== 7 errors in 1.78s ===============================
 
 
 

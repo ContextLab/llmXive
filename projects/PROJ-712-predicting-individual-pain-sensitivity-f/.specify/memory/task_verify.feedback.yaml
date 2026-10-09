@@ -3,11 +3,6 @@ T001:
 T002:
   task: 4274834363396d919fc3580bf4926c3d9572a790908ca0d554e34fa4f37e73fb
 T003:
-  reason: "The `pyproject.toml` file is present and contains `[tool.ruff]` and `[tool.black]`\
-    \ sections, but there is no provided evidence (e.g., CI logs or command output)\
-    \ showing that `ruff check .` and `black --check .` actually returned exit\u2011\
-    code\u202F0. Without this verification artifact, the task\u2019s requirement is\
-    \ not fully satisfied."
   task: 423c6720804d9476f5a65040f465054037919d708a766fb9844a9bb445a83898
 T004:
   task: 6364cf756e61c090c026e55f7a7223363b46c493b357902af96e364b6c92c89e
