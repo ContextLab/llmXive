@@ -161,3 +161,42 @@ def test_paper_artifact_escape_is_refused_and_existing_bytes_restored(
             ctx, mech, ChatResponse(text=response, model="m", backend="dartmouth")
         )
     assert (feature / "plan.md").read_bytes() == b"Preserved original\n"
+
+
+@pytest.mark.parametrize("agent_kind", ["paper", "research"])
+@pytest.mark.parametrize("alias", ["./plan.md", "contracts/../plan.md", "symlink", "absolute"])
+def test_planner_rejects_aliases_before_writes_and_preserves_reviewed_plan(
+    tmp_path, monkeypatch, agent_kind, alias
+):
+    from llmxive.speckit.plan_cmd import PlannerAgent
+
+    if agent_kind == "paper":
+        ctx, mech, feature = paper_context(tmp_path)
+        agent = PaperPlannerAgent()
+    else:
+        ctx, mech, feature = _make_planner_ctx(tmp_path)
+        agent = PlannerAgent()
+    original = b"Previous scientifically reviewed plan\n"
+    (feature / "plan.md").write_bytes(original)
+    if alias == "symlink":
+        alias = "plan-alias.md"
+        (feature / alias).symlink_to("plan.md")
+    elif alias == "absolute":
+        alias = str(feature / "plan.md")
+    response = _valid_five_file_block(bad_contract=_BAD_CONTRACT_MULTI_DOC)
+    response += f"\n<!-- FILE: {alias} -->\n# Replacement plan\nNew scientific content.\n"
+    writes = []
+    write_text = Path.write_text
+
+    def observe_write(path, *args, **kwargs):
+        writes.append(path)
+        return write_text(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "write_text", observe_write)
+    with pytest.raises(ValueError, match="canonical relative|same artifact"):
+        agent._write_and_validate(ctx, mech, response)
+    assert writes == []
+    assert (feature / "plan.md").read_bytes() == original
+    assert not (feature / "research.md").exists()
+    if alias == "plan-alias.md":
+        assert (feature / alias).is_symlink()

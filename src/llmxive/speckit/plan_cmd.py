@@ -285,6 +285,26 @@ class PlannerAgent(SlashCommandAgent):
         # artifacts on disk.
         assert_artifact_set_complete(files)
 
+        # Resolve the entire set before writing: two markers must never address
+        # the same file, otherwise a later snapshot can replace its original
+        # bytes with the first generated version and break rollback.
+        targets: dict[str, Path] = {}
+        seen_targets: dict[Path, str] = {}
+        feature_root = feature_dir.resolve()
+        for relpath in files:
+            relative = Path(relpath)
+            if (relative.is_absolute() or ".." in relative.parts
+                    or relative.as_posix() != relpath or "\\" in relpath):
+                raise ValueError(f"FILE marker must use a canonical relative path: {relpath}")
+            target = (feature_dir / relative).resolve()
+            target.relative_to(feature_root)
+            if target in seen_targets:
+                raise ValueError(
+                    f"FILE markers address the same artifact: {seen_targets[target]} and {relpath}"
+                )
+            seen_targets[target] = relpath
+            targets[relpath] = target
+
         written: list[str] = []
         written_targets: dict[Path, bytes | None] = {}
 
@@ -299,8 +319,7 @@ class PlannerAgent(SlashCommandAgent):
         from llmxive.speckit._diff_guard import refuse_if_diff
         try:
             for relpath, content in files.items():
-                target = feature_dir / relpath
-                target.resolve().relative_to(feature_dir.resolve())
+                target = targets[relpath]
                 target.parent.mkdir(parents=True, exist_ok=True)
                 # Spec 010 fix: refuse diff-shaped content per file before write.
                 refuse_if_diff(content, artifact_kind=relpath)
@@ -309,7 +328,7 @@ class PlannerAgent(SlashCommandAgent):
                 # FR-009: refuse to commit template artifacts; unlink + raise
                 if target.suffix == ".md":
                     guard_emit(target, repo_root=repo)
-                written.append(str(target.relative_to(repo)))
+                written.append(str((feature_dir / relpath).relative_to(repo)))
 
             # FR-007 then FR-006: data-model<->contracts consistency, then
             # research.md URL reachability. Both run after the per-file write
