@@ -8,13 +8,15 @@ T001:
     \ the script are present."
   sig: 7c1747ae91883184c557ec721c382f1982ca027e549b36d3ea1ee249e5a90b0b
 T002:
-  c: true
-  h: 3ae0c418557c0ac90af3e52389ba20a0d21776035f0f5d9dd3c352b26fa56754
-  r: "Checked the `requirements.txt` file (133\u202Fbytes) which exists at the expected\
-    \ path and contains all required packages (`mne`, `scikit-learn`, `numpy`, `pandas`,\
-    \ `scipy`, `statsmodels`, `joblib`, `pyyaml`) with exact version specifiers, satisfying\
-    \ the task\u2019s requirement."
-  sig: 60139c0d78550236aa2a8e8d7ea5b33d89e0ca86ad9f727de945765c7f792ace
+  c: false
+  h: 5d6c9ef3b6d2c2b4a7ae452e25422ce9ab49291636747a70f29cf53c7a45619e
+  r: The `requirements.txt` exists and contains all eight required packages, but none
+    of them are pinned or carry version specifiers (only the unrequested `psutil>=5.9`
+    has one), directly contradicting the task's requirement for a "pinned requirements.txt"
+    and its verification criterion that a unit test check "version specifiers" for
+    the listed packages. Fix by adding version pins (e.g., `mne==1.x`, `scikit-learn==1.x`,
+    etc.) for all eight packages.
+  sig: ef29612a501c1a533dcb562698f351e13493731f0bcedb3a5070067025c73182
 T003:
   c: true
   h: 673a2bc0b8a1182f5352c41ef5696a4b1a811de1c010bd0b2db41d5ea1af4bab
@@ -25,12 +27,16 @@ T003:
   sig: dbeb3c9338d79308187337bd32e2e1472447d42d2e034865e0fe3de35eb2057c
 T004:
   c: true
-  h: fa1608e017adc3954d37fb06d55f6d16cd00084b2decf3f8a7174a2fa9145fcc
-  r: "Checked `code/utils.py` for the required seed, logger, checksum, and artifact\u2011\
-    hash functions, and verified that `tests/unit/test_utils.py` exercises `compute_checksum`\
-    \ on identical files and confirms that `setup_logging` creates entries in `state/log.txt`.\
-    \ All required artifacts exist and behave as specified."
-  sig: 99234fe29db02fed4f44bbcefbf0cf287f45361f197d73258fd33be8353ccb9a
+  h: 3fd3a110b328bf2f79fade24555ce23459f527bcd11ee29a249ce95dccd6c0be
+  r: "`code/utils.py` implements all required pieces: `set_global_seed` (deterministic\
+    \ seed pinning), `setup_logging` with a FileHandler writing to `state/log.txt`,\
+    \ `compute_checksum` (chunked SHA-256), and `record_artifact_hash` (records hashes\
+    \ to state YAML). The test file `tests/unit/test_utils.py` contains exactly the\
+    \ two specified checks (identical files \u2192 identical hashes; logger writes\
+    \ to `state/log.txt`), and `state/log.txt` exists with real log entries, confirming\
+    \ the logger works in practice. No execution output of the tests is shown, but\
+    \ the artifacts are substantive, non-stub, and match "
+  sig: 516124770397273a816392c77bdc29ef348c57b5c805db55d70b757aa2254274
 T005:
   c: true
   h: cbdbf72d3c08527aa0e572f94edeaaff90ebe67ffa501b6f98112b69685be78a
@@ -38,18 +44,6 @@ T005:
     \ calls `python -m code.utils --validate-citations`, and exits with status\u202F\
     1 when that command fails, satisfying the task\u2019s specification."
   sig: 822287662e3a23d0bcbe9ceb12f562f95454bda43531e9eea55fdd8ab08a8e34
-T006:
-  c: false
-  h: d7f341a10eff7befdaf2fbebfe6b6d127819a78c9b9baeff0c32d15d8f115c3c
-  r: "The repository contains `code/data_loader.py` with a `DataChunk` class using\
-    \ `numpy.memmap` and an `EEGDataLoader` class, and the integration test file `tests/integration/test_data_loader.py`\
-    \ is present. However, there is no evidence that the test was actually executed\
-    \ and passed, and the test imports `EEGDataLoader` from `data_loader` (not `code.data_loader`),\
-    \ so the import would fail without additional path configuration. Without proof\
-    \ that the loader streams the OpenNeuro files, yields proper chunk objects, and\
-    \ keeps memory usage below 6\u202FGB in a real run, the task cannot be considered\
-    \ genui"
-  sig: faccff0f48fe9b74377aacb6d9a329ad09e635eb1a7c04bb390534c8e5e643ad
 T007:
   c: true
   h: 773f2ea6402fd2e8aecf230688d4d6dc787d7a86b6fce5cbb6007ea2fa395162

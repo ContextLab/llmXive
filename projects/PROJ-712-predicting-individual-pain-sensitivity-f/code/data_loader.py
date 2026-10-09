@@ -17,8 +17,8 @@ from typing import Dict, List, Optional, Tuple, Iterator, Any
 from dataclasses import dataclass
 import logging
 
-# Import from existing project utilities
-from utils import set_global_seed, setup_logging, compute_checksum
+# Import from the sibling utils module using a relative import
+from .utils import set_global_seed, setup_logging, compute_checksum
 
 # Configure logging correctly: use setup_logging with default level,
 # then obtain a module‑specific logger.
@@ -83,9 +83,10 @@ class DataChunk:
             raise RuntimeError("Memmap not initialised")
         return self.memmap
 
-    def slice(self,
-              channel_idx: Optional[int] = None,
-              sample_range: Optional[Tuple[int, int]] = None) -> 'DataChunk':
+    def slice(
+            self,
+            channel_idx: Optional[int] = None,
+            sample_range: Optional[Tuple[int, int]] = None) -> 'DataChunk':
         """
         Return a new DataChunk representing a view on a subset of the data.
         The underlying memmap is shared – no data is copied.
@@ -180,10 +181,11 @@ class EEGDataLoader:
     # ------------------------------------------------------------------
     # Core API
     # ------------------------------------------------------------------
-    def load_chunk(self,
-                   filename: str,
-                   shape: Tuple[int, int],
-                   dtype: np.dtype = np.float32) -> DataChunk:
+    def load_chunk(
+            self,
+            filename: str,
+            shape: Tuple[int, int],
+            dtype: np.dtype = np.float32) -> DataChunk:
         """
         Load a specific file as a memory‑mapped chunk.
 

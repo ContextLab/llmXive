@@ -11,7 +11,7 @@
   **Path(s)**: `data/raw/`, `data/processed/`, `artifacts/`, `state/`, `code/`, `tests/`, `scripts/create_dirs.sh`.  
   **Verification**: `scripts/create_dirs.sh` exits 0 and a CI test (`tests/integration/test_structure.py`) asserts that each of the six directories exists after script execution.
 
-- [X] **T002**  Initialise a Python 3.11 project and add a pinned `requirements.txt` containing `mne`, `scikit-learn`, `numpy`, `pandas`, `scipy`, `statsmodels`, `joblib`, `pyyaml`.  
+- [ ] **T002**  Initialise a Python 3.11 project and add a pinned `requirements.txt` containing `mne`, `scikit-learn`, `numpy`, `pandas`, `scipy`, `statsmodels`, `joblib`, `pyyaml`.  
   **Path**: `requirements.txt`.  
   **Verification**: `pip install -r requirements.txt` succeeds in CI; a unit test checks that the file contains at least the listed packages with version specifiers.
 
@@ -29,7 +29,7 @@
   **Path**: `scripts/pre-run-validation.sh`.  
   **Verification**: CI step runs the script; a failing citation causes the pipeline to abort.
 
-- [ ] **T006**  Implement `code/data_loader.py` with `DataChunk` handling via `numpy.memmap` to respect the ≈ 7 GB RAM limit. The loader streams the OpenNeuro ds003XXX files, creates chunk metadata, and yields chunk objects to downstream code.  
+- [ ] **T006**  Implement `code/data_loader.py` with `DataChunk` handling via `numpy.memmap` to respect the ≈ 7 GB RAM limit. The loader streams the OpenNeuro ds003XXX files, creates chunk metadata, and yields chunk objects to downstream code.   <!-- FAILED-IN-EXECUTION: scripts/run_test_data_loader.sh exit=2 -->
   **Verification**: integration test `tests/integration/test_data_loader.py` asserts that total RAM usage stays below 6 GB while processing the full dataset.
 
 - [X] **T007**  Create `code/config.py` exposing constants such as `EXPECTED_FEATURE_COLUMNS` (the ordered list of the 30 feature names) and default paths (`RAW_DIR`, `PROCESSED_DIR`, `ARTIFACTS_DIR`).  

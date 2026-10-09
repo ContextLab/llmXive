@@ -1,1 +1,1 @@
-# Package initialization for code module
+# Make the `code` directory a package; no additional initialisation required.

@@ -28,9 +28,9 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 Project Root: /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f
 Checking citations...
 
-2026-10-09 20:32:25 - ERROR - Missing required citations:
-2026-10-09 20:32:25 - ERROR -   - doi:10.1234/example1
-2026-10-09 20:32:25 - ERROR -   - doi:10.5678/example2
+2026-10-09 20:34:23 - ERROR - Missing required citations:
+2026-10-09 20:34:23 - ERROR -   - doi:10.1234/example1
+2026-10-09 20:34:23 - ERROR -   - doi:10.5678/example2
 
 - python code/main.py -> rc=1
 
@@ -69,7 +69,8 @@ Traceback (most recent call last):
 ModuleNotFoundError: No module named 'seaborn'
 
 - python -m pytest tests/ -v -> rc=2
-eturn _bootstrap._gcd_import(name[level:], package, level)
+lib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
 <frozen importlib._bootstrap>:1204: in _gcd_import
     ???
 <frozen importlib._bootstrap>:1176: in _find_and_load
@@ -86,7 +87,7 @@ code/diagnostics.py:14: in <module>
     import seaborn as sns
 E   ModuleNotFoundError: No module named 'seaborn'
 =========================== short test summary info ============================
-ERROR tests/integration/test_data_loader.py - NameError: name 'pathlib' is not defined
+ERROR tests/integration/test_data_loader.py
 ERROR tests/integration/test_feature_aggregation.py
 ERROR tests/integration/test_permutation.py
 ERROR tests/integration/test_pipeline.py
@@ -94,7 +95,7 @@ ERROR tests/test_config.py
 ERROR tests/unit/test_checksum_manager.py
 ERROR tests/unit/test_diagnostics.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 7 errors in 1.78s ===============================
+============================== 7 errors in 1.85s ===============================
 
 
 

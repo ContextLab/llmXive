@@ -1,6 +1,12 @@
 T001:
   task: 6d0018531938dcffc62f3c46a58b452389f45aa211fc9de8a8c7dd948fb0da0f
 T002:
+  reason: The `requirements.txt` exists and contains all eight required packages,
+    but none of them are pinned or carry version specifiers (only the unrequested
+    `psutil>=5.9` has one), directly contradicting the task's requirement for a "pinned
+    requirements.txt" and its verification criterion that a unit test check "version
+    specifiers" for the listed packages. Fix by adding version pins (e.g., `mne==1.x`,
+    `scikit-learn==1.x`, etc.) for all eight packages.
   task: 4274834363396d919fc3580bf4926c3d9572a790908ca0d554e34fa4f37e73fb
 T003:
   task: 423c6720804d9476f5a65040f465054037919d708a766fb9844a9bb445a83898
@@ -9,14 +15,8 @@ T004:
 T005:
   task: 3062f94623b24d54d3a2f2d6562b4b41e4747de9c8ea16af5148b5f7ba330c04
 T006:
-  reason: "The repository contains `code/data_loader.py` with a `DataChunk` class\
-    \ using `numpy.memmap` and an `EEGDataLoader` class, and the integration test\
-    \ file `tests/integration/test_data_loader.py` is present. However, there is no\
-    \ evidence that the test was actually executed and passed, and the test imports\
-    \ `EEGDataLoader` from `data_loader` (not `code.data_loader`), so the import would\
-    \ fail without additional path configuration. Without proof that the loader streams\
-    \ the OpenNeuro files, yields proper chunk objects, and keeps memory usage below\
-    \ 6\u202FGB in a real run, the task cannot be considered genui"
+  reason: 'Requested task execution failed; rerun successfully: scripts/run_test_data_loader.sh
+    exit=2'
   task: 42f061cf9adf5322174576f8f93633f4de6881d6acdcda079f65987ca7b4cdc9
 T007:
   task: 4bc8fd968b51892cef2f4bc6c7d5138d00169d623753611c80b6ed0bd0590d72
