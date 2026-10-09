@@ -19,183 +19,156 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 11 fabricated/simulated-result signal(s) — results are not real measurements: code/data_collection_trigger.py: synthetic/fake INPUT data not authorized by the spec — “…cution halted to prevent synthetic data fabrication.")…”; code/data_collection_trigger.py: synthetic/fake INPUT data not authorized by the spec — “…s this check or generate fake data.\n"             "=" * 70…”; code/data_collection_trigger.py: synthetic/fake INPUT data not authorized by the spec — “…ta requirement disabled. Synthetic data generation is permitted.…”; 3 run-book script(s) missing (plan/impl path mismatch): python code/extract_features.py --mode simulate --n 500 --signal; python code/extract_features.py --mode simulate --n 500 --null; python code/extract_features.py --mode real; 6 command(s) failed: python code/compute_metrics.py (rc=1); python code/analyze.py (rc=1); python code/visualize.py (rc=1)
+**Summary**: 20 fabricated/simulated-result signal(s) — results are not real measurements: code/data_collection_trigger.py: synthetic/fake INPUT data not authorized by the spec — “…cution halted to prevent synthetic data fabrication.")…”; code/data_collection_trigger.py: synthetic/fake INPUT data not authorized by the spec — “…s this check or generate fake data.\n"             "=" * 70…”; code/data_collection_trigger.py: synthetic/fake INPUT data not authorized by the spec — “…ta requirement disabled. Synthetic data generation is permitted.…”; 9 command(s) failed: python code/extract_features.py --mode simulate --n 500 --signal (rc=1); python code/extract_features.py --mode simulate --n 500 --null (rc=1); python code/compute_metrics.py (rc=1); 5 declared deliverable(s) absent: data/processed/clean_features.csv; data/processed/metrics.csv; data/processed/raw_facial_features.csv
 
 ## Failing / missing run-book commands
 
 - python -c "import openface; import librosa; import statsmodels; import synthpop; print('Dependencies OK')" -> rc=1
-    Traceback (most recent call last):
+
+Traceback (most recent call last):
   File "<string>", line 1, in <module>
 ModuleNotFoundError: No module named 'openface'
-- python code/extract_features.py --mode simulate --n 500 --signal -> rc=2 [script missing]
-    /home/runner/work/llmXive/llmXive/projects/PROJ-344-the-impact-of-emotional-expression-in-ai/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-344-the-impact-of-emotional-expression-in-ai/code/extract_features.py': [Errno 2] No such file or directory
-- python code/extract_features.py --mode simulate --n 500 --null -> rc=2 [script missing]
-    /home/runner/work/llmXive/llmXive/projects/PROJ-344-the-impact-of-emotional-expression-in-ai/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-344-the-impact-of-emotional-expression-in-ai/code/extract_features.py': [Errno 2] No such file or directory
+
+- python code/extract_features.py --mode simulate --n 500 --signal -> rc=1
+-344-the-impact-of-emotional-expression-in-ai/code/extract_features.py", line 237, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-344-the-impact-of-emotional-expression-in-ai/code/extract_features.py", line 197, in main
+    generated = generate_synthetic_media_batch(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-344-the-impact-of-emotional-expression-in-ai/code/synthetic_media_gen.py", line 119, in generate_synthetic_media_batch
+    subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: 'ffmpeg'
+
+- python code/extract_features.py --mode simulate --n 500 --null -> rc=1
+-344-the-impact-of-emotional-expression-in-ai/code/extract_features.py", line 237, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-344-the-impact-of-emotional-expression-in-ai/code/extract_features.py", line 197, in main
+    generated = generate_synthetic_media_batch(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-344-the-impact-of-emotional-expression-in-ai/code/synthetic_media_gen.py", line 119, in generate_synthetic_media_batch
+    subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: 'ffmpeg'
+
 - python code/compute_metrics.py -> rc=1
-    2026-10-03 07:37:11,126 - __main__ - ERROR - Input file not found: data/processed/features.csv
-2026-10-03 07:37:11,126 - __main__ - ERROR - Please ensure T013 and T014 have completed successfully.
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-344-the-impact-of-emotional-expression-in-ai/code/compute_metrics.py", line 246, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-344-the-impact-of-emotional-expression-in-ai/code/compute_metrics.py", line 218, in main
-    sys.exit(1)
-    ^^^
-NameError: name 'sys' is not defined
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-344-the-impact-of-emotional-expression-in-ai/code/compute_metrics.py", line 177, in main
+    log_pipeline_start("T015_compute_metrics")
+TypeError: log_pipeline_start() takes 0 positional arguments but 1 was given
+
 - python code/analyze.py -> rc=1
-    2026-10-03 07:37:12,131 - __main__ - ERROR - Input file not found: data/processed/features.csv
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-344-the-impact-of-emotional-expression-in-ai/code/analyze.py", line 319, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-344-the-impact-of-emotional-expression-in-ai/code/analyze.py", line 216, in main
+    logger.log_operation("analysis_failed", reason="Input file not found", path=args.input)
+    ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Logger' object has no attribute 'log_operation'
+
 - python code/visualize.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-344-the-impact-of-emotional-expression-in-ai/code/visualize.py", line 14, in <module>
-    logger = get_logger()
-             ^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-344-the-impact-of-emotional-expression-in-ai/code/visualize.py", line 12, in get_logger
-    return get_logger(__name__)
-           ^^^^^^^^^^^^^^^^^^^^
-TypeError: get_logger() takes 0 positional arguments but 1 was given
-- python code/extract_features.py --mode real -> rc=2 [script missing]
-    /home/runner/work/llmXive/llmXive/projects/PROJ-344-the-impact-of-emotional-expression-in-ai/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-344-the-impact-of-emotional-expression-in-ai/code/extract_features.py': [Errno 2] No such file or directory
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-344-the-impact-of-emotional-expression-in-ai/code/visualize.py", line 265, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-344-the-impact-of-emotional-expression-in-ai/code/visualize.py", line 256, in main
+    data = load_data(input_path)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-344-the-impact-of-emotional-expression-in-ai/code/visualize.py", line 98, in load_data
+    raise FileNotFoundError(f"Data file not found: {filepath}")
+FileNotFoundError: Data file not found: data/processed/clean_features.csv
+
+- python code/extract_features.py --mode real -> rc=1
+2026-10-09 22:17:13,480 - __main__ - INFO - Scanning data/raw for existing media.
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-344-the-impact-of-emotional-expression-in-ai/code/extract_features.py", line 237, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-344-the-impact-of-emotional-expression-in-ai/code/extract_features.py", line 213, in main
+    audio_files = find_audio_files("data/raw")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: find_audio_files() takes 0 positional arguments but 1 was given
+
 - python code/compute_metrics.py -> rc=1
-    2026-10-03 07:37:13,508 - __main__ - ERROR - Input file not found: data/processed/features.csv
-2026-10-03 07:37:13,508 - __main__ - ERROR - Please ensure T013 and T014 have completed successfully.
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-344-the-impact-of-emotional-expression-in-ai/code/compute_metrics.py", line 246, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-344-the-impact-of-emotional-expression-in-ai/code/compute_metrics.py", line 218, in main
-    sys.exit(1)
-    ^^^
-NameError: name 'sys' is not defined
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-344-the-impact-of-emotional-expression-in-ai/code/compute_metrics.py", line 177, in main
+    log_pipeline_start("T015_compute_metrics")
+TypeError: log_pipeline_start() takes 0 positional arguments but 1 was given
+
 - python code/analyze.py -> rc=1
-    2026-10-03 07:37:14,247 - __main__ - ERROR - Input file not found: data/processed/features.csv
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-344-the-impact-of-emotional-expression-in-ai/code/analyze.py", line 319, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-344-the-impact-of-emotional-expression-in-ai/code/analyze.py", line 216, in main
+    logger.log_operation("analysis_failed", reason="Input file not found", path=args.input)
+    ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Logger' object has no attribute 'log_operation'
+
 - python code/visualize.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-344-the-impact-of-emotional-expression-in-ai/code/visualize.py", line 14, in <module>
-    logger = get_logger()
-             ^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-344-the-impact-of-emotional-expression-in-ai/code/visualize.py", line 12, in get_logger
-    return get_logger(__name__)
-           ^^^^^^^^^^^^^^^^^^^^
-TypeError: get_logger() takes 0 positional arguments but 1 was given
 
-## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
-
-One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines and that MANY scripts call in DIFFERENT ways. Rewriting the definition to match one caller breaks the others — that is why this keeps failing. Fix the DEFINITION **once** so it is compatible with EVERY call site listed below: accept ``*args, **kwargs``, branch on what was actually passed, and NEVER raise on an unexpected call shape. For an auxiliary utility (e.g. logging), doing nothing on an unrecognized shape is fine. Do NOT edit the call sites — edit only the defining module.
-
-**CRITICAL — ADD, do not REPLACE.** Edit the defining module *in place*: ADD the missing methods/parameters and PRESERVE every function, method, and attribute that already exists. Do NOT rewrite the file from scratch and do NOT delete a definition to make room for another. Each round that deletes a previously-working symbol just moves the failure to that symbol next round — an infinite loop. The fix is cumulative: the module must satisfy ALL callers from ALL rounds simultaneously.
-
-**This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
-
-### `get_logger` — defined in `code/visualize.py`; called 18 way(s):
-
-- code/data_collection.py: logger = get_logger(__name__)
-- code/data_collection.py: self.logger = get_logger(self.__class__.__name__)
-- code/update_associational_framing.py: logger = get_logger("T017_framing")
-- code/extract_vocal.py: logger = get_logger(__name__)
-- code/utils.py: logger = get_logger()
-- code/generate_unified_report.py: logger = get_logger()
-- code/extract_facial.py: logger = get_logger()
-- code/compute_metrics.py: logger = get_logger(__name__)
-- code/benchmark.py: logger = get_logger(__name__)
-- code/monitor_resources.py: logger = get_logger(__name__)
-- code/visualize.py: return get_logger(__name__)
-- code/visualize.py: logger = get_logger()
-- code/logging_config.py: logger = get_logger()
-- code/data_loader.py: logger = get_logger(__name__)
-- code/validate_outputs.py: logger = get_logger()
-- code/data_collection_trigger.py: logger = get_logger(__name__)
-- code/export_figure.py: logger = get_logger(__name__)
-- code/analyze.py: logger = get_logger(__name__)
-
-Make `get_logger` in `code/visualize.py` accept ALL of the above.
-
-## ✅ KNOWN-GOOD REFERENCE — a fully tolerant logging module
-
-`code/visualize.py` keeps breaking across rounds because it mixes the stdlib `logging` module (whose `Logger.log(level, msg)` needs an INTEGER level and has no `to_json`) with a custom `LogEntry`. That hybrid can never satisfy all callers. Replace the contents of `code/visualize.py` with the self-contained reference below — it ALREADY defines every symbol callers need (`get_logger`, `log_operation`, `ReproducibilityLogger`, `LogEntry`), returns a `LogEntry` (with `.to_json()`) from direct `log_operation(...)` calls, supports `@log_operation`, and resolves any `.info`/`.debug`/`.warning` via `__getattr__`. Do NOT reach for the stdlib `logging` module again. Adjust only if a call site listed above needs a field it lacks.
-
-```python
-"""Reproducibility logging — fully tolerant; raises on nothing."""
-from __future__ import annotations
-
-import functools
-import json
-from dataclasses import asdict, dataclass, field
-from datetime import datetime
-from typing import Any
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-344-the-impact-of-emotional-expression-in-ai/code/visualize.py", line 265, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-344-the-impact-of-emotional-expression-in-ai/code/visualize.py", line 256, in main
+    data = load_data(input_path)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-344-the-impact-of-emotional-expression-in-ai/code/visualize.py", line 98, in load_data
+    raise FileNotFoundError(f"Data file not found: {filepath}")
+FileNotFoundError: Data file not found: data/processed/clean_features.csv
 
 
-@dataclass
-class LogEntry:
-    operation: str = ""
-    parameters: dict = field(default_factory=dict)
-    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+## Declared deliverables still missing
 
-    def to_json(self) -> str:
-        return json.dumps(asdict(self), ensure_ascii=False, default=str)
+- data/processed/clean_features.csv
+- data/processed/metrics.csv
+- data/processed/raw_facial_features.csv
+- data/processed/raw_vocal_features.csv
+- data/processed/synthetic_features.csv
 
+## Declared deliverables NOT produced — make the run-book produce them
 
-class ReproducibilityLogger:
-    """Accepts ANY call shape and never raises.
+Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
-    Do NOT subclass or delegate to the stdlib ``logging`` module: its
-    ``log(level, msg)`` needs an integer level and has no ``to_json`` — that is
-    exactly what keeps breaking. This logger is self-contained.
-    """
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        self.name = args[0] if args else kwargs.get("name", "reproducibility")
-        self.entries: list = []
-
-    def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
-        op = args[0] if args else kwargs.get("operation", "")
-        entry = LogEntry(operation=str(op), parameters=dict(kwargs))
-        self.entries.append(entry)
-        return entry
-
-    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
-    def __getattr__(self, name: str):
-        def _noop(*args: Any, **kwargs: Any) -> None:
-            return None
-        return _noop
-
-
-_GLOBAL_LOGGER: "ReproducibilityLogger | None" = None
-
-
-def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
-    global _GLOBAL_LOGGER
-    if _GLOBAL_LOGGER is None:
-        _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
-    return _GLOBAL_LOGGER
-
-
-def log_operation(*args: Any, **kwargs: Any) -> Any:
-    """Dual-purpose: a decorator (@log_operation) OR a direct logging call.
-
-    The direct-call path ALWAYS returns a LogEntry (callers use .to_json());
-    decorator use returns the wrapped function. Never return a bare function
-    from the direct-call path.
-    """
-    if len(args) == 1 and callable(args[0]) and not kwargs:
-        func = args[0]
-
-        @functools.wraps(func)
-        def _wrapper(*a: Any, **k: Any) -> Any:
-            return func(*a, **k)
-
-        return _wrapper
-
-    op = args[0] if args else kwargs.pop("operation", "operation")
-    return get_logger().log(op, **kwargs)
-```
-
-## ⚠ CROSS-SCRIPT DATA CONTRACT — make the PRODUCER write what consumers read
-
-One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a file: a CONSUMER requires column/key names (or a file) that the PRODUCER did not write. The traceback you saw shows only the CONSUMER's EXPECTATION — never the producer's ACTUAL output — which is why this keeps failing. Below is the REAL schema each producer wrote on disk (read from the actual file) versus what the consumers require. Pick ONE canonical schema and make the **PRODUCER** write exactly the columns/keys the consumers read (preferred when one producer feeds several consumers), editing the producer IN PLACE. Do NOT fake or stub the data.
-
-**This list is CUMULATIVE across every fix round** — keep satisfying a contract you already fixed while you fix the rest; do not drop a column merely because it is absent from this round's traceback.
-
-### `data/processed/features.csv`
-
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/extract_vocal.py`, `code/extract_facial.py`, `code/compute_metrics.py`, `code/analyze.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/processed/features.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/extract_vocal.py`, `code/extract_facial.py`, `code/compute_metrics.py`, `code/export_figure.py`, `code/analyze.py`.
+- `data/processed/clean_features.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/compute_metrics.py` — IS a run-book command
+    - `code/visualize.py` — IS a run-book command
+  Make ONE of these WRITE `data/processed/clean_features.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/metrics.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/analyze.py` — IS a run-book command
+    - `code/benchmark.py` — NOT invoked by the run-book
+    - `code/compute_metrics.py` — IS a run-book command
+    - `code/extract_facial.py` — NOT invoked by the run-book
+    - `code/extract_features.py` — IS a run-book command
+    - `code/generate_unified_report.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/metrics.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/raw_facial_features.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/extract_facial.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/raw_facial_features.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/raw_vocal_features.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/extract_vocal.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/raw_vocal_features.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/synthetic_features.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/compute_metrics.py` — IS a run-book command
+    - `code/extract_facial.py` — NOT invoked by the run-book
+    - `code/extract_vocal.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/synthetic_features.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

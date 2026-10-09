@@ -1,3 +1,54 @@
+T001:
+  c: false
+  h: 88606c3672a5dec5f411d82611025f2b60b59d0a95217ce27f8fdcc00adc63d9
+  r: "The evidence shows the top\u2011level project directories (`code/`, `data/`,\
+    \ `tests/`, `outputs/`, `state/`) exist, but it does not confirm the required\
+    \ sub\u2011directories `data/raw`, `data/processed`, `data/features`, `tests/contract`,\
+    \ `tests/unit`, and `tests/integration` are present. Without explicit evidence\
+    \ of those folders, the prescribed `mkdir -p \u2026` structure is not fully realized."
+  sig: 9f7f7361ef756597bbcfd097e883c1aff10ded0dec164219b725fd5feecaadd2
+T002:
+  c: true
+  h: 462d4402890de02c3d213b5fdb3799ddaae6aea29275eca816dc847e9f68bba9
+  r: "Checked `code/requirements.txt` (494\u202Fbytes) which includes the eight required\
+    \ packages\u2014openface, librosa, scikit-learn, statsmodels, pandas, matplotlib,\
+    \ seaborn, synthpop\u2014each with an explicit `==` version pin, satisfying the\
+    \ task specification."
+  sig: 54e59ee74de1a328441923064d1a4a92a2f71aa8e8f323684f2b284e88010f5f
+T003:
+  c: false
+  h: bc4788a47e466701db2d70f2796c94dd65815ebbbc55e0ccb2e5b0b5c32dee18
+  r: The evidence shows only the project root path; there are no listed `.black` or
+    `.flake8` configuration files in that directory, so the required linting/formatting
+    config files are missing.
+  sig: 854751fab4f02b24cadcb32826aaf1d0e80def97cb7a7ec7f9dbb254e660e52e
+T004:
+  c: true
+  h: c8b6c4bebc2998602813040a1d61304116486c0b41b5fce7d21189ac6588930c
+  r: "Checked the two required YAML files \u2013 `specs/001-emotional-synchrony-trust/contracts/dataset_schema.yaml`\
+    \ (resolved to the canonical location) and `contracts/feature_extraction_schema.yaml`.\
+    \ Both exist, are non\u2011empty, and contain concrete JSON\u2011Schema definitions\
+    \ matching the expected fields for the dataset and feature extraction contracts.\
+    \ No placeholders or stubs are present."
+  sig: f498620275deb6878411b2847c96ac8a0743a2c8210798bccd8eb3687d267390
+T005:
+  c: true
+  h: e5598f259a4154ac4e7fc7ed9c94e15a33d30f37fff75ff31254d5e316c17e3a
+  r: "Checked `code/config.py` for required schema paths, metadata field lists, and\
+    \ modality/feature column definitions, and `code/validators.py` for functions\
+    \ that load schemas, verify metadata presence, enforce modality constraints, and\
+    \ perform full dataset and feature validation per FR\u2011001. All required artifacts\
+    \ exist, are non\u2011empty, and implement the specified validation logic."
+  sig: c8c20629b8f09a1f7cbd1bd1eaba60c39e529c8c90bd82b2750b1022ca68d314
+T006:
+  c: true
+  h: 60c8a585c185036a0b2b0e8fcd37757941ea50085893aaf9b926427db811ccf5
+  r: "Checked the `state/` directory (present with placeholder and log files) and\
+    \ the `code/logging_config.py` file (2\u202FKB, defines a logger with the required\
+    \ `'%(asctime)s - %(name)s - %(levelname)s - %(message)s'` format and state\u2011\
+    tracking helper functions). All required artifacts exist and contain the expected\
+    \ deterministic logging configuration."
+  sig: e984d8a54cda2ecb79805d99129b369ac84f99a67547a9b33aa226a472cfe3e8
 T010:
   c: false
   h: b184b0b138fc901f1c30e150d2a190a4669a8dfb89fe10129dd69b97ad625b49

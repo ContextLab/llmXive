@@ -1,0 +1,111 @@
+T001:
+  reason: "The evidence shows the top\u2011level project directories (`code/`, `data/`,\
+    \ `tests/`, `outputs/`, `state/`) exist, but it does not confirm the required\
+    \ sub\u2011directories `data/raw`, `data/processed`, `data/features`, `tests/contract`,\
+    \ `tests/unit`, and `tests/integration` are present. Without explicit evidence\
+    \ of those folders, the prescribed `mkdir -p \u2026` structure is not fully realized."
+  task: 47b7f95934f799c10f3d323b935ce9c8058d52befb791a12ce7853a77c29be01
+T002:
+  task: 0a483c32bb1726b8f6f5c77d53bad592f6917c7ac45dfeb7191f9d358bb624e3
+T003:
+  reason: The evidence shows only the project root path; there are no listed `.black`
+    or `.flake8` configuration files in that directory, so the required linting/formatting
+    config files are missing.
+  task: 3fa8ce2bf166a7ffeed47f92b0435a555554982ceaaa14005b72744289953f43
+T004:
+  task: d6c1ea52fdcafbf44a7b1ace4a3a1c2f080eb045812ca47cd1228a7e2e7691fd
+T005:
+  task: 413a5d8575479cc3077bdd445993b26fb9705c81f1fb439fc261707e908c1146
+T006:
+  task: 4fd8ec85e2ee7db3169cbde69585327f89e374f237933d235814c3ef7078741b
+T007:
+  task: 58063e85149326158ffad93ae0d288288d39a81267584364c4d83627a45b9951
+T010:
+  task: b59f13a40be2328e5a60ee962d5d445ee681eff17c49b170bad52a519eecd00b
+T011:
+  task: 98018a294d4c7c264c7db7de0087bda29525eb10db99bb1bdf13e24103adc8ed
+T012_fetch:
+  task: 5f0ab5c482e3b0722deffe99f452809b1265915b7483b4c8f584eeeb7e6cbab0
+T012_gen:
+  task: 7a78e5bb0c0a489eae4c2340878e6207352c1156f3c9294bc3d92121a1e5b906
+T012_media:
+  task: c35e0507f4eb372bb1c816a67d7ce05b1df346c5cc7e70dea5f2530bddbce892
+T012_trigger_collection:
+  reason: 'declared artifact(s) missing/empty/invalid: data/irb_request_template.md,
+    docs/data_collection_protocol.md, data/study_log.md, state/pipeline_status.yaml'
+  task: dbff301957618c7845537850c3207f94d57c87cba1c7f4250e92acb933bbff13
+T012b:
+  reason: 'declared artifact(s) missing/empty/invalid: data/irb_request_template.md'
+  task: 12965e15e626b6a0e92f08824ee94da588cc7be4216e5aec6c521015e419d56d
+T012c_doc:
+  reason: 'declared artifact(s) missing/empty/invalid: docs/data_collection_protocol.md'
+  task: f73ec936bf0aeeba326413567579f4698f160ed86c1ddd1e6568f7f1b91e85cb
+T013:
+  task: 4f9576d6b8a38f9531713aed36f00d3a8c76b424da1e499ace170ed1073db008
+T013_clean:
+  reason: 'declared artifact(s) missing/empty/invalid: code/filter_features.py, data/processed/raw_facial_features.csv,
+    data/processed/clean_facial.csv'
+  task: e9e91038e13c1324055c00087830c479166f8fbf5c4e4131c8b67514337bf935
+T014:
+  task: e9cedc9739ed5fed47a6804718be22eafc6a6a889e1abff71d12f69494af06a2
+T014_clean:
+  reason: 'declared artifact(s) missing/empty/invalid: code/filter_features.py, data/processed/raw_vocal_features.csv,
+    data/processed/clean_vocal.csv'
+  task: 5e3a77e78a6b079f702ecd542140b9add74d0115c7a33d13110a6b6c69ce7b06
+T015:
+  task: 1724b5580fba0e23c348229e2143257c5e1e30aa2347059982f22e35adeb3e0a
+T015_merge:
+  reason: 'declared artifact(s) missing/empty/invalid: code/merge_features.py, data/processed/clean_facial.csv,
+    data/processed/clean_vocal.csv, data/processed/clean_features.csv'
+  task: cdf008bbcf84304e2becbc4a36a48e58d99fe1afda777f478e30a22b03eef041
+T016:
+  task: f3d7aa51b3fba02f816fe0f324a8675bfe4ac06766b2934e0ebd17b464082402
+T016_report:
+  reason: 'declared artifact(s) missing/empty/invalid: outputs/correlation_report.csv,
+    outputs/unified_analysis_report.md'
+  task: f8a9165abe70b8e652e03df24ba7f452d723f90fde98661c9f555d035722adf7
+T017:
+  task: 1ce982c20b863af2c6e2b331e1085242ad0df5e356b1505698d4bc3c96c82aa2
+T020:
+  task: 2e9d53919c95df45c0b3b04d03411f7c39a2fcb860b72f1c41b24874ec9946ac
+T021:
+  task: 6a2c8a7ed925b81dcf7313ea581b6acc4ac990b39fda2656c374a138edd4e5a9
+T022:
+  task: e0e5c4241b72333e87f1fb354a4fb8548bf1392c798f48d83d3d3e5ec3c5872b
+T023_report:
+  reason: 'declared artifact(s) missing/empty/invalid: outputs/unified_analysis_report.md'
+  task: 5b5a67febf4a53881a06c3ffc0e83651c1294c5a0f9dde55156411cdefeb7334
+T024:
+  task: 702647cda031bb6556df90f255fbf00bc1fca0d0b3c8f842458b83c0de6deeaf
+T025_exec:
+  task: 8d668a3affbce9cbc122fe7188b99475683854862c5e03d2ea8b338b1f24661d
+T025_impl:
+  task: e556bc7a434bb0c406e784a16b0c83f617f0889b8ef368d4876912722056815e
+T026:
+  task: 09068735cdf2633d687220f34835fb1b301a5f54bc53ba9ca69bd1f7927a8c3c
+T027:
+  task: 08d7a8900ee17201bec753441fbd0af40d2af985caa580b543e55d48db285d71
+T029_gen:
+  reason: 'declared artifact(s) missing/empty/invalid: code/checksums.py'
+  task: ba8c831dd8e1925f17bbe50a8965ef063c6300fe3734a987149bae0fd07542d5
+T029_int:
+  task: c47cd807d2632106f4ebb85bb64c12277550be6e6d40eb75d7ffd28adbca8aaa
+T029_store:
+  reason: 'declared artifact(s) missing/empty/invalid: state/raw_data_hashes.json,
+    state/feature_hashes.json'
+  task: 9d9fa163e376abd7740d1297893704ee3c403da4dfc3ce80c15d55ed98c10b80
+T030_gen:
+  reason: 'declared artifact(s) missing/empty/invalid: code/checksums.py'
+  task: 83e6aa1ca1bbd5367ad9747ec482a96f901a653cbe96f5439f2e307984098c21
+T030_int:
+  task: b6678dd2cf252d5d1bbe89031f2495fdad7ea2f26423a5ace796af792efa048d
+T030_store:
+  reason: 'declared artifact(s) missing/empty/invalid: state/feature_hashes.json'
+  task: 4a9acd219e0f4abf81b71bf1db683b1d805f6edfa5083f6ebf5b8267e526af7d
+T031:
+  task: f02cf3adfd0caf958afd4a5c44b3bd88c86335e43f8d22758347f5e1708ce943
+T032:
+  reason: 'declared artifact(s) missing/empty/invalid: code/audit_trail.py, state/audit_log.md'
+  task: 4c13cfbbac647087f4e9348e5d48afbcf3002ddec968c3abebfcd25cac682486
+T033:
+  task: 4514ae80f8f4ee11ab6d495ca1fae616a033b27a8373ca45c9c794d4cb28a627
