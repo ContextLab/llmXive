@@ -162,6 +162,10 @@ def _fetch_url_text(value: str, *, timeout: float) -> tuple[str, str]:
         return "", ""
     try:
         final_url = r.url
+        if r.status_code != 200:
+            logger.warning("grounding retrieve: HTTP %s is not source evidence: %s",
+                           r.status_code, final_url)
+            return "", final_url
         ctype = r.headers.get("content-type", "")
         chunks: list[bytes] = []
         total = 0

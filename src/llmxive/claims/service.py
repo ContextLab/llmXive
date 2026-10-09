@@ -251,6 +251,17 @@ def _process_planning_document(
     return smoothed, [], GateReport()
 
 
+def _refresh_legacy_grounding(carried, *, project_id, backend, model, repo_root):
+    stale = [claim for claim in carried.values()
+             if (claim.evidence or {}).get("entailment_status") == "grounded"
+             and (claim.evidence or {}).get("source_validation_version") != 2]
+    if stale:
+        for claim in resolve_registered_claims(stale, project_id=project_id,
+                backend=backend, model=model, repo_root=repo_root):
+            carried[claim.claim_id] = claim
+    return carried
+
+
 def process_document(
     text: str,
     *,
@@ -325,6 +336,8 @@ def process_document(
             prior = _claim_store.get(project_id, cid, repo_root=repo_root)
             if prior is not None:
                 carried[cid] = prior
+        carried = _refresh_legacy_grounding(carried, project_id=project_id,
+            backend=backend, model=model, repo_root=repo_root)
         text = drop_orphan_pointers(text, set(carried))
         rendered, gate_report = render(text, carried, placeholder_verified=True)
         return rendered, [], gate_report
@@ -386,6 +399,8 @@ def process_document(
             prior = _claim_store.get(project_id, cid, repo_root=repo_root)
             if prior is not None:
                 claims_by_id[cid] = prior
+    claims_by_id = _refresh_legacy_grounding(claims_by_id, project_id=project_id,
+        backend=backend, model=model, repo_root=repo_root)
     # Drop orphan pointers (no backing registered claim) so they never render as a
     # spurious "unknown claim" marker — durable placeholders (with a claim) are kept.
     text_with_pointers = drop_orphan_pointers(text_with_pointers, set(claims_by_id))

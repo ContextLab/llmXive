@@ -126,7 +126,12 @@ def assess(claim: str, doc: Any, *, backend: Any, model: str | None,
         reply = getattr(resp, "text", "") or ""
         if not reply.strip():
             raise ValueError("empty entailment reply")
-        return _parse_verdict(reply)
+        verdict = _parse_verdict(reply)
+        if verdict.status in {"grounded", "contradicted"}:
+            quote = " ".join(verdict.evidence.split())
+            if not quote or quote not in " ".join(joined.split()):
+                return Verdict("not_found", "", "supporting quote is absent from retrieved passages")
+        return verdict
     except Exception as exc:
         logger.warning("grounding assess: entailment failed (%s); -> not_found", exc)
         return Verdict("not_found", "", f"entailment error: {type(exc).__name__}")
