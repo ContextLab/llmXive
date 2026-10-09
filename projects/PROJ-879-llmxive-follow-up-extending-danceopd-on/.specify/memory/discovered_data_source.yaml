@@ -1,12 +1,12 @@
 status: none
-intent: pip install torchvision laion400m download ImageNet-1K and LAION-400M datasets
-  for routing label generation
+intent: download DanceOPD teacher routing dataset ImageNet LAION prompts python package
+  dataset
 required_fields:
 - image_id
-- image_path_or_url
+- image_path
 - prompt_text
 - routing_label
-- expert_field_id
-cache_key: 32540f2d84fea00db0143bcd1e92347b4e4a33ad81d22780b1c18e86a94f8fa9
-searched_at: '2026-10-09T20:24:17.429579+00:00'
+- expert_id
+cache_key: 9257c6ea08ce29432aa0b00edfa5e98f473449ad8e6c351bd998f9e41a448033
+searched_at: '2026-10-09T20:26:33.916905+00:00'
 retry_count: 1
