@@ -122,9 +122,12 @@ class PaperImplementerAgent(SlashCommandAgent):
         memory = ctx.project_dir / "paper/.specify/memory"
         feedback = []
         for path in [memory / "task_verify.feedback.yaml", memory / "proofreader_flags.yaml",
-                     memory / "latex_build_result.yaml", memory / "implementation_failure.yaml", *sorted((ctx.project_dir / "paper/.tasks").glob("*.log"))]:
+                     memory / "implementation_failure.yaml", *sorted((ctx.project_dir / "paper/.tasks").glob("*.log"))]:
             if path.is_file():
                 feedback.append(f"## {path.relative_to(ctx.project_dir)}\n{path.read_text()[-12000:]}")
+        build_feedback = memory / "latex_build_result.yaml"
+        if build_feedback.is_file():
+            feedback.append(f"## LaTeX build result\n{build_feedback.read_text()[-12000:]}")
         user = "\n\n".join([
             f"# Selected task (implement ONLY this task)\n{task}",
             *(f"# {key}\n{value}" for key, value in extras.items()),
