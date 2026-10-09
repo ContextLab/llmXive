@@ -36,11 +36,12 @@ from typing import Any
 
 from llmxive.backends.base import ChatMessage
 from llmxive.backends.router import REASONING_MAX_TOKENS, chat_with_fallback
+from llmxive.claims.task_requirements import read_task_document
 from llmxive.project_paths import _ROOTED_PATH_RE
 from llmxive.project_paths import declared_paths as _declared_paths
 from llmxive.project_paths import resolve_project_path as _evidence_path
 from llmxive.speckit.task_lines import TASK_ID_RE as _TASK_ID_RE
-from llmxive.speckit.task_lines import mask_fenced_code, task_continuation
+from llmxive.speckit.task_lines import TaskFormatError, mask_fenced_code, task_continuation
 
 LOGGER = logging.getLogger(__name__)
 
@@ -52,6 +53,11 @@ A different agent (the implementer) has CLAIMED it completed a task. Your job is
 decide — skeptically, from the ACTUAL evidence — whether the work is GENUINELY done
 and matches the task's stated requirements. Do NOT trust the claim; trust the
 artifacts.
+
+Judge the selected task's requirements. Use the full specification to check
+consistency, but do not demand deliverables assigned to other tasks: a sieve
+library task need not also implement the later CLI, plots, or manuscript. Final
+project execution and research review separately enforce the whole study.
 
 Return VERDICT: COMPLETE only if ALL hold:
   - the artifact(s) the task requires actually EXIST and are non-empty;
@@ -380,7 +386,10 @@ def verified_done_keys(project_dir: Path, tasks_path: Path) -> set[str]:
         spec = (tasks_path.parent / "spec.md").read_text()
     except OSError:
         spec = ""
-    lines = tasks_path.read_text().splitlines()
+    try:
+        lines = read_task_document(tasks_path, project_dir).splitlines()
+    except TaskFormatError:
+        return set()  # the implementer routes the corrupt document back to tasking
     verified = set()
     for i, key in task_keys(lines).items():
         match = _TASK_LINE_RE.match(lines[i])
@@ -479,7 +488,7 @@ def run_verification_pass(
 
     project_id, repo_root = _resolve_ids(project_dir, project_id, repo_root)
 
-    text = tasks_path.read_text(encoding="utf-8")
+    text = read_task_document(tasks_path, project_dir, project_id=project_id, repo_root=repo_root)
     lines = text.splitlines()
     try:
         reject_counts = yaml.safe_load(state_path.read_text(encoding="utf-8")) or {}
@@ -711,7 +720,7 @@ def drain_under_review(
     if state_path is None:
         state_path = project_dir / ".specify" / "memory" / "task_verify.yaml"
 
-    text = tasks_path.read_text(encoding="utf-8")
+    text = read_task_document(tasks_path, project_dir, project_id=project_id, repo_root=repo_root)
     lines = text.splitlines()
     try:
         reject_counts = yaml.safe_load(state_path.read_text(encoding="utf-8")) or {}

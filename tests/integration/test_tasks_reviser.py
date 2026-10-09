@@ -218,3 +218,27 @@ def test_paper_tasks_reviser_isolates_paper_side(tmp_path: Path):
 def test_tasks_reviser_names():
     assert TasksReviser.name == "tasker"
     assert PaperTasksReviser.name == "paper_tasker"
+
+
+@pytest.mark.parametrize('paper', [False, True])
+def test_task_revision_guards_do_not_rewrite_read_only_context(tmp_path, monkeypatch, paper):
+    from llmxive.convergence.revisers import _self_consistency
+    prefix = 'projects/PROJ-901-study/' + ('paper/' if paper else '') + 'specs/001-study/'
+    tasks_key = prefix+'tasks.md'
+    artifacts = {tasks_key: '- [ ] T001 Original task',
+                 prefix+'spec.md': 'Exact original p=5,7,11 requirement',
+                 prefix+'plan.md': 'Original plan with runtime requirement'}
+    seen = []
+    def guards(items, **kwargs):
+        seen.extend(items)
+        return {key: text+'\n[checked]' for key, text in items.items()}
+    monkeypatch.setattr(_self_consistency, '_clean_citations', guards)
+    backend = _FakeBackend(response_text=json.dumps({'new_tasks_md': '- [ ] T001 Revised task', 'responses': []}))
+    cls = PaperTasksReviser if paper else TasksReviser
+    reviser = cls(backend=backend, repo_root=_REPO_ROOT, project_id='PROJ-901-study',
+                  summarize_cache_dir=tmp_path/'summarize')
+    updated, _ = reviser.revise(artifacts, [])
+    assert seen == [tasks_key]
+    assert updated[prefix+'spec.md'] == artifacts[prefix+'spec.md']
+    assert updated[prefix+'plan.md'] == artifacts[prefix+'plan.md']
+    assert '[checked]' in updated[tasks_key]

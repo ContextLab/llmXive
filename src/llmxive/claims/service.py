@@ -279,6 +279,16 @@ def process_document(
 
     Never raises — on extraction failure returns ``(text, [], GateReport())``.
     """
+    if Path(artifact_path).name == "tasks.md":
+        # A task says what must be built/tested, not what an experiment found.
+        # Citations are checked by the caller's reference pass; results and
+        # manuscripts retain full claim verification. Never erase task criteria
+        # or turn them into opaque factual-value pointers.
+        from llmxive.claims.task_requirements import restore_requirements
+        restored, missing = restore_requirements(text, artifact_path=artifact_path,
+            project_id=project_id, repo_root=repo_root)
+        return restored, [], GateReport(blocked=bool(missing), unresolved_markers=missing)
+
     if is_planning_stage(stage_label):
         return _process_planning_document(
             text, artifact_path=artifact_path, project_id=project_id,

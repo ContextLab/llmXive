@@ -61,7 +61,8 @@ class ImplementerAgent(SlashCommandAgent):
     def mechanical_step(self, ctx: SlashCommandContext) -> dict[str, Any]:
         feature_dir = self._feature_dir(ctx)
         tasks_path = feature_dir / "tasks.md"
-        tasks_text = tasks_path.read_text(encoding="utf-8") if tasks_path.exists() else ""
+        from llmxive.claims.task_requirements import read_task_document
+        tasks_text = read_task_document(tasks_path, ctx.project_dir, persist=True)
         validate_open_tasks(tasks_text)
         next_task = self._next_incomplete(tasks_text)
         completed = [m.group("id") for m in _TASK_RE.finditer(mask_fenced_code(tasks_text))
