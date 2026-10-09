@@ -112,3 +112,46 @@ def test_empty_package_marker_is_written_and_imported_as_a_real_package(tmp_path
         project_dir=ctx.project_dir, script_relpath='code/check_package.py', timeout_s=120)
     assert result.ok, result.stderr
     assert result.stdout.strip() == '42'
+
+
+@pytest.mark.parametrize('existing,proposed', [
+    ('docs/API.md', 'docs/api.md'),
+    ('docs/API.md', 'Docs/new.md'),
+    ('docs/caf\u00e9.md', 'docs/cafe\u0301.md'),
+])
+def test_case_collision_preserves_existing_bytes_and_reaches_retry_prompt(tmp_path, existing, proposed):
+    ctx, feature, tasks = _context(tmp_path)
+    original = ctx.project_dir / existing
+    original.parent.mkdir(parents=True)
+    original.write_bytes(b'original scientific evidence\n')
+    agent = ImplementerAgent()
+    _write(agent, ctx, feature, tasks, [{'path': proposed, 'contents': 'replacement'}])
+    assert original.read_bytes() == b'original scientific evidence\n'
+    assert '- [ ] T002' in tasks.read_text()
+    diagnosis = (ctx.project_dir/'code/.tasks/T002.artifact-write.log').read_text()
+    assert 'case-insensitive path collision' in diagnosis
+    assert 'Use the existing spelling or a distinct filename' in diagnosis
+    assert diagnosis in agent.build_prompt(ctx, agent.mechanical_step(ctx))[-1].content
+    assert [p for p in original.parent.iterdir() if p.is_file()] == [original]
+
+
+def test_existing_exact_filename_remains_editable(tmp_path):
+    ctx, feature, tasks = _context(tmp_path)
+    target = ctx.project_dir/'docs/API.md'
+    target.parent.mkdir()
+    target.write_text('old')
+    _write(ImplementerAgent(), ctx, feature, tasks, [{'path':'docs/API.md', 'contents':'updated'}])
+    assert target.read_text() == 'updated'
+    assert not (ctx.project_dir/'code/.tasks/T002.artifact-write.log').exists()
+
+
+def test_same_proposal_cannot_create_two_case_aliases(tmp_path):
+    ctx, feature, tasks = _context(tmp_path)
+    _write(ImplementerAgent(), ctx, feature, tasks, [
+        {'path':'docs/API.md', 'contents':'first variant'},
+        {'path':'docs/api.md', 'contents':'conflicting variant'},
+    ])
+    assert (ctx.project_dir/'docs/API.md').read_text() == 'first variant'
+    assert len(list((ctx.project_dir/'docs').iterdir())) == 1
+    assert '- [ ] T002' in tasks.read_text()
+    assert 'case-insensitive path collision' in (ctx.project_dir/'code/.tasks/T002.artifact-write.log').read_text()

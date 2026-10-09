@@ -106,6 +106,30 @@ def test_known_runtime_verifier_keeps_live_checks_but_unknown_modules_stay_conse
     }
 
 
+@pytest.mark.parametrize("path", [
+    "projects/PROJ-715/specs/001-study/API_analysis.case-preserved.md",
+    "projects/PROJ-715/specs/001-study/README.md",
+    "projects/PROJ-008/.gitattributes",
+    ".github/workflows/repair.yml",
+])
+def test_project_documentation_and_repair_routing_keep_runtime_coverage(path):
+    assert load("select_checks").select([path]) == {
+        "offline": True, "live": True, "references": False,
+    }
+
+
+@pytest.mark.parametrize("path", [
+    "projects/PROJ-715/code/main.py", "projects/PROJ-715/requirements.txt",
+    "projects/PROJ-715/config.yaml", "projects/PROJ-715/contracts/result.schema.json",
+    "tests/fixtures/reference.md", "projects/unclassified/README.md",
+    ".github/workflows/future.yml",
+])
+def test_unknown_project_and_platform_inputs_keep_external_coverage(path):
+    assert load("select_checks").select([path]) == {
+        "offline": True, "live": True, "references": True,
+    }
+
+
 def test_reference_local_import_closure_stays_in_selected_paths():
     """Includes function-local imports and package initialization, not just top-level imports."""
     import ast

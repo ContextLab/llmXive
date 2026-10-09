@@ -7,15 +7,17 @@ This directory (`specs/001-physical-activity-levels-and-mood-variab/`) contains 
 ### Directory Contents
 
 - `contracts/`: Schema definitions for data artifacts (YAML).
-- `API_analysis.md`: API documentation for `code/analysis.py`.
+- `API_analysis.case-preserved.md`: API documentation for `code/analysis.py`.
 - `DataDictionary_daily_aggregates.md`: Data dictionary for `data/processed/daily_aggregates.csv`.
 - `README.md`: This file.
 
 ### Documentation Updates
 
-- **API Documentation**: See `API_analysis.md` for detailed function signatures and usage of the analysis module.
+- **API Documentation**: See `API_analysis.case-preserved.md` for detailed function signatures and usage of the analysis module.
 - **Data Dictionary**: See `DataDictionary_daily_aggregates.md` for the schema and semantics of the primary analysis dataset.
 
 ### Legacy Cleanup
 
 Any root-level `docs/` directory that previously existed has been deprecated to prevent path conflicts. All documentation for this feature now resides within this `specs/` directory or in the project root `README.md`.
+
+Both historical API descriptions are retained: `API_analysis.case-preserved.md` and `api_analysis.md`. They contain different function signatures. The filename change prevents a case-insensitive checkout from overwriting one version; it does not establish which description matches the implementation.

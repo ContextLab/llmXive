@@ -350,6 +350,16 @@ class ImplementerAgent(SlashCommandAgent):
                 except ValueError:
                     refuse(f"[implementer] refused out-of-project path: {relpath!r}")
                     continue
+                from llmxive.project_paths import casefold_write_conflict
+
+                conflict = casefold_write_conflict(project_root, target)
+                if conflict is not None:
+                    refuse(
+                        f"[implementer] refused case-insensitive path collision: {relpath!r} "
+                        f"aliases existing {str(conflict.relative_to(project_root))!r}. "
+                        "Use the existing spelling or a distinct filename."
+                    )
+                    continue
                 # Skip if target is an existing directory (LLM bug).
                 if target.exists() and target.is_dir():
                     refuse(f"[implementer] skipping directory path: {relpath!r}")
