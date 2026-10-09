@@ -957,7 +957,7 @@
     "human_contributors": 3432,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 17220,
+    "total_contributions": 17221,
     "total_contributors": 3442
   },
   "contributors": [
@@ -4843,6 +4843,15 @@
       "contribution_count": 2,
       "kind": "human",
       "name": "openai.gpt-oss-120b"
+    },
+    {
+      "areas": [
+        "biology",
+        "neuroscience"
+      ],
+      "contribution_count": 2,
+      "kind": "llm",
+      "name": "zai-org.glm-5.3"
     },
     {
       "areas": [
@@ -28665,17 +28674,9 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "yanqiong Jiang"
-    },
-    {
-      "areas": [
-        "neuroscience"
-      ],
-      "contribution_count": 1,
-      "kind": "llm",
-      "name": "zai-org.glm-5.3"
     }
   ],
-  "generated_at": "2026-10-09T00:09:11.703874+00:00",
+  "generated_at": "2026-10-09T00:32:35.699614+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -108452,6 +108453,14 @@
           ]
         },
         {
+          "contributions": 2,
+          "kind": "llm",
+          "name": "zai-org.glm-5.3",
+          "roles": [
+            "implementer"
+          ]
+        },
+        {
           "contributions": 1,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
@@ -108487,6 +108496,22 @@
       "id": "PROJ-455-predicting-plant-stress-resilience-from-",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 91.615593,
+          "ended_at": "2026-10-09T00:17:08.644672Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "success",
+          "started_at": "2026-10-09T00:15:37.029079Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 93.214908,
+          "ended_at": "2026-10-09T00:15:37.026697Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "success",
+          "started_at": "2026-10-09T00:14:03.811789Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 1.489351,
@@ -108550,22 +108575,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-09-26T00:05:15.879096Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 34.512352,
-          "ended_at": "2026-09-26T00:05:15.875560Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-26T00:04:41.363208Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 44.564373,
-          "ended_at": "2026-09-26T00:04:41.359582Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-26T00:03:56.795209Z"
         }
       ],
       "paper_status": null,
@@ -121363,6 +121372,14 @@
       "last_run_log": [
         {
           "agent": "tasker",
+          "duration_s": 388.212217,
+          "ended_at": "2026-10-09T00:20:49.450299Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "failed",
+          "started_at": "2026-10-09T00:14:21.238082Z"
+        },
+        {
+          "agent": "tasker",
           "duration_s": 1254.143549,
           "ended_at": "2026-10-05T05:41:31.401508Z",
           "model": "qwen.qwen3.5-122b",
@@ -121432,14 +121449,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-10-05T05:09:51.300919Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 14.436955,
-          "ended_at": "2026-10-05T05:09:51.298832Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-05T05:09:36.861877Z"
         }
       ],
       "paper_status": null,
@@ -123682,6 +123691,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 932.562037,
+          "ended_at": "2026-10-09T00:32:03.417006Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-09T00:16:30.854969Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 0.825105,
           "ended_at": "2026-10-08T23:08:29.269633Z",
           "model": "qwen.qwen3.5-122b",
@@ -123751,14 +123768,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-10-08T23:08:20.852262Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 2.757501,
-          "ended_at": "2026-10-08T23:08:20.707249Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-08T23:08:17.949748Z"
         }
       ],
       "paper_status": null,
@@ -166543,6 +166552,54 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 932.562037,
+      "ended_at": "2026-10-09T00:32:03.417006Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-09T00:16:30.854969Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 388.212217,
+      "ended_at": "2026-10-09T00:20:49.450299Z",
+      "failure_reason": "RuntimeError: Tasker produced only 0 task IDs (need >= 5; total chars: 15332). Re-running on next cycle.",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "failed",
+      "project_id": "PROJ-534-investigating-the-correlation-between-gu",
+      "project_stage": "tasked",
+      "severity": "hard",
+      "started_at": "2026-10-09T00:14:21.238082Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 91.615593,
+      "ended_at": "2026-10-09T00:17:08.644672Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-455-predicting-plant-stress-resilience-from-",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-09T00:15:37.029079Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 93.214908,
+      "ended_at": "2026-10-09T00:15:37.026697Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-455-predicting-plant-stress-resilience-from-",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-09T00:14:03.811789Z"
+    },
+    {
       "agent": "tasker",
       "duration_s": 1436.668035,
       "ended_at": "2026-10-09T00:08:41.366910Z",
@@ -172493,54 +172550,6 @@
       "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T17:53:49.593927Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 28.903085,
-      "ended_at": "2026-10-08T17:53:49.590355Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:53:20.687270Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 28.477076,
-      "ended_at": "2026-10-08T17:53:20.683782Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:52:52.206706Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 20.240731,
-      "ended_at": "2026-10-08T17:52:52.203146Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:52:31.962415Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 29.502308,
-      "ended_at": "2026-10-08T17:52:31.958939Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:52:02.456631Z"
     }
   ],
   "reviewed_preprints": [
