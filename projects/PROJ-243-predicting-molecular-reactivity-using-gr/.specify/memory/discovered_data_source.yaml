@@ -1,14 +1,13 @@
 status: none
-intent: download QM9 molecular dataset as Python package for CPU preprocessing
+intent: QM9 molecular dataset download as python package dataset
 required_fields:
-- molecule_id
-- smiles
-- atomic_numbers
+- SMILES
+- atomic_number
 - hybridization
 - formal_charge
-- bond_types
+- bond_type
 - bond_conjugation
-- homo_lumo_gap
-cache_key: e081cf2f621899450b7169b2f292dacf123dc41ea434f26178810b3c98e660c6
-searched_at: '2026-08-08T16:38:06.988252+00:00'
+- HOMO_LUMO_gap
+cache_key: 63f45a493accda2da1b005d5e29c26b1cd7efbfb04009fceda12e24fdc97d503
+searched_at: '2026-10-09T20:22:03.396455+00:00'
 retry_count: 1
