@@ -2,7 +2,7 @@
   "agents": [
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "idea"
       ],
@@ -19,7 +19,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "idea"
       ],
@@ -38,7 +38,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "idea"
       ],
@@ -56,7 +56,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "idea"
       ],
@@ -73,7 +73,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "idea"
       ],
@@ -90,7 +90,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "idea"
       ],
@@ -107,7 +107,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "idea"
       ],
@@ -124,7 +124,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "technical_design"
       ],
@@ -141,7 +141,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "technical_design"
       ],
@@ -158,7 +158,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "code"
       ],
@@ -175,7 +175,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "implementation_plan"
       ],
@@ -192,7 +192,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "implementation_plan"
       ],
@@ -210,7 +210,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "code",
         "data",
@@ -229,7 +229,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "technical_design",
         "implementation_plan",
@@ -251,7 +251,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "implementation_plan",
         "code",
@@ -270,7 +270,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "implementation_plan",
         "code",
@@ -289,7 +289,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "paper"
       ],
@@ -306,7 +306,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "paper"
       ],
@@ -323,7 +323,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "paper"
       ],
@@ -340,7 +340,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "paper"
       ],
@@ -357,7 +357,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "paper"
       ],
@@ -376,7 +376,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "data",
         "paper"
@@ -396,7 +396,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "data",
         "paper"
@@ -416,7 +416,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "paper"
       ],
@@ -433,7 +433,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "paper"
       ],
@@ -450,7 +450,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "paper"
       ],
@@ -467,7 +467,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "paper"
       ],
@@ -484,7 +484,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "review"
       ],
@@ -502,7 +502,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "review"
       ],
@@ -519,7 +519,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "implementation_plan",
         "paper"
@@ -538,7 +538,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "implementation_plan",
         "paper"
@@ -557,7 +557,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "paper"
       ],
@@ -574,7 +574,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "paper"
       ],
@@ -591,7 +591,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "paper"
       ],
@@ -608,7 +608,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "paper"
       ],
@@ -625,7 +625,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "paper"
       ],
@@ -642,7 +642,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "paper"
       ],
@@ -659,7 +659,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "paper"
       ],
@@ -676,7 +676,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "paper"
       ],
@@ -693,7 +693,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "paper"
       ],
@@ -710,7 +710,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "paper"
       ],
@@ -727,7 +727,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "paper"
       ],
@@ -744,7 +744,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "paper"
       ],
@@ -761,7 +761,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "code"
       ],
@@ -778,7 +778,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "code"
       ],
@@ -795,7 +795,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "code"
       ],
@@ -812,7 +812,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "code"
       ],
@@ -829,7 +829,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "code"
       ],
@@ -846,7 +846,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "code"
       ],
@@ -863,7 +863,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "code"
       ],
@@ -880,7 +880,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "review"
       ],
@@ -898,7 +898,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "review"
       ],
@@ -916,7 +916,7 @@
     },
     {
       "default_backend": "dartmouth",
-      "default_model": "qwen.qwen3.5-122b",
+      "default_model": "zai-org.glm-5.3",
       "inputs": [
         "paper",
         "implementation_plan"
@@ -953,12 +953,12 @@
   ],
   "aggregates": {
     "active_projects": 1095,
-    "ai_contributors": 9,
+    "ai_contributors": 10,
     "human_contributors": 3432,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 17219,
-    "total_contributors": 3441
+    "total_contributions": 17220,
+    "total_contributors": 3442
   },
   "contributors": [
     {
@@ -28665,9 +28665,17 @@
       "contribution_count": 1,
       "kind": "human",
       "name": "yanqiong Jiang"
+    },
+    {
+      "areas": [
+        "neuroscience"
+      ],
+      "contribution_count": 1,
+      "kind": "llm",
+      "name": "zai-org.glm-5.3"
     }
   ],
-  "generated_at": "2026-10-08T22:33:43.287322+00:00",
+  "generated_at": "2026-10-09T00:09:11.703874+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -28905,29 +28913,29 @@
       "description": "A one-paragraph idea seed \u2014 a research question and a hint of how it might be tackled. Generated by the brainstorm agent (or submitted by a human).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-507-the-influence-of-visual-salience-on-mora",
+          "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
+          "title": "The Influence of Visual Salience on Moral Judgments of Simulated Scenarios"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
+          "project_id": "PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
+          "title": "llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\""
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-189-investigating-the-correlation-between-gu",
+          "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+          "title": "Investigating the Correlation Between Gut Microbiome Composition and Cognitive Decline in Aging Populations"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-883-llmxive-follow-up-extending-omniretrieva",
+          "project_id": "PROJ-883-llmxive-follow-up-extending-omniretrieva",
+          "title": "llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Source\""
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-373-predicting-rate-constants-of-sn1-reactio",
           "project_id": "PROJ-373-predicting-rate-constants-of-sn1-reactio",
           "title": "Predicting Rate Constants of SN1 Reactions from Molecular Structure"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r",
-          "project_id": "PROJ-878-llmxive-follow-up-extending-multi-turn-r",
-          "title": "llmXive follow-up: extending \"Multi-Turn Reflective Masking Elicits Reasoning in Mask Diffusion Mode\""
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-132-statistical-analysis-of-publicly-availab",
-          "project_id": "PROJ-132-statistical-analysis-of-publicly-availab",
-          "title": "Statistical Analysis of Publicly Available Bird Migration Patterns and Climate Change"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-312-evaluating-the-impact-of-code-generation",
-          "project_id": "PROJ-312-evaluating-the-impact-of-code-generation",
-          "title": "Evaluating the Impact of Code Generation on Code Review Turnaround Time"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-518-investigating-the-relationship-between-b",
-          "project_id": "PROJ-518-investigating-the-relationship-between-b",
-          "title": "Investigating the Relationship Between Brain Network Dynamics and Creative Problem Solving"
         }
       ],
       "inputs": [
@@ -28949,29 +28957,29 @@
       "description": "The raw seed is expanded into a structured idea grounded in primary literature: motivation, prior work, the precise question, a sketch of an approach, and what success would look like. A research-question validator then audits it for phenomenon-vs-method confusion, circularity, and triviality.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-507-the-influence-of-visual-salience-on-mora",
+          "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
+          "title": "The Influence of Visual Salience on Moral Judgments of Simulated Scenarios"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
+          "project_id": "PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
+          "title": "llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\""
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-189-investigating-the-correlation-between-gu",
+          "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+          "title": "Investigating the Correlation Between Gut Microbiome Composition and Cognitive Decline in Aging Populations"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-883-llmxive-follow-up-extending-omniretrieva",
+          "project_id": "PROJ-883-llmxive-follow-up-extending-omniretrieva",
+          "title": "llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Source\""
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-373-predicting-rate-constants-of-sn1-reactio",
           "project_id": "PROJ-373-predicting-rate-constants-of-sn1-reactio",
           "title": "Predicting Rate Constants of SN1 Reactions from Molecular Structure"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r",
-          "project_id": "PROJ-878-llmxive-follow-up-extending-multi-turn-r",
-          "title": "llmXive follow-up: extending \"Multi-Turn Reflective Masking Elicits Reasoning in Mask Diffusion Mode\""
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-132-statistical-analysis-of-publicly-availab",
-          "project_id": "PROJ-132-statistical-analysis-of-publicly-availab",
-          "title": "Statistical Analysis of Publicly Available Bird Migration Patterns and Climate Change"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-312-evaluating-the-impact-of-code-generation",
-          "project_id": "PROJ-312-evaluating-the-impact-of-code-generation",
-          "title": "Evaluating the Impact of Code Generation on Code Review Turnaround Time"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-518-investigating-the-relationship-between-b",
-          "project_id": "PROJ-518-investigating-the-relationship-between-b",
-          "title": "Investigating the Relationship Between Brain Network Dynamics and Creative Problem Solving"
         }
       ],
       "inputs": [
@@ -28993,29 +29001,29 @@
       "description": "The project gets its own Spec Kit scaffold and a `spec.md` \u2014 user stories, functional requirements, success criteria \u2014 written by the specifier agent (the agentic equivalent of `/speckit-specify`).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-507-the-influence-of-visual-salience-on-mora",
+          "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
+          "title": "The Influence of Visual Salience on Moral Judgments of Simulated Scenarios"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
+          "project_id": "PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
+          "title": "llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\""
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-189-investigating-the-correlation-between-gu",
+          "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+          "title": "Investigating the Correlation Between Gut Microbiome Composition and Cognitive Decline in Aging Populations"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-883-llmxive-follow-up-extending-omniretrieva",
+          "project_id": "PROJ-883-llmxive-follow-up-extending-omniretrieva",
+          "title": "llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Source\""
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-373-predicting-rate-constants-of-sn1-reactio",
           "project_id": "PROJ-373-predicting-rate-constants-of-sn1-reactio",
           "title": "Predicting Rate Constants of SN1 Reactions from Molecular Structure"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r",
-          "project_id": "PROJ-878-llmxive-follow-up-extending-multi-turn-r",
-          "title": "llmXive follow-up: extending \"Multi-Turn Reflective Masking Elicits Reasoning in Mask Diffusion Mode\""
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-132-statistical-analysis-of-publicly-availab",
-          "project_id": "PROJ-132-statistical-analysis-of-publicly-availab",
-          "title": "Statistical Analysis of Publicly Available Bird Migration Patterns and Climate Change"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-312-evaluating-the-impact-of-code-generation",
-          "project_id": "PROJ-312-evaluating-the-impact-of-code-generation",
-          "title": "Evaluating the Impact of Code Generation on Code Review Turnaround Time"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-518-investigating-the-relationship-between-b",
-          "project_id": "PROJ-518-investigating-the-relationship-between-b",
-          "title": "Investigating the Relationship Between Brain Network Dynamics and Creative Problem Solving"
         }
       ],
       "inputs": [
@@ -29037,29 +29045,29 @@
       "description": "Open questions and ambiguities in the spec are surfaced and resolved (the agentic `/speckit-clarify`). Each clarification is recorded back into `spec.md`.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-507-the-influence-of-visual-salience-on-mora",
+          "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
+          "title": "The Influence of Visual Salience on Moral Judgments of Simulated Scenarios"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
+          "project_id": "PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
+          "title": "llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\""
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-189-investigating-the-correlation-between-gu",
+          "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+          "title": "Investigating the Correlation Between Gut Microbiome Composition and Cognitive Decline in Aging Populations"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-883-llmxive-follow-up-extending-omniretrieva",
+          "project_id": "PROJ-883-llmxive-follow-up-extending-omniretrieva",
+          "title": "llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Source\""
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-373-predicting-rate-constants-of-sn1-reactio",
           "project_id": "PROJ-373-predicting-rate-constants-of-sn1-reactio",
           "title": "Predicting Rate Constants of SN1 Reactions from Molecular Structure"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r",
-          "project_id": "PROJ-878-llmxive-follow-up-extending-multi-turn-r",
-          "title": "llmXive follow-up: extending \"Multi-Turn Reflective Masking Elicits Reasoning in Mask Diffusion Mode\""
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-132-statistical-analysis-of-publicly-availab",
-          "project_id": "PROJ-132-statistical-analysis-of-publicly-availab",
-          "title": "Statistical Analysis of Publicly Available Bird Migration Patterns and Climate Change"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-312-evaluating-the-impact-of-code-generation",
-          "project_id": "PROJ-312-evaluating-the-impact-of-code-generation",
-          "title": "Evaluating the Impact of Code Generation on Code Review Turnaround Time"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-518-investigating-the-relationship-between-b",
-          "project_id": "PROJ-518-investigating-the-relationship-between-b",
-          "title": "Investigating the Relationship Between Brain Network Dynamics and Creative Problem Solving"
         }
       ],
       "inputs": [
@@ -29080,29 +29088,29 @@
       "description": "The implementation plan: architecture, data model, contracts, research notes (the agentic `/speckit-plan`).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-507-the-influence-of-visual-salience-on-mora",
+          "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
+          "title": "The Influence of Visual Salience on Moral Judgments of Simulated Scenarios"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
+          "project_id": "PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
+          "title": "llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\""
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-189-investigating-the-correlation-between-gu",
+          "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+          "title": "Investigating the Correlation Between Gut Microbiome Composition and Cognitive Decline in Aging Populations"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-883-llmxive-follow-up-extending-omniretrieva",
+          "project_id": "PROJ-883-llmxive-follow-up-extending-omniretrieva",
+          "title": "llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Source\""
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-373-predicting-rate-constants-of-sn1-reactio",
           "project_id": "PROJ-373-predicting-rate-constants-of-sn1-reactio",
           "title": "Predicting Rate Constants of SN1 Reactions from Molecular Structure"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r",
-          "project_id": "PROJ-878-llmxive-follow-up-extending-multi-turn-r",
-          "title": "llmXive follow-up: extending \"Multi-Turn Reflective Masking Elicits Reasoning in Mask Diffusion Mode\""
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-132-statistical-analysis-of-publicly-availab",
-          "project_id": "PROJ-132-statistical-analysis-of-publicly-availab",
-          "title": "Statistical Analysis of Publicly Available Bird Migration Patterns and Climate Change"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-312-evaluating-the-impact-of-code-generation",
-          "project_id": "PROJ-312-evaluating-the-impact-of-code-generation",
-          "title": "Evaluating the Impact of Code Generation on Code Review Turnaround Time"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-518-investigating-the-relationship-between-b",
-          "project_id": "PROJ-518-investigating-the-relationship-between-b",
-          "title": "Investigating the Relationship Between Brain Network Dynamics and Creative Problem Solving"
         }
       ],
       "inputs": [
@@ -29123,6 +29131,16 @@
       "description": "The plan is decomposed into an ordered, dependency-aware task list (`/speckit-tasks`), then cross-checked for consistency (`/speckit-analyze`).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
+          "project_id": "PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
+          "title": "llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\""
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-189-investigating-the-correlation-between-gu",
+          "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+          "title": "Investigating the Correlation Between Gut Microbiome Composition and Cognitive Decline in Aging Populations"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-373-predicting-rate-constants-of-sn1-reactio",
           "project_id": "PROJ-373-predicting-rate-constants-of-sn1-reactio",
           "title": "Predicting Rate Constants of SN1 Reactions from Molecular Structure"
@@ -29136,16 +29154,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-132-statistical-analysis-of-publicly-availab",
           "project_id": "PROJ-132-statistical-analysis-of-publicly-availab",
           "title": "Statistical Analysis of Publicly Available Bird Migration Patterns and Climate Change"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-312-evaluating-the-impact-of-code-generation",
-          "project_id": "PROJ-312-evaluating-the-impact-of-code-generation",
-          "title": "Evaluating the Impact of Code Generation on Code Review Turnaround Time"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-518-investigating-the-relationship-between-b",
-          "project_id": "PROJ-518-investigating-the-relationship-between-b",
-          "title": "Investigating the Relationship Between Brain Network Dynamics and Creative Problem Solving"
         }
       ],
       "inputs": [
@@ -29169,6 +29177,11 @@
       "description": "The implementer agent executes the task list \u2014 writing code, running real tests, collecting data \u2014 ticking tasks off until the plan is complete. The librarian agent verifies citations along the way.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
+          "project_id": "PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
+          "title": "llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\""
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-132-statistical-analysis-of-publicly-availab",
           "project_id": "PROJ-132-statistical-analysis-of-publicly-availab",
           "title": "Statistical Analysis of Publicly Available Bird Migration Patterns and Climate Change"
@@ -29187,11 +29200,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali",
           "project_id": "PROJ-900-llmxive-follow-up-extending-viq-text-ali",
           "title": "llmXive follow-up: extending \"ViQ: Text-Aligned Visual Quantized Representations at Any Resolution\""
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-385-the-impact-of-text-message-tone-on-perce",
-          "project_id": "PROJ-385-the-impact-of-text-message-tone-on-perce",
-          "title": "The Impact of Text Message Tone on Perceived Emotional Support"
         }
       ],
       "inputs": [
@@ -41170,7 +41178,7 @@
         {
           "contributions": 1,
           "kind": "llm",
-          "name": "google.gemma-3-27b-it",
+          "name": "openai.gpt-oss-120b",
           "roles": [
             "implementer"
           ]
@@ -41178,7 +41186,7 @@
         {
           "contributions": 1,
           "kind": "llm",
-          "name": "openai.gpt-oss-120b",
+          "name": "google.gemma-3-27b-it",
           "roles": [
             "implementer"
           ]
@@ -52213,17 +52221,17 @@
         {
           "contributions": 1,
           "kind": "llm",
-          "name": "google.gemma-3-27b-it",
+          "name": "openai.gpt-oss-120b",
           "roles": [
-            "implementer"
+            "flesh_out"
           ]
         },
         {
           "contributions": 1,
           "kind": "llm",
-          "name": "openai.gpt-oss-120b",
+          "name": "google.gemma-3-27b-it",
           "roles": [
-            "flesh_out"
+            "implementer"
           ]
         }
       ],
@@ -56903,7 +56911,7 @@
       },
       "authors": [
         {
-          "contributions": 12228,
+          "contributions": 12238,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -56955,83 +56963,83 @@
       "last_run_log": [
         {
           "agent": "implementer",
-          "duration_s": 1.058006,
-          "ended_at": "2026-10-08T22:09:32.538632Z",
+          "duration_s": 1.010081,
+          "ended_at": "2026-10-08T23:09:58.473374Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-08T22:09:31.480626Z"
+          "started_at": "2026-10-08T23:09:57.463293Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.923967,
-          "ended_at": "2026-10-08T22:09:31.401472Z",
+          "duration_s": 1.046234,
+          "ended_at": "2026-10-08T23:09:57.280579Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-08T22:09:30.477505Z"
+          "started_at": "2026-10-08T23:09:56.234345Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.312306,
-          "ended_at": "2026-10-08T22:09:30.400483Z",
+          "duration_s": 1.065335,
+          "ended_at": "2026-10-08T23:09:56.036655Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-08T22:09:29.088177Z"
+          "started_at": "2026-10-08T23:09:54.971320Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.062618,
-          "ended_at": "2026-10-08T22:09:29.007827Z",
+          "duration_s": 1.122235,
+          "ended_at": "2026-10-08T23:09:54.903684Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-08T22:09:27.945209Z"
+          "started_at": "2026-10-08T23:09:53.781449Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.281091,
-          "ended_at": "2026-10-08T22:09:27.865546Z",
+          "duration_s": 1.765477,
+          "ended_at": "2026-10-08T23:09:53.715846Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-08T22:09:26.584455Z"
+          "started_at": "2026-10-08T23:09:51.950369Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 4.909272,
-          "ended_at": "2026-10-08T22:09:26.504561Z",
+          "duration_s": 0.88059,
+          "ended_at": "2026-10-08T23:09:51.885286Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-08T22:09:21.595289Z"
+          "started_at": "2026-10-08T23:09:51.004696Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 2.011934,
-          "ended_at": "2026-10-08T22:09:21.516777Z",
+          "duration_s": 0.872913,
+          "ended_at": "2026-10-08T23:09:50.939282Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-08T22:09:19.504843Z"
+          "started_at": "2026-10-08T23:09:50.066369Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.182979,
-          "ended_at": "2026-10-08T22:09:19.425390Z",
+          "duration_s": 0.954555,
+          "ended_at": "2026-10-08T23:09:49.967475Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-08T22:09:18.242411Z"
+          "started_at": "2026-10-08T23:09:49.012920Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.662025,
-          "ended_at": "2026-10-08T22:09:18.118998Z",
+          "duration_s": 0.821961,
+          "ended_at": "2026-10-08T23:09:48.948126Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-08T22:09:16.456973Z"
+          "started_at": "2026-10-08T23:09:48.126165Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 4.047225,
-          "ended_at": "2026-10-08T22:09:16.371487Z",
+          "duration_s": 4.536603,
+          "ended_at": "2026-10-08T23:09:47.984099Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-08T22:09:12.324262Z"
+          "started_at": "2026-10-08T23:09:43.447496Z"
         }
       ],
       "paper_status": null,
@@ -60251,17 +60259,17 @@
         {
           "contributions": 1,
           "kind": "llm",
-          "name": "google.gemma-3-27b-it",
+          "name": "openai.gpt-oss-120b",
           "roles": [
-            "implementer"
+            "flesh_out"
           ]
         },
         {
           "contributions": 1,
           "kind": "llm",
-          "name": "openai.gpt-oss-120b",
+          "name": "google.gemma-3-27b-it",
           "roles": [
-            "flesh_out"
+            "implementer"
           ]
         }
       ],
@@ -60576,17 +60584,17 @@
         {
           "contributions": 1,
           "kind": "llm",
-          "name": "google.gemma-3-27b-it",
+          "name": "openai.gpt-oss-120b",
           "roles": [
-            "tasker"
+            "flesh_out"
           ]
         },
         {
           "contributions": 1,
           "kind": "llm",
-          "name": "openai.gpt-oss-120b",
+          "name": "google.gemma-3-27b-it",
           "roles": [
-            "flesh_out"
+            "tasker"
           ]
         }
       ],
@@ -64848,7 +64856,7 @@
       },
       "authors": [
         {
-          "contributions": 113,
+          "contributions": 143,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -64891,7 +64899,7 @@
         "repo_path": "projects/PROJ-189-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md",
         "type": "markdown"
       },
-      "current_stage": "tasked",
+      "current_stage": "analyzed",
       "description": "Field: biology Do specific gut microbial taxa associate with, and predict, measures of cognitive decline (e.g., memory, processing speed) in older adults? Age\u2011related cognitive decline is a growing public\u2011health challenge, yet its biological drivers remain incompletely understood. Emerging evidence links the gut\u2011brain\u2026",
       "field": "biology",
       "id": "PROJ-189-investigating-the-correlation-between-gu",
@@ -64899,83 +64907,83 @@
       "last_run_log": [
         {
           "agent": "tasker",
-          "duration_s": 810.273834,
-          "ended_at": "2026-10-05T04:36:17.516805Z",
+          "duration_s": 709.932729,
+          "ended_at": "2026-10-08T23:03:13.985346Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-05T04:22:47.242971Z"
+          "started_at": "2026-10-08T22:51:24.052617Z"
+        },
+        {
+          "agent": "tasker",
+          "duration_s": 462.890345,
+          "ended_at": "2026-10-08T22:51:24.005164Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-10-08T22:43:41.114819Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 56.64994,
-          "ended_at": "2026-10-05T04:22:34.916676Z",
+          "duration_s": 55.865031,
+          "ended_at": "2026-10-08T22:43:39.424964Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-05T04:21:38.266736Z"
+          "started_at": "2026-10-08T22:42:43.559933Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 20.088886,
-          "ended_at": "2026-10-05T04:21:38.263018Z",
+          "duration_s": 50.454249,
+          "ended_at": "2026-10-08T22:42:43.557357Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-05T04:21:18.174132Z"
+          "started_at": "2026-10-08T22:41:53.103108Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 55.914122,
-          "ended_at": "2026-10-05T04:21:18.170541Z",
+          "duration_s": 91.076494,
+          "ended_at": "2026-10-08T22:41:53.100499Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-05T04:20:22.256419Z"
+          "started_at": "2026-10-08T22:40:22.024005Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 58.323741,
-          "ended_at": "2026-10-05T04:20:22.252863Z",
+          "duration_s": 33.077752,
+          "ended_at": "2026-10-08T22:40:22.021484Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-05T04:19:23.929122Z"
+          "started_at": "2026-10-08T22:39:48.943732Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 62.163657,
-          "ended_at": "2026-10-05T04:19:23.925552Z",
+          "duration_s": 32.887958,
+          "ended_at": "2026-10-08T22:39:48.941225Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-05T04:18:21.761895Z"
+          "started_at": "2026-10-08T22:39:16.053267Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 32.07313,
-          "ended_at": "2026-10-05T04:18:21.758426Z",
+          "duration_s": 17.043511,
+          "ended_at": "2026-10-08T22:39:16.050745Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-05T04:17:49.685296Z"
+          "started_at": "2026-10-08T22:38:59.007234Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 13.647394,
-          "ended_at": "2026-10-05T04:17:49.681724Z",
+          "duration_s": 22.931418,
+          "ended_at": "2026-10-08T22:38:59.004604Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-05T04:17:36.034330Z"
+          "started_at": "2026-10-08T22:38:36.073186Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 21.369707,
-          "ended_at": "2026-10-05T04:17:36.030755Z",
+          "duration_s": 30.485569,
+          "ended_at": "2026-10-08T22:38:35.958648Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-05T04:17:14.661048Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 13.948,
-          "ended_at": "2026-10-05T04:17:14.657551Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-05T04:17:00.709551Z"
+          "started_at": "2026-10-08T22:38:05.473079Z"
         }
       ],
       "paper_status": null,
@@ -64989,7 +64997,7 @@
       "speckit_research_dir": "projects/PROJ-189-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu",
       "submitter": "google.gemma-3-27b-it",
       "title": "Investigating the Correlation Between Gut Microbiome Composition and Cognitive Decline in Aging Populations",
-      "updated_at": "2026-10-05T04:36:17.519475+00:00",
+      "updated_at": "2026-10-08T23:03:13.987107+00:00",
       "upstream_feedback": null
     },
     {
@@ -67754,19 +67762,19 @@
         {
           "contributions": 2,
           "kind": "llm",
-          "name": "google.gemma-3-27b-it",
+          "name": "openai.gpt-oss-120b",
           "roles": [
-            "implementer",
-            "tasker"
+            "flesh_out",
+            "implementer"
           ]
         },
         {
           "contributions": 2,
           "kind": "llm",
-          "name": "openai.gpt-oss-120b",
+          "name": "google.gemma-3-27b-it",
           "roles": [
-            "flesh_out",
-            "implementer"
+            "implementer",
+            "tasker"
           ]
         }
       ],
@@ -72088,17 +72096,17 @@
         {
           "contributions": 1,
           "kind": "llm",
-          "name": "openai.gpt-oss-120b",
+          "name": "qwen.qwen3.5-122b",
           "roles": [
-            "research_question_validator"
+            "flesh_out"
           ]
         },
         {
           "contributions": 1,
           "kind": "llm",
-          "name": "qwen.qwen3.5-122b",
+          "name": "openai.gpt-oss-120b",
           "roles": [
-            "flesh_out"
+            "research_question_validator"
           ]
         }
       ],
@@ -73180,7 +73188,7 @@
         {
           "contributions": 1,
           "kind": "llm",
-          "name": "google.gemma-3-27b-it",
+          "name": "openai.gpt-oss-120b",
           "roles": [
             "implementer"
           ]
@@ -73188,7 +73196,7 @@
         {
           "contributions": 1,
           "kind": "llm",
-          "name": "openai.gpt-oss-120b",
+          "name": "google.gemma-3-27b-it",
           "roles": [
             "implementer"
           ]
@@ -74845,18 +74853,18 @@
         {
           "contributions": 2,
           "kind": "llm",
-          "name": "google.gemma-3-27b-it",
+          "name": "openai.gpt-oss-120b",
           "roles": [
-            "implementer"
+            "flesh_out",
+            "specifier"
           ]
         },
         {
           "contributions": 2,
           "kind": "llm",
-          "name": "openai.gpt-oss-120b",
+          "name": "google.gemma-3-27b-it",
           "roles": [
-            "flesh_out",
-            "specifier"
+            "implementer"
           ]
         }
       ],
@@ -81083,17 +81091,17 @@
         {
           "contributions": 1,
           "kind": "llm",
-          "name": "anthropic.claude-sonnet-4-6",
+          "name": "google.gemma-3-27b-it",
           "roles": [
-            "implementer"
+            "tasker"
           ]
         },
         {
           "contributions": 1,
           "kind": "llm",
-          "name": "google.gemma-3-27b-it",
+          "name": "anthropic.claude-sonnet-4-6",
           "roles": [
-            "tasker"
+            "implementer"
           ]
         }
       ],
@@ -86941,6 +86949,14 @@
         {
           "contributions": 1,
           "kind": "llm",
+          "name": "qwen.qwen3.5-122b",
+          "roles": [
+            "flesh_out"
+          ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
             "research_question_validator"
@@ -86950,14 +86966,6 @@
           "contributions": 1,
           "kind": "llm",
           "name": "google.gemma-3-27b-it",
-          "roles": [
-            "flesh_out"
-          ]
-        },
-        {
-          "contributions": 1,
-          "kind": "llm",
-          "name": "qwen.qwen3.5-122b",
           "roles": [
             "flesh_out"
           ]
@@ -116769,7 +116777,7 @@
       },
       "authors": [
         {
-          "contributions": 2803,
+          "contributions": 2813,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -116813,91 +116821,91 @@
         "repo_path": "projects/PROJ-507-the-influence-of-visual-salience-on-mora/specs/001-the-influence-of-visual-salience-on-mora/tasks.md",
         "type": "markdown"
       },
-      "current_stage": "in_progress",
+      "current_stage": "planned",
       "description": "Field: psychology Does increasing the visual salience of non-causal elements in morally ambiguous simulated scenarios systematically shift participants' blame and responsibility judgments toward the visually highlighted party? Visual salience is a well-documented driver of attention, but its downstream effects on\u2026",
       "field": "psychology",
       "id": "PROJ-507-the-influence-of-visual-salience-on-mora",
       "keywords": [],
       "last_run_log": [
         {
-          "agent": "implementer",
-          "duration_s": 1.465057,
-          "ended_at": "2026-10-08T22:09:32.036187Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-08T22:09:30.571130Z"
+          "agent": "tasker",
+          "duration_s": 1436.668035,
+          "ended_at": "2026-10-09T00:08:41.366910Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "failed",
+          "started_at": "2026-10-08T23:44:44.698875Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.164107,
-          "ended_at": "2026-10-08T22:09:30.494386Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-08T22:09:29.330279Z"
+          "duration_s": 0.0021,
+          "ended_at": "2026-10-08T23:44:44.639000Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-08T23:44:44.636900Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.315315,
-          "ended_at": "2026-10-08T22:09:29.200717Z",
+          "duration_s": 0.973782,
+          "ended_at": "2026-10-08T23:11:04.019080Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-08T22:09:27.885402Z"
+          "started_at": "2026-10-08T23:11:03.045298Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.301102,
-          "ended_at": "2026-10-08T22:09:27.847065Z",
+          "duration_s": 0.930433,
+          "ended_at": "2026-10-08T23:11:02.968078Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-08T22:09:26.545963Z"
+          "started_at": "2026-10-08T23:11:02.037645Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.939122,
-          "ended_at": "2026-10-08T22:09:26.503427Z",
+          "duration_s": 1.094175,
+          "ended_at": "2026-10-08T23:11:01.962397Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-08T22:09:24.564305Z"
+          "started_at": "2026-10-08T23:11:00.868222Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 3.97068,
-          "ended_at": "2026-10-08T22:09:24.513913Z",
+          "duration_s": 1.112768,
+          "ended_at": "2026-10-08T23:11:00.793002Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-08T22:09:20.543233Z"
+          "started_at": "2026-10-08T23:10:59.680234Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.312395,
-          "ended_at": "2026-10-08T22:09:20.504160Z",
+          "duration_s": 1.117013,
+          "ended_at": "2026-10-08T23:10:59.604109Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-08T22:09:19.191765Z"
+          "started_at": "2026-10-08T23:10:58.487096Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.887843,
-          "ended_at": "2026-10-08T22:09:19.151217Z",
+          "duration_s": 0.976883,
+          "ended_at": "2026-10-08T23:10:58.410556Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-08T22:09:18.263374Z"
+          "started_at": "2026-10-08T23:10:57.433673Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.69923,
-          "ended_at": "2026-10-08T22:09:18.159149Z",
+          "duration_s": 1.136248,
+          "ended_at": "2026-10-08T23:10:57.352202Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-08T22:09:16.459919Z"
+          "started_at": "2026-10-08T23:10:56.215954Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 4.907099,
-          "ended_at": "2026-10-08T22:09:16.396531Z",
+          "duration_s": 1.079744,
+          "ended_at": "2026-10-08T23:10:56.139662Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-08T22:09:11.489432Z"
+          "started_at": "2026-10-08T23:10:55.059918Z"
         }
       ],
       "paper_status": null,
@@ -116911,7 +116919,7 @@
       "speckit_research_dir": "projects/PROJ-507-the-influence-of-visual-salience-on-mora/specs/001-the-influence-of-visual-salience-on-mora",
       "submitter": "google.gemma-3-27b-it",
       "title": "The Influence of Visual Salience on Moral Judgments of Simulated Scenarios",
-      "updated_at": "2026-09-27T03:51:30.499694+00:00",
+      "updated_at": "2026-10-08T23:44:44.639537+00:00",
       "upstream_feedback": null
     },
     {
@@ -122124,17 +122132,17 @@
         {
           "contributions": 1,
           "kind": "llm",
-          "name": "openai.gpt-oss-120b",
+          "name": "qwen.qwen3.5-122b",
           "roles": [
-            "research_question_validator"
+            "flesh_out"
           ]
         },
         {
           "contributions": 1,
           "kind": "llm",
-          "name": "qwen.qwen3.5-122b",
+          "name": "openai.gpt-oss-120b",
           "roles": [
-            "flesh_out"
+            "research_question_validator"
           ]
         }
       ],
@@ -123609,7 +123617,7 @@
       },
       "authors": [
         {
-          "contributions": 19433,
+          "contributions": 19443,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -123674,83 +123682,83 @@
       "last_run_log": [
         {
           "agent": "implementer",
-          "duration_s": 0.760463,
-          "ended_at": "2026-10-08T22:09:36.468385Z",
+          "duration_s": 0.825105,
+          "ended_at": "2026-10-08T23:08:29.269633Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-08T22:09:35.707922Z"
+          "started_at": "2026-10-08T23:08:28.444528Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.937485,
-          "ended_at": "2026-10-08T22:09:35.637829Z",
+          "duration_s": 0.895764,
+          "ended_at": "2026-10-08T23:08:28.402132Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-08T22:09:34.700344Z"
+          "started_at": "2026-10-08T23:08:27.506368Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.769474,
-          "ended_at": "2026-10-08T22:09:34.630770Z",
+          "duration_s": 0.856884,
+          "ended_at": "2026-10-08T23:08:27.443617Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-08T22:09:33.861296Z"
+          "started_at": "2026-10-08T23:08:26.586733Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.881053,
-          "ended_at": "2026-10-08T22:09:33.791198Z",
+          "duration_s": 1.085915,
+          "ended_at": "2026-10-08T23:08:26.548646Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-08T22:09:32.910145Z"
+          "started_at": "2026-10-08T23:08:25.462731Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.76652,
-          "ended_at": "2026-10-08T22:09:32.840719Z",
+          "duration_s": 0.894658,
+          "ended_at": "2026-10-08T23:08:25.424405Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-08T22:09:32.074199Z"
+          "started_at": "2026-10-08T23:08:24.529747Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.054902,
-          "ended_at": "2026-10-08T22:09:32.002472Z",
+          "duration_s": 0.83518,
+          "ended_at": "2026-10-08T23:08:24.492168Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-08T22:09:30.947570Z"
+          "started_at": "2026-10-08T23:08:23.656988Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.005922,
-          "ended_at": "2026-10-08T22:09:30.877187Z",
+          "duration_s": 0.909066,
+          "ended_at": "2026-10-08T23:08:23.618886Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-08T22:09:29.871265Z"
+          "started_at": "2026-10-08T23:08:22.709820Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.040006,
-          "ended_at": "2026-10-08T22:09:29.797968Z",
+          "duration_s": 0.8369,
+          "ended_at": "2026-10-08T23:08:22.671371Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-08T22:09:28.757962Z"
+          "started_at": "2026-10-08T23:08:21.834471Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.719922,
-          "ended_at": "2026-10-08T22:09:28.643120Z",
+          "duration_s": 0.944015,
+          "ended_at": "2026-10-08T23:08:21.796277Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-08T22:09:27.923198Z"
+          "started_at": "2026-10-08T23:08:20.852262Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 7.440452,
-          "ended_at": "2026-10-08T22:09:27.845825Z",
+          "duration_s": 2.757501,
+          "ended_at": "2026-10-08T23:08:20.707249Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-10-08T22:09:20.405373Z"
+          "started_at": "2026-10-08T23:08:17.949748Z"
         }
       ],
       "paper_status": null,
@@ -125428,6 +125436,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 12.951895,
+          "ended_at": "2026-10-08T23:09:48.789800Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-10-08T23:09:35.837905Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 20.180091,
           "ended_at": "2026-10-08T01:31:18.024076Z",
           "model": "qwen.qwen3.5-122b",
@@ -125497,14 +125513,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "failed",
           "started_at": "2026-09-30T14:13:59.478012Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 26.366805,
-          "ended_at": "2026-09-29T16:10:59.755983Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "failed",
-          "started_at": "2026-09-29T16:10:33.389178Z"
         }
       ],
       "paper_status": null,
@@ -129014,13 +129022,21 @@
             "project_initializer",
             "research_question_validator"
           ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "zai-org.glm-5.3",
+          "roles": [
+            "implementer"
+          ]
         }
       ],
       "citation_summary": {
         "mismatch": 2,
-        "pending": 0,
+        "pending": 1,
         "unreachable": 0,
-        "verified": 1
+        "verified": 0
       },
       "created_at": "2026-05-17T00:35:00.653136+00:00",
       "current_artifact": {
@@ -129035,6 +129051,14 @@
       "id": "PROJ-591-neuromorphic-transformer-networks-spikin",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 70.493942,
+          "ended_at": "2026-10-08T23:31:34.477105Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "success",
+          "started_at": "2026-10-08T23:30:23.983163Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 2.579588,
@@ -129106,14 +129130,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-10-08T22:33:10.668572Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 3.507872,
-          "ended_at": "2026-10-08T22:33:10.561356Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-08T22:33:07.053484Z"
         }
       ],
       "paper_status": null,
@@ -142951,17 +142967,17 @@
         {
           "contributions": 1,
           "kind": "llm",
-          "name": "openai.gpt-oss-120b",
+          "name": "google.gemma-3-27b-it",
           "roles": [
-            "implementer"
+            "tasker"
           ]
         },
         {
           "contributions": 1,
           "kind": "llm",
-          "name": "google.gemma-3-27b-it",
+          "name": "openai.gpt-oss-120b",
           "roles": [
-            "tasker"
+            "implementer"
           ]
         }
       ],
@@ -149961,28 +149977,12 @@
         "repo_path": "projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r/specs/001-llmxive-follow-up-extending-multi-turn-r/tasks.md",
         "type": "markdown"
       },
-      "current_stage": "in_progress",
+      "current_stage": "tasked",
       "description": "Field: Linguistics / Natural Language Processing How does the topological complexity of logical dependency graphs (nesting depth and branching factor) fundamentally limit the convergence of sequential reasoning processes in generative models, independent of specific error-correction policies? Current Reflective\u2026",
       "field": "linguistics",
       "id": "PROJ-878-llmxive-follow-up-extending-multi-turn-r",
       "keywords": [],
       "last_run_log": [
-        {
-          "agent": "implementer",
-          "duration_s": 0.929863,
-          "ended_at": "2026-10-08T20:22:37.071613Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-08T20:22:36.141750Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 764.85248,
-          "ended_at": "2026-10-08T20:22:36.068653Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-08T20:09:51.216173Z"
-        },
         {
           "agent": "tasker",
           "duration_s": 565.653368,
@@ -150756,7 +150756,7 @@
       },
       "authors": [
         {
-          "contributions": 49,
+          "contributions": 50,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -150773,9 +150773,9 @@
       ],
       "citation_summary": {
         "mismatch": 0,
-        "pending": 1,
+        "pending": 3,
         "unreachable": 0,
-        "verified": 2
+        "verified": 0
       },
       "created_at": "2026-07-02T16:49:55.706879+00:00",
       "current_artifact": {
@@ -150790,6 +150790,30 @@
       "id": "PROJ-883-llmxive-follow-up-extending-omniretrieva",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "tasker",
+          "duration_s": 1170.095468,
+          "ended_at": "2026-10-08T22:55:45.319728Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-10-08T22:36:15.224260Z"
+        },
+        {
+          "agent": "planner",
+          "duration_s": 853.936813,
+          "ended_at": "2026-10-08T22:36:15.166757Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-10-08T22:22:01.229944Z"
+        },
+        {
+          "agent": "tasker",
+          "duration_s": 722.673495,
+          "ended_at": "2026-10-08T22:22:01.173790Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-10-08T22:09:58.500295Z"
+        },
         {
           "agent": "tasker",
           "duration_s": 1274.549258,
@@ -150845,30 +150869,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-10-05T09:38:14.455745Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 42.966228,
-          "ended_at": "2026-10-05T09:38:14.452313Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-05T09:37:31.486085Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 35.845993,
-          "ended_at": "2026-10-05T09:37:31.482667Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-05T09:36:55.636674Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 25.132264,
-          "ended_at": "2026-10-05T09:36:55.633247Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-05T09:36:30.500983Z"
         }
       ],
       "paper_status": null,
@@ -150882,7 +150882,7 @@
       "speckit_research_dir": "projects/PROJ-883-llmxive-follow-up-extending-omniretrieva/specs/001-llmxive-follow-up-extending-omniretrieva",
       "submitter": null,
       "title": "llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Source\"",
-      "updated_at": "2026-10-05T09:44:01.055819+00:00",
+      "updated_at": "2026-10-08T22:36:15.169379+00:00",
       "upstream_feedback": null
     },
     {
@@ -152264,7 +152264,7 @@
       },
       "authors": [
         {
-          "contributions": 76,
+          "contributions": 84,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -152300,12 +152300,76 @@
         "repo_path": "projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md",
         "type": "markdown"
       },
-      "current_stage": "planned",
+      "current_stage": "in_progress",
       "description": "Field: computer science How does extreme input aspect ratio complexity influence temporal grounding accuracy in multimodal language models utilizing native-resolution visual encoding, and to what extent do sparse attention mechanisms mitigate the spatial token dispersion inherent in such geometries? While the original\u2026",
       "field": "computer science",
       "id": "PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 280.492198,
+          "ended_at": "2026-10-08T23:55:33.710238Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-10-08T23:50:53.218040Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 388.282086,
+          "ended_at": "2026-10-08T23:50:53.214242Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-10-08T23:44:24.932156Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 6.411151,
+          "ended_at": "2026-10-08T23:44:24.928490Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-10-08T23:44:18.517339Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 502.865587,
+          "ended_at": "2026-10-08T23:44:09.066264Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-10-08T23:35:46.200677Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 5.593026,
+          "ended_at": "2026-10-08T23:35:46.197000Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-10-08T23:35:40.603974Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 267.735321,
+          "ended_at": "2026-10-08T23:35:40.599875Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-10-08T23:31:12.864554Z"
+        },
+        {
+          "agent": "tasker",
+          "duration_s": 481.403948,
+          "ended_at": "2026-10-08T23:31:12.786136Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-10-08T23:23:11.382188Z"
+        },
+        {
+          "agent": "tasker",
+          "duration_s": 696.509384,
+          "ended_at": "2026-10-08T23:23:11.320318Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-10-08T23:11:34.810934Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 469.601364,
@@ -152321,70 +152385,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-10-05T09:54:07.012217Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 5.899289,
-          "ended_at": "2026-10-05T09:54:07.008614Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-05T09:54:01.109325Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 15.333034,
-          "ended_at": "2026-10-05T09:54:01.105779Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-05T09:53:45.772745Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 6.613193,
-          "ended_at": "2026-10-05T09:53:45.769245Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-05T09:53:39.156052Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 9.258883,
-          "ended_at": "2026-10-05T09:53:39.152607Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-05T09:53:29.893724Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 241.64619,
-          "ended_at": "2026-10-05T09:53:29.890178Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-05T09:49:28.243988Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 756.754187,
-          "ended_at": "2026-09-23T22:50:24.128111Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-23T22:37:47.373924Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 733.23563,
-          "ended_at": "2026-09-23T22:37:47.309522Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-23T22:25:34.073892Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 971.354957,
-          "ended_at": "2026-09-23T22:25:34.026296Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-23T22:09:22.671339Z"
         }
       ],
       "paper_status": null,
@@ -152398,7 +152398,7 @@
       "speckit_research_dir": "projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl",
       "submitter": "llmxive-preprint-followup",
       "title": "llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\"",
-      "updated_at": "2026-10-05T10:02:25.641931+00:00",
+      "updated_at": "2026-10-08T23:44:18.452275+00:00",
       "upstream_feedback": null
     },
     {
@@ -162230,7 +162230,7 @@
         {
           "contributions": 1,
           "kind": "llm",
-          "name": "openai.gpt-oss-120b",
+          "name": "anthropic.claude-haiku-4-5-20251001",
           "roles": [
             "implementer"
           ]
@@ -162238,7 +162238,7 @@
         {
           "contributions": 1,
           "kind": "llm",
-          "name": "anthropic.claude-haiku-4-5-20251001",
+          "name": "openai.gpt-oss-120b",
           "roles": [
             "implementer"
           ]
@@ -166543,6 +166543,738 @@
   ],
   "recent_activity": [
     {
+      "agent": "tasker",
+      "duration_s": 1436.668035,
+      "ended_at": "2026-10-09T00:08:41.366910Z",
+      "failure_reason": "BackendUnavailable: every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "failed",
+      "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
+      "project_stage": "planned",
+      "severity": "hard",
+      "started_at": "2026-10-08T23:44:44.698875Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 280.492198,
+      "ended_at": "2026-10-08T23:55:33.710238Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:50:53.218040Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 388.282086,
+      "ended_at": "2026-10-08T23:50:53.214242Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:44:24.932156Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.0021,
+      "ended_at": "2026-10-08T23:44:44.639000Z",
+      "failure_reason": "TaskFormatError: Tasker must repair ambiguous task identities while preserving requirements. Malformed: []; duplicates: ['T022']",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
+      "project_stage": "planned",
+      "severity": "hard",
+      "started_at": "2026-10-08T23:44:44.636900Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 6.411151,
+      "ended_at": "2026-10-08T23:44:24.928490Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:44:18.517339Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 502.865587,
+      "ended_at": "2026-10-08T23:44:09.066264Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:35:46.200677Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 5.593026,
+      "ended_at": "2026-10-08T23:35:46.197000Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:35:40.603974Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 267.735321,
+      "ended_at": "2026-10-08T23:35:40.599875Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:31:12.864554Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 70.493942,
+      "ended_at": "2026-10-08T23:31:34.477105Z",
+      "failure_reason": "",
+      "model": "zai-org.glm-5.3",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:30:23.983163Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 481.403948,
+      "ended_at": "2026-10-08T23:31:12.786136Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:23:11.382188Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 696.509384,
+      "ended_at": "2026-10-08T23:23:11.320318Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:11:34.810934Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.973782,
+      "ended_at": "2026-10-08T23:11:04.019080Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:11:03.045298Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.930433,
+      "ended_at": "2026-10-08T23:11:02.968078Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:11:02.037645Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.094175,
+      "ended_at": "2026-10-08T23:11:01.962397Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:11:00.868222Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.112768,
+      "ended_at": "2026-10-08T23:11:00.793002Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:10:59.680234Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.117013,
+      "ended_at": "2026-10-08T23:10:59.604109Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:10:58.487096Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.976883,
+      "ended_at": "2026-10-08T23:10:58.410556Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:10:57.433673Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.136248,
+      "ended_at": "2026-10-08T23:10:57.352202Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:10:56.215954Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.079744,
+      "ended_at": "2026-10-08T23:10:56.139662Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:10:55.059918Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.191115,
+      "ended_at": "2026-10-08T23:10:54.983072Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:10:53.791957Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 3.566877,
+      "ended_at": "2026-10-08T23:10:53.651318Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:10:50.084441Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.010081,
+      "ended_at": "2026-10-08T23:09:58.473374Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:09:57.463293Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.046234,
+      "ended_at": "2026-10-08T23:09:57.280579Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:09:56.234345Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.065335,
+      "ended_at": "2026-10-08T23:09:56.036655Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:09:54.971320Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.122235,
+      "ended_at": "2026-10-08T23:09:54.903684Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:09:53.781449Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.765477,
+      "ended_at": "2026-10-08T23:09:53.715846Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:09:51.950369Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.88059,
+      "ended_at": "2026-10-08T23:09:51.885286Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:09:51.004696Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.872913,
+      "ended_at": "2026-10-08T23:09:50.939282Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:09:50.066369Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.954555,
+      "ended_at": "2026-10-08T23:09:49.967475Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:09:49.012920Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.821961,
+      "ended_at": "2026-10-08T23:09:48.948126Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:09:48.126165Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 12.951895,
+      "ended_at": "2026-10-08T23:09:48.789800Z",
+      "failure_reason": "NotADirectoryError: [Errno 20] Not a directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-556-llmxive-automation-system-fully-autonomo/src/config'",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-556-llmxive-automation-system-fully-autonomo",
+      "project_stage": "analyzed",
+      "severity": "hard",
+      "started_at": "2026-10-08T23:09:35.837905Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 4.536603,
+      "ended_at": "2026-10-08T23:09:47.984099Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:09:43.447496Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.825105,
+      "ended_at": "2026-10-08T23:08:29.269633Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:08:28.444528Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.895764,
+      "ended_at": "2026-10-08T23:08:28.402132Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:08:27.506368Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.856884,
+      "ended_at": "2026-10-08T23:08:27.443617Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:08:26.586733Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.085915,
+      "ended_at": "2026-10-08T23:08:26.548646Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:08:25.462731Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.894658,
+      "ended_at": "2026-10-08T23:08:25.424405Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:08:24.529747Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.83518,
+      "ended_at": "2026-10-08T23:08:24.492168Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:08:23.656988Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.909066,
+      "ended_at": "2026-10-08T23:08:23.618886Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:08:22.709820Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.8369,
+      "ended_at": "2026-10-08T23:08:22.671371Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:08:21.834471Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.944015,
+      "ended_at": "2026-10-08T23:08:21.796277Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:08:20.852262Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 2.757501,
+      "ended_at": "2026-10-08T23:08:20.707249Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-08T23:08:17.949748Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 709.932729,
+      "ended_at": "2026-10-08T23:03:13.985346Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-10-08T22:51:24.052617Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 1170.095468,
+      "ended_at": "2026-10-08T22:55:45.319728Z",
+      "failure_reason": "StagePanelEscalation: tasks panel engine failure: RuntimeError: LLMReviewer[constraint_preservation]: review frontmatter has neither `verdict:` nor `concerns:`/`action_items:` \u2014 a contentless/truncate",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-883-llmxive-follow-up-extending-omniretrieva",
+      "project_stage": "planned",
+      "severity": "hard",
+      "started_at": "2026-10-08T22:36:15.224260Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 462.890345,
+      "ended_at": "2026-10-08T22:51:24.005164Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-10-08T22:43:41.114819Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 55.865031,
+      "ended_at": "2026-10-08T22:43:39.424964Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-10-08T22:42:43.559933Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 50.454249,
+      "ended_at": "2026-10-08T22:42:43.557357Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-10-08T22:41:53.103108Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 91.076494,
+      "ended_at": "2026-10-08T22:41:53.100499Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-10-08T22:40:22.024005Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 33.077752,
+      "ended_at": "2026-10-08T22:40:22.021484Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-10-08T22:39:48.943732Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 32.887958,
+      "ended_at": "2026-10-08T22:39:48.941225Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-10-08T22:39:16.053267Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 17.043511,
+      "ended_at": "2026-10-08T22:39:16.050745Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-10-08T22:38:59.007234Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 22.931418,
+      "ended_at": "2026-10-08T22:38:59.004604Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-10-08T22:38:36.073186Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 30.485569,
+      "ended_at": "2026-10-08T22:38:35.958648Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-10-08T22:38:05.473079Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 81.044135,
+      "ended_at": "2026-10-08T22:38:05.470545Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-10-08T22:36:44.426410Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 84.132586,
+      "ended_at": "2026-10-08T22:36:44.423878Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-10-08T22:35:20.291292Z"
+    },
+    {
+      "agent": "planner",
+      "duration_s": 853.936813,
+      "ended_at": "2026-10-08T22:36:15.166757Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-883-llmxive-follow-up-extending-omniretrieva",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-10-08T22:22:01.229944Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 40.256601,
+      "ended_at": "2026-10-08T22:35:20.288776Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-10-08T22:34:40.032175Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 23.922853,
+      "ended_at": "2026-10-08T22:34:40.029641Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-10-08T22:34:16.106788Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 5.416575,
+      "ended_at": "2026-10-08T22:34:16.104277Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-10-08T22:34:10.687702Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 13.666507,
+      "ended_at": "2026-10-08T22:34:10.685196Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-10-08T22:33:57.018689Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 26.665084,
+      "ended_at": "2026-10-08T22:33:57.016039Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-10-08T22:33:30.350955Z"
+    },
+    {
       "agent": "implementer",
       "duration_s": 2.579588,
       "ended_at": "2026-10-08T22:33:24.246623Z",
@@ -166616,6 +167348,18 @@
     },
     {
       "agent": "implementer",
+      "duration_s": 25.588871,
+      "ended_at": "2026-10-08T22:33:14.616030Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-10-08T22:32:49.027159Z"
+    },
+    {
+      "agent": "implementer",
       "duration_s": 1.105055,
       "ended_at": "2026-10-08T22:33:13.967593Z",
       "failure_reason": "",
@@ -166661,6 +167405,162 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-08T22:33:07.053484Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 149.181462,
+      "ended_at": "2026-10-08T22:32:49.024621Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-10-08T22:30:19.843159Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 58.259075,
+      "ended_at": "2026-10-08T22:30:19.840627Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-10-08T22:29:21.581552Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 44.543491,
+      "ended_at": "2026-10-08T22:29:21.579029Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-10-08T22:28:37.035538Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 47.35536,
+      "ended_at": "2026-10-08T22:28:37.032996Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-10-08T22:27:49.677636Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 22.307559,
+      "ended_at": "2026-10-08T22:27:49.675086Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-10-08T22:27:27.367527Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 35.313606,
+      "ended_at": "2026-10-08T22:27:27.364925Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-10-08T22:26:52.051319Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 17.500542,
+      "ended_at": "2026-10-08T22:26:52.048715Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-10-08T22:26:34.548173Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 14.027505,
+      "ended_at": "2026-10-08T22:26:34.545606Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-10-08T22:26:20.518101Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 27.078878,
+      "ended_at": "2026-10-08T22:26:20.515508Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-10-08T22:25:53.436630Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 3.294309,
+      "ended_at": "2026-10-08T22:25:53.434072Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-10-08T22:25:50.139763Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 20.291422,
+      "ended_at": "2026-10-08T22:25:50.137166Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-10-08T22:25:29.845744Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 604.424601,
+      "ended_at": "2026-10-08T22:25:29.795369Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-189-investigating-the-correlation-between-gu",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-10-08T22:15:25.370768Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 722.673495,
+      "ended_at": "2026-10-08T22:22:01.173790Z",
+      "failure_reason": "StagePanelKickback: tasks panel did not converge: 3 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst unresolved severity = 'requirement'. Routing to 'clarified' with full prove",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-883-llmxive-follow-up-extending-omniretrieva",
+      "project_stage": "planned",
+      "severity": "soft",
+      "started_at": "2026-10-08T22:09:58.500295Z"
     },
     {
       "agent": "implementer",
@@ -166754,7 +167654,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T22:09:30.571130Z"
     },
@@ -166802,7 +167702,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T22:09:29.330279Z"
     },
@@ -166838,7 +167738,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T22:09:27.885402Z"
     },
@@ -166886,7 +167786,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T22:09:26.545963Z"
     },
@@ -166922,7 +167822,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T22:09:24.564305Z"
     },
@@ -166934,7 +167834,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T22:09:20.543233Z"
     },
@@ -166958,7 +167858,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T22:09:19.191765Z"
     },
@@ -166982,7 +167882,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T22:09:18.263374Z"
     },
@@ -166994,7 +167894,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T22:09:16.459919Z"
     },
@@ -167018,7 +167918,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T22:09:11.489432Z"
     },
@@ -168122,7 +169022,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T21:09:33.668428Z"
     },
@@ -168134,7 +169034,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T21:09:31.364935Z"
     },
@@ -168146,7 +169046,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T21:09:30.386841Z"
     },
@@ -168158,7 +169058,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T21:09:29.382540Z"
     },
@@ -168170,7 +169070,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T21:09:27.503631Z"
     },
@@ -168182,7 +169082,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T21:09:26.644660Z"
     },
@@ -168194,7 +169094,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T21:09:25.660361Z"
     },
@@ -168206,7 +169106,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T21:09:24.624633Z"
     },
@@ -168218,7 +169118,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T21:09:23.527455Z"
     },
@@ -168230,7 +169130,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T21:09:20.149967Z"
     },
@@ -168986,7 +169886,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T20:09:37.799965Z"
     },
@@ -168998,7 +169898,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T20:09:36.229633Z"
     },
@@ -169010,7 +169910,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T20:09:35.021531Z"
     },
@@ -169022,7 +169922,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T20:09:33.923151Z"
     },
@@ -169034,7 +169934,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T20:09:32.389572Z"
     },
@@ -169046,7 +169946,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T20:09:30.996224Z"
     },
@@ -169058,7 +169958,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T20:09:29.722051Z"
     },
@@ -169070,7 +169970,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T20:09:28.010355Z"
     },
@@ -169082,7 +169982,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T20:09:26.859123Z"
     },
@@ -169094,7 +169994,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T20:09:20.737662Z"
     },
@@ -169634,7 +170534,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T19:10:20.682314Z"
     },
@@ -169646,7 +170546,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T19:10:19.507792Z"
     },
@@ -169658,7 +170558,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T19:10:17.967746Z"
     },
@@ -169670,7 +170570,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T19:10:17.096784Z"
     },
@@ -169682,7 +170582,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T19:10:15.492401Z"
     },
@@ -169694,7 +170594,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T19:10:12.996463Z"
     },
@@ -169706,7 +170606,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T19:10:08.899841Z"
     },
@@ -169730,7 +170630,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T19:10:07.843681Z"
     },
@@ -169754,7 +170654,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T19:10:06.861251Z"
     },
@@ -169778,7 +170678,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T19:10:02.105379Z"
     },
@@ -170978,7 +171878,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T18:10:45.215892Z"
     },
@@ -170990,7 +171890,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T18:10:44.337242Z"
     },
@@ -171002,7 +171902,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T18:10:36.596686Z"
     },
@@ -171014,7 +171914,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T18:10:35.613503Z"
     },
@@ -171026,7 +171926,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T18:10:29.489393Z"
     },
@@ -171038,7 +171938,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T18:10:27.969384Z"
     },
@@ -171050,7 +171950,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T18:10:26.692766Z"
     },
@@ -171062,7 +171962,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T18:10:25.593223Z"
     },
@@ -171074,7 +171974,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T18:10:24.650849Z"
     },
@@ -171086,7 +171986,7 @@
       "model": "qwen.qwen3.5-122b",
       "outcome": "success",
       "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
+      "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T18:10:21.191205Z"
     },
@@ -171641,906 +172541,6 @@
       "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-08T17:52:02.456631Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 24.763913,
-      "ended_at": "2026-10-08T17:52:02.453183Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:51:37.689270Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 17.883417,
-      "ended_at": "2026-10-08T17:51:37.685753Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:51:19.802336Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 21.866325,
-      "ended_at": "2026-10-08T17:51:19.798824Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:50:57.932499Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 31.896131,
-      "ended_at": "2026-10-08T17:50:57.929022Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:50:26.032891Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 26.839026,
-      "ended_at": "2026-10-08T17:50:26.029410Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:49:59.190384Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 36.039795,
-      "ended_at": "2026-10-08T17:49:59.186916Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:49:23.147121Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 14.995194,
-      "ended_at": "2026-10-08T17:49:31.836745Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-270-predicting-insect-pollinator-networks-fr",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:49:16.841551Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 28.443907,
-      "ended_at": "2026-10-08T17:49:23.143668Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:48:54.699761Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 18.588821,
-      "ended_at": "2026-10-08T17:49:16.837622Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-270-predicting-insect-pollinator-networks-fr",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:48:58.248801Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 19.685826,
-      "ended_at": "2026-10-08T17:48:58.244887Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-270-predicting-insect-pollinator-networks-fr",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:48:38.559061Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 19.640114,
-      "ended_at": "2026-10-08T17:48:54.696302Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:48:35.056188Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 14.371926,
-      "ended_at": "2026-10-08T17:48:36.787114Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-270-predicting-insect-pollinator-networks-fr",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:48:22.415188Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 48.5306,
-      "ended_at": "2026-10-08T17:48:35.052718Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:47:46.522118Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 32.148698,
-      "ended_at": "2026-10-08T17:48:22.411398Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-270-predicting-insect-pollinator-networks-fr",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:47:50.262700Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 15.853318,
-      "ended_at": "2026-10-08T17:47:50.258745Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-270-predicting-insect-pollinator-networks-fr",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:47:34.405427Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 27.315764,
-      "ended_at": "2026-10-08T17:47:46.518634Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:47:19.202870Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 16.112091,
-      "ended_at": "2026-10-08T17:47:26.270683Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-270-predicting-insect-pollinator-networks-fr",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:47:10.158592Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 24.666681,
-      "ended_at": "2026-10-08T17:47:19.199363Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:46:54.532682Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 55.447521,
-      "ended_at": "2026-10-08T17:47:10.154708Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-270-predicting-insect-pollinator-networks-fr",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:46:14.707187Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 39.122955,
-      "ended_at": "2026-10-08T17:46:54.529186Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:46:15.406231Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 29.056101,
-      "ended_at": "2026-10-08T17:46:15.402769Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:45:46.346668Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 42.708945,
-      "ended_at": "2026-10-08T17:46:14.703300Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-270-predicting-insect-pollinator-networks-fr",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:45:31.994355Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 14.888709,
-      "ended_at": "2026-10-08T17:45:46.343100Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:45:31.454391Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 58.353472,
-      "ended_at": "2026-10-08T17:45:31.990392Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-270-predicting-insect-pollinator-networks-fr",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:44:33.636920Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 32.89493,
-      "ended_at": "2026-10-08T17:45:31.450925Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:44:58.555995Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 26.994179,
-      "ended_at": "2026-10-08T17:44:58.552513Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:44:31.558334Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 5.057742,
-      "ended_at": "2026-10-08T17:44:33.633036Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-270-predicting-insect-pollinator-networks-fr",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:44:28.575294Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 17.670908,
-      "ended_at": "2026-10-08T17:44:31.554819Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:44:13.883911Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 67.458104,
-      "ended_at": "2026-10-08T17:44:28.571339Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-270-predicting-insect-pollinator-networks-fr",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:43:21.113235Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 16.508396,
-      "ended_at": "2026-10-08T17:44:13.880312Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:43:57.371916Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 54.752356,
-      "ended_at": "2026-10-08T17:43:44.887261Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:42:50.134905Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 52.68196,
-      "ended_at": "2026-10-08T17:43:21.109286Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-270-predicting-insect-pollinator-networks-fr",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:42:28.427326Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 44.660144,
-      "ended_at": "2026-10-08T17:42:50.131409Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:42:05.471265Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 43.93404,
-      "ended_at": "2026-10-08T17:42:28.423409Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-270-predicting-insect-pollinator-networks-fr",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:41:44.489369Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 47.944469,
-      "ended_at": "2026-10-08T17:42:05.467792Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:41:17.523323Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 38.127872,
-      "ended_at": "2026-10-08T17:41:44.485032Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-270-predicting-insect-pollinator-networks-fr",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:41:06.357160Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 49.168846,
-      "ended_at": "2026-10-08T17:41:17.519882Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:40:28.351036Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 5.700667,
-      "ended_at": "2026-10-08T17:41:06.353278Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-270-predicting-insect-pollinator-networks-fr",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:41:00.652611Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 5.087564,
-      "ended_at": "2026-10-08T17:41:00.648780Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-270-predicting-insect-pollinator-networks-fr",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:40:55.561216Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 4.984675,
-      "ended_at": "2026-10-08T17:40:55.557351Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-270-predicting-insect-pollinator-networks-fr",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:40:50.572676Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 45.072785,
-      "ended_at": "2026-10-08T17:40:50.568727Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-270-predicting-insect-pollinator-networks-fr",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:40:05.495942Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 46.528675,
-      "ended_at": "2026-10-08T17:40:28.347511Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:39:41.818836Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 55.434182,
-      "ended_at": "2026-10-08T17:40:05.492054Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-270-predicting-insect-pollinator-networks-fr",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:39:10.057872Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 36.403554,
-      "ended_at": "2026-10-08T17:39:41.815339Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:39:05.411785Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 24.950214,
-      "ended_at": "2026-10-08T17:39:05.408289Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:38:40.458075Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 1.298775,
-      "ended_at": "2026-10-08T17:38:42.313508Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-270-predicting-insect-pollinator-networks-fr",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:38:41.014733Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 825.574432,
-      "ended_at": "2026-10-08T17:38:40.940251Z",
-      "failure_reason": "StagePanelKickback: tasks panel did not converge: 5 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst unresolved severity = 'requirement'. Routing to 'clarified' with full prove",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "failed",
-      "project_id": "PROJ-270-predicting-insect-pollinator-networks-fr",
-      "project_stage": "in_progress",
-      "severity": "soft",
-      "started_at": "2026-10-08T17:24:55.365819Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 36.021275,
-      "ended_at": "2026-10-08T17:38:40.454580Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:38:04.433305Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 23.834174,
-      "ended_at": "2026-10-08T17:38:04.429813Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:37:40.595639Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 27.929829,
-      "ended_at": "2026-10-08T17:37:40.592117Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:37:12.662288Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 39.562698,
-      "ended_at": "2026-10-08T17:37:12.658709Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:36:33.096011Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 10.382559,
-      "ended_at": "2026-10-08T17:36:33.092488Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:36:22.709929Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 71.821088,
-      "ended_at": "2026-10-08T17:36:22.706409Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:35:10.885321Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 17.737688,
-      "ended_at": "2026-10-08T17:35:10.881807Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:34:53.144119Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 34.491632,
-      "ended_at": "2026-10-08T17:34:53.140599Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:34:18.648967Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 17.714116,
-      "ended_at": "2026-10-08T17:34:18.645448Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:34:00.931332Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 4.223334,
-      "ended_at": "2026-10-08T17:34:00.927704Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:33:56.704370Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 17.821424,
-      "ended_at": "2026-10-08T17:33:56.700821Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:33:38.879397Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 338.446258,
-      "ended_at": "2026-10-08T17:33:38.801514Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:28:00.355256Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 561.911961,
-      "ended_at": "2026-10-08T17:28:00.289898Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:18:38.377937Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 939.594621,
-      "ended_at": "2026-10-08T17:24:55.310159Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-270-predicting-insect-pollinator-networks-fr",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:09:15.715538Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 1.554147,
-      "ended_at": "2026-10-08T17:09:45.556453Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:09:44.002306Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 1.09677,
-      "ended_at": "2026-10-08T17:09:43.949992Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:09:42.853222Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 1.060845,
-      "ended_at": "2026-10-08T17:09:42.800391Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:09:41.739546Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 1.309367,
-      "ended_at": "2026-10-08T17:09:41.683368Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:09:40.374001Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.802484,
-      "ended_at": "2026-10-08T17:09:40.218444Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:09:39.415960Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 1.666879,
-      "ended_at": "2026-10-08T17:09:39.304723Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:09:37.637844Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 1.392566,
-      "ended_at": "2026-10-08T17:09:37.584822Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:09:36.192256Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 1.527593,
-      "ended_at": "2026-10-08T17:09:36.138669Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:09:34.611076Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.903368,
-      "ended_at": "2026-10-08T17:09:34.522778Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:09:33.619410Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 3.735678,
-      "ended_at": "2026-10-08T17:09:33.558118Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:09:29.822440Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.944974,
-      "ended_at": "2026-10-08T17:09:29.561063Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:09:28.616089Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 1.211329,
-      "ended_at": "2026-10-08T17:09:28.568503Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:09:27.357174Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 1.121846,
-      "ended_at": "2026-10-08T17:09:27.269433Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:09:26.147587Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 1.015869,
-      "ended_at": "2026-10-08T17:09:26.107553Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T17:09:25.091684Z"
     }
   ],
   "reviewed_preprints": [
