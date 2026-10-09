@@ -415,11 +415,20 @@ class ImplementerAgent(SlashCommandAgent):
                     relpath = relpath[len(proj_prefix):]
                 if not relpath.endswith(".py"):
                     continue  # only run python scripts
+                # YAML infers unquoted numeric CLI arguments as numbers. Their
+                # literal decimal representation is safe argv, without a shell.
+                # Preserve other invalid types for the sandbox to reject.
+                script_args = art.get("args", [])
+                if isinstance(script_args, list):
+                    import math
+                    script_args = [str(arg) if type(arg) is int or (
+                        type(arg) is float and math.isfinite(arg)) else arg
+                        for arg in script_args]
                 try:
                     result = _sandbox.run_python_script(
                         project_dir=project_root,
                         script_relpath=relpath,
-                        script_args=art.get("args", []),
+                        script_args=script_args,
                         timeout_s=int(art.get("timeout_s", 600)),
                     )
                 except Exception as exc:  # pragma: no cover — defensive
@@ -436,7 +445,7 @@ class ImplementerAgent(SlashCommandAgent):
                 log_path.write_text(
                     f"# {relpath} (exit {result.returncode}, "
                     f"{result.duration_s:.1f}s, ok={result.ok})\n\n"
-                    f"Arguments: {art.get('args', [])!r}\n\n"
+                    f"Arguments: {script_args!r}\n\n"
                     f"## stdout\n\n```\n{result.stdout}\n```\n\n"
                     f"## stderr\n\n```\n{result.stderr}\n```\n",
                     encoding="utf-8",
