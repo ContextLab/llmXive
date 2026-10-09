@@ -125,6 +125,7 @@ def _artifact_valid(project_dir: Path, rel: str) -> bool:
     """True iff ``rel`` exists, is non-empty, AND (for declared data outputs) parses
     with at least one data row. Pure filesystem + stdlib parse — never an LLM."""
     import json
+    import yaml
 
     f = _evidence_path(project_dir, rel)
     if f is not None and rel.endswith("/") and f.is_dir():
@@ -150,9 +151,16 @@ def _artifact_valid(project_dir: Path, rel: str) -> bool:
             if isinstance(data, (list, dict)):
                 return len(data) > 0
             return data is not None
+        if ext in {".yaml", ".yml"}:
+            if size > _VALIDATE_MAX_BYTES:
+                return True  # Oversized artifacts still require semantic review.
+            # A plausible-looking checksum manifest/config is not usable when
+            # its YAML reader cannot load it (e.g. literal escaped newlines).
+            documents = list(yaml.safe_load_all(f.read_text(encoding="utf-8")))
+            return any(document is not None for document in documents)
         # code / config / text / binary artifact: non-empty with real content.
         return bool(f.read_bytes()[:_VALIDATE_MAX_BYTES].strip())
-    except (OSError, ValueError):
+    except (OSError, ValueError, yaml.YAMLError):
         return False  # a malformed data/JSON file is NOT valid evidence
 
 
