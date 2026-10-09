@@ -1,6 +1,6 @@
 """Claim processing cannot replace executable requirements with factual pointers."""
-from types import SimpleNamespace
 from dataclasses import replace
+from types import SimpleNamespace
 
 import pytest
 

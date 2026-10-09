@@ -24,3 +24,5 @@ original instruction rather than a shorter factual value, refusal of unrelated
 claim records, and continued full extraction for research results. The live
 canary was stopped to deploy this specific correctness fix; its scientific code,
 results and statuses were not manually edited.
+
+The next live run exposed nested historical pointers; recovery now recursively expands the original stored spans with cycle/depth protection (8 focused tests). It also showed task revision running claim extraction on unchanged specification/plan context. Research and paper task revisers now apply revision guards only to their writable task document, then restore the unchanged context; 19 requirement/reviser tests pass.

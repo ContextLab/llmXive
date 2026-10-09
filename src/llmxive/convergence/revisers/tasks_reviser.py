@@ -186,12 +186,13 @@ class _AbstractTasksReviser:
             new_tasks, responses = self._parse_response(
                 response_text, concerns, tasks_path
             )
-            updated = dict(artifacts)
-            updated[tasks_path] = new_tasks
-            return updated, responses
+            # Only the task document is editable. Passing context files through
+            # post-revision claim guards would rewrite the already-approved
+            # specification and plan, and spend model calls auditing them anew.
+            return {tasks_path: new_tasks}, responses
 
         # FR-011 self-consistency pass: first pass + ONE corrective re-pass.
-        return run_with_self_consistency(
+        revised, responses = run_with_self_consistency(
             backend=self._backend,
             model=self._model,
             repo_root=self._repo_root,
@@ -202,6 +203,7 @@ class _AbstractTasksReviser:
             redo=_run_pass,
             stage_label="tasks",  # spec 020 FR-001: planning → references-only + strip/smooth
         )
+        return {**artifacts, **revised}, responses
 
     # --- internal helpers ---------------------------------------------------
 
