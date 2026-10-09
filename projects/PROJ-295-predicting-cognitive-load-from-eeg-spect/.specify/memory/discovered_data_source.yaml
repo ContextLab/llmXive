@@ -1,19 +1,16 @@
 status: none
-intent: download OpenNeuro ds000246 EEG dataset BIDS format pip install python package
-  dataset
+intent: OpenNeuro ds000246 EEG download via openneuro-cli python package dataset
 required_fields:
 - subject_id
 - session_id
-- recording_id
-- eeg_signal
-- sampling_rate
+- run_id
+- eeg_data
+- eeg_sampling_rate
 - channel_names
-- channel_locations
-- event_id
-- event_onset
-- event_duration
-- event_type
+- event_onset_times
+- event_labels
 - behavioral_timestamp
-cache_key: 1c4aab68dfcdb57adab02fb670d1df8e097cbd1fc44d94d46e24eac06d39b216
-searched_at: '2026-09-02T16:50:25.738462+00:00'
+- behavioral_label
+cache_key: 771afd212977de5546e36a2897e5684fef8b7839b0bc999d02ad4f17bb5977b9
+searched_at: '2026-10-09T04:19:18.715209+00:00'
 retry_count: 1

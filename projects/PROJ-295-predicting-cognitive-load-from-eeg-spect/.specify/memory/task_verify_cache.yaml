@@ -1,3 +1,51 @@
+T003:
+  c: false
+  h: 4f00b0ed03080084c2231f746de382ba0b480239a1138ff186eb57dde78e4b09
+  r: No directory listing or other evidence was provided to show that the required
+    folders (`code/data`, `code/features`, `code/models`, `tests/unit`, `tests/integration`,
+    `data/raw`, `data/processed`, `results`) were actually created. Without concrete
+    proof of these paths existing, the task cannot be considered completed.
+T005:
+  c: false
+  h: da035c615b4a7477b8935e17e4c28a6be5da19abc4b33e8864691f1c6787f0ef
+  r: The provided `requirements.txt` lists the required packages but uses open-ended
+    `>=` version specifiers instead of exact pinned versions, and it also includes
+    additional packages not requested. The task explicitly required pinned dependencies,
+    so the artifact does not satisfy the specification.
+T006:
+  c: true
+  h: 8d72011936800f09277cf1347d34e9fe7ecef8a716f076311ce5458033f9ab3b
+  r: "The provided `pyproject.toml` is present, non\u2011empty, and contains full\
+    \ configuration sections for both Black (`[tool.black]`) and Ruff (`[tool.ruff]`\
+    \ and related sub\u2011sections), as well as dev dependencies listing the two\
+    \ tools. This matches the task\u2019s requirement to configure linting and formatting\
+    \ in the file."
+T007:
+  c: true
+  h: 9d9294df62fa680ba5357e12b43bcaa78ed39439b85d9426cb477252303b8755
+  r: "The repository contains a non\u2011empty `code/config.py` that defines `load_config`\
+    \ to read `pipeline_config.yaml` and `get_env_variable` to retrieve environment\
+    \ variables, fulfilling the stated requirement. The accompanying `pipeline_config.yaml`\
+    \ is present and correctly formatted."
+T009:
+  c: false
+  h: bc9f97557e2fdceb6fdecd5207134052e81fd88660a7a685dc801a73ca52c5b1
+  r: "The provided `code/data/generate_manifest.py` only re\u2011exports functions\
+    \ from another module and does not contain any logic to download a tarball, compute\
+    \ its SHA\u2011256 checksum, or write a manifest file. The existing `data/manifest.yaml`\
+    \ lacks the required top\u2011level `checksum_sha256` field (and the `url`/`version`\
+    \ fields are nested under `dataset` rather than at the manifest root). Consequently,\
+    \ the task\u2019s specification\u2014producing a manifest with `url`, `version`,\
+    \ and `checksum_sha256`\u2014is not satisfied. The missing implementation and\
+    \ absent checksum field must be added."
+T010:
+  c: false
+  h: f553490ab395ed64df8904a215208089ec71888e6c783e086d93c7ba6c94a06a
+  r: The `download.py` script correctly downloads the primary dataset and checks for
+    `gaze.tsv`, but when the file is missing it only raises a `FileNotFoundError`
+    and prints a message; it never attempts to automatically download the fallback
+    dataset (`ds003465`) before raising the error, as the task requires. Adding logic
+    to trigger a fallback download in the exception handling path is needed.
 T030:
   c: false
   h: 602f7ca57d702b103053352d415dd4983ab5febe5faf3f62c0b5cc07e913eb93

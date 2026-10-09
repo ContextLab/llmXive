@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T003 [P] Create project structure per implementation plan: `mkdir -p code/data code/features code/models tests/unit tests/integration data/raw data/processed results`.
+- [ ] T003 [P] Create project structure per implementation plan: `mkdir -p code/data code/features code/models tests/unit tests/integration data/raw data/processed results`.
 
-- [X] T005 [P] Initialize Python project with pinned dependencies (`mne`, `scikit-learn`, `pandas`, `numpy`, `pyarrow`, `requests`) in `requirements.txt`
+- [ ] T005 [P] Initialize Python project with pinned dependencies (`mne`, `scikit-learn`, `pandas`, `numpy`, `pyarrow`, `requests`) in `requirements.txt`
 
 - [X] T006 [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml`
 
@@ -59,25 +59,25 @@
 
 - [X] T007 [P] Implement `code/config.py` to load `pipeline_config.yaml` and environment variables.
 
-- [X] T010 [P] Implement `code/data/download.py` with a strict verification gate: fetch the primary dataset (ds00XXXX), check for `gaze.tsv`; if missing, automatically attempt to fetch the fallback dataset (ds00XXXX) before raising a `FileNotFoundError` with a clear message and flag spec for the fallback dataset. **Do NOT implement silent synthetic fallback**.
+- [ ] T010 [P] Implement `code/data/download.py` with a strict verification gate: fetch the primary dataset (ds00XXXX), check for `gaze.tsv`; if missing, automatically attempt to fetch the fallback dataset (ds00XXXX) before raising a `FileNotFoundError` with a clear message and flag spec for the fallback dataset. **Do NOT implement silent synthetic fallback**.
 
-- [X] T009 [US1] Implement `code/data/generate_manifest.py` to produce `data/manifest.yaml` containing fields: `url`, `version`, `checksum_sha256` (computed via SHA-256 of the downloaded tarball). **Must run after T010**.
+- [ ] T009 [US1] Implement `code/data/generate_manifest.py` to produce `data/manifest.yaml` containing fields: `url`, `version`, `checksum_sha256` (computed via SHA-256 of the downloaded tarball). **Must run after T010**.
 
-- [X] T000 [US1] Implement `code/data/verify_dataset.py` to verify the presence of `gaze.tsv` and EEG data in the downloaded dataset (output of T010). **Do NOT fetch data; verify local files**. **HALT** with `FileNotFoundError` and a clear message if gaze data is missing (after T010's fallback attempt fails), flagging the spec for update. **Output**: `results/verification_report.json` containing `status`, `message`, and `n_channels` (derived from dataset metadata). **Must run after T010**.
+- [~] T000 [US1] Implement `code/data/verify_dataset.py` to verify the presence of `gaze.tsv` and EEG data in the downloaded dataset (output of T010). **Do NOT fetch data; verify local files**. **HALT** with `FileNotFoundError` and a clear message if gaze data is missing (after T010's fallback attempt fails), flagging the spec for update. **Output**: `results/verification_report.json` containing `status`, `message`, and `n_channels` (derived from dataset metadata). **Must run after T010**.
 
-- [X] T036 [P] [Polish] Implement `code/utils/verify_data_integrity.py` to run pre-flight checks on `data/raw` ensuring all required files (EEG, gaze.tsv) exist and match checksums in `manifest.yaml` (T009) AND that `results/verification_report.json` (T000) exists and indicates success, before any heavy processing begins. **Must run after T000 and T009**.
+- [~] T036 [P] [Polish] Implement `code/utils/verify_data_integrity.py` to run pre-flight checks on `data/raw` ensuring all required files (EEG, gaze.tsv) exist and match checksums in `manifest.yaml` (T009) AND that `results/verification_report.json` (T000) exists and indicates success, before any heavy processing begins. **Must run after T000 and T009**.
 
-- [X] T001 [P] [US1] Implement `code/data/power_analysis.py` to calculate minimum N required for R²=0.2 with `n_channels * 2` predictors **derived from `results/verification_report.json` (T000 output)**. **Use alpha=0.05, power=0.8**. **Must explicitly check for the existence of `results/verification_report.json` before reading n_channels. If the file is missing, exit with a specific error code (e.g., sys.exit(2)) and print "Power analysis failed: verification report missing"**. **HALT with `sys.exit(1)` and print error to stderr** if actual_n < calculated_min_n, flagging study as underpowered and preventing any further pipeline execution. **Output**: `results/power_analysis_report.json` (only if N is sufficient). **Must run after T000**.
+- [~] T001 [P] [US1] Implement `code/data/power_analysis.py` to calculate minimum N required for R²=0.2 with `n_channels * 2` predictors **derived from `results/verification_report.json` (T000 output)**. **Use alpha=0.05, power=0.8**. **Must explicitly check for the existence of `results/verification_report.json` before reading n_channels. If the file is missing, exit with a specific error code (e.g., sys.exit(2)) and print "Power analysis failed: verification report missing"**. **HALT with `sys.exit(1)` and print error to stderr** if actual_n < calculated_min_n, flagging study as underpowered and preventing any further pipeline execution. **Output**: `results/power_analysis_report.json` (only if N is sufficient). **Must run after T000**.
 
-- [X] T008 [P] [US1] Implement `code/data/loader.py` with chunked loading logic (by `epoch_id`) to ensure memory safety (≤ 6.5 GB). **Logic must be triggered when estimated memory usage > 5.5 GB**. **Do NOT use streaming API**.
+- [~] T008 [P] [US1] Implement `code/data/loader.py` with chunked loading logic (by `epoch_id`) to ensure memory safety (≤ 6.5 GB). **Logic must be triggered when estimated memory usage > 5.5 GB**. **Do NOT use streaming API**.
 
-- [X] T002 [P] [US1] Implement `code/data/memory_check.py` to verify chunked loading logic with a **representative sample of the actual dataset (a subset of subjects from ds000246)**, ensuring peak memory usage stays within acceptable operational limits (≤ 6.5 GB). **Note**: The dependency on T036 is for **runtime execution only** (the memory check script must run after T036's verification script has confirmed data integrity), NOT for task implementation order. The task T002 can be implemented independently. **Output**: `results/memory_check_report.json`. **Must run after T008**.
+- [~] T002 [P] [US1] Implement `code/data/memory_check.py` to verify chunked loading logic with a **representative sample of the actual dataset (a subset of subjects from ds000246)**, ensuring peak memory usage stays within acceptable operational limits (≤ 6.5 GB). **Note**: The dependency on T036 is for **runtime execution only** (the memory check script must run after T036's verification script has confirmed data integrity), NOT for task implementation order. The task T002 can be implemented independently. **Output**: `results/memory_check_report.json`. **Must run after T008**.
 
-- [X] T042 [P] [US1] Implement `code/utils/runtime_profiler.py` to profile pipeline execution time and enforce the -hour runtime limit (SC-002). **Must provide a `check_and_halt()` function that checks elapsed time and calls `sys.exit(1)` if limit exceeded**. **Must log estimated runtime and HALT execution if actual execution time exceeds a reasonable threshold.**. **Output**: `results/runtime_profile.json` (mandatory for final report).
+- [ ] T042 [P] [US1] Implement `code/utils/runtime_profiler.py` to profile pipeline execution time and enforce the -hour runtime limit (SC-002). **Must provide a `check_and_halt()` function that checks elapsed time and calls `sys.exit(1)` if limit exceeded**. **Must log estimated runtime and HALT execution if actual execution time exceeds a reasonable threshold.**. **Output**: `results/runtime_profile.json` (mandatory for final report).
 
-- [X] T011 [P] Create `pipeline_config.yaml` with default signal processing parameters: **Low-frequency to Hz bandpass**, **Hz downsampling**, **/60 Hz line noise**, and **explicit ICA settings (method='picard', n_components=0.95)**.
+- [~] T011 [P] Create `pipeline_config.yaml` with default signal processing parameters: **Low-frequency to Hz bandpass**, **Hz downsampling**, **/60 Hz line noise**, and **explicit ICA settings (method='picard', n_components=0.95)**.
 
-- [X] T011b [P] [Polish] Implement `code/data/generate_config_defaults.py` to **generate and validate the `window_sizes` list in `pipeline_config.yaml`**. **Must ensure `window_sizes` key exists with a list of at least 3 integers (e.g., [5, 10, 20])**. **Must run after T011 and before T029**. **Output**: Updated `pipeline_config.yaml`.
+- [~] T011b [P] [Polish] Implement `code/data/generate_config_defaults.py` to **generate and validate the `window_sizes` list in `pipeline_config.yaml`**. **Must ensure `window_sizes` key exists with a list of at least 3 integers (e.g., [5, 10, 20])**. **Must run after T011 and before T029**. **Output**: Updated `pipeline_config.yaml`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -93,15 +93,15 @@
 
 > **NOTE: Write these tests FIRST (Pre-implementation TDD) to ensure they FAIL before implementation**
 
-- [X] T012 [P] [US1] Unit test for chunked loading logic in `tests/unit/test_loader.py` (verify memory peak < 6.5GB).
-- [X] T013 [P] [US1] Unit test for dataset verification gate in `tests/unit/test_download.py` (verify halt on missing gaze data).
-- [X] T014 [P] [US1] Integration test for full preprocessing pipeline in `tests/integration/test_preprocess.py` (verify ICA removal and epoch retention > 70%).
+- [~] T012 [P] [US1] Unit test for chunked loading logic in `tests/unit/test_loader.py` (verify memory peak < 6.5GB).
+- [~] T013 [P] [US1] Unit test for dataset verification gate in `tests/unit/test_download.py` (verify halt on missing gaze data).
+- [~] T014 [P] [US1] Integration test for full preprocessing pipeline in `tests/integration/test_preprocess.py` (verify ICA removal and epoch retention > 70%).
 
 ### Implementation for User Story 1
 
-- [X] T015 [US1] Implement `code/data/preprocess_filter.py` to apply a Butterworth bandpass filter (low-frequency cutoff to 45 Hz) and a notch filter (50/60 Hz) as defined in `pipeline_config.yaml`. **Read filter parameters (1–45 Hz, 250 Hz) from `pipeline_config.yaml`**. **Validate that `line_noise_freq` is defined in `pipeline_config.yaml`; raise ValueError if missing**. **Check for `metadata_grid_frequency` in dataset metadata; if present, override `line_noise_freq` with this value to match local grid frequency**. **Must run after T010**. (Plan Phase 1, Step 2).
-- [X] T016 [US1] Implement `code/data/preprocess_ica.py` to apply ICA for eye-blink artifact removal and retain only clean components. **Must run after T015**. (Plan Phase 1, Step 3).
-- [X] T017 [US1] Implement `code/data/preprocess_epoch.py` to segment data into epochs aligned with behavioral events, exclude subjects with > 50% rejected epochs, calculate epoch retention rate, and **HALT execution if < 70%**. **Must run after T016**. (Plan Phase 1, Step 5).
+- [~] T015 [US1] Implement `code/data/preprocess_filter.py` to apply a Butterworth bandpass filter (low-frequency cutoff to 45 Hz) and a notch filter (50/60 Hz) as defined in `pipeline_config.yaml`. **Read filter parameters (1–45 Hz, 250 Hz) from `pipeline_config.yaml`**. **Validate that `line_noise_freq` is defined in `pipeline_config.yaml`; raise ValueError if missing**. **Check for `metadata_grid_frequency` in dataset metadata; if present, override `line_noise_freq` with this value to match local grid frequency**. **Must run after T010**. (Plan Phase 1, Step 2).
+- [~] T016 [US1] Implement `code/data/preprocess_ica.py` to apply ICA for eye-blink artifact removal and retain only clean components. **Must run after T015**. (Plan Phase 1, Step 3).
+- [ ] T017 [US1] Implement `code/data/preprocess_epoch.py` to segment data into epochs aligned with behavioral events, exclude subjects with > 50% rejected epochs, calculate epoch retention rate, and **HALT execution if < 70%**. **Must run after T016**. (Plan Phase 1, Step 5).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -117,17 +117,17 @@
 
 > **NOTE: Write these tests FIRST (Pre-implementation TDD) to ensure they FAIL before implementation**
 
-- [X] T018 [P] [US2] Unit test for Welch's PSD calculation in `tests/unit/test_extract.py` (verify band limits).
-- [X] T019 [P] [US2] Unit test for gaze variance calculation in `tests/unit/test_labels.py` (verify min-max scaling).
-- [X] T020 [P] [US2] Unit test for missing value flagging in `tests/unit/test_validity.py` (verify > 5% threshold).
+- [~] T018 [P] [US2] Unit test for Welch's PSD calculation in `tests/unit/test_extract.py` (verify band limits).
+- [~] T019 [P] [US2] Unit test for gaze variance calculation in `tests/unit/test_labels.py` (verify min-max scaling).
+- [~] T020 [P] [US2] Unit test for missing value flagging in `tests/unit/test_validity.py` (verify > 5% threshold).
 
 ### Implementation for User Story 2
 
-- [X] T021 [US2] Implement `code/features/extract.py` to compute PSD using Welch's method (FR-003) with built-in **chunked loading logic** to ensure memory safety during PSD computation on the full dataset (SC-002). The module must extract mean power for theta and alpha bands per channel, handle division-by-zero using **`EPSILON = 1e-9` defined as a global constant in `code/features/extract.py`** (Edge Case) when calculating ratios, and flag epochs with > 5% missing sensor data for exclusion. **Must run after T017**. **Must pass raw power values to T040 for stability validation**.
+- [~] T021 [US2] Implement `code/features/extract.py` to compute PSD using Welch's method (FR-003) with built-in **chunked loading logic** to ensure memory safety during PSD computation on the full dataset (SC-002). The module must extract mean power for theta and alpha bands per channel, handle division-by-zero using **`EPSILON = 1e-9` defined as a global constant in `code/features/extract.py`** (Edge Case) when calculating ratios, and flag epochs with > 5% missing sensor data for exclusion. **Must run after T017**. **Must pass raw power values to T040 for stability validation**.
 
-- [X] T022 [US2] Implement `code/features/labels.py` to derive continuous cognitive load score from gaze variance per epoch (FR-004), normalize labels via min-max scaling per subject (FR-004), and identify and exclude epochs with > 5% missing sensor data (FR-003). **Must run after T017 and T021**.
+- [~] T022 [US2] Implement `code/features/labels.py` to derive continuous cognitive load score from gaze variance per epoch (FR-004), normalize labels via min-max scaling per subject (FR-004), and identify and exclude epochs with > 5% missing sensor data (FR-003). **Must run after T017 and T021**.
 
-- [X] T040 [P] [US2] Implement `code/features/validity.py` to explicitly check SC-005 (Measurement validity) by verifying that extracted theta/alpha power values are non-zero and stable across subjects, **calculating the coefficient of variation**, and to **log specific failed epoch IDs and subject IDs to `results/stability_report.json`** for exclusion. **Must run after T021**. **Must read raw power data from T021 output**. **Must write the quantitative stability metrics (CV), failed_epoch_ids, and failed_subject_ids to `results/stability_report.json`**.
+- [~] T040 [P] [US2] Implement `code/features/validity.py` to explicitly check SC-005 (Measurement validity) by verifying that extracted theta/alpha power values are non-zero and stable across subjects, **calculating the coefficient of variation**, and to **log specific failed epoch IDs and subject IDs to `results/stability_report.json`** for exclusion. **Must run after T021**. **Must read raw power data from T021 output**. **Must write the quantitative stability metrics (CV), failed_epoch_ids, and failed_subject_ids to `results/stability_report.json`**.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -143,25 +143,25 @@
 
 > **NOTE: Write these tests FIRST (Pre-implementation TDD) to ensure they FAIL before implementation**
 
-- [X] T023 [P] [US3] Unit test for Ridge Regression CV in `tests/unit/test_train.py` (verify subject-wise split).
-- [X] T024 [P] [US3] Unit test for permutation testing in `tests/unit/test_evaluate.py` (verify null distribution).
-- [X] T025 [P] [US3] Unit test for multiple-comparison correction in `tests/unit/test_evaluate.py` (verify Bonferroni).
+- [~] T023 [P] [US3] Unit test for Ridge Regression CV in `tests/unit/test_train.py` (verify subject-wise split).
+- [~] T024 [P] [US3] Unit test for permutation testing in `tests/unit/test_evaluate.py` (verify null distribution).
+- [~] T025 [P] [US3] Unit test for multiple-comparison correction in `tests/unit/test_evaluate.py` (verify Bonferroni).
 
 ### Implementation for User Story 3
 
-- [X] T026 [US3] Implement `code/models/split.py` to perform a subject-wise split of subjects into train/test sets ensuring no subject overlap, dynamically calculate the split size, and save a **split manifest file**. **Must run after T022**.
+- [ ] T026 [US3] Implement `code/models/split.py` to perform a subject-wise split of subjects into train/test sets ensuring no subject overlap, dynamically calculate the split size, and save a **split manifest file**. **Must run after T022**.
 
-- [X] T027 [US3] Implement `code/models/evaluate.py` to perform **Channel Importance Analysis**: (1) Compute Pearson correlation per channel/band using the feature matrix and labels from T021/T022, (2) Apply Bonferroni correction to the **combined set of all channel-band tests (channels × bands)**, the **global model significance test (from T038)**, and the **baseline comparison (from T041)** to control family-wise error rate (FR-007), (3) Generate a unified `results/channel_importance.json` report with schema: `[{ "channel": str, "band": str, "correlation": float, "p_value": float, "p_value_corrected": float }]`. **Must load the subject-wise split manifest generated by T026**. **Must run after T026, T021, T022**. **Do NOT depend on T028 (model training) for correlation calculation**.
+- [~] T027 [US3] Implement `code/models/evaluate.py` to perform **Channel Importance Analysis**: (1) Compute Pearson correlation per channel/band using the feature matrix and labels from T021/T022, (2) Apply Bonferroni correction to the **combined set of all channel-band tests (channels × bands)**, the **global model significance test (from T038)**, and the **baseline comparison (from T041)** to control family-wise error rate (FR-007), (3) Generate a unified `results/channel_importance.json` report with schema: `[{ "channel": str, "band": str, "correlation": float, "p_value": float, "p_value_corrected": float }]`. **Must load the subject-wise split manifest generated by T026**. **Must run after T026, T021, T022**. **Do NOT depend on T028 (model training) for correlation calculation**.
 
-- [X] T028 [US3] Implement `code/models/train.py` to train Ridge Regression model with subject-wise k-fold CV, tune alpha, and evaluate on held-out test set (FR-005, FR-006). **Must load the subject-wise split manifest generated by T026 and use it for the training split**. **Must expose a callable function `train_model(X_train, y_train, subject_ids)` that returns the trained model and metrics, to allow external invocation by T029**. **Must run after T026**.
+- [~] T028 [US3] Implement `code/models/train.py` to train Ridge Regression model with subject-wise k-fold CV, tune alpha, and evaluate on held-out test set (FR-005, FR-006). **Must load the subject-wise split manifest generated by T026 and use it for the training split**. **Must expose a callable function `train_model(X_train, y_train, subject_ids)` that returns the trained model and metrics, to allow external invocation by T029**. **Must run after T026**.
 
-- [X] T029 [US3] Implement `code/models/sensitivity.py` to perform sensitivity analysis (FR-008): **Validate that `window_sizes` key exists in `pipeline_config.yaml` (generated by T011b)**; **Iterate through the list of gaze variance window sizes**; **re-calculate labels by importing and reusing the label generation function from `code/features/labels.py` (T022) for each iteration**; **re-train and re-evaluate the model for each window size by calling the `train_model` function exposed by `code/models/train.py` (T028)**; and store comparative stability metrics in `results/sensitivity_report.csv` and `results/sensitivity_p_values.json`. **Must run after T022, T021, T011b, T028**. **Note**: This task imports the `train_model` function from the module created by T028 for re-training steps, ensuring code dependency is satisfied and aligning with Plan.md Phase 3 requirements.
+- [~] T029 [US3] Implement `code/models/sensitivity.py` to perform sensitivity analysis (FR-008): **Validate that `window_sizes` key exists in `pipeline_config.yaml` (generated by T011b)**; **Iterate through the list of gaze variance window sizes**; **re-calculate labels by importing and reusing the label generation function from `code/features/labels.py` (T022) for each iteration**; **re-train and re-evaluate the model for each window size by calling the `train_model` function exposed by `code/models/train.py` (T028)**; and store comparative stability metrics in `results/sensitivity_report.csv` and `results/sensitivity_p_values.json`. **Must run after T022, T021, T011b, T028**. **Note**: This task imports the `train_model` function from the module created by T028 for re-training steps, ensuring code dependency is satisfied and aligning with Plan.md Phase 3 requirements.
 
-- [X] T038 [US3] Implement `code/models/permutation_test.py` to perform a rigorous permutation test (shuffling labels) to derive a p-value for the global R², ensuring the model outperforms a random baseline. **Must run after T028**. **Must output `results/permutation_test.json` with null distribution stats and **raw p-value****.
+- [ ] T038 [US3] Implement `code/models/permutation_test.py` to perform a rigorous permutation test (shuffling labels) to derive a p-value for the global R², ensuring the model outperforms a random baseline. **Must run after T028**. **Must output `results/permutation_test.json` with null distribution stats and **raw p-value****.
 
-- [X] T041 [US3] Implement `code/models/baseline.py` to implement the mean-baseline predictor comparison logic (FR-006). **Must run after T028**. **Must load the training set labels from the split manifest generated by T026** to calculate the mean on the correct data split. **Output**: `results/baseline_comparison.json` with R² and RMSE for mean-baseline vs Ridge model.
+- [ ] T041 [US3] Implement `code/models/baseline.py` to implement the mean-baseline predictor comparison logic (FR-006). **Must run after T028**. **Must load the training set labels from the split manifest generated by T026** to calculate the mean on the correct data split. **Output**: `results/baseline_comparison.json` with R² and RMSE for mean-baseline vs Ridge model.
 
-- [ ] T030 [US3] Implement `code/main.py` to orchestrate the full pipeline: Data -> Features -> Model -> Report. **Must specify CLI arguments (`--data-dir`, `--output-dir`), expected output paths, and verify `main.py` runs end-to-end producing `results/model_metrics.json` (exit code 0 and existence of required output files)**. **Must call the `check_and_halt()` function from T042 at start and after major phases**. **Must explicitly read and merge outputs from T028 (R², RMSE), T038 (p-value), T041 (baseline metrics), and T042 (runtime)** into a single `results/model_metrics.json` file. **Must compare the final R² against the `r2_threshold` defined in `pipeline_config.yaml`**. **If R² < threshold, MUST call `sys.exit(1)` with a clear error message "Threshold Gate Failed: R² < threshold"**. **Must run after T028, T029, T038, T041, T042**.
+- [~] T030 [US3] Implement `code/main.py` to orchestrate the full pipeline: Data -> Features -> Model -> Report. **Must specify CLI arguments (`--data-dir`, `--output-dir`), expected output paths, and verify `main.py` runs end-to-end producing `results/model_metrics.json` (exit code 0 and existence of required output files)**. **Must call the `check_and_halt()` function from T042 at start and after major phases**. **Must explicitly read and merge outputs from T028 (R², RMSE), T038 (p-value), T041 (baseline metrics), and T042 (runtime)** into a single `results/model_metrics.json` file. **Must compare the final R² against the `r2_threshold` defined in `pipeline_config.yaml`**. **If R² < threshold, MUST call `sys.exit(1)` with a clear error message "Threshold Gate Failed: R² < threshold"**. **Must run after T028, T029, T038, T041, T042**. <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
 
 **Checkpoint**: At this point, User Story 3 should be fully functional and testable independently
 
@@ -171,13 +171,13 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T031 [P] [Polish] Update `README.md` with installation steps and `quickstart.md` with the exact command `python code/main.py --data-dir data/processed --output-dir results`.
-- [X] T032 [P] [Polish] Refactor `code/data/loader.py` to reduce cyclomatic complexity < 10 **measured using ruff** and improve readability.
-- [X] T033 [P] [Polish] Optimize `code/data/preprocess_ica.py` to reduce peak memory usage by at least 10% **measured using memory_profiler** while maintaining accuracy.
-- [X] T034 [P] [Polish] Run quickstart.md validation to ensure end-to-end reproducibility.
-- [X] T035 [P] [Polish] Implement `code/features/stimulus_control.py` to regress out stimulus complexity metrics (if available in metadata) or explicitly flag this as a limitation in the final report (Plan Phase 3).
+- [~] T031 [P] [Polish] Update `README.md` with installation steps and `quickstart.md` with the exact command `python code/main.py --data-dir data/processed --output-dir results`.
+- [~] T032 [P] [Polish] Refactor `code/data/loader.py` to reduce cyclomatic complexity < 10 **measured using ruff** and improve readability.
+- [~] T033 [P] [Polish] Optimize `code/data/preprocess_ica.py` to reduce peak memory usage by at least 10% **measured using memory_profiler** while maintaining accuracy.
+- [~] T034 [P] [Polish] Run quickstart.md validation to ensure end-to-end reproducibility.
+- [~] T035 [P] [Polish] Implement `code/features/stimulus_control.py` to regress out stimulus complexity metrics (if available in metadata) or explicitly flag this as a limitation in the final report (Plan Phase 3).
 
-- [X] T043 [P] [Polish] Implement `code/utils/update_state.py` to act as the single source of truth for state updates. **Must be invoked by the orchestrator (T030) or post-task hooks** to update `state/` YAML with checksums and `updated_at` timestamp upon any artifact change, as required by Constitution Principle V. **Delegates all state updates from other tasks**.
+- [~] T043 [P] [Polish] Implement `code/utils/update_state.py` to act as the single source of truth for state updates. **Must be invoked by the orchestrator (T030) or post-task hooks** to update `state/` YAML with checksums and `updated_at` timestamp upon any artifact change, as required by Constitution Principle V. **Delegates all state updates from other tasks**.
 
 ---
 
