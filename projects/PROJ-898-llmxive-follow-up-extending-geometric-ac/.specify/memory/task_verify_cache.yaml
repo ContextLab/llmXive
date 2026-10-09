@@ -1,25 +1,71 @@
-T001a:
+T001a-gitignore:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory `projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/` or
-    any of its contents were presented; the claim provides no tangible artifact to
-    confirm the required project root structure exists. The task therefore remains
-    unverified and incomplete.
+  h: 7045f50dc662ffed746705cd51495002097cad3b266c61afb9cee1dfda33bffb
+  r: The repository does not contain a `.gitignore` file in the listed artifacts,
+    so the required file cannot be verified to exist or to include the specified ignore
+    patterns. Adding a proper `.gitignore` with the listed entries is needed to satisfy
+    the task.
+T001a-init:
+  c: true
+  h: 80eaf503622f48fcdf171985e60fef75e4cf14dbf25523712aea5ed98e84a12a
+  r: "Both `code/__init__.py` and `tests/__init__.py` exist with valid Python content,\
+    \ and the integration test `tests/integration/test_init_files.py` imports each\
+    \ package, confirming they are importable. This satisfies the task\u2019s requirement."
+T001a-reqs:
+  c: true
+  h: 44df6489fe0529823e92631cd9af7fb82525b96ab2d43d2818f76707e08a22f3
+  r: The provided `requirements.txt` lists all eight required packages with exact
+    version pins (including the torch CPU wheel and index URL), and the integration
+    test `tests/integration/test_requirements_exist.py` correctly checks for file
+    existence, package presence, and pinning.
+T001b:
+  c: true
+  h: 13a699ced323c6aa1f717d673ea7ea777b3e7a6874888bec798671797d65b65a
+  r: "The repository contains the top\u2011level `code/`, `data/`, and `tests/` directories\
+    \ (each populated with files) and includes `tests/integration/test_directories_exist.py`,\
+    \ which asserts that these three directories exist."
+T001c:
+  c: true
+  h: 7df1fadb3a7cdae8b6046d4730efbbce80ec48681d0c1c42e98038152a41e895
+  r: "The three directories `data/raw/`, `data/generated/`, and `data/results/` each\
+    \ contain a `.gitkeep` file, satisfying the task\u2019s requirement to add those\
+    \ placeholder files."
+T002:
+  c: false
+  h: 458f64c1c1e0c67ca1d7df77b9d43603fe435af9d7a83b05f1692ddc79d84d1c
+  r: "The only artifact present is a `requirements.txt`; there is no data\u2011generation\
+    \ script, no generated dataset, and no evidence (e.g., files, logs, checksums)\
+    \ showing \u2265\u202F100 distinct novel topologies or deformable\u2011material\
+    \ simulations. Consequently the core requirement of producing a synthetic topology\u2011\
+    shift test set is unmet."
 T003:
+  c: true
+  h: bff2949095c4df97082e125459c6ddecee38836b62af1dfa35b6670f2253823f
+  r: "The repository contains a non\u2011empty `ruff.toml` and `.pre-commit-config.yaml`,\
+    \ and the integration test `tests/integration/test_lint_config.py` validates their\
+    \ existence, parses them, and runs `ruff check --quiet` on a clean snippet, asserting\
+    \ a zero exit code."
+T005:
   c: false
-  h: 7c5bb6bdf41d8a9d420d028b1f6114c1805dacb7791e30e518b1e7e5805ad13d
-  r: "The `ruff.toml` file is present and appears correctly configured, but the required\
-    \ `.pre-commit-config.yaml` file is missing entirely, so the task of creating\
-    \ both artifacts is not fulfilled. The next implementer must add a valid `.pre-commit-config.yaml`\
-    \ defining the desired pre\u2011commit hooks."
-T004:
+  h: 39b75be30e92a344b0bb839aef7c4404ed61d2976099a58627e0a2bbe1a345ac
+  r: The `code/utils.py` file exists and implements the requested utilities, but the
+    required test file `tests/unit/test_utils.py` is missing, so the verification
+    step cannot be performed. The task is incomplete until the test suite is provided.
+T007a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory structure or `.gitkeep` files were presented as evidence; without
-    visible `data/raw`, `data/generated`, `data/results` folders (each containing
-    a `.gitkeep`), we cannot confirm the task was actually completed. The implementer
-    must provide the filesystem layout or a listing showing the required directories
-    and placeholder files.
+  h: 51adf9a12b096f9277bcdf67aa6c743da2ac829180f6f50c5bf823d743641fd4
+  r: "The provided `code/config.yaml` does not contain the required top\u2011level\
+    \ keys (`max_attempts`, `target_count`, `max_iterations`, `stiffness_range`, etc.)\
+    \ that the schema test expects, and the test `tests/unit/test_config_schema.py`\
+    \ would fail due to these missing entries. The configuration must expose all required\
+    \ fields at the root level with the correct names and types."
+T007b:
+  c: false
+  h: 39ca42d02c0219487ee4e50f761641a289d1764df5168deec78104a3d806ef4b
+  r: The repository lacks the required `tests/unit/test_config_loader.py` test, and
+    the provided `code/config.yaml` does not match the nested schema expected by `Config.from_dict`
+    (it uses flat keys instead of `topology`, `solver`, `experiment` sections), so
+    the loader cannot correctly parse the real config file into the typed object.
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -28,14 +74,6 @@ T018:
     \ an \u201Cinfeasible\u201D flag being added to constraint handling or trials\
     \ being recorded as failures. Consequently, the required artifact for task T018\
     \ is missing."
-T019:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or documentation implementing Mahalanobis\u2011based latent\
-    \ drift detection and OOD flagging was provided. The only artifacts described\
-    \ relate to dataset generation and symbolic planning, which do not satisfy the\
-    \ required latent drift detection feature. The task therefore lacks the necessary\
-    \ implementation artifact."
 T029:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

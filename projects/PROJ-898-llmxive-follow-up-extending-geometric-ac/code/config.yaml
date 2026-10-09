@@ -1,17 +1,32 @@
+# Experiment configuration for llmXive follow-up project
+# Structured sections matching the Config dataclasses.
+
 topology:
-  count_range: [3, 10]
-  max_attempts: 1000
-  target_count: 50
+  # Configuration for topology generation.
+  min_hinges: 3                # Minimum number of hinges in a kinematic chain
+  max_hinges: 10               # Maximum number of hinges in a kinematic chain
+  stiffness_range: [0.1, 0.5]  # Allowable stiffness for soft‑body objects (min, max)
 
 solver:
-  timeout_limits: 300.0
-  stiffness_range: [0.1, 0.5]
-  max_iterations: 100
+  # Configuration for the symbolic solver.
+  timeout_per_step_ms: 300000.0   # Per‑step timeout in milliseconds (5 minutes)
+  max_retries: 5                  # Maximum retry attempts on failure
+  retry_backoff_multiplier: 2.0  # Exponential back‑off factor
+  initial_retry_delay_s: 1.0      # Initial delay before first retry (seconds)
 
 experiment:
-  seed: 42
-  trial_count: 50
-  sim_fps: 240
-  target_zone:
-    center: [0.0, 0.0, 0.0]
-    radius: 0.1
+  # Overall experiment settings.
+  seed: 42                         # Deterministic random seed
+  trial_count: 100                 # Total number of trials to run
+  sim_fps: 240                     # Simulation frames‑per‑second
+  timeout_limits: 300.0            # Global timeout per trial (seconds)
+  topology_counts: [3, 10]         # Inclusive range of hinge/link counts
+
+# Additional optional fields (will be ignored by the loader but kept for documentation)
+target_zone:
+  center: [0.0, 0.0, 0.0]
+  radius: 0.1
+
+baseline_model_url: "https://example.com/gfm_baseline.pt"
+
+MAX_TASKS: 200

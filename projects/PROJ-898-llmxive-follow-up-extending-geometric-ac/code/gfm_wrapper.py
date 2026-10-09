@@ -1,10 +1,16 @@
 """
 Wrapper for the Geometric Function Model (GFM).
 Handles loading frozen weights and performing inference.
+
+Supports two modes:
+  - "frozen": autograd fully disabled (default, used for evaluation).
+  - "diff":   autograd enabled on INPUTS only, for finite-difference
+              verification of the symbolic solver. Weights remain
+              frozen (requires_grad=False) in both modes.
 """
 import logging
 import os
-from typing import Any, Dict, Optional, Union
+from typing import Optional, Union
 import numpy as np
 import torch
 import torch.nn as nn
@@ -18,12 +24,15 @@ class GFMWrapper(nn.Module):
     Loads frozen weights and provides encode/decode methods.
     """
 
+    VALID_MODES = ("frozen", "diff")
+
     def __init__(
         self,
         weights_path: str,
         latent_dim: int = 64,
         obs_dim: int = 128,
-        action_dim: int = 7
+        action_dim: int = 7,
+        mode: str = "frozen",
     ):
         """
         Initialize the GFM wrapper.
@@ -33,8 +42,17 @@ class GFMWrapper(nn.Module):
             latent_dim: Dimension of the latent space.
             obs_dim: Dimension of the observation input.
             action_dim: Dimension of the action output.
+            mode: "frozen" (no autograd anywhere) or "diff"
+                (autograd enabled on inputs for finite-difference
+                verification; weights stay frozen).
         """
         super().__init__()
+
+        if mode not in self.VALID_MODES:
+            raise ValueError(
+                f"Invalid mode '{mode}'. Must be one of {self.VALID_MODES}."
+            )
+        self.mode = mode
 
         self.latent_dim = latent_dim
         self.obs_dim = obs_dim
@@ -63,9 +81,12 @@ class GFMWrapper(nn.Module):
         if os.path.exists(weights_path):
             self._load_weights(weights_path)
         else:
-            logging.warning(f"Weights file not found at {weights_path}. Using random initialization.")
+            logging.warning(
+                f"Weights file not found at {weights_path}. "
+                "Using random initialization."
+            )
 
-        # Freeze all parameters
+        # Freeze all parameters (both modes)
         self._freeze_parameters()
 
         # Set to eval mode
@@ -89,6 +110,23 @@ class GFMWrapper(nn.Module):
         for param in self.parameters():
             param.requires_grad = False
 
+    def _prepare_input(
+        self, x: Union[np.ndarray, torch.Tensor]
+    ) -> torch.Tensor:
+        """Convert input to a float tensor, enabling autograd in diff mode."""
+        if isinstance(x, np.ndarray):
+            x = torch.from_numpy(x).float()
+        else:
+            x = x.float()
+
+        if x.dim() == 1:
+            x = x.unsqueeze(0)
+
+        if self.mode == "diff" and not x.requires_grad:
+            x = x.requires_grad_(True)
+
+        return x
+
     def encode(self, observations: Union[np.ndarray, torch.Tensor]) -> torch.Tensor:
         """
         Encode observations into latent space.
@@ -99,13 +137,13 @@ class GFMWrapper(nn.Module):
         Returns:
             Latent vectors of shape (batch_size, latent_dim).
         """
-        if isinstance(observations, np.ndarray):
-            observations = torch.from_numpy(observations).float()
+        observations = self._prepare_input(observations)
 
-        if observations.dim() == 1:
-            observations = observations.unsqueeze(0)
-
-        with torch.no_grad():
+        if self.mode == "frozen":
+            with torch.no_grad():
+                latents = self.encoder(observations)
+        else:
+            # Diff mode: gradients flow through the input, not weights.
             latents = self.encoder(observations)
 
         return latents
@@ -120,13 +158,12 @@ class GFMWrapper(nn.Module):
         Returns:
             Actions of shape (batch_size, action_dim).
         """
-        if isinstance(latents, np.ndarray):
-            latents = torch.from_numpy(latents).float()
+        latents = self._prepare_input(latents)
 
-        if latents.dim() == 1:
-            latents = latents.unsqueeze(0)
-
-        with torch.no_grad():
+        if self.mode == "frozen":
+            with torch.no_grad():
+                actions = self.decoder(latents)
+        else:
             actions = self.decoder(latents)
 
         return actions
@@ -144,3 +181,44 @@ class GFMWrapper(nn.Module):
         latents = self.encode(observations)
         actions = self.decode(latents)
         return actions
+
+    def verify_gradient_flow(
+        self, observations: Union[np.ndarray, torch.Tensor]
+    ) -> dict:
+        """
+        Verify that gradients flow through inputs but not weights.
+
+        Runs a forward/backward pass in diff mode and reports whether
+        the input received a non-None, non-zero gradient while every
+        model parameter gradient is None or zero.
+
+        Args:
+            observations: Input observations of shape (batch_size, obs_dim).
+
+        Returns:
+            Dict with 'input_grad_nonzero' and 'weights_frozen' booleans.
+        """
+        if self.mode != "diff":
+            raise RuntimeError(
+                "verify_gradient_flow requires mode='diff'."
+            )
+
+        x = self._prepare_input(observations)
+        actions = self.decode(self.encode(x))
+        loss = actions.sum()
+        loss.backward()
+
+        input_grad_nonzero = (
+            x.grad is not None and bool(torch.any(x.grad != 0))
+        )
+
+        weights_frozen = True
+        for param in self.parameters():
+            if param.grad is not None and bool(torch.any(param.grad != 0)):
+                weights_frozen = False
+                break
+
+        return {
+            "input_grad_nonzero": input_grad_nonzero,
+            "weights_frozen": weights_frozen,
+        }

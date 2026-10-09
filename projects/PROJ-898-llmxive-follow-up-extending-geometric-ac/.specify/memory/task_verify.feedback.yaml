@@ -1,0 +1,203 @@
+T001a-gitignore:
+  reason: The repository does not contain a `.gitignore` file in the listed artifacts,
+    so the required file cannot be verified to exist or to include the specified ignore
+    patterns. Adding a proper `.gitignore` with the listed entries is needed to satisfy
+    the task.
+  task: 385e033461e9dd7e0d7c9e9061ae34288419149be1d8081dc5dc5d81615d8581
+T001a-init:
+  task: 31af9d3170f43c518a45bfa0e7d3e001cbcce213c38301545e25660bbe528ca3
+T001a-reqs:
+  task: 1c216db59176ba3aee8578e9dcce7f352c8211f92b5f11e3ec3560c8438da379
+T001b:
+  task: 9aa207da528d3a6154d8b1e43a0bd97f576c05f7ddee3af347da04fc2056b877
+T001c:
+  task: e8473fa6ce3c6d39aa2b3448b0fb2bedc23dc77390a0beeaeb62c3bfef8937a3
+T002:
+  reason: "The only artifact present is a `requirements.txt`; there is no data\u2011\
+    generation script, no generated dataset, and no evidence (e.g., files, logs, checksums)\
+    \ showing \u2265\u202F100 distinct novel topologies or deformable\u2011material\
+    \ simulations. Consequently the core requirement of producing a synthetic topology\u2011\
+    shift test set is unmet."
+  task: 1ccce4cf67ae5ad39382b2d83dc672fe0ebddb391cdf13da4bec6211bdf9375c
+T003:
+  task: a0b7609a368facf643500b01a361364af3d2acd0de86497bc6f555bb87d38462
+T004:
+  reason: "No evidence of the required `data/raw`, `data/generated`, `data/results`\
+    \ directories or accompanying `.gitkeep` files is present; the implementer\u2019\
+    s claim lacks any tangible artifact confirming the directory structure was created."
+  task: 57eeb045a89f1cff2bf90623cf166aac5d8d1122a03f953686dd2bdb9886e50c
+T005:
+  reason: The `code/utils.py` file exists and implements the requested utilities,
+    but the required test file `tests/unit/test_utils.py` is missing, so the verification
+    step cannot be performed. The task is incomplete until the test suite is provided.
+  task: db29370a2bd95295db9cceb6c655b2a67c71fa9d50acff7bd5a260658ff1b871
+T005-baseline-fetch:
+  reason: 'Requested task execution failed; rerun successfully: code/fetch_baseline.py
+    exit=1'
+  task: 86a946e59b135e5d8016db66d49b20e5aa0c62cfb9116c934764f13bd23f3902
+T006-diff:
+  task: 10aba5d27be18963d812f56f5785ec27713b7b71bbc8d0dc2e6a8e6159b73843
+T006-frozen:
+  task: 576dd345c531f5a44f64440a1ca19d8b6aaac7dbfae03f67cd1aa20990905998
+T007a:
+  reason: "The provided `code/config.yaml` does not contain the required top\u2011\
+    level keys (`max_attempts`, `target_count`, `max_iterations`, `stiffness_range`,\
+    \ etc.) that the schema test expects, and the test `tests/unit/test_config_schema.py`\
+    \ would fail due to these missing entries. The configuration must expose all required\
+    \ fields at the root level with the correct names and types."
+  task: b8bd04d7c9e39ca0650a4b536c961fbf6725c3ecf7bef191cce5213dc58e7e05
+T007b:
+  reason: The repository lacks the required `tests/unit/test_config_loader.py` test,
+    and the provided `code/config.yaml` does not match the nested schema expected
+    by `Config.from_dict` (it uses flat keys instead of `topology`, `solver`, `experiment`
+    sections), so the loader cannot correctly parse the real config file into the
+    typed object.
+  task: fabecc22187227fcb08d9933db64815c4f1edc3535afe127d082000604e004ff
+T008:
+  task: 19328162c7b275f58c9a6ebb3d9b172f5a0cc7ceb3e9e8d5755c6430e5b5a889
+"T008\u2011drift\u2011calib":
+  task: 483bc3b26077067ecb6b04ba5e3f3f4e1f6f66cdda74ef8ccdf655cd58f8d8b2
+"T008\u2011latent\u2011validity":
+  task: 3be59e425859862ad5089f2deed040fe25d7d887f74f53391f943485e72c772d
+"T008\u2011manifest\u2011gen":
+  task: 667534278c84285fab5831cc4d0e030ed3feb86eb1bbdb02e21185202d0f625a
+T009a-fetch-stats:
+  reason: 'Requested task execution failed; rerun successfully: code/statistical_reference.py
+    exit=1'
+  task: 0ac2a562e9dd840e6a974e96dd286994b38a63388f3934b18f8bfcef670d80a7
+"T009b\u2011gt\u2011decoder":
+  task: ccd428f01a01084a632ef32170997696e5b5d941680ac760174a990737d68920
+"T009b\u2011gt\u2011traj":
+  task: a93159fef27c563a8ee82d6c6351262110920233a965a31fb1df1ece964d9e6f
+"T009\u2011gen\u2011impl":
+  task: ab00d7e7afd8a6be53aa011347afffa0d47c82ed49bfdf88590769089d493b55
+"T009\u2011gen\u2011unified":
+  task: e0d09648569604ee27c95a3a3721257b1b2e6f981d39c48ff86b24b09a474dbb
+"T009\u2011mock":
+  task: 11ab4bfcc1ded14817f5cdf8f932f2d976211fc1501b82494cc3a19d22f036ba
+"T009\u2011serialize":
+  task: 0498a08281fc720b7ec7395725b9e2856f22b2ee4f59fca11bba7c2f2227c49d
+"T009\u2011verify\u2011overlap":
+  task: 5ce05207fed6e638e19c41e9664d942fca5a9ada67a7a4dd5d5ec34cf0d25380
+T010a:
+  task: 6bffe544041fcb02e690f3439dc974339ffb82daed249429988bb2844e9c8c48
+T011:
+  task: bfa83ebf8b6f8035b4caf02043d07a04d5fcb43f0e2880c65d7a2de9489b8259
+T013:
+  task: 186f0c1f2cd99b495f4bc2966029c118d8440caecd90b832b0cbc75feed74d1d
+"T014b\u2011fd\u2011verify":
+  task: 8e1319b47932c54adddc595a05dbadc21f0b632e2e2785ed3297c36021c0cdb0
+"T014\u2011solver\u2011impl":
+  task: c6b14bc330bf98efdaba4f67f3011e896e17fade9c1a3ebc87e8ab3d32ecfdab
+T016:
+  task: 8fedd3b3aec5b9f1c98f2f9ebb84aa4b4cc8484716ccb57b235dceacf24eb1fa
+T017:
+  task: 59a3eb178b37a86a6e937dc241ae9bde786652de313bb3b9ba9a784d5606a65a
+T018:
+  task: 3aaeffcf17f7a477d74f4c65a756de3da8c49662e3dd061967e2fa9317e7bd14
+"T019b\u2011symbolic\u2011mse":
+  task: 433f0f2cc4a13e1ff4ce731b99365350348ae2925b4fab98a870b5d0b3f96ea8
+T019c:
+  task: da7b390c507921c576d6a354cc256204934441e46d5634f1da163ff85f196dbf
+"T019d\u2011constraint\u2011sat":
+  task: adb7db3fb6f4cf0e9a4af9d6886e2f613f63b3395b11930d7dece7e90b062d4b
+"T019e\u2011combined\u2011verification":
+  task: 723cec3f80a7b126ebbb67b4607633cb50dc00b77e77942d14cfd337cb9bfd5a
+"T019\u2011decoder\u2011control":
+  task: 0cd40b951493159ecd4cacb33cc817458dac86d784efa34b1952f31581a34c7e
+T020b:
+  task: b75472231eece0d022da58198b77979b69a8a30573b49ee4d9ca02f50ef95553
+"T020\u2011trial\u2011exec":
+  task: 553bd976227c4457ef741d07272c59b4f5b289ef19ac01b9b035bf30903670e7
+T021:
+  task: bbe5d939afd1a717580ef70f80941180d3ce3d28e04a0405090debc010d995e5
+T021b:
+  task: 1b64ec4bf655b9fdc4a58340184a22da9af2508cce1a72985e9a30ed3238b814
+T021c:
+  task: 61c444bba0eac06dc97dde38c5576ba26755d0f08aa188dfe1cbd8c574577e4b
+T022a:
+  task: 9b973ef2db13258998fd7ee6a155033d0761fdbba9eb17b4df611fbaeaddb5e5
+"T022b\u2011baseline\u2011mse":
+  task: d46201cba88cd704a39e3f392932b637514eaa3ecfe88b9de5d1a44315df8849
+T023:
+  task: 591dfb7ed2c415016fa1fde7a8710b7c16c828832a81ff31104c60aa8d44a900
+"T023b\u2011ci\u2011time\u2011verify":
+  task: b8cca8f1ca9c50e141d2b60b134c2548923529d3e2e2045fd7c8028f16408582
+"T023\u2011feasibility\u2011pilot":
+  task: d9e7b45d55920ef3cc210c1f2955599a8189164d0d2ffb7eefb9ae28bd67e491
+"T024a\u2011detect\u2011censor":
+  task: 8e5a79f402c0f552ae1f9b84f469902676795542b6d65787d79a515ac8f3ff65
+"T024a\u2011load":
+  task: 0b65ad416048a9c216d541dd528a5e2a199c23dd196f63d43423d2bc42cc7132
+"T024a\u2011report":
+  task: b1da8b304850a9a85cb8aaf2d2633ad45b2d4690f9d19c983cd89d6f98b3cfe3
+"T024a\u2011select":
+  task: 9517bb3adbd90f437957c67b9d31fd362e9ae4d26b480a89e4f3aa84efedd05a
+"T024a\u2011validate":
+  task: 55fcea22b454941583de08c6ef80b44533e39608c22cdee73b3d4ed7ea0bcee4
+"T025\u2011validate\u2011experiment":
+  task: 9848c6f4148eae0e841f7f858ed57b4f4cfd80df76460a3d3f63d9ecb3900773
+T029:
+  task: 68bf2296034768a2f9cadbaf5d5b786bcfb8bed6863e04b0c1a4f78a225c19de
+T030:
+  task: 13d2841316f00dd9949984f4d08450d25f54c3ae236f2ea31e7442254877f3c6
+T032:
+  task: ea8ba812058bb5dcc738f1ea52fb07a1b8b2d2aec8b070694b42c655a3f33343
+T033:
+  task: 7515165ee183fb1fa9b230b2c58afd04cb478a1bb6ee5324f136cbe04d913da0
+T034:
+  task: 5a265a41814cf2902262d70b4de9ac458db42de8057bd24ff37cce07525968e0
+T035:
+  task: 510f41eaf2b5f918d35b77d9560911fa6e9665bca7ce65cd679bf26fa3f63291
+T036:
+  task: d439b4595e95e84918452593b1ca3931c6c03f51ada4100eb737e1d5faf655e6
+T037:
+  task: 3649bad1b8d9dea359de2d40e559d4025ccdd44a4dfed871b2deaf092da33b1c
+T038:
+  task: 674a111aa9cce47f5c16c0a40caf2ebb8f9ed162376800c5d4717fe3fa7af31e
+T039:
+  task: 060c6e732e6d1ede7d1ecf30edaa115eab53fba9faab47095a0c72a0c46b4044
+T040:
+  task: a9ea47c3ddad918b3f557a90952ca99744f510d6fed4b20d10245338296c977f
+T040-contract-create:
+  task: 4ff04705f02474669739a44998714414c53b463092d3b76dd60babbb4ba56d50
+T041-data-model-define:
+  task: 36fcdeb0fd59e3ce524627435e188a7ee3a65ce1767493217b3779cb2332efd9
+"T041\u2011verify\u2011requirements":
+  task: 5a6045105d2836f82c935c6c3d0c73992c6de0e8e7b81801793ec9d7270b0ad3
+T042-quickstart-write:
+  task: 0d8fc4dea86f0d1422d1a2e5e103c283c28e5a55a5a447c173bc0c9fecf2dcd9
+"T042\u2011verify\u2011gitignore":
+  task: 1af079a33e137d1fea0dfb6f6c34d962c68d1fada90bd4a06310941757e44f86
+T043-citation-validate:
+  task: 9f97467f34a6445dcf24da0adbf1ed942a8d34c6a21bc2c3f7d44d6a6fe4922e
+"T043\u2011verify\u2011init":
+  task: 6a5032afcce7777f3d5d0b7a4edbfbb374723989cf11c87bec1b010df790f299
+"T044\u2011verify\u2011directories":
+  task: cc66bb1db60532eaa45bd9d455479ce3317c7a7300e4658bfc7753e8fc0a04b5
+"T045\u2011verify\u2011gitkeep":
+  task: 95940cc47aab24ae413f52dc7f75c7ccc6a2658e9448405c9a45c6dff6e1311f
+"T046\u2011fetch-gfm-weights":
+  task: 07adc59d3d9c7f43d46bd3521636f8e3c32ba31eeaf4bb521354de51d730b895
+"T047\u2011verify\u2011ruff-config":
+  task: 8870efc01380ba92f09c432371484d13cf6b38cc34dad48ca2232e842cbbfa91
+"T048\u2011verify\u2011pre\u2011commit":
+  task: 4467961608ce439db1eb5fbd08e26cae4c3b43b39c1e720ae25f9af1fdb2f806
+"T049\u2011verify\u2011config\u2011schema":
+  task: 8c3527ceabb7c80ecf681fa1f8d00b0f984fb921dbcaee2ce86662fc0c6f45bf
+"T050\u2011verify\u2011gfm\u2011wrapper\u2011frozen":
+  task: 6c0076d6b368b5c77b4883ba6346dd141f5973617a86561597919ca96188377a
+"T051\u2011verify\u2011gfm\u2011wrapper\u2011diff":
+  task: c21b85b92ca15f7368e3086291f03f2b575cf348d9a13b35c00cc10450405158
+"T052\u2011verify\u2011solver\u2011gradient":
+  task: 81922c22782c2c56d4ff102a4d8ba263d6738c22a0514dabbd6676294fd7da96
+"T053\u2011verify\u2011timeout\u2011behavior":
+  task: 6802516eb7a4a5d2368d985f24a52631474bdd2c3d37d59a96ba544afd22ece0
+"T054\u2011verify\u2011infeasible\u2011flag":
+  task: a0d703bd2bca530fbe54d9acaae226220446d73e4f17406b5acff28d49529e76
+"T055\u2011verify\u2011latency\u2011threshold":
+  task: ab087ff7365709da9bff651cc488bb4e04ee60a1f03c2c1317f0089fdc43e354
+"T056\u2011verify\u2011trial\u2011log\u2011schema":
+  task: bfe35f4962e277508d5017fde9c840ff8d7a1b74bb04093c68d5f8040496cfcc
+"T057\u2011verify\u2011analysis\u2011report\u2011effect\u2011sizes":
+  task: 20b7e4d4ad002235cd795bbbabe36fd339de99b1363c3cc5d55e39563b41c812

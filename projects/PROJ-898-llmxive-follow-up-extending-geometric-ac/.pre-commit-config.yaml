@@ -1,9 +1,8 @@
-# Pre-commit configuration for llmXive project
-# Automatically runs linters and formatters on staged files
-
+# Pre-commit configuration for the llmXive GAM follow-up project.
+# Automatically runs linters and formatters on staged files.
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v4.4.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
@@ -14,46 +13,10 @@ repos:
       - id: detect-private-key
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.6
+    rev: v0.4.4
     hooks:
-      # Run the linter
+      # Run the linter.
       - id: ruff
-        args: [--fix]
-      # Run the formatter
+        args: [--fix, --exit-non-zero-on-fix]
+      # Run the formatter.
       - id: ruff-format
-
-  - repo: https://github.com/psf/black
-    rev: 23.11.0
-    hooks:
-      - id: black
-        language_version: python3.10
-
-  - repo: https://github.com/pycqa/isort
-    rev: 5.12.0
-    hooks:
-      - id: isort
-        name: isort (python)
-
-  - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.5
-    hooks:
-      - id: bandit
-        args: [-r, -c, pyproject.toml]
-        # Exclude test files and generated data
-        exclude: |
-          (?x)^(
-              tests/|
-              data/|
-              __pycache__/
-          )$
-
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.7.1
-    hooks:
-      - id: mypy
-        additional_dependencies:
-          - types-PyYAML
-          - types-requests
-          - numpy
-        args: [--ignore-missing-imports, --no-strict-optional]
-        exclude: tests/

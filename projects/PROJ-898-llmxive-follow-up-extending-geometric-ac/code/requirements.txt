@@ -1,0 +1,10 @@
+# Pinned dependencies for PROJ-898-llmxive-follow-up-extending-geometric-ac
+# Torch CPU wheel is required; the index URL is specified inline.
+torch==2.0.0+cpu --index-url https://download.pytorch.org/whl/cpu
+pybullet==3.2.6
+cvxpy==1.4.3
+diff-taichi==0.0.4
+scipy==1.11.4
+pandas==2.1.4
+numpy==1.24.4
+pytest==7.4.4

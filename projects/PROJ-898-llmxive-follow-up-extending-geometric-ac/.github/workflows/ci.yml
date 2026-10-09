@@ -6,14 +6,14 @@ on:
   pull_request:
     branches: [ main, develop ]
 
-# FR-004: Multi-core x86_64 runner, no GPU/CUDA
-# Using standard ubuntu-latest which is x86_64 and CPU-only by default
+# FR-004: 2-core x86_64 runner, no GPU/CUDA.
+# ubuntu-latest runners are x86_64 with 2 (dedicated) CPU cores
+# and no GPU attached by default.
 jobs:
   run-trial:
     runs-on: ubuntu-latest
-    
-    # Fixed timeout limit to constrain the duration of the experimental trial
-    # Matches SC-005 assumption of < 6 hours total, setting a safe CI limit
+
+    # SC-005: enforce the 6-hour CI time limit (360 minutes).
     timeout-minutes: 360
 
     steps:
@@ -23,27 +23,30 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r code/requirements.txt
+          pip install -r requirements.txt
 
-      - name: Verify Environment (No GPU)
+      - name: Verify Environment (No GPU, x86_64)
         run: |
           python -c "import torch; assert not torch.cuda.is_available(), 'GPU detected but not expected in CI'"
-          python -c "import sys; print(f'Platform: {sys.platform}'); import platform; print(f'Architecture: {platform.machine()}')"
+          python -c "import platform; print(f'Architecture: {platform.machine()}'); assert platform.machine() in ('x86_64', 'AMD64'), 'Expected x86_64 runner'"
 
-      - name: Run Experimental Trial
-        # Executes the main inference pipeline which handles the trial logic
-        # The timeout-minutes above acts as the hard limit for this step
+      - name: Lint (ruff)
         run: |
-          python code/inference_pipeline.py --config code/config.yaml
+          pip install ruff==0.1.6
+          ruff check .
 
-      - name: Validate Results
+      - name: Run unit and integration tests
         run: |
-          python code/analysis.py --input data/results/symbolic_results.csv data/results/baseline_results.csv --output data/results/analysis_report.md
+          python -m pytest tests/ -v
+
+      - name: Run Experimental Pipeline
+        run: |
+          python scripts/compute_reference_stats.py --input data/results/trial_logs.jsonl --output data/results/analysis_report.md
 
       - name: Upload Artifacts
         if: always()
@@ -55,7 +58,10 @@ jobs:
             data/results/*.json
             data/results/*.md
             data/results/*.log
+            data/results/*.jsonl
             data/generated/*.json
+            data/generated/*.csv
             data/raw/*.pt
             data/raw/*.json
             code/config.yaml
+            requirements.txt

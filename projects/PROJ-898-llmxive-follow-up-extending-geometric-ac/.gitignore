@@ -1,48 +1,12 @@
-# Python
+# Ignore data directories
+data/
+
+# Python cache files
 __pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
+*.pyc
 
-# Virtual Environments
+# Environment files
+.env
+
+# Virtual environment directory
 venv/
-ENV/
-env/
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# Data (Large files)
-data/raw/*.pt
-data/raw/*.pth
-data/generated/*.json
-data/results/*.csv
-data/results/*.json
-data/results/*.md
-
-# Logs
-*.log
-logs/
-
-# OS
-.DS_Store
-Thumbs.db

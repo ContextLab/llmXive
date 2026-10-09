@@ -1,4 +1,26 @@
-- artifact_hash: 42a0fe4f33ed023a80457b7213ecd2388f2aab7c7fb104111b6611ee2cd8fbbf
+- artifact_hash: 828a334850a9d9381d24c64870d496368e75c8f689ace9f19d032546d2686ca9
+  artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/llmXive/llmXive/actions/workflows/ci.yml/badge.svg
+  verification_status: mismatch
+  verified_against_url: https://github.com/llmXive/llmXive/actions/workflows/ci.yml/badge.svg
+  verified_at: '2026-10-09T10:42:46.636224Z'
+- artifact_hash: 828a334850a9d9381d24c64870d496368e75c8f689ace9f19d032546d2686ca9
+  artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/README.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/llmXive/llmXive/actions/workflows/ci.yml
+  verification_status: mismatch
+  verified_against_url: https://github.com/llmXive/llmXive/actions/workflows/ci.yml
+  verified_at: '2026-10-09T10:42:46.636224Z'
+- artifact_hash: 8e990cc056dd2ed433d386743a867b69b8a7168f314935eb758b3a51183a3fbc
   artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/quickstart.md
   cite_id: c-001
   cited_authors: []
@@ -9,8 +31,8 @@
   value: https://github.com/pre-commit/pre-commit-hooks
   verification_status: pending
   verified_against_url: https://github.com/pre-commit/pre-commit-hooks
-  verified_at: '2026-08-22T07:01:01.829149Z'
-- artifact_hash: 42a0fe4f33ed023a80457b7213ecd2388f2aab7c7fb104111b6611ee2cd8fbbf
+  verified_at: '2026-10-09T10:45:31.133140Z'
+- artifact_hash: 8e990cc056dd2ed433d386743a867b69b8a7168f314935eb758b3a51183a3fbc
   artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/quickstart.md
   cite_id: c-002
   cited_authors: []
@@ -21,19 +43,8 @@
   value: https://github.com/astral-sh/ruff-pre-commit
   verification_status: pending
   verified_against_url: https://github.com/astral-sh/ruff-pre-commit
-  verified_at: '2026-08-22T07:01:01.829149Z'
-- artifact_hash: b0c93d6442ca1fd8e43e3eb9dc0b228a447b33c7786dfc3f09613d1f98322b87
-  artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/README.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: cpu
-  kind: url
-  value: https://download.pytorch.org/whl/cpu`
-  verification_status: pending
-  verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-08-26T04:13:19.760051Z'
-- artifact_hash: dd3370602f0cda4364ecb986623fa9c04a49337efbe394e8984be683de5b44e8
+  verified_at: '2026-10-09T10:45:31.133140Z'
+- artifact_hash: 6aa0f8316e856352557be13bd9a4454b35e4c0893dcd79bfbb01c3ebcc6fdc88
   artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -43,4 +54,4 @@
   value: https://download.pytorch.org/whl/cpu`
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-10-05T07:41:25.134342Z'
+  verified_at: '2026-10-09T10:51:04.869531Z'

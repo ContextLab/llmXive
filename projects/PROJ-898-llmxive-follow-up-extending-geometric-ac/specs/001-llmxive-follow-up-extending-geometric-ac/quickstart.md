@@ -60,6 +60,21 @@ repos:
 
 ## Running the Pipeline
 
+### 0. Compute Reference Latent Statistics
+
+Compute the mean/covariance reference statistics for latent-drift
+detection from the real project artifacts (physics states if available,
+otherwise the real frozen GFM baseline checkpoint). The script aborts
+with a clear error if no real source is available — it never fabricates
+statistics:
+
+```bash
+python scripts/compute_reference_stats.py --input data/results/trial_logs.jsonl --output data/results/analysis_report.md
+```
+
+This writes the canonical deliverable `data/raw/gam_reference_stats.json`
+(plus a copy at the `--output` path).
+
 ### 1. Generate Synthetic Test Set
 
 Run the topology-shift generator to create a diverse set of unique tasks.:

@@ -1,16 +1,10 @@
-# Ruff configuration for llmXive project
-# Enforces consistent style, linting, and formatting rules
+# Ruff configuration for the llmXive GAM follow-up project.
+# Schema follows ruff >= 0.2 (namespaced [lint] / [format] tables).
 
-[lint]
-# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
-select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
-ignore = []
+# Same as Black line length.
+line-length = 88
 
-# Allow autofix for all enabled rules
-fixable = ["ALL"]
-unfixable = []
-
-# Exclude a few files/directories
+# Files and directories to skip entirely.
 exclude = [
     ".git",
     ".tox",
@@ -19,20 +13,29 @@ exclude = [
     "dist",
     "data",
     "venv",
+    ".venv",
     ".eggs",
     "*.egg-info",
 ]
 
-# Same as Black line length
-line-length = 88
-
-# Allow unused variables for test files
+# Allow unused variables matching the dummy pattern (e.g., `_`, `_x`).
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
+[lint]
+# pycodestyle (E/W), Pyflakes (F), isort (I), pep8-naming (N),
+# pyupgrade (UP), flake8-bugbear (B), comprehensions (C4), simplify (SIM).
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
+# Long lines are handled by the formatter, not the linter.
+ignore = ["E501"]
+
+# Allow autofix for all enabled rules.
+fixable = ["ALL"]
+unfixable = []
+
 [lint.per-file-ignores]
-# Ignore import sorting in __init__.py files
+# Allow re-exports in __init__.py files.
 "__init__.py" = ["F401"]
-# Ignore some rules in test files
+# Relax some rules in tests.
 "tests/*" = ["S101", "ARG001"]
 
 [lint.isort]
@@ -41,7 +44,7 @@ force-sort-within-sections = false
 combine-as-imports = true
 
 [format]
-# Use Black-compatible formatting
+# Black-compatible formatting.
 quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false
