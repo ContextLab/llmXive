@@ -1,0 +1,42 @@
+T001:
+  c: true
+  h: fb16387980134eced42c274271d36ebda02ac8a0cc588f8ae92bffb7e6b21b98
+  r: "The repository contains the required top\u2011level directories (`code/`, `tests/`,\
+    \ `data/`, `specs/`) with multiple files inside, and the `plan.md` file is present\
+    \ in the specified `specs/\u2026` location, matching the structure outlined in\
+    \ the plan."
+T002:
+  c: true
+  h: 3908e67043552b6776aeeaf86a714029d4c2720ac3e6a004c92afc67e9f03770
+  r: "The `requirements.txt` file is present, non\u2011empty, and includes all nine\
+    \ required packages (transformers[cpu-only], scikit-learn, pandas, numpy, matplotlib,\
+    \ seaborn, pyyaml, pytest, statsmodels). The extra `datasets` line does not violate\
+    \ the task."
+T003:
+  c: false
+  h: 45d06bae8bd689dbdc36f170966ea981c53a15c030346efc761aff1c293890f1
+  r: "The provided `.ruff.toml` only contains an `extend = \"pyproject.toml\"` line\
+    \ and does not specify the required rule selections (E, W, F) nor set `max-line-length\
+    \ = 88`. Consequently the artifact does not meet the task\u2019s specification,\
+    \ and there is no evidence that `ruff check code/` passes with those settings.\
+    \ The file must be updated to include the rule list and line\u2011length configuration."
+T004:
+  c: false
+  h: 7927e8b5b2cd50dddbc020262381d515d44d23fc46d5ba0894d7f37d6887815e
+  r: "The repository contains no `.gitignore` file (or it is empty), and no evidence\
+    \ (e.g., `git status` output) that the required ignore patterns are in place.\
+    \ The task\u2019s required artifact is missing."
+T005:
+  c: true
+  h: 0b39db666b34ffa411150186c22bb83cd9bb378ebf992aed4af2ed350374683e
+  r: "The `code/config.py` file is present (832\u202Fbytes) and defines `RANDOM_SEED\
+    \ = 42` along with helper functions for raw, processed, annotated, holdout data\
+    \ paths and a directory\u2011creation utility, fulfilling the requested seeds,\
+    \ paths, and constants implementation."
+T006:
+  c: true
+  h: 14ca42b8602c8127ae51f7c96984784051001251fa5145777b009e240103075c
+  r: "The `code/utils/versioning.py` file exists and contains functions that compute\
+    \ deterministic SHA\u2011256 hashes of the entire `code/` and `data/` directories\
+    \ and write a YAML file (`state/version_state.yaml`) with those hashes, creating\
+    \ the `state/` directory if needed. This satisfies the task\u2019s requirement."
