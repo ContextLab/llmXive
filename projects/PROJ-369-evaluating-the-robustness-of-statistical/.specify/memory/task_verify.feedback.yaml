@@ -1,0 +1,150 @@
+T001_new:
+  reason: "The required `state/` directory and its `structure_manifest.json` file\
+    \ are missing, so the manifest listing all created paths with SHA\u2011256 hashes\
+    \ was not generated. The other directories exist, but without the manifest the\
+    \ task is not fully satisfied."
+  task: a2594921fca6f85b76a2914e6a6aa3e4e610e857e3e2a476627bcf6cce5cd93a
+T002:
+  reason: The provided `requirements.txt` does not pin exact versions (it uses `>=`),
+    omits the required `psutil` package, and includes many unrelated packages. No
+    evidence of running `pip install -r requirements.txt` or generating a `requirements.lock`
+    file is present. These issues must be fixed for the task to be considered complete.
+  task: ca20f2f6285fd4b22cd453af078387af4eda0d6ed12f314dbe151a7e61588739
+T003:
+  task: 28875cc02bfbabf1e0752091805add214356ea9239ef82592d2b285c01cb50d5
+T004:
+  task: 78ecdcb5f6a0e88841c3e384fe80db2e0699a90decdd65e2e6b93373c245be73
+T005:
+  reason: The provided `src/utils/config.py` defines `_SEED` and `ALPHA_LEVEL` instead
+    of the required `SEED` and `ALPHA`, and it does not contain the constants `NUM_NULL_PER_SERIES`
+    or `MAX_LAG` at all. The task demands those exact global names and values, which
+    are absent.
+  task: 577100623092b2f7600c6d684d93005dea4afd758108e64a7bf8d9de3a9402e5
+T006:
+  task: c81fe6da30f5c9bb2d625c837d8c8866c9758c1f4110fe9bbb61996d3896074c
+T007:
+  task: 8f685a04598e7476390739a74adc8b15b1f9fde63f43e76881c0f38c02d29d0c
+T008:
+  task: 69a6cce24b182fbebf55be3d51bfdacee3350edaadd1f6ebe9e3bfb791c7e5f0
+T009a:
+  task: 9e1cf186e691741a6c30675e68cd9423a5f12c85e8d34b04bc8196b3cd4ee15f
+T009b:
+  task: 788b843c015f834022465219f9aa31a7e4ed08babd323e9d30d56555cb72ada7
+T010_real:
+  task: 13f202515c7ca4748989d89051c847f86ef68d853edc42cb2c287895cccd5d90
+T010_shuffled:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/metrics.json,
+    data/processed/null_distributions/'
+  task: ef38f0108883e456fade844f8dd02f8e329e190a8c7187ab9beca51dae48b121
+T011:
+  task: a1aa59088ca5595a6e4b8345fc04a3b6c4833e72c5a793d4296fc43e68ff44d2
+T012:
+  task: 5dafbe85f80c011f4ea224196505b42cc2c523747cb3afa228c94e0ad86e3c19
+T013:
+  task: 84d81273c4d22e55f89c0d9539a5b127581e48249b51cfc916b8bfa4c7e80def
+T014:
+  task: 122b1fbe4cd9cda2f3b01ba0744a65451868310566bf560f529b969c44fd46b3
+T015:
+  task: d5cdfca07d29a9dc4c22006a80e2bd6010c39548a4bc145843f30400e10a01fe
+T018a:
+  task: 5dfbcb12520bfc82855c8d5f4b94396424c2ba36d5c859d313847a6bf9db9e34
+T019a:
+  task: bfc9a37213e9b219bddd3d12e251961279663a6cda82a21ca6f63c6bdd34c13e
+T019b:
+  task: d4050a648f337d5a5742268d8d81bad3aed15dd02cd6f0cb3be48a953f77326c
+T019c:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/null_distributions/real/,
+    data/processed/null_distributions/synthetic/, data/results/null_distribution_gate.json'
+  task: 93b801ce95b5c105b34a8a5ba5843906b125a78473282f7c76f0792d8051e7b7
+T020:
+  task: 57a88fa9a15a3ac3d02423ef88fcc81ec681f5d847b4ed37a6c9bb5bb4628aef
+T021:
+  task: 9fad06b19865b3fa7eb7c417d5ecf48ba4e509e52e6012d150529138e48640e9
+T022:
+  task: ef7fce330d907656988030ccf73f985740e72052c256d66fa6bc14cbb7c6e4ff
+T023:
+  task: dca40ff8c6a3385ad731b8798005346086a20055ea42869f9276299fd2347197
+T024:
+  task: a68ae1058bd8f45a57b6c04ab49980354867932eabc517ba41e98f7b3cedc02b
+T025:
+  task: 77567128789de418d406578439dc6b58cd89b8861a3b534dc761667e924dc0f7
+T026:
+  task: fbf41375be7fdda419968037a1b41065fef68f7621ab28ac0fff41819ad6418a
+T027:
+  task: 1128c7fa4f5fb0e2371b34885b73eb81bd8fa7206e520054422426349b4c9de7
+T029:
+  task: 7c6867414266ee469003bcc0d50ee4d08fbc10a64b82d79fa80fcd67a46d5b20
+T030:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/metrics.json'
+  task: 7222b7176339171c2570da1f83723be3a80c37bf342f181c8cde8822298512bb
+T031:
+  task: 1cc27839c1f19fe3957746dab68700b5434950122748b754a11b118f5403337e
+T032:
+  task: 365bbd0c81574e439b51965a591e2d9a2a646e67db5240734f64486db696f30d
+T033:
+  task: 016525b29fab735470ddc91ffbc657db9f113ede090ac3dd216464ab8710a5a4
+T034:
+  task: 3d893c175b08a6a56581d244116b5072f0b4baf30f16af9d40052d2cb7afeb97
+T035:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/integration/test_pipeline.py'
+  task: c543fd4b5ea44a8316e21c56128ec3b68b2744f0db8e2a220881445de5cacdb6
+T036:
+  task: 8819b6ccba6d25555c7a71bd52d652c4b73d857b859a6a877eade55ff42cd053
+T037:
+  task: 7acb3e0c42f2d74c319ee47ce169225b7300bcaa16c34bacef71f1b44fdbe99e
+T037_profile:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/profile_report.json'
+  task: d53e0e61c435e02f72dd58e3c06ef92dfbc7b053376f18a92e0f32a1c19b061d
+T037a_impl:
+  task: 44a151a844b41816e77abeea4f10826575820ce89e4c4276afdbebc3e3879360
+T037a_runner:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/baseline_status.json'
+  task: 0271cc85ffab7cf8028df4834e4be487a61fd933b29f6ce6f4b1ea5222811600
+T037b:
+  task: 7e4d93deb0489aa07f25f3872c98bb0541d3d25096e51b061376063b2bff88ba
+T037c:
+  task: 5e325f08f893016d5bb12ed7539090e3e0ad33429afea84d10d28d52f145c09a
+T038:
+  task: 27014dc5e6cc5098d27aeba73e5fa6d8ba266e8709140ff107bc59b09f400dd5
+T039:
+  reason: 'declared artifact(s) missing/empty/invalid: src/viz/plots.py'
+  task: 3ed3817ee37d103f0a44449144e95e97c33f8d27d786459f45dfbd8ded490362
+T039b:
+  reason: 'declared artifact(s) missing/empty/invalid: src/viz/plots.py'
+  task: 5c2ff0c90991d2b2383ccd76decf4ddc6fda1d0b0cc438de7385fb5c63e01a44
+T040:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/performance_validation.json'
+  task: b75812f0270979c9d33f4f4fae8d92f9427672752c6e3042824ada6df4b11255
+T041:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/final_summary.json'
+  task: fe665856a8df4bd5df3035960c75069267e53072a880918c2120176582592d45
+T042:
+  task: 28d2ed436a35f32654d3d6ad5a54fd4203bcc4056c18fcd23ee599ae9a258162
+T043:
+  task: fa999ebc9e755ed8e06093eaad05136210066426443ae819c2b6877c99c6acfb
+T044:
+  task: 8161de2f704b0eb584681d43e4501cd14d9a15d21a3b248224cfd5d5ba668e81
+T045:
+  task: 2f2d53ed0f06ee070f2a20ce0cc3e57956e2c62a2ed47ba6ccd643be765ab36c
+T046:
+  task: b8683cfc8b529b97e063180309629a58d11f50a863bcf78d6d30e5e19a584da2
+T047:
+  task: 46ee3db19da477a0c383ee3c584433faf6861c8e0be4bbd727ce7b87bcb87a26
+T048:
+  task: e85a95b8b2fedf551538ab71c6bd7c7979cd35a946710b821c022c04bcba738d
+T050:
+  task: 3f247e72db4db35ee7aa41011bac0c3fcb89a138a0d3cc1fc5a66129a7eb5ecd
+T052:
+  task: bc53bf98f673df3dc3a1b572f67ed3396bcc3c372cd83f0edffcf023524d951c
+T053:
+  task: 66a3f19d24e70704f71a42bc6b8b83864a1d9ecf902941ca3a601edd1face609
+T054:
+  task: fc0f17d7f2a8751243d12a27fd85ec91ddb664828d061de8ef1f37424010ab42
+T055:
+  task: 54869cc5743e401062bec92ff74dbc2b85158478cb19188b599970ae14fbe326
+T056:
+  task: 49faffd0700afb4cb7a4defdce05c7b272d4caaeed6bbba4e6659025e57a3c85
+T057:
+  reason: 'Requested task execution failed; rerun successfully: code/src/synthesis/verification.py
+    exit=1'
+  task: b4ad396152d20a03360fffc2fd3f3faaff8f5107db029a55a822cde677ebb4c0

@@ -1,3 +1,44 @@
+T001_new:
+  c: false
+  h: 5cee84d7ad7500e2fc662b5a5ef5cad84c8ab007350fc8afb2bea0834251f42b
+  r: "The required `state/` directory and its `structure_manifest.json` file are missing,\
+    \ so the manifest listing all created paths with SHA\u2011256 hashes was not generated.\
+    \ The other directories exist, but without the manifest the task is not fully\
+    \ satisfied."
+T002:
+  c: false
+  h: 3365bf2061efddfaf55acad86f9a83acb5061cb037fbcbbc3fb2d1d50e0c9b5a
+  r: The provided `requirements.txt` does not pin exact versions (it uses `>=`), omits
+    the required `psutil` package, and includes many unrelated packages. No evidence
+    of running `pip install -r requirements.txt` or generating a `requirements.lock`
+    file is present. These issues must be fixed for the task to be considered complete.
+T003:
+  c: true
+  h: b2923e82d346591224d324b3614301594ac9a8c8f9af2e78b1a76fc24c376190
+  r: "Checked the `ruff.toml` file (2220\u202Fbytes) present at the project root;\
+    \ it defines the required rule groups\u202FE,\u202FF,\u202FW,\u202FI,\u202FN,\u202F\
+    C,\u202FUP (plus additional useful rules) and includes a `[format]` section with\
+    \ `line-length = 88` matching Black\u2019s defaults, confirming Black integration."
+T004:
+  c: true
+  h: e4803242b1c929747db3ad3bbba0f2e2ef7d4114c6b7021fab8ce28653ae186b
+  r: "Checked the `pytest.ini` file (805\u202Fbytes) located at `projects/PROJ-369-evaluating-the-robustness-of-statistical/pytest.ini`;\
+    \ it defines `testpaths`, lists multiple `markers`, and includes the `-v` verbosity\
+    \ flag, fulfilling the task\u2019s specification."
+T005:
+  c: false
+  h: d6fc9f6fdb2fbab90fdb4db238e1201747dcd355b916d020b11717e190a14416
+  r: The provided `src/utils/config.py` defines `_SEED` and `ALPHA_LEVEL` instead
+    of the required `SEED` and `ALPHA`, and it does not contain the constants `NUM_NULL_PER_SERIES`
+    or `MAX_LAG` at all. The task demands those exact global names and values, which
+    are absent.
+T006:
+  c: true
+  h: b5d514b64cca041ce0b312f4adc18171fd6191dff9efebe598cee3ecb4ad422f
+  r: "Checked `src/utils/logging.py` (5380\u202Fbytes) \u2013 it defines a JSON\u2011\
+    structured `StructuredFormatter`, provides `log_warning` and `log_error` helpers,\
+    \ and sets up a `RotatingFileHandler` for file\u2011rotation logging via `setup_logger`.\
+    \ The implementation meets the required structured logging and rotation functionality."
 T012:
   c: false
   h: a2dc078e9ea68a1ced5309d7a3c1b6df60c498c0a1165e3506521664a937f16a

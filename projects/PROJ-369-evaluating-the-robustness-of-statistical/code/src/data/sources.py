@@ -64,25 +64,27 @@ DATA_SOURCES: Dict[str, Dict[str, Any]] = {
 def get_source_info(dataset_name: str) -> Dict[str, Any]:
     """
     Retrieve information for a specific dataset source.
-    
+
     Args:
         dataset_name: The internal name of the dataset (e.g., "NOAA_GSWD")
-        
+
     Returns:
         Dictionary containing source metadata
-        
+
     Raises:
         KeyError: If dataset_name is not found in DATA_SOURCES
     """
     if dataset_name not in DATA_SOURCES:
-        raise KeyError(f"Dataset '{dataset_name}' not found in DATA_SOURCES. "
-                     f"Available: {list(DATA_SOURCES.keys())}")
+        raise KeyError(
+            f"Dataset '{dataset_name}' not found in DATA_SOURCES. "
+            f"Available: {list(DATA_SOURCES.keys())}"
+        )
     return DATA_SOURCES[dataset_name]
 
 def get_all_source_names() -> List[str]:
     """
     Get a list of all available dataset names.
-    
+
     Returns:
         List of dataset names (keys of DATA_SOURCES)
     """
@@ -91,20 +93,20 @@ def get_all_source_names() -> List[str]:
 def get_yfinance_symbols() -> List[str]:
     """
     Get list of tickers that should be downloaded via yfinance.
-    
+
     Returns:
         List of ticker symbols
     """
     return [
-        source["ticker"] 
-        for source in DATA_SOURCES.values() 
+        source["ticker"]
+        for source in DATA_SOURCES.values()
         if source.get("url") is None and "ticker" in source
     ]
 
 def get_direct_download_urls() -> Dict[str, str]:
     """
     Get mapping of dataset names to direct download URLs.
-    
+
     Returns:
         Dictionary of dataset_name -> URL for datasets with direct URLs
     """
@@ -117,11 +119,20 @@ def get_direct_download_urls() -> Dict[str, str]:
 def validate_source_exists(dataset_name: str) -> bool:
     """
     Check if a dataset source is defined.
-    
+
     Args:
         dataset_name: The internal name of the dataset
-        
+
     Returns:
         True if the dataset is defined, False otherwise
     """
     return dataset_name in DATA_SOURCES
+
+__all__ = [
+    "DATA_SOURCES",
+    "get_source_info",
+    "get_all_source_names",
+    "get_yfinance_symbols",
+    "get_direct_download_urls",
+    "validate_source_exists",
+]

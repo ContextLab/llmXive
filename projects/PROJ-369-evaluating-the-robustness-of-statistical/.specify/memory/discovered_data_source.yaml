@@ -1,16 +1,9 @@
 status: none
-intent: download NOAA weather CSV Yahoo Finance price series UK National Grid load
-  dataset python package
+intent: download NOAA climate time series, Yahoo Finance historical prices, UK National
+  Grid load python package dataset
 required_fields:
-- timestamp
-- temperature
-- precipitation
-- open
-- high
-- low
-- close
-- volume
-- load_mw
-cache_key: 306a42c6810f9bcae1519314032b721fe332d47f4625116d5d32196196e911b2
-searched_at: '2026-08-24T02:10:56.166865+00:00'
+- datetime
+- value
+cache_key: 3c279d78c8e9bdea743fe115f40cea07f34d16604eac7fed1d61f1760eac60e5
+searched_at: '2026-10-09T15:20:11.744414+00:00'
 retry_count: 1
