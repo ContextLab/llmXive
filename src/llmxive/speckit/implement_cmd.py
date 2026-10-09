@@ -546,7 +546,7 @@ def _find_bad_sibling_imports(
     actually exist in the imported sibling file.
 
     Conservative: only flags imports of LOCAL modules (modules whose
-    source file is reachable under code_dir). Third-party imports
+    source file is reachable under code_dir or the project root). Third-party imports
     (numpy, pandas, etc.) are skipped — we don't know their API surface
     statically.
     """
@@ -563,16 +563,23 @@ def _find_bad_sibling_imports(
             continue
         if node.module is None or node.level != 0:
             continue  # relative imports / no module name — skip
-        # Try to resolve module to a sibling file under code_dir.
-        # E.g. `from utils.streaming import X` -> code_dir/utils/streaming.py
+        # Use the artifact's own workspace first. Root/src implementations and
+        # tests must not be checked against deprecated code/src namesakes; code/
+        # artifacts retain their historical workspace-first resolution.
+        project_root = code_dir.parent
+        roots = ([code_dir, project_root] if target.resolve().is_relative_to(code_dir.resolve())
+                 else [project_root, code_dir])
         rel_path = node.module.replace(".", "/")
-        candidate_file = code_dir / f"{rel_path}.py"
-        candidate_pkg = code_dir / rel_path / "__init__.py"
-        sibling = (
-            candidate_file
-            if candidate_file.is_file()
-            else (candidate_pkg if candidate_pkg.is_file() else None)
-        )
+        sibling = None
+        for root in roots:
+            candidate_file = root / f"{rel_path}.py"
+            candidate_pkg = root / rel_path / "__init__.py"
+            if candidate_file.is_file():
+                sibling = candidate_file
+                break
+            if candidate_pkg.is_file():
+                sibling = candidate_pkg
+                break
         if sibling is None:
             continue  # not a local module; assume third-party / stdlib
         try:
