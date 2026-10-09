@@ -20,6 +20,7 @@ from llmxive.backends.base import (
     BaseBackend,
     ChatMessage,
     ChatResponse,
+    DeadlineExceededError,
     EmptyReplyError,
     ModelDownError,
     PermanentBackendError,
@@ -450,6 +451,12 @@ def _raise_for_backend_error(text: str, exc: BaseException) -> NoReturn:
     # contain a transient marker such as "500". Never retry around this limit.
     if "budget has been exceeded" in text.lower():
         raise PermanentBackendError(str(exc)) from exc
+    if (
+        isinstance(exc, TimeoutError)
+        or "request timed out" in text.lower()
+        or "read timed out" in text.lower()
+    ):
+        raise ModelDownError(str(exc)) from exc
     if _is_model_down_text(text):
         raise ModelDownError(str(exc)) from exc
     if _is_transient_error_text(text):
@@ -465,12 +472,14 @@ def _retry_with_backoff(
     max_retries: int,
     base_delay_s: float,
     description: str = "Dartmouth call",
+    deadline_at: float | None = None,
 ) -> _T:
     """Call ``fn()``; on :class:`TransientBackendError`, retry with
     exponential backoff (capped per-attempt at ``_DEFAULT_RETRY_MAX_DELAY_S``)
     up to ``max_retries`` times. Permanent errors propagate immediately (no
-    point retrying them). Total wait at defaults: 5+10+20+40+60+60+60+60 ≈
-    5.25 min — long enough to ride out a typical few-minute Dartmouth flap.
+    point retrying them). ``deadline_at`` bounds all attempts and backoff
+    together; chat calls supply their model's total wall-clock budget.
+    Without a deadline, default backoff can wait up to about 5.25 minutes.
 
     The last transient exception is re-raised when retries exhaust, so
     the caller's existing TransientBackendError handling still triggers
@@ -478,6 +487,8 @@ def _retry_with_backoff(
     """
     last_exc: TransientBackendError | None = None
     for attempt in range(max_retries + 1):
+        if deadline_at is not None and time.monotonic() >= deadline_at:
+            raise DeadlineExceededError(f"{description} exhausted its total retry deadline")
         try:
             return fn()
         except TransientBackendError as exc:
@@ -509,6 +520,8 @@ def _retry_with_backoff(
             # jitter de-correlates them while keeping the per-attempt cap intact.
             half = computed / 2.0
             delay = half + random.uniform(0.0, half)
+            if deadline_at is not None:
+                delay = min(delay, max(0.0, deadline_at - time.monotonic()))
             _log.warning(
                 "%s transient error (attempt %d/%d): %s; sleeping %.1fs",
                 description, attempt + 1, max_retries + 1, exc, delay,
@@ -837,19 +850,24 @@ class DartmouthBackend(BaseBackend):
         if temperature is not None:
             kwargs["temperature"] = temperature
 
+        deadline_at = time.monotonic() + _deadline_for_model(model)
+
         def _invoke(call_kwargs: dict[str, object]):  # type: ignore[no-untyped-def]
             # Hard-enforce a total wall-clock deadline in addition to the SDK's
             # transport timeout. Socket timeouts alone do not bound every kind
             # of stalled request. Run
             # the call on a daemon thread and abandon it past the deadline so
-            # the router falls through to a peer model. The deadline is
-            # reasoning-aware (longer for qwen3.5/gpt-oss, which reason before
-            # answering) and matches the client's model_kwargs['timeout']. See
+            # the router falls through to a peer model. All attempts, including
+            # parameter correction and backoff, share one reasoning-aware
+            # model deadline instead of renewing it on each retry. See
             # invoke_with_deadline's docstring for why ThreadPoolExecutor would
             # re-create the hang.
+            remaining = deadline_at - time.monotonic()
+            if remaining <= 0:
+                raise DeadlineExceededError(f"Dartmouth model {model!r} exhausted its total retry deadline")
             return invoke_with_deadline(
                 lambda: client.invoke(msg_objs, **call_kwargs),
-                timeout=_deadline_for_model(model),
+                timeout=remaining,
                 description=f"Dartmouth model {model!r}",
             )
 
@@ -969,6 +987,7 @@ class DartmouthBackend(BaseBackend):
                 max_retries=self._max_retries,
                 base_delay_s=self._retry_base_delay_s,
                 description=f"Dartmouth {model!r}",
+                deadline_at=deadline_at,
             )
         )
 
