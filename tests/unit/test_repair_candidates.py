@@ -39,7 +39,7 @@ def test_repair_prompt_keeps_later_issues_and_retry_feedback(tmp_path, monkeypat
     }
     captured = []
 
-    def ask(prompt):
+    def ask(prompt, **kwargs):
         captured.append(prompt)
         return {"skip": "diagnostic probe"}
 
