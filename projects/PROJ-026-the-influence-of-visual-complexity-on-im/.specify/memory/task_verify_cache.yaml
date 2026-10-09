@@ -1,26 +1,41 @@
+T000:
+  c: false
+  h: c27f6f018632e9ddde8795c6f748002f66f83282a1a73cab39a81a30d50bf36d
+  r: "The amendment file exists and includes \u201CStatus: Ratified\u201D, but the\
+    \ required project state file `state/projects/PROJ-026-the-influence-of-visual-complexity-on-im.yaml`\
+    \ is missing, so the version\u2011ing step was not completed."
 T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory tree or file listing was provided to confirm that the required folders
-    (`code/{data,stimuli,analysis,viz,tests}`, `data/{raw/stimuli,raw/responses,processed,results}`,
-    `docs`) actually exist; without such evidence the task cannot be verified as completed.
-T017a:
+  h: 40671830739f848c990ccdf7a698ca6f8e5b0ce7f9e85b77993dc12d62188cc6
+  r: The provided filesystem lacks the required `docs` directory and the `data/raw/stimuli`,
+    `data/raw/responses`, and `data/processed` subfolders, and the `code/` tree contains
+    many extra entries not specified in the plan, so the exact project structure is
+    not present.
+T002:
+  c: true
+  h: 9328b51ae17649a5a598c894a4b737a6b0b634320efb93b9e39098e3bf9ca8b2
+  r: "The `code/requirements.txt` file exists, is non\u2011empty, and contains the\
+    \ full list of required packages as specified for initializing the Python project."
+T003:
+  c: true
+  h: d07a6b98e60e085f76cda1376e1b3b39f05f9ed60661cd9e2f217b88e856b5ad
+  r: "The provided `pyproject.toml` exists, is non\u2011empty, and contains configuration\
+    \ sections for Black, Ruff, and Pytest as required to set up formatting, linting,\
+    \ and testing. No placeholders or missing sections are evident."
+T004:
   c: false
-  h: 7e1e183df78d29b2ab608c080446e2e530fd077c49a572bceb12c3443fcc153f
-  r: The provided `process.py` is truncated and never reaches the part that writes
-    `data/processed/complexity_scores_raw.csv`; the CSV file is absent from the repository.
-    Consequently the required output file with the specified columns and status logic
-    does not exist. The task needs a complete implementation that iterates the raw
-    stimuli, computes the three metrics, records each image (including skipped ones)
-    with the correct columns, and saves the result to the expected CSV path.
-T026b:
+  h: 59ce53b19424c7143d3ec1191ed8aab2234f63d43b5881fdccc6758f135f96ae
+  r: '`code/config.py` defines `SEED` correctly, but `DATA_ROOT`, `CODE_ROOT`, and
+    `RESULTS_ROOT` are `Path` objects derived from the project root rather than the
+    exact string values `"data"`, `"code"`, and `"data/results"` required by the task.
+    The variable types/values do not match the specification.'
+T005:
   c: false
-  h: b13c7790d93788f4c2f108e8a81f73801e11540ed785edca6009fdaf2b5836a6
-  r: "The repository contains a `code/data/process.py` file, but it is truncated and\
-    \ shows no logic that writes the required `data/processed/aggregated_d_scores.csv`\
-    \ with the specified columns, nor any handling of paired Low/High sessions. Moreover,\
-    \ the CSV file itself is missing from the project. The task\u2019s core output\
-    \ is therefore not present."
+  h: dd22486eafce9048708b504f9577b7a88598fe1f82ab331aebacbe9fea48cd9d
+  r: "The only artifact present is a minimal top\u2011level `code/__init__.py` containing\
+    \ a docstring; there are no `data`, `stimuli`, `analysis`, or `viz` sub\u2011\
+    directories (or their `__init__.py` files) to constitute the required package\
+    \ structure. The task is therefore not fully implemented."
 T027a:
   c: false
   h: d0cb055e8eb58d1c398a4295a83ee5c0e9cf605f59916550d6a3fe3b7e9a59bd
@@ -44,12 +59,6 @@ T034b:
     \ not read the observed Cohen\u2019s\u202Fd from a JSON file nor write the power\
     \ analysis results to the specified output file. Consequently the post\u2011hoc\
     \ power calculation is not fully implemented as described."
-T036:
-  c: false
-  h: 6115805a6d2eb2f43d0fc1b5c8e43ec89b2bc63b078db885972ffa104e8f76cb
-  r: "The `data/results/permutation_results.json` file exists and includes the required\
-    \ keys, but `data/results/sensitivity_results.json` is missing entirely, so the\
-    \ task\u2019s requirement to save and verify both result files is not satisfied."
 T037:
   c: false
   h: 06f252248c59aab44846c25a6506a3b90533f18287d0de9afa184f6907792025

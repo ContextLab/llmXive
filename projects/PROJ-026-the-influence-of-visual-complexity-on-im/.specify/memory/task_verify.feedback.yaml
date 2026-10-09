@@ -1,0 +1,165 @@
+T000:
+  reason: "The amendment file exists and includes \u201CStatus: Ratified\u201D, but\
+    \ the required project state file `state/projects/PROJ-026-the-influence-of-visual-complexity-on-im.yaml`\
+    \ is missing, so the version\u2011ing step was not completed."
+  task: 3473709cab2674872c8f4605cd59c4346de16d5d5d9e1365181227c4cd6f96b4
+T001:
+  reason: The provided filesystem lacks the required `docs` directory and the `data/raw/stimuli`,
+    `data/raw/responses`, and `data/processed` subfolders, and the `code/` tree contains
+    many extra entries not specified in the plan, so the exact project structure is
+    not present.
+  task: b88d22d62cab8e0a2aaedf15d87550cbd3ea3ba81883c5d65f41586a3a3629b2
+T002:
+  task: e267a81c0506c61f5d40f81f14b763fef894886d5100efe0de88a4e4255fd83c
+T003:
+  task: e622900a38c8bfecadd7de732572d6ab328f3a1199ce18a73aa7e6612d64569d
+T004:
+  reason: '`code/config.py` defines `SEED` correctly, but `DATA_ROOT`, `CODE_ROOT`,
+    and `RESULTS_ROOT` are `Path` objects derived from the project root rather than
+    the exact string values `"data"`, `"code"`, and `"data/results"` required by the
+    task. The variable types/values do not match the specification.'
+  task: 120706dbf9b0adfc923500e4a28506d0c562a148bfb0708832a1fad57f1a0698
+T005:
+  reason: "The only artifact present is a minimal top\u2011level `code/__init__.py`\
+    \ containing a docstring; there are no `data`, `stimuli`, `analysis`, or `viz`\
+    \ sub\u2011directories (or their `__init__.py` files) to constitute the required\
+    \ package structure. The task is therefore not fully implemented."
+  task: ae8befe1f09bd7794e200d59893c5b537d49a716459a3bb3232aea9613db84d8
+T007:
+  task: c9d1cd49eb4b614853568f8a9d5f07a0446859fbc1524a8ab201b160b3027cde
+T008:
+  task: 1029e811302abeaf4b95aee08196cf6863c6671d9dcdb6939ac556d0121ccb71
+T009:
+  task: f771c758ee8e51b4f872f7af951a23a58fa0902d539181e9560ffd4120a01385
+T010:
+  task: f68fa5f10a245c812a63cd433a7ed1afdce7ec01423a324fcd61468f284f694f
+T011:
+  task: bf09777999a1ffd519c5227e2169b822502e274baec83ad245d657e68ab07723
+T012:
+  task: 02aa9ba4c8b29280e5a849f416b71428b748af1f96377a650bbf52052def05d0
+T013:
+  task: 71a20a272c25507eda4e0b34c208d1bc86b637815292a17ff024793f1544c19d
+T014:
+  task: 2dd66654a89166f07401049afb7bb2dbb406a2cfe1161e4630e781d12361f276
+T015:
+  task: 55407772d155db8d43adf2f31ace65930ed1f629832e742df634b2ca80f398e7
+T016:
+  task: f35b38127c0ccd917bf47e476816a4c79cb7f320525efb80127b2edb53fcdf5b
+T017a-1:
+  task: c138d648e982e574847b5045fbc08f26f82f046e3fe174ed83e9e547b4194190
+T017a-2:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/valid_images_list.txt,
+    data/processed/complexity_metrics_raw.csv'
+  task: e88707256fc547f8217b7b7d81628e6b665321b1b9e61062fa4eb3d4243c4220
+T017a-3:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/complexity_metrics_raw.csv,
+    data/results/pca_variance.json, data/processed/complexity_scores.csv'
+  task: 9bec42a62c4dc1477d056b5e2c52644c2f574968ab2c1aacb3343f73f1719b2f
+T019:
+  task: e61bdd0ad80a9614e5c573773a9f02e1893adfb05b83640822a0d77a6c7d94f7
+T020:
+  task: e4b20804e67012cd328f35d17602711cfb413a8cbe7af94af6d1d87f224c68ea
+T021:
+  task: ebb02cd8e0978d87adf159a3fbc073dc2866c1ca1c5b42fcbe5262f589991ed6
+T022:
+  task: fc69ddee1e52fadc703523c56757d4421d938efe026476b08761fa3f7b33c90d
+T023:
+  task: c470acfb9c882d6f3ab9fca18c4156aec07b6418de77d954848c705f1ee75483
+T026b-1:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/filtered_trials.csv'
+  task: 61c723df27a88703b0958ac7cf9a12b739d7cc3be85cbbf6aedfd8edd2190b76
+T026b-2:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/filtered_trials.csv,
+    data/processed/d_scores_raw.csv'
+  task: 43a891a79ea206f903400901855d85f81ce586aa299659251e3fbd976ebcae7f
+T026b-3:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/d_scores_raw.csv,
+    data/processed/counterbalance_assignment.csv, data/processed/complexity_scores.csv,
+    data/processed/aggregated_d_scores.csv'
+  task: 018817be74d171838ccc88e01ad7a59156e8300d83c534f911b1e2a17e013519
+T027a:
+  reason: 'declared artifact(s) missing/empty/invalid: data/raw/responses/participants.csv,
+    data/processed/counterbalance_assignment.csv'
+  task: ac00d4c9c75f68adccff62a16f9d9aa5585bd00919d83a41353a3bd86acf6e78
+T027a-Map:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/complexity_scores.csv,
+    data/processed/stimulus_set_mapping.csv'
+  task: 2a80b13f9136a2e85eedcc1d05c3d64d252443edefac8748e37e4d41a0a7fdf2
+T027b:
+  task: 96f84f6666161045c46cd43a78b8e258ca257037f3c4c324d027b72244d2fda4
+T028:
+  task: 246262fc4dc3a370d02636f83c3610111d1c112e97dcbf41e0e44847bfa6e901
+T029:
+  task: 14363390af94a0c2c5b16195354ad1ae39b708b78ed78ca4fe049511fa44d586
+T030:
+  task: 645bd62889c761de3dd4bd04ec984c0df77c461d1bad1419916d6868e912aa7c
+T031:
+  task: 9173723b2499693da2b0ccf22f19732e15834904fa553921d6679df67ad439cb
+T033-check:
+  task: aacca1daa4628428ab743fa8b7ecb6b3bc97fc4c2a8317bd6cbf5d3de920ee10
+T033-impl:
+  task: 23881062dfe8a654890b4cb1b14bcccf1c9fe82e335a7d1cf6bf153f0abd0674
+T033-run:
+  task: 10cd9c4ed0f2cf887e07462ee1d9aded6b15defd501bb7cb07aaa0c5d61a2012
+T034:
+  task: 2f1590590fa0c601cdb450ef8f30646c5bb312997db9cf3760d17695abc0c146
+T034b:
+  task: a1f7e6faa9506844e0e6610170cb5d1433956e4c81e09e04d056391222aaaf56
+T035:
+  task: 633d80ac0554d25ad42314d5d30afd4448ac5d14f0b736d116f9bbd323ba885d
+T036-verify:
+  task: b7dc27aa433177baeca92876812281c40e13b0c4b115f1edf92d9181ded84154
+T037:
+  task: d1e45df3e384ffa07b6c249c141d8591377349ae1683de1716a8a1e41887b4c7
+T038:
+  task: 03deb7f83ccbfa51d14d9e0a5af9db912e3c10cad9a647c7b4b6aafc05cde7b2
+T039:
+  task: 3d254333f96fab3b9961a04384a167e34ded9a5c83373f4e866d473bd7606a31
+T040a:
+  task: 87230f8e887542c02d983f8f6e94f2a52139c845bff37209282ed87e7d42a78e
+T040b:
+  task: c630a485206d1110241144d46529f8da01e607be390d8b30f61ff00f6ce6b3ee
+T040c:
+  task: 88a509b8b37dabcb5329875fac35a5157eb1884b406a479ff061d843ccb802c9
+T040d:
+  task: 3cd9ccabc2971a68693b9e2516ad92a7154800566e476f4d30041de07e77804a
+T041a:
+  reason: 'declared artifact(s) missing/empty/invalid: code/utils/profile_memory.py'
+  task: f27d62f952517f32908d5dac19fe0545aa1a3eb77ab92dd9080197dade2418ac
+T041b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/utils/profile_memory.py'
+  task: 73611dbd643fee0efa7c347264201fb4d3801748fa20512b397cabf6e5f55f0b
+T042:
+  task: 12a82864df8675ffc49169f9841832436e8f2f179207d8c8af2ce06d09bb7bc0
+T043a:
+  task: 85dde20af9678415777072248e1c3a0e4fb22e4375c18080dd66afdf8c2859b0
+T044:
+  task: dc7644985dd19eedd7fa7fa9e0f6b6c49415694787ea01c8c62fec31d94fe2e8
+T045:
+  task: 95aed8a6f49a178b1ee860d73b0a96934e2231adb1c449687cb7dd3b5fcbe580
+T046:
+  task: 7d913cc3504d202ce4b493b27b19698ebc6546b739dd0acc2708fc5e17c9434f
+T048:
+  task: dd7f91f82cc02f49b2ebf1f5ec6f36989fe85900f0da13425b5c7c0ba3bd2474
+T049:
+  task: f2ac2aa11016d8448cffe7deba1891819eb5480c185bc5d50aad9e9ced48c94e
+T050:
+  task: 85270147ce08562ba71a5844becd27dcb1e912d545faaedd0126e76404604e70
+T052:
+  task: dbf56d2f74dca1c6e794467e1cf7146f636b7f4fda93164cdf3bca82c620d699
+T053:
+  task: e11b1d53699db563c3b25e668ebf86a79f2e8705daf30e99c4d9ef9c43fe09bf
+T054:
+  task: fb84d88be9bdf3519ac18adc527a54ee6dda140ee3016b0eb7609ad432945e2f
+T055:
+  task: 79fc96eb0e88d48b78b1d9387a37f6e487ae7f3b4ee5a39acef02318172ad268
+T056:
+  task: 596ec0b8abcb2d49cce638612a6ec73a5825112a33c6f25a2132c815a4bd555b
+T057:
+  task: add4181b3baba41ab7fc349d12104aa4cc15c32cb2e4edbb027f59d37c9afb18
+T058:
+  task: c17b5248823c4c9e1953eab0d6ca32a917bce7370687c056c59f4a253f21e56a
+T059:
+  task: a8a45cffcf9225f5df9d6589b761064cc2bcd2de54995f6a0f08bb549ea925ed
+T061:
+  task: 65a52e204c89ac350a2f28ad01007899b4c9131df0628ab45624dcad8bdf4203
