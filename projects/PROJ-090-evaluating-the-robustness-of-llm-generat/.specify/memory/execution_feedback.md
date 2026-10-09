@@ -21,16 +21,16 @@ ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 - python code/main.py -> rc=1
 
-2026-10-09 23:23:24,159 - llmXive.budget - INFO - Starting Budget Cap Enforcer (T029b)...
-2026-10-09 23:23:24 - llmXive.budget - INFO - Starting Budget Cap Enforcer (T029b)...
-2026-10-09 23:23:24,159 - llmXive.budget - INFO - Loading feasibility config from data/config/feasibility.json
-2026-10-09 23:23:24 - llmXive.budget - INFO - Loading feasibility config from data/config/feasibility.json
-2026-10-09 23:23:24,159 - llmXive.budget - INFO - Budget cap determined: 4 samples
-2026-10-09 23:23:24 - llmXive.budget - INFO - Budget cap determined: 4 samples
-2026-10-09 23:23:24,159 - llmXive.budget - INFO - Loading original HumanEval tasks...
-2026-10-09 23:23:24 - llmXive.budget - INFO - Loading original HumanEval tasks...
-2026-10-09 23:23:24,159 - llmXive.budget - ERROR - Data file missing: Original HumanEval data not found at data/raw/humaneval.json. Ensure T010 (download) has been executed.
-2026-10-09 23:23:24 - llmXive.budget - ERROR - Data file missing: Original HumanEval data not found at data/raw/humaneval.json. Ensure T010 (download) has been executed.
+2026-10-09 23:26:24,411 - llmXive.budget - INFO - Starting Budget Cap Enforcer (T029b)...
+2026-10-09 23:26:24 - llmXive.budget - INFO - Starting Budget Cap Enforcer (T029b)...
+2026-10-09 23:26:24,411 - llmXive.budget - INFO - Loading feasibility config from data/config/feasibility.json
+2026-10-09 23:26:24 - llmXive.budget - INFO - Loading feasibility config from data/config/feasibility.json
+2026-10-09 23:26:24,411 - llmXive.budget - INFO - Budget cap determined: 4 samples
+2026-10-09 23:26:24 - llmXive.budget - INFO - Budget cap determined: 4 samples
+2026-10-09 23:26:24,411 - llmXive.budget - INFO - Loading original HumanEval tasks...
+2026-10-09 23:26:24 - llmXive.budget - INFO - Loading original HumanEval tasks...
+2026-10-09 23:26:24,411 - llmXive.budget - ERROR - Data file missing: Original HumanEval data not found at data/raw/humaneval.json. Ensure T010 (download) has been executed.
+2026-10-09 23:26:24 - llmXive.budget - ERROR - Data file missing: Original HumanEval data not found at data/raw/humaneval.json. Ensure T010 (download) has been executed.
 
 
 ## Declared deliverables still missing
@@ -41,31 +41,6 @@ ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 - data/processed/perturbation_candidates.json
 - data/processed/perturbation_candidates_raw.json
 - data/processed/perturbation_candidates_validated.json
-
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
-
-- **Install**: add `datasets` to the project's `requirements.txt` and `pip install datasets`.
-- **Verified**: this loads **164** real records with fields: task_id, prompt, canonical_solution, test, entry_point.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-import sys
-from datasets import load_dataset
-
-# Load the full dataset (the only available split is "test")
-ds = load_dataset("openai/openai_humaneval", split="test")
-records = len(ds)
-if records == 0:
-    raise RuntimeError("Loaded dataset has zero records")
-print(f"RECORDS={records}")
-
-fields = ds.column_names
-print("FIELDS=" + ",".join(fields))
-```
-
-Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 

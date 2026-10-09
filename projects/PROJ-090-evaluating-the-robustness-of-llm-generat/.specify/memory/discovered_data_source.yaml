@@ -1,25 +1,12 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: "import sys\nfrom datasets import load_dataset\n\n# Load the full dataset\
-  \ (the only available split is \"test\")\nds = load_dataset(\"openai/openai_humaneval\"\
-  , split=\"test\")\nrecords = len(ds)\nif records == 0:\n    raise RuntimeError(\"\
-  Loaded dataset has zero records\")\nprint(f\"RECORDS={records}\")\n\nfields = ds.column_names\n\
-  print(\"FIELDS=\" + \",\".join(fields))"
-record_count: 164
-sample_fields:
-- task_id
-- prompt
-- canonical_solution
-- test
-- entry_point
-field_coverage: 1.0
+status: none
+intent: HumanEval dataset and sentence-transformers all-MiniLM-L6-v2 model download
+  python package dataset
 required_fields:
 - task_id
 - prompt
 - canonical_solution
 - test
 - entry_point
-intent: download HumanEval dataset from HuggingFace and sentence-transformers all-MiniLM-L6-v2
-  model python package
-cache_key: 6e5a4ea8c3eb5f1da74a912e8f51e5381fc6e5c061eadd855270341869571483
+cache_key: 2c0498bc0296ac639cb93561c563138d5707e18e09e5ac01a26b9aefa8c5c409
+searched_at: '2026-10-09T23:29:05.364432+00:00'
+retry_count: 1

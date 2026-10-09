@@ -1,11 +1,11 @@
 T001:
   c: true
-  h: e7ebbccefa5aa579f3ff233a57de34b77facc512c911f157b26babf487134fe3
-  r: "Checked the `requirements.txt` file (183\u202Fbytes, contains exact version\
-    \ pins) and the execution log `code/.tasks/T001.code_verify_requirements.py.log`,\
-    \ which shows `pip install -r requirements.txt` exiting with code\u202F0 and all\
-    \ listed packages installed at the specified versions."
-  sig: 509dc38dc4c31fd140ec6372c66b0c58896298da8d05a9eb58de3eef8590797a
+  h: 22e92a996514272a28fa315be14fd6adba4348064c57607ca530bb2817510995
+  r: "Checked the `requirements.txt` file (197\u202Fbytes, all packages pinned) and\
+    \ the execution log `code/.tasks/T001.code_verify_requirements.py.log`, which\
+    \ shows `pip install -r requirements.txt` exiting with code\u202F0 and each package\
+    \ installed at the exact pinned version."
+  sig: 364276db50886a4d5478166d2ed8b7d899d9f51fb71a81940a468eb5a6be9fe9
 T002:
   c: true
   h: 468e031d7d17deb5bb2741c7b554ae48f9a297b414081e04f47379ade5f98c2d
@@ -16,13 +16,49 @@ T002:
   sig: 543d992c841b844aac42f2a66e38e57117f9b867a0e19db2fb0c1f3103bb2006
 T003:
   c: false
-  h: f1f5d58a05352769c0d2122896070b7490b9858532faab438937d1692c725961
-  r: "The provided `quickstart.md` documents running the pipeline with `python code/main.py`\
-    \ instead of the required single\u2011command entry point `python -m code.main\
-    \ --run\u2011sample`, and there is no evidence that this command completes within\
-    \ 30\u202Fs and prints \u201CSample run completed\u201D. The task\u2019s verification\
-    \ step is therefore not satisfied."
-  sig: aaeab13c22c1c30f31df9963a5f925b53319a26c749b94c7c3fc7b4dad59a26a
+  h: 34d7519a092c2abec68b523a5b8c91b943aa8c18dfa275a1e530b7650ae1db40
+  r: "The quickstart.md file exists and documents the required command, but there\
+    \ is no evidence (e.g., a terminal log, timing report, or test script output)\
+    \ showing that `python -m code.main --run-sample` actually finishes within 30\u202F\
+    seconds and prints \u201CSample run completed\u201D. Execution proof is needed\
+    \ to satisfy the verification condition."
+  sig: 8f9edc6bfb343bbdf752b5b8d9dcda6710aaee6c99a6615ad7f20183e06c9ce3
+T004:
+  c: false
+  h: b8b8509f98a3f957800acfd25ac0e578b33cd91cc16beb263a5bcab222f6c4f3
+  r: "The repository contains `code/utils/logging.py` with a `setup_logger()` that\
+    \ is designed to write JSON\u2011lines to `data/logs/app.log`, but the required\
+    \ log file `data/logs/app.log` is missing\u2014no evidence shows the function\
+    \ was executed to create it, nor that any JSON line was written. The task is not\
+    \ satisfied until the logger is invoked and the file with at least one JSON entry\
+    \ is present."
+  sig: e2f1f9b65caae52db088d51cc896b535f99bb65bd96e69cc98c71648a09dc2c7
+T005:
+  c: true
+  h: b80bdfa769300562670d8faf98b3a9336de1b46f391e7d8d214fe2c3e66b2e91
+  r: "Checked `code/model/sandbox.py` (8828\u202Fbytes) \u2013 it defines `run_in_sandbox(code:\
+    \ str) -> Result` and `execute_with_timeout(code: str, timeout: int) -> Result`\
+    \ with proper signatures, sandboxed execution, timeout handling, and conversion\
+    \ to the required `Result` object. The public API matches the task specification\
+    \ and a manual import/run (`run_in_sandbox('print(1)')`) yields a `Result` whose\
+    \ `status` is `'pass'`."
+  sig: a5a9a4e066d74676718397abab5f7f8f93bc713307cfe7f469d46a1c9f4b5b42
+T006:
+  c: true
+  h: 784aa57bda6205cb62cd4cf2700a4cc55b6a95dfbce30624fcea21e744ac0e8f
+  r: "Checked `code/config.py` (5126\u202Fbytes) which defines the required module\u2011\
+    level constants `MODEL_NAME`, `QUANTIZATION`, `DEVICE`, `GEN_TIMEOUT`, and `SEED`,\
+    \ and the import\u2011assert test would succeed."
+  sig: 15e4bf07e3721eb4cc9b029ebd52e13a76c130a6091df55de626ed244f9e571c
+T007:
+  c: true
+  h: 821648b6265cb87f13ef31d47e2767c7891322074a342dbe5b3636e02b07f8b9
+  r: "Checked the `code/utils/validate_schema.py` file (6603\u202Fbytes) which implements\
+    \ command\u2011line parsing, loads the JSON and schema files, performs validation,\
+    \ prints pass/fail messages, and exits with status\u202F0 on success or\u202F\
+    1 on failure as required. The script is present, non\u2011empty, and contains\
+    \ the correct exit\u2011code logic."
+  sig: 66256132b774efaf776ac92cfd2f60297b0a388493ad347bacdc5270ca5632d3
 T016:
   c: false
   h: 601adf513ef31aeb44cd62e58f34dcd6c48f4b61b586b6b2ad91d01503560534

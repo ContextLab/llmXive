@@ -26,7 +26,7 @@
   **Path**: `code/utils/logging.py`  
   **Verification**: Import the module and call `setup_logger()`, then check that `data/logs/app.log` exists and contains at least one JSON line.
 
-- [ ] **T005** [P] Implement `code/model/sandbox.py` – `run_in_sandbox(code: str) → Result` and `execute_with_timeout(code: str, timeout: int) → Result`.  
+- [X] **T005** [P] Implement `code/model/sandbox.py` – `run_in_sandbox(code: str) → Result` and `execute_with_timeout(code: str, timeout: int) → Result`.  
   **Path**: `code/model/sandbox.py`  
   **Verification**: `python -c "from code.model.sandbox import run_in_sandbox; print(run_in_sandbox('print(1)'))"` returns a `Result` with `status='pass'`.
 
@@ -37,20 +37,20 @@
 | Goal | Provide reusable utilities and contract definitions required by all downstream work. |
 |------|--------------------------------------------------------------------------------------|
 
-- [ ] **T006** [P] Create `code/config.py` exposing `MODEL_NAME`, `QUANTIZATION`, `DEVICE`, `GEN_TIMEOUT`, `SEED`.  
+- [X] **T006** [P] Create `code/config.py` exposing `MODEL_NAME`, `QUANTIZATION`, `DEVICE`, `GEN_TIMEOUT`, `SEED`.  
   **Path**: `code/config.py`  
   **Verification**: `python -c "import code.config; assert code.config.MODEL_NAME"` succeeds.
 
-- [ ] **T007** [P] Add `code/utils/validate_schema.py` that validates a JSON file against a JSON‑Schema file and exits 1 on failure.  
+- [X] **T007** [P] Add `code/utils/validate_schema.py` that validates a JSON file against a JSON‑Schema file and exits 1 on failure.  
   **Path**: `code/utils/validate_schema.py`  
   **Verification**: Run the script on a known‑good file; exit code 0. Run on a deliberately broken file; exit code 1.
 
-- [ ] **T008** [P] Create `contracts/perturbation_schema.json` defining the JSON schema for perturbation candidates.  
+- [~] **T008** [P] Create `contracts/perturbation_schema.json` defining the JSON schema for perturbation candidates.  
   **Path**: `contracts/perturbation_schema.json`  
   **Schema fields** (required): `task_id` (string), `perturbation_type` (enum ["synonym","typo","rephrase"]), `raw_score` (number 0‑1), `is_valid` (boolean), `candidate_text` (string).  
   **Verification**: `python code/utils/validate_schema.py --input data/processed/perturbation_candidates_raw.json --schema contracts/perturbation_schema.json` exits with code 0.
 
-- [ ] **T008a** [P] Generate `contracts/perturbation_schema.json` from the canonical YAML (`contracts/perturbation_schema.yaml`) to guarantee schema consistency.  
+- [ ] **T008a** [P] Generate `contracts/perturbation_schema.json` from the canonical YAML (`contracts/perturbation_schema.yaml`) to guarantee schema consistency.   <!-- FAILED-IN-EXECUTION: code/utils/generate_perturbation_schema.py exit=1 -->
   **Path**: `contracts/perturbation_schema.json` (generated)  
   **Verification**: The produced JSON validates against the original YAML and the same validator script succeeds.
 

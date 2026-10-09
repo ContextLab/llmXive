@@ -3726,3 +3726,39 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-01T12:47:40Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/quickstart.md
+  attempts: 1
+  canonical: pipeline finishes within 30 seconds
+  claim_id: c_5cadf25d
+  context: "The command should finish within 30\u202Fseconds and print: Sample run\
+    \ completed. This confirms that the entry point is correctly wired and the sample\
+    \ execution path works."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The command should finish within 30\u202Fseconds and print: Sample run\
+    \ completed"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T23:24:41Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/quickstart.md
+  attempts: 1
+  canonical: pipeline generates artifacts under data/processed and logs under data/logs
+  claim_id: c_46498105
+  context: "For the complete end\u2011to\u2011end run (download, perturb, validate,\
+    \ infer, and analyze), execute: python code/main.py. This will generate all declared\
+    \ artifacts under `data/processed/` and logs under `data/logs/`."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: This will generate all declared artifacts under `data/processed/` and
+    logs under `data/logs/`.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T23:24:42Z'

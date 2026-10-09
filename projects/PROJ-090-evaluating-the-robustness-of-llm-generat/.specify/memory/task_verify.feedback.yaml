@@ -3,13 +3,19 @@ T001:
 T002:
   task: b50dbadc959c71789d2868e7fedf8125d7cbbbc9e64ca28a3c9465e00b476239
 T003:
-  reason: "The provided `quickstart.md` documents running the pipeline with `python\
-    \ code/main.py` instead of the required single\u2011command entry point `python\
-    \ -m code.main --run\u2011sample`, and there is no evidence that this command\
-    \ completes within 30\u202Fs and prints \u201CSample run completed\u201D. The\
-    \ task\u2019s verification step is therefore not satisfied."
+  reason: "The quickstart.md file exists and documents the required command, but there\
+    \ is no evidence (e.g., a terminal log, timing report, or test script output)\
+    \ showing that `python -m code.main --run-sample` actually finishes within 30\u202F\
+    seconds and prints \u201CSample run completed\u201D. Execution proof is needed\
+    \ to satisfy the verification condition."
   task: 11bcac113bdf1cbff21c87c44d635ada5dcfe938d5f75cbf9889cc1fa7b6a335
 T004:
+  reason: "The repository contains `code/utils/logging.py` with a `setup_logger()`\
+    \ that is designed to write JSON\u2011lines to `data/logs/app.log`, but the required\
+    \ log file `data/logs/app.log` is missing\u2014no evidence shows the function\
+    \ was executed to create it, nor that any JSON line was written. The task is not\
+    \ satisfied until the logger is invoked and the file with at least one JSON entry\
+    \ is present."
   task: 8b895edcccfeac26e2d82b75ad2dc634914dde6478890086dd5dca2fb753727c
 T005:
   task: 8792e0b0d0514f56cf5e8edc4f1e46695ffb7118838beba52a59d0bf4cef30a0
@@ -20,6 +26,8 @@ T007:
 T008:
   task: 7ad839029735c81305f890cca695ed143717f536f74af3a7e1e68069dea8b852
 T008a:
+  reason: 'Requested task execution failed; rerun successfully: code/utils/generate_perturbation_schema.py
+    exit=1'
   task: 90c517c85358cb1e78fad6e857ce4b8b45c1cf1deec547cbc0d13663b90851e5
 T009:
   task: 2cab2c546890de87c026a1f892fb62399d2904256e5ccbf401faf24006c0d9e9

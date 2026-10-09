@@ -146,5 +146,10 @@ def get_config_summary() -> dict:
     """Return a summary of the current configuration."""
     return get_config_dict()
 
-# Initialize directories on import if needed (or let main scripts call it)
-# ensure_directories()
+# Exported constants for easy access throughout the codebase
+# These are evaluated at import time using the helper functions above.
+MODEL_NAME = get_model_path()
+QUANTIZATION = "4bit"
+DEVICE = "cpu"
+GEN_TIMEOUT = get_timeout_inference()
+SEED = get_seed_global()
