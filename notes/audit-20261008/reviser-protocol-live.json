@@ -1,0 +1,19 @@
+{
+  "seconds": 5.191,
+  "uses_delimited_format": true,
+  "paths": [
+    "projects/PROJ-protocol/specs/001-study/tasks.md"
+  ],
+  "responses": [
+    {
+      "concern_id": "testability-abc123",
+      "response": "Added explicit input\u2011validation cases (N=0 and N=-1) to the test task description.",
+      "what_changed": "Updated T002 line to mention testing N=0 and N=-1 validation.",
+      "artifacts_changed": [
+        "projects/PROJ-protocol/specs/001-study/tasks.md"
+      ]
+    }
+  ],
+  "artifact": "# Tasks\n- [ ] T001 Implement code/study.py for p in {5, 7, 11}; preserve regex `\\d+` and label \"exact\".\n- [ ] T002 Write tests/test_study.py covering correct computation and input validation for N=0 and N=-1.",
+  "scope": "Small isolated protocol fixture; not scientific acceptance"
+}

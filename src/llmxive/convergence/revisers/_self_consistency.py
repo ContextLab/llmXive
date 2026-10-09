@@ -163,6 +163,25 @@ def invoke_reviser_backend(reviser: Any, messages: list[ChatMessage]) -> str:
     plan-panel "26 padded <missing> responses". Use the generation budget so
     the full document + change-log fit.
     """
+    from ._reviser_response import RESPONSE_FORMAT_BLOCK
+
+    # Reused authoring prompts can mandate JSON-only or YAML-only output.
+    # The active revision protocol must be at system priority too, rather
+    # than asking a lower-priority user message to contradict that contract.
+    contract = (
+        "\n\n# Active mode: convergence revision\n"
+        "For this invocation, the authoring output format described above does "
+        "not apply. Preserve its scientific and editing requirements, but use "
+        "the following revision response contract instead of standalone JSON, "
+        "YAML, or Markdown.\n\n" + RESPONSE_FORMAT_BLOCK
+    )
+    messages = list(messages)
+    for index, message in enumerate(messages):
+        if message.role == "system":
+            messages[index] = ChatMessage(role="system", content=message.content + contract)
+            break
+    else:
+        messages.insert(0, ChatMessage(role="system", content=contract))
     model = getattr(reviser, "_model", None)
     response = reasoning_chat(
         reviser._backend, messages, model=model,
