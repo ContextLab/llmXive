@@ -26,35 +26,35 @@
 - [X] T005 [] [US1] Implement **autocorrelation computation** for a single window (`L=10³`, lag `h=1`) and write the normalized result to `data/results/demo_autocorr.csv`. Include a sanity check that the value matches a hand‑computed reference for the chosen window.  
   *Path*: `code/autocorrelation.py`
 
-- [X] T006 [] [US1] Add a focused integration test that runs the demo pipeline (`generate_mobius → autocorrelation`) and asserts that `data/results/demo_autocorr.csv` exists and contains a numeric entry with at least six decimal places.  
+- [~] T006 [] [US1] Add a focused integration test that runs the demo pipeline (`generate_mobius → autocorrelation`) and asserts that `data/results/demo_autocorr.csv` exists and contains a numeric entry with at least six decimal places.  
   *Path*: `tests/integration/test_demo_pipeline.py`
 
 ---  
 
 ## Phase 2: Complete the study and validate its evidence  
 
-- [X] T007 [] [US1] Extend `code/autocorrelation.py` to compute **all lags** `h ∈ {1,…,⌊L/2⌋}` for every sampled window of each length `L`. Store the raw matrix in `data/processed/autocorr_raw.csv` (columns: `interval_start, interval_length, lag, autocorrelation`).  
+- [~] T007 [] [US1] Extend `code/autocorrelation.py` to compute **all lags** `h ∈ {1,…,⌊L/2⌋}` for every sampled window of each length `L`. Store the raw matrix in `data/processed/autocorr_raw.csv` (columns: `interval_start, interval_length, lag, autocorrelation`).  
   *Path*: `code/autocorrelation.py`
 
-- [X] T008 [] [US2] Implement **block‑permutation** generation preserving the global zero‑density (block size `b=100`). Create `code/permutation.py` that, for a given window, returns 1 000 permuted sequences.  
+- [~] T008 [] [US2] Implement **block‑permutation** generation preserving the global zero‑density (block size `b=100`). Create `code/permutation.py` that, for a given window, returns 1 000 permuted sequences.  
   *Path*: `code/permutation.py`
 
-- [X] T009 [] [US2] Add unit tests confirming that each permutation has the same count of `-1, 0, +1` as the original window and that blocks are shuffled, not internally reordered.  
+- [~] T009 [] [US2] Add unit tests confirming that each permutation has the same count of `-1, 0, +1` as the original window and that blocks are shuffled, not internally reordered.  
   *Path*: `tests/unit/test_permutation.py`
 
-- [X] T010 [] [US2] Build the **null distribution**: for every window and lag, compute autocorrelation on the 1 000 permuted sequences, then calculate two‑sided p‑values and the 95 % confidence interval (2.5 th / 97.5 th percentiles). Write results to `data/processed/autocorr_stats.csv` with columns `interval_start, interval_length, lag, autocorrelation, p_value, ci_lower, ci_upper, zero_count`.
+- [~] T010 [] [US2] Build the **null distribution**: for every window and lag, compute autocorrelation on the 1 000 permuted sequences, then calculate two‑sided p‑values and the 95 % confidence interval (2.5 th / 97.5 th percentiles). Write results to `data/processed/autocorr_stats.csv` with columns `interval_start, interval_length, lag, autocorrelation, p_value, ci_lower, ci_upper, zero_count`.
   *Path*: `code/null_distribution.py`
 
-- [X] T011 [] [US2] Apply the **Benjamini–Hochberg (BH) FDR correction** across all tested `(interval, lag)` pairs, add an `adjusted_p_value` column to `autocorr_stats.csv`.
+- [~] T011 [] [US2] Apply the **Benjamini–Hochberg (BH) FDR correction** across all tested `(interval, lag)` pairs, add an `adjusted_p_value` column to `autocorr_stats.csv`.
   *Path*: `code/fdr_correction.py`
 
-- [ ] T012 [] [US2] Perform the **zero‑density sensitivity analysis**: rerun the permutation step with the zero count altered by ±5 % and ±10 % (rounded to nearest integer). Compare resulting p‑values to the baseline and set a `sensitivity_flag` (`stable`, `sensitive`, `not_applicable`) in `autocorr_stats.csv`.   <!-- FAILED-IN-EXECUTION: code/sensitivity.py exit=-1 (TIMEOUT) -->
+- [ ] T012 [] [US2] Perform the **zero‑density sensitivity analysis**: rerun the permutation step with the zero count altered by ±5 % and ±10 % (rounded to nearest integer). Compare resulting p‑values to the baseline and set a `sensitivity_flag` (`stable`, `sensitive`, `not_applicable`) in `autocorr_stats.csv`.   <!-- FAILED-IN-EXECUTION: code/sensitivity.py exit=-1 (TIMEOUT) --> <!-- FAILED-IN-EXECUTION: code/sensitivity.py exit=1 -->
   *Path*: `code/sensitivity.py`
 
 - [ ] T014 [] [US3] Generate **heatmap visualizations** for each interval length `L`. Each PNG must show lag on the x‑axis, interval start on the y‑axis, color‑coded autocorrelation, a horizontal zero line, and shaded 95 % confidence bands from the permutation null. Save as `outputs/figures/heatmap_L{L}.png`.  
   *Path*: `code/viz.py`
 
-- [X] T015 [] [] Conduct a **Kolmogorov–Smirnov (KS) uniformity test** on the collection of p‑values under the null hypothesis. Store the KS statistic and its p‑value in `data/processed/uniformity_test.json`.  
+- [~] T015 [] [] Conduct a **Kolmogorov–Smirnov (KS) uniformity test** on the collection of p‑values under the null hypothesis. Store the KS statistic and its p‑value in `data/processed/uniformity_test.json`.  
   *Path*: `code/uniformity_test.py`
 
 ---  

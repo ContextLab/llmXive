@@ -1,46 +1,59 @@
 T000:
   c: true
-  h: 9ee0202e5dcc47fefdebc45204c5f9eff1c481f4ab1a7ebd02268e929b48a42d
-  r: "Checked that `data/checksums/manifest.sha256` exists, contains the correct SHA\u2011\
-    256 hash for `data/raw/mobius_array.npy` (and also for the other generated raw\
-    \ file), and that `code/checksum.py` implements the required computation and writes\
-    \ the manifest. The manifest matches the actual file contents, fulfilling the\
-    \ task."
+  h: 79fccf6701c4d5fa6c567a1802be2b6d9127f51ffd20550f785336de9005f21a
+  r: "`code/checksum.py` exists and genuinely computes SHA-256 digests (chunked hashlib\
+    \ over `data/raw` files) and writes `data/checksums/manifest.sha256`. The manifest's\
+    \ entry for `data/raw/mobius_array.npy` (c0121f2d\u202640ad) exactly matches the\
+    \ collector's independently computed sha256 of the actual 10,000,029-byte file,\
+    \ and the second entry covers the other generated raw file `window_starts.json`,\
+    \ satisfying the task."
 T001:
   c: true
-  h: 95bd704f22e6625bcca3cc5df1f7b05218934016d3136c69a65b2fe127a1bb91
-  r: "The `quickstart.md` file exists (3501\u202Fbytes) and contains sections detailing\
-    \ the project layout, the required Python version (\u2265\u202F3.11), a reference\
-    \ to the pinned `requirements.txt`, and the exact demo command `python -m code.main\
-    \ --demo`."
+  h: d850a853a8a44a6ddb93608fa413dd58f0c3e527be29ae8d1c5083989e4d3c06
+  r: '`quickstart.md` exists (3501 bytes) and documents the project layout, Python
+    3.11+ requirement, pinned dependencies via `requirements.txt` (which exists with
+    exact version pins), and the runnable command `python -m code.main --demo`. The
+    unresolved-claim annotations are verification markers, not missing content, and
+    the task only required the documentation itself.'
 T002:
   c: true
-  h: 3ae107db00163ff6f0f0b24118b234a5879f3341b15bc6088f79b1ac6f717650
-  r: "The `code/sieve.py` module defines `compute_mobius` that returns an `int8` NumPy\
-    \ array of length\u202FN+1 and a CLI that writes the array for N\u202F=\u202F\
-    10\u2077 to `data/raw/mobius_array.npy`; the execution log shows the file was\
-    \ successfully generated."
+  h: f8e318be298cea6cfa16a56a0f6eb5cc451d9a826705bdb4fa91a55e832e41bf
+  r: "`code/sieve.py` exists (3693 bytes) and implements a correct linear-time M\xF6\
+    bius sieve: it allocates an `int8` NumPy array of length N+1, sets \u03BC(1)=1,\
+    \ \u03BC(p)=\u22121 for primes, and uses the standard linear-sieve recurrence\
+    \ (\u03BC(i\xB7p)=0 when p|i, else \u2212\u03BC(i)), with a default N=10,000,000\
+    \ and a `--generate` CLI that saves the array as `.npy`. The algorithm is genuinely\
+    \ implemented (no stubs or placeholders) and matches the task's requirements."
 T003:
   c: true
-  h: 6ca945a0cad26d4289e03997c734797f488a53fddb3531d7c1bd7b317ea893e6
-  r: "The file `tests/unit/test_sieve.py` is present, non\u2011empty, and includes\
-    \ parametrized unit tests that assert \u03BC(1)=1, \u03BC(2)=\u20111, and \u03BC\
-    (4)=0, fulfilling the task\u2019s requirement."
+  h: c93828b18db9e45c2487b515320e5e4015010c21edb804851580095e4e290e87
+  r: "The file `tests/unit/test_sieve.py` exists (1582 bytes) and contains real pytest\
+    \ unit tests parametrized over exactly the required known values \u03BC(1)=1,\
+    \ \u03BC(2)=\u22121, \u03BC(4)=0, plus reasonable shape/dtype/index-0 checks,\
+    \ importing `compute_mobius` from `code/sieve` \u2014 matching the task's stated\
+    \ requirement with no stubs or placeholders."
 T004:
   c: true
-  h: 94492180ee988b5712beaaf2b65c4c181806e3af5b5b250cfd1a8911c6f77d69
-  r: "The `code/generate_mobius.py` script exists, is non\u2011empty, imports the\
-    \ sieve\u2019s `save_mobius_array`, writes the M\xF6bius array to `data/raw/mobius_array.npy`,\
-    \ and deterministically selects 20 stratified random window starts for each L\u202F\
-    =\u202F10\xB3,\u202F10\u2074,\u202F10\u2075 using seed\u202F42."
+  h: b4b8379262d5e9113b18ce3d6346b61fe2659ee73df99d65470b86fb10dee5a8
+  r: "The script `code/generate_mobius.py` exists and genuinely implements the requirements:\
+    \ it calls the sieve via `save_mobius_array(N, ...)` with N=10^7, saves to `data/raw/mobius_array.npy`\
+    \ (confirmed on disk as a real 10,000,001-element int8 NumPy array, consistent\
+    \ with execution), and selects M=20 stratified random window starts per L \u2208\
+    \ {10\xB3, 10\u2074, 10\u2075} using `np.random.default_rng(42)`, persisting them\
+    \ to `data/raw/window_starts.json`. The only minor caveat is that the window_starts.json\
+    \ file itself was not among the collected artifacts, but the script's logic is\
+    \ correct and the presence of th"
 T005:
   c: true
-  h: ccd023c3a509f8cb44424fd2c1e20f292a3b99525f57e3f9919665e8fd5e12e1
-  r: "Checked that `data/results/demo_autocorr.csv` exists with the correct normalized\
-    \ autocorrelation for L=1000, h=1, and that `code/autocorrelation.py` contains\
-    \ both a fast/slow sanity check and a comparison against a hard\u2011coded hand\u2011\
-    computed reference value. The script runs successfully and writes the expected\
-    \ CSV."
+  h: 5d7cb6dc4a83e8b7d3a35233e399c75d84279b98e964b477cb6a4294ef2c5d23
+  r: "The required artifacts exist and are substantive: `code/autocorrelation.py`\
+    \ implements the normalized autocorrelation `(1/(L-h))\xB7\u03A3 \u03BC(k+i)\u03BC\
+    (k+i+h)` with both vectorized and loop implementations, and `data/results/demo_autocorr.csv`\
+    \ contains the L=1000, h=1 result (-0.047047047047 = -47/999, consistent with\
+    \ the L-h=999 normalization) for window start 44622. The script includes the required\
+    \ sanity checks (fast-vs-loop agreement and a hard-coded hand-computed reference\
+    \ that matches the CSV value exactly), and the CSV content matches the code's\
+    \ output format and value. One caveat: the \"hand-compute"
 T006:
   c: true
   h: 44d61f39db30043d4b962d92e6b2e94d50d00e45546196c3d0a230fed907b29d
@@ -89,12 +102,6 @@ T011:
     \ correct Benjamini\u2013Hochberg adjustment to all p\u2011values, adds an `adjusted_p_value`\
     \ column, and overwrites the CSV. The execution log shows the script ran successfully\
     \ and updated a CSV with 1,110,000 rows."
-T012:
-  c: false
-  h: eb6328ce10978a767c835112006cf27198a2deb8524cacc93dcf1e62db183d16
-  r: "The required `code/sensitivity.py` file is missing, so no code, output CSV,\
-    \ or sensitivity flag is present to satisfy the zero\u2011density sensitivity\
-    \ analysis task."
 T014:
   c: false
   h: 3944525e9c1ef5c3754c392f76fea30e0960fa12d4475ed8cd2e5fcfbac53ca5

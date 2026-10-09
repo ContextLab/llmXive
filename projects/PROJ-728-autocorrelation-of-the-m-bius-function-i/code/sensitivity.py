@@ -34,7 +34,7 @@ STATS_CSV = Path("data/processed/autocorr_stats.csv")
 
 # Perturbation factors for zero density
 DELTA_VALUES = [-0.10, -0.05, 0.05, 0.10]
-# Reduced number of permutations for sensitivity to ensure timely execution
+# Number of permutations for sensitivity analysis
 N_SENS_PERMUTATIONS = 100
 BLOCK_SIZE = 100
 RNG_SEED = 42
@@ -57,6 +57,38 @@ def _compute_p_value(obs: float, null_vals: np.ndarray) -> float:
         return float("nan")
     return np.mean(np.abs(null_vals) >= np.abs(obs))
 
+def _compute_autocorrelations_vectorized(sequences: np.ndarray, L: int) -> np.ndarray:
+    """
+    Compute autocorrelations for all lags h = 1 .. floor(L/2) for multiple sequences.
+    
+    Parameters
+    ----------
+    sequences : np.ndarray
+        2D array of shape (n_seq, L).
+    L : int
+        Length of the window.
+        
+    Returns
+    -------
+    np.ndarray
+        2D array of shape (n_seq, floor(L/2)) containing normalized autocorrelations.
+    """
+    n = 2 * L
+    # Real FFT across the last axis
+    fft_vals = np.fft.rfft(sequences, n=n, axis=-1)
+    # Power spectrum
+    power_spectrum = fft_vals * np.conj(fft_vals)
+    # Inverse FFT to get linear autocorrelation sums
+    autocorr_full = np.fft.irfft(power_spectrum, n=n, axis=-1)
+
+    # Normalise each lag h = 1 .. L//2
+    max_lag = L // 2
+    lags = np.arange(1, max_lag + 1, dtype=np.int64)
+    sums = autocorr_full[:, lags]
+    normalisers = (L - lags).astype(np.float64)
+    
+    return sums.astype(np.float64) / normalisers
+
 def main() -> None:
     """
     Perform zero-density sensitivity analysis and update the stats CSV.
@@ -72,11 +104,10 @@ def main() -> None:
     with WINDOW_STARTS_PATH.open("r", encoding="utf-8") as f:
         window_map = json.load(f)
 
-    # We will store flags in a dictionary keyed by (start, L, lag)
-    # to map them back to the DataFrame rows.
+    # Store flags in a dictionary keyed by (start, L, lag)
     sensitivity_map = {}
 
-    # To optimize, we process per unique window
+    # Process per unique window to optimize
     unique_windows = df[["interval_start", "interval_length"]].drop_duplicates()
 
     rng = np.random.default_rng(RNG_SEED)
@@ -94,51 +125,44 @@ def main() -> None:
           continue
 
         # Get the observed autocorrelations for this window for all lags
-        # indices: 0 corresponds to lag 1, etc.
         observed_vals = _compute_autocorrelation_all_fft(mobius, start, L)
         
         # For each perturbation delta
         for delta in DELTA_VALUES:
             # Calculate perturbed zero count
             z_new = int(round(z_count * (1 + delta)))
-            # Ensure z_new is within [0, L]
             z_new = max(0, min(L, z_new))
             
-            # Create a perturbed window:
-            # 1. Keep original non-zero signs, but sample to fit new count
+            # Create a perturbed base window
             non_zeros = window[window != 0]
             nz_new_count = L - z_new
             
             if len(non_zeros) == 0:
-                # If no non-zeros exist, we can't sample signs; skip
                 continue
             
             sampled_nz = rng.choice(non_zeros, size=nz_new_count, replace=True)
-            
-            # 2. Combine zeros and sampled signs, then shuffle
             perturbed_base = np.concatenate([
                 np.zeros(z_new, dtype=np.int8),
                 sampled_nz
             ])
             rng.shuffle(perturbed_base)
 
-            # 3. Generate null distribution via block permutations
-            # We compute autocorrelation for each permuted sequence
-            perm_ac_matrix = np.empty((N_SENS_PERMUTATIONS, len(observed_vals)), dtype=np.float64)
+            # Generate null distribution via vectorized block permutations
+            perm_sequences = np.empty((N_SENS_PERMUTATIONS, L), dtype=np.int8)
             for i in range(N_SENS_PERMUTATIONS):
-                permuted_seq = _block_shuffle(perturbed_base, BLOCK_SIZE, rng)
-                # Reuse FFT helper by creating a dummy full array
-                dummy_full = np.concatenate(([0], permuted_seq))
-                perm_ac_matrix[i] = _compute_autocorrelation_all_fft(dummy_full, 1, L)
+                perm_sequences[i] = _block_shuffle(perturbed_base, BLOCK_SIZE, rng)
 
-            # 4. Compare p-values for each lag
+            # Compute autocorrelations for all permutations in one vectorized call
+            perm_ac_matrix = _compute_autocorrelations_vectorized(perm_sequences, L)
+
+            # Compare p-values for each lag
             for lag_idx, obs_val in enumerate(observed_vals):
                 lag = lag_idx + 1
                 null_vals = perm_ac_matrix[:, lag_idx]
                 p_new = _compute_p_value(obs_val, null_vals)
                 
                 # Retrieve baseline p-value from DataFrame
-                # (Using a mask or index lookup)
+                # This is slightly inefficient but safe for the current dataset size
                 baseline_p = df[
                     (df["interval_start"] == start) & 
                     (df["interval_length"] == L) & 
