@@ -1,15 +1,10 @@
 status: none
-intent: Open Science Framework trust in automation dataset condition adherence python
-  package dataset
+intent: Prolific MTurk human AI agency experiment trust in automation scale dataset
+  python package dataset
 required_fields:
-- participant_id
-- condition_id
-- agency_condition
-- adherence_rate
-- trust_score
-- decision_timestamp
-- ai_recommendation_followed
-- survey_responses
-cache_key: 5d5f8ca7e8741e519c02666dac1fe2ba6a6dd2e5c437add019f644b2c24b2c57
-searched_at: '2026-10-09T22:18:04.111462+00:00'
+- Condition ID
+- Adherence Rate
+- Trust Score
+cache_key: f5a83697d3c6ab44e33728c38076add949ed843ff2c2aeafcb3681ea4c6f5bad
+searched_at: '2026-10-09T22:19:43.256857+00:00'
 retry_count: 1

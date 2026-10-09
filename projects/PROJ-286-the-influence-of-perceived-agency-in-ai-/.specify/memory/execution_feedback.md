@@ -53,7 +53,7 @@ ERROR tests/test_validate_citations.py
 ERROR tests/unit/test_power_analysis.py
 ERROR tests/unit/test_validate_phase0.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 5 errors in 1.56s ===============================
+============================== 5 errors in 1.22s ===============================
 
 
 

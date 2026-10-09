@@ -77,7 +77,7 @@
   verification_status: pending
   verified_against_url: https://doi.org/10.1518/hfes.46.1.50_30392
   verified_at: '2026-10-03T00:44:48.951910Z'
-- artifact_hash: bfebb1c3f20c62fd3b7924b3dd4670e56ed3e595aa528959133519369eb0ee5a
+- artifact_hash: 71f560fccb7d7090630fa91cd8dcd3e209856b297f6235b649ecc26a7f311855
   artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -87,8 +87,8 @@
   value: https://psycnet.apa.org/record/2004-17829-004`
   verification_status: pending
   verified_against_url: https://psycnet.apa.org/record/2004-17829-004
-  verified_at: '2026-10-09T22:17:13.233493Z'
-- artifact_hash: bfebb1c3f20c62fd3b7924b3dd4670e56ed3e595aa528959133519369eb0ee5a
+  verified_at: '2026-10-09T22:18:41.033720Z'
+- artifact_hash: 71f560fccb7d7090630fa91cd8dcd3e209856b297f6235b649ecc26a7f311855
   artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -98,4 +98,4 @@
   value: 10.1518/hfes.46.1.50_30392
   verification_status: pending
   verified_against_url: https://doi.org/10.1518/hfes.46.1.50_30392
-  verified_at: '2026-10-09T22:17:13.233493Z'
+  verified_at: '2026-10-09T22:18:41.033720Z'
