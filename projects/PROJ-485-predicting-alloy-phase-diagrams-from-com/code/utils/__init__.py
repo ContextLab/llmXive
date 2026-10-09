@@ -1,3 +1,1 @@
-"""
-Utility functions and shared infrastructure.
-"""
+"""Utility package initialization."""

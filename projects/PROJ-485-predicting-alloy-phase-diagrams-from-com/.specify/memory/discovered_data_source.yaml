@@ -1,12 +1,15 @@
 status: none
-intent: download NIST JANAF Thermochemical Tables and SGTE alloy phase data python
+intent: download NIST-JANAF Thermochemical Tables and SGTE thermodynamic data python
   package dataset
 required_fields:
-- temperature (K)
-- element symbols (e.g., element1, element2, element3)
-- composition fractions (e.g., fraction1, fraction2, fraction3)
-- phase name or identifier
-- phase type (binary or ternary)
-cache_key: 06c14fdc201736b3e47af8298ffeb83b9c5b13e223fffea1d75976d8965a9c8c
-searched_at: '2026-09-30T00:17:15.931759+00:00'
+- temperature
+- composition (element fractions)
+- phase name
+- phase type
+- system (binary or ternary)
+- source database (NIST-JANAF or SGTE)
+- experimental_flag
+- pressure (optional)
+cache_key: fd1e315c85c107963390c9aad3be5cde1ab454927a64a154e29ffe313f058fd6
+searched_at: '2026-10-09T19:22:26.626486+00:00'
 retry_count: 1
