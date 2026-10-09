@@ -12,6 +12,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import tempfile
@@ -140,7 +141,32 @@ def render_evidence(evidence: dict, *, budget: int = 12000) -> str:
     Raw evidence remains in evidence.json. A global string slice could cut off
     later issues AND retry diagnostics. Summarize long fields instead, keeping
     their beginning and end (recent findings often follow historical evidence).
+    Current unchecked findings get individual fields so a long umbrella issue
+    cannot hide all actionable defects in the middle of one truncated body.
     """
+    prepared = dict(evidence)
+    if "issues" in evidence:
+        prepared["issues"] = []
+        for issue in evidence["issues"]:
+            item = dict(issue)
+            body = item.get("body", "")
+            # Consolidation retains historical incidents in collapsed details.
+            # Keep that history in evidence.json, not ahead of current findings
+            # in the bounded model input. Do not alter the original evidence.
+            visible = re.sub(
+                r"<details\b[^>]*>.*?</details\s*>",
+                "\n[Collapsed history retained in evidence.json]\n",
+                body, flags=re.DOTALL | re.IGNORECASE,
+            )
+            findings = re.findall(
+                r"^\s*[-*] \[ \] .*(?:\n(?!\s*[-*] |\s*#|\s*$).+)*",
+                visible, flags=re.MULTILINE,
+            )
+            item["body"] = visible
+            if findings:
+                item["current_findings"] = [finding.strip() for finding in findings]
+            prepared["issues"].append(item)
+
     def compact(value, limit):
         if isinstance(value, str) and len(value) > limit:
             head = limit * 2 // 3
@@ -153,7 +179,7 @@ def render_evidence(evidence: dict, *, budget: int = 12000) -> str:
 
     limit = 2400
     while limit >= 75:
-        rendered = json.dumps(compact(evidence, limit), ensure_ascii=False)
+        rendered = json.dumps(compact(prepared, limit), ensure_ascii=False)
         if len(rendered) <= budget:
             return rendered
         limit //= 2
