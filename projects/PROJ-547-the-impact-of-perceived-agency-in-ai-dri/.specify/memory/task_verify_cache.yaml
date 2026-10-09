@@ -1,0 +1,43 @@
+T001:
+  c: false
+  h: f4c20d0d2518bcf200bc449c8b7924ac53228fcd9142881a4e9e931a01bb5b60
+  r: The `configs/` directory is missing, and there is no `logs/` directory present,
+    so the required layout is not fully created. The existing `code/`, `tests/`, `data/`,
+    and `docs/` directories (with `__init__.py` files) are correct, but the missing
+    directories cause the task to be incomplete.
+T002:
+  c: false
+  h: 868a10d07d6228e3a14916dd3c91b014d9da84a380022ec4ba62062d14663ed6
+  r: The provided `requirements.txt` includes all required packages (plus an extra
+    one), but there is no evidence of a `setup_env.sh` script, nor any indication
+    that such a script creates a virtual environment without errors. The missing setup
+    script must be added and verified.
+T003:
+  c: false
+  h: cc85bd2d955455b6b060f484e6307aa4b7fde00c138e92bf0472700fb1660088
+  r: "No pre\u2011commit configuration file, ruff/black setup, or output from `pre-commit\
+    \ run --all-files` is present; the required artifacts to demonstrate that linting\
+    \ and formatting are correctly configured and pass are missing."
+T004:
+  c: false
+  h: c0b944e93fb07d85033273c75a71882d9d8626b28a903a175c14df9e4ead25ed
+  r: "The repository contains the required `code/logging/pipeline_logger.py` implementation,\
+    \ but no evidence that a dummy script was run, that a log file was created, or\
+    \ that the file contains a correctly\u2011formatted JSON line as the verification\
+    \ step demands. The implementer must add the execution output (e.g., a script,\
+    \ the generated `logs/run_*.log` file, and a sample JSON entry)."
+T005:
+  c: false
+  h: f74c03ab8a2b0d97a744483e1f256cbd6d7b01f608464854a8e6942d678ccb13
+  r: The `config_loader.py` file exists and implements a YAML loader, but the required
+    `configs/` directory (containing a sample YAML file) is missing, so the verification
+    step of loading a sample file and asserting expected keys cannot be performed.
+    Add a `configs/` folder with a YAML file and a test that loads it and checks its
+    keys.
+T008:
+  c: false
+  h: b0ec3342f8120ae2eb4ed826f3d1f3225fa0dd154f5054dd34c716450a41f62d
+  r: "The two schema files exist and contain syntactically valid JSON\u2011Schema\
+    \ draft\u201107 definitions, but the task required that the schemas be validated\
+    \ with the `jsonschema` CLI. No command output, test run, or proof of successful\
+    \ validation is provided, so the verification step is missing."

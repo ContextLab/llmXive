@@ -1,0 +1,18 @@
+status: none
+intent: download CBT conversation transcripts parquet dataset and Therapeutic Agency
+  Scale questionnaire python package dataset
+required_fields:
+- session_id
+- utterance_text
+- utterance_order
+- timestamp
+- completion_flag
+- participant_age
+- participant_gender
+- baseline_severity
+- prior_therapy_history
+- followup_engagement_days
+- agency_scale_score
+cache_key: 13be26eb56368919fc6024a0b4eb4f7920d306b9f63c33783ced5e1a1bfc48ce
+searched_at: '2026-10-09T02:29:06.324559+00:00'
+retry_count: 1

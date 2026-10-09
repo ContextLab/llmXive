@@ -76,7 +76,7 @@
   verification_status: verified
   verified_against_url: https://jsonlines.org/
   verified_at: '2026-06-29T17:14:04.651305Z'
-- artifact_hash: 10aa9eda31fd36a90e3f757f37be68441539b95a83058c87fc5f12048dddf477
+- artifact_hash: 5f2ebf83f0792e1c4f44d3d6a184fdf856d582bccb3e64a461c73d96518ed3c0
   artifact_path: projects/PROJ-547-the-impact-of-perceived-agency-in-ai-dri/specs/001-the-impact-of-perceived-agency-in-ai-dri/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -86,4 +86,4 @@
   value: https://www.wikidata.org/wiki/Q118869796
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q118869796
-  verified_at: '2026-10-09T01:40:00.709335Z'
+  verified_at: '2026-10-09T02:27:09.220663Z'
