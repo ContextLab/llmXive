@@ -168,3 +168,8 @@ specific failing commands/contracts from feedback instead of regenerating a
 larger task list. If the question cannot be answered with available data and
 compute, state the exact mismatch for scope revision; never substitute a different
 question or fabricate observations to satisfy the original one.
+
+Completion marks are owned by independent verification. Do not infer completion
+from an existing filename or code stub. New or changed tasks must be unchecked;
+the runtime retains existing checked tasks only when their review receipts still
+match the task requirements, specification and current artifacts.

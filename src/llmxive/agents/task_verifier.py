@@ -367,7 +367,9 @@ def claimed_done_keys(tasks_text: str) -> set[str]:
     return out
 
 
-def verified_done_keys(project_dir: Path, tasks_path: Path) -> set[str]:
+def verified_done_keys(
+    project_dir: Path, tasks_path: Path, *, tasks_text: str | None = None,
+) -> set[str]:
     """Only reuse acceptances whose requirements and actual evidence still match.
 
     A checkbox alone can be an interrupted implementer's unverified self-report.
@@ -387,7 +389,8 @@ def verified_done_keys(project_dir: Path, tasks_path: Path) -> set[str]:
     except OSError:
         spec = ""
     try:
-        lines = read_task_document(tasks_path, project_dir).splitlines()
+        lines = (read_task_document(tasks_path, project_dir)
+                 if tasks_text is None else tasks_text).splitlines()
     except TaskFormatError:
         return set()  # the implementer routes the corrupt document back to tasking
     verified = set()
@@ -401,6 +404,22 @@ def verified_done_keys(project_dir: Path, tasks_path: Path) -> set[str]:
         if isinstance(receipt, dict) and receipt.get("c") is True and receipt.get("h") == digest:
             verified.add(key)
     return verified
+
+
+def preserve_verified_completion(project_dir: Path, tasks_path: Path, text: str) -> str:
+    """A task planner may define work, but cannot invent completion evidence.
+
+    Keep checked tasks only when the independent verifier's receipt still binds
+    to the new task definition, active specification and current artifact bytes.
+    This is read-only with respect to existing files and verification state.
+    """
+    from llmxive.speckit.task_lines import TASK_LINE_RE, mark_task
+
+    verified = verified_done_keys(project_dir, tasks_path, tasks_text=text)
+    for match in TASK_LINE_RE.finditer(mask_fenced_code(text)):
+        if match.group("status") in {"x", "X"} and match.group("id") not in verified:
+            text = mark_task(text, match.group("id"), " ")
+    return text
 
 
 def _resolve_ids(
