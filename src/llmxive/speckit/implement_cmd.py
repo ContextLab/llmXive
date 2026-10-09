@@ -719,6 +719,16 @@ _TOP_IMPORT_RE = re.compile(
 )
 
 
+def _source_module_path(path: Path, project_dir: Path) -> str:
+    relative = path.relative_to(project_dir)
+    if relative.parts[0] == "code":
+        relative = Path(*relative.parts[1:])
+    parts = list(relative.with_suffix("").parts)
+    if parts[-1] == "__init__":
+        parts.pop()
+    return ".".join(parts)
+
+
 def _summarize_existing_code(project_dir: Path, *, max_chars: int = 16000) -> str:
     """Return a compact API-surface listing of every Python file in code/.
 
@@ -739,10 +749,23 @@ def _summarize_existing_code(project_dir: Path, *, max_chars: int = 16000) -> st
           import numpy as np
           from typing import Optional
     """
+    import ast
+
     from llmxive.project_files import source_files
 
     lines: list[str] = []
-    for fp in source_files(project_dir):
+    files = list(source_files(project_dir))
+    modules: dict[str, list[str]] = {}
+    for fp in files:
+        modules.setdefault(_source_module_path(fp, project_dir), []).append(
+            fp.relative_to(project_dir).as_posix())
+    for module, paths in modules.items():
+        if len(paths) > 1:
+            lines.append(f"IMPORT COLLISION: `{module}` is present at {', '.join(paths)}. "
+                         "These files are not interchangeable: one package can hide the other. "
+                         "Reuse the explicit existing artifact paths and reconcile imports and "
+                         "package initializers before claiming the command works.")
+    for fp in files:
         if any(p in fp.parts for p in (".venv", "__pycache__", ".tasks")):
             continue
         if fp.name == "__init__.py":
@@ -776,6 +799,20 @@ def _summarize_existing_code(project_dir: Path, *, max_chars: int = 16000) -> st
         if imports:
             chunk_lines.append("imports:")
             chunk_lines.extend("  " + i for i in imports)
+        try:
+            tree = ast.parse(text)
+        except SyntaxError:
+            tree = None
+        if tree:
+            for node in tree.body:
+                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    signature = f"{node.name}({ast.unparse(node.args)})"
+                    if node.returns:
+                        signature += " -> " + ast.unparse(node.returns)
+                    chunk_lines.append("signature: " + signature)
+                    doc = ast.get_docstring(node)
+                    if doc:
+                        chunk_lines.append("contract: " + doc[:1200])
         lines.append("\n".join(chunk_lines))
     body = "\n\n".join(lines)
     if len(body) > max_chars:
@@ -784,7 +821,7 @@ def _summarize_existing_code(project_dir: Path, *, max_chars: int = 16000) -> st
 
 
 def _inline_referenced_files(
-    project_dir: Path, task_line: str, *, max_files: int = 5, max_chars: int = 48000
+    project_dir: Path, task_line: str, *, max_files: int = 12, max_chars: int = 48000
 ) -> str:
     """Inline the full contents of any file path mentioned in the task line.
 
@@ -796,6 +833,41 @@ def _inline_referenced_files(
     from llmxive.project_paths import declared_paths, resolve_project_path
 
     paths = declared_paths(task_line)
+    # Supply local imported implementations and package initializers as well as
+    # the named target. A list of function names cannot establish argument/data
+    # contracts, and same-named root/code packages can hide each other's files.
+    import ast
+
+    from llmxive.project_files import source_files
+    sources = list(source_files(project_dir))
+    for relative in list(paths):
+        target = resolve_project_path(project_dir, relative)
+        if target is None or not target.is_file() or target.suffix != ".py":
+            continue
+        try:
+            tree = ast.parse(target.read_text(encoding="utf-8"))
+        except (OSError, SyntaxError, UnicodeError):
+            continue
+        for node in ast.walk(tree):
+            imported = []
+            if isinstance(node, ast.Import):
+                imported = [alias.name for alias in node.names]
+            elif isinstance(node, ast.ImportFrom):
+                name = node.module or ""
+                if node.level:
+                    package = _source_module_path(target, project_dir.resolve()).split(".")
+                    if target.name != "__init__.py":
+                        package.pop()
+                    package = package[:len(package) - node.level + 1]
+                    name = ".".join([*package, name]).rstrip(".")
+                imported = [name, *(name + "." + alias.name for alias in node.names)]
+            for candidate in sources:
+                module = _source_module_path(candidate, project_dir)
+                if any(module == name or (candidate.name == "__init__.py" and
+                                          name.startswith(module + ".")) for name in imported):
+                    exact = f"projects/{project_dir.name}/{candidate.relative_to(project_dir).as_posix()}"
+                    if exact not in paths:
+                        paths.append(exact)
     seen: set[str] = set()
     chunks: list[str] = []
     used = 0
