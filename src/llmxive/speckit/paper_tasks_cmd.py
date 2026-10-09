@@ -128,16 +128,23 @@ class PaperTaskerAgent(SlashCommandAgent):
             {"project_id": ctx.project_id, "mode": "A"},
             repo_root=repo,
         )
-        from llmxive.speckit._comments_context import render_recent_comments_block
+        from llmxive.speckit._comments_context import (
+            _render_kickback_feedback_block,
+            render_recent_comments_block,
+        )
         comments_block = render_recent_comments_block(ctx.project_dir)
+        paper_feedback = _render_kickback_feedback_block(self._paper_dir(ctx))
         user = (
             "Mode: A (generate paper tasks.md)\n\n"
             f"# Paper spec.md\n\n{spec_text}\n\n"
             f"# Paper plan.md\n\n{plan_text}\n\n"
             f"# Tasks template\n\n{tasks_template}\n\n"
             + (comments_block + "\n\n" if comments_block else "")
+            + (paper_feedback + "\n\n" if paper_feedback else "")
             + "# Task\n\nReturn the full paper tasks.md Markdown. "
-            "EVERY task line MUST include a `[kind:<value>]` token."
+            "EVERY task line MUST use canonical checkboxes, not tables or fenced examples: "
+            "`- [ ] T001 [kind:prose] Describe the concrete deliverable`. "
+            "Include a `[kind:<value>]` token on every task; preserve all scientific requirements."
         )
         return [
             ChatMessage(role="system", content=system),

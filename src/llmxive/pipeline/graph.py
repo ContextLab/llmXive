@@ -752,7 +752,7 @@ def run_one_step(
             or (agent_name == "paper_implementer"
                 and project.current_stage in {Stage.PAPER_ANALYZED, Stage.PAPER_IN_PROGRESS})
         )
-        _paper_track = agent_name == "paper_implementer"
+        _paper_track = project.current_stage.value.startswith("paper_")
         _batch_cap = IMPLEMENT_TASK_BATCH if _is_implement_batch else 1
         _deadline = time.monotonic() + IMPLEMENT_BATCH_BUDGET_SECONDS
         _processed = 0
@@ -824,7 +824,7 @@ def run_one_step(
                 # implementation run. Preserve artifacts and regenerate identities.
                 _write_unverifiable_replan_feedback(project_dir, [{
                     "task_key": "task-format", "last_reason": str(exc), "reject_count": 1,
-                }])
+                }], paper=_paper_track)
                 target = Stage.PAPER_PLANNED if _paper_track else Stage.PLANNED
                 repaired = project.model_copy(update={"current_stage": target,
                     "updated_at": datetime.now(UTC), "last_run_id": run_id})
@@ -1154,7 +1154,7 @@ def _write_convergence_replan_feedback(
 
 
 def _write_unverifiable_replan_feedback(
-    project_dir: Path, entries: list[dict[str, Any]]
+    project_dir: Path, entries: list[dict[str, Any]], *, paper: bool = False
 ) -> str:
     """DETERMINISTIC re-plan note (NO LLM) for tasks the implementer repeatedly
     could not make pass verification (issue #1139 D6). Written to the SAME
@@ -1191,7 +1191,7 @@ def _write_unverifiable_replan_feedback(
         "",
     ]
     text = "\n".join(lines) + "\n"
-    memory_dir = project_dir / ".specify" / "memory"
+    memory_dir = (project_dir / "paper" if paper else project_dir) / ".specify" / "memory"
     memory_dir.mkdir(parents=True, exist_ok=True)
     (memory_dir / KICKBACK_FEEDBACK_FILENAME).write_text(text, encoding="utf-8")
     return text
