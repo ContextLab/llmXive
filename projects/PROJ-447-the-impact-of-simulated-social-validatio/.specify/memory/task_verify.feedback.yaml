@@ -1,0 +1,122 @@
+T001a:
+  task: 56fb9f50d757e3890cbab7375c86a7b2363222bbdca196e1223917a20698f8b3
+T001b:
+  task: 4f9a56828f73f8723e7dc3ef8bba713e1f6dfd266667424a0edac98137842608
+T001c:
+  task: 5b02146e94eb7eb90cd6a9bdd634f2d1b661f85b9c6fec8874393393b5612d2c
+T001d:
+  reason: No directory listings or file paths were provided, so there is no evidence
+    that the required subdirectories (`code/data`, `code/analysis`, `code/viz`, `code/utils`,
+    `data/raw`, `data/processed`, `tests/unit`, `tests/integration`) actually exist
+    in the project. The implementer must create and show these folders.
+  task: 4de052ceacee1d258245cf1b165d4d72c0d43d0db614ebc2863e21dc22c16a6c
+T002:
+  reason: No `__init__.py` files are presented in any directory of the project, and
+    there is no evidence that they have been created. The required artifact (initialized
+    package files in every created folder) is missing, so the task is not satisfied.
+  task: 3e8dff65137a56287c32e6c298d6c2fcabc1124b6fa1099bc04bda709a92bbf6
+T003:
+  reason: "The repository contains a `.ruff.toml` file, but it does not specify pinned\
+    \ versions for `ruff` (or `black`), and the required `pypy.toml` file is completely\
+    \ missing. Both artifacts are therefore absent or insufficient to meet the task\u2019\
+    s specification."
+  task: d3270839444dee076548f7e62c51437ddb04df24e7ea1439cf89ffae837e62b1
+T005:
+  task: e8eec2914e7850a2eff4ba1f54c4588f37206da00bafc18395e83229f7cf50a0
+T005b:
+  task: faf14af11db7c37c34805031144882d1b561ec8f35d5ff0c5adc7a7e871b0c20
+T006:
+  task: bc1969efe4ecf965c9795fc8b58505672eb7e545cb484edbfc38dedc40410c15
+T006b:
+  task: 989709b12974ea1fac7d10bce444d5361db32c17519d7cf14e3f0aecb8b72a69
+T007:
+  task: 96041dd6ef094955aa00c14eeaf5650eca686e6ff5b5a7cb89366bd073555aa8
+T008:
+  task: 1d07549cf1ca90d4b69574f37c6b3597a765aa4585db4833343f34091c4968db
+T009a:
+  task: 40e5baac2236a4f4f790d1ccb567f998429a5acd92da70989d6b008bf1be0434
+T009b:
+  task: 57479254376f3b9feb4330106817a5892f6bb26a8ebcd9273b66d7ef3dabefa9
+T009c:
+  task: 4f70111bf28a17b4c28bfdb2ba44be1497da7f1cb0cdacc5c0042401e1075586
+T010:
+  task: 7105061c8df09a4ad47677c13c2940279329f6d5bd051ab0212eb38a727d7684
+T011:
+  task: 2aa90efd8128739e3ec06625ff70b3f0e92543da8bb76ee8a5cadaf1884170ec
+T011a:
+  task: b64ef62833c548dd4f2d3fa1f23175b753438f7fb6609864717e243a5998fe19
+T011b:
+  task: 2eadd438b4e88d26591b5d549a2592de14b212e2b6b8f34e64f686dcf5ce17dd
+T011c:
+  task: 94146685d530e12be0c530713e8593de100d0dcb40e1af507e542edd066314ba
+T012:
+  task: 0501763fa06178369bdc9ad13e29816b4612c78725097fe05b9b100a743288cd
+T013:
+  task: 6695cbe40a07c8d71f136eec787640c112c6d0b7cc3a32bcd23ee26e90373f28
+T014:
+  task: cc007b7aa3817d36ea57985957565358e5902ac24bc3f41e09ff83ae07fea7e8
+T015:
+  task: b635c0876318a83bc26d4917e102a231980ae8a3d57a88ed2947fed09af1e80a
+T015a:
+  task: 05615f406d0de7f4e377d7e4e87f0f11bc9935a0c49a17e4c3f0b3c9e8717699
+T015b:
+  task: 397c5dec3af95ca1dd74fce60f3eef0359c9c2272beef7aad1f01dcfbd1d48be
+T016:
+  task: 518320f2ed0c9d43cfa7b442cfd9f6c78e89fa63bbd03aa947c774856f83da4a
+T017:
+  task: 891f483ca0dd2f1af52e263e9986812b340920ae332b4dab7235178e8563692d
+T018:
+  task: 363d65137f82f7872dfcb4a99dea22181d5365ac25aa379f85d5e7c7e6e384c8
+T019:
+  task: 3bcab31a90cd1976264f81311d5fa61c43395bcde9d31ffbc73a2a66f565ad9b
+T019b:
+  task: 4b23ddacbd6fe6f4b75ba7c7008a0c3e4ea198089b544fbc3aa6cce9b9661dc4
+T019d:
+  reason: 'declared artifact(s) missing/empty/invalid: state/projects/PROJ-447-...yaml'
+  task: 1e954153d2b6f08d8acaaf551bc0a64f743d6e1e166318af678f9649759e7b04
+T020:
+  task: 0096b72c06af76f7e750081bf38d1d335f2210f0260be7559e237180504f104c
+T021:
+  task: 549b6f287e7e77b84ad6ae3f99aa95be85964a41674c560ea5fbbf45e9f0b857
+T022:
+  task: 65423a5e2265aa1ab22c39fcd5c29e0986f84fe5daca815c35b6afe2d3f5eaca
+T023:
+  task: d7a1c0042f74565b0f31885277a7177f59c5b675e4ab1a6b6078c82127b5ab07
+T024a:
+  task: daffc8c1aadcd4be4b8298316770cdbbcfe663c950a8b4db41233837a793cfe8
+T024b:
+  task: 24bf3feafecd07dedef18da53c7e3639c57a84e42b2676c7633979865512629c
+T024c:
+  task: 50bb52bfb3dc79b2e68618df192a7e0caeb4ee4983a70ef7af22e29366744321
+T025a:
+  task: 1a02d0c0fc259c6dc47fef92e1f45c26256164072dfd579bd24c078ed0a798b9
+T025a#1:
+  task: 181b38e9da050349f66898f87b670ae69dadb276c7bb9fe18071e5620cface9f
+T025b:
+  task: c65991ccdf64ab1be477675a4d8dead23ff9f3f63ca4caf42ee36e3685e701ed
+T026:
+  task: 564ed6aade30c34c422e4f0f1247239cc7c5fac8a3721098d872ac2000d4aab8
+T027:
+  task: 8606f7bcb676197cfe6f4c0ef25db3537f26bdfca15db2e9abaaf404e2701785
+T027a:
+  task: e548660ac69550334f3b7e9e05c84168033737b682841591951a6ffc22c26545
+T028:
+  task: 532eaf72bd231088f4cf1cc7240858843321e95f5ef445ec37072c1abb98053d
+T029a:
+  task: 6b0aaef13c4e96d86f146216f4b994c1b8fe075a08c50b72603dd7787775bc57
+T029b:
+  task: ab1fde028629b4b4e08f996297b678a32a5bb940f318307d289040757d682de7
+T029c:
+  task: b8cb844e7e54502069d606c63d79329ab8c10feb07e576d889c5f8cdd48360e6
+T030a:
+  task: 16a4057417e0a4a91e63ab6d62c135896f7853726ca63401c8c5124a55fe37a3
+T030b:
+  task: d5559efc7f503b14d8d9cb22dad2f7e59df4cac09017106bd700e1a60c32197a
+T031:
+  task: bbf841c4d77cc6c29b261c8e17a8c08dbc11e377d341394fd08179605cb9081f
+T032:
+  task: 61a45281a59b79873efa1669b29ce724ec69da4e94812f09b0f1d52ef09ba206
+T033:
+  task: c97688a890ada9d5e81d57a752f978912d863ea1153c4ddb9361c8bef0d20f87
+T034:
+  task: 15cc9de2b0c40d52483d32409c29d5daabf572588cd5547411d52cd50884d1ce
