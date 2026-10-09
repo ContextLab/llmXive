@@ -1,14 +1,14 @@
 {
   "project_id": "PROJ-270-predicting-insect-pollinator-networks-fr",
-  "stage": "clarified",
-  "class": "permanent",
-  "fingerprint": "unreachable_reference",
-  "consecutive_count": 0,
-  "first_seen": "2026-07-14T09:41:44.637767+00:00",
-  "last_seen": "2026-08-09T12:39:50.042313+00:00",
-  "retry_after": null,
-  "last_error": "research.md reference is unreachable: 'https://www.web-of-life.eu/' (connection/DNS failure: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1016)). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
-  "evidence": "research.md reference is unreachable: 'https://www.web-of-life.eu/' (connection/DNS failure: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1016)). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
-  "remediation": "The reference/source is unreachable, or the emitted artifact is an unfilled template with no valid content. Do NOT re-dispatch unchanged: route the evidence to a source-aware re-plan (inject a verified replacement source) or back to the emitter, or mark terminal if genuinely unrecoverable.",
-  "status": "cleared"
+  "stage": "in_progress",
+  "class": "transient",
+  "fingerprint": "unknown",
+  "consecutive_count": 1,
+  "first_seen": "2026-10-09T16:24:31.466406+00:00",
+  "last_seen": "2026-10-09T16:24:31.466406+00:00",
+  "retry_after": "2026-10-09T16:34:31.466406+00:00",
+  "last_error": "no implementation progress: no stage change or verified task completion",
+  "evidence": "no implementation progress: no stage change or verified task completion",
+  "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
+  "status": "retry_scheduled"
 }
