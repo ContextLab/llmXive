@@ -1,15 +1,16 @@
 status: none
-intent: download NIST-JANAF Thermochemical Tables and SGTE thermodynamic data python
-  package dataset
+intent: NIST JANAF thermochemical tables and SGTE thermodynamic database python package
+  dataset
 required_fields:
+- alloy_system
+- composition
 - temperature
-- composition (element fractions)
-- phase name
-- phase type
-- system (binary or ternary)
-- source database (NIST-JANAF or SGTE)
-- experimental_flag
-- pressure (optional)
-cache_key: fd1e315c85c107963390c9aad3be5cde1ab454927a64a154e29ffe313f058fd6
-searched_at: '2026-10-09T19:22:26.626486+00:00'
+- phase
+- phase_boundary_coordinates
+- elemental_mean_atomic_radius
+- electronegativity_variance
+- valence_electron_count
+- hume_rothery_electron_concentration
+cache_key: 2611c5d51b1b5b4f3ab3de51fd238decdefc31b3c9a9a2afcfecd8a08c3a1e91
+searched_at: '2026-10-09T19:23:53.248250+00:00'
 retry_count: 1

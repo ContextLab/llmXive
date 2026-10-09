@@ -13,7 +13,7 @@ The checklist below follows the canonical `- [ ] T### [P?] [USx?] description �
 
 ## Phase 1: Setup and first end‑to‑end analysis  
 
-- [ ] T001 **Establish code layout, dependencies, and quickstart documentation; validate input provenance.**   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
+- [ ] T001 **Establish code layout, dependencies, and quickstart documentation; validate input provenance.**   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
   - Verify: `quickstart.md` exists and contains a runnable command (`python -m code.main --systems Cu‑Zn Al‑Cu`); a provenance report (`data/provenance.json`) is generated; raw data checksum (`data/raw/checksum.sha256`) matches recorded value.  
 
 - [ ] T002 **Ingest experimental phase data from NIST‑JANAF/SGTE, validate schema, and log `INVALID_DATA_SCHEMA` or `MISSING_TEMP_COORDS` as needed (FR‑001).**  

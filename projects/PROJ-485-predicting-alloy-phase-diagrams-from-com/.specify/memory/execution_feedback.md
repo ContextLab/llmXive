@@ -8,12 +8,9 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/main.py -> rc=1
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-485-predicting-alloy-phase-diagrams-from-com/code/main.py", line 22, in <module>
-    from ingest.load_data import main as run_ingest
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-485-predicting-alloy-phase-diagrams-from-com/code/ingest/load_data.py", line 19, in <module>
-    from utils.checksum import compute_file_sha256, compute_and_store_checksum
-ImportError: cannot import name 'compute_and_store_checksum' from 'utils.checksum' (/home/runner/work/llmXive/llmXive/projects/PROJ-485-predicting-alloy-phase-diagrams-from-com/code/utils/checksum.py)
+2026-10-09 19:22:53,409 - features.seed_elemental_properties - INFO - Setting up data directories...
+2026-10-09 19:22:53,409 - features.seed_elemental_properties - INFO - Starting step: provenance
+2026-10-09 19:22:53,410 - features.seed_elemental_properties - ERROR - Step provenance failed: run_provenance() missing 1 required positional argument: 'state_file'
 
 
 ## Declared deliverables still missing
