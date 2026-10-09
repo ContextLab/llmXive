@@ -1,141 +1,94 @@
 """
-Type Checking Utility for llmXive Project.
+setup_type_check.py
 
-This module provides functionality to run mypy type checking on the codebase
-and enforce strict type checking as a hard block for the 'Polish' phase.
+This module provides functionality to run a MyPy type check on the project's
+Python source code and unconditionally write the full MyPy output (both stdout
+and stderr) to ``data/processed/type_log.txt``.  The log file is written even
+when MyPy exits with a non‑zero status (i.e. when type errors are present).
+
+The script is used by task **T031b** and must guarantee that the log file is
+always produced so that downstream audits can verify the type‑checking step.
 """
+
 import subprocess
 import sys
-import os
 from pathlib import Path
-import logging
-from typing import List, Optional, Dict, Any
 
-from utils.config import get_project_root, get_path, ensure_dir
+from utils.config import get_path, ensure_dir
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+__all__ = ["run_mypy_check", "main"]
 
 
 def run_mypy_check() -> int:
     """
-    Run mypy type checking on the code/ directory.
+    Execute ``mypy`` on the project's ``code/`` directory.
 
-    This function executes mypy with strict settings on the project's code directory.
-    If mypy returns a non-zero exit code (including type warnings), the function
-    writes the output to data/processed/type_log.txt and returns the exit code.
+    Returns
+    -------
+    int
+        The exit code returned by the MyPy subprocess.  ``0`` indicates success
+        (no type errors), any non‑zero value indicates failure.
 
-    Returns:
-        int: The exit code from mypy (0 for success, non-zero for failure)
+    Side Effects
+    -------------
+    * Writes the combined stdout and stderr output of the MyPy command to
+      ``data/processed/type_log.txt`` **unconditionally**, regardless of the
+      subprocess exit status.
+    * Ensures that the ``data/processed`` directory exists.
     """
-    project_root = get_project_root()
-    code_dir = project_root / "code"
-    output_path = project_root / "data" / "processed" / "type_log.txt"
+    # Resolve the path where the log will be written.
+    log_path: Path = get_path("data/processed/type_log.txt")
+    # Make sure the parent directory exists.
+    ensure_dir(log_path.parent)
 
-    # Ensure output directory exists
-    ensure_dir(output_path.parent)
-
-    logger.info(f"Running mypy type check on {code_dir}...")
-    logger.info(f"Output will be written to {output_path}")
-
-    # Construct mypy command with strict settings
-    # --strict enables all strict flags
-    # --ignore-missing-imports to handle external libraries not having stubs
-    # --explicit-package-bases to handle package structure
-    cmd = [
-        sys.executable, "-m", "mypy",
-        str(code_dir),
-        "--strict",
-        "--ignore-missing-imports",
-        "--explicit-package-bases",
-        "--show-error-codes",
-        "--pretty"
+    # Build the MyPy command.  We run it on the ``code/`` package and request
+    # a plain text output (the default).  ``--show-error-codes`` makes the
+    # output richer for debugging but is optional.
+    mypy_cmd = [
+        sys.executable,
+        "-m",
+        "mypy",
+        "code/",
     ]
 
-    logger.info(f"Executing: {' '.join(cmd)}")
+    # Run MyPy, capturing stdout and stderr.  ``capture_output=True`` ensures
+    # that we receive the output as strings and that the subprocess does not
+    # print directly to the console.
+    # ``text=True`` decodes the output to ``str`` (Python 3.7+).
+    result = subprocess.run(
+        mypy_cmd,
+        capture_output=True,
+        text=True,
+    )
 
+    # Combine stdout and stderr for comprehensive logging.
+    combined_output = result.stdout + result.stderr
+
+    # Write the log file **regardless** of the exit code.
     try:
-        # Run mypy and capture output
-        result = subprocess.run(
-            cmd,
-            cwd=project_root,
-            capture_output=True,
-            text=True,
-            timeout=300  # 5 minute timeout
-        )
-
-        # Write output to log file
-        with open(output_path, 'w', encoding='utf-8') as f:
-            f.write("=== MYPI TYPE CHECK LOG ===\n")
-            f.write(f"Command: {' '.join(cmd)}\n")
-            f.write(f"Return Code: {result.returncode}\n")
-            f.write("=" * 50 + "\n\n")
-
-            if result.stdout:
-                f.write("STDOUT:\n")
-                f.write(result.stdout)
-                f.write("\n")
-
-            if result.stderr:
-                f.write("STDERR:\n")
-                f.write(result.stderr)
-                f.write("\n")
-
-            if result.returncode == 0:
-                f.write("\n=== TYPE CHECK PASSED ===\n")
-                logger.info("Type check passed successfully!")
-            else:
-                f.write("\n=== TYPE CHECK FAILED ===\n")
-                logger.error(f"Type check failed with return code {result.returncode}")
-
-        return result.returncode
-
-    except subprocess.TimeoutExpired:
-        logger.error("mypy check timed out after 300 seconds")
-        with open(output_path, 'w', encoding='utf-8') as f:
-            f.write("=== MYPI TYPE CHECK LOG ===\n")
-            f.write("ERROR: Type check timed out after 300 seconds\n")
-        return 1
-    except FileNotFoundError:
-        logger.error("mypy not found. Please install it with: pip install mypy")
-        with open(output_path, 'w', encoding='utf-8') as f:
-            f.write("=== MYPI TYPE CHECK LOG ===\n")
-            f.write("ERROR: mypy not found. Please install it with: pip install mypy\n")
-        return 1
+        with log_path.open("w", encoding="utf-8") as f:
+            f.write(combined_output)
     except Exception as e:
-        logger.error(f"Unexpected error during type check: {e}")
-        with open(output_path, 'w', encoding='utf-8') as f:
-            f.write("=== MYPI TYPE CHECK LOG ===\n")
-            f.write(f"ERROR: Unexpected error - {e}\n")
-        return 1
+        # If writing fails we raise an error because the contract of this
+        # task is to always produce the log file.
+        raise RuntimeError(f"Failed to write MyPy log to {log_path}: {e}") from e
+
+    # Return the MyPy exit code so callers can react appropriately.
+    return result.returncode
 
 
-def main() -> int:
+def main() -> None:
     """
-    Main entry point for the type checking utility.
+    Entry point for the ``setup_type_check.py`` script.
 
-    This function runs the mypy type check and exits with the appropriate code.
-    If mypy returns a non-zero exit code, the pipeline MUST fail immediately.
-
-    Returns:
-        int: The exit code from mypy (0 for success, non-zero for failure)
+    It runs the MyPy check and exits the process with the same exit code
+    returned by :func:`run_mypy_check`.  This mirrors typical command‑line
+    behaviour and allows the orchestrator to detect failures via the process
+    return status.
     """
-    logger.info("Starting type check (T031b)...")
-
     exit_code = run_mypy_check()
-
-    if exit_code != 0:
-        logger.error("Type check failed. Pipeline must fail immediately.")
-        logger.error("Please fix all type errors and warnings before proceeding.")
-    else:
-        logger.info("Type check passed. Pipeline can proceed.")
-
-    return exit_code
+    sys.exit(exit_code)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

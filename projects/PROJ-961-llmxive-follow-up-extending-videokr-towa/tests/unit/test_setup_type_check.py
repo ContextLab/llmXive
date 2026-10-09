@@ -1,177 +1,74 @@
 """
-Unit tests for setup_type_check.py (T031b)
+Unit test for ``code/setup_type_check.py``.
 
-These tests verify the type checking utility functionality.
+The purpose of this test is to verify that the MyPy log file
+``data/processed/type_log.txt`` is written **even when MyPy reports
+type errors**.  We deliberately create a Python file with a type error
+and then invoke ``run_mypy_check``.  After execution we assert that
+the log file exists and contains non‑empty content.
 """
+
 import os
 import sys
-import tempfile
-import subprocess
 from pathlib import Path
-from unittest.mock import patch, MagicMock
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
+import pytest
 
-from code.setup_type_check import run_mypy_check, main
+# Import the function under test.
+from setup_type_check import run_mypy_check
+from utils.config import get_path, ensure_dir
+
+@pytest.fixture(scope="function")
+def temporary_bad_file(tmp_path: Path):
+    """
+    Create a temporary Python file with a clear type error.
+    """
+    bad_file_path = tmp_path / "bad_file.py"
+    # Example: function annotated to return ``int`` but returns a ``str``.
+    bad_file_path.write_text(
+        "def foo() -> int:\n"
+        "    return 'this is a string, not an int'\n",
+        encoding="utf-8",
+    )
+    # Copy the file into the project's ``code/`` directory so that MyPy
+    # will analyse it.
+    target_path = Path(__file__).resolve().parents[2] / "code" / "bad_file.py"
+    ensure_dir(target_path.parent)
+    target_path.write_text(bad_file_path.read_text(encoding="utf-8"), encoding="utf-8")
+    yield target_path
+    # Cleanup after the test.
+    if target_path.exists():
+        target_path.unlink()
 
 
-class TestSetupTypeCheck:
-    """Test cases for the type checking utility."""
+def test_type_check_log_is_written_even_on_failure(tmp_path, temporary_bad_file):
+    """
+    Run MyPy on the project (which now contains a deliberate type error)
+    and verify that ``type_log.txt`` is created and contains output.
+    """
+    # Ensure the log destination directory exists.
+    log_path = get_path("data/processed/type_log.txt")
+    ensure_dir(log_path.parent)
 
-    def test_run_mypy_check_creates_log_file(self):
-        """Test that run_mypy_check creates the output log file."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            tmpdir_path = Path(tmpdir)
+    # Remove any pre‑existing log file to avoid false positives.
+    if log_path.exists():
+        log_path.unlink()
 
-            # Mock get_project_root to return our temp directory
-            with patch('code.setup_type_check.get_project_root', return_value=tmpdir_path):
-                # Create necessary subdirectories
-                (tmpdir_path / "code").mkdir()
-                (tmpdir_path / "data" / "processed").mkdir(parents=True)
+    # Execute the MyPy check.  The function returns the MyPy exit code.
+    exit_code = run_mypy_check()
 
-                # Run the function (this will likely fail if mypy isn't installed,
-                # but should still create the log file)
-                result = run_mypy_check()
+    # MyPy should report at least one error because of the deliberately
+    # introduced type mismatch, so the exit code must be non‑zero.
+    assert exit_code != 0, "MyPy unexpectedly succeeded on a file with a type error."
 
-                # Verify log file was created
-                log_path = tmpdir_path / "data" / "processed" / "type_log.txt"
-                assert log_path.exists(), "Log file should be created even if mypy fails"
+    # The log file must exist and be non‑empty.
+    assert log_path.is_file(), "type_log.txt was not created."
+    assert log_path.stat().st_size > 0, "type_log.txt is empty despite MyPy failure."
 
-                # Verify log file has content
-                with open(log_path, 'r') as f:
-                    content = f.read()
-                    assert "MYPI TYPE CHECK LOG" in content
+    # Optional sanity check: the log should contain the name of the bad file.
+    log_contents = log_path.read_text(encoding="utf-8")
+    assert "bad_file.py" in log_contents, "Log does not reference the file with the type error."
 
-    def test_run_mypy_check_with_mocked_success(self):
-        """Test successful mypy run with mocked subprocess."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            tmpdir_path = Path(tmpdir)
-
-            # Mock get_project_root
-            with patch('code.setup_type_check.get_project_root', return_value=tmpdir_path):
-                # Create necessary subdirectories
-                (tmpdir_path / "code").mkdir()
-                (tmpdir_path / "data" / "processed").mkdir(parents=True)
-
-                # Mock subprocess.run to simulate success
-                mock_result = MagicMock()
-                mock_result.returncode = 0
-                mock_result.stdout = "Success: No type errors found.\n"
-                mock_result.stderr = ""
-
-                with patch('code.setup_type_check.subprocess.run', return_value=mock_result):
-                    result = run_mypy_check()
-
-                    assert result == 0
-
-                    # Verify log file content
-                    log_path = tmpdir_path / "data" / "processed" / "type_log.txt"
-                    with open(log_path, 'r') as f:
-                        content = f.read()
-                        assert "TYPE CHECK PASSED" in content
-
-    def test_run_mypy_check_with_mocked_failure(self):
-        """Test failed mypy run with mocked subprocess."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            tmpdir_path = Path(tmpdir)
-
-            # Mock get_project_root
-            with patch('code.setup_type_check.get_project_root', return_value=tmpdir_path):
-                # Create necessary subdirectories
-                (tmpdir_path / "code").mkdir()
-                (tmpdir_path / "data" / "processed").mkdir(parents=True)
-
-                # Mock subprocess.run to simulate failure
-                mock_result = MagicMock()
-                mock_result.returncode = 1
-                mock_result.stdout = "code/example.py:10: error: Incompatible types\n"
-                mock_result.stderr = ""
-
-                with patch('code.setup_type_check.subprocess.run', return_value=mock_result):
-                    result = run_mypy_check()
-
-                    assert result == 1
-
-                    # Verify log file content
-                    log_path = tmpdir_path / "data" / "processed" / "type_log.txt"
-                    with open(log_path, 'r') as f:
-                        content = f.read()
-                        assert "TYPE CHECK FAILED" in content
-                        assert "Incompatible types" in content
-
-    def test_run_mypy_check_timeout_handling(self):
-        """Test timeout handling in run_mypy_check."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            tmpdir_path = Path(tmpdir)
-
-            # Mock get_project_root
-            with patch('code.setup_type_check.get_project_root', return_value=tmpdir_path):
-                # Create necessary subdirectories
-                (tmpdir_path / "code").mkdir()
-                (tmpdir_path / "data" / "processed").mkdir(parents=True)
-
-                # Mock subprocess.run to raise TimeoutExpired
-                with patch('code.setup_type_check.subprocess.run', side_effect=subprocess.TimeoutExpired(cmd=['mypy'], timeout=300)):
-                    result = run_mypy_check()
-
-                    assert result == 1
-
-                    # Verify log file content
-                    log_path = tmpdir_path / "data" / "processed" / "type_log.txt"
-                    with open(log_path, 'r') as f:
-                        content = f.read()
-                        assert "timed out" in content.lower()
-
-    def test_run_mypy_check_file_not_found(self):
-        """Test handling of missing mypy executable."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            tmpdir_path = Path(tmpdir)
-
-            # Mock get_project_root
-            with patch('code.setup_type_check.get_project_root', return_value=tmpdir_path):
-                # Create necessary subdirectories
-                (tmpdir_path / "code").mkdir()
-                (tmpdir_path / "data" / "processed").mkdir(parents=True)
-
-                # Mock subprocess.run to raise FileNotFoundError
-                with patch('code.setup_type_check.subprocess.run', side_effect=FileNotFoundError("mypy not found")):
-                    result = run_mypy_check()
-
-                    assert result == 1
-
-                    # Verify log file content
-                    log_path = tmpdir_path / "data" / "processed" / "type_log.txt"
-                    with open(log_path, 'r') as f:
-                        content = f.read()
-                        assert "mypy not found" in content
-
-    def test_main_returns_exit_code(self):
-        """Test that main() returns the correct exit code."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            tmpdir_path = Path(tmpdir)
-
-            # Mock get_project_root
-            with patch('code.setup_type_check.get_project_root', return_value=tmpdir_path):
-                # Create necessary subdirectories
-                (tmpdir_path / "code").mkdir()
-                (tmpdir_path / "data" / "processed").mkdir(parents=True)
-
-                # Mock subprocess.run to simulate success
-                mock_result = MagicMock()
-                mock_result.returncode = 0
-                mock_result.stdout = "Success\n"
-                mock_result.stderr = ""
-
-                with patch('code.setup_type_check.subprocess.run', return_value=mock_result):
-                    result = main()
-                    assert result == 0
-
-                # Mock subprocess.run to simulate failure
-                mock_result.returncode = 1
-                mock_result.stdout = "Error\n"
-
-                with patch('code.setup_type_check.subprocess.run', return_value=mock_result):
-                    result = main()
-                    assert result == 1
+    # Cleanup the temporary bad file from the project source tree.
+    if temporary_bad_file.exists():
+        temporary_bad_file.unlink()
