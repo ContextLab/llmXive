@@ -77,7 +77,7 @@ jobs:
             /*.toml
             /*.ini
             /LICENSE
-      - name: Fetch the unchanged real-PDF audit sample
+      - name: Fetch real-PDF and project-template regression inputs
         run: python scripts/ci/prepare_test_checkout.py
       - uses: actions/setup-python@v6
         with:
@@ -85,31 +85,13 @@ jobs:
           cache: pip
       - name: Install package and dev deps
         run: pip install -e ".[dev]"
-      - name: Install TeX Live (lualatex + bibtex) for paper compiles
+      # Fast PDF tests inspect existing PDFs using Poppler. Real TeX compilation
+      # is marked slow and is exercised by the nightly job.
+      - name: Install PDF audit tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            texlive-luatex texlive-latex-recommended texlive-latex-extra \
-            texlive-fonts-recommended texlive-fonts-extra texlive-science \
-            texlive-bibtex-extra texlive-pictures texlive-plain-generic \
-            texlive-lang-english fonts-noto-core \
-            poppler-utils
-          lualatex --version | head -1
-          bibtex --version | head -1
-          pdftotext -v 2>&1 | head -1   # poppler, for the pdf_auditor unit tests
-
-      # Install the house fonts (Fraunces serif + JetBrains Mono) so
-      # fontspec resolves them and the real-call compile renders the true
-      # llmXive style. The class falls back to TeX Gyre Pagella / Inconsolata
-      # via \IfFontExistsTF when these are absent, but the published PDF
-      # should match production.
-      - name: Install llmXive house fonts
-        run: |
-          mkdir -p "$HOME/.fonts"
-          cp papers/.style/fonts/*.ttf "$HOME/.fonts/"
-          fc-cache -f >/dev/null
-          fc-list | grep -iE "fraunces|jetbrains" | head || \
-            echo "WARN: house fonts not registered (class will fall back)"
+          sudo apt-get install -y --no-install-recommends poppler-utils
+          pdftotext -v 2>&1 | head -1
 
       - name: Prompt existence check
         run: python -m llmxive.checks.prompts
@@ -174,6 +156,10 @@ jobs:
       # unchanged nightly full suite. Offline PDF tests have their own toolchain.
       - name: Backend reachability check
         run: python -m llmxive.checks.backends
+      # Two contract tests make live source calls and are gated by this env.
+      # Keep them here as well as the deterministic contract pass above.
+      - name: Contracts including live source channels
+        run: pytest tests/contract -v
       - name: All existing fast real-call tests
         run: pytest tests/real_call -v -m "not slow" --durations=25
 
