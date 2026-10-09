@@ -1,3 +1,60 @@
+T000a:
+  c: true
+  h: c4944731eb7a52c2e67330b85afd8681ba985a01894e73a140ad2d76f14ad4bd
+  r: "The script `code/power_analysis.py` exists (4281 bytes) and implements a genuine\
+    \ Fisher z-transformation power analysis for r=0.3, power=0.80, alpha=0.05, two-sided,\
+    \ with correct math (yields N\u224885), prints the required N, and persists results\
+    \ to JSON \u2014 no stubs or placeholders. The only minor gap is absence of captured\
+    \ execution output, but the code is a complete, correct, directly runnable implementation\
+    \ matching the task's stated parameters."
+T000c:
+  c: false
+  h: d97a551dba9a0c5da74b95547df73ef6db6e2d57a3a59e836f2dd64d5ea18c3d
+  r: "The required test `tests/unit/test_power_analysis.py::test_output_power` does\
+    \ not exist; the file contains only tests of a locally replicated function, none\
+    \ of which reads N from the script's output or checks achieved power using `statsmodels.stats.power`\
+    \ utilities (the imported `tt_solve_power` is never used). The script itself exists\
+    \ and computes N\u224885, but the task's specific verification mechanism \u2014\
+    \ a test that parses script output and confirms power \u2265 0.80 for r \u2265\
+    \ 0.3 via statsmodels \u2014 is missing, and there is no execution evidence any\
+    \ test ran."
+T000d:
+  c: false
+  h: 1c73def260bc73513f3b96bd83b3723cc843acd81c5c987b2172c3e969c4bc3b
+  r: 'Both required artifacts are missing: `code/power_analysis_output.txt` does not
+    exist and neither does the verification test `tests/unit/test_power_output_persistence.py`.
+    There is no evidence on disk that any sample size N was calculated or persisted,
+    so the task''s core requirement is unmet.'
+T001:
+  c: false
+  h: b02b70479e961001eddf100f56d2400b974169ef960068f5666818dc062a636c
+  r: "The evidence only confirms the project root and top-level `code/` and `data/`\
+    \ directories exist; there is no confirmation that the specific required subdirectories\
+    \ (`code/utils`, `code/tests/unit`, `code/tests/integration`, `data/raw`, `data/networks`,\
+    \ `data/transport`, `data/analysis`, `plots`, `state/projects`) were actually\
+    \ created. Additionally, the referenced verification test `test_directories_exist`\
+    \ does not exist \u2014 the on-disk test is a different test (`test_create_directories_creates_all_paths`\
+    \ testing a `setup_project_structure.create_directories` function whose module\
+    \ is not shown t"
+T001b:
+  c: false
+  h: a58eccd8e0628d3e0126a4b5342a008a20ff1ae2d9fe2b424956b923934e4c7a
+  r: "The orchestrator module exists and implements the runtime monitor logic (elapsed-time\
+    \ tracking, 6-hour limit, warning flag, non-fatal behavior), but the required\
+    \ CI verification artifact `tests/unit/test_runtime_monitor.py` \u2014 including\
+    \ the specifically named `test_warning_flag` assertion \u2014 is MISSING from\
+    \ disk, so there is no evidence the runtime metric logging or warning-flag behavior\
+    \ is tested. The implementer must add the unit test file verifying that the runtime\
+    \ metric is logged and the warning flag is set when elapsed time exceeds 6 hours."
+T002:
+  c: true
+  h: 9e9b1d1c5cde601ed5818bbc6c7f51b03930311750db7b28bcab424e61af7e1d
+  r: The `code/requirements.txt` exists (257 bytes) and contains all 16 required packages
+    (numpy, networkx, scipy, scikit-learn, pandas, matplotlib, seaborn, ase, pyyaml,
+    pydantic, pytest, pytest-cov, ruff, black, mypy, pymatgen), plus an extra `requests`
+    entry with comments. The only gap is that the task's verification step (`pip install
+    -r code/requirements.txt` exit 0) has no execution evidence, but the artifact
+    itself fully matches the stated content requirement.
 T025:
   c: false
   h: c76ed55a4d8adc24a95d8117be951c5d219cf8d7398d408f8aee5fcb788beacf

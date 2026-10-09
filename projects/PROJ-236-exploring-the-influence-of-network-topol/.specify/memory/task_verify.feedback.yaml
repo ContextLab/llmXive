@@ -1,0 +1,181 @@
+T000a:
+  task: 57c720a21d97a702682891bb502ab2265cba297156fb138e5ccea2643ca40287
+T000c:
+  reason: "The required test `tests/unit/test_power_analysis.py::test_output_power`\
+    \ does not exist; the file contains only tests of a locally replicated function,\
+    \ none of which reads N from the script's output or checks achieved power using\
+    \ `statsmodels.stats.power` utilities (the imported `tt_solve_power` is never\
+    \ used). The script itself exists and computes N\u224885, but the task's specific\
+    \ verification mechanism \u2014 a test that parses script output and confirms\
+    \ power \u2265 0.80 for r \u2265 0.3 via statsmodels \u2014 is missing, and there\
+    \ is no execution evidence any test ran."
+  task: cc594e89880c2efaabdc2cb92d1d94506e48a9206142bd6fe996da1e9cfc3fd3
+T000d:
+  reason: 'Both required artifacts are missing: `code/power_analysis_output.txt` does
+    not exist and neither does the verification test `tests/unit/test_power_output_persistence.py`.
+    There is no evidence on disk that any sample size N was calculated or persisted,
+    so the task''s core requirement is unmet.'
+  task: 28638ed46e6b37045eb0e72da39e1a29c4ab75bf58c0fb46ca60f816ca606b8f
+T001:
+  reason: "The evidence only confirms the project root and top-level `code/` and `data/`\
+    \ directories exist; there is no confirmation that the specific required subdirectories\
+    \ (`code/utils`, `code/tests/unit`, `code/tests/integration`, `data/raw`, `data/networks`,\
+    \ `data/transport`, `data/analysis`, `plots`, `state/projects`) were actually\
+    \ created. Additionally, the referenced verification test `test_directories_exist`\
+    \ does not exist \u2014 the on-disk test is a different test (`test_create_directories_creates_all_paths`\
+    \ testing a `setup_project_structure.create_directories` function whose module\
+    \ is not shown t"
+  task: 69afb4dad1f5fa911aaa2e369d7b8cb1dca705312e4c731517f8771d5ae7a2db
+T001b:
+  reason: "The orchestrator module exists and implements the runtime monitor logic\
+    \ (elapsed-time tracking, 6-hour limit, warning flag, non-fatal behavior), but\
+    \ the required CI verification artifact `tests/unit/test_runtime_monitor.py` \u2014\
+    \ including the specifically named `test_warning_flag` assertion \u2014 is MISSING\
+    \ from disk, so there is no evidence the runtime metric logging or warning-flag\
+    \ behavior is tested. The implementer must add the unit test file verifying that\
+    \ the runtime metric is logged and the warning flag is set when elapsed time exceeds\
+    \ 6 hours."
+  task: 77c06693ed1599e3258c4b542cb693e2bbcb53ef00d337070d87edba9cb29da5
+T002:
+  task: 0e64df157cb1e5b8fffc399d0b35c5a4a71c3a1729d5d62177c9e6e2ef2b42dd
+T003:
+  task: 6e27c56eb8beb420cbb6371a4ecf3b2a52464bbac9b8c68c0e06009e1d028d0f
+T004:
+  task: 8731dbe1e65da21444f96a0aa8ae51ac63ec3b482bb0f59df9581edcadf68e73
+T005:
+  task: f707ab49b108ff02cb464f93ecca61583bf3eb15e8af21137d21bda24770c9f8
+T006:
+  task: 44e021a20b1f8156ec1b6ee8319e88d20fc71e30feb3b49f2c1739c0fd85a177
+T007:
+  task: 409389fe7934e1745b42ba309ba677ff62ecb792cb40a3c803ac1ef1e9140889
+T008:
+  task: 92690658b3523fb289bf4bc7a5d0ef01953c75ab3481ea11ed8288d8a3ca15ef
+T009:
+  task: 3db2543f7a4da65dca567ba5e93cb817dda5c4238f2fb46dbc5c224d710901ce
+T010:
+  task: 1452f8ea2fb13fc528c2155bbb4c798a0152fdbf6b9769941af4548d60240921
+T011:
+  task: f81a51f32c5cf17e6e83a60b4ea48a583fb6f50ff7c4ab96f532306d5c86f40b
+T012:
+  task: efe58ca8034d123a0a267ca017156e416fadd9d0d35de9c21723104e94307062
+T014:
+  task: bbc79c45f0a04051267e3727fdb2f76696d7e2a3a4a635b479c64b9bd87e8856
+T015:
+  task: b8ed7ee75e1667066935736ffcc0c30f5006cb9fbc4ba14fbafb5740cbfe0d62
+T016:
+  task: d97ebadabb9f7aa9bb723c977059be341422e3df7b7a106fd51d29c030c349d8
+T017:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_connectivity_gate.py'
+  task: 98c0529c8a2196095ffe732dfc9c6a096562ef857fce2dbad3a83556fc9b6dd8
+T018:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_physical_stability_gate.py'
+  task: 1a02e58ec47f6d6cd27beb22e03f84123563b92dfafd4433fad9054cec5830f1
+T019:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_cutoff_scaling_gate.py'
+  task: 9aad7b97b6ff5456af1cb0ce035eefbf434f01dcc6402260ae4e9581bf74cc5b
+T020:
+  task: 8a7f5283c1e4e58a7c8fb13ddbe0ecbaa7b1480dc612868ceee286d1d4d6da78
+T021:
+  task: 5fdc96ea61c716c8139ded834a94e04361b5f0ed21f97e5f7e2c865b08e393e1
+T022:
+  task: c03eb4f06fc0799195da51c00228517ef9b987bb6918e5130c3e90d9c55dd806
+T023:
+  task: 432aa50a24505f7b5e308a96acf198b4fd91b9280265eeee647530dc86b0c025
+T024:
+  task: 417f9ebf20a8d0b4e3d3b8d37c87aaacb65920cce848ddf3ed6bfb4fbfb4cb29
+T025:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/integration/test_ensemble_generation.py'
+  task: 74cf07c53fb39fef808d181ede9204a15afefed53e59fb5823f52a216aeba2f9
+T025b:
+  task: 905f040cb5ddad3a22093a19e2e0db1eaa6a87e5df6897a37d59e6ab5c55d7be
+T025c:
+  task: 64ff5d26f0ec99f026123a19ab503b41a4aeb7d6a7be4b839874250d1856e83e
+T026:
+  task: 1e8c8edc313c31039a38fde5c3c25ab6e8feff6f4a801ae249a87d72c81ef65f
+T027:
+  reason: 'declared artifact(s) missing/empty/invalid: state/projects/PROJ-236-exploring-the-influence-of-network-topol.yaml,
+    tests/unit/test_checksum_record.py'
+  task: cfdb9ab04d7a1d8fa0a216628a07ddc27d803202a23d305dc388ca0b2d0865b6
+T028:
+  task: 2d09cb94e131ba960b3b21020404670516003b491a949940bdbf3e3ce057a798
+T030:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/force_constants/,
+    tests/unit/test_force_constants_derivation.py'
+  task: 0c68a0542b2419837f88869875f9f9b323a398a5fce7336c9609c24099a2cc90
+T031:
+  reason: 'declared artifact(s) missing/empty/invalid: code/compute_transport.py,
+    data/networks/, tests/integration/test_compute_transport.py'
+  task: bfde0620771afc1a082a1989c2aa19c1fac8d1c02ee8647877fd074fa38ca7be
+T031b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/compute_transport.py,
+    tests/unit/test_regime_detection.py'
+  task: 322a0c12087d0efd4c5d321ffd7b8af07ec1f2c9c020b81dba42e1d5aefff13a
+T031c:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_sensitivity_stability.py'
+  task: ed691c7b5eaec68631db2f5ec06524b2cecbaf55d636cb9b4e5deb8209462d67
+T032:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_convergence_retry.py'
+  task: 9cf80aec3b7824ce432798c543acede5cc19fd471ff1ff58f1104a89989bd11d
+T033:
+  task: bd7750b108239584896979a0cac917b5565bcefc41f44fbf5d7e8435fd73096d
+T034:
+  task: ea72ced35abeac8a98cae89beb547d895917e214c10603957dd7cd5f115ee07a
+T035:
+  task: 16d920060f40af1df515afc18b22a7b0eccedaa2fa485d6a716437ec6d741d5c
+T036:
+  task: 07c7e8e100618d875f7c0f17ff27b4c7e9444ed39cd46b69e8b66bc915d86f7d
+T037:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analyze_correlations.py,
+    data/analysis/correlation_results.csv, tests/unit/test_correlation_analysis.py'
+  task: 8e2cdc55c94327446ff4ede45473ada2073d2a211cacdc3d03a8a7f91a035007
+T038:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_bootstrap_iterations.py'
+  task: 3f4c1dcbe6f02182ed0e48969ab2a3bdf57cf15dd33752ea80d597aaf762d406
+T039:
+  task: 220b7f45910e9e42073de89f61228fa4c85ccd2f07aca020e213569cf941e516
+T040:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_multiple_comparison_correction.py'
+  task: 92e1705bd17c20150f882fcd5fc2ab2b5b008d21672eddd40f3350a7254841e8
+T041:
+  task: 0af3f073223d0873ad4dcd0cdb996519ace3343437c78419004d11e5fd0f8f14
+T042:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_power_law_fit.py'
+  task: 37afc36c7187d32c4999a6088e78eceb6a8c66f54d675786a0b0430c2bd8085e
+T043:
+  task: 5758c8d797b096804c818c1bb76ab8624094c0a42400422511969ce92cabde0d
+T044:
+  reason: 'declared artifact(s) missing/empty/invalid: data/analysis/plots/metric_vs_kappa.png,
+    tests/unit/test_plot_generation.py'
+  task: 62dd14ad791a90d0260d2bf2097532c40c5652b4d50a4642ea7a849c18f8e5cd
+T045:
+  reason: 'declared artifact(s) missing/empty/invalid: data/analysis/plots/powerlaw_fit.png,
+    tests/unit/test_plot_generation.py'
+  task: 7d5a9538960192ddb62fe65230bc53fdec0862310edadba91f4eeff9c716f136
+T046:
+  task: 0af47ec129864f2863c10dc9a7d9c7989b81f903ded5c7f2216c5ef8db0f9b6f
+T048:
+  task: 2a6d672a276ea40296758b92da676231f2939cb457f29cfd5d2d0e47a6785e95
+T049:
+  task: 60020f238d2cbf052d80076e2f58fecc8633ad9a3b1ae0aacc682d5276f23deb
+T050:
+  task: 7a757a4ed7e461f7cbaa07151302d799e3eb9ae930ca0e6f68f766e0c19ed119
+T051:
+  task: 66bc064a1f6e243348964e4d2a2258b95ee4031f3a09113156a8dd45ed3adca7
+T052:
+  task: 2f03a30c9a422bce72a2910aa52b2708c146b46886caa1c03d0073430f719f06
+T059:
+  task: 8327c9f4d9c2bd23559c040fc6d86a31faf57513b30ac41cbe85b12af83f1a91
+T060:
+  task: 3ef47ea8421684363243c44e7ed5e666ef38d88b61a455ef2eee3a04adabda90
+T061:
+  task: a777fe91162cdf86eeb675a8d58d7e544ac012130e6a6b34757ee0e70db61cbf
+T068:
+  reason: 'declared artifact(s) missing/empty/invalid: data/metadata/graph_manifest.json,
+    tests/unit/test_graph_manifest.py'
+  task: b3cefbce5613dbffd3f37c65ea666018ed121516520ea23c1f6b6a851071cbc9
+T069:
+  task: e8b8e32eb943003af0f4c0575d39dc647c976e93ef7a5628d14f9da2b7c94cfa
+T070:
+  task: 6cb9aa4146a144b025670e90ff2d1f4ca6494a58da4bc92580711a65bd25e28c
+T071:
+  task: 7fb1f75fbee95ed78c6db135eda65697cf9f1c500dee1dd1780634f170ba1281

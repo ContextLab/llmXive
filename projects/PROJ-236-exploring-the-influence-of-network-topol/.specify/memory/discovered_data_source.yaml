@@ -1,14 +1,15 @@
 status: none
-intent: download atomic coordinates disordered alloys Materials Project OQMD NOMAD
-  dataset python package
+intent: download disordered alloy atomic structures dataset Materials Project OQMD
+  AFLOW python package dataset
 required_fields:
 - structure_id
 - composition
-- lattice_vectors
 - atomic_positions
-- element_symbols
-- site_occupancies
-- metadata_source
-cache_key: 0d5be65e323c95fef2182c7a6a3ce589a337656b37941694cd18c52c76f475c9
-searched_at: '2026-10-03T14:16:03.346865+00:00'
+- lattice_parameters
+- space_group
+- formation_energy_per_atom
+- dataset_source
+- nearest_neighbor_distance
+cache_key: 933dbcfb735c57664a7837d4dceafbc759fb27aaf5ec6a7e4766ced36e41e42b
+searched_at: '2026-10-09T15:11:46.181146+00:00'
 retry_count: 1
