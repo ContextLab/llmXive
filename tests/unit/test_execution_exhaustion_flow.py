@@ -8,7 +8,7 @@ sign-off). At the per-tier fix-round cap the loop:
      ``fix_rounds`` (retrying the full cap with a different model), staying
      IN_PROGRESS; and
   2. once EVERY tier is exhausted, RE-PLANS with a DETERMINISTIC report (no LLM
-     call) routed to ``planned``.
+     call) routed to ``clarified`` (the planner).
 
 These tests drive the REAL ``execution_status`` store and the REAL
 ``graph._decide_next_stage`` routing over a synthetic on-disk repo — no mocks.
@@ -183,9 +183,9 @@ def test_at_cap_last_tier_replans_with_deterministic_report(tmp_path: Path) -> N
 
     nxt = graph._decide_next_stage(proj, pdir, repo_root=repo)
 
-    assert nxt == Stage.PLANNED
+    assert nxt == Stage.CLARIFIED
     assert nxt != Stage.HUMAN_INPUT_NEEDED
-    assert graph.is_valid_transition(Stage.IN_PROGRESS, Stage.PLANNED)
+    assert graph.is_valid_transition(Stage.IN_PROGRESS, Stage.CLARIFIED)
     # fix_rounds AND model_tier both reset for a clean re-planned project.
     assert es.fix_rounds(pid, repo_root=repo) == 0
     assert es.model_tier(pid, repo_root=repo) == 0
@@ -371,7 +371,7 @@ def test_rejected_tasks_retry_free_models_without_rewriting_scope(tmp_path, monk
         assert not (feedback.parent / "kickback_feedback.md").exists()
     # Even with paid opt-in, exhausted verifier retries re-plan within the free budget.
     unverifiable.record_unverifiable(pid, "T001", "wrong error text", repo_root=tmp_path)
-    assert graph._decide_next_stage(proj, pdir, repo_root=tmp_path) == Stage.PLANNED
+    assert graph._decide_next_stage(proj, pdir, repo_root=tmp_path) == Stage.CLARIFIED
     assert es.model_tier(pid, repo_root=tmp_path) == 0
     assert es.replan_rounds(pid, repo_root=tmp_path) == 1
     assert tasks.read_text() == original
@@ -390,7 +390,7 @@ def test_verifier_replans_are_bounded_and_never_accept_incomplete_tasks(tmp_path
             unverifiable.record_unverifiable(pid, "T001", "missing", repo_root=tmp_path)
             assert graph._decide_next_stage(proj, pdir, repo_root=tmp_path) == Stage.IN_PROGRESS
         unverifiable.record_unverifiable(pid, "T001", "missing", repo_root=tmp_path)
-        expected = Stage.PLANNED if cycle < es.MAX_REPLAN_ROUNDS else Stage.AGENT_BLOCKED
+        expected = Stage.CLARIFIED if cycle < es.MAX_REPLAN_ROUNDS else Stage.AGENT_BLOCKED
         assert graph._decide_next_stage(proj, pdir, repo_root=tmp_path) == expected
     assert tasks.read_text() == "- [ ] T001 Still missing required output\n"
     assert unverifiable.has_unverifiable(pid, repo_root=tmp_path)

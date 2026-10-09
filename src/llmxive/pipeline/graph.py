@@ -1782,7 +1782,9 @@ def _decide_next_stage(
                     "%s: task verification exhausted free models; re-planning",
                     project.id,
                 )
-                return Stage.PLANNED
+                # Stages name completed work: CLARIFIED dispatches the planner;
+                # PLANNED dispatches the tasker and would leave the failed plan intact.
+                return Stage.CLARIFIED
             _unverifiable.clear(project.id, repo_root=repo_root)
             logger.info(
                 "%s: %d repeatedly rejected tasks; retrying implementation with "
@@ -1813,7 +1815,7 @@ def _decide_next_stage(
             #      model override into the implementer call.
             #   2. ALL TIERS EXHAUSTED — RE-PLAN: write a DETERMINISTIC report
             #      (no LLM) of what worked + what failed + adjust-the-approach,
-            #      reset BOTH fix_rounds and model_tier, and route to PLANNED.
+            #      reset BOTH fix_rounds and model_tier, and route to CLARIFIED (the planner).
             # FABRICATION does not escalate onto a PAID tier: the deterministic
             # fabrication guard fires on the code's OUTPUT regardless of which model
             # wrote it, so paying for a stronger model to re-fabricate is pure waste
@@ -1870,10 +1872,12 @@ def _decide_next_stage(
                 logger.info(
                     "execution fix-loop exhausted ALL model tiers for %s — "
                     "re-planning (deterministic report written; routing to "
-                    "PLANNED; NOT human_input_needed)",
+                    "CLARIFIED (planner); NOT human_input_needed)",
                     project.id,
                 )
-                return Stage.PLANNED
+                # Stages name completed work: CLARIFIED dispatches the planner;
+                # PLANNED dispatches the tasker and would leave the failed plan intact.
+                return Stage.CLARIFIED
         return Stage.IN_PROGRESS
 
     # Paper-Implementer special-case: stay paper_in_progress until ALL
