@@ -1,0 +1,68 @@
+T051:
+  reason: "The state file does contain `reproducibility_hash` and `final_verification_timestamp`,\
+    \ but the timestamp is from 2024 and the hash appears to be a placeholder; there\
+    \ is no evidence (e.g., script output or recorded hash) that the SHA\u2011256\
+    \ of the current `data/` directory was actually computed with `code/utils/checksum_utils.py`.\
+    \ Consequently the required artifact is not verified as genuine."
+  task: bea2c91b565b88bd5e1211dae943012db7c52dbd15ebb4b500a351ad88af6cc7
+T067:
+  reason: 'declared artifact(s) missing/empty/invalid: code/utils/verify_invalid_exclusion.py,
+    data/raw/workflows.json, data/results/tradeoff_curve.csv, data/results/invalid_exclusion_report.json'
+  task: 8544dc7ccbb1b351066b0b89c020caef35d363d455fb93b2ab1b037e62ceeaae
+T070:
+  reason: "The required output files `data/results/tradeoff_curve.csv` and `data/results/threshold_report.json`\
+    \ are missing, and `code/main.py` contains only a placeholder comment rather than\
+    \ the actual analysis implementation. Without these artifacts the task\u2019s\
+    \ core result artifacts have not been generated."
+  task: c1a48cd5a05428fa1614a53a514f46c92227d3947266ca25eaee80326a4a15ff
+T071:
+  reason: "The only artifact provided is `data/results/reproducibility_report.json`;\
+    \ there is no `README.md` file or any evidence that it contains the required \u201C\
+    Reproducibility and Verification\u201D section describing the pipeline command,\
+    \ checksum verification, interpretation of the JSON report, or instructions for\
+    \ running the invalid\u2011exclusion check (T067). The task\u2019s core deliverable\
+    \ is missing."
+  task: 0afd801ce3524e91978ee14db8d45438b1a803f1f6d63fed24b7ec1b75d73027
+T072a:
+  reason: "The provided `code/main.py` is just a placeholder comment and does not\
+    \ contain the pipeline implementation, and `run_metrics.json` records a zero\u2011\
+    second duration with no real execution evidence. There are no pytest or schema\u2011\
+    validation logs, nor any proof that the full workflow was actually run or that\
+    \ it stayed within the 6\u2011hour limit. The required artifacts and genuine run\
+    \ data are missing."
+  task: a1e900b2d49077b6d7c5d644b920360bee5196014bedc49c72b8462213b52749
+T072b:
+  reason: 'declared artifact(s) missing/empty/invalid: specs/001-policy-compression-tradeoff/results.md,
+    data/results/tradeoff_curve.csv'
+  task: d971a21b3da9c6a8531ce943b425b1fcce7fcfc322c7cc22ee1db04c520675dc
+T072c:
+  task: b8aef465ea445851524160e8c2cd19b744dfdaab5a15f61e5166888a50bd7e4a
+T077:
+  reason: The claim includes a detailed `docs/adaptive_sampling.md`, but there is
+    no evidence that `services/generator.py` was actually extended (no file shown,
+    no code diff, no execution output demonstrating the `--adaptive` flag or the adaptive
+    depth distribution). Without the modified generator code and proof that it produces
+    the required densified depth distribution, the task is not satisfied.
+  task: 756f03bd45e1834f51534049984b1736497ca7a6549a8425dcb1a7713f35d03a
+T078:
+  reason: The schema file exists and matches the required columns, but `code/main.py`
+    contains only a placeholder comment and does not implement CSV validation, and
+    the required `data/results/tradeoff_curve.csv` file is absent. Both the validation
+    logic and the CSV artifact need to be added.
+  task: 18e6fa44b0a8fc0f9084f170ac06657e07c1393cc3ffa340703dcf1914ffd862
+T079:
+  reason: "The repository contains a `src/` mirror with the required sub\u2011directories\
+    \ and a `code/__init__.py` shim that adds `src/` to the package path, but there\
+    \ is no provided evidence that the external plan documentation was updated to\
+    \ reflect the new `src/` layout. Without that artifact, the task is not fully\
+    \ satisfied."
+  task: 3bd58b348d2833f19375684207f72e29f6e9051a449aa15983e74aac3fa064bb
+T080:
+  reason: "The required file `code/lib/utils.py` is missing, so the docstring cannot\
+    \ be updated and there is no evidence that any references to the tokenizer model\
+    \ were corrected. The task\u2019s primary artifact does not exist."
+  task: 34820b30e2906c1466c676c482761f9ab94145ae16f75c3511173a6130b8e996
+T081:
+  task: 8bf83435648de0e323625fa686f466c0c72c2d1c8bdd2a28093f22c8cdc07b3c
+T082:
+  task: 081a9162c922e3e135e4d0afe09102022719a069d090d91013b5e98bad95813d

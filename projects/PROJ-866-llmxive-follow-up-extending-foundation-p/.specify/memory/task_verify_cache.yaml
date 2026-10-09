@@ -1,105 +1,11 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directory hierarchy (`code/`, `data/`, `data/raw/`,
-    `data/processed/`, `data/results/`, `tests/`, `state/`, `state/projects/`, `contracts/`)
-    was provided; the implementer did not supply any artifact confirming these folders
-    exist. The task remains unfinished until the specified directories are created
-    and shown.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of `.gitkeep` files in any `data/` subdirectories was provided; the
-    claim lacks the required artifact confirming that the directories are being tracked
-    by git. The implementer must add a `.gitkeep` (or equivalent placeholder) to each
-    `data/` subdirectory and show the file listings as proof.
-T010:
-  c: false
-  h: 38464c114ffeabd89bb900edcdce88ebb719d2b174dca0f2052bbf03bebdeee2
-  r: "The required file `tests/unit/test_generator.py` is missing from the repository,\
-    \ so no unit test for graph variance exists. Without this artifact, the task\u2019\
-    s requirement is not satisfied."
-T015:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `main.py` file or any code skeleton is present in the provided evidence, and
-    there is no indication that a script generating and saving raw workflows to `data/raw/`
-    exists. The required orchestrator artifact is missing.
-T030:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer provided only high\u2011level user story specifications for\
-    \ workflow generation and compression; there is no artifact (code, data, or analysis)\
-    \ that applies a Bonferroni correction to regression p\u2011values as required\
-    \ by task T030. The necessary implementation and results are missing."
-T031:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data files, scripts, or analysis results were provided; therefore we\
-    \ cannot verify that synthetic workflows were generated, compressed\u2011context\
-    \ execution was performed, or threshold analysis was completed as required. The\
-    \ task lacks the necessary artifacts to confirm it meets the specification."
-T033:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `main.py` file or code snippet is provided, so we cannot confirm\
-    \ that the pipeline orchestration (Generate \u2192 Full Exec \u2192 Compressed\
-    \ Exec \u2192 Analyze) has been implemented. The required artifact is missing."
-T034:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `state/projects/...yaml` file containing artifact hashes and an `updated_at`\
-    \ timestamp was presented. The required YAML artifact is missing, so the task\u2019\
-    s deliverable has not been provided."
-T036:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No updated `quickstart.md` file was presented, and there is no evidence that
-    it now includes the command to generate 500 workflows nor the subsequent analysis
-    steps required by the task. The required documentation artifact is missing.
-T037a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `ruff check --fix` run, no linting report, and no modified files
-    in the `code/` directory are provided; thus the required code cleanup artifact
-    is missing.
 T051:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No updated `state/projects/...yaml` file was presented; the claim lacks any evidence
-    of the required `reproducibility_hash` and `final_verification_timestamp` keys
-    being added. The implementer must provide the actual YAML file with those fields
-    populated.
-T051#1:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `state/projects/PROJ-866-...yaml` file is provided, nor any evidence\
-    \ (e.g., file diff, content snippet, commit hash) showing the required `reproducibility_hash`\
-    \ and `final_verification_timestamp` keys have been added. The implementer\u2019\
-    s claim lacks the actual artifact, so the task is not satisfied."
-T059:
-  c: false
-  h: 27951d9e01a68839c93e632b71f14ff3b53d51b81040403c465b7baf35efe1d1
-  r: "The repository contains a `_log_edge_case` helper in `compressed_context.py`,\
-    \ but the required `data/processed/edge_cases.log` file does not exist, and there\
-    \ is no evidence that the helper is invoked for workflows with `context_reduction_pct=\"\
-    [deferred]\"` or `status=\"edge_case\"`. The task\u2019s logging requirement is\
-    \ therefore not fulfilled."
-T062:
-  c: false
-  h: a67c6dcce631f8e4498505f6b137735128615b250f7a44c44c2b139f7d784379
-  r: "The repository contains the `verify_data_consistency.py` script, but the required\
-    \ output file `data/results/data_consistency_report.json` is missing, and the\
-    \ provided script excerpt is truncated before any aggregation or JSON\u2011writing\
-    \ logic, so we cannot confirm it produces the specified keys (`total_workflows`,\
-    \ `valid_workflows`, `logs_found`, `analysis_entries`, `consistency_status`).\
-    \ The task\u2019s core output is therefore not demonstrated."
-T065:
-  c: false
-  h: 35d512502501fe51b1a0e4ed3df1bb718a56eb0e795be6be32a2d8398aa4461f
-  r: "The required file `data/results/reproducibility_report.json` is missing, so\
-    \ no breakdown of discrepancies, hashes, or timestamps is provided. The task\u2019\
-    s core deliverable is absent."
+  h: e7690505c1e0cf678e3d1ba5b2fcb7111aaba90249ad5451a1b4bc4f23125cb2
+  r: "The state file does contain `reproducibility_hash` and `final_verification_timestamp`,\
+    \ but the timestamp is from 2024 and the hash appears to be a placeholder; there\
+    \ is no evidence (e.g., script output or recorded hash) that the SHA\u2011256\
+    \ of the current `data/` directory was actually computed with `code/utils/checksum_utils.py`.\
+    \ Consequently the required artifact is not verified as genuine."
 T067:
   c: false
   h: 99db470276d3249a7be659fa37e32e7208b7097aa6f4b7367ecf34354cb92dfc
@@ -107,11 +13,64 @@ T067:
     \ are missing, so there is no evidence that the verification script was run or\
     \ that invalid workflows were excluded. Without these artifacts the task\u2019\
     s requirement is not satisfied."
-T068:
+T070:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `README.md` file or excerpt showing the new \u201CReproducibility\
-    \ and Verification\u201D section is provided; the evidence contains only the task\
-    \ description and specifications, without the required documentation changes.\
-    \ The implementer must add the requested section to the README and supply the\
-    \ updated file."
+  h: 83ada1ac6009a9e7c6994c85ca53994870272787af5e7889954bdd65b37b204e
+  r: "The required output files `data/results/tradeoff_curve.csv` and `data/results/threshold_report.json`\
+    \ are missing, and `code/main.py` contains only a placeholder comment rather than\
+    \ the actual analysis implementation. Without these artifacts the task\u2019s\
+    \ core result artifacts have not been generated."
+T071:
+  c: false
+  h: a35cfc2d90d45431e1c366e61923a7b47c44b27195439e6dc6d36e838512c047
+  r: "The only artifact provided is `data/results/reproducibility_report.json`; there\
+    \ is no `README.md` file or any evidence that it contains the required \u201C\
+    Reproducibility and Verification\u201D section describing the pipeline command,\
+    \ checksum verification, interpretation of the JSON report, or instructions for\
+    \ running the invalid\u2011exclusion check (T067). The task\u2019s core deliverable\
+    \ is missing."
+T072a:
+  c: false
+  h: e62edcdd97c5962b5a1aa6dad19ac93cdcb172f7268687ef608120eba0e237c1
+  r: "The provided `code/main.py` is just a placeholder comment and does not contain\
+    \ the pipeline implementation, and `run_metrics.json` records a zero\u2011second\
+    \ duration with no real execution evidence. There are no pytest or schema\u2011\
+    validation logs, nor any proof that the full workflow was actually run or that\
+    \ it stayed within the 6\u2011hour limit. The required artifacts and genuine run\
+    \ data are missing."
+T072c:
+  c: true
+  h: 293552e4b56a01aa18d9de79d68e2da24deb1e1c59e70662e80892fecf0eb58a
+  r: "The `specs/001-policy-compression-tradeoff/paper_handoff.md` file exists, contains\
+    \ links to the CSV, figure, and results summary, and records the reproducibility\
+    \ SHA\u2011256 hash while stating compliance with Constitution Principles IV and\
+    \ V."
+T077:
+  c: false
+  h: 99870899dedff45f20f0d92d185fdbf364bfe314a21a09d9e289510e53022a30
+  r: The claim includes a detailed `docs/adaptive_sampling.md`, but there is no evidence
+    that `services/generator.py` was actually extended (no file shown, no code diff,
+    no execution output demonstrating the `--adaptive` flag or the adaptive depth
+    distribution). Without the modified generator code and proof that it produces
+    the required densified depth distribution, the task is not satisfied.
+T078:
+  c: false
+  h: a0b99fa6085c8132dfae32afb989be6d87a0241d5bcb95176b857b557308ae8e
+  r: The schema file exists and matches the required columns, but `code/main.py` contains
+    only a placeholder comment and does not implement CSV validation, and the required
+    `data/results/tradeoff_curve.csv` file is absent. Both the validation logic and
+    the CSV artifact need to be added.
+T079:
+  c: false
+  h: a90e5b214049c25396feaead2094043d5f2bf8c413f34aac27b7d2554d59c076
+  r: "The repository contains a `src/` mirror with the required sub\u2011directories\
+    \ and a `code/__init__.py` shim that adds `src/` to the package path, but there\
+    \ is no provided evidence that the external plan documentation was updated to\
+    \ reflect the new `src/` layout. Without that artifact, the task is not fully\
+    \ satisfied."
+T080:
+  c: false
+  h: e1f4e64c1af7c60e9fe49b93f66ca596a29152f7b9a8f5526db84f941b07e960
+  r: "The required file `code/lib/utils.py` is missing, so the docstring cannot be\
+    \ updated and there is no evidence that any references to the tokenizer model\
+    \ were corrected. The task\u2019s primary artifact does not exist."

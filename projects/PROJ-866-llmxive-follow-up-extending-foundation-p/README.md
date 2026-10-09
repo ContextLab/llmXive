@@ -1,188 +1,127 @@
-# llmXive: Foundation Protocol Follow-up
+# llmXive Follow‑up: Extending "Foundation Protocol: A Coordination Layer for Agentic Society"
 
-Automated research pipeline for analyzing the trade-off between context compression and policy violation rates in agentic societies.
+This repository contains the implementation of the simulation pipeline that quantifies the trade‑off between policy‑provenance compression and policy‑violation error rates in multi‑agent workflows.
 
-## Project Structure
+## Table of Contents
 
-- `code/`: Python implementation modules
-- `data/`: Raw generated workflows, processed execution logs, and analysis results
-- `contracts/`: JSON schemas for workflow and execution log validation
-- `state/`: Project state registry with artifact checksums
-- `tests/`: Unit and integration tests
-- `specs/`: Design documents and user stories
+- [Overview](#overview)
+- [Quickstart](#quickstart)
+- [Reproducibility and Verification](#reproducibility-and-verification)
+- [License](#license)
 
-## Prerequisites
+## Overview
 
-- Python 3.11+
-- pip (package manager)
+The project generates synthetic workflows, executes them under full‑context and compressed‑context regimes, and performs statistical analysis (GLMM, bootstrapping, multiple‑comparison correction) to identify the safe operating zone where the error‑rate remains ≤ 1 % [UNRESOLVED-CLAIM: c_48a54a44 — status=not_enough_info]. All steps are deterministic and fully reproducible.
 
-## Installation
+## Quickstart
 
-1. Clone the repository
-2. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
-
-## Quick Start
-
-Run the full pipeline to generate workflows, execute them with full and compressed contexts, and analyze the trade-off curve:
+See `quickstart.md` for detailed installation instructions. The core pipeline can be run with a single command:
 
 ```bash
 python code/main.py --generate --compress --analyze
 ```
 
-This command:
-- Generates synthetic workflows (T012)
-- Executes them with full context (T014)
-- Executes them with compressed contexts at depths 1-20 (T021, T023)
-- Analyzes the trade-off and identifies the safe operating zone (T029-T031)
+This command will:
+
+1. **Generate** `data/raw/workflows.json` (500 deterministic synthetic workflows).
+2. **Execute** full‑context logs (`data/processed/full_context_logs.json`) and compressed‑context logs for a range of depths (`data/processed/compressed_context_logs.json`).
+3. **Analyze** the results, producing:
+ - `data/results/tradeoff_curve.csv`
+ - `data/results/threshold_report.json`
+ - `data/results/run_metrics.json`
 
 ## Reproducibility and Verification
 
-This project enforces strict reproducibility and data integrity checks. Follow these steps to verify results.
+### 1. Full Pipeline Command
 
-### 1. Run the Pipeline Twice with Identical Seeds
-
-To verify determinism, execute the pipeline twice with the same seed and compare output hashes:
+The canonical command to reproduce all results is:
 
 ```bash
-# First run
-python code/main.py --generate --compress --analyze --seed 42
-
-# Second run (same seed)
-python code/main.py --generate --compress --analyze --seed 42
+python code/main.py --generate --compress --analyze
 ```
 
-The `--seed` flag ensures that all random operations (workflow generation, sampling) use the same seed, producing identical outputs.
+- `--generate` creates the deterministic workflow set.
+- `--compress` runs the compressed‑context engine across the predefined depth list.
+- `--analyze` runs the statistical analysis and writes the final artefacts.
 
-### 2. Verify Reproducibility Report
+### 2. Checksum Verification
 
-After running the pipeline twice, check the reproducibility report:
+After the pipeline finishes, a reproducibility report is written to:
+
+```
+data/results/reproducibility_report.json
+```
+
+This JSON contains SHA‑256 hashes of **all files** under the `data/` directory for the two most recent runs:
+
+```json
+{
+ "run1_hash": "<hex‑digest>",
+ "run2_hash": "<hex‑digest>",
+ "identical": true|false,
+ "timestamp": "2023-10-27T10:00:00Z",
+ "discrepancies": []
+}
+```
+
+- **Identical**: `true` indicates the two runs produced exactly the same data artefacts, confirming deterministic behaviour.
+- **Discrepancies**: If non‑empty, each entry describes a file whose hash differed between runs.
+
+The hashes are computed by the utility script `code/utils/checksum_utils.py`. To manually recompute the hash for the current `data/` directory, run:
 
 ```bash
-cat data/results/reproducibility_report.json
+python code/utils/checksum_utils.py --output data/results/current_hash.json
 ```
 
-The report contains:
-- `run1_hash`: SHA-256 hash of all data files from the first run
-- `run2_hash`: SHA-256 hash of all data files from the second run
-- `identical`: Boolean indicating if the hashes match
-- `timestamp`: ISO8601 timestamp of the verification
+Compare the resulting hash with `run1_hash` / `run2_hash` to ensure integrity.
 
-If `identical` is `true`, the pipeline is fully deterministic.
+### 3. Interpreting `data/results/reproducibility_report.json`
 
-### 3. Verify Data Consistency
+- **run1_hash / run2_hash**: Global SHA‑256 of the entire `data/` tree (concatenated file hashes).
+- **identical**: When `true`, you can be confident that the pipeline is fully reproducible on the same hardware/software stack.
+- **timestamp**: Indicates when the report was generated.
+- **discrepancies**: An empty list means no file‑level mismatches; any entries would need inspection (e.g., re‑run the pipeline or investigate nondeterministic sources).
 
-Run the data consistency check to ensure all generated workflows have corresponding execution logs and analysis entries:
+### 4. Invalid‑Workflow Exclusion Check (Task T067)
 
-```bash
-python code/utils/verify_data_consistency.py
-```
+The pipeline automatically flags workflows that are internally inconsistent (e.g., contradictory policy constraints). These are marked with `"is_valid": false` in `data/raw/workflows.json` and must be excluded from the trade‑off analysis.
 
-This script cross-references:
-- `data/raw/`: Generated workflow IDs
-- `data/processed/`: Execution log workflow IDs
-- `data/results/`: Analysis result workflow IDs
-
-The output is written to `data/results/data_consistency_report.json`.
-
-### 4. Verify Invalid Workflow Exclusion
-
-Ensure that workflows marked as `is_valid=false` are excluded from the final analysis:
+To verify that exclusion was performed correctly, run the dedicated validator:
 
 ```bash
 python code/utils/verify_invalid_workflow_exclusion.py
 ```
 
-This script verifies that invalid workflows do not appear in `data/results/tradeoff_curve.csv` or `data/results/threshold_ci.json`.
+The script cross‑references the `is_valid` flag against the rows used to build `data/results/tradeoff_curve.csv`. It produces:
 
-### 5. Verify Oracle Independence
+- `data/results/invalid_exclusion_report.json` containing:
+ ```json
+ {
+ "invalid_workflow_count": <int>,
+ "excluded_count": <int>,
+ "status": "PASS" | "FAIL"
+ }
+ ```
+- A console summary indicating whether any invalid workflow contributed to the final CSV.
 
-Run the static analysis check to ensure the Oracle engine is only imported for validation, not execution logic:
+**Interpretation**:
+- `invalid_workflow_count` = total number of workflows flagged as invalid.
+- `excluded_count` = number of those that were successfully removed from the analysis.
+- `status` = `"PASS"` when `excluded_count` equals `invalid_workflow_count`; otherwise `"FAIL"` and you should investigate the offending rows.
 
-```bash
-python code/utils/verify_oracle_independence.py
-```
+### 5. Summary of Reproducibility Artifacts
 
-This script parses the AST of `full_context.py` and `compressed_context.py` to verify that no policy execution logic is implemented directly in the engines.
+| Artifact | Description |
+|----------|-------------|
+| `data/raw/workflows.json` | Deterministic synthetic workflow definitions (seeded). |
+| `data/processed/*.json` | Execution logs for full and compressed contexts. |
+| `data/results/tradeoff_curve.csv` | CSV of context‑reduction vs. error‑rate with confidence intervals. |
+| `data/results/threshold_report.json` | Safe‑operating‑zone threshold (≤ 1 % error) and bootstrap CI. |
+| `data/results/reproducibility_report.json` | Global SHA‑256 hashes and identity check for two runs. |
+| `data/results/invalid_exclusion_report.json` | Verification that invalid workflows were excluded. |
 
-### 6. Verify Data Hygiene
-
-Run the data hygiene audit to ensure `data/raw/` contains only generated files and derived directories contain only processed data:
-
-```bash
-python code/utils/data_hygiene_audit.py
-```
-
-The audit report is written to `data/results/data_hygiene_audit.log`.
-
-### 7. Verify Edge Case Handling
-
-Review the edge case audit report to see how single-node graphs and depth=0 cases were handled:
-
-```bash
-cat data/results/edge_case_summary.json
-```
-
-This report aggregates edge cases from `data/processed/edge_cases.log` and `data/processed/edge_cases_filtered.log`.
-
-### 8. Verify Checksums
-
-Use the checksum utility to verify the integrity of specific artifacts:
-
-```bash
-python code/utils/checksum_utils.py --file data/raw/workflows.json
-python code/utils/checksum_utils.py --directory data/processed/
-```
-
-### 9. Validate Against Schemas
-
-Ensure all JSON files conform to the defined schemas:
-
-```bash
-python code/utils/validate_schemas.py
-```
-
-This script validates all files in `data/processed/` and `data/results/` against the schemas in `contracts/`.
-
-## Output Artifacts
-
-The pipeline produces the following key artifacts:
-
-- `data/raw/workflows.json`: Generated synthetic workflows
-- `data/processed/full_context_logs.json`: Execution logs with full context
-- `data/processed/compressed_context_logs.json`: Execution logs with compressed contexts
-- `data/results/tradeoff_curve.csv`: Regression curve data (reduction_pct, error_rate, ci_lower, ci_upper)
-- `data/results/threshold_ci.json`: Identified safe operating zone threshold with confidence intervals
-- `data/results/glmm_diagnostics.json`: GLMM model diagnostics and coefficients
-- `data/processed/pairwise_comparison_results.json`: Corrected p-values for multiple comparisons
-- `data/results/reproducibility_report.json`: Hash comparison of two pipeline runs
-- `data/results/data_consistency_report.json`: Data integrity verification results
-- `state/projects/PROJ-866-llmxive-follow-up-extending-foundation-p.yaml`: Final state registry with artifact hashes
-
-## Testing
-
-Run the full test suite:
-
-```bash
-pytest
-```
-
-Run specific test categories:
-- Unit tests: `pytest tests/unit/`
-- Integration tests: `pytest tests/integration/`
-- Contract tests: `pytest tests/contract/`
-
-## Configuration
-
-Key configuration options:
-
-- `--seed`: Random seed for deterministic generation (default: 42)
-- `--count`: Number of workflows to generate (default: 500)
-- `--depths`: Compression depths to test (default: 1-20)
-- `--threshold`: Policy violation error rate threshold for safe operating zone (default: 1.0)
+By following the steps above you can fully reproduce the study, verify data integrity, and confirm that invalid workflows have been correctly omitted from the final analysis.
 
 ## License
 
-This project is part of the llmXive research initiative. See LICENSE for details.
+This project is licensed under the MIT License. See `LICENSE` for details.

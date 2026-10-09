@@ -2546,3 +2546,141 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-25T15:45:27Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/README.md
+  attempts: 1
+  canonical: 500 synthetic workflows generated
+  claim_id: c_b3e62c48
+  context: 'The orchestrator `code/main.py` ties together every stage of the experiment.
+    Running the pipeline with the flags below will: 1. Generate 500 synthetic workflows
+    (deterministic seed).'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Generate 500 synthetic workflows (deterministic seed).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T11:27:37Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/README.md
+  attempts: 1
+  canonical: 50 invalid workflows were excluded, status PASS
+  claim_id: c_99a9533b
+  context: 'The script produces `data/results/invalid_workflow_exclusion_report.json`,
+    for example: { ''invalid_workflow_count'': 50, ''excluded_count'': 50, ''status'':
+    ''PASS'' }.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: '''invalid_workflow_count'': 50, ''excluded_count'': 50, ''status'': ''PASS'''
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T11:27:38Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/docs/adaptive_sampling.md
+  attempts: 1
+  canonical: uniform distribution of workflow depths across levels 1 to 20
+  claim_id: c_4b5c1170
+  context: The overview describes how the original generator produces a uniform depth
+    distribution, with each of the 20 depth levels receiving a similar count of workflows.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'The original synthetic workflow generator (`SyntheticWorkflowGenerator`)
+    creates a uniform distribution of workflow depths: each depth level from 1 to
+    20 receives roughly the same number of workflows.'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T11:29:56Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/docs/adaptive_sampling.md
+  attempts: 1
+  canonical: approximately 10 percent of generated workflows are invalid
+  claim_id: c_674c55e0
+  context: The adaptive sampling description notes that about ten percent of the total
+    generated workflows are intentionally invalid to test downstream handling.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "As before, ~10\u202F% of the total count are generated as deliberately\
+    \ invalid workflows (conflicting constraints)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T11:29:56Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/README.md
+  attempts: 1
+  canonical: "error-rate \u2264 1% safe operating zone"
+  claim_id: c_48a54a44
+  context: "The project generates synthetic workflows, executes them under full\u2011\
+    context and compressed\u2011context regimes, and performs statistical analysis\
+    \ (GLMM, bootstrapping, multiple\u2011comparison correction) to identify the safe\
+    \ operating zone where the error\u2011rate remains \u2264\u202F1\u202F%."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "identify the safe operating zone where the error\u2011rate remains \u2264\
+    \u202F1\u202F%"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T11:34:59Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/README.md
+  attempts: 1
+  canonical: 500 deterministic synthetic workflows
+  claim_id: c_b03bfa43
+  context: 'This command will: 1. Generate `data/raw/workflows.json` (500 deterministic
+    synthetic workflows).'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Generate `data/raw/workflows.json` (500 deterministic synthetic workflows).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T11:34:59Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/README.md
+  attempts: 1
+  canonical: identical true indicates runs produced identical data artefacts
+  claim_id: c_f3de4e14
+  context: "The JSON contains SHA\u2011256 hashes of all files... Identical: true\
+    \ indicates the two runs produced exactly the same data artefacts, confirming\
+    \ deterministic behaviour."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: '`identical`: true indicates the two runs produced exactly the same data
+    artefacts, confirming deterministic behaviour.'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T11:35:00Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/paper_handoff.md
+  attempts: 1
+  canonical: SHA-256 hash of data directory is 0e5c7d2a5b3f9e1d4c6a8b7f2e1d3c4b5a6d7e8f9c0b1a2d3e4f5a6b7c8d9e0f
+  claim_id: c_ba48ed08
+  context: "The SHA\u2011256 hash of the entire `data/` directory is listed under\
+    \ the Reproducibility section."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The SHA\u2011256 hash of the entire `data/` directory is: 0e5c7d2a5b3f9e1d4c6a8b7f2e1d3c4b5a6d7e8f9c0b1a2d3e4f5a6b7c8d9e0f"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T11:36:08Z'

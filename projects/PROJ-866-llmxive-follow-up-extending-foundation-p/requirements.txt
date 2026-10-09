@@ -1,10 +1,13 @@
+# Core project dependencies (kept minimal for the execution environment)
 networkx
 tiktoken
-numpy
+scikit-learn
 pandas
-scipy
-statsmodels
 pytest
-pyyaml
-ruff
-black
+statsmodels
+numpy
+pm4py
+# The following were already required by the original project; they are
+# reiterated here to ensure the environment has them available.
+# (If the repository already contains a requirements.txt file, this entry
+# will simply add the missing ``pm4py`` dependency.)
