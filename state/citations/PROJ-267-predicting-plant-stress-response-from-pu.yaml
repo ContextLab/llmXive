@@ -1,25 +1,3 @@
-- artifact_hash: 706f84fb791311852d312f5e41881ae03b5a2f7e2d60f152f81a7b304f4716c7
-  artifact_path: projects/PROJ-267-predicting-plant-stress-response-from-pu/specs/001-predicting-plant-stress-response-from-pu/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: dummy_data.zip
-  kind: url
-  value: https://huggingface.co/datasets/pie/ncbi_disease/resolve/main/dummy/ncbi_disease/1.0.0/dummy_data.zip`
-  verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6275496b8507f986f6480114/ce4ae5c22c401a4ebaf1e89e08db60871201e4313474a571639c8f4ff2171ee1?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dummy_data.zip%3B+filename%3D%22dummy_data.zip%22%3B&response-content-type=application%2Fzip&Expires=1783559042&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjI3NTQ5NmI4NTA3Zjk4NmY2NDgwMTE0L2NlNGFlNWMyMmM0MDFhNGViYWYxZTg5ZTA4ZGI2MDg3MTIwMWU0MzEzNDc0YTU3MTYzOWM4ZjRmZjIxNzFlZTFcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZHVtbXlfZGF0YS56aXAlM0IrZmlsZW5hbWUlM0QlMjJkdW1teV9kYXRhLnppcCUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZ6aXAiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzU1OTA0Mn19fV19&Signature=MEYCIQDD9-KwwAF1xUox4WwliLgXnAAifaQGoEPG4rzTcT6KRQIhAInFJp03%7Epau1BFdcMgZztmzApqzRK2QujRiB5KfenEw&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-09T00:04:02.702201Z'
-- artifact_hash: 706f84fb791311852d312f5e41881ae03b5a2f7e2d60f152f81a7b304f4716c7
-  artifact_path: projects/PROJ-267-predicting-plant-stress-response-from-pu/specs/001-predicting-plant-stress-response-from-pu/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: alignment-00000-of-00001-911d6b30d63b88ae.parquet
-  kind: url
-  value: https://huggingface.co/datasets/Luckyjhg/Geo170K/resolve/main/data/alignment-00000-of-00001-911d6b30d63b88ae.parquet`
-  verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6584f957b476868782d1a52f/e126003e5fec37cc865b920b0a481fc1c78ac451c42f511a4b9e6c41d396a296?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27alignment-00000-of-00001-911d6b30d63b88ae.parquet%3B+filename%3D%22alignment-00000-of-00001-911d6b30d63b88ae.parquet%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1783559043&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU4NGY5NTdiNDc2ODY4NzgyZDFhNTJmL2UxMjYwMDNlNWZlYzM3Y2M4NjViOTIwYjBhNDgxZmMxYzc4YWM0NTFjNDJmNTExYTRiOWU2YzQxZDM5NmEyOTZcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3YWxpZ25tZW50LTAwMDAwLW9mLTAwMDAxLTkxMWQ2YjMwZDYzYjg4YWUucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMmFsaWdubWVudC0wMDAwMC1vZi0wMDAwMS05MTFkNmIzMGQ2M2I4OGFlLnBhcnF1ZXQlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzU1OTA0M319fV19&Signature=MEUCIFiO1nzfjaz6gPNKfZwYh2K4VcnZH26xga2BVvAeFnSMAiEA8dT19ZT%7E73A9ZcM4HOeO9ZsvacwonDIh3vgYH2ITCUQ_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-09T00:04:02.702201Z'
 - artifact_hash: 02711d520d63adf26e6c5ef742bb6b1d5066bbbca3f11b90df4c9083f30d86be
   artifact_path: projects/PROJ-267-predicting-plant-stress-response-from-pu/docs/deviation_log.md
   cite_id: c-001
@@ -68,3 +46,36 @@
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2604.10702
   verified_at: '2026-10-06T06:53:57.727617Z'
+- artifact_hash: 65f63f5353c5330bf141374c358984ec796bc3dac25275a5f64b6a4a0f1906b3
+  artifact_path: projects/PROJ-267-predicting-plant-stress-response-from-pu/specs/001-predicting-plant-stress-response-from-pu/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: dummy_data.zip
+  kind: url
+  value: https://huggingface.co/datasets/pie/ncbi_disease/resolve/main/dummy/ncbi_disease/1.0.0/dummy_data.zip
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6275496b8507f986f6480114/ce4ae5c22c401a4ebaf1e89e08db60871201e4313474a571639c8f4ff2171ee1?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dummy_data.zip%3B+filename%3D%22dummy_data.zip%22%3B&response-content-type=application%2Fzip&xip=_uKPbP4fGMM&Expires=1791574468&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjI3NTQ5NmI4NTA3Zjk4NmY2NDgwMTE0L2NlNGFlNWMyMmM0MDFhNGViYWYxZTg5ZTA4ZGI2MDg3MTIwMWU0MzEzNDc0YTU3MTYzOWM4ZjRmZjIxNzFlZTFcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZHVtbXlfZGF0YS56aXAlM0IrZmlsZW5hbWUlM0QlMjJkdW1teV9kYXRhLnppcCUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZ6aXAmeGlwPV91S1BiUDRmR01NIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTE1NzQ0Njh9fX1dfQ__&Signature=MEUCIGEl9XIyP3DhCxg7zvJU97gEsrv%7EfPs7cHqs9Dr4DqtCAiEAtgXXyb6fXDqwoCrgXzQ3caebOA188%7E9OLfHrTUi6hiI_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-09T18:34:28.858793Z'
+- artifact_hash: 65f63f5353c5330bf141374c358984ec796bc3dac25275a5f64b6a4a0f1906b3
+  artifact_path: projects/PROJ-267-predicting-plant-stress-response-from-pu/specs/001-predicting-plant-stress-response-from-pu/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: split.json
+  kind: url
+  value: https://huggingface.co/datasets/heig-vd-geo/GridNet-HD/resolve/main/split.json
+  verification_status: pending
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/heig-vd-geo/GridNet-HD/944b561090d1fed9803ccc96bfafb6ab3049726c/split.json?%2Fdatasets%2Fheig-vd-geo%2FGridNet-HD%2Fresolve%2Fmain%2Fsplit.json=&etag=%22c31fa1a15921c362c96f708c8e3d9f2402b2f011%22
+  verified_at: '2026-10-09T18:34:28.858793Z'
+- artifact_hash: 65f63f5353c5330bf141374c358984ec796bc3dac25275a5f64b6a4a0f1906b3
+  artifact_path: projects/PROJ-267-predicting-plant-stress-response-from-pu/specs/001-predicting-plant-stress-response-from-pu/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: details_harness|arc:challenge|25_2023-07-19T20:31:16.803242.parquet
+  kind: url
+  value: https://huggingface.co/datasets/open-llm-leaderboard-old/details_GeorgiaTechResearchInstitute__starcoder-gpteacher-code-instruct/resolve/main/2023-07-19T20:31:16.803242/details_harness|arc:challenge|25_2023-07-19T20:31:16.803242.parquet
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/64deb4ebd1885643ca329a15/6c1684859db5606493d3276783116bd400831593f88d94694f80276ad294ff66?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27details_harness%25257Carc%25253Achallenge%25257C25_2023-07-19T20%25253A31%25253A16.803242.parquet%3B+filename%3D%22details_harness%257Carc%253Achallenge%257C25_2023-07-19T20%253A31%253A16.803242.parquet%22%3B&X-Xet-Cas-Uid=public&user_id=public&xip=_uKPbP4fGMM&Expires=1791574469&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRkZWI0ZWJkMTg4NTY0M2NhMzI5YTE1LzZjMTY4NDg1OWRiNTYwNjQ5M2QzMjc2NzgzMTE2YmQ0MDA4MzE1OTNmODhkOTQ2OTRmODAyNzZhZDI5NGZmNjZcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGV0YWlsc19oYXJuZXNzJTI1MjU3Q2FyYyUyNTI1M0FjaGFsbGVuZ2UlMjUyNTdDMjVfMjAyMy0wNy0xOVQyMCUyNTI1M0EzMSUyNTI1M0ExNi44MDMyNDIucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMmRldGFpbHNfaGFybmVzcyUyNTdDYXJjJTI1M0FjaGFsbGVuZ2UlMjU3QzI1XzIwMjMtMDctMTlUMjAlMjUzQTMxJTI1M0ExNi44MDMyNDIucGFycXVldCUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZ4aXA9X3VLUGJQNGZHTU0iLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5MTU3NDQ2OX19fV19&Signature=MEYCIQDGRTIPjNMuPJGZIZowBJ2aiRbzp-iWH2Bhx6JSL8blwwIhANLpoa1d-xwyxVPoR-SkC%7EVTJ7Okr4cXU2IYCJm7%7E85P&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-09T18:34:28.858793Z'

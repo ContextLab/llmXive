@@ -1,67 +1,56 @@
 # Data Model: Predicting Plant Stress Response from Publicly Available Proteomic Data
 
 ## 1. Entity Relationship Overview
+The model captures the flow from raw proteomic / transcriptomic files to a unified training matrix and final model artefacts.
 
-The data model supports the ingestion of raw proteomic and transcriptomic data, their harmonization via identifier mapping, and the creation of a unified training matrix.
-
-### 1.1 Key Entities
-
--   **ProteomicSample**: A measurement of protein abundance for a specific sample.
--   **TranscriptomicSample**: A measurement of gene expression for a specific sample.
--   **StressCondition**: The environmental stress applied (Drought, Salinity, Heat).
--   **UnifiedMatrix**: The final dataset where rows are samples, columns are protein features, and the target is gene expression.
+### Key Entities
+- **ProteomicSample** – protein abundance vector for a single plant sample.  
+- **TranscriptomicSample** – gene expression vector for the same sample.  
+- **StressCondition** – categorical label (`Drought`, `Salinity`, `Heat`).  
+- **UnifiedMatrix** – rows = samples; columns = normalized protein features; target = gene expression value.  
 
 ## 2. Data Flow
-
-1.  **Raw Ingestion**: Downloaded files (GEO/ProteomeXchange) -> `data/raw/`.
-2.  **Preprocessing**:
-    -   Filter low-abundance proteins.
-    -   Impute missing values (LCM).
-    -   Map IDs (Protein -> Gene).
-    -   Merge Proteomic + Transcriptomic.
-    -   Output -> `data/processed/unified_matrix.csv`.
-3.  **Modeling**:
-    -   Split by Stress Condition.
-    -   Train/Test split.
-    -   Output -> `results/model_artifacts/`.
+1. **Raw Ingestion** → `data/raw/` (downloaded files).  
+2. **Preprocessing** (filter, impute, map IDs) → `data/processed/unified_matrix.csv`.  
+3. **Modeling** (split, train, evaluate) → `results/models/` & `results/figures/`.  
 
 ## 3. Schema Definitions
 
-### 3.1 Raw Data Schema (Proteomic)
-
+### 3.1 Raw Proteomic Schema
 | Column | Type | Description |
-| :--- | :--- | :--- |
-| `sample_id` | string | Unique sample identifier. |
-| `protein_id` | string | Protein accession (e.g., UniProt). |
-| `abundance` | float | Raw abundance value. |
-| `stress` | string | Stress condition (Drought, Salinity, Heat). |
-| `species` | string | Plant species (Arabidopsis, Rice, Wheat). |
+|--------|------|-------------|
+| `sample_id` | string | Unique identifier. |
+| `protein_id` | string | UniProt accession. |
+| `abundance` | number | Raw intensity. |
+| `stress` | string | `Drought`, `Salinity`, or `Heat`. |
+| `species` | string | `Arabidopsis`, `Rice`, or `Wheat`. |
 
-### 3.2 Raw Data Schema (Transcriptomic)
-
+### 3.2 Raw Transcriptomic Schema
 | Column | Type | Description |
-| :--- | :--- | :--- |
-| `sample_id` | string | Unique sample identifier (must match Proteomic). |
-| `gene_id` | string | Gene accession (e.g., Ensembl). |
-| `expression` | float | Raw expression count (TPM/FPKM). |
-| `stress` | string | Stress condition. |
+|--------|------|-------------|
+| `sample_id` | string | Must match proteomic `sample_id`. |
+| `gene_id` | string | Ensembl gene accession. |
+| `expression` | number | TPM/FPKM value. |
+| `stress` | string | Same as proteomic. |
+| `species` | string | Same as proteomic. |
+
+### 3.3 Processed Unified Matrix Schema
+| Column | Type | Description |
+|--------|------|-------------|
+| `sample_id` | string | Unique ID. |
+| `stress` | string | Stress label. |
 | `species` | string | Plant species. |
+| `protein_<ID>` | number | Normalized abundance for each protein (dynamic columns). |
+| `target_gene_expression` | number | Mapped gene expression (regression target). |
 
-### 3.3 Unified Matrix Schema (Processed)
-
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| `sample_id` | string | Unique sample ID. |
-| `stress` | string | Stress condition. |
-| `species` | string | Plant species. |
-| `protein_1` | float | Normalized abundance of Protein 1. |
-| `protein_2` | float | Normalized abundance of Protein 2. |
-| ... | float | ... |
-| `target_gene_expression` | float | Mapped gene expression (Target). |
+*All processed files must validate against `contracts/dataset.schema.yaml`.*
 
 ## 4. Constraints & Rules
+- **Uniqueness**: (`sample_id`, `protein_id`) unique in raw proteomics.  
+- **Completeness**: Samples lacking a matching transcriptomic record are dropped (FR‑003).  
+- **Imputation**: LCM applied to protein abundances; any column where > 90 % are missing is dropped and logged.  
+- **Mapping**: Only rows with successful `biomaRt` mapping survive to the unified matrix.  
+- **No In‑Place Modification**: Raw files remain untouched; every transformation writes a new file under `data/processed/`.  
 
--   **Uniqueness**: `sample_id` + `protein_id` must be unique in raw proteomic data.
--   **Completeness**: Samples without a matching transcriptomic counterpart are dropped.
--   **Imputation**: Missing values in `abundance` are filled using LCM; missing values in `expression` are dropped (if >10% missing) or imputed (if <10%).
--   **Mapping**: Only rows where `protein_id` successfully maps to a `gene_id` are retained.
+---
+

@@ -23,16 +23,16 @@ properties:
   target_gene_expression:
     type: "number"
     description: "Normalized gene expression value (target)."
-  protein_features:
-    type: "array"
-    description: "List of normalized protein abundance values."
-    items:
-      type: "number"
-    minItems: 1
+additionalProperties:
+  type: "number"
+  description: "Dynamic protein feature columns matching the pattern ^protein_.*$"
+patternProperties:
+  "^protein_.*$":
+    type: "number"
+    description: "Normalized protein abundance for a specific protein."
 required:
   - "sample_id"
   - "stress"
   - "species"
   - "target_gene_expression"
-  - "protein_features"
 additionalProperties: false
