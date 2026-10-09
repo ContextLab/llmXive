@@ -44,3 +44,24 @@ def test_replan_uses_current_template_and_preserves_requirements(tmp_path):
     (tmp_path / ".specify/templates/tasks-template.md").unlink()
     fallback = TaskerAgent().build_prompt(context, mechanical)
     assert "Stale template" in fallback[1].content
+
+
+def test_contract_evidence_resolves_active_feature_without_masking_explicit_paths(tmp_path):
+    from llmxive.agents.task_verifier import gather_evidence
+    from llmxive.project_paths import resolve_project_path
+
+    project = tmp_path / "PROJ-1"
+    feature = project / "specs/001-study"
+    contract = feature / "contracts/summary.schema.yaml"
+    contract.parent.mkdir(parents=True)
+    (feature / "spec.md").write_text("The active research specification")
+    contract.write_text("type: object\nrequired: [N, p, total_variation]\n")
+    task = "T007 Test that generated summary data conforms to contracts/summary.schema.yaml"
+    assert "total_variation" in gather_evidence(project, task)
+    assert "MISSING" not in gather_evidence(project, task)
+    explicit = resolve_project_path(project, "projects/PROJ-1/contracts/summary.schema.yaml")
+    assert explicit == project / "contracts/summary.schema.yaml"
+    assert not explicit.exists()
+    explicit.parent.mkdir()
+    explicit.write_text("project root schema takes precedence")
+    assert resolve_project_path(project, "contracts/summary.schema.yaml") == explicit

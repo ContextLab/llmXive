@@ -84,6 +84,13 @@ def resolve_project_path(project_dir: Path, rel: str) -> Path | None:
         feature = feature_dir_for(project_dir, track="research")
         if feature is not None:
             path = feature.joinpath(*relative.parts[2:])
+    elif not explicit and not path.exists() and relative.parts[:1] == ("contracts",):
+        # Spec Kit contract paths are relative to the active feature. Never
+        # borrow a contract for an explicit repo-rooted or existing root path.
+        from llmxive.state.project import feature_dir_for
+        feature = feature_dir_for(project_dir, track="research")
+        if feature is not None:
+            path = feature / relative
     elif not explicit and not path.exists() and "/" not in rel and _SPEC_DOC_RE.fullmatch(rel):
         from llmxive.state.project import feature_dir_for
         feature = feature_dir_for(project_dir, track="research")

@@ -22,3 +22,9 @@ Validation: 14 tasker context/engine integration tests pass. The new file-backed
 context regression includes the real templates, a stale project template,
 verified work, all original parameter constraints, and concrete failed-import
 feedback. Actual generated task-count improvement awaits a new live planning pass.
+
+A further live check found the T007 schema already existed under the active
+feature, but `contracts/summary.schema.yaml` resolved only at the project root.
+Contract shorthand now resolves to the active feature when no root artifact
+exists. Explicit repo-rooted paths and existing root contracts retain precedence.
+The file-backed regression checks both valid evidence and these boundaries.
