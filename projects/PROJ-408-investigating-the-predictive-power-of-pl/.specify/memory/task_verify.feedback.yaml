@@ -1,0 +1,135 @@
+T001a:
+  task: 42aee1614264e02fa45f195dfea63f24797daf11b658dd887cab61b8155634e2
+T001b:
+  reason: The only artifact is the `scripts/setup_project.py` source file; there is
+    no evidence that the script was actually run (e.g., execution logs, created directory
+    listings, or a timestamped marker). Without proof that the repository structure
+    was initialized, the task requirement is not satisfied.
+  task: 64019b81bbdfb8fa022e779b27598522807ebce8f91c791b5f3cbee567763682
+T002:
+  reason: "The provided `requirements.txt` contains all required package names, but\
+    \ it does not pin them to specific versions (e.g., `biopython==1.79`). The task\
+    \ explicitly calls for \u201Cpinned Python dependencies,\u201D so version specifications\
+    \ are missing. Adding exact version numbers for each package is needed to satisfy\
+    \ the requirement."
+  task: aa8810e34b229200063716c7ef87450f6ef641e72621a6c944e8b18376fcac06
+T002a:
+  reason: No installation logs, command outputs, or scripts are present to demonstrate
+    that `mafft` and `fasttree` (or the fallback `fasttree-mt`) were installed via
+    `apt-get` and that their versions were verified in the PATH. Without such artifacts,
+    the requirement cannot be confirmed.
+  task: 3cb74f6077a33f3401b6f5e7beab9b184cafce4790d36194d5e71fe6329d1791
+T003:
+  reason: The provided `pyproject.toml` config includes `F401` but does not list `ANN001`,
+    and there is no `ruff.toml` file at all. Consequently the required enforcement
+    of both `F401` and `ANN001` is not satisfied. Adding `ANN001` to the `select`
+    list (or creating a `ruff.toml` with both codes) is needed.
+  task: 02a78e2abf520fbc390a519b5eb92ccd5391b87606e0516d01840b85b77f0285
+T004:
+  task: a04776d2daf58b2a9b67f00f74d9e68380884a26051712d67f3882f2016d7b14
+T005:
+  task: aad8f491592c45b0a7eb5af9757e274c90a3a137167932801c3a758d345b8bb3
+T006:
+  task: 1c24503010fd3d53c751de1849b2b8bc82749fb1d842021e0871ded6cff9b391
+T007:
+  task: 38c6d7187c727b91c147de9cc2f50646f76f47539a52e1b4e409168fe69d8c2d
+T008:
+  reason: 'declared artifact(s) missing/empty/invalid: code/validate_env.py'
+  task: 251e08c6f84d2a9cecf4cd44cdbb60908961bca4a4b253a70225255b81588b03
+T009:
+  reason: 'declared artifact(s) missing/empty/invalid: data/raw/species_list.txt,
+    scripts/fetch_species_list.py'
+  task: d8e92d61c3a9e995039b56c16687dad54a5f443a3643145ed57336197a59b5e8
+T010:
+  task: 27878c8cd2bbaeaad8acd0f11f48232b66fcec325d49ad6e7eff68221f8de1f2
+T011a:
+  reason: 'declared artifact(s) missing/empty/invalid: data/raw/test_species_10.txt'
+  task: 28ead31a50df7718f5aeff714c2d102156f06c3d757d42118439be073f6f212e
+T011b:
+  reason: 'declared artifact(s) missing/empty/invalid: data/raw/test_species_10.txt,
+    data/processed/test_tree.newick'
+  task: 7184ef2bf92eb157307b7f1aae6598dec1776bf47670c9f6e53ecbebe39d8758
+T012:
+  task: e458cba70ed318e8364335845b47f7ef66520c4d60d4673fdf01b45efe0ed4fc
+T013a:
+  task: bc012773834e1cea2c590438916f196da497f7d2f1f7fdb43cb3d58b417ff737
+T013b:
+  task: 9f1921067c2d318a7d31aa0c11f6bf6f1a712b0e131e84a2281fe1e98e212858
+T014:
+  task: a72312f7355519a3f828db4f5618d1970f84b38b7225d6b3c92140e973cb7972
+T015a:
+  task: 1e65473c7fc0ca4d869ffbc6c4656e35e9370193858382096cb5d62877736d80
+T015b:
+  task: 44c1f63f398e87b28691438d9c5ce35b6cc3093e6511047e72b7f8e06f974993
+T016a:
+  task: 4cf2a42276c2c0ca08980181cf6591f2b95e37179ae65348c22216e7ae153960
+T016b:
+  task: 96603c2ebb6e44d46269a29f1db0aefee521769209ea0b47d78e0ae0259ea83d
+T017:
+  task: 6fe23e9a0c1a76607dec8443e2ab711cef8e17a39fede9f48e578327ec5bc415
+T018:
+  task: 6b5c33402d8e921c73c417bbdbff2cd14282ea4a9eb7f6711dd1c7be45f07b35
+T019:
+  task: 9088d8804e474e916d26a36a70f53e346306ea7a8abc631effd4f207ba4a2b26
+T020a:
+  task: 10dbff309218a22586eeb07f8953c1483895789803489162bb8c244b15a39369
+T020b:
+  task: b5d6c83b40429df3aafaab1b92c588437ea700997caf99b90d56b84ec2845b28
+T021:
+  task: 0bb4e61734aa9b6d7216716a8c69d061a52c772a03e66172416e79b594f1a606
+T022:
+  task: 81bc45bb80d4c9490ae0102865654d3f3ad6cbe14446ad912bc03b4de2a6aeff
+T023:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/phylo_dist_matrix.csv,
+    data/processed/climate_dist_matrix.csv, data/processed/partial_mantel_results.json'
+  task: 64bdb2e883eda4d3020bc1c762a24c44da4c81f8724622084e0ffd0a96d666e0
+T024:
+  task: e0f234a36f59fb40a3de280807c837473451068491d0af464ef3ab4dc91a7520
+T025:
+  task: 687fbda5703583b6790abad2f9ebfdb23954f7d80b3c40634829368f7d1bf296
+T025b:
+  task: c679e2957641fcf973e08057b97305cd9f67b26f0a2d726f9843dddc9f880dba
+T026:
+  task: 2824591b36424253477b14c40d2e73225e0194f9279be044a010a0540bfc5027
+T027:
+  task: d5e6959690440f2d1229ac930d41fa8f2af53e3a28d921e0ddbf09802655e7bc
+T028:
+  task: 7dfdbd8b9c628ee0f80cd2cf1bec73f1d59e115f4d9472782d62d175fef76925
+T029:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/contract/baselines/phylo_metabolite_heatmap.png'
+  task: 131b0183b30dbd6554ec498622788ce99a858915daeec6549343f610533182f6
+T030:
+  reason: 'declared artifact(s) missing/empty/invalid: code/viz.py'
+  task: b1082dc40d90d75a327d0af9fc1036a06135dff1cf5d1e109f25143f7fecf6ce
+T031:
+  reason: 'declared artifact(s) missing/empty/invalid: code/viz.py'
+  task: dc94d8a5f3e346057dfd65c6f5adfb9d1e11a8033c63189386cabee74e51c54f
+T032:
+  task: 3dfb6eae1cc78bf0421ea30cc0c3cdbc0664965072f0c9fb38eca7938b48aedf
+T033:
+  task: f18297e5b4c8b37eda696cfbb9a052f1fe6a1759a62b8f112f770c6cfa63fefb
+T034a:
+  reason: 'declared artifact(s) missing/empty/invalid: docs/README.md'
+  task: 2b2613be407978129be9f90dc5e737ca2c3e23e42b8d072978dbcf9a740d2f49
+T034b:
+  reason: 'declared artifact(s) missing/empty/invalid: docs/quickstart.md'
+  task: fe3638aea8b97a8b94847a6d9b201140be2ea34fbe51f262727f930b325ce501
+T036:
+  task: 1f9dacbf6d5a3c0305a1fbfc810f13736c43167c52e97777e26be404ac0a63ad
+T037:
+  task: 7a066c0d0167197db6aa37cf0ffbc2c6b5b08dab7c57d9d1d68e5caab64e5bf5
+T037a:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/runtime_metrics.json'
+  task: 213318f0496fa4f4ef770a625587916e91580b9aeecd750d37d8885bfa049276
+T038:
+  task: d78b3c8e9a8a55753eb7437e5d4b646372b7fc4fd29ac8e750be44d12d79935a
+T039:
+  task: f0c4d7406a4ee5e81ddd72a7c4e319b3ccf70f7111d848c2c856f78d76ef4a48
+T040:
+  task: f04dd3f1eb6205d64e61912b4a28b03c00a6b0ff7272b9c1e7528e283ca6917c
+T041:
+  task: e992eaa25592e12430a14ab9a8338cff952001bb0903f583f8cec8427b2a3d18
+T042:
+  task: f91c92cdfe08c7c148c55c1253cb051f55236d5ff5abac71a92122997ec722e1
+T043:
+  task: 64bfae0f5327c2ab855b86dcf945fe275b8bca7b42074225e667d1f7c9729f9b

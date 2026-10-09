@@ -9,4 +9,4 @@ lxml
 matplotlib
 seaborn
 pytest
-pytest-mpl
+# Added for the audit script (no new runtime dependencies beyond stdlib)

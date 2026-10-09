@@ -1,15 +1,15 @@
 status: none
-intent: plant phylogenetic and metabolite dataset NCBI taxonomy GenBank KEGG python
-  package dataset
+intent: KEGG plant secondary metabolite dataset python package NCBI GenBank 18S rRNA
+  rbcL matK
 required_fields:
+- tax_id
 - species_name
-- ncbi_taxonomy_id
 - kegg_organism_code
-- 18S_rRNA_sequence
-- rbcL_sequence
-- matK_sequence
-- metabolite_id
-- metabolite_presence_binary
-cache_key: e0d75fe0963a4510525cdd872e1da4c59ed12853b64c05b5e5d11d92588f8da5
-searched_at: '2026-09-02T14:21:32.015517+00:00'
+- gene_18S_sequence
+- gene_rbcL_sequence
+- gene_matK_sequence
+- metabolite_compound_ids
+- metabolite_presence_absence_vector
+cache_key: ea542efab2017aefb6008841f6796c9182b5778f0fcd04b0cce15492c232ebf0
+searched_at: '2026-10-09T05:17:45.769362+00:00'
 retry_count: 1

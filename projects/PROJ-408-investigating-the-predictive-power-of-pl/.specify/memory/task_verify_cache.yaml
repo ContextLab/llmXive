@@ -1,3 +1,46 @@
+T001a:
+  c: true
+  h: 538e3029f06b5c90966d7ff6d25435dd26dc53c5cdde3bd7b5c594c34dac538e
+  r: "The repository contains a non\u2011empty `scripts/setup_project.py` that programmatically\
+    \ creates each of the required directories (`code/`, `data/raw/`, `data/processed/`,\
+    \ `output/figures/`, `output/reports/`, `tests/`, `tests/contract/schemas/`) when\
+    \ executed. No required artifact is missing or placeholder."
+T001b:
+  c: false
+  h: 4bea2ed4385422133f4d088a9b2d237def0a528dc2e774e2b499cca31728ab9d
+  r: The only artifact is the `scripts/setup_project.py` source file; there is no
+    evidence that the script was actually run (e.g., execution logs, created directory
+    listings, or a timestamped marker). Without proof that the repository structure
+    was initialized, the task requirement is not satisfied.
+T002:
+  c: false
+  h: e297ca36ba054b4a1446457a4c6823567a570f34966bef84402c09af1f1a9dee
+  r: "The provided `requirements.txt` contains all required package names, but it\
+    \ does not pin them to specific versions (e.g., `biopython==1.79`). The task explicitly\
+    \ calls for \u201Cpinned Python dependencies,\u201D so version specifications\
+    \ are missing. Adding exact version numbers for each package is needed to satisfy\
+    \ the requirement."
+T002a:
+  c: false
+  h: ef89aa5f1863cdafb807c41c7342f533208edcc85f2cf2a7c3df56cbab7eaaa3
+  r: No installation logs, command outputs, or scripts are present to demonstrate
+    that `mafft` and `fasttree` (or the fallback `fasttree-mt`) were installed via
+    `apt-get` and that their versions were verified in the PATH. Without such artifacts,
+    the requirement cannot be confirmed.
+T003:
+  c: false
+  h: 2c15abaa9bf96cf085ebf98619493d88c407d0409c6a8acb14ba0dec1c9e691b
+  r: The provided `pyproject.toml` config includes `F401` but does not list `ANN001`,
+    and there is no `ruff.toml` file at all. Consequently the required enforcement
+    of both `F401` and `ANN001` is not satisfied. Adding `ANN001` to the `select`
+    list (or creating a `ruff.toml` with both codes) is needed.
+T004:
+  c: true
+  h: 665d0e5614da3cbcd3ede2b0ec73648f6d799adfef82fe1625b6c829ee43ce0e
+  r: "The repository contains a non\u2011empty `code/config.py` (\u22488\u202FKB)\
+    \ that defines a `Config` dataclass handling project paths, loading API keys from\
+    \ environment variables, setting a global random seed, and exposing a `retention_threshold`\
+    \ defaulted to\u202F0.80, fulfilling the task\u2019s specification."
 T020a:
   c: false
   h: 41e8a9334a4ceb430cd53300bc4de2302e4869f38fadb03fadc4cd96f58df0e0
