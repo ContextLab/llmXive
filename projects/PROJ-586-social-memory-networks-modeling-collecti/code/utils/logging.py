@@ -2,6 +2,16 @@
 
 Implements FR-010: Error logging with timestamps to `experiment.log`.
 Log format: `[TIMESTAMP] [LEVEL] [MODULE] Message`.
+
+This module is self-contained and does NOT delegate to the stdlib
+``logging`` module: stdlib ``Logger.log(level, msg)`` needs an integer
+level and has no ``to_json`` — that hybrid is what kept breaking
+callers. Every symbol callers need (``get_logger``,
+``log_operation``, ``ReproducibilityLogger``, ``LogEntry``) is defined
+here, direct ``log_operation(...)`` calls return a ``LogEntry`` (with
+``.to_json()``), ``@log_operation`` works as a decorator, and any
+``.info``/``.debug``/``.warning``/``.error`` attribute resolves via
+``__getattr__`` to a tolerant logging method that never raises.
 """
 from __future__ import annotations
 
@@ -10,7 +20,7 @@ import json
 import os
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from typing import Any, TextIO
+from typing import Any
 
 
 @dataclass
@@ -37,8 +47,8 @@ class LogEntry:
 class ReproducibilityLogger:
     """Accepts ANY call shape and never raises.
 
-    Implements FR-010: Writes to `experiment.log` in the project root.
-    Log format: `[TIMESTAMP] [LEVEL] [MODULE] Message`.
+    Implements FR-010: writes to `experiment.log` in the project root
+    using the format `[TIMESTAMP] [LEVEL] [MODULE] Message`.
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
@@ -49,22 +59,25 @@ class ReproducibilityLogger:
 
     def _init_log_file(self) -> None:
         """Initialize the log file path and ensure directory exists."""
-        # Determine project root: assume code/utils/ is 2 levels deep
         current_dir = os.path.dirname(os.path.abspath(__file__))
         project_root = os.path.dirname(os.path.dirname(current_dir))
         self._log_file_path = os.path.join(project_root, "experiment.log")
-        # Ensure directory exists (though project_root should exist)
         os.makedirs(os.path.dirname(self._log_file_path), exist_ok=True)
 
     def _write_to_file(self, entry: LogEntry) -> None:
-        """Append formatted log entry to experiment.log."""
-        if self._log_file_path:
-            with open(self._log_file_path, "a", encoding="utf-8") as f:
-                f.write(entry.format_line() + "\n")
+        """Append formatted log entry to experiment.log; never raise."""
+        try:
+            if self._log_file_path:
+                with open(self._log_file_path, "a", encoding="utf-8") as f:
+                    f.write(entry.format_line() + "\n")
+        except OSError:
+            # Logging must never break the pipeline (FR-010: continue
+            # processing remaining games even on log-write conflicts).
+            pass
 
     def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
         op = args[0] if args else kwargs.get("operation", "")
-        level = kwargs.get("level", "INFO").upper()
+        level = str(kwargs.get("level", "INFO")).upper()
         module = kwargs.get("module", self.name)
         message = kwargs.get("message", str(op))
 
@@ -73,28 +86,34 @@ class ReproducibilityLogger:
             parameters=dict(kwargs),
             level=level,
             module=module,
-            message=message
+            message=message,
         )
         self.entries.append(entry)
         self._write_to_file(entry)
         return entry
 
-    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op (but log)
+    # .info/.debug/.warning/.error/.critical/... -> tolerant logging
     def __getattr__(self, name: str):
         def _log_method(*args: Any, **kwargs: Any) -> None:
-            # Map method name to level if known
             level_map = {
                 "info": "INFO",
                 "debug": "DEBUG",
                 "warning": "WARNING",
+                "warn": "WARNING",
                 "error": "ERROR",
                 "critical": "CRITICAL",
-                "fatal": "FATAL"
+                "fatal": "FATAL",
+                "exception": "ERROR",
             }
             level = level_map.get(name.lower(), "INFO")
-            # args[0] is usually the message
             msg = args[0] if args else ""
-            self.log(operation=msg, level=level, module=self.name, message=msg)
+            self.log(
+                operation=str(msg),
+                level=level,
+                module=self.name,
+                message=str(msg),
+            )
+
         return _log_method
 
 
@@ -102,6 +121,7 @@ _GLOBAL_LOGGER: "ReproducibilityLogger | None" = None
 
 
 def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+    """Return the shared tolerant logger (accepts any call shape)."""
     global _GLOBAL_LOGGER
     if _GLOBAL_LOGGER is None:
         _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
@@ -111,9 +131,9 @@ def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
 def log_operation(*args: Any, **kwargs: Any) -> Any:
     """Dual-purpose: a decorator (@log_operation) OR a direct logging call.
 
-    The direct-call path ALWAYS returns a LogEntry (callers use .to_json());
-    decorator use returns the wrapped function. Never return a bare function
-    from the direct-call path.
+    The direct-call path ALWAYS returns a LogEntry (callers use
+    .to_json()); decorator use returns the wrapped function. Never
+    return a bare function from the direct-call path.
     """
     if len(args) == 1 and callable(args[0]) and not kwargs:
         func = args[0]

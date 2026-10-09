@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 [P] Create `code/` directory structure with subpackages (agent, memory, metrics, analysis, data, utils, tests)
-- [X] T002 [P] Initialize Python virtual environment and install dependencies from `requirements.txt`.
+- [ ] T002 [P] Initialize Python virtual environment and install dependencies from `requirements.txt`.
 - [X] T003 [P] Configure linting (flake8) and formatting (black) tools in `code/.pre-commit-config.yaml`
 
 ---
@@ -55,17 +55,20 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 [P] **Verify Dataset URLs**: Implement `code/data/loaders.py` to verify the existence of data sources.
+- [ ] T004 [P] **Verify Dataset URLs**: Implement `code/data/loaders.py` to verify the existence of data sources.
  1. **Hanabi**: Use `gymnasium.make('hanabi-v0')`. If this fails, log the error but DO NOT fallback yet.
  2. **CoQA**: Use `datasets.load_dataset('coqa')`. If this fails, log the error but DO NOT fallback yet.
  3. If a dataset is missing or unreachable, the verification step must log a clear warning but allow the pipeline to proceed to the fallback integration task (T004c) which will handle the final decision. (FR-001, FR-011)
  4. **Output**: Write verification status to `data/verification_status.json` with schema `{"dataset_name": str, "status": "verified"|"missing", "timestamp": str}`. (Executability)
-- [ ] T004b [P] **Implement Synthetic Fallback**: Implement `code/data/synthetic.py` to create a set of synthetic cue-response pairs (minimum 10) from available context spans if explicit cues are missing. This task MUST NOT be called during the verification phase (T004). It is only to be used as a fallback mechanism if the real dataset fetch fails during the actual run. (FR-011)
-- [X] T004c [P] **Integrate Fallback Logic**: Update `code/data/loaders.py` to call T004b ONLY if T004 verification fails AND the real dataset fetch fails during the actual run. Ensure no silent fallbacks occur during the verification phase. If the real fetch fails, log the fallback usage to `experiment.log` with specific format: `[FALLBACK] Synthetic cues generated for dataset [NAME]`. (FR-001, FR-011)
-- [X] T005 [P] Implement base Agent abstraction using CPU-only `transformers` (model: `facebook/opt-*`, precision: standard floating-point) in `code/agent/base_agent.py`. Ensure no CUDA imports. (FR-002)
-- [ ] T006 [P] Implement shared external memory buffer in `code/memory/buffer.py`: Support `<MEMORY_ACTION>` tokens with JSON schema `{"type": "write"|"read", "key": str, "value": str}`. Implement queue-based write conflict resolution. (FR-003, FR-012)
-- [ ] T007 [P] Configure error logging with timestamps to `experiment.log` in `code/utils/logging.py`. Log format: `[TIMESTAMP] [LEVEL] [MODULE] Message`. (FR-010)
-- [X] T008 [P] Create `code/utils/config.py` with explicit configuration: `seed=42`, `device="cpu"`, `model_name="facebook/opt-125m"`. Ensure these are the default values used by all agents. (FR-002)
+- [X] T004b [P] **Implement Synthetic Fallback**: Implement `code/data/synthetic.py` to create a set of synthetic cue-response pairs (minimum 10) from available context spans if explicit cues are missing. This task MUST NOT be called during the verification phase (T004). It is only to be used as a fallback mechanism if the real dataset fetch fails during the actual run. (FR-011)
+- [ ] T004c [P] **Integrate Fallback Logic**: Update `code/data/loaders.py` to call T004b ONLY if T004 verification fails AND the real dataset fetch fails during the actual run. Ensure no silent fallbacks occur during the verification phase. If the real fetch fails, log the fallback usage to `experiment.log` with specific format: `[FALLBACK] Synthetic cues generated for dataset [NAME]`. (FR-001, FR-011)
+- [~] T005 [P] Implement base Agent abstraction using CPU-only `transformers` (model: `facebook/opt-*`, precision: standard floating-point) in `code/agent/base_agent.py`. Ensure no CUDA imports. (FR-002)
+- [~] T006 [P] Implement shared external memory buffer in `code/memory/buffer.py`: Support `<MEMORY_ACTION>` tokens with JSON schema `{"type": "write"|"read", "key": str, "value": str}`. Implement queue-based write conflict resolution. (FR-003, FR-012) <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
+  in "<unicode string>", line 4, column 14:
+          {"type": "write"|"read", "key": str, "v ... 
+                 ^) -->
+- [~] T007 [P] Configure error logging with timestamps to `experiment.log` in `code/utils/logging.py`. Log format: `[TIMESTAMP] [LEVEL] [MODULE] Message`. (FR-010)
+- [~] T008 [P] Create `code/utils/config.py` with explicit configuration: `seed=42`, `device="cpu"`, `model_name="facebook/opt-125m"`. Ensure these are the default values used by all agents. (FR-002)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -81,12 +84,12 @@
 
 > **NOTE**: Tests are written first (TDD) but depend on implementation for execution
 
-- [X] T009 [P] [US-1] Contract test for game result schema in `code/tests/contract/test_game_result.py`
-- [X] T010 [P] [US-1] Integration test for full-context simulation in `code/tests/integration/test_full_context.py`
+- [~] T009 [P] [US-1] Contract test for game result schema in `code/tests/contract/test_game_result.py`
+- [~] T010 [P] [US-1] Integration test for full-context simulation in `code/tests/integration/test_full_context.py`
 
 ### Implementation for User Story 1
 
-- [ ] T011 [S] [US-1] Implement CLI flag parsing in `code/run_experiment.py`: Accept `--context {full,limited}`, `--agents N`, and `--dataset {hanabi,coqa}`. If dataset is missing or URL not in verified block, proceed to the synthetic fallback mechanism (T004b) with explicit error logging. (FR-001) <!-- FAILED: unspecified -->
+- [ ] T011 [S] [US-1] Implement CLI flag parsing in `code/run_experiment.py`: Accept `--context {full,limited}`, `--agents N`, and `--dataset {hanabi,coqa}`. If dataset is missing or URL not in verified block, proceed to the synthetic fallback mechanism (T004b) with explicit error logging. (FR-001) <!-- FAILED: unspecified --> <!-- FAILED-IN-EXECUTION: code/run_experiment.py exit=1 -->
 - [ ] T011c [S] [US-1] **IMPLEMENTATION**: Implement dataset loading logic in `code/run_experiment.py`: Integrate `loaders.py` and `synthetic.py`.
  1. **Streaming**: Use `datasets.load_dataset(..., streaming=True)` for CoQA to handle large files.
  2. **Hanabi**: Use `gymnasium.make('hanabi-v0')`.
@@ -97,7 +100,7 @@
 - [ ] T011b [S] [US-1] **DEPENDENCY: T011c must complete before T011b.** Implement game simulation loop in `code/run_experiment.py`: Orchestrate agents, memory buffer, and turn-based interaction for a single game. Protocol: (1) Agent observes state, (2) Agent generates action/memory, (3) Buffer updates, (4) Next agent. **Termination Condition**: Game ends when all cards are played or `max_turns=50` is reached. Output a single game result row with `game_id`, `specialization_index`, `retrieval_efficiency`. Dependencies: T011c. (FR-004, FR-005)
 - [ ] T012 [P] [US-1] Implement specialization index computation in `code/metrics/specialization.py`: Calculate distribution-based metric of per-agent fact contribution, bounded within a non-negative range. Include validation logic to log failures if bounds are violated. (FR-004)
 - [ ] T013 [P] [US-1] Implement cue-retrieval efficiency in `code/metrics/retrieval.py`: Calculate proportion of successful retrievals vs. a theoretical baseline derived from the number of agents. Include validation logic to log failures if metric is out of bounds [0, 1]. (FR-005)
-- [X] T015 [S] [US-1] **Output `results_full.csv`**: Write to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/results_full.csv`.
+- [~] T015 [S] [US-1] **Output `results_full.csv`**: Write to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/results_full.csv`.
  **Columns**: `game_id` (int), `specialization_index` (float), `retrieval_efficiency` (float), `context_condition` (str), `agent_count` (int).
  **Game Count Logic**:
  1. Read `N` from `os.environ.get('SIMULATION_GAME_COUNT', '200')`. The specific value to remove/generalize: 'DEFAULT_COUNT'
@@ -119,7 +122,7 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [ ] T016 [P] [US-2] Contract test for ANOVA output schema in `code/tests/contract/test_anova.py`
-- [X] T017 [P] [US-2] Integration test for limited-context simulation in `code/tests/integration/test_limited_context.py`
+- [~] T017 [P] [US-2] Integration test for limited-context simulation in `code/tests/integration/test_limited_context.py`
 
 ### Implementation for User Story 2
 
@@ -130,7 +133,7 @@
  **Schema**: `token_limit` (int), `game_id` (int), `specialization_index` (float), `retrieval_efficiency` (float), `context_condition` (str).
  **Error Handling**: If `results_sensitivity.csv` is not generated, raise `FileNotFoundError`.
  Dependencies: T011b, T011c. (FR-008, US-2)
-- [X] T019 [S] [US-2] **Output `results_limited.csv`**: Write to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/results_limited.csv` with same metrics for N games.
+- [~] T019 [S] [US-2] **Output `results_limited.csv`**: Write to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/results_limited.csv` with same metrics for N games.
  **Game Count Logic**: Read `N` from `os.environ.get('SIMULATION_GAME_COUNT', '200')`. Validate as in T015.
  **Data Source**: Derive from `results_sensitivity.csv` (T018) by filtering for `context_condition="limited"`.
  Dependencies: T011b, T018. (US-2)
@@ -142,15 +145,15 @@
  **Output**: Compute and report the interaction p-value for the term `C(context_condition):C(metric_name)`.
  Dependencies: T015, T019. (FR-006)
 - [ ] T021 [P] [US-2] Apply Bonferroni correction to all family‑wise hypothesis tests and report corrected α in `code/analysis/anova.py`. (FR-007)
-- [X] T022 [S] [US-2] **IMPLEMENTATION**: Implement sensitivity analysis in `code/analysis/sensitivity.py`.
+- [~] T022 [S] [US-2] **IMPLEMENTATION**: Implement sensitivity analysis in `code/analysis/sensitivity.py`.
  **Input**: Read `results_sensitivity.csv` generated by T018.
  **Check**: If file is missing, raise `FileNotFoundError("results_sensitivity.csv not found. Run T018 first.")`.
  **Aggregation**: Aggregate metrics by token limit {128, 256, 512}.
  **Output**: Write CSV `results/sensitivity_trend.csv` with columns: `token_limit`, `mean_specialization`, `mean_retrieval`, `max_absolute_change`.
  **Calculation**: `max_absolute_change` must be the maximum absolute difference in any metric between any two adjacent thresholds.
  Dependencies: T018. (FR-008)
-- [X] T023 [S] [US-2] Implement power analysis in `code/analysis/power.py`: Estimate detectable effect size for N=200 (using full run data from T015/T019), alpha=0.05, power=0.80. **Requirement**: If the estimated power < 0.70, the system MUST flag a "Power limitation" in the output. (FR-009)
-- [X] T024 [US-2] Generate `power_analysis_report.md` in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/` with results from T023. (SC-004)
+- [~] T023 [S] [US-2] Implement power analysis in `code/analysis/power.py`: Estimate detectable effect size for N=200 (using full run data from T015/T019), alpha=0.05, power=0.80. **Requirement**: If the estimated power < 0.70, the system MUST flag a "Power limitation" in the output. (FR-009)
+- [~] T024 [US-2] Generate `power_analysis_report.md` in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/` with results from T023. (SC-004)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -164,19 +167,19 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T025 [P] [US-3] Contract test for scaling plot schema in `code/tests/contract/test_scaling.py`
-- [X] T026 [P] [US-3] Integration test for agent count variation in `code/tests/integration/test_scaling.py`
+- [~] T025 [P] [US-3] Contract test for scaling plot schema in `code/tests/contract/test_scaling.py`
+- [~] T026 [P] [US-3] Integration test for agent count variation in `code/tests/integration/test_scaling.py`
 
 ### Implementation for User Story 3
 
 - [ ] T027 [S] [US-3] **IMPLEMENTATION**: Implement game simulation for varying agent counts in `code/run_experiment.py`. Run multiple games for varying agent counts (small, medium, and large groups). Dependencies: T011b, T011c. (US-3)
-- [X] T028 [S] [US-3] **IMPLEMENTATION**: Implement power-law fitting in `code/analysis/scaling.py`.
+- [~] T028 [S] [US-3] **IMPLEMENTATION**: Implement power-law fitting in `code/analysis/scaling.py`.
  **Algorithm**: Use `numpy.polyfit` on log-transformed data (`log(N)` vs `log(metric)`) for specialization index and retrieval efficiency.
  **Bootstrapping**: Perform bootstrap resamples to estimate the confidence interval for the slope (beta).
  **Output**: Write results to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_confidence_intervals.json` with schema: `{"metric": str, "beta": float, "ci_lower": float, "ci_upper": float}`.
  Dependencies: T027. (US-3, SC-005)
-- [X] T029 [P] [US-3] Compute confidence intervals for fitted exponents using bootstrapping and output results to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_confidence_intervals.json`. (US-3, SC-005)
-- [X] T030 [S] [US-3] **IMPLEMENTATION**: Generate `scaling_plot.pdf` with fitted power‑law curves.
+- [ ] T029 [P] [US-3] Compute confidence intervals for fitted exponents using bootstrapping and output results to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_confidence_intervals.json`. (US-3, SC-005)
+- [~] T030 [S] [US-3] **IMPLEMENTATION**: Generate `scaling_plot.pdf` with fitted power‑law curves.
  **Library**: Use `matplotlib`.
  **Requirement**: Inject the exact string "a limited number of data points limits power-law reliability" into the figure caption or footnote.
  **Implementation Detail**: Use `plt.suptitle("Scaling Analysis")` AND use `plt.text(0.5, -0.1, f"Note: {N} data points limit power-law reliability", transform=ax.transAxes, ha='center', fontsize=8)` to ensure the string appears in the final PDF. The string must be dynamically generated from the spec requirement, not hardcoded as a static title.

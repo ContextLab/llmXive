@@ -1,0 +1,84 @@
+T001:
+  task: b29cdc5512b4c0fa5720152c04a48e519487568fffb4c30ae49469c695f424ce
+T002:
+  reason: "The only artifact present is the `requirements.txt` file; there is no evidence\
+    \ of a Python virtual environment being created (e.g., a `venv/` directory, `pyproject.toml`,\
+    \ `Pipfile.lock`, or a `pip freeze`/`requirements.txt` generated after installation).\
+    \ Without a concrete virtual environment and installed packages, the task \u201C\
+    initialize Python virtual environment and install dependencies\u201D is not fulfilled."
+  task: bc908e6812dd32b0a1a1af5f72d2c478109f1a6fee943f1b692251363c390390
+T003:
+  task: 01453946ca54184fe4bc64d786139e77e120932392ba597571076124a4d033de
+T004:
+  reason: "The provided `code/data/loaders.py` does not attempt to call `gymnasium.make('hanabi-v0')`\
+    \ or `datasets.load_dataset('coqa')`, nor does it log errors or write a `data/verification_status.json`\
+    \ file with the required schema. Additionally, the `data/verification_status.json`\
+    \ file is absent. The task\u2019s verification and output requirements are therefore\
+    \ unmet."
+  task: 8d01cbc0ff23a0c89f352733bb876c1e4e49e4f3ff10a3637ecc4e576a248a33
+T004b:
+  task: 1c5db1270adc05eb7a7850508361188bf5fa0c4a2da3f9d4a24c82fb7362f452
+T004c:
+  reason: "The `loaders.py` file only defines a synthetic\u2011fallback flag and raises\
+    \ a `KeyError`; it never invokes the T004b synthetic generator, does not tie fallback\
+    \ to a failed verification step, and does not log `[FALLBACK] Synthetic cues generated\
+    \ for dataset [NAME]` to `experiment.log`. Consequently the required fallback\
+    \ logic is not implemented."
+  task: 29d775f2aa7b1b91990aa809ea1ac9fc34d7f023835df482aa7173f0d7fb6425
+T005:
+  task: ad3e7fd62dbe582e91c2635e5d4037dea34bac282a48cf37e3103ae884350c25
+T006:
+  task: 3590aa14f3698d1a0a387583c4cc266bc3a43586bfeb63cca82d708c39731b6b
+T007:
+  task: 3cdec5608329a2ce7d68f7c3aa4c4f5f31469fd2af94943894bd268a71f7971c
+T008:
+  task: a9b08dfef6dda0d16b5caf2a2227ebce5d2610d01f89dc63fc8ea6f09357bc3d
+T009:
+  task: 89834ae107740d005c287c8d36bdd00dba3389a76cf9b38f1a6334b0bf232ffe
+T010:
+  task: 2257795de1a866c3bcf0c801ba2de7ffe9677daedf9e001fdc1695a5f545cedc
+T011:
+  reason: 'Requested task execution failed; rerun successfully: code/run_experiment.py
+    exit=1'
+  task: 66d3742a9cb74f7ef820b69617a06bfd81969ca7abf0230faa3c0d824ed9c03e
+T011b:
+  task: 5101f0af56c5609ed3d1f4637d683d0300db2b9c29e0c5de5fa9122224b551c6
+T011c:
+  task: d35c1f79265046fca9b51477491e152cf6edfcda3bd665fde891efedafd634cd
+T012:
+  task: 4efe88f619664715dd267fa27186d5df4b2bd7b8c620ec589b7eb8f3947593c0
+T013:
+  task: d8d00d4d28ddffd4cd4098933d3ffe889cfac82b159c4df228acd64f44a4d58c
+T015:
+  task: 8c32997c338c4e5bb116d04166ac9bcd77388d7635decbf31579cc0897a6ef2e
+T016:
+  task: 9babe208658112bafcdbc1f0abf60325c67e1890173f96abeb016c42294bfbdb
+T017:
+  task: 2d2886b7be18b477485ff792a56cefbbbea7e1787eb0a51bfa6de235e320a668
+T018:
+  task: bfacb986ba50a0724cd47be19ca42cff9762fcf1d367ffa78e4134f4e7e76376
+T019:
+  task: 08d954233afeb6aa0095816c3470a6680e7a8b01591b5fb1a2c12c9350391b2f
+T020:
+  task: 5fe383a93529227059ac176846921cfea76f7aa4a152fbbc3f8f6f81d1d31a42
+T021:
+  task: 193bdc241da3c9c8c43f5ab7d89bf076cc72bdf8c91df9334e2f8e938a059be4
+T022:
+  task: 4d2afb61edcfe8f0b1b1f9f5d577ad32608d29ab249f73c6ecc02313c86b9389
+T023:
+  task: f5f315b53a5d40da349879d2cfa68412ab8dc1d2208b65ff37f058a177420a6a
+T024:
+  task: 297001bdd3aa0b4d050bf412262490cb121769ce0d8a984bdf2f1f40d922d4f1
+T025:
+  task: ff5fe20825d15e903a1c6e91cc0a029fdd38e084e9c58b037524c05d7b568fd9
+T026:
+  task: 24254f7ba36c008f0d1abb2be0d5be459e0e573076b80e371905723186f93c28
+T027:
+  task: 41fb3701619ca139e6344da88ef14b7ec031dc6f1172fc58d853f542edf4107a
+T028:
+  task: 097db72f49f681c9ec384b01a8f9efb6aa441ce28f6753e5411e4778551b978d
+T029:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_confidence_intervals.json'
+  task: c8307403d854e922fd718edda6aa325e4cac57801875dab2939813c1dc64835b
+T030:
+  task: 3322a38b50b03b137f35fae88cbd5b20020f60191295efdd8c11f1557f81b3b6

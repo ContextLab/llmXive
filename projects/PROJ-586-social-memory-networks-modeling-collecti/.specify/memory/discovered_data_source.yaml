@@ -1,11 +1,16 @@
 status: none
-intent: download multi-agent bidding dialogue dataset with python package dataset
+intent: download Hanabi game trajectory dataset python package dataset
 required_fields:
 - game_id
-- specialization_index
-- cue_retrieval_efficiency
-- num_agents
-- timestamp
-cache_key: c60cdd2ab5129e279a2c321f45732f24599e5beea9fc92e7a33da2c8ac606142
-searched_at: '2026-09-21T21:28:33.494703+00:00'
+- turn_number
+- player_id
+- observed_hand
+- hidden_hand
+- action_type
+- hint_target
+- hint_information
+- reward
+- outcome
+cache_key: f4f4e1e8d716a2f25c59cd761bcdceded0a37bd3ede6878d8ea389c82e3bf3d6
+searched_at: '2026-10-09T09:38:50.173028+00:00'
 retry_count: 1
