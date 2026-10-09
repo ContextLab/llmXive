@@ -1,5 +1,6 @@
 status: none
-intent: privileged information reinforcement learning environment python package dataset
+intent: privileged information MDP environment with teacher student observations python
+  package dataset
 required_fields:
 - full_state
 - privileged_state
@@ -8,9 +9,10 @@ required_fields:
 - action
 - reward
 - next_full_state
-- next_privileged_state
+- next_student_observation
+- next_teacher_observation
 - done
 - seed
-cache_key: 10344eba8973d18848e3d5fc7cf1a1c2a0a886778061004dbae32fc1c381b8de
-searched_at: '2026-09-07T01:40:04.432320+00:00'
+cache_key: 35f782e03deebb7cc14ef75bf1e92bdeee412b061a59ff72c77e08062b58216f
+searched_at: '2026-10-09T19:26:29.097077+00:00'
 retry_count: 1

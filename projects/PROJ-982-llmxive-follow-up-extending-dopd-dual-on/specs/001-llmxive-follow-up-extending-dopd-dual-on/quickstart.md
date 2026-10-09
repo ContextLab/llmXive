@@ -1,80 +1,84 @@
 # Quickstart: llmXive follow-up: extending "DOPD: Dual On-policy Distillation"
 
 ## Prerequisites
-
-- Python 3.11+
-- pip
-- git
+- Python 3.11 or newer  
+- `git` and `pip` installed  
 
 ## Installation
 
-1. **Clone the repository**:
+1. **Clone the repository**  
    ```bash
    git clone <repo-url>
    cd projects/PROJ-982-llmxive-follow-up-extending-dopd-dual-on
    ```
 
-2. **Create a virtual environment**:
+2. **Create a virtual environment**  
    ```bash
    python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   source venv/bin/activate   # Windows: venv\Scripts\activate
    ```
 
-3. **Install dependencies**:
+3. **Install dependencies**  
    ```bash
    pip install -r code/requirements.txt
    ```
-   *Note: `requirements.txt` includes `gym-minigrid`, `numpy`, `scipy`, `pytest`.*
+   *Dependencies are pure‑Python (`numpy`, `scipy`, `pyyaml`, `pytest`).*
 
-## Running the Experiments
+## Running Experiments
 
-### 1. Run a Single Seed (Debug)
-To test the environment and a single training run:
+### 1. Debug a Single Seed
 ```bash
-python code/main.py --seed 42 --regime dopd --steps 1000
+python code/main.py --seed 42 --regime dopd --steps 5000
 ```
-This will:
-- Generate the MDP with seed 42.
-- Train the Student using DOPD.
-- Evaluate with and without the privileged signal.
-- Save logs to `data/raw/`.
+- Generates the MDP with seed 42.  
+- Trains the Student using DOPD.  
+- Evaluates with and without the privileged signal.  
+- Logs are written to `data/raw/` (see below) and per‑seed results to `data/processed/`.
 
-### 2. Run the Full Experiment (50 Seeds)
-To reproduce the full study:
+### 2. Full Study (50 Seeds, Both Regimes)
 ```bash
-python code/main.py --seeds 50 --regimes uniform,dopd,randomized_weight --steps 10000
+python code/main.py --seeds 50 \
+    --regimes uniform dopd \
+    --steps 10000
 ```
-This will:
-- Run 50 independent seeds for all regimes.
-- Ensure distinct seeds for training (0-49) and evaluation (50-99).
-- Aggregate results into `data/processed/`.
-- Run the one-tailed Mann-Whitney U test and generate `statistical_summary.json`.
+- Executes 50 independent seeds for each regime.  
+- Ensures distinct training/evaluation/baseline seed sets.  
+- Aggregates CSVs (`results_uniform.csv`, `results_dopd.csv`).  
+- Runs the Mann‑Whitney U test and writes `statistical_summary.json`.
 
-### 3. Verify Results
-Check the statistical summary:
+### 3. Inspect the Statistical Summary
 ```bash
 cat data/processed/statistical_summary.json
 ```
-Look for:
-- `p_value`: Should be < 0.05 to reject the null hypothesis.
-- `effect_size`: If < 0.5, the study is marked as "exploratory".
-- `performance_drop`: Compare DOPD vs. Uniform.
-- `is_exploratory`: Boolean flag indicating study power.
+Key fields:
+- `p_value` (should be < 0.05 to reject H0)  
+- `effect_size` (Cliff’s Δ)  
+- `is_exploratory` (true if effect size < 0.5)  
+- `coefficient_of_variation` (CV of generalization accuracy)  
+
+## Logging Details
+
+- The **TrainingLogger** writes a JSON‑Lines file `data/raw/training_log.jsonl`.  
+- Each line records `seed`, `regime`, `step`, `episode`, `loss`, `entropy`, `expected_advantage_gap` (or `null` for Uniform), and `reward`.  
+- This file conforms to `contracts/training_log.schema.yaml` and serves as the single source of truth for downstream analysis.
 
 ## Testing
 
-Run the unit and integration tests:
+Run the full test suite:
 ```bash
 pytest code/tests/ -v
 ```
-Specific tests:
-- `test_division_by_zero_safety`: Verifies FR-002 safety checks.
-- `test_distinct_seeds`: Verifies FR-007 seed separation logic.
-- `test_advantage_gap_switch`: Verifies min-max normalization fallback.
-- `test_baseline_independence`: Verifies baseline seeds are distinct from train/eval.
+Key tests:
+- `test_env.py` – verifies hidden variable `H` is invisible to the Student.  
+- `test_logging.py` – checks that `TrainingLogger` creates `data/raw/training_log.jsonl` and records required fields.  
+- `test_lambda_switch.py` – ensures min‑max fallback is triggered when the advantage gap range < 0.1.  
+- `test_uniform_vs_dopd.py` – integration test confirming the expected performance‑drop pattern.
 
 ## Troubleshooting
 
-- **Memory Error**: Reduce grid size in `code/env/privileged_grid.py` (max 10x10).
-- **ZeroDivisionError**: Ensure the `safety_checks` in `dopd_distillation.py` are active.
-- **Import Error**: Ensure `gym-minigrid` is installed (`pip install gym-minigrid`).
+- **MemoryError**: Reduce `grid_size` in `code/env/privileged_grid.py` (max 10×10).  
+- **ZeroDivisionError**: Ensure `utils/logging.py` is imported; the logger automatically writes a fallback λ = 1.0.  
+- **ImportError for gym‑minigrid**: The project no longer depends on `gym-minigrid`; all environment code is pure Python.  
+
+---
+

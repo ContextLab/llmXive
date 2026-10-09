@@ -1,64 +1,63 @@
 # Data Model: llmXive follow-up: extending "DOPD: Dual On-policy Distillation"
 
 ## Overview
-
-This document defines the data structures for the discrete MDP simulation, training logs, and statistical analysis results. All data is generated procedurally; no external datasets are used.
+Defines the schema for synthetic MDP logs, per‑step training logs, aggregated experiment results, and the final statistical summary. All data are generated during execution; no external datasets are ingested.
 
 ## Entity Definitions
 
 ### 1. MDP Transition Record
-Represents a single step in the environment.
-- **`state_id`**: Integer, unique identifier for the step.
-- **`seed`**: Integer, the random seed for this episode.
-- **`full_state_vector`**: List of integers (grid encoding).
-- **`student_observation`**: List of integers (observable grid only).
-- **`privileged_variable`**: Integer or String (hidden state $H$, e.g., "safe_door_A").
-- **`action_space`**: Integer (size of action space).
-- **`reward`**: Float (immediate reward).
-- **`next_state_vector`**: List of integers.
-- **`transition_function`**: String (e.g., "action_2").
-- **`teacher_action`**: Integer (optimal action given $H$).
-- **`student_action`**: Integer (action taken by Student).
-- **`teacher_advantage_gap`**: Float (computed by Teacher).
-- **`distillation_weight`**: Float (lambda passed to Student).
+| Field | Type | Description |
+|-------|------|-------------|
+| `state_id` | integer | Unique identifier for the step within an episode. |
+| `seed` | integer | Random seed for the episode. |
+| `full_state_vector` | array[integer] | Complete grid encoding (Teacher view). |
+| `student_observation` | array[integer] | Observable grid only (Student view). |
+| `privileged_variable` | integer \| string | Hidden variable `H`. |
+| `action_space` | integer | Size of the action space (multiple discrete actions). |
+| `reward` | number | Immediate reward. |
+| `next_state_vector` | array[integer] | Grid after action. |
+| `transition_function` | string | Description of the action taken. |
+| `teacher_action` | integer | Optimal action given full state. |
+| `student_action` | integer | Action taken by the Student. |
+| `teacher_advantage_gap` | number | Advantage gap used for λ. |
+| `distillation_weight` | number | Weight λ passed to the Student. |
 
-### 2. Training Log Entry
-Recorded at every training step.
-- **`step`**: Integer.
-- **`seed`**: Integer.
-- **`regime`**: Enum (`uniform`, `dopd`, `randomized_weight`).
-- **`advantage_gap`**: Float (calculated $Q_{teacher} - V_{baseline}$).
-- **`weight_lambda`**: Float (dynamic weight used).
-- **`loss`**: Float (distillation loss).
-- **`student_entropy`**: Float (policy entropy).
-- **`action`**: Integer.
+### 2. Training Log Entry (JSON‑Lines)
+| Field | Type | Description |
+|-------|------|-------------|
+| `seed` | integer | Random seed for the run. |
+| `regime` | enum(`uniform`,`dopd`,`randomized_weight`) | Training regime. |
+| `step` | integer | Training step index. |
+| `episode` | integer | Episode index (required for reproducibility). |
+| `loss` | number | Distillation loss value. |
+| `entropy` | number | Policy entropy at this step. |
+| `expected_advantage_gap` | number \| null | Noisy signal value (expected advantage marginalized over H). Null for Uniform regime. |
+| `reward` | number | Cumulative reward for the episode. |
 
 ### 3. Experiment Result (Per Seed)
-Aggregated metrics for one seed.
-- **`seed`**: Integer.
-- **`regime`**: Enum.
-- **`accuracy_unmasked`**: Float (0.0 to 1.0).
-- **`accuracy_masked`**: Float (0.0 to 1.0).
-- **`performance_drop`**: Float.
-- **`convergence_steps`**: Integer (steps to reach stable policy).
-- **`mean_entropy`**: Float.
+| Field | Type | Description |
+|-------|------|-------------|
+| `seed` | integer | Seed identifier. |
+| `regime` | enum(`uniform`,`dopd`,`randomized_weight`) | Regime used. |
+| `accuracy_unmasked` | number (0‑1) | Accuracy when `H` is available. |
+| `accuracy_masked` | number (0‑1) | Accuracy when `H` is removed. |
+| `performance_drop` | number | Normalized drop in accuracy. |
+| `convergence_steps` | integer | Steps until policy stabilizes. |
+| `mean_entropy` | number | Average entropy during training. |
 
 ## File Formats
 
-### Raw Data
-- **Location**: `data/raw/transitions_seed_{seed}.json`
-- **Format**: JSON Lines (one record per line) for streaming efficiency.
-
-### Processed Data
-- **Location**: `data/processed/results_{regime}.csv`
-- **Format**: CSV with headers: `seed, regime, accuracy_unmasked, accuracy_masked, performance_drop, convergence_steps`.
-
-### Statistical Report
-- **Location**: `data/processed/statistical_summary.json`
-- **Format**: JSON containing p-value, effect size, and exploratory status.
+| Location | Format | Content |
+|----------|--------|---------|
+| `data/raw/transitions_seed_{seed}.jsonl` | JSON‑Lines | `MDP Transition Record` for each step. |
+| `data/raw/training_log.jsonl` | JSON‑Lines | `Training Log Entry` (created by `TrainingLogger`). |
+| `data/processed/results_{regime}.csv` | CSV | Columns: `seed,regime,accuracy_unmasked,accuracy_masked,performance_drop,convergence_steps,mean_entropy`. |
+| `data/processed/statistical_summary.json` | JSON | Conforms to `contracts/statistical-summary.schema.yaml`. |
 
 ## Constraints
+- **Grid Size**: ≤ 10×10 (enforced in `PrivilegedGridEnv`).  
+- **Seeds**: Training 0‑49, Evaluation 50‑99, Baseline 1000‑1099 – all distinct.  
+- **Immutability**: Raw JSON‑Lines files are never modified after creation; analysis reads only.  
 
-- **Grid Size**: Max 10x10 (enforced in `privileged_grid.py`).
-- **Seeds**: Training seeds (0-49), Evaluation seeds (50-99), Baseline seeds (1000-1099) must be distinct sets.
-- **Data Hygiene**: Raw data files are never modified; analysis scripts read from them and write to `processed/`.
+---
+
