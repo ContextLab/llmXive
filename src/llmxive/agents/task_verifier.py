@@ -34,6 +34,7 @@ import re
 from pathlib import Path
 from typing import Any
 
+from llmxive.agents._task_import_evidence import local_import_evidence
 from llmxive.backends.base import ChatMessage
 from llmxive.backends.router import DEFAULT_MODEL, REASONING_MAX_TOKENS, chat_with_fallback
 from llmxive.claims.task_requirements import read_task_document
@@ -219,6 +220,7 @@ def gather_evidence(project_dir: Path, task_text: str, *, execution_log_dir: str
     instead of the "no artifact path" prose fallback."""
     paths = _declared_paths(task_text)
     file_count = 0
+    python_sources: list[Path] = []
     chunks: list[str] = []
     project_root = project_dir.resolve()
     # The production layout is projects/<id>. State that collector-observed
@@ -253,6 +255,8 @@ def gather_evidence(project_dir: Path, task_text: str, *, execution_log_dir: str
         except OSError as exc:
             chunks.append(f"- `{rel}`: unreadable ({exc})")
             continue
+        if f.suffix == ".py":
+            python_sources.append(f)
         chunks.append(
             f"- `{rel}` (resolved: `{f.relative_to(project_dir.resolve())}`, "
             + (f"repository-relative: `{f.relative_to(repository_root)}`, "
@@ -260,6 +264,9 @@ def gather_evidence(project_dir: Path, task_text: str, *, execution_log_dir: str
             + f"{size} bytes, sha256={digest}):\n```\n{head}\n```"
             + ("" if size <= _MAX_BYTES_PER_FILE else "\n…(truncated)")
         )
+    dependencies = local_import_evidence(project_root, python_sources)
+    if dependencies:
+        chunks.append(dependencies)
     if not chunks:
         chunks.append(
             "(the task references no code/data/figure artifact path; verify from "
