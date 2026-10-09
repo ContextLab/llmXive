@@ -14,7 +14,9 @@ asserted value excluded). The test proves reuse (not re-resolution) by asserting
 the rephrase claim carries the seed twin's EXACT evidence dict, which only a copy
 — never a fresh resolution — would produce.
 
-Real filesystem, deterministic extraction backend, no model mocks.
+Uses post-planning research artifacts, since a spec defers low-level values
+instead of resolving them. Real filesystem with deterministic extraction fixtures;
+no model or network call.
 """
 
 from __future__ import annotations
@@ -78,7 +80,7 @@ def _seed_verified_twin(project_id: str, repo_root: Path) -> Claim:
         raw_text=_VERIFIED,
         canonical=_VERIFIED,
         context="",
-        artifact_path=f"projects/{project_id}/specs/spec.md",
+        artifact_path=f"projects/{project_id}/docs/research.md",
         source_type="external",
         status=ClaimStatus.VERIFIED,
         resolved_value="9988",
@@ -112,10 +114,10 @@ def test_rephrased_claim_reuses_verified_subject_twin(tmp_path: Path) -> None:
     )
     assert subject_key(twin_probe) == subject_key(twin), "rephrase must share subject_key"
 
-    doc = "# Spec\n\n" + _REPHRASE + "\n"
+    doc = "# Research\n\n" + _REPHRASE + "\n"
     _rendered, claims, _gate = process_document(
         doc,
-        artifact_path=f"projects/{project_id}/specs/001/spec.md",
+        artifact_path=f"projects/{project_id}/docs/research.md",
         project_id=project_id,
         backend=_ExtractsRephraseBackend(),
         model=None,
@@ -141,10 +143,10 @@ def test_no_verified_twin_is_byte_identical_behavior(tmp_path: Path) -> None:
     project_id = "PROJ-REUSE-2"
     (tmp_path / "state" / "claims").mkdir(parents=True, exist_ok=True)
 
-    doc = "# Spec\n\n" + _REPHRASE + "\n"
+    doc = "# Research\n\n" + _REPHRASE + "\n"
     _rendered, claims, _gate = process_document(
         doc,
-        artifact_path=f"projects/{project_id}/specs/001/spec.md",
+        artifact_path=f"projects/{project_id}/docs/research.md",
         project_id=project_id,
         backend=_ExtractsRephraseBackend(),
         model=None,
@@ -156,3 +158,22 @@ def test_no_verified_twin_is_byte_identical_behavior(tmp_path: Path) -> None:
     matched = [c for c in claims if c.claim_id == rephrase_id]
     assert matched
     assert matched[0].evidence != _SEED_EVIDENCE  # never carried a twin's evidence
+
+
+def test_planning_rephrase_does_not_register_or_preverify_a_new_claim(tmp_path):
+    """Planning deferral must not be mistaken for post-planning subject reuse."""
+    from llmxive.claims.service import process_document
+
+    project_id = "PROJ-REUSE-PLANNING"
+    twin = _seed_verified_twin(project_id, tmp_path)
+    rephrase_id = compute_claim_id(classify(_REPHRASE, _REPHRASE), _REPHRASE, "")
+    rendered, claims, gate = process_document(
+        "# Spec\n\n" + _REPHRASE,
+        artifact_path=f"projects/{project_id}/specs/001/spec.md",
+        project_id=project_id, backend=_ExtractsRephraseBackend(), model=None,
+        repo_root=tmp_path,
+    )
+    assert "9,988" not in rendered and "9988" not in rendered
+    assert claims == [] and not gate.blocked
+    assert _claim_store.get(project_id, rephrase_id, repo_root=tmp_path) is None
+    assert _claim_store.get(project_id, twin.claim_id, repo_root=tmp_path) == twin
