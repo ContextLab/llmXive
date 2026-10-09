@@ -70,9 +70,9 @@ class AnalysisRunResult:
 
 
 def extract_run_commands(quickstart_text: str) -> list[str]:
-    """Return ordered Python and pytest commands from quickstart's bash blocks.
+    """Return ordered Python, pytest and project shell-script commands from quickstart's bash blocks.
 
-    Only ``python``/``python3`` lines are kept (they do the real work);
+    Python, pytest and explicit ``bash/sh script.sh`` invocations are kept;
     directory checks, navigation, prints, and the venv/pip setup lines are
     skipped (the venv + requirements are handled by :func:`sandbox.ensure_venv`).
     Line-continuations (trailing ``\\``) are joined.
@@ -91,6 +91,10 @@ def extract_run_commands(quickstart_text: str) -> list[str]:
                 commands.append(line)
             elif line == "pytest" or line.startswith("pytest "):
                 commands.append("python -m " + line)
+            elif line.startswith(("bash ", "sh ", "./")):
+                # Retain explicit script invocations, including malformed ones,
+                # so unsupported/missing commands become execution failures.
+                commands.append(line if not line.startswith("./") else "bash " + line)
     return commands
 
 
@@ -315,7 +319,7 @@ def run_analysis(
     if not commands:
         return AnalysisRunResult(
             ok=False,
-            reason="quickstart.md contains no runnable `python` commands",
+            reason="quickstart.md contains no runnable Python or shell-script commands",
         )
 
     before = _snapshot_artifacts(project_dir)
@@ -328,7 +332,8 @@ def run_analysis(
             deadline_exceeded = True
             break
         try:
-            args = shlex.split(command)[1:]  # drop the leading `python`
+            parts = shlex.split(command)
+            interpreter, args = parts[0], parts[1:]
         except ValueError:
             results.append(RunCommandResult(
                 command=command, ok=False, returncode=-1, duration_s=0.0,
@@ -374,17 +379,25 @@ def run_analysis(
             *(str((project_dir / base).resolve()) for base in SOURCE_DIRS),
             str(project_dir.resolve()),
         ])
-        res = sandbox.run_in_venv(
-            project_dir=project_dir, args=args, timeout_s=per_cmd_timeout_s,
-            extra_env={"PYTHONPATH": pythonpath},
-        )
+        if interpreter in {"bash", "sh"}:
+            script_missing = not args or not (project_dir / args[0]).is_file()
+            res = sandbox.run_shell_script(
+                project_dir=project_dir, script_relpath=args[0] if args else "",
+                script_args=args[1:], timeout_s=per_cmd_timeout_s,
+                interpreter=interpreter,
+            )
+        else:
+            res = sandbox.run_in_venv(
+                project_dir=project_dir, args=args, timeout_s=per_cmd_timeout_s,
+                extra_env={"PYTHONPATH": pythonpath},
+            )
         tail = ((res.stdout or "") + "\n" + (res.stderr or ""))[-1200:]
         # `python -c "..."` lines are quickstart SMOKE-TESTS (import checks),
         # not artifact producers. The gate is "did the real scripts run and
         # produce real artifacts" — a failing smoke-test (often a quickstart
         # authoring slip like `from code.x import ...` when scripts use
         # `from x import ...`) is reported but must NOT block research_complete.
-        advisory = bool(args and args[0] == "-c")
+        advisory = bool(interpreter not in {"bash", "sh"} and args and args[0] == "-c")
         results.append(RunCommandResult(
             command=command, ok=res.ok, returncode=res.returncode,
             duration_s=res.duration_s, timed_out=res.timed_out,

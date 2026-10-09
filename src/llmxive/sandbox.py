@@ -330,6 +330,64 @@ def run_python_script(
     )
 
 
+def run_shell_script(
+    *, project_dir: Path, script_relpath: str,
+    script_args: list[str] | None = None, timeout_s: int = 600,
+    interpreter: str = "bash",
+) -> ExecutionResult:
+    """Run a project-local shell script with literal argv and the project venv.
+
+    This has the same credential-stripped environment as Python research code.
+    It is an execution/correctness boundary, not an OS filesystem sandbox.
+    """
+    import signal
+    import time
+
+    script_args = [] if script_args is None else script_args
+    if (not isinstance(script_args, list)
+            or any(not isinstance(arg, str) or "\0" in arg for arg in script_args)):
+        return ExecutionResult(False, -1, "", "script args must be a list of strings without null bytes", 0.0)
+    script = (project_dir / script_relpath).resolve()
+    if (not script.is_relative_to(project_dir.resolve())
+            or script.suffix != ".sh" or not script.is_file()):
+        return ExecutionResult(False, -1, "", "shell script must be an existing project-local .sh file", 0.0)
+    executable = shutil.which(interpreter) if interpreter in {"bash", "sh"} else None
+    if executable is None:
+        return ExecutionResult(False, -1, "", "supported shell interpreter unavailable", 0.0)
+    py = Path(os.path.abspath(ensure_venv(project_dir)))
+    _ensure_code_package(project_dir)
+    env = _analysis_env(project_dir, analysis_environment(project_dir))
+    env["PATH"] = str(py.parent) + os.pathsep + env.get("PATH", "")
+    env["VIRTUAL_ENV"] = str(py.parent.parent)
+    started = time.monotonic()
+    proc = subprocess.Popen(
+        [executable, str(script), *script_args], cwd=project_dir.resolve(),
+        env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+        start_new_session=True,
+    )
+    timed_out = False
+    try:
+        out, err = proc.communicate(timeout=timeout_s)
+    except subprocess.TimeoutExpired:
+        timed_out = True
+        # Shell wrappers spawn Python children. Stop the process group, so a
+        # timeout cannot leave an analysis writing artifacts in the background.
+        if os.name == "posix":
+            try:
+                os.killpg(proc.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+        else:  # pragma: no cover - CI and production are POSIX
+            proc.kill()
+        out, err = proc.communicate()
+        err += f"\n[TIMEOUT after {timeout_s}s]"
+    return ExecutionResult(
+        not timed_out and proc.returncode == 0,
+        -1 if timed_out else proc.returncode, out, err,
+        time.monotonic() - started, timed_out,
+    )
+
+
 def run_pytest(
     *,
     project_dir: Path,
@@ -422,4 +480,5 @@ __all__ = [
     "evict_other_project_venvs",
     "run_pytest",
     "run_python_script",
+    "run_shell_script",
 ]
