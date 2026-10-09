@@ -1,0 +1,17 @@
+{
+  "scope": "Read-only full prompt replay through production revision retry and parser; no scientific writes/acceptance",
+  "source_sha256": "ac8cd21e66011cafb2f5e36e17790e52d172824adf48e2b69ad36c2b6a6dff05",
+  "attempts": [
+    {
+      "model": "zai-org.glm-5.3",
+      "seconds": 138.087,
+      "chars": 21060,
+      "corrective": false,
+      "begin": 1,
+      "end": 1
+    }
+  ],
+  "valid_task_artifact": true,
+  "artifact_chars": 13800,
+  "seconds": 138.091
+}
