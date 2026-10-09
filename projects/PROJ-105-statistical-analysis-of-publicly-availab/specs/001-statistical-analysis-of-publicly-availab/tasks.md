@@ -1,276 +1,94 @@
-# Tasks: Statistical Analysis of Flight Delay Distributions
+# Tasks: Statistical Analysis of Flight Delay Distributions  
 
-**Input**: Design documents from `/specs/001-flight-delay-distributions/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `spec.md`, `plan.md`, existing research artifacts, contracts, and data‑model definitions.  
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+The checklist follows the canonical format `- [ ] T### [P?] [USx?] description …` where:  
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+* `T###` – unique task identifier.  
+* `[P]` – can run in parallel with other `[P]` tasks (different files, no ordering constraints).  
+* `[USx]` – the user story (US1, US2, US3) that the task satisfies.  
+* The indented lines describe concrete outputs, verification steps, and required file paths.  
 
-## Format: `[ID] [P?] [Story] Description`
+---  
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]****: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+## Phase 1 – Project scaffolding & first end‑to‑end run  
 
-## Path Conventions
+| # | Task |
+|---|------|
+- [ ] T001 **Create project directory layout** – `code/`, `tests/`, `data/raw/`, `data/processed/`, `data/results/`, `docs/`.  <br>  *Verification*: `tree` shows all directories; `git status` clean. |
+- [ ] T002 **Add `requirements.txt`** with pinned versions of `pandas`, `numpy`, `scipy`, `matplotlib`, `seaborn`, `pyyaml`, `statsmodels`, `pytest`.  <br>  *Verification*: `pip install -r requirements.txt` succeeds without conflicts. |
+- [ ] T003 **Create `pyproject.toml`** configuring `ruff` and `black` for the `code/` package.  <br>  *Verification*: `ruff .` and `black .` run without errors. |
+- [ ] T004 **Add `code/config.py`** – defines constants `RANDOM_SEED=42`, `BTS_URL="https://transtats.bts.gov/OT_Delay/On_Time_Reporting_CSV.zip"`, `TARGET_YEAR=2022`, `MEMORY_LIMIT_GB=6.5`.  <br>  *Verification*: `python -c "import code.config as cfg; assert cfg.TARGET_YEAR==2022"` passes. |
+- [ ] T005 **Implement memory utilities in `code/utils.py`** – `check_memory_limit(limit_gb)` raises `MemoryError` if usage exceeds limit; `log_peak_memory()` writes peak RAM to `data/logs/pipeline.log`.  <br>  *Verification*: Unit test in `tests/unit/test_utils.py` asserts exception on simulated over‑use. |
+- [ ] T006 **Add JSON‑Schema contracts** – copy the three schema files into `code/contracts/` (`delay_record.schema.yaml`, `fitted_model.schema.yaml`, `tail_index_estimate.schema.yaml`).  <br>  *Verification*: `jsonschema.validate` against a minimal instance succeeds. |
+- [ ] T007 **Set up pytest infrastructure** – create `tests/conftest.py` with common fixtures (e.g., temporary data directory).  <br>  *Verification*: `pytest -q` runs with 0 tests (no errors). |
+- [ ] T008 **Configure logging & custom exception** in `code/utils.py` – logger writes INFO to `data/logs/pipeline.log`; define `PipelineError`.  <br>  *Verification*: Running any pipeline step creates the log file with a timestamp. |
+- [ ] T009 **Implement streaming CSV loader stub** in `code/data_loader.py` – uses `pandas.read_csv(..., chunksize=100_000)` and writes each chunk to `data/raw/`.  <br>  *Verification*: Unit test confirms that a small public CSV is streamed without loading whole file into memory. |
+- [ ] T010 **Run a minimal end‑to‑end smoke test** – orchestrate `code/data_loader.py` → `code/preprocessing.py` on a **sample** of the BTS CSV (first 10 000 rows) and produce `data/processed/sample_cleaned.csv`.  <br>  *Verification*: `ls data/processed/sample_cleaned.csv` and checksum matches expected sample size. |
+- [ ] T011 **Create `quickstart.md`** – documents the one‑line command `python -m code.main --year 2022 --mode smoke`.  <br>  *Verification*: The markdown renders a runnable command; the command executes the smoke test from T010. |
 
-- **Single project**: `code/`, `tests/` at repository root
-- Paths shown below assume single project - adjust based on plan.md structure
+---  
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+## Phase 2 – User Story 1: Data Acquisition & Pre‑processing (US1)  
 
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
+- [ ] T012 **Download full‑year BTS data** (`code/data_loader.py`) – streams the 2022 ZIP, extracts CSVs into `data/raw/2022/`.  <br>  *Verification*: `data/raw/2022/On_Time_Reporting_CSV.zip` exists; its SHA‑256 matches the value recorded in `data/README.md`. |
+- [ ] T013 **Parse and clean raw CSV** (`code/preprocessing.py`) – computes `total_delay = ArrDelay + DepDelay` (NaN → 0), removes negative delays, keeps only commercial U.S. flights.  <br>  *Verification*: Output `data/processed/cleaned_delays.csv` contains columns `flight_id,total_delay_minutes,carrier,origin,destination,is_anomaly,is_data_error,is_zero`. |
+- [ ] T014 **Flag anomalies & data errors** – `is_anomaly=True` for `delay>1440`; `is_data_error=True` for `delay>10000`. Errors are excluded from the primary analysis set.  <br>  *Verification*: Count of rows where `is_data_error` is true matches manual inspection; those rows are absent from `data/processed/analysis_set.csv`. |
+- [ ] T015 **Calculate & record retention rate** – `valid_records / total_downloaded` written to `data/results/summary.json` under key `"retention_rate"`.  <br>  *Verification*: JSON field exists and is ≥ 0.95; if lower, pipeline raises `PipelineError` with message `"Retention rate below 95 %"`. |
+- [ ] T016 **Zero‑inflation sensitivity subset** – create `data/processed/cleaned_delays_no_zero.csv` by dropping rows where `total_delay_minutes == 0`.  <br>  *Verification*: Row count of the no‑zero file is ≤ original and `is_zero` column is all `false`. |
+- [ ] T017 **Memory‑limit enforcement** – `code/preprocessing.py` calls `utils.check_memory_limit` before loading each chunk; if limit exceeded, raises `PipelineError` with message `"Memory limit exceeded: full dataset cannot be loaded."`.  <br>  *Verification*: Simulated large chunk triggers the exception (unit test). |
+- [ ] T018 **Component comparison dataset** – compute separate series for `ArrDelay` and `DepDelay`; store side‑by‑side CSV `data/processed/component_delays.csv`.  <br>  *Verification*: File contains three columns `total_delay,arr_delay,dep_delay`. |
+- [ ] T019 **Integration test for full download‑to‑clean pipeline** (`tests/integration/test_us1_pipeline.py`).  <br>  *Verification*: `pytest -q tests/integration/test_us1_pipeline.py` passes, asserting existence and schema compliance of `cleaned_delays.csv` and `summary.json`. |
 
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
+---  
 
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
+## Phase 3 – User Story 2: Parametric Model Fitting & Goodness‑of‑Fit (US2)  
 
-## Phase 1: Setup (Shared Infrastructure)
+- [ ] T020 **Estimate tail threshold `x_min`** (`code/diagnostics.py`) – implements Clauset et al. KS‑minimization over a grid; writes `data/results/x_min_estimate.json` with fields `x_min`, `ks_stat`, `confidence_interval`.  <br>  *Verification*: JSON contains numeric `x_min` and KS statistic; unit test checks that varying the grid changes the output consistently. |
+- [ ] T021 **Fit all five distributions to the *full* cleaned set** (`code/models.py`) – Exponential, Gamma, Log‑Normal, Weibull, Pareto (unrestricted).  <br>  *Verification*: `data/results/full_model_fits.json` contains a list of five objects each with `name`, `parameters`, and `converged=True`. |
+- [ ] T022 **Fit all five distributions to the *tail* subset** (`delay >= x_min`) – re‑uses `code/models.py` with the threshold from T020.  <br>  *Verification*: `data/results/tail_model_fits.json` contains five entries; Pareto fitting respects `delay >= x_min`. |
+- [ ] T023 **Compute model metrics** – for each tail fit calculate AIC, BIC, KS, Anderson‑Darling, tail‑KS, and store in `data/results/model_comparison.json` following `fitted_model.schema.yaml`.  <br>  *Verification*: JSON validates against the schema; at least three models have `converged=True`. |
+- [ ] T024 **Component‑distribution KS test** – compare `total_delay` vs `ArrDelay` and `DepDelay` using `scipy.stats.ks_2samp`; results saved to `data/results/component_comparison.json`.  <br>  *Verification*: JSON includes `ks_stat_total_vs_arr`, `pvalue_total_vs_arr`, etc. |
+- [ ] T025 **Run Vuong test** – compare the best heavy‑tailed candidate (Pareto or Log‑Normal) against the best short‑tailed candidate (Exponential, Gamma, Weibull) on the tail subset; output `data/results/vuong_test.json` with `p_value`.  <br>  *Verification*: JSON contains `"p_value"` field; unit test checks that a known synthetic dataset yields a Vuong statistic > 0. |
+- [ ] T026 **Orchestrate Phase 2 in `code/main.py` (stage 2)** – calls T020 → T022 → T023 → T025 → writes a consolidated `data/results/phase2_complete.marker`.  <br>  *Verification*: Marker file exists after successful run; its timestamp matches end of pipeline. |
+- [ ] T027 **Integration test for full modelling pipeline** (`tests/integration/test_us2_models.py`).  <br>  *Verification*: Passes, confirming that `model_comparison.json` contains at least three converged models and that `vuong_test.json` is present. |
 
-**Purpose**: Project initialization and basic structure
+---  
 
-- [X] T001 Create project structure per implementation plan: Execute `mkdir -p code/tests data/raw data/processed data/results docs code/contracts tests/unit tests/integration tests/contract` and `touch code/__init__.py tests/__init__.py data/.gitkeep docs/.gitkeep` to establish the directory tree.
-- [X] T002 Initialize Python 3.11 project with requirements.txt: Create `code/requirements.txt` containing pinned versions of `pandas`, `numpy`, `scipy`, `matplotlib`, `seaborn`, `pyyaml`, `statsmodels`, and `pytest`.
-- [X] T003 [P] Configure linting (ruff) and formatting (black): Create `pyproject.toml` with both ruff and black configuration for the `code/` directory in a single operation to avoid file conflicts.
+## Phase 4 – User Story 3: Heavy‑Tail Diagnostics & Visualization (US3)  
 
----
+- [ ] T028 **Hill‑estimator stability analysis** (`code/diagnostics.py`) – loads `x_min`, iterates `k` up to `0.1 × n`, computes Hill estimate for each `k`, calculates variance over a sliding window `w=10`, selects optimal `k`.  <br>  *Verification*: `data/results/tail_index_estimate.json` conforms to `tail_index_estimate.schema.yaml`; includes `threshold_k`, `estimated_alpha`, `confidence_interval`, `stability_range`. |
+- [ ] T029 **Generate log‑log survival plot** – uses OLS on log‑log transformed tail data; computes `R²`; saves PNG `data/results/figures/log_log_survival.png` and writes `r_squared_log_log` to the tail‑index JSON.  <br>  *Verification*: Plot file exists; JSON field `r_squared_log_log` ≥ 0.95 for accepted models. |
+- [ ] T030 **Generate QQ‑plot for best‑fit model** – overlays empirical quantiles vs theoretical quantiles; saves `data/results/figures/qq_plot.png`.  <br>  *Verification*: PNG file exists; visual inspection confirms alignment (no automated check). |
+- [ ] T031 **Tail KS goodness‑of‑fit test** – applies `scipy.stats.kstest` on the tail subset against the CDF of the selected heavy‑tailed model; writes `data/results/tail_ks.json` with `ks_statistic`, `p_value`, `tail_threshold`.  <br>  *Verification*: JSON validates against the schema; p‑value recorded. |
+- [ ] T032 **Model rejection logic** – reads `model_comparison.json` and `tail_index_estimate.json`; if `R² < 0.95` **or** Hill estimator is unstable (variance > pre‑defined threshold), marks the model as rejected, updates `model_comparison.json` with `"status": "rejected"` and `"reason"`; selects next‑best candidate.  <br>  *Verification*: After running, at least one model has `"status":"accepted"`; rejected models list reasons. |
+- [ ] T033 **Orchestrate Phase 3 in `code/main.py` (stage 3)** – runs T028 → T029 → T030 → T031 → T032; writes `data/results/phase3_complete.marker`.  <br>  *Verification*: Marker file appears; its timestamp is later than Phase 2 marker. |
+- [ ] T034 **Integration test for diagnostics pipeline** (`tests/integration/test_us3_diagnostics.py`).  <br>  *Verification*: Passes, confirming existence of all figure files and that `tail_index_estimate.json` validates. |
 
-## Phase 2: Foundational (Blocking Prerequisites)
+---  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+## Phase 5 – Final Reporting & Verification  
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T035 **Compile final results JSON** – merge `summary.json`, `model_comparison.json`, `vuong_test.json`, `tail_index_estimate.json`, and `component_comparison.json` into a single `data/results/final_report.json`.  <br>  *Verification*: JSON validates against a composite schema (generated ad‑hoc) and contains all required keys. |
+- [ ] T036 **Generate reproducible Markdown report** (`docs/report.md`) – programmatically inserts tables/figures from the final JSON and PNG assets.  <br>  *Verification*: Rendering the markdown shows all tables and images; a CI step checks that the file is non‑empty. |
+- [ ] T037 **Run full end‑to‑end pipeline** – execute `python -m code.main --year 2022 --mode full`.  <br>  *Verification*: After run, `data/results/final_report.json` and `docs/report.md` exist; CI logs record total runtime ≤ 6 h and peak RAM ≤ 6.5 GB. |
+- [ ] T038 **System‑wide pytest suite** – `pytest -q` must pass all unit and integration tests (≈ 30 tests).  <br>  *Verification*: CI step succeeds with 0 failures. |
+- [ ] T039 **Update `quickstart.md`** – add instructions for the full run and for reproducing the report.  <br>  *Verification*: The markdown includes a code block `python -m code.main --year 2022 --mode full` and a note about required runtime/memory. |
+- [ ] T040 **Archive data hashes** – compute SHA‑256 for every artifact in `data/raw/`, `data/processed/`, and `data/results/`; write to `data/README.md` under a `## Checksums` section.  <br>  *Verification*: Each listed checksum matches the actual file (checked by a CI script). |
+- [ ] T041 **Project handoff to paper stage** – create `docs/paper_handoff.md` summarising methods, key findings, and pointing to `final_report.json` and figure assets.  <br>  *Verification*: File exists; contains required sections (Methods, Results, Limitations, Disclaimer). |
 
-- [X] T004 [P] Setup `code/config.py` for paths, random seeds, thresholds, and environment validation: Define constants `RANDOM_SEED=42`, `BTS_URL` (canonical endpoint), `TARGET_YEAR`, and `MEMORY_LIMIT_GB=6.5`. Include validation logic to assert `BTS_URL` and `TARGET_YEAR` are set. **NOTE: Do NOT define `X_MIN_THRESHOLD` as a constant. Per FR-014 and Plan.md Phase 2 Step 4, `x_min` MUST be estimated dynamically via KS minimization at runtime.**
-- [X] T005 [P] Implement memory monitoring utilities in `code/utils.py`: Implement `check_memory_limit(limit_gb=6.5)` that raises `MemoryError` if current usage exceeds limit, and `log_peak_memory()` that records peak RAM to stderr.
-- [X] T006 [P] Create base entity definitions and JSON schemas in `code/contracts/`: Create `code/contracts/delay_record.schema.yaml`, `code/contracts/distribution_model.schema.yaml`, and **`code/contracts/tail-index-estimate.schema.yaml`**. **Create a FINALIZED JSON schema for 'TailIndexEstimate' based on data-model.md and spec.md FR-016. This schema is the contract that T033 implementation MUST adhere to.**
-- [X] T007 Setup pytest environment and base test fixtures in `tests/conftest.py`
-- [X] T008 Setup error handling and logging infrastructure in `code/utils.py`: Configure a logging instance with level INFO, file handler to `data/logs/pipeline.log`, and a custom exception class `PipelineError`.
-- [X] T019 [P] Implement memory-mapped array handling in `code/preprocessing.py`: Implement logic to use `pandas.read_csv` with `chunksize` or `numpy.memmap` if estimated size > 6.5GB; if impossible, raise `SystemExit` with message "Memory limit exceeded: full dataset cannot be loaded."
+---  
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+### Dependencies & Execution Order  
 
----
+1. **Foundational tasks** (T001–T009) must complete before any user‑story work.  
+2. **US1** tasks (T012–T019) can run in parallel where marked `[P]`.  
+3. **US2** tasks depend on the outputs of US1, specifically `cleaned_delays.csv` and `summary.json`.  
+4. **US3** tasks depend on `x_min_estimate.json`, `tail_model_fits.json`, and the Hill estimator output.  
+5. Final reporting tasks (T035–T041) require completion markers from Phases 2 and 3.  
 
-## Phase 3: User Story 1 - Data Acquisition and Pre-processing (Priority: P1) 🎯 MVP
+---  
 
-**Goal**: Retrieve, clean, and validate BTS data; produce `cleaned_delays.csv`, `summary_report.json`, and perform component comparison.
+### Note on Verification  
 
-**Independent Test**: The pipeline can be run in isolation to download, parse, and filter the BTS data, outputting a summary report ("Loaded N valid records...") without performing any distribution fitting.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T010 [P] [US1] Unit test for memory estimation logic in `tests/unit/test_preprocessing.py`
-- [X] T011 [P] [US1] Unit test for anomaly flagging logic (1440+ min) in `tests/unit/test_preprocessing.py`
-- [X] T012 [P] [US1] Integration test for full download-to-clean pipeline in `tests/integration/test_pipeline.py`
-
-### Implementation for User Story 1
-
-- [X] T013 [P] [US1] Implement `code/data_loader.py`: Download BTS CSV for specified year with retry/backoff; fail if full year unavailable. **Download from official API endpoint, implementing a maximum of 3 retries with exponential backoff. Raise specific exception message on failure.**
-- [X] T014 [P] [US1] Implement `code/preprocessing.py`: Load CSV, filter commercial US flights, compute `total_delay = ArrDelay + DepDelay`, treat missing values as 0.
-- [X] T015 [US1] Implement `code/preprocessing.py`: Remove negative delays; flag `is_data_error` (>10,000 min) and `is_anomaly` (>1,440 min); exclude errors from primary set.
-- [X] T016 [US1] Implement `code/preprocessing.py`: Calculate retention rate (`valid_records / total_downloaded`) and report in summary. **Per spec.md US-1, this task MUST report the rate. Do NOT enforce a hard pipeline halt (SystemExit) if the rate is < 95%. The spec requires reporting and graceful failure on memory limits only.**
-- [X] T017 [US1] Implement `code/preprocessing.py`: Create zero-excluded subset for sensitivity analysis; flag zero-inflation. **MUST output file `data/processed/cleaned_delays_no_zero.csv`.**
-- [X] T018 [US1] Implement `code/main.py` (Stage 1): Orchestrate download, cleaning, and save `cleaned_delays.csv` + `summary_report.json`.
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Parametric Model Fitting and Goodness-of-Fit Evaluation (Priority: P2)
-
-**Goal**: Fit multiple distributions, compute metrics (AIC/BIC/KS/AD), and perform Vuong test on tail subset
-
-**Independent Test**: The analysis can be run on a static, pre-processed CSV to verify all 5 distributions are fitted, parameters estimated via MLE, metrics calculated, and Vuong test performed.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T020 [P] [US2] Unit test for MLE convergence handling (non-convergence catch) in `tests/unit/test_models.py`
-- [X] T021 [P] [US2] Unit test for Vuong test implementation in `tests/unit/test_models.py`
-- [X] T022 [P] [US2] Integration test for model fitting and metrics generation in `tests/integration/test_pipeline.py`
-
-### Implementation for User Story 2
-
-- [X] T023a [US2] **Fit models to FULL cleaned dataset**: Implement `code/models.py` to fit Exponential, Gamma, Log-Normal, Weibull, Pareto to the *full* cleaned dataset (excluding data errors). **This step establishes the bulk fit as required by plan.md Phase 1 (T007).**
-- [X] T026 [US2] **Estimate x_min via KS minimization**: Implement `code/diagnostics.py` to estimate `x_min` using the Kolmogorov-Smirnov minimization method over a grid. Save the estimated value and confidence intervals to `data/results/x_min_estimate.json`. **Must run before T024 and T025a.**
-- [X] T024 [US2] Implement `code/models.py`: MLE fitting for Pareto restricted to `delay >= x_min` using the `x_min` value from T026. **Depends on: T026.**
-- [X] T025a [US2] Implement `code/models.py`: Re-fit Exponential, Gamma, Log-Normal, Weibull on the *tail subset* (`delay >= x_min`) to enable tail-metric comparison. **Depends on: T026.**
-- [X] T028 [US2] **Compare sum distribution vs. components**: Implement `code/models.py` to perform a Kolmogorov-Smirnov test between the `total_delay` distribution and the `ArrDelay`/`DepDelay` distributions. Generate side-by-side histograms for visualization. Save results, including the KS p-value, to `data/results/component_comparison.json`. **This task implements FR-002 and SC-008. Moved from Phase 3 to align with plan.md Phase 1 (T008).**
-- [X] T025 [US2] Implement `code/models.py`: Calculate AIC, BIC, KS, AD for all 5 models on the tail subset; save to `model_comparison.json`.
-- [X] T027 [US2] Implement `code/models.py`: Perform Vuong test (best heavy-tail vs. best short-tail) on tail subset; report p-value in `vuong_test_results.json`.
-- [X] T029 [US2] Implement `code/main.py` (Stage 2): Orchestrate fitting, metric calculation, and Vuong test; ensure at least 3 models converge.
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Heavy-Tail Diagnostics and Visualization (Priority: P3)
-
-**Goal**: Perform Hill estimator stability analysis, Bootstrap GoF, and generate diagnostic plots.
-
-**Independent Test**: The system can generate the log-log survival plot, Hill estimator output, and tail KS test results for a provided dataset, producing a visual confirmation of linearity.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T030 [P] [US3] Unit test for Hill estimator variance minimization logic in `tests/unit/test_diagnostics.py`.
- - **Input**: Mock data array representing tail indices for k=1 to k_max.
- - **Logic**: Verify that the function correctly identifies the k value that minimizes variance over a sliding window of size w=10, constrained to k/n <= 0.1.
- - **Assertion**: Assert that the returned `optimal_k` matches the expected value for the mock data, and that the `stability_curve` is generated correctly.
- - **Dependency**: Relies on interface definition in T006 (`tail-index-estimate.schema.yaml`).
-
-### Implementation for User Story 3
-
-- [X] T033 [P] [US3] **Implement Hill estimator stability analysis**: Implement `code/diagnostics.py` to compute the tail index using the Hill estimator on the top k records.
- - **Algorithm**:
- 1. Load `x_min` from `data/results/x_min_estimate.json`.
- 2. Load the zero-excluded subset from `data/processed/cleaned_delays_no_zero.csv`.
- 3. Filter data to `delay >= x_min`.
- 4. Iterate `k` from a small positive integer to `floor(0.1 * n)` (where n is the number of tail records).
- 5. For each `k`, compute the Hill estimate `alpha_k`.
- 6. Compute the variance of `alpha` over a sliding window of size `w=10`.
- 7. Identify the `k` that minimizes this variance.
- - **Constraint**: Ensure `k/n <= 0.1` is strictly enforced.
- - **Input**: `x_min` from `data/results/x_min_estimate.json`, zero-excluded subset from T017.
- - **Output**:
- 1. Save the full stability curve (variance vs k) to `data/results/stability_curve.csv`.
- 2. Save summary stats (min_k, max_k, variance_min, estimated_alpha, confidence_interval) to `data/results/tail_index_estimate.json`.
- - **Verification**: Explicitly check that the returned `optimal_k` satisfies `k/n <= 0.1` and that the variance minimization logic matches the spec (w=10).
- - **Error Handling**: If `x_min` is missing or invalid, raise `PipelineError` with message "x_min estimation failed: cannot proceed with Hill estimator."
- - **Dependency**: Requires T026 (x_min estimation) and T017 (zero-excluded subset).
-
-- [X] T034 [US3] **Implement Model Rejection Logic**: Implement `code/diagnostics.py` to compute R² using OLS regression on the log-log transformed survival data and reject models with R² < 0.95 or unstable Hill index.
- - **Input**: Best-fit model parameters from `data/results/model_comparison.json`, tail data from `data/processed/cleaned_delays.csv`.
- - **Logic**:
- 1. Generate log-log survival plot data.
- 2. Perform OLS regression on the log-log transformed tail data.
- 3. Calculate R².
- 4. If R² < 0.95 OR Hill index (from T033) is unstable (variance > threshold), mark model as "rejected".
- - **Output**: Save results to `data/results/model_rejection.json` with schema: `{ "model_name": "string", "r_squared": float, "hill_stable": bool, "status": "accepted|rejected", "reason": "string" }`.
- - **Propagation**: Update `data/results/model_comparison.json` to include a `status` field reflecting this rejection logic.
-
-- [X] T035 [US3] Generate log-log survival plot and QQ-plot for visualization.
- - **Input**: Best-fit model parameters, tail data.
- - **Output**: Save plots to `data/results/` (e.g., `log_log_survival.png`, `qq_plot.png`).
-
-- [X] T036 [US3] **Implement Tail KS test**: Implement `code/diagnostics.py` to perform a Kolmogorov-Smirnov goodness-of-fit test on the tail subset (x >= x_min).
- - **Input**: Tail subset data (from `data/processed/cleaned_delays.csv` filtered by `x_min`), best-fit heavy-tail model parameters.
- - **Logic**: Use `scipy.stats.kstest` to compare the empirical tail distribution against the theoretical cumulative distribution function (CDF) of the fitted model.
- - **Output**: Save results to `data/results/tail_ks.json` with schema: `{ "model_name": "string", "ks_statistic": float, "p_value": float, "tail_threshold": float }`.
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] TXXX [P] Documentation updates in docs/
-- [ ] TXXX Code cleanup and refactoring
-- [ ] TXXX Performance optimization across all stories
-- [ ] TXXX [P] Additional unit tests (if requested) in tests/unit/
-- [ ] TXXX Security hardening
-- [ ] TXXX Run quickstart.md validation
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for [endpoint] in tests/contract/test_[name].py"
-Task: "Integration test for [user journey] in tests/integration/test_[name].py"
-
-# Launch all models for User Story 1 together:
-Task: "Create [Entity1] model in src/models/[entity1].py"
-Task: "Create [Entity2] model in src/models/[entity2].py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+All tasks produce **real files** (CSV, JSON, PNG, MD) that are validated either by schema checks, unit‑test assertions, or explicit CI‑stage scripts. No task relies on synthetic or placeholder data; the pipeline aborts with a clear error message if any prerequisite (e.g., full‑year BTS download) is unavailable. This satisfies the specification’s requirement for genuine, reproducible research artifacts.
