@@ -1,29 +1,8 @@
-T013:
-  c: true
-  h: aae3446302fe7f91e77bf9e3f0f88ae0eb3e258f16f1833b032cd5aa31e68c0c
-  r: "The `tests/integration/test_ingestion.py` file exists, is non\u2011empty, and\
-    \ its `test_full_ingestion` function contains the exact required assertions checking\
-    \ that `data/processed/subjects_cleaned.csv` exists and has 10 rows (plus additional\
-    \ sanity checks). No further artifacts are needed for this task."
-T036:
+T101:
   c: false
-  h: 1d0c045347069668a612c20eab055ef3342e3b17b727ca2684e4539615c6ca97
-  r: The required output file `data/processed/correlation_results.csv` does not exist,
-    and the provided `connectivity_matrices.npy` is only a placeholder description,
-    not a real NumPy array. Moreover, the `correlation.py` script is truncated and
-    does not show the full implementation needed to compute the correlations and write
-    the CSV. These missing/placeholder artifacts mean the task is not genuinely completed.
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `correlation_results.csv` (or any updated file) was provided, and there is\
-    \ no evidence that a `stability_flag` column was added to flag low stability when\
-    \ the 95\u202F% CI includes zero at any of the swept thresholds. The required\
-    \ output artifact is missing."
-T041:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `quickstart.md` file or excerpt showing the required documentation updates
-    (how to run verification vs analysis mode) was provided. Without the actual markdown
-    content, the claim cannot be verified as fulfilled. The implementer must supply
-    the updated `quickstart.md` with the specified instructions.
+  h: a931fae7885bc1b054297a97e39a3669193c8caf727bf7f8d1a839dcd9328a7e
+  r: "The pipeline does not create `data/processed/dataset_validity_report.csv` (no\
+    \ call to `calculate_dataset_validity`/`write_validity_report`), and `preprocess_subjects`\u2019\
+    \ signature does not match the integration test (it expects a DataFrame, not `synthetic_count`\
+    \ or `output_path`), so `pytest tests/integration/test_ingestion.py` would fail.\
+    \ The required three files are therefore not reliably produced."

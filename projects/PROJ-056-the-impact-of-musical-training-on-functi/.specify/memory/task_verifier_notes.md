@@ -2,11 +2,5 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T015** — The repository contains a `code/data/preprocess.py` file, but the shown code does not implement the calculation of the valid‑subjects percentage nor write the required `data/processed/dataset_validity_report.csv`. Moreover, the CSV file is missing entirely, so the pytest check for its existence and correct content cannot pass. The task’s core output is absent.
-- **T017** — The required `data/processed/matching_balance_report.csv` file does not exist, and the provided `code/data/preprocess.py` snippet shows no implementation that creates such a CSV with the specified columns. Consequently the task’s core artifact and verification conditions are missing.
-- **T019** — The required output file `data/processed/subjects_cleaned.csv` does not exist, and the provided `code/data/preprocess.py` snippet contains only utility functions with no code that writes the cleaned CSV. Consequently, the task’s core deliverable is missing.
-- **T024a** — The required artifact `data/atlas/schaefer_400.parquet` is absent, so the pytest check for existence and checksum cannot pass. The implementer must add the downloaded Parquet file and ensure its hash matches the expected value.
-- **T026** — The required output file `data/processed/network_metrics.csv` does not exist, and the provided `networks.py` is incomplete (truncated) and does not demonstrate loading the `.npy` file, filtering by the three networks, or writing the CSV. The task’s core deliverable is missing.
-- **T031** — declared artifact(s) missing/empty/invalid: data/processed/connectivity_results.csv
-- **T032** — declared artifact(s) missing/empty/invalid: data/processed/nbs_results.csv
-- **T036** — The required output file `data/processed/correlation_results.csv` does not exist, and the provided `connectivity_matrices.npy` is only a placeholder description, not a real NumPy array. Moreover, the `correlation.py` script is truncated and does not show the full implementation needed to compute the correlations and write the CSV. These missing/placeholder artifacts mean the task is not genuinely completed.
+- **T101** — Requested task execution failed; rerun successfully: code/analysis/download_atlas.py exit=1
+- **T102** — Requested task execution failed; rerun successfully: code/analysis/download_atlas.py exit=1
