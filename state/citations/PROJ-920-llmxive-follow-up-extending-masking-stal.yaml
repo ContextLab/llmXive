@@ -9,3 +9,14 @@
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/P-value
   verified_at: '2026-10-03T04:04:36.071087Z'
+- artifact_hash: 4db5d2cfb455f5a0cfbb985decbea3949ced2c2f8bde3dac6f14ed6c6b0bd9c4
+  artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/llmxive-follow-up.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/llmxive-follow-up
+  verified_at: '2026-10-09T15:38:36.184628Z'

@@ -78,7 +78,7 @@ As a researcher, I need a statistical analysis script that performs a logistic r
 
 - **Trajectory**: A sequence of turns representing a search session, containing text blocks, metadata (density, age), and a ground-truth success label.
 - **Retention Horizon**: An integer parameter $N$ representing the number of most recent turns to RETAIN (the visible window) applied during simulation.
-- **Semantic Density**: A float value representing the composite information density of a specific text block, calculated as `0.6 * Shannon_Entropy + 0.4 * Technical_Token_Ratio`, used as a predictor variable.
+- **Semantic Density**: A float value representing the composite information density of a specific text block, calculated as `A weighted combination of Shannon_Entropy and Technical_Token_Ratio, with greater emphasis placed on Shannon_Entropy than on Technical_Token_Ratio`, used as a predictor variable.
 
 ## Success Criteria
 

@@ -1,79 +1,86 @@
-# Quickstart: llmXive follow-up: extending "Masking Stale Observations Helps Search Agents -- Until It Doesn't"
+# Quickstart: llmXive follow-up – Masking Horizon & Semantic Density Study
 
 ## Prerequisites
+- Python 3.11 or newer  
+- `git` (to clone the repository)  
 
-- Python 3.11 or higher
-- pip (package manager)
-
-## Installation
-
-1. Navigate to the project directory:
-   ```bash
-   cd projects/PROJ-920-llmxive-follow-up-extending-masking-stal
-   ```
-
-2. Create a virtual environment:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. Install dependencies:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
-
-## Running the Pipeline
-
-### Step 1: Generate Synthetic Trajectories
+## Setup
 
 ```bash
-python code/generate_trajectories.py --num-trajectories [REDACTED] --output data/raw/trajectories.json --seed 42
+# 1. Clone the repository (if not already)
+git clone 
+cd llmxive-follow-up/projects/PROJ-920-llmxive-follow-up-extending-masking-stal
 
-The research question and method remain as defined in the original plan. References are preserved verbatim.
+# 2. Create and activate a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+
+# 3. Install exact dependencies
+pip install -r code/requirements.txt
 ```
 
-- **Output**: `data/raw/trajectories.json` (contains 500 trajectories)
-- **Validation**: The script will automatically validate entropy levels (within a specified tolerance) and check the count matches the target sample size. If validation fails, it exits with code 1.
+## Running the Full Pipeline
 
-### Step 2: Validate Trajectories (Explicit Gate)
-
+### Step 1 – Generate Synthetic Trajectories (FR‑001)
 ```bash
-python code/validate_trajectories.py --input data/raw/trajectories.json
+python code/generate_trajectories.py \
+  --num-trajectories 500 \
+  --output data/raw/trajectories.json \
+  --seed 42
 ```
+- Produces `data/raw/trajectories.json` (on the order of tens to hundreds of megabytes).  
+- Generates trajectories in a balanced design: approximately equal numbers of low-density, medium-density, and high-density cases.
+- Logs the distribution of density levels and confirms the target trajectory count.
 
-- **Action**: Checks that exactly 500 trajectories exist and that all critical evidence blocks meet the entropy tolerance.
-- **Exit Code**: 0 if valid, 1 if invalid. **Do not proceed if exit code is 1.**
-
-### Step 3: Run Agent Simulation
-
+### Step 2 – Validate Trajectories (US‑1 gate)
 ```bash
-python code/simulate_agent.py --input data/raw/trajectories.json --output data/logs/simulation_results.csv --seed 42
+python code/validate_trajectories.py \
+  --input data/raw/trajectories.json
 ```
+- Exits with code 0 on success; any mismatch (entropy tolerance, count, density distribution) aborts the pipeline.
 
-- **Output**: `data/logs/simulation_results.csv` (contains simulation logs)
-- **Note**: This step runs the agent with multiple sampled horizons per trajectory.
-
-### Step 4: Analyze Results
-
+### Step 3 – Run Agent Simulation (FR‑002, FR‑009)
 ```bash
-python code/analyze_results.py --input data/logs/simulation_results.csv --output results/regime_map.png
+python code/simulate_agent.py \
+  --input data/raw/trajectories.json \
+  --output data/logs/simulation_results.csv \
+  --seed 42
 ```
+- Samples multiple random horizons per trajectory and writes results incrementally to CSV.
+- Uses the density-dependent heuristic solver: P(retrieval) = sigmoid(α * (density - β)), where α and β are scaling parameters to be determined during implementation.
+- Flags clamped-entropy cases in the `clamped_entropy` column for diagnostic tracking.
 
-- **Output**:
-  - Console: Regression coefficients and p-values.
-  - File: `results/regime_map.png` (3D surface plot).
+### Step 4 – Analyze Results (FR‑003, FR‑004, FR‑006)
+```bash
+python code/analyze_results.py \
+  --input data/logs/simulation_results.csv \
+  --output-dir results
+```
+- Fits logistic regression with tensor-product splines for the density × horizon interaction.
+- Prints regression coefficients, p‑values, and a brief text summary.  
+- Writes `results/regime_map.png` (multidimensional surface) and `results/regression_summary.json`.
+- Reports diagnostic results for clamped-entropy cases.
 
-## Verification
+### Optional Step 5 – Sensitivity Analysis (FR‑010)
+```bash
+python code/sensitivity.py \
+  --input data/raw/trajectories.json \
+  --output-dir results/sensitivity
+```
+- Re‑runs the full pipeline under alternative density weightings (0.5/0.5, 0.7/0.3) and α values (1.5, 2.5).
+- Stores each configuration's regression summary and plots.
 
-To verify the pipeline:
-
-1. Check that `data/raw/trajectories.json` exists and is valid JSON.
-2. Check that `data/logs/simulation_results.csv` has the expected columns.
-3. Check that `results/regime_map.png` is a valid PNG file.
+## Verification Checklist
+- `[ ]` `data/raw/trajectories.json` exists, is valid JSON, and passes `validate_trajectories.py`.  
+- `[ ]` `data/logs/simulation_results.csv` contains the required columns (including `clamped_entropy`) and validates against `contracts/simulation_log.schema.yaml`.  
+- `[ ]` `results/regime_map.png` is a PNG ≤ 5 MB with correctly labeled axes.  
+- `[ ]` `results/regression_summary.json` conforms to `contracts/regression_output.schema.yaml`.  
+- `[ ]` CI run time < 6 h and peak RAM < 7 GB (monitor via GitHub Actions logs).
 
 ## Troubleshooting
+- **MemoryError**: Reduce `--num-trajectories` for a quick test (e.g., 100) and increase later.  
+- **Entropy validation failures**: Ensure `code/config.py` lists the technical terms correctly; the generator will retry until the tolerance is met.  
+- **Runtime exceeds limit**: Verify that the `--seed` flag is set (ensures deterministic behavior) and that no stray debug prints are slowing the loop.
+- **Clamped entropy diagnostics**: Check the regression summary for a `clamped_entropy_count` field; if high, review the impact on the interaction term in the diagnostics section.
 
-- **Memory Error**: If you encounter memory errors, reduce the number of trajectories (e.g., `--num-trajectories 100`) for testing.
-- **Entropy Validation Failed**: Ensure the `generate_trajectories.py` script is using the correct entropy calculation method (UTF-8 byte-level) and the tolerance check is correct.
-- **Count Validation Failed**: Ensure the generator is creating trajectories.
+---

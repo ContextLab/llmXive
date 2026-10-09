@@ -31,32 +31,51 @@ import nibabel as nib
 import numpy as np
 import pandas as pd
 
+logger = logging.getLogger(__name__)
+
 # ----------------------------------------------------------------------
-# Existing imports / utilities (preserved from the original file)
+# Existing calculate_tsnr function (preserved from T014)
 # ----------------------------------------------------------------------
-# NOTE: The original ``preprocess.py`` already defines a number of
-# functions (e.g., ``calculate_tsnr``, ``preprocess_subject_batch``,
-# ``main``).  They are **not** re‑implemented here; we simply import the
-# symbols that already exist in the module's global namespace.
-#
-# The import guard below ensures that static analysis tools see the
-# symbols while keeping the runtime behaviour unchanged.
-try:
-    # These symbols are defined elsewhere in the same file.
-    from .preprocess import (  # type: ignore
-        calculate_tsnr,
-        preprocess_subject_batch,
+def calculate_tsnr(img: nib.Nifti1Image, exclude_volumes: int = 5) -> np.ndarray:
+    """
+    Calculate temporal signal-to-noise ratio (tSNR) for a 4D fMRI image.
+
+    Parameters
+    ----------
+    img : nib.Nifti1Image
+        A 4D NIfTI image (X, Y, Z, T).
+    exclude_volumes : int, optional
+        Number of initial volumes to exclude (default: 5).
+
+    Returns
+    -------
+    np.ndarray
+        3D array of tSNR values (shape: X, Y, Z).
+    """
+    data = img.get_fdata()
+    if data.ndim != 4:
+        raise ValueError(f"Expected 4D data, got shape {data.shape}")
+
+    # Exclude initial volumes for scanner stabilization
+    data = data[..., exclude_volumes:]
+
+    # Calculate mean and std along time axis (axis 3)
+    mean_signal = np.mean(data, axis=3)
+    std_signal = np.std(data, axis=3)
+
+    # Avoid division by zero
+    tsnr = np.divide(
+        mean_signal,
+        std_signal,
+        where=(std_signal > 0),
+        out=np.zeros_like(mean_signal, dtype=np.float32)
     )
-except Exception:  # pragma: no cover
-    # If the original definitions are not yet present (e.g., when this
-    # file is imported before they are defined), we simply pass – the
-    # functions will be available later in the execution order.
-    pass
+
+    return tsnr
 
 # ----------------------------------------------------------------------
 # New functionality for T014b
 # ----------------------------------------------------------------------
-
 
 def _load_nifti_image(nifti_path: Path) -> nib.Nifti1Image:
     """Load a NIfTI image from ``nifti_path``.
@@ -75,7 +94,6 @@ def _load_nifti_image(nifti_path: Path) -> nib.Nifti1Image:
         raise FileNotFoundError(f"NIfTI file not found: {nifti_path}")
     return nib.load(str(nifti_path))
 
-
 def _extract_subject_id_from_path(nifti_path: Path) -> str:
     """Derive a subject identifier from the file name.
 
@@ -92,18 +110,15 @@ def _extract_subject_id_from_path(nifti_path: Path) -> str:
     str
         Subject identifier.
     """
-    # Strip extensions and split on common delimiters.
     stem = nifti_path.name
     for ext in (".nii.gz", ".nii"):
         if stem.endswith(ext):
             stem = stem[: -len(ext)]
             break
-    # Assume the first token before an underscore or dash is the ID.
     for delim in ("_", "-"):
         if delim in stem:
             return stem.split(delim)[0]
-    return stem  # fallback – the whole stem is the ID
-
+    return stem
 
 def record_tsnr_evidence_and_filter(
     nifti_dir: Path,
@@ -130,13 +145,11 @@ def record_tsnr_evidence_and_filter(
         Directory where the two CSV files will be written.  The directory
         is created if it does not exist.
     tsnr_threshold: float, optional
-        Voxel‑wise tSNR value that defines a “good” voxel.  Default is 50.
+        Voxel‑wise tSNR value that defines a "good" voxel.  Default is 50.
     inclusion_percent: float, optional
         Minimum percentage of good voxels required for a subject to be
         retained.  Default is 90 (i.e., 90%).
     """
-    logger = logging.getLogger(__name__)
-
     if not nifti_dir.is_dir():
         raise NotADirectoryError(f"NIfTI directory does not exist: {nifti_dir}")
 
@@ -160,9 +173,8 @@ def record_tsnr_evidence_and_filter(
             subject_id = _extract_subject_id_from_path(nifti_path)
             img = _load_nifti_image(nifti_path)
 
-            # ``calculate_tsnr`` is assumed to accept a Nibabel image and
-            # return a 3‑D NumPy array of tSNR values.
-            tsnr_map = calculate_tsnr(img)  # type: ignore[arg-type]
+            # Calculate tSNR using the existing function
+            tsnr_map = calculate_tsnr(img)
 
             if tsnr_map.ndim != 3:
                 raise ValueError(
@@ -195,7 +207,7 @@ def record_tsnr_evidence_and_filter(
                 percent_ge_threshold,
                 tsnr_threshold,
             )
-        except Exception as exc:  # pragma: no cover
+        except Exception as exc:
             logger.error("Failed to process %s: %s", nifti_path, exc)
             raise
 
@@ -254,7 +266,7 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     )
     return parser
 
-def main() -> None:  # pragma: no cover
+def main() -> None:
     """Entry point for ``python -m code.data.preprocess``."""
     logging.basicConfig(
         level=logging.INFO,
@@ -268,5 +280,5 @@ def main() -> None:  # pragma: no cover
         inclusion_percent=args.inclusion_percent,
     )
 
-if __name__ == "__main__":  # pragma: no cover
+if __name__ == "__main__":
     main()

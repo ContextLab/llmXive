@@ -3,12 +3,12 @@
   "stage": "in_progress",
   "class": "transient",
   "fingerprint": "backend_chain_failed",
-  "consecutive_count": 0,
-  "first_seen": "2026-07-14T04:59:15.498068+00:00",
-  "last_seen": "2026-07-15T21:39:55.866782+00:00",
-  "retry_after": null,
-  "last_error": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['anthropic.claude-sonnet-4-6'] failed on backend 'dartmouth'; errors: anthropic.claude-sonnet-4-6(model-down attempt 1): Dartmouth model 'anthropic.claude-sonnet-4-6' hung past 180s deadline (no response received) | local: transformers is not installed; required by local backend",
-  "evidence": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['anthropic.claude-sonnet-4-6'] failed on backend 'dartmouth'; errors: anthropic.claude-sonnet-4-6(model-down attempt 1): Dartmouth model 'anthropic.claude-sonnet-4-6' hung past 180s deadline (no response received) | local: transformers is not installed; required by local backend",
+  "consecutive_count": 1,
+  "first_seen": "2026-10-09T15:51:30.340183+00:00",
+  "last_seen": "2026-10-09T15:51:30.340183+00:00",
+  "retry_after": "2026-10-09T16:01:30.340183+00:00",
+  "last_error": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['openai.gpt-oss-120b', 'zai-org.glm-5.3', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: openai.gpt-oss-120b(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min | zai-org.glm-5.3(model-down attempt 1): Dartmouth model 'zai-org.glm-5.3' hung past 360s deadline (no response received) | google.gemma-4-31B-it(model-down attempt 1): Request timed out. | anthropic.claude-haiku-4-5-20251001(permanent): Dartmouth: paid model 'anthropic.claude-haiku-4-5-20251001' refused: credit balance unavailable (ConnectTimeout: HTTPSConnectionPool(host='chat.dartmouth.edu', port=443): Max retries exceeded with url: /api/v1/credits/balance (Caused by ConnectTimeoutError(<HTTPSConnection(host='chat.dartmouth.edu', port=443) at 0x7fecc036eb90>, 'Connection to chat.dartmouth.edu timed out. (connect",
+  "evidence": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['openai.gpt-oss-120b', 'zai-org.glm-5.3', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: openai.gpt-oss-120b(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min | zai-org.glm-5.3(mode",
   "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
-  "status": "cleared"
+  "status": "retry_scheduled"
 }

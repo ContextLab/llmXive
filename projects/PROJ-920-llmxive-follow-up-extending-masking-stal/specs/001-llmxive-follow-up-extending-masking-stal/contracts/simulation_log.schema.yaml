@@ -7,22 +7,25 @@ properties:
     description: "ID of the trajectory"
   density:
     type: "number"
-    description: "Final density of the critical evidence"
+    description: "Final composite density of the critical evidence (0.6*entropy + 0.4*tech_ratio)"
   horizon:
     type: "integer"
-    description: "Retention horizon used"
+    description: "Retention horizon used (1 to T turns)"
   evidence_age:
     type: "integer"
-    description: "Age of the evidence"
+    description: "Age of the evidence relative to current turn"
   success:
     type: "integer"
     enum:
       - 0
       - 1
-    description: "1 if success, 0 if failure"
+    description: "Binary outcome: 1 if success, 0 if failure"
   retrieval_prob:
     type: "number"
-    description: "Probability of retrieval"
+    description: "Probability of retrieval under the sigmoid solver: sigmoid(α * (density - threshold))"
+  clamped_entropy:
+    type: "boolean"
+    description: "True if entropy was clamped to 1e-6 due to zero-entropy condition; false otherwise"
 required:
   - trajectory_id
   - density
@@ -30,4 +33,5 @@ required:
   - evidence_age
   - success
   - retrieval_prob
+  - clamped_entropy
 additionalProperties: false

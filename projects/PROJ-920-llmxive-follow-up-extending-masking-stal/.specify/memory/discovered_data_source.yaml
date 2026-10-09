@@ -1,15 +1,15 @@
 status: none
-intent: synthetic search trajectory generator with controllable entropy referencing
-  SQuAD HotpotQA python package dataset
+intent: pip install synthetic search trajectory generator controllable token entropy
+  python package dataset
 required_fields:
 - trajectory_id
-- turn_index
-- turn_text
+- turn_number
+- text
 - entropy_per_token
-- density_level
-- is_critical
+- critical_flag
 - evidence_age
-- metadata
-cache_key: eb9afa3b608c5542fbbd61693328185fa42c7868a5ef2b58a23bbf149f4a6f80
-searched_at: '2026-10-07T13:55:40.771401+00:00'
+- density_level
+- seed
+cache_key: 1abb143eb4a58c190ac8c7a6bf1797206ebac9d15b128d8d976084e76f70515b
+searched_at: '2026-10-09T15:21:36.547835+00:00'
 retry_count: 1

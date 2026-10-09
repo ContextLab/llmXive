@@ -42,14 +42,14 @@ def _read_csv(path: Path) -> pd.DataFrame:
     """Read a CSV file and raise a clear error if the file is missing."""
     if not path.is_file():
         raise FileNotFoundError(f"Required file not found: {path}")
-    logger.info("reading_csv", path=str(path))
+    logger.log("reading_csv", path=str(path))
     return pd.read_csv(path)
 
 def _write_csv(df: pd.DataFrame, path: Path) -> None:
     """Write a DataFrame to CSV, creating parent directories as needed."""
     path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(path, index=False)
-    logger.info("wrote_csv", path=str(path), rows=len(df))
+    logger.log("wrote_csv", path=str(path), rows=len(df))
 
 # ----------------------------------------------------------------------
 # Core functionality
@@ -72,7 +72,7 @@ def generate_full_metrics(
     Path
         Path to the written ``full_metrics.csv`` file.
     """
-    logger.info("generate_full_metrics_start", analysis_dir=str(analysis_dir))
+    logger.log("generate_full_metrics_start", analysis_dir=str(analysis_dir))
 
     # Expected input file names
     aggregated_path = analysis_dir / "aggregated_metrics.csv"
@@ -139,7 +139,7 @@ def generate_full_metrics(
     output_path = analysis_dir / "full_metrics.csv"
     _write_csv(full_df, output_path)
 
-    logger.info("generate_full_metrics_complete", output_path=str(output_path))
+    logger.log("generate_full_metrics_complete", output_path=str(output_path))
     return output_path
 
 # ----------------------------------------------------------------------
@@ -170,7 +170,7 @@ def main() -> None:
     try:
         generate_full_metrics(analysis_dir=analysis_dir)
     except Exception as exc:
-        logger.error("full_metrics_generation_failed", error=str(exc))
+        logger.log("full_metrics_generation_failed", error=str(exc))
         raise
 
 if __name__ == "__main__":
