@@ -1,0 +1,89 @@
+T001a:
+  reason: "The repository contains only a `code/` hierarchy (e.g., `code/data/`, `code/models/`,\
+    \ `code/evaluation/`) and no top\u2011level directories named `raw`, `processed`,\
+    \ `models`, or `evaluation` as stipulated by the task and the structure outlined\
+    \ in `plan.md`. Consequently the exact directory layout required by T001a is not\
+    \ present."
+  task: a2b4b17424eb222d6bd463453bff2e76b8b5b964c69315134d1d075a263dbc72
+T001b:
+  reason: "The evidence shows that a `main.py` file and a `requirements.txt` file\
+    \ exist in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/`,\
+    \ but their contents (or file sizes) are not provided, so we cannot confirm they\
+    \ are non\u2011empty or contain the expected initial code/dependencies. Provide\
+    \ the actual contents (or at least non\u2011zero size) of both files to satisfy\
+    \ the task."
+  task: 13db90d378c0c6e895d8877b58d7c314d6175a5fca2087636a8ae801abe9ee6c
+T002:
+  reason: "The only artifact provided is `requirements.txt`, which exists but lists\
+    \ dependencies with open-ended version specifiers (`>=`) rather than exact, pinned\
+    \ versions required by the task. Consequently the project is not initialized with\
+    \ truly \u201Cpinned\u201D dependencies."
+  task: bfc833d2a404edb88283c83ee2e3e95f7244acc372e9a11134d4cb71cfcff608
+T003:
+  reason: "Checked the `.ruff.toml` (contains `target-version = \"py311\"`, `line-length\
+    \ = 100`, `select = [\"E\",\"F\",\"W\",\"I\"]`) \u2013 it meets the ruff requirements.\
+    \ The `pyproject.toml`\u2019s `[tool.black]` section sets `line-length = 88` instead\
+    \ of the required `100`, so the black configuration is incorrect. Fix the black\
+    \ line-length to 100 (and optionally remove conflicting ruff settings) to satisfy\
+    \ the task."
+  task: 3c19c42907ce8d7c3a576648f1b62df1e132f29be53bce57f4ccb329ee851025
+T004:
+  task: 570eb8ad64d40a76e989aeaaa061881a5238435d17c119ce4ad51d798a682e05
+T005:
+  task: c67b9a57cdc9352e9c6cd1be003f3082d22fefa75129f8ea54e2fb8ad8a3118e
+T006:
+  task: 0c17d5057efcc8f225fbdcdd4416be1c72776f5dc7ec54c94784c53dc26284b1
+T007:
+  task: bdd1b87d546ded0a593bcf78bea4afba656c023536afb89201c01bd418be6170
+T008:
+  task: 1a24a50b46eea946f51c76f9cdd550a2f58b9a44c92901c0f1da58883274b78f
+T009:
+  task: 661fb71ae52e5037860081439117d12125537d5dcbb5902b675277270eb6b507
+T010:
+  task: ac364f99bd1051a4fc5d70a927e55f5577411a043d70a55732700799772f673e
+T011a:
+  task: 798750d6b2b5362489d66242ab1ba578a046c0399337e8f4e6fe937dc4e65a0a
+T011b:
+  task: afaa7e6ad692b9167d1089383716c8fff98cd2069b226570966a247309b5a800
+T012:
+  task: ba281f08c0967574e3d1c80c88879f0e0a4c13e1394b2710d6d99e1360a4c6cd
+T013:
+  task: d36aee40176d5de6a768f0307142c8bed0726987bafa6ce64723bca294357290
+T014:
+  task: 7e6595db21162a4d777bfeacc2a6aa4ae95fb301a2f57aeffc81a5693041b98e
+T020:
+  task: f3fec85cbeb81e5c0221d0f5027027c8321abf594449a108cccfdf7019a82904
+T021:
+  task: 26808edc1b163313e1c0c101dd18f27a32d239b410318f610496383812f5412e
+T022:
+  task: b4f32c56b57380cafdbfc309f34341f65435b539580b31f831e111b1f5187551
+T023:
+  task: 3e84088b5907c15f82e8c3dbf66021c72281dad361fc56341341a8a4f6bd1f16
+T024a:
+  task: ce9e38096b5370286ff6034406c2e3a4aef0c30b9fd1e5178579feab3fbecfce
+T024b:
+  task: 473dbe053b29ab4b08e87fb219c13b1f74793e88cad026a382aa51381a94ac2f
+T024c:
+  task: 60f05141a7cd9c1ff4f7e8416805516314417680b98fb865fb7425aaa46b53f2
+T025:
+  task: 948acd86a9eaeb66d7ff4ff35979062a1642d04305505a6d691d0e72ce99c334
+T026:
+  task: f8d329dc86851d95d70d06d6c1e5f4c0839b9c529e2b557091576a0e90db1dd4
+T031:
+  task: 4c125b4504d752e1ea859d3908dcf4991f6ebcc75b8a9d75a45bd9fcb75a5151
+T032:
+  task: 0141bc6de057f8b166d94f17a39a20a8f758db733a4aeea15b3fc3c1080d253a
+T033:
+  task: c80d3daa9ab265bc00c6558ef56c7719d73c00f6e0c1dcd64c4284d794f8cadd
+T034:
+  task: be8bf263348b38ec870f04c57ae83c11004ab3f93576dc68fb5df26ba2cf60a0
+T035:
+  task: be8988960e359dffecb07f6576dda796c6a79c69c15d3adb97b2ebd5d9f5e48a
+T037:
+  task: 0aa1cc2d9e8c3fa63b5dd95cf6adf14994b3fe727df0174ec905fb7781cd0715
+T062a:
+  task: 91544674fb948d8ea00439b1871560fcef327f4960ff97aaf857c234e29aa946
+T063:
+  task: 762fde2566358f82ba09e16a81f6be5e0306633714c0e9f3519a236d6c0f9586
+T064:
+  task: 95fc4cc9080314e2d10dae450d66f6a5572d828d69ea0091024501e68b04b0b1

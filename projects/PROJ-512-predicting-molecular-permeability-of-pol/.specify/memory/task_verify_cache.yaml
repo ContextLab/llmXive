@@ -1,3 +1,57 @@
+T001a:
+  c: false
+  h: f925ca0540326a3c94643842ca32a66f42175b67fb84eced7576e74fa8186098
+  r: "The repository contains only a `code/` hierarchy (e.g., `code/data/`, `code/models/`,\
+    \ `code/evaluation/`) and no top\u2011level directories named `raw`, `processed`,\
+    \ `models`, or `evaluation` as stipulated by the task and the structure outlined\
+    \ in `plan.md`. Consequently the exact directory layout required by T001a is not\
+    \ present."
+  sig: 0fcfcd801711f8c94fa30c14051e0b01f00e65cfe8e78c0492aabb640d925d67
+T001b:
+  c: false
+  h: c70d8e7e71c48bc0f0a751ebc65c07419cd2bd41d21ff43c3ec2bf36e4dfe8a0
+  r: "The evidence shows that a `main.py` file and a `requirements.txt` file exist\
+    \ in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/`, but their\
+    \ contents (or file sizes) are not provided, so we cannot confirm they are non\u2011\
+    empty or contain the expected initial code/dependencies. Provide the actual contents\
+    \ (or at least non\u2011zero size) of both files to satisfy the task."
+  sig: dda7d0b47e0b9ee631fac6c1aa698f1b3c3db77cf2da322ad625026b23a897a0
+T002:
+  c: false
+  h: b4303c6fbd77e73881f6b5599f25152ad67cc8d4204a6a393206b22f44aad470
+  r: "The only artifact provided is `requirements.txt`, which exists but lists dependencies\
+    \ with open-ended version specifiers (`>=`) rather than exact, pinned versions\
+    \ required by the task. Consequently the project is not initialized with truly\
+    \ \u201Cpinned\u201D dependencies."
+  sig: d377cca36d4a061cbd44993a33e4e043dc0527e9a015ec349f237c36e8665ef5
+T003:
+  c: false
+  h: d18c51ef3258239f3fcd3dcd5645d485631e8f53e1123a6793efb9c2e0a4790d
+  r: "Checked the `.ruff.toml` (contains `target-version = \"py311\"`, `line-length\
+    \ = 100`, `select = [\"E\",\"F\",\"W\",\"I\"]`) \u2013 it meets the ruff requirements.\
+    \ The `pyproject.toml`\u2019s `[tool.black]` section sets `line-length = 88` instead\
+    \ of the required `100`, so the black configuration is incorrect. Fix the black\
+    \ line-length to 100 (and optionally remove conflicting ruff settings) to satisfy\
+    \ the task."
+  sig: 683fba0f56392b5dcb91b0a3af4b3577eac857e1bc727620a051df0ea47313c4
+T004:
+  c: true
+  h: 86cd0f9df3fdda8a2eb6aae43f1192ae537367557b0287a68eb0b60b769dd3aa
+  r: Checked `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/utils.py`,
+    which defines `_SEED`, `_SEED_HASH`, `set_seed`, `get_seed`, `get_seed_hash`,
+    and `ensure_seed_initialized`, and pins random state for `random`, `numpy`, and
+    `torch` when those modules are loaded. This fulfills the seed management and random
+    state pinning requirement.
+  sig: 6441b8c3e6cd532022a1f72b4a0aa9be48c95fa6552186394f41e09c5c1afa3e
+T005:
+  c: true
+  h: 9778852f400cc0fa2b6f483cbbdd2781d403fa4009169e7b4a1800a0584dd00e
+  r: "Checked `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/utils.py`\
+    \ (6221\u202Fbytes) which defines a `setup_logging` function that accepts a log\
+    \ level string, converts it to a numeric level, and calls the standardized `configure_logging`\
+    \ from `data.logging_config`. This provides configurable logging infrastructure\
+    \ as required."
+  sig: 7ba9c3fcd74a3033b2a841da4295d04bf9e317ee941b2a9544690b339be9cec7
 T012:
   c: false
   h: 24a95bc1e12d89385a269a151f7dfcf5542f864ebaa0dfba9aa4c9a7da52c7da
