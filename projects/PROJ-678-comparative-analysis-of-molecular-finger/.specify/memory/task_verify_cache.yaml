@@ -1,16 +1,51 @@
 T001a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directory hierarchy (`projects/PROJ-678-comparative-analysis-of-molecular-fingerprints/`\
-    \ with subfolders `data/raw`, `data/processed`, `code`, `tests`) is provided,\
-    \ nor any indication that the `specs/` sibling directory exists. The implementer\u2019\
-    s claim contains no artifacts confirming the directories were created."
+  h: 462298bdac0a2709b4ccb4b9046cca1bd5c5c279c23426db66fe7ebd46222fce
+  r: "The required project directory `projects/PROJ-678-comparative-analysis-of-molecular-fingerprints/`\
+    \ does not exist, so the mandated sub\u2011folders (`data/raw`, `data/processed`,\
+    \ `code`, `tests`) are absent. The task\u2019s core deliverable is missing."
+T001b:
+  c: false
+  h: af80c8c58d914c9357a888a06976797af3cc4062f87c28f9462a082e6045b59c
+  r: "The evidence includes a `requirements.txt` and `pyproject.toml`, but the requirements\
+    \ file does not pin exact versions for the listed packages (and adds an unexpected\
+    \ `scipy` entry), and there is no `README.md` file present at all. These omissions\
+    \ mean the task\u2019s specification is not fully satisfied."
+T002:
+  c: false
+  h: f31a195294da8b2c57168943e83ef3b13bc76abe0f08738cb0d50a20bc832bef
+  r: Checked `requirements.txt` (contains only package names, no version pins) and
+    `pyproject.toml` (present). No `README.md` file was found. The task required a
+    pinned `requirements.txt` for the listed packages and a README, both of which
+    are missing or incorrect.
+T003:
+  c: true
+  h: b339d652da8c1deb84ddb7da085bfae7bdd9e6194444eaa670a37ddf2d563ffc
+  r: "The `pyproject.toml` file exists (1049\u202Fbytes) and contains proper `[tool.black]`\
+    \ and `[tool.flake8]` configuration sections, fulfilling the requirement to configure\
+    \ Black and Flake8 in the project\u2019s pyproject file."
+T004:
+  c: true
+  h: c85d04af83a049904cc5fcdb90359e189eb6cd2afe431caf255d80e3e7ab37c3
+  r: "The evidence shows that both `data/raw/` and `data/processed/` directories exist\
+    \ and each contains a non\u2011empty `.gitkeep` file (`data/raw/.gitkeep` and\
+    \ `data/processed/.gitkeep`). The presence of these files satisfies the verification\
+    \ command specified in the task."
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No evidence was provided showing a `tests/` directory with the required `unit/`
     and `integration/` subfolders; the claim lacks any artifact confirming the directory
     structure exists.
+T008:
+  c: false
+  h: a80cae43957aa0df630d5aab8b66397fbe95ef323bd53fac66860adc8965f072
+  r: "The required file `specs/001-comparative-analysis-of-molecular-fingerprints/data-model.md`\
+    \ is missing (the only file found is under `specs/001-comparative-analysis-of-molecular-finger/data-model.md`).\
+    \ Moreover, the schemas in the existing document do not match the task\u2019s\
+    \ specified fields for Compound, Fingerprint, Model, and PerformanceMetric. The\
+    \ implementer must create the correctly\u2011named markdown file and define the\
+    \ exact schemas as listed in the task."
 T012:
   c: false
   h: f435163df416b14ce8cc2e2946b54b94527927eb7ae9fb1755948a75c352e70d

@@ -1,0 +1,116 @@
+T001a:
+  reason: "The required project directory `projects/PROJ-678-comparative-analysis-of-molecular-fingerprints/`\
+    \ does not exist, so the mandated sub\u2011folders (`data/raw`, `data/processed`,\
+    \ `code`, `tests`) are absent. The task\u2019s core deliverable is missing."
+  task: d9fec7349de4824f34634b80bf672b61fbb4cea9a6494fc514cb29215609da39
+T001b:
+  reason: "The evidence includes a `requirements.txt` and `pyproject.toml`, but the\
+    \ requirements file does not pin exact versions for the listed packages (and adds\
+    \ an unexpected `scipy` entry), and there is no `README.md` file present at all.\
+    \ These omissions mean the task\u2019s specification is not fully satisfied."
+  task: 7fff59138db23b23a1c77c9bf3dbf04d38c491bc854bcd8ef327f49a36dc2f7d
+T002:
+  reason: Checked `requirements.txt` (contains only package names, no version pins)
+    and `pyproject.toml` (present). No `README.md` file was found. The task required
+    a pinned `requirements.txt` for the listed packages and a README, both of which
+    are missing or incorrect.
+  task: b23ad6b7974b168cf46f630078ca3d27706722200830e8ece445d22171259a0f
+T003:
+  task: c33860119f27bff9c550456457efc62cc1401cbcd06a585d0855db328edadcd5
+T004:
+  task: d6c300073ec3f9fbabeab66c769279d2725864895ed96ba5207f18561b61f896
+T005:
+  task: 5912718fd90e61b6aaa55390d62036e3eed0dd5797774529d01342db7c9bd4ae
+T006:
+  task: bce17499b38bf19e2d7003ed566d1807e09d551aea24baa5e6d2c880730502de
+T007:
+  task: ae0f4b3c48c474a1b31bab04a0c1916ddce9a962e4e46d6af4835595697f290c
+T008:
+  reason: "The required file `specs/001-comparative-analysis-of-molecular-fingerprints/data-model.md`\
+    \ is missing (the only file found is under `specs/001-comparative-analysis-of-molecular-finger/data-model.md`).\
+    \ Moreover, the schemas in the existing document do not match the task\u2019s\
+    \ specified fields for Compound, Fingerprint, Model, and PerformanceMetric. The\
+    \ implementer must create the correctly\u2011named markdown file and define the\
+    \ exact schemas as listed in the task."
+  task: 0ba586c68f417f521237a5b1263a42735f8c6ea9773571fce6e3522a10f1992c
+T009:
+  task: dec14d06a6c9f89973c63986447f41a933761d6b511561dcf7d20d8c731349a8
+T010:
+  task: d10d4ec8e715ccef1863bd5ea8b49b00ca4e2b7c5e8b9f1ef3a540829623d99c
+T011:
+  task: 55e8a6a2c364c92cb31f26032b9c3820a66aac6c3b85670920cff1d423515481
+T012:
+  task: ffc0c6a5b717e64a47d83d00d2d419071f4ac0d817f436dbedd5d98f8fff297f
+T013a:
+  task: 68dee8407e5cdb640e1b36e7a186ae675391051f1b35a13019ae820a6f5867fc
+T013b:
+  task: b8354f1f86b9e341d5c72c979aea6cc62edd1871e3d7c07419240fe1907dc884
+T014:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/filter_log.txt'
+  task: 74738a3340ff954b15b34bdfd413a4cb4bed0dcd5b3dba5fbf3e359ca8442aa9
+T015:
+  task: 7be1b20cc108b660d6abe67e0bfe90c48a6adf25c7bd1994f90c6b8e1a0186b6
+T016:
+  task: 0cc6d1c54ab04c920791a4b988be21ed4f5904615d8054be0eff25cc7ead5dbf
+T017:
+  task: 082132813161adf2020ea7b7f60c9a54b57eb1a4bd9d146b4e43c6befdcd1e6e
+T018a:
+  task: e94091a8cb67958937eaa5d578f5a93c1c1a14b97d73cdcc435e9daef482bf29
+T018c1:
+  task: c6e975934381cf9ef92ed9b52a7c1c24d79ce46769857ab87d34d4fdc1882e3c
+T018c2:
+  task: 78fd6ee6d5fa81e03f30ea24461af1e26adc7b73ddbfc6c4fade6ba5e83f67e4
+T018c3:
+  task: adcf5c2f1bcbc3d2016effd1ac5192ee0b53fe1b51e66dfcadb32243b9213f0a
+T019:
+  task: ab2eee67375bbf8f16255b6a64b8dcda49ff283d1bc891516034506c3ce4f25b
+T020a:
+  task: 1f94727abdfe970fd01d14dfc7b9b8ff394ce649577cc2c985f3b2739e68a3f4
+T020b:
+  task: 81a228ad794ca3b57f83031103b2e92fb5128ae76bd08579419e5336fb6e0f7c
+T022:
+  task: a9219d0ff468a5474ea1207f958cbc1758802091fe70ad4bdc068a05af55e13f
+T023:
+  task: 958dd8f787c10e1c9b20fe1db416f62bf79596adfa1847aaa13608c6e0c85000
+T024a:
+  task: 022c181a0c0163d7f21855d88cc5351a6d9af296e1dcbc7de98e2a2a0279313e
+T024b:
+  task: 5446e196a84515b16b91d52b46b55ffbff51eb70fe3f71aa90b843225d85b6e1
+T025a1:
+  task: 930a79011af503dcdaea25cf49e66dd2ec754827947aa0e5e5d9448a5ec6bf34
+T025a2:
+  task: d08ff31baadfa9f38d49ea3653cb6aecf11305a721d3a910bf500b77a9eb8eba
+T025b:
+  task: 8c6038aef287ee159c4e3ed741a67c4c9660990388ca33bda03b998aaa2dc489
+T025c0:
+  task: dd2589ebf1df9c1da5d3a20b37616010b18ccaf033a260f5206954a372b3cfb9
+T025c1:
+  task: a0d615203f2025d9dae0a104c5c8522d84b3214f9b60c3ecafb1c2d668ba9d77
+T025c2:
+  task: 52d2b389c9c3f5aca463d4654f13e6ef65b734a5ed72d7d19f1e2a67f80a9e1a
+T025c3:
+  task: 0f30c6c05868776abb92cf551c56065c948b2c1cced8883edd1abf81fa657579
+T029a1:
+  task: ffbc2531b620f8355946495031bbddd954402a09dc26089c79866b4521bccc6c
+T029a2:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/test_set_descriptive.json'
+  task: dbc90c6340077842d05aef0cbae99bd072ad61b3793a985bc1643b4c38e4ce80
+T029a3:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/research_results.md'
+  task: 0b0eb8eaddc47adeda6fb327636d0b334ceb83cd732739115c550f160006b370
+T033:
+  task: 103c850ea9eada24911c1df824d9f9a5ebd3258ce009b3ab04722f5f84fa04c9
+T034:
+  reason: 'Requested task execution failed; rerun successfully: code/quickstart_validation.py
+    exit=1'
+  task: bf436e5a3f501044cc94ae1f7edc91a3304b33b254709d6ebfbab94e6dcbda4d
+T039:
+  task: 2fc05e1a4d45f6d158eaad92c83505d4e67824a76bb80c338788b7a5a47b78cf
+T040:
+  task: 878fc9e52624317f5392c5b44814f7f81937e0e38ca18d492bcc283228d3d823
+T041:
+  task: 68e7142718f3db7daf0e8ac7a13a6def0ca86a3aad0697e853ea7956f8dcc70e
+T042:
+  task: d935ef348aef16dcd78122e1a20a58b03feb35d8a48cbe672f785879e74c35ef
+T043:
+  task: 31f3c6f46f4eff5a0f971bcb787fbcce8eb538d1f17e0c58e4fa9fade70f86b2

@@ -31,5 +31,14 @@ with:
 pytest tests/unit/test_stats.py
 ```
 
-All artefacts produced by the pipeline are written under the ``data/``
-directory as described in the task specifications.
+Ensure all tests pass, particularly `test_filter.py` (SMARTS pattern) and `test_fingerprints.py` (bit lengths).
+
+## Validation
+
+To verify that the entire pipeline completes within the CI time budget (60 minutes), run:
+
+```bash
+python code/quickstart_validation.py
+```
+
+The script will write a short report to `data/processed/quickstart_validation.txt`.
