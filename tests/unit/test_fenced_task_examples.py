@@ -106,3 +106,27 @@ def test_engine_writeback_refuses_ambiguous_ids_and_ignores_example_count():
     assert 'duplicates' in check(real + '\n- [ ] T003 Another requirement')[0]
     assert 'only 0 task IDs' in check('```md\n' + real + '\n```')[0]
     assert 'Unterminated' in check(real + '\n```')[0]
+
+
+@pytest.mark.parametrize("wrapper", ["```", "~~~~", "````"])
+def test_outer_model_wrapper_preserves_inner_markdown_examples(wrapper):
+    from llmxive.speckit.task_lines import unwrap_task_document
+    content = "# Tasks\n```md\n- [ ] T### format example\n```\n- [ ] T001 Real task"
+    unwrapped = unwrap_task_document(wrapper + "markdown\n" + content + "\n" + wrapper)
+    assert unwrapped == content
+    validate_open_tasks(unwrapped)
+    assert list(verifier.task_keys(unwrapped).values()) == ["T001"]
+
+
+def test_paper_tasker_rejects_example_only_response_without_replacing_artifacts(tmp_path):
+    from types import SimpleNamespace
+
+    from llmxive.speckit.paper_tasks_cmd import PaperTaskerAgent
+    project = tmp_path / "projects/PROJ-1"
+    project.mkdir(parents=True)
+    tasks = project / "tasks.md"
+    tasks.write_text("- [ ] T001 Existing task")
+    with pytest.raises(TaskFormatError, match="no executable"):
+        PaperTaskerAgent().write_artifacts(SimpleNamespace(project_dir=project),
+            {"tasks_path": str(tasks)}, SimpleNamespace(text="# Examples\n```md\n- [ ] T### example\n```"))
+    assert tasks.read_text() == "- [ ] T001 Existing task"

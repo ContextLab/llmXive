@@ -165,15 +165,8 @@ class TaskerAgent(SlashCommandAgent):
         repo = ctx.project_dir.parent.parent
         tasks_path = Path(mechanical_output["tasks_path"])
         tasks_path.parent.mkdir(parents=True, exist_ok=True)
-        # Strip ```markdown / ```md fences if the LLM wrapped its response.
-        text = llm_response.text.strip()
-        if text.startswith("```"):
-            lines = text.splitlines()
-            if lines[0].lstrip("`").lower() in {"", "markdown", "md"}:
-                lines = lines[1:]
-            if lines and lines[-1].strip() == "```":
-                lines = lines[:-1]
-            text = "\n".join(lines).strip()
+        from llmxive.speckit.task_lines import unwrap_task_document
+        text = unwrap_task_document(llm_response.text)
         # Stronger validation: tasks.md must:
         #   1. NOT be a unified or context diff (spec 010 fix — the old
         #      guard caught `@@`-prefixed leads but missed `--- a/<path>`

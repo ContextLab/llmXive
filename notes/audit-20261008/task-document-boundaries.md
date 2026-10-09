@@ -22,3 +22,8 @@ Regressions exercise file-backed generation refusal, engine guards, exact task
 marking, completion, nested-length fences, and verification with real-looking IDs
 inside examples. This is deterministic platform validation; full canary acceptance
 remains pending.
+
+Research and paper taskers also unwrap an outer Markdown response wrapper before
+checking identities, while retaining inner examples. Example-only paper responses
+are rejected before overwriting prior work. Sixty-six boundary, planning and
+paper-stage tests pass after this follow-up.
