@@ -530,6 +530,8 @@ def propose_fix(repo: Path, evidence: dict, output: Path, tree: list[str],
 def run(repo: Path, evidence: dict, output: Path, *, image: str = IMAGE) -> dict:
     output.mkdir(parents=True, exist_ok=True)
     (output / "evidence.json").write_text(json.dumps(evidence, indent=2))
+    # Publication verifies the preserved input, not prompt-only derived hints.
+    evidence_sha256 = hashlib.sha256(json.dumps(evidence, sort_keys=True).encode()).hexdigest()
     dispatch = stage_context(repo, evidence)
     (output / "dispatch-context.json").write_text(json.dumps({"routes": dispatch}, indent=2))
     evidence = dict(evidence, stage_dispatch_context=dispatch)
@@ -682,9 +684,7 @@ def run(repo: Path, evidence: dict, output: Path, *, image: str = IMAGE) -> dict
         "title": proposal["title"],
         "explanation": proposal["explanation"],
         "model": proposal["_producer_model"],
-        "evidence_sha256": hashlib.sha256(
-            json.dumps(evidence, sort_keys=True).encode()
-        ).hexdigest(),
+        "evidence_sha256": evidence_sha256,
         "regression": regression,
         "related_tests": related,
         "before_exit": before,
