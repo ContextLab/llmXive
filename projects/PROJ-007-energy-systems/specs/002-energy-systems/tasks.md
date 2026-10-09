@@ -26,9 +26,9 @@
 
 - [X] T001 Create project structure: `mkdir -p src/data src/analysis src/utils src/models tests/unit tests/integration data/raw data/processed data/outputs specs/`
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools: Add `pyproject.toml` sections for ruff/black and create `.ruff.toml`
-- [X] T004 [P] Set up `pytest` configuration: Create `pytest.ini` and `.gitignore` entries for `data/` and `__pycache__/`
-- [X] T044a [P] Security hardening (Workflow): Create `.github/workflows/ci.yml` with a job `security-scan` that runs `detect-secrets scan --baseline.secrets.baseline` on `data/` and `src/`. The workflow must fail the build if PII is detected. This task defines the CI infrastructure. **Implementation**: The file content must match the `plan.md` Phase 0 specification exactly.
-- [X] T044b [P] Security hardening (Baseline): Generate the initial `.secrets.baseline` file by running `detect-secrets scan --baseline.secrets.baseline` locally. This task must be completed after T044a to ensure the baseline file exists for the CI workflow to audit. **Implementation**: Execute the command locally and commit the resulting file.
+- [ ] T004 [P] Set up `pytest` configuration: Create `pytest.ini` and `.gitignore` entries for `data/` and `__pycache__/`
+- [ ] T044a [P] Security hardening (Workflow): Create `.github/workflows/ci.yml` with a job `security-scan` that runs `detect-secrets scan --baseline.secrets.baseline` on `data/` and `src/`. The workflow must fail the build if PII is detected. This task defines the CI infrastructure. **Implementation**: The file content must match the `plan.md` Phase 0 specification exactly.
+- [ ] T044b [P] Security hardening (Baseline): Generate the initial `.secrets.baseline` file by running `detect-secrets scan --baseline.secrets.baseline` locally. This task must be completed after T044a to ensure the baseline file exists for the CI workflow to audit. **Implementation**: Execute the command locally and commit the resulting file. <!-- FAILED-IN-EXECUTION: code/scripts/generate_secrets_baseline.sh exit=2 -->
 
 ---
 
@@ -40,29 +40,29 @@
 
 - [X] T005 [P] Implement `src/models/schemas.py` with Pydantic models for `Household`, `MatchedPair`, and `AnalysisResult`
 - [X] T006 [P] Create `src/utils/logging.py` with structured logging and seed setting (numpy, pandas, sklearn). **Note**: All random seeds MUST be pinned here to satisfy Constitution Principle I.
-- [X] T007 [P] Implement `src/config.yaml` for seeds, paths, and thresholds (calipers: precise measurement capability, SMD limits: small effect sizes). **Note**: Only spec-defined thresholds are included. No scaling thresholds.
-- [X] T008 [P] Create `src/data/ingest.py` with the following function signatures (stubs raising `NotImplementedError`):
+- [ ] T007 [P] Implement `src/config.yaml` for seeds, paths, and thresholds (calipers: precise measurement capability, SMD limits: small effect sizes). **Note**: Only spec-defined thresholds are included. No scaling thresholds.
+- [ ] T008 [P] Create `src/data/ingest.py` with the following function signatures (stubs raising `NotImplementedError`):
  - `def fetch_eia_rec(url: str) -> pd.DataFrame:`
  - `def fetch_acs(tract_id: str) -> pd.DataFrame:`
  - **Docstring requirement**: Must describe expected columns (income, energy_cost, solar_installation, location) and error handling for missing data.
-- [X] T009 [P] Create `src/data/preprocess.py` with the following function signatures (stubs raising `NotImplementedError`):
+- [ ] T009 [P] Create `src/data/preprocess.py` with the following function signatures (stubs raising `NotImplementedError`):
  - `def filter_low_income(df: pd.DataFrame, threshold: float) -> pd.DataFrame:`
  - `def winsorize(df: pd.DataFrame, lower: float, upper: float) -> pd.DataFrame:`
  - `def construct_treatment(df: pd.DataFrame) -> pd.DataFrame:`
  - **Docstring requirement**: Must describe outlier handling (1st/99th percentile) and treatment construction logic.
-- [X] T010 [P] Create `src/analysis/psm.py` with the following function signatures (stubs raising `NotImplementedError`):
+- [~] T010 [P] Create `src/analysis/psm.py` with the following function signatures (stubs raising `NotImplementedError`):
  - `def estimate_propensity(df: pd.DataFrame, covariates: list) -> pd.DataFrame:`
  - `def match_pairs(df: pd.DataFrame, caliper: float) -> pd.DataFrame:`
  - **Docstring requirement**: Must describe matching algorithm and caliper enforcement.
-- [X] T011 [P] Create `src/analysis/balance.py` with the following function signatures (stubs raising `NotImplementedError`):
+- [~] T011 [P] Create `src/analysis/balance.py` with the following function signatures (stubs raising `NotImplementedError`):
  - `def calculate_smd(df: pd.DataFrame) -> dict:`
  - `def plot_balance(smd_data: dict) -> matplotlib.figure.Figure:`
  - **Docstring requirement**: Must describe SMD calculation and balance visualization.
-- [X] T012 [P] Create `src/analysis/causal.py` with the following function signatures (stubs raising `NotImplementedError`):
+- [~] T012 [P] Create `src/analysis/causal.py` with the following function signatures (stubs raising `NotImplementedError`):
  - `def run_ols(df: pd.DataFrame, cluster_var: str) -> statsmodels.regression.linear_model.RegressionResults:`
  - `def run_did(df: pd.DataFrame) -> statsmodels.regression.linear_model.RegressionResults:`
  - **Docstring requirement**: Must describe OLS with cluster-robust SEs and DiD logic (noted as impossible in plan).
-- [X] T013 [P] Create `src/analysis/sensitivity.py` with the following function signature (stub raising `NotImplementedError`):
+- [~] T013 [P] Create `src/analysis/sensitivity.py` with the following function signature (stub raising `NotImplementedError`):
  - `def sweep_caliper(df: pd.DataFrame, calipers: list) -> dict:`
  - **Docstring requirement**: Must describe the sensitivity sweep logic.
 
@@ -78,13 +78,13 @@
 
 ### Implementation for User Story 1
 
-- [X] T015 [US1] Implement `src/data/ingest.py` to fetch EIA RECS from official URL and ACS data via `censusdata` API; fail loudly if required columns (income, energy_cost, solar_installation, location) are missing. Ensure API calls target US-specific endpoints.
-- [X] T016 [US1] Implement `src/data/preprocess.py` to filter households in census tracts with median income < 150% of FPL, construct binary `treatment` variable (1 if solar/microgrid, 0 otherwise), and calculate `energy_cost_burden` (cost/income) and `home_value_change`
-- [X] T017 [US1] Implement winsorization logic in `src/data/preprocess.py` to handle zero energy costs and outliers (1st/99th percentile) before regression
-- [X] T018 [US1] Implement power check in `src/data/preprocess.py` to halt and report if < 50 adopters remain after filtering; raise `PowerError: Insufficient adopters (<50)` if threshold not met
-- [X] T050 [US1] Implement missing value handling in `src/data/preprocess.py`: use Median Imputation for continuous variables (income, cost) and a 'Missing' flag category for categorical variables; verify no silent data loss
-- [X] T020 [US1] Create `tests/integration/test_ingestion.py` to verify schema validation, column presence, and low-income filtering logic
-- [X] T021 [US1] Create `tests/unit/test_preprocess.py` to verify treatment construction, winsorization, and missing value handling logic
+- [~] T015 [US1] Implement `src/data/ingest.py` to fetch EIA RECS from official URL and ACS data via `censusdata` API; fail loudly if required columns (income, energy_cost, solar_installation, location) are missing. Ensure API calls target US-specific endpoints.
+- [~] T016 [US1] Implement `src/data/preprocess.py` to filter households in census tracts with median income < 150% of FPL, construct binary `treatment` variable (1 if solar/microgrid, 0 otherwise), and calculate `energy_cost_burden` (cost/income) and `home_value_change`
+- [~] T017 [US1] Implement winsorization logic in `src/data/preprocess.py` to handle zero energy costs and outliers (1st/99th percentile) before regression
+- [~] T018 [US1] Implement power check in `src/data/preprocess.py` to halt and report if < 50 adopters remain after filtering; raise `PowerError: Insufficient adopters (<50)` if threshold not met
+- [~] T050 [US1] Implement missing value handling in `src/data/preprocess.py`: use Median Imputation for continuous variables (income, cost) and a 'Missing' flag category for categorical variables; verify no silent data loss
+- [~] T020 [US1] Create `tests/integration/test_ingestion.py` to verify schema validation, column presence, and low-income filtering logic
+- [~] T021 [US1] Create `tests/unit/test_preprocess.py` to verify treatment construction, winsorization, and missing value handling logic
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -98,14 +98,14 @@
 
 ### Implementation for User Story 2
 
-- [X] T022 [US2] Implement `src/analysis/psm.py` to estimate propensity scores using logistic regression with covariates (income, housing type, location) and perform nearest neighbor matching with a caliper
-- [X] T052 [US2] Implement common support check in `src/analysis/psm.py` (after score calculation) to flag/exclude observations with extreme propensity scores (near the boundaries of the support)
-- [X] T023 [US2] Implement `src/analysis/balance.py` to calculate SMD for all matching variables and generate balance plots (love plot)
-- [X] T024 [US2] Implement balance failure logic in `src/analysis/psm.py`: if SMD > 0.1 or placebo test fails, raise `CausalIdentificationFailureError` with message "PSM Balance Not Achieved: Hard Halt". This task enforces the 'Graceful Degradation Protocol' (Hard Halt) as mandated by the plan.
-- [X] T025 [US2] Implement placebo test logic in `src/analysis/balance.py` to check for significant differences in pre-treatment outcomes between matched groups
-- [X] T046 [US2] Implement `src/analysis/balance.py` function `run_placebo_gate(df: pd.DataFrame) -> bool`: execute placebo test on pre-treatment outcome; return False if p-value < 0.05 (signaling unconfoundedness failure); this function gates causal estimation in the main pipeline and its result is integrated into the `balance_status` logic in T024.
-- [X] T026 [US2] Create `tests/unit/test_psm.py` to verify matching logic, caliper enforcement, and SMD calculation
-- [X] T027 [US2] Create `tests/unit/test_balance.py` to verify SMD thresholds, placebo test significance logic, and DiD trigger logic
+- [~] T022 [US2] Implement `src/analysis/psm.py` to estimate propensity scores using logistic regression with covariates (income, housing type, location) and perform nearest neighbor matching with a caliper
+- [~] T052 [US2] Implement common support check in `src/analysis/psm.py` (after score calculation) to flag/exclude observations with extreme propensity scores (near the boundaries of the support)
+- [~] T023 [US2] Implement `src/analysis/balance.py` to calculate SMD for all matching variables and generate balance plots (love plot)
+- [~] T024 [US2] Implement balance failure logic in `src/analysis/psm.py`: if SMD > 0.1 or placebo test fails, raise `CausalIdentificationFailureError` with message "PSM Balance Not Achieved: Hard Halt". This task enforces the 'Graceful Degradation Protocol' (Hard Halt) as mandated by the plan.
+- [~] T025 [US2] Implement placebo test logic in `src/analysis/balance.py` to check for significant differences in pre-treatment outcomes between matched groups
+- [~] T046 [US2] Implement `src/analysis/balance.py` function `run_placebo_gate(df: pd.DataFrame) -> bool`: execute placebo test on pre-treatment outcome; return False if p-value < 0.05 (signaling unconfoundedness failure); this function gates causal estimation in the main pipeline and its result is integrated into the `balance_status` logic in T024.
+- [~] T026 [US2] Create `tests/unit/test_psm.py` to verify matching logic, caliper enforcement, and SMD calculation
+- [~] T027 [US2] Create `tests/unit/test_balance.py` to verify SMD thresholds, placebo test significance logic, and DiD trigger logic
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -119,15 +119,15 @@
 
 ### Implementation for User Story 3
 
-- [X] T054a [US3] Implement `src/analysis/did.py` function `check_longitudinal_data(df: pd.DataFrame) -> bool`: Verify presence of `pre_treatment_outcome` and `post_treatment_outcome` columns. If missing, raise `DataUnavailableError` with message "Longitudinal data missing; DiD fallback impossible. Halting pipeline." This task implements the data check required for the DiD fallback strategy.
-- [X] T054b [US3] Implement `src/analysis/did.py` function `run_did(df: pd.DataFrame) -> statsmodels.regression.linear_model.RegressionResults`: Implement the DiD estimation algorithm. This function MUST be callable, but T054a will raise an error before it is reached if data is missing, satisfying the plan's 'Hard Halt' requirement while fulfilling FR-008's requirement to 'implement' the strategy.
-- [X] T028 [US3] Implement `src/analysis/causal.py` to run OLS regression with cluster-robust standard errors (clustered by matched pair) on `log(energy_cost)` as the primary outcome. **Note**: Model covariates are strictly limited to those defined in FR-003 (income, housing, location).
-- [X] T053 [US3] Implement control flow logic in `src/main.py`: Add conditional block `if balance_status == FAIL: check_longitudinal_data(); if data missing: raise DataUnavailableError(); halt pipeline`. **Crucial**: The `else: run_did()` path is DEAD CODE and MUST NOT be implemented. The plan explicitly states DiD is impossible with cross-sectional data. This task ensures the pipeline halts with a clear error message ("Causal Identification Failure") rather than attempting an invalid DiD or falling back to OLS.
-- [X] T030 [US3] Implement `src/analysis/sensitivity.py` to sweep calipers over a range of small values by calling reusable functions from T022 and T028; compile ATT estimates, p-values, and confidence intervals
-- [X] T031 [US3] Implement result serialization in `src/models/output.py`: add method `AnalysisResult.to_json()` to save `AnalysisResult` objects (ATT, p-value, CI, methodology, sensitivity data) to `data/outputs/analysis_result.json`
-- [X] T032 [US3] Create `tests/integration/test_pipeline.py` to verify end-to-end flow from ingestion to sensitivity report generation
-- [X] T033 [US3] Create `tests/unit/test_causal.py` to verify OLS and DiD estimation logic and cluster-robust standard errors
-- [X] T034 [US3] Create `tests/unit/test_did.py` to verify DiD estimation logic and the `DataUnavailableError` raised when longitudinal data is missing.
+- [~] T054a [US3] Implement `src/analysis/did.py` function `check_longitudinal_data(df: pd.DataFrame) -> bool`: Verify presence of `pre_treatment_outcome` and `post_treatment_outcome` columns. If missing, raise `DataUnavailableError` with message "Longitudinal data missing; DiD fallback impossible. Halting pipeline." This task implements the data check required for the DiD fallback strategy.
+- [~] T054b [US3] Implement `src/analysis/did.py` function `run_did(df: pd.DataFrame) -> statsmodels.regression.linear_model.RegressionResults`: Implement the DiD estimation algorithm. This function MUST be callable, but T054a will raise an error before it is reached if data is missing, satisfying the plan's 'Hard Halt' requirement while fulfilling FR-008's requirement to 'implement' the strategy.
+- [~] T028 [US3] Implement `src/analysis/causal.py` to run OLS regression with cluster-robust standard errors (clustered by matched pair) on `log(energy_cost)` as the primary outcome. **Note**: Model covariates are strictly limited to those defined in FR-003 (income, housing, location).
+- [~] T053 [US3] Implement control flow logic in `src/main.py`: Add conditional block `if balance_status == FAIL: check_longitudinal_data(); if data missing: raise DataUnavailableError(); halt pipeline`. **Crucial**: The `else: run_did()` path is DEAD CODE and MUST NOT be implemented. The plan explicitly states DiD is impossible with cross-sectional data. This task ensures the pipeline halts with a clear error message ("Causal Identification Failure") rather than attempting an invalid DiD or falling back to OLS.
+- [~] T030 [US3] Implement `src/analysis/sensitivity.py` to sweep calipers over a range of small values by calling reusable functions from T022 and T028; compile ATT estimates, p-values, and confidence intervals
+- [~] T031 [US3] Implement result serialization in `src/models/output.py`: add method `AnalysisResult.to_json()` to save `AnalysisResult` objects (ATT, p-value, CI, methodology, sensitivity data) to `data/outputs/analysis_result.json`
+- [~] T032 [US3] Create `tests/integration/test_pipeline.py` to verify end-to-end flow from ingestion to sensitivity report generation
+- [~] T033 [US3] Create `tests/unit/test_causal.py` to verify OLS and DiD estimation logic and cluster-robust standard errors
+- [ ] T034 [US3] Create `tests/unit/test_did.py` to verify DiD estimation logic and the `DataUnavailableError` raised when longitudinal data is missing.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -141,11 +141,11 @@
 
 ### Implementation for Graceful Degradation Protocol
 
-- [X] T070 [US3] Update `src/analysis/did.py` to include a clear docstring explaining that DiD is methodologically impossible with cross-sectional EIA RECS/ACS data and that the `check_longitudinal_data` function will always raise `DataUnavailableError` for this dataset.
-- [X] T071 [US3] Update `src/main.py` to catch `DataUnavailableError` and log a clear message: "Causal Identification Failure: PSM Balance Not Achieved and DiD Fallback Impossible (Cross-Sectional Data). Pipeline Halted."
-- [X] T072 [US3] Update `src/models/schemas.py` to include `GracefulDegradationStatus` schema containing `halt_reason`, `methodology_attempted`, and `data_availability_check`.
-- [X] T073 [US3] Integrate `GracefulDegradationStatus` into `AnalysisResult` in `src/models/schemas.py` and `src/models/output.py` to ensure the final JSON output includes the degradation status.
-- [X] T074 [US3] Create `tests/unit/test_graceful_degradation.py` to verify the `DataUnavailableError` is raised and the pipeline halts correctly when PSM fails.
+- [~] T070 [US3] Update `src/analysis/did.py` to include a clear docstring explaining that DiD is methodologically impossible with cross-sectional EIA RECS/ACS data and that the `check_longitudinal_data` function will always raise `DataUnavailableError` for this dataset.
+- [~] T071 [US3] Update `src/main.py` to catch `DataUnavailableError` and log a clear message: "Causal Identification Failure: PSM Balance Not Achieved and DiD Fallback Impossible (Cross-Sectional Data). Pipeline Halted."
+- [~] T072 [US3] Update `src/models/schemas.py` to include `GracefulDegradationStatus` schema containing `halt_reason`, `methodology_attempted`, and `data_availability_check`.
+- [~] T073 [US3] Integrate `GracefulDegradationStatus` into `AnalysisResult` in `src/models/schemas.py` and `src/models/output.py` to ensure the final JSON output includes the degradation status.
+- [ ] T074 [US3] Create `tests/unit/test_graceful_degradation.py` to verify the `DataUnavailableError` is raised and the pipeline halts correctly when PSM fails.
 
 **Checkpoint**: Graceful Degradation Protocol is integrated and ensures the pipeline halts correctly when causal identification fails.
 
@@ -155,11 +155,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T040 [P] Documentation updates: Update `quickstart.md` with exact commands for running the full causal pipeline (ingest -> match -> estimate -> report) and expected output format. Must document: `python src/main.py --config src/config.yaml` and the expected JSON structure of `data/outputs/analysis_result.json`.
-- [X] T043 [P] Run `quickstart.md` validation: Execute the commands documented in T040 and verify that the pipeline completes successfully and produces `data/outputs/analysis_result.json` with valid JSON structure (verified via `python -m json.tool`).
-- [X] T045 [P] Final report generation: Create a comprehensive report in `src/reporting/generate_final_report.py` that includes causal inference results and sensitivity analysis, strictly adhering to FR-001 through FR-009.
-- [X] T065 [P] Update `README.md` and `docs/architecture.md` to explicitly document the causal inference pipeline (US1-3) and its adherence to FR-001 through FR-009. **Note**: Do NOT include any scaling law sections.
-- [X] T076 [P] Update `README.md` and `docs/architecture.md` to document the 'Graceful Degradation Protocol' (Hard Halt) for DiD fallback, explaining why DiD is impossible with cross-sectional data and how the system handles PSM failure.
+- [~] T040 [P] Documentation updates: Update `quickstart.md` with exact commands for running the full causal pipeline (ingest -> match -> estimate -> report) and expected output format. Must document: `python src/main.py --config src/config.yaml` and the expected JSON structure of `data/outputs/analysis_result.json`.
+- [~] T043 [P] Run `quickstart.md` validation: Execute the commands documented in T040 and verify that the pipeline completes successfully and produces `data/outputs/analysis_result.json` with valid JSON structure (verified via `python -m json.tool`).
+- [~] T045 [P] Final report generation: Create a comprehensive report in `src/reporting/generate_final_report.py` that includes causal inference results and sensitivity analysis, strictly adhering to FR-001 through FR-009.
+- [~] T065 [P] Update `README.md` and `docs/architecture.md` to explicitly document the causal inference pipeline (US1-3) and its adherence to FR-001 through FR-009. **Note**: Do NOT include any scaling law sections.
+- [~] T076 [P] Update `README.md` and `docs/architecture.md` to document the 'Graceful Degradation Protocol' (Hard Halt) for DiD fallback, explaining why DiD is impossible with cross-sectional data and how the system handles PSM failure.
 
 ---
 
