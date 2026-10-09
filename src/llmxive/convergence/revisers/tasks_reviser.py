@@ -186,6 +186,12 @@ class _AbstractTasksReviser:
             new_tasks, responses = self._parse_response(
                 response_text, concerns, tasks_path
             )
+            if not self._is_paper_side:
+                from llmxive.agents.task_verifier import preserve_verified_completion
+                project_dir = self._repo_root / "projects" / self._project_id
+                new_tasks = preserve_verified_completion(
+                    project_dir, self._repo_root / tasks_path, new_tasks,
+                )
             # Only the task document is editable. Passing context files through
             # post-revision claim guards would rewrite the already-approved
             # specification and plan, and spend model calls auditing them anew.

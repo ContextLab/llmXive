@@ -245,6 +245,8 @@ class TaskerAgent(SlashCommandAgent):
         prior_tasks = (
             tasks_path.read_text(encoding="utf-8") if tasks_path.exists() else None
         )
+        from llmxive.agents.task_verifier import preserve_verified_completion
+        text = preserve_verified_completion(ctx.project_dir, tasks_path, text)
         tasks_path.write_text(text + "\n", encoding="utf-8")
         # FR-009: real-only guard — refuse to commit a template tasks.md
         from llmxive.speckit._real_only_guard import guard_emit
