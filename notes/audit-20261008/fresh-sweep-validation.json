@@ -1,0 +1,146 @@
+{
+  "observed_at": "2026-10-09T06:25:51.733224+00:00",
+  "scope": "Read-only comparison of generated sweep files with independent linear totient recurrence and gcd sanity checks; not pipeline acceptance",
+  "all_passed": false,
+  "checks": [
+    {
+      "N": 1000,
+      "p": 5,
+      "unconditional_tv": 0.102,
+      "conditional_tv": 0.07524613220815753,
+      "errors": [],
+      "json_sha256": "c2b6848135da301eaa08d24dd57ab9780bee65c2b548174be147249b942e238f",
+      "csv_sha256": "6db32eac85fd8becf43c7649d8aee8cbeade922af56311610bf61996eafe0b12",
+      "file_mtime": "2026-10-09T06:08:55.727772+00:00"
+    },
+    {
+      "N": 1000,
+      "p": 7,
+      "unconditional_tv": 0.04057142857142857,
+      "conditional_tv": 0.045134818288393906,
+      "errors": [
+        "tv_unconditional differs"
+      ],
+      "json_sha256": "5f0b0742d8f17e30fe8f91da1fc821297539ba6393351cebca3fdece843f4e57",
+      "csv_sha256": "912e44f895160e07d0b3cc041806de0bcaf7c6ff2468d4aa02d343c875a12ba8",
+      "file_mtime": "2026-10-09T06:08:55.728107+00:00"
+    },
+    {
+      "N": 1000,
+      "p": 11,
+      "unconditional_tv": 0.028545454545454544,
+      "conditional_tv": 0.02666666666666667,
+      "errors": [
+        "tv_unconditional differs"
+      ],
+      "json_sha256": "508bf826910c8c7f57d2faf0ea11c55474ec8e9497e45f1bbb252dc79d7dd3e6",
+      "csv_sha256": "afef231ee332b9b28c2706c2b4e3e88dab93ad5ed8f4c98b27a21e370f5aaa59",
+      "file_mtime": "2026-10-09T06:08:55.728567+00:00"
+    },
+    {
+      "N": 10000,
+      "p": 5,
+      "unconditional_tv": 0.1452,
+      "conditional_tv": 0.057269395235186316,
+      "errors": [],
+      "json_sha256": "8f433bfe0cdb559451050c0bdaf4730b6d15087eab2d7a45d9b6a277fd3bc8e6",
+      "csv_sha256": "e56c82d835aa0beffa15868003ca370abf8171a933ffc87fad9dac96b5179603",
+      "file_mtime": "2026-10-09T06:08:55.731486+00:00"
+    },
+    {
+      "N": 10000,
+      "p": 7,
+      "unconditional_tv": 0.05422857142857143,
+      "conditional_tv": 0.03549820965551303,
+      "errors": [
+        "tv_unconditional differs"
+      ],
+      "json_sha256": "343992b835c267fe91d4e6687eddb1303d58a9d2d3adcb772363d72021efe632",
+      "csv_sha256": "da01079a6c36ec6a328962c17b36f45c4a41a57eab3c1b667ad509fde9200d71",
+      "file_mtime": "2026-10-09T06:08:55.732716+00:00"
+    },
+    {
+      "N": 10000,
+      "p": 11,
+      "unconditional_tv": 0.043254545454545455,
+      "conditional_tv": 0.02904887261073595,
+      "errors": [
+        "tv_unconditional differs",
+        "tv_conditional differs"
+      ],
+      "json_sha256": "2411ab88547432d33d525a1ff980630ae5936b7009b597a1f76b148a8758e31e",
+      "csv_sha256": "a9dd409e09b84f8e4e951a96dccdc0ad20382ff3b444beaa7e6dba19fa10ff90",
+      "file_mtime": "2026-10-09T06:08:55.733962+00:00"
+    },
+    {
+      "N": 100000,
+      "p": 5,
+      "unconditional_tv": 0.18433,
+      "conditional_tv": 0.05169165299592314,
+      "errors": [],
+      "json_sha256": "8289a13b4b9561c129428a403cab74e9364e918e24975244e6cb76c0f97583e8",
+      "csv_sha256": "20bb4848c24347f24f5d675ea311b969b383a5522115935e49cfa8cce5679964",
+      "file_mtime": "2026-10-09T06:08:55.765100+00:00"
+    },
+    {
+      "N": 100000,
+      "p": 7,
+      "unconditional_tv": 0.08004285714285714,
+      "conditional_tv": 0.029108222879938233,
+      "errors": [
+        "tv_unconditional differs"
+      ],
+      "json_sha256": "faa52c42bf7c4ad3e73e1242a84823cd960d5695ef72053218965f8cb220a805",
+      "csv_sha256": "183611ab9e8a9381123a13517bf048a609d04a3d10aed8bc79ac47ba64cb8cd7",
+      "file_mtime": "2026-10-09T06:08:55.776217+00:00"
+    },
+    {
+      "N": 100000,
+      "p": 11,
+      "unconditional_tv": 0.05590090909090909,
+      "conditional_tv": 0.02081248022128717,
+      "errors": [
+        "tv_unconditional differs",
+        "tv_conditional differs"
+      ],
+      "json_sha256": "5ab18b670d8ca18cc3be21b3fdad1bd5d79f50fe5202b74bde0c2155b4bd53c2",
+      "csv_sha256": "1cdf75b8e54c6766e65ad8b2b5f9eebb44473625fc57f41fc3f774c6978b8652",
+      "file_mtime": "2026-10-09T06:08:55.787383+00:00"
+    },
+    {
+      "N": 1000000,
+      "p": 5,
+      "unconditional_tv": 0.214281,
+      "conditional_tv": 0.04713949863330368,
+      "errors": [],
+      "json_sha256": "826fc7326c996fa63ce43e7b31fae86b8a0b2d26f42dc6cdaac4caa300751fea",
+      "csv_sha256": "08f3a69c1290ddb138a3756bc57d63eeb4864bc1503f3879d4a658ec728e422f",
+      "file_mtime": "2026-10-09T06:08:56.297143+00:00"
+    },
+    {
+      "N": 1000000,
+      "p": 7,
+      "unconditional_tv": 0.10548685714285715,
+      "conditional_tv": 0.026029194205860126,
+      "errors": [
+        "tv_unconditional differs"
+      ],
+      "json_sha256": "913c7772153e4db7c0e1ea57e70b5eb9ae767aa546b9d0244adf2e60e15e6ee0",
+      "csv_sha256": "9a1427ad403a6a614127c686a4acdb00ef3efc9bd5319aa04a7273dc37b6ceda",
+      "file_mtime": "2026-10-09T06:08:56.436525+00:00"
+    },
+    {
+      "N": 1000000,
+      "p": 11,
+      "unconditional_tv": 0.07241590909090909,
+      "conditional_tv": 0.017989063853945678,
+      "errors": [
+        "tv_unconditional differs",
+        "tv_conditional differs"
+      ],
+      "json_sha256": "31b0659ded0711a3d9f32a8cadb1f3a07118a3e6995b267ecfa17ff0e63e9bd3",
+      "csv_sha256": "a0701bb4484b72c5c24ec644c400da239c19197f49eae6c6604be9919d7e634d",
+      "file_mtime": "2026-10-09T06:08:56.582374+00:00"
+    }
+  ]
+}
