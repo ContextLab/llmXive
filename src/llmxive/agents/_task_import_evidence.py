@@ -95,7 +95,8 @@ def local_import_evidence(project_dir: Path, sources: list[Path]) -> str:
                     stream.seek(0)
                     content = stream.read(MAX_CONTENT_BYTES).decode("utf-8", errors="replace")
                 size = resolved.stat().st_size
-            except (OSError, ValueError):
+            except (OSError, ValueError, RuntimeError):
+                chunks.append(f"- `{candidate.relative_to(root)}`: dependency NOT INSPECTED (unreadable path)")
                 continue
             discovered += 1
             chunks.append(

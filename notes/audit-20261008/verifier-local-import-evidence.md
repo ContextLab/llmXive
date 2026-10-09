@@ -56,8 +56,8 @@ scientific artifacts.
 
 - Both new dependency-context and persisted-cache mutation regressions fail
   against the original `gather_evidence` function.
-- 68 focused collector/verifier/feedback/paper-implementation checks pass.
-- Boundaries cover symlink and relative escape, multiple local layouts, nested
+- 69 focused collector/verifier/feedback/paper-implementation checks pass.
+- Boundaries cover symlink loops and relative escape, multiple local layouts, nested
   and transitive imports, package initializers, cycles, malformed Python,
   creation/mutation of a dependency, and explicit collection budgets.
 - Two actual primary-model fixture calls and the captured-task replay pass as

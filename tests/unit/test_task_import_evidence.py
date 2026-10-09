@@ -126,3 +126,11 @@ def test_candidate_and_parse_budgets_report_partial_context(tmp_path, monkeypatc
     evidence = tv.gather_evidence(tmp_path, task)
     assert 'Local import candidate `code/x.py`' in evidence
     assert 'NOT INSPECTED (source size limit)' in evidence
+
+
+def test_cyclic_dependency_symlink_does_not_crash_collector(tmp_path):
+    write(tmp_path, 'code/main.py', 'import analysis\n')
+    (tmp_path / 'code/analysis.py').symlink_to('analysis.py')
+    evidence = tv.gather_evidence(tmp_path, 'T001 Create code/main.py')
+    assert 'dependency NOT INSPECTED (unreadable path)' in evidence
+    assert 'import analysis' in evidence
