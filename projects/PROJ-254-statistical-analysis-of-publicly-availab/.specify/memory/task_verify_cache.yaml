@@ -1,3 +1,47 @@
+T001a:
+  c: true
+  h: 85b2fba9303f88c28ceb88c8facc7c0f8742dfdcb10b530fc2b31470e6a4c933
+  r: The collector confirms that the project root contains the required `src/`, `tests/`,
+    and `data/` directories (each with multiple entries). No missing or empty placeholder
+    artifacts are observed.
+T001b:
+  c: true
+  h: c839599bb24e7f6ed6a0ff82a4c5caafcd56fe12fae1adb51d90efe5197a0887
+  r: "The collector shows that `src/code/__init__.py`, `src/data/__init__.py`, and\
+    \ `tests/__init__.py` all exist at the expected locations and contain non\u2011\
+    empty comment text, satisfying the task\u2019s requirement to create these files."
+T001c:
+  c: true
+  h: 1dc36b6bab06e0be22e84e84469d939a80cbd2856a40ace77d281cac3ea6412c
+  r: "The evidence shows that both `data/raw/` and `data/derived/` directories exist\
+    \ in the project root and each contains a `.gitkeep` file (as listed in the collector\u2011\
+    confirmed artifact summary). This fulfills the task\u2019s requirement to create\
+    \ the two directories with placeholder `.gitkeep` files."
+T002:
+  c: true
+  h: 1c341c2e829a14dd49ef563dd3c4ff366de9de9344a421d8693a3263e3f20150
+  r: "The `requirements.txt` file was found at `projects/PROJ-254-statistical-analysis-of-publicly-availab/requirements.txt`\
+    \ and contains all required packages (pandas, numpy, gensim, scikit-learn, statsmodels,\
+    \ matplotlib, plotly, requests, pyarrow, musicbrainzngs, thefuzz) along with additional\
+    \ optional entries. The file is non\u2011empty and correctly formatted, satisfying\
+    \ the task\u2019s initialization requirement."
+T003:
+  c: false
+  h: 7c35bf47ddf36f90ac3b16baccd8b79a0c0d5b8b4a85c47efe909a4ca5f05ee7
+  r: "The evidence contains no linting or formatting configuration files (e.g., a\
+    \ `pyproject.toml` or `.ruff.toml` specifying Black and Ruff settings, nor any\
+    \ scripts or CI steps invoking them). Without these artifacts the task \u201C\
+    Configure linting (ruff) and formatting (black) tools\u201D is not satisfied.\
+    \ Adding the appropriate configuration files and confirming they are present will\
+    \ resolve the issue."
+T004:
+  c: true
+  h: 23ca52d733dba7187ead3f05e5de1f3eebf8c17a7921c9bab734e495a85128b6
+  r: "Checked `src/code/utils.py` (3035\u202Fbytes) which defines `set_deterministic_seed`\
+    \ seeding Python\u202F`random` and NumPy, and `setup_logging` that defaults to\
+    \ writing logs to `pipeline_log.txt` in the project root, plus a helper `get_logger`.\
+    \ The file exists, is non\u2011empty, and implements the required logging and\
+    \ reproducibility functionality."
 T025:
   c: false
   h: 36bb7834a36efdaac14c3f618dab62801a9e0dfcaa58b318514a29ec4090c443

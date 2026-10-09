@@ -1,13 +1,5 @@
 status: none
-intent: yearly genre embeddings from Million Playlist Dataset, Last.fm 1B events,
-  MusicBrainz python package dataset
-required_fields:
-- track_id
-- timestamp
-- release_year
-- musicbrainz_genre
-- artist_id
-- track_name
-cache_key: 6324201aadcc953debb5ca7cbaab2f72317a8bd6dc745112db790fa5b2af3462
-searched_at: '2026-07-20T20:36:35.116137+00:00'
-retry_count: 1
+reason: no data intent found in planning artifacts
+cache_key: f1427091b73c02581a170f72904497ca1abbe691616d969f33eff9bd21087fe1
+searched_at: '2026-10-09T16:24:35.757590+00:00'
+retry_count: 3
