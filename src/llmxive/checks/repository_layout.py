@@ -35,6 +35,8 @@ def unexpected_tracked_paths(repo: Path) -> list[str]:
             allowed = path in ROOT_FILES
         else:
             allowed = parts[0] in ROOT_DIRECTORIES
+            if parts[:2] == ("specs", "auto-revisions"):
+                allowed = False
             if parts[0] == "projects":
                 allowed = is_project_path(path)
         if not allowed:

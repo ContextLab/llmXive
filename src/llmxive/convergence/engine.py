@@ -15,6 +15,7 @@ import time
 from collections.abc import Callable, Iterator, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
+from pathlib import Path
 from typing import TypeVar
 
 from llmxive.agents.citation_guard import (
@@ -140,13 +141,13 @@ def _resolved(v: Verdict) -> bool:
 
 
 def _maybe_reduce(artifacts: dict[str, str], *, goal: str, model: str,
-                  budget: int) -> dict[str, str]:
+                  budget: int, cache_dir: Path | None = None) -> dict[str, str]:
     """Route any oversized artifact through the SSoT summarizer (FR-006) so no
     reviewer/reviser input silently overflows the model context."""
     out: dict[str, str] = {}
     for path, content in artifacts.items():
         if estimate_tokens(content) > budget:
-            out[path] = summarize(content, goal=goal, model=model, token_budget=budget)
+            out[path] = summarize(content, goal=goal, model=model, token_budget=budget, cache_dir=cache_dir)
         else:
             out[path] = content
     return out
@@ -399,6 +400,7 @@ def run_convergence(
     producer: str | None = None,
     model: str = "openai.gpt-oss-120b",
     reviewer_token_budget: int | None = None,
+    summarize_cache_dir: Path | None = None,
     max_rounds: int | None = None,
     per_round_budget_s: float | None = None,
     on_round: RoundHook | None = None,
@@ -428,7 +430,7 @@ def run_convergence(
         budget = _usable_budget(model, None)
 
     def _present(arts: dict[str, str]) -> dict[str, str]:
-        return _maybe_reduce(arts, goal=spec.overflow_goal, model=model, budget=budget)
+        return _maybe_reduce(arts, goal=spec.overflow_goal, model=model, budget=budget, cache_dir=summarize_cache_dir)
 
     @contextmanager
     def _abort_provenance(round_index: int) -> Iterator[None]:

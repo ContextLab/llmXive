@@ -9,7 +9,7 @@ def test_layout_rejects_downloads_and_unknown_roots_but_preserves_project_data(t
     paths = ['README.md', 'projects/PROJ-1/data/article.pdf', 'docs/index.html',
              'article.pdf', 'beir_data/data.json', 'projects-copy/file.csv',
              'data with spaces/a\nfile.csv', 'projects/data/raw/leak.csv',
-             'projects/state/checksums.json']
+             'projects/state/checksums.json', 'specs/auto-revisions/PROJ-1/round-1/tasks.md']
     for name in paths:
         path = tmp_path / name
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -24,7 +24,7 @@ def test_layout_rejects_downloads_and_unknown_roots_but_preserves_project_data(t
     assert unexpected_tracked_paths(tmp_path) == sorted([
         'article.pdf', 'beir_data/data.json', 'projects-copy/file.csv',
         'data with spaces/a\nfile.csv', 'projects/data/raw/leak.csv',
-        'projects/state/checksums.json',
+        'projects/state/checksums.json', 'specs/auto-revisions/PROJ-1/round-1/tasks.md',
     ])
     assert (tmp_path / 'personal.txt').read_text() == 'untouched'
 

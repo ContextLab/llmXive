@@ -7,7 +7,7 @@ Owns two on-disk artifacts:
     implementer round. Read by the publisher (badge resolution),
     post-paper-appendix renderer, and the dashboard.
 
-  specs/auto-revisions/<PROJ-ID>/round-<N>/implementer-log.yaml
+  projects/<PROJ-ID>/.specify/auto-revisions/round-<N>/implementer-log.yaml
     Per-task detail for one round. Written once at the end of the round.
 
 Contracts:
@@ -22,6 +22,12 @@ from pathlib import Path
 import yaml
 
 from llmxive.state._io import atomic_write_text
+from llmxive.state.revision_paths import (
+    prepare_revision_round,
+    resolve_revision_path,
+    revision_round,
+    round_numbers,
+)
 from llmxive.types import ImplementerLog, RevisionHistory, RevisionRound
 
 
@@ -30,10 +36,7 @@ def _hist_path(project_id: str, *, repo_root: Path) -> Path:
 
 
 def _round_path(project_id: str, round_number: int, *, repo_root: Path) -> Path:
-    return (
-        repo_root / "specs" / "auto-revisions" / project_id
-        / f"round-{round_number}" / "implementer-log.yaml"
-    )
+    return revision_round(repo_root, project_id, round_number) / "implementer-log.yaml"
 
 
 def load(project_id: str, *, repo_root: Path) -> RevisionHistory:
@@ -78,7 +81,10 @@ def load_round(
     project_id: str, round_number: int, *, repo_root: Path
 ) -> ImplementerLog:
     """Load `implementer-log.yaml` for a specific round."""
-    p = _round_path(project_id, round_number, repo_root=repo_root)
+    p = resolve_revision_path(
+        repo_root, project_id,
+        f"specs/auto-revisions/{project_id}/round-{round_number}/implementer-log.yaml",
+    )
     if not p.is_file():
         raise FileNotFoundError(f"no implementer-log at {p}")
     data = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
@@ -93,7 +99,7 @@ def save_round(
     repo_root: Path,
 ) -> None:
     """Write `implementer-log.yaml` for a round. Round directory
-    (`specs/auto-revisions/<id>/round-<N>/`) is created if missing."""
+    (`projects/<id>/.specify/auto-revisions/round-<N>/`) is created if missing."""
     if log.round_number != round_number:
         raise ValueError(
             f"log.round_number={log.round_number} != round_number={round_number}"
@@ -102,22 +108,13 @@ def save_round(
         raise ValueError(
             f"log.project_id={log.project_id!r} != project_id={project_id!r}"
         )
+    round_dir = prepare_revision_round(repo_root, project_id, round_number)
     atomic_write_text(
-        _round_path(project_id, round_number, repo_root=repo_root),
+        round_dir / "implementer-log.yaml",
         yaml.safe_dump(log.model_dump(mode="json"), sort_keys=False),
     )
 
 
 def list_rounds(project_id: str, *, repo_root: Path) -> list[int]:
     """Return the sorted list of round numbers that have on-disk logs."""
-    base = (repo_root / "specs" / "auto-revisions" / project_id)
-    if not base.is_dir():
-        return []
-    out: list[int] = []
-    for d in base.iterdir():
-        if d.is_dir() and d.name.startswith("round-"):
-            try:
-                out.append(int(d.name.removeprefix("round-")))
-            except ValueError:
-                continue
-    return sorted(out)
+    return round_numbers(repo_root, project_id)

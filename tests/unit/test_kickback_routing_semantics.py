@@ -144,5 +144,11 @@ def test_full_revision_kickback_resets_revision_round_budget(tmp_path):
     )
     nxt = _decide_next_stage(proj, repo / "projects" / pid, repo_root=repo)
     assert nxt == Stage.IN_PROGRESS
-    assert not (ar).exists(), "auto-revisions rounds must be cleared on full-revision kickback"
+    from llmxive.convergence.revision_adapter import next_round_number
+
+    assert ar.exists(), "legacy provenance must remain untouched"
+    assert next_round_number(repo, pid) == 1
+    archives = list((repo / "projects" / pid / ".specify" / "revision-archives").glob("cycle-*"))
+    assert (archives[0] / "legacy-auto-revisions" / "round-3" / "tasks.md").read_text() == "x"
+    assert (archives[0] / "revision_history.yaml").is_file()
     assert not (hist / "revision_history.yaml").exists(), "revision_history must be cleared"
