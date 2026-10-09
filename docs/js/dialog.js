@@ -140,7 +140,7 @@
       + '<div class="ad-feedback" hidden>'
       + '<div class="ad-fb-inner">'
       + '<label class="field"><span class="l">Your feedback on this artifact</span>'
-      + '<textarea class="ad-fb-text" placeholder="What\'s missing, wrong, or could be improved? A maintenance agent will triage this to the right pipeline step within the hour."></textarea></label>'
+      + '<textarea class="ad-fb-text" placeholder="What\'s missing, wrong, or could be improved? Scheduled triage routes this to the relevant pipeline step."></textarea></label>'
       + '<div class="ad-fb-actions actions">'
       + '<span class="ad-fb-msg"></span>'
       + '<button class="btn ghost ad-fb-cancel" type="button">Cancel</button>'
@@ -219,9 +219,9 @@
           target_stage: _currentProject ? _currentProject.current_stage : null,
           content: text,
         });
-        // FR-013b: confirmation with a clickable issue link + "within the hour".
+        // Confirm the issue URL without promising worker completion time.
         fbMsg.innerHTML = 'Thanks — created <a href="' + escapeHtml(issue.html_url) + '" target="_blank" rel="noopener">issue #' + issue.number + '</a>. ' +
-          'A maintenance agent will process it within the next hour.';
+          'Scheduled triage will process it when workers run.';
         fbMsg.className = "ad-fb-msg ok";
         fbText.value = "";
       } catch (err) {
