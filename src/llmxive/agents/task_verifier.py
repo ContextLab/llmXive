@@ -161,6 +161,10 @@ def _deterministic_verdict(project_dir: Path, task_text: str) -> tuple[str | Non
     are all missing/empty/invalid, or ``(None, "")`` when the task is genuinely
     ambiguous (no detectable artifact path, or a mixed/partial state) and must go
     to the semantic verifier."""
+    from llmxive.speckit.task_lines import EXECUTION_FAILURE_RE
+    failure = EXECUTION_FAILURE_RE.search(task_text)
+    if failure:
+        return "reject", "Requested task execution failed; rerun successfully: " + failure.group(1)
     paths = _declared_paths(task_text)
     if not paths:
         return None, ""
@@ -399,6 +403,8 @@ def verified_done_keys(
         if not match or match.group(2) not in {"x", "X"}:
             continue
         task_text = match.group(3).strip() + task_continuation(lines, i)
+        if _deterministic_verdict(project_dir, task_text)[0] == "reject":
+            continue
         digest = _evidence_hash(task_text + "\n" + spec + "\n" + gather_evidence(project_dir, task_text))
         receipt = cache.get(key)
         if isinstance(receipt, dict) and receipt.get("c") is True and receipt.get("h") == digest:

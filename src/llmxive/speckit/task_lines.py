@@ -115,3 +115,17 @@ def mark_task(text: str, task_id: str, status: str, annotation: str = "") -> str
         + annotation
         + text[match.end() :]
     )
+
+
+EXECUTION_FAILURE_RE = re.compile(r"[ \t]*<!-- FAILED-IN-EXECUTION: (.*?) -->")
+
+def clear_retried_execution_failures(text: str, task_id: str, succeeded: set[str]) -> str:
+    """Clear only failed commands that this task actually reran successfully."""
+    matches = [m for m in TASK_LINE_RE.finditer(mask_fenced_code(text)) if m.group("id") == task_id]
+    if len(matches) != 1:
+        raise ValueError(f"expected one task {task_id!r}, found {len(matches)}")
+    match = matches[0]
+    def clear(failure: re.Match[str]) -> str:
+        paths = re.findall(r"(?:^|; )(.+?) exit=-?\d+", failure.group(1))
+        return "" if paths and set(paths) <= succeeded else failure.group(0)
+    return text[:match.start()] + EXECUTION_FAILURE_RE.sub(clear, text[match.start():match.end()]) + text[match.end():]
