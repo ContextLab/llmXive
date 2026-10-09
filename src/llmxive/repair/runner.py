@@ -341,6 +341,89 @@ def _progress(output: Path, phase: str) -> None:
     print(f"Repair phase: {phase}", flush=True)
 
 
+def read_context(repo: Path, paths: list[str], tree: list[str], context: dict[str, str]) -> dict[str, str]:
+    """Read only inventoried platform files, retaining complete bounded snapshots."""
+    if len(set(context) | set(paths)) > 12:
+        raise ValueError("select at most 12 total context files")
+    context = dict(context)
+    for path in paths:
+        if path not in tree:
+            raise ValueError(f"selected path is not in FILES: {path!r}; choose only listed paths")
+        safe_path(path)
+        file = repo / path
+        if not file.resolve().is_relative_to(repo.resolve()) or file.is_symlink():
+            raise ValueError("context cannot leave platform")
+        context[path] = file.read_text()
+    if sum(len(text.encode()) for text in context.values()) > 250_000:
+        raise ValueError("complete context exceeds 250 KB; select fewer relevant files")
+    return context
+
+
+def propose_fix(repo: Path, evidence: dict, output: Path, tree: list[str],
+                selection: dict, context: dict[str, str]) -> dict:
+    """Correct bounded context/schema mistakes before spending isolated test runs.
+
+    An unread-file proposal is discarded. The model must regenerate it after
+    receiving the actual source; exact-edit and all acceptance gates still apply.
+    """
+    prompt = (
+        'Implement the smallest fix. Return {"title":str,"explanation":str,'
+        '"edits":{existing_selected_path:[{"old":exact_unique_text,"new":replacement_text}]},'
+        '"files":{new_path:complete_file_contents},"regression":new_test_path,'
+        '"related_tests":[existing_test_paths]}. Only 2-5 files. Add a new '
+        "tests/unit/test_repair_*.py regression; it MUST FAIL on the current production "
+        "code for this defect and pass with the fix. Prefer real subprocess/file behavior. "
+        "Do not change existing tests or delete user content. Include the full new test contents "
+        "in files, not just its path in regression. Fix an existing caller, not an unused helper. "
+        "Include at least one related existing test module. "
+        "Tests run OFFLINE with pytest already installed. Do not download/install packages. "
+        "For a real venv, use --system-site-packages to reuse installed dependencies. "
+        "No test may inspect source strings as a substitute for behavior.\nEVIDENCE:\n"
+        + render_evidence(evidence)
+        + "\nSELECTED PROBLEM:\n"
+        + str(selection.get("problem"))
+    )
+    feedback = ""
+    for round_index in range(3):
+        suffix = "" if round_index == 0 else f"-revision-{round_index}"
+        (output / "source-context.json").write_text(json.dumps(context, indent=2))
+        _progress(output, "proposing_fix" + suffix)
+        proposal = _ask(
+            prompt + "\nSOURCE:\n" + json.dumps(context) + feedback,
+            response_path=output / f"proposal-response{suffix}.txt",
+        )
+        (output / f"proposal-response{suffix}.json").write_text(json.dumps(proposal, indent=2))
+        try:
+            # Validate every path before considering a context expansion. Never
+            # read arbitrary requested files or accept stale hallucinated edits.
+            targets = set()
+            for field in ("edits", "files"):
+                values = proposal.get(field, {})
+                if not isinstance(values, dict):
+                    raise ValueError(f"{field} must be a mapping")
+                for name in values:
+                    safe_path(name)
+                    if name in tree and name not in context:
+                        targets.add(name)
+            if targets:
+                context = read_context(repo, sorted(targets), tree, context)
+                raise ValueError("The previous proposal edited unread files. They are now in SOURCE: "
+                                 + ", ".join(sorted(targets)) + ". Regenerate against their actual contents.")
+            resolved = materialize_edits(proposal, context, repo)
+            validate_proposal(resolved, repo)
+        except (ValueError, KeyError, TypeError) as exc:
+            (output / f"proposal-validation{suffix}.json").write_text(json.dumps({"error": str(exc)}))
+            if round_index == 2:
+                raise
+            feedback = ("\nPREVIOUS PROPOSAL REJECTED: " + str(exc)
+                        + "\nReturn a complete corrected proposal; all original constraints still apply."
+                        + "\nPREVIOUS PROPOSAL:\n" + json.dumps(proposal))
+            continue
+        (output / "proposal.json").write_text(json.dumps(resolved, indent=2))
+        return resolved
+    raise AssertionError("bounded proposal loop did not return or raise")
+
+
 def run(repo: Path, evidence: dict, output: Path, *, image: str = IMAGE) -> dict:
     output.mkdir(parents=True, exist_ok=True)
     (output / "evidence.json").write_text(json.dumps(evidence, indent=2))
@@ -371,40 +454,8 @@ def run(repo: Path, evidence: dict, output: Path, *, image: str = IMAGE) -> dict
     paths = selection.get("paths")
     if not isinstance(paths, list) or not 1 <= len(paths) <= 6:
         raise ValueError("select 1-6 context files")
-    context = {}
-    for path in paths:
-        if path not in tree:
-            raise ValueError(f"selected path is not in FILES: {path!r}; choose only listed paths")
-        safe_path(path)
-        file = repo / path
-        if not file.resolve().is_relative_to(repo.resolve()) or file.is_symlink():
-            raise ValueError("context cannot leave platform")
-        context[path] = file.read_text()
-    if sum(len(text.encode()) for text in context.values()) > 250_000:
-        raise ValueError("complete context exceeds 250 KB; select fewer relevant files")
-    (output / "source-context.json").write_text(json.dumps(context, indent=2))
-    _progress(output, "proposing_fix")
-    proposal = _ask(
-        'Implement the smallest fix. Return {"title":str,"explanation":str,'
-        '"edits":{existing_selected_path:[{"old":exact_unique_text,"new":replacement_text}]},'
-        '"files":{new_path:complete_file_contents},"regression":new_test_path,'
-        '"related_tests":[existing_test_paths]}. Only 2-5 files. Add a new '
-        "tests/unit/test_repair_*.py regression; it MUST FAIL on the current production "
-        "code for this defect and pass with the fix. Prefer real subprocess/file behavior. "
-        "Do not change existing tests. Include at least one related existing test module. "
-        "Tests run OFFLINE with pytest already installed. Do not download/install packages. "
-        "For a real venv, use --system-site-packages to reuse installed dependencies. "
-        "No test may inspect source strings as a substitute for behavior.\nEVIDENCE:\n"
-        + render_evidence(evidence)
-        + "\nSELECTED PROBLEM:\n"
-        + str(selection.get("problem"))
-        + "\nSOURCE:\n"
-        + json.dumps(context),
-        response_path=output / "proposal-response.txt",
-    )
-    (output / "proposal-response.json").write_text(json.dumps(proposal, indent=2))
-    proposal = materialize_edits(proposal, context, repo)
-    (output / "proposal.json").write_text(json.dumps(proposal, indent=2))
+    context = read_context(repo, paths, tree, {})
+    proposal = propose_fix(repo, evidence, output, tree, selection, context)
     files, regression, related = validate_proposal(proposal, repo)
     with tempfile.TemporaryDirectory(prefix="llmxive-repair-") as tmp:
         baseline = Path(tmp) / "baseline"
