@@ -19,6 +19,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # The complete Git index is audited; large research blobs need not
+          # be downloaded or materialized for path/hash/mode checks.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /src/llmxive/checks/repository_layout.py
+            /scripts/verify_root_file_recovery.py
+            /notes/audit-20261008/root-file-recovery.json
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
