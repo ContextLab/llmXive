@@ -1,3 +1,41 @@
+T001a:
+  c: false
+  h: c29695004cc8231c6b4e3487559f7df6e6e80eff6d72255e4324e1b9fd67722d
+  r: The required directory `specs/001-predicting-amine-reactivity/` is missing, and
+    the `data/raw`, `data/processed`, `data/derived`, and `artifacts` subfolders are
+    not present in the provided file tree. Without these directories the specified
+    project structure is not fully created.
+T001b:
+  c: true
+  h: feb5f009bbb5455004eb3a8f3aa6a9b2459d99bbc31ebf8f90c410b6e31697d5
+  r: The provided file list shows that `src/data/`, `src/models/`, and `src/utils/`
+    directories all exist and contain multiple Python modules, confirming the required
+    subdirectories were created.
+T002:
+  c: false
+  h: d30c8e62377638f2beef8f54623de80da5a76a3c2335b2a9b41b5a9c0d309003
+  r: "The provided `pyproject.toml` correctly lists the required dependencies, but\
+    \ there is no accompanying virtual\u2011environment setup script or any evidence\
+    \ that rdkit version compatibility with torch and torch\u2011geometric was verified.\
+    \ The task explicitly required such a verification step, which is missing."
+T003a:
+  c: false
+  h: f6746f3dd5152a1e32a2d82019409cc0245774d71664ec485c207804f374e6a9
+  r: The `[tool.ruff]` section in `pyproject.toml` is missing the required `select`
+    configuration for rules E4, E7, E9, and F.
+T003b:
+  c: false
+  h: aefd04f883f6fd1631c5f313b92adb133e8bbdd29ed5cb21e859b7c5a25440bd
+  r: The required `.gitignore` file is missing from the provided artifacts. No evidence
+    of its existence or content was supplied.
+T004:
+  c: true
+  h: ae7bc89a57b2d05d92ccf6bdd0f089dcd909e9f17798e036ef16b0b27fec2ec0
+  r: The implementer has provided the full implementation of `src/utils/versioning.py`.
+    The code includes the required `update_state()` logic, a SHA-256 hash calculation
+    mechanism (`_compute_hash`), and an atomic write process using temporary files
+    and `shutil.move` (`_write_state_atomic`) targeting the specified `state/projects/`
+    directory.
 T013:
   c: false
   h: ce4b84710aaa0388d36bc2c91d64b49a65d193da9751d41e317f278d1c59b0f4

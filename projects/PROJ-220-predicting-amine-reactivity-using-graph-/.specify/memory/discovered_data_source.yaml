@@ -1,19 +1,19 @@
 status: none
-intent: download SN2 amine kinetic dataset from ChEMBL PubChem with NIST reference
+intent: download SN2 amine kinetic dataset from Open Reaction Database NIST KineticDB
   python package dataset
 required_fields:
 - reaction_id
-- source_database
-- reactant_smiles
-- amine_type
+- substrate_smiles
+- nucleophile_smiles
+- product_smiles
 - reaction_type
 - kinetic_constant
 - kinetic_constant_units
 - temperature_K
 - solvent
+- pressure_atm
+- activation_energy_kJmol
 - normalized_log_rate
-- activation_energy_Ea
-- gasteiger_partial_charge
-cache_key: 0ad97ee469998c91ac5142dcd5954fad42f9fedbf831c9b105c9979fe0d38926
-searched_at: '2026-09-03T21:49:26.869755+00:00'
+cache_key: 3d52a041dd3a7878572291396661f4b933c2e54e499e32b8e6cedcf34a09affe
+searched_at: '2026-10-09T12:32:48.299313+00:00'
 retry_count: 1

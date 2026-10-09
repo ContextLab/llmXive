@@ -12,10 +12,12 @@ import logging
 from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass, asdict
 from pathlib import Path
+from datetime import datetime
 
 # Import from project utilities
 from src.utils.chemistry import calculate_gasteiger_charge, estimate_pka
 from src.data.ingestion import ReactionRecord
+from src.utils.logging import audit_record
 
 logger = logging.getLogger(__name__)
 
@@ -37,13 +39,13 @@ def construct_molecular_graph(
 ) -> Optional[Dict[str, Any]]:
     """
     Construct a molecular graph from SMILES string.
-    
+
     Args:
         smiles: SMILES string of the molecule
         reaction_id: Unique identifier for the reaction
         pka: pKa value (if available)
         charge_data: Pre-calculated Gasteiger charges (optional)
-        
+
     Returns:
         Graph dictionary with node/edge features, or None if invalid
     """
@@ -52,14 +54,14 @@ def construct_molecular_graph(
         mol = Chem.MolFromSmiles(smiles)
         if mol is None:
             return None
-        
+
         # Add hydrogens for accurate feature calculation
         mol = Chem.AddHs(mol)
-        
+
         # Calculate Gasteiger charges if not provided
         if charge_data is None:
             charge_data = calculate_gasteiger_charge(mol)
-        
+
         # Extract node features
         node_features = []
         for atom in mol.GetAtoms():
@@ -68,10 +70,10 @@ def construct_molecular_graph(
             hybridization = atom.GetHybridization().real
             charge = charge_data.get(atom.GetIdx(), 0.0)
             is_aromatic = 1.0 if atom.GetIsAromatic() else 0.0
-            
+
             # Get approximate mass
             mass = atom.GetMass()
-            
+
             node_feat = [
                 float(atomic_num),
                 float(hybridization),
@@ -80,28 +82,28 @@ def construct_molecular_graph(
                 float(mass)
             ]
             node_features.append(node_feat)
-        
+
         # Extract edge features
         edge_index = []
         edge_features = []
-        
+
         for bond in mol.GetBonds():
             start_idx = bond.GetBeginAtomIdx()
             end_idx = bond.GetEndAtomIdx()
-            
+
             # Edge features: [bond_order, is_conjugated, is_in_ring]
             bond_order = bond.GetBondTypeAsDouble()
             is_conjugated = 1.0 if bond.GetIsConjugated() else 0.0
             is_in_ring = 1.0 if bond.IsInRing() else 0.0
-            
+
             edge_feat = [float(bond_order), float(is_conjugated), float(is_in_ring)]
-            
+
             # Add both directions for undirected graph
             edge_index.append([start_idx, end_idx])
             edge_index.append([end_idx, start_idx])
             edge_features.append(edge_feat)
             edge_features.append(edge_feat)
-        
+
         # Build graph dictionary
         graph = {
             'reaction_id': reaction_id,
@@ -112,13 +114,13 @@ def construct_molecular_graph(
             'num_nodes': len(node_features),
             'num_edges': len(edge_features)
         }
-        
+
         # Add pKa if available
         if pka is not None:
             graph['pka'] = float(pka)
-        
+
         return graph
-        
+
     except Exception as e:
         logger.warning(f"Failed to construct graph for {reaction_id}: {e}")
         return None
@@ -130,22 +132,22 @@ def process_batch_for_graphs(
 ) -> Tuple[List[Dict[str, Any]], List[GraphExclusionRecord]]:
     """
     Process a batch of reaction records into molecular graphs.
-    
+
     Args:
         records: List of reaction records (dicts)
         exclude_invalid: Whether to exclude invalid records
-        
+
     Returns:
         Tuple of (graphs, exclusion_records)
     """
     graphs = []
     exclusions = []
-    
+
     for record in records:
         reaction_id = record.get('reaction_id', 'unknown')
         smiles = record.get('smiles')
         pka = record.get('pka')
-        
+
         if not smiles:
             if exclude_invalid:
                 exclusions.append(GraphExclusionRecord(
@@ -154,7 +156,7 @@ def process_batch_for_graphs(
                     details="No SMILES string provided"
                 ))
             continue
-        
+
         # Validate SMILES
         mol = Chem.MolFromSmiles(smiles)
         if mol is None:
@@ -166,14 +168,25 @@ def process_batch_for_graphs(
                     details="RDKit could not parse the SMILES string"
                 ))
             continue
-        
+
+        # Check for missing pKa (FR-007 requirement)
+        if pka is None:
+            if exclude_invalid:
+                exclusions.append(GraphExclusionRecord(
+                    reaction_id=reaction_id,
+                    reason="Missing pKa",
+                    smiles=smiles,
+                    details="pKa could not be calculated or was absent"
+                ))
+            continue
+
         # Construct graph
         graph = construct_molecular_graph(
             smiles=smiles,
             reaction_id=reaction_id,
             pka=pka
         )
-        
+
         if graph is None:
             if exclude_invalid:
                 exclusions.append(GraphExclusionRecord(
@@ -182,11 +195,25 @@ def process_batch_for_graphs(
                     smiles=smiles
                 ))
             continue
-        
+
         graphs.append(graph)
-    
+
     logger.info(f"Processed {len(records)} records: {len(graphs)} graphs, {len(exclusions)} exclusions")
-    
+
+    # Log exclusions to the audit log (data/raw/audit_log.json)
+    if exclusions:
+        audit_entry = {
+            "type": "graph_construction_exclusion",
+            "excluded_count": len(exclusions),
+            "reason": "One or more records failed graph construction (invalid SMILES, missing pKa, or other errors)",
+            "record_ids": [ex.reaction_id for ex in exclusions],
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        try:
+            audit_record(audit_entry)
+        except Exception as e:
+            logger.error(f"Failed to write graph construction exclusions to audit log: {e}")
+
     return graphs, exclusions
 
 
@@ -197,7 +224,7 @@ def save_graphs_to_json(
 ):
     """
     Save graphs to JSON file.
-    
+
     Args:
         graphs: List of graph dictionaries
         output_path: Path to output file
@@ -205,12 +232,12 @@ def save_graphs_to_json(
     """
     output_dir = Path(output_path).parent
     output_dir.mkdir(parents=True, exist_ok=True)
-    
+
     with open(output_path, 'w') as f:
         json.dump(graphs, f, indent=2)
-    
+
     logger.info(f"Saved {len(graphs)} graphs to {output_path}")
-    
+
     if exclusions:
         exclusion_path = str(Path(output_path).parent / "exclusions.json")
         with open(exclusion_path, 'w') as f:
@@ -221,15 +248,15 @@ def save_graphs_to_json(
 def load_graphs_from_json(input_path: str) -> List[Dict[str, Any]]:
     """
     Load graphs from JSON file.
-    
+
     Args:
         input_path: Path to input file
-        
+
     Returns:
         List of graph dictionaries
     """
     with open(input_path, 'r') as f:
         graphs = json.load(f)
-    
+
     logger.info(f"Loaded {len(graphs)} graphs from {input_path}")
     return graphs
