@@ -47,9 +47,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project structure per implementation plan: `mkdir -p code/01_data_collection code/02_static_analysis code/03_statistical_analysis code/04_reporting code/utils tests/contract tests/integration tests/unit data/raw/human_samples data/raw/llm_samples data/intermediate data/processed reports specs/001-code-smell-comparison`
+- [ ] T001 Create project structure per implementation plan: `mkdir -p code/01_data_collection code/02_static_analysis code/03_statistical_analysis code/04_reporting code/utils tests/contract tests/integration tests/unit data/raw/human_samples data/raw/llm_samples data/intermediate data/processed reports specs/001-code-smell-comparison`
 
-- [ ] T001.1 [US1] Ensure `research.md` exists with specific content:
+- [X] T001.1 [US1] Ensure `research.md` exists with specific content:
  - **Action**: Verify `specs/001-code-smell-comparison/research.md` exists.
  - **Logic**: If the file is missing, create it with the header `# Research: Evaluating Code Generation Impact on Code Smell Frequency` and a placeholder section for "Balanced Blocked Design Implementation". If the file exists, verify it contains the header.
  - **Verification**: Verify file exists and contains the header.
@@ -66,7 +66,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
--[X] T004 Setup environment configuration management (`code/utils/config.py`) for seeds, paths, timeouts, API keys, and **pinned reference set SHA**.
+-[ ] T004 Setup environment configuration management (`code/utils/config.py`) for seeds, paths, timeouts, API keys, and **pinned reference set SHA**.
  - **Action**: Define `FALSE_POSITIVE_THRESHOLD = 0.05 (2203.15897, https://arxiv.org/abs/2203.15897)` ([deferred]) as the default value for tool validity checks.
  - **Verification**: Ensure `config.py` exports `FALSE_POSITIVE_THRESHOLD` and `RANDOM_SEED`.
 
@@ -77,22 +77,22 @@
  - `class SmellMetric`: attributes `sample_id`, `smell_type`, `count`, `threshold_used`, `continuous_metric_value`.
  - `class StatResult`: attributes `smell_type`, `p_value`, `effect_size`, `confidence_interval`, `correction_method`, `test_method_used`.
 
-- [X] T008 Implement syntax validation utility (`code/utils/validators.py`) for Python/Java file integrity checks
+- [~] T008 Implement syntax validation utility (`code/utils/validators.py`) for Python/Java file integrity checks
 
-- [X] T009 Setup CI environment check for PMD CLI availability (Dockerfile or CI script to install PMD CLI)
+- [~] T009 Setup CI environment check for PMD CLI availability (Dockerfile or CI script to install PMD CLI)
 
-- [X] T013.1 [US1] [NFR-001] [Constitution-I] Implement `code/utils/validate_seed_pinning.py`:
+- [~] T013.1 [US1] [NFR-001] [Constitution-I] Implement `code/utils/validate_seed_pinning.py`:
  - **Purpose**: Verify that the execution environment's random seed configuration matches the pinned seed in `code/utils/config.py` before any data collection or generation occurs.
  - **Action**: Read `config.py` for `RANDOM_SEED`. Verify `os.environ.get('PYTHONHASHSEED')` and `random.seed()` are set to this value.
  - **Constraint**: If the seed is not pinned, **raise a SystemExit** to prevent non-reproducible runs, satisfying Constitution Principle I.
  - **Dependency**: Must run BEFORE T012 (Fetch) and T013 (Generation). This is a **blocking prerequisite** for the entire Phase 3.
  - **Note**: Moved from Phase 3 to Phase 2 to ensure environment pinning occurs before any data collection. **Removed [P] tag as this is a blocking prerequisite.**
 
-- [X] T022.5 [US2] Implement `code/02_static_analysis/generate_reference_set.py`:
+- [ ] T022.5 [US2] Implement `code/02_static_analysis/generate_reference_set.py`:
  - **Purpose**: Fetch/Copy the "clean" reference set for tool validity testing.
  - **Source**: **Fetch a verified reference set from a canonical source: Python Standard Library (current version) (Commit SHA: `v3.12.0` on GitHub).**
  - **Action**:
- 1. Download the tarball from the official Python release page. [UNRESOLVED-CLAIM: c_1e9a4baf — status=not_enough_info]
+ 1. Download the tarball from the official Python release page.
  2. **Download the `SHA256SUMS` manifest file from the same official source.**
  3. **Parse the `SHA256SUMS` file to extract the 64-character hexadecimal SHA-256 hash corresponding to the Python-3.12.0.tgz tarball.**
  4. **Verify the SHA-256 checksum of the downloaded tarball against the *parsed* hash.**
@@ -116,12 +116,12 @@
 
 ### Tests for User Story 1 (MANDATORY - Interface Definition)
 
-- [X] T010 [US1] Contract test for repository selection logic in `tests/contract/test_repo_selection.py` (Defines interface for T012)
-- [X] T011 [US1] Contract test for LLM generation logic in `tests/contract/test_llm_generation.py` (Defines interface for T013)
+- [~] T010 [US1] Contract test for repository selection logic in `tests/contract/test_repo_selection.py` (Defines interface for T012)
+- [~] T011 [US1] Contract test for LLM generation logic in `tests/contract/test_llm_generation.py` (Defines interface for T013)
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement `code/01_data_collection/fetch_human_samples.py`:
+- [~] T012 [US1] Implement `code/01_data_collection/fetch_human_samples.py`:
  - **Algorithm**: Query GitHub API for candidate repositories with `stars:>100` AND `created:<{current_date - 5 years}`.
  - **Pre-Scan Constraint**: **Perform a pre-scan to identify candidate repositories that have at least 3 distinct commits adding a.py or.java file.**
  - **Repository Age Filter**: **Explicitly mandate filtering repositories where `created_at` is at least 5 years prior to the current date** to satisfy Spec FR-001. Do not rely solely on commit dates.
@@ -142,7 +142,7 @@
  - **Streaming**: **Use `git fetch --depth=1` with parent verification for large repositories to minimize disk usage, ensuring `is_fresh_commit` verification is preserved.**
  - **Fallback Logic**: **If the primary scan yields < 50 repos, the run MUST FAIL immediately. No fallback to fewer repos is permitted.**
 
-- [X] T012.5 [US1] Implement `code/01_data_collection/export_task_descriptions.py`:
+- [ ] T012.5 [US1] Implement `code/01_data_collection/export_task_descriptions.py`:
  - **Purpose**: Extract Issue/PR descriptions from the metadata collected in T012 to create a structured task list for LLM generation.
  - **Input**: Read `data/raw/api_logs.json` and `data/raw/human_samples/` metadata.
  - **Dependency**: **Explicitly depends on the completion of the entire T012 phase** to ensure all repositories and their samples are fully fetched before aggregation.
@@ -153,7 +153,7 @@
  - **Pre-flight Check**: **Verify that `data/raw/human_samples/` contains a sufficient number of samples distributed across the target repositories (e.g., 3 per repo × 50 repos). If the count is not exactly 150, raise `DataFetchError`.**
  - **Dependency**: Must run after T012 completes.
 
-- [X] T013 [US1] Implement `code/01_data_collection/generate_llm_samples.py`:
+- [~] T013 [US1] Implement `code/01_data_collection/generate_llm_samples.py`:
  - **Dependency**: Requires T007 (Data Models) to be complete to structure the output metadata schema.
  - **Input Validation**: **Verify the existence of `data/intermediate/tasks.json` and validate that it contains exactly 150 tasks with the expected schema (including `linked_sample_ids`). If missing or malformed, raise `DataFetchError`.**
  - **Task Derivation**: **Iterate strictly over the `task_id` list generated in T012.5.**
@@ -167,14 +167,14 @@
  - **Execution Order**: **Execute generation calls sequentially to ensure deterministic ordering of API responses.**
  - **Post-Generation Validation**: **Verify that the number of generated samples in `data/raw/llm_samples/` exactly matches the number of tasks in `data/intermediate/tasks.json`. If counts do not match, raise `GenerationMismatchError`.**
 
-- [X] T014 [US1] Implement `code/01_data_collection/validate_dataset.py`:
+- [~] T014 [US1] Implement `code/01_data_collection/validate_dataset.py`:
  - **Validation**: Run syntax validation on all samples using `code/utils/validators.py`.
  - **Action**: **Immediately exclude samples failing validation and log them.** Do not defer this decision to T023.
  - **Reporting**: Generate `data/intermediate/validation_report.json` listing excluded samples, reasons, and the final count of valid samples.
  - **Constraint**: If valid count is critically low, flag for manual review, but do not auto-halt based on an arbitrary percentage unless the tool validity check (T023) fails.
  - **Dependency**: Must run after T013 completes.
 
-- [X] T015 [US1] Implement `code/01_data_collection/export_manifest.py`:
+- [~] T015 [US1] Implement `code/01_data_collection/export_manifest.py`:
  - **Manifest**: Generate `data/raw/manifest.csv` with columns: `sample_id`, `source_type`, `repository_id`, `issue_id`, `task_id`, `commit_sha`, `file_path`, `language`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -189,15 +189,15 @@
 
 ### Tests for User Story 2 (MANDATORY - Interface Definition)
 
-- [X] T019 [US2] Contract test for PMD CLI wrapper in `tests/contract/test_pmd_wrapper.py`:
+- [~] T019 [US2] Contract test for PMD CLI wrapper in `tests/contract/test_pmd_wrapper.py`:
  - **Interface**: Define tests for `run_pmd(file_path, ruleset_path)` returning `exit_code` and `stdout`.
  - **Interface**: Define tests for `parse_output(xml_content)` returning a list of `SmellMetric` objects.
  - **Constraint**: Must handle timeout and memory limit errors gracefully.
-- [X] T020 [US2] Contract test for parallel analysis execution in `tests/contract/test_static_analysis_interface.py` (Defines interface for T021)
+- [~] T020 [US2] Contract test for parallel analysis execution in `tests/contract/test_static_analysis_interface.py` (Defines interface for T021)
 
 ### Implementation for User Story 2
 
-- [X] T021 [P] [US2] Implement `code/02_static_analysis/run_pmd.py`:
+- [~] T021 [P] [US2] Implement `code/02_static_analysis/run_pmd.py`:
  - **Wrapper**: Subprocess wrapper to execute PMD CLI with specific rulesets for `LongMethod`, `DuplicatedCode`, `FeatureEnvy`, `LongParameterList`.
  - **Parallel Execution**: **Implement parallel execution using `concurrent.futures.ProcessPoolExecutor` to process multiple files simultaneously**, respecting the memory limit per process (≤2 GB).
  - **Limits**: Enforce per-process memory limit (≤2 GB) and 5-minute timeout per file.
@@ -206,21 +206,21 @@
  - **Output**: Return raw PMD XML/JSON output.
  - **Dependency**: Must run after T009 (PMD CLI setup) and T022.5 (Reference Set).
 
-- [X] T022 [US2] Implement `code/02_static_analysis/parse_results.py`:
+- [~] T022 [US2] Implement `code/02_static_analysis/parse_results.py`:
  - **Parser**: Parse PMD XML/JSON output into `data/intermediate/analysis_results.json`.
  - **Dependency**: Must run after T021 completes.
  - **Mapping**: Map smells to `SmellMetric` entities.
  - **Continuous Metric**: **Explicitly extract the 'CyclomaticComplexity' metric from PMD output and populate the `continuous_metric_value` field in the `SmellMetric` object.**
  - **Dependency**: Must run after T021 completes.
 
-- [X] T023 [US2] Implement `code/02_static_analysis/tool_validity_check.py`:
+- [~] T023 [US2] Implement `code/02_static_analysis/tool_validity_check.py`:
  - **Validity**: Run analysis on the "clean" reference set produced by T022.5 (`data/raw/reference_set/`).
  - **Configuration**: **Load `FALSE_POSITIVE_THRESHOLD` from `code/utils/config.py`. If the key is missing, use the documented default value and log a WARNING.**
  - **Action**: Calculate false-positive rate. **If the rate > threshold, write a `tool_validity.json` file with status 'invalid' to `data/intermediate/`, log the error, and raise a `SystemExit(1)` to halt the pipeline (satisfying Spec FR-005).**
  - **Traceability**: Explicitly reference **Spec FR-005** for tool validity.
  - **Dependency**: Must run after T021 (wrapper) and T022.5 (reference data). **Must pass before T024 proceeds.**
 
-- [X] T024 [US2] Implement `code/02_static_analysis/aggregate_metrics.py`:
+- [~] T024 [US2] Implement `code/02_static_analysis/aggregate_metrics.py`:
  - **Aggregation**: Aggregate results into `data/processed/smell_metrics.csv` with columns: `sample_id`, `source_type`, `smell_type`, `count`, `continuous_metric_value`.
  - **Dependency**: Must run after T022, T021, T023, and T022.5 complete.
 
@@ -236,12 +236,12 @@
 
 ### Tests for User Story 3 (MANDATORY - Interface Definition)
 
-- [X] T025 [US3] Contract test for permutation test logic in `tests/contract/test_permutation_test_interface.py` (Defines interface for T027)
-- [X] T026 [US3] Contract test for report generation in `tests/contract/test_report_interface.py` (Defines interface for T029)
+- [~] T025 [US3] Contract test for permutation test logic in `tests/contract/test_permutation_test_interface.py` (Defines interface for T027)
+- [~] T026 [US3] Contract test for report generation in `tests/contract/test_report_interface.py` (Defines interface for T029)
 
 ### Implementation for User Story 3
 
-- [X] T027 [US3] Implement `code/03_statistical_analysis/compare_distributions.py`:
+- [~] T027 [US3] Implement `code/03_statistical_analysis/compare_distributions.py`:
  - **Method**: Implement Blocked Permutation Test (stratified by repository) per plan.md.
  - **Handling**: Handle zero-inflation and non-normality by using exact permutation counts.
  - **Correction**: Apply **Bonferroni correction for the multiple hypothesis tests** (4 tests, α ≤ 0.05) to control family-wise error rate.
@@ -250,7 +250,7 @@
  - **Constraint**: Must use the repository ID from `manifest.csv` as the blocking variable.
  - **Dependency**: **Must run after T024 (aggregate_metrics) completes** to ensure `data/processed/smell_metrics.csv` is available.
 
-- [X] T028 [US3] Implement `code/03_statistical_analysis/sensitivity_analysis.py`:
+- [~] T028 [US3] Implement `code/03_statistical_analysis/sensitivity_analysis.py`:
  - **Sweep Configuration**: **Read the default thresholds from the PMD ruleset used in T021. Define the sweep range as a symmetric interval around the default value for each of the four code smell categories.**
  - **Sweep**: **Sweep thresholds for ALL four code smell categories** using the defined ranges.
  - **Stability Metric**: **Output the full threshold vs. p-value curve. Check if the sign of the effect size (direction of difference) is consistent across all thresholds.**
@@ -259,7 +259,7 @@
  - **Dependency**: Must run after T027 completes.
  - **Output**: Generate `data/intermediate/sensitivity_curve.csv` (columns: `smell_type`, `threshold`, `p_value`, `effect_sign`, `is_significant`) and `data/intermediate/sensitivity_analysis_report.json` (including `flip_point`, and `stability_passed`).
 
-- [X] T029 [US3] Implement `code/04_reporting/generate_report.py`:
+- [~] T029 [US3] Implement `code/04_reporting/generate_report.py`:
  - **Inputs**: Read from `data/processed/smell_metrics.csv`, `data/intermediate/stat_results.json`, `data/intermediate/sensitivity_analysis_report.json`.
  - **Template**: Use `templates/final_report_template.md`.
  - **Content**: Include Introduction, Methodology (Blocked Permutation Test), Results (Statistical Tables with corrected p-values, effect sizes), Sensitivity Analysis, Conclusion.
@@ -276,7 +276,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T030 [US1] Documentation updates in `specs/001-code-smell-comparison/research.md`:
+- [~] T030 [US1] Documentation updates in `specs/001-code-smell-comparison/research.md`:
  - **Action**: **Overwrite** `specs/001-code-smell-comparison/research.md` with a strict schema to document the "Balanced Blocked Design Implementation".
  - **Content Requirements**: The file MUST contain:
  1. **Header**: `# Research: Evaluating Code Generation Impact on Code Smell Frequency`
@@ -284,75 +284,75 @@
  - Row 1: `Sample Size ≥ 1000 (Human)` | `150 Human samples (3 per repo × 50 repos)` | `Balanced Blocked Design; CI constraints; statistical power sufficient with blocking.`
  - Row 2: `Sample Size ≥ 50 (LLM)` | `150 LLM samples (3 per repo × 50 repos)` | `Balanced design requires equal N per group.`
  - Row 3: `Causal Claims` | `Associational Language` | `Observational study design; no experimental control over generation.`
- 3. **Explicit Rejection Statement**: A paragraph explicitly stating: "The original requirement for causal inference (FR-007) is REJECTED. This study is observational and uses associational language only. [UNRESOLVED-CLAIM: c_c1573aa9 — status=not_enough_info]"
+ 3. **Explicit Rejection Statement**: A paragraph explicitly stating: "The original requirement for causal inference (FR-007) is REJECTED. This study is observational and uses associational language only. "
  - **Verification**: Verify `research.md` contains the header, the specific deviation table with the exact rows above, and the explicit rejection statement.
  - **Constraint**: **This task must overwrite any previous placeholder content.** Dependency: T001.1 (Initialization). **Note**: [P] tag removed as it depends on T001.1 completion.
 
-- [X] T031.1 [P] Create PMD utility module:
+- [~] T031.1 [P] Create PMD utility module:
  - **Action**: Create `code/utils/pmd_utils.py` and define functions `parse_pmd_output(xml_content)` and `format_pmd_ruleset(rules)`.
  - **Verification**: Ensure the module is importable and functions are defined.
 
-- [X] T031.2 [P] Update T021 to use PMD utility:
+- [~] T031.2 [P] Update T021 to use PMD utility:
  - **Action**: Refactor `code/02_static_analysis/run_pmd.py` to import and use `format_pmd_ruleset` from `code/utils/pmd_utils.py`.
  - **Verification**: Ensure `run_pmd.py` no longer contains inline ruleset formatting logic.
 
-- [X] T031.3 [P] Update T022 to use PMD utility:
+- [~] T031.3 [P] Update T022 to use PMD utility:
  - **Action**: Refactor `code/02_static_analysis/parse_results.py` to import and use `parse_pmd_output` from `code/utils/pmd_utils.py`.
  - **Verification**: Ensure `parse_results.py` no longer contains inline XML parsing logic.
 
-- [X] T032.1 [P] Profile PMD execution:
+- [~] T032.1 [P] Profile PMD execution:
  - **Action**: Run `cProfile` on `code/02_static_analysis/run_pmd.py` with a sample of representative files. Generate a profile report.
  - **Verification**: Identify the top memory-intensive functions.
 
-- [X] T032.2 [P] Implement generator-based chunking:
+- [~] T032.2 [P] Implement generator-based chunking:
  - **Action**: Refactor `code/02_static_analysis/aggregate_metrics.py` (T024) to use generators instead of loading all rows into a list. Process data in fixed-size chunks.
  - **Verification**: Ensure memory usage remains within acceptable limits during processing of samples.
 
-- [X] T033 [P] Additional unit tests in `tests/unit/`:
+- [~] T033 [P] Additional unit tests in `tests/unit/`:
  - **Action**: Write unit tests for `code/utils/validators.py` and `code/utils/config.py`.
  - **Target**: Achieve ≥90% line coverage for these modules.
 
-- [X] T034 Run `quickstart.md` validation:
+- [~] T034 Run `quickstart.md` validation:
  - **Action**: Execute `python -m code.main --validate`.
  - **Verification**: Ensure exit code 0 and all data files are present.
 
-- [X] T037 [P] **Integrated into T029**: Sensitivity analysis visualization is now a mandatory part of T029.
+- [~] T037 [P] **Integrated into T029**: Sensitivity analysis visualization is now a mandatory part of T029.
  - **Action**: Refer to T029 for implementation details.
  - **Verification**: Ensure the final report includes the sensitivity plot.
 
-- [X] T042 [P] **Implement Fail-Loud Data Loader Wrapper**:
+- [ ] T042 [P] **Implement Fail-Loud Data Loader Wrapper**:
  - **Action**: Create `code/utils/fail_loud_loader.py` to wrap all data fetching functions (T012, T013, T022.5). Ensure that if a fetch fails, the function raises a specific `DataFetchError` with context (URL, error code) and **NEVER** falls back to synthetic/mock data.
  - **Verification**: Write a unit test that mocks a network failure and asserts that the wrapper raises `DataFetchError` instead of returning mock data.
  - **Dependency**: Must run after T008 (validators) and T004 (config).
  - **Rationale**: Enforces Constitution Principle III (Data Hygiene) and the "Loader must FAIL LOUDLY" rule to prevent silent fabrication.
 
-- [X] T043 [P] **Add Blocked Permutation Test Sanity Check**:
+- [~] T043 [P] **Add Blocked Permutation Test Sanity Check**:
  - **Action**: Create `tests/unit/test_permutation_sanity.py` to verify the permutation test logic with a known synthetic dataset where the ground truth is known (e.g., two identical distributions should yield p=1.0).
  - **Verification**: Ensure the test passes and correctly identifies a known effect when injected.
  - **Dependency**: Must run after T027.
  - **Rationale**: Validates the statistical engine before processing real data, ensuring the "Blocked Permutation Test" is implemented correctly as per plan.md.
 
-- [X] T045 [P] [US3] **Implement Bonferroni Correction Verification**:
+- [ ] T045 [P] [US3] **Implement Bonferroni Correction Verification**:
  - **Action**: Create `tests/unit/test_bonferroni_correction.py` to verify that the p-values in `data/intermediate/stat_results.json` are correctly adjusted using the Bonferroni method (α / 4).
  - **Logic**: Inject a known set of 4 raw p-values and verify the output p-values match the adjusted values according to the specified correction method.
  - **Verification**: Ensure the test passes and correctly identifies any deviation from the standard Bonferroni formula.
  - **Dependency**: Must run after T027.
  - **Rationale**: Ensures the statistical correction for multiple hypothesis testing is implemented correctly, satisfying Spec FR-006 and Plan Methodology.
 
-- [X] T046 [P] [US2] **Add PMD Ruleset Validation Task**:
+- [ ] T046 [P] [US2] **Add PMD Ruleset Validation Task**:
  - **Action**: Create `tests/contract/test_pmd_ruleset_validation.py` to verify that the PMD ruleset file (XML) contains exactly the four required rules: `LongMethod`, `DuplicatedCode`, `FeatureEnvy`, `LongParameterList`.
  - **Logic**: Parse the ruleset file and assert the presence and correct configuration of each rule.
  - **Verification**: Ensure the test fails if any rule is missing or misconfigured.
  - **Dependency**: Must run after T021 (wrapper) is implemented.
  - **Rationale**: Prevents silent failures where PMD might run with an incomplete or incorrect ruleset, ensuring the analysis targets the correct code smells.
 
-- [X] T048 [US3] **Implement Effect Size Calculation for Permutation Test**:
+- [~] T048 [US3] **Implement Effect Size Calculation for Permutation Test**:
  - **Action**: Enhance `code/03_statistical_analysis/compare_distributions.py` to calculate and report a specific effect size metric (e.g., Cliff's Delta or a permutation-based Cohen's d) alongside the p-value.
  - **Verification**: Ensure the output `stat_results.json` includes the `effect_size` field for all four smell categories.
  - **Dependency**: Must run after T027.
  - **Rationale**: Provides a measure of practical significance in addition to statistical significance, addressing the need for robust effect size reporting in observational studies.
 
-- [ ] T049 [US1] **Implement Repository Block Matching Verification**:
+- [~] T049 [US1] **Implement Repository Block Matching Verification**:
  - **Action**: Create `tests/unit/test_block_matching.py` to verify that the `manifest.csv` correctly pairs Human and LLM samples by `repository_id` and `issue_id` as required by the Blocked Design.
  - **Logic**: Assert that for every unique `repository_id` in the manifest, the count of Human samples equals the count of LLM samples (target: 3 each).
  - **Verification**: Ensure the test fails if the block counts are unbalanced.

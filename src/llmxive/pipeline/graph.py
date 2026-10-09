@@ -255,7 +255,13 @@ _TASK_LINE_RE = re.compile(r"^\s*-\s*\[([ xX~])\]\s", re.MULTILINE)
 
 def _task_marks(text: str) -> list[str]:
     """The mark of every real checkbox task line: ``' '`` | ``'x'`` | ``'X'`` | ``'~'``."""
-    return _TASK_LINE_RE.findall(text)
+    from llmxive.speckit.task_lines import TaskFormatError, mask_fenced_code
+    try:
+        return _TASK_LINE_RE.findall(mask_fenced_code(text))
+    except TaskFormatError:
+        # A malformed document is never complete. Let the implementer's format
+        # validator report the exact issue through the normal replan route.
+        return [" "]
 
 
 def _tasks_all_done(text: str) -> bool:

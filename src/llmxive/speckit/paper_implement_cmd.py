@@ -32,7 +32,12 @@ import yaml
 from llmxive.backends.base import ChatMessage, ChatResponse
 from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
 from llmxive.speckit.task_lines import TASK_LINE_RE as _TASK_RE
-from llmxive.speckit.task_lines import all_complete, mark_task, validate_open_tasks
+from llmxive.speckit.task_lines import (
+    all_complete,
+    mark_task,
+    mask_fenced_code,
+    validate_open_tasks,
+)
 
 _LOG = logging.getLogger(__name__)
 
@@ -97,7 +102,7 @@ class PaperImplementerAgent(SlashCommandAgent):
         return resolve_feature_dir(ctx, paper=True)
 
     def _next_incomplete(self, tasks_text: str) -> tuple[str, str, str | None] | None:
-        for m in _TASK_RE.finditer(tasks_text):
+        for m in _TASK_RE.finditer(mask_fenced_code(tasks_text)):
             if m.group("status") == " ":
                 line = m.group(0)
                 kind_match = _KIND_RE.search(line)
@@ -116,7 +121,7 @@ class PaperImplementerAgent(SlashCommandAgent):
         validate_open_tasks(tasks_text)
         next_task = self._next_incomplete(tasks_text)
         completed = [
-            m.group("id") for m in _TASK_RE.finditer(tasks_text)
+            m.group("id") for m in _TASK_RE.finditer(mask_fenced_code(tasks_text))
             if m.group("status") in {"X", "x"}
         ]
         return {

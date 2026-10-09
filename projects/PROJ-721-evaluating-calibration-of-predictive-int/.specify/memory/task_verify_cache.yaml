@@ -1,3 +1,49 @@
+T001:
+  c: false
+  h: ec7a15843ae1ee9f498073ff8ee789a9a7d2ff1c197be140ed68dba6061b4aa1
+  r: "The provided artifact only shows top\u2011level entries (e.g., `code/`, `data/`,\
+    \ `results/`, `tests/`) but does not demonstrate that the required sub\u2011directories\
+    \ (`data/raw`, `data/processed`, `results/plots`, `tests/unit`, `tests/integration`,\
+    \ `tests/contract`, `state`) actually exist. A full recursive listing (`ls -R`)\
+    \ confirming each of these paths is missing."
+T002:
+  c: false
+  h: d7a9593c17e9feac5fd8271ee52da08e6c2db50adddd48cdf4ebf088f870d768
+  r: "The provided `requirements.txt` exists and lists all required packages, but\
+    \ it does not pin them to exact versions (it uses `>=` specifiers) as the task\
+    \ demands, and there is no evidence that `pip check` was run to confirm conflict\u2011\
+    free installation. The implementer must supply a `requirements.txt` with exact\
+    \ version pins (e.g., `statsmodels==0.14.0`) for every listed dependency and include\
+    \ proof that `pip check` passes."
+T003:
+  c: true
+  h: 954cb3bb6b8af34bd5e64124ae9fc649e54e6b4c3322e43db5445683e7550aba
+  r: "Both required files are present, non\u2011empty, and contain the exact configurations\
+    \ specified (the .ruff.toml selects E4,\u202FE7,\u202FE9,\u202FF,\u202FI; the\
+    \ .pre-commit-config.yaml includes black and ruff hooks). No placeholders or missing\
+    \ content were found."
+T004:
+  c: false
+  h: dccda8acc826bcf1be78356557b8526b9558a066c93070c786eaa28224ddabab
+  r: The listed evidence shows that `data/raw/` does not contain `M4-Dataset.zip`
+    (file missing) and `state/checksums.yaml` is also missing, so the required artifacts
+    are absent and the checksum validation cannot be performed. The implementer must
+    add the downloaded zip file and the checksum YAML file.
+T004b:
+  c: false
+  h: fe573ed5f93a4fd4445d5b60b8742a514d461055de021d9a20c5c27cab83f967
+  r: "The provided `config.yaml` is present but its contents do not match the specification:\
+    \ the required top\u2011level keys `learning_rate`, `step_size`, `initial_alpha`,\
+    \ `seed` are missing or nested under `aci`/`pipeline`; `nominal_levels` contains\
+    \ `[0.80, 0.90]` instead of `[0.80, 0.95]`; and `sensitivity_thresholds` lacks\
+    \ the value `0.02`. The file therefore fails the verification script."
+T005d:
+  c: false
+  h: 73e939e85ed477b45eec9ecd63c364dc88264698a07645df1906d50aef46e934
+  r: "The required file `code/models/lightgbm_quantile.py` is missing, and the test\
+    \ file `tests/unit/test_models.py` (which contains the verification test) does\
+    \ not exist, so no implementation or test can be run. The task\u2019s core artifact\
+    \ is absent."
 T011:
   c: false
   h: 458ab585cea2c734e145a6a3aeee5dae80efed5819cc228c9a2373a31d63ad4d

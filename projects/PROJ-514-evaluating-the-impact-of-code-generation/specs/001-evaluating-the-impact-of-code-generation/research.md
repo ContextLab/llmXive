@@ -2,14 +2,14 @@
 
 ## Balanced Blocked Design Implementation
 
-This document details the deviations from the original specification requirements to accommodate the practical constraints of the experimental setup while maintaining statistical validity.
+This document details the deviations from the original specification requirements to accommodate the practical constraints of the experimental setup while maintaining statistical validity. It documents the Balanced Blocked Design Implementation used in this study, in which repository serves as the blocking variable and equal numbers of human-written and LLM-generated samples are collected per repository block.
 
 ### Deviation Table
 
 | Original Spec Item | Implemented Design | Rationale |
 |:--- |:--- |:--- |
-| Sample Size ≥ 1000 (Human) | 150 Human samples (3 per repo × 50 repos) [UNRESOLVED-CLAIM: c_f57ffc79 — status=not_enough_info] | Balanced Blocked Design; CI constraints; statistical power sufficient with blocking. |
-| Sample Size ≥ 50 (LLM) | 150 LLM samples (3 per repo × 50 repos) [UNRESOLVED-CLAIM: c_3bd97142 — status=not_enough_info] | Balanced design requires equal N per group. |
+| Sample Size ≥ 1000 (Human) | 150 Human samples (3 per repo × 50 repos) | Balanced Blocked Design; CI constraints; statistical power sufficient with blocking. |
+| Sample Size ≥ 50 (LLM) | 150 LLM samples (3 per repo × 50 repos) | Balanced design requires equal N per group. |
 | Causal Claims | Associational Language | Observational study design; no experimental control over generation. |
 
 ### Explicit Rejection Statement

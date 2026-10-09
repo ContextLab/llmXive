@@ -11,7 +11,6 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
 from llmxive.speckit.analyze_cmd import run_analyze
@@ -87,12 +86,23 @@ class PaperTaskerAgent(SlashCommandAgent):
         repo = ctx.project_dir.parent.parent
         tasks_path = Path(mechanical_output["tasks_path"])
         tasks_path.parent.mkdir(parents=True, exist_ok=True)
+        from llmxive.speckit.task_lines import (
+            TASK_LINE_RE,
+            TaskFormatError,
+            mask_fenced_code,
+            unwrap_task_document,
+            validate_open_tasks,
+        )
+        text = unwrap_task_document(llm_response.text)
+        validate_open_tasks(text)
+        if not TASK_LINE_RE.search(mask_fenced_code(text)):
+            raise TaskFormatError("Paper tasker produced no executable task identities")
         # Defect #21: capture any existing tasks.md so a guard refusal
         # restores it instead of leaving no file on disk.
         prior_tasks = (
             tasks_path.read_text(encoding="utf-8") if tasks_path.exists() else None
         )
-        tasks_path.write_text(llm_response.text.strip() + "\n", encoding="utf-8")
+        tasks_path.write_text(text + "\n", encoding="utf-8")
         # FR-009: real-only guard — refuse template tasks emissions
         from llmxive.speckit._real_only_guard import guard_emit
         guard_emit(tasks_path, repo_root=repo, previous_content=prior_tasks)

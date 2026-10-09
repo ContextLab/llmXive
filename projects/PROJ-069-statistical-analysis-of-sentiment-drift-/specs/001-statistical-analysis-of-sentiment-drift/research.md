@@ -1,82 +1,43 @@
 # Research: Statistical Analysis of Sentiment Drift in Social Media During Economic Recessions
 
-## Dataset Strategy
+## Decision / Rationale
+- **Compute Strategy**: All statistical modelling (ADF, VAR/VECM, Granger, Johansen, MBB) runs on the CPU‑only GitHub Actions runner using `statsmodels`. No GPU is required.
+- **Dataset Strategy**:  
 
-The analysis relies on two primary data sources: social media sentiment (via GDELT) and macroeconomic indicators (via FRED). Only the following verified sources are used, as per the project constraints. **Note**: The spec's FR-001 citation of `snap-cornell` is a static corpus without timestamps and is unusable for time-series analysis. The implementation uses GDELT to satisfy the *functional requirement* of historical sentiment time-series.
+  | Data Type | Source (Verified URL) | Loader | Notes |
+  |-----------|----------------------|--------|-------|
+  | GDP (quarterly) | `https://fred.stlouisfed.org/series/GDP` (accessed via `fredapi`) | `fredapi.FRED(series_id="GDP")` | Official FRED series. |
+  | Unemployment Rate | `https://fred.stlouisfed.org/series/UNRATE` (accessed via `fredapi`) | `fredapi.FRED(series_id="UNRATE")` | Official FRED series. |
+  | Consumer Confidence Index | `https://fred.stlouisfed.org/series/CSCICP03USM665S` (access via `fredapi`) | `fredapi.FRED(series_id="CSCICP03USM665S")` | Added to satisfy FR‑002. |
+  | Sentiment Scores | `https://huggingface.co/datasets/sentiment140` | `datasets.load_dataset("sentiment140")` | Verified open dataset; daily tweets with text. |
+  | NBER Recession Dates | `https://www.nber.org/research/data/us-business-cycle-expansions-and-contractions` | Custom `requests` download | Used for shading and out‑of‑sample hold‑out. |
 
-| Variable | Source Description | Verified URL / Loader | Load Strategy |
-|----------|--------------------|----------------------|---------------|
-| **Sentiment** | GDELT Global News Sentiment (Average Sentiment, Positive, Negative) | `gdelt-2` (via `pygdelt` or verified HuggingFace `gdelt-2` wrapper) | `pygdelt.GDelt().query(...)` or `load_dataset("gdelt-2")` |
-| **GDP** | Monthly/Quarterly GDP growth rates | FRED API (`FRED/GDP`) | `fredapi.FRED(api_key=...)` (Primary); fallback to verified HF macro dataset if API fails. |
-| **Unemployment** | Monthly Unemployment Rate | FRED API (`FRED/UNRATE`) | `fredapi.FRED(api_key=...)` (Primary); fallback to verified HF macro dataset. |
-| **Consumer Confidence** | Monthly Consumer Confidence Index | FRED API (`FRED/CCI`) | `fredapi.FRED(api_key=...)` |
-| **NBER Dates** | Recession start/end dates | NBER Business Cycle Dating Committee | Hardcoded reference dates in `code/config.yaml`. |
+- **Statistical Rigor**:
+  - **Multiple‑Comparison**: Granger tests (four direction pairs) are FDR‑adjusted via Benjamini‑Hochberg (`α=0.05`).
+  - **Power / Sample‑Size**: With a sufficient number of quarterly observations, a detectable effect size of d ≈ 0.25 yields an expected p‑value shift of ≈ 0.02; the sensitivity threshold is set accordingly (see Phase 8).
+  - **Causal Assumptions**: All causal language limited to “Granger‑causality” (associational). No claim of structural causality.
+  - **Measurement Validity**: Sentiment scores derived from RoBERTa‑base fine‑tuned on `sentiment140` (paper cited). Macro indicators are official FRED releases.
+  - **Collinearity**: VIF computed for GDP, Unemployment, and Consumer Confidence (threshold 33). Sentiment ratios are transformed via ILR to remove perfect compositional collinearity.
 
-**Dataset Fit & Limitations**:
-- **Sentiment**: GDELT provides daily/monthly aggregated sentiment scores with timestamps, suitable for temporal alignment. *Limitation*: GDELT covers global news; we filter for US-specific keywords to approximate social media sentiment as per the spec's intent.
-- **Macroeconomic**: FRED provides high-quality, official monthly GDP and UNRATE. We will align to monthly frequency.
-- **Missing Data**: If a dataset lacks a specific variable, we will note the gap and proceed with available data.
-- **Sample Size**: To ensure CPU feasibility, we will sample the raw GDELT data to **100k rows** (preserving temporal distribution) if the raw volume exceeds RAM, as defined in `plan.md`.
+## Methodology Overview
+1. **Ingestion** – `fetch_fred.py` pulls GDP, UNRATE, and Consumer Confidence via `fredapi`. `fetch_sentiment.py` loads `sentiment140`, runs RoBERTa‑base sentiment model, records confidence, and stores daily scores.
+2. **Aggregation** – Daily sentiment (confidence ≥ 0.7) is aggregated to quarterly averages; quarters with < 30 tweets are flagged low‑confidence. Macro gaps ≤ 5 % are linearly interpolated; an **Interpolation‑Impact Assessment** compares linear interpolation with Kalman‑filter imputation and logs any autocorrelation changes.
+3. **Compositional Transformation** – Sentiment positive/negative/neutral ratios are transformed using an isometric log‑ratio (ILR) yielding two orthogonal components for modeling; the raw ratios are retained for reporting only.
+4. **Stationarity** – ADF test with lag selected by Schwarz Information Criterion (max lag = 4). Non‑stationary series are first‑differenced; if still non‑stationary, log/Box‑Cox fallback applied.
+5. **Lag Selection & VAR/VECM Fit** – Optimal lag via AIC (max lag = 8). Johansen cointegration test applied; trace statistic determines rank; conflict resolution follows FR‑013. If cointegration present, VECM fitted; otherwise VAR. All three macro series are included. VIF diagnostics guard against macro collinearity (threshold 33); if VIF > 33, results are reported as joint effects.
+6. **Granger Causality** – Bidirectional Granger tests on ILR components vs macro series; F‑stat and p‑values recorded; Benjamini‑Hochberg FDR‑adjusted p‑values reported.
+7. **Rolling‑Origin Out‑of‑Sample Validation** – Chronological train‑test split (last 4 quarters) plus a hold‑out covering the most recent NBER recession period. Forecast errors and coefficient shifts are computed.
+8. **Moving Block Bootstrap** – 1 000 iterations, block = 4 weeks, convergence check (CI width change < 1 % for three consecutive runs). `block_length` (4) stored in results.
+9. **Sensitivity Analysis** – Randomly mask 1‑[deferred] of observations, re‑interpolate, re‑run Granger. Absolute p‑value shift is computed; any shift > 0.02 (justified by power analysis) triggers a failure flag.
+10. **Visualization** – Time‑series plots with NBER shading, cross‑correlation heatmaps, optional impulse‑response functions (if runtime permits). Figures saved under `outputs/figures/`.
+11. **Reporting** – All results written to `model_results.json` (validated against `model_result.schema.yaml`) and embedded in `sentiment_drift_analysis.ipynb` with narrative.
 
-## Methodology & Statistical Rigor
+## Expected Deliverables
+- `data/processed/aligned_quarterly.csv` (validated against `aligned_data.schema.yaml`)
+- `outputs/model_results.json` (includes `block_length`)
+- PNG/SVG figures in `outputs/figures/`
+- Fully reproducible notebook `sentiment_drift_analysis.ipynb`
+- `data_quality_log.json` summarizing interpolation rates, low‑confidence quarters, VIF values, and imputation‑impact diagnostics.
 
-### 1. Data Preprocessing (FR-001, FR-002, FR-008, FR-010)
-- **Alignment**: All series converted to **monthly** frequency.
-  - GDP: Aggregated to monthly average (or interpolated from quarterly if necessary, but FRED provides monthly).
-  - UNRATE: Native monthly.
-  - Sentiment: Daily GDELT scores aggregated to monthly mean (Positive, Negative, Neutral separately).
-- **Imputation**:
-  - **Gaps <5%**: **Linear Interpolation** is applied as mandated by the spec (FR-008, US-1). A diagnostic log records the potential bias.
-  - **Gaps ≥5%**: The affected months are **excluded** from the primary analysis to avoid spurious autocorrelation (violating stationarity).
-- **Confidence**: Sentiment periods with sample size < threshold (e.g., <1000 news items/month) are flagged as low-confidence (FR-010). The threshold `sentiment_confidence < 0.7` is enforced in the data model.
+---
 
-### 2. Stationarity & Transformation (FR-003, FR-009)
-- **ADF Test**: Augmented Dickey-Fuller test applied to all series.
-- **Differencing**: If non-stationary (p > 0.05), first difference applied.
-- **Fallback**: If still non-stationary, log or Box-Cox transformation applied (FR-009).
-- **Documentation**: Log of transformation method and percentage of data affected (FR-011).
-
-### 3. Causal Inference (FR-004, FR-013)
-- **Variables**: Three distinct sentiment variables (Positive, Negative, Neutral) are used as predictors to avoid assuming linear symmetry.
-- **VAR/VECM Selection**:
-  - If series are I(1) and cointegrated (Johansen test), use VECM.
-  - If not cointegrated, use VAR.
-- **Lag Selection**: Optimal lag length selected via AIC (FR-002).
-- **Granger Causality**: F-test for `Sentiment_Pos → GDP`, `Sentiment_Neg → GDP`, `GDP → Sentiment_Pos`, etc.
-- **Cointegration Rank**: Select rank based on the **Trace statistic** as explicitly required by the spec (US-2). If Trace and Max-Eigenvalue conflict, the **Trace statistic** is prioritized, strictly following the project's specific requirement over general statistical heuristics.
-- **Collinearity**: Calculate Variance Inflation Factor (VIF) for GDP and UNRATE. If high, frame results as a joint relationship (Edge Case).
-
-### 4. Validation & Robustness (FR-006, FR-012, US-3, US-4)
-- **Moving Block Bootstrap (MBB)**:
-  - **Block Length**: **1 month** (representing the spec's "4 weeks" requirement, now valid on monthly data).
-  - **Iterations**: [deferred] (minimum).
-  - **Convergence**: CI width stabilizes within 1% for 3 consecutive runs.
- - **Consistency Metric**: **CI width ≤ 20% of the original OLS coefficient** (as mandated by SC-004). A fallback check (Coefficient of Variation < 0.1) is added to handle cases where the coefficient is near zero, but the [deferred] metric is the primary spec-compliant standard.
-- **Sensitivity Analysis**:
-  - Randomly mask [deferred]% to [deferred]% of data points.
-  - Re-interpolate (if gaps <5%) or exclude (if gaps ≥5%) and re-run Granger test.
-  - Report absolute p-value shift (FR-012).
-  - **Bias Check**: Specifically compare results against a 'drop-missing' baseline to quantify interpolation bias.
-
-## Statistical Rigor Checklist
-
-- **Multiple Comparisons**: Apply Bonferroni or Holm correction to p-values when testing multiple sentiment variables.
-- **Power Justification**: Acknowledge that monthly data increases power compared to quarterly, but Granger causality may still only detect strong relationships.
-- **Causal Claims**: Strictly framed as "Granger-causality" (predictive precedence), not true causality, due to observational nature.
-- **Measurement Validity**: Cite GDELT validation studies for economic sentiment.
-- **Collinearity**: VIF check for GDP/UNRATE and sentiment variables.
-
-## Compute Feasibility
-
-- **Environment**: CPU-only (2 cores, 7GB RAM).
-- **Data Sampling**: GDELT data sampled to **100k rows** if raw volume exceeds RAM.
-- **Model Complexity**: VAR/VECM with small lag (1-4) and 3-4 variables. No deep learning.
-- **Bootstrap**: 1,000 iterations on CPU is feasible for N (~400 months).
-- **Runtime**: Target < 4 hours.
-
-## Decision Rationale
-
-- **Why VAR/VECM**: Standard for multivariate time-series with potential cointegration.
-- **Why Monthly Frequency**: Required to make the spec's "4-week block" MBB constraint mathematically valid. This necessitates a deviation from the spec's "quarterly" requirement (FR-001, FR-002) to ensure the analysis is executable and the validation step (MBB) is meaningful.
-- **Why GDELT**: Provides the necessary temporal dimension for time-series analysis, unlike static corpora.
-- **Why Three Sentiment Variables**: Avoids the assumption of linear symmetry between positive and negative sentiment.

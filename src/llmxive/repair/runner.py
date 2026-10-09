@@ -16,6 +16,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+from datetime import UTC, datetime
 from pathlib import Path, PurePosixPath
 
 from llmxive.backends.base import ChatMessage
@@ -63,7 +64,7 @@ def _json(text: str) -> dict:
     return value
 
 
-def _ask(prompt: str) -> dict:
+def _ask(prompt: str, *, response_path: Path | None = None) -> dict:
     response = chat_with_fallback(
         [
             ChatMessage(
@@ -83,6 +84,10 @@ def _ask(prompt: str) -> dict:
         max_tokens=32768,
         temperature=0,
     )
+    if response_path is not None:
+        from llmxive.speckit._inspection import _redact
+        response_path.write_text(_redact(response.text), encoding="utf-8")
+    print(f"Repair model response: {response.model}", flush=True)
     value = _json(response.text)
     value["_producer_model"] = response.model
     return value
@@ -259,6 +264,14 @@ def isolated_tests(source: Path, tests: list[str], log: Path, *, image: str = IM
     return result.returncode
 
 
+def _progress(output: Path, phase: str) -> None:
+    from llmxive.state._io import atomic_write_text
+    atomic_write_text(output / "progress.json", json.dumps({
+        "phase": phase, "updated_at": datetime.now(UTC).isoformat(),
+    }, indent=2))
+    print(f"Repair phase: {phase}", flush=True)
+
+
 def run(repo: Path, evidence: dict, output: Path, *, image: str = IMAGE) -> dict:
     output.mkdir(parents=True, exist_ok=True)
     (output / "evidence.json").write_text(json.dumps(evidence, indent=2))
@@ -268,14 +281,17 @@ def run(repo: Path, evidence: dict, output: Path, *, image: str = IMAGE) -> dict
         for p in (repo / root).rglob("*")
         if p.is_file() and p.suffix in {".py", ".md"} and "__pycache__" not in p.parts
     )
+    _progress(output, "selecting_files")
     selection = _ask(
         "Choose up to 6 source/test files needed to fix ONE concrete defect from this evidence. "
         'If the evidence is insufficient or already fixed, return {"skip":"reason"}. '
         'Otherwise return {"paths":[...],"problem":"..."}.\nEVIDENCE:\n'
         + render_evidence(evidence)
         + "\nFILES:\n"
-        + "\n".join(tree)
+        + "\n".join(tree),
+        response_path=output / "selection-response.txt",
     )
+    (output / "selection.json").write_text(json.dumps(selection, indent=2))
     if selection.get("skip"):
         result = {"status": "no_candidate", "reason": selection["skip"]}
         (output / "result.json").write_text(json.dumps(result, indent=2))
@@ -290,6 +306,7 @@ def run(repo: Path, evidence: dict, output: Path, *, image: str = IMAGE) -> dict
         if not file.resolve().is_relative_to(repo.resolve()) or file.is_symlink():
             raise ValueError("context cannot leave platform")
         context[path] = file.read_text()[:40000]
+    _progress(output, "proposing_fix")
     proposal = _ask(
         'Implement the smallest fix. Return {"title":str,"explanation":str,'
         '"files":{relative_path:complete_file_contents},"regression":new_test_path,'
@@ -304,10 +321,11 @@ def run(repo: Path, evidence: dict, output: Path, *, image: str = IMAGE) -> dict
         + "\nSELECTED PROBLEM:\n"
         + str(selection.get("problem"))
         + "\nSOURCE:\n"
-        + json.dumps(context)
+        + json.dumps(context),
+        response_path=output / "proposal-response.txt",
     )
-    files, regression, related = validate_proposal(proposal, repo)
     (output / "proposal.json").write_text(json.dumps(proposal, indent=2))
+    files, regression, related = validate_proposal(proposal, repo)
     with tempfile.TemporaryDirectory(prefix="llmxive-repair-") as tmp:
         baseline = Path(tmp) / "baseline"
         candidate = Path(tmp) / "candidate"
@@ -316,6 +334,7 @@ def run(repo: Path, evidence: dict, output: Path, *, image: str = IMAGE) -> dict
         test = baseline / regression
         test.parent.mkdir(parents=True, exist_ok=True)
         test.write_text(files[regression])
+        _progress(output, "testing_baseline")
         before = isolated_tests(baseline, [regression], output / "before.log", image=image)
         # pytest 1 means test failure. Collection/import/usage failures are NOT
         # evidence of a reproduced defect and Docker failure is never acceptance.
@@ -326,6 +345,7 @@ def run(repo: Path, evidence: dict, output: Path, *, image: str = IMAGE) -> dict
             path = candidate / name
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(content)
+        _progress(output, "testing_candidate")
         after = isolated_tests(candidate, [regression, *related], output / "after.log", image=image)
         if after != 0:
             raise RuntimeError(
@@ -371,6 +391,11 @@ def run(repo: Path, evidence: dict, output: Path, *, image: str = IMAGE) -> dict
         subprocess.run(["git", "add", "--", *files], cwd=baseline, check=True)
         patch = subprocess.check_output(["git", "diff", "--cached", "--binary"], cwd=baseline)
         (output / "candidate.patch").write_bytes(patch)
+    _progress(output, "independent_review")
+    review_model = (
+        "google.gemma-4-31B-it" if proposal["_producer_model"] == "openai.gpt-oss-120b"
+        else "openai.gpt-oss-120b"
+    )
     review = chat_with_fallback(
         [
             ChatMessage(
@@ -395,7 +420,7 @@ def run(repo: Path, evidence: dict, output: Path, *, image: str = IMAGE) -> dict
         ],
         default_backend="dartmouth",
         fallback_backends=[],
-        model="openai.gpt-oss-120b",
+        model=review_model,
         max_tokens=16384,
         temperature=0,
     )
@@ -439,16 +464,22 @@ def main() -> int:
     parser.add_argument("--image", default=IMAGE)
     args = parser.parse_args()
     os.environ["LLMXIVE_PAID_OPT_IN"] = "0"
+    args.output.mkdir(parents=True, exist_ok=True)
+    _progress(args.output, "selecting_evidence")
     evidence = (
         json.loads(args.evidence_file.read_text())
         if args.evidence_file
         else select_evidence(args.repo, args.source)
     )
     if evidence is None:
+        (args.output / "result.json").write_text(json.dumps({
+            "status": "no_candidate", "reason": "No actionable input",
+        }, indent=2))
         print("No actionable input; no candidate created.")
         return 0
     result = None
     for attempt in range(1, 4):
+        print(f"Repair attempt {attempt}/3", flush=True)
         attempt_dir = args.output.resolve() / f"attempt-{attempt}"
         try:
             result = run(args.repo.resolve(), evidence, attempt_dir, image=args.image)

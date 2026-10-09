@@ -1,3 +1,43 @@
+T001:
+  c: false
+  h: b43838f9b6b2b2f07f822c359e7a9e4d89a57f8e57eebe251e91739f416aa78a
+  r: No directory structure or file listing is provided as evidence; without seeing
+    the created folders (e.g., `code/01_data_collection`, `data/raw/human_samples`,
+    etc.) we cannot confirm the required project layout exists. The implementer must
+    supply a manifest or screenshot showing the directories have been created.
+T001.1:
+  c: true
+  h: 2443c90f5693e8b8d50a4229e1fdacba5411676902434b867781a6891fcc1b9a
+  r: "The file `specs/001-code-smell-comparison/research.md` is present (1536\u202F\
+    bytes) and its contents begin with the required header `# Research: Evaluating\
+    \ Code Generation Impact on Code Smell Frequency`."
+T002:
+  c: true
+  h: 0047b4d0b94b4ee2400740efcad0ba07a1771adfc429d4307fdea5f26975995b
+  r: "The `code/requirements.txt` file exists, is non\u2011empty, and contains the\
+    \ exact version pins listed in the task (requests, GitPython, pandas, scipy, matplotlib,\
+    \ pyyaml, pytest) plus additional pinned packages, fulfilling the requirement."
+T004:
+  c: false
+  h: f436efe2af45e6afd33d2d3e0502b66ea2c1fa2713aef7c2fb9a97200f97cdec
+  r: "The `code/utils/config.py` file does not define or export a `FALSE_POSITIVE_THRESHOLD`\
+    \ constant, nor does it expose a `RANDOM_SEED` variable (it only provides a `get_random_seed()`\
+    \ function and a `\"random_seed\"` entry in `DEFAULT_CONFIG`). The required pinned\
+    \ reference set SHA is also absent. These missing definitions mean the task\u2019\
+    s verification criteria are not satisfied."
+T005:
+  c: true
+  h: a99da4f7c2b21f99c0a3caa053198e470c25a9956170bdb53bc9daa5a581aa9b
+  r: "The file `code/utils/logger.py` exists (4185\u202Fbytes) and defines a logger\
+    \ plus `log_commit_info` (records commit SHA, repo URL, optional issue URL) and\
+    \ `log_api_response` (records endpoint, status code, and a preview of response\
+    \ data), fulfilling the required logging infrastructure."
+T007:
+  c: true
+  h: 9f522c42fad655055f5ac1cef1a0147e11ea72d09e515b522aa88506711ed1a9
+  r: The file `code/utils/data_models.py` exists and defines the three required dataclasses.
+    `CodeSample` includes all specified attributes (plus extra optional ones), and
+    `SmellMetric` and `StatResult` match the exact attribute lists requested.
 T019:
   c: false
   h: 6adee02a20e8d6dedf9c3cc70178b152b9c2a5a947d982573033ba7e2666e195
@@ -12,20 +52,6 @@ T030:
     but no such file content or change log is provided in the evidence; therefore
     we cannot confirm the documentation was actually created or modified as required.
     The missing artifact is the updated `research.md` file itself.
-T031:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifacts (code, data files, analysis scripts, or final report) were provided;
-    the claim lacks any tangible evidence that the required dataset, static analysis,
-    blocked permutation test, or reporting outputs were produced. The implementer
-    must supply the actual collected samples, analysis results, and the final report
-    to satisfy the specification.
-T032:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No dataset of 150 human and 150 LLM code samples, no static analysis outputs,
-    no blocked permutation test results, and no final report with tables and visualizations
-    were provided. The required artifacts are missing, so the task is not satisfied.
 T033:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,0 +1,192 @@
+T001:
+  reason: The required directories and `__init__.py` files are present, but the provided
+    evidence does not show that the `__init__.py` files are empty as the task specifies.
+    Content of those files needs to be verified (or shown) to confirm they are truly
+    empty.
+  task: d7c8508ec09b5c9cf5d49650c549ea9944fd05cc5718d94133c51939b47d167e
+T002:
+  reason: The provided `requirements.txt` exists but does not pin specific versions
+    for the listed packages, and it includes an extra package (`matplotlib`) that
+    was not part of the required list. The task explicitly required pinned versions
+    for the nine specified dependencies.
+  task: cabe199ed4ad7fb9c4165e60c7c1519e96ab308c14c3ed305bc5960679558a3c
+T003:
+  reason: "No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,\
+    \ or `black` settings) or scripts are present in the provided evidence, so the\
+    \ requirement to configure ruff and black is not satisfied. The implementer must\
+    \ add the appropriate configuration files and ensure they are non\u2011empty and\
+    \ correctly set up."
+  task: ed499d1c554fe9eb2c7938008dd2c66373f31ce0c71ca26dc8c344cb81cd4782
+T004:
+  reason: The `contracts/` directory is present, but the required schema files (`dataset.schema.yaml`,
+    `coverage.schema.yaml`, `generated_test.schema.yaml`, `analysis_result.schema.yaml`)
+    are reported as missing, so no valid YAML skeletons were created. The task is
+    therefore not fulfilled.
+  task: 7bbbf2231aaaa68af6b1f8f76421625f22a4a2995f8fd0b14b55e5e06c7e78f6
+T005:
+  reason: "The file loads sample limits, various timeouts, model paths, and enforces\
+    \ a runtime limit, but it does not define or load any environment variable for\
+    \ retry limits as required by the task. Adding support for a retry\u2011limit\
+    \ variable (e.g., `RETRY_LIMIT` with getter and default) would be needed to meet\
+    \ the specification."
+  task: 2b6f2ae386f252cc1ac46480e677961519400a010d8eeb3680a75326efb61d17
+T006:
+  reason: "The file exists and includes a `fetch_defects4j_data` function with a try/except\
+    \ that raises `DataFetchError`, satisfying the fetching requirement. However,\
+    \ it does **not** provide a genuine chunked\u2011processing implementation: it\
+    \ accumulates all results in `changed_lines_map` (potentially OOM for large streams),\
+    \ uses a hard\u2011coded sample limit (`if count > 100: break`) for demonstration,\
+    \ and never writes intermediate chunks or uses a configurable batch size. The\
+    \ placeholder `ensure_data_loaded_and_integrity_recorded` and unused `MemoryExceededError`\
+    \ further indicate the chunked\u2011processing logic"
+  task: f3be920c8317fcebac9cc49a37abafa68095713e0c20c1758a7534e456950ea1
+T006b:
+  task: 4dde5175724fc6e121ede1b8975c808a2875d03ae6cd20e30a3b12b5911ca2de
+T006c:
+  task: 6d6e9b6752ee30810e8b3292bd3d5ba56d91e83be66b2abe1c257641129d7775
+T007:
+  task: 3cc48b0cdc3f3ce5773e44e70e779fe6c5a8c61816faf00199babfa72c47d4c8
+T007b:
+  task: 809625dcfb4dd0aba3de570d632d0d3d14a3225ab5c0615b7a74171a7222ceb1
+T008:
+  task: c6beec2f0a0cba441e336bab219adf9da9affd2f3ae84524b48b6ab7df60a7c6
+T009:
+  task: d314f2efe0497195dbcc4cf0a6ce037f014b62d9fb5a77c925551c72222ee9a1
+T010:
+  task: e881ba3acc7c78a54cab2a6ae2a24b5f88ab0a69da451b07527a526923344356
+T011a:
+  task: a50bcf83a68fd8f4488ff3e8086c55867450afc06311f38364b1ee087dfffce6
+T011b:
+  task: 30ba8150bd560a816d990f884a9b5c9611ad9e5e39c123295301aef838374194
+T012:
+  task: 564e938ca6decaf6894f039fcd85b0039f649d25df88e41f1e0818c42f8cdb00
+T013:
+  task: 28319cfaec237b69b7be96689d593820cd8910cd7a142a4fbf80824e6df4390a
+T014:
+  task: 4671b248d21e59fc50716fb3cbf1839798f39d39547b48d8037d49b195c8a91f
+T015:
+  task: 9152f2a4af76713f268903d4a4d3034131cd74c6a9a4732b33871c85dd1df00f
+T015a:
+  task: 7c5ef220c5460c53d20ead97ee956e1310edddb026917373771de938450c0ae2
+T016:
+  task: de1420b27bee2b1677d21479a82e5aec57637ab88cb6a9a4086c7d730f5b302c
+T017:
+  task: dfcd1888ad0d9b59e746900eb4c0f4d380fe84133d6ce8494ceb3aa04b95b402
+T018:
+  task: de04fb15bbae823ca2e59f2232a58494c4f999b366629cd7d70f11f313e375cd
+T020:
+  task: cc0641559d896346500d709de3653b89915b58f788aefbfdad8377873e7c7be9
+T021:
+  task: 39388dc4398fc4e468c8a23e11c1979106e94d426111b5fde3469080753f478e
+T022:
+  task: 001bb3335686220dd5c44638d849c90c1623478bea2c81348f68a51cda745492
+T023:
+  task: 8d3d38b613d02c4602b44e542dbac859e3853146bdb3ef673f94dd0aec44f1eb
+T023b:
+  task: 87f9b135238d1fe818aba161d4c0ccb79351bceeebd6d4b2adc95befd899ca4c
+T024:
+  task: 44b76b88ad00609140fb62a99308db77a499658402d913d1b11854357ae0c21d
+T025:
+  task: 986047d7dacd7f9825d773856d892757e08a0fdd042cf5e6859b39bde5069fc5
+T026:
+  task: 0256fcaaad403653a03f5ef2e99c3934fa5dab87116010e62081d6c30d53efc7
+T027a:
+  task: fd647e448dcb4064c1b1ec63d66fd13e43ec4409047d7fbee0def1184c691db1
+T027b:
+  task: ae1781861c536b82d3fde38e772cded81b059842327f28fe5f2d752b5323f521
+T028a:
+  task: 0004b86948bfede92a8fca4bedb82dbd7426733916d80d0cab51ac4f4e948a7f
+T028b:
+  task: 06de6867fa6feffc96878363cfbb97c6bcab5e4da3b7a6e8e91cb5cff84532f3
+T029a:
+  task: 9f8fe041ca6fbc9e509b93da73a4f2633f2714b5f25d4f53523c0cf2cf1b0928
+T029b:
+  task: c6b718ec5442f2af546bfca9fc6e034f918ac10038969d3d8f7be04bb249f485
+T030:
+  task: e1bfbef29d256fa7ade8e6772cc6e2bd274d388a0abe10a2846c9b822295e944
+T031:
+  task: ed0808cd945a3464f08889b5d9981026e798ae763a81168c59728751c2eebebc
+T032:
+  task: 8b65c757e34970ee1d37cf745a10e90c4bdf70821f12484b3a80eac62a4c4580
+T033:
+  task: 51895c2531e2eb30d059bea43a10984d602a89eed69aeb28192db24dcced682c
+T034:
+  task: 493e9d80666095d9281a656aba089f45237f903c9286f518e0001a2a67375185
+T035:
+  task: 42b4aa3b1c852413d67f0ed118990591562c6c18d25628a6265f98e6c5bc59ab
+T036:
+  task: 3f1bee2ceff08b350da8163c0dbc6083c6a93009cb508a82eeaf186c56abb53a
+T037:
+  task: 26b39f655cc7671c4b8827b75dd352e3ff9c360bdd76b30a0c32cfeecac20571
+T037a:
+  task: ce30da638474f85275138ad920099141538f2f42209a338b51927f788de64684
+T038:
+  task: 20dc41310e80de755571a434892bc9c13eefe5b13c342b2a11f9fb84a0f654af
+T039:
+  task: a493508f92995fe8808408e293971b3e0745e18f215e3c67d4ba5ed3e88049a2
+T040a:
+  task: 4ef0909336eb56b5c7904092e0173ff47fced85899d192ba2cfaa9514a4fbc2c
+T040b:
+  task: 2bb823e6e15854bd7e37ed470026779433c7f98dfda0446bc2621483ab28b90c
+T043a:
+  task: 3da0c96138d6f5a162a6ea3278cd7ee082fd59c171d3dbf2d99bf9a50856dba5
+T043b:
+  task: 9445deefe83311fc71e3e84f622b0864a540d000ca542cbe015e2cb25f474870
+T045:
+  task: 4c721e01d2995883b726f98883354b419af862c61dab4ced06233a195c537b05
+T046a:
+  task: ef639fdd86ec99129d7df3a94078ec263e592564c35226dca28e6a6615f3a528
+T046b:
+  task: d92dc103a4c8e026b248983b24f0ba96bb168569dfa32f66176f8963404835fd
+T047:
+  task: 9f0ac20fcbe1421ed5b6f74ab49c9d540d4f38fe3ef15380fa57dfccc7a32d45
+T048:
+  task: 0c0b2f81745c39b5bfb09252069894ba2f874dac3ff34da5fd38cc35ad18f1ce
+T051:
+  task: 9143b87d9ee9b03fef381bef7ca48e7a0fdae8be5ee5610389cee56a45cdfc2a
+T051b:
+  task: ffb4073a9e98a98c4e1c5c25afa49b20be74ef96469dfb8d4c34b91baa864328
+T053:
+  task: 47e68b6e290922e87d9ada0d8ff1c5cbaf3a2e4edff1fae42169c36ef10a04fe
+T061:
+  task: d24bb807ee54fc57cf421478781d40cf9a8ad118081fcb9cc8f23eb74960b06b
+T063:
+  task: bd1f526e6f43f83c41ebddea828e8b71c8e5e2f023d045424b92d2514f92a7fb
+T064:
+  task: 8e81f37101467acd22b7fbb427d4537b4429287d00d29156501f9ca79b9d5979
+T065:
+  task: 25aa3877b68409c2311727d949f7728408b98f6ee5825011fab953a21da1d9a5
+T066:
+  task: 18e95d5740d216df92f9a3e13e9f2255d70b2f46baf1f015c9158684d5a5565a
+T067:
+  task: df7be6504c9cebe7b5274e90317a025df5a980b3a8b314bd742449a5d8d97eba
+T068:
+  task: e3c57c9b8c229283d006356c92a6b0574fc8652f2603e4bd0b304c4c76cfd6eb
+T069:
+  task: 4913ea1a78e95f037842d2bf9e702f5965ff76b4ed36d8ab686b2452de6e30e7
+T070:
+  task: 69f98c3cc9296f645ae58ebbccaf398ca01dc901b079a7ff2fd46797710ba543
+T071:
+  task: 69c813c09977362e4a81d0b3fa7ff3806cd8c4a31c82083924bd9919efeade19
+T072:
+  task: 47915087830313b359d14ccebc12a8cdc9213405ddf7da9c3aaf0423c29801ff
+T073:
+  task: 273fdfd27ceb4485e3de125eace816c54cb1a8a62c734c62afa142b8c703bf93
+T074:
+  task: ead1840707f5dc081c263828961737b6abf78c84504eba8ca25b28c47af77fda
+T075:
+  task: 11619f844e9a33f9d3936ed2010abef9cbdf4e54a2f531c4fd151e591c9be297
+T076:
+  task: cd64a1117237fd3b4b45be209816409e7fa10e1a08288d32611a6b2708e940f4
+T077:
+  task: b8e940a54fbe98864500fd81e98cf32f0704397b4bbd53d9a527bda5ad449a8f
+T078:
+  task: d724a9b4d6a528c34e22eee391f219e79db15ca58b018695acbaef84e825c097
+T079:
+  task: b1ae7840e680862db98ab931c4f345a13716029180c6bd20d0b008236991dd39
+T080:
+  task: e036e599c452ee84b13286b6da62b6f58f7edcaef7431646fa85159a16df4ba0
+T081:
+  task: 1ee9a4148fb753a12054b3c162c4351b5eb9c31ed4ab67a161649cd38fb48b5f
+T082:
+  task: 9a7f8d4fde999fc46adff745ae683ef44437cf92cf4edaedc90048c2fb5b4423

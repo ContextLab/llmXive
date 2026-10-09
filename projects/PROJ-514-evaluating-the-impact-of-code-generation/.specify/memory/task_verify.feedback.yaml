@@ -1,0 +1,105 @@
+T001:
+  reason: No directory structure or file listing is provided as evidence; without
+    seeing the created folders (e.g., `code/01_data_collection`, `data/raw/human_samples`,
+    etc.) we cannot confirm the required project layout exists. The implementer must
+    supply a manifest or screenshot showing the directories have been created.
+  task: 688dbfbd278cfd38c756d74069bea6332a76af95769ef2d2536abd1026d4cf5a
+T001.1:
+  task: 4c1ece7ff03a264a9574957a965978a8c2e1c21570cd13f75810f3fd75be047d
+T002:
+  task: db3b69e98361112348aaf78e7d393ca5689b9a521c3f9d7c76a0e8324fe456fd
+T004:
+  reason: "The `code/utils/config.py` file does not define or export a `FALSE_POSITIVE_THRESHOLD`\
+    \ constant, nor does it expose a `RANDOM_SEED` variable (it only provides a `get_random_seed()`\
+    \ function and a `\"random_seed\"` entry in `DEFAULT_CONFIG`). The required pinned\
+    \ reference set SHA is also absent. These missing definitions mean the task\u2019\
+    s verification criteria are not satisfied."
+  task: c46cdd0bcc54ff30f93c21e89acad0b1b10415647c85536891c93d96ecd48194
+T005:
+  task: f4fb911a8c28bbf6b02ef19e20290269c4d657d8c07e91d0b3934cfd28a4babf
+T007:
+  task: edee74ecd565eff03026a860fe8baa388885a3c535e6b4eb5b8b4235945b63ac
+T008:
+  task: 292cec25ec34c10cadae5a1a0306e311c4fd2479b7394a6f248edb1787f0994f
+T009:
+  task: d4b7291ef93abf7b8a0ffbc40ff8a5058eb51236fba40a0d19b0faf1dbfdaf10
+T010:
+  task: 27f47129ff848bae0c22c7ebbf88b24de6e6e878bf0143cad8a3e4640fdfe7a5
+T011:
+  task: 3740884327fe9388ec0be631b7b6dc4e701f9fd4a354ee96087facbad8e93204
+T012:
+  task: 25e77b2250795887ce508e25bd70754d5dd132d3433f8f46f9ac24334ebe70f4
+T012.5:
+  reason: 'declared artifact(s) missing/empty/invalid: code/01_data_collection/export_task_descriptions.py,
+    data/raw/api_logs.json, data/raw/human_samples/, data/intermediate/tasks.json'
+  task: 89dd759ea974f78cdb90041894c0d2083fda0b536574113da2b14452f4693211
+T013:
+  task: 09428821f0bdc174b372b22ceb54a1595ad9936d446b05433ff670c5484b5517
+T013.1:
+  task: dd0d70be32e3b2aee71e731cb6b8903efc9d279b77747b30e440abfb668388ab
+T014:
+  task: 9788b430826a823500b836c72fe347d0a32605b0a7962f3837aac17c8ce73130
+T015:
+  task: 80944588f55729ee2f5fe87c10cb1b7c440363a7a704cce7dcb79c28feef35a8
+T019:
+  task: 054e2152488568eb4640ed9d9bae1bd6d50205b533a76b9e51c669be0a4ab55c
+T020:
+  task: 48d5be8272570e03178a00cd40caad3c3355916e757c88cb73f6801a06ac6f88
+T021:
+  task: b45aeab795cb00ec50ba93a2ecb5eed4b20e2c6e0b4089efafa22eaecd8e9a70
+T022:
+  task: 3c344a6c7eff23594ffba7602d6c0853e0d604c34bc32c96eab998ee5bf042ad
+T022.5:
+  reason: 'declared artifact(s) missing/empty/invalid: code/02_static_analysis/generate_reference_set.py,
+    data/raw/reference_set/, state/projects/PROJ-514-evaluating-the-impact-of-code-generation.yaml'
+  task: 75bc8bb50ff64fac04c03d2a83a5befa0bc8c57f10331040309f2dfc2199f46a
+T023:
+  task: 5945ed7d1ed92a50f63d220cf60875ed1baaa7924b7925552f7d8d44fa5bb484
+T024:
+  task: adb5258f0e330c19350e2d640667744e9a1ed65af331606fcc2cce2b6fcfa624
+T025:
+  task: e3cb6c5cbe2175dbe58eac44434febe6e6e0681402632b8c4a9c4cf3eba063c6
+T026:
+  task: b7316b95f25bf720efd19f6e3ad608d1f945629a5dda49c9452f74e874c44d52
+T027:
+  task: 9d82d11b770cc5d64fe653b0c403dc4658265fec0850f0a6598513aea3cc4a51
+T028:
+  task: ca359801e10bef9f0aa727426d7be028c27b97b44b24a14246d5d16af8306189
+T029:
+  task: 9a55e270ef137e4d66f7cb4ae7c70419fc16c89f637e5c0e5db33c217499da1f
+T030:
+  task: 0cf79f3bc29b71f0794037a8d7e4259a6c1f70e2b67f7ee5c212db28194fae0e
+T031.1:
+  task: e0e96d1afe5483a01c12eeec902e63df6360e1f2b1726105b76f04e0e482eddb
+T031.2:
+  task: a23cbdebe9eea4bf5ed5a81fb20b222f6583dcfee46cb83d1a4a9966e1094035
+T031.3:
+  task: e7445706468fdb53e83a29ef51fc2947847bebbf51df002cb6af369647414485
+T032.1:
+  task: 7656cea3ac077141c49e7599a3941357463eebb77f9c7f4bab2f8ac7c0c07ae6
+T032.2:
+  task: 70a088dde515040e26e6da9044ad669dbe6c8324a5e89c4327ec7b40e32707db
+T033:
+  task: 2882b9017adfaac073dd9ac07df07988748ac9400c4aa86b8e203f775e070df1
+T034:
+  task: 740fcf8e88bafb51bbb440c6e37423a233c254c536aa7904883ac61656490d17
+T037:
+  task: 8fe4e643e014b36828b254cab51da1c867e9b01b1efccb09f39ca7611b853eae
+T042:
+  reason: 'declared artifact(s) missing/empty/invalid: code/utils/fail_loud_loader.py'
+  task: 996961c54b40dce313d14ce00c35a9504a03259e4014566ff2063a27d2314c25
+T043:
+  task: 4dd11d2ea70fe725ecac52d4b2c1123d934d15dd24732f1891da1cfca23adf2f
+T045:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_bonferroni_correction.py,
+    data/intermediate/stat_results.json'
+  task: ff603d2854955fe29a241deb5359d43e4abd6bfd8c00e9903a8f4ca71661b965
+T046:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/contract/test_pmd_ruleset_validation.py'
+  task: ea1a78506f0cdcdd2e4e0d24328e3c0413c5644c5892622f8ebed1a1a983bd06
+T048:
+  task: 1799fe2e65ae47ff6306dcb8e677379ac49ee2c0332b99444a03fb7e811dfc23
+T049:
+  task: ea8d728144a30b5cbd2237d9a3011e29e9df9148f764d2c79ad1ade1dd8ee87f
+T050:
+  task: e92ab227bdcf1f0f3e997bc989d2253d7ae5f0864e75b729f1c0883272b6c4b6

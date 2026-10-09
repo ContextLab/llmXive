@@ -1,3 +1,50 @@
+T001:
+  c: false
+  h: 10f8194c49a5441e880366ecb8112de326d6a7cdd9c0e332eba9be56656a8467
+  r: The required directories and `__init__.py` files are present, but the provided
+    evidence does not show that the `__init__.py` files are empty as the task specifies.
+    Content of those files needs to be verified (or shown) to confirm they are truly
+    empty.
+T002:
+  c: false
+  h: 2ff7cbb21758b6b054671b94d34fb9f9831b89badceae2c80ace9905dc002674
+  r: The provided `requirements.txt` exists but does not pin specific versions for
+    the listed packages, and it includes an extra package (`matplotlib`) that was
+    not part of the required list. The task explicitly required pinned versions for
+    the nine specified dependencies.
+T003:
+  c: false
+  h: 45c967faf40fba984aedade9ed99955104a4ce63e2250f79061f61dae01492b2
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,\
+    \ or `black` settings) or scripts are present in the provided evidence, so the\
+    \ requirement to configure ruff and black is not satisfied. The implementer must\
+    \ add the appropriate configuration files and ensure they are non\u2011empty and\
+    \ correctly set up."
+T004:
+  c: false
+  h: 43bf979cec7176d88cd8dc8c748767015a6340401a1b19b42dc0d2ca3b81e929
+  r: The `contracts/` directory is present, but the required schema files (`dataset.schema.yaml`,
+    `coverage.schema.yaml`, `generated_test.schema.yaml`, `analysis_result.schema.yaml`)
+    are reported as missing, so no valid YAML skeletons were created. The task is
+    therefore not fulfilled.
+T005:
+  c: false
+  h: 0aee204a41e671b54f1a8ef2d0abefbab3401c1be1d5d5085089e5a2870ed717
+  r: "The file loads sample limits, various timeouts, model paths, and enforces a\
+    \ runtime limit, but it does not define or load any environment variable for retry\
+    \ limits as required by the task. Adding support for a retry\u2011limit variable\
+    \ (e.g., `RETRY_LIMIT` with getter and default) would be needed to meet the specification."
+T006:
+  c: false
+  h: 05550f440654c51bdb26ea30f093f3fac4927754b12ee19490733e465f245856
+  r: "The file exists and includes a `fetch_defects4j_data` function with a try/except\
+    \ that raises `DataFetchError`, satisfying the fetching requirement. However,\
+    \ it does **not** provide a genuine chunked\u2011processing implementation: it\
+    \ accumulates all results in `changed_lines_map` (potentially OOM for large streams),\
+    \ uses a hard\u2011coded sample limit (`if count > 100: break`) for demonstration,\
+    \ and never writes intermediate chunks or uses a configurable batch size. The\
+    \ placeholder `ensure_data_loaded_and_integrity_recorded` and unused `MemoryExceededError`\
+    \ further indicate the chunked\u2011processing logic "
 T006b:
   c: true
   h: f62a06b98e19bc8fa6298ab65769c3a2dd86103f6115ce2d2c333dbdc1d5938b
