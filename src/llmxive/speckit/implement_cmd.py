@@ -182,6 +182,18 @@ class ImplementerAgent(SlashCommandAgent):
                 "(extend / modify these EXACTLY — do not invent new APIs)\n\n"
                 + referenced
             )
+        evidence = _current_data_context(ctx.project_dir)
+        if evidence:
+            user_parts.append(
+                "# Current data files (observations, not accepted conclusions)\n\n"
+                "Use these exact bytes to reconcile schemas and write results. "
+                "Do not invent example measurements, infer that execution/tests "
+                "passed from file existence, or describe a trend contradicted by "
+                "the data. Files may be stale or from a failed run; successful "
+                "execution and independent verification are still required. "
+                "If relevant evidence is omitted, generate and execute code to "
+                "read it and write the summary instead of guessing.\n\n" + evidence
+            )
         # Spec 011 / FR-013: inject recent personality + reviewer comments
         # so the implementer's design choices reflect accumulated feedback.
         from llmxive.speckit._comments_context import render_recent_comments_block
@@ -832,6 +844,71 @@ def _summarize_existing_code(project_dir: Path, *, max_chars: int = 16000) -> st
     if len(body) > max_chars:
         body = body[:max_chars] + "\n\n... (truncated; see code/ on disk for the rest)"
     return body
+
+
+def _current_data_context(
+    project_dir: Path, *, max_chars: int = 16000, max_files: int = 32
+) -> str:
+    """Bounded, literal CSV/JSON evidence for schema fixes and result writing.
+
+    Reading a file does not authenticate it. The normal execution/claim gates
+    remain responsible for acceptance. Do not follow links outside the project
+    or read whole large datasets just to construct a prompt.
+    """
+    import hashlib
+    import os
+
+    root = project_dir.resolve()
+    candidates: list[Path] = []
+    for directory in ("data", "results", "outputs"):
+        base = project_dir / directory
+        if base.is_symlink() or not base.is_dir():
+            continue
+        for folder, dirs, files in os.walk(base, followlinks=False):
+            dirs[:] = sorted(d for d in dirs if not d.startswith(".")
+                             and not (Path(folder) / d).is_symlink())
+            for name in sorted(files):
+                path = Path(folder) / name
+                if (path.suffix.lower() in {".json", ".csv", ".tsv"}
+                        and not path.is_symlink() and path.is_file()
+                        and path.resolve().is_relative_to(root)):
+                    candidates.append(path)
+                if len(candidates) >= 256:
+                    break
+            if len(candidates) >= 256:
+                break
+        if len(candidates) >= 256:
+            break
+    # Small summaries first; never cut a CSV row or JSON object into a
+    # misleading apparent complete result. Omitted files are named explicitly.
+    candidates.sort(key=lambda p: (p.stat().st_size, p.relative_to(project_dir).as_posix()))
+    chunks: list[str] = []
+    used = 0
+    for path in candidates[:max_files]:
+        relative = path.relative_to(project_dir).as_posix()
+        size = path.stat().st_size
+        if size > max_chars - used - 200:
+            chunk = f"### {relative} ({size} bytes; contents omitted for budget)"
+        else:
+            try:
+                with path.open("rb") as stream:
+                    raw = stream.read(max_chars + 1)
+                if len(raw) > max_chars:
+                    continue
+                body = raw.decode("utf-8")
+            except (OSError, UnicodeError):
+                continue
+            chunk = (f"### {relative} (sha256 {hashlib.sha256(raw).hexdigest()})\n"
+                     f"```\n{body}\n```")
+        if used + len(chunk) > max_chars:
+            break
+        chunks.append(chunk)
+        used += len(chunk) + 2
+    if len(candidates) > len(chunks):
+        notice = f"\nAdditional data files omitted ({len(candidates) - len(chunks)} or more)."
+        if used + len(notice) <= max_chars:
+            chunks.append(notice)
+    return "\n\n".join(chunks)
 
 
 def _inline_referenced_files(
