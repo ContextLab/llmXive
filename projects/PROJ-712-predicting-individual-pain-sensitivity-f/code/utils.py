@@ -169,7 +169,10 @@ def record_artifact_hash(
     if "artifact_hashes" not in state_data:
         state_data["artifact_hashes"] = {}
 
-    state_data["artifact_hashes"][name] = {"sha256": hash_val, "timestamp": get_current_timestamp()}
+    state_data["artifact_hashes"][name] = {
+        "sha256": hash_val,
+        "timestamp": get_current_timestamp(),
+    }
 
     # Write back
     state_path.parent.mkdir(parents=True, exist_ok=True)
@@ -185,22 +188,30 @@ def get_current_timestamp() -> str:
     return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
 
-def measure_duration(func: Callable) -> Callable:
+def measure_duration(arg: Union[Callable, float]) -> Union[Callable, float]:
     """
-    Decorator that measures the execution time of ``func`` and logs it.
+    Dual‑purpose helper:
 
-    The wrapped function receives no extra arguments.
+    * If ``arg`` is a callable, returns a wrapped function that logs its
+      execution time (acts as a decorator).
+    * If ``arg`` is a start‑time float, returns the elapsed seconds.
     """
+    if callable(arg):
+        func = arg
 
-    def wrapper(*args, **kwargs):
-        start = time.time()
-        result = func(*args, **kwargs)
-        elapsed = time.time() - start
-        logger = logging.getLogger(func.__module__ or "__main__")
-        logger.info(f"Duration of {func.__name__}: {elapsed:.2f} seconds")
-        return result
+        def wrapper(*args, **kwargs):
+            start = time.time()
+            result = func(*args, **kwargs)
+            elapsed = time.time() - start
+            logger = logging.getLogger(func.__module__ or "__main__")
+            logger.info(f"Duration of {func.__name__}: {elapsed:.2f} seconds")
+            return result
 
-    return wrapper
+        return wrapper
+    else:
+        # Assume ``arg`` is a start timestamp
+        start_time = float(arg)
+        return time.time() - start_time
 
 
 def assert_duration_limit(duration_seconds: float, limit_seconds: Optional[float] = None) -> None:
@@ -208,24 +219,25 @@ def assert_duration_limit(duration_seconds: float, limit_seconds: Optional[float
     Verify that ``duration_seconds`` does not exceed ``limit_seconds``.
 
     The default limit is ``MAX_EXECUTION_SECONDS`` (6 h). Raises
-    ``AssertionError`` on violation.
+    ``AssertionError`` on violation with a message that includes the
+    Constitution principle identifier.
     """
     limit = limit_seconds if limit_seconds is not None else MAX_EXECUTION_SECONDS
     if duration_seconds > limit:
         raise AssertionError(
-            f"Execution time {duration_seconds:.2f}s exceeds limit of {limit:.2f}s"
+            f"SC-005 VIOLATION: Execution time {duration_seconds:.2f}s exceeds limit of {limit:.2f}s"
         )
 
 
 # Simple global timer used by ``start_timer`` / ``stop_timer``
-_global_start_time: Optional[float] = None
+_start_time: Optional[float] = None
 
 
 def start_timer() -> float:
     """Start a global timer for the pipeline."""
-    global _global_start_time
-    _global_start_time = time.time()
-    return _global_start_time
+    global _start_time
+    _start_time = time.time()
+    return _start_time
 
 
 def stop_timer() -> float:
@@ -234,9 +246,21 @@ def stop_timer() -> float:
 
     Returns the total elapsed time in seconds.
     """
-    if _global_start_time is None:
+    if _start_time is None:
         raise RuntimeError("Timer was not started. Call start_timer() first.")
-    elapsed = time.time() - _global_start_time
+    elapsed = time.time() - _start_time
+    assert_duration_limit(elapsed)
+    return elapsed
+
+
+def validate_pipeline_duration(start_time: float) -> float:
+    """
+    Convenience wrapper used by tests: compute elapsed time since
+    ``start_time`` and enforce the duration limit.
+
+    Returns the elapsed seconds.
+    """
+    elapsed = time.time() - start_time
     assert_duration_limit(elapsed)
     return elapsed
 

@@ -1,11 +1,9 @@
 mne==1.6.0
-scikit-learn==1.4.0
-numpy==1.26.4
-pandas==2.2.1
-scipy==1.12.0
-statsmodels==0.14.2
+scikit-learn==1.3.2
+numpy==1.26.2
+pandas==2.1.4
+scipy==1.11.4
+statsmodels==0.14.0
 joblib==1.3.2
 pyyaml==6.0
-pytest==8.2.0
-ruff==0.4.1
-black==24.3.0
+psutil==5.9.5

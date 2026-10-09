@@ -1,18 +1,20 @@
 T001:
-  c: false
-  h: cff0459ee27e3f0da546c62ca064d0b36fd52321342de83c6498266f09fd2d4c
-  r: "The script `scripts/create_dirs.sh` and all six directories are present and\
-    \ the script runs successfully, but the required CI test file `tests/integration/test_structure.py`\
-    \ is missing, so the task\u2019s verification step is not satisfied."
-  sig: 7dfa8113f62a604b470ae750fb13660b6440478dd859cb8a15cd5593974f2faa
+  c: true
+  h: 2bb41ccdf536f7e98fcb6dc5bc99f219ab0c2d032067cfe1c520f7e45112da9a
+  r: "Checked `scripts/create_dirs.sh` (contains the required `mkdir -p \u2026` command\
+    \ and exits 0) and the CI integration test `tests/integration/test_structure.py`\
+    \ which runs the script and asserts that `data/raw`, `data/processed`, `artifacts`,\
+    \ `state`, `code`, and `tests` directories exist. All required directories and\
+    \ the script are present."
+  sig: 7c1747ae91883184c557ec721c382f1982ca027e549b36d3ea1ee249e5a90b0b
 T002:
   c: true
-  h: 51f2bd2b30fdf43dbb70d706dae78f1e9df35c00c871a7d5999faa04ae3bf440
-  r: "Checked the `requirements.txt` file (158\u202Fbytes) which exists at the expected\
-    \ path and contains pinned version specifiers for all required packages (`mne`,\
-    \ `scikit-learn`, `numpy`, `pandas`, `scipy`, `statsmodels`, `joblib`, `pyyaml`).\
-    \ The file is non\u2011empty and meets the task\u2019s specification."
-  sig: 2ca5d8e0da96d9214a5c780c75754396741ce0af8b77804c779302e480ed6964
+  h: 3ae0c418557c0ac90af3e52389ba20a0d21776035f0f5d9dd3c352b26fa56754
+  r: "Checked the `requirements.txt` file (133\u202Fbytes) which exists at the expected\
+    \ path and contains all required packages (`mne`, `scikit-learn`, `numpy`, `pandas`,\
+    \ `scipy`, `statsmodels`, `joblib`, `pyyaml`) with exact version specifiers, satisfying\
+    \ the task\u2019s requirement."
+  sig: 60139c0d78550236aa2a8e8d7ea5b33d89e0ca86ad9f727de945765c7f792ace
 T003:
   c: false
   h: 325688001ebe8f137b2f9a8933838b6c40f620c92a7121fc82180b1f38ac5a24
@@ -23,13 +25,13 @@ T003:
     \ not fully satisfied."
   sig: f997896bf45358654ca575ce7e8473d77271f6bfae3bae9b8c0b84df0ba28852
 T004:
-  c: false
-  h: b97ccfbb03a4692880bc449734241fd6ec101fb270121bd16dc88f93c82c8ded
-  r: "The required unit test `tests/unit/test_utils.py` is missing, so there is no\
-    \ evidence that the implemented functions actually produce identical SHA\u2011\
-    256 hashes for identical files or that the logger writes to `state/log.txt`. Without\
-    \ the test artifact, the task\u2019s verification step cannot be satisfied."
-  sig: 0a49c6a1eb1f327f99cc23c685dbdac2141c2d7f9f10a8a2a991e2537828aebf
+  c: true
+  h: 06ca0d82707679b0f02c07b118710343750a608c03fcb95b61ddfb817cf37cd8
+  r: Checked `code/utils.py` which implements seed pinning, logging to `state/log.txt`,
+    `compute_checksum` and `record_artifact_hash`, and the unit test `tests/unit/test_utils.py`
+    that validates identical file hashes and logger output. All required artifacts
+    exist and meet the specifications.
+  sig: c9c2b819f0c9aff7d29ba047838427b3bd4fee171b9bde55e7ebd390948fffee
 T005:
   c: true
   h: cbdbf72d3c08527aa0e572f94edeaaff90ebe67ffa501b6f98112b69685be78a
@@ -39,14 +41,24 @@ T005:
   sig: 822287662e3a23d0bcbe9ceb12f562f95454bda43531e9eea55fdd8ab08a8e34
 T006:
   c: false
-  h: 21a057a9d76ba32c87aa625d1ac2f9bc097ddecfed688cf6c2ec1dadbc0dd06b
-  r: "The required integration test `tests/integration/test_data_loader.py` is missing,\
-    \ so there is no evidence that the loader\u2019s RAM usage stays below the 6\u202F\
-    GB limit. Additionally, the `iterate_chunks` method in `code/data_loader.py` is\
-    \ truncated, leaving its chunk\u2011streaming behavior unverified. The next implementer\
-    \ must add the integration test and ensure the loader\u2019s implementation fully\
-    \ enforces the memory\u2011usage constraint."
-  sig: 69c0644953761ef9ff1ddb72e00b578fdb6b67bdadc616b6de937156fb6e5dab
+  h: d7f341a10eff7befdaf2fbebfe6b6d127819a78c9b9baeff0c32d15d8f115c3c
+  r: "The repository contains `code/data_loader.py` with a `DataChunk` class using\
+    \ `numpy.memmap` and an `EEGDataLoader` class, and the integration test file `tests/integration/test_data_loader.py`\
+    \ is present. However, there is no evidence that the test was actually executed\
+    \ and passed, and the test imports `EEGDataLoader` from `data_loader` (not `code.data_loader`),\
+    \ so the import would fail without additional path configuration. Without proof\
+    \ that the loader streams the OpenNeuro files, yields proper chunk objects, and\
+    \ keeps memory usage below 6\u202FGB in a real run, the task cannot be considered\
+    \ genui"
+  sig: faccff0f48fe9b74377aacb6d9a329ad09e635eb1a7c04bb390534c8e5e643ad
+T007:
+  c: true
+  h: 773f2ea6402fd2e8aecf230688d4d6dc787d7a86b6fce5cbb6007ea2fa395162
+  r: "Checked `code/config.py` which defines `RAW_DIR`, `PROCESSED_DIR`, `ARTIFACTS_DIR`\
+    \ and an `EXPECTED_FEATURE_COLUMNS` list of exactly 30 entries matching the names\
+    \ and order specified in `contracts/features.schema.yaml`. The list length and\
+    \ contents satisfy the unit\u2011test requirements."
+  sig: c770ccb41f1af5b6732f6300d2ab11c9f2e459049d654e8bc70c476c22243a15
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

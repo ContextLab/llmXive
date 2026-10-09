@@ -1,19 +1,12 @@
 status: none
-intent: download OpenNeuro ds003XXX resting state EEG heat pain threshold dataset
-  python package dataset
+intent: OpenNeuro ds003XXX resting EEG with heat-pain thresholds download python package
+  dataset
 required_fields:
 - participant_id
-- microstate_duration_1
-- microstate_duration_2
-- microstate_duration_3
-- microstate_duration_4
-- microstate_duration_5
-- microstate_occurrence_1
-- microstate_occurrence_2
-- microstate_occurrence_3
-- microstate_occurrence_4
-- microstate_occurrence_5
-- microstate_transition_1_2
-cache_key: 0b63760180bf257c4fc8e3890882c4364b545358a8a20aa007e8de1593799eb0
-searched_at: '2026-10-09T20:27:59.134791+00:00'
+- eeg_raw_file_path
+- eeg_sampling_rate
+- eeg_duration_seconds
+- heat_pain_threshold_celsius
+cache_key: f46cd375d7e3cd0e04acd03b4a4672f5a1508b03dfb3ee22b081f3c634072a30
+searched_at: '2026-10-09T20:31:13.239166+00:00'
 retry_count: 1

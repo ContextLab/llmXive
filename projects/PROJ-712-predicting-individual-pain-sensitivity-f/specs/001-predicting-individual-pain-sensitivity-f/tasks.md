@@ -7,7 +7,7 @@
 
 ## Phase 0 – Project scaffolding (must be finished before any scientific work)
 
-- [ ] **T001**  Create the required directory hierarchy **and** a helper script `scripts/create_dirs.sh` that runs `mkdir -p data/raw data/processed artifacts state code tests`.  
+- [X] **T001**  Create the required directory hierarchy **and** a helper script `scripts/create_dirs.sh` that runs `mkdir -p data/raw data/processed artifacts state code tests`.  
   **Path(s)**: `data/raw/`, `data/processed/`, `artifacts/`, `state/`, `code/`, `tests/`, `scripts/create_dirs.sh`.  
   **Verification**: `scripts/create_dirs.sh` exits 0 and a CI test (`tests/integration/test_structure.py`) asserts that each of the six directories exists after script execution.
 
@@ -19,7 +19,7 @@
   **Path**: `pyproject.toml`.  
   **Verification**: `ruff check .` and `black --check .` both return exit‑code 0 in CI.
 
-- [ ] **T004**  Implement `code/utils.py` with:  
+- [X] **T004**  Implement `code/utils.py` with:  
   * deterministic seed pinning,  
   * a lightweight logger,  
   * `record_artifact_hash(filepath)` and `compute_checksum(filepath)` for Constitution Principles V & III.  
@@ -32,7 +32,7 @@
 - [ ] **T006**  Implement `code/data_loader.py` with `DataChunk` handling via `numpy.memmap` to respect the ≈ 7 GB RAM limit. The loader streams the OpenNeuro ds003XXX files, creates chunk metadata, and yields chunk objects to downstream code.  
   **Verification**: integration test `tests/integration/test_data_loader.py` asserts that total RAM usage stays below 6 GB while processing the full dataset.
 
-- [~] **T007**  Create `code/config.py` exposing constants such as `EXPECTED_FEATURE_COLUMNS` (the ordered list of the 30 feature names) and default paths (`RAW_DIR`, `PROCESSED_DIR`, `ARTIFACTS_DIR`).  
+- [X] **T007**  Create `code/config.py` exposing constants such as `EXPECTED_FEATURE_COLUMNS` (the ordered list of the 30 feature names) and default paths (`RAW_DIR`, `PROCESSED_DIR`, `ARTIFACTS_DIR`).  
   **Verification**: a unit test imports the module and checks that `len(EXPECTED_FEATURE_COLUMNS) == 30` and that all names match the schema in `contracts/features.schema.yaml`.
 
 ---

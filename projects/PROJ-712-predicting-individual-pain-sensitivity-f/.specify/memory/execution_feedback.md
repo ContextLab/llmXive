@@ -28,9 +28,9 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 Project Root: /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f
 Checking citations...
 
-2026-10-09 20:27:07 - ERROR - Missing required citations:
-2026-10-09 20:27:07 - ERROR -   - doi:10.1234/example1
-2026-10-09 20:27:07 - ERROR -   - doi:10.5678/example2
+2026-10-09 20:30:20 - ERROR - Missing required citations:
+2026-10-09 20:30:20 - ERROR -   - doi:10.1234/example1
+2026-10-09 20:30:20 - ERROR -   - doi:10.5678/example2
 
 - python code/main.py -> rc=1
 
@@ -69,7 +69,7 @@ Traceback (most recent call last):
 ModuleNotFoundError: No module named 'seaborn'
 
 - python -m pytest tests/ -v -> rc=2
-rap._gcd_import(name[level:], package, level)
+eturn _bootstrap._gcd_import(name[level:], package, level)
 <frozen importlib._bootstrap>:1204: in _gcd_import
     ???
 <frozen importlib._bootstrap>:1176: in _find_and_load
@@ -80,19 +80,21 @@ rap._gcd_import(name[level:], package, level)
     ???
 code/.venv/lib/python3.11/site-packages/_pytest/assertion/rewrite.py:178: in exec_module
     exec(co, module.__dict__)
-tests/unit/test_timing.py:13: in <module>
-    from code.utils import (
-E   ImportError: cannot import name 'validate_pipeline_duration' from 'code.utils' (/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/utils.py)
+tests/unit/test_diagnostics.py:14: in <module>
+    from code.diagnostics import (
+code/diagnostics.py:14: in <module>
+    import seaborn as sns
+E   ModuleNotFoundError: No module named 'seaborn'
 =========================== short test summary info ============================
+ERROR tests/integration/test_data_loader.py - NameError: name 'pathlib' is not defined
 ERROR tests/integration/test_feature_aggregation.py
 ERROR tests/integration/test_permutation.py
 ERROR tests/integration/test_pipeline.py
 ERROR tests/test_config.py
 ERROR tests/unit/test_checksum_manager.py
 ERROR tests/unit/test_diagnostics.py
-ERROR tests/unit/test_timing.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 7 errors in 1.94s ===============================
+============================== 7 errors in 1.80s ===============================
 
 
 
