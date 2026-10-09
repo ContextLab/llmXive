@@ -28678,7 +28678,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-09T02:27:40.844548+00:00",
+  "generated_at": "2026-10-09T02:30:03.151609+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -110945,6 +110945,14 @@
       "last_run_log": [
         {
           "agent": "tasker",
+          "duration_s": 390.087857,
+          "ended_at": "2026-10-09T02:27:04.359026Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "failed",
+          "started_at": "2026-10-09T02:20:34.271169Z"
+        },
+        {
+          "agent": "tasker",
           "duration_s": 2526.164006,
           "ended_at": "2026-10-09T02:15:12.872075Z",
           "model": "openai.gpt-oss-120b",
@@ -111014,14 +111022,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-10-05T12:53:49.380329Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 166.778959,
-          "ended_at": "2026-10-05T12:53:49.377001Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-05T12:51:02.598042Z"
         }
       ],
       "paper_status": null,
@@ -123655,7 +123655,7 @@
           ]
         },
         {
-          "contributions": 60,
+          "contributions": 61,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -123693,6 +123693,14 @@
       "id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 394.51072,
+          "ended_at": "2026-10-09T02:27:18.897455Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-09T02:20:44.386735Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 930.480453,
@@ -123764,14 +123772,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-10-08T23:08:23.656988Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 0.909066,
-          "ended_at": "2026-10-08T23:08:23.618886Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-08T23:08:22.709820Z"
         }
       ],
       "paper_status": null,
@@ -166581,6 +166581,30 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 394.51072,
+      "ended_at": "2026-10-09T02:27:18.897455Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-09T02:20:44.386735Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 390.087857,
+      "ended_at": "2026-10-09T02:27:04.359026Z",
+      "failure_reason": "RuntimeError: Tasker produced only 0 task IDs (need >= 5; total chars: 10681). Re-running on next cycle.",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "failed",
+      "project_id": "PROJ-470-predicting-cognitive-fatigue-from-restin",
+      "project_stage": "tasked",
+      "severity": "hard",
+      "started_at": "2026-10-09T02:20:34.271169Z"
+    },
+    {
       "agent": "tasker",
       "duration_s": 930.223468,
       "ended_at": "2026-10-09T02:18:19.719660Z",
@@ -172555,30 +172579,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-08T18:01:54.325239Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 1.360928,
-      "ended_at": "2026-10-08T18:01:54.209495Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T18:01:52.848567Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 5.369924,
-      "ended_at": "2026-10-08T18:01:52.772834Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-08T18:01:47.402910Z"
     }
   ],
   "reviewed_preprints": [
