@@ -64,3 +64,23 @@ def test_both_import_styles_run_end_to_end(tmp_path: Path) -> None:
     assert r1.ok and "prefix 42" in r1.stdout, (r1.returncode, r1.stderr[-400:])
     r2 = sandbox.run_in_venv(project_dir=proj, args=["code/run_bare.py"], timeout_s=120)
     assert r2.ok and "bare 42" in r2.stdout, (r2.returncode, r2.stderr[-400:])
+
+
+def test_code_script_imports_implementation_despite_root_scaffolding(tmp_path):
+    """Reproduce the canary collision with real Python package resolution."""
+    project = tmp_path / "project"
+    for directory in ("src", "code/src"):
+        package = project / directory
+        package.mkdir(parents=True)
+        (package / "__init__.py").write_text("")
+        (package / "utils").mkdir()
+        (package / "utils/__init__.py").write_text("")
+    (project / "code/src/utils/calculation.py").write_text("VALUE = 42\n")
+    (project / "code/src/run.py").write_text(
+        "from src.utils.calculation import VALUE\nprint(VALUE)\n"
+    )
+    result = sandbox.run_python_script(
+        project_dir=project, script_relpath="code/src/run.py", timeout_s=120,
+    )
+    assert result.ok, result.stderr
+    assert result.stdout.strip() == "42"

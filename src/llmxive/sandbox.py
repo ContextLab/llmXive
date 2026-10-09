@@ -187,7 +187,10 @@ def _analysis_env(project_dir: Path, base_env: dict[str, str]) -> dict[str, str]
     env = dict(base_env)
     from llmxive.project_files import SOURCE_DIRS
 
-    parts = [str(project_dir.resolve()), *(str((project_dir / root).resolve()) for root in SOURCE_DIRS)]
+    # Prefer the code workspace over same-named project-root scaffolding. With
+    # root first, an empty root/src package hides implemented code/src modules.
+    # Python still searches the entry script's own directory before PYTHONPATH.
+    parts = [*(str((project_dir / root).resolve()) for root in SOURCE_DIRS), str(project_dir.resolve())]
     if env.get("PYTHONPATH"):
         parts.append(env["PYTHONPATH"])
     env["PYTHONPATH"] = os.pathsep.join(parts)
