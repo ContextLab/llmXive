@@ -7,11 +7,10 @@ import json
 import logging
 import os
 import sys
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional, Any
 import numpy as np
 from scipy import stats
 from scipy.optimize import curve_fit
-from scipy.special import comb
 import math
 
 # Import Dickman function from sibling module
@@ -27,20 +26,18 @@ def load_density_data(filepath: str) -> List[Dict[str, Any]]:
     data = []
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"Data file not found: {filepath}")
-    
+
     with open(filepath, 'r') as f:
         header = f.readline().strip().split(',')
-        # Basic validation
         required = ['x', 'y', 'h', 'density']
         if not all(col in header for col in required):
             raise ValueError(f"CSV missing required columns. Found: {header}")
-        
+
         for line in f:
             parts = line.strip().split(',')
             if len(parts) != len(header):
                 continue
             row = dict(zip(header, parts))
-            # Convert to float
             data.append({
                 'x': float(row['x']),
                 'y': float(row['y']),
@@ -56,42 +53,29 @@ def power_law(x: np.ndarray, c: float, beta: float) -> np.ndarray:
 
 def fit_power_law_deviation(data: List[Dict]) -> Optional[Dict[str, float]]:
     """
-    Fits R = c * h^beta (Deviation Ratio) using Weighted Least Squares.
-    Returns dict with beta, se, r_squared or None if fails.
+    Fits R = c * h^beta (Deviation Ratio) using linear regression on log‑log scale.
+    Returns a dict with beta, standard error, R² and the fitted coefficient c.
     """
-    # Filter data for specific y-group if needed, or use all
-    # For this task, we assume data is pre-grouped or we fit globally per y
-    # Let's group by y and fit one model per y, then average? 
-    # The task implies a single "plan_beta" per grid. We will fit across all points for the Plan grid.
-    
     h_vals = np.array([d['h'] for d in data])
     r_vals = np.array([d['deviation_ratio'] for d in data])
-    
-    # Filter out zeros or nans
+
     mask = (r_vals > 0) & np.isfinite(h_vals) & np.isfinite(r_vals)
     h_clean = h_vals[mask]
     r_clean = r_vals[mask]
-    
+
     if len(h_clean) < 3:
         logging.warning("Insufficient data points for deviation ratio regression.")
         return None
 
-    # Log-log transformation for linear regression: log(R) = log(c) + beta * log(h)
     log_h = np.log(h_clean)
     log_r = np.log(r_clean)
-    
-    # Weighted by 1/variance? Assuming uniform for now, or 1/h as proxy for noise
-    weights = np.ones_like(log_h)
-    
+
     try:
-        # Linear fit
-        slope, intercept, r_value, p_value, std_err = stats.linregress(log_h, log_r)
-        
+        slope, intercept, r_value, _, std_err = stats.linregress(log_h, log_r)
         beta = slope
         se = std_err
         c = np.exp(intercept)
         r_squared = r_value ** 2
-        
         return {
             "beta": float(beta),
             "se": float(se),
@@ -104,31 +88,29 @@ def fit_power_law_deviation(data: List[Dict]) -> Optional[Dict[str, float]]:
 
 def fit_power_law_raw_density(data: List[Dict]) -> Optional[Dict[str, float]]:
     """
-    Fits rho = c * h^beta (Raw Density) using Weighted Least Squares.
-    Returns dict with beta, se, r_squared or None if fails.
+    Fits rho = c * h^beta (Raw Density) using linear regression on log‑log scale.
+    Returns a dict with beta, standard error, R² and the fitted coefficient c.
     """
     h_vals = np.array([d['h'] for d in data])
     rho_vals = np.array([d['density'] for d in data])
-    
+
     mask = (rho_vals > 0) & np.isfinite(h_vals) & np.isfinite(rho_vals)
     h_clean = h_vals[mask]
     rho_clean = rho_vals[mask]
-    
+
     if len(h_clean) < 3:
         logging.warning("Insufficient data points for raw density regression.")
         return None
 
     log_h = np.log(h_clean)
     log_rho = np.log(rho_clean)
-    
+
     try:
-        slope, intercept, r_value, p_value, std_err = stats.linregress(log_h, log_rho)
-        
+        slope, intercept, r_value, _, std_err = stats.linregress(log_h, log_rho)
         beta = slope
         se = std_err
         c = np.exp(intercept)
         r_squared = r_value ** 2
-        
         return {
             "beta": float(beta),
             "se": float(se),
@@ -139,15 +121,19 @@ def fit_power_law_raw_density(data: List[Dict]) -> Optional[Dict[str, float]]:
         logging.error(f"Regression failed: {e}")
         return None
 
-# --- Plan-Primary Analysis (T026a, T027a) ---
+# --- Core Analysis Functions ---
 
-def run_plan_primary_analysis() -> Optional[Dict[str, float]]:
+def run_plan_primary_analysis(
+    density_path: Optional[str] = None
+) -> Optional[Dict[str, float]]:
     """
-    Executes Plan-Primary analysis:
-    1. Fits R ~ h^beta (Deviation Ratio)
-    2. Performs KS Test against Dickman distribution
+    Executes Plan‑Primary analysis:
+    1. Fits R ∝ h^beta (Deviation Ratio) on the Plan grid.
+    2. Performs a two‑sample Kolmogorov‑Smirnov test comparing observed densities
+       against the Dickman‑predicted densities.
+    Returns a dictionary containing regression results and the KS p‑value.
     """
-    filepath = "data/density_measurements_plan.csv"
+    filepath = density_path or "data/density_measurements_plan.csv"
     if not os.path.exists(filepath):
         logging.error(f"Plan data file not found: {filepath}")
         return None
@@ -156,45 +142,32 @@ def run_plan_primary_analysis() -> Optional[Dict[str, float]]:
     if not data:
         return None
 
-    # 1. Regression
+    # Regression on deviation ratio
     regression_results = fit_power_law_deviation(data)
-    
-    # 2. KS Test
-    # Compare observed deviation ratios to the theoretical expectation (which should be 1.0 if perfect)
-    # Or compare the distribution of smooth counts to Dickman expectation.
-    # The task says: "KS test comparing observed vs. Dickman distributions".
-    # We will compare the empirical CDF of observed densities (normalized) vs theoretical.
-    # However, simpler interpretation: Compare the set of observed deviation ratios to a distribution centered at 1.0?
-    # Let's interpret as: Compare the empirical distribution of (observed_count / expected_count) to a delta function at 1? No, KS needs continuous.
-    # Better: Compare the empirical distribution of the observed densities to the theoretical densities predicted by Dickman.
-    
-    # Let's extract observed densities and expected densities
-    observed_densities = []
-    expected_densities = []
-    
+
+    # KS test: compare observed densities to Dickman expectations
+    observed = []
+    expected = []
     for d in data:
-        u = math.log(d['x']) / math.log(d['y']) if d['y'] > 1 else 0
-        theoretical_rho = rho(u)
-        expected_densities.append(theoretical_rho)
-        observed_densities.append(d['density'])
-    
-    # KS Test
-    ks_stat, ks_p = stats.ks_2samp(observed_densities, expected_densities)
-    
-    if regression_results:
-        regression_results['ks_p_value'] = float(ks_p)
-        return regression_results
-    else:
-        return {"ks_p_value": float(ks_p)}
+        u = math.log(d['x']) / math.log(d['y']) if d['y'] > 1 else 0.0
+        expected.append(rho(u))
+        observed.append(d['density'])
 
-# --- Spec-Mandatory Analysis (T026b, T027b) ---
+    ks_stat, ks_p = stats.ks_2samp(observed, expected)
 
-def run_spec_mandatory_analysis() -> Optional[Dict[str, float]]:
+    if regression_results is None:
+        regression_results = {}
+    regression_results["ks_p_value"] = float(ks_p)
+    return regression_results
+
+def run_spec_mandatory_analysis(
+    density_path: Optional[str] = None
+) -> Optional[Dict[str, float]]:
     """
-    Executes Spec-Mandatory analysis:
-    1. Fits rho = c * h^beta (Raw Density)
+    Executes Spec‑Mandatory analysis:
+    Fits raw density ρ ∝ h^beta on the Spec grid.
     """
-    filepath = "data/density_measurements_spec.csv"
+    filepath = density_path or "data/density_measurements_spec.csv"
     if not os.path.exists(filepath):
         logging.error(f"Spec data file not found: {filepath}")
         return None
@@ -205,17 +178,14 @@ def run_spec_mandatory_analysis() -> Optional[Dict[str, float]]:
 
     return fit_power_law_raw_density(data)
 
-def run_chi_square_goodness_of_fit() -> Optional[Dict[str, float]]:
+def run_chi_square_goodness_of_fit(
+    density_path: Optional[str] = None
+) -> Optional[Dict[str, float]]:
     """
-    Executes Spec-Mandatory Chi-Square Goodness-of-Fit Test.
-    Method:
-    1. Bin the interval lengths or densities? Spec says "Binning: Use Sturges' rule".
-       Likely binning the observed densities or the counts.
-       Let's bin the observed density values.
-    2. Calculate expected counts based on Dickman.
-    3. Compute Chi-Square.
+    Executes the Spec‑Mandatory Chi‑Square Goodness‑of‑Fit test.
+    Implements Sturges' rule for binning and merges bins with expected count < 5.
     """
-    filepath = "data/density_measurements_spec.csv"
+    filepath = density_path or "data/density_measurements_spec.csv"
     if not os.path.exists(filepath):
         logging.error(f"Spec data file not found: {filepath}")
         return None
@@ -224,146 +194,136 @@ def run_chi_square_goodness_of_fit() -> Optional[Dict[str, float]]:
     if not data:
         return None
 
-    # Prepare observed and expected values
-    # We will bin the observed densities.
-    observed_densities = np.array([d['density'] for d in data])
-    
-    # Filter valid
-    valid_mask = np.isfinite(observed_densities)
-    obs_vals = observed_densities[valid_mask]
-    
-    if len(obs_vals) < 2:
-        logging.warning("Not enough data for Chi-Square test.")
+    observed_densities = np.array([d['density'] for d in data if np.isfinite(d['density'])])
+    if len(observed_densities) < 2:
+        logging.warning("Not enough data for Chi‑Square test.")
         return None
 
-    # Sturges' rule for bins
-    n = len(obs_vals)
+    # Sturges' rule
+    n = len(observed_densities)
     k = int(np.ceil(1 + np.log2(n)))
-    if k < 2: k = 2
-    
-    # Create bins
-    bins = np.linspace(0, np.max(obs_vals) * 1.1, k + 1)
-    
-    observed_counts, _ = np.histogram(obs_vals, bins=bins)
-    
-    # Calculate expected counts
-    # Expected count for bin i = Sum(Dickman(u) * h * bin_width) for points in that bin?
-    # The task says: "E_i = sum (rho_Dickman(u) * h * bin_width)"
-    # This implies we need to sum the theoretical probability mass for each data point that falls in the bin.
-    # But we lost the mapping of which point fell where in the histogram.
-    # Let's re-iterate and assign expected mass to bins.
-    
-    expected_counts = np.zeros(k)
-    
-    for d in data:
-        if not np.isfinite(d['density']):
-            continue
-        # Find bin index
-        idx = np.digitize(d['density'], bins) - 1
-        if 0 <= idx < k:
-            # Theoretical expectation for this specific point's context
-            u = math.log(d['x']) / math.log(d['y']) if d['y'] > 1 else 0
-            theo_rho = rho(u)
-            # The "expected count" contribution for this point in the bin
-            # The task formula is a bit ambiguous: "sum (rho * h * bin_width)"
-            # If we are comparing densities, the expected density is rho.
-            # The observed is density.
-            # Let's treat the "count" as the density value itself? No, Chi-square needs counts.
-            # Let's assume we are binning the "smoothness indicator" or the density values as a distribution.
-            # If we treat the density values as samples from a distribution, the expected frequency is proportional to the probability density.
-            # Let's assume the expected value for a bin is the average theoretical rho of points in that bin?
-            # Or simpler: Expected count = (Total N) * (Probability of falling in bin).
-            # Probability of falling in bin = Integral of theoretical PDF over bin.
-            # But we don't have a PDF for density, we have a point estimate rho(u).
-            # Let's follow the instruction literally: "E_i = sum (rho_Dickman(u) * h * bin_width)"
-            # This looks like it's summing the expected number of smooth numbers in the interval?
-            # But we are comparing densities.
-            # Let's interpret: The "expected count" for a bin is the sum of theoretical densities for all points falling in that bin.
-            # This is a bit non-standard but we follow the spec.
-            expected_counts[idx] += d.get('expected_rho', 0) # We need to calculate expected_rho per point
-    
-    # Re-calculate expected counts properly
+    k = max(k, 2)
+
+    # Bin edges
+    bins = np.linspace(0, observed_densities.max() * 1.1, k + 1)
+
+    observed_counts, _ = np.histogram(observed_densities, bins=bins)
+
+    # Expected counts per bin based on Dickman predictions
     expected_counts = np.zeros(k)
     for d in data:
         if not np.isfinite(d['density']):
             continue
-        u = math.log(d['x']) / math.log(d['y']) if d['y'] > 1 else 0
+        u = math.log(d['x']) / math.log(d['y']) if d['y'] > 1 else 0.0
         theo_rho = rho(u)
         idx = np.digitize(d['density'], bins) - 1
         if 0 <= idx < k:
-            # Contribution to expected count in this bin
-            # The spec says: rho * h * bin_width. 
-            # If density = count/h, then count = density * h.
-            # So expected count in bin = sum of (rho * h) for points in bin?
-            # But we are binning the density values, not the intervals.
-            # Let's assume the spec implies: Expected frequency in bin i is proportional to the sum of theoretical densities.
             expected_counts[idx] += theo_rho
 
-    # Normalize expected counts to match total observed count?
-    # Chi-square usually compares observed counts vs expected counts (frequencies).
-    # If observed_counts are frequencies of density values, expected_counts should be frequencies.
-    # Let's normalize expected to sum to sum(observed_counts)
-    total_obs = np.sum(observed_counts)
-    if total_obs > 0:
-        expected_counts = expected_counts * (total_obs / np.sum(expected_counts))
-    
-    # Merge sparse bins (expected < 5)
-    # This is tricky with fixed bins. Let's just compute and warn if sparse.
-    # Or merge adjacent bins from the end.
+    # Scale expected to total observed count
+    total_obs = observed_counts.sum()
+    if expected_counts.sum() > 0:
+        expected_counts = expected_counts * (total_obs / expected_counts.sum())
+
+    # Merge bins with expected < 5
     merged_obs = []
     merged_exp = []
-    curr_obs = 0
-    curr_exp = 0
-    
-    for i in range(k):
-        if expected_counts[i] < 5:
-            curr_obs += observed_counts[i]
-            curr_exp += expected_counts[i]
+    cur_obs = 0.0
+    cur_exp = 0.0
+    for obs, exp in zip(observed_counts, expected_counts):
+        if exp < 5:
+            cur_obs += obs
+            cur_exp += exp
         else:
-            if curr_obs > 0:
-                merged_obs.append(curr_obs)
-                merged_exp.append(curr_exp)
-                curr_obs = 0
-                curr_exp = 0
-            merged_obs.append(observed_counts[i])
-            merged_exp.append(expected_counts[i])
-    if curr_obs > 0:
-        merged_obs.append(curr_obs)
-        merged_exp.append(curr_exp)
-        
+            if cur_exp > 0:
+                merged_obs.append(cur_obs)
+                merged_exp.append(cur_exp)
+                cur_obs = 0.0
+                cur_exp = 0.0
+            merged_obs.append(obs)
+            merged_exp.append(exp)
+    if cur_exp > 0:
+        merged_obs.append(cur_obs)
+        merged_exp.append(cur_exp)
+
     merged_obs = np.array(merged_obs)
     merged_exp = np.array(merged_exp)
-    
-    # Compute Chi-Square
-    if np.sum(merged_exp) == 0:
-        logging.warning("Expected counts are zero.")
+
+    if merged_exp.sum() == 0:
+        logging.warning("All expected counts are zero after merging.")
         return None
-        
+
     chi2_stat = np.sum((merged_obs - merged_exp) ** 2 / merged_exp)
-    df = len(merged_obs) - 1 # -1 for estimated parameter? No parameters estimated here.
+    df = len(merged_obs) - 1
     p_val = 1 - stats.chi2.cdf(chi2_stat, df)
-    
+
     return {"p_value": float(p_val), "chi2_stat": float(chi2_stat)}
 
+# --- CLI Interface ---
+
 def main():
-    """Run analysis based on CLI args."""
-    parser = argparse.ArgumentParser(description="Analysis module")
-    parser.add_argument("--task", type=str, choices=["plan", "spec", "chi2"], help="Analysis task")
+    """
+    Command‑line interface.
+    Supports three tasks:
+    * plan  – deviation‑ratio regression + KS test
+    * spec  – raw‑density regression
+    * chi2  – chi‑square goodness‑of‑fit test
+    Optional arguments allow overriding input and output file locations.
+    """
+    parser = argparse.ArgumentParser(description="Statistical analysis for smooth‑number study")
+    parser.add_argument(
+        "--task",
+        type=str,
+        choices=["plan", "spec", "chi2"],
+        required=True,
+        help="Analysis task to perform"
+    )
+    parser.add_argument(
+        "--input",
+        type=str,
+        default=None,
+        help="Path to density CSV file (overrides default for the selected task)"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=None,
+        help="Path to write JSON result (if omitted, result is printed only)"
+    )
+    parser.add_argument(
+        "--plot-dir",
+        type=str,
+        default=None,
+        help="Directory for plots (currently unused by this script)"
+    )
     args = parser.parse_args()
-    
-    logging.basicConfig(level=logging.INFO)
-    
+
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
     if args.task == "plan":
-        res = run_plan_primary_analysis()
-        print(json.dumps(res))
+        result = run_plan_primary_analysis(density_path=args.input)
     elif args.task == "spec":
-        res = run_spec_mandatory_analysis()
-        print(json.dumps(res))
+        result = run_spec_mandatory_analysis(density_path=args.input)
     elif args.task == "chi2":
-        res = run_chi_square_goodness_of_fit()
-        print(json.dumps(res))
+        result = run_chi_square_goodness_of_fit(density_path=args.input)
     else:
-        print("Usage: python code/analysis.py --task {plan,spec,chi2}")
+        parser.error("Invalid task selected")
+
+    if result is None:
+        logging.error("Analysis failed; no results to output.")
+        sys.exit(1)
+
+    if args.output:
+        try:
+            os.makedirs(os.path.dirname(args.output), exist_ok=True)
+            with open(args.output, "w") as f:
+                json.dump(result, f, indent=2)
+            logging.info(f"Results written to {args.output}")
+        except Exception as e:
+            logging.error(f"Failed to write results: {e}")
+            sys.exit(1)
+    else:
+        print(json.dumps(result, indent=2))
 
 if __name__ == "__main__":
     main()

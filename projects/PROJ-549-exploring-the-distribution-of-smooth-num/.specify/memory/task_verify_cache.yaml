@@ -1,3 +1,43 @@
+T001:
+  c: false
+  h: c669e586b89414a2981745733680235d65235911eba1a79b935e3590fd103775
+  r: The provided evidence shows the `code` and `tests` directories with the required
+    files, but there is no proof that the `data`, `state`, and `docs` directories
+    were created (they are not listed or contain any files). These missing directories
+    mean the full project structure task is not satisfied.
+T002:
+  c: false
+  h: 48179f05125a922d97cd99e97380d5e92831de6fb6bd51e7e787edb5f70a19a4
+  r: The provided `requirements.txt` lists numpy, scipy, matplotlib, pytest, black,
+    and flake8, but it does **not** contain the required `sympy` package. Consequently
+    the file does not meet the task specification.
+T003:
+  c: false
+  h: b23cf1b4d9e5f6e9afff1f4853ec7c4ee295540766d964765c8fd9e475dfb0d1
+  r: The repository contains a correct `pyproject.toml` with the required Black and
+    pytest sections, but there is no `.flake8` file (or its contents) present to satisfy
+    the linting configuration requirement. The missing `.flake8` file must be added
+    with the specified `[flake8] max-line-length = 100` content.
+T004:
+  c: false
+  h: 3263cfd092b98fd6b579d39313dd95dc1a7aa3320ea5fb808fafd25fbf07add2
+  r: The provided `code/dickman.py` does not use `scipy.integrate.odeint` at all,
+    nor does it set the required tolerances (`rtol=1e-6`, `atol=1e-9`). Instead it
+    implements a custom trapezoidal integration with NumPy, which fails the core specification.
+    The task therefore remains unfinished.
+T005:
+  c: true
+  h: 27d1762d857580f4566e022c7787fbc29c1752f8ba303bee950229a6f747c347
+  r: "The `code/utils.py` file is present (1833\u202Fbytes) and implements `setup_logging`\
+    \ (logging helper), `generate_checksum` (checksum generation), and `set_deterministic_seed`\
+    \ (deterministic random seed management), satisfying the task\u2019s specifications."
+T006:
+  c: true
+  h: 6efd8cbd1d3db6f1bf0c66b28624edc0a4bce934dd41d7a731427f9a05bcfb08
+  r: "The provided `code/config.py` file exists, defines dataclasses for CI constraints\
+    \ and the $x$, $y$, $h$ parameter grids, and includes a `load_config` function\
+    \ (returning defaults) plus a simple CLI entry point, satisfying the task\u2019\
+    s requirement."
 T020:
   c: true
   h: acf160f5b4ae69f142a417c5844beaadcb982729bf9fe77fa11c038dde053f80

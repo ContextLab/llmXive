@@ -1,8 +1,8 @@
 status: none
-intent: download OEIS A000040 prime list up to 10^9 primesieve python package dataset
+intent: download prime numbers up to 1e9 OEIS A006880 LMFDB primesieve python package
+  dataset
 required_fields:
 - prime
-- prime_index
-cache_key: 80f92bc11511b29200556f7c54bcf0f63055394b77b9711c87f081229f7072e0
-searched_at: '2026-10-04T23:32:25.411020+00:00'
+cache_key: 6a0c71fc7d172399eafb97f97793bf835029ce0d5be068a2d4f5a3a46bc15e7e
+searched_at: '2026-10-09T13:23:06.835127+00:00'
 retry_count: 1

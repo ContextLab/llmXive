@@ -1,4 +1,4 @@
-- artifact_hash: ebdf2574201bb6b42e6fde5568d9301f59e674ac2152dec95d9010b0d3c075f2
+- artifact_hash: 2d6f636d66db7c6b33749de418faa7343bc6129b6e05e13c1ad8e084cd432520
   artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,8 +8,8 @@
   value: https://oeis.org/A006880
   verification_status: pending
   verified_against_url: https://oeis.org/A006880
-  verified_at: '2026-10-05T00:07:59.702651Z'
-- artifact_hash: ebdf2574201bb6b42e6fde5568d9301f59e674ac2152dec95d9010b0d3c075f2
+  verified_at: '2026-10-09T13:20:56.911060Z'
+- artifact_hash: 2d6f636d66db7c6b33749de418faa7343bc6129b6e05e13c1ad8e084cd432520
   artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -19,4 +19,4 @@
   value: https://oeis.org/A051021
   verification_status: pending
   verified_against_url: https://oeis.org/A051021
-  verified_at: '2026-10-05T00:07:59.702651Z'
+  verified_at: '2026-10-09T13:20:56.911060Z'
