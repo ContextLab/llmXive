@@ -1,10 +1,17 @@
-T003:
+T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., .ruff.toml, .flake8, pyproject.toml
-    with black settings) were presented, nor any evidence that ruff/flake8 and black
-    have been set up in the repository. Without these artifacts, the requirement to
-    configure the tools is not satisfied.
+  h: e65c41f13a3fe3a337b53c51911f172fc6b7512200e67b029ad4341ad9859765
+  r: The only artifact provided is the `scripts/init_project.py` script, which merely
+    calls a `setup_data_structure` function that is not present in the evidence, and
+    no actual directories (`code/`, `data/raw/`, `data/derived/`, `data/processed/`,
+    `tests/`, `state/`) are shown to exist. The required project structure is therefore
+    missing.
+T002:
+  c: true
+  h: dcf9eb84226da50662254350a9b8863513c70e79232b7e2d0e22ba28650778a6
+  r: "The provided `requirements.txt` exists, is non\u2011empty, and contains all\
+    \ six required packages (pandas, numpy, scikit-learn, statsmodels, nltk, scipy),\
+    \ satisfying the initialization task."
 T004:
   c: false
   h: 133ccae02c939af8be4cc739adf419fe0ce21ec8dbf300dfdda87e532adefedb
@@ -13,37 +20,36 @@ T004:
     checks, raises `DataInvalidError` with missing items, or writes `state/schema_validation.json`.
     Moreover, the required input file `data/raw/eye_tracking_raw.parquet` is missing,
     so the script cannot be executed as specified. The task therefore remains unfinished.
-T004b:
-  c: false
-  h: ee753e1098c5d943c51cd8e2444d6849f242716f1e8d1ad323a506226145aaf6
-  r: "The required input file `data/raw/eye_tracking_raw.parquet` does not exist,\
-    \ and the expected output `data/derived/empirical_outcomes.csv` is also missing,\
-    \ so the extraction and writing steps cannot have been performed. The task\u2019\
-    s core artifact is absent."
 T005:
   c: false
-  h: 7443f2e3a49bf50d9dd9e441a1262551652a88c6907d3459fb4026e3692750e7
-  r: "The provided `code/utils/data_loading.py` is incomplete (truncated) and does\
-    \ not show a function that actually downloads the dataset, computes its checksum,\
-    \ updates `state/data_hashes.json`, and writes `data/raw/eye_tracking_raw.parquet`.\
-    \ Moreover, the expected output file `data/raw/eye_tracking_raw.parquet` is missing,\
-    \ and the script looks for a \u201CVERIFIED REAL DATA SOURCE\u201D block rather\
-    \ than the required \u201CVerified datasets\u201D block, so it may not read the\
-    \ correct URL. The task therefore remains unfinished."
+  h: eaea539bc85bc453f0c46240a4d5536156ce0996d857bf7dcb4ebd15cf6768ef
+  r: The `code/config.yaml` lacks a `dataset_id` field (it only has a `dataset_url`),
+    and the data loading script downloads via `requests` instead of using `datasets.load_dataset(...,
+    revision="v1.0")`. Moreover, the required output files (`data/raw/eye_tracking_raw.parquet`,
+    `state/data_hashes.json`, and `state/runtime_events.json`) are absent. The implementation
+    does not verify the dataset ID against the config nor log the resolved ID.
 T006:
   c: false
   h: e30bdf942c129971709ed90b64852b01bc687a74e25fb9ad9163ae63907f754b
   r: "The required file `code/utils/fixation_detection.py` does not exist, so no implementation\
     \ of I\u2011VT/I\u2011DT, no config\u2011reading logic, and no documentation of\
     \ fallback behavior are present. The task is therefore not satisfied."
-T008b:
+T008a:
   c: false
-  h: c766a5692d35cca7701d742b4d393c9fc33610288c34819713390cf08dd0532f
-  r: The `code/utils/logging_init.py` file is present and contains logic to load a
-    YAML config and configure the logger, but the required `logging_config.yaml` file
-    is missing, so the code cannot actually load a configuration or set up the global
-    logger as specified. The missing configuration file must be added for the task
-    to be complete.
+  h: 87df7154b705a216bdd05490b331e3398b1864f140e53ec2264e3ce77f2ddca3
+  r: "The provided `code/config/logging_config.yaml` contains a detailed logging dict\
+    \ (version, formatters, handlers, etc.) but it lacks the top\u2011level keys `level`,\
+    \ `format`, and `handlers` that the task explicitly required. Consequently the\
+    \ file does not match the specified concrete schema. The missing required keys\
+    \ must be added (e.g., `level: INFO`, `format: \"...\", handlers: [console, file]`)."
+T008b:
+  c: true
+  h: 21efa5aa2a413156f77cdd3b499511065cd22b277503140ae75c187b57504ca0
+  r: "The repository contains a non\u2011empty `code/utils/logging_init.py` that loads\
+    \ `code/config/logging_config.yaml`, validates the required keys (`version`, `formatters`,\
+    \ `handlers`, `loggers`, `root`), raises `ConfigError` on missing keys, resolves\
+    \ relative file paths, and applies the configuration via `logging.config.dictConfig`.\
+    \ The corresponding `logging_config.yaml` file is present with the expected structure."
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -89,22 +95,6 @@ T032:
     \ a `fixation_duration_threshold` argument is present, nor any output showing\
     \ the modeling pipeline (including Holm\u2011Bonferroni correction) and regression\
     \ statistics. The required artifact is missing entirely."
-T033:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data, or output files were provided that perform the required robustness\
-    \ sweep over the 50\u202Fms, 100\u202Fms, and 150\u202Fms fixation\u2011duration\
-    \ thresholds. The task\u2019s acceptance criteria (executing the analysis for\
-    \ each threshold and reporting the results) are therefore not met."
-T039:
-  c: false
-  h: 50c1b5251ac8fd7c971ff125321081ef05d127d1459ea466c9ca99953ddb4d64
-  r: "The repository contains `code/robustness_stability_check.py`, but the required\
-    \ input file `data/derived/robustness_report.csv` is missing, so the script cannot\
-    \ be executed to produce `output/stability_check.json`. Additionally, the displayed\
-    \ code is truncated, leaving uncertainty about the full implementation of the\
-    \ CI\u2011overlap summary. The missing CSV (and thus no generated JSON) means\
-    \ the task\u2019s requirements are not satisfied."
 T040:
   c: false
   h: de870823b16fe1b1022b7131a894bc278a56af3a8ced6b2db0049acab7666983
