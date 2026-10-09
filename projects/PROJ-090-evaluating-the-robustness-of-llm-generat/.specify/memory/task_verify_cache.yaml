@@ -1,19 +1,11 @@
-T009a:
+T001:
   c: false
-  h: 021ca3cc874e6afd083757967e89f3ad0306890640f9f8c65644ad575d1b30a0
-  r: "The `code/utils/validate_schema.py` file is present but its content is truncated\
-    \ (ends mid\u2011function) and does not show a command\u2011line interface handling\
-    \ `--input` and `--schema`. Moreover the required dummy input file `data/processed/test.json`\
-    \ is missing, so the verification command cannot be run. The task therefore lacks\
-    \ a complete, runnable utility script and the test data needed to confirm graceful\
-    \ error handling."
-T011a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The repository does not contain a `contracts/perturbation_schema.json` file (or
-    it is empty), so the required JSON schema cannot be loaded and the verification
-    command cannot succeed. The missing artifact must be added with the specified
-    fields (`task_id`, `perturbation_type`, `raw_score`, `is_valid`, `candidate_text`).
+  h: 4743d3e1f4c4796da6bd509c39753d40e9e2dd2b3be7c5715e507b09c8507d7c
+  r: "The `requirements.txt` file exists and contains pinned versions, but there is\
+    \ no evidence that `pip install -r requirements.txt` was run successfully (exit\
+    \ code\u202F0) nor that `pip list` shows the exact installed versions as required.\
+    \ Provide execution logs or test results confirming the install and version verification."
+  sig: fb7f9d87da9ffd6066937b005520aa8ef00a2b44d5a5bf297e52468138c022e1
 T016:
   c: false
   h: 601adf513ef31aeb44cd62e58f34dcd6c48f4b61b586b6b2ad91d01503560534
@@ -35,47 +27,3 @@ T023:
     \ per\u2011test\u2011case timeout was provided; the claim lacks any artifact demonstrating\
     \ that such an executor has been integrated or that it enforces the required timeout.\
     \ The required implementation and evidence are missing."
-T034:
-  c: false
-  h: 5d8f73661e5ddf5c2155637d8cc060d0df101a5e3570504930c7859e931832d3
-  r: "The required `data/processed/sensitivity_report.csv` file does not exist, and\
-    \ the provided `code/analysis/statistics.py` contains only partial scaffolding\
-    \ (data\u2011loading helpers and dataclasses) with no logic to compute sensitivity\
-    \ across the thresholds or to write the CSV. The task\u2019s deliverable is therefore\
-    \ not satisfied."
-T035:
-  c: false
-  h: ebafcd192dec2a8156dcfb140292798996186e3e04d64d09528a2f7ffc5142ee
-  r: The required `data/processed/error_classification_report.json` file does not
-    exist, and the `error_classifier.py` script is truncated (the `sample_stratified`
-    function is incomplete and there is no code that writes the classification report).
-    Both the output artifact and a complete implementation are missing.
-T036:
-  c: false
-  h: 6f7e4334f75c4de3c9a090e2ba1635062126901d2caa6fafdcab91deb5d2d9bf
-  r: "The required output file `data/processed/mixed_effects_results.json` does not\
-    \ exist, and the provided `statistics.py` snippet shows no completed mixed\u2011\
-    effects logistic regression that writes a variance component for \u201Ctask\u201D\
-    \ to that JSON file. Consequently the task\u2019s deliverable is not satisfied."
-T039:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `docs/` files were provided or shown containing the required definitions for
-    pass@1, McNemar, and Bonferroni; without concrete documentation artifacts, the
-    claim cannot be verified. The missing artifact is the updated documentation with
-    those metric definitions.
-T041:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, profiling data, configuration changes, or documentation showing that\
-    \ CPU memory usage has been reduced to stay below 6\u202FGB per process is present.\
-    \ The claim lacks any concrete artifact (e.g., updated inference script, memory\
-    \ benchmark logs, or a report) to verify the optimization."
-T043:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact was supplied that implements or documents security hardening for
-    the sandbox execution environment. The claim provides only the original feature
-    specification (perturbation generation, model inference, analysis) and contains
-    no code, configuration, or test results related to sandbox hardening, so the requirement
-    is not met.
