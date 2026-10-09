@@ -1475,7 +1475,7 @@ def process_scope_rejection(project: Project, project_dir: Path) -> Stage | None
 
 
 def _reset_revision_rounds(project_id: str, *, repo_root: Path) -> None:
-    """Clear a project's auto-revisions round dirs + revision_history so its NEXT
+    """Archive a project's auto-revisions rounds + revision_history so its NEXT
     review cycle starts with a fresh ``MAX_REVISION_ROUNDS`` budget.
 
     Called on a FULL-revision kickback (the analysis is being redone from an
@@ -1485,23 +1485,12 @@ def _reset_revision_rounds(project_id: str, *, repo_root: Path) -> None:
     straight to human escalation, never getting to address concerns that only
     surfaced AFTER the early rounds (the PROJ-552 layered-review stall: rounds
     1-3 spent on placeholder docs, the real data-quality defect surfaced only at
-    round 4). Bounded by the convergence-kickback cap. Never raises."""
-    import shutil
-
-    from llmxive.state import revision_history as _rh
+    round 4). Bounded by the convergence-kickback cap. Unsafe paths are refused;
+    filesystem failures are logged without deleting the surviving provenance."""
+    from llmxive.state.revision_paths import archive_revision_cycle
 
     try:
-        ar = repo_root / "specs" / "auto-revisions" / project_id
-        if ar.is_dir():
-            shutil.rmtree(ar, ignore_errors=True)
-        hist = _rh._hist_path(project_id, repo_root=repo_root)
-        if hist.is_file():
-            hist.unlink()
-        # The implementer's consecutive-zero-success failsafe counter is also
-        # per-version — reset it so the fresh cycle starts clean.
-        czr = repo_root / "state" / f"{project_id}.implementer.yaml"
-        if czr.is_file():
-            czr.unlink()
+        archive_revision_cycle(repo_root, project_id)
     except OSError as exc:
         logger.warning("revision-round reset failed for %s: %s", project_id, exc)
 

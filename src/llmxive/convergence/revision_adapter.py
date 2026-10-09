@@ -2,14 +2,14 @@
 
 The convergence engine emits a native :class:`KickbackRecord` on
 non-convergence. The implementer agent (``agents/implementer.py``) reads
-the spec-012 directory contract under ``specs/auto-revisions/<PROJ-ID>/round-<N>/``
+the spec-012 directory contract under ``projects/<PROJ-ID>/.specify/auto-revisions/round-<N>/``
 (``spec.md``, ``plan.md``, ``tasks.md``, ``analyze-report.md``,
 ``result.yaml``) plus an entry in ``state/revisions/index.yaml``.
 
 This adapter is the SOLE bridge between the two: it takes a
 ``KickbackRecord`` + a ``project_id`` + a ``round_num`` and writes
-exactly the directory shape the implementer expects, so the implementer
-read path is UNCHANGED.
+the directory shape the implementer expects inside the owning project;
+legacy state pointers remain readable through the shared path resolver.
 
 The deterministic render helpers (``_render_spec`` / ``_render_plan`` /
 ``_render_tasks`` / ``_render_analyze_report``) preserve the byte-for-byte
@@ -26,12 +26,13 @@ caller has been migrated, that module is deleted.
 from __future__ import annotations
 
 import os
-import re
 from collections.abc import Iterable
 from datetime import UTC, datetime
 from pathlib import Path
 
 import yaml
+
+from llmxive.state.revision_paths import revision_round, round_numbers
 
 from .types import Concern, KickbackRecord, Severity
 
@@ -44,14 +45,7 @@ def next_round_number(repo: Path, project_id: str) -> int:
     so existing rounds laid down by the deprecated module are recognised
     and not overwritten. Public: ``advancement.evaluate`` consults it to
     enforce the bounded revision-round cap (spec 023)."""
-    base = repo / "specs" / "auto-revisions" / project_id
-    if not base.is_dir():
-        return 1
-    nums: list[int] = []
-    for d in base.iterdir():
-        m = re.fullmatch(r"round-(\d+)", d.name)
-        if m:
-            nums.append(int(m.group(1)))
+    nums = round_numbers(repo, project_id)
     return (max(nums) if nums else 0) + 1
 
 
@@ -296,7 +290,7 @@ def kickback_to_revision_spec(
     """Write a complete auto-revisions directory from a ``KickbackRecord``.
 
     The directory contract is:
-      ``specs/auto-revisions/<project_id>/round-<N>/spec.md``
+      ``projects/<project_id>/.specify/auto-revisions/round-<N>/spec.md``
       ``                                          /plan.md``
       ``                                          /tasks.md``
       ``                                          /analyze-report.md``
@@ -349,9 +343,7 @@ def kickback_to_revision_spec(
         else:
             revision_kind = "paper_science" if sci else "paper_writing"
 
-    spec_dir = (
-        repo / "specs" / "auto-revisions" / project_id / f"round-{round_num}"
-    )
+    spec_dir = revision_round(repo, project_id, round_num)
     spec_dir.mkdir(parents=True, exist_ok=True)
 
     concerns = list(kickback.unresolved_concerns)

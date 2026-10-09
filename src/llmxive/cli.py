@@ -824,7 +824,7 @@ def _cmd_project_unblock_agent(args: argparse.Namespace) -> int:
     (the new generic agent-failsafe sink that replaces the deleted
     ``PAPER_REVISION_BLOCKED``). Refuses to no-op-unblock: requires the
     operator to have actually modified an action items file
-    (``specs/auto-revisions/<PROJ-ID>/round-*/`` or
+    (``projects/<PROJ-ID>/.specify/auto-revisions/round-*/``, legacy specs, or
     ``state/revisions/<PROJ-ID>/round-*.yaml``) since the block was
     recorded (mtime check). On success, routes the project back to the
     review stage that emitted the diagnostic (defaulting to PAPER_REVIEW).
@@ -860,19 +860,19 @@ def _cmd_project_unblock_agent(args: argparse.Namespace) -> int:
     legacy_dir = repo / "state" / "revisions" / project_id
     if legacy_dir.is_dir():
         candidates.extend(sorted(legacy_dir.glob("round-*.yaml")))
-    auto_revs = repo / "specs" / "auto-revisions" / project_id
-    if auto_revs.is_dir():
-        # The implementer reads tasks.md; an operator edits THAT to
-        # change scope.
-        for round_dir in sorted(auto_revs.glob("round-*")):
-            for fname in ("tasks.md", "spec.md"):
-                p = round_dir / fname
-                if p.is_file():
-                    candidates.append(p)
+    from llmxive.state.revision_paths import revision_bases
+
+    for auto_revs in revision_bases(repo, project_id):
+        if auto_revs.is_dir():
+            for round_dir in sorted(auto_revs.glob("round-*")):
+                for fname in ("tasks.md", "spec.md"):
+                    p = round_dir / fname
+                    if p.is_file():
+                        candidates.append(p)
     if not candidates:
         print(
             f"[unblock-agent] ERROR: no auto-revisions files found under "
-            f"specs/auto-revisions/{project_id}/ or state/revisions/{project_id}/. "
+            f"projects/{project_id}/.specify/auto-revisions/, legacy specs/, or state/revisions/{project_id}/. "
             f"Nothing to validate as 'operator-edited'.",
             file=sys.stderr,
         )

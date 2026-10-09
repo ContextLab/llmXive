@@ -303,9 +303,12 @@ class PaperImplementerAgent(SlashCommandAgent):
                 project_id=ctx.project_id,
                 model=ctx.default_model,
             )
+            from llmxive.state.revision_paths import project_control_dir
+
             result = run_convergence(
                 spec, artifacts, producer="paper_implementer",
                 constitution=constitution_text,
+                summarize_cache_dir=project_control_dir(repo, ctx.project_id) / "summarize_cache",
             )
             # Atomic write-back of any artifact the reviser updated.
             for resp in result.response_history:

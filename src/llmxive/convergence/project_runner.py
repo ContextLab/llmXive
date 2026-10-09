@@ -225,6 +225,23 @@ def run_engine_for_project(
     if extras:
         artifacts.update(extras)
 
+    # Overflow summaries contain project source; keep them beside their owner.
+    # Generic/multi-project callers use explicit shared state, never the CWD.
+    from llmxive.state.revision_paths import project_control_dir
+
+    project_ids = set()
+    for path in artifact_paths.values():
+        try:
+            parts = path.resolve().relative_to(repo_root.resolve()).parts
+        except ValueError:
+            continue
+        if len(parts) >= 3 and parts[0] == "projects" and parts[1].startswith("PROJ-"):
+            project_ids.add(parts[1])
+    cache_dir = (
+        project_control_dir(repo_root, next(iter(project_ids))) / "summarize_cache"
+        if len(project_ids) == 1 else repo_root / "state" / "summarize_cache"
+    )
+
     # Wrap the reviser so we can capture its post-revise output.
     original_reviser = spec.reviser
     capturing = _CapturingReviser(original_reviser) if original_reviser is not None else None
@@ -232,7 +249,7 @@ def run_engine_for_project(
     try:
         result = run_convergence(
             spec, artifacts, constitution=constitution, on_round=on_round,
-            on_abort=on_abort,
+            on_abort=on_abort, summarize_cache_dir=cache_dir,
         )
     finally:
         spec.reviser = original_reviser  # restore

@@ -1128,8 +1128,11 @@ class LLMXiveImplementer(Agent):
                 )
             )
 
-            tasks = _read_tasks_md(repo / project.revision_spec_path / "tasks.md")
-            action_items = _read_action_items(repo / project.revision_spec_path)
+            from llmxive.state.revision_paths import resolve_revision_path
+
+            revision_dir = resolve_revision_path(repo, project.id, project.revision_spec_path)
+            tasks = _read_tasks_md(revision_dir / "tasks.md")
+            action_items = _read_action_items(revision_dir)
 
             log_entries: list[ImplementerLogEntry] = []
             success_count = 0
@@ -1264,7 +1267,7 @@ class LLMXiveImplementer(Agent):
             )
             rh_state.save_round(project.id, round_number, log, repo_root=repo)
             outputs.append(
-                f"specs/auto-revisions/{project.id}/round-{round_number}/implementer-log.yaml"
+                str(rh_state._round_path(project.id, round_number, repo_root=repo).relative_to(repo))
             )
 
             # Append summary to revision_history.yaml.

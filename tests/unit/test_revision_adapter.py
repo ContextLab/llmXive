@@ -125,9 +125,9 @@ class TestRevisionAdapterDirectoryContract:
         assert spec_dir.name == "round-1"
         # Located at specs/auto-revisions/<PROJ-ID>/
         parent = spec_dir.parent
-        assert parent.name == "PROJ-100-test"
-        assert parent.parent.name == "auto-revisions"
-        assert parent.parent.parent.name == "specs"
+        assert parent.name == "auto-revisions"
+        assert parent.parent.name == ".specify"
+        assert parent.parent.parent.name == "PROJ-100-test"
 
     def test_index_yaml_updated_with_ready_entry(self, tmp_path: Path) -> None:
         kb = _make_kickback([_make_concern()])

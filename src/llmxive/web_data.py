@@ -1224,6 +1224,15 @@ def _project_revision_history(repo: Path, project_id: str) -> list[dict[str, Any
         if not isinstance(r, dict):
             continue
         log_path = r.get("implementer_log_path") or ""
+        if log_path:
+            from llmxive.state.revision_paths import resolve_revision_path
+
+            try:
+                resolved = resolve_revision_path(repo, project_id, log_path)
+                if resolved.exists():
+                    log_path = resolved.relative_to(repo).as_posix()
+            except ValueError:
+                log_path = ""
         changelog_url = (
             f"https://github.com/ContextLab/llmXive/blob/main/{log_path}"
             if log_path else None
