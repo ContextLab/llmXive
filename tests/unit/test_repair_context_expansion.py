@@ -60,6 +60,27 @@ def test_missing_regression_contents_can_be_corrected(repair_repo, monkeypatch):
     assert 'repair must contain 2-5 files' in calls[1]
 
 
+def test_syntax_error_is_corrected_before_sandbox(repair_repo, monkeypatch):
+    repo, output, source, related, proposal = repair_repo
+    calls = []
+
+    def ask(prompt, **kwargs):
+        calls.append(prompt)
+        if len(calls) == 1:
+            return dict(proposal, edits={source: [{'old': 'return 0', 'new': 'return ('}]})
+        assert f'{source}:1:' in prompt
+        assert 'SyntaxError' in prompt and 'never closed' in prompt
+        return proposal
+
+    monkeypatch.setattr(runner, '_ask', ask)
+    result = runner.propose_fix(repo, {}, output, [source, related], {},
+                                {source: (repo/source).read_text()})
+    assert len(calls) == 2
+    assert result['files'][source] == 'def answer(): return 42\n'
+    assert (repo/source).read_text() == 'def answer(): return 0\n'
+    assert 'SyntaxError' in (output/'proposal-validation.json').read_text()
+
+
 def test_repeated_invalid_patch_exhausts_three_calls_without_mutation(repair_repo, monkeypatch):
     repo, output, source, related, proposal = repair_repo
     calls = []
@@ -94,7 +115,7 @@ def test_expansion_cannot_read_forbidden_or_symlink_source(repair_repo, monkeypa
 
 
 def test_expansion_retains_total_byte_and_file_caps(repair_repo):
-    repo, output, source, related, proposal = repair_repo
+    repo, _output, source, _related, _proposal = repair_repo
     with pytest.raises(ValueError, match='250 KB'):
         runner.read_context(repo, [source], [source], {'existing': 'x'*250_000})
     with pytest.raises(ValueError, match='12 total'):

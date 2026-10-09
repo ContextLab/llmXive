@@ -122,7 +122,9 @@ def _ask(prompt: str, *, response_path: Path | None = None, format_retry: bool =
     return value
 
 
-def select_evidence(repo: Path, source: str) -> dict | None:
+def select_evidence(repo: Path, source: str, *, project_id: str | None = None) -> dict | None:
+    if project_id and source != "errors":
+        raise ValueError("project_id requires the recorded errors source")
     if source == "errors":
         records = []
         for path in (repo / "state/advance_errors").glob("*.json"):
@@ -132,6 +134,12 @@ def select_evidence(repo: Path, source: str) -> dict | None:
                     records.append(item)
             except (ValueError, OSError):
                 continue
+        if project_id:
+            records = [item for item in records if item.get("project_id") == project_id]
+            if len(records) != 1:
+                raise ValueError(
+                    f"project_id must match exactly one actionable error record; found {len(records)}"
+                )
         if not records:
             return None
         # Repeated failures first, recent evidence breaks ties.
@@ -306,6 +314,14 @@ def validate_proposal(proposal: dict, repo: Path) -> tuple[dict[str, str], str, 
         # Existing tests are immutable: a repair cannot make them easier to pass.
         if name.startswith("tests/") and destination.exists():
             raise ValueError("repair may add tests but cannot replace existing tests")
+        if name.endswith(".py"):
+            try:
+                compile(content, name, "exec")  # Compile only; never execute model code here.
+            except SyntaxError as exc:
+                raise ValueError(
+                    f"{type(exc).__name__} in materialized proposal {name}:{exc.lineno}:"
+                    f"{exc.offset}: {exc.msg}; source: {(exc.text or '').strip()}"
+                ) from exc
     regression = safe_path(proposal["regression"])
     if not regression.startswith("tests/unit/test_repair_") or regression not in files:
         raise ValueError("a new tests/unit/test_repair_*.py regression is required")
@@ -339,17 +355,53 @@ def isolated_tests(source: Path, tests: list[str], log: Path, *, image: str = IM
         "/tmp:rw,exec,size=1g",
         "--mount",
         f"type=bind,src={source.resolve()},dst=/input,readonly",
+        "--mount",
+        f"type=bind,src={Path(__file__).with_name('pytest_evidence.py').resolve()},"
+        "dst=/trusted/pytest_evidence.py,readonly",
         image,
         "sh",
         "-c",
         "cp -R /input /tmp/work && cd /tmp/work && HOME=/tmp XDG_CONFIG_HOME=/tmp/empty "
-        'PYTHONPATH=/tmp/work/src python -m pytest -q -m "not slow" -p no:cacheprovider "$@"',
+        'PYTHONPATH=/trusted:/tmp/work/src python -m pytest -q -m "not slow" '
+        '-p no:cacheprovider -p pytest_evidence "$@"',
         "pytest",
         *tests,
     ]
     result = subprocess.run(command, capture_output=True, text=True, timeout=600)
     log.write_text(result.stdout + "\n" + result.stderr)
     return result.returncode
+
+
+def validate_baseline_failure(log: Path, baseline: Path) -> None:
+    """Reject test setup/new-helper imports; retain real production import bugs."""
+    reports = re.findall(r"^REPAIR_PYTEST_FAILURES=(.*)$", log.read_text(), re.MULTILINE)
+    if len(reports) != 1:
+        raise RuntimeError("baseline pytest failure evidence is missing or ambiguous")
+    try:
+        failures = json.loads(reports[0])
+        if not isinstance(failures, list) or not failures:
+            raise ValueError("expected failure records")
+        for failure in failures:
+            if (not isinstance(failure, dict) or type(failure["import_error"]) is not bool
+                    or failure["phase"] not in ("setup", "call", "teardown")
+                    or not isinstance(failure["exception"], str) or not failure["exception"].strip()
+                    or not isinstance(failure["frames"], list)
+                    or not failure["frames"]
+                    or not all(isinstance(path, str) and path for path in failure["frames"])):
+                raise ValueError("malformed failure record")
+            if failure["import_error"]:
+                production_frames = [
+                    path for path in failure["frames"] if path.startswith("src/llmxive/")
+                    and (baseline / path).is_file()
+                    and (baseline / path).resolve().is_relative_to((baseline / "src").resolve())
+                ]
+                if failure["phase"] != "call" or not production_frames:
+                    raise RuntimeError(
+                        "baseline import failure is test setup, not defect reproduction; "
+                        "exercise an existing production caller, not a candidate-only helper"
+                    )
+    except (ValueError, KeyError, TypeError, AttributeError) as exc:
+        raise RuntimeError("invalid baseline pytest failure evidence") from exc
 
 
 def _progress(output: Path, phase: str) -> None:
@@ -465,6 +517,9 @@ def propose_fix(repo: Path, evidence: dict, output: Path, tree: list[str],
         "code for this defect and pass with the fix. Prefer real subprocess/file behavior. "
         "Do not change existing tests or delete user content. Include the full new test contents "
         "in files, not just its path in regression. Fix an existing caller, not an unused helper. "
+        "The baseline regression must call an existing production entry point. Importing a "
+        "new helper absent from baseline, even inside a test function, is not reproduction. "
+        "Preserve indentation in exact replacements; every materialized Python file must compile. "
         "Include at least one related existing test module. "
         "Treat the selected problem as a hypothesis: trace the observed stage through its "
         "actual caller and dependencies before fixing it. Do not attribute a later-stage "
@@ -473,8 +528,9 @@ def propose_fix(repo: Path, evidence: dict, output: Path, tree: list[str],
         "(for example its imported _repo_root), not the original config.repo_root binding. "
         "Use pytest monkeypatch for automatic restoration and assert the caller actually "
         "operates inside tmp_path. A failure caused by an ineffective patch is not reproduction. "
-        "A fixed preservation suite also runs: preexisting scaffold-path files must remain "
-        "byte-for-byte recoverable, either in place or in a project-local backup. "
+        "A fixed preservation suite exercises scaffolding and the implementation writer: "
+        "preexisting project files, existing backups and symlinks must remain recoverable "
+        "without changing their bytes, either in place or in a project-local backup. "
         "Tests run OFFLINE with pytest already installed. Do not download/install packages. "
         "For a real venv, use --system-site-packages to reuse installed dependencies. "
         "No test may inspect source strings as a substitute for behavior.\nEVIDENCE:\n"
@@ -579,6 +635,7 @@ def run(repo: Path, evidence: dict, output: Path, *, image: str = IMAGE) -> dict
         # evidence of a reproduced defect and Docker failure is never acceptance.
         if before != 1:
             raise RuntimeError(f"regression did not reproduce a test failure (exit {before})")
+        validate_baseline_failure(output / "before.log", baseline)
         shutil.copytree(baseline, candidate)
         for name, content in files.items():
             path = candidate / name
@@ -708,16 +765,20 @@ def main() -> int:
     parser.add_argument("--repo", type=Path, default=Path.cwd())
     parser.add_argument("--source", choices=("errors", "issues"), default="errors")
     parser.add_argument("--evidence-file", type=Path)
+    parser.add_argument("--project-id", help="Select exactly one actionable recorded project error")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--image", default=IMAGE)
     args = parser.parse_args()
+    if args.project_id and args.evidence_file:
+        parser.error("--project-id cannot be combined with --evidence-file")
     os.environ["LLMXIVE_PAID_OPT_IN"] = "0"
     args.output.mkdir(parents=True, exist_ok=True)
     _progress(args.output, "selecting_evidence")
     evidence = (
         json.loads(args.evidence_file.read_text())
         if args.evidence_file
-        else select_evidence(args.repo, args.source)
+        else (select_evidence(args.repo, args.source, project_id=args.project_id)
+              if args.project_id else select_evidence(args.repo, args.source))
     )
     if evidence is None:
         (args.output / "result.json").write_text(json.dumps({

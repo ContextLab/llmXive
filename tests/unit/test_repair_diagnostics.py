@@ -3,6 +3,7 @@ import json
 import os
 import subprocess
 import sys
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -67,9 +68,11 @@ def test_validated_candidate_uses_different_reviewer(tmp_path, monkeypatch, auth
     # Exercise real before/after pytest behavior; Docker isolation is separately
     # covered by the production workflow. This test checks review routing.
     def local_tests(repo, tests, log, **kwargs):
-        result = subprocess.run([sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", *tests],
+        result = subprocess.run([sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider",
+                                 "-p", "pytest_evidence", *tests],
                                 cwd=repo, text=True, capture_output=True, timeout=30,
-                                env={"PATH": os.environ["PATH"], "PYTHONPATH": str(repo / "src"),
+                                env={"PATH": os.environ["PATH"], "PYTHONPATH": (
+                                    str(Path(runner.__file__).parent)+os.pathsep+str(repo / "src")),
                                      "PYTHONDONTWRITEBYTECODE": "1"})
         log.write_text(result.stdout + result.stderr)
         return result.returncode

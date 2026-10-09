@@ -37,7 +37,12 @@ def test_runner_evidence_can_be_verified_by_publisher(tmp_path, monkeypatch, tam
 
     def isolated(source_dir, tests, log, **kwargs):
         code = next(exits)
-        log.write_text(f"Fixture isolated-test exit: {code}\n")
+        # This contract test uses explicit test-result fixtures; production
+        # collects these fields from the separately mounted pytest plugin.
+        failures = [{"phase": "call", "exception": "AssertionError", "import_error": False,
+                     "frames": [regression]}] if code else []
+        log.write_text(f"Fixture isolated-test exit: {code}\nREPAIR_PYTEST_FAILURES="
+                       + json.dumps(failures) + "\n")
         return code
 
     monkeypatch.setattr(runner, "isolated_tests", isolated)
