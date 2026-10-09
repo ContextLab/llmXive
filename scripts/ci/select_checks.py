@@ -43,6 +43,14 @@ RUNTIME_TESTS = {
     "tests/real_call/test_task_verifier_paths.py",
     "tests/real_call/test_paper_bootstrap.py",
 }
+# Reviewed task-pipeline integration modules use isolated fixtures and recording
+# backends; they do not exercise/modify external-service availability probes.
+# Keep all other integration paths conservative until individually classified.
+RUNTIME_INTEGRATION_TESTS = {
+    "tests/integration/test_task_review_contract_context.py",
+    "tests/integration/test_tasker_engine_bridge.py",
+    "tests/integration/test_tasker_production_cutover.py",
+}
 # These files route/test CI, without changing reference resolution. Their PRs
 # must prove selection/collection invariants and still run Dartmouth; requiring
 # registrar uptime here does not validate the changed routing behavior.
@@ -70,7 +78,7 @@ def needs_references(path: str) -> bool:
     # Package initialization and test harness changes can affect every import.
     if path.endswith("/__init__.py") or path == "tests/conftest.py":
         return True
-    if path in ROUTING_FILES | RUNTIME_TESTS | RUNTIME_PROMPTS:
+    if path in ROUTING_FILES | RUNTIME_TESTS | RUNTIME_INTEGRATION_TESTS | RUNTIME_PROMPTS:
         return False
     parts = Path(path).parts
     if (len(parts) >= 3 and parts[0] == "projects" and parts[1].startswith("PROJ-")
