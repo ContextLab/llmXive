@@ -1,11 +1,28 @@
 T001:
+  c: true
+  h: e7ebbccefa5aa579f3ff233a57de34b77facc512c911f157b26babf487134fe3
+  r: "Checked the `requirements.txt` file (183\u202Fbytes, contains exact version\
+    \ pins) and the execution log `code/.tasks/T001.code_verify_requirements.py.log`,\
+    \ which shows `pip install -r requirements.txt` exiting with code\u202F0 and all\
+    \ listed packages installed at the specified versions."
+  sig: 509dc38dc4c31fd140ec6372c66b0c58896298da8d05a9eb58de3eef8590797a
+T002:
+  c: true
+  h: 468e031d7d17deb5bb2741c7b554ae48f9a297b414081e04f47379ade5f98c2d
+  r: "Checked the `data/` subtree \u2013 the three required sub\u2011folders (`raw`,\
+    \ `processed`, `logs`) are present (with `logs` containing files) and the creation\
+    \ script log (`code/.tasks/T002.code_create_data_dirs.py.log`) confirms they were\
+    \ successfully created."
+  sig: 543d992c841b844aac42f2a66e38e57117f9b867a0e19db2fb0c1f3103bb2006
+T003:
   c: false
-  h: 4743d3e1f4c4796da6bd509c39753d40e9e2dd2b3be7c5715e507b09c8507d7c
-  r: "The `requirements.txt` file exists and contains pinned versions, but there is\
-    \ no evidence that `pip install -r requirements.txt` was run successfully (exit\
-    \ code\u202F0) nor that `pip list` shows the exact installed versions as required.\
-    \ Provide execution logs or test results confirming the install and version verification."
-  sig: fb7f9d87da9ffd6066937b005520aa8ef00a2b44d5a5bf297e52468138c022e1
+  h: f1f5d58a05352769c0d2122896070b7490b9858532faab438937d1692c725961
+  r: "The provided `quickstart.md` documents running the pipeline with `python code/main.py`\
+    \ instead of the required single\u2011command entry point `python -m code.main\
+    \ --run\u2011sample`, and there is no evidence that this command completes within\
+    \ 30\u202Fs and prints \u201CSample run completed\u201D. The task\u2019s verification\
+    \ step is therefore not satisfied."
+  sig: aaeab13c22c1c30f31df9963a5f925b53319a26c749b94c7c3fc7b4dad59a26a
 T016:
   c: false
   h: 601adf513ef31aeb44cd62e58f34dcd6c48f4b61b586b6b2ad91d01503560534

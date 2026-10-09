@@ -1,12 +1,13 @@
 T001:
-  reason: "The `requirements.txt` file exists and contains pinned versions, but there\
-    \ is no evidence that `pip install -r requirements.txt` was run successfully (exit\
-    \ code\u202F0) nor that `pip list` shows the exact installed versions as required.\
-    \ Provide execution logs or test results confirming the install and version verification."
   task: f5552e025b4a26fe90a63aa90c2d2d3ebf829616c2c700fb605d89188cf7aea8
 T002:
   task: b50dbadc959c71789d2868e7fedf8125d7cbbbc9e64ca28a3c9465e00b476239
 T003:
+  reason: "The provided `quickstart.md` documents running the pipeline with `python\
+    \ code/main.py` instead of the required single\u2011command entry point `python\
+    \ -m code.main --run\u2011sample`, and there is no evidence that this command\
+    \ completes within 30\u202Fs and prints \u201CSample run completed\u201D. The\
+    \ task\u2019s verification step is therefore not satisfied."
   task: 11bcac113bdf1cbff21c87c44d635ada5dcfe938d5f75cbf9889cc1fa7b6a335
 T004:
   task: 8b895edcccfeac26e2d82b75ad2dc634914dde6478890086dd5dca2fb753727c

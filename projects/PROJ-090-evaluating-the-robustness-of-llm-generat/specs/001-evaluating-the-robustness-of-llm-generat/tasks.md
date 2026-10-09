@@ -10,11 +10,11 @@
 | Goal | Run a minimal, reproducible end‑to‑end pipeline on a tiny real sample before any heavy computation. |
 |------|-----------------------------------------------------------------------------------------------|
 
-- [ ] **T001** [P] Create `requirements.txt` with pinned versions required for the project.  
+- [X] **T001** [P] Create `requirements.txt` with pinned versions required for the project.  
   **Path**: `requirements.txt`  
   **Verification**: `pip install -r requirements.txt` exits with code 0 and `pip list` shows the exact versions.
 
-- [ ] **T002** [P] Create the data directory hierarchy (`data/raw/`, `data/processed/`, `data/logs/`).  
+- [X] **T002** [P] Create the data directory hierarchy (`data/raw/`, `data/processed/`, `data/logs/`).  
   **Path**: `data/` subtree  
   **Verification**: `ls -R data/` shows the three sub‑folders and they are writable.
 

@@ -20,20 +20,17 @@ Traceback (most recent call last):
 ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 - python code/main.py -> rc=1
-() takes 0 positional arguments but 1 was given
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-090-evaluating-the-robustness-of-llm-generat/code/main.py", line 231, in main
-    save_execution_queue(queue, OUTPUT_EXECUTION_LIST_PATH)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-090-evaluating-the-robustness-of-llm-generat/code/main.py", line 176, in save_execution_queue
-    ensure_directories([str(out_path.parent)])
-TypeError: ensure_directories() takes 0 positional arguments but 1 was given
-2026-10-09 23:21:15 - llmXive.budget - ERROR - Error during budget enforcement: ensure_directories() takes 0 positional arguments but 1 was given
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-090-evaluating-the-robustness-of-llm-generat/code/main.py", line 231, in main
-    save_execution_queue(queue, OUTPUT_EXECUTION_LIST_PATH)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-090-evaluating-the-robustness-of-llm-generat/code/main.py", line 176, in save_execution_queue
-    ensure_directories([str(out_path.parent)])
-TypeError: ensure_directories() takes 0 positional arguments but 1 was given
+
+2026-10-09 23:23:24,159 - llmXive.budget - INFO - Starting Budget Cap Enforcer (T029b)...
+2026-10-09 23:23:24 - llmXive.budget - INFO - Starting Budget Cap Enforcer (T029b)...
+2026-10-09 23:23:24,159 - llmXive.budget - INFO - Loading feasibility config from data/config/feasibility.json
+2026-10-09 23:23:24 - llmXive.budget - INFO - Loading feasibility config from data/config/feasibility.json
+2026-10-09 23:23:24,159 - llmXive.budget - INFO - Budget cap determined: 4 samples
+2026-10-09 23:23:24 - llmXive.budget - INFO - Budget cap determined: 4 samples
+2026-10-09 23:23:24,159 - llmXive.budget - INFO - Loading original HumanEval tasks...
+2026-10-09 23:23:24 - llmXive.budget - INFO - Loading original HumanEval tasks...
+2026-10-09 23:23:24,159 - llmXive.budget - ERROR - Data file missing: Original HumanEval data not found at data/raw/humaneval.json. Ensure T010 (download) has been executed.
+2026-10-09 23:23:24 - llmXive.budget - ERROR - Data file missing: Original HumanEval data not found at data/raw/humaneval.json. Ensure T010 (download) has been executed.
 
 
 ## Declared deliverables still missing
@@ -54,12 +51,18 @@ Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A 
 - **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
 
 ```python
-import datasets
+import sys
+from datasets import load_dataset
 
-ds_dict = datasets.load_dataset('openai/openai_humaneval')
-ds = ds_dict['test']
-print(f'RECORDS={len(ds)}')
-print('FIELDS=' + ','.join(ds.column_names))
+# Load the full dataset (the only available split is "test")
+ds = load_dataset("openai/openai_humaneval", split="test")
+records = len(ds)
+if records == 0:
+    raise RuntimeError("Loaded dataset has zero records")
+print(f"RECORDS={records}")
+
+fields = ds.column_names
+print("FIELDS=" + ",".join(fields))
 ```
 
 Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
