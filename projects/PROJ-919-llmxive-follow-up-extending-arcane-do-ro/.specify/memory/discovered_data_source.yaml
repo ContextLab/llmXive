@@ -1,17 +1,19 @@
 status: none
-intent: PersonaBank character personality annotations with IPIP-NEO-120 validation
-  python package dataset
+intent: Literary character psychological axes Character Arc Corpus Fictional Characters
+  Personality Dataset python package dataset
 required_fields:
 - character_name
-- coarse_axis_label
-- coarse_axis_definition
-- fine_axis_label
-- fine_axis_definition
+- coarse_axis_name
+- coarse_axis_start_state
+- coarse_axis_end_state
+- fine_axis_name
+- fine_axis_start_state
+- fine_axis_end_state
 - source_text_reference
-- annotation_source
-- validation_trait_scores
+- annotation_method
 - lexical_overlap_score
 - embedding_cosine_distance
-cache_key: 59b66860297c396f98836fb35e390d26581e39f3c30ae9ca1943c8d97dbcfe4e
-searched_at: '2026-07-16T04:18:09.791351+00:00'
+- validation_dataset_name
+cache_key: 02d23dbc97c13e5e8c58ff2c6e0af87c249203c2b23542803f8e38676d7e912f
+searched_at: '2026-10-09T20:18:21.735629+00:00'
 retry_count: 1

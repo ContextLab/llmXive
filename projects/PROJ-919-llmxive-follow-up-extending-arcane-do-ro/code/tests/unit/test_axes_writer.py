@@ -1,27 +1,29 @@
 import json
 import os
+import sys
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
+
 import pytest
-import sys
 
 # Add code to path if not already present
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from src.services.axes_writer import (
-    ensure_derived_directory,
     compute_file_checksum,
-    write_axes_to_jsonl,
+    ensure_derived_directory,
+    get_axes_summary,
     read_axes_from_jsonl,
     verify_axes_checksum,
-    get_axes_summary
+    write_axes_to_jsonl,
 )
+
 
 @pytest.fixture
 def temp_axes_file():
     """Create a temporary JSONL file for testing."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.jsonl', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as f:
         temp_path = Path(f.name)
         # Write sample data
         sample_data = [
@@ -31,14 +33,15 @@ def temp_axes_file():
                     "character": "TestChar",
                     "type": "coarse",
                     "axis_name": "Test Axis",
-                    "description": "Test Description"
-                }
+                    "description": "Test Description",
+                },
             }
         ]
         for item in sample_data:
             f.write(json.dumps(item) + "\n")
     yield temp_path
     temp_path.unlink()
+
 
 @pytest.fixture
 def sample_axes():
@@ -48,23 +51,24 @@ def sample_axes():
             "character": "Scrooge",
             "type": "coarse",
             "axis_name": "Greed vs Generosity",
-            "description": "The spectrum from selfish accumulation to selfless giving"
+            "description": "The spectrum from selfish accumulation to selfless giving",
         },
         {
             "character": "Scrooge",
             "type": "fine",
             "axis_name": "Isolation vs Connection",
             "description": "The tendency to withdraw from social bonds versus seek them",
-            "source_observation": "Observed in his rejection of Fred's invitation"
-        }
+            "source_observation": "Observed in his rejection of Fred's invitation",
+        },
     ]
+
 
 class TestWriteAxesToJsonl:
     def test_write_creates_file(self, sample_axes, tmp_path):
         """Test that write_axes_to_jsonl creates the output file."""
         output_path = tmp_path / "test_axes.jsonl"
         result_path = write_axes_to_jsonl(sample_axes, output_path)
-        
+
         assert result_path.exists()
         assert result_path == output_path
 
@@ -72,12 +76,12 @@ class TestWriteAxesToJsonl:
         """Test that the written file contains valid JSONL with correct structure."""
         output_path = tmp_path / "test_axes.jsonl"
         write_axes_to_jsonl(sample_axes, output_path)
-        
-        with open(output_path, 'r') as f:
+
+        with open(output_path, "r") as f:
             lines = f.readlines()
-        
+
         assert len(lines) == len(sample_axes)
-        
+
         for line, expected in zip(lines, sample_axes):
             record = json.loads(line)
             assert "timestamp" in record
@@ -88,7 +92,7 @@ class TestWriteAxesToJsonl:
         """Test writing an empty list of axes."""
         output_path = tmp_path / "empty_axes.jsonl"
         result_path = write_axes_to_jsonl([], output_path)
-        
+
         assert result_path.exists()
         assert result_path.stat().st_size == 0
 
@@ -97,6 +101,7 @@ class TestWriteAxesToJsonl:
         output_path = tmp_path / "invalid_axes.jsonl"
         with pytest.raises(ValueError):
             write_axes_to_jsonl(["invalid"], output_path)
+
 
 class TestReadAxesFromJsonl:
     def test_read_valid_file(self, temp_axes_file):
@@ -114,11 +119,12 @@ class TestReadAxesFromJsonl:
     def test_read_invalid_json(self, tmp_path):
         """Test that reading invalid JSON raises JSONDecodeError."""
         invalid_path = tmp_path / "invalid.jsonl"
-        with open(invalid_path, 'w') as f:
+        with open(invalid_path, "w") as f:
             f.write("not valid json\n")
-        
+
         with pytest.raises(json.JSONDecodeError):
             read_axes_from_jsonl(invalid_path)
+
 
 class TestVerifyChecksum:
     def test_verify_correct_checksum(self, temp_axes_file):
@@ -136,6 +142,7 @@ class TestVerifyChecksum:
         with pytest.raises(FileNotFoundError):
             verify_axes_checksum(non_existent, "some_checksum")
 
+
 class TestComputeChecksum:
     def test_checksum_deterministic(self, temp_axes_file):
         """Test that checksum is deterministic."""
@@ -146,21 +153,22 @@ class TestComputeChecksum:
     def test_checksum_changes_with_content(self, tmp_path):
         """Test that checksum changes when content changes."""
         file_path = tmp_path / "test.txt"
-        with open(file_path, 'w') as f:
+        with open(file_path, "w") as f:
             f.write("content1")
         checksum1 = compute_file_checksum(file_path)
-        
-        with open(file_path, 'w') as f:
+
+        with open(file_path, "w") as f:
             f.write("content2")
         checksum2 = compute_file_checksum(file_path)
-        
+
         assert checksum1 != checksum2
+
 
 class TestAxesSummary:
     def test_summary_structure(self, temp_axes_file):
         """Test that summary has correct structure."""
         summary = get_axes_summary(temp_axes_file)
-        
+
         assert "total_axes" in summary
         assert "coarse_count" in summary
         assert "fine_count" in summary
@@ -174,48 +182,40 @@ class TestAxesSummary:
         axes = [
             {"timestamp": "t1", "data": {"character": "A", "type": "coarse"}},
             {"timestamp": "t2", "data": {"character": "A", "type": "fine"}},
-            {"timestamp": "t3", "data": {"character": "B", "type": "coarse"}}
+            {"timestamp": "t3", "data": {"character": "B", "type": "coarse"}},
         ]
-        
-        with open(test_file, 'w') as f:
-            for ax in axes:
-                f.write(json.dumps(ax) + "\n")
-        
+
+        with open(test_file, "w") as f:
+            f.writelines(json.dumps(ax) + "\n" for ax in axes)
+
         summary = get_axes_summary(test_file)
-        
+
         assert summary["total_axes"] == 3
         assert summary["coarse_count"] == 2
         assert summary["fine_count"] == 1
         assert set(summary["unique_characters"]) == {"A", "B"}
 
+
 class TestEnsureDerivedDirectory:
-    @patch('src.services.axes_writer.get_config')
+    @patch("src.services.axes_writer.get_config")
     def test_creates_directory(self, mock_config, tmp_path):
         """Test that ensure_derived_directory creates the directory."""
-        mock_config.return_value = {
-            "data": {
-                "derived": str(tmp_path / "derived")
-            }
-        }
-        
+        mock_config.return_value = {"data": {"derived": str(tmp_path / "derived")}}
+
         result = ensure_derived_directory()
-        
+
         assert result.exists()
         assert result.is_dir()
 
-    @patch('src.services.axes_writer.get_config')
+    @patch("src.services.axes_writer.get_config")
     def test_uses_existing_directory(self, mock_config, tmp_path):
         """Test that ensure_derived_directory uses existing directory."""
         derived_dir = tmp_path / "existing"
         derived_dir.mkdir()
-        
-        mock_config.return_value = {
-            "data": {
-                "derived": str(derived_dir)
-            }
-        }
-        
+
+        mock_config.return_value = {"data": {"derived": str(derived_dir)}}
+
         result = ensure_derived_directory()
-        
+
         assert result == derived_dir
         assert result.exists()

@@ -1,18 +1,17 @@
 """
 Test to verify the project structure is correctly set up.
 """
-import os
-import tempfile
-import pytest
-from pathlib import Path
+
 import sys
+from pathlib import Path
 
 # Add the code directory to the path so we can import the setup script
 # This assumes tests are run from the project root where 'code' is a sibling
 # or the script is run directly.
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from setup_project_structure import setup_directories, DIRECTORIES, PROJECT_ROOT
+from setup_project_structure import DIRECTORIES, PROJECT_ROOT, setup_directories
+
 
 class TestProjectStructure:
     """Tests for the project structure setup."""
@@ -21,7 +20,7 @@ class TestProjectStructure:
         """Verify that all required directories exist after setup."""
         # Run setup to ensure directories are created
         setup_directories()
-        
+
         # Check each required directory
         for dir_name in DIRECTORIES:
             dir_path = PROJECT_ROOT / dir_name
@@ -31,7 +30,7 @@ class TestProjectStructure:
     def test_placeholder_files_exist(self):
         """Verify that placeholder files were created to mark directories."""
         setup_directories()
-        
+
         # Check a few key placeholder files
         expected_files = [
             "src/__init__.py",
@@ -39,7 +38,7 @@ class TestProjectStructure:
             "data/raw/.gitkeep",
             "specs/001-gene-regulation/.gitkeep",
         ]
-        
+
         for file_name in expected_files:
             file_path = PROJECT_ROOT / file_name
             assert file_path.exists(), f"Placeholder file missing: {file_path}"

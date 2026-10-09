@@ -1,3 +1,21 @@
+T001:
+  c: false
+  h: d07e8e4da99326638d5223b5868703eceeb0ef197a3b31d03e92409940396874
+  r: The task requires creating `data/raw/`, `data/derived/`, and `artifacts/` directories,
+    but the evidence shows `data/raw/` and `data/derived/` are MISSING and `artifacts/`
+    is not listed at all. Additionally, no `.gitkeep` files are confirmed in any of
+    the existing directories (src/, tests/, data/gold_standard/, specs/), which the
+    task explicitly requires.
+  sig: 1eeaf679e88b5debd9b025ec44ad00ef90e93653608359a933bae40dd492870c
+T002:
+  c: true
+  h: 15bde6bad41bf8409ef668a7b9f348ac1472699b96476f5697d7032f14760075
+  r: "The `requirements.txt` exists at the project root and contains all ten required\
+    \ packages (transformers, llama-cpp-python, datasets, scikit-learn, scipy, pandas,\
+    \ numpy, tiktoken, hypothesis, pytest), plus a few extras (sentence-transformers,\
+    \ textblob, nltk, ruff, black, pre-commit) and a duplicated textblob line \u2014\
+    \ extras and the duplicate are harmless for this initialization task."
+  sig: 7142430bdb61512cac2fe43996a867ece59df9ef2769b31308cf1ce6cce31825
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -7,11 +25,48 @@ T003:
     so the task is not satisfied.
 T009a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer only supplied narrative user\u2011story specifications and no\
-    \ concrete dataset; there is no file, table, JSON, or any other artifact containing\
-    \ 20 human\u2011annotated character behaviors, nor any description of how it was\
-    \ generated reproducibly. The required Gold Standard dataset is missing."
+  h: 7c3a98d79ab2738765036361e586c21a7e2961ca217c143a65971998dc1d0a9c
+  r: "The file `data/gold_standard/human_annotations.json` exists and is non-empty,\
+    \ but its content is clearly fabricated placeholder data: generic archetypes (\"\
+    Protagonist\", \"Foil\", \"Mentor\", \"Ally\", \"Antagonist\"), four boilerplate\
+    \ scenario templates, and uniformly random-looking scores (0.19\u20134.89) with\
+    \ no connection to the ArcANE study's actual characters, psychological axes, or\
+    \ the T009c generation protocol. There is also no evidence of the required HuggingFace\
+    \ fetch attempt or of the T009a-gen fallback being invoked (no script, log, or\
+    \ provenance record). The next implementer should implement th"
+  sig: 25df3f047ee30646d8215a38bcf13dda2a88bb77f6c7146ada1a8c9fa9932a5a
+T009a-gen:
+  c: false
+  h: 3a7b9c34278df6ec43041e9653bd9f446685d77762badc5b5cebaa1a7e1f7cd7
+  r: The required executable script `src/services/gold_standard_generator.py` does
+    not exist, and the output file `data/gold_standard/human_annotations.json` contains
+    fabricated random-looking data (generic "Protagonist/Foil/Mentor" characters,
+    random ground_truth_scores, "Act 1/2/3" phases) rather than paragraphs from Pride
+    and Prejudice (Gutenberg 1342) annotated with "Coarse"/"Fine" phase labels per
+    the specified rule set. The implementer must write the actual generator using
+    `datasets.load_dataset` for Gutenberg ID 1342, extract paragraphs at regular intervals,
+    annotate with Coarse/Fine labels,
+  sig: fb4b2fbc75b37b5469b5b8a945420ecfd9b3e8d80e15aca9b7d7b40697e50acd
+T009b:
+  c: false
+  h: c85b4cdc09c15750c9c79abbbab6802a55cf2beb878b423df24733b919fd0dcd
+  r: "The gold standard file `data/gold_standard/human_annotations.json` exists (3689\
+    \ bytes, sha256 a58e22a0...), but there is no evidence that the checksum was recorded\
+    \ in `state/projects/PROJ-919-.../artifact_hashes` \u2014 no state file, hash\
+    \ entry, or update log was provided. The task's actual deliverable (the recorded\
+    \ hash in the state artifact_hashes) is missing; the next implementer should write\
+    \ the SHA256 of the file into the project's state artifact_hashes store."
+  sig: 4eee094a72e7c814df384be472b52a0fe102c750ba300d7c8c6f4fe335dcf928
+T010:
+  c: true
+  h: d6f05e4048ad92500bc085bd2f047bf1f721d0f5beff96334ae863d8e4710766
+  r: The file `specs/001-llmxive-follow-up-extending-arcane-do-ro/contracts/axis.schema.yaml`
+    exists (1425 bytes) at the resolved canonical path and contains a valid draft-07
+    JSON Schema defining distinct Coarse and Fine axis objects with required fields
+    (character, axis_name, description, and source_observation for Fine axes), matching
+    the task's requirement to define and validate two distinct sets of psychological
+    axes derived from independent narrative observations.
+  sig: 12cc55fca2552cddfe8993158930d24365d1fb946db932cd142928a1d916f4d3
 T021:
   c: false
   h: fdd80b2531e217677d26adb7c3174974b373d4471686af25e7b42bcffcdadb08

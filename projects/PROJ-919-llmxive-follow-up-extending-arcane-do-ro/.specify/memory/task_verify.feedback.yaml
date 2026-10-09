@@ -1,0 +1,163 @@
+T001:
+  reason: The task requires creating `data/raw/`, `data/derived/`, and `artifacts/`
+    directories, but the evidence shows `data/raw/` and `data/derived/` are MISSING
+    and `artifacts/` is not listed at all. Additionally, no `.gitkeep` files are confirmed
+    in any of the existing directories (src/, tests/, data/gold_standard/, specs/),
+    which the task explicitly requires.
+  task: d3276881a0dc4dffd7f13845577668bc7f8983f5d91a8055624c1b15f9154ff0
+T002:
+  task: 993c6b8d32a2f5c5ae790e272759e38d1a21a8722ae51fcd716b7b7794820fcc
+T003:
+  reason: 'Requested task execution failed; rerun successfully: code/scripts/run_lint.py
+    exit=1'
+  task: ed499d1c554fe9eb2c7938008dd2c66373f31ce0c71ca26dc8c344cb81cd4782
+T005:
+  reason: 'declared artifact(s) missing/empty/invalid: src/lib/utils.py'
+  task: a904f15962d05c85956604e16ac3835b0329028355f68eaf5a9157ff7d4d1f05
+T006:
+  reason: 'declared artifact(s) missing/empty/invalid: src/lib/config.py'
+  task: cd9b7ef7ac75685fb342ac738f4e338f4d1ea58656e4973fd9f185cbe443e67c
+T007:
+  reason: 'declared artifact(s) missing/empty/invalid: src/lib/validators.py'
+  task: 8f5f07c49657784f2da0160434004d5379a1d6c9604231e4b71fae8b4a083b80
+T008:
+  reason: 'declared artifact(s) missing/empty/invalid: src/lib/state.py'
+  task: 708eecb453c0c362dd81a58b95fe09611820a2a43e5a466305b1ecb5fbdbc5fe
+T009a:
+  reason: "The file `data/gold_standard/human_annotations.json` exists and is non-empty,\
+    \ but its content is clearly fabricated placeholder data: generic archetypes (\"\
+    Protagonist\", \"Foil\", \"Mentor\", \"Ally\", \"Antagonist\"), four boilerplate\
+    \ scenario templates, and uniformly random-looking scores (0.19\u20134.89) with\
+    \ no connection to the ArcANE study's actual characters, psychological axes, or\
+    \ the T009c generation protocol. There is also no evidence of the required HuggingFace\
+    \ fetch attempt or of the T009a-gen fallback being invoked (no script, log, or\
+    \ provenance record). The next implementer should implement th"
+  task: 9d219ff739c26fa9e1663c36dde05dac053cbc9c30fc4f37be4b2d55df6ba241
+T009a-gen:
+  reason: The required executable script `src/services/gold_standard_generator.py`
+    does not exist, and the output file `data/gold_standard/human_annotations.json`
+    contains fabricated random-looking data (generic "Protagonist/Foil/Mentor" characters,
+    random ground_truth_scores, "Act 1/2/3" phases) rather than paragraphs from Pride
+    and Prejudice (Gutenberg 1342) annotated with "Coarse"/"Fine" phase labels per
+    the specified rule set. The implementer must write the actual generator using
+    `datasets.load_dataset` for Gutenberg ID 1342, extract paragraphs at regular intervals,
+    annotate with Coarse/Fine labels,
+  task: f55d00ba4e139d5b295b59ab7d65595a3dd88b8ae43d92286b16ec2f9d9da8c1
+T009b:
+  reason: "The gold standard file `data/gold_standard/human_annotations.json` exists\
+    \ (3689 bytes, sha256 a58e22a0...), but there is no evidence that the checksum\
+    \ was recorded in `state/projects/PROJ-919-.../artifact_hashes` \u2014 no state\
+    \ file, hash entry, or update log was provided. The task's actual deliverable\
+    \ (the recorded hash in the state artifact_hashes) is missing; the next implementer\
+    \ should write the SHA256 of the file into the project's state artifact_hashes\
+    \ store."
+  task: 1ecdaaafeab46eb2cc33460b25439785709d029a3f2a8db209e1a963a6e325aa
+T010:
+  task: 3e78f71f19d3d3da85ae20a638ea699f951fbdcb11396ac94eec204933c2c31b
+T011a:
+  task: 890fde17a79246b197d3a168c94230ac7866c570462a0049b6e1354ccf8a6c71
+T011b:
+  reason: 'declared artifact(s) missing/empty/invalid: config/characters.json'
+  task: e297d0b177c562c0fc190783719d06f90f206c20ef89c870f4dd6dd3b5779a29
+T012:
+  task: 3e66eb826f8a421fcaa3a369c128a3c32ec1dcf6a9ecf3d40382f58a1f08b0d9
+T013:
+  reason: 'declared artifact(s) missing/empty/invalid: config/characters.json, data/raw/arcane_corpus.jsonl'
+  task: 4c9ee06ce905d32c3c872c66ed6a9755d06beef3eb27de6e4608a0f7ebd9ae28
+T014:
+  task: 7529f8cf96dbda7788495a6ce99ab42044745c17941318c54fb1f7aa65bd7ae0
+T015:
+  reason: 'declared artifact(s) missing/empty/invalid: data/derived/axes.jsonl'
+  task: a27f9564559e71f0491c0a96d636d63f6dbb195eaceb7f66001ed6b8f1f1a4c7
+T017:
+  task: 006c3b8c85e3bc75b131dbfde8f425e541937547f191366183b55d373b503c5c
+T018:
+  task: 82723dbc79b7a41fe7a1fe32dc90e91bc667d5fdc5902731a92cda84f98ce36e
+T019:
+  task: 1b15eefafa0e5391fd9a1e1c433f5ce3c4b2ae197d321978e73eab60d192c5c3
+T020:
+  task: 2a17a975f25fbb0254855997b1fd942d9fe1b9ff96fccc446e13de5a898a89fa
+T021:
+  reason: 'declared artifact(s) missing/empty/invalid: data/derived/probes.jsonl'
+  task: 4ff289a65295859f8b1b3cff0888fc501f44a0b0e4845260e830781ba5e7d5bc
+T022:
+  task: 3b09ef4ca460687e980e2052bb3c3a0ab14a5c2eb3085a8f617189cf5e36bf60
+T023:
+  task: 6e99684673dffa416593676082f6730419ef356de8244a6612cd7b48864457eb
+T024:
+  task: 928e07daeaa899a3ade66b3c94364ff8cf28d299aedf52798782a2124dc5bdcd
+T025:
+  task: 062cc3fba968787f97d2e2a4805664908f7e50178735fcf09d5b828234220b27
+T026:
+  task: 30292e759640e6f3ee66e154c6c63a231da852b99fbfc48b5f03d8a92cdc2c3a
+T027:
+  task: 8b4a0b58ba6772e95cb37d10967c8e128a02faeab6a17649a1299770b95229f7
+T027a:
+  reason: 'declared artifact(s) missing/empty/invalid: config/sentiment_targets.json'
+  task: 5cbea792d3756532cd476803723cc872a7796eea6d543dd473a03d9aaa05dccf
+T027a-agg:
+  task: 8941528a2b47a4cf686eeca8aeb8c9e1f12aa9efe3728b3f6845ac4bb313ca68
+T028:
+  reason: 'declared artifact(s) missing/empty/invalid: data/derived/results_raw.jsonl'
+  task: 2c171e8c3c16f6bfc984e4cadfdbf767cf579789f5f6a0ff1c44d18e95ec8d23
+T029:
+  task: 17bca44fdaece9f0b68fc85eb7ddbde99e8e99655ebc54a7362204251ef17dd4
+T029a:
+  reason: 'declared artifact(s) missing/empty/invalid: data/derived/calibration_metrics.json'
+  task: ad5b7c068aef618a26c08f3f05e212ad2bad86d210811c1b15d348668b0b14b5
+T029b:
+  task: 27d8db0cf26f66cb712b530214cd1e320c390679d08e90a9f1b3feb2258d7d40
+T029c:
+  reason: 'declared artifact(s) missing/empty/invalid: data/derived/judge_metrics.json'
+  task: a7ca6791191cc5d92a6b212d261902059ab689436036315ff1265484621eb42e
+T030:
+  reason: 'declared artifact(s) missing/empty/invalid: src/services/experiment_runner.py'
+  task: edad1fcd3d47f41d5bd6da5a763826204efe77bc5d631b78b1c06b0d926f39e1
+T031:
+  task: 4bddf9e8696413ba60a79f0607372db787d413f2beb5c36c620526206166220e
+T032:
+  task: 65a36355348ba9b37facfb4915a931bcf4b4ec4f6ae74235499c2b155a894549
+T033:
+  task: b78197eccf664d572a00b3ba59e728d226d8f3c4334865fcb46a1155e2b190d6
+T034:
+  task: aef656aba39befc978784592fdc603f873fa9a5a1e5a9fc3d88607f0196ae240
+T035:
+  task: 5253ec162a013b8064ef45e70400241778991a075e80f5f2d72b9268c262cd04
+T035b:
+  task: da9afb3f3ef38d7fb2f8a85e66d6cb669c2e049df53970d457bd2c19adb9fc96
+T036:
+  task: 764690b21021b5d8ddda689400f3416b3c247e31fd1f4a97c79069a0d5eb1e3e
+T037a:
+  task: 7ba935274904487cedefc9f23d56c4839f4b672eec628d383c806ce0facf77d3
+T037b:
+  task: ffd8a2a76b712203e0b47378c3feb5693017b57dccb90b9176c5255857134e9d
+T037c:
+  task: 7fd1cd32c4815e5dbdc129edad6b3640705467ce3982e9edc585909e4e3ef846
+T037d:
+  task: 95da034a151b564d65266d9ee10358cffe1cc1853729e55ba6baa956ffab0c40
+T038a:
+  task: fb23e88a9f76f7ac762affc90f95b718340ca434a1c18f1c9405a9e6ce8d65dc
+T038b:
+  task: 396ee8376d0a5b54c1d9ad23dbe7566dc456a010c4e28257c45c87377e465f2e
+T040:
+  task: 0e5fff5f88d29a5bc08113ddf6b5aa399bcbe24ecf3ff45dc958d4b5d74cfb83
+T041:
+  task: c6c25c7ead631b7e43c355f43d050fa0dad36a231532cbcc1a87290b83cfb8a4
+T045:
+  reason: 'declared artifact(s) missing/empty/invalid: scripts/check_cpu_feasibility.py'
+  task: 07c541375e624bdf665edd6fb4bebb5b2f3cb53554c358e89a5500d83026e6a7
+T046:
+  task: 696a6060484e9df26b2ad8615192039f9dd9aea8819b828627ebc10dcc0f5393
+T049:
+  reason: 'declared artifact(s) missing/empty/invalid: src/lib/stream_loader.py, data/raw/arcane_corpus.jsonl'
+  task: a8e498796ec9ac9be07a65181628bd6bd189a51305da42e20ed3e99bc4c9cc93
+T051:
+  task: 8ff87437b07b54e4ce32d506663d1cbc38dbea18074f17717582587b8753f803
+T052:
+  task: c5f58cb17f8b17c62c95efce6024edb9e6939fe635bf4d0d28efbed5fd946967
+T053:
+  task: 67b308b2cbe61dd2cda83c2d0b7235226917722715ae9e10ed0f62f32246e648
+T054:
+  task: 9ab1440de69758aa2c92dab135af35e13cc4dff4e5a298e67170e4ce667e293d
+T055:
+  task: 86110eedc52b4d7c36edb86b46ee8672e1943c123e8bcfb0eb2d74e7048b3ada

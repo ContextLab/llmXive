@@ -1,5 +1,5 @@
-import json
 import hashlib
+import json
 import sys
 from pathlib import Path
 
@@ -8,7 +8,8 @@ from pathlib import Path
 if "code" not in sys.path:
     sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.lib.state_tracker import log_experiment_state, hash_parameters, generate_run_id
+from src.lib.state_tracker import generate_run_id, hash_parameters, log_experiment_state
+
 
 def compute_sha256(file_path: Path) -> str:
     """
@@ -20,6 +21,7 @@ def compute_sha256(file_path: Path) -> str:
         for chunk in iter(lambda: f.read(4096), b""):
             sha256_hash.update(chunk)
     return sha256_hash.hexdigest()
+
 
 def main():
     """
@@ -57,7 +59,7 @@ def main():
         "checksum": checksum,
         "algorithm": "sha256",
         "source_file": str(gold_standard_path),
-        "generated_at": log_experiment_state.__module__  # Placeholder for timestamp logic if needed, or use datetime
+        "generated_at": log_experiment_state.__module__,  # Placeholder for timestamp logic if needed, or use datetime
     }
 
     # Write updated checksums
@@ -70,17 +72,14 @@ def main():
         with open(manifest_file, "r") as f:
             manifest_data = json.load(f)
     else:
-        manifest_data = {
-            "version": "1.0",
-            "files": []
-        }
+        manifest_data = {"version": "1.0", "files": []}
 
     # Add entry to manifest if not present
     manifest_entry = {
         "file": "human_annotations.json",
         "checksum": checksum,
         "type": "gold_standard",
-        "status": "verified"
+        "status": "verified",
     }
 
     # Check if entry already exists and update, otherwise append
@@ -90,7 +89,7 @@ def main():
             entry.update(manifest_entry)
             found = True
             break
-    
+
     if not found:
         if "files" not in manifest_data:
             manifest_data["files"] = []
@@ -107,10 +106,10 @@ def main():
         "task_id": "T009a",
         "input_file": str(gold_standard_path),
         "output_checksum_file": str(checksums_file),
-        "checksum": checksum
+        "checksum": checksum,
     }
     param_hash = hash_parameters(params)
-    
+
     # Log the state
     log_experiment_state(
         run_id=run_id,
@@ -118,9 +117,10 @@ def main():
         status="completed",
         parameters=params,
         parameter_hash=param_hash,
-        output_files=[str(checksums_file), str(manifest_file)]
+        output_files=[str(checksums_file), str(manifest_file)],
     )
     print(f"Experiment state logged with run_id: {run_id}")
+
 
 if __name__ == "__main__":
     main()

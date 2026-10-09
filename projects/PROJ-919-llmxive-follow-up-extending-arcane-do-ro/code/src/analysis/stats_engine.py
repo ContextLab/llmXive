@@ -1,17 +1,15 @@
 import json
-import logging
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Any, Dict, List, Optional
 
 from src.lib.config import get_config
 from src.lib.utils import get_logger
 
 logger = get_logger(__name__)
 
+
 def aggregate_consistency_scores(
-    results: List[Dict[str, Any]],
-    judge_weight: float = 0.7,
-    rule_weight: float = 0.3
+    results: List[Dict[str, Any]], judge_weight: float = 0.7, rule_weight: float = 0.3
 ) -> List[Dict[str, Any]]:
     """
     Combine the Judge score (T025) and rule-based score (T026) into a single
@@ -29,17 +27,17 @@ def aggregate_consistency_scores(
     """
     aggregated = []
     for item in results:
-        if 'judge_score' not in item:
+        if "judge_score" not in item:
             logger.warning(f"Missing 'judge_score' in result item: {item.get('id', 'unknown')}")
             judge_score = 0.0
         else:
-            judge_score = float(item['judge_score'])
+            judge_score = float(item["judge_score"])
 
-        if 'rule_score' not in item:
+        if "rule_score" not in item:
             logger.warning(f"Missing 'rule_score' in result item: {item.get('id', 'unknown')}")
             rule_score = 0.0
         else:
-            rule_score = float(item['rule_score'])
+            rule_score = float(item["rule_score"])
 
         # Ensure weights sum to 1.0 for normalization, though defaults do.
         total_weight = judge_weight + rule_weight
@@ -68,14 +66,14 @@ def aggregate_consistency_scores(
         if consistency_score < 0 or consistency_score > 5:
             logger.warning(f"Consistency score {consistency_score} outside expected [0, 5] range.")
 
-        item['consistency_score'] = round(consistency_score, 4)
+        item["consistency_score"] = round(consistency_score, 4)
         aggregated.append(item)
 
     return aggregated
 
+
 def write_results_to_jsonl(
-    results: List[Dict[str, Any]],
-    output_path: Optional[Path] = None
+    results: List[Dict[str, Any]], output_path: Optional[Path] = None
 ) -> Path:
     """
     Write the aggregated results to a JSONL file.
@@ -89,22 +87,22 @@ def write_results_to_jsonl(
     """
     if output_path is None:
         config = get_config()
-        output_path = Path(config['data']['derived']) / 'results.jsonl'
+        output_path = Path(config["data"]["derived"]) / "results.jsonl"
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    with open(output_path, 'w', encoding='utf-8') as f:
-        for item in results:
-            f.write(json.dumps(item, ensure_ascii=False) + '\n')
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.writelines(json.dumps(item, ensure_ascii=False) + "\n" for item in results)
 
     logger.info(f"Results written to {output_path}")
     return output_path
+
 
 def run_aggregation_pipeline(
     input_path: Optional[Path] = None,
     output_path: Optional[Path] = None,
     judge_weight: float = 0.7,
-    rule_weight: float = 0.3
+    rule_weight: float = 0.3,
 ) -> Path:
     """
     Main pipeline function to read results, aggregate scores, and write output.
@@ -130,7 +128,7 @@ def run_aggregation_pipeline(
         # For simplicity, we assume one input file with both scores.
         # If the project structure has separate files, we'd need to adjust.
         # Let's assume the input is a JSONL with both scores.
-        input_path = Path(config['data']['derived']) / 'probes_with_scores.jsonl'
+        input_path = Path(config["data"]["derived"]) / "probes_with_scores.jsonl"
         # If that doesn't exist, try 'results.jsonl' from previous step?
         # Let's use a generic name and let the caller specify if needed.
         # Actually, T025 and T026 produce scores. We need to combine them.
@@ -138,13 +136,12 @@ def run_aggregation_pipeline(
         # If not, we'll try to load from a default location.
         # For now, we'll use 'data/derived/probes_with_scores.jsonl' as a placeholder.
         # The caller should provide the correct input path.
-        pass
 
     if not input_path.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")
 
     results = []
-    with open(input_path, 'r', encoding='utf-8') as f:
+    with open(input_path, "r", encoding="utf-8") as f:
         for line in f:
             if line.strip():
                 results.append(json.loads(line))
@@ -152,21 +149,23 @@ def run_aggregation_pipeline(
     logger.info(f"Loaded {len(results)} results from {input_path}")
 
     aggregated = aggregate_consistency_scores(
-        results,
-        judge_weight=judge_weight,
-        rule_weight=rule_weight
+        results, judge_weight=judge_weight, rule_weight=rule_weight
     )
 
     output_path = write_results_to_jsonl(aggregated, output_path)
 
     return output_path
 
+
 def main():
     """
     CLI entry point for running the aggregation pipeline.
     """
     import argparse
-    parser = argparse.ArgumentParser(description="Aggregate consistency scores from Judge and Rule-based scores.")
+
+    parser = argparse.ArgumentParser(
+        description="Aggregate consistency scores from Judge and Rule-based scores."
+    )
     parser.add_argument("--input", type=str, help="Path to input JSONL file")
     parser.add_argument("--output", type=str, help="Path to output JSONL file")
     parser.add_argument("--judge-weight", type=float, default=0.7, help="Weight for Judge score")
@@ -180,9 +179,10 @@ def main():
         input_path=input_path,
         output_path=output_path,
         judge_weight=args.judge_weight,
-        rule_weight=args.rule_weight
+        rule_weight=args.rule_weight,
     )
     print(f"Aggregation complete. Output written to: {output_file}")
+
 
 if __name__ == "__main__":
     main()

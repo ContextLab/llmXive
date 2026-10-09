@@ -2,6 +2,7 @@
 Wrapper script to execute project structure setup from the CLI.
 This ensures the structure is created before other scripts run.
 """
+
 import sys
 from pathlib import Path
 

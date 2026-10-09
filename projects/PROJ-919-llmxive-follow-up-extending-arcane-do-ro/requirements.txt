@@ -8,11 +8,10 @@ numpy
 tiktoken
 hypothesis
 pytest
-ruff
-black
-nltk
 sentence-transformers
 textblob
-pyyaml
-torch
-accelerate
+nltk
+textblob
+ruff
+black
+pre-commit

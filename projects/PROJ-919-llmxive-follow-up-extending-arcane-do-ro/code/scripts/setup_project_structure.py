@@ -1,15 +1,12 @@
-import os
+import logging
 import sys
 from pathlib import Path
-import logging
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout)
-    ]
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)],
 )
 logger = logging.getLogger(__name__)
 
@@ -23,7 +20,7 @@ DIRECTORIES = [
     "data/derived",
     "data/gold_standard",
     "artifacts",
-    "specs/001-llmxive-follow-up-extending-arcane-do-ro"
+    "specs/001-llmxive-follow-up-extending-arcane-do-ro",
 ]
 
 # Project root is the parent of the 'code' directory (assuming this script is in code/scripts/)
@@ -35,24 +32,25 @@ DIRECTORIES = [
 
 PROJECT_ROOT = Path.cwd()
 
+
 def setup_directories():
     """
     Creates the required project directory structure.
     Logs the creation of each directory.
     """
     logger.info(f"Setting up project structure in: {PROJECT_ROOT}")
-    
+
     created_count = 0
     skipped_count = 0
 
     for dir_path in DIRECTORIES:
         full_path = PROJECT_ROOT / dir_path
-        
+
         if full_path.exists():
             logger.debug(f"Directory already exists: {full_path}")
             skipped_count += 1
             continue
-        
+
         try:
             full_path.mkdir(parents=True, exist_ok=True)
             logger.info(f"Created directory: {full_path}")
@@ -63,6 +61,7 @@ def setup_directories():
 
     logger.info(f"Directory setup complete. Created: {created_count}, Skipped: {skipped_count}")
     return True
+
 
 def main():
     """
@@ -75,6 +74,7 @@ def main():
     except Exception as e:
         logger.error(f"Project structure initialization failed: {e}")
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

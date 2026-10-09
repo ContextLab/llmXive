@@ -1,9 +1,6 @@
 import os
-import tempfile
-import pytest
-from pathlib import Path
-import sys
-from setup_project_structure import setup_directories, DIRECTORIES, PROJECT_ROOT
+
+from setup_project_structure import DIRECTORIES, setup_directories
 
 # Fix import path if running from tests/unit
 # Assuming the script is in code/scripts/ or code/
@@ -22,6 +19,7 @@ from setup_project_structure import setup_directories, DIRECTORIES, PROJECT_ROOT
 # This usually means the file is at the root of the code package or in the path.
 # We will assume the test is run with `code/` in the PYTHONPATH.
 
+
 class TestProjectStructure:
     """Tests for the project directory creation logic."""
 
@@ -30,19 +28,19 @@ class TestProjectStructure:
         # Change to temp directory to avoid polluting the actual project
         original_cwd = os.getcwd()
         os.chdir(tmp_path)
-        
+
         try:
             created_dirs = setup_directories(tmp_path)
-            
+
             # Verify count
             assert len(created_dirs) == len(DIRECTORIES)
-            
+
             # Verify each directory exists
             for dir_name in DIRECTORIES:
                 expected_path = tmp_path / dir_name
                 assert expected_path.exists(), f"Directory {dir_name} was not created"
                 assert expected_path.is_dir(), f"{dir_name} is not a directory"
-                
+
         finally:
             os.chdir(original_cwd)
 
@@ -50,10 +48,10 @@ class TestProjectStructure:
         """Verify that nested directories (e.g., data/raw) are created correctly."""
         original_cwd = os.getcwd()
         os.chdir(tmp_path)
-        
+
         try:
             setup_directories(tmp_path)
-            
+
             # Check specific nested paths
             assert (tmp_path / "data" / "raw").exists()
             assert (tmp_path / "data" / "derived").exists()
@@ -66,11 +64,11 @@ class TestProjectStructure:
         """Verify that running setup twice does not cause errors."""
         original_cwd = os.getcwd()
         os.chdir(tmp_path)
-        
+
         try:
             # First run
             setup_directories(tmp_path)
-            
+
             # Second run should not raise and return same count
             created_dirs = setup_directories(tmp_path)
             assert len(created_dirs) == len(DIRECTORIES)
@@ -81,10 +79,12 @@ class TestProjectStructure:
         """Verify the specific specs directory path required by T001."""
         original_cwd = os.getcwd()
         os.chdir(tmp_path)
-        
+
         try:
             setup_directories(tmp_path)
             specs_path = tmp_path / "specs" / "001-llmxive-follow-up-extending-arcane-do-ro"
-            assert specs_path.exists(), "The specific specs directory for this project was not created"
+            assert (
+                specs_path.exists()
+            ), "The specific specs directory for this project was not created"
         finally:
             os.chdir(original_cwd)
