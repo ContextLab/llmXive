@@ -1,11 +1,13 @@
 T001a:
   c: true
-  h: 2da3bd82be629d902e24ebafa4869cab81496a6ce39f26454602575eae26f727
-  r: The three required directories (`code/`, `data/`, `tests/`) exist and are non-empty,
-    and `data/setup_log.json` contains the required `{"status":"SUCCESS","paths_verified":["code","data","tests"],"timestamp":"ISO8601"}`
-    structure with a valid ISO8601 timestamp. The execution log confirms `create_project_structure.py`
-    ran successfully (exit 0) and wrote the setup log.
-  sig: 2601eed41724ae3735e46b9678535275d95e6b8ff2d91b7083da88568d9a5907
+  h: 7a599af7e6cd774daa5aa16dcab01f2c2aea5dc48760a7b1d3d3e615162a55aa
+  r: 'The three required directories (`code/`, `data/`, `tests/`) exist and are non-empty,
+    and `data/setup_log.json` contains exactly the required structure (`status: "SUCCESS"`,
+    `paths_verified` listing the three directories, ISO8601 timestamp), corroborated
+    by a historical execution log showing `create_project_structure.py` exited 0 and
+    wrote the setup log. The other data files'' quality issues belong to later tasks,
+    not this directory-structure task.'
+  sig: 5b939d95642889a79f6fe765751b3b3e73cf2024f8c30ad1c246957b479a6b95
 T001b:
   c: true
   h: f0435afed2a59144b1f60e02bde1e644a7c4009d41ca3e2a59c72e6482836f64

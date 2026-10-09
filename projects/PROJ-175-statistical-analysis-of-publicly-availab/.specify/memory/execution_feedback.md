@@ -31,7 +31,6 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - python code/data/download.py --dataset recipe1m --output data/raw/ -> rc=1
 
 INFO:__main__:Starting Recipe1M download via streaming...
-INFO:httpx:HTTP Request: GET https://huggingface.co/api/agent-harnesses "HTTP/1.1 200 OK"
 INFO:httpx:HTTP Request: HEAD https://huggingface.co/datasets/recipe1m/recipe1m/resolve/main/README.md "HTTP/1.1 401 Unauthorized"
 ERROR:__main__:Failed to download Recipe1M: Dataset 'recipe1m/recipe1m' doesn't exist on the Hub or cannot be accessed.
 INFO:__main__:Saved manifest for recipe1m: FAILED
@@ -70,11 +69,6 @@ FileNotFoundError: train_set.parquet not found at /home/runner/work/llmXive/llmX
 
 - python code/models/bayesian.py --input data/processed/train.csv --output data/logs/ -> rc=1
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-175-statistical-analysis-of-publicly-availab/code/.venv/lib/python3.11/site-packages/arviz/__init__.py:50: FutureWarning: 
-ArviZ is undergoing a major refactor to improve flexibility and extensibility while maintaining a user-friendly interface.
-Some upcoming changes may be backward incompatible.
-For details and migration guidance, visit: https://python.arviz.org/en/latest/user_guide/migration_guide.html
-  warn(
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-175-statistical-analysis-of-publicly-availab/code/models/bayesian.py", line 31, in <module>
     from code.utils.memory_monitor import check_memory_limit
@@ -84,17 +78,17 @@ ModuleNotFoundError: No module named 'psutil'
 
 - python code/run_full_pipeline.py -> rc=1
 
-2026-10-09 19:23:28,936 - INFO - INITIALIZED: pipeline_start
-2026-10-09 19:23:28,936 - INFO - Starting data pipeline...
-2026-10-09 19:23:28,936 - INFO - Running: Download Recipe1M dataset
-2026-10-09 19:23:28,936 - INFO - Command: python code/data/download.py --dataset recipe1m --output data/raw/
-2026-10-09 19:23:29,332 - ERROR - Failed: Download Recipe1M dataset
-2026-10-09 19:23:29,332 - ERROR - Error: ERROR:__main__:Failed to download Recipe1M: No module named 'datasets'
+2026-10-09 19:35:06,789 - INFO - INITIALIZED: pipeline_start
+2026-10-09 19:35:06,789 - INFO - Starting data pipeline...
+2026-10-09 19:35:06,789 - INFO - Running: Download Recipe1M dataset
+2026-10-09 19:35:06,789 - INFO - Command: python code/data/download.py --dataset recipe1m --output data/raw/
+2026-10-09 19:35:07,038 - ERROR - Failed: Download Recipe1M dataset
+2026-10-09 19:35:07,039 - ERROR - Error: ERROR:__main__:Failed to download Recipe1M: No module named 'datasets'
 INFO:__main__:Saved manifest for recipe1m: FAILED
 ERROR:__main__:Pipeline halted due to: Recipe1M download failed: No module named 'datasets'
 
-2026-10-09 19:23:29,332 - INFO - FAILED: download
-2026-10-09 19:23:29,333 - INFO - FAILED: pipeline_end
+2026-10-09 19:35:07,039 - INFO - FAILED: download
+2026-10-09 19:35:07,039 - INFO - FAILED: pipeline_end
 
 
 ## Declared deliverables still missing
