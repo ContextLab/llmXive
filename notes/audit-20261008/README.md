@@ -6,7 +6,67 @@ GitHub Actions logs/issues, the Dartmouth model catalog, and real model/code
 calls. Counts below describe this frozen snapshot, not a claim about later runs.
 Work is isolated from the user's unfinished `025-self-improvement-lane` branch.
 
-## Current acceptance status — 2026-10-09 14:23 UTC
+## Current acceptance status — 2026-10-09 15:18 UTC
+
+**Full paper acceptance, production backlog recovery and a useful accepted
+self-repair remain unproven.** The earlier isolated research acceptance below
+remains valid evidence, and its failed paper transition remains preserved.
+
+The latest production census at `c36adea5eaad766e918a48503f6fad282b94d47c`
+still has 1,095 projects: 455 implementing, 102 planned, 50 tasked and 227
+external reviewed preprints. No authored project has reached research-complete
+or a later stage. See [the frozen census](production-20261009-1518.json).
+This is an observed production result, not an inference from passing tests.
+
+Since the previous snapshot, the following repairs merged after their selected
+exact-head checks passed:
+
+| PR | Observed defect and resulting behavior | Evidence boundary |
+| --- | --- | --- |
+| [#1535](https://github.com/ContextLab/llmXive/pull/1535) | Paper planning now shares complete-set, canonical-path, alias-refusal and rollback guards | A real GLM corrective replay produced six canonical artifacts; the replay replaced the scientific review panel with boundary assertions |
+| [#1539](https://github.com/ContextLab/llmXive/pull/1539), [#1541](https://github.com/ContextLab/llmXive/pull/1541) | Paper task-format failures remain on the paper track with feedback; unchanged accepted paper task analysis can be reused | Regression coverage for the actual erroneous transition and duplicate generation; not full paper acceptance |
+| [#1540](https://github.com/ContextLab/llmXive/pull/1540) | Task-verifier evidence supplies trusted caller project identity and canonical paths | Seven real GLM cases passed, including wrong-project and missing-argument negative controls |
+| [#1542](https://github.com/ContextLab/llmXive/pull/1542) | Paper tasks execute before whole-manuscript review, can create initially absent source, receive actual research context, and require independent verification and compilation | Actual GLM author and verifier created a 13,194-byte PDF from an empty paper-source directory; this was a scaffold proof, not a scientifically accepted paper |
+| [#1533](https://github.com/ContextLab/llmXive/pull/1533), [#1537](https://github.com/ContextLab/llmXive/pull/1537) | Repair evidence digests survive publication checks; regressions must expose an existing production defect; malformed Python and unsafe backup deletion are rejected | Offline reproductions and preservation mutations passed; the next live autonomous repair trial remains active |
+| [#1532](https://github.com/ContextLab/llmXive/pull/1532), [#1534](https://github.com/ContextLab/llmXive/pull/1534), [#1538](https://github.com/ContextLab/llmXive/pull/1538), [#1543](https://github.com/ContextLab/llmXive/pull/1543) | Audit inputs are preserved under sparse checkout; model tests and relevant external-service tests are selected separately; prompt evaluation uses the configured primary | Exact #1543 head passed all selected checks: Dartmouth 3m06s, offline 7m54s, prompt-eval checkout 5s, six strict GLM evaluations in 420.702s |
+
+The initial #1543 GLM evaluation caught a real protocol defect: one of six
+responses wrapped the review in a Markdown fence, which the production parser
+rejects. The reviewer prompt was corrected; the assertion and three-repeat
+policy were retained. The final six evaluations all passed. Peer fallback is
+rejected by this primary-model certification gate. External reference coverage
+remains enabled for changed dependencies, unknown paths and nightly runs.
+
+A genuinely fresh canary began at 15:00:55 UTC with the original seed and all
+production scientific guards on frozen source
+`1d2b4287245cf12cdb01ff9d367d9157229101ca`. The research-question validator
+rejected the merely illustrative original framing; autonomous revision proposed
+multiplicative-feature attribution, and the next validator accepted that
+question. The run reached project initialization and started specification.
+GLM timed out after 360.020 seconds on that request; the free GPT-OSS peer began
+at 15:16:09 UTC. Paid calls remain disabled. No scientific artifact, stage or
+retry counter was hand-edited. See [fresh-run provenance](canary-20261009-1501-evidence.json).
+
+The next [autonomous repair trial](https://github.com/ContextLab/llmXive/actions/runs/37948270345)
+uses merged `a490e5057bc4f5bd8bf024015727b4db1ab63e9c` and the existing PROJ-770
+error history. At this snapshot its candidate job is still active; no candidate,
+preservation result or independent approval is yet available. Earlier failed
+trials were not reset or presented as successes.
+
+Production [advance run 37941378791](https://github.com/ContextLab/llmXive/actions/runs/37941378791)
+had five successful workers and one unexplained exit 143. Worker 0 rejected
+PROJ-728 task T012, logged re-planning, then exited at 14:28:15 UTC. All later
+steps, including the `always()` state commit and failure artifact upload, were
+skipped. The available log has no cause or preserved patch. This remains an
+unresolved interruption/persistence-evidence gap; it is not an established
+verifier bug. Details are tracked in [#1139](https://github.com/ContextLab/llmXive/issues/1139#issuecomment-6083713786).
+The next scheduled run is active on the merged recovery platform.
+
+Remaining review-policy binding and documentation updates are in #1544 and
+#1545. Specialized/manual model choices are separately tracked in #1285. Later
+issue updates supersede this timestamped snapshot.
+
+## Earlier acceptance snapshot — 2026-10-09 14:23 UTC
 
 The repaired pipeline has autonomously crossed implementation and research review
 in a fresh isolated run. **Full paper acceptance and production recovery are not
