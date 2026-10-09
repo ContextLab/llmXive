@@ -178,13 +178,14 @@ class _GroundedBackend:
     """Records calls; returns a fixed verdict via the real assess router/parser."""
 
     status: str = "grounded"
+    evidence: str = "its crossing number is 3."
     name: str = "dartmouth"
     calls: list[dict[str, Any]] = field(default_factory=list)
 
     def chat(self, messages, *, model=None, max_tokens=None, temperature=None):  # type: ignore[no-untyped-def]
         self.calls.append({"model": model})
         return ChatResponse(
-            text=f"status: {self.status}", model=model, backend=self.name
+            text=f"status: {self.status}\nevidence: '{self.evidence}'", model=model, backend=self.name
         )
 
 

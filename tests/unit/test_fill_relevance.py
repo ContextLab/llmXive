@@ -30,13 +30,14 @@ class _VerdictBackend:
     test can assert whether the LLM was consulted at all."""
 
     status: str = "grounded"
+    evidence: str = "Its crossing number is 3,"
     name: str = "dartmouth"
     calls: list[dict[str, Any]] = field(default_factory=list)
 
     def chat(self, messages, *, model=None, max_tokens=None, temperature=None):  # type: ignore[no-untyped-def]
         self.calls.append({"model": model, "max_tokens": max_tokens})
         return ChatResponse(
-            text=f"status: {self.status}\nevidence: ''\nnote: ''",
+            text=f"status: {self.status}\nevidence: '{self.evidence}'\nnote: ''",
             model=model,
             backend=self.name,
         )
@@ -132,3 +133,11 @@ def test_contradicted_and_not_found_reject() -> None:
             "3", _source(_TREFOIL), claim, backend=backend, model=None, repo_root=None
         )
         assert ok is False, f"{status} verdict must reject (fail-closed)"
+
+
+def test_grounded_without_a_real_source_quote_rejects() -> None:
+    claim = _knot_claim("the trefoil knot has crossing number 3")
+    for evidence in ("", "The trefoil crossing number was measured in this experiment."):
+        backend = _VerdictBackend(status="grounded", evidence=evidence)
+        assert not prose_substantiated(
+            "3", _source(_TREFOIL), claim, backend=backend, model=None, repo_root=None)
