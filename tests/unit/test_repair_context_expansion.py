@@ -139,3 +139,75 @@ def test_run_reaches_unchanged_baseline_gate_only_after_rereading(repair_repo, m
     with pytest.raises(RuntimeError, match='reached real baseline gate'):
         runner.run(repo, {}, output)
     assert (repo/source).read_text() == 'def answer(): return 0\n'
+
+
+def test_oversized_selection_corrects_before_single_proposal_and_baseline(repair_repo, monkeypatch):
+    repo, output, source, related, proposal = repair_repo
+    large = 'src/llmxive/large.py'
+    (repo/large).write_text('#' + 'x'*250_000)
+    prompts = []
+    proposals = []
+    baselines = []
+    original_propose = runner.propose_fix
+
+    def ask(prompt, **kwargs):
+        prompts.append(prompt)
+        if len(prompts) == 1:
+            assert f'"{large}": 250001' in prompt
+            return {'paths': [large], 'problem': 'zero instead of 42'}
+        if len(prompts) == 2:
+            assert '250001 bytes > 250000 bytes' in prompt
+            assert 'PREVIOUS SELECTION REJECTED' in prompt
+            return {'paths': [source, related], 'problem': 'zero instead of 42'}
+        return proposal
+
+    def propose(*args, **kwargs):
+        proposals.append(args[-1])
+        return original_propose(*args, **kwargs)
+
+    def baseline(path, tests, log, **kwargs):
+        baselines.append(tests)
+        assert (path/source).read_text() == 'def answer(): return 0\n'
+        assert (path/proposal['regression']).is_file()
+        raise RuntimeError('reached unchanged baseline gate')
+
+    monkeypatch.setattr(runner, '_ask', ask)
+    monkeypatch.setattr(runner, 'propose_fix', propose)
+    monkeypatch.setattr(runner, 'isolated_tests', baseline)
+    with pytest.raises(RuntimeError, match='reached unchanged baseline gate'):
+        runner.run(repo, {}, output)
+    assert len(prompts) == 3  # two selections, one proposal
+    assert len(proposals) == len(baselines) == 1
+    assert set(proposals[0]) == {source, related}
+    assert json.loads((output/'selection-response.json').read_text())['paths'] == [large]
+    assert json.loads((output/'selection-response-revision-1.json').read_text())['paths'] == [source, related]
+    assert json.loads((output/'selection.json').read_text())['paths'] == [source, related]
+    assert (repo/source).read_text() == 'def answer(): return 0\n'
+
+
+@pytest.mark.parametrize('kind', ['oversized', 'outside_inventory', 'too_many', 'not_strings'])
+def test_selection_exhaustion_never_reaches_proposal_or_reads_untrusted_source(
+        repair_repo, monkeypatch, kind):
+    repo, output, source, _related, _proposal = repair_repo
+    large = 'src/llmxive/large.py'
+    (repo/large).write_text('#' + 'x'*250_000)
+    secret = repo/'private.txt'
+    secret.write_text('SECRET SELECTION SENTINEL')
+    paths = {'oversized': [large], 'outside_inventory': ['private.txt'],
+             'too_many': [source]*7, 'not_strings': [{}]}[kind]
+    calls = []
+
+    def ask(prompt, **kwargs):
+        assert 'SECRET SELECTION SENTINEL' not in prompt
+        calls.append(prompt)
+        return {'paths': paths, 'problem': 'test invalid selection'}
+
+    monkeypatch.setattr(runner, '_ask', ask)
+    monkeypatch.setattr(runner, 'propose_fix', lambda *a, **k: pytest.fail('invalid proposal reached'))
+    monkeypatch.setattr(runner, 'isolated_tests', lambda *a, **k: pytest.fail('invalid baseline reached'))
+    with pytest.raises(ValueError):
+        runner.run(repo, {}, output)
+    assert len(calls) == 3
+    assert len(list(output.glob('selection-validation*.json'))) == 3
+    assert not (output/'source-context.json').exists()
+    assert secret.read_text() == 'SECRET SELECTION SENTINEL'

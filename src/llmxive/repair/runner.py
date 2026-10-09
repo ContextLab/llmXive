@@ -426,8 +426,10 @@ def read_context(repo: Path, paths: list[str], tree: list[str], context: dict[st
         if not file.resolve().is_relative_to(repo.resolve()) or file.is_symlink():
             raise ValueError("context cannot leave platform")
         context[path] = file.read_text()
-    if sum(len(text.encode()) for text in context.values()) > 250_000:
-        raise ValueError("complete context exceeds 250 KB; select fewer relevant files")
+    size = sum(len(text.encode()) for text in context.values())
+    if size > 250_000:
+        raise ValueError(f"complete context exceeds 250 KB: {size} bytes > 250000 bytes; "
+                         "select fewer relevant files")
     return context
 
 
@@ -593,9 +595,10 @@ def run(repo: Path, evidence: dict, output: Path, *, image: str = IMAGE) -> dict
     (output / "dispatch-context.json").write_text(json.dumps({"routes": dispatch}, indent=2))
     evidence = dict(evidence, stage_dispatch_context=dispatch)
     tree = selectable_files(repo)
-    _progress(output, "selecting_files")
-    selection = _ask(
+    selection_prompt = (
         "Choose up to 6 source/test files needed to fix ONE concrete defect from this evidence. "
+        "Complete source context must total at most 250000 bytes; FILE_BYTES gives on-disk sizes. "
+        "Choose a smaller relevant set if necessary; source contents are never truncated. "
         "Every selected path must be copied exactly from FILES; do not guess filenames. "
         "Filesystem observations distinguish regular files from directories. A file at a "
         "required directory path is not fixed by exist_ok=True. "
@@ -605,21 +608,45 @@ def run(repo: Path, evidence: dict, output: Path, *, image: str = IMAGE) -> dict
         "Never discard existing bytes to resolve a collision; preserve them in place or "
         "a project-local backup. Include a related existing test to learn isolation conventions. "
         'If the evidence is insufficient or already fixed, return {"skip":"reason"}. '
-        'Otherwise return {"paths":[...],"problem":"..."}.\nEVIDENCE:\n'
+        'Otherwise return {"paths":[...],"problem":"..."}.'
+        + "\nFILE_BYTES:\n"
+        + json.dumps({name: (repo / name).stat().st_size for name in tree})
+        + "\nEVIDENCE:\n"
         + render_evidence(evidence)
         + "\nFILES:\n"
-        + "\n".join(tree),
-        response_path=output / "selection-response.txt",
+        + "\n".join(tree)
     )
-    (output / "selection.json").write_text(json.dumps(selection, indent=2))
-    if selection.get("skip"):
-        result = {"status": "no_candidate", "reason": selection["skip"]}
-        (output / "result.json").write_text(json.dumps(result, indent=2))
-        return result
-    paths = selection.get("paths")
-    if not isinstance(paths, list) or not 1 <= len(paths) <= 6:
-        raise ValueError("select 1-6 context files")
-    context = read_context(repo, paths, tree, {})
+    feedback = ""
+    for round_index in range(3):
+        suffix = "" if round_index == 0 else f"-revision-{round_index}"
+        _progress(output, "selecting_files" + suffix)
+        selection = _ask(
+            selection_prompt + feedback,
+            response_path=output / f"selection-response{suffix}.txt",
+        )
+        # Keep each response and the latest selection for the existing report reader.
+        (output / f"selection-response{suffix}.json").write_text(json.dumps(selection, indent=2))
+        (output / "selection.json").write_text(json.dumps(selection, indent=2))
+        if selection.get("skip"):
+            result = {"status": "no_candidate", "reason": selection["skip"]}
+            (output / "result.json").write_text(json.dumps(result, indent=2))
+            return result
+        try:
+            paths = selection.get("paths")
+            if (not isinstance(paths, list) or not 1 <= len(paths) <= 6
+                    or not all(isinstance(path, str) for path in paths)):
+                raise ValueError("select 1-6 context files as path strings")
+            context = read_context(repo, paths, tree, {})
+        except (ValueError, TypeError) as exc:
+            (output / f"selection-validation{suffix}.json").write_text(
+                json.dumps({"error": str(exc)}))
+            if round_index == 2:
+                raise
+            feedback = ("\nPREVIOUS SELECTION REJECTED: " + str(exc)
+                        + "\nReturn a complete corrected selection from FILES within the same limits."
+                        + "\nPREVIOUS SELECTION:\n" + json.dumps(selection))
+            continue
+        break
     proposal = propose_fix(repo, evidence, output, tree, selection, context)
     files, regression, related = validate_proposal(proposal, repo)
     with tempfile.TemporaryDirectory(prefix="llmxive-repair-") as tmp:
