@@ -1,0 +1,11 @@
+status: none
+intent: download developer productivity dataset tool usage flags task completion time
+  code quality python package dataset
+required_fields:
+- tool_usage_flag
+- task_completion_time
+- code_quality_metric
+- experience_level
+cache_key: 530e8381a9549511bfe969daa93f6d0bc77d34e73a2134fb0f42143ce6db13dc
+searched_at: '2026-10-09T18:18:58.147362+00:00'
+retry_count: 1

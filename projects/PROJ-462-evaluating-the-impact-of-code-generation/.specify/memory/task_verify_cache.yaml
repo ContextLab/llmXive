@@ -1,0 +1,47 @@
+T000:
+  c: false
+  h: c6ba0565264fe74eee14d4c42de29f55e633ca643a0bb0045fd5384f0cfa13bc
+  r: "The spec.md file does not contain a \u201C# Verified datasets\u201D block with\
+    \ URLs and SHA\u2011256 checksums, and there is no evidence that any public developer\
+    \ productivity dataset was located, its URL tested, or its variables validated.\
+    \ Consequently the prerequisite FR\u2011001 is not satisfied."
+  sig: 906d78ed13bf81c3cb0c785c4e9a4fca8eaf7aa285a1c3defab06e83fdf01dd9
+T001a:
+  c: true
+  h: 979b0bdf83a4cdbb6f5fc5734b7f956f732aaaf9cb8aad2e1b1209bcb17e8959
+  r: "The evidence shows a `code/` directory at the repository root (15 entries, confirmed\
+    \ SHA\u2011256 hash), satisfying the sole requirement to create that directory."
+  sig: 6fbc2b4ee6a25ae4ebbff54dc426e72fac5ab1f52f1f029a13592f72484e8555
+T001b:
+  c: false
+  h: fd09da42c633253d05c66a1891092dde030cd27daca975b98d83736c9b713f3c
+  r: The evidence shows that `data/` exists and contains an `output/` subdirectory,
+    but the required `data/raw/` and `data/processed/` subdirectories are reported
+    as MISSING. These directories must be present for the task to be considered complete.
+  sig: 9ed5b4938e71932f4809fb91ab2f1e0af4b5aaa936d5384702d3036d0ac4f56a
+T001c:
+  c: true
+  h: 4f0916c96bbd2c3a608b70a9a461627fed855160459a973fbc9de24407dfd699
+  r: The evidence shows a `tests/` directory containing the required `unit/`, `integration/`,
+    and `contract/` subdirectories, each populated with files, confirming the requested
+    structure is present.
+  sig: e4cd0a73ba2edc2f1176c710ad00978ae452ea463baf9e3b5cb903ad991395a1
+T049:
+  c: false
+  h: 50d31fab027b4050bf27b08e1a48054712ed1505977f42d4270559e41d443b7f
+  r: 'The file `code/validate/citations.py` exists, but its implementation is broken:
+    it calls `download_dataset` (imported from `dataset_search`) expecting a file
+    path, yet `download_dataset` returns a boolean and requires a `Path` object, causing
+    runtime errors; similarly `check_csv_variables` is invoked with the wrong signature.
+    Because the agent cannot actually verify citations as required, the task is not
+    genuinely completed.'
+  sig: 71fe2c346172f9227e83ed433660df694dc30e72a4e9186d45b96e2ca8c34220
+T050:
+  c: true
+  h: be0f093a3c4632b6b73204725172c5f604cd170d5a7376efc66611140cd440c3
+  r: "Checked `code/main.py` which imports and invokes the Reference\u2011Validator\
+    \ (`validate.citations`) in a Phase\u202F0 step, and aborts the pipeline (returns\
+    \ non\u2011zero) when validation fails, thus blocking any Phase\u202F1 execution.\
+    \ The supporting validator module (`code/validate/citations.py`) provides the\
+    \ required URL/checksum checks used by `CitationValidator`."
+  sig: fba4979ac3a75040a33d58ce6ff40eaf0f4550362df1ff6fe2d07f3b676cd2be

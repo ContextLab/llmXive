@@ -1,0 +1,176 @@
+T000:
+  reason: "The spec.md file does not contain a \u201C# Verified datasets\u201D block\
+    \ with URLs and SHA\u2011256 checksums, and there is no evidence that any public\
+    \ developer productivity dataset was located, its URL tested, or its variables\
+    \ validated. Consequently the prerequisite FR\u2011001 is not satisfied."
+  task: bc519adb22f06f472ab294d0e20d35e1405189dcb4264d71195dbceffabe8828
+T001a:
+  task: 1fe88b949523a40d016e4af5d6ecaaf5f2d323376ddaa7ec4ebbbca1f2c86669
+T001b:
+  reason: The evidence shows that `data/` exists and contains an `output/` subdirectory,
+    but the required `data/raw/` and `data/processed/` subdirectories are reported
+    as MISSING. These directories must be present for the task to be considered complete.
+  task: 93115a8cf666942c89d5264c640f83f73c5b3d178448d068fb90b6aeff3b747b
+T001c:
+  task: 65b2b78dd776f1d8ac49945d624564a96207387fb1fff0b3ce2dddd9288a47dc
+T001d:
+  task: f5906d6dba45109dd27096a1891700d58a3a6559bccf4fdd42c9607721c3f41b
+T002a:
+  task: 34e019c10844c9c57497ab3e48565b3e92982517bf892cd9e0d2cfb0b5823f87
+T002b:
+  task: bfe62e7c884b00801e6abf9c9744994fe32ef99b6586bfbf1d86a399e1e6992e
+T003a:
+  task: c6063f39048e32821c6e8d27b66dfca26b42ee48b3479e0766abd139f66a6b21
+T003b:
+  task: 66bfe0c6cec561306d4efdcb10a200a2a8f7e40674ef329511e53d854c15b674
+T003c:
+  task: 5779b57b21ac41b94e0048daa4dd615f19f40d1cc8e5a6272f4ee655f01c1394
+T004:
+  reason: 'declared artifact(s) missing/empty/invalid: specs/001-code-generation-performance-outcomes/contracts/dataset.schema.yaml'
+  task: 9c66c7b8cfb66338c31538e33cb3740ab3323686aa9a5a7b169ae45e86245dff
+T005:
+  task: a4c68475926938f266a430f037e21c93c34994558f7e30347193168b0934ea3c
+T006:
+  task: e998d8d908ae3e28dc24441fbac37e745965b0725fe6c5913673bec75e86821a
+T007:
+  reason: 'declared artifact(s) missing/empty/invalid: artifacts.yaml, state/projects/PROJ-462-evaluating-the-impact-of-code-generation/artifacts.yaml'
+  task: 7fc137b112143cbde543fceadbedbddc776581eae4fbed7990ef0a04883acd2a
+T008a:
+  task: d8dd451b43d5e849cac32bd1ab5f7c539bf3d3244dfe625464ade575d77e63dc
+T008b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/experience.py'
+  task: 604ff3c4c27886d09d91c6beee9fd77e39134ab1ea3db9bf79274265a080fb5d
+T009:
+  task: 4c37dd82bbd0bfb823676a1160d314b3c1623cd8724857957b8c804a351362cb
+T010:
+  task: b1e918aa11fcfc6ba7c94f18e09129baad6c81dd8b14633deaf7223c0a07712f
+T011a:
+  task: eb2847fd6f994fa01d08438839c036a0c4ffd83161fcc6cf6e34f88ec59fd8e7
+T011b:
+  task: 3f7b685cd7354af2aee4c34b28d505f0a6b69c9c118a419ec375e2a8bebcf224
+T011c:
+  task: 9162e2588d170f8a431a70f57459072f709306c722cde44942ae43d4d552e781
+T012a:
+  task: 4c70441334cf16fa1dd3f0289aca92db2a43783822ca8ee02f2db9b42dd583bb
+T012b:
+  task: cba115224c13b4f7e6610ac48f810a9f89bbee258835f04d7cb938bc98ac9596
+T012c:
+  task: 71c4f9743f39a07e02b205fdbd21f5c4dc373fe100f446ef0cddc6d32634a40d
+T012d:
+  task: ec4a5ab2beb4f569baab77119846de77ae39c5ca34244710380a5dd2348b9059
+T013a:
+  task: a045dc506c47883187a7196486e00a5cddab14f622a7714478fa41a193c22b78
+T013b:
+  task: a8aa921ea0ceacc2c7f30cb0ecc12ee315297d9c22609557bf1991d4e8b603e5
+T013c:
+  task: 305ff4e931ea1056cd46b6c516085d8f863d78306683d70c7a1a610efd23d4af
+T014:
+  task: 32909d3fc6eba34dfc220a71c7ba4a17f0be28a5b5328a5d932e43ac80565ef0
+T015:
+  task: b8985fee44d3a91570eebfb5f7279470ba0ffbeab073637c7e3bf172932defd9
+T016:
+  task: 62b4851306a96fa1fa08ec08a833976b2fac725c83c4797890444b710ee406fc
+T017:
+  reason: 'declared artifact(s) missing/empty/invalid: data/raw/sample_developer_productivity.csv'
+  task: c27b62b0801fea77987a525be973f334fb0f79c7e6e8253bbdd9fbc457aa00e8
+T017a:
+  task: b7e65d35a4830750edaab1645886e9eb77a531029e3a4cb5b5b9386d99ab303d
+T018:
+  task: 13c5c9691117dfe6bfd9af342b26e85ad81babc2339f7ffc8073a0cb6cc2e5d9
+T019:
+  task: c968dbf706c472f5dd5ad859ba51b59244a8dd139ab745b0e30c3fc0b2d08942
+T020:
+  task: a1f72f3f1833d3f5824bbcde6c760d8a0e0a79be8b934d43bdc4f7c35a34cca7
+T021a:
+  task: 283c858e2012e418ebed6432f2d3bc7cab4e03401c8c4df4209cbf7aa01ce8f2
+T021b:
+  task: 4fb1b31530681125bc336c42bd00675862a5f6766673df87d713dd9330c535f0
+T021c:
+  task: d4eb93f7af550f18180c657f2c234654ea98305c13795ad34a4a62fd6f474aef
+T022:
+  task: 3228b5c98372c31afbd8f045edf25b7db71d7cec3ac67698096775c5ca42cdc2
+T022a:
+  task: 6fd84532101a28beecf16e3ca25dc6c9fa9a585b2d73e9c843b902ae4a54ef37
+T023:
+  task: 62a019baccd044889fc8bbea070bdcd6be6378375df4d20bb6acf9ebcad451ba
+T024:
+  task: 41ab68c4cd1e0fa7f7ce1737d7280a06768e4ab6c8a1de81dccfabd43df09952
+T024b:
+  task: 9b9376ded878736456e1a4c5a55f66caf12702063b3f4daf1f4c07c5d01d07bd
+T025:
+  task: 093f831e693123ffd739f36963089ac4281ed040b44da257de6ab73acbbb2125
+T026:
+  task: 57625b379769ae7c5a0ffc179d480a5a010176a69b078b20071fe2de882cc140
+T027:
+  task: 7ba3dbc2749460f136ba0b2994af8b3b13e2649284c5b24cebbc59ffe620b303
+T028:
+  task: f7f29b8e44a823ad70c5c625b421f38809b47c71a7871b2eb72b57a4378cede1
+T029:
+  task: 30354c6c622e22bf531fa319056602bd01f2e25d74363bc95729a4adbf0966e1
+T030:
+  task: bf954e3c88657521e70d01055d939d3e2df63f8117163dfcb6e88f846a35776b
+T031:
+  task: e5cd41af85a3ef53aba6611f5e54e01ebacf268bb282f6f80d5ca5cabb0c7110
+T032:
+  task: cef81ba1945815fa3988c7d8da9fbf36f58fece748c682ee7e4f0e7137516e24
+T033a:
+  task: bcb35195ebc55124c76b423220c5c46f3b2905b306ca8af7e2cace89542614d1
+T033b:
+  task: 5037679e6e1c7d4690238fa2a3636dd5fda4648f818f4e7f33307cbf06bb8aae
+T033c:
+  task: 7790c63c32bf23778d944c880845b1edbbffd2efe4b11b0373a2ade1f44a456d
+T034:
+  task: 3901b3ec5ba50d3aed4fea433d04520357b8b9e1f13f6a3d75065f56950c4b5b
+T035:
+  task: 14837d97437ab934dd7134bdb9d3e95a076c5ea70dd6a1fc52aa5c08a8baa7f9
+T036:
+  task: 0be362f08bac5f4cef9b4b70331c0e2d138fd3d547cad829b21e33fd403ef511
+T036a:
+  task: d9ac37374d1a2d2405c199fbc43abb243bbb1405e46134617065feb8bad1928c
+T037:
+  task: 1576f6b42a6fe73b5b0b090b9bac33a5fd38637c57e49bad03aaa5a0f64c358a
+T038:
+  task: ab118e68a7d7fb29a3600c1e69541198624b878225b887ad6cb508756582a597
+T039:
+  task: 3dfa3e93effd601b920b1f83ce0642f66694da6497f35606c24780facdedd990
+T040a:
+  task: 0809d66c27f3c9878e552afaab8b45ad4d85f0e37ae1f2281d3e7b86f0f41230
+T040b:
+  task: 387b89f80d63d2c7e398fbf399c8d24fa008421f7b5364bda8ff27fa1918ebc3
+T040c:
+  task: 5729294bb8cb0454261f818d02b7cca3fe65da7cb21024b215b08b73253e2b1e
+T041:
+  task: bbfcc427429dc95679db1a907dec49e470891f4d5cb7e43678eff014ee6b57e7
+T042:
+  task: 881415866b05b7428ba7a3a5091375909c597672fe4016c935940aa95dd9ce9f
+T043:
+  task: eb0bf6240abb844a5c70ef4b74f1df2d1b539949eb134c743857530497ca29b4
+T044:
+  task: 1bfc72704cd3049171e49e8e7eccfa354df701a8b9777098441dc41b5e745248
+T045:
+  task: 78aa4fda14f107e917cb758e4c8841e1cdf62f17bdeaf089e9ea194221f781b8
+T046a:
+  task: dd1b0d3bb894d21dc0b611921f8ba8b2172c7e2c6dd72ff8ce937aabffa9c46d
+T046b:
+  task: e601d1e6924746f36b2a69a315d6bf0cf23f1d8e6ab0427e0aa67fd7fcc3c5b3
+T046c:
+  task: 3205eb52e824841953836b31984951d538c977936ee6c96e7887cc61266bb1b1
+T048:
+  task: cf221a684527998ef46976aad1b624757c771dd3e6c572068b0e095b9fb178da
+T049:
+  reason: 'The file `code/validate/citations.py` exists, but its implementation is
+    broken: it calls `download_dataset` (imported from `dataset_search`) expecting
+    a file path, yet `download_dataset` returns a boolean and requires a `Path` object,
+    causing runtime errors; similarly `check_csv_variables` is invoked with the wrong
+    signature. Because the agent cannot actually verify citations as required, the
+    task is not genuinely completed.'
+  task: 50785c6c500234e6ea38c6744d840f1cb021b683852f0a059b00d6a4cc93c3c8
+T050:
+  task: a9765521ed3ab73d0296728bb7b02459e32bd8175c52c1e2af27af3ce66c22d3
+T051:
+  reason: 'declared artifact(s) missing/empty/invalid: data/output/citation_validation.json'
+  task: a31f1e614061625be112a03081b3b4d8fc9852783be7c0b76e2bdeacaeaeddc7
+T052:
+  task: 401b20373cb0b452e67eee426f938cb008919c1021de49789c313ca8f8eb6ebd
+T053:
+  task: fa3ae89070f8f48a108d043987712c19f46bfdfe822f6af35d6ba12392c99572

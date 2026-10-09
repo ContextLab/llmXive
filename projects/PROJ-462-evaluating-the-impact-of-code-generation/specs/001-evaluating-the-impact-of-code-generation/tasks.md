@@ -26,10 +26,10 @@
 
 **⚠️ CRITICAL**: Pipeline halts until this phase completes - no data or analysis tasks may run
 
-- [X] T000 [P] Search for public developer productivity datasets (OpenDev benchmark, GitHub Copilot studies) containing required variables; verify URLs accessible; add verified dataset(s) to `# Verified datasets` block in spec.md with SHA-256 checksums (FR-001 prerequisite)
-- [X] T049 [P] [US1] Implement Reference-Validator Agent citation verification at `code/validate/citations.py` (Constitution Principle II) - validates all external citations before ingestion/analysis
+- [ ] T000 [P] Search for public developer productivity datasets (OpenDev benchmark, GitHub Copilot studies) containing required variables; verify URLs accessible; add verified dataset(s) to `# Verified datasets` block in spec.md with SHA-256 checksums (FR-001 prerequisite)
+- [ ] T049 [P] [US1] Implement Reference-Validator Agent citation verification at `code/validate/citations.py` (Constitution Principle II) - validates all external citations before ingestion/analysis
 - [X] T050 [P] [US1] Integrate Reference-Validator into pipeline at `code/main.py` (Constitution Principle II) - blocks if citations unverified before Phase 1 starts
-- [X] T051 [P] [US1] Create citation verification report at `data/output/citation_validation.json` (Constitution Principle II) - records verification status; must pass before data ingestion
+- [ ] T051 [P] [US1] Create citation verification report at `data/output/citation_validation.json` (Constitution Principle II) - records verification status; must pass before data ingestion
 
 ---
 
@@ -38,14 +38,14 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001a [P] Create `code/` directory at repository root
-- [X] T001b [P] Create `data/` directory with subdirectories `data/raw/`, `data/processed/`, `data/output/`
+- [ ] T001b [P] Create `data/` directory with subdirectories `data/raw/`, `data/processed/`, `data/output/`
 - [X] T001c [P] Create `tests/` directory with subdirectories `tests/unit/`, `tests/integration/`, `tests/contract/`
-- [X] T001d [P] Initialize git repository and create `.gitignore` for Python at repository root
-- [X] T002a [P] Create `code/requirements.txt` file with pinned dependencies (pandas>=2.0.0, numpy>=1.24.0, scipy>=1.11.0, scikit-learn>=1.3.0, matplotlib>=3.7.0, pyyaml>=6.0)
-- [X] T002b [P] Install dependencies using `pip install -r code/requirements.txt` in virtualenv
-- [X] T003a [P] Install black formatter in development environment
-- [X] T003b [P] Install flake8 linter in development environment
-- [X] T003c [P] Configure black pre-commit hook in `.pre-commit-config.yaml`
+- [~] T001d [P] Initialize git repository and create `.gitignore` for Python at repository root
+- [~] T002a [P] Create `code/requirements.txt` file with pinned dependencies (pandas>=2.0.0, numpy>=1.24.0, scipy>=1.11.0, scikit-learn>=1.3.0, matplotlib>=3.7.0, pyyaml>=6.0)
+- [~] T002b [P] Install dependencies using `pip install -r code/requirements.txt` in virtualenv
+- [~] T003a [P] Install black formatter in development environment
+- [~] T003b [P] Install flake8 linter in development environment
+- [~] T003c [P] Configure black pre-commit hook in `.pre-commit-config.yaml`
 
 ---
 
@@ -55,16 +55,16 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T043 [P] Create data-model.md at `specs/001-code-generation-performance-outcomes/data-model.md` documenting DatasetRecord, AnalysisResult, VisualizationOutput entities
-- [X] T004 [P] Create dataset schema contract at `specs/001-code-generation-performance-outcomes/contracts/dataset.schema.yaml` (DatasetRecord entity with tool_usage, task_time, defect_rate, experience_years, task_complexity, project_type, team_size)
-- [X] T005 [P] Create analysis schema contract at `specs/001-code-generation-performance-outcomes/contracts/analysis.schema.yaml` (AnalysisResult entity with anova_table, effect_sizes, adjusted_p_values, associational_framing, confounding_controls)
-- [X] T006 [P] Create visualization schema contract at `specs/001-code-generation-performance-outcomes/contracts/visualization.schema.yaml` (VisualizationOutput entity with plot_type, stratification_variable, interaction_lines, file_path)
-- [X] T007 [P] Setup artifacts.yaml at `state/projects/PROJ-462-evaluating-the-impact-of-code-generation/artifacts.yaml` for checksum tracking
-- [X] T008a [P] Create experiment configuration file at `code/config/experiment.yaml` (alpha=0.05, power=0.80, effect_size=0.5, min_observations_per_stratum=30)
-- [X] T008b [P] Create experience classification module at `code/analysis/experience.py` with version-controlled thresholds (novice <2 years, intermediate 2-5 years, expert >5 years)
-- [X] T009 [P] [US1] Create contract test for dataset schema at `tests/contract/test_dataset_schema.py`
-- [X] T020 [P] [US2] Create contract test for analysis schema at `tests/contract/test_analysis_schema.py`
-- [X] T031 [P] [US3] Create contract test for visualization schema at `tests/contract/test_visualization_schema.py`
+- [~] T043 [P] Create data-model.md at `specs/001-code-generation-performance-outcomes/data-model.md` documenting DatasetRecord, AnalysisResult, VisualizationOutput entities
+- [ ] T004 [P] Create dataset schema contract at `specs/001-code-generation-performance-outcomes/contracts/dataset.schema.yaml` (DatasetRecord entity with tool_usage, task_time, defect_rate, experience_years, task_complexity, project_type, team_size)
+- [~] T005 [P] Create analysis schema contract at `specs/001-code-generation-performance-outcomes/contracts/analysis.schema.yaml` (AnalysisResult entity with anova_table, effect_sizes, adjusted_p_values, associational_framing, confounding_controls)
+- [~] T006 [P] Create visualization schema contract at `specs/001-code-generation-performance-outcomes/contracts/visualization.schema.yaml` (VisualizationOutput entity with plot_type, stratification_variable, interaction_lines, file_path)
+- [ ] T007 [P] Setup artifacts.yaml at `state/projects/PROJ-462-evaluating-the-impact-of-code-generation/artifacts.yaml` for checksum tracking
+- [~] T008a [P] Create experiment configuration file at `code/config/experiment.yaml` (alpha=0.05, power=0.80, effect_size=0.5, min_observations_per_stratum=30)
+- [ ] T008b [P] Create experience classification module at `code/analysis/experience.py` with version-controlled thresholds (novice <2 years, intermediate 2-5 years, expert >5 years)
+- [~] T009 [P] [US1] Create contract test for dataset schema at `tests/contract/test_dataset_schema.py`
+- [~] T020 [P] [US2] Create contract test for analysis schema at `tests/contract/test_analysis_schema.py`
+- [~] T031 [P] [US3] Create contract test for visualization schema at `tests/contract/test_visualization_schema.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,34 +78,34 @@
 
 ### Logging Infrastructure (US1)
 
-- [X] T015 [P] [US1] Add logging for ingestion and validation operations at `code/ingest/logging.py` - establishes logging before implementation
+- [~] T015 [P] [US1] Add logging for ingestion and validation operations at `code/ingest/logging.py` - establishes logging before implementation
 
 ### Implementation for User Story 1
 
-- [X] T017 [P] [US1] Create sample dataset for testing at `data/raw/sample_developer_productivity.csv` with all required variables (tool_usage, task_time, defect_rate, experience_years, task_complexity, project_type, team_size)
-- [X] T017a [P] [US1] Validate that actual public datasets (OpenDev, GitHub Copilot studies) match spec assumptions at `code/ingest/validate.py` (FR-002, Assumptions) - verify real datasets contain required variables before ingestion
-- [X] T011a [US1] Write function to download dataset from URL at `code/ingest/download.py` (FR-001) - supports URLs from verified-datasets block
-- [X] T011b [US1] Write function to calculate SHA-256 checksum at `code/ingest/download.py` (FR-001) - validates file integrity
-- [X] T011c [US1] Implement checksum validation integration at `code/ingest/download.py` (FR-001) - compares calculated vs recorded checksum
-- [X] T012a [US1] Write function to check for tool_usage variable at `code/ingest/validate.py` (FR-002)
-- [X] T012b [US1] Write function to check for task_time variable at `code/ingest/validate.py` (FR-002)
-- [X] T012c [US1] Write function to check for defect_rate variable at `code/ingest/validate.py` (FR-002)
-- [X] T012d [US1] Write function to check for experience_years variable at `code/ingest/validate.py` (FR-002)
-- [X] T013a [US1] Write function to identify missing experience data values at `code/ingest/validate.py` (FR-010)
-- [X] T013b [US1] Write function to calculate percentage of missing entries at `code/ingest/validate.py` (FR-010)
-- [X] T013c [US1] Implement missing data filtering with percentage reporting at `code/ingest/validate.py` (FR-010) - flag if >20% entries removed
-- [X] T014 [US1] Add error handling for missing required variables at `code/ingest/validate.py` - halt with clear error identifying missing variable
-- [X] T016 [US1] Implement SHA-256 checksum verification in download pipeline at `code/ingest/download.py` (FR-001)
+- [ ] T017 [P] [US1] Create sample dataset for testing at `data/raw/sample_developer_productivity.csv` with all required variables (tool_usage, task_time, defect_rate, experience_years, task_complexity, project_type, team_size)
+- [~] T017a [P] [US1] Validate that actual public datasets (OpenDev, GitHub Copilot studies) match spec assumptions at `code/ingest/validate.py` (FR-002, Assumptions) - verify real datasets contain required variables before ingestion
+- [~] T011a [US1] Write function to download dataset from URL at `code/ingest/download.py` (FR-001) - supports URLs from verified-datasets block
+- [~] T011b [US1] Write function to calculate SHA-256 checksum at `code/ingest/download.py` (FR-001) - validates file integrity
+- [~] T011c [US1] Implement checksum validation integration at `code/ingest/download.py` (FR-001) - compares calculated vs recorded checksum
+- [~] T012a [US1] Write function to check for tool_usage variable at `code/ingest/validate.py` (FR-002)
+- [~] T012b [US1] Write function to check for task_time variable at `code/ingest/validate.py` (FR-002)
+- [~] T012c [US1] Write function to check for defect_rate variable at `code/ingest/validate.py` (FR-002)
+- [~] T012d [US1] Write function to check for experience_years variable at `code/ingest/validate.py` (FR-002)
+- [~] T013a [US1] Write function to identify missing experience data values at `code/ingest/validate.py` (FR-010)
+- [~] T013b [US1] Write function to calculate percentage of missing entries at `code/ingest/validate.py` (FR-010)
+- [~] T013c [US1] Implement missing data filtering with percentage reporting at `code/ingest/validate.py` (FR-010) - flag if >20% entries removed
+- [~] T014 [US1] Add error handling for missing required variables at `code/ingest/validate.py` - halt with clear error identifying missing variable
+- [~] T016 [US1] Implement SHA-256 checksum verification in download pipeline at `code/ingest/download.py` (FR-001)
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [X] T010 [P] [US1] Create integration test for data ingestion pipeline at `tests/integration/test_pipeline.py` - validates against sample dataset from T017
+- [~] T010 [P] [US1] Create integration test for data ingestion pipeline at `tests/integration/test_pipeline.py` - validates against sample dataset from T017
 
 ### Edge Case Tests for User Story 1
 
-- [X] T046a [P] [US1] Add unit tests for missing data edge cases at `tests/unit/test_data_validation.py` - tests filtering logic and >20% flagging
+- [~] T046a [P] [US1] Add unit tests for missing data edge cases at `tests/unit/test_data_validation.py` - tests filtering logic and >20% flagging
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -119,35 +119,35 @@
 
 ### Logging Infrastructure (US2)
 
-- [X] T030 [P] [US2] Add logging for analysis operations at `code/analysis/logging.py` - establishes logging before implementation
+- [~] T030 [P] [US2] Add logging for analysis operations at `code/analysis/logging.py` - establishes logging before implementation
 
 ### Implementation for User Story 2
 
-- [X] T021a [US2] Write function to perform two-way ANOVA at `code/analysis/anova.py` (FR-003, FR-011) - tool usage × experience level
-- [X] T021b [US2] Write function to calculate interaction term at `code/analysis/anova.py` (FR-003) - tool usage × experience level interaction
-- [X] T021c [US2] Write function to extract p-values and F-statistics at `code/analysis/anova.py` (FR-003)
-- [X] T022 [US2] Implement ANCOVA fallback when covariates available at `code/analysis/anova.py` (FR-011) - task_complexity, project_type, team_size as covariates
-- [X] T022a [US2] Write function to test for normality/homogeneity assumption violations at `code/analysis/anova.py` (SC-002) - Shapiro-Wilk, Levene's test before deciding on Welch's ANOVA
-- [X] T023 [US2] Implement Welch's ANOVA fallback for unequal variances at `code/analysis/anova.py` - apply when assumption violations detected in T022a
-- [X] T024 [US2] Implement Cohen's d effect size calculation at `code/analysis/effect_sizes.py` (FR-004, SC-004) - pairwise comparisons within experience strata
-- [X] T024b [US2] Implement paired output verification at `code/analysis/effect_sizes.py` (Constitution Principle VI) - ensure effect sizes reported alongside p-values in same result block
-- [X] T025 [US2] Implement Bonferroni/Holm-Bonferroni correction at `code/analysis/effect_sizes.py` (FR-005, SC-003) - family-wise error rate ≤0.05
-- [X] T026 [US2] Implement VIF diagnostics for collinearity at `code/analysis/anova.py` - flag if VIF > 5 (edge case handling)
-- [X] T027 [US2] Implement power analysis flagging at `code/analysis/anova.py` - flag if <30 observations per stratum (SC-006)
-- [X] T028 [US2] Implement associational framing enforcement at `code/analysis/anova.py` (FR-006) - no causal language permitted in output headers/summaries
-- [X] T029 [US2] Implement confounding control reporting at `code/analysis/anova.py` (FR-011, SC-008) - report adjusted effect estimates
-- [X] T034 [US2] Implement sensitivity analysis for experience thresholds at `code/analysis/sensitivity.py` (FR-009, SC-005) - sweep thresholds ∈ {1, 2, 3 years}
-- [X] T038 [US2] Add sensitivity analysis report generation at `code/analysis/sensitivity.py` (FR-009) - report variation in task completion time, defect rates, effect sizes
+- [~] T021a [US2] Write function to perform two-way ANOVA at `code/analysis/anova.py` (FR-003, FR-011) - tool usage × experience level
+- [~] T021b [US2] Write function to calculate interaction term at `code/analysis/anova.py` (FR-003) - tool usage × experience level interaction
+- [~] T021c [US2] Write function to extract p-values and F-statistics at `code/analysis/anova.py` (FR-003)
+- [~] T022 [US2] Implement ANCOVA fallback when covariates available at `code/analysis/anova.py` (FR-011) - task_complexity, project_type, team_size as covariates
+- [~] T022a [US2] Write function to test for normality/homogeneity assumption violations at `code/analysis/anova.py` (SC-002) - Shapiro-Wilk, Levene's test before deciding on Welch's ANOVA
+- [~] T023 [US2] Implement Welch's ANOVA fallback for unequal variances at `code/analysis/anova.py` - apply when assumption violations detected in T022a
+- [~] T024 [US2] Implement Cohen's d effect size calculation at `code/analysis/effect_sizes.py` (FR-004, SC-004) - pairwise comparisons within experience strata
+- [~] T024b [US2] Implement paired output verification at `code/analysis/effect_sizes.py` (Constitution Principle VI) - ensure effect sizes reported alongside p-values in same result block
+- [~] T025 [US2] Implement Bonferroni/Holm-Bonferroni correction at `code/analysis/effect_sizes.py` (FR-005, SC-003) - family-wise error rate ≤0.05
+- [~] T026 [US2] Implement VIF diagnostics for collinearity at `code/analysis/anova.py` - flag if VIF > 5 (edge case handling)
+- [~] T027 [US2] Implement power analysis flagging at `code/analysis/anova.py` - flag if <30 observations per stratum (SC-006)
+- [~] T028 [US2] Implement associational framing enforcement at `code/analysis/anova.py` (FR-006) - no causal language permitted in output headers/summaries
+- [~] T029 [US2] Implement confounding control reporting at `code/analysis/anova.py` (FR-011, SC-008) - report adjusted effect estimates
+- [~] T034 [US2] Implement sensitivity analysis for experience thresholds at `code/analysis/sensitivity.py` (FR-009, SC-005) - sweep thresholds ∈ {1, 2, 3 years}
+- [~] T038 [US2] Add sensitivity analysis report generation at `code/analysis/sensitivity.py` (FR-009) - report variation in task completion time, defect rates, effect sizes
 
 ### Edge Case Tests for User Story 2
 
-- [X] T046b [P] [US2] Add unit tests for skewed distributions at `tests/unit/test_data_validation.py` - tests Welch's ANOVA fallback logic
-- [X] T046c [P] [US2] Add unit tests for collinearity handling at `tests/unit/test_data_validation.py` - tests VIF diagnostics and warning
+- [~] T046b [P] [US2] Add unit tests for skewed distributions at `tests/unit/test_data_validation.py` - tests Welch's ANOVA fallback logic
+- [~] T046c [P] [US2] Add unit tests for collinearity handling at `tests/unit/test_data_validation.py` - tests VIF diagnostics and warning
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T018 [P] [US2] Create unit test for ANOVA calculation at `tests/unit/test_anova.py`
-- [X] T019 [P] [US2] Create unit test for effect size calculation at `tests/unit/test_effect_sizes.py`
+- [~] T018 [P] [US2] Create unit test for ANOVA calculation at `tests/unit/test_anova.py`
+- [~] T019 [P] [US2] Create unit test for effect size calculation at `tests/unit/test_effect_sizes.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -161,17 +161,17 @@
 
 ### Logging Infrastructure (US3)
 
-- [X] T039 [P] [US3] Add logging for visualization and export operations at `code/viz/logging.py` - establishes logging before implementation
+- [~] T039 [P] [US3] Add logging for visualization and export operations at `code/viz/logging.py` - establishes logging before implementation
 
 ### Implementation for User Story 3
 
-- [X] T033a [US3] Write function to prepare boxplot data at `code/viz/plots.py` (FR-007, SC-005) - stratified by experience level
-- [X] T033b [US3] Write function to calculate interaction lines at `code/viz/plots.py` (FR-007) - connect group means across experience levels
-- [X] T033c [US3] Write function to render publication-ready boxplot at `code/viz/plots.py` (FR-007)
-- [X] T035 [US3] Implement CSV export of statistical outputs at `code/export/results.py` (FR-008)
-- [X] T036 [US3] Implement JSON export with metadata at `code/export/results.py` (FR-008)
-- [X] T036a [US3] Validate export file size stays within 14 GB disk limit at `code/export/results.py` (SC-007) - check file size before export completion; fail if exceeds limit
-- [X] T037 [US3] Implement visualization export at `code/viz/plots.py` (FR-007) - publication-ready formatting
+- [~] T033a [US3] Write function to prepare boxplot data at `code/viz/plots.py` (FR-007, SC-005) - stratified by experience level
+- [~] T033b [US3] Write function to calculate interaction lines at `code/viz/plots.py` (FR-007) - connect group means across experience levels
+- [~] T033c [US3] Write function to render publication-ready boxplot at `code/viz/plots.py` (FR-007)
+- [~] T035 [US3] Implement CSV export of statistical outputs at `code/export/results.py` (FR-008)
+- [~] T036 [US3] Implement JSON export with metadata at `code/export/results.py` (FR-008)
+- [~] T036a [US3] Validate export file size stays within 14 GB disk limit at `code/export/results.py` (SC-007) - check file size before export completion; fail if exceeds limit
+- [~] T037 [US3] Implement visualization export at `code/viz/plots.py` (FR-007) - publication-ready formatting
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
