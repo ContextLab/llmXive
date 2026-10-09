@@ -306,6 +306,14 @@ def validate_proposal(proposal: dict, repo: Path) -> tuple[dict[str, str], str, 
         # Existing tests are immutable: a repair cannot make them easier to pass.
         if name.startswith("tests/") and destination.exists():
             raise ValueError("repair may add tests but cannot replace existing tests")
+        if name.endswith(".py"):
+            try:
+                compile(content, name, "exec")  # Compile only; never execute model code here.
+            except SyntaxError as exc:
+                raise ValueError(
+                    f"{type(exc).__name__} in materialized proposal {name}:{exc.lineno}:"
+                    f"{exc.offset}: {exc.msg}; source: {(exc.text or '').strip()}"
+                ) from exc
     regression = safe_path(proposal["regression"])
     if not regression.startswith("tests/unit/test_repair_") or regression not in files:
         raise ValueError("a new tests/unit/test_repair_*.py regression is required")
@@ -465,6 +473,9 @@ def propose_fix(repo: Path, evidence: dict, output: Path, tree: list[str],
         "code for this defect and pass with the fix. Prefer real subprocess/file behavior. "
         "Do not change existing tests or delete user content. Include the full new test contents "
         "in files, not just its path in regression. Fix an existing caller, not an unused helper. "
+        "The baseline regression must call an existing production entry point. Importing a "
+        "new helper absent from baseline, even inside a test function, is not reproduction. "
+        "Preserve indentation in exact replacements; every materialized Python file must compile. "
         "Include at least one related existing test module. "
         "Treat the selected problem as a hypothesis: trace the observed stage through its "
         "actual caller and dependencies before fixing it. Do not attribute a later-stage "
@@ -579,6 +590,17 @@ def run(repo: Path, evidence: dict, output: Path, *, image: str = IMAGE) -> dict
         # evidence of a reproduced defect and Docker failure is never acceptance.
         if before != 1:
             raise RuntimeError(f"regression did not reproduce a test failure (exit {before})")
+        # Imports inside test functions are pytest failures (exit 1), unlike
+        # collection imports (exit 2). Neither demonstrates the observed bug.
+        import_failure = re.search(
+            r"^E\s+(?:ImportError|ModuleNotFoundError):[^\n]*",
+            (output / "before.log").read_text(), re.MULTILINE,
+        )
+        if import_failure:
+            raise RuntimeError(
+                "baseline import failure is not defect reproduction; exercise an existing "
+                "production caller, not a candidate-only helper: " + import_failure.group(0)
+            )
         shutil.copytree(baseline, candidate)
         for name, content in files.items():
             path = candidate / name
