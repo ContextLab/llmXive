@@ -8,20 +8,8 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
-- code/simulate_participant.py: metric `score` assigned from an RNG draw (line 68)
-- code/simulate_participant.py: metric `score` assigned from an RNG draw (line 70)
-- code/simulate_participant.py: synthetic/fake INPUT data not authorized by the spec — “…evelopment.  This script generates synthetic participant responses ba…”
-- code/simulate_participant.py: synthetic/fake INPUT data not authorized by the spec — “…sonl          Note: This generates synthetic data for TESTING ONLY.…”
-- code/simulate_participant.py: synthetic/fake INPUT data not authorized by the spec — “…er(         description='Generate synthetic participant data for tes…”
-- code/simulate_participant.py: synthetic/fake INPUT data not authorized by the spec — “…'WARNING: This is synthetic data and MUST NOT be used for…”
-- code/simulate_participant.py: synthetic/fake INPUT data not authorized by the spec — “…lp='Output file path for simulated data (default: data/raw/mock_…”
-- code/simulate_participant.py: synthetic/fake INPUT data not authorized by the spec — “…print("WARNING: This is SYNTHETIC data for TESTING ONLY.")…”
-
-## ⚠ REGRESSIONS — your last fix BROKE these (they passed before)
-
-These commands were NOT failing in the previous round and ARE failing now — your last edit broke previously-working code. REVERT or correct whatever change broke each one BEFORE touching anything else; do not trade one passing script for another (that oscillation is what burns the fix-round budget toward escalation):
-
-- `python code/simulate_participant.py --n-participants 150 --output data/raw/mock_responses/`
+- code/simulate_participant.py: synthetic/fake INPUT data not authorized by the spec — “…umentParser(description='Generate synthetic participant data for tes…”
+- code/simulate_participant.py: synthetic/fake INPUT data not authorized by the spec — “…print(f"WARNING: This is SYNTHETIC data for TESTING ONLY. Do not…”
 
 ## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
 
@@ -33,26 +21,36 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 8 fabricated/simulated-result signal(s) — results are not real measurements: code/simulate_participant.py: metric `score` assigned from an RNG draw (line 68); code/simulate_participant.py: metric `score` assigned from an RNG draw (line 70); code/simulate_participant.py: synthetic/fake INPUT data not authorized by the spec — “…evelopment.  This script generates synthetic participant responses ba…”; 2 command(s) failed: python code/simulate_participant.py --n-participants 150 --output data/raw/mock_responses/ (rc=2); python code/analysis.py (rc=1); 1 declared deliverable(s) absent: data/analysis_results.json
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/simulate_participant.py: synthetic/fake INPUT data not authorized by the spec — “…umentParser(description='Generate synthetic participant data for tes…”; code/simulate_participant.py: synthetic/fake INPUT data not authorized by the spec — “…print(f"WARNING: This is SYNTHETIC data for TESTING ONLY. Do not…”; 3 command(s) failed: python code/simulate_participant.py --n-participants 150 --output data/raw/mock_responses/ (rc=2); python code/analysis.py (rc=1); python -m pytest tests/ -v (rc=2)
 
 ## Failing / missing run-book commands
 
 - python code/simulate_participant.py --n-participants 150 --output data/raw/mock_responses/ -> rc=2
-    usage: simulate_participant.py [-h] [--n N] [--output OUTPUT] [--seed SEED]
+
+usage: simulate_participant.py [-h] [--n N] [--output OUTPUT] [--seed SEED]
                                [--stimuli-dir STIMULI_DIR]
 simulate_participant.py: error: unrecognized arguments: --n-participants 150
+
 - python code/analysis.py -> rc=1
-    Starting Data Validation for Analysis (T024)...
-ERROR: Processed data directory not found: data/processed
+ERROR: Required directory not found: data/raw
 
-## Declared deliverables still missing
 
-- data/analysis_results.json
+- python -m pytest tests/ -v -> rc=2
+/analysis.py)
+_____________ ERROR collecting tests/unit/test_data_validation.py ______________
+ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-513-the-impact-of-social-comparison-on-self-/tests/unit/test_data_validation.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/test_data_validation.py:13: in <module>
+    from code.data_validation import (
+E   ImportError: cannot import name 'COMPLETENESS_THRESHOLD' from 'code.data_validation' (/home/runner/work/llmXive/llmXive/projects/PROJ-513-the-impact-of-social-comparison-on-self-/code/data_validation.py)
+=========================== short test summary info ============================
+ERROR tests/unit/test_analysis_validation.py
+ERROR tests/unit/test_data_validation.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 2 errors in 0.74s ===============================
 
-## Declared deliverables NOT produced — make the run-book produce them
 
-Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
-
-- `data/analysis_results.json` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis.py` — IS a run-book command
-  Make ONE of these WRITE `data/analysis_results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.

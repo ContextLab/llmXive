@@ -1,0 +1,9 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001** — The script never reads the actual `data/stimuli/` assets — it generates random Normal(0,1) ratings with numpy, so the "pre-test" is a fabricated simulation, not a rating of real image files. The results.json also doesn't match the script's output schema (script writes `n_participants`, `t_statistic`, `is_indistinguishable`, etc., while the file contains `description`/`statistic` fields the script never emits), indicating the file was hand-written rather than produced by the command, and it lacks the required `{"p_value", "n", "method"}` schema exactly. The stimuli directories contain only meta
+- **T006** — The `pyproject.toml` exists with valid black configuration, but the task explicitly requires a `.flake8` configuration file for flake8 linting, and no `.flake8` artifact was found in the evidence. The implementer must create a `.flake8` file (e.g., with max-line-length compatible with black's 120) at the project root.
+- **T007** — The task requires creating all five directories, but the collector evidence shows `data/raw/` and `data/processed/` are MISSING (the script `scripts/init_structure.sh` exists and would create them, but there is no evidence it was run to completion for those paths). The implementer must actually run the script (or otherwise create `data/raw/` and `data/processed/`) so all five directories exist.
+- **T030** — declared artifact(s) missing/empty/invalid: code/traceability.py
+- **T031** — declared artifact(s) missing/empty/invalid: tests/unit/test_analysis_schema.py

@@ -1,3 +1,58 @@
+T001:
+  c: false
+  h: eda9801038a22855ca308fb1d4ea63c4420a9c3d34a434f2e5bf08d20f9a9e22
+  r: "The script never reads the actual `data/stimuli/` assets \u2014 it generates\
+    \ random Normal(0,1) ratings with numpy, so the \"pre-test\" is a fabricated simulation,\
+    \ not a rating of real image files. The results.json also doesn't match the script's\
+    \ output schema (script writes `n_participants`, `t_statistic`, `is_indistinguishable`,\
+    \ etc., while the file contains `description`/`statistic` fields the script never\
+    \ emits), indicating the file was hand-written rather than produced by the command,\
+    \ and it lacks the required `{\"p_value\", \"n\", \"method\"}` schema exactly.\
+    \ The stimuli directories contain only meta"
+  sig: 88fd394bd60bf04180357e088ff74dc0de61d4ce2fe34b78740427895c775b50
+T004b:
+  c: true
+  h: fa547f0cbd17a84ef7a29f0f54d38968009cc6030f6f8e31a6a3d0d835c0ff40
+  r: The script `scripts/init_structure.sh` exists (608 bytes) and is a functional
+    bash script that creates the project's required directory structure (stimuli/ai,
+    stimuli/human, raw, processed, pretest data directories) with idempotent `mkdir
+    -p` logic, matching the task's requirement to automate directory creation.
+  sig: 8cc00faa6e770aace091c91b82b7267b9f36665082f7814dac8e562d73067cd4
+T005:
+  c: true
+  h: d2c0f9ed89c432e880bcc354a26cda7ba632f6ed62802b769f8177854e922c98
+  r: The `requirements.txt` exists at the project root (267 bytes) and contains all
+    five required packages (pandas, statsmodels, numpy, scipy, pytest) with version
+    constraints, plus reasonable extras. The task's dependency on T006 (project scaffolding)
+    is satisfied by the file residing in the confirmed project root.
+  sig: 92ff44e75616733404426d945ca9da9e398522bb791f5ea6001f78f2ff65e190
+T006:
+  c: false
+  h: 9a4f3fa7ffa080112743df8a55ecdfb147d4c94f507e40172f0a031a29fa5f62
+  r: The `pyproject.toml` exists with valid black configuration, but the task explicitly
+    requires a `.flake8` configuration file for flake8 linting, and no `.flake8` artifact
+    was found in the evidence. The implementer must create a `.flake8` file (e.g.,
+    with max-line-length compatible with black's 120) at the project root.
+  sig: 9a294e40f9fcb4497dcddb4b81020ea4f2e8141cb344dc479550a9672d2a4100
+T007:
+  c: false
+  h: 4340433bd09050f6dbc4877a4415486906f26b62ff2cbb9e8e20d14744ddb87c
+  r: The task requires creating all five directories, but the collector evidence shows
+    `data/raw/` and `data/processed/` are MISSING (the script `scripts/init_structure.sh`
+    exists and would create them, but there is no evidence it was run to completion
+    for those paths). The implementer must actually run the script (or otherwise create
+    `data/raw/` and `data/processed/`) so all five directories exist.
+  sig: 9d6efe6ede3bdd9d2ae2793c934fe0e95fed299356cefbc3f0a8a485ad2c7c92
+T008:
+  c: true
+  h: d2eb51379a7216ac57439b5f53d44a3ca2d54b822c3b3bb8b63f5ea4a8758161
+  r: 'The artifact `code/stimulus_loader.py` exists (8291 bytes) and implements real,
+    non-stub functionality: scanning `data/stimuli/ai` and `data/stimuli/human` directories
+    for image files, loading per-image JSON metadata, validating required fields (pose,
+    lighting, origin, stimulus_id), raising errors in strict mode, and providing matched-pair
+    grouping per FR-008. The code matches the task''s stated requirement to load static
+    assets and validate metadata presence, with no placeholders or TODOs.'
+  sig: 36b5fa9fbab9a72881d099734b471fda3d67319377bc77e75aaef505c683371b
 T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
