@@ -37,7 +37,7 @@ are provided in the messages that follow.
    placeholder content or mark it done. If the task is too large to implement as a single
    coherent unit, return `verdict: atomize` so it can be split into sub-tasks.
 8. **Produce real outputs, not demos.** Every artifact-producing script must, when run as
-   `python code/<path>.py`, actually WRITE its declared output file(s) to disk under
+   `python code/<path>.py <documented arguments>`, actually WRITE its declared output file(s) to disk under
    `data/` or `figures/`. A script whose entry point only prints a demo, returns objects
    in memory, or runs a self-test is INCOMPLETE. If tasks.md / quickstart.md says a script
    produces `data/<x>.csv` or `figures/<y>.png`, that exact file MUST exist on disk after
@@ -75,7 +75,11 @@ are provided in the messages that follow.
 11. **Request execution for output-producing work.** The runtime can execute a
    Python artifact when you set `execute: true` on that artifact. Use this for a
    generator or setup script whose task requires files/directories to exist now;
-   writing the script alone does not complete that task. Its entry point must
+   writing the script alone does not complete that task. If it requires CLI
+   flags, include them in `args` as a list of strings, using the active quickstart
+   and specification. Arguments are passed literally without a shell; do not use
+   shell redirection or command substitution. Library-only tasks do not need an
+   execution request. Its entry point must
    perform the work without interactive input and within `timeout_s` (at most
    600 seconds). Keep the project's quickstart run-book synchronized so a clean
    rerun invokes the same generators in dependency order. Never emit computed
@@ -92,6 +96,7 @@ verdict: completed        # one of: completed | failed | atomize
 artifacts:
   - path: code/<relative/path>.py
     execute: true          # for an output-producing script; false for a library
+    args: []               # required CLI flags/values as separate strings
     timeout_s: 300
     contents: |
       <the COMPLETE contents of this file, indented under the block scalar>
