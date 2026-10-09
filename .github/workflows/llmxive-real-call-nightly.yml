@@ -38,7 +38,7 @@ jobs:
         run: pip install -e ".[dev]"
 
       # Heavy e2e tests need a real TeX toolchain (llmxive.cls full compile via
-      # lualatex + bibtex + fontspec) — same as the per-PR gate.
+      # lualatex + bibtex + fontspec). The fast PR suite needs only Poppler.
       - name: Install TeX Live (lualatex + bibtex) for paper compiles
         run: |
           sudo apt-get update
@@ -57,6 +57,15 @@ jobs:
           fc-cache -f >/dev/null
           fc-list | grep -iE "fraunces|jetbrains" | head || \
             echo "WARN: house fonts not registered (class will fall back)"
+
+      # Slow unit regressions were previously excluded on PRs and never run
+      # here. Exercise real cover compilation and environment builds nightly.
+      - name: Slow offline unit regressions
+        env:
+          LLMXIVE_REAL_TESTS: ""
+          DARTMOUTH_CHAT_API_KEY: ""
+          DARTMOUTH_API_KEY: ""
+        run: pytest tests/unit -v -m slow
 
       # Same fast pre-checks as the per-PR gate (fail fast, save real-LLM minutes).
       - name: Prompt existence check

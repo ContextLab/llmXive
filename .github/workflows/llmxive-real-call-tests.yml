@@ -1,134 +1,186 @@
 name: llmXive Real-Call Tests
 
+# Always emit the final gate, including documentation-only PRs. Workflow-level
+# path filters can leave required checks pending forever.
 on:
   pull_request:
-    paths:
-      - "src/llmxive/**"
-      - "agents/**"
-      - "tests/**"
-      - ".github/workflows/llmxive-*.yml"
-      - "pyproject.toml"
-      - "contracts/**"
+  workflow_dispatch:
 
 permissions:
   contents: read
+  pull-requests: read
+
+concurrency:
+  group: pr-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  real-call:
+  changes:
+    name: Select checks
     runs-on: ubuntu-latest
-    # Spec 013 added heavy real-LLM e2e tests (implementer drives a
-    # multi-task edit loop with a real Dartmouth call + lualatex compile per
-    # task; publisher hits the real Zenodo Sandbox). The full real-call
-    # suite no longer fits in 30 min on the standard runner — it was getting
-    # cancelled mid-run. 60 min gives the suite headroom to complete and
-    # print its full pass/fail summary.
-    timeout-minutes: 60
-    env:
-      LLMXIVE_REAL_TESTS: "1"
-      DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
-      DARTMOUTH_API_KEY: ${{ secrets.DARTMOUTH_API_KEY }}
-      HF_TOKEN: ${{ secrets.HF_TOKEN }}
-      # Spec 013: the paper_publisher real-call test (SC-006 / SC-008)
-      # publishes to Zenodo Sandbox. The sandbox token is a SEPARATE
-      # credential from production (sandbox.zenodo.org is its own service);
-      # without it the test skips gracefully. ZENODO_API_TOKEN is the
-      # production token (not used by the sandbox test, but wired here so
-      # any future production-path real-call test can find it).
-      ZENODO_API_TOKEN: ${{ secrets.ZENODO_API_TOKEN }}
-      ZENODO_SANDBOX_API_TOKEN: ${{ secrets.ZENODO_SANDBOX_API_TOKEN }}
+    outputs:
+      offline: ${{ steps.select.outputs.offline }}
+      live: ${{ steps.select.outputs.live }}
     steps:
-      # No `ref:` override — use actions/checkout's default
-      # merge-commit-SHA fetch for pull_request events. A previous
-      # branch-name fetch raced against PR auto-merge --delete-branch
-      # and every PR failed CI here with "exit 1" on checkout. None of
-      # the steps below need the source branch name; they're all
-      # Python checks and pytest. SHA-based checkout is race-safe.
       - uses: actions/checkout@v5
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/ci/
+      - name: List all changed files
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          if [ -n "$PR_NUMBER" ]; then
+            gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/files?per_page=100" > "$RUNNER_TEMP/changed-files.json"
+          else
+            printf '[[]]\n' > "$RUNNER_TEMP/changed-files.json"
+          fi
+      - name: Select required coverage
+        id: select
+        run: python scripts/ci/select_checks.py "$RUNNER_TEMP/changed-files.json"
+
+  offline:
+    name: Offline contracts and unit tests
+    needs: changes
+    if: needs.changes.outputs.offline == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      LLMXIVE_REAL_TESTS: ""
+      DARTMOUTH_CHAT_API_KEY: ""
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # PR merge SHA stays the default. Non-cone mode excludes large root
+          # datasets too; cone mode implicitly includes every root file.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /.github/
+            /.specify/
+            /.style/
+            /src/
+            /tests/
+            /agents/
+            /contracts/
+            /scripts/
+            /specs/
+            /papers/
+            /projects/PROJ-565-edit-compass-editreward-compass-a-unifie/paper/
+            /web/
+            /docs/css/
+            /docs/js/
+            /docs/data/
+            /docs/index.html
+            /notes/
+            /*.md
+            /*.toml
+            /*.ini
+            /LICENSE
+      - name: Fetch real-PDF and project-template regression inputs
+        run: python scripts/ci/prepare_test_checkout.py
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
           cache: pip
       - name: Install package and dev deps
         run: pip install -e ".[dev]"
-
-      # The publisher real-call test (SC-006) and any compile-dependent
-      # e2e test need a real TeX toolchain: the llmxive.cls full compile
-      # runs lualatex + bibtex + fontspec. Without TeX Live the publisher's
-      # `_compile_full` fails, the deposit never happens, and the test can't
-      # reach `posted`. Install lualatex + the package set llmxive.cls pulls
-      # in (fontspec, geometry, xcolor, microtype, adjustbox, tabularray,
-      # tcolorbox, caption, booktabs, listings, natbib, hyperref, fancyhdr,
-      # fontawesome5, tikz, algorithms, …) via the texlive-* meta-packages.
-      - name: Install TeX Live (lualatex + bibtex) for paper compiles
+      # Fast PDF tests inspect existing PDFs using Poppler. Real TeX compilation
+      # is marked slow and is exercised by the nightly job.
+      - name: Install PDF audit tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            texlive-luatex texlive-latex-recommended texlive-latex-extra \
-            texlive-fonts-recommended texlive-fonts-extra texlive-science \
-            texlive-bibtex-extra texlive-pictures texlive-plain-generic \
-            texlive-lang-english fonts-noto-core \
-            poppler-utils
-          lualatex --version | head -1
-          bibtex --version | head -1
-          pdftotext -v 2>&1 | head -1   # poppler, for the pdf_auditor unit tests
+          sudo apt-get install -y --no-install-recommends poppler-utils
+          pdftotext -v 2>&1 | head -1
 
-      # Install the house fonts (Fraunces serif + JetBrains Mono) so
-      # fontspec resolves them and the real-call compile renders the true
-      # llmXive style. The class falls back to TeX Gyre Pagella / Inconsolata
-      # via \IfFontExistsTF when these are absent, but the published PDF
-      # should match production.
-      - name: Install llmXive house fonts
-        run: |
-          mkdir -p "$HOME/.fonts"
-          cp papers/.style/fonts/*.ttf "$HOME/.fonts/"
-          fc-cache -f >/dev/null
-          fc-list | grep -iE "fraunces|jetbrains" | head || \
-            echo "WARN: house fonts not registered (class will fall back)"
-
-      # FR-031 / T114: Per-PR pre-checks BEFORE running real-call tests.
-      # If any of these fail, the gate fails fast — saving real-LLM minutes.
-      - name: Prompt existence check (every prompt referenced by registry exists and parses)
+      - name: Prompt existence check
         run: python -m llmxive.checks.prompts
-
       - name: Spec Kit script executability check
         run: python -m llmxive.checks.speckit_scripts
-
-      - name: Backend reachability check (Dartmouth + HF list_models())
-        run: python -m llmxive.checks.backends
-
-      # issue #1139 anti-pattern 1: every fixed-name state artifact a non-test
-      # source module writes under state/ or .specify/memory/ must have a non-test
-      # reader (a persist-and-forget dead-end like the old resolved_datasets.yaml
-      # fails here).
-      - name: State-artifact reader check (no persist-and-forget dead-ends)
+      - name: State-artifact reader check
         run: python -m llmxive.checks.state_readers
-
-      # The contract suite validates every schema in contracts/.
       - name: Contract tests
         run: pytest tests/contract -v
+      - name: Full fast offline unit suite
+        run: pytest tests/unit -q -m "not slow" --durations=25
 
-      # issue #1139 round 2: the offline unit suite was NOT run by ANY workflow,
-      # so unit regressions (e.g. the fix-loop task-reopen, fabrication-guard
-      # precision, intake throttle, and the research-wall crossing contract) never
-      # gated a PR. Run the FAST offline subset here (slow venv/build tests stay
-      # nightly), fail-fast BEFORE the real-LLM minutes.
-      - name: Unit tests (fast offline subset)
-        # Force TRUE offline mode: the job sets LLMXIVE_REAL_TESTS=1 + a Dartmouth
-        # key for the real-call gate, but the unit suite must be DETERMINISTIC —
-        # with the key present some agent tests (flesh_out_reviser, implement
-        # batching, task_verifier) take the real-LLM path and their canned-output
-        # assertions flake. Unset both so conftest's offline stubs apply.
+  dartmouth:
+    name: Dartmouth live models
+    needs: changes
+    if: needs.changes.outputs.live == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      LLMXIVE_REAL_TESTS: "1"
+      LLMXIVE_PAID_OPT_IN: "0"
+      DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+      DARTMOUTH_API_KEY: ${{ secrets.DARTMOUTH_API_KEY }}
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      ZENODO_API_TOKEN: ${{ secrets.ZENODO_API_TOKEN }}
+      ZENODO_SANDBOX_API_TOKEN: ${{ secrets.ZENODO_SANDBOX_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # PR merge SHA stays the default. Non-cone mode excludes large root
+          # datasets too; cone mode implicitly includes every root file.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /.github/
+            /.specify/
+            /.style/
+            /src/
+            /tests/
+            /agents/
+            /contracts/
+            /scripts/
+            /specs/
+            /papers/
+            /projects/PROJ-565-edit-compass-editreward-compass-a-unifie/paper/
+            /web/
+            /docs/css/
+            /docs/js/
+            /docs/data/
+            /docs/index.html
+            /notes/
+            /*.md
+            /*.toml
+            /*.ini
+            /LICENSE
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install package and dev deps
+        run: pip install -e ".[dev]"
+      # No TeX installation: all compile-dependent live modules remain in the
+      # unchanged nightly full suite. Offline PDF tests have their own toolchain.
+      - name: Backend reachability check
+        run: python -m llmxive.checks.backends
+      # Two contract tests make live source calls and are gated by this env.
+      # Keep them here as well as the deterministic contract pass above.
+      - name: Contracts including live source channels
+        run: pytest tests/contract -v
+      - name: All existing fast real-call tests
+        run: pytest tests/real_call -v -m "not slow" --durations=25
+
+  real-call:
+    name: CI gate (offline + Dartmouth)
+    needs: [changes, offline, dartmouth]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every selected check to succeed
         env:
-          LLMXIVE_REAL_TESTS: ""
-          DARTMOUTH_CHAT_API_KEY: ""
-        run: pytest tests/unit -q -m "not slow"
-
-      # The real-call suite is the canonical Constitution III gate. The per-PR
-      # gate runs the FAST subset (connectivity + backend fallback + the
-      # reference/citation gates + personality liveness + Spec Kit scripts); the
-      # heavy fetch+ground+e2e modules are marked `slow` (tests/real_call/conftest.py)
-      # and run in the nightly full suite (llmxive-real-call-nightly.yml), because
-      # the full suite no longer fits the 60-min per-PR budget once Dartmouth is
-      # reachable (it was cancelled mid-run, while passing).
-      - name: Real-call tests — PR gate (fast subset; slow modules run nightly)
-        run: pytest tests/real_call -v -m "not slow"
+          NEEDS: ${{ toJSON(needs) }}
+        run: |
+          python - <<'PY'
+          import json, os
+          jobs = json.loads(os.environ['NEEDS'])
+          assert jobs['changes']['result'] == 'success', 'check selection failed'
+          for job, flag in [('offline', 'offline'), ('dartmouth', 'live')]:
+              required = jobs['changes']['outputs'][flag] == 'true'
+              actual = jobs[job]['result']
+              expected = 'success' if required else 'skipped'
+              assert actual == expected, f'{job}: expected {expected}, got {actual}'
+              print(f'{job}: {actual}' + ('' if required else ' (unchanged behavior)'))
+          PY
