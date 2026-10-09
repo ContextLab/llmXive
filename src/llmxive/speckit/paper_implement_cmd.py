@@ -1,27 +1,9 @@
-"""Paper-Implementer dispatcher (spec 015 T042 / FR-034 rewrite).
-
-Drives the per-paper-task implementation loop via the convergence
-engine. Replaces the prior ``[kind:<value>]``-token dispatcher with the
-convergence-engine path: the 12-panel paper-implement convergence unit
-(:func:`llmxive.convergence.reviewspecs.build_paper_implement_reviewspec`)
-reviews the assembled paper-side artifacts, and each per-Concern
-response from the LIVE :class:`PaperImplementReviser` carries the
-``dispatched_to`` field naming the sub-agent that handled the fix
-(paper_writing / paper_figure_generation / paper_statistics /
-proofreader / latex_fix). The reviser itself emits the revised file
-bodies inline; the agent here is responsible for atomic write-back and
-tasks.md bookkeeping.
-
-Transitions: ``paper_analyzed`` → ``paper_in_progress`` (first run) →
-``paper_complete`` (every ``[ ]`` becomes ``[X]`` AND LaTeX builds AND
-every paper-stage citation is verified AND the proofreader-flag list is
-empty). On engine non-convergence the agent leaves the task incomplete
-and surfaces the KickbackRecord's reason in a paper-side
-``human_input_needed.yaml`` marker.
-"""
+"""Implement and independently verify paper tasks before reviewing the assembled paper."""
 
 from __future__ import annotations
 
+import hashlib
+import json
 import logging
 import re
 from pathlib import Path
@@ -36,6 +18,7 @@ from llmxive.speckit.task_lines import (
     all_complete,
     mark_task,
     mask_fenced_code,
+    task_continuation,
     validate_open_tasks,
 )
 
@@ -75,15 +58,7 @@ KIND_TO_AGENT: dict[str, str] = {
 
 
 class PaperImplementerAgent(SlashCommandAgent):
-    """Engine-driven paper-stage implementer (T042 WS7).
-
-    Picks the next ``[ ]`` task in the paper's tasks.md and runs ONE
-    convergence cycle against the assembled paper-side artifacts. The
-    LIVE reviser
-    (:class:`llmxive.convergence.revisers.paper_implement_reviser.PaperImplementReviser`)
-    emits the revised file body + a per-concern ``dispatched_to`` label;
-    we atomically write the new file body and mark the task complete.
-    """
+    """Create selected task artifacts, verify them, then review the assembled paper."""
 
     def slash_command_name(self) -> str:
         return "speckit.implement"
@@ -103,8 +78,8 @@ class PaperImplementerAgent(SlashCommandAgent):
 
     def _next_incomplete(self, tasks_text: str) -> tuple[str, str, str | None] | None:
         for m in _TASK_RE.finditer(mask_fenced_code(tasks_text)):
-            if m.group("status") == " ":
-                line = m.group(0)
+            if m.group("status") in {" ", "~"}:
+                line = m.group(0) + task_continuation(tasks_text.splitlines(), tasks_text[:m.start()].count("\n"))
                 kind_match = _KIND_RE.search(line)
                 kind = kind_match.group("kind").lower() if kind_match else None
                 return m.group("id"), line, kind
@@ -133,31 +108,36 @@ class PaperImplementerAgent(SlashCommandAgent):
             "next_task_kind": next_task[2] if next_task else None,
             "completed_task_ids": completed,
             "all_complete": self._all_complete(tasks_text),
-            "skip_llm": next_task is None,
+            "skip_llm": False,
+            "deterministic_write": next_task is None or _TASK_RE.match(next_task[1]).group("status") == "~",
         }
 
-    # --- LLM prompt (kept for SlashCommandAgent ABC) --------------------
-    #
-    # The engine path does not consult this prompt — the LIVE reviser
-    # owns its own messages. We return a sentinel so the SlashCommandAgent
-    # parent doesn't try to call the model with an empty payload.
+    def build_prompt(self, ctx: SlashCommandContext, mechanical_output: dict[str, Any]) -> list[ChatMessage]:
+        from llmxive.agents.prompts import render_prompt
+        from llmxive.speckit.implement_cmd import _current_data_context, _inline_referenced_files
 
-    def build_prompt(
-        self,
-        ctx: SlashCommandContext,
-        mechanical_output: dict[str, Any],
-    ) -> list[ChatMessage]:
-        if mechanical_output.get("all_complete") or not mechanical_output.get("next_task_id"):
-            return [
-                ChatMessage(role="system", content="No incomplete paper tasks remain."),
-                ChatMessage(role="user", content="Reply: `task_id: NONE\\nverdict: all_complete`"),
-            ]
-        return [
-            ChatMessage(role="system", content="(unused — engine path drives this agent)"),
-            ChatMessage(role="user", content="(see write_artifacts; engine is the actual driver)"),
-        ]
-
-    # --- engine path ----------------------------------------------------
+        feature = Path(mechanical_output["feature_dir"])
+        extras = self._gather_paper_extras(ctx.project_dir, feature)
+        task = mechanical_output.get("next_task_line") or "Finalize independently verified paper tasks."
+        memory = ctx.project_dir / "paper/.specify/memory"
+        feedback = []
+        for path in [memory / "task_verify.feedback.yaml", memory / "proofreader_flags.yaml",
+                     memory / "implementation_failure.yaml", *sorted((ctx.project_dir / "paper/.tasks").glob("*.log"))]:
+            if path.is_file():
+                feedback.append(f"## {path.relative_to(ctx.project_dir)}\n{path.read_text()[-12000:]}")
+        build_feedback = memory / "latex_build_result.yaml"
+        if build_feedback.is_file():
+            feedback.append(f"## LaTeX build result\n{build_feedback.read_text()[-12000:]}")
+        user = "\n\n".join([
+            f"# Selected task (implement ONLY this task)\n{task}",
+            *(f"# {key}\n{value}" for key, value in extras.items()),
+            "# Existing selected-task files\n" + _inline_referenced_files(ctx.project_dir, task),
+            "# Current numerical evidence (read only)\n" + _current_data_context(ctx.project_dir),
+            "# Prior verification / execution feedback\n" + "\n".join(feedback),
+        ])
+        system = render_prompt("agents/prompts/paper_task_implementer.md",
+                               {"project_id": ctx.project_id}, repo_root=ctx.project_dir.parent.parent)
+        return [ChatMessage(role="system", content=system), ChatMessage(role="user", content=user)]
 
     def _gather_paper_artifacts(self, project_dir: Path) -> dict[str, str]:
         """Collect every paper-side artifact the 12-panel reviews.
@@ -169,7 +149,9 @@ class PaperImplementerAgent(SlashCommandAgent):
         paper_dir = project_dir / "paper"
         source_dir = paper_dir / "source"
         if source_dir.is_dir():
-            for tex in sorted(source_dir.rglob("*.tex")):
+            for tex in sorted(source_dir.rglob("*")):
+                if not tex.is_file() or tex.suffix not in {".tex", ".bib"} or tex.is_symlink():
+                    continue
                 try:
                     rel = tex.relative_to(project_dir.parent.parent).as_posix()
                 except ValueError:
@@ -198,14 +180,7 @@ class PaperImplementerAgent(SlashCommandAgent):
         paper_spec = feature_dir / "spec.md"
         paper_plan = feature_dir / "plan.md"
         paper_tasks = feature_dir / "tasks.md"
-        # results.md lives at paper/results.md per the standard layout
-        # observed under projects/PROJ-023-*/paper/.
-        results_md = paper_dir / "results.md"
-        # Constitution: prefer project-level (.specify/memory/constitution.md
-        # under the project tree); fall back to nothing if absent. Keep
-        # this path consistent with the research-side TaskerAgent which
-        # reads the same file (see tasks_cmd.py).
-        const_path = project_dir / ".specify" / "memory" / "constitution.md"
+        const_path = paper_dir / ".specify/memory/constitution.md"
 
         def _read_or_warn(path: Path, role: str) -> str:
             if path.exists():
@@ -226,11 +201,16 @@ class PaperImplementerAgent(SlashCommandAgent):
             )
             return ""
 
+        from llmxive.speckit.implement_cmd import _current_data_context
         return {
             "__paper_spec_md__": _read_or_warn(paper_spec, "paper spec.md"),
             "__paper_plan_md__": _read_or_warn(paper_plan, "paper plan.md"),
             "__tasks_md__": _read_or_warn(paper_tasks, "paper tasks.md"),
-            "__results_md__": _read_or_warn(results_md, "paper results.md"),
+            "__results_md__": "\n\n".join(
+                f"## {path.relative_to(project_dir)}\n{path.read_text(encoding='utf-8')[:32000]}"
+                for path in sorted(paper_dir.glob("*.md"))
+                if path.is_file() and not path.is_symlink()
+            ) + "\n\n" + _current_data_context(project_dir),
             "__constitution__": _read_or_warn(const_path, "constitution.md"),
             # comments_block is assembled by the comments-context module
             # for the research-side commands; the paper-implement path
@@ -239,20 +219,137 @@ class PaperImplementerAgent(SlashCommandAgent):
             "__comments_block__": "",
         }
 
-    def write_artifacts(
-        self,
-        ctx: SlashCommandContext,
-        mechanical_output: dict[str, Any],
-        llm_response: ChatResponse,
-    ) -> list[str]:
+    def _verify(self, ctx: SlashCommandContext, mechanical: dict[str, Any]) -> dict[str, Any]:
+        from llmxive.agents.task_verifier import run_verification_pass, verified_done_keys
+        tasks = Path(mechanical["tasks_path"])
+        memory = ctx.project_dir / "paper/.specify/memory"
+        result = run_verification_pass(
+            ctx.project_dir, tasks, already_verified=verified_done_keys(
+                ctx.project_dir, tasks, model=ctx.default_model),
+            spec_context=(tasks.parent / "spec.md").read_text() if (tasks.parent / "spec.md").exists() else "",
+            model=ctx.default_model, default_backend=ctx.default_backend.value,
+            fallback_backends=tuple(b.value for b in ctx.fallback_backends),
+            notes_path=memory / "task_verify.notes.md", state_path=memory / "task_verify.yaml",
+            project_id=ctx.project_id, repo_root=ctx.project_dir.parent.parent,
+        )
+        return result
+
+    def _escalate(self, ctx: SlashCommandContext, reason: str) -> Path:
+        from llmxive.speckit._inspection import _redact
+        from llmxive.state import unverifiable
+        reason = _redact(reason)
+        unverifiable.record_unverifiable(ctx.project_id, "paper:final-review", reason,
+                                         repo_root=ctx.project_dir.parent.parent)
+        path = ctx.project_dir / "paper/.specify/memory/implementation_failure.yaml"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(yaml.safe_dump({"reason": reason}), encoding="utf-8")
+        return path
+
+    def _proposal_failure(self, ctx: SlashCommandContext, mechanical: dict[str, Any], reason: str) -> None:
+        path = ctx.project_dir / "paper/.specify/memory/proposal_failures.yaml"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        attempts = yaml.safe_load(path.read_text()) if path.exists() else {}
+        key = hashlib.sha256((str(mechanical["next_task_line"]) + ctx.default_model).encode()).hexdigest()
+        count = int((attempts or {}).get(key, 0)) + 1
+        path.write_text(yaml.safe_dump({**(attempts or {}), key: count}), encoding="utf-8")
+        if count >= 3:
+            self._escalate(ctx, f"Paper task {mechanical['next_task_id']} proposal rejected {count} times: {reason}")
+
+    def _proofread(self, ctx: SlashCommandContext) -> list[str]:
+        from llmxive.agents import registry
+        from llmxive.agents.base import AgentContext
+        from llmxive.agents.proofreader import ProofreaderAgent
+        entry = registry.get("proofreader", repo_root=ctx.project_dir.parent.parent).model_copy(update={
+            "default_backend": ctx.default_backend, "fallback_backends": ctx.fallback_backends,
+            "default_model": ctx.default_model,
+        })
+        result = ProofreaderAgent(entry).run(AgentContext(
+            project_id=ctx.project_id, run_id=ctx.run_id, task_id=ctx.task_id,
+            inputs=[str(ctx.project_dir / "paper/source")],
+            metadata={"repo_root": str(ctx.project_dir.parent.parent)},
+        ))
+        return result.outputs
+
+    def write_artifacts(self, ctx: SlashCommandContext, mechanical_output: dict[str, Any],
+                        llm_response: ChatResponse) -> list[str]:
+        from dataclasses import replace
+
+        from llmxive.speckit.implement_cmd import ImplementerAgent
+        from llmxive.speckit.yaml_extract import parse_yaml_lenient
+
         repo = ctx.project_dir.parent.parent
-        if mechanical_output.get("all_complete"):
-            return []
-
+        tasks = Path(mechanical_output["tasks_path"])
+        outputs: list[str] = []
         task_id = mechanical_output.get("next_task_id")
-        if not task_id:
-            return []
+        if task_id and not mechanical_output.get("deterministic_write"):
+            # Only a structurally valid, matching completed proposal reaches the
+            # shared writer. Never inherit the research legacy skipped-as-X paths.
+            try:
+                doc = parse_yaml_lenient(llm_response.text)
+                if not isinstance(doc, dict) or doc.get("task_id") != task_id or doc.get("verdict") != "completed":
+                    raise ValueError("expected matching task_id and verdict: completed")
+                artifacts = doc.get("artifacts", [])
+                if not isinstance(artifacts, list):
+                    raise ValueError("artifacts must be a list")
+                from llmxive.project_paths import declared_paths, resolve_project_path
+                declared = [resolve_project_path(ctx.project_dir, p) for p in declared_paths(mechanical_output["next_task_line"])]
+                for art in artifacts:
+                    if not isinstance(art, dict) or not isinstance(art.get("path"), str) or not art["path"]:
+                        raise ValueError("each artifact needs a string path")
+                    rel = art["path"]
+                    prefix = f"projects/{ctx.project_id}/"
+                    if rel.startswith(prefix):
+                        rel = rel[len(prefix):]
+                    if rel.startswith("source/"):
+                        rel = "paper/" + rel
+                    target = (ctx.project_dir / rel).resolve()
+                    if Path(rel).is_absolute() or not target.is_relative_to(ctx.project_dir.resolve()):
+                        raise ValueError(f"out-of-project artifact: {rel}")
+                    parts = Path(rel).parts
+                    if parts[:2] in {("paper", "source"), ("paper", "figures")}:
+                        pass
+                    elif any(target == path or (path.is_dir() and target.is_relative_to(path))
+                             for path in declared if path is not None) and parts[0] in {"code", "paper"}:
+                        pass
+                    else:
+                        raise ValueError(f"undeclared paper-task output: {rel}")
+                    resolved_parts = target.relative_to(ctx.project_dir.resolve()).parts
+                    if any(part in {".specify", ".tasks", "specs", ".git", ".venv"} for part in (*parts, *resolved_parts)):
+                        raise ValueError(f"task cannot author control evidence: {rel}")
+                    art["path"] = rel
+                if artifacts or mechanical_output.get("next_task_kind") != "proofread":
+                    outputs = ImplementerAgent().write_artifacts(
+                        ctx, {**mechanical_output, "task_log_dir": "paper/.tasks"},
+                        replace(llm_response, text=yaml.safe_dump(doc)),
+                    )
+                else:
+                    # The specialist performs a real independent call below;
+                    # its output cannot be supplied by the author model.
+                    tasks.write_text(mark_task(tasks.read_text(), task_id, "~"), encoding="utf-8")
+                (ctx.project_dir / "paper/.tasks" / f"{task_id}.proposal.log").unlink(missing_ok=True)
+            except (yaml.YAMLError, ValueError) as exc:
+                log = ctx.project_dir / "paper/.tasks" / f"{task_id}.proposal.log"
+                log.parent.mkdir(parents=True, exist_ok=True)
+                from llmxive.speckit._inspection import _redact
+                log.write_text(_redact(str(exc)), encoding="utf-8")
+                tasks.write_text(mark_task(tasks.read_text(), task_id, " "), encoding="utf-8")
+                self._proposal_failure(ctx, mechanical_output, str(exc))
+                return [str(log.relative_to(repo)), str(tasks.relative_to(repo))]
+            refusal = ctx.project_dir / "paper/.tasks" / f"{task_id}.artifact-write.log"
+            if refusal.exists():
+                self._proposal_failure(ctx, mechanical_output, refusal.read_text())
+                return outputs
+            if mechanical_output.get("next_task_kind") == "proofread":
+                outputs.extend(self._proofread(ctx))
+        self._verify(ctx, mechanical_output)
+        outputs.append(str(tasks.relative_to(repo)))
+        if not self._all_complete(tasks.read_text()):
+            return outputs
+        outputs.extend(self._finalize(ctx, mechanical_output))
+        return list(dict.fromkeys(outputs))
 
+    def _finalize(self, ctx: SlashCommandContext, mechanical_output: dict[str, Any]) -> list[str]:
+        repo = ctx.project_dir.parent.parent
         # --- engine path -------------------------------------------------
         from llmxive.backends.router import make_backend
         from llmxive.convergence.engine import run_convergence
@@ -263,23 +360,11 @@ class PaperImplementerAgent(SlashCommandAgent):
         except Exception:
             backend = None
 
+        if paper_implementation_review_current(ctx.project_dir, Path(mechanical_output["feature_dir"]), model=ctx.default_model):
+            return self._finish_gates(ctx)
         artifacts = self._gather_paper_artifacts(ctx.project_dir)
         if not artifacts:
-            esc = (
-                ctx.project_dir / "paper" / ".specify" / "memory"
-                / "human_input_needed.yaml"
-            )
-            esc.parent.mkdir(parents=True, exist_ok=True)
-            esc.write_text(
-                yaml.safe_dump({
-                    "reason": (
-                        f"paper task {task_id}: no paper-side artifacts found "
-                        f"under projects/{ctx.project_id}/paper/source/"
-                    ),
-                    "task_id": task_id,
-                }),
-                encoding="utf-8",
-            )
+            self._escalate(ctx, "No paper source exists after task verification")
             return []
 
         # FR-049 fail-loud: supply the sentinel ``__X__`` keys the
@@ -317,55 +402,93 @@ class PaperImplementerAgent(SlashCommandAgent):
                     if body is None:
                         continue
                     abs_path = (repo / art_rel).resolve()
+                    if not abs_path.is_relative_to((ctx.project_dir / "paper/source").resolve()):
+                        raise ValueError(f"paper review wrote outside source: {art_rel}")
                     abs_path.parent.mkdir(parents=True, exist_ok=True)
                     abs_path.write_text(body, encoding="utf-8")
                     outputs.append(art_rel)
-            if not result.converged and result.kickback is not None:
-                esc = (
-                    ctx.project_dir / "paper" / ".specify" / "memory"
-                    / "human_input_needed.yaml"
-                )
-                esc.parent.mkdir(parents=True, exist_ok=True)
-                esc.write_text(
-                    yaml.safe_dump({
-                        "reason": (
-                            f"paper task {task_id} non-convergence: "
-                            f"{result.kickback.reason}"
-                        ),
-                        "task_id": task_id,
-                        "kickback_to_stage": result.kickback.to_stage,
-                        "worst_severity": result.kickback.worst_severity.value,
-                    }),
-                    encoding="utf-8",
-                )
+            if not result.converged:
+                reason = result.kickback.reason if result.kickback else "review did not converge"
+                self._escalate(ctx, f"Whole-paper implementation review failed: {reason}")
                 return outputs
         except Exception as exc:
-            # Engine path failed entirely — surface to the operator. We
-            # do NOT swallow this; the next tick will retry.
-            esc = (
-                ctx.project_dir / "paper" / ".specify" / "memory"
-                / "human_input_needed.yaml"
-            )
-            esc.parent.mkdir(parents=True, exist_ok=True)
-            esc.write_text(
-                yaml.safe_dump({
-                    "reason": (
-                        f"paper task {task_id} engine failure: "
-                        f"{type(exc).__name__}: {exc}"
-                    ),
-                    "task_id": task_id,
-                }),
-                encoding="utf-8",
-            )
+            self._escalate(ctx, f"Whole-paper implementation review failed: {type(exc).__name__}: {exc}")
             return outputs
 
-        # Mark the task complete in tasks.md.
-        tasks_path = Path(mechanical_output["tasks_path"])
-        text = tasks_path.read_text(encoding="utf-8")
-        text = mark_task(text, task_id, "X", "")
-        tasks_path.write_text(text, encoding="utf-8")
-        outputs.append(str(tasks_path.relative_to(repo)))
+        # Panel revisions change evidence; earlier task receipts must be checked
+        # against current bytes before a final source-bound proofread can pass.
+        self._verify(ctx, mechanical_output)
+        if not self._all_complete(Path(mechanical_output["tasks_path"]).read_text()):
+            return outputs
+        receipt = ctx.project_dir / "paper/.specify/memory/implementation_review.yaml"
+        receipt.parent.mkdir(parents=True, exist_ok=True)
+        receipt.write_text(yaml.safe_dump({
+            "version": 1, "hash": _paper_review_hash(ctx.project_dir, Path(mechanical_output["feature_dir"])),
+            "policy": _paper_review_policy_hash(ctx.project_dir.parent.parent),
+            "model": ctx.default_model,
+        }), encoding="utf-8")
+        outputs.append(str(receipt.relative_to(repo)))
+        outputs.extend(self._finish_gates(ctx))
         return outputs
+
+    def _finish_gates(self, ctx: SlashCommandContext) -> list[str]:
+        repo = ctx.project_dir.parent.parent
+        from llmxive.agents.latex_build import build_paper
+        from llmxive.agents.proofreader import proofreader_clean
+        outputs = [] if proofreader_clean(ctx.project_id, repo_root=repo) else self._proofread(ctx)
+        result = build_paper(ctx.project_id, repo_root=repo)
+        build_log = ctx.project_dir / "paper/.specify/memory/latex_build_result.yaml"
+        build_log.write_text(yaml.safe_dump(result), encoding="utf-8")
+        outputs.append(str(build_log.relative_to(repo)))
+        if not result.get("ok") or not proofreader_clean(ctx.project_id, repo_root=repo):
+            self._escalate(ctx, "Final paper compile or source-bound proofreading failed; inspect paper memory/build logs.")
+        return outputs
+
+
+def _paper_review_hash(project_dir: Path, feature_dir: Path) -> str:
+    agent = PaperImplementerAgent()
+    artifacts = {**agent._gather_paper_artifacts(project_dir),
+                 **agent._gather_paper_extras(project_dir, feature_dir)}
+    return hashlib.sha256(json.dumps(artifacts, sort_keys=True).encode()).hexdigest()
+
+
+def _paper_review_policy_hash(repo: Path) -> str:
+    """Receipt policy includes deployed review implementation and configuration."""
+    code = Path(__file__).resolve().parents[1]
+    files = sorted(code.rglob("*.py"))
+    files += sorted((repo / "agents/prompts").rglob("*.md"))
+    files += sorted((repo / ".specify/templates").rglob("*"))
+    files += [repo / "agents/registry.yaml", repo / "web/about.html"]
+    digest = hashlib.sha256()
+    for path in files:
+        if path.is_file():
+            label = str(path.relative_to(code)) if path.is_relative_to(code) else str(path.relative_to(repo))
+            digest.update(label.encode() + b"\0" + path.read_bytes() + b"\0")
+    return digest.hexdigest()
+
+
+def paper_implementation_review_current(project_dir: Path, feature_dir: Path, *, model: str | None = None) -> bool:
+    """Whole-paper convergence and per-task receipts must certify current bytes."""
+    from llmxive.agents.task_verifier import task_keys, verified_done_keys
+    try:
+        repo = project_dir.parent.parent
+        if model is None:
+            from llmxive.agents import registry
+            from llmxive.state import execution_status
+            model = execution_status.execution_model_override(project_dir.name,
+                default_model=registry.get("paper_implementer", repo_root=repo).default_model, repo_root=repo)
+        receipt = yaml.safe_load((project_dir / "paper/.specify/memory/implementation_review.yaml").read_text())
+        text = (feature_dir / "tasks.md").read_text()
+        if not isinstance(receipt, dict) or receipt.get("version") != 1 or not all_complete(text):
+            return False
+        if receipt.get("model") != model or receipt.get("policy") != _paper_review_policy_hash(repo):
+            return False
+        if receipt.get("hash") != _paper_review_hash(project_dir, feature_dir):
+            return False
+        return set(task_keys(text.splitlines()).values()) <= verified_done_keys(
+            project_dir, feature_dir / "tasks.md", model=model)
+    except (OSError, KeyError, yaml.YAMLError):
+        return False
 
 
 def _make_sub_agent(name: str, entry):  # type: ignore[no-untyped-def]

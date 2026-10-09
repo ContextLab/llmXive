@@ -100,6 +100,8 @@ def test_paper_complete_gate_consumes_producer_pdf_path(
     monkeypatch.setattr("llmxive.agents.latex_build.build_paper", _fake_build)
     # Stub the OTHER preconditions so this test isolates the PDF-path logic.
     monkeypatch.setattr(graph, "_all_paper_tasks_done", lambda pd: True)
+    monkeypatch.setattr(graph, "_active_tasks_md", lambda *a, **kw: proj / "paper/specs/001/tasks.md")
+    monkeypatch.setattr("llmxive.speckit.paper_implement_cmd.paper_implementation_review_current", lambda *a: True)
     monkeypatch.setattr(
         "llmxive.agents.citation_guard.project_unverified_markers",
         lambda *a, **k: [],

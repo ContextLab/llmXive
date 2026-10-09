@@ -13,12 +13,17 @@ ROOT = Path(__file__).resolve().parents[2]
 # agents.tools.citation_fetcher import in reference_validator. A unit test walks
 # that local import closure so new shared dependencies cannot silently escape.
 REFERENCE_PREFIXES = (
-    "src/llmxive/librarian/", "src/llmxive/claims/", "src/llmxive/state/",
+    "src/llmxive/librarian/", "src/llmxive/claims/",
     "src/llmxive/backends/", "src/llmxive/fill/", "src/llmxive/grounding/",
     "src/llmxive/results/", "src/llmxive/verify/",
     "agents/tools/", "contracts/", "tests/fixtures/",
 )
 REFERENCE_FILES = {
+    # Exact external-service state dependencies; execution/replan state is not
+    # imported by these tests. The transitive AST closure guard enforces this.
+    "src/llmxive/state/__init__.py", "src/llmxive/state/_io.py",
+    "src/llmxive/state/citations.py", "src/llmxive/state/claims.py",
+    "src/llmxive/state/results.py",
     "web/about.html",  # config.py reads citation overlap thresholds from this page
     "src/llmxive/agents/citation_guard.py", "src/llmxive/agents/reference_validator.py",
     "src/llmxive/config.py", "src/llmxive/types.py", "src/llmxive/credentials.py",
@@ -34,10 +39,15 @@ REFERENCE_TESTS = {
 }
 # Reviewed runtime-only live modules retain Dartmouth coverage. Unknown live
 # modules still require external checks until their dependencies are classified.
-RUNTIME_TESTS = {"tests/real_call/test_task_verifier_paths.py"}
+RUNTIME_TESTS = {
+    "tests/real_call/test_task_verifier_paths.py",
+    "tests/real_call/test_paper_bootstrap.py",
+}
 # These files route/test CI, without changing reference resolution. Their PRs
 # must prove selection/collection invariants and still run Dartmouth; requiring
 # registrar uptime here does not validate the changed routing behavior.
+RUNTIME_PROMPTS = {"agents/prompts/paper_task_implementer.md"}
+
 ROUTING_FILES = {
     "scripts/ci/select_checks.py", "tests/real_call/conftest.py",
     ".github/workflows/llmxive-real-call-tests.yml",
@@ -47,14 +57,13 @@ ROUTING_FILES = {
     "scripts/verify_root_file_recovery.py",
 }
 
-
 def needs_references(path: str) -> bool:
     if path in REFERENCE_FILES | REFERENCE_TESTS or path.startswith(REFERENCE_PREFIXES):
         return True
     # Package initialization and test harness changes can affect every import.
     if path.endswith("/__init__.py") or path == "tests/conftest.py":
         return True
-    if path in ROUTING_FILES | RUNTIME_TESTS:
+    if path in ROUTING_FILES | RUNTIME_TESTS | RUNTIME_PROMPTS:
         return False
     parts = Path(path).parts
     if (len(parts) >= 3 and parts[0] == "projects" and parts[1].startswith("PROJ-")

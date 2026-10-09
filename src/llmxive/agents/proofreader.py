@@ -68,7 +68,7 @@ class ProofreaderAgent(Agent):
     """Handles [kind:proofread] tasks. Also runs as a precondition gate."""
 
     def build_messages(self, ctx: AgentContext) -> list[ChatMessage]:
-        repo = _repo_root()
+        repo = Path(ctx.metadata["repo_root"]) if ctx.metadata.get("repo_root") else _repo_root()
         project_dir = repo / "projects" / ctx.project_id
         paper_dir = project_dir / "paper"
         source_dir = paper_dir / "source"
@@ -93,7 +93,7 @@ class ProofreaderAgent(Agent):
         ]
 
     def handle_response(self, ctx: AgentContext, response: ChatResponse) -> list[str]:
-        repo = _repo_root()
+        repo = Path(ctx.metadata["repo_root"]) if ctx.metadata.get("repo_root") else _repo_root()
         try:
             doc = parse_yaml_lenient(response.text)
         except yaml.YAMLError as exc:
