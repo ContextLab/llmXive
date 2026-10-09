@@ -6,7 +6,7 @@ GitHub Actions logs/issues, the Dartmouth model catalog, and real model/code
 calls. Counts below describe this frozen snapshot, not a claim about later runs.
 Work is isolated from the user's unfinished `025-self-improvement-lane` branch.
 
-## Current acceptance status — 2026-10-09 13:58 UTC
+## Current acceptance status — 2026-10-09 14:23 UTC
 
 The repaired pipeline has autonomously crossed implementation and research review
 in a fresh isolated run. **Full paper acceptance and production recovery are not
@@ -22,8 +22,12 @@ and evidence verification; upgrading the model alone does not resolve them.
   Dartmouth connection timeouts. These are not authored-paper completions.
 - The fresh bounded totient canary started at 12:49 UTC on platform
   `d366a5e6ee1d2120b23fc569fee081fd87bb2b3a`. It reached `research_complete` at
-  13:10, `research_accepted` at 13:26, `paper_clarified` at 13:38 and `paper_planned` at 13:47. Paper task
-  convergence is running. Neither scientific artifacts nor task/stage/replanning counters
+  13:10, `research_accepted` at 13:26, `paper_clarified` at 13:38 and `paper_planned` at 13:47. It reached `paper_tasked` at 14:04 after 1,026 seconds of task review.
+  A duplicate task-generation call then returned a table-only response; the
+  error handler incorrectly routed it to research `planned`. The next step
+  began research task generation, so the run was interrupted and preserved.
+  PR #1539 fixes paper-phase failure routing and feedback. Paper task reuse
+  and manuscript bootstrap are separate follow-ups. Neither scientific artifacts nor task/stage/replanning counters
   were hand-edited to obtain these transitions. Prior unsuccessful runs remain
   preserved; the successful research stages belong to this genuinely new run.
 - Independent calculation checked all 12 residue-count tables, all 24 total-
@@ -51,8 +55,10 @@ and evidence verification; upgrading the model alone does not resolve them.
   on a case-sensitive filesystem. Its hosted audit checkouts took 4–11 seconds
   and complete audit jobs 47–84 seconds. External Zenodo timeouts independently
   blocked the live jobs on #1532/#1533/#1534; Dartmouth model checks passed.
-  Separating external reference-service availability from unrelated model checks
-  is in progress.
+  Merged #1538 separates external reference-service availability from model
+  checks using conservative dependency selection. Its exact-head checks passed:
+  Dartmouth 2m04s, external services 3m07s, offline 7m57s. Reference coverage is
+  retained for relevant changes and nightly runs.
 - #1523 restored project boundaries for 2,666 leaked files (390.83 MiB), preserving
   exact bytes and modes, with a committed recovery manifest and root-layout gates.
   #1530's project-local revision/cache follow-up is merged (1,356 files
@@ -77,11 +83,22 @@ and evidence verification; upgrading the model alone does not resolve them.
 - PR #1535 addresses a new observed paper-planning defect: prefixed model file
   markers produced nested feature directories while the canonical plan initially
   remained a template. It reuses complete-set guards, confined writes, rollback
-  and corrective retries; eight before/after regressions and 106 related tests
-  pass. The real captured-response corrective replay is pending. An isolated
-  two-step production snapshot probe of PROJ-549 is also running on merged
-  `9e93570fcc8d66af5d0413868e970989f926be1d`; it is not a production mutation or
-  evidence of full-pipeline acceptance.
+  and corrective retries. Independent review additionally fixed alias-path
+  rollback hazards; 107 focused tests passed. A real GLM-5.3 corrective replay
+  produced all six canonical artifacts in 277.18 seconds. The replay replaced
+  the review panel with boundary assertions, so it does not establish paper
+  review acceptance. An earlier replay failed and remains preserved.
+- The isolated two-step PROJ-549 probe on merged
+  `9e93570fcc8d66af5d0413868e970989f926be1d` completed in 661.13 and 632.33 seconds.
+  Both steps remained `in_progress`; open task counts fell to 27 then 26.
+  Evidence included a wrong-schema OEIS response, a repeatedly rejected task,
+  and a code execution timeout. This is bounded diagnostic progress, not
+  production advancement or full-pipeline acceptance. See
+  `production-549-probe-20261009.json`.
+- PR #1540 fixes missing trusted project identity in task-verifier evidence.
+  A real argparse fixture replaced an invalid stub; seven live GLM cases
+  passed, including wrong-project and missing-argument negative controls.
+  Exact-head hosted checks remain required before merge.
 - The HF `llmxive` resource group and private storage pilot are configured with
   a shared $20 monthly cap. Real private-file roundtrip, a bounded CPU job and
   one stronger-model call passed; credentials are in macOS Keychain. #1524 adds

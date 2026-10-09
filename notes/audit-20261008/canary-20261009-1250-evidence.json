@@ -1,6 +1,6 @@
 {
-  "recorded_at": "2026-10-09T13:58:00Z",
-  "scope": "isolated research acceptance; paper acceptance pending",
+  "recorded_at": "2026-10-09T14:23:00Z",
+  "scope": "isolated research accepted; interrupted after paper task failure routed back to research",
   "provenance": {
     "source_head": "d366a5e6ee1d2120b23fc569fee081fd87bb2b3a",
     "recorded_at": "2026-10-09T12:54:17.875968+00:00",
@@ -22,7 +22,8 @@
     "paper_drafting_init": "2026-10-09T13:29:06Z",
     "paper_specified": "2026-10-09T13:33:10Z",
     "paper_clarified": "2026-10-09T13:38:38Z",
-    "paper_planned": "2026-10-09T13:47:08Z"
+    "paper_planned": "2026-10-09T13:47:08Z",
+    "paper_tasked": "2026-10-09T14:04:14Z"
   },
   "independent_data_audit": {
     "scope": "independent check of a data snapshot; not full pipeline acceptance",
@@ -40,5 +41,13 @@
   },
   "scientific_artifacts_manually_edited": false,
   "pipeline_state_manually_reset": false,
-  "full_pipeline_accepted": false
+  "full_pipeline_accepted": false,
+  "failure": {
+    "observed_at": "2026-10-09T14:04:32Z",
+    "from_stage": "paper_tasked",
+    "incorrect_to_stage": "planned",
+    "error": "TaskFormatError: Paper tasker produced no executable task identities",
+    "action": "runner interrupted; scientific artifacts and state preserved",
+    "fix_pr": 1539
+  }
 }
