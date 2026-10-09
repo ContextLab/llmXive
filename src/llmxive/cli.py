@@ -92,6 +92,17 @@ def _cmd_run(args: argparse.Namespace) -> int:
     # claims/resolve.py) also ride on this flag — no separate flag needed.
     os.environ.setdefault("LLMXIVE_CLAIM_FILL", "1")
 
+    # Explicit publishing opt-in. Load trusted checkpoint code before any agent
+    # can write artifacts; ordinary local runs never push implicitly.
+    checkpoint = None
+    if getattr(args, "checkpoint", False):
+        if args.agent in graph.STAGE_INDEPENDENT_AGENTS:
+            print("[run] --checkpoint requires the project scheduler", file=sys.stderr)
+            return 2
+        from llmxive.config import repo_root
+        from llmxive.pipeline.checkpoint import TickCheckpoint
+        checkpoint = TickCheckpoint(repo_root())
+
     # Stage-independent agents (spec 008) — short-circuit the scheduler.
     if args.agent in graph.STAGE_INDEPENDENT_AGENTS:
         return _cmd_run_stage_independent(args)
@@ -153,7 +164,7 @@ def _cmd_run(args: argparse.Namespace) -> int:
         )
 
     completed = 0
-    for _ in range(max(1, args.max_tasks)):
+    for tick in range(1, max(1, args.max_tasks) + 1):
         if _time.monotonic() - _run_start > _wall_budget_s:
             print(
                 f"[run] wall-clock budget ({_wall_budget_s:.0f}s) reached after "
@@ -210,6 +221,8 @@ def _cmd_run(args: argparse.Namespace) -> int:
             # steps still commit. Other matrix workers are unaffected.
             print(f"[run] FAIL on {project.id}: {exc}", file=sys.stderr)
             _record_advance_error(project, exc)
+            if checkpoint and checkpoint.persist(project.id, tick) == 1:
+                return 1
             break
         print(f"[run]   -> stage={updated.current_stage.value}")
         if implementing and updated.current_stage == before_stage:
@@ -221,10 +234,18 @@ def _cmd_run(args: argparse.Namespace) -> int:
                 exc = RuntimeError("no implementation progress: no stage change or verified task completion")
                 _record_advance_error(updated, exc)
                 print(f"[run] STOP on {project.id}: {exc}", file=sys.stderr)
+                if checkpoint and checkpoint.persist(project.id, tick) == 1:
+                    return 1
                 break
         # Only actual advancement clears the consecutive-failure ledger.
         _clear_advance_error(project)
         completed += 1
+        if checkpoint:
+            checkpoint_status = checkpoint.persist(project.id, tick)
+            if checkpoint_status == 1:
+                return 1
+            if checkpoint_status == 2:
+                break
         if updated.current_stage == project.current_stage:
             # In_progress / paper_in_progress legitimately stay in the
             # same stage while the Implementer ticks off tasks one by
@@ -1014,6 +1035,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_run = subs.add_parser("run", help="run one scheduled pipeline pass")
     p_run.add_argument("--max-tasks", type=int, default=5)
+    p_run.add_argument("--checkpoint", action="store_true",
+                       help="commit and PUSH each completed project tick/failure through "
+                            "the CI research guard; opt-in, off by default")
     p_run.add_argument("--project", default=None, help="restrict to this project id")
     p_run.add_argument("--stage", default=None, help="run only this stage")
     # Deterministic matrix-worker selection (advance.yml). --worker i / --workers
