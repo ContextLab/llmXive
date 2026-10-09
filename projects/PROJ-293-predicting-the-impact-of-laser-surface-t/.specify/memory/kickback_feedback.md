@@ -4,8 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T039a` (rejected 1x): No `research.md` file or its contents were provided, so we cannot confirm that it contains only verified static URLs/IDs and lacks any dynamic search logic. The required artifact and its verification evidence are missing.
-- `T010` (rejected 1x): The `fetch_sources` function only checks for mock data and never attempts real OpenML/HuggingFace fetches, nor does it write the resulting DataFrame to `data/raw/aggregated_raw.csv`. The required output file is missing.
+- `task-format` (rejected 1x): Tasker produced only 0 task IDs (need >= 5; total chars: 12257). Regenerate the complete tasks.md as canonical '- [ ] T### description' checkbox items, not task tables or fenced examples. Preserve every scientific requirement, path and verification step; do not add empty tasks or discard requirements to satisfy the format.
 
 ## Required change
 
