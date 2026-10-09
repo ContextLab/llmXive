@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -58,6 +59,7 @@ def run_script(
     *args: str,
     cwd: Path | None = None,
     expect_json: bool = True,
+    extra_env: dict[str, str] | None = None,
 ) -> dict[str, Any] | str:
     """Run a Spec Kit bash script and return parsed JSON (or raw stdout).
 
@@ -76,6 +78,7 @@ def run_script(
         check=True,
         capture_output=True,
         text=True,
+        env={**os.environ, **extra_env} if extra_env is not None else None,
     )
     if expect_json:
         # Spec Kit scripts may print other lines before the JSON; grab the
