@@ -1,0 +1,28 @@
+{
+  "initialized_at": "2026-10-09T17:10:18.932453+00:00",
+  "project_root": "/home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec",
+  "directories": [
+    "data",
+    "data/raw",
+    "data/processed",
+    "data/processing",
+    "data/results",
+    "data/validation",
+    "data/models",
+    "data/splits",
+    "logs",
+    "state/projects",
+    "code",
+    "code/utils",
+    "code/ingestion",
+    "code/modeling",
+    "code/analysis",
+    "tests/unit",
+    "tests/integration"
+  ],
+  "created_now": [
+    "data/splits",
+    "state/projects"
+  ],
+  "environment": "cpu-only"
+}

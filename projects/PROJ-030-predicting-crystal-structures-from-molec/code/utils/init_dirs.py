@@ -1,119 +1,77 @@
 """
-Directory Initialization Script for Crystal Structure Prediction Pipeline.
+T001-recovery / T001b: Initialize the full project directory tree.
 
-This script creates all required data directories for the project,
-ensuring a consistent file structure for CPU-only execution.
+Creates every data/logs directory required by the pipeline (CPU-only
+environment, no CUDA cache dirs) and writes a confirmation marker to
+``data/.initialized``. Exits 0 on success.
 """
-import os
-import sys
 import json
-import logging
+import sys
+from datetime import datetime, timezone
 from pathlib import Path
-from datetime import datetime
-from typing import List
 
-# Add project root to path to import config if needed, though we use relative paths here
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-LOGS_DIR = PROJECT_ROOT / "logs"
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
-# Define all required directories relative to project root
-REQUIRED_DIRS: List[Path] = [
-    DATA_DIR / "raw",
-    DATA_DIR / "processed",
-    DATA_DIR / "results",
-    DATA_DIR / "validation",
-    DATA_DIR / "models",
-    DATA_DIR / "processing",
-    LOGS_DIR,
+DIRECTORIES = [
+    "data",
+    "data/raw",
+    "data/processed",
+    "data/processing",
+    "data/results",
+    "data/validation",
+    "data/models",
+    "data/splits",
+    "logs",
+    "state/projects",
+    "code",
+    "code/utils",
+    "code/ingestion",
+    "code/modeling",
+    "code/analysis",
+    "tests/unit",
+    "tests/integration",
 ]
 
-# Marker file to indicate initialization
-INIT_MARKER = DATA_DIR / ".initialized"
 
-def setup_logging() -> logging.Logger:
-    """Configure basic logging for the initialization script."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        handlers=[
-            logging.StreamHandler(sys.stdout),
-        ]
+def init_directories(root: Path = PROJECT_ROOT) -> Path:
+    """Create the full directory tree and write ``data/.initialized``.
+
+    Args:
+        root: Project root directory (defaults to this file's project).
+
+    Returns:
+        Path to the ``data/.initialized`` marker file.
+    """
+    created = []
+    for rel in DIRECTORIES:
+        d = root / rel
+        if not d.exists():
+            d.mkdir(parents=True, exist_ok=True)
+            created.append(rel)
+
+    marker = root / "data" / ".initialized"
+    marker.write_text(
+        json.dumps(
+            {
+                "initialized_at": datetime.now(timezone.utc).isoformat(),
+                "project_root": str(root),
+                "directories": DIRECTORIES,
+                "created_now": created,
+                "environment": "cpu-only",
+            },
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
     )
-    return logging.getLogger("init_dirs")
+    return marker
 
-def ensure_directory(dir_path: Path, logger: logging.Logger) -> bool:
-    """
-    Ensure a directory exists, creating it if necessary.
-
-    Args:
-        dir_path: Path to the directory.
-        logger: Logger instance.
-
-    Returns:
-        True if directory exists or was created, False otherwise.
-    """
-    try:
-        dir_path.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Directory ready: {dir_path}")
-        return True
-    except PermissionError as e:
-        logger.error(f"Permission denied creating directory {dir_path}: {e}")
-        return False
-    except Exception as e:
-        logger.error(f"Error creating directory {dir_path}: {e}")
-        return False
-
-def write_initialization_log(logger: logging.Logger) -> bool:
-    """
-    Write a confirmation log to data/.initialized.
-
-    Args:
-        logger: Logger instance.
-
-    Returns:
-        True if successful, False otherwise.
-    """
-    try:
-        marker_content = {
-            "initialized_at": datetime.utcnow().isoformat(),
-            "status": "success",
-            "message": "All required directories created for CPU-only environment.",
-            "note": "No CUDA-specific cache directories were created."
-        }
-        with open(INIT_MARKER, "w", encoding="utf-8") as f:
-            json.dump(marker_content, f, indent=2)
-        logger.info(f"Initialization marker written to: {INIT_MARKER}")
-        return True
-    except Exception as e:
-        logger.error(f"Failed to write initialization marker: {e}")
-        return False
 
 def main() -> int:
-    """
-    Main entry point for directory initialization.
+    marker = init_directories()
+    print(f"Directory tree initialized. Marker written to {marker}")
+    return 0
 
-    Returns:
-        Exit code: 0 for success, 1 for failure.
-    """
-    logger = setup_logging()
-    logger.info("Starting directory initialization for PROJ-030...")
-
-    success = True
-    for dir_path in REQUIRED_DIRS:
-        if not ensure_directory(dir_path, logger):
-            success = False
-
-    if success:
-        if write_initialization_log(logger):
-            logger.info("Directory initialization completed successfully.")
-            return 0
-        else:
-            logger.error("Directory initialization completed with errors writing marker.")
-            return 1
-    else:
-        logger.error("Directory initialization failed due to directory creation errors.")
-        return 1
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -45,7 +45,7 @@
 
 - [ ] T001-recovery Re-establish the `projects/PROJ-030-predicting-crystal-structures-from-molec/` root directory structure if missing. **Constraint**: This task must create the full directory tree explicitly to ensure T001 and subsequent tasks have a valid working directory. **Output**: `data/.initialized` file and exit code 0.
 - [ ] T001 [P] Create project structure per implementation plan (`projects/PROJ-030-predicting-crystal-structures-from-molec/`). **Output**: `logs/init.log` listing created directories. **Dependency**: T001-recovery.
-- [X] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt`
+- [ ] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt`
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools in `code/.pre-commit-config.yaml`
 
 ---
@@ -56,12 +56,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Setup configuration management in `code/config.py` (paths, seeds, hyperparameters)
+- [ ] T004 Setup configuration management in `code/config.py` (paths, seeds, hyperparameters)
 - [ ] T005 [P] Implement logging infrastructure with structured JSON output to `logs/`. **Output**: `code/utils/logger.py` and `logs/initialization.log`. **Dependency**: T001.
-- [X] T006 Create base data models (`MoleculeRecord`, `ModelMetrics`, `FeatureImportance`) in `code/ingestion/models.py`
-- [X] T007 [P] Implement `code/utils/error_handlers.py` to catch `MemoryError` and `DownloadError` explicitly (no synthetic fallbacks) and add unit test `tests/unit/test_error_handling.py::test_catches_memory_error`
-- [ ] T008 [P] [Dep: T008b] Implement `code/validate_env.py` to verify `HF_TOKEN`, cache paths, and enforce CPU-only execution (`training_device="cpu"`). **Output**: `data/results/runtime_config.json` with `training_device="cpu"`. **Constraint**: This task strictly enforces CPU-only execution as per Plan constraints; it does NOT enable GPU offloading or detect GPU drivers. **Dependency**: T008b (Reference-Validator integration) must complete first to ensure source validation before environment setup.
-- [X] T008b [P] Implement Reference-Validator integration in `code/ingestion/validate_source.py` to verify the HuggingFace dataset citation against the primary source before processing (Constitution Principle II compliance). **Output**: `data/validation/source_validation.json`.
+- [~] T006 Create base data models (`MoleculeRecord`, `ModelMetrics`, `FeatureImportance`) in `code/ingestion/models.py`
+- [~] T007 [P] Implement `code/utils/error_handlers.py` to catch `MemoryError` and `DownloadError` explicitly (no synthetic fallbacks) and add unit test `tests/unit/test_error_handling.py::test_catches_memory_error`
+- [ ] T008 [P] [Dep: T008b] Implement `code/validate_env.py` to verify `HF_TOKEN`, cache paths, and enforce CPU-only execution (`training_device="cpu"`). **Output**: `data/results/runtime_config.json` with `training_device="cpu"`. **Constraint**: This task strictly enforces CPU-only execution as per Plan constraints; it does NOT enable GPU offloading or detect GPU drivers. **Dependency**: T008b (Reference-Validator integration) must complete first to ensure source validation before environment setup. <!-- FAILED-IN-EXECUTION: code/validate_env.py exit=1 -->
+- [~] T008b [P] Implement Reference-Validator integration in `code/ingestion/validate_source.py` to verify the HuggingFace dataset citation against the primary source before processing (Constitution Principle II compliance). **Output**: `data/validation/source_validation.json`.
 - [ ] T005a [P] [Dep: T004] Implement seed verification script `code/utils/verify_seeds.py` that re-runs a small subset twice and confirms identical hashes. **Output**: `data/validation/seed_verification.json`.
 - [ ] T001b [P] Implement directory creation script `code/utils/init_dirs.py` to create all required data directories (`data/processed`, `data/results`, `data/validation`, `data/models`, `logs`) and write a confirmation log to `data/.initialized`. **Dependency**: Must run after T001-recovery and before any task that writes to these directories (e.g., T036, T009). **Constraint**: Explicitly creates the full directory tree for a CPU-only environment; no CUDA-specific cache directories are created.
 
@@ -77,9 +77,9 @@
 
 ### Implementation for User Story 1
 
-- [X] T009 [US1] [Dep: T008b] Implement `code/ingestion/load_cod.py` to **stream** the `crystallography-open-database/organic` dataset from HuggingFace (`streaming=True`), enforcing the <500MB organic filter and raising an error if the source is unreachable (no synthetic fallback). **Hard Gate**: The script must abort if T008b has not successfully validated the source. The script must process data in chunks to stay within 7GB RAM limits.
-- [X] T010 [US1] [Dep: T009] Implement `code/ingestion/parse_cif.py` to parse downloaded CIF files using `pycifrw` and `openbabel`, extracting canonical SMILES and lattice parameters, while skipping malformed files with detailed logging
-- [X] T011 [US1] [Dep: T010] Implement `code/ingestion/fingerprint.py` to generate ECFP4 fingerprints using `rdkit`, using chunked streaming to handle memory limits; if a molecule is too large to process, log the exclusion count to `data/processing/exclusion_log.json` rather than silently dropping data (Constitution Principle III)
+- [~] T009 [US1] [Dep: T008b] Implement `code/ingestion/load_cod.py` to **stream** the `crystallography-open-database/organic` dataset from HuggingFace (`streaming=True`), enforcing the <500MB organic filter and raising an error if the source is unreachable (no synthetic fallback). **Hard Gate**: The script must abort if T008b has not successfully validated the source. The script must process data in chunks to stay within 7GB RAM limits.
+- [~] T010 [US1] [Dep: T009] Implement `code/ingestion/parse_cif.py` to parse downloaded CIF files using `pycifrw` and `openbabel`, extracting canonical SMILES and lattice parameters, while skipping malformed files with detailed logging
+- [~] T011 [US1] [Dep: T010] Implement `code/ingestion/fingerprint.py` to generate ECFP4 fingerprints using `rdkit`, using chunked streaming to handle memory limits; if a molecule is too large to process, log the exclusion count to `data/processing/exclusion_log.json` rather than silently dropping data (Constitution Principle III)
 - [ ] T012 [US1] [Dep: T011] Implement polymorphism handling logic in `code/ingestion/dataset_builder.py` to treat each unique (SMILES, Space Group) pair as a distinct row. **Output**: `code/ingestion/dataset_builder.py`. **Constraint**: This task creates the script; it does not run it.
 - [ ] T013 [US1] [Dep: T012] Create the main pipeline script `code/ingestion/run_pipeline.py` that orchestrates download (T009), parsing (T010), fingerprinting (T011), and dataset building (T012), outputting `data/processed/crystal_dataset.csv`. **Constraint**: This task does NOT perform grouping logic; it outputs the raw polymorphic dataset. **Output**: `code/ingestion/run_pipeline.py` and `data/processed/crystal_dataset.csv`.
 - [ ] T014 [US1] [Dep: T013] Implement `code/ingestion/validate_dataset.py` to verify that `data/processed/crystal_dataset.csv` has no nulls in key columns, fingerprint bit counts are of a fixed, high-dimensional magnitude, and the schema matches US1 requirements. **Output**: `data/validation/fingerprint_check.json` with pass/fail status.
@@ -144,7 +144,7 @@
 - [ ] T027a [P] Update `README.md` with pipeline usage instructions and project overview. **Constraint**: Add a specific "Usage" section containing commands X, Y, Z.
 - [ ] T027b [P] Add comprehensive docstrings to all `code/ingestion/*.py` and `code/modeling/*.py` files. **Constraint**: Add Google-style docstrings to all functions.
 - [ ] T028a [P] Run `ruff --fix` on the entire codebase and commit changes. **Constraint**: Apply ruff fixes to code/ and commit changes.
-- [X] T028b [P] Refactor `code/ingestion/fingerprint.py` to use streaming generator for memory efficiency
+- [~] T028b [P] Refactor `code/ingestion/fingerprint.py` to use streaming generator for memory efficiency
 - [ ] T029a [P] Optimize fingerprint generation to reduce memory usage via batch processing. **Output**: `code/ingestion/fingerprint_optimized.py`. **Constraint**: Specify batch size in config.
 - [ ] T029b [P] Profile and optimize data loading pipeline for streaming efficiency. **Output**: `data/results/profiling_report.json` and `code/ingestion/streaming_optimized.py`.
 - [ ] T035 [P] [Dep: T013] Implement resource profiling script `code/utils/profile_resources.py` to stream a sample and estimate total dataset size. **Output**: `data/results/resource_profile.json`. **Constraint**: Must run before T030 to verify 7GB RAM limit.

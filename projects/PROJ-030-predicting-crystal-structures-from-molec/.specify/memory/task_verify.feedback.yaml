@@ -1,0 +1,126 @@
+T001:
+  reason: "The evidence shows the init script ran and reported writing `logs/init.log`,\
+    \ but the actual `logs/init.log` file is not presented, nor is its contents shown\
+    \ to confirm it lists the created directories. Without the concrete log file content\
+    \ (and verification that the required project directories were indeed created),\
+    \ the task\u2019s deliverable cannot be confirmed as satisfied."
+  task: 896885ca25d472ce3906ebb16152a0502bad6034fafc8b426f0d170bf2ec8163
+T001-recovery:
+  reason: "The evidence includes a log showing the script ran with exit code\u202F\
+    0 and claimed to write `data/.initialized`, but the actual `data/.initialized`\
+    \ file is not present in the listed artifacts. Without the marker file, the task\u2019\
+    s required output is not verified."
+  task: 94b8b93fcfecfee584e88707342685055df075e69cdb9667f767afb27e112ab4
+T001b:
+  task: 1d63f2046f06f327d4179a7def609b980b7e24b2da9c35e5fdffe0ddce1b6187
+T002:
+  reason: "The `code/requirements.txt` file exists but lists dependencies with open-ended\
+    \ `>=` version specifiers instead of exact pinned versions (`==`), and it does\
+    \ not indicate a Python\u202F3.11 requirement. The task explicitly required a\
+    \ Python\u202F3.11 project with pinned dependencies, which is not satisfied."
+  task: 593d15a7ca021c65c7ec24d9788a927f2de5285c37ce7c253be97ab783b1093e
+T003:
+  task: 180af95b9626c4d1ab185fe6e07d4e927965eb96a3ca14f2476276a3e4a30f6f
+T004:
+  reason: "Checked `code/config.py` (5213\u202Fbytes). It provides path utilities\
+    \ and seed handling, but contains no definitions or management of model hyperparameters\
+    \ as required by the task (e.g., learning rates, number of trees, regularization\
+    \ parameters). The hyperparameter aspect is missing, so the configuration management\
+    \ is not fully implemented."
+  task: caf65fa605cfcd203f33f80429dc1ab5054d390537b48e893d42f28b0965934e
+T005:
+  reason: "The repository contains the required `code/utils/logger.py`, but the expected\
+    \ output file `logs/initialization.log` is not present in the collected artifacts;\
+    \ only a run log shows it was written at execution time. The missing initialization\
+    \ log means the task\u2019s required output is absent."
+  task: f122e5a4234f10e07f3771164e2e8f324b59ade2931ec4e2f6b00a1f92161110
+T005a:
+  task: a9dea7c1433db3ebe992108a0fd0faa17783339bac4564b1b96c118b2e5d1746
+T006:
+  task: 9004a6b7f7ab2a060a2361e96179b128d02b16b3be90d764210fb6c10af9e8aa
+T006a-exec:
+  task: 130d6805aecab224dfb612044f85bddc80c336ba967798b7b82c7c2961c747bd
+T006b-exec:
+  task: 467d71443ce2d4b2e7f58dedafcd47ff3f35293b76d326b00bb229086d5f7b50
+T006c:
+  task: 46fcbe18a98cf373c2de58d62ec368cc7c961964ef6d0134033d0ff7203a7ec3
+T007:
+  task: a4bbe44f6f2425b27720c871dae619e2558654dcfd882c7c59f32f33cddb7fc5
+T008:
+  reason: 'Requested task execution failed; rerun successfully: code/validate_env.py
+    exit=1'
+  task: 74c236ef93205c5da65b92a0da9028ba87a408294272ff1630be14f08e613495
+T008b:
+  task: 7561f7ce0511a8badc0feaceed87278c702ffd48a5d6e2fa64be571580bbefff
+T009:
+  task: 48c529eace2e95abf6831206a5f249326af6fe8c9d4b0e0a56c7a61d2a6bf8d7
+T010:
+  task: 6be10fe7315c63f9d455bef38dc5faa85e60352d0a1faf7c28cbc6bc24fd7f5c
+T011:
+  task: a27dda98669a6e8e6b86574859d0e16ba20093c4af4cdf590fe58cbb8a4ea173
+T012:
+  task: 02445304fab4b8d60f3c4f8f38716c6c14be373c311e5bced6936118e140ec7b
+T013:
+  task: 62f95550f833d0e9e2cf7472317c7936ace38dffda75d3b3d3afbd5eca2c2ba1
+T014:
+  task: 64fef551c9be59c93a87ceee07f175dd2def68c6ec047a4863d2f19fc85ec661
+T015a-ec:
+  task: 6f3eb2d2925470f008aa7ce4927c14c32d327cc8509c4909244d6688b84aa6b9
+T015a-exec:
+  task: eafbd734996e800caa5ed1dffb28ee0a4f48b1c2f681b8a6b0c274adb9488269
+T015b-exec:
+  task: ed5872fe734f8a69f70cb3adf224be812c8a0453b3f523eac290684bceb6abef
+T015c-exec:
+  task: 823fc1822761b643f11ba9b4b9e8e1b84cb71e39840d40805ab82a5ad158c179
+T016-exec:
+  task: 1619c4d149b58bc633442842c6e682d9d5912caec1a9a34a7630c7a7ee58b0a7
+T017-exec:
+  task: eda5d4d3b33d144296dc8bccce4c5c759ee9e5ecea7fae80f57c7f69c183830b
+T017a-exec:
+  task: c2d2c14a7ecb90f66f269ce5c772dc31697cc37cd62fe32657e910e3e6296e91
+T017b-exec:
+  task: 1db21ec46559f46ed276aeaa7a886c54188208e2b5de84f5de5b282d71b0b85d
+T017c-exec:
+  task: 9b6367da61345470ef78ccbeda999502bc85055f75384f8ebddfd51c9829800d
+T019-exec:
+  task: 1f5fbc5a93772704838e1cfa282e01680caf4510e4dc4c04a445012b3177c9e4
+T019c-exec:
+  task: 870bbe0867cf9c9833a2c682dcf64e432a054fe3a8e894fc8f1a61142c45aa10
+T019d-exec:
+  task: 96abd7d3258541df68a1e1642e4734438c2ef58bf1a9f69a0e6ed0fbee5dff10
+T022-exec:
+  task: b120c08bd89ffe9fa6af20cd84684deac65760bec602fcb8a6946a1aef5473b1
+T023-exec:
+  task: ae4663801984f6a10f485b2ea41d60916b6e0ab8602b9d3124ae9445d3a80486
+T024-exec:
+  task: bf294427927f737e618a40969b778f2a9a028581d57e5d63000c9a0305abc32c
+T025-exec:
+  task: 920b5320bc739b6fd93c254be6f5f4c67805c422e0b0de05ed4fa778f7a5080e
+T026-exec:
+  task: 2ce5df6a0d32f83eb3530c3689bd8bc1b56912d1a743a87dc834093f18e0fd5d
+T027a:
+  task: e889bf83eb3a8709a5fec541fde71d5ad35d054be52417e7d14f41a1b91cc376
+T027b:
+  task: f00d04cb92b246c1c5156a5c7675308c915a43317815e3d07caac711202662ab
+T028a:
+  task: 61686b9f3505570f4aff85e97e79d6a8293c69a4fccd836ea73ffdf3aa72e757
+T028b:
+  task: 70205880a4f1fa9a49cae4ec2b683e74f55b570aeb1bbf68570e433b147d2877
+T029a:
+  task: a445f753f06eb02bc640177d7cd544427144a94920b8f71ed2c2d0d35b720c6d
+T029b:
+  task: f15dcf0dd7f319f073851d9ffefae86c06505f209bb6abb2db179163b84e5296
+T030:
+  task: ace1734c7ec2d56d6f6dfeeeaef06dc4750d96a05ffdb0cb35687af77a4bff2d
+T030a:
+  task: ea3c63b159187a99473072f006d4396a9ea890ee62c71423f13f3bf72bac5c14
+T031:
+  task: 4e690e0389586ec1443ed1448a9abca550da40f500618ffdb48d96807a8a5f7c
+T035:
+  task: 94b9e87d016b24cb91bb2e902c3b0c38a0e5091d1056162c0543786a05957b49
+T038:
+  task: 7b12dbd8f59a7f7f91c6fca8cf4892ef0bcb83d03a14b4e09d5c00a394c35e71
+T039:
+  task: 5c391bee36bc7cdd9ff0b76c55b04835af9f9e8d66f5a0dd299f2e9f3560f9b1
+T040:
+  task: aae78cbb832b268e965bd2cbda26d444e8624fde9b8155b890d6d35267cad8ec

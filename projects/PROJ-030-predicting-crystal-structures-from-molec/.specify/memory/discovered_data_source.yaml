@@ -1,19 +1,18 @@
 status: none
-intent: download Crystallography Open Database organic subset HuggingFace python package
+intent: Crystallography Open Database COD organic subset HuggingFace python package
   dataset
 required_fields:
-- SMILES
-- ECFP4_fingerprint
-- Space_Group
+- smiles
+- space_group
 - a
 - b
 - c
 - alpha
 - beta
 - gamma
-- Molecular_weight
+- molecular_weight
 - atom_counts
 - metal_content_ratio
-cache_key: 6bc656f44f7b14f4138e1da1c27dc7c70beb9aeac924d951d1eb30c76edbda0c
-searched_at: '2026-10-05T09:03:12.054725+00:00'
+cache_key: 872d3436e2b35e015d3f24f9d0cf99eb86fbc66e9ec29c067688e536e23107bc
+searched_at: '2026-10-09T17:24:46.583841+00:00'
 retry_count: 1
