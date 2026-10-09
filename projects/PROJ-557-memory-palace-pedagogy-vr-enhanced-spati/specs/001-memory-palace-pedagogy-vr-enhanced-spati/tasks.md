@@ -25,7 +25,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`data/raw`, `data/derived`, `code`, `tests`, `results`)
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pinning `pandas`, `numpy`, `scipy`, `statsmodels`, `pyarrow`, `openneuro-py`, `pytest`, `transformers`)
+- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pinning `pandas`, `numpy`, `scipy`, `statsmodels`, `pyarrow`, `openneuro-py`, `pytest`, `transformers`)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -38,12 +38,12 @@
 
 **Execution Order Note**: T004 (Download) MUST precede T005 (Schema) to ensure the schema validates against the actual fetched data. T005b/c depend on T004 to confirm dataset characteristics.
 
-- [X] T004 [US1] Implement data download script in `code/download.py` using `openneuro-py` to fetch **ds004041** (Pupil Labs Reading) to `data/raw/`, explicitly verifying the dataset version hash against `data/metadata.yaml` (Constitution Principle I)
+- [ ] T004 [US1] Implement data download script in `code/download.py` using `openneuro-py` to fetch **ds004041** (Pupil Labs Reading) to `data/raw/`, explicitly verifying the dataset version hash against `data/metadata.yaml` (Constitution Principle I)
 - [X] T005 [US1] Create data model schema in `code/data_model.py` defining `Participant`, `Passage`, `Window`, and `AdaptationLabel` entities; **explicitly define `simplified_text` attribute as nullable** to reflect dataset limitations
 - [X] T005b [US1] Define luminance normalization algorithm in `code/preprocessing.py` (not data_model.py) as a function or constant, and document the ingestion method for screen luminance logs from `ds004041`
 - [X] T005c [US1] Create `data/metadata.yaml` entry to flag that the source dataset **lacks simplified text** for all passages, ensuring this is traceable for downstream graceful degradation logic (or counterfactual generation)
-- [X] T006 [P] Implement logging infrastructure in `code/utils/logging.py` with structured JSON output for pipeline steps
-- [X] T007 [P] Setup environment configuration management in `code/config.py` (handling data paths, random seeds, CLI thresholds)
+- [~] T006 [P] Implement logging infrastructure in `code/utils/logging.py` with structured JSON output for pipeline steps
+- [~] T007 [P] Setup environment configuration management in `code/config.py` (handling data paths, random seeds, CLI thresholds)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in sequence
 
@@ -59,10 +59,10 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation. Note: T009 assumes T005b (Phase 2) is complete.
 
-- [X] T008 [P] [US1] Unit test for blink removal and 4Hz low-pass filtering in `tests/unit/test_preprocessing.py`
-- [X] T009 [P] [US1] Unit test for baseline correction and luminance normalization (using algorithm from T005b in `preprocessing.py`) in `tests/unit/test_preprocessing.py`
-- [X] T010 [P] [US1] Unit test for CLI z-score calculation and 0.5 SD thresholding in `tests/unit/test_cli_engine.py`
-- [X] T011 [P] [US1] Integration test for full US-1 pipeline on sample data in `tests/integration/test_us1_pipeline.py`
+- [~] T008 [P] [US1] Unit test for blink removal and 4Hz low-pass filtering in `tests/unit/test_preprocessing.py`
+- [~] T009 [P] [US1] Unit test for baseline correction and luminance normalization (using algorithm from T005b in `preprocessing.py`) in `tests/unit/test_preprocessing.py`
+- [~] T010 [P] [US1] Unit test for CLI z-score calculation and 0.5 SD thresholding in `tests/unit/test_cli_engine.py`
+- [~] T011 [P] [US1] Integration test for full US-1 pipeline on sample data in `tests/integration/test_us1_pipeline.py`
 
 ### Implementation for User Story 1
 
@@ -84,9 +84,9 @@
 
 ### Tests for User Story 2
 
-- [X] T016 [P] [US2] Unit test for text selection logic (high-CLI -> simplified if exists, else original) in `tests/unit/test_simulation.py`
-- [X] T017 [P] [US2] Unit test for graceful degradation (missing paraphrase -> original) in `tests/unit/test_simulation.py`
-- [X] T018 [P] [US2] Integration test for US-2 simulation on full dataset in `tests/integration/test_us2_simulation.py`
+- [~] T016 [P] [US2] Unit test for text selection logic (high-CLI -> simplified if exists, else original) in `tests/unit/test_simulation.py`
+- [~] T017 [P] [US2] Unit test for graceful degradation (missing paraphrase -> original) in `tests/unit/test_simulation.py`
+- [~] T018 [P] [US2] Integration test for US-2 simulation on full dataset in `tests/integration/test_us2_simulation.py`
 
 ### Implementation for User Story 2
 
@@ -138,16 +138,16 @@
 
 ### Implementation for Reviewer Response
 
-- [ ] T032 [US3] Update `code/report.py` to include a dedicated section addressing the **limitation of the dataset**: explicitly state that the "adaptive" condition is a simulation (generated via T021b), that the source dataset lacks simplified text, and that findings are associational, not causal (referencing FR-008 and the "graceful degradation" logic from T022).
+- [ ] T032 [US3] Update `code/report.py` to include a dedicated section addressing the **limitation of the dataset**: explicitly state that the "adaptive" condition is a simulation (generated via T021b), that the source dataset lacks simplified text, and that findings are associational, not causal [UNRESOLVED-CLAIM: c_86eb39d7 — status=not_enough_info] (referencing FR-008 and the "graceful degradation" logic from T022).
 - [ ] T033 [US3] **Address Construct Validity**: Add a "Retention vs. Understanding" section to `code/report.py` that explicitly distinguishes between the measured outcome (delayed recall scores) and the unmeasured construct (comprehension/reasoning), framing the study's scope as strictly "memory of the text" rather than "memory of the concept."
 - [ ] T034 [US3] **Address Ecological Validity**: Add a "Spatial Rigidity vs. Topological Flexibility" section to `code/report.py` discussing how the fixed spatial mapping in the Pupil Labs dataset (which lacks dynamic VR interaction) may limit the generalizability of findings to "deformable" cognitive spaces, explicitly stating that the study does not test topological deformation.
-- [ ] T035 [US3] **Address Mechanistic Validity**: Add a "Neural Consolidation vs. Rehearsal" section to `code/report.py` that acknowledges the study measures behavioral retention (which may reflect short-term rehearsal) and explicitly states that the dataset cannot verify the molecular cascades (cAMP-PKA-CREB) required for long-term synaptic growth, framing the results as a proxy for engagement rather than a direct measure of consolidation mechanisms.
+- [ ] T035 [US3] **Address Mechanistic Validity**: Add a "Neural Consolidation vs. Rehearsal" section to `code/report.py` that acknowledges the study measures behavioral retention (which may reflect short-term rehearsal) and explicitly states that {{claim:c_5fa915c5}} (Wikidata Q52569862, https://www.wikidata.org/wiki/Q52569862), framing the results as a proxy for engagement rather than a direct measure of consolidation mechanisms.
 
 **Checkpoint**: All limitations and validity threats addressed in the report.
 
 ---
 
-## Phase 7: Polish & Cross-Cutting Concerns
+## Phase7: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
 
@@ -255,6 +255,6 @@ Given the strict data dependencies (CLI -> Adaptation -> Analysis):
 - **Critical Constraint**: All tasks must run on CPU-only CI with limited CPU resources (e.g., constrained RAM)
 
 The research question, method, and references remain as specified in the original planning document.. No GPU models or 8-bit quantization. T021b uses CPU-tractable methods (e.g., T5-small 16-bit or rule-based).
-- **Data Integrity**: No fabrication of data. All analysis must use the real Pupil Labs Reading dataset. T021b generates *counterfactual* text for simulation purposes only; raw data remains untouched.
+- **Data Integrity**: No fabrication of data. {{claim:c_578aff6f}}. T021b generates *counterfactual* text for simulation purposes only; raw data remains untouched.
 - **Simplified Text**: The dataset **lacks** simplified text. T021b generates the necessary counterfactuals to create a distinct "Adaptive" condition. T019/T020 must handle generation failures gracefully.
 - **Reviewer Concerns**: Phase 6 tasks explicitly address the methodological gaps identified by the research-stage reviewers (Aristotle, Rockmore, Kandel) regarding the distinction between memory and understanding, spatial rigidity, and neural consolidation mechanisms, framed as "Limitation Analysis" sections.

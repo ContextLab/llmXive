@@ -1,0 +1,14 @@
+status: none
+intent: download Pupil Labs Reading ds004041 dataset from OpenNeuro HuggingFace mirror
+  python package dataset
+required_fields:
+- subject_id
+- timestamp
+- pupil_diameter
+- blink_indicator
+- screen_luminance
+- passage_type
+- simplified_text
+cache_key: 8b94be20e4bc17f2581500ac279670808d41eaa1c1be3f5fc9b63fc5d86d1e1b
+searched_at: '2026-10-09T03:45:34.264338+00:00'
+retry_count: 1

@@ -1,11 +1,18 @@
 T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The response contains no evidence of the required folder hierarchy (`data/raw`,
-    `data/derived`, `code`, `tests`, `results`) being created; no directory listings,
-    file paths, or screenshots are provided. Consequently, we cannot verify that the
-    project structure exists as specified. The implementer must create and show the
-    actual directory layout.
+  h: 160a79a622388ae661f55d1d20130047e22272fa03610e1bd12547a8f79c7b88
+  r: No evidence of the required folder hierarchy (`data/raw`, `data/derived`, `code`,
+    `tests`, `results`) is provided; the response only contains a feature specification
+    and no actual project directories or files. The implementer must create and show
+    the specified project structure.
+T002:
+  c: false
+  h: 829035d32ff35b4ba8b1a6541bbb9467ea8491c8552cdaaaf5aee4c566406f4e
+  r: "The provided `requirements.txt` exists and lists the required packages, but\
+    \ it does not pin them to exact versions (it uses `>=` specifiers) and adds several\
+    \ unrelated packages, which does not satisfy the \u201Cpinning\u201D requirement\
+    \ of the task. The artifact must contain exact version pins (e.g., `pandas==2.0.0`)\
+    \ for the specified libraries."
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -14,6 +21,35 @@ T003:
     \ that ruff and black have been set up and run. The provided artifacts relate\
     \ only to the memory\u2011load\u2011adaptive text feature and do not address the\
     \ linting/formatting task. The required configuration is missing."
+T004:
+  c: false
+  h: 7f8ad1c9c1fe92e126b72c65b6d1cf92440d474e19075f9a3c8f238274c1ab09
+  r: "The `code/download.py` script expects a `datasets.ds004041.version_hash` entry\
+    \ in `data/metadata.yaml`, but the provided YAML has a different structure (`dataset.id`,\
+    \ `hash` placeholder) so the hash\u2011loading logic will fail. Moreover, `data/raw/`\
+    \ contains only a `.gitkeep` file\u2014no downloaded dataset files are present.\
+    \ The script therefore does not actually fetch and verify the required dataset\
+    \ as specified."
+T005:
+  c: true
+  h: fe536a46f2c9004fcca2d5118213640f50b66440d8582b8cba7f66519cd6ca33
+  r: "The `code/data_model.py` file is present and non\u2011empty, defines the four\
+    \ required dataclasses (`Participant`, `Passage`, `Window`, `AdaptationLabel`),\
+    \ and the `Passage` class includes a `simplified_text: Optional[str] = None` field,\
+    \ making it explicitly nullable as requested."
+T005b:
+  c: true
+  h: 54380c498fa4c0b73d16dd41534f0b24e74d14da3eef498d63fc363dec915f25
+  r: The file `code/preprocessing.py` contains a full `normalize_luminance_algorithm`
+    function implementing the required algorithm and includes `_load_screen_luminance_log`
+    / `ingest_screen_luminance_logs` with detailed docstrings and comments describing
+    how to ingest screen luminance logs from ds004041.
+T005c:
+  c: true
+  h: ef17fc483066590b857ee05f2395ba099bb56cba304a6672f494a9919d5c6922
+  r: "The `data/metadata.yaml` file exists (781\u202Fbytes) and includes a `limitations`\
+    \ entry explicitly stating that the dataset \u201CLacks simplified text for passages\u201D\
+    , satisfying the required flag for downstream graceful degradation."
 T012:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

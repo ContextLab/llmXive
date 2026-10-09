@@ -9,3 +9,15 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/openneuro/ds004041/resolve/main/data/pupil_data.parquet
   verified_at: '2026-07-02T14:45:22.022984Z'
+- artifact_hash: da520f3a7c7bc893dd2e24db5c46b1145520ea3b044f73848f200197d1b334f9
+  artifact_path: projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati/specs/001-memory-palace-pedagogy-vr-enhanced-spati/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: PKA-CREB-BDNF signaling pathway mediates propofol-induced long-term
+    learning and memory impairment in hippocampus of rats - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q52569862
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q52569862
+  verified_at: '2026-10-09T03:39:11.773896Z'

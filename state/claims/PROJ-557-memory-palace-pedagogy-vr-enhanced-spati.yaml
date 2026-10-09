@@ -182,3 +182,119 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-25T22:46:10Z'
+- artifact_path: projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati/specs/001-memory-palace-pedagogy-vr-enhanced-spati/tasks.md
+  attempts: 1
+  canonical: source dataset ds004041 lacks simplified text for all passages
+  claim_id: c_3545d4e8
+  context: T005c creates a metadata entry to flag that the source dataset lacks simplified
+    text for all passages, ensuring downstream graceful degradation.
+  evidence:
+    entailment_evidence: Source dataset ds004041 lacks simplified text for all passag
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Source_dataset_ds004041_lacks_simplified_text_for_all_passag
+  kind: entity_fact
+  raw_text: the source dataset lacks simplified text for all passages
+  resolved_value: source dataset ds004041 lacks simplified text for all passages
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-09T03:36:36Z'
+- artifact_path: projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati/specs/001-memory-palace-pedagogy-vr-enhanced-spati/tasks.md
+  attempts: 1
+  canonical: analysis uses the real Pupil Labs Reading dataset
+  claim_id: c_578aff6f
+  context: The research plan states that all analysis must use the real Pupil Labs
+    Reading dataset and that no fabricated data will be introduced.
+  evidence:
+    entailment_evidence: Analysis uses the real Pupil Labs Reading dataset
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Analysis_uses_the_real_Pupil_Labs_Reading_dataset
+  kind: entity_fact
+  raw_text: All analysis must use the real Pupil Labs Reading dataset
+  resolved_value: analysis uses the real Pupil Labs Reading dataset
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-09T03:36:40Z'
+- artifact_path: projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati/specs/001-memory-palace-pedagogy-vr-enhanced-spati/tasks.md
+  attempts: 1
+  canonical: adaptive condition is simulated via generated counterfactual text
+  claim_id: c_124cb381
+  context: Phase 6 notes that the adaptive condition is a simulation generated via
+    T021b, because the original dataset lacks simplified text.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Adaptive_condition_is_simulated_via_generated_counterfactual
+  kind: entity_fact
+  raw_text: the 'adaptive' condition is a simulation (generated via T021b)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T03:37:14Z'
+- artifact_path: projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati/specs/001-memory-palace-pedagogy-vr-enhanced-spati/tasks.md
+  attempts: 1
+  canonical: findings are associational rather than causal
+  claim_id: c_86eb39d7
+  context: "The report explicitly states that the study\u2019s findings are associational\
+    \ and not causal, addressing reviewer concerns."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Findings_are_associational_rather_than_causal
+  kind: entity_fact
+  raw_text: findings are associational, not causal
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T03:37:59Z'
+- artifact_path: projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati/specs/001-memory-palace-pedagogy-vr-enhanced-spati/tasks.md
+  attempts: 1
+  canonical: outcome measured is delayed recall scores, not comprehension
+  claim_id: c_fea3e581
+  context: The Retention vs. Understanding section clarifies that the study measures
+    delayed recall scores as the outcome, distinguishing it from unmeasured comprehension.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Outcome_measured_is_delayed_recall_scores,_not_comprehension
+  kind: entity_fact
+  raw_text: the measured outcome is delayed recall scores, not comprehension
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T03:38:52Z'
+- artifact_path: projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati/specs/001-memory-palace-pedagogy-vr-enhanced-spati/tasks.md
+  attempts: 1
+  canonical: dataset cannot verify cAMP-PKA-CREB molecular cascades for long-term
+    synaptic growth
+  claim_id: c_5fa915c5
+  context: The Mechanistic Validity section acknowledges that the dataset cannot verify
+    the molecular cascades (cAMP-PKA-CREB) needed for long-term synaptic growth.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: PKA-CREB-BDNF signaling pathway mediates propofol-induced long-term learning
+        and memory impairment in hippocampus of rats
+      source_id: Q52569862
+      url: https://www.wikidata.org/wiki/Q52569862
+      value: PKA-CREB-BDNF signaling pathway
+    filled: true
+  kind: entity_fact
+  raw_text: the dataset cannot verify the molecular cascades (cAMP-PKA-CREB) required
+    for long-term synaptic growth
+  resolved_value: PKA-CREB-BDNF signaling pathway
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-09T03:39:11Z'
