@@ -46,7 +46,10 @@ RUNTIME_TESTS = {
 # These files route/test CI, without changing reference resolution. Their PRs
 # must prove selection/collection invariants and still run Dartmouth; requiring
 # registrar uptime here does not validate the changed routing behavior.
-RUNTIME_PROMPTS = {"agents/prompts/paper_task_implementer.md"}
+RUNTIME_PROMPTS = {
+    "agents/prompts/paper_task_implementer.md",
+    "agents/prompts/research_reviewer_idea_quality.md",
+}
 
 ROUTING_FILES = {
     "scripts/ci/select_checks.py", "tests/real_call/conftest.py",
@@ -54,6 +57,10 @@ ROUTING_FILES = {
     ".github/workflows/llmxive-real-call-nightly.yml",
     ".github/workflows/audit.yml", "scripts/ci/verify-audit-corpus.py",
     ".github/workflows/repair.yml",
+    ".github/workflows/prompt-eval.yml",
+    "eval/promptfoo/llmxive_provider.py",
+    "eval/promptfoo/assert_review_frontmatter.py",
+    "eval/promptfoo/promptfooconfig.yaml",
     "scripts/verify_root_file_recovery.py",
 }
 
