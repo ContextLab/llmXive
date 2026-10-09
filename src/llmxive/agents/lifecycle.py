@@ -100,8 +100,8 @@ ALLOWED_TRANSITIONS: dict[Stage, set[Stage]] = {
     },
     Stage.ANALYZE_IN_PROGRESS: {Stage.ANALYZED, Stage.HUMAN_INPUT_NEEDED},
     Stage.ANALYZED: {Stage.IN_PROGRESS},
-    # IN_PROGRESS -> PLANNED: the execution fix-loop, having exhausted every
-    # model tier without a clean run, RE-PLANS (re-derive the approach with a
+    # IN_PROGRESS -> CLARIFIED: the execution/verifier fix-loop, after every
+    # usable model tier fails, re-enters the PLANNER (re-derive the approach with a
     # deterministic report) instead of escalating to a human (autonomous
     # exhaustion handling). HUMAN_INPUT_NEEDED is retained only for unrelated
     # legacy markers — the execution path never routes there anymore.
@@ -113,7 +113,7 @@ ALLOWED_TRANSITIONS: dict[Stage, set[Stage]] = {
     # is still autonomous (never HUMAN_INPUT_NEEDED).
     Stage.IN_PROGRESS: {
         Stage.RESEARCH_COMPLETE, Stage.IN_PROGRESS,
-        Stage.PLANNED, Stage.HUMAN_INPUT_NEEDED,
+        Stage.CLARIFIED, Stage.PLANNED, Stage.HUMAN_INPUT_NEEDED,
         Stage.VALIDATOR_REJECTED,
         # issue #1139 P1-2 / sec 3.7: execution exhaustion (all model tiers AND
         # all re-plans spent — the analysis simply cannot run in this
