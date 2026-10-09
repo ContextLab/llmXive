@@ -1,77 +1,61 @@
 """
-Drift Metric Schema Definitions.
+Drift metric contract definitions.
 
-Defines the structure for storing drift metrics calculated
-between consecutive time windows.
+These models capture the output of the pairwise drift analysis between
+consecutive windows.
 """
 
-from dataclasses import dataclass, field
-from typing import Optional, List
-from datetime import datetime
+from __future__ import annotations
+
+from typing import Optional
+
+from pydantic import BaseModel, Field, validator
 
 
-@dataclass
-class DriftMetric:
+class DriftMetric(BaseModel):
     """
-    Schema for drift metrics between two consecutive windows.
-    
-    Attributes:
-        transition_id: Unique identifier for the transition (e.g., 'T1_T2')
-        window_t: ID of the earlier window (source)
-        window_t_plus_1: ID of the later window (target)
-        spearman_rho: Spearman rank correlation coefficient
-        p_value: P-value for the Spearman correlation
-        is_significant: Boolean indicating if correlation is statistically significant
-        drift_magnitude: Absolute value of spearman_rho
-        trend_direction: 'stable', 'increase', or 'decrease' based on rho
-        null_baseline_mean: Mean rho from the null baseline (if available)
-        deviation_from_null: Difference between observed rho and null baseline mean
-        block_permutation_p_value: P-value from block permutation test
-        is_high_drift: Boolean flag if drift is significant (p < 0.05)
-        calculation_date: ISO timestamp when drift was calculated
+    Represents the drift statistics between two consecutive windows.
+
+    Attributes
+    ----------
+    window_start: Identifier (e.g., integer index) of the earlier window.
+    window_end: Identifier of the later window.
+    spearman_rho: Spearman rank‑correlation coefficient.
+    spearman_p_value: Two‑tailed p‑value associated with the rho.
+    high_drift: Boolean flag indicating whether the drift is considered
+                significant (based on block‑permutation p‑value < 0.05).
+    block_perm_p_value: Optional p‑value from the block permutation test.
     """
-    transition_id: str
-    window_t: str
-    window_t_plus_1: str
-    spearman_rho: float
-    p_value: float
-    is_significant: bool = False
-    drift_magnitude: float = 0.0
-    trend_direction: str = "stable"
-    null_baseline_mean: Optional[float] = None
-    deviation_from_null: Optional[float] = None
-    block_permutation_p_value: Optional[float] = None
-    is_high_drift: bool = False
-    calculation_date: str = field(default_factory=lambda: datetime.utcnow().isoformat())
 
-    def __post_init__(self):
-        """Post-initialization logic to derive derived fields."""
-        self.drift_magnitude = abs(self.spearman_rho)
-        
-        if self.spearman_rho > 0.05:
-            self.trend_direction = "increase"
-        elif self.spearman_rho < -0.05:
-            self.trend_direction = "decrease"
-        else:
-            self.trend_direction = "stable"
-        
-        if self.block_permutation_p_value is not None:
-            self.is_high_drift = self.block_permutation_p_value < 0.05
+    window_start: int = Field(..., description="Index of the earlier window.")
+    window_end: int = Field(..., description="Index of the later window.")
+    spearman_rho: float = Field(
+        ..., description="Spearman rank correlation between feature rankings."
+    )
+    spearman_p_value: float = Field(
+        ..., description="Two‑tailed p‑value for the Spearman rho."
+    )
+    high_drift: bool = Field(
+        ..., description="True if drift is flagged as significant."
+    )
+    block_perm_p_value: Optional[float] = Field(
+        None,
+        description=(
+            "P‑value from the block permutation significance test. "
+            "If None, the test was not performed."
+        ),
+    )
 
-    def to_dict(self) -> dict:
-        """Convert the dataclass instance to a dictionary."""
-        return {
-            "transition_id": self.transition_id,
-            "window_t": self.window_t,
-            "window_t_plus_1": self.window_t_plus_1,
-            "spearman_rho": self.spearman_rho,
-            "p_value": self.p_value,
-            "is_significant": self.is_significant,
-            "drift_magnitude": self.drift_magnitude,
-            "trend_direction": self.trend_direction,
-            "null_baseline_mean": self.null_baseline_mean,
-            "deviation_from_null": self.deviation_from_null,
-            "block_permutation_p_value": self.block_permutation_p_value,
-            "is_high_drift": self.is_high_drift,
-            "calculation_date": self.calculation_date
-        }
+    @validator("spearman_rho")
+    def rho_in_range(cls, v: float) -> float:
+        """Spearman rho must be between -1 and 1."""
+        if not -1.0 <= v <= 1.0:
+            raise ValueError("spearman_rho must be in [-1, 1]")
+        return v
+
+    @validator("spearman_p_value", "block_perm_p_value", each_item=True)
+    def pvalue_in_range(cls, v: Optional[float]) -> Optional[float]:
+        """All p‑values must be in the interval [0, 1]."""
+        if v is not None and not 0.0 <= v <= 1.0:
+            raise ValueError("p‑values must be between 0 and 1")
+        return v

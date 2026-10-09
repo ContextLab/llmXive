@@ -1,0 +1,91 @@
+T001:
+  task: 7685ae9baba376781b869f1c43a803037c6b8173bbe75959a53a266605e11a34
+T002:
+  reason: "The `code/requirements.txt` file exists but lists only package names without\
+    \ version pins, violating the \u201Cpinned dependencies\u201D requirement of the\
+    \ task. Version specifications (e.g., `pandas==1.5.3`) need to be added."
+  task: 593d15a7ca021c65c7ec24d9788a927f2de5285c37ce7c253be97ab783b1093e
+T003:
+  reason: "The evidence only shows the project root path; no linting or formatting\
+    \ configuration files (e.g., `.flake8`, `.pylintrc`, `pyproject.toml`/`setup.cfg`\
+    \ with black/isort settings) are present or referenced. Without these artifacts,\
+    \ the requirement to configure flake8, pylint, black, and isort is not satisfied.\
+    \ Adding the appropriate config files and confirming they are non\u2011empty will\
+    \ be needed."
+  task: 1d45b557b1717a5db606c67833e3123f71c52d84ded7d2b7f69c351142ad854f
+T004:
+  reason: The evidence provided does not show the existence of the required directories
+    `data/raw`, `data/processed`, or `outputs` within the project root, nor any files
+    confirming they were created. Without concrete proof that these folders were set
+    up, the task requirement is not satisfied.
+  task: 44f79d05a6c4e46ae31362ead2c81e69f07ca0a7f35ae673157337857c092eec
+T005:
+  task: 12270c81eb01d57156e6ce928c6b1a40948cefd2f3aadc184963cf6343ce2747
+T006:
+  reason: The `code/utils/` directory contains the expected files (`config.py`, `logger.py`,
+    etc.), but no evidence of their contents is provided. Without seeing the actual
+    implementation, we cannot confirm that a base configuration and a functional logging
+    infrastructure were created as required. The implementer must supply the source
+    code (or execution evidence) showing that these modules define configuration settings
+    and a working logger.
+  task: 2f9d03cf0ae8de2d5220da170c740bf80aeed1c914ade542269bffcb5c213899
+T007:
+  task: 8d9b5fa1fd8698766fa05dc2a55b2f44daebeb7e05f31c54acc1c2551e764aae
+T008:
+  task: a09d605765e57f62eb954c40fd919cf9187aedc31450855afd9851937584bec0
+T009:
+  task: 9dc8ac2601a8e03a45ade93edb279115a04679ad8576b2d5926cf0ae221d17a7
+T010:
+  task: ed0bd20c36b0878547fd9b43f345482263bdea985094b1b24ea70103b80a8973
+T011:
+  task: acfe754bda3539b9328fef5c61663aff9f4bc72e95e5cf3426c5e82cef77549d
+T012:
+  task: 6159468aa7b2fa9dd821e39ff0930002dd8aacd8ce3b0bf83c1e020533116c92
+T012b:
+  task: f303e98ccdc4ad8befbdc0ebb8d3a42c885488b48c51305030e8eb77de4b528a
+T013:
+  task: 1e13639bb63d7bbd189d73f6f82351dbde8e3ccbf71eb5e9459dbbc55c542cc1
+T014:
+  task: 3c68f4d4451315e1f99ebb11197691b83af3c66c7d07a35af50bcc03de0a6dbd
+T015:
+  task: 92920520dda4de6693f80ede5ed71263e4b649728886e4786082a969635ea0e3
+T016:
+  task: 4f0a06bcba1cf189b90f30c3455efcdd7fab49e7ec5d18c220209979d20f4c9e
+T017:
+  reason: 'Requested task execution failed; rerun successfully: code/drift_analysis.py
+    exit=1'
+  task: 861a0b5ca26638f6b52d4c0b976da4f89710f46f40d2cfa4853e5b33c0c10790
+T018:
+  task: 8775fc846f97313286dece73ce71187c3405f15cfa73cb5ee9ed170e0e63796b
+T019:
+  task: 3cdf2ca9c1a8eca23d9859cd0fa923ed582cf58f9349bd01f68a79f0ea941599
+T020:
+  task: b27ffe7925f66ff3bd8f6975673146210c4549d6e9b445f4054a383f3906f224
+T021:
+  task: 313aff645f63f2780144927ec43a7da9eb70dd7fb15ccf1fb21b6bef1c43456b
+T022:
+  task: 34c7c844e05598eed68cd08ab0da7cc746b5e47c31a7f7eae8e472298c680cf4
+T023:
+  task: 9c00be279649abf11d6147ce10c568cbbb67ea6e8ec88d87ec6546040341f101
+T024:
+  task: e474c47e30cf39f66d7c9f9348bfc20ce4254accb18085f1a9fb5fc20587cab6
+T025:
+  reason: 'declared artifact(s) missing/empty/invalid: outputs/drift_metrics.csv'
+  task: 4764e74e50474037cec22f326f936fa8745bfdf2e0ff70fec9084e0a3568e29a
+T026a:
+  task: c03be4a94cf7c305bbef66ce5b1de241b74d43200a519eec140ab3588b89e6d7
+T026b:
+  reason: 'declared artifact(s) missing/empty/invalid: outputs/global_stats.json'
+  task: aa1ad51d82b129ba36d81435d220a4a903db362ca6b749a71ee62774242d09d6
+T027:
+  task: 425a4a8a8bb1edd066a4858252de6e96e5cd8e88b8af6d1b6b3eef4b53b9015d
+T028:
+  task: d9229af6db0d2a34268d8c8440cdb8b2a9e356e44f2d0b4a7a9bea8503793e66
+T029:
+  task: 5a6a30656549e70b91188882fbe7cbf02909e9d39e1cb2a6d8aedbb7b461bffe
+T030:
+  task: 30f0f1c188d0f9ded5602d5afebac132af85e48b2050c2703a9664e1d6df2b38
+T031:
+  task: 40330a7c135f93071dc6b4cff8550988545333c4235c75aaba3df92727629522
+T032:
+  task: fe578fdec10bf9248081d58a59959753e6746f9329a5f8b8cc741d2778939e1f

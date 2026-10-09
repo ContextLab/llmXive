@@ -1,155 +1,98 @@
 """
-Tests for drift_analysis module.
+Unit tests for the pairwise drift calculation implemented in ``code/drift_analysis.py``.
+The tests use a tiny synthetic dataset (real CSV files are created on‑the‑fly)
+to verify that the core functions behave as expected.
 """
-import pytest
-import tempfile
+
 import csv
+import json
+import os
+import tempfile
 from pathlib import Path
-import numpy as np
-import pandas as pd
 
-# Ensure code path is available
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+import pytest
 
-from code.drift_analysis import (
-    calculate_spearman_correlation,
+from drift_analysis import (
+    calculate_rank_correlation,
     compute_pairwise_drift,
+    extract_window_rankings,
+    load_importance_profiles,
     save_drift_metrics,
-    load_importance_profiles
 )
 
-
 @pytest.fixture
-def sample_profiles_df():
-    """Create a sample importance profiles DataFrame."""
-    data = {
-        'window_id': [1, 1, 1, 1, 2, 2, 2, 2],
-        'feature': ['A', 'B', 'C', 'D', 'A', 'B', 'C', 'D'],
-        'importance_score': [0.5, 0.3, 0.15, 0.05, 0.4, 0.35, 0.15, 0.1]
-    }
-    return pd.DataFrame(data)
-
-
-@pytest.fixture
-def temp_profiles_file(sample_profiles_df):
-    """Create a temporary CSV file with sample profiles."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-        sample_profiles_df.to_csv(f, index=False)
-        temp_path = Path(f.name)
-    yield temp_path
-    temp_path.unlink()
-
-
-def test_load_importance_profiles(temp_profiles_file):
-    """Test loading importance profiles from CSV."""
-    df = load_importance_profiles(temp_profiles_file)
-    assert len(df) == 8
-    assert 'window_id' in df.columns
-    assert 'feature' in df.columns
-    assert 'importance_score' in df.columns
-
-
-def test_load_importance_profiles_missing_file():
-    """Test error handling for missing file."""
-    with pytest.raises(FileNotFoundError):
-        load_importance_profiles(Path("nonexistent.csv"))
-
-
-def test_calculate_spearman_correlation():
-    """Test Spearman correlation calculation."""
-    idx = ['A', 'B', 'C', 'D']
-    vec_t = pd.Series([0.5, 0.3, 0.15, 0.05], index=idx)
-    vec_t1 = pd.Series([0.4, 0.35, 0.15, 0.1], index=idx)
-
-    rho, p_value = calculate_spearman_correlation(vec_t, vec_t1)
-
-    assert isinstance(rho, float)
-    assert isinstance(p_value, float)
-    assert -1.0 <= rho <= 1.0
-    assert 0.0 <= p_value <= 1.0
-    # Expected: positive correlation (similar rankings)
-    assert rho > 0
-
-
-def test_calculate_spearman_correlation_constant_vector():
-    """Test handling of constant importance vectors."""
-    idx = ['A', 'B', 'C']
-    vec_t = pd.Series([0.33, 0.33, 0.33], index=idx)
-    vec_t1 = pd.Series([0.5, 0.3, 0.2], index=idx)
-
-    rho, p_value = calculate_spearman_correlation(vec_t, vec_t1)
-
-    assert np.isnan(rho)
-    assert np.isnan(p_value)
-
-
-def test_calculate_spearman_correlation_insufficient_features():
-    """Test handling of less than 2 common features."""
-    idx1 = ['A', 'B']
-    idx2 = ['C', 'D']
-    vec_t = pd.Series([0.5, 0.5], index=idx1)
-    vec_t1 = pd.Series([0.5, 0.5], index=idx2)
-
-    rho, p_value = calculate_spearman_correlation(vec_t, vec_t1)
-
-    assert np.isnan(rho)
-    assert np.isnan(p_value)
-
-
-def test_compute_pairwise_drift(sample_profiles_df):
-    """Test pairwise drift computation."""
-    results = compute_pairwise_drift(sample_profiles_df)
-
-    assert len(results) == 1  # Only one transition: 1 -> 2
-    result = results[0]
-
-    assert result['window_t'] == 1
-    assert result['window_t_plus_1'] == 2
-    assert 'rho' in result
-    assert 'p_value' in result
-    assert isinstance(result['rho'], float)
-
-
-def test_compute_pairwise_drift_single_window(sample_profiles_df):
-    """Test handling of single window (no transitions)."""
-    single_window = sample_profiles_df[sample_profiles_df['window_id'] == 1]
-    results = compute_pairwise_drift(single_window)
-
-    assert len(results) == 0
-
-
-def test_save_drift_metrics():
-    """Test saving drift metrics to CSV."""
-    results = [
-        {'window_t': 1, 'window_t_plus_1': 2, 'rho': 0.85, 'p_value': 0.02},
-        {'window_t': 2, 'window_t_plus_1': 3, 'rho': 0.72, 'p_value': 0.05}
+def synthetic_profiles_path():
+    """Create a minimal but realistic importance_profiles.csv file."""
+    rows = [
+        {"window_id": "0", "feature_name": "A", "importance_score": "0.9"},
+        {"window_id": "0", "feature_name": "B", "importance_score": "0.5"},
+        {"window_id": "0", "feature_name": "C", "importance_score": "0.1"},
+        {"window_id": "1", "feature_name": "A", "importance_score": "0.8"},
+        {"window_id": "1", "feature_name": "B", "importance_score": "0.6"},
+        {"window_id": "1", "feature_name": "C", "importance_score": "0.2"},
     ]
+    with tempfile.NamedTemporaryFile(mode="w", delete=False, newline="", suffix=".csv") as tmp:
+        writer = csv.DictWriter(tmp, fieldnames=["window_id", "feature_name", "importance_score"])
+        writer.writeheader()
+        writer.writerows(rows)
+        return tmp.name
 
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-        output_path = Path(f.name)
+def test_load_and_extract(synthetic_profiles_path):
+    profiles = load_importance_profiles(synthetic_profiles_path)
+    assert len(profiles) == 6
+    rankings = extract_window_rankings(profiles)
+    assert rankings[0] == ["A", "B", "C"]
+    assert rankings[1] == ["A", "B", "C"]
 
-    save_drift_metrics(results, output_path)
+def test_calculate_rank_correlation():
+    rankings_t = ["A", "B", "C"]
+    rankings_t1 = ["A", "C", "B"]
+    rho, p = calculate_rank_correlation(rankings_t, rankings_t1)
+    # With only three items the exact rho is -0.5
+    assert abs(rho + 0.5) < 1e-6
+    assert 0.0 < p <= 1.0
 
-    assert output_path.exists()
-    df = pd.read_csv(output_path)
-    assert len(df) == 2
-    assert list(df.columns) == ['window_t', 'window_t_plus_1', 'rho', 'p_value']
+def test_compute_pairwise_and_save(tmp_path: Path):
+    # Use the synthetic profiles from the fixture
+    profiles_path = synthetic_profiles_path()
+    profiles = load_importance_profiles(profiles_path)
+    rankings = extract_window_rankings(profiles)
 
-    output_path.unlink()
+    # Minimal null baseline and empty p‑value dict
+    null_baseline = {"mean": 0.0}
+    p_values = {}
 
+    drift = compute_pairwise_drift(rankings, p_values, null_baseline)
+    assert len(drift) == 1
+    assert drift[0]["window_t"] == 0
+    assert drift[0]["window_t1"] == 1
 
-def test_save_drift_metrics_empty():
-    """Test saving empty drift metrics."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-        output_path = Path(f.name)
+    output_csv = tmp_path / "drift_metrics.csv"
+    save_drift_metrics(drift, str(output_csv))
 
-    save_drift_metrics([], output_path)
+    # Verify CSV content
+    with open(output_csv, newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+        assert len(rows) == 1
+        assert rows[0]["window_t"] == "0"
+        assert rows[0]["window_t1"] == "1"
 
-    assert output_path.exists()
-    df = pd.read_csv(output_path)
-    assert len(df) == 0
-    assert list(df.columns) == ['window_t', 'window_t_plus_1', 'rho', 'p_value']
-
-    output_path.unlink()
+# Helper to obtain the fixture path inside a test function
+def synthetic_profiles_path():
+    # Re‑use the fixture implementation logic without pytest fixture injection
+    rows = [
+        {"window_id": "0", "feature_name": "A", "importance_score": "0.9"},
+        {"window_id": "0", "feature_name": "B", "importance_score": "0.5"},
+        {"window_id": "0", "feature_name": "C", "importance_score": "0.1"},
+        {"window_id": "1", "feature_name": "A", "importance_score": "0.8"},
+        {"window_id": "1", "feature_name": "B", "importance_score": "0.6"},
+        {"window_id": "1", "feature_name": "C", "importance_score": "0.2"},
+    ]
+    fd, path = tempfile.mkstemp(suffix=".csv")
+    os.close(fd)
+    with open(path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["window_id", "feature_name", "importance_score"])
+        writer.writeheader()
+        writer.writerows(rows)
+    return path

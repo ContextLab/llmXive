@@ -1,76 +1,45 @@
 """
-Importance Profile Schema Definitions.
+Importance profile contract definitions.
 
-Defines the structure for storing feature importance scores
-calculated for specific time windows.
+This module defines the schema for per‑window feature‑importance profiles
+produced by the training pipeline.
 """
 
-from dataclasses import dataclass, field
-from typing import List, Dict, Optional
-from datetime import datetime
+from __future__ import annotations
+
+from typing import Dict
+
+from pydantic import BaseModel, Field, validator
 
 
-@dataclass
-class ImportanceProfile:
+class ImportanceProfile(BaseModel):
     """
-    Schema for a single window's feature importance profile.
-    
-    Attributes:
-        window_id: Unique identifier for the time window (e.g., 'window_1', 'window_2')
-        start_timestamp: ISO format start time of the window
-        end_timestamp: ISO format end time of the window
-        model_type: Type of model used (e.g., 'RandomForestRegressor')
-        model_params: Dictionary of model hyperparameters used
-        r2_score: R-squared score of the model on this window
-        is_valid: Boolean indicating if the model met the R2 threshold (>= 0.8)
-        feature_names: Ordered list of feature names used in the model
-        importance_scores: List of importance scores corresponding to feature_names
-        importance_ranks: List of ranks (1-based) corresponding to feature_names
-        variance_dropped_features: List of features dropped due to zero variance
-        calculation_date: ISO timestamp when importance was calculated
+    Feature‑importance profile for a single time window.
+
+    Attributes
+    ----------
+    window_id: Identifier for the window (e.g., integer or string).
+    r2_score: R² score of the trained model on this window.
+    importance: Mapping from feature name to its permutation‑importance score.
     """
-    window_id: str
-    start_timestamp: str
-    end_timestamp: str
-    model_type: str = "RandomForestRegressor"
-    model_params: Dict[str, any] = field(default_factory=lambda: {"n_estimators": 100, "max_depth": 10, "random_state": 42})
-    r2_score: Optional[float] = None
-    is_valid: bool = True
-    feature_names: List[str] = field(default_factory=list)
-    importance_scores: List[float] = field(default_factory=list)
-    importance_ranks: List[int] = field(default_factory=list)
-    variance_dropped_features: List[str] = field(default_factory=list)
-    calculation_date: str = field(default_factory=lambda: datetime.utcnow().isoformat())
 
-    def to_dict(self) -> dict:
-        """Convert the dataclass instance to a dictionary."""
-        return {
-            "window_id": self.window_id,
-            "start_timestamp": self.start_timestamp,
-            "end_timestamp": self.end_timestamp,
-            "model_type": self.model_type,
-            "model_params": self.model_params,
-            "r2_score": self.r2_score,
-            "is_valid": self.is_valid,
-            "feature_names": self.feature_names,
-            "importance_scores": self.importance_scores,
-            "importance_ranks": self.importance_ranks,
-            "variance_dropped_features": self.variance_dropped_features,
-            "calculation_date": self.calculation_date
-        }
+    window_id: str = Field(..., description="Identifier of the processed window.")
+    r2_score: float = Field(..., description="R² score of the model on this window.")
+    importance: Dict[str, float] = Field(
+        ..., description="Feature name → importance score mapping."
+    )
 
-    def get_ranked_features(self) -> List[tuple]:
-        """
-        Returns a list of (feature_name, score, rank) sorted by rank.
-        """
-        if not self.feature_names or not self.importance_ranks:
-            return []
-        
-        # Create list of tuples and sort by rank
-        ranked = []
-        for i, name in enumerate(self.feature_names):
-            score = self.importance_scores[i] if i < len(self.importance_scores) else 0.0
-            rank = self.importance_ranks[i] if i < len(self.importance_ranks) else 0
-            ranked.append((name, score, rank))
-        
-        return sorted(ranked, key=lambda x: x[2])
+    @validator("r2_score")
+    def r2_in_range(cls, v: float) -> float:
+        """R² must be between 0 and 1 for regression tasks."""
+        if not 0.0 <= v <= 1.0:
+            raise ValueError("r2_score must be in [0, 1]")
+        return v
+
+    @validator("importance")
+    def importance_non_negative(cls, v: Dict[str, float]) -> Dict[str, float]:
+        """Importance scores should be non‑negative."""
+        for feat, imp in v.items():
+            if imp < 0:
+                raise ValueError(f"Importance for feature '{feat}' is negative")
+        return v

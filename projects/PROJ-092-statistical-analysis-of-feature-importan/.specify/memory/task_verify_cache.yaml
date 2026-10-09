@@ -1,3 +1,46 @@
+T001:
+  c: true
+  h: 4a7d611a42b885e36203795e6eba1815b017f3c8519b52c77f27b591fe7d0f17
+  r: The project root `projects/PROJ-092-statistical-analysis-of-feature-importan/`
+    is present and contains the expected hierarchy (e.g., `code/`, `data/`, `outputs/`,
+    `tests/`, configuration files, README, etc.). This satisfies the requirement to
+    create the project structure per the implementation plan.
+T002:
+  c: false
+  h: 7b7cec1294d290196dbf7d3356dcddbaa6bc7f24df5c4b30b50d967f09bfeca2
+  r: "The `code/requirements.txt` file exists but lists only package names without\
+    \ version pins, violating the \u201Cpinned dependencies\u201D requirement of the\
+    \ task. Version specifications (e.g., `pandas==1.5.3`) need to be added."
+T003:
+  c: false
+  h: 97781c83705cc794ea1141df2b66c2a833203a5f9e95bf2206634c58120dcd56
+  r: "The evidence only shows the project root path; no linting or formatting configuration\
+    \ files (e.g., `.flake8`, `.pylintrc`, `pyproject.toml`/`setup.cfg` with black/isort\
+    \ settings) are present or referenced. Without these artifacts, the requirement\
+    \ to configure flake8, pylint, black, and isort is not satisfied. Adding the appropriate\
+    \ config files and confirming they are non\u2011empty will be needed."
+T004:
+  c: false
+  h: aab3869efb33216ef7593591cf78907ec8f1fb69150a3ef906d3fc14e8ca1dae
+  r: The evidence provided does not show the existence of the required directories
+    `data/raw`, `data/processed`, or `outputs` within the project root, nor any files
+    confirming they were created. Without concrete proof that these folders were set
+    up, the task requirement is not satisfied.
+T005:
+  c: true
+  h: ed5e25b7b5024c99d253d9cdc4e7bb96dec5cc857fd11e7cf6840dcd2f7fe07e
+  r: "Checked `code/download.py`, which exists, is non\u2011empty, and contains a\
+    \ functional implementation that programmatically downloads a UCI dataset, saves\
+    \ it, and verifies the file (size and hash) as required by FR\u2011001."
+T006:
+  c: false
+  h: a91c516d830443031d6ab55bb9115f1a09886c990b480070e50ab36ed8b634d1
+  r: The `code/utils/` directory contains the expected files (`config.py`, `logger.py`,
+    etc.), but no evidence of their contents is provided. Without seeing the actual
+    implementation, we cannot confirm that a base configuration and a functional logging
+    infrastructure were created as required. The implementer must supply the source
+    code (or execution evidence) showing that these modules define configuration settings
+    and a working logger.
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
