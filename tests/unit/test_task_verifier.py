@@ -403,3 +403,27 @@ def test_verifier_receipts_follow_model_and_policy(tmp_path, monkeypatch):
     assert tv.verified_done_keys(tmp_path, tasks, model='custom-model') == set()
     tv.run_verification_pass(tmp_path, tasks, model='custom-model', **args)
     assert len(calls) == 2 and tasks.read_text() == original
+
+
+def test_collector_reports_actual_project_and_repository_file_identity(tmp_path):
+    project = tmp_path / 'projects/PROJ-17'
+    (project / 'code').mkdir(parents=True)
+    (project / 'code/main.py').write_text('print(42)\n')
+    evidence = tv.gather_evidence(project, 'T001 Implement code/main.py')
+    assert 'Project root relative to the repository: `projects/PROJ-17`' in evidence
+    assert 'resolved: `code/main.py`, repository-relative: `projects/PROJ-17/code/main.py`' in evidence
+
+
+def test_collector_does_not_invent_repository_or_foreign_project_mapping(tmp_path):
+    project = tmp_path / 'standalone'
+    (project / 'code').mkdir(parents=True)
+    (project / 'code/main.py').write_text('print(42)\n')
+    evidence = tv.gather_evidence(project, 'T001 Implement code/main.py')
+    assert 'repository-relative:' not in evidence
+    assert 'Project root relative to the repository:' not in evidence
+    namespaced = tmp_path / 'projects/PROJ-17'
+    (namespaced / 'code').mkdir(parents=True)
+    (namespaced / 'code/main.py').write_text('print(42)\n')
+    missing = tv.gather_evidence(namespaced, 'T001 Implement projects/PROJ-99/code/main.py')
+    assert '`projects/PROJ-99/code/main.py`: MISSING' in missing
+    assert 'repository-relative: `projects/PROJ-99/code/main.py`' not in missing

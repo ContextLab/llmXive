@@ -220,6 +220,12 @@ def gather_evidence(project_dir: Path, task_text: str) -> str:
     paths = _declared_paths(task_text)
     file_count = 0
     chunks: list[str] = []
+    project_root = project_dir.resolve()
+    # The production layout is projects/<id>. State that collector-observed
+    # identity, so project-relative evidence can substantiate repository-root
+    # commands without trusting path-equivalence claims in generated prose.
+    # Standalone caller directories do not establish a repository convention.
+    repository_root = project_root.parent.parent if project_root.parent.name == "projects" else None
     for rel in paths:
         f = _evidence_path(project_dir, rel)
         if f is not None and rel.endswith("/") and f.is_dir():
@@ -249,7 +255,9 @@ def gather_evidence(project_dir: Path, task_text: str) -> str:
             continue
         chunks.append(
             f"- `{rel}` (resolved: `{f.relative_to(project_dir.resolve())}`, "
-            f"{size} bytes, sha256={digest}):\n```\n{head}\n```"
+            + (f"repository-relative: `{f.relative_to(repository_root)}`, "
+               if repository_root is not None else "")
+            + f"{size} bytes, sha256={digest}):\n```\n{head}\n```"
             + ("" if size <= _MAX_BYTES_PER_FILE else "\n…(truncated)")
         )
     if not chunks:
@@ -273,6 +281,14 @@ def gather_evidence(project_dir: Path, task_text: str) -> str:
     execution = _task_execution_evidence(project_dir, task_text)
     if execution:
         chunks.append(execution)
+    if repository_root is not None:
+        chunks.insert(0,
+            "# Collector-confirmed project location\n"
+            f"Project root relative to the repository: `{project_root.relative_to(repository_root)}`.\n"
+            "Resolved artifact paths are relative to this project root; repository-relative "
+            "paths identify the same observed files from the repository root.\n"
+            "This mapping does not establish the existence of missing paths."
+        )
     return "\n".join(chunks)
 
 
