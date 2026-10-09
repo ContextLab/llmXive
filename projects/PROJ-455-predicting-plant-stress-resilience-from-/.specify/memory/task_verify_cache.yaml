@@ -1,12 +1,42 @@
-T001:
+T001.1:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that the directory tree `projects/PROJ-455-predicting-plant-stress-resilience/`\
-    \ containing the listed sub\u2011folders (`code/data`, `code/models`, `code/analysis`,\
-    \ `tests/unit`, `tests/integration`, `tests/contract`, `tests/benchmark`, `contracts`,\
-    \ `data/raw`, `data/processed`, `data/results`) actually exists; the response\
-    \ contains only the task description and no file\u2011system listing or screenshots.\
-    \ The required project structure therefore cannot be confirmed as created."
+  h: e580c983239f593efa03bd5ee7ca7b1fc70209aa902f91e0ebfe5e2ab0e92b02
+  r: "No evidence of the requested directory tree (e.g., a listing or screenshot showing\
+    \ the `projects/PROJ-455-predicting-plant-stress-resilience-from-` hierarchy)\
+    \ is provided, so we cannot confirm that the `mkdir -p \u2026` command was actually\
+    \ executed and the directories exist. The required artifact is missing."
+T001.2:
+  c: false
+  h: 7ded637ed4a86de728223bf802c57fa396379c2bcc90f7056499e190a0c403ad
+  r: No script, command output, or log file is provided that runs `ls` on the paths
+    from T001.1 and checks the exit codes. Consequently, there is no evidence that
+    the required directories were actually verified to exist.
+T002:
+  c: true
+  h: 4115c66233238fb0d076664f0077ffa8bd9e4cf75930f2dc4bc27d7e7adb66c5
+  r: "The `requirements.txt` file exists, is non\u2011empty, and lists all seven specified\
+    \ packages with the exact version numbers required by the task. No placeholders\
+    \ or missing entries are present."
+T003:
+  c: false
+  h: 6a136d1d65da59729db588a1884d625b3710f29824fa07afe23124c64c2d6a94
+  r: The repository contains a `pyproject.toml` with Black configuration, but there
+    is no `.flake8` file present, which is required to complete the linting setup.
+    The missing `.flake8` configuration must be added for the task to be fully satisfied.
+T004.1:
+  c: true
+  h: b9d4944d19e400a8211a17b97dd9645f0ef718d60e0603bc150abbcdb22d7736
+  r: "The file `contracts/dataset.schema.yaml` exists, is non\u2011empty, and contains\
+    \ a full JSON\u2011Schema definition for a MetabolomicProfile dataset, matching\
+    \ the task\u2019s requirement."
+T004.2:
+  c: false
+  h: 2bcf585843fef71de4baa640547b6f1411cf2c88916c08c57c88b85521d632ce
+  r: The schema file exists but its contents do not match the required fields. It
+    defines r2, rmse, mean_absolute_error, cv_folds, training_time_seconds, and mode,
+    while the task demanded `model_type`, `metric_name`, `metric_value`, `feature_importance`
+    (list), `p_value` (nullable), `validation_method`, and `seed_used`. Those required
+    properties are missing, so the task is not fulfilled.
 T022:
   c: false
   h: 7f0dc22844df03d539c119d1c1d1b439cb94c7ee1fd375bd09159216249e0cd5
