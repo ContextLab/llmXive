@@ -1,19 +1,74 @@
+T001:
+  c: false
+  h: f31cd27e347c9107aa87a99f55ef30b07a4f12c5c0fc7be92455be95ccdcbe8d
+  r: "The `data/metrics_log.txt` file is missing, and there is no evidence that the\
+    \ required directories (`data/raw`, `data/processed`, `data/results`, `code`,\
+    \ `tests`, `contracts`) were actually created. The task\u2019s directory\u2011\
+    structure requirement is therefore not fully satisfied."
+T002:
+  c: false
+  h: 2651ab1f60d43b52aba63b393f6b4d30a2c4d74691e0dc7491a1ab3868b8a849
+  r: No artifact (e.g., test script, log output, or directory listing) was provided
+    to demonstrate that the required folders have been created and asserted. Without
+    concrete evidence of directory existence checks, the claim cannot be verified.
+    The implementer must supply the code or output that creates the directories and
+    asserts their presence.
+T003:
+  c: false
+  h: f7af7741bf39eff1c3f45dbce38043d57ffc5213279c05f3b3a03a0a0c2d8a2c
+  r: No `README.md` file or its contents were provided; without the actual placeholder
+    document we cannot confirm that installation, usage, and reproducibility sections
+    exist. The required artifact is missing.
+T004:
+  c: false
+  h: 6884e325204b5357176fe50c541e4811beb2e340a9b1b8187ab37028148187d6
+  r: No `venv/` directory or activation script (e.g., `venv/bin/activate` or `venv/Scripts/activate`)
+    was presented in the provided artifacts, so the required virtual environment cannot
+    be confirmed as created. The implementer must supply the actual `venv/` folder
+    with the activation script.
+T005:
+  c: true
+  h: 7cbd45202f343b358c060b78186717b82bab44417fd7d1dd974bc749d81e6fb5
+  r: "Both required files are present, non\u2011empty, and contain valid configuration\
+    \ sections for Black (`[tool.black]` in `pyproject.toml`) and Ruff (`[lint]` etc.\
+    \ in `.ruff.toml`). The artifacts directly satisfy the task\u2019s requirement."
+T006:
+  c: false
+  h: 58ca83e186c09db3c695d925ae21a9937ba8d8bc58ee73494c586302cac8db7d
+  r: The repository contains `data/preprocess_log.txt` and `data/analysis_log.txt`,
+    but both files are populated with log entries rather than being empty, and the
+    required `data/metrics_log.txt` file is completely missing. The task demanded
+    three empty log files, which is not satisfied.
+T007:
+  c: false
+  h: 23387361e44248447af6960aee08da228e25637908eb4c85fbeb95c31f60692e
+  r: "The `contracts/` directory with the three `.schema.yaml` files exists, but no\
+    \ evidence is provided showing the files contain actual JSON\u2011Schema skeletons\
+    \ (they could be empty or placeholders). The implementer must supply the file\
+    \ contents to confirm they define minimal JSON\u2011Schema structures for dataset,\
+    \ metric, and result."
+T008:
+  c: false
+  h: c4aa8f32f9636ffab2d74e41f141b64c8d0b1badfb024a2e0896ee302598a6b6
+  r: "The provided `requirements.txt` contains the correct pinned versions, but it\
+    \ resides in `code/requirements.txt` rather than at the repository\u2019s top\
+    \ level as the task specifies. Relocate or duplicate the file to the project root\
+    \ so it is truly top\u2011level."
+T009:
+  c: false
+  h: e708d80a32b1a4ffcc7a8e0cdd8ad6bcc2961dd0c7c7018bf3abc0987270953d
+  r: "The provided `requirements.txt` exists, is non\u2011empty, and all dependencies\
+    \ are pinned with `==` versions. However, there is no evidence that the implementer\
+    \ actually ran `pip install -r requirements.txt` and confirmed that `import nilearn`\
+    \ (or other imports) succeeds, which is a required part of the task. The import\u2011\
+    success verification is missing."
 T010:
   c: false
-  h: d2a865b360108db689adb8014f14534c95f1cef3f969b70c50f085366b4c3acc
-  r: "The repository contains a partially\u2011written `tests/unit/test_preprocess.py`\
-    \ but the test ends abruptly (truncated) and never actually checks that `data/preprocess_log.txt`\
-    \ was written or contains the container hash. Moreover, the required `data/preprocess_log.txt`\
-    \ file is missing entirely. The task\u2019s requirement\u2014to verify that a\
-    \ mock call logs the container hash to that file\u2014is therefore not satisfied."
-T012b:
-  c: false
-  h: 8febbbddf716411c78ee475b54498f872ba3db0be99647abed5a8afeb2092b60
-  r: "The `main.py` script does call `verify_fMRI_availability()` and skips preprocessing\
-    \ for missing subjects, but it does not create or write the required `data/preprocess_log.txt`\
-    \ file (the file is missing) and the logged message does not match the exact required\
-    \ text \u201CN/A - Data Unavailable\u201D. The implementation must generate the\
-    \ log file and write the exact message before exiting."
+  h: 766f8cac7ebe74ae43870bbe9a57e9a9fb70145d1206adc5fb6c40dd7c770c96
+  r: "No linting or formatting configuration files (e.g.,\u202F`.ruff.toml`, `pyproject.toml`\
+    \ with Black settings) or installation scripts are present in the provided evidence,\
+    \ so the requirement to install ruff/black and ensure their config files exist\
+    \ is not satisfied."
 T013:
   c: false
   h: df72ca24d901b4cde3108e2646f964b1cdf7990ab2ac105dc72e4a5378e5fc1b
@@ -44,20 +99,6 @@ T020:
     was presented; therefore the required metric extraction and saving step cannot
     be verified. The implementer must provide the actual JSON output files containing
     the `subject_id` and `transition_count` fields for at least one subject.
-T020a:
-  c: false
-  h: 670f3845ff9be7b57b9b1e809cbdb0fae6c8bc46ee7d66349d0df493e8ad49e7
-  r: The repository lacks a defined `aggregate_metrics_to_tsv()` function in `code/metrics.py`
-    (the file is truncated and does not show such an implementation), and the required
-    output file `data/processed/metrics_aggregated.tsv` is absent. Both the implementation
-    and the generated TSV are missing, so the task is not satisfied.
-T025b:
-  c: false
-  h: bc7d84440d275cfee2389f0e59c08ab4daa44e78fa1b76f14a658fe58d58ca91
-  r: The provided `code/analysis.py` does not contain any iteration over `Subject`
-    objects nor a check using `Subject.has_valid_data()`, and there is no code that
-    writes the count of excluded subjects to `data/analysis_log.txt`. Additionally,
-    the required log file does not exist. These essential parts of the task are missing.
 T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -71,10 +112,3 @@ T035:
   r: "No PDF or PNG file was found in `data/results/` showing a null\u2011distribution\
     \ histogram with the observed statistic highlighted. The required visual report\
     \ is missing, so the task is not satisfied."
-T036a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No README.md content was supplied, so we cannot verify that it exists, is non\u2011\
-    empty, or contains the required CLI usage examples and installation instructions\
-    \ for the `code/` and `data/` directories. The implementer must provide the updated\
-    \ README file showing those sections."

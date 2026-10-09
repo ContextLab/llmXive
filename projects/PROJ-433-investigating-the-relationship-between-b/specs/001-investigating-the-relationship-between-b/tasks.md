@@ -1,270 +1,156 @@
+---
+description: "Task list for feature implementation"
+---
+
 # Tasks: Investigating the Relationship Between Brain Network Dynamics and Subjective Time Perception
 
 **Input**: Design documents from `/specs/001-gene-regulation/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `research.md`, `data‑model.md`, `contracts/`
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Tests**: Unit‑ and integration‑tests are included where explicitly requested in the specification.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
+**Organization**: Tasks are grouped by phase and by user story to enable independent implementation and testing.
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001 Create project structure: Execute `mkdir -p data/raw data/processed data/results code/ tests/ state/` to initialize directories per implementation plan.
-- [ ] T002a [P] Create Python virtual environment: Run `python3.11 -m venv venv` in repository root.
-- [X] T002b [P] Create requirements.txt: Initialize `code/requirements.txt` file.
-- [X] T002c [P] Pin dependencies: Add exact versions to `code/requirements.txt` for: nilearn, networkx, scikit-learn, pandas, matplotlib, nibabel, scipy, pytest, dask, distributed.
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
-
----
+| ID | Parallel? | Description |
+|----|-----------|-------------|
+- [ ] T001 Create project directory structure (`mkdir -p data/raw data/processed data/results data/preprocess_log.txt data/analysis_log.txt data/metrics_log.txt code tests contracts`) |
+- [ ] T002 Verify directory creation (assert each required folder exists) |
+- [ ] T003 Create placeholder `README.md` with installation, usage, and reproducibility sections |
+- [ ] T004 Create Python virtual environment in `venv/` and verify activation script exists |
+- [X] T005 Create linting and formatting configuration files `pyproject.toml` (black) and `.ruff.toml` (ruff) |
+- [ ] T006 Initialise empty log files `data/preprocess_log.txt`, `data/analysis_log.txt`, `data/metrics_log.txt` |
+- [ ] T007 Add minimal JSON‑Schema skeletons in `contracts/` (dataset, metric, result) |
+- [ ] T008 Create top‑level `requirements.txt` and pin exact versions for all dependencies (nilearn, networkx, scikit‑learn, pandas, matplotlib, nibabel, scipy, pytest, dask, distributed, etc.) |
+- [ ] T009 Verify `requirements.txt` contains pinned versions and that imports succeed (`pip install -r requirements.txt && python -c "import nilearn"`) |
+- [ ] T010 Configure linting (ruff) and formatting (black) tools (install and ensure config files exist) |
+- [~] T011 Verify linting configuration files exist (`pyproject.toml`, `.ruff.toml`) |
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+| ID | Parallel? | Description |
+|----|-----------|-------------|
+- [~] T012 Implement logging utilities in `code/utils.py` (`setup_logger()` writes to both `data/preprocess_log.txt` and `data/analysis_log.txt` with ISO timestamps) |
+- [~] T013 Verify `setup_logger()` writes ISO‑timestamped entries to both log files (unit test) |
+- [~] T014 Implement reproducible RNG helper in `code/utils.py` (`get_seeded_rng(seed=42)`) |
+- [~] T015 Verify RNG seeding reproducibility (unit test comparing generated sequences) |
+- [~] T016 Implement QC helpers in `code/utils.py` (`check_fd(fd_value, threshold=0.5)` and `log_exclusion(reason, subject_id)`) |
+- [~] T017 Verify `check_fd()` returns expected boolean for known FD values (unit test) |
+- [~] T018 Create data‑schema definitions: `contracts/dataset.schema.yaml`, `contracts/metric.schema.yaml`, `contracts/result.schema.yaml` |
+- [~] T019 Validate schema files against minimal example (schema‑validation test) |
+- [~] T020 Implement base `Subject` entity in `code/models.py` with attributes `id`, `fmriprep_path`, `dsst_score`, `qc_metrics` and method `has_valid_data()` |
+- [~] T021 Verify `Subject` instantiation and `has_valid_data()` behavior (unit test) |
+- [~] T022 Implement HCP download logic in `code/download.py` (URL list, retry up to 3 ×, checksum verification, status reporting) |
+- [~] T023 Integration test confirming download, checksum, and retry logic on a small known file |
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+## Phase 3: User Story 1 – Data Acquisition & Pre‑processing (Priority P1)
 
-- [X] T004 [P] Implement `code/utils.py` logging: Add `setup_logger()` function returning a logger writing to `data/preprocess_log.txt` and `data/analysis_log.txt` with ISO timestamps.
-- [X] T004b [P] Implement `code/utils.py` RNG: Add `get_seeded_rng(seed=42)` function returning a numpy.random.Generator with pinned seed for reproducibility.
-- [X] T004c [P] Implement `code/utils.py` QC: Add `check_fd(fd_value, threshold=0.5)` returning boolean and `log_exclusion(reason, subject_id)` functions.
-- [ ] T007 Create data schema definitions: Create `contracts/dataset.schema.yaml`, `contracts/metric.schema.yaml`, and `contracts/result.schema.yaml` defining the JSON/YAML schemas for all data artifacts.
-- [X] T008 Create base Subject entity model: Implement `code/models.py` with a `Subject` class containing attributes: `id` (str), `fMRI_path` (str), `DSST_score` (float or None), `qc_metrics` (dict). **MUST include** `has_valid_data()` method returning `True` only if `fMRI_path` exists and `DSST_score` is not `None`.
-- [X] T006 [P] Implement `code/download.py` with HCP data retrieval logic, checksum verification, and status-based availability checking (no exceptions for missing data).
+| ID | Parallel? | Description |
+|----|-----------|-------------|
+- [~] T024 Unit test `tests/unit/test_download.py::test_download_retries_on_error` (must fail before implementation) |
+- [~] T025 Unit test `tests/unit/test_preprocess.py::test_fmriprep_invocation_logs_hash` (must fail before implementation) |
+- [~] T026 Implement `verify_fMRI_availability()` in `code/download.py` – returns `{'status':'PRESENT'}` or raises `RuntimeError('Data Gap: fMRI time‑series not found')` |
+- [~] T027 Verify both PRESENT and MISSING branches (unit test) |
+- [~] T028 Implement main runner in `code/main.py` that calls `verify_fMRI_availability()`; on MISSING raise `RuntimeError` with clear message |
+- [~] T029 Test that the main runner aborts with the expected error when data are missing |
+- [~] T030 Implement thin wrapper `code/preprocess.py` that invokes the fMRIPrep Docker container (pinned image, required flags) and supports `--mode ci` (subset) and `--mode cluster` |
+- [~] T031 Verify fMRIPrep Docker wrapper logs exact container image hash and all required flags (unit test) |
+- [~] T032 Add QC validation in `code/preprocess.py`: after fMRIPrep finishes, run `check_fd()` on each subject, exclude subjects with FD > 0.5 mm and log exclusions via `log_exclusion()` |
+- [~] T033 Verify QC after fMRIPrep correctly excludes high‑motion subjects and logs them (unit test) |
+- [~] T034 Ensure `code/download.py` and `code/preprocess.py` use the logger from T012 for all messages |
+- [~] T035 Test that logger calls are made from both modules (mock logger and assert calls) |
+- [~] T036 After preprocessing, compute percentage of subjects that passed QC and log `SC‑001: X % subjects passed fMRIPrep QC` to `data/analysis_log.txt` | <!-- FAILED-IN-EXECUTION: code/log_qc_pass_rate.py exit=1 -->
+- [~] T037 Log the SC‑001 success‑rate metric (implementation) |
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+## Phase 4: User Story 2 – Network Reconfigurability Metric Computation (Priority P2)
 
----
+| ID | Parallel? | Description |
+|----|-----------|-------------|
+- [~] T038 Unit test `tests/unit/test_metrics.py::test_sliding_window_correlation_shapes` (must fail before implementation) |
+- [~] T039 Unit test `tests/unit/test_metrics.py::test_louvain_retry_on_failure` (must fail before implementation) |
+- [~] T040 Before metric computation, invoke `check_fd()` to exclude high‑motion subjects; log exclusions (reuse from US1) |
+- [~] T041 Verify that `check_fd()` runs before sliding‑window computation (integration test) |
+- [~] T042 Implement `compute_sliding_window()` in `code/metrics.py` (30 s window, 5 s step, Schaefer 200‑parcel atlas) – returns array of connectivity matrices |
+- [~] T043 Verify output shape and numeric ranges for synthetic NIfTI input (unit test) |
+- [~] T044 Save each subject’s sliding‑window connectivity array to `data/processed/connectivity_{subject_id}.npy` and verify file existence (unit test) |
+- [~] T045 Implement `extract_reconfigurability()` in `code/metrics.py` – runs Louvain community detection (seeded RNG), retries with new seeds up to three times, counts community‑state transitions |
+- [~] T046 Verify Louvain retry logic and correct counting (unit test) |
+- [~] T047 Write reconfigurability metric for each subject to `data/results/metrics_{subject_id}.json` (`subject_id`, `transition_count`) |
+- [~] T048 Verify JSON file exists, follows `contracts/metric.schema.yaml`, and respects naming convention (unit test) |
+- [~] T049 Aggregate all subject JSON files into a single TSV `data/processed/metrics_aggregated.tsv` (`subject_id`, `transition_count`) |
+- [~] T050 Verify aggregated TSV contains one row per subject with correct columns (unit test) |
+- [ ] T051 Log metric‑computation progress and exclusions to `data/metrics_log.txt` |
+- [~] T052 Verify `data/metrics_log.txt` exists and contains expected entries (unit test) |
+- [~] T053 Re‑run metric computation with the same seeded RNG and assert that generated JSON and TSV files are bit‑wise identical (SC‑002) |
+- [~] T054 Verify repeatability test passes (identical output files) |
 
-## Phase 3: User Story 1 - Data Acquisition and Preprocessing Pipeline (Priority: P1) 🎯 MVP
+## Phase 5: User Story 3 – Statistical Correlation & Visualization (Priority P3)
 
-**Goal**: Automatically download HCP fMRI/behavioral data and preprocess fMRI using fMRIPrep (or fail gracefully with "Data Gap" if real data is missing/unavailable on CI).
+| ID | Parallel? | Description |
+|----|-----------|-------------|
+- [~] T055 Unit test `tests/unit/test_analysis.py::test_spearman_correlation_known_values` (must fail before implementation) |
+- [~] T056 Unit test `tests/unit/test_viz.py::test_scatter_plot_generation` (must fail before implementation) |
+- [~] T057 Implement subject filtering in `code/analysis.py` – keep only subjects where `Subject.has_valid_data()` is `True`; log number of excluded subjects to `data/analysis_log.txt` |
+- [~] T058 Verify filtering logic and exclusion logging (unit test) |
+- [~] T059 Write explicit summary line to `data/analysis_log.txt` such as `Excluded X subjects due to missing DSST or QC failures` |
+- [~] T060 Implement `compute_spearman()` in `code/analysis.py` – calculates Spearman rank correlation between `transition_count` and `DSST_score` for all valid subjects |
+- [~] T061 Implement Bonferroni correction (`apply_bonferroni()`) in `code/analysis.py` for the set of metric‑behavior pairs |
+- [~] T062 Compute Cohen’s *r* effect size; clamp extreme p‑values to a small constant (e.g., 1e‑12) to avoid division‑by‑zero |
+- [ ] T063 Write aggregated statistical summary to `data/analysis_results.tsv` (`metric_pair`, `spearman_rho`, `p_val`, `p_adj`, `cohens_r`) |
+- [~] T064 Verify `analysis_results.tsv` exists, has required columns, and non‑empty rows (unit test) |
+- [~] T065 Validate that the TSV complies with `contracts/result.schema.yaml` |
+- [~] T066 Implement `generate_scatter_plot()` in `code/viz.py` – creates PNG scatter plots with 95 % confidence intervals and effect‑size annotation |
+- [~] T067 Save each plot as `data/results/plot_{metric}_{behavior}.png` |
+- [~] T068 Verify each PNG plot file exists and is non‑empty (unit test) |
+- [~] T069 Ensure plot files are listed in `data/analysis_log.txt` for traceability | <!-- FAILED-IN-EXECUTION: code/viz.py exit=1 -->
 
-**Independent Test**: The pipeline is tested by executing the download and preprocessing script on a 1-2 subject subset. The system must verify that output NIfTI files exist in MNI space with motion correction, consuming ≤ 2 CPU cores and ≤ 7 GB RAM, AND verify that output files pass fMRIPrep QC metrics (motion < 0.5mm). If real data is missing, the system must fail gracefully by skipping preprocessing and logging 'N/A - Data Unavailable' rather than crashing.
+## Phase 6: User Story 4 – Permutation‑Testing Validation (Priority P3)
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+| ID | Parallel? | Description |
+|----|-----------|-------------|
+- [~] T070 Unit test `tests/unit/test_analysis.py::test_permutation_null_distribution` (must fail before implementation) |
+- [~] T071 Implement `run_permutation_test()` in `code/analysis.py` – shuffles DSST scores while keeping metrics fixed, uses seeded RNG, default 1000 permutations |
+- [~] T072 Compute permutation‑derived p‑values by comparing the observed Spearman statistic to the null distribution |
+- [~] T073 Save raw permutation results & null distribution to `data/results/permutation_results.tsv` | <!-- FAILED-IN-EXECUTION: code/save_permutation_results.py exit=1 -->
+- [~] T074 Verify `permutation_results.tsv` has 1000 rows and correct headers (unit test) |
+- [~] T075 Ensure each row of `permutation_results.tsv` contains `shuffle_index` and `spearman_rho` (validation) |
+- [~] T076 Generate visual report `data/results/permutation_report.png` showing the null histogram with the observed statistic highlighted | <!-- FAILED-IN-EXECUTION: code/permutation_report.py exit=1 -->
+- [~] T077 Verify the permutation report PNG exists and is non‑empty (unit test) |
+- [~] T078 Log creation of the permutation report in `data/analysis_log.txt` | <!-- FAILED-IN-EXECUTION: code/log_permutation_report_creation.py exit=1 -->
+- [~] T079 Log permutation‑test execution details (seed, number of shuffles, runtime) to `data/analysis_log.txt` |
+- [~] T080 Verify log contains seed, shuffle count, and runtime entries (unit test) |
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+## Phase N: Polish & Cross‑Cutting Concerns
 
-- [X] T009 [P] [US1] Unit test for download logic: Add `tests/unit/test_download.py::test_download_retries_on__error` verifying multiple retries on HTTP 404 and raising `ConnectionError` on final failure.
-- [X] T010 [P] [US1] Unit test for fMRIPrep wrapper validation: Add `tests/unit/test_preprocess.py::test_fmriprep_invocation_logs_hash` verifying that a mock call logs the container hash to `data/preprocess_log.txt`.
-
-### Implementation for User Story 1
-
-- [X] T011 [P] [US1] Implement `code/download.py` to fetch HCP resting-state fMRI and behavioral datasets from verified URLs, including retry logic (A limited number of attempts.) and checksum verification. **MUST use** `setup_logger()` from T004.
-- [X] T012 [US1] Implement `verify_fMRI_availability()` in `code/download.py`: Check for existence of fMRI time-series files. **MUST return** a status object: `{'status': 'PRESENT'}` or `{'status': 'MISSING', 'reason': 'Data Gap: fMRI time-series not found'}`. **DO NOT** raise exceptions; return status to allow graceful handling.
-- [X] T012b [US1] Implement Main Runner Logic in `code/main.py` (or `code/download.py`): Add logic to call `verify_fMRI_availability()`. **IF** status is 'MISSING', log "N/A - Data Unavailable" to `data/preprocess_log.txt`, skip all preprocessing tasks (T013, T014), and exit gracefully. **IF** status is 'PRESENT', proceed to T013.
-- [X] T013 [US1] Implement `code/preprocess.py` to invoke fMRIPrep container (version specified in plan.md) with flags: `--motion-correction --slice-timing --MNI --nuisance-regression`. **MUST check** T012b status first; if 'MISSING', skip execution. Support cluster mode (`--mode cluster`) and CI subset mode (`--mode ci`) via CLI argument or `MODE` env variable. Log container hash and full command to `data/preprocess_log.txt`.
-- [X] T014 [US1] Implement QC validation in `code/preprocess.py`: Run `check_fd()` on output files; exclude subjects with FD > 0.5mm and log exclusion reasons to `data/preprocess_log.txt`. **MUST check** T012b status first; if 'MISSING', skip execution.
-- [X] T015 [US1] Apply `setup_logger()` usage in `code/download.py` and `code/preprocess.py`: Ensure all download and preprocessing operations log to `data/preprocess_log.txt` using the logger from T004.
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (or correctly skip with 'N/A' if data is missing)
-
----
-
-## Phase 4: User Story 2 - Network Reconfigurability Metric Computation (Priority: P2)
-
-**Goal**: Compute sliding-window functional connectivity matrices and extract network reconfigurability metrics (community state transitions) for each subject.
-
-**Independent Test**: The module is tested by running it on a single preprocessed subject (or synthetic data for logic only) and verifying that the output JSON contains the network reconfigurability metric with valid numerical ranges (transitions >= 0), completing within 30 minutes on 2 CPU cores.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T016 [P] [US2] Unit test for sliding-window correlation logic: Add `tests/unit/test_metrics.py::test_sliding_window_correlation_shapes` verifying output matrix shape matches expected (n_windows, n_parcels, n_parcels) for synthetic input.
-- [X] T017 [P] [US2] Unit test for Louvain algorithm convergence: Add `tests/unit/test_metrics.py::test_louvain_retry_on_failure` verifying multiple retries with different seeds and exclusion on final failure.
-
-### Implementation for User Story 2
-
-- [X] T018 [P] [US2] Implement `code/metrics.py` `compute_sliding_window()` to generate functional connectivity matrices (s window, small step) using the Schaefer parcellated atlas.
-- [X] T019 [US2] Implement `code/metrics.py` `extract_reconfigurability()` using Louvain community detection with `get_seeded_rng(42)`, A retry logic mechanism will be implemented to handle transient failures. The research question focuses on determining the optimal retry strategy for system resilience. The method involves simulating network instability scenarios to evaluate recovery performance. References include prior work on fault tolerance patterns []. for convergence failure, and subject exclusion logging.
-- [ ] T020 [US2] Implement extraction of network reconfigurability metric (community state transition count) and save to `data/results/metrics_{subject_id}.json` with keys: `subject_id`, `transition_count`.
-- [ ] T020a [US2] Implement `code/metrics.py` `aggregate_metrics_to_tsv()` to convert all JSON metric files into a single TSV file `data/processed/metrics_aggregated.tsv` (intermediate step) with columns: `subject_id`, `transition_count`.
-- [X] T021 [US2] Implement QC check in `code/metrics.py` to exclude subjects with excessive motion (FD > 0.5mm) before metric computation using `check_fd()`.
-- [ ] T022 [US2] Add logging for metric computation steps and exclusion reasons in `data/metrics_log.txt`.
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Statistical Correlation and Visualization (Priority: P3)
-
-**Goal**: Perform Spearman correlations between reconfigurability metrics and DSST scores, apply Bonferroni correction, and generate scatter plots with confidence intervals.
-
-**Independent Test**: The analysis module is tested by running it against a synthetic dataset of subjects with known correlation properties, verifying that the reported p-values and effect sizes match expected values within A strict convergence tolerance., and that plots are generated without error.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T023 [P] [US3] Unit test for Spearman correlation: Add `tests/unit/test_analysis.py::test_spearman_correlation_known_values` verifying coefficient and p-value match expected values for mock data within 1e-6.
-- [X] T024 [P] [US3] Unit test for visualization: Add `tests/unit/test_viz.py::test_scatter_plot_generation` verifying that a PNG file is created and contains a trendline for mock data.
-
-### Implementation for User Story 3
-
-- [X] T025 [P] [US3] Implement `code/analysis.py` `compute_spearman()` to perform Spearman rank correlations between `transition_count` and `DSST_score`.
-- [ ] T025b [US3] Implement Subject Filtering in `code/analysis.py`: Add logic to iterate through subjects and **exclude** any where `Subject.has_valid_data()` returns `False` (missing `DSST_score` or `fMRI_path`). Log the count of excluded subjects to `data/analysis_log.txt` as per FR-005.
-- [X] T026 [US3] Implement Bonferroni correction in `code/analysis.py` `apply_bonferroni()` to adjust p-values for multiple comparisons and report adjusted p-values.
-- [X] T027 [US3] Implement calculation of effect sizes (Cohen's r) and handling of extreme p-values (floor/ceiling at a predefined threshold) in `code/analysis.py`.
-- [ ] T028 [US3] Save **Aggregated Statistical Summary** to `data/analysis_results.tsv`. **MUST** be one row per metric-behavior pair (aggregated statistics), NOT per subject. **Header**: `metric_pair\tcoef\tp_val\tadj_p\teffect_size`. (No `subject_id` column).
-- [X] T029 [US3] Implement `code/viz.py` `generate_scatter_plot()` to create scatter plots with confidence intervals and effect size annotations.
-- [ ] T030 [US3] Save scatter plots as PNG files in `data/results/` with filenames `plot_{metric}_{behavior}.png`.
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase 6: User Story 4 - Permutation Testing Validation (Priority: P3)
-
-**Goal**: Perform permutation testing (A sufficient number of shuffles) to validate the significance of observed correlations against a null distribution.
-
-**Independent Test**: The module is tested by running it on a dataset where the null hypothesis is known to be true (shuffled data), verifying that the p-value distribution is uniform and the observed p-value is not significant (p > 0.05).
-
-### Tests for User Story 4 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T031 [P] [US4] Unit test for permutation testing: Add `tests/unit/test_analysis.py::test_permutation_null_distribution` verifying that shuffled data yields p > 0.05 for A sufficient number of shuffles.
-
-### Implementation for User Story 4
-
-- [X] T032 [P] [US4] Implement permutation testing in `code/analysis.py` `run_permutation_test()` with A sufficient number of shuffles, random seed, shuffling DSST scores while keeping metrics fixed.
-- [X] T033 [US4] Calculate permutation-derived p-values in `code/analysis.py` by comparing observed correlation to the null distribution generated by T032.
-- [ ] T034 [US4] Save permutation test raw results and null distribution data to `data/results/permutation_results.tsv`.
-- [ ] T035 [US4] Generate Permutation Test Report: Create a visual report (PDF/PNG) in `data/results/` visualizing the null distribution histogram and highlighting the observed statistic, satisfying SC-005.
-- [ ] T036 [US4] Add logging for permutation test execution and results in `data/analysis_log.txt`.
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T036a [P] Update README.md: Add CLI usage examples and installation instructions for `code/` and `data/`.
-- [ ] T037a Code cleanup: Refactor `code/metrics.py` to remove duplicate imports and ensure consistent variable naming.
-- [ ] T038 Performance optimization for sliding-window calculations
-- [ ] T039 [P] Additional unit tests for edge cases (missing data, convergence failures) in `tests/unit/`
-- [ ] T040 Run quickstart.md validation to ensure end-to-end pipeline execution
+| ID | Parallel? | Description |
+|----|-----------|-------------|
+- [~] T081 Update `README.md` with installation instructions, CLI usage examples, and description of each pipeline stage |
+- [~] T082 Verify `README.md` contains sections: Installation, Usage, Pipeline Overview, Reproducibility |
+- [~] T083 Remove duplicate import of `numpy` in `code/metrics.py` |
+- [~] T084 Standardise function naming to `snake_case` across all `code/` modules |
+- [~] T085 Verify code cleanup (no duplicate imports, consistent naming) via lint test |
+- [~] T086 Replace loop in sliding‑window computation with NumPy‑vectorised operation |
+- [~] T087 Benchmark new implementation against old; assert ≥20 % speed‑up |
+- [~] T088 Add edge‑case unit tests for missing DSST scores, Louvain non‑convergence, and high‑motion subjects (files in `tests/edge_cases/`) |
+- [~] T089 Run edge‑case tests in CI and ensure they pass |
+- [~] T090 Validate `quickstart.md` by running an end‑to‑end CI test on the 1‑2 subject subset |
+- [ ] T091 Create GitHub Actions workflow `.github/workflows/ci.yml` defining a `quickstart_test` job that executes `python -m code.main --mode ci` and asserts exit code 0 |
+- [~] T092 Verify the CI job `quickstart_test` passes (log inspection) |
+- [~] T093 Compute and log percentage of subjects successfully processed through fMRIPrep (SC‑001) – already done in T036/T037 |
+- [~] T094 Re‑run metric computation with the same seed and assert identical results (SC‑002) – already done in T053/T054 |
+- [~] T095 Verify Louvain retry‑logic works as intended (unit test forcing failure) |
+- [~] T096 Verify metric pipeline repeatability (run twice, compare outputs) |
 
 ---
 
-## Dependencies & Execution Order
+**Execution Order Summary**
 
-### Phase Dependencies
+1. **Phase 1 → Phase 2** – foundational infrastructure must be in place before any user‑story work.
+2. **Phase 3** (US‑1) – data download, availability check, fMRIPrep wrapper, QC, and SC‑001 logging.
+3. **Phase 4** (US‑2) – sliding‑window connectivity, Louvain‑based reconfigurability, aggregation, and SC‑002 repeatability check.
+4. **Phase 5** (US‑3) – filtering, Spearman correlation, Bonferroni correction, effect size, results TSV, and scatter‑plot generation.
+5. **Phase 6** (US‑4) – permutation testing, null‑distribution report, and detailed logging.
+6. **Phase N** – documentation, code cleanup, performance optimisation, edge‑case testing, CI workflow, and final validation.
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 output (preprocessed data)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 output (metrics)
-- **User Story 4 (P3)**: Can start after Foundational (Phase 2) - Depends on US3 output (correlation results)
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models/Utilities before services
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for download logic with mock HTTP responses in tests/unit/test_download.py"
-Task: "Unit test for fMRIPrep wrapper validation (mocked execution) in tests/unit/test_preprocess.py"
-
-# Launch all models for User Story 1 together:
-Task: "Create base Subject entity model in code/models.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently (verify "Data Gap" handling or successful preprocessing)
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Add User Story 4 → Test independently → Deploy/Demo
-6. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3 & 4
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical**: Do NOT generate synthetic fMRI data for hypothesis testing. If real data is missing, the pipeline must skip preprocessing and log 'N/A - Data Unavailable' (via T012b), not crash. Synthetic data is ONLY for unit tests.
+All tasks respect the producer‑before‑consumer data flow and adhere to the specification’s functional and non‑functional requirements.

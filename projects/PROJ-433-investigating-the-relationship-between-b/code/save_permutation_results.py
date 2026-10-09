@@ -1,149 +1,134 @@
-import os
+"""
+save_permutation_results.py
+---------------------------
+
+This script loads the subject‑level reconfigurability metrics and the
+corresponding behavioural scores (DSST), runs a permutation test that
+shuffles the behavioural scores while keeping the metric values fixed,
+and writes the raw permutation distribution to a TSV file.
+
+The output file is required by task **T073** and must be created at the
+exact location ``data/results/permutation_results.tsv``.
+"""
+
 import logging
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
-from pathlib import Path
-from analysis import load_metrics_and_behavioral_data, run_permutation_test, calculate_permutation_p_value
-from utils import setup_logger, get_seeded_rng
 
+# Import public helpers from the existing analysis module.
+# These functions are part of the declared API surface.
+from analysis import (
+    load_metrics_and_behavioral_data,
+    run_permutation_test,
+    calculate_permutation_p_value,
+)
+
+# ----------------------------------------------------------------------
+# Configuration
+# ----------------------------------------------------------------------
+# Output location – must match the specification exactly.
+OUTPUT_TSV = Path("data/results/permutation_results.tsv")
+
+# Number of permutations – the analysis module uses a default of 1000,
+# but we expose it here for reproducibility and possible CLI use.
+DEFAULT_NUM_PERMUTATIONS = 1000
+
+# ----------------------------------------------------------------------
+# Logger setup
+# ----------------------------------------------------------------------
+logger = logging.getLogger(__name__)
+if not logger.handlers:
+    # Basic configuration – the rest of the project uses a shared logger
+    # via ``utils.setup_logger``; we keep things simple here.
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(name)s – %(message)s",
+    )
+
+# ----------------------------------------------------------------------
+# Core functionality
+# ----------------------------------------------------------------------
 def save_permutation_results(
-    subject_ids: list,
-    transition_counts: np.ndarray,
-    dsst_scores: np.ndarray,
-    observed_coef: float,
-    null_distribution: np.ndarray,
-    p_value: float,
-    output_path: Path,
-    logger: logging.Logger
+    num_permutations: int = DEFAULT_NUM_PERMUTATIONS,
+    output_path: Path = OUTPUT_TSV,
 ) -> None:
     """
-    Save permutation test raw results and null distribution data to a TSV file.
+    Run the permutation test and persist the raw results.
 
-    The output file `data/results/permutation_results.tsv` will contain:
-    1. A summary row with observed statistics and p-value.
-    2. Rows for each permutation shuffle (index, shuffled_coef).
+    Parameters
+    ----------
+    num_permutations : int
+        Number of shuffled datasets to generate.
+    output_path : pathlib.Path
+        Destination of the TSV file.  Parent directories are created
+        automatically if they do not exist.
 
-    Args:
-        subject_ids: List of subject identifiers (for metadata).
-        transition_counts: Array of reconfigurability metrics.
-        dsst_scores: Array of DSST scores.
-        observed_coef: The Spearman correlation coefficient from real data.
-        null_distribution: Array of correlation coefficients from shuffled data.
-        p_value: The calculated permutation p-value.
-        output_path: Path to the output TSV file.
-        logger: Logger instance for logging progress.
+    The TSV contains two columns:
+        * ``shuffle_index`` – integer index of the permutation (starting at 1)
+        * ``spearman_rho`` – Spearman correlation coefficient obtained for that
+          shuffle.
     """
-    if not output_path.parent.exists():
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Created output directory: {output_path.parent}")
+    logger.info("Loading metric and behavioural data...")
+    metrics_df, behavior_series = load_metrics_and_behavioral_data()
+    # ``load_metrics_and_behavioral_data`` returns a DataFrame with a column
+    # named ``transition_count`` (the reconfigurability metric) and a Series
+    # indexed by ``subject_id`` containing the DSST scores.
 
-    # Prepare summary data
-    summary_data = {
-        "metric": "transition_count_vs_D SST",
-        "n_subjects": len(subject_ids),
-        "observed_coef": observed_coef,
-        "p_value": p_value,
-        "n_permutations": len(null_distribution),
-        "mean_null_coef": float(np.mean(null_distribution)),
-        "std_null_coef": float(np.std(null_distribution)),
-        "min_null_coef": float(np.min(null_distribution)),
-        "max_null_coef": float(np.max(null_distribution))
-    }
-
-    # Prepare permutation data
-    perm_data = []
-    for i, coef in enumerate(null_distribution):
-        perm_data.append({
-            "shuffle_index": i,
-            "shuffled_coef": float(coef)
-        })
-
-    # Create DataFrame for permutations
-    df_perm = pd.DataFrame(perm_data)
-
-    # Create DataFrame for summary (single row)
-    df_summary = pd.DataFrame([summary_data])
-
-    # Write to TSV
-    # We write the summary first, then the permutation data.
-    # To keep it as a single TSV as requested, we'll use a comment header for summary
-    # or just append them. The requirement says "raw results and null distribution data".
-    # A common format is to have the summary as the first few rows (commented or not)
-    # followed by the data. Let's write the summary as the first block.
-
-    with open(output_path, 'w') as f:
-        f.write("# Permutation Test Summary\n")
-        df_summary.to_csv(f, sep='\t', index=False)
-        f.write("\n# Null Distribution (Shuffled Coefficients)\n")
-        df_perm.to_csv(f, sep='\t', index=False)
-
-    logger.info(f"Saved permutation results to {output_path}")
-
-def main():
-    """
-    Main entry point to run permutation test and save results.
-    """
-    logger = setup_logger("analysis_log")
-    logger.info("Starting permutation results generation (T034).")
-
-    # Load data
-    try:
-        subjects, transition_counts, dsst_scores = load_metrics_and_behavioral_data()
-        logger.info(f"Loaded data for {len(subjects)} subjects.")
-    except FileNotFoundError as e:
-        logger.error(f"Data files not found: {e}")
-        raise
-
-    if len(transition_counts) == 0 or len(dsst_scores) == 0:
-        logger.warning("No data available for permutation test.")
-        return
-
-    # Run permutation test
-    # Assuming run_permutation_test returns (null_distribution, p_value, observed_coef)
-    # We need to ensure the function signature matches what's in analysis.py
-    # Based on T032/T033 context, we call the function and get results.
-    
-    # Re-compute observed correlation for the summary
-    from scipy.stats import spearmanr
-    observed_coef, _ = spearmanr(transition_counts, dsst_scores)
-
-    # Run the test
-    # We assume run_permutation_test takes the arrays and returns the distribution and p-value
-    # If the existing analysis.py function has a different signature, we adapt here.
-    # Based on T033, calculate_permutation_p_value is used.
-    
-    # Let's assume run_permutation_test returns (null_dist, p_val)
-    # and we already have observed_coef.
-    # If the function signature in analysis.py is different, we must match it.
-    # The API surface says: run_permutation_test, calculate_permutation_p_value
-    # Let's assume run_permutation_test does the shuffling and returns the distribution.
-    
-    null_distribution, p_value = run_permutation_test(
-        transition_counts, 
-        dsst_scores, 
-        n_permutations=1000, 
-        seed=42,
-        logger=logger
+    logger.info(
+        "Running permutation test with %d permutations...", num_permutations
+    )
+    # ``run_permutation_test`` yields a NumPy array of shape (num_permutations,)
+    # containing the Spearman rho for each shuffle.
+    permuted_rhos = run_permutation_test(
+        metric_series=metrics_df["transition_count"],
+        behaviour_series=behavior_series,
+        n_permutations=num_permutations,
     )
 
-    logger.info(f"Permutation test complete. Observed coef: {observed_coef:.4f}, p-value: {p_value:.4f}")
-
-    # Define output path
-    output_path = Path("data/results/permutation_results.tsv")
-
-    # Save results
-    save_permutation_results(
-        subject_ids=[s.id for s in subjects],
-        transition_counts=transition_counts,
-        dsst_scores=dsst_scores,
-        observed_coef=observed_coef,
-        null_distribution=null_distribution,
-        p_value=p_value,
-        output_path=output_path,
-        logger=logger
+    logger.info("Preparing DataFrame for output...")
+    df = pd.DataFrame(
+        {
+            "shuffle_index": np.arange(1, num_permutations + 1, dtype=int),
+            "spearman_rho": permuted_rhos,
+        }
     )
 
-    logger.info("T034 completed successfully.")
+    logger.info("Ensuring output directory exists: %s", output_path.parent)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    logger.info("Writing permutation results to %s", output_path)
+    df.to_csv(output_path, sep="\t", index=False, float_format="%.12g")
+    logger.info("Permutation results saved successfully.")
+
+# ----------------------------------------------------------------------
+# CLI entry point
+# ----------------------------------------------------------------------
+def main() -> None:
+    """
+    Minimal CLI wrapper.
+
+    Allows the script to be invoked directly:
+        ``python code/save_permutation_results.py [--n-permutations N]``
+
+    The quickstart documentation expects the script to run without any
+    arguments, therefore we keep the default behaviour.
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Save raw permutation test results to a TSV file."
+    )
+    parser.add_argument(
+        "--n-permutations",
+        type=int,
+        default=DEFAULT_NUM_PERMUTATIONS,
+        help="Number of permutations to perform (default: %(default)s).",
+    )
+    args = parser.parse_args()
+
+    save_permutation_results(num_permutations=args.n_permutations)
 
 if __name__ == "__main__":
     main()

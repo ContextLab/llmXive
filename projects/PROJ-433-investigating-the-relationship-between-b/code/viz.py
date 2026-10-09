@@ -1,190 +1,184 @@
+"""
+Visualization utilities for the project.
+
+This module provides a function to generate scatter plots of a given metric
+against a behavioral score and a CLI entry point that processes all metric–
+behavior pairs defined in the aggregated metrics TSV file. After each plot is
+saved, the path of the generated PNG file is appended to
+`data/analysis_log.txt` for traceability (Task T069).
+
+The implementation relies on the project's existing logging utilities:
+`utils.setup_logger` writes ISO‑timestamped entries to both
+`data/preprocess_log.txt` and `data/analysis_log.txt`. By using this logger,
+we guarantee that the plot files are recorded in the correct log file.
+"""
+
 import os
 import logging
 from pathlib import Path
-from typing import List, Dict, Tuple, Optional
+from typing import List, Tuple
+
 import numpy as np
 import matplotlib.pyplot as plt
 
-from utils import setup_logger, get_seeded_rng
-from analysis import load_metrics_and_behavioral_data, compute_spearman, apply_bonferroni, compute_cohens_r, handle_extreme_p_values
+# Project‑specific utilities
+from utils import setup_logger
+
+# Constants
+ANALYSIS_LOG_PATH = Path("data/analysis_log.txt")
+PLOTS_OUTPUT_DIR = Path("data/results")
+METRICS_AGG_TSV = Path("data/processed/metrics_aggregated.tsv")
+BEHAVIORAL_TSV = Path("data/processed/behavioral_scores.tsv")
+
+def _ensure_output_dir() -> None:
+    """Create the directory for plot files if it does not exist."""
+    PLOTS_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+def _load_metrics() -> List[Tuple[str, float]]:
+    """
+    Load the aggregated metrics TSV.
+
+    Expected columns: subject_id, transition_count
+    Returns a list of (subject_id, transition_count) tuples.
+    """
+    if not METRICS_AGG_TSV.is_file():
+        raise FileNotFoundError(f"Aggregated metrics file not found: {METRICS_AGG_TSV}")
+    data = np.genfromtxt(METRICS_AGG_TSV, delimiter="\t", dtype=str, skip_header=1)
+    # If there is only one row `np.genfromtxt` returns a 1‑D array; handle both cases
+    if data.ndim == 1:
+        data = np.array([data])
+    return [(row[0], float(row[1])) for row in data]
+
+def _load_behavioral_scores() -> List[Tuple[str, float]]:
+    """
+    Load a TSV containing behavioral scores (e.g., DSST).
+
+    Expected columns: subject_id, dsst_score
+    Returns a list of (subject_id, dsst_score) tuples.
+    """
+    if not BEHAVIORAL_TSV.is_file():
+        raise FileNotFoundError(f"Behavioral scores file not found: {BEHAVIORAL_TSV}")
+    data = np.genfromtxt(BEHAVIORAL_TSV, delimiter="\t", dtype=str, skip_header=1)
+    if data.ndim == 1:
+        data = np.array([data])
+    return [(row[0], float(row[1])) for row in data]
 
 def generate_scatter_plot(
-    x_data: np.ndarray,
-    y_data: np.ndarray,
-    x_label: str,
-    y_label: str,
-    title: str,
+    metric_name: str,
+    behavior_name: str,
+    x: np.ndarray,
+    y: np.ndarray,
     output_path: Path,
-    coef: float,
-    p_val: float,
-    adj_p: float,
-    effect_size: float,
-    logger: Optional[logging.Logger] = None
 ) -> None:
     """
-    Generate a scatter plot with trendline, confidence interval, and statistical annotations.
-    
-    Args:
-        x_data: Independent variable data (e.g., transition_count)
-        y_data: Dependent variable data (e.g., DSST_score)
-        x_label: Label for x-axis
-        y_label: Label for y-axis
-        title: Plot title
-        output_path: Path where the PNG file will be saved
-        coef: Spearman correlation coefficient
-        p_val: Raw p-value
-        adj_p: Bonferroni-adjusted p-value
-        effect_size: Cohen's r effect size
-        logger: Optional logger instance
-    """
-    if logger is None:
-        logger = setup_logger("viz")
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Set up the figure
-    fig, ax = plt.subplots(figsize=(10, 7))
-    
-    # Scatter plot
-    ax.scatter(x_data, y_data, alpha=0.6, edgecolors='w', linewidth=0.5, s=80)
-    
-    # Calculate and plot trendline
-    # Using linear regression for the trendline visualization
-    slope, intercept = np.polyfit(x_data, y_data, 1)
-    x_line = np.linspace(x_data.min(), x_data.max(), 100)
-    y_line = slope * x_line + intercept
-    ax.plot(x_line, y_line, 'r-', linewidth=2, label=f'Trendline (r={coef:.3f})')
-    
-    # Calculate confidence interval for the trendline
-    # Using bootstrap for confidence interval
-    rng = get_seeded_rng(42)
-    n_boot = 1000
-    boot_slopes = []
-    boot_intercepts = []
-    
-    for _ in range(n_boot):
-        indices = rng.choice(len(x_data), size=len(x_data), replace=True)
-        x_boot = x_data[indices]
-        y_boot = y_data[indices]
-        b_slope, b_intercept = np.polyfit(x_boot, y_boot, 1)
-        boot_slopes.append(b_slope)
-        boot_intercepts.append(b_intercept)
-    
-    # Calculate confidence bands
-    y_lower = slope * x_line + intercept + np.percentile(
-        [bs * x_line + bi - y_line for bs, bi in zip(boot_slopes, boot_intercepts)], 
-        2.5, axis=0
-    )
-    y_upper = slope * x_line + intercept + np.percentile(
-        [bs * x_line + bi - y_line for bs, bi in zip(boot_slopes, boot_intercepts)], 
-        97.5, axis=0
-    )
-    
-    ax.fill_between(x_line, y_lower, y_upper, color='red', alpha=0.2, label='95% CI')
-    
-    # Labels and title
-    ax.set_xlabel(x_label, fontsize=12)
-    ax.set_ylabel(y_label, fontsize=12)
-    ax.set_title(title, fontsize=14, fontweight='bold')
-    ax.grid(True, linestyle='--', alpha=0.7)
-    
-    # Statistical annotations
-    annotation_text = (
-        f"ρ = {coef:.3f}\n"
-        f"p = {p_val:.4f}\n"
-        f"adj. p = {adj_p:.4f}\n"
-        f"r = {effect_size:.3f}"
-    )
-    
-    # Position annotation in the upper right corner
-    ax.text(
-        0.98, 0.98, annotation_text,
-        transform=ax.transAxes,
-        fontsize=10,
-        verticalalignment='top',
-        horizontalalignment='right',
-        bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-    )
-    
-    # Adjust layout and save
-    plt.tight_layout()
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
-    plt.close(fig)
-    
-    logger.info(f"Scatter plot saved to {output_path}")
+    Create a scatter plot with a linear fit line and 95 % confidence interval.
 
-def main():
+    Parameters
+    ----------
+    metric_name : str
+        Name of the metric (used for axis label and filename).
+    behavior_name : str
+        Name of the behavioral measure (used for axis label).
+    x : np.ndarray
+        Metric values (e.g., transition counts).
+    y : np.ndarray
+        Behavioral scores (e.g., DSST).
+    output_path : Path
+        Destination file path for the PNG image.
     """
-    Main function to generate scatter plots for all metric-behavior pairs.
-    Loads aggregated statistics and generates corresponding plots.
-    """
-    logger = setup_logger("viz")
-    logger.info("Starting scatter plot generation")
-    
-    # Load aggregated statistics from analysis
-    # Expected file: data/analysis_results.tsv
-    stats_path = Path("data/analysis_results.tsv")
-    if not stats_path.exists():
-        logger.error(f"Statistics file not found: {stats_path}. Run analysis.py first.")
-        return
-    
-    # Load metrics and behavioral data to get actual values for plotting
-    # This function should return subject-level data for plotting
-    try:
-        # Assuming load_metrics_and_behavioral_data returns a list of dicts with subject data
-        # or we need to load from the metrics JSON files and behavioral data directly
-        # For this implementation, we'll load the raw data needed for plotting
-        data = load_metrics_and_behavioral_data()
-        
-        if not data:
-            logger.warning("No data available for plotting")
-            return
-        
-        # Extract arrays for plotting (assuming single metric-behavior pair for now)
-        # In a more complex scenario, we'd iterate over multiple pairs
-        x_data = np.array([d['transition_count'] for d in data if d['transition_count'] is not None])
-        y_data = np.array([d['DSST_score'] for d in data if d['DSST_score'] is not None])
-        
-        # Filter to matching subjects
-        min_len = min(len(x_data), len(y_data))
-        x_data = x_data[:min_len]
-        y_data = y_data[:min_len]
-        
-        if len(x_data) == 0:
-            logger.warning("No valid data points for plotting")
-            return
-        
-        # Compute statistics for annotation
-        coef, p_val = compute_spearman(x_data, y_data)
-        adj_p = apply_bonferroni(p_val, 1)  # Assuming 1 comparison for now
-        effect_size = compute_cohens_r(coef)
-        adj_p = handle_extreme_p_values(adj_p)
-        
-        # Define output path
-        output_dir = Path("data/results")
-        output_path = output_dir / "plot_transition_count_DSST_score.png"
-        
-        # Generate plot
-        generate_scatter_plot(
-            x_data=x_data,
-            y_data=y_data,
-            x_label="Network Reconfigurability (Transition Count)",
-            y_label="DSST Score (Subjective Time Perception)",
-            title="Relationship between Brain Network Dynamics and Subjective Time",
-            output_path=output_path,
-            coef=coef,
-            p_val=p_val,
-            adj_p=adj_p,
-            effect_size=effect_size,
-            logger=logger
+    plt.figure(figsize=(6, 4))
+    plt.scatter(x, y, alpha=0.7, edgecolor="k", linewidth=0.5)
+
+    # Linear regression for the fit line
+    if len(x) > 1:
+        coeffs = np.polyfit(x, y, deg=1)
+        fit_x = np.linspace(np.min(x), np.max(x), 100)
+        fit_y = np.polyval(coeffs, fit_x)
+        plt.plot(fit_x, fit_y, color="red", lw=2, label="Fit line")
+
+        # Simple 95 % CI approximation using standard error of the estimate
+        residuals = y - np.polyval(coeffs, x)
+        se = np.sqrt(np.sum(residuals ** 2) / (len(x) - 2))
+        ci = 1.96 * se
+        plt.fill_between(
+            fit_x,
+            fit_y - ci,
+            fit_y + ci,
+            color="red",
+            alpha=0.2,
+            label="95 % CI",
         )
-        
-        logger.info("Scatter plot generation completed successfully")
-        
-    except Exception as e:
-        logger.error(f"Error generating scatter plot: {e}", exc_info=True)
-        raise
+
+    plt.title(f"{metric_name} vs. {behavior_name}")
+    plt.xlabel(metric_name)
+    plt.ylabel(behavior_name)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=150)
+    plt.close()
+
+def _log_plot_path(logger: logging.Logger, plot_path: Path) -> None:
+    """
+    Append a line to the analysis log indicating that a plot was created.
+
+    The logger configured by ``utils.setup_logger`` already writes to
+    ``data/analysis_log.txt``. We simply log an INFO message; the logger's
+    formatter includes the ISO‑timestamp required by the project spec.
+    """
+    logger.info(f"Plot generated: {plot_path}")
+
+def main() -> None:
+    """
+    Entry point for the ``python -m code.viz`` CLI.
+
+    The function:
+    1. Loads metric values and behavioral scores.
+    2. Aligns subjects present in both files.
+    3. Generates a scatter plot for the (metric, behavior) pair.
+    4. Writes the plot to ``data/results/plot_{metric}_{behavior}.png``.
+    5. Logs the plot file path to ``data/analysis_log.txt``.
+    """
+    logger = setup_logger()  # Writes to both preprocess and analysis logs
+    _ensure_output_dir()
+
+    # Load data
+    metrics = dict(_load_metrics())          # subject_id -> metric value
+    behaviors = dict(_load_behavioral_scores())  # subject_id -> behavior value
+
+    # Align subjects present in both datasets
+    common_subjects = sorted(set(metrics) & set(behaviors))
+    if not common_subjects:
+        logger.warning("No overlapping subjects between metrics and behavioral data.")
+        return
+
+    metric_vals = np.array([metrics[s] for s in common_subjects])
+    behavior_vals = np.array([behaviors[s] for s in common_subjects])
+
+    # Define names for logging / filenames
+    metric_name = "transition_count"
+    behavior_name = "DSST_score"
+
+    plot_filename = f"plot_{metric_name}_{behavior_name}.png"
+    plot_path = PLOTS_OUTPUT_DIR / plot_filename
+
+    # Generate and save the scatter plot
+    generate_scatter_plot(
+        metric_name=metric_name,
+        behavior_name=behavior_name,
+        x=metric_vals,
+        y=behavior_vals,
+        output_path=plot_path,
+    )
+
+    # Ensure the analysis log file exists (setup_logger creates it, but we double‑check)
+    ANALYSIS_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    ANALYSIS_LOG_PATH.touch(exist_ok=True)
+
+    # Log the plot location for traceability (Task T069)
+    _log_plot_path(logger, plot_path)
+
+    logger.info("Visualization step completed successfully.")
 
 if __name__ == "__main__":
+    # Allow the module to be executed directly: ``python code/viz.py``
     main()

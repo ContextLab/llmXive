@@ -1,0 +1,76 @@
+- artifact_path: projects/PROJ-433-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: permutation_results.tsv contains 1000 rows
+  claim_id: c_6abed607
+  context: T074 specifies a unit test that checks the permutation results file has
+    exactly 1000 rows and the expected column headers.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify `permutation_results.tsv` has 1000 rows and correct headers (unit
+    test)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T03:55:58Z'
+- artifact_path: projects/PROJ-433-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: metric computation repeatability yields bitwise identical JSON and TSV
+    files when using the same seeded RNG
+  claim_id: c_d2587221
+  context: T053 and T054 describe a repeatability check where the metric pipeline
+    is executed twice with the same random seed and the outputs are compared for bitwise
+    identity.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Re\u2011run metric computation with the same seeded RNG and assert that\
+    \ generated JSON and TSV files are bit\u2011wise identical (SC\u2011002)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T03:56:02Z'
+- artifact_path: projects/PROJ-433-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: benchmark new implementation achieves at least 20 percent speed-up over
+    old implementation
+  claim_id: c_3722b8fd
+  context: "Replace loop in sliding\u2011window computation with NumPy\u2011vectorised\
+    \ operation; Benchmark new implementation against old; assert \u226520\u202F%\
+    \ speed\u2011up"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benchmark_new_implementation_achieves_at_least_20_percent_sp
+  kind: magnitude
+  raw_text: "Benchmark new implementation against old; assert \u226520\u202F% speed\u2011\
+    up"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T04:00:46Z'
+- artifact_path: projects/PROJ-433-investigating-the-relationship-between-b/quickstart.md
+  attempts: 1
+  canonical: permutation_report.png and log line are created after running log_permutation_report_creation.py
+  claim_id: c_017456a5
+  context: The original script code/permutation_report.py creates the PNG file. We
+    now invoke a thin wrapper that also logs the creation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Permutation_report.png_and_log_line_are_created_after_runnin
+  kind: entity_fact
+  raw_text: 'After this command finishes, you should find: data/results/permutation_report.png
+    and a new line in data/analysis_log.txt confirming the report creation.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T04:02:48Z'

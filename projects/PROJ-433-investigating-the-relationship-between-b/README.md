@@ -1,152 +1,56 @@
 # Investigating the Relationship Between Brain Network Dynamics and Subjective Time Perception
 
-This project investigates the relationship between brain network dynamics (specifically network reconfigurability) and subjective time perception (measured by DSST scores) using fMRI data from the Human Connectome Project (HCP).
-
-## Project Structure
-
-```
-.
-├── code/ # Source code modules
-│ ├── analysis.py # Statistical analysis (correlations, permutation tests)
-│ ├── download.py # HCP data retrieval and verification
-│ ├── main.py # Entry point for the pipeline
-│ ├── metrics.py # Network reconfigurability computation
-│ ├── models.py # Data models (Subject)
-│ ├── preprocess.py # fMRIPrep invocation and QC
-│ ├── utils.py # Logging, RNG, QC utilities
-│ ├── viz.py # Visualization (scatter plots)
-│ └── requirements.txt # Python dependencies
-├── data/
-│ ├── raw/ # Downloaded raw HCP data
-│ ├── processed/ # Preprocessed fMRI data (MNI space)
-│ └── results/ # Metrics, statistical results, plots
-├── tests/ # Unit tests
-├── specs/ # Design documents
-└── README.md
-```
-
-## Prerequisites
-
-- Python 3.11+
-- Docker (for fMRIPrep container)
-- HCP account and credentials (for data download)
-
 ## Installation
 
-1. **Clone the repository**:
- ```bash
- git clone <repository-url>
- cd <project-name>
- ```
+This project uses a standard Python virtual environment. The recommended steps are:
 
-2. **Create and activate a virtual environment**:
- ```bash
- python3.11 -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
+```bash
+# Clone the repository
+git clone
+cd PROJ-433-investigating-the-relationship-between-b
 
-3. **Install dependencies**:
- ```bash
- pip install -r code/requirements.txt
- ```
+# Create a virtual environment
+python -m venv venv
+source venv/bin/activate # On Windows use `venv\\Scripts\\activate`
 
-4. **Set up HCP credentials** (environment variables):
- ```bash
- export HCP_USERNAME="your_username"
- export HCP_PASSWORD="your_password"
- ```
+# Install exact dependencies
+pip install -r requirements.txt
+```
+
+The `requirements.txt` file pins exact versions for all scientific libraries
+(e.g., `nilearn`, `networkx`, `scikit-learn`, `pandas`, `matplotlib`, `nibabel`,
+`scipy`, `pytest`, `dask`, `distributed`, etc.) to guarantee reproducibility.
 
 ## Usage
 
-### Full Pipeline Execution
-
-Run the main pipeline script to execute the entire workflow (download, preprocess, compute metrics, analyze, visualize):
+The pipeline is orchestrated through a series of command‑line entry points located in the `code/` directory. A typical end‑to‑end run (quickstart) looks like:
 
 ```bash
+# Verify data availability
 python code/main.py
-```
 
-**Options**:
-- `--mode {ci,cluster}`: Run in CI mode (subset of subjects, faster) or cluster mode (full dataset). Default: `ci`.
-- `--subjects <list>`: Comma-separated list of subject IDs to process (e.g., `100106,100208`). If not provided, all available subjects are processed.
+# Preprocess fMRI data (run on a subset for CI)
+python code/preprocess.py --subject sub-01 --mode ci
 
-**Example**:
-```bash
-python code/main.py --mode ci --subjects 100106
-```
+# Compute connectivity metrics
+python code/metrics.py --subject sub-01 --input-dir data/raw
 
-### Individual Components
-
-#### Data Download
-Download HCP resting-state fMRI and behavioral data:
-```bash
-python code/download.py
-```
-
-#### Preprocessing
-Run fMRIPrep on preprocessed data:
-```bash
-python code/preprocess.py --mode ci
-```
-
-#### Metric Computation
-Compute network reconfigurability metrics:
-```bash
-python code/metrics.py
-```
-
-#### Statistical Analysis
-Perform correlation analysis and permutation testing:
-```bash
+# Perform statistical analysis
 python code/analysis.py
-```
 
-#### Visualization
-Generate scatter plots:
-```bash
+# Generate visualisations
 python code/viz.py
 ```
 
-## Output Files
+Each script provides its own `--help` output describing required arguments.
 
-- `data/preprocess_log.txt`: Logs from download and preprocessing steps.
-- `data/analysis_log.txt`: Logs from analysis steps.
-- `data/results/metrics_{subject_id}.json`: Network reconfigurability metrics per subject.
-- `data/processed/metrics_aggregated.tsv`: Aggregated metrics across all subjects.
-- `data/analysis_results.tsv`: Statistical summary (correlation coefficients, p-values, effect sizes).
-- `data/results/permutation_results.tsv`: Permutation test results.
-- `data/results/plot_{metric}_{behavior}.png`: Scatter plots with confidence intervals.
+## Reproducibility
 
-## Testing
+- **Version control**: All code, configuration files, and documentation are tracked in Git.
+- **Pinned dependencies**: `requirements.txt` contains exact version numbers.
+- **Randomness control**: The utility `utils.get_seeded_rng(seed)` is used throughout the code base; the default seed is `42`.
+- **Logging**: All stages write timestamped entries to log files under `data/` (`preprocess_log.txt`, `analysis_log.txt`, `metrics_log.txt`).
+- **Data provenance**: Raw data are stored in `data/raw/` and are never altered in‑place; processed outputs are written to `data/processed/` and results to `data/results/`.
+- **Testing**: Unit and integration tests live in the `tests/` directory and can be run with `pytest -v`.
 
-Run unit tests:
-```bash
-pytest tests/
-```
-
-## Logging
-
-All operations log to:
-- `data/preprocess_log.txt`: Download and preprocessing logs.
-- `data/analysis_log.txt`: Analysis and metric computation logs.
-
-Logs include ISO timestamps and are written using the `setup_logger()` utility from `code/utils.py`.
-
-## Data Availability
-
-If HCP data is unavailable (e.g., missing credentials, network issues), the pipeline will:
-1. Log "N/A - Data Unavailable" to `data/preprocess_log.txt`.
-2. Skip preprocessing and metric computation steps.
-3. Exit gracefully without crashing.
-
-This ensures the pipeline can be tested in CI environments without requiring real data.
-
-## License
-
-[Insert License Information Here]
-
-## Acknowledgments
-
-- Human Connectome Project (HCP) for providing the fMRI and behavioral data.
-- fMRIPrep for preprocessing pipeline.
-- Schaefer et al. for the parcellation atlas.
+Following these guidelines ensures that any researcher can reproduce the exact results reported in the accompanying manuscript.

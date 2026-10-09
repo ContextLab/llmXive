@@ -2,17 +2,22 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001** — No directory listings or other evidence were provided to show that the required folders (`data/raw`, `data/processed`, `data/results`, `code/`, `tests/`, `state/`) actually exist on disk. Without concrete proof of the created project structure, the task cannot be confirmed as completed.
-- **T002a** — No evidence of a Python virtual environment (e.g., a `venv/` directory with activation scripts, `pyvenv.cfg`, or installed packages) is present. The required artifact is missing, so the task of creating the venv has not been demonstrated.
-- **T003** — No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `.flake8`, `black` settings) or documentation of their setup are present. The claim provides only unrelated project specifications, so the required linting/formatting tooling is not demonstrated.
-- **T007** — declared artifact(s) missing/empty/invalid: schema.yaml
-- **T020** — No JSON file `data/results/metrics_{subject_id}.json` (or any similar artifact) was presented; therefore the required metric extraction and saving step cannot be verified. The implementer must provide the actual JSON output files containing the `subject_id` and `transition_count` fields for at least one subject.
-- **T020a** — The repository lacks a defined `aggregate_metrics_to_tsv()` function in `code/metrics.py` (the file is truncated and does not show such an implementation), and the required output file `data/processed/metrics_aggregated.tsv` is absent. Both the implementation and the generated TSV are missing, so the task is not satisfied.
-- **T022** — declared artifact(s) missing/empty/invalid: data/metrics_log.txt
-- **T025b** — The provided `code/analysis.py` does not contain any iteration over `Subject` objects nor a check using `Subject.has_valid_data()`, and there is no code that writes the count of excluded subjects to `data/analysis_log.txt`. Additionally, the required log file does not exist. These essential parts of the task are missing.
-- **T028** — declared artifact(s) missing/empty/invalid: data/analysis_results.tsv
-- **T030** — I looked for PNG files in the `data/results/` directory named `plot_{metric}_{behavior}.png` (e.g., `plot_reconfigurability_speed.png`) and found no such files or any scatter‑plot images at all. The required output artifacts are missing, so the task is not satisfied.
-- **T034** — declared artifact(s) missing/empty/invalid: data/results/permutation_results.tsv
-- **T035** — No PDF or PNG file was found in `data/results/` showing a null‑distribution histogram with the observed statistic highlighted. The required visual report is missing, so the task is not satisfied.
+- **T001** — The `data/metrics_log.txt` file is missing, and there is no evidence that the required directories (`data/raw`, `data/processed`, `data/results`, `code`, `tests`, `contracts`) were actually created. The task’s directory‑structure requirement is therefore not fully satisfied.
+- **T002** — No artifact (e.g., test script, log output, or directory listing) was provided to demonstrate that the required folders have been created and asserted. Without concrete evidence of directory existence checks, the claim cannot be verified. The implementer must supply the code or output that creates the directories and asserts their presence.
+- **T003** — No `README.md` file or its contents were provided; without the actual placeholder document we cannot confirm that installation, usage, and reproducibility sections exist. The required artifact is missing.
+- **T004** — No `venv/` directory or activation script (e.g., `venv/bin/activate` or `venv/Scripts/activate`) was presented in the provided artifacts, so the required virtual environment cannot be confirmed as created. The implementer must supply the actual `venv/` folder with the activation script.
+- **T006** — The repository contains `data/preprocess_log.txt` and `data/analysis_log.txt`, but both files are populated with log entries rather than being empty, and the required `data/metrics_log.txt` file is completely missing. The task demanded three empty log files, which is not satisfied.
+- **T007** — The `contracts/` directory with the three `.schema.yaml` files exists, but no evidence is provided showing the files contain actual JSON‑Schema skeletons (they could be empty or placeholders). The implementer must supply the file contents to confirm they define minimal JSON‑Schema structures for dataset, metric, and result.
+- **T008** — The provided `requirements.txt` contains the correct pinned versions, but it resides in `code/requirements.txt` rather than at the repository’s top level as the task specifies. Relocate or duplicate the file to the project root so it is truly top‑level.
+- **T009** — The provided `requirements.txt` exists, is non‑empty, and all dependencies are pinned with `==` versions. However, there is no evidence that the implementer actually ran `pip install -r requirements.txt` and confirmed that `import nilearn` (or other imports) succeeds, which is a required part of the task. The import‑success verification is missing.
+- **T010** — No linting or formatting configuration files (e.g., `.ruff.toml`, `pyproject.toml` with Black settings) or installation scripts are present in the provided evidence, so the requirement to install ruff/black and ensure their config files exist is not satisfied.
 - **T036** — declared artifact(s) missing/empty/invalid: data/analysis_log.txt
-- **T036a** — No README.md content was supplied, so we cannot verify that it exists, is non‑empty, or contains the required CLI usage examples and installation instructions for the `code/` and `data/` directories. The implementer must provide the updated README file showing those sections.
+- **T051** — declared artifact(s) missing/empty/invalid: data/metrics_log.txt
+- **T059** — declared artifact(s) missing/empty/invalid: data/analysis_log.txt
+- **T063** — declared artifact(s) missing/empty/invalid: data/analysis_results.tsv
+- **T069** — declared artifact(s) missing/empty/invalid: data/analysis_log.txt
+- **T073** — declared artifact(s) missing/empty/invalid: data/results/permutation_results.tsv
+- **T076** — declared artifact(s) missing/empty/invalid: data/results/permutation_report.png
+- **T078** — declared artifact(s) missing/empty/invalid: data/analysis_log.txt
+- **T088** — declared artifact(s) missing/empty/invalid: tests/edge_cases/
+- **T091** — declared artifact(s) missing/empty/invalid: .github/workflows/ci.yml

@@ -9,4 +9,5 @@
 [2023-10-27 10:05:00] WARNING: Subject sub-03: Calculated FD = 0.6500mm
 [2023-10-27 10:05:00] WARNING: Exclusion logged: sub-03, reason: FD (0.65) exceeds threshold (0.5)
 [2023-10-27 10:05:00] WARNING: Subject sub-03 EXCLUDED: FD (0.65) exceeds threshold (0.5)
-[2023-10-27 10:05:00] WARNING: Subject sub-03 excluded by QC.
+[2023-10-27 10:05:00] WARNING: Subject sub-03 excluded by QC.[2026-10-09 03:52:08] INFO: Starting statistical analysis and aggregation.
+[2026-10-09 03:52:08] INFO: Aggregated statistics saved to /home/runner/work/llmXive/llmXive/projects/PROJ-433-investigating-the-relationship-between-b/data/analysis_results.tsv
