@@ -1,0 +1,18 @@
+status: none
+intent: OpenAI Gym MiniWorld 3D maze environment python package dataset
+required_fields:
+- maze_id
+- random_seed
+- grid_size
+- wall_coordinates
+- floor_coordinates
+- player_start_position
+- item_positions
+- goal_position
+- visual_observation_image
+- ascii_representation_grid
+- step_number
+- event_type
+cache_key: dde9a7f6fca739b58e5c69128d50036d1ee091054b14da693ac1c6ef9090a5d8
+searched_at: '2026-10-09T08:21:24.046452+00:00'
+retry_count: 1
