@@ -11,12 +11,12 @@ Tasks are ordered to respect data‑flow dependencies; later tasks depend only o
 
 ## Phase 0 – Research & Design  
 
-- [ ] T001a [Plan] Define Semantic Alignment logic for GSM8K.  
+- [X] T001a [Plan] Define Semantic Alignment logic for GSM8K.  
   *Deliverable*: `specs/001-entropy-validity-prediction/contracts/semantic_alignment_gsm8k.md`.  
 - [ ] T001a_v [Test] Verify `semantic_alignment_gsm8k.md` exists and conforms to the semantic‑alignment schema.  
   *Path*: `tests/contract/test_semantic_alignment_gsm8k.py`.  
 
-- [ ] T001b [Plan] Define Semantic Alignment logic for MiniGrid.  
+- [X] T001b [Plan] Define Semantic Alignment logic for MiniGrid.  
   *Deliverable*: `specs/001-entropy-validity-prediction/contracts/semantic_alignment_minigrid.md`.  
 - [ ] T001b_v [Test] Verify `semantic_alignment_minigrid.md` exists and conforms to the semantic‑alignment schema.  
   *Path*: `tests/contract/test_semantic_alignment_minigrid.py`.  

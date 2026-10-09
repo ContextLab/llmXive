@@ -1,3 +1,26 @@
+T001a:
+  c: true
+  h: 1da37675c3c9a3cf6ffa1344e9313565caf8bb82790568d7bc76c5eeed67933d
+  r: "Checked `specs/001-entropy-validity-prediction/contracts/semantic_alignment_gsm8k.md`\
+    \ (resolved path provided) \u2013 the 1054\u2011byte markdown file defines the\
+    \ GSM8K semantic alignment method, source field, and tokenization as required."
+  sig: 621b6a1ee6afbdf2b8ddc5b61c186fecda77e903beedd44e7af0c042ac8968b3
+T001a_v:
+  c: false
+  h: 6048c3db388853b8d6d75e8634474378b8a082944817c349e3cf24ce378d1f91
+  r: The only artifact present is the test script `tests/contract/test_semantic_alignment_gsm8k.py`;
+    the required contract file `specs/001-entropy-validity-prediction/contracts/semantic_alignment_gsm8k.md`
+    is not provided, so its existence and schema compliance cannot be verified. The
+    task therefore lacks a necessary artifact.
+  sig: c3d9e7489a055d17ed27dd523b0caa71e455fd300f3d5c87e8735bb485ff0aeb
+T001b:
+  c: true
+  h: 16db020903baf6134106bf60089a3908759b0f7f92aa101c940228fe101d9cb0
+  r: "Checked the `specs/001-entropy-validity-prediction/contracts/semantic_alignment_minigrid.md`\
+    \ file (1033\u202Fbytes) which contains a full markdown contract defining MiniGrid\
+    \ semantic alignment, including task type, description, validity criteria, and\
+    \ ground\u2011truth source as required."
+  sig: b75a5a48e385f2ff822095c3f200dd727dc2a528493523af5d08082f566bd5f4
 T007a:
   c: true
   h: 5cc0796b10a4d4f6f7e5d39730df25cfb0a5831bc60cb708e965f6aa3599e6c7

@@ -6343,3 +6343,55 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-06T08:09:05Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/contracts/semantic_alignment_gsm8k.md
+  attempts: 1
+  canonical: GSM8K dataset contains math word problems with textual answers
+  claim_id: c_aa5de5a7
+  context: "The GSM8K dataset consists of math word problems with a textual answer.\
+    \ For each prompt, the ground\u2011truth solution is the `answer` field."
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: The GSM8K dataset consists of math word problems with a textual answer.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T21:23:03Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/contracts/semantic_alignment_gsm8k.md
+  attempts: 1
+  canonical: ground-truth solution for each GSM8K prompt is the answer field
+  claim_id: c_45a6d280
+  context: "The GSM8K dataset consists of math word problems with a textual answer.\
+    \ For each prompt, the ground\u2011truth solution is the `answer` field."
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: "For each prompt, the ground\u2011truth solution is the `answer` field."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T21:23:42Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/contracts/semantic_alignment_minigrid.md
+  attempts: 1
+  canonical: "MiniGrid is a suite of procedurally generated reinforcement\u2011learning\
+    \ environments for navigation tasks"
+  claim_id: c_a932ac02
+  context: "MiniGrid is a suite of procedurally generated reinforcement\u2011learning\
+    \ environments where an agent must navigate a grid world from a start location\
+    \ to a goal location."
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: "MiniGrid is a suite of procedurally generated reinforcement\u2011learning\
+    \ environments where an agent must navigate a grid world from a start location\
+    \ to a goal location."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T21:24:53Z'

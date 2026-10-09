@@ -1,6 +1,10 @@
 T001a:
   task: a0ac3c634a130b95a40703f4c05f3c5bb9fe030b1eeb544b16531d15a5ac2855
 T001a_v:
+  reason: The only artifact present is the test script `tests/contract/test_semantic_alignment_gsm8k.py`;
+    the required contract file `specs/001-entropy-validity-prediction/contracts/semantic_alignment_gsm8k.md`
+    is not provided, so its existence and schema compliance cannot be verified. The
+    task therefore lacks a necessary artifact.
   task: 1ff3fc63dbacad7392d4efb91310aabf2a4b680801b2efaa56ac0a034c314a70
 T001b:
   task: ff3f90d9f66dfa18cfb71a36782d8fd1b2b7c61d6bac4456d380374d2a156e2b

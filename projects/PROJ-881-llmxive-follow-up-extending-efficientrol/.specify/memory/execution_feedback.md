@@ -85,6 +85,6 @@ ERROR tests/integration/test_ground_truth_labeling.py - AttributeError: modul...
 ERROR tests/unit/test_generation.py - AttributeError: module 'logging' has no...
 ERROR tests/unit/test_logistic_model.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 5 errors in 1.85s ===============================
+============================== 5 errors in 1.75s ===============================
 
 
