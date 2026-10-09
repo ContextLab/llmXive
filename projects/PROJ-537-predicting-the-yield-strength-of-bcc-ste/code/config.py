@@ -62,8 +62,25 @@ class Config:
     MIN_SAMPLE_SIZE = 10
     MAX_SAMPLE_SIZE = 50
 
+    # Additional path shortcuts used by ingestion modules
+    # These provide backward‑compatible attribute names referenced in existing code.
+    INTERMEDIATE_DATA_PATH = DATA_INTERMEDIATE_DIR
+    RAW_EXPERIMENTAL_PATH = DATA_RAW_DIR / "experimental_data.csv"
+    RAW_DFT_PATH = DATA_RAW_DIR / "dft_data.csv"
+    EXPERIMENTAL_DATA_PATH = RAW_EXPERIMENTAL_PATH
+    DFT_DATA_PATH = RAW_DFT_PATH
+    MERGED_DATA_PATH = MERGED_CSV_PATH
+    
+    # Materials Project API base URL (required by fetch_dft.py)
+    MP_API_BASE_URL = "https://materialsproject.org/api"
+
 # Global config instance
 CONFIG = Config()
+
+# Export error constants at module level for legacy imports
+ERR_INSUFFICIENT_DATA = Config.ERR_INSUFFICIENT_DATA
+ERR_API_FAILURE = Config.ERR_API_FAILURE
+ERR_SCHEMA_VALIDATION = Config.ERR_SCHEMA_VALIDATION
 
 def ensure_dirs():
     """Ensure all required directories exist."""

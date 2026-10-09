@@ -1,0 +1,7 @@
+{
+  "task_id": "T049",
+  "fingerprint": "6a0db4a06bc80d5b2e90f53247fb40be4c38530a460b08f16c7f9770fba978d0",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/main.py': SyntaxError at line 184: unexpected character after line continuation character. Likely truncation (output ran out of tokens) or unbalanced bracket. Total chars: 8507"
+}
