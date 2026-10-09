@@ -66,6 +66,12 @@ Return VERDICT: COMPLETE only if ALL hold:
     `TODO`, `NotImplementedError`, or fabricated/random/"simulated" stand-in);
   - the work addresses the task's REQUIREMENT, not a different, easier thing.
 
+A report's own assertion is not evidence that its measurements were computed or
+its tests passed. Compare reported tables, numbers, trends, and success claims
+against the supplied underlying data/execution evidence. Reject a results report
+that invents sample measurements, contradicts that evidence, or claims a run/test
+succeeded without evidence. File existence and a plausible caption are insufficient.
+
 Return VERDICT: INCOMPLETE if the required artifact is missing, empty, a
 stub/placeholder, fabricated (e.g. metrics drawn from random numbers, or synthetic
 data where real data was required), or simply does not satisfy what the task asked
@@ -225,6 +231,19 @@ def gather_evidence(project_dir: Path, task_text: str) -> str:
             "(the task references no code/data/figure artifact path; verify from "
             "the task description + the project context alone)"
         )
+    # A report alone cannot substantiate its own results. Directory-producing
+    # tasks likewise need contents, not merely a list of filenames. The shared
+    # bounded reader exposes actual data and hashes, so report-cache entries
+    # invalidate when their supporting bytes change.
+    needs_data = any(
+        Path(rel).suffix.lower() == ".md" or rel.endswith("/")
+        for rel in paths
+    )
+    if needs_data:
+        from llmxive.speckit.implement_cmd import _current_data_context
+        data = _current_data_context(project_dir)
+        chunks.append("# Underlying data evidence (not proof of run/test success)\n"
+                      + (data or "No data artifacts available; do not infer measured results from report prose."))
     return "\n".join(chunks)
 
 
