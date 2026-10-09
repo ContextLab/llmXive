@@ -1,0 +1,107 @@
+T001:
+  reason: The `data/raw/` directory, which the task explicitly requires, is missing,
+    and there is no evidence (e.g., CI logs) that `pip install -r requirements.txt`
+    succeeds on a clean runner. These gaps must be addressed for the task to be considered
+    complete.
+  task: cc17ab4601250f8693d50edb8e69e9ffe3b115e1700d13c157473f723b615108
+T004:
+  reason: No `utils/resource_monitor.py` file or any log output (`logs/resource_usage.log`)
+    was provided, so there is no evidence that RAM/Disk usage is being logged or that
+    the abort thresholds are enforced. The required artifact and verification log
+    are missing.
+  task: 4a33e2b36ffe95ab00bef539d9a44574adb74b65f23a7ce2b37cff1607b720d6
+T005:
+  reason: "The repository contains only the unit\u2011test file; there is no provided\
+    \ `utils/entropy_utils.py` implementation (or any evidence that it exists, is\
+    \ non\u2011empty, and passes the tests). Without the actual module or test run\
+    \ results, the task\u2019s requirement cannot be verified."
+  task: eef49759d212508313c2a981e56a27dc980c1222c97a0a1946b4e49fdd631d58
+T006:
+  reason: "The repository only shows the unit\u2011test file; there is no evidence\
+    \ that `utils/stats_utils.py` exists, implements an OLS regression routine, or\
+    \ that the tests actually pass. Without the required module (and its OLS function)\
+    \ the task is not satisfied."
+  task: 6aaff314dda9fbae1a2c4bb232ec5f51b4a5d06cf1c1a8b67f93d0d00461125d
+T007:
+  reason: "No `utils/logger.py` file or `logs/pipeline.log` was provided; without\
+    \ these artifacts we cannot confirm that a data\u2011wide logger was implemented\
+    \ or that the log contains entries for each pipeline stage. The required code\
+    \ and log output are missing."
+  task: 18b3a320ae01120cd41ef270e60bb660548033824d9082409f92446f09132fce
+T008:
+  task: e937b4eb6f9bedf0f0acd8601e1ea53966704095b8950f48e749b910b80581f8
+T010:
+  reason: The schema file is present but under the wrong directory (`specs/001-investigating-the-relationship-between-n/...`
+    instead of `specs/001-neural-entropy-cognitive-flexibility/contracts/dataset.schema.yaml`),
+    and the required `data/raw/example.parquet` instance file does not exist, so the
+    claimed validation cannot be performed.
+  task: 9555bc94762b9bbbc13b4a374ed80557d21b973ffa1aea53a042258523adfa42
+T011:
+  reason: "The repository contains the required `tests/unit/test_entropy.py` file,\
+    \ but there is no provided evidence (e.g., test run logs, CI output, or a passing\
+    \ pytest report) that the tests actually execute successfully. Without proof that\
+    \ the unit tests pass, the task\u2019s requirement is not verified."
+  task: 81e79fcf70f50cf2ae0bb8d1facddb803c28eda24681a7ee0ea91df330020336
+T012a:
+  reason: The provided `code/01_download_data.py` downloads the wrong datasets (ds000030,
+    ds000273) and only behavioral TSV/CSV files, saving them as parquet, not the required
+    EDF/BDF EEG files. Moreover, the expected `data/raw/` directory with EDF/BDF files
+    and the `data/checksums.json` file are absent.
+  task: 38739d6b0d58534868d2ba8ee1a0940d387a17ff249e6102e06142302ac1586f
+T012b:
+  reason: "The repository only contains the `code/01_validate_data.py` script; the\
+    \ required `logs/validation_status.json` file is absent, and there is no evidence\
+    \ (e.g., test run output or exit\u2011code capture) that the script aborts when\
+    \ no dataset passes validation. The implementer must provide the generated JSON\
+    \ log and proof of the error\u2011exit behavior."
+  task: 3f7f108ef3c41f275170bbc4bc96cce30856d2bc6782eba7c274b592091d3847
+T012c:
+  reason: 'Requested task execution failed; rerun successfully: code/02_extract_behavior.py
+    exit=1'
+  task: 19c142c3d2350d6bb937fcffeaf536b575bec535def586e1ec3c09bdf07cfecb
+T013:
+  reason: 'Requested task execution failed; rerun successfully: code/02_preprocess_eeg.py
+    exit=1'
+  task: f179ea4b076bbcbcbe680802dbb8678215720bce18a21c2c118571d04eddb6f8
+T014:
+  task: d44459eee5deb66eb11fba39511fea9db52bcb9c226bbebaceb7c0e00d1e1a3b
+T015:
+  task: a5d12f81c0a9197397df5d4af6b8f6b5f2442fb6c4fb16ce3a54e57a2110fb18
+T016:
+  task: 217e0c025295b970e74cce586f917cbb7ab642382224e8f70d095a24253ba5e1
+T017:
+  task: ed0e6d5e6430b39678da66137a1323429ee1bb2112b85ec55b90f9897c80be97
+T018:
+  task: b1ae628cdb7479b4f70d9229a18814804093543897020dcc0d8fd4003e79a1ab
+T020a:
+  task: 345c5806cfd1910bbb1359d45e1f7564cfa282ca2200c24d0dd4e072fc3b2aa4
+T021:
+  task: 0b22a7a752caf981ab4560beee811e0834de00f3c31a390362308aea2fde3221
+T022:
+  task: 9490de2d946a3af5b51803f781458eef5ca49a707a4e273fb3cbccc2cec51a02
+T023:
+  task: 85924718feaaeee23dfb53d96caf18a7999fec927d2810fa864bf4f36012cdf3
+T024:
+  task: e15cd02d38ef0dbeee98f7a0a6f2a1b48f359746277964d519f6c734c0ac9aa9
+T027:
+  task: 55fd83f877ad86ef019f38210325e71ad201d60e54221bea3468f14ab1c0c348
+T028:
+  task: c76dd72c5e26b1924ff9693622d65397acb7c3edfd8a7e0959c62d9ac0832d1f
+T029:
+  task: da9cb240ade40286292ad6894c264acd77dbc229d6f359def73e9f4a623bf7e7
+T030:
+  task: 94ddbb281b3b8c720ae19bd57088275c6ea8558938b5dbc02b3af0468b8e9fcc
+T031:
+  task: a257b2d5fceebf888bdb70f8158ba23a9d2dfc322da251bce51dae90b95f00cc
+T032:
+  task: 7b12b570401d6f73a68b3e65bf5f904e36cbda398d3f8fccc09a76efd63347b7
+T033:
+  task: 08f322c5d7fe74ff1f730d934b6d147f64c9af1aee36a5be9284f320e66875d7
+T034:
+  task: b59a65e2a09e0827443a267edb01c547ef3d394eaada48f495ab258f124844a0
+T035:
+  task: d3184717e4e77e011859dc6f514045acdc4532d79218ce497a155c336893d3ca
+T036:
+  task: d5d3ac6dab6db56a42b0447a5b9acba787ac15cb03de4c4f78dcee2833f81e27
+T037:
+  task: f88e27a73ef40af1162ea96b29178ce42d882b4f841f1de3e25eccbdc5e7d38b

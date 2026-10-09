@@ -1,247 +1,188 @@
 # Tasks: Neural Entropy and Cognitive Flexibility in Aging
 
-**Input**: Design documents from `/specs/001-neural-entropy-cognitive-flexibility/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `code/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [X] T001 [P] Initialize project structure: Create directories `code/`, `data/raw/`, `data/processed/`, `data/interim/`, `tests/`, `specs/` and create `code/requirements.txt` with **pinned versions**: `mne==1.6.0`, `statsmodels==0.14.0`, `numpy==1.24.0`, `pandas==2.0.0`, `pyyaml==6.0.1`, `requests==2.31.0`, `scikit-learn==1.3.0`, `numba==0.58.0`, `jsonschema==4.19.0`, `huggingface_hub==0.19.0` to satisfy Constitution Principle I (Reproducibility)
+**Inputs**: `spec.md`, `plan.md`, existing research artifacts, and reviewer feedback.  
+All tasks follow the canonical `- [ ] T### [P?] [USx?] description …` format. Checked boxes (`[X]`) indicate work that has already been verified and does not need modification.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1: Project Setup (already verified)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] T001 Establish the project layout, create `code/`, `data/raw/`, `data/processed/`, `tests/`, and `specs/` directories; add a pinned `requirements.txt` (MNE 1.6.0, statsmodels 0.14.0, NumPy 1.24.0, pandas 2.0.0, PyYAML 6.0.1, requests 2.31.0, scikit‑learn 1.3.0, numba 0.58.0, jsonschema 4.19.0, huggingface_hub 0.19.0). **Verification**: `pip install -r requirements.txt` succeeds on a clean CI runner.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T004 Setup `utils/resource_monitor.py` to log RAM/Disk usage and abort if >7 GB RAM or >14 GB disk is consumed. **Verification**: Log entry appears in `logs/resource_usage.log` during any script run.
 
-- [X] T004 Setup `utils/resource_monitor.py` to log RAM/Disk usage and enforce <7GB RAM / <14GB Disk limits
-- [X] T005 [P] Implement `utils/entropy_utils.py` with CPU-optimized Sample Entropy and Approximate Entropy algorithms (no CUDA, standard floating-point precision)
-- [X] T006 [P] Setup `utils/stats_utils.py` for Multiple Linear Regression (OLS) and FDR correction (Benjamini-Hochberg). **Note**: Bonferroni is excluded as the Plan deviates to OLS/FDR.
-- [X] T007 Create base data schemas in `specs/001-neural-entropy-cognitive-flexibility/contracts/` (`dataset.schema.yaml`, `entropy_output.schema.yaml`, `correlation_results.schema.yaml`, `output.schema.yaml`)
-- [X] T008 Configure logging infrastructure to track data flow and exclusion reasons
-- [X] T009 [P] Setup environment configuration management: Create `code/config.py` with pinned variables: `OPENNEURO_DATASET_IDS` (list), `SNR_THRESHOLD` (float, default: 5.0), `ARTIFACT_THRESHOLD` (float, default: 0.2), `SEED` (int, default 42). (FR-001, FR-010)
+- [ ] T005 [P] Implement `utils/entropy_utils.py` with CPU‑only Sample Entropy and Approximate Entropy (no CUDA). **Verification**: Unit tests in `tests/unit/test_entropy.py` pass.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T006 [P] Implement `utils/stats_utils.py` providing OLS regression and Benjamini‑Hochberg FDR functions. **Verification**: `tests/unit/test_stats.py` passes.
 
----
+- [ ] T007 Create data‑wide logging (`utils/logger.py`) to capture step‑wise messages and exclusion reasons. **Verification**: Log file `logs/pipeline.log` contains entries for each stage.
 
-## Phase 3: User Story 1 - EEG Data Pipeline and Entropy Computation (Priority: P1) 🎯 MVP
-
-**Goal**: Download OpenNeuro datasets, preprocess EEG, compute entropy metrics, and ensure data quality.
-
-**Independent Test**: Can be fully tested by running the preprocessing pipeline on a subset of EEG data and verifying that entropy values are computed for all 5 frequency bands with no NaN outputs for valid participants.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [ ] T010 [P] [US1] Contract test for `dataset.schema.yaml` validation in `tests/contract/test_dataset_schema.py`
-- [X] T011 [P] [US1] Unit test for entropy calculation stability (no NaN/Inf) in `tests/unit/test_entropy.py`
-
-### Implementation for User Story 1
-
-- [X] T012a [US1] Implement `code/01_download_data.py`: Fetch OpenNeuro datasets **ds000246** and **ds003104** using `huggingface_hub`. **Input**: `code/config.py`. **Output**: `data/raw/` parquet files with checksums. (FR-001, FR-010, FR-011)
-- [X] T012b [US1] **Validate Variable Fit**: Implement `code/01_validate_data.py`. **Action**: Load `data/raw/` parquet, check for column `wcst_perseverative_errors`. **Condition**: If column missing, **flag that specific dataset as excluded** in `logs/validation_status.json` and **proceed only with remaining valid datasets**. **Do NOT halt the pipeline**. If no datasets remain, then fail. (Edge Cases, FR-010)
-- [ ] T012c [US1] Extract and convert behavioral scores from `data/raw/` parquet files to `data/processed/behavioral_scores.csv`. **Critical**: Only runs if T012b passes for at least one dataset. **Input**: `data/raw/`. **Output**: `data/processed/behavioral_scores.csv`. (US-1)
-- [ ] T013 [US1] Implement the preprocessing script for EEG data: **Bandpass filtering** (1-45 Hz), Notch (50/60Hz), Bad channel interpolation, ICA artifact removal, 2-second non-overlapping epochs. **Input**: `data/raw/`. **Output**: `data/processed/` epoched data. (FR-002, US-1)
-- [ ] T014 [US1] Implement SNR calculation in `code/02_preprocess_eeg.py`: Calculate **Median SNR of preprocessed data relative to 1-45 Hz band power** (per SC-001). **Formula**: `median(signal_power_1-45Hz) / median(noise_power_floor)`. **Noise Definition**: `noise_power_floor` = median power in the **46-60 Hz band** (or residual after bandpass). **Stability**: If entropy/SNR computation produces NaN/Inf, **recompute using `float64` precision**. If NaN persists, **exclude participant**. **Input**: `data/processed/` epoched data. **Output**: `data/processed/snr_metrics.json`. (SC-001, FR-002, Edge Cases)
-- [ ] T016 [US1] Add data quality checks to `code/02_preprocess_eeg.py`: Exclude participants with <60s valid EEG, >20% corrupted segments, **OR SNR < 5dB** (consuming T014 output). **Use the exact SNR calculation method from T014/SC-001**. **Input**: `data/raw/`, `data/processed/snr_metrics.json`. **Output**: `data/processed/exclusion_log.csv`. (Edge Cases, SC-001)
-- [ ] T015 [US1] Implement `code/compute_entropy.py`: Compute **both** Sample Entropy and Approximate Entropy for Delta, Theta, Alpha, Beta, Gamma bands. **Include both in primary output**. **Input**: `data/processed/` epoched data. **Output**: `data/processed/entropy_metrics.csv`. (FR-003, FR-012)
-- [ ] T017 [US1] Add resource monitoring calls in `02_preprocess_eeg.py` and `03_compute_entropy.py` to ensure <7GB RAM usage. **Input**: Running scripts. **Output**: `logs/resource_usage.log`. (FR-008)
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [X] T008 [P] Add `code/config.py` with constants:
+  ```python
+  OPENNEURO_DATASET_IDS = ["ds000246", "ds003104"]
+  SNR_THRESHOLD = 5.0
+  ARTIFACT_THRESHOLD = 0.2
+  SEED = 42
+  ```  
+  **Verification**: Importing `config` yields the exact values.
 
 ---
 
-## Phase 4: User Story 2 - Statistical Correlation Analysis (Priority: P2)
+## Phase 2: Foundational Utilities (already verified)
 
-**Goal**: Perform Multiple Linear Regression (OLS) with covariates and FDR correction (Spec FR-005, Plan Deviation).
+- [ ] T010 [P] **Create `specs/001-neural-entropy-cognitive-flexibility/contracts/dataset.schema.yaml`** describing required columns (`participant_id`, `age`, `education`, `wcst_perseverative_errors`, `task_accuracy`, `neurological_condition`, `medication_use`, plus raw EEG file references).  
+  **Verification**: `jsonschema validate --instance data/raw/example.parquet --schema contracts/dataset.schema.yaml` returns success.
 
-**Independent Test**: Can be fully tested by running the regression pipeline on computed entropy values and behavioral scores, verifying that p-values are FDR-corrected and effect sizes (partial r) are reported with 95% confidence intervals.
+- [ ] T011 [P] Unit test for entropy stability (`tests/unit/test_entropy.py`). **Verification**: Test passes.
 
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T012a [US1] **Implement `code/01_download_data.py`** to fetch OpenNeuro datasets `ds000246` and `ds003104` via `huggingface_hub`. Downloads original EDF/BDF EEG files (preserving native format) into `data/raw/` and records SHA‑256 checksums in `data/checksums.json`.  
+  **Verification**: EDF/BDF files exist in `data/raw/`, checksum file contains matching entries.
 
-- [ ] T018 [P] [US2] Contract test for `correlation_results.schema.yaml` in `tests/contract/test_correlation_schema.py`
-- [X] T019 [P] [US2] Unit test for FDR correction logic in `tests/unit/test_stats.py`
+- [ ] T012b [US1] **Implement `code/01_validate_data.py`** that loads each raw file, checks for the column `wcst_perseverative_errors`, flags missing‑variable datasets in `logs/validation_status.json`, and aborts with an error if no dataset passes.  
+  **Verification**: `logs/validation_status.json` correctly lists excluded datasets and the script exits with an error when appropriate.
 
-### Implementation for User Story 2
-
-- [ ] T020a [US2] Implement `code/04_regression_analysis.py`: Perform **Multiple Linear Regression (OLS)** between Entropy metrics and WCST errors. **This is the primary and only statistical test** per Plan deviation (replaces Partial Pearson). **Inputs**: Entropy metrics, WCST errors, and **binary covariates: Neurological Condition, Medication Use** (handled as categorical variables), plus Age, Education, Task Accuracy. **Output**: `data/processed/correlation_results_ols.csv`. (Plan: OLS, FR-004 deviation)
-- [ ] T021 [US2] Implement Benjamini-Hochberg FDR correction in `code/04_regression_analysis.py`. **Logic**: 1. **Calculate VIF for all predictors in OLS model first**. 2. **If VIF > 5, drop Approximate Entropy (ApEn) and re-run the ENTIRE OLS model (T020a logic) on the reduced feature set**. 3. Apply FDR to remaining tests (multiple bands × remaining metrics). **Input**: `data/processed/correlation_results_ols.csv`. **Output**: `data/processed/correlation_results_fdr.csv`. (FR-005, FR-012, SC-002)
-- [ ] T023 [US2] Calculate effect sizes (partial r) and classify (≥ 0.3 = clinically meaningful) in `code/04_regression_analysis.py`. **Input**: `data/processed/correlation_results_fdr.csv`. **Output**: `data/processed/effect_sizes.json`. (SC-002)
-- [ ] T025 [US2] Add explicit "Associational" disclaimer and covariate control summary to final report. **Input**: `data/processed/`. **Output**: `logs/methodology_notes.md`. (FR-009, SC-005, Plan: Constitution Amendment Request)
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] T012c [US1] **Extract behavioral scores**: `code/02_extract_behavior.py` reads validated raw files, merges behavioral columns, and writes `data/processed/behavioral_scores.csv`.   <!-- FAILED-IN-EXECUTION: code/02_extract_behavior.py exit=1 -->
+  **Verification**: CSV contains one row per participant with all required covariates and no missing values (except those intentionally excluded).
 
 ---
 
-## Phase 5: User Story 3 - Sensitivity Analysis and Reporting (Priority: P3)
+## Phase 3: User Story 1 – EEG Pipeline & Entropy (Priority P1)
 
-**Goal**: Conduct sensitivity analyses (exclusions, threshold sweeps) and generate final reproducible report.
+- [ ] T013 [US1] **Implement `code/02_preprocess_eeg.py`**: <!-- FAILED-IN-EXECUTION: code/02_preprocess_eeg.py exit=1 -->
+  - Load raw EDF/BDF files with MNE.
+  - Apply 1‑45 Hz band‑pass filter and 50 Hz (or 60 Hz) notch filter.
+  - Detect bad channels (variance > 5 SD) and interpolate.
+  - Run ICA, automatically identify and remove EOG/EMG components.
+  - Segment into 2‑second non‑overlapping epochs.
+  - Save epoched data as `data/processed/epoched/<participant_id>-epochs.fif`.  
+  **Verification**:
+    - Epoch file exists and contains ≥30 epochs.
+    - Metadata file `data/processed/preproc_metadata/<participant_id>.json` records that band‑pass, notch, bad‑channel interpolation, and ICA were applied.
+    - A quick sanity check confirms that the power spectrum after preprocessing matches the 1‑45 Hz bandpass.
 
-**Independent Test**: Can be fully tested by running the sensitivity pipeline on the same dataset with exclusion criteria applied and verifying that headline correlation rates are compared across exclusion scenarios.
+- [ ] T014 [US1] **Compute median SNR** in `code/03_compute_snr.py`:
+  - For each participant, compute signal power in 1‑45 Hz band and noise power in 46‑60 Hz band.
+  - Median SNR (dB) = 10 · log10(signal/noise).
+  - Write `data/processed/snr_metrics.json` mapping participant IDs to SNR values (float).  
+  **Verification**:
+    - JSON is valid and contains a numeric SNR for every participant.
+    - At least one participant has SNR ≥ 5 dB; a summary printed to the console.
 
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T015 [US1] **Implement `code/04_compute_entropy.py`**:
+  - Load epoched data, band‑pass each epoch into the five standard bands (delta 1‑4 Hz, theta 4‑8 Hz, alpha 8‑12 Hz, beta 12‑30 Hz, gamma 30‑45 Hz).
+  - Compute Sample Entropy (m=2, r=0.2·std) and Approximate Entropy for each band using `utils.entropy_utils`.
+  - Aggregate across epochs (mean per participant) and write `data/processed/entropy_metrics.csv` with columns: `participant_id`, `band`, `entropy_type` (SampEn/ApEn), `value`.  
+  **Verification**:
+    - CSV has exactly 10 rows per participant (5 bands × 2 entropy types).
+    - No NaN/Inf values.
+    - Header includes a comment confirming the parameters `m=2` and `r=0.2·std`.
 
-- [X] T026 [P] [US3] Integration test for full pipeline reproducibility in `tests/integration/test_full_pipeline.py`
+- [ ] T016 [US1] **Data‑quality exclusion** (`code/04_quality_checks.py`):
+  - Exclude participants with total valid EEG < 60 s, > 20 % corrupted epochs, or SNR < 5 dB (using `snr_metrics.json`).
+  - Write exclusion decisions to `data/processed/exclusion_log.csv` (columns: `participant_id`, `reason`).  
+  **Verification**: Log contains at least one excluded participant and the reasons match the criteria.
 
-### Implementation for User Story 3
-
-- [ ] T027 [US3] Implement sensitivity analysis in `code/04_regression_analysis.py` excluding participants with neurological conditions/medications. **Critical**: **Re-run the ENTIRE regression pipeline (T020a + T021 logic)** on the subset of participants. **Input**: `data/processed/entropy_metrics.csv`, `data/processed/behavioral_scores.csv`. **Output**: `data/processed/sensitivity_exclusion_results.csv`. (FR-006)
-- [ ] T028 [US3] Implement threshold sensitivity sweep in `code/04_regression_analysis.py`. **Sweep Values**: 1. **Artifact rejection threshold**: Offsets from baseline {0.0, 0.05, 0.1}. 2. **SNR threshold**: Offsets from baseline {0.0, 0.05, 0.1}. **Critical**: **Implement an iterative loop that re-runs the ENTIRE regression pipeline (T020a + T021 logic) for each offset value**. **Input**: `data/processed/entropy_metrics.csv`, `data/processed/behavioral_scores.csv`. **Output**: `data/processed/sensitivity_threshold_results.csv`. (FR-007, US-3)
-- [ ] T029 [US3] Generate `sensitivity_report.json` comparing results across exclusion scenarios and threshold sweeps. **Required fields**: scenario, r_value, p_value, n_excluded. **Input**: `data/processed/sensitivity_exclusion_results.csv`, `data/processed/sensitivity_threshold_results.csv`. **Output**: `data/processed/sensitivity_report.json`. (SC-003)
-- [ ] T030 [US3] Implement `code/05_generate_report.py` to produce final report with correlation matrices, effect sizes, **FDR-corrected p-values (primary)**, and sensitivity comparisons. **Explicitly state that FDR correction was used to satisfy Spec FR-005**. **Action**: Include explicit acknowledgement of power analysis deferral in the final report (satisfying Spec Assumptions). **Input**: `data/processed/`. **Output**: `reports/final_report.md`. (FR-007, SC-003, Spec Assumptions)
-- [ ] T031 [US3] Add explicit "Associational" disclaimer and covariate control summary to final report. **Input**: `reports/final_report.md`. **Output**: `reports/final_report.md` (updated). (FR-009, SC-005)
-- [ ] T032a [US3] Validate **CSV data artifacts** (`correlation_results_fdr.csv`) against `specs/001-neural-entropy-cognitive-flexibility/contracts/correlation_results.schema.yaml` using `jsonschema validate` command. **Input**: `data/processed/`. **Output**: `logs/validation_results.txt`. (Contract Test)
-- [ ] T032b [US3] Validate **JSON artifacts** (`sensitivity_report.json`) against `specs/001-neural-entropy-cognitive-flexibility/contracts/output.schema.yaml` using `jsonschema validate` command. **Input**: `data/processed/`. **Output**: `logs/validation_results_json.txt`. (Contract Test)
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T033a [P] Create `docs/diagrams/data_flow.png` illustrating data movement from raw to final report.
-- [X] T033b [P] Create `docs/methodology_notes.md` detailing processing steps and assumptions.
-- [P] T034 [P] Refactor `utils/entropy_utils.py` to use `@numba.jit` decorators on `sample_entropy` and `approximate_entropy` functions for CPU optimization.
-- [X] T035 [P] Reduce peak memory in `code/02_preprocess_eeg.py` to <6GB via chunked loading verification.
-- [ ] T036 [P] Additional unit tests for edge cases (NaN handling, short recordings) in `tests/unit/`
-- [ ] T037 Run `quickstart.md` validation to ensure full pipeline completes within 6 hours on CI
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on entropy data from US1
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on regression results from US2
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models (schemas) before services (scripts)
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- [ ] T017 **Add resource‑monitoring calls**:
+  - Insert `utils.resource_monitor.record()` at the start and end of `02_preprocess_eeg.py` and `04_compute_entropy.py`.
+  - Ensure `logs/resource_usage.log` records peak RAM and total runtime for each script.  
+  **Verification**: Log entries show peak RAM ≤ 6.5 GB and total runtime ≤ 4 h for the full dataset on CI.
 
 ---
 
-## Parallel Example: User Story 1
+## Phase 4: User Story 2 – Statistical Correlation (Priority P2)
 
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for dataset.schema.yaml validation in tests/contract/test_dataset_schema.py"
-Task: "Unit test for entropy calculation stability in tests/unit/test_entropy.py"
+- [ ] T018 [US2] **Create `specs/001-neural-entropy-cognitive-flexibility/contracts/correlation_results.schema.yaml`** defining columns: `participant_id`, `band`, `entropy_type`, `partial_r`, `p_raw`, `p_bonferroni`, `vif`.  
+  **Verification**: `jsonschema validate --instance data/processed/correlation_results_partial.csv --schema contracts/correlation_results.schema.yaml` succeeds.
 
-# Launch all implementation for User Story 1 together (models/scripts):
-Task: "Implement code/01_download_data.py to fetch OpenNeuro datasets"
-Task: "Implement code/02_preprocess_eeg.py: Filtering, ICA, epoching"
-Task: "Implement code/03_compute_entropy.py: Sample/ApEn calculation"
-```
+- [ ] T020a [US2] **Implement `code/05_partial_correlation.py`**:
+  - Load `entropy_metrics.csv` and `behavioral_scores.csv`.
+  - For each (band × entropy_type) compute a **Partial Pearson** correlation (using an appropriate library such as `pingouin.partial_corr`) between the entropy metric and WCST perseverative errors, controlling for age, education, and task accuracy.
+  - Output raw results to `data/processed/correlation_results_partial.csv`.  
+  **Verification**: CSV exists, contains rows for all 10 predictor combinations, and includes a `partial_r` column.
 
----
+- [ ] T021 [US2] **Bonferroni correction & VIF handling** (extend `05_partial_correlation.py`):
+  - Compute VIF for all predictors; if any VIF > 5, drop the Approximate Entropy predictor for that band and re‑run the partial correlation.
+  - Apply Bonferroni correction across the final set of tests (≤ 10) and add column `p_bonferroni`.
+  - Write `data/processed/correlation_results_corrected.csv`.  
+  **Verification**: Adjusted p‑values are ≤ 1.0 and the file passes the schema from T018.
 
-## Implementation Strategy
+- [ ] T022 [US2] **Effect‑size calculation** (`code/06_effect_sizes.py`):
+  - Convert partial correlation `partial_r` to effect size (Cohen’s q) and compute 95 % CI.
+  - Flag clinically meaningful effects (|partial_r| ≥ 0.3).
+  - Write `data/processed/effect_sizes.json`.  
+  **Verification**: JSON contains a `clinically_meaningful` boolean for each test.
 
-### MVP First (User Story 1 Only)
+- [ ] T023 [US2] **Methodology notes**:
+  - Generate `logs/methodology_notes.md` summarizing:
+    - Explicit “Associational” disclaimer.
+    - Covariate control summary (age, education, task accuracy, binary covariates).
+    - Brief statement of the Bonferroni correction method.
+  - **Verification**: Markdown file contains the required disclaimer line and a table of covariates.
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently (entropy values computed, no NaN, SNR check)
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo (Correlations)
-4. Add User Story 3 → Test independently → Deploy/Demo (Sensitivity/Report)
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
-   - Developer A: User Story 1 (Data Pipeline)
-   - Developer B: User Story 2 (Regression)
-   - Developer C: User Story 3 (Sensitivity/Report)
-3. Stories complete and integrate independently
+- [ ] T024 [US2] **Verify WCST instrument** (`code/03_verify_wcst.py`):
+  - Check that the WCST version present in the dataset matches a validated version (e.g., Heaton et al., 1993) and record the citation.
+  - Write `logs/wcst_validation.log` with the validation result and citation reference.  
+  **Verification**: Log contains a line “WCST validated against Heaton et al., 1993” or aborts with an error if validation fails.
 
 ---
 
-## Notes
+## Phase 5: User Story 3 – Sensitivity & Reporting (Priority P3)
 
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Constraint**: All tasks must run on CPU-only CI (limited core count, ~7 GB RAM, 14GB disk, 6h limit). No GPU, no 8-bit models.
-- **Data Integrity**: No fake data. Use real OpenNeuro datasets with verified behavioral scores.
-- **Methodology Note**: Primary hypothesis testing uses **Multiple Linear Regression (OLS)** with **FDR correction** (Plan deviation from Spec FR-004/Constitution VII). Partial Pearson and Bonferroni are removed as primary methods; Bonferroni is removed entirely from tasks to avoid conflict.
-- **Spec-Plan Consistency Note**: Tasks reflect Plan's deviation to OLS and FDR. T020a implements OLS (Primary). T021 implements FDR with VIF check and re-run logic. T028 specifies exact offsets {0.0, 0.05, 0.1} for all cutoffs. T012a/b/c enforces variable-fit check with graceful exclusion. T027/T028 explicitly re-run the full pipeline.
+- [ ] T027 [US3] **Sensitivity‑exclusion analysis**:
+  - Re‑run the full partial‑correlation pipeline after removing participants flagged with `neurological_condition == True` or `medication_use == True`.
+  - Write `data/processed/sensitivity_exclusion_results.csv`.  
+  **Verification**: CSV exists and the participant count (`n`) is lower than in the primary analysis.
+
+- [ ] T028 [US3] **Threshold‑sweep analysis**:
+  - Iterate over three artifact‑threshold offsets `{0.0, 0.05, 0.10}` and three SNR‑threshold offsets `{0.0, 0.05, 0.10}` (total 9 configurations).
+  - For each configuration, re‑run preprocessing → entropy → partial correlation → Bonferroni.
+  - Append results to `data/processed/sensitivity_threshold_results.csv` with columns `config_id`, `artifact_offset`, `snr_offset`, `band`, `entropy_type`, `partial_r`, `p_bonferroni`.  
+  **Verification**: CSV has 9 × 10 = 90 rows and includes a `config_id` column.
+
+- [ ] T029 [US3] **Aggregate sensitivity report**:
+  - Summarize headline correlation coefficients and p‑values across exclusion and sweep scenarios.
+  - Compute coefficient‑of‑variation (CV) of `partial_r` per band/entropy.
+  - Write `data/processed/sensitivity_report.json` with fields: `scenario`, `r_mean`, `r_cv`, `p_mean`, `n_excluded`.  
+  **Verification**: JSON is valid and contains at least two scenario entries (`exclusion`, `threshold_sweep`).
+
+- [ ] T030 [US3] **Final reproducible report**:
+  - `code/07_generate_report.py` reads all processed artifacts and produces `reports/final_report.md` containing:
+    - Correlation matrix (raw and Bonferroni‑adjusted).
+    - Effect‑size table with clinical relevance flags.
+    - Sensitivity tables and CV metrics.
+    - The associational disclaimer (copied from `logs/methodology_notes.md`).
+  - Commit the markdown in the repo.  
+  **Verification**: The report renders correctly on GitHub preview and includes all required sections.
+
+- [ ] T031 [US3] **Validate correlation results against schema**:
+  - Run `jsonschema validate --instance data/processed/correlation_results_corrected.csv --schema contracts/correlation_results.schema.yaml`.
+  - Write outcome to `logs/validation_results.txt`.  
+  **Verification**: Log contains the word “PASS”.
+
+- [ ] T032 [US3] **Validate sensitivity report against schema**:
+  - Create `specs/001-neural-entropy-cognitive-flexibility/contracts/sensitivity_report.schema.yaml` defining the JSON structure from T029.
+  - Run `jsonschema validate --instance data/processed/sensitivity_report.json --schema contracts/sensitivity_report.schema.yaml` and write results to `logs/validation_results_json.txt`.  
+  **Verification**: Log contains “PASS”.
+
+- [ ] T033 [US3] **Data‑flow diagram**:
+  - Produce `docs/diagrams/data_flow.png` illustrating the flow: Raw → Validation → Preprocess → SNR → Epochs → Entropy → Partial Correlation → Sensitivity → Report.  
+  **Verification**: PNG file exists and is referenced in `README.md`.
+
+---
+
+## Phase 6: Polishing & Cross‑Cutting (optional, but useful)
+
+- [ ] T034 [P] Refactor `utils/entropy_utils.py` with `@numba.jit` for faster entropy loops.  
+  **Verification**: Benchmark shows ≥ 30 % speed‑up on a sample participant.
+
+- [ ] T035 [P] Verify peak memory < 6 GB for the entire pipeline on CI (run full pipeline and inspect `logs/resource_usage.log`).  
+  **Verification**: Log entry confirms peak RAM ≤ 6 GB.
+
+- [ ] T036 [P] Add edge‑case unit tests for:
+  - Short recordings (< 60 s) → proper exclusion.
+  - NaN/Inf entropy values → re‑compute with `float64` then exclude if persistent.  
+  **Verification**: New tests in `tests/unit/` pass.
+
+- [ ] T037 [P] Update `quickstart.md` with a one‑line command (`python -m code.main`) and expected runtime (< 6 h).  
+  **Verification**: Running the command on a fresh CI runner completes successfully within the time limit.
+

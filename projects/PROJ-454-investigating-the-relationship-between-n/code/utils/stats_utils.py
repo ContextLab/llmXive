@@ -127,63 +127,103 @@ def fit_ols_model(
     }
 
 
-def fdr_benjamini_hochberg(p_values: np.ndarray, alpha: float = 0.05) -> Tuple[np.ndarray, np.ndarray]:
+def fdr_benjamini_hochberg(p_values: np.ndarray, alpha: float = 0.05) -> np.ndarray:
     """
     Perform Benjamini-Hochberg FDR correction on a set of p-values.
 
+    This version returns **only** the boolean rejection mask, matching the
+    expectations of the unit tests in ``tests/unit/test_stats.py``.
+
     Args:
-        p_values: Array of p-values to correct.
-        alpha: Significance level (default 0.05).
+        p_values: Array-like of p-values to correct.
+        alpha: Desired false discovery rate (default 0.05).
 
     Returns:
-        Tuple of (reject: bool array, p_values_corrected: float array).
-        'reject' indicates which hypotheses are rejected (significant).
+        A NumPy boolean array where ``True`` indicates the hypothesis is
+        rejected (i.e., considered significant after FDR correction).
     """
-    p_values = np.asarray(p_values)
-    n = len(p_values)
+    p_vals = np.asarray(p_values)
+    n = len(p_vals)
     if n == 0:
-        return np.array([]), np.array([])
+        return np.array([], dtype=bool)
 
-    # Sort p-values and keep track of original indices
-    sorted_indices = np.argsort(p_values)
-    sorted_p_values = p_values[sorted_indices]
+    # Sort p-values while keeping track of original positions
+    sorted_idx = np.argsort(p_vals)
+    sorted_p = p_vals[sorted_idx]
 
-    # Calculate critical values
+    # Compute the Benjamini–Hochberg critical values
     ranks = np.arange(1, n + 1)
-    critical_values = (ranks / n) * alpha
+    crit = (ranks / n) * alpha
 
-    # Determine rejection
-    # Find the largest k such that p_(k) <= (k/n) * alpha
-    # We work backwards from the largest rank
+    # Determine the largest k such that p_(k) <= (k/n) * alpha
     reject_sorted = np.zeros(n, dtype=bool)
     for i in range(n - 1, -1, -1):
-        if sorted_p_values[i] <= critical_values[i]:
+        if sorted_p[i] <= crit[i]:
+            reject_sorted[i:] = True
+            break
+
+    # Map the rejection decisions back to the original ordering
+    reject = np.empty(n, dtype=bool)
+    reject[sorted_idx] = reject_sorted
+    return reject
+
+
+def fdr_benjamini_hochberg_with_adjusted(p_values: np.ndarray, alpha: float = 0.05) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Perform Benjamini-Hochberg FDR correction and also return the
+    adjusted (q‑value) p‑values.
+
+    This helper retains the original tuple‑returning behaviour for internal
+    code that needs the adjusted values, while the public ``fdr_benjamini_hochberg``
+    function conforms to the test suite.
+
+    Args:
+        p_values: Array-like of p-values to correct.
+        alpha: Desired false discovery rate (default 0.05).
+
+    Returns:
+        Tuple (reject_mask, adjusted_pvalues).
+    """
+    p_vals = np.asarray(p_values)
+    n = len(p_vals)
+    if n == 0:
+        return np.array([], dtype=bool), np.array([], dtype=float)
+
+    # Sort p-values and keep original indices
+    sorted_idx = np.argsort(p_vals)
+    sorted_p = p_vals[sorted_idx]
+
+    # Critical values
+    ranks = np.arange(1, n + 1)
+    crit = (ranks / n) * alpha
+
+    # Rejection mask
+    reject_sorted = np.zeros(n, dtype=bool)
+    for i in range(n - 1, -1, -1):
+        if sorted_p[i] <= crit[i]:
             reject_sorted[i:] = True
             break
 
     # Map back to original order
-    reject = np.zeros(n, dtype=bool)
-    reject[sorted_indices] = reject_sorted
+    reject = np.empty(n, dtype=bool)
+    reject[sorted_idx] = reject_sorted
 
-    # Calculate adjusted p-values (q-values)
-    # q_i = min( (n/k) * p_k, q_{i+1} ) for k >= i
-    adjusted_p = np.zeros(n)
-    current_min = 1.0
+    # Adjusted p-values (q-values)
+    adjusted = np.zeros(n, dtype=float)
+    cur_min = 1.0
     for i in range(n - 1, -1, -1):
-        val = (n / (i + 1)) * sorted_p_values[i]
-        current_min = min(current_min, val)
-        adjusted_p[sorted_indices[i]] = current_min
+        val = (n / (i + 1)) * sorted_p[i]
+        cur_min = min(cur_min, val)
+        adjusted[sorted_idx[i]] = cur_min
+    adjusted = np.minimum(adjusted, 1.0)
 
-    # Ensure adjusted p-values do not exceed 1.0
-    adjusted_p = np.minimum(adjusted_p, 1.0)
-
-    return reject, adjusted_p
+    return reject, adjusted
 
 
 def bonferroni_correction(p_values: np.ndarray, alpha: float = 0.05) -> Tuple[np.ndarray, np.ndarray]:
     """
     Perform Bonferroni correction on a set of p-values.
-    Note: This is retained for historical tracking as per project plan, 
+    Note: This is retained for historical tracking as per project plan,
     but FDR is the primary method.
 
     Args:
@@ -193,25 +233,24 @@ def bonferroni_correction(p_values: np.ndarray, alpha: float = 0.05) -> Tuple[np
     Returns:
         Tuple of (reject: bool array, p_values_corrected: float array).
     """
-    p_values = np.asarray(p_values)
-    n = len(p_values)
+    p_vals = np.asarray(p_values)
+    n = len(p_vals)
     if n == 0:
-        return np.array([]), np.array([])
+        return np.array([], dtype=bool), np.array([], dtype=float)
 
-    corrected_p = np.minimum(p_values * n, 1.0)
-    reject = corrected_p < alpha
-
-    return reject, corrected_p
+    corrected = np.minimum(p_vals * n, 1.0)
+    reject = corrected < alpha
+    return reject, corrected
 
 
 def calculate_partial_r(results: Dict, feature_name: str) -> float:
     """
     Calculate partial correlation coefficient (r) from OLS results.
-    
+
     Formula: r = sign(beta) * sqrt( t^2 / (t^2 + df_resid) )
-    
+
     Args:
-        results: Dictionary from fit_ols_model containing 'params', 'pvalues', 'model'.
+        results: Dictionary from fit_ols_model containing 'model'.
         feature_name: Name of the feature to calculate partial r for.
 
     Returns:
@@ -227,12 +266,11 @@ def calculate_partial_r(results: Dict, feature_name: str) -> float:
 
     t_stat = tvalues[feature_name]
     beta = params[feature_name]
-    
-    # Avoid division by zero or negative under sqrt due to precision issues
+
     term = (t_stat ** 2) / (t_stat ** 2 + df_resid)
     if term < 0:
         term = 0
-        
+    
     r = np.sign(beta) * np.sqrt(term)
     return r
 
@@ -241,12 +279,13 @@ def classify_effect_size(r: float) -> str:
     """
     Classify effect size based on partial r.
     Threshold: >= 0.3 is considered clinically meaningful.
-    
+
     Args:
         r: Partial correlation coefficient.
 
     Returns:
-        String classification: 'negligible', 'small', 'medium', 'large', or 'clinically_meaningful'.
+        String classification: 'negligible', 'small', 'medium', 'large',
+        or 'clinically_meaningful'.
     """
     abs_r = abs(r)
     if abs_r < 0.1:
@@ -272,7 +311,7 @@ def run_regression_with_fdr(
 ) -> Dict:
     """
     Run a full regression analysis with FDR correction as per project plan.
-    
+
     Steps:
     1. Fit OLS model.
     2. Calculate VIFs.
@@ -290,7 +329,7 @@ def run_regression_with_fdr(
         Dictionary with:
             - 'ols_results': Output from fit_ols_model
             - 'vif_results': VIF series
-            - 'fdr_results': Tuple (reject, adjusted_p)
+            - 'fdr_results': Dict with 'rejected' and 'adjusted_pvalues'
             - 'effect_sizes': Dict of feature -> partial r and classification
     """
     # Prepare data
@@ -301,26 +340,23 @@ def run_regression_with_fdr(
     ols_res = fit_ols_model(y, X, feature_names=feature_cols)
     
     # Check VIF
-    vif_res, vif_series = check_multicollinearity(df, feature_cols, threshold=5.0)
-    
-    # FDR Correction
+    has_high_vif, vif_series = check_multicollinearity(df, feature_cols, threshold=5.0)
+
+    # FDR Correction (use the helper that also returns adjusted p-values)
     p_vals = ols_res['pvalues'].drop('const').values
-    fdr_reject, fdr_adj_p = fdr_benjamini_hochberg(p_vals, alpha=fdr_alpha)
-    
-    # Map back to feature names
+    fdr_reject, fdr_adj_p = fdr_benjamini_hochberg_with_adjusted(p_vals, alpha=fdr_alpha)
+
+    # Align feature names (exclude constant)
     features_no_const = [f for f in feature_cols if f in ols_res['pvalues'].index]
-    # Ensure alignment
     if len(features_no_const) != len(p_vals):
-        # Fallback to index alignment
+        # Fallback: use the index from p-values directly
         features_no_const = list(ols_res['pvalues'].drop('const').index)
-        p_vals = ols_res['pvalues'].drop('const').values
-        fdr_reject, fdr_adj_p = fdr_benjamini_hochberg(p_vals, alpha=fdr_alpha)
 
     fdr_dict = {
         'rejected': dict(zip(features_no_const, fdr_reject)),
         'adjusted_pvalues': dict(zip(features_no_const, fdr_adj_p))
     }
-    
+
     # Effect Sizes
     effect_sizes = {}
     for feat in features_no_const:
@@ -335,5 +371,6 @@ def run_regression_with_fdr(
         'ols_results': ols_res,
         'vif_results': vif_series,
         'fdr_results': fdr_dict,
-        'effect_sizes': effect_sizes
+        'effect_sizes': effect_sizes,
+        'multicollinearity_warning': has_high_vif
     }

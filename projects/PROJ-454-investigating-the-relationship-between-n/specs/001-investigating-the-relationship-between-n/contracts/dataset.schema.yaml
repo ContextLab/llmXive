@@ -1,94 +1,32 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: OpenNeuro Dataset Metadata Schema
-description: Schema for validating OpenNeuro dataset metadata downloaded and processed in the pipeline.
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Neural Entropy Dataset Schema"
+type: "object"
 required:
-  - id
-  - description
-  - summary
+  - participant_id
+  - age
+  - education
+  - wcst_perseverative_errors
+  - task_accuracy
+  - neurological_condition
+  - medication_use
+  - raw_eeg_file
 properties:
-  id:
-    type: string
-    pattern: "^ds\\d{6}$"
-    description: OpenNeuro dataset identifier (e.g., ds003104)
-  description:
-    type: object
-    required:
-      - Name
-    properties:
-      Name:
-        type: string
-        description: Dataset name
-      Authors:
-        type: array
-        items:
-          type: string
-        description: List of author names
-      License:
-        type: string
-        description: Dataset license (e.g., CC0)
-      HEDVersion:
-        type: string
-        description: HED schema version if applicable
-  summary:
-    type: object
-    required:
-      - subjects
-      - subjectMetadata
-      - tasks
-      - modalities
-      - size
-      - totalFiles
-    properties:
-      subjects:
-        type: integer
-        minimum: 1
-        description: Total number of subjects
-      subjectMetadata:
-        type: array
-        items:
-          type: object
-          required:
-            - participantId
-          properties:
-            participantId:
-              type: string
-              pattern: "^sub-[a-zA-Z0-9]+$"
-              description: Participant identifier (BIDS format)
-            age:
-              type: integer
-              minimum: 0
-              description: Participant age in years
-            sex:
-              type: string
-              enum: ["M", "F", "O"]
-              description: Sex of participant (M/F/O)
-            handedness:
-              type: string
-              enum: ["R", "L", "A"]
-              description: Handedness (Right/Left/Ambidextrous)
-            neurological_condition:
-              type: boolean
-              description: Whether participant has a neurological condition
-            medication_use:
-              type: boolean
-              description: Whether participant is on medication affecting neural activity
-      tasks:
-        type: array
-        items:
-          type: string
-        description: List of task names included in the dataset
-      modalities:
-        type: array
-        items:
-          type: string
-        description: List of data modalities (e.g., eeg, meg, nirs)
-      size:
-        type: integer
-        minimum: 0
-        description: Total dataset size in bytes
-      totalFiles:
-        type: integer
-        minimum: 1
-        description: Total number of files in the dataset
-additionalProperties: true
+  participant_id:
+    type: "string"
+  age:
+    type: "integer"
+    minimum: 0
+  education:
+    type: "string"
+  wcst_perseverative_errors:
+    type: "number"
+  task_accuracy:
+    type: "number"
+  neurological_condition:
+    type: "boolean"
+  medication_use:
+    type: "boolean"
+  raw_eeg_file:
+    type: "string"
+    pattern: ".*\\.(edf|bdf|vhdr|fif)$"
+    description: "Path to the raw EEG file (EDF/BDF/BrainVision/FIF)."

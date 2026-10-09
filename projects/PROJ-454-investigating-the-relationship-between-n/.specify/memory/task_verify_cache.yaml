@@ -1,10 +1,74 @@
+T001:
+  c: false
+  h: 06fadf81a40e24d8717b72b3cfe467527eb1d4055279c7e43c01685e01d0a3d8
+  r: The `data/raw/` directory, which the task explicitly requires, is missing, and
+    there is no evidence (e.g., CI logs) that `pip install -r requirements.txt` succeeds
+    on a clean runner. These gaps must be addressed for the task to be considered
+    complete.
+T004:
+  c: false
+  h: d167d058a6a11ca8ee9a11a191caea3e794a1110ebfbb23637cf2656b8acb4f5
+  r: No `utils/resource_monitor.py` file or any log output (`logs/resource_usage.log`)
+    was provided, so there is no evidence that RAM/Disk usage is being logged or that
+    the abort thresholds are enforced. The required artifact and verification log
+    are missing.
+T005:
+  c: false
+  h: 791aa1a6cab12944b4bd4eeb26b9c0fd9de72b99d93aa47300d7af0a84fc8f7c
+  r: "The repository contains only the unit\u2011test file; there is no provided `utils/entropy_utils.py`\
+    \ implementation (or any evidence that it exists, is non\u2011empty, and passes\
+    \ the tests). Without the actual module or test run results, the task\u2019s requirement\
+    \ cannot be verified."
+T006:
+  c: false
+  h: afe03863ae1f3151d441c70da8ce556705b6cdd310a5bf2e0b193612d1ae6ccb
+  r: "The repository only shows the unit\u2011test file; there is no evidence that\
+    \ `utils/stats_utils.py` exists, implements an OLS regression routine, or that\
+    \ the tests actually pass. Without the required module (and its OLS function)\
+    \ the task is not satisfied."
+T007:
+  c: false
+  h: 50a9dc4ae97efb776239591923695118ca5e68c4b7574f1125b9ff2dac37d12f
+  r: "No `utils/logger.py` file or `logs/pipeline.log` was provided; without these\
+    \ artifacts we cannot confirm that a data\u2011wide logger was implemented or\
+    \ that the log contains entries for each pipeline stage. The required code and\
+    \ log output are missing."
+T008:
+  c: true
+  h: cd8ad326653423d6ad6c5bfc16d6a4dddcca8421c3b0e2470de5cfd0819dc2f1
+  r: "The `code/config.py` file exists and defines the required module\u2011level\
+    \ constants `OPENNEURO_DATASET_IDS`, `SNR_THRESHOLD`, `ARTIFACT_THRESHOLD`, and\
+    \ `SEED` with the exact values specified in task T008. Importing the module yields\
+    \ those values unchanged."
 T010:
   c: false
-  h: 3aeab5872fbb9e87375f35dc128475ea91f68cf63c47091ffe5b6a0d79b8571f
-  r: The test file `tests/contract/test_dataset_schema.py` is present, but the required
-    schema file `dataset.schema.yaml` does not exist at the expected path, causing
-    the test fixture to fail and the contract test to be unusable. The missing schema
-    artifact must be added for the task to be satisfied.
+  h: 59d899e8c0dc30dfe889c06b368306efe92da36f8b073f06265e67d524c482c1
+  r: The schema file is present but under the wrong directory (`specs/001-investigating-the-relationship-between-n/...`
+    instead of `specs/001-neural-entropy-cognitive-flexibility/contracts/dataset.schema.yaml`),
+    and the required `data/raw/example.parquet` instance file does not exist, so the
+    claimed validation cannot be performed.
+T011:
+  c: false
+  h: 2356e54fd0bccf900d536a1dde08ad95de3462e54868b7f3c57e99bc8ac195cb
+  r: "The repository contains the required `tests/unit/test_entropy.py` file, but\
+    \ there is no provided evidence (e.g., test run logs, CI output, or a passing\
+    \ pytest report) that the tests actually execute successfully. Without proof that\
+    \ the unit tests pass, the task\u2019s requirement is not verified."
+T012a:
+  c: false
+  h: ed73d77b85a4fafd8d8e1c5f204009385fd6ebe14fe118e042e7e8b4ccd773d0
+  r: The provided `code/01_download_data.py` downloads the wrong datasets (ds000030,
+    ds000273) and only behavioral TSV/CSV files, saving them as parquet, not the required
+    EDF/BDF EEG files. Moreover, the expected `data/raw/` directory with EDF/BDF files
+    and the `data/checksums.json` file are absent.
+T012b:
+  c: false
+  h: 9dda0449ce140b781e5bfa5adb9e976a0c8e831a2c3f104de6f8c0454b779674
+  r: "The repository only contains the `code/01_validate_data.py` script; the required\
+    \ `logs/validation_status.json` file is absent, and there is no evidence (e.g.,\
+    \ test run output or exit\u2011code capture) that the script aborts when no dataset\
+    \ passes validation. The implementer must provide the generated JSON log and proof\
+    \ of the error\u2011exit behavior."
 T014:
   c: false
   h: 301ccf93bf99bb39abfcccee29d1ec8136e41ac8d15beb04cba6c6903142c398
@@ -29,15 +93,6 @@ T023:
     \ exist, and the expected output `data/processed/effect_sizes.json` is also missing.\
     \ Consequently the script cannot compute or store the partial\u2011r effect sizes\
     \ as specified."
-T025:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `logs/methodology_notes.md` file was provided, nor any excerpt showing the\
-    \ required explicit \u201CAssociational\u201D disclaimer and covariate control\
-    \ summary. Without the actual markdown output, we cannot verify that the task\u2019\
-    s deliverable exists or meets the specification. The next implementer must create\
-    \ the `logs/methodology_notes.md` file containing the disclaimer and summary as\
-    \ described."
 T027:
   c: false
   h: d4176b2b8616d93132282eaa2a5600e30b6a96d6e30b8ffa5879f20098d122a4

@@ -900,3 +900,37 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-01T21:42:13Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/quickstart.md
+  attempts: 1
+  canonical: script exits with DATASET_VARIABLE_MISMATCH when wcst_perseverative_errors
+    is missing
+  claim_id: c_b0cf4ef0
+  context: During the data download and verification stage, the pipeline checks for
+    required variables and exits with a specific error code if wcst_perseverative_errors
+    is absent.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: If wcst_perseverative_errors is missing, the script will exit with DATASET_VARIABLE_MISMATCH.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T13:43:48Z'
+- artifact_path: projects/PROJ-454-investigating-the-relationship-between-n/quickstart.md
+  attempts: 1
+  canonical: pipeline fails if verified dataset lacks WCST columns
+  claim_id: c_dd642c5b
+  context: In the troubleshooting section, it notes that the pipeline cannot proceed
+    without WCST columns in the dataset.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The pipeline will fail if the verified dataset lacks WCST columns.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T13:43:49Z'
