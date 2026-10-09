@@ -273,11 +273,18 @@ def run_python_script(
     *,
     project_dir: Path,
     script_relpath: str,
+    script_args: list[str] | None = None,
     timeout_s: int = 600,
     cwd: Path | None = None,
     extra_env: dict[str, str] | None = None,
 ) -> ExecutionResult:
-    """Run `python <script>` inside the project's venv. Returns capture."""
+    """Run a script with literal argv inside the project's venv. Returns capture."""
+    if script_args is None:
+        script_args = []
+    if (not isinstance(script_args, list)
+            or any(not isinstance(arg, str) or "\0" in arg for arg in script_args)):
+        return ExecutionResult(ok=False, returncode=-1, stdout="",
+            stderr="script args must be a list of strings without null bytes", duration_s=0.0)
     script = (project_dir / script_relpath).resolve()
     if not script.is_relative_to(project_dir.resolve()):
         return ExecutionResult(ok=False, returncode=-1, stdout="",
@@ -316,7 +323,7 @@ def run_python_script(
     # for the venv subprocess invocation).
     return run_in_venv(
         project_dir=project_dir,
-        args=[str(script)],
+        args=[str(script), *script_args],
         timeout_s=timeout_s,
         cwd=cwd,
         extra_env=extra_env,

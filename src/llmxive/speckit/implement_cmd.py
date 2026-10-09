@@ -123,6 +123,29 @@ class ImplementerAgent(SlashCommandAgent):
             f"# completed task ids\n{mechanical_output['completed_task_ids']}",
             f"# wall_clock_budget_seconds\n{LEAF_TASK_BUDGET_SECONDS}",
         ]
+        # A task summary is not the specification. Supply the canonical inputs
+        # that define parameter domains, interfaces and the actual CLI invocation.
+        feature_dir = mechanical_output.get("feature_dir")
+        if feature_dir:
+            for name in ("spec.md", "plan.md", "quickstart.md"):
+                path = Path(feature_dir) / name
+                if path.is_file():
+                    user_parts.append(f"# Active {name} (authoritative requirements and run instructions)\n\n"
+                                      + path.read_text(encoding="utf-8"))
+        for path in sorted((ctx.project_dir / "idea").glob("*.md")):
+            user_parts.append(f"# Original research idea: {path.name}\n\n"
+                              + path.read_text(encoding="utf-8"))
+        # An execute:true failure leaves the task open. Feed the actual command
+        # and stderr back on its next attempt, not merely an exit-code annotation.
+        task_logs = sorted(
+            (ctx.project_dir / "code/.tasks").glob(f"{mechanical_output['next_task_id']}.*.log"),
+            key=lambda path: path.stat().st_mtime_ns, reverse=True,
+        )
+        for path in task_logs[:3]:
+            body = path.read_text(encoding="utf-8", errors="replace")
+            if len(body) > 12000:
+                body = "[Earlier log output truncated]\n" + body[-12000:]
+            user_parts.append(f"# Previous execution of this task: {path.name}\n\n" + body)
         # Spec 023 #25 — close the auto-fix loop: the dedicated execution stage
         # runs the project's analysis end-to-end and, on failure, writes the
         # tracebacks + missing deliverables to execution_feedback.md and RE-OPENS
@@ -341,7 +364,7 @@ class ImplementerAgent(SlashCommandAgent):
                     # NOT catch these because Python only resolves
                     # names at runtime, but we can detect them statically
                     # via AST.
-                    unresolved = _find_unresolved_names(contents)
+                    unresolved = _find_unresolved_names(contents, filename=target.name)
                     if unresolved:
                         print(
                             f"[implementer] refusing to write {relpath!r}: "
@@ -396,6 +419,7 @@ class ImplementerAgent(SlashCommandAgent):
                     result = _sandbox.run_python_script(
                         project_dir=project_root,
                         script_relpath=relpath,
+                        script_args=art.get("args", []),
                         timeout_s=int(art.get("timeout_s", 600)),
                     )
                 except Exception as exc:  # pragma: no cover — defensive
@@ -412,6 +436,7 @@ class ImplementerAgent(SlashCommandAgent):
                 log_path.write_text(
                     f"# {relpath} (exit {result.returncode}, "
                     f"{result.duration_s:.1f}s, ok={result.ok})\n\n"
+                    f"Arguments: {art.get('args', [])!r}\n\n"
                     f"## stdout\n\n```\n{result.stdout}\n```\n\n"
                     f"## stderr\n\n```\n{result.stderr}\n```\n",
                     encoding="utf-8",
@@ -569,7 +594,7 @@ def _find_bad_sibling_imports(
     return bad
 
 
-def _find_unresolved_names(source: str) -> set[str]:
+def _find_unresolved_names(source: str, *, filename: str = "") -> set[str]:
     """Return names referenced at module-execution time that aren't bound.
 
     Walks the AST: collects names BOUND by imports, top-level
@@ -598,6 +623,9 @@ def _find_unresolved_names(source: str) -> set[str]:
     bound.add("__name__")
     bound.add("__file__")
     bound.add("__doc__")
+    bound.update({"__package__", "__spec__", "__loader__", "__cached__", "__builtins__"})
+    if filename == "__init__.py":
+        bound.add("__path__")
 
     def _collect_bindings_in_module(node: ast.AST) -> None:
         for child in ast.walk(node):
