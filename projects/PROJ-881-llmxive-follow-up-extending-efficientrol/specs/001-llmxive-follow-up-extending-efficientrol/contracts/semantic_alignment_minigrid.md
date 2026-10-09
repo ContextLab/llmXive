@@ -1,16 +1,19 @@
 ---
 task_type: MiniGrid
-description: "Semantic alignment for MiniGrid reinforcement learning navigation tasks."
-validity_criteria: "A token is considered valid if it matches any token in a known optimal path for the given MiniGrid episode."
-ground_truth_source: "data/canonical_ground_truth.jsonl"
+description: |
+ Defines the semantic alignment for MiniGrid navigation tasks. The alignment
+ specifies how generated token sequences are compared against ground‑truth
+ navigation paths to determine token‑level validity.
+validity_criteria: |
+ A token is considered valid if it matches the corresponding token in
+ any known shortest path from the start state to the goal state for the
+ MiniGrid episode. Tokens that do not appear at the same position in any
+ valid path are marked invalid.
+ground_truth_source: data/canonical_ground_truth_minigrid.jsonl
 ---
 
 # Semantic Alignment for MiniGrid
 
-This contract defines the alignment criteria between generated token sequences and the ground‑truth
-solutions for MiniGrid navigation tasks. The `ground_truth_source` points to a JSONL file containing
-canonical solutions (paths) for each MiniGrid prompt. Validity is assessed token‑wise: a token is
-valid when it appears at the same position in any of the known optimal paths for the episode.
-
-The contract is used by the generation and labeling pipelines to produce binary validity flags
-for each token in a sequence.
+This contract describes the rules for aligning generated MiniGrid token
+sequences with the canonical ground‑truth navigation paths. It is used by
+the generation and labeling pipelines to produce per‑token validity flags.

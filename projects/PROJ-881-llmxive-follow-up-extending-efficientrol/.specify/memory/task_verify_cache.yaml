@@ -1,29 +1,27 @@
 T001a:
   c: true
-  h: 4120cc83c3f9ad73c7e9c914551d70aba5ff86045230567b9209752885c53d7d
-  r: 'The deliverable `specs/.../contracts/semantic_alignment_gsm8k.md` exists at
-    its canonical location (342 bytes) and contains a concrete semantic alignment
-    definition for GSM8K: exact-match method on the `answer` field with whitespace
-    tokenization, in both YAML frontmatter and prose. It is a real, non-stub contract
-    matching the task''s scope (defining alignment logic, not implementing it).'
-  sig: ffb3db3b17c51fa09ac28c57120dea7f8b34c028518e1dcd4b568f7074bf3f8f
+  h: 776f9762a4cfef22a99d5b9c066d2b686519707953ddb14ca1e7161909cb5d51
+  r: "Checked `specs/001-entropy-validity-prediction/contracts/semantic_alignment_gsm8k.md`;\
+    \ the file exists, is non\u2011empty, and provides a detailed semantic alignment\
+    \ specification (method, tokenization, validity criteria, output schema) for GSM8K\
+    \ as required."
+  sig: 3fe54ee979c5f9feaaf77a3e93b2927bbabac9ceba813b275bc83c9644cde1de
 T001a_v:
-  c: false
-  h: 6048c3db388853b8d6d75e8634474378b8a082944817c349e3cf24ce378d1f91
-  r: The only artifact present is the test script `tests/contract/test_semantic_alignment_gsm8k.py`;
-    the required contract file `specs/001-entropy-validity-prediction/contracts/semantic_alignment_gsm8k.md`
-    is not provided, so its existence and schema compliance cannot be verified. The
-    task therefore lacks a necessary artifact.
-  sig: c3d9e7489a055d17ed27dd523b0caa71e455fd300f3d5c87e8735bb485ff0aeb
+  c: true
+  h: c1db355adac52093baa36a4e2b39e4c874326737b51a06832cde8f664258603d
+  r: "Checked `tests/contract/test_semantic_alignment_gsm8k.py`, which asserts the\
+    \ existence of `semantic_alignment_gsm8k.md` and validates its front\u2011matter\
+    \ against the required schema; the test ran successfully (exit\u202F0) confirming\
+    \ the contract file is present and conforms."
+  sig: bd0cd3c8123911c48e1054bd376ff0dfec8fbf751b0462e6d4a326b6898ee0ff
 T001b:
   c: true
-  h: 901a7b7dd634428c636ed6588370ccc1e4257e8939abe7f461612a0bb345db00
-  r: "The deliverable `specs/.../contracts/semantic_alignment_minigrid.md` exists\
-    \ (861 bytes) at its canonical location and contains a substantive semantic alignment\
-    \ contract for MiniGrid: task type, validity criteria (token-wise match against\
-    \ known optimal paths), ground-truth source, and a description of how the labeling\
-    \ pipeline uses it \u2014 no stubs or placeholders."
-  sig: 500503354bb69b70b5fde67e0da52c0772df46c064646f4f59dd1179de2276f5
+  h: b8ea57b75f6583978d5fc47c5de52280dadc17403a6a2bc124bb626fbf21cb4e
+  r: "The artifact `specs/001-entropy-validity-prediction/contracts/semantic_alignment_minigrid.md`\
+    \ exists (845\u202Fbytes) and contains a concrete description of the MiniGrid\
+    \ semantic alignment, including validity criteria and ground\u2011truth source\
+    \ as required."
+  sig: 7cdf837c1e8088bad11760d614bdb085f0c96768fe006a5a6767eb93520ca492
 T001b_v:
   c: false
   h: 4d5d98a5a0fcfc449540e9f1d132a6189c66c662412709056c2ed6d91f56bf2b

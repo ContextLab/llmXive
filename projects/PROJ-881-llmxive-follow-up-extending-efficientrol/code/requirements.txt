@@ -1,31 +1,15 @@
-# Core ML & Data
-transformers==4.40.0
 torch==2.3.0
-datasets==2.18.0
-scikit-learn==1.4.2
-pandas==2.2.1
-numpy==1.26.4
-h5py==3.11.0
-psutil==5.9.8
-huggingface_hub==0.22.2
-
-# Statistical Modeling
-statsmodels==0.14.2
-pymer4==0.12.0
-
-# Testing & Quality
-pytest==8.1.1
-ruff==0.3.5
-black==24.4.0
-
-# Environment & Utilities
-python-dotenv==1.0.1
-minigrid==2.3.1
-
-# Qwen1.5 Model Compatibility (0.5B, 1.5B, 7B-Int4)
-# These models are available via HuggingFace Transformers.
-# The specific model weights are downloaded at runtime by the generation script.
-# Dependencies for quantization (Int4) are provided by bitsandbytes if needed,
-# but torch 2.3.0 + transformers 4.40.0 support standard loading.
-# Explicitly listing bitsandbytes for Int4 support if quantization is used at runtime.
-bitsandbytes==0.43.1
+transformers==4.44.0
+datasets==2.21.0
+scikit-learn==1.5.2
+pandas==2.2.3
+numpy==2.1.2
+pyyaml==6.0.2
+pytest==8.3.3
+statsmodels==0.14.3
+psutil==6.0.0
+huggingface_hub==0.26.1
+pymer4==0.8.2
+minigrid==2.2.0
+bitsandbytes==0.44.1
+# The above versions are pinned to ensure reproducibility.
