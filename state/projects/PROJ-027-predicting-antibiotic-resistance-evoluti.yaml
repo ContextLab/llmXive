@@ -6,7 +6,7 @@ failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-027-predicting-antibiotic-resistance-evoluti
-last_run_id: a2b955b1-f82e-4e6e-b900-7585806f914b
+last_run_id: 8b9b82af-8410-4107-b45e-927972b2b871
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-027-predicting-antibiotic-resistance-evoluti/specs/001-predicting-antibiotic-resistance-evoluti
 title: Predicting Antibiotic Resistance Evolution from Genomic Sequences
-updated_at: '2026-08-25T15:59:10.713821Z'
+updated_at: '2026-10-09T14:30:34.453533Z'

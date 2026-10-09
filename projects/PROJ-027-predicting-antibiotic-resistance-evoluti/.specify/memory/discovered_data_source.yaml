@@ -1,0 +1,15 @@
+status: none
+intent: NCBI Pathogen Detection E coli PRJNA528852 PRJNA492488 CARD RefSeq downloadable
+  dataset python package
+required_fields:
+- isolate_id
+- fasta_sequence
+- susceptibility_category
+- mic_value
+- snp_counts_per_gene
+- resistance_gene_presence
+- collection_date
+- source_location
+cache_key: 78f088b4197ec64f501f58d259cd84ddef4acaab6e57a01c415dca855e6cc3d8
+searched_at: '2026-10-09T14:31:32.974361+00:00'
+retry_count: 1

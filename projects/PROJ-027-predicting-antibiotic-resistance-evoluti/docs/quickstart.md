@@ -1,6 +1,6 @@
 # Quick Start Guide
 
-Get up and running with the antibiotic resistance prediction pipeline in under 15 minutes.
+Get up and running with the antibiotic resistance prediction pipeline in under 15 minutes. [UNRESOLVED-CLAIM: c_574a7b30 — status=not_enough_info]
 
 ## Step 1: Environment Setup (3 minutes)
 
@@ -43,57 +43,57 @@ PATHS:
  FIGURES: figures
 ```
 
-## Step 4: Run a Test Subset (5 minutes)
+## Step 4: Run the Full Pipeline
 
-For a quick validation, run with a small subset:
+The canonical entry point for the pipeline is now **`code/main.py`**.
 
 ```bash
-# Download a small subset of sequences
-python code/01_ingest/download_ncbi.py --max-isolates 10
+# Ingest data, run contract validation, train models, validate, and version
+python code/main.py --stage full --n-isolates 1000 --bio_project PRJNA528852 --antibiotic ciprofloxacin
+```
 
-# Process metadata
-python code/01_ingest/ingest_metadata.py
+For quicker testing you can run individual stages:
 
-# Build feature matrix (with mock SNP/gene data for testing)
-python code/02_process/build_feature_matrix.py --test-mode
+```bash
+# Only ingestion
+python code/main.py --stage ingest --n-isolates 10 --bio_project PRJNA528852
 
-# Generate phylogeny
-python code/02_process/generate_phylogeny.py
+# Only training (requires previous ingestion)
+python code/main.py --stage train --antibiotic ciprofloxacin
 
-# Train and evaluate models
-python code/03_model/mechanism_blind_filter.py
-python code/03_model/split_data.py
-python code/03_model/train_models.py
-python code/03_model/evaluate.py
+# Validation only
+python code/main.py --stage validate --antibiotic ciprofloxacin --permutations 1000
 
-# Generate plots
-python code/05_viz/generate_plots.py
+# Generate figures
+python code/main.py --stage viz --antibiotic ciprofloxacin
 ```
 
 ## Step 5: Verify Outputs (2 minutes)
 
-Check that all expected files were created:
-
 ```bash
 ls -la data/processed/feature_matrix.csv
-ls -la data/processed/phylogeny_tree.newick
+ls -la data/models/
+ls -la data/processed/permutation_results.json
+ls -la data/processed/sensitivity_sweep.csv
 ls -la figures/
 ```
 
 You should see:
-- `feature_matrix.csv` with columns: `isolate_id`, gene presence columns, `snp_counts`, `cnv_counts`, `resistance_phenotype`
-- `phylogeny_tree.newick` in Newick format
-- ROC curve and feature importance plots in `figures/`
+- `feature_matrix.csv` with genomic features and phenotype columns
+- Model pickle files under `data/models/`
+- `metrics.json`, `permutation_results.json`, `sensitivity_sweep.csv`
+- ROC/PR/feature importance plots in `figures/`
 
-## Step 6: Run Full Pipeline (Optional)
+## Step 6: Versioning (Optional)
 
-Once the test subset works, run the full pipeline:
+After a successful run you can manually update the project state:
 
 ```bash
-python code/main_reproducible.py
+python code/utils/hash_artifacts.py
 ```
 
-This executes all stages and verifies artifact checksums.
+This computes SHA256 hashes for all artifacts and writes them to
+`state/projects/PROJ-027-predicting-antibiotic-resistance-evoluti.yaml`.
 
 ## Troubleshooting
 
@@ -114,14 +114,14 @@ brew install snippy ariba
 Reduce `MAX_ISOLATES` in `config.yaml` or use streaming mode for large datasets.
 
 ### Phylogeny Generation Fails
-Ensure sufficient SNP diversity in your dataset. If all sequences are identical, the tree cannot be inferred.
+Ensure sufficient SNP diversity in your dataset. If all sequences are identical, the tree cannot be inferred. [UNRESOLVED-CLAIM: c_a05af2af — status=not_enough_info]
 
 ## Next Steps
 
 - Review `docs/README.md` for detailed pipeline documentation
 - Check `tests/contract/` for schema validation requirements
 - Examine `code/utils/config.py` for configuration options
-- Read `specs/001-predicting-antibiotic-resistance-evoluti/` for project specifications
+- Read `specs/001-predict-antibiotic-resistance-evoluti/` for project specifications
 
 ## Support
 
