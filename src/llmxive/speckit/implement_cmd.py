@@ -137,8 +137,8 @@ class ImplementerAgent(SlashCommandAgent):
         for path in sorted((ctx.project_dir / "idea").glob("*.md")):
             user_parts.append(f"# Original research idea: {path.name}\n\n"
                               + path.read_text(encoding="utf-8"))
-        # An execute:true failure leaves the task open. Feed the actual command
-        # and stderr back on its next attempt, not merely an exit-code annotation.
+        # Write refusals and execute:true failures leave the task open. Feed the
+        # exact diagnosis back on its next attempt, not merely a status marker.
         task_logs = sorted(
             (ctx.project_dir / "code/.tasks").glob(f"{mechanical_output['next_task_id']}.*.log"),
             key=lambda path: path.stat().st_mtime_ns, reverse=True,
@@ -147,7 +147,7 @@ class ImplementerAgent(SlashCommandAgent):
             body = path.read_text(encoding="utf-8", errors="replace")
             if len(body) > 12000:
                 body = "[Earlier log output truncated]\n" + body[-12000:]
-            user_parts.append(f"# Previous execution of this task: {path.name}\n\n" + body)
+            user_parts.append(f"# Previous attempt record for this task: {path.name}\n\n" + body)
             reference_text += "\n" + body
         # Spec 023 #25 — close the auto-fix loop: the dedicated execution stage
         # runs the project's analysis end-to-end and, on failure, writes the
@@ -291,6 +291,12 @@ class ImplementerAgent(SlashCommandAgent):
 
         if verdict == "completed":
             project_root = ctx.project_dir
+            refusals: list[str] = []
+
+            def refuse(message: str) -> None:
+                refusals.append(message)
+                print(message)
+
             # Identify the canonical feature_dir (e.g., "002-foo-bar")
             # so we can rewrite the LLM's wrong slug. The LLM tends to
             # use spec.md's branch_name (which it invents differently
@@ -309,7 +315,11 @@ class ImplementerAgent(SlashCommandAgent):
             for art in doc.get("artifacts", []) or []:
                 relpath = art.get("path")
                 contents = art.get("contents", "")
-                if not relpath:
+                if not isinstance(relpath, str) or not relpath:
+                    refuse("[implementer] refused artifact without a non-empty string path")
+                    continue
+                if not isinstance(contents, str):
+                    refuse(f"[implementer] refused non-text contents for {relpath!r}")
                     continue
                 # Confine all artifact writes to projects/<PROJ-ID>/.
                 # The LLM occasionally produces paths like "src/" or
@@ -338,13 +348,15 @@ class ImplementerAgent(SlashCommandAgent):
                 try:
                     target.resolve().relative_to(project_root.resolve())
                 except ValueError:
-                    print(f"[implementer] refused out-of-project path: {relpath!r}")
+                    refuse(f"[implementer] refused out-of-project path: {relpath!r}")
                     continue
                 # Skip if target is an existing directory (LLM bug).
                 if target.exists() and target.is_dir():
-                    print(f"[implementer] skipping directory path: {relpath!r}")
+                    refuse(f"[implementer] skipping directory path: {relpath!r}")
                     continue
                 if not contents:
+                    if not art.get("execute"):
+                        refuse(f"[implementer] refused empty contents without execution: {relpath!r}")
                     continue
                 # Refuse to write content that's a unified-diff fragment.
                 # The implementer prompt forbids diffs, but Qwen
@@ -352,7 +364,7 @@ class ImplementerAgent(SlashCommandAgent):
                 # explodes with SyntaxError. Better to skip and surface.
                 stripped_first = contents.lstrip().splitlines()[0] if contents.lstrip() else ""
                 if stripped_first.startswith(("--- a/", "+++ b/", "@@ ")):
-                    print(
+                    refuse(
                         f"[implementer] refusing to write diff-fragment "
                         f"content to {relpath!r} (first line: {stripped_first!r})"
                     )
@@ -368,7 +380,7 @@ class ImplementerAgent(SlashCommandAgent):
                     try:
                         compile(contents, target.name, "exec")
                     except SyntaxError as exc:
-                        print(
+                        refuse(
                             f"[implementer] refusing to write {relpath!r}: "
                             f"SyntaxError at line {exc.lineno}: {exc.msg}. "
                             f"Likely truncation (output ran out of tokens) "
@@ -383,7 +395,7 @@ class ImplementerAgent(SlashCommandAgent):
                     # via AST.
                     unresolved = _find_unresolved_names(contents, filename=target.name)
                     if unresolved:
-                        print(
+                        refuse(
                             f"[implementer] refusing to write {relpath!r}: "
                             f"unresolved names {sorted(unresolved)} — likely "
                             f"missing imports. Add the necessary `import` "
@@ -404,7 +416,7 @@ class ImplementerAgent(SlashCommandAgent):
                             f"`from {mod} import {names}` (available: {avail})"
                             for mod, names, avail in bad_imports
                         )
-                        print(
+                        refuse(
                             f"[implementer] refusing to write {relpath!r}: "
                             f"imports nonexistent names from sibling files: "
                             f"{details}. Either change the import to use names "
@@ -415,6 +427,29 @@ class ImplementerAgent(SlashCommandAgent):
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_text(contents, encoding="utf-8")
                 written.append(str(target.relative_to(repo)))
+
+            refusal_log = project_root / "code/.tasks" / f"{task_id}.artifact-write.log"
+            if not written and not any(art.get("execute") for art in doc.get("artifacts", []) or []):
+                if not refusals:
+                    refuse("[implementer] completed report supplied no writable artifacts or execution requests")
+            if refusals:
+                # Preserve exact rejection diagnostics through the same per-task
+                # log channel build_prompt already reads. Do not run stale files
+                # from a proposal whose replacement artifacts were refused.
+                from llmxive.speckit._inspection import _redact
+                refusal_log.parent.mkdir(parents=True, exist_ok=True)
+                refusal_log.write_text(
+                    "# Artifact writes refused — task remains incomplete\n\n"
+                    + _redact("\n\n".join(refusals)) + "\n", encoding="utf-8")
+                tasks_path = Path(mechanical_output["tasks_path"])
+                text = tasks_path.read_text(encoding="utf-8")
+                text = mark_task(text, task_id, " ")
+                tasks_path.write_text(text, encoding="utf-8")
+                written.extend([str(refusal_log.relative_to(repo)), str(tasks_path.relative_to(repo))])
+                return written
+            # A structurally valid retry supersedes the earlier write refusal;
+            # independent task and execution verification still decide completion.
+            refusal_log.unlink(missing_ok=True)
 
             # Code-execution step: if the LLM marked any artifact as
             # `execute: true` (a runnable script that produces real
