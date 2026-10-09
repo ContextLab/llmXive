@@ -1,0 +1,50 @@
+T001:
+  reason: The scaffold includes `requirements.txt`, `pyproject.toml`, `quickstart.md`
+    and a `.flake8` file, but the required directories `models/`, `metrics/`, `logs/`
+    are absent, and `.gitkeep` files are only present in some folders (e.g., `data/raw/`,
+    `data/processed/`, `reports/`, `contracts/`). The missing directories and `.gitkeep`
+    placeholders mean the scaffold does not meet the full specification.
+  task: f6f9ed9bdc36c0cf32b7ee2c66d20ddbd167cfb68de72f77d492cc17db9fc915
+T002:
+  task: 268e6518d89a8bb43601414c10f8474a10d5ef2bfb3f737be3cdb3659fa17f35
+T003:
+  reason: The required `code/init_logging.py` file does not exist, so no logging configuration
+    is provided. The `logs/preprocess_counts.yaml` file is present but contains only
+    placeholder text, not a genuine schema as required. Both essential artifacts are
+    missing or incomplete.
+  task: 998d91bb7d88460ccbfdaba51c346946f170f95ad93a9221237849c5f812b7de
+T004:
+  reason: "The provided `code/download.py` defines helper functions but lacks a runnable\
+    \ entry point that performs the six required download steps, creates the specified\
+    \ CSV files and raster directories, and exits with code\u202F1 when any expected\
+    \ file is missing. Consequently the expected output artifacts (`data/raw/occurrence_1970_2000.csv`,\
+    \ `data/raw/occurrence_2005_2020.csv`, `data/raw/climate_historical/`, `data/raw/climate_recent/`,\
+    \ `data/raw/climate_future/`) are absent. The script therefore does not satisfy\
+    \ the task\u2019s functional requirements."
+  task: 1f54af32dde7847ad61f16451db5c5375f02db2b74aa1be7c5f8fb7063d591a2
+T005:
+  task: 31acea2b89283c6222e777ea5ab6b1f81afe645b8d093f1807aed127b7e17a52
+T006:
+  task: 1dc143a73f72fb6a0cc3c514095cfe9cf1d04e35e7be2536e02453f964b4b7a5
+T007:
+  task: 6e9bd191f5e4dfd42e52e7c618f9d35b688f89576ffd23c3b1af15b69cfb5a94
+T008:
+  task: fa4553196c6af2690a95022c0f42500062f3f34fd7197b2d9166c4a842c12271
+T009:
+  task: 894692ddce9be1ae3e8a99350f1d2cd0d08973f76a3448553f7225a22560a42a
+T010:
+  reason: "The `code/download.py` script streams raster downloads and records entries\
+    \ in `data/manifest.json`, satisfying the manifest\u2011update requirement. However,\
+    \ it never verifies the downloaded file\u2019s SHA\u2011256 against a known value\
+    \ (or file size) nor aborts on a mismatch, so the checksum\u2011validation step\
+    \ is missing. The next implementer must add post\u2011download checksum comparison\
+    \ and error handling."
+  task: 55fd7a6da6bad64bce896fe8daa84919c3bf8ee224d034a67b315c3781623e18
+T011:
+  task: 5a8939b258264238dbaa4b6c3b5a438e21028e8091b82e5012e648c8a83fbaad
+T012:
+  task: a7d706e90ecc679417b762fc8228f23c4d8411418982821d553aa7604bb3b2aa
+T015:
+  task: d098eb9b3be43b3b5912bf884406db647f6e0ad5c5c9a7d124ea10e85428ca92
+T016:
+  task: 396bbecd5e3577e02a97c8a9e75906afaf9d92e5e4810e8bad8ad59d06344aa5

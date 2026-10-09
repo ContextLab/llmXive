@@ -41,8 +41,13 @@ N_JOBS = 2
 
 # --- Thresholds & Hyperparameters ---
 
-# Spatial thinning minimum distance (in degrees/decimal degrees)
-# Corresponds to FR-002. Approx 10km at equator is ~0.1 degrees.
+# Spatial thinning minimum distance (in kilometers)
+# This constant is used throughout the pipeline for thinning occurrence points.
+THINNING_DISTANCE_KM = 10  # Default 10 km
+
+# Approximate spatial thinning distance in decimal degrees.
+# Rough conversion: 1 degree ≈ 111 km at the equator.
+# 10 km ≈ 0.09–0.1 degrees, so we keep the existing value for calculations.
 SPATIAL_THIN_DISTANCE_DEG = 0.1
 
 # Minimum records for training (T016b)
@@ -52,7 +57,7 @@ MIN_TRAINING_RECORDS = 10
 MIN_TESTING_RECORDS = 100
 
 # KDE Bandwidth for bias layer (in degrees)
-# 10km approx 0.1 degrees
+# 10 km approx 0.1 degrees
 KDE_BANDWIDTH_DEG = 0.1
 
 # Occurrence data year ranges
@@ -88,9 +93,9 @@ LOG_FILE_NAME = "pipeline.log"
 # --- Species List for MVP ---
 # Target North American bird species for the pipeline
 SPECIES_LIST = [
-    "Turdus migratorius", # American Robin
-    "Setophaga ruticilla", # American Redstart
-    "Cardinalis cardinalis", # Northern Cardinal
-    "Sialia sialis", # Eastern Bluebird
-    "Poecile carolinensis" # Carolina Chickadee
+    "Turdus migratorius",  # American Robin
+    "Setophaga ruticilla",  # American Redstart
+    "Cardinalis cardinalis",  # Northern Cardinal
+    "Sialia sialis",  # Eastern Bluebird
+    "Poecile carolinensis"  # Carolina Chickadee
 ]

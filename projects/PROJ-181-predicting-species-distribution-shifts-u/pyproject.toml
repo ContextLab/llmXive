@@ -23,20 +23,20 @@ dependencies = [
 [tool.black]
 line-length = 100
 target-version = ['py39', 'py310', 'py311']
-include = '\.pyi?$'
+include = '\\.pyi?$'
 exclude = '''
 /(
-    \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
+    \\.git
+    | \\.hg
+    | \\.mypy_cache
+    | \\.tox
+    | \\.venv
     | _build
     | buck-out
     | build
     | dist
     | venv
-    | \.egg
+    | \\.egg
 )/
 '''
 

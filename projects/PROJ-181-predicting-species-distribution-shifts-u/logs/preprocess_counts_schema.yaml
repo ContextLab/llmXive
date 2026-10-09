@@ -1,0 +1,17 @@
+type: map
+mapping:
+  species:
+    type: str
+    required: true
+  before_count:
+    type: int
+    required: true
+  after_count:
+    type: int
+    required: true
+  timestamp:
+    type: timestamp
+    required: true
+  distance_used_km:
+    type: float
+    required: true

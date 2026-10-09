@@ -8,29 +8,29 @@
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-181-predicting-species-distribution-shifts-u
-    ```
+1. **Clone the repository**:
+ ```bash
+ git clone <repo-url>
+ cd projects/PROJ-181-predicting-species-distribution-shifts-u
+ ```
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. **Create a virtual environment**:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
+3. **Install dependencies**:
+ ```bash
+ pip install -r code/requirements.txt
+ ```
 
-4.  **Verify system dependencies** (Linux/Mac):
-    ```bash
-    # Ensure GDAL and GEOS are installed
-    brew install gdal geos  # macOS
-    sudo apt-get install libgdal-dev libgeos-dev  # Ubuntu/Debian
-    ```
+4. **Verify system dependencies** (Linux/Mac):
+ ```bash
+ # Ensure GDAL and GEOS are installed
+ brew install gdal geos # macOS
+ sudo apt-get install libgdal-dev libgeos-dev # Ubuntu/Debian
+ ```
 
 ## Configuration
 
@@ -83,7 +83,7 @@ python code/main.py report
 - **GDAL Errors**: Ensure `libgdal` is installed and `GDAL_DATA` environment variable is set.
 - **GBIF Rate Limit**: The script includes exponential backoff. If it fails repeatedly, wait and retry.
 - **Memory Error**: Reduce `SPECIES_LIST` size or increase swap space on the runner.
-- **GPU Detected**: The pipeline will exit with code 1 if a GPU is detected (enforcing CPU-only constraint). Check `logs/gpu_check.log`.
+- **GPU Detected**: The pipeline will exit with code 1 if a GPU is detected (enforcing CPU-only constraint). [UNRESOLVED-CLAIM: c_dc46bd5e — status=not_enough_info] Check `logs/gpu_check.log`.
 
 ## Expected Outputs
 

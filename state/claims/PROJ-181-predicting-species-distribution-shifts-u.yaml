@@ -2965,3 +2965,110 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-22T19:58:11Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: "WorldClim provides 19 bioclimatic variables (bio1\u2011bio19) for historical\
+    \ and recent periods"
+  claim_id: c_5d6e5a3d
+  context: "WorldClim historical rasters (bio1\u2011bio19, 1970\u20112000) \u2192\
+    \ data/raw/climate_historical/ ... WorldClim recent rasters (bio1\u2011bio19,\
+    \ 2005\u20112020) \u2192 data/raw/climate_recent/"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "WorldClim provides 19 bioclimatic variables (bio1\u2011bio19) for both\
+    \ historical (1970\u20112000) and recent (2005\u20112020) periods"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T04:54:32Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/quickstart.md
+  attempts: 1
+  canonical: pipeline exits with code 1 when GPU detected
+  claim_id: c_dc46bd5e
+  context: 'GPU Detected: The pipeline will exit with code 1 if a GPU is detected
+    (enforcing CPU-only constraint). Check `logs/gpu_check.log`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline will exit with code 1 if a GPU is detected (enforcing CPU-only
+    constraint).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T05:01:51Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: "WorldClim historical rasters bio1\u2011bio19 1970\u20112000"
+  claim_id: c_045a44fd
+  context: "Phase 1 \u2013 Data acquisition lists WorldClim historical rasters (bio1\u2011\
+    bio19, 1970\u20112000) as a required input."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "WorldClim provides historical climate rasters for variables bio1\u2011\
+    bio19 covering the years 1970\u20112000."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T05:02:33Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: "WorldClim recent rasters bio1\u2011bio19 2005\u20112020"
+  claim_id: c_72b2580a
+  context: "Phase 1 \u2013 Data acquisition lists WorldClim recent rasters (bio1\u2011\
+    bio19, 2005\u20112020) as a required input."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "WorldClim provides recent climate rasters for variables bio1\u2011bio19\
+    \ covering the years 2005\u20112020."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T05:02:48Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: "CMIP6 SSP2\u20114.5 future rasters bio1\u2011bio19 2050"
+  claim_id: c_af5c2f33
+  context: "Phase 1 \u2013 Data acquisition lists CMIP6 SSP2\u20114.5 future rasters\
+    \ (2050, bio1\u2011bio19) as a required input."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "CMIP6 provides SSP2\u20114.5 future climate rasters for variables bio1\u2011\
+    bio19 for the year 2050."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T05:03:06Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: GBIF API occurrence records include source_identifier, download_timestamp,
+    original_dataset_name
+  claim_id: c_9bc4976d
+  context: "Phase 1 \u2013 Data acquisition specifies that historical and recent occurrences\
+    \ downloaded from the GBIF API must contain these required columns."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GBIF_API_occurrence_records_include_source_identifier,_downl
+  kind: entity_fact
+  raw_text: The GBIF API provides occurrence records with the columns source_identifier,
+    download_timestamp, and original_dataset_name.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T05:04:01Z'
