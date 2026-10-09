@@ -21,25 +21,6 @@ ImportError: cannot import name 'ERR_INSUFFICIENT_DATA' from 'config' (/home/run
 - data/results/shap_summary.png
 - data/results/stability_distribution.png
 
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
-
-- **Install**: add `matminer` to the project's `requirements.txt` and `pip install matminer`.
-- **Verified**: this loads **1181** real records with fields: material_id, formula, nsites, space_group, volume, structure, elastic_anisotropy, G_Reuss, G_VRH, G_Voigt, K_Reuss, K_VRH, K_Voigt, poisson_ratio, compliance_tensor, elastic_tensor, elastic_tensor_original, cif, kpoint_density, poscar.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-import pandas as pd
-from matminer.datasets import load_dataset
-
-df = load_dataset('elastic_tensor_2015')
-print(f"RECORDS={len(df)}")
-print("FIELDS=" + ",".join(df.columns))
-```
-
-Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
-
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
