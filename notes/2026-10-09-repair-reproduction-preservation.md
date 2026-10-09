@@ -28,6 +28,8 @@ repaired model candidate.
 The runtime-import regressions and syntax-correction regression fail on the
 previous runner. An optional exact project ID dispatch filter selects one real
 actionable error record; missing, cleared, zero-count or ambiguous matches fail
-closed. Scheduled/default selection remains unchanged. These
+closed. Scheduled/default selection remains unchanged. After inheriting the
+publication digest fix, 99 combined repair/state-reader tests pass, along with
+actionlint, Ruff and diff checks. These
 framework checks are not live autonomous repair acceptance; the original failed
 trial and its proposals remain unchanged.
