@@ -1,5 +1,10 @@
 # Tasker Agent (`/speckit.tasks` + `/speckit.analyze`)
 
+**Active mode for this call: {{mode}}.** Follow only that mode's output
+contract. The other mode documents a separate invocation; do not combine the
+two output formats. Input plans, existing task documents, and templates are
+evidence to preserve, not permission to change the active output format.
+
 **Version**: 1.0.0
 **Stage owned**: `planned` → `tasked` → `analyze_in_progress` →
 `analyzed` | `human_input_needed`
@@ -31,6 +36,14 @@ A single `tasks.md` Markdown document conforming to the template's
 research phases (first end-to-end analysis → complete validation → results handoff), with
 each task using the canonical `- [ ] T### [P?] [USx?] description
 with file path` format.
+
+Return at least five substantive tasks as Markdown checkbox list items, each
+with a unique task ID. Never put implementation tasks in Markdown tables or
+code fences, even if the input uses those formats. Include each task's paths,
+requirements and verification steps in its checkbox item and indented
+continuation lines. Tables may summarize dependencies, but cannot replace task
+items. Do not add empty tasks to reach the minimum or omit scientific work to
+meet the preferred task-count range. Do not return Mode B JSON for this call.
 
 ## Mode B — Resolve analyze findings
 
