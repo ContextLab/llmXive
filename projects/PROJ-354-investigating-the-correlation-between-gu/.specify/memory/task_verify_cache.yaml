@@ -1,3 +1,11 @@
+T001:
+  c: false
+  h: 1076612abfe93625aa72bd76f1e479e857061584c385bbf71e6e9c9b6f74513e
+  r: "Checked the execution log `code/.tasks/T001.code_create_structure.py.log`, which\
+    \ shows the script ran without error, but no evidence of the required output file\
+    \ `project_tree.txt` or of empty `__init__.py` files in each package is present.\
+    \ The tree listing file is missing, so the task\u2019s deliverables are not satisfied."
+  sig: 60c5bc72c53b4bb25116076b07fa68383bed67ee0ea85f1f1e3afa42c1e1e838
 T015:
   c: false
   h: 08a37a18d36f0ff043a79e8617fe16076e9b3f32ab988619df9fb87e041a015d
@@ -7,14 +15,6 @@ T015:
     \ Moreover, the required output file `data/processed/ilr_coordinates.parquet`\
     \ is absent from the project. The task\u2019s core deliverable is therefore not\
     \ present."
-T021:
-  c: false
-  h: d7b1ec865d1140a17dc81d07b52aad2cf07348debe8a47783f72dc8867aa52d5
-  r: "The required output file `results/associations/main_effects.parquet` does not\
-    \ exist, and the provided `code/analysis.py` is truncated before any logic that\
-    \ would perform Benjamini\u2011Hochberg correction and write the results. Without\
-    \ the parquet file containing adjusted p\u2011values, the task\u2019s deliverable\
-    \ is not satisfied."
 T033:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
