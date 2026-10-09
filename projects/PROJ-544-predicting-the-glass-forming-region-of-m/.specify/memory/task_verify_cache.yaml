@@ -1,3 +1,46 @@
+T001a:
+  c: false
+  h: d8b3c8d2b1c1c39a537049183b165712794859c39fb7f1dd682d92f144febf74
+  r: "The `code/` directory and a `README.md` file are present, but the content of\
+    \ the README was not provided, so we cannot confirm it actually describes the\
+    \ directory\u2019s purpose as required. Provide the README text (or a screenshot)\
+    \ showing the purpose description."
+T001b:
+  c: true
+  h: bb9e4ec16e43b97488046a71853f89ce66bfac7779b6ddd7fbcf8b2b4975be44
+  r: "The provided artifact list shows that the three required sub\u2011directories\
+    \ (`code/descriptors/`, `code/models/`, `code/config/`) are present on disk and\
+    \ contain multiple files, confirming they have been created as specified."
+T001c:
+  c: false
+  h: c3c2e5646668dfce9ffd0d54c3ca6e88188e55399f3fd957e7a99ce39d6da1e7
+  r: The provided artifact list shows all required directories except `logs/`, which
+    is absent. Creation of the `logs/` directory is required to satisfy task T001c.
+T002:
+  c: false
+  h: 6a495fdbf8cf085e6263a88058d48a3a9ac30d24b18bd10c99cceb30bb2017a4
+  r: "The provided `requirements.txt` only contains an unpinned `pytest>=8.3.0` entry\
+    \ and lacks all required packages (scikit\u2011learn, pandas, numpy, shap, pymatgen,\
+    \ dscribe, pyyaml, imbalanced\u2011learn) with the specified version pins. No\
+    \ evidence of a Python\u202F3.11 virtual environment (`.venv`) being created is\
+    \ present. The task requirements are therefore not met."
+T003:
+  c: false
+  h: 5b670253ec036b6251186c4d3a0343c9e74aea078f522b02b558f698c8f7eb85
+  r: "The repository contains a correctly populated `.pre-commit-config.yaml` with\
+    \ Black and Ruff hooks, but there is no artifact or log showing that the `pre-commit`\
+    \ package was installed or that `pre-commit install` was executed (e.g., no `pre-commit`\
+    \ executable, lockfile, or hook script in `.git/hooks`). This missing evidence\
+    \ means the task\u2019s requirement is not fully satisfied."
+T004:
+  c: false
+  h: 838689a57deca67701b4fde1042a8deb6320398c05f4263d21624febb1ed74d3
+  r: "The `contracts/` directory contains the three required `.schema.json` files,\
+    \ but no evidence of their contents is provided; without seeing that each file\
+    \ contains a valid, non\u2011placeholder JSON\u2011Schema definition for the respective\
+    \ data model, we cannot confirm the task\u2019s requirement is met. The implementer\
+    \ must supply the actual schema files (or excerpts) showing proper JSON\u2011\
+    Schema structure."
 T024:
   c: false
   h: c9afdd81e372c344b7a98ca0044e5e4e97f9f546f5ff9f0f5a8d83192985c0b0

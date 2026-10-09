@@ -1,0 +1,1001 @@
+sample_id,composition,atomic_size_mismatch,mixing_enthalpy,electronegativity_variance,phase_label,source
+GLASS_0000,"{np.str_('In'): np.float64(0.1112), np.str_('Ce'): np.float64(0.233), np.str_('V'): np.float64(0.2921), np.str_('Nb'): np.float64(0.3637)}",0.187189,-8.4035,0.05065,glass,synthetic
+GLASS_0001,"{np.str_('Mg'): np.float64(0.2341), np.str_('Hf'): np.float64(0.2461), np.str_('La'): np.float64(0.0832), np.str_('Ce'): np.float64(0.4365)}",0.13485,-15.0793,0.008869,glass,synthetic
+GLASS_0002,"{np.str_('Zr'): np.float64(0.6407), np.str_('Mg'): np.float64(0.0615), np.str_('Al'): np.float64(0.2978)}",0.077127,-14.3466,0.016623,glass,synthetic
+GLASS_0003,"{np.str_('Mg'): np.float64(0.0228), np.str_('Ga'): np.float64(0.0967), np.str_('Ni'): np.float64(0.0282), np.str_('Mo'): np.float64(0.5705), np.str_('W'): np.float64(0.2818)}",0.080971,-15.052,0.041338,glass,synthetic
+GLASS_0004,"{np.str_('In'): np.float64(0.3724), np.str_('Al'): np.float64(0.3919), np.str_('W'): np.float64(0.0032), np.str_('Ti'): np.float64(0.2325)}",0.114094,-7.9435,0.011258,glass,synthetic
+GLASS_0005,"{np.str_('Ta'): np.float64(0.1288), np.str_('Ce'): np.float64(0.0779), np.str_('Ge'): np.float64(0.2632), np.str_('Nb'): np.float64(0.53)}",0.14331,-13.1945,0.060157,glass,synthetic
+GLASS_0006,"{np.str_('Nb'): np.float64(0.3492), np.str_('Ag'): np.float64(0.1476), np.str_('Y'): np.float64(0.1922), np.str_('Sn'): np.float64(0.311)}",0.158015,-14.0469,0.076454,glass,synthetic
+GLASS_0007,"{np.str_('Ge'): np.float64(0.3859), np.str_('Cr'): np.float64(0.3287), np.str_('Y'): np.float64(0.2853)}",0.220771,-16.5285,0.102416,glass,synthetic
+GLASS_0008,"{np.str_('Sn'): np.float64(0.2005), np.str_('Ca'): np.float64(0.7995)}",0.166565,-15.7639,0.147732,glass,synthetic
+GLASS_0009,"{np.str_('Mn'): np.float64(0.3579), np.str_('Ga'): np.float64(0.1235), np.str_('In'): np.float64(0.1616), np.str_('Mg'): np.float64(0.3571)}",0.153306,-8.0438,0.037196,glass,synthetic
+GLASS_0010,"{np.str_('Be'): np.float64(0.7637), np.str_('Sn'): np.float64(0.2363)}",0.124535,-9.8401,0.027448,glass,synthetic
+GLASS_0011,"{np.str_('Ti'): np.float64(0.7207), np.str_('Y'): np.float64(0.1425), np.str_('Sn'): np.float64(0.1368)}",0.158837,-13.1949,0.038583,glass,synthetic
+GLASS_0012,"{np.str_('Pt'): np.float64(0.477), np.str_('Ge'): np.float64(0.1337), np.str_('Ni'): np.float64(0.1013), np.str_('Ti'): np.float64(0.2881)}",0.089586,-7.7644,0.099147,glass,synthetic
+GLASS_0013,"{np.str_('Fe'): np.float64(0.3581), np.str_('Mn'): np.float64(0.2416), np.str_('Bi'): np.float64(0.4003)}",0.152423,-11.665,0.033322,glass,synthetic
+GLASS_0014,"{np.str_('Cr'): np.float64(0.9598), np.str_('Fe'): np.float64(0.0402)}",0.048148,-14.744,0.001115,glass,synthetic
+GLASS_0015,"{np.str_('Y'): np.float64(0.0432), np.str_('Mg'): np.float64(0.0231), np.str_('W'): np.float64(0.4142), np.str_('Zr'): np.float64(0.3661), np.str_('Ag'): np.float64(0.1534)}",0.154543,-14.5321,0.231548,glass,synthetic
+GLASS_0016,"{np.str_('Cr'): np.float64(0.2623), np.str_('Ag'): np.float64(0.2717), np.str_('Cu'): np.float64(0.2628), np.str_('Fe'): np.float64(0.1335), np.str_('Zr'): np.float64(0.0698)}",0.118876,-14.9063,0.027884,glass,synthetic
+GLASS_0017,"{np.str_('V'): np.float64(0.2748), np.str_('Sn'): np.float64(0.3563), np.str_('Zr'): np.float64(0.3689)}",0.145973,-14.0925,0.071954,glass,synthetic
+GLASS_0018,"{np.str_('Nb'): np.float64(0.2945), np.str_('Co'): np.float64(0.1924), np.str_('Bi'): np.float64(0.2657), np.str_('Ag'): np.float64(0.2474)}",0.146471,-6.5166,0.027833,glass,synthetic
+GLASS_0019,"{np.str_('Co'): np.float64(0.3199), np.str_('La'): np.float64(0.1417), np.str_('Ti'): np.float64(0.1977), np.str_('Zr'): np.float64(0.3126), np.str_('Y'): np.float64(0.0281)}",0.21373,-12.4711,0.08028,glass,synthetic
+GLASS_0020,"{np.str_('Mo'): np.float64(0.4896), np.str_('Ni'): np.float64(0.5104)}",0.099761,-8.1605,0.015618,glass,synthetic
+GLASS_0021,"{np.str_('Mn'): np.float64(0.6096), np.str_('Pt'): np.float64(0.3904)}",0.065328,-10.3384,0.126824,glass,synthetic
+GLASS_0022,"{np.str_('Ti'): np.float64(0.3974), np.str_('Mg'): np.float64(0.2342), np.str_('Co'): np.float64(0.3684)}",0.1453,-12.2996,0.04988,glass,synthetic
+GLASS_0023,"{np.str_('Sn'): np.float64(0.3355), np.str_('Co'): np.float64(0.2635), np.str_('Pb'): np.float64(0.0343), np.str_('Ge'): np.float64(0.3666)}",0.163413,-6.1704,0.0072,glass,synthetic
+GLASS_0024,"{np.str_('Ce'): np.float64(0.3741), np.str_('Pd'): np.float64(0.2456), np.str_('Pt'): np.float64(0.3804)}",0.164317,-16.9711,0.299225,glass,synthetic
+GLASS_0025,"{np.str_('Mg'): np.float64(0.4623), np.str_('Ta'): np.float64(0.0037), np.str_('Co'): np.float64(0.1116), np.str_('Ce'): np.float64(0.1809), np.str_('Ge'): np.float64(0.2415)}",0.217781,-8.0965,0.121659,glass,synthetic
+GLASS_0026,"{np.str_('Bi'): np.float64(0.5153), np.str_('Ca'): np.float64(0.3785), np.str_('Nb'): np.float64(0.1062)}",0.186938,-13.112,0.227045,glass,synthetic
+GLASS_0027,"{np.str_('Mn'): np.float64(0.5338), np.str_('La'): np.float64(0.4662)}",0.234073,-15.9129,0.050394,glass,synthetic
+GLASS_0028,"{np.str_('Cr'): np.float64(0.1326), np.str_('Pt'): np.float64(0.3566), np.str_('Co'): np.float64(0.5108)}",0.088694,-12.163,0.050599,glass,synthetic
+GLASS_0029,"{np.str_('Nb'): np.float64(0.3029), np.str_('Sn'): np.float64(0.2606), np.str_('Be'): np.float64(0.4366)}",0.188059,-7.5562,0.027652,glass,synthetic
+GLASS_0030,"{np.str_('Ti'): np.float64(0.4802), np.str_('Co'): np.float64(0.5198)}",0.133642,-8.5497,0.028855,glass,synthetic
+GLASS_0031,"{np.str_('Co'): np.float64(0.4713), np.str_('Sn'): np.float64(0.5287)}",0.082582,-13.7283,0.001595,glass,synthetic
+GLASS_0032,"{np.str_('Mg'): np.float64(0.1839), np.str_('Fe'): np.float64(0.1843), np.str_('Mo'): np.float64(0.3917), np.str_('Zr'): np.float64(0.2402)}",0.124587,-11.7984,0.144957,glass,synthetic
+GLASS_0033,"{np.str_('Pt'): np.float64(0.2268), np.str_('Zr'): np.float64(0.2108), np.str_('Be'): np.float64(0.0404), np.str_('Ga'): np.float64(0.5219)}",0.134947,-7.5107,0.100977,glass,synthetic
+GLASS_0034,"{np.str_('Pd'): np.float64(0.2504), np.str_('Pb'): np.float64(0.7282), np.str_('Be'): np.float64(0.0214)}",0.13667,-13.6566,0.014209,glass,synthetic
+GLASS_0035,"{np.str_('Fe'): np.float64(0.2734), np.str_('Hf'): np.float64(0.3536), np.str_('Ca'): np.float64(0.2426), np.str_('Ge'): np.float64(0.1304)}",0.253316,-11.1746,0.137239,glass,synthetic
+GLASS_0036,"{np.str_('La'): np.float64(0.0561), np.str_('Ni'): np.float64(0.3361), np.str_('Nb'): np.float64(0.3962), np.str_('Be'): np.float64(0.2116)}",0.170332,-9.0433,0.041644,glass,synthetic
+GLASS_0037,"{np.str_('Be'): np.float64(0.4783), np.str_('Ti'): np.float64(0.092), np.str_('Cr'): np.float64(0.0451), np.str_('Ga'): np.float64(0.3847)}",0.126768,-14.1963,0.013842,glass,synthetic
+GLASS_0038,"{np.str_('Pt'): np.float64(0.3145), np.str_('Ga'): np.float64(0.1987), np.str_('Ce'): np.float64(0.1126), np.str_('Pb'): np.float64(0.3742)}",0.19405,-14.1055,0.154197,glass,synthetic
+GLASS_0039,"{np.str_('Cr'): np.float64(0.0674), np.str_('Be'): np.float64(0.8749), np.str_('Bi'): np.float64(0.0577)}",0.148402,-15.3969,0.011204,glass,synthetic
+GLASS_0040,"{np.str_('Fe'): np.float64(0.3008), np.str_('Ca'): np.float64(0.6414), np.str_('In'): np.float64(0.0578)}",0.22406,-12.8122,0.15551,glass,synthetic
+GLASS_0041,"{np.str_('Y'): np.float64(0.3916), np.str_('Pd'): np.float64(0.6084)}",0.200369,-7.7098,0.228815,glass,synthetic
+GLASS_0042,"{np.str_('Ga'): np.float64(0.1442), np.str_('Co'): np.float64(0.8558)}",0.061683,-14.5548,0.000605,glass,synthetic
+GLASS_0043,"{np.str_('Ca'): np.float64(0.3343), np.str_('Ag'): np.float64(0.3011), np.str_('Sn'): np.float64(0.1555), np.str_('Ce'): np.float64(0.209)}",0.211756,-8.1074,0.200255,glass,synthetic
+GLASS_0044,"{np.str_('Co'): np.float64(0.0947), np.str_('Cu'): np.float64(0.2938), np.str_('Ni'): np.float64(0.0327), np.str_('Hf'): np.float64(0.366), np.str_('Mo'): np.float64(0.2129)}",0.149606,-13.0137,0.118702,glass,synthetic
+GLASS_0045,"{np.str_('Bi'): np.float64(0.4169), np.str_('Y'): np.float64(0.2019), np.str_('Nb'): np.float64(0.3812)}",0.099166,-15.0403,0.093018,glass,synthetic
+GLASS_0046,"{np.str_('In'): np.float64(0.686), np.str_('Al'): np.float64(0.314)}",0.132452,-13.4194,0.006225,glass,synthetic
+GLASS_0047,"{np.str_('Pd'): np.float64(0.0629), np.str_('Ce'): np.float64(0.1853), np.str_('Al'): np.float64(0.3735), np.str_('Zr'): np.float64(0.0404), np.str_('Ag'): np.float64(0.3379)}",0.153037,-15.2171,0.102294,glass,synthetic
+GLASS_0048,"{np.str_('Ag'): np.float64(0.3119), np.str_('Pb'): np.float64(0.2455), np.str_('W'): np.float64(0.2057), np.str_('Ni'): np.float64(0.237)}",0.154568,-8.4358,0.04432,glass,synthetic
+GLASS_0049,"{np.str_('Pt'): np.float64(0.3056), np.str_('V'): np.float64(0.6944)}",0.04597,-11.0607,0.089658,glass,synthetic
+GLASS_0050,"{np.str_('Ce'): np.float64(0.4932), np.str_('Ti'): np.float64(0.0461), np.str_('Al'): np.float64(0.4607)}",0.160503,-9.7694,0.05867,glass,synthetic
+GLASS_0051,"{np.str_('Al'): np.float64(0.2852), np.str_('Cu'): np.float64(0.3891), np.str_('Bi'): np.float64(0.3256)}",0.139538,-13.9069,0.02677,glass,synthetic
+GLASS_0052,"{np.str_('Sn'): np.float64(0.4059), np.str_('La'): np.float64(0.1245), np.str_('Cu'): np.float64(0.4245), np.str_('Hf'): np.float64(0.0451)}",0.153913,-9.0732,0.086911,glass,synthetic
+GLASS_0053,"{np.str_('La'): np.float64(0.0904), np.str_('Cu'): np.float64(0.2674), np.str_('Ce'): np.float64(0.2711), np.str_('Ag'): np.float64(0.3147), np.str_('Ga'): np.float64(0.0565)}",0.214875,-16.4009,0.145465,glass,synthetic
+GLASS_0054,"{np.str_('W'): np.float64(0.3323), np.str_('Ag'): np.float64(0.0562), np.str_('Ga'): np.float64(0.4166), np.str_('Mg'): np.float64(0.1949)}",0.099867,-7.9061,0.14158,glass,synthetic
+GLASS_0055,"{np.str_('Be'): np.float64(0.3144), np.str_('Zr'): np.float64(0.0665), np.str_('Nb'): np.float64(0.6191)}",0.19929,-5.8864,0.004381,glass,synthetic
+GLASS_0056,"{np.str_('Sn'): np.float64(0.4039), np.str_('Ge'): np.float64(0.0895), np.str_('Mo'): np.float64(0.1038), np.str_('Cr'): np.float64(0.4028)}",0.079201,-8.4007,0.031487,glass,synthetic
+GLASS_0057,"{np.str_('In'): np.float64(0.0588), np.str_('Be'): np.float64(0.363), np.str_('W'): np.float64(0.5515), np.str_('Y'): np.float64(0.0266)}",0.210303,-11.3838,0.157546,glass,synthetic
+GLASS_0058,"{np.str_('Mo'): np.float64(0.226), np.str_('Ce'): np.float64(0.2088), np.str_('La'): np.float64(0.141), np.str_('Ca'): np.float64(0.2032), np.str_('Al'): np.float64(0.221)}",0.197898,-12.2608,0.200551,glass,synthetic
+GLASS_0059,"{np.str_('Cu'): np.float64(0.2731), np.str_('Ga'): np.float64(0.3713), np.str_('Co'): np.float64(0.3557)}",0.084965,-13.5045,0.001507,glass,synthetic
+GLASS_0060,"{np.str_('Ca'): np.float64(0.2267), np.str_('Pd'): np.float64(0.0535), np.str_('Pt'): np.float64(0.3729), np.str_('Hf'): np.float64(0.347)}",0.172051,-11.2561,0.302456,glass,synthetic
+GLASS_0061,"{np.str_('Ti'): np.float64(0.718), np.str_('Ce'): np.float64(0.282)}",0.134608,-13.8919,0.035717,glass,synthetic
+GLASS_0062,"{np.str_('Pd'): np.float64(0.2712), np.str_('Be'): np.float64(0.6671), np.str_('Mg'): np.float64(0.0617)}",0.149441,-9.3706,0.087843,glass,synthetic
+GLASS_0063,"{np.str_('V'): np.float64(0.0477), np.str_('Pb'): np.float64(0.3564), np.str_('Mn'): np.float64(0.0464), np.str_('Zr'): np.float64(0.5495)}",0.110932,-12.9419,0.21784,glass,synthetic
+GLASS_0064,"{np.str_('Mg'): np.float64(0.3393), np.str_('Pd'): np.float64(0.6597), np.str_('Ce'): np.float64(0.001)}",0.113649,-16.9851,0.178082,glass,synthetic
+GLASS_0065,"{np.str_('Pd'): np.float64(0.1803), np.str_('Ti'): np.float64(0.1245), np.str_('Hf'): np.float64(0.2654), np.str_('Ga'): np.float64(0.4297)}",0.10795,-16.2838,0.095797,glass,synthetic
+GLASS_0066,"{np.str_('Ta'): np.float64(0.1429), np.str_('Pb'): np.float64(0.5722), np.str_('Ge'): np.float64(0.285)}",0.229129,-13.2177,0.083613,glass,synthetic
+GLASS_0067,"{np.str_('La'): np.float64(0.5352), np.str_('Nb'): np.float64(0.4648)}",0.148102,-12.992,0.06219,glass,synthetic
+GLASS_0068,"{np.str_('Fe'): np.float64(0.5695), np.str_('Mo'): np.float64(0.4305)}",0.087289,-12.1543,0.026699,glass,synthetic
+GLASS_0069,"{np.str_('Ni'): np.float64(0.2108), np.str_('Sn'): np.float64(0.0685), np.str_('Mg'): np.float64(0.0452), np.str_('Hf'): np.float64(0.3937), np.str_('In'): np.float64(0.2818)}",0.163061,-11.7323,0.07741,glass,synthetic
+GLASS_0070,"{np.str_('Ta'): np.float64(0.0923), np.str_('Ga'): np.float64(0.285), np.str_('Co'): np.float64(0.301), np.str_('Ca'): np.float64(0.1807), np.str_('Hf'): np.float64(0.1409)}",0.220892,-9.4903,0.114574,glass,synthetic
+GLASS_0071,"{np.str_('Co'): np.float64(0.7812), np.str_('Nb'): np.float64(0.2188)}",0.097441,-6.5822,0.013401,glass,synthetic
+GLASS_0072,"{np.str_('Be'): np.float64(0.075), np.str_('Al'): np.float64(0.3197), np.str_('V'): np.float64(0.6054)}",0.10885,-11.3567,0.000279,glass,synthetic
+GLASS_0073,"{np.str_('Mo'): np.float64(0.3588), np.str_('Ni'): np.float64(0.3104), np.str_('Be'): np.float64(0.3308)}",0.149006,-8.3057,0.060147,glass,synthetic
+GLASS_0074,"{np.str_('Pd'): np.float64(0.3763), np.str_('V'): np.float64(0.1395), np.str_('Mn'): np.float64(0.4841)}",0.104313,-14.0362,0.094462,glass,synthetic
+GLASS_0075,"{np.str_('In'): np.float64(0.247), np.str_('Bi'): np.float64(0.2753), np.str_('Al'): np.float64(0.3065), np.str_('Ta'): np.float64(0.1712)}",0.109831,-7.4726,0.036983,glass,synthetic
+GLASS_0076,"{np.str_('Be'): np.float64(0.1536), np.str_('Zr'): np.float64(0.4789), np.str_('Mg'): np.float64(0.036), np.str_('In'): np.float64(0.3315)}",0.174664,-12.3456,0.041647,glass,synthetic
+GLASS_0077,"{np.str_('Pt'): np.float64(0.2729), np.str_('Ag'): np.float64(0.188), np.str_('W'): np.float64(0.1232), np.str_('Al'): np.float64(0.1861), np.str_('Sn'): np.float64(0.2298)}",0.041718,-10.5423,0.066289,glass,synthetic
+GLASS_0078,"{np.str_('Bi'): np.float64(0.3351), np.str_('Ni'): np.float64(0.349), np.str_('W'): np.float64(0.3158)}",0.171149,-13.2844,0.03597,glass,synthetic
+GLASS_0079,"{np.str_('Bi'): np.float64(0.1481), np.str_('Mg'): np.float64(0.8079), np.str_('Ce'): np.float64(0.044)}",0.087425,-11.6433,0.066877,glass,synthetic
+GLASS_0080,"{np.str_('Sn'): np.float64(0.2458), np.str_('Mn'): np.float64(0.7542)}",0.121033,-7.6706,0.031163,glass,synthetic
+GLASS_0081,"{np.str_('Ti'): np.float64(0.1017), np.str_('In'): np.float64(0.8983)}",0.082612,-12.77,0.005262,glass,synthetic
+GLASS_0082,"{np.str_('Cr'): np.float64(0.0493), np.str_('Nb'): np.float64(0.18), np.str_('Be'): np.float64(0.1479), np.str_('Sn'): np.float64(0.2046), np.str_('Cu'): np.float64(0.4181)}",0.123825,-10.5397,0.025403,glass,synthetic
+GLASS_0083,"{np.str_('Cu'): np.float64(0.1292), np.str_('Ce'): np.float64(0.3878), np.str_('Be'): np.float64(0.4575), np.str_('La'): np.float64(0.0255)}",0.274383,-14.3668,0.077537,glass,synthetic
+GLASS_0084,"{np.str_('W'): np.float64(0.2758), np.str_('Sn'): np.float64(0.3414), np.str_('Pt'): np.float64(0.0304), np.str_('Mn'): np.float64(0.2805), np.str_('Nb'): np.float64(0.0719)}",0.116598,-15.0549,0.103277,glass,synthetic
+GLASS_0085,"{np.str_('Pb'): np.float64(0.1542), np.str_('Ge'): np.float64(0.4948), np.str_('Co'): np.float64(0.3511)}",0.197431,-13.3367,0.02171,glass,synthetic
+GLASS_0086,"{np.str_('Pt'): np.float64(0.1312), np.str_('Y'): np.float64(0.244), np.str_('Hf'): np.float64(0.2904), np.str_('V'): np.float64(0.0748), np.str_('Al'): np.float64(0.2595)}",0.127437,-15.9758,0.11477,glass,synthetic
+GLASS_0087,"{np.str_('La'): np.float64(0.2969), np.str_('Ce'): np.float64(0.3169), np.str_('Al'): np.float64(0.0071), np.str_('Sn'): np.float64(0.3791)}",0.193256,-10.4411,0.16947,glass,synthetic
+GLASS_0088,"{np.str_('Co'): np.float64(0.1445), np.str_('Ga'): np.float64(0.1489), np.str_('Zr'): np.float64(0.4326), np.str_('Ca'): np.float64(0.2739)}",0.209074,-15.5784,0.104178,glass,synthetic
+GLASS_0089,"{np.str_('Pt'): np.float64(0.0781), np.str_('Co'): np.float64(0.1934), np.str_('Fe'): np.float64(0.0936), np.str_('Ag'): np.float64(0.0968), np.str_('Bi'): np.float64(0.5381)}",0.139192,-13.6647,0.012127,glass,synthetic
+GLASS_0090,"{np.str_('Mg'): np.float64(0.233), np.str_('Ce'): np.float64(0.2235), np.str_('La'): np.float64(0.2347), np.str_('Ga'): np.float64(0.3089)}",0.179305,-11.4399,0.091713,glass,synthetic
+GLASS_0091,"{np.str_('Zr'): np.float64(0.2737), np.str_('Ta'): np.float64(0.1545), np.str_('Ni'): np.float64(0.2198), np.str_('La'): np.float64(0.3108), np.str_('Ti'): np.float64(0.0412)}",0.184275,-10.9945,0.088398,glass,synthetic
+GLASS_0092,"{np.str_('La'): np.float64(0.0839), np.str_('Ge'): np.float64(0.2905), np.str_('Nb'): np.float64(0.5208), np.str_('Ti'): np.float64(0.0492), np.str_('V'): np.float64(0.0556)}",0.163227,-15.9551,0.064279,glass,synthetic
+GLASS_0093,"{np.str_('Mo'): np.float64(0.0383), np.str_('Cr'): np.float64(0.1814), np.str_('V'): np.float64(0.4133), np.str_('Mn'): np.float64(0.367)}",0.061067,-10.1509,0.013257,glass,synthetic
+GLASS_0094,"{np.str_('Ta'): np.float64(0.1868), np.str_('Mn'): np.float64(0.0832), np.str_('Al'): np.float64(0.2148), np.str_('Pt'): np.float64(0.0711), np.str_('Cu'): np.float64(0.444)}",0.100118,-7.8551,0.049057,glass,synthetic
+GLASS_0095,"{np.str_('V'): np.float64(0.3222), np.str_('Pd'): np.float64(0.6778)}",0.085844,-10.4081,0.070954,glass,synthetic
+GLASS_0096,"{np.str_('Mo'): np.float64(0.3258), np.str_('Hf'): np.float64(0.3565), np.str_('Zr'): np.float64(0.1884), np.str_('Co'): np.float64(0.1293)}",0.122185,-9.217,0.154427,glass,synthetic
+GLASS_0097,"{np.str_('Pd'): np.float64(0.1479), np.str_('Nb'): np.float64(0.8521)}",0.084738,-14.8634,0.045369,glass,synthetic
+GLASS_0098,"{np.str_('Ce'): np.float64(0.161), np.str_('Sn'): np.float64(0.2615), np.str_('Ta'): np.float64(0.278), np.str_('Nb'): np.float64(0.2995)}",0.14066,-12.7131,0.073645,glass,synthetic
+GLASS_0099,"{np.str_('Zr'): np.float64(0.2685), np.str_('Ca'): np.float64(0.061), np.str_('Bi'): np.float64(0.2029), np.str_('Al'): np.float64(0.2108), np.str_('Mn'): np.float64(0.2568)}",0.140584,-15.5139,0.076791,glass,synthetic
+GLASS_0100,"{np.str_('Bi'): np.float64(0.29), np.str_('Pb'): np.float64(0.3374), np.str_('Be'): np.float64(0.3726)}",0.243554,-8.1155,0.103897,glass,synthetic
+GLASS_0101,"{np.str_('Pt'): np.float64(0.577), np.str_('La'): np.float64(0.423)}",0.182801,-11.0806,0.339844,glass,synthetic
+GLASS_0102,"{np.str_('Pb'): np.float64(0.2069), np.str_('Mo'): np.float64(0.0441), np.str_('Ti'): np.float64(0.3368), np.str_('Bi'): np.float64(0.2647), np.str_('Al'): np.float64(0.1475)}",0.105274,-15.7474,0.10009,glass,synthetic
+GLASS_0103,"{np.str_('Sn'): np.float64(0.2811), np.str_('Ce'): np.float64(0.1259), np.str_('Ni'): np.float64(0.1125), np.str_('Ge'): np.float64(0.2792), np.str_('Co'): np.float64(0.2013)}",0.168185,-6.8452,0.078215,glass,synthetic
+GLASS_0104,"{np.str_('Fe'): np.float64(0.2734), np.str_('Pb'): np.float64(0.7266)}",0.185167,-10.645,0.049663,glass,synthetic
+GLASS_0105,"{np.str_('Bi'): np.float64(0.0741), np.str_('V'): np.float64(0.3537), np.str_('Hf'): np.float64(0.4009), np.str_('Pt'): np.float64(0.1713)}",0.137769,-11.0386,0.12724,glass,synthetic
+GLASS_0106,"{np.str_('Ta'): np.float64(0.2071), np.str_('Co'): np.float64(0.2321), np.str_('Pd'): np.float64(0.0039), np.str_('Ce'): np.float64(0.181), np.str_('Nb'): np.float64(0.3758)}",0.175091,-13.3965,0.061753,glass,synthetic
+GLASS_0107,"{np.str_('Nb'): np.float64(0.1907), np.str_('Be'): np.float64(0.2874), np.str_('Ti'): np.float64(0.2499), np.str_('Y'): np.float64(0.007), np.str_('Sn'): np.float64(0.2651)}",0.179672,-13.9138,0.031743,glass,synthetic
+GLASS_0108,"{np.str_('Y'): np.float64(0.2117), np.str_('W'): np.float64(0.2657), np.str_('Pt'): np.float64(0.1967), np.str_('Mo'): np.float64(0.05), np.str_('Ta'): np.float64(0.2759)}",0.165267,-11.6997,0.228073,glass,synthetic
+GLASS_0109,"{np.str_('Co'): np.float64(0.0352), np.str_('Mn'): np.float64(0.1269), np.str_('Pt'): np.float64(0.3729), np.str_('Ca'): np.float64(0.2124), np.str_('Ta'): np.float64(0.2526)}",0.208964,-8.5314,0.2436,glass,synthetic
+GLASS_0110,"{np.str_('Ta'): np.float64(0.396), np.str_('Al'): np.float64(0.5378), np.str_('Co'): np.float64(0.0662)}",0.092315,-15.3028,0.008958,glass,synthetic
+GLASS_0111,"{np.str_('Pd'): np.float64(0.0042), np.str_('Ti'): np.float64(0.1657), np.str_('Pb'): np.float64(0.4297), np.str_('Ge'): np.float64(0.1061), np.str_('Al'): np.float64(0.2943)}",0.152468,-10.4202,0.124561,glass,synthetic
+GLASS_0112,"{np.str_('Hf'): np.float64(0.3352), np.str_('Ga'): np.float64(0.2074), np.str_('Mg'): np.float64(0.4574)}",0.099627,-11.6247,0.041814,glass,synthetic
+GLASS_0113,"{np.str_('Co'): np.float64(0.0619), np.str_('Ce'): np.float64(0.1851), np.str_('La'): np.float64(0.389), np.str_('Y'): np.float64(0.364)}",0.124116,-13.4688,0.033824,glass,synthetic
+GLASS_0114,"{np.str_('V'): np.float64(0.1635), np.str_('Fe'): np.float64(0.3825), np.str_('Sn'): np.float64(0.2391), np.str_('Zr'): np.float64(0.2149)}",0.115169,-9.3384,0.05241,glass,synthetic
+GLASS_0115,"{np.str_('Ga'): np.float64(0.5228), np.str_('In'): np.float64(0.4772)}",0.138537,-8.047,0.000225,glass,synthetic
+GLASS_0116,"{np.str_('Y'): np.float64(0.881), np.str_('Al'): np.float64(0.119)}",0.119057,-10.6271,0.015946,glass,synthetic
+GLASS_0117,"{np.str_('Nb'): np.float64(0.3415), np.str_('Ca'): np.float64(0.179), np.str_('Pb'): np.float64(0.1372), np.str_('W'): np.float64(0.0588), np.str_('Pt'): np.float64(0.2835)}",0.204306,-11.8872,0.249604,glass,synthetic
+GLASS_0118,"{np.str_('Be'): np.float64(0.2781), np.str_('Co'): np.float64(0.2567), np.str_('V'): np.float64(0.13), np.str_('Mn'): np.float64(0.3353)}",0.110662,-6.5029,0.018764,glass,synthetic
+GLASS_0119,"{np.str_('In'): np.float64(0.3598), np.str_('Co'): np.float64(0.5181), np.str_('Pd'): np.float64(0.1222)}",0.174244,-12.6717,0.016102,glass,synthetic
+GLASS_0120,"{np.str_('W'): np.float64(0.4218), np.str_('Ti'): np.float64(0.1481), np.str_('V'): np.float64(0.3765), np.str_('Mn'): np.float64(0.0536)}",0.092513,-12.176,0.142048,glass,synthetic
+GLASS_0121,"{np.str_('Ag'): np.float64(0.5526), np.str_('Ni'): np.float64(0.2623), np.str_('Ta'): np.float64(0.0021), np.str_('Be'): np.float64(0.183)}",0.124886,-10.2792,0.019022,glass,synthetic
+GLASS_0122,"{np.str_('Ag'): np.float64(0.5718), np.str_('Mg'): np.float64(0.4282)}",0.117052,-9.9191,0.094118,glass,synthetic
+GLASS_0123,"{np.str_('Ca'): np.float64(0.1927), np.str_('Mn'): np.float64(0.0977), np.str_('Ce'): np.float64(0.2709), np.str_('Ga'): np.float64(0.2698), np.str_('Zr'): np.float64(0.1689)}",0.1975,-16.0595,0.098891,glass,synthetic
+GLASS_0124,"{np.str_('Hf'): np.float64(0.2905), np.str_('Pb'): np.float64(0.1518), np.str_('Zr'): np.float64(0.3224), np.str_('Nb'): np.float64(0.2354)}",0.125977,-11.7876,0.126525,glass,synthetic
+GLASS_0125,"{np.str_('Pb'): np.float64(0.2814), np.str_('Y'): np.float64(0.3736), np.str_('Ca'): np.float64(0.345)}",0.111636,-9.0078,0.3075,glass,synthetic
+GLASS_0126,"{np.str_('Zr'): np.float64(0.1842), np.str_('Nb'): np.float64(0.8158)}",0.097143,-13.8549,0.010955,glass,synthetic
+GLASS_0127,"{np.str_('Ga'): np.float64(0.1003), np.str_('Ni'): np.float64(0.5391), np.str_('Mg'): np.float64(0.1462), np.str_('Pb'): np.float64(0.2144)}",0.178098,-9.1084,0.091396,glass,synthetic
+GLASS_0128,"{np.str_('Sn'): np.float64(0.5425), np.str_('Ni'): np.float64(0.4575)}",0.087001,-11.3128,0.00062,glass,synthetic
+GLASS_0129,"{np.str_('Ag'): np.float64(0.3107), np.str_('Fe'): np.float64(0.192), np.str_('Ca'): np.float64(0.3608), np.str_('Nb'): np.float64(0.084), np.str_('Mn'): np.float64(0.0526)}",0.222483,-13.0134,0.168768,glass,synthetic
+GLASS_0130,"{np.str_('V'): np.float64(0.3184), np.str_('Hf'): np.float64(0.6816)}",0.123116,-15.8688,0.023634,glass,synthetic
+GLASS_0131,"{np.str_('Pb'): np.float64(0.3766), np.str_('Al'): np.float64(0.2429), np.str_('Ge'): np.float64(0.0658), np.str_('Co'): np.float64(0.3147)}",0.20703,-14.389,0.082438,glass,synthetic
+GLASS_0132,"{np.str_('Co'): np.float64(0.5404), np.str_('V'): np.float64(0.3019), np.str_('Mo'): np.float64(0.1119), np.str_('Zr'): np.float64(0.0458)}",0.124697,-9.9316,0.036689,glass,synthetic
+GLASS_0133,"{np.str_('Cr'): np.float64(0.2298), np.str_('Ag'): np.float64(0.4909), np.str_('W'): np.float64(0.2793)}",0.09048,-15.3346,0.065025,glass,synthetic
+GLASS_0134,"{np.str_('Hf'): np.float64(0.0129), np.str_('Ca'): np.float64(0.208), np.str_('Pt'): np.float64(0.4523), np.str_('Mn'): np.float64(0.3267)}",0.215865,-14.6872,0.259573,glass,synthetic
+GLASS_0135,"{np.str_('Ag'): np.float64(0.3404), np.str_('Co'): np.float64(0.3407), np.str_('Ga'): np.float64(0.1254), np.str_('W'): np.float64(0.1935)}",0.092024,-15.974,0.035822,glass,synthetic
+GLASS_0136,"{np.str_('Ce'): np.float64(0.2126), np.str_('Be'): np.float64(0.1661), np.str_('Zr'): np.float64(0.3479), np.str_('Ag'): np.float64(0.0222), np.str_('La'): np.float64(0.2513)}",0.179517,-8.1624,0.037802,glass,synthetic
+GLASS_0137,"{np.str_('Co'): np.float64(0.2498), np.str_('Y'): np.float64(0.2158), np.str_('Sn'): np.float64(0.1814), np.str_('Pd'): np.float64(0.353)}",0.198319,-10.9431,0.131087,glass,synthetic
+GLASS_0138,"{np.str_('Pb'): np.float64(0.4746), np.str_('W'): np.float64(0.0377), np.str_('Sn'): np.float64(0.2208), np.str_('Mn'): np.float64(0.2669)}",0.218414,-8.774,0.109269,glass,synthetic
+GLASS_0139,"{np.str_('Cu'): np.float64(0.0768), np.str_('Ce'): np.float64(0.2357), np.str_('Pd'): np.float64(0.3844), np.str_('Nb'): np.float64(0.1495), np.str_('Ti'): np.float64(0.1535)}",0.144596,-9.4106,0.182904,glass,synthetic
+GLASS_0140,"{np.str_('Fe'): np.float64(0.2562), np.str_('Y'): np.float64(0.2185), np.str_('Mg'): np.float64(0.2683), np.str_('Ge'): np.float64(0.257)}",0.188596,-15.2161,0.110858,glass,synthetic
+GLASS_0141,"{np.str_('Cu'): np.float64(0.1646), np.str_('Mg'): np.float64(0.1364), np.str_('Ti'): np.float64(0.303), np.str_('Zr'): np.float64(0.2026), np.str_('Mo'): np.float64(0.1934)}",0.130936,-10.6476,0.100749,glass,synthetic
+GLASS_0142,"{np.str_('Ce'): np.float64(0.1987), np.str_('Ta'): np.float64(0.1602), np.str_('V'): np.float64(0.6411)}",0.20521,-12.2867,0.039465,glass,synthetic
+GLASS_0143,"{np.str_('Mn'): np.float64(0.4406), np.str_('Pt'): np.float64(0.0442), np.str_('Ga'): np.float64(0.0307), np.str_('Fe'): np.float64(0.4845)}",0.069501,-14.305,0.032671,glass,synthetic
+GLASS_0144,"{np.str_('Ni'): np.float64(0.8541), np.str_('W'): np.float64(0.1459)}",0.063111,-13.8917,0.025234,glass,synthetic
+GLASS_0145,"{np.str_('Ga'): np.float64(0.2243), np.str_('Cu'): np.float64(0.7675), np.str_('Y'): np.float64(0.0082)}",0.104515,-12.3249,0.004945,glass,synthetic
+GLASS_0146,"{np.str_('Cr'): np.float64(0.1634), np.str_('Sn'): np.float64(0.0043), np.str_('Bi'): np.float64(0.0518), np.str_('W'): np.float64(0.7805)}",0.101024,-8.8848,0.068863,glass,synthetic
+GLASS_0147,"{np.str_('Cr'): np.float64(0.1986), np.str_('In'): np.float64(0.2496), np.str_('Pt'): np.float64(0.4823), np.str_('Y'): np.float64(0.0696)}",0.175924,-12.3679,0.113459,glass,synthetic
+GLASS_0148,"{np.str_('Ag'): np.float64(0.0066), np.str_('Be'): np.float64(0.5045), np.str_('Cu'): np.float64(0.4889)}",0.094652,-11.7323,0.027295,glass,synthetic
+GLASS_0149,"{np.str_('W'): np.float64(0.0402), np.str_('Y'): np.float64(0.0421), np.str_('Ti'): np.float64(0.5523), np.str_('Ni'): np.float64(0.3655)}",0.131735,-12.5593,0.05744,glass,synthetic
+GLASS_0150,"{np.str_('Ni'): np.float64(0.4558), np.str_('Mo'): np.float64(0.5442)}",0.094723,-15.0697,0.015503,glass,synthetic
+GLASS_0151,"{np.str_('Ag'): np.float64(0.7196), np.str_('V'): np.float64(0.0358), np.str_('Ta'): np.float64(0.2446)}",0.061076,-14.862,0.035012,glass,synthetic
+GLASS_0152,"{np.str_('W'): np.float64(0.3238), np.str_('Mg'): np.float64(0.3414), np.str_('V'): np.float64(0.3348)}",0.136645,-13.8106,0.191351,glass,synthetic
+GLASS_0153,"{np.str_('Hf'): np.float64(0.2963), np.str_('Ti'): np.float64(0.1874), np.str_('Ce'): np.float64(0.2775), np.str_('La'): np.float64(0.2388)}",0.153771,-9.3775,0.026556,glass,synthetic
+GLASS_0154,"{np.str_('In'): np.float64(0.458), np.str_('Ni'): np.float64(0.542)}",0.22111,-13.4331,0.004195,glass,synthetic
+GLASS_0155,"{np.str_('Bi'): np.float64(0.5939), np.str_('Ge'): np.float64(0.1369), np.str_('Ag'): np.float64(0.2691)}",0.09899,-13.9441,0.001539,glass,synthetic
+GLASS_0156,"{np.str_('Ti'): np.float64(0.1698), np.str_('Mn'): np.float64(0.2305), np.str_('Cu'): np.float64(0.3301), np.str_('Al'): np.float64(0.2696)}",0.088366,-6.8465,0.024521,glass,synthetic
+GLASS_0157,"{np.str_('Ag'): np.float64(0.1845), np.str_('Zr'): np.float64(0.217), np.str_('Cu'): np.float64(0.0668), np.str_('Fe'): np.float64(0.0912), np.str_('Pd'): np.float64(0.4404)}",0.131898,-10.3017,0.110695,glass,synthetic
+GLASS_0158,"{np.str_('V'): np.float64(0.0331), np.str_('Ag'): np.float64(0.9384), np.str_('Ca'): np.float64(0.0285)}",0.109036,-10.4536,0.026301,glass,synthetic
+GLASS_0159,"{np.str_('Ca'): np.float64(0.2824), np.str_('V'): np.float64(0.3147), np.str_('In'): np.float64(0.0933), np.str_('Pd'): np.float64(0.0667), np.str_('Fe'): np.float64(0.2428)}",0.227957,-16.1398,0.139585,glass,synthetic
+GLASS_0160,"{np.str_('Y'): np.float64(0.0554), np.str_('Co'): np.float64(0.2562), np.str_('V'): np.float64(0.3591), np.str_('Mo'): np.float64(0.019), np.str_('La'): np.float64(0.3103)}",0.21947,-12.0076,0.105045,glass,synthetic
+GLASS_0161,"{np.str_('Ti'): np.float64(0.3232), np.str_('Nb'): np.float64(0.1834), np.str_('Bi'): np.float64(0.4934)}",0.075423,-7.6939,0.052917,glass,synthetic
+GLASS_0162,"{np.str_('Zr'): np.float64(0.296), np.str_('Pd'): np.float64(0.045), np.str_('Mn'): np.float64(0.0446), np.str_('Pt'): np.float64(0.2876), np.str_('La'): np.float64(0.3268)}",0.178122,-13.0014,0.252048,glass,synthetic
+GLASS_0163,"{np.str_('Ta'): np.float64(0.4482), np.str_('Nb'): np.float64(0.5518)}",0.028281,-6.0577,0.002473,glass,synthetic
+GLASS_0164,"{np.str_('Ta'): np.float64(0.2638), np.str_('Sn'): np.float64(0.3056), np.str_('Pt'): np.float64(0.175), np.str_('Ca'): np.float64(0.2556)}",0.212197,-9.8062,0.212752,glass,synthetic
+GLASS_0165,"{np.str_('Zr'): np.float64(0.1048), np.str_('Cu'): np.float64(0.2858), np.str_('Al'): np.float64(0.3675), np.str_('Fe'): np.float64(0.0186), np.str_('Pb'): np.float64(0.2232)}",0.180855,-9.573,0.101185,glass,synthetic
+GLASS_0166,"{np.str_('Zr'): np.float64(0.4108), np.str_('Y'): np.float64(0.1939), np.str_('Ge'): np.float64(0.3953)}",0.197564,-14.7669,0.123889,glass,synthetic
+GLASS_0167,"{np.str_('Al'): np.float64(0.3838), np.str_('Ge'): np.float64(0.5628), np.str_('Pt'): np.float64(0.0534)}",0.146792,-15.6585,0.045951,glass,synthetic
+GLASS_0168,"{np.str_('Mn'): np.float64(0.1748), np.str_('Ti'): np.float64(0.3817), np.str_('Bi'): np.float64(0.4435)}",0.121469,-13.1377,0.056135,glass,synthetic
+GLASS_0169,"{np.str_('Be'): np.float64(0.4193), np.str_('Pt'): np.float64(0.0765), np.str_('Ag'): np.float64(0.3118), np.str_('Pb'): np.float64(0.0174), np.str_('Cu'): np.float64(0.1751)}",0.170747,-12.2616,0.051658,glass,synthetic
+GLASS_0170,"{np.str_('Ag'): np.float64(0.9015), np.str_('Be'): np.float64(0.0985)}",0.136931,-13.6778,0.011508,glass,synthetic
+GLASS_0171,"{np.str_('Ge'): np.float64(0.8011), np.str_('Cu'): np.float64(0.0158), np.str_('Ta'): np.float64(0.1831)}",0.137803,-8.3368,0.038768,glass,synthetic
+GLASS_0172,"{np.str_('Sn'): np.float64(0.2769), np.str_('Y'): np.float64(0.238), np.str_('Mg'): np.float64(0.1743), np.str_('Cu'): np.float64(0.3108)}",0.182772,-11.5968,0.110187,glass,synthetic
+GLASS_0173,"{np.str_('Co'): np.float64(0.1437), np.str_('Ge'): np.float64(0.0799), np.str_('Mo'): np.float64(0.7764)}",0.102533,-12.7953,0.010337,glass,synthetic
+GLASS_0174,"{np.str_('Fe'): np.float64(0.1516), np.str_('Ce'): np.float64(0.362), np.str_('Cu'): np.float64(0.0669), np.str_('Ni'): np.float64(0.2958), np.str_('Ag'): np.float64(0.1237)}",0.241413,-11.5169,0.139155,glass,synthetic
+GLASS_0175,"{np.str_('Pt'): np.float64(0.2276), np.str_('Mg'): np.float64(0.1972), np.str_('Ge'): np.float64(0.1685), np.str_('Ni'): np.float64(0.4067)}",0.168466,-12.7963,0.103538,glass,synthetic
+GLASS_0176,"{np.str_('Sn'): np.float64(0.5813), np.str_('Ce'): np.float64(0.4187)}",0.206205,-7.9945,0.171736,glass,synthetic
+GLASS_0177,"{np.str_('Pt'): np.float64(0.351), np.str_('In'): np.float64(0.0769), np.str_('Bi'): np.float64(0.0088), np.str_('W'): np.float64(0.3374), np.str_('Mo'): np.float64(0.2259)}",0.125303,-11.7538,0.023563,glass,synthetic
+GLASS_0178,"{np.str_('Hf'): np.float64(0.1252), np.str_('La'): np.float64(0.1657), np.str_('Ni'): np.float64(0.2342), np.str_('Pb'): np.float64(0.4749)}",0.160971,-14.4632,0.238951,glass,synthetic
+GLASS_0179,"{np.str_('Y'): np.float64(0.615), np.str_('Mg'): np.float64(0.385)}",0.128029,-10.3715,0.001918,glass,synthetic
+GLASS_0180,"{np.str_('Sn'): np.float64(0.2197), np.str_('Mg'): np.float64(0.0882), np.str_('Ti'): np.float64(0.1237), np.str_('Fe'): np.float64(0.1876), np.str_('Ca'): np.float64(0.3809)}",0.223547,-7.8216,0.163982,glass,synthetic
+GLASS_0181,"{np.str_('Al'): np.float64(0.1499), np.str_('Be'): np.float64(0.4254), np.str_('Ga'): np.float64(0.4247)}",0.166229,-7.2748,0.013055,glass,synthetic
+GLASS_0182,"{np.str_('W'): np.float64(0.2734), np.str_('Cr'): np.float64(0.2497), np.str_('La'): np.float64(0.093), np.str_('Bi'): np.float64(0.3217), np.str_('Cu'): np.float64(0.0622)}",0.142794,-14.4556,0.135484,glass,synthetic
+GLASS_0183,"{np.str_('Zr'): np.float64(0.2234), np.str_('Y'): np.float64(0.1023), np.str_('Ag'): np.float64(0.4494), np.str_('Hf'): np.float64(0.2249)}",0.11255,-7.5256,0.099902,glass,synthetic
+GLASS_0184,"{np.str_('Ga'): np.float64(0.1811), np.str_('V'): np.float64(0.2163), np.str_('In'): np.float64(0.2059), np.str_('Pt'): np.float64(0.3967)}",0.135958,-11.3168,0.074848,glass,synthetic
+GLASS_0185,"{np.str_('Ga'): np.float64(0.8911), np.str_('Be'): np.float64(0.1089)}",0.107305,-10.4371,0.00559,glass,synthetic
+GLASS_0186,"{np.str_('Al'): np.float64(0.0638), np.str_('Ti'): np.float64(0.3554), np.str_('La'): np.float64(0.5808)}",0.179202,-14.5964,0.049711,glass,synthetic
+GLASS_0187,"{np.str_('Mg'): np.float64(0.8696), np.str_('Pb'): np.float64(0.1304)}",0.105436,-6.8998,0.117977,glass,synthetic
+GLASS_0188,"{np.str_('Be'): np.float64(0.1619), np.str_('Ag'): np.float64(0.0103), np.str_('Al'): np.float64(0.3776), np.str_('Ni'): np.float64(0.0212), np.str_('W'): np.float64(0.429)}",0.107512,-8.782,0.138955,glass,synthetic
+GLASS_0189,"{np.str_('Pd'): np.float64(0.5185), np.str_('Fe'): np.float64(0.4815)}",0.100464,-7.573,0.034178,glass,synthetic
+GLASS_0190,"{np.str_('Ce'): np.float64(0.4981), np.str_('In'): np.float64(0.5019)}",0.093002,-12.0944,0.108898,glass,synthetic
+GLASS_0191,"{np.str_('Ce'): np.float64(0.1949), np.str_('W'): np.float64(0.4431), np.str_('Bi'): np.float64(0.1097), np.str_('La'): np.float64(0.2522)}",0.202932,-10.288,0.356611,glass,synthetic
+GLASS_0192,"{np.str_('Ta'): np.float64(0.1199), np.str_('Ti'): np.float64(0.3607), np.str_('Hf'): np.float64(0.063), np.str_('Ni'): np.float64(0.3762), np.str_('Ga'): np.float64(0.0802)}",0.149954,-11.7579,0.041307,glass,synthetic
+GLASS_0193,"{np.str_('Ca'): np.float64(0.2979), np.str_('Fe'): np.float64(0.1293), np.str_('W'): np.float64(0.5208), np.str_('La'): np.float64(0.052)}",0.23113,-15.589,0.379142,glass,synthetic
+GLASS_0194,"{np.str_('Ge'): np.float64(0.3101), np.str_('Fe'): np.float64(0.3366), np.str_('Pd'): np.float64(0.3533)}",0.0933,-6.461,0.023617,glass,synthetic
+GLASS_0195,"{np.str_('Bi'): np.float64(0.3568), np.str_('Al'): np.float64(0.4688), np.str_('Zr'): np.float64(0.1744)}",0.126017,-11.8275,0.064153,glass,synthetic
+GLASS_0196,"{np.str_('Al'): np.float64(0.0631), np.str_('Fe'): np.float64(0.8269), np.str_('Cu'): np.float64(0.11)}",0.072066,-13.3951,0.003555,glass,synthetic
+GLASS_0197,"{np.str_('V'): np.float64(0.0449), np.str_('Ni'): np.float64(0.3488), np.str_('In'): np.float64(0.6062)}",0.205311,-12.3591,0.005414,glass,synthetic
+GLASS_0198,"{np.str_('La'): np.float64(0.1079), np.str_('Mg'): np.float64(0.1055), np.str_('Ag'): np.float64(0.6268), np.str_('Ta'): np.float64(0.1598)}",0.129493,-11.5796,0.0944,glass,synthetic
+GLASS_0199,"{np.str_('Ga'): np.float64(0.2843), np.str_('Cu'): np.float64(0.7157)}",0.094476,-13.8555,0.001648,glass,synthetic
+GLASS_0200,"{np.str_('Al'): np.float64(0.0395), np.str_('Ge'): np.float64(0.0571), np.str_('Ti'): np.float64(0.9034)}",0.067062,-5.7773,0.011931,glass,synthetic
+GLASS_0201,"{np.str_('Pd'): np.float64(0.1812), np.str_('Fe'): np.float64(0.0998), np.str_('Ce'): np.float64(0.1814), np.str_('Mg'): np.float64(0.2974), np.str_('Mn'): np.float64(0.2403)}",0.176779,-9.3887,0.135039,glass,synthetic
+GLASS_0202,"{np.str_('In'): np.float64(0.2808), np.str_('Co'): np.float64(0.0615), np.str_('Hf'): np.float64(0.2838), np.str_('Ge'): np.float64(0.3739)}",0.182596,-15.6733,0.083839,glass,synthetic
+GLASS_0203,"{np.str_('Zr'): np.float64(0.8044), np.str_('Mn'): np.float64(0.1956)}",0.162376,-8.9379,0.007615,glass,synthetic
+GLASS_0204,"{np.str_('La'): np.float64(0.0723), np.str_('Mg'): np.float64(0.3125), np.str_('Be'): np.float64(0.4582), np.str_('Mo'): np.float64(0.1569)}",0.24176,-16.2227,0.091199,glass,synthetic
+GLASS_0205,"{np.str_('Mo'): np.float64(0.263), np.str_('Be'): np.float64(0.3168), np.str_('Hf'): np.float64(0.1328), np.str_('Ga'): np.float64(0.2874)}",0.166515,-8.1913,0.082333,glass,synthetic
+GLASS_0206,"{np.str_('Mn'): np.float64(0.0054), np.str_('Pd'): np.float64(0.5085), np.str_('V'): np.float64(0.4861)}",0.034269,-10.1376,0.081486,glass,synthetic
+GLASS_0207,"{np.str_('Ag'): np.float64(0.1447), np.str_('Al'): np.float64(0.3045), np.str_('Nb'): np.float64(0.0708), np.str_('In'): np.float64(0.2867), np.str_('Sn'): np.float64(0.1934)}",0.094625,-15.6818,0.020552,glass,synthetic
+GLASS_0208,"{np.str_('Ag'): np.float64(0.6594), np.str_('Ti'): np.float64(0.3406)}",0.072384,-15.7355,0.03416,glass,synthetic
+GLASS_0209,"{np.str_('Pb'): np.float64(0.1553), np.str_('Pt'): np.float64(0.3541), np.str_('Ca'): np.float64(0.3567), np.str_('Be'): np.float64(0.134)}",0.251066,-17.9902,0.356502,glass,synthetic
+GLASS_0210,"{np.str_('Ni'): np.float64(0.0972), np.str_('Zr'): np.float64(0.3098), np.str_('Ge'): np.float64(0.3028), np.str_('Mg'): np.float64(0.1073), np.str_('Bi'): np.float64(0.183)}",0.19827,-7.0587,0.110589,glass,synthetic
+GLASS_0211,"{np.str_('Ca'): np.float64(0.06), np.str_('Ti'): np.float64(0.8786), np.str_('Pb'): np.float64(0.0614)}",0.123708,-6.9383,0.055556,glass,synthetic
+GLASS_0212,"{np.str_('Ga'): np.float64(0.4364), np.str_('In'): np.float64(0.5636)}",0.131756,-10.4566,0.000221,glass,synthetic
+GLASS_0213,"{np.str_('Cu'): np.float64(0.1782), np.str_('Mo'): np.float64(0.4905), np.str_('Mn'): np.float64(0.0886), np.str_('Be'): np.float64(0.0955), np.str_('Ta'): np.float64(0.1472)}",0.097843,-8.945,0.077926,glass,synthetic
+GLASS_0214,"{np.str_('Y'): np.float64(0.2502), np.str_('Ag'): np.float64(0.0039), np.str_('Cr'): np.float64(0.2482), np.str_('Pd'): np.float64(0.4976)}",0.175785,-11.4545,0.168326,glass,synthetic
+GLASS_0215,"{np.str_('Bi'): np.float64(0.1114), np.str_('Ga'): np.float64(0.1879), np.str_('Pb'): np.float64(0.2003), np.str_('Pd'): np.float64(0.5004)}",0.183736,-14.155,0.031046,glass,synthetic
+GLASS_0216,"{np.str_('Co'): np.float64(0.7159), np.str_('Ta'): np.float64(0.2841)}",0.141012,-8.8544,0.029369,glass,synthetic
+GLASS_0217,"{np.str_('Hf'): np.float64(0.6023), np.str_('Sn'): np.float64(0.3748), np.str_('Nb'): np.float64(0.0228)}",0.107472,-9.6769,0.100687,glass,synthetic
+GLASS_0218,"{np.str_('Ti'): np.float64(0.2169), np.str_('Ta'): np.float64(0.7096), np.str_('Ga'): np.float64(0.0735)}",0.092326,-10.2888,0.006421,glass,synthetic
+GLASS_0219,"{np.str_('Mo'): np.float64(0.0453), np.str_('Cr'): np.float64(0.2368), np.str_('W'): np.float64(0.1247), np.str_('Hf'): np.float64(0.2391), np.str_('Ta'): np.float64(0.3541)}",0.152823,-12.9789,0.111405,glass,synthetic
+GLASS_0220,"{np.str_('Bi'): np.float64(0.5201), np.str_('Be'): np.float64(0.2505), np.str_('Pt'): np.float64(0.0228), np.str_('Y'): np.float64(0.2066)}",0.22908,-14.176,0.110466,glass,synthetic
+GLASS_0221,"{np.str_('Ag'): np.float64(0.0528), np.str_('Mo'): np.float64(0.0061), np.str_('Ta'): np.float64(0.0719), np.str_('In'): np.float64(0.3684), np.str_('Mg'): np.float64(0.5008)}",0.12015,-11.3014,0.058175,glass,synthetic
+GLASS_0222,"{np.str_('Ce'): np.float64(0.3338), np.str_('Ca'): np.float64(0.3367), np.str_('La'): np.float64(0.3296)}",0.056568,-11.2574,0.002772,glass,synthetic
+GLASS_0223,"{np.str_('Sn'): np.float64(0.3293), np.str_('Mo'): np.float64(0.0411), np.str_('Nb'): np.float64(0.2725), np.str_('Mn'): np.float64(0.1824), np.str_('Ca'): np.float64(0.1746)}",0.209566,-10.4086,0.118112,glass,synthetic
+GLASS_0224,"{np.str_('La'): np.float64(0.0157), np.str_('Ag'): np.float64(0.9843)}",0.115513,-7.3732,0.010646,glass,synthetic
+GLASS_0225,"{np.str_('Ag'): np.float64(0.0939), np.str_('Fe'): np.float64(0.3167), np.str_('Nb'): np.float64(0.0366), np.str_('V'): np.float64(0.2321), np.str_('Ga'): np.float64(0.3207)}",0.074267,-15.2834,0.009598,glass,synthetic
+GLASS_0226,"{np.str_('La'): np.float64(0.2288), np.str_('Zr'): np.float64(0.4239), np.str_('Nb'): np.float64(0.3473)}",0.155279,-13.1092,0.035729,glass,synthetic
+GLASS_0227,"{np.str_('Ge'): np.float64(0.4143), np.str_('Mn'): np.float64(0.2273), np.str_('Ag'): np.float64(0.248), np.str_('Fe'): np.float64(0.1104)}",0.093144,-11.7902,0.032447,glass,synthetic
+GLASS_0228,"{np.str_('Ti'): np.float64(0.0495), np.str_('W'): np.float64(0.4656), np.str_('V'): np.float64(0.4849)}",0.103195,-15.5984,0.136004,glass,synthetic
+GLASS_0229,"{np.str_('Mg'): np.float64(0.3658), np.str_('Co'): np.float64(0.468), np.str_('In'): np.float64(0.1661)}",0.171971,-10.8465,0.069827,glass,synthetic
+GLASS_0230,"{np.str_('Mo'): np.float64(0.0761), np.str_('Ni'): np.float64(0.3467), np.str_('Y'): np.float64(0.1786), np.str_('Fe'): np.float64(0.0205), np.str_('Hf'): np.float64(0.3781)}",0.213549,-10.627,0.117384,glass,synthetic
+GLASS_0231,"{np.str_('Pd'): np.float64(0.3032), np.str_('Ge'): np.float64(0.5682), np.str_('La'): np.float64(0.1072), np.str_('Ta'): np.float64(0.0064), np.str_('Ti'): np.float64(0.0149)}",0.202372,-11.1921,0.102153,glass,synthetic
+GLASS_0232,"{np.str_('Zr'): np.float64(0.0218), np.str_('Hf'): np.float64(0.2893), np.str_('Ti'): np.float64(0.023), np.str_('Mg'): np.float64(0.3762), np.str_('Ni'): np.float64(0.2897)}",0.158308,-10.9445,0.07434,glass,synthetic
+GLASS_0233,"{np.str_('W'): np.float64(0.3753), np.str_('Mo'): np.float64(0.6247)}",0.023048,-10.1519,0.009378,glass,synthetic
+GLASS_0234,"{np.str_('Ag'): np.float64(0.1648), np.str_('Bi'): np.float64(0.8352)}",0.050385,-9.2479,0.001115,glass,synthetic
+GLASS_0235,"{np.str_('W'): np.float64(0.3057), np.str_('In'): np.float64(0.013), np.str_('Ta'): np.float64(0.0501), np.str_('Ca'): np.float64(0.2608), np.str_('Al'): np.float64(0.3704)}",0.213552,-9.522,0.265508,glass,synthetic
+GLASS_0236,"{np.str_('Sn'): np.float64(0.7791), np.str_('Ce'): np.float64(0.2209)}",0.1607,-16.5152,0.121436,glass,synthetic
+GLASS_0237,"{np.str_('Hf'): np.float64(0.3954), np.str_('Y'): np.float64(0.213), np.str_('Ca'): np.float64(0.03), np.str_('Ni'): np.float64(0.2576), np.str_('Pb'): np.float64(0.104)}",0.207016,-15.58,0.153503,glass,synthetic
+GLASS_0238,"{np.str_('Fe'): np.float64(0.2677), np.str_('Sn'): np.float64(0.7323)}",0.079635,-12.4829,0.003313,glass,synthetic
+GLASS_0239,"{np.str_('Pt'): np.float64(0.2912), np.str_('Ca'): np.float64(0.2861), np.str_('Be'): np.float64(0.1388), np.str_('Zr'): np.float64(0.1146), np.str_('Ag'): np.float64(0.1692)}",0.243373,-10.7784,0.262335,glass,synthetic
+GLASS_0240,"{np.str_('Ta'): np.float64(0.2147), np.str_('Be'): np.float64(0.3562), np.str_('Pd'): np.float64(0.0966), np.str_('Fe'): np.float64(0.3326)}",0.123597,-10.5036,0.044373,glass,synthetic
+GLASS_0241,"{np.str_('Pd'): np.float64(0.0322), np.str_('Nb'): np.float64(0.1182), np.str_('Sn'): np.float64(0.8496)}",0.064135,-10.0097,0.015961,glass,synthetic
+GLASS_0242,"{np.str_('Cu'): np.float64(0.2683), np.str_('V'): np.float64(0.3375), np.str_('Sn'): np.float64(0.1963), np.str_('Pd'): np.float64(0.1522), np.str_('Fe'): np.float64(0.0456)}",0.106762,-13.9744,0.037872,glass,synthetic
+GLASS_0243,"{np.str_('La'): np.float64(0.2444), np.str_('Cu'): np.float64(0.1672), np.str_('Zr'): np.float64(0.321), np.str_('Be'): np.float64(0.2674)}",0.273455,-7.566,0.07199,glass,synthetic
+GLASS_0244,"{np.str_('V'): np.float64(0.272), np.str_('Al'): np.float64(0.3312), np.str_('Pt'): np.float64(0.3967)}",0.086548,-8.2207,0.104615,glass,synthetic
+GLASS_0245,"{np.str_('Be'): np.float64(0.8396), np.str_('V'): np.float64(0.1604)}",0.111876,-8.9131,0.000485,glass,synthetic
+GLASS_0246,"{np.str_('Ga'): np.float64(0.9065), np.str_('Cu'): np.float64(0.0935)}",0.067817,-12.5012,0.000687,glass,synthetic
+GLASS_0247,"{np.str_('V'): np.float64(0.2953), np.str_('Mn'): np.float64(0.0166), np.str_('Zr'): np.float64(0.2824), np.str_('Ga'): np.float64(0.1115), np.str_('Mg'): np.float64(0.2942)}",0.162957,-12.873,0.033622,glass,synthetic
+GLASS_0248,"{np.str_('Mo'): np.float64(0.0792), np.str_('Co'): np.float64(0.2159), np.str_('Nb'): np.float64(0.5277), np.str_('Pb'): np.float64(0.1773)}",0.179942,-15.5611,0.081387,glass,synthetic
+GLASS_0249,"{np.str_('Be'): np.float64(0.2333), np.str_('Pd'): np.float64(0.0937), np.str_('Nb'): np.float64(0.0965), np.str_('Ca'): np.float64(0.3247), np.str_('Cu'): np.float64(0.2517)}",0.286051,-14.3499,0.168574,glass,synthetic
+GLASS_0250,"{np.str_('Al'): np.float64(0.1488), np.str_('Zr'): np.float64(0.1981), np.str_('Pb'): np.float64(0.6531)}",0.135759,-16.2642,0.182069,glass,synthetic
+GLASS_0251,"{np.str_('Pb'): np.float64(0.0383), np.str_('Ge'): np.float64(0.2746), np.str_('Ga'): np.float64(0.1416), np.str_('W'): np.float64(0.277), np.str_('Al'): np.float64(0.2685)}",0.137926,-10.3816,0.085775,glass,synthetic
+GLASS_0252,"{np.str_('Ni'): np.float64(0.2078), np.str_('Sn'): np.float64(0.4196), np.str_('In'): np.float64(0.0655), np.str_('Zr'): np.float64(0.3072)}",0.162832,-13.5736,0.078041,glass,synthetic
+GLASS_0253,"{np.str_('Co'): np.float64(0.095), np.str_('Cu'): np.float64(0.2352), np.str_('W'): np.float64(0.6699)}",0.108196,-13.4769,0.048007,glass,synthetic
+GLASS_0254,"{np.str_('Ta'): np.float64(0.3919), np.str_('Y'): np.float64(0.1386), np.str_('Hf'): np.float64(0.3607), np.str_('La'): np.float64(0.1088)}",0.1197,-15.9928,0.018842,glass,synthetic
+GLASS_0255,"{np.str_('Be'): np.float64(0.3961), np.str_('Mo'): np.float64(0.325), np.str_('V'): np.float64(0.279)}",0.165795,-12.9936,0.070673,glass,synthetic
+GLASS_0256,"{np.str_('Ce'): np.float64(0.4519), np.str_('Nb'): np.float64(0.2086), np.str_('Sn'): np.float64(0.0736), np.str_('W'): np.float64(0.2659)}",0.203786,-14.2024,0.267104,glass,synthetic
+GLASS_0257,"{np.str_('W'): np.float64(0.1464), np.str_('Fe'): np.float64(0.0522), np.str_('Mo'): np.float64(0.782), np.str_('Hf'): np.float64(0.0194)}",0.099397,-9.2579,0.025867,glass,synthetic
+GLASS_0258,"{np.str_('Y'): np.float64(0.4978), np.str_('La'): np.float64(0.5022)}",0.058109,-10.1955,0.0036,glass,synthetic
+GLASS_0259,"{np.str_('Ca'): np.float64(0.5414), np.str_('Ga'): np.float64(0.4586)}",0.206872,-11.2865,0.1629,glass,synthetic
+GLASS_0260,"{np.str_('Mo'): np.float64(0.0108), np.str_('In'): np.float64(0.2852), np.str_('Ce'): np.float64(0.3344), np.str_('Ni'): np.float64(0.1655), np.str_('Ca'): np.float64(0.2042)}",0.215742,-9.5874,0.148697,glass,synthetic
+GLASS_0261,"{np.str_('Co'): np.float64(0.7729), np.str_('V'): np.float64(0.2271)}",0.053946,-8.948,0.01097,glass,synthetic
+GLASS_0262,"{np.str_('Y'): np.float64(0.3434), np.str_('Al'): np.float64(0.3204), np.str_('Ta'): np.float64(0.3362)}",0.162868,-11.3599,0.02709,glass,synthetic
+GLASS_0263,"{np.str_('La'): np.float64(0.4049), np.str_('Ti'): np.float64(0.3479), np.str_('Nb'): np.float64(0.0082), np.str_('Pd'): np.float64(0.239)}",0.18822,-11.654,0.18213,glass,synthetic
+GLASS_0264,"{np.str_('Bi'): np.float64(0.2584), np.str_('Ge'): np.float64(0.3135), np.str_('Hf'): np.float64(0.4281)}",0.139703,-9.3466,0.125009,glass,synthetic
+GLASS_0265,"{np.str_('Ga'): np.float64(0.5416), np.str_('Be'): np.float64(0.3084), np.str_('Ni'): np.float64(0.15)}",0.157109,-9.2617,0.015781,glass,synthetic
+GLASS_0266,"{np.str_('Ag'): np.float64(0.0005), np.str_('Fe'): np.float64(0.1572), np.str_('Ga'): np.float64(0.2927), np.str_('Cr'): np.float64(0.2002), np.str_('Hf'): np.float64(0.3494)}",0.135978,-9.2656,0.05342,glass,synthetic
+GLASS_0267,"{np.str_('Cu'): np.float64(0.2301), np.str_('Hf'): np.float64(0.2983), np.str_('Be'): np.float64(0.3234), np.str_('Nb'): np.float64(0.1482)}",0.187153,-14.3063,0.046937,glass,synthetic
+GLASS_0268,"{np.str_('Ag'): np.float64(0.2197), np.str_('V'): np.float64(0.4054), np.str_('Mn'): np.float64(0.3749)}",0.093021,-9.1506,0.020882,glass,synthetic
+GLASS_0269,"{np.str_('Sn'): np.float64(0.3217), np.str_('Bi'): np.float64(0.1927), np.str_('W'): np.float64(0.4432), np.str_('Ge'): np.float64(0.0424)}",0.105283,-15.2708,0.035245,glass,synthetic
+GLASS_0270,"{np.str_('Ag'): np.float64(0.0199), np.str_('Mn'): np.float64(0.3356), np.str_('Ge'): np.float64(0.6445)}",0.066164,-15.1757,0.046814,glass,synthetic
+GLASS_0271,"{np.str_('In'): np.float64(0.5199), np.str_('Ge'): np.float64(0.022), np.str_('Bi'): np.float64(0.0072), np.str_('Mg'): np.float64(0.0555), np.str_('W'): np.float64(0.3955)}",0.160418,-6.9269,0.10275,glass,synthetic
+GLASS_0272,"{np.str_('Mn'): np.float64(0.4809), np.str_('Pb'): np.float64(0.0959), np.str_('Ta'): np.float64(0.4232)}",0.172837,-14.5551,0.056526,glass,synthetic
+GLASS_0273,"{np.str_('Cr'): np.float64(0.327), np.str_('Zr'): np.float64(0.3516), np.str_('Co'): np.float64(0.3214)}",0.155185,-7.4323,0.051791,glass,synthetic
+GLASS_0274,"{np.str_('Fe'): np.float64(0.2166), np.str_('Al'): np.float64(0.1533), np.str_('Mn'): np.float64(0.1964), np.str_('Bi'): np.float64(0.2665), np.str_('Co'): np.float64(0.1671)}",0.173995,-15.5492,0.031972,glass,synthetic
+GLASS_0275,"{np.str_('W'): np.float64(0.1944), np.str_('V'): np.float64(0.282), np.str_('Al'): np.float64(0.5236)}",0.050106,-14.3085,0.086529,glass,synthetic
+GLASS_0276,"{np.str_('Ge'): np.float64(0.6884), np.str_('Mn'): np.float64(0.0003), np.str_('Ag'): np.float64(0.3113)}",0.111546,-7.8348,0.001429,glass,synthetic
+GLASS_0277,"{np.str_('Nb'): np.float64(0.2033), np.str_('Al'): np.float64(0.3864), np.str_('Mg'): np.float64(0.4103)}",0.132465,-7.3988,0.021292,glass,synthetic
+GLASS_0278,"{np.str_('La'): np.float64(0.0823), np.str_('In'): np.float64(0.2998), np.str_('Ta'): np.float64(0.3035), np.str_('Ni'): np.float64(0.3144)}",0.186678,-13.3851,0.057149,glass,synthetic
+GLASS_0279,"{np.str_('Co'): np.float64(0.0287), np.str_('Mo'): np.float64(0.5144), np.str_('Nb'): np.float64(0.4569)}",0.068671,-6.8449,0.075891,glass,synthetic
+GLASS_0280,"{np.str_('Y'): np.float64(0.4822), np.str_('Ti'): np.float64(0.3601), np.str_('Ga'): np.float64(0.1055), np.str_('Mg'): np.float64(0.0523)}",0.170504,-7.9486,0.040835,glass,synthetic
+GLASS_0281,"{np.str_('Al'): np.float64(0.4835), np.str_('In'): np.float64(0.5165)}",0.101788,-15.0738,0.007217,glass,synthetic
+GLASS_0282,"{np.str_('Co'): np.float64(0.4178), np.str_('Cr'): np.float64(0.5822)}",0.069125,-6.8798,0.011773,glass,synthetic
+GLASS_0283,"{np.str_('Ag'): np.float64(0.3664), np.str_('Fe'): np.float64(0.339), np.str_('La'): np.float64(0.2945)}",0.214528,-8.9449,0.128793,glass,synthetic
+GLASS_0284,"{np.str_('Ce'): np.float64(0.3381), np.str_('Mo'): np.float64(0.0276), np.str_('Mg'): np.float64(0.3312), np.str_('Ga'): np.float64(0.303)}",0.146112,-8.0467,0.095636,glass,synthetic
+GLASS_0285,"{np.str_('Al'): np.float64(0.5676), np.str_('Ce'): np.float64(0.4324)}",0.166902,-14.7159,0.058928,glass,synthetic
+GLASS_0286,"{np.str_('Hf'): np.float64(0.2541), np.str_('Be'): np.float64(0.2031), np.str_('Mn'): np.float64(0.463), np.str_('Zr'): np.float64(0.0495), np.str_('Ge'): np.float64(0.0302)}",0.180279,-10.4537,0.02156,glass,synthetic
+GLASS_0287,"{np.str_('In'): np.float64(0.7969), np.str_('Bi'): np.float64(0.086), np.str_('Mo'): np.float64(0.1171)}",0.104018,-7.2529,0.01762,glass,synthetic
+GLASS_0288,"{np.str_('La'): np.float64(0.32), np.str_('Co'): np.float64(0.2163), np.str_('Ce'): np.float64(0.4637)}",0.177258,-12.011,0.100103,glass,synthetic
+GLASS_0289,"{np.str_('Bi'): np.float64(0.4914), np.str_('V'): np.float64(0.5086)}",0.138348,-15.5644,0.038014,glass,synthetic
+GLASS_0290,"{np.str_('Mo'): np.float64(0.4136), np.str_('Sn'): np.float64(0.5864)}",0.041428,-8.1234,0.009701,glass,synthetic
+GLASS_0291,"{np.str_('Pt'): np.float64(0.2681), np.str_('Fe'): np.float64(0.0645), np.str_('Ni'): np.float64(0.2009), np.str_('W'): np.float64(0.216), np.str_('Mn'): np.float64(0.2506)}",0.101633,-11.8323,0.103129,glass,synthetic
+GLASS_0292,"{np.str_('Fe'): np.float64(0.1298), np.str_('Zr'): np.float64(0.2782), np.str_('La'): np.float64(0.2791), np.str_('Bi'): np.float64(0.12), np.str_('Y'): np.float64(0.1929)}",0.150267,-9.108,0.102801,glass,synthetic
+GLASS_0293,"{np.str_('Ag'): np.float64(0.2662), np.str_('Mg'): np.float64(0.1956), np.str_('Fe'): np.float64(0.037), np.str_('Pb'): np.float64(0.1143), np.str_('Zr'): np.float64(0.3869)}",0.148408,-10.2776,0.136166,glass,synthetic
+GLASS_0294,"{np.str_('Ag'): np.float64(0.4814), np.str_('Mn'): np.float64(0.3696), np.str_('Ti'): np.float64(0.149)}",0.108669,-11.0693,0.036608,glass,synthetic
+GLASS_0295,"{np.str_('Mn'): np.float64(0.1332), np.str_('Ta'): np.float64(0.1049), np.str_('Mg'): np.float64(0.1947), np.str_('Fe'): np.float64(0.2986), np.str_('Pt'): np.float64(0.2686)}",0.171224,-7.4272,0.126171,glass,synthetic
+GLASS_0296,"{np.str_('Fe'): np.float64(0.0708), np.str_('Co'): np.float64(0.1333), np.str_('Ni'): np.float64(0.2969), np.str_('Sn'): np.float64(0.4989)}",0.120624,-13.2288,0.001587,glass,synthetic
+GLASS_0297,"{np.str_('Ce'): np.float64(0.1119), np.str_('Mg'): np.float64(0.2963), np.str_('W'): np.float64(0.238), np.str_('In'): np.float64(0.1022), np.str_('Mn'): np.float64(0.2516)}",0.190988,-7.9593,0.189895,glass,synthetic
+GLASS_0298,"{np.str_('W'): np.float64(0.4419), np.str_('Ge'): np.float64(0.5581)}",0.110233,-13.3097,0.030211,glass,synthetic
+GLASS_0299,"{np.str_('In'): np.float64(0.1381), np.str_('Y'): np.float64(0.4593), np.str_('Ni'): np.float64(0.2473), np.str_('Bi'): np.float64(0.1553)}",0.179702,-9.0307,0.121897,glass,synthetic
+GLASS_0300,"{np.str_('Pt'): np.float64(0.0721), np.str_('Nb'): np.float64(0.9279)}",0.085626,-13.8493,0.030935,glass,synthetic
+GLASS_0301,"{np.str_('Mg'): np.float64(0.2939), np.str_('La'): np.float64(0.0637), np.str_('Y'): np.float64(0.3464), np.str_('Ga'): np.float64(0.2959)}",0.189547,-9.6697,0.068898,glass,synthetic
+GLASS_0302,"{np.str_('Ca'): np.float64(0.3256), np.str_('Ga'): np.float64(0.3779), np.str_('Mn'): np.float64(0.2965)}",0.227654,-15.0093,0.117507,glass,synthetic
+GLASS_0303,"{np.str_('Ga'): np.float64(0.0352), np.str_('Y'): np.float64(0.0222), np.str_('Zr'): np.float64(0.3969), np.str_('Co'): np.float64(0.5457)}",0.179142,-15.0738,0.074487,glass,synthetic
+GLASS_0304,"{np.str_('Pd'): np.float64(0.7136), np.str_('Mg'): np.float64(0.2864)}",0.112909,-15.7217,0.161885,glass,synthetic
+GLASS_0305,"{np.str_('Ge'): np.float64(0.479), np.str_('Sn'): np.float64(0.521)}",0.128625,-14.8883,0.000624,glass,synthetic
+GLASS_0306,"{np.str_('Ni'): np.float64(0.2184), np.str_('Cr'): np.float64(0.4657), np.str_('V'): np.float64(0.3158)}",0.066114,-11.942,0.011898,glass,synthetic
+GLASS_0307,"{np.str_('Al'): np.float64(0.2488), np.str_('Zr'): np.float64(0.3676), np.str_('Ca'): np.float64(0.1745), np.str_('Bi'): np.float64(0.209)}",0.188935,-9.6158,0.113585,glass,synthetic
+GLASS_0308,"{np.str_('Ni'): np.float64(0.3388), np.str_('Ge'): np.float64(0.5654), np.str_('Pd'): np.float64(0.0959)}",0.066637,-9.5774,0.006605,glass,synthetic
+GLASS_0309,"{np.str_('In'): np.float64(0.3397), np.str_('Mo'): np.float64(0.208), np.str_('Ca'): np.float64(0.0549), np.str_('Ce'): np.float64(0.2318), np.str_('Pt'): np.float64(0.1656)}",0.177721,-16.6317,0.204654,glass,synthetic
+GLASS_0310,"{np.str_('Mn'): np.float64(0.2362), np.str_('Cr'): np.float64(0.2529), np.str_('Ta'): np.float64(0.4539), np.str_('Y'): np.float64(0.057)}",0.148058,-11.3421,0.010215,glass,synthetic
+GLASS_0311,"{np.str_('Mo'): np.float64(0.9479), np.str_('Y'): np.float64(0.0521)}",0.144083,-6.8352,0.043637,glass,synthetic
+GLASS_0312,"{np.str_('Zr'): np.float64(0.234), np.str_('Ag'): np.float64(0.766)}",0.117659,-13.8963,0.064528,glass,synthetic
+GLASS_0313,"{np.str_('Ga'): np.float64(0.7697), np.str_('Ti'): np.float64(0.2303)}",0.113686,-6.1821,0.012922,glass,synthetic
+GLASS_0314,"{np.str_('Nb'): np.float64(0.0209), np.str_('Cu'): np.float64(0.5339), np.str_('Ge'): np.float64(0.2054), np.str_('Ga'): np.float64(0.2397)}",0.060102,-8.1862,0.00628,glass,synthetic
+GLASS_0315,"{np.str_('Ge'): np.float64(0.2401), np.str_('Nb'): np.float64(0.689), np.str_('Fe'): np.float64(0.0709)}",0.121562,-6.6129,0.030944,glass,synthetic
+GLASS_0316,"{np.str_('Pd'): np.float64(0.1135), np.str_('In'): np.float64(0.0057), np.str_('Cr'): np.float64(0.4126), np.str_('Cu'): np.float64(0.4366), np.str_('Mg'): np.float64(0.0316)}",0.107999,-9.8514,0.037956,glass,synthetic
+GLASS_0317,"{np.str_('Bi'): np.float64(0.5808), np.str_('Ta'): np.float64(0.4192)}",0.100586,-10.3236,0.065835,glass,synthetic
+GLASS_0318,"{np.str_('Ca'): np.float64(0.4923), np.str_('Ge'): np.float64(0.1477), np.str_('Fe'): np.float64(0.3601)}",0.280224,-11.6073,0.198004,glass,synthetic
+GLASS_0319,"{np.str_('Co'): np.float64(0.4174), np.str_('Mg'): np.float64(0.5826)}",0.198007,-10.5583,0.079008,glass,synthetic
+GLASS_0320,"{np.str_('Hf'): np.float64(0.3732), np.str_('Al'): np.float64(0.07), np.str_('Cr'): np.float64(0.3886), np.str_('Ag'): np.float64(0.1681), np.str_('Sn'): np.float64(0.0001)}",0.122023,-15.8065,0.052261,glass,synthetic
+GLASS_0321,"{np.str_('Co'): np.float64(0.6023), np.str_('Nb'): np.float64(0.3977)}",0.137406,-7.806,0.01878,glass,synthetic
+GLASS_0322,"{np.str_('Ca'): np.float64(0.2843), np.str_('W'): np.float64(0.1744), np.str_('Nb'): np.float64(0.3729), np.str_('Ag'): np.float64(0.1684)}",0.185839,-15.2735,0.221113,glass,synthetic
+GLASS_0323,"{np.str_('Ag'): np.float64(0.303), np.str_('Pd'): np.float64(0.697)}",0.065758,-12.2602,0.015396,glass,synthetic
+GLASS_0324,"{np.str_('Ni'): np.float64(0.3346), np.str_('Ag'): np.float64(0.1171), np.str_('Mg'): np.float64(0.5484)}",0.163958,-8.8175,0.09075,glass,synthetic
+GLASS_0325,"{np.str_('Cu'): np.float64(0.4524), np.str_('Ag'): np.float64(0.5476)}",0.137996,-6.2402,0.000223,glass,synthetic
+GLASS_0326,"{np.str_('Mg'): np.float64(0.4426), np.str_('Nb'): np.float64(0.5574)}",0.067198,-13.0599,0.020748,glass,synthetic
+GLASS_0327,"{np.str_('Ga'): np.float64(0.5846), np.str_('Pd'): np.float64(0.2734), np.str_('Co'): np.float64(0.1419)}",0.083588,-13.5019,0.028692,glass,synthetic
+GLASS_0328,"{np.str_('Sn'): np.float64(0.399), np.str_('In'): np.float64(0.2807), np.str_('Cu'): np.float64(0.2005), np.str_('Zr'): np.float64(0.1198)}",0.139308,-12.2507,0.038313,glass,synthetic
+GLASS_0329,"{np.str_('Cr'): np.float64(0.0505), np.str_('Y'): np.float64(0.155), np.str_('Nb'): np.float64(0.7945)}",0.116318,-8.0376,0.019442,glass,synthetic
+GLASS_0330,"{np.str_('Pb'): np.float64(0.5322), np.str_('In'): np.float64(0.161), np.str_('Be'): np.float64(0.3068)}",0.261819,-10.6058,0.122408,glass,synthetic
+GLASS_0331,"{np.str_('Ti'): np.float64(0.4946), np.str_('Cu'): np.float64(0.5054)}",0.114574,-6.7229,0.032396,glass,synthetic
+GLASS_0332,"{np.str_('Zr'): np.float64(0.0744), np.str_('Cr'): np.float64(0.2197), np.str_('Nb'): np.float64(0.0239), np.str_('In'): np.float64(0.3224), np.str_('V'): np.float64(0.3595)}",0.1471,-10.3371,0.013151,glass,synthetic
+GLASS_0333,"{np.str_('Mg'): np.float64(0.2797), np.str_('Ni'): np.float64(0.0965), np.str_('V'): np.float64(0.2813), np.str_('Sn'): np.float64(0.2635), np.str_('Fe'): np.float64(0.079)}",0.157932,-16.603,0.06644,glass,synthetic
+GLASS_0334,"{np.str_('Ti'): np.float64(0.3854), np.str_('Zr'): np.float64(0.2979), np.str_('Ni'): np.float64(0.3166)}",0.125504,-11.6348,0.0535,glass,synthetic
+GLASS_0335,"{np.str_('La'): np.float64(0.6592), np.str_('Mn'): np.float64(0.2072), np.str_('Ta'): np.float64(0.1335)}",0.209856,-13.5175,0.041813,glass,synthetic
+GLASS_0336,"{np.str_('Zr'): np.float64(0.4764), np.str_('Ta'): np.float64(0.3276), np.str_('Bi'): np.float64(0.196)}",0.068304,-15.2258,0.066328,glass,synthetic
+GLASS_0337,"{np.str_('Pt'): np.float64(0.182), np.str_('Cr'): np.float64(0.2367), np.str_('Ti'): np.float64(0.2539), np.str_('Pd'): np.float64(0.0523), np.str_('Pb'): np.float64(0.2751)}",0.179391,-16.0141,0.125376,glass,synthetic
+GLASS_0338,"{np.str_('Be'): np.float64(0.4337), np.str_('Ag'): np.float64(0.1086), np.str_('In'): np.float64(0.2272), np.str_('Mo'): np.float64(0.2305)}",0.232368,-14.2749,0.05469,glass,synthetic
+GLASS_0339,"{np.str_('Ca'): np.float64(0.6773), np.str_('Zr'): np.float64(0.3227)}",0.168132,-15.9225,0.023802,glass,synthetic
+GLASS_0340,"{np.str_('Ni'): np.float64(0.4174), np.str_('V'): np.float64(0.3455), np.str_('Sn'): np.float64(0.2371)}",0.126613,-10.8896,0.020474,glass,synthetic
+GLASS_0341,"{np.str_('W'): np.float64(0.0828), np.str_('Ag'): np.float64(0.4678), np.str_('Y'): np.float64(0.2305), np.str_('Fe'): np.float64(0.219)}",0.149699,-11.9581,0.111212,glass,synthetic
+GLASS_0342,"{np.str_('Mg'): np.float64(0.3139), np.str_('Hf'): np.float64(0.1745), np.str_('Ag'): np.float64(0.3032), np.str_('Be'): np.float64(0.1634), np.str_('Bi'): np.float64(0.045)}",0.148201,-8.6779,0.082347,glass,synthetic
+GLASS_0343,"{np.str_('Be'): np.float64(0.0266), np.str_('Pb'): np.float64(0.2836), np.str_('W'): np.float64(0.3159), np.str_('Mn'): np.float64(0.1135), np.str_('Ta'): np.float64(0.2603)}",0.165138,-16.2388,0.164587,glass,synthetic
+GLASS_0344,"{np.str_('Bi'): np.float64(0.0422), np.str_('La'): np.float64(0.2773), np.str_('Fe'): np.float64(0.2813), np.str_('Y'): np.float64(0.1966), np.str_('Ge'): np.float64(0.2027)}",0.214012,-12.7817,0.151825,glass,synthetic
+GLASS_0345,"{np.str_('Be'): np.float64(0.0389), np.str_('W'): np.float64(0.0146), np.str_('Ce'): np.float64(0.1448), np.str_('Cr'): np.float64(0.2984), np.str_('Mn'): np.float64(0.5034)}",0.216744,-11.0305,0.039695,glass,synthetic
+GLASS_0346,"{np.str_('Hf'): np.float64(0.4566), np.str_('Nb'): np.float64(0.114), np.str_('V'): np.float64(0.4294)}",0.145961,-8.606,0.02608,glass,synthetic
+GLASS_0347,"{np.str_('Fe'): np.float64(0.4184), np.str_('Ga'): np.float64(0.0536), np.str_('Pt'): np.float64(0.0305), np.str_('Ta'): np.float64(0.3703), np.str_('Ti'): np.float64(0.1272)}",0.129687,-9.4091,0.035778,glass,synthetic
+GLASS_0348,"{np.str_('In'): np.float64(0.0313), np.str_('Pt'): np.float64(0.6411), np.str_('Ga'): np.float64(0.3277)}",0.059826,-13.0457,0.051429,glass,synthetic
+GLASS_0349,"{np.str_('Hf'): np.float64(0.2161), np.str_('Fe'): np.float64(0.0593), np.str_('Bi'): np.float64(0.3061), np.str_('Cu'): np.float64(0.353), np.str_('Pt'): np.float64(0.0654)}",0.168305,-16.0595,0.086721,glass,synthetic
+GLASS_0350,"{np.str_('Ti'): np.float64(0.0534), np.str_('Hf'): np.float64(0.9466)}",0.068926,-13.8602,0.002912,glass,synthetic
+GLASS_0351,"{np.str_('Ta'): np.float64(0.4115), np.str_('Ni'): np.float64(0.5885)}",0.122782,-7.2534,0.040708,glass,synthetic
+GLASS_0352,"{np.str_('Ce'): np.float64(0.667), np.str_('Sn'): np.float64(0.333)}",0.161726,-8.878,0.156722,glass,synthetic
+GLASS_0353,"{np.str_('Pb'): np.float64(0.3424), np.str_('Ti'): np.float64(0.3185), np.str_('Ca'): np.float64(0.3392)}",0.159266,-10.9807,0.304977,glass,synthetic
+GLASS_0354,"{np.str_('Fe'): np.float64(0.6038), np.str_('Mn'): np.float64(0.3962)}",0.055798,-9.7009,0.018755,glass,synthetic
+GLASS_0355,"{np.str_('Ga'): np.float64(0.4037), np.str_('Nb'): np.float64(0.5963)}",0.064998,-15.5637,0.010616,glass,synthetic
+GLASS_0356,"{np.str_('La'): np.float64(0.5448), np.str_('Mn'): np.float64(0.4552)}",0.266613,-15.8876,0.050219,glass,synthetic
+GLASS_0357,"{np.str_('Ga'): np.float64(0.3566), np.str_('Cu'): np.float64(0.1107), np.str_('Pt'): np.float64(0.2139), np.str_('Bi'): np.float64(0.0444), np.str_('Ni'): np.float64(0.2744)}",0.127235,-13.1952,0.031164,glass,synthetic
+GLASS_0358,"{np.str_('Mo'): np.float64(0.2757), np.str_('Mg'): np.float64(0.0378), np.str_('Co'): np.float64(0.1423), np.str_('Y'): np.float64(0.2874), np.str_('Pt'): np.float64(0.2569)}",0.187461,-15.4245,0.199214,glass,synthetic
+GLASS_0359,"{np.str_('Pd'): np.float64(0.2328), np.str_('Y'): np.float64(0.3695), np.str_('Mg'): np.float64(0.3977)}",0.173621,-16.7005,0.15714,glass,synthetic
+GLASS_0360,"{np.str_('Ti'): np.float64(0.3088), np.str_('Ge'): np.float64(0.4431), np.str_('Bi'): np.float64(0.2482)}",0.148372,-10.3553,0.047891,glass,synthetic
+GLASS_0361,"{np.str_('Bi'): np.float64(0.6419), np.str_('Cr'): np.float64(0.3581)}",0.144059,-9.5271,0.02979,glass,synthetic
+GLASS_0362,"{np.str_('In'): np.float64(0.5395), np.str_('Ta'): np.float64(0.4605)}",0.137819,-6.0177,0.019478,glass,synthetic
+GLASS_0363,"{np.str_('Mg'): np.float64(0.2148), np.str_('Ga'): np.float64(0.3083), np.str_('Ta'): np.float64(0.0015), np.str_('Mn'): np.float64(0.2445), np.str_('Hf'): np.float64(0.231)}",0.137943,-10.9323,0.046801,glass,synthetic
+GLASS_0364,"{np.str_('Mn'): np.float64(0.0307), np.str_('La'): np.float64(0.1633), np.str_('Al'): np.float64(0.806)}",0.17302,-9.2723,0.035339,glass,synthetic
+GLASS_0365,"{np.str_('Co'): np.float64(0.1893), np.str_('Cu'): np.float64(0.8107)}",0.076402,-10.7117,6.1e-05,glass,synthetic
+GLASS_0366,"{np.str_('Pt'): np.float64(0.67), np.str_('Ti'): np.float64(0.33)}",0.059848,-11.8153,0.121074,glass,synthetic
+GLASS_0367,"{np.str_('Pd'): np.float64(0.3637), np.str_('In'): np.float64(0.2742), np.str_('Pb'): np.float64(0.3621)}",0.168322,-10.1076,0.049852,glass,synthetic
+GLASS_0368,"{np.str_('Ni'): np.float64(0.1536), np.str_('Pt'): np.float64(0.0839), np.str_('Pd'): np.float64(0.2514), np.str_('Ta'): np.float64(0.3878), np.str_('Ca'): np.float64(0.1234)}",0.187914,-14.3282,0.172005,glass,synthetic
+GLASS_0369,"{np.str_('Y'): np.float64(0.1719), np.str_('Fe'): np.float64(0.8281)}",0.21316,-6.6249,0.052969,glass,synthetic
+GLASS_0370,"{np.str_('Pb'): np.float64(0.1268), np.str_('Pd'): np.float64(0.1803), np.str_('Al'): np.float64(0.2956), np.str_('Ge'): np.float64(0.3077), np.str_('Fe'): np.float64(0.0897)}",0.167422,-12.2074,0.066149,glass,synthetic
+GLASS_0371,"{np.str_('La'): np.float64(0.4702), np.str_('Y'): np.float64(0.5298)}",0.057381,-14.3228,0.003587,glass,synthetic
+GLASS_0372,"{np.str_('Ag'): np.float64(0.8069), np.str_('Ge'): np.float64(0.1931)}",0.088408,-7.6141,0.000997,glass,synthetic
+GLASS_0373,"{np.str_('Bi'): np.float64(0.2782), np.str_('Fe'): np.float64(0.2772), np.str_('Mn'): np.float64(0.284), np.str_('Hf'): np.float64(0.1606)}",0.171672,-13.8839,0.064926,glass,synthetic
+GLASS_0374,"{np.str_('W'): np.float64(0.9911), np.str_('Hf'): np.float64(0.0089)}",0.044675,-6.0966,0.009911,glass,synthetic
+GLASS_0375,"{np.str_('Ti'): np.float64(0.0797), np.str_('Ge'): np.float64(0.2707), np.str_('Y'): np.float64(0.2647), np.str_('Pd'): np.float64(0.0377), np.str_('Ca'): np.float64(0.3472)}",0.24511,-9.7796,0.190149,glass,synthetic
+GLASS_0376,"{np.str_('Mg'): np.float64(0.3218), np.str_('V'): np.float64(0.3573), np.str_('Cu'): np.float64(0.3209)}",0.121805,-7.2118,0.056079,glass,synthetic
+GLASS_0377,"{np.str_('Ce'): np.float64(0.2758), np.str_('Pd'): np.float64(0.1915), np.str_('Ta'): np.float64(0.0818), np.str_('W'): np.float64(0.2175), np.str_('Ge'): np.float64(0.2335)}",0.175212,-12.4538,0.242788,glass,synthetic
+GLASS_0378,"{np.str_('Ge'): np.float64(0.0278), np.str_('Co'): np.float64(0.2075), np.str_('Ni'): np.float64(0.1849), np.str_('Cr'): np.float64(0.3117), np.str_('Mo'): np.float64(0.2681)}",0.093278,-8.3999,0.036496,glass,synthetic
+GLASS_0379,"{np.str_('V'): np.float64(0.1979), np.str_('Ga'): np.float64(0.4278), np.str_('Pb'): np.float64(0.3743)}",0.192673,-9.7259,0.082337,glass,synthetic
+GLASS_0380,"{np.str_('Mn'): np.float64(0.3449), np.str_('Pb'): np.float64(0.3954), np.str_('Ca'): np.float64(0.2597)}",0.240783,-16.3415,0.291705,glass,synthetic
+GLASS_0381,"{np.str_('Pd'): np.float64(0.1705), np.str_('Mo'): np.float64(0.3707), np.str_('Mg'): np.float64(0.153), np.str_('V'): np.float64(0.2556), np.str_('Cr'): np.float64(0.0503)}",0.087059,-11.0437,0.114627,glass,synthetic
+GLASS_0382,"{np.str_('Al'): np.float64(0.5284), np.str_('Hf'): np.float64(0.4716)}",0.088441,-6.0061,0.023947,glass,synthetic
+GLASS_0383,"{np.str_('Ca'): np.float64(0.0017), np.str_('Fe'): np.float64(0.2911), np.str_('Pb'): np.float64(0.2275), np.str_('Zr'): np.float64(0.3583), np.str_('Pt'): np.float64(0.1214)}",0.197745,-10.1939,0.172056,glass,synthetic
+GLASS_0384,"{np.str_('Ge'): np.float64(0.2674), np.str_('Cr'): np.float64(0.0996), np.str_('Ti'): np.float64(0.2663), np.str_('Mo'): np.float64(0.1361), np.str_('Sn'): np.float64(0.2307)}",0.122731,-12.6253,0.051824,glass,synthetic
+GLASS_0385,"{np.str_('Nb'): np.float64(0.107), np.str_('Ga'): np.float64(0.3119), np.str_('Cu'): np.float64(0.5015), np.str_('Mn'): np.float64(0.0796)}",0.12228,-15.1494,0.014158,glass,synthetic
+GLASS_0386,"{np.str_('Cu'): np.float64(0.2513), np.str_('Pt'): np.float64(0.2702), np.str_('Ca'): np.float64(0.4785)}",0.270611,-13.9702,0.319035,glass,synthetic
+GLASS_0387,"{np.str_('Mg'): np.float64(0.1513), np.str_('Co'): np.float64(0.2134), np.str_('Y'): np.float64(0.1997), np.str_('Cr'): np.float64(0.169), np.str_('Pt'): np.float64(0.2666)}",0.193218,-8.7728,0.164905,glass,synthetic
+GLASS_0388,"{np.str_('Mg'): np.float64(0.817), np.str_('Ge'): np.float64(0.0446), np.str_('Ce'): np.float64(0.1384)}",0.137901,-9.2513,0.026826,glass,synthetic
+GLASS_0389,"{np.str_('Mg'): np.float64(0.1565), np.str_('Ti'): np.float64(0.1861), np.str_('Ni'): np.float64(0.2736), np.str_('Mn'): np.float64(0.2037), np.str_('Ag'): np.float64(0.18)}",0.13604,-6.8337,0.054232,glass,synthetic
+GLASS_0390,"{np.str_('La'): np.float64(0.2921), np.str_('V'): np.float64(0.7079)}",0.186284,-14.5798,0.058084,glass,synthetic
+GLASS_0391,"{np.str_('Al'): np.float64(0.1139), np.str_('Ta'): np.float64(0.1971), np.str_('Mg'): np.float64(0.0275), np.str_('Zr'): np.float64(0.4033), np.str_('In'): np.float64(0.2582)}",0.125893,-12.2026,0.034147,glass,synthetic
+GLASS_0392,"{np.str_('In'): np.float64(0.0181), np.str_('V'): np.float64(0.9819)}",0.06906,-7.5806,0.0004,glass,synthetic
+GLASS_0393,"{np.str_('Y'): np.float64(0.1276), np.str_('Ce'): np.float64(0.8724)}",0.031825,-5.785,0.001113,glass,synthetic
+GLASS_0394,"{np.str_('Nb'): np.float64(0.3489), np.str_('Sn'): np.float64(0.3216), np.str_('Pb'): np.float64(0.0568), np.str_('Mn'): np.float64(0.2727)}",0.126613,-8.8326,0.052007,glass,synthetic
+GLASS_0395,"{np.str_('In'): np.float64(0.2097), np.str_('Be'): np.float64(0.26), np.str_('La'): np.float64(0.325), np.str_('Ge'): np.float64(0.2053)}",0.235549,-7.8417,0.120448,glass,synthetic
+GLASS_0396,"{np.str_('Ce'): np.float64(0.0081), np.str_('Nb'): np.float64(0.2043), np.str_('Pt'): np.float64(0.2838), np.str_('Co'): np.float64(0.2813), np.str_('La'): np.float64(0.2224)}",0.202547,-12.9004,0.186205,glass,synthetic
+GLASS_0397,"{np.str_('Cu'): np.float64(0.1532), np.str_('V'): np.float64(0.0586), np.str_('Ca'): np.float64(0.2377), np.str_('Mo'): np.float64(0.2877), np.str_('Mg'): np.float64(0.2628)}",0.196786,-17.1006,0.211637,glass,synthetic
+GLASS_0398,"{np.str_('Ti'): np.float64(0.2691), np.str_('Ta'): np.float64(0.171), np.str_('Pt'): np.float64(0.2717), np.str_('Al'): np.float64(0.0935), np.str_('Bi'): np.float64(0.1946)}",0.073221,-9.4806,0.107805,glass,synthetic
+GLASS_0399,"{np.str_('Pd'): np.float64(0.407), np.str_('Pt'): np.float64(0.593)}",0.04105,-11.4486,0.001545,glass,synthetic
+GLASS_0400,"{np.str_('Fe'): np.float64(0.1579), np.str_('Cu'): np.float64(0.0299), np.str_('Cr'): np.float64(0.4482), np.str_('Ti'): np.float64(0.2349), np.str_('Ce'): np.float64(0.1291)}",0.16611,-15.3303,0.043233,glass,synthetic
+GLASS_0401,"{np.str_('Sn'): np.float64(0.5206), np.str_('Ni'): np.float64(0.4794)}",0.112719,-7.7623,0.000624,glass,synthetic
+GLASS_0402,"{np.str_('Pb'): np.float64(0.3883), np.str_('Fe'): np.float64(0.4087), np.str_('Cr'): np.float64(0.203)}",0.194371,-14.7364,0.077457,glass,synthetic
+GLASS_0403,"{np.str_('Mg'): np.float64(0.324), np.str_('Ce'): np.float64(0.2927), np.str_('Y'): np.float64(0.2004), np.str_('Pb'): np.float64(0.183)}",0.097428,-13.0136,0.189813,glass,synthetic
+GLASS_0404,"{np.str_('Ce'): np.float64(0.2079), np.str_('La'): np.float64(0.4826), np.str_('Sn'): np.float64(0.0061), np.str_('Mn'): np.float64(0.3034)}",0.21136,-15.16,0.044736,glass,synthetic
+GLASS_0405,"{np.str_('Ga'): np.float64(0.2779), np.str_('W'): np.float64(0.3698), np.str_('Bi'): np.float64(0.1606), np.str_('Pb'): np.float64(0.1917)}",0.146639,-10.2561,0.057348,glass,synthetic
+GLASS_0406,"{np.str_('Pt'): np.float64(0.4781), np.str_('Pd'): np.float64(0.5219)}",0.043998,-8.8961,0.001597,glass,synthetic
+GLASS_0407,"{np.str_('Sn'): np.float64(0.1735), np.str_('Ti'): np.float64(0.2888), np.str_('Fe'): np.float64(0.5377)}",0.148665,-6.5422,0.023475,glass,synthetic
+GLASS_0408,"{np.str_('Cr'): np.float64(0.0161), np.str_('Ti'): np.float64(0.9839)}",0.068183,-7.0415,0.000228,glass,synthetic
+GLASS_0409,"{np.str_('Nb'): np.float64(0.2018), np.str_('Mg'): np.float64(0.2034), np.str_('V'): np.float64(0.1225), np.str_('Pt'): np.float64(0.3035), np.str_('Zr'): np.float64(0.1688)}",0.116589,-17.2698,0.158731,glass,synthetic
+GLASS_0410,"{np.str_('Bi'): np.float64(0.1868), np.str_('Ga'): np.float64(0.2244), np.str_('Fe'): np.float64(0.2375), np.str_('Ag'): np.float64(0.3513)}",0.110636,-15.3022,0.005973,glass,synthetic
+GLASS_0411,"{np.str_('Ti'): np.float64(0.4279), np.str_('Ca'): np.float64(0.5721)}",0.172122,-11.2122,0.071384,glass,synthetic
+GLASS_0412,"{np.str_('La'): np.float64(0.1957), np.str_('Cu'): np.float64(0.2142), np.str_('Ga'): np.float64(0.2406), np.str_('Ta'): np.float64(0.2744), np.str_('Hf'): np.float64(0.0752)}",0.203232,-10.9356,0.087232,glass,synthetic
+GLASS_0413,"{np.str_('Ag'): np.float64(0.116), np.str_('Hf'): np.float64(0.2569), np.str_('Ni'): np.float64(0.1686), np.str_('Mo'): np.float64(0.1841), np.str_('Ti'): np.float64(0.2744)}",0.147979,-8.2985,0.100656,glass,synthetic
+GLASS_0414,"{np.str_('V'): np.float64(0.3226), np.str_('Mn'): np.float64(0.0878), np.str_('Ga'): np.float64(0.2786), np.str_('Fe'): np.float64(0.311)}",0.068858,-5.9629,0.010935,glass,synthetic
+GLASS_0415,"{np.str_('Ca'): np.float64(0.9172), np.str_('Mo'): np.float64(0.0828)}",0.110756,-14.2942,0.10219,glass,synthetic
+GLASS_0416,"{np.str_('Ga'): np.float64(0.4191), np.str_('Mg'): np.float64(0.3805), np.str_('V'): np.float64(0.1304), np.str_('Y'): np.float64(0.07)}",0.147261,-10.5614,0.058681,glass,synthetic
+GLASS_0417,"{np.str_('In'): np.float64(0.3242), np.str_('Al'): np.float64(0.3513), np.str_('W'): np.float64(0.3245)}",0.106618,-15.0932,0.102805,glass,synthetic
+GLASS_0418,"{np.str_('Mn'): np.float64(0.2128), np.str_('Ce'): np.float64(0.7872)}",0.155589,-11.6655,0.030974,glass,synthetic
+GLASS_0419,"{np.str_('Pb'): np.float64(0.1554), np.str_('Fe'): np.float64(0.811), np.str_('Co'): np.float64(0.0337)}",0.176812,-8.9166,0.032633,glass,synthetic
+GLASS_0420,"{np.str_('Ti'): np.float64(0.3364), np.str_('Fe'): np.float64(0.3939), np.str_('Sn'): np.float64(0.2696)}",0.143067,-14.3362,0.02894,glass,synthetic
+GLASS_0421,"{np.str_('Ta'): np.float64(0.0985), np.str_('Bi'): np.float64(0.0076), np.str_('Ca'): np.float64(0.4189), np.str_('Ni'): np.float64(0.475)}",0.277456,-9.7283,0.186512,glass,synthetic
+GLASS_0422,"{np.str_('Cu'): np.float64(0.3939), np.str_('In'): np.float64(0.3929), np.str_('Y'): np.float64(0.0661), np.str_('Ni'): np.float64(0.1471)}",0.178453,-6.6663,0.028024,glass,synthetic
+GLASS_0423,"{np.str_('Sn'): np.float64(0.4711), np.str_('Mg'): np.float64(0.1266), np.str_('Ge'): np.float64(0.4023)}",0.123079,-13.3705,0.050629,glass,synthetic
+GLASS_0424,"{np.str_('La'): np.float64(0.9671), np.str_('V'): np.float64(0.0329)}",0.096618,-11.2868,0.008938,glass,synthetic
+GLASS_0425,"{np.str_('Mg'): np.float64(0.2945), np.str_('Ni'): np.float64(0.4352), np.str_('La'): np.float64(0.2703)}",0.205501,-9.5008,0.12683,glass,synthetic
+GLASS_0426,"{np.str_('W'): np.float64(0.2026), np.str_('Cr'): np.float64(0.2688), np.str_('Ga'): np.float64(0.5285)}",0.073685,-9.7376,0.062277,glass,synthetic
+GLASS_0427,"{np.str_('Ga'): np.float64(0.4198), np.str_('Cu'): np.float64(0.103), np.str_('Mo'): np.float64(0.4772)}",0.087973,-12.5874,0.028213,glass,synthetic
+GLASS_0428,"{np.str_('Cu'): np.float64(0.1802), np.str_('Hf'): np.float64(0.3321), np.str_('Mg'): np.float64(0.1115), np.str_('Pt'): np.float64(0.0492), np.str_('Cr'): np.float64(0.327)}",0.162157,-15.6385,0.078795,glass,synthetic
+GLASS_0429,"{np.str_('Co'): np.float64(0.3288), np.str_('Ta'): np.float64(0.4308), np.str_('Mo'): np.float64(0.2404)}",0.129931,-16.5966,0.071763,glass,synthetic
+GLASS_0430,"{np.str_('Bi'): np.float64(0.3945), np.str_('La'): np.float64(0.1385), np.str_('Cu'): np.float64(0.0945), np.str_('Co'): np.float64(0.3725)}",0.218504,-11.4617,0.089442,glass,synthetic
+GLASS_0431,"{np.str_('Zr'): np.float64(0.1637), np.str_('Y'): np.float64(0.3997), np.str_('Ge'): np.float64(0.3453), np.str_('Cr'): np.float64(0.0388), np.str_('In'): np.float64(0.0525)}",0.225898,-11.9934,0.12771,glass,synthetic
+GLASS_0432,"{np.str_('Bi'): np.float64(0.1584), np.str_('Mg'): np.float64(0.2113), np.str_('Sn'): np.float64(0.6303)}",0.13541,-15.8014,0.073501,glass,synthetic
+GLASS_0433,"{np.str_('Mn'): np.float64(0.3003), np.str_('Fe'): np.float64(0.0889), np.str_('Pd'): np.float64(0.1785), np.str_('Hf'): np.float64(0.4323)}",0.13873,-13.6501,0.108326,glass,synthetic
+GLASS_0434,"{np.str_('In'): np.float64(0.2115), np.str_('Zr'): np.float64(0.33), np.str_('Pt'): np.float64(0.1966), np.str_('Ce'): np.float64(0.182), np.str_('La'): np.float64(0.08)}",0.145507,-8.9795,0.181752,glass,synthetic
+GLASS_0435,"{np.str_('Y'): np.float64(0.7408), np.str_('Fe'): np.float64(0.0138), np.str_('Ag'): np.float64(0.2432), np.str_('Ta'): np.float64(0.0022)}",0.140693,-13.8735,0.094888,glass,synthetic
+GLASS_0436,"{np.str_('La'): np.float64(0.184), np.str_('Ni'): np.float64(0.3183), np.str_('Ti'): np.float64(0.4977)}",0.176326,-14.0065,0.077843,glass,synthetic
+GLASS_0437,"{np.str_('Ge'): np.float64(0.105), np.str_('Be'): np.float64(0.2975), np.str_('Pd'): np.float64(0.341), np.str_('Ag'): np.float64(0.2565)}",0.146875,-11.3138,0.064043,glass,synthetic
+GLASS_0438,"{np.str_('Bi'): np.float64(0.0606), np.str_('Mg'): np.float64(0.4594), np.str_('Ge'): np.float64(0.3098), np.str_('Pt'): np.float64(0.1701)}",0.175304,-13.8347,0.161854,glass,synthetic
+GLASS_0439,"{np.str_('Mo'): np.float64(0.5589), np.str_('Co'): np.float64(0.2076), np.str_('Pd'): np.float64(0.2334)}",0.101285,-11.2463,0.014268,glass,synthetic
+GLASS_0440,"{np.str_('Sn'): np.float64(0.2413), np.str_('Ce'): np.float64(0.2447), np.str_('Cu'): np.float64(0.0918), np.str_('Ge'): np.float64(0.1182), np.str_('Ag'): np.float64(0.3039)}",0.203903,-10.2748,0.127647,glass,synthetic
+GLASS_0441,"{np.str_('Ga'): np.float64(0.3856), np.str_('Mn'): np.float64(0.4322), np.str_('Ag'): np.float64(0.1822)}",0.070732,-12.1526,0.023649,glass,synthetic
+GLASS_0442,"{np.str_('Co'): np.float64(0.3199), np.str_('Bi'): np.float64(0.0951), np.str_('Cr'): np.float64(0.1653), np.str_('Ti'): np.float64(0.2554), np.str_('Pt'): np.float64(0.1642)}",0.126677,-7.246,0.063706,glass,synthetic
+GLASS_0443,"{np.str_('Ni'): np.float64(0.2181), np.str_('Cr'): np.float64(0.5432), np.str_('Nb'): np.float64(0.2387)}",0.12965,-10.4109,0.012874,glass,synthetic
+GLASS_0444,"{np.str_('Ge'): np.float64(0.6232), np.str_('Be'): np.float64(0.3768)}",0.106532,-13.7421,0.045461,glass,synthetic
+GLASS_0445,"{np.str_('Sn'): np.float64(0.263), np.str_('Al'): np.float64(0.124), np.str_('Cu'): np.float64(0.4723), np.str_('Mg'): np.float64(0.1406)}",0.117797,-14.5733,0.04968,glass,synthetic
+GLASS_0446,"{np.str_('V'): np.float64(0.1927), np.str_('W'): np.float64(0.1509), np.str_('Fe'): np.float64(0.4011), np.str_('La'): np.float64(0.2553)}",0.226914,-9.9088,0.16514,glass,synthetic
+GLASS_0447,"{np.str_('Mg'): np.float64(0.3072), np.str_('Ce'): np.float64(0.6928)}",0.130213,-9.1917,0.007683,glass,synthetic
+GLASS_0448,"{np.str_('Ge'): np.float64(0.1355), np.str_('Mn'): np.float64(0.8645)}",0.04878,-6.949,0.024787,glass,synthetic
+GLASS_0449,"{np.str_('Pd'): np.float64(0.1616), np.str_('Ag'): np.float64(0.3634), np.str_('Cr'): np.float64(0.132), np.str_('Ni'): np.float64(0.2275), np.str_('Co'): np.float64(0.1155)}",0.143908,-10.3319,0.021778,glass,synthetic
+GLASS_0450,"{np.str_('V'): np.float64(0.3626), np.str_('Bi'): np.float64(0.2977), np.str_('Ca'): np.float64(0.0387), np.str_('Sn'): np.float64(0.301)}",0.150535,-12.3143,0.056918,glass,synthetic
+GLASS_0451,"{np.str_('Mg'): np.float64(0.1459), np.str_('Ga'): np.float64(0.2738), np.str_('Pb'): np.float64(0.2619), np.str_('Mn'): np.float64(0.2312), np.str_('Cr'): np.float64(0.0872)}",0.187913,-9.5292,0.124785,glass,synthetic
+GLASS_0452,"{np.str_('Mn'): np.float64(0.0302), np.str_('Ge'): np.float64(0.1253), np.str_('Mg'): np.float64(0.6449), np.str_('Cr'): np.float64(0.1995)}",0.182736,-7.027,0.060419,glass,synthetic
+GLASS_0453,"{np.str_('V'): np.float64(0.2263), np.str_('W'): np.float64(0.441), np.str_('Cu'): np.float64(0.1377), np.str_('Ta'): np.float64(0.195)}",0.107142,-12.5555,0.136948,glass,synthetic
+GLASS_0454,"{np.str_('Pb'): np.float64(0.1555), np.str_('Ca'): np.float64(0.0682), np.str_('Ag'): np.float64(0.1481), np.str_('Al'): np.float64(0.3149), np.str_('Be'): np.float64(0.3133)}",0.256742,-11.1469,0.110584,glass,synthetic
+GLASS_0455,"{np.str_('Mo'): np.float64(0.0504), np.str_('Al'): np.float64(0.3189), np.str_('Cr'): np.float64(0.208), np.str_('Sn'): np.float64(0.4227)}",0.06238,-7.2583,0.032927,glass,synthetic
+GLASS_0456,"{np.str_('Pb'): np.float64(0.367), np.str_('Cu'): np.float64(0.0742), np.str_('Ge'): np.float64(0.5588)}",0.214533,-10.6687,0.026537,glass,synthetic
+GLASS_0457,"{np.str_('Ca'): np.float64(0.0699), np.str_('La'): np.float64(0.3242), np.str_('Ce'): np.float64(0.1192), np.str_('Fe'): np.float64(0.4269), np.str_('Cu'): np.float64(0.0598)}",0.233552,-8.0012,0.14058,glass,synthetic
+GLASS_0458,"{np.str_('Ge'): np.float64(0.2779), np.str_('Sn'): np.float64(0.168), np.str_('Nb'): np.float64(0.2813), np.str_('Hf'): np.float64(0.2728)}",0.153495,-9.6565,0.084469,glass,synthetic
+GLASS_0459,"{np.str_('Nb'): np.float64(0.4021), np.str_('Al'): np.float64(0.3222), np.str_('Ge'): np.float64(0.1815), np.str_('Ga'): np.float64(0.023), np.str_('Ce'): np.float64(0.0712)}",0.144621,-14.3151,0.045629,glass,synthetic
+GLASS_0460,"{np.str_('Mo'): np.float64(0.1599), np.str_('Ag'): np.float64(0.0352), np.str_('Al'): np.float64(0.3893), np.str_('Pt'): np.float64(0.0871), np.str_('Nb'): np.float64(0.3285)}",0.055355,-14.3697,0.067304,glass,synthetic
+GLASS_0461,"{np.str_('Ni'): np.float64(0.205), np.str_('Be'): np.float64(0.3272), np.str_('La'): np.float64(0.4678)}",0.263587,-14.2308,0.104485,glass,synthetic
+GLASS_0462,"{np.str_('Ag'): np.float64(0.1638), np.str_('Ta'): np.float64(0.1549), np.str_('Pd'): np.float64(0.2443), np.str_('Co'): np.float64(0.2149), np.str_('Ce'): np.float64(0.2221)}",0.199302,-10.4428,0.156115,glass,synthetic
+GLASS_0463,"{np.str_('Be'): np.float64(0.4089), np.str_('Pb'): np.float64(0.2289), np.str_('Ti'): np.float64(0.312), np.str_('Mg'): np.float64(0.0502)}",0.234416,-9.4647,0.112919,glass,synthetic
+GLASS_0464,"{np.str_('Mo'): np.float64(0.314), np.str_('V'): np.float64(0.3175), np.str_('Pb'): np.float64(0.0422), np.str_('Cu'): np.float64(0.3263)}",0.133961,-12.9782,0.051977,glass,synthetic
+GLASS_0465,"{np.str_('Ga'): np.float64(0.8986), np.str_('V'): np.float64(0.064), np.str_('W'): np.float64(0.0374)}",0.032312,-14.9675,0.013305,glass,synthetic
+GLASS_0466,"{np.str_('Cu'): np.float64(0.332), np.str_('Ti'): np.float64(0.3956), np.str_('Sn'): np.float64(0.2294), np.str_('Pd'): np.float64(0.043)}",0.113812,-14.0082,0.042567,glass,synthetic
+GLASS_0467,"{np.str_('Cu'): np.float64(0.2898), np.str_('Al'): np.float64(0.383), np.str_('Co'): np.float64(0.3272)}",0.11016,-11.6655,0.018508,glass,synthetic
+GLASS_0468,"{np.str_('Ga'): np.float64(0.0001), np.str_('Fe'): np.float64(0.5238), np.str_('Ta'): np.float64(0.081), np.str_('La'): np.float64(0.1778), np.str_('Nb'): np.float64(0.2172)}",0.209939,-10.6956,0.072421,glass,synthetic
+GLASS_0469,"{np.str_('Fe'): np.float64(0.975), np.str_('Cu'): np.float64(0.025)}",0.078071,-11.0518,0.000119,glass,synthetic
+GLASS_0470,"{np.str_('W'): np.float64(0.1566), np.str_('Mg'): np.float64(0.213), np.str_('Mn'): np.float64(0.2693), np.str_('Mo'): np.float64(0.277), np.str_('Bi'): np.float64(0.084)}",0.117693,-10.0157,0.155877,glass,synthetic
+GLASS_0471,"{np.str_('Pt'): np.float64(0.6261), np.str_('Cu'): np.float64(0.2289), np.str_('Mn'): np.float64(0.145)}",0.093839,-10.9436,0.073139,glass,synthetic
+GLASS_0472,"{np.str_('Co'): np.float64(0.1694), np.str_('Cu'): np.float64(0.3821), np.str_('La'): np.float64(0.2858), np.str_('Y'): np.float64(0.1626)}",0.208614,-7.7555,0.140782,glass,synthetic
+GLASS_0473,"{np.str_('Ca'): np.float64(0.3761), np.str_('Y'): np.float64(0.1029), np.str_('Sn'): np.float64(0.4004), np.str_('Pb'): np.float64(0.1206)}",0.182235,-10.8525,0.265353,glass,synthetic
+GLASS_0474,"{np.str_('Pd'): np.float64(0.511), np.str_('Co'): np.float64(0.489)}",0.078275,-7.8675,0.025588,glass,synthetic
+GLASS_0475,"{np.str_('Ca'): np.float64(0.1597), np.str_('Al'): np.float64(0.2694), np.str_('Ge'): np.float64(0.2243), np.str_('Mo'): np.float64(0.1637), np.str_('Cu'): np.float64(0.183)}",0.247649,-11.6769,0.141888,glass,synthetic
+GLASS_0476,"{np.str_('Al'): np.float64(0.1281), np.str_('Y'): np.float64(0.5133), np.str_('Ce'): np.float64(0.0342), np.str_('Hf'): np.float64(0.0443), np.str_('Pt'): np.float64(0.28)}",0.153857,-15.1162,0.214378,glass,synthetic
+GLASS_0477,"{np.str_('Co'): np.float64(0.1854), np.str_('Ce'): np.float64(0.4103), np.str_('Y'): np.float64(0.4043)}",0.194072,-15.8558,0.078248,glass,synthetic
+GLASS_0478,"{np.str_('Mo'): np.float64(0.1974), np.str_('Pd'): np.float64(0.1983), np.str_('La'): np.float64(0.6044)}",0.208773,-14.0717,0.279111,glass,synthetic
+GLASS_0479,"{np.str_('Sn'): np.float64(0.1496), np.str_('Ge'): np.float64(0.8504)}",0.09499,-6.6797,0.000318,glass,synthetic
+GLASS_0480,"{np.str_('Ta'): np.float64(0.5308), np.str_('Mg'): np.float64(0.399), np.str_('Sn'): np.float64(0.0702)}",0.111485,-12.9093,0.027364,glass,synthetic
+GLASS_0481,"{np.str_('Ti'): np.float64(0.503), np.str_('Zr'): np.float64(0.497)}",0.118384,-14.5728,0.011025,glass,synthetic
+GLASS_0482,"{np.str_('Ca'): np.float64(0.1374), np.str_('Ce'): np.float64(0.3114), np.str_('Al'): np.float64(0.4949), np.str_('Be'): np.float64(0.0564)}",0.186436,-11.5225,0.069033,glass,synthetic
+GLASS_0483,"{np.str_('Sn'): np.float64(0.1902), np.str_('Al'): np.float64(0.004), np.str_('Nb'): np.float64(0.352), np.str_('Mg'): np.float64(0.1637), np.str_('La'): np.float64(0.2901)}",0.196175,-10.0328,0.095564,glass,synthetic
+GLASS_0484,"{np.str_('Y'): np.float64(0.5689), np.str_('Ga'): np.float64(0.4311)}",0.215461,-13.2792,0.085372,glass,synthetic
+GLASS_0485,"{np.str_('Mn'): np.float64(0.6484), np.str_('W'): np.float64(0.1398), np.str_('Bi'): np.float64(0.2118)}",0.125318,-9.5562,0.093232,glass,synthetic
+GLASS_0486,"{np.str_('Cr'): np.float64(0.0742), np.str_('Sn'): np.float64(0.2966), np.str_('Ta'): np.float64(0.6292)}",0.09704,-12.6196,0.042665,glass,synthetic
+GLASS_0487,"{np.str_('Fe'): np.float64(0.955), np.str_('Mg'): np.float64(0.045)}",0.078375,-14.4337,0.01162,glass,synthetic
+GLASS_0488,"{np.str_('Mn'): np.float64(0.2173), np.str_('Ti'): np.float64(0.2711), np.str_('Ce'): np.float64(0.2413), np.str_('Al'): np.float64(0.2703)}",0.183628,-7.9031,0.037471,glass,synthetic
+GLASS_0489,"{np.str_('Nb'): np.float64(0.8518), np.str_('Pd'): np.float64(0.1482)}",0.065015,-11.6501,0.045445,glass,synthetic
+GLASS_0490,"{np.str_('Ag'): np.float64(0.0399), np.str_('Ca'): np.float64(0.2039), np.str_('Sn'): np.float64(0.2778), np.str_('Cr'): np.float64(0.1304), np.str_('Bi'): np.float64(0.3479)}",0.192712,-8.7811,0.154629,glass,synthetic
+GLASS_0491,"{np.str_('Ta'): np.float64(0.7989), np.str_('Pd'): np.float64(0.2011)}",0.079619,-14.4355,0.078723,glass,synthetic
+GLASS_0492,"{np.str_('Ta'): np.float64(0.3016), np.str_('Pt'): np.float64(0.6984)}",0.070003,-8.8137,0.128152,glass,synthetic
+GLASS_0493,"{np.str_('Mn'): np.float64(0.7953), np.str_('Ce'): np.float64(0.2047)}",0.200662,-7.3409,0.030101,glass,synthetic
+GLASS_0494,"{np.str_('Ag'): np.float64(0.1636), np.str_('Ni'): np.float64(0.4487), np.str_('Ga'): np.float64(0.3553), np.str_('Cu'): np.float64(0.0324)}",0.129087,-11.7226,0.00256,glass,synthetic
+GLASS_0495,"{np.str_('Zr'): np.float64(0.3106), np.str_('Ce'): np.float64(0.6894)}",0.091181,-8.1741,0.009443,glass,synthetic
+GLASS_0496,"{np.str_('Bi'): np.float64(0.4256), np.str_('Nb'): np.float64(0.5744)}",0.070016,-15.1144,0.043124,glass,synthetic
+GLASS_0497,"{np.str_('Mn'): np.float64(0.5047), np.str_('Zr'): np.float64(0.4029), np.str_('Cu'): np.float64(0.0925)}",0.172297,-11.0403,0.027666,glass,synthetic
+GLASS_0498,"{np.str_('Mg'): np.float64(0.25), np.str_('Al'): np.float64(0.2391), np.str_('Zr'): np.float64(0.3341), np.str_('La'): np.float64(0.1768)}",0.157028,-11.8625,0.027745,glass,synthetic
+GLASS_0499,"{np.str_('Y'): np.float64(0.1009), np.str_('Co'): np.float64(0.2537), np.str_('Nb'): np.float64(0.2016), np.str_('Ga'): np.float64(0.3469), np.str_('Zr'): np.float64(0.0969)}",0.145619,-6.9705,0.050521,glass,synthetic
+CRYST_0000,"{np.str_('Hf'): np.float64(0.1108), np.str_('Sn'): np.float64(0.8892)}",0.037188,4.126,0.042917,crystalline,synthetic
+CRYST_0001,"{np.str_('Mg'): np.float64(0.2876), np.str_('Pt'): np.float64(0.0914), np.str_('Pb'): np.float64(0.3963), np.str_('V'): np.float64(0.2247)}",0.08455,-1.5152,0.202333,crystalline,synthetic
+CRYST_0002,"{np.str_('Ni'): np.float64(0.0456), np.str_('Ga'): np.float64(0.4688), np.str_('V'): np.float64(0.4487), np.str_('Nb'): np.float64(0.0368)}",0.006856,0.3072,0.009571,crystalline,synthetic
+CRYST_0003,"{np.str_('Cu'): np.float64(0.2045), np.str_('Ta'): np.float64(0.2769), np.str_('Co'): np.float64(0.1332), np.str_('Ni'): np.float64(0.1979), np.str_('Fe'): np.float64(0.1874)}",0.066548,2.2175,0.029778,crystalline,synthetic
+CRYST_0004,"{np.str_('Ce'): np.float64(0.1381), np.str_('Bi'): np.float64(0.1658), np.str_('Nb'): np.float64(0.3314), np.str_('Fe'): np.float64(0.2823), np.str_('Mg'): np.float64(0.0824)}",0.109484,2.7979,0.080959,crystalline,synthetic
+CRYST_0005,"{np.str_('Ta'): np.float64(0.1889), np.str_('Ca'): np.float64(0.4349), np.str_('Co'): np.float64(0.3762)}",0.191852,4.0376,0.157499,crystalline,synthetic
+CRYST_0006,"{np.str_('Ta'): np.float64(0.0767), np.str_('Pd'): np.float64(0.3243), np.str_('Mg'): np.float64(0.4951), np.str_('Pt'): np.float64(0.1038)}",0.04971,-2.2161,0.194172,crystalline,synthetic
+CRYST_0007,"{np.str_('Mg'): np.float64(0.5017), np.str_('Co'): np.float64(0.4191), np.str_('Fe'): np.float64(0.0792)}",0.11175,1.6776,0.079142,crystalline,synthetic
+CRYST_0008,"{np.str_('Sn'): np.float64(0.4945), np.str_('Fe'): np.float64(0.3405), np.str_('Be'): np.float64(0.165)}",0.070676,4.1517,0.019054,crystalline,synthetic
+CRYST_0009,"{np.str_('Be'): np.float64(0.7406), np.str_('Ga'): np.float64(0.2269), np.str_('Ag'): np.float64(0.0326)}",0.064922,7.9828,0.012913,crystalline,synthetic
+CRYST_0010,"{np.str_('W'): np.float64(0.2884), np.str_('Ni'): np.float64(0.7116)}",0.040941,-0.9076,0.041558,crystalline,synthetic
+CRYST_0011,"{np.str_('Co'): np.float64(0.2018), np.str_('Mg'): np.float64(0.3858), np.str_('Ta'): np.float64(0.2797), np.str_('Cu'): np.float64(0.1328)}",0.086538,5.4871,0.061123,crystalline,synthetic
+CRYST_0012,"{np.str_('Be'): np.float64(0.4162), np.str_('Bi'): np.float64(0.0367), np.str_('Ca'): np.float64(0.0207), np.str_('Ga'): np.float64(0.0989), np.str_('Ni'): np.float64(0.4275)}",0.114826,3.9101,0.039066,crystalline,synthetic
+CRYST_0013,"{np.str_('Al'): np.float64(0.2893), np.str_('Ga'): np.float64(0.3114), np.str_('Co'): np.float64(0.3993)}",0.031583,1.2254,0.012634,crystalline,synthetic
+CRYST_0014,"{np.str_('Hf'): np.float64(0.5501), np.str_('Cu'): np.float64(0.4471), np.str_('Mn'): np.float64(0.0029)}",0.105141,0.2684,0.088792,crystalline,synthetic
+CRYST_0015,"{np.str_('Y'): np.float64(0.5078), np.str_('Mg'): np.float64(0.0914), np.str_('Be'): np.float64(0.4008)}",0.209588,7.8306,0.027784,crystalline,synthetic
+CRYST_0016,"{np.str_('Nb'): np.float64(0.0434), np.str_('Ga'): np.float64(0.1174), np.str_('Mg'): np.float64(0.423), np.str_('W'): np.float64(0.1168), np.str_('Hf'): np.float64(0.2993)}",0.055502,1.8666,0.125343,crystalline,synthetic
+CRYST_0017,"{np.str_('Cu'): np.float64(0.4194), np.str_('W'): np.float64(0.3899), np.str_('Sn'): np.float64(0.1908)}",0.024655,7.1637,0.046788,crystalline,synthetic
+CRYST_0018,"{np.str_('Sn'): np.float64(0.485), np.str_('Mo'): np.float64(0.3499), np.str_('Al'): np.float64(0.1651)}",-0.016391,2.9837,0.034072,crystalline,synthetic
+CRYST_0019,"{np.str_('Nb'): np.float64(0.0645), np.str_('V'): np.float64(0.0027), np.str_('Ti'): np.float64(0.4998), np.str_('Pt'): np.float64(0.3442), np.str_('Ca'): np.float64(0.0888)}",0.099316,-1.0687,0.170166,crystalline,synthetic
+CRYST_0020,"{np.str_('Pb'): np.float64(0.2919), np.str_('Cu'): np.float64(0.462), np.str_('Ga'): np.float64(0.0915), np.str_('Ca'): np.float64(0.0451), np.str_('Bi'): np.float64(0.1096)}",0.149076,3.2533,0.084752,crystalline,synthetic
+CRYST_0021,"{np.str_('Ag'): np.float64(0.6205), np.str_('In'): np.float64(0.3795)}",0.04258,5.7549,0.005298,crystalline,synthetic
+CRYST_0022,"{np.str_('Bi'): np.float64(0.314), np.str_('La'): np.float64(0.2246), np.str_('Pb'): np.float64(0.4614)}",0.060143,0.5334,0.230397,crystalline,synthetic
+CRYST_0023,"{np.str_('Co'): np.float64(0.2116), np.str_('V'): np.float64(0.3188), np.str_('Mg'): np.float64(0.1931), np.str_('Ta'): np.float64(0.1481), np.str_('Y'): np.float64(0.1284)}",0.117977,1.0753,0.050559,crystalline,synthetic
+CRYST_0024,"{np.str_('Cu'): np.float64(0.2766), np.str_('Hf'): np.float64(0.066), np.str_('In'): np.float64(0.4148), np.str_('Al'): np.float64(0.0803), np.str_('Ge'): np.float64(0.1624)}",0.118818,3.284,0.029465,crystalline,synthetic
+CRYST_0025,"{np.str_('Hf'): np.float64(0.2455), np.str_('Fe'): np.float64(0.3196), np.str_('Ni'): np.float64(0.085), np.str_('Sn'): np.float64(0.095), np.str_('Mg'): np.float64(0.2549)}",0.10662,2.8808,0.080737,crystalline,synthetic
+CRYST_0026,"{np.str_('Ag'): np.float64(0.2219), np.str_('Ca'): np.float64(0.6538), np.str_('Mn'): np.float64(0.1243)}",0.152245,2.7364,0.154044,crystalline,synthetic
+CRYST_0027,"{np.str_('Ta'): np.float64(0.7755), np.str_('Co'): np.float64(0.2245)}",0.035984,5.659,0.02514,crystalline,synthetic
+CRYST_0028,"{np.str_('Ca'): np.float64(0.4131), np.str_('Mn'): np.float64(0.1121), np.str_('Cu'): np.float64(0.3884), np.str_('Ti'): np.float64(0.0864)}",0.185099,6.6733,0.164063,crystalline,synthetic
+CRYST_0029,"{np.str_('Al'): np.float64(0.6432), np.str_('W'): np.float64(0.3568)}",-0.000578,0.9137,0.12909,crystalline,synthetic
+CRYST_0030,"{np.str_('Ag'): np.float64(0.4424), np.str_('Ga'): np.float64(0.5576)}",0.008255,3.0949,0.003552,crystalline,synthetic
+CRYST_0031,"{np.str_('Hf'): np.float64(0.4608), np.str_('Co'): np.float64(0.1044), np.str_('Ni'): np.float64(0.4348)}",0.105853,7.1288,0.090777,crystalline,synthetic
+CRYST_0032,"{np.str_('Ga'): np.float64(0.3551), np.str_('Pb'): np.float64(0.1493), np.str_('Ge'): np.float64(0.1989), np.str_('Bi'): np.float64(0.2808), np.str_('Pd'): np.float64(0.016)}",0.11916,5.6417,0.029795,crystalline,synthetic
+CRYST_0033,"{np.str_('Hf'): np.float64(0.3105), np.str_('Pt'): np.float64(0.3225), np.str_('Bi'): np.float64(0.367)}",0.036208,0.1968,0.163245,crystalline,synthetic
+CRYST_0034,"{np.str_('Pt'): np.float64(0.1309), np.str_('Pb'): np.float64(0.8691)}",0.054557,8.4202,0.000284,crystalline,synthetic
+CRYST_0035,"{np.str_('V'): np.float64(0.3741), np.str_('Bi'): np.float64(0.3211), np.str_('Sn'): np.float64(0.3048)}",0.039607,-0.0509,0.031041,crystalline,synthetic
+CRYST_0036,"{np.str_('V'): np.float64(0.3018), np.str_('W'): np.float64(0.1703), np.str_('Ce'): np.float64(0.1739), np.str_('Mo'): np.float64(0.2524), np.str_('Ga'): np.float64(0.1017)}",0.105301,7.1229,0.174948,crystalline,synthetic
+CRYST_0037,"{np.str_('Ta'): np.float64(0.0251), np.str_('Pt'): np.float64(0.2794), np.str_('Ag'): np.float64(0.2491), np.str_('Al'): np.float64(0.0493), np.str_('Mn'): np.float64(0.3971)}",0.048882,5.6412,0.094909,crystalline,synthetic
+CRYST_0038,"{np.str_('Pt'): np.float64(0.5251), np.str_('La'): np.float64(0.4749)}",0.146698,5.3812,0.347223,crystalline,synthetic
+CRYST_0039,"{np.str_('Ga'): np.float64(0.1052), np.str_('Ag'): np.float64(0.2188), np.str_('Co'): np.float64(0.2023), np.str_('Nb'): np.float64(0.2061), np.str_('Ca'): np.float64(0.2677)}",0.165169,0.7672,0.140605,crystalline,synthetic
+CRYST_0040,"{np.str_('W'): np.float64(0.1771), np.str_('Mo'): np.float64(0.1232), np.str_('Ge'): np.float64(0.3678), np.str_('La'): np.float64(0.332)}",0.162205,2.011,0.25027,crystalline,synthetic
+CRYST_0041,"{np.str_('Co'): np.float64(0.8118), np.str_('Ta'): np.float64(0.1882)}",0.046859,1.7817,0.022062,crystalline,synthetic
+CRYST_0042,"{np.str_('Zr'): np.float64(0.6906), np.str_('Ti'): np.float64(0.3094)}",0.032337,0.8182,0.009423,crystalline,synthetic
+CRYST_0043,"{np.str_('Cr'): np.float64(0.3335), np.str_('Bi'): np.float64(0.1904), np.str_('Nb'): np.float64(0.4761)}",0.068491,3.7569,0.024792,crystalline,synthetic
+CRYST_0044,"{np.str_('Ta'): np.float64(0.1334), np.str_('Nb'): np.float64(0.8666)}",-0.006222,9.1459,0.001156,crystalline,synthetic
+CRYST_0045,"{np.str_('Ti'): np.float64(0.9492), np.str_('Ta'): np.float64(0.0099), np.str_('Pb'): np.float64(0.0409)}",0.019554,3.5391,0.024523,crystalline,synthetic
+CRYST_0046,"{np.str_('Pb'): np.float64(0.2298), np.str_('Nb'): np.float64(0.3466), np.str_('Al'): np.float64(0.1398), np.str_('Mn'): np.float64(0.2838)}",0.114981,-1.3558,0.099171,crystalline,synthetic
+CRYST_0047,"{np.str_('Fe'): np.float64(0.2975), np.str_('Sn'): np.float64(0.4344), np.str_('Ge'): np.float64(0.1159), np.str_('Mg'): np.float64(0.1523)}",0.079988,3.8378,0.052275,crystalline,synthetic
+CRYST_0048,"{np.str_('Sn'): np.float64(0.2473), np.str_('Hf'): np.float64(0.2374), np.str_('Ga'): np.float64(0.3334), np.str_('Pd'): np.float64(0.0527), np.str_('Co'): np.float64(0.1291)}",0.051234,5.1233,0.073002,crystalline,synthetic
+CRYST_0049,"{np.str_('In'): np.float64(0.4111), np.str_('Co'): np.float64(0.5507), np.str_('Ta'): np.float64(0.0382)}",0.118219,5.1371,0.006533,crystalline,synthetic
+CRYST_0050,"{np.str_('Pb'): np.float64(0.6921), np.str_('Co'): np.float64(0.3079)}",0.118425,2.055,0.043152,crystalline,synthetic
+CRYST_0051,"{np.str_('Ca'): np.float64(0.3235), np.str_('In'): np.float64(0.0365), np.str_('Fe'): np.float64(0.1838), np.str_('Hf'): np.float64(0.2958), np.str_('Ta'): np.float64(0.1604)}",0.151019,3.6122,0.093074,crystalline,synthetic
+CRYST_0052,"{np.str_('Be'): np.float64(0.1184), np.str_('Ga'): np.float64(0.8816)}",0.048421,2.5164,0.006012,crystalline,synthetic
+CRYST_0053,"{np.str_('Ca'): np.float64(0.6843), np.str_('Cr'): np.float64(0.2306), np.str_('Pb'): np.float64(0.0851)}",0.15943,7.1314,0.180557,crystalline,synthetic
+CRYST_0054,"{np.str_('Cr'): np.float64(0.4903), np.str_('Ni'): np.float64(0.5097)}",0.010955,3.9767,0.015619,crystalline,synthetic
+CRYST_0055,"{np.str_('Ni'): np.float64(0.0887), np.str_('Mn'): np.float64(0.4219), np.str_('Co'): np.float64(0.0089), np.str_('La'): np.float64(0.3025), np.str_('Ag'): np.float64(0.178)}",0.15933,3.7382,0.098294,crystalline,synthetic
+CRYST_0056,"{np.str_('Ca'): np.float64(0.0979), np.str_('V'): np.float64(0.4238), np.str_('Pt'): np.float64(0.3974), np.str_('Ti'): np.float64(0.0809)}",0.116574,3.2371,0.171559,crystalline,synthetic
+CRYST_0057,"{np.str_('Sn'): np.float64(0.3999), np.str_('Mn'): np.float64(0.0756), np.str_('Ce'): np.float64(0.1663), np.str_('Pb'): np.float64(0.3506), np.str_('Mo'): np.float64(0.0076)}",0.118005,3.8654,0.176795,crystalline,synthetic
+CRYST_0058,"{np.str_('La'): np.float64(0.2402), np.str_('Ag'): np.float64(0.3676), np.str_('Ca'): np.float64(0.2534), np.str_('Nb'): np.float64(0.1389)}",0.135707,4.9626,0.168558,crystalline,synthetic
+CRYST_0059,"{np.str_('Mo'): np.float64(0.7062), np.str_('Pt'): np.float64(0.2938)}",-0.025215,8.0749,0.002988,crystalline,synthetic
+CRYST_0060,"{np.str_('Ca'): np.float64(0.0945), np.str_('Ce'): np.float64(0.3493), np.str_('Mn'): np.float64(0.5562)}",0.189875,8.2962,0.052297,crystalline,synthetic
+CRYST_0061,"{np.str_('Zr'): np.float64(0.2264), np.str_('Ga'): np.float64(0.1954), np.str_('Y'): np.float64(0.207), np.str_('Nb'): np.float64(0.2073), np.str_('Al'): np.float64(0.1638)}",0.089543,7.177,0.045596,crystalline,synthetic
+CRYST_0062,"{np.str_('Zr'): np.float64(0.9833), np.str_('Hf'): np.float64(0.0167)}",0.000749,0.9712,1.5e-05,crystalline,synthetic
+CRYST_0063,"{np.str_('Mg'): np.float64(0.2272), np.str_('Cu'): np.float64(0.1883), np.str_('Hf'): np.float64(0.3943), np.str_('Sn'): np.float64(0.1902)}",0.069689,7.8327,0.092685,crystalline,synthetic
+CRYST_0064,"{np.str_('Al'): np.float64(0.3021), np.str_('Pb'): np.float64(0.257), np.str_('Bi'): np.float64(0.2546), np.str_('Ga'): np.float64(0.1862)}",0.08016,5.6187,0.076754,crystalline,synthetic
+CRYST_0065,"{np.str_('Al'): np.float64(0.0037), np.str_('Pb'): np.float64(0.4141), np.str_('Ag'): np.float64(0.5822)}",0.09272,5.2648,0.039589,crystalline,synthetic
+CRYST_0066,"{np.str_('V'): np.float64(0.3786), np.str_('Bi'): np.float64(0.4483), np.str_('Ta'): np.float64(0.1731)}",0.043061,7.3109,0.047906,crystalline,synthetic
+CRYST_0067,"{np.str_('Al'): np.float64(0.6307), np.str_('Pb'): np.float64(0.3693)}",0.074395,5.038,0.120744,crystalline,synthetic
+CRYST_0068,"{np.str_('Ga'): np.float64(0.1298), np.str_('Zr'): np.float64(0.6177), np.str_('Ce'): np.float64(0.2525)}",0.08383,6.6789,0.040955,crystalline,synthetic
+CRYST_0069,"{np.str_('Zr'): np.float64(0.06), np.str_('Ca'): np.float64(0.3108), np.str_('W'): np.float64(0.5047), np.str_('Be'): np.float64(0.1245)}",0.17525,-0.7307,0.376504,crystalline,synthetic
+CRYST_0070,"{np.str_('La'): np.float64(0.1461), np.str_('Cu'): np.float64(0.3146), np.str_('In'): np.float64(0.5394)}",0.114459,0.3646,0.068293,crystalline,synthetic
+CRYST_0071,"{np.str_('Cu'): np.float64(0.2798), np.str_('Nb'): np.float64(0.1174), np.str_('Bi'): np.float64(0.1347), np.str_('Mn'): np.float64(0.301), np.str_('Al'): np.float64(0.1672)}",0.062837,8.4051,0.03355,crystalline,synthetic
+CRYST_0072,"{np.str_('In'): np.float64(0.276), np.str_('Bi'): np.float64(0.3083), np.str_('Ni'): np.float64(0.0269), np.str_('V'): np.float64(0.2676), np.str_('Ti'): np.float64(0.1212)}",0.070336,7.9333,0.031147,crystalline,synthetic
+CRYST_0073,"{np.str_('Y'): np.float64(0.3814), np.str_('Pt'): np.float64(0.2217), np.str_('Ni'): np.float64(0.1723), np.str_('Ta'): np.float64(0.2246)}",0.119712,6.3498,0.17504,crystalline,synthetic
+CRYST_0074,"{np.str_('Mn'): np.float64(0.1428), np.str_('Cr'): np.float64(0.2586), np.str_('Y'): np.float64(0.31), np.str_('Al'): np.float64(0.2886)}",0.143147,3.6219,0.03473,crystalline,synthetic
+CRYST_0075,"{np.str_('Ni'): np.float64(0.2074), np.str_('Pb'): np.float64(0.3219), np.str_('Ta'): np.float64(0.4707)}",0.113177,2.979,0.132568,crystalline,synthetic
+CRYST_0076,"{np.str_('Mg'): np.float64(0.0737), np.str_('Pb'): np.float64(0.4868), np.str_('Cr'): np.float64(0.4395)}",0.12479,1.8147,0.137336,crystalline,synthetic
+CRYST_0077,"{np.str_('Ga'): np.float64(0.3574), np.str_('Pd'): np.float64(0.2499), np.str_('Sn'): np.float64(0.3927)}",-0.010428,5.9368,0.022395,crystalline,synthetic
+CRYST_0078,"{np.str_('Al'): np.float64(0.1324), np.str_('Ta'): np.float64(0.2002), np.str_('Pb'): np.float64(0.4085), np.str_('Ni'): np.float64(0.2589)}",0.111068,1.2282,0.115152,crystalline,synthetic
+CRYST_0079,"{np.str_('Mo'): np.float64(0.3394), np.str_('Ni'): np.float64(0.2559), np.str_('Mg'): np.float64(0.1759), np.str_('Ti'): np.float64(0.2288)}",0.073746,0.9807,0.104761,crystalline,synthetic
+CRYST_0080,"{np.str_('Nb'): np.float64(0.1464), np.str_('Bi'): np.float64(0.1871), np.str_('W'): np.float64(0.3286), np.str_('Mo'): np.float64(0.0407), np.str_('In'): np.float64(0.2971)}",0.069788,-1.4245,0.081486,crystalline,synthetic
+CRYST_0081,"{np.str_('W'): np.float64(0.5704), np.str_('Hf'): np.float64(0.1672), np.str_('Al'): np.float64(0.2624)}",0.046227,1.4532,0.195566,crystalline,synthetic
+CRYST_0082,"{np.str_('Co'): np.float64(0.3648), np.str_('V'): np.float64(0.1832), np.str_('Ce'): np.float64(0.4519)}",0.16715,1.4133,0.120941,crystalline,synthetic
+CRYST_0083,"{np.str_('Cr'): np.float64(0.7903), np.str_('Ca'): np.float64(0.2097)}",0.18415,3.098,0.07219,crystalline,synthetic
+CRYST_0084,"{np.str_('Mg'): np.float64(0.3637), np.str_('Be'): np.float64(0.2474), np.str_('Zr'): np.float64(0.1146), np.str_('W'): np.float64(0.2743)}",0.108593,1.5391,0.193423,crystalline,synthetic
+CRYST_0085,"{np.str_('Ca'): np.float64(0.345), np.str_('Mn'): np.float64(0.1943), np.str_('In'): np.float64(0.0908), np.str_('Co'): np.float64(0.2612), np.str_('Ce'): np.float64(0.1088)}",0.174025,1.2679,0.140971,crystalline,synthetic
+CRYST_0086,"{np.str_('Ca'): np.float64(0.1421), np.str_('W'): np.float64(0.3232), np.str_('Pd'): np.float64(0.5348)}",0.11715,5.8774,0.198784,crystalline,synthetic
+CRYST_0087,"{np.str_('Sn'): np.float64(0.4338), np.str_('Mn'): np.float64(0.5662)}",0.039107,1.0414,0.041288,crystalline,synthetic
+CRYST_0088,"{np.str_('In'): np.float64(0.3597), np.str_('Be'): np.float64(0.1076), np.str_('Pt'): np.float64(0.3642), np.str_('Ni'): np.float64(0.1685)}",0.120006,2.1157,0.065734,crystalline,synthetic
+CRYST_0089,"{np.str_('Be'): np.float64(0.0886), np.str_('Zr'): np.float64(0.6944), np.str_('Mg'): np.float64(0.2069), np.str_('Cr'): np.float64(0.01)}",0.076805,0.9793,0.005858,crystalline,synthetic
+CRYST_0090,"{np.str_('Ti'): np.float64(0.4488), np.str_('Bi'): np.float64(0.5512)}",0.001826,4.0894,0.056996,crystalline,synthetic
+CRYST_0091,"{np.str_('Mo'): np.float64(0.3281), np.str_('V'): np.float64(0.4034), np.str_('Pd'): np.float64(0.2685)}",0.003226,-1.0086,0.07251,crystalline,synthetic
+CRYST_0092,"{np.str_('Be'): np.float64(0.5244), np.str_('Ni'): np.float64(0.2586), np.str_('Pt'): np.float64(0.1094), np.str_('Zr'): np.float64(0.0854), np.str_('Mo'): np.float64(0.0222)}",0.102476,3.8072,0.072662,crystalline,synthetic
+CRYST_0093,"{np.str_('Y'): np.float64(0.5381), np.str_('Ga'): np.float64(0.4619)}",0.135574,-1.3269,0.08652,crystalline,synthetic
+CRYST_0094,"{np.str_('Ge'): np.float64(0.4585), np.str_('Pd'): np.float64(0.3536), np.str_('Hf'): np.float64(0.1879)}",0.096303,7.4927,0.1031,crystalline,synthetic
+CRYST_0095,"{np.str_('Ta'): np.float64(0.301), np.str_('Zr'): np.float64(0.6901), np.str_('Pb'): np.float64(0.0089)}",0.037052,6.3534,0.01399,crystalline,synthetic
+CRYST_0096,"{np.str_('Ce'): np.float64(0.194), np.str_('Pb'): np.float64(0.806)}",-0.006904,5.0301,0.228933,crystalline,synthetic
+CRYST_0097,"{np.str_('In'): np.float64(0.8565), np.str_('Ti'): np.float64(0.1435)}",0.022936,3.0546,0.007079,crystalline,synthetic
+CRYST_0098,"{np.str_('Ce'): np.float64(0.1898), np.str_('Sn'): np.float64(0.1835), np.str_('Ag'): np.float64(0.1024), np.str_('Bi'): np.float64(0.3607), np.str_('Mg'): np.float64(0.1635)}",0.061787,-1.0694,0.14331,crystalline,synthetic
+CRYST_0099,"{np.str_('Ca'): np.float64(0.5417), np.str_('In'): np.float64(0.4583)}",0.081066,-0.9941,0.151042,crystalline,synthetic
+CRYST_0100,"{np.str_('Ni'): np.float64(0.2285), np.str_('Mn'): np.float64(0.532), np.str_('In'): np.float64(0.2394)}",0.122067,3.6976,0.023419,crystalline,synthetic
+CRYST_0101,"{np.str_('Ca'): np.float64(0.2265), np.str_('Hf'): np.float64(0.0949), np.str_('Pt'): np.float64(0.2446), np.str_('Mg'): np.float64(0.434)}",0.121623,0.1528,0.224332,crystalline,synthetic
+CRYST_0102,"{np.str_('Zr'): np.float64(0.3689), np.str_('Pt'): np.float64(0.591), np.str_('Y'): np.float64(0.0401)}",0.064481,2.8607,0.22357,crystalline,synthetic
+CRYST_0103,"{np.str_('Mn'): np.float64(0.2475), np.str_('In'): np.float64(0.2234), np.str_('Fe'): np.float64(0.1041), np.str_('Cu'): np.float64(0.1965), np.str_('Ta'): np.float64(0.2284)}",0.091397,3.0756,0.025607,crystalline,synthetic
+CRYST_0104,"{np.str_('Ta'): np.float64(0.7469), np.str_('Ca'): np.float64(0.2531)}",0.134876,-0.5283,0.04726,crystalline,synthetic
+CRYST_0105,"{np.str_('V'): np.float64(0.3269), np.str_('Sn'): np.float64(0.2738), np.str_('Ag'): np.float64(0.2714), np.str_('Ga'): np.float64(0.1279)}",0.006216,8.1755,0.020441,crystalline,synthetic
+CRYST_0106,"{np.str_('Nb'): np.float64(0.3562), np.str_('Ca'): np.float64(0.2757), np.str_('Fe'): np.float64(0.3681)}",0.165084,-1.7216,0.112203,crystalline,synthetic
+CRYST_0107,"{np.str_('Ge'): np.float64(0.2865), np.str_('Mg'): np.float64(0.3318), np.str_('Ni'): np.float64(0.1572), np.str_('Al'): np.float64(0.2245)}",0.110336,4.3164,0.085979,crystalline,synthetic
+CRYST_0108,"{np.str_('Bi'): np.float64(0.2376), np.str_('Hf'): np.float64(0.7624)}",-0.015652,1.4788,0.093906,crystalline,synthetic
+CRYST_0109,"{np.str_('Zr'): np.float64(0.2071), np.str_('Cr'): np.float64(0.7929)}",0.087742,1.613,0.017882,crystalline,synthetic
+CRYST_0110,"{np.str_('Ge'): np.float64(0.3233), np.str_('Ag'): np.float64(0.3897), np.str_('Ni'): np.float64(0.2871)}",0.068868,6.475,0.001779,crystalline,synthetic
+CRYST_0111,"{np.str_('Mg'): np.float64(0.5621), np.str_('Sn'): np.float64(0.1027), np.str_('Pt'): np.float64(0.3352)}",0.05038,2.0909,0.205196,crystalline,synthetic
+CRYST_0112,"{np.str_('Ta'): np.float64(0.7261), np.str_('Ce'): np.float64(0.2739)}",0.084676,8.1049,0.028718,crystalline,synthetic
+CRYST_0113,"{np.str_('Ti'): np.float64(0.6298), np.str_('Al'): np.float64(0.3702)}",-0.007895,3.3825,0.001142,crystalline,synthetic
+CRYST_0114,"{np.str_('V'): np.float64(0.0544), np.str_('Al'): np.float64(0.0358), np.str_('Mo'): np.float64(0.2353), np.str_('Ni'): np.float64(0.2916), np.str_('Nb'): np.float64(0.3829)}",0.066212,8.5145,0.05162,crystalline,synthetic
+CRYST_0115,"{np.str_('Bi'): np.float64(0.022), np.str_('V'): np.float64(0.3368), np.str_('Cu'): np.float64(0.3377), np.str_('Ag'): np.float64(0.3035)}",0.03336,1.6223,0.018871,crystalline,synthetic
+CRYST_0116,"{np.str_('Hf'): np.float64(0.5197), np.str_('Ti'): np.float64(0.3248), np.str_('Y'): np.float64(0.1556)}",0.05411,7.9278,0.015414,crystalline,synthetic
+CRYST_0117,"{np.str_('Bi'): np.float64(0.0159), np.str_('Cr'): np.float64(0.3272), np.str_('Mg'): np.float64(0.304), np.str_('W'): np.float64(0.3529)}",0.07168,-1.4443,0.190802,crystalline,synthetic
+CRYST_0118,"{np.str_('Ga'): np.float64(0.2542), np.str_('Ti'): np.float64(0.0901), np.str_('Fe'): np.float64(0.1593), np.str_('Mo'): np.float64(0.2049), np.str_('Ge'): np.float64(0.2916)}",0.049279,3.1685,0.03154,crystalline,synthetic
+CRYST_0119,"{np.str_('Bi'): np.float64(0.2473), np.str_('Cu'): np.float64(0.223), np.str_('Zr'): np.float64(0.1365), np.str_('Y'): np.float64(0.1272), np.str_('Ag'): np.float64(0.266)}",0.097588,0.7266,0.090928,crystalline,synthetic
+CRYST_0120,"{np.str_('Bi'): np.float64(0.2057), np.str_('Y'): np.float64(0.159), np.str_('Cr'): np.float64(0.2918), np.str_('Pb'): np.float64(0.3434)}",0.116245,-2.2298,0.156752,crystalline,synthetic
+CRYST_0121,"{np.str_('Ni'): np.float64(0.5126), np.str_('La'): np.float64(0.1005), np.str_('Cu'): np.float64(0.3869)}",0.124519,-0.1273,0.058705,crystalline,synthetic
+CRYST_0122,"{np.str_('Ca'): np.float64(0.3354), np.str_('Mg'): np.float64(0.1601), np.str_('Co'): np.float64(0.3267), np.str_('Mo'): np.float64(0.1778)}",0.191834,4.5973,0.212373,crystalline,synthetic
+CRYST_0123,"{np.str_('Ta'): np.float64(0.2497), np.str_('Ce'): np.float64(0.7503)}",0.068918,5.8523,0.027053,crystalline,synthetic
+CRYST_0124,"{np.str_('Pt'): np.float64(0.2588), np.str_('Al'): np.float64(0.3319), np.str_('Be'): np.float64(0.166), np.str_('Pb'): np.float64(0.2432)}",0.117727,2.3639,0.125636,crystalline,synthetic
+CRYST_0125,"{np.str_('Mo'): np.float64(0.3101), np.str_('Fe'): np.float64(0.1612), np.str_('Al'): np.float64(0.5287)}",0.022255,0.861,0.059164,crystalline,synthetic
+CRYST_0126,"{np.str_('V'): np.float64(0.1176), np.str_('Ti'): np.float64(0.087), np.str_('Y'): np.float64(0.1544), np.str_('Be'): np.float64(0.2756), np.str_('Mn'): np.float64(0.3653)}",0.162157,7.2156,0.016324,crystalline,synthetic
+CRYST_0127,"{np.str_('Zr'): np.float64(0.2525), np.str_('Mo'): np.float64(0.035), np.str_('Ge'): np.float64(0.0276), np.str_('Nb'): np.float64(0.2359), np.str_('Pd'): np.float64(0.449)}",0.052979,2.7562,0.141773,crystalline,synthetic
+CRYST_0128,"{np.str_('Cr'): np.float64(0.3157), np.str_('La'): np.float64(0.1124), np.str_('Mg'): np.float64(0.5719)}",0.113509,2.9047,0.03608,crystalline,synthetic
+CRYST_0129,"{np.str_('Pt'): np.float64(0.267), np.str_('La'): np.float64(0.0777), np.str_('Ni'): np.float64(0.331), np.str_('Ce'): np.float64(0.2382), np.str_('In'): np.float64(0.0861)}",0.13728,0.766,0.210909,crystalline,synthetic
+CRYST_0130,"{np.str_('Pd'): np.float64(0.0065), np.str_('Pt'): np.float64(0.3927), np.str_('Zr'): np.float64(0.069), np.str_('Mg'): np.float64(0.3847), np.str_('Bi'): np.float64(0.1471)}",0.054592,-2.1581,0.20624,crystalline,synthetic
+CRYST_0131,"{np.str_('Y'): np.float64(0.5072), np.str_('La'): np.float64(0.0619), np.str_('Co'): np.float64(0.179), np.str_('V'): np.float64(0.1709), np.str_('Ge'): np.float64(0.0809)}",0.142618,5.4919,0.098202,crystalline,synthetic
+CRYST_0132,"{np.str_('Ti'): np.float64(0.7126), np.str_('Hf'): np.float64(0.1516), np.str_('Pd'): np.float64(0.1358)}",0.020509,7.5276,0.065052,crystalline,synthetic
+CRYST_0133,"{np.str_('Mn'): np.float64(0.0292), np.str_('Zr'): np.float64(0.9708)}",0.028274,4.6331,0.001372,crystalline,synthetic
+CRYST_0134,"{np.str_('Sn'): np.float64(0.3194), np.str_('La'): np.float64(0.1086), np.str_('Ni'): np.float64(0.3751), np.str_('Al'): np.float64(0.1969)}",0.125225,7.127,0.072594,crystalline,synthetic
+CRYST_0135,"{np.str_('Cu'): np.float64(0.1497), np.str_('Mg'): np.float64(0.178), np.str_('Sn'): np.float64(0.2158), np.str_('Mo'): np.float64(0.2396), np.str_('W'): np.float64(0.217)}",0.057069,7.9833,0.119947,crystalline,synthetic
+CRYST_0136,"{np.str_('Pb'): np.float64(0.0826), np.str_('W'): np.float64(0.8419), np.str_('Be'): np.float64(0.0755)}",0.074034,1.7546,0.043335,crystalline,synthetic
+CRYST_0137,"{np.str_('Pd'): np.float64(0.361), np.str_('Hf'): np.float64(0.331), np.str_('Zr'): np.float64(0.3081)}",0.050358,3.3549,0.181047,crystalline,synthetic
+CRYST_0138,"{np.str_('Mg'): np.float64(0.4429), np.str_('Ca'): np.float64(0.4321), np.str_('Co'): np.float64(0.0271), np.str_('Ta'): np.float64(0.0979)}",0.1088,2.8747,0.043883,crystalline,synthetic
+CRYST_0139,"{np.str_('Ca'): np.float64(0.237), np.str_('In'): np.float64(0.0339), np.str_('Ge'): np.float64(0.2606), np.str_('Co'): np.float64(0.4685)}",0.202311,4.1399,0.156566,crystalline,synthetic
+CRYST_0140,"{np.str_('V'): np.float64(0.4507), np.str_('Hf'): np.float64(0.3499), np.str_('Al'): np.float64(0.1367), np.str_('Mn'): np.float64(0.0628)}",0.071509,7.3596,0.023378,crystalline,synthetic
+CRYST_0141,"{np.str_('Pt'): np.float64(0.3455), np.str_('Cr'): np.float64(0.1695), np.str_('Ti'): np.float64(0.4851)}",0.045819,3.1572,0.115463,crystalline,synthetic
+CRYST_0142,"{np.str_('Mg'): np.float64(0.3145), np.str_('W'): np.float64(0.1109), np.str_('Co'): np.float64(0.0627), np.str_('Sn'): np.float64(0.2687), np.str_('Ge'): np.float64(0.2431)}",0.078468,7.474,0.128241,crystalline,synthetic
+CRYST_0143,"{np.str_('Y'): np.float64(0.3407), np.str_('Ca'): np.float64(0.3998), np.str_('Mg'): np.float64(0.2595)}",0.075457,6.857,0.017279,crystalline,synthetic
+CRYST_0144,"{np.str_('Ce'): np.float64(0.9215), np.str_('Ni'): np.float64(0.0529), np.str_('Cu'): np.float64(0.0256)}",0.076324,1.2517,0.044776,crystalline,synthetic
+CRYST_0145,"{np.str_('Sn'): np.float64(0.7299), np.str_('Ag'): np.float64(0.2701)}",-0.002577,6.416,0.000177,crystalline,synthetic
+CRYST_0146,"{np.str_('Bi'): np.float64(0.3744), np.str_('Ti'): np.float64(0.133), np.str_('Be'): np.float64(0.135), np.str_('Ce'): np.float64(0.2095), np.str_('Ca'): np.float64(0.148)}",0.158129,4.6159,0.166245,crystalline,synthetic
+CRYST_0147,"{np.str_('Al'): np.float64(0.1085), np.str_('Sn'): np.float64(0.2269), np.str_('Pd'): np.float64(0.2864), np.str_('Ce'): np.float64(0.1143), np.str_('Ge'): np.float64(0.2639)}",0.110343,-0.09,0.108388,crystalline,synthetic
+CRYST_0148,"{np.str_('Y'): np.float64(0.5199), np.str_('Mn'): np.float64(0.4801)}",0.167221,7.1848,0.027182,crystalline,synthetic
+CRYST_0149,"{np.str_('Ce'): np.float64(0.244), np.str_('Co'): np.float64(0.3307), np.str_('Mn'): np.float64(0.4253)}",0.143132,5.7718,0.081111,crystalline,synthetic
+CRYST_0150,"{np.str_('Ce'): np.float64(0.3627), np.str_('Mn'): np.float64(0.2087), np.str_('Co'): np.float64(0.2098), np.str_('Pt'): np.float64(0.1354), np.str_('In'): np.float64(0.0833)}",0.147457,-1.7732,0.165494,crystalline,synthetic
+CRYST_0151,"{np.str_('Hf'): np.float64(0.1956), np.str_('Sn'): np.float64(0.8044)}",0.045706,-0.4536,0.068538,crystalline,synthetic
+CRYST_0152,"{np.str_('Pb'): np.float64(0.4013), np.str_('Cr'): np.float64(0.5987)}",0.141555,7.8826,0.107852,crystalline,synthetic
+CRYST_0153,"{np.str_('Cr'): np.float64(0.0493), np.str_('Be'): np.float64(0.3914), np.str_('Cu'): np.float64(0.4076), np.str_('Ge'): np.float64(0.1517)}",0.046807,3.5179,0.031846,crystalline,synthetic
+CRYST_0154,"{np.str_('Pd'): np.float64(0.0094), np.str_('Sn'): np.float64(0.5243), np.str_('Y'): np.float64(0.2543), np.str_('Hf'): np.float64(0.212)}",0.097201,2.1337,0.125968,crystalline,synthetic
+CRYST_0155,"{np.str_('Be'): np.float64(0.3355), np.str_('Cu'): np.float64(0.1156), np.str_('Mg'): np.float64(0.5489)}",0.131769,-0.9448,0.03876,crystalline,synthetic
+CRYST_0156,"{np.str_('Ag'): np.float64(0.2279), np.str_('Ni'): np.float64(0.4454), np.str_('Nb'): np.float64(0.3267)}",0.058537,8.6216,0.022132,crystalline,synthetic
+CRYST_0157,"{np.str_('Sn'): np.float64(0.1408), np.str_('Zr'): np.float64(0.0852), np.str_('Hf'): np.float64(0.2278), np.str_('Al'): np.float64(0.2778), np.str_('Cr'): np.float64(0.2684)}",0.075947,6.4378,0.045481,crystalline,synthetic
+CRYST_0158,"{np.str_('La'): np.float64(0.3004), np.str_('Co'): np.float64(0.1753), np.str_('Al'): np.float64(0.1771), np.str_('Pb'): np.float64(0.3471)}",0.113881,0.4063,0.250101,crystalline,synthetic
+CRYST_0159,"{np.str_('Al'): np.float64(0.3326), np.str_('Cu'): np.float64(0.6674)}",0.039093,6.0474,0.018668,crystalline,synthetic
+CRYST_0160,"{np.str_('Pt'): np.float64(0.3132), np.str_('Pd'): np.float64(0.1586), np.str_('Bi'): np.float64(0.2806), np.str_('Ti'): np.float64(0.2477)}",0.047751,0.6973,0.083302,crystalline,synthetic
+CRYST_0161,"{np.str_('Ca'): np.float64(0.1643), np.str_('Co'): np.float64(0.47), np.str_('Nb'): np.float64(0.2309), np.str_('Ta'): np.float64(0.1348)}",0.161772,4.9193,0.096962,crystalline,synthetic
+CRYST_0162,"{np.str_('Cu'): np.float64(0.1287), np.str_('Mo'): np.float64(0.3091), np.str_('Bi'): np.float64(0.4967), np.str_('La'): np.float64(0.0655)}",0.072506,0.6095,0.062299,crystalline,synthetic
+CRYST_0163,"{np.str_('Pb'): np.float64(0.3485), np.str_('Nb'): np.float64(0.2589), np.str_('V'): np.float64(0.3926)}",0.091416,4.5256,0.115216,crystalline,synthetic
+CRYST_0164,"{np.str_('Bi'): np.float64(0.5937), np.str_('Cr'): np.float64(0.2826), np.str_('Ag'): np.float64(0.1238)}",0.079527,0.7082,0.024888,crystalline,synthetic
+CRYST_0165,"{np.str_('Ca'): np.float64(0.1712), np.str_('Mo'): np.float64(0.0321), np.str_('Ta'): np.float64(0.269), np.str_('Co'): np.float64(0.4213), np.str_('Mn'): np.float64(0.1064)}",0.163775,-0.1121,0.107683,crystalline,synthetic
+CRYST_0166,"{np.str_('Sn'): np.float64(0.3514), np.str_('V'): np.float64(0.3407), np.str_('In'): np.float64(0.3078)}",0.07415,5.8097,0.018904,crystalline,synthetic
+CRYST_0167,"{np.str_('La'): np.float64(0.2683), np.str_('Cr'): np.float64(0.3775), np.str_('Sn'): np.float64(0.0239), np.str_('Ni'): np.float64(0.2934), np.str_('Ca'): np.float64(0.0369)}",0.187791,3.4319,0.11185,crystalline,synthetic
+CRYST_0168,"{np.str_('Y'): np.float64(0.2532), np.str_('Pb'): np.float64(0.0037), np.str_('W'): np.float64(0.402), np.str_('Ag'): np.float64(0.341)}",0.092696,-1.9597,0.20253,crystalline,synthetic
+CRYST_0169,"{np.str_('Cu'): np.float64(0.4718), np.str_('Y'): np.float64(0.5282)}",0.152923,6.8485,0.115232,crystalline,synthetic
+CRYST_0170,"{np.str_('Cu'): np.float64(0.2905), np.str_('Ta'): np.float64(0.6212), np.str_('Y'): np.float64(0.0882)}",0.073148,4.9121,0.045021,crystalline,synthetic
+CRYST_0171,"{np.str_('Cu'): np.float64(0.3115), np.str_('Ga'): np.float64(0.2427), np.str_('Cr'): np.float64(0.1077), np.str_('Ce'): np.float64(0.3381)}",0.151288,0.7684,0.116894,crystalline,synthetic
+CRYST_0172,"{np.str_('Sn'): np.float64(0.2608), np.str_('Ni'): np.float64(0.3034), np.str_('Ti'): np.float64(0.0514), np.str_('Ag'): np.float64(0.2089), np.str_('Cu'): np.float64(0.1755)}",0.048678,6.1526,0.007777,crystalline,synthetic
+CRYST_0173,"{np.str_('Ga'): np.float64(0.2186), np.str_('Ag'): np.float64(0.2545), np.str_('Al'): np.float64(0.1132), np.str_('Be'): np.float64(0.1922), np.str_('Hf'): np.float64(0.2214)}",0.105767,1.7594,0.054003,crystalline,synthetic
+CRYST_0174,"{np.str_('Bi'): np.float64(0.1288), np.str_('Mo'): np.float64(0.8712)}",0.02321,8.9212,0.002199,crystalline,synthetic
+CRYST_0175,"{np.str_('Ce'): np.float64(0.706), np.str_('Fe'): np.float64(0.294)}",0.137494,4.2929,0.104633,crystalline,synthetic
+CRYST_0176,"{np.str_('Co'): np.float64(0.3528), np.str_('Zr'): np.float64(0.6472)}",0.089233,3.2253,0.06907,crystalline,synthetic
+CRYST_0177,"{np.str_('Ca'): np.float64(0.361), np.str_('Ge'): np.float64(0.639)}",0.241582,-1.7064,0.235316,crystalline,synthetic
+CRYST_0178,"{np.str_('Be'): np.float64(0.1996), np.str_('Ti'): np.float64(0.1937), np.str_('Pt'): np.float64(0.2654), np.str_('Cr'): np.float64(0.1651), np.str_('Nb'): np.float64(0.1762)}",0.070535,4.9948,0.094343,crystalline,synthetic
+CRYST_0179,"{np.str_('Sn'): np.float64(0.4696), np.str_('Y'): np.float64(0.5304)}",0.106733,1.3904,0.136394,crystalline,synthetic
+CRYST_0180,"{np.str_('Al'): np.float64(0.5108), np.str_('Pb'): np.float64(0.4892)}",0.088549,7.8522,0.12954,crystalline,synthetic
+CRYST_0181,"{np.str_('Mg'): np.float64(0.8392), np.str_('Sn'): np.float64(0.1608)}",0.028198,-0.1639,0.057014,crystalline,synthetic
+CRYST_0182,"{np.str_('Be'): np.float64(0.0156), np.str_('Bi'): np.float64(0.164), np.str_('Cr'): np.float64(0.1149), np.str_('Mo'): np.float64(0.7055)}",0.043625,4.4188,0.029339,crystalline,synthetic
+CRYST_0183,"{np.str_('Ca'): np.float64(0.2547), np.str_('Ni'): np.float64(0.4921), np.str_('Cu'): np.float64(0.2532)}",0.190692,-0.4312,0.156042,crystalline,synthetic
+CRYST_0184,"{np.str_('Be'): np.float64(0.1927), np.str_('Al'): np.float64(0.2984), np.str_('In'): np.float64(0.3709), np.str_('Ga'): np.float64(0.138)}",0.114819,4.5912,0.009667,crystalline,synthetic
+CRYST_0185,"{np.str_('Ni'): np.float64(0.4688), np.str_('Ag'): np.float64(0.3249), np.str_('W'): np.float64(0.2063)}",0.051731,4.5195,0.032039,crystalline,synthetic
+CRYST_0186,"{np.str_('Nb'): np.float64(0.0129), np.str_('Ge'): np.float64(0.5312), np.str_('Pb'): np.float64(0.4558)}",0.158407,0.8586,0.029081,crystalline,synthetic
+CRYST_0187,"{np.str_('Nb'): np.float64(0.5152), np.str_('Mg'): np.float64(0.3367), np.str_('Ta'): np.float64(0.1481)}",0.041642,-0.3295,0.017152,crystalline,synthetic
+CRYST_0188,"{np.str_('Ce'): np.float64(0.2147), np.str_('Mn'): np.float64(0.7853)}",0.157001,6.1796,0.031175,crystalline,synthetic
+CRYST_0189,"{np.str_('Sn'): np.float64(0.0826), np.str_('V'): np.float64(0.3526), np.str_('La'): np.float64(0.1823), np.str_('Be'): np.float64(0.261), np.str_('Al'): np.float64(0.1216)}",0.171687,-0.7617,0.053544,crystalline,synthetic
+CRYST_0190,"{np.str_('Mg'): np.float64(0.4818), np.str_('Pb'): np.float64(0.1243), np.str_('Ga'): np.float64(0.3939)}",0.072919,5.4042,0.122992,crystalline,synthetic
+CRYST_0191,"{np.str_('Ti'): np.float64(0.4071), np.str_('La'): np.float64(0.1225), np.str_('Pt'): np.float64(0.2641), np.str_('Al'): np.float64(0.2063)}",0.087039,-0.7589,0.14502,crystalline,synthetic
+CRYST_0192,"{np.str_('Nb'): np.float64(0.1857), np.str_('Ga'): np.float64(0.2633), np.str_('Ge'): np.float64(0.151), np.str_('Cu'): np.float64(0.0998), np.str_('Hf'): np.float64(0.3002)}",0.084724,2.569,0.069736,crystalline,synthetic
+CRYST_0193,"{np.str_('Pb'): np.float64(0.8436), np.str_('Al'): np.float64(0.1564)}",0.065311,7.9321,0.068397,crystalline,synthetic
+CRYST_0194,"{np.str_('Ge'): np.float64(0.62), np.str_('Pd'): np.float64(0.38)}",0.04297,8.4972,0.008505,crystalline,synthetic
+CRYST_0195,"{np.str_('Ca'): np.float64(0.1481), np.str_('In'): np.float64(0.2764), np.str_('Zr'): np.float64(0.3469), np.str_('Co'): np.float64(0.0948), np.str_('Y'): np.float64(0.1338)}",0.106153,4.9554,0.089642,crystalline,synthetic
+CRYST_0196,"{np.str_('W'): np.float64(0.1999), np.str_('Fe'): np.float64(0.0435), np.str_('V'): np.float64(0.3246), np.str_('Bi'): np.float64(0.432)}",0.056893,0.7386,0.069576,crystalline,synthetic
+CRYST_0197,"{np.str_('Ti'): np.float64(0.4443), np.str_('Fe'): np.float64(0.4633), np.str_('Bi'): np.float64(0.0924)}",0.062215,0.3905,0.028316,crystalline,synthetic
+CRYST_0198,"{np.str_('V'): np.float64(0.5096), np.str_('La'): np.float64(0.2493), np.str_('Ce'): np.float64(0.241)}",0.140166,3.8137,0.067661,crystalline,synthetic
+CRYST_0199,"{np.str_('Cr'): np.float64(0.0304), np.str_('Ag'): np.float64(0.3991), np.str_('Hf'): np.float64(0.1398), np.str_('Co'): np.float64(0.3583), np.str_('Be'): np.float64(0.0725)}",0.092884,4.4818,0.048313,crystalline,synthetic
+CRYST_0200,"{np.str_('Cr'): np.float64(0.8021), np.str_('Zr'): np.float64(0.1979)}",0.080336,8.9143,0.017286,crystalline,synthetic
+CRYST_0201,"{np.str_('Sn'): np.float64(0.875), np.str_('Zr'): np.float64(0.125)}",0.034985,6.9836,0.043411,crystalline,synthetic
+CRYST_0202,"{np.str_('Fe'): np.float64(0.0692), np.str_('Mg'): np.float64(0.3108), np.str_('Ge'): np.float64(0.2749), np.str_('Pd'): np.float64(0.345)}",0.10383,-0.798,0.139937,crystalline,synthetic
+CRYST_0203,"{np.str_('Mo'): np.float64(0.5028), np.str_('Mn'): np.float64(0.4972)}",0.030593,2.421,0.093022,crystalline,synthetic
+CRYST_0204,"{np.str_('Nb'): np.float64(0.3832), np.str_('Mg'): np.float64(0.2828), np.str_('Hf'): np.float64(0.3288), np.str_('V'): np.float64(0.0052)}",0.032866,6.6039,0.020801,crystalline,synthetic
+CRYST_0205,"{np.str_('Zr'): np.float64(0.3623), np.str_('Pt'): np.float64(0.1007), np.str_('In'): np.float64(0.2184), np.str_('Y'): np.float64(0.0694), np.str_('Nb'): np.float64(0.2492)}",0.06616,3.1374,0.089804,crystalline,synthetic
+CRYST_0206,"{np.str_('Co'): np.float64(0.1383), np.str_('Ge'): np.float64(0.8617)}",0.001927,1.5994,0.002014,crystalline,synthetic
+CRYST_0207,"{np.str_('Co'): np.float64(0.4747), np.str_('Pt'): np.float64(0.1718), np.str_('Sn'): np.float64(0.3535)}",0.031002,8.4495,0.020341,crystalline,synthetic
+CRYST_0208,"{np.str_('Ge'): np.float64(0.2909), np.str_('Fe'): np.float64(0.1194), np.str_('Ni'): np.float64(0.1318), np.str_('Mg'): np.float64(0.247), np.str_('Pd'): np.float64(0.2108)}",0.103351,6.0928,0.105761,crystalline,synthetic
+CRYST_0209,"{np.str_('Ta'): np.float64(0.213), np.str_('Ag'): np.float64(0.4178), np.str_('Cr'): np.float64(0.1772), np.str_('Ca'): np.float64(0.1921)}",0.133659,2.4531,0.11728,crystalline,synthetic
+CRYST_0210,"{np.str_('Zr'): np.float64(0.9137), np.str_('Ce'): np.float64(0.0863)}",0.023476,1.1153,0.003477,crystalline,synthetic
+CRYST_0211,"{np.str_('Bi'): np.float64(0.1323), np.str_('W'): np.float64(0.382), np.str_('Pd'): np.float64(0.2668), np.str_('Sn'): np.float64(0.034), np.str_('V'): np.float64(0.1849)}",0.020501,6.0671,0.070285,crystalline,synthetic
+CRYST_0212,"{np.str_('Bi'): np.float64(0.2213), np.str_('Mg'): np.float64(0.0768), np.str_('Ta'): np.float64(0.3339), np.str_('Ag'): np.float64(0.3679)}",0.032733,-0.9751,0.063714,crystalline,synthetic
+CRYST_0213,"{np.str_('Ag'): np.float64(0.4248), np.str_('Y'): np.float64(0.2647), np.str_('Cr'): np.float64(0.3105)}",0.113415,6.8992,0.082211,crystalline,synthetic
+CRYST_0214,"{np.str_('Bi'): np.float64(0.242), np.str_('La'): np.float64(0.1236), np.str_('Ta'): np.float64(0.2105), np.str_('Mo'): np.float64(0.23), np.str_('Nb'): np.float64(0.1939)}",0.079885,4.0777,0.126039,crystalline,synthetic
+CRYST_0215,"{np.str_('Pt'): np.float64(0.4488), np.str_('Pb'): np.float64(0.5512)}",0.108594,2.0277,0.000618,crystalline,synthetic
+CRYST_0216,"{np.str_('Fe'): np.float64(0.324), np.str_('Be'): np.float64(0.2446), np.str_('Mg'): np.float64(0.4314)}",0.12133,-0.0734,0.050285,crystalline,synthetic
+CRYST_0217,"{np.str_('Co'): np.float64(0.1166), np.str_('Zr'): np.float64(0.0353), np.str_('Fe'): np.float64(0.3212), np.str_('Hf'): np.float64(0.5269)}",0.111122,1.501,0.072397,crystalline,synthetic
+CRYST_0218,"{np.str_('Ca'): np.float64(0.2185), np.str_('Pt'): np.float64(0.29), np.str_('Ti'): np.float64(0.2096), np.str_('Cu'): np.float64(0.2819)}",0.148537,-0.6334,0.219812,crystalline,synthetic
+CRYST_0219,"{np.str_('In'): np.float64(0.3204), np.str_('Ta'): np.float64(0.1233), np.str_('Cu'): np.float64(0.2362), np.str_('Hf'): np.float64(0.3201)}",0.075711,-1.4704,0.061274,crystalline,synthetic
+CRYST_0220,"{np.str_('In'): np.float64(0.2104), np.str_('Mg'): np.float64(0.4006), np.str_('Bi'): np.float64(0.389)}",0.001228,-0.9936,0.101889,crystalline,synthetic
+CRYST_0221,"{np.str_('Mg'): np.float64(0.5886), np.str_('Be'): np.float64(0.4114)}",0.138706,7.1767,0.016369,crystalline,synthetic
+CRYST_0222,"{np.str_('Y'): np.float64(0.832), np.str_('Zr'): np.float64(0.168)}",0.027742,7.0923,0.001691,crystalline,synthetic
+CRYST_0223,"{np.str_('Ag'): np.float64(0.21), np.str_('Pt'): np.float64(0.3707), np.str_('Bi'): np.float64(0.3016), np.str_('Ta'): np.float64(0.1178)}",0.027881,3.2568,0.05835,crystalline,synthetic
+CRYST_0224,"{np.str_('Bi'): np.float64(0.2633), np.str_('Ga'): np.float64(0.093), np.str_('Ce'): np.float64(0.2817), np.str_('In'): np.float64(0.362)}",0.078726,3.0553,0.123573,crystalline,synthetic
+CRYST_0225,"{np.str_('Cr'): np.float64(0.4717), np.str_('Ca'): np.float64(0.3129), np.str_('Ga'): np.float64(0.2154)}",0.203221,3.1712,0.110799,crystalline,synthetic
+CRYST_0226,"{np.str_('Sn'): np.float64(0.2211), np.str_('Ta'): np.float64(0.2643), np.str_('V'): np.float64(0.5146)}",0.031509,0.1325,0.027054,crystalline,synthetic
+CRYST_0227,"{np.str_('Ni'): np.float64(0.6299), np.str_('Mo'): np.float64(0.3701)}",0.054126,2.6757,0.01457,crystalline,synthetic
+CRYST_0228,"{np.str_('Cr'): np.float64(0.2768), np.str_('In'): np.float64(0.1788), np.str_('Bi'): np.float64(0.5444)}",0.087526,6.2613,0.025849,crystalline,synthetic
+CRYST_0229,"{np.str_('V'): np.float64(0.0298), np.str_('Ta'): np.float64(0.401), np.str_('La'): np.float64(0.2646), np.str_('Mg'): np.float64(0.3046)}",0.09691,2.5063,0.028287,crystalline,synthetic
+CRYST_0230,"{np.str_('Mg'): np.float64(0.0008), np.str_('La'): np.float64(0.5049), np.str_('Ga'): np.float64(0.4879), np.str_('In'): np.float64(0.0064)}",0.149341,3.8596,0.125794,crystalline,synthetic
+CRYST_0231,"{np.str_('Ta'): np.float64(0.1989), np.str_('Cu'): np.float64(0.2685), np.str_('Hf'): np.float64(0.0931), np.str_('In'): np.float64(0.1963), np.str_('W'): np.float64(0.2433)}",0.084205,7.4976,0.117435,crystalline,synthetic
+CRYST_0232,"{np.str_('Ca'): np.float64(0.3876), np.str_('Hf'): np.float64(0.2779), np.str_('Al'): np.float64(0.2389), np.str_('Ag'): np.float64(0.0956)}",0.130365,5.6427,0.095462,crystalline,synthetic
+CRYST_0233,"{np.str_('Pb'): np.float64(0.4766), np.str_('Fe'): np.float64(0.1684), np.str_('Ga'): np.float64(0.355)}",0.117836,3.2182,0.065839,crystalline,synthetic
+CRYST_0234,"{np.str_('Fe'): np.float64(0.2099), np.str_('V'): np.float64(0.1525), np.str_('Nb'): np.float64(0.3283), np.str_('Mn'): np.float64(0.2355), np.str_('Co'): np.float64(0.0739)}",0.039192,2.1689,0.013808,crystalline,synthetic
+CRYST_0235,"{np.str_('Ga'): np.float64(0.0804), np.str_('Ce'): np.float64(0.4267), np.str_('Ni'): np.float64(0.4929)}",0.159583,5.3893,0.147991,crystalline,synthetic
+CRYST_0236,"{np.str_('Nb'): np.float64(0.2632), np.str_('Bi'): np.float64(0.3404), np.str_('V'): np.float64(0.1185), np.str_('Hf'): np.float64(0.2573), np.str_('Pt'): np.float64(0.0205)}",0.040433,0.9361,0.085854,crystalline,synthetic
+CRYST_0237,"{np.str_('Y'): np.float64(0.2041), np.str_('Fe'): np.float64(0.2691), np.str_('Pt'): np.float64(0.0552), np.str_('Cu'): np.float64(0.3003), np.str_('Ni'): np.float64(0.1712)}",0.128156,0.3833,0.085473,crystalline,synthetic
+CRYST_0238,"{np.str_('Ge'): np.float64(0.2413), np.str_('Ta'): np.float64(0.1779), np.str_('Mg'): np.float64(0.1703), np.str_('Y'): np.float64(0.4105)}",0.125405,3.1424,0.100506,crystalline,synthetic
+CRYST_0239,"{np.str_('La'): np.float64(0.0751), np.str_('Sn'): np.float64(0.2625), np.str_('Ga'): np.float64(0.4083), np.str_('Be'): np.float64(0.2542)}",0.136878,-1.142,0.052789,crystalline,synthetic
+CRYST_0240,"{np.str_('Ag'): np.float64(0.5106), np.str_('Mo'): np.float64(0.4894)}",-0.004073,0.8008,0.013219,crystalline,synthetic
+CRYST_0241,"{np.str_('Ce'): np.float64(0.6772), np.str_('Nb'): np.float64(0.3228)}",0.074044,5.6853,0.050365,crystalline,synthetic
+CRYST_0242,"{np.str_('Bi'): np.float64(0.2929), np.str_('Ni'): np.float64(0.2092), np.str_('Ca'): np.float64(0.3412), np.str_('Nb'): np.float64(0.1567)}",0.143039,-2.1712,0.19432,crystalline,synthetic
+CRYST_0243,"{np.str_('In'): np.float64(0.1808), np.str_('Nb'): np.float64(0.3856), np.str_('Ca'): np.float64(0.4336)}",0.134551,0.2668,0.110145,crystalline,synthetic
+CRYST_0244,"{np.str_('V'): np.float64(0.1891), np.str_('Pt'): np.float64(0.8109)}",0.000811,7.1611,0.064787,crystalline,synthetic
+CRYST_0245,"{np.str_('Ge'): np.float64(0.0964), np.str_('Al'): np.float64(0.0172), np.str_('Pd'): np.float64(0.221), np.str_('Fe'): np.float64(0.2597), np.str_('Be'): np.float64(0.4057)}",0.055715,2.7128,0.061533,crystalline,synthetic
+CRYST_0246,"{np.str_('Fe'): np.float64(0.3182), np.str_('Ga'): np.float64(0.1958), np.str_('Ti'): np.float64(0.3277), np.str_('Zr'): np.float64(0.0145), np.str_('Al'): np.float64(0.1437)}",0.038411,1.5982,0.019224,crystalline,synthetic
+CRYST_0247,"{np.str_('Cr'): np.float64(0.1356), np.str_('Fe'): np.float64(0.3247), np.str_('In'): np.float64(0.2454), np.str_('W'): np.float64(0.101), np.str_('Ce'): np.float64(0.1933)}",0.136239,-1.8874,0.116176,crystalline,synthetic
+CRYST_0248,"{np.str_('V'): np.float64(0.2528), np.str_('W'): np.float64(0.1235), np.str_('Ga'): np.float64(0.259), np.str_('Hf'): np.float64(0.3318), np.str_('Ca'): np.float64(0.0328)}",0.09169,2.5191,0.123312,crystalline,synthetic
+CRYST_0249,"{np.str_('W'): np.float64(0.3605), np.str_('Mo'): np.float64(0.6395)}",-0.019325,6.4816,0.009222,crystalline,synthetic
+CRYST_0250,"{np.str_('Ni'): np.float64(0.2704), np.str_('Ce'): np.float64(0.2026), np.str_('Mo'): np.float64(0.527)}",0.114613,5.3969,0.158579,crystalline,synthetic
+CRYST_0251,"{np.str_('Cu'): np.float64(0.085), np.str_('Bi'): np.float64(0.3268), np.str_('La'): np.float64(0.0313), np.str_('Ca'): np.float64(0.557)}",0.124717,5.7092,0.238642,crystalline,synthetic
+CRYST_0252,"{np.str_('Ta'): np.float64(0.1762), np.str_('Sn'): np.float64(0.1616), np.str_('Mn'): np.float64(0.1243), np.str_('Pt'): np.float64(0.2058), np.str_('Zr'): np.float64(0.3321)}",0.070241,7.4721,0.135228,crystalline,synthetic
+CRYST_0253,"{np.str_('Mo'): np.float64(0.0771), np.str_('Co'): np.float64(0.0814), np.str_('Pd'): np.float64(0.4304), np.str_('Bi'): np.float64(0.411)}",0.06203,0.0379,0.011142,crystalline,synthetic
+CRYST_0254,"{np.str_('Cr'): np.float64(0.7352), np.str_('La'): np.float64(0.2648)}",0.171421,2.5335,0.061052,crystalline,synthetic
+CRYST_0255,"{np.str_('Nb'): np.float64(0.2068), np.str_('Sn'): np.float64(0.4254), np.str_('Ni'): np.float64(0.288), np.str_('Zr'): np.float64(0.0294), np.str_('Ti'): np.float64(0.0503)}",0.041293,5.2758,0.03155,crystalline,synthetic
+CRYST_0256,"{np.str_('Mo'): np.float64(0.2185), np.str_('Pd'): np.float64(0.3308), np.str_('Nb'): np.float64(0.093), np.str_('Al'): np.float64(0.3577)}",-0.005666,4.84,0.082399,crystalline,synthetic
+CRYST_0257,"{np.str_('W'): np.float64(0.4476), np.str_('Pd'): np.float64(0.5524)}",0.006345,9.4034,0.00633,crystalline,synthetic
+CRYST_0258,"{np.str_('Mo'): np.float64(0.1098), np.str_('Sn'): np.float64(0.2916), np.str_('Ge'): np.float64(0.1728), np.str_('V'): np.float64(0.2863), np.str_('Ti'): np.float64(0.1394)}",0.037226,1.4602,0.045602,crystalline,synthetic
+CRYST_0259,"{np.str_('Bi'): np.float64(0.0349), np.str_('Pd'): np.float64(0.0683), np.str_('Mo'): np.float64(0.4512), np.str_('Ag'): np.float64(0.0474), np.str_('Mn'): np.float64(0.3982)}",0.046952,1.4104,0.085957,crystalline,synthetic
+CRYST_0260,"{np.str_('Cr'): np.float64(0.2447), np.str_('Mn'): np.float64(0.2252), np.str_('La'): np.float64(0.1906), np.str_('W'): np.float64(0.199), np.str_('Zr'): np.float64(0.1406)}",0.150512,4.1495,0.173828,crystalline,synthetic
+CRYST_0261,"{np.str_('Nb'): np.float64(0.3075), np.str_('Cu'): np.float64(0.6925)}",0.06114,6.6926,0.019165,crystalline,synthetic
+CRYST_0262,"{np.str_('Ca'): np.float64(0.6696), np.str_('Co'): np.float64(0.3304)}",0.189926,0.842,0.171325,crystalline,synthetic
+CRYST_0263,"{np.str_('Zr'): np.float64(0.4209), np.str_('Ti'): np.float64(0.4832), np.str_('Fe'): np.float64(0.0959)}",0.062748,6.2318,0.022957,crystalline,synthetic
+CRYST_0264,"{np.str_('Sn'): np.float64(0.2329), np.str_('Ta'): np.float64(0.4771), np.str_('Zr'): np.float64(0.29)}",0.049935,2.775,0.054318,crystalline,synthetic
+CRYST_0265,"{np.str_('Pt'): np.float64(0.2326), np.str_('Ge'): np.float64(0.2409), np.str_('Ga'): np.float64(0.1633), np.str_('W'): np.float64(0.3632)}",0.041674,7.0892,0.043249,crystalline,synthetic
+CRYST_0266,"{np.str_('Mo'): np.float64(0.0136), np.str_('Bi'): np.float64(0.5407), np.str_('Cu'): np.float64(0.0749), np.str_('Ce'): np.float64(0.2836), np.str_('Zr'): np.float64(0.0872)}",0.067498,3.5877,0.168576,crystalline,synthetic
+CRYST_0267,"{np.str_('Ca'): np.float64(0.4737), np.str_('Nb'): np.float64(0.432), np.str_('Cr'): np.float64(0.0943)}",0.140469,0.2765,0.093275,crystalline,synthetic
+CRYST_0268,"{np.str_('Fe'): np.float64(0.2652), np.str_('Ce'): np.float64(0.1308), np.str_('Ge'): np.float64(0.3351), np.str_('Hf'): np.float64(0.2689)}",0.156387,6.7583,0.121679,crystalline,synthetic
+CRYST_0269,"{np.str_('Fe'): np.float64(0.1086), np.str_('Be'): np.float64(0.2061), np.str_('Y'): np.float64(0.2141), np.str_('Mg'): np.float64(0.0794), np.str_('Al'): np.float64(0.3918)}",0.146219,7.2361,0.036893,crystalline,synthetic
+CRYST_0270,"{np.str_('Ta'): np.float64(0.4169), np.str_('Co'): np.float64(0.0381), np.str_('W'): np.float64(0.1455), np.str_('Pt'): np.float64(0.1973), np.str_('La'): np.float64(0.2022)}",0.100149,1.5994,0.220295,crystalline,synthetic
+CRYST_0271,"{np.str_('Mo'): np.float64(0.2315), np.str_('Ge'): np.float64(0.3948), np.str_('Pt'): np.float64(0.3496), np.str_('Be'): np.float64(0.0241)}",0.045087,2.476,0.021315,crystalline,synthetic
+CRYST_0272,"{np.str_('Ti'): np.float64(0.1852), np.str_('Ag'): np.float64(0.3978), np.str_('Fe'): np.float64(0.417)}",0.038689,0.5493,0.019359,crystalline,synthetic
+CRYST_0273,"{np.str_('Pd'): np.float64(0.2194), np.str_('Ca'): np.float64(0.0833), np.str_('Cr'): np.float64(0.2163), np.str_('Mg'): np.float64(0.3029), np.str_('Mn'): np.float64(0.1781)}",0.135873,-2.292,0.135665,crystalline,synthetic
+CRYST_0274,"{np.str_('V'): np.float64(0.5999), np.str_('Ce'): np.float64(0.2251), np.str_('Pt'): np.float64(0.1749)}",0.107194,3.5997,0.132443,crystalline,synthetic
+CRYST_0275,"{np.str_('Cu'): np.float64(0.4378), np.str_('Zr'): np.float64(0.1478), np.str_('La'): np.float64(0.183), np.str_('Hf'): np.float64(0.2314)}",0.137857,6.7487,0.111924,crystalline,synthetic
+CRYST_0276,"{np.str_('Pb'): np.float64(0.1198), np.str_('Co'): np.float64(0.2656), np.str_('Ce'): np.float64(0.0905), np.str_('Be'): np.float64(0.3223), np.str_('La'): np.float64(0.2018)}",0.207584,-0.0979,0.156195,crystalline,synthetic
+CRYST_0277,"{np.str_('La'): np.float64(0.0907), np.str_('Ge'): np.float64(0.2503), np.str_('Fe'): np.float64(0.2507), np.str_('Pb'): np.float64(0.2435), np.str_('Nb'): np.float64(0.1648)}",0.159744,5.7654,0.122107,crystalline,synthetic
+CRYST_0278,"{np.str_('Ta'): np.float64(0.2162), np.str_('Mo'): np.float64(0.3083), np.str_('Hf'): np.float64(0.4254), np.str_('Ni'): np.float64(0.0502)}",0.044477,3.6915,0.140437,crystalline,synthetic
+CRYST_0279,"{np.str_('Ge'): np.float64(0.0126), np.str_('W'): np.float64(0.9874)}",0.007424,6.4913,0.001524,crystalline,synthetic
+CRYST_0280,"{np.str_('Pt'): np.float64(0.5069), np.str_('Ca'): np.float64(0.4931)}",0.161806,6.1462,0.409522,crystalline,synthetic
+CRYST_0281,"{np.str_('Pt'): np.float64(0.3314), np.str_('Ag'): np.float64(0.3683), np.str_('Ti'): np.float64(0.0835), np.str_('Cu'): np.float64(0.2168)}",0.037556,3.7105,0.047575,crystalline,synthetic
+CRYST_0282,"{np.str_('Zr'): np.float64(0.2785), np.str_('Ni'): np.float64(0.218), np.str_('Ag'): np.float64(0.2814), np.str_('Ga'): np.float64(0.222)}",0.063405,4.8591,0.064296,crystalline,synthetic
+CRYST_0283,"{np.str_('Ni'): np.float64(0.0798), np.str_('W'): np.float64(0.1945), np.str_('Ta'): np.float64(0.2264), np.str_('Ga'): np.float64(0.2988), np.str_('Pd'): np.float64(0.2006)}",0.028197,3.8866,0.096774,crystalline,synthetic
+CRYST_0284,"{np.str_('La'): np.float64(0.3653), np.str_('Be'): np.float64(0.4486), np.str_('Ga'): np.float64(0.1861)}",0.212861,4.2242,0.075278,crystalline,synthetic
+CRYST_0285,"{np.str_('Mg'): np.float64(0.3824), np.str_('Co'): np.float64(0.2784), np.str_('Pt'): np.float64(0.3392)}",0.092172,2.9361,0.171742,crystalline,synthetic
+CRYST_0286,"{np.str_('Pd'): np.float64(0.1094), np.str_('In'): np.float64(0.0771), np.str_('La'): np.float64(0.1774), np.str_('Pt'): np.float64(0.3118), np.str_('Pb'): np.float64(0.3244)}",0.106436,-1.2675,0.210005,crystalline,synthetic
+CRYST_0287,"{np.str_('Bi'): np.float64(0.3619), np.str_('V'): np.float64(0.2926), np.str_('Hf'): np.float64(0.2794), np.str_('La'): np.float64(0.0661)}",0.073497,3.2949,0.103846,crystalline,synthetic
+CRYST_0288,"{np.str_('Ce'): np.float64(0.5738), np.str_('Pt'): np.float64(0.4262)}",0.108724,5.5151,0.329071,crystalline,synthetic
+CRYST_0289,"{np.str_('Ge'): np.float64(0.3221), np.str_('Ca'): np.float64(0.0912), np.str_('In'): np.float64(0.2557), np.str_('Y'): np.float64(0.0809), np.str_('Fe'): np.float64(0.25)}",0.15996,0.5077,0.097629,crystalline,synthetic
+CRYST_0290,"{np.str_('Ge'): np.float64(0.3001), np.str_('In'): np.float64(0.401), np.str_('Ag'): np.float64(0.2989)}",0.109719,7.5245,0.009637,crystalline,synthetic
+CRYST_0291,"{np.str_('Y'): np.float64(0.0253), np.str_('Mg'): np.float64(0.306), np.str_('Sn'): np.float64(0.1131), np.str_('Cu'): np.float64(0.5555)}",0.08421,3.0233,0.082156,crystalline,synthetic
+CRYST_0292,"{np.str_('Nb'): np.float64(0.2015), np.str_('Ag'): np.float64(0.3021), np.str_('Co'): np.float64(0.2495), np.str_('Pb'): np.float64(0.2469)}",0.098174,0.6373,0.061679,crystalline,synthetic
+CRYST_0293,"{np.str_('Al'): np.float64(0.4842), np.str_('Ce'): np.float64(0.0694), np.str_('Pb'): np.float64(0.4465)}",0.091878,-1.6439,0.165496,crystalline,synthetic
+CRYST_0294,"{np.str_('Nb'): np.float64(0.341), np.str_('Ga'): np.float64(0.2789), np.str_('Ti'): np.float64(0.3801)}",0.00902,9.0864,0.012389,crystalline,synthetic
+CRYST_0295,"{np.str_('Hf'): np.float64(0.0798), np.str_('V'): np.float64(0.2444), np.str_('Pd'): np.float64(0.1044), np.str_('Co'): np.float64(0.2189), np.str_('Mn'): np.float64(0.3525)}",0.044571,1.9656,0.054983,crystalline,synthetic
+CRYST_0296,"{np.str_('Be'): np.float64(0.1494), np.str_('Nb'): np.float64(0.3249), np.str_('V'): np.float64(0.0681), np.str_('Ge'): np.float64(0.4576)}",0.073468,5.239,0.042828,crystalline,synthetic
+CRYST_0297,"{np.str_('Zr'): np.float64(0.2253), np.str_('Cu'): np.float64(0.529), np.str_('Hf'): np.float64(0.2456)}",0.10855,6.58,0.085553,crystalline,synthetic
+CRYST_0298,"{np.str_('Y'): np.float64(0.1519), np.str_('Mo'): np.float64(0.2412), np.str_('Ce'): np.float64(0.6069)}",0.080587,-2.0692,0.191625,crystalline,synthetic
+CRYST_0299,"{np.str_('Mn'): np.float64(0.2228), np.str_('Ni'): np.float64(0.076), np.str_('In'): np.float64(0.5047), np.str_('Ti'): np.float64(0.0134), np.str_('Hf'): np.float64(0.1831)}",0.10924,7.9984,0.038481,crystalline,synthetic
+CRYST_0300,"{np.str_('Ni'): np.float64(0.1687), np.str_('Fe'): np.float64(0.1692), np.str_('Mg'): np.float64(0.2877), np.str_('In'): np.float64(0.2031), np.str_('Sn'): np.float64(0.1713)}",0.094819,0.6996,0.066902,crystalline,synthetic
+CRYST_0301,"{np.str_('Pd'): np.float64(0.3341), np.str_('Y'): np.float64(0.0731), np.str_('Cu'): np.float64(0.1567), np.str_('Ce'): np.float64(0.0965), np.str_('La'): np.float64(0.3396)}",0.134846,0.611,0.252055,crystalline,synthetic
+CRYST_0302,"{np.str_('Ta'): np.float64(0.0441), np.str_('Mn'): np.float64(0.5956), np.str_('Sn'): np.float64(0.3603)}",0.036122,7.3151,0.039501,crystalline,synthetic
+CRYST_0303,"{np.str_('Nb'): np.float64(0.3496), np.str_('Hf'): np.float64(0.3301), np.str_('Sn'): np.float64(0.3203)}",0.030448,-0.1477,0.070955,crystalline,synthetic
+CRYST_0304,"{np.str_('Be'): np.float64(0.6971), np.str_('Fe'): np.float64(0.3029)}",0.040252,3.1958,0.014274,crystalline,synthetic
+CRYST_0305,"{np.str_('Sn'): np.float64(0.2897), np.str_('Pt'): np.float64(0.0011), np.str_('Zr'): np.float64(0.2093), np.str_('Y'): np.float64(0.4999)}",0.093648,3.7562,0.105494,crystalline,synthetic
+CRYST_0306,"{np.str_('Hf'): np.float64(0.1205), np.str_('Ca'): np.float64(0.2854), np.str_('Mg'): np.float64(0.594)}",0.075061,0.4302,0.019396,crystalline,synthetic
+CRYST_0307,"{np.str_('In'): np.float64(0.0678), np.str_('Al'): np.float64(0.5008), np.str_('Ge'): np.float64(0.0333), np.str_('W'): np.float64(0.398)}",0.026925,-1.5607,0.126599,crystalline,synthetic
+CRYST_0308,"{np.str_('V'): np.float64(0.3631), np.str_('Mg'): np.float64(0.0628), np.str_('Zr'): np.float64(0.1663), np.str_('W'): np.float64(0.2131), np.str_('Mn'): np.float64(0.1947)}",0.071034,2.4269,0.131305,crystalline,synthetic
+CRYST_0309,"{np.str_('Cr'): np.float64(0.489), np.str_('Mn'): np.float64(0.3127), np.str_('Mg'): np.float64(0.1983)}",0.073175,7.164,0.017301,crystalline,synthetic
+CRYST_0310,"{np.str_('In'): np.float64(0.3588), np.str_('Be'): np.float64(0.0434), np.str_('W'): np.float64(0.0947), np.str_('Ag'): np.float64(0.3264), np.str_('Pb'): np.float64(0.1768)}",0.09918,2.2941,0.057732,crystalline,synthetic
+CRYST_0311,"{np.str_('Ga'): np.float64(0.346), np.str_('Pd'): np.float64(0.4601), np.str_('Ge'): np.float64(0.1939)}",0.041678,5.0201,0.030118,crystalline,synthetic
+CRYST_0312,"{np.str_('Fe'): np.float64(0.0638), np.str_('Mg'): np.float64(0.3709), np.str_('Ag'): np.float64(0.1968), np.str_('La'): np.float64(0.3129), np.str_('Ti'): np.float64(0.0556)}",0.096167,7.1182,0.099182,crystalline,synthetic
+CRYST_0313,"{np.str_('V'): np.float64(0.0118), np.str_('Hf'): np.float64(0.3123), np.str_('Pd'): np.float64(0.3164), np.str_('Pt'): np.float64(0.1934), np.str_('Sn'): np.float64(0.1661)}",0.065621,3.3031,0.170141,crystalline,synthetic
+CRYST_0314,"{np.str_('Fe'): np.float64(0.4913), np.str_('Ce'): np.float64(0.5087)}",0.151821,-0.8482,0.125987,crystalline,synthetic
+CRYST_0315,"{np.str_('Fe'): np.float64(0.2604), np.str_('Ag'): np.float64(0.3808), np.str_('W'): np.float64(0.2781), np.str_('Mn'): np.float64(0.0807)}",0.051753,1.0917,0.061724,crystalline,synthetic
+CRYST_0316,"{np.str_('La'): np.float64(0.3291), np.str_('Ti'): np.float64(0.3355), np.str_('Mo'): np.float64(0.3355)}",0.104605,5.4445,0.188685,crystalline,synthetic
+CRYST_0317,"{np.str_('Hf'): np.float64(0.496), np.str_('V'): np.float64(0.504)}",0.056211,0.8686,0.027223,crystalline,synthetic
+CRYST_0318,"{np.str_('Ca'): np.float64(0.1805), np.str_('Ga'): np.float64(0.2153), np.str_('In'): np.float64(0.2448), np.str_('Be'): np.float64(0.1238), np.str_('V'): np.float64(0.2355)}",0.166282,1.276,0.082484,crystalline,synthetic
+CRYST_0319,"{np.str_('Pt'): np.float64(0.8516), np.str_('Ge'): np.float64(0.1484)}",0.031466,5.3641,0.009213,crystalline,synthetic
+CRYST_0320,"{np.str_('Cu'): np.float64(0.5809), np.str_('Hf'): np.float64(0.4191)}",0.100381,7.6615,0.087644,crystalline,synthetic
+CRYST_0321,"{np.str_('Zr'): np.float64(0.2097), np.str_('Ga'): np.float64(0.4076), np.str_('Ni'): np.float64(0.3827)}",0.08693,-0.8376,0.04825,crystalline,synthetic
+CRYST_0322,"{np.str_('W'): np.float64(0.2442), np.str_('Fe'): np.float64(0.1237), np.str_('Ga'): np.float64(0.3767), np.str_('Mn'): np.float64(0.1689), np.str_('Nb'): np.float64(0.0865)}",0.027577,6.3487,0.083571,crystalline,synthetic
+CRYST_0323,"{np.str_('Cu'): np.float64(0.1601), np.str_('Y'): np.float64(0.8399)}",0.086663,0.1107,0.062178,crystalline,synthetic
+CRYST_0324,"{np.str_('Ca'): np.float64(0.637), np.str_('Pd'): np.float64(0.363)}",0.137109,4.6543,0.332973,crystalline,synthetic
+CRYST_0325,"{np.str_('Ga'): np.float64(0.0573), np.str_('Co'): np.float64(0.3011), np.str_('Cu'): np.float64(0.3782), np.str_('Ti'): np.float64(0.2634)}",0.055304,5.9619,0.023485,crystalline,synthetic
+CRYST_0326,"{np.str_('Pb'): np.float64(0.6376), np.str_('Ga'): np.float64(0.0146), np.str_('Bi'): np.float64(0.3478)}",0.030779,2.1375,0.024052,crystalline,synthetic
+CRYST_0327,"{np.str_('Ti'): np.float64(0.3518), np.str_('Ta'): np.float64(0.2177), np.str_('Al'): np.float64(0.3752), np.str_('Zr'): np.float64(0.0022), np.str_('Ag'): np.float64(0.0531)}",0.004369,7.4529,0.008931,crystalline,synthetic
+CRYST_0328,"{np.str_('Mo'): np.float64(0.2794), np.str_('Pd'): np.float64(0.3308), np.str_('Pb'): np.float64(0.3898)}",0.109757,5.9793,0.005475,crystalline,synthetic
+CRYST_0329,"{np.str_('Cu'): np.float64(0.3101), np.str_('Pd'): np.float64(0.153), np.str_('Ni'): np.float64(0.2608), np.str_('Ta'): np.float64(0.2538), np.str_('V'): np.float64(0.0223)}",0.062156,5.2565,0.052545,crystalline,synthetic
+CRYST_0330,"{np.str_('Pd'): np.float64(0.5451), np.str_('Ga'): np.float64(0.3403), np.str_('Al'): np.float64(0.1146)}",-0.0046,4.4259,0.051519,crystalline,synthetic
+CRYST_0331,"{np.str_('Co'): np.float64(0.2743), np.str_('Mg'): np.float64(0.259), np.str_('Ti'): np.float64(0.4667)}",0.075746,6.5422,0.044275,crystalline,synthetic
+CRYST_0332,"{np.str_('In'): np.float64(0.0204), np.str_('Mn'): np.float64(0.4887), np.str_('Hf'): np.float64(0.4909)}",0.109433,2.6325,0.017829,crystalline,synthetic
+CRYST_0333,"{np.str_('Ca'): np.float64(0.3317), np.str_('Hf'): np.float64(0.4212), np.str_('Ge'): np.float64(0.0103), np.str_('In'): np.float64(0.2368)}",0.095631,3.6984,0.089143,crystalline,synthetic
+CRYST_0334,"{np.str_('Y'): np.float64(0.3062), np.str_('Sn'): np.float64(0.3579), np.str_('Co'): np.float64(0.2911), np.str_('Ga'): np.float64(0.0448)}",0.121862,0.3822,0.104705,crystalline,synthetic
+CRYST_0335,"{np.str_('Cr'): np.float64(0.5936), np.str_('Nb'): np.float64(0.0436), np.str_('Sn'): np.float64(0.3628)}",0.028348,6.0442,0.021525,crystalline,synthetic
+CRYST_0336,"{np.str_('Cu'): np.float64(0.02), np.str_('Fe'): np.float64(0.429), np.str_('In'): np.float64(0.3846), np.str_('Co'): np.float64(0.1663)}",0.136763,4.3443,0.001385,crystalline,synthetic
+CRYST_0337,"{np.str_('V'): np.float64(0.2545), np.str_('W'): np.float64(0.2672), np.str_('Hf'): np.float64(0.3041), np.str_('Pd'): np.float64(0.1742)}",0.04949,7.1501,0.19447,crystalline,synthetic
+CRYST_0338,"{np.str_('Ga'): np.float64(0.0785), np.str_('Ta'): np.float64(0.2697), np.str_('Cr'): np.float64(0.1777), np.str_('Ti'): np.float64(0.474)}",0.028657,1.3746,0.007706,crystalline,synthetic
+CRYST_0339,"{np.str_('Pb'): np.float64(0.1875), np.str_('Co'): np.float64(0.1607), np.str_('Fe'): np.float64(0.6518)}",0.140536,5.5875,0.036917,crystalline,synthetic
+CRYST_0340,"{np.str_('Al'): np.float64(0.5374), np.str_('Hf'): np.float64(0.4626)}",0.048713,0.7558,0.023891,crystalline,synthetic
+CRYST_0341,"{np.str_('La'): np.float64(0.8388), np.str_('Hf'): np.float64(0.1612)}",0.050866,1.2372,0.005409,crystalline,synthetic
+CRYST_0342,"{np.str_('Hf'): np.float64(0.4843), np.str_('Pb'): np.float64(0.2676), np.str_('Mn'): np.float64(0.2481)}",0.107573,3.8813,0.185394,crystalline,synthetic
+CRYST_0343,"{np.str_('Ga'): np.float64(0.3646), np.str_('Mo'): np.float64(0.6354)}",-0.001611,2.3526,0.028379,crystalline,synthetic
+CRYST_0344,"{np.str_('Pb'): np.float64(0.2855), np.str_('Pd'): np.float64(0.3216), np.str_('Cr'): np.float64(0.3099), np.str_('Co'): np.float64(0.083)}",0.123739,7.7676,0.079108,crystalline,synthetic
+CRYST_0345,"{np.str_('V'): np.float64(0.2485), np.str_('Bi'): np.float64(0.1283), np.str_('Sn'): np.float64(0.2714), np.str_('Nb'): np.float64(0.3518)}",0.018269,7.3326,0.032734,crystalline,synthetic
+CRYST_0346,"{np.str_('Cr'): np.float64(0.147), np.str_('Nb'): np.float64(0.2275), np.str_('Mo'): np.float64(0.4708), np.str_('Y'): np.float64(0.1548)}",0.081157,2.4948,0.124886,crystalline,synthetic
+CRYST_0347,"{np.str_('Y'): np.float64(0.0167), np.str_('Ca'): np.float64(0.9833)}",-0.010615,5.2661,0.000795,crystalline,synthetic
+CRYST_0348,"{np.str_('Cr'): np.float64(0.2066), np.str_('Hf'): np.float64(0.3009), np.str_('Co'): np.float64(0.0766), np.str_('Pd'): np.float64(0.1846), np.str_('Ge'): np.float64(0.2312)}",0.104465,5.6087,0.11691,crystalline,synthetic
+CRYST_0349,"{np.str_('Ag'): np.float64(0.3046), np.str_('V'): np.float64(0.1319), np.str_('Nb'): np.float64(0.3084), np.str_('W'): np.float64(0.2552)}",0.02581,6.6216,0.091643,crystalline,synthetic
+CRYST_0350,"{np.str_('Ge'): np.float64(0.3713), np.str_('Ca'): np.float64(0.2124), np.str_('V'): np.float64(0.195), np.str_('Fe'): np.float64(0.1225), np.str_('Ga'): np.float64(0.0988)}",0.203375,0.3203,0.143562,crystalline,synthetic
+CRYST_0351,"{np.str_('Co'): np.float64(0.1263), np.str_('Ta'): np.float64(0.094), np.str_('Pt'): np.float64(0.3968), np.str_('Mn'): np.float64(0.3296), np.str_('Be'): np.float64(0.0533)}",0.049815,2.6954,0.118072,crystalline,synthetic
+CRYST_0352,"{np.str_('Hf'): np.float64(0.3777), np.str_('Nb'): np.float64(0.0213), np.str_('Co'): np.float64(0.3551), np.str_('Mn'): np.float64(0.1751), np.str_('Ni'): np.float64(0.0708)}",0.111681,7.4999,0.069074,crystalline,synthetic
+CRYST_0353,"{np.str_('Sn'): np.float64(0.1809), np.str_('Bi'): np.float64(0.3093), np.str_('Pb'): np.float64(0.1973), np.str_('Hf'): np.float64(0.0863), np.str_('Ca'): np.float64(0.2261)}",0.093229,0.8651,0.240797,crystalline,synthetic
+CRYST_0354,"{np.str_('Ga'): np.float64(0.4108), np.str_('Ge'): np.float64(0.1208), np.str_('Mg'): np.float64(0.3694), np.str_('Y'): np.float64(0.0875), np.str_('Mn'): np.float64(0.0115)}",0.098659,4.6493,0.082126,crystalline,synthetic
+CRYST_0355,"{np.str_('Mg'): np.float64(0.2936), np.str_('Be'): np.float64(0.1717), np.str_('Pb'): np.float64(0.2856), np.str_('Al'): np.float64(0.1097), np.str_('Cu'): np.float64(0.1394)}",0.132554,6.5053,0.163643,crystalline,synthetic
+CRYST_0356,"{np.str_('Ta'): np.float64(0.4438), np.str_('Ca'): np.float64(0.3236), np.str_('Zr'): np.float64(0.2326)}",0.11695,4.67,0.047084,crystalline,synthetic
+CRYST_0357,"{np.str_('Ce'): np.float64(0.151), np.str_('Be'): np.float64(0.849)}",0.204185,8.8113,0.02596,crystalline,synthetic
+CRYST_0358,"{np.str_('Ge'): np.float64(0.2566), np.str_('In'): np.float64(0.0201), np.str_('Al'): np.float64(0.2334), np.str_('Fe'): np.float64(0.2712), np.str_('Be'): np.float64(0.2187)}",0.09503,0.6314,0.030472,crystalline,synthetic
+CRYST_0359,"{np.str_('W'): np.float64(0.2463), np.str_('Nb'): np.float64(0.0981), np.str_('Mg'): np.float64(0.2092), np.str_('Y'): np.float64(0.2031), np.str_('Cr'): np.float64(0.2434)}",0.116219,2.0102,0.185972,crystalline,synthetic
+CRYST_0360,"{np.str_('Cr'): np.float64(0.0514), np.str_('Zr'): np.float64(0.9486)}",0.014941,4.5119,0.00531,crystalline,synthetic
+CRYST_0361,"{np.str_('W'): np.float64(0.3707), np.str_('Be'): np.float64(0.2258), np.str_('Nb'): np.float64(0.4036)}",0.091687,-0.0467,0.138725,crystalline,synthetic
+CRYST_0362,"{np.str_('Ta'): np.float64(0.0253), np.str_('V'): np.float64(0.3055), np.str_('Y'): np.float64(0.6693)}",0.104715,1.2976,0.035826,crystalline,synthetic
+CRYST_0363,"{np.str_('Pd'): np.float64(0.4857), np.str_('Co'): np.float64(0.5143)}",0.038193,1.4935,0.025579,crystalline,synthetic
+CRYST_0364,"{np.str_('Ag'): np.float64(0.4384), np.str_('Bi'): np.float64(0.5616)}",0.015942,2.7839,0.001994,crystalline,synthetic
+CRYST_0365,"{np.str_('Pt'): np.float64(0.3572), np.str_('Bi'): np.float64(0.3528), np.str_('Be'): np.float64(0.0469), np.str_('Mg'): np.float64(0.1257), np.str_('Pb'): np.float64(0.1174)}",0.068013,2.9931,0.107934,crystalline,synthetic
+CRYST_0366,"{np.str_('Pt'): np.float64(0.4796), np.str_('Nb'): np.float64(0.5204)}",-0.000177,1.6575,0.115408,crystalline,synthetic
+CRYST_0367,"{np.str_('Cr'): np.float64(0.2313), np.str_('Zr'): np.float64(0.2664), np.str_('Sn'): np.float64(0.1604), np.str_('Mn'): np.float64(0.3419)}",0.096798,7.4501,0.041593,crystalline,synthetic
+CRYST_0368,"{np.str_('W'): np.float64(0.2037), np.str_('La'): np.float64(0.1328), np.str_('Zr'): np.float64(0.2043), np.str_('Fe'): np.float64(0.2312), np.str_('Ag'): np.float64(0.2281)}",0.125957,6.782,0.176677,crystalline,synthetic
+CRYST_0369,"{np.str_('In'): np.float64(0.6454), np.str_('Nb'): np.float64(0.3546)}",0.057817,0.817,0.007415,crystalline,synthetic
+CRYST_0370,"{np.str_('Mg'): np.float64(0.4507), np.str_('Co'): np.float64(0.4478), np.str_('La'): np.float64(0.1014)}",0.143894,5.0435,0.095223,crystalline,synthetic
+CRYST_0371,"{np.str_('Fe'): np.float64(0.4799), np.str_('Zr'): np.float64(0.5201)}",0.107779,0.823,0.062399,crystalline,synthetic
+CRYST_0372,"{np.str_('Mn'): np.float64(0.4415), np.str_('Y'): np.float64(0.2714), np.str_('Sn'): np.float64(0.287)}",0.122557,0.9828,0.07701,crystalline,synthetic
+CRYST_0373,"{np.str_('Cr'): np.float64(0.4708), np.str_('Bi'): np.float64(0.5292)}",0.084985,6.1468,0.032289,crystalline,synthetic
+CRYST_0374,"{np.str_('Ge'): np.float64(0.0319), np.str_('Ce'): np.float64(0.2549), np.str_('Mn'): np.float64(0.365), np.str_('Ta'): np.float64(0.1188), np.str_('Cr'): np.float64(0.2294)}",0.135066,5.6526,0.051233,crystalline,synthetic
+CRYST_0375,"{np.str_('Ga'): np.float64(0.5909), np.str_('In'): np.float64(0.4091)}",0.085461,5.7859,0.000218,crystalline,synthetic
+CRYST_0376,"{np.str_('Sn'): np.float64(0.9822), np.str_('Mn'): np.float64(0.0178)}",-0.016329,7.7016,0.002939,crystalline,synthetic
+CRYST_0377,"{np.str_('Nb'): np.float64(0.4559), np.str_('Cu'): np.float64(0.5441)}",0.063472,4.6701,0.022325,crystalline,synthetic
+CRYST_0378,"{np.str_('Ag'): np.float64(0.4559), np.str_('Ga'): np.float64(0.2837), np.str_('Ca'): np.float64(0.2603)}",0.137211,-2.2178,0.152967,crystalline,synthetic
+CRYST_0379,"{np.str_('Fe'): np.float64(0.579), np.str_('Pb'): np.float64(0.4074), np.str_('Al'): np.float64(0.0136)}",0.148351,5.9922,0.062225,crystalline,synthetic
+CRYST_0380,"{np.str_('Mg'): np.float64(0.9834), np.str_('Ti'): np.float64(0.0166)}",-0.016545,4.0857,0.000864,crystalline,synthetic
+CRYST_0381,"{np.str_('Ti'): np.float64(0.3894), np.str_('Cr'): np.float64(0.2635), np.str_('W'): np.float64(0.347)}",0.035646,1.5755,0.13715,crystalline,synthetic
+CRYST_0382,"{np.str_('Nb'): np.float64(0.5524), np.str_('Ti'): np.float64(0.4476)}",-0.007515,7.7624,0.00089,crystalline,synthetic
+CRYST_0383,"{np.str_('Hf'): np.float64(0.5137), np.str_('Ag'): np.float64(0.4863)}",0.043305,6.7705,0.099151,crystalline,synthetic
+CRYST_0384,"{np.str_('Sn'): np.float64(0.2607), np.str_('Mn'): np.float64(0.0819), np.str_('Pb'): np.float64(0.1879), np.str_('Pt'): np.float64(0.3915), np.str_('Zr'): np.float64(0.078)}",0.084521,3.9461,0.097976,crystalline,synthetic
+CRYST_0385,"{np.str_('Ti'): np.float64(0.3037), np.str_('V'): np.float64(0.6448), np.str_('Ca'): np.float64(0.0515)}",0.073619,1.0656,0.019327,crystalline,synthetic
+CRYST_0386,"{np.str_('Ni'): np.float64(0.6197), np.str_('Pb'): np.float64(0.1882), np.str_('Al'): np.float64(0.1921)}",0.135626,0.0384,0.050029,crystalline,synthetic
+CRYST_0387,"{np.str_('Ce'): np.float64(0.1122), np.str_('Ge'): np.float64(0.2621), np.str_('Hf'): np.float64(0.262), np.str_('Pd'): np.float64(0.3637)}",0.124311,5.5234,0.187086,crystalline,synthetic
+CRYST_0388,"{np.str_('Be'): np.float64(0.554), np.str_('Nb'): np.float64(0.3797), np.str_('Bi'): np.float64(0.054), np.str_('Ag'): np.float64(0.0124)}",0.136416,5.4722,0.011272,crystalline,synthetic
+CRYST_0389,"{np.str_('La'): np.float64(0.179), np.str_('Zr'): np.float64(0.6341), np.str_('Co'): np.float64(0.1869)}",0.092574,7.1322,0.062209,crystalline,synthetic
+CRYST_0390,"{np.str_('Ta'): np.float64(0.3017), np.str_('Nb'): np.float64(0.1717), np.str_('Co'): np.float64(0.238), np.str_('Cu'): np.float64(0.2886)}",0.054262,-0.5026,0.032509,crystalline,synthetic
+CRYST_0391,"{np.str_('Be'): np.float64(0.219), np.str_('Pt'): np.float64(0.3767), np.str_('Ta'): np.float64(0.4043)}",0.072462,-0.2178,0.13468,crystalline,synthetic
+CRYST_0392,"{np.str_('Bi'): np.float64(0.2135), np.str_('W'): np.float64(0.3422), np.str_('Ca'): np.float64(0.2221), np.str_('Y'): np.float64(0.2223)}",0.1172,-0.2122,0.329948,crystalline,synthetic
+CRYST_0393,"{np.str_('Pb'): np.float64(0.6244), np.str_('Sn'): np.float64(0.3756)}",0.088351,1.6675,0.032106,crystalline,synthetic
+CRYST_0394,"{np.str_('La'): np.float64(0.1153), np.str_('Cu'): np.float64(0.3736), np.str_('Bi'): np.float64(0.1598), np.str_('Ta'): np.float64(0.2165), np.str_('Mo'): np.float64(0.1348)}",0.11394,4.7697,0.104316,crystalline,synthetic
+CRYST_0395,"{np.str_('Sn'): np.float64(0.0932), np.str_('In'): np.float64(0.2296), np.str_('Pd'): np.float64(0.3242), np.str_('Zr'): np.float64(0.353)}",0.081585,2.8396,0.131656,crystalline,synthetic
+CRYST_0396,"{np.str_('Bi'): np.float64(0.2178), np.str_('Pt'): np.float64(0.2441), np.str_('Mo'): np.float64(0.4561), np.str_('Mn'): np.float64(0.082)}",0.048493,0.1897,0.035673,crystalline,synthetic
+CRYST_0397,"{np.str_('Pd'): np.float64(0.6481), np.str_('Hf'): np.float64(0.3519)}",0.065883,0.251,0.184734,crystalline,synthetic
+CRYST_0398,"{np.str_('Ca'): np.float64(0.1345), np.str_('Ta'): np.float64(0.3789), np.str_('Mg'): np.float64(0.3337), np.str_('Cu'): np.float64(0.1529)}",0.114176,5.2275,0.065306,crystalline,synthetic
+CRYST_0399,"{np.str_('Pb'): np.float64(0.2145), np.str_('Cr'): np.float64(0.7855)}",0.124646,5.6679,0.075635,crystalline,synthetic
+CRYST_0400,"{np.str_('Y'): np.float64(0.3192), np.str_('Cu'): np.float64(0.1524), np.str_('Nb'): np.float64(0.5094), np.str_('Ag'): np.float64(0.019)}",0.105354,0.1128,0.057074,crystalline,synthetic
+CRYST_0401,"{np.str_('Cr'): np.float64(0.7407), np.str_('La'): np.float64(0.2593)}",0.164618,-0.6988,0.060231,crystalline,synthetic
+CRYST_0402,"{np.str_('Cu'): np.float64(0.4551), np.str_('In'): np.float64(0.5449)}",0.107043,3.7255,0.003571,crystalline,synthetic
+CRYST_0403,"{np.str_('Pt'): np.float64(0.4578), np.str_('La'): np.float64(0.2645), np.str_('W'): np.float64(0.2777)}",0.115667,1.723,0.286029,crystalline,synthetic
+CRYST_0404,"{np.str_('Ni'): np.float64(0.5269), np.str_('Zr'): np.float64(0.2384), np.str_('Ce'): np.float64(0.0862), np.str_('Ti'): np.float64(0.1485)}",0.1151,-0.8508,0.086039,crystalline,synthetic
+CRYST_0405,"{np.str_('Ca'): np.float64(0.7355), np.str_('Co'): np.float64(0.2645)}",0.174075,4.1116,0.150652,crystalline,synthetic
+CRYST_0406,"{np.str_('Nb'): np.float64(0.163), np.str_('In'): np.float64(0.2748), np.str_('Cr'): np.float64(0.3156), np.str_('Ta'): np.float64(0.2466)}",0.081512,-0.0429,0.010592,crystalline,synthetic
+CRYST_0407,"{np.str_('Ce'): np.float64(0.3154), np.str_('Pb'): np.float64(0.2677), np.str_('Mg'): np.float64(0.4168)}",0.030637,0.4482,0.244473,crystalline,synthetic
+CRYST_0408,"{np.str_('Cu'): np.float64(0.3361), np.str_('La'): np.float64(0.1622), np.str_('Ce'): np.float64(0.1545), np.str_('Ca'): np.float64(0.2246), np.str_('Nb'): np.float64(0.1227)}",0.157489,-0.1258,0.151463,crystalline,synthetic
+CRYST_0409,"{np.str_('Cr'): np.float64(0.147), np.str_('Co'): np.float64(0.0321), np.str_('Be'): np.float64(0.1573), np.str_('Fe'): np.float64(0.1659), np.str_('Ti'): np.float64(0.4976)}",0.081638,7.0739,0.013297,crystalline,synthetic
+CRYST_0410,"{np.str_('Sn'): np.float64(0.0904), np.str_('Ga'): np.float64(0.2605), np.str_('Ti'): np.float64(0.6491)}",0.034657,3.2609,0.023207,crystalline,synthetic
+CRYST_0411,"{np.str_('Mg'): np.float64(0.3821), np.str_('Ge'): np.float64(0.4035), np.str_('La'): np.float64(0.2144)}",0.160532,5.4128,0.150799,crystalline,synthetic
+CRYST_0412,"{np.str_('Ti'): np.float64(0.4055), np.str_('Hf'): np.float64(0.3884), np.str_('Bi'): np.float64(0.043), np.str_('Ga'): np.float64(0.1631)}",0.046758,2.4423,0.043355,crystalline,synthetic
+CRYST_0413,"{np.str_('Ge'): np.float64(0.2122), np.str_('Ta'): np.float64(0.3477), np.str_('V'): np.float64(0.0486), np.str_('Pb'): np.float64(0.3914)}",0.135751,6.5211,0.132557,crystalline,synthetic
+CRYST_0414,"{np.str_('Pb'): np.float64(0.0022), np.str_('Pt'): np.float64(0.3463), np.str_('Ni'): np.float64(0.2827), np.str_('Nb'): np.float64(0.0206), np.str_('Zr'): np.float64(0.3483)}",0.095141,0.2189,0.160649,crystalline,synthetic
+CRYST_0415,"{np.str_('Mn'): np.float64(0.2861), np.str_('Pt'): np.float64(0.2592), np.str_('Sn'): np.float64(0.31), np.str_('Cr'): np.float64(0.1447)}",0.039784,0.3672,0.081611,crystalline,synthetic
+CRYST_0416,"{np.str_('Pd'): np.float64(0.1778), np.str_('Cu'): np.float64(0.3142), np.str_('Ge'): np.float64(0.3058), np.str_('Mg'): np.float64(0.2022)}",0.096994,2.2925,0.089043,crystalline,synthetic
+CRYST_0417,"{np.str_('Cu'): np.float64(0.3751), np.str_('Ag'): np.float64(0.4623), np.str_('Pd'): np.float64(0.1626)}",0.030979,7.2185,0.011125,crystalline,synthetic
+CRYST_0418,"{np.str_('Be'): np.float64(0.7994), np.str_('Ta'): np.float64(0.2006)}",0.098685,3.1422,0.000786,crystalline,synthetic
+CRYST_0419,"{np.str_('Ni'): np.float64(0.3793), np.str_('Y'): np.float64(0.1248), np.str_('Cu'): np.float64(0.3517), np.str_('Ca'): np.float64(0.0725), np.str_('Al'): np.float64(0.0717)}",0.156643,-1.2165,0.094573,crystalline,synthetic
+CRYST_0420,"{np.str_('Mg'): np.float64(0.2357), np.str_('Cr'): np.float64(0.5811), np.str_('Co'): np.float64(0.0534), np.str_('Al'): np.float64(0.1298)}",0.069417,7.4822,0.025817,crystalline,synthetic
+CRYST_0421,"{np.str_('In'): np.float64(0.613), np.str_('Ge'): np.float64(0.387)}",0.116802,1.557,0.01255,crystalline,synthetic
+CRYST_0422,"{np.str_('Ce'): np.float64(0.165), np.str_('Al'): np.float64(0.2438), np.str_('Pd'): np.float64(0.266), np.str_('Fe'): np.float64(0.1404), np.str_('Mn'): np.float64(0.1848)}",0.130858,0.2456,0.130477,crystalline,synthetic
+CRYST_0423,"{np.str_('Pt'): np.float64(0.873), np.str_('Ce'): np.float64(0.1046), np.str_('Pb'): np.float64(0.0224)}",0.069907,3.6469,0.126354,crystalline,synthetic
+CRYST_0424,"{np.str_('Pb'): np.float64(0.3396), np.str_('Be'): np.float64(0.2881), np.str_('Ga'): np.float64(0.3723)}",0.157417,5.6339,0.096877,crystalline,synthetic
+CRYST_0425,"{np.str_('Cr'): np.float64(0.2679), np.str_('Y'): np.float64(0.0163), np.str_('Ag'): np.float64(0.0236), np.str_('Mg'): np.float64(0.6922)}",0.095647,8.9114,0.030588,crystalline,synthetic
+CRYST_0426,"{np.str_('Ga'): np.float64(0.1228), np.str_('Ni'): np.float64(0.3661), np.str_('Mg'): np.float64(0.5111)}",0.091007,6.8512,0.083501,crystalline,synthetic
+CRYST_0427,"{np.str_('Cr'): np.float64(0.2466), np.str_('Nb'): np.float64(0.3872), np.str_('Fe'): np.float64(0.0256), np.str_('Ga'): np.float64(0.2427), np.str_('La'): np.float64(0.098)}",0.090434,7.2473,0.036932,crystalline,synthetic
+CRYST_0428,"{np.str_('In'): np.float64(0.1685), np.str_('W'): np.float64(0.3394), np.str_('Fe'): np.float64(0.0755), np.str_('La'): np.float64(0.0233), np.str_('Zr'): np.float64(0.3932)}",0.091829,7.066,0.204698,crystalline,synthetic
+CRYST_0429,"{np.str_('Ca'): np.float64(0.2435), np.str_('Mg'): np.float64(0.1733), np.str_('Hf'): np.float64(0.4024), np.str_('Cr'): np.float64(0.144), np.str_('Mo'): np.float64(0.0369)}",0.121849,6.1997,0.067736,crystalline,synthetic
+CRYST_0430,"{np.str_('Nb'): np.float64(0.2115), np.str_('Cr'): np.float64(0.2142), np.str_('Ge'): np.float64(0.251), np.str_('V'): np.float64(0.3233)}",0.040958,6.6734,0.027515,crystalline,synthetic
+CRYST_0431,"{np.str_('Ce'): np.float64(0.3477), np.str_('La'): np.float64(0.3805), np.str_('Pt'): np.float64(0.2717)}",0.090639,5.919,0.271148,crystalline,synthetic
+CRYST_0432,"{np.str_('Cr'): np.float64(0.1771), np.str_('Pb'): np.float64(0.2181), np.str_('Ce'): np.float64(0.0967), np.str_('Hf'): np.float64(0.1227), np.str_('Cu'): np.float64(0.3853)}",0.138039,-0.1594,0.143973,crystalline,synthetic
+CRYST_0433,"{np.str_('W'): np.float64(0.413), np.str_('Co'): np.float64(0.587)}",0.025055,-1.1499,0.055856,crystalline,synthetic
+CRYST_0434,"{np.str_('Pt'): np.float64(0.2985), np.str_('Ce'): np.float64(0.1769), np.str_('Mg'): np.float64(0.1518), np.str_('V'): np.float64(0.269), np.str_('Ge'): np.float64(0.1039)}",0.130817,-0.6598,0.193706,crystalline,synthetic
+CRYST_0435,"{np.str_('Ca'): np.float64(0.0609), np.str_('Sn'): np.float64(0.1864), np.str_('Mg'): np.float64(0.2202), np.str_('Pd'): np.float64(0.3843), np.str_('Mo'): np.float64(0.1482)}",0.077675,3.1103,0.170868,crystalline,synthetic
+CRYST_0436,"{np.str_('Bi'): np.float64(0.319), np.str_('Nb'): np.float64(0.05), np.str_('Pt'): np.float64(0.4238), np.str_('Pb'): np.float64(0.2072)}",0.062497,5.939,0.033843,crystalline,synthetic
+CRYST_0437,"{np.str_('Sn'): np.float64(0.3904), np.str_('Hf'): np.float64(0.3052), np.str_('Bi'): np.float64(0.3045)}",0.03518,3.304,0.100496,crystalline,synthetic
+CRYST_0438,"{np.str_('Y'): np.float64(0.2409), np.str_('Ni'): np.float64(0.1764), np.str_('Ca'): np.float64(0.2311), np.str_('Ce'): np.float64(0.2456), np.str_('Ga'): np.float64(0.1061)}",0.154746,-0.3085,0.122698,crystalline,synthetic
+CRYST_0439,"{np.str_('Y'): np.float64(0.4678), np.str_('Zr'): np.float64(0.3302), np.str_('Pb'): np.float64(0.202)}",0.03726,4.5318,0.184997,crystalline,synthetic
+CRYST_0440,"{np.str_('Cu'): np.float64(0.2028), np.str_('Bi'): np.float64(0.2059), np.str_('Y'): np.float64(0.5913)}",0.099843,1.6868,0.133969,crystalline,synthetic
+CRYST_0441,"{np.str_('Co'): np.float64(0.2773), np.str_('Cr'): np.float64(0.7227)}",-0.001701,6.7385,0.0097,crystalline,synthetic
+CRYST_0442,"{np.str_('Cu'): np.float64(0.1279), np.str_('Ga'): np.float64(0.6402), np.str_('V'): np.float64(0.2319)}",0.008073,6.4008,0.007636,crystalline,synthetic
+CRYST_0443,"{np.str_('Zr'): np.float64(0.3398), np.str_('In'): np.float64(0.0301), np.str_('Cu'): np.float64(0.3172), np.str_('Pb'): np.float64(0.3128)}",0.114409,0.4334,0.164728,crystalline,synthetic
+CRYST_0444,"{np.str_('Al'): np.float64(0.2668), np.str_('In'): np.float64(0.3685), np.str_('Ni'): np.float64(0.164), np.str_('Y'): np.float64(0.2006)}",0.101752,-0.8974,0.054791,crystalline,synthetic
+CRYST_0445,"{np.str_('Ge'): np.float64(0.5236), np.str_('V'): np.float64(0.4764)}",0.03833,7.8817,0.03602,crystalline,synthetic
+CRYST_0446,"{np.str_('Nb'): np.float64(0.2342), np.str_('Ca'): np.float64(0.2374), np.str_('Zr'): np.float64(0.025), np.str_('Pb'): np.float64(0.1127), np.str_('Co'): np.float64(0.3907)}",0.17411,1.5536,0.176171,crystalline,synthetic
+CRYST_0447,"{np.str_('Ge'): np.float64(0.2719), np.str_('Pt'): np.float64(0.1978), np.str_('Mn'): np.float64(0.2806), np.str_('Cr'): np.float64(0.2498)}",0.018186,7.2363,0.077796,crystalline,synthetic
+CRYST_0448,"{np.str_('Ti'): np.float64(0.2671), np.str_('Ca'): np.float64(0.2826), np.str_('Ta'): np.float64(0.4504)}",0.114269,6.8036,0.054019,crystalline,synthetic
+CRYST_0449,"{np.str_('Hf'): np.float64(0.1816), np.str_('Pt'): np.float64(0.1602), np.str_('Cr'): np.float64(0.0981), np.str_('Bi'): np.float64(0.2695), np.str_('Pb'): np.float64(0.2906)}",0.082692,-1.7259,0.144433,crystalline,synthetic
+CRYST_0450,"{np.str_('Fe'): np.float64(0.5657), np.str_('Al'): np.float64(0.4343)}",0.04156,6.314,0.011891,crystalline,synthetic
+CRYST_0451,"{np.str_('La'): np.float64(0.3575), np.str_('Mg'): np.float64(0.2522), np.str_('Al'): np.float64(0.2593), np.str_('Mo'): np.float64(0.131)}",0.105716,2.2094,0.120739,crystalline,synthetic
+CRYST_0452,"{np.str_('Ga'): np.float64(0.2648), np.str_('Pt'): np.float64(0.7352)}",-0.002292,8.7333,0.043005,crystalline,synthetic
+CRYST_0453,"{np.str_('Hf'): np.float64(0.4987), np.str_('La'): np.float64(0.4186), np.str_('Y'): np.float64(0.0827)}",0.067212,8.5194,0.009113,crystalline,synthetic
+CRYST_0454,"{np.str_('Ag'): np.float64(0.2769), np.str_('Mo'): np.float64(0.7231)}",0.004192,7.7188,0.010592,crystalline,synthetic
+CRYST_0455,"{np.str_('Hf'): np.float64(0.8882), np.str_('Cu'): np.float64(0.1118)}",0.034927,3.9963,0.035748,crystalline,synthetic
+CRYST_0456,"{np.str_('La'): np.float64(0.0309), np.str_('Cr'): np.float64(0.8356), np.str_('Pt'): np.float64(0.1335)}",0.054069,6.9132,0.056722,crystalline,synthetic
+CRYST_0457,"{np.str_('Al'): np.float64(0.2632), np.str_('Zr'): np.float64(0.2029), np.str_('Mo'): np.float64(0.1782), np.str_('Fe'): np.float64(0.2213), np.str_('Pt'): np.float64(0.1343)}",0.076363,7.5757,0.108456,crystalline,synthetic
+CRYST_0458,"{np.str_('Pd'): np.float64(0.2134), np.str_('Al'): np.float64(0.6403), np.str_('Co'): np.float64(0.1462)}",0.017731,3.2586,0.057589,crystalline,synthetic
+CRYST_0459,"{np.str_('Co'): np.float64(0.3986), np.str_('Ca'): np.float64(0.2261), np.str_('Mg'): np.float64(0.3752)}",0.16349,2.8763,0.126547,crystalline,synthetic
+CRYST_0460,"{np.str_('Ga'): np.float64(0.5673), np.str_('Pd'): np.float64(0.3405), np.str_('Nb'): np.float64(0.0922)}",0.017019,6.0681,0.042989,crystalline,synthetic
+CRYST_0461,"{np.str_('V'): np.float64(0.2294), np.str_('Ce'): np.float64(0.4212), np.str_('Ca'): np.float64(0.3494)}",0.125922,-0.6227,0.059063,crystalline,synthetic
+CRYST_0462,"{np.str_('Ag'): np.float64(0.0022), np.str_('Y'): np.float64(0.0474), np.str_('La'): np.float64(0.9504)}",0.009567,0.3581,0.002142,crystalline,synthetic
+CRYST_0463,"{np.str_('Pt'): np.float64(0.7072), np.str_('Pd'): np.float64(0.2119), np.str_('W'): np.float64(0.081)}",-0.018076,1.3702,0.001765,crystalline,synthetic
+CRYST_0464,"{np.str_('Bi'): np.float64(0.2252), np.str_('Ta'): np.float64(0.2934), np.str_('Zr'): np.float64(0.2263), np.str_('Cr'): np.float64(0.1825), np.str_('Nb'): np.float64(0.0726)}",0.073932,5.431,0.059586,crystalline,synthetic
+CRYST_0465,"{np.str_('Al'): np.float64(0.2622), np.str_('Ce'): np.float64(0.3085), np.str_('W'): np.float64(0.4292)}",0.102228,-1.8345,0.286343,crystalline,synthetic
+CRYST_0466,"{np.str_('Pb'): np.float64(0.095), np.str_('W'): np.float64(0.4344), np.str_('Al'): np.float64(0.3636), np.str_('Be'): np.float64(0.1069)}",0.082593,2.3595,0.141713,crystalline,synthetic
+CRYST_0467,"{np.str_('La'): np.float64(0.2456), np.str_('Y'): np.float64(0.1078), np.str_('Nb'): np.float64(0.2724), np.str_('Ga'): np.float64(0.3743)}",0.141385,4.3055,0.086221,crystalline,synthetic
+CRYST_0468,"{np.str_('Hf'): np.float64(0.4307), np.str_('W'): np.float64(0.2164), np.str_('Y'): np.float64(0.0201), np.str_('Ti'): np.float64(0.0087), np.str_('Be'): np.float64(0.3241)}",0.134269,3.0272,0.166679,crystalline,synthetic
+CRYST_0469,"{np.str_('Cr'): np.float64(0.1306), np.str_('Zr'): np.float64(0.3612), np.str_('Sn'): np.float64(0.5082)}",0.056305,3.203,0.083966,crystalline,synthetic
+CRYST_0470,"{np.str_('Sn'): np.float64(0.35), np.str_('Mg'): np.float64(0.65)}",0.042116,0.9447,0.096119,crystalline,synthetic
+CRYST_0471,"{np.str_('Be'): np.float64(0.1354), np.str_('Nb'): np.float64(0.055), np.str_('Bi'): np.float64(0.2356), np.str_('In'): np.float64(0.2842), np.str_('Ta'): np.float64(0.2898)}",0.094475,3.4138,0.040083,crystalline,synthetic
+CRYST_0472,"{np.str_('Hf'): np.float64(0.7316), np.str_('Be'): np.float64(0.2203), np.str_('Pd'): np.float64(0.0481)}",0.120481,2.5573,0.044459,crystalline,synthetic
+CRYST_0473,"{np.str_('Fe'): np.float64(0.1567), np.str_('Hf'): np.float64(0.1575), np.str_('Zr'): np.float64(0.178), np.str_('Ta'): np.float64(0.1795), np.str_('Cu'): np.float64(0.3284)}",0.082994,1.1167,0.066338,crystalline,synthetic
+CRYST_0474,"{np.str_('Ta'): np.float64(0.1041), np.str_('Ni'): np.float64(0.3388), np.str_('La'): np.float64(0.557)}",0.176559,2.2591,0.139034,crystalline,synthetic
+CRYST_0475,"{np.str_('Cr'): np.float64(0.1108), np.str_('Ca'): np.float64(0.6235), np.str_('Ni'): np.float64(0.2656)}",0.201939,-1.3966,0.169084,crystalline,synthetic
+CRYST_0476,"{np.str_('V'): np.float64(0.3819), np.str_('Ga'): np.float64(0.3243), np.str_('Pd'): np.float64(0.0993), np.str_('Ti'): np.float64(0.0745), np.str_('Nb'): np.float64(0.12)}",0.020583,7.5603,0.032526,crystalline,synthetic
+CRYST_0477,"{np.str_('Nb'): np.float64(0.3365), np.str_('Mg'): np.float64(0.4243), np.str_('Ga'): np.float64(0.2391)}",0.063723,4.3197,0.040922,crystalline,synthetic
+CRYST_0478,"{np.str_('Ta'): np.float64(0.1302), np.str_('Bi'): np.float64(0.8698)}",0.018337,4.5062,0.030622,crystalline,synthetic
+CRYST_0479,"{np.str_('Y'): np.float64(0.1288), np.str_('Pd'): np.float64(0.5584), np.str_('Ce'): np.float64(0.115), np.str_('Mg'): np.float64(0.1978)}",0.105266,3.4299,0.23264,crystalline,synthetic
+CRYST_0480,"{np.str_('Ge'): np.float64(0.5135), np.str_('Pd'): np.float64(0.4865)}",0.03801,1.3967,0.009018,crystalline,synthetic
+CRYST_0481,"{np.str_('Ag'): np.float64(0.3426), np.str_('Y'): np.float64(0.6574)}",0.099939,3.98,0.113536,crystalline,synthetic
+CRYST_0482,"{np.str_('Y'): np.float64(0.011), np.str_('Ti'): np.float64(0.2451), np.str_('Sn'): np.float64(0.3941), np.str_('Ge'): np.float64(0.3498)}",0.061529,0.2531,0.041374,crystalline,synthetic
+CRYST_0483,"{np.str_('Bi'): np.float64(0.2461), np.str_('Co'): np.float64(0.0402), np.str_('Mg'): np.float64(0.2016), np.str_('Ce'): np.float64(0.224), np.str_('Zr'): np.float64(0.288)}",0.0696,0.9762,0.119448,crystalline,synthetic
+CRYST_0484,"{np.str_('Ni'): np.float64(0.1485), np.str_('Ta'): np.float64(0.5554), np.str_('Nb'): np.float64(0.2962)}",0.035831,0.0253,0.019735,crystalline,synthetic
+CRYST_0485,"{np.str_('Mg'): np.float64(0.2146), np.str_('Ti'): np.float64(0.5652), np.str_('In'): np.float64(0.1047), np.str_('Al'): np.float64(0.1155)}",0.047858,6.1421,0.017688,crystalline,synthetic
+CRYST_0486,"{np.str_('Mg'): np.float64(0.4542), np.str_('Ti'): np.float64(0.5458)}",0.03723,0.0582,0.013114,crystalline,synthetic
+CRYST_0487,"{np.str_('Zr'): np.float64(0.6953), np.str_('Ag'): np.float64(0.3047)}",0.027091,0.8974,0.076269,crystalline,synthetic
+CRYST_0488,"{np.str_('Nb'): np.float64(0.3496), np.str_('Sn'): np.float64(0.0818), np.str_('La'): np.float64(0.3989), np.str_('V'): np.float64(0.1697)}",0.125745,4.1823,0.083283,crystalline,synthetic
+CRYST_0489,"{np.str_('In'): np.float64(0.5506), np.str_('Fe'): np.float64(0.4494)}",0.130272,8.6314,0.000619,crystalline,synthetic
+CRYST_0490,"{np.str_('Sn'): np.float64(0.394), np.str_('Ta'): np.float64(0.606)}",-0.004727,8.4513,0.050522,crystalline,synthetic
+CRYST_0491,"{np.str_('Hf'): np.float64(0.2064), np.str_('Mg'): np.float64(0.4623), np.str_('Pt'): np.float64(0.2831), np.str_('La'): np.float64(0.0482)}",0.062764,-1.6013,0.19965,crystalline,synthetic
+CRYST_0492,"{np.str_('Ca'): np.float64(0.3605), np.str_('Mg'): np.float64(0.3125), np.str_('Pt'): np.float64(0.3271)}",0.119928,0.2676,0.300173,crystalline,synthetic
+CRYST_0493,"{np.str_('Nb'): np.float64(0.4801), np.str_('Ni'): np.float64(0.0029), np.str_('Mg'): np.float64(0.1957), np.str_('Ga'): np.float64(0.3213)}",0.0495,2.0005,0.030771,crystalline,synthetic
+CRYST_0494,"{np.str_('In'): np.float64(0.1878), np.str_('Pt'): np.float64(0.8122)}",0.068582,-0.5303,0.038133,crystalline,synthetic
+CRYST_0495,"{np.str_('Ca'): np.float64(0.0409), np.str_('Pt'): np.float64(0.5383), np.str_('Co'): np.float64(0.4208)}",0.104926,2.5284,0.085642,crystalline,synthetic
+CRYST_0496,"{np.str_('W'): np.float64(0.255), np.str_('Ce'): np.float64(0.3942), np.str_('Al'): np.float64(0.3508)}",0.105018,-0.1044,0.238081,crystalline,synthetic
+CRYST_0497,"{np.str_('Be'): np.float64(0.2752), np.str_('Ga'): np.float64(0.7248)}",0.062015,9.1232,0.011489,crystalline,synthetic
+CRYST_0498,"{np.str_('W'): np.float64(0.2818), np.str_('Ca'): np.float64(0.7182)}",0.133131,2.2627,0.374338,crystalline,synthetic
+CRYST_0499,"{np.str_('Zr'): np.float64(0.0529), np.str_('Mg'): np.float64(0.1929), np.str_('Pt'): np.float64(0.2518), np.str_('Cu'): np.float64(0.2692), np.str_('W'): np.float64(0.2333)}",0.076278,0.4748,0.166577,crystalline,synthetic

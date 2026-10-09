@@ -1,76 +1,56 @@
-"""
-T034: Validate quickstart
-Runs the CI validation script end-to-end and logs the result.
+"""Validate the Quickstart script.
+
+This script runs the project's CI sanity‑check script (`scripts/run-ci.sh`)
+end‑to‑end, captures its exit code and output, and writes a concise log
+file to `logs/quickstart_validation.log`.  The log contains a timestamp,
+the exit code, and the combined stdout/stderr of the CI run.
+
+The script is intended to be invoked directly (e.g. `python
+scripts/validate_quickstart.py`).  It exits with the same status as the
+underlying `run-ci.sh` so that CI pipelines can treat a failure as a
+hard error.
 """
 import subprocess
 import sys
-import logging
-import os
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
-# Configure logging
-log_dir = Path("logs")
-log_dir.mkdir(exist_ok=True)
-log_file = log_dir / "quickstart_validation.log"
+def main() -> int:
+    # Resolve paths relative to the repository root
+    repo_root = Path(__file__).resolve().parent.parent
+    run_ci_path = repo_root / "scripts" / "run-ci.sh"
+    log_path = repo_root / "logs" / "quickstart_validation.log"
 
-# Set up logging to file
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(log_file),
-        logging.StreamHandler(sys.stdout)
-    ]
-)
-logger = logging.getLogger(__name__)
+    # Ensure the log directory exists
+    log_path.parent.mkdir(parents=True, exist_ok=True)
 
-def main():
-    logger.info("Starting Quickstart Validation (T034)")
-    logger.info("Running scripts/run-ci.sh --dry-run")
-
-    script_path = Path("scripts/run-ci.sh")
-    
-    if not script_path.exists():
-        logger.error(f"Script not found: {script_path}")
-        logger.error("Validation FAILED: run-ci.sh missing")
-        return 1
-
+    # Execute the CI script
     try:
-        # Execute the CI script
-        # Using shell=True to handle the script execution correctly on Unix-like systems
-        # and to capture the exit code properly.
         result = subprocess.run(
-            ["bash", str(script_path), "--dry-run"],
-            capture_output=True,
+            ["bash", str(run_ci_path)],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
             text=True,
-            timeout=300  # 5 minute timeout
+            check=False,
         )
-
-        logger.info(f"Exit Code: {result.returncode}")
-        
-        if result.stdout:
-            logger.info("STDOUT:\n" + result.stdout)
-        if result.stderr:
-            logger.info("STDERR:\n" + result.stderr)
-
-        if result.returncode == 0:
-            logger.info("SUCCESS: scripts/run-ci.sh exited with code 0")
-            logger.info("Quickstart validation PASSED")
-            return 0
-        else:
-            logger.error(f"FAILURE: scripts/run-ci.sh exited with code {result.returncode}")
-            logger.error("Quickstart validation FAILED")
-            return 1
-
-    except subprocess.TimeoutExpired:
-        logger.error("FAILURE: scripts/run-ci.sh timed out after 300 seconds")
-        logger.error("Quickstart validation FAILED")
+    except Exception as exc:  # pragma: no cover – unexpected failure
+        log_path.write_text(
+            f"{datetime.utcnow().isoformat()}Z - Exception while running run-ci.sh: {exc}\n"
+        )
         return 1
-    except Exception as e:
-        logger.error(f"FAILURE: Exception occurred during execution: {str(e)}")
-        logger.error("Quickstart validation FAILED")
-        return 1
+
+    # Write detailed log
+    timestamp = datetime.utcnow().isoformat() + "Z"
+    log_content = (
+        f"{timestamp} - run-ci.sh exit code: {result.returncode}\n"
+        f"{'-'*80}\n"
+        f"{result.stdout}\n"
+        f"{'-'*80}\n"
+    )
+    log_path.write_text(log_content)
+
+    # Propagate the exit code
+    return result.returncode
 
 if __name__ == "__main__":
     sys.exit(main())
