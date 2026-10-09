@@ -155,3 +155,124 @@ def test_same_proposal_cannot_create_two_case_aliases(tmp_path):
     assert len(list((ctx.project_dir/'docs').iterdir())) == 1
     assert '- [ ] T002' in tasks.read_text()
     assert 'case-insensitive path collision' in (ctx.project_dir/'code/.tasks/T002.artifact-write.log').read_text()
+
+
+def test_empty_completed_reports_escalate_then_replan_without_acceptance(tmp_path):
+    """The live canary repeated empty completion reports with no recovery signal."""
+    from datetime import UTC, datetime
+
+    from llmxive.pipeline import graph
+    from llmxive.state import execution_status, unverifiable
+    from llmxive.types import Project, Stage
+
+    ctx, feature, tasks = _context(tmp_path)
+    now = datetime.now(UTC)
+    project = Project(id=ctx.project_id, title='X', field='math',
+                      current_stage=Stage.IN_PROGRESS, created_at=now, updated_at=now,
+                      speckit_research_dir='specs/001-study')
+    for tier in range(3):
+        for attempt in range(3):
+            # New agent instance reproduces separate scheduled invocations.
+            _write(ImplementerAgent(), ctx, feature, tasks, [])
+            assert '- [ ] T002' in tasks.read_text()
+            assert unverifiable.has_unverifiable(ctx.project_id, repo_root=tmp_path) == (attempt == 2)
+        stage = graph._decide_next_stage(project, ctx.project_dir, repo_root=tmp_path)
+        assert stage == (Stage.IN_PROGRESS if tier < 2 else Stage.CLARIFIED)
+        assert execution_status.model_tier(ctx.project_id, repo_root=tmp_path) == (tier + 1 if tier < 2 else 0)
+        assert not unverifiable.has_unverifiable(ctx.project_id, repo_root=tmp_path)
+    assert execution_status.replan_rounds(ctx.project_id, repo_root=tmp_path) == 1
+    assert not execution_status.is_ok(ctx.project_id, repo_root=tmp_path)
+    assert '- [X]' not in tasks.read_text()
+    assert 'Artifact proposal refused' in (ctx.project_dir/'.specify/memory'/graph.KICKBACK_FEEDBACK_FILENAME).read_text()
+
+
+def test_writable_retry_and_changed_task_reset_consecutive_refusals(tmp_path):
+    from llmxive.state import unverifiable
+
+    ctx, feature, tasks = _context(tmp_path)
+    for _ in range(2):
+        _write(ImplementerAgent(), ctx, feature, tasks, [])
+    _write(ImplementerAgent(), ctx, feature, tasks, [{'path':'code/census.py', 'contents':'VALUE=1\n'}])
+    tasks.write_text(tasks.read_text().replace('[X]', '[ ]'))
+    _write(ImplementerAgent(), ctx, feature, tasks, [])
+    assert not unverifiable.has_unverifiable(ctx.project_id, repo_root=tmp_path)
+    tasks.write_text(tasks.read_text().replace('Implement code/census.py', 'Implement a revised code/census.py'))
+    for _ in range(2):
+        _write(ImplementerAgent(), ctx, feature, tasks, [])
+    assert not unverifiable.has_unverifiable(ctx.project_id, repo_root=tmp_path)
+    _write(ImplementerAgent(), ctx, feature, tasks, [])
+    assert unverifiable.has_unverifiable(ctx.project_id, repo_root=tmp_path)
+
+
+def test_refused_proposal_counter_redacts_secrets_and_preserves_other_track(tmp_path, monkeypatch):
+    from llmxive.state import unverifiable
+
+    ctx, feature, tasks = _context(tmp_path)
+    secret = 'test-only-artifact-secret'
+    monkeypatch.setenv('DARTMOUTH_CHAT_API_KEY', secret)
+    unverifiable.record_unverifiable(ctx.project_id, 'paper:T002', 'paper failure', repo_root=tmp_path)
+    for _ in range(3):
+        _write(ImplementerAgent(), ctx, feature, tasks, [{'path':f'../{secret}.py', 'contents':'X=1'}])
+    record = next((ctx.project_dir/'.specify/memory/artifact_refusals').glob('*.json')).read_text()
+    assert secret not in record and '<redacted>' in record
+    assert unverifiable.recorded_keys(ctx.project_id, repo_root=tmp_path) == {'T002', 'paper:T002'}
+
+
+def test_paper_delegate_neither_consumes_nor_clears_research_refusal_budget(tmp_path):
+    from llmxive.state import unverifiable
+
+    ctx, feature, tasks = _context(tmp_path)
+    for _ in range(2):
+        _write(ImplementerAgent(), ctx, feature, tasks, [])
+    saved = next((ctx.project_dir/'.specify/memory/artifact_refusals').glob('*.json'))
+    before = saved.read_bytes()
+    paper_feature = ctx.project_dir/'paper/specs/001-paper'
+    paper_feature.mkdir(parents=True)
+    paper_tasks = paper_feature/'tasks.md'
+    paper_tasks.write_text('- [ ] T002 Write paper/source/main.tex\n')
+    for artifacts in [[], [], [], [{'path':'paper/source/main.tex', 'contents':'A draft.'}]]:
+        ImplementerAgent().write_artifacts(ctx,
+            {'tasks_path':str(paper_tasks), 'feature_dir':str(paper_feature),
+             'next_task_id':'T002', 'all_complete':False, 'task_log_dir':'paper/.tasks'},
+            ChatResponse(text=yaml.safe_dump({'task_id':'T002', 'verdict':'completed',
+                                             'artifacts':artifacts}), model='test', backend='dartmouth'))
+        assert saved.read_bytes() == before
+        assert not unverifiable.has_unverifiable(ctx.project_id, repo_root=tmp_path)
+    _write(ImplementerAgent(), ctx, feature, tasks, [])
+    assert unverifiable.recorded_keys(ctx.project_id, repo_root=tmp_path) == {'T002'}
+
+
+@pytest.mark.parametrize('link_kind', ['parent', 'file', 'internal_file'])
+@pytest.mark.parametrize('artifacts', [[], [{'path':'code/census.py', 'contents':'VALUE=1\n'}]])
+def test_refusal_store_never_reads_writes_or_deletes_symlink_target(tmp_path, link_kind, artifacts):
+    from llmxive.speckit.implement_cmd import _artifact_refusal_path
+
+    ctx, feature, tasks = _context(tmp_path)
+    path = _artifact_refusal_path(ctx, 'T002')
+    outside = (ctx.project_dir/'unrelated' if link_kind == 'internal_file' else tmp_path/'outside')
+    outside.mkdir()
+    target = outside/path.name
+    target.write_bytes(b'private preserved bytes')
+    if link_kind == 'parent':
+        path.parent.parent.mkdir(parents=True)
+        path.parent.symlink_to(outside, target_is_directory=True)
+    else:
+        path.parent.mkdir(parents=True)
+        path.symlink_to(target)
+    with pytest.raises(ValueError, match='artifact refusal store'):
+        _write(ImplementerAgent(), ctx, feature, tasks, artifacts)
+    assert target.read_bytes() == b'private preserved bytes'
+    assert '- [ ] T002' in tasks.read_text()
+
+
+def test_missing_optional_model_metadata_does_not_break_refusal_recording(tmp_path):
+    from llmxive.state import unverifiable
+
+    ctx, feature, tasks = _context(tmp_path)
+    for _ in range(3):
+        ImplementerAgent().write_artifacts(ctx,
+            {'tasks_path':str(tasks), 'feature_dir':str(feature),
+             'next_task_id':'T002', 'all_complete':False},
+            SimpleNamespace(text='task_id: T002\nverdict: completed\nartifacts: []\n'))
+    assert unverifiable.recorded_keys(ctx.project_id, repo_root=tmp_path) == {'T002'}
+    assert '- [ ] T002' in tasks.read_text()
