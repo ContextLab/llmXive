@@ -8,19 +8,19 @@ properties:
     description: "Unique identifier for the subject."
   day_index:
     type: "integer"
-    description: "Training day index (0-based)."
+    description: "Training day index (0‑based)."
   unit_ids:
     type: "array"
     items:
       type: "string"
-    description: "List of unit IDs included in this matrix (filtered for stability)."
+    description: "List of unit IDs included after stability filtering."
   data_shape:
     type: "array"
     items:
       type: "integer"
     minItems: 2
     maxItems: 2
-    description: "Shape of the data array [Units, Conditions/Bins]."
+    description: "Shape of the data array [Units, Bins]."
   excluded_units:
     type: "array"
     items:
@@ -36,15 +36,15 @@ properties:
       required:
         - unit_id
         - reason
-    description: "List of units excluded and the reason."
+    description: "Units removed and why."
   stability_threshold:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "The stability threshold used (e.g., 0.80)."
+    description: "Stability threshold used (e.g., 0.80)."
   checksum:
     type: "string"
-    description: "SHA-256 checksum of the data array."
+    description: "SHA‑256 checksum of the data array."
 required:
   - subject_id
   - day_index
@@ -53,3 +53,4 @@ required:
   - excluded_units
   - stability_threshold
   - checksum
+additionalProperties: false

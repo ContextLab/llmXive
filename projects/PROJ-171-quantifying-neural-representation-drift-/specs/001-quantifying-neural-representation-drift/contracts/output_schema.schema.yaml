@@ -67,7 +67,7 @@ properties:
               type: "number"
       robustness_variance_threshold:
         type: "number"
-        description: "Maximum allowed variation in drift rate across thresholds (target: 0.10)."
+        description: "Maximum allowed variation in drift rate across thresholds (target: a modest, predefined tolerance)."
     required:
       - variance_across_metrics
       - robustness_variance_threshold

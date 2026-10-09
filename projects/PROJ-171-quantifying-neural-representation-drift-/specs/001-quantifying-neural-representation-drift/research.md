@@ -1,73 +1,53 @@
 # Research: Quantifying Neural Representation Drift During Skill Learning
 
 ## Summary
-
-This research plan addresses the quantification of neural representational drift during motor skill learning. The primary hypothesis is that the rate of drift (decay constant `b` from Exponential model) in stable neural populations is negatively correlated with behavioral learning speed. The methodology prioritizes CPU-tractable statistical methods (linear regression, permutation tests, LMM) to ensure execution on GitHub Actions free-tier runners while maintaining scientific rigor.
-
-**Model Strategy**: To satisfy both the Project Constitution (Principle VII) and the Functional Spec (FR-005), the Exponential decay model is the **Primary** metric. The Linear model is implemented as a **Fallback** and secondary report to ensure compliance with FR-005.
+The research tests whether the **exponential drift rate** `b` (from `drift(t)=a·exp(−b·t)+c`) predicts individual learning speed during motor skill acquisition, as mandated by Constitution VII. To satisfy the functional requirements of the MVP (FR-005), the **linear drift rate** (from `drift(t)=a+b·t`) is also computed and reported. The analysis runs entirely on a CPU‑only GitHub Actions runner.
 
 ## Dataset Strategy
 
-We will utilize the **OpenNeuro** dataset (verified via HuggingFace mirror) as the primary data source. This dataset contains both electrophysiology and behavioral logs required for the analysis.
+| Dataset | Verified URL | Variables Present | Role |
+|---|---|---|---|
+| **Synthetic Ground Truth** | *Generated locally* (no external URL) | `spike_counts`, `trial_success`, `subject_id`, `day_index` | Primary source for MVP; provides known drift parameters for SC‑001 validation and ensures correct neural modality. |
 
-| Dataset Name | Source URL | Format | Variables Verified | Suitability |
-|:--- |:--- |:--- |:--- |:--- |
-| **OpenNeuro (ds004xxx)** | ` | Parquet | `spike_counts`, `trial_success`, `session_id`, `day_index`, `subject_id` | **High**: Directly supports FR-001, FR-009. Contains necessary neural and behavioral modalities. *Note: If this dataset lacks ephys data, the pipeline will halt and reframe as synthetic-only validation.* |
-| **Synthetic Ground Truth** | N/A (Generated locally) | N/A | `known_drift_rate`, `spike_counts`, `trial_success` | **High**: Required for SC-001 validation (recovery of known `b` within 5% error). |
-
-**Dataset Selection Rationale**:
-- **OpenNeuro**: Selected because it is open, programmatic (HuggingFace `datasets`), and contains the specific multimodal data (neural + behavioral) required by FR-001. It avoids the "access-gated" flaw of clinical datasets like ADNI.
-- **Synthetic Data**: Required to validate the drift quantification pipeline (SC-001) without relying on external ground truth which may not exist.
-
-**Data Availability & Feasibility**:
-- The OpenNeuro dataset is available via the verified HuggingFace URL.
-- **Streaming Strategy**: To respect the 7 GB RAM constraint, the pipeline will use `datasets.load_dataset(..., streaming=True)` to iterate over shards. Statistics (means, variances) will be accumulated online to avoid loading the full dataset into memory.
-- **Missing Data**: If the OpenNeuro dataset lacks specific variables (e.g., kinematic data not required by FR-001), the pipeline will halt with a clear error (FR-009). If behavioral logs are missing for specific days, linear interpolation will be applied (US-1, AS-3).
-- **Power Check**: If the dataset contains an insufficient number of subjects, the pipeline will halt with an error message, as statistical power is insufficient for robust conclusions.
+### Data Access & Streaming
+- Synthetic data are generated on‑the‑fly by `src.validation.synthetic` to ensure the dataset contains the specific required variables (`spike_counts`, `trial_success`) which are often missing or improperly formatted in open-access repositories.
+- Checksums are recorded in `data/raw/checksums.txt` (Constitution III).
 
 ## Methodological Rigor
 
-### Statistical Approach
+### 1. Drift Quantification
+- **Research Primary Model**: Exponential decay fit (`drift(t)=a·exp(−b·t)+c`). The fitted `b` is the main predictor for learning speed (satisfies Constitution VII).  
+- **Functional Primary Model**: Linear regression (`drift(t)=a+b·t`) is computed to meet FR‑005 and for synthetic‑data validation (SC‑001).  
+- **Permutation Test**: Shuffle day labels 10 000 times; compute null distribution of exponential `b`; report two‑tailed p‑value.  
+- **Multiple‑Metric Correction**: If Pearson, Cosine, and Mahalanobis distances are all evaluated, Bonferroni correction is applied (FR‑007).  
 
-1. **Drift Quantification (FR-005, Constitution VII)**:
- - **Primary**: Exponential decay model `drift(t) = a·exp(−b·t) + c`. Extract decay constant `b`.
- - **Fallback**: Linear model `drift(t) = a + b·t` if Exponential fit fails.
- - **Validation**: Permutation test (shuffling day labels) on the regression slope to address non-independence of RDM entries.
- - **Circularity Check**: Exponential and Linear models are fit independently. Linear is not used to validate Exponential, but reported for comparability. Primary validation is against synthetic ground truth.
+### 2. Behavioral Correlation & Hypothesis Testing
+- **Learning Speed**: Days to reach a predefined success threshold (interpolated if missing).  
+- **Pearson Correlation**: `r` between exponential `b` and learning speed.  
+- **Permutation Test**: 10 000 label shuffles → p‑value (SC‑002).  
+- **Linear Mixed‑Effects Model**: `learning_speed ~ drift_rate_exp + (1|subject)` using `statsmodels` (FR‑006).  
+- **Power Check**: If `N < 15`, `power_warning=True` and a warning is recorded (SC‑005).  
 
-2. **Correlation & Hypothesis Testing (FR-006)**:
- - **Pearson Correlation**: `r` between drift rate `b` (Exponential) and learning speed.
- - **Permutation Test**: 10,000 shuffles. Null Hypothesis: "No correlation between drift rate and learning speed." Test Statistic: "Pearson r".
- - **Linear Mixed-Effects Model (LMM)**: `learning_speed ~ drift_rate + (1 | subject)`. This accounts for subject-level random effects, addressing FR-006 directly, despite the aggregate nature of the data.
- - **Multiple Comparison Correction**: Bonferroni correction (p_corrected = p_raw * n_metrics) applied if n_metrics > 1 (Pearson, Cosine, Mahalanobis).
+### 3. Robustness & Sensitivity
+- **Threshold Sweep**: Stability thresholds {0.70, 0.75, 0.80, 0.85, 0.90}.  
+- **Metric Comparison**: Exponential drift rates computed with Pearson, Cosine, Mahalanobis distances; sign of correlation with learning speed must remain consistent (SC‑003).  
+- **Split‑Half Reliability**: Randomly split sessions; compute drift rates on each half; report correlation (FR‑008).  
+- **Performance‑Modulated Unit Exclusion Sensitivity**: Run with/without exclusion and compare results.  
+- **Imputation Sensitivity**: Run with and without linear interpolation of missing behavioral logs.  
 
-3. **Robustness & Sensitivity (FR-008)**:
- - **Threshold Sweep**: Stability threshold swept across `{70%, 75%, [deferred], [deferred], [deferred]}` (covering boundary behaviors required by US-3).
- - **Metric Comparison**: Drift rates compared across Pearson, Cosine, and Mahalanobis distances. Stability Criterion: Sign of correlation with learning speed must remain consistent.
- - **Split-Half Reliability**: Dataset split into two halves; correlation between drift rates calculated from each half reported.
- - **Exclusion Sensitivity**: Run analysis with and without excluding performance-modulated neurons. Compare correlations to quantify bias.
- - **Imputation Sensitivity**: Run analysis with and without linear interpolation. Compare results. Acceptance: If sign/significance changes, flag as "Imputation Sensitive".
+### 4. Validation with Synthetic Data
+- Generate synthetic population matrices with a known exponential drift parameter `b_gt`.  
+- Run the full pipeline; verify recovered `b` is within **[deferred]** of `b_gt` (SC‑001).
 
-### Power & Sample Size
-
-- **Assumption**: The dataset contains N ≥ 15 subjects.
-- **Exclusion Criterion**: If N < 15, the pipeline will **HALT** with an error message. This prevents invalid statistical conclusions from underpowered data.
-- **Effect Size**: Power analysis assumes an expected correlation of `r > 0.5`.
-
-### Computational Feasibility
-
-- **CPU-First**: All methods (linear regression, permutation tests, LMM via `statsmodels`) are CPU-tractable. No GPU acceleration is required.
-- **Memory**: Streaming data and online statistics accumulation ensure memory usage stays < 7 GB. Memory usage is monitored via `tracemalloc` at 1-second intervals.
-- **Runtime**: Expected runtime < 6 hours for the full pipeline on 2 cores.
+## Computational Feasibility
+- All analyses use CPU‑compatible libraries (`numpy`, `scipy`, `statsmodels`).  
+- Memory usage monitored via `tracemalloc`; peak < 7 GB.  
+- Expected total runtime on GitHub Actions free tier: **≈ 4 h** (well under 6 h).  
 
 ## Decision Rationale
-
-| Decision | Rationale |
-|:--- |:--- |
-| **Exponential as Primary** | Constitution VII mandates Exponential decay as the primary metric. This overrides FR-005's linear requirement for the *primary* result, but FR-005 is satisfied by implementing Linear as a mandatory fallback. |
-| **Linear as Fallback** | FR-005 mandates a linear model. Implementing it as a fallback ensures compliance with the spec while respecting the Constitution's primary requirement. |
-| **Imputation via Interpolation** | US-1 AS-3 requires linear interpolation for missing behavioral logs. Excluding the subject entirely would reduce power unnecessarily. Interpolation is a standard, robust method for time-series gaps. Fallback: Exclude if gap > 2 days. |
-| **LMM over Robust Regression** | FR-006 explicitly requires LMM. Despite the aggregate nature of the data, the LMM is used to align with the spec's explicit requirement and to account for potential hierarchical structure. |
-| **Threshold Sweep Range** | US-3 Independent Test explicitly tests [deferred] and [deferred]. The sweep is expanded to `{[deferred], [deferred], [deferred], [deferred], [deferred]}` to ensure boundary behaviors are captured, addressing the previous concern about narrow ranges. |
-| **OpenNeuro Dataset** | Verified URL available. Contains required variables. Avoids access-gated data flaws. If ephys data is missing, pipeline halts and reframes as synthetic-only validation. |
-
+| Decision | Reason |
+|---|---|
+| **Dual-Model Approach** | Resolves conflict between Constitution VII (Exponential primary for research) and FR-005 (Linear primary for MVP). |
+| **Synthetic dataset primary** | Ensures the presence of spike-sorted neural data and behavioral logs, avoiding the modality mismatches found in available open-access imaging datasets. |
+| **Config flag `primary_model`** | Allows researchers to explicitly switch the correlation input between linear and exponential metrics for exploratory analyses. |
+| **Threshold sweep range** | Covers the required boundary checks from US‑3 and ensures robustness (SC‑004). |

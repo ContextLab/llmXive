@@ -1,84 +1,76 @@
 # Quickstart: Quantifying Neural Representation Drift During Skill Learning
 
 ## Prerequisites
-
-- Python 3.11+
-- CPU cores, GB RAM (GitHub Actions free-tier compatible)
-- Internet access (for downloading OpenNeuro dataset)
+- Python 3.11+
+- GitHub Actions free‑tier runner or equivalent local environment (2 CPU, ≤7 GB RAM)
 
 ## Installation
 
-1. **Clone the repository**:
- ```bash
- git clone <repo-url>
- cd projects/PROJ-171-quantifying-neural-representation-drift-/code
- ```
-
-2. **Create a virtual environment**:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-3. **Install dependencies**:
- ```bash
- pip install -r requirements.txt
- ```
- *Note: `requirements.txt` pins all versions for reproducibility (Constitution I).*
-
-## Data Setup
-
-The pipeline automatically downloads the OpenNeuro dataset from the verified HuggingFace source.
-
 ```bash
-# This command triggers the download and validation
-python -m src.data.loader --verify-only
+# 1. Clone the repository
+git clone <REPO_URL>
+cd projects/PROJ-171-quantifying-neural-representation-drift-/code
+
+# 2. Create a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+
+# 3. Install pinned dependencies
+pip install -r requirements.txt
 ```
 
-- **Verified Source**: `
-- **Checksum**: Recorded in `data/raw/checksums.txt` (Constitution III).
+## Data Setup
+The pipeline automatically generates a synthetic dataset that contains spike counts, trial success rates, and known drift parameters. This ensures the data exactly fits the requirements of FR-001 and FR-009 without relying on external gated or modality-mismatched datasets.
 
-## Running the Pipeline
+```bash
+# Verify synthetic data generation (optional)
+python -m src.validation.synthetic --generate --validate
+```
 
-Execute the full analysis pipeline:
+- **Source**: Synthetic generator (`src.validation.synthetic`).
+- **Modality**: Spike-sorted electrophysiology + Behavioral logs.
+
+## Running the Full Analysis (MVP)
 
 ```bash
 python -m src.main --config config/default.yaml
 ```
 
-**What happens**:
-1. **Ingest**: Downloads and streams OpenNeuro data.
-2. **Preprocess**: Filters units (≥80% stability), excludes performance-modulated neurons, imputes missing behavior.
-3. **Drift**: Computes RDMs, fits linear model (`drift(t) = a + b·t`), extracts `b`.
-4. **Correlate**: Runs permutation test and LMM to correlate `b` with learning speed.
-5. **Validate**: Performs sensitivity analysis (threshold sweep, metric comparison).
-6. **Output**: Generates plots and CSV results in `data/results/` and `docs/paper/`.
+What the command does:
+1. **Ingest** – generates synthetic data, validates required columns.  
+2. **Preprocess** – filters units (≥80 % stability), excludes performance‑modulated neurons, interpolates missing behavioral logs.  
+3. **Drift** – computes RDMs, fits **both** the linear drift model (`b_lin`) for FR-005 and the exponential drift model (`b_exp`) for Constitution VII.  
+4. **Correlation** – Pearson correlation, 10 k permutation test, LMM (`learning_speed ~ b_exp + (1|subject)`).  
+5. **Validation** – threshold sweep (0.70‑0.90), metric comparison, split‑half reliability.  
+6. **Outputs** – CSV/JSON results in `data/results/`, figures in `docs/paper/`.
 
-## Verification (Synthetic Ground Truth)
+### Configuration Flags
+- `config.primary_model` (default `"exponential"`): determines which drift metric is used as the primary predictor for the correlation analysis. Set to `"linear"` to prioritize the FR-005 metric.  
+- `config.stability_thresholds` (list): thresholds to sweep; default `[0.70,0.75,0.80,0.85,0.90]`.
 
-To verify the drift quantification accuracy (SC-001):
+## Synthetic Ground‑Truth Validation (SC‑001)
 
 ```bash
 python -m src.validation.synthetic --generate --validate
 ```
 
-- Generates synthetic data with known drift rate `b`.
-- Runs the pipeline.
-- Checks if recovered `b` is within 5% error of ground truth.
+- Generates a synthetic dataset with a known drift rate `b_gt`.
+- Runs the full pipeline.
+- Prints whether recovered `b` is within 5 % of `b_gt`.
 
-## Sensitivity Analysis
-
-To run the threshold sweep (FR-008):
+## Sensitivity Analysis (FR‑008)
 
 ```bash
 python -m src.validation.sensitivity --thresholds 0.70 0.75 0.80 0.85 0.90
 ```
 
-- Sweeps stability thresholds.
-- Outputs `docs/paper/fig_sensitivity_thresholds.png`.
+- Sweeps the unit‑stability threshold.
+- Saves a plot `fig_sensitivity_thresholds.png` in `docs/paper/`.
 
 ## Troubleshooting
 
-- **Missing Variables**: If the pipeline halts with `RuntimeError: Missing variable 'spike_counts'`, ensure the OpenNeuro dataset is correctly downloaded and contains the required columns.
-- **Memory Error**: If `MemoryError` occurs, ensure `streaming=True` is used in `loader.py` and that intermediate matrices are not loaded entirely into memory.
-- **Convergence Warning**: If `drift_rate_b` is flagged as "non-drifting", check the raw data for flat activity or insufficient days.
+- **Missing variable error**: `RuntimeError: Missing variable 'spike_counts'`. This occurs if the synthetic generator is disabled and no valid dataset is provided.  
+- **MemoryError**: Reduce the number of subjects via `--subject-list` if necessary.  
+- **Convergence warning**: If `DriftResult.convergence_status` is `"failed_fallback"`, one of the fits did not converge. Review the RDM plot for flat distances.  
+
+All steps are fully reproducible; re‑run the same command on a fresh runner to obtain identical results.

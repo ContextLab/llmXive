@@ -10,35 +10,35 @@ properties:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "P-value from the permutation test (10,000 shuffles)."
+    description: "P‑value from the permutation test (a large number of shuffles)."
   p_value_lmm:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "P-value for the fixed effect in the Linear Mixed-Effects Model."
+    description: "P‑value for the fixed effect in the Linear Mixed‑Effects Model."
   lmm_fixed_effect_coeff:
     type: "number"
-    description: "Coefficient of the drift rate in the LMM."
+    description: "Coefficient of drift rate in the LMM."
   lmm_random_effect_variance:
     type: "number"
-    description: "Variance of the random effect (subject) in the LMM."
+    description: "Variance of the subject random effect in the LMM."
   sample_size:
     type: "integer"
     minimum: 1
-    description: "Number of subjects included in the analysis."
+    description: "Number of subjects included."
   power_warning:
     type: "boolean"
-    description: "True if sample size < 15."
+    description: "True if N < 15 (insufficient power)."
   bonferroni_corrected_p:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Bonferroni corrected p-value if multiple metrics were tested."
+    description: "Bonferroni‑corrected p‑value when multiple metrics are tested."
   metrics_tested:
     type: "array"
     items:
       type: "string"
-    description: "List of distance metrics tested (for Bonferroni correction)."
+    description: "List of distance metrics evaluated."
 required:
   - correlation_r
   - p_value_permutation
@@ -46,3 +46,4 @@ required:
   - sample_size
   - power_warning
   - metrics_tested
+additionalProperties: false

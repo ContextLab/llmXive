@@ -8,33 +8,33 @@ properties:
     description: "Unique identifier for the subject."
   drift_rate_b:
     type: "number"
-    description: "The slope of the linear drift model (primary metric)."
+    description: "Slope `b` from the primary linear drift model."
   intercept_a:
     type: "number"
-    description: "The intercept of the linear drift model."
+    description: "Intercept `a` from the linear model."
   r_squared:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "R-squared value of the linear fit."
+    description: "R‑squared of the linear fit."
   model_type:
     type: "string"
     enum:
       - "linear"
       - "exponential"
       - "constant"
-    description: "Type of model used for fitting."
+    description: "Model type used for the primary output."
   convergence_status:
     type: "string"
     enum:
       - "success"
       - "failed_fallback"
-    description: "Status of the model fitting process."
+    description: "Whether the primary linear fit succeeded."
   stability_threshold:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Stability threshold used for unit filtering."
+    description: "Stability threshold applied during unit filtering."
   distance_metric:
     type: "string"
     enum:
@@ -48,8 +48,11 @@ properties:
 required:
   - subject_id
   - drift_rate_b
+  - intercept_a
+  - r_squared
   - model_type
   - convergence_status
   - stability_threshold
   - distance_metric
   - standard_error
+additionalProperties: false

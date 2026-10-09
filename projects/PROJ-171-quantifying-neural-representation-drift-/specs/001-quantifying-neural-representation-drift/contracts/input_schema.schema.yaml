@@ -16,26 +16,19 @@ properties:
     type: "array"
     items:
       type: "number"
-    description: "Array of spike counts per unit per condition."
-  behavioral_success:
+    description: "Array of spike counts per unit per time bin."
+  trial_success:
     type: "number"
-    description: "Success rate (0.0 to 1.0) for the session."
-  trial_data:
-    type: "array"
-    items:
-      type: "object"
-      properties:
-        trial_id:
-          type: "string"
-        success:
-          type: "boolean"
-        response_time:
-          type: "number"
-    description: "Optional: Trial-level details for fine-grained analysis."
+    minimum: 0.0
+    maximum: 1.0
+    description: "Success rate for the session."
+  trial_id:
+    type: "string"
+    description: "Optional trial identifier."
 required:
   - subject_id
   - session_id
   - day_index
   - spike_counts
-  - behavioral_success
-additionalProperties: true
+  - trial_success
+additionalProperties: false

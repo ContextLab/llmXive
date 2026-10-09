@@ -1,19 +1,14 @@
 status: none
-intent: download openneuro electrophysiology behavioral recordings spikeinterface
-  neurodata without borders python package dataset
+intent: OpenNeuro ds004xxx dataset download via HuggingFace datasets python package
+  dataset
 required_fields:
-- subject_id
-- session_date
-- unit_id
-- spike_times
 - spike_counts
-- trial_id
-- event_onset
-- event_offset
-- stimulus_type
-- behavioral_response
-- outcome
-- sampling_rate
-cache_key: 2dbd71a55e91789c26c74932aca07abb3bb33af8f18e5f4d55e05f38ddd3d507
-searched_at: '2026-09-09T10:00:40.186902+00:00'
+- trial_success
+- session_id
+- day_index
+- subject_id
+- known_drift_rate
+- behavioral_log
+cache_key: 732d719b35f58519f6f7bdd550381d227ce9f9b865db88914054f7672cfde667
+searched_at: '2026-10-09T15:19:15.871185+00:00'
 retry_count: 1
