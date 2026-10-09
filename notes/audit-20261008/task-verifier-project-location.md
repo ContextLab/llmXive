@@ -33,3 +33,10 @@ One post-correction live pass passed all seven cases in 120.98 seconds using the
 configured primary model (the test asserts the observed model for every call).
 The prior fixture-only failure was retained as before/after evidence; no unchanged
 failed case was repeatedly rerun to obtain a favorable result.
+
+The first hosted run also passed all runtime/model cases, but two Zenodo probes
+hit 30-second service timeouts. After inheriting #1538's separate reference check,
+classify this exact reviewed runtime-only test module without excluding unknown
+live-test modules. Selection and collection regressions retain Dartmouth coverage,
+prove unknown modules remain conservative, and ensure the classified module has
+no external-reference tests. No external-service assertion is changed.
