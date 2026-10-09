@@ -29190,7 +29190,7 @@
         "librarian",
         "reference_validator"
       ],
-      "description": "The implementer agent executes the task list \u2014 writing code, running real tests, collecting data \u2014 ticking tasks off until the plan is complete. The librarian agent verifies citations along the way.",
+      "description": "The implementer writes code, runs commands, and collects data in bounded task batches. Independent verification checks actual artifacts and execution evidence before tasks count as complete. Refused writes or failed checks retain diagnostics for bounded revision and replanning; citations are checked along the way.",
       "example_artifacts": [
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste",
@@ -29228,7 +29228,7 @@
       "outputs": [
         "Code under `projects/<id>/code/`",
         "Data under `projects/<id>/data/`",
-        "All tasks checked off \u2192 research_complete"
+        "All tasks independently verified \u2192 research_complete"
       ]
     },
     {
@@ -29242,7 +29242,7 @@
         "research_reviewer_data_quality_research",
         "research_reviewer_filesystem_hygiene"
       ],
-      "description": "Seven specialist reviewers (idea quality, creativity, implementation correctness, completeness, code quality, data quality, filesystem hygiene) run the identify \u2192 revise \u2192 re-review convergence cycle. Acceptance requires unanimous acceptance from the panel within the 3-round cap; on non-convergence the project is kicked back with full provenance. There is no point system \u2014 human and simulated-personality reviews are advisory inputs routed through stage-aware triage.",
+      "description": "Eight review lenses (idea quality, creativity, implementation correctness, completeness, code quality, data quality, filesystem hygiene, and a generic reviewer) run the identify \u2192 revise \u2192 re-review convergence cycle. Acceptance requires unanimous acceptance from the panel within the 3-round cap; on non-convergence the project is kicked back with full provenance. There is no point system \u2014 human and simulated-personality reviews are advisory inputs routed through stage-aware triage.",
       "example_artifacts": [
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-1069-synthdocbench-controlled-benchmark-for-l",
@@ -29363,7 +29363,7 @@
         "latex_fix",
         "reference_validator"
       ],
-      "description": "The paper-writing, figure-generation, and statistics agents draft the LaTeX, generate figures from the data, and run the analyses; LaTeX is built and citations are verified.",
+      "description": "The paper implementer creates the selected task's declared artifacts using the accepted research evidence. It can bootstrap an empty source directory. Each task requires independent verification; whole-paper implementation review follows completed tasks, with compilation, citation checks, and a source-bound proofreader receipt still required.",
       "example_artifacts": [],
       "inputs": [
         "`paper/.../tasks.md`",
@@ -29383,7 +29383,7 @@
       "agents": [
         "paper_reviewer"
       ],
-      "description": "The draft compiles cleanly, all citations are verified, and the proofreader is satisfied \u2014 ready for paper review.",
+      "description": "The completed tasks and whole-paper implementation review have current acceptance evidence. The manuscript compiles and passes the citation and source-bound proofreader gates \u2014 ready for paper review.",
       "example_artifacts": [],
       "inputs": [
         "A drafted paper"
@@ -29430,7 +29430,7 @@
       "agents": [
         "status_reporter"
       ],
-      "description": "The paper is published \u2014 the PDF is final and an announcement goes out. The project is done.",
+      "description": "After paper acceptance and maintainer sign-off, the publication workflow posts the final PDF and records the publication artifacts.",
       "example_artifacts": [],
       "inputs": [
         "A paper-accepted project"
