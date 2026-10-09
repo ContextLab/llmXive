@@ -36,6 +36,9 @@ from typing import Any
 
 from llmxive.backends.base import ChatMessage
 from llmxive.backends.router import REASONING_MAX_TOKENS, chat_with_fallback
+from llmxive.project_paths import _ROOTED_PATH_RE
+from llmxive.project_paths import declared_paths as _declared_paths
+from llmxive.project_paths import resolve_project_path as _evidence_path
 from llmxive.speckit.task_lines import TASK_ID_RE as _TASK_ID_RE
 from llmxive.speckit.task_lines import task_continuation
 
@@ -69,32 +72,7 @@ Then 1-3 sentences naming the evidence you checked. If INCOMPLETE, state CONCRET
 what is missing or wrong, so the next implementer can fix it.
 """
 
-# --- Artifact-path detection (the deterministic evidence a task line references) ---
-#
-# Broadened well beyond the original code/data/figures/results/outputs roots so
-# scaffolding / config / test tasks are judged from real files, not prose.
-#: Directory-rooted artifact paths with a real dotted extension.
-_ROOTED_PATH_RE = re.compile(
-    r"(?<![\w./-])((?:projects/[\w.-]+|code|data|figures|results|outputs|src|tests?|scripts|config|configs|"
-    r"notebooks|docs|assets|models|reports|paper|contracts|state|specs)/[\w./-]+\.\w+)"
-)
-#: Bare (optionally path-prefixed) build/config filenames a task may reference.
-_CONFIG_FILE_RE = re.compile(
-    r"\b((?:[\w./-]+/)?(?:pyproject\.toml|setup\.cfg|setup\.py|"
-    r"requirements(?:-[\w.]+)?\.txt|environment\.ya?ml|tox\.ini|noxfile\.py|"
-    r"conftest\.py|pytest\.ini|mkdocs\.ya?ml|Makefile|Dockerfile))\b"
-)
-#: Generic config-extension files (…toml/…cfg/…yaml/…ini) referenced under the project.
-_CONFIG_EXT_RE = re.compile(r"(?<![\w./-])((?:[\w./-]+/)?[\w.-]+\.(?:toml|cfg|ya?ml|ini))\b")
-_SPEC_DOC_RE = re.compile(r"\b((?:specs/[\w./-]+/)?(?:plan|spec|tasks|research|quickstart|data-model)\.md)\b")
-_DIRECTORY_PATH_RE = re.compile(
-    r"(?<![\w./-])((?:projects/[\w.-]+|code|data|figures|results|outputs|src|tests?|"
-    r"scripts|config|configs|notebooks|docs|assets|models|reports|paper|contracts|state|specs)"
-    r"/(?:[\w.-]+/)*)(?![\w-]|\.\w)"
-)
-#: Back-compat alias — some callers/tests reference the historical single regex; it
-#: now points at the primary rooted-path pattern (the deterministic detector uses
-#: the full :func:`_declared_paths` union).
+# Compatibility aliases retained for existing verifier callers.
 _PATH_RE = _ROOTED_PATH_RE
 
 _MAX_EVIDENCE_FILES = 6
@@ -129,75 +107,6 @@ class TaskVerdict:
     @property
     def deferred(self) -> bool:
         return self.complete is None
-
-
-def _declared_paths(task_text: str) -> list[str]:
-    """Every artifact path a task line references (rooted paths + build/config
-    files), de-duplicated in first-seen order."""
-    out: list[str] = []
-    seen: set[str] = set()
-    matches = sorted(
-        (m for rx in (_ROOTED_PATH_RE, _CONFIG_FILE_RE, _CONFIG_EXT_RE, _SPEC_DOC_RE,
-                      _DIRECTORY_PATH_RE)
-         for m in rx.finditer(task_text)),
-        key=lambda m: (m.start(1), -m.end(1)),
-    )
-    end = -1
-    for m in matches:
-        # A repo-rooted spec path must not also consume an evidence slot as
-        # the bare basename matched by the spec-document pattern.
-        if m.start(1) < end:
-            continue
-        end = m.end(1)
-        rel = m.group(1)
-        if rel not in seen:
-            seen.add(rel)
-            out.append(rel)
-    return out
-
-
-def _evidence_path(project_dir: Path, rel: str) -> Path | None:
-    """Resolve declared paths within this project, including its code layout.
-
-    Generated tasks use both repo-rooted paths and paths relative to ``code/``.
-    An explicit repo-rooted path is exact; shorthand prefers the project root
-    and only falls back to code/ for source, test, and build/config paths.
-    """
-    relative = Path(rel)
-    if relative.is_absolute() or ".." in relative.parts:
-        return None
-    explicit = relative.parts[:1] == ("projects",)
-    if explicit:
-        if len(relative.parts) < 2 or relative.parts[1] != project_dir.name:
-            return None
-        relative = Path(*relative.parts[2:])
-    root = project_dir.resolve()
-    path = root / relative
-    if not path.resolve().is_relative_to(root):
-        return None
-    if (not path.exists() and len(relative.parts) >= 3 and relative.parts[0] == "specs"
-            and not (root / "specs" / relative.parts[1]).exists()):
-        # The implementer canonicalizes invented feature slugs on write. Read
-        # the same authoritative feature, without aliasing an existing feature.
-        from llmxive.state.project import feature_dir_for
-        feature = feature_dir_for(project_dir, track="research")
-        if feature is not None:
-            path = feature.joinpath(*relative.parts[2:])
-    elif not explicit and not path.exists() and "/" not in rel and _SPEC_DOC_RE.fullmatch(rel):
-        from llmxive.state.project import feature_dir_for
-        feature = feature_dir_for(project_dir, track="research")
-        if feature is not None:
-            path = feature / rel
-    elif not explicit and not path.exists() and (
-        relative.parts[:1] in (("src",), ("test",), ("tests",), ("scripts",))
-        or (len(relative.parts) == 1 and (
-            _CONFIG_FILE_RE.fullmatch(rel) or _CONFIG_EXT_RE.fullmatch(rel)
-        ))
-    ):
-        path = root / "code" / relative
-    if not path.resolve().is_relative_to(root):
-        return None
-    return path
 
 
 def _artifact_valid(project_dir: Path, rel: str) -> bool:
@@ -266,7 +175,8 @@ def gather_evidence(project_dir: Path, task_text: str) -> str:
     Uses the broadened :func:`_declared_paths` detector, so a setup/config/test
     task (``pyproject.toml``, ``tests/…``, ``src/…``) yields REAL file evidence
     instead of the "no artifact path" prose fallback."""
-    paths = _declared_paths(task_text)[:_MAX_EVIDENCE_FILES]
+    paths = _declared_paths(task_text)
+    file_count = 0
     chunks: list[str] = []
     for rel in paths:
         f = _evidence_path(project_dir, rel)
@@ -281,6 +191,10 @@ def gather_evidence(project_dir: Path, task_text: str) -> str:
             continue
         if f is None or not f.is_file():
             chunks.append(f"- `{rel}`: MISSING (file does not exist)")
+            continue
+        file_count += 1
+        if file_count > _MAX_EVIDENCE_FILES:
+            chunks.append(f"- `{rel}`: NOT INSPECTED (file evidence limit reached)")
             continue
         try:
             size = f.stat().st_size

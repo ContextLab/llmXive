@@ -23,12 +23,19 @@ supply evidence. Evidence displays the resolved file and hashes its contents;
 directory evidence hashes the complete immediate listing. Overlapping path
 matches no longer consume extra evidence slots.
 
-Validation: 38 focused verifier/preview tests and 41 verifier integration and
-execution tests passed; changed-file Ruff passed. A regression exercises the
+The implementer's existing-file context had the same code-relative path bug.
+Both components now use `project_paths.py`, so repair prompts receive the same
+existing source that verification examines. Directory listings do not consume
+the file-content slots, keeping a setup task's dependency manifest visible.
+
+Validation: 133 focused verifier, preview, and implementer tests passed; the
+earlier 41 verifier integration and execution tests passed; changed-file Ruff
+passed. A regression exercises the
 verification pass with real nested files and confirms the independent reviewer
 receives the source and can reject incorrect scientific behavior. Separate
 tests cover canonical feature paths, scaffolding, cache-input changes, and
-project confinement. The full canary was resumed with this follow-up source;
+project confinement. The full canary was resumed with this follow-up source,
+then stopped and resumed once to load the shared implementer resolver;
 research and paper acceptance remain unproven.
 
 The production repair workflow (37859264827) completed with `no_candidate`:

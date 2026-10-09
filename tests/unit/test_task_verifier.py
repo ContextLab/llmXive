@@ -128,6 +128,15 @@ def test_setup_directory_evidence_includes_actual_layout(tmp_path):
     before = evidence
     (project / "code/src/new.py").write_text("new code")
     assert tv.gather_evidence(project, task) != before
+    # Directory scaffolding must not crowd the dependency file out of review.
+    for directory in ("data", "results", "contracts", "tests"):
+        (project / directory).mkdir()
+    (project / "requirements.txt").write_text("pytest>=8.0\n")
+    setup = (
+        "Create src/, src/utils/, data/, results/, contracts/, tests/, code/, "
+        "and requirements.txt"
+    )
+    assert "pytest>=8.0" in tv.gather_evidence(project, setup)
 
 
 def test_evidence_follows_implementer_feature_slug_canonicalization(tmp_path, monkeypatch):
@@ -144,6 +153,21 @@ def test_evidence_follows_implementer_feature_slug_canonicalization(tmp_path, mo
     # Never borrow evidence from another feature that actually exists.
     (tmp_path / "specs/001-invented").mkdir()
     assert "MISSING" in tv.gather_evidence(tmp_path, task)
+
+
+def test_implementer_gets_same_existing_source_as_verifier(tmp_path):
+    from llmxive.speckit.implement_cmd import _inline_referenced_files
+
+    source = tmp_path / "code/src/sieve.py"
+    source.parent.mkdir(parents=True)
+    source.write_text("def phi(n):\n    return n  # must be repaired\n")
+    task = "Fix src/sieve.py"
+    assert source.read_text() in _inline_referenced_files(tmp_path, task)
+    assert source.read_text() in tv.gather_evidence(tmp_path, task)
+    outside = tmp_path.parent / "outside.py"
+    outside.write_text("private contents")
+    (tmp_path / "code/leak.py").symlink_to(outside)
+    assert _inline_referenced_files(tmp_path, "Fix code/leak.py") == ""
 
 
 def test_verify_task_defers_on_backend_failure(monkeypatch) -> None:
