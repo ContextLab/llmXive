@@ -54,8 +54,10 @@ from these records.
 The complete state vocabulary is defined in [types.py](src/llmxive/types.py).
 Failures do not count as advancement: they retain diagnostics and either retry,
 reopen the responsible task, or return the project to the appropriate design
-stage. Paper failures stay on the paper track. Successful analysis can be reused
-only when its recorded artifacts and relevant review inputs still match.
+stage. Paper task-format, planning and writing failures retain the paper track
+instead of corrupting accepted research state; substantive scientific findings
+can still require a return to research or the backlog. Successful analysis can
+be reused only when its recorded artifacts and relevant review inputs still match.
 
 ### Review and scientific acceptance
 
@@ -116,13 +118,19 @@ The router also supports backend fallback where configured. Local transformers
 requires installed dependencies, suitable hardware and a compatible available
 model; it is not a guarantee that a large Dartmouth model can run on a laptop.
 Qwen remains a compatibility route for callers explicitly requesting it, not
-the production default.
+the production default. Specialized vision, personality and manual utilities
+still have explicit model choices; registry defaults do not describe every call.
+Those remaining choices are tracked in [#1285](https://github.com/ContextLab/llmXive/issues/1285).
 
 The existing paid Dartmouth fallback is off by default. It requires
 `LLMXIVE_PAID_OPT_IN=1` and headroom under the
 [credit-budget guard](src/llmxive/backends/credits.py); an unavailable or invalid
-balance check refuses paid calls. Included credits and endpoint availability are
-service/account properties, not a promise of unlimited free inference.
+balance check refuses paid calls. The deployed
+[advance workers](.github/workflows/advance.yml) explicitly enable that opt-in
+with `LLMXIVE_PAID_BUDGET_FRACTION=0.9`, so production can use the guarded fallback
+within Dartmouth's credit budget after free peers fail. This is separate from
+the HF pilot. Included credits and endpoint availability are service/account
+properties, not a promise of unlimited free inference.
 
 Research designs should fit available compute. The existing
 [Kaggle offload adapter](src/llmxive/execution/offload.py) can submit eligible
