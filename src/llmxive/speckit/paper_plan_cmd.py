@@ -6,15 +6,19 @@ from pathlib import Path
 from typing import Any
 
 from llmxive.agents.prompts import render_prompt
-from llmxive.backends.base import ChatMessage, ChatResponse
-from llmxive.speckit.plan_cmd import _split_multi_file
+from llmxive.backends.base import ChatMessage
+from llmxive.speckit.plan_cmd import PlannerAgent
 from llmxive.speckit.runner import run_script
-from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
+from llmxive.speckit.slash_command import SlashCommandContext
 
 
-class PaperPlannerAgent(SlashCommandAgent):
+class PaperPlannerAgent(PlannerAgent):
     def slash_command_name(self) -> str:
         return "speckit.plan"
+
+    def claim_stage_label(self) -> str | None:
+        # Paper claims require full evidence checks, unlike research planning.
+        return None
 
     def _paper_dir(self, ctx: SlashCommandContext) -> Path:
         return ctx.project_dir / "paper"
@@ -30,14 +34,18 @@ class PaperPlannerAgent(SlashCommandAgent):
     def mechanical_step(self, ctx: SlashCommandContext) -> dict[str, Any]:
         paper_dir = self._paper_dir(ctx)
         feature_dir = self._feature_dir(ctx)
-        script = paper_dir / ".specify" / "scripts" / "bash" / "setup-plan.sh"
-        # Use absolute path so cwd doesn't double-prefix.
-        result = run_script(
-            str(script),
-            "--json",
-            cwd=paper_dir,
-            expect_json=True,
-        )
+        feature_dir.resolve().relative_to(paper_dir.resolve())
+        plan_path = feature_dir / "plan.md"
+        if plan_path.is_file():
+            result = {"FEATURE_SPEC": str(feature_dir / "spec.md"),
+                      "IMPL_PLAN": str(plan_path), "SPECS_DIR": str(feature_dir)}
+        else:
+            script = (paper_dir / ".specify/scripts/bash/setup-plan.sh").resolve()
+            result = run_script(
+                str(script), "--json", cwd=paper_dir, expect_json=True,
+                extra_env={"SPECIFY_FEATURE_DIRECTORY": str(feature_dir.resolve()),
+                           "SPECIFY_FEATURE": feature_dir.name},
+            )
         return {
             "feature_dir": str(feature_dir),
             "spec_path": str(feature_dir / "spec.md"),
@@ -69,48 +77,46 @@ class PaperPlannerAgent(SlashCommandAgent):
         )
         from llmxive.speckit._comments_context import render_recent_comments_block
         comments_block = render_recent_comments_block(ctx.project_dir)
+        feature_dir = Path(mechanical_output["feature_dir"])
+        existing = []
+        remaining = 80_000
+        paths = [feature_dir / name for name in
+                 ("plan.md", "research.md", "data-model.md", "quickstart.md")]
+        paths.extend(sorted((feature_dir / "contracts").glob("*")))
+        for path in paths:
+            if not path.is_file() or path.suffix not in {".md", ".yaml", ".yml", ".json"}:
+                continue
+            text = path.read_text(encoding="utf-8")
+            if len(text) <= remaining:
+                existing.append(f"### {path.relative_to(feature_dir)}\n\n{text}")
+                remaining -= len(text)
+            else:
+                existing.append(f"### {path.relative_to(feature_dir)} (not loaded: context budget)")
+        existing_block = ("# Existing paper planning artifacts\n\n"
+                          "Revise these in place; preserve unaffected scientific requirements, "
+                          "methods, figure bindings and paths.\n\n" + "\n\n".join(existing)) if existing else ""
         user = (
             f"# Paper spec.md\n\n{spec_text}\n\n"
             f"# Paper constitution\n\n{paper_constitution}\n\n"
             f"# Plan template\n\n{plan_template}\n\n"
+            + (existing_block + "\n\n" if existing_block else "")
             + (comments_block + "\n\n" if comments_block else "")
-            + "# Task\n\nProduce all five documents per the output contract."
+            + "# Task\n\nProduce all five documents per the output contract. "
+            "FILE markers must be relative to the active paper feature directory: "
+            "plan.md, research.md, data-model.md, quickstart.md and contracts/<name>.schema.yaml. "
+            "Do not prefix markers with specs/, a feature slug, or a repository path."
         )
         return [
             ChatMessage(role="system", content=system),
             ChatMessage(role="user", content=user),
         ]
 
-    def write_artifacts(
-        self,
-        ctx: SlashCommandContext,
-        mechanical_output: dict[str, Any],
-        llm_response: ChatResponse,
-    ) -> list[str]:
-        repo = ctx.project_dir.parent.parent
-        feature_dir = Path(mechanical_output["feature_dir"])
-        if not feature_dir.is_absolute():
-            feature_dir = repo / feature_dir
-        feature_dir.mkdir(parents=True, exist_ok=True)
-        from llmxive.speckit._real_only_guard import guard_emit
-
-        files = _split_multi_file(llm_response.text)
-        written: list[str] = []
-        for relpath, content in files.items():
-            target = feature_dir / relpath
-            target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_text(content + "\n", encoding="utf-8")
-            # FR-009: real-only guard for markdown artifacts
-            if target.suffix == ".md":
-                guard_emit(target, repo_root=repo)
-            written.append(str(target.relative_to(repo)))
-
-        # --- paper-plan convergence panel (spec-015 / #239) -----------------
-        # The just-written paper plan.md + sibling docs are reviewed by the
-        # live paper-plan panel (paper_structure / spec_section_coverage /
-        # plan_constitution_consistency) via the convergence engine.
+    def _run_plan_panel(
+        self, ctx: SlashCommandContext, feature_dir: Path, repo: Path,
+    ) -> None:
+        # Reuse the research planner's complete-set validation, confined writes,
+        # rollback and bounded corrective retry, then keep the paper panel.
         self._run_paper_plan_panel(ctx, feature_dir, repo)
-        return written
 
     def _run_paper_plan_panel(
         self,
