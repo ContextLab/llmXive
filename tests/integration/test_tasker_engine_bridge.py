@@ -15,6 +15,7 @@ tests cover:
 from __future__ import annotations
 
 import json
+import shutil
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -184,7 +185,9 @@ def test_run_tasker_via_engine_rewrites_tasks_md(tmp_path: Path):
         ],
     })
     backend = _FakeBackend(responses=[fake_reply])
-    repo_root = Path(__file__).resolve().parents[2]
+    source = Path(__file__).resolve().parents[2]
+    shutil.copytree(source / "agents", tmp_path / "agents")
+    repo_root = tmp_path
 
     result = run_tasker_via_engine(
         project_id=project_id,

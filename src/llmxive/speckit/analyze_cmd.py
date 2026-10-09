@@ -42,6 +42,7 @@ def run_analyze(
     project_dir: Path | None = None,
     kind: str = "research",
     constitution_text: str | None = None,
+    supporting_context: str = "",
 ) -> str:
     """Issue an analyze pass over the three artifacts; return raw report text.
 
@@ -73,6 +74,8 @@ def run_analyze(
         f"# plan.md\n\n{plan_text}",
         f"# tasks.md\n\n{tasks_text}",
     ])
+    if supporting_context:
+        parts.append(supporting_context)
     if comments_block:
         parts.append(comments_block)
     parts.append("Now produce the analyze report.")
