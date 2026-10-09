@@ -137,30 +137,32 @@ def _runbook_cli_mismatches(res: AnalysisRunResult) -> list[tuple[str, str, str]
     return out
 
 
-def _needs_verified_source(res: AnalysisRunResult, failures: list[str]) -> bool:
-    """True when the failure signals the project lacks a REAL, programmatically
-    reachable data source — the exact case data-source discovery exists to fix.
+# These failures can prevent the producer from starting. Missing output files
+# then do not establish a missing external dataset. Keep this narrow: unknown
+# errors and missing input files still use the existing discovery behavior.
+_CODE_SETUP_FAILURE_RE = re.compile(
+    r"\b(?:ModuleNotFoundError|ImportError|SyntaxError|IndentationError|"
+    r"NameError|UnboundLocalError):|\bNo module named\b"
+)
 
-    Fires not only when a declared ``data/`` deliverable is MISSING, but also
-    when the run FABRICATED input data, produced HOLLOW (null/NaN/empty)
-    results, or a command failed with a data-unavailable signature. Those are
-    the failure modes a project falls into *because* it has no real source to
-    load — yet the fabricated/hollow files EXIST on disk, so the narrow
-    missing-deliverable check never fired and the implementer was told "don't
-    fake it" without ever being handed a real source to use instead (it then
-    churns to the re-plan cap). A project that genuinely needs no external data
-    (a self-generated simulation study) distils no data intent, so discovery
-    returns "none" and no block is injected — over-firing here is safe + cheap
-    (the result is cached per project)."""
+
+def _needs_verified_source(res: AnalysisRunResult, failures: list[str]) -> bool:
+    """Discover data for positive data signals or unexplained missing outputs.
+
+    A failed import/setup command commonly leaves every declared output absent.
+    Fix that error first instead of distilling a dataset query from a numerical
+    experiment's description. Fabrication, hollow results, and explicit source
+    failures retain priority; no execution or scientific acceptance gate changes.
+    """
+    if getattr(res, "fabrication", None) or getattr(res, "hollow", None):
+        return True
+    if _data_unavailable_failures(failures):
+        return True
+    if failures and all(_CODE_SETUP_FAILURE_RE.search(f) for f in failures):
+        return False
     if any(str(d).startswith("data/") for d in res.declared_missing):
         return True
-    if not res.artifacts_produced and "data" in (res.reason or "").lower():
-        return True
-    if getattr(res, "fabrication", None):
-        return True
-    if getattr(res, "hollow", None):
-        return True
-    return bool(_data_unavailable_failures(failures))
+    return not res.artifacts_produced and "data" in (res.reason or "").lower()
 
 #: Import name → PyPI distribution name, for the common cases where they differ
 #: (a bare ``pip install <import-name>`` would 404). Unmapped names install as-is.
