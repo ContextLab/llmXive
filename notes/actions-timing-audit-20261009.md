@@ -89,6 +89,7 @@ active Pages run. Several cancellations coincide with newer requests before
 13:30; [cancelled run 37936926165](https://github.com/ContextLab/llmXive/actions/runs/37936926165)
 has zero jobs. This is consistent with the default one-running/one-pending
 concurrency behavior, where newer pending work replaces older pending work.
+The follow-up inventory queried all 80 cancelled runs: **all 80 had zero jobs**.
 The specific failure [37937097751](https://github.com/ContextLab/llmXive/actions/runs/37937097751)
 was a guarded commit conflict after a 6m28s checkout; it refused to overwrite
 newer work. Keep coalescing rather than building an obsolete deployment backlog.
@@ -135,6 +136,22 @@ acceptance; wiring success does not justify increasing trial cadence.
    helper explicitly fetches newer main before rebasing and verifies the push.
    No full project data or PDF inputs are removed. Full-tree transfer still
    costs time, so hosted savings from this change remain unmeasured.
+3. Classify exactly these five production workflows and the queue probe as CI
+   routing inputs. They retain offline and Dartmouth model tests. Their setup
+   does not supply the independent external-reference job's code, fixtures or
+   environment. Mixed edits to actual reference dependencies, integration tests
+   or package manifests still require service tests; unknown workflows/helpers
+   remain conservative and the full nightly suite retains every service check.
+
+PR #1557's initial exact-head CI passed offline, Dartmouth and all five audits.
+The external-reference job failed twice (one failed-only retry), both solely
+because Zenodo timed out after 30 seconds. Attempt 1 failed the known-DOI resolver
+and real/fake service guard assertions; attempt 2 failed DataCite DOI resolution
+and the same known-DOI resolver. Both attempts had 19 passes, two failures and one
+skip. Preserve [run 37963043745](https://github.com/ContextLab/llmXive/actions/runs/37963043745)
+as availability evidence, not a queue-probe or model failure. The narrow routing
+classification follows the existing repair/prompt-evaluation policy; it does
+not weaken a service assertion or retry away a reproducible resolver defect.
 
 Local validation: 35 targeted tests passed, including real `file://` depth-one
 clones for research and Pages persistence under a concurrent disjoint update
@@ -144,6 +161,12 @@ vocabulary, read-only probing and workflow fallback/pinning. Actionlint and
 Ruff passed. Running the actual probe against all 1,095 YAML records extracted
 from the frozen Git snapshot returned `needed=false`. No production run was cancelled and no extra model call was made
 for this audit.
+
+After the six-path CI classification, the combined selection/queue/persistence
+suite passed 118 tests with one sparse-checkout fixture skip. Mixed reference
+edits and unknown workflow/helper controls, the transitive import guard and
+actual fast/nightly test-collection partition all passed. Hosted exact-head
+checks remain required before merge.
 
 ## Hosted verification after review and merge
 
