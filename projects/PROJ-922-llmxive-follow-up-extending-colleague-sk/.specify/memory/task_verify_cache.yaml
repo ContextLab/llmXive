@@ -1,9 +1,40 @@
-T004b:
+T001a:
   c: false
-  h: ac762e133b9abb4e453d26d03e2615d61463f42427b640dfdc7baa0207ca242f
-  r: "The required `code/config.py` file does not exist, so the constant `NON_INFERIORITY_MARGIN\
-    \ = 0.05` and its documentation are absent. Without this file, the task\u2019\
-    s specification cannot be satisfied."
+  h: 0c4648d54deadd02170008315c46ab12292015f2fa74466c3e8f94f19a6f6731
+  r: The provided evidence only shows a `code/` directory; the required `data/raw`,
+    `data/interim`, `data/processed`, `tests/unit`, `tests/integration`, and `state/projects/PROJ-922`
+    directories are not present. These missing folders must be created to satisfy
+    task T001a.
+T001b:
+  c: false
+  h: ef382034eb68183bafad700c7c7caccd6878ccc34d78192b1df2731219fa394a
+  r: The `code/requirements.txt` file is present and includes most required pins,
+    but it does **not** contain the required `loguru==0.7.2` entry, and therefore
+    does not fully satisfy the task specification.
+T002a:
+  c: false
+  h: 7cdda5735852609d6159237160116e4e64756c7a751129590d86adef5739f276
+  r: "The required script `code/scripts/update_state.py` does not exist, and the target\
+    \ `state/projects/.../artifacts.yaml` is also missing, so the task\u2019s core\
+    \ artifact and its intended effect are absent."
+T004:
+  c: true
+  h: 8128203dead1fed0ec88bcefe3c95b2828fbeead9410a4d0e6a0cde17bc800b4
+  r: "The provided `code/utils/config.py` defines a global seed of\u202F42 with a\
+    \ `set_global_seed` function, supplies project\u2011root and sub\u2011directory\
+    \ path helpers, and includes environment\u2011based configuration utilities (`get_config_from_env`,\
+    \ `get_device`, etc.). All required functionalities are implemented and the file\
+    \ is non\u2011empty."
+T004b:
+  c: true
+  h: 41e3e42d45318ec5d7dca6e646373d199135b875e0ee9c335d70e2237382d87f
+  r: The file `code/utils/config.py` exists and defines `NON_INFERIORITY_MARGIN =
+    0.05` as required (with an explanatory comment).
+T004c:
+  c: true
+  h: 4ceba9798c338865f0c5722449a55c729eabf870c62ad04e893358a1a304234c
+  r: "The `code/utils/config.py` file exists, is non\u2011empty, and defines `GLMM_AUTHORIZED\
+    \ = True` as required, with a comment referencing T000b."
 T011:
   c: false
   h: 24ddd930b848f811833ca1c8f85171a2d4afe372bd81714d3968c4758f883f3b

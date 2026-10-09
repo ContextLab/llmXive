@@ -1,0 +1,125 @@
+T000a:
+  task: 3607786ffc34ed745e708b3814d1ade6080ef9c8f8341f0266a63cf1a3a18b39
+T000b:
+  task: 3d163a233641af56403d67a68a52c7992efc11f943e73c14e685b3d5af5505b4
+T001a:
+  reason: The provided evidence only shows a `code/` directory; the required `data/raw`,
+    `data/interim`, `data/processed`, `tests/unit`, `tests/integration`, and `state/projects/PROJ-922`
+    directories are not present. These missing folders must be created to satisfy
+    task T001a.
+  task: fafae17f241652d49d1fa0c5e556565a4e3e93ecf5fddeb11e9b5cffa024f290
+T001b:
+  reason: The `code/requirements.txt` file is present and includes most required pins,
+    but it does **not** contain the required `loguru==0.7.2` entry, and therefore
+    does not fully satisfy the task specification.
+  task: 6a99e59fadf7519cdf8ae696e2c50ba92aeaa1eeacb884b51812e7c710e73a33
+T002a:
+  reason: "The required script `code/scripts/update_state.py` does not exist, and\
+    \ the target `state/projects/.../artifacts.yaml` is also missing, so the task\u2019\
+    s core artifact and its intended effect are absent."
+  task: 9c6356d142e322ec20862db5a05f6b0e180ebad32aff838418bfc528cb639088
+T004:
+  task: c1623423aacd7051306bf64abf20fc9dc2b701774c1969e9e851ac8d44007f23
+T004b:
+  task: 0914bd4eae844fdebdd70431badf2aa90706bd42719f10d5890826a45a2a1b15
+T004c:
+  task: b487d075ab2dc07752ae57fbaeb8267efe1288ba892dc6a0a64acf1cfef08ae1
+T005:
+  task: 679c40076a146aaac3d9800a65dc925d614355d9d86a0e179f0a5ea375fa64c4
+T006:
+  task: d8e90f2f526515f3c5ec2f8d5076d8cf9984d153c1cd3891de2109f207caaa35
+T007:
+  task: cc9c3ed8ce5c5cbc8aa9a787ef7174be38608606c5505cb85afb6f377864cb7a
+T008:
+  task: 40e64efc0edce5c8fb2e835574ac7af66cc354907d75b584c63d9ef79ef195bb
+T009:
+  task: 9b18b18fa9d31ae22434ef48134a7d2e1ee20925129511db97b2541e43a7834b
+T010:
+  task: c8d09a9246e7a7d44ed4e8293817fba174cfc20f727066a462351e07e6c1d5d7
+T011:
+  task: 8e3e0b5e070110385ed9a8ed7d8f544103ebf4a863bccef05bd01ef5d8fd4c14
+T012:
+  task: 493ac6f0700313b5247f8f874fb16baf6549b3f9d0cff89b0148864e5f7427e3
+T014a:
+  task: 7fade94a2e8e4372928e9274f5ef930ed0d33add8ca452404d57e8b937bd2981
+T015:
+  task: 2a5d42dba1b03507b35cfdc2ace8d85468ab80a544aac71379f77e5f3a524b93
+T017:
+  task: e30a34a5728a9a6c2e0767e7f7bdc0272dd3e3486fa79b9ecf5b80f77a076d92
+T018:
+  task: 4f1fead6dad91e9b1918044e8caf76c60f3948ddf7bb790266f011d45e3b8eda
+T019:
+  task: 4dea14ba3dce4f28ab4ad8bceee92bfd400e3cc55be31ce0cfbc71117cbcd4ee
+T020:
+  task: 02b974e9e06314b1c1f333a955ab1076c2596ff616eb2e2eb7a87afa17a5dc0c
+T021a:
+  task: 85066d58bf5cfdd9424a86189e42f37e4a81ac8efebbc76e92a73f4ccfcb1594
+T021b:
+  task: 62d4edc8bd37e932525d854c9b849ecc4a72fc657b05d7efcd37970dbf8d6a63
+T021c:
+  task: 3fd573af315dd452386a12ed587b48e93f924b64004e848ebdf5a7a25ebb5ae7
+T022:
+  task: 706a66ebc68058c940981c155db44fc6cdcf7cca2b630103bac84d67612deaa0
+T023:
+  task: 93a5c250c93e0a73c860d33aaa286b40a77a94c2930dcd04c444a7140f0f33bf
+T024:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/sensitivity_analysis.json'
+  task: 379d0b92fa1b5281e2fbba081cadba312b23270534d3046e4ddfe9c4248756d6
+T025:
+  task: 88777c77f0afb866e462135ca3657886f9c4b3535d902a420c836126a475e2af
+T026b:
+  task: ea3d75f241127e539acc1d6e99a74544b8ad2d8f242f850ddc6d30486643e787
+T027:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/stats.py, data/interim/evaluation_scores.jsonl,
+    data/interim/aggregated_data.csv'
+  task: cb9d9a3a4f3fcb93502fd6220d020974a911e66ca4a3bb30a1ca2b0947ff4b52
+T028:
+  task: a0a798048d5cea86fd59f60621e3fe95a4166140414a672938cfac15717b2f30
+T029:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/glm_results.json'
+  task: 7bb272db7816fb35f5669882fb4470b7d5b34bf54500c8b1d93444fcdd52800c
+T030:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/plots.py, data/processed/figures/effect_sizes.png,
+    data/processed/figures/p_values.png, data/processed/figures/confidence_intervals.png'
+  task: d4e2993da9a1e9929140f44a8711b9569389287d543073fa4eab40e951f6d4c2
+T031:
+  reason: 'declared artifact(s) missing/empty/invalid: code/scripts/analyze.py, data/processed/final_results.csv,
+    data/processed/analysis_report.md'
+  task: cdf6ba6bc97ccd74ad0c9e1c4b3ce773e2fea3100e9d35b1eefc8337f5a646f0
+T032:
+  task: 4323e02edb1d199c1f6bd1b988388af98c62d5bc08b2a4630263ca91c1f6d32d
+T033:
+  task: 16174b1e705ba71f0d941be9e971e0a63f0cf976057ab9217df477a27363f71a
+T034:
+  task: ec4b46c46b8bfcf5727030c6bbbbe8c0a18e90369780a876f64cb60c1182b14e
+T035:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/benchmark_batch.py'
+  task: f7da3df3162224e293c98e2d02bc5d52976a75898fa1cdd4c84920af64e52481
+T036:
+  task: fa6764db93058166a8c68e0559d1ddc315cb57c4192fc3badad3c09995ad15e1
+T037:
+  reason: 'declared artifact(s) missing/empty/invalid: code/scripts/update_state.py,
+    state/projects/.../artifacts.yaml, artifacts.yaml'
+  task: 520ee77de44572f44256388094252b0ea4d109d346f201c2118d26364c337a7f
+T038:
+  reason: 'declared artifact(s) missing/empty/invalid: code/scripts/verify_data_source.py'
+  task: dc724a99c80db689eab00172940aacfb5a6a1c31e0bfb70a8bfae6f3cf9698a9
+T039:
+  reason: 'declared artifact(s) missing/empty/invalid: code/scripts/cpu_feasibility_check.py'
+  task: b63a0e48887fa3bf0a39c6db843f7532fcae1309e7d21ab36d31cbd1ee882c3d
+T041:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/stats.py, data/processed/glm_results.json,
+    data/processed/convergence_report.md'
+  task: 76f99b0f23a118bedfdcee0c21875058edeb9d0c377334143a8c5b1dc7995c61
+T042:
+  task: 767760b5088bb2646f8de694a037d7c23776126821ff927b299595929fe59a53
+T043:
+  task: 2370aa274fc9fea542fa731238e9dc4663109867e6282718461211f9ae4a9a5b
+T044:
+  task: de220505b0437c122a1699dc20439d46b3216a75471424da62a3ecbc1ac5f0dc
+T045:
+  task: 3bba912d5c27bd6839eb9a0f73e2524c2e51400479519eeaa56f1ca780ed74dc
+T046:
+  task: 34840abef255d3041442c9d3e1e447bf5c3d75064a99c8da3862d1160ed5aa35
+T047:
+  task: c4648b3ccdad257876ac668bacdf86786ea23701487e036db31b8ec3bedc90c3

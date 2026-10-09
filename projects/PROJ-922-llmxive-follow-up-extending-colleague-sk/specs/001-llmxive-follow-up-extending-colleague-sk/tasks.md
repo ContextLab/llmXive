@@ -72,9 +72,9 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Project initialization, dependency pinning, and configuration setup.
 
-- [X] T001a [P] Create directory structure: `code/`, `data/raw`, `data/interim`, `data/processed`, `tests/unit`, `tests/integration`, `state/projects/PROJ-922`
-- [X] T001b [P] Create `code/requirements.txt` pinning: `transformers==4.40.0`, `torch==2.2.0+cpu`, `scikit-learn==1.4.0`, `statsmodels==0.14.1`, `pandas==2.2.0`, `numpy==1.26.0`, `pytest==8.0.0`, `pyyaml==6.0.1`, `sympy==1.12`, `z3-solver==4.12.0`, `loguru==0.7.2`
-- [X] T002a [P] Create `code/scripts/update_state.py` to calculate checksums for all `data/` artifacts and update `state/projects/.../artifacts.yaml`. **Verification**: Script exists and successfully updates `artifacts.yaml` when run.
+- [ ] T001a [P] Create directory structure: `code/`, `data/raw`, `data/interim`, `data/processed`, `tests/unit`, `tests/integration`, `state/projects/PROJ-922`
+- [ ] T001b [P] Create `code/requirements.txt` pinning: `transformers==4.40.0`, `torch==2.2.0+cpu`, `scikit-learn==1.4.0`, `statsmodels==0.14.1`, `pandas==2.2.0`, `numpy==1.26.0`, `pytest==8.0.0`, `pyyaml==6.0.1`, `sympy==1.12`, `z3-solver==4.12.0`, `loguru==0.7.2`
+- [ ] T002a [P] Create `code/scripts/update_state.py` to calculate checksums for all `data/` artifacts and update `state/projects/.../artifacts.yaml`. **Verification**: Script exists and successfully updates `artifacts.yaml` when run.
 - [X] T004 [P] Implement `code/utils/config.py` for seed pinning (global seed=42), path management, and environment configuration.
 - [X] T004b [P] [SC-002] Create/Update `code/utils/config.py` to explicitly define `NON_INFERIORITY_MARGIN = 0.05` (5 percentage points) as per SC-002. **Justification**: This value is the predefined constant derived from SC-002's requirement for a "small, predefined absolute percentage point threshold". **Verification**: File exists and contains the constant with docstring. **Dependency**: None (Setup phase).
 - [X] T004c [P] [FR-006] **SPEC REFERENCE**: Update `code/utils/config.py` to import `GLMM_AUTHORIZED = True` referencing T000b. **Verification**: Config reflects T000b amendment. **Dependency**: T000b (Spec Amendment Application).
@@ -87,22 +87,22 @@ description: "Task list template for feature implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [X] T005 [P] Implement `code/utils/logging.py` for structured logging (JSON format)
-- [X] T038 [P] [FR-030] **SAFETY GATE**: Implement `code/scripts/verify_data_source.py` to validate the existence and integrity of the "expert profiles" source (real or simulated). **Logic**: Must raise an exception if the source is inaccessible or malformed, preventing any downstream data generation. **Dependency**: Must run **before** T006. **Verification**: Script exits 0 only if source is valid.
-- [X] T039 [P] [FR-001] **SAFETY GATE**: Implement `code/scripts/cpu_feasibility_check.py` to attempt loading the quantized model with `n_ctx=512` and `n_threads=2` (simulating strictest CI runner). **Logic**: If OOM or timeout occurs, log `OOM_PRE_CHECK` and exit with a clear error message suggesting model size reduction. **Dependency**: Must run **before** T006/T007/T014a. **Verification**: Script exits 0 only if model loads successfully on CPU.
-- [X] T006 [P] [FR-002] Implement `code/data_generation/profiles.py` to generate **synthetic expert profiles** (multiple per domain). **Schema**: `{"id": str, "domain": str, "capability_rules": str, "behavior_keywords": [str]}`. **Domains**: coding, math, logic, creative, factual (Equal profiles each). **Rules**: Capability rules define heuristic constraints. Behavior keywords define a set of style markers. **Validation Logic**: Must validate that every generated profile contains non-empty `capability_rules` and `behavior_keywords`; if a profile is malformed (missing keys), **skip it, log an error, and proceed** with remaining valid profiles. **Strict Failure**: Raise exception if the internal generator encounters a fatal error (e.g., inability to write to disk) to prevent silent synthetic fallback. **Data Integrity**: Ensure the file is fully flushed and closed before returning to prevent race conditions (T044 integration). **Dependency**: Requires T038 (Source Verification) and T039 (CPU Feasibility) to pass.
-- [X] T007 [US1] [FR-002] Implement `code/data_generation/tasks.py` to generate a **global pool of exactly 500 unique task scenarios** (reused across all 10 profiles). **Domains**: Enforce **exact proportional distribution** based on total tasks: coding (100), math (100), logic (100), creative (100), and factual (100). **Logic**:
+- [~] T005 [P] Implement `code/utils/logging.py` for structured logging (JSON format)
+- [ ] T038 [P] [FR-030] **SAFETY GATE**: Implement `code/scripts/verify_data_source.py` to validate the existence and integrity of the "expert profiles" source (real or simulated). **Logic**: Must raise an exception if the source is inaccessible or malformed, preventing any downstream data generation. **Dependency**: Must run **before** T006. **Verification**: Script exits 0 only if source is valid.
+- [ ] T039 [P] [FR-001] **SAFETY GATE**: Implement `code/scripts/cpu_feasibility_check.py` to attempt loading the quantized model with `n_ctx=512` and `n_threads=2` (simulating strictest CI runner). **Logic**: If OOM or timeout occurs, log `OOM_PRE_CHECK` and exit with a clear error message suggesting model size reduction. **Dependency**: Must run **before** T006/T007/T014a. **Verification**: Script exits 0 only if model loads successfully on CPU.
+- [~] T006 [P] [FR-002] Implement `code/data_generation/profiles.py` to generate **synthetic expert profiles** (multiple per domain). **Schema**: `{"id": str, "domain": str, "capability_rules": str, "behavior_keywords": [str]}`. **Domains**: coding, math, logic, creative, factual (Equal profiles each). **Rules**: Capability rules define heuristic constraints. Behavior keywords define a set of style markers. **Validation Logic**: Must validate that every generated profile contains non-empty `capability_rules` and `behavior_keywords`; if a profile is malformed (missing keys), **skip it, log an error, and proceed** with remaining valid profiles. **Strict Failure**: Raise exception if the internal generator encounters a fatal error (e.g., inability to write to disk) to prevent silent synthetic fallback. **Data Integrity**: Ensure the file is fully flushed and closed before returning to prevent race conditions (T044 integration). **Dependency**: Requires T038 (Source Verification) and T039 (CPU Feasibility) to pass.
+- [~] T007 [US1] [FR-002] Implement `code/data_generation/tasks.py` to generate a **global pool of exactly 500 unique task scenarios** (reused across all 10 profiles). **Domains**: Enforce **exact proportional distribution** based on total tasks: coding (100), math (100), logic (100), creative (100), and factual (100). **Logic**:
  1. **Prompt Generation**: For each domain, generate deterministic prompt templates using rule-based string construction (e.g., "Solve this math problem: {equation}" for math).
  2. **Rule Definition**: Define explicit evaluation rules for each task (e.g., "Output must contain 'Answer: <value>'" for math).
  3. **Validation**: Ensure no ambiguous context; flag ambiguous tasks as "excluded" from Hallucination Rate calculation.
  4. **Sampling Strategy**: This task generates the pool. The sampling of 50 tasks per profile is handled in T014a.
  **Verification**: Script logs the actual distribution ratios (e.g., "Distribution: coding=20%, math=20%...") and exits 0 only if ratios match the spec (100 per domain). **Sequential**: Must run **after** T006 to ensure task context compatibility. **Dependency**: T006.
 
-- [X] T008 [P] [US1] Implement `code/inference/prompts.py` defining three distinct prompt templates with explicit text and placeholders:
+- [~] T008 [P] [US1] Implement `code/inference/prompts.py` defining three distinct prompt templates with explicit text and placeholders:
  - **Monolithic**: `"[System: You are {domain_expert} who {behavior_keywords}. Task: {task}]"`
  - **Separated Tracks**: `"[System: Capability: {capability_rules}. Behavior: {behavior_keywords}. Task: {task}]"`
  - **Generic Baseline**: `"[System: You are a helpful assistant. Task: {task}]"`
-- [X] T009 [P] [US1] Implement `code/inference/engine.py` to load a quantized model (Llama or Phi-mini) on CPU-only backend with OOM protection and timeout handling. **Logic**: Must support all 3 conditions.
+- [~] T009 [P] [US1] Implement `code/inference/engine.py` to load a quantized model (Llama or Phi-mini) on CPU-only backend with OOM protection and timeout handling. **Logic**: Must support all 3 conditions.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -118,13 +118,13 @@ description: "Task list template for feature implementation"
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [X] T010 [P] [US1] Unit test for prompt template generation in `tests/unit/test_prompts.py`
-- [X] T011 [P] [US1] Integration test for single inference run in `tests/integration/test_inference_single.py`
+- [~] T010 [P] [US1] Unit test for prompt template generation in `tests/unit/test_prompts.py`
+- [~] T011 [P] [US1] Integration test for single inference run in `tests/integration/test_inference_single.py`
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement `code/inference/engine.py` logic to: 1) Load quantized model using `llama-cpp-python` with `device="cpu"`, `n_gpu_layers=0`; 2) Implement a **strict 300-second timeout handler** (configurable, default 300s as per spec US-1) and OOM exception catching for CPU runs; 3) Return output string or error code. **Must support all 3 conditions**: Monolithic, Separated Tracks, and Generic Baseline.
-- [X] T014a [US1] Implement `code/scripts/run_inference.py` to execute the full inference pipeline. <!-- FAILED: unspecified -->
+- [~] T012 [US1] Implement `code/inference/engine.py` logic to: 1) Load quantized model using `llama-cpp-python` with `device="cpu"`, `n_gpu_layers=0`; 2) Implement a **strict 300-second timeout handler** (configurable, default 300s as per spec US-1) and OOM exception catching for CPU runs; 3) Return output string or error code. **Must support all 3 conditions**: Monolithic, Separated Tracks, and Generic Baseline.
+- [~] T014a [US1] Implement `code/scripts/run_inference.py` to execute the full inference pipeline. <!-- FAILED: unspecified -->
  **Algorithm**:
  1. Load profiles from `data/raw/profiles.json` and tasks from `data/raw/tasks.json`.
  2. **Sampling Logic**: For each `profile`, **sample exactly 50 unique tasks** from the global pool of 500 tasks (from T007). This ensures the total run count is 10 profiles × 50 tasks × 3 conditions = 1,500 runs.
@@ -145,7 +145,7 @@ description: "Task list template for feature implementation"
  - Log destination: `data/logs/inference.log` (structured JSON).
  **Scale**: 10 profiles × 50 tasks × **3 conditions** = **[deferred] runs**.
  **Verification**: File exists and contains a sufficient number of rows (including failed runs with `status='failure'`). **Dependency**: Requires T006 and T007 completion. **Note**: This task is NOT parallel-safe due to data dependencies on T006/T007.
-- [X] T015 [US1] **REMOVED**: Logging logic merged into T014a. No separate task needed.
+- [~] T015 [US1] **REMOVED**: Logging logic merged into T014a. No separate task needed.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -159,15 +159,15 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T017 [P] [US2] Contract test for Heuristic Adherence logic in `tests/unit/test_metrics.py`
-- [X] T018 [P] [US2] Contract test for Hallucination detection logic in `tests/unit/test_metrics.py`
+- [~] T017 [P] [US2] Contract test for Heuristic Adherence logic in `tests/unit/test_metrics.py`
+- [~] T018 [P] [US2] Contract test for Hallucination detection logic in `tests/unit/test_metrics.py`
 
 ### Implementation for User Story 2
 
-- [X] T019 [P] [US2] Implement `code/evaluation/validators.py` with specific mapping: Code tasks -> AST parser; Math tasks -> SymPy evaluator; Logic tasks -> Z3 solver; Creative/Factual -> Regex/NLI checks. **Edge Case**: Must handle inputs from malformed profiles or ambiguous contexts by skipping and logging, consistent with T006/T007. **Ambiguity Handling**: Explicitly log the **reason** for exclusion (e.g., "Ambiguous Context", "Missing Capability Key") when a task is skipped.
-- [X] T020 [US2] Implement `code/evaluation/metrics.py` Heuristic Adherence calculation: a binary indicator reflecting whether the task is solved (validator pass) or not..
-- [X] T021a [US2] Implement `code/evaluation/metrics.py` Hallucination Rate calculation (Part 1): Regex extraction of entity-value pairs (`\b(\w+): (\w+)\b`).
-- [ ] T021b [US2] Implement `code/evaluation/metrics.py` Hallucination Rate calculation: **Multi-hop reasoning check**: Use logic verification (Z3) to validate if inferred facts require multi-step deduction not present in context.
+- [~] T019 [P] [US2] Implement `code/evaluation/validators.py` with specific mapping: Code tasks -> AST parser; Math tasks -> SymPy evaluator; Logic tasks -> Z3 solver; Creative/Factual -> Regex/NLI checks. **Edge Case**: Must handle inputs from malformed profiles or ambiguous contexts by skipping and logging, consistent with T006/T007. **Ambiguity Handling**: Explicitly log the **reason** for exclusion (e.g., "Ambiguous Context", "Missing Capability Key") when a task is skipped.
+- [~] T020 [US2] Implement `code/evaluation/metrics.py` Heuristic Adherence calculation: a binary indicator reflecting whether the task is solved (validator pass) or not..
+- [~] T021a [US2] Implement `code/evaluation/metrics.py` Hallucination Rate calculation (Part 1): Regex extraction of entity-value pairs (`\b(\w+): (\w+)\b`).
+- [~] T021b [US2] Implement `code/evaluation/metrics.py` Hallucination Rate calculation: **Multi-hop reasoning check**: Use logic verification (Z3) to validate if inferred facts require multi-step deduction not present in context.
  **Input Schema**: Extracted entity-value pairs from T021a.
  **Text-to-SMT Transformation Logic**:
  1. Parse extracted facts into Z3 variables (e.g., `Fact_A = Bool('A')`).
@@ -180,11 +180,11 @@ description: "Task list template for feature implementation"
  - If `unknown` (solver cannot prove entailment) -> **Flag as Hallucination**.
  - If `sat` (consistent with context) -> **Not Hallucination**.
  **Implementation Note**: This task implements the "rule-based logic verification" and "entailment checks" required by FR-005 by encoding the extracted facts and context into Z3 constraints to verify logical entailment. **Input Format**: Text-to-SMT transformation logic must be defined to convert extracted entity-value pairs into Z3 constraints. **Critical Step**: Must explicitly call `solver.check()` and interpret the result. **Error Handling**: Wrap `solver.check()` in a try-except block that logs the specific Z3 error and re-raises a `RuntimeError` to prevent silent failures (T045 integration).
-- [X] T021c [US2] Implement `code/evaluation/metrics.py` Hallucination Rate calculation (Part 3): Compare extracted facts against external source traces; if fact not in context OR requires invalid multi-hop inference, increment hallucination counter.
-- [X] T022 [US2] Implement `code/evaluation/metrics.py` Style Consistency calculation: 1) Count occurrences of behavior track keywords (from profile) in output; 2) Calculate frequency ratio; 3) Match against structure rules (e.g., "must start with greeting").
-- [X] T023 [US2] Implement `code/scripts/evaluate.py` to process `data/interim/inference_outputs.jsonl` and generate `data/interim/evaluation_scores.jsonl` with schema `{profile_id, task_id, condition, heuristic_adherence, hallucination_rate, style_consistency}`. **Verification**: File exists and contains a sufficient number of rows for analysis.
-- [X] T024 [US2] Implement sensitivity analysis logic for Style Consistency threshold (FR-008) by **iterating over a range of specific thresholds**, calculating false-positive rates for each, and reporting the variance. **Output**: Save `data/processed/sensitivity_analysis.json` containing the variance in false-positive rates for each threshold.
-- [X] T025 [US2] Add error handling for malformed profiles/tasks (skip and log) and ambiguous context (flag as excluded). **Logic**: Implement detection to skip malformed input data (missing capability/behavior keys) and flag ambiguous contexts as excluded from Hallucination Rate calculation to prevent false positives, as required by spec Edge Cases.
+- [~] T021c [US2] Implement `code/evaluation/metrics.py` Hallucination Rate calculation (Part 3): Compare extracted facts against external source traces; if fact not in context OR requires invalid multi-hop inference, increment hallucination counter.
+- [~] T022 [US2] Implement `code/evaluation/metrics.py` Style Consistency calculation: 1) Count occurrences of behavior track keywords (from profile) in output; 2) Calculate frequency ratio; 3) Match against structure rules (e.g., "must start with greeting").
+- [~] T023 [US2] Implement `code/scripts/evaluate.py` to process `data/interim/inference_outputs.jsonl` and generate `data/interim/evaluation_scores.jsonl` with schema `{profile_id, task_id, condition, heuristic_adherence, hallucination_rate, style_consistency}`. **Verification**: File exists and contains a sufficient number of rows for analysis.
+- [ ] T024 [US2] Implement sensitivity analysis logic for Style Consistency threshold (FR-008) by **iterating over a range of specific thresholds**, calculating false-positive rates for each, and reporting the variance. **Output**: Save `data/processed/sensitivity_analysis.json` containing the variance in false-positive rates for each threshold.
+- [~] T025 [US2] Add error handling for malformed profiles/tasks (skip and log) and ambiguous context (flag as excluded). **Logic**: Implement detection to skip malformed input data (missing capability/behavior keys) and flag ambiguous contexts as excluded from Hallucination Rate calculation to prevent false positives, as required by spec Edge Cases.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -200,11 +200,11 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T026b [P] [US3] Unit test for GLMM fitting logic in `tests/unit/test_stats.py`. **Verification**: Test passes with mock data.
+- [~] T026b [P] [US3] Unit test for GLMM fitting logic in `tests/unit/test_stats.py`. **Verification**: Test passes with mock data.
 
 ### Implementation for User Story 3
 
-- [X] T027 [US3] Implement `code/analysis/stats.py` to load `data/interim/evaluation_scores.jsonl` (Output of T023). **Dependency**: T023. **Input**: T023 output. **Output**: Save `data/interim/aggregated_data.csv`. **Verification**: File exists and contains a substantial number of rows.
+- [ ] T027 [US3] Implement `code/analysis/stats.py` to load `data/interim/evaluation_scores.jsonl` (Output of T023). **Dependency**: T023. **Input**: T023 output. **Output**: Save `data/interim/aggregated_data.csv`. **Verification**: File exists and contains a substantial number of rows.
 - [ ] T028 [US3] [FR-006] Implement `code/analysis/stats.py` GLMM fitting using **`statsmodels`** library.
  **CRITICAL**: **Override Plan.md LMM reference**; use GLMM as per Spec FR-006.
  **Formula**: `metric ~ condition + (1 | profile_id) + (1 | task_id)`
@@ -214,11 +214,11 @@ description: "Task list template for feature implementation"
  **CRITICAL**: Must include logic to calculate and output the **non-inferiority margin check** for Style Consistency as per SC-002, using **margin = 0.05** (from `code/utils/config.py`).
  **Convergence Check**: Explicitly check `model.converged` flag in statsmodels. If not converged, log a warning and save status to `data/processed/glm_results.json`.
  **Output**: Save model summary to `data/processed/glm_results.json` including `p_values`, `effect_sizes`, and `non_inferiority_margin_check`. **Verification**: File exists and contains p-values for fixed effects and the non-inferiority check result. **Dependency**: T000b (Spec Amendment), T004b (Config), **T023 (Evaluation Data)**.
-- [X] T029 [US3] [FR-007] Implement **Holm-Bonferroni** correction for multiple comparisons across metrics (FR-007) for all 3 conditions. **Output**: Update `data/processed/glm_results.json` with `corrected_p_value` field for each metric.
-- [X] T030 [US3] Implement `code/analysis/plots.py` to generate figures for the paper. **Output**: Generate `data/processed/figures/effect_sizes.png`, `data/processed/figures/p_values.png`, and `data/processed/figures/confidence_intervals.png`. **Verification**: All three PNG files exist in the directory.
-- [X] T031 [US3] Create `code/scripts/analyze.py` to run the full analysis pipeline and output `data/processed/final_results.csv` (aggregated metrics) and `data/processed/analysis_report.md` (summary of findings). **Verification**: Both files exist and contain expected headers/sections.
-- [X] T032 [US3] Verify that the direction of effect aligns with the hypothesis (Separated < Monolithic for Hallucination Rate) AND verify the **non-inferiority margin** (0.05) for Style Consistency. **Output**: Write `code/scripts/verify_hypothesis.py` that checks `Separated < Monolithic` in `data/processed/glm_results.json` and the non-inferiority check, outputting `data/processed/hypothesis_verification.json` with `status: PASS/FAIL`. **Verification**: JSON file exists with status field.
-- [X] T041 [US3] [FR-006] Implement `code/analysis/stats.py` to calculate the **effective sample size** per random effect level (Profile/Task) after exclusions. If any level has **< 5 observations**, flag the GLMM convergence as "UNRELIABLE" in `data/processed/glm_results.json` **AND** trigger a "CONVERGENCE_FAILURE" report in `data/processed/convergence_report.md`, halting further analysis. **Verification**: Report exists if triggered.
+- [ ] T029 [US3] [FR-007] Implement **Holm-Bonferroni** correction for multiple comparisons across metrics (FR-007) for all 3 conditions. **Output**: Update `data/processed/glm_results.json` with `corrected_p_value` field for each metric.
+- [ ] T030 [US3] Implement `code/analysis/plots.py` to generate figures for the paper. **Output**: Generate `data/processed/figures/effect_sizes.png`, `data/processed/figures/p_values.png`, and `data/processed/figures/confidence_intervals.png`. **Verification**: All three PNG files exist in the directory.
+- [ ] T031 [US3] Create `code/scripts/analyze.py` to run the full analysis pipeline and output `data/processed/final_results.csv` (aggregated metrics) and `data/processed/analysis_report.md` (summary of findings). **Verification**: Both files exist and contain expected headers/sections.
+- [~] T032 [US3] Verify that the direction of effect aligns with the hypothesis (Separated < Monolithic for Hallucination Rate) AND verify the **non-inferiority margin** (0.05) for Style Consistency. **Output**: Write `code/scripts/verify_hypothesis.py` that checks `Separated < Monolithic` in `data/processed/glm_results.json` and the non-inferiority check, outputting `data/processed/hypothesis_verification.json` with `status: PASS/FAIL`. **Verification**: JSON file exists with status field.
+- [ ] T041 [US3] [FR-006] Implement `code/analysis/stats.py` to calculate the **effective sample size** per random effect level (Profile/Task) after exclusions. If any level has **< 5 observations**, flag the GLMM convergence as "UNRELIABLE" in `data/processed/glm_results.json` **AND** trigger a "CONVERGENCE_FAILURE" report in `data/processed/convergence_report.md`, halting further analysis. **Verification**: Report exists if triggered.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -228,11 +228,11 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T033 [P] Documentation updates in `specs/001-llmxive-follow-up-extending-colleague-sk/quickstart.md`: Add "Setup" section with install commands, "Inference" section with run examples, "Evaluation" section with metric definitions. **Verification**: File contains all three sections with code blocks.
-- [X] T034 Code cleanup and refactoring of `code/evaluation/metrics.py`: Refactor to use Strategy Pattern for validators; add unit tests in `tests/unit/test_metrics.py` for edge cases (empty input, null context). **Verification**: Refactored code exists and all new tests pass.
-- [X] T035 Performance optimization for inference pipeline: Target metric: reduce latency by calculating (Baseline - New) / Baseline. Method: Implement batch inference in `engine.py` to process a batch of tasks. **Verification**: Benchmark script `tests/benchmark_batch.py` must record the **actual achieved latency reduction percentage** and report it in the output log.
-- [X] T036 [P] Additional unit tests in `tests/unit/` for edge cases: empty input, null context, malformed JSON in `profiles.py` and `tasks.py`. **Verification**: All new tests pass and cover specified edge cases.
-- [X] T037 [P] Run `code/scripts/update_state.py` (created in T002a) to update `state/projects/.../artifacts.yaml` checksums. **Verification**: Script exists and successfully updates `artifacts.yaml`.
+- [~] T033 [P] Documentation updates in `specs/001-llmxive-follow-up-extending-colleague-sk/quickstart.md`: Add "Setup" section with install commands, "Inference" section with run examples, "Evaluation" section with metric definitions. **Verification**: File contains all three sections with code blocks.
+- [~] T034 Code cleanup and refactoring of `code/evaluation/metrics.py`: Refactor to use Strategy Pattern for validators; add unit tests in `tests/unit/test_metrics.py` for edge cases (empty input, null context). **Verification**: Refactored code exists and all new tests pass.
+- [ ] T035 Performance optimization for inference pipeline: Target metric: reduce latency by calculating (Baseline - New) / Baseline. Method: Implement batch inference in `engine.py` to process a batch of tasks. **Verification**: Benchmark script `tests/benchmark_batch.py` must record the **actual achieved latency reduction percentage** and report it in the output log.
+- [~] T036 [P] Additional unit tests in `tests/unit/` for edge cases: empty input, null context, malformed JSON in `profiles.py` and `tasks.py`. **Verification**: All new tests pass and cover specified edge cases.
+- [ ] T037 [P] Run `code/scripts/update_state.py` (created in T002a) to update `state/projects/.../artifacts.yaml` checksums. **Verification**: Script exists and successfully updates `artifacts.yaml`.
 
 ---
 
@@ -240,7 +240,7 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Address specific reviewer concerns regarding data robustness, CPU feasibility, and statistical validity. **Note**: Safety gates (T038, T039) have been moved to Phase 2.
 
-- [X] T042 [US3] [SC-002] Explicitly implement the non-inferiority margin test for Style Consistency as per SC-002, calculating the absolute difference and checking against the predefined margin (0.05) in `code/scripts/verify_hypothesis.py`. **Note**: Logic for this is now also integrated into T028 and T032.
+- [~] T042 [US3] [SC-002] Explicitly implement the non-inferiority margin test for Style Consistency as per SC-002, calculating the absolute difference and checking against the predefined margin (0.05) in `code/scripts/verify_hypothesis.py`. **Note**: Logic for this is now also integrated into T028 and T032.
 
 ---
 
@@ -248,7 +248,7 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Resolve mismatches between the `quickstart.md` run-book and the actual file structure created by tasks, ensuring all referenced scripts exist.
 
-- [X] T043 [P] [Execution Feedback] Reconcile run-book vs implementation: Update `quickstart.md` to invoke the **actual** implementation scripts defined in the plan:
+- [~] T043 [P] [Execution Feedback] Reconcile run-book vs implementation: Update `quickstart.md` to invoke the **actual** implementation scripts defined in the plan:
  - Replace `code/data/generators/profile_generator.py` with `code/data_generation/profiles.py` (T006).
  - Replace `code/data/generators/task_generator.py` with `code/data_generation/tasks.py` (T007).
  - Replace `code/evaluation/score.py` with `code/scripts/evaluate.py` (T023).
@@ -261,10 +261,10 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Address specific concerns raised by `/speckit.analyze` regarding data flow ordering, error propagation, and statistical robustness. **Note**: Tasks T044-T047 have been integrated into Phase 2/3 tasks (T006, T007, T014a, T021b) to ensure data validity from the start.
 
-- [X] T044 [US1] **DATA FLOW FIX**: **INTEGRATED**. Logic moved to T006/T007 (flush/close files) and T014a (file existence checks). No separate task needed.
-- [X] T045 [US2] **ERROR PROPAGATION**: **INTEGRATED**. Logic moved to T021b (Z3 error handling). No separate task needed.
-- [X] T046 [US3] **STATISTICAL ROBUSTNESS**: **INTEGRATED**. Logic moved to T028 (convergence check). No separate task needed.
-- [X] T047 [US3] **SAMPLE SIZE VERIFICATION**: **INTEGRATED**. Logic moved to T031 (pre-analysis check). No separate task needed.
+- [~] T044 [US1] **DATA FLOW FIX**: **INTEGRATED**. Logic moved to T006/T007 (flush/close files) and T014a (file existence checks). No separate task needed.
+- [~] T045 [US2] **ERROR PROPAGATION**: **INTEGRATED**. Logic moved to T021b (Z3 error handling). No separate task needed.
+- [~] T046 [US3] **STATISTICAL ROBUSTNESS**: **INTEGRATED**. Logic moved to T028 (convergence check). No separate task needed.
+- [~] T047 [US3] **SAMPLE SIZE VERIFICATION**: **INTEGRATED**. Logic moved to T031 (pre-analysis check). No separate task needed.
 
 ---
 

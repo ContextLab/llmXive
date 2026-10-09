@@ -11,13 +11,13 @@
     "python code/evaluation/score.py --input data/interim/inference_outputs.jsonl -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/code/evaluation/score.py': [Errno 2] No such file or directory",
     "python code/analysis/stats.py --input data/processed/evaluation_results.jsonl -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/code/analysis/stats.py': [Errno 2] No such file or directory"
   ],
-  "fix_rounds": 1,
-  "model_tier": 0,
+  "fix_rounds": 0,
+  "model_tier": 1,
   "total_attempts": 1,
   "replan_rounds": 0,
   "failure_class": "compute_env",
   "evidence": [
     "python -c \"import torch; print('CUDA available:', torch.cuda.is_available())\""
   ],
-  "updated_at": "2026-07-22T17:37:24Z"
+  "updated_at": "2026-10-09T10:24:45Z"
 }

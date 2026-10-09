@@ -1,14 +1,18 @@
 status: none
-intent: Hugging Face Model Hub Llama-2-8B Q4 GGML Phi-3-mini GGML python package dataset
+intent: DeepSpeed benchmark memory usage dataset for CPU inference of transformer
+  models python package dataset
 required_fields:
 - model_name
-- model_size_parameters
-- quantization_format
-- model_weights_file
-- tokenizer_files
-- config_file
-- license
-- download_url
-cache_key: ed9fc54f56d1600c6e060bf3a3ac84268d0359ca737c46ade6bd545dc6758ee3
-searched_at: '2026-07-22T17:38:13.658248+00:00'
+- parameter_count
+- context_length
+- batch_size
+- cpu_memory_usage_mb
+- peak_memory_mb
+- inference_time_ms
+- oom_occurred
+- cpu_model
+- num_cores
+- ram_gb
+cache_key: fc18208246a9194cfd70376ea46d39646464ab4e74383a27a5ae48a1361e2759
+searched_at: '2026-10-09T10:24:28.727284+00:00'
 retry_count: 1
