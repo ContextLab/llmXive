@@ -1,23 +1,49 @@
+T001:
+  c: false
+  h: 1c18c39edcc2a7c614200d184474e71fc4b62c1daf445809c0953edb19cc4a19
+  r: "The provided evidence only includes `pyproject.toml`, `requirements.txt`, and\
+    \ `ruff.toml`; the required `.gitignore`, `README.md`, `.env.template` files and\
+    \ the full directory hierarchy are missing. Moreover, the configuration values\
+    \ do not match the task specifications (`ruff.toml` targets Python\u202F3.10 instead\
+    \ of 3.11, and `pyproject.toml` requires Python\u202F>=3.9 rather than >=3.11).\
+    \ The implementer must add the missing files/directories and correct the config\
+    \ values."
+T002:
+  c: false
+  h: 6c1c121ac1dad88eb5a06c19410cabf476ce5a936826ea30e124ad55212826e3
+  r: "The provided `requirements.txt` lists the required packages but does not include\
+    \ exact version numbers for any of them, contrary to the task\u2019s specification.\
+    \ Additionally, it contains extra packages not requested, but the critical failure\
+    \ is the absence of pinned versions."
 T008a:
   c: true
-  h: c78c6d404b7b39ba9b6a6eaedd213c733ebf462aba6950cc09c4989417e70e34
-  r: "The artifact `code/contracts/code_chunk.schema.yaml` is present, non\u2011empty,\
-    \ and defines the required top\u2011level fields `chunk_id`, `complexity`, `depth`,\
-    \ and `loss` with explicit sub\u2011field specifications, fulfilling the task\u2019\
-    s specification."
+  h: 0ae16dd74e769b60bf92f45a99b7519fe714dfddefd28b2d9d1fc81f7c6b1f2d
+  r: "The file `code/contracts/code_chunk.schema.yaml` is present, non\u2011empty,\
+    \ and defines the required top\u2011level properties `chunk_id`, `complexity`,\
+    \ `depth`, and `loss` with explicit sub\u2011field specifications."
 T008b:
   c: true
-  h: 773e6fc599e2f8bd7b8236ab37d3b2541a48c88503d784e1f555917d76aec3a3
-  r: "The file `code/contracts/analysis.schema.yaml` exists, is non\u2011empty, and\
-    \ defines explicit schema sections for `correlation`, `threshold`, and `p_value`\
-    \ as required. No missing or placeholder content relevant to the task was found."
+  h: ba11bd3ca21ff7f9c4d82580fa0e780db136815e29b9fc34857991ace09a3593
+  r: "The file `code/contracts/analysis.schema.yaml` is present (6713\u202Fbytes)\
+    \ and defines top\u2011level properties `correlation`, `threshold`, and `p_value`\
+    \ with detailed sub\u2011field specifications, fulfilling the task\u2019s requirement\
+    \ for explicit field definitions."
 T008c:
   c: true
-  h: 63e641554ee99830617f1c246521cfc5230e4b0b834c5947413f4496065e8fa7
-  r: "The file `code/contracts/output.schema.yaml` exists, is non\u2011empty (7337\u202F\
-    bytes), and contains a detailed JSON\u2011Schema with explicit field definitions\
-    \ for the final report (metadata, feasibility_summary, variance_check, etc.).\
-    \ No required artifact is missing."
+  h: 800ada6bc4a2231f9cff6c3f3271b45ff491b094e1aae54422394bd86af398bc
+  r: "The artifact `code/contracts/output.schema.yaml` is present (7\u202FKB, non\u2011\
+    empty) and contains a full JSON\u2011Schema definition with explicit properties\
+    \ for metadata, feasibility summary, variance check, correlation results, threshold\
+    \ detection, statistical significance, and an artifacts manifest, matching the\
+    \ requested output\u2011schema specification."
+T009b:
+  c: true
+  h: 4d4424c40f046b9addb3f224fa99c8f64f285ed9b56027a92741526c1d3bbb3d
+  r: "The `code/config.py` file is present (5141\u202Fbytes) and includes `from dotenv\
+    \ import load_dotenv` with an immediate `load_dotenv()` call, and it defines `REQUIRED_ENV_VARS`\
+    \ plus a `validate_required_env_vars` function that raises an error if any required\
+    \ variable is missing. This satisfies the task\u2019s requirement to load a `.env`\
+    \ file and validate required environment variables."
 T027:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
