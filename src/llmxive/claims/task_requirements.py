@@ -12,7 +12,14 @@ def restore_requirements(text: str, *, artifact_path: str, project_id: str, repo
         return text, []
     originals = {c.claim_id: c.raw_text for c in claim_store.load(project_id, repo_root=repo_root)
                  if c.artifact_path == artifact_path and c.raw_text}
-    restored = _CLAIM_POINTER_RE.sub(lambda m: originals.get(m['id'], m[0]), text)
+    def expand(match, seen=frozenset()):
+        claim_id = match['id']
+        if claim_id in seen or claim_id not in originals or len(seen) >= 64:
+            return match[0]
+        return _CLAIM_POINTER_RE.sub(
+            lambda nested: expand(nested, seen | {claim_id}), originals[claim_id])
+
+    restored = _CLAIM_POINTER_RE.sub(expand, text)
     return restored, pointer_ids(restored)
 
 
