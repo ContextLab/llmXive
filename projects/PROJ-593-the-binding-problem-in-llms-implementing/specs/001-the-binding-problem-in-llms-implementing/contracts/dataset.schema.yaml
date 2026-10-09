@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Dataset Schema"
-description: "Schema for raw and processed dataset files used in the project."
+description: "Schema for raw and processed dataset files used in the project. Validates FR‑001 – FR‑004."
 type: "object"
 properties:
   metadata:
@@ -8,29 +8,28 @@ properties:
     properties:
       source:
         type: "string"
-        description: "Source URL or identifier (e.g., Hugging Face dataset name)."
+        description: "Canonical source identifier (e.g., HuggingFace dataset name)."
       checksum:
         type: "string"
         description: "SHA256 checksum of the raw file."
       version:
         type: "string"
         description: "Dataset version or commit hash."
+    required: ["source", "checksum"]
   raw_data:
     type: "object"
     properties:
-      openneuro_meg:
+      plv_reference:
         type: "object"
         properties:
           format:
             type: "string"
-            enum: ["parquet", "json", "csv"]
+            enum: ["json"]
           fields:
             type: "array"
             items:
               type: "string"
-          streaming:
-            type: "boolean"
-            description: "Whether the data is streamed to avoid RAM overflow."
+        required: ["format", "fields"]
       clutrr:
         type: "object"
         properties:
@@ -43,7 +42,9 @@ properties:
               type: "string"
           sample_size:
             type: "integer"
-            description: "Number of samples used (e.g., 100)."
+            description: "Number of CLUTRR examples used."
+        required: ["format", "fields", "sample_size"]
+    required: ["plv_reference", "clutrr"]
   processed_data:
     type: "object"
     properties:
@@ -52,24 +53,31 @@ properties:
         properties:
           frequency_band:
             type: "string"
-            description: "Frequency band (e.g., '30-50Hz')."
           snr_threshold:
             type: "number"
-            description: "Minimum SNR for peak detection."
+        required: ["frequency_band", "snr_threshold"]
+      plv_results:
+        type: "object"
+        properties:
+          frequency_hz:
+            type: "integer"
+          plv_value:
+            type: "number"
+        required: ["frequency_hz", "plv_value"]
       benchmark_results:
         type: "object"
         properties:
-          metrics:
-            type: "array"
-            items:
-              type: "string"
-            description: "List of metrics (e.g., 'accuracy', 'f1')."
-          seeds:
-            type: "array"
-            items:
-              type: "integer"
-            description: "Random seeds used (e.g., [42, 123, 456, 789, 101])."
+          task:
+            type: "string"
+          accuracy:
+            type: "number"
+          f1_score:
+            type: "number"
+          seed:
+            type: "integer"
+        required: ["task", "accuracy", "f1_score", "seed"]
+    required: ["spectral_features", "plv_results", "benchmark_results"]
 required:
-  - "metadata"
-  - "raw_data"
-  - "processed_data"
+  - metadata
+  - raw_data
+  - processed_data

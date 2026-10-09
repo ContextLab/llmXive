@@ -1,15 +1,13 @@
 status: none
-intent: DistilBERT attention activation time series dataset for oscillatory analysis
-  python package dataset
+intent: download EEG Motor Movement Imagery dataset as python package dataset
 required_fields:
-- sequence_id
-- token_index
-- layer_index
-- head_index
-- attention_score
+- subject_id
+- recording_id
+- sampling_rate
+- channel_names
+- eeg_signal
+- event_labels
 - timestamp
-- frequency_bin
-- spectral_power
-cache_key: fbf7d4820e5604db694fdba3f56643d0decd66591d2a6c9c3601e08938b54c2e
-searched_at: '2026-07-22T10:41:28.717200+00:00'
+cache_key: f93208f4e5c9840a62b70435a81cf2e6781dd065f0099bfc57c628f010431bfa
+searched_at: '2026-10-09T09:53:34.597848+00:00'
 retry_count: 1

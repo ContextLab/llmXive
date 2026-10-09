@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Output Schema"
-description: "Schema for final results and statistical reports."
+description: "Schema for final results and statistical reports. Validates FR‑005 – FR‑006."
 type: "object"
 properties:
   results_summary:
@@ -13,19 +13,20 @@ properties:
           properties:
             frequency_hz:
               type: "integer"
-              description: "Frequency tested (e.g., 40)."
+              description: "Relative frequency tested (cycles per sequence)."
             mean_snr:
               type: "number"
-              description: "Mean Signal-to-Noise Ratio."
+              description: "Mean Signal‑to‑Noise Ratio across seeds."
             mean_plv:
               type: "number"
-              description: "Mean Phase Locking Value."
+              description: "Mean Phase‑Locking Value across seeds."
             p_value:
               type: "number"
-              description: "Corrected p-value."
+              description: "Bonferroni‑corrected p‑value for PLV vs. baseline."
             significance:
               type: "boolean"
-              description: "Whether the result is statistically significant."
+              description: "True if corrected p < 0.05."
+          required: ["frequency_hz", "mean_snr", "mean_plv", "p_value", "significance"]
       benchmark_performance:
         type: "object"
         properties:
@@ -38,6 +39,7 @@ properties:
                 type: "number"
               p_value:
                 type: "number"
+            required: ["accuracy", "f1_score", "p_value"]
           babi:
             type: "object"
             properties:
@@ -47,6 +49,9 @@ properties:
                 type: "number"
               p_value:
                 type: "number"
+            required: ["accuracy", "f1_score", "p_value"]
+        required: ["clutrr", "babi"]
+    required: ["frequency_sweep", "benchmark_performance"]
   statistical_report:
     type: "object"
     properties:
@@ -55,26 +60,27 @@ properties:
         properties:
           n_permutations:
             type: "integer"
-            description: "Number of permutations (e.g., 1000)."
+            description: "Number of permutations performed (≥ 1000)."
           null_distribution:
             type: "array"
             items:
               type: "number"
-            description: "Null distribution values."
           observed_value:
             type: "number"
-            description: "Observed similarity score."
+            description: "Observed PLV similarity score."
           p_value:
             type: "number"
-            description: "Calculated p-value."
+            description: "Uncorrected p‑value from permutation test."
+        required: ["n_permutations", "null_distribution", "observed_value", "p_value"]
       correction_method:
         type: "string"
-        description: "Method used for multiple comparison correction (e.g., 'bonferroni')."
+        description: "Multiple‑comparison correction method (e.g., 'bonferroni')."
       assumptions:
         type: "array"
         items:
           type: "string"
-        description: "List of assumptions made (e.g., 'Associational Similarity')."
+        description: "List of methodological assumptions (e.g., 'Associational Similarity')."
+    required: ["permutation_test", "correction_method", "assumptions"]
 required:
-  - "results_summary"
-  - "statistical_report"
+  - results_summary
+  - statistical_report

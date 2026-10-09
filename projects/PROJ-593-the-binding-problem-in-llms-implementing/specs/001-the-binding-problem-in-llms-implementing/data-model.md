@@ -1,76 +1,71 @@
-# Data Model: The Binding Problem in LLMs: Implementing Synchronized Oscillations for Feature Integration
+# Data Model: The Binding Problem in LLMs – Synchronized Oscillations for Feature Integration
 
 ## 1. Overview
-This document defines the data structures used in the project. All data flows from raw datasets to processed features, then to analysis results, and finally to the output schema.
+Defines all raw, intermediate, and final data artifacts. Every artifact is version‑controlled, checksummed, and validated against the JSON‑Schema contracts.
 
 ## 2. Raw Data Sources
+| Source | Verified URL | Format | Key Fields |
+|--------|--------------|--------|------------|
+| **Synthetic PLV Reference** | ` | JSON | `signal`, `phase`, `frequency` |
+| **CLUTRR** | ` | Parquet | `story`, `question`, `answer`, `family_size` |
+| **bAbI‑style QA** | ` | JSONL | `question`, `answer` |
 
-### 2.1 OpenNeuro MEG/EEG
-- **Source**: `
-- **Format**: Parquet (streamed)
-- **Key Fields**: `trial_id`, `timestamp`, `sensor_data`, `condition`
-- **Processing**: Filtered to a mid-frequency band; phase extracted.
-
-### 2.2 CLUTRR Benchmark
-- **Source**: `
-- **Format**: Parquet
-- **Key Fields**: `story`, `question`, `answer`, `family_size`
-- **Processing**: Sampled to a representative set of examples; split by seed.
-
-### 2.3 PLV Reference
-- **Source**: `
-- **Format**: JSON
-- **Key Fields**: `signal`, `phase`, `frequency`
-- **Processing**: Used for validation of PLV calculation.
+All raw files are streamed where possible; SHA‑256 checksums are stored in `state/projects/PROJ-593...yaml`.
 
 ## 3. Intermediate Data Structures
-
-### 3.1 ActivationTimeSeries
-- **Description**: Raw output of attention heads during forward pass.
-- **Shape**: `(batch_size, num_layers, num_heads, seq_len)`
-- **Type**: `numpy.ndarray` (float32)
-- **Storage**: Temporary in-memory; written to disk as `.npy` if needed.
-
-### 3.2 SpectralFeatures
-- **Description**: Power Spectral Density (PSD) and Phase Locking Value (PLV) for each activation time-series.
-- **Fields**:
- - `frequency_band`: str (e.g., "30-50Hz")
- - `psd`: array (power values)
- - `plv`: float (phase locking value)
- - `snr`: float (signal-to-noise ratio)
-- **Storage**: `data/processed/spectral_features_{seed}.json`
-
-### 3.3 BenchmarkResult
-- **Description**: Performance metrics for CLUTRR/bAbI.
-- **Fields**:
- - `accuracy`: float
- - `f1_score`: float
- - `seed`: int
-- **Storage**: `data/processed/benchmark_result_{seed}.json`
+| Artifact | Description | Shape / Type | Storage |
+|----------|-------------|--------------|---------|
+| **ActivationTimeSeries** | Raw attention‑head outputs (after sinusoidal gating) | `(batch, layer, head, seq_len)` – `np.ndarray` (`float32`) | `data/processed/activations_{seed}.npy` |
+| **ResidualPhaseSeries** | Instantaneous phase of activations after subtracting deterministic mask | `np.ndarray` (`float32`) per head | `data/processed/residual_phase_{seed}.npy` |
+| **SpectralFeatures** | Welch PSD per head, plus SNR | dict: `frequency_band`, `psd` (`np.ndarray`), `snr` (`float`) | `data/processed/spectral_{seed}.json` |
+| **PLVSeries** | Sliding‑window PLV between model residual phase and synthetic reference phase | `np.ndarray` (`float32`) per frequency | `data/processed/plv_{freq}_{seed}.npy` |
+| **BenchmarkResult** | Accuracy & F1 for each seed and task | `accuracy` (`float`), `f1_score` (`float`), `seed` (`int`) | `data/processed/benchmark_{task}_{seed}.json` |
+| **PermutationTestResult** | Null distribution & observed PLV statistic | `null_distribution` (`list[float]`), `observed_value` (`float`), `p_value` (`float`) | `data/processed/permutation_{freq}.json` |
 
 ## 4. Output Schema
+### 4.1 `results_summary.json`
+```json
+{
+  "frequency_sweep": [
+    {
+      "frequency_hz": 40,
+      "mean_snr": 3.2,
+      "mean_plv": 0.42,
+      "p_value": 0.018,
+      "significance": true
+    }
+    // … one entry per tested frequency
+  ],
+  "benchmark_performance": {
+    "clutrr": {"accuracy": 0.78, "f1_score": 0.75, "p_value": 0.032},
+    "babi":   {"accuracy": 0.81, "f1_score": 0.79, "p_value": 0.027}
+  }
+}
+```
 
-### 4.1 Final Results
-- **Description**: Aggregated results for all seeds and frequencies.
-- **Fields**:
- - `frequency`: int (Hz)
- - `mean_snr`: float
- - `mean_plv`: float
- - `p_value`: float (corrected)
- - `significance`: bool
-- **Storage**: `data/final/results_summary.json`
+### 4.2 `statistical_report.json`
+```json
+{
+  "permutation_test": {
+    "n_permutations": 1000,
+    "null_distribution": [...],
+    "observed_value": 0.42,
+    "p_value": 0.018
+  },
+  "correction_method": "bonferroni",
+  "assumptions": [
+    "Associational Similarity",
+    "Exogenous Oscillatory Constraint"
+  ]
+}
+```
 
-### 4.2 Statistical Report
-- **Description**: Detailed statistical analysis including permutation test results.
-- **Fields**:
- - `null_distribution`: array (permutation results)
- - `observed_value`: float
- - `p_value`: float
- - `correction_method`: str (e.g., "bonferroni")
-- **Storage**: `data/final/statistical_report.json`
+All final JSON files are validated against `contracts/output.schema.yaml`.
 
 ## 5. Data Hygiene & Versioning
+- **Checksums**: Computed with `sha256sum` after each download; recorded in `state/...yaml`.  
+- **Derivation**: Raw → processed files are never overwritten; each step writes a new file with a timestamped suffix.  
+- **PII**: All datasets are anonymised; no personal identifiers are stored.
 
-- **Checksums**: All raw data files will be checksummed (SHA256) and recorded in `state/...yaml`.
-- **Derivations**: No raw data is modified in place. All transformations produce new files.
-- **PII**: No PII is present in the datasets (anonymized MEG, synthetic CLUTRR).
+---
+

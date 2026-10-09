@@ -1,10 +1,28 @@
 T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required project directories (`src/`, `tests/`, `data/`)\
-    \ is present; the implementer provided no file listings, screenshots, or other\
-    \ artifacts showing that these folders exist and contain any content. The task\u2019\
-    s core deliverable\u2014a proper project structure\u2014is therefore missing."
+  h: 39eb70b1c44f92c984f8b31483d545bfa16d866e9b1c565a3c150cf9ab645fdc
+  r: "No evidence was provided that the required directories (`src`, `tests`, `data`,\
+    \ `config`, `docs`, `contracts`) were actually created, nor that a `README.md`\
+    \ containing a short `tree` listing exists. The implementer\u2019s claim lacks\
+    \ any artifact or file listing to confirm the layout."
+T002:
+  c: true
+  h: 9a57ccf03bd7509d9037201701029f5103b31044447c277044f0d2242409bfc1
+  r: "The provided `requirements.txt` exists, is non\u2011empty, and includes all\
+    \ required packages with the specified `>=` version constraints (transformers,\
+    \ torch, datasets, mne, scipy, numpy, scikit-learn). An extra `pyarrow` line does\
+    \ not violate the task."
+T003:
+  c: true
+  h: 9807f9f5cd8c3345f67fd42955034596e223b2a8006101b4d9497bdecac240af
+  r: "The repository contains a non\u2011empty `.pre-commit-config.yaml` (826\u202F\
+    bytes) that defines both `black` and `ruff` (plus `ruff-format`) hooks, with realistic\
+    \ configuration and no placeholder sections."
+T004:
+  c: true
+  h: db04d33a58b9deba634d145fb8dee293a562311088d480a0af55c42084a74358
+  r: The `pyproject.toml` file includes a `[tool.pytest.ini_options]` section that
+    defines `addopts = "--strict-markers"` and `testpaths = ["tests"]` as required.
 T005:
   c: false
   h: 710f6d8cbf953b39ef90abc568686aa35ac23246e0de93b41b3ded4bae24815e
