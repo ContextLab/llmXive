@@ -1,0 +1,18 @@
+status: none
+intent: pymatgen COD crystal structures CSD community subset python package dataset
+required_fields:
+- cod_id
+- cif_content
+- unit_cell_a
+- unit_cell_b
+- unit_cell_c
+- unit_cell_alpha
+- unit_cell_beta
+- unit_cell_gamma
+- unit_cell_volume
+- molecular_volume
+- molecular_surface_area
+- dipole_moment
+cache_key: cd5128c6c84113b62d5540477aad7f0e639ede24f43b4a1f4082328587fd2e54
+searched_at: '2026-10-09T04:50:16.398341+00:00'
+retry_count: 1

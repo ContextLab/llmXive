@@ -1,3 +1,42 @@
+T001.1:
+  c: true
+  h: fef9dbd692a40a5588109218e4145765b851f13786f6f2a8a2c70efc014eaf20
+  r: "The repository contains the four required top\u2011level directories (`code/`,\
+    \ `data/`, `results/`, `state/`), each present with files inside, confirming the\
+    \ task of creating the root directories has been fulfilled."
+T001.2:
+  c: true
+  h: 6e5b9e8446c43e36bcfc268c33aaabc941fa6f5b5f3490be643514184c071938
+  r: The repository contains the `code/utils/` and `code/tests/` directories with
+    multiple files (e.g., `__init__.py`, `config.py`, `.gitkeep`), confirming the
+    required subdirectories were created.
+T001.3:
+  c: true
+  h: c7be1bf36bb3be965f6cfdfb30156a1e7c210ed565fd26686c5f51b23191ad3e
+  r: The three required subdirectories (`data/raw/`, `data/descriptors/`, `data/processed/`)
+    are present in the repository and each contains a `.gitkeep` placeholder file,
+    confirming they were created as specified.
+T002:
+  c: true
+  h: d6c1e6c335ab3a13f668a5c2458ed5d5de643777a31962a4c40376a80ac796e1
+  r: "The provided `requirements.txt` exists, is non\u2011empty, and contains the\
+    \ exact required entries with the specified version pins for `rdkit` and `scikit-learn`.\
+    \ No placeholders or missing lines are present."
+T003:
+  c: false
+  h: c2d5a8b0fd02da096f9d677d8cb27a783ee062fdef52659030c1611c52fd2df4
+  r: "No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml`\
+    \ with Black settings, or a pre\u2011commit hook) are present, nor any script/instructions\
+    \ showing flake8 and black have been installed and integrated into the project.\
+    \ These artifacts are required to satisfy the \u201Cconfigure linting (flake8)\
+    \ and formatting (black) tools\u201D task."
+T005:
+  c: false
+  h: 6d07a414ffcf17b33920b030a8b7bbc64d9c2b85728fb0f185812618eaad61dc
+  r: "No `utils/descriptors.py` file or `compute_descriptors` implementation was provided,\
+    \ and there is no evidence (code, tests, or output) showing that the function\
+    \ returns the required descriptor dictionary or that it yields a benzene volume\
+    \ between 50\u202F\xC5\xB3 and 150\u202F\xC5\xB3. The required artifact is missing."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -41,13 +80,6 @@ T027:
   r: "The claim provides only the task description and specifications; there are no\
     \ actual evaluation results, scripts, or output files showing R\xB2, MAE, or RMSE\
     \ for the models on the test set. Consequently, the required artifacts are missing."
-T028:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No paired\u2011t\u2011test results, tables, or figures are present showing the\
-    \ statistical comparison of the Random Forest and Gradient Boosting models against\
-    \ the baseline. The required artifact (evidence of the t\u2011tests with p\u2011\
-    values, test statistics, and interpretation) is missing."
 T036:
   c: false
   h: ef61876e269d9d02f56755cb9be5150c5ff6dfbd916f169c98be59efb758130b
