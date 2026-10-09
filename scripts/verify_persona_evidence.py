@@ -21,6 +21,7 @@ from __future__ import annotations
 import argparse
 import re
 import sys
+import time
 from pathlib import Path
 
 try:
@@ -79,11 +80,22 @@ def _verify_url(url: str, label_tokens: list[str]) -> tuple[bool, str]:
     """
     if requests is None:
         return False, "requests package not installed"
-    try:
-        resp = requests.get(url, timeout=15, allow_redirects=True,
-                            headers={"User-Agent": _BROWSER_UA})
-    except Exception as e:
-        return False, f"fetch failed: {e}"
+    # Source outages are not evidence against a citation. Retry them briefly,
+    # then still fail closed if the source remains unavailable. Permanent HTTP
+    # errors and content mismatches never become passes through this retry.
+    for attempt in range(3):
+        try:
+            resp = requests.get(url, timeout=15, allow_redirects=True,
+                                headers={"User-Agent": _BROWSER_UA})
+        except (requests.Timeout, requests.ConnectionError) as exc:
+            if attempt == 2 or isinstance(exc, requests.exceptions.SSLError):
+                return False, f"fetch failed: {exc}"
+        except Exception as exc:
+            return False, f"fetch failed: {exc}"
+        else:
+            if resp.status_code not in (429, 500, 502, 503, 504) or attempt == 2:
+                break
+        time.sleep(0.5 * (attempt + 1))
     if resp.status_code in (401, 403, 451):
         return True, f"HTTP {resp.status_code} (paywall/region — citation valid, body not checked)"
     if resp.status_code != 200:
