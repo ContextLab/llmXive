@@ -117,7 +117,7 @@ class ImplementerAgent(SlashCommandAgent):
         # inline their full contents (capped) so the LLM can extend
         # rather than re-author them.
         task_line = mechanical_output["next_task_line"] or ""
-        referenced = _inline_referenced_files(ctx.project_dir, task_line)
+        reference_text = task_line
 
         user_parts = [
             f"# tasks.md\n\n{mechanical_output['tasks_text']}",
@@ -148,6 +148,7 @@ class ImplementerAgent(SlashCommandAgent):
             if len(body) > 12000:
                 body = "[Earlier log output truncated]\n" + body[-12000:]
             user_parts.append(f"# Previous execution of this task: {path.name}\n\n" + body)
+            reference_text += "\n" + body
         # Spec 023 #25 — close the auto-fix loop: the dedicated execution stage
         # runs the project's analysis end-to-end and, on failure, writes the
         # tracebacks + missing deliverables to execution_feedback.md and RE-OPENS
@@ -158,6 +159,7 @@ class ImplementerAgent(SlashCommandAgent):
         if exec_feedback.is_file():
             fb = exec_feedback.read_text(encoding="utf-8", errors="replace").strip()
             if fb:
+                reference_text += "\n" + fb
                 user_parts.append(
                     "# ⚠ EXECUTION FAILED ON THE LAST RUN — FIXING THIS IS YOUR "
                     "PRIORITY\n\n"
@@ -176,9 +178,10 @@ class ImplementerAgent(SlashCommandAgent):
                 "you import or call MUST come from this list, not invented)\n\n"
                 + existing_api
             )
+        referenced = _inline_referenced_files(ctx.project_dir, reference_text)
         if referenced:
             user_parts.append(
-                "# Full contents of files this task references "
+                "# Full contents of files this task or its execution failures reference "
                 "(extend / modify these EXACTLY — do not invent new APIs)\n\n"
                 + referenced
             )
