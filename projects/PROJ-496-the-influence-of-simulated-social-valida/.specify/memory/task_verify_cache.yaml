@@ -1,3 +1,44 @@
+T001:
+  c: false
+  h: 5b2b6afc0421802ac29316eb5da6b2c3dc4ce30a59e35d1cb54430088eb8cdde
+  r: "The top\u2011level `projects/PROJ-496-the-influence-of-simulated-social-valida/`\
+    \ directory exists, but there is no evidence that `.gitkeep` files were created\
+    \ inside `code/`, `tests/`, `docs/`, `data/raw/`, `data/processed/`, and `data/results/`\
+    \ as required by the task. These files are missing or not shown."
+T002a:
+  c: false
+  h: 1f299e87577ae126b8b34ce4f280fb9799e65e2409e0e32caafbeed3b66bf9bc
+  r: "The `requirements.txt` file is present, but it uses \u201C>=\u201D version specifiers\
+    \ instead of exact pinned versions (e.g., `mne==1.5.0`). The task explicitly required\
+    \ pinned versions for all listed packages, which is not satisfied."
+T003:
+  c: false
+  h: d9d0224abdba6d1951a554a0799235961b6bd660c12d4966239f4576bc9f2969
+  r: "The provided `.github/workflows/lint.yml` does not match the required specification:\
+    \ it has a different workflow name, uses branch\u2011filtered triggers, different\
+    \ action versions, Python\u202F3.10 instead of 3.11, installs extra tools, and\
+    \ runs flake8/black with different arguments (different line length, extra options,\
+    \ different paths). Consequently the task\u2019s exact linting configuration is\
+    \ not fulfilled."
+T004:
+  c: false
+  h: 0b38f1bfc64aa024990b88ac48b3b9e1be671bd13ab2822ff20ce9732d5a3302
+  r: "The provided `data/` directory contains a top\u2011level `.gitkeep` but does\
+    \ not include the required `.gitkeep` files inside the `raw`, `processed`, and\
+    \ `results` subfolders, so the exact directory\u2011structure verification fails."
+T005:
+  c: true
+  h: 960da01125dd0c44f5058fddee219e33d0122d0d6baa2e5ccacc5e53df732751
+  r: "The `code/config.py` file is present and non\u2011empty, defining a project\
+    \ root path, a seed helper, `get_env_var` for environment variables, and `ensure_dirs`\
+    \ for creating required directories, fulfilling the path\u2011management and env\u2011\
+    var functionality required."
+T007:
+  c: false
+  h: e5effe7db2f99fe99745908ae2d40d1e60166713c31cf4ba3ef4fb5cbeb79629
+  r: "Both required schema files (`eeg_dataset.schema.yaml` and `p300_measure.schema.yaml`)\
+    \ are reported as missing from the `specs/main-feature-sim-social-validation/contracts/`\
+    \ directory, so the task\u2019s deliverables are not present."
 T016b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -87,7 +87,7 @@
   verification_status: mismatch
   verified_against_url: https://huggingface.co/datasets/vectominist/spin_data/resolve/main/data.csv
   verified_at: '2026-07-25T23:11:05.950372Z'
-- artifact_hash: 0e47cbc5cef2da95d426fe43dec7f0ed19484475fdb843dfdd84767bf94a3613
+- artifact_hash: cf4e50c929f6402dc0b25f83401d399ed9dcbcc4347b317887102919d92babc2
   artifact_path: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -98,4 +98,4 @@
   value: 10.1016/j.biopsycho.2007.01.005
   verification_status: pending
   verified_against_url: https://doi.org/10.1016/j.biopsycho.2007.01.005
-  verified_at: '2026-09-29T04:08:19.048249Z'
+  verified_at: '2026-10-09T12:19:07.207591Z'

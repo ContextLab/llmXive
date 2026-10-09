@@ -1,18 +1,17 @@
 status: none
-intent: EEG social feedback task simulated real validation social anxiety questionnaire
-  dataset OpenNeuro PhysioNet python package dataset
+intent: OpenNeuro EEG social feedback validation anxiety dataset download python package
+  dataset
 required_fields:
 - participant_id
-- eeg_signal_data
+- eeg_signal
 - sampling_rate
+- feedback_condition
+- anxiety_score
+- anxiety_scale_name
+- event_timestamps
 - channel_names
-- event_markers
-- condition_label_simulated_vs_real
-- social_anxiety_score
-- social_anxiety_scale_name
 - age
 - gender
-- session_timestamp
-cache_key: d24d980a3dc0264ff1241b1a948eab6f1233a8b5ad96fa7585e5fd0f00ef1ae4
-searched_at: '2026-07-28T08:37:53.718844+00:00'
+cache_key: 2ae529ba09f43dcac2d1069da26b7d80c41f67c508f54b924ae53d8b19e30e81
+searched_at: '2026-10-09T12:20:01.112241+00:00'
 retry_count: 1
