@@ -86,7 +86,7 @@ jobs:
         # on total loss). The deploy commit only touches docs/ (regenerated
         # wholesale from web/), so the rebase is conflict-free.
         run: |
-          bash scripts/ci/commit-and-push.sh "deploy: sync web/ -> docs/ for GitHub Pages [skip ci]"
+          bash scripts/ci/commit-and-push.sh "deploy: sync web/ -> docs/ for GitHub Pages [skip ci]" pages
 
       # Deploy docs/ via the GitHub Actions artifact path (NOT the legacy
       # deploy-from-branch built-in, which re-checks-out the repo recursively and

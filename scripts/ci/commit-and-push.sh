@@ -38,7 +38,8 @@
 # Emits `pushed=true|false` to $GITHUB_OUTPUT (for the pages-deploy gate).
 set -uo pipefail
 
-msg="${1:?usage: commit-and-push.sh <commit-message>}"
+msg="${1:?usage: commit-and-push.sh <commit-message> [research|pages]}"
+profile="${2:-research}"
 
 emit() { [ -n "${GITHUB_OUTPUT:-}" ] && echo "pushed=$1" >> "$GITHUB_OUTPUT"; return 0; }
 
@@ -49,11 +50,10 @@ git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 # data-source probe overwrote README/LICENSE and the old `git add -A` published it.
 # Refuse unexpected paths BEFORE staging; retain the working tree as evidence.
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-python "$script_dir/../../src/llmxive/checks/pipeline_writes.py" || exit 1
-# Existing roots only (small/new repositories may not have web/data yet).
-for root in projects state web/data; do
-  if [ -d "$root" ]; then git add -A -- "$root" || exit 1; fi
-done
+# Profile validation and staging share one fixed allowlist. Research stays the
+# default; only the trusted static Pages workflow opts into docs-only writes.
+python -B "$script_dir/../../src/llmxive/checks/pipeline_writes.py" \
+  --profile "$profile" --stage || exit 1
 
 # Size guard: GitHub's pre-receive hook HARD-REJECTS any file >100MB, which
 # fails the ENTIRE push and loses this worker's whole tick (observed: a 260MB

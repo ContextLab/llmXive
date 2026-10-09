@@ -246,7 +246,9 @@ never duplicates data, it derives it.
 
 Research downloads and generated outputs belong inside `projects/<PROJ-id>/`.
 CI checks the tracked root layout, and cron commits reject writes outside a
-project namespace, `state/`, or `web/data/`. Run the fast check locally with
+project namespace, `state/`, or `web/data/`. The trusted static Pages workflow
+explicitly selects a separate `pages` profile, which permits and stages only
+`docs/`; it cannot commit research or platform changes. Run the fast check locally with
 `python src/llmxive/checks/repository_layout.py`. Historical leaked downloads
 were preserved with their Git hashes in the [root-file recovery audit](notes/audit-20261008/repository-hygiene.md); recovery does not certify them as valid study data.
 
