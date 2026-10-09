@@ -285,9 +285,19 @@ def run_tasker_via_engine(
       version of T027 vs. the trust-the-reviser version implemented
       here).
     """
-    tasks_key = f"projects/{project_id}/specs/{tasks_path.parent.name}/tasks.md"
-    spec_key = f"projects/{project_id}/specs/{spec_path.parent.name}/spec.md"
-    plan_key = f"projects/{project_id}/specs/{plan_path.parent.name}/plan.md"
+    from llmxive.speckit._task_contract_context import task_contract_context
+
+    project_dir = repo_root / "projects" / project_id
+    supporting_context = task_contract_context(tasks_path.parent, project_dir)
+    # The caller's selected feature is authoritative; neither a sibling project
+    # nor an assumed specs/<slug> depth may redefine its trust boundary.
+    for path in (tasks_path, spec_path, plan_path):
+        if path.parent.absolute() != tasks_path.parent.absolute() or path.is_symlink():
+            raise ValueError("Task review artifacts must be regular paths in the same active feature")
+    tasks_key, spec_key, plan_key = (
+        path.resolve().relative_to(repo_root.resolve()).as_posix()
+        for path in (tasks_path, spec_path, plan_path)
+    )
 
     spec = build_tasks_reviewspec(
         backend=backend, repo_root=repo_root, project_id=project_id,
@@ -342,6 +352,7 @@ def run_tasker_via_engine(
     # fallback then sees the explicit empty rather than a silently-missing
     # key. See _REQUIRED_EXTRA_INPUTS_PER_STAGE['tasked'] for the contract.
     extra_inputs: dict[str, str] = {
+        "__task_contract_context__": supporting_context,
         "__analyze_report__": analyze_report_text,
         "__prior_reviews__": "",
         "__constitution__": constitution_text or "",

@@ -173,3 +173,78 @@ def test_runtime_policy_flags_invalidate_but_credentials_do_not(reviewed, monkey
     assert TaskerAgent().mechanical_step(ctx).get('skip_llm')
     monkeypatch.setenv('LLMXIVE_CLAIM_LAYER', '1')
     assert not TaskerAgent().mechanical_step(ctx).get('skip_llm')
+
+
+@pytest.mark.parametrize('relative', ['data-model.md', 'contracts/nested/summary.yaml'])
+@pytest.mark.parametrize('change', ['mutate', 'delete'])
+def test_reviewed_contract_change_invalidates_receipt(reviewed, monkeypatch, relative, change):
+    ctx, _, feature, _ = reviewed
+    path = feature / relative
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text('required: [measured_microseconds]\n')
+    packets = []
+    def analyze(**kwargs):
+        packets.append(kwargs['supporting_context'])
+        return 'CLEAN'
+    monkeypatch.setattr('llmxive.speckit.tasks_cmd.run_analyze', analyze)
+    assert TaskerAgent().run(ctx).outcome == Outcome.SUCCESS
+    assert 'required: [measured_microseconds]' in packets[-1]
+    assert TaskerAgent().run(ctx).outcome == Outcome.SKIPPED
+    if change == 'mutate':
+        path.write_text('required: [measured_nanoseconds]\n')
+    else:
+        path.unlink()
+    assert not TaskerAgent().mechanical_step(ctx).get('skip_llm')
+    assert TaskerAgent().run(ctx).outcome == Outcome.SUCCESS
+    assert 'required: [measured_microseconds]' not in packets[-1]
+    if change == 'mutate':
+        assert 'required: [measured_nanoseconds]' in packets[-1]
+    assert TaskerAgent().run(ctx).outcome == Outcome.SKIPPED
+
+
+@pytest.mark.parametrize('unsafe', ['file_link', 'directory_link', 'oversize', 'binary'])
+def test_unsafe_contract_prevents_receipt_reuse(reviewed, tmp_path, unsafe):
+    ctx, _, feature, _ = reviewed
+    contracts = feature / 'contracts'
+    contracts.mkdir()
+    if unsafe == 'directory_link':
+        contracts.rmdir()
+        contracts.symlink_to(tmp_path, target_is_directory=True)
+    else:
+        path = contracts / 'result.yaml'
+        if unsafe == 'file_link':
+            secret = tmp_path / 'outside-contract-secret'
+            secret.write_text('PRIVATE_BYTES_MUST_NOT_BE_READ')
+            path.symlink_to(secret)
+        elif unsafe == 'oversize':
+            path.write_bytes(b'x' * (64 * 1024 + 1))
+        else:
+            path.write_bytes(b'\x00not a text schema')
+    with pytest.raises(ValueError, match='Task review context refused'):
+        TaskerAgent().mechanical_step(ctx)
+
+
+def test_tasker_delivers_contract_to_author_and_actual_analyzer(reviewed, monkeypatch):
+    from llmxive.speckit import analyze_cmd, slash_command, tasks_cmd
+
+    ctx, _, feature, _ = reviewed
+    (feature / 'data-model.md').write_text('Required unit: nanoseconds.\n')
+    original_generate = slash_command.chat_with_fallback
+    author_packets = []
+    analyzer_packets = []
+
+    def generate(messages, **kwargs):
+        author_packets.append('\n'.join(message.content for message in messages))
+        return original_generate(messages, **kwargs)
+
+    def analyze(messages, **kwargs):
+        analyzer_packets.append('\n'.join(message.content for message in messages))
+        return ChatResponse(text='CLEAN', model='test', backend='dartmouth')
+
+    monkeypatch.setattr(slash_command, 'chat_with_fallback', generate)
+    monkeypatch.setattr(tasks_cmd, 'run_analyze', analyze_cmd.run_analyze)
+    monkeypatch.setattr(analyze_cmd, 'chat_with_fallback', analyze)
+    assert TaskerAgent().run(ctx).outcome == Outcome.SUCCESS
+    assert len(author_packets) == len(analyzer_packets) == 1
+    assert all('Required unit: nanoseconds.' in packet
+               for packet in author_packets + analyzer_packets)

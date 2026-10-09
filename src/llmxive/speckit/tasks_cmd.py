@@ -33,6 +33,7 @@ from llmxive.backends.base import (
 from llmxive.backends.router import chat_with_fallback
 from llmxive.config import TASKER_MAX_REVISION_ROUNDS
 from llmxive.speckit._analysis_policy import analysis_policy_fingerprint
+from llmxive.speckit._task_contract_context import task_contract_context
 from llmxive.speckit.analyze_cmd import analyze_advance_ok, run_analyze
 from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
 from llmxive.types import Outcome, Stage
@@ -55,6 +56,7 @@ class TaskerAgent(SlashCommandAgent):
         """Bind a completed analysis to its exact artifacts and review inputs."""
         repo = ctx.project_dir.parent.parent
         feature = self._feature_dir(ctx)
+        supporting_context = task_contract_context(feature, ctx.project_dir)
         paths = {feature / name for name in ("spec.md", "plan.md", "tasks.md")}
         paths.update(path for path in feature.rglob("*") if path.is_file())
         paths.update((ctx.project_dir / "idea").glob("*.md"))
@@ -69,7 +71,8 @@ class TaskerAgent(SlashCommandAgent):
         })
         paths.update((repo / ".specify/templates").glob("*.md"))
         paths.add(repo / "web/about.html")  # Authoritative convergence/citation policy.
-        digest = hashlib.sha256(b"task-analysis-v2\0")
+        digest = hashlib.sha256(b"task-analysis-v3\0")
+        digest.update(supporting_context.encode() + b"\0")
         digest.update(analysis_policy_fingerprint(ctx).encode() + b"\0")
         for path in sorted(paths):
             digest.update(str(path.relative_to(repo)).encode() + b"\0")
@@ -183,6 +186,7 @@ class TaskerAgent(SlashCommandAgent):
             f"# spec.md\n\n{spec_text}",
             f"# plan.md\n\n{plan_text}",
             f"# tasks template\n\n{tasks_template}",
+            task_contract_context(Path(mechanical_output["tasks_path"]).parent, ctx.project_dir),
         ]
         idea_dir = ctx.project_dir / "idea"
         if idea_dir.is_dir():
@@ -326,6 +330,7 @@ class TaskerAgent(SlashCommandAgent):
                     project_dir=ctx.project_dir,
                     kind="research",
                     constitution_text=_const_text,
+                    supporting_context=task_contract_context(tasks_path.parent, ctx.project_dir),
                 )
             except _BackendError as exc:
                 print(f"[tasker] analyze round {round_idx + 1} failed: {exc}; "
@@ -367,6 +372,7 @@ class TaskerAgent(SlashCommandAgent):
                 f"# spec.md\n\n{spec_path.read_text(encoding='utf-8')}\n\n"
                 f"# plan.md\n\n{plan_path.read_text(encoding='utf-8')}\n\n"
                 f"# tasks.md\n\n{tasks_path.read_text(encoding='utf-8')}\n\n"
+                f"{task_contract_context(tasks_path.parent, ctx.project_dir)}\n\n"
                 "Return the YAML patch document per the contract."
             )
             try:
@@ -560,6 +566,7 @@ class TaskerAgent(SlashCommandAgent):
                 project_dir=ctx.project_dir,
                 kind="research",
                 constitution_text=_const_text,
+                supporting_context=task_contract_context(tasks_path.parent, ctx.project_dir),
             )
         except _BackendError as exc:
             print(

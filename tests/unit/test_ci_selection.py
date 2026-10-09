@@ -292,3 +292,17 @@ def test_paper_bootstrap_live_test_keeps_dartmouth_without_external_services():
     assert load("select_checks").select(["tests/real_call/test_paper_bootstrap.py"]) == {
         "offline": True, "live": True, "references": False,
     }
+
+
+@pytest.mark.parametrize('path', [
+    'tests/integration/test_task_review_contract_context.py',
+    'tests/integration/test_tasker_engine_bridge.py',
+    'tests/integration/test_tasker_production_cutover.py',
+])
+def test_reviewed_task_integration_modules_keep_offline_and_dartmouth(path):
+    selector = load('select_checks')
+    assert selector.select([path]) == {'offline': True, 'live': True, 'references': False}
+    for guarded in ('tests/integration/test_unknown_future.py', 'tests/conftest.py',
+                    'tests/real_call/test_resolve_reference_registrar_agnostic.py',
+                    'src/llmxive/agents/reference_validator.py'):
+        assert selector.select([path, guarded]) == {'offline': True, 'live': True, 'references': True}

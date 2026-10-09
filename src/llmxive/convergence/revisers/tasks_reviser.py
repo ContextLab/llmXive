@@ -182,6 +182,7 @@ class _AbstractTasksReviser:
                 prior_reviews=prior_reviews,
                 concerns=concerns,
                 extra_instructions=extra_instructions,
+                supporting_context=artifacts.get("__task_contract_context__", ""),
             )
             response_text = self._call_backend(messages)
             new_tasks, responses = self._parse_response(
@@ -243,6 +244,7 @@ class _AbstractTasksReviser:
         prior_reviews: str,
         concerns: list[Concern],
         extra_instructions: str = "",
+        supporting_context: str = "",
     ) -> list[ChatMessage]:
         system_text = render_prompt(
             self._system_prompt_path,
@@ -255,11 +257,13 @@ class _AbstractTasksReviser:
             for c in concerns
         ) or "(no panel concerns this round)"
 
+        supporting_section = supporting_context + "\n\n" if supporting_context else ""
         user_text = (
             "# Spec (what the tasks must cover)\n\n"
             f"{spec_md or '(no spec supplied)'}\n\n"
             "# Plan (the elements each task ties back to)\n\n"
             f"{plan_md or '(no plan supplied)'}\n\n"
+            f"{supporting_section}"
             "# Constitution (FR-030)\n\n"
             f"{constitution or '(no constitution supplied)'}\n\n"
             "# Current tasks.md (what you are revising)\n\n"
