@@ -17,6 +17,7 @@ Stage transitions:
 from __future__ import annotations
 
 import difflib
+import hashlib
 from pathlib import Path
 from typing import Any
 
@@ -33,6 +34,7 @@ from llmxive.backends.router import chat_with_fallback
 from llmxive.config import TASKER_MAX_REVISION_ROUNDS
 from llmxive.speckit.analyze_cmd import analyze_advance_ok, run_analyze
 from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
+from llmxive.types import Outcome, Stage
 
 
 def _unified_diff(before: str, after: str, path: str) -> str:
@@ -48,6 +50,42 @@ def _unified_diff(before: str, after: str, path: str) -> str:
 
 
 class TaskerAgent(SlashCommandAgent):
+    def _analysis_fingerprint(self, ctx: SlashCommandContext) -> str:
+        """Bind a completed analysis to its exact artifacts and review inputs."""
+        repo = ctx.project_dir.parent.parent
+        feature = self._feature_dir(ctx)
+        paths = {feature / name for name in ("spec.md", "plan.md", "tasks.md")}
+        paths.update(path for path in feature.rglob("*") if path.is_file())
+        paths.update((ctx.project_dir / "idea").glob("*.md"))
+        paths.update((ctx.project_dir / "reviews/research").glob("*.md"))
+        paths.update((repo / "agents/prompts").rglob("*.md"))
+        paths.update((repo / "agents/templates").glob("*.md"))
+        paths.update({
+            ctx.project_dir / ".specify/memory/constitution.md",
+            ctx.project_dir / ".specify/memory/task_verifier_notes.md",
+            ctx.project_dir / ".specify/templates/tasks-template.md",
+        })
+        digest = hashlib.sha256(b"task-analysis-v1\0")
+        for path in sorted(paths):
+            digest.update(str(path.relative_to(repo)).encode() + b"\0")
+            digest.update(path.read_bytes() if path.is_file() else b"<absent>")
+            digest.update(b"\0")
+        return digest.hexdigest()
+
+    def run(self, ctx: SlashCommandContext):
+        self._accepted_analysis = None
+        entry = super().run(ctx)
+        # Citation validation happens in the base run after analysis. Reuse is
+        # safe only if it left the reviewed artifacts unchanged.
+        if (entry.outcome == Outcome.SUCCESS and self._accepted_analysis
+                and self._accepted_analysis == self._analysis_fingerprint(ctx)):
+            marker = ctx.project_dir / ".specify/memory/tasker_rounds.yaml"
+            record = yaml.safe_load(marker.read_text()) or {}
+            record["analysis_sha256"] = self._accepted_analysis
+            from llmxive.state._io import atomic_write_text
+            atomic_write_text(marker, yaml.safe_dump(record))
+        return entry
+
     def slash_command_name(self) -> str:
         return "speckit.tasks"
 
@@ -66,6 +104,25 @@ class TaskerAgent(SlashCommandAgent):
 
     def mechanical_step(self, ctx: SlashCommandContext) -> dict[str, Any]:
         feature_dir = self._feature_dir(ctx)
+        marker = ctx.project_dir / ".specify/memory/tasker_rounds.yaml"
+        record = yaml.safe_load(marker.read_text()) if marker.exists() else {}
+        record = record if isinstance(record, dict) else {}
+        from llmxive.state import project as project_store
+        try:
+            stage = project_store.load(ctx.project_id, repo_root=ctx.project_dir.parent.parent).current_stage
+        except FileNotFoundError:
+            stage = None
+        # PLANNED is a new generation/replan. Only the follow-up analysis stages
+        # may consume a receipt, and pending kickback feedback always forces work.
+        if (stage in {Stage.TASKED, Stage.ANALYZE_IN_PROGRESS}
+                and record.get("analysis_sha256")
+                and not (ctx.project_dir / ".specify/memory/kickback_feedback.md").exists()
+                and record["analysis_sha256"] == self._analysis_fingerprint(ctx)):
+            return {"skip_llm": True, "reason": "exact task artifacts already analyzed"}
+        if "analysis_sha256" in record:
+            record.pop("analysis_sha256")
+            from llmxive.state._io import atomic_write_text
+            atomic_write_text(marker, yaml.safe_dump(record))
         return {
             "feature_dir": str(feature_dir),
             "spec_path": str(feature_dir / "spec.md"),
@@ -279,6 +336,7 @@ class TaskerAgent(SlashCommandAgent):
                     yaml.safe_dump({"rounds_used": round_idx + 1}),
                     encoding="utf-8",
                 )
+                self._accepted_analysis = self._analysis_fingerprint(ctx)
                 return written
 
             # Mode B — ask the Tasker to patch the artifacts.
@@ -513,6 +571,7 @@ class TaskerAgent(SlashCommandAgent):
                 yaml.safe_dump({"rounds_used": 1, "converged": True}),
                 encoding="utf-8",
             )
+            self._accepted_analysis = self._analysis_fingerprint(ctx)
             return
 
         # ---- Engine resolve loop ----
@@ -705,6 +764,9 @@ class TaskerAgent(SlashCommandAgent):
             }),
             encoding="utf-8",
         )
+        if final_clean:
+            self._accepted_analysis = self._analysis_fingerprint(ctx)
+
 
 
 def _parse_tasker_response(text: str) -> dict[str, Any] | None:
