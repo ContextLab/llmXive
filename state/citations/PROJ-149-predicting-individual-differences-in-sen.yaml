@@ -42,31 +42,9 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.1000/example
   verified_at: '2026-07-02T21:16:24.661729Z'
-- artifact_hash: b2fdb08450aa4ad07d35f27f355195d3f639f0d7e0bf89c8dffe0fbcc9981b50
+- artifact_hash: 8c3ed1d6f22a26998246116a528e91e817b8229186ef6ac896acc29823226baf
   artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
   cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Index of /protected/published-projects/eegmmidb/1.0.0/
-  kind: url
-  value: https://physionet.org/files/eegmmidb/1.0.0/`
-  verification_status: pending
-  verified_against_url: https://physionet.org/files/eegmmidb/1.0.0/
-  verified_at: '2026-10-08T04:49:48.333448Z'
-- artifact_hash: b2fdb08450aa4ad07d35f27f355195d3f639f0d7e0bf89c8dffe0fbcc9981b50
-  artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://physionet.org/files/eegmmidb/1.0.0/checksums.txt`
-  verification_status: mismatch
-  verified_against_url: https://physionet.org/files/eegmmidb/1.0.0/checksums.txt
-  verified_at: '2026-10-08T04:49:48.333448Z'
-- artifact_hash: b2fdb08450aa4ad07d35f27f355195d3f639f0d7e0bf89c8dffe0fbcc9981b50
-  artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
-  cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: OpenNeuro
@@ -74,4 +52,4 @@
   value: https://openneuro.org/datasets/ds000224`
   verification_status: pending
   verified_against_url: https://openneuro.org/datasets/ds000224
-  verified_at: '2026-10-08T04:49:48.333448Z'
+  verified_at: '2026-10-09T18:56:04.565614Z'

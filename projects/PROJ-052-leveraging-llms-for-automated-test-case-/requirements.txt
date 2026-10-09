@@ -1,10 +1,26 @@
-llama-cpp-python
-pandas
-scipy
-jinja2
-pyyaml
-jsonschema
-pytest
-tree-sitter-java
-psutil
-matplotlib
+# Pinned dependencies for PROJ-052 (Leveraging LLMs for Automated Test Case Generation)
+# All versions pinned for reproducibility (Constitution Principle I).
+# Install CPU-only llama-cpp-python with:
+#   CMAKE_ARGS="-DLLAMA_BLAS=OFF" pip install -r requirements.txt
+
+# --- Core required dependencies (per T002) ---
+llama-cpp-python==0.2.90
+pandas==2.2.3
+scipy==1.14.1
+jinja2==3.1.6
+pyyaml==6.0.2
+jsonschema==4.23.0
+pytest==8.3.4
+tree-sitter-java==0.23.4
+psutil==6.1.1
+
+# --- Runtime dependencies of the pipeline modules ---
+# data_loader.py imports `datasets` (HuggingFace) to stream the Defects4J dataset;
+# the previous end-to-end run failed with ModuleNotFoundError: No module named 'datasets'.
+datasets==3.2.0
+# tree-sitter-java bindings require the tree-sitter runtime library.
+tree-sitter==0.24.0
+# power_sensitivity_analysis.py (T076) generates data/power_sensitivity_plot.png.
+matplotlib==3.10.0
+# Imported directly by analyzer.py and power_sensitivity_analysis.py.
+numpy==1.26.4

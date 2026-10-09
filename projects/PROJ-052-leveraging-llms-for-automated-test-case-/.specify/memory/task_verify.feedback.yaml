@@ -1,21 +1,14 @@
 T001:
-  reason: The required directories and `__init__.py` files are present, but the provided
-    evidence does not show that the `__init__.py` files are empty as the task specifies.
-    Content of those files needs to be verified (or shown) to confirm they are truly
-    empty.
   task: d7c8508ec09b5c9cf5d49650c549ea9944fd05cc5718d94133c51939b47d167e
 T002:
-  reason: The provided `requirements.txt` exists but does not pin specific versions
-    for the listed packages, and it includes an extra package (`matplotlib`) that
-    was not part of the required list. The task explicitly required pinned versions
-    for the nine specified dependencies.
   task: cabe199ed4ad7fb9c4165e60c7c1519e96ab308c14c3ed305bc5960679558a3c
 T003:
-  reason: "No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,\
-    \ or `black` settings) or scripts are present in the provided evidence, so the\
-    \ requirement to configure ruff and black is not satisfied. The implementer must\
-    \ add the appropriate configuration files and ensure they are non\u2011empty and\
-    \ correctly set up."
+  reason: "No evidence was provided of any linting/formatting configuration artifacts\
+    \ (e.g., `pyproject.toml`, `ruff.toml`, `.ruff.toml`, `black` config, or CI/tooling\
+    \ files) in the project directory \u2014 the collector confirms no artifact paths\
+    \ exist for this task. The implementer's claim of configuring ruff and black is\
+    \ unsupported by any on-disk file; the required configuration files must actually\
+    \ be created and non-empty."
   task: ed499d1c554fe9eb2c7938008dd2c66373f31ce0c71ca26dc8c344cb81cd4782
 T004:
   reason: The `contracts/` directory is present, but the required schema files (`dataset.schema.yaml`,
@@ -41,8 +34,22 @@ T006:
     \ further indicate the chunked\u2011processing logic"
   task: f3be920c8317fcebac9cc49a37abafa68095713e0c20c1758a7534e456950ea1
 T006b:
+  reason: "The required function `compute_file_sha` does not exist anywhere in `code/data_loader.py`\
+    \ (only a generic `compute_sha256` is present), and there is no logic to download\
+    \ the raw dataset to `data/` via `datasets` caching or to hash the local Parquet\
+    \ file bytes. The required test `tests/unit/test_data_loader.py::test_compute_file_sha_returns_valid_hash`\
+    \ is also absent \u2014 the test file instead contains tests for unrelated functions\
+    \ (`filter_pairable_samples`, `log_fallback_prompt_usage`, etc.) that don't even\
+    \ exist in the shown `data_loader.py`, and no local Parquet file appears in `data/`."
   task: 4dde5175724fc6e121ede1b8975c808a2875d03ae6cd20e30a3b12b5911ca2de
 T006c:
+  reason: The task requires implementing `update_state_checksum` in `code/main.py`
+    to store the computed hash under `artifact_hashes.data_loader` in the state YAML,
+    but no function named `update_state_checksum` exists anywhere in `code/main.py`
+    (or the other modules), and the target state file `state/projects/PROJ-052-leveraging-llms-for-automated-test-case-.yaml`
+    is MISSING on disk. The only related code is `record_checksum` in `data_loader.py`,
+    and `ensure_data_loaded_and_integrity_recorded()` in `data_loader.py` is an empty
+    `pass` stub, so no checksum is ever computed or written.
   task: 6d6e9b6752ee30810e8b3292bd3d5ba56d91e83be66b2abe1c257641129d7775
 T007:
   task: 3cc48b0cdc3f3ce5773e44e70e779fe6c5a8c61816faf00199babfa72c47d4c8
@@ -141,6 +148,13 @@ T046b:
 T047:
   task: 9f0ac20fcbe1421ed5b6f74ab49c9d540d4f38fe3ef15380fa57dfccc7a32d45
 T048:
+  reason: "`validate_manual_baseline_existence` in `code/data_loader.py` is an explicit\
+    \ stub \u2014 its docstring says \"This function is a placeholder\" and it unconditionally\
+    \ `return True` without ever querying the `manual_test_method` field. The integration\
+    \ requirement (main.py loop skipping samples returning `False`) is not implemented,\
+    \ and `data/exclusion_log.json` contains no `missing_manual_baseline` key or per-bug_id\
+    \ exclusion entries \u2014 only a pre-existing summary with no evidence it was\
+    \ produced by this logic."
   task: 0c0b2f81745c39b5bfb09252069894ba2f874dac3ff34da5fd38cc35ad18f1ce
 T051:
   task: 9143b87d9ee9b03fef381bef7ca48e7a0fdae8be5ee5610389cee56a45cdfc2a
@@ -177,6 +191,8 @@ T074:
 T075:
   task: 11619f844e9a33f9d3936ed2010abef9cbdf4e54a2f531c4fd151e591c9be297
 T076:
+  reason: 'Requested task execution failed; rerun successfully: code/power_sensitivity_analysis.py
+    exit=1'
   task: cd64a1117237fd3b4b45be209816409e7fa10e1a08288d32611a6b2708e940f4
 T077:
   task: b8e940a54fbe98864500fd81e98cf32f0704397b4bbd53d9a527bda5ad449a8f

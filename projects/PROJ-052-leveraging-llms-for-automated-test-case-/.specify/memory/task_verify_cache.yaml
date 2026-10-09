@@ -1,25 +1,31 @@
 T001:
-  c: false
-  h: 10f8194c49a5441e880366ecb8112de326d6a7cdd9c0e332eba9be56656a8467
-  r: The required directories and `__init__.py` files are present, but the provided
-    evidence does not show that the `__init__.py` files are empty as the task specifies.
-    Content of those files needs to be verified (or shown) to confirm they are truly
-    empty.
+  c: true
+  h: 1af7cc26cd709c74d94f77210f187eb8253aa1dda933920ecec355b2953af0cf
+  r: All six required directories (`code/`, `specs/`, `data/`, `contracts/`, `tests/unit/`,
+    `tests/integration/`) exist with substantive contents, and the four required `__init__.py`
+    files (in `code/`, `tests/`, `tests/unit/`, `tests/integration/`) are present
+    and confirmed empty (0 bytes) by the execution log with exit code 0. The task
+    only required structure creation, which is fully satisfied.
+  sig: c816163af7e5be117bd6469e085a111e738d403c191a44b56ec0cfc5d188c83e
 T002:
-  c: false
-  h: 2ff7cbb21758b6b054671b94d34fb9f9831b89badceae2c80ace9905dc002674
-  r: The provided `requirements.txt` exists but does not pin specific versions for
-    the listed packages, and it includes an extra package (`matplotlib`) that was
-    not part of the required list. The task explicitly required pinned versions for
-    the nine specified dependencies.
+  c: true
+  h: f4b0964992a31cc0c079bcd2c2c26fdec115fd3d4cf149d96df230a00b34e91e
+  r: The `requirements.txt` exists at the project root (987 bytes) and contains all
+    nine required packages with pinned versions (`llama-cpp-python==0.2.90`, `pandas==2.2.3`,
+    `scipy==1.14.1`, `jinja2==3.1.6`, `pyyaml==6.0.2`, `jsonschema==4.23.0`, `pytest==8.3.4`,
+    `tree-sitter-java==0.23.4`, `psutil==6.1.1`), plus additional pinned runtime dependencies,
+    which is consistent with rather than contrary to the task.
+  sig: 640491c7f1a016fc610ae89b42609eee2726601df5dd4bd1ac5f201cb497ea8c
 T003:
   c: false
-  h: 45c967faf40fba984aedade9ed99955104a4ce63e2250f79061f61dae01492b2
-  r: "No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,\
-    \ or `black` settings) or scripts are present in the provided evidence, so the\
-    \ requirement to configure ruff and black is not satisfied. The implementer must\
-    \ add the appropriate configuration files and ensure they are non\u2011empty and\
-    \ correctly set up."
+  h: 65e6473cbb286e8bcfcc520f8ce00846f5b9aff9d8b0aca954a40c0761466f6c
+  r: "No evidence was provided of any linting/formatting configuration artifacts (e.g.,\
+    \ `pyproject.toml`, `ruff.toml`, `.ruff.toml`, `black` config, or CI/tooling files)\
+    \ in the project directory \u2014 the collector confirms no artifact paths exist\
+    \ for this task. The implementer's claim of configuring ruff and black is unsupported\
+    \ by any on-disk file; the required configuration files must actually be created\
+    \ and non-empty."
+  sig: 79536ba92169f584492f922ee2638622b7507e4f1bc5161830acbf93bd64f6bf
 T004:
   c: false
   h: 43bf979cec7176d88cd8dc8c748767015a6340401a1b19b42dc0d2ca3b81e929
@@ -46,12 +52,27 @@ T006:
     \ placeholder `ensure_data_loaded_and_integrity_recorded` and unused `MemoryExceededError`\
     \ further indicate the chunked\u2011processing logic "
 T006b:
-  c: true
-  h: f62a06b98e19bc8fa6298ab65769c3a2dd86103f6115ce2d2c333dbdc1d5938b
-  r: "The `code/data_loader.py` file contains a `compute_sha256` function and, after\
-    \ saving `defects4j_v1.0.parquet`, it computes the hash and calls `record_checksum`\
-    \ to store it in `project_state.json`, fulfilling the checksum\u2011recording\
-    \ requirement. The missing parquet file is data, not part of the code implementation."
+  c: false
+  h: 79a32b46278420c618dc6edbd77100eb6e2225b4f7e2a65118a11d45ccb88632
+  r: "The required function `compute_file_sha` does not exist anywhere in `code/data_loader.py`\
+    \ (only a generic `compute_sha256` is present), and there is no logic to download\
+    \ the raw dataset to `data/` via `datasets` caching or to hash the local Parquet\
+    \ file bytes. The required test `tests/unit/test_data_loader.py::test_compute_file_sha_returns_valid_hash`\
+    \ is also absent \u2014 the test file instead contains tests for unrelated functions\
+    \ (`filter_pairable_samples`, `log_fallback_prompt_usage`, etc.) that don't even\
+    \ exist in the shown `data_loader.py`, and no local Parquet file appears in `data/`."
+  sig: d98093ce1c92bd65c6c825f873828e153839370ca46e9a58300b97bba49bc604
+T006c:
+  c: false
+  h: 9ed0dd0448af1ca2489c309ea5f69bd7049f9fe01bfada29dc5b139f947bfde0
+  r: The task requires implementing `update_state_checksum` in `code/main.py` to store
+    the computed hash under `artifact_hashes.data_loader` in the state YAML, but no
+    function named `update_state_checksum` exists anywhere in `code/main.py` (or the
+    other modules), and the target state file `state/projects/PROJ-052-leveraging-llms-for-automated-test-case-.yaml`
+    is MISSING on disk. The only related code is `record_checksum` in `data_loader.py`,
+    and `ensure_data_loaded_and_integrity_recorded()` in `data_loader.py` is an empty
+    `pass` stub, so no checksum is ever computed or written.
+  sig: 68bd6742bd6b6879ee3f440bf3335f8575202632f1ab0b46f66eb5cab4f07466
 T024:
   c: false
   h: f8556fdffc29ebf40261ffd9d800605cdbd22b701522d54f766431c375217768
@@ -76,6 +97,17 @@ T028b:
     the required `data/coverage_metrics.csv` file is missing entirely. Both the function
     implementation and the target CSV file are absent, so the task requirements are
     not met.
+T048:
+  c: false
+  h: 321eec8030b63f5b75861a36354fdb22a4b1064c1ba33b01369263d31f0be8e2
+  r: "`validate_manual_baseline_existence` in `code/data_loader.py` is an explicit\
+    \ stub \u2014 its docstring says \"This function is a placeholder\" and it unconditionally\
+    \ `return True` without ever querying the `manual_test_method` field. The integration\
+    \ requirement (main.py loop skipping samples returning `False`) is not implemented,\
+    \ and `data/exclusion_log.json` contains no `missing_manual_baseline` key or per-bug_id\
+    \ exclusion entries \u2014 only a pre-existing summary with no evidence it was\
+    \ produced by this logic."
+  sig: af8459d62568af743ae4df21b6b89ec49c7fa455a58c377db0a47313712ccb72
 T051:
   c: false
   h: 56a5408221dfdb7080a5da19fda0e903bef3438805f51873b0445985a364ef55

@@ -1,16 +1,17 @@
 status: none
-intent: Defects4J bug fix descriptions parquet download via HuggingFace datasets python
-  package dataset
+intent: Defects4J dataset download python package HuggingFace Datasets python package
+  dataset
 required_fields:
 - bug_id
 - project_name
-- commit_hash
 - bug_fix_description
-- source_file_path
-- affected_class
-- method_name
-- original_test_cases
+- commit_hash
+- buggy_file_path
+- fixed_file_path
+- buggy_source_code
+- fixed_source_code
+- existing_junit_test_files
 - metadata_timestamp
-cache_key: 3aabc10e2b2238c3ed98326abd9f0b868a57a13435dd8c7b1f8a81c37cc75259
-searched_at: '2026-10-09T03:24:23.799646+00:00'
+cache_key: 8c46e8326fc9047115920a35c910581eafcd93e91508ed7e2cd81f9fc8e1b8da
+searched_at: '2026-10-09T18:37:42.702294+00:00'
 retry_count: 1

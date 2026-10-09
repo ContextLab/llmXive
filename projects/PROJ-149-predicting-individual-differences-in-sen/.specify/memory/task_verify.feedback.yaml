@@ -1,0 +1,132 @@
+T001a:
+  reason: "The evidence shows `code/`, `tests/`, `data/interim/`, `data/processed/`,\
+    \ and `code/utils/` directories exist, but the required `data/raw/` directory\
+    \ is missing. The task\u2019s core requirement\u2014to create the full project\
+    \ directory structure including `data/raw/`\u2014is therefore not satisfied."
+  task: 6141f151e64e9a27559b48b8ebf498e0438bcb8ef12d49800231e14fb06ed469
+T001b:
+  reason: The `code/requirements.txt` file is present, but it does not contain **pinned**
+    version specifications (it uses `>=` ranges) and includes many extra packages
+    beyond the nine listed in the task. The requirement to list exact version numbers
+    for the specified libraries is therefore not satisfied.
+  task: 5fcc8980716e950650d07cfe08d9ec9ccb2ce054f0c59838089726d3cb6563b9
+T003:
+  reason: "The evidence contains no linting or formatting configuration files (e.g.,\u202F\
+    `.flake8`, `pyproject.toml` with Black settings, or a pre\u2011commit hook) and\
+    \ no documentation showing that flake8/black have been set up and run. These required\
+    \ artifacts are missing, so the task is not satisfied."
+  task: 0fe82b645daed432768c998162a18b4427a373840e6de648453d87eae6acec6b
+T004a:
+  reason: "The provided `code/config.py` defines the required constants (EPSILON,\
+    \ OVERLAP\u202F=\u202F0.5, WINDOW_SIZE\u202F=\u202F4), band definitions, ICA parameters,\
+    \ and path helpers, but it contains no code to accept `--overlap` (or `--window-size`)\
+    \ command\u2011line arguments and adjust the configuration at runtime. Without\
+    \ a CLI parsing mechanism or documented override interface, the file does not\
+    \ meet the mandatory \u201Csupport `--overlap` override\u201D (and optional `--window-size`\
+    \ override) requirement. Adding argparse handling (or equivalent) that updates\
+    \ the OVERLAP and WINDOW_SIZE values based on supplied flags is needed."
+  task: 514ea8f6af3484de4cf5a69f0501c2ca5368331bf0ec85940d1a7e945c4e5f08
+T004b:
+  task: 48725b3a2ebb58d769eac9e6326431cdbd3af7a3934981a2239605134ad943c8
+T005:
+  task: 8f807385d70d9e04ad51150f57f400b5046caad362984ac88468a8850092fb5d
+T006:
+  task: 7db71efb178f26e579a9f501ea4bb8e986a7cedb090021703dad0f99e75fc347
+T007a:
+  task: f44117317c4973e00f09b93c973972dbd3b31fb31f78b0fca6af00dbc4433dd8
+T007b:
+  task: 94c1ba080424441d5258de36734b3a675903a2c712672c06358718f94c51b78a
+T008-report-gate:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/feasibility_report.md,
+    data/interim/halt_signal.json'
+  task: d6c28ff7294ef153eb446ee4647892945b6f308f5f63bdafc9e8e87ee5fd0954
+T008a:
+  task: 3d437dcb0d499be866bdbd4d2d0a1aba5d5d36a0a0a38ead1fab8aa29a97ae15
+T008b:
+  task: dfaf1e2e4a7d6b4ce60b273ae112b01994d5e056d8242047152c341c385481ea
+T008d:
+  task: 55b63897073849d9306faac74b6c8feb78dcb838bbc484232f4db36f940ef8e8
+T010:
+  task: 2f97bcf8b45f98d592239d5733da8ee8b2b41a36d8d678d7240760369761c784
+T012a:
+  task: a98a57709bc3c57990827a6502b420e5b3980e2631da92c7919165b95a9123db
+T012b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/04b_aggregate_bands.py,
+    data/interim/psd_spectra.npy, data/interim/band_powers.csv'
+  task: 0aca9cceaf10dc0df4cc882ca73a129ff5e35d31140f4b684e6e9f8e2933bd31
+T012c:
+  task: eec36a0fb9afefa11f8e65105e856577cb8efad8ecf5287d45522e7908413360
+T013:
+  task: 90b15f3b8d4828531227d2e6e2b827ddb5dcdf50cd10427b807c99559fcd5ec1
+T017:
+  task: a4f2be2cd98caf55b1decfaf0edecf5bb1ba8115ea7bb391f7444a97b2fe67b3
+T020:
+  task: ffad741bc93e049c3c290dac37d9bc6ee569621df83e908e2e93941c1dec37fb
+T021:
+  task: dc71acdb76b60562817c67784611dad1e6fe9d46fb11f16787a87bff1147ffc7
+T022:
+  task: d7a51bf9ffd72b1469ca84ed197011ab598ef5ec71246555dcc33298717c652b
+T023:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/model_results.json'
+  task: 0f250781283bbb5fe56a5df80421cfb6492661b82bd10ce03a1d756e87ba1af5
+T024a:
+  task: ef7f1a87c9d208e1fca0248b871d6c28f53d44b376455ba82441d7544df04e78
+T024b:
+  task: 7392352327e84805e7b99beb64c5c4e7b1bcd556f1f96eb19f857fb152c7ddd4
+T024c:
+  task: d1afd4a174035d6bc9aa8e58d2cdd3d90fa15ce5e7ad11b2ac7d8098a9467082
+T025a-config:
+  reason: 'declared artifact(s) missing/empty/invalid: data/interim/robustness_window_params.json'
+  task: 749ed22de212b722b33945563ca266c14f02762c0e5189a88a3d8e6b187315b3
+T025a-run:
+  task: a0c55db9927d619945d2e150a34d723f927bbf177f25fd5f40953344994a904e
+T025a-verify:
+  reason: 'declared artifact(s) missing/empty/invalid: data/interim/robustness_window_eeg/,
+    data/interim/robustness_window_exclusion_log.csv'
+  task: 86c1c3a37790604df6246a769eb563f309ecbc7e2857a0581d126b4fa023d7be
+T025b:
+  task: 8f9482f8374c924158fe19ab723147bcf53652e4f8a862831a8e93dc59b519cb
+T025c:
+  task: 5e814923b3255ea3d183f9cf8721c5c3c6a4f82ef0b5447e853dd0033999eb0a
+T025d:
+  task: 0b30c3491148c2a8c1f3d62f82f8b8141ad5d5dcec8ff1800824c4ef16b9fc44
+T025e:
+  task: 37f708080798fd20dc053f029e35906732b608f45807c3cc66f5dbf9f7ca591d
+T025f-config:
+  reason: 'declared artifact(s) missing/empty/invalid: data/interim/robustness_ica_params.json'
+  task: 5ce2718791aaf9add60b802f5e5d19c997d299f22a22eb09bff95d73da1e557e
+T025f-run:
+  task: 3eafd2f3ab0b71a7a9663fd93bf83c312a69ca78719ea86f34aac9a7a9c40aaa
+T025g:
+  task: a451cc6b3d7f254fc61d6c0bca9ed7e258a24d1441f92b717aece006724fa6c6
+T026:
+  task: ada55b23cb76ea3d3b5023d044624eae187bc57af929bb8471244a74c5d61abf
+T031a:
+  task: cfc037788d77a12a2e410519fd3deb18455bc2d5a6698cd28001a8446353e4f1
+T031b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/11b_format_tables.py'
+  task: 80127b61660be646a86bdcfc78b614b8ec554f42471eb9abc8176bf03befd5e6
+T031c:
+  task: a9bee53f454b0a20e76cf0f736520dd22496b3d183b49acb5b9b460fe6988ece
+T032:
+  task: caca2d4f1967e6a2bdbeeb94ed62dd3e33008c068604a072e04c87ca38ef479c
+T034:
+  task: 73c975031ec748917e8251dd424f599f3656c1a9345f0955fbb2bf37d44d13d1
+T035a:
+  task: 85f318a65cff2a1cf7d5bc1d4a63701254bacb033650b6f01ef74fc90a4cb589
+T035b:
+  task: 615dd18f4c67f50d538ddd55d4f9c5216bbc5e3accb152d3bc6048978f09cb51
+T036a:
+  task: 1710937ed37a19c17da3a654d4940c3b403814a71d31354e2eee99fa9b75b336
+T037a:
+  task: 2c160960ffc94f432203b62206d23a0b10039f1ff7e02acd211119d9674aaefc
+T037b:
+  task: 50dc012776608daaf39bd27eabae24f80a684ab2654415b3276667b9c91ffd0d
+T038:
+  task: 400c5cdd6167596c3752d9978122df2871801573e68b4888fd7122897ad0380f
+T039:
+  task: f3e34fe4d367a6e9653137ee86df9938631a5f316bb4000c640862e95c2ac45b
+T041:
+  reason: 'declared artifact(s) missing/empty/invalid: code/09_robustness_preprocess_window.py,
+    code/09_robustness_preprocess_ica.py'
+  task: 9f206a79a31e0664a32922d2a5795909a2e0cf81ff9cba6d136a1258000f88cd

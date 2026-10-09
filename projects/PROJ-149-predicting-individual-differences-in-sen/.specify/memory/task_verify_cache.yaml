@@ -1,3 +1,56 @@
+T001a:
+  c: false
+  h: c0b53a79fae9edc4e9438a5b5ee1b94b119ce9b6a3927bd5a58ef7e561fe7bf0
+  r: "The evidence shows `code/`, `tests/`, `data/interim/`, `data/processed/`, and\
+    \ `code/utils/` directories exist, but the required `data/raw/` directory is missing.\
+    \ The task\u2019s core requirement\u2014to create the full project directory structure\
+    \ including `data/raw/`\u2014is therefore not satisfied."
+  sig: 265a2a7cd6decf74deef76ecf26ece75de0e96bb1678c17f34ed1d01a016f771
+T001b:
+  c: false
+  h: 2f78193718b3afff3104c1ad1e186505e0b2dba481ed3a16f2ff684886c4dc94
+  r: The `code/requirements.txt` file is present, but it does not contain **pinned**
+    version specifications (it uses `>=` ranges) and includes many extra packages
+    beyond the nine listed in the task. The requirement to list exact version numbers
+    for the specified libraries is therefore not satisfied.
+  sig: 18bc352450122163a8fcea857a2e8fdc61a15a8d0e6a05208a63f89a3e64f0c9
+T003:
+  c: false
+  h: 42c733d63544526df6ba20c13701670e9126bc1ebc8bd758defeb4f9b8285c1d
+  r: "The evidence contains no linting or formatting configuration files (e.g.,\u202F\
+    `.flake8`, `pyproject.toml` with Black settings, or a pre\u2011commit hook) and\
+    \ no documentation showing that flake8/black have been set up and run. These required\
+    \ artifacts are missing, so the task is not satisfied."
+  sig: bbc75cf087f489f995d4b020d96e905b2630de841c2358137719ed6b72cfe2f1
+T004a:
+  c: false
+  h: 10ea59e6b9572577ed00209dc91a54cfe14ca4990595c182a3afc580aa045adc
+  r: "The provided `code/config.py` defines the required constants (EPSILON, OVERLAP\u202F\
+    =\u202F0.5, WINDOW_SIZE\u202F=\u202F4), band definitions, ICA parameters, and\
+    \ path helpers, but it contains no code to accept `--overlap` (or `--window-size`)\
+    \ command\u2011line arguments and adjust the configuration at runtime. Without\
+    \ a CLI parsing mechanism or documented override interface, the file does not\
+    \ meet the mandatory \u201Csupport `--overlap` override\u201D (and optional `--window-size`\
+    \ override) requirement. Adding argparse handling (or equivalent) that updates\
+    \ the OVERLAP and WINDOW_SIZE values based on supplied flags is needed."
+  sig: d29122b0aa014bcd096531942890f6e4db4b728bb89aceae35d83a90f76e95e2
+T004b:
+  c: true
+  h: 66180b0525695b573fec2e171149959677fb9acc256ebbfde4b31ff52f1c58b6
+  r: "Checked `code/config.py` (9233\u202Fbytes) which defines `_validate_numeric`,\
+    \ `validate_config`, and invokes `validate_config()` at import time, raising errors\
+    \ for out\u2011of\u2011range or wrong\u2011type settings. This implements the\
+    \ required configuration validation logic."
+  sig: 82c74ed6042ebc01c968d39f54ce54a95fb17c3d6a78d638f7199584877ae5c5
+T005:
+  c: true
+  h: 3cd8f2f41c05c1cd59df30162ec0d2847af7a4d3ea6f98781836dcd20edca975
+  r: "Checked `code/utils/eeg_helpers.py` (3233\u202Fbytes) which defines a band\u2011\
+    pass filter (`bandpass_filter` with low\u2011frequency cutoff), a generic notch\
+    \ filter (`notch_filter` usable for 50/60\u202FHz), and variance\u2011based channel\
+    \ rejection utilities (`reject_high_variance_channels` and `reject_channels_by_variance`).\
+    \ The file is non\u2011empty and implements the required functionality."
+  sig: ac4ee90707bfefca1f132363b906b2e27e813c8281d6283e9033edc1a6268e43
 T010:
   c: false
   h: dd3ef973364ee1e0970904278148c940d57399af69e374ffc8f2b7edf3aa301c
