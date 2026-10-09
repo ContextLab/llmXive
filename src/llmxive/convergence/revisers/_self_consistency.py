@@ -183,10 +183,13 @@ def invoke_reviser_backend(reviser: Any, messages: list[ChatMessage]) -> str:
     else:
         messages.insert(0, ChatMessage(role="system", content=contract))
     model = getattr(reviser, "_model", None)
+    exclusions = getattr(reviser, "_revision_excluded_models", frozenset())
     response = reasoning_chat(
         reviser._backend, messages, model=model,
         max_tokens=GENERATION_MAX_TOKENS,
+        **({"excluded_models": exclusions} if exclusions else {}),
     )
+    reviser._last_revision_model = getattr(response, "model", None)
     return getattr(response, "text", "") or ""
 
 

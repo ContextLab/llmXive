@@ -186,8 +186,12 @@ def chat_with_model_fallback(
     model: str | None,
     max_tokens: int | None = None,
     temperature: float | None = None,
+    excluded_models: frozenset[str] = frozenset(),
 ) -> ChatResponse:
     """Peer-model fallback on a SINGLE, already-constructed backend instance.
+
+    ``excluded_models`` omits request-local rejected producers without changing
+    the configured chain or the backend circuit breaker.
 
     Tries ``model`` (3 retries) then each peer in ``MODEL_FALLBACKS[model]`` (1
     attempt each) on the GIVEN backend — the same SAME-BACKEND peer-model walk
@@ -218,6 +222,8 @@ def chat_with_model_fallback(
     callers talking to a REAL backend must pin a model — see
     :data:`DEFAULT_MODEL`).
     """
+    # Exclusions are local to this request (e.g. a malformed revision retry);
+    # they never trip a transport breaker or change the configured defaults.
     import time as _time
 
     msg_list = list(messages)
@@ -227,11 +233,12 @@ def chat_with_model_fallback(
             max_tokens=max_tokens, temperature=temperature,
         )
     models_to_try = [model] + [m for m in MODEL_FALLBACKS.get(model, []) if m != model]
+    models_to_try = [m for m in models_to_try if m not in excluded_models]
     errors: list[str] = []
     saw_unavailable = False
     saw_transient = False
-    for model_idx, m in enumerate(models_to_try):
-        attempts = 3 if model_idx == 0 else 1
+    for m in models_to_try:
+        attempts = 3 if m == model else 1
         for attempt in range(attempts):
             if attempt:
                 _time.sleep(2.0 * attempt)
@@ -270,7 +277,7 @@ def chat_with_model_fallback(
                 # — NOT a model-down signal. On the primary this won't heal by
                 # walking peers, so abort. On a peer, end this model's attempts.
                 errors.append(f"{m}(permanent): {exc}")
-                if model_idx == 0:
+                if m == model:
                     raise
                 break
     detail = (
@@ -309,6 +316,7 @@ def reasoning_chat(
     model: str | None = None,
     max_tokens: int | None = None,
     temperature: float | None = None,
+    excluded_models: frozenset[str] = frozenset(),
 ) -> ChatResponse:
     """THE single entry point for a reasoning/analysis LLM call on a GIVEN backend.
 
@@ -333,6 +341,7 @@ def reasoning_chat(
         model=model,
         max_tokens=REASONING_MAX_TOKENS if max_tokens is None else max_tokens,
         temperature=temperature,
+        excluded_models=excluded_models,
     )
 
 

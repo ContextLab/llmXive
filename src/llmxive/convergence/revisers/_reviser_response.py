@@ -526,7 +526,7 @@ def is_malformed_reply_error(exc: BaseException) -> bool:
     return "no usable" in msg or "parseable" in msg
 
 
-def run_pass_with_artifact_retry(run_pass, *, reviser_name: str):
+def run_pass_with_artifact_retry(run_pass, *, reviser_name: str, reviser=None):
     """Call ``run_pass()``; on the zero-artifact RuntimeError, make ONE
     corrective re-pass with :data:`MISSING_ARTIFACTS_REPROMPT` appended to
     the prompt (every doc reviser exposes the ``extra_instructions`` hook).
@@ -547,6 +547,30 @@ def run_pass_with_artifact_retry(run_pass, *, reviser_name: str):
             "%s: reply unusable (%s) — corrective re-pass", reviser_name,
             str(exc)[:120],
         )
+        # A successful HTTP call can still produce an unusable document. Use
+        # the actual producer, not the requested primary (which may be down).
+        # Spend the existing single corrective attempt on a different FREE peer.
+        # Keep the ordinary retry for unknown/injected or explicitly paid models.
+        from llmxive.backends.dartmouth import KNOWN_FREE_MODELS
+        from llmxive.backends.router import MODEL_FALLBACKS
+
+        primary = getattr(reviser, "_model", None)
+        producer = getattr(reviser, "_last_revision_model", None)
+        chain = [primary, *MODEL_FALLBACKS.get(primary, [])]
+        previous = getattr(reviser, "_revision_excluded_models", frozenset())
+        candidates = (set(chain) & KNOWN_FREE_MODELS) - {producer} - set(previous)
+        if primary in KNOWN_FREE_MODELS and producer in KNOWN_FREE_MODELS and candidates:
+            reviser._revision_excluded_models = frozenset(
+                set(previous) | {producer} | (set(chain) - KNOWN_FREE_MODELS)
+            )
+            logging.getLogger(__name__).warning(
+                "%s: corrective revision excludes unusable producer %s; free peers only",
+                reviser_name, producer,
+            )
+            try:
+                return run_pass(MISSING_ARTIFACTS_REPROMPT)
+            finally:
+                reviser._revision_excluded_models = previous
         return run_pass(MISSING_ARTIFACTS_REPROMPT)
 
 __all__ = [
