@@ -1,11 +1,46 @@
-T003:
+T002:
   c: true
-  h: 28c348a6ea46f4325431932482a9f272efeb1e924b0243b014de1d3147dcd72f
-  r: The provided `pyproject.toml` contains both a `[tool.black]` section with `line-length
-    = 88` and a `[tool.ruff]` section with `select = ['E', 'F', 'W']`, fulfilling
-    the requirement to consolidate linting/formatting configuration into a single
-    file. The missing separate `ruff.toml` is expected, as the task specifies it should
-    be replaced.
+  h: 3f37ab9f01829f3c6774bad255edd6a0208fee76189eb06c6de01df7d6ee5b3a
+  r: "The `requirements.txt` file is present, non\u2011empty, and lists all required\
+    \ packages with the specified version pins (and includes the un\u2011pinned packages).\
+    \ No required entry is missing."
+T003:
+  c: false
+  h: 06b29c5ec85e3b9e9d1b3d24ca1f0f6f8654ae0e53e75dd980e2e5e6eede6af8
+  r: The `pyproject.toml` correctly defines `[tool.black]` with `line-length = 88`
+    and `[tool.ruff]` with `select = ['E', 'F', 'W']`, but a separate `.ruff.toml`
+    file is still present, contradicting the requirement that the single `pyproject.toml`
+    replace any standalone Ruff (or Black) configuration files. The extra `.ruff.toml`
+    must be removed for the task to be considered complete.
+T005:
+  c: true
+  h: 8a65ec9140e6bc6fced945fa85506f6dbf74c727a370ce5900d33c4727254265
+  r: "The `src/utils/logging.py` file exists, contains a full implementation with\
+    \ a JSON formatter, and the `setup_logging` function adds a stdout handler and,\
+    \ when a log file path is supplied (as done in `init_default_logger`), also adds\
+    \ a file handler. This matches the task\u2019s requirement for a basic JSON\u2011\
+    formatted logging utility that logs to both file and stdout."
+T006:
+  c: true
+  h: 1dc9d38715b91a7f9c8165dd8885c37cb9eac3b5be7c8130af339f0bd0ef546b
+  r: "The provided `src/data_models.py` exists, is non\u2011empty, and defines the\
+    \ two required Pydantic models with all specified fields (`EditInstance` with\
+    \ the five fields, `ScoreRecord` with the six fields). The models correctly inherit\
+    \ from `BaseModel`, meeting the task\u2019s specification."
+T006b:
+  c: false
+  h: 9c7fd603503a143a60621839b90c8c809b35517863ba591212d09daa34c2cf8e
+  r: The `RegressionResult` class is present, but the fields `fdr_corrected_p_logic`
+    and `fdr_corrected_p_fidelity` are defined as mandatory `float` types, not `Optional[float]`
+    as the task specifies. This prevents instantiation without those values, violating
+    the requirement. The model must be updated to make those two fields optional.
+T007:
+  c: true
+  h: 685c17b6efb85879c81076d55a2d64d735b042a574808c32b038ec885eba1319
+  r: "The `contracts/score-record.schema.yaml` file is present (1085\u202Fbytes) and\
+    \ contains a well\u2011formed YAML document defining a JSON Schema for `ScoreRecord`\
+    \ with required fields and property specifications, satisfying the task\u2019\
+    s existence and syntax checks."
 T014:
   c: false
   h: 0a1ef335411aa8d8d1ccfc91c8c85bb0d067a3d3220bd47e87a66d609559243f

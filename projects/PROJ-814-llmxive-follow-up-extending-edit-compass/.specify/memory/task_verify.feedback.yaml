@@ -1,0 +1,118 @@
+T002:
+  task: f8eafd4473ab58e2307508fe37b4483b36410f1e0c70a0e1bd958306c938494d
+T003:
+  reason: The `pyproject.toml` correctly defines `[tool.black]` with `line-length
+    = 88` and `[tool.ruff]` with `select = ['E', 'F', 'W']`, but a separate `.ruff.toml`
+    file is still present, contradicting the requirement that the single `pyproject.toml`
+    replace any standalone Ruff (or Black) configuration files. The extra `.ruff.toml`
+    must be removed for the task to be considered complete.
+  task: 93e6819c1c71456a2d821d57a8e431d2691361ca73ec3f858294ad13f3c27b93
+T005:
+  task: 5ffa69e198a941b202656decbc33a691ce5ba124a7cc611172c4c55133d5a689
+T006:
+  task: fa707f5a259783e7c14a841f3e6414d14919e4220dec9a3d813a424a1ae44dac
+T006b:
+  reason: The `RegressionResult` class is present, but the fields `fdr_corrected_p_logic`
+    and `fdr_corrected_p_fidelity` are defined as mandatory `float` types, not `Optional[float]`
+    as the task specifies. This prevents instantiation without those values, violating
+    the requirement. The model must be updated to make those two fields optional.
+  task: 5ed779bc2ce6451106af56f376888fb1a32ee484205ca23bbf0bd88ba3830e55
+T007:
+  task: b66f6b6da110f725d270083d81574d26c9bd78366f76f408e5b07269ef91cb3d
+T007a:
+  task: 46734a2094d7d0407384ad135936f15ea73290df3634dbba6ace968fd1d63966
+T008:
+  task: efdeac6ec4ab2961f106551df79da4e5aaee9b0e2a969e9d9f05fb2ca120c4cb
+T008a:
+  task: 8d674619a4535961abcfa396046362dc26794dc235ca75f2b869170c76a1f02c
+T009:
+  task: 4ee3383eabea8d4ed82b7eb736cd635195204beb0c2e60b84048ce620f8fad2a
+T009a-1:
+  task: 8a3d6c7b288c0b609362ef4a75592888e303f3fe5bc710a7fdd8fc4be9292a95
+T009a-2:
+  task: 3a6b536b2f71399eb96b4b411f55ecbfea6f39b9d65f9ffe9551d2928498e0a8
+T010a:
+  task: 76f38ca93bb16235c43e97d18269e263e6eef3f737f69281fae1ff907cb5c612
+T010b:
+  task: 65568356eb09fa7f1c52409fd41979769d5a732ae34bef8094d0300fcf89592b
+T011:
+  task: 6bfc68545ffdb058efc2e5525534ce57794825670fc61d455cc626a3c46b0cd5
+T012:
+  task: 89393fcc5b0fd24c25f0c24620fdfd2826741b133455348bc4b448d88a9a92df
+T012b:
+  task: e1d6d2ded4f036c54759d62a2e262dca13116d5b75701ffa5f0db2f135a091e3
+T014:
+  task: 9b2a73ee820bd33664d9a8490a02cf67b018b1831543fa805801d6bb575d3d92
+T015a-1:
+  task: 04992ab6b8f2f19837a85741409cc561b3cf2d1961612af0faebd8a61829b174
+T015a-2:
+  task: d38aa1dbc9711aa81834eb9df2e5dd2ece44fe64b3b317bb0a7d346447c3708e
+T016:
+  task: bfa59db6b053dbd12b9254e82c59d6636c440d262d11ceceb3bb6960e24f3c76
+T016b:
+  task: b2571967eaea5ac40a7b11b616df0e54095041df3be786d000afb09628a8be05
+T017:
+  task: 1a165d0b9b522015ce78ac9d63f4b8086960576281b6e80ad968aafc398a055d
+T021:
+  task: 9322f62dfbd4eaa6b113932da81e5e23edb7772fe83f3d26c91e2d3709dbf47d
+T022:
+  task: 96f1c370f4bb031173fd8239e31823bf0ab29ad5908e803eb6d0903fcb72034f
+T023:
+  task: ea84010d121b52a7ce4cb0f39d8f25d779a44e30844d88f2f60340381f91b964
+T023b:
+  task: c9d60dfb738f2232ffc9086e857c39bf9f7a6a4400cb46035a0d24204dab0321
+T024:
+  task: a19be94a7278d5b1b9a1af755138fee339f4063c15f2a9b58134ff8d839bb3b7
+T024a:
+  task: 5eb2a8274bde36395ff9118423cf9c19ede7a6adaaff4c0500aeb34117c24e5e
+T025:
+  task: 4f4284734dc6295152915b51700bc9918b1ddc819f2572316f4ea8fa1648e6f1
+T026:
+  task: bafbf7d5faf3674e5776c476c43009cef2338832df10091f88871ab512c3e33f
+T028a:
+  task: 19c1222ebb7ab52d6623a815928534fa536a8eed21e17f98aea57dbf2b6d58bd
+T028b:
+  task: 3fef3e2419e6b5d57530654b03bc4efd8728738f0813bb2fcda0efa69f7093bf
+T029:
+  reason: 'declared artifact(s) missing/empty/invalid: outputs/regression_report.md,
+    outputs/correlation_diff_test.json'
+  task: 8fd8309577a55eec4d8b6985b74312fd3c0380e292e4bc0941ee9c23ef4e4268
+T029b:
+  task: 6764377c6b4ae10f6c772b0c604211a464fcb2240cc41ab2c8826c2e1407b741
+T030:
+  task: bb8ef52d43e19ff1f6740f2c07e680ae7260a75a52898851e1b14b5eeae13f39
+T031:
+  task: e3eac428e06da2b4834e8735ce29387cd09900c942e5ff0f2d1cb260fb26edd3
+T032:
+  reason: 'declared artifact(s) missing/empty/invalid: outputs/memory_profile.log'
+  task: db9404bc73bacb8966f58a838a28090d3d8d25d4eebc0abd5c5affb70ba6734f
+T033:
+  task: 054fe296aa257281f5d20d657429feafe65fdd1080f6949eac57cf2ae058b381
+T034:
+  task: 9670a1d8bf772e55b2c2c7a3aaf3064f60dc688fbb752d47ec53ad4f6e470bd1
+T035:
+  task: 4828410dbbea5459f5adfe68ec97a9b1acc5eacec560898b994cd4dde5afb85b
+T036:
+  task: 9b0b96e2b5d991ff8b5dd13976d2c52bbb6d5acdb5aa3b45a4fff45300859218
+T037:
+  task: 7c784b0458fbc37cbc0b43c54c1d0d6ad97d0a881d2afd627e8d31cc3c46f953
+T038:
+  task: 2665b7f573e5d1331cdad3fa00f63b89f5be6ef0004f667b2bd5050f66a2af11
+T039:
+  task: 777b465c00b6a5499d815241085f89ccc8a11504f449cc32f1a3425094f39cef
+T040:
+  task: e82e7b67e3bd0b4aed6c25da283b20c052ddb00563fd4ef2d1225f06f465ba58
+T041:
+  task: 910c0be23097d713673791ed3acad1d4a5d673ec6c132ceaa893f803b153cb52
+T042:
+  reason: 'Requested task execution failed; rerun successfully: code/scripts/generate_methodology_report.py
+    exit=-1'
+  task: d7db6b0d8c2d5d6bc66f51b0b93718c34a502e90ebb33da6afedfc858fc54bc2
+T043:
+  task: 1ca34c714564a42ba231d8c8f83336bdd009f1f16aaee76e841b47a8a5cf2e2c
+T044:
+  task: b7f2d60c47fddce970e099724adccd9e8ead3ca2ca2441c6e0daa0e97022f470
+T045:
+  task: aab559f47b86665d8813def9d1e4a5f239e3525e93faa208ff8247f5090b084a
+T046:
+  task: f98c6d834e20178f9d73957af796733f5208cab03a711789b269e40608290ca2

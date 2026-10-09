@@ -9,7 +9,7 @@
   verification_status: mismatch
   verified_against_url: https://github.com/yourorg/llmxive-followup
   verified_at: '2026-07-12T06:44:36.917216Z'
-- artifact_hash: a88fdcb87d38b564c67bc15bef29c7d704765aaa843923f6dab4329f13868462
+- artifact_hash: 61c788f7ba5cea57c6650587e5d06f8ddad620989b80cc50fa097ac7e3a93667
   artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -19,8 +19,8 @@
   value: https://huggingface.co/datasets/HuggingFaceH4/edit-compass`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/HuggingFaceH4/edit-compass
-  verified_at: '2026-08-12T05:19:07.641622Z'
-- artifact_hash: a88fdcb87d38b564c67bc15bef29c7d704765aaa843923f6dab4329f13868462
+  verified_at: '2026-10-09T10:16:26.666710Z'
+- artifact_hash: 61c788f7ba5cea57c6650587e5d06f8ddad620989b80cc50fa097ac7e3a93667
   artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -30,8 +30,8 @@
   value: https://huggingface.co/datasets/HuggingFaceH4/edit-compass
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/HuggingFaceH4/edit-compass
-  verified_at: '2026-08-12T05:19:07.641622Z'
-- artifact_hash: a88fdcb87d38b564c67bc15bef29c7d704765aaa843923f6dab4329f13868462
+  verified_at: '2026-10-09T10:16:26.666710Z'
+- artifact_hash: 61c788f7ba5cea57c6650587e5d06f8ddad620989b80cc50fa097ac7e3a93667
   artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -41,8 +41,8 @@
   value: https://huggingface.co/TheBloke/Phi-mini-4k-instruct-GGUF`
   verification_status: pending
   verified_against_url: https://huggingface.co/TheBloke/Phi-mini-4k-instruct-GGUF
-  verified_at: '2026-08-12T05:19:07.641622Z'
-- artifact_hash: a88fdcb87d38b564c67bc15bef29c7d704765aaa843923f6dab4329f13868462
+  verified_at: '2026-10-09T10:16:26.666710Z'
+- artifact_hash: 61c788f7ba5cea57c6650587e5d06f8ddad620989b80cc50fa097ac7e3a93667
   artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
   cite_id: c-004
   cited_authors: []
@@ -52,4 +52,4 @@
   value: '1706.08250'
   verification_status: unreachable
   verified_against_url: null
-  verified_at: '2026-08-12T05:19:07.641622Z'
+  verified_at: '2026-10-09T10:16:26.666710Z'
