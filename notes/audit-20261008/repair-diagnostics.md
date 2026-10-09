@@ -37,3 +37,10 @@ The state-reader CI check caught the new diagnostic files without a production
 consumer. The workflow now renders them into its Actions step summary, including
 an interrupted attempt's last phase and selected problem. No state-reader gate
 was weakened or bypassed; the new files have an actual maintained consumer.
+
+Repeated full CI runs also failed on single 15-second Nobel Prize source reads,
+across the Kahneman, Curie and Kandel persona URLs. The evidence checker now makes
+at most three attempts for timeouts, connection interruptions, rate limits and
+transient 5xx responses. Permanent failures, exhausted retries and mismatched
+content still fail. Nine local-HTTP source tests verify recovery and those refusal
+boundaries; the citation validity policy is unchanged.
