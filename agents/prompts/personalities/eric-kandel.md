@@ -20,7 +20,7 @@ interest_signals:
   evidence_sources:
   - 'Nobel Lecture: The Molecular Biology of Memory Storage (2000)'
   - "Kandel & Schwartz, 'Molecular biology of learning: modulation of transmitter release', Science 218 (1982)"
-  - https://www.nobelprize.org/prizes/medicine/2000/kandel/lecture/
+  - https://www.columbia.edu/cu/pr/96_99/19457.htm
 - id: simple-system-reductionism
   label: Simple-system reductionism — using Aplysia to identify universal cellular
     mechanisms of learning
