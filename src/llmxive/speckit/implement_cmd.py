@@ -642,6 +642,11 @@ def _find_unresolved_names(source: str, *, filename: str = "") -> set[str]:
     if filename == "__init__.py":
         bound.add("__path__")
 
+    def _target_names(target: ast.AST) -> set[str]:
+        """Names assigned by a binding target, excluding attribute bases."""
+        return {n.id for n in ast.walk(target)
+                if isinstance(n, ast.Name) and isinstance(n.ctx, ast.Store)}
+
     def _collect_bindings_in_module(node: ast.AST) -> None:
         for child in ast.walk(node):
             if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
@@ -657,6 +662,12 @@ def _find_unresolved_names(source: str, *, filename: str = "") -> set[str]:
                         bound.add("__star_import__")
                         continue
                     bound.add(alias.asname or alias.name)
+            elif isinstance(child, (ast.For, ast.AsyncFor)):
+                bound.update(_target_names(child.target))
+            elif isinstance(child, (ast.With, ast.AsyncWith)):
+                for item in child.items:
+                    if item.optional_vars is not None:
+                        bound.update(_target_names(item.optional_vars))
             elif isinstance(child, ast.Assign):
                 for target in child.targets:
                     for n in ast.walk(target):
@@ -683,6 +694,37 @@ def _find_unresolved_names(source: str, *, filename: str = "") -> set[str]:
         if imported lazily). DOES descend into decorators, default
         values, and base classes — those execute at module load.
         """
+
+        def __init__(self) -> None:
+            self.local_scopes: list[set[str]] = []
+
+        def visit_ExceptHandler(self, node: ast.ExceptHandler) -> None:
+            if node.type is not None:
+                self.visit(node.type)
+            self.local_scopes.append({node.name} if node.name else set())
+            for stmt in node.body:
+                self.visit(stmt)
+            self.local_scopes.pop()
+
+        def _visit_comprehension(self, node: ast.AST) -> None:
+            self.local_scopes.append(set())
+            for generator in node.generators:
+                # The iterable executes before this target is bound.
+                self.visit(generator.iter)
+                self.local_scopes[-1].update(_target_names(generator.target))
+                for condition in generator.ifs:
+                    self.visit(condition)
+            if isinstance(node, ast.DictComp):
+                self.visit(node.key)
+                self.visit(node.value)
+            else:
+                self.visit(node.elt)
+            self.local_scopes.pop()
+
+        visit_ListComp = _visit_comprehension
+        visit_SetComp = _visit_comprehension
+        visit_DictComp = _visit_comprehension
+        visit_GeneratorExp = _visit_comprehension
 
         def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
             for d in node.decorator_list:
@@ -717,7 +759,9 @@ def _find_unresolved_names(source: str, *, filename: str = "") -> set[str]:
                     self.visit(stmt)
 
         def visit_Name(self, node: ast.Name) -> None:
-            if isinstance(node.ctx, ast.Load):
+            if isinstance(node.ctx, ast.Load) and not any(
+                node.id in scope for scope in self.local_scopes
+            ):
                 used.add(node.id)
 
     _ModuleLevelNameCollector().visit(tree)
