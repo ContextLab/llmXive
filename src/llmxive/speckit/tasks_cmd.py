@@ -201,8 +201,11 @@ class TaskerAgent(SlashCommandAgent):
             "without duplicating completed tasks. Group related pending work into "
             "8-15 substantive research tasks where possible; preserve every scientific "
             "requirement and include an early executable end-to-end result. "
-            "The output MUST contain at least "
-            "one line beginning with `- [ ] T###`."
+            "The output MUST contain at least five substantive canonical checkbox "
+            "task items beginning with `- [ ] T###`, each with a unique ID. "
+            "Do not use task tables or fenced examples in place of executable "
+            "checkbox items; retain every requirement and verification step in "
+            "the task item and its indented continuation lines."
         )
         user = "\n\n".join(user_parts)
         return [
@@ -232,13 +235,22 @@ class TaskerAgent(SlashCommandAgent):
         #      digits (T001, T012, etc.) per the format contract
         from llmxive.speckit._diff_guard import refuse_if_diff
         refuse_if_diff(text, artifact_kind="tasks.md")
-        from llmxive.speckit.task_lines import TASK_LINE_RE, mask_fenced_code, validate_open_tasks
+        from llmxive.speckit.task_lines import (
+            TASK_LINE_RE,
+            TaskFormatError,
+            mask_fenced_code,
+            validate_open_tasks,
+        )
         validate_open_tasks(text)
         task_id_lines = list(TASK_LINE_RE.finditer(mask_fenced_code(text)))
         if len(task_id_lines) < 5:
-            raise RuntimeError(
+            raise TaskFormatError(
                 f"Tasker produced only {len(task_id_lines)} task IDs "
-                f"(need >= 5; total chars: {len(text)}). Re-running on next cycle."
+                f"(need >= 5; total chars: {len(text)}). Regenerate the complete "
+                "tasks.md as canonical '- [ ] T### description' checkbox items, "
+                "not task tables or fenced examples. Preserve every scientific "
+                "requirement, path and verification step; do not add empty tasks "
+                "or discard requirements to satisfy the format."
             )
         # Defect #21: a re-task overwrites the existing tasks.md — capture it
         # so a guard refusal RESTORES it instead of leaving no file on disk.
