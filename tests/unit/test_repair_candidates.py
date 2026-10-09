@@ -123,6 +123,7 @@ def test_stale_candidate_and_existing_test_rewrite_rejected(tmp_path: Path):
     output.mkdir()
     result = {
         "status": "validated_candidate",
+        "safety_exit": 0,
         "review": {"accept": True},
         "base_files": {source: hashlib.sha256(b"old\n").hexdigest(), regression: None},
     }
@@ -141,3 +142,15 @@ def test_stale_candidate_and_existing_test_rewrite_rejected(tmp_path: Path):
     proposal["files"][related] = "weakened test"
     with pytest.raises(ValueError, match="cannot replace existing tests"):
         validate_proposal(proposal, tmp_path)
+
+
+@pytest.mark.parametrize('safety_exit', [None, 1, 2])
+def test_publication_refuses_missing_or_failed_fixed_safety_checks(tmp_path, safety_exit):
+    output=tmp_path/'output';output.mkdir()
+    result={'status':'validated_candidate','review':{'accept':True}}
+    if safety_exit is not None:
+        result['safety_exit']=safety_exit
+    (output/'result.json').write_text(json.dumps(result))
+    with pytest.raises(ValueError,match='fixed preservation'):
+        apply(tmp_path,output)
+    assert not (tmp_path/'src').exists()
