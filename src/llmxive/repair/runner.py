@@ -147,7 +147,9 @@ def select_evidence(repo: Path, source: str, *, project_id: str | None = None) -
         records.sort(
             key=lambda e: (e.get("consecutive_count", 0), e.get("last_seen", "")), reverse=True
         )
-        selected = records[:5]
+        # One original objective per bounded repair, including scheduled runs.
+        # Other records remain untouched in state/advance_errors for later runs.
+        selected = records[:1]
         for item in selected:
             item["filesystem_observations"] = observe_failure_paths(repo, item)
         return {"source": source, "failures": selected}

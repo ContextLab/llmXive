@@ -29,7 +29,7 @@ def test_exact_project_filter_preserves_record_and_observes_collision(tmp_path):
     assert observations[0]["kind"] == "file"
     assert observations[0]["content"] == "existing research bytes"
     assert [item["project_id"] for item in select_evidence(tmp_path, "errors")["failures"]] == [
-        "PROJ-two", "PROJ-one"]
+        "PROJ-two"]
     assert blocker.read_bytes() == b"existing research bytes"
 
 

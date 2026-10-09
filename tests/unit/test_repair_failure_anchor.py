@@ -112,6 +112,42 @@ def test_retry_diagnostics_cannot_replace_original_anchor():
     assert runner.original_failure_anchor(evidence) == anchor
 
 
+def test_default_scheduled_selection_ranks_one_original_error_and_reaches_model(tmp_path, monkeypatch):
+    errors = tmp_path/"state/advance_errors"
+    errors.mkdir(parents=True)
+    saved = {}
+    for project, count, date in [("PROJ-770-example", 107, "2026-10-09"),
+                                 ("PROJ-771-older", 107, "2026-10-08"),
+                                 ("PROJ-772-less-frequent", 1, "2026-10-10")]:
+        record = collision_evidence()["failures"][0]
+        record.update(project_id=project, consecutive_count=count, last_seen=date,
+                      status="retry_scheduled",
+                      last_error=f"[Errno 17] File exists: '/runner/projects/{project}/code'")
+        record.pop("filesystem_observations")  # supplied afresh by default selection
+        file = errors/(project+".json")
+        file.write_text(json.dumps(record))
+        saved[file] = file.read_bytes()
+        blocker = tmp_path/"projects"/project/"code"
+        blocker.parent.mkdir(parents=True)
+        blocker.write_bytes(b"current research bytes")
+    output = tmp_path/"output"
+    monkeypatch.setattr(sys, "argv", ["repair", "--repo", str(tmp_path), "--output", str(output)])
+    calls = []
+
+    def ask(prompt, **kwargs):
+        calls.append(prompt)
+        evidence = json.loads(prompt.split("\nEVIDENCE:\n")[1].split("\nFILES:\n")[0])
+        assert [f["project_id"] for f in evidence["failures"]] == ["PROJ-770-example"]
+        assert evidence["original_failure_anchor"]["project_relative_path"] == "code"
+        return {"skip": "selection and anchor integration probe"}
+
+    monkeypatch.setattr(runner, "_ask", ask)
+    assert runner.main() == 0
+    assert len(calls) == 1
+    assert len(json.loads((output/"evidence.json").read_text())["failures"]) == 1
+    assert all(file.read_bytes() == original for file, original in saved.items())
+
+
 @pytest.mark.parametrize("changes", [{"filename": None}, {"os_errno": None},
                                      {"filename": "/tmp/wrong"}])
 def test_missing_or_wrong_collision_metadata_fails_closed(tmp_path, changes):
