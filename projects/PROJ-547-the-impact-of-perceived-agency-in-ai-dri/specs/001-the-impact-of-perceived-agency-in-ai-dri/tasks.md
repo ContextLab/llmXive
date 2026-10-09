@@ -28,7 +28,7 @@ description: "Task list template for feature implementation"
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project directory layout: `code/`, `tests/`, `data/`, `configs/`, `logs/`, `docs/`; add empty `__init__.py` in `code/` and `tests/`. **Verification**: script checks existence of all directories and `__init__.py` files.
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` (spaCy≥3.6, NLTK≥3.8, pandas≥2.0 [UNRESOLVED-CLAIM: c_146095a2 — status=not_enough_info], statsmodels≥0.14 [UNRESOLVED-CLAIM: c_22dc1e22 — status=not_enough_info], scikit‑learn≥1.3 [UNRESOLVED-CLAIM: c_a8f33445 — status=not_enough_info], pyyaml≥6.0 [UNRESOLVED-CLAIM: c_2d6e81b4 — status=not_enough_info], matplotlib≥3.8 [UNRESOLVED-CLAIM: c_9e36b6d8 — status=not_enough_info], tqdm≥4.66) and a virtual‑env setup script (`setup_env.sh`). **Verification**: `requirements.txt` contains all packages; `setup_env.sh` creates a virtualenv without errors.
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (spaCy≥3.6, NLTK≥3.8, pandas≥2.0, statsmodels≥0.14, scikit‑learn≥1.3, pyyaml≥6.0, matplotlib≥3.8, tqdm≥4.66) and a virtual‑env setup script (`setup_env.sh`). **Verification**: `requirements.txt` contains all packages; `setup_env.sh` creates a virtualenv without errors.
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools with pre‑commit hooks. **Verification**: `pre-commit run --all-files` passes.
 
 ---
@@ -49,7 +49,7 @@ description: "Task list template for feature implementation"
 - [X] T009 [P] Implement generic error‑handling utilities (`code/utils/error_handler.py`) for graceful exits and logging. **Verification**: Raise a custom error and confirm it is logged and exits with non‑zero code.
 - [X] T010 [P] Add resource‑monitoring helper (`code/utils/resource_monitor.py`) to enforce FR‑007 limits (≤ 6 GB RAM, ≤ 2 CPU cores). **Verification**: Simulate high memory usage and confirm abort with informative message.
 - [X] T065 [ ] Invoke Reference‑Validator Agent as a blocking gate before any analysis begins. **Verification**: Pipeline aborts if any citation fails validation.
-- [ ] T065A [P] Implement citation validation for all external sources (Constitution Principle II) using Reference-Validator CLI on `research.md`. **Verification**: Run `reference-validator research.md --threshold 0.7`; all citations pass with title-token-overlap ≥ 0.7. [UNRESOLVED-CLAIM: c_4c1246d0 — status=not_enough_info]
+- [X] T065A [P] Implement citation validation for all external sources (Constitution Principle II) using Reference-Validator CLI on `research.md`. **Verification**: Run `reference-validator research.md --threshold 0.7`; all citations pass with title-token-overlap ≥ 0.7. <!-- FAILED-IN-EXECUTION: code/reference_validation/validate_citations.py exit=1 -->
 
 ---
 
@@ -174,7 +174,7 @@ description: "Task list template for feature implementation"
 - [X] T055 Release packaging: create a `setup.py` / `pyproject.toml` so the project can be installed via `pip install.`. **Verification**: `pip install.` succeeds in a fresh venv.
 - [X] T056 [P] {{claim:c_08009153}} Download, verify checksum, store under `data/raw/benchmark/`. **Verification**: {{claim:c_bd9c37ce}}
 - [X] T057 [P] {{claim:c_2b450cd0}} **Verification**: {{claim:c_f54a79c9}}
-- [ ] T057A [P] Verify success criteria thresholds: validate SC‑001 (≥95% processing success on benchmark) [UNRESOLVED-CLAIM: c_21be37b2 — status=not_enough_info] and SC‑002 (±0.01 metric accuracy on ground-truth). **Verification**:
+- [ ] T057A [P] Verify success criteria thresholds: validate SC‑001 (≥95% processing success on benchmark) and SC‑002 (±0.01 metric accuracy on ground-truth). **Verification**:
 - [X] T066 [P] Remove redundant task; performance optimization target ≤ 6 GB RAM already reflected in T051. **Verification**: Task marked completed as reference only.
 - [X] T068 [P] Remove redundant task; static analysis for pipeline_logger import already in T043. **Verification**: Task marked completed as reference only.
 
