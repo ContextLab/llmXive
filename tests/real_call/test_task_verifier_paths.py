@@ -94,3 +94,41 @@ def test_task_verifier_respects_real_path_evidence(tmp_path, monkeypatch, case, 
     )
     assert observed_models == [tv.DEFAULT_MODEL]
     assert verdict.complete is expected, verdict.reason
+
+
+@pytest.mark.parametrize('correct_dependency', [True, False])
+def test_task_verifier_checks_local_import_with_actual_execution(tmp_path, monkeypatch, correct_dependency):
+    """An existing indirect module is evidence; a failing test stays incomplete."""
+    project = tmp_path / 'projects/PROJ-1'
+    (project / 'code/.tasks').mkdir(parents=True)
+    (project / 'tests').mkdir()
+    (project / 'tests/test_analysis.py').write_text(
+        'def test_analyze():\n'
+        '    from analysis import analyze\n'
+        '    assert analyze(10) == 40\n'
+    )
+    factor = 4 if correct_dependency else 3
+    (project / 'code/analysis.py').write_text(f'def analyze(n):\n    return n * {factor}\n')
+    env = {**os.environ, 'PYTHONPATH': str(project / 'code'), 'PYTHONDONTWRITEBYTECODE': '1'}
+    execution = subprocess.run(
+        [sys.executable, '-m', 'pytest', '-q', '-p', 'no:cacheprovider', 'tests/test_analysis.py'],
+        cwd=project, env=env, capture_output=True, text=True, timeout=20,
+    )
+    assert execution.returncode == (0 if correct_dependency else 1)
+    (project / 'code/.tasks/T001.tests_test_analysis.py.log').write_text(
+        f'# tests/test_analysis.py (exit {execution.returncode}, actual pytest subprocess)\n'
+        + execution.stdout + execution.stderr
+    )
+    task = 'T001 Create tests/test_analysis.py verifying analyze(10) equals 40. The test must pass.'
+    evidence = tv.gather_evidence(project, task)
+    assert 'Local import candidate `code/analysis.py`' in evidence
+    real_chat = tv.chat_with_fallback
+    observed = []
+    def observe(*args, **kwargs):
+        response = real_chat(*args, **kwargs)
+        observed.append(response.model)
+        return response
+    monkeypatch.setattr(tv, 'chat_with_fallback', observe)
+    verdict = tv.verify_task(task_text=task, evidence=evidence, fallback_backends=())
+    assert observed == [tv.DEFAULT_MODEL]
+    assert verdict.complete is correct_dependency, verdict.reason
