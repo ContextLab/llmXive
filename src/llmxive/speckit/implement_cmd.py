@@ -755,7 +755,7 @@ def _summarize_existing_code(project_dir: Path, *, max_chars: int = 16000) -> st
 
 
 def _inline_referenced_files(
-    project_dir: Path, task_line: str, *, max_files: int = 5, max_chars: int = 6000
+    project_dir: Path, task_line: str, *, max_files: int = 5, max_chars: int = 48000
 ) -> str:
     """Inline the full contents of any file path mentioned in the task line.
 
@@ -785,7 +785,9 @@ def _inline_referenced_files(
         chunk = f"### {p} (resolved: {resolved})\n\n```\n{text}\n```"
         if used + len(chunk) > max_chars:
             chunks.append(f"### {p}\n\n(file exists, {len(text)} chars; "
-                          "omitted for prompt budget — extend it on disk)")
+                          "omitted for prompt budget — its contents are unavailable. "
+                          "Do not replace this file blindly; return failed with the "
+                          "context-size limitation if this task requires editing it.)")
         else:
             chunks.append(chunk)
             used += len(chunk)

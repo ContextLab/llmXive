@@ -170,6 +170,22 @@ def test_implementer_gets_same_existing_source_as_verifier(tmp_path):
     assert _inline_referenced_files(tmp_path, "Fix code/leak.py") == ""
 
 
+def test_implementer_preserves_full_context_for_typical_analysis_module(tmp_path):
+    from llmxive.speckit.implement_cmd import _inline_referenced_files
+
+    source = tmp_path / "code/analysis.py"
+    source.parent.mkdir()
+    # The live canary's incrementally implemented driver exceeded the old 6k
+    # ceiling, hiding all its prior behavior from later implementation tasks.
+    contents = "# analysis context\n" * 700 + "def final_step():\n    return 1\n"
+    source.write_text(contents)
+    context = _inline_referenced_files(tmp_path, "Extend code/analysis.py")
+    assert contents in context
+    constrained = _inline_referenced_files(tmp_path, "Extend code/analysis.py", max_chars=100)
+    assert "Do not replace this file blindly" in constrained
+    assert "extend it on disk" not in constrained
+
+
 def test_verify_task_defers_on_backend_failure(monkeypatch) -> None:
     """A transient backend outage DEFERS (complete=None) — an unverifiable task is
     never accepted as done (fail-closed, unlike the relevance judge's fail-open)."""
