@@ -119,3 +119,21 @@ def test_ensure_venv_installs_abi_consistent_scipy_stack(tmp_path: Path) -> None
     )
     assert res.ok, res.stderr
     assert "abi-ok 15" in res.stdout
+
+
+@pytest.mark.parametrize("through_symlink", [False, True])
+def test_run_in_venv_rejects_external_working_directory_before_execution(tmp_path, through_symlink):
+    proj = tmp_path / "projects" / "PROJ-CWD"
+    proj.mkdir(parents=True)
+    cwd = tmp_path
+    if through_symlink:
+        cwd = proj / "escape"
+        cwd.symlink_to(tmp_path, target_is_directory=True)
+    result = sandbox.run_in_venv(
+        project_dir=proj, cwd=cwd,
+        args=["-c", "from pathlib import Path; Path('leak.csv').write_text('data')"],
+    )
+    assert not result.ok
+    assert "working directory escapes" in result.stderr
+    assert not (tmp_path / "leak.csv").exists()
+    assert not (proj / "code" / ".venv").exists()

@@ -3,7 +3,12 @@
 import subprocess
 from pathlib import Path
 
-ALLOWED_ROOTS = ("projects/", "state/", "web/data/")
+if __package__:
+    from .repository_layout import is_project_path
+else:  # cron runs this file directly, without requiring an installed package
+    from repository_layout import is_project_path
+
+ALLOWED_ROOTS = ("state/", "web/data/")
 
 
 def unexpected_writes(repo: Path) -> list[str]:
@@ -25,13 +30,13 @@ def unexpected_writes(repo: Path) -> list[str]:
         .decode()
         .split("\0")
     )
-    return sorted({p for p in changed + untracked if p and not p.startswith(ALLOWED_ROOTS)})
+    return sorted({p for p in changed + untracked if p and not (p.startswith(ALLOWED_ROOTS) or is_project_path(p))})
 
 
 def main() -> int:
     bad = unexpected_writes(Path.cwd())
     if bad:
-        print("Refusing pipeline commit: writes outside projects/, state/, web/data/:")
+        print("Refusing pipeline commit: writes outside projects/<PROJ-id>/, state/, web/data/:")
         print("\n".join(bad))
         return 1
     return 0
