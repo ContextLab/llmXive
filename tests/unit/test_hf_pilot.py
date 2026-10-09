@@ -65,7 +65,7 @@ def test_inference_bills_group_and_limits_output(monkeypatch):
         assert kw["headers"]["X-HF-Bill-To"] == pilot.GROUP
         assert kw["json"]["max_tokens"] == 256
         assert kw["timeout"] == 90
-        return SimpleNamespace(ok=True, json=lambda: {"choices": [{"message": {"content": "ok"}}]})
+        return SimpleNamespace(ok=True, json=lambda: {"choices": [{"message": {"content": '{"hf_pilot": "ok"}'}}]})
 
     monkeypatch.setattr(pilot.requests, "post", post)
-    assert pilot.inference_probe()["content"] == "ok"
+    assert pilot.inference_probe()["content"] == '{"hf_pilot": "ok"}'

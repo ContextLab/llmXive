@@ -136,6 +136,8 @@ def inference_probe() -> dict:
     content = result["choices"][0]["message"].get("content") or ""
     if not content.strip():
         raise RuntimeError("HF model returned no usable text")
+    if json.loads(content) != {"hf_pilot": "ok"}:
+        raise RuntimeError("HF model did not satisfy the probe response contract")
     return {
         "requested_model": model,
         "model": result.get("model"),
