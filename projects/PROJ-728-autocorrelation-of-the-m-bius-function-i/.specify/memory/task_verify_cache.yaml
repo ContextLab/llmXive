@@ -1,0 +1,123 @@
+T000:
+  c: true
+  h: 9ee0202e5dcc47fefdebc45204c5f9eff1c481f4ab1a7ebd02268e929b48a42d
+  r: "Checked that `data/checksums/manifest.sha256` exists, contains the correct SHA\u2011\
+    256 hash for `data/raw/mobius_array.npy` (and also for the other generated raw\
+    \ file), and that `code/checksum.py` implements the required computation and writes\
+    \ the manifest. The manifest matches the actual file contents, fulfilling the\
+    \ task."
+T001:
+  c: true
+  h: 95bd704f22e6625bcca3cc5df1f7b05218934016d3136c69a65b2fe127a1bb91
+  r: "The `quickstart.md` file exists (3501\u202Fbytes) and contains sections detailing\
+    \ the project layout, the required Python version (\u2265\u202F3.11), a reference\
+    \ to the pinned `requirements.txt`, and the exact demo command `python -m code.main\
+    \ --demo`."
+T002:
+  c: true
+  h: 3ae107db00163ff6f0f0b24118b234a5879f3341b15bc6088f79b1ac6f717650
+  r: "The `code/sieve.py` module defines `compute_mobius` that returns an `int8` NumPy\
+    \ array of length\u202FN+1 and a CLI that writes the array for N\u202F=\u202F\
+    10\u2077 to `data/raw/mobius_array.npy`; the execution log shows the file was\
+    \ successfully generated."
+T003:
+  c: true
+  h: 6ca945a0cad26d4289e03997c734797f488a53fddb3531d7c1bd7b317ea893e6
+  r: "The file `tests/unit/test_sieve.py` is present, non\u2011empty, and includes\
+    \ parametrized unit tests that assert \u03BC(1)=1, \u03BC(2)=\u20111, and \u03BC\
+    (4)=0, fulfilling the task\u2019s requirement."
+T004:
+  c: true
+  h: 94492180ee988b5712beaaf2b65c4c181806e3af5b5b250cfd1a8911c6f77d69
+  r: "The `code/generate_mobius.py` script exists, is non\u2011empty, imports the\
+    \ sieve\u2019s `save_mobius_array`, writes the M\xF6bius array to `data/raw/mobius_array.npy`,\
+    \ and deterministically selects 20 stratified random window starts for each L\u202F\
+    =\u202F10\xB3,\u202F10\u2074,\u202F10\u2075 using seed\u202F42."
+T005:
+  c: true
+  h: ccd023c3a509f8cb44424fd2c1e20f292a3b99525f57e3f9919665e8fd5e12e1
+  r: "Checked that `data/results/demo_autocorr.csv` exists with the correct normalized\
+    \ autocorrelation for L=1000, h=1, and that `code/autocorrelation.py` contains\
+    \ both a fast/slow sanity check and a comparison against a hard\u2011coded hand\u2011\
+    computed reference value. The script runs successfully and writes the expected\
+    \ CSV."
+T006:
+  c: true
+  h: 44d61f39db30043d4b962d92e6b2e94d50d00e45546196c3d0a230fed907b29d
+  r: "The `tests/integration/test_demo_pipeline.py` file contains a full integration\
+    \ test that runs the demo pipeline, checks that `data/results/demo_autocorr.csv`\
+    \ exists, reads the CSV, and asserts the `autocorrelation` field matches a regex\
+    \ requiring at least six decimal places. The provided `data/results/demo_autocorr.csv`\
+    \ contains the value `-0.047047047047`, which satisfies the six\u2011decimal\u2011\
+    place requirement."
+T007:
+  c: true
+  h: a1fcb668586171c5d693f201cf0418726546f1c050ed9bd07fa7702977991576
+  r: "The `code/autocorrelation.py` script now includes `_compute_autocorrelation_all_fft`\
+    \ which computes normalized autocorrelations for every lag\u202F`h = 1 \u2026\
+    \ \u230AL/2\u230B` and the main loop writes each result to `data/processed/autocorr_raw.csv`\
+    \ with the required columns. The CSV file exists, is non\u2011empty, and contains\
+    \ rows like `interval_start,interval_length,lag,autocorrelation`."
+T008:
+  c: true
+  h: 71361062d8c34f609649b19a4b282bc71898ee78d349d8f241bca35429a1ee2c
+  r: The `code/permutation.py` file exists and defines `generate_permutations` with
+    default `block_size=100` and `n_permutations=1000`, returning a NumPy array of
+    shape `(1000, L)` that shuffles whole blocks, thereby preserving the original
+    multiset (including zero density).
+T009:
+  c: true
+  h: 1aa75b8bc10267a7733ecf2d8966e98c766997679e62164f3f29906d26780ad3
+  r: "The file `tests/unit/test_permutation.py` exists, is non\u2011empty, and contains\
+    \ two pytest unit tests that (1) verify each generated permutation preserves the\
+    \ counts of \u20131,\u202F0,\u202F+1 and (2) verify permutations are only block\u2011\
+    shuffles with internal block order unchanged, exactly as the task required."
+T010:
+  c: true
+  h: 7198060678a2ca73f453b9d51a333fcb162c85bf37928dd018dc935ebb492da6
+  r: "Checked that `code/null_distribution.py` runs (log shows successful execution)\
+    \ and produces `data/processed/autocorr_stats.csv` containing the required columns\
+    \ (`interval_start, interval_length, lag, autocorrelation, p_value, ci_lower,\
+    \ ci_upper, zero_count`) with values derived from 1\u202F000 permutations, two\u2011\
+    sided p\u2011values and 95\u202F% confidence intervals. The script\u2019s configuration\
+    \ matches the specification."
+T011:
+  c: true
+  h: 77d2765a446a1d8174052f0db18a2a105988aa358261fa607dca530b924356a3
+  r: "The repository contains a non\u2011empty `code/fdr_correction.py` that reads\
+    \ `data/processed/autocorr_stats.csv`, verifies a `p_value` column, applies a\
+    \ correct Benjamini\u2013Hochberg adjustment to all p\u2011values, adds an `adjusted_p_value`\
+    \ column, and overwrites the CSV. The execution log shows the script ran successfully\
+    \ and updated a CSV with 1,110,000 rows."
+T012:
+  c: false
+  h: eb6328ce10978a767c835112006cf27198a2deb8524cacc93dcf1e62db183d16
+  r: "The required `code/sensitivity.py` file is missing, so no code, output CSV,\
+    \ or sensitivity flag is present to satisfy the zero\u2011density sensitivity\
+    \ analysis task."
+T014:
+  c: false
+  h: 3944525e9c1ef5c3754c392f76fea30e0960fa12d4475ed8cd2e5fcfbac53ca5
+  r: "The only artifact provided is `code/viz.py`; the required PNG files `outputs/figures/heatmap_L{L}.png`\
+    \ are missing, and the script\u2019s zero\u2011line (`plt.axhline(y=-0.5)`) does\
+    \ not correctly draw a horizontal line at autocorrelation\u202F=\u202F0, nor does\
+    \ the confidence\u2011band overlay align with the heat\u2011map axes. The task\u2019\
+    s visual output is therefore not satisfied."
+T015:
+  c: true
+  h: f6548540be4feeb27a90f293ec031a825c8d1eb90b821d9eeaa16e1ff24d9e13
+  r: "The `data/processed/uniformity_test.json` file exists, is non\u2011empty, and\
+    \ contains the required `\"ks_statistic\"` and `\"p_value\"` fields produced by\
+    \ `code/uniformity_test.py`, which loads the null\u2011hypothesis p\u2011values,\
+    \ runs a one\u2011sample KS test against the uniform distribution, and writes\
+    \ the results."
+T016:
+  c: false
+  h: f9c5a36deecf05bce1e53763b9d6c391647fd39df91ac5d5876a293c27aef26c
+  r: "The `research.md` file is present and contains methods, results, and a discussion\
+    \ of the theoretical variance, but it does not list the exact row numbers (or\
+    \ figure indices) that support each claim, nor does it enumerate the specific\
+    \ interval start indices flagged by `sensitivity_flag`. The claim\u2011to\u2011\
+    artifact links are given only as conditions (e.g., \u201Crows where `adjusted_p_value\
+    \ \u2265 0.05`\u201D) rather than concrete row identifiers, which fails the task\u2019\
+    s requirement for precise linking."
