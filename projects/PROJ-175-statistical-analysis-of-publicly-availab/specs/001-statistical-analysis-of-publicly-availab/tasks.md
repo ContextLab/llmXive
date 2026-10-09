@@ -9,11 +9,11 @@
 
 ## Phase 1 – Setup & Governance (must complete before any data work)
 
-- [ ] **T001a** Create project directory structure  
+- [X] **T001a** Create project directory structure  
   *Creates* `projects/PROJ-175-statistical-analysis-of-publicly-availab/code/`, `data/`, `tests/`.  
   **Verification**: `data/setup_log.json` contains `{"status":"SUCCESS","paths_verified":[...],"timestamp":"ISO8601"}`.
 
-- [ ] **T001b** Create empty package init files  
+- [X] **T001b** Create empty package init files  
   *Creates* `code/__init__.py`, `tests/__init__.py`, `code/data/__init__.py`.  
   **Verification**: Files exist and are non‑empty (contain a docstring).
 

@@ -1,9 +1,18 @@
-T012b:
-  c: false
-  h: 880704efb8efdda90e24c66879d847dc67abbcf27a5519a6ef56d9a0a2bb1872
-  r: The required artifact `data/download_status.json` is missing from the repository,
-    so the implementer could not read it or generate the amendment log as specified.
-    No alternative file or placeholder was provided.
+T001a:
+  c: true
+  h: 2da3bd82be629d902e24ebafa4869cab81496a6ce39f26454602575eae26f727
+  r: The three required directories (`code/`, `data/`, `tests/`) exist and are non-empty,
+    and `data/setup_log.json` contains the required `{"status":"SUCCESS","paths_verified":["code","data","tests"],"timestamp":"ISO8601"}`
+    structure with a valid ISO8601 timestamp. The execution log confirms `create_project_structure.py`
+    ran successfully (exit 0) and wrote the setup log.
+  sig: 2601eed41724ae3735e46b9678535275d95e6b8ff2d91b7083da88568d9a5907
+T001b:
+  c: true
+  h: f0435afed2a59144b1f60e02bde1e644a7c4009d41ca3e2a59c72e6482836f64
+  r: All three required files (`code/__init__.py`, `tests/__init__.py`, `code/data/__init__.py`)
+    exist at their resolved paths and are non-empty, each containing a docstring as
+    the task's verification criterion specifies.
+  sig: bf321b35c4ab0a4e975ea6095429643e4d42d11f344cacc7fb8f72752a743639
 T013a:
   c: false
   h: c7138c5d5debff7c089cdd70aa3475155be78749c3a63deef0b5fb4c7edc6cdc
