@@ -1,14 +1,18 @@
 status: none
-intent: download QM9 dataset as Python package with RDKit graph preprocessing python
-  package dataset
+intent: QM9 dataset download parquet MoleculeNet Open Graph Benchmark python package
+  dataset
 required_fields:
+- molecule_id
 - smiles
-- atomic_number
+- atomic_numbers
 - hybridization
 - formal_charge
-- bond_type
-- conjugation
+- bond_indices
+- bond_types
+- bond_conjugation
+- homo_energy
+- lumo_energy
 - homo_lumo_gap
-cache_key: cec69a6f8e5a8a07b86f42e0ecc729429d82606acc687369e85739c19008ed2f
-searched_at: '2026-10-09T20:25:44.620982+00:00'
+cache_key: dc7b899e29444c549b9364093038aa3440ad54125273642fa02c86ece212ca72
+searched_at: '2026-10-09T20:27:18.894503+00:00'
 retry_count: 1
