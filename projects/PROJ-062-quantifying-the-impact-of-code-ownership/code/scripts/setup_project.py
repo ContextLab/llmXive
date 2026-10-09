@@ -1,109 +1,102 @@
 """
-Script to create the project directory structure for PROJ-062.
-This task implements T001: Create project structure per implementation plan.
+Script to create the required project directory structure for
+PROJ-062-quantifying-the-impact-of-code-ownership.
+
+The structure follows the implementation plan and includes placeholder
+``.gitkeep`` files so that empty directories are tracked by Git.
+
+Execution of this script will create (if they do not already exist):
+
+projects/
+    PROJ-062-quantifying-the-impact-of-code-ownership/
+        README.md
+        code/
+        data/
+            raw/
+            intermediate/
+            results/
+        tests/
+            unit/
+            integration/
+        docs/
+            README.md
 """
 import os
-import sys
 from pathlib import Path
 
-def create_structure():
+def _touch_gitkeep(dir_path: Path) -> None:
+    """Create a .gitkeep file inside *dir_path*."""
+    gitkeep = dir_path / ".gitkeep"
+    if not gitkeep.exists():
+        gitkeep.touch()
+
+def create_structure() -> Path:
     """
-    Creates the required directory structure for the project.
-    Based on the implementation plan for PROJ-062.
+    Create the full directory tree for the project under the repository root.
+
+    Returns
+    -------
+    Path
+        The path to the top‑level project directory that was created.
     """
-    # Define the project root relative to the script location or current working directory
-    # The task specifically asks for: projects/PROJ-062-quantifying-the-impact-of-code-ownership/
-    # However, the project context implies we are ALREADY inside that project directory
-    # (based on the prompt: "You are working on project PROJ-062...").
-    # Therefore, we will create the standard internal structure required by the pipeline
-    # (data, code, tests, specs, state) and ensure the top-level project folder exists if we are running from a parent.
+    # Repository root (assumes this script lives in <repo_root>/code/scripts/)
+    repo_root = Path(__file__).resolve().parents[2]
 
-    # Determine base path: If we are in code/scripts/, go up 2 levels to project root
-    current_file = Path(__file__).resolve()
-    project_root = current_file.parent.parent.parent
+    # Target top‑level project directory
+    project_root = repo_root / "projects" / "PROJ-062-quantifying-the-impact-of-code-ownership"
 
-    # Ensure the specific project directory name exists if we are running from a generic parent
-    # But since the prompt says we are working ON this project, we assume project_root IS the project dir.
-    # We will create the internal structure.
-
-    # Directories to create
-    directories = [
-        "code",
-        "code/utils",
-        "code/scripts",
-        "data",
-        "data/raw",
-        "data/intermediate",
-        "data/results",
-        "tests",
-        "tests/unit",
-        "tests/integration",
-        "specs",
-        "specs/001-code-ownership-analysis",
-        "state",
-        "figures",
-        "docs"
+    # Define the sub‑directories that must exist
+    subdirs = [
+        project_root / "code",
+        project_root / "data" / "raw",
+        project_root / "data" / "intermediate",
+        project_root / "data" / "results",
+        project_root / "tests" / "unit",
+        project_root / "tests" / "integration",
+        project_root / "docs",
     ]
 
-    created_count = 0
-    for dir_path in directories:
-        full_path = project_root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
-            created_count += 1
-        else:
-            print(f"Directory exists: {full_path}")
+    # Create each directory and a .gitkeep file inside it
+    for d in subdirs:
+        d.mkdir(parents=True, exist_ok=True)
+        _touch_gitkeep(d)
 
-    # Create .gitkeep files in data directories as per T004 requirement (often grouped with structure setup)
-    # T004 is marked as needing redo, but creating these now ensures T001/T004 are both satisfied.
-    gitkeep_dirs = [
-        "data/raw",
-        "data/intermediate",
-        "data/results"
-    ]
+    # Top‑level README describing the project
+    readme_path = project_root / "README.md"
+    if not readme_path.exists():
+        readme_path.write_text(
+            "# PROJ‑062 – Quantifying the Impact of Code Ownership\\n\\n"
+            "This directory contains the full source tree for the project as "
+            "specified in the implementation plan.  The layout mirrors the "
+            "repository‑wide layout used by the pipeline scripts.\\n"
+        )
 
-    for dir_path in gitkeep_dirs:
-        full_path = project_root / dir_path
-        gitkeep_file = full_path / ".gitkeep"
-        if not gitkeep_file.exists():
-            gitkeep_file.touch()
-            print(f"Created .gitkeep: {gitkeep_file}")
-        else:
-            print(f".gitkeep exists: {gitkeep_file}")
+    # Docs README (optional but useful)
+    docs_readme = project_root / "docs" / "README.md"
+    if not docs_readme.exists():
+        docs_readme.write_text(
+            "# Documentation\\n\\n"
+            "Project documentation, usage instructions and design notes go here."
+        )
 
-    # Create __init__.py files in Python packages
-    python_dirs = [
-        "code",
-        "code/utils",
-        "code/scripts",
-        "tests",
-        "tests/unit",
-        "tests/integration"
-    ]
+    return project_root
 
-    for dir_path in python_dirs:
-        full_path = project_root / dir_path
-        init_file = full_path / "__init__.py"
-        if not init_file.exists():
-            init_file.touch()
-            print(f"Created __init__.py: {init_file}")
-        else:
-            print(f"__init__.py exists: {init_file}")
+def main() -> int:
+    """
+    Entry point for ``python -m code.scripts.setup_project``.
 
-    print(f"\nProject structure setup complete. Created {created_count} new directories.")
-    return True
-
-def main():
-    """Entry point for the script."""
-    print("Starting project structure creation...")
+    Returns
+    -------
+    int
+        Exit status (0 for success, non‑zero for failure).
+    """
     try:
-        create_structure()
-        print("Success.")
-        sys.exit(0)
-    except Exception as e:
-        print(f"Error: {e}")
-        sys.exit(1)
+        created_path = create_structure()
+        print(f"Project structure created at: {created_path}")
+        return 0
+    except Exception as exc:  # pragma: no cover – any unexpected error should be visible
+        print(f"Error creating project structure: {exc}", flush=True)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

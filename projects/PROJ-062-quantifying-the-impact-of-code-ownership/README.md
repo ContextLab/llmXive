@@ -1,25 +1,29 @@
-# PROJ-062: Quantifying the Impact of Code Ownership on Software Quality
+# PROJ-062 – Quantifying the Impact of Code Ownership
 
-## Project Overview
-This project investigates the relationship between code ownership (measured via Gini coefficient) and software quality (measured via bug density).
+This directory contains the full source tree for the project as specified in the
+implementation plan. The layout mirrors the repository‑wide layout used by the
+pipeline scripts.
 
-## Structure
-- `data/raw/`: Raw cloned repositories and git history
-- `data/intermediate/`: Processed CSVs (ownership, churn, complexity)
-- `data/results/`: Final analysis outputs (JSON, plots)
-- `code/`: Python implementation modules
-- `tests/`: Unit and integration tests
-- `specs/`: Feature specifications and design docs
+## Directory layout
 
-## Usage
-Run the full pipeline:
-```bash
-python code/main.py
+```
+code/ # Python source files (pipeline, utilities, etc.)
+data/
+ raw/ # Shallow‑cloned Git repositories (immutable)
+ intermediate/ # CSVs generated during processing
+ results/ # Final JSON reports, PNG visualisations
+tests/
+ unit/ # Unit tests for individual modules
+ integration/ # End‑to‑end pipeline tests
+docs/
+ README.md # Documentation for the project
 ```
 
-Run specific stages:
+The folder hierarchy is created by running:
+
 ```bash
-python code/data_collection.py
-python code/metrics_calc.py
-python code/statistical_analysis.py
+python code/scripts/setup_project.py
 ```
+
+This script is idempotent – running it multiple times will not overwrite existing
+files.

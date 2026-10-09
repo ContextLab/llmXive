@@ -1,0 +1,1 @@
+# PROJ‑062 – Quantifying the Impact of Code Ownership\n\nThis directory contains the full source tree for the project as specified in the implementation plan.  The layout mirrors the repository‑wide layout used by the pipeline scripts.\n

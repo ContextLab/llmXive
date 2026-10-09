@@ -1,0 +1,19 @@
+- artifact_path: projects/PROJ-062-quantifying-the-impact-of-code-ownership/README.md
+  attempts: 1
+  canonical: setup_project.py script is idempotent and does not overwrite existing
+    files
+  claim_id: c_6fe7204a
+  context: "The folder hierarchy is created by running: python code/scripts/setup_project.py\
+    \ This script is idempotent \u2013 running it multiple times will not overwrite\
+    \ existing files."
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: "This script is idempotent \u2013 running it multiple times will not overwrite\
+    \ existing files."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T05:23:06Z'
