@@ -22,6 +22,7 @@ import yaml
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
 from llmxive.config import LEAF_TASK_BUDGET_SECONDS
+from llmxive.speckit._artifact_directories import prepare_artifact_directory
 from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
 from llmxive.speckit.task_lines import TASK_LINE_RE as _TASK_RE
 from llmxive.speckit.task_lines import (
@@ -445,7 +446,8 @@ class ImplementerAgent(SlashCommandAgent):
                             f"this task's `artifacts` list."
                         )
                         continue
-                target.parent.mkdir(parents=True, exist_ok=True)
+                recovered = prepare_artifact_directory(project_root, target.parent)
+                written.extend(str(path.relative_to(repo)) for path in recovered)
                 target.write_text(contents, encoding="utf-8")
                 written.append(str(target.relative_to(repo)))
 
@@ -458,7 +460,8 @@ class ImplementerAgent(SlashCommandAgent):
                 # log channel build_prompt already reads. Do not run stale files
                 # from a proposal whose replacement artifacts were refused.
                 from llmxive.speckit._inspection import _redact
-                refusal_log.parent.mkdir(parents=True, exist_ok=True)
+                recovered = prepare_artifact_directory(project_root, refusal_log.parent)
+                written.extend(str(path.relative_to(repo)) for path in recovered)
                 refusal_log.write_text(
                     "# Artifact writes refused — task remains incomplete\n\n"
                     + _redact("\n\n".join(refusals)) + "\n", encoding="utf-8")
@@ -525,7 +528,8 @@ class ImplementerAgent(SlashCommandAgent):
                     / mechanical_output.get("task_log_dir", "code/.tasks")
                     / f"{task_id}.{relpath.replace('/', '_')}.log"
                 )
-                log_path.parent.mkdir(parents=True, exist_ok=True)
+                recovered = prepare_artifact_directory(project_root, log_path.parent)
+                written.extend(str(path.relative_to(repo)) for path in recovered)
                 log_path.write_text(
                     f"# {relpath} (exit {result.returncode}, "
                     f"{result.duration_s:.1f}s, ok={result.ok})\n\n"
@@ -589,7 +593,8 @@ class ImplementerAgent(SlashCommandAgent):
             tasks_path.write_text(text, encoding="utf-8")
             written.append(str(tasks_path.relative_to(repo)))
             atomize_dir = ctx.project_dir / "code" / ".tasks"
-            atomize_dir.mkdir(parents=True, exist_ok=True)
+            recovered = prepare_artifact_directory(ctx.project_dir, atomize_dir)
+            written.extend(str(path.relative_to(repo)) for path in recovered)
             (atomize_dir / f"{task_id}.atomize.yaml").write_text(
                 yaml.safe_dump(doc.get("atomize", {})),
                 encoding="utf-8",
