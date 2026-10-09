@@ -35,7 +35,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T006 Implement `code/utils/hygiene.py` to compute SHA256 checksums for `data/` and `artifacts/` and update `state/projects/PROJ-357-...yaml`
+- [ ] T006 Implement `code/utils/hygiene.py` to compute SHA256 checksums for `data/` and `artifacts/` and update `state/projects/PROJ-357-...yaml`
 - [X] T007 Create `code/config.py` to manage environment variables and random seeds
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -53,8 +53,8 @@
 - [X] T011 [P] [US1] **Verify RAVDESS Source**: Query the official HuggingFace API to validate the RAVDESS dataset URL. If `spec.md` FR-001 URL is empty, default to the verified canonical URL `parlance/RAVDESS` and update `code/config.py`.
 - [X] T011b [S] [US1] **Document Resolution**: Update `code/config.py` documentation to reflect the resolved RAVDESS source URL and any validation logic used in T011.
 - [X] T012 [P] [US1] Implement `code/utils/download.py` to fetch RAVDESS dataset from the verified URL (from T011) and cache in `data/raw`.
-- [X] T013 [P] [US1] Implement `code/utils/frame_extractor.py` to extract frames from RAVDESS video files into `data/raw/frames`
-- [X] T014 [US1] Implement `code/utils/stimulus_gen.py` to:
+- [~] T013 [P] [US1] Implement `code/utils/frame_extractor.py` to extract frames from RAVDESS video files into `data/raw/frames`
+- [~] T014 [US1] Implement `code/utils/stimulus_gen.py` to:
  - Load frames and filter by multiple emotion categories
  - **If any of the 8 RAVDESS emotion categories are missing, log a WARNING to `data/interim/generation_errors.log` and proceed with the available categories (do NOT halt execution).**
  - Generate stimuli with varying flanker counts (≥3 levels) and eccentricities
@@ -62,18 +62,18 @@
  - **Explicitly record exact flanker count and eccentricity for every generated image**
  - **Write exclusion reasons to `data/interim/generation_errors.log`**
  - Output generated images to `data/interim/stimuli`
-- [X] T015 [US1] Generate `data/interim/stimuli_manifest.json` by:
+- [~] T015 [US1] Generate `data/interim/stimuli_manifest.json` by:
  - **Reading `data/interim/generation_errors.log` (T014) to update 'status' fields for excluded items**
  - **Validating that every image in `data/interim/stimuli` has a corresponding entry with exact flanker count and eccentricity values**
  - Linking file paths to metadata (emotion, flanker count, eccentricity)
  - **If 'mismatch_count' > 0, the pipeline MUST halt. If 'status' indicates missing categories, proceed but log the warning.**
-- [X] T016 [S] [US1] **Versioning Checkpoint**: Run `code/utils/hygiene.py` to update state hashes after Phase 3 (Stimuli) completion.
+- [~] T016 [S] [US1] **Versioning Checkpoint**: Run `code/utils/hygiene.py` to update state hashes after Phase 3 (Stimuli) completion.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T008 [P] [US1] Unit test for frame extraction logic in `tests/unit/test_frame_extractor.py`
-- [X] T009 [P] [US1] Unit test for stimulus composition and overlap detection in `tests/unit/test_stimulus_gen.py`
-- [X] T010 [P] [US1] Integration test for full pipeline in `tests/integration/test_pipeline.py`
+- [~] T008 [P] [US1] Unit test for frame extraction logic in `tests/unit/test_frame_extractor.py`
+- [~] T009 [P] [US1] Unit test for stimulus composition and overlap detection in `tests/unit/test_stimulus_gen.py`
+- [~] T010 [P] [US1] Integration test for full pipeline in `tests/integration/test_pipeline.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -87,12 +87,12 @@
 
 ### Implementation for User Story 2
 
-- [X] T019 [US2] Implement `code/utils/clutter_metrics.py` to compute local contrast variance and spatial frequency energy for the flanker region of each stimulus **consuming `stimuli_manifest.json` (T015) and generated images from `data/interim/stimuli` (T014)**
-- [X] T020 [US2] **Implement Streaming Data Loader**: Refactor `code/utils/clutter_metrics.py` to process the full manifest via streaming/chunking to keep memory < 7 GB. Use `datasets.load_dataset` with `streaming=True` or manual chunked iteration.
-- [X] T021 [US2] **Implement Fallback Logic**: If chunked processing exceeds available memory, fall back to a statistically valid random sample (e.g., a fixed-size random sample or fixed seed random sample) and explicitly log the sample size and limitation in `data/processed/metrics_sampling_log.txt`. Do NOT silently drop data or use a synthetic stand-in.
-- [X] T022 [US2] **Generate Clutter Metrics CSV**: Execute the metric computation (T019-T021) to generate `data/processed/clutter_metrics.csv` by joining metrics to `stimuli_manifest.json` via file path. **Verification: Verify row count matches stimuli_manifest.json (or the sampled count if fallback triggered) and no null values in metric columns.**
-- [X] T023 [US2] **Generate Validation Report**: Generate `data/processed/validation_report.json` confirming that clutter metrics (spatial frequency energy) correlate with flanker count (p < 0.05). **Schema: {'correlation_p_value': float, 'threshold_met': bool, 'status': 'pass'|'fail', 'sample_size': int}. This is a blocking gate for Phase 4 completion.**
-- [X] T024 [S] [US2] **Versioning Checkpoint**: Run `code/utils/hygiene.py` to update state hashes after Phase 4 (Metrics) completion.
+- [~] T019 [US2] Implement `code/utils/clutter_metrics.py` to compute local contrast variance and spatial frequency energy for the flanker region of each stimulus **consuming `stimuli_manifest.json` (T015) and generated images from `data/interim/stimuli` (T014)**
+- [~] T020 [US2] **Implement Streaming Data Loader**: Refactor `code/utils/clutter_metrics.py` to process the full manifest via streaming/chunking to keep memory < 7 GB. Use `datasets.load_dataset` with `streaming=True` or manual chunked iteration.
+- [~] T021 [US2] **Implement Fallback Logic**: If chunked processing exceeds available memory, fall back to a statistically valid random sample (e.g., a fixed-size random sample or fixed seed random sample) and explicitly log the sample size and limitation in `data/processed/metrics_sampling_log.txt`. Do NOT silently drop data or use a synthetic stand-in.
+- [ ] T022 [US2] **Generate Clutter Metrics CSV**: Execute the metric computation (T019-T021) to generate `data/processed/clutter_metrics.csv` by joining metrics to `stimuli_manifest.json` via file path. **Verification: Verify row count matches stimuli_manifest.json (or the sampled count if fallback triggered) and no null values in metric columns.**
+- [ ] T023 [US2] **Generate Validation Report**: Generate `data/processed/validation_report.json` confirming that clutter metrics (spatial frequency energy) correlate with flanker count (p < 0.05). **Schema: {'correlation_p_value': float, 'threshold_met': bool, 'status': 'pass'|'fail', 'sample_size': int}. This is a blocking gate for Phase 4 completion.**
+- [~] T024 [S] [US2] **Versioning Checkpoint**: Run `code/utils/hygiene.py` to update state hashes after Phase 4 (Metrics) completion.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -106,15 +106,15 @@
 
 ### Implementation for User Story 4
 
-- [X] T045 [P] [US4] Implement `code/analysis/web_interface.py` to create a local, headless web interface for presenting stimuli and collecting emotion-judgment responses (-category classification).
-- [X] T046a [US4] Implement `code/analysis/pilot_protocol.py` to define the experimental protocol (randomization, timing, instructions) and ensure IRB-compliant consent forms are displayed before data collection.
-- [X] T046b [US4] **Generate Consent Template**: Create a template consent form `data/interim/consent_template.md` by copying the template from `specs/001-visual-crowding-emotion-recognition/consent_template.md` or generating from `spec.md` assumptions.
-- [X] T047 [MANUAL] [US4] **Execute Human Pilot**: Run `pilot_protocol.py` (T046a) with `web_interface.py` (T045) to collect raw responses from ≥5 unique participants.
+- [ ] T045 [P] [US4] Implement `code/analysis/web_interface.py` to create a local, headless web interface for presenting stimuli and collecting emotion-judgment responses (-category classification).
+- [~] T046a [US4] Implement `code/analysis/pilot_protocol.py` to define the experimental protocol (randomization, timing, instructions) and ensure IRB-compliant consent forms are displayed before data collection.
+- [~] T046b [US4] **Generate Consent Template**: Create a template consent form `data/interim/consent_template.md` by copying the template from `specs/001-visual-crowding-emotion-recognition/consent_template.md` or generating from `spec.md` assumptions.
+- [ ] T047 [MANUAL] [US4] **Execute Human Pilot**: Run `pilot_protocol.py` (T046a) with `web_interface.py` (T045) to collect raw responses from ≥5 unique participants.
  - **Output: `data/interim/raw_pilot_responses.csv` with columns: participant_id, stimulus_id, true_label, response_label, timestamp.**
  - **Verification: Verify file exists and contains ≥5 unique participant IDs. The pipeline will pause here until the CSV is manually uploaded or generated.**
-- [ ] T049a [US4] **Validate Real Human Data**: Verify that `data/interim/raw_pilot_responses.csv` exists, contains ≥5 unique participant IDs, and is not a synthetic placeholder. **If validation fails, halt the pipeline. This task must remain [ ] until T047 is completed and the file is uploaded.**
-- [X] T049b [S] [US4] **Versioning Checkpoint**: Run `code/utils/hygiene.py` to update state hashes after Phase 5 (Human Data) validation.
-- [X] T048 [US4] Implement `code/analysis/data_loader.py` to load and validate raw pilot CSVs, compute `accuracy` (correct/incorrect), and aggregate by stimulus ID, emotion, and flanker count.
+- [~] T049a [US4] **Validate Real Human Data**: Verify that `data/interim/raw_pilot_responses.csv` exists, contains ≥5 unique participant IDs, and is not a synthetic placeholder. **If validation fails, halt the pipeline. This task must remain [ ] until T047 is completed and the file is uploaded.** <!-- FAILED: unspecified -->
+- [~] T049b [S] [US4] **Versioning Checkpoint**: Run `code/utils/hygiene.py` to update state hashes after Phase 5 (Human Data) validation.
+- [~] T048 [US4] Implement `code/analysis/data_loader.py` to load and validate raw pilot CSVs, compute `accuracy` (correct/incorrect), and aggregate by stimulus ID, emotion, and flanker count.
  - **Output: `data/processed/human_judgments_aggregates.csv` with columns: stimulus_id, accuracy, n_trials, emotion_label, flanker_count.**
  - **Note: For unit testing, this script must also support loading a mock CSV with the same schema if `--test-mode` flag is provided.**
 
@@ -130,22 +130,22 @@
 
 ### Implementation for User Story 3
 
-- [X] T033 [US3] Implement `code/analysis/glmm_model.py` to fit a binomial GLMM with clutter metrics as fixed effects and participant/stimulus as random effects
-- [X] T034 [US3] Implement fallback logic: if GLMM fails to converge, fit a fixed-effects only model and log the warning.
+- [~] T033 [US3] Implement `code/analysis/glmm_model.py` to fit a binomial GLMM with clutter metrics as fixed effects and participant/stimulus as random effects
+- [ ] T034 [US3] Implement fallback logic: if GLMM fails to converge, fit a fixed-effects only model and log the warning.
  - **Output: `data/processed/fixed_effects_results.json` with schema: {'convergence_status': 'fail', 'fallback_reason': str, 'coefficients': dict}.**
  - **Log a warning to `data/interim/model_warnings.log`.**
-- [X] T038 [US3] **Generate Regression Results JSON**: Generate `data/processed/regression_results.json` containing coefficients, confidence intervals, and p-values. **Schema: Each coefficient entry must have 'beta', 'se', 'ci_lower', 'ci_upper', 'p_value', 'fdr_p_value'. This task depends on T033/T034.**
-- [X] T035 [US3] Implement multiple-comparison correction (Benjamini-Hochberg FDR ≤ 0.05) for hypothesis tests (FR-005).
+- [ ] T038 [US3] **Generate Regression Results JSON**: Generate `data/processed/regression_results.json` containing coefficients, confidence intervals, and p-values. **Schema: Each coefficient entry must have 'beta', 'se', 'ci_lower', 'ci_upper', 'p_value', 'fdr_p_value'. This task depends on T033/T034.**
+- [ ] T035 [US3] Implement multiple-comparison correction (Benjamini-Hochberg FDR ≤ 0.05) for hypothesis tests (FR-005).
  - **Output: Update `data/processed/regression_results.json` with 'fdr_corrected_p_values' array.**
-- [X] T036 [US3] Implement `code/analysis/reporting.py` to generate a final report framing findings as associational (FR-006).
+- [~] T036 [US3] Implement `code/analysis/reporting.py` to generate a final report framing findings as associational (FR-006).
  - **Requirement: Report must explicitly state 'model_type' (GLMM or Fixed-Effects) and discuss fallback status if applicable.**
-- [X] T040 [US3] **Execute Reporting with Fallback**: **Depends on T034 and T038**. If T034 triggers a fallback, execute `code/analysis/reporting.py` with the fixed-effects results from T034 to generate the final report. Ensure the report reflects the model type and any fallbacks.
-- [X] T037 [US3] Generate `artifacts/model_config.yaml` with hyperparameters, seeds, and model diagnostics.
+- [~] T040 [US3] **Execute Reporting with Fallback**: **Depends on T034 and T038**. If T034 triggers a fallback, execute `code/analysis/reporting.py` with the fixed-effects results from T034 to generate the final report. Ensure the report reflects the model type and any fallbacks.
+- [~] T037 [US3] Generate `artifacts/model_config.yaml` with hyperparameters, seeds, and model diagnostics.
  - **Schema: Include keys: 'seed', 'model_type', 'convergence_status', 'fdr_threshold', 'fallback_status', 'fallback_reason'.**
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T032 [P] [US3] Unit test for GLMM convergence and fallback logic in `tests/unit/test_glmm_fallback.py`
+- [~] T032 [P] [US3] Unit test for GLMM convergence and fallback logic in `tests/unit/test_glmm_fallback.py`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -155,11 +155,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T039 [P] Run `code/utils/hygiene.py` to update state hashes for all final artifacts
-- [X] T041 [P] Documentation updates in `specs/001-visual-crowding-emotion-recognition/quickstart.md`.
+- [~] T039 [P] Run `code/utils/hygiene.py` to update state hashes for all final artifacts
+- [~] T041 [P] Documentation updates in `specs/001-visual-crowding-emotion-recognition/quickstart.md`.
  - **Update: Add section 'Running the Human Pilot' with CLI arguments and IRB protocol instructions.**
-- [X] T042 Run full pipeline integration test in `tests/integration/test_pipeline.py`
-- [X] T043 Verify all tasks complete within 6 hours on CPU-only runner (Constraint).
+- [~] T042 Run full pipeline integration test in `tests/integration/test_pipeline.py`
+- [ ] T043 Verify all tasks complete within 6 hours on CPU-only runner (Constraint).
  - **Output: Generate `state/timing_report.json` with keys: 'phase', 'start_timestamp', 'end_timestamp', 'duration_hours'.**
  - **Pass condition: duration_hours < 6.0 for the full pipeline.**
 
@@ -264,17 +264,17 @@ With multiple developers:
 - **Data Integrity**: Do not fabricate data. Use real RAVDESS dataset and real human pilot data (T047-T049) as specified in US-4.
 
 <!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
-- [X] T050 Reconcile run-book vs implementation for `code/run_full_pipeline.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/run_full_pipeline.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [~] T050 Reconcile run-book vs implementation for `code/run_full_pipeline.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/run_full_pipeline.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
 
 <!-- REVISION CONCERNS: Addressing /speckit.analyze findings -->
-- [X] T051 [US2] **Implement Streaming Data Loader for Metrics**: Refactor `code/utils/clutter_metrics.py` to use `datasets.load_dataset` with `streaming=True` or manual chunked iteration over `stimuli_manifest.json` to ensure memory usage stays under 7 GB even with large stimulus sets. **Do NOT load the entire manifest into RAM at once.**
-- [X] T052 [US3] **Implement Robust Convergence Fallback**: Enhance `code/analysis/glmm_model.py` to catch specific convergence errors from `statsmodels` (e.g., `ConvergenceWarning`) and automatically switch to a fixed-effects logistic regression model with detailed logging of the switch and the reason (e.g., "Singularity", "Maximum iterations reached").
-- [X] T053 [US4] **Add Data Integrity Check for Human Responses**: Create a validation task in `code/analysis/pilot_protocol.py` to ensure `data/interim/raw_pilot_responses.csv` contains no duplicate `stimulus_id` + `participant_id` pairs and that all `response_label` values are within the valid 8-category range before aggregation.
-- [X] T054 [US3] **Generate Final Associational Report**: Implement `code/analysis/reporting.py` to explicitly generate a markdown report that frames all findings as associational (per FR-006), includes the model type (GLMM vs Fixed-Effects), and details any fallbacks or convergence warnings encountered.
-- [X] T055 [Polish] **Create Unified Pipeline Orchestrator**: Implement `code/run_full_pipeline.py` to sequentially execute T013 (Stimuli), T019 (Metrics), T047 (Human Data - Manual Trigger), T033 (GLMM), and T054 (Reporting), ensuring strict dependency ordering and error propagation.
+- [~] T051 [US2] **Implement Streaming Data Loader for Metrics**: Refactor `code/utils/clutter_metrics.py` to use `datasets.load_dataset` with `streaming=True` or manual chunked iteration over `stimuli_manifest.json` to ensure memory usage stays under 7 GB even with large stimulus sets. **Do NOT load the entire manifest into RAM at once.**
+- [~] T052 [US3] **Implement Robust Convergence Fallback**: Enhance `code/analysis/glmm_model.py` to catch specific convergence errors from `statsmodels` (e.g., `ConvergenceWarning`) and automatically switch to a fixed-effects logistic regression model with detailed logging of the switch and the reason (e.g., "Singularity", "Maximum iterations reached").
+- [~] T053 [US4] **Add Data Integrity Check for Human Responses**: Create a validation task in `code/analysis/pilot_protocol.py` to ensure `data/interim/raw_pilot_responses.csv` contains no duplicate `stimulus_id` + `participant_id` pairs and that all `response_label` values are within the valid 8-category range before aggregation.
+- [~] T054 [US3] **Generate Final Associational Report**: Implement `code/analysis/reporting.py` to explicitly generate a markdown report that frames all findings as associational (per FR-006), includes the model type (GLMM vs Fixed-Effects), and details any fallbacks or convergence warnings encountered.
+- [~] T055 [Polish] **Create Unified Pipeline Orchestrator**: Implement `code/run_full_pipeline.py` to sequentially execute T013 (Stimuli), T019 (Metrics), T047 (Human Data - Manual Trigger), T033 (GLMM), and T054 (Reporting), ensuring strict dependency ordering and error propagation.
 
-- [X] T056 [Polish] **Finalize Execution Gate Validation**: Update `code/utils/hygiene.py` to include a specific validation step that checks for the presence of `data/processed/clutter_metrics.csv` and `data/processed/human_judgments_aggregates.csv` before allowing the pipeline to proceed to the GLMM stage, ensuring data flow integrity.
-- [X] T057 [US2] **Document Streaming Strategy**: Update `code/utils/clutter_metrics.py` docstrings and `specs/001-visual-crowding-emotion-recognition/quickstart.md` to explicitly describe the chunking/streaming logic used to handle large datasets within the 7 GB RAM constraint, including the fallback sampling criteria.
-- [X] T058 [US3] **Verify FDR Implementation**: Add a unit test in `tests/unit/test_glmm_fallback.py` (or a new `tests/unit/test_reporting.py`) to verify that the Benjamini-Hochberg correction is correctly applied to the p-values in `regression_results.json` and that the FDR threshold (0.05) is respected.
-- [X] T059 [US4] **Validate Consent Compliance**: Ensure `code/analysis/pilot_protocol.py` includes a checksum or hash verification step to confirm that the consent form displayed to participants matches the version stored in `data/interim/consent_template.md` at the time of data collection.
-- [ ] T060 [Polish] **Run End-to-End Timing Verification**: Execute the full pipeline (including manual data upload simulation) on the free-tier runner to generate `state/timing_report.json` and confirm the total duration is [deferred] as required by the performance constraints. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [~] T056 [Polish] **Finalize Execution Gate Validation**: Update `code/utils/hygiene.py` to include a specific validation step that checks for the presence of `data/processed/clutter_metrics.csv` and `data/processed/human_judgments_aggregates.csv` before allowing the pipeline to proceed to the GLMM stage, ensuring data flow integrity.
+- [~] T057 [US2] **Document Streaming Strategy**: Update `code/utils/clutter_metrics.py` docstrings and `specs/001-visual-crowding-emotion-recognition/quickstart.md` to explicitly describe the chunking/streaming logic used to handle large datasets within the 7 GB RAM constraint, including the fallback sampling criteria.
+- [~] T058 [US3] **Verify FDR Implementation**: Add a unit test in `tests/unit/test_glmm_fallback.py` (or a new `tests/unit/test_reporting.py`) to verify that the Benjamini-Hochberg correction is correctly applied to the p-values in `regression_results.json` and that the FDR threshold (0.05) is respected.
+- [~] T059 [US4] **Validate Consent Compliance**: Ensure `code/analysis/pilot_protocol.py` includes a checksum or hash verification step to confirm that the consent form displayed to participants matches the version stored in `data/interim/consent_template.md` at the time of data collection.
+- [ ] T060 [Polish] **Run End-to-End Timing Verification**: Execute the full pipeline (including manual data upload simulation) on the free-tier runner to generate `state/timing_report.json` and confirm the total duration is [deferred] as required by the performance constraints. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->

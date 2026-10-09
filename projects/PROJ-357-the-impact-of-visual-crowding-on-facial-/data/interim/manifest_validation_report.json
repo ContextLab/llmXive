@@ -4,11 +4,10 @@
   "stimuli_dir": "data/interim/stimuli",
   "error_log_path": "data/interim/generation_errors.log",
   "summary": {
-    "manifest_entries": 6,
-    "error_log_entries": 0
+    "manifest_entries": 6
   },
   "missing_files": [],
   "invalid_entries": [],
   "error_log_entries": [],
-  "error": "Stimuli directory not found: data/interim/stimuli"
+  "error": "load_error_log() takes 0 positional arguments but 1 was given"
 }

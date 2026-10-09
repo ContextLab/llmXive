@@ -1,3 +1,44 @@
+T002:
+  c: true
+  h: da2a09bd05024819f3b30de6b74a0731c189f878e708cf8634ec48a3ff490388
+  r: The root folder `projects/PROJ-357-the-impact-of-visual-crowding-on-facial-`
+    exists and contains the required subdirectories `code/`, `data/`, `tests/`, `artifacts/`,
+    and `state/projects/`.
+T006:
+  c: false
+  h: 9cda9e8527fcae439ece59b986d5a867c96f25f75775b1a1b14d5880e557070f
+  r: "The required state file `state/projects/PROJ-357-...yaml` does not exist, so\
+    \ the script\u2019s promised update of the YAML file has not been demonstrated.\
+    \ Without this artifact the task of \u201Ccomputing SHA256 checksums \u2026 and\
+    \ updating the state YAML\u201D is not satisfied."
+T007:
+  c: true
+  h: de24fa4d8df69d451df1e5d864eb1912958be495e43c0977cbc1b3891669d508
+  r: "The `code/config.py` file is present (1707\u202Fbytes) and implements functions\
+    \ to read environment variables, provide a default random seed, and set seeds\
+    \ for reproducibility, fulfilling the task\u2019s requirement."
+T011:
+  c: true
+  h: 729723e11f549e6987af89b32c15ee09ec5836086d3b02167323d571efcc4da0
+  r: Checked that `code/config.py` now defines `RAVDESS_DEFAULT_URL = "parlance/RAVDESS"`
+    (the required default) and that a HuggingFace API query was performed, evidenced
+    by `data/raw/ravdess_download_error.json` showing the validation attempt. The
+    empty URL in `spec.md` was correctly handled by inserting the canonical default.
+T011b:
+  c: true
+  h: ced9a41c87e6ddae05346178ead2d65bb493e826a3b2761a106181f2aefadc02
+  r: "The `code/config.py` file is present and contains comments that document the\
+    \ resolved RAVDESS URL (`parlance/RAVDESS`) and note the validation performed\
+    \ via the HuggingFace API query in `code/utils/verify_ravdess.py`, satisfying\
+    \ the task\u2019s documentation requirement."
+T012:
+  c: true
+  h: 4a5a380553b726dab6c0cb12ed0cf86808812953af7a0c6f8e2861805108ac2d
+  r: "The `code/utils/download.py` file exists, is non\u2011empty, and contains a\
+    \ functional `fetch_ravdess_dataset` that loads the RAVDESS dataset via HuggingFace,\
+    \ ensures the `data/raw` directory (with a `.hf_cache` subfolder) exists, and\
+    \ logs the operation, thereby meeting the task\u2019s requirement to fetch and\
+    \ cache the dataset."
 T020:
   c: false
   h: d576711456aa2fc4165a1da6919403a8f6230eaad9e6c2d9e65590f8a2fe5cd7
