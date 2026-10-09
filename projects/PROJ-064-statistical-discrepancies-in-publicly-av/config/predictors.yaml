@@ -1,0 +1,5 @@
+# Configuration file listing predictor variables for collinearity analysis
+# If these columns exist in the processed discrepancies DataFrame, VIF will be computed.
+predictors:
+  - population_density
+  - precinct_size

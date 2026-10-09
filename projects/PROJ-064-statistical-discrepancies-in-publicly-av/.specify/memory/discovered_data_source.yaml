@@ -1,18 +1,19 @@
 status: none
-intent: OpenElections EAC precinct vote data download python package dataset
+intent: download OpenElections precinct-level vote dataset and EAC official election
+  results python package dataset
 required_fields:
-- state_fips
-- state_abbr
-- county_fips
-- county_name
+- state
+- election_year
+- election_type
+- office
+- candidate
+- party
 - precinct_id
 - precinct_name
-- office
-- candidate_name
-- party
-- election_date
+- county_name
 - votes
-- precinct_total_votes
-cache_key: 2678a50da1dc8bc5cc02391f78da4e1cf9a8d42e943101bd13e1617fa884d712
-searched_at: '2026-10-03T05:52:23.262630+00:00'
+- precinct_sum
+- county_reported
+cache_key: 3a76eff71271f2325b3cee9252499bef60d5b8e3cf933b240210a768d44cb2d5
+searched_at: '2026-10-09T21:18:37.663186+00:00'
 retry_count: 1

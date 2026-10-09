@@ -1,3 +1,54 @@
+T001:
+  c: false
+  h: 1f9f2bc6d8214999b2556ecafd074fd3725b33aef6ccb949c95d79c2e258a57f
+  r: The project root contains `code/`, `tests/`, `docs/`, and `config/`, but the
+    required `data/` directory (with its `raw/` and `processed/` subfolders) and the
+    `state/` directory are missing. These absent subdirectories mean the directory
+    structure was not fully initialized as specified.
+  sig: 69b290d32f83f4160682d719fee01ad366fe09f8b8f326001dbf2451454b22d5
+T004:
+  c: false
+  h: cfb884f75376b68d08a95702b16e6749ceb9f9d4a583e7abd1e6032b4c077984
+  r: The required directories `data/raw/`, `data/processed/`, and `state/` are reported
+    as missing in the project root, so the data directory structure was not created.
+  sig: 1354f2de0286cb4ba492f708c74a0c998af630bbed318e2d7340ac6d314e6680
+T005:
+  c: false
+  h: 486d93c8c75b47a984fab11fa84ad3fef9c6f46e44b301a528a547fdba873428
+  r: The required file `code/utils/logger.py` does not exist (only a different `code/logger.py`
+    is present), and the existing logger lacks the mandated JSON keys (`task_id`,
+    `vif_score`, `collinearity_status`). No `state/` YAML files are present, and `code/main.py`
+    does not implement a `--verify-reproducible` flag nor update artifact hashes in
+    state files. These missing artifacts and functionality must be added to satisfy
+    T005.
+  sig: 6786b69eae3c3c8b7c853316b67b6586e9095130742f676f77b9f6550ec3fa20
+T007:
+  c: true
+  h: 69c56a7f8fc530f66be1d63d5fe1f42f60b1237a87b99046084676804a2aab59
+  r: Checked `code/models.py`, which defines the `Jurisdiction` and `Discrepancy`
+    dataclasses with the required fields and provides the schema constants `SCHEMA_COLUMNS`
+    listing `precinct_sum`, `county_reported`, `discrepancy_abs`, `discrepancy_pct`,
+    and `missing_data`.
+  sig: 774d8f144f2d069571ca7f156dfd9949d3d71b8e601d282fe29d9a508e10ff0c
+T008:
+  c: true
+  h: a6e0d2a911fbf978ffa692f5b006f0598bf07e0d64556ca314ce55268e37d6c6
+  r: "Checked `code/utils/hashing.py` (3421\u202Fbytes) which provides functions to\
+    \ compute file and directory hashes, save/load checksum JSON files, and verify\
+    \ hashes\u2014fulfilling the requested content\u2011hashing utility. The file\
+    \ is non\u2011empty, contains concrete implementations, and matches the task requirement."
+  sig: 6112713a0bc38da5669cee82e0bb4ed374943068667504ccdd73ec0b6e8773d2
+T009a:
+  c: false
+  h: a6d70bc140b5c7080a92c9449d83552b9f1a75066f74f88887ef7d37c5932a69
+  r: "The workflow file exists but does not meet the specification: it only defines\
+    \ a `workflow_dispatch` trigger, with the required `on: push` and `on: schedule`\
+    \ triggers commented out. Moreover, the job runs `python code/main.py --verify-reproducible`,\
+    \ but `code/main.py` defines a `--verify` flag (not `--verify-reproducible`),\
+    \ so the command would fail. The implementer must add the push and schedule triggers\
+    \ and align the CLI argument with the script\u2019s actual interface (or add the\
+    \ expected flag)."
+  sig: c035d5b8927527b579824a945b787365283e269c59bc7eb2f208deb5b86e484f
 T029:
   c: false
   h: c93b2d82c523e20ac3abe4affba5f93074bbcd9825f86f4028056f41c3a6aecc

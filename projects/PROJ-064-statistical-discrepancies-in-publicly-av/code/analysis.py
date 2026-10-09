@@ -12,7 +12,7 @@ import yaml
 
 from .models import Discrepancy, Jurisdiction
 from .exceptions import ConfigurationError, StatisticalModelError
-from .logger import get_logger
+from .logger import get_logger, setup_logging
 
 logger = get_logger(__name__)
 
@@ -23,7 +23,7 @@ def load_processed_discrepancies(file_path: str) -> pd.DataFrame:
     path = Path(file_path)
     if not path.exists():
         raise FileNotFoundError(f"Discrepancy file not found: {file_path}")
-    
+
     if path.suffix == '.parquet':
         return pd.read_parquet(path)
     elif path.suffix == '.csv':
@@ -37,7 +37,7 @@ def load_null_distribution(file_path: str) -> Dict[str, Any]:
     path = Path(file_path)
     if not path.exists():
         raise FileNotFoundError(f"Null distribution file not found: {file_path}")
-    
+
     with open(path, 'r') as f:
         return json.load(f)
 
@@ -72,16 +72,16 @@ def calculate_jurisdiction_p_values(discrepancies: pd.DataFrame, null_dist: np.n
     """
     if 'discrepancy_pct' not in discrepancies.columns:
         raise ValueError("discrepancy_pct column missing in discrepancies")
-    
+
     observed = discrepancies['discrepancy_pct'].values
     p_values = []
-    
+
     for obs_val in observed:
         # Two-tailed p-value approximation based on null distribution
         count_extreme = np.sum(np.abs(null_dist) >= np.abs(obs_val))
         p_val = count_extreme / len(null_dist)
         p_values.append(p_val)
-    
+
     discrepancies['p_value'] = p_values
     return discrepancies
 
@@ -91,49 +91,49 @@ def calculate_vif_for_predictors(df: pd.DataFrame, predictors: List[str]) -> Dic
     """
     if not predictors:
         return {}
-    
+
     # Ensure all predictors exist
     available = [p for p in predictors if p in df.columns]
     if len(available) < 2:
-        return {p: 1.0 for p in predictors} # No collinearity possible with < 2 vars
+        return {p: 1.0 for p in predictors}  # No collinearity possible with < 2 vars
 
     from scipy.linalg import inv
-    
+
     # Simple VIF calculation: VIF_j = 1 / (1 - R_j^2)
     # where R_j^2 is the R-squared of regressing predictor j on all other predictors
     vifs = {}
     X = df[available].values
-    
+
     for i, col_name in enumerate(available):
         y = X[:, i]
         X_other = np.delete(X, i, axis=1)
-        
+
         # Add intercept
         X_other_with_intercept = np.ones((X_other.shape[0], X_other.shape[1] + 1))
         X_other_with_intercept[:, 1:] = X_other
-        
+
         try:
             # OLS: beta = (X'X)^-1 X'y
             XtX = X_other_with_intercept.T @ X_other_with_intercept
             if np.linalg.det(XtX) == 0:
                 vifs[col_name] = float('inf')
                 continue
-            
+
             beta = np.linalg.solve(XtX, X_other_with_intercept.T @ y)
             y_pred = X_other_with_intercept @ beta
-            
+
             ss_res = np.sum((y - y_pred) ** 2)
             ss_tot = np.sum((y - np.mean(y)) ** 2)
             r_squared = 1 - (ss_res / ss_tot)
-            
+
             vif = 1 / (1 - r_squared) if r_squared < 1 else float('inf')
             vifs[col_name] = vif
         except np.linalg.LinAlgError:
             vifs[col_name] = float('inf')
-    
+
     return vifs
 
-# --- NEW: Sensitivity Analysis Implementation ---
+# --- New: Sensitivity Threshold Loading (already present) ---
 
 def load_sensitivity_thresholds(config_path: str) -> Dict[str, Any]:
     """
@@ -150,17 +150,89 @@ def load_sensitivity_thresholds(config_path: str) -> Dict[str, Any]:
             "primary_threshold": 0.005,
             "sweep_thresholds": [0.0001, 0.0005, 0.001]
         }
-    
+
     with open(path, 'r') as f:
         config = yaml.safe_load(f)
-    
+
     # Validate required keys
     if "primary_threshold" not in config:
         raise ConfigurationError("primary_threshold missing in sensitivity config")
     if "sweep_thresholds" not in config:
         raise ConfigurationError("sweep_thresholds missing in sensitivity config")
-        
+
     return config
+
+# --- New: Collinearity Report Generation (Task T035) ---
+
+def generate_collinearity_report(
+    discrepancies: pd.DataFrame,
+    predictors_config_path: str,
+    output_path: str
+) -> None:
+    """
+    Generate a JSON collinearity report.
+
+    The function looks for a configuration file (YAML) that lists predictor
+    column names (e.g., population_density, precinct_size). If the listed
+    predictors are present in the ``discrepancies`` DataFrame, VIF values
+    are calculated and written to ``output_path``. If no predictors are
+    configured or none of them exist in the data, a JSON object with a
+    ``status`` field set to ``Not Applicable`` is written.
+
+    The generated JSON conforms to the requirement of task T035:
+    {
+        "status": "Applicable",
+        "vif": {"population_density": 1.23, "precinct_size": 2.34}
+    }
+    or
+    {
+        "status": "Not Applicable"
+    }
+    """
+    # Load predictor configuration
+    path = Path(predictors_config_path)
+    if not path.exists():
+        logger.warning(f"Predictors config {predictors_config_path} not found. Reporting Not Applicable.")
+        report = {"status": "Not Applicable"}
+        with open(output_path, 'w') as f:
+            json.dump(report, f, indent=2)
+        return
+
+    with open(path, 'r') as f:
+        cfg = yaml.safe_load(f)
+
+    predictors = cfg.get('predictors', [])
+    if not predictors:
+        logger.info("No predictors listed in config; collinearity report not applicable.")
+        report = {"status": "Not Applicable"}
+        with open(output_path, 'w') as f:
+            json.dump(report, f, indent=2)
+        return
+
+    # Determine which of the configured predictors actually exist in the data
+    present = [p for p in predictors if p in discrepancies.columns]
+    if len(present) < 2:
+        logger.info("Insufficient predictor columns present for VIF calculation.")
+        report = {"status": "Not Applicable"}
+        with open(output_path, 'w') as f:
+            json.dump(report, f, indent=2)
+        return
+
+    # Compute VIF
+    vif_dict = calculate_vif_for_predictors(discrepancies, present)
+
+    report = {
+        "status": "Applicable",
+        "vif": vif_dict
+    }
+
+    # Write JSON report
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2)
+    logger.info(f"Collinearity report written to {output_path}")
+
+# --- Sensitivity Analysis Implementation (unchanged) ---
 
 def run_sensitivity_analysis(
     discrepancies: pd.DataFrame,
@@ -171,7 +243,7 @@ def run_sensitivity_analysis(
     """
     Run sensitivity analysis comparing Negative Binomial and Permutation models
     across different thresholds.
-    
+
     Returns a dictionary containing:
     - primary_results: Results at primary threshold
     - sweep_results: Results across sweep thresholds
@@ -179,7 +251,7 @@ def run_sensitivity_analysis(
     """
     primary_thresh = thresholds['primary_threshold']
     sweep_threshes = thresholds['sweep_thresholds']
-    
+
     results = {
         "primary_threshold": primary_thresh,
         "sweep_thresholds": sweep_threshes,
@@ -197,13 +269,8 @@ def run_sensitivity_analysis(
 
     # --- 1. Primary Threshold Analysis ---
     logger.info(f"Running analysis at primary threshold: {primary_thresh}")
-    
-    # Calculate p-values for both models (assuming we have pre-calculated p-values or do it here)
-    # For this task, we assume discrepancies has 'p_value_nb' and 'p_value_perm' columns 
-    # OR we calculate them on the fly if not present.
-    # Since the task says "Compare NB vs Perm", we need to run the test logic.
-    
-    # If columns don't exist, we calculate them now based on the null distributions provided
+
+    # Ensure p-value columns exist
     if 'p_value_nb' not in discrepancies.columns:
         obs_vals = discrepancies['discrepancy_pct'].values
         p_vals_nb = []
@@ -223,7 +290,7 @@ def run_sensitivity_analysis(
     # Primary Counts
     nb_primary_flagged = count_flagged(discrepancies, primary_thresh, 'p_value_nb')
     perm_primary_flagged = count_flagged(discrepancies, primary_thresh, 'p_value_perm')
-    
+
     results["primary_results"] = {
         "threshold": primary_thresh,
         "nb_flagged_count": nb_primary_flagged,
@@ -233,25 +300,24 @@ def run_sensitivity_analysis(
 
     # --- 2. Sensitivity Sweep ---
     logger.info(f"Running sensitivity sweep across {len(sweep_threshes)} thresholds")
-    
+
     nb_sweep_data = []
     perm_sweep_data = []
-    
+
     for thresh in sweep_threshes:
         nb_count = count_flagged(discrepancies, thresh, 'p_value_nb')
         perm_count = count_flagged(discrepancies, thresh, 'p_value_perm')
-        
+
         nb_sweep_data.append({"threshold": thresh, "flagged": nb_count})
         perm_sweep_data.append({"threshold": thresh, "flagged": perm_count})
-    
+
     results["sweep_results"]["nb_model"] = nb_sweep_data
     results["sweep_results"]["perm_model"] = perm_sweep_data
 
     # --- 3. Stability Metrics ---
-    # Calculate variation (standard deviation of flagged counts) across sweep
     nb_counts = [d['flagged'] for d in nb_sweep_data]
     perm_counts = [d['flagged'] for d in perm_sweep_data]
-    
+
     results["stability_metrics"] = {
         "nb_std_variation": float(np.std(nb_counts)) if nb_counts else 0.0,
         "perm_std_variation": float(np.std(perm_counts)) if perm_counts else 0.0,
@@ -288,20 +354,20 @@ def generate_sensitivity_report(
         "| Threshold | Flagged Count |",
         "|-----------|---------------|"
     ]
-    
+
     for item in analysis_results['sweep_results']['nb_model']:
         report_lines.append(f"| {item['threshold']:.5f} | {item['flagged']} |")
-    
+
     report_lines.extend([
         "",
         "### Permutation Model",
         "| Threshold | Flagged Count |",
         "|-----------|---------------|"
     ])
-    
+
     for item in analysis_results['sweep_results']['perm_model']:
         report_lines.append(f"| {item['threshold']:.5f} | {item['flagged']} |")
-    
+
     report_lines.extend([
         "",
         "## Stability Metrics",
@@ -315,7 +381,7 @@ def generate_sensitivity_report(
         "The analysis compares the stability of flagged anomalies under varying significance thresholds. A high standard deviation indicates that the number of flagged jurisdictions is highly sensitive to the chosen threshold, suggesting potential instability in the detection of statistical discrepancies.",
         ""
     ])
-    
+
     with open(output_path, 'w') as f:
         f.write('\n'.join(report_lines))
 
@@ -327,23 +393,23 @@ def generate_stability_plot(
     Generate a plot showing the stability of flagged counts across thresholds.
     """
     plt.figure(figsize=(10, 6))
-    
+
     nb_thresholds = [d['threshold'] for d in analysis_results['sweep_results']['nb_model']]
     nb_counts = [d['flagged'] for d in analysis_results['sweep_results']['nb_model']]
-    
+
     perm_thresholds = [d['threshold'] for d in analysis_results['sweep_results']['perm_model']]
     perm_counts = [d['flagged'] for d in analysis_results['sweep_results']['perm_model']]
-    
+
     plt.plot(nb_thresholds, nb_counts, marker='o', label='Negative Binomial', color='blue')
     plt.plot(perm_thresholds, perm_counts, marker='s', label='Permutation', color='red')
-    
+
     plt.xlabel('Threshold (p-value)')
     plt.ylabel('Number of Flagged Jurisdictions')
     plt.title('Sensitivity Analysis: Flagged Jurisdictions vs Threshold')
-    plt.xscale('log') # Log scale for thresholds usually better for p-values
+    plt.xscale('log')
     plt.legend()
     plt.grid(True, which="both", ls="-", alpha=0.2)
-    
+
     plt.savefig(output_path, dpi=150, bbox_inches='tight')
     plt.close()
     logger.info(f"Stability plot saved to {output_path}")
@@ -360,28 +426,36 @@ def run_analysis(
     """
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    
+
     logger.info("Starting Sensitivity Analysis")
-    
+
     # 1. Load Thresholds
     thresholds = load_sensitivity_thresholds(config_path)
-    
+
     # 2. Run Analysis
     results = run_sensitivity_analysis(discrepancies, null_dist_nb, null_dist_perm, thresholds)
-    
+
     # 3. Generate Reports
     report_path = output_dir / "sensitivity_report.md"
     generate_sensitivity_report(results, str(report_path))
-    
+
     plot_path = output_dir / "stability_plot.png"
     generate_stability_plot(results, str(plot_path))
-    
+
     # 4. Save Results JSON
     json_path = output_dir / "sensitivity_results.json"
     with open(json_path, 'w') as f:
         json.dump(results, f, indent=2)
-    
-    logger.info(f"Sensitivity analysis complete. Report: {report_path}, Plot: {plot_path}")
+
+    # 5. Generate Collinearity Report (Task T035)
+    col_report_path = output_dir / "collinearity_report.json"
+    generate_collinearity_report(
+        discrepancies,
+        predictors_config_path="config/predictors.yaml",
+        output_path=str(col_report_path)
+    )
+
+    logger.info(f"Sensitivity analysis complete. Report: {report_path}, Plot: {plot_path}, Collinearity: {col_report_path}")
     return results
 
 def main():
@@ -390,41 +464,40 @@ def main():
     Usage: python code/analysis.py --input data/processed/analysis_results.json --config config/sensitivity_thresholds.yaml --output-dir data/processed/
     """
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="Run Sensitivity Analysis")
     parser.add_argument('--input', type=str, required=True, help="Path to processed discrepancies (parquet/csv)")
     parser.add_argument('--null-nb', type=str, required=True, help="Path to NB null distribution JSON")
     parser.add_argument('--null-perm', type=str, required=True, help="Path to Permutation null distribution JSON")
     parser.add_argument('--config', type=str, default='config/sensitivity_thresholds.yaml', help="Path to sensitivity config")
     parser.add_argument('--output-dir', type=str, default='data/processed', help="Output directory for reports")
-    
+
     args = parser.parse_args()
-    
+
     # Setup logging
     setup_logging()
-    
+
     try:
         # Load Data
         logger.info(f"Loading discrepancies from {args.input}")
         discrepancies = load_processed_discrepancies(args.input)
-        
+
         logger.info(f"Loading NB null distribution from {args.null_nb}")
         nb_data = load_null_distribution(args.null_nb)
-        # Assuming the JSON has a key 'samples' or 'distribution'
         null_dist_nb = np.array(nb_data.get('distribution', nb_data.get('samples', [])))
-        
+
         logger.info(f"Loading Perm null distribution from {args.null_perm}")
         perm_data = load_null_distribution(args.null_perm)
         null_dist_perm = np.array(perm_data.get('distribution', perm_data.get('samples', [])))
-        
+
         if len(null_dist_nb) == 0 or len(null_dist_perm) == 0:
             raise ValueError("Null distributions are empty. Check input files.")
-        
+
         # Run Analysis
         results = run_analysis(discrepancies, null_dist_nb, null_dist_perm, args.config, args.output_dir)
-        
+
         print(f"Analysis complete. Results saved to {args.output_dir}")
-        
+
     except Exception as e:
         logger.error(f"Analysis failed: {e}", exc_info=True)
         raise

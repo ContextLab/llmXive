@@ -1,0 +1,123 @@
+T001:
+  reason: The project root contains `code/`, `tests/`, `docs/`, and `config/`, but
+    the required `data/` directory (with its `raw/` and `processed/` subfolders) and
+    the `state/` directory are missing. These absent subdirectories mean the directory
+    structure was not fully initialized as specified.
+  task: 23c31a2133358300234a1b0aae25a4acba54c08285f2b5cecc8561455718d64f
+T004:
+  reason: The required directories `data/raw/`, `data/processed/`, and `state/` are
+    reported as missing in the project root, so the data directory structure was not
+    created.
+  task: bd9c316a6a61975a9239d63576f9a5cb3eead4601cf011f5cd33a97d4343e3a1
+T005:
+  reason: The required file `code/utils/logger.py` does not exist (only a different
+    `code/logger.py` is present), and the existing logger lacks the mandated JSON
+    keys (`task_id`, `vif_score`, `collinearity_status`). No `state/` YAML files are
+    present, and `code/main.py` does not implement a `--verify-reproducible` flag
+    nor update artifact hashes in state files. These missing artifacts and functionality
+    must be added to satisfy T005.
+  task: d70cf537738f9e3baef24bf0a712c2a4af898d36ac8b897b4a0d6ee1f89dac3e
+T006:
+  task: 548f3ead6a4d8f013fcf173965f0157d8fc562bf5c1e0eee655c56363a371da5
+T007:
+  task: 647cb4e911f1719317a8c9872f7371a125c7ce39cc364d9c1660cb984f1c8457
+T008:
+  task: 4091fbde9a1a87755b3a8618cb1ab63cc26537042fc8951f24b4e6dd10ef7660
+T009a:
+  reason: "The workflow file exists but does not meet the specification: it only defines\
+    \ a `workflow_dispatch` trigger, with the required `on: push` and `on: schedule`\
+    \ triggers commented out. Moreover, the job runs `python code/main.py --verify-reproducible`,\
+    \ but `code/main.py` defines a `--verify` flag (not `--verify-reproducible`),\
+    \ so the command would fail. The implementer must add the push and schedule triggers\
+    \ and align the CLI argument with the script\u2019s actual interface (or add the\
+    \ expected flag)."
+  task: 4d14403cb599cc3a0e46eefdff15d651f3082c07838677ae73e40fda6ccea6cf
+T010:
+  task: 16414211515de17a7381c9b50e46983420913145392edec638ef15a7bffe1d95
+T011:
+  task: 6bdef7b2bbee689d3aed281af61415252551b75854c67f25d035acdb465e1aa5
+T012:
+  task: ad61fe5cf1e40ce6523532ca5b89e4b317f354d13c74f7669ae1645680928215
+T013:
+  task: a38b4ca801847d93170787204342071ab03ed07a3168ff12b3ddcc3988d7d5b7
+T014a:
+  task: 7b0c20e098a47566d303b1eb9dde670034de07af3e4d5e3f4debe95ed4fbc060
+T017:
+  task: d2f08686f9e1000a64cf228418de7abddb3ebfe79a86dafed524cf4205c6f89a
+T018:
+  task: b49649d71c98c58f66d5f16eb2f8b0ed1ac3919bff5e1462606586d1db58cfbb
+T019:
+  task: c8ad696831177aa89ff7d0b87db6894c7261ceddae068e6bd5563bbdc1171805
+T021:
+  task: 6f278b4350c1c47580c136ce6fbbc19c59e171e24e0b22240172bdfa126d01f2
+T023:
+  task: 5cc554b09d2a059ca1c59877a91be34d51f317cd48601907cfa5e08f6fe558a2
+T024:
+  task: 973db24719cc3461f67b485abe7834a3e6c9f6933482f4cce037e33380cad219
+T025:
+  task: b514813edd5fa1daf3d243cc8f55191792b4d9826c5fb8c7ba4f4a30ede379aa
+T026:
+  task: 0324af7c15dd08a31c88f87438590a11a0fd791d5e3311842b136194718be3ff
+T027:
+  task: c51379d50882214e16f11b32b900e581ce401fa1640dbc942cc996f965f35dc8
+T029:
+  task: cbe5e09a1c2a918e06a95495bf82f540344a927f5f47e4e16f857e84a52f4ae6
+T030:
+  task: c6307a8c689a3b5d097e764cce625845337cafd65737c035dde2208bd7146181
+T031:
+  task: 2925bfa5b59a9c33e1d2527707dd385f151849245417655eb4af419d19884822
+T032:
+  task: 5c7ee9fceb53470dcafe5a0c8368160e46983033e5fc91fcfe6213cfdee51b0b
+T033:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/results.json,
+    docs/report.md'
+  task: 1a6d1135d0a40e0f7f4d047966a8275d8d4de740a681cd8813732ef638941b5b
+T035:
+  task: ad91b7be6fb15364f93becf787dedb49982e0b2611d9671e5be0aad138126047
+T036:
+  task: 417fea609a4dbf27a0c8895c4f0fdd28cdc3808ad13d457b2bb71103aaf77f6a
+T037:
+  task: 61c53ba066b5353917e6a885925d93ef42fd4d72ec104a10d4e1f48499740546
+T038:
+  task: 60040058b3d97ffb9b7b18bbab1128bf20acd1ff0786c64faca884e2373b1488
+T039:
+  task: b60f1d76e7a022918607f4e6ab9de7fc8dc4037115bd8bc7b84db225cf54807f
+T041:
+  task: 48e169fbdaba66c362e25043489bae7d232c334146be2e31ca66390739442eed
+T047a:
+  task: cee2ee3f2afbc784a6d75a9e721e322c524beab7e589962b34bfec33afa17290
+T047b:
+  task: f6b41d6883e691704df42947b9355f2ab23d54b9928cd8d3536bfc4f8cf21a95
+T048:
+  task: b9988831e0b26ab3131779a1c66139a46a116d8d374f0de8fe3c459463877c73
+T049:
+  task: c838cc3c50c1d635b707af491e6a80d1241a668890d65c34154880138590e0c6
+T050:
+  task: 45778db7e6ad1cc6fc8fa5e011ff4e6be7b3ffd2dc087a5ea5bfba33375c02ab
+T051:
+  task: c8e8994a03a53a2f5037d3219dba79e7126f71c0b288ef5e8f6ea3ab8558dbb7
+T053:
+  task: 4dc0c5e6690abc11209d179189901a217aa6e04b93a03a29439eb8ebe5221417
+T054:
+  task: 98abbf06d6a6dcfe01a74bb660aa1e17a728977fe13217e040bacb75c63b4b90
+T055:
+  task: 985b6ca8edaaa2a78a6fb209f374a7542d2bbddc7783adbb82b2bd727434117d
+T057:
+  task: 19fcc339b86002201103d40bcc323412ac335d9fde86a3ad2d3156e672164713
+T061:
+  reason: 'declared artifact(s) missing/empty/invalid: config/verified_sources.yaml'
+  task: 514dbcc531b14c0021aa22f4b350af321b070f72fa6c941dc5135f881396a9b1
+T062:
+  task: e6f408359bb52f4e1f216b5e40c138a3a9623399d6239415dc1787cf2fe540b9
+T063:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/sampling_report.json'
+  task: 0610449025275d72846a5d4cbb51887f4cda62bd61b52b5c1c69fee5f6f34d56
+T064:
+  task: bf7441122ad99eac526b14e8eb0b9c246a32f261328285baf25440eb2033fa0c
+T067:
+  reason: 'declared artifact(s) missing/empty/invalid: config/verified_sources.yaml'
+  task: 05b82654d89eb8fa953b1ed5a3a0372a809934ccaaa9a7180a973da5a6f793d2
+T068:
+  task: e95249291ffd2a15a1dbade5845b906414829a9917a3d0eeae7927aa915d78e7
+T071:
+  task: 923736741df3ff4e8d01d89714462f42fffcde0424c1767fb26b2cc3b94dda38
