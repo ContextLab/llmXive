@@ -1,6 +1,8 @@
 """Real semantic checks for canonical artifact paths and substantive omissions."""
 
 import os
+import subprocess
+import sys
 
 import pytest
 
@@ -17,6 +19,7 @@ pytestmark = pytest.mark.skipif(
     pytest.param('repository-root-command', True, marks=pytest.mark.slow),
     pytest.param('code-directory-command', True, marks=pytest.mark.slow),
     ('missing-required-argument', False),
+    ('wrong-project-prefix', False),
     pytest.param('missing-document', False, marks=pytest.mark.slow),
     ('empty-package-marker', True),
 ])
@@ -36,7 +39,30 @@ def test_task_verifier_respects_real_path_evidence(tmp_path, monkeypatch, case, 
     feature.mkdir(parents=True)
     (feature / 'spec.md').write_text('Document the command with the required --limit 1000 argument.')
     (project / 'code').mkdir()
-    (project / 'code/main.py').write_text('print("analysis")\n')
+    (project / 'code/main.py').write_text(
+        'import argparse\n\n'
+        'parser = argparse.ArgumentParser()\n'
+        'parser.add_argument("--limit", type=int, required=True)\n'
+        'args = parser.parse_args()\n'
+        'if not 1 <= args.limit <= 1000:\n'
+        '    parser.error("--limit must be between 1 and 1000")\n'
+        'print(sum(range(args.limit)))\n'
+    )
+    # Prove the documented command is executable before asking the model to
+    # judge its documentation. Exercise all three supported working directories.
+    cwd, script = project, 'code/main.py'
+    if case == 'repository-root-command':
+        cwd, script = tmp_path, 'projects/PROJ-1/code/main.py'
+    elif case == 'code-directory-command':
+        cwd, script = project / 'code', 'main.py'
+    command = [sys.executable, script, '--limit', '1000']
+    execution = subprocess.run(command, cwd=cwd, capture_output=True, text=True, timeout=10)
+    assert execution.returncode == 0, execution.stderr
+    assert execution.stdout == '499500\n'
+    if case == 'missing-required-argument':
+        omitted = subprocess.run(command[:-2], cwd=cwd, capture_output=True, text=True, timeout=10)
+        assert omitted.returncode == 2
+        assert '--limit' in omitted.stderr
     task = (
         'T001 Document the runnable command `python code/main.py --limit 1000` '
         'in specs/001-invented/quickstart.md. This task is documentation only.'
@@ -54,9 +80,12 @@ def test_task_verifier_respects_real_path_evidence(tmp_path, monkeypatch, case, 
         task = 'T001 Create an intentionally empty code/__init__.py Python package marker.'
     elif case != 'missing-document':
         suffix = '' if case == 'missing-required-argument' else ' --limit 1000'
+        documented_project = 'PROJ-2' if case == 'wrong-project-prefix' else 'PROJ-1'
+        if case == 'wrong-project-prefix':
+            assert not (tmp_path / 'projects/PROJ-2/code/main.py').exists()
         (feature / 'quickstart.md').write_text(
             'From the repository root, run:\n'
-            f'```sh\npython projects/PROJ-1/code/main.py{suffix}\n```\n'
+            f'```sh\npython projects/{documented_project}/code/main.py{suffix}\n```\n'
         )
     verdict = tv.verify_task(
         task_text=task,

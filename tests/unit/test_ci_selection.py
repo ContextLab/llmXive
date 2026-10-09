@@ -96,6 +96,16 @@ def test_external_references_follow_changed_dependencies(path, required):
     assert load("select_checks").select([path])["references"] is required
 
 
+def test_known_runtime_verifier_keeps_live_checks_but_unknown_modules_stay_conservative():
+    select = load("select_checks").select
+    assert select(["tests/real_call/test_task_verifier_paths.py"]) == {
+        "offline": True, "live": True, "references": False,
+    }
+    assert select(["tests/real_call/test_future_module.py"]) == {
+        "offline": True, "live": True, "references": True,
+    }
+
+
 def test_reference_local_import_closure_stays_in_selected_paths():
     """Includes function-local imports and package initialization, not just top-level imports."""
     import ast
@@ -166,6 +176,9 @@ def test_fast_collection_is_exact_partition_and_nightly_keeps_references():
     assert any("test_dartmouth_real_chat[configured-primary]" in node for node in runtime)
     assert any("test_resolve_reference_present_for_every_service[zenodo" in node for node in references)
     assert {node.split("::")[0] for node in references} == load("select_checks").REFERENCE_TESTS
+    runtime_modules = load("select_checks").RUNTIME_TESTS
+    assert runtime_modules <= {node.split("::")[0] for node in runtime}
+    assert runtime_modules.isdisjoint({node.split("::")[0] for node in references})
     assert any(step.get("run") == "pytest tests/contract -v"
                for step in workflow["jobs"]["dartmouth"]["steps"])
     assert "references" in workflow["jobs"]["real-call"]["needs"]

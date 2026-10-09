@@ -32,6 +32,9 @@ REFERENCE_TESTS = {
     "tests/real_call/test_reference_validator_distinguishes_unreachable.py",
     "tests/real_call/test_resolve_reference_registrar_agnostic.py",
 }
+# Reviewed runtime-only live modules retain Dartmouth coverage. Unknown live
+# modules still require external checks until their dependencies are classified.
+RUNTIME_TESTS = {"tests/real_call/test_task_verifier_paths.py"}
 # These files route/test CI, without changing reference resolution. Their PRs
 # must prove selection/collection invariants and still run Dartmouth; requiring
 # registrar uptime here does not validate the changed routing behavior.
@@ -50,7 +53,7 @@ def needs_references(path: str) -> bool:
     # Package initialization and test harness changes can affect every import.
     if path.endswith("/__init__.py") or path == "tests/conftest.py":
         return True
-    if path in ROUTING_FILES:
+    if path in ROUTING_FILES | RUNTIME_TESTS:
         return False
     if path.startswith(("tests/unit/", "tests/contract/", "web/", "docs/", "notes/")):
         return False
