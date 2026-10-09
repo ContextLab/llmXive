@@ -21,7 +21,8 @@ Path('result.json').write_text(json.dumps(vars(a)))
 '''
 
 
-def test_implementer_executes_required_cli_arguments_as_literal_strings(tmp_path, monkeypatch):
+@pytest.mark.parametrize('prime', ['5', 5, 5.0])
+def test_implementer_executes_required_cli_arguments_as_literal_strings(tmp_path, monkeypatch, prime):
     import json
     project = tmp_path / 'projects/PROJ-901-argv'
     feature = project / 'specs/001-study'
@@ -32,13 +33,13 @@ def test_implementer_executes_required_cli_arguments_as_literal_strings(tmp_path
     literal = 'a b; $(touch SHOULD_NOT_EXIST)'
     document = {'task_id':'T001', 'verdict':'completed', 'artifacts':[
         {'path':'code/run.py','contents':CLI,'execute':True,
-         'args':['--max-n','1000','--prime','5','--label',literal]}]}
+         'args':['--max-n','1000','--prime',prime,'--label',literal]}]}
     ImplementerAgent().write_artifacts(SimpleNamespace(project_dir=project),
         {'tasks_path':str(tasks), 'feature_dir':str(feature),
          'next_task_id':'T001','all_complete':False},
         ChatResponse(text=yaml.safe_dump(document), model='test', backend='dartmouth'))
     assert json.loads((project/'result.json').read_text()) == {
-        'max_n':'1000','prime':'5','label':literal}
+        'max_n':'1000','prime':str(prime),'label':literal}
     assert not (project/'SHOULD_NOT_EXIST').exists()
     assert '- [X] T001' in tasks.read_text()
     log = (project/'code/.tasks/T001.code_run.py.log').read_text()
@@ -82,3 +83,22 @@ def test_implementer_receives_active_spec_plan_runbook_and_original_idea(tmp_pat
 
     assert 'error: required arguments --max-n, --prime' in prompt
     assert 'Unrelated old execution failure' not in prompt
+
+
+@pytest.mark.parametrize('value', [True, None, {'unexpected': 5}, float('nan')])
+def test_numeric_normalization_does_not_coerce_other_yaml_values(tmp_path, value):
+    project = tmp_path/'projects/PROJ-901-invalid-argv'
+    feature = project/'specs/001-study'
+    feature.mkdir(parents=True)
+    tasks = feature/'tasks.md'
+    tasks.write_text('- [ ] T001 Run the CLI\n')
+    document = {'task_id': 'T001', 'verdict': 'completed', 'artifacts': [
+        {'path': 'code/run.py', 'contents': CLI, 'execute': True,
+         'args': ['--max-n', '1000', '--prime', value]}]}
+    ImplementerAgent().write_artifacts(SimpleNamespace(project_dir=project),
+        {'tasks_path': str(tasks), 'feature_dir': str(feature),
+         'next_task_id': 'T001', 'all_complete': False},
+        ChatResponse(text=yaml.safe_dump(document), model='test', backend='dartmouth'))
+    assert not (project/'result.json').exists()
+    assert not (project/'.venv').exists()
+    assert 'list of strings' in (project/'code/.tasks/T001.code_run.py.log').read_text()
