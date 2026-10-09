@@ -6,51 +6,56 @@ GitHub Actions logs/issues, the Dartmouth model catalog, and real model/code
 calls. Counts below describe this frozen snapshot, not a claim about later runs.
 Work is isolated from the user's unfinished `025-self-improvement-lane` branch.
 
-## Current acceptance status — 2026-10-09 06:31 UTC
+## Current acceptance status — 2026-10-09 07:22 UTC
 
-The audit has found defects in orchestration, evidence delivery, verification,
-and project scope. Replacing the default model alone is insufficient. Full
-pipeline recovery is **not yet demonstrated**.
+Full pipeline recovery is **not yet demonstrated**. The audit has found defects
+in orchestration, evidence delivery, verification and scope; a model upgrade
+alone cannot resolve them.
 
-- Latest production census (06:26 UTC, `5010de7ff41ebc2e8077bb0760486835b5c0631b`):
-  1,095 projects, 455 in implementation, **zero authored research-complete or
-  later**, and 227 external preprint reviews. Since 05:45, one project moved back
-  to planning. This is recovery activity, not a completed scientific study.
-- A fresh, separately initialized canary reduced specification scope from
-  17 functional requirements / 12 success criteria to 9 / 6, with 15 tasks
-  versus 36 in the earlier attempt. It produced a correct N=1000 first job,
-  independently checked by a gcd census. Scope still includes avoidable
-  scaffolding; no claim is made that prompt changes fully solved scoping.
-- Its later sweep has correct residue counts and denominators for all twelve
-  parameter combinations. Eight of twelve summaries have erroneous TV values:
-  generated code used integer division for uniform expected counts. Its report
-  also invented measurements that contradicted the output files. These outputs
-  remain **unaccepted**. An independent linear-totient recurrence plus gcd sanity
-  checks produced `fresh-sweep-validation.json`; this is audit evidence, not a
-  pipeline-generated result or acceptance override.
-- GLM-5.3 is deployed as the free primary model, with free peers for fallback.
-  Real GLM calls sometimes succeed after more than 200 seconds and sometimes
-  reach the 360-second deadline. This is not a controlled model-quality
-  comparison. #1507 removed nested SDK retries after real HTTP tests showed
-  three requests per failure where one was intended; model defaults remain.
-- New fixes under review address false Python-binding rejections (#1508),
-  missing data in implementation prompts (#1509), result prose that could not
-  match filename-valued execution receipts (#1510), and retries that lacked
-  their failed scripts' source/explicit rerun contract (#1511). Together with
-  prior fixes, 115 focused integration checks passed before the 06:31 canary
-  restart. Both scientific data trees retain their own generated work.
-- The autonomous-repair trial is still running, with preservation checks and
-  paid opt-in disabled. No useful accepted autonomous repair is claimed. The
-  recurring issue #1242 records trial evidence and rejected candidates.
-- Issue cleanup is complete: eight recurring/actionable issues remain after
-  consolidating the original 199 open reports and new audit findings. The
-  Claude web/mobile health-check task is paused (all triggers paused).
+- The latest production census (06:58 UTC, `119607dc828b4ac6cf8950ac5c4a8a0a69c54507`)
+  has 1,095 projects: 454 implementing, 101 planned, **zero authored research-complete
+  or later**, and 227 external preprint reviews. See `production-20261009-0658.json`.
+- The separately initialized canary began with 9 functional requirements / 6
+  success criteria versus 17 / 12 in the original attempt. Its initial 15 tasks
+  have since grown through replanning. Scope inflation remains unresolved.
+- The fresh canary autonomously corrected its TV formula and completed the full
+  sweep at 07:02. All twelve current `data/results/` combinations match an
+  independent linear-totient oracle for counts, denominators and both TV values
+  (`fresh-results-validation.json`). Earlier `data/` duplicates remain partly
+  wrong. The report retains invented TV examples and false interpretations;
+  the inspected figure is stale and includes a test-generated N=10 point.
+  The numerical sweep is real progress, **not research or paper acceptance**.
+- GLM-5.3 is deployed as the free primary, with free GPT-OSS/Gemma peers. Slow
+  successful calls and full-deadline failures both occur; no controlled model
+  quality comparison is claimed. #1507 disables hidden SDK retries. Merged
+  #1514 shares one total generation/retry/backoff deadline and correctly routes
+  SDK timeouts to fallback. Actual SDK/local HTTP regressions prove those
+  boundaries; upstream model availability remains outside those fixes.
+- #1508–#1514 are merged after their exact-head checks passed. They address
+  Python bindings, implementation data context, signed result-prose evidence,
+  failed-script retry context, report-verifier data, revision output priority
+  and timeout recovery. Full-project revision failures still occur; #1474
+  retains that evidence instead of treating a small protocol probe as acceptance.
+- Pending #1515 rejects unreadable YAML completion evidence; #1516 routes
+  malformed generated task syntax through bounded recovery; #1517 prioritizes
+  task output data and exposes actual task execution records to verification.
+  Both canaries restarted at 07:22 with these tested changes on platform
+  `0a01fa67b97f4eec81aaceae64f84146cd9ae5af`; 102 combined checks passed. They are
+  replanning, with their own generated scientific files and no manual promotions.
+- Deployed repair trial 37892793428 failed before producing a patch or reaching
+  preservation tests. It exposed the #1514 timeout bugs. A new deployed trial,
+  [37897943625](https://github.com/ContextLab/llmXive/actions/runs/37897943625), is
+  running with the fix and paid opt-in disabled. Useful unattended repair
+  acceptance remains pending.
+- Issue cleanup is complete: eight recurring/actionable issues remain. The
+  Claude web/mobile health-check task is paused with all triggers paused.
 
 Live acceptance and remaining blockers are tracked in
-[#1139](https://github.com/ContextLab/llmXive/issues/1139), provider evidence in
+[#1139](https://github.com/ContextLab/llmXive/issues/1139), reviewer protocol in
+[#1474](https://github.com/ContextLab/llmXive/issues/1474), provider evidence in
 [#1475](https://github.com/ContextLab/llmXive/issues/1475), and autonomous repair in
-[#1242](https://github.com/ContextLab/llmXive/issues/1242). Later updates in these
-issues supersede this timestamped snapshot.
+[#1242](https://github.com/ContextLab/llmXive/issues/1242). Later issue updates
+supersede this timestamped snapshot.
 
 ## What the baseline data shows
 
