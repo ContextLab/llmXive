@@ -75,7 +75,7 @@ def test_invented_selection_fails_before_source_or_proposal(tmp_path, monkeypatc
     monkeypatch.setattr(runner, '_ask', select)
     with pytest.raises(ValueError, match='not in FILES'):
         run(tmp_path, {}, tmp_path/'output')
-    assert len(calls) == 1
+    assert len(calls) == 3  # bounded reselection; invalid paths never reach source/proposal
 
 
 def test_proposal_receives_complete_large_source(tmp_path, monkeypatch):

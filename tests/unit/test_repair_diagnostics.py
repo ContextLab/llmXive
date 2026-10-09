@@ -29,7 +29,8 @@ def test_invalid_selection_keeps_evidence_and_phase(tmp_path, monkeypatch):
         runner.run(tmp_path, {"error": "observed failure"}, output)
     assert json.loads((output / "evidence.json").read_text())["error"] == "observed failure"
     assert json.loads((output / "selection.json").read_text())["problem"] == "observed failure"
-    assert json.loads((output / "progress.json").read_text())["phase"] == "selecting_files"
+    assert json.loads((output / "progress.json").read_text())["phase"] == "selecting_files-revision-2"
+    assert len(list(output.glob("selection-validation*.json"))) == 3
 
 
 def test_no_input_produces_downloadable_result(tmp_path, monkeypatch):
