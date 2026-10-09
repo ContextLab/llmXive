@@ -21,7 +21,7 @@ Tasks are ordered to respect data‑flow dependencies; later tasks depend only o
 - [ ] T001b_v [Test] Verify `semantic_alignment_minigrid.md` exists and conforms to the semantic‑alignment schema.  
   *Path*: `tests/contract/test_semantic_alignment_minigrid.py`.  
 
-- [ ] T002 [Plan] Select a CPU‑feasible model and benchmark 0.5 B / 1.5 B / 7 B‑Int4 variants.   <!-- FAILED-IN-EXECUTION: code/scripts/evaluate_model_feasibility.py exit=1 -->
+- [ ] T002 [Plan] Select a CPU‑feasible model and benchmark 0.5 B / 1.5 B / 7 B‑Int4 variants.   <!-- FAILED-IN-EXECUTION: code/scripts/evaluate_model_feasibility.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/scripts/evaluate_model_feasibility.py exit=1 -->
   *Deliverable*: `docs/model_selection.md`.  
 - [X] T002_v [Test] Verify `docs/model_selection.md` exists and documents a Llama‑2‑7B (or 1.5B) model as required by FR‑002.  
 

@@ -16,35 +16,12 @@ T001a_v:
   sig: bd0cd3c8123911c48e1054bd376ff0dfec8fbf751b0462e6d4a326b6898ee0ff
 T001b:
   c: true
-  h: b8ea57b75f6583978d5fc47c5de52280dadc17403a6a2bc124bb626fbf21cb4e
-  r: "The artifact `specs/001-entropy-validity-prediction/contracts/semantic_alignment_minigrid.md`\
-    \ exists (845\u202Fbytes) and contains a concrete description of the MiniGrid\
-    \ semantic alignment, including validity criteria and ground\u2011truth source\
+  h: 11fa96630f3ff1be07c54fcf778c8f6ec0b69ff5eb29a7a7096adc88c8cd128c
+  r: "Checked the file `specs/001-entropy-validity-prediction/contracts/semantic_alignment_minigrid.md`\
+    \ (1356\u202Fbytes) which defines the MiniGrid semantic alignment logic, validity\
+    \ criteria, ground\u2011truth source, and step\u2011by\u2011step labeling procedure\
     \ as required."
-  sig: 7cdf837c1e8088bad11760d614bdb085f0c96768fe006a5a6767eb93520ca492
-T001b_v:
-  c: false
-  h: 4d5d98a5a0fcfc449540e9f1d132a6189c66c662412709056c2ed6d91f56bf2b
-  r: "The test file `tests/contract/test_semantic_alignment_minigrid.py` exists and\
-    \ is a substantive, non-stub contract test checking the required schema keys (task_type,\
-    \ description, validity_criteria, ground_truth_source). However, there is no evidence\
-    \ that the contract file `specs/001-entropy-validity-prediction/contracts/semantic_alignment_minigrid.md`\
-    \ actually exists on disk, nor any pytest execution output showing the test passes\
-    \ \u2014 the test's whole purpose is to verify that contract, and an unexecuted\
-    \ test whose target file is unconfirmed cannot establish conformance. The next\
-    \ implementer shou"
-  sig: c5dc92e9c972f1c2ab4156785d9f282cdc0fbd786a7eceae4865f76f6b2540f0
-T002:
-  c: false
-  h: a6f736d0572ebbb2fb0db1f5dcb8425885fb81c8bb5b3f18e6e8b4b5f338bb7a
-  r: The only artifact is `docs/model_selection.md`; the referenced benchmark script
-    `scripts/evaluate_model_feasibility.py` and output `results/model_benchmarks.json`
-    do not exist, and no execution evidence backs the reported RAM/latency numbers
-    (e.g., 4.2 GB, 0.68 s), which appear fabricated. The document also cites a nonexistent
-    model identifier (`Qwen/Qwen1.5-7B-Int4`) and "internal validation logs" that
-    are not on disk. The implementer must actually run a benchmark script and produce
-    the underlying results JSON before the selection document can be accepted.
-  sig: fb3d4f3262988878110b031153ae3668e8a150940756e58a9fa70bd829510eeb
+  sig: 6b5becc99bd0e2a0b456585b4c865e64981445b9e13341fae434b7ac3cb75282
 T002_v:
   c: true
   h: 875ad5c2d35bd409f4f5f527d459b4c3b3f3a3f03352763775eeae80d12b00ce

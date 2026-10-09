@@ -54,15 +54,15 @@ def benchmark_model(model_id: str) -> Dict[str, object]:
     # Load tokenizer
     tokenizer = AutoTokenizer.from_pretrained(model_id, use_fast=True)
 
-    # Load model on CPU
-    # For int4 quantized models, bitsandbytes will automatically handle loading.
-    # We explicitly request torch_dtype=torch.float32 to keep memory usage predictable.
+    # Load model on CPU.
+    # We avoid using `low_cpu_mem_usage` and `device_map` to keep the
+    # script free from the `accelerate` dependency.
     model = AutoModelForCausalLM.from_pretrained(
         model_id,
         torch_dtype=torch.float32,
-        device_map="cpu",
-        low_cpu_mem_usage=True
+        trust_remote_code=True  # Some models require this flag.
     )
+    model.to("cpu")
     model.eval()
 
     # Measure RAM after loading
