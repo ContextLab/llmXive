@@ -1,12 +1,50 @@
+T001:
+  c: false
+  h: 2b3b1475383d14382118093c48288cdfa9482f5235c1374903ddedf74ceb78d0
+  r: The provided artifacts include only three of the required core files (`code/__init__.py`,
+    `requirements.txt`, `tests/__init__.py`) and no evidence of the `README.md` file
+    or any of the required directories (`data/raw/`, `data/processed/`, `data/explanation_tiers/`,
+    `data/simulation_results/`, `code/`, `tests/`, `docs/`). The task is not fully
+    satisfied.
+T002:
+  c: true
+  h: 21588fb8e477ccadb02cd7a8453b199735fca27f15bbe7e2fd0e3e02b1f656e3
+  r: "The `requirements.txt` file is present, non\u2011empty, and lists all required\
+    \ packages (scikit-learn, lightgbm, pandas, numpy, textstat, datasets, statsmodels,\
+    \ pytest, requests). Extra entries do not invalidate the fulfillment of the specified\
+    \ requirement."
+T003:
+  c: true
+  h: 0946ec43f928d4cd976567e1b19a9006e9b0973b82cf2ed8e1f7d2f6309ca887
+  r: "The repository contains a non\u2011empty `pyproject.toml` that defines `[tool.black]`\
+    \ with `target-version = ['py311']` and `line-length = 88`, and a `.ruff.toml`\
+    \ that references the ruff configuration (via `extend = \"pyproject.toml\"`).\
+    \ Both required files are present and correctly configured."
+T004:
+  c: false
+  h: ab90bc05e2ab1942384dc16c06c71ecf2f3b4032db8d5170ae69f8851b5e326f
+  r: "The provided `code/load_data.py` loads the ASSISTments and OULAD datasets and\
+    \ performs a flexible latency\u2011feature check, but it never checks for concurrent\
+    \ load labels (e.g., NASA\u2011TLX scores) nor does it emit the required warning\
+    \ `\"Public dataset lacks concurrent load labels. Manual Golden Set (T007g) is\
+    \ required.\"` Consequently the critical part of the task is missing."
+T007e:
+  c: true
+  h: 06bafc19bcec0536914f76463708afd8396dfcee85d61befa6a3f5c5905095a7
+  r: "The `docs/golden_set_creation.md` file is present, non\u2011empty, and provides\
+    \ a thorough guide: it explains generating `golden_set_template.csv` via a script,\
+    \ details the expert labeling workflow, and explicitly states that the process\
+    \ is manual and cannot be automated."
 T007f:
   c: false
-  h: cb5b2da45e055aa97665ed71b5b36d6b8a28c8403dab9d0f0a38f51b898126ee
-  r: "The repository contains no `data/processed/golden_set.csv` and no code that\
-    \ performs the required validation\u2011and\u2011halt logic (checking T004 for\
-    \ a public NASA\u2011TLX dataset and raising the exact error message). Without\
-    \ this implementation the task\u2019s specification is not satisfied. The missing\
-    \ artifact is the pipeline code that enforces the golden\u2011set existence check\
-    \ and produces the mandated HALT error."
+  h: ed8acac8be02ac72286c15e0715a1589e5c010a1bc5d1f294b20d3c4a514872b
+  r: "The required `data/processed/golden_set.csv` file is missing and there is no\
+    \ evidence of a validation script that checks for the file (or for a public dataset\
+    \ from T004) and raises the exact HALT error message specified. The task\u2019\
+    s core behavior\u2014detecting the missing Golden Set and emitting the precise\
+    \ error\u2014is not demonstrated. Implement a `validate_and_load_golden_set.py`\
+    \ (or equivalent) that performs the checks and raises the exact message, and provide\
+    \ the resulting script/output as proof."
 T015:
   c: false
   h: da2965c2390ffd3ef22cb1928eb852fc471402ba5489578e9780f7c25fa6a062

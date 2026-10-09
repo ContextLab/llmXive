@@ -1,18 +1,16 @@
 status: none
-intent: download ASSISTments and OULAD interaction logs with timestamps, errors, hints
+intent: assistments OULAD interaction logs response latency error hint pause OpenML
   python package dataset
 required_fields:
-- student_id
+- interaction_id
+- learner_id
 - problem_id
 - timestamp
 - response_latency
 - error_flag
-- error_count
-- hint_requested
-- hint_count
+- hint_used
 - pause_duration
-- interaction_features
 - cognitive_load_score
-cache_key: 1fcdb35f06200fb764074a5680aaf015af5552f0c2801fa9a54028c1e8078107
-searched_at: '2026-09-06T17:08:55.017755+00:00'
+cache_key: 050344cbdcdf798f77280df3683d0e188952d9814495b01ed1b7fe5fbc6e05d8
+searched_at: '2026-10-09T01:01:01.210363+00:00'
 retry_count: 1

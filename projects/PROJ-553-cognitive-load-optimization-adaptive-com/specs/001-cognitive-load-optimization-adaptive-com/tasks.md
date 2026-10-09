@@ -24,7 +24,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 [P] Initialize Project Structure: Create all required directories (`data/raw/`, `data/processed/`, `data/explanation_tiers/`, `data/simulation_results/`, `code/`, `tests/`, `docs/`) and core files (`code/__init__.py`, `requirements.txt`, `README.md`, `tests/__init__.py`) using a single shell command sequence.
+- [ ] T001 [P] Initialize Project Structure: Create all required directories (`data/raw/`, `data/processed/`, `data/explanation_tiers/`, `data/simulation_results/`, `code/`, `tests/`, `docs/`) and core files (`code/__init__.py`, `requirements.txt`, `README.md`, `tests/__init__.py`) using a single shell command sequence.
 
 ---
 
@@ -36,14 +36,14 @@
 
 - [X] T002 [P] Initialize Python 3.11 project with requirements.txt (scikit-learn, lightgbm, pandas, numpy, textstat, datasets, statsmodels, pytest, requests)
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools: Create `pyproject.toml` with black configuration (target-version = 'py311', line-length = 88) and `.ruff.toml` with ruff configuration files to enforce project coding standards.
-- [X] T004 [P] Implement `code/load_data.py` to fetch public datasets (ASSISTments/OULAD via HuggingFace `datasets.load_dataset`) and verify presence of timestamped responses, error logs, hint requests, and interaction features. **MUST perform a flexible schema check**: instead of requiring exact column names, the task MUST check for the *presence of latency features* by looking for any of a set of semantically equivalent column names (e.g., 'response_timestamp', 'answer_start_timestamp', 'time_spent', 'response_time', 'latency', 'duration_ms') OR by attempting to derive latency from timestamp pairs (e.g., `answer_end - answer_start`). **CRITICAL**: This task MUST ALSO verify the presence of *concurrent load labels* (e.g., NASA-TLX scores) in the dataset. If the dataset lacks both expert labels and concurrent self-reports, the task MUST log a clear warning: "Public dataset lacks concurrent load labels. Manual Golden Set (T007g) is required." **Depends on T001**
-- [X] T007 [P] [US1] Generate Golden Set Template: Create `data/processed/golden_set_template.csv` with columns `interaction_id`, `expert_load_score` (empty), and a README file with instructions for domain experts to label at least 50 interactions. **Depends on T001**
-- [ ] T007g [Manual] [US1] **HUMAN ACTION REQUIRED**: Label Interactions for Golden Set. A human domain expert MUST manually review the `golden_set_template.csv` and interactions from `data/processed/` to assign `expert_load_score` values (0-100) to at least 50 interactions. The expert MUST save the populated file as `data/processed/golden_set.csv`. **This is a manual task; the pipeline cannot proceed until this file exists.** **Depends on T007, T004** <!-- FAILED: unspecified -->
+- [ ] T004 [P] Implement `code/load_data.py` to fetch public datasets (ASSISTments/OULAD via HuggingFace `datasets.load_dataset`) and verify presence of timestamped responses, error logs, hint requests, and interaction features. **MUST perform a flexible schema check**: instead of requiring exact column names, the task MUST check for the *presence of latency features* by looking for any of a set of semantically equivalent column names (e.g., 'response_timestamp', 'answer_start_timestamp', 'time_spent', 'response_time', 'latency', 'duration_ms') OR by attempting to derive latency from timestamp pairs (e.g., `answer_end - answer_start`). **CRITICAL**: This task MUST ALSO verify the presence of *concurrent load labels* (e.g., NASA-TLX scores) in the dataset. If the dataset lacks both expert labels and concurrent self-reports, the task MUST log a clear warning: "Public dataset lacks concurrent load labels. Manual Golden Set (T007g) is required." **Depends on T001**
+- [ ] T007 [P] [US1] Generate Golden Set Template: Create `data/processed/golden_set_template.csv` with columns `interaction_id`, `expert_load_score` (empty), and a README file with instructions for domain experts to label at least 50 interactions. **Depends on T001**
+- [ ] T007g [Manual] [US1] **HUMAN ACTION REQUIRED**: Label Interactions for Golden Set. A human domain expert MUST manually review the `golden_set_template.csv` and interactions from `data/processed/` to assign `expert_load_score` values (0-100) to at least 50 interactions. The expert MUST save the populated file as `data/processed/golden_set.csv`. **This is a manual task; the pipeline cannot proceed until this file exists.** **Depends on T007, T004** <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T007e [P] [US1] Document Golden Set Creation Process: Create a detailed guide in `docs/golden_set_creation.md` explaining how to generate the `golden_set_template.csv` and the process for domain experts to label interactions, clarifying that this is a manual process not automated by code. **Depends on T007**
 - [ ] T007f [P] [US1] Validate and Load Golden Set: Check for `data/processed/golden_set.csv`. **If it does not exist**, check if a public dataset with concurrent self-reports (NASA-TLX) was successfully loaded in T004. **If neither exists**, raise a hard HALT error with the exact message: "WAITING_FOR_HUMAN: Golden Set file (data/processed/golden_set.csv) is missing AND no public dataset with concurrent self-reports found. Please complete the manual labeling process described in `docs/golden_set_creation.md` to acquire the Golden Set. The pipeline cannot proceed without external expert labels." **NO synthetic generation is permitted.** **Depends on T004, T007, T007g**
 - [ ] T008 [P] [US1] Validate Golden Set: Check for `data/processed/golden_set.csv` (populated version). Verify it contains ≥50 rows with valid `expert_load_score` values (0-100). If missing or invalid, halt with error: "Validation Data Missing: Golden Set with ≥50 expert labels not found. Cannot proceed with model training." **Depends on T007f**
-- [X] T010 [P] [US1] Implement utility functions in `code/utils.py`: VIF calculation, Flesch-Kincaid scoring, Jaccard similarity, semantic similarity (using lightweight CPU-safe embeddings or cosine similarity on TF-IDF)
-- [X] T011 [P] [US1] Setup environment configuration management and logging infrastructure in `code/config.py`: Implement `get_logger()` and `load_env()` functions.
+- [~] T010 [P] [US1] Implement utility functions in `code/utils.py`: VIF calculation, Flesch-Kincaid scoring, Jaccard similarity, semantic similarity (using lightweight CPU-safe embeddings or cosine similarity on TF-IDF)
+- [ ] T011 [P] [US1] Setup environment configuration management and logging infrastructure in `code/config.py`: Implement `get_logger()` and `load_env()` functions.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -59,16 +59,16 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [X] T012 [P] [US1] Contract test for `code/train_load_model.py` input/output schema in `tests/contract/test_load_model.py`
-- [X] T013 [P] [US1] Integration test for Golden Set validation and model training pipeline in `tests/integration/test_load_model_integration.py`
+- [~] T012 [P] [US1] Contract test for `code/train_load_model.py` input/output schema in `tests/contract/test_load_model.py`
+- [~] T013 [P] [US1] Integration test for Golden Set validation and model training pipeline in `tests/integration/test_load_model_integration.py`
 
 ### Implementation for User Story 1
 
-- [X] T014 [P] [US1] Implement feature engineering in `code/train_load_model.py`: log-transform latency, count errors/hints/pauses per session. **Depends on T004**
+- [~] T014 [P] [US1] Implement feature engineering in `code/train_load_model.py`: log-transform latency, count errors/hints/pauses per session. **Depends on T004**
 - [ ] T015 [US1] Implement full Gradient Boosting Regressor pipeline in `code/train_load_model.py`: Train `LightGBM` (with `tree_method='hist'`, `device='cpu'`). Read `data/processed/golden_set.csv` (validated in T008) to determine the validation file path. Validate against the Golden Set with target Pearson r ≥ 0.6. **If r < 0.6**, log the achieved metric, save the model as `data/processed/load_model_low_confidence.pkl`, and record the metric in `data/processed/model_metrics.json` (do NOT halt). **If r ≥ 0.6**, save the model to `data/processed/load_model.pkl` (≤ 500 MB). **Depends on T014, T008**
-- [X] T016 [P] [US1] Implement collinearity diagnostic (VIF ≤ 5) in `code/utils.py` and `code/train_load_model.py`; add logic to flag predictors and frame descriptive relationships if VIF > 5. **Depends on T014**
+- [~] T016 [P] [US1] Implement collinearity diagnostic (VIF ≤ 5) in `code/utils.py` and `code/train_load_model.py`; add logic to flag predictors and frame descriptive relationships if VIF > 5. **Depends on T014**
 - [ ] T018 [P] [US1] Verify model artifact: Assert `data/processed/load_model.pkl` (or `load_model_low_confidence.pkl`) exists and file size is ≤ 500 MB. Raise error if missing or too large. **Depends on T015**
-- [X] T019 [US1] Update `code/train_load_model.py` to explicitly document that the model uses **behavioral proxies** (latency, errors, hints) as INPUT features, but validation is STRICTLY against the external **Golden Set** expert labels, ensuring no conflation of input features with validation targets (addressing "illusion of competence" concerns).
+- [~] T019 [US1] Update `code/train_load_model.py` to explicitly document that the model uses **behavioral proxies** (latency, errors, hints) as INPUT features, but validation is STRICTLY against the external **Golden Set** expert labels, ensuring no conflation of input features with validation targets (addressing "illusion of competence" concerns).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -82,8 +82,8 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T020 [P] [US2] Contract test for tier generation input/output in `tests/contract/test_tier_generation.py`
-- [X] T021 [P] [US2] Integration test for Flesch-Kincaid scoring and fidelity checks in `tests/integration/test_tier_generation_integration.py`
+- [~] T020 [P] [US2] Contract test for tier generation input/output in `tests/contract/test_tier_generation.py`
+- [~] T021 [P] [US2] Integration test for Flesch-Kincaid scoring and fidelity checks in `tests/integration/test_tier_generation_integration.py`
 
 ### Implementation for User Story 2
 
@@ -120,8 +120,8 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T027 [P] [US3] Contract test for simulation inputs/outputs in `tests/contract/test_simulation.py`
-- [X] T028 [P] [US3] Integration test for mixed-effects model fitting and statistical reporting in `tests/integration/test_stats_integration.py`
+- [~] T027 [P] [US3] Contract test for simulation inputs/outputs in `tests/contract/test_simulation.py`
+- [~] T028 [P] [US3] Integration test for mixed-effects model fitting and statistical reporting in `tests/integration/test_stats_integration.py`
 
 ### Implementation for User Story 3
 
@@ -148,7 +148,7 @@
 
 ### Tests for Review Address (OPTIONAL)
 
-- [X] T040 [P] [Rev] Contract test for `code/analyze_results.py` ensuring "retrieval_latency" and "error_pattern" metrics are present in output schema if data exists
+- [ ] T040 [P] [Rev] Contract test for `code/analyze_results.py` ensuring "retrieval_latency" and "error_pattern" metrics are present in output schema if data exists
 
 ### Implementation for Review Address
 

@@ -1,3 +1,40 @@
+T001a:
+  c: false
+  h: 3e6b2c9dd44580ba104f031e4cb9b39ebf7b6eddc90766957331b704f5da5959
+  r: No evidence of a `code/` directory at the repository root is provided; the artifact
+    list is empty, so the required directory has not been demonstrated as created.
+T001b:
+  c: false
+  h: 94ea52ccf4f098ed0df3f55820fd444a1e2224193f64ffd82d40c2c661ddc767
+  r: "No evidence of a `tests/` directory at the repository root was provided; the\
+    \ artifact list is empty, so the required directory has not been demonstrated\
+    \ as existing. The implementer must add the `tests/` folder (non\u2011empty or\
+    \ at least present) to satisfy the task."
+T001c:
+  c: false
+  h: d6aec8848fa687bd424b05087b7e57c513fa06cc597d97c669f60bf55ed921ea
+  r: No evidence of a `docs/` directory at the repository root is provided; the artifact
+    list is empty, so the required directory has not been demonstrated as existing.
+    The implementer must create the `docs/` folder and show its presence.
+T002a:
+  c: false
+  h: f1e057f78165af69050b1dfe2429bb3cb315776f983e098acc0c4ea98a4c3742
+  r: No evidence was provided showing that a `data/raw/` directory exists at the repository
+    root; the artifact list is empty, so the required directory cannot be confirmed.
+    The implementer must create the directory (and optionally show its presence, e.g.,
+    via a file listing).
+T002b:
+  c: false
+  h: 791df062c9d5644e732093f8a935edc926c40a2eb96fffb5b0408f9ab630508f
+  r: No evidence of a `data/processed/` directory is provided; the artifact list is
+    empty and the claim cannot be verified. The required directory must be present
+    in the repository root for the task to be considered complete.
+T002c:
+  c: false
+  h: d8851e54f3e9176a301e7046553a19dcdf1180f3ee982d389673e8075be898db
+  r: No evidence of a `data/artifacts/` directory at the repository root is provided;
+    the artifact list is empty, so the required directory has not been shown to exist.
+    The implementer must create the directory and confirm its presence.
 T017a:
   c: false
   h: ba95e905208ed9b5d76e0510f1a447e829b58516cf3217196eb8fe05ae0b51f0

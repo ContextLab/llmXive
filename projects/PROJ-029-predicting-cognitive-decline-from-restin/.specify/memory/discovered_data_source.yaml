@@ -1,13 +1,11 @@
 status: none
-intent: download OpenNeuro ds000246 ADNI rs-fMRI BIDS dataset python package dataset
+intent: OpenNeuro ds000248 ADNI rs-fMRI BIDS dataset download python package dataset
 required_fields:
 - subject_id
-- timepoint
-- mmse_baseline
-- mmse_followup
-- moca_baseline
-- moca_followup
-- node_degree
-- global_efficiency
-- clustering_coefficient
-- characteristic_path_length
+- session
+- mmse
+- moca
+- rs_fmri_filepath
+cache_key: 546edb1f223f03353602678b87c4bfa015ae739f541d77e2246a646410326bde
+searched_at: '2026-10-09T01:20:15.796322+00:00'
+retry_count: 1
