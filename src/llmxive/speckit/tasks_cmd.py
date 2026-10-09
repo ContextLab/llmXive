@@ -185,8 +185,9 @@ class TaskerAgent(SlashCommandAgent):
         #      digits (T001, T012, etc.) per the format contract
         from llmxive.speckit._diff_guard import refuse_if_diff
         refuse_if_diff(text, artifact_kind="tasks.md")
-        import re as _re
-        task_id_lines = _re.findall(r"^- \[[ Xx]\] T\d+\b", text, _re.MULTILINE)
+        from llmxive.speckit.task_lines import TASK_LINE_RE, mask_fenced_code, validate_open_tasks
+        validate_open_tasks(text)
+        task_id_lines = list(TASK_LINE_RE.finditer(mask_fenced_code(text)))
         if len(task_id_lines) < 5:
             raise RuntimeError(
                 f"Tasker produced only {len(task_id_lines)} task IDs "

@@ -37,15 +37,15 @@ from __future__ import annotations
 import re
 
 from ._diff_guard import looks_like_diff
+from .task_lines import TASK_LINE_RE, TaskFormatError, mask_fenced_code, validate_open_tasks
 
-_TASK_ID_RE = re.compile(r"^- \[[ Xx]\] T\d+[a-z]?\b", re.MULTILINE)
 _MD_HEADER_RE = re.compile(r"^# ", re.MULTILINE)
 _FR_SC_RE = re.compile(r"\b(?:FR|SC)-\d+")
 
 
 def _tasks_task_id_count(content: str) -> int:
     """Return the number of ``- [ ] T###`` / ``- [X] T###`` lines."""
-    return len(_TASK_ID_RE.findall(content))
+    return len(list(TASK_LINE_RE.finditer(mask_fenced_code(content))))
 
 
 def _has_markdown_header(content: str) -> bool:
@@ -93,6 +93,10 @@ def check_legacy_guards(
         return refusals
 
     if filename == "tasks.md":
+        try:
+            validate_open_tasks(new_content)
+        except TaskFormatError as exc:
+            return [f"refusing tasks.md writeback: {exc}"]
         n_ids = _tasks_task_id_count(new_content)
         if n_ids < 5:
             refusals.append(

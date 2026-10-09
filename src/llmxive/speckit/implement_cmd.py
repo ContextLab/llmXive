@@ -27,6 +27,7 @@ from llmxive.speckit.task_lines import TASK_LINE_RE as _TASK_RE
 from llmxive.speckit.task_lines import (
     all_complete,
     mark_task,
+    mask_fenced_code,
     task_continuation,
     validate_open_tasks,
 )
@@ -48,7 +49,7 @@ class ImplementerAgent(SlashCommandAgent):
         return resolve_feature_dir(ctx)
 
     def _next_incomplete(self, tasks_text: str) -> tuple[str, str] | None:
-        for m in _TASK_RE.finditer(tasks_text):
+        for m in _TASK_RE.finditer(mask_fenced_code(tasks_text)):
             if m.group("status") == " ":
                 index = tasks_text[:m.start()].count("\n")
                 return m.group("id"), m.group(0) + task_continuation(tasks_text.splitlines(), index)
@@ -63,7 +64,7 @@ class ImplementerAgent(SlashCommandAgent):
         tasks_text = tasks_path.read_text(encoding="utf-8") if tasks_path.exists() else ""
         validate_open_tasks(tasks_text)
         next_task = self._next_incomplete(tasks_text)
-        completed = [m.group("id") for m in _TASK_RE.finditer(tasks_text)
+        completed = [m.group("id") for m in _TASK_RE.finditer(mask_fenced_code(tasks_text))
                      if m.group("status") in {"X", "x"}]
         return {
             "feature_dir": str(feature_dir),
