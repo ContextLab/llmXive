@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T15:44:03.804169Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-879-llmxive-follow-up-extending-danceopd-on
-last_run_id: a444189f-f84d-4e08-9518-b0dcf9a8b266
+last_run_id: 302a91b6-d035-4ba7-90da-fbd9065450ef
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on
 title: 'llmXive follow-up: extending "DanceOPD: On-Policy Generative Field Distillation"'
-updated_at: '2026-09-28T09:45:10.117595Z'
+updated_at: '2026-10-09T20:11:15.781865Z'
