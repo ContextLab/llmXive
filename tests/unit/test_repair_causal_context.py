@@ -71,6 +71,13 @@ def test_proposal_gets_lookup_bindings_and_stage_facts(tmp_path, monkeypatch):
     saved = json.loads((tmp_path / 'output/import-bindings.json').read_text())
     assert saved[source][0]['used_as'].endswith('project_initializer._repo_root')
     assert path.read_text() == text
+    # The real summary consumes both saved artifacts, rather than leaving them
+    # as diagnostic dead ends that only a test or manual inspection can read.
+    (tmp_path / 'output').rename(tmp_path / 'attempt-1')
+    summary = render(tmp_path)
+    assert 'Observed stage default: in_progress → implementer' in summary
+    assert ('llmxive.config.repo_root → '
+            'llmxive.agents.project_initializer._repo_root') in summary
 
 
 def test_retry_diagnostics_keep_baseline_and_candidate_distinct(tmp_path, monkeypatch):

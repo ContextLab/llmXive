@@ -514,7 +514,7 @@ def run(repo: Path, evidence: dict, output: Path, *, image: str = IMAGE) -> dict
     output.mkdir(parents=True, exist_ok=True)
     (output / "evidence.json").write_text(json.dumps(evidence, indent=2))
     dispatch = stage_context(repo, evidence)
-    (output / "dispatch-context.json").write_text(json.dumps(dispatch, indent=2))
+    (output / "dispatch-context.json").write_text(json.dumps({"routes": dispatch}, indent=2))
     evidence = dict(evidence, stage_dispatch_context=dispatch)
     tree = sorted(
         str(p.relative_to(repo))

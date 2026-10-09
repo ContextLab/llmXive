@@ -24,10 +24,13 @@ candidate and preservation logs, and the Actions summary shows bounded tails.
 The proposal instructions require recoverable existing bytes rather than
 unconditional deletion.
 
-Validation: 51 focused repair tests passed, including the existing fixed
+Validation: 59 focused repair and state-reader tests passed, including the existing fixed
 preservation suite and independent-review routing tests. The new prompt-context
 and labeled-retry regressions both failed against the baseline source and pass
-with this change. Ruff and git diff --check passed. No preservation test or
+with this change. The initial PR CI caught missing readers for the two new
+diagnostic artifacts; the repair summary now consumes both and renders their
+stage/lookup facts. The state-reader check reports zero dead ends. Ruff and
+git diff --check passed. No preservation test or
 acceptance gate was weakened. No research files or scientific canary artifacts
 were changed. A new live repair run is still required to assess proposal quality
 and must pass baseline/candidate tests, the separate fixed preservation suite,

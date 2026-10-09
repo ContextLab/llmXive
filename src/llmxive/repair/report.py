@@ -32,6 +32,20 @@ def render(output: Path) -> str:
                       f"Last phase: {progress.get('phase', 'unknown')}"])
         if selection.get("problem"):
             lines.append("Selected problem: " + str(selection["problem"])[:2000])
+        routes = _read(attempt / "dispatch-context.json").get("routes", [])
+        if isinstance(routes, list):
+            for route in routes:
+                if isinstance(route, dict):
+                    lines.append("Observed stage default: " + str(route.get("stage"))
+                                 + " → " + str(route.get("default_agent")) + " ("
+                                 + str(route.get("agent_source", route.get("source"))) + ")")
+        bindings = _read(attempt / "import-bindings.json")
+        for source, imports in bindings.items():
+            if isinstance(imports, list):
+                lookups = [str(item.get("imported_from")) + " → " + str(item.get("used_as"))
+                           for item in imports if isinstance(item, dict)]
+                if lookups:
+                    lines.append(f"Dependency lookup bindings ({source}): " + "; ".join(lookups[:20]))
         for diagnostic in sorted(attempt.glob("proposal-validation*.json")):
             lines.append("Proposal correction: " + str(_read(diagnostic).get("error", ""))[:2000])
         if context:
