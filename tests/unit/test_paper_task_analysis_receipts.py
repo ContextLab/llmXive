@@ -140,3 +140,11 @@ def test_malformed_receipt_forces_review(reviewed):
     ctx, _, _, _ = reviewed
     PaperTaskerAgent()._analysis_marker(ctx).write_text('incomplete JSON')
     assert not PaperTaskerAgent().mechanical_step(ctx).get('skip_llm')
+
+
+def test_changed_authoritative_web_policy_invalidates_receipt(reviewed):
+    ctx, _, _, _ = reviewed
+    path = ctx.project_dir.parent.parent / 'web/about.html'
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text('<script>citation_title_overlap_threshold: 0.99</script>')
+    assert not PaperTaskerAgent().mechanical_step(ctx).get('skip_llm')

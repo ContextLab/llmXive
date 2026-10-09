@@ -65,6 +65,7 @@ class TaskerAgent(SlashCommandAgent):
             ctx.project_dir / ".specify/memory/task_verifier_notes.md",
             ctx.project_dir / ".specify/templates/tasks-template.md",
         })
+        paths.add(repo / "web/about.html")  # Authoritative convergence/citation policy.
         digest = hashlib.sha256(b"task-analysis-v1\0")
         for path in sorted(paths):
             digest.update(str(path.relative_to(repo)).encode() + b"\0")

@@ -111,3 +111,11 @@ def test_post_analysis_citation_edit_invalidates_receipt(reviewed, monkeypatch):
     project_store.save(state.model_copy(update={'current_stage':Stage.TASKED}),
         repo_root=ctx.project_dir.parent.parent)
     assert not TaskerAgent().mechanical_step(ctx).get('skip_llm')
+
+
+def test_changed_authoritative_web_policy_invalidates_receipt(reviewed):
+    ctx, _, _, _ = reviewed
+    path = ctx.project_dir.parent.parent / 'web/about.html'
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text('<script>citation_title_overlap_threshold: 0.99</script>')
+    assert not TaskerAgent().mechanical_step(ctx).get('skip_llm')
