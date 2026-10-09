@@ -365,3 +365,41 @@ def test_reject_cap_records_unverifiable_never_accepts(tmp_path: Path, monkeypat
     recorded = unverifiable.load("PROJ-CAP", repo_root=tmp_path)
     assert [t["task_key"] for t in recorded] == ["T009"], recorded
     assert unverifiable.has_unverifiable("PROJ-CAP", repo_root=tmp_path)
+
+
+def test_empty_package_marker_still_requires_semantic_review(tmp_path):
+    (tmp_path / 'src').mkdir()
+    marker = tmp_path / 'src/__init__.py'
+    marker.touch()
+    assert tv._artifact_valid(tmp_path, 'src/__init__.py')
+    assert tv._deterministic_verdict(tmp_path, 'Create an empty src/__init__.py package marker')[0] is None
+    substantive = tmp_path / 'src/analysis.py'
+    substantive.touch()
+    assert not tv._artifact_valid(tmp_path, 'src/analysis.py')
+    assert tv._deterministic_verdict(tmp_path, 'Implement src/analysis.py')[0] == 'reject'
+
+
+def test_verifier_receipts_follow_model_and_policy(tmp_path, monkeypatch):
+    (tmp_path / 'code').mkdir()
+    (tmp_path / 'code/main.py').write_text('print(42)\n')
+    tasks = tmp_path / 'tasks.md'
+    original = '- [X] T001 Implement code/main.py to print 42\n'
+    tasks.write_text(original)
+    calls = []
+
+    def judge(**kwargs):
+        calls.append(kwargs)
+        return tv.TaskVerdict(True, 'Actual source prints 42')
+
+    monkeypatch.setattr(tv, 'verify_task', judge)
+    args = dict(already_verified=set(), notes_path=tmp_path / 'notes.md',
+                state_path=tmp_path / '.specify/memory/task_verify.yaml')
+    tv.run_verification_pass(tmp_path, tasks, model='custom-model', **args)
+    assert tv.verified_done_keys(tmp_path, tasks, model='custom-model') == {'T001'}
+    assert tv.verified_done_keys(tmp_path, tasks) == set()
+    tv.run_verification_pass(tmp_path, tasks, model='custom-model', **args)
+    assert len(calls) == 1  # unchanged evidence and policy reuse their receipt
+    monkeypatch.setattr(tv, '_SYSTEM_PROMPT', tv._SYSTEM_PROMPT + '\nReview updated policy.')
+    assert tv.verified_done_keys(tmp_path, tasks, model='custom-model') == set()
+    tv.run_verification_pass(tmp_path, tasks, model='custom-model', **args)
+    assert len(calls) == 2 and tasks.read_text() == original
