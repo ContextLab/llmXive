@@ -6,47 +6,46 @@ GitHub Actions logs/issues, the Dartmouth model catalog, and real model/code
 calls. Counts below describe this frozen snapshot, not a claim about later runs.
 Work is isolated from the user's unfinished `025-self-improvement-lane` branch.
 
-## Current acceptance status — 2026-10-09 07:22 UTC
+## Current acceptance status — 2026-10-09 11:55 UTC
 
 Full pipeline recovery is **not yet demonstrated**. The audit has found defects
 in orchestration, evidence delivery, verification and scope; a model upgrade
 alone cannot resolve them.
 
-- The latest production census (06:58 UTC, `119607dc828b4ac6cf8950ac5c4a8a0a69c54507`)
-  has 1,095 projects: 454 implementing, 101 planned, **zero authored research-complete
-  or later**, and 227 external preprint reviews. See `production-20261009-0658.json`.
-- The separately initialized canary began with 9 functional requirements / 6
-  success criteria versus 17 / 12 in the original attempt. Its initial 15 tasks
-  have since grown through replanning. Scope inflation remains unresolved.
-- The fresh canary autonomously corrected its TV formula and completed the full
-  sweep at 07:02. All twelve current `data/results/` combinations match an
-  independent linear-totient oracle for counts, denominators and both TV values
-  (`fresh-results-validation.json`). Earlier `data/` duplicates remain partly
-  wrong. The report retains invented TV examples and false interpretations;
-  the inspected figure is stale and includes a test-generated N=10 point.
-  The numerical sweep is real progress, **not research or paper acceptance**.
-- GLM-5.3 is deployed as the free primary, with free GPT-OSS/Gemma peers. Slow
-  successful calls and full-deadline failures both occur; no controlled model
-  quality comparison is claimed. #1507 disables hidden SDK retries. Merged
-  #1514 shares one total generation/retry/backoff deadline and correctly routes
-  SDK timeouts to fallback. Actual SDK/local HTTP regressions prove those
-  boundaries; upstream model availability remains outside those fixes.
-- #1508–#1514 are merged after their exact-head checks passed. They address
-  Python bindings, implementation data context, signed result-prose evidence,
-  failed-script retry context, report-verifier data, revision output priority
-  and timeout recovery. Full-project revision failures still occur; #1474
-  retains that evidence instead of treating a small protocol probe as acceptance.
-- Pending #1515 rejects unreadable YAML completion evidence; #1516 routes
-  malformed generated task syntax through bounded recovery; #1517 prioritizes
-  task output data and exposes actual task execution records to verification.
-  Both canaries restarted at 07:22 with these tested changes on platform
-  `0a01fa67b97f4eec81aaceae64f84146cd9ae5af`; 102 combined checks passed. They are
-  replanning, with their own generated scientific files and no manual promotions.
-- Deployed repair trial 37892793428 failed before producing a patch or reaching
-  preservation tests. It exposed the #1514 timeout bugs. A new deployed trial,
-  [37897943625](https://github.com/ContextLab/llmXive/actions/runs/37897943625), is
-  running with the fix and paid opt-in disabled. Useful unattended repair
-  acceptance remains pending.
+- The 11:51 production census (`5ee606a89031bc8d0df7324162508d767325d65c`)
+  has 1,095 projects: 456 implementing, 102 planned, **zero authored research-complete
+  or later**, and 227 external preprint reviews. There are 199 advance-error records,
+  124 uncleared with positive counts; these are records, not 199 distinct current bugs.
+  See `production-20261009-1151.json`.
+- The smaller canary began with 9 functional requirements / 6 success criteria versus
+  17 / 12 in the original attempt. Its initial 15 tasks have grown through replanning.
+  Its full 07:02 numerical sweep still passes all 12 independent count, denominator,
+  and TV comparisons at 11:53 (`fresh-results-validation.json`). Report, figure,
+  execution and paper acceptance remain unproven. Earlier inspection found
+  invented report examples and a stale figure containing a test N=10 point.
+- Both prior runs ended unsuccessfully: original at `agent_blocked` after its
+  bounded recovery attempts; fresh at a Tasker response containing tables and
+  zero canonical checkbox tasks. No scientific artifacts or states were reset.
+- #1515–#1517 are merged: unreadable YAML evidence is rejected, malformed task
+  syntax gets bounded recovery, and verification sees scoped data/execution logs.
+  #1518 fixes exhausted implementation routing to the actual planner; #1521
+  supplies active Tasker mode and routes malformed task counts through recovery.
+  Their CI is pending. The smaller canary resumed at 11:54 with these tested fixes
+  plus #1520 on platform `22048a64fb6b41511661419344d22ab19cda677e`;
+  51 combined checks passed. Platform-prompt refresh preserved scientific files
+  and project states byte-for-byte before resuming autonomous work.
+- GLM-5.3 remains the free primary, with free GPT-OSS/Gemma peers. Its availability
+  is intermittent: recent full-prompt calls succeeded in 138.087s and 125.950s,
+  following earlier full-deadline failures. #1520's live corrective retry recovered
+  an incomplete GPT-OSS task revision by switching to GLM. Gemma separately returned
+  a valid full revision in 129.619s. These prove service/format behavior, not scientific
+  quality or full-pipeline acceptance. See `reviser-peer-retry.md`.
+- Deployed self-improvement trial [37897943625](https://github.com/ContextLab/llmXive/actions/runs/37897943625)
+  reached patch testing after #1514's deadline fix, but failed 1 of 6 candidate tests.
+  The candidate also proposed unconditional deletion of an existing file; it was
+  never published. #1519 adds source-derived stage/caller/import context and
+  distinct baseline/candidate diagnostics. CI and a fresh live repair trial remain
+  pending; preservation tests and independent review are still mandatory.
 - Issue cleanup is complete: eight recurring/actionable issues remain. The
   Claude web/mobile health-check task is paused with all triggers paused.
 

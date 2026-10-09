@@ -1,0 +1,20 @@
+{
+  "observed_at": "2026-10-09T11:51:04.938726+00:00",
+  "head": "5ee606a89031bc8d0df7324162508d767325d65c",
+  "project_stages": {
+    "in_progress": 456,
+    "planned": 102,
+    "analyzed": 15,
+    "clarified": 90,
+    "specified": 59,
+    "tasked": 49,
+    "flesh_out_complete": 65,
+    "validated": 7,
+    "flesh_out_in_progress": 19,
+    "project_initialized": 6,
+    "reviewed_preprint": 227
+  },
+  "total_projects": 1095,
+  "advance_error_records": 199,
+  "uncleared_positive_records": 124
+}

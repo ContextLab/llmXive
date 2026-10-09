@@ -1,5 +1,5 @@
 {
-  "observed_at": "2026-10-09T07:10:10.648747+00:00",
+  "observed_at": "2026-10-09T11:53:21.084186+00:00",
   "scope": "Read-only comparison of generated sweep files with independent linear totient recurrence and gcd sanity checks; not pipeline acceptance",
   "all_passed": true,
   "checks": [

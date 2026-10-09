@@ -276,7 +276,7 @@ class ImplementerReviser:
             repo_root=self._repo_root,
             concerns=concerns,
             first_pass=run_pass_with_artifact_retry(
-                _run_pass, reviser_name=type(self).__name__,
+                _run_pass, reviser_name=type(self).__name__, reviser=self,
             ),
             redo=_run_pass,
         )
