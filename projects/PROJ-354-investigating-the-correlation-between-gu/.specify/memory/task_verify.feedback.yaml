@@ -1,10 +1,16 @@
 T001:
-  reason: "Checked the execution log `code/.tasks/T001.code_create_structure.py.log`,\
-    \ which shows the script ran without error, but no evidence of the required output\
-    \ file `project_tree.txt` or of empty `__init__.py` files in each package is present.\
-    \ The tree listing file is missing, so the task\u2019s deliverables are not satisfied."
+  reason: The log only shows that `project_tree.txt` was created, but its contents
+    are not provided, so we cannot confirm it lists the required directories (e.g.,
+    `code/utils`, `data/raw`, `results/plots`, etc.). Additionally, there is no evidence
+    that every Python package contains an empty `__init__.py`. The implementer must
+    supply the actual `project_tree.txt` file and verify the presence of empty `__init__.py`
+    files in all package directories.
   task: 26f3c59668a23f0b15ca579ebf6dd23e26a2df2aeaf6aba4542267977544d91b
 T002:
+  reason: The `.ruff.toml` file matches the required configuration, but the `pyproject.toml`
+    does not fully pin all dependencies (e.g., `python-dotenv>=1.0.0`), and there
+    is no evidence that `pip install -r requirements.txt` was run successfully without
+    version conflicts.
   task: e07b02ee5ab3927b5c669cb2c5ded6cb8e37a15c8f4710b9299a930113359bdb
 T003:
   task: c6ae49c0c4baa138602b6c2a9da414590ace1f15b71b014b4141e6d57e175290

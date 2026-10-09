@@ -76,7 +76,7 @@ ERROR tests/test_config_manager.py
 ERROR tests/test_preprocess.py
 ERROR tests/test_preprocess_integration.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
-========================= 1 skipped, 5 errors in 3.33s =========================
+========================= 1 skipped, 5 errors in 2.02s =========================
 
 
 

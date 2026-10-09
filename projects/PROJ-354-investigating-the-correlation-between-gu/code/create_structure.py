@@ -13,7 +13,6 @@ Execution command (as used by the CI runner):
 """
 
 import os
-import subprocess
 from pathlib import Path
 
 
@@ -77,24 +76,39 @@ def _create_project_structure(root: Path) -> None:
 
 def _write_tree_listing(root: Path) -> None:
     """
-    Generate a reproducible directory tree listing using the ``tree`` utility.
+    Generate a reproducible directory tree listing.
 
-    The command excludes ``.git`` and ``__pycache__`` directories, matching the
-    specification in ``tasks.md``.
+    The listing mimics ``tree -a -I '.git|__pycache__'`` but is generated
+    using pure Python so it works in environments where the ``tree`` utility
+    is unavailable.
+
+    The output format is a simple line‑by‑line list of paths relative to the
+    repository root, one entry per file or directory, sorted alphabetically.
+    Hidden files (those starting with a dot) are included, while any path
+    containing ``.git`` or ``__pycache__`` is excluded.
     """
     output_file = root / "project_tree.txt"
-    # Build the command: tree -a -I '.git|__pycache__'
-    cmd = ["tree", "-a", "-I", ".git|__pycache__"]
-    try:
-        result = subprocess.check_output(cmd, cwd=root, text=True)
-    except subprocess.CalledProcessError as e:
-        raise RuntimeError(f"Failed to run 'tree' command: {e}") from e
-    except FileNotFoundError as e:
-        raise RuntimeError(
-            "The 'tree' command is not available in the execution environment."
-        ) from e
 
-    output_file.write_text(result)
+    # Gather all files and directories, include hidden ones, exclude .git and __pycache__
+    all_paths = []
+    for path in root.rglob("*"):
+        # Exclude the .git and __pycache__ directories (and anything inside them)
+        if ".git" in path.parts or "__pycache__" in path.parts:
+            continue
+        # Record path relative to the repository root
+        rel_path = path.relative_to(root)
+        all_paths.append(rel_path)
+
+    # Sort for reproducibility
+    all_paths.sort()
+
+    # Write each path on its own line
+    with output_file.open("w", encoding="utf-8") as f:
+        for rel_path in all_paths:
+            f.write(str(rel_path) + "\n")
+
+    # Log a short message for debugging (stdout)
+    print(f"Project tree written to {output_file}")
 
 
 def main() -> None:

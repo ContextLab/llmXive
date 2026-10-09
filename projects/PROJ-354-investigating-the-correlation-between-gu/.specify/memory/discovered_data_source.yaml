@@ -1,5 +1,5 @@
 status: none
-intent: UK Biobank microbiome 16S rRNA sequencing dataset download python package
+intent: download UK Biobank microbiome 16S rRNA and cognitive scores python package
   dataset
 required_fields:
 - participant_id
@@ -10,10 +10,10 @@ required_fields:
 - physical_activity
 - medication_use
 - antibiotic_use
-- "microbiome_counts (genus\u2011level)"
+- microbiome_counts_genus_level
+- ilr_transformed_genus_coordinates
 - reaction_time
 - numeric_memory
-- reasoning
-cache_key: 27b93374d18deb2eb3c7f0dfa079af12ea9731b862a70f3f6a3cac5da925550e
-searched_at: '2026-10-09T18:30:30.680607+00:00'
+cache_key: dc7ed32906a2e323284a5e7f9071130998a882b787ee59b2a34b2e942cbf7e2b
+searched_at: '2026-10-09T18:33:37.144112+00:00'
 retry_count: 1

@@ -1,11 +1,21 @@
 T001:
   c: false
-  h: 1076612abfe93625aa72bd76f1e479e857061584c385bbf71e6e9c9b6f74513e
-  r: "Checked the execution log `code/.tasks/T001.code_create_structure.py.log`, which\
-    \ shows the script ran without error, but no evidence of the required output file\
-    \ `project_tree.txt` or of empty `__init__.py` files in each package is present.\
-    \ The tree listing file is missing, so the task\u2019s deliverables are not satisfied."
-  sig: 60c5bc72c53b4bb25116076b07fa68383bed67ee0ea85f1f1e3afa42c1e1e838
+  h: 374d2c24140d062668eddf60e7f52d8bab5c98f872ce7eedcb73f3aab40d14c4
+  r: The log only shows that `project_tree.txt` was created, but its contents are
+    not provided, so we cannot confirm it lists the required directories (e.g., `code/utils`,
+    `data/raw`, `results/plots`, etc.). Additionally, there is no evidence that every
+    Python package contains an empty `__init__.py`. The implementer must supply the
+    actual `project_tree.txt` file and verify the presence of empty `__init__.py`
+    files in all package directories.
+  sig: 2187a39790d9cebe5696f955ea664ae970da310debe5b382ef78345b2af684bd
+T002:
+  c: false
+  h: 708fc6a1917b88802cd15241fffc2829cf13053bc6ec6f427a28ceebdde04bcd
+  r: The `.ruff.toml` file matches the required configuration, but the `pyproject.toml`
+    does not fully pin all dependencies (e.g., `python-dotenv>=1.0.0`), and there
+    is no evidence that `pip install -r requirements.txt` was run successfully without
+    version conflicts.
+  sig: 61b428d5ca6f651bd44de605845d9d72002ab9aa2910fb3f669647b2b72e743c
 T015:
   c: false
   h: 08a37a18d36f0ff043a79e8617fe16076e9b3f32ab988619df9fb87e041a015d
