@@ -47,7 +47,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan: `mkdir -p code/01_data_collection code/02_static_analysis code/03_statistical_analysis code/04_reporting code/utils tests/contract tests/integration tests/unit data/raw/human_samples data/raw/llm_samples data/intermediate data/processed reports specs/001-code-smell-comparison`
+- [X] T001 Create project structure per implementation plan: `mkdir -p code/01_data_collection code/02_static_analysis code/03_statistical_analysis code/04_reporting code/utils tests/contract tests/integration tests/unit data/raw/human_samples data/raw/llm_samples data/intermediate data/processed reports specs/001-code-smell-comparison`
 
 - [X] T001.1 [US1] Ensure `research.md` exists with specific content:
  - **Action**: Verify `specs/001-code-smell-comparison/research.md` exists.
@@ -66,7 +66,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
--[ ] T004 Setup environment configuration management (`code/utils/config.py`) for seeds, paths, timeouts, API keys, and **pinned reference set SHA**.
+-[X] T004 Setup environment configuration management (`code/utils/config.py`) for seeds, paths, timeouts, API keys, and **pinned reference set SHA**.
  - **Action**: Define `FALSE_POSITIVE_THRESHOLD = 0.05 (2203.15897, https://arxiv.org/abs/2203.15897)` ([deferred]) as the default value for tool validity checks.
  - **Verification**: Ensure `config.py` exports `FALSE_POSITIVE_THRESHOLD` and `RANDOM_SEED`.
 
@@ -77,11 +77,11 @@
  - `class SmellMetric`: attributes `sample_id`, `smell_type`, `count`, `threshold_used`, `continuous_metric_value`.
  - `class StatResult`: attributes `smell_type`, `p_value`, `effect_size`, `confidence_interval`, `correction_method`, `test_method_used`.
 
-- [~] T008 Implement syntax validation utility (`code/utils/validators.py`) for Python/Java file integrity checks
+- [X] T008 Implement syntax validation utility (`code/utils/validators.py`) for Python/Java file integrity checks
 
-- [~] T009 Setup CI environment check for PMD CLI availability (Dockerfile or CI script to install PMD CLI)
+- [X] T009 Setup CI environment check for PMD CLI availability (Dockerfile or CI script to install PMD CLI)
 
-- [~] T013.1 [US1] [NFR-001] [Constitution-I] Implement `code/utils/validate_seed_pinning.py`:
+- [ ] T013.1 [US1] [NFR-001] [Constitution-I] Implement `code/utils/validate_seed_pinning.py`:
  - **Purpose**: Verify that the execution environment's random seed configuration matches the pinned seed in `code/utils/config.py` before any data collection or generation occurs.
  - **Action**: Read `config.py` for `RANDOM_SEED`. Verify `os.environ.get('PYTHONHASHSEED')` and `random.seed()` are set to this value.
  - **Constraint**: If the seed is not pinned, **raise a SystemExit** to prevent non-reproducible runs, satisfying Constitution Principle I.

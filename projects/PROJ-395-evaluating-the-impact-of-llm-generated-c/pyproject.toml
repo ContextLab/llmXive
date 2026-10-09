@@ -1,56 +1,15 @@
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "llmxive-proj-395"
-version = "0.1.0"
-description = "Evaluating the Impact of LLM-Generated Code on Memory Usage"
-readme = "README.md"
-requires-python = ">=3.11"
-dependencies = [
-    "transformers",
-    "datasets",
-    "memory-profiler",
-    "scikit-learn",
-    "statsmodels",
-    "lifelines",
-    "networkx",
-    "pandas",
-    "numpy",
-    "ruff",
-]
-
+# Pyproject configuration – includes Black formatting settings
 [tool.black]
+# Target Python version
+target-version = ["py311"]
+# Line length consistent with Ruff and Flake8
 line-length = 88
-target-version = ['py311']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
+# Do not change string quotes (Black will keep existing style)
+skip-string-normalization = false
+# Enable preview mode for any future Black features
+preview = false
 
-[tool.ruff]
-# Use the same line length as Black
-line-length = 88
-target-version = "py311"
-
-[tool.ruff.lint]
-# Extend the selection from the .ruff.toml if needed, but we prefer the dedicated file
-# This block is kept minimal to avoid conflict with .ruff.toml
-select = ["E", "W", "F", "I", "B", "C4"]
-ignore = ["E501"]
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-addopts = "-v --tb=short"
+# Optional: add a minimal build system section so tools recognize this as a pyproject
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"

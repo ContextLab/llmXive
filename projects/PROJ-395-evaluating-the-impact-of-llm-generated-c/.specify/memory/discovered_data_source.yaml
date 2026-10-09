@@ -1,0 +1,14 @@
+status: none
+intent: HumanEval and MBPP benchmark datasets from HuggingFace Datasets python package
+  dataset
+required_fields:
+- task_id
+- prompt
+- text
+- canonical_solution
+- code
+- test
+- entry_point
+cache_key: 259456ac9ccb2745a7f13a444b17021ec6047124988f1ac75eb188d62dc3ec22
+searched_at: '2026-10-09T12:47:46.833388+00:00'
+retry_count: 1

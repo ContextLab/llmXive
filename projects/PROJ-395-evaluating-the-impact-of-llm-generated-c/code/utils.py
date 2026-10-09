@@ -15,11 +15,21 @@ Key Functions:
     - retry_on_transient_error: Retry failed operations
     - calculate_total_resource_cost: Compute composite penalty score
     - write_memory_measurements_csv: Save profiling results
+    - save_memory_measurements: Convenience wrapper that writes to the
+      project‑wide default location (data/processed/memory_measurements.csv)
 
 Usage:
-    from utils import execute_code_safely, calculate_total_resource_cost
+    from utils import execute_code_safely, calculate_total_resource_cost, save_memory_measurements
     result = execute_code_safely(code, timeout=60)
     cost = calculate_total_resource_cost(result['memory'], result['time'], result['status'])
+    save_memory_measurements([{
+        'problem_id': 'humaneval-1',
+        'source_type': 'LLM',
+        'peak_memory': result['peak_memory'],
+        'steady_state': result['steady_state'],
+        'status': result['status'],
+        'total_resource_cost': cost
+    }])
 """
 
 import csv
@@ -28,11 +38,11 @@ import signal
 import subprocess
 import sys
 import time
+import tempfile
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Callable
+from typing import List, Dict, Any, Callable
 
-from config import CI_MEMORY_LIMIT_GB, TIMEOUT_SECONDS
-
+from config import CI_MEMORY_LIMIT_GB, TIMEOUT_SECONDS, MEMORY_MEASUREMENTS_PATH
 
 # ============================================================================
 # Custom Exceptions
@@ -115,11 +125,12 @@ def run_with_timeout_and_memory_limit(
     # Note: Windows memory limiting requires different approach
     if os.name != 'nt':
         try:
+            import resource  # Imported lazily to avoid import errors on Windows
             memory_limit_bytes = int(memory_limit_gb * 1024 * 1024 * 1024)
             soft, hard = resource.getrlimit(resource.RLIMIT_AS)
             resource.setrlimit(resource.RLIMIT_AS, (memory_limit_bytes, memory_limit_bytes))
-        except ImportError:
-            pass  # resource module not available
+        except Exception:
+            pass  # If resource module unavailable or limit cannot be set, continue without limiting
 
     try:
         start_time = time.time()
@@ -147,6 +158,10 @@ def run_with_timeout_and_memory_limit(
     except MemoryError:
         result['status'] = 'oom'
         raise OutOfMemoryError("Memory limit exceeded")
+    except Exception as e:
+        result['status'] = 'error'
+        result['stderr'] = str(e)
+        raise
 
     return result
 
@@ -198,7 +213,10 @@ def execute_code_safely(
         result['status'] = 'error'
         result['error'] = str(e)
     finally:
-        os.unlink(temp_path)
+        try:
+            os.unlink(temp_path)
+        except OSError:
+            pass
 
     return result
 
@@ -325,3 +343,30 @@ def read_memory_measurements_csv(input_path: str) -> List[Dict[str, Any]]:
             results.append(row)
 
     return results
+
+
+# ============================================================================
+# Convenience Wrapper
+# ============================================================================
+
+def save_memory_measurements(
+    results: List[Dict[str, Any]],
+    output_path: str = MEMORY_MEASUREMENTS_PATH
+) -> None:
+    """
+    Convenience wrapper that writes memory measurement results to the
+    project‑wide default CSV location.
+
+    This function satisfies the T017 requirement by ensuring that the
+    CSV file ``data/processed/memory_measurements.csv`` is created with the
+    exact schema:
+
+        problem_id, source_type, peak_memory, steady_state, status,
+        total_resource_cost
+
+    Args:
+        results: List of dictionaries matching the schema.
+        output_path: Optional override path; defaults to the
+            ``MEMORY_MEASUREMENTS_PATH`` defined in ``config.py``.
+    """
+    write_memory_measurements_csv(results, output_path)

@@ -1,4 +1,4 @@
-- artifact_hash: 867e1dd3008df24bcd29ce3922d5cc41655c8e4f9bb609d59c7fbde6b701920c
+- artifact_hash: 5fdfcf1e7152222cde5b2f4d169f0199a3498ba726b8f5aa538653c9f061e616
   artifact_path: projects/PROJ-514-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://arxiv.org/abs/2203.15897
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2203.15897
-  verified_at: '2026-10-09T03:28:38.321467Z'
+  verified_at: '2026-10-09T12:39:14.192156Z'

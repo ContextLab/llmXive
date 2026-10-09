@@ -1,19 +1,10 @@
 T001:
-  reason: No directory structure or file listing is provided as evidence; without
-    seeing the created folders (e.g., `code/01_data_collection`, `data/raw/human_samples`,
-    etc.) we cannot confirm the required project layout exists. The implementer must
-    supply a manifest or screenshot showing the directories have been created.
   task: 688dbfbd278cfd38c756d74069bea6332a76af95769ef2d2536abd1026d4cf5a
 T001.1:
   task: 4c1ece7ff03a264a9574957a965978a8c2e1c21570cd13f75810f3fd75be047d
 T002:
   task: db3b69e98361112348aaf78e7d393ca5689b9a521c3f9d7c76a0e8324fe456fd
 T004:
-  reason: "The `code/utils/config.py` file does not define or export a `FALSE_POSITIVE_THRESHOLD`\
-    \ constant, nor does it expose a `RANDOM_SEED` variable (it only provides a `get_random_seed()`\
-    \ function and a `\"random_seed\"` entry in `DEFAULT_CONFIG`). The required pinned\
-    \ reference set SHA is also absent. These missing definitions mean the task\u2019\
-    s verification criteria are not satisfied."
   task: c46cdd0bcc54ff30f93c21e89acad0b1b10415647c85536891c93d96ecd48194
 T005:
   task: f4fb911a8c28bbf6b02ef19e20290269c4d657d8c07e91d0b3934cfd28a4babf
@@ -36,6 +27,10 @@ T012.5:
 T013:
   task: 09428821f0bdc174b372b22ceb54a1595ad9936d446b05433ff670c5484b5517
 T013.1:
+  reason: "The required file `code/utils/validate_seed_pinning.py` does not exist\
+    \ in the repository, so the seed\u2011pinning verification logic cannot be present\
+    \ or executed. Without this module the prerequisite for reproducible runs is not\
+    \ satisfied."
   task: dd0d70be32e3b2aee71e731cb6b8903efc9d279b77747b30e440abfb668388ab
 T014:
   task: 9788b430826a823500b836c72fe347d0a32605b0a7962f3837aac17c8ce73130

@@ -1,0 +1,19 @@
+# Flake8 configuration for the project
+# See https://flake8.pycqa.org/en/latest/user/configuration.html
+[flake8]
+# Maximum allowed line length
+max-line-length = 88
+# Ignore rules that conflict with Black formatting
+extend-ignore = E203, W503
+# Exclude common non‑source directories
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    venv,
+    env,
+    .ruff_cache,
+    .mypy_cache
+# Enable statistics output
+statistics = True

@@ -1,16 +1,17 @@
 T001:
-  c: false
-  h: b43838f9b6b2b2f07f822c359e7a9e4d89a57f8e57eebe251e91739f416aa78a
-  r: No directory structure or file listing is provided as evidence; without seeing
-    the created folders (e.g., `code/01_data_collection`, `data/raw/human_samples`,
-    etc.) we cannot confirm the required project layout exists. The implementer must
-    supply a manifest or screenshot showing the directories have been created.
+  c: true
+  h: 34e19d36dca8a8b10039c7e0d86e3130af800a6f407f553c3c2edf3d8f9a9ae3
+  r: "The log shows the script exited successfully and reports creating exactly the\
+    \ 14 required directories, matching the specification\u2019s list. No missing\
+    \ or placeholder artifacts are evident."
 T001.1:
   c: true
-  h: 2443c90f5693e8b8d50a4229e1fdacba5411676902434b867781a6891fcc1b9a
-  r: "The file `specs/001-code-smell-comparison/research.md` is present (1536\u202F\
+  h: 1595768c61013fbacb598dc7f8f501ed2ac5a697b9e67aaf5c57b2ea26af7aaf
+  r: "The `specs/001-code-smell-comparison/research.md` file is present (1536\u202F\
     bytes) and its contents begin with the required header `# Research: Evaluating\
-    \ Code Generation Impact on Code Smell Frequency`."
+    \ Code Generation Impact on Code Smell Frequency`. The file also includes the\
+    \ expected \u201CBalanced Blocked Design Implementation\u201D section, confirming\
+    \ it is not a placeholder."
 T002:
   c: true
   h: 0047b4d0b94b4ee2400740efcad0ba07a1771adfc429d4307fdea5f26975995b
@@ -18,13 +19,12 @@ T002:
     \ exact version pins listed in the task (requests, GitPython, pandas, scipy, matplotlib,\
     \ pyyaml, pytest) plus additional pinned packages, fulfilling the requirement."
 T004:
-  c: false
-  h: f436efe2af45e6afd33d2d3e0502b66ea2c1fa2713aef7c2fb9a97200f97cdec
-  r: "The `code/utils/config.py` file does not define or export a `FALSE_POSITIVE_THRESHOLD`\
-    \ constant, nor does it expose a `RANDOM_SEED` variable (it only provides a `get_random_seed()`\
-    \ function and a `\"random_seed\"` entry in `DEFAULT_CONFIG`). The required pinned\
-    \ reference set SHA is also absent. These missing definitions mean the task\u2019\
-    s verification criteria are not satisfied."
+  c: true
+  h: c1ad1dce9bd329301eb5ddbe78ed2956083804e25bdb9e54852887da888ca880
+  r: "The `code/utils/config.py` file (9\u202FKB) is present and defines `FALSE_POSITIVE_THRESHOLD\
+    \ = 0.05` and `RANDOM_SEED = 42`, both listed in `__all__`. It also includes a\
+    \ pinned reference set SHA (`reference_set_sha` / `REFERENCE_SET_SHA`) and configuration\
+    \ for seeds, paths, timeouts, and API keys."
 T005:
   c: true
   h: a99da4f7c2b21f99c0a3caa053198e470c25a9956170bdb53bc9daa5a581aa9b
@@ -38,6 +38,27 @@ T007:
   r: The file `code/utils/data_models.py` exists and defines the three required dataclasses.
     `CodeSample` includes all specified attributes (plus extra optional ones), and
     `SmellMetric` and `StatResult` match the exact attribute lists requested.
+T008:
+  c: true
+  h: 753197684148658661fcaae2eafeb285b1930816831a3408a3dd835527edb929
+  r: The `code/utils/validators.py` file exists, contains concrete implementations
+    for detecting language from extension, parsing Python code with `ast`, compiling
+    Java files via `javac`, and recursively validating directories, fulfilling the
+    required Python/Java syntax validation utility.
+T009:
+  c: true
+  h: 65fe682853cb49c9923a7456db6fff14266ad64f4e885fa2db0f78f3ed0cd67c
+  r: "The provided Dockerfile (1454\u202Fbytes) installs Java, downloads and extracts\
+    \ PMD\u202F7.0.0, adds it to the PATH, and runs a Python environment\u2011check\
+    \ script, thereby fulfilling the requirement to set up a CI environment that ensures\
+    \ PMD CLI availability."
+T013.1:
+  c: false
+  h: 28fe6af4ac8f109b0f623bdfd1bc610c6921d64b31e763581727b4a7135d2605
+  r: "The required file `code/utils/validate_seed_pinning.py` does not exist in the\
+    \ repository, so the seed\u2011pinning verification logic cannot be present or\
+    \ executed. Without this module the prerequisite for reproducible runs is not\
+    \ satisfied."
 T019:
   c: false
   h: 6adee02a20e8d6dedf9c3cc70178b152b9c2a5a947d982573033ba7e2666e195

@@ -1,0 +1,78 @@
+{
+  "task_id": "T001",
+  "created_at": "2026-10-09T12:32:50.930637+00:00",
+  "project_root": "/home/runner/work/llmXive/llmXive/projects/PROJ-514-evaluating-the-impact-of-code-generation",
+  "all_directories_present": true,
+  "directories": [
+    {
+      "path": "code/01_data_collection",
+      "exists": true,
+      "existed_before": true
+    },
+    {
+      "path": "code/02_static_analysis",
+      "exists": true,
+      "existed_before": true
+    },
+    {
+      "path": "code/03_statistical_analysis",
+      "exists": true,
+      "existed_before": true
+    },
+    {
+      "path": "code/04_reporting",
+      "exists": true,
+      "existed_before": true
+    },
+    {
+      "path": "code/utils",
+      "exists": true,
+      "existed_before": true
+    },
+    {
+      "path": "tests/contract",
+      "exists": true,
+      "existed_before": true
+    },
+    {
+      "path": "tests/integration",
+      "exists": true,
+      "existed_before": false
+    },
+    {
+      "path": "tests/unit",
+      "exists": true,
+      "existed_before": true
+    },
+    {
+      "path": "data/raw/human_samples",
+      "exists": true,
+      "existed_before": false
+    },
+    {
+      "path": "data/raw/llm_samples",
+      "exists": true,
+      "existed_before": false
+    },
+    {
+      "path": "data/intermediate",
+      "exists": true,
+      "existed_before": true
+    },
+    {
+      "path": "data/processed",
+      "exists": true,
+      "existed_before": false
+    },
+    {
+      "path": "reports",
+      "exists": true,
+      "existed_before": false
+    },
+    {
+      "path": "specs/001-code-smell-comparison",
+      "exists": true,
+      "existed_before": false
+    }
+  ]
+}
