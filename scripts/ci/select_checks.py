@@ -43,6 +43,7 @@ ROUTING_FILES = {
     ".github/workflows/llmxive-real-call-tests.yml",
     ".github/workflows/llmxive-real-call-nightly.yml",
     ".github/workflows/audit.yml", "scripts/ci/verify-audit-corpus.py",
+    ".github/workflows/repair.yml",
     "scripts/verify_root_file_recovery.py",
 }
 
@@ -54,6 +55,14 @@ def needs_references(path: str) -> bool:
     if path.endswith("/__init__.py") or path == "tests/conftest.py":
         return True
     if path in ROUTING_FILES | RUNTIME_TESTS:
+        return False
+    parts = Path(path).parts
+    if (len(parts) >= 3 and parts[0] == "projects" and parts[1].startswith("PROJ-")
+            and (path.endswith(".md") or (len(parts) == 3 and parts[-1] == ".gitattributes"))):
+        # Registrar availability tests consume fixed service examples, not
+        # project documents or project-local checkout attributes. These paths
+        # still run offline and Dartmouth checks below; project code and unknown
+        # configuration remain conservative.
         return False
     if path.startswith(("tests/unit/", "tests/contract/", "web/", "docs/", "notes/")):
         return False

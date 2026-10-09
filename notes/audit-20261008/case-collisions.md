@@ -15,3 +15,14 @@ Separately, PROJ-008's `.gitattributes` had an inline comment interpreted as inv
 Before a model-generated artifact write, the implementer checks every existing path component for a case/Unicode-normalization alias. A new spelling that aliases an existing file or directory is refused on Linux as well as Mac; exact existing spellings remain editable. Refusals use the existing per-task diagnostic channel from #1528, leave source bytes intact, keep the task incomplete, skip execution of the refused proposal, and appear verbatim in the next repair prompt. Two conflicting artifacts in the same response are detected too.
 
 This is a focused artifact-writer guard, not a claim that arbitrary subprocess filesystem writes are an operating-system sandbox. Historical collisions and scientific imports still need the recorded project-specific audit. No scientific canary directories or original dirty checkout were modified.
+
+Hosted CI passed the filename guards, all repository audits, and Dartmouth runtime
+checks after inheriting #1540. The external-reference job repeatedly failed only
+because the unchanged known Zenodo DOI timed out at 30 seconds. Its fixed service
+examples never consume the changed project documents. With CI-owner review,
+classify project-local Markdown and project-root `.gitattributes` as independent
+of registrar availability while retaining offline and Dartmouth coverage. The
+known `repair.yml` orchestration workflow has the same classification; its #1537
+change only adds a quoted project-selection argument. Unknown project code,
+dependencies, schemas, fixtures, and workflows remain conservative. Selection and
+collection regressions preserve these boundaries; no reference assertion changes.
