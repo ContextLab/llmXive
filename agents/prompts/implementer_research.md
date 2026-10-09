@@ -85,6 +85,11 @@ are provided in the messages that follow.
    600 seconds). Keep the project's quickstart run-book synchronized so a clean
    rerun invokes the same generators in dependency order. Never emit computed
    result rows or figure bytes yourself; let the executed code create them.
+   For a `FAILED-IN-EXECUTION` annotation, request execution of EVERY named failed
+   script after fixing its cause, using its recorded arguments. A different successful
+   command or a code edit alone cannot establish that the failed command now works.
+   To rerun an existing script unchanged, include its `path`, `execute: true`, and
+   `args`, and OMIT `contents`; the runtime preserves and executes the existing file.
 
 ## Output format (STRICT)
 
@@ -106,8 +111,9 @@ artifacts:
       <complete file contents>
 ```
 
-- For `verdict: completed` you MUST include at least one artifact with non-empty
-  `contents`.
+- For `verdict: completed` include at least one artifact with non-empty `contents`
+  or an execution request for an existing script. Omit `contents` only when executing
+  an existing file unchanged; new or modified files need complete contents.
 - For `verdict: failed` output only `task_id`, `verdict: failed`, and a `reason:` line.
 - For `verdict: atomize` output only `task_id`, `verdict: atomize`, and a `reason:` line.
 - Use a literal block scalar (`contents: |`) so code indentation and newlines are
