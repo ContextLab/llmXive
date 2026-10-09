@@ -42,36 +42,3 @@
   verification_status: verified
   verified_against_url: https://aflow.org
   verified_at: '2026-07-13T06:14:14.470279Z'
-- artifact_hash: cbd0ee46215a4f23c9ad1c333945cd7230c556a6b6f0e9ba1299a1ea4c3e33bd
-  artifact_path: projects/PROJ-526-quantifying-the-impact-of-dataset-size-o/data/processed/metric_definitions.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Home | pymatgen
-  kind: url
-  value: https://pymatgen.org/
-  verification_status: pending
-  verified_against_url: https://pymatgen.org/
-  verified_at: '2026-09-27T09:39:06.862000Z'
-- artifact_hash: cbd0ee46215a4f23c9ad1c333945cd7230c556a6b6f0e9ba1299a1ea4c3e33bd
-  artifact_path: projects/PROJ-526-quantifying-the-impact-of-dataset-size-o/data/processed/metric_definitions.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://materialsproject.org/
-  verification_status: pending
-  verified_against_url: https://next-gen.materialsproject.org/
-  verified_at: '2026-09-27T09:39:06.862000Z'
-- artifact_hash: cbd0ee46215a4f23c9ad1c333945cd7230c556a6b6f0e9ba1299a1ea4c3e33bd
-  artifact_path: projects/PROJ-526-quantifying-the-impact-of-dataset-size-o/data/processed/metric_definitions.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: Aflow - Automatic FLOW for Materials Discovery
-  kind: url
-  value: https://aflow.org/
-  verification_status: pending
-  verified_against_url: https://aflow.org/
-  verified_at: '2026-09-27T09:39:06.862000Z'

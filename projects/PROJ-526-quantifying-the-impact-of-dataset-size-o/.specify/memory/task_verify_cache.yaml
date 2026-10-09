@@ -1,3 +1,49 @@
+T001a:
+  c: true
+  h: 5955bca3e9599e0a32dcef3f7be0dd339faf4d7eef2c01af150a01b6bb01748d
+  r: The repository contains the project root `projects/PROJ-526-quantifying-the-impact-of-dataset-size-o/`
+    with the required subdirectories `code/`, `data/`, `tests/`, `state/`, and `docs/`
+    all present (as shown in the directory listings). This fulfills the task of creating
+    the specified root directories.
+  sig: bcf0bd14254cc9774dddeb9a142301c1de1b1f630e0f94f5537ecf6de9e4c43b
+T001b:
+  c: true
+  h: 41baccb55a6367f953bf1005efc2d314fc6f05e6e266ae49ce76b319ea8b9b0d
+  r: Checked that the directories `data/raw/`, `data/processed/`, `tests/contract/`,
+    `tests/unit/`, and `tests/integration/` all exist under the project root and contain
+    files (e.g., `.gitkeep` and test scripts), satisfying the creation requirement.
+  sig: c8292f3949af130c6853106ce09943aea4963180ad1c6663125bd6932a487139
+T001c:
+  c: false
+  h: 35dc1f812df90017125ac600a1f3dc70938771d449e3eb28fd957c81a753f673
+  r: The evidence provides only the project root location; no `.git` directory, no
+    `.gitignore` file, and no other indication that a Git repository was initialized.
+    Consequently the required artifacts for task T001c are missing.
+  sig: 535717ced3a319768f12cc6ecebf7c6b31cdb1c4215526402221e4c36a01e959
+T002:
+  c: true
+  h: 05e7ba632121805054d5594259ac1243fe00f6bdf5daf48fcc187287cf8c3a73
+  r: "Checked the `requirements.txt` file (195\u202Fbytes) located at the project\
+    \ root; it includes all required packages (`pymatgen`, `matminer`, `scikit-learn`,\
+    \ `pandas`, `numpy`, `requests`, `huggingface_hub`) with version specifiers, satisfying\
+    \ the initialization requirement."
+  sig: 88ac0a1e4263e67df25fa1cb3b545f8bdeeb7046b5e1cb50a7d1bb537d0f49a9
+T003:
+  c: false
+  h: 7b9bd49bc84d26da5e46b8f7e68969beb588350de996d572b24a3db92a95a008
+  r: "The evidence only shows the project root path; no linting configuration files\
+    \ (e.g.,\u202F`.flake8`, `pyproject.toml` with Black settings, or a pre\u2011\
+    commit hook) are present or referenced. Without these artifacts the requirement\
+    \ to \u201Cconfigure linting (flake8/black) and formatting tools\u201D is not\
+    \ satisfied. Adding the appropriate config files and confirming they are non\u2011\
+    empty will be needed."
+  sig: 6b4e341caac99c9afae3b27a9f4331a034f6d48a6040ddcc25290d2c14cf3162
+T004:
+  c: true
+  h: f1bb160b0854ba3e180a13f1dff514d357b70fa68e9d94bad02daea61358c974
+  r: The `data/` directory contains the required `raw/` and `processed/` subfolders,
+    and the `state/` directory exists (with placeholder files) to hold checksum information.
+  sig: 4604293fc8018a2136227ddb6d78e98e28861d51ddf6a3b483dbb0346a286b2a
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

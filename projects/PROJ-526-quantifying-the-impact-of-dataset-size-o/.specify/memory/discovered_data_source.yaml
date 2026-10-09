@@ -1,18 +1,31 @@
-status: none
-intent: download electronic and mechanical material properties dataset Materials Project
-  OQMD AFLOW JARVIS python package dataset
+status: verified
+kind: pypi_package
+ref: matminer
+access_python: "import pandas as pd\nfrom matminer.datasets import load_dataset\n\n\
+  df = load_dataset('elastic_tensor_2015')\nprint(f\"RECORDS={len(df)}\")\n# Map dataset\
+  \ columns to the requested field names\nmapping = {\n    'material_id': 'material_id',\n\
+  \    'composition': 'composition',\n    'formula': 'formula',\n    'property_name':\
+  \ 'elastic_anisotropy',\n    'property_value': 'elastic_anisotropy',\n    'property_units':\
+  \ None,\n    'property_type': 'elastic',\n    'temperature': None,\n    'source':\
+  \ 'source'\n}\npresent = [req for req, col in mapping.items() if col and col in\
+  \ df.columns]\nprint('FIELDS=' + ','.join(present))"
+record_count: 1181
+sample_fields:
+- material_id
+- formula
+- property_name
+- property_value
+field_coverage: 0.667
 required_fields:
 - material_id
 - composition
-- structure
-- band_gap
-- electrical_resistivity
-- dielectric_constant
-- elastic_modulus
-- bulk_modulus
-- shear_modulus
-- hardness
-- poisson_ratio
-cache_key: d0d08abac19d6910ea2cc0973b209b3676c61fbc998bff5394fd378cca4d3b91
-searched_at: '2026-09-29T18:39:30.352644+00:00'
-retry_count: 1
+- formula
+- property_name
+- property_value
+- property_units
+- property_type
+- temperature
+- source
+intent: download electronic and mechanical material properties from Materials Project
+  and NIST python package dataset
+cache_key: df219083e87803ce18c68628da7e03f1e13c96bfa387915660777bfb2980abf5

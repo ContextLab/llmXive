@@ -5,6 +5,17 @@ This module computes physical metrics (spatial locality, symmetry sensitivity,
 valence electron variance) for material properties and performs statistical
 analysis (correlation, permutation tests) to correlate these metrics with
 learning curve scaling exponents.
+
+**Task T041 – Physical Metric Definition**
+-------------------------------------------------
+The definitions for *spatial locality* and *symmetry sensitivity* must be
+sourced from `research.md`. If the research document does not contain
+explicit formulas, the script must:
+  1. Write a `metric_definitions.md` file indicating that the metrics are
+     **undefined**.
+  2. Halt execution with a clear error message.
+
+The implementation below follows this contract.
 """
 
 import os
@@ -15,22 +26,94 @@ import gc
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any
 import json
+import re
 
 import numpy as np
 import pandas as pd
 from scipy import stats
-from scipy.spatial.distance import pdist, squareform
+from scipy.spatial.distance import pdist
 import math
 
-# Import from project modules
+# Project imports
 from code.config import get_config
 from code.utils.logging_config import get_logger
 from code.utils.seed import set_seed
 
-# Setup logging
+# ----------------------------------------------------------------------
+# Logging
+# ----------------------------------------------------------------------
 logger = get_logger(__name__)
 
+# ----------------------------------------------------------------------
+# Helper functions for Task T041
+# ----------------------------------------------------------------------
+def _extract_definitions_from_research(research_path: Path) -> Dict[str, str]:
+    """
+    Parse ``research.md`` and extract explicit formulas for the two metrics.
 
+    The expected markdown format (if present) is:
+
+    ````markdown
+    ### Spatial Locality
+    Formula: <LaTeX or plain expression>
+
+    ### Symmetry Sensitivity
+    Formula: <LaTeX or plain expression>
+    ````
+
+    If a section or formula is missing, the corresponding entry in the
+    returned dictionary will be an empty string.
+    """
+    definitions: Dict[str, str] = {
+        "spatial_locality": "",
+        "symmetry_sensitivity": ""
+    }
+
+    if not research_path.is_file():
+        logger.error(f"Research file not found: {research_path}")
+        return definitions
+
+    content = research_path.read_text()
+    # Simple regex‑based extraction
+    spatial_match = re.search(
+        r"###\s*Spatial\s*Locality\s*\n\s*Formula\s*[:=]\s*(.+)", content,
+        re.IGNORECASE,
+    )
+    symmetry_match = re.search(
+        r"###\s*Symmetry\s*Sensitivity\s*\n\s*Formula\s*[:=]\s*(.+)", content,
+        re.IGNORECASE,
+    )
+
+    if spatial_match:
+        definitions["spatial_locality"] = spatial_match.group(1).strip()
+    if symmetry_match:
+        definitions["symmetry_sensitivity"] = symmetry_match.group(1).strip()
+
+    return definitions
+
+def _write_metric_definitions_md(
+    definitions: Dict[str, str], output_path: Path
+) -> None:
+    """
+    Write ``metric_definitions.md``. If a definition string is empty,
+    the file records that the metric is *undefined*.
+    """
+    lines = ["# Metric Definitions", ""]
+    for metric, formula in definitions.items():
+        pretty_name = metric.replace("_", " ").title()
+        lines.append(f"## {pretty_name}")
+        if formula:
+            lines.append(f"**Formula:** {formula}")
+        else:
+            lines.append("**Status:** *undefined – no formula provided in `research.md`*")
+        lines.append("")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text("\n".join(lines))
+    logger.info(f"Wrote metric definitions to {output_path}")
+
+# ----------------------------------------------------------------------
+# Existing analysis functions (unchanged)
+# ----------------------------------------------------------------------
 def load_metric_definitions(file_path: str) -> Dict[str, Any]:
     """
     Load metric definitions from a markdown file.
@@ -271,7 +354,7 @@ def classify_property(property_name: str) -> str:
     electronic_keywords = ['band_gap', 'formation_energy', 'conductivity', 'dielectric',
                          'magnetic', 'electronic', 'fermi', 'homo', 'lumo']
     mechanical_keywords = ['elastic', 'bulk_modulus', 'shear_modulus', 'poisson',
-                         'hardness', 'mechanical', 'stiffness', 'compliance']
+                           'hardness', 'mechanical', 'stiffness', 'compliance']
 
     property_lower = property_name.lower()
 
@@ -474,30 +557,59 @@ def main():
     Main function to run the physical metrics analysis.
     """
     try:
-        # Get configuration
+        # ------------------------------------------------------------------
+        # Configuration
+        # ------------------------------------------------------------------
         config = get_config()
+        # Ensure the Config object can be used with .get()
+        if not hasattr(config, 'get'):
+            config.get = lambda key, default=None: default
+
         data_dir = config.get('data_dir', 'data')
         processed_dir = Path(data_dir) / 'processed'
 
-        # File paths
+        # ------------------------------------------------------------------
+        # Paths
+        # ------------------------------------------------------------------
+        research_path = Path(__file__).resolve().parents[1] / 'research.md'
         metric_definitions_path = processed_dir / 'metric_definitions.md'
         master_dataset_path = processed_dir / 'materials_master.parquet'
         scaling_results_path = processed_dir / 'scaling_results.csv'
         output_path = processed_dir / 'final_analysis.csv'
 
-        # Load metric definitions
-        logger.info("Loading metric definitions...")
-        metric_defs = load_metric_definitions(str(metric_definitions_path))
-        logger.info(f"Loaded {len(metric_defs)} metric definitions")
+        # ------------------------------------------------------------------
+        # Task T041 – Verify metric definitions
+        # ------------------------------------------------------------------
+        logger.info("Extracting metric definitions from research.md")
+        metric_defs = _extract_definitions_from_research(research_path)
 
-        # Load datasets
+        # Write metric_definitions.md (will contain 'undefined' status if missing)
+        _write_metric_definitions_md(metric_defs, metric_definitions_path)
+
+        # If either definition is missing, halt execution as required.
+        if not metric_defs['spatial_locality'] or not metric_defs['symmetry_sensitivity']:
+            missing = [k for k, v in metric_defs.items() if not v]
+            raise RuntimeError(
+                f"Metric definitions missing for: {', '.join(missing)}. "
+                "Halting as per Task T041 requirements."
+            )
+
+        # ------------------------------------------------------------------
+        # Load data
+        # ------------------------------------------------------------------
+        logger.info("Loading metric definitions...")
+        metric_defs_loaded = load_metric_definitions(str(metric_definitions_path))
+        logger.info(f"Loaded {len(metric_defs_loaded)} metric definitions")
+
         logger.info("Loading master dataset...")
         master_df = load_master_dataset(str(master_dataset_path))
 
         logger.info("Loading scaling results...")
         scaling_df = load_scaling_results(str(scaling_results_path))
 
+        # ------------------------------------------------------------------
         # Compute physical metrics for each property
+        # ------------------------------------------------------------------
         logger.info("Computing physical metrics...")
         metrics_data = []
 
@@ -525,13 +637,14 @@ def main():
             else:
                 avg_spatial_locality = np.nan
 
-            # Compute symmetry sensitivity (requires distorted data)
-            # For now, we'll use a placeholder or skip if data unavailable
+            # Compute symmetry sensitivity (requires original/distorted values)
             avg_symmetry_sensitivity = np.nan
             if 'property_distorted' in property_data.columns and 'property_original' in property_data.columns:
                 originals = property_data['property_original'].values
-                distor = property_data['property_distorted'].values
-                sensitivities = [compute_symmetry_sensitivity(o, d) for o, d in zip(originals, distor)]
+                distorted = property_data['property_distorted'].values
+                sensitivities = [
+                    compute_symmetry_sensitivity(o, d) for o, d in zip(originals, distorted)
+                ]
                 avg_symmetry_sensitivity = np.nanmean(sensitivities)
 
             metrics_data.append({
@@ -544,64 +657,66 @@ def main():
         metrics_df = pd.DataFrame(metrics_data)
         logger.info(f"Computed metrics for {len(metrics_df)} properties")
 
-        # Compute correlations
+        # ------------------------------------------------------------------
+        # Correlations and permutation test
+        # ------------------------------------------------------------------
         logger.info("Computing correlations...")
         correlation_results = compute_correlation(metrics_df, scaling_df)
 
-        # Perform permutation test
         logger.info("Performing permutation test...")
         permutation_results = perform_permutation_test_on_classes(scaling_df)
 
-        # Merge all results
+        # ------------------------------------------------------------------
+        # Assemble final results
+        # ------------------------------------------------------------------
         final_results = scaling_df.copy()
 
         # Add metrics
-        metrics_to_add = ['spatial_locality', 'symmetry_sensitivity', 'valence_electron_variance']
-        for metric in metrics_to_add:
+        for metric in ['spatial_locality', 'symmetry_sensitivity', 'valence_electron_variance']:
             if metric in metrics_df.columns:
                 merged = pd.merge(final_results, metrics_df[['property_name', metric]],
-                                on='property_name', how='left')
+                                  on='property_name', how='left')
                 final_results[metric] = merged[metric]
 
-        # Add correlation results
-        for _, corr_row in correlation_results.iterrows():
-            metric_name = corr_row['metric']
-            final_results[f'{metric_name}_correlation'] = corr_row['correlation']
-            final_results[f'{metric_name}_p_value'] = corr_row['p_value']
+        # Add correlation results (one row per metric)
+        for _, row in correlation_results.iterrows():
+            metric_name = row['metric']
+            final_results[f'{metric_name}_correlation'] = row['correlation']
+            final_results[f'{metric_name}_p_value'] = row['p_value']
 
         # Add permutation test results
         final_results['permutation_p_value'] = permutation_results['p_value']
         final_results['permutation_significance'] = permutation_results['significance']
 
+        # ------------------------------------------------------------------
         # Save final analysis
+        # ------------------------------------------------------------------
         logger.info(f"Saving final analysis to {output_path}")
         final_results.to_csv(output_path, index=False)
 
         logger.info("Physical metrics analysis completed successfully")
 
         # Print summary
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("PHYSICAL METRICS ANALYSIS SUMMARY")
-        print("="*60)
+        print("=" * 60)
         print(f"Properties analyzed: {len(final_results)}")
         print(f"Permutation test p-value: {permutation_results['p_value']:.4f}")
         print(f"Significance (threshold p < 0.1): {permutation_results['significance']}")
         print(f"Total permutations: {permutation_results['total_permutations']}")
-
-        if len(correlation_results) > 0:
+        if not correlation_results.empty:
             print("\nCorrelation Results:")
             for _, row in correlation_results.iterrows():
                 print(f"  {row['metric']}: r={row['correlation']:.4f}, p={row['p_value']:.4f}")
-
-        print("="*60)
+        print("=" * 60)
 
         return 0
 
     except Exception as e:
         logger.error(f"Error in physical metrics analysis: {e}")
         traceback.print_exc()
-        return 1
-
+        # Propagate the exception to ensure the script halts with a non‑zero exit code
+        raise
 
 if __name__ == '__main__':
     sys.exit(main())
