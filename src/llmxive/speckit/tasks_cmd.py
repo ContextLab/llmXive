@@ -32,6 +32,7 @@ from llmxive.backends.base import (
 )
 from llmxive.backends.router import chat_with_fallback
 from llmxive.config import TASKER_MAX_REVISION_ROUNDS
+from llmxive.speckit._analysis_policy import analysis_policy_fingerprint
 from llmxive.speckit.analyze_cmd import analyze_advance_ok, run_analyze
 from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
 from llmxive.types import Outcome, Stage
@@ -59,6 +60,7 @@ class TaskerAgent(SlashCommandAgent):
         paths.update((ctx.project_dir / "idea").glob("*.md"))
         paths.update((ctx.project_dir / "reviews/research").glob("*.md"))
         paths.update((repo / "agents/prompts").rglob("*.md"))
+        paths.update((repo / "src/llmxive").rglob("*.py"))
         paths.update((repo / "agents/templates").glob("*.md"))
         paths.update({
             ctx.project_dir / ".specify/memory/constitution.md",
@@ -67,7 +69,8 @@ class TaskerAgent(SlashCommandAgent):
         })
         paths.update((repo / ".specify/templates").glob("*.md"))
         paths.add(repo / "web/about.html")  # Authoritative convergence/citation policy.
-        digest = hashlib.sha256(b"task-analysis-v1\0")
+        digest = hashlib.sha256(b"task-analysis-v2\0")
+        digest.update(analysis_policy_fingerprint(ctx).encode() + b"\0")
         for path in sorted(paths):
             digest.update(str(path.relative_to(repo)).encode() + b"\0")
             digest.update(path.read_bytes() if path.is_file() else b"<absent>")
