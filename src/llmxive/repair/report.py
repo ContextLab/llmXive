@@ -30,6 +30,12 @@ def render(output: Path) -> str:
         proposal = _read(responses[-1] if responses else attempt / "proposal-response.json")
         lines.extend(["", f"### {attempt.name}", "",
                       f"Last phase: {progress.get('phase', 'unknown')}"])
+        anchor = _read(attempt / "failure-anchor.json")
+        if anchor:
+            lines.append("Original failure anchor: " + str(anchor.get("project_id"))
+                         + " / " + str(anchor.get("project_relative_path")) + "; "
+                         + str(anchor.get("exception")) + " (errno "
+                         + str(anchor.get("os_errno")) + ")")
         if selection.get("problem"):
             lines.append("Selected problem: " + str(selection["problem"])[:2000])
         routes = _read(attempt / "dispatch-context.json").get("routes", [])

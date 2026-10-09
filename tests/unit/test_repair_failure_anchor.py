@@ -112,6 +112,18 @@ def test_retry_diagnostics_cannot_replace_original_anchor():
     assert runner.original_failure_anchor(evidence) == anchor
 
 
+def test_actions_summary_reports_original_anchor_separately_from_model_hypothesis(tmp_path):
+    from llmxive.repair.report import render
+
+    attempt = tmp_path/"attempt-1"
+    attempt.mkdir()
+    (attempt/"failure-anchor.json").write_text(json.dumps(runner.original_failure_anchor(collision_evidence())))
+    (attempt/"selection.json").write_text(json.dumps({"problem": "generated fixture validation hypothesis"}))
+    summary = render(tmp_path)
+    assert "Original failure anchor: PROJ-770-example / code; FileExistsError (errno 17)" in summary
+    assert "Selected problem: generated fixture validation hypothesis" in summary
+
+
 def test_default_scheduled_selection_ranks_one_original_error_and_reaches_model(tmp_path, monkeypatch):
     errors = tmp_path/"state/advance_errors"
     errors.mkdir(parents=True)
