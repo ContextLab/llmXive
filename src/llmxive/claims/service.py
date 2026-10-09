@@ -31,7 +31,7 @@ from llmxive.claims.pointer import (
 )
 from llmxive.claims.resolve import resolve
 from llmxive.claims.smooth import strip_and_smooth
-from llmxive.claims.stage import is_planning_stage
+from llmxive.claims.stage import is_planning_stage, is_research_planning_artifact
 from llmxive.state import claims as _claim_store
 
 logger = logging.getLogger(__name__)
@@ -300,11 +300,12 @@ def process_document(
             project_id=project_id, repo_root=repo_root)
         return restored, [], GateReport(blocked=bool(missing), unresolved_markers=missing)
 
-    if is_planning_stage(stage_label):
+    planning_artifact = is_research_planning_artifact(artifact_path, project_id)
+    if is_planning_stage(stage_label) or planning_artifact:
         return _process_planning_document(
             text, artifact_path=artifact_path, project_id=project_id,
             backend=backend, model=model, repo_root=repo_root,
-            stage_label=stage_label,
+            stage_label="plan" if planning_artifact else stage_label,
         )
 
     # Step 0: Strip prior [UNRESOLVED-CLAIM:] markers so a re-run does NOT
