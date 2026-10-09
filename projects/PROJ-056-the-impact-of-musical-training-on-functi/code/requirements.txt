@@ -1,11 +1,14 @@
+# Project dependencies
 pandas
 numpy
 scipy
 scikit-learn
 nibabel
+nilearn
 networkx
 matplotlib
 seaborn
 pyyaml
 statsmodels
-nilearn
+# Optional but used in confounder handling
+causalml

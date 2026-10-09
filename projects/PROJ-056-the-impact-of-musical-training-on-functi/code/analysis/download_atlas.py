@@ -33,8 +33,12 @@ def main() -> None:
     ATLAS_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
 
     # Fetch the atlas (this returns a dict with 'labels' pointing to a CSV)
-    atlas = datasets.fetch_atlas_schaefer_2018(n_rois=ATLAS_ROI_COUNT, yeo_networks=7, resolution_mm=1,
-                                              verbose=0)
+    atlas = datasets.fetch_atlas_schaefer_2018(
+        n_rois=ATLAS_ROI_COUNT,
+        yeo_networks=7,
+        resolution_mm=1,
+        verbose=0
+    )
 
     # Load the labels CSV supplied by Nilearn
     labels_path = Path(atlas['labels'])
