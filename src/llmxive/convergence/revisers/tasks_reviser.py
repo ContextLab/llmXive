@@ -317,6 +317,19 @@ class _AbstractTasksReviser:
                 f"artifact paths in reply: {sorted(artifacts_by_path)!r}"
             )
 
+        # The transport envelope can parse while the generated task document
+        # cannot (an open Markdown fence or duplicate identities, for example).
+        # Classify only that generated-content failure as a malformed reply so
+        # the existing bounded retry/kickback path handles it, not engine-failure.
+        from llmxive.speckit.task_lines import TaskFormatError, validate_open_tasks
+
+        try:
+            validate_open_tasks(new_tasks)
+        except TaskFormatError as exc:
+            raise RuntimeError(
+                f"{type(self).__name__}: response has no usable tasks artifact: {exc}"
+            ) from exc
+
         responses = build_concern_responses(
             responses_raw, concerns, default_artifacts=[tasks_path]
         )
