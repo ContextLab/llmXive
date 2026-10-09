@@ -1,15 +1,57 @@
+T001:
+  c: true
+  h: 01e6a5119552e11d579df36ee5bfaf4ae19309ccf495720b377101b506ad84f8
+  r: "Checked that the required directory tree and placeholder `__init__.py` files\
+    \ exist, that `requirements.txt` contains the specified six packages (and only\
+    \ adds extras, which does not violate the requirement), and that `quickstart.md`\
+    \ documents both the pip install command and the single\u2011command pipeline\
+    \ invocation."
+T002:
+  c: true
+  h: e58b2b5bce2b0fb41283954a9970e98ff47ffdb4bb7142910fa085622ffcd9c4
+  r: "The `code/config.py` file is present (2795\u202Fbytes) and defines `PROJECT_ROOT`,\
+    \ `RAW_DIR`, `INTERIM_DIR`, `PROCESSED_DIR`, `REPORTS_DIR`, `MAX_RAM_GB = 7`,\
+    \ `ALPHA_SET = {0.01, 0.05, 0.1}` and `SEED = 42` as required."
+T005:
+  c: false
+  h: 42cda291d0af7d3d6f638660b4845e5480478f65bdf4d56a787c87ccb1418328
+  r: "The repository contains the implementation of `process_overlap_and_design()`\
+    \ in `code/ingest.py`, but the required output files (`data/interim/overlap_report.json`,\
+    \ `data/interim/design_branch.json`, and `data/processed/metadata.json`) are absent,\
+    \ so the task\u2019s deliverables have not been produced."
+T006:
+  c: false
+  h: 5100d716b25196c92831976ddfc12e0af91d878b2a3058c5c94338d804e2fdac
+  r: The `state/projects/PROJ-258-the-effect-of-simulated-social-rejection.yaml` only
+    contains a hash entry for `ds000208` (with an outdated timestamp) and lacks the
+    required entry for `ds003392`; additionally, the required `data/raw/CITATION.md`
+    file is absent.
+T008:
+  c: false
+  h: 670d82c6c79fa0015273adda7b17568545b5577205b2178d3b2e7402c06fe9d7
+  r: "The file `code/preprocess.py` defines helper functions `_flag_outliers_iqr`\
+    \ and `_zscore_normalize` that perform the required IQR outlier flagging and per\u2011\
+    condition Z\u2011score normalization, but there is no code that actually applies\
+    \ these functions to each dataset and writes the results to `data/interim/preprocessed_<dataset_id>.csv`\
+    \ as the task specifies (the main pipeline `run_preprocessing` is truncated and\
+    \ never calls the new helpers nor saves the preprocessed files). Implement a loop\
+    \ that loads each raw CSV, runs the outlier\u2011flagging then normalization,\
+    \ and saves the output to the required "
+T009:
+  c: false
+  h: bf2479f336ef1612ebf50ffbeee6b734e34aace146eccc83cdf9049f94a5addd
+  r: "The required `data/processed/features_ds000208.csv` file is missing, and the\
+    \ outlier audit trail `data/interim/outlier_log.json` contains only an empty list\
+    \ (`[]`) instead of per\u2011condition IQR thresholds and flagged\u2011row counts.\
+    \ The code defines helper functions for aggregation and logging, but they are\
+    \ never invoked to produce the needed output files. The task\u2019s deliverables\
+    \ are therefore not present."
 T013:
   c: false
   h: de374b2426a587f8e0cf98371c925a0c444ede2c470ba69cebd0c87a94a270b7
   r: "The repository lacks a `validate_schema(df)` function in `code/ingest.py`, and\
     \ the required `data/interim/validation_report.json` file does not exist, so the\
     \ schema\u2011checking behavior and the output artifact are missing."
-T018:
-  c: false
-  h: 40a76abfe750de3d3740edeed3c71e8804980974d32da3d809e2d9ac2e9799da
-  r: The repository lacks a `log_design_switch()` implementation in `code/ingest.py`
-    (the file shown does not contain such a function) and the required `data/processed/metadata.json`
-    file is missing, so the design transition cannot be recorded as specified.
 T019:
   c: false
   h: 40a76abfe750de3d3740edeed3c71e8804980974d32da3d809e2d9ac2e9799da
@@ -18,49 +60,3 @@ T019:
     used_datasets)` implementation (the file is truncated before any such function
     could appear). Both the function and its output file are missing, so the task
     is not satisfied.
-T030:
-  c: false
-  h: 47092f41999030d281f61361c3d5c53bf351a677b0d02bd293bef560db616825
-  r: "The generated `reports/final_report.md` does contain the word \u201Cassociational\u201D\
-    \ but also includes the word \u201Ccausal\u201D, violating the \u201Cexcludes\u202F\
-    causal\u201D requirement, and its sensitivity table uses numeric thresholds (0.01,\u202F\
-    0.05,\u202F0.1) instead of the required \u03B1 levels labeled low, moderate, high.\
-    \ Additionally, the required `data/processed/metadata.json` file is missing, so\
-    \ the function cannot correctly read its dependent data. These issues must be\
-    \ fixed for the task to be considered complete."
-T033:
-  c: false
-  h: 242ccad1455158b36370b145fc2d1ceed066fc2d118753db7fa465c79049da27
-  r: The repository lacks a `save_final_results` implementation in `code/report.py`
-    (the file only defines other helper functions and is truncated before any such
-    function) and the required output file `data/processed/final_results.json` does
-    not exist. Consequently the task of writing the final results with a `p_fdr` column
-    and recording `design_type` is not fulfilled.
-T034:
-  c: false
-  h: 88874721cf2decbe26d820b2f9db68733ded8558dfb6f43a7ba29594bc636a20
-  r: "The repository lacks `reports/final_report.md` entirely, and the provided `tests/test_report.py`\
-    \ does not contain a `verify_report_constraints()` function (or any test that\
-    \ checks for the exact phrase \u201Cassociational\u201D in Limitations and the\
-    \ absence of \u201Ccausal\u201D in Results). Both the required artifact and the\
-    \ specific test implementation are missing."
-T035:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `docs/` directory or updated `README.md` files were provided; the implementer
-    supplied only the feature specification text without any actual documentation
-    artifacts, so the required documentation updates are missing.
-T036:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code artifacts in the `code/` directory were provided or referenced, and there
-    is no evidence (e.g., diff, commit log, cleaned scripts) showing that any cleanup
-    or refactoring was performed. Without tangible files or changes, the requirement
-    cannot be confirmed as satisfied.
-T042:
-  c: false
-  h: dd08a259824557c49795f52a83fa45d941c89afd910c8289b308faa33c142d7c
-  r: "The repository\u2019s `code/preprocess.py` does not contain a `log_outlier_removal()`\
-    \ implementation (the file ends abruptly and no such function is defined), and\
-    \ the required `data/interim/outlier_log.json` file is absent. Consequently the\
-    \ outlier audit trail cannot be generated as specified."

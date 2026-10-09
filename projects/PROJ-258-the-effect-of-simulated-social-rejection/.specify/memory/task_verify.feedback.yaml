@@ -1,0 +1,65 @@
+T001:
+  task: 60ed3be3ea854288c1f4554621e4e043a30b08d88fd76134a021284dc46d4d6f
+T002:
+  task: 926dd4a5e6914e444228d7774091d282c7b11d8370c8128daecfd72c7c16a404
+T003:
+  reason: "The script never calls the size\u2011estimation function (the calls are\
+    \ commented out), it downloads datasets via the HuggingFace `datasets` library\
+    \ into CSVs rather than streaming the original files, and `data/raw/dataset_manifest.json`\
+    \ is missing entirely. These omissions mean the three required steps of T003 are\
+    \ not fulfilled."
+  task: c8b12480dd77fbe76bc7e6522b679ff60629b3782942663b7fa208d56c952fa8
+T004:
+  reason: 'Requested task execution failed; rerun successfully: code/ingest.py exit=1'
+  task: 4c849da8fb1f483d2931d533cd31c50ea01b6d3bd14b6031bc929be8da75d101
+T005:
+  reason: "The repository contains the implementation of `process_overlap_and_design()`\
+    \ in `code/ingest.py`, but the required output files (`data/interim/overlap_report.json`,\
+    \ `data/interim/design_branch.json`, and `data/processed/metadata.json`) are absent,\
+    \ so the task\u2019s deliverables have not been produced."
+  task: eb43c775e3ee60312a9b943ac7e9f69a0174d6c213fcd4924978bfd47e920dd3
+T006:
+  reason: The `state/projects/PROJ-258-the-effect-of-simulated-social-rejection.yaml`
+    only contains a hash entry for `ds000208` (with an outdated timestamp) and lacks
+    the required entry for `ds003392`; additionally, the required `data/raw/CITATION.md`
+    file is absent.
+  task: 9bf21363cfbbed8e13d9ddc0951760fa4e2e98e4c06d8215cc634674cc1b87ca
+T007:
+  reason: 'Requested task execution failed; rerun successfully: code/preprocess.py
+    exit=1'
+  task: 66af081e4c2d8e979944cd67663681d00f3b1b9236995971474b5dbac35d8e30
+T008:
+  reason: "The file `code/preprocess.py` defines helper functions `_flag_outliers_iqr`\
+    \ and `_zscore_normalize` that perform the required IQR outlier flagging and per\u2011\
+    condition Z\u2011score normalization, but there is no code that actually applies\
+    \ these functions to each dataset and writes the results to `data/interim/preprocessed_<dataset_id>.csv`\
+    \ as the task specifies (the main pipeline `run_preprocessing` is truncated and\
+    \ never calls the new helpers nor saves the preprocessed files). Implement a loop\
+    \ that loads each raw CSV, runs the outlier\u2011flagging then normalization,\
+    \ and saves the output to the required"
+  task: 15978d012a3b3d5a02df6f685c5c8a77aeb45bb21037d9bf4c2069f7e6eb06ed
+T009:
+  reason: "The required `data/processed/features_ds000208.csv` file is missing, and\
+    \ the outlier audit trail `data/interim/outlier_log.json` contains only an empty\
+    \ list (`[]`) instead of per\u2011condition IQR thresholds and flagged\u2011row\
+    \ counts. The code defines helper functions for aggregation and logging, but they\
+    \ are never invoked to produce the needed output files. The task\u2019s deliverables\
+    \ are therefore not present."
+  task: 5ebea4dc2ac35afb3f7cefe8cc66f28c9b24f1f6510e6142f28406f60ff9ba59
+T010:
+  reason: 'Requested task execution failed; rerun successfully: code/analyze.py exit=1'
+  task: 06583737c9ee85b056aa06bcee599a790e8398f58fd24eeb409e8a8912a8629b
+T011:
+  task: ae439ae08ba3408e1c43633af030f10dee587229ef96b039905b505842a0b3db
+T012:
+  task: 91c2ef918173c81b956b89d26785adfc07721f25612617f1a97305aa034076be
+T013:
+  task: 28790ab52f1235aa2da71cdac7d3cd233a0efe1c2a4ccf3e1e2dccf151dd2a32
+T014:
+  task: bb498c8b422329f4cb4bb7ac9069cb4bbc87395a5f5ae7fb95c992db0b4d8a59
+T015:
+  task: 8fafa8552799e1b98668712d08269d6628bd7818dcb789b4a695f31d59c672f1
+T019:
+  task: fc9c123cba93201a2b67c89f250e936c022d47e093089538e4445d939cb673fb
+T020:
+  task: e4467ccd1ea92dff9c5af67b0d14b906e3a70c70bf4ddae65aee95794a9028bd

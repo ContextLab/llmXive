@@ -8,11 +8,11 @@
     "python code/analyze.py --input data/processed/analysis_ready.csv --output results/analysis_output.json -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-258-the-effect-of-simulated-social-rejection/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-258-the-effect-of-simulated-social-rejection/code/analyze.py': [Errno 2] No such file or directory",
     "python code/report.py --input results/analysis_output.json --output paper/report.md -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-258-the-effect-of-simulated-social-rejection/code/report.py\", line 192, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-258-the-effect-of-simulated-social-rejection/code/report.py\", line 189, in main\n    run_reporting_pipeline(analysis_path, report_path, final_path)\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-258-the-effect-of-simulated-social-rejection/code/report.py"
   ],
-  "fix_rounds": 1,
-  "model_tier": 0,
+  "fix_rounds": 0,
+  "model_tier": 1,
   "total_attempts": 1,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-07-26T01:38:13Z"
+  "updated_at": "2026-10-09T12:33:20Z"
 }

@@ -75,3 +75,25 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.18112/openneuro.ds000208.v1.0.0
   verified_at: '2026-08-10T04:47:33.058127Z'
+- artifact_hash: 7e3e9caa9483e60ecbabc562ec136e145d69e5b1d442d7c20017c12bf1f31c15
+  artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.18112/openneuro.ds000208.v1.0.0
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.18112/openneuro.ds000208.v1.0.0
+  verified_at: '2026-10-09T12:32:33.641914Z'
+- artifact_hash: 7e3e9caa9483e60ecbabc562ec136e145d69e5b1d442d7c20017c12bf1f31c15
+  artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.18112/openneuro.ds003392.v1.0.0
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.18112/openneuro.ds003392.v1.0.0
+  verified_at: '2026-10-09T12:32:33.641914Z'

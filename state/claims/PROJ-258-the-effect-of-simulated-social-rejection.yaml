@@ -1648,7 +1648,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-26T01:43:32Z'
 - artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
   attempts: 1
@@ -1665,7 +1665,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-26T01:44:17Z'
 - artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
   attempts: 1
@@ -1928,7 +1928,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-26T01:50:04Z'
 - artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
   attempts: 1
@@ -1988,7 +1988,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-26T01:50:23Z'
 - artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
   attempts: 1
@@ -2042,7 +2042,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-26T01:51:08Z'
 - artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
   attempts: 1
@@ -2316,7 +2316,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-26T01:53:12Z'
 - artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
   attempts: 1
@@ -2501,7 +2501,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-26T02:07:36Z'
 - artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
   attempts: 0
@@ -2520,7 +2520,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-26T02:07:37Z'
 - artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
   attempts: 2
@@ -2617,7 +2617,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-08-10T04:48:25Z'
 - artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
   attempts: 0
@@ -2636,7 +2636,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-08-10T04:52:19Z'
 - artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
   attempts: 1
@@ -4034,7 +4034,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-10-02T16:15:33Z'
 - artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
   attempts: 1
@@ -4136,3 +4136,19 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-02T20:13:01Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/quickstart.md
+  attempts: 1
+  canonical: command invokes placeholder pipeline entry point
+  claim_id: c_59f6c52b
+  context: "Execute the end\u2011to\u2011end analysis with a single command: python\
+    \ -m code.pipeline. This command will invoke the placeholder pipeline entry point."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: This command will invoke the placeholder pipeline entry point.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T12:21:26Z'

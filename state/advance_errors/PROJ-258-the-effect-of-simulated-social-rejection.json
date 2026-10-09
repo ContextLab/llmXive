@@ -1,14 +1,14 @@
 {
   "project_id": "PROJ-258-the-effect-of-simulated-social-rejection",
-  "stage": "clarified",
-  "class": "permanent",
-  "fingerprint": "unreachable_reference",
-  "consecutive_count": 0,
-  "first_seen": "2026-07-03T05:49:01.660792+00:00",
-  "last_seen": "2026-07-16T04:31:35.223288+00:00",
-  "retry_after": null,
-  "last_error": "research.md reference is unreachable: 'https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-000016.parquet' (HTTP 404). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
-  "evidence": "research.md reference is unreachable: 'https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-000016.parquet' (HTTP 404). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
-  "remediation": "The reference/source is unreachable, or the emitted artifact is an unfilled template with no valid content. Do NOT re-dispatch unchanged: route the evidence to a source-aware re-plan (inject a verified replacement source) or back to the emitter, or mark terminal if genuinely unrecoverable.",
-  "status": "cleared"
+  "stage": "in_progress",
+  "class": "transient",
+  "fingerprint": "unknown",
+  "consecutive_count": 1,
+  "first_seen": "2026-10-09T12:33:20.487132+00:00",
+  "last_seen": "2026-10-09T12:33:20.487132+00:00",
+  "retry_after": "2026-10-09T12:43:20.487132+00:00",
+  "last_error": "no implementation progress: no stage change or verified task completion",
+  "evidence": "no implementation progress: no stage change or verified task completion",
+  "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
+  "status": "retry_scheduled"
 }
