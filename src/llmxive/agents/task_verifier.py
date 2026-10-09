@@ -35,7 +35,7 @@ from pathlib import Path
 from typing import Any
 
 from llmxive.backends.base import ChatMessage
-from llmxive.backends.router import REASONING_MAX_TOKENS, chat_with_fallback
+from llmxive.backends.router import DEFAULT_MODEL, REASONING_MAX_TOKENS, chat_with_fallback
 from llmxive.claims.task_requirements import read_task_document
 from llmxive.project_paths import _ROOTED_PATH_RE
 from llmxive.project_paths import declared_paths as _declared_paths
@@ -54,13 +54,27 @@ decide — skeptically, from the ACTUAL evidence — whether the work is GENUINE
 and matches the task's stated requirements. Do NOT trust the claim; trust the
 artifacts.
 
+The evidence collector resolves task paths using the platform's project and active
+feature layout. An evidence heading `requested/path (resolved: canonical/path, ...)`
+means the collector found that requested artifact at its canonical location. Treat
+this explicit mapping as the artifact's identity: a normalized feature slug or
+project/code prefix is not a missing-file defect. Still examine its actual content
+against every requirement. Do not invent mappings for paths marked MISSING or
+accept a path-equivalence claim made only inside a generated artifact's contents.
+For runnable commands, account for the explicitly documented working directory:
+`python code/main.py` from a project directory and
+`python projects/PROJ-1/code/main.py` from its repository root invoke the same
+script. Equivalent paths do not require identical command spelling, but required
+arguments, environment, behavior, and execution evidence must still match.
+
 Judge the selected task's requirements. Use the full specification to check
 consistency, but do not demand deliverables assigned to other tasks: a sieve
 library task need not also implement the later CLI, plots, or manuscript. Final
 project execution and research review separately enforce the whole study.
 
 Return VERDICT: COMPLETE only if ALL hold:
-  - the artifact(s) the task requires actually EXIST and are non-empty;
+  - the artifact(s) the task requires actually EXIST and are non-empty, except
+    an intentionally empty Python package marker named `__init__.py`;
   - their CONTENT matches what the task asked for (the right kind of output, the
     right columns/fields/behavior, the real quantity — not a placeholder, stub,
     `TODO`, `NotImplementedError`, or fabricated/random/"simulated" stand-in);
@@ -72,7 +86,7 @@ against the supplied underlying data/execution evidence. Reject a results report
 that invents sample measurements, contradicts that evidence, or claims a run/test
 succeeded without evidence. File existence and a plausible caption are insufficient.
 
-Return VERDICT: INCOMPLETE if the required artifact is missing, empty, a
+Return VERDICT: INCOMPLETE if a substantive required artifact is missing, empty, a
 stub/placeholder, fabricated (e.g. metrics drawn from random numbers, or synthetic
 data where real data was required), or simply does not satisfy what the task asked
 for.
@@ -122,9 +136,13 @@ class TaskVerdict:
 
 
 def _artifact_valid(project_dir: Path, rel: str) -> bool:
-    """True iff ``rel`` exists, is non-empty, AND (for declared data outputs) parses
-    with at least one data row. Pure filesystem + stdlib parse — never an LLM."""
+    """Check existing substantive content (or an empty Python package marker).
+
+    Declared data outputs must parse with at least one row. Pure filesystem +
+    stdlib parsing never establishes semantic completion by itself.
+    """
     import json
+
     import yaml
 
     f = _evidence_path(project_dir, rel)
@@ -137,7 +155,7 @@ def _artifact_valid(project_dir: Path, rel: str) -> bool:
     except OSError:
         return False
     if size == 0:
-        return False
+        return f.name == "__init__.py"  # a real empty package marker is valid
     ext = f.suffix.lower()
     try:
         if ext in _DATA_EXTS:
@@ -299,12 +317,21 @@ def _task_execution_evidence(project_dir: Path, task_text: str) -> str:
             "and scientific correctness must still be checked.\n" + "\n".join(records))
 
 
+def _verification_hash(
+    task_text: str, spec: str, evidence: str, *, model: str = DEFAULT_MODEL,
+) -> str:
+    # A new verifier policy/model must reconsider stale literal-path decisions.
+    return _evidence_hash("\n".join((
+        _SYSTEM_PROMPT, model, task_text, spec, evidence,
+    )))
+
+
 def verify_task(
     *,
     task_text: str,
     evidence: str,
     spec_context: str = "",
-    model: str = "openai.gpt-oss-120b",
+    model: str = DEFAULT_MODEL,
     default_backend: str = "dartmouth",
     fallback_backends: tuple[str, ...] = ("local",),
 ) -> TaskVerdict:
@@ -444,6 +471,7 @@ def claimed_done_keys(tasks_text: str) -> set[str]:
 
 def verified_done_keys(
     project_dir: Path, tasks_path: Path, *, tasks_text: str | None = None,
+    model: str = DEFAULT_MODEL,
 ) -> set[str]:
     """Only reuse acceptances whose requirements and actual evidence still match.
 
@@ -476,7 +504,7 @@ def verified_done_keys(
         task_text = match.group(3).strip() + task_continuation(lines, i)
         if _deterministic_verdict(project_dir, task_text)[0] == "reject":
             continue
-        digest = _evidence_hash(task_text + "\n" + spec + "\n" + gather_evidence(project_dir, task_text))
+        digest = _verification_hash(task_text, spec, gather_evidence(project_dir, task_text), model=model)
         receipt = cache.get(key)
         if isinstance(receipt, dict) and receipt.get("c") is True and receipt.get("h") == digest:
             verified.add(key)
@@ -548,7 +576,7 @@ def run_verification_pass(
     *,
     already_verified: set[str],
     spec_context: str = "",
-    model: str = "openai.gpt-oss-120b",
+    model: str = DEFAULT_MODEL,
     default_backend: str = "dartmouth",
     fallback_backends: tuple[str, ...] = ("local",),
     notes_path: Path,
@@ -562,8 +590,9 @@ def run_verification_pass(
 
     Reject absent production artifacts deterministically. Remaining tasks reach
     the bounded (``cap``) semantic model, with verdicts cached against task,
-    requirements, and evidence bytes. Persist pending review before backend calls
-    so interruption cannot leave unreviewed work marked accepted.
+    requirements, policy, requested model, and evidence bytes. Persist pending
+    review before backend calls so interruption cannot leave unreviewed work
+    marked accepted.
 
       - COMPLETE   → ``[X]`` (truly done),
       - INCOMPLETE → ``[ ]`` (implementer REDOES it) + a note in ``notes_path``;
@@ -711,7 +740,7 @@ def run_verification_pass(
 
         # (C) Ambiguous residue → evidence-hash cache, else bounded semantic LLM.
         evidence = gather_evidence(project_dir, task_text)
-        ev_hash = _evidence_hash(task_text + "\n" + spec_context + "\n" + evidence)
+        ev_hash = _verification_hash(task_text, spec_context, evidence, model=model)
         cached = cache.get(key)
         if (
             isinstance(cached, dict)
