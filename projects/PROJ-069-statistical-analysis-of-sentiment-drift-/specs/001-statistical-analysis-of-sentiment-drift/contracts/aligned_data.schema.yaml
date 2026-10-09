@@ -1,61 +1,63 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Aligned Quarterly Time Series"
-description: "Schema for the merged quarterly dataset containing sentiment and macroeconomic indicators."
-type: "object"
-properties:
-  quarter:
-    type: "string"
-    pattern: "^[0-9]{4}-Q[1-4]$"
-    description: "ISO 8601 Quarter identifier."
-  sentiment_positive:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Mean ratio of positive sentiment."
-  sentiment_negative:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Mean ratio of negative sentiment."
-  sentiment_neutral:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Mean ratio of neutral sentiment."
-  sentiment_confidence:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Mean confidence of the sentiment model predictions."
-  sentiment_n:
-    type: "integer"
-    minimum: 0
-    description: "Number of items aggregated in this quarter."
-  sentiment_low_confidence:
-    type: "boolean"
-    description: "True if sample size or confidence is below threshold."
-  gdp_growth:
-    type: "number"
-    description: "Quarterly GDP growth rate in percent."
-  unemployment_rate:
-    type: "number"
-    description: "Quarterly average unemployment rate in percent."
-  gdp_missing:
-    type: "boolean"
-    description: "True if the GDP value was interpolated."
-  unemployment_missing:
-    type: "boolean"
-    description: "True if the unemployment rate was interpolated."
+type: object
 required:
   - quarter
-  - sentiment_positive
-  - sentiment_negative
-  - sentiment_neutral
-  - sentiment_confidence
-  - sentiment_n
-  - sentiment_low_confidence
+  - sentiment_pos_ratio
+  - sentiment_neg_ratio
+  - sentiment_neu_ratio
   - gdp_growth
   - unemployment_rate
-  - gdp_missing
-  - unemployment_missing
+  - consumer_confidence
+  - low_confidence_flag
+  - interpolation_percent_gdp
+  - interpolation_percent_unrate
+  - interpolation_percent_cons_conf
+properties:
+  quarter:
+    type: string
+    pattern: "^\\d{4}-Q[1-4]$"
+    description: "Quarter identifier in ISO format, e.g., '2020-Q1'."
+  sentiment_pos_ratio:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Proportion of positive sentiment scores (confidence ≥ 0.7)."
+  sentiment_neg_ratio:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Proportion of negative sentiment scores (confidence ≥ 0.7)."
+  sentiment_neu_ratio:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Proportion of neutral sentiment scores (confidence ≥ 0.7)."
+  gdp_growth:
+    type: number
+    description: "Quarterly GDP growth rate (percent)."
+  unemployment_rate:
+    type: number
+    description: "Quarterly unemployment rate (percent)."
+  consumer_confidence:
+    type: number
+    description: "Quarterly Consumer Confidence Index (percent)."
+  low_confidence_flag:
+    type: boolean
+    description: "True if the quarter lacked sufficient sentiment sample size."
+  interpolation_percent_gdp:
+    type: number
+    minimum: 0
+    maximum: 100
+    description: "Percentage of GDP points filled by linear interpolation."
+  interpolation_percent_unrate:
+    type: number
+    minimum: 0
+    maximum: 100
+    description: "Percentage of UNRATE points filled by linear interpolation."
+  interpolation_percent_cons_conf:
+    type: number
+    minimum: 0
+    maximum: 100
+    description: "Percentage of Consumer Confidence points filled by linear interpolation."
 additionalProperties: false

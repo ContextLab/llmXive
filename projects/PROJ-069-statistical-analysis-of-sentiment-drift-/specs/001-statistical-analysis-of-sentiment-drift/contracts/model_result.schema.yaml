@@ -1,0 +1,103 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Result Summary"
+type: object
+required:
+  - model_type
+  - optimal_lag
+  - cointegration_rank
+  - granger_results
+  - bootstrap_ci
+  - sensitivity_shifts
+  - recession_validation
+  - vif
+  - run_timestamp
+  - random_seed
+  - block_length
+properties:
+  model_type:
+    type: string
+    enum: ["VAR", "VECM"]
+    description: "Type of model fitted after cointegration decision."
+  optimal_lag:
+    type: integer
+    minimum: 1
+    description: "Lag order selected via AIC."
+  cointegration_rank:
+    type: integer
+    minimum: 0
+    description: "Johansen trace statistic rank (0 if none)."
+  granger_results:
+    type: array
+    items:
+      type: object
+      required: [direction, f_stat, p_value, p_value_fdr]
+      properties:
+        direction:
+          type: string
+          description: "Causal direction, e.g., 'sentiment→gdp'."
+        f_stat:
+          type: number
+        p_value:
+          type: number
+          minimum: 0
+          maximum: 1
+        p_value_fdr:
+          type: number
+          minimum: 0
+          maximum: 1
+  bootstrap_ci:
+    type: object
+    additionalProperties:
+      type: object
+      required: [lower, upper]
+      properties:
+        lower:
+          type: number
+        upper:
+          type: number
+    description: "Confidence intervals for each key coefficient."
+  sensitivity_shifts:
+    type: array
+    items:
+      type: object
+      required: [masking_proportion, p_value_shift, direction]
+      properties:
+        masking_proportion:
+          type: number
+          minimum: 0
+          maximum: 1
+        p_value_shift:
+          type: number
+          minimum: 0
+        direction:
+          type: string
+  recession_validation:
+    type: object
+    required: [masked_periods, coeff_shift, passed]
+    properties:
+      masked_periods:
+        type: array
+        items:
+          type: string
+          description: "Quarter identifiers masked for out‑of‑sample validation."
+      coeff_shift:
+        type: number
+        description: "Absolute change in key coefficient when recession periods are masked."
+      passed:
+        type: boolean
+        description: "Whether the shift meets the robustness threshold."
+  vif:
+    type: object
+    description: "Variance Inflation Factor values for macro predictors."
+    additionalProperties:
+      type: number
+  run_timestamp:
+    type: string
+    format: date-time
+    description: "ISO‑8601 timestamp of the analysis run."
+  random_seed:
+    type: integer
+    description: "Seed used for bootstrap and sensitivity sampling."
+  block_length:
+    type: integer
+    description: "Block length (weeks) used for Moving Block Bootstrap."
