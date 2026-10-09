@@ -10,7 +10,8 @@ in a scheduled nightly job (``llmxive-real-call-nightly.yml``).
 Defaults to FAST (PR gate) — a real-call module runs on every PR unless its name is
 listed here. So a new heavy module should be added to ``_SLOW_MODULES`` when it
 lands. The PR gate keeps a representative smoke layer: connectivity + backend
-fallback + the reference/citation gates + personality liveness + Spec Kit scripts.
+fallback + personality liveness + Spec Kit scripts. External reference/dataset
+checks run on relevant dependency changes and remain in the full nightly suite.
 """
 
 from __future__ import annotations
@@ -57,8 +58,21 @@ _SLOW_MODULES = frozenset({
     "test_relevance_judge_real",
 })
 
+# These unchanged tests prove external reference-service behavior, not model
+# availability. Run for reference dependency changes and in the full nightly.
+_REFERENCE_MODULES = frozenset({
+    "test_dataset_source_services",
+    "test_citation_guard_strips_fabrication",
+    "test_reference_validator_blocks_fabrication",
+    "test_reference_validator_distinguishes_unreachable",
+    "test_resolve_reference_registrar_agnostic",
+})
+
 
 def pytest_configure(config: pytest.Config) -> None:
+    config.addinivalue_line(
+        "markers", "external_references: live reference and dataset-service resolution/availability",
+    )
     config.addinivalue_line(
         "markers",
         "slow: heavy real-call test (network fetch + grounding / e2e) — excluded "
@@ -73,3 +87,5 @@ def pytest_collection_modifyitems(
         module = item.module.__name__.rsplit(".", 1)[-1]
         if module in _SLOW_MODULES:
             item.add_marker(pytest.mark.slow)
+        if module in _REFERENCE_MODULES:
+            item.add_marker(pytest.mark.external_references)

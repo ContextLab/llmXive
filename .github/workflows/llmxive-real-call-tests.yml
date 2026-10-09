@@ -21,11 +21,14 @@ jobs:
     outputs:
       offline: ${{ steps.select.outputs.offline }}
       live: ${{ steps.select.outputs.live }}
+      references: ${{ steps.select.outputs.references }}
     steps:
       - uses: actions/checkout@v5
         with:
           sparse-checkout-cone-mode: false
-          sparse-checkout: /scripts/ci/
+          sparse-checkout: |
+            /scripts/ci/
+            /src/
       - name: List all changed files
         env:
           GH_TOKEN: ${{ github.token }}
@@ -160,12 +163,59 @@ jobs:
       # Keep them here as well as the deterministic contract pass above.
       - name: Contracts including live source channels
         run: pytest tests/contract -v
-      - name: All existing fast real-call tests
-        run: pytest tests/real_call -v -m "not slow" --durations=25
+      - name: Fast runtime real-call tests
+        run: pytest tests/real_call -v -m "not slow and not external_references" --durations=25
+
+  references:
+    name: External reference and dataset services
+    needs: changes
+    if: needs.changes.outputs.references == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      LLMXIVE_REAL_TESTS: "1"
+      LLMXIVE_PAID_OPT_IN: "0"
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # PR merge SHA stays the default. Non-cone mode excludes large root
+          # datasets too; cone mode implicitly includes every root file.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /.github/
+            /.specify/
+            /.style/
+            /src/
+            /tests/
+            /agents/
+            /contracts/
+            /scripts/
+            /specs/
+            /papers/
+            /projects/PROJ-565-edit-compass-editreward-compass-a-unifie/paper/
+            /web/
+            /docs/css/
+            /docs/js/
+            /docs/data/
+            /docs/index.html
+            /notes/
+            /*.md
+            /*.toml
+            /*.ini
+            /LICENSE
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install package and dev deps
+        run: pip install -e ".[dev]"
+      # Exact existing assertions; registrar outages still fail this selected gate.
+      - name: Live external reference resolution
+        run: pytest tests/real_call -v -m "not slow and external_references" --durations=25
 
   real-call:
     name: CI gate (offline + Dartmouth)
-    needs: [changes, offline, dartmouth]
+    needs: [changes, offline, dartmouth, references]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -177,7 +227,7 @@ jobs:
           import json, os
           jobs = json.loads(os.environ['NEEDS'])
           assert jobs['changes']['result'] == 'success', 'check selection failed'
-          for job, flag in [('offline', 'offline'), ('dartmouth', 'live')]:
+          for job, flag in [('offline', 'offline'), ('dartmouth', 'live'), ('references', 'references')]:
               required = jobs['changes']['outputs'][flag] == 'true'
               actual = jobs[job]['result']
               expected = 'success' if required else 'skipped'
