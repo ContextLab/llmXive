@@ -113,6 +113,9 @@ def test_implementer_consumes_exactly_the_persisted_workspec(repo: Path) -> None
     assert log_path.is_file(), "legacy work specs must produce project-local logs"
     assert log_path.is_relative_to(repo / "projects" / PROJ_ID)
     assert not (repo / spec_rel / "implementer-log.yaml").exists()
+    assert (log_path.parent / "tasks.md").read_bytes() == (repo / spec_rel / "tasks.md").read_bytes(), (
+        "a project-local log must not shadow legacy work-spec inputs on retry"
+    )
     log = yaml.safe_load(log_path.read_text(encoding="utf-8"))
     assert log["revision_spec_path"] == spec_rel
     assert log["round_number"] == 1

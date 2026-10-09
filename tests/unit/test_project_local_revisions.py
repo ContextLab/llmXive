@@ -220,3 +220,47 @@ def test_dashboard_legacy_history_link_resolves_to_migrated_log(tmp_path):
     rows = _project_revision_history(tmp_path, PID)
     assert rows[0]["changelog_url"].endswith(log.relative_to(tmp_path).as_posix())
     assert history.read_text() == original
+
+
+def test_partial_canonical_round_preserves_retry_inputs_and_existing_edits(tmp_path):
+    from llmxive.state.revision_paths import prepare_revision_round
+
+    old = tmp_path / "specs" / "auto-revisions" / PID / "round-1"
+    old.mkdir(parents=True)
+    (old / "tasks.md").write_bytes(b"original tasks\n")
+    (old / "spec.md").write_bytes(b"original spec\n")
+    canonical = revision_round(tmp_path, PID, 1)
+    canonical.mkdir(parents=True)
+    (canonical / "spec.md").write_bytes(b"operator's corrected spec\n")
+    (canonical / "implementer-log.yaml").write_bytes(b"prior attempt\n")
+    assert prepare_revision_round(tmp_path, PID, 1) == canonical
+    assert (canonical / "tasks.md").read_bytes() == (old / "tasks.md").read_bytes()
+    assert (canonical / "spec.md").read_bytes() == b"operator's corrected spec\n"
+    assert (old / "spec.md").read_bytes() == b"original spec\n"
+    assert resolve_revision_path(tmp_path, PID, str(old.relative_to(tmp_path))) == canonical
+
+
+@pytest.mark.parametrize("escape", ["round", "document", "canonical_document"])
+def test_retry_input_copy_refuses_symlinks_before_any_write(tmp_path, escape):
+    from llmxive.state.revision_paths import prepare_revision_round
+
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "tasks.md").write_text("unrelated source")
+    old = tmp_path / "specs" / "auto-revisions" / PID / "round-1"
+    old.parent.mkdir(parents=True)
+    target = revision_round(tmp_path, PID, 1)
+    if escape == "round":
+        old.symlink_to(outside, target_is_directory=True)
+    else:
+        old.mkdir()
+        (old / "spec.md").write_text("must not copy before validation")
+        if escape == "document":
+            (old / "tasks.md").symlink_to(outside / "tasks.md")
+        else:
+            target.mkdir(parents=True)
+            (target / "tasks.md").symlink_to(outside / "tasks.md")
+    with pytest.raises(ValueError):
+        prepare_revision_round(tmp_path, PID, 1)
+    assert not (target / "spec.md").exists()
+    assert (outside / "tasks.md").read_text() == "unrelated source"

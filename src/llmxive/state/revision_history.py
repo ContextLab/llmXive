@@ -22,7 +22,12 @@ from pathlib import Path
 import yaml
 
 from llmxive.state._io import atomic_write_text
-from llmxive.state.revision_paths import resolve_revision_path, revision_round, round_numbers
+from llmxive.state.revision_paths import (
+    prepare_revision_round,
+    resolve_revision_path,
+    revision_round,
+    round_numbers,
+)
 from llmxive.types import ImplementerLog, RevisionHistory, RevisionRound
 
 
@@ -103,8 +108,9 @@ def save_round(
         raise ValueError(
             f"log.project_id={log.project_id!r} != project_id={project_id!r}"
         )
+    round_dir = prepare_revision_round(repo_root, project_id, round_number)
     atomic_write_text(
-        _round_path(project_id, round_number, repo_root=repo_root),
+        round_dir / "implementer-log.yaml",
         yaml.safe_dump(log.model_dump(mode="json"), sort_keys=False),
     )
 

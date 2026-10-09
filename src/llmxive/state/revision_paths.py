@@ -62,6 +62,35 @@ def revision_round(repo: Path, project_id: str, number: int) -> Path:
     return path
 
 
+def prepare_revision_round(repo: Path, project_id: str, number: int) -> Path:
+    """Keep legacy retry inputs beside a newly project-local implementer log.
+
+    A log alone must not shadow the old directory's tasks on the next retry.
+    Preserve existing canonical edits; copy only missing work-spec documents.
+    """
+    target = revision_round(repo, project_id, number)
+    if (target.parent / ".legacy-retired").exists():
+        return target
+    legacy_base = legacy_revision_base(repo, project_id)
+    legacy = legacy_base / f"round-{number}"
+    if not legacy.exists():
+        return target
+    if (legacy.is_symlink() or not legacy.resolve().is_relative_to(legacy_base.resolve())
+            or any(p.is_symlink() for p in legacy.rglob("*"))):
+        raise ValueError(f"unsafe legacy work-spec source: {legacy}")
+    names = ("spec.md", "plan.md", "tasks.md", "analyze-report.md", "result.yaml")
+    for name in names:
+        if (target / name).is_symlink():
+            raise ValueError(f"symlink in canonical work spec: {target / name}")
+    copies = [(legacy / name, target / name) for name in names
+              if (legacy / name).is_file() and not (target / name).exists()]
+    if copies:
+        target.mkdir(parents=True, exist_ok=True)
+        for source, destination in copies:
+            shutil.copy2(source, destination, follow_symlinks=False)
+    return target
+
+
 def resolve_revision_path(repo: Path, project_id: str, relative: str) -> Path:
     """Resolve a historical pointer without rewriting the original provenance."""
     path = Path(relative)
