@@ -96,3 +96,18 @@ def test_proposal_receives_complete_large_source(tmp_path, monkeypatch):
     with pytest.raises(RuntimeError, match='stop before'):
         run(tmp_path, {}, tmp_path/'output')
     assert json.loads((tmp_path/'output/source-context.json').read_text())[name] == text
+
+
+def test_summary_shows_inspected_source_and_attempted_edit_targets(tmp_path):
+    from llmxive.repair.report import render
+    attempt = tmp_path/'attempt-1'
+    attempt.mkdir()
+    (attempt/'source-context.json').write_text(json.dumps({'src/llmxive/a.py': 'source'}))
+    (attempt/'proposal-response.json').write_text(json.dumps({
+        'edits': {'src/llmxive/a.py': [{'old': 'source', 'new': 'fixed'}]},
+        'files': {'tests/unit/test_repair_a.py': 'test'},
+    }))
+    summary = render(tmp_path)
+    assert 'Complete source inspected: `src/llmxive/a.py` (6 bytes)' in summary
+    assert 'Exact-edit targets: `src/llmxive/a.py`' in summary
+    assert 'File proposals: `tests/unit/test_repair_a.py`' in summary
