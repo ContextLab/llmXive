@@ -9,4 +9,5 @@
 *.jpg binary
 *.jpeg binary
 *.pdf binary
-*.csv binary # CSVs often have platform-specific line endings, keep as is or handle explicitly
+# CSVs often have platform-specific line endings; handle explicitly.
+*.csv binary

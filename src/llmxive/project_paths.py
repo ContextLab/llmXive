@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import unicodedata
 from pathlib import Path
 
 # --- Artifact-path detection (the deterministic evidence a task line references) ---
@@ -106,3 +107,28 @@ def resolve_project_path(project_dir: Path, rel: str) -> Path | None:
     if not path.resolve().is_relative_to(root):
         return None
     return path.resolve()
+
+
+def casefold_write_conflict(project_dir: Path, target: Path) -> Path | None:
+    """Reject a new filename spelling that aliases an existing project path.
+
+    Check each existing path component before writing, on case-sensitive hosts
+    too. Existing exact spellings remain editable; historical collisions require
+    their separate provenance audit rather than an arbitrary winning variant.
+    """
+    current = project_dir
+    for part in target.relative_to(project_dir).parts:
+        if part == "..":
+            current = current.parent
+            continue
+        if current.is_dir():
+            entries = list(current.iterdir())
+            exact = next((entry for entry in entries if entry.name == part), None)
+            if exact is None:
+                folded = unicodedata.normalize("NFD", part).casefold()
+                conflict = next((entry for entry in entries
+                                 if unicodedata.normalize("NFD", entry.name).casefold() == folded), None)
+                if conflict is not None:
+                    return conflict
+        current = current / part
+    return None
