@@ -40,7 +40,8 @@ def test_no_input_produces_downloadable_result(tmp_path, monkeypatch):
 
 
 @pytest.mark.parametrize("author", ["openai.gpt-oss-120b", "zai-org.glm-5.3"])
-def test_validated_candidate_uses_different_reviewer(tmp_path, monkeypatch, author):
+@pytest.mark.parametrize("safety_ok", [True, False])
+def test_validated_candidate_uses_different_reviewer(tmp_path, monkeypatch, author, safety_ok):
     source = "src/llmxive/example.py"
     regression = "tests/unit/test_repair_example.py"
     related = "tests/unit/test_example.py"
@@ -48,6 +49,8 @@ def test_validated_candidate_uses_different_reviewer(tmp_path, monkeypatch, auth
         source: "def result(): return 0\n",
         "src/llmxive/__init__.py": "",
         related: "from llmxive.example import result\ndef test_existing(): assert isinstance(result(), int)\n",
+        runner.SAFETY_TESTS[0]: ("from llmxive.example import result\ndef test_safety(): assert "
+                               + ("isinstance(result(), int)" if safety_ok else "result() != 1") + "\n"),
     }.items():
         path = tmp_path / name
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -80,9 +83,16 @@ def test_validated_candidate_uses_different_reviewer(tmp_path, monkeypatch, auth
         return SimpleNamespace(model=kwargs["model"], text='{"accept": true, "reason": "regression reproduced"}')
 
     monkeypatch.setattr(runner, "chat_with_fallback", review)
+    if not safety_ok:
+        with pytest.raises(RuntimeError, match="fixed platform safety"):
+            runner.run(tmp_path, {"error": "result returned zero"}, tmp_path / "output")
+        assert seen == []  # fixed checks reject even before a model could approve
+        assert not (tmp_path / "output/candidate.patch").exists()
+        return
     result = runner.run(tmp_path, {"error": "result returned zero"}, tmp_path / "output")
     assert result["status"] == "validated_candidate"
     assert result["before_exit"] == 1 and result["after_exit"] == 0
+    assert result["safety_exit"] == 0
     assert result["reviewer_model"] == seen[0] != author
 
 

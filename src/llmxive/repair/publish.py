@@ -20,8 +20,9 @@ def apply(repo: Path, output: Path) -> dict:
     if (
         result.get("status") != "validated_candidate"
         or result.get("review", {}).get("accept") is not True
+        or result.get("safety_exit") != 0
     ):
-        raise ValueError("candidate has not passed tests and independent review")
+        raise ValueError("candidate has not passed tests, fixed preservation checks and independent review")
     evidence = json.loads((output / "evidence.json").read_text())
     review = json.loads((output / "review.json").read_text())
     if (
@@ -45,7 +46,7 @@ def apply(repo: Path, output: Path) -> dict:
         path.write_text(content)
     body = (
         proposal["explanation"] + "\n\nValidation: the new regression failed against the baseline "
-        "and passed with the fix; related existing tests passed in a container without credentials "
+        "and passed with the fix; related existing tests and fixed preservation tests passed in containers without credentials "
         "or network access. Independently reviewed by " + result["reviewer_model"] + ".\n\n"
         "Regression: `" + result["regression"] + "`.\n\n"
         "This is a repair candidate, not an automatically merged change.\n"
