@@ -1,12 +1,34 @@
-status: none
-intent: California Housing dataset from UCI Machine Learning Repository via HuggingFace
-  datasets python package
+status: verified
+kind: pypi_package
+ref: scikit-learn
+access_python: 'from sklearn.datasets import fetch_california_housing
+
+
+  data = fetch_california_housing()
+
+  print(f"RECORDS={len(data.data)}")
+
+  print(f"FIELDS={'',''.join(data.feature_names)}")'
+record_count: 20640
+sample_fields:
+- MedInc
+- HouseAge
+- AveRooms
+- AveBedrms
+- Population
+- AveOccup
+- Latitude
+- Longitude
+field_coverage: 1.0
 required_fields:
-- median_income
-- median_house_value
-- total_rooms
-- total_bedrooms
-- population
-cache_key: c75dc74e915c788ff3576b28603575695a12e6bb2df0469fb189e6732f489a8f
-searched_at: '2026-09-22T10:42:59.505872+00:00'
-retry_count: 1
+- MedInc
+- HouseAge
+- AveRooms
+- AveBedrms
+- Population
+- AveOccup
+- Latitude
+- Longitude
+intent: download California Housing UCI_HAR uci-shower sms_spam synthetic_text_to_sql
+  autotrain-da via HuggingFace datasets python package
+cache_key: 7ef52980d13935b8df04b993b85f9b39f4c8f0946781fae5037e20f2ef5d7fa1

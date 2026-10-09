@@ -1,0 +1,153 @@
+T001a:
+  task: fca9be57663e2df040a5002be26c20cc33aeddf81c35a2b61c048b5193b653e0
+T001b:
+  task: 849098c0d12bdd5982ab79d064804f2e60607a6a07b4db7d25b49e30b9c8af08
+T001c:
+  task: 7d4be50eab898741af61591d834981520558288f63183f879cba44c187a8200e
+T001d:
+  task: 5e61909ce6bac0961cc206f3786fde7384d23f9124dc40cc1e00f39da3bab4a2
+T001e:
+  task: 9d16cde5b1fdda98be28ff184b695457eb705312634603bdec59bc848b4cccc4
+T001f:
+  task: b4245fbc796e0f66450dcd9181557d387a7e925cb5d16854dc0eb387dca1f16f
+T001g:
+  task: c2d611d2504c2ee83bd08dcd287863b1d69295ea15e063b4f9e5d21a1f3af2a8
+T001h:
+  task: df4314709eb95509e1fa5b049e5fbbcfd771343dde03df0b8fe1d698f4997673
+T001i:
+  reason: "The evidence shows the `raw/` directory exists under the project path,\
+    \ but the required `output/` directory is missing, and the `processed/` directory\
+    \ is located at `data/processed/` instead of under `projects/PROJ-903-llmxive-follow-up-extending-data-journal/data/processed/`.\
+    \ Both missing and mis\u2011placed directories must be created in the correct\
+    \ locations."
+  task: e52f1752e2b4e4808310236ced7d067207cdbf1869cf38d00be3731fd716350c
+T002a:
+  reason: "The `requirements.txt` file is present, but it does not contain **pinned**\
+    \ versions (exact `==` specifications) for the required libraries; it uses open-ended\
+    \ `>=` constraints and also includes many unrelated packages. This fails the task\u2019\
+    s requirement to provide a requirements file with pinned versions for the listed\
+    \ dependencies."
+  task: 4b6c3edd985bd43956cb609011371824dbb15d8b8729c6ffe02db5e128494f4c
+T002b:
+  reason: The only artifact provided is the `requirements.txt` file; there is no virtual
+    environment directory, activation script, or any evidence (e.g., `pip list`/`pip
+    freeze` output) that the dependencies were installed. The task explicitly required
+    creating a `venv` and installing the listed packages, which is missing.
+  task: cba2040f3d04eb3c48e03bf12fa270542181eeaec4046b3fa5331645a8009bef
+T002c:
+  reason: "No linting/formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,\
+    \ `.flake8`, or pre\u2011commit hook scripts) or evidence of ruff/black being\
+    \ set up were provided; without these artifacts the requirement to configure ruff\
+    \ and black cannot be verified."
+  task: a50242c0cec0c7eb4aa820043aa778cd55b12215e72ac6a4c0a3814b6bf5e181
+T004a:
+  task: 0fc82cb179eb1694db776ad15ebec49e04dbf3f00e73d5ce7934e9a65f654cbd
+T004b:
+  task: 39ffa1df1f9be720262a10ebdf15f1c5b75ee699a504507ebe36657c44ea2c39
+T005a:
+  task: 57ca45ced501bcaef1c0691ab63a7dc2e8c0afc945d8eaed1d9fdfe50ff8c514
+T005b:
+  task: c8d4ca9540d6778ec697a7b81d85de45923c1d90475a2ff770f19181b36d1fd2
+T005c:
+  task: 261769ca83221b74bb0f26397568a673c15609b1cf0ddc29c74497c004792f1e
+T005d:
+  task: f9cacf41c6b021a1f58c43b79143cb3ea1b775e1f3c30f2c1bbb07c90c28b1fb
+T006a:
+  task: 1f77b1fd6494ec003a9a5d87ef2a1c86d3590af4e7eaf69d377773d0e8b37116
+T006b:
+  task: b01eb593bc2da16191a838197b74c6edea4629d549630d5e4e945136e58b26b2
+T006c:
+  task: 06e90984126f0f2fbdd483a4ce748e0175c08bb5baddfa9df426e394e0235b8e
+T007:
+  task: 34672da77dc95128cf27aee2cce986fa7c77d44cbffc413cf01852d461ba6506
+T008:
+  task: 5b581385f8604a7b771228b0615fa84f0b3a8f6e9165fbd91bde5b64e820616a
+T009:
+  task: 2fd0379d14af8c3d93be3ce8a8f4d70451b9040bc1236a1a6e64c7059d02ffad
+T010:
+  task: 2565753c877b2fc593d0a141319a7dca4d1a66ee0d9700f547a72b613758d004
+T011:
+  task: 2f17a63ffae5c76979d648db82af88761873eab83b2939be1436f7fa513665d2
+T012:
+  task: 0dc3245a2518c006a8d5f495b9cf76034c20d9298e408cedd179733291aca399
+T013:
+  task: ae8af6a3ad40e1172dd776c200fce47c54d9c594843ee0ce3ce44f0b7496bb04
+T018:
+  task: f024f2e376f7e57f2cbfc801498347619483ae6e1b33470e151b5984dc700aa3
+T019:
+  task: 2e9c1fcb5d984428c454ecf499b4114b9e0aeb59d2e1a892852d6dda2fdef8da
+T020:
+  task: f373fba59a11e7977edd852f2be3f2ffc7d02b215b4fd5aae23cfeaee173c0a1
+T021a:
+  task: 5088ee4adeff007da3708ac592767ecfccc2e4548dcd36877019c28c0840814a
+T021b:
+  task: 6101a3d417d87027ab79d8139f5122b30b1cb93b37094eec3aa9e5d8c15a0bd9
+T024:
+  task: 77c213270c045393243147b56df585d39d1b5b441afd7b19c43d27b5a8a3847e
+T025:
+  task: 8d5f449b2b9590cfcc4dfbdbead0f643e626b0865d9e3237655df966a139cf87
+T026:
+  task: 090d3008ddf0535885a092bd312b1a4b6e2f37a09d8e6280e61aa0cfafaab54f
+T026a:
+  task: d7e58a1ba349f46c0cd4f82c064423dd2dfe51f963992f6b36610e3909d44b5f
+T026b:
+  task: 81d428e398dc152e9df4c333b6f288e37053847c5692d343e0614b0b91b64b53
+T028a:
+  task: 97b24467dafdc55a6434eada17a33dde4e3f9f2320a4207a5ab7fc5931c1715f
+T028b:
+  task: 010f8a411daf37d34b4febd5903249e0bca9f3de25a3d7ef6c774dad12bf4f57
+T028c:
+  task: 480ce039bdc46767388564b56ab4ee68e02a21c56d32af8852e3e3495ae56028
+T029:
+  task: 1042db9a506eb8224ff17b71ad9f3fe33f1b803049eb110f89214dae2970ba4b
+T030:
+  task: 20f24ff15e95095e34380ebcdfe8bc4078ea78a3a9aeb9c997933e678c0e1d03
+T031:
+  reason: 'declared artifact(s) missing/empty/invalid: code/evaluation/bias.py'
+  task: cf4772c3a5649a42721c2923681d3d234dd8b0fcba2ac697839e835f04da9d3a
+T032a:
+  task: b8a98bd907db1b1acdc017ddcf451e66243a5d96b9d7f3747bce5df95637bd5c
+T032b_sim:
+  reason: 'declared artifact(s) missing/empty/invalid: code/evaluation/simulate_experts.py'
+  task: 7b6abe3c6c7f09a5c46a2d283188a3b357906d03efda69e04114f1946b327572
+T032c:
+  reason: 'declared artifact(s) missing/empty/invalid: code/evaluation/rubric.py'
+  task: b902539c8b6fc9db9df0c9a81a92629567f2a5c10541e817ed53d30acb013d55
+T032d:
+  reason: 'declared artifact(s) missing/empty/invalid: code/evaluation/run_kappa_check.py,
+    code/evaluation/engage_4th_expert.py'
+  task: 9d98506eff09b7525031d3bb8c0198f8efc684f741dfa180452784d3f1a809b8
+T033:
+  task: e374cebbdb82ecd18fa37171a5590cdd13eac3dcbcda1d7afe4ab2f2969009d3
+T034:
+  task: 718cdf08644445e1ae5a8538bd845db0eb973b730658b83feb6f86d4bdb3c182
+T035:
+  task: 0dfce3629f353f878086eb4f057d6520dce4bfef04d2814eddedac36f6203dc0
+T036:
+  task: 15178225c4bbafeab35d347eccc55afec9832f9b06ddfb72731e28159cfebf76
+T037:
+  task: d54e8ced42f02bb3faf2f85d334a4c67538f8af8d30ec0e9d0ba35c29249c7a0
+T038:
+  task: f38a042c170e4365122b87e9c17a3a6752889c3588d97753684f346fae3d3f9e
+T039:
+  task: d4b4e1b4c3e822aa29a20ef6dbc6684705c5a0ee06ab3afb44912c0f3928fabd
+T040:
+  task: 60e1305eb5657a12cdd06593c04792b35a453770729a7e10d0b8bc4741a1e28f
+T041:
+  task: a322e213375977a927960d6cc445113f77587dbb9c449a841d8074529fbbd0f8
+T042:
+  task: 3e62aced5659c68a21a270c6a450aaa1a163f4f245ed04bb1a353a9a72555d3d
+T045:
+  reason: 'declared artifact(s) missing/empty/invalid: code/narrative/llm_client.py'
+  task: 612a797f9194e9b898c684a1ad05cf10fc749e9880a21718133b5f89ec44ec13
+T047:
+  task: ab02f52e59d2273a02f85bb7db76fa03ea2cc31b9d2d8e163f477fe1f5f80e4d
+T050:
+  task: 4a3585ab2dc8d64edbb246251b26eb40ec80959f0aed630be4ab33047b88b6af
+T053:
+  task: 0b4c8b666410e505af209afd181ea283c67a23f41018b605a03052550719a8d6
+T054:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/integration/test_streaming.py'
+  task: b2571160930a33342d25505fe071191d1c64443a988bda63714a3686b1bbdad1
+T055:
+  task: b86a21681d207d12a0af4c161155b26e110126026a51b2148249b0e30ac519cd

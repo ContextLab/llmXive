@@ -1,3 +1,84 @@
+T001a:
+  c: true
+  h: 431d05a2c066b1b8a85d92689da24d0c70d11979750937c95563cff8e4f5ac76
+  r: "The file `projects/PROJ-903-llmxive-follow-up-extending-data-journal/code/__init__.py`\
+    \ is present, 348\u202Fbytes long, and contains a valid package docstring, version,\
+    \ and author definition, fulfilling the creation requirement."
+T001b:
+  c: true
+  h: 1fd62409126caae944a51fa1f546ad4684bafd63d6279d78320e3e7022ca86c2
+  r: "The file `projects/PROJ-903-llmxive-follow-up-extending-data-journal/code/data/__init__.py`\
+    \ exists on disk, is non\u2011empty (1713\u202Fbytes), and contains valid Python\
+    \ code that initializes the data package and re\u2011exports the expected symbols.\
+    \ This satisfies the sole requirement of creating the `__init__.py` file."
+T001c:
+  c: true
+  h: eb161674061c27dbe7875516ab017e8c72f8f55382074d4fc0634908ba43a810
+  r: "The `projects/PROJ-903-llmxive-follow-up-extending-data-journal/code/analysis/__init__.py`\
+    \ file is present, non\u2011empty (556\u202Fbytes), and contains valid Python\
+    \ code, fulfilling the task\u2019s sole requirement to create this module."
+T001d:
+  c: true
+  h: a1e6a9a32525879c8134485a51c5a5a169dcb266bfe1c583c79ac04ccf7915c8
+  r: "The `projects/PROJ-903-llmxive-follow-up-extending-data-journal/code/narrative/__init__.py`\
+    \ file is present at the specified path, is 1750\u202Fbytes in size, and contains\
+    \ valid Python code importing the expected sub\u2011modules. This satisfies the\
+    \ sole requirement of creating the `__init__.py` file."
+T001e:
+  c: true
+  h: 32b6e725202313e2ab90e4b05881221e58ad50a668a7e89f458106711c0f5a08
+  r: "The `projects/PROJ-903-llmxive-follow-up-extending-data-journal/code/evaluation/__init__.py`\
+    \ file exists, is non\u2011empty (439\u202Fbytes), and contains valid Python code,\
+    \ fulfilling the task of creating the module."
+T001f:
+  c: true
+  h: 457822eb8c5035fe76c9ee7709910fa2c9879be49bca13979180f8089d6bedde
+  r: "The file `projects/PROJ-903-llmxive-follow-up-extending-data-journal/tests/unit/__init__.py`\
+    \ exists, is non\u2011empty (153\u202Fbytes), and contains a valid module docstring\
+    \ and an `__all__` definition, fulfilling the task\u2019s requirement to create\
+    \ this `__init__.py`."
+T001g:
+  c: true
+  h: 6f5678985240a20ed37f231289c26c61e4f7c8d1a695d11631c4cccbe7b97c98
+  r: "The file `projects/PROJ-903-llmxive-follow-up-extending-data-journal/tests/integration/__init__.py`\
+    \ is present, non\u2011empty (160\u202Fbytes), and contains a valid module docstring\
+    \ and `__all__` definition, fulfilling the creation requirement."
+T001h:
+  c: true
+  h: 562f4359ac0353615841bb49d9247eb0505b4e81214d4d4bc2d9caa34c204f73
+  r: "The file `projects/PROJ-903-llmxive-follow-up-extending-data-journal/tests/contract/__init__.py`\
+    \ is present, non\u2011empty (173\u202Fbytes), and contains a valid Python module\
+    \ with a docstring and an `__all__` definition, fulfilling the creation requirement."
+T001i:
+  c: false
+  h: d75f17ccca193570f97d24ecb810b8d61eee2cf4a7114f4bc05088b4335ad9c0
+  r: "The evidence shows the `raw/` directory exists under the project path, but the\
+    \ required `output/` directory is missing, and the `processed/` directory is located\
+    \ at `data/processed/` instead of under `projects/PROJ-903-llmxive-follow-up-extending-data-journal/data/processed/`.\
+    \ Both missing and mis\u2011placed directories must be created in the correct\
+    \ locations."
+T002a:
+  c: false
+  h: 83aebdde7ec9360bcab82e2086c11281e3ac788c2c2b90064b912015e69544ea
+  r: "The `requirements.txt` file is present, but it does not contain **pinned** versions\
+    \ (exact `==` specifications) for the required libraries; it uses open-ended `>=`\
+    \ constraints and also includes many unrelated packages. This fails the task\u2019\
+    s requirement to provide a requirements file with pinned versions for the listed\
+    \ dependencies."
+T002b:
+  c: false
+  h: 28abe68a2d9c4967c4c93da391bd3fd4b71ec650b19df68eec38e7d14b197f9f
+  r: The only artifact provided is the `requirements.txt` file; there is no virtual
+    environment directory, activation script, or any evidence (e.g., `pip list`/`pip
+    freeze` output) that the dependencies were installed. The task explicitly required
+    creating a `venv` and installing the listed packages, which is missing.
+T002c:
+  c: false
+  h: 349d7d294f986e608da6902a4bb17f33aa70c7263634047eb090d8bb317e5785
+  r: "No linting/formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,\
+    \ `.flake8`, or pre\u2011commit hook scripts) or evidence of ruff/black being\
+    \ set up were provided; without these artifacts the requirement to configure ruff\
+    \ and black cannot be verified."
 T021b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

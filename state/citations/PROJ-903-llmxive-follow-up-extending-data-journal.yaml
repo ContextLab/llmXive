@@ -42,7 +42,7 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/llmxive-follow-up
   verified_at: '2026-09-18T08:53:51.900593Z'
-- artifact_hash: 23f3c9585a9a6576e2c307c5a6af82951932cbe5ff91d250abbe1f8a7c074985
+- artifact_hash: 6b76e2059da3b5e1794a25a49a1ed5f6e2b8217831221970f349bb916f5a5a14
   artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,4 +52,4 @@
   value: https://en.wikipedia.org/wiki/Principal_component_analysis
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Principal_component_analysis
-  verified_at: '2026-09-22T10:51:00.530186Z'
+  verified_at: '2026-10-09T08:26:05.982412Z'
