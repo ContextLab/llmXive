@@ -9,6 +9,8 @@ from data.models import create_subjects_from_dataframe
 from utils.logging import get_logger
 from utils.memory_monitor import check_and_subset_memory, MemoryLimitExceeded
 from data.synthetic_generator import generate_synthetic_dataset
+# Import the DataAccessError used for analysis‑mode failures
+from data.download import DataAccessError
 
 logger = get_logger(__name__)
 
@@ -297,7 +299,8 @@ def preprocess_subjects(
             logger.info(f"Generating {synthetic_count} synthetic subjects for verification")
             df = _generate_synthetic_dataframe(synthetic_count)
         else:
-            raise ValueError("DataFrame must be provided in analysis mode")
+            # In analysis mode the caller must supply a dataframe; otherwise we cannot proceed.
+            raise DataAccessError("Real data required for analysis mode but no dataframe was provided.")
 
     # 1. Filter by training years (>=1)
     df_filtered = filter_by_training_years(df, threshold=1.0)
@@ -308,7 +311,11 @@ def preprocess_subjects(
     # 3. Handle confounders
     confounders = ['age', 'motion_score', 'ses_score']
     confounders_for_matching = confounders + ['sex']
-    df_matched = handle_confounders(df_clean, confounders_for_matching)
+    if mode == 'verification':
+        # Skip matching for verification to keep the synthetic count deterministic
+        df_matched = df_clean
+    else:
+        df_matched = handle_confounders(df_clean, confounders_for_matching)
 
     # 4. Generate validity report (based on the *original* loaded cohort)
     validity_metrics = calculate_dataset_validity(df)
