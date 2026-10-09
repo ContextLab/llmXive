@@ -1,0 +1,77 @@
+# ArchConfig definitions for the llmXive automation pipeline.
+#
+# Each entry defines a structural + sampling configuration under which the
+# brainstorming agent generates hypotheses. Structural parameters
+# (context_window_tokens, model_size_params, retrieval_augmented) are the
+# primary independent variables for the correlation analysis (US-3);
+# sampling parameters (temperature, top_p, seed) control generation
+# stochasticity and are pinned for reproducibility.
+#
+# CPU-only constraint (GitHub Actions free tier, no CUDA): all models are
+# small, CPU-tractable checkpooints (<= ~0.5B parameters).
+
+defaults:
+  embedding_model: sentence-transformers/all-MiniLM-L6-v2
+  max_new_tokens: 128
+  seed: 42
+
+configs:
+  - config_id: small_no_rag_low_temp
+    model_name: distilgpt2
+    model_size_params: 82000000        # ~82M parameters
+    context_window_tokens: 1024
+    retrieval_augmented: false
+    temperature: 0.3
+    top_p: 0.9
+    notes: "Small model, no retrieval, low-temperature baseline."
+
+  - config_id: small_no_rag_high_temp
+    model_name: distilgpt2
+    model_size_params: 82000000
+    context_window_tokens: 1024
+    retrieval_augmented: false
+    temperature: 0.7
+    top_p: 0.95
+    notes: "Small model, no retrieval, default generation temperature (spec US-1)."
+
+  - config_id: small_rag_high_temp
+    model_name: distilgpt2
+    model_size_params: 82000000
+    context_window_tokens: 1024
+    retrieval_augmented: true
+    retrieval_top_k: 5
+    temperature: 0.7
+    top_p: 0.95
+    notes: "Small model with retrieval augmentation from the frozen literature index."
+
+  - config_id: medium_no_rag_high_temp
+    model_name: gpt2
+    model_size_params: 124000000       # ~124M parameters
+    context_window_tokens: 1024
+    retrieval_augmented: false
+    temperature: 0.7
+    top_p: 0.95
+    notes: "Medium model, no retrieval; isolates the model-size fixed effect."
+
+  - config_id: medium_rag_high_temp
+    model_name: gpt2
+    model_size_params: 124000000
+    context_window_tokens: 1024
+    retrieval_augmented: true
+    retrieval_top_k: 5
+    temperature: 0.7
+    top_p: 0.95
+    notes: "Medium model with retrieval augmentation."
+
+# Execution sandbox constraints (FR-004) shared by all configs.
+execution:
+  timeout_seconds_per_attempt: 60
+  memory_error_retries: 1
+  determinism_check_runs: 3
+  max_wall_clock_seconds_per_hypothesis: 120
+
+# Resource ceiling for the CPU-only runner.
+resources:
+  max_ram_gb: 7
+  max_disk_gb: 14
+  device: cpu
