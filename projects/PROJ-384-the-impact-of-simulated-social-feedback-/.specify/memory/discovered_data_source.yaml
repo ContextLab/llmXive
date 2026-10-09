@@ -1,13 +1,13 @@
 status: none
-intent: download LOST social interaction dataset arXiv python package dataset
+intent: LOST dataset arXiv download Zenodo HuggingFace Model Hub RoBERTa python package
+  dataset
 required_fields:
 - post_id
-- user_id
-- post_text
 - reply_id
+- post_text
 - reply_text
 - timestamp
-- valence_score
-cache_key: 8ad0518f549834c1c89574847ac316824aeadf881144418cbc5f9fcc1c2e3172
-searched_at: '2026-08-16T01:56:51.372616+00:00'
+- valence
+cache_key: 253af59ec2be64166953f05fd71f02c860d2c5dc98e71ee97d2395459501ce98
+searched_at: '2026-10-09T07:43:53.059725+00:00'
 retry_count: 1

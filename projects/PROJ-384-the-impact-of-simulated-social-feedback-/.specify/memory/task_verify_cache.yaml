@@ -1,9 +1,43 @@
+T001:
+  c: true
+  h: 4680311251aa63ba8fd651eeca5e31f426375521e8c646f9f5faa063c653b5d8
+  r: "The repository contains the required directories: `code/` (with subdirectory\
+    \ `code/utils/`), `tests/`, `data/raw/`, and `data/processed/`, each present and\
+    \ populated (e.g., with placeholder files such as `.gitkeep`). This matches the\
+    \ task\u2019s specification of creating the project structure."
+T002:
+  c: false
+  h: 604d042027751f03a0a40ebc8b3e1acc37f484065652513e9fd88d5350b68876
+  r: "The provided `code/requirements.txt` lists the required packages but does not\
+    \ pin them to specific version numbers (e.g., `pandas==1.5.3`), violating the\
+    \ \u201Cpinned dependencies\u201D requirement, and it also includes an extra `pyyaml`\
+    \ entry not requested. The task is therefore not fully satisfied."
 T003:
   c: true
-  h: ed10dfe312fb4cb5816e2577a84e023e066e92d05d53ea147362d3069d939b4c
-  r: "The file `code/.pre-commit-config.yaml` is present, non\u2011empty, and includes\
-    \ ruff (linting) and black (formatting) hooks as required (plus an extra mypy\
-    \ hook, which does not violate the task)."
+  h: 45f1021c1ab1772e20a4451145e19b60056ed104b87263bcbba4df098885c646
+  r: "The `code/.pre-commit-config.yaml` file exists, is non\u2011empty, and configures\
+    \ ruff (a linting tool that can replace flake8) and black for formatting, fulfilling\
+    \ the task\u2019s requirement."
+T004:
+  c: true
+  h: 67f2e414ba05b3db1e92aeea1511c6f79d395f07ca54c0bf4c9080e07e9fa5dd
+  r: The file `code/utils/config.py` exists and defines project paths, random seed
+    constants, a VIF limit, and a sentiment range tuple covering negative to positive
+    values, fulfilling the task specification.
+T005:
+  c: false
+  h: c619eb69ac3d9555fa97a1659de993eeb2cea7aab91aa2de9cac49c49946babc
+  r: "The provided `code/utils/logger.py` defines a custom `ReproducibilityLogger`\
+    \ but never configures Python\u2019s `logging` module with file and console handlers,\
+    \ nor does it write any output to `logs/pipeline.log`. The task explicitly required\
+    \ setting up logging that writes to that file, which is missing."
+T006:
+  c: false
+  h: 46028d289fb9d7afb4a4e65d7c14b64b1e9acf98a7916b2122ed199a9a71feb3
+  r: The schema file exists and is a valid, strict YAML definition, but there is no
+    accompanying evidence (e.g., Python code or test output) showing that the schema
+    was loaded with `jsonschema`, validated against a good payload, and that it correctly
+    raises an error on a known bad JSON payload as required.
 T008:
   c: false
   h: 44d66de4314cb55d1c288c590ee83cfc911d53042ff8f1eb0701d90a5b99c01d
