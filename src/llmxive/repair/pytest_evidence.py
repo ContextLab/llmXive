@@ -17,8 +17,12 @@ def pytest_runtest_makereport(item, call):
     for entry in call.excinfo.traceback:
         path = Path(entry.path).resolve()
         frames.append(str(path.relative_to(root)) if path.is_relative_to(root) else str(path))
+    error = call.excinfo.value
     _failures.append({"phase": call.when, "exception": call.excinfo.typename,
-                      "import_error": isinstance(call.excinfo.value, ImportError), "frames": frames})
+                      "import_error": isinstance(error, ImportError), "frames": frames,
+                      "os_errno": error.errno if isinstance(error, OSError) else None,
+                      "filename": str(error.filename) if isinstance(error, OSError)
+                      and error.filename is not None else None})
 
 
 def pytest_terminal_summary(terminalreporter):

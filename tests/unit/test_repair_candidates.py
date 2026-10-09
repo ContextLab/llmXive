@@ -51,8 +51,10 @@ def test_repair_prompt_keeps_later_issues_and_retry_feedback(tmp_path, monkeypat
     assert [i["number"] for i in parsed["issues"]] == list(range(5))
     assert all("Current problem" in i["body"] and "Latest concrete finding" in i["body"]
                for i in parsed["issues"])
-    assert parsed["previous_attempt_failure"] == evidence["previous_attempt_failure"]
-    assert parsed["test_diagnostics"].endswith("AssertionError: expected a retained diagnosis")
+    feedback = parsed["candidate_retry_feedback"]
+    assert feedback["previous_attempt_failure"] == evidence["previous_attempt_failure"]
+    assert feedback["test_diagnostics"].endswith("AssertionError: expected a retained diagnosis")
+    assert "not a new production defect" in feedback["purpose"]
     assert json.loads((tmp_path / "output/evidence.json").read_text()) == evidence
 
 
@@ -146,7 +148,8 @@ def test_stale_candidate_and_existing_test_rewrite_rejected(tmp_path: Path):
 
 @pytest.mark.parametrize('safety_exit', [None, 1, 2])
 def test_publication_refuses_missing_or_failed_fixed_safety_checks(tmp_path, safety_exit):
-    output=tmp_path/'output';output.mkdir()
+    output=tmp_path/'output'
+    output.mkdir()
     result={'status':'validated_candidate','review':{'accept':True}}
     if safety_exit is not None:
         result['safety_exit']=safety_exit
