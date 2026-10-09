@@ -23,13 +23,6 @@ T009:
     \ `stream_tokens_in_batches` and other utilities but never verifies the required\
     \ `stream_batch` 50\u2011token batching behavior. Consequently, the core function\
     \ and its verification are missing."
-T012:
-  c: true
-  h: 7913e4a021aaa9fe487c49c604676f4e3b332d1488a195490ab8f4d3c262721a
-  r: "The file `code/contracts/dataset.schema.yaml` exists, is non\u2011empty (671\u202F\
-    bytes), and contains a full JSON\u2011Schema definition with required fields and\
-    \ property descriptions, matching the deliverable specification. No required artifact\
-    \ is missing."
 T015:
   c: true
   h: 221dbd000e23905a7ee9b86148dd9d490de34cd7759f345848bee3f796cf19d8
@@ -60,10 +53,3 @@ T023:
   r: "The provided `preprocessing.py` does not contain a `validate_entropy_profile()`\
     \ implementation (the file excerpt shows no such function), so the required validation\
     \ logic is missing. Consequently the task\u2019s core requirement is not satisfied."
-T031:
-  c: false
-  h: 6739b45cd9711a2147dc8383a90798d159f7c791682f81f0be709f784ffcb16b
-  r: "The repository contains a partially\u2011implemented `report.py`, but the required\
-    \ output file `code/results/final_report.json` is absent, and the provided code\
-    \ does not demonstrate that it writes a JSON report with AUC\u2011ROC, p\u2011\
-    values, and the optimal threshold. The task therefore remains unfinished."

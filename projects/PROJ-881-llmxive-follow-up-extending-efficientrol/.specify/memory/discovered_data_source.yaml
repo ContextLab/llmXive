@@ -1,12 +1,12 @@
 status: none
-intent: download GSM8K and MiniGrid Minari datasets from Hugging Face python package
-  dataset
+intent: download huggingface datasets GSM8K MiniGrid python package dataset
 required_fields:
-- task
+- example_id
+- task_type
 - prompt
-- ground_truth_solution
-- tokenized_solution
-- validity_flags
-cache_key: d8e54c6fd1ff0a528fa66d691cb1dce220c9476b6b76667a43b1b308929344ff
-searched_at: '2026-07-29T11:21:09.562563+00:00'
+- ground_truth_solution_or_action_sequence
+- generated_token_sequence
+- token_validity_flags
+cache_key: 4d9e1a2dd8242b5c0af5b011f9bb90444febd436c8ba4045a132121ff249ffe1
+searched_at: '2026-10-09T21:22:03.610962+00:00'
 retry_count: 1
