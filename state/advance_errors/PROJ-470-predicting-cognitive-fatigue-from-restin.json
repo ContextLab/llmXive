@@ -1,14 +1,14 @@
 {
   "project_id": "PROJ-470-predicting-cognitive-fatigue-from-restin",
-  "stage": "in_progress",
-  "class": "deterministic_repair",
-  "fingerprint": "filesystem_file_exists",
-  "consecutive_count": 0,
-  "first_seen": "2026-07-05T09:15:17.086383+00:00",
-  "last_seen": "2026-07-16T10:13:07.677183+00:00",
+  "stage": "planned",
+  "class": "emitter_context",
+  "fingerprint": "tasker_zero_tasks",
+  "consecutive_count": 1,
+  "first_seen": "2026-10-09T02:27:04.359656+00:00",
+  "last_seen": "2026-10-09T02:27:04.359656+00:00",
   "retry_after": null,
-  "last_error": "[Errno 17] File exists: '/home/runner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognitive-fatigue-from-restin/code/security'",
-  "evidence": "[Errno 17] File exists: '/home/runner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognitive-fatigue-from-restin/code/security'",
-  "remediation": "A deterministic filesystem collision (a dir/file already exists). Make the step idempotent (exist_ok=True / reconcile the existing artifact) then retry; backoff spaces the retries so it does not loop every tick meanwhile.",
-  "status": "cleared"
+  "last_error": "Tasker produced only 0 task IDs (need >= 5; total chars: 10681). Re-running on next cycle.",
+  "evidence": "Tasker produced only 0 task IDs (need >= 5; total chars: 10681). Re-running on next cycle.",
+  "remediation": "The emitter produced insufficient output (unresolved markers / no seed draft / zero tasks). Supply the missing inputs/context and re-run; do not blindly re-emit the same empty artifact.",
+  "status": "rerouted"
 }
