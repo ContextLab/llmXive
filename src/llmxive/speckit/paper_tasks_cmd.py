@@ -10,12 +10,12 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
 from pathlib import Path
 from typing import Any
 
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
+from llmxive.speckit._analysis_policy import analysis_policy_fingerprint
 from llmxive.speckit.analyze_cmd import run_analyze
 from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
 
@@ -39,16 +39,10 @@ class PaperTaskerAgent(SlashCommandAgent):
             paths.update(base / ".specify/memory" / name for name in (
                 "constitution.md", "task_verifier_notes.md", "kickback_feedback.md"))
         paths.add(self._paper_dir(ctx) / ".specify/templates/tasks-template.md")
-        policy = {"model": ctx.default_model, "backend": ctx.default_backend.value,
-                  "fallbacks": [b.value for b in ctx.fallback_backends],
-                  "prompt_version": ctx.prompt_version,
-                  "flags": {k: v for k, v in os.environ.items()
-                            if k.startswith("LLMXIVE_") and not any(
-                                word in k for word in ("TOKEN", "SECRET", "KEY", "PASSWORD"))}}
         paths.update((repo / ".specify/templates").glob("*.md"))
         paths.add(repo / "web/about.html")  # Authoritative convergence/citation policy.
-        digest = hashlib.sha256(b"paper-task-analysis-v1\0")
-        digest.update(json.dumps(policy, sort_keys=True).encode())
+        digest = hashlib.sha256(b"paper-task-analysis-v2\0")
+        digest.update(analysis_policy_fingerprint(ctx).encode() + b"\0")
         for path in sorted(paths):
             digest.update(str(path.relative_to(repo)).encode() + b"\0")
             digest.update(path.read_bytes() if path.is_file() else b"<absent>")

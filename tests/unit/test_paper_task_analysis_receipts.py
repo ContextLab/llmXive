@@ -15,6 +15,11 @@ from llmxive.types import BackendName, Outcome, Project, Stage
 @pytest.fixture
 def reviewed(tmp_path, monkeypatch):
     source = Path(__file__).resolve().parents[2]
+    deployed = tmp_path / 'loaded-platform/src/llmxive'
+    reviewer = deployed / 'convergence/reviewspecs.py'
+    reviewer.parent.mkdir(parents=True)
+    reviewer.write_text('REVIEW_POLICY = "initial"\n')
+    monkeypatch.setattr('llmxive.speckit._analysis_policy._deployed_source_root', lambda: deployed)
     project = tmp_path / 'projects/PROJ-901-receipt'
     feature = project / 'paper/specs/001-study'
     feature.mkdir(parents=True)
@@ -154,4 +159,46 @@ def test_changed_root_template_guard_invalidates_receipt(reviewed):
     ctx, _, _, _ = reviewed
     path = ctx.project_dir.parent.parent / '.specify/templates/tasks-template.md'
     path.write_text('New template refusal policy')
+    assert not PaperTaskerAgent().mechanical_step(ctx).get('skip_llm')
+
+
+@pytest.mark.parametrize('field,value', [
+    ('default_model', 'different-free-model'),
+    ('default_backend', BackendName.LOCAL),
+    ('fallback_backends', [BackendName.LOCAL]),
+    ('prompt_version', '2.0.0'),
+])
+def test_changed_dispatch_policy_invalidates_and_reruns_analysis(reviewed, field, value):
+    ctx, _, feature, calls = reviewed
+    before = (feature / 'tasks.md').read_bytes()
+    setattr(ctx, field, value)
+    assert not PaperTaskerAgent().mechanical_step(ctx).get('skip_llm')
+    assert (feature / 'tasks.md').read_bytes() == before
+    assert PaperTaskerAgent().run(ctx).outcome == Outcome.SUCCESS
+    assert calls.count('generate') == 2 and calls.count('analyze') == 2
+    assert PaperTaskerAgent().run(ctx).outcome == Outcome.SKIPPED
+    assert (feature / 'tasks.md').read_bytes() == before
+
+
+def test_loaded_policy_change_invalidates_despite_unchanged_data_source_copy(reviewed):
+    ctx, _, feature, _ = reviewed
+    root = ctx.project_dir.parent.parent
+    copy = root / 'src/llmxive/convergence/reviewspecs.py'
+    copy.parent.mkdir(parents=True, exist_ok=True)
+    copy.write_text('REVIEW_POLICY = "old data copy"\n')
+    # Establish a new accepted receipt with both independent roots present.
+    assert PaperTaskerAgent().run(ctx).outcome == Outcome.SUCCESS
+    assert PaperTaskerAgent().mechanical_step(ctx).get('skip_llm')
+    before = (feature / 'tasks.md').read_bytes()
+    (root / 'loaded-platform/src/llmxive/convergence/reviewspecs.py').write_text('REVIEW_POLICY = "new deployed policy"\n')
+    assert not PaperTaskerAgent().mechanical_step(ctx).get('skip_llm')
+    assert copy.read_text() == 'REVIEW_POLICY = "old data copy"\n'
+    assert (feature / 'tasks.md').read_bytes() == before
+
+
+def test_runtime_policy_flags_invalidate_but_credentials_do_not(reviewed, monkeypatch):
+    ctx, _, _, _ = reviewed
+    monkeypatch.setenv('LLMXIVE_PRIVATE_TOKEN', 'test-only-rotated-credential')
+    assert PaperTaskerAgent().mechanical_step(ctx).get('skip_llm')
+    monkeypatch.setenv('LLMXIVE_CLAIM_LAYER', '1')
     assert not PaperTaskerAgent().mechanical_step(ctx).get('skip_llm')
