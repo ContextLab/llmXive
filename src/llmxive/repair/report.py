@@ -26,11 +26,14 @@ def render(output: Path) -> str:
         selection = _read(attempt / "selection.json")
         outcome = _read(attempt / "result.json")
         context = _read(attempt / "source-context.json")
-        proposal = _read(attempt / "proposal-response.json")
+        responses = sorted(attempt.glob("proposal-response-revision-*.json"))
+        proposal = _read(responses[-1] if responses else attempt / "proposal-response.json")
         lines.extend(["", f"### {attempt.name}", "",
                       f"Last phase: {progress.get('phase', 'unknown')}"])
         if selection.get("problem"):
             lines.append("Selected problem: " + str(selection["problem"])[:2000])
+        for diagnostic in sorted(attempt.glob("proposal-validation*.json")):
+            lines.append("Proposal correction: " + str(_read(diagnostic).get("error", ""))[:2000])
         if context:
             lines.append("Complete source inspected: " + ", ".join(
                 f"`{name}` ({len(text.encode())} bytes)"
