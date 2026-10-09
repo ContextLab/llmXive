@@ -14,8 +14,8 @@ remains valid evidence, and its failed paper transition remains preserved.
 
 The latest production census at `c36adea5eaad766e918a48503f6fad282b94d47c`
 still has 1,095 projects: 455 implementing, 102 planned, 50 tasked and 227
-external reviewed preprints. No authored project has reached research-complete
-or a later stage. See [the frozen census](production-20261009-1518.json).
+external reviewed preprints. No authored project is recorded at research-complete
+or a later stage in this census. See [the frozen census](production-20261009-1518.json).
 This is an observed production result, not an inference from passing tests.
 
 Since the previous snapshot, the following repairs merged after their selected
@@ -40,7 +40,7 @@ remains enabled for changed dependencies, unknown paths and nightly runs.
 A genuinely fresh canary began at 15:00:55 UTC with the original seed and all
 production scientific guards on frozen source
 `1d2b4287245cf12cdb01ff9d367d9157229101ca`. The research-question validator
-rejected the merely illustrative original framing; autonomous revision proposed
+requested substantive revision of the merely illustrative original framing; autonomous revision proposed
 multiplicative-feature attribution, and the next validator accepted that
 question. The run reached project initialization and started specification.
 GLM timed out after 360.020 seconds on that request; the free GPT-OSS peer began
