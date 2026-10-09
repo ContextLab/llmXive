@@ -1,0 +1,127 @@
+{
+  "observed_at": "2026-10-09T07:10:10.648747+00:00",
+  "scope": "Read-only comparison of generated sweep files with independent linear totient recurrence and gcd sanity checks; not pipeline acceptance",
+  "all_passed": true,
+  "checks": [
+    {
+      "N": 1000,
+      "p": 5,
+      "unconditional_tv": 0.102,
+      "conditional_tv": 0.07524613220815753,
+      "errors": [],
+      "json_sha256": "c2b6848135da301eaa08d24dd57ab9780bee65c2b548174be147249b942e238f",
+      "csv_sha256": "0310ccd983eca0b97513844c57185c96b2101e0a92ac5f30e177849be6d4d6c3",
+      "file_mtime": "2026-10-09T07:02:29.216388+00:00"
+    },
+    {
+      "N": 1000,
+      "p": 7,
+      "unconditional_tv": 0.04057142857142857,
+      "conditional_tv": 0.045134818288393906,
+      "errors": [],
+      "json_sha256": "fd56d47d1ef957d0d2aa4f908dc12fba63a2dd168bbd5c174b0baa8e5627b8a1",
+      "csv_sha256": "53ce104027bc3fefb0ae241be078deea1883f2229e2835dbfac6368a369513f7",
+      "file_mtime": "2026-10-09T07:02:29.216608+00:00"
+    },
+    {
+      "N": 1000,
+      "p": 11,
+      "unconditional_tv": 0.028545454545454544,
+      "conditional_tv": 0.02666666666666667,
+      "errors": [],
+      "json_sha256": "0ffff652c585c6b614f0bcd54c62fed4c8711f3e80dd494c9f65a76eda5372eb",
+      "csv_sha256": "717a703129fb75f59bc8a846b20349dc9c44de7ca5a2ac7907c2119ed9083f5b",
+      "file_mtime": "2026-10-09T07:02:29.216824+00:00"
+    },
+    {
+      "N": 10000,
+      "p": 5,
+      "unconditional_tv": 0.1452,
+      "conditional_tv": 0.057269395235186316,
+      "errors": [],
+      "json_sha256": "8f433bfe0cdb559451050c0bdaf4730b6d15087eab2d7a45d9b6a277fd3bc8e6",
+      "csv_sha256": "0b079994a8b05953783209456fa1b7375d6c2aaa5027aaa1983973d132b32103",
+      "file_mtime": "2026-10-09T07:02:29.296516+00:00"
+    },
+    {
+      "N": 10000,
+      "p": 7,
+      "unconditional_tv": 0.05422857142857143,
+      "conditional_tv": 0.03549820965551303,
+      "errors": [],
+      "json_sha256": "f35c6730f4a2982d750e20cdaee1fd0250e2673ac479b1cfe3be956f35f6c8cb",
+      "csv_sha256": "ff88ec5fb2c34ab42c893d6476bc612c518b9a7a0a2587bc3e0f95e8475861b7",
+      "file_mtime": "2026-10-09T07:02:29.296733+00:00"
+    },
+    {
+      "N": 10000,
+      "p": 11,
+      "unconditional_tv": 0.043254545454545455,
+      "conditional_tv": 0.02904887261073595,
+      "errors": [],
+      "json_sha256": "9df7a5f53dee48bb82b7eaf9b402fa497449a56926bc13f67f6c8307d736ad55",
+      "csv_sha256": "3bf039937fa8a05c271f3bd5962283e249666848dc8a43de5ed941cbdde6348e",
+      "file_mtime": "2026-10-09T07:02:29.296936+00:00"
+    },
+    {
+      "N": 100000,
+      "p": 5,
+      "unconditional_tv": 0.18433,
+      "conditional_tv": 0.05169165299592314,
+      "errors": [],
+      "json_sha256": "8289a13b4b9561c129428a403cab74e9364e918e24975244e6cb76c0f97583e8",
+      "csv_sha256": "73d2ee366b47d08476f0a34c540ac366afd1f8e44739e7ea4f2af15a03cabf89",
+      "file_mtime": "2026-10-09T07:02:29.426794+00:00"
+    },
+    {
+      "N": 100000,
+      "p": 7,
+      "unconditional_tv": 0.08004285714285714,
+      "conditional_tv": 0.029108222879938233,
+      "errors": [],
+      "json_sha256": "0716e584be4ada9165a425220eb31432ae1fb545181b4e230f409ca0ad2b850d",
+      "csv_sha256": "81ea2299469579e804befc66ca8467ff3a2059db72bd852b64961c076d1f84a5",
+      "file_mtime": "2026-10-09T07:02:29.427032+00:00"
+    },
+    {
+      "N": 100000,
+      "p": 11,
+      "unconditional_tv": 0.05590090909090909,
+      "conditional_tv": 0.02081248022128717,
+      "errors": [],
+      "json_sha256": "cae8a1d8910d790b760077047aaad70d5f6b8d6d78aafca20996bb772cd21700",
+      "csv_sha256": "92f76cff0fb2eafeed6f01393b43c40bdcc6790e2e82f63f6981a5bf1dc01453",
+      "file_mtime": "2026-10-09T07:02:29.427253+00:00"
+    },
+    {
+      "N": 1000000,
+      "p": 5,
+      "unconditional_tv": 0.214281,
+      "conditional_tv": 0.04713949863330368,
+      "errors": [],
+      "json_sha256": "826fc7326c996fa63ce43e7b31fae86b8a0b2d26f42dc6cdaac4caa300751fea",
+      "csv_sha256": "42c9152a7f612277064a8657bde2363a532560835bb5839e29950a27a886e737",
+      "file_mtime": "2026-10-09T07:02:30.189851+00:00"
+    },
+    {
+      "N": 1000000,
+      "p": 7,
+      "unconditional_tv": 0.10548685714285715,
+      "conditional_tv": 0.026029194205860126,
+      "errors": [],
+      "json_sha256": "73a43eac5443e0f26b0a0f32953aa9f22a8ad387da5d7b0d0a1e86f2b56d5b79",
+      "csv_sha256": "7e93bbedcc9c83b16f91d1856d4efef274c3fb26085e07880b1bde78b0fef447",
+      "file_mtime": "2026-10-09T07:02:30.190105+00:00"
+    },
+    {
+      "N": 1000000,
+      "p": 11,
+      "unconditional_tv": 0.07241590909090909,
+      "conditional_tv": 0.017989063853945678,
+      "errors": [],
+      "json_sha256": "64e64b9f2cc16a0bcfa6893aef40712f2ed753b72fafb832ab879863a4b5951c",
+      "csv_sha256": "71dec36028791945e7fb0eff3d4d357a34363f560d4b7cddc680b1b96a3ab91f",
+      "file_mtime": "2026-10-09T07:02:30.190361+00:00"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "scope": "Read-only actual task verification; no scientific artifacts, tasks or acceptance caches changed",
+  "results": [
+    {
+      "task": "T005",
+      "complete": false,
+      "reason": "The three CSV files and the JSON summary correctly contain the required data and the PNG plot exists, but the required log file `logs/run_N1000.log` is absent and no evidence of the programmatic check script (verifying the column sums) is provided. These missing artifacts prevent the task from being fully satisfied.",
+      "seconds": 9.974,
+      "evidence_chars": 27184,
+      "evidence_sha256": "5288b38667f39a485d74708e6d5948c68a2082712d8d48fd3b05505a04494c06"
+    },
+    {
+      "task": "T010",
+      "complete": false,
+      "reason": "The required verification reports (`logs/verification_N{N}.txt`) and the runtime summary (`logs/runtime_summary.txt`) are missing, so we cannot confirm that the verification steps were performed and passed, even though the CSV and JSON contents appear correct.",
+      "seconds": 10.003,
+      "evidence_chars": 14319,
+      "evidence_sha256": "05a35fbecb8be5e8f4d4119f6ae5d74265aa234fe579e56330bee5ad1ee913a4"
+    }
+  ]
+}

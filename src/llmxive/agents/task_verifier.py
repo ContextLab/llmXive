@@ -249,10 +249,54 @@ def gather_evidence(project_dir: Path, task_text: str) -> str:
     )
     if needs_data:
         from llmxive.speckit.implement_cmd import _current_data_context
-        data = _current_data_context(project_dir)
+        data = _current_data_context(project_dir, preferred_paths=tuple(paths))
         chunks.append("# Underlying data evidence (not proof of run/test success)\n"
                       + (data or "No data artifacts available; do not infer measured results from report prose."))
+    execution = _task_execution_evidence(project_dir, task_text)
+    if execution:
+        chunks.append(execution)
     return "\n".join(chunks)
+
+
+def _task_execution_evidence(project_dir: Path, task_text: str) -> str:
+    """Expose bounded, task-specific execution records rather than hiding success.
+
+    These are historical observations, not approval of the current project.
+    Final execution freshness and scientific review remain separate gates.
+    """
+    match = _TASK_ID_RE.match(task_text.strip())
+    if not match:
+        return ""
+    task_id = match.group(1)
+    root = project_dir.resolve()
+    records = []
+    candidates = sorted((project_dir / "code/.tasks").glob(f"{task_id}.*.log"),
+                        key=lambda p: p.stat().st_mtime_ns, reverse=True)
+    for path in candidates:
+        if path.is_symlink() or not path.is_file() or not path.resolve().is_relative_to(root):
+            continue
+        try:
+            with path.open("rb") as stream:
+                digest = hashlib.file_digest(stream, "sha256").hexdigest()
+                stream.seek(0)
+                body = stream.read(6001).decode("utf-8", errors="replace")
+        except OSError:
+            continue
+        header = re.match(r"# (.+?) \(exit -?\d+,", body)
+        # Dotted IDs share filename prefixes; require the producer in the
+        # record to match this exact task's filename before using its evidence.
+        if not header or path.name != f"{task_id}.{header.group(1).replace('/', '_')}.log":
+            continue
+        records.append(f"### {path.relative_to(project_dir)} (sha256 {digest})\n"
+                       + body[:6000] + ("\n[Log truncated]" if len(body) > 6000 else ""))
+        if len(records) == 3:
+            break
+    if not records:
+        return ""
+    return ("# Historical execution records for this task\n"
+            "These record actual commands, exit codes and timings. They do not prove "
+            "later edits were executed; current artifacts, final execution freshness "
+            "and scientific correctness must still be checked.\n" + "\n".join(records))
 
 
 def verify_task(

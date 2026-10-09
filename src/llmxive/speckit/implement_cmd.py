@@ -894,7 +894,8 @@ def _summarize_existing_code(project_dir: Path, *, max_chars: int = 16000) -> st
 
 
 def _current_data_context(
-    project_dir: Path, *, max_chars: int = 16000, max_files: int = 32
+    project_dir: Path, *, max_chars: int = 16000, max_files: int = 32,
+    preferred_paths: tuple[str, ...] = (),
 ) -> str:
     """Bounded, literal CSV/JSON evidence for schema fixes and result writing.
 
@@ -906,9 +907,25 @@ def _current_data_context(
     import os
 
     root = project_dir.resolve()
+    project_dir = root
+    preferred = []
+    for relative in preferred_paths:
+        path = project_dir / relative
+        if (not path.is_symlink() and path.resolve().is_relative_to(root)
+                and (path.is_dir() or path.suffix.lower() in {".json", ".csv", ".tsv"})):
+            preferred.append(path.resolve())
     candidates: list[Path] = []
-    for directory in ("data", "results", "outputs"):
-        base = project_dir / directory
+    seen: set[Path] = set()
+    for base in [*preferred, *(project_dir / name for name in ("data", "results", "outputs"))]:
+        if len(candidates) >= 256:
+            break
+        if base.is_symlink() or not base.resolve().is_relative_to(root):
+            continue
+        if base.is_file():
+            if base.suffix.lower() in {".json", ".csv", ".tsv"} and base not in seen:
+                candidates.append(base)
+                seen.add(base)
+            continue
         if base.is_symlink() or not base.is_dir():
             continue
         for folder, dirs, files in os.walk(base, followlinks=False):
@@ -918,17 +935,22 @@ def _current_data_context(
                 path = Path(folder) / name
                 if (path.suffix.lower() in {".json", ".csv", ".tsv"}
                         and not path.is_symlink() and path.is_file()
-                        and path.resolve().is_relative_to(root)):
+                        and path.resolve().is_relative_to(root) and path not in seen):
                     candidates.append(path)
+                    seen.add(path)
                 if len(candidates) >= 256:
                     break
             if len(candidates) >= 256:
                 break
         if len(candidates) >= 256:
             break
-    # Small summaries first; never cut a CSV row or JSON object into a
-    # misleading apparent complete result. Omitted files are named explicitly.
-    candidates.sort(key=lambda p: (p.stat().st_size, p.relative_to(project_dir).as_posix()))
+    # Task-declared outputs first, then small files within that scope. Old
+    # summaries elsewhere must not crowd the required CSVs out of the budget.
+    # Never cut a CSV row or JSON object into an apparent complete result.
+    candidates.sort(key=lambda p: (
+        not any(p == base or p.is_relative_to(base) for base in preferred),
+        p.stat().st_size, p.relative_to(project_dir).as_posix(),
+    ))
     chunks: list[str] = []
     used = 0
     for path in candidates[:max_files]:
