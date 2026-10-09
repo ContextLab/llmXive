@@ -197,6 +197,32 @@ def _analysis_env(project_dir: Path, base_env: dict[str, str]) -> dict[str, str]
     return env
 
 
+def _explicit_script_package_root(
+    project_dir: Path, args: list[str], run_cwd: Path,
+) -> Path | None:
+    """Honor the package/workspace of an explicitly selected Python entry file.
+
+    Generic/module invocations retain the normal source-root order. A file such
+    as ``src/cli.py`` must import its own regular ``src`` package rather than a
+    same-named stale package under ``code/src``. Stop at the code workspace even
+    when its compatibility ``__init__.py`` exists. Non-package entry files
+    (for example ``tests/check.py`` without ``tests/__init__.py``) use their
+    root/code workspace, matching artifact import validation.
+    """
+    if not args or args[0].startswith("-") or not args[0].endswith(".py"):
+        return None
+    root = project_dir.resolve()
+    script = (run_cwd / args[0]).resolve()
+    if not script.is_relative_to(root) or not script.is_file():
+        return None
+    relative = script.relative_to(root)
+    boundary = root / "code" if relative.parts[0] == "code" else root
+    package_root = script.parent
+    while package_root != boundary and (package_root / "__init__.py").is_file():
+        package_root = package_root.parent
+    return package_root if package_root != script.parent else boundary
+
+
 def analysis_environment(workspace: Path) -> dict[str, str]:
     """Environment for generated research code, without the orchestrator's credentials."""
     allowed = ("PATH", "LANG", "LC_ALL", "SYSTEMROOT", "WINDIR", "SSL_CERT_FILE", "SSL_CERT_DIR")
@@ -242,6 +268,12 @@ def run_in_venv(
     py = Path(os.path.abspath(ensure_venv(project_dir)))
     _ensure_code_package(project_dir)
     env = _analysis_env(project_dir, analysis_environment(project_dir))
+    package_root = _explicit_script_package_root(project_dir, args, run_cwd)
+    if package_root is not None:
+        paths = env["PYTHONPATH"].split(os.pathsep)
+        env["PYTHONPATH"] = os.pathsep.join(
+            [str(package_root), *(path for path in paths if path != str(package_root))]
+        )
     env["PYTHONUNBUFFERED"] = "1"
     if extra_env:
         env.update(extra_env)
