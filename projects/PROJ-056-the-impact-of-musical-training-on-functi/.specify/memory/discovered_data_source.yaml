@@ -1,17 +1,15 @@
 status: none
-intent: ABCD Study and HCP-Adolescents resting-state fMRI musician labels python package
-  dataset
+intent: ABCD Study and HCP-Adolescent resting state fMRI with musician labels and
+  confounders python package dataset
 required_fields:
 - subject_id
-- rs_fmri_file_path
-- musician_status
-- training_years
+- group_label
+- musical_training_years
 - age
 - sex
 - mean_framewise_displacement
-- site
-- scanner_model
-- acquisition_date
-cache_key: a65607971c0f5e781036093de345cb6282749d6ae6cbae2d9a9d9bade100b6c2
-searched_at: '2026-10-09T17:17:39.330244+00:00'
+- resting_state_fmri_time_series_or_connectivity_matrix
+- quality_flag
+cache_key: c3ad42394455bf3984288b19f7430ca021cca70fe252e51c5f3a824554f9c277
+searched_at: '2026-10-09T18:15:47.479908+00:00'
 retry_count: 1
