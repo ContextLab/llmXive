@@ -26,6 +26,7 @@ from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
 from llmxive.speckit.task_lines import TASK_LINE_RE as _TASK_RE
 from llmxive.speckit.task_lines import (
     all_complete,
+    clear_retried_execution_failures,
     mark_task,
     mask_fenced_code,
     task_continuation,
@@ -463,17 +464,20 @@ class ImplementerAgent(SlashCommandAgent):
             # non-zero, the task did NOT actually produce its output.
             # Mark the task as FAILED-IN-EXECUTION with a clear
             # annotation rather than checking it off as completed.
-            # The downstream reviewer will see the FAILED tag and
-            # request a revision.
+            # Pending review is deterministically rejected; a semantic model
+            # cannot override a real failed command.
             failed_scripts = [(p, r) for p, r in execute_results if not r.ok]
             tasks_path = Path(mechanical_output["tasks_path"])
             text = tasks_path.read_text(encoding="utf-8")
+            text = clear_retried_execution_failures(
+                text, task_id, {path for path, result in execute_results if result.ok}
+            )
             if failed_scripts:
                 fail_summary = "; ".join(
                     f"{p} exit={r.returncode}{' (TIMEOUT)' if r.timed_out else ''}"
                     for p, r in failed_scripts
                 )
-                text = mark_task(text, task_id, "X", f" <!-- FAILED-IN-EXECUTION: {fail_summary} -->")
+                text = mark_task(text, task_id, "~", f" <!-- FAILED-IN-EXECUTION: {fail_summary} -->")
                 tasks_path.write_text(text, encoding="utf-8")
                 written.append(str(tasks_path.relative_to(repo)))
                 print(
