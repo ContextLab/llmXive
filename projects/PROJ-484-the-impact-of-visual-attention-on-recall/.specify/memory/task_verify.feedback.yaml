@@ -1,0 +1,151 @@
+T001:
+  reason: "Checked the top\u2011level project directory `projects/PROJ-484-the-impact-of-visual-attention-on-recall/`\
+    \ and found the required subfolders `code/`, `data/` and `tests/`. Inside `data/`\
+    \ the `raw/` folder exists, but `processed/` is absent, and there is no `artifacts/`\
+    \ directory at all (hence missing `artifacts/figures` and `artifacts/logs`). The\
+    \ required directory structure is therefore incomplete."
+  task: 23db3cc4fee665349b8d1c23424453f5e4afdfb3dbab94430ec50dbccce0cc38
+T001b:
+  reason: The README.md file is present and meets the content requirements, but the
+    required `.gitignore` file is missing from the project root (or its contents are
+    not provided). The task is not fully satisfied until a `.gitignore` with the specified
+    exclusions is added.
+  task: a56887010b876511d9d1b979ea29ff87bcba81faac1dfbbcb81cf38d3090df2c
+T002:
+  reason: "The `requirements.txt` file exists, but most listed packages (pandas, numpy,\
+    \ scipy, matplotlib, seaborn, tqdm, huggingface_hub) are not version\u2011pinned,\
+    \ violating the \u201CPin versions where possible\u201D requirement. Version specifiers\
+    \ need to be added for these dependencies."
+  task: 4dfba6a43536513e879da0aec304a64c6417e3e5f8654b023dc91832dad62dff
+T002b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/venv/pyvenv.cfg'
+  task: bfde37002d7794d23264f13f0203e1ed3055ccce16076ba00807926004ce0f33
+T003:
+  task: 1fbf6432b810eda78f526609d2b1a0b06472ce321b54d55916f8df279f7c9535
+T004:
+  reason: The `data/processed/` directory does not exist, and there is no evidence
+    of the required `artifacts/figures/` and `artifacts/logs/` directories. The task
+    demands all four directories be created; only `data/raw/` is present.
+  task: de7f8ccd3f9d0d0038e9ad9897f82c3f3e884008fbd35c4ae3acbe349db01544
+T005:
+  reason: The provided `logging_config.py` does not create a rotating file handler
+    at the required path (`artifacts/logs/app.log`) nor enforce DEBUG level, and its
+    JSON formatter outputs `logger` instead of the required `module` field. The implementation
+    therefore does not satisfy the task specifications.
+  task: 200d0a7341c27cb0c2c14d36a601b61f80e5d6c1953742f4a6439ff5d6c540f0
+T006:
+  task: 80779730e3708cc643d6f79f254ca207baca0128773dc8723ba92fa7f6ba33d7
+T006a:
+  task: 68f3d03c76e500073b38f99f05bd64c374d5df21838c27ad486bb8f12403a5f9
+T006b:
+  task: 93d5bfa73584d800b48c2c467c0c3e9ef40ede6b4325df71d0752ff959ca30b2
+T007:
+  task: 7366e74c561089d38af7dc10b86c7910008307b86efb8ecc1df0a36c3ba59952
+T008:
+  task: f8219ee270e74ff9a7dcaa8afbf1d11013ded24ceb4b008c4be66f5428de2b4b
+T009:
+  task: d1f072a2e3afb0ed6b768e3fedcae56810813168ab50b61bee49fa47fa301d3b
+T010:
+  task: f57b736db2b1d5d5bdca50d451fc7361e447172ed0b0e06d019468357d3b4b2f
+T011a:
+  task: 920cf219170472fa0f274ff2229f8620e5a50644feccbbc44c0232ddea336091
+T011b:
+  task: d3f018627adb0d646db4474ce2f9589c61cae99b37588f90fa6945ea6110b719
+T011c:
+  task: c3562dbb6282f03d3471f38b9f3e68982a0e248746999bb39a5794be5665214b
+T013:
+  task: c3ada730ddf2cdd022babde108c74751293fe3dacdf9254195d485b6091ebf44
+T014:
+  task: 4b23c5d2350db94332946f38c5d02e2d1911b3a5af0e6baf7a3f31c44a13990c
+T015:
+  task: 92ad068d4306a503d679f951e9d817c9f6c777f77b1c6f522656a765a571a210
+T016:
+  task: a88b721c29d0efa1e2963fe80357b91cd7cc9805f48fd1e1f199600d4f2e75b5
+T017:
+  task: bc3e20adccc694e1003391c7fc1bf8eb2a2b54aa47e2ae5cedaf7cd18234840a
+T018:
+  task: 3ec889dcfd52cbfea4fb49ac77b2267548694f81df96b7579e3be7c7ed5cfe92
+T019:
+  task: 48d7d6b60d32d05e2f6d9efa1f9cdca277183cddbf0e12bce197e55d9388ac56
+T020:
+  task: 8c8cb9f9ae0d5aa6fabc56297d973dd1502eccd1a04bf628b4effa0df6165a20
+T021a:
+  task: 5380bbf05ce875089e466665ee6520bea8f17c7739ba2402b2e0bcc0114e5f4f
+T021b:
+  task: e9be5c36cc714aaafe3652a568cad741b94d54bd155a1c9b2f512f3a091932cd
+T022a:
+  task: fc15f058cd47dd677948370ca49e2912bd9ee00ed8bf78955cc6302dca08f4e2
+T022b:
+  task: ae499cddee01f0f3d7c6f5ae98d0f45d64d49cb82d46672a04e0add54252cca5
+T023a:
+  task: 35fb1117cbda9fc9c1d70de8ca3f75fe3173b58ae9cea5a8725d013f80c7aa83
+T023b:
+  task: 57ab5055488b4d65b481769db8484159dad2f3be9e1cbbd9cf41f25a3f4f6fd9
+T023c:
+  task: 88a3264a92d959eb1113aa5b29aad903d70f403a5ccab87b089426d750046be8
+T023d:
+  task: 2d2941c766c38898307178afd6b5ee9490e627f3acb4a8317b4d2f5667c7fdd5
+T024:
+  task: 6b8cebafa9e5b4459fa6d41bb805eb8c29f8adfcc41644307eb924aa6015d27e
+T025:
+  task: 60028e84ee253d8cce6448c41e45ed56aeb43a3156a2252a684603f24d50bc71
+T026:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-484-the-impact-of-visual-attention-on-recall/tests/test_visualize.py'
+  task: 9ab87c879eb9de0fb7d3c82e8fe6ac4fa80a7c7cbf2eb8def92913bbaeb0099c
+T027:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-484-the-impact-of-visual-attention-on-recall/tests/test_visualize.py'
+  task: 3a3693e11457d33cb22edf91f796a0362d6c68c78e81246652e212070899ef35
+T028:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-484-the-impact-of-visual-attention-on-recall/code/visualize.py'
+  task: f55819b2f3384e9394237de3a0d8b59f580b9be1f5c48eca6cb013419ac50b5c
+T030:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-484-the-impact-of-visual-attention-on-recall/code/visualize.py'
+  task: 4b7d0001ffe4b7eac75bd4205de754944809107f70e620338fb662ab279ab6c7
+T032:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-484-the-impact-of-visual-attention-on-recall/code/run_pipeline.py'
+  task: 99511cbd6ab43f83d8564e327f3456042f8ed5b6a0efd693c3cb2d580cd6f70f
+T033:
+  task: ff4e642095a58540170b59ad9e89f9e74e66e903fb35e1a34fe4d05f142e7097
+T034:
+  task: c313309211ad2b36fe52c1781b4ec13dfa4de22d55eeb02cd470c42eca4dbaaa
+T035:
+  task: c698324ccfc2b89e3aacaa7ab94144782ff2333ebc87c3efde1975e9ce8bd23f
+T036:
+  task: 05374129ecaa2b68699b212f08c9fc2d6b7d263c35d4da936fa8c8cbd691cdb7
+T037:
+  task: cf946ea62030ee33a387b6e13e9d485558ae4ce460c48611522737ce74beaace
+T038:
+  task: e3bf6f370a056620473c7ea4c783de524e9bdb0f6c9c0610a9c399b9b93bf8f9
+T039:
+  task: da142a54ecbe2d86bb6255e19bee22763d20938ced1e62ca77c248b7c3a02cc3
+T040:
+  task: cee34899abb78a370544feab799dbd3c9dd5f2c7113d009b2070fcc62f3c231c
+T050:
+  task: c399137c9ca87057a9e922cffb30a6ecf2a64cbc9bf298160cb9ca7f2a6cae51
+T060a:
+  task: 09ebb72ef71aba8b4eaae6c3cfd66cbd985d863271a4ce62afdb4f29fb13a22a
+T060b:
+  task: 3e675dfbfc48f0caa5b616980c02fbdd502623bb722a8ed2935de7bb5e42860f
+T061:
+  task: 12f013f79395e1f0879bc17900d64887349f6f142005a405bb1f35394edd26a8
+T062:
+  task: f5e8c610d7684d4c8f35531207623b32bf912fd9c496a5b4c8b7228af7ad4b4a
+T064:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-484-the-impact-of-visual-attention-on-recall/code/run_pipeline.py'
+  task: a3822dcf4edd96d0dbba8fe643fb6b47d6feb44e6a6485f9b80289c34abd843d
+T070:
+  task: 2b3343c0cd6352240ff624361ef1e1e3ec57c8770d6c3cc81f194d726b89f0fe
+T070a:
+  task: 8d96e0f1729a97f2b032f3e48cac22e82be391c8a2f5a1f3d6c4e5a21226d990
+T071:
+  task: d913af5b1ff61ee0133892c89175e9dccbb15d9c4f9e552374902e15f94d6b41
+T071b:
+  task: 5976a28964e82821f89e8606b209d45005d946ed9a9a03f90e3976245ad75798
+T072:
+  task: 34944e9ffce83b84b7cc9b774cff27dea2be95c927d57599bc27c7d7d7829e23
+T073:
+  task: ce223776e5ecba2cfca47c8e348a83aaf7ae356e2277a6805e93508fad6619d3
+T074:
+  task: a3e8cf76b26b01e4385ce9052e18d94e17fb9fa81ede1a0f9782b389e1361251
+T075:
+  task: 1ebe7f6e57ea6226c2947d5d1299afc67dad186b5adaf89361e7733c8050c696

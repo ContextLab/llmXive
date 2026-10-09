@@ -1,7 +1,9 @@
 {
-  "ds001435": {
-    "status": "hypothetical",
-    "mock_data_path": "data/raw/mock_ds001435.zip",
-    "reason": "Original dataset ds001435 is not publicly accessible or requires authentication not available in CI."
-  }
+  "sources": [
+    {
+      "id": "ds001435",
+      "status": "hypothetical",
+      "path": "data/raw/ds001435"
+    }
+  ]
 }

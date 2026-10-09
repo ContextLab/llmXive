@@ -1,24 +1,44 @@
+T001:
+  c: false
+  h: 939e0f1d1ca7272f0cd5aab7d0896cd9b2a7a0cafd07e649520fcd41e16f640d
+  r: "Checked the top\u2011level project directory `projects/PROJ-484-the-impact-of-visual-attention-on-recall/`\
+    \ and found the required subfolders `code/`, `data/` and `tests/`. Inside `data/`\
+    \ the `raw/` folder exists, but `processed/` is absent, and there is no `artifacts/`\
+    \ directory at all (hence missing `artifacts/figures` and `artifacts/logs`). The\
+    \ required directory structure is therefore incomplete."
 T001b:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `.gitignore` or `README.md` files from `projects/PROJ-484-the-impact-of-visual-attention-on-recall/`
-    were presented, nor any content showing they contain the required exclusions or
-    minimal README text. The required root files are missing from the evidence.
+  h: 2a4fa1a6b350ca1c09bb4205a0c186082cddc17e8f2a1c7f16e8e1cd96bc6e5c
+  r: The README.md file is present and meets the content requirements, but the required
+    `.gitignore` file is missing from the project root (or its contents are not provided).
+    The task is not fully satisfied until a `.gitignore` with the specified exclusions
+    is added.
 T002:
   c: false
-  h: 938c2cf18176083f598f9cf8dc07d4e8cfa433ba2a13b4d2e627b86dd65342de
-  r: "The required file `projects/PROJ-484-the-impact-of-visual-attention-on-recall/code/requirements.txt`\
-    \ does not exist (nor a top\u2011level `requirements.txt`). A `code/requirements.txt`\
-    \ is present, but it is in the wrong location and includes an extra package, so\
-    \ the task\u2019s specified artifact is missing."
+  h: 2ce774c15d86dbf4e17f1fae3c9e72aca5a58839f363ce696db5dfdbe22e8f14
+  r: "The `requirements.txt` file exists, but most listed packages (pandas, numpy,\
+    \ scipy, matplotlib, seaborn, tqdm, huggingface_hub) are not version\u2011pinned,\
+    \ violating the \u201CPin versions where possible\u201D requirement. Version specifiers\
+    \ need to be added for these dependencies."
+T003:
+  c: true
+  h: 2db0986f95b59e4200c9db3de4c509e153350881e8c81db50f6d37cab1275270
+  r: "The provided `pyproject.toml` exists, is non\u2011empty, and contains the required\
+    \ `[tool.black]`, `[tool.flake8]`, and `[tool.isort]` sections with line\u2011\
+    length settings and `skip_gitignore = true` for isort, fulfilling the task specification."
 T004:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directories (`data/raw/`, `data/processed/`, `artifacts/figures/`,\
-    \ `artifacts/logs/`) was presented; the claim lacks any artifact listing, screenshots,\
-    \ or file\u2011system output confirming that the structure exists. The implementer\
-    \ must provide concrete proof that these folders have been created and are non\u2011\
-    empty."
+  h: 45e63d8524757ccb731451df4daaa301daf454e9872b67013b3b080975a7c046
+  r: The `data/processed/` directory does not exist, and there is no evidence of the
+    required `artifacts/figures/` and `artifacts/logs/` directories. The task demands
+    all four directories be created; only `data/raw/` is present.
+T005:
+  c: false
+  h: 4bc5541287cab81f2abeb9113a31ac54a2c28615dbcf7742fec9c6b42db9bc6c
+  r: The provided `logging_config.py` does not create a rotating file handler at the
+    required path (`artifacts/logs/app.log`) nor enforce DEBUG level, and its JSON
+    formatter outputs `logger` instead of the required `module` field. The implementation
+    therefore does not satisfy the task specifications.
 T006a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

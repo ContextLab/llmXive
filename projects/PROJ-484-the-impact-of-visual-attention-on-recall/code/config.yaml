@@ -1,0 +1,4 @@
+# Default geometry values used when a dataset is marked as 'hypothetical'
+default_screen_width_px: 1920
+default_viewing_distance_mm: 600
+default_sampling_rate_hz: 1000
