@@ -1,10 +1,39 @@
 T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directory tree (`projects/PROJ-504-evaluating-the-impact-of-variable-select/`
-    with subfolders `code/`, `data/raw/`, `data/processed/`, `tests/unit/`, `tests/integration/`)
-    is provided; the response only contains a feature specification and no actual
-    filesystem artifacts. The task is therefore not satisfied.
+  h: b2940b3eea7fae292042ffeec9bdee3c0484985d936a8d1a25bd360b86f129c4
+  r: "The required sub\u2011directories `results/plots/` and `results/reports/` are\
+    \ missing, and the provided code listing does not include any visible validation\
+    \ logic that checks the directory structure\u2019s existence and writability before\
+    \ execution."
+  sig: 8a369cd93aade38cb5fa87e3b5578e69830184d758a3bcc353f058d510ca9a6c
+T002:
+  c: true
+  h: 2a34b1e3158e6f8d9627826dd8ee73e59b4cfa4fa09ab05caff0e25fb5cac91f
+  r: "The `requirements.txt` file was found at `projects/PROJ-504-evaluating-the-impact-of-variable-select/requirements.txt`\
+    \ (206\u202Fbytes) and contains the required packages with version specifiers\
+    \ (e.g., `scikit-learn>=1.4.0`, `statsmodels>=0.14.0`, `openml>=0.14.0`, `pandas`,\
+    \ `numpy`, `scipy`, `matplotlib`, `seaborn`). This satisfies the task\u2019s requirement\
+    \ to initialize the Python project with a properly version\u2011pinned requirements\
+    \ file."
+  sig: 55c5e780eb2bc098603e94650d52e0cbbac239128f4970d87cfb25a362c63ef6
+T003:
+  c: false
+  h: bd3db32836f77e4123ee81a62cb3a3792b4362fe733338c772bce2a8bd80c20e
+  r: "Checked `code/pyproject.toml` \u2013 it contains the required `[tool.black]`\
+    \ section with `line-length = 88`. The required `code/.flake8` file is missing\
+    \ entirely, so the task\u2019s full linting/formatting configuration is not provided.\
+    \ Adding a `.flake8` file with the specified `[flake8]` settings will be needed."
+  sig: 25f1a6c3efb64eb030639caa33177e0b812dfb9e3d65d97171bab671914ba1b6
+T004a:
+  c: false
+  h: e461073959e37e6a5dcd49f56e9e0f75b8d13a109c7239883c1c5d0cebcd3eaa
+  r: 'Checked `projects/PROJ-504-evaluating-the-impact-of-variable-select/code/config.py`;
+    the file exists but does not define a `pilot_simulations_per_condition` attribute
+    (or default value of 10) as required by task T004a. The default configuration
+    lacks this setting, so the task is not fulfilled. Adding `pilot_simulations_per_condition:
+    int = 10` (or similar) to the Config dataclass or module-level default would resolve
+    the issue.'
+  sig: 2e7e6c85c3c16c43247525917dcc3bdcde49a97c88ac9704e5d9357a5f6a30e1
 T019:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -26,3 +55,21 @@ T027:
     \ Moreover, the required `data/processed/simulation_results.csv` file is absent.\
     \ The task\u2019s core requirement of persisting these metrics to the specified\
     \ CSV/Parquet file is therefore unmet."
+T045:
+  c: false
+  h: 4fb20e99b1f637f9b78a6547b1620a76f8985ef2cb29650d99ecfb6210e1cd91
+  r: "`code/utils/watchdog.py` is missing entirely, and the existing `code/analysis/selectors.py`\
+    \ only contains LASSO\u2011based selection code; it does not implement stepwise\
+    \ selection with early\u2011stopping based on an AIC improvement threshold of\u202F\
+    0.01 nor predictor\u2011pruning based on a 0.95 correlation threshold. Both required\
+    \ optimizations are absent."
+  sig: f0203dfa368b1f8175fea5484ca3113c66e1621af5922fc206acb576e9621f09
+T046:
+  c: false
+  h: 792424e4fd6798da86efef04e5f99b909adc73df14384c808b1b774c94c7a99f
+  r: "The provided `code/analysis/selectors.py` only implements LASSO selection; it\
+    \ contains no forward stepwise selection routine, no AIC\u2011based early\u2011\
+    stopping condition (improvement >\u202F0.01 for N steps), and no preprocessing\
+    \ step that removes predictors with pairwise correlation >\u202F0.95. Consequently\
+    \ the required early\u2011stopping and predictor\u2011pruning logic is absent."
+  sig: 25b8768ce161465d137bbd90cfdeb4a4608ee5253cddd9db70d09cf76d342efd
