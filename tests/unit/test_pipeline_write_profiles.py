@@ -43,7 +43,7 @@ def repository(tmp_path):
 
 def run_helper(repo, *profile):
     env = dict(os.environ, PATH=str(Path(sys.executable).parent) + os.pathsep + os.environ['PATH'],
-               PRE_COMMIT_ALLOW_NO_CONFIG='1', COMMIT_PUSH_ATTEMPTS='1')
+               PRE_COMMIT_ALLOW_NO_CONFIG='1', COMMIT_PUSH_ATTEMPTS='1', RUNNER_TEMP=str(repo.parent))
     return subprocess.run(['bash', 'scripts/ci/commit-and-push.sh', 'test output', *profile],
                           cwd=repo, env=env, text=True, capture_output=True, timeout=30)
 
@@ -126,3 +126,33 @@ def test_default_profile_pushes_project_state_and_dashboard_outputs(repository):
         assert git(remote, 'show', 'main:' + name) == 'new output'
     assert git(remote, 'show', 'main:README.md') == 'original'
     assert git(remote, 'show', 'main:docs/old.txt') == 'original'
+
+
+@pytest.mark.parametrize('profile,path', [('research', 'state/status.json'), ('pages', 'docs/old.txt')])
+@pytest.mark.parametrize('conflict', [False, True])
+def test_shallow_tick_rebases_disjoint_updates_and_preserves_conflicts(repository, tmp_path, profile, path, conflict):
+    repo, remote = repository
+    # Use file://: local-path clones ignore --depth and would not test CI's case.
+    shallow = tmp_path / 'shallow'
+    git(tmp_path, 'clone', '--depth=1', '--branch=main', remote.as_uri(), str(shallow))
+    assert git(shallow, 'rev-parse', '--is-shallow-repository') == 'true'
+    other = path if conflict else 'projects/PROJ-1/data/input.csv'
+    (repo / other).write_text('newer peer result')
+    git(repo, 'add', other)
+    git(repo, 'commit', '-m', 'peer progress')
+    git(repo, 'push', 'origin', 'main')
+    peer_head = git(remote, 'rev-parse', 'main')
+    (shallow / path).write_text('this tick result')
+    result = run_helper(shallow, profile)
+    if conflict:
+        assert result.returncode != 0
+        assert 'refusing to overwrite newer work' in result.stderr
+        assert git(remote, 'rev-parse', 'main') == peer_head
+        assert git(remote, 'show', 'main:' + path) == 'newer peer result'
+        assert '+this tick result' in (tmp_path / 'llmxive-unpushed.patch').read_text()
+    else:
+        assert result.returncode == 0, result.stdout + result.stderr
+        assert 'verified' in result.stdout
+        assert git(remote, 'show', 'main:' + other) == 'newer peer result'
+        assert git(remote, 'show', 'main:' + path) == 'this tick result'
+        git(remote, 'merge-base', '--is-ancestor', peer_head, 'main')

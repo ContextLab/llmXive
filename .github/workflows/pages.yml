@@ -27,7 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          fetch-depth: 0
+          fetch-depth: 1  # static inputs; commit helper fetches newer main before rebase
           # docs/ is a static build from web/ — it NEVER needs the projects'
           # external submodules. The legacy "Deploy from branch" built-in recursed
           # them and died on a broken NESTED submodule in an ingested paper's

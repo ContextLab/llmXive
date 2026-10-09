@@ -9,11 +9,11 @@ name: Pipeline — Reprocess ingested code papers (autonomous drain)
 # (incl. the vision figure reviewer — needs poppler below), and spawn a SEPARATE
 # citing llmXive follow-up project. Kept a SINGLE serialized job so the
 # commit-and-push rebase never races itself; the themed preprint PDFs are built
-# by the Paper Compile workflow's sweep (this runner has no TeX Live).
+# inline, with Paper Compile providing a later recovery sweep.
 
 on:
   schedule:
-    - cron: '7,27,47 * * * *'   # every 20 min, offset from advance.yml's */15
+    - cron: '7,27,47 * * * *'   # retain 20-minute intake latency; empty ticks probe only
   workflow_dispatch:
     inputs:
       migrate_limit:
@@ -35,7 +35,32 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  queue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      needed: ${{ steps.probe.outputs.needed }}
+      commit: ${{ steps.checkout.outputs.commit }}
+    steps:
+      - uses: actions/checkout@v5
+        id: checkout
+        with:
+          ref: main
+          # The predicate is a conservative superset: both legacy migration
+          # stages and current drain stages enable the full, unchanged job.
+          sparse-checkout: |
+            state/projects
+            scripts/ci
+            specs/001-agentic-pipeline-refactor/contracts
+      - run: python -m pip install pyyaml
+      - name: Check for potential reprocess work
+        id: probe
+        run: python scripts/ci/reprocess_queue.py >> "$GITHUB_OUTPUT"
+
   drain:
+    needs: queue
+    # A broken probe must never silently hide work or suppress manual repair.
+    if: ${{ !cancelled() && (github.event_name == 'workflow_dispatch' || needs.queue.result != 'success' || needs.queue.outputs.needed != 'false') }}
     runs-on: ubuntu-latest
     timeout-minutes: 150
     env:
@@ -51,7 +76,10 @@ jobs:
       KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
     steps:
       - uses: actions/checkout@v5
-        with: { ref: main }
+        with:
+          # Inspect and process the same snapshot; arrivals after it run next tick.
+          # If checkout/probe failed, retain the original main fallback.
+          ref: ${{ needs.queue.outputs.commit || 'main' }}
       - uses: actions/setup-python@v6
         with: { python-version: "3.11", cache: pip }
       - run: pip install -e ".[dev]"
