@@ -1,25 +1,3 @@
-- artifact_hash: 0ef1952a69d682f75163ef24369146dcf94de4452b811ce8f7b9c36cf0cfeb80
-  artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: file-000.parquet
-  kind: url
-  value: https://huggingface.co/datasets/tencent/Hy-Embodied-0.5-VLA-Data/resolve/main/table_000/meta/episodes/chunk-000/file-000.parquet`
-  verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6a2a5f5f2ef38e1f849a8ebf/cc1c010e3e4b098f99dd76bc7e5e871f002fa7450a458f18308c97430a9fa219?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27file-000.parquet%3B+filename%3D%22file-000.parquet%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1785844472&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNmEyYTVmNWYyZWYzOGUxZjg0OWE4ZWJmL2NjMWMwMTBlM2U0YjA5OGY5OWRkNzZiYzdlNWU4NzFmMDAyZmE3NDUwYTQ1OGYxODMwOGM5NzQzMGE5ZmEyMTlcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZmlsZS0wMDAucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMmZpbGUtMDAwLnBhcnF1ZXQlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4NTg0NDQ3Mn19fV19&Signature=MEQCIED5HoDPDcXgZ2FS5JX4jlX-Hy2B1TlPCJ3%7ELXeq8aAIAiB5tfnqg88BIHABMaCnERnMdR%7El9cl71gYvKaGufkfa8A__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
-  verified_at: '2026-08-04T10:54:32.536495Z'
-- artifact_hash: ecaa0695b873b5008dbc959d8eee7ff9f9379d5ca1989f08534668828ca0d6b8
-  artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: cpu
-  kind: url
-  value: https://download.pytorch.org/whl/cpu`
-  verification_status: pending
-  verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-08-04T10:54:34.668006Z'
 - artifact_hash: 9a7e7ccdaa14a7126c337aba2b9371178b2280c16bef66b0f063ef9c3a3844b6
   artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/README.md
   cite_id: c-001

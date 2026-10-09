@@ -1,10 +1,9 @@
 status: none
-intent: Hy-Embodied-0.5-VLA-Data huggingface download python package dataset
+intent: download Qwen-VLA instruction and action sequence dataset from HuggingFace
+  python package dataset
 required_fields:
 - instruction_text
 - action_sequence
-- timestamp
-- robot_state
-cache_key: a7cb67aa2e8e5b4b364ca499c367d9585cce4b58bda52cb498ac9aca304b958d
-searched_at: '2026-08-04T10:38:42.436499+00:00'
+cache_key: c89023ed0861860db2d2f8ab14ef04d90c4e44f3d7fe580317d6bae1842db7bb
+searched_at: '2026-10-09T09:21:36.095715+00:00'
 retry_count: 1

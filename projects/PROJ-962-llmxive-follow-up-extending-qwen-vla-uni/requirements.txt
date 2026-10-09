@@ -1,10 +1,14 @@
-datasets
-scikit-learn
-transformers
-pybullet
-pandas
-numpy
-scipy
-pyyaml
-sklearn-mixture
-pyarrow
+# Project dependencies (CPU‑only builds)
+torch==2.2.2+cpu
+transformers==4.41.2
+scikit-learn==1.5.0
+pandas==2.2.2
+datasets==2.20.0
+pybullet==3.2.6
+tqdm==4.66.5
+# Additional testing utilities
+pytest==8.3.2
+# The versions above are pinned to ensure reproducibility and to
+# guarantee that the torch build is CPU‑only.  This satisfies the
+# project's constitutional principle that no GPU code can be
+# inadvertently pulled in.

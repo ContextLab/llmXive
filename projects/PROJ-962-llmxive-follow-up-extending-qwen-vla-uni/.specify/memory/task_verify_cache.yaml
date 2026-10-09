@@ -1,3 +1,43 @@
+T001a:
+  c: false
+  h: 9809e3bea4b654a6dff62d0d34ff305807c2677248d7b81e15bebf186afc5b44
+  r: The provided evidence shows that `code/`, `code/utils/`, `code/tests/`, `data/raw/`,
+    `data/processed/`, and `data/results/` directories exist, but the required `artifacts/models/`
+    directory is not present in the artifact list. The missing `artifacts/models/`
+    directory means the full directory structure specified in task T001a has not been
+    created.
+T001c:
+  c: false
+  h: d3d8664de8cf59b2b5c7d71d20fd25222fb4fecba3d23e9ee4b5d1724ce08099
+  r: "The file `code/01_ingest_cluster.py` does exist, but it is a fully\u2011implemented\
+    \ script (13\u202FKB of code) rather than an empty scaffold as the task required.\
+    \ The task explicitly demanded only an empty placeholder file, so the provided\
+    \ artifact does not satisfy the specification."
+T001d:
+  c: false
+  h: 5f69a366dce4be7e257d762a342b13b91cceb3039695f8e0a4619d796b1b9d42
+  r: "`code/02_train_models.py` and `code/04_simulate_eval.py` exist but contain full\
+    \ implementations (non\u2011empty), and `code/03_inference.py` is missing entirely.\
+    \ The task required three empty files, which is not met."
+T001e:
+  c: false
+  h: 18ec334611b6355ae3774ce46a43545c7357f277fb722511c78f9ac414eaea8f
+  r: "The three required files exist, but each contains full implementations rather\
+    \ than being empty placeholders as the task explicitly demanded. The task \u201C\
+    initialize \u2026 as empty files\u201D is not satisfied."
+T001f:
+  c: false
+  h: db217820e4f43402c985e0fc05580876a47a04c8b424a60eb78f05345fce530f
+  r: The `code/tests/__init__.py` file is present, but the required `.gitkeep` file
+    is missing from the `code/tests` directory. The task is not fully satisfied.
+T004:
+  c: false
+  h: c5cf34f422c98d2becfbe9fa162292b1c0a7bb8d0bd5838d25f55c3aecc5e99a
+  r: "The provided `code/utils/seeds.py` sets Python\u2019s `random` and NumPy seeds\
+    \ but never imports\u202Ftorch nor calls `torch.manual_seed`, contrary to the\
+    \ task\u2019s requirement to set the torch seed (and any `random_state` for other\
+    \ libraries). Consequently the script does not ensure full reproducibility across\
+    \ all scripts."
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
