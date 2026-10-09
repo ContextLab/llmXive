@@ -132,11 +132,36 @@ def test_project_documentation_and_repair_routing_keep_runtime_coverage(path):
     }
 
 
+PRODUCTION_ROUTING = [
+    ".github/workflows/maintenance.yml", ".github/workflows/submission-intake.yml",
+    ".github/workflows/paper-compile.yml", ".github/workflows/reprocess.yml",
+    ".github/workflows/pages.yml", "scripts/ci/reprocess_queue.py",
+]
+
+
+@pytest.mark.parametrize("path", PRODUCTION_ROUTING)
+def test_production_queue_and_checkout_routing_keeps_dartmouth(path):
+    assert load("select_checks").select([path]) == {
+        "offline": True, "live": True, "references": False,
+    }
+
+
+@pytest.mark.parametrize("reference_input", [
+    "src/llmxive/librarian/verify.py", "pyproject.toml",
+    "tests/real_call/test_resolve_reference_registrar_agnostic.py",
+])
+def test_mixed_production_routing_and_reference_edits_retain_all_checks(reference_input):
+    assert load("select_checks").select([*PRODUCTION_ROUTING, reference_input]) == {
+        "offline": True, "live": True, "references": True,
+    }
+
+
 @pytest.mark.parametrize("path", [
     "projects/PROJ-715/code/main.py", "projects/PROJ-715/requirements.txt",
     "projects/PROJ-715/config.yaml", "projects/PROJ-715/contracts/result.schema.json",
     "tests/fixtures/reference.md", "projects/unclassified/README.md",
     ".github/workflows/future.yml",
+    "scripts/ci/future_queue.py",
 ])
 def test_unknown_project_and_platform_inputs_keep_external_coverage(path):
     assert load("select_checks").select([path]) == {
@@ -170,6 +195,7 @@ def test_reference_local_import_closure_stays_in_selected_paths():
         literals = {node.value for node in ast.walk(ast.parse(path.read_text()))
                     if isinstance(node, ast.Constant) and isinstance(node.value, str)}
         assert not (literals & selection.RUNTIME_PROMPTS)
+        assert not (literals & set(PRODUCTION_ROUTING))
         name = next((n for n, p in modules.items() if p == path), "")
         package = name if path.name == "__init__.py" else name.rpartition(".")[0]
         for node in ast.walk(ast.parse(path.read_text())):

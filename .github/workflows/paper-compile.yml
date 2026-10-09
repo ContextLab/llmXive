@@ -51,7 +51,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          fetch-depth: 0
+          fetch-depth: 1  # compilers use current files, not repository history
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"

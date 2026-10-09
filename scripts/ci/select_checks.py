@@ -66,6 +66,14 @@ ROUTING_FILES = {
     ".github/workflows/llmxive-real-call-nightly.yml",
     ".github/workflows/audit.yml", "scripts/ci/verify-audit-corpus.py",
     ".github/workflows/repair.yml",
+    # Production setup/queue routing does not supply the reference-service
+    # job's code, fixtures or environment. Keep offline + Dartmouth coverage.
+    ".github/workflows/maintenance.yml",
+    ".github/workflows/submission-intake.yml",
+    ".github/workflows/paper-compile.yml",
+    ".github/workflows/reprocess.yml",
+    ".github/workflows/pages.yml",
+    "scripts/ci/reprocess_queue.py",
     ".github/workflows/prompt-eval.yml",
     "eval/promptfoo/llmxive_provider.py",
     "eval/promptfoo/assert_review_frontmatter.py",
