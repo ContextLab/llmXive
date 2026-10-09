@@ -10,6 +10,7 @@ Stage transitions: none.
 from __future__ import annotations
 
 import json
+import subprocess
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
@@ -80,6 +81,21 @@ def _check_leftover_artifacts(repo: Path) -> list[HygieneFlag]:
                     suggested_fix=f"delete {name} or move it to a documented location",
                 )
             )
+    # The same deterministic rule as CI, covering every tracked extension and
+    # paths missing from sparse checkouts. Keep scratch checks for untracked files.
+    from llmxive.checks.repository_layout import unexpected_tracked_paths
+
+    try:
+        misplaced = unexpected_tracked_paths(repo)
+    except subprocess.CalledProcessError:
+        misplaced = []  # supports an uninitialized local scaffold
+    if misplaced:
+        flags.append(HygieneFlag(
+            kind="misplaced_tracked_artifacts", severity="high",
+            summary=f"{len(misplaced)} tracked files outside the repository layout: "
+                    + ", ".join(misplaced[:10]),
+            suggested_fix="trace ownership, preserve bytes and provenance, and move to the project; do not ignore or delete downloads blindly",
+        ))
     # Stray .png files at repo root (allowed under web/assets/).
     for png in repo.glob("*.png"):
         flags.append(
@@ -197,8 +213,8 @@ class RepositoryHygieneAgent(Agent):
             doc["loc_metric"] = json.loads(ctx.metadata.get("_loc_metric_json", "{}"))
         except json.JSONDecodeError:
             doc["loc_metric"] = {}
-        if not doc.get("verdict"):
-            doc["verdict"] = "clean" if not doc["flags"] else "flagged"
+        # A narrative model cannot overrule deterministic filesystem evidence.
+        doc["verdict"] = "clean" if not doc["flags"] else "flagged"
 
         report_path = repo / "state" / "run-log" / "hygiene" / f"{ctx.run_id}.yaml"
         report_path.parent.mkdir(parents=True, exist_ok=True)

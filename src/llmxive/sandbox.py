@@ -236,9 +236,11 @@ def run_in_venv(
     # deps like ``database_knotinfo`` → ModuleNotFoundError; common ones happened
     # to be globally present, masking the bug). ``os.path.abspath`` makes it
     # cwd-independent WITHOUT dereferencing the venv symlink.
+    run_cwd = Path(cwd or project_dir).resolve()
+    if not run_cwd.is_relative_to(project_dir.resolve()):
+        return ExecutionResult(False, -1, "", "working directory escapes the project directory", 0.0)
     py = Path(os.path.abspath(ensure_venv(project_dir)))
     _ensure_code_package(project_dir)
-    run_cwd = Path(cwd or project_dir).resolve()
     env = _analysis_env(project_dir, analysis_environment(project_dir))
     env["PYTHONUNBUFFERED"] = "1"
     if extra_env:
