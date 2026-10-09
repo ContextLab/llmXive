@@ -329,6 +329,7 @@ class ImplementerAgent(SlashCommandAgent):
                 proj_prefix = f"projects/{project_root.name}/"
                 if rel.startswith(proj_prefix):
                     rel = rel[len(proj_prefix):]
+                proposed_rel = rel
                 # Canonicalize specs/<wrong-slug>/... → specs/<canonical>/...
                 # so the LLM's invented branch slug doesn't fragment artifacts
                 # across two parallel feature directories.
@@ -349,6 +350,13 @@ class ImplementerAgent(SlashCommandAgent):
                     target.resolve().relative_to(project_root.resolve())
                 except ValueError:
                     refuse(f"[implementer] refused out-of-project path: {relpath!r}")
+                    continue
+                # Generated deliverables cannot author the evidence or reviewed
+                # requirements used to decide their own acceptance. Check both
+                # the proposal and resolved target so an in-project symlink
+                # cannot turn an ordinary output name into a control-file write.
+                if _is_control_artifact(project_root, target, mechanical_output, proposed_rel):
+                    refuse(f"[implementer] refused pipeline control evidence or reviewed requirements: {relpath!r}")
                     continue
                 from llmxive.project_paths import casefold_write_conflict
 
@@ -654,6 +662,32 @@ def _record_artifact_refusal(
     if count >= ARTIFACT_REFUSAL_CAP:
         unverifiable.record_unverifiable(ctx.project_id, task_id,
             f"Artifact proposal refused {count} consecutive times: {reason}", repo_root=repo)
+
+
+def _is_control_artifact(project: Path, target: Path, mechanical: dict[str, Any], proposed: str) -> bool:
+    """Keep implementation output separate from pipeline-owned control inputs.
+
+    Research/quickstart/data-model documents and contracts remain writable;
+    spec/plan/task definitions belong to their dedicated reviewed author stages.
+    This guards proposed artifact writes, not arbitrary executed Python code.
+    """
+    protected_parts = {".specify", ".tasks", ".git", ".venv"}
+    if protected_parts.intersection(part.casefold() for part in Path(proposed).parts):
+        return True
+    definitions = {"spec.md", "plan.md", "tasks.md"}
+    feature = Path(mechanical["feature_dir"])
+    active = [Path(mechanical["tasks_path"]), *(feature / name for name in definitions)]
+    active_paths = {str(path.resolve()).casefold() for path in active}
+    for path, root in ((target, project), (target.resolve(), project.resolve())):
+        parts = tuple(part.casefold() for part in path.relative_to(root).parts)
+        if protected_parts.intersection(parts):
+            return True
+        # Preserve earlier feature definitions too, including legacy flat specs.
+        research_definition = parts[:1] == ("specs",) and len(parts) in {2, 3}
+        paper_definition = parts[:2] == ("paper", "specs") and len(parts) in {3, 4}
+        if (research_definition or paper_definition) and parts[-1] in definitions:
+            return True
+    return str(target.resolve()).casefold() in active_paths
 
 
 def _find_bad_sibling_imports(
