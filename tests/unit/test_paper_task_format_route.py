@@ -14,7 +14,7 @@ from tests.unit.test_tasker_authoring_contract import OBSERVED_TABLES, project  
 
 @pytest.mark.parametrize("stage", [Stage.PAPER_PLANNED, Stage.PAPER_TASKED])
 def test_paper_table_response_recovers_within_paper_and_preserves_research(
-    project, monkeypatch, stage
+    project, monkeypatch, stage  # noqa: F811 - imported pytest fixture
 ):
     root, research, state = project
     paper = root / "paper/specs/001-paper"
