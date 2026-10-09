@@ -1,0 +1,16 @@
+{
+  "task_id": "T041",
+  "timestamp": "2026-10-09T11:16:24.093012+00:00",
+  "manifest_path": "state/manifest.json",
+  "derived_dir": "data/derived",
+  "manifest_entry_count": 42788,
+  "verified_file_count": 0,
+  "verified_files": [],
+  "missing_files": [
+    "data/derived/.gitkeep",
+    "data/derived/__init__.py",
+    "data/derived/synthetic_queries_test.json"
+  ],
+  "hash_mismatches": [],
+  "all_artifacts_verified": false
+}

@@ -25,10 +25,10 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001a [P] Create project directories per implementation plan: `projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/` including `code/`, `data/`, `tests/`, `state/` and subdirectories `code/cache`, `code/pipeline`, `code/analysis`, `data/raw`, `data/derived`, `tests/unit`, `tests/integration`. **Verification**: Run `ls -R projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/` and confirm all directories exist.
-- [X] T001b [P] Create empty `__init__.py` files in all newly created `code/` and `tests/` directories to initialize Python packages
-- [X] T002 Initialize Python project with `requirements.txt` (pinned `sentence-transformers`, `scikit-learn`, `numpy`, `pandas`, `pytest`, `cachetools`, `statsmodels`)
-- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
-- [X] T004 [P] Setup `pytest` configuration and `pytest-benchmark` plugin
+- [ ] T001b [P] Create empty `__init__.py` files in all newly created `code/` and `tests/` directories to initialize Python packages
+- [ ] T002 Initialize Python project with `requirements.txt` (pinned `sentence-transformers`, `scikit-learn`, `numpy`, `pandas`, `pytest`, `cachetools`, `statsmodels`)
+- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T004 [P] Setup `pytest` configuration and `pytest-benchmark` plugin
 
 ---
 
@@ -39,19 +39,19 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete. This phase includes data generation and reproducibility hooks.
 
 - [X] T005 [P] Implement `code/data/generator.py` to generate the **Test Set** (500 (2509.23775, https://arxiv.org/abs/2509.23775) queries) for FR-007. **Deliverable**: Create `data/derived/synthetic_queries_test.json` containing a list of objects with keys `prompt`, `ground_truth`, `steps`, `seed`, and `domain`. **Note**: Reference arXiv:2509.23775 for context, do not embed citation in description.
-- [X] T005a [P] Extend `code/data/generator.py` to generate the **Warm-up Set** (100 queries) for FR-007. **Deliverable**: Create `data/derived/synthetic_queries_warmup.json`. **Logic**: Use a distinct seed range `1000-1099`. Stratify by domain (Physics, Chemistry, Biology) with an equal distribution per domain and equal step distribution across varying step counts to ensure representativeness. **Dependency**: None.
-- [X] T005b [P] [Unit Test] Implement `tests/unit/test_generator.py` to assert that `synthetic_queries_test.json` contains exactly 3 distinct values in the `domain` field: Physics, Chemistry, Biology. **Dependency**: T005.
-- [X] T006 [P] Define `BenchmarkQuery` entity schema (dataclass/pydantic model) and create stub `code/data/loaders.py` with placeholder functions for loading the schema.
-- [X] T007 Implement `code/cache/semantic_cache.py`: Custom LRU class wrapping `cachetools` for `CacheEntry` objects (embedding, output, timestamp).
-- [X] T008 Implement `code/cache/utils.py`: Cosine similarity calculation and thresholding logic.
-- [X] T009 Implement `code/pipeline/eywa_orchestra.py`: Mock/Wrapper for EywaOrchestra pipeline (CPU-tractable). **Constraint**: Must be deterministic but support configurable latency.
-- [X] T009a [P] Modify `code/pipeline/eywa_orchestra.py` (from T009) to accept a `latency_variance` parameter and implement a random delay distribution that exhibits sufficient variance (Coefficient of Variation > 10%) to ensure statistical significance in T026 (Linear Regression). **Dependency**: T009.
-- [X] T025a [P] [Spec Alignment] Update `spec.md` to align Success Criteria SC-004 and FR-006 with the Plan's methodology. **Action**: Edit `spec.md` to replace "paired t-test" and "McNemar's test" with "Permutation Test" and "Linear Regression". **Verification:** Confirm that spec.md now reflects Permutation Test / Linear Regression for accuracy/runtime analysis. **Dependency**: None (Must be done before T025/T026).
-- [X] T010 [P] Implement `state/manifest.json` logic as a **continuous hook**. **Trigger**: Execute automatically after every data generation or code modification task in this phase. **Logic**: Recursively traverse `data/` and `code/` directories. For each file, compute SHA-256 hash using `hashlib.sha256`. **Deliverable**: Create/Update `state/manifest.json` with schema `{ "files": [{ "path": "str", "sha256": "str" }] }`.
-- [X] T010a [P] Trigger T010 hook after T005 (Test Set generation).
-- [X] T010b [P] Trigger T010 hook after T005a (Warm-up Set generation).
-- [X] T010c [P] Trigger T010 hook after T009a (Mock variance implementation).
-- [X] T011 [P] Create `data/raw/` and `data/derived/` directory structure with checksumming hooks. **Logic**: Ensure directories exist and are writable.
+- [~] T005a [P] Extend `code/data/generator.py` to generate the **Warm-up Set** (100 queries) for FR-007. **Deliverable**: Create `data/derived/synthetic_queries_warmup.json`. **Logic**: Use a distinct seed range `1000-1099`. Stratify by domain (Physics, Chemistry, Biology) with an equal distribution per domain and equal step distribution across varying step counts to ensure representativeness. **Dependency**: None.
+- [~] T005b [P] [Unit Test] Implement `tests/unit/test_generator.py` to assert that `synthetic_queries_test.json` contains exactly 3 distinct values in the `domain` field: Physics, Chemistry, Biology. **Dependency**: T005.
+- [~] T006 [P] Define `BenchmarkQuery` entity schema (dataclass/pydantic model) and create stub `code/data/loaders.py` with placeholder functions for loading the schema.
+- [~] T007 Implement `code/cache/semantic_cache.py`: Custom LRU class wrapping `cachetools` for `CacheEntry` objects (embedding, output, timestamp).
+- [~] T008 Implement `code/cache/utils.py`: Cosine similarity calculation and thresholding logic.
+- [~] T009 Implement `code/pipeline/eywa_orchestra.py`: Mock/Wrapper for EywaOrchestra pipeline (CPU-tractable). **Constraint**: Must be deterministic but support configurable latency.
+- [~] T009a [P] Modify `code/pipeline/eywa_orchestra.py` (from T009) to accept a `latency_variance` parameter and implement a random delay distribution that exhibits sufficient variance (Coefficient of Variation > 10%) to ensure statistical significance in T026 (Linear Regression). **Dependency**: T009.
+- [~] T025a [P] [Spec Alignment] Update `spec.md` to align Success Criteria SC-004 and FR-006 with the Plan's methodology. **Action**: Edit `spec.md` to replace "paired t-test" and "McNemar's test" with "Permutation Test" and "Linear Regression". **Verification:** Confirm that spec.md now reflects Permutation Test / Linear Regression for accuracy/runtime analysis. **Dependency**: None (Must be done before T025/T026).
+- [~] T010 [P] Implement `state/manifest.json` logic as a **continuous hook**. **Trigger**: Execute automatically after every data generation or code modification task in this phase. **Logic**: Recursively traverse `data/` and `code/` directories. For each file, compute SHA-256 hash using `hashlib.sha256`. **Deliverable**: Create/Update `state/manifest.json` with schema `{ "files": [{ "path": "str", "sha256": "str" }] }`.
+- [~] T010a [P] Trigger T010 hook after T005 (Test Set generation).
+- [~] T010b [P] Trigger T010 hook after T005a (Warm-up Set generation).
+- [~] T010c [P] Trigger T010 hook after T009a (Mock variance implementation).
+- [~] T011 [P] Create `data/raw/` and `data/derived/` directory structure with checksumming hooks. **Logic**: Ensure directories exist and are writable.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel (subject to specific data dependencies in Phase 3)
 
@@ -63,22 +63,22 @@
 
 ### Implementation for User Story 1
 
-- [X] T014 [US1] Implement full `BenchmarkQuery` entity parsing logic in `code/data/loaders.py` to ingest `data/derived/synthetic_queries_test.json`.
-- [X] T015 [US1] Implement embedding generation using a sentence-transformer model in `code/cache/utils.py` (CPU-only).
-- [X] T016 [US1] Implement cache population logic (Warm-up Phase) in `code/cache/semantic_cache.py`. **Input**: `data/derived/synthetic_queries_warmup.json`. **Strategy**: Load a representative set of queries SEQUENTIALLY to populate the cache before the test set runs. **Dependency**: T005a, T007.
-- [X] T017 [US1] Implement cache retrieval logic with a configurable similarity threshold in `code/cache/semantic_cache.py`.
-- [X] T018 [US1] Implement error handling for embedding failures in `code/cache/semantic_cache.py`. **Logic**: Catch `ValueError` and `RuntimeError` from the embedding model. Log event to `stderr` with level `ERROR`. Treat as "Cache Miss" and proceed to standard inference.
-- [X] T019 [US1] Implement LRU eviction policy in `code/cache/semantic_cache.py`. **Trigger**: When cache size exceeds 1GB (or 1000 entries if memory estimation is unavailable). **Logging**: Log every eviction event to `data/derived/cache_events.log` in JSON Lines format (`{"event": "eviction", "evicted_key": "...", "timestamp": "..."}`).
-- [X] T020 [US1] Create `code/pipeline/runner.py` to orchestrate the cache population and query processing loop.
-- [X] T021 [US1] Add logging for Cache Hits and Cache Misses with exact similarity scores in `code/pipeline/runner.py`.
-- [X] T021a [US1] Define the data structure (e.g., a named tuple or class) in `code/pipeline/runner.py` to explicitly separate warm-up metrics from test set metrics.
-- [X] T021b [US1] Implement the aggregation function in `code/pipeline/runner.py` that filters metrics using the structure from T021a to isolate test set performance.
+- [~] T014 [US1] Implement full `BenchmarkQuery` entity parsing logic in `code/data/loaders.py` to ingest `data/derived/synthetic_queries_test.json`.
+- [~] T015 [US1] Implement embedding generation using a sentence-transformer model in `code/cache/utils.py` (CPU-only).
+- [~] T016 [US1] Implement cache population logic (Warm-up Phase) in `code/cache/semantic_cache.py`. **Input**: `data/derived/synthetic_queries_warmup.json`. **Strategy**: Load a representative set of queries SEQUENTIALLY to populate the cache before the test set runs. **Dependency**: T005a, T007.
+- [~] T017 [US1] Implement cache retrieval logic with a configurable similarity threshold in `code/cache/semantic_cache.py`.
+- [~] T018 [US1] Implement error handling for embedding failures in `code/cache/semantic_cache.py`. **Logic**: Catch `ValueError` and `RuntimeError` from the embedding model. Log event to `stderr` with level `ERROR`. Treat as "Cache Miss" and proceed to standard inference.
+- [~] T019 [US1] Implement LRU eviction policy in `code/cache/semantic_cache.py`. **Trigger**: When cache size exceeds 1GB (or 1000 entries if memory estimation is unavailable). **Logging**: Log every eviction event to `data/derived/cache_events.log` in JSON Lines format (`{"event": "eviction", "evicted_key": "...", "timestamp": "..."}`).
+- [~] T020 [US1] Create `code/pipeline/runner.py` to orchestrate the cache population and query processing loop.
+- [~] T021 [US1] Add logging for Cache Hits and Cache Misses with exact similarity scores in `code/pipeline/runner.py`.
+- [~] T021a [US1] Define the data structure (e.g., a named tuple or class) in `code/pipeline/runner.py` to explicitly separate warm-up metrics from test set metrics.
+- [~] T021b [US1] Implement the aggregation function in `code/pipeline/runner.py` that filters metrics using the structure from T021a to isolate test set performance.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 **Note**: Moved after implementation to test full logic, not just stubs.
 
-- [X] T012 [P] [US1] Unit test for `semantic_cache.py` hit/miss logic in `tests/unit/test_cache.py` (depends on T016, T017).
-- [X] T013 [P] [US1] Unit test for `utils.py` cosine similarity calculation in `tests/unit/test_cache.py` (depends on T015).
+- [~] T012 [P] [US1] Unit test for `semantic_cache.py` hit/miss logic in `tests/unit/test_cache.py` (depends on T016, T017).
+- [~] T013 [P] [US1] Unit test for `utils.py` cosine similarity calculation in `tests/unit/test_cache.py` (depends on T015).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -90,14 +90,14 @@
 
 ### Implementation for User Story 2
 
-- [X] T024 [P] [US2] Implement `code/analysis/metrics.py` for calculating runtime reduction, invocation count, and accuracy deviation.
-- [X] T025 [US2] Implement `code/analysis/stats.py` for Permutation Test on accuracy differences. **Input**: List of accuracy diffs (Baseline - Cached). **Parameters**: `n_permutations=10000 (OEIS A000012, https://oeis.org/A000012) `. **Output**: `data/derived/statistics.json` with key `p_value_permutation`. **Note**: Bonferroni correction for multiple thresholds will be applied in T038.- [X] T026 [US2] Implement `code/analysis/stats.py` for Multi-variable Linear Regression on runtime vs. hits/misses. **Model**: `runtime ~ hits + misses`. **Library**: Use `statsmodels.api.OLS`. **Requirement**: Implement Bonferroni correction for runtime coefficients when comparing across thresholds. **Output**: `data/derived/statistics.json` with key `regression_coefficients`. **Dependency**: T009a (Mock Variance).
-- [X] T027 [US2] Implement `code/pipeline/runner.py` logic for Baseline execution (Warm-up cache ignored). **Dependency**: Requires T005, T005a, T014-T019, T024-T026 (to know output schema).
-- [X] T028 [US2] Implement `code/pipeline/runner.py` logic for Cached execution (Warm-up cache populated). **Dependency**: Requires T005, T005a, T014-T019, T024-T026 (to know output schema).
-- [X] T029a [US2] Implement pre-run validation in `code/data/generator.py` to verify the generator logic is epistemologically independent of EywaOrchestra inference logic (FR-008, FR-007). **Logic**: Perform static analysis to detect any `import` statements or function calls referencing `code/pipeline/eywa_orchestra.py`. **Deliverable**: Raise `ValueError` if dependency detected.
-- [X] T029b [US2] Implement static code inspection in `tests/unit/test_independence.py` to verify `code/data/generator.py` does not import `code/pipeline/eywa_orchestra.py` or rely on its internal logic. **Deliverable**: Unit test that asserts independence constraints on the generator source code.
-- [X] T030 [US2] Generate `data/derived/results.csv` containing aggregated metrics for both runs. **Schema**: Columns must be `run_type`, `total_time`, `hit_rate`, `accuracy`, `total_queries`.
-- [X] T031 [US2] Generate statistical report (p-values) in `data/derived/statistics.json`.
+- [ ] T024 [P] [US2] Implement `code/analysis/metrics.py` for calculating runtime reduction, invocation count, and accuracy deviation.
+- [ ] T025 [US2] Implement `code/analysis/stats.py` for Permutation Test on accuracy differences. **Input**: List of accuracy diffs (Baseline - Cached). **Parameters**: `n_permutations=10000 (OEIS A000012, https://oeis.org/A000012) `. **Output**: `data/derived/statistics.json` with key `p_value_permutation`. **Note**: Bonferroni correction for multiple thresholds will be applied in T038.- [X] T026 [US2] Implement `code/analysis/stats.py` for Multi-variable Linear Regression on runtime vs. hits/misses. **Model**: `runtime ~ hits + misses`. **Library**: Use `statsmodels.api.OLS`. **Requirement**: Implement Bonferroni correction for runtime coefficients when comparing across thresholds. **Output**: `data/derived/statistics.json` with key `regression_coefficients`. **Dependency**: T009a (Mock Variance).
+- [~] T027 [US2] Implement `code/pipeline/runner.py` logic for Baseline execution (Warm-up cache ignored). **Dependency**: Requires T005, T005a, T014-T019, T024-T026 (to know output schema).
+- [~] T028 [US2] Implement `code/pipeline/runner.py` logic for Cached execution (Warm-up cache populated). **Dependency**: Requires T005, T005a, T014-T019, T024-T026 (to know output schema).
+- [~] T029a [US2] Implement pre-run validation in `code/data/generator.py` to verify the generator logic is epistemologically independent of EywaOrchestra inference logic (FR-008, FR-007). **Logic**: Perform static analysis to detect any `import` statements or function calls referencing `code/pipeline/eywa_orchestra.py`. **Deliverable**: Raise `ValueError` if dependency detected.
+- [~] T029b [US2] Implement static code inspection in `tests/unit/test_independence.py` to verify `code/data/generator.py` does not import `code/pipeline/eywa_orchestra.py` or rely on its internal logic. **Deliverable**: Unit test that asserts independence constraints on the generator source code.
+- [ ] T030 [US2] Generate `data/derived/results.csv` containing aggregated metrics for both runs. **Schema**: Columns must be `run_type`, `total_time`, `hit_rate`, `accuracy`, `total_queries`.
+- [ ] T031 [US2] Generate statistical report (p-values) in `data/derived/statistics.json`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -109,17 +109,17 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T032 [P] [US3] Integration test for sensitivity analysis loop in `tests/integration/test_pipeline.py`
+- [~] T032 [P] [US3] Integration test for sensitivity analysis loop in `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 3
 
-- [X] T033 [P] [US3] Implement `code/analysis/visualization.py` for generating trade-off curve plots (hit-rate, runtime, accuracy).
-- [X] T034 [US3] Implement sensitivity analysis loop in `code/main.py` iterating through the **exact** discrete threshold set: `[0.90, 0.95, 0.99]`. **Requirement**: The execution logic MUST clear the cache state (reset memory) before each threshold iteration to ensure independent measurements. The execution logic will call reusable functions for Baseline and Cached Execution (T027/T028) with the specified threshold. **Dependency**: Requires completion of T027, T028, T024-T026.
-- [X] T035 [US3] Generate `data/derived/sensitivity_analysis.csv` with metrics per threshold.
-- [X] T036 [US3] Identify optimal threshold based on the defined optimization rule: maximize `score = runtime_reduction - weight * accuracy_deviation`, where `weight` is a **user-defined parameter** read from a CLI argument or configuration file (default 10). **Dependency**: T035.
-- [X] T036a [US3] **Documentation**: Document the justification for the optimization weight mechanism in `docs/research_decisions.md`. **Content**: Explain the formula derivation, how the user-defined weight is passed (CLI/Config), and the trade-off tolerance.
-- [X] T037 [US3] Generate final visualization plot (PNG/SVG) in `data/derived/trade_off_curve.png`.
-- [X] T038 [US3] Implement Bonferroni correction for multiple comparisons on the **Permutation Test** p-values (from T025) across the discrete threshold set. **Dependency**: T025, T034.
+- [ ] T033 [P] [US3] Implement `code/analysis/visualization.py` for generating trade-off curve plots (hit-rate, runtime, accuracy).
+- [ ] T034 [US3] Implement sensitivity analysis loop in `code/main.py` iterating through the **exact** discrete threshold set: `[0.90, 0.95, 0.99]`. **Requirement**: The execution logic MUST clear the cache state (reset memory) before each threshold iteration to ensure independent measurements. The execution logic will call reusable functions for Baseline and Cached Execution (T027/T028) with the specified threshold. **Dependency**: Requires completion of T027, T028, T024-T026.
+- [ ] T035 [US3] Generate `data/derived/sensitivity_analysis.csv` with metrics per threshold.
+- [~] T036 [US3] Identify optimal threshold based on the defined optimization rule: maximize `score = runtime_reduction - weight * accuracy_deviation`, where `weight` is a **user-defined parameter** read from a CLI argument or configuration file (default 10). **Dependency**: T035.
+- [~] T036a [US3] **Documentation**: Document the justification for the optimization weight mechanism in `docs/research_decisions.md`. **Content**: Explain the formula derivation, how the user-defined weight is passed (CLI/Config), and the trade-off tolerance.
+- [ ] T037 [US3] Generate final visualization plot (PNG/SVG) in `data/derived/trade_off_curve.png`.
+- [~] T038 [US3] Implement Bonferroni correction for multiple comparisons on the **Permutation Test** p-values (from T025) across the discrete threshold set. **Dependency**: T025, T034.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -129,10 +129,10 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T039 [P] Update `README.md` with execution instructions and environment setup
-- [X] T040a [P] Run `black --check` on all Python files to verify formatting
-- [X] T040b [P] Resolve all `ruff` warnings to ensure code cleanliness
-- [ ] T041 [P] Final verification of all data artifacts in `data/derived/` against `state/manifest.json` (Continuous hook T010 ensures this is mostly done, this is a final sanity check).
+- [~] T039 [P] Update `README.md` with execution instructions and environment setup
+- [~] T040a [P] Run `black --check` on all Python files to verify formatting
+- [~] T040b [P] Resolve all `ruff` warnings to ensure code cleanliness
+- [ ] T041 [P] Final verification of all data artifacts in `data/derived/` against `state/manifest.json` (Continuous hook T010 ensures this is mostly done, this is a final sanity check). <!-- FAILED-IN-EXECUTION: code/verify_final.py exit=1 -->
 - [ ] T042 [P] Add additional unit tests for edge cases (embedding failure, memory limit) in `tests/unit/`
 - [ ] T043 Run `quickstart.md` validation (if applicable)
 - [ ] T044 Final documentation review for FR-007 (synthetic generator logic) and FR-008 (independence)

@@ -1,3 +1,46 @@
+T001a:
+  c: true
+  h: 2ba9ee60d3e6931ecc7eaeeca092e543e0e9d93278a7ad2888bf7bd677fe6ff3
+  r: "Checked the recursive listing of\u202F`projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/`\
+    \ and confirmed that the top\u2011level folders\u202F`code/`,\u202F`data/`,\u202F\
+    `tests/`,\u202F`state/` exist, as well as the required sub\u2011folders\u202F\
+    `code/cache`,\u202F`code/pipeline`,\u202F`code/analysis`,\u202F`data/raw`,\u202F\
+    `data/derived`,\u202F`tests/unit`, and\u202F`tests/integration`."
+T001b:
+  c: false
+  h: 187b9f83cf8147b3f1e35af330046f11f907248a2dff27017ef5aaebe1ce9c38
+  r: "The provided tree only contains top\u2011level `__init__.py` files; none of\
+    \ the newly created sub\u2011directories under `code/` (e.g., `analysis/`, `cache/`,\
+    \ `data/`, `pipeline/`, `reproducibility/`) or under `tests/` (`integration/`,\
+    \ `unit/`) have an `__init__.py`. Empty `__init__.py` files must be added to each\
+    \ of those directories to satisfy the task."
+T002:
+  c: false
+  h: abbf3311ca721ce0c467123379148894cc7a8f0dbc88b25ee44c448e521e838d
+  r: The provided `requirements.txt` exists but lists the packages without version
+    pins and includes an extra `pytest-benchmark` entry not requested. The task explicitly
+    required a pinned `requirements.txt` for the specified seven packages.
+T003:
+  c: false
+  h: 973a4efdbdf1e6fb867c626adb8d99467ae9953ab9ac94d1469a6eddc2dfe0e2
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with Black\
+    \ settings, `.ruff.toml` or a `ruff.toml` section, or a pre\u2011commit hook file)\
+    \ were provided, nor any evidence that `ruff` and `black` have been installed\
+    \ or run. Without these artifacts the requirement to configure linting (ruff)\
+    \ and formatting (black) is not satisfied."
+T004:
+  c: false
+  h: 530658df279eae323fc94b058f6d856c0529f97738fcb07b0225c3de83d08a96
+  r: "No pytest configuration files (e.g.,\u202F`pytest.ini` or `conftest.py`) or\
+    \ any evidence of the `pytest-benchmark` plugin being added to the test environment\
+    \ are present, so the required setup is missing."
+T005:
+  c: true
+  h: e56181a10478f60861f2850fcba6816f08f4ad740f274b53f3d9c8bd60ec74ff
+  r: "Checked that `code/data/generator.py` defines a `generate_test_set` function\
+    \ that creates 500 entries and that `data/derived/synthetic_queries_test.json`\
+    \ exists, is non\u2011empty, and contains objects with the required keys (`prompt`,\
+    \ `ground_truth`, `steps`, `seed`, `domain`)."
 T011:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

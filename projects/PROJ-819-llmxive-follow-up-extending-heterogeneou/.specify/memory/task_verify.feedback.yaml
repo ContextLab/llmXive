@@ -1,0 +1,138 @@
+T001a:
+  task: b51f61876fe36830fafb089bf91278f742cd75ee8bb92b32afa2e6881de82eee
+T001b:
+  reason: "The provided tree only contains top\u2011level `__init__.py` files; none\
+    \ of the newly created sub\u2011directories under `code/` (e.g., `analysis/`,\
+    \ `cache/`, `data/`, `pipeline/`, `reproducibility/`) or under `tests/` (`integration/`,\
+    \ `unit/`) have an `__init__.py`. Empty `__init__.py` files must be added to each\
+    \ of those directories to satisfy the task."
+  task: 8b5459ed89d58b797efcac6f8ece188f17ae2411272238116a20e4f46995ec39
+T002:
+  reason: The provided `requirements.txt` exists but lists the packages without version
+    pins and includes an extra `pytest-benchmark` entry not requested. The task explicitly
+    required a pinned `requirements.txt` for the specified seven packages.
+  task: 04ce5e4597925b7605255440b716f457eb442646ac0fb912dc2d31a25e1a47b9
+T003:
+  reason: "No linting or formatting configuration files (e.g., `pyproject.toml` with\
+    \ Black settings, `.ruff.toml` or a `ruff.toml` section, or a pre\u2011commit\
+    \ hook file) were provided, nor any evidence that `ruff` and `black` have been\
+    \ installed or run. Without these artifacts the requirement to configure linting\
+    \ (ruff) and formatting (black) is not satisfied."
+  task: ed499d1c554fe9eb2c7938008dd2c66373f31ce0c71ca26dc8c344cb81cd4782
+T004:
+  reason: "No pytest configuration files (e.g.,\u202F`pytest.ini` or `conftest.py`)\
+    \ or any evidence of the `pytest-benchmark` plugin being added to the test environment\
+    \ are present, so the required setup is missing."
+  task: 313b7c7185b9b3ce13502054667f154b2973fdf17c3abff8057fbf70e90ad951
+T005:
+  task: 573f25cb8099b30cc62ac821dda107bfde61ea1d8e097b2ac517e464c2c3c1ae
+T005a:
+  task: d649d64fce7899bd95ecf039ba159eb3c65307d23c0b3ce0d1c3d2645f3a23f3
+T005b:
+  task: a6d1c94619d55f69f6b7b8f4be4102ea7726a048c8ff15d86f870642179b4b22
+T006:
+  task: 2466f2eb1579a2eda2af273decc0a499b1c76d9467d28984e127a56b58a7a400
+T007:
+  task: e527a6477f4d3443ac88c53799bbe7600c566adacdf2ac53ee9c6245292a0d7c
+T008:
+  task: 29721e483f4240cec3ec8a9d959c0129c264c64e5b4c3caf729cb51209a63edd
+T009:
+  task: 53723df148d2222746613efaaae8a6abac58de0b498272091ca2c88506bd15d1
+T009a:
+  task: 8d8b4b215f1451c0ce2b44913c1b6441546b3f7f45a79f65815c41af770b31ce
+T010:
+  task: 9df41549bc69a62b9944963a777b81a1474108fce61abf47f36c72577a7be28b
+T010a:
+  task: b0ca9671fd2bf6945feb031f8ea98ba8a12832be1462c6b4581bd9a3a78bc8c6
+T010b:
+  task: 4b1932cc9b4920a6fe98b58c4b1f7a5cb525d45da1e99ad2042f98fbd282e05f
+T010c:
+  task: a9c3c99796f20e9fab942609a3c23b3c579b1a425aed6cc50d482aee29a5fd7e
+T011:
+  task: 2bb7fa7ba082314ef9d06a45129cd004ba921936be74e7c38693ba12516c9b67
+T012:
+  task: 900a2d91485e8f155dff303d66a8bdd43f6f58d218b71fdc124d9afefef42e9b
+T013:
+  task: 41eb48b4bbd64f0cfb01359640333c024d69be2dad67ac0cacf4e2c9fde678d4
+T014:
+  task: 5e2161c0cc4cae9aa5e1b8d66f9ec7c7a7590c5d6a01e616e7b71e134886e391
+T015:
+  task: 68b1ba3a2484c513196f0535a1511173e18935569ef815231acd8c2ab3845f73
+T016:
+  task: e4809e49b001ae1eb4303cae42c921b20830aa8701a2d7bb649edecb1bea8ddf
+T017:
+  task: f0e2ce70539a602534a1912f15efcc3427ba28fc21a0f450ae3a574c84160e2e
+T018:
+  task: 5deaad38eaa8433fd107e059ac3ff61fdbc5090d2aa945065b1bd2f29a77b84a
+T019:
+  task: 28ffcf27bb17e792d53abd9c4893134ab99173ea45bf76ec5bbf7d2dcafafd35
+T020:
+  task: 3845f6a7c70d98063b6fbc0e35b3b2ec98af530d4abd3d86b95dd66ee4a6de8d
+T021:
+  task: 5caa3380a1c2f5532e62f6e0040595854cf09cbc95bc56cf45b47d6f01c8a72a
+T021a:
+  task: f3ebe28cdd053e95099ded53568f9cd949af2d6cf989f891916e209547159576
+T021b:
+  task: 2319dce25c2d890b0cce091f784f96d9a5b7b2645b41c88da7b39fd23d94bf71
+T024:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/metrics.py'
+  task: a0f64c4dab34a37991c3c6bc8e5d0382e82acccf6c230c442141c9852d463394
+T025:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/stats.py, data/derived/statistics.json'
+  task: b677bb2e33155ee7583d2556558e71212560c28a0bcd54c6f0d3eb97df591c38
+T025a:
+  task: 9d4db94c4681ba9ff5452121fb5a65cc2bfd02b3eccbddee07712ae8d175db5e
+T027:
+  task: 20a42784902c6064e55f482a104db219a52301bfc499e1a2d67a8ddb760b5808
+T028:
+  task: 1751338cd702f332b2a7657d5e6342d6a65d0630ea1b182bbf40f9a11921f47e
+T029a:
+  task: 5663683fa72d469077808696ef2c1313ff85579d0eeaf469a674e650076b6ccb
+T029b:
+  task: 2dcc73348567c91ce0f00aea592407e9d5553695e2a1436c72081f750f6b15ff
+T030:
+  reason: 'declared artifact(s) missing/empty/invalid: data/derived/results.csv'
+  task: 9e907a71ddd8a15a4eb6e07af34a5bdbd9e582cd8900035a7fb4729ef25e7b1a
+T031:
+  reason: 'declared artifact(s) missing/empty/invalid: data/derived/statistics.json'
+  task: 3aadf35797cb2a867846ce65afafedb16ccfbcda1b0aba3ceaa7c004c8f879de
+T032:
+  task: fac91d2727b80fc49c966c77d3b1801712fbee8a996cf40a608485afb4e50048
+T033:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/visualization.py'
+  task: 3dfe702a35a47c685abd97dabeacd92cd0ed715223ee6af5ce6c94a316c02929
+T034:
+  reason: 'declared artifact(s) missing/empty/invalid: code/main.py'
+  task: ee5a306188d55e2edb1e2cd12e168f96800790e85b95c56284f9795d8fbeb867
+T035:
+  reason: 'declared artifact(s) missing/empty/invalid: data/derived/sensitivity_analysis.csv'
+  task: 1d9f6993931280450d855c01ae5ae36ed7d6da080d911961e953b9b15d3f2279
+T036:
+  task: 130deb2cc69ee5e9c82caa85baa15a04b5d8547ef0bb9b0e7d9a28d225d34a83
+T036a:
+  task: 5c31f004ffd7b2b4837f9716f9e202a176ae3d89f8529dbec3409bf48bb0504b
+T037:
+  reason: 'declared artifact(s) missing/empty/invalid: data/derived/trade_off_curve.png'
+  task: 9729b2b28b5a2ed48addbb4a378636470ffc8ae5cb366b4f2f685a537f94852a
+T038:
+  task: c970a7233f8271d4de55f4e4cfe8f0b9cc1a5365a132539bce613b457a12b4b8
+T039:
+  task: b0abb6a560d0bc99e03c78736fc9b2b97edc428b2769c4cd0b5022bb29dec175
+T040a:
+  task: 0b2f13fcf89dcf5fa12f061b65dc4abfb39b8fe33ef3f1fa4385a7c519e709d4
+T040b:
+  task: f6c844917324c468dcf3b88f8eb096944d1c3cc56fc631c1e321d654a36c1481
+T041:
+  reason: 'Requested task execution failed; rerun successfully: code/verify_final.py
+    exit=1'
+  task: 268278d00996960a478feae051ff55fecc9f7ca520b71a4ae61f0b7d695eefab
+T042:
+  task: d382aa2ba6e3f87b4a964c31c4d25486221a3cc3bab8ea1c299f40fd1bae5383
+T043:
+  task: 8dec3a8cdc037f627c207df7c800656bdc9f2ee0e98148eb5bde8ec8acf7d381
+T044:
+  task: b2f2aeff8fdfd2365ac5022e809304454bc1152ae4d8d4499480421f26b8da4f
+T047:
+  task: f6d526020851838f6ef82447a7178f7aa74918e5464fd8e4a693aae899ea8e91
+T048:
+  task: 940914b63e81c566d3cd7f373b24f0067de6801ad6e017db3a127ac9bd0cc16a

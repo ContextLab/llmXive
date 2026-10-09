@@ -1,173 +1,172 @@
-# llmXive: Heterogeneous Scientific Foundation Model Collaboration
+# PROJ-819: Semantic Cache Optimization for EywaOrchestra
 
-A research pipeline implementing a lightweight semantic caching layer for scientific query processing, evaluating the trade-off between runtime efficiency and accuracy in heterogeneous model collaboration.
+Follow-up study to "Heterogeneous Scientific Foundation Model Collaboration"
+(arXiv:2604.27351). This project measures how a semantic similarity-based
+caching layer affects the computational efficiency and scientific reasoning
+accuracy of the EywaOrchestra framework on iterative, multi-turn
+hypothesis-testing tasks.
 
-## Project Overview
+## Research Question
 
-This project implements the "Heterogeneous Scientific Foundation Model Collaboration" study, focusing on:
-- **Semantic Caching**: Intercepting queries using embedding-based similarity to reuse cached LLM outputs.
-- **Efficiency Analysis**: Quantifying runtime reduction and invocation savings via a mock EywaOrchestra pipeline.
-- **Accuracy Trade-offs**: Using Permutation Tests and Linear Regression to validate statistical significance.
-- **Threshold Sensitivity**: Analyzing performance across similarity thresholds (0.90, 0.95, 0.99).
+How does the introduction of a semantic similarity-based caching mechanism
+affect the computational efficiency and scientific reasoning accuracy of the
+EywaOrchestra framework when processing iterative, multi-turn
+hypothesis-testing tasks?
 
-## Prerequisites
+## Environment Setup
 
-- **Python**: 3.9 or higher
-- **OS**: Linux/macOS (tested on CI environments)
-- **Hardware**: CPU-only execution (no GPU required).
+Requirements: Python 3.11+, pip, CPU-only machine (no CUDA required or used).
 
-## Installation
+```bash
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
 
-1. **Clone the repository** and navigate to the project directory:
- ```bash
- git clone <repository-url>
- cd projects/PROJ-819-llmxive-follow-up-extending-heterogeneou
- ```
+Pinned dependencies include `sentence-transformers` (CPU-only),
+`scikit-learn`, `numpy`, `pandas`, `pytest`, `cachetools`, and
+`statsmodels`. The embedding model is `all-MiniLM-L6-v2` (384 dimensions),
+downloaded automatically on first use.
 
-2. **Create a virtual environment** (recommended):
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
+If a GPU is present on your machine, force CPU execution:
 
-3. **Install dependencies**:
- ```bash
- pip install -r requirements.txt
- ```
-
- *Dependencies include*: `sentence-transformers`, `scikit-learn`, `numpy`, `pandas`, `pytest`, `cachetools`, `statsmodels`, `black`, `ruff`.
-
-4. **Verify installation**:
- ```bash
- python -m pytest --version
- python -c "import sentence_transformers; print('OK')"
- ```
+```bash
+export CUDA_VISIBLE_DEVICES=""
+```
 
 ## Project Structure
 
-```text
-.
-├── code/
-│ ├── cache/ # Semantic caching logic (LRU, embeddings)
-│ ├── data/ # Data generation and loading utilities
-│ ├── pipeline/ # EywaOrchestra mock and execution runner
-│ ├── analysis/ # Metrics, statistics, and visualization
-│ ├── reproducibility/ # Manifest and checksum management
-│ └── setup_project.py # Project initialization script
+```
+code/
+├── cache/
+│ ├── semantic_cache.py # SemanticCache (LRU over CacheEntry objects)
+│ └── utils.py # Embeddings, cosine similarity, thresholding
+├── pipeline/
+│ ├── eywa_orchestra.py # Deterministic, CPU-tractable EywaOrchestra mock
+│ └── runner.py # Baseline / cached execution, warm-up phase
+├── analysis/
+│ ├── metrics.py # Runtime reduction, invocations, accuracy deviation
+│ ├── stats.py # Permutation Test, OLS regression, Bonferroni
+│ └── visualization.py # Trade-off curve plots
 ├── data/
-│ ├── raw/ # Raw input data (if applicable)
-│ └── derived/ # Generated queries, results, and plots
-├── tests/
-│ ├── unit/ # Unit tests for core logic
-│ └── integration/ # Integration tests for pipeline flows
-├── state/
-│ └── manifest.json # Reproducibility manifest (auto-generated)
-├── docs/
-│ └── research_decisions.md # Documentation of optimization weights
-├── requirements.txt
-├── README.md
-└── pyproject.toml # Linting and testing configuration
+│ ├── generator.py # Synthetic ground-truth generator (FR-007)
+│ └── loaders.py # BenchmarkQuery loading
+├── reproducibility/
+│ └── manifest_manager.py # SHA-256 manifest of code/ and data/
+└── main.py # Sensitivity analysis entry point
+data/
+├── raw/ # Raw benchmark data (if available)
+└── derived/ # Generated datasets, results, statistics
+state/
+└── manifest.json # Content hashes for reproducibility
+tests/
+├── unit/ # Cache, generator, independence tests
+└── integration/ # End-to-end pipeline tests
 ```
 
 ## Execution Instructions
 
-### 1. Data Generation (Phase 2)
+Run all commands from the project root (`projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/`).
 
-Generate the synthetic test set and warm-up set required for benchmarking.
+### 1. Generate the synthetic datasets
 
-```bash
-python code/data/generator.py
-```
-
-*Outputs*:
-- `data/derived/synthetic_queries_test.json` (500 queries)
-- `data/derived/synthetic_queries_warmup.json` (100 queries)
-
-*Note*: This step also triggers the manifest generation hook (`state/manifest.json`).
-
-### 2. Run the Full Pipeline (Phase 3-5)
-
-Execute the full sensitivity analysis loop, including baseline and cached runs across thresholds `[0.90, 0.95, 0.99]`.
+Produces `data/derived/synthetic_queries_test.json` (500 queries) and
+`data/derived/synthetic_queries_warmup.json` (100 queries, stratified by
+domain and step count):
 
 ```bash
-python code/main.py
+python -m code.data.generator
 ```
 
-*Arguments*:
-- `--weight`: Optimization weight for the score function (default: `10`).
-- `--thresholds`: Comma-separated list of thresholds (default: `0.90,0.95,0.99`).
+### 2. Run the pipeline (baseline vs. cached)
 
-*Outputs*:
-- `data/derived/results.csv`: Aggregated metrics per run.
-- `data/derived/sensitivity_analysis.csv`: Metrics per threshold.
-- `data/derived/statistics.json`: P-values and regression coefficients.
-- `data/derived/trade_off_curve.png`: Visualization of the trade-off curve.
-- `data/derived/cache_events.log`: JSON Lines log of eviction events.
-
-### 3. Run Baseline vs. Cached Comparison (Phase 4)
-
-To run a specific comparison without the full sensitivity loop:
+The runner executes the warm-up phase (cache population) followed by the
+test phase, and writes `data/derived/results.csv` with columns
+`run_type`, `total_time`, `hit_rate`, `accuracy`, `total_queries`:
 
 ```bash
-# Baseline run (cache ignored)
-python code/pipeline/runner.py --mode baseline
-
-# Cached run (warm-up cache populated)
-python code/pipeline/runner.py --mode cached --threshold 0.95
+python -m code.pipeline.runner
 ```
 
-### 4. Run Tests
+### 3. Sensitivity analysis across thresholds
 
-Execute the full test suite:
+Sweeps the exact discrete threshold set {0.90, 0.95, 0.99}, clearing the
+cache state between iterations. Produces
+`data/derived/sensitivity_analysis.csv`, the statistical report
+`data/derived/statistics.json` (permutation-test p-values with Bonferroni
+correction, and OLS regression coefficients for
+`runtime ~ hits + misses`), and the trade-off visualization
+`data/derived/trade_off_curve.png`:
 
 ```bash
-pytest tests/ -v
+python -m code.main --weight 10
 ```
 
-Run specific unit tests for cache logic:
+The `--weight` argument (default 10) controls the optimization rule
+`score = runtime_reduction - weight * accuracy_deviation` used to identify
+the optimal threshold. See `docs/research_decisions.md` for the
+justification of this mechanism.
+
+### 4. Reproducibility manifest
+
+Regenerate or verify the SHA-256 manifest of all files under `code/` and
+`data/` (writes `state/manifest.json`):
 
 ```bash
-pytest tests/unit/test_cache.py -v
+python -m code.reproducibility.manifest_manager
 ```
 
-Run integration tests for the pipeline:
+### 5. Verify data artifacts
 
-```bash
-pytest tests/integration/test_pipeline.py -v
-```
-
-## Configuration
-
-- **Similarity Thresholds**: Defined in `code/main.py` (default: `0.90, 0.95, 0.99`).
-- **Cache Size Limit**: Configured in `code/cache/semantic_cache.py` (default: 1GB or 1000 entries).
-- **Optimization Weight**: Passed via CLI `--weight` or configured in `docs/research_decisions.md`.
-
-## Reproducibility
-
-The project maintains a `state/manifest.json` file that records SHA-256 hashes of all code and data artifacts. This file is automatically updated after data generation and code modifications.
-
-To verify artifact integrity:
+Final sanity check that all artifacts in `data/derived/` match
+`state/manifest.json`:
 
 ```bash
 python code/verify_artifacts.py
 ```
 
+## Running Tests
+
+```bash
+pytest tests/ -v
+```
+
+Unit tests cover cache hit/miss logic, cosine similarity, the synthetic
+generator, and the epistemological independence constraint (FR-008). An
+integration test covers the full sensitivity-analysis loop.
+
+## Expected Outputs
+
+| Artifact | Description |
+|----------|-------------|
+| `data/derived/synthetic_queries_test.json` | 500-query test set (BenchmarkQuery entities) |
+| `data/derived/synthetic_queries_warmup.json` | 100-query warm-up set |
+| `data/derived/results.csv` | Aggregated metrics for baseline and cached runs |
+| `data/derived/sensitivity_analysis.csv` | Metrics per threshold {0.90, 0.95, 0.99} |
+| `data/derived/statistics.json` | Permutation-test p-values (Bonferroni-corrected) and regression coefficients |
+| `data/derived/trade_off_curve.png` | Hit-rate / runtime / accuracy trade-off curve |
+| `data/derived/cache_events.log` | JSON Lines log of cache hits, misses, and evictions |
+| `state/manifest.json` | SHA-256 hashes of all code and data files |
+
+## Methodology Notes
+
+- **Statistical tests**: A Permutation Test (n_permutations = 10000) is
+ used for accuracy differences and a multi-variable linear regression
+ (`runtime ~ hits + misses`, via `statsmodels.api.OLS`) for runtime,
+ replacing the originally proposed McNemar's / paired t-tests due to
+ contingency-table degeneracy. Bonferroni correction is applied across
+ the three thresholds.
+- **Ground-truth independence**: Synthetic ground truth is generated from
+ documented analytical solutions with novel parameter combinations,
+ verified via static code inspection to be independent of the
+ EywaOrchestra inference logic (FR-007 / FR-008).
+- **Resource constraints**: All models run on CPU in default precision;
+ the cache implements LRU eviction (logged to
+ `data/derived/cache_events.log`) when the memory limit is exceeded.
+
 ## Troubleshooting
 
-- **Import Errors**: Ensure you are running from the project root and the virtual environment is activated.
-- **Memory Issues**: The cache eviction policy triggers at 1GB. If running on low-memory systems, reduce the limit in `semantic_cache.py`.
-- **Embedding Model Failures**: The pipeline uses CPU-only sentence transformers. If the model fails to load, check internet connectivity for the initial download.
-
-## Contributing
-
-1. Ensure `black` and `ruff` pass before committing:
- ```bash
- black --check code/ tests/
- ruff check code/ tests/
- ```
-2. Add tests for new functionality in `tests/unit/` or `tests/integration/`.
-3. Update `README.md` if new CLI arguments or data artifacts are added.
-
-## License
-
-This project is part of the llmXive research initiative. See the LICENSE file for details.
+- **Memory Error**: Ensure ≥ 7GB RAM; the LRU cache bounds memory usage.
+- **Slow Runtime**: The baseline run is the most expensive step; reduce
+ the query count in the generator if needed.
+- **CUDA Error**: Set `CUDA_VISIBLE_DEVICES=""` to force CPU usage.
