@@ -250,8 +250,14 @@ def _validate_artifact_citations(
     from llmxive.state.project import hash_file
 
     repo = ctx.project_dir.parent.parent
+    preservation_root = Path(os.path.abspath(ctx.project_dir / '.specify/recovered-artifacts'))
     for relpath in outputs:
         path = repo / relpath
+        # These are opaque originals preserved during filesystem recovery, not
+        # newly authored research. Keep them in provenance outputs but never
+        # rewrite their bytes through citation or claim processing.
+        if Path(os.path.abspath(path)).is_relative_to(preservation_root):
+            continue
         if not path.exists() or not path.is_file():
             continue
         if path.suffix.lower() not in {".md", ".markdown", ".tex"}:
