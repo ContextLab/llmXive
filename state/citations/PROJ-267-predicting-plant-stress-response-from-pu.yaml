@@ -33,19 +33,6 @@
   verification_status: pending
   verified_against_url: https://cloud.r-project.org
   verified_at: '2026-10-06T06:41:23.539174Z'
-- artifact_hash: 034c222691b43dddabfd0a3ea9360c72a2ae5bb7111bd5a363c46507e27c1cdc
-  artifact_path: projects/PROJ-267-predicting-plant-stress-response-from-pu/specs/001-predicting-plant-stress-response-from-pu/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[2604.10702] Backbone-Conditional Behavior of Modality Gating in
-    Multi-Modal Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate Mechanism
-    Analysis'
-  kind: url
-  value: https://arxiv.org/abs/2604.10702
-  verification_status: pending
-  verified_against_url: https://arxiv.org/abs/2604.10702
-  verified_at: '2026-10-06T06:53:57.727617Z'
 - artifact_hash: 65f63f5353c5330bf141374c358984ec796bc3dac25275a5f64b6a4a0f1906b3
   artifact_path: projects/PROJ-267-predicting-plant-stress-response-from-pu/specs/001-predicting-plant-stress-response-from-pu/research.md
   cite_id: c-001
