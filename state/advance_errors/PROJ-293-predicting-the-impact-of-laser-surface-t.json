@@ -1,0 +1,14 @@
+{
+  "project_id": "PROJ-293-predicting-the-impact-of-laser-surface-t",
+  "stage": "planned",
+  "class": "transient",
+  "fingerprint": "backend_chain_failed",
+  "consecutive_count": 1,
+  "first_seen": "2026-10-09T22:21:31.805433+00:00",
+  "last_seen": "2026-10-09T22:21:31.805433+00:00",
+  "retry_after": "2026-10-09T22:31:31.805433+00:00",
+  "last_error": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(model-down attempt 1): Dartmouth model 'zai-org.glm-5.3' hung past 57s deadline (no response received) | openai.gpt-oss-120b(model-down attempt 1): Request timed out. | google.gemma-4-31B-it(model-down attempt 1): Request timed out. | anthropic.claude-haiku-4-5-20251001(permanent): Dartmouth: paid model 'anthropic.claude-haiku-4-5-20251001' refused: credit balance unavailable (ConnectTimeout: HTTPSConnectionPool(host='chat.dartmouth.edu', port=443): Max retries exceeded with url: /api/v1/credits/balance (Caused by ConnectTimeoutError(<HTTPSConnection(host='chat.dartmouth.edu', port=443) at 0x7f3b3c5a7e90>, 'Connection to chat.dartmouth.edu timed out. (connect timeout=30.0)'))) \u2014 failing closed | local: transformers is not inst",
+  "evidence": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(model-down attempt 1): Dartmouth model 'zai-org.glm-5.3' hung past 57s deadline (no response received) | openai.gpt-oss-120b(model-down ",
+  "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
+  "status": "retry_scheduled"
+}
