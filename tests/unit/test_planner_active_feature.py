@@ -33,13 +33,13 @@ def _project(tmp_path, monkeypatch):
     return ctx, mech, feature
 
 
-@pytest.mark.parametrize('stale_metadata',[False,True])
-def test_new_plan_uses_authoritative_feature_on_parent_main(tmp_path,monkeypatch,stale_metadata):
+@pytest.mark.parametrize('metadata',['missing','stale','ambiguous'])
+def test_new_plan_uses_authoritative_feature_on_parent_main(tmp_path,monkeypatch,metadata):
     ctx, _, feature = _project(tmp_path,monkeypatch)
-    old = ctx.project_dir/'specs/999-stale'
+    old = ctx.project_dir/('specs/001-duplicate' if metadata == 'ambiguous' else 'specs/999-stale')
     old.mkdir()
     (old/'plan.md').write_text('Preserved unrelated feature plan\n')
-    if stale_metadata:
+    if metadata == 'stale':
         (ctx.project_dir/'.specify/feature.json').write_text(json.dumps({'feature_directory':str(old)}))
     result = PlannerAgent().mechanical_step(ctx)
     assert Path(result['script_result']['SPECS_DIR']).resolve() == feature.resolve()
