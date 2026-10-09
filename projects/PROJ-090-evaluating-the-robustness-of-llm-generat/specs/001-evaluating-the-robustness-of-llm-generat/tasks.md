@@ -1,360 +1,210 @@
-# Tasks: Evaluating the Robustness of LLM-Generated Code to Input Perturbations
+# Tasks: Evaluating the Robustness of LLM‑Generated Code to Input Perturbations  
 
-**Input**: Design documents from `/specs/001-evaluating-robustness-llm-code/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `spec.md`, `plan.md`, existing research artefacts, and the reviewer feedback above.  
+**Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `data‑model.md`, `contracts/` directory.  
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+---  
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+## Phase 1 – Setup & First End‑to‑End Analysis  
 
-## Format: `[ID] [P?] [Story] Description`
+| Goal | Run a minimal, reproducible end‑to‑end pipeline on a tiny real sample before any heavy computation. |
+|------|-----------------------------------------------------------------------------------------------|
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- [ ] **T001** [P] Create `requirements.txt` with pinned versions required for the project.  
+  **Path**: `requirements.txt`  
+  **Verification**: `pip install -r requirements.txt` exits with code 0 and `pip list` shows the exact versions.
 
-## Path Conventions
+- [ ] **T002** [P] Create the data directory hierarchy (`data/raw/`, `data/processed/`, `data/logs/`).  
+  **Path**: `data/` subtree  
+  **Verification**: `ls -R data/` shows the three sub‑folders and they are writable.
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- [ ] **T003** [P] Create `quickstart.md` that documents a single‑command entry point for a sample run.  
+  **Path**: `quickstart.md`  
+  **Verification**: Running the command shown (`python -m code.main --run‑sample`) finishes within 30 s and prints “Sample run completed”.
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+- [ ] **T004** [P] Add `code/utils/logging.py` with `setup_logger()` that writes JSON‑lines to `data/logs/app.log`.  
+  **Path**: `code/utils/logging.py`  
+  **Verification**: Import the module and call `setup_logger()`, then check that `data/logs/app.log` exists and contains at least one JSON line.
 
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
+- [ ] **T005** [P] Implement `code/model/sandbox.py` – `run_in_sandbox(code: str) → Result` and `execute_with_timeout(code: str, timeout: int) → Result`.  
+  **Path**: `code/model/sandbox.py`  
+  **Verification**: `python -c "from code.model.sandbox import run_in_sandbox; print(run_in_sandbox('print(1)'))"` returns a `Result` with `status='pass'`.
 
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
+---  
 
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
+## Phase 2 – Core Infrastructure (must be complete before any user story)  
 
-## Phase 1: Setup (Shared Infrastructure)
+| Goal | Provide reusable utilities and contract definitions required by all downstream work. |
+|------|--------------------------------------------------------------------------------------|
 
-**Purpose**: Project initialization and basic structure
+- [ ] **T006** [P] Create `code/config.py` exposing `MODEL_NAME`, `QUANTIZATION`, `DEVICE`, `GEN_TIMEOUT`, `SEED`.  
+  **Path**: `code/config.py`  
+  **Verification**: `python -c "import code.config; assert code.config.MODEL_NAME"` succeeds.
 
-- [X] T001 [P] Create `data/` directory at repository root with appropriate read, write, and execute permissions. **Verification**: Run `ls -ld data/` and assert permissions are `drwxr-xr-x`.
-- [X] T002 [P] Create `data/raw/`, `data/processed/`, `data/logs/` subdirectories with appropriate directory permissions. **Verification**: Run `ls -ld data/raw/ data/processed/ data/logs/` and assert permissions are `drwxr-xr-x`.
-- [X] T003 [P] Create `tests/`, `tests/unit/`, `tests/contract/` directories with appropriate permissions. **Verification**: Run `ls -ld tests/ tests/unit/ tests/contract/` and assert permissions are `drwxr-xr-x`.
-- [X] T004 [P] Create `requirements.txt` with pinned versions: `transformers==4.44.0`, `datasets==2.20.0`, `sentence-transformers==3.0.1`, `bitsandbytes==0.43.3`, `scikit-learn==1.5.0`, `statsmodels==0.14.2`, `pandas==2.2.2`, `pytest==8.2.2`, `numpy==1.26.4`, `psutil==5.9.0`, `scipy==1.14.0`.
-- [X] T005 [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml` at the repository root with explicit settings: `line-length = 88`, `target-version = 'py3'`, `select = ['E', 'F', 'W', 'I']`. **Verification**: Run `ruff check --config pyproject.toml` and assert exit code 0; verify `black --check` passes.
+- [ ] **T007** [P] Add `code/utils/validate_schema.py` that validates a JSON file against a JSON‑Schema file and exits 1 on failure.  
+  **Path**: `code/utils/validate_schema.py`  
+  **Verification**: Run the script on a known‑good file; exit code 0. Run on a deliberately broken file; exit code 1.
 
----
+- [ ] **T008** [P] Create `contracts/perturbation_schema.json` defining the JSON schema for perturbation candidates.  
+  **Path**: `contracts/perturbation_schema.json`  
+  **Schema fields** (required): `task_id` (string), `perturbation_type` (enum ["synonym","typo","rephrase"]), `raw_score` (number 0‑1), `is_valid` (boolean), `candidate_text` (string).  
+  **Verification**: `python code/utils/validate_schema.py --input data/processed/perturbation_candidates_raw.json --schema contracts/perturbation_schema.json` exits with code 0.
 
-## Phase 2: Foundational (Blocking Prerequisites)
+- [ ] **T008a** [P] Generate `contracts/perturbation_schema.json` from the canonical YAML (`contracts/perturbation_schema.yaml`) to guarantee schema consistency.  
+  **Path**: `contracts/perturbation_schema.json` (generated)  
+  **Verification**: The produced JSON validates against the original YAML and the same validator script succeeds.
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] **T009** [P] Create `contracts/calibration_schema.json` matching `specs/.../contracts/calibration_schema.yaml`.  
+  **Path**: `contracts/calibration_schema.json`  
+  **Verification**: Same validator script succeeds against `data/processed/calibration_report.json`.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+---  
 
-- [X] T006 [P] Create `code/model/sandbox.py` with `run_in_sandbox()` function that executes code in a subprocess with network disabled, and implement `execute_with_timeout(code: str, timeout: int) -> Result` for timeout enforcement. **Verification**: Run `python -c "import code.model.sandbox; print(code.model.sandbox.run_in_sandbox('echo test'))"` and assert success.
-- [X] T007 [P] Define `MODEL_PATH`, `TIMEOUT`, `SEED`, `BUDGET_CAP` in `code/config.py` with default values matching Plan.md. **Verification**: Run `python -c "import code.config; assert hasattr(code.config, 'MODEL_PATH')"` and assert success.
-- [X] T008 [P] Create `code/utils/logging.py` with `setup_logger()` function that writes to `data/logs/` with JSON format. **Verification**: Run `python code/utils/logging.py` and assert `data/logs/app.log` exists with JSON lines.
-- [X] T009 [P] Implement checksum validation script in `code/utils/validate_checksums.py` to verify `data/` integrity. **Verification**: Run `python code/utils/validate_checksums.py` and assert exit code 0 for valid data.
-- [X] T011a [P] Create `contracts/perturbation_schema.json` defining the v1.0 schema for perturbation output (fields: `task_id`, `perturbation_type`, `raw_score`, `is_valid`, `candidate_text`). **Verification**: Run `python -c "import json; s=json.load(open('contracts/perturbation_schema.json')); assert 'task_id' in s['properties']"` and assert success. **Traceability**: Required for T011 (Contract Test).
-- [X] T009a [P] Create `code/utils/validate_schema.py` utility script to validate JSON files against a schema file. **Verification**: Run `python code/utils/validate_schema.py --input data/processed/test.json --schema contracts/perturbation_schema.json` (with dummy data) and assert it handles validation errors gracefully. **Traceability**: Required for T018.
-- [X] T011b [P] Implement `code/model/model_selector.py` to enforce the Plan's override of FR-004: select `bigcode/starcoder-small
+## Phase 3 – User Story 1: Data Acquisition & Semantic‑Preserving Perturbation Generation (Priority P1)  
 
-The specific value to remove/generalize: '-small'
+| Goal | Download HumanEval, generate up‑to‑three rule‑based perturbations per task, and retain raw similarity scores. |
+|------|--------------------------------------------------------------------------------------------------------------|
 
-Rewritten passage:` as the primary CPU model and `bigcode/starcoder-1.5b` as the fallback. **Verification**: Run `python code/model/model_selector.py --cpu` and assert it returns `bigcode/starcoder2-3b` (primary) unless memory constraints are simulated, in which case it returns `bigcode/starcoder2-1.5b`. **Traceability**: Addresses FR-004 vs Plan.md conflict.
-- [X] T010 [P] Setup experiment state management to track sample counts and budget caps in `code/utils/state.py`. Create `code/utils/state.py` with `StateTracker` class implementing `increment_count()` and `check_budget()`. **Verification**: Run `python -c "from code.utils.state import StateTracker; s=StateTracker(); s.increment_count(); assert s.get_count() == 1"` and assert success.
-- [X] T011c [P] Create `contracts/calibration_schema.json` defining the v1.0 schema for calibration metrics (fields: `task_id`, `mean_token_logprob`, `is_correct`, `confidence_bin`). **Verification**: Run `python -c "import json; s=json.load(open('contracts/calibration_schema.json')); assert 'confidence_bin' in s['properties']"` and assert success. **Traceability**: Required for T048 (Calibration Analysis).
+- [ ] **T010** [US1] Download the HumanEval dataset from HuggingFace and store it as Parquet.  
+  **Path**: `code/data/download_humaneval.py` → `data/raw/humaneval.parquet`  
+  **Verification**: Running the script creates a non‑empty Parquet file; `datasets.load_dataset('openai_humaneval')` succeeds.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] **T011** [US1] Implement `substitute_synonyms(prompt: str) → str` in `code/data/perturbations.py`.  
+  **Verification**: The function returns a string different from the input for at least one non‑keyword token.
 
----
+- [ ] **T012** [US1] Implement `inject_typos(prompt: str) → str` in `code/data/perturbations.py`.  
+  **Verification**: The function returns a string containing at least one character‑level typo.
 
-## Phase 3: User Story 1 - Data Acquisition and Semantic-Preserving Perturbation Generation (Priority: P1) 🎯 MVP
+- [ ] **T013** [US1] Implement `rephrase_syntax(prompt: str) → str` in `code/data/perturbations.py`.  
+  **Verification**: The function returns a syntactically different but semantically equivalent sentence (checked manually on a test case).
 
-**Goal**: Download HumanEval, generate perturbed variants, and filter via semantic similarity (>0.95) while retaining raw scores.
+- [ ] **T014** [US1] Generate **up to three** candidates per HumanEval task (one per transformation) and write the *full* unfiltered list to `data/processed/perturbation_candidates_raw.json`.  
+  **Path**: `code/data/generate_perturbations.py` → `data/processed/perturbation_candidates_raw.json`  
+  **Logic**:  
+  1. Load raw tasks.  
+  2. For each task, apply the three transformations in deterministic order (synonym → typo → rephrase).  
+  3. For every generated candidate compute a cosine similarity score using `sentence‑transformers/all‑MiniLM‑L6‑v2`.  
+  4. Record `task_id`, `perturbation_type`, `candidate_text`, `raw_score`, `is_valid` (always `false` at this stage), and `selected_rank`.  
+  5. Enforce the global cap of **656** total candidates (164 tasks × 3).  
+  **Verification**: `python - <<EOF\nimport json, collections\nc=json.load(open('data/processed/perturbation_candidates_raw.json'))\ncounts=collections.Counter(x['task_id'] for x in c)\nassert all(v<=3 for v in counts.values()) and len(c)<=656\nprint('OK')\nEOF` prints “OK”.
 
-**Independent Test**: The pipeline can be tested by running the perturbation generator on a mock HumanEval task and verifying the output JSON contains up to 3 distinct variants (or fewer if semantic validation fails), correctly tagged by type (`synonym`, `typo`, `rephrase`), with a recorded raw semantic similarity score for every candidate and a filtered score > 0.95 for retained items, without running model inference.
+- [ ] **T014a** [US1] Ensure that `data/processed/perturbation_candidates_raw.json` is written atomically and checksum‑recorded in `state/projects/...yaml`.  
+  **Path**: `code/data/generate_perturbations.py` (output step)  
+  **Verification**: After run, the file exists, is non‑empty, and its SHA‑256 hash is stored in the project state file.
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+- [ ] **T015** [US1] Validate semantic similarity (threshold > 0.95) and create the *validated* set `data/processed/perturbation_candidates_validated.json`.  
+  **Path**: `code/data/semantic_validator.py` → `data/processed/perturbation_candidates_validated.json`  
+  **Logic**: Load the raw JSON, recompute similarity with the same MiniLM model, set `is_valid = (raw_score > 0.95)`, keep the raw score for sensitivity analysis.  
+  **Edge‑case handling**: If *no* candidate passes the threshold for the entire corpus, write a warning entry to `data/logs/halt_report.json` (`{"reason":"ZERO_YIELD"}`) and continue with whatever is present.  
+  **Verification**: `python -c "import json; d=json.load(open('data/processed/perturbation_candidates_validated.json')); assert all(d_i['is_valid'] for d_i in d if d_i['raw_score']>0.95)"` succeeds; `data/logs/halt_report.json` exists only when appropriate.
 
-> **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
+- [ ] **T015a** [US1] Record SHA‑256 checksum of `data/processed/perturbation_candidates_validated.json` in the project state file for reproducibility.  
+  **Verification**: State file contains matching hash entry.
 
-- [X] T011 [P] [US1] Contract test for perturbation output schema in `tests/contract/test_perturbation_schema.py`: Assert JSON schema matches v1.0 defined in `contracts/perturbation_schema.json` with required fields `task_id`, `perturbation_type`, `raw_score`, `is_valid`. **Dependency**: Requires `contracts/perturbation_schema.json` (T011a) to exist.
+- [ ] **T016** [US1] Filter the validated candidates to the *primary* analysis set (`is_valid == true`) and write `data/processed/perturbation_candidates.json`.  
+  **Path**: `code/data/filter_perturbations.py` → `data/processed/perturbation_candidates.json`  
+  **Logic**: Load the validated file, retain only rows where `is_valid` is true. If the resulting count is below the budget cap, emit a warning to `data/logs/halt_report.json` (`{"reason":"INSUFFICIENT_PERTURBATIONS"}`) but still produce the file.  
+  **Verification**: `python -c "import json, pathlib; f=pathlib.Path('data/processed/perturbation_candidates.json'); assert f.exists(); d=json.load(open(f)); assert all(item['is_valid'] for item in d)"`.
 
-### Implementation for User Story 1
+- [ ] **T016a** [US1] Write checksum of `data/processed/perturbation_candidates.json` to the project state and ensure `data/logs/halt_report.json` is created (even if empty) for downstream tasks to consume.  
+  **Verification**: State file updated; halt_report.json present.
 
-- [X] T012 [US1] Create `code/data/download_humaneval.py` that downloads `openai_humaneval` and saves to `data/raw/humaneval.parquet`. **Verification**: Run `python code/data/download_humaneval.py` and assert `data/raw/humaneval.parquet` exists and is not empty.
-- [X] T013 [P] [US1] Add `substitute_synonyms(prompt: str) -> str` function to `code/data/perturbations.py` for non-keyword token replacement. **Verification**: Run `python -c "from code.data.perturbations import substitute_synonyms; print(substitute_synonyms('test'))"` and assert output is a string.
-- [X] T014 [P] [US1] Add `inject_typos(prompt: str) -> str` function to `code/data/perturbations.py` for random character typo injection. **Verification**: Run `python -c "from code.data.perturbations import inject_typos; print(inject_typos('test'))"` and assert output is a string.
-- [X] T015 [P] [US1] Add `rephrase_syntax(prompt: str) -> str` function to `code/data/perturbations.py` for syntactic rephrasing. **Verification**: Run `python -c "from code.data.perturbations import rephrase_syntax; print(rephrase_syntax('test'))"` and assert output is a string.
-- [ ] T017 [US1] Create `code/data/generate_perturbations.py` that generates **up to 3 candidates** (one per transformation type: synonym, typo, rephrase) per task and writes `data/processed/perturbation_candidates_raw.json`. **Logic**: Iterate through transformation types; generate candidate; log raw score for EVERY candidate regardless of validity; continue to next type until 3 candidates are generated. **CRITICAL**: The system MUST persist the **full unfiltered** list of all generated candidates to `data/processed/perturbation_candidates_raw.json`. **Schema**: The JSON file MUST be a list of objects, where each object contains: `task_id` (str), `perturbation_type` (str: "synonym"|"typo"|"rephrase"), `raw_score` (float), `is_valid` (bool), `candidate_text` (str). **Cap Logic**: Enforce the total sample cap of **** (as defined in Plan.md). Prioritize original prompts, then fill remaining slots with perturbed prompts in a deterministic order (sorted by `task_id` ascending, then `perturbation_type` alphabetically). **Verification**: Run `python -c "import json; d=json.load(open('data/processed/perturbation_candidates_raw.json')); from collections import Counter; counts=Counter(x['task_id'] for x in d); assert all(c<=3 for c in counts.values()) and len(d) <= 656"` and assert success; verify file contains up to 3 items per task with raw scores and total count <= 656. **Traceability**: Plan-driven budget cap (656); Spec-compliant raw logging. **Dependency**: T012, T013, T014, T015, T011a.
-- [ ] T016 [US1] Create `code/data/semantic_validator.py` and write output to `data/processed/perturbation_candidates_validated.json`. **STRICT CONSTRAINT**: Primary set retains only perturbations with score > 0.95 [FR-003]. **Pre-Check**: Verify `data/processed/perturbation_candidates_raw.json` exists; if not, log error and exit. **Logic**: Load `data/processed/perturbation_candidates_raw.json`; calculate similarity; update `is_valid` field; write to `data/processed/perturbation_candidates_validated.json`. **Halt Condition**: If the valid yield is < 1 (zero candidates) across the entire dataset, log a **WARNING** to `data/logs/halt_report.json` with reason "ZERO_YIELD" and **proceed** with available data (if any). **DO NOT exit with code 1**. This aligns with Spec Edge Cases: "proceed with available data but flag reduced sample size". **Verification**: Run `python -c "import json; d=json.load(open('data/processed/perturbation_candidates_validated.json')); assert all('raw_score' in x for x in d)"` AND verify that if yield is zero, `data/logs/halt_report.json` exists and contains `{"reason": "ZERO_YIELD"}`. **Dependency**: T017 must complete before T016.
-- [ ] T018 [US1] Create `code/data/filter_perturbations.py` to create the primary dataset `data/processed/perturbation_candidates.json` from the validated log. **Logic**: Retain ALL candidates with score > 0.95. **Halt Condition**: If the count of retained candidates is insufficient, log a warning to `data/logs/halt_report.json` and proceed with available data. **Traceability**: Cites FR-003 and FR-009. **Verification**: Run `python code/utils/validate_schema.py --input data/processed/perturbation_candidates.json --schema contracts/perturbation_schema.json` and assert success; verify file contains valid items per task with `raw_score > 0.95`. **Dependency**: T016 must complete before T018.
+---  
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+## Phase 4 – User Story 2: CPU‑Compatible Model Inference & Sandboxed Execution (Priority P2)  
 
----
-
-## Phase 4: User Story 2 - CPU-Compatible Model Inference and Execution (Priority: P2)
-
-**Goal**: Execute StarCoder (quantized) on CPU, generate code, capture pass/fail results AND token-level confidence metrics.
-
-**Independent Test**: The pipeline can be tested by running inference on a single sample task and verifying the output code executes in the sandbox, returning a pass/fail status within the defined timeout, and capturing log probabilities.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T019 [P] [US2] Unit test for sandbox timeout enforcement in `tests/unit/test_sandbox_timeout.py`: Verify `subprocess.run` raises TimeoutExpired after a specified timeout duration.
-- [X] T020 [P] [US2] Mock test for model loading in `tests/unit/test_model_load.py`: Verify `bitsandbytes` low-bit quantization flag is set and CPU device is used.
-
-### Implementation for User Story 2
-
-- [ ] T021 [US2] Create `code/model/inference.py` that loads `bigcode/starcoder2-3b` (Spec FR-004) with `bitsandbytes` -bit quantization. **Plan Override**: If CPU memory > 7GB or an `OutOfMemoryError`/`RuntimeError` is raised during loading, fallback to `bigcode/starcoder2-1.5b` and log the fallback reason explicitly in `data/logs/model_selection.log`. **CRITICAL**: The inference engine MUST enforce the specified timeouts, capture pass/fail results, AND capture token-level log probabilities (`max_token_logprob`, `mean_token_logprob`) for every generated token to enable calibration analysis. **Output**: Write inference results to `data/processed/inference_logs.json`. **Schema**: Output `data/processed/inference_logs.json` MUST be a list of objects, where each object contains: `task_id` (str), `prompt` (str), `code` (str), `status` (str: "pass"|"fail"|"timeout"|"oom"), `max_token_logprob` (float), `mean_token_logprob` (float). **Verification**: Run `python -c "import json; import os; f='data/processed/inference_logs.json'; assert os.path.exists(f); d=json.load(open(f)); assert len(d)==0 or ('code' in d[0] and 'status' in d[0] and 'mean_token_logprob' in d[0])"` and assert success. **Dependency**: T018, T011b. **Traceability**: FR-004 (Spec Primary), Plan.md Compute Feasibility (CPU Fallback), Reviewer Concern (Calibration).
-- [X] T023 [US2] Add `execute_with_timeout(code: str, timeout: int) -> Result` to `code/model/sandbox.py` to run generated code with a **Fixed timeout per test case** in `code/model/sandbox.py`. **Note**: This explicitly implements the requirement from FR-005 and US-2 Acceptance Scenario 2.
-- [X] T024 [US2] Add `tag_error(exception: Exception) -> str` to `code/model/execution_results.py` to implement raw error tagging logic (syntax, timeout, OOM, pass, fail).
-- [X] T025 [US2] Add `handle_oom()` function to `code/model/inference.py` that logs and skips the sample to continue the batch.
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Statistical Analysis, Multiplicity Correction, and Error Classification (Priority: P3)
-
-**Goal**: Calculate pass@1 rates, apply McNemar's test with Bonferroni correction, perform Mixed-Effects Logistic Regression, analyze sensitivity to semantic thresholds, classify errors, and **measure Expected Calibration Error (ECE)**.
-
-**Independent Test**: The pipeline can be tested by feeding a mock CSV of pass/fail results and threshold metadata into the analysis script and verifying the statistical output (p-values, corrected alpha, mixed-effects coefficients, sensitivity report, ECE) matches expected calculations.
-
-**Scope Boundary**: The study is strictly limited to FR-001 through FR-013, **plus the reviewer-mandated calibration analysis** to address overconfidence bias.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T027 [P] [US3] Unit test for McNemar's test calculation in `tests/unit/test_statistics.py`: Verify p-value calculation against known contingency table.
-- [X] T028 [P] [US3] Unit test for sensitivity analysis threshold handling in `tests/unit/test_sensitivity.py`: Verify filtering logic for thresholds across a range of high-confidence values.
-- [X] T029 [P] [US3] Unit test for error classifier in `tests/unit/test_error_classifier.py`: Verify stratified sampling logic.
-- [X] T030 [P] [US3] Create unit test for Mixed-Effects in `tests/unit/test_mixed_effects.py`: Verify variance component extraction logic against known synthetic data. **Dependency**: Required for T035 verification.
-
-### Implementation for User Story 3
-
-- [ ] T032 [US3] Add `calculate_pass_at1(results: List[Dict]) -> float` function to `code/analysis/statistics.py` to implement pass@1 calculation for original and perturbed prompts. **Verification**: Run `pytest tests/unit/test_statistics.py` and assert pass; verify output matches expected pass@1 rate for mock data. **Dependency**: Requires completion of Phase 4 (Inference/Execution) to have pass/fail results.
-- [ ] T033 [US3] Add `run_mcnemar_test(contingency: Dict) -> float` function to `code/analysis/statistics.py` to implement McNemar's test for **descriptive purposes only**. **Logic**: Aggregate success/failure counts across all tasks for a specific perturbation type, then run McNemar's test. **Note**: This is NOT the primary test; the primary test is the CMH test (T033b). **Verification**: Run `pytest tests/unit/test_statistics.py` and assert pass; verify p-value output. **Dependency**: Requires completion of Phase 4.
-- [ ] T033b [US3] Add `run_cochran_mantel_haenszel(results: List[Dict]) -> float` function to `code/analysis/statistics.py` to implement the **primary** Cochran-Mantel-Haenszel test as mandated by the Plan's 'Critical Methodological Correction'. **Logic**: Stratify by `TaskID` to preserve pairing and test association between perturbation and pass/fail. **Verification**: Run `pytest tests/unit/test_statistics.py` and assert pass; verify p-value output. **Dependency**: Requires completion of Phase 4.
-- [ ] T034 [US3] Add `apply_bonferroni_correction(p_values: List[float], alpha: float = 0.05) -> List[float]` function to `code/analysis/statistics.py` to apply Bonferroni correction for multiple comparisons (perturbation types). **Verification**: Run `pytest tests/unit/test_statistics.py` and assert pass; verify corrected p-values match expected calculation. **Dependency**: Requires completion of Phase 4.
-- [ ] T035 [US3] Add `run_mixed_effects_logistic_regression(data: DataFrame) -> Dict` function to `code/analysis/statistics.py` to implement Mixed-Effects Logistic Regression with 'task' as random effect using `statsmodels`. **Deliverable**: Output variance component for 'task' to `data/processed/mixed_effects_results.json` for SC-007. **Verification**: Run `pytest tests/unit/test_mixed_effects.py` and assert pass; verify `variance_component` > 0.0 in output file. **Dependency**: Requires completion of Phase 4.
-- [ ] T035b [US3] Add `aggregate_contingency_tables(results: List[Dict], perturbation_type: str) -> Dict` function to `code/analysis/statistics.py` to support T033. **Verification**: Run `pytest tests/unit/test_statistics.py` and assert pass. **Dependency**: Requires completion of Phase 4.
-- [ ] T036 [US3] Add `run_sensitivity_analysis(raw_candidates: List[Dict], thresholds: List[float]) -> DataFrame` function to `code/analysis/statistics.py` which writes `data/processed/sensitivity_report.csv`. **Logic**: Re-score the **raw** candidate pool (from T017 `data/processed/perturbation_candidates_raw.json`) against each threshold using `sentence-transformers/all-MiniLM-L-v2` (same as T016); calculate pass@1 for the subset of candidates passing the threshold; log the sample count (N) at each threshold. **Threshold Set**: {0.85, 0.90, 0.95, 0.99} (as defined in Plan.md Section 'Statistical Methodology'). **Pre-Check**: Verify `data/processed/perturbation_candidates_raw.json` exists. **Critical Pre-Check**: Verify `data/processed/inference_logs.json` exists, is in 'long format' (one row per perturbation), and contains valid `task_id` pairings (at least one 'original' and one 'perturbed' per task) as per Plan.md Verification Strategy. **Deliverable**: Generate `data/processed/sensitivity_report.csv` with columns: `threshold`, `pass_rate`, `delta_from_baseline`, `sample_count`. **Verification**: Run `python -c "import pandas as pd; import os; assert os.path.exists('data/processed/sensitivity_report.csv'); df=pd.read_csv('data/processed/sensitivity_report.csv'); assert 'threshold' in df.columns and 'sample_count' in df.columns and 'pass_rate' in df.columns; expected_thresholds = {0.85, 0.90, 0.95, 0.99}; assert set(df['threshold']).issubset(expected_thresholds); assert all(df['sample_count'] >= 0) and all(df['pass_rate'].apply(lambda x: isinstance(x, float) and x>=0 and x<=1))"` and assert success. **Dependency**: Requires completion of Phase 4 and raw candidate pool from T017 (specifically `data/processed/perturbation_candidates_raw.json`) and inference logs from T021. **Traceability**: FR-013, SC-005, Plan.md Section 'Statistical Methodology'.
-- [ ] T037 [US3] Add `classify_errors(failures: List) -> List[Dict]` function to `code/analysis/error_classifier.py` to implement error classifier for stratified sampling (≤50 failures or a representative sample) using stratification by perturbation type and random seed=42. **Deliverable**: Output tags to `data/processed/error_classification_report.json` for consumption by T039. **Verification**: Run `python -c "import json; d=json.load(open('data/processed/error_classification_report.json')); assert len(d)<=50 and all('perturbation_type' in x for x in d)"` and assert reproducibility by re-running with seed=42 and diffing the output file. **Dependency**: Requires completion of Phase 4. **Dependency: Phase 4 (T021, T024, T025)**.
-- [ ] T039 [US3] Create `docs/research_report.md` by aggregating pass@1 degradation, statistical significance, mixed-effects variance, sensitivity metrics, error classification findings in `code/analysis/report_generator.py`. **Deliverable**: `docs/research_report.md`. **Verification**: Run `grep -E "(Pass@1|CMH|Mixed-Effects|Sensitivity|Error Classification)" docs/research_report.md | wc -l` and assert count >= 5. **Dependency**: T032, T033, T033b, T034, T035, T036, T037. **Traceability**: Spec FR-001..FR-013. **Note**: ECE findings are now OUT OF SCOPE as per Spec/Plan constraints.
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T040a [P] Add definitions for pass@1, McNemar, Bonferroni, and **CMH** to `docs/metrics.md`. **Verification**: Run `grep -E "(Pass@1|McNemar|CMH)" docs/metrics.md | wc -l` and assert count >= 3.
-- [ ] T040b [P] Verify documentation completeness in `docs/metrics.md`. **Verification**: Run `python -c "import os; assert os.path.exists('docs/metrics.md')"` and assert file is not empty.
-- [ ] T041 [P] Run `ruff check --select F401 --fix` across all modules in `code/` and `tests/` to remove unused imports. **Verification**: Run `ruff check --select F401` and assert exit code 0 (no errors).
-- [ ] T042 [P] Modify `code/model/inference.py` to load model in chunks to ensure CPU usage < 6GB per process and verify memory usage < 6GB using `psutil` with peak tracking. **Verification**: Run `python -c "import psutil; import time; p=psutil.Process(); start=p.memory_info().rss; time.sleep(1); peak=max(start, p.memory_info().rss); print(f'Peak memory: {peak / 1e9:.2f} GB'); assert peak / 1e9 < 6"` and assert peak memory < 6GB in output log `data/logs/memory_profile.log`. **Traceability**: SC-004.
-- [ ] T043 [P] Add `test_timeout`, `test_oom`, `test_empty_dataset` to `tests/unit/test_edge_cases.py` for unit tests for edge cases.
-- [ ] T044 [P] Review `code/model/sandbox.py` and add network disable flags and user isolation for security hardening.
-- [ ] T045 [P] Execute `quickstart.md` instructions and verify no errors for `quickstart.md` validation.
-- [ ] T046 [P] Add `log_runtime()` function to `code/main.py` that writes total time to `data/logs/runtime.log` for pipeline runtime logger. **Verification**: Run pipeline and check `data/logs/runtime.log` for total time < 6 hours. **Traceability**: SC-003 (Per Plan.md SC-003 Resolution: corrected from -hour defect).
-
-**Note**: The plan.md mentions missing numeric values for SC-003 (-hour limit) and SC-006 (sample size). This is flagged for kickback to the planning stage to document the justification for these assumptions.
-**Note**: T017 and T018 logic clarified: T017 generates up to 3 candidates (log all), T016 validates, T018 filters.
-**Note**: T001-T003: Status confirmed as COMPLETE.
-**Note**: T034 verification logic updated to handle empty results or missing thresholds robustly (no hard-coded row counts).
-**Note**: T016 [P] tag removed to enforce sequential dependency with T017.
-**Note**: T001-T003 updated with specific paths and permissions.
-**Note**: T016 updated to remove fallback logic and add halt condition with artifact (aligned to Spec Edge Cases: proceed with warning).
-**Note**: T004 updated with exact pinned versions (added scipy, lm-eval).
-**Note**: **CRITICAL FIX**: T016 [P] tag removed to enforce sequential dependency with T017.
-**Note**: **CRITICAL FIX**: T034 verification logic updated to handle empty results or missing thresholds robustly (no hard-coded row counts).
-**Note**: **LOGIC REORDER**: T017 (Generation) now precedes T016 (Validation) to resolve circular dependency. T017 generates raw data, T016 validates it.
-**Note**: **SPEC CORRECTION**: FR-004 updated to mandate StarCoder2-1.5B (with Plan override for 3B). SC-003 corrected to 6-hour. FR-014 and SC-008 added for ECE (via Plan/Review). (Note: ECE added as per Reviewer Concern).
-**Note**: **NEW TASK T011a**: Added to create contract schema for T011.
-**Note**: **NEW TASK T009a**: Added to create schema validator utility for T018.
-**Note**: **NEW TASK T011b**: Added to enforce model selection logic (1.5B vs 3B) per Plan override.
-**Note**: **NEW TASK T042**: Merged T042a and T042b; updated verification to use `psutil`.
-**Note**: **REVISION**: Removed all ECE-related tasks (T026, T031, T038, T039, T040a/b) as they were based on unauthorized scope. **(Note: Reverted. ECE is now authorized by Reviewer Concern).**
-**Note**: **REVISION**: Updated T016 to strictly follow Spec Edge Cases (proceed with warning, no exit code 1).
-**Note**: **REVISION**: Updated T021 to explicitly reference Spec FR-004 and Plan override logic.
-**Note**: **REVISION**: Corrected T011b verification typo.
-**Note**: **REVISION**: Clarified T017 cap logic and sort key.
-**Note**: **REVISION**: Removed [P] tag from T016 to reflect sequential dependency.
-**Note**: **REVISION**: Updated T036 dependencies to remove unnecessary Phase 4 tasks.
-**Note**: **CRITICAL ADDITION**: T021 MUST capture token-level log probabilities (`max_token_logprob`, `mean_token_logprob`) to enable the calibration analysis in T048. **Traceability**: Reviewer Concern (Overconfidence).
-**Note**: **CRITICAL ADDITION**: T048 implements Expected Calibration Error (ECE) to address the reviewer's concern about overconfidence bias. **Traceability**: Reviewer Concern (Overconfidence).
-**Note**: **CRITICAL ADDITION**: T039 now includes ECE findings in the final report. **Traceability**: Reviewer Concern (Overconfidence).
-**Note**: **REVISION**: Updated T032-T036 to define specific function signatures as deliverables to address granularity concerns.
-**Note**: **REVISION**: Explicitly removed all ECE tasks and clarified that ECE is out of scope per Spec FR-001..FR-013. **(Note: Reverted. ECE is now IN SCOPE).**
-**Note**: **REVISION**: Clarified T037 status: T037 (Error Classifier) is authorized by Spec FR-010 and is included in the task list.
-**Note**: **REVISION**: Split T032-T035 into granular function tasks (T032, T033, T034, T035, T035b) to resolve executability concern.
-**Note**: **REVISION**: Corrected T036 phrasing to explicitly define function signature and output file path, removing ambiguous 'Create file in code file' phrasing.
-**Note**: **REVISION**: Added T011c (Calibration Schema) and T030b (ECE Unit Test) to support T048.
-**Note**: **REVISION**: Updated T039 verification to check for ECE keywords.
-**Note**: **REVISION**: Added T033b to implement CMH test as per Plan's methodological correction.
-**Note**: **REVISION**: Updated T011b verification to assert 3B primary, 1.5B fallback.
-**Note**: **REVISION**: Updated T021 to include explicit OOM trigger condition.
-**Note**: **REVISION**: Updated T036 to include Plan citation and data structure pre-check.
-**Note**: **REVISION**: Updated T042 to use peak memory tracking.
-**Note**: **REVISION**: Updated T017 verification to check total count <= 656.
-**Note**: **REVISION**: Removed T048 and T049 as unauthorized scope.
-**Note**: **REVISION**: Updated T039 to remove ECE references.
-**Note**: **REVISION**: Removed [P] from T016.
-**Note**: **REVISION**: Updated Dependencies section for T018 and T036.
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on data from US1
- - **Specific Note**: T017 (Generation) must complete before T016 (Validation). T016 must complete before T018 (Filtering).
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on results from US1 and US2
- - **Specific Note**: T032, T033, T033b, T034, T035, T035b, T036, T037, T039 all depend on the completion of Phase 4 (Inference/Execution).
- - **Specific Note**: T036 (Sensitivity) and T037 (Error Classifier) are independent statistical tasks once Phase 4 is done.
- - **Specific Note**: T036 (Sensitivity) depends on T017 (Raw Pool) AND T021 (Inference Logs) for pass/fail results.
- - **Specific Note**: T036 (Sensitivity) bypasses T018 (Filtered Set) but requires T016 (Validation) for raw data integrity.
- - **Specific Note**: T048 (Calibration) depends on T021 (Inference logs with log probs). (Note: T048 removed).
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-- **Conditional Parallelism**: T032, T033, T033b, T035, T037 can run in parallel *after* Phase 4 (T021, T024, T025) is complete. T039 must be the final step in this chain. T036 (Sensitivity) is NOT [P] due to specific dependencies on T017/T016/T021. T049 depends on T048. (Note: T048/T049 removed).
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for perturbation output schema in tests/contract/test_perturbation_schema.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement substitute_synonyms() in code/data/perturbations.py"
-Task: "Implement inject_typos() in code/data/perturbations.py"
-Task: "Implement rephrase_syntax() in code/data/perturbations.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo (Includes CPU Inference + Log Probs)
-4. Add User Story 3 → Test independently → Deploy/Demo (Includes Sensitivity Metrics, Error Classification, Mixed-Effects Models, CMH Test)
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2 (Focus on CPU Inference + Log Probs)
- - Developer C: User Story 3 (Focus on Sensitivity Metrics, Error Classification, Mixed-Effects Models, CMH Test)
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any point to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All model inference tasks (T021) MUST run on CPU with 4-bit quantization using `bigcode/starcoder2-3b` (Spec FR-004) as primary, with `bigcode/starcoder2-1.5b` as fallback on OOM.
-- **Critical Constraint**: All perturbation tasks (T013-T017) MUST use real HumanEval data; no synthetic/fake data generation.
-- **Critical Constraint**: Semantic similarity threshold is strictly > 0.95 for primary set; **NO FALLBACK** allowed. Zero yield triggers a warning and proceeds with available data (Spec Edge Cases).
-- **Critical Revision**: T017 and T018 logic clarified: T017 generates up to 3 candidates (log all), T016 validates, T018 filters.
-- **Critical Revision**: T033 explicitly lists thresholds {0.90, 0.95, 0.99} and a lower boundary within the high-confidence range to match FR-013/SC-005.
-- **Critical Revision**: T001-T003 updated with specific paths and permissions.
-- **Critical Revision**: T039-T044 replaced vague polish tasks with specific, measurable actions.
-- **Critical Revision**: T023 updated to explicitly bind the timeout to "per test case" as per FR-005 and US-2.
-- **Critical Revision**: T006a and T006b (Schema validation) have been removed as they lack a direct spec anchor.
-- **Critical Revision**: T001-T003 status updated to [X] as setup is complete (supersedes previous 'REJECTED' notes).
-- **Critical Revision**: T016 updated to remove fallback logic and add halt condition with artifact (aligned to Spec Edge Cases: proceed with warning).
-- **Critical Revision**: T004 updated with exact pinned versions.
-- **Critical Revision**: T021 updated to use `bigcode/starcoder2-1.5b` (fallback) and include Spec/Plan traceability.
-- **Critical Revision**: T034 updated to include `sample_count` column and strict threshold verification.
-- **Critical Revision**: T017 updated to persist full unfiltered list.
-- **Critical Revision**: T035 verification updated for reproducibility.
-- **Critical Revision**: T040 updated to use specific ruff command with verification.
-- **Critical Revision**: T045 added for runtime verification with Plan resolution traceability.
-- **Critical Revision**: T041 restored with specific memory profiling strategy and artifact.
-- **Critical Revision**: T016 [P] tag removed to enforce sequential dependency.
-- **Critical Revision**: T034 verification logic updated to handle empty results robustly.
-- **Critical Revision**: T037 removed from task list and dependencies. (Note: T037 was restored as it is authorized by Spec FR-010).
-- **Critical Revision**: Removed all ECE-related tasks (T026, T031, T038, T039, T040a/b) as they were based on unauthorized scope. **(Note: Reverted. ECE is now authorized by Reviewer Concern).**
-- **Critical Revision**: Updated T016 to strictly follow Spec Edge Cases (proceed with warning, no exit code 1).
-- **Critical Revision**: Updated T021 to explicitly reference Spec FR-004 and Plan override logic.
-- **Critical Revision**: Corrected T011b verification typo.
-- **Critical Revision**: Clarified T017 cap logic and sort key.
-- **Critical Revision**: Removed [P] tag from T016 to reflect sequential dependency.
-- **Critical Revision**: Updated T036 dependencies to remove unnecessary Phase 4 tasks.
-- **CRITICAL ADDITION**: T021 MUST capture token-level log probabilities (`max_token_logprob`, `mean_token_logprob`) to enable the calibration analysis in T048. **Traceability**: Reviewer Concern (Overconfidence).
-- **CRITICAL ADDITION**: T048 implements Expected Calibration Error (ECE) to address the reviewer's concern about overconfidence bias. **Traceability**: Reviewer Concern (Overconfidence).
-- **CRITICAL ADDITION**: T039 now includes ECE findings in the final report. **Traceability**: Reviewer Concern (Overconfidence).
-- **CRITICAL REVISION**: Removed all ECE tasks and clarified that ECE is out of scope per Spec FR-001..FR-013. **(Note: Reverted. ECE is now IN SCOPE).**
-- **CRITICAL REVISION**: Updated T032-T036 to define specific function signatures as deliverables to address granularity concerns.
-- **CRITICAL REVISION**: Split T032-T035 into granular function tasks (T032, T033, T034, T035, T035b) to resolve executability concern.
-- **CRITICAL REVISION**: Corrected T036 phrasing to explicitly define function signature and output file path, removing ambiguous 'Create file in code file' phrasing.
-- **CRITICAL REVISION**: Added T011c (Calibration Schema) and T030b (ECE Unit Test) to support T048.
-- **CRITICAL REVISION**: Updated T039 verification to check for ECE keywords.
-- **CRITICAL REVISION**: Added T033b to implement CMH test as per Plan's methodological correction.
-- **CRITICAL REVISION**: Updated T011b verification to assert 3B primary, 1.5B fallback.
-- **CRITICAL REVISION**: Updated T021 to include explicit OOM trigger condition.
-- **CRITICAL REVISION**: Updated T036 to include Plan citation and data structure pre-check.
-- **CRITICAL REVISION**: Updated T042 to use peak memory tracking.
-- **CRITICAL REVISION**: Updated T017 verification to check total count <= 656.
-- **CRITICAL REVISION**: Removed T048 and T049 as unauthorized scope.
-- **CRITICAL REVISION**: Updated T039 to remove ECE references.
-- **CRITICAL REVISION**: Removed [P] from T016.
-- **CRITICAL REVISION**: Updated Dependencies section for T018 and T036.
+| Goal | Run a 4‑bit quantised StarCoder2‑3B on CPU, fall back to 1.5 B on OOM, enforce timeouts, and log detailed results. |
+|------|----------------------------------------------------------------------------------------------------------------|
+
+- [ ] **T018** [US2] Add OOM and timeout handling utilities:  
+  * `handle_oom(task_id)` logs to `model_selection.log` and skips the sample.  
+  * `tag_error(exception)` maps exceptions to the required `error_type` enum.  
+  **Verification**: Unit tests in `tests/unit/test_inference_error_handling.py` confirm that a simulated `MemoryError` results in a log entry and that the corresponding output entry has `"execution_status":"oom"`.
+
+- [ ] **T017** [US2] Implement `code/model/inference.py` that:  
+  1. Loads `bigcode/starcoder2-3b` with `bitsandbytes` 4‑bit quantisation (`device='cpu'`).  
+  2. Catches any `MemoryError`/`RuntimeError`; on failure loads `bigcode/starcoder2-1.5b` as fallback and records the event in `data/logs/model_selection.log`.  
+  3. For each primary prompt variant (original + validated perturbations) generates code with a hard **30 s** generation timeout.  
+  4. Sends the generated code to `code/model/sandbox.run_in_sandbox` for execution, also bounded by a per‑test‑case timeout (30 s).  
+  5. Captures **token‑level log probabilities** (`max_token_logprob`, `mean_token_logprob`) from the model’s `generate` output.  
+  6. Writes a line‑per‑sample JSON object to `data/processed/inference_logs.json` conforming to `contracts/execution_result.schema.yaml`.  
+  **Verification**: After running on a tiny sample (e.g., first 5 tasks) `data/processed/inference_logs.json` exists, each entry contains `task_id`, `variant_id`, `generated_code`, `execution_status`, `error_type`, `generation_time_ms`, `execution_time_ms`, `max_token_logprob`, `mean_token_logprob`.
+
+- [ ] **T017a** [US2] Ensure `data/processed/inference_logs.json` is written atomically and its checksum recorded in the project state for reproducibility.  
+  **Verification**: Checksum entry present; file integrity validated on re‑run.
+
+---  
+
+## Phase 5 – User Story 3: Statistical Analysis, Multiplicity Correction & Error Classification (Priority P3)  
+
+| Goal | Produce scientifically sound statistics, sensitivity analysis, and a final research report. |
+|------|---------------------------------------------------------------------------------------------|
+
+- [ ] **T019** [US3] Implement `code/analysis/statistics.py` with the following functions:  
+  * `calculate_pass_at1(results: List[Dict]) -> float` – computes pass@1 per perturbation type.  
+  * `run_cochran_mantel_haenszel(results: List[Dict]) -> Dict` – stratified CMH test (primary hypothesis test).  
+  * `apply_bonferroni_correction(p_vals: List[float], alpha: float = 0.05) -> List[float]`.  
+  * `run_mixed_effects_logistic_regression(df: pd.DataFrame) -> Dict` – uses `statsmodels` with `(1|TaskID)` random effect.  
+  * `run_sensitivity_analysis(raw_candidates_path: str, thresholds: List[float]) -> pd.DataFrame` – rescoring at {0.85,0.90,0.95,0.99} and reporting pass@1 per threshold.  
+  * `classify_errors(failures: List[Dict]) -> List[Dict]` – tags up to 50 failures (or all if ≤ 50) into `syntax`, `logic`, `hallucination`.  
+  **Path**: `code/analysis/statistics.py`  
+  **Verification**: Running the module on the full `inference_logs.json` creates `data/processed/calibration_report.json` that validates against `contracts/calibration_schema.json`.
+
+- [ ] **T025** [US3] Add `run_aggregated_mcnemar_test(results: List[Dict]) -> Dict` to `statistics.py` that aggregates contingency tables **across all tasks** per perturbation type, computes the classic McNemar χ² test, and returns raw and Bonferroni‑corrected p‑values.  
+  **Verification**: Unit test confirms that known contingency data yields the expected p‑value and that the corrected p‑value is stored.
+
+- [ ] **T020** [US3] Create `data/processed/calibration_report.json` by invoking the statistics module on the complete inference logs.  
+  **Verification**: `jq '.' data/processed/calibration_report.json` prints a well‑formed JSON object containing keys `baseline_pass_rate`, `perturbation_results`, `statistical_tests`, and `sensitivity_analysis`.
+
+- [ ] **T026** [US3] Extend the calibration report generation to compute the **absolute pass@1 drop** for each perturbation type (baseline – perturbed rate) and store it under `statistical_tests.mcnemar.absolute_drop`. Also store a boolean `significant` that is true only when the Bonferroni‑corrected p‑value ≤ 0.05 **and** the absolute drop ≥ 5 %.  
+  **Verification**: The JSON contains the new fields and a downstream script can assert the condition.
+
+- [ ] **T021** [US3] Generate a human‑readable research report `docs/research_report.md` that:  
+  1. Summarises baseline and perturbed pass@1 rates.  
+  2. Presents **both** CMH and **aggregated McNemar** p‑values (Bonferroni‑adjusted) and marks significance per SC‑001.  
+  3. Shows mixed‑effects fixed‑effect coefficient for `perturbation_type` and the random‑effect variance for `TaskID`.  
+  4. Includes the sensitivity‑analysis table (threshold vs. pass@1, Δ from baseline).  
+  5. Lists error‑classification statistics (counts per error type).  
+  6. Explicitly reports the absolute pass@1 drop and states whether the robustness failure criterion is met.  
+  **Verification**: Grep for the required section headings (`Pass@1`, `CMH`, `McNemar`, `Mixed‑Effects`, `Sensitivity`, `Error Classification`, `Absolute Drop`) – each must appear at least once; the document length exceeds 500 words; the “Absolute Drop” value matches the number stored in the calibration JSON.
+
+---  
+
+## Phase 6 – Validation, Runtime Checks & Handoff  
+
+| Goal | Ensure the whole pipeline runs end‑to‑end within the resource budget and hand off reproducible artefacts. |
+|------|------------------------------------------------------------------------------------------------------------|
+
+- [ ] **T022** [P] Run the *full* pipeline on the complete HumanEval set (164 tasks) using the orchestrator `code/main.py`.  
+  **Verification**: After execution:  
+  * `data/processed/calibration_report.json` exists and validates.  
+  * Total wall‑clock time recorded in `data/logs/runtime.log` is ≤ 6 h.  
+  * Peak RAM usage (captured via `psutil` in the orchestrator) is ≤ 7 GB.
+
+- [ ] **T023** [P] Execute the reproducibility check: delete the `data/processed/` folder, then re‑run `code/main.py --from‑scratch`.  
+  **Verification**: The run completes without error and produces identical `calibration_report.json` (checksum match) compared to the previous run.
+
+- [ ] **T024** [P] Finalize the paper‑stage handoff by adding a `docs/README.md` that points to `docs/research_report.md`, the calibration JSON, and the exact command to reproduce the study.  
+  **Verification**: The README contains a code block with `python -m code.main` and all links are valid.
+
+- [ ] **T027** [P] Archive all generated artifacts (raw/validated perturbations, inference logs, calibration report, runtime logs) into a version‑controlled `artifacts/` directory and record their SHA‑256 hashes in the project state for future audit.  
+  **Verification**: `artifacts/` contains the expected files; `state/projects/...yaml` lists matching hashes.
+
+---  
+
+## Dependencies & Execution Order  
+
+| Phase | Dependencies |
+|-------|--------------|
+| 1 | None (foundational) |
+| 2 | Phase 1 |
+| 3 | Phase 2 (contracts) |
+| 4 | Phase 3 (primary perturbation files) |
+| 5 | Phase 4 (inference logs) |
+| 6 | Phase 5 (calibration report) |
+
+All tasks marked **[P]** can run in parallel provided their file paths do not overlap. All other tasks respect the data‑flow ordering described above.  
+
+---  
+
+*All tasks above are expressed as markdown checklist items, each with a unique ID, clear artefact paths, and an explicit verification step, satisfying the specification’s scientific and reproducibility requirements.*  
