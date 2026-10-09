@@ -1,12 +1,15 @@
 status: none
-intent: human AI collaboration trust dataset adherence rate Lee See scale python package
-  dataset
+intent: Open Science Framework trust in automation dataset condition adherence python
+  package dataset
 required_fields:
 - participant_id
-- condition
+- condition_id
+- agency_condition
 - adherence_rate
 - trust_score
-- pass_fail
-cache_key: 120558ca58a5505868ae2aa720f6813b79719e9551518fc28b2af41d7831bbfd
-searched_at: '2026-08-31T17:49:15.475382+00:00'
+- decision_timestamp
+- ai_recommendation_followed
+- survey_responses
+cache_key: 5d5f8ca7e8741e519c02666dac1fe2ba6a6dd2e5c437add019f644b2c24b2c57
+searched_at: '2026-10-09T22:18:04.111462+00:00'
 retry_count: 1

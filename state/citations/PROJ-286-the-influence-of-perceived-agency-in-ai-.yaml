@@ -77,20 +77,9 @@
   verification_status: pending
   verified_against_url: https://doi.org/10.1518/hfes.46.1.50_30392
   verified_at: '2026-10-03T00:44:48.951910Z'
-- artifact_hash: df0ed877b858f709c4735cd8b65f834f58f2e973a609451667d256f6ad88a2d4
+- artifact_hash: bfebb1c3f20c62fd3b7924b3dd4670e56ed3e595aa528959133519369eb0ee5a
   artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
   cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: hfes.46.1.50_30392
-  kind: url
-  value: https://api.crossref.org/works/10.1518/hfes.46.1.50_30392`
-  verification_status: pending
-  verified_against_url: https://api.crossref.org/works/10.1518/hfes.46.1.50_30392
-  verified_at: '2026-10-07T09:11:32.033177Z'
-- artifact_hash: df0ed877b858f709c4735cd8b65f834f58f2e973a609451667d256f6ad88a2d4
-  artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
-  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: APA PsycNet
@@ -98,10 +87,10 @@
   value: https://psycnet.apa.org/record/2004-17829-004`
   verification_status: pending
   verified_against_url: https://psycnet.apa.org/record/2004-17829-004
-  verified_at: '2026-10-07T09:11:32.033177Z'
-- artifact_hash: df0ed877b858f709c4735cd8b65f834f58f2e973a609451667d256f6ad88a2d4
+  verified_at: '2026-10-09T22:17:13.233493Z'
+- artifact_hash: bfebb1c3f20c62fd3b7924b3dd4670e56ed3e595aa528959133519369eb0ee5a
   artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
-  cite_id: c-003
+  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: 'Trust in Automation: Designing for Appropriate Reliance'
@@ -109,4 +98,4 @@
   value: 10.1518/hfes.46.1.50_30392
   verification_status: pending
   verified_against_url: https://doi.org/10.1518/hfes.46.1.50_30392
-  verified_at: '2026-10-07T09:11:32.033177Z'
+  verified_at: '2026-10-09T22:17:13.233493Z'

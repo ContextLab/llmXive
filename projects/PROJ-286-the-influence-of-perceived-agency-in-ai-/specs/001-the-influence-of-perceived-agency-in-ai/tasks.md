@@ -27,7 +27,7 @@
 **Purpose**: Verify citations and scale text against primary sources BEFORE any implementation begins.
 **⚠️ CRITICAL**: If T000a fails, the project transitions to `human_input_needed` immediately. No downstream tasks can run.
 
-- [ ] T000a [P] **Gate**: Validate citation metadata via Crossref API.
+- [ ] T000a [P] **Gate**: Validate citation metadata via Crossref API. <!-- FAILED-IN-EXECUTION: code/research/validate_citations.py exit=1 -->
  **Input**: `spec.md` and `plan.md`.
  **Logic**:
  1. Parse `spec.md` and `plan.md` to extract claimed citations (e.g., "Lee & See (2004)", "Langer (1975)").

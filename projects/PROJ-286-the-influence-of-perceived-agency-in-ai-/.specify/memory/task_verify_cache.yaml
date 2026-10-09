@@ -1,24 +1,3 @@
-T000:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The claim provides only a feature specification and user stories unrelated to\
-    \ the Gate task; there is no code, script, or output that validates a citation\u2019\
-    s title and DOI against CrossRef. The required artifact (a CrossRef\u2011API validation\
-    \ implementation or its results) is missing."
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `research/dataset_verification_report.md` file is present, nor any evidence
-    that the implementer read `plan.md` and confirmed the required variables. The
-    required verification artifact is missing, so the task is not satisfied.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The required output file `research/literature_review.md` is not present or its\
-    \ contents were not provided. Consequently, the literature review summary summarizing\
-    \ Lee &\u202FSee (2004) and Langer (1975) has not been delivered. The implementer\
-    \ must create a non\u2011empty markdown file at the specified path containing\
-    \ the requested summary."
 T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -29,12 +8,6 @@ T004:
     \ `specs/001-perceived-agency-trust/contracts` (and the `__init__.py` files in\
     \ each) were actually created. The implementer must supply a file\u2011tree listing\
     \ or screenshots showing the directories and the empty `__init__.py` files."
-T007g:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `research/trust_scale_verification_report.md` file is present or described;
-    the implementer provided no markdown content, so the required artifact is missing.
-    The task is not satisfied.
 T008:
   c: false
   h: a0330bc51b5274b5450356879f28f1b22106d27ed7e607fd511a5b33e1aba4d9
@@ -42,10 +15,3 @@ T008:
     there is no evidence that the `sample_size` value was read from `research/power_calculation.json`
     (no script or documented manual step is shown), nor any proof that this step ran
     after T002. The required mechanism and dependency verification are missing.
-T010b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer supplied only a project specification and user stories; there\
-    \ is no artifact (e.g., the Lee & See 2004 Trust Scale questionnaire, PDF, or\
-    \ data file) present. Consequently, the core requirement\u2014retrieving and providing\
-    \ the canonical trust scale\u2014is not met."
