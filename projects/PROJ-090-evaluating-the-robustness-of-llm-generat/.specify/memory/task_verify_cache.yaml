@@ -14,25 +14,18 @@ T002:
     \ script log (`code/.tasks/T002.code_create_data_dirs.py.log`) confirms they were\
     \ successfully created."
   sig: 543d992c841b844aac42f2a66e38e57117f9b867a0e19db2fb0c1f3103bb2006
-T003:
-  c: false
-  h: 34d7519a092c2abec68b523a5b8c91b943aa8c18dfa275a1e530b7650ae1db40
-  r: "The quickstart.md file exists and documents the required command, but there\
-    \ is no evidence (e.g., a terminal log, timing report, or test script output)\
-    \ showing that `python -m code.main --run-sample` actually finishes within 30\u202F\
-    seconds and prints \u201CSample run completed\u201D. Execution proof is needed\
-    \ to satisfy the verification condition."
-  sig: 8f9edc6bfb343bbdf752b5b8d9dcda6710aaee6c99a6615ad7f20183e06c9ce3
 T004:
   c: false
-  h: b8b8509f98a3f957800acfd25ac0e578b33cd91cc16beb263a5bcab222f6c4f3
-  r: "The repository contains `code/utils/logging.py` with a `setup_logger()` that\
-    \ is designed to write JSON\u2011lines to `data/logs/app.log`, but the required\
-    \ log file `data/logs/app.log` is missing\u2014no evidence shows the function\
-    \ was executed to create it, nor that any JSON line was written. The task is not\
-    \ satisfied until the logger is invoked and the file with at least one JSON entry\
-    \ is present."
-  sig: e2f1f9b65caae52db088d51cc896b535f99bb65bd96e69cc98c71648a09dc2c7
+  h: c5a10781fc6cb35e199177d1d39adca02e695354ff30c78af9b73ac1a2c4bdc5
+  r: "`code/utils/logging.py` does contain a real `setup_logger()` that configures\
+    \ a JSON-lines formatter writing to `data/logs/app.log` and emits an initial entry,\
+    \ so the code itself matches the requirement. However, the verification criterion\
+    \ \u2014 importing the module, calling `setup_logger()`, and confirming `data/logs/app.log`\
+    \ exists with at least one JSON line \u2014 is not satisfied: the collector reports\
+    \ `data/logs/app.log` as MISSING, and there is no execution evidence (test output,\
+    \ run log) showing the function was ever invoked successfully. The implementer\
+    \ should run the module (e.g., a smoke test"
+  sig: 2c89cc70859c26b83d569bcf337c0410b46e1774fddd8a4f6d30d508e38e7b30
 T005:
   c: true
   h: b80bdfa769300562670d8faf98b3a9336de1b46f391e7d8d214fe2c3e66b2e91
@@ -59,6 +52,18 @@ T007:
     1 on failure as required. The script is present, non\u2011empty, and contains\
     \ the correct exit\u2011code logic."
   sig: 66256132b774efaf776ac92cfd2f60297b0a388493ad347bacdc5270ca5632d3
+T008:
+  c: true
+  h: 6ae598d3c87f44b50ddd0ecb39fb35ae701d778c30237d53fc73e584f45ce417
+  r: 'The schema file `contracts/perturbation_schema.json` exists (1253 bytes) and
+    contains all five required fields with correct types: `task_id` (string), `perturbation_type`
+    (enum of exactly ["synonym","typo","rephrase"]), `raw_score` (number with minimum
+    0.0/maximum 1.0), `is_valid` (boolean), and `candidate_text` (string), all listed
+    in `required`. The verification command''s input `data/processed/perturbation_candidates_raw.json`
+    is missing, but that data file is the output of the perturbation-generation task
+    (User Story 1), not a deliverable of T008, which only requires creating the schema;
+    th'
+  sig: 7a126e4291e87a2932319dd26ee58db26ed79c8406dc7f1e19e5ca1cc9514cf9
 T016:
   c: false
   h: 601adf513ef31aeb44cd62e58f34dcd6c48f4b61b586b6b2ad91d01503560534

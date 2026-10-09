@@ -45,12 +45,12 @@
   **Path**: `code/utils/validate_schema.py`  
   **Verification**: Run the script on a known‑good file; exit code 0. Run on a deliberately broken file; exit code 1.
 
-- [~] **T008** [P] Create `contracts/perturbation_schema.json` defining the JSON schema for perturbation candidates.  
+- [X] **T008** [P] Create `contracts/perturbation_schema.json` defining the JSON schema for perturbation candidates.  
   **Path**: `contracts/perturbation_schema.json`  
   **Schema fields** (required): `task_id` (string), `perturbation_type` (enum ["synonym","typo","rephrase"]), `raw_score` (number 0‑1), `is_valid` (boolean), `candidate_text` (string).  
   **Verification**: `python code/utils/validate_schema.py --input data/processed/perturbation_candidates_raw.json --schema contracts/perturbation_schema.json` exits with code 0.
 
-- [ ] **T008a** [P] Generate `contracts/perturbation_schema.json` from the canonical YAML (`contracts/perturbation_schema.yaml`) to guarantee schema consistency.   <!-- FAILED-IN-EXECUTION: code/utils/generate_perturbation_schema.py exit=1 -->
+- [ ] **T008a** [P] Generate `contracts/perturbation_schema.json` from the canonical YAML (`contracts/perturbation_schema.yaml`) to guarantee schema consistency.   <!-- FAILED-IN-EXECUTION: code/utils/generate_perturbation_schema.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/utils/generate_perturbation_schema.py exit=1 -->
   **Path**: `contracts/perturbation_schema.json` (generated)  
   **Verification**: The produced JSON validates against the original YAML and the same validator script succeeds.
 

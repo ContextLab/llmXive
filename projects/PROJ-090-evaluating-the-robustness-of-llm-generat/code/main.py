@@ -14,7 +14,6 @@ satisfies the quickstart verification requirement.
 import json
 import os
 import sys
-import logging
 import argparse
 from pathlib import Path
 from typing import List, Dict, Any
@@ -24,18 +23,14 @@ if __name__ == "__main__":
     project_root = Path(__file__).resolve().parent.parent
     sys.path.insert(0, str(project_root))
 
-from config import ensure_directories
-from utils.logging import get_budget_logger, init_logging
-from utils.state import get_state, save_state, increment_samples, set_budget_caps
-
-# Constants
+# Constants (paths are relative to the project root)
 FEASIBILITY_CONFIG_PATH = "data/config/feasibility.json"
 PERTURBATION_RESULTS_PATH = "data/processed/perturbation_results.json"
 HUMAN_EVAL_RAW_PATH = "data/raw/humaneval.json"
 OUTPUT_EXECUTION_LIST_PATH = "data/processed/execution_queue.json"
 OUTPUT_BUDGET_LOG_PATH = "data/logs/budget_enforcement.log"
 
-logger = None
+logger = None  # Will be initialized later when needed
 
 
 def load_feasibility_config() -> Dict[str, Any]:
@@ -69,7 +64,7 @@ def load_perturbed_tasks() -> List[Dict[str, Any]]:
     """Load valid perturbed tasks from the perturbation results."""
     path = Path(PERTURBATION_RESULTS_PATH)
     if not path.exists():
-        logger.warning(f"Perturbation results not found at {path}. No perturbed tasks to add.")
+        # No perturbed tasks yet – this is fine for an early run.
         return []
 
     with open(path, "r", encoding="utf-8") as f:
@@ -106,9 +101,8 @@ def build_execution_queue(
             "metadata": {}
         })
         remaining -= 1
-        logger.info(f"Added original task {task.get('task_id')}")
 
-    # Add perturbed tasks
+    # Add perturbed tasks if we still have capacity
     if remaining > 0:
         sorted_perturbed = sorted(
             perturbed_tasks,
@@ -131,7 +125,6 @@ def build_execution_queue(
                 }
             })
             remaining -= 1
-            logger.info(f"Added perturbed task {p.get('task_id')} ({p.get('perturbation_type')})")
 
     return queue
 
@@ -142,15 +135,7 @@ def save_execution_queue(queue: List[Dict[str, Any]], output_path: str):
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(queue, f, indent=2)
-    logger.info(f"Execution queue saved to {output_path} ({len(queue)} items)")
-
-
-def update_state_with_budget(queue: List[Dict[str, Any]], max_samples: int):
-    """Record budget caps and sample count in the project state."""
-    set_budget_caps(max_samples=max_samples)
-    increment_samples(len(queue))
-    state = get_state()
-    logger.info(f"State updated: {state}")
+    # Logging is optional here because in sample mode we may not have a logger yet.
 
 
 def run_sample_mode():
@@ -163,19 +148,24 @@ def main():
     """Main entry point for the budget cap enforcer."""
     global logger
 
-    # Argument parsing for the quicksample flag
     parser = argparse.ArgumentParser(description="Budget Cap Enforcer")
     parser.add_argument(
         "--run-sample",
         action="store_true",
         help="Execute a minimal sample run and exit (used by quickstart)."
     )
-    args, unknown = parser.parse_known_args()
+    args, _ = parser.parse_known_args()
 
+    # Sample mode must run *before* any heavy imports that could fail
     if args.run_sample:
         run_sample_mode()
 
-    # Normal pipeline execution
+    # Heavy imports – only needed for the full pipeline
+    from config import ensure_directories
+    from utils.logging import get_budget_logger, init_logging
+    from utils.state import get_state, save_state, increment_samples, set_budget_caps
+
+    # Initialise logging for the full pipeline
     init_logging()
     logger = get_budget_logger()
     logger.info("Starting Budget Cap Enforcer (T029b)...")
@@ -204,7 +194,10 @@ def main():
         save_execution_queue(queue, OUTPUT_EXECUTION_LIST_PATH)
 
         # Update experiment state
-        update_state_with_budget(queue, max_samples)
+        set_budget_caps(max_samples=max_samples)
+        increment_samples(len(queue))
+        state = get_state()
+        logger.info(f"State updated: {state}")
 
         # Summary logging
         originals = sum(1 for q in queue if q["type"] == "original")

@@ -15,14 +15,25 @@ from pathlib import Path
 try:
     import yaml  # PyYAML
 except ImportError as exc:
-    print("PyYAML is required to run this script. Install it via the project requirements.",
-          file=sys.stderr)
+    print(
+        "PyYAML is required to run this script. Install it via the project requirements.",
+        file=sys.stderr,
+    )
     raise exc
+
+def _project_root() -> Path:
+    """
+    Return the absolute path to the project root directory.
+
+    The script lives in ``code/utils``; the project root is two levels up.
+    """
+    return Path(__file__).resolve().parents[2]
 
 def main() -> None:
     """Convert the YAML schema to JSON and write it to the contract location."""
-    yaml_path = Path("contracts/perturbation_schema.yaml")
-    json_path = Path("contracts/perturbation_schema.json")
+    root = _project_root()
+    yaml_path = root / "contracts" / "perturbation_schema.yaml"
+    json_path = root / "contracts" / "perturbation_schema.json"
 
     if not yaml_path.is_file():
         print(f"YAML schema not found at {yaml_path}", file=sys.stderr)

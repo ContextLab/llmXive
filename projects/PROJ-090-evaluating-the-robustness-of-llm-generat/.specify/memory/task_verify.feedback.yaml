@@ -10,12 +10,14 @@ T003:
     \ to satisfy the verification condition."
   task: 11bcac113bdf1cbff21c87c44d635ada5dcfe938d5f75cbf9889cc1fa7b6a335
 T004:
-  reason: "The repository contains `code/utils/logging.py` with a `setup_logger()`\
-    \ that is designed to write JSON\u2011lines to `data/logs/app.log`, but the required\
-    \ log file `data/logs/app.log` is missing\u2014no evidence shows the function\
-    \ was executed to create it, nor that any JSON line was written. The task is not\
-    \ satisfied until the logger is invoked and the file with at least one JSON entry\
-    \ is present."
+  reason: "`code/utils/logging.py` does contain a real `setup_logger()` that configures\
+    \ a JSON-lines formatter writing to `data/logs/app.log` and emits an initial entry,\
+    \ so the code itself matches the requirement. However, the verification criterion\
+    \ \u2014 importing the module, calling `setup_logger()`, and confirming `data/logs/app.log`\
+    \ exists with at least one JSON line \u2014 is not satisfied: the collector reports\
+    \ `data/logs/app.log` as MISSING, and there is no execution evidence (test output,\
+    \ run log) showing the function was ever invoked successfully. The implementer\
+    \ should run the module (e.g., a smoke test"
   task: 8b895edcccfeac26e2d82b75ad2dc634914dde6478890086dd5dca2fb753727c
 T005:
   task: 8792e0b0d0514f56cf5e8edc4f1e46695ffb7118838beba52a59d0bf4cef30a0
