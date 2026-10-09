@@ -45,6 +45,11 @@ def render(output: Path) -> str:
                     lines.append(label + ": " + ", ".join(f"`{name}`" for name in paths))
         if outcome.get("reason"):
             lines.append("Outcome: " + str(outcome["reason"])[:2000])
+        for name in ("before.log", "after.log", "safety.log"):
+            log = attempt / name
+            if log.is_file():
+                lines.extend(["", f"{name} (tail):", "```text",
+                              log.read_text()[-2000:].replace("```", "'''"), "```"])
     lines.extend(["", "Detailed inputs, responses and test logs are in the repair-evidence artifact."])
     return "\n".join(lines) + "\n"
 

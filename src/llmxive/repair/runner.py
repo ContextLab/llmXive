@@ -9,6 +9,7 @@ job without model execution. Failed proposals remain diagnostic artifacts.
 from __future__ import annotations
 
 import argparse
+import ast
 import hashlib
 import json
 import os
@@ -360,6 +361,77 @@ def read_context(repo: Path, paths: list[str], tree: list[str], context: dict[st
     return context
 
 
+def stage_context(repo: Path, evidence: dict) -> list[dict]:
+    """Read dispatch facts without importing/executing the pipeline graph.
+
+    These are investigation starting points, not proof of the failing caller:
+    pre-dispatch hooks and revision routing can also run at the recorded stage.
+    """
+    path = repo / "src/llmxive/pipeline/graph.py"
+    if path.is_symlink() or not path.resolve().is_relative_to(repo.resolve()):
+        return []
+    try:
+        module = ast.parse(path.read_text())
+    except (OSError, SyntaxError):
+        return []
+    tables = {}
+    imports = {}
+    for node in module.body:
+        if isinstance(node, ast.ImportFrom) and node.module and not node.level:
+            imports.update({a.asname or a.name: node.module for a in node.names})
+        targets = node.targets if isinstance(node, ast.Assign) else [getattr(node, "target", None)]
+        for target in targets:
+            if isinstance(target, ast.Name) and isinstance(getattr(node, "value", None), ast.Dict):
+                tables[target.id] = node.value
+    routes = tables.get("STAGE_TO_AGENT")
+    if routes is None:
+        return []
+    agents = {}
+    for table_name in ("_SPECKIT_AGENTS", "_NON_SPECKIT_AGENTS"):
+        table = tables.get(table_name)
+        if table is not None:
+            for key, value in zip(table.keys, table.values, strict=True):
+                if isinstance(key, ast.Constant) and isinstance(value, ast.Name):
+                    agents[key.value] = imports.get(value.id)
+    stages = {str(item.get("stage", "")).upper() for item in evidence.get("failures", [])}
+    facts = []
+    for key, value in zip(routes.keys, routes.values, strict=True):
+        if (isinstance(key, ast.Attribute) and isinstance(key.value, ast.Name)
+                and key.value.id == "Stage" and key.attr in stages
+                and isinstance(value, ast.Constant) and isinstance(value.value, str)):
+            fact = {"stage": key.attr.lower(), "default_agent": value.value,
+                    "source": f"src/llmxive/pipeline/graph.py:{key.lineno}"}
+            module_name = agents.get(value.value)
+            if module_name and module_name.startswith("llmxive."):
+                fact["agent_source"] = "src/" + module_name.replace(".", "/") + ".py"
+            facts.append(fact)
+    return facts
+
+
+def import_bindings(context: dict[str, str]) -> dict[str, list[dict]]:
+    """Expose the namespace actually used by imported production dependencies."""
+    result = {}
+    for path, text in context.items():
+        if not path.startswith("src/llmxive/") or not path.endswith(".py"):
+            continue
+        try:
+            module = ast.parse(text)
+        except SyntaxError:
+            continue
+        namespace = path[4:-3].replace("/", ".").removesuffix(".__init__")
+        bindings = []
+        for node in module.body:
+            if (isinstance(node, ast.ImportFrom) and not node.level
+                    and node.module and node.module.startswith("llmxive.")):
+                for alias in node.names:
+                    if alias.name != "*":
+                        bindings.append({"imported_from": f"{node.module}.{alias.name}",
+                                         "used_as": f"{namespace}.{alias.asname or alias.name}"})
+        if bindings:
+            result[path] = bindings
+    return result
+
+
 def propose_fix(repo: Path, evidence: dict, output: Path, tree: list[str],
                 selection: dict, context: dict[str, str]) -> dict:
     """Correct bounded context/schema mistakes before spending isolated test runs.
@@ -377,6 +449,13 @@ def propose_fix(repo: Path, evidence: dict, output: Path, tree: list[str],
         "Do not change existing tests or delete user content. Include the full new test contents "
         "in files, not just its path in regression. Fix an existing caller, not an unused helper. "
         "Include at least one related existing test module. "
+        "Treat the selected problem as a hypothesis: trace the observed stage through its "
+        "actual caller and dependencies before fixing it. Do not attribute a later-stage "
+        "failure to initialization just because both create directories. "
+        "When isolating a dependency, patch the namespace where the caller looks it up "
+        "(for example its imported _repo_root), not the original config.repo_root binding. "
+        "Use pytest monkeypatch for automatic restoration and assert the caller actually "
+        "operates inside tmp_path. A failure caused by an ineffective patch is not reproduction. "
         "A fixed preservation suite also runs: preexisting scaffold-path files must remain "
         "byte-for-byte recoverable, either in place or in a project-local backup. "
         "Tests run OFFLINE with pytest already installed. Do not download/install packages. "
@@ -390,9 +469,13 @@ def propose_fix(repo: Path, evidence: dict, output: Path, tree: list[str],
     for round_index in range(3):
         suffix = "" if round_index == 0 else f"-revision-{round_index}"
         (output / "source-context.json").write_text(json.dumps(context, indent=2))
+        bindings = import_bindings(context)
+        (output / "import-bindings.json").write_text(json.dumps(bindings, indent=2))
         _progress(output, "proposing_fix" + suffix)
         proposal = _ask(
-            prompt + "\nSOURCE:\n" + json.dumps(context) + feedback,
+            prompt + "\nSOURCE:\n" + json.dumps(context)
+            + "\nIMPORTED DEPENDENCY BINDINGS (patch used_as when isolating the caller):\n"
+            + json.dumps(bindings) + feedback,
             response_path=output / f"proposal-response{suffix}.txt",
         )
         (output / f"proposal-response{suffix}.json").write_text(json.dumps(proposal, indent=2))
@@ -430,6 +513,9 @@ def propose_fix(repo: Path, evidence: dict, output: Path, tree: list[str],
 def run(repo: Path, evidence: dict, output: Path, *, image: str = IMAGE) -> dict:
     output.mkdir(parents=True, exist_ok=True)
     (output / "evidence.json").write_text(json.dumps(evidence, indent=2))
+    dispatch = stage_context(repo, evidence)
+    (output / "dispatch-context.json").write_text(json.dumps(dispatch, indent=2))
+    evidence = dict(evidence, stage_dispatch_context=dispatch)
     tree = sorted(
         str(p.relative_to(repo))
         for root in ROOTS
@@ -442,6 +528,11 @@ def run(repo: Path, evidence: dict, output: Path, *, image: str = IMAGE) -> dict
         "Every selected path must be copied exactly from FILES; do not guess filenames. "
         "Filesystem observations distinguish regular files from directories. A file at a "
         "required directory path is not fixed by exist_ok=True. "
+        "Use source-derived stage_dispatch_context as an investigation starting point, "
+        "not proof of the failing caller: inspect dispatch hooks and actual callees too. "
+        "Choose the recorded stage's execution path rather than assuming initialization. "
+        "Never discard existing bytes to resolve a collision; preserve them in place or "
+        "a project-local backup. Include a related existing test to learn isolation conventions. "
         'If the evidence is insufficient or already fixed, return {"skip":"reason"}. '
         'Otherwise return {"paths":[...],"problem":"..."}.\nEVIDENCE:\n'
         + render_evidence(evidence)
@@ -646,9 +737,9 @@ def main() -> int:
             evidence = dict(
                 evidence,
                 previous_attempt_failure=str(exc),
-                test_diagnostics="\n".join(
-                    p.read_text()[-12000:] for p in attempt_dir.glob("*.log")
-                ),
+                test_diagnostics={
+                    p.name: p.read_text()[-12000:] for p in sorted(attempt_dir.glob("*.log"))
+                },
             )
             if attempt == 3:
                 shutil.copy2(attempt_dir / "result.json", args.output / "result.json")
