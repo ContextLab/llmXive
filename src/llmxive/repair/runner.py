@@ -56,6 +56,23 @@ def safe_path(value: str) -> str:
     return value
 
 
+def selectable_files(repo: Path) -> list[str]:
+    """Advertise only paths allowed by the unchanged context-selection policy."""
+    paths = []
+    for root in ROOTS:
+        for path in (repo / root).rglob("*"):
+            if (not path.is_file() or "__pycache__" in path.parts
+                    or path.is_symlink() or not path.resolve().is_relative_to(repo.resolve())):
+                continue
+            relative = str(path.relative_to(repo))
+            try:
+                safe_path(relative)
+            except ValueError:
+                continue
+            paths.append(relative)
+    return sorted(paths)
+
+
 def _json(text: str) -> dict:
     text = text.strip()
     if text.startswith("```"):
@@ -516,12 +533,7 @@ def run(repo: Path, evidence: dict, output: Path, *, image: str = IMAGE) -> dict
     dispatch = stage_context(repo, evidence)
     (output / "dispatch-context.json").write_text(json.dumps({"routes": dispatch}, indent=2))
     evidence = dict(evidence, stage_dispatch_context=dispatch)
-    tree = sorted(
-        str(p.relative_to(repo))
-        for root in ROOTS
-        for p in (repo / root).rglob("*")
-        if p.is_file() and p.suffix in {".py", ".md"} and "__pycache__" not in p.parts
-    )
+    tree = selectable_files(repo)
     _progress(output, "selecting_files")
     selection = _ask(
         "Choose up to 6 source/test files needed to fix ONE concrete defect from this evidence. "
