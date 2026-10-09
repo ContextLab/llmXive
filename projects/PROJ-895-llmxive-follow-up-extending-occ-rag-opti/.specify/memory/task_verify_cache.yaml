@@ -1,3 +1,43 @@
+T001.1:
+  c: false
+  h: ad27236aa9a0097056209934b8cc5f899e3577e21fd2e83fa7cdab31296b1a02
+  r: "The required `paper/` directory and the `paper/draft.md` file (with the specified\
+    \ section headings) are missing, so the task\u2019s deliverables are not fully\
+    \ present. The other directories are correctly created, but the mandatory paper\
+    \ placeholder is absent."
+T001.2:
+  c: false
+  h: 1973739dadc64595d5559ef3a14e30da3ca309c3a651be17c12ed89d42c394ae
+  r: "The `code/requirements.txt` file lists `torch` without the required \u201C(cpu-only)\u201D\
+    \ qualifier, so it does not match the exact content specification. The file must\
+    \ explicitly indicate the CPU\u2011only torch package (e.g., `torch==X.Y.Z+cpu`\
+    \ or a comment) to satisfy the task."
+T001.3:
+  c: true
+  h: c4f41ad0f28bd86ec57996da19983a21a6e409b158574dbe32fa71e5b211a23d
+  r: The provided file listing shows a `data/` directory containing both `data/raw/`
+    and `data/processed/` subfolders (each with a `.gitkeep` placeholder), confirming
+    the required directory structure is present.
+T002:
+  c: true
+  h: c1560cb8e7048dae72f6616fde4821fb62b129868f673dc761825f9c9a60c8d9
+  r: "The provided `code/requirements.txt` contains exactly the six required packages\
+    \ (torch, transformers, scikit-learn, pandas, numpy, datasets) and does not include\
+    \ bitsandbytes or any other 8\u2011bit/4\u2011bit GPU\u2011dependent libraries.\
+    \ No required artifact is missing or placeholder."
+T003:
+  c: false
+  h: bfd6c4cc16d17f8c8553e1c8ff91fb92f9c6f4d2b678c6f7f8f4722a8f28d7cf
+  r: "No `.flake8` configuration file was presented or found in the provided evidence,\
+    \ so the required linting setup (max\u2011line\u2011length\u202F=\u202F88, specified\
+    \ ignores, and exclude list) is missing. The task cannot be considered completed\
+    \ without this file."
+T003.1:
+  c: true
+  h: 5c5ef3789661c394c9135145c9a432d7d7435284987b804ffb36063ceaf81ec2
+  r: The provided `pyproject.toml` exists and contains the exact `[tool.black]` block
+    with `line-length = 88` and `target-version = ['py311']` as required. No missing
+    or placeholder content.
 T012:
   c: false
   h: 8dd49beb875d04b85e5275cc43ba0439259e0e6968d8433f851b30b20e7dad85
