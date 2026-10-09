@@ -1,92 +1,80 @@
 # Data Model: Investigating the Correlation Between Gut Microbiome Composition and Cognitive Function in Aging Using UK Biobank Data
 
 ## Overview
-
-This document defines the data structures, transformations, and schemas used throughout the pipeline. All data is generated synthetically to mimic the UK Biobank schema, as no open-access UKB microbiome dataset exists for CI execution.
+All data objects are stored as Parquet files to preserve schema and enable efficient columnar access. The synthetic dataset mirrors the UK Biobank schema required by the specification.
 
 ## Entity Definitions
 
 ### 1. Participant
-
-Represents a single subject in the cohort.
-
 | Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `participant_id` | `str` | Unique identifier (UUID) | Primary Key |
-| `age` | `float` | Age in years | [40, 85] |
-| `sex` | `int` | 0=Female, 1=Male | {0, 1} |
-| `bmi` | `float` | Body Mass Index | [15, 45] |
-| `diet_quality` | `float` | Diet quality score | [0, 100] |
-| `physical_activity` | `float` | MET-min/week | > 0 |
-| `medication_use` | `int` | 0=No, 1=Yes | {0, 1} |
-| `antibiotic_use` | `int` | 0=No, 1=Yes (Recent) | {0, 1} |
+|-------|------|-------------|-------------|
+| `participant_id` | `str` | Unique identifier (deterministic UUID) | Primary key |
+| `age` | `float` | Age in years | 40 ≤ age ≤ 85 |
+| `sex` | `int` | 0 = Female, 1 = Male | {0,1} |
+| `bmi` | `float` | Body Mass Index | 15 ≤ bmi ≤ 45 |
+| `diet_quality` | `float` | Score 0‑100 | 0 ≤ score ≤ 100 |
+| `physical_activity` | `float` | MET‑min/week | > 0 |
+| `medication_use` | `int` | 0 = No, 1 = Yes | {0,1} |
+| `antibiotic_use` | `int` | 0 = No, 1 = Yes (recent) | {0,1} |
 
 ### 2. MicrobiomeProfile
-
-ILR-transformed taxonomic coordinates for a participant.
-
 | Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `participant_id` | `str` | Foreign Key to Participant | PK, FK |
-| `ilr_coords` | `dict[str, float]` | ILR-transformed values for each genus | Sum of coordinates = 0 (orthonormal) |
-| `sequencing_depth` | `int` | Total reads | > 0 |
-| `quality_score` | `float` | Sequencing quality metric | [0, 1] |
+|-------|------|-------------|-------------|
+| `participant_id` | `str` | FK → Participant | |
+| `ilr_coords` | `dict[str, float]` | ILR‑transformed genus‑level coordinates | Sum = 0 (orthonormal) |
+| `sequencing_depth` | `int` | Total reads after filtering | > 0 |
+| `quality_score` | `float` | 0‑1 quality metric | 0 ≤ score ≤ 1 |
 
 ### 3. CognitiveScore
-
-Standardized cognitive performance metrics.
-
 | Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `participant_id` | `str` | Foreign Key to Participant | PK, FK |
-| `reaction_time` | `float` | Mean reaction time (ms) | > 0 |
-| `numeric_memory` | `int` | Score 0-100 | [0, 100] |
-| `reasoning` | `int` | Score 0-100 | [0, 100] |
-| `test_date` | `str` | ISO 8601 date | YYYY-MM-DD |
+|-------|------|-------------|-------------|
+| `participant_id` | `str` | FK → Participant | |
+| `reaction_time` | `float` | Mean reaction time (ms) | > 0 |
+| `numeric_memory` | `int` | 0‑100 score | 0 ≤ score ≤ 100 |
+| `reasoning` | `int` | 0‑100 score | 0 ≤ score ≤ 100 |
+| `test_date` | `str` | ISO‑8601 date (YYYY‑MM‑DD) | Valid date |
 
 ### 4. AssociationResult
-
-Statistical output from the analysis.
-
 | Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `taxon` | `str` | Genus name | |
-| `cognitive_metric` | `str` | "reaction_time", "numeric_memory", "reasoning" | |
-| `beta` | `float` | Effect size (coefficient) | |
-| `p_value` | `float` | Unadjusted p-value | (0, 1] |
-| `p_adj` | `float` | Benjamini-Hochberg adjusted p-value | (0, 1] |
-| `interaction_p` | `float` | Interaction term p-value (optional) | (0, 1] |
-| `causality_claim` | `bool` | Always `false` | `false` |
+|-------|------|-------------|-------------|
+| `taxon` | `string` | Name of the bacterial genus/taxon. |
+| `cognitive_metric` | `string` | `"reaction_time"`, `"numeric_memory"` or `"reasoning"` |
+| `beta` | `number` | Effect size (beta coefficient) from the linear model. |
+| `p_value` | `number` | Unadjusted p‑value (0 < p ≤ 1). |
+| `p_adj` | `number` | Benjamini‑Hochberg adjusted p‑value (0 < p_adj ≤ 1). |
+| `interaction_p` | `number` | Interaction term p‑value (optional, 0 < p ≤ 1). |
+| `causality_claim` | `boolean` | Always `false`. |
 
 ## Transformation Pipeline
 
-### 1. Raw Data Generation
-*   **Input**: Random seed.
-*   **Output**: `data/raw/synthetic_ukb.parquet`.
-*   **Logic**:
-    *   Sample `age`, `sex`, `bmi` from distributions.
-    *   Generate `microbiome_counts` using Dirichlet-Multinomial to simulate 16S sequencing.
-    *   Generate `cognitive_scores` with correlation to `age` and `antibiotic_use`.
+1. **Raw Data Generation** (`code/pipelines/download.py`)  
+   - Input: seed = 42.  
+   - Output: `data/raw/synthetic_ukb.parquet` (fallback) **or** `data/raw/ukb_microbiome.parquet` + `data/raw/ukb_cognitive.parquet` when credentials succeed.  
+   - Process: sample participant demographics, generate Dirichlet‑Multinomial counts for a representative set of genera, synthesize cognitive scores with age‑dependent noise, add antibiotic flag.
 
-### 2. Preprocessing (ILR Transformation)
-*   **Input**: `data/raw/synthetic_ukb.parquet`.
-*   **Output**: `data/processed/ilr_transformed.parquet`.
-*   **Logic**:
-    *   Filter: Exclude participants with `antibiotic_use == 1` or missing data.
-    *   Pseudocount: Add $1 \times 10^{-6}$ to all zero counts.
-    *   Transformation: Apply ILR using a balance tree (e.g., phylogenetic or equal split).
-    *   Result: Orthonormal coordinates.
+2. **Preprocessing** (`code/pipelines/preprocess.py`)  
+   - Load raw Parquet (streamed).  
+   - Filter out rows with `antibiotic_use == 1` or any missing core variable.  
+   - Add pseudocount `1e-6` to zero counts.  
+   - Apply ILR using a binary balance tree (implemented in `models/microbiome_transform.py`).  
+   - Write `data/processed/ilr_transformed.parquet`.  
+   - **Validate** the output against `contracts/dataset.schema.yaml` (task T018‑validate).
 
-### 3. Statistical Analysis
-*   **Input**: `data/processed/ilr_transformed.parquet`.
-*   **Output**: `results/associations/main_effects.parquet`.
-*   **Logic**:
-    *   Fit OLS: $Cognitive \sim ILR_{taxon} + Confounders$.
-    *   Apply BH correction.
-    *   Fit Interaction: $Cognitive \sim ILR_{taxon} \times Age\_Group + Confounders$.
+3. **Statistical Analysis** (`code/pipelines/analyze.py`)  
+   - Input: processed Parquet.  
+   - Fit OLS, Lasso, Ridge models for each taxon‑cognitive pair, controlling for all confounders.  
+   - Apply BH correction to main and interaction p‑values.  
+   - Fit reduced models (excluding diet & medication) for over‑control sensitivity.  
+   - Save results to `results/associations/` as Parquet files conforming to `contracts/association_result.schema.yaml`.
+
+4. **Visualization** (`code/paper/plots.py`)  
+   - Generate Manhattan‑style plots per cognitive metric with effect‑size annotation.  
+   - Save PNG/SVG to `results/plots/`.
 
 ## File Formats
+- **Parquet** – all intermediate and final datasets (schema‑preserving, columnar).  
+- **YAML** – configuration files and schema definitions (`contracts/`).  
+- **JSON** – optional metadata payloads.  
 
-*   **Parquet**: Used for all intermediate and final datasets (efficient, schema-preserving).
-*   **YAML**: Used for configuration and schema definitions.
-*   **JSON**: Used for metadata (e.g., `causality_claim`).
+---
+

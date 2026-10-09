@@ -1,50 +1,50 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Association Results Schema"
-description: "Schema for the output of the statistical analysis"
+description: "Deprecated schema; new pipelines should use association_result.schema.yaml."
 type: "object"
 properties:
   taxon_name:
     type: "string"
-    description: "Name of the genus-level taxon"
+    description: "Name of the genus‑level taxon."
   cognitive_metric:
     type: "string"
-    description: "Name of the cognitive metric"
+    description: "Name of the cognitive metric."
     enum: ["reaction_time", "numeric_memory", "reasoning"]
   effect_size_beta:
     type: "number"
-    description: "Coefficient from the linear model (Lasso/Ridge)"
+    description: "Coefficient from the linear model (Lasso/Ridge/OLS)."
   unadjusted_p_value:
     type: "number"
-    description: "Raw p-value"
+    description: "Raw p‑value."
     minimum: 0
     maximum: 1
   adjusted_p_value:
     type: "number"
-    description: "Benjamini-Hochberg adjusted p-value"
+    description: "Benjamini‑Hochberg adjusted p‑value."
     minimum: 0
     maximum: 1
   interaction_p_value:
-    type: ["number", "null"]
-    description: "P-value for the Age_Group * Taxon interaction"
+    type: "number"
+    description: "P‑value for the Age_Group × Taxon interaction."
     minimum: 0
     maximum: 1
   interaction_adjusted_p_value:
-    type: ["number", "null"]
-    description: "Benjamini-Hochberg adjusted p-value for interaction term"
+    type: "number"
+    description: "BH adjusted p‑value for interaction term."
     minimum: 0
     maximum: 1
   model_type:
     type: "string"
+    description: "Type of model this result originates from."
     enum: ["main_effect", "interaction_effect"]
-    description: "Type of model this result came from"
   causality_claim:
     type: "boolean"
+    description: "Always false to frame findings as associational."
     const: false
-    description: "Always false to frame findings as associational"
   regularization:
     type: "string"
+    description: "Regularization method used."
     enum: ["lasso", "ridge", "ols"]
-    description: "Regularization method used"
 required:
   - taxon_name
   - cognitive_metric
@@ -55,3 +55,4 @@ required:
   - model_type
   - regularization
 additionalProperties: false
+
