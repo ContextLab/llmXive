@@ -1,10 +1,42 @@
 T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory tree, files, or any listing of `src/`, `tests/unit/`, `tests/integration/`,
-    `data/raw/`, `data/processed/`, `results/`, or the required `__init__.py` files
-    were provided. The claim lacks concrete artifacts to verify that the project structure
-    was actually created.
+  h: 0a6924cd24487ac9b754c30388818e9c08a6da2e197cca15eef0059d2c8d6bbd
+  r: The provided tree lacks the required empty `__init__.py` files in both `src/`
+    and `tests/`, and there are no `.gitkeep` files in `src/` or `tests/` as specified.
+    These missing artifacts mean the project structure does not meet the task requirements.
+T002:
+  c: true
+  h: b9e18924ebb70c8a0250058b74dfd32266a17a0eb41020ab78a8d24c4b312f83
+  r: The `requirements.txt` file is present and contains each of the eight specified
+    packages (`pandas`, `numpy`, `scikit-learn`, `networkx`, `scipy`, `datasets`,
+    `pyyaml`, `pytest`) on separate lines, exactly as required.
+T003:
+  c: true
+  h: 9d40a07dfe25f931a8090742d957c6bc5424424977883649b1efe055cdd8f890
+  r: "The `pyproject.toml` file is present, non\u2011empty, and includes `[tool.black]`\
+    \ and `[tool.ruff]` sections configuring Black and Ruff, as well as dev dependencies\
+    \ listing both tools. This satisfies the requirement to configure linting and\
+    \ formatting in `pyproject.toml`."
+T004:
+  c: true
+  h: cc70f19b52adcef2b4a26ffcf04b5195dff4ad7de7a54cfbc91ef34c346f9103
+  r: "The provided `src/config.py` defines the required hyperparameters with the correct\
+    \ default values and includes a `load_config` function that reads a YAML file\
+    \ using `yaml.safe_load` (pyyaml). The file is non\u2011empty and implements the\
+    \ requested functionality."
+T006:
+  c: true
+  h: ab9d7bd9e3d2aaf0dfcbc1c0edc4d554d707e8f765d8166bec22e9e0be25c1cd
+  r: "The `src/utils/io.py` file exists, is non\u2011empty, and provides deterministic\
+    \ JSON/Parquet read/write functions together with checksum calculation and verification\
+    \ utilities as specified."
+T007:
+  c: false
+  h: 9d472204ae17a66159e2ffbf7651eb77f22b30019b5784ea922db0ccab7ac8e9
+  r: '`src/entities.py` exists and defines the required classes, but `ItemNode` is
+    implemented as a regular class rather than a dataclass as the task explicitly
+    required. The file must define `ItemNode` using `@dataclass` (or otherwise be
+    a dataclass) to satisfy the specification.'
 T009a:
   c: false
   h: b4535a967562fce222fc3f8d191f9fc8ba63f33696bba1013d77b6d9659d7c3d

@@ -1,0 +1,102 @@
+T001:
+  reason: The provided tree lacks the required empty `__init__.py` files in both `src/`
+    and `tests/`, and there are no `.gitkeep` files in `src/` or `tests/` as specified.
+    These missing artifacts mean the project structure does not meet the task requirements.
+  task: 3f642f855f3c785e0ba35338767187e545c5e823fde2351c94cbcc2530f42bfd
+T002:
+  task: 58ac9e75c3a23f010952be2f2a00e1a502eababc70b4f2c5cdc6460cbffdea44
+T003:
+  task: 51f13acd4eda6d295a58cb7f9745249dc9854c39ec05fc77569aae3f2cec4d53
+T004:
+  task: 9e3d88ade4f2c513c469e5260a77857a931584805132e2b77c2a244c3c5ecc8b
+T006:
+  task: 95126362a7c6cb09e32472a68846b9432ff23f4a7153ae9d64dea6a1e6e4beb1
+T007:
+  reason: '`src/entities.py` exists and defines the required classes, but `ItemNode`
+    is implemented as a regular class rather than a dataclass as the task explicitly
+    required. The file must define `ItemNode` using `@dataclass` (or otherwise be
+    a dataclass) to satisfy the specification.'
+  task: 4599b5bc07cf101c0e38a7d087105a4f3c229e4de2029736c932dd01e9b9b134
+T008:
+  task: 8271df523db6b9bf5a1876c4818a043d9545eeb226fc1e64bdf51df86801349c
+T009a:
+  task: dcd23572e8b6bd4b9c86d132c5f9f689badcb20ee04a36c605aa484b8f4e74da
+T009b:
+  task: 735dc38c9a6867e7503cb54c01704a60ef2e0dd23073e58c78523398d3de22ba
+T010:
+  task: 0eb09956887b56d71e1f87dbaf868e24952a316566018d27293c663ca46596d5
+T011:
+  task: b81b2144247570a14c468d8c6463c911eda8d99fdb269c81f0e397657a9c22db
+T012:
+  task: b04d30421b224dfda1f769988ce6588e762c733e2ab5cf39ce130f4beb89bb50
+T013a:
+  task: 1bd3d4ab2c69c69f959523e85420e3ce00debce9be686cbab4d48eec9ab08407
+T013c:
+  task: fbfa8872bfc66c205547b2b61dc01223d3bd4c36b4365710321f7522ee640749
+T013d-1:
+  task: cc11f74647b288b68f78e7cd17028a638bc2f08f818e3c69dbb54366e259bd85
+T013d-2:
+  task: abe1ba2866c5af8c1a0d7341af278cd46fd5df7de42636464f11a6c45893dca9
+T013d-3:
+  task: 312a1039b86b3909e8bf30da3a3bc2917870c5f37ac91611dfedc9e83a52fe64
+T013d-4:
+  task: 0b39e583a981481a2c4f14d7446dc33836da6454b882014e35b02c83d6c9194b
+T014:
+  task: 46cc7a30440a068f4274e31c02aaf84043bab5f93be312e3bec094f3f94dfb99
+T015:
+  task: a5d47f12850740cfa9dcffa0cccca35f50bd947851fd90e5114cc21c2da071ef
+T016a:
+  task: d7e05f4fb735934079f1c7f2030068559914df1862c80236531293cc10d89801
+T017a:
+  task: 2ddbb5699a06aceba53ea8433b252082b72e39b09d3f0a8901998fabb81a23ed
+T017b:
+  task: 3f27f41a6002237d0014c0c1d545b3f801791213b5e0d98aa5b939c5d3b58b9d
+T017c:
+  task: 1ba6532729c79dbb1726a19c57e75143c5119e84b5f5bc796e1c9827d6249048
+T018a:
+  task: 4b3674c99ce8b89134d86a770aa82cbe7169e3cd8be52e1b0b692c9f798f1097
+T018b:
+  task: a1eea87ce1d78b6b4cc45f723e6d7c357b45ad88d0bb2e4f4c331be101a26b24
+T018c:
+  task: 57e298bd5ddce2d80c2c6c677834b4773b7bd77988cbf7479745bfc1c277615e
+T019:
+  task: 097ca40cbeff340e4be9faec566594154d6dc0c644ba6a05e65c2b55151ac5d5
+T020:
+  task: a56d676dcfa94257c9565f70141974b9a0cec4af8308f2457da605dd288bad69
+T021:
+  task: bd5e4448fc2feceafac250a969c025ea26d634166aa1a53cccd94ac60151dff7
+T022:
+  task: 61883824212385e3f20769d39947b31c80edb834dff5a5d4d3b174f13eac4dba
+T023:
+  task: f6781158cdd676ba59dce80697799b487caf8a624ec40bcf1c7589efb4dbc681
+T024a:
+  task: c3b360d13e31d3d09f6ed928f767276acb63cc4ef407602c23c6b860539c6555
+T024b:
+  task: bb958ef1660bd3e800e6536e525269b57f2e3947ae2458b73078f9f0c662a83e
+T024c:
+  task: 40b9c34af034dfebbf526dde56ebac1cbae1e841afaa7aac8cb985974038e36b
+T024d:
+  task: e86426f0146c9d8ef5d0664cb24ad92069367a17d382531cb02e0b6c16e58169
+T025:
+  task: 3b40eb6facc1e2f55b7616e97229dbb10a2f2a047dbaf8bf874a5a16a5978f79
+T026:
+  task: 814056425e33752d10dffd3fb8f18821eb41f38adf5a5590e3d6377ff3ef30cb
+T027:
+  task: 455c73dbbe849bee8d8f641f039ee74f401dc9dbaad0f416b82be0297996925b
+T028:
+  task: fa14e6ac015031fa2c42503d365ab909489c8a8021d0de2e9e1ca801b40cd103
+T029:
+  task: af9de1dae4f6927d09384c5d6519a2955700ba35a682d1daac9b480fbc92e95e
+T030:
+  task: 00e236aaa3d53ef696ac7956a0ce79dde1e4493c96b886cfe9578509d7c33ddf
+T031:
+  task: 49f96789ee5b48a19ccc7f51fc2fcdf1e7f32082da415fd30579b40fcc5e1337
+T032:
+  reason: 'declared artifact(s) missing/empty/invalid: results/final_report.md, results/sc005_status.json'
+  task: 271a37fd36e06671ff612c99e1c923d8673fdc090faa01bb949d0d33af262113
+T033:
+  task: a5030c14f3492aeaa6f3c4fafafa74a2572890bec322197aedf7a2459332494a
+T034:
+  task: 86fa85d1f56d2d1bd65354f6777fb5a0a6be5d8c7c368b46a0aaf3d134107fda
+T035:
+  task: f695fe3ffb84238dc0f1387f53c6d1aebd1e90b790a415a41c3196320946a173
