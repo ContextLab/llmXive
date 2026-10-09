@@ -16,6 +16,14 @@ You are a claim extractor for scientific documents. Your task is to identify **c
 - Definitions or explanations of scope (what the system does / does not do).
 - Future work statements or hedged speculation.
 
+## Evidence scope
+
+For every extracted claim, identify whose evidence could establish it:
+- `project_result`: an observed outcome of THIS document's own experiment, computation, validation, benchmark or generated artifacts. Examples: "the run reports all totients match", "no reversals were detected", "the generated summary has 12 rows", or "our method was faster". This applies even without a number, and even when comparative or causal wording appears. These claims require this project's measured execution evidence; a web page or another paper cannot validate them. Do not invent a URL, citation or receipt.
+- `external`: a fact attributed to another study or source, including another paper's experimental results, or a general scientific statement. Quoting another study does not make its findings this project's results.
+
+Keep unsupported project-result claims in the extraction: lack of evidence must not turn them into external facts or cause them to disappear. Planned outputs and requirements remain excluded by the rules above.
+
 ## Output format
 
 Return ONLY a YAML document (no prose before or after):
@@ -27,6 +35,7 @@ claims:
     context: "1-2 sentence surrounding context"
     number: "9988"  # the salient numeric value, digits only, null if non-numeric
     source: "DOI / arXiv id / URL / author-year citation, if explicitly cited in the text; empty string if no attribution"
+    evidence_scope: "external"  # external | project_result
 ```
 
 **Quoting rules (IMPORTANT — keep the YAML valid):**
