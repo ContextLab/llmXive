@@ -363,7 +363,7 @@ class ImplementerAgent(SlashCommandAgent):
                     # NOT catch these because Python only resolves
                     # names at runtime, but we can detect them statically
                     # via AST.
-                    unresolved = _find_unresolved_names(contents)
+                    unresolved = _find_unresolved_names(contents, filename=target.name)
                     if unresolved:
                         print(
                             f"[implementer] refusing to write {relpath!r}: "
@@ -593,7 +593,7 @@ def _find_bad_sibling_imports(
     return bad
 
 
-def _find_unresolved_names(source: str) -> set[str]:
+def _find_unresolved_names(source: str, *, filename: str = "") -> set[str]:
     """Return names referenced at module-execution time that aren't bound.
 
     Walks the AST: collects names BOUND by imports, top-level
@@ -622,6 +622,9 @@ def _find_unresolved_names(source: str) -> set[str]:
     bound.add("__name__")
     bound.add("__file__")
     bound.add("__doc__")
+    bound.update({"__package__", "__spec__", "__loader__", "__cached__", "__builtins__"})
+    if filename == "__init__.py":
+        bound.add("__path__")
 
     def _collect_bindings_in_module(node: ast.AST) -> None:
         for child in ast.walk(node):

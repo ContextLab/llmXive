@@ -24,3 +24,5 @@ literal shell-looking argument text, verifies credential stripping, and confirms
 that omitting required flags still fails. File-backed prompt tests verify the
 active constraints, invocation and exact prior failure reach the model. This does
 not establish full scientific acceptance of the live canary.
+
+A subsequent live attempt rejected a valid package initializer because the static missing-import check treated Python's implicit `__path__` as undefined. The guard now recognizes package globals for `__init__.py`; an actual subprocess import verifies the namespace-package pattern while an ordinary module still rejects undefined `__path__` and genuinely missing names.
