@@ -14,6 +14,18 @@ T002:
     \ script log (`code/.tasks/T002.code_create_data_dirs.py.log`) confirms they were\
     \ successfully created."
   sig: 543d992c841b844aac42f2a66e38e57117f9b867a0e19db2fb0c1f3103bb2006
+T003:
+  c: false
+  h: 075c5734b12aaf47346656370846d6135a8a9d5c3f95e5a935fd75b33e40cdd9
+  r: "`quickstart.md` exists and documents `python -m code.main --run-sample`, but\
+    \ there is no evidence that `code/main.py` exists or implements a `--run-sample`\
+    \ flag, and no execution evidence that the command runs within 30s and prints\
+    \ \"Sample run completed\" \u2014 the task's stated verification criterion. The\
+    \ document itself contains unresolved claims (e.g., `[UNRESOLVED-CLAIM: c_46498105]`)\
+    \ and references artifacts like `code/utils/seeds.py` and `data/logs/halt_report.json`\
+    \ with no confirmation they exist. The implementer must actually implement the\
+    \ sample-run entry point and provide a successful run"
+  sig: 51544907c766494921e530d1f9af961c10478e504d1c7b69238c2e423da5aa4e
 T004:
   c: false
   h: c5a10781fc6cb35e199177d1d39adca02e695354ff30c78af9b73ac1a2c4bdc5

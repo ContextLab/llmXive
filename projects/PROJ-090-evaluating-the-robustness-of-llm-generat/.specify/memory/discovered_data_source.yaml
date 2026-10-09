@@ -1,30 +1,12 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: 'import datasets
-
-
-  ds = datasets.load_dataset("openai/openai_humaneval", split="test")
-
-  records = len(ds)
-
-  print(f"RECORDS={records}")
-
-
-  print("FIELDS=" + ",".join(ds.column_names))'
-record_count: 164
-sample_fields:
-- task_id
-- prompt
-- canonical_solution
-- test
-- entry_point
-field_coverage: 1.0
+status: none
+intent: HumanEval dataset HuggingFace download and sentence-transformers all-MiniLM-L6-v2
+  python package dataset
 required_fields:
 - task_id
 - prompt
 - canonical_solution
 - test_cases
 - entry_point
-intent: download HumanEval dataset from HuggingFace as python package dataset
-cache_key: 06a6cc2c6e023a9c91083cdfe8cd7fc80b44d24eb74694e8addc0dbf8377fd48
+cache_key: 286195923a09ddca44571eb8df0fb629cf8384434a22151e35025020da928ac0
+searched_at: '2026-10-09T23:35:38.381908+00:00'
+retry_count: 1

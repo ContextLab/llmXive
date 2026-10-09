@@ -63,7 +63,7 @@ This will generate all declared artifacts under `data/processed/` and logs under
 
 ## Troubleshooting
 
-- **OOM Error**: If the model fails to load, check RAM usage. Low‑bit quantization should keep usage within the resource‑constrained memory budget. If it exceeds, the pipeline will automatically fallback to `starcoder2-1b`. If the fallback also fails, check `data/logs/halt_report.json` for details.
+- **OOM Error**: If the model fails to load, check RAM usage. Low‑bit quantization should keep usage within the resource‑constrained memory budget. If it exceeds, the pipeline will automatically fallback to `starcoder2-1b`. [UNRESOLVED-CLAIM: c_1a214b44 — status=not_enough_info] If the fallback also fails, check `data/logs/halt_report.json` for details.
 - **Timeout**: If the pipeline exceeds an acceptable duration threshold, check network speed for model downloads. The StarCoder model size is suitable for standard consumer hardware deployment. The budget includes fallback time.
 - **Dataset Error**: If `openai/openai_humaneval` fails to load, verify internet connectivity.
 - **Missing Output Files**: If expected JSON files are missing, consult the relevant script logs in `data/logs/` for errors.

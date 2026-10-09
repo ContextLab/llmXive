@@ -1,39 +1,36 @@
-"""
-Test that the quick‑start sample command runs correctly.
-
-The verification for task T003 requires that executing:
-    python -m code.main --run-sample
-finishes quickly and prints exactly “Sample run completed”.
-
-This test launches the module in a subprocess, captures stdout,
-and asserts that the expected string appears.  A timeout of 30 seconds
-is enforced to guarantee the command terminates promptly.
-"""
-
 import subprocess
 import sys
 import os
-import unittest
-from pathlib import Path
 
-class TestQuickstartSampleRun(unittest.TestCase):
-    def test_sample_run_output(self):
-        # Build the command: use the current interpreter to run the module
-        cmd = [sys.executable, "-m", "code.main", "--run-sample"]
-        # Run with a timeout of 30 seconds
-        result = subprocess.run(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            timeout=30,
-            cwd=Path(__file__).resolve().parents[1]  # project root
-        )
-        # Decode output
-        stdout = result.stdout.decode(errors="ignore").strip()
-        # The script should exit with code 0
-        self.assertEqual(result.returncode, 0, msg=f"Non‑zero exit code: {result.stderr.decode()}")
-        # Verify the exact expected output
-        self.assertIn("Sample run completed", stdout)
+def test_quickstart_sample_run():
+    """
+    Executes the quickstart sample command and verifies it completes
+    within the time budget and prints the expected confirmation string.
+    """
+    # Ensure the repository root is in the PYTHONPATH
+    repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    env = os.environ.copy()
+    env["PYTHONPATH"] = repo_root + os.pathsep + env.get("PYTHONPATH", "")
+
+    # Run the command as a subprocess
+    result = subprocess.run(
+        [sys.executable, "-m", "code.main", "--run-sample"],
+        cwd=repo_root,
+        env=env,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        timeout=30,
+    )
+
+    # Verify exit code
+    assert result.returncode == 0, f"Non-zero exit code: {result.returncode}\\nStderr: {result.stderr}"
+
+    # Verify expected output
+    expected_output = "Sample run completed"
+    assert expected_output in result.stdout, f"Expected output not found. Got: {result.stdout}"
 
 if __name__ == "__main__":
-    unittest.main()
+    # Allow the test to be run directly
+    test_quickstart_sample_run()
+    print("Quickstart sample run test passed.")

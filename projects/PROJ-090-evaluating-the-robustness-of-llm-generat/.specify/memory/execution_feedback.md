@@ -8,16 +8,16 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/main.py -> rc=1
 
-2026-10-09 23:30:49,013 - llmXive.budget - INFO - Starting Budget Cap Enforcer (T029b)...
-2026-10-09 23:30:49 - llmXive.budget - INFO - Starting Budget Cap Enforcer (T029b)...
-2026-10-09 23:30:49,013 - llmXive.budget - INFO - Loading feasibility config from data/config/feasibility.json
-2026-10-09 23:30:49 - llmXive.budget - INFO - Loading feasibility config from data/config/feasibility.json
-2026-10-09 23:30:49,013 - llmXive.budget - INFO - Budget cap determined: 4 samples
-2026-10-09 23:30:49 - llmXive.budget - INFO - Budget cap determined: 4 samples
-2026-10-09 23:30:49,013 - llmXive.budget - INFO - Loading original HumanEval tasks...
-2026-10-09 23:30:49 - llmXive.budget - INFO - Loading original HumanEval tasks...
-2026-10-09 23:30:49,013 - llmXive.budget - ERROR - Data file missing: Original HumanEval data not found at data/raw/humaneval.json. Ensure T010 (download) has been executed.
-2026-10-09 23:30:49 - llmXive.budget - ERROR - Data file missing: Original HumanEval data not found at data/raw/humaneval.json. Ensure T010 (download) has been executed.
+2026-10-09 23:32:53,209 - llmXive.budget - INFO - Starting Budget Cap Enforcer (T029b)...
+2026-10-09 23:32:53 - llmXive.budget - INFO - Starting Budget Cap Enforcer (T029b)...
+2026-10-09 23:32:53,209 - llmXive.budget - INFO - Loading feasibility config from data/config/feasibility.json
+2026-10-09 23:32:53 - llmXive.budget - INFO - Loading feasibility config from data/config/feasibility.json
+2026-10-09 23:32:53,210 - llmXive.budget - INFO - Budget cap determined: 4 samples
+2026-10-09 23:32:53 - llmXive.budget - INFO - Budget cap determined: 4 samples
+2026-10-09 23:32:53,210 - llmXive.budget - INFO - Loading original HumanEval tasks...
+2026-10-09 23:32:53 - llmXive.budget - INFO - Loading original HumanEval tasks...
+2026-10-09 23:32:53,210 - llmXive.budget - ERROR - Data file missing: Original HumanEval data not found at data/raw/humaneval.json. Ensure T010 (download) has been executed.
+2026-10-09 23:32:53 - llmXive.budget - ERROR - Data file missing: Original HumanEval data not found at data/raw/humaneval.json. Ensure T010 (download) has been executed.
 
 
 ## Declared deliverables still missing
@@ -28,26 +28,6 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - data/processed/perturbation_candidates.json
 - data/processed/perturbation_candidates_raw.json
 - data/processed/perturbation_candidates_validated.json
-
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
-
-- **Install**: add `datasets` to the project's `requirements.txt` and `pip install datasets`.
-- **Verified**: this loads **164** real records with fields: task_id, prompt, canonical_solution, test, entry_point.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-import datasets
-
-ds = datasets.load_dataset("openai/openai_humaneval", split="test")
-records = len(ds)
-print(f"RECORDS={records}")
-
-print("FIELDS=" + ",".join(ds.column_names))
-```
-
-Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 

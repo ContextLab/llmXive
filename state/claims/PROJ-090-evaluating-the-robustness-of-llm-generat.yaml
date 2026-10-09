@@ -3746,6 +3746,24 @@
   updated_at: '2026-10-09T23:24:41Z'
 - artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/quickstart.md
   attempts: 1
+  canonical: sample run completes within 30 seconds
+  claim_id: c_2fe1c0dc
+  context: "The command should finish within 30\u202Fseconds and print: Sample run\
+    \ completed. This confirms that the entry point is correctly wired and the sample\
+    \ execution path works."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The command should finish within 30\u202Fseconds and print: Sample run\
+    \ completed"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T23:32:28Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/quickstart.md
+  attempts: 2
   canonical: pipeline generates artifacts under data/processed and logs under data/logs
   claim_id: c_46498105
   context: "For the complete end\u2011to\u2011end run (download, perturb, validate,\
@@ -3761,4 +3779,22 @@
   source_hash: null
   source_type: result
   status: not_enough_info
-  updated_at: '2026-10-09T23:24:42Z'
+  updated_at: '2026-10-09T23:32:28Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/quickstart.md
+  attempts: 1
+  canonical: "pipeline falls back to starcoder2-1b if low\u2011bit quantization exceeds\
+    \ memory budget"
+  claim_id: c_1a214b44
+  context: "If the model fails to load, check RAM usage. Low\u2011bit quantization\
+    \ should keep usage within the resource\u2011constrained memory budget. If it\
+    \ exceeds, the pipeline will automatically fallback to `starcoder2-1b`."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: If it exceeds, the pipeline will automatically fallback to `starcoder2-1b`.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T23:32:29Z'

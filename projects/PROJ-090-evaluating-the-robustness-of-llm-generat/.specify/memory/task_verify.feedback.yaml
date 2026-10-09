@@ -3,11 +3,14 @@ T001:
 T002:
   task: b50dbadc959c71789d2868e7fedf8125d7cbbbc9e64ca28a3c9465e00b476239
 T003:
-  reason: "The quickstart.md file exists and documents the required command, but there\
-    \ is no evidence (e.g., a terminal log, timing report, or test script output)\
-    \ showing that `python -m code.main --run-sample` actually finishes within 30\u202F\
-    seconds and prints \u201CSample run completed\u201D. Execution proof is needed\
-    \ to satisfy the verification condition."
+  reason: "`quickstart.md` exists and documents `python -m code.main --run-sample`,\
+    \ but there is no evidence that `code/main.py` exists or implements a `--run-sample`\
+    \ flag, and no execution evidence that the command runs within 30s and prints\
+    \ \"Sample run completed\" \u2014 the task's stated verification criterion. The\
+    \ document itself contains unresolved claims (e.g., `[UNRESOLVED-CLAIM: c_46498105]`)\
+    \ and references artifacts like `code/utils/seeds.py` and `data/logs/halt_report.json`\
+    \ with no confirmation they exist. The implementer must actually implement the\
+    \ sample-run entry point and provide a successful run"
   task: 11bcac113bdf1cbff21c87c44d635ada5dcfe938d5f75cbf9889cc1fa7b6a335
 T004:
   reason: "`code/utils/logging.py` does contain a real `setup_logger()` that configures\
