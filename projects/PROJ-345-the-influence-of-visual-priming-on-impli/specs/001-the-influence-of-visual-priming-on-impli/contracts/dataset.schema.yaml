@@ -13,7 +13,7 @@ properties:
     description: "Response time in milliseconds"
   prime_valence:
     type: "number"
-    description: "Derived or human-rated prime valence score"
+    description: "Derived or human‑rated prime valence score"
     minimum: -1.0
     maximum: 1.0
   stimulus_ambiguity:
@@ -31,6 +31,15 @@ properties:
       - "missing_image"
       - "missing_metadata"
     description: "Status of the linkage process"
+  demographics_status:
+    type: "string"
+    enum:
+      - "complete"
+      - "missing_age"
+      - "missing_gender"
+      - "missing_education"
+      - "missing_all"
+    description: "Presence of demographic covariates"
 required:
   - trial_id
   - participant_id
@@ -39,4 +48,5 @@ required:
   - stimulus_ambiguity
   - stimulus_id
   - linkage_status
+  - demographics_status
 additionalProperties: false

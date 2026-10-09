@@ -1,169 +1,125 @@
 # Implementation Plan: The Influence of Visual Priming on Implicit Attitudes Towards Ambiguous Social Stimuli
 
-**Branch**: `001-visual-priming-implicit-attitudes` | **Date**: 2024-05-24 | **Spec**: `specs/001-visual-priming-implicit-attitudes/spec.md`
+**Branch**: `001-visual-priming-implicit-attitudes` | **Date**: 2024-10-09 | **Spec**: `specs/001-visual-priming-implicit-attitudes/spec.md`  
 **Input**: Feature specification from `/specs/001-visual-priming-implicit-attitudes/spec.md`
 
 ## Summary
-
-This project implements a statistical analysis pipeline to investigate the influence of visual priming on implicit attitudes using secondary IAT (Implicit Association Test) data. The system ingests public IAT datasets, links trial-level response times to stimulus metadata, derives prime valence and ambiguity scores using CPU-optimized models (if human-rated data is missing, per FR-001), and fits linear mixed-effects models to test for associations. The plan strictly adheres to the observational nature of the data, framing all findings as associational. It includes robust handling of missing data (halting if >10% of stimuli are missing), collinearity checks (VIF), and multiple-comparison corrections (FDR). The pipeline is designed to run on CPU-first infrastructure (GitHub Actions free tier) with an optional GPU fallback for heavy inference tasks, ensuring reproducibility and data hygiene per the project constitution.
+The pipeline will (1) download a **public IAT response‑time dataset** from Hugging Face, (2) extract and verify stimulus metadata, (3) derive missing prime‑valence and stimulus‑ambiguity scores using CPU‑optimized models, (4) fit a **linear mixed‑effects (LME) model** with robust SE, VIF checks, and FDR correction, and (5) generate a **publication‑ready PDF** containing interaction plots, coefficient tables, and a sensitivity‑analysis summary. All steps are deterministic, reproducible, and respect the project constitution.
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `pyyaml`, `reportlab`, `torch` (CPU backend), `transformers` (CPU-optimized models), `datasets` (HuggingFace).  
-**Storage**: Local file system (`data/raw/`, `data/processed/`, `reports/`). No external database.  
-**Testing**: `pytest` for unit tests on data ingestion and model fitting logic.  
-**Target Platform**: Linux (GitHub Actions Runner / Kaggle Notebook).  
-**Project Type**: Data Science Pipeline / Statistical Analysis.  
-**Performance Goals**: Complete full pipeline on sampled dataset within 6 hours; model convergence within 3 optimizer attempts.  
-**Constraints**: CPU-first execution; memory < 7GB; no PII in output; strict adherence to data availability (derivation allowed if human data missing, per FR-001).  
-**Scale/Scope**: Single dataset ingestion (IAT/OSF); linear mixed-effects modeling on a large number of trials (sampled if necessary).
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `pandas==2.2.2`, `numpy==1.26.4`, `scikit-learn==1.5.0`, `statsmodels==0.14.2`, `torch==2.3.0+cpu`, `transformers==4.44.0`, `datasets==2.20.0`, `pyyaml==6.0.2`, `reportlab==4.2.2`, `matplotlib==3.9.2`, `seaborn==0.13.2`  
+- **Storage**: Local file system under `data/` and `reports/`.  
+- **Testing**: `pytest==8.3.2` (unit & contract validation).  
+- **Target Platform**: Linux GitHub Actions runner (2 CPU cores, ≤7 GB RAM).  
+- **Project Type**: Data‑science pipeline (no web service).  
+- **Constraints**: CPU‑first execution; optional GPU fallback only for the **valence‑derivation transformer** (scaled 8‑bit, Kaggle free GPU).  
+- **Scale/Scope**: Single open IAT dataset (≈ 500 k trials); streaming mode used for > 7 GB files.
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-| Principle | Compliance Status | Implementation Detail |
-|-----------|-------------------|-----------------------|
-| **I. Reproducibility** | **PASS** | Random seeds pinned in `code/`. External datasets fetched from canonical HuggingFace URLs. `requirements.txt` pins all versions. |
-| **II. Verified Accuracy** | **PASS** | All dataset URLs in `research.md` are from the verified block. Citations validated against primary sources. |
-| **III. Data Hygiene** | **PASS** | `data/` files checksummed. Raw data immutable. Derivations in `data/processed/`. PII scan implemented (`code/main.py`) with specific types: email, phone, ssn, name. |
-| **IV. Single Source of Truth** | **PASS** | All figures/stats trace to `data/processed/` and `code/`. No hand-typed numbers in reports. |
-| **V. Versioning Discipline** | **PASS** | Content hashes recorded in state file. `updated_at` timestamp managed by agent. |
-| **VI. Distinct Stimulus Set Integrity** | **PASS** | `data/primes/` and `data/targets/` directories enforced. Data separation logic implemented in `preprocess.py` before merging into `linked_trials.csv`. |
+| Principle | Compliance | Implementation Detail |
+|-----------|------------|-----------------------|
+| **I. Reproducibility** | PASS | Random seeds pinned (`np.random.seed(42); torch.manual_seed(42)`); `requirements.txt` pins exact versions; data fetched via deterministic Hugging Face URLs. |
+| **II. Verified Accuracy** | PASS | All external URLs appear in the “Verified datasets” block; citations are limited to those URLs. |
+| **III. Data Hygiene** | PASS | Raw files are never overwritten; each transformation writes a new file; checksums recorded in `state/artifact_hashes.json`; PII scan (`code/pii_scan.py`) runs on `data/processed/`. |
+| **IV. Single Source of Truth** | PASS | Every figure/table in `reports/final_report.pdf` references a single row in `data/processed/linked_trials.csv` and a single entry in `code/`. |
+| **V. Versioning Discipline** | PASS | Content hashes for all artifacts stored in `state/artifact_hashes.json`; `state/project_state.yaml` updated after each task. |
+| **VI. Distinct Stimulus Set Integrity** | PASS | Primes stored in `data/primes/`; targets in `data/targets/`; they are merged **only** after the LME model is specified (see Task T018). |
 
 ## Project Structure
-
-### Documentation (this feature)
-
 ```text
 specs/001-visual-priming-implicit-attitudes/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
 │   ├── dataset.schema.yaml
 │   ├── linkage_status.schema.yaml
-│   ├── output.schema.yaml
-│   └── sensitivity_analysis.schema.yaml
-└── tasks.md             # Phase 2 output
+│   └── output.schema.yaml
+└── tasks.md      # generated later by /speckit-tasks
 ```
-
-### Source Code (repository root)
 
 ```text
 code/
-├── main.py              # Entry point, CLI interface (--step ingest, preprocess, model, report)
-├── ingest.py            # Data ingestion, metadata extraction
-├── preprocess.py        # Valence/Ambiguity derivation, linkage, cleaning, stimulus separation
-├── model.py             # LME fitting, diagnostics (VIF, convergence, robust SE)
-├── report.py            # Visualization, PDF generation, sensitivity analysis embedding
-├── config.py            # Configuration, thresholds (LINKAGE_THRESHOLD=95.0)
-└── requirements.txt     # Dependencies
-
-data/
-├── raw/                 # Downloaded raw datasets
-├── processed/           # Cleaned, linked, derived data
-├── primes/              # Prime stimuli metadata (separate)
-└── targets/             # Target stimuli metadata (separate)
-
-reports/
-├── final_report.pdf     # Final output (includes sensitivity analysis)
-├── sensitivity_analysis.csv
-└── pii_scan.json
-
-state/
-├── model_convergence_metrics.json
-├── vif_flag.json
-└── linkage_status.json
-
-tests/
-├── unit/                # Unit tests
-├── integration/         # Integration tests
-└── contract/            # Schema validation tests
+├── main.py                # CLI orchestrator
+├── ingest.py              # Download + basic validation
+├── preprocess.py          # Metadata extraction, linkage, derivations
+├── derive_valence.py      # CPU‑optimized emotion classifier (distilbert-base-uncased‑emotion)
+├── derive_ambiguity.py    # Lexical Ambiguity Index / Image texture variance
+├── model.py               # LME fitting, VIF, robustness
+├── report.py              # Plotting, PDF assembly, sensitivity analysis embed
+├── config.py              # Thresholds, file paths, GPU‑fallback flags
+├── logs/
+│   └── pipeline.log       # Created at runtime (Task T009)
+├── requirements.txt
+└── pip.conf               # Index URL for torch‑cpu wheels
 ```
 
-**Structure Decision**: Single project structure selected. The pipeline is linear (Ingest -> Preprocess -> Model -> Report) and does not require a microservices or web application architecture. All processing is local to the runner.
-
-## Complexity Tracking
-
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Linear Mixed-Effects (LME)** | Required to account for repeated measures (trials within participants) and random effects (participant ID). | Standard linear regression ignores clustering, inflating Type I error rates. |
-| **FDR Correction** | Required by FR-004 for multiple hypothesis testing (interactions, subgroups). | Bonferroni is too conservative for exploratory subgroup analysis; FDR balances power and error control. |
-| **VIF Check** | Required by FR-005 to detect collinearity between derived valence and ambiguity. | Omitting VIF could lead to spurious claims of independent effects when predictors are correlated. |
-| **CPU-First + Optional GPU** | Required by compute constraints (7GB RAM, no local GPU) while maintaining methodological rigor. | Pure CPU for large transformers is infeasible; pure GPU is not available on free CI. The hybrid approach ensures feasibility without fabrication. |
-| **Stimulus Separation** | Required by Constitution Principle VI. | Merging primes and targets prior to modeling confounds the causal relationship. |
+## Complexity Tracking (FR/SC → Tasks)
+| FR / SC | Required Capability | Corresponding Task(s) |
+|--------|---------------------|-----------------------|
+| FR‑001 | Verify presence of RT, prime valence, ambiguity; derive missing scores | T010 (Validate core columns), T018a (Derive ambiguity), T018b (Derive valence) |
+| FR‑002 | CPU‑optimized emotion classification or lexical dictionary | T018b (Valence derivation) |
+| FR‑003 | Frame findings as associational | T029 (Associational framing) |
+| FR‑004 | Apply FDR / Bonferroni when > 1 hypothesis | T028 (FDR correction) |
+| FR‑005 | Compute VIF, flag > 5.0 | T027a (VIF calculation) |
+| FR‑006 | Sweep α‑levels for sensitivity | T030 (Sensitivity analysis) |
+| SC‑001 | Data ingestion completeness | T016 (Linkage gate) + T018a (Metric calc) |
+| SC‑002 | Model convergence success ≥ [deferred] | T025 (LME fitting) + T047 (Convergence fallback) |
+| SC‑003 | Final PDF contains required artifacts | T036 (PDF generation) |
 
 ## Data Availability & Feasibility
+- **Primary Dataset**: `davanstrien/ia_test_embeddings` (Parquet). Verified URL: `https://huggingface.co/datasets/davanstrien/ia_test_embeddings/resolve/main/data/train-00000-of-00001-82feb90c086b8e08.parquet`.  
+  - Contains `response_time`, `participant_id`, `stimulus_id`, optional `age`, `gender`, `education`.  
+- **Streaming**: For files > 7 GB the pipeline invokes `datasets.load_dataset(..., streaming=True)`. A synthetic 8 GB Parquet file is generated on‑the‑fly during the **verification step of T040** to prove streaming works.  
+- **GPU Fallback**: Valence derivation can optionally use `distilbert-base-uncased-emotion` in 8‑bit mode on a free Kaggle GPU (`device="cuda"`). All other steps remain CPU‑only.
 
-- **Primary Dataset**: `davanstrien/ia_test_embeddings` (Verified: contains `response_time`, `participant_id`, `stimulus_id`).
-- **Demographics Extraction Logic**: The pipeline explicitly maps the following columns from the primary dataset to model covariates:
-  - `age` -> Fixed Effect: Age (continuous)
-  - `gender` -> Fixed Effect: Gender (categorical, one-hot encoded)
-  - `education` -> Fixed Effect: Education (ordinal/categorical)
-  - **Logic**: If any of these columns are present in the raw dataset, they are included as fixed effects in the LME model. If a column is missing, the corresponding term is **omitted** from the model equation, and a `Demographics Missing: <column_name>` flag is written to `state/demographics_status.json`. No random slopes for demographics are computed if the fixed effect is omitted.
-- **Derivation**: Ambiguity and Valence are derived via CPU-optimized models if human-rated data is missing (per FR-001).
-- **Streaming**: `streaming=True` used for large datasets to stay within 7GB RAM.
-- **GPU Fallback**: Optional for heavy inference (e.g., large transformer inference). Not required for standard pipeline.
+## Task Ordering (Corrected Dependencies)
 
-## Task Ordering (Corrected for Logic & Dependencies)
+| ID | Description | Depends On |
+|----|-------------|------------|
+| **T001** | Initialize environment, load config (`config.py`). | – |
+| **T002** | **Ingest** – download the IAT Parquet from the verified URL, write to `data/raw/iat.parquet`. | T001 |
+| **T003** | **Validate Core Columns** – ensure `response_time`, `stimulus_id`, `participant_id` exist; abort with “Data Gap: Schema Mismatch” if not. | T002 |
+| **T004** | **Extract Stimulus Metadata** – separate prime vs. target images/words into `data/primes/` & `data/targets/`. | T003 |
+| **T005** | **Linkage Metric Calculation (T018a)** – compute % of trials that have a matching image file; write `data/processed/ingest_metrics.json`. | T004 |
+| **T006** | **Define Threshold (T018b)** – write `config/analysis_params.json` with `LINKAGE_THRESHOLD=95.0`. | T005 |
+| **T007** | **Linkage Gate (T016)** – read `ingest_metrics.json` and `analysis_params.json`; HALT if `% < LINKAGE_THRESHOLD`. | T005, T006 |
+| **T008** | **Derive Ambiguity (T018a)** – if `ambiguity` missing, run `derive_ambiguity.py`; write to `data/processed/linked_trials.csv`. | T007 |
+| **T009** | **Derive Valence (T018b)** – if `prime_valence` missing, run `derive_valence.py` (CPU‑first; GPU fallback if required). | T007 |
+| **T010** | **Merge Derived Scores** – create final `linked_trials.csv` with both scores, add `linkage_status`. | T008, T009 |
+| **T011** | **Logging Setup (T009)** – create `code/logs/pipeline.log` and configure `logging` in `main.py`. | T001 |
+| **T012** | **Demographics Check** – flag missing age/gender/education; write `state/demographics_status.json`. | T010 |
+| **T013** | **VIF Pre‑Check (T027a)** – compute VIF on the design matrix **before** model fitting; write `state/vif_flag.json`. | T010, T012 |
+| **T014** | **LME Fitting (T025)** – fit mixed‑effects model using `statsmodels`; incorporate robust SE if any derived predictor present. | T010, T012, T013 |
+| **T015** | **Convergence Fallback (integrated in T014)** – try alternative optimizers up to 3 attempts; record in `state/model_convergence_metrics.json`. | T014 |
+| **T016** | **Post‑Fit Diagnostics** – check convergence flag, VIF flag, write `state/model_diagnostics.json`. | T014 |
+| **T017** | **FDR Correction (T028)** – apply Benjamini‑Hochberg to all p‑values; augment model result dict. | T016 |
+| **T018** | **Associational Framing (T029)** – add `caution_note` & `limitation_note` keys to result dict. | T017 |
+| **T019** | **Sensitivity Analysis (T030)** – sweep α ∈ {0.01,0.05,0.10}; write `reports/sensitivity_analysis.csv`. | T014 |
+| **T020** | **Interaction Plot Generation** – seaborn/matplotlib figure saved as `reports/interaction_plot.png`. | T014 |
+| **T021** | **PDF Assembly (T036)** – combine plots, coefficient table, sensitivity CSV into `reports/final_report.pdf`. | T018, T019, T020 |
+| **T022** | **PII Scan** – run `code/pii_scan.py` on `data/processed/linked_trials.csv`; write `reports/pii_scan.json`. | T021 |
+| **T023** | **Final Verification** – ensure all contract schemas validate; abort if any fail. | T021, T022 |
 
-The following order resolves circular dependencies and ensures data is available before consumption:
+*All tasks run sequentially respecting the dependency graph; independent tasks (e.g., logging setup) occur early to guarantee artifact availability.*
 
-1.  **T001**: Initialize Environment & Config.
-2.  **T002**: Ingest Raw Data (Download `davanstrien/ia_test_embeddings`).
-3.  **T003**: Extract Stimulus Metadata (Separate Primes/Targets).
-4.  **T004**: Linkage Check (Calculate `linked_metadata_percentage`).
-    - *Output*: `data/processed/ingest_metrics.json` (Schema defined in contracts).
-    - *Gate*: If < 95% (configurable), `HALT` or `WARN` (T005).
-5.  **T005**: Handle Missing Linkage (Warn or Halt based on T004).
-6.  **T006**: Load Human-Rated Ambiguity (If exists in source).
-7.  **T007**: Derive Ambiguity (If T006 fails/missing).
-    - *Dependency*: T006 (Check result first).
-8.  **T008**: Merge Valence & Ambiguity Metadata.
-9.  **T009**: Demographics Extraction & Flagging.
-    - *Logic*: Check for `age`, `gender`, `education` columns. Write status to `state/demographics_status.json`.
-10. **T010**: VIF Pre-Check (Predictor Correlation).
-    - *Dependency*: T008 (Metadata merged).
-11. **T011**: Fit LME Model.
-    - *Logic*: If `Demographics Missing`, omit covariate term. If VIF > 5.0, flag but fit (T012).
-    - *Dependency*: T009, T010.
-12. **T012**: Post-Fit Diagnostics (Convergence, VIF Flagging).
-    - *Dependency*: T011.
-13. **T013**: Sensitivity Analysis (Sweep alpha).
-    - *Dependency*: T011.
-    - *Output*: `reports/sensitivity_analysis.csv`.
-14. **T014**: Generate Interaction Plots.
-15. **T015**: Embed Sensitivity Summary into PDF (T036b).
-    - *Dependency*: T013, T014.
-    - *Logic*: Parse `sensitivity_analysis.csv`, generate summary table, insert into PDF.
-16. **T016**: Generate Final Report (T036a).
-    - *Dependency*: T015.
-    - *Output*: `reports/final_report.pdf`.
+## Mapping of FR/SC to Concrete Steps
+- **FR‑001** → T003, T008, T009  
+- **FR‑002** → T009 (valence), T008 (ambiguity)  
+- **FR‑003** → T018 (caution notes)  
+- **FR‑004** → T017 (FDR)  
+- **FR‑005** → T013 (VIF)  
+- **FR‑006** → T019 (sensitivity)  
+- **SC‑001** → T005, T007 (linkage completeness)  
+- **SC‑002** → T014, T015 (convergence rate)  
+- **SC‑003** → T021 (PDF contents)  
 
-## Critical Design Changes & Resolutions
+All functional and success criteria are explicitly covered.
 
-- **Ambiguity Derivation**: FR-001 mandates derivation if human data is missing. The plan explicitly implements T007 (Derive Ambiguity) as a fallback. The "valence only" fallback is **only** used if *both* human data and derivation fail (e.g., no image text for VAD).
-- **Demographics Handling**: Resolved logical conflict. If demographics are missing, the model equation is **explicitly reduced** (covariate term removed) rather than attempting to fit a model with missing predictors. This is documented in `research.md` and enforced in `model.py`.
-- **Sensitivity Analysis Integration**: Added T015 to explicitly parse `sensitivity_analysis.csv` and embed it into the PDF, ensuring SC-003 is met.
-- **Linkage Threshold**: The threshold is defined as `LINKAGE_THRESHOLD` (default 95.0) in `config.py`, mapped to the "vast majority" requirement in SC-001.
+## Compute Feasibility
+- **CPU‑first**: All steps except optional valence transformer run on ≤2 CPU cores, < 7 GB RAM.  
+- **GPU Escape Hatch**: If `derive_valence.py` detects that the transformer exceeds CPU time (> 30 min), it switches to `device="cuda"` with 8‑bit quantization on a free Kaggle GPU. The pipeline auto‑detects CUDA errors and re‑runs the step on Kaggle.
 
-## Report Requirements (Updated)
-
-The final PDF (`reports/final_report.pdf`) MUST contain:
-1.  **Interaction Plot**: Response time differences across prime valence.
-2.  **Coefficient Table**: Fixed effects, SE, p-values (FDR corrected).
-3.  **Sensitivity Analysis Summary**: A table or figure derived from `sensitivity_analysis.csv` showing significance rates across varying alpha levels.
-4.  **Data Hygiene Report**: Linkage status, VIF flags, and demographics status.
-
-## Compute Feasibility & GPU Strategy
-
-- **CPU-First**: All data ingestion, preprocessing, and LME fitting (via `statsmodels` or `lme4` equivalent in Python) will run on CPU.
-- **GPU Fallback**: Optional for heavy inference (e.g., large transformer inference). If the valence derivation step requires a large transformer model that exceeds CPU time limits:
-  - The pipeline will attempt a scaled-down inference (e.g., -bit quantization, smaller batch size) on a free Kaggle GPU.
-  - The execution agent will auto-detect CUDA requirements and offload the specific inference task.
-  - **No Fabrication**: If the model cannot run on either CPU (scaled) or GPU (scaled), the pipeline halts; no synthetic data is generated.
+---

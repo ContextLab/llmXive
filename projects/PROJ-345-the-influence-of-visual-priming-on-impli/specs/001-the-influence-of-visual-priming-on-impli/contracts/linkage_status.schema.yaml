@@ -19,7 +19,7 @@ properties:
     description: "Threshold used for evaluation (e.g., 95.0)"
   message:
     type: "string"
-    description: "Human-readable message explaining the status"
+    description: "Human‑readable explanation of the status"
 required:
   - status
   - percentage

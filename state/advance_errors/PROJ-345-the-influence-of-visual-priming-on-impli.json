@@ -1,0 +1,14 @@
+{
+  "project_id": "PROJ-345-the-influence-of-visual-priming-on-impli",
+  "stage": "clarified",
+  "class": "transient",
+  "fingerprint": "model_chain_failed",
+  "consecutive_count": 1,
+  "first_seen": "2026-10-09T21:35:53.924793+00:00",
+  "last_seen": "2026-10-09T21:35:53.924793+00:00",
+  "retry_after": "2026-10-09T21:45:53.924793+00:00",
+  "last_error": "every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min | google.gemma-4-31B-it(model-down attempt 1): Dartmouth model 'google.gemma-4-31B-it' hung past 180s deadline (no response received)",
+  "evidence": "every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min | google.gemma-4-31B-it(model-down attempt 1): Dartmouth model 'google.gemma-4-31B-it' hung past 180s deadline (no response received)",
+  "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
+  "status": "retry_scheduled"
+}

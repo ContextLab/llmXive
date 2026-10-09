@@ -1,81 +1,87 @@
 # Data Model: The Influence of Visual Priming on Implicit Attitudes Towards Ambiguous Social Stimuli
 
-## 1. Entity-Relationship Overview
+## 1. Entity Overview
+| Entity | Primary Attributes | Description |
+|---|---|---|
+| **Participant** | `participant_id` (string), optional `age`, `gender`, `education` | Unique subject identifier; demographics may be missing. |
+| **Trial** | `trial_id`, `participant_id`, `response_time`, `stimulus_id`, `prime_valence`, `stimulus_ambiguity`, `linkage_status`, `demographics_status` | One observation linking a participant to a stimulus under a prime condition. |
+| **Stimulus** | `stimulus_id`, `type` (image/word), `prime_valence` (derived or human‑rated), `ambiguity` (derived or human‑rated) | Stored separately in `data/primes/` and `data/targets/` per Constitution Principle VI. |
 
-The data model consists of three primary entities: `Participant`, `Trial`, and `Stimulus`.
-- **Participant**: Unique ID, demographic metadata (if available).
-- **Trial**: Link between Participant and Stimulus, containing response time and condition.
-- **Stimulus**: Image/Text content, valence score, ambiguity score.
+## 2. Schemas
 
-**Stimulus Separation**: `data/primes/` and `data/targets/` are populated and processed independently before the final `linked_trials.csv` is generated, satisfying Constitution Principle VI.
+### 2.1 Processed Trial Schema (`data/processed/linked_trials.csv`)
+| Column | Type | Constraints |
+|---|---|---|
+| `trial_id` | string | unique |
+| `participant_id` | string | foreign key → Participant |
+| `response_time` | number (ms) | > 0 |
+| `prime_valence` | number | range `[-1.0, 1.0]` |
+| `stimulus_ambiguity` | number | range `[0.0, 1.0]` |
+| `stimulus_id` | string | foreign key → Stimulus |
+| `linkage_status` | string | enum: `linked`, `missing_image`, `missing_metadata` |
+| `demographics_status` | string | enum: `complete`, `missing_age`, `missing_gender`, `missing_education`, `missing_all` |
 
-## 2. Schema Definitions
+### 2.2 Linkage Status Artifact (`state/linkage_status.json`)
+```json
+{
+  "status": "PASS|WARN|HALT",
+  "percentage": 0.0,
+  "threshold": 95.0,
+  "message": "string"
+}
+```
 
-### 2.1. Raw Input Schema (IAT Dataset)
-Derived from `davanstrien/ia_test_embeddings`.
-- `trial_id`: String (Unique identifier)
-- `participant_id`: String (Unique identifier)
-- `response_time`: Float (ms)
-- `stimulus_id`: String (Link to stimulus metadata)
-- `condition`: String (Prime/Target condition)
-- `age`: Float (Optional)
-- `gender`: String (Optional)
-- `education`: String (Optional)
+### 2.3 Model Convergence Metrics (`state/model_convergence_metrics.json`)
+| Field | Type | Description |
+|---|---|---|
+| `convergence_rate` | number ∈[0,1] | Successful fits / total attempts |
+| `total_attempts` | integer ≥1 | Number of optimizer tries |
+| `successful_runs` | integer ≥0 | Fits that converged |
+| `failed_runs` | integer ≥0 | Fits that failed |
+| `optimizer_settings` | array of strings | Descriptions of each optimizer tried |
 
-### 2.2. Processed Trial Schema (`data/processed/linked_trials.csv`)
-- `trial_id`: String
-- `participant_id`: String
-- `response_time`: Float
-- `prime_valence`: Float (Derived or Human-rated, -1 to 1)
-- `stimulus_ambiguity`: Float (Derived or Human-rated, 0 to 1)
-- `stimulus_id`: String
-- `linkage_status`: String ("linked", "missing_image", "missing_metadata")
-- `demographics_status`: String ("complete", "missing_age", "missing_gender", "missing_education", "missing_all")
+### 2.4 VIF Flag Artifact (`state/vif_flag.json`)
+| Field | Type | Description |
+|---|---|---|
+| `flagged` | boolean | True if any VIF > 5.0 |
+| `vif_values` | object (predictor → number) | Raw VIFs |
+| `claim_suppressed` | boolean | If true, the report omits independent‑effect language |
+| `message` | string | Human‑readable explanation |
 
-### 2.3. Linkage Status Artifact (`state/linkage_status.json`)
-- `status`: String ("PASS", "WARN", "HALT")
-- `percentage`: Float (0.0 to 100.0)
-- `threshold`: Float (Default 95.0)
-- `message`: String
+### 2.5 Sensitivity Analysis (`reports/sensitivity_analysis.csv`)
+| Column | Type | Description |
+|---|---|---|
+| `alpha_level` | number | Tested significance threshold |
+| `significant_interactions` | integer | Count of interaction terms passing FDR |
+| `total_tests` | integer | Number of fixed‑effect tests |
+| `fdr_corrected_p_values` | string (JSON list) | List of corrected p‑values |
+| `conclusion` | string | `"Significant"`, `"Non‑Significant"`, or `"Borderline"` |
 
-### 2.4. Model Output Schema (`state/model_convergence_metrics.json`)
-- `convergence_rate`: Float (0.0 to 1.0)
-- `total_attempts`: Integer
-- `successful_runs`: Integer
-- `failed_runs`: Integer
-- `optimizer_settings`: Array of Strings
+## 3. Data Flow Diagram
+1. **Ingest** → `data/raw/iat.parquet` (T002)  
+2. **Validate Columns** (T003) → abort if schema mismatch.  
+3. **Extract Stimulus Metadata** (T004) → `data/primes/`, `data/targets/`.  
+4. **Linkage Metric** (T005) → `state/linkage_status.json`.  
+5. **Threshold Definition** (T006) → `config/analysis_params.json`.  
+6. **Linkage Gate** (T007) → may halt.  
+7. **Derive Ambiguity / Valence** (T008‑T009) → add columns to `linked_trials.csv`.  
+8. **Merge & Finalize** (T010) → `data/processed/linked_trials.csv`.  
+9. **Demographics Flag** (T012) → `state/demographics_status.json`.  
+10. **VIF Check** (T013) → `state/vif_flag.json`.  
+11. **LME Fit** (T014) → `state/model_results.pkl`.  
+12. **Diagnostics / Convergence** (T015‑T016) → `state/model_convergence_metrics.json`.  
+13. **FDR & Framing** (T017‑T018) → augment result dict.  
+14. **Sensitivity Analysis** (T019) → `reports/sensitivity_analysis.csv`.  
+15. **Plot & PDF Generation** (T020‑T021) → `reports/final_report.pdf`.  
 
-### 2.5. VIF Flag Artifact (`state/vif_flag.json`)
-- `flagged`: Boolean
-- `vif_values`: Object (predictor: value)
-- `claim_suppressed`: Boolean
-- `message`: String
+All intermediate artifacts are validated against the JSON/YAML schemas in `contracts/`.
 
-### 2.6. Sensitivity Analysis Schema (`reports/sensitivity_analysis.csv`)
-- `alpha_level`: Float (0.01, 0.05, 0.10)
-- `significant_interactions`: Integer
-- `total_tests`: Integer
-- `fdr_corrected_p_values`: Array of Floats
-- `conclusion`: String ("Significant", "Non-Significant", "Borderline")
+## 4. Constraints & Validation Rules
+- **Linkage Threshold**: `percentage` ≥ `threshold` (default 95 %). If not, `status` = `HALT`.  
+- **Valence Range**: `prime_valence` ∈ [-1, 1].  
+- **Ambiguity Range**: `stimulus_ambiguity` ∈ [0, 1].  
+- **PII Scan**: `participant_id` must not match email, phone, SSN, or full name regexes.  
+- **VIF Flag**: If `flagged` = true, `claim_suppressed` = true and the PDF includes a warning.  
+- **Demographics Status**: Missing covariates lead to omission from the model (see §3.1 of `research.md`).  
 
-## 3. Data Flow
-
-1.  **Ingestion**: Raw Parquet/CSV -> `data/raw/`.
-2.  **Stimulus Separation**: Primes and Targets extracted to `data/primes/` and `data/targets/` respectively.
-3.  **Linkage**: Join `trial_id` with `stimulus_id` -> `data/processed/linked_trials.csv`.
-4.  **Derivation**: If `stimulus_ambiguity` missing, derive using independent method (Lexical Ambiguity / Texture Variance).
-5.  **Filtering**: Remove trials with `linkage_status` = "missing_image" if >10% (halt) or <10% (warn).
-6.  **Demographics Check**: Map `age`, `gender`, `education`. Write status to `state/demographics_status.json`.
-7.  **Modeling**: `linked_trials.csv` -> LME Model (with Robust SE if derived) -> `state/model_results.pkl`.
-    - *Note*: Covariate term omitted if demographics missing.
-8.  **Sensitivity Analysis**: Sweep alpha -> `reports/sensitivity_analysis.csv`.
-9.  **Reporting**: Model results + `sensitivity_analysis.csv` (parsed) -> `reports/final_report.pdf`.
-
-## 4. Constraints & Validations
-
-- **Linkage Threshold**: System halts if >10% of trials lack image linkage (US-1). Default threshold 95% (configurable).
-- **Valence Range**: `prime_valence` must be in [-1.0, 1.0].
-- **Ambiguity Range**: `stimulus_ambiguity` must be in [0.0, 1.0].
-- **PII Scan**: No `participant_id` can match known PII patterns (email, phone, SSN, name).
-- **Collinearity**: If VIF > 5.0, claim suppression is enforced and reported.
-- **Demographics**: If `demographics_status` indicates missing data, the model equation must exclude the covariate term.
+---
