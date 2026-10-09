@@ -18,7 +18,7 @@ interest_signals:
   - 'Marie Curie, Nobel Lecture in Chemistry (1911): ''Radium and the New Concepts
     in Chemistry'''
   - M. Curie, Recherches sur les Substances Radioactives (doctoral thesis, 1903)
-  - https://www.nobelprize.org/prizes/chemistry/1911/marie-curie/lecture/
+  - https://history.aip.org/exhibits/curie/article.htm
 - id: radioactivity-as-atomic-property
   label: Radioactivity as an atomic (not molecular) property of matter — overturning
     the chemistry of the era
@@ -31,7 +31,7 @@ interest_signals:
   kind: method
   evidence_sources:
   - M. Curie, Recherches sur les Substances Radioactives (1903)
-  - https://www.nobelprize.org/prizes/physics/1903/marie-curie/biographical/
+  - https://history.aip.org/exhibits/curie/resbr2.htm
 - id: open-science-and-no-patents
   label: Refusing to patent the radium isolation process — open science as a value
   kind: topic
