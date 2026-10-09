@@ -557,7 +557,9 @@ class TestProseStubRejection:
         )
         resp = ChatResponse(text=prose, model="m", backend="dartmouth")
         agent = TaskerAgent()
-        with pytest.raises(RuntimeError, match=r"task ID"):
+        from llmxive.speckit.task_lines import TaskFormatError
+
+        with pytest.raises(TaskFormatError, match=r"only 1 task IDs.*need >= 5"):
             agent.write_artifacts(ctx, mech, resp)
         # tasks.md must NOT have been committed.
         assert not (feature_dir / "tasks.md").is_file()

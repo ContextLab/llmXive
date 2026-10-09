@@ -285,12 +285,14 @@ def process_document(
 
     Returns ``(rendered_text, claims, GateReport)``.
 
-    ``stage_label`` (spec 020 FR-001) selects the regime: a *planning* stage
+    Artifact role and ``stage_label`` (spec 020 FR-001) select the regime.
+    Research planning artifacts and explicit *planning* stages
     (specify/clarify/plan/tasks — see :func:`claims.stage.is_planning_stage`)
-    verifies references only and strips/smooths low-level claims (Part A); any
-    other / ``None`` stage runs the full extract→resolve→render verification with
-    the Part-B freeze. Defaulting to ``None`` preserves the prior behavior for
-    every existing caller.
+    defer low-level claims (Part A); references are verified by the caller.
+    A missing or non-planning stage label does not override a planning artifact.
+    Research reports and manuscripts otherwise run full extract→resolve→render
+    verification with the Part-B freeze. Task documents retain requirements
+    through their separate restoration gate.
 
     Idempotency: if a claim with the same ``claim_id`` is already in the
     registry with status VERIFIED, it is reused without re-resolution.
