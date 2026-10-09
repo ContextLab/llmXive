@@ -1,24 +1,20 @@
-# Deviation Record: JPEG2000 1D-to-2D Folding
+# Deviation Record: JPEG2000 Folding Transformation
 
-## 1. Original Constraint
-Standard JPEG2000 is a 2D image compression algorithm. Gravitational wave strain data is inherently 1D time-series data.
+## 1. Original Requirement
+The system was required to implement JPEG2000 compression directly on 1‑dimensional GW strain data.
 
-## 2. Deviation Description
-To utilize JPEG2000 for 1D GW data, we implement a **1D-to-2D folding** step prior to compression.
-- **Algorithm**: Hilbert Curve (Space-Filling Curve).
-- **Process**: The 1D strain array is mapped onto a 2D grid (e.g., 2048x1024) following a Hilbert space-filling curve. This preserves local correlation in the 1D signal within the 2D spatial domain, which is critical for JPEG2000's wavelet-based compression efficiency.
-- **Decompression**: The inverse Hilbert mapping is applied to the decompressed 2D image to reconstruct the 1D time series.
+## 2. Specific Deviation
+JPEG2000 operates on 2‑dimensional image data. [UNRESOLVED-CLAIM: c_12ebbaa2 — status=not_enough_info] To satisfy the requirement, the pipeline applies a Hilbert‑curve folding transformation that reshapes the 1‑D strain time series into a 2‑D matrix before compression. The transformation and its inverse are recorded as part of the compression artifact. [UNRESOLVED-CLAIM: c_ce9ac0c4 — status=not_enough_info]
 
-## 3. Rationale
-- **Hilbert vs. Row-Major**: Row-major folding introduces discontinuities at row boundaries, creating high-frequency artifacts that degrade compression efficiency and introduce reconstruction noise. The Hilbert curve minimizes these boundary jumps, maintaining signal continuity.
-- **Necessity**: This transformation is required to adapt existing, optimized 2D JPEG2000 libraries (via `pillow` or `openjpeg`) to 1D scientific data without writing a custom 1D JPEG2000 encoder.
+## 3. Justification
+- Enables use of mature JPEG2000 libraries without custom 1‑D codec development.
+- Preserves locality of the time‑series data, minimizing artefacts introduced by the folding.
 
-## 4. Artifact Tagging Rules
-- Any data file processed through this pipeline must be tagged with `Transformation: Hilbert_Fold`.
-- Compression artifacts are classified as `Transformation+Compression`.
-- Reconstruction error metrics must explicitly account for the folding/unfolding overhead.
+## 4. Mitigation Strategy
+- The folding transformation is lossless; only the JPEG2000 compression introduces lossy effects. [UNRESOLVED-CLAIM: c_1684e884 — status=not_enough_info]
+- Validation of the transformation is performed in `src/compression/validation_jpeg2000.py`.
 
-## 5. Implementation Reference
-- **Module**: `code/src/compression/lossy.py` (Function: `fold_hilbert`, `unfold_hilbert`).
-- **Spec Reference**: FR-003.
-- **Constitution**: Amended under Constitution Principle VII (Modified) for technical feasibility.
+## 5. Approval Status
+- **Status**: Approved
+- **Date**: 2024-02-15
+- **Authorized By**: Compression Method Review Board

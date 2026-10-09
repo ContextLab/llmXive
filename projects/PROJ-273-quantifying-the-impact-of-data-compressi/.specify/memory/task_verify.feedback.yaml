@@ -1,0 +1,96 @@
+T001:
+  reason: "Only `code/provenance/deviation_constitution_principle_ii.md` is present\
+    \ (size\u202F1914\u202Fbytes, SHA\u2011256\u202F365826c5c2c09dc41b717437394abd370078b187fbc2bb9aca7906ab7b9dda06).\
+    \ The other four required provenance files are absent, and the `state/projects/...yaml`\
+    \ file that should contain the recorded checksums does not exist, so checksum\
+    \ verification cannot be performed."
+  task: d27bd82d3612e3795171f4c393b679845eabaf5f1653a62ecf4194bffb661f88
+T002:
+  reason: "The provided `amendment_draft.md` only lists FR\u2011001, FR\u2011003,\
+    \ FR\u2011005, FR\u2011007, FR\u2011009, FR\u2011010, SC\u2011003, SC\u2011004\
+    \ without giving the required exact replacement text, and it omits SC\u2011005\
+    \ and SC\u2011006 entirely; the three user\u2011story narratives are also missing.\
+    \ The artifact does not meet the task\u2019s specification."
+  task: 876cefdaf62efc240473791b643ed96b1a58b9954d63772bd8390ba1b04417d9
+T003:
+  reason: 'Requested task execution failed; rerun successfully: code/validate_amendment.py
+    exit=1'
+  task: 4e7ef132c94e2d64580087b5cf72213a1de9c301950e2c181e810e57068dd10d
+T004:
+  reason: 'Requested task execution failed; rerun successfully: code/apply_spec_amendments.py
+    exit=1'
+  task: a9d28639c810f3adaceb5eeb301c01c9edd8e8bb9c19667f7ee80441fd4ef4f3
+T005:
+  task: ac25158ef0dfec1bc21b95a4d3d2f1bad4a90e2a4ececbd4f1ebd758c9627241
+T006:
+  task: 9f361876bf64d918b32681bd2d89e31f6d7ed4621163e381654167c3be30be74
+T007:
+  task: 73aa5a7d1e200474c43a2a8b0e892c80ced09521f8e759aec3618e0aebd71557
+T008:
+  task: e9529c18e4a3361a8a91572f1c148f44db6153c2662c27c2d239479d307b1c93
+T009:
+  task: 0f12c899baf54435eb719e0222ebe4ff91e88a1036d60bfab5c6303a29772cb9
+T010:
+  task: 7d70b2e560a3bc70905d26eb87b33ab0f9b732eb7acd6dbdb34948e7d897ddbd
+T011:
+  task: a118d07da5c717f7ad0d0464a098a03a8d4fca804d518ad2285f1819cd4f4bec
+T012:
+  task: 80b079b2f80172d5678d54f241dba37222bd28ed3bf35487659ad72ecc0d1d4a
+T013:
+  task: 3d7c199b7e0e33a35862f9a11e33cea91943d1d7bb8a98b51e42c194c6e08ace
+T014:
+  task: f7818d34fd34f81f31f52f5e5d83bfc29e0d804b3a4e80a2a17598f702086852
+T015:
+  task: ccba9dbdd8bebf042fe6e3f8426f23274a1396d483601047e8b1105975d131a4
+T016:
+  task: dc0505a559bc014b7b24992bd61c0cf221f7c88a777db2ef6f2c3de674ecb714
+T017:
+  task: 4f566b4c1a144f482b64ff2f6c6aa14ac761ab6e42cab671fc68604a3cdb9dd4
+T018:
+  task: 551ea3aeea85794e8b2fd990cc44bf6f2ee4b3e9cde9909e906bb3c21a4b6a40
+T019:
+  task: 6bc921799ed95dbd21a9bbd4d3169ed907fead2e6b8983c7101cc40ba203dbbe
+T020a:
+  task: 722fd2049ecd1c6bd849a1c7ae1abc14f7c911d5dd7121642626f7baa92ff6e2
+T020b:
+  task: bc686357b5e26dcb7be72a1822815a94e2d0406341d445cd7e5c530b71628ea7
+T020c:
+  task: 2dec2f4e5a9a7973f8179eabfea85a1ea6aec36c5e99f5c950ccdd3acc9ebe42
+T020d:
+  task: b348a1fb1c9bac3e6716ff4eb10dc85f7dd2fa2e7bb426cdc281691f3970b2f8
+T021:
+  task: 02ac41bd4cbfc275ca81ac070ed73b78e7afd9f48a39398bb2c4209e5e328519
+T022:
+  task: 147d0efa9393305e414939b6badbd39a0be2873c0cc71c3dc64d3d93fe671ae4
+T023:
+  task: 507ee5b637f12754fed12731e82638a10e7060a136ab222331a541ad57c581c8
+T024:
+  task: adce5b8a3dfd7065665a6d744fc7ceeb4095b324063dbe6312c8c5c2cc9ce025
+T025a:
+  task: 2c997bca0d7c8f64d6e66fc56bbe09b081cc5539a1a1714407d71af841059b8f
+T025b:
+  task: c0194119604ed8e6e62318d7758b980c36f2f026930abf1a93a06d1417cb0d68
+T025c:
+  task: bcb7387a7b6907134fef2578804fed688825f42748be04eceff859fb1c5c33b7
+T025d:
+  task: 5700ccde72ec68bfb0c393ec45a22da89479153801a05d42fe2bccffe3666958
+T026:
+  task: 694582a7639fda0a32c5840b65e80f7d36edfb22dadc53138dbe6f3117c2d9d9
+T027a:
+  task: b05681395351796dba38604b38c9555705cba639b0ca6dec99dc7a5f201665f0
+T027b:
+  task: 2f2546f6fb0e9f1949970e711cfa9ca14bec5e37f085686e1f0e3220bc709a5b
+T028:
+  task: 67bbbb7871a0f8cbd4eedf3319269042860dcc7d427eeb3162ea288c93bdcee0
+T029:
+  task: ba7fce5523e87022ecc3db2f9003769c48e0b5a0ba1b22ae5d05663a9cfe40b2
+T030:
+  task: 62e4db7bbad82bb3b7147c11c04e0b75ba5af3aa6b54529f0f62eef9dc60be11
+T031:
+  task: 65525c02462bfcb1ff94b90496d052058c06eceded534ef52cb8622ba9ab04c6
+T032:
+  task: bca6b82075f66f166f7d1149762f437eaa1bf1d60996fe90e3c887b5953a5954
+T033:
+  task: 1bcc4032911c2d99c6fa54d8a4ad19014738571e92946a7c8b9e2c92899ceb34
+T034:
+  task: c0dd9ff0cb8ea175afe32412bd5f1dca1ae4622042b1b4dddffbec09bc28d771

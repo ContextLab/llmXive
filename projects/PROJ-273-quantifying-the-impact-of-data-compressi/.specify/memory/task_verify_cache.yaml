@@ -1,10 +1,11 @@
-T003:
+T002:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
-    or similar) or any evidence of ruff/black setup were presented. The claim provides
-    only a unrelated feature specification, so the required linting/formatting tooling
-    is missing.
+  h: 1a8425ca8d66bd03933017b970c02002aeba2addcb7bb5658a37a16c0699943a
+  r: "The provided `amendment_draft.md` only lists FR\u2011001, FR\u2011003, FR\u2011\
+    005, FR\u2011007, FR\u2011009, FR\u2011010, SC\u2011003, SC\u2011004 without giving\
+    \ the required exact replacement text, and it omits SC\u2011005 and SC\u2011006\
+    \ entirely; the three user\u2011story narratives are also missing. The artifact\
+    \ does not meet the task\u2019s specification."
 T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -44,16 +45,3 @@ T012:
   r: No evidence of a `spec.md` file containing the required amendment was provided;
     the implementer did not supply the updated file or show the exact replacement
     text, so we cannot confirm the specification was modified as required.
-T017#1:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `specs/contracts/` directory or a `README.md` file within it
-    is provided; the claim lacks any visible artifact to confirm the placeholder README
-    describing the contract testing strategy. The required files must be created and
-    shown.
-T017#2:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `data-model.md` file was presented in the `specs/001-compression-impact-gw-reconstruction/`
-    directory, and no schema definitions for GWOSCEvent, CompressionArtifact, or ParameterPosterior
-    were provided. The required documentation artifact is missing.

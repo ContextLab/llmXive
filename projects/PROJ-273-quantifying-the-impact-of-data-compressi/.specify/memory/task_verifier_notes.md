@@ -2,11 +2,7 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T019** — The required pipeline modules `src/data/fetch_logic.py` and `src/data/validation_logic.py` are absent, and the provided `src/data/fetch_loop.py` is only a partial, truncated implementation (ends mid‑function). The task’s core deliverables are therefore not present.
-- **T020** — declared artifact(s) missing/empty/invalid: src/data/main.py
-- **T019#1** — declared artifact(s) missing/empty/invalid: src/compression/lossless.py
-- **T021** — declared artifact(s) missing/empty/invalid: src/compression/metrics.py
-- **T022** — declared artifact(s) missing/empty/invalid: src/compression/main.py
-- **T023** — No code, data, or documentation was presented that implements the logic to flag compression levels with SNR degradation > 5 % as “unacceptable.” The required artifact (e.g., a function, script, or configuration change) is absent, so the task’s requirement is not satisfied.
-- **T026** — declared artifact(s) missing/empty/invalid: src/pe/run_bilby.py
-- **T027** — declared artifact(s) missing/empty/invalid: src/pe/failure_detection.py
+- **T001** — Only `code/provenance/deviation_constitution_principle_ii.md` is present (size 1914 bytes, SHA‑256 365826c5c2c09dc41b717437394abd370078b187fbc2bb9aca7906ab7b9dda06). The other four required provenance files are absent, and the `state/projects/...yaml` file that should contain the recorded checksums does not exist, so checksum verification cannot be performed.
+- **T002** — The provided `amendment_draft.md` only lists FR‑001, FR‑003, FR‑005, FR‑007, FR‑009, FR‑010, SC‑003, SC‑004 without giving the required exact replacement text, and it omits SC‑005 and SC‑006 entirely; the three user‑story narratives are also missing. The artifact does not meet the task’s specification.
+- **T003** — Requested task execution failed; rerun successfully: code/validate_amendment.py exit=1
+- **T004** — Requested task execution failed; rerun successfully: code/apply_spec_amendments.py exit=1

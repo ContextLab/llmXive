@@ -5324,3 +5324,307 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-05T19:18:59Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/code/provenance/deviation_JPEG2000_folding.md
+  attempts: 1
+  canonical: implementation uses 1D to 2D Hilbert-curve folding for JPEG2000 libraries
+  claim_id: c_8aeaa3ac
+  context: "The specific deviation describes using a 1\u2011D \u2192 2\u2011D Hilbert\u2011\
+    curve folding to enable the use of standard 2\u2011D JPEG2000 libraries."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The implementation uses a 1\u2011D \u2192 2\u2011D Hilbert\u2011curve\
+    \ folding to enable the use of standard 2\u2011D JPEG2000 libraries, which operate\
+    \ on image data."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T07:30:10Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/code/provenance/deviation_JPEG2000_folding.md
+  attempts: 1
+  canonical: folding preserves locality and introduces negligible distortion
+  claim_id: c_42f8fc49
+  context: The justification states that folding preserves locality of the waveform
+    samples and introduces negligible distortion, which is verified in the validation
+    step.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Folding preserves locality of the waveform samples and introduces negligible
+    distortion, which is accounted for in the validation step (src/compression/validation_jpeg2000.py).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T07:30:11Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/code/provenance/deviation_JPEG2000_folding.md
+  attempts: 1
+  canonical: folding/unfolding process is lossless
+  claim_id: c_0568ee8c
+  context: The mitigation strategy notes that the folding/unfolding process is lossless,
+    with loss only coming from the JPEG2000 compression.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The folding/unfolding process is lossless; only the JPEG2000 compression
+    step introduces loss.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T07:30:12Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/code/provenance/deviation_LALInference_Bilby.md
+  attempts: 1
+  canonical: LALInference runs exceed allowed execution time on GitHub Actions free-tier
+    runners
+  claim_id: c_3243c77f
+  context: "The pipeline employs Bilby because LALInference runs exceed the allowed\
+    \ execution time on the GitHub Actions free\u2011tier runners."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "LALInference runs exceed the allowed execution time on the GitHub Actions\
+    \ free\u2011tier runners."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T07:30:20Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/code/provenance/deviation_LALInference_Bilby.md
+  attempts: 1
+  canonical: Bilby provides comparable posterior estimates for synthetic injection
+    data
+  claim_id: c_d4b2864d
+  context: Bilby provides comparable posterior estimates for the synthetic injection
+    data used in this study, while being configurable for reduced iteration counts.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Bilby provides comparable posterior estimates for the synthetic injection
+    data used in this study.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T07:30:21Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/code/provenance/deviation_Hierarchical_Fallback.md
+  attempts: 1
+  canonical: pipeline falls back to paired t-tests or Wilcoxon signed-rank tests with
+    Benjamini-Hochberg correction
+  claim_id: c_4120f4af
+  context: When the hierarchical model fails to converge (common with the limited
+    number of events in the pilot study), the pipeline automatically falls back to
+    paired t-tests (or Wilcoxon signed-rank tests) with Benjamini-Hochberg correction.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: the pipeline automatically falls back to paired t-tests (or Wilcoxon signed-rank
+    tests) with Benjamini-Hochberg correction
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T07:30:35Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/code/provenance/deviation_Hierarchical_Fallback.md
+  attempts: 1
+  canonical: hierarchical and fallback test results are recorded with method flag
+  claim_id: c_53fbc1bb
+  context: Both the hierarchical test results and the fallback test results are recorded
+    in data/processed/statistical_test_results.json with a flag indicating which method
+    was used.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Both the hierarchical test results and the fallback test results are recorded
+    in data/processed/statistical_test_results.json with a flag indicating which method
+    was used
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T07:30:36Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/code/provenance/constitution_amendment_principle_vii.md
+  attempts: 1
+  canonical: Bilby posterior means differ by less than 0.5 sigma from LALInference
+    results for all tested parameters
+  claim_id: c_1638a109
+  context: "The `src/pe/run_bilby.py` module implements the Bilby workflow. Validation\
+    \ against the external baseline (`data/external/baseline_bias_original.json`)\
+    \ confirms that Bilby posterior means differ by less than 0.5\u202F\u03C3 from\
+    \ LALInference results for all tested parameters."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Validation against the external baseline (`data/external/baseline_bias_original.json`)\
+    \ confirms that Bilby posterior means differ by less than 0.5\u202F\u03C3 from\
+    \ LALInference results for all tested parameters."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T07:30:46Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/code/provenance/deviation_JPEG2000_folding.md
+  attempts: 1
+  canonical: "JPEG2000 operates on 2\u2011dimensional image data"
+  claim_id: c_12ebbaa2
+  context: "JPEG2000 operates on 2\u2011dimensional image data. To satisfy the requirement,\
+    \ the pipeline applies a Hilbert\u2011curve folding transformation..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "JPEG2000 operates on 2\u2011dimensional image data."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T07:38:28Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/code/provenance/deviation_JPEG2000_folding.md
+  attempts: 1
+  canonical: "pipeline applies Hilbert\u2011curve folding transformation reshaping\
+    \ 1\u2011D strain series into 2\u2011D matrix before compression"
+  claim_id: c_645cb790
+  context: "To satisfy the requirement, the pipeline applies a Hilbert\u2011curve\
+    \ folding transformation that reshapes the 1\u2011D strain time series into a\
+    \ 2\u2011D matrix before compression."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The pipeline applies a Hilbert\u2011curve folding transformation that\
+    \ reshapes the 1\u2011D strain time series into a 2\u2011D matrix before compression."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T07:38:29Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/code/provenance/deviation_JPEG2000_folding.md
+  attempts: 1
+  canonical: transformation and its inverse are recorded as part of compression artifact
+  claim_id: c_ce9ac0c4
+  context: The transformation and its inverse are recorded as part of the compression
+    artifact.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The transformation and its inverse are recorded as part of the compression
+    artifact.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T07:38:30Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/code/provenance/deviation_JPEG2000_folding.md
+  attempts: 1
+  canonical: folding transformation is lossless; only JPEG2000 compression is lossy
+  claim_id: c_1684e884
+  context: The folding transformation is lossless; only the JPEG2000 compression introduces
+    lossy effects.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The folding transformation is lossless; only the JPEG2000 compression
+    introduces lossy effects.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T07:38:31Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/code/provenance/deviation_JPEG2000_folding.md
+  attempts: 1
+  canonical: validation of the transformation is performed in src/compression/validation_jpeg2000.py
+  claim_id: c_77004790
+  context: Validation of the transformation is performed in src/compression/validation_jpeg2000.py.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Validation of the transformation is performed in src/compression/validation_jpeg2000.py.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T07:38:32Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/code/provenance/deviation_Hierarchical_Fallback.md
+  attempts: 1
+  canonical: "pipeline invokes fallback paired t-test when event count \u226412 and\
+    \ ESS thresholds not met"
+  claim_id: c_3882b70e
+  context: "The hierarchical model is retained, but due to limited event count (\u2264\
+    \u202F12) and ESS thresholds not being met in CI runs, the pipeline automatically\
+    \ invokes the fallback paired t\u2011test path for all analyses."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "the hierarchical model is retained, but due to limited event count (\u2264\
+    \u202F12) and ESS thresholds not being met in CI runs, the pipeline automatically\
+    \ invokes the fallback paired t\u2011test path for all analyses."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T07:38:42Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/code/provenance/deviation_Hierarchical_Fallback.md
+  attempts: 1
+  canonical: ESS values frequently below threshold of 100 on free-tier runners
+  claim_id: c_e89d6993
+  context: "ESS values frequently fall below the required threshold of 100 on the\
+    \ free\u2011tier runners."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "ESS values frequently fall below the required threshold of 100 on the\
+    \ free\u2011tier runners."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T07:38:43Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/code/provenance/constitution_amendment_principle_vii.md
+  attempts: 1
+  canonical: Full LALInference runs exceed allowed execution time on GitHub Actions
+    free tier
+  claim_id: c_3ed12f8a
+  context: Reasoning bullet point stating that full LALInference runs exceed the allowed
+    execution time on the GitHub Actions free tier.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Full LALInference runs exceed the allowed execution time on the GitHub
+    Actions free tier.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T07:38:54Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/code/provenance/constitution_amendment_principle_vii.md
+  attempts: 1
+  canonical: Bilby provides comparable posterior estimates for synthetic injections
+  claim_id: c_df48ecd1
+  context: Reasoning bullet point stating that Bilby provides comparable posterior
+    estimates for synthetic injections while allowing configurable iteration limits.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Bilby provides comparable posterior estimates for synthetic injections
+    while allowing configurable iteration limits.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T07:38:55Z'
