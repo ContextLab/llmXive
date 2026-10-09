@@ -1,0 +1,11 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T003** — No artifacts were provided on disk — there is no `.pre-commit-config.yaml`, no `pyproject.toml`/ruff/black configuration, and no evidence that `pre-commit run --all-files` was executed or passed, which is the task's explicit verification criterion. The implementer must supply the actual config files and a passing pre-commit run log/output.
+- **T004** — The repository contains the required `code/logging/pipeline_logger.py` implementing a JSON‑line logger that writes to `logs/run_<timestamp>.log`. However, no evidence is provided that a dummy script was executed, that a log file was actually created, or that the file contains a correctly‑formatted JSON entry as required for verification. The implementer must add the execution script and the resulting log file (or its displayed contents) to demonstrate the logger works.
+- **T005** — The repository contains a non‑empty `code/config/config_loader.py` that correctly implements a YAML loader, but there is no accompanying test, sample YAML file, or code that loads a sample configuration and asserts expected keys as required by the verification step. Adding a test (e.g., using `pytest` to load a fixture YAML and check specific keys) would satisfy the task.
+- **T008** — The two schema files exist and appear to be valid JSON‑Schema definitions, but there is no evidence that they were actually validated with the `jsonschema` CLI as the task requires. Provide the command run (e.g., `jsonschema -i sample.json contracts/agency_score.schema.yaml`) and its successful output to satisfy the verification step.
+- **T032** — declared artifact(s) missing/empty/invalid: output/provenance.yaml
+- **T064** — declared artifact(s) missing/empty/invalid: data/processed/validation_subset.csv
+- **T039** — declared artifact(s) missing/empty/invalid: validation/validation_report.yaml

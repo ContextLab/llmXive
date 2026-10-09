@@ -1,0 +1,34 @@
+T003:
+  c: false
+  h: cc85bd2d955455b6b060f484e6307aa4b7fde00c138e92bf0472700fb1660088
+  r: "No artifacts were provided on disk \u2014 there is no `.pre-commit-config.yaml`,\
+    \ no `pyproject.toml`/ruff/black configuration, and no evidence that `pre-commit\
+    \ run --all-files` was executed or passed, which is the task's explicit verification\
+    \ criterion. The implementer must supply the actual config files and a passing\
+    \ pre-commit run log/output."
+T004:
+  c: false
+  h: 14207d142af05b6b7c5227a43e6bedb128f0b894435c40bb6f2af54e25b9a709
+  r: "The repository contains the required `code/logging/pipeline_logger.py` implementing\
+    \ a JSON\u2011line logger that writes to `logs/run_<timestamp>.log`. However,\
+    \ no evidence is provided that a dummy script was executed, that a log file was\
+    \ actually created, or that the file contains a correctly\u2011formatted JSON\
+    \ entry as required for verification. The implementer must add the execution script\
+    \ and the resulting log file (or its displayed contents) to demonstrate the logger\
+    \ works."
+T005:
+  c: false
+  h: 00e706817537784e047f7561a01e84dc40bf6bd227185b4143f1043c84618210
+  r: "The repository contains a non\u2011empty `code/config/config_loader.py` that\
+    \ correctly implements a YAML loader, but there is no accompanying test, sample\
+    \ YAML file, or code that loads a sample configuration and asserts expected keys\
+    \ as required by the verification step. Adding a test (e.g., using `pytest` to\
+    \ load a fixture YAML and check specific keys) would satisfy the task."
+T008:
+  c: false
+  h: cc452619ddba615478e764888465b63d896ea87e85d7c9bce8364025af96d3c0
+  r: "The two schema files exist and appear to be valid JSON\u2011Schema definitions,\
+    \ but there is no evidence that they were actually validated with the `jsonschema`\
+    \ CLI as the task requires. Provide the command run (e.g., `jsonschema -i sample.json\
+    \ contracts/agency_score.schema.yaml`) and its successful output to satisfy the\
+    \ verification step."

@@ -1,0 +1,18 @@
+status: none
+intent: download CBT conversation transcripts with usage metadata, demographics, and
+  agency scale questionnaire python package dataset
+required_fields:
+- session_id
+- utterance_text
+- timestamp
+- completion_flag
+- utterance_order
+- participant_age
+- participant_gender
+- baseline_severity
+- prior_therapy
+- self_reported_engagement
+- agency_scale_score
+cache_key: aa88d81e6a1f86df96df941b214a220565d3e1562a00b851ab60738fc86a2e10
+searched_at: '2026-10-09T00:43:25.722491+00:00'
+retry_count: 1
