@@ -28,6 +28,7 @@ SAFETY_TESTS = ["tests/unit/test_repair_safety_contracts.py"]
 ROOTS = ("src/llmxive/", "agents/prompts/", "tests/unit/")
 COPY_ROOTS = (
     "src",
+    "eval/promptfoo",
     "tests",
     "agents",
     "specs",

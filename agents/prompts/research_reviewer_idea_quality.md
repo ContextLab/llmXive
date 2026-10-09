@@ -270,6 +270,12 @@ data/. Other reviewer variants are simultaneously reviewing other aspects — st
 
 ## Output contract
 
+Return raw Markdown starting with a line containing exactly `---`. Do not
+wrap the response in a Markdown code fence, add an introductory sentence, or
+include XML/tool-call tags. The fenced example below illustrates the fields;
+its outer triple-backtick lines are NOT part of your response. After the second
+`---` delimiter, write the review body directly.
+
 A YAML document with frontmatter, followed by a free-form body
 (prose feedback). The frontmatter MUST be a valid YAML mapping
 delimited by `---` lines:
@@ -296,5 +302,3 @@ the review to be rejected and the project to fail review.
 - Self-review forbidden.
 - If your lens cannot evaluate the current state, return `minor_revision` and explain
   what is needed.
-</content>
-</invoke>

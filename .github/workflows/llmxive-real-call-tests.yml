@@ -65,6 +65,7 @@ jobs:
             /src/
             /tests/
             /agents/
+            /eval/promptfoo/
             /contracts/
             /scripts/
             /specs/
@@ -134,6 +135,7 @@ jobs:
             /src/
             /tests/
             /agents/
+            /eval/promptfoo/
             /contracts/
             /scripts/
             /specs/
@@ -188,6 +190,7 @@ jobs:
             /src/
             /tests/
             /agents/
+            /eval/promptfoo/
             /contracts/
             /scripts/
             /specs/
