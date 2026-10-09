@@ -10,7 +10,7 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 - code/preprocessing.py: self-declared fabricated metric — “…ll generate realistic-looking mock values to ensure the structure is c…”
 - code/preprocessing.py: self-declared fabricated metric — “…work on REAL data.     # The mock values here are just to satisfy the…”
-- code/data_loader.py: synthetic/fake INPUT data not authorized by the spec — “…e, never falling back to synthetic data. """ import os import mm…”
+- code/data_loader.py: synthetic/fake INPUT data not authorized by the spec — “…e, never falling back to synthetic data. """ import os import nu…”
 - code/preprocessing.py: synthetic/fake INPUT data not authorized by the spec — “…ssary inputs.          # Simulated inputs for the sake of the feat…”
 - code/preprocessing.py: synthetic/fake INPUT data not authorized by the spec — “…n.     # IMPORTANT: This mock data is ONLY for the purpose…”
 - code/preprocessing.py: synthetic/fake INPUT data not authorized by the spec — “…r reproducibility of the mock data     n_samples = 1000…”
@@ -19,109 +19,80 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 8 fabricated/simulated-result signal(s) — results are not real measurements: code/preprocessing.py: self-declared fabricated metric — “…ll generate realistic-looking mock values to ensure the structure is c…”; code/preprocessing.py: self-declared fabricated metric — “…work on REAL data.     # The mock values here are just to satisfy the…”; code/data_loader.py: synthetic/fake INPUT data not authorized by the spec — “…e, never falling back to synthetic data. """ import os import mm…”; 5 command(s) failed: python code/main.py (rc=1); python code/main.py --step preprocess (rc=1); python code/main.py --step model (rc=1); 1 declared deliverable(s) absent: data/processed/feature_matrix.csv
+**Summary**: 8 fabricated/simulated-result signal(s) — results are not real measurements: code/preprocessing.py: self-declared fabricated metric — “…ll generate realistic-looking mock values to ensure the structure is c…”; code/preprocessing.py: self-declared fabricated metric — “…work on REAL data.     # The mock values here are just to satisfy the…”; code/data_loader.py: synthetic/fake INPUT data not authorized by the spec — “…e, never falling back to synthetic data. """ import os import nu…”; 6 command(s) failed: bash scripts/pre-run-validation.sh (rc=1); python code/main.py (rc=1); python code/main.py --step preprocess (rc=1); 1 declared deliverable(s) absent: data/processed/feature_matrix.csv
 
 ## Failing / missing run-book commands
+
+- bash scripts/pre-run-validation.sh -> rc=1
+=== Pre-run Validation ===
+Project Root: /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f
+Checking citations...
+
+2026-10-09 20:27:07 - ERROR - Missing required citations:
+2026-10-09 20:27:07 - ERROR -   - doi:10.1234/example1
+2026-10-09 20:27:07 - ERROR -   - doi:10.5678/example2
 
 - python code/main.py -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 25, in <module>
-    from data_loader import EEGDataLoader
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/data_loader.py", line 25, in <module>
-    logger = setup_logging(__name__)
-             ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/utils.py", line 40, in setup_logging
-    logging.basicConfig(
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 2062, in basicConfig
-    root.setLevel(level)
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1464, in setLevel
-    self.level = _checkLevel(level)
-                 ^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 207, in _checkLevel
-    raise ValueError("Unknown level: %r" % level)
-ValueError: Unknown level: 'data_loader'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 28, in <module>
+    from diagnostics import run_diagnostics_pipeline
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/diagnostics.py", line 14, in <module>
+    import seaborn as sns
+ModuleNotFoundError: No module named 'seaborn'
 
 - python code/main.py --step preprocess -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 25, in <module>
-    from data_loader import EEGDataLoader
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/data_loader.py", line 25, in <module>
-    logger = setup_logging(__name__)
-             ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/utils.py", line 40, in setup_logging
-    logging.basicConfig(
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 2062, in basicConfig
-    root.setLevel(level)
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1464, in setLevel
-    self.level = _checkLevel(level)
-                 ^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 207, in _checkLevel
-    raise ValueError("Unknown level: %r" % level)
-ValueError: Unknown level: 'data_loader'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 28, in <module>
+    from diagnostics import run_diagnostics_pipeline
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/diagnostics.py", line 14, in <module>
+    import seaborn as sns
+ModuleNotFoundError: No module named 'seaborn'
 
 - python code/main.py --step model -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 25, in <module>
-    from data_loader import EEGDataLoader
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/data_loader.py", line 25, in <module>
-    logger = setup_logging(__name__)
-             ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/utils.py", line 40, in setup_logging
-    logging.basicConfig(
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 2062, in basicConfig
-    root.setLevel(level)
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1464, in setLevel
-    self.level = _checkLevel(level)
-                 ^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 207, in _checkLevel
-    raise ValueError("Unknown level: %r" % level)
-ValueError: Unknown level: 'data_loader'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 28, in <module>
+    from diagnostics import run_diagnostics_pipeline
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/diagnostics.py", line 14, in <module>
+    import seaborn as sns
+ModuleNotFoundError: No module named 'seaborn'
 
 - python code/main.py --step diagnostics -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 25, in <module>
-    from data_loader import EEGDataLoader
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/data_loader.py", line 25, in <module>
-    logger = setup_logging(__name__)
-             ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/utils.py", line 40, in setup_logging
-    logging.basicConfig(
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 2062, in basicConfig
-    root.setLevel(level)
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1464, in setLevel
-    self.level = _checkLevel(level)
-                 ^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 207, in _checkLevel
-    raise ValueError("Unknown level: %r" % level)
-ValueError: Unknown level: 'data_loader'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/main.py", line 28, in <module>
+    from diagnostics import run_diagnostics_pipeline
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/diagnostics.py", line 14, in <module>
+    import seaborn as sns
+ModuleNotFoundError: No module named 'seaborn'
 
 - python -m pytest tests/ -v -> rc=2
-ode.diagnostics import (
-code/diagnostics.py:14: in <module>
-    import seaborn as sns
-E   ModuleNotFoundError: No module named 'seaborn'
-____________ ERROR collecting tests/unit/test_setup_directories.py _____________
-tests/unit/test_setup_directories.py:11: in <module>
-    from setup_directories import ensure_directories, validate_paths
-code/setup_directories.py:17: in <module>
-    def ensure_directories(root_dir: Optional[Path] = None) -> list:
-                                     ^^^^^^^^
-E   NameError: name 'Optional' is not defined
+rap._gcd_import(name[level:], package, level)
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1147: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:690: in _load_unlocked
+    ???
+code/.venv/lib/python3.11/site-packages/_pytest/assertion/rewrite.py:178: in exec_module
+    exec(co, module.__dict__)
+tests/unit/test_timing.py:13: in <module>
+    from code.utils import (
+E   ImportError: cannot import name 'validate_pipeline_duration' from 'code.utils' (/home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/utils.py)
 =========================== short test summary info ============================
 ERROR tests/integration/test_feature_aggregation.py
 ERROR tests/integration/test_permutation.py
 ERROR tests/integration/test_pipeline.py
 ERROR tests/test_config.py
-ERROR tests/test_setup_directories.py - NameError: name 'Optional' is not defined
 ERROR tests/unit/test_checksum_manager.py
 ERROR tests/unit/test_diagnostics.py
-ERROR tests/unit/test_setup_directories.py - NameError: name 'Optional' is not defined
-!!!!!!!!!!!!!!!!!!! Interrupted: 8 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 8 errors in 3.13s ===============================
+ERROR tests/unit/test_timing.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 7 errors in 1.94s ===============================
 
 
 

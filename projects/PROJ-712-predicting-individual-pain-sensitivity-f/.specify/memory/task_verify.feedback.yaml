@@ -1,14 +1,32 @@
 T001:
+  reason: "The script `scripts/create_dirs.sh` and all six directories are present\
+    \ and the script runs successfully, but the required CI test file `tests/integration/test_structure.py`\
+    \ is missing, so the task\u2019s verification step is not satisfied."
   task: 6d0018531938dcffc62f3c46a58b452389f45aa211fc9de8a8c7dd948fb0da0f
 T002:
   task: 4274834363396d919fc3580bf4926c3d9572a790908ca0d554e34fa4f37e73fb
 T003:
+  reason: "The `pyproject.toml` file is present and contains `[tool.ruff]` and `[tool.black]`\
+    \ sections, but there is no provided evidence (e.g., CI logs or command output)\
+    \ showing that `ruff check .` and `black --check .` actually returned exit\u2011\
+    code\u202F0. Without this verification artifact, the task\u2019s requirement is\
+    \ not fully satisfied."
   task: 423c6720804d9476f5a65040f465054037919d708a766fb9844a9bb445a83898
 T004:
+  reason: "The required unit test `tests/unit/test_utils.py` is missing, so there\
+    \ is no evidence that the implemented functions actually produce identical SHA\u2011\
+    256 hashes for identical files or that the logger writes to `state/log.txt`. Without\
+    \ the test artifact, the task\u2019s verification step cannot be satisfied."
   task: 6364cf756e61c090c026e55f7a7223363b46c493b357902af96e364b6c92c89e
 T005:
   task: 3062f94623b24d54d3a2f2d6562b4b41e4747de9c8ea16af5148b5f7ba330c04
 T006:
+  reason: "The required integration test `tests/integration/test_data_loader.py` is\
+    \ missing, so there is no evidence that the loader\u2019s RAM usage stays below\
+    \ the 6\u202FGB limit. Additionally, the `iterate_chunks` method in `code/data_loader.py`\
+    \ is truncated, leaving its chunk\u2011streaming behavior unverified. The next\
+    \ implementer must add the integration test and ensure the loader\u2019s implementation\
+    \ fully enforces the memory\u2011usage constraint."
   task: 42f061cf9adf5322174576f8f93633f4de6881d6acdcda079f65987ca7b4cdc9
 T007:
   task: 4bc8fd968b51892cef2f4bc6c7d5138d00169d623753611c80b6ed0bd0590d72

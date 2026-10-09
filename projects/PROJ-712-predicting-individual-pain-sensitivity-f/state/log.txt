@@ -1,0 +1,7 @@
+2026-10-09 20:27:07,464 - INFO - checksums - Checksums recorded to state/projects/PROJ-712-predicting-individual-pain-sensitivity-f.yaml
+2026-10-09 20:27:07,527 - ERROR - __main__ - Missing required citations:
+2026-10-09 20:27:07,527 - ERROR - __main__ - Missing required citations:
+2026-10-09 20:27:07,527 - ERROR - __main__ -   - doi:10.1234/example1
+2026-10-09 20:27:07,527 - ERROR - __main__ -   - doi:10.1234/example1
+2026-10-09 20:27:07,527 - ERROR - __main__ -   - doi:10.5678/example2
+2026-10-09 20:27:07,527 - ERROR - __main__ -   - doi:10.5678/example2

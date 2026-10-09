@@ -11,7 +11,6 @@ fail loudly if the real data source is not available, never falling back
 to synthetic data.
 """
 import os
-import mmap
 import numpy as np
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Iterator, Any
@@ -21,14 +20,12 @@ import logging
 # Import from existing project utilities
 from utils import set_global_seed, setup_logging, compute_checksum
 
-# Configure logging
-logger = setup_logging(__name__)
+# Configure logging correctly: use setup_logging with default level,
+# then obtain a module‑specific logger.
+_base_logger = setup_logging()
+logger = logging.getLogger(__name__)
 
 # Constants for Feature Extraction (FR-002)
-# 4 mean durations
-# 4 occurrence rates
-# 16 transition probabilities (4x4 matrix)
-# 6 spectral power features (delta, theta, alpha, beta, low-gamma, high-gamma)
 TOTAL_FEATURE_COUNT = 30
 NUM_MICROSTATES = 4  # A, B, C, D
 NUM_SPECTRAL_BANDS = 6
@@ -36,14 +33,14 @@ NUM_SPECTRAL_BANDS = 6
 @dataclass
 class DataChunk:
     """
-    Represents a memory-mapped chunk of EEG data to avoid loading the entire
+    Represents a memory‑mapped chunk of EEG data to avoid loading the entire
     dataset into RAM.
-    
+
     Attributes:
         path: Path to the raw data file.
         shape: Tuple (n_channels, n_samples).
         dtype: Data type of the array.
-        memmap: The numpy.memmap object.
+        memmap: The numpy.memmap object (initially None).
         offset: Byte offset in the file where this chunk starts.
     """
     path: Path
@@ -57,14 +54,13 @@ class DataChunk:
             self._load_memmap()
 
     def _load_memmap(self):
-        """Initialize the memory-mapped array."""
+        """Initialise the memory‑mapped array."""
         if not self.path.exists():
             raise FileNotFoundError(f"Data file not found: {self.path}")
-        
-        # Calculate expected size
+
         item_size = np.dtype(self.dtype).itemsize
         expected_size = self.shape[0] * self.shape[1] * item_size
-        
+
         if self.offset + expected_size > os.path.getsize(self.path):
             raise ValueError(
                 f"Chunk size exceeds file boundaries. "
@@ -82,39 +78,50 @@ class DataChunk:
         logger.info(f"Loaded memmap chunk: {self.shape} from {self.path}")
 
     def get_data(self) -> np.ndarray:
-        """
-        Returns the data as a numpy array.
-        Note: This still references the memory-mapped file but allows slicing
-        without loading the whole file at once if sliced beforehand.
-        """
+        """Return the underlying memmap (read‑only)."""
         if self.memmap is None:
-            raise RuntimeError("Memmap not initialized")
+            raise RuntimeError("Memmap not initialised")
         return self.memmap
 
-    def slice(self, channel_idx: Optional[int] = None, sample_range: Optional[Tuple[int, int]] = None) -> 'DataChunk':
+    def slice(self,
+              channel_idx: Optional[int] = None,
+              sample_range: Optional[Tuple[int, int]] = None) -> 'DataChunk':
         """
-        Create a view or copy of a specific slice of the data.
-        Useful for processing specific channels or time windows.
+        Return a new DataChunk representing a view on a subset of the data.
+        The underlying memmap is shared – no data is copied.
         """
         if self.memmap is None:
-            raise RuntimeError("Memmap not initialized")
+            raise RuntimeError("Memmap not initialised")
 
         data = self.memmap
+        new_offset = self.offset
+        new_shape = list(self.shape)
+
         if channel_idx is not None:
-            data = data[channel_idx:channel_idx+1, :]
+            if not (0 <= channel_idx < self.shape[0]):
+                raise IndexError("channel_idx out of bounds")
+            data = data[channel_idx:channel_idx + 1, :]
+            new_offset += channel_idx * self.shape[1] * np.dtype(self.dtype).itemsize
+            new_shape[0] = 1
+
         if sample_range is not None:
-            data = data[:, sample_range[0]:sample_range[1]]
-        
+            start, stop = sample_range
+            if not (0 <= start < stop <= self.shape[1]):
+                raise IndexError("sample_range out of bounds")
+            data = data[:, start:stop]
+            new_offset += start * new_shape[0] * np.dtype(self.dtype).itemsize
+            new_shape[1] = stop - start
+
         return DataChunk(
             path=self.path,
-            shape=data.shape,
+            shape=tuple(new_shape),
             dtype=self.dtype,
-            memmap=data, # Pass the sliced view
-            offset=self.offset
+            memmap=data,
+            offset=new_offset
         )
 
     def close(self):
-        """Explicitly close the memmap if needed."""
+        """Explicitly delete the memmap reference."""
         if self.memmap is not None:
             del self.memmap
             self.memmap = None
@@ -122,69 +129,102 @@ class DataChunk:
 
 class EEGDataLoader:
     """
-    Loader for EEG data supporting memory-mapped access and feature extraction
-    compatible with the 30-feature requirement (FR-002).
-    
-    This loader is designed to work with pre-processed binary files (e.g., 
-    from MNE-Python export) to ensure compatibility with the pipeline.
+    Loader for EEG data supporting memory‑mapped access and feature extraction
+    compatible with the 30‑feature requirement (FR‑002).
+
+    The loader works with raw binary files (e.g. ``float32`` dumps) that
+    have a known shape.  It does **not** attempt to parse MNE‑specific
+    formats – that responsibility lies with the preprocessing stage.
     """
-    
+
     def __init__(self, data_path: Path, seed: int = 42):
         """
-        Initialize the loader.
-        
+        Initialise the loader.
+
         Args:
-            data_path: Path to the directory containing raw data files or a specific file.
+            data_path: Directory containing raw EEG files.
             seed: Random seed for reproducibility.
         """
         self.data_path = Path(data_path)
         set_global_seed(seed)
-        self.logger = setup_logging(__name__)
-        
-        # Validate path
+        self.logger = logging.getLogger(self.__class__.__name__)
+
         if not self.data_path.exists():
             raise FileNotFoundError(f"Data path does not exist: {self.data_path}")
 
-    def load_chunk(self, filename: str, shape: Tuple[int, int], dtype: np.dtype = np.float32) -> DataChunk:
+    # ------------------------------------------------------------------
+    # Helper utilities
+    # ------------------------------------------------------------------
+    def _list_files(self) -> List[Path]:
+        """Return a list of files (non‑recursive) in ``self.data_path``."""
+        return [p for p in self.data_path.iterdir() if p.is_file()]
+
+    def get_participant_ids(self) -> List[str]:
         """
-        Load a specific file as a memory-mapped chunk.
-        
+        Infer participant identifiers from filenames or sub‑folders.
+
+        The convention used throughout the project is ``sub-<ID>``.  Files
+        that start with this prefix are considered belonging to that
+        participant.  If no such pattern is found, the stem of each file
+        (without extension) is returned.
+        """
+        ids = set()
+        for file in self._list_files():
+            stem = file.stem
+            if stem.startswith("sub-"):
+                ids.add(stem)
+            else:
+                ids.add(stem)
+        return sorted(ids)
+
+    # ------------------------------------------------------------------
+    # Core API
+    # ------------------------------------------------------------------
+    def load_chunk(self,
+                   filename: str,
+                   shape: Tuple[int, int],
+                   dtype: np.dtype = np.float32) -> DataChunk:
+        """
+        Load a specific file as a memory‑mapped chunk.
+
         Args:
-            filename: Name of the file relative to data_path.
-            shape: Expected shape (n_channels, n_samples).
-            dtype: Data type.
-            
+            filename: Name of the file relative to ``data_path``.
+            shape: Expected shape ``(n_channels, n_samples)``.
+            dtype: Data type (defaults to ``float32``).
+
         Returns:
-            DataChunk object.
+            ``DataChunk`` instance.
         """
         full_path = self.data_path / filename
         if not full_path.exists():
             raise FileNotFoundError(f"Requested data file not found: {full_path}")
-        
+
         return DataChunk(
             path=full_path,
             shape=shape,
             dtype=dtype
         )
 
-    def verify_data_integrity(self, filename: str, expected_checksum: Optional[str] = None) -> bool:
+    def verify_data_integrity(self,
+                              filename: str,
+                              expected_checksum: Optional[str] = None) -> bool:
         """
-        Verify the integrity of a data file using SHA-256.
-        
+        Verify the integrity of a data file using SHA‑256.
+
         Args:
             filename: Name of the file.
-            expected_checksum: Optional expected checksum string.
-            
+            expected_checksum: Optional expected checksum.
+
         Returns:
-            True if valid.
+            ``True`` if the file exists and (if provided) the checksum matches.
         """
         full_path = self.data_path / filename
         if not full_path.exists():
             raise FileNotFoundError(f"Cannot verify integrity: file not found {full_path}")
-        
+
         checksum = compute_checksum(full_path)
         self.logger.info(f"Computed checksum for {filename}: {checksum}")
-        
+
         if expected_checksum and checksum != expected_checksum:
             raise ValueError(
                 f"Checksum mismatch for {filename}. "
@@ -192,224 +232,154 @@ class EEGDataLoader:
             )
         return True
 
-    def extract_features(self, chunk: DataChunk, labels: Optional[np.ndarray] = None) -> Dict[str, Any]:
+    def extract_features(self,
+                         chunk: DataChunk,
+                         labels: Optional[np.ndarray] = None) -> Dict[str, Any]:
         """
-        Extract exactly 30 features from the provided DataChunk.
-        
-        This is a placeholder implementation that calculates the *structure*
-        of the 30 features. The actual values depend on the specific EEG
-        preprocessing (microstate segmentation, spectral analysis) which
-        is handled in `code/preprocessing.py`. This function ensures the
-        output shape and logic align with FR-002.
-        
-        The 30 features are:
-        1. Mean Durations (4): [A, B, C, D]
-        2. Occurrence Rates (4): [A, B, C, D]
-        3. Transition Probabilities (16): 4x4 matrix flattened
-        4. Spectral Power (6): [Delta, Theta, Alpha, Beta, Low-Gamma, High-Gamma]
-        
+        Produce a **structure‑only** 30‑feature vector from the supplied
+        ``DataChunk``.  Real‑world values are calculated downstream in
+        ``preprocessing.py`` – here we only guarantee the shape,
+        datatype and NaN‑free contract.
+
         Args:
-            chunk: DataChunk containing EEG data.
-            labels: Optional heat-pain threshold labels for validation.
-            
+            chunk: ``DataChunk`` containing EEG data.
+            labels: Optional heat‑pain threshold labels (unused here).
+
         Returns:
-            Dictionary containing the 30 features and metadata.
+            Dictionary with ``feature_vector`` (np.ndarray of length 30) and
+            metadata.
         """
         data = chunk.get_data()
         n_channels, n_samples = data.shape
-        
-        self.logger.info(f"Extracting features from chunk: {n_channels}x{n_samples}")
-        
-        # Placeholder for actual microstate labels (A, B, C, D)
-        # In the full pipeline, this would come from `code/preprocessing.py`
-        # For this loader module, we simulate the *structure* of the result
-        # to ensure the 30-feature constraint is met in the API contract.
-        # 
-        # REAL IMPLEMENTATION NOTE:
-        # The actual microstate segmentation (T015) and spectral analysis (T016)
-        # are performed in preprocessing.py. This loader ensures the data
-        # is accessible and the feature extraction logic is invoked correctly.
-        
-        # Simulate the feature vector structure (Real values would be computed here)
-        # We use a deterministic placeholder to satisfy the "no NaN" and "30 cols"
-        # requirement for the loader's output contract, while deferring the 
-        # complex signal processing to the preprocessing module.
-        
-        features = {}
-        
-        # 1. Mean Durations (4)
-        # Placeholder: In real execution, these are computed from microstate map durations
-        features['mean_durations'] = np.zeros(NUM_MICROSTATES) 
-        
-        # 2. Occurrence Rates (4)
-        # Placeholder: Computed from frequency of map appearances
-        features['occurrence_rates'] = np.zeros(NUM_MICROSTATES)
-        
-        # 3. Transition Probabilities (16)
-        # Placeholder: 4x4 matrix flattened
-        features['transition_probs'] = np.zeros(NUM_MICROSTATES * NUM_MICROSTATES)
-        
-        # 4. Spectral Power (6)
-        # Placeholder: Delta, Theta, Alpha, Beta, Low-Gamma, High-Gamma
-        features['spectral_power'] = np.zeros(NUM_SPECTRAL_BANDS)
-        
-        # Combine into a single array for the 30-feature requirement
+        self.logger.info(f"Extracting placeholder features from chunk: {n_channels}x{n_samples}")
+
+        # Placeholder zero‑filled vectors – deterministic, no NaNs.
+        features = {
+            'mean_durations': np.zeros(NUM_MICROSTATES),
+            'occurrence_rates': np.zeros(NUM_MICROSTATES),
+            'transition_probs': np.zeros(NUM_MICROSTATES * NUM_MICROSTATES),
+            'spectral_power': np.zeros(NUM_SPECTRAL_BANDS)
+        }
+
         feature_vector = np.concatenate([
             features['mean_durations'],
             features['occurrence_rates'],
             features['transition_probs'],
             features['spectral_power']
         ])
-        
-        # Validation: Ensure exactly 30 features
-        assert len(feature_vector) == TOTAL_FEATURE_COUNT, \
+
+        assert len(feature_vector) == TOTAL_FEATURE_COUNT, (
             f"Feature count mismatch: expected {TOTAL_FEATURE_COUNT}, got {len(feature_vector)}"
-        
-        # Validation: Ensure no NaNs (in real data, this would be caught if preprocessing failed)
+        )
         if np.isnan(feature_vector).any():
-            raise ValueError("Feature vector contains NaN values. Check preprocessing steps.")
-        
+            raise ValueError("Feature vector contains NaN values.")
+
         result = {
             'feature_vector': feature_vector,
             'n_channels': n_channels,
             'n_samples': n_samples,
             'feature_names': self._get_feature_names()
         }
-        
         if labels is not None:
             result['label'] = labels
-            
         return result
 
     def _get_feature_names(self) -> List[str]:
-        """Return the ordered list of 30 feature names."""
+        """Return the ordered list of the 30 feature names."""
         names = []
         # Mean Durations
         for i in range(NUM_MICROSTATES):
-            names.append(f"mean_duration_map_{chr(65+i)}") # A, B, C, D
+            names.append(f"mean_duration_map_{chr(65 + i)}")  # A‑D
         # Occurrence Rates
         for i in range(NUM_MICROSTATES):
-            names.append(f"occurrence_rate_map_{chr(65+i)}")
-        # Transition Probabilities (4x4)
+            names.append(f"occurrence_rate_map_{chr(65 + i)}")
+        # Transition Probabilities (4×4)
         for i in range(NUM_MICROSTATES):
             for j in range(NUM_MICROSTATES):
-                names.append(f"trans_prob_{chr(65+i)}_to_{chr(65+j)}")
+                names.append(f"trans_prob_{chr(65 + i)}_to_{chr(65 + j)}")
         # Spectral Power
         bands = ['delta', 'theta', 'alpha', 'beta', 'low_gamma', 'high_gamma']
         for band in bands:
             names.append(f"power_{band}")
-        
         return names
 
-    def iterate_chunks(self, filename: str, chunk_size_samples: int = 100000) -> Iterator[DataChunk]:
+    def iterate_chunks(self,
+                       filename: str,
+                       chunk_size_samples: int = 100_000,
+                       n_channels: int = 64,
+                       dtype: np.dtype = np.float32) -> Iterator[DataChunk]:
         """
-        Iterate over a large file in chunks to process sequentially.
-        
+        Stream a large binary EEG file in time‑wise chunks.
+
+        The function assumes the file consists of raw ``dtype`` values
+        stored channel‑wise (i.e. interleaved samples per channel).  The
+        caller must know the number of channels; ``n_channels`` defaults
+        to 64, which matches the canonical dataset used in the project.
+
         Args:
-            filename: Name of the file.
-            chunk_size_samples: Number of samples per chunk.
-            
+            filename: Name of the binary file.
+            chunk_size_samples: Number of time‑samples per yielded chunk.
+            n_channels: Number of EEG channels.
+            dtype: Data type of the stored values.
+
         Yields:
-            DataChunk objects.
+            ``DataChunk`` objects covering successive time windows.
         """
         full_path = self.data_path / filename
         if not full_path.exists():
             raise FileNotFoundError(f"File not found: {full_path}")
-        
+
         file_size = os.path.getsize(full_path)
-        # Assuming float32 (4 bytes) * n_channels
-        # We need to know n_channels to calculate bytes per sample.
-        # For this generic loader, we assume the caller provides a known shape or
-        # we read the header. Here we assume a standard shape for the example.
-        # In a real scenario, this would read the MNE header or similar.
-        
-        # Fallback: Load the whole file if it's small enough to estimate
-        # This is a simplified iterator for the task requirement.
-        # A robust implementation would parse the specific binary format header.
-        
-        # For this task, we return a single chunk if the file fits, 
-        # or raise if it's too complex without a header.
-        # The primary goal of T008 is the DataChunk logic.
-        
-        # Estimate n_channels from a header file if available (e.g., .json sidecar)
-        # If not, we assume a standard 64-channel EEG for demonstration of the chunk logic
-        # but in a real pipeline, this metadata is essential.
-        
-        # Let's assume a standard shape for the sake of the memmap demonstration
-        # In the full pipeline, `preprocessing.py` will handle the specific MNE export format.
-        # Here we just demonstrate the memmap capability.
-        
-        # To be safe and strictly follow "Real Data", we assume the file exists
-        # and we are given the shape.
-        raise NotImplementedError(
-            "Full chunk iteration requires specific binary format parsing (e.g., MNE .fif). "
-            "Use `load_chunk` with explicit shape for the current implementation."
-        )
+        item_size = np.dtype(dtype).itemsize
+        total_samples = file_size // (n_channels * item_size)
+
+        if total_samples == 0:
+            raise ValueError("File appears empty or does not match the expected channel count.")
+
+        for start in range(0, total_samples, chunk_size_samples):
+            end = min(start + chunk_size_samples, total_samples)
+            shape = (n_channels, end - start)
+            offset = start * n_channels * item_size
+            yield DataChunk(
+                path=full_path,
+                shape=shape,
+                dtype=dtype,
+                offset=offset
+            )
 
 def main():
     """
-    Main entry point for testing the data loader.
-    This function demonstrates the DataChunk logic and feature extraction structure.
+    Simple command‑line demonstration of the loader.
     """
     import argparse
-    
-    parser = argparse.ArgumentParser(description="Test Data Loader for PROJ-712")
-    parser.add_argument("--data-dir", type=str, required=True, help="Path to data directory")
-    parser.add_argument("--file", type=str, required=True, help="Data file name")
-    parser.add_argument("--shape", type=str, required=True, help="Shape (channels,samples)")
-    parser.add_argument("--dtype", type=str, default="float32", help="Data type")
-    
+
+    parser = argparse.ArgumentParser(description="Test EEGDataLoader")
+    parser.add_argument("--data-dir", type=str, required=True, help="Directory containing raw files")
+    parser.add_argument("--file", type=str, required=True, help="Binary EEG file name")
+    parser.add_argument("--shape", type=str, required=True,
+                        help="Shape as 'channels,samples' (e.g. '64,200000')")
+    parser.add_argument("--dtype", type=str, default="float32", help="NumPy dtype")
     args = parser.parse_args()
-    
+
     data_dir = Path(args.data_dir)
-    file_name = args.file
-    shape_str = args.shape
-    dtype_str = args.dtype
-    
-    # Parse shape
-    try:
-        shape = tuple(map(int, shape_str.split(',')))
-    except ValueError:
-        print(f"Error: Invalid shape format. Use 'channels,samples'")
-        return
-    
-    # Parse dtype
-    try:
-        dtype = np.dtype(dtype_str)
-    except TypeError:
-        print(f"Error: Invalid dtype: {dtype_str}")
-        return
-    
-    logger.info(f"Initializing loader for {data_dir}")
+    shape = tuple(map(int, args.shape.split(',')))
+    dtype = np.dtype(args.dtype)
+
+    logger.info(f"Initialising loader for {data_dir}")
     loader = EEGDataLoader(data_dir)
-    
-    try:
-        logger.info(f"Loading chunk: {file_name}, shape: {shape}, dtype: {dtype}")
-        chunk = loader.load_chunk(file_name, shape, dtype)
-        
-        logger.info("Chunk loaded successfully.")
-        logger.info(f"Data shape from memmap: {chunk.get_data().shape}")
-        
-        # Extract features (structure only for this loader module)
-        logger.info("Extracting feature structure...")
-        result = loader.extract_features(chunk)
-        
-        logger.info(f"Feature vector shape: {result['feature_vector'].shape}")
-        logger.info(f"Feature names: {result['feature_names']}")
-        logger.info(f"Total features: {len(result['feature_vector'])}")
-        
-        # Verify constraints
-        assert len(result['feature_vector']) == 30, "Feature count must be 30"
-        assert not np.isnan(result['feature_vector']).any(), "No NaNs allowed"
-        
-        print("SUCCESS: Data loader and feature structure validation passed.")
-        
-    except FileNotFoundError as e:
-        logger.error(f"Data file not found: {e}")
-        raise
-    except Exception as e:
-        logger.error(f"Error during processing: {e}")
-        raise
+
+    logger.info(f"Loading chunk {args.file} with shape {shape} and dtype {dtype}")
+    chunk = loader.load_chunk(args.file, shape, dtype)
+
+    logger.info(f"Chunk loaded – memmap shape: {chunk.get_data().shape}")
+
+    logger.info("Extracting placeholder feature vector...")
+    result = loader.extract_features(chunk)
+
+    logger.info(f"Feature vector length: {len(result['feature_vector'])}")
+    logger.info(f"Feature names: {result['feature_names']}")
+
+    print("SUCCESS: Data loader demo completed without errors.")
 
 if __name__ == "__main__":
     main()

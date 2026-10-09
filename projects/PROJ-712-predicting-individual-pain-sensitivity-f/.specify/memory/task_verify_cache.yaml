@@ -1,10 +1,52 @@
 T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory structure is presented or listed in the provided artifacts; there\
-    \ is no evidence that the required `data/raw/`, `data/processed/`, `artifacts/`,\
-    \ `state/`, `code/`, and `tests/` folders have been created. The implementer\u2019\
-    s claim cannot be verified without concrete file system evidence."
+  h: cff0459ee27e3f0da546c62ca064d0b36fd52321342de83c6498266f09fd2d4c
+  r: "The script `scripts/create_dirs.sh` and all six directories are present and\
+    \ the script runs successfully, but the required CI test file `tests/integration/test_structure.py`\
+    \ is missing, so the task\u2019s verification step is not satisfied."
+  sig: 7dfa8113f62a604b470ae750fb13660b6440478dd859cb8a15cd5593974f2faa
+T002:
+  c: true
+  h: 51f2bd2b30fdf43dbb70d706dae78f1e9df35c00c871a7d5999faa04ae3bf440
+  r: "Checked the `requirements.txt` file (158\u202Fbytes) which exists at the expected\
+    \ path and contains pinned version specifiers for all required packages (`mne`,\
+    \ `scikit-learn`, `numpy`, `pandas`, `scipy`, `statsmodels`, `joblib`, `pyyaml`).\
+    \ The file is non\u2011empty and meets the task\u2019s specification."
+  sig: 2ca5d8e0da96d9214a5c780c75754396741ce0af8b77804c779302e480ed6964
+T003:
+  c: false
+  h: 325688001ebe8f137b2f9a8933838b6c40f620c92a7121fc82180b1f38ac5a24
+  r: "The `pyproject.toml` file is present and contains `[tool.ruff]` and `[tool.black]`\
+    \ sections, but there is no provided evidence (e.g., CI logs or command output)\
+    \ showing that `ruff check .` and `black --check .` actually returned exit\u2011\
+    code\u202F0. Without this verification artifact, the task\u2019s requirement is\
+    \ not fully satisfied."
+  sig: f997896bf45358654ca575ce7e8473d77271f6bfae3bae9b8c0b84df0ba28852
+T004:
+  c: false
+  h: b97ccfbb03a4692880bc449734241fd6ec101fb270121bd16dc88f93c82c8ded
+  r: "The required unit test `tests/unit/test_utils.py` is missing, so there is no\
+    \ evidence that the implemented functions actually produce identical SHA\u2011\
+    256 hashes for identical files or that the logger writes to `state/log.txt`. Without\
+    \ the test artifact, the task\u2019s verification step cannot be satisfied."
+  sig: 0a49c6a1eb1f327f99cc23c685dbdac2141c2d7f9f10a8a2a991e2537828aebf
+T005:
+  c: true
+  h: cbdbf72d3c08527aa0e572f94edeaaff90ebe67ffa501b6f98112b69685be78a
+  r: "Checked `scripts/pre-run-validation.sh` (resolved path matches) \u2013 it exists,\
+    \ calls `python -m code.utils --validate-citations`, and exits with status\u202F\
+    1 when that command fails, satisfying the task\u2019s specification."
+  sig: 822287662e3a23d0bcbe9ceb12f562f95454bda43531e9eea55fdd8ab08a8e34
+T006:
+  c: false
+  h: 21a057a9d76ba32c87aa625d1ac2f9bc097ddecfed688cf6c2ec1dadbc0dd06b
+  r: "The required integration test `tests/integration/test_data_loader.py` is missing,\
+    \ so there is no evidence that the loader\u2019s RAM usage stays below the 6\u202F\
+    GB limit. Additionally, the `iterate_chunks` method in `code/data_loader.py` is\
+    \ truncated, leaving its chunk\u2011streaming behavior unverified. The next implementer\
+    \ must add the integration test and ensure the loader\u2019s implementation fully\
+    \ enforces the memory\u2011usage constraint."
+  sig: 69c0644953761ef9ff1ddb72e00b578fdb6b67bdadc616b6de937156fb6e5dab
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

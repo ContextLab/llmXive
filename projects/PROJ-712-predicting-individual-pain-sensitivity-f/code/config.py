@@ -93,6 +93,53 @@ def validate_paths() -> bool:
         STATE_DIR.exists()
     )
 
+# ----------------------------------------------------------------------
+# Exported constants for downstream modules and tests
+# ----------------------------------------------------------------------
+# Paths with legacy names expected by tests / other modules
+RAW_DIR = DATA_RAW_DIR
+PROCESSED_DIR = DATA_PROCESSED_DIR
+ARTIFACTS_DIR = ARTIFACTS_DIR  # already defined, kept for explicitness
+
+# Ordered list of the 30 feature column names as defined in the schema.
+# Order: 4 mean durations, 4 occurrence rates, 16 transition probabilities, 6 spectral power features.
+EXPECTED_FEATURE_COLUMNS = [
+    # Mean Durations
+    "duration_A",
+    "duration_B",
+    "duration_C",
+    "duration_D",
+    # Occurrence Rates
+    "occurrence_A",
+    "occurrence_B",
+    "occurrence_C",
+    "occurrence_D",
+    # Transition Probabilities (4 x 4 matrix flattened)
+    "trans_AA",
+    "trans_AB",
+    "trans_AC",
+    "trans_AD",
+    "trans_BA",
+    "trans_BB",
+    "trans_BC",
+    "trans_BD",
+    "trans_CA",
+    "trans_CB",
+    "trans_CC",
+    "trans_CD",
+    "trans_DA",
+    "trans_DB",
+    "trans_DC",
+    "trans_DD",
+    # Spectral Power Features
+    "power_delta",
+    "power_theta",
+    "power_alpha",
+    "power_beta",
+    "power_low_gamma",
+    "power_high_gamma",
+]
+
 if __name__ == "__main__":
     # Simple CLI to print configuration
     import json

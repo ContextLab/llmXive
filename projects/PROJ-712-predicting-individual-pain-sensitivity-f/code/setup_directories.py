@@ -6,6 +6,7 @@ import os
 import sys
 from pathlib import Path
 import logging
+from typing import Optional
 
 # Configure logging
 logging.basicConfig(

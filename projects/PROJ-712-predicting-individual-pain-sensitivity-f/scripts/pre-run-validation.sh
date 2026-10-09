@@ -12,9 +12,9 @@ cd "$PROJECT_ROOT"
 echo "=== Pre-run Validation ==="
 echo "Project Root: $PROJECT_ROOT"
 
-# Validate citations
+# Validate citations using the utils module
 echo "Checking citations..."
-python code/utils.py --validate-citations
+python -m code.utils --validate-citations
 
 if [ $? -eq 0 ]; then
     echo "Validation successful. All checks passed."
