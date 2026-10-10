@@ -1,14 +1,14 @@
 {
   "project_id": "PROJ-479-the-impact-of-visual-distraction-on-cogn",
-  "stage": "tasked",
+  "stage": "in_progress",
   "class": "transient",
-  "fingerprint": "model_chain_failed",
-  "consecutive_count": 0,
-  "first_seen": "2026-10-10T05:21:59.788756+00:00",
-  "last_seen": "2026-10-10T06:21:55.283032+00:00",
-  "retry_after": null,
-  "last_error": "every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min | google.gemma-4-31B-it(model-down attempt 1): Dartmouth model 'google.gemma-4-31B-it' hung past 180s deadline (no response received)",
-  "evidence": "every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min | google.gemma-4-31B-it(model-down attempt 1): Dartmouth model 'google.gemma-4-31B-it' hung past 180s deadline (no response received)",
+  "fingerprint": "unknown",
+  "consecutive_count": 1,
+  "first_seen": "2026-10-10T06:32:44.677295+00:00",
+  "last_seen": "2026-10-10T06:32:44.677295+00:00",
+  "retry_after": "2026-10-10T06:42:44.677295+00:00",
+  "last_error": "no implementation progress: no stage change or verified task completion",
+  "evidence": "no implementation progress: no stage change or verified task completion",
   "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
-  "status": "cleared"
+  "status": "retry_scheduled"
 }

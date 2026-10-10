@@ -1,14 +1,20 @@
 T001:
   c: false
-  h: e7ebdc738a6a465236470b36638e4aedac4c53de88d6bc203cf47c4a008ceaa0
-  r: "The project lacks the required `specs/001-visual-distraction-cognitive-control/`\
-    \ directory, the `code/requirements.txt` does not pin versions and omits `requests`\
-    \ and `openml` (and adds an unrelated `pyyaml`). The utility module\u2019s API\
-    \ does not match the specification (functions are named `compute_file_checksum`,\
-    \ `set_random_seed`, `sanitize_image_pii`, `log_structured_error` instead of `compute_checksum`,\
-    \ `set_global_seed`, `sanitize_images`, `log_error`). Consequently the claimed\
-    \ verification steps cannot be confirmed."
-  sig: 5d0e9d4c3422ae0ebd608e588a23d6479b689147868f5e045f1ea6c7e0e0d977
+  h: 501ebce35f88ec4b73e109aa27f80e52e6afa53851e770889969cfe593dc13c1
+  r: The required `specs/001-visual-distraction-cognitive-control/` directory is missing,
+    and there is no evidence that `pip install -r code/requirements.txt`, `./code/lint.sh`,
+    or the unit tests in `tests/unit/test_utils.py` were actually executed successfully.
+    These verification steps must be provided and the missing specs folder created
+    to satisfy the task.
+  sig: 1cb5957daa68164a4b6faca66ae1e3fa4350bc21690766f3d60c0401706a46cd
+T001a:
+  c: false
+  h: e922b6c5124b516093c1e5c830f5aa8f2eeef1b9e96123215869c2ee724e8f0a
+  r: "The required test `tests/unit/test_01_data_acquisition_stub.py` is missing,\
+    \ and the script lacks the `if __name__ == \"__main__\":` placeholder. Moreover,\
+    \ `perform_proxy_linkage()` is fully implemented rather than a stub as specified.\
+    \ These omissions mean the task\u2019s verification cannot be satisfied."
+  sig: ec5de0b920219d7264517c6ed2ef1d7a282e685d13a6c5de42947012a9248298
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

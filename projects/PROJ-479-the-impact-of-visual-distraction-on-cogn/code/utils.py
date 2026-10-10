@@ -47,6 +47,11 @@ def compute_file_checksum(file_path: str) -> str:
         logger.error(f"File not found: {file_path}")
         return None
 
+# Alias to match spec name
+def compute_checksum(file_path: str) -> str:
+    """Spec-compliant wrapper for compute_file_checksum."""
+    return compute_file_checksum(file_path)
+
 # --- Random Seed Management ---
 SEED = 42
 
@@ -63,6 +68,11 @@ def set_random_seed(seed: int):
     random.seed(seed)
     np.random.seed(seed)
     logger.info(f"Random seed set to {seed}")
+
+# Alias to match spec name
+def set_global_seed(seed: int):
+    """Spec-compliant wrapper for set_random_seed."""
+    set_random_seed(seed)
 
 def get_global_seed() -> int:
     """Get current global random seed."""
@@ -100,3 +110,34 @@ def sanitize_image_pii(image_path: str) -> str:
     except Exception as e:
         logger.error(f"Failed to sanitize image {image_path}: {e}")
         return None
+
+# Spec-compliant wrapper for sanitizing a directory of images
+def sanitize_images(src_dir: str, dst_dir: str) -> list:
+    """
+    Sanitize all images in src_dir, copying them to dst_dir with SHA256-based names.
+    Returns a list of new image paths.
+    """
+    if not os.path.isdir(src_dir):
+        logger.error(f"Source directory does not exist: {src_dir}")
+        return []
+
+    os.makedirs(dst_dir, exist_ok=True)
+    sanitized_paths = []
+
+    for entry in os.listdir(src_dir):
+        entry_path = os.path.join(src_dir, entry)
+        if os.path.isfile(entry_path) and entry_path.lower().endswith(('.png', '.jpg', '.jpeg')):
+            new_path = sanitize_image_pii(entry_path)
+            if new_path:
+                # Move the sanitized file to the requested destination directory
+                final_path = os.path.join(dst_dir, os.path.basename(new_path))
+                os.replace(new_path, final_path)
+                sanitized_paths.append(final_path)
+
+    logger.info(f"Sanitized {len(sanitized_paths)} images from {src_dir} to {dst_dir}")
+    return sanitized_paths
+
+# Spec-compliant wrapper for error logging
+def log_error(error_type: str, details: str):
+    """Spec-compliant wrapper for log_structured_error."""
+    log_structured_error(error_type, details)
