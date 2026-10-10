@@ -1,269 +1,81 @@
 # Tasks: Predicting the Effect of Alloying on the Elastic Modulus of High-Entropy Alloys
 
-**Input**: Design documents from `/specs/001-predict-elastic-modulus/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: Active `spec.md`, `plan.md`, `data-model.md`, `contracts/`, prior task list, reviewer rejection feedback.
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+## Phase 1: Setup and first end‑to‑end data pipeline
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+- [ ] T001 [P] Establish the project scaffold and dependencies: create top‑level `code/`, `data/raw/`, `data/processed/`, `results/`, `scripts/`, and `code/requirements.txt` pinning `pandas`, `numpy`, `scikit-learn`, `scipy`, `pyyaml`, `requests`, `shap`, `pytest`, **`mp-api`**, **`compositional`**, **`matplotlib`**. Copy/keep the verified seed‑management module at `code/utils/seeds.py` and document the entry command (`python -m code.main --stage all`) in `specs/001-predict-elastic-modulus/quickstart.md`.
+  - Verification: all listed directories exist, `pip install -r code/requirements.txt` succeeds, and `pytest code/tests/` collects the carried‑forward unit tests (`test_normalization.py`, `test_coda.py`, `test_bootstrap.py`, `test_fdr.py`, etc.).
 
-## Format: `[ID] [P?] [Story] Description`
+- [ ] T002 [US1] Implement real data ingestion with provenance in `code/data/fetch.py` and `code/data/metadata.py` (FR‑001, FR‑009): retrieve HEA composition and elastic‑constant records from the Materials Project API (`mp_api`) and OQMD, applying the ≥5‑principal‑elements filter. Use retry logic (max 3 attempts) and raise on failure (no synthetic fallback). Write raw dumps (checksummed, SHA‑256) to **`data/raw/`** and generate **`data/source_metadata.yaml`** per `metadata.schema.yaml`. Include `check_and_update_provenance()` to re‑download when checksum differs.
+  - Verification: `python -m code.main --stage fetch` exits 0; `data/raw/` contains non‑empty real API output; `data/source_metadata.yaml` validates against `contracts/metadata.schema.yaml`; unit test `code/tests/unit/test_fetch.py` asserts proper raise on unreachable endpoint.
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- [ ] T003 [US1] Implement cleaning, normalization, descriptor/feature engineering in `code/data/clean.py` and `code/features/descriptors.py` (FR‑002, US‑1 Scenarios 2‑4): normalize compositions to sum 1.0 (log adjustments), drop samples missing elastic constants, compute standard descriptors (mixing entropy, VEC, atomic‑radius variance, electronegativity variance) **and** the three Miedema‑derived features (`mixing_enthalpy_miedema`, `atomic_radius_variance_miedema`, `electronegativity_variance_miedema`). Apply ILR transformation via the `compositional` library. Implement `code/features/exclusion.py` to conditionally drop `$MIEDEMA_FEATURES$` when the target is a Residual Modulus, with a pre‑training assertion that halts on leakage. Output the processed dataset to **`data/processed/hea_features.csv`** (and Parquet) conforming to `contracts/dataset.schema.yaml` and `contracts/hea_sample.schema.yaml`, with no NaNs.
+  - Verification: `python -m code.main --stage features` exits 0; CSV exists with all descriptor columns; `code/tests/unit/test_exclusion.py` asserts the exclusion assertion fires when Miedema features appear in a Residual‑target matrix; existing ILR/normalization tests pass.
 
-## Path Conventions
+- [ ] T004 [US1] Run the first end‑to‑end data pipeline checkpoint: execute fetch → clean → feature stages on the real dataset, producing `data/processed/hea_features.csv`. If the retrieved sample count is **< 500**, generate an **‘Underpowered Study Report’** (`results/underpowered_report.md`) quantifying power deficit and confidence‑interval widening, and flag reduced power in downstream outputs (spec Edge‑Case 1). Connect `code/main.py` so `--stage all` runs these steps and writes the report when needed.
+  - Verification: `python -m code.main --stage all` completes within the 6‑hour CPU budget; `results/underpowered_report.md` is emitted only when count < 500; otherwise pipeline proceeds normally.
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+## Phase 2: Complete the study and validate its evidence
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+- [ ] T005 [US2] Implement model training for **Residual Bulk Modulus** in `code/models/train_residual_bulk.py` (FR‑004): Random Forest, Gradient Boosting, ElasticNet (scikit‑learn, CPU‑only, `n_jobs=2`, seeded). Use grouped train/val/test split (70/15/15) by `element_set` via `code/models/split.py`. Write model artifacts `results/models/rf_bulk.pkl`, `results/models/gb_bulk.pkl`, `results/models/en_bulk.pkl` and test‑set predictions `results/predictions/rf_bulk.csv`, etc.
+  - Verification: `python -m code.main --stage train_residual_bulk` exits 0 and creates the listed files.
 
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
+- [ ] T006 [US2] Implement statistical evaluation in `code/models/evaluate.py` (FR‑005, FR‑008, SC‑002, SC‑003, SC‑005): compute R², RMSE, MAE on held‑out test set; perform **grouped bootstrap** (1000 iters, grouping by `element_set`) for 95 % CI of R² with fallback warning for < 10 groups; run **permutation test** (1000 iters) for R² > 0, output `results/null_hypothesis.yaml`; apply Benjamini–Hochberg FDR correction to pairwise model p‑values; calculate Pearson |r| between residuals and `$MIEDEMA_FEATURES$`, log warning if |r| > 0.1; check train‑test performance gap CI and halt if CI excludes zero. Write **`results/metrics.yaml`** conforming to `contracts/output.schema.yaml` (see T018 for schema alignment) and include the mandatory disclaimer string.
+  - Verification: `results/metrics.yaml` exists, validates against `contracts/output.schema.yaml`, contains entries for all three models, includes CI bounds, permutation p‑value, FDR‑corrected values, and the disclaimer.
 
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as a MVP increment
+- [ ] T007 [US3] Implement interpretability and sensitivity analysis in `code/models/interpret.py` (FR‑006, FR‑007, US‑3): SHAP/permutation feature importance for the best model (top 3‑5 descriptors); generate parity and partial‑dependence plots saved under `results/plots/`; perform threshold sweep `{0.25, 0.30, 0.35}` computing permutation‑test p‑values for R² > threshold; record variance of these p‑values in `results/sensitivity.yaml`. Add `code/utils/claim_validator.py` that aborts with non‑zero exit if the p‑value at **0.30** exceeds 0.05, logging “Primary claim rejected…”.
+  - Verification: `results/interpretability.yaml`, `results/sensitivity.yaml`, and plot files exist; unit test `code/tests/unit/test_claim_validator.py` covers both halt and pass paths.
 
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
+- [ ] T008 Add independent correctness, sensitivity, and runtime checks and execute them: run the full pipeline on the complete retrieved dataset (no toy substitution), record outcomes, and add `code/tests/integration/test_pipeline.py` covering fetch‑contract → schema validation → Miedema‑exclusion assertion → metrics‑schema validation. Record pipeline runtime and confirm it stays within the 6‑hour CPU budget.
+  - Verification: `pytest code/tests/` passes; `python -m code.main --stage verify` (added in T021) exits 0.
 
-## Phase 0: Research Validation & Data Verification
+- [ ] T009 [US3] Implement `code/report_generator.py` (FR‑007, US‑3): programmatically generate `results/report.md` from `results/metrics.yaml`, `results/sensitivity.yaml`, and plot assets; embed the exact disclaimer string, underpowered‑study notice when applicable, bootstrap‑CI warning flag, and any circularity warnings. Include `code/utils/causal_check.py` to scan the report for causal language violations.
+  - Verification: `results/report.md` exists, contains the disclaimer, and the causal scanner test passes.
 
-**Purpose**: Validate citations and verify data availability before any implementation begins.
+- [ ] T010 Re‑run the documented workflow (`python -m code.main --stage all`) and confirm all tests and artifact checks pass; verify that metric values (e.g., R²) differ by less than **0.01** from the previous run (tolerance defined in T020). Update `specs/001-predict-elastic-modulus/quickstart.md` if needed.
+  - Verification: a clean re‑run reproduces metrics within the defined tolerance; `quickstart.md` commands execute as written.
 
-- [X] T001 [P] Run Reference-Validator Agent on `research.md` citations using command `python -m code.utils.reference_validator --input research.md --output results/validation_report.json`. Fail if exit code != 0. (Constitution Principle II).
-- [ ] T002 [P] Create project structure per implementation plan (`src/`, `tests/`, `data/raw/`, `data/processed/`, `results/`)
-- [ ] T003 [P] Initialize Python 3.11 project with dependencies: `pandas>=2.0`, `scikit-learn>=1.3`, `numpy>=1.24`, `requests>=2.31`, `pyyaml>=6.0`, `shap>=0.44`, `scipy>=1.11`, `pymatgen>=2023`, `pytest>=7.4` (CPU-only, 2 cores, 7GB RAM constraints)
-- [ ] T004 [P] Configure linting (flake8/black) and formatting tools
+## Phase 3: Additional required infrastructure (plan compliance)
 
----
+- [ ] T011 [P] Implement the traditional **t‑test** against R² = 0 per Constitution Principle VII (FR‑002 conflict resolution). Compute the t‑statistic and p‑value, write `results/t_test.yaml`, and record the deviation from the plan as a documented exception.
+  - Verification: `results/t_test.yaml` exists with fields `t_statistic`, `p_value`; a unit test confirms values are numeric.
 
-## Phase 1: Foundational (Blocking Prerequisites)
+- [ ] T012 [P] Create the PII‑scan script `scripts/pii_scan.sh` that runs the repository‑hygiene agent before any commit. Hook it into CI via the existing workflow.
+  - Verification: script file exists and is executable; CI config invokes it.
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] T013 [P] Implement `update_state_file()` in `code/main.py` to write content hashes of all generated artifacts into `state/projects/PROJ-443-predicting-the-effect-of-alloying-on-the.yaml` (Constitution V).
+  - Verification: after any stage run, the state file is updated with correct hashes.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T014 [P] Implement `validate_citations()` in `code/utils/validation.py` to check all external citations against the Reference‑Validator Agent (Constitution II).
+  - Verification: function runs during `--stage verify` and reports any invalid citations.
 
-- [X] T006 Implement seed management in `src/utils/seeds.py` (pinning all random seeds for reproducibility)
-- [ ] T007 Create `src/utils/data_fetch.py` for handling API retries and raw data download logic
-- [ ] T008 Implement `src/utils/validators.py` for data integrity checks (sum=1.0, sample count thresholds)
-- [ ] T009 Setup logging infrastructure in `src/utils/logging_config.py`
-- [ ] T010 Create `src/models/hea_sample.py` defining the HEA Sample entity structure
+- [ ] T015 [US2] Train **Direct‑Target** regression models (Random Forest, Gradient Boosting, ElasticNet) for **Bulk Modulus**, **Young’s Modulus**, **Shear Modulus**, and **Poisson’s Ratio** **including** Miedema‑derived features, to evaluate their predictive power as allowed by FR‑002. Store artifacts under `results/models/direct_*` and metrics under `results/metrics_direct.yaml`.
+  - Verification: models train without Miedema exclusion errors; metrics file validates against `contracts/model_output.schema.yaml`.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T016 [US2] Perform a **Variance Inflation Factor (VIF)** check on the full descriptor matrix (standard + Miedema features) before any training, outputting `results/vif_report.yaml`. Halt if any VIF > 5.
+  - Verification: VIF report generated; pipeline aborts on high VIF.
 
----
+- [ ] T017 [US1] Implement the **target‑fallback** logic (Bulk → Shear → Formation Energy) in `code/features/targets.py`. When a sample lacks Bulk Modulus, automatically use Shear Modulus; if absent, use Formation Energy, and record the fallback decision in `data/processed/target_fallback.log`.
+  - Verification: fallback log created; downstream tasks consume the constructed residual targets accordingly.
 
-## Phase 2: User Story 1 - Data Ingestion and Feature Engineering Pipeline (Priority: P1) 🎯 MVP
+- [ ] T018 [US2] Post‑process the raw statistical outputs to conform to `contracts/output.schema.yaml`: map permutation‑test p‑values to the “Type I error rate” fields (`threshold_0_25`, etc.) and compute `fpr_variance`. Write the final `results/metrics.yaml` that passes schema validation.
+  - Verification: schema validation succeeds; fields match contract expectations.
 
-**Goal**: Retrieve HEA data from OQMD/MP, filter for ≥5 elements, normalize, and compute descriptors (ILR for linear models) to produce a clean CSV.
+- [ ] T019 [US2] (see F001) Compute the **t‑test** for R² = 0 and store results as described in T011.
 
-**Independent Test**: The pipeline runs on a subset, producing `data/processed/hea_features.csv` with no NaN values and correct ILR transformation.
+- [ ] T020 [US2] Define the reproducibility tolerance for T010 (ΔR² < 0.01) and document it in `specs/001-predict-elastic-modulus/quickstart.md`.
+  - Verification: tolerance referenced in T010 verification step.
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T021 [P] Add a `--stage verify` entry point in `code/main.py` that runs all schema validations, provenance checks, citation validation, and the PII scan, exiting with status 0 only on full compliance.
+  - Verification: `python -m code.main --stage verify` exits 0 after a successful run.
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+## Dependencies and requirement coverage
 
-- [X] T011 [P] [US1] Unit test for normalization logic in `tests/unit/test_normalization.py`
-- [X] T012 [P] [US1] Unit test for ILR transformation in `tests/unit/test_coda.py`
-- [X] T013 [P] [US1] Integration test for data fetch in `tests/integration/test_data_fetch.py`
+- All tasks now reference the same top‑level `data/` and `results/` directories.
+- Required packages are fully listed in T001.
+- Explicit filenames and paths are provided for every artifact to enable deterministic verification.
 
-### Implementation for User Story 1
+## Execution ordering
 
-- [ ] T014 [US1] Implement OQMD data fetcher in `src/data/fetch_oqmd.py` (using verified URL from `data/source_metadata.yaml`); **explicitly apply '≥5 principal elements' filter at the API query level or immediately post-fetch** to minimize memory usage. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
-- [ ] T015 [US1] Implement Materials Project fetcher in `src/data/fetch_mp.py` (with API key check); **explicitly apply '≥5 principal elements' filter at the API query level or immediately post-fetch** to minimize memory usage. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [ ] T016 [US1] Implement filtering logic: retain samples with ≥5 principal elements and valid Bulk Modulus in `src/data/filter.py`
-- [ ] T016.5 [US1] Implement **Reduced Power Analysis** logic in `src/data/power_analysis.py`: if API sample count < 500, DO NOT halt. Instead, generate an 'Underpowered Study Report' that quantifies the power deficit and confidence interval widening. Log the merge (if literature fallback is used) and proceed with available data, explicitly flagging the reduced power in all downstream outputs.
-- [ ] T017 [US1] Implement normalization step: enforce sum(composition)=1.0 and log adjustments in `src/data/normalize.py`
-- [ ] T018 [US1] Implement descriptor calculation in `src/features/descriptors.py`. **Explicitly compute the following Miedema-derived features to form the `$MIEDEMA_FEATURES$` set**:
- 1. `mixing_enthalpy_miedema` (Mixing Enthalpy via Miedema's model)
- 2. `atomic_radius_variance_miedema` (Atomic Radius Variance weighted by Miedema parameters)
- 3. `electronegativity_variance_miedema` (Electronegativity Variance via Miedema scale)
- Also compute standard descriptors (entropy, VEC, etc.) and apply ILR transformation.
-- [ ] T019 [US1] Implement target calculation: Compute the **residual** `Bulk_Modulus_Residual = Bulk_Modulus_Observed - Bulk_Modulus_Miedema` as the primary model target; compute absolute Bulk Modulus as a diagnostic column only (referencing T018) in `src/features/targets.py`.
-- [ ] T019.1 [US1] Implement **Conditional Feature Exclusion** logic in `src/features/exclusion.py`: **Explicitly exclude the columns** `mixing_enthalpy_miedema`, `atomic_radius_variance_miedema`, and `electronegativity_variance_miedema` from the predictor set ONLY when the target variable is a Residual Modulus (FR-002, FR-008). **Include a pre-training verification step (assertion)** that halts execution if any of these three columns are present in the predictor matrix when the target is Residual.
-- [ ] T020 [US1] Create main pipeline script `src/pipeline/ingest.py` to orchestrate fetch → filter → normalize → feature eng → save CSV. **Include dynamic generation of `data/source_metadata.yaml`** to record API versions, query parameters, and timestamps of the specific run (FR-009, US-1 Scenario 5).
-- [ ] T021 [US1] Implement **Underpowered Study Report** generation in `src/report/power_report.py`: explicitly log the specific deficit message: "Retrieved X samples; threshold not met. Proceeding with Reduced Power Analysis" and generate the report quantifying the power deficit (replacing the old hard halt logic).
-- [ ] T022 [US1] Output `data/processed/hea_features.csv` and **`data/source_metadata.yaml`** (YAML format, not JSON) to record provenance (FR-009).
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 3: User Story 2 - Model Training and Statistical Evaluation (Priority: P2)
-
-**Goal**: Train RF, GB, ElasticNet models on CPU, evaluate with grouped bootstrapping, and apply FDR correction.
-
-**Independent Test**: Training completes within 6h on CPU, outputting `results/metrics.yaml` with R², RMSE, MAE, and 95% CI.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T023 [P] [US2] Unit test for grouped bootstrap logic in `tests/unit/test_bootstrap.py`
-- [X] T024 [P] [US2] Unit test for FDR correction in `tests/unit/test_fdr.py`
-
-### Implementation for User Story 2
-
-- [ ] T025 [US2] Derive 'Alloy System' grouping key from composition data (e.g., sorted tuple of elements) in `src/model/derive_groups.py`
-- [ ] T026 [US2] Implement grouped train/test split (by Alloy System) in `src/model/split.py`
-- [ ] T027 [US2] Implement Random Forest training in `src/model/train_rf.py` (n_jobs=2, CPU only, 7GB RAM limit)
-- [ ] T028 [US2] Implement Gradient Boosting training in `src/model/train_gb.py` (n_jobs=2, CPU only, 7GB RAM limit)
-- [ ] T029 [US2] Implement ElasticNet training (with ILR input) in `src/model/train_elasticnet.py`
-- [ ] T030 [US2] Implement grouped bootstrap resampling using a fixed seed from `src/utils/seeds.py` in `src/eval/bootstrap.py`. **Logic**: If unique groups ≥ 10, perform standard grouped bootstrap. If unique groups < 10, **log a warning: "Insufficient groups for grouped bootstrap (N=[N]); falling back to standard bootstrap with caution"** and proceed with standard bootstrap (per spec Edge Cases). **Explicitly write a flag** `bootstrap_ci_warning: "potentially underestimated"` **into** `results/metrics.yaml` **if groups < 10**. Calculate 95% CI for R².
-- [ ] T031 [US2] Implement multiple-comparison correction (Benjamini-Hochberg/FDR) in `src/eval/fdr.py`
-- [ ] T032 [US2] Create evaluation runner `src/eval/evaluate.py` to train all models, compute R²/RMSE/MAE for the **residual target** (Bulk_Modulus_Residual), and save `results/metrics.yaml`. **Consume the null hypothesis results from T032.1**. **Include generation of the 'Underpowered Study Report' and 'Reduced Power Analysis' output** in the metrics file when sample counts are low (per spec Edge Cases).
-- [ ] T032.1 [US2] Implement **Permutation Test for Null Hypothesis** in `src/eval/permutation_test.py`. **Execute 1000 iterations** to test R² > 0. **Output** a JSON/YAML file `results/null_hypothesis.yaml` containing the **p-value** and a **boolean `significant` flag** (true if p < 0.05). This artifact is required by SC-002 and US-2 Scenario 4.
-- [ ] T033 [US2] Add diagnostic logging for train/test performance gaps to detect overfitting; **explicitly check for correlation between residuals and ONLY the '$MIEDEMA_FEATURES$' set (Pearson |r| < 0.1)**; if correlation exceeds threshold, **log a warning "Potential circularity detected" and proceed with caution, noting the potential confound in the final report** (FR-008). Do NOT check general predictors to avoid flagging expected model signal.
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 4: User Story 3 - Interpretability and Associational Reporting (Priority: P3)
-
-**Goal**: Extract SHAP values, generate plots, perform sensitivity analysis, and ensure associational framing.
-
-**Independent Test**: Report generation produces a summary with SHAP plots, sensitivity table, and explicit associational disclaimers.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T034 [P] [US3] Unit test for causal language scanner in `tests/unit/test_causal_check.py`
-
-### Implementation for User Story 3
-
-- [ ] T035 [US3] Implement SHAP value extraction for the best model in `src/interpret/shap_analysis.py`
-- [ ] T036 [US3] Generate parity plots and partial dependence plots in `src/interpret/visualize.py`
-- [ ] T037 [US3] Implement sensitivity analysis script: **Sweep** R² thresholds {0.25, 0.30, 0.35}. Calculate **p-value for R² > 0.3 (estimated via permutation testing)** at each threshold. **Output**: Report the **variance in p-values** across the swept thresholds in `results/sensitivity.yaml` (per spec.md US-3 Acceptance Scenario 3 and FR-006). **Do NOT halt execution here**; this task is for reporting robustness only.
-- [ ] T037.1 [US3] Implement **Hard-Stop Logic** in `src/utils/claim_validator.py`. **Consume** the p-value for the **0.3 threshold** from the sensitivity analysis. **If p > 0.05 for the 0.3 threshold specifically**, **raise SystemExit(1)** (or equivalent non-zero exit code) and log "Primary claim rejected: p-value at 0.3 threshold exceeds 0.05. Study halted." **Do NOT halt** for 0.25 or 0.35 thresholds.
-- [ ] T038 [US3] Implement causal language scanner to flag violations in final text in `src/utils/causal_check.py`
-- [ ] T039 [US3] Create report generator `src/report/generate.py` to compile PDF/Markdown with SHAP, sensitivity, and explicit associational disclaimers. **Explicitly include the 'Underpowered Study Report' content and 'Reduced Power Analysis' quantification** if applicable (per spec Edge Cases). **Check for the `bootstrap_ci_warning` flag from T030** and include it in the report if present.
-- [ ] T040 [US3] Ensure `results/interpretability.yaml` and `results/sensitivity.yaml` are populated
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase 5: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories and final validation
-
-- [ ] T041 [P] Run full pipeline integration test to verify data flow from fetch to report
-- [ ] T042 Compute content hashes of `results/` and update `state/projects/PROJ-443-...yaml`
-- [ ] T043 Verify all FRs (FR-001 to FR-007) are addressed in final artifacts
-- [ ] T044 Run quickstart.md validation
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Phase 0 (Setup/Validation)**: No dependencies - can start immediately
-- **Foundational (Phase 1)**: Depends on Phase 0 completion - BLOCKS all user stories
-- **User Stories (Phase 2+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 1) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 1) - Depends on US1 data output
-- **User Story 3 (P3)**: Can start after Foundational (Phase 1) - Depends on US2 model output
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Data fetch before feature engineering
-- Feature engineering before model training
-- Model training before evaluation
-- Evaluation before interpretability/reporting
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Phase 0 tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 1)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for normalization logic in tests/unit/test_normalization.py"
-Task: "Unit test for ILR transformation in tests/unit/test_coda.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement OQMD data fetcher in src/data/fetch_oqmd.py"
-Task: "Implement Materials Project fetcher in src/data/fetch_mp.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 0: Setup & Validation
-2. Complete Phase 1: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 2: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently (ensure dataset is valid and features computed)
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Data & Features)
- - Developer B: User Story 2 (Models & Evaluation)
- - Developer C: User Story 3 (Interpretability & Reporting)
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Constraint**: All models must run on CPU (limited cores, limited RAM). No GPU, no 8-bit quantization, no deep learning.
-- **Data Integrity**: No synthetic data. All inputs must come from real OQMD/MP sources.
-- **Statistical Rigor**: Grouped bootstrap is mandatory to prevent leakage; FDR correction required for model comparison. If groups < 10, warn and use standard bootstrap (per spec Edge Cases). **Flag CIs as potentially underestimated if groups < 10** (write to `results/metrics.yaml`).
-- **Target Priority**: Models predict **residual** Bulk Modulus (Observed - Miedema) to avoid physics leakage; absolute values are diagnostic only. **Miedema-derived features must be excluded from predictors when target is Residual.**
-- **Validation Gate**: Reference-Validator runs in Phase 0 before any data fetch.
-- **Feasibility Check**: Ensure all descriptor calculations (Miedema, ILR) use vectorized NumPy/Pandas operations to stay within 7GB RAM limits; avoid loading full periodic tables into memory repeatedly.
-- **Data Source Specificity**: T014 and T015 must explicitly handle the "≥5 principal elements" filter at the API query level or immediately post-fetch to minimize memory usage.
-- **Residual Validation**: T033 must explicitly check for correlation between residuals and **ONLY $MIEDEMA_FEATURES$** (FR-008) and log warning/proceed if |r| > 0.1. Do not check other predictors.
-- **Underpowered Study**: T016.5, T021, T032, and T039 must implement the 'Reduced Power Analysis' and 'Underpowered Study Report' generation. **The system MUST NOT halt** if sample count < 500; it must proceed with the report.
-- **Metadata Generation**: T020 must dynamically generate `source_metadata.yaml` at runtime to record actual API versions and query parameters (FR-009).
-- **Sensitivity Analysis**: T037 must report the **p-value for R² > 0.3** and the variance in these p-values across thresholds (FR-006). **T037.1 must halt the study ONLY if p > 0.05 for the 0.3 threshold.**
-- **Miedema Features**: T018 must generate `mixing_enthalpy_miedema`, `atomic_radius_variance_miedema`, `electronegativity_variance_miedema`. T019.1 must explicitly exclude these three columns for Residual targets.
+T001 → T002 → T003 → T004 → T005 → T006 → T007 → T008 → T009 → T010 → (infrastructure tasks T011‑T021 may be interleaved as needed, but must run before final verification).
