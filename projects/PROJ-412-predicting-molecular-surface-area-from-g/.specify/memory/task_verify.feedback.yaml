@@ -11,28 +11,17 @@ T002:
 T002-Install:
   task: 6a3f26475d4165d79e82aed572288b2684ae3da0c67bb2a0ab232adca9598594
 T002b:
-  reason: '`code/config.py` exists and correctly defines `TIME_BUDGET=6.0`, `MAX_RAM_GB=7.0`,
-    `RANDOM_SEED=42`, and `SENSITIVITY_THRESHOLDS=[0.01, 0.05, 0.1]`, but the required
-    `MAX_MOLECULES: int = 5000` constant is entirely absent from the file. Add `MAX_MOLECULES:
-    int = 5000` (the fixed pilot-study cap) to complete the task.'
   task: 6129f7c7cde87422e729439b429284f30c6dd43cb93265d23329af3b8049d154
 T003a:
   task: f159eee32cbaae2bd9a165f2b861435350f08d20238640c20ba2dbbb0de32d40
 T003b:
   task: 655fab35f23584d45d26723a01fde77b530f1547683409def1b891fa0369f374
 T004:
-  reason: "The schema file exists at the corrected `contracts/` path and is well-formed,\
-    \ but it does not define the required field `surface_area` \u2014 the target label\
-    \ is named `sasa` instead. The task explicitly enumerates the expected fields\
-    \ (SMILES, node_features, edge_features, surface_area, molecular_weight), so the\
-    \ schema should either rename `sasa` to `surface_area` or include a `surface_area`\
-    \ field (e.g., as an alias) to match the contract."
   task: ef53bf526a1335b73af18b02e0e142cd859eaa5b60a06cb5272b6a4a8b3cd75d
 T005:
   reason: 'declared artifact(s) missing/empty/invalid: specs/001-predicting-molecular-surface-area/contracts/model_schema.yaml'
   task: aab0d2ba95fa9fd56336af5311f77781e32173b7f6851aeef3ff2bedf477b82a
 T006:
-  reason: 'declared artifact(s) missing/empty/invalid: specs/001-predicting-molecular-surface-area/contracts/sensitivity_schema.yaml'
   task: 7c5bbef397224e6f1ebdd96371313a7f9a550c47d961152292cb90e6794926ec
 T007:
   task: e312b995d707c8e6c3e149ef63ea7de4434e7201f8b446e921b6c181057f3955
@@ -58,7 +47,8 @@ T014-Merge:
   reason: 'declared artifact(s) missing/empty/invalid: data/processed/graphs_with_features.parquet'
   task: a7d0377ec743d29f16915f14039cf289353d5a34222f0a28e5b745155a255b65
 T014-Pilot:
-  reason: 'declared artifact(s) missing/empty/invalid: code/data/pilot_study.py, data/processed/pilot_report.json'
+  reason: 'Requested task execution failed; rerun successfully: code/data/pilot_study.py
+    exit=1'
   task: 45ea1a0dd9c50d12488779ee92c27092b5c559442103eed1b026743abce6bede
 T014-Sample:
   task: 9386229589b96eaf98662e74239a242cb130a12c13c558fde28911caa045ed98

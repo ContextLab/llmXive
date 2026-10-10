@@ -1,13 +1,13 @@
 T001-Setup-Dirs-Code:
   c: true
-  h: a915ab6b5b02b38d2260cec52dc7478e96270e72edbd605b01a1616ab45a358d
-  r: The script `scripts/setup_dirs.py` exists (4588 bytes) and creates all nine required
-    directories (code/, code/data/, code/models/, code/eval/, code/utils/, tests/contract/,
-    tests/unit/, tests/integration/, logs/) via `create_directories()`, which is invoked
-    from `main()`. The execution log shows a successful run (exit 0) with all nine
-    directories created and verified, and the collector confirms each directory currently
-    exists with substantive contents.
-  sig: dca8fd234c70887fa591697f45dcead73e04fc4f9f19a08e3bd4807ee225aee4
+  h: 470523b7990e43761d7bc291b124a4d5e6dfa2f320599100c5030eab532de067
+  r: The script `scripts/setup_dirs.py` exists (4588 bytes) and creates exactly the
+    nine required directories (code/, code/data/, code/models/, code/eval/, code/utils/,
+    tests/contract/, tests/unit/, tests/integration/, logs/) via `create_directories()`.
+    The execution log shows it ran with exit 0 and printed "OK" for each required
+    directory, and the collector confirms all nine directories currently exist and
+    are populated.
+  sig: 25a4181af2424a56fccafc6e453f4c17caaedce1199c3fcd1ea1f13dc3988634
 T001-Setup-Dirs-Data:
   c: true
   h: b24b87fcf2276129565087a7ba4f7e9b68fedec5f88cee3953ff5649529d6c1b
@@ -56,13 +56,23 @@ T002-Install:
     are installed.
   sig: 681e17c7b8e89f2e0532d766cd4b3b5c427764751400c24f0a0152b4f4e336c1
 T002b:
-  c: false
-  h: 706e9a834d31800e640903ad43e831d8a57d1871d20340c34627459eecac27db
-  r: '`code/config.py` exists and correctly defines `TIME_BUDGET=6.0`, `MAX_RAM_GB=7.0`,
-    `RANDOM_SEED=42`, and `SENSITIVITY_THRESHOLDS=[0.01, 0.05, 0.1]`, but the required
-    `MAX_MOLECULES: int = 5000` constant is entirely absent from the file. Add `MAX_MOLECULES:
-    int = 5000` (the fixed pilot-study cap) to complete the task.'
-  sig: cab47e4a8d9b4c0620a4399aec027df91ac4f8adcd504114ce52d169c61b3376
+  c: true
+  h: e6e32ce69e914c19d14db4f4c07d7f32c15eeadd5b267249c261504ddda89059
+  r: '`code/config.py` exists (1043 bytes) and defines all five required constants
+    with the exact specified values and types: `TIME_BUDGET: float = 6.0`, `MAX_RAM_GB:
+    float = 7.0`, `RANDOM_SEED: int = 42`, `MAX_MOLECULES: int = 5000`, and `SENSITIVITY_THRESHOLDS:
+    List[float] = [0.01, 0.05, 0.1]` with units documented. The extra path constants
+    and directory creation are harmless additions, not placeholders or deviations.'
+  sig: 058c8ca9bd277bbfc66d6a62f5150b77406f4a02d686b636e7969e11945010fd
+T003a:
+  c: true
+  h: dc2aa4805e9576a3b77ac653a0e2ae72d68283d6fb5d0ad01cdad49769c754cb
+  r: 'The `.ruff.toml` exists at the project root (1018 bytes) with substantive, project-specific
+    configuration: target version, line length, a curated rule selection (E, W, F,
+    I, B, C4, UP, S, RUF), justified ignores, isort settings, per-file ignores referencing
+    actual project modules (e.g., `code/data/ingest.py` for ZINC15 URL handling),
+    and formatter settings. It is a real configuration, not a placeholder.'
+  sig: 30258a05c727bf8466a88cf8c1795a2a1295b696d1c379621f753589f79d03df
 T003b:
   c: true
   h: dcbaf7e09472f871cd1226b175c36b9cb1a420db4f6ca5c0f1321bd0397449d1
@@ -73,23 +83,34 @@ T003b:
     deliverable.
   sig: 4b02251546d57ceb150e4fd98a77867c2b6b7193dce311d2e14b0c80a7a5f9b3
 T004:
-  c: false
-  h: 3159c11c08c12c14a7c07f4a24ac02bffcfec4c79ed86515e27977f4994547fb
-  r: "The schema file exists at the corrected `contracts/` path and is well-formed,\
-    \ but it does not define the required field `surface_area` \u2014 the target label\
-    \ is named `sasa` instead. The task explicitly enumerates the expected fields\
-    \ (SMILES, node_features, edge_features, surface_area, molecular_weight), so the\
-    \ schema should either rename `sasa` to `surface_area` or include a `surface_area`\
-    \ field (e.g., as an alias) to match the contract."
-  sig: 3a2cdda0490848f1960de7255583748e6d5599c26993bbb09f6ea7a8490129f7
+  c: true
+  h: 5181cdf2c82fff523340d4fa317c40cee24692b249b946daaceddacce72bc743
+  r: "The requested schema file exists at the collector-confirmed canonical path (`specs/001-predicting-molecular-surface-area-from-g/contracts/dataset.schema.yaml`,\
+    \ 1448 bytes) and defines all required fields \u2014 SMILES, node_features, edge_features,\
+    \ surface_area, and molecular_weight \u2014 with sensible types, constraints,\
+    \ and a required list. The content is a real, well-formed JSON Schema (draft-07),\
+    \ not a stub or placeholder, and matches the task's stated deliverable."
+  sig: 2f21d3bbe753400dcd858b1f1fc6e450b1fa20ea4812762ca6c41a7b21719871
+T006:
+  c: true
+  h: 0af4a8422504de88999250e80654445e5f1e0dfda67b76341b25e064c1044f10
+  r: "The file `specs/.../contracts/sensitivity_schema.yaml` exists (4291 bytes) and\
+    \ defines all required fields \u2014 thresholds (with spec-mandated values 0.01/0.05/0.1),\
+    \ success_rates, and corrected_p_values (Bonferroni, n>1 condition) \u2014 plus\
+    \ required columns/sections for the CSV and markdown report outputs, matching\
+    \ the task's contract requirement."
+  sig: d89032dbfe9f19b0b1dbb1ebada004f0fef6f3ea888bcad9925237257648e25c
 T007:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required Python files (e.g., `code/models/molecule.py`, `code/models/graph.py`,
-    `code/models/evaluation_result.py`) or their contents was provided; the claim
-    that the base data models exist cannot be verified. The implementer must add the
-    three model classes in the `code/models/` directory and ensure they contain the
-    appropriate fields and methods.
+  c: true
+  h: 918c676660f064aca951d9ee053f607ff5317512672c8ad2bb344df24cdd6e70
+  r: The required `code/__init__.py` exists (1750 bytes) with a real package docstring,
+    version, sys.path setup, and guarded imports of the config and utility modules,
+    and the environment configuration loader `code/config.py` exists with concrete,
+    non-placeholder values (time budget, RAM limit, seed, paths, directory creation).
+    All referenced utility modules (logging, seed, validators, checksum, memory_monitor,
+    network_check, directories, conformer_config) are present as substantive implementations,
+    so the package init and config loader requirements are genuinely satisfied.
+  sig: f5c2e8c683fb226c9d824ca11a38fb71f906b16f252c849e3f8d4c48967f9d06
 T011:
   c: false
   h: 557089656345f3ce41fd9efdc1ef18286508a05e2a023ba839ebc4b187b87e33

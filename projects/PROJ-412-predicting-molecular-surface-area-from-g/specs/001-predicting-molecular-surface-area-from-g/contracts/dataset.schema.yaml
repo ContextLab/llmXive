@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Molecular Dataset Schema"
-description: "Schema for the processed molecular dataset (2D features + 3D SASA)"
+description: "Schema for the processed molecular dataset (2D features + 3D surface area)"
 type: object
 properties:
   smiles:
@@ -17,17 +17,21 @@ properties:
     minimum: 1
   node_features:
     type: array
-    description: "Flattened atom feature vectors"
+    description: "Flattened atom feature vectors [atom_type, hybridization, formal_charge]"
     items:
       type: number
   edge_features:
     type: array
-    description: "Flattened bond feature vectors"
+    description: "Flattened bond feature vectors [bond_type, conjugated, aromatic]"
     items:
       type: number
+  surface_area:
+    type: number
+    description: "Computed 3D Solvent Accessible Surface Area (SASA) in Å² (target label)"
+    minimum: 0
   sasa:
     type: number
-    description: "Computed 3D Surface Area in Å²"
+    description: "Alias for surface_area (computed 3D SASA in Å²); kept for backward compatibility"
     minimum: 0
   conformer_params:
     type: string
@@ -45,7 +49,7 @@ required:
   - atom_count
   - node_features
   - edge_features
-  - sasa
+  - surface_area
   - conformer_params
   - split
 additionalProperties: false

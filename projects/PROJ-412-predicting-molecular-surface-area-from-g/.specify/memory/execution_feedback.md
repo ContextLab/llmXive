@@ -37,7 +37,7 @@ These commands failed because the external dataset is NOT reachable AS WRITTEN o
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/run_dry_run.py: synthetic/fake INPUT data not authorized by the spec — “…-run cannot proceed with synthetic data.")          # Take exact…”; 1 run-book script(s) missing (plan/impl path mismatch): python code/eval.py --models artifacts/gcn_model.pt artifacts/baseline_model.pt --test data/processed/splits/test.parquet; 5 command(s) failed: python code/data/ingest.py --source zinc15 --output data/processed/molecules.parquet (rc=1); python code/data/split.py --input data/processed/molecules.parquet --output data/processed/splits/ (rc=1); python code/models/train.py --model gcn --config code/config.py (rc=2); 5 declared deliverable(s) absent: data/processed/descriptors.parquet; data/processed/graphs_with_features.parquet; data/processed/paired_dataset.parquet
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/run_dry_run.py: synthetic/fake INPUT data not authorized by the spec — “…-run cannot proceed with synthetic data.")          # Take exact…”; 1 run-book script(s) missing (plan/impl path mismatch): python code/eval.py --models artifacts/gcn_model.pt artifacts/baseline_model.pt --test data/processed/splits/test.parquet; 5 command(s) failed: python code/data/ingest.py --source zinc15 --output data/processed/molecules.parquet (rc=1); python code/data/split.py --input data/processed/molecules.parquet --output data/processed/splits/ (rc=1); python code/models/train.py --model gcn --config code/config.py (rc=2); 6 declared deliverable(s) absent: data/processed/descriptors.parquet; data/processed/graphs_with_features.parquet; data/processed/paired_dataset.parquet
 
 ## Failing / missing run-book commands
 
@@ -56,8 +56,8 @@ Traceback (most recent call last):
 ValueError: Dataset fetch failed: Couldn't find a dataset script at /home/runner/work/llmXive/llmXive/projects/PROJ-412-predicting-molecular-surface-area-from-g/zinc15/filtered/filtered.py or any data file in the same directory. Couldn't find 'zinc15/filtered' on the Hugging Face Hub either: FileNotFoundError: Dataset 'zinc15/filtered' doesn't exist on the Hub. If the repo is private or gated, make sure to log in with `huggingface-cli login`.
 
 - python code/data/split.py --input data/processed/molecules.parquet --output data/processed/splits/ -> rc=1
-2026-10-10 23:24:56,049 - code.utils.logging - INFO - Starting T016: Data Splitting
-2026-10-10 23:24:56,049 - code.utils.logging - ERROR - Failed to load processed data: Required input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-412-predicting-molecular-surface-area-from-g/data/processed/paired_dataset.parquet
+2026-10-10 23:29:38,526 - code.utils.logging - INFO - Starting T016: Data Splitting
+2026-10-10 23:29:38,526 - code.utils.logging - ERROR - Failed to load processed data: Required input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-412-predicting-molecular-surface-area-from-g/data/processed/paired_dataset.parquet
 
 
 - python code/models/train.py --model gcn --config code/config.py -> rc=2
@@ -92,6 +92,7 @@ sensitivity.py: error: unrecognized arguments: --results artifacts/results.json 
 - data/processed/descriptors.parquet
 - data/processed/graphs_with_features.parquet
 - data/processed/paired_dataset.parquet
+- data/processed/pilot_report.json
 - data/splits/test_indices.csv
 - data/splits/train_indices.csv
 
@@ -115,6 +116,9 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/models/train.py` — IS a run-book command
     - `code/run_quickstart_validation.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/paired_dataset.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/pilot_report.json` is declared but was NOT written. Scripts referencing it:
+    - `code/data/pilot_study.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/pilot_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/splits/test_indices.csv` is declared but was NOT written. Scripts referencing it:
     - `code/data/split.py` — IS a run-book command
     - `code/eval/oracle_evaluation.py` — NOT invoked by the run-book
