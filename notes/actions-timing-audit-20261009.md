@@ -163,10 +163,25 @@ from the frozen Git snapshot returned `needed=false`. No production run was canc
 for this audit.
 
 After the six-path CI classification, the combined selection/queue/persistence
-suite passed 118 tests with one sparse-checkout fixture skip. Mixed reference
-edits and unknown workflow/helper controls, the transitive import guard and
-actual fast/nightly test-collection partition all passed. Hosted exact-head
-checks remain required before merge.
+suite (`pytest tests/unit/test_ci_selection.py tests/unit/test_reprocess_queue.py
+tests/unit/test_pipeline_write_profiles.py`) passed 115 tests with one skip.
+
+**Correction (2026-10-10).** That skip was not a sparse-checkout fixture skip.
+`test_mixed_production_routing_and_reference_edits_retain_all_checks` — added by
+this audit — was silently skipped by the real-call gate in `tests/conftest.py`,
+which classified tests by `item.nodeid`; the node id embeds the parameter value
+`tests/real_call/test_resolve_reference_registrar_agnostic.py`. The merged PR
+therefore never ran that offline regression, and the skip read as a pass. The
+gate now classifies by the test file's absolute path
+(`tests/conftest.py::under_real_call`), so no parameter value can gate a test;
+`tests/unit/test_real_call_gate.py` drives the gate through a real pytest
+collection. Re-measured at `a7cbf8ce8f0`: the same three files report 116
+passed, 0 skipped, and `tests/real_call` still reports 126 collected / 126
+skipped without `LLMXIVE_REAL_TESTS=1`.
+
+Mixed reference edits and unknown workflow/helper controls, the transitive
+import guard and actual fast/nightly test-collection partition all passed.
+Hosted exact-head checks remain required before merge.
 
 ## Hosted verification after review and merge
 

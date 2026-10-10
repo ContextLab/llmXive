@@ -3,9 +3,37 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+
+_TESTS_ROOT = Path(__file__).resolve().parent
+
+
+def under_real_call(path: object) -> bool:
+    """True when ``path`` is a test FILE inside ``tests/real_call``.
+
+    The real-call gate classifies by the test file's path and NEVER by a node
+    id. A node id embeds parameter values, so
+    ``test_x[tests/real_call/test_y.py]`` — an offline test whose *parameter*
+    happens to be a real-call path — would be gated as if it were itself a
+    real-call test. A silently skipped test reads as a pass, so the regression
+    it guards disappears without any CI signal.
+    """
+    candidate = Path(str(path))
+    if not candidate.is_absolute():
+        # pytest always hands this an absolute file path (``item.path`` /
+        # ``node.fspath``). A relative string is therefore never a test file
+        # here — it is a parameter value, and resolving it against the current
+        # working directory is exactly how such a value used to be mistaken
+        # for a real-call test.
+        return False
+    try:
+        relative = candidate.resolve().relative_to(_TESTS_ROOT)
+    except ValueError:
+        return False
+    return relative.parts[:1] == ("real_call",)
 
 
 @pytest.fixture(autouse=True)
@@ -23,7 +51,7 @@ def _stub_task_verifier_backend(
     """
     if os.environ.get("LLMXIVE_REAL_TESTS") == "1":
         return
-    if "real_call" in str(request.node.fspath):
+    if under_real_call(request.node.fspath):
         return
     # Isolated offline verdict receipts use a test key at the verifier boundary.
     # Do not set the process credential env: credential-loader and execution
@@ -101,5 +129,5 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
         return
     skip = pytest.mark.skip(reason="set LLMXIVE_REAL_TESTS=1 to run real-call tests")
     for item in items:
-        if "real_call" in item.nodeid.split("/"):
+        if under_real_call(getattr(item, "path", None) or item.fspath):
             item.add_marker(skip)
