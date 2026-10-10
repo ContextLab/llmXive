@@ -1,13 +1,15 @@
 T001:
   c: true
-  h: c52f2f0e01b3273a7c5bef22ef71e57ab3f7a9060d2c7278eba7764afb6f8122
-  r: Checked `code/requirements.txt` (exactly the six CPU-tractable deps), `code/scripts/fetch_cochrane.py`
-    (fetches Zenodo record 10286623, validates effect-size/SE columns, and raises
-    `FileNotFoundError` on any fetch/validation failure with no silent substitution),
-    and `data/raw/cochrane_base_synthetic.csv`, which exists with 20 studies and valid
-    `effect_size`/`standard_error` columns consistent with the N(0,1), N=20 verified
-    synthetic base. The plan.md and project layout artifacts are present as required.
-  sig: 59020ceeb92bd061f6a1146fba179333e59276c0eb612e990a15c83e42fdfcd9
+  h: a3486f967a44f9bd430f2bdaec0fa6d3b85f65e2c7b80655f07f356c98a68a8b
+  r: "The required data artifact exists: `data/raw/cochrane_base_synthetic.csv` contains\
+    \ 20 rows (N=20) with `effect_size` and `standard_error` columns whose values\
+    \ are consistent with the verified synthetic base (mu=0, sigma=1, e.g., values\
+    \ spanning roughly -1.9 to 1.6 with SEs ~0.07\u20130.15). The loader `code/scripts/fetch_cochrane.py`\
+    \ targets Zenodo DOI 10.5281/zenodo.10286623 via the REST API, validates CSV structure\
+    \ (effect-size + SE columns, \u22655 rows), and raises `FileNotFoundError` on\
+    \ any fetch/validation failure with no silent substitution. `code/requirements.txt`\
+    \ lists the six required CPU-trac"
+  sig: 7226df326fe2e0d9c44844632c3e8e56216d42b5e68e147f936b0edbf8804b4a
 T002:
   c: true
   h: aeaed097d2b8cb66666a8bc717790f6cd1bf5e4477a41eeafa6f860ff8485a08
@@ -21,29 +23,29 @@ T002:
     \ the injected \u03C4\xB2, so the assertion is genuinely "
   sig: df65bc475fd65ad6a34f64d66d86511a868a60bb5108aff0e55fe7dab80f2e51
 T003:
-  c: false
-  h: b80b146f6433cc6caff1c0ca038363b8ffe4de98430a4f137b810c21fffff0e6
-  r: "The estimator module has a fatal bug: `log_reml_failure` calls `Path(log_path).parent.mkdir(...)`\
-    \ but `pathlib.Path` is never imported in `estimators.py` (only json, math, time,\
-    \ typing, numpy, scipy), so any REML failure-logging invocation raises `NameError`\
-    \ \u2014 meaning the FR-006 requirement (log failures and fall back) cannot work\
-    \ as written, and the test `test_failure_logging_and_fallback` would fail. Additionally,\
-    \ `data/results/reml_failures.json` has a schema (`{\"failure_count\": 0, \"events\"\
-    : []}`) that `log_reml_failure` neither reads nor writes (it expects/writes a\
-    \ plain JSON list), indica"
-  sig: ef772ceed38174aeda32c7db3e83389987c19f1bbaf306afce64efdc879540b5
+  c: true
+  h: 47c5ce880215e4aa080a6d575d479296d2ee7ff467f6d06b03b6b33bb0acc452
+  r: "I checked `code/simulation/estimators.py` (FE, DL, REML implementations with\
+    \ Q, I\xB2, small-study flagging, and REML failure logging with DL fallback),\
+    \ `tests/unit/test_estimators.py` (covering \u03C4\xB2=0 stability, 0.001-tolerance\
+    \ known cases, Q/I\xB2 for every estimator, N<5 flags, and failure logging), and\
+    \ `data/results/reml_failures.json`, which contains a real logged event matching\
+    \ the test's forced optimizer crash (\"simulated crash\", fallback \"dersimonian_laird_tau2\"\
+    ) \u2014 evidence the failure-logging path was actually executed. All mandatory\
+    \ requirements (FR-002, FR-006, Principle VII, small-study ed"
+  sig: b23bb4ef6cc4b2919caed4d8478ee3883705c988eb2c25491e4228cc33a67fa9
 T005:
   c: true
-  h: b802558c7af7cf05ce37d7351f6d3204eae81c9cde5d32c7d4e5fbfa45941e23
+  h: 128d8d8ee593deb00ab20c23d79afca3500bab2b0eb8c4dcf1ef9253fba5f2bb
   r: "I checked `data/results/estimation_results.csv` (60 rows = 2 \u03C4\xB2 levels\
-    \ \xD7 10 replicates \xD7 3 estimators) with all required schema fields (`pooled_effect`,\
+    \ \xD7 10 replicates \xD7 3 estimators) with all required T005 fields (`pooled_effect`,\
     \ `ci_lower`, `ci_upper`, `estimator_type`, `sweep_type`, `convergence_warning`)\
     \ populated and non-null, plus non-null `i_squared` and `q_statistic` for every\
-    \ replicate, consistent with `run_summary.json` (coverage 0.4 for FE at \u03C4\
-    \xB2=0.1 matches the CSV's coverage flags) and an empty REML failure log. The\
-    \ \u03C4\xB2=0 replicates being identical is the expected degenerate case of the\
-    \ documented perturbation model (y = \u03BC + \u221A\u03C4\xB2\xB7z), not fabrication."
-  sig: ead9432c0c9678b4ed2caeb3162ca1d3ae7474ec5323e4ffc26752a1d1e00cc6
+    \ replicate, consistent with `run_summary.json` (e.g., FE coverage 0.4 at \u03C4\
+    \xB2=0.1 matches the CSV's coverage flags) and the seeded base data in `data/raw/cochrane_base_synthetic.csv`.\
+    \ The identical pooled effects across \u03C4\xB2=0 replicates are the expected\
+    \ degenerate consequence of the documented g"
+  sig: 81af061998fc5327f516eaea15a0ec7b033a272d60a49f210e88d02e13d414e1
 T007:
   c: false
   h: 9a473874ddeb6ac0684ed19102a5284dbce9a5f79fbcbac06476334c1aa92194
@@ -85,10 +87,27 @@ T010:
     \ evidently generated from different or invented data rather than the actual `data/results/`\
     \ artifacts; the implemen"
   sig: 2697a6b970cb6e4b1c41fc2c1b024d1f2c45fdef541d95c6f724d9ff8f5392a0
+T011:
+  c: false
+  h: ec21a02ae5df9fef0bef6d5711efda8e82aa227c75dd9b0a40942e1216ba4d82
+  r: The required integration test file `tests/integration/test_pipeline.py` does
+    not exist, so the task's verification criterion ("all integration tests pass")
+    cannot be demonstrated. Additionally, the SHA-256 checksums recorded in `state/artifact_hashes.yaml`
+    do not match the actual artifacts on disk (e.g., `reml_failures.json` recorded
+    as `2431e823...` but actual is `d2f0794a...`; `estimation_results.csv` recorded
+    `693f333e...` vs actual `280db05d...`; `run_summary.json` recorded `945467ce...`
+    vs actual `eff3e981...`), so checksums do not match the run. The `reml_failures.json`
+    also contains a f
+  sig: e79094d76f71dc21ce86e56380c6579aab91e4ca9572f8d57ae147ed6042e415
 T012:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a modified `generator.py` is provided; there is no code snippet,\
-    \ diff, or test output demonstrating handling of the \u03C4\xB2\u202F=\u202F0\
-    \ edge case, nor any indication that numerical instability was addressed. The\
-    \ required artifact is missing, so the task is not satisfied."
+  h: 8e391e799bf8c5d31301f5a0b0974509a18dabc40974b273a3c7f8e89d9ac5d0
+  r: "The handoff document exists and includes an artifact/FR-ID mapping and an N<5\
+    \ limitation note, but its Results Overview is fabricated relative to the underlying\
+    \ data: it claims coverage declining to \u224851% at \u03C4\xB2=2.0 and mean bias\
+    \ \u2248-3%, yet `run_summary.json`/`estimation_results.csv` contain only \u03C4\
+    \xB2 \u2208 {0, 0.1} with 10 replicates (not the claimed 5 levels \xD7 500 replicates);\
+    \ it claims REML converged for all replicates while `reml_failures.json` records\
+    \ a \"simulated crash\" failure; and it contains unresolved template placeholders\
+    \ (`{{claim:c_66cac4ad}}`, `[UNRESOLVED-CLAIM: c_bb1a1daf]`) and a liter"
+  sig: 3518d784d186cd0bf1b5d9f1564595b06244cbe20d530c7bb8175e72d53e34c0

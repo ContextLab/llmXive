@@ -1,6 +1,17 @@
+# Project dependencies for PROJ-417-assessing-the-impact-of-data-heterogenei
+#
+# Core scientific stack (CPU‑only)
 numpy
 scipy
 pandas
 scikit-learn
 matplotlib
 pyyaml
+#
+# Testing framework required by the project's unit test suite
+pytest
+#
+# Note: Versions are deliberately omitted to allow the CI environment
+# to resolve the latest compatible releases at install time. This keeps
+# the environment lightweight while satisfying the project's test
+# execution requirements.

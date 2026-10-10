@@ -25,6 +25,8 @@ from typing import List, Optional, Dict, Any
 
 import numpy as np
 from scipy import optimize
+from pathlib import Path  # Added import for Path handling
+
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
@@ -130,8 +132,11 @@ def log_reml_failure(event: Dict[str, Any], log_path: str = REML_FAILURE_LOG_PAT
             content = f.read().strip()
             if content:
                 loaded = json.loads(content)
+                # Support both legacy plain‑list format and the newer dict format
                 if isinstance(loaded, list):
                     events = loaded
+                elif isinstance(loaded, dict) and isinstance(loaded.get("events"), list):
+                    events = loaded["events"]
     except FileNotFoundError:
         # No previous log – start a fresh list.
         pass
@@ -146,8 +151,17 @@ def log_reml_failure(event: Dict[str, Any], log_path: str = REML_FAILURE_LOG_PAT
     try:
         # Ensure the parent directory exists before writing.
         Path(log_path).parent.mkdir(parents=True, exist_ok=True)
-        with open(log_path, "w", encoding="utf-8") as f:
-            json.dump(events, f, indent=2)
+        # Preserve backward‑compatible dict wrapper if the original file was a dict
+        if isinstance(loaded, dict):
+            # Update the wrapper with the new events list and recompute failure_count
+            loaded["events"] = events
+            loaded["failure_count"] = len(events)
+            with open(log_path, "w", encoding="utf-8") as f:
+                json.dump(loaded, f, indent=2)
+        else:
+            # Plain list format
+            with open(log_path, "w", encoding="utf-8") as f:
+                json.dump(events, f, indent=2)
     except OSError as e:
         logger.error("Could not write REML failure log %s: %s", log_path, e)
 

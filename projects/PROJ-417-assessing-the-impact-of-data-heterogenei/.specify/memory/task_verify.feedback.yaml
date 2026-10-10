@@ -3,14 +3,6 @@ T001:
 T002:
   task: 376c0c4fb1e229234eefaf5ae8ac1e0b9c66b3336815d38a00be84c0f02fecb1
 T003:
-  reason: "The estimator module has a fatal bug: `log_reml_failure` calls `Path(log_path).parent.mkdir(...)`\
-    \ but `pathlib.Path` is never imported in `estimators.py` (only json, math, time,\
-    \ typing, numpy, scipy), so any REML failure-logging invocation raises `NameError`\
-    \ \u2014 meaning the FR-006 requirement (log failures and fall back) cannot work\
-    \ as written, and the test `test_failure_logging_and_fallback` would fail. Additionally,\
-    \ `data/results/reml_failures.json` has a schema (`{\"failure_count\": 0, \"events\"\
-    : []}`) that `log_reml_failure` neither reads nor writes (it expects/writes a\
-    \ plain JSON list), indica"
   task: 4384087d40e88678368e8be20ac6f3a68bef64c7c531dfa2d2681e582a7e300e
 T004:
   reason: 'Requested task execution failed; rerun successfully: code/run_tests.sh
@@ -61,6 +53,22 @@ T010:
     \ artifacts; the implemen"
   task: a22e5b45552fe90467ca594327afb55b363924e6c4c4a1942cdc9a0df37e0a42
 T011:
+  reason: The required integration test file `tests/integration/test_pipeline.py`
+    does not exist, so the task's verification criterion ("all integration tests pass")
+    cannot be demonstrated. Additionally, the SHA-256 checksums recorded in `state/artifact_hashes.yaml`
+    do not match the actual artifacts on disk (e.g., `reml_failures.json` recorded
+    as `2431e823...` but actual is `d2f0794a...`; `estimation_results.csv` recorded
+    `693f333e...` vs actual `280db05d...`; `run_summary.json` recorded `945467ce...`
+    vs actual `eff3e981...`), so checksums do not match the run. The `reml_failures.json`
+    also contains a f
   task: 82306112c171373a57017966a62f1e67961c7c24bcd4aacb00c5fad4df287108
 T012:
+  reason: "The handoff document exists and includes an artifact/FR-ID mapping and\
+    \ an N<5 limitation note, but its Results Overview is fabricated relative to the\
+    \ underlying data: it claims coverage declining to \u224851% at \u03C4\xB2=2.0\
+    \ and mean bias \u2248-3%, yet `run_summary.json`/`estimation_results.csv` contain\
+    \ only \u03C4\xB2 \u2208 {0, 0.1} with 10 replicates (not the claimed 5 levels\
+    \ \xD7 500 replicates); it claims REML converged for all replicates while `reml_failures.json`\
+    \ records a \"simulated crash\" failure; and it contains unresolved template placeholders\
+    \ (`{{claim:c_66cac4ad}}`, `[UNRESOLVED-CLAIM: c_bb1a1daf]`) and a liter"
   task: a49a61bae509e264f0cfc92bc391951e6552f6a460598ea5478d6763bc25baf4

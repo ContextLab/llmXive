@@ -7,7 +7,7 @@ Verifies:
 - Q and I^2 statistics are computed for every estimation.
 - Small-study (N < 5) datasets are explicitly flagged.
 - REML convergence failures are logged to data/results/reml_failures.json
-  and the estimator proceeds with a fallback variance (FR-006).
+  and the estimator proceeds with a fallback (DL) variance.
 """
 
 import json
@@ -178,9 +178,14 @@ class TestREML:
             assert log_file.exists()
             with open(log_file) as f:
                 events = json.load(f)
-            assert len(events) >= 1
-            assert events[-1]["estimator"] == "reml"
-            assert "fallback" in events[-1]
+            # Support both plain list and dict wrapper formats
+            if isinstance(events, dict):
+                events_list = events.get("events", [])
+            else:
+                events_list = events
+            assert len(events_list) >= 1
+            assert events_list[-1]["estimator"] == "reml"
+            assert "fallback" in events_list[-1]
         finally:
             monkeypatch.setattr(
                 est_mod.optimize, "minimize_scalar", real_minimize_scalar
