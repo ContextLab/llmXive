@@ -172,3 +172,99 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-10T15:40:42Z'
+- artifact_path: projects/PROJ-291-predicting-the-impact-of-residual-stress/quickstart.md
+  attempts: 1
+  canonical: pip install -r requirements.txt completes within 2 minutes on GitHub
+    Actions ubuntu-latest runner
+  claim_id: c_b71bab8f
+  context: "The requirements.txt pins all package versions (pandas\u202F2.2.2, scikit\u2011\
+    learn\u202F1.5.0, torch\u202F2.3.0, statsmodels\u202F0.14.2, datasets\u202F2.20.0,\
+    \ numpy\u202F1.26.4, and supporting packages). A clean pip install -r requirements.txt\
+    \ completes well within the 2\u2011minute budget on the GitHub Actions ubuntu\u2011\
+    latest runner (CPU\u2011only torch wheel)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "A clean pip install -r requirements.txt completes well within the 2\u2011\
+    minute budget on the GitHub Actions ubuntu\u2011latest runner (CPU\u2011only torch\
+    \ wheel)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T16:16:54Z'
+- artifact_path: projects/PROJ-291-predicting-the-impact-of-residual-stress/quickstart.md
+  attempts: 1
+  canonical: "all steps complete within GitHub Actions free\u2011tier limits of 6\
+    \ hours runtime and 7 GB RAM"
+  claim_id: c_a0e042bf
+  context: "All steps complete within the GitHub Actions free\u2011tier limits (\u2264\
+    \u202F6\u202Fh runtime, <\u202F7\u202FGB RAM)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "All steps complete within the GitHub Actions free\u2011tier limits (\u2264\
+    \u202F6\u202Fh runtime, <\u202F7\u202FGB RAM)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T16:16:54Z'
+- artifact_path: projects/PROJ-291-predicting-the-impact-of-residual-stress/quickstart.md
+  attempts: 1
+  canonical: pip install completes within 2 minutes on GitHub Actions ubuntu-latest
+    runner
+  claim_id: c_49f4c4eb
+  context: "The requirements.txt pins all package versions... A clean pip install\
+    \ -r requirements.txt completes well within the 2\u2011minute budget on the GitHub\
+    \ Actions ubuntu\u2011latest runner (CPU\u2011only torch wheel)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "A clean pip install -r requirements.txt completes well within the 2\u2011\
+    minute budget on the GitHub Actions ubuntu\u2011latest runner (CPU\u2011only torch\
+    \ wheel)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T16:19:39Z'
+- artifact_path: projects/PROJ-291-predicting-the-impact-of-residual-stress/quickstart.md
+  attempts: 1
+  canonical: pipeline steps complete within 6 hours runtime and less than 7 GB RAM
+    on GitHub Actions free tier
+  claim_id: c_cad6aae7
+  context: "All steps complete within the GitHub Actions free\u2011tier limits (\u2264\
+    \u202F6\u202Fh runtime, <\u202F7\u202FGB RAM)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "All steps complete within the GitHub Actions free\u2011tier limits (\u2264\
+    \u202F6\u202Fh runtime, <\u202F7\u202FGB RAM)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T16:19:39Z'
+- artifact_path: projects/PROJ-291-predicting-the-impact-of-residual-stress/quickstart.md
+  attempts: 1
+  canonical: pipeline ingests only real public datasets, never synthetic data, for
+    scientific claims
+  claim_id: c_f6f2971d
+  context: "Synthetic data is never used for scientific claims; the pipeline ingests\
+    \ real public datasets from their canonical, version\u2011pinned URLs."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Synthetic data is never used for scientific claims; the pipeline ingests\
+    \ real public datasets from their canonical, version\u2011pinned URLs."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T16:19:39Z'

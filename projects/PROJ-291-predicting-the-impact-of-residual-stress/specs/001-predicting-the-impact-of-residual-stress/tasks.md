@@ -16,7 +16,7 @@ The following checklist implements the smallest complete study that satisfies ev
   – Verify that `pip install -r requirements.txt` completes in ≤ 2 min on the GitHub Actions runner.  
   *Verification*: Run `make env-check` (provided in `quickstart.md`) and confirm exit code 0.
 
-- [ ] T002 [P] [US1] **Implement data‑ingestion & provenance pipeline**  
+- [ ] T002 [P] [US1] **Implement data‑ingestion & provenance pipeline**   <!-- FAILED-IN-EXECUTION: code/ingest/ingest.py exit=1 -->
   *File*: `code/ingest/ingest.py`  
   *Actions*:  
   – Download NIST, UCI, and OpenML fatigue datasets from their canonical URLs (hard‑coded, version‑pinned).  

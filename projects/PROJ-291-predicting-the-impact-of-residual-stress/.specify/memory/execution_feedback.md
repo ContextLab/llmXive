@@ -7,20 +7,10 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -c "import hashlib, pandas as pd; df = pd.read_csv('data/raw/synthetic_fatigue.csv');  print('Checksum OK' if hashlib.sha256(df.to_csv(index=False).encode()).hexdigest() ==  open('state/projects/PROJ-291-predicting-the-impact-of-residual-stress.yaml').read().split('synthetic_fatigue_checksum: ')[1].strip() else 'Checksum MISMATCH')" -> rc=1
-^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-291-predicting-the-impact-of-residual-stress/code/.venv/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 620, in _read
-    parser = TextFileReader(filepath_or_buffer, **kwds)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-291-predicting-the-impact-of-residual-stress/code/.venv/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1620, in __init__
-    self._engine = self._make_engine(f, self.engine)
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-291-predicting-the-impact-of-residual-stress/code/.venv/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1880, in _make_engine
-    self.handles = get_handle(
-                   ^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-291-predicting-the-impact-of-residual-stress/code/.venv/lib/python3.11/site-packages/pandas/io/common.py", line 873, in get_handle
-    handle = open(
-             ^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: 'data/raw/synthetic_fatigue.csv'
+
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: 'state/projects/PROJ-291-predicting-the-impact-of-residual-stress.yaml'
 
 - python -m src.ingest.ingest          # downloads (real) data, verifies checksum -> rc=1
 
@@ -54,9 +44,37 @@ FileNotFoundError: [Errno 2] No such file or directory: 'data/raw/synthetic_fati
 
 /home/runner/work/llmXive/llmXive/projects/PROJ-291-predicting-the-impact-of-residual-stress/code/.venv/bin/python: Error while finding module specification for 'src.mediation.bootstrap_mediation' (ModuleNotFoundError: No module named 'src')
 
-- python -m pytest -q -> rc=5
+- python -m pytest -q -> rc=1
+y'
+            else:
+                return _repr(o)
+    
+            if not allow_nan:
+                raise ValueError(
+                    "Out of range float values are not JSON compliant: " +
+                    repr(o))
+    
+            return text
+    
+    
+        if (_one_shot and c_make_encoder is not None
+                and self.indent is None):
+            _iterencode = c_make_encoder(
+                markers, self.default, _encoder, self.indent,
+                self.key_separator, self.item_separator, self.sort_keys,
+                self.skipkeys, self.allow_nan)
+        else:
+            _iterencode = _make_iterencode(
+                markers, self.default, _encoder, self.indent, floatstr,
+                self.key_separator, self.item_separator, self.sort_keys,
+                self.skipkeys, _one_shot)
+>       return _iterencode(o, 0)
+E       ValueError: Out of range float values are not JSON compliant
 
-no tests ran in 0.14s
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/json/encoder.py:258: ValueError
+=========================== short test summary info ============================
+FAILED tests/test_ingest.py::test_run_ingest_creates_unified_csv - ValueError...
+1 failed in 0.81s
 
 
 

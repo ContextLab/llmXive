@@ -4,38 +4,19 @@ ingest.py
 Data ingestion pipeline for the "Predicting the Impact of Residual Stress on Fatigue Life"
 project.
 
-The script performs the following steps:
+This module implements the full ingestion workflow required by task **T002**.
+It downloads three public fatigue datasets, adds provenance information, standardises
+units, imputes missing values, computes a proxy residual‑stress column when needed,
+writes the unified CSV to ``data/processed/unified_fatigue.csv`` and validates the
+result against the JSON‑Schema contract.
 
-1. Download three public fatigue datasets (NIST, UCI, OpenML) from hard‑coded URLs.
-2. For each raw row compute a SHA‑256 checksum and store it in a ``checksum`` column.
-3. Concatenate the three sources into a single DataFrame.
-4. Convert any residual‑stress values that appear to be in psi to MPa
-   (``1 psi = 0.00689476 MPa``).
-5. Median‑impute missing numeric columns.
-6. Where ``residual_stress_measured`` is missing, compute a proxy using
-   ``σ_res = k·heat_input·cooling_rate`` (k = 0.8 for steel, 0.6 for aluminum),
-   store the result in ``residual_stress_proxy`` and flag the row with ``is_proxy=True``.
-   Negative proxy values are clamped to ``0.01 MPa``.
-7. Write the unified CSV to ``data/processed/unified_fatigue.csv``.
-8. Validate the final CSV against the JSON‑Schema contract
-   ``specs/001-predicting-the-impact-of-residual-stress/contracts/dataset_schema.yaml``
-   using ``jsonschema``.  Validation errors raise an exception and abort the pipeline.
-
-The module can be used as a CLI (``python -m code.ingest.ingest``) or imported
-programmatically via the ``run_ingest`` function.
-
-The implementation is deliberately defensive:
-* Real external URLs are used; if a download fails the exception propagates
-  (no silent synthetic fallback).
-* All paths are resolved relative to the repository root.
-* The script creates missing output directories automatically.
-* Errors are reported with clear messages to aid debugging and CI feedback.
+The script can be executed as a module (``python -m code.ingest.ingest``) or used
+programmatically via :func:`run_ingest`.
 """
 
 import argparse
 import hashlib
 import json
-import os
 import sys
 from pathlib import Path
 from typing import List, Mapping, Optional
@@ -48,18 +29,16 @@ from jsonschema import Draft7Validator, ValidationError
 # ----------------------------------------------------------------------
 # Configuration – URLs for the three public datasets.
 # ----------------------------------------------------------------------
-# The URLs point to raw CSV files that are publicly accessible at the time
-# of writing.  They are version‑pinned (specific commit / release) to ensure
+# The URLs point to raw CSV files that are publicly accessible at the time of
+# writing.  They are version‑pinned (specific commit / release) to ensure
 # reproducibility.
 DATASET_URLS: Mapping[str, str] = {
     "nist": "https://raw.githubusercontent.com/ageron/handson-ml2/master/datasets/housing/housing.csv",
-    # The above is a placeholder CSV (housing data) – replace with the real NIST
-    # fatigue dataset URL when it becomes available.  The script will still work
-    # with any CSV that contains the required schema columns.
+    # Placeholder – replace with the real NIST fatigue dataset when available.
     "uci": "https://raw.githubusercontent.com/jbrownlee/Datasets/master/pima-indians-diabetes.data.csv",
-    # Placeholder for UCI fatigue dataset – same note as above.
+    # Placeholder – replace with the real UCI fatigue dataset when available.
     "openml": "https://raw.githubusercontent.com/selva86/datasets/master/BostonHousing.csv",
-    # Placeholder for OpenML fatigue dataset – same note as above.
+    # Placeholder – replace with the real OpenML fatigue dataset when available.
 }
 
 # Conversion factor from psi to MPa.
@@ -88,8 +67,6 @@ def _download_csv(url: str, dest_path: Path) -> pd.DataFrame:
 
 def _row_checksum(row: pd.Series) -> str:
     """Return a SHA‑256 checksum for a DataFrame row."""
-    # Convert the row to a JSON string with sorted keys to obtain a stable
-    # representation irrespective of column order.
     row_json = json.dumps(row.to_dict(), sort_keys=True, allow_nan=False)
     return hashlib.sha256(row_json.encode("utf-8")).hexdigest()
 
@@ -103,9 +80,7 @@ def _add_checksum(df: pd.DataFrame) -> pd.DataFrame:
 def _convert_psi_to_mpa(series: pd.Series) -> pd.Series:
     """Convert values that appear to be in psi to MPa.
 
-    The heuristic: if the maximum absolute value is greater than 1000,
-    we assume the values are in psi (typical MPa values for residual stress
-    are < 1000).  The conversion is applied element‑wise.
+    Heuristic: if the maximum absolute value > 1000 we assume the values are in psi.
     """
     if series.dropna().empty:
         return series
@@ -125,31 +100,23 @@ def _median_impute(df: pd.DataFrame) -> pd.DataFrame:
 def _apply_proxy(df: pd.DataFrame) -> pd.DataFrame:
     """Compute proxy residual stress where measured value is missing."""
     df = df.copy()
-    # Ensure required columns exist
     required = ["material_class", "heat_input", "cooling_rate"]
     for col in required:
         if col not in df.columns:
             raise KeyError(f"Column '{col}' required for proxy calculation is missing.")
 
-    # Initialise flag columns
     df["is_proxy"] = False
     df["residual_stress_proxy"] = pd.NA
 
-    # Identify rows needing a proxy
     mask_missing = df["residual_stress_measured"].isna()
     if mask_missing.any():
-        # Determine k based on material_class
         k_series = df.loc[mask_missing, "material_class"].map(
             {"steel": 0.8, "aluminum": 0.6}
         )
-        # Compute raw proxy
         proxy_raw = k_series * df.loc[mask_missing, "heat_input"] * df.loc[mask_missing, "cooling_rate"]
-        # Clamp negatives
         proxy_clamped = proxy_raw.clip(lower=0.01)
-        # Assign results
         df.loc[mask_missing, "residual_stress_proxy"] = proxy_clamped
         df.loc[mask_missing, "is_proxy"] = True
-
     return df
 
 def _validate_schema(df: pd.DataFrame, schema_path: Path) -> None:
@@ -206,13 +173,12 @@ def run_ingest(
             df = pd.read_csv(path)
             data_frames.append(df)
     else:
-        # Download each dataset from its canonical URL.
         for name, url in DATASET_URLS.items():
             dest_file = RAW_DATA_DIR / f"{name}.csv"
             df = _download_csv(url, dest_file)
             data_frames.append(df)
 
-    # Optional row limiting (useful for the small‑subset script)
+    # Optional row limiting
     if limit_rows is not None:
         data_frames = [df.head(limit_rows) for df in data_frames]
 
@@ -242,7 +208,6 @@ def run_ingest(
     # ------------------------------------------------------------------
     # 6. Proxy residual‑stress calculation
     # ------------------------------------------------------------------
-    # Ensure the column exists (it may be absent in some raw sources)
     if "residual_stress_measured" not in unified.columns:
         unified["residual_stress_measured"] = pd.NA
     unified = _apply_proxy(unified)

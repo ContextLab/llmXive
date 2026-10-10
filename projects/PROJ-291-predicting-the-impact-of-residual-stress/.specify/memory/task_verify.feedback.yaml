@@ -3,11 +3,8 @@ T001:
     exit=1'
   task: 2a270757db70633c215d840b16a7afa0a9c372e03444212b275f2dc64cc0add0
 T002:
-  reason: "The repository contains the ingestion script, but the required output file\
-    \ `data/processed/unified_fatigue.csv` was never generated, and the unit\u2011\
-    test file `tests/test_ingest.py` is missing, so the pipeline cannot be verified\
-    \ against the synthetic test case. The missing artifacts must be added and the\
-    \ script executed to produce the unified CSV for the task to be considered complete."
+  reason: 'Requested task execution failed; rerun successfully: code/ingest/ingest.py
+    exit=1'
   task: b7299771542c41e9d50d294e0893720ab46399e8b14fedf2f018e553e8e2f743
 T003:
   task: 82b4375148219ebbb04243ad6fb84e6290444de0566ee5dd68a76e9f18f1241c
