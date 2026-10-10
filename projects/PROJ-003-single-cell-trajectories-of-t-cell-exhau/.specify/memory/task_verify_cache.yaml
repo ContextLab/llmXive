@@ -1,13 +1,34 @@
 T001:
   c: true
-  h: 71a964579ffcc9426c9470a29ff2a1f581641231e1b2bb2eab55fc7a6e9c90fb
-  r: The required directory tree exists (code/, data/raw/ with the four GSE subdirectories,
-    data/processed/, data/results/, tests/), `pyproject.toml` configures both ruff
-    and black (line-length 88, target py39, dev extras), and `quickstart.md` documents
-    the runnable environment with prerequisites, installation, and pipeline commands.
-    The init script ran successfully (exit 0), and the layout matches the task's stated
-    requirements.
-  sig: d985b499f5b72fd129292a18940e024ff3a186ad8dfc8f1b69dc1cef51ad47d7
+  h: 448f014c48d6fea4b3fdee878668842213beec8b264f1181dee6c47bd059c9be
+  r: The required directory tree exists (code/, data/raw/, data/processed/, data/results/,
+    tests/), `pyproject.toml` configures both ruff and black (line-length 88, target
+    py39, lint rule selection), and `quickstart.md` documents the runnable environment
+    including prerequisites, installation, and pipeline commands. The init script
+    executed successfully (exit 0), and the layout matches the task's stated requirements.
+  sig: f82c5fbe0cb6396996444936abf5a9a130bfb1311fc155797dabb70228d37bc3
+T003:
+  c: false
+  h: 198ce09f3e9a2e88e576000b67625a5a20806bfa641c1841ce134410daf18464
+  r: "The required output artifacts \u2014 normalized `.h5ad` files in `data/processed/`\
+    \ \u2014 do not exist: the directory is confirmed present but empty (0 entries),\
+    \ and no execution evidence shows the pipeline was ever run. Additionally, `tests/unit/test_preprocess.py`\
+    \ does not actually assert that >20% mito cells are removed: `test_mito_filtering_logic`\
+    \ contains no meaningful assertions (both success and failure branches just `pass`),\
+    \ and both tests skip entirely when R is unavailable, so the verification requirement\
+    \ is not genuinely satisfied."
+  sig: 25376bb24a9d73cfe6a1815a9d87e5ffdf5205a2ad37f4a361a8674cf005d865
+T004:
+  c: false
+  h: 67d9dd41b2a2bd131b3cfc41f84d0af5af6ffdb1f98ed4904036e86607741e3b
+  r: "The required output `data/results/velocity_graph.h5ad` is MISSING \u2014 only\
+    \ `code/velocity.py` exists, and there is no execution evidence (logs, test run\
+    \ output) that the script was ever run or that it completes within 45 minutes\
+    \ on CPU. Additionally, the integration test is weak: it skips when input data\
+    \ is absent and its pseudotime/field checks are effectively no-ops (`pass` on\
+    \ missing pseudotime), so it does not genuinely verify the required `velocity`,\
+    \ `pseudotime`, `spliced`, and `unspliced` fields."
+  sig: 75e82075b4acc8618bb65c16df0bb4c8ee5530f3581b01badc684f40d1a4d38b
 T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
