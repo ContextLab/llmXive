@@ -1,0 +1,112 @@
+T001:
+  reason: The project root listing (17 entries) contains `code/`, `data/` (with `raw/`,
+    `derivatives/`, `processed/`), and `tests/`, but there is no `roi_masks/` directory,
+    which the task's `mkdir -p` command explicitly requires. Additionally, the evidence
+    does not confirm the `tests/unit`, `tests/integration`, and `tests/contract` subdirectories
+    exist (only the top-level `tests/` is shown). The implementer should create `roi_masks/`
+    and verify the three test subdirectories.
+  task: d19701af8a267e27bdb8675373b14a1e4577e862663590da113970bf7e5fe861
+T002:
+  reason: The `requirements.txt` exists and lists all eight required packages (plus
+    extras), but every entry uses `>=` lower bounds rather than pinned (`==`) versions,
+    which the task explicitly required. The implementer must change entries like `nilearn>=0.10.0`
+    to exact pins such as `nilearn==0.10.x` for all listed packages.
+  task: fc36c7438ab2d9ff33b26f86f41c91b431dcc7e7b78e0d160721dcd9f2974b50
+T003:
+  reason: "No artifacts were provided or confirmed on disk for this task \u2014 there\
+    \ is no evidence of flake8/black configuration files (e.g., `.flake8`, `setup.cfg`,\
+    \ `pyproject.toml`, or `tox.ini` with flake8 settings, and black configuration),\
+    \ no CI integration evidence, and no execution output showing the tools run or\
+    \ pass. The task references no artifact path and the collector confirmed nothing,\
+    \ so the claim of completion is unsupported; the implementer must actually create\
+    \ and verify the linting/formatting configuration."
+  task: c489551519fa750d0841c75b7b40f58723ac45225304743a321d7815ffa4a667
+T004:
+  task: d4d6edef89198159c06a18c20cb314b4c584e2a80926c540947ce16ce614a529
+T005:
+  task: 2d8618421275945f107d25b6f808432ad6da010585c041d303dedf76d7d5745d
+T006:
+  task: 4121a2ec1cb6ddc9e2e9dcf3af117ead60cc53f9a18c0b281ec0c393de4b5eba
+T007:
+  task: 589d6b17fd05ca55c2c68a52951b0a31e822d1d558e9a272910db136e7d7ba12
+T008:
+  task: 3ad294c195ae10f5937bc322a2e4d8a1fd2dcb001e0740d940f3de65e11ceccb
+T009:
+  task: beb7083d80cd85add0aef538ce2b6ea912cb788e6d512d1c8bb4834f406d1b14
+T009a:
+  task: c729ce62489cc321da7696255afbe2f74036a6d01c6cffbd0b34513e0281663a
+T009b:
+  reason: "The required artifact `specs/001-examining-the-impact-of-auditory-feedback-motor-learning/constitution.md`\
+    \ is confirmed MISSING by the collector, so the ds000115 \u2192 ds000246 replacement\
+    \ in Principle VI and Assumptions cannot have been performed or verified. The\
+    \ implementer must create/update the constitution file so it contains no `ds000115`\
+    \ references."
+  task: 71a0f240753e98a4d5a6e33690d46e2e0ffd1d63657ec1b268d0dc14fbd0e65d
+T009c:
+  task: 37376901d205a738334ceda2da35668a1665175060a2a512fbd5cb5aa68b4604
+T009d:
+  task: cafeb5e6366ad54acccb4567b58c0180fbf44b0fb54220adf06dd843abc9f60f
+T013:
+  task: bd0afbc453c936d8a34548992a7afc40cd7c2718425bfc08d69aef5b2cbe2fa4
+T013a:
+  task: fb0621f1832be6701ef4d06d4275cebd1df65b310a76b14878b5db5631345fc7
+T014:
+  task: f9d9f3ef618b817f1383aca9d6cfa16fe102956eae6717fe9c8b3a909befeaa1
+T015:
+  task: 108192173199435d2fdd059e143e9ff53d4fb13af6eb2bb3e3c32ed65e3737ec
+T016:
+  task: 679e61ed345dc53caa5d944fe11767bdbf9db647f78204311c2b7d980cbcdbfc
+T017:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/valid_subjects.txt'
+  task: e61abe6275592e3d5601065ab2ca44eaf2da9fe52b14920093d22ea4cfaf8a9f
+T018a:
+  task: 330465c5f3f2ed9e397d2ff67ecf2c529fe92a0ac67f1756d9b7f0c0e5bada7a
+T018b:
+  task: fa6aa2f1e26f1b19f4315762df1f9b8c9961c288546977483e9d230366c58603
+T020:
+  task: c8c011d6bba62639176caa6331bb644c79519c75e453446c1408b560071b2196
+T021:
+  task: 95250de5ad7f797f0bf773b710a72be42002f608a1ea29f7f69a127906e0af79
+T022:
+  task: 3e9bc36cc00a4b6eebe986d77e901d63cc5ea1029bf09bddba816688af1499dd
+T023:
+  task: 3587163b896d3af1e587cdb2cfe7518fa312ff541fb034cb0cc3ae0c5b0d5112
+T024:
+  task: 8b318802890047d8f9ddbf8a896649a715562aaa820a5e5923ea6c7d046b9be0
+T025:
+  reason: 'Requested task execution failed; rerun successfully: code/run_fdr_correction.py
+    exit=1'
+  task: 25741c77e73e08a97451bab5047112712ceed923b53cfa697a7c31c6a37c9f97
+T026:
+  task: d2dea2acced85210f233831dbcc94b6bfb28ca999eed7ad39d1dfacc9ba7d395
+T028:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/roi_betas.csv'
+  task: b211bfdcb97e5ba86ee7cf98f0121b04e4abb19326a811cbf4ffd58669f4a0f9
+T029:
+  task: 44195c1fa4bfc7a9037975959fff019f131785bbc5909ebf87c23140e5164743
+T030:
+  task: 1f39b0aa5a4bb3b60825dcc8c239ea2fd50bf8cffddbcf2bcc41a7ae2872335d
+T031:
+  task: 86fe067506e07cf3db3f7cc6b566d9394bf9208e71ab5ca2583f8d3ed9349482
+T032:
+  task: 38951e4ba5a40a795620758bba0124defab0b77377f22b5123c2e4e9d3071faf
+T033:
+  task: 7928722f74eaf5aa9d65cc784a2f25fbc73fea10516e2056784c95a89ad1e357
+T034:
+  task: 081507afd0924ebaf1cea5b56ab79adac152621057e1717e020f2e6a1a3a59b6
+T035:
+  task: 1e5be5c7f89326ca35c8cd19aa7384a542e30408ebba9e48c9d6b9d0c6ddb7f7
+T036a:
+  task: 4831bb565c97078711a1c4703f0140e040c64ec552e5c9b7dd1567f474a47707
+T036b:
+  task: b3330ebe0a6dcf66dbe836915c6cf8c3d25f29758e13053c818e3d4ff955c73a
+T036c:
+  task: 400069f5ecfc1569b568257c278b5dd78b1a363a8826355a97f4283a27d2e6ae
+T037:
+  task: b0e7307aafa1d99be4887452689fc081286e7725ac771db859c80bc9e2a21d75
+T038:
+  task: 44de557aaac2a09243ff2ba89bfdc111fd16fceb752524e62ef65c1ae3b9d43c
+T039:
+  task: 9fc5c6214557ee03548969f3666ccfdd498f273b081fa817f3fd8a0f7860a0d7
+T040:
+  task: a2b62c538b99bf935da901c2e310a85b915dcb528a3b0a21fad776ad8d99802a
