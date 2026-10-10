@@ -1,16 +1,13 @@
 status: none
-intent: download OpenNeuro ds000030 ds000208 fmriprep preprocessed data python package
-  dataset
+intent: OpenNeuro python package for ds000030 and ds000208 with Schaefer-400 atlas
+  python package dataset
 required_fields:
 - subject_id
-- session_id
-- bold_preprocessed_file_path
-- confounds_file_path
 - roi_time_series_400
-- musical_genre_preference
-- STOMP_R_proxy
-- missing_behavioral_flag
-- missing_fmri_flag
-cache_key: 941ea82f4c8387fee4cb39ec26a916d77c1574b0b802588816735e86e15536b1
-searched_at: '2026-10-10T12:27:51.451140+00:00'
+- genre_preference
+- stomp_r
+- fmriprep_confounds
+- other_behavioral_variables
+cache_key: 496c60d278d3b85dd355c2cd3a24f26781726c4eeae6acd89e735153b751f522
+searched_at: '2026-10-10T12:29:40.260680+00:00'
 retry_count: 1

@@ -10,11 +10,11 @@
     "python code/main.py --step analyze -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-459-investigating-the-relationship-between-b/code/main.py\", line 21, in <module>\n    from data.download import download_dataset\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-459-investigating-the-relationship-between-b/code/data/download.py\", line 15, in <module>\n    import requests\nModuleNotFoundError: No module named 'requests'",
     "python code/main.py --step visualize -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-459-investigating-the-relationship-between-b/code/main.py\", line 21, in <module>\n    from data.download import download_dataset\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-459-investigating-the-relationship-between-b/code/data/download.py\", line 15, in <module>\n    import requests\nModuleNotFoundError: No module named 'requests'"
   ],
-  "fix_rounds": 1,
-  "model_tier": 0,
+  "fix_rounds": 0,
+  "model_tier": 1,
   "total_attempts": 1,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-08-23T16:22:40Z"
+  "updated_at": "2026-10-10T12:29:40Z"
 }

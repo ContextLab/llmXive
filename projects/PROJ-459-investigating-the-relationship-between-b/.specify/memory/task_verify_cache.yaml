@@ -15,14 +15,6 @@ T002:
     \ in the task. Its content matches the required list with no missing or extra\
     \ entries."
   sig: 3d8a2e335c2aa6829a73d958783618ceefcd40dc8f8b48d621b31b860098f1fb
-T003:
-  c: false
-  h: b80833617971e190bed5721034c33e0f44ce9567325dc567af8f59c95fa68256
-  r: The repository contains a valid `pyproject.toml` with Black configuration, but
-    there is no `.flake8` file present, and no execution evidence (e.g., command output
-    or logs) showing that `black --check .` and `flake8 code/` succeed. Both the missing
-    configuration file and lack of verification results must be provided.
-  sig: 8294f51a165f830db200c330d480ec6c83c9f33d1f2120276bbbf62d07657231
 T004:
   c: true
   h: 97421089555ee92bc6157f02bb5c3e7cf23029e9ea73cdc8cc78b7265417dfbe
