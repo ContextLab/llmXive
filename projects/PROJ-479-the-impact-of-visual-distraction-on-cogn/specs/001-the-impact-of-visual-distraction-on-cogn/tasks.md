@@ -1,115 +1,126 @@
----  
-description: "Task list for feature 001‑visual‑distraction‑cognitive‑control"  
----  
+---
+description: "Task list for feature 001‑visual‑distraction‑cognitive‑control"
+---
 
 # Tasks: The Impact of Visual Distraction on Cognitive Control in Remote Work Environments  
 
 **Inputs**: `spec.md`, `plan.md`, existing artifacts in `code/`, `data/`, `results/`, `specs/…/contracts/`  
 
-**Verification**: Every task must include a concrete verification step (unit‑/contract‑test, file‑existence check, schema validation, or runtime‑output check).  
+**Verification**: Every task lists a concrete verification step (unit‑/contract‑test, file‑existence check, schema validation, or runtime‑output check).
 
----  
+---
 
-## Phase 1 – Setup & First End‑to‑End Analysis  
+- [ ] T001 **Create project skeleton & core utilities** –  
+  • Initialise directory tree `code/`, `data/raw/`, `data/processed/`, `results/`, `tests/`, `specs/001-visual-distraction-cognitive-control/`.  
+  • Write `code/requirements.txt` with pinned versions of `numpy`, `pandas`, `scikit-learn`, `scipy`, `opencv-python-headless`, `ultralytics>=8.0.0`, `matplotlib`, `seaborn`, `pillow`, `pytest`, `statsmodels`, `requests`, `openml`.  
+  • Add linting script `code/lint.sh` (ruff + black) and utility module `code/utils.py` containing (`get_logger`, `compute_checksum`, `set_global_seed`, `sanitize_images`, `log_error`).  
+  • **Verification**: `tree .` shows the expected directories; `pip install -r code/requirements.txt` succeeds; `./code/lint.sh` exits with status 0; unit tests in `tests/unit/test_utils.py` pass.
 
-| ID | Parallel? | Description | Artifact(s) | Verification |
-|----|-----------|-------------|-------------|--------------|
-- [ ] T001 [P] **Create project skeleton** – Initialise directories `code/`, `data/`, `results/`, `tests/`, and `specs/001-visual-distraction-cognitive-control/`. | `.` | `ls -R` shows all directories. |
-- [ ] T002 [P] **Add pinned dependencies** – Write `code/requirements.txt` with exact versions of `numpy`, `pandas`, `scikit-learn`, `scipy`, `opencv-python-headless`, `ultralytics>=8.0.0`, `matplotlib`, `seaborn`, `pillow`, `pytest`, `statsmodels`, `requests`, `openml`. | `code/requirements.txt` | `pip install -r requirements.txt` succeeds without version conflicts. |
-- [ ] T003 [P] **Configure linting & formatting** – Add `ruff` and `black` configs; script `code/lint.sh` runs `ruff .` and `black --check .`. | `code/lint.sh` | `./code/lint.sh` exits with status 0. |
-- [ ] T004 [P] **Create data‑folder hierarchy** – `data/raw/`, `data/processed/`, `data/processed/sanitized_images/`, `results/statistics/`, `results/plots/`, `results/sensitivity/`. | Directory tree | `tree data` shows expected sub‑folders. |
-- [ ] T005 [P] **Implement logging utilities** – Functions `get_logger()` and `log_event()` in `code/utils.py`. | `code/utils.py` | Unit test `tests/unit/test_logging.py` passes. |
-- [ ] T006 [P] **Implement SHA‑256 checksumming** – `compute_checksum(path)` in `code/utils.py`. | `code/utils.py` | Test `tests/unit/test_checksum.py` validates known checksum. |
-- [ ] T007 [P] **Implement global random‑seed manager** – `set_global_seed(seed)` in `code/utils.py`. | `code/utils.py` | Test `tests/unit/test_seed.py` ensures reproducible RNG output. |
-- [ ] T008 [P] **Implement structured error handler** – `log_error(key, message)` in `code/utils.py` for keys `unmatched_participant_ids`, `image_processing_failures`, `zero_variance_warning`. | `code/utils.py` | Contract test `tests/contract/test_error_logging.py` confirms JSON‑log entries. |
-- [ ] T009 [P] **Create dataset schema** – `specs/001-visual-distraction-cognitive-control/contracts/dataset.schema.yaml`. | `specs/.../dataset.schema.yaml` | `jsonschema` validation against a tiny sample CSV passes. |
-- [ ] T010 [P] **Create analysis‑output schema** – `specs/001-visual-distraction-cognitive-control/contracts/analysis_output.schema.yaml`. | `specs/.../analysis_output.schema.yaml` | Validation test `tests/contract/test_analysis_schema.py` passes. |
-- [ ] T011 [P] **Implement PII‑sanitisation utility** – `sanitize_images(src_dir, dst_dir)` in `code/utils.py` (renames to `img_<sha256>.jpg`, strips EXIF, logs count). | `code/utils.py` | Integration test `tests/integration/test_sanitise.py` checks renamed files & EXIF removal. |
-- [ ] T012 [P] **Create citations file** – `data/citations.yaml` with primary sources for Holm‑Bonferroni, OpenCV edge detection, Shannon entropy, YOLOv8, ASA p‑value statement. | `data/citations.yaml` | YAML lint passes; all required fields present. |
+- [ ] T001a **Scaffold data‑acquisition script** –  
+  • Create file `code/01_data_acquisition.py` with stub functions: `download_cognitive_data()`, `download_workspace_images()`, `perform_proxy_linkage()`, `generate_synthetic_dataset()`.  
+  • Include docstrings and `if __name__ == "__main__":` placeholder.  
+  • **Verification**: `pytest tests/unit/test_01_data_acquisition_stub.py` confirms the module imports and all four functions exist.
 
----  
+- [ ] T002 [US1] **Download and validate raw datasets** –  
+  • Implement `code/01_data_acquisition.py::download_cognitive_data()` to fetch a Stroop (or Flanker) dataset from OpenML (e.g., ID 4444) and save as `data/raw/cognitive_data.csv`.  
+  • Implement `code/01_data_acquisition.py::download_workspace_images()` to query the Unsplash API for **N = 150** “home office” images, store originals in `data/raw/workspace_images/`, and save the API response as `data/raw/unsplash_query_log.json`.  
+  • Verify that `cognitive_data.csv` contains ≥ 100 rows with ≤ 5 % missing values for `reaction_time` and `accuracy`; that exactly 150 image files (> 10 KB each) exist; and that `unsplash_query_log.json` records successful HTTP 200 responses.  
+  • **Verification**: Integration test `tests/integration/test_raw_download.py` asserts row counts, missing‑value thresholds, and image‑file existence.
 
-## Phase 2 – Foundational (Blocks All User Stories)  
+- [ ] T001b **Scaffold visual‑metrics script** –  
+  • Create file `code/02_visual_metrics.py` with stub functions: `compute_edge_density(img_path)`, `compute_color_entropy(img_path)`, `compute_object_count(img_path)`.  
+  • Include imports for OpenCV and a placeholder for YOLOv5‑tiny model loading (CPU‑only).  
+  • **Verification**: Unit test `tests/unit/test_02_visual_metrics_stub.py` confirms the module imports and that all three functions are defined.
 
-- [ ] T013 [P] **Add quick‑start guide** – `specs/001-visual-distraction-cognitive-control/quickstart.md` describing how to run the pipeline end‑to‑end. | `specs/.../quickstart.md` | Manual check: guide builds and runs `python -m code.run_pipeline`. |
-- [ ] T014 [P] **Add PEP‑8 cleanup** – Run `ruff` and fix all reported issues. | `code/` | `ruff .` returns no violations. |
-- [ ] T015 [P] **Add comprehensive unit tests** – Populate `tests/unit/` for edge‑density, color‑entropy, object‑count, bootstrap, Holm‑Bonferroni, power analysis. | `tests/unit/` | `pytest -q` reports 0 failures. |
-- [ ] T016 [P] **Add integration test for full pipeline** – `tests/integration/test_full_pipeline.py` executes `python -m code.run_pipeline` on a tiny sampled dataset and checks that `results/report.md` is produced. | `tests/integration/` | Test passes on CI. |
+- [ ] T003 [US1] **Sanitise images & extract metadata** –  
+  • Use `code/utils.py::sanitize_images(src_dir, dst_dir)` to strip EXIF data, rename each image to `img_<sha256>.jpg`, and place them in `data/processed/sanitized_images/`.  
+  • Write accompanying metadata (original Unsplash ID, `environment_tag`, `lighting_condition`) to `data/processed/image_metadata.json`.  
+  • **Verification**: `tests/unit/test_sanitise.py` checks that every file in `sanitized_images/` is > 10 KB, has a SHA‑256‑based name, and that the JSON metadata contains 150 entries matching the original query.
 
----  
+- [ ] T001c **Scaffold analysis script** –  
+  • Create file `code/03_analysis.py` with stub functions: `compute_vif(df)`, `run_pca(df)`, `pearson_correlations(df)`, `ols_regressions(df)`, `apply_holm_correction(pvals)`, `power_analysis_a_priori()`, `power_analysis_post_hoc()`.  
+  • Include imports for `statsmodels`, `scipy`, `sklearn.decomposition`, and placeholder bodies raising `NotImplementedError`.  
+  • **Verification**: Unit test `tests/unit/test_03_analysis_stub.py` confirms the module imports and that all listed functions exist.
 
-## User Story 1 – Data Acquisition & Pre‑processing (Priority P1)  
+- [ ] T004 [US1] **Proxy linkage & synthetic fallback** –  
+  • Implement `code/01_data_acquisition.py::perform_proxy_linkage()` that joins participants and images on the shared `environment_tag` field, using a pinned random seed, and writes `data/processed/merged_data.csv`.  
+  • If the merged file contains < 100 rows, call `code/01_data_acquisition.py::generate_synthetic_dataset()` (Cholesky‑based) to produce a synthetic `merged_data.csv` with N ≥ 100 and a modest negative correlation (r ≈ ‑0.3) between `visual_complexity` and `reaction_time`.  
+  • Create marker file `data/processed/.ready` once the merged dataset meets the ≥ 100‑row requirement.  
+  • **Verification**: `tests/integration/test_proxy_linkage.py` asserts (a) row count ≥ 100, (b) no duplicate `participant_id`, (c) existence of `.ready`.
 
-- [ ] T017 [US1] **Lookup real datasets** – `code/01_data_acquisition.py::lookup_real_datasets()` searches OpenML for Stroop/Flanker IDs, checks for `participant_id`, `reaction_time`, `accuracy`, `image_path`. Writes status JSON to `data/raw/lookup_status.json`. | `code/01_data_acquisition.py`, `data/raw/lookup_status.json` | Test `tests/unit/test_lookup.py` asserts correct JSON keys and boolean result. |
-- [ ] T018 [US1] **Fetch real cognitive data** – If lookup fails, download OpenML dataset ID 4444 → `data/raw/cognitive_data.csv`. | `code/01_data_acquisition.py`, `data/raw/cognitive_data.csv` | Row‑count ≥ 100, ≤ 5 % missing values. |
-- [ ] T019 [US1] **Fetch workspace images** – Query Unsplash API (`keywords: "home office", "desk", "workspace"`), download **N = 150** images to `data/raw/workspace_images/`. Save raw API response to `data/raw/unsplash_query_log.json`. | `code/01_data_acquisition.py`, `data/raw/workspace_images/`, `data/raw/unsplash_query_log.json` | Image count = 150; each file size > 10 KB. |
-- [ ] T020 [US1] **Sanitise images** – Call `sanitize_images()` (T011) → sanitized images in `data/processed/sanitized_images/`. Update `data/raw/image_metadata.json` with new filenames. | `code/utils.py`, `data/processed/sanitized_images/`, `data/raw/image_metadata.json` | Log entry `sanitized_images: 150` appears in `logs/run.log`. |
-- [ ] T021 [US1] **Proxy linkage** – `perform_proxy_linkage()` groups participants and images by `environment_tag`, assigns images to participants using a pinned seed, writes `data/processed/merged_data.csv` and seed file `data/processed/proxy_linkage_seed.txt`. | `code/01_data_acquisition.py`, `data/processed/merged_data.csv` | Merge file has ≥ 100 rows, no duplicate `participant_id`. |
-- [ ] T022 [US1] **Synthetic fallback** – If after proxy linkage `merged_data.csv` has < 100 rows, generate synthetic dataset (N ≥ 100) with negative correlation between `visual_complexity` and `reaction_time` using Cholesky decomposition; write over `merged_data.csv`. | `code/01_data_acquisition.py` | Pearson r < ‑0.2, p < 0.05 on generated data. |
-- [ ] T023 [US1] **Validate merged dataset** – `validate_and_mark()` checks ≤ 5 % missing per column, variance of `visual_complexity` > 0, writes marker file `data/processed/.ready`. | `code/01_data_acquisition.py`, `data/processed/.ready` | Marker exists; `cat data/processed/.ready` prints “READY”. |
+- [ ] T001d **Scaffold sensitivity script** –  
+  • Create file `code/04_sensitivity.py` with stub functions: `run_bootstrap(df, n_iter=1000)`, `run_binning_sensitivity(df, strategies=["quartiles","deciles"])`.  
+  • Include imports for `numpy`, `pandas`, and `scipy.stats`.  
+  • **Verification**: Unit test `tests/unit/test_04_sensitivity_stub.py` confirms module imports and function definitions.
 
----  
+- [ ] T005 [US2] **Compute visual‑complexity metrics** –  
+  • Implement functions in `code/02_visual_metrics.py`:  
+    * `compute_edge_density(img_path)` → OpenCV Canny, normalized to [0, 1].  
+    * `compute_color_entropy(img_path)` → 256‑bin RGB histogram, Shannon entropy.  
+    * `compute_object_count(img_path)` → YOLOv5‑tiny (CPU) detection; returns integer count or `np.nan` on failure.  
+  • Batch‑process all images in `data/processed/sanitized_images/`, output `data/processed/visual_metrics.csv` with columns `image_id`, `edge_density`, `color_entropy`, `object_count`.  
+  • **Verification**: Automated unit tests `tests/unit/test_edge_density.py`, `tests/unit/test_color_entropy.py`, `tests/unit/test_object_count.py` validate known‑output cases; additional test `tests/unit/test_visual_metrics_verification.py` programmatically asserts the CSV row count matches the number of sanitized images and that the `object_count` column contains at least one `NaN`.
 
-## User Story 2 – Visual‑Complexity Metric Extraction (Priority P1)  
+- [ ] T006 [US1 & US2] **Merge metrics with participant data** –  
+  • Join `visual_metrics.csv` with `merged_data.csv` on `image_id` → produce two files:  
+    * `data/processed/final_analysis_data_all.csv` (keeps NaNs for object count).  
+    * `data/processed/final_analysis_data_object_only.csv` (drops rows where `object_count` is NaN).  
+  • Validate against `specs/001-visual-distraction-cognitive-control/contracts/dataset.schema.yaml` using `jsonschema`.  
+  • Ensure ≤ 5 % missing per column and that variance of each visual metric > 0.  
+  • **Verification**: Contract test `tests/contract/test_dataset_schema.py` passes; a small script prints “VALIDATION PASS” when run.
 
-- [ ] T024 [US2] **Edge‑density implementation** – `code/02_visual_metrics.py::compute_edge_density(img_path)` using OpenCV Canny, returns normalized value ∈ [0, 1]. | `code/02_visual_metrics.py` | Unit test `tests/unit/test_edge_density.py` passes for known image. |
-- [ ] T025 [US2] **Color‑entropy implementation** – `compute_color_entropy(img_path)` using 256‑bin RGB histogram, Shannon entropy. | `code/02_visual_metrics.py` | Unit test `tests/unit/test_color_entropy.py` passes. |
-- [ ] T026 [US2] **Object‑count implementation** – `compute_object_count(img_path)` runs YOLOv8‑nano (CPU) via `ultralytics`; returns integer count or `np.nan` on failure. | `code/02_visual_metrics.py` | Unit test `tests/unit/test_object_count.py` validates NaN handling. |
-- [ ] T027 [US2] **Batch metric extraction** – Main block in `02_visual_metrics.py` waits for `data/processed/.ready`, iterates over `data/processed/sanitized_images/`, computes all three metrics, writes `data/processed/visual_metrics_intermediate.csv`. | `code/02_visual_metrics.py`, `data/processed/visual_metrics_intermediate.csv` | Row‑count matches image count; sample rows show non‑null values for edge & entropy, possible NaN for object count. |
-- [ ] T028 [US2] **Merge metrics with participant data** – Inner join `visual_metrics_intermediate.csv` with `merged_data.csv` on `participant_id`; produce:  
-  • `data/processed/final_analysis_data_all.csv` (keeps NaNs for object count)  
-  • `data/processed/final_analysis_data_object_only.csv` (drops rows where object count = NaN). | `code/02_visual_metrics.py`, both CSVs | Log shows “All records: X, Object‑only records: Y”. |
+- [ ] T001e **Scaffold reporting script** –  
+  • Create file `code/05_reporting.py` with stub functions: `generate_scatter_plots(df)`, `write_alpha_justification()`, `write_methods_citations()`, `assemble_report()`.  
+  • Include imports for `matplotlib`, `seaborn`, and a placeholder for causal‑language filter.  
+  • **Verification**: Unit test `tests/unit/test_05_reporting_stub.py` confirms module imports and function definitions.
 
----  
+- [ ] T007 [US3] **Statistical analysis & Holm‑Bonferroni correction** –  
+  • In `code/03_analysis.py`:  
+    1. Compute VIF for `edge_density`, `color_entropy`, `object_count` (excluding NaNs) → `results/statistics/vif_report.json`.  
+    2. If any VIF ≥ 5, run PCA on the three metrics, retain the first component (`pc1`), store `results/statistics/pca_report.json` (variance explained).  
+    3. Perform Pearson correlations for each predictor‑outcome pair (raw or `pc1` when PCA applied) → `results/statistics/correlation_results.json`.  
+    4. Fit OLS regressions for each pair → `results/statistics/regression_results.json`.  
+    5. Apply family‑wise error correction using `scipy.stats.multitest.multipletests(method='holm')` on all raw p‑values, write Holm‑adjusted p‑values back into the correlation JSON and create `results/statistics/multiplicity_table.csv` (columns: `test_name`, `raw_p`, `adjusted_p`, `metric_pair`).  
+    6. Consolidate all outputs into a single `results/statistics/statistics.json` that conforms to `specs/001-visual-distraction-cognitive-control/contracts/statistics_output.schema.yaml`.  
+  • **Verification**: (a) `jsonschema` validation of `statistics.json`; (b) `multiplicity_table.csv` contains exactly 6 rows (3 metrics × 2 outcomes) with corrected p‑values ≤ 1; (c) unit test `tests/unit/test_holm_correction.py` checks that the Holm‑adjusted vector matches SciPy’s output for a known p‑value list.
 
-## User Story 3 – Statistical Analysis & Reporting (Priority P2)  
+- [ ] T008 [US4] **Sensitivity & robustness checks** –  
+  • Implement bootstrap resampling (≥ 1000 iterations) for each correlation pair in `code/04_sensitivity.py::run_bootstrap()`, store mean r and 95 % CI in `results/sensitivity/bootstrap_results.json`.  
+  • Implement alternative binning strategies (`quartiles`, `deciles`) in `code/04_sensitivity.py::run_binning_sensitivity()`, output `results/statistics/binning_sensitivity_table.csv` (columns: `binning_strategy`, `predictor`, `outcome`, `pearson_r`, `p_value`).  
+  • Validate both outputs against the schemas defined in `specs/.../contracts/` via `tests/contract/test_sensitivity_schema.py`.  
+  • **Verification**: Automated unit test `tests/unit/test_sensitivity_verification.py` loads `bootstrap_results.json` and `binning_sensitivity_table.csv` and asserts CI width < 0.2 for all pairs and Δr < 0.1 across binning strategies; contract tests pass with zero failures.
 
-- [ ] T029 [US3] **VIF calculation** – `code/03_analysis.py::compute_vif()` reads `final_analysis_data_all.csv`, computes VIF for edge, entropy, object count (excludes NaNs as needed), writes `results/statistics/vif_report.json`. | `code/03_analysis.py`, `results/statistics/vif_report.json` | JSON contains keys `edge_density`, `color_entropy`, `object_count`. |
-- [ ] T030 [US3] **PCA fallback** – `perform_pca_fallback()` runs if any VIF ≥ 5; PCA on the three metrics, stores first component as `pc1` in dataframe, writes `results/statistics/pca_report.json` (variance explained). | `code/03_analysis.py`, `results/statistics/pca_report.json` | JSON field `explained_variance[0]` ≥ 0.5. |
-- [ ] T031 [US3] **Correlation analysis** – `run_correlation()` computes Pearson r & p for each predictor‑outcome pair (using `pc1` if PCA triggered, else raw metrics). Writes `results/statistics/correlation_results.json`. | `code/03_analysis.py`, `results/statistics/correlation_results.json` | JSON array length = 6, each entry has `predictor`, `outcome`, `r_value`, `p_value`. |
-- [ ] T032 [US3] **Linear regression** – `run_regression()` fits OLS for each pair (or PCA path), outputs `results/statistics/regression_results.json` with β, 95 % CI, VIF, `pca_applied` flag. | `code/03_analysis.py`, `results/statistics/regression_results.json` | JSON entries contain required fields. |
-- [ ] T033 [US3] **Holm‑Bonferroni correction (core implementation)** – `apply_holm_bonferroni()` calls `scipy.stats.multitest.multipletests(method='holm')` on all raw p‑values, writes corrected p‑values back into `correlation_results.json` and also creates `results/statistics/multiplicity_table.csv` (columns: `test_name`, `raw_p`, `adjusted_p`, `metric_pair`). | `code/03_analysis.py`, `results/statistics/multiplicity_table.csv` | CSV contains 6 rows; adjusted p‑values ≤ 1. |
-- [ ] T034 [US3] **Bootstrap confidence intervals** – `run_bootstrap()` performs ≥ 1000 resamples of each correlation, stores mean r, 95 % CI in `results/sensitivity/bootstrap_results.json`. | `code/03_analysis.py`, `results/sensitivity/bootstrap_results.json` | JSON includes keys `mean_r`, `ci_lower`, `ci_upper` for each pair. |
-- [ ] T035 [US3] **Generate scatter plots** – `generate_scatter_plots()` creates PNGs for every *significant* (Holm‑adjusted p < 0.05) pair, saved as `results/plots/plot_{predictor}_{outcome}.png`. | `code/03_analysis.py`, `results/plots/` | At least one PNG exists; file name matches pattern. |
-- [ ] T036 [US3] **Assemble final statistics JSON** – `save_final_statistics()` consolidates correlations, regressions, VIF, PCA (if any), bootstrap CIs, Holm‑adjusted p‑values into `results/statistics/statistics.json` adhering to `statistics_output.schema.yaml`. | `code/03_analysis.py`, `results/statistics/statistics.json` | Schema validation passes. |
-- [ ] T037 [US3] **Generate alpha‑threshold justification** – Reads `data/citations.yaml`, writes a ≥ 150‑word markdown file `results/statistics/alpha_threshold_justification.md` citing the ASA statement, and creates `results/statistics/word_count.json` with word count. | `code/03_analysis.py`, `results/statistics/alpha_threshold_justification.md`, `results/statistics/word_count.json` | Word count ≥ 150; citation present. |
-- [ ] T038 [US3] **Generate methods citations markdown** – Extracts OpenCV, entropy, YOLO citations from `data/citations.yaml`, writes `results/statistics/methods_citations.md`. | `code/03_analysis.py`, `results/statistics/methods_citations.md` | All three primary sources appear. |
-- [ ] T039 [US3] **Power analysis (a‑priori)** – `power_analysis_a_priori()` uses `statsmodels.stats.power.FTestPower` with effect size r = 0.3, α = 0.05, solves for N; writes markdown `results/statistics/power_analysis_a_priori.md` containing N, power, rationale. | `code/03_analysis.py`, `results/statistics/power_analysis_a_priori.md` | File reports N ≥ 100 and power ≥ 0.8 (or explains shortfall). |
-- [ ] T040 [US3] **Power analysis (post‑hoc)** – `power_analysis_post_hoc()` computes achieved power from observed r, writes `results/statistics/power_analysis_post_hoc.md`. | `code/03_analysis.py`, `results/statistics/power_analysis_post_hoc.md` | File contains numeric power and brief interpretation. |
-- [ ] T041 [US3] **Generate associational report (markdown)** – `generate_associational_report()` assembles sections (Methods, Results, Multiplicity, Power, Alpha justification, Methods citations) into `results/report.md`, enforces no causal language via a simple keyword filter, embeds random‑seed JSON block. | `code/03_analysis.py`, `results/report.md` | Manual spot‑check confirms absence of “cause”, “effect”, “impact”. |
+- [ ] T009 [US3] **Power analysis (a‑priori & post‑hoc)** –  
+  • In `code/03_analysis.py`:  
+    * `power_analysis_a_priori()` uses `statsmodels.stats.power.FTestPower` with effect size r = 0.3, α = 0.05 to compute required sample size N; writes markdown `results/statistics/power_analysis_a_priori.md` containing N, achieved power, and justification.  
+    * `power_analysis_post_hoc()` computes achieved power from the observed r‑values; writes `results/statistics/power_analysis_post_hoc.md`.  
+  • **Verification**: Both markdown files exist, each contains a numeric N ≥ 100 (or a clear explanation if not) and a power ≥ 0.8 (or rationale). Unit test `tests/unit/test_power_analysis.py` parses the files and asserts the numeric conditions.
 
----  
+- [ ] T010 [US3] **Generate visualisations & final report** –  
+  • `code/05_reporting.py::generate_scatter_plots()` creates PNGs for every predictor‑outcome pair whose Holm‑adjusted p < 0.05, saved as `results/figures/scatter_{predictor}_{outcome}.png`.  
+  • `code/05_reporting.py::write_alpha_justification()` reads `data/citations.yaml` and produces `results/statistics/alpha_threshold_justification.md` (≥ 150 words, ASA citation).  
+  • `code/05_reporting.py::write_methods_citations()` creates `results/statistics/methods_citations.md` with citations for OpenCV edge detection, color entropy, and YOLOv5‑tiny.  
+  • `code/05_reporting.py::assemble_report()` compiles Methods, Results, Sensitivity, Power, Alpha justification, and Methods citations into `results/report.md`; runs a regex filter to prohibit causal language (“cause”, “effect”, “impact”). Embeds a JSON block `{"seed": <value>}` at the end of the Methods section.  
+  • **Verification**: (a) At least one PNG exists in `results/figures/`; (b) `alpha_threshold_justification.md` contains ≥ 150 words and the ASA reference; (c) `methods_citations.md` lists all three primary sources; (d) `report.md` passes a regex scan for prohibited causal terms; (e) `statistics.json` is referenced from the report and matches the schema.
 
-## User Story 4 – Sensitivity & Robustness Checks (Priority P3)  
+- [ ] T011 **Quick‑start guide & end‑to‑end validation** –  
+  • Write `specs/001-visual-distraction-cognitive-control/quickstart.md` with a reproducible command sequence (e.g., `python -m code.run_pipeline --seed 42`) and explanation of data‑source selection (real vs synthetic).  
+  • Add script `run_all.sh` that sets the seed, invokes the full pipeline (`python -m code.run_pipeline --seed 42`), and exits with status 0 only if `results/report.md` exists and contains at least one scatter‑plot reference.  
+  • **Verification**: Running `./run_all.sh` on the CI runner completes in ≤ 6 hours, exits 0, and `grep -c "scatter_" results/report.md` returns ≥ 1.
 
-- [ ] T042 [US4] **Bootstrap unit test** – `tests/unit/test_bootstrap.py` verifies ≥ 1000 iterations, deterministic seed, CI width reasonable. | `tests/unit/` | Test passes. |
-- [ ] T043 [US4] **Alternative binning strategies** – `run_binning_sensitivity()` evaluates quartile and decile binning for each predictor‑outcome pair, writes `results/sensitivity/binning_results.csv` (columns: `binning_strategy`, `predictor`, `outcome`, `pearson_r`, `p_value`). | `code/03_analysis.py`, `results/sensitivity/binning_results.csv` | CSV contains 12 rows (6 pairs × 2 strategies). |
-- [ ] T044 [US4] **Validate sensitivity outputs** – Contract test `tests/contract/test_sensitivity_schema.py` validates both bootstrap JSON and binning CSV against schemas. | `tests/contract/` | Test passes. |
-- [ ] T045 [US4] **Final report integration** – `results/report.md` (from T041) is updated to include a “Sensitivity Analysis” section that renders the binning table (markdown) and summarizes bootstrap CI stability (directional consistency, Δr < 0.1). | `results/report.md` | Section header `## Sensitivity Analysis` present; tables rendered correctly. |
+- [ ] T012 **Comprehensive contract & schema tests** –  
+  • Populate `tests/contract/` with:  
+    * `test_dataset_schema.py` (validates `final_analysis_data_all.csv`).  
+    * `test_analysis_schema.py` (validates `statistics.json`).  
+    * `test_sensitivity_schema.py` (validates bootstrap JSON and binning CSV).  
+  • Ensure the CI pipeline runs `pytest -q` and all contract tests pass.  
+  • **Verification**: CI log shows “6 passed, 0 failed” for the contract test suite.
 
----  
+- [ ] T013 **Measure total pipeline runtime (SC‑008)** –  
+  • Add script `code/measure_runtime.py` that records wall‑clock time before and after invoking the full pipeline (`python -m code.run_pipeline`).  
+  • Write the elapsed time to `results/statistics/runtime_report.md` and assert it is ≤ 6 hours; the script exits with non‑zero status otherwise.  
+  • **Verification**: Unit test `tests/unit/test_runtime_measurement.py` runs the script on a short dummy pipeline and checks that the generated markdown contains a numeric hour value ≤ 6.
 
-## Phase N – Polish & Cross‑Cutting Concerns  
-
-- [ ] T046 [P] **Update quick‑start with data‑source selection** – Add “Data Source Selection” and “Interpretation of Results” sections (real vs synthetic) to `quickstart.md`. | `specs/.../quickstart.md` | Sections appear with correct headings. |
-- [ ] T047 [P] **PEP‑8 compliance sweep** – Run `ruff` again after all code changes. | `code/` | No violations reported. |
-- [ ] T048 [P] **Edge‑case unit tests** – Add tests for image‑load failure and zero‑variance predictors (`tests/unit/test_edge_cases.py`). | `tests/unit/` | All new tests pass. |
-- [ ] T049 [P] **End‑to‑end validation** – Execute `./run_all.sh` (calls `python -m code.run_pipeline`) on the full dataset; assert that `results/report.md` exists and contains at least one significant scatter plot. | `run_all.sh` | Script exits 0, report present. |
-- [ ] T050 [P] **Record random seed in report** – `generate_associational_report()` appends `{"seed": <value>}` JSON block to Methods section (already covered in T041). | `results/report.md` | JSON block visible. |
-- [ ] T051 [P] **Contract test for merged‑data schema** – `tests/contract/test_dataset_schema.py` validates `final_analysis_data_all.csv` against `dataset.schema.yaml`. | `tests/contract/` | Test passes. |
-- [ ] T052 [P] **Document version & timestamps** – `code/utils.py` adds `record_metadata()` that writes `results/statistics/metadata.json` with software versions, git commit hash, timestamp. | `code/utils.py`, `results/statistics/metadata.json` | File contains required fields. |
-
----  
-
-### Dependency Flow (high‑level)
-
-1. **Phase 1 → Phase 2** – foundational utilities become available.  
-2. **User Story 1** (T017‑T023) produces `data/processed/.ready`.  
-3. **User Story 2** (T024‑T028) consumes the ready marker and outputs final analysis data.  
-4. **User Story 3** (T029‑T041) consumes the final data, performs VIF/PCA, correlation, regression, Holm‑Bonferroni, bootstrap, plots, power analyses, and writes the full report.  
-5. **User Story 4** (T042‑T045) consumes outputs from 3 to produce robustness tables and extend the report.  
-6. **Phase N** runs linting, documentation, and final validation.  
-
----  
-
-*All tasks above follow the canonical `- [ ] T### [P?] [USx?] description …` format, reference exact file paths, and include a concrete verification step.*
+- [ ] T014 **Document proxy‑linkage scope extension** –  
+  • Create `docs/proxy_linkage_extension.md` that explains the necessity of using `environment_tag` as a proxy linkage mechanism, notes that this extension is not present in the original specification, and records the design decision and its impact on reproducibility.  
+  • **Verification**: File existence check and a sanity‑check test `tests/unit/test_proxy_linkage_doc.py` that confirms the document contains the phrase “proxy linkage”.
