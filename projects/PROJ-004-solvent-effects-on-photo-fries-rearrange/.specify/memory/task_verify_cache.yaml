@@ -1,10 +1,10 @@
 T001:
   c: true
-  h: ee1351d58134e735ea97acf9728f29bc40f08d6ff7e8d86f1464a06496e0fe5b
-  r: The collector shows that the project root contains the four required directories
-    (`code/`, `data/`, `tests/`, `docs/`), each present with multiple entries, confirming
-    the requested structure is in place.
-  sig: 5d573729bb4f35e316fb5ea8a42df1b3bbfcaae97cb35d43db84f56b8da66bca
+  h: 6efc1eac516a93a6af776d97e002a4f7dd5bca751c15e8cbb1ffacc92a6a8be2
+  r: The collector confirms that the project root contains the required directories
+    `code/`, `data/`, `tests/`, and `docs/`, each present with multiple entries. This
+    satisfies the sole requirement of creating the specified project structure.
+  sig: b1d3e604d1f90b9d3c48801016dcf1284b8a4c422c85c9841d062e473c18bb9b
 T002:
   c: true
   h: 6aa1462bf4c589c7494d007b2aa3829345f863f1efbf81032d04b3b6a1f82605
@@ -53,28 +53,20 @@ T005:
   sig: e89249f9233c0cdce616dc900c33b1588b6015b36a9aa3707fb2b51d9b3c6179
 T006a:
   c: true
-  h: 2f06217db9d6fb1fe5c87761e6a1c2a3dd8123bbbb620c31ac095338226b93e8
-  r: "**Evidence checked:**\n\n1. **Artifact existence**: The file `contracts/solvent.schema.yaml`\
-    \ exists at the specified location with 1350 bytes of non-empty content.\n\n2.\
-    \ **Required fields present**: The schema explicitly defines all four mandatory\
-    \ fields in the `required` array:\n   - `name` (string, minLength: 1)\n   - `dielectric_constant`\
-    \ (number, minimum: 0)\n   - `source_id` (string, minLength: 1)\n   - `citation_url`\
-    \ (string with URI format validation)\n\n3. **Content quality**: The schema is\
-    \ a valid JSON Schema (draft-07) with appropriate type constraints, descriptions,\
-    \ and metadata. The `dielect"
-  sig: 606f67461557e1df0eaebaaa701ff04d7043d9682408c81056c62297cc85ef6f
+  h: cdbb2373b7af26ce761c026a9aa9726350fd590a4c3126993ead480cf8e9a143
+  r: The `contracts/solvent.schema.yaml` file exists and defines an object with the
+    required properties `name`, `dielectric_constant`, `source_id`, and `citation_url`,
+    marks them as required, and disallows additional properties.
+  sig: 73b866d6bd91ee5c1fc0afdeec4abbada69b01d0b4bfb502ad2c544753792b26
 T006b:
   c: true
-  h: e4a7193d4416cf6d3b86e3339a2a04edb5decf17ab695ed1719cc98c7a4609bb
-  r: 'The artifact `data/chemicals/solvents.yaml` exists, is non-empty (1901 bytes),
-    and contains exactly the five mandatory solvents specified in the task: cyclohexane,
-    toluene, acetonitrile, methanol, and water. Each entry includes a NIST dielectric
-    constant value (2.02, 2.38, 37.50, 32.66, and 80.10 respectively), sourced from
-    NIST-SRD-156 with proper citations and metadata. The file structure is valid YAML
-    with appropriate versioning, timestamps, and validation rules documented in the
-    metadata section, fulfilling the requirement for a versioned lookup table suitable
-    for downstream validation tas'
-  sig: 3955fb54a9f59bc77fbfb9622250d94aaaff402024affca8d6b07598b4b66086
+  h: 68786754119246c6ff142582ec2054be630d1fbab3d2397085ba66bef69bcf9d
+  r: "The `data/chemicals/solvents.yaml` file (650\u202Fbytes, sha256=9b0825\u2026\
+    ) exists and lists the five required solvents\u2014cyclohexane, toluene, acetonitrile,\
+    \ methanol, and water\u2014each with a dielectric constant sourced from NIST and\
+    \ a citation URL. This satisfies the \u22655\u2011solvent requirement and the\
+    \ NIST dielectric constant specification."
+  sig: f744bf35ca7e7250ff13d0e6fafcf36c49aa16bd96dd68df3f743345e9350486
 T007:
   c: true
   h: e582c805e09cf9fe19c1994d690a7f7859ef8ab0351bbef6d3812efd58ec1fad
@@ -102,14 +94,33 @@ T009a:
     \ file is missing entirely. These omissions mean the task\u2019s core requirements\
     \ are not met."
   sig: f8f7a07bdaa2db4b84b94d81054acb39d7aa84127144f64c310c612aa0e5489f
+T009b:
+  c: false
+  h: 701f52e95a1990196aa1805fe4ac6538a86915800a59b63e8432d2fded5014b7
+  r: "The provided `code/config.py` file exists (2829\u202Fbytes) but does not define\
+    \ an `EXPLICIT_SOLVENTS` list as required by task T009b. Adding a variable such\
+    \ as `EXPLICIT_SOLVENTS = ['water', 'methanol']` (or any appropriate list) is\
+    \ needed to satisfy the requirement."
+  sig: 0cceb8599766e51f2cfba91851e7db7dca254af377a571ec950e8796cf3a5f23
+T010:
+  c: true
+  h: ac087d70f43b1ad01928e4e3808b0aa5de819b206c0acc1048287fe8f1f6bbf3
+  r: "Checked the presence and content of `tests/unit/test_loaders.py`, which contains\
+    \ non\u2011empty unit tests that load the solvent manifest, verify the lookup\
+    \ file exists, and assert correct dielectric constants (e.g., Hexane\u202F=\u202F\
+    1.88, Acetonitrile\u202F=\u202F37.5) and range calculations, thereby satisfying\
+    \ the requirement to validate dielectric constants against the versioned lookup\
+    \ table."
+  sig: f92083947d33cd0cd65befc132fe4a7ce10479464574bab32272b64c6b5d2e50
 T014:
   c: false
-  h: cef6517d460f1509e6ab5917cbaf430dac1513e8e346f395055d0c3a246ff333
-  r: "The `environment.py` file is truncated and does not show any logic that writes\
-    \ a JSON log or raises `ConfigurationError` when `barometric_pressure` is absent.\
-    \ Moreover, the required output file `data/processed/environment_logs.json` is\
-    \ missing from the repository. Both the artifact and its behavior fail to meet\
-    \ the task\u2019s specifications."
+  h: 99b21398d8e9b318a5972837614b7217c8964916938f5ca7d22bf4d41e81f1de
+  r: "The repository contains the `code/analysis/environment.py` module that can write\
+    \ logs, but the required output file `data/processed/environment_logs.json` is\
+    \ missing and no execution evidence is provided to show that the script has been\
+    \ run and produced the log. The task\u2019s core deliverable \u2013 the actual\
+    \ environment log file \u2013 is absent."
+  sig: 56729b5b996d318007e913ee323f5bb624f10d7b3e8f5387b9f391cc28b3e32a
 T015b:
   c: true
   h: c88346e8b887770fcfa0d0c79444c4284b763ee846555f7470860340b3a985e7

@@ -15,10 +15,8 @@ T006a:
 T006b:
   task: 6a2f9f83b4d2466fa34df9b621024ec3302d3b122b22246f233d60bdaccd913f
 T006c:
-  reason: "Both required artifacts (`solvents.yaml` and `solvent.schema.yaml`) are\
-    \ reported as MISSING, so no validation could be performed. The task\u2019s core\
-    \ requirement\u2014to validate the solvent list against its schema\u2014is not\
-    \ met."
+  reason: 'Requested task execution failed; rerun successfully: code/validation/validate_solvents.py
+    exit=1'
   task: 2839ac3b2eb4a224efedf558b1c9134aded95d9a43d4408d0f772eb0c7846fd9
 T007:
   task: e6032884841016c43bf2bf33999899a12c2fef74b888eb29b5375cf379e2652e
@@ -38,12 +36,21 @@ T009a:
     s core requirements are not met."
   task: 311c36d69a114d1f82253ccb10f46020be600694ebd7b2cf1cedce89cffbe148
 T009b:
+  reason: "The provided `code/config.py` file exists (2829\u202Fbytes) but does not\
+    \ define an `EXPLICIT_SOLVENTS` list as required by task T009b. Adding a variable\
+    \ such as `EXPLICIT_SOLVENTS = ['water', 'methanol']` (or any appropriate list)\
+    \ is needed to satisfy the requirement."
   task: 9db6fb8d72752fa1533e57f0d2dbbf3b038a09902538a39be59bbbd32bb906c9
 T010:
   task: 4af6395dc88655ebeb0734b65b7862be4d160970d6f02354daf37b1e19147c8a
 T013:
   task: d848403c8a8dc8e881891923b261a8fd502e34ab5e871354274669be90f860e1
 T014:
+  reason: "The repository contains the `code/analysis/environment.py` module that\
+    \ can write logs, but the required output file `data/processed/environment_logs.json`\
+    \ is missing and no execution evidence is provided to show that the script has\
+    \ been run and produced the log. The task\u2019s core deliverable \u2013 the actual\
+    \ environment log file \u2013 is absent."
   task: 2d4babb1ac58adf084c7dec182f32eed814366c6a1b0c399183867ba416ad700
 T015b:
   task: 3171bff85080c5e78b6c6609b56f29088e43a299301468b9302f13f3e2c80c8f

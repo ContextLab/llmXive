@@ -1,12 +1,15 @@
 status: none
-intent: download NIST dielectric constant solvent properties dataset pip install python
-  package dataset
+intent: download solvent dielectric constants NIST Chemistry WebBook and FreeSolv
+  python package dataset
 required_fields:
 - solvent_name
 - dielectric_constant
 - temperature_K
 - reference_source
-- version
-cache_key: 7524fda82590f4b6314bad376066a99b4beae773cb3c9165e0928a4e37cba76a
-searched_at: '2026-10-10T09:48:02.593522+00:00'
+- dataset_version
+- solute_name
+- solvation_free_energy_kcal_per_mol
+- calculation_method
+cache_key: 1015e70cb9e4d7b6bf62eae5cac4a91fc2945c4164f0b0c0bdcb55f9cf82453d
+searched_at: '2026-10-10T09:49:54.752913+00:00'
 retry_count: 1
