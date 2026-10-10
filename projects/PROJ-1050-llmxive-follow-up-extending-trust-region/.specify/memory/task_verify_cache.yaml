@@ -1,18 +1,22 @@
 T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that the directory `projects/PROJ-1050-llmxive-follow-up-extending-trust-region/`\
-    \ actually exists or contains the required project\u2011structure files (e.g.,\
-    \ README, src/, data/, tests/). Without concrete artifacts, the claim cannot be\
-    \ verified. The implementer must supply the directory listing or the actual files\
-    \ showing the completed structure."
+  h: 7d1869d4ba4e93466a76d282e306a2dc1f13a5cfb76df0787768f841c806a38a
+  r: "The project directory `projects/PROJ-1050-llmxive-follow-up-extending-trust-region/`\
+    \ exists with 18 top-level entries (code/, data/, docs/, tests/, specs/, config\
+    \ files, etc.), but the evidence provides no inspection of the contents of these\
+    \ subdirectories \u2014 no listing of files inside `code/`, `tests/`, or `specs/`,\
+    \ and no confirmation that any required artifact (e.g., the Reasoning MDP environment,\
+    \ teacher policy, or project scaffolding per the implementation plan) is non-empty\
+    \ and substantive. The task requires creating the project structure per the implementation\
+    \ plan, and the collector's d"
+  sig: ae8ded65048f240b01404615046ddf6331ee93371b05ea20315cb096892e0b70
 T002:
-  c: false
-  h: 0961a24506eacf1e036c3d5dcca93de7c47a5321df178d711dc4cf02a1402c39
-  r: The required file `projects/PROJ-1050-llmxive-follow-up-extending-trust-region/code/requirements.txt`
-    does not exist, so the specified dependencies are not initialized at the correct
-    location. The existing `code/requirements.txt` is at a different path and does
-    not satisfy the task.
+  c: true
+  h: fccb296c2f0bf40ded9f1046b2a90074be7cd3f425002f41b095d37591dc20b1
+  r: The file `code/requirements.txt` exists (121 bytes) and contains pinned versions
+    of all six required packages (numpy, scipy, pandas, matplotlib, pytest, statsmodels),
+    plus two extra lint/formatting tools which don't conflict with the requirement.
+  sig: 5e18e3803431e864700587dcf3094545bc7da69319c82148760234cfb319f015
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -35,6 +39,47 @@ T004a:
     without these artifacts the claim that the required utility package structure
     exists cannot be confirmed. The implementer must add the directory and the initialization
     file to satisfy task T004a.
+T005:
+  c: true
+  h: 1fb47a93d77752247cf39d1c01500b75c4510c9323e08b8937d59f3e4b591520
+  r: "The file `code/utils/seed_manager.py` exists (1240 bytes) and implements real,\
+    \ functional seed management: `set_seed` seeds Python's `random` and numpy, plus\
+    \ `get_seed`, `reset_to_seed`, and state save/restore via `get_state`/`set_state`\
+    \ \u2014 no stubs, TODOs, or placeholders. Its dependency `utils/logger.py` exists\
+    \ and is properly exported through `code/utils/__init__.py`, so the module is\
+    \ coherent and importable within the project's `code/` layout."
+  sig: aae09f31d444a37901cd612ec794446777c06ee40e4101c1976636f2c240102d
+T006:
+  c: true
+  h: f2d6f6f6a159fa73263b157734da02f8353040b45774e221db9494e01167645c
+  r: '`code/utils/logger.py` exists (2256 bytes) with a real, functional `setup_logging`
+    that defaults to writing `data/raw/app.log`, creates parent directories, configures
+    file+console handlers with formatting, plus `get_logger`/`get_log_path`/`export_log_summary`
+    utilities. The `data/raw/` directory exists and contains an `app.log` file, consistent
+    with the logger having been exercised; no stubs or placeholders are present.'
+  sig: abdcf803be9ef59ef3b967da678966a1f2ea14bb2ffd1eb158ace92799b0c17e
+T007:
+  c: true
+  h: 903adb2922a40aa7fe8f3affad24a8048d6fa77a656fb1b293d201dd63eb522c
+  r: "The artifact `code/experiments/grid_config.py` exists (2530 bytes) and contains\
+    \ a real `GridConfig` dataclass with alpha, student_horizon, seed, output paths,\
+    \ and serialization (`to_dict`/`from_dict`), plus `create_default_grid()` sweeping\
+    \ alpha {0.1, 0.3, 0.5, 0.7, 0.9} \xD7 horizons {3, 5, 7, 10, 15} with deterministic\
+    \ seeds \u2014 matching the task's requirement for an experiment configuration\
+    \ schema for alpha and horizon sweeps. The `run_grid_search` placeholder is acceptable\
+    \ since executing the training loop belongs to later tasks, not this schema-setup\
+    \ task."
+  sig: edceef4455fe4986364c1e2523c88f6980d81f5ad1caf10c300fa32680efb5fd
+T008:
+  c: true
+  h: e5008190ffcdad01ba960539d58ce0c59b110c5c28ceb364efba04403634748a
+  r: "The artifact `tests/unit/test_mdp.py` exists (2818 bytes) and contains a substantive\
+    \ `test_valid_state_transitions` covering reset, valid action selection, step,\
+    \ state dimension, and info fields (`effective_depth`, `teacher_depth`), plus\
+    \ supporting tests for invalid actions, goal conditions, and state representation\
+    \ \u2014 matching the task's requirement for a unit test of valid MDP state transitions.\
+    \ No stubs, TODOs, or placeholders are present."
+  sig: 8f424fd157a85e85cb36e2f48f760828d18902e6db5703953aa735f6a892e050
 T022:
   c: false
   h: 30832ddfa0682cbec0d430042d6b48d0b2fa01ae76ddb4f4f287f30afc938043

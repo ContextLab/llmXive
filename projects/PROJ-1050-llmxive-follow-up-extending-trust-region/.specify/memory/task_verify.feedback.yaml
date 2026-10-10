@@ -1,0 +1,94 @@
+T001:
+  reason: "The project directory `projects/PROJ-1050-llmxive-follow-up-extending-trust-region/`\
+    \ exists with 18 top-level entries (code/, data/, docs/, tests/, specs/, config\
+    \ files, etc.), but the evidence provides no inspection of the contents of these\
+    \ subdirectories \u2014 no listing of files inside `code/`, `tests/`, or `specs/`,\
+    \ and no confirmation that any required artifact (e.g., the Reasoning MDP environment,\
+    \ teacher policy, or project scaffolding per the implementation plan) is non-empty\
+    \ and substantive. The task requires creating the project structure per the implementation\
+    \ plan, and the collector's d"
+  task: f2a3c5733ae5ebe3e2456f424c90f9a297776698b4de50c2198d7efd6101d9a3
+T002:
+  task: f07508152a506a9a32ba7043793491de0d9a38ff05b080fe55cef364d3d69797
+T003:
+  reason: 'Requested task execution failed; rerun successfully: code/lint_check.py
+    exit=2'
+  task: 7deb9c8e860d522309c9a461e5be16e3d82c7dd618c6f430eef9fe7c9972baeb
+T004:
+  task: 6f9e06e8713c1ab758477c0c5e2f5c9b237f84576ee6b347e0780473a3b02c6e
+T004a:
+  task: 77b3fcfdbcfe8a7f93ef2d196272479915f1210389850e4c812e9831983a1207
+T005:
+  task: 4efea6e12a1e30431b06bc669f9443f6953c7d68138d8ee192e0bf53acbeb451
+T006:
+  task: b15a416f55f28eab029e6f881425ba23c9bea81f702d340e1f8b059982e244de
+T007:
+  task: c2aa68ef04eb3a3698c855fbc074b336648a29ad58bedd01289659bb7ba7fa3d
+T008:
+  task: cd78301bc6b9708dcb9e1a3e1de72247b73a741811ef3118fe2014ea29df0e87
+T009:
+  task: ad88d439aca85d9a10c2213a1f818381aaca46cd111b5dfb6487d3c3aa868535
+T010:
+  task: a33216f98c8c9f0663ffb626bfc4a7531d55a2ae40dc9d6818df7b34954534b9
+T011:
+  reason: 'declared artifact(s) missing/empty/invalid: code/env/reasoning_mdp.py'
+  task: 381301ef32759e94874a624ad00e8010d2ebe9c3b8298cfc9f9828506e39bd7c
+T011a:
+  reason: 'declared artifact(s) missing/empty/invalid: code/env/path_generator.py'
+  task: 9bca029f2f1fd771f8f5673ab1f4de6abddea9a82e5b9c36c7853d86d4222d32
+T012:
+  reason: 'declared artifact(s) missing/empty/invalid: code/env/teacher_policy.py'
+  task: 1738e59e3dd34afa446a754b3c5be74043b20271857e3d9358c2a67924c7909b
+T013:
+  reason: 'declared artifact(s) missing/empty/invalid: code/env/reasoning_mdp.py'
+  task: 17fb69c07ac00f5bcb8b380a4d8305782e4da1802ac1a7e7502e28bba8a78970
+T014:
+  reason: 'declared artifact(s) missing/empty/invalid: code/env/reasoning_mdp.py'
+  task: 2f158f61371359571b6636c834c5b42ff48c34bf84a595e965d29895350d392f
+T015:
+  task: 715b22423d2de78564c56b46d8bfb4221d3073a37cb93ab12b0c643a244d9e65
+T016:
+  task: 54d043d09540351c3ee412b715d7b6cf13e8fd0ee0379ca5c384e52792b9fec3
+T017:
+  task: 4551bf70176a9959b139872e850c79a9a4b2a0027ae353785b627523bf1b0ae7
+T018:
+  task: e74d241850d5d34773f4a4de2c1b2073d4d43750d1020c1e195504de15b62f33
+T018a:
+  task: 208769500bb0f8024499eac16eda6f68996a27366f500eba61f3b06509bb85bd
+T019:
+  task: eb611a5133361a4c19aa1fb4a64df6469fe6d97240fcbf22fecc8814da3fad06
+T020:
+  task: 0956cb0518b03b0b1c1f0a82b834b149b57cb203e8cb85de0fc106acb32e68f2
+T021:
+  task: ab67d3dce9596241a144ab3c19591392db9422d8fe174267918221d40db3e5bc
+T022:
+  task: e1c25543b31a0274a323b9c87a8e43b5fc004afffd248f669d9c2d70178c0dc6
+T023:
+  task: 20a202a6890db4b35c53be06665b5ad7fdbda426ba45634001443a1d5aee9c12
+T024:
+  task: 2e1252a9f02d3dc5d362eddae927049d34a219f1c13229b6c85f8b488d67887b
+T025:
+  task: fdeac069a314ac40a2bb781c86687c5209b0b254d45c29add19f54c625bc547a
+T026:
+  task: fc0d451b6fc1ff586c7093e722c27751464fe2cd3e9fda04fb684b307704858e
+T027:
+  task: 8ffe3940f2864401d36d1ff1f63d225dbdbdf98b4c1afac9da049b6b892a3d54
+T028:
+  task: d91706aa6a4f78e6e92fa1cbced8eb0430a13f75a1da563fe469a927f4eeb085
+T029:
+  reason: 'declared artifact(s) missing/empty/invalid: docs/results/hypothesis_validation.json'
+  task: 6586d374407effb43725dc5cc16b7895e8a34dd65cf2aa2e912e776f7b495723
+T030:
+  task: 6e793ac33c9089f1b5c7aa1a7c861e95017fe14454edb16c4644fa3cc83959e2
+T031:
+  task: 90f1f9b7b33038ef95d5d7e07e5040f207442a396ea4434ca5209cb1f2539e7d
+T032:
+  task: f7fcfd20c5ad1080b0afb1e82f2367f185d374cd173504099eea036b17321b84
+T033:
+  task: 3d13239b8e9dc2013345c63fb87a990b499765c43c2c77789294e7f88a51f360
+T033a:
+  task: 8080ebae33796cfb39bd34844932fcaab92faa157aa2036fa8caf77cf3a2659e
+T034:
+  task: c82b75fc3b2c0bb832bdc9c33474c7524686867648b2bac326259daaf2200e19
+T035:
+  task: 6e16a70845fd6f638c5f640427fd31674c889ff6e339b4c6bc4d7e92e078878f

@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan in `projects/PROJ-1050-llmxive-follow-up-extending-trust-region/`
-- [ ] T002 Initialize Python project with `numpy`, `scipy`, `pandas`, `matplotlib`, `pytest`, `statsmodels` in `projects/PROJ-1050-llmxive-follow-up-extending-trust-region/code/requirements.txt`
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `projects/PROJ-1050-llmxive-follow-up-extending-trust-region/`
+- [ ] T001 Create project structure per implementation plan in `projects/PROJ-1050-llmxive-follow-up-extending-trust-region/` <!-- SKIPPED: non-mapping output -->
+- [X] T002 Initialize Python project with `numpy`, `scipy`, `pandas`, `matplotlib`, `pytest`, `statsmodels` in `projects/PROJ-1050-llmxive-follow-up-extending-trust-region/code/requirements.txt`
+- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `projects/PROJ-1050-llmxive-follow-up-extending-trust-region/` <!-- FAILED-IN-EXECUTION: code/lint_check.py exit=2 -->
 
 ---
 
@@ -76,16 +76,16 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T008 [P] [US1] Unit test for valid state transitions in `tests/unit/test_mdp.py`
-- [X] T009 [P] [US1] Unit test for teacher policy generating optimal paths in `tests/unit/test_teacher_policy.py`
-- [X] T010 [P] [US1] Unit test for invalid action penalty handling in `tests/unit/test_mdp.py` <!-- ATOMIZE: requested -->
+- [~] T009 [P] [US1] Unit test for teacher policy generating optimal paths in `tests/unit/test_teacher_policy.py`
+- [~] T010 [P] [US1] Unit test for invalid action penalty handling in `tests/unit/test_mdp.py` <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 1
 
-- [X] T011 [P] [US1] Implement `ReasoningMDP` class with state graph, inference rules, and transitions in `code/env/reasoning_mdp.py` (FR-001)
-- [X] T011a [P] [US1] Implement the ground-truth path generation algorithm (BFS/DFS solver) to generate valid paths of varying depths in `code/env/path_generator.py` (FR-001, FR-007)
-- [X] T012 [P] [US1] Implement `TeacherPolicy` class that returns deterministic optimal paths using the path generator in `code/env/teacher_policy.py` (FR-001)
-- [X] T013 [US1] Implement validation logic to ensure ground-truth path accessibility before training in `code/env/reasoning_mdp.py` (FR-007)
-- [X] T014 [US1] Add error handling for unsolvable states and invalid inference rules in `code/env/reasoning_mdp.py`
+- [ ] T011 [P] [US1] Implement `ReasoningMDP` class with state graph, inference rules, and transitions in `code/env/reasoning_mdp.py` (FR-001)
+- [ ] T011a [P] [US1] Implement the ground-truth path generation algorithm (BFS/DFS solver) to generate valid paths of varying depths in `code/env/path_generator.py` (FR-001, FR-007)
+- [ ] T012 [P] [US1] Implement `TeacherPolicy` class that returns deterministic optimal paths using the path generator in `code/env/teacher_policy.py` (FR-001)
+- [ ] T013 [US1] Implement validation logic to ensure ground-truth path accessibility before training in `code/env/reasoning_mdp.py` (FR-007)
+- [ ] T014 [US1] Add error handling for unsolvable states and invalid inference rules in `code/env/reasoning_mdp.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -99,17 +99,17 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T015 [P] [US2] Unit test for horizon constraint enforcement in `tests/unit/test_student_policy.py`
-- [X] T016 [P] [US2] Unit test for TOP-D loss calculation with $\alpha$ interpolation in `tests/unit/test_topd_loss.py`
-- [X] T017 [P] [US2] Integration test for training loop convergence with distinct $\alpha$ values in `tests/integration/test_training_loop.py`
+- [~] T015 [P] [US2] Unit test for horizon constraint enforcement in `tests/unit/test_student_policy.py`
+- [~] T016 [P] [US2] Unit test for TOP-D loss calculation with $\alpha$ interpolation in `tests/unit/test_topd_loss.py`
+- [~] T017 [P] [US2] Integration test for training loop convergence with distinct $\alpha$ values in `tests/integration/test_training_loop.py`
 
 ### Implementation for User Story 2
 
-- [X] T018a [P] [US2] Implement the cognitive horizon enforcement mechanism (step counter truncation/penalty injection) in `code/student/policy.py` (FR-002)
-- [X] T018 [P] [US2] Implement `StudentPolicy` class skeleton in `code/student/policy.py` (FR-002)
-- [X] T019 [P] [US2] Implement `TOPDLoss` class for probability-space interpolation with $\alpha$ in `code/student/topd_loss.py` (FR-003)
-- [X] T020 [US2] Implement training loop in `code/experiments/runner.py` that records effective depth, teacher depth, and calculates the collapse ratio (effective depth / teacher depth) for each episode (FR-004, SC-002)
-- [X] T021 [US2] Implement logic to handle $\alpha=0$ (pure student learning) in `code/student/policy.py`
+- [~] T018a [P] [US2] Implement the cognitive horizon enforcement mechanism (step counter truncation/penalty injection) in `code/student/policy.py` (FR-002)
+- [~] T018 [P] [US2] Implement `StudentPolicy` class skeleton in `code/student/policy.py` (FR-002)
+- [~] T019 [P] [US2] Implement `TOPDLoss` class for probability-space interpolation with $\alpha$ in `code/student/topd_loss.py` (FR-003)
+- [~] T020 [US2] Implement training loop in `code/experiments/runner.py` that records effective depth, teacher depth, and calculates the collapse ratio (effective depth / teacher depth) for each episode (FR-004, SC-002)
+- [~] T021 [US2] Implement logic to handle $\alpha=0$ (pure student learning) in `code/student/policy.py`
 - [ ] T022 [US2] Add logging for per-episode loss values and convergence stability (variance of the loss) for *every* training episode to `data/raw/episode_logs.csv` in `code/experiments/runner.py` (FR-004)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -124,16 +124,16 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T023 [P] [US3] Unit test for Tobit regression execution and p-value extraction in `tests/unit/test_tobit_model.py`
-- [X] T024 [P] [US3] Unit test for collapse detection logic (depth ≤ 0.5 × teacher depth) in `tests/unit/test_analysis.py`
-- [X] T025 [P] [US3] Integration test for full sensitivity analysis sweep in `tests/integration/test_analysis.py`
+- [~] T023 [P] [US3] Unit test for Tobit regression execution and p-value extraction in `tests/unit/test_tobit_model.py`
+- [~] T024 [P] [US3] Unit test for collapse detection logic (depth ≤ 0.5 × teacher depth) in `tests/unit/test_analysis.py`
+- [~] T025 [P] [US3] Integration test for full sensitivity analysis sweep in `tests/integration/test_analysis.py`
 
 ### Implementation for User Story 3
 
-- [X] T026 [P] [US3] Implement `TobitModel` class for censored regression using `statsmodels.regression.tobit` in `code/analysis/tobit_model.py` (FR-005)
-- [X] T027 [US3] Implement collapse detection logic (effective depth ≤ 0.5 × teacher depth) in `code/analysis/tobit_model.py` (FR-006)
+- [~] T026 [P] [US3] Implement `TobitModel` class for censored regression using `statsmodels.regression.tobit` in `code/analysis/tobit_model.py` (FR-005)
+- [~] T027 [US3] Implement collapse detection logic (effective depth ≤ 0.5 × teacher depth) in `code/analysis/tobit_model.py` (FR-006)
 - [ ] T028 [US3] Implement and execute the sensitivity analysis runner to sweep $\alpha$ across the set {0.1, 0.3, 0.5, 0.7, 0.9} across all student horizon limits, generating the full experimental grid dataset and writing the results to `data/processed/collapse_sweep.csv` (FR-006, SC-004)
-- [X] T029 [US3] Implement non-monotonicity check to identify peak effective reasoning depth at intermediate $\alpha$ and write the result (peak alpha, hypothesis flag) to `docs/results/hypothesis_validation.json` (FR-006, SC-004)
+- [ ] T029 [US3] Implement non-monotonicity check to identify peak effective reasoning depth at intermediate $\alpha$ and write the result (peak alpha, hypothesis flag) to `docs/results/hypothesis_validation.json` (FR-006, SC-004)
 - [ ] T030 [US3] Generate analysis report with likelihood ratio test statistics and p-values in `code/analysis/tobit_model.py` (FR-005)
 
 **Checkpoint**: All user stories should now be independently functional

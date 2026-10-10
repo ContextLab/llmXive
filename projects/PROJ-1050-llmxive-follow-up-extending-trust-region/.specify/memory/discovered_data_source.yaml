@@ -1,13 +1,17 @@
 status: none
-intent: gym logical deduction environment python package synthetic reasoning MDP dataset
+intent: download MDP taxonomy dataset as pip installable python package for reasoning
+  environments python package dataset
 required_fields:
-- state_representation
-- action_space
-- ground_truth_path
-- max_depth
-- reward_structure
-- terminal_state
-- inference_rule_names
-cache_key: 5efbd966fee94ec51af3c00a923d4de8efd4dfd57df0af11193ff67ffdc22a97
-searched_at: '2026-09-07T19:13:14.349131+00:00'
+- state_id
+- partial_proof_representation
+- action_id
+- inference_rule_name
+- next_state_id
+- reward
+- is_terminal
+- optimal_action_flag
+- depth
+- horizon
+cache_key: 5f5980b5482c040dceb08ac331edae91a25e1374b6bd966836e2c98066bb9bff
+searched_at: '2026-10-10T08:17:11.081506+00:00'
 retry_count: 1

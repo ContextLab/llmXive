@@ -2,10 +2,11 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001** — No evidence was provided that the directory `projects/PROJ-1050-llmxive-follow-up-extending-trust-region/` actually exists or contains the required project‑structure files (e.g., README, src/, data/, tests/). Without concrete artifacts, the claim cannot be verified. The implementer must supply the directory listing or the actual files showing the completed structure.
-- **T002** — The required file `projects/PROJ-1050-llmxive-follow-up-extending-trust-region/code/requirements.txt` does not exist, so the specified dependencies are not initialized at the correct location. The existing `code/requirements.txt` is at a different path and does not satisfy the task.
-- **T003** — No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`, `pyproject.toml` with Black settings, or associated CI/pre‑commit hooks) are present in the indicated project directory, nor any evidence that ruff/flake8 and Black have been set up. The required artifacts are missing, so the task is not satisfied.
-- **T004** — No evidence of the required `__init__.py` files in the listed directories (`code/env`, `code/student`, `code/experiments`, `code/analysis`) is provided; without the actual files present, the task cannot be considered fulfilled. The implementer must add non‑empty `__init__.py` files to each of those four directories.
-- **T004a** — No evidence of a `code/utils/` directory or an `__init__.py` file was provided; without these artifacts the claim that the required utility package structure exists cannot be confirmed. The implementer must add the directory and the initialization file to satisfy task T004a.
-- **T022** — The required `data/raw/episode_logs.csv` file does not exist, and the provided `runner.py` excerpt shows no code that writes per‑episode loss values or loss variance to such a CSV. The task’s logging requirement is therefore unmet.
-- **T028** — declared artifact(s) missing/empty/invalid: data/processed/collapse_sweep.csv
+- **T001** — The project directory `projects/PROJ-1050-llmxive-follow-up-extending-trust-region/` exists with 18 top-level entries (code/, data/, docs/, tests/, specs/, config files, etc.), but the evidence provides no inspection of the contents of these subdirectories — no listing of files inside `code/`, `tests/`, or `specs/`, and no confirmation that any required artifact (e.g., the Reasoning MDP environment, teacher policy, or project scaffolding per the implementation plan) is non-empty and substantive. The task requires creating the project structure per the implementation plan, and the collector's d
+- **T003** — Requested task execution failed; rerun successfully: code/lint_check.py exit=2
+- **T011** — declared artifact(s) missing/empty/invalid: code/env/reasoning_mdp.py
+- **T011a** — declared artifact(s) missing/empty/invalid: code/env/path_generator.py
+- **T012** — declared artifact(s) missing/empty/invalid: code/env/teacher_policy.py
+- **T013** — declared artifact(s) missing/empty/invalid: code/env/reasoning_mdp.py
+- **T014** — declared artifact(s) missing/empty/invalid: code/env/reasoning_mdp.py
+- **T029** — declared artifact(s) missing/empty/invalid: docs/results/hypothesis_validation.json
