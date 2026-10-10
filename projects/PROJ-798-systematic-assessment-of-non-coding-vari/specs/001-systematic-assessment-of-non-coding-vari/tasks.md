@@ -1,226 +1,68 @@
 # Tasks: Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Binding Affinities
 
-**Input**: Design documents from `/specs/001-gene-regulation/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Input**: Design documents from `/specs/001-gene-regulation/` (spec.md, plan.md, data-model.md, contracts/)
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+## Phase 1: Setup and first end‑to‑end analysis
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+- [ ] T001 [US1] Create the project directory structure and prove it with a committed manifest. Create `code/`, `code/data_ingestion/`, `code/scoring/`, `code/analysis/`, `code/utils/`, `data/raw/`, `data/derived/`, `data/results/`, `tests/unit/`, `tests/integration/`, `tests/contract/`, each containing an `__init__.py` (for Python packages) or a `.gitkeep` (for data dirs). **Verification**: run `find code data tests -type d | sort > data/results/structure_manifest.txt` and commit the manifest; the verifier checks that this file lists every required directory. Also document the runnable entry command (`python -m code.main --help`) in `quickstart.md`. (Reopened)
 
-## Format: `[ID] [P?] [Story] Description`
+- [ ] T004 [P] Create `.gitignore` at repository root containing the exact exclusion patterns `data/raw/*`, `!data/raw/checksums.json`, `!data/raw/source_log.txt`, `data/derived/*`, `__pycache__/`, `.env`. **Verification**: the committed file is non‑empty and contains all five patterns; `git check-ignore data/raw/snps_raw.vcf` exits 0 and `git check-ignore data/raw/source_log.txt` exits 1. (Reopened)
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- [ ] T010 [US1] Implement dbSNP SNP fetching in `code/data_ingestion/fetch_dbsnp.py`: download **all** common human SNPs (MAF > 1 %) from dbSNP build 155 GRCh38 via the canonical FTP mirror `ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b155_GRCh38p13/VCF/` (HTTPS fallback allowed). Stream each chromosome VCF (`chr*.common_snps.vcf.gz`) line‑by‑line with `gzip.open` to stay within CI memory limits. Write source URLs, build version, timestamp, and SHA‑256 checksums to `data/raw/source_log.txt`. **Verification**: `data/raw/source_log.txt` exists and lists all downloaded URLs; `data/derived/snps_raw.parquet` contains real rsIDs with GRCh38 coordinates.
 
-## Path Conventions
+- [ ] T011 [US1] Download ENCODE v4 and Roadmap Epigenomics promoter/enhancer BED files from their official repositories (e.g., ENCODE FTP `ftp://ftp.encodeproject.org/` and Roadmap `[UNRESOLVED-CLAIM: https://egg2.wustl.edu/roadmap/data/byFileType/peaks/` — HTTP 404]). Record URLs, version tags, and SHA‑256 checksums in `data/raw/source_log.txt`. Merge and index them into `data/raw/regulatory_regions.bed`. **Verification**: BED file exists, non‑empty, and checksum logged.
 
-- **Single project**: `code/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- [ ] T010b [US2] Download the GRCh38 reference genome FASTA (e.g., `ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_44/GRCh38.primary_assembly.genome.fa.gz`). Index with `samtools faidx`. Log URL, version, and checksum in `source_log.txt`. **Verification**: FASTA and `.fai` exist; checksum recorded.
 
----
+- [ ] T012 [US1] Fetch the JASPAR 2024 human PWM collection (`ftp://ftp.ebi.ac.uk/pub/databases/jaspar/JASPAR2024/CORE/non_redundant/vertebrates/`) as a single TSV/FASTA file `data/raw/jaspar_pwm.txt`. Parse each matrix, store `pwm_id`, `tf_name`, `matrix`, and `length`. Log source URL, version, checksum. **Verification**: parsed PWM objects can be listed; checksum present.
 
-## Phase 1: Setup (Shared Infrastructure)
+- [ ] T014 [US1] Implement regulatory filtering in `code/data_ingestion/filter_regions.py`: apply MAF > 1 % and A/C/G/T allele filters (exclude N/indels), intersect SNPs with `data/raw/regulatory_regions.bed` using ≥1 bp overlap (boundary SNPs included), and save to `data/derived/filtered_snps.parquet` validated against `specs/001-systematic-assessment-of-non-coding-vari/contracts/snp_schema.schema.yaml`. Log the scored‑vs‑input SNP ratio (SC‑001) to `data/results/sc001_proportion.json`. **Dependency**: T010, T011. Also explicitly drop any non‑human species variants (none expected from dbSNP) to satisfy US‑1 scenario 3.
 
-**Purpose**: Project initialization and basic structure
+- [ ] T013b [US1] Implement the GC‑matched non‑regulatory control set in `code/data_ingestion/filter_regions.py`: sample random non‑regulatory genomic windows (excluding `regulatory_regions.bed`), compute GC% with `pyfaidx`, and match the filtered SNPs' GC distribution within ±2 % tolerance. Save to `data/derived/gc_matched_controls.parquet` validated against `specs/001-systematic-assessment-of-non-coding-vari/contracts/control_set_schema.schema.yaml`. **Dependency**: T014. *Note*: controls are for baseline reporting only, not the primary KS test.
 
-- [ ] T001 Create project structure per implementation plan (`code/`, `data/raw/`, `data/derived/`, `tests/`)
-- [X] T002 Initialize Python 3.11 project with dependencies (`pandas`, `numpy`, `biopython`, `scikit-learn`, `pybedtools`, `pyfaidx`, `requests`, `pytest`) in `requirements.txt`
-- [X] T003 [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml`
-- [ ] T004 [P] Create `.gitignore` excluding `data/raw/*` (except checksums), `data/derived/*`, `__pycache__`, and `.env`
+- [ ] T015 [US1] Compute LD blocks and stratification IDs for each filtered SNP using a pre‑computed LD reference (e.g., 1000 Genomes Phase 3) via `pysam`/`plink` utilities. Add fields `ld_block_id` and `stratum_id` (GC‑content + TSS‑distance bin) to `data/derived/filtered_snps.parquet`. Validate against the same SNP schema (which now requires these fields). **Dependency**: T014.
 
----
+- [ ] T018 [US2] Implement the affinity scorer in `code/scoring/pwm_scorer.py` and `code/scoring/delta_calculator.py`: load PWMs from `data/raw/jaspar_pwm.txt`, extract reference‑genome context windows via `pyfaidx` with window size equal to each PWM length (dynamic per TF), compute log‑odds scores for reference and alternate alleles, and output ΔScore = Score_alt − Score_ref plus the `is_large_magnitude` flag (|Δ| ≥ 2 bits). **Dependency**: T014, T010b. Include unit tests in `tests/unit/test_pwm_scorer.py` verifying log‑odds math on a hand‑computed example and asserting window size == PWM length.
 
-## Phase 2: Foundational (Blocking Prerequisites)
+- [ ] T021 [US2] Connect scoring into `code/main.py` and run a thin end‑to‑end pass: score all filtered SNPs (now full‑genome) against **all** high‑confidence human JASPAR motifs (≈ 600 PWMs). Write real result rows to `data/derived/scores.parquet` with columns `snp_id`, `tf_id`, `score_ref`, `score_alt`, `delta_score`, `window_size`, `is_large_magnitude` per `specs/001-systematic-assessment-of-non-coding-vari/contracts/score_schema.schema.yaml`. **Checkpoint**: the documented command in `quickstart.md` executes and its numerical outputs can be spot‑checked against expected values for three concrete fixtures (see `tests/integration/expected_spotcheck.json`). **Dependency**: T018, T015.
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+## Phase 2: Complete the study and validate its evidence
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T027 [US3] Implement GWAS Catalog ingestion in `code/analysis/enrichment_test.py`: download the latest GWAS associations file from `[UNRESOLVED-CLAIM: https://ftp.ebi.ac.uk/pub/databases/gwas/latest/` — HTTP 404] (determine the most recent file at runtime), extract lead SNPs to a BED, intersect with `data/derived/filtered_snps.parquet` to set `is_gwas_lead`, and log the exact file name, version, and checksum to `data/raw/source_log.txt`. Fail loudly on fetch errors. **Dependency**: T014.
 
-- [X] T005 [US2] Create `code/config.py` defining paths, random seeds, and MAF threshold. **CRITICAL**: The scoring engine MUST derive the window size dynamically from the loaded PWM length for each TF. **No fallback constants** (e.g., `DEFAULT_WINDOW`) are permitted in this config; the window size is strictly `len(pwm)`.
-- [X] T006 [P] Implement `code/utils.py` with genome coordinate helpers, FASTA memory-mapped I/O wrappers, and checksum verification functions
-- [X] T007 [P] Create `code/__init__.py` and module structure for `data_ingestion`, `scoring`, and `statistics`
-- [ ] T008 Setup `tests/unit/`, `tests/integration/`, and `tests/contract/` directories with `__init__.py` files
-- [X] T009 [P] Create `data/checksums.json` template and `code/data_ingestion.py` skeleton for downloading and verifying raw data
+- [ ] T024 [US3] Implement the permutation test in `code/analysis/enrichment_test.py`: n = 100 permutations randomly reassigning the *in‑GWAS/out‑of‑GWAS* status labels across the entire dataset simultaneously (preserving total GWAS/non‑GWAS counts), with a fixed random seed. Run the KS test on the **FULL** unfiltered ΔScore distributions (in‑GWAS vs out‑GWAS) per TF. Flag TFs with insufficient SNP counts rather than crashing. Include unit tests in `tests/unit/test_statistics.py` verifying label‑count preservation and KS correctness on a synthetic dataset with known enrichment, and a specific check that TF TCF7L2 obtains a corrected p‑value < 0.05. **Dependency**: T021, T027.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T025 [US3] Implement West‑Stephens max‑T FDR correction and final result aggregation in `code/analysis/fdr_correction.py`: build the null distribution of the maximum KS statistic across all TFs per permutation, compute corrected p‑values per TF, apply α = 0.05, **merge** the KS results from T024 with Tail‑Enrichment results from T026, and save the combined per‑TF results to `data/derived/enrichment_results.parquet` conforming to `specs/001-systematic-assessment-of-non-coding-vari/contracts/enrichment_result_schema.schema.yaml`. Include fields `ks_statistic`, `p_value_ks_observed`, `p_value_ks_corrected`, `tail_proportion_observed`, `tail_p_value`, `is_significant_ks`, `is_significant_tail`, etc. **Verification**: schema validation passes (using jsonschema) and the parquet file contains non‑null values for all tail‑related columns for each TF. **Dependency**: T024, T026.
 
----
+- [ ] T026 [US3] Implement the Tail‑Enrichment test in `code/analysis/tail_enrichment.py`: compute the proportion of SNP‑TF pairs with `|ΔScore| ≥ 2 bits` inside GWAS loci versus outside, perform a permutation‑based test (same label shuffling as T024), and output `tail_proportion_observed`, `tail_p_value`, and `is_significant_tail` per TF. Store results in `data/derived/tail_enrichment.parquet` validated against `specs/001-systematic-assessment-of-non-coding-vari/contracts/enrichment_result_schema.schema.yaml`. **Dependency**: T021, T027.
 
-## Phase 3: User Story 1 - Data Ingestion and Regulatory Context Filtering (Priority: P1) 🎯 MVP
+- [ ] T028 [US3] Validate enrichment result schema integration and tail‑test outputs: add a unit test `tests/unit/test_enrichment_schema.py` that loads a sample `enrichment_results.parquet`, validates it against `enrichment_result_schema.schema.yaml`, and asserts that the columns `tail_proportion_observed`, `tail_p_value`, and `is_significant_tail` are present and contain non‑null values for every TF. **Verification**: test passes and schema validation succeeds; any missing tail fields cause a test failure. **Dependency**: T025, T026.
 
-**Goal**: Download common human SNPs from dbSNP (primary) and 1000 Genomes (fallback) and filter them to those located within annotated regulatory regions using ENCODE/Roadmap BED files.
+- [ ] T005v [US3] Add validation and sensitivity checks: 
+    * Sweep the large‑magnitude cutoff from 0.5 to 4.0 bits in 0.5‑bit steps, re‑run the enrichment pipeline, and record outcomes in `data/results/sensitivity_cutoff_sweep.json`.
+    * Verify runtime and peak memory of the full pipeline stay within 6 h / 7 GB by logging per‑phase timings and RAM usage to `data/results/performance_log.json`. **Dependency**: T025, T026.
 
-**Independent Test**: Verify the output of the filtering script is a list of SNPs with genomic coordinates that overlap at least one regulatory region BED interval, with no SNPs outside these regions included.
+- [ ] T006v [US3] Generate result tables and figures directly from validated outputs:
+    * `data/results/results_summary.csv` (per‑TF enrichment table from `enrichment_results.parquet`),
+    * TF‑sensitivity heatmap (`data/results/figures/tf_heatmap.png`),
+    * ΔScore distribution figure (in‑GWAS vs out‑GWAS) (`data/results/figures/delta_distribution.png`).
+    All figures trace back to `data/derived/enrichment_results.parquet` and `data/derived/scores.parquet`. **Dependency**: T025, T026.
 
-### Implementation for User Story 1
+## Phase 3: Reproducible results and paper handoff
 
-- [ ] T010 [US1] Implement `code/data_ingestion.py` to download common human SNPs (MAF > 1%) from **dbSNP** (primary source) using `bcftools` or FTP. **URL**: `ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b155_GRCh38p13/VCF/`. **Constraint**: Select the file matching the pattern `common_snps.vcf.gz` from the directory listing. If dbSNP is unavailable, switch to fallback (T010a) and log source lineage to `data/raw/source_log.txt`.
-- [X] T010a [US1] Implement `code/data_ingestion.py` to download 1000 Genomes Phase 3 VCF (common SNPs) as a fallback source. **URL Logic**: Iterate over human autosomes (1-22) using the pattern `f"ftp://ftp.1000genomes.ebi.ac.uk/ebi/ftp/1000_Genomes/release/20130502/ALL.chr{chr}.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz"`. Ensure the filename suffix `.vcf.gz` is included.
-- [X] T010b [US1] Implement `code/data_ingestion.py` to download JASPAR PWMs (CORE collection) for human TFs. **URL**: `. Save to `data/raw/jaspar_pwm.txt`.
-- [ ] T010c [US1] Implement selection logic in `code/data_ingestion.py` to prioritize dbSNP (T010) and fallback to 1000 Genomes (T010a) if dbSNP unavailable; log source lineage to `data/raw/source_log.txt`.
-- [X] T011 [US1] Implement `code/data_ingestion.py` to download ENCODE/Roadmap promoter and enhancer BED files. **URL**: Promoters `ftp://ftp.encodeproject.org/files/ENCFF001TDO/@@download/ENCFF001TDO.bed.gz` and Enhancers `ftp://ftp.encodeproject.org/files/ENCFF001TDP/@@download/ENCFF001TDP.bed.gz`. Save to `data/raw/regulatory_regions.bed`.
-- [X] T012 [US1] Implement filtering logic in `code/data_ingestion.py` to exclude SNPs with MAF < 1% and non-ACGT alleles (handle N/indels).
-- [ ] T013 [US1] Implement overlap logic in `code/data_ingestion.py` using `pybedtools` to intersect SNPs with regulatory regions (≥1bp overlap). **Dependency**: Requires T010 (or T010a) producing `data/raw/snps_raw.vcf` AND T011 producing `data/raw/regulatory_regions.bed`.
-- [ ] T013b [US1] Implement `code/data_ingestion.py` to generate a GC-matched non-regulatory control set. **Algorithm**: 1) Use `bedtools random -n <count> -g <genome_file>` to generate random genomic regions. 2) Use `bedtools intersect -v` to ensure these regions do not overlap with `data/raw/regulatory_regions.bed`. 3) For each generated region, calculate GC% using `pyfaidx` on the reference genome. 4) Iterate to match the GC content distribution of the input filtered SNPs (from T013) within ±2% tolerance. **Output**: Save to `data/derived/gc_matched_controls.parquet`. **Dependency**: Explicitly requires T013 completion. **Note**: This control set is for baseline reporting and sensitivity analysis only; it is NOT used for the primary KS test in T025a.
-- [ ] T014 [US1] Save filtered SNPs to `data/derived/filtered_snps.parquet`; **Run pydantic/JSONSchema validator against `specs/001-gene-regulation/contracts/snp_schema.schema.yaml` before saving**.
-- [ ] T014a [US1] Generate `specs/001-gene-regulation/contracts/control_set_schema.schema.yaml` defining the schema for `gc_matched_controls.parquet` based on the data model. **Dependency**: Must run before T014b.
-- [ ] T014b [US1] Implement `code/data_ingestion.py` to validate `data/derived/gc_matched_controls.parquet` against `specs/001-gene-regulation/contracts/control_set_schema.schema.yaml`. **Dependency**: Must run after T014a and T013b, and before any downstream statistical usage (e.g., T025a).
-- [ ] T015 [US1] Implement `tests/unit/test_data_ingestion.py` to verify MAF filtering and non-ACGT exclusion logic
-- [ ] T016 [US1] Implement `tests/integration/test_ingestion_pipeline.py` to verify overlap logic against a small synthetic BED/SNP set
+- [ ] T007 Write `data/results/report.md`: a concise methods/results account linking each claim to the actual output files and figure paths, stating the sampled chromosome scope (full‑genome dbSNP subset and its representativeness limitation), the permutation count, the 2‑bit cutoff sensitivity result, negative findings, and the associational (non‑causal) framing required by the spec assumptions. **Dependency**: T006v.
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] T008 Write‑up re‑run verification (no `[P]` tag): Re‑run the documented workflow from its declared inputs (`python -m code.main`), confirm `pytest tests/` passes, verify that all derived result files (`*.parquet`, `*.csv`, `*.png`) are byte‑identical to the previous run (ignoring the raw GWAS source file which may change), and document the paper‑stage handoff (tables, figures, and report paths) in `data/results/paper_handoff.md`. **Verification**: a clean re‑run reproduces identical derived artifacts given the fixed seed. **Dependency**: T007.
 
----
+## Dependencies and requirement coverage
 
-## Phase 4: User Story 2 - Allele-Specific Binding Affinity Scoring (Priority: P2)
+| Requirement | Task(s) | Demonstrating command |
+|---|---|---|
+| FR-001 (dbSNP fetch, regulatory filter, GC‑matched controls) | T010, T011, T014, T013b | `python -m code.main --stage ingest` |
+| FR-002/FR-003 (dynamic‑window PWM scoring, ΔScore, 2‑bit flag) | T018, T021 | `pytest tests/unit/test_pwm_scorer.py` |
+| FR-004/FR-005 (label permutation, KS test) | T024 | `pytest tests/unit/test_statistics.py` |
+| FR-006/FR-007/FR-008 (West‑Stephens max‑T FDR, α = 0.05) | T025 | `python -m code.main --stage analysis` |
+| SC-001/SC-002/SC-003 | T014, T025, T005v | `data/results/sc001_proportion.json`, `enrichment_results.parquet`, `sensitivity_cutoff_sweep.json` |
+| NFR-001/NFR-002 (runtime, memory) | T005v | `data/results/performance_log.json` |
 
-**Goal**: Calculate the difference in binding affinity ($\Delta Score$) between reference and alternate alleles for every SNP-TF pair within a **dynamic context window** where the window size equals the PWM length (per FR-002).
-
-**Independent Test**: Run the scorer on a small, manually verified subset of SNPs and compare the calculated $\Delta Score$ against a manual calculation to ensure mathematical correctness.
-
-### Implementation for User Story 2
-
-- [ ] T017 [US2] Implement `code/scoring.py` to load JASPAR PWMs (from T010b output `data/raw/jaspar_pwm.txt`) and convert them to scoring matrices. **Dependency**: Requires T010b completion. **Note**: This task is blocked until T010b is complete.
-- [ ] T018 [US2] Implement `code/scoring.py` to extract genomic sequences from a reference FASTA (using `pyfaidx` memory-mapped access) based on SNP coordinates and **dynamic window size equal to the PWM length** for the specific TF being scored. **Dependency**: Requires T014 (filtered SNPs) and T017 (PWMs). **Validation**: Assert that the window size used matches the `len(pwm)` for the current TF.
-- [ ] T019 [US2] Implement `code/scoring.py` to calculate log-odds scores for both reference and alternate allele sequences
-- [ ] T020 [US2] Implement `code/scoring.py` to compute $\Delta Score = Score_{alt} - Score_{ref}$ for all valid SNP-TF pairs
-- [ ] T020b [US2] Implement `code/scoring.py` to calculate and output a boolean flag `is_large_magnitude` where true if the absolute $\Delta Score$ is ≥ 2 bits. This flag is for reporting purposes only and MUST NOT be used to filter the input data for statistical tests (per FR-003).
-- [ ] T021 [US2] Save scoring results to `data/derived/scores.parquet` with columns: `snp_id`, `tf_id`, `ref_score`, `alt_score`, `delta_score`, `window_size`, `is_large_magnitude`
-- [ ] T022 [US2] Implement `tests/unit/test_scoring.py` to verify log-odds calculation and $\Delta Score$ logic on known sequences
-- [ ] T022b [US2] Implement `tests/unit/test_scoring.py` to validate that the scoring module dynamically reads PWM length for window size. **Test Logic**: Use a mock PWM of known length (e.g., 10bp) and assert that the window size used in the scoring function is exactly 10. **Dependency**: Requires T017-T020 implementation. **Note**: Moved from Phase 2 to Phase 4 to ensure runtime behavior can be validated against implemented code.
-- [ ] T023 [US2] Implement `tests/integration/test_scoring_pipeline.py` to verify end-to-end sequence extraction and scoring flow
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Statistical Enrichment and GWAS Overlap Analysis (Priority: P3)
-
-**Goal**: Aggregate $\Delta Score$ distributions, perform permutation tests, and cross-reference high-impact SNPs with GWAS Catalog loci.
-
-**Independent Test**: Run the analysis on a synthetic dataset where enrichment status is known and verify the permutation test correctly identifies enrichment with p-value < 0.05.
-
-### Implementation for User Story 3
-
-- [ ] T027 [US3] Implement `code/statistics.py` to download/load **GWAS Catalog lead SNPs** (BED format) from `ftp://ftp.ebi.ac.uk/pub/databases/gwas/latest/`. **Constraint**: Fetch pinned version `gwas_catalog_v1.0.3-2024-01-01` or use a cached, versioned file to ensure reproducibility. Filter specifically for 'lead' variants. **Dependency**: Requires T014 (filtered SNPs).
-- [ ] T024 [US3] Implement `code/statistics.py` to perform **permutation test** (n=100) by **randomly reassigning the 'in-GWAS' or 'out-of-GWAS' status labels** across the entire dataset while preserving the total count of GWAS and non-GWAS SNPs. **Algorithm**: Use `numpy.random.permutation` to shuffle the full `labels` vector (size = total SNPs). **Dependency**: Requires T027 (GWAS data), T021 (Scores). **Note**: This task preserves the joint distribution required for West-Stephens max-T FDR (per FR-004) by shuffling labels globally.
-- [ ] T025a [US3] Implement `code/statistics.py` to perform a **Kolmogorov-Smirnov (KS) test** on the **FULL unfiltered distribution** of scores for SNPs *inside* GWAS loci against the distribution of scores for SNPs *outside* GWAS loci (the natural complement: `filtered_snps` minus `gwas_snps`). **Dependency**: Requires T014 (Filtered SNPs), T021 (Scores), and T027 (GWAS Data). **Note**: This test strictly follows FR-005. The GC-matched control set (T013b) is NOT used for this primary test.
-- [ ] T025 [US3] Implement `code/statistics.py` to apply the **West-Stephens max-T permutation FDR** method to the p-values generated from the permutation tests across all TFs. **Algorithm**: 1) For each permutation iteration (from T024), record the maximum KS test statistic (max-T) across all TFs. 2) Build a null distribution of max-T values from these iterations. 3) Compare the observed KS test statistic for each TF against this max-T null distribution to calculate adjusted p-values. 4) This method preserves the joint distribution of scores across correlated TF motifs by permuting the GWAS status labels across the entire dataset simultaneously. **Dependency**: Requires T024 (Global Permutation). **Note**: This is the sole FDR correction method as required by FR-006.
-- [ ] T026 [US3] Implement `code/statistics.py` to identify high-impact SNPs (top configurable % by $|\Delta Score|$) **strictly for reporting purposes**. **Note**: This is an additional reporting metric; the primary metric remains the `is_large_magnitude` flag (≥2 bits) defined in FR-003. Do not use this selection to filter data for statistical tests.
-- [ ] T028 [US3] Implement `code/statistics.py` to apply a significance threshold of α = 0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value) (corrected) to the output p-values from T025 to determine which TFs are significantly enriched. **Dependency**: Requires T025 (West-Stephens).
-- [ ] T029 [US3] Save final results to `data/derived/enrichment_results.parquet` including p-values, FDR, enrichment ratios, and high-impact SNP lists
-- [ ] T030 [US3] Implement `tests/unit/test_statistics.py` to verify permutation logic and West-Stephens FDR calculation
-- [ ] T031 [US3] Implement `tests/integration/test_enrichment_pipeline.py` to verify end-to-end statistical analysis on synthetic data
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T032 [P] Create `code/main.py` orchestration script to run the full pipeline (Ingestion → Scoring → Statistics)
-- [ ] T032b [P] Implement logic to generate **synthetic data** (SNPs, BEDs, PWMs) for CI Validation Mode
-- [ ] T032c [P] Implement mode switch logic in `code/main.py` to toggle between 'Research' (Real Data) and 'Validation' (Synthetic Data) modes
-- [ ] T033 [P] Generate `data/checksums.json` for all files in `data/raw/` and `data/derived/`
-- [ ] T034 Update `README.md` with execution instructions and data source citations
-- [ ] T035 [P] Add performance monitoring to `code/main.py` to log RAM usage and execution time per phase
-- [ ] T036 Run `pytest` to ensure all tests pass and generate coverage report
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 output (filtered SNPs) for sequence extraction
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 output (scores) for statistical analysis
-- **Data Flow**: T010/T011 (Data Fetch) → T014 (Filtered SNPs) → T018 (Sequence Extraction) → T020 (Scoring) → T027 (GWAS Data) → T024 (Global Permutation) → T025a (KS Test) → T025 (West-Stephens FDR) → T029 (Save)
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together:
-Task: "Contract test for data ingestion in tests/contract/test_ingestion.py"
-Task: "Integration test for filtering pipeline in tests/integration/test_ingestion_pipeline.py"
-
-# Launch all models for User Story 1 together:
-Task: "Create data_ingestion.py in code/data_ingestion.py"
-Task: "Create utils.py in code/utils.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+**Execution order**: T001/T004 (parallel) → T010 → T011 → T010b → T012 → T014 → T013b → T015 → T018 → T021 → T027 → T024 → T025 → T026 → T028 → T005v → T006v → T007 → T008.
