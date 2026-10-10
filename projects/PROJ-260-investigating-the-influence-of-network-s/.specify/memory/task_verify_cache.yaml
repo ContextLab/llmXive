@@ -15,14 +15,13 @@ T002:
   sig: c0cfd2175a4505dd0e73c6d60d77369436aee21aba73ddde7213c8b16094ab66
 T003:
   c: false
-  h: 28bba1d615fcde59914fafeea7584d3f46fbe58e7be08ee1979cddede2028c5a
-  r: "The provided `requirements.txt` lists the required packages but uses \u201C\
-    >=\u201D version specifiers instead of exact pins and adds many extra dependencies;\
-    \ there is no evidence that `pip install -r requirements.txt` was run successfully\
-    \ without conflicts. To satisfy the task, the file must pin exact versions for\
-    \ the listed packages (e.g., `numpy==1.24.0`) and include verification that installation\
-    \ completes cleanly."
-  sig: f81ead460e3dc77884ea994108e9ec85cb462a12fb85fa8f7a6a3d25fbe60d44
+  h: 7b4b902e6b91f8bb093b76354da3d59c873e6c1715c80d08288e3630065eb8b9
+  r: "The repository contains a correctly\u2011pinned `requirements.txt` with all\
+    \ required packages (plus an extra `PyYAML` entry), but there is no evidence\u2014\
+    such as installation logs, command output, or CI results\u2014showing that `pip\
+    \ install -r requirements.txt` actually runs successfully and resolves without\
+    \ version conflicts. Adding such proof is needed to satisfy the verification step."
+  sig: 76de3b326ffa779579eaec29578c9d2a5d490ef87e40528d9cdbb79b00025188
 T004:
   c: false
   h: d1c13a32676b8cc7cbff6bee2bdb217eb9a1549411a0210ac230b9eac3a8ba21
@@ -31,6 +30,21 @@ T004:
     \ `ruff check .` and `black --check .` were actually run and reported zero violations.\
     \ Without that execution proof, the task\u2019s verification requirement is unmet."
   sig: c0cfd3196600da50f47a478f34106409e14601d306ab7c09be95aca9e3296b44
+T005:
+  c: false
+  h: 2591944a18c136752047c3d6b1e7d22cc0f2664de944230dcec35d0292dc7005
+  r: "The provided `src/cli/main.py` is only a thin wrapper that loads the real implementation\
+    \ from `code/src/cli/main.py`, but no such file is present in the evidence, and\
+    \ there is no proof that the real module defines the required sub\u2011commands\
+    \ or that `python -m src.cli.main --help` succeeds. The task therefore lacks the\
+    \ actual CLI implementation and verification of its behavior."
+  sig: cc0b4d3d28eea05bee77541232416992172d5e0935ed59972817edc2e0e9f193
+T006:
+  c: true
+  h: 43e67d5ca47fc81d431dec5a2ec722ac3bebaef15993a48566b975e3a6935a23
+  r: 'Checked the `config.yaml` file at the project root (`projects/PROJ-260-investigating-the-influence-of-network-s/config.yaml`),
+    which contains the required `bootstrap_iterations: 1000` entry.'
+  sig: 066e517b6633438f98149e3ccc7d95d85b39911c0acc40708ab8b774ec0519f4
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

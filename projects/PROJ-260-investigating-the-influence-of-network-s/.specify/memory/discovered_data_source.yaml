@@ -1,6 +1,6 @@
 status: none
-intent: amorphous silicon molecular dynamics trajectory velocities dataset Materials
-  Cloud Zenodo python package dataset
+intent: amorphous silicon MD trajectory velocity dump dataset Materials Cloud Zenodo
+  python package dataset
 required_fields:
 - atom_id
 - element
@@ -10,10 +10,9 @@ required_fields:
 - vx
 - vy
 - vz
-- time_step
-- cell_vectors
-- density
-- simulation_box
-cache_key: a2afb1c28cda15330266aaefa44c4741d9e1862774736ce3c82870375f1a51c8
-searched_at: '2026-10-10T17:26:07.355502+00:00'
+- timestep
+- box_lengths
+- box_angles
+cache_key: 90974cbd78afe7f50ab8d7575f4b665aee6c4c3fc93ec6ff518364d58c689d64
+searched_at: '2026-10-10T17:29:42.402253+00:00'
 retry_count: 1

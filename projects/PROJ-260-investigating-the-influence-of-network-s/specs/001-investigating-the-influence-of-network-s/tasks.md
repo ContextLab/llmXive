@@ -30,14 +30,14 @@ artifact paths and an explicit verification step.
   It must expose sub‑commands `extract-topology`, `calc-vdos`, `ingest-kappa`, `aggregate`, `analyze`, and orchestrate the full pipeline, writing all artefacts under `data/derived/` and `outputs/`.  
   **Verification**: `python -m src.cli.main --help` lists all sub‑commands and exits with code 0.
 
-- [ ] **T006**  Create a minimal `config.yaml` in the project root containing  
+- [X] **T006**  Create a minimal `config.yaml` in the project root containing  
   ```yaml
   bootstrap_iterations: 1000
   ```  
   (additional keys may be added later).  
   **Verification**: `yaml.safe_load(open("config.yaml"))` returns a dict with the key `bootstrap_iterations`.
 
-- [ ] **T007**  Implement `scripts/update_state_hashes.py` that computes SHA‑256 hashes of every file under `data/`, `src/`, and `outputs/` and writes a summary to `state/projects/PROJ-260-investigating-the-influence-of-network-s.yaml`.  
+- [ ] **T007**  Implement `scripts/update_state_hashes.py` that computes SHA‑256 hashes of every file under `data/`, `src/`, and `outputs/` and writes a summary to `state/projects/PROJ-260-investigating-the-influence-of-network-s.yaml`.   <!-- FAILED-IN-EXECUTION: scripts/update_state_hashes.py exit=1 -->
   **Verification**: Running the script creates the YAML file and contains at least one hash entry.
 
 ---
