@@ -34,7 +34,7 @@ These commands failed because the external dataset is NOT reachable AS WRITTEN o
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/run_router_inference.py: self-declared fabricated metric — “…entropy, matrix index, and a placeholder metric structure.…”; code/runners/router_inference_runner.py: self-declared fabricated metric — “…# For this runner, we simulate the metric collection structure.…”; code/analysis/clustering.py: synthetic/fake INPUT data not authorized by the spec — “…cluster center values to generate synthetic activations         # th…”; 4 command(s) failed: python code/data/download_coco.py (rc=1); python code/main.py --mode full (rc=2); python -m pytest tests/unit/ (rc=2); 6 declared deliverable(s) absent: data/processed/clustering_report.json; data/processed/correlation_results.json; data/processed/diverse_prompts.csv
+**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/run_router_inference.py: self-declared fabricated metric — “…entropy, matrix index, and a placeholder metric structure.…”; code/runners/router_inference_runner.py: self-declared fabricated metric — “…# For this runner, we simulate the metric collection structure.…”; code/analysis/clustering.py: synthetic/fake INPUT data not authorized by the spec — “…cluster center values to generate synthetic activations         # th…”; 4 command(s) failed: python code/data/download_coco.py (rc=1); python code/main.py --mode full (rc=2); python -m pytest tests/unit/ (rc=1); 6 declared deliverable(s) absent: data/processed/clustering_report.json; data/processed/correlation_results.json; data/processed/diverse_prompts.csv
 
 ## Failing / missing run-book commands
 
@@ -59,44 +59,13 @@ RuntimeError: Failed to stream COCO captions: Failed to load COCO captions datas
 usage: main.py [-h] --phase {init,validate}
 main.py: error: the following arguments are required: --phase
 
-- python -m pytest tests/unit/ -> rc=2
-importlib/__init__.py:126: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests/unit/test_validate_clustering.py:15: in <module>
-    from validation.validate_clustering import (
-E   ImportError: cannot import name 'REQUIRED_TOP_LEVEL_KEYS' from 'validation.validate_clustering' (/home/runner/work/llmXive/llmXive/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/code/validation/validate_clustering.py)
-=========================== short test summary info ============================
-ERROR tests/unit/test_clustering.py - FileNotFoundError: [Errno 2] No such fi...
-ERROR tests/unit/test_download_diverse_prompts.py - NameError: name 'List' is...
-ERROR tests/unit/test_load_matrices.py
-ERROR tests/unit/test_preprocess.py - NameError: name 'List' is not defined
-ERROR tests/unit/test_router_inference.py
-ERROR tests/unit/test_timing.py - FileNotFoundError: [Errno 2] No such file o...
-ERROR tests/unit/test_validate_clustering.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 7 errors in 5.24s ===============================
+- python -m pytest tests/unit/ -> rc=1
 
+/home/runner/work/llmXive/llmXive/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/code/.venv/bin/python: No module named pytest
 
-- python -m pytest tests/integration/ -> rc=2
-pen
-    return open_func(self.baseFilename, self.mode,
-E   FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/logs/timing_run.log'
-____________ ERROR collecting tests/integration/test_preprocess.py _____________
-tests/integration/test_preprocess.py:10: in <module>
-    from code.data.download_diverse_prompts import main as download_diverse_main
-code/data/download_diverse_prompts.py:32: in <module>
-    def fetch_diverse_prompts(num_samples: int = 1000) -> List[Dict[str, str]]:
-                                                          ^^^^
-E   NameError: name 'List' is not defined
-=========================== short test summary info ============================
-ERROR tests/integration/test_activation_variance.py
-ERROR tests/integration/test_download_diverse_prompts.py
-ERROR tests/integration/test_full_pipeline.py - FileNotFoundError: [Errno 2] ...
-ERROR tests/integration/test_preprocess.py - NameError: name 'List' is not de...
-!!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 4 errors in 5.31s ===============================
+- python -m pytest tests/integration/ -> rc=1
 
+/home/runner/work/llmXive/llmXive/projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/code/.venv/bin/python: No module named pytest
 
 
 ## Declared deliverables still missing

@@ -1,12 +1,12 @@
 status: none
-intent: download MS COCO 2017 validation captions via Hugging Face datasets python
-  package dataset
+intent: huggingface datasets ms coco 2017 validation set python package semantic entropy
+  python package dataset
 required_fields:
+- prompt_text
 - image_id
 - caption
-- file_name
-- height
-- width
-cache_key: f66a422026436fd729d213b0d824225aa406ba1ee52de8eebf51f5a6ad1b22ee
-searched_at: '2026-10-10T05:25:27.006703+00:00'
+- semantic_entropy
+- activation_variance
+cache_key: 73d5fc92f6c0fa7e6049e620f0ab265e452683a524c2975ff15ee97119ca84f1
+searched_at: '2026-10-10T06:28:15.151389+00:00'
 retry_count: 1
