@@ -1,259 +1,201 @@
 # Tasks: Exploring the Mechanisms of Gene Regulation Across Different Cell Types
 
-**Input**: Design documents from `/specs/001-gene-regulation/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Input**: `spec.md`, `plan.md`, `data-model.md`, contracts in `specs/001-gene-regulation/`  
+**Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `data-model.md` (entity definitions)  
 
-**Tests**: The examples below include test tasks. Tests are REQUIRED as they implement critical verification steps mandated by the spec's 'Independent Test' sections.
+---  
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+## Phase 1 – Project scaffolding & pre‑flight checks  
 
-## Format: `[ID] [P?] [Story] Description`
+- [ ] T001 **Create project directory layout** – `mkdir -p code utils tests/unit tests/integration data/raw data/interim data/processed`  
+  *Verification*: **T026** asserts that each of the directories exists after creation using `os.path.isdir`.  
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- [ ] T002 **Pin Python dependencies** – write `requirements.txt` containing `requests pandas pybedtools scipy seaborn matplotlib biopython pytest psutil joblib` (Python 3.11).  
+  *Verification*: **T027** runs `pip install -r requirements.txt` in a fresh virtualenv and checks that the exit code is 0.  
 
-## Path Conventions
+- [ ] T003 **Implement configuration module** – create `code/config.py` defining `TMP_DIR` (default `/tmp`), `DATA_RAW_DIR`, `DATA_INTERIM_DIR`, `DATA_PROCESSED_DIR`, `MAX_RETRIES=3`, `RETRY_BACKOFF=2`, `EXPECTED_CELL_TYPES=['GM12878','K562','HepG2','H1-hESC','IMR90']`.  
+  *Verification*: **T028** imports `code.config` and asserts that each constant exists with the expected type/value.  
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- [ ] T004 **Add pre‑flight utility scripts** –  
+  - `code/utils/memory_check.py` (≥ 7 GB RAM)  
+  - `code/utils/disk_check.py` (≥ 14 GB free on `TMP_DIR`)  
+  - `code/utils/time_check.py` (abort > 6 h)  
+  - `code/utils/network.py` (exponential back‑off, raises `MaxRetriesError`)  
+  *Verification*: **T030** runs each script with artificially low limits and confirms a non‑zero exit status. Additional granular checks: **T032** (memory_check), **T033** (disk_check), **T034** (time_check), **T035** (network retry behavior).  
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+- [ ] T005 **Integrate pre‑flight checks into orchestrator** – modify `code/main.py` to import and execute the four utilities at the start of `run_pipeline()`.  
+  *Verification*: **T036** executes `code/main.py --dry-run` with a failing utility and asserts that the pipeline aborts early.  
 
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
+---  
 
- Tasks MUST be organized by user story so each story can:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
+## Phase 2 – Data ingestion & preprocessing (User Story 1)  
 
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
+- [ ] T006 **Download ENCODE peak files with retry logic** – `code/download.py` uses `requests` + `code/utils/network.py` to fetch ATAC‑seq and ChIP‑seq BED files for the five cell types, writes them to `data/raw/`, and records SHA‑256 checksums in `data/provenance.json`.  
+  *Verification*: **T037** checks that for each expected cell type a file exists in `data/raw/` and that its checksum matches the recorded value.  
 
-## Phase 1: Setup (Shared Infrastructure)
+- [ ] T007 **Parse and annotate peaks** – `code/preprocess.py` reads each raw BED, validates format, uses `pybedtools` to map to the nearest hg38 gene symbol, and writes standardized BEDs to `data/interim/annotated_<cell>.bed`.  
+  *Verification*: **T038** validates each output BED against `peak.schema.yaml` via jsonschema.  
 
-**Purpose**: Project initialization and basic structure
+- [ ] T008 **Create per‑target background‑union BED** – `code/preprocess.py` aggregates the annotated peaks of the *other* four cell types for each target and writes `data/interim/background_union_<target>.bed`.  
+  *Verification*: **T039** asserts that each union file exists and contains the union of the correct four cell‑type peak sets (simple line‑count sanity check).  
 
-- [X] T001b [P] Create standard project directory structure: Execute `mkdir -p code data/raw data/interim data/processed tests/unit tests/integration tests/contract` to establish the required hierarchy.
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` (requests, pandas, pybedtools, scipy, seaborn, matplotlib, biopython, pytest, psutil, joblib). Note: `pybedtools` is used for BED parsing and annotation as per plan.md Technical Context. `psutil` is added for total memory monitoring in T036. `joblib` is added for parallel execution in T036.
-- [X] T003 [P] Configure linting (ruff) and formatting (black) tools: Create `pyproject.toml` with `[tool.ruff]` and `[tool.black]` sections defining standard rules
-- [X] T008 [P] Setup `tests/` directory structure: Create `unit/`, `integration/`, `contract/` subdirectories and `__init__.py` in each
+- [ ] T030 **Create concatenated background_union.bed** – concatenate all per‑target union files into `data/interim/background_union.bed` for convenience.  
+  *Verification*: **T040** asserts that the concatenated file exists and that its line count equals the sum of the per‑target union files.  
 
----
+- [ ] T009 **Generate ingestion summary** – `code/main.py` implements `run_ingestion()` which writes `data/processed/ingestion_summary.json` with the exact keys `total_peaks` (int), `cell_types` (list), `parsed_count` (int).  
+  *Verification*: **T041** validates the JSON file against a tiny schema ensuring the three required keys and correct types.  
 
-## Phase 2: Foundational (Blocking Prerequisites)
+- [ ] T009V **Verify ingestion summary** – unit test that loads `ingestion_summary.json`, checks presence of required keys, and asserts `total_peaks` equals sum of per‑cell peak counts.  
+  *Verification*: **T042** (new) runs the test and expects exit code 0.  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+---  
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+## Phase 3 – Motif scanning (User Story 2)  
 
-- [X] T004 [P] Implement `code/config.py` to define `TMP_DIR` (default `/tmp`), `DATA_RAW_DIR`, `DATA_INTERIM_DIR`, `DATA_PROCESSED_DIR`, retry limits, and dataset version constants. **This task defines configuration constants ONLY. It does NOT implement the disk check logic (handled by T005b) or RAM check logic (handled by T005a).**
-- [X] T005a [P] Create `code/utils/` directory structure and implement `code/utils/memory_check.py` to verify ≥7GB RAM availability (aligned with plan.md target). **This task explicitly enforces the plan's 7GB RAM target. If RAM < 7GB, the pipeline MUST exit with a CRITICAL error and clear message. No execution is allowed below this threshold. Note: SC-004 mandates a 6-hour runtime limit, not a RAM limit; the 7GB check is derived from plan constraints.**
-- [X] T005b [P] Implement `code/utils/disk_check.py` to verify ≥14GB available disk space on `TMP_DIR` (FR-002). **This task explicitly implements the FR-002 disk space check. The pipeline MUST exit with a clear error message if disk space < 14GB.**
-- [X] T005c [P] Implement `code/utils/time_check.py` to track elapsed time during pipeline execution and exit with error if > 6 hours (SC-004). **This task implements the runtime monitoring required to verify the 6-hour constraint on the CPU-only runner. It does NOT include arbitrary warning thresholds.**
-- [X] T006 [P] [FR-006] Implement `code/utils/network.py` with exponential backoff (limited retries) for HTTP requests. **Constraint**: Must raise `MaxRetriesError` after a defined number of failures.; NO synthetic fallback allowed.
-- [X] T007 Create `data/provenance.json` structure to record specific ENCODE accession IDs, JASPAR version, and download timestamps as per Constitution (VI)
+- [ ] T010 **Run FIMO on each cell‑type peak set** – `code/scan.py` builds a subprocess call:  
+  ```bash
+  fimo --thresh 0.0001 --text --bgfile data/interim/background_union_<cell>.bed \
+       motifs/JASPAR2024.meme data/interim/annotated_<cell>.bed
+  ```  
+  Parses FIMO output and writes `data/interim/motif_matches_<cell>.tsv` conforming to `motif_match.schema.yaml`.  
+  *Verification*: **T043** checks that the subprocess is invoked with the `--thresh 0.0001` flag and the correct background file, and that the resulting TSV validates against the schema.  
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T010V **Verify FIMO execution** – test that the subprocess call includes the correct threshold and background file, and that the output TSV passes schema validation.  
+  *Verification*: **T044** runs the test and expects success.  
 
----
+- [ ] T011 **Aggregate motif matches** – concatenate per‑cell TSVs into `data/interim/all_motif_matches.tsv`.  
+  *Verification*: **T045** asserts that the aggregated file exists, contains rows from all five cells, and passes schema validation.  
 
-## Phase 3: User Story 1 - Data Ingestion and Preprocessing (Priority: P1) 🎯 MVP
+---  
 
-**Goal**: Download, parse, and normalize ATAC-seq/ChIP-seq peak data for multiple cell types into a unified BED-like format with gene annotations.
+## Phase 4 – Enrichment analysis (User Story 2 continued)  
 
-**Independent Test**: Verify pipeline downloads files to `TMP_DIR`, parses them without crashing, and outputs a summary report of peak counts per cell type within 14GB disk limits.
+- [ ] T012 **Compute Fisher’s exact test per motif‑cell pair** – `code/enrichment.py` loads `all_motif_matches.tsv` and the appropriate `background_union_<cell>.bed`, builds contingency tables, runs `scipy.stats.fisher_exact`, and writes raw results to `data/interim/enrichment_raw.tsv`.  
+  *Verification*: **T046** validates that `enrichment_raw.tsv` contains required columns and that p‑values are within [0,1].  
 
-### Implementation for User Story 1
+- [ ] T012V **Verify Fisher’s test output** – JSON‑schema validation of `enrichment_raw.tsv` against `enrichment.schema.yaml` (raw part) and sanity‑check that no p‑value is out of bounds.  
+  *Verification*: **T047** runs the validation and expects exit code 0.  
 
-- [X] T012 [US1] Implement `code/download.py` to download ENCODE peak files for representative human cell lines (GM, K, HepG, H-hESC, IMR) using `code/utils/network.py` (FR-001, FR-006). **Constraint**: If download fails, raise `DataFetchError` and DO NOT fall back to synthetic/mock data (Constitution Data Hygiene).
-- [X] T013 [US1] Implement parsing logic in `code/preprocess.py` to convert downloaded files to standardized BED format AND annotate with gene symbols. **Critical**: Intermediate parsed files MUST be written to `TMP_DIR` (configured in T004) to satisfy FR-002's requirement for a configurable temporary directory. Final aggregated results are stored in `data/interim/`. **Constraint**: If parsing fails, raise `DataParseError` and DO NOT fall back to synthetic/mock data. (FR-002). **Dependencies**: Depends on T005b (disk check) and T012. Note: This task relies on T004 for path configuration.
-- [X] T014a [US1] Implement gene annotation logic in `code/preprocess.py` using `pybedtools` to map peak coordinates to gene symbols (hg38). **Output**: Writes `data/interim/annotated_peaks.bed`. **Dependencies**: Depends on T005b (disk check) and T013.
-- [X] T014b [US1] Implement background model aggregation logic in `code/preprocess.py`. **Logic**: For a given target cell type, aggregate peaks from the *remaining* cell types (excluding the target) to form the dynamic background model (FR-004). **Output**: Writes `data/interim/background_union.bed`. **Dependencies**: Depends on T014a (annotation) and T013.
-- [X] T015 [US1] Implement `code/main.py` orchestration logic: function `run_ingestion(peak_files)` takes parsed peaks as input and generates `data/processed/ingestion_summary.json` with keys: `total_peaks` (int, sum of all parsed files), `cell_types` (list, dynamic list of cell types found in input), `parsed_count` (int, count of successfully parsed files) (depends on T012, T013, T014a, T014b completion). **This task implements the logic previously flagged as REJECTED, now fully implemented with clear artifact outputs. Note: Removed hard-coded whitelist to allow dynamic cell types.**
-- [X] T016 [US1] Update `code/main.py` to integrate `code/utils/disk_check.py` (T005b), `code/utils/memory_check.py` (T005a), and `code/utils/time_check.py` (T005c) as pre-flight and runtime checks before `run_ingestion` execution. **Dependencies**: T004, T005a, T005b, T005c, T012, T013, T014a, T014b, T015 must be complete to ensure orchestration logic calls implemented functions. **Action**: Explicitly import and execute `code.utils.disk_check`, `code.utils.memory_check`, and `code.utils.time_check` before calling `run_ingestion`.
+- [ ] T013 **Apply Benjamini‑Hochberg correction** – `code/enrichment.py` reads raw p‑values, performs BH adjustment, adds `q_value` and `is_significant` fields, and writes the final matrix `data/processed/enrichment_matrix.csv` conforming to `enrichment.schema.yaml`.  
+  *Verification*: **T048** validates the CSV against the schema and asserts that any row with `q_value < 0.05` has `is_significant = true`.  
 
-### Tests for User Story 1 (REQUIRED) ⚠️
+- [ ] T013V **Verify enrichment matrix** – test that the CSV adheres to the schema, that BH correction was applied (q-values monotonic), and that at least one motif‑cell pair satisfies `q_value < 0.05` (SC‑002).  
+  *Verification*: **T049** runs the test and expects success.  
 
-- [X] T010 [US1] Write unit test `tests/unit/test_ingest.py::test_parse_handles_malformed_bed` which is expected to fail until T012-T014 implementation is complete. Assert parser raises specific `ValueError` on malformed BED input and logs error. **Verification**: Run `pytest tests/unit/test_ingest.py::test_parse_handles_malformed_bed` and assert exit code 1. **This task is REQUIRED to meet US-1 Independent Test criteria. Note: This task depends on T012-T014 (code existence) and is NOT parallel-safe.**
-- [X] T011 [US1] Write unit test `tests/unit/test_network.py::test_retry_exponential_backoff` which is expected to fail until T006 implementation is complete. Assert network utility retries a limited number of times with exponential delays. before raising `MaxRetriesError`. **Verification**: Run `pytest tests/unit/test_network.py::test_retry_exponential_backoff` and assert exit code 1. **This task is REQUIRED to meet US-1 Independent Test criteria. Note: This task depends on T006 (code existence) and is NOT parallel-safe.**
+---  
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently once upstream dependencies are resolved
+## Phase 5 – Visualization & clustering (User Story 3)  
 
----
+- [ ] T014a **Generate heatmap image** – `code/visualize.py` loads `enrichment_matrix.csv`, pivots to a motif × cell matrix of q‑values, clusters with Euclidean distance, and saves `data/processed/heatmap.png`.  
+  *Verification*: **T050** checks that `heatmap.png` exists and is a readable PNG file.  
 
-## Phase 4: User Story 2 - Motif Scanning and Enrichment Analysis (Priority: P2)
+- [ ] T014b **Compute silhouette score** – the same script computes the silhouette score (using `sklearn.metrics.silhouette_score`), writes `data/processed/silhouette_score.json`, and ensures the value is ≥ 0.4.  
+  *Verification*: **T051** validates the JSON file exists and that the `silhouette_score` field meets the threshold.  
 
-**Goal**: Scan peaks for TF motifs using FIMO (CPU-only), compute background model (union of other cell types), and calculate enrichment scores with multiple-testing correction.
+- [ ] T014c **Verify visualisation outputs** – test that `heatmap.png` is non‑empty, that `silhouette_score.json` passes schema validation, and that the score ≥ 0.4 (SC‑003).  
+  *Verification*: **T052** runs the test and expects exit code 0.  
 
-**Independent Test**: Run scanning on a small synthetic subset, verify output contains p-values ≤0.0001, and confirm distinct enrichment profiles (correlation <0.8) between cell types.
+---  
 
-### Implementation for User Story 2
+## Phase 6 – Independent ChIP‑seq validation (User Story 3)  
 
-- [X] T021a [US2] Implement `code/scan.py` to invoke FIMO (subprocess) against JASPAR CORE database with p-value ≤0.0001 threshold (FR-003). **Command**: `fimo --thresh 0.0001 --text --bgfile <bg_file> <motif_file> <peak_file>`. **Dependencies**: Depends on T014 output (specifically `data/interim/background_union.bed` for context, though scanning uses target peaks).
-- [X] T021b [US2] Implement `code/scan.py` to parse FIMO output into a standardized list of motif matches with genomic coordinates and p-values.
-- [X] T022 [US2] Implement enrichment calculation in `code/enrichment.py` using Fisher's exact test against the background model (union of other cell types) (FR-004). **Dependencies**: Explicitly consumes `data/interim/background_union.bed` generated by T014b.
-- [X] T023 [US2] Implement Benjamini-Hochberg correction in `code/enrichment.py` to generate adjusted q-values (FR-004)
-- [X] T024 [US2] Update `code/main.py` to orchestrate scanning, enrichment: function `run_enrichment(matches, background)` takes motif matches as input and outputs `data/processed/enrichment_matrix.csv` with columns: `motif_id` (**JASPAR ID format, e.g., 'MA0001.1'**), `cell_type` (**exact string match**: ['GM12878', 'K562', 'HepG2', 'H1-hESC', 'IMR90']), `p_value` (float), `q_value` (float) (depends on T021a, T021b, T022, T023 outputs). **This task implements the logic previously flagged as REJECTED, now fully implemented with clear artifact outputs.**
+- [ ] T015 **Fetch independent ChIP‑seq peaks** – `code/validate.py` queries the ENCODE REST API for each top‑ranked TF (q < 0.05) and its cell type, downloads the BED files to `data/raw/chip_<motif>_<cell>.bed`.  
+  *Verification*: **T053** (renamed from previous T047) confirms that for every requested TF‑cell pair a BED file exists and that its checksum matches the provenance record.  
 
-### Tests for User Story 2 (REQUIRED) ⚠️
+- [ ] T015V **Verify fetched ChIP‑seq files** – test that each downloaded BED file passes checksum verification and that provenance.json records are correct.  
+  *Verification*: **T054** runs the test and expects success.  
 
-- [X] T018 [US2] Write unit test `tests/unit/test_background.py::test_union_aggregation` which is expected to fail until T014b implementation is complete. Assert background generation correctly aggregates (unioning) Peak Regions from the other 4 cell types. **Verification**: Run `pytest tests/unit/test_background.py::test_union_aggregation` and assert exit code 1. **Note: This task depends on T014b (code existence) and is NOT parallel-safe.**
-- [X] T019 [US2] Write unit test `tests/unit/test_motifs.py::test_fisher_exact_correction` which is expected to fail until T022 implementation is complete. Assert Fisher's test returns correct p-values and Benjamini-Hochberg correction returns correct q-values for a known input matrix. **Verification**: Run `pytest tests/unit/test_motifs.py::test_fisher_exact_correction` and assert exit code 1. **Note: This task depends on T022 (code existence) and is NOT parallel-safe.**
+- [ ] T016 **Calculate overlap statistics** – intersect predicted motif locations (`all_motif_matches.tsv`) with the fetched ChIP‑seq peaks, compute `overlap_percentage`, run a Fisher’s exact test for enrichment, and write `data/processed/validation_stats.json` adhering to `validation.schema.yaml`.  
+  *Verification*: **T055** validates the JSON against the schema and asserts that for the top motifs `overlap_percentage >= 60`.  
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently once upstream dependencies are resolved
+- [ ] T016V **Verify validation statistics** – test that `validation_stats.json` conforms to the schema and that the ≥ 60 % overlap condition holds for the designated top motifs (SC‑003).  
+  *Verification*: **T056** runs the test and expects exit code 0.  
 
----
+- [ ] T017 **Assemble validation report** – `code/main.py` combines heatmap silhouette results, validation statistics, and writes `data/processed/validation_report.json` containing: `silhouette_score`, `silhouette_test_passed`, `overlap_percentage`, `overlap_test_passed`, `validation_passed`, and a list of top motifs with their q‑values and overlap stats.  
+  *Verification*: **T057** checks the JSON schema and that boolean flags correctly reflect the thresholds (silhouette ≥ 0.4, overlap ≥ 60%).  
 
-## Phase 5: User Story 3 - Visualization and Cross-Validation (Priority: P3)
+- [ ] T017V **Verify validation report** – test that `validation_report.json` matches its schema and that the flags are consistent with underlying metrics.  
+  *Verification*: **T058** runs the test and expects success.  
 
-**Goal**: Generate heatmaps of enrichment results and validate findings against independent ChIP-seq data.
+---  
 
-**Independent Test**: Generate plots, verify heatmap clustering silhouette score ≥0.4, and confirm ≥60% overlap between predicted motifs and independent ChIP-seq peaks.
+## Phase 7 – Final reporting  
 
-### Implementation for User Story 3
+- [ ] T018 **Create summary table** – `code/report.py` reads `enrichment_matrix.csv` and `validation_report.json`, selects the top N motifs (q < 0.05), and writes `data/processed/summary_table.csv` with columns `motif_id`, `p_value_raw`, `q_value_adj`, `chip_overlap_pct`.  
+  *Verification*: **T059** validates the CSV schema and confirms that the `chip_overlap_pct` column is present and populated.  
 
-- [X] T028 [US3] Implement `code/visualize.py` to generate heatmap: function `generate_heatmap(matrix)` takes enrichment_matrix.csv as input, uses Euclidean distance clustering with linkage='average', and outputs `data/processed/heatmap.png` (FR-005). **Note**: This task is the prerequisite for T032. Depends on T024. The silhouette score is computed in T031a, not here.
-- [X] T030a [US3] Implement `code/validate.py` to fetch independent ChIP-seq accession IDs from ENCODE API. **Logic**: Query ENCODE API for ChIP-seq peaks matching the TF (from top motifs) and cell type dynamically. Do NOT hardcode IDs. **Dependencies**: Depends on T024 (to know which TFs to query) and T032a (to filter top motifs).
-- [X] T030b [US3] Implement `code/validate.py` to download real peak files for the retrieved accession IDs. **Constraint**: If API returns no results, raise `DataValidationError` (FAIL VALIDATION) immediately. Do NOT set a flag and continue. **Dependencies**: Depends on T030a.
-- [X] T030c [US3] Implement `code/validate.py` to calculate overlap percentage between predicted peaks and downloaded ChIP-seq peaks. **Output**: Writes `data/processed/validation_stats.json` with `overlap_pct`. **Dependencies**: Depends on T030b.
-- [X] T032a [US3] Implement `code/validate.py` to filter enrichment results to top enriched motifs (q < 0.05) before generating summary table, ensuring FR-005's 'top enriched' constraint is satisfied. **Output**: List of objects with keys: `motif_id` (string), `cell_type` (string), `q_value` (float). **Dependencies**: T024.
-- [X] T031a [US3] Implement `code/validate.py` to compute silhouette score from the enrichment matrix (T024) and log the result. **This task verifies the metric as a success condition (Independent Test).** **Note**: Depends on T024 (raw matrix data). **Output**: Writes `data/processed/silhouette_score.json` containing the computed score to ensure data flow to T031b and T033.
-- [X] T031b [US3] Implement `code/validate.py` to enforce the silhouette score threshold: Read `data/processed/silhouette_score.json` (T031a). If score < 0.4, log a failure message and set `silhouette_test_passed = False` in the final report, but **DO NOT exit the pipeline**. Continue to generate required artifacts. **This task explicitly covers the 'Independent Test' success path (score >= 0.4) and failure path (log and continue). It does NOT continue if the test fails (it logs failure but continues).** **Note**: Depends on T031a.
-- [X] T033 [US3] Update `code/main.py` to orchestrate visualization and validation: function `run_validation_report(heatmap_data, chip_data, score, silhouette_flag, overlap_flag)` takes heatmap data (from T028), validation stats (from T030c), silhouette score (from T031a), `silhouette_test_passed` (from T031b), and `overlap_test_passed` (from T030c logic) as input and generates `data/processed/validation_report.json` with keys: `overlap_pct` (float, The precision of the measurement will be reported to two decimal places, or null), `top_motifs` (**list of objects with keys: `motif_id` (string), `q_value` (float, high precision (e.g., four decimal places)), `overlap_pct` (float, 2 decimal places, or null)**), `silhouette_score` (float, 2 decimal places), `silhouette_test_passed` (bool), `overlap_test_passed` (bool, derived from T030c logic), `validation_passed` (bool, **True ONLY if BOTH `silhouette_test_passed` AND `overlap_test_passed` are True**). (depends on T028, T030c, T031a, T031b, T032a). **Note**: This task is the prerequisite for T034.
-- [X] T034 [US3] Generate final summary table: function `generate_summary_table(enrichment_csv, validation_json)` reads from `data/processed/enrichment_matrix.csv` (filtered by T032a) and `data/processed/validation_report.json` and outputs `data/processed/summary_table.csv` with columns: `motif_id`, `p_value_raw`, `q_value_adj`, `chip_overlap_pct`. **Logic**: Select the 'top N' motifs by q-value (ranking) from the filtered set to satisfy FR-005's 'top enriched' requirement. Note: `chip_overlap_pct` is calculated as the ratio of the intersection of predicted and observed peaks to their union, expressed as a percentage. (depends on T030c, T033, T032a). This table satisfies US-3-SC1 Scenario 3.
+- [ ] T018V **Verify summary table** – test that `summary_table.csv` adheres to the expected column schema and includes only rows where `q_value_adj < 0.05`.  
+  *Verification*: **T060** runs the test and expects exit code 0.  
 
-### Tests for User Story 3 (REQUIRED) ⚠️
+- [ ] T019 **Write quick‑start documentation** – `quickstart.md` (under `specs/001-gene-regulation/`) lists the single command `python -m code.main` and enumerates expected output files (`ingestion_summary.json`, `enrichment_matrix.csv`, `heatmap.png`, `validation_report.json`, `summary_table.csv`) plus hardware prerequisites (≥ 7 GB RAM, ≥ 14 GB disk, ≤ 6 h runtime).  
+  *Verification*: **T061** runs the quick‑start command in a fresh clone and asserts that all listed files are generated.  
 
-- [X] T026 [US3] Write unit test `tests/unit/test_viz.py::test_heatmap_silhouette_score` which is expected to fail until T028 implementation is complete. Assert clustering function returns silhouette score and logs it. **Verification**: Run `pytest tests/unit/test_viz.py::test_heatmap_silhouette_score` and assert exit code 1. **Note: This task depends on T028 (code existence) and is NOT parallel-safe.**
-- [X] T027 [US3] Write unit test `tests/unit/test_validate.py::test_chip_overlap_calculation` which is expected to fail until T030 implementation is complete. Assert overlap percentage is calculated correctly against a mock ChIP-seq dataset. **Verification**: Run `pytest tests/unit/test_validate.py::test_chip_overlap_calculation` and assert exit code 1. **Note: This task depends on T030 (code existence) and is NOT parallel-safe.**
+- [ ] T019V **Verify quick‑start execution** – integration test that executes the command from `quickstart.md` and checks for the presence and integrity of all expected output files.  
+  *Verification*: **T062** runs the test and expects success.  
 
-**Checkpoint**: All user stories should now be independently functional once upstream dependencies are resolved
+---  
 
----
+## Phase 8 – Automated verification (tests)  
 
-## Phase N: Polish & Cross-Cutting Concerns
+- [ ] T020 **Unit test for malformed BED handling** – `tests/unit/test_ingest.py::test_parse_handles_malformed_bed` expects `ValueError` and logs the error.  
 
-**Purpose**: Improvements that affect multiple user stories
+- [ ] T021 **Unit test for network back‑off** – `tests/unit/test_network.py::test_retry_exponential_backoff` asserts `MaxRetriesError` after the configured number of attempts.  
 
-- [ ] T035 [P] Documentation updates in `README.md` and `specs/001-gene-regulation/quickstart.md`. **Content Requirement**: `quickstart.md` MUST include: 1) Exact commands to run the pipeline (`python -m code.main`), 2) Expected output artifacts list, 3) Expected output format for `ingestion_summary.json`, `enrichment_matrix.csv`, and `validation_report.json`, 4) A note on the required disk space (≥14GB) and RAM (≥7GB per plan).
-- [ ] T036 [P] Performance optimization for FIMO execution: Modify FIMO loop in `code/scan.py` to use `joblib.Parallel(n_jobs=2, max_nbytes=500MB)` where safe, ensuring total memory footprint remains <7GB. **Verification**: Add `logger.info(f"Memory usage: {psutil.Process().memory_info().rss / 1024 / 1024}MB")` in `code/scan.py` to log memory usage. Add a pytest test that asserts the log output contains the string `Memory usage: <X>MB` and verifies `X < 7000`. **Constraint**: Must include a runtime check using `psutil` to verify **total** process memory usage does not exceed 7GB during parallel execution.
-- [ ] T038 [P] Run `quickstart.md` validation to ensure end-to-end reproducibility on the target CI environment. **Dependencies**: T035, T030. **Action**: Execute `python -m code.main` as per quickstart.md and verify exit code 0 and existence of `data/processed/validation_report.json`. **Note**: This task (renumbered from T037) restores the end-to-end validation step required to verify the final deliverable.
-- [ ] T039 [P] [FR-006] Implement explicit ENCODE API rate-limit handling in `code/download.py`: Add logic to parse HTTP 429 response headers for `Retry-After` value and enforce a mandatory wait period before the next retry attempt, ensuring compliance with ENCODE's API usage policies.
-- [ ] T040 [P] [US1 Edge Case] Implement robust handling for cell types with zero motif matches in `code/enrichment.py`: Ensure the Fisher's exact test calculation explicitly handles zero-count cells by returning a p-value of 1.0 and a note "no matches found" in the output, preventing division-by-zero errors or crashes.
-- [ ] T041 [P] [US1 Edge Case] Implement disk space exhaustion detection in `code/preprocess.py`: Add a pre-write check in `code/utils/disk_check.py` that validates available space on `TMP_DIR` is > 1GB before any file write operation; if space is insufficient, abort immediately with a clear error message as per Spec Edge Cases.
+- [ ] T022 **Unit test for background union correctness** – `tests/unit/test_background.py::test_union_aggregation` verifies that the union BED contains the correct number of unique intervals.  
 
----
+- [ ] T023 **Unit test for Fisher‑exact & BH correction** – `tests/unit/test_motifs.py::test_fisher_exact_correction` checks known contingency tables against expected p‑values and q‑values.  
 
-## Dependencies & Execution Order
+- [ ] T024 **Unit test for heatmap silhouette computation** – `tests/unit/test_viz.py::test_heatmap_silhouette_score` ensures a silhouette score is returned and logged.  
 
-### Phase Dependencies
+- [ ] T025 **Unit test for ChIP‑seq overlap calculation** – `tests/unit/test_validate.py::test_chip_overlap_calculation` validates the percentage computation on a small synthetic overlap scenario.  
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories CANNOT run in parallel due to data-flow dependencies.
- - US2 depends on US1 output (T014b).
- - US3 depends on US2 output (T024).
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- [ ] T053 **CI verification of test suite** – CI step runs `pytest -q` and asserts exit code 0 (no test failures).  
 
-### User Story Dependencies
+- [ ] T053V **Verify CI test execution** – ensures the CI step actually executed `pytest` and that the exit code was 0.  
+  *Verification*: **T063** checks CI logs for successful pytest run.  
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output (T014b)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 results output (T024)
+- [ ] T054 **Reference‑Validator invocation** – script `code/validate_citations.py` calls the platform’s Reference‑Validator Agent on all code and documentation files to ensure citation accuracy per Constitution Principle II.  
+  *Verification*: CI step checks that the validator returns a success status.  
 
-### Within Each User Story
+---  
 
-- Tests (if included) MUST be written and FAIL before implementation
-- Models/Utilities before services
-- Services before endpoints/main orchestration
-- Core implementation before integration
-- Story complete before moving to next priority
+## Dependencies & execution order  
 
-### Parallel Opportunities
+| Task | Depends on |
+|------|------------|
+| T003 – T005 | T001, T002 |
+| T006 | T003, T004 |
+| T007 | T006, T003 |
+| T008 | T007 |
+| T030 | T008 |
+| T009 | T008, T003 |
+| T009V | T009 |
+| T010 | T008, T003 |
+| T010V | T010 |
+| T011 | T010 |
+| T012 | T011, T008 |
+| T012V | T012 |
+| T013 | T012 |
+| T013V | T013 |
+| T014a | T013 |
+| T014b | T013 |
+| T014c | T014a, T014b |
+| T015 | T014a, T013 |
+| T015V | T015 |
+| T016 | T015 |
+| T016V | T016 |
+| T017 | T014a, T016, T014b |
+| T017V | T017 |
+| T018 | T013, T017 |
+| T018V | T018 |
+| T019 | T013, T018 |
+| T019V | T019 |
+| T020‑T025 | Corresponding implementation tasks |
+| T053 | All implementation tasks |
+| T053V | T053 |
+| T054 | All code & docs |
+| Tests (T020‑T025, T053‑T054) | Corresponding implementation tasks |
 
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows) **ONLY IF** they are not blocked by upstream data dependencies. In this project, US2 and US3 are strictly sequential due to data flow.
-- **Tests**: All test tasks for a user story can run in parallel **among themselves** once their respective implementation tasks (the producers) are complete. They cannot run concurrently with their producers.
-- Different user stories can be worked on in parallel by different team members **only if** the upstream data dependencies are resolved.
+---  
 
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (AFTER implementation is done):
-Task: "Write unit test for tests/unit/test_ingest.py::test_parse_handles_malformed_bed"
-Task: "Write unit test for tests/unit/test_network.py::test_retry_exponential_backoff"
-
-# Launch all models for User Story 1 together:
-Task: "Implement code/download.py to download ENCODE peak files"
-Task: "Implement parsing logic in code/preprocess.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Data Ingestion)
- - Developer B: User Story 2 (Motif Scanning) - *Note: Requires US1 data*
- - Developer C: User Story 3 (Visualization) - *Note: Requires US2 data*
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable **once upstream dependencies are resolved**
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All tasks must run on CPU-only free-tier CI (A minimal computing environment with a small number of cores, limited RAM, and limited disk). No GPU, no 8-bit quantization, no large model training.
-- **Data Integrity**: No synthetic/fake data allowed. All analysis must use real ENCODE/JASPAR data. **Fail Loudly**: If real data fetch fails, raise an error.
-- **Background Model**: Use "Peak Regions from other cell types" (union) as the background model, as mandated by FR-004 and Spec Assumptions.
-- **Disk Space**: Check for ≥14GB free space (FR-002, SC-004).
-- **Silhouette Score**: Verify ≥0.4. If < 0.4, log failure but continue to generate artifacts.
-- **Overlap Threshold**: Verify ≥60% overlap. If < 60% or missing, set `overlap_test_passed = False` and `validation_passed = False`.
-- **File Paths**: Strictly follow plan.md file structure: `code/download.py`, `code/preprocess.py`, `code/scan.py`, `code/enrichment.py`, `code/visualize.py`.
-- **Removed Tasks**: T025 (chunked processing) has been removed as it contradicts the spec's explicit assumption of in-memory processing.
-- **Plan Discrepancy Note**: There is a known contradiction between SC-004 (requires 6-hour runtime) and plan.md (targets moderate RAM usage). This has been flagged for kickback to the planning stage. Tasks are based on the plan's constraints (7GB RAM).
-- **File Paths**: Strictly follow plan.md file structure: `code/download.py`, `code/preprocess.py`, `code/scan.py`, `code/enrichment.py`, `code/visualize.py`.
-- **Plan Discrepancy Note**: There is a known contradiction between SC-004 (requires 6-hour runtime) and plan.md (targets ~7GB RAM). This has been flagged for kickback to the planning stage. Tasks are based on the plan's constraints.
-- **Edge Case Handling**: T039, T040, and T041 explicitly address the "Edge Cases" section of the spec.md (API rate limits, zero matches, disk exhaustion) which were previously unimplemented.
+**Note** – All tasks write only to project‑owned directories (`code/`, `data/`, `tests/`, `specs/...`). No synthetic data is generated; any failure to fetch real ENCODE or JASPAR resources aborts loudly, allowing the execution engine to retry on a GPU if needed (not applicable here). The pipeline is fully CPU‑tractable and respects the 6‑hour wall‑time budget.  
