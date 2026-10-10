@@ -1,10 +1,11 @@
 status: none
-intent: download prs-v2-sample dataset from HuggingFace as python package dataset
+intent: download huggingface github pull request diffs review comments linked issues
+  python package dataset
 required_fields:
-- diff_text
 - pr_id
+- diff_text
 - review_comments
 - linked_issue_ids
-cache_key: 1c01a07184d375e6460ed84da42099816c55814970eac669a8346e95a35cac87
-searched_at: '2026-10-10T05:26:03.179192+00:00'
+cache_key: 8518c8b46f2c874e55ca8c5896ea31daa7934f151f35031cd4554982bc988178
+searched_at: '2026-10-10T09:28:45.755556+00:00'
 retry_count: 1

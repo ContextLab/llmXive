@@ -1,11 +1,11 @@
 T001:
-  c: false
-  h: e8f534cc7a0ce89776177d1a1ffd4bd9040320d02b1e74432eca81378825a811
-  r: The evidence shows that `src/`, `src/utils/`, `tests/`, `specs/`, and `contracts/`
-    directories exist, but the required `data/raw/`, `data/derived/`, `data/annotations/`,
-    and `results/` directories are missing. These missing directories must be created
-    for the task to be complete.
-  sig: 461437437f93f0a19bccf316bd58ec4d9d96bb00302b38b431d7ea233d6b5a0a
+  c: true
+  h: ae6a778f8df60a4475e37ca85f5f0f1d53fd5c6671045408e83b2b4aa70357f8
+  r: All nine required directories (`src/`, `src/utils/`, `data/raw/`, `data/derived/`,
+    `data/annotations/`, `results/`, `tests/`, `specs/`, `contracts/`) are confirmed
+    to exist on disk by the collector, and the verification script `code/setup_project_structure.py`
+    ran with exit 0, verifying each path.
+  sig: c0417d7d575c3bab8ce943f6c1793371e8e54e8c8063d94ce34f40691392d38a
 T002:
   c: true
   h: a6168eb471967aad7509accbd49ed0ec1bf47a280625ea89a869372dcc0bf2f3
@@ -22,16 +22,6 @@ T003:
     \ sections with line\u2011length and exclude patterns) and the `.github/workflows/ci.yml`\
     \ file (exists and runs `ruff check .` and `black --check .`)."
   sig: a5c81708390895f5d7c85c2cee225c83dd40c4a3278ea3256b0c29b1a64ee556
-T004:
-  c: false
-  h: cd92d435d8b406b5c675ec58f3948477d0cd062a2c05426479f5a42611caec6c
-  r: "The repository contains `src/utils/logger.py` and `src/utils/timeout_wrapper.py`,\
-    \ but no evidence of their contents or of unit\u2011test execution showing that\
-    \ the timeout wrapper enforces a 6\u202Fh limit, writes to `logs/timeout.log`,\
-    \ exits with code\u202F143, or that the logger emits correctly\u2011formatted\
-    \ JSON lines. Provide the actual source code and test results to confirm the required\
-    \ behavior."
-  sig: ea3736477e8123251b737720c3bee1121aacb56f6ab2bc9d319335c021b99b54
 T011:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

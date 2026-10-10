@@ -2,37 +2,41 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 command(s) failed: python -m src.cli.main --config config/settings.py --run all (rc=1); python -m pytest tests/unit/ (rc=2); python -m pytest tests/contract/ (rc=1); 6 declared deliverable(s) absent: data/annotations/raw_comments.json; data/derived/human_baseline.json; data/derived/human_confirmations.json
+**Summary**: 4 command(s) failed: python -m src.cli.main --config config/settings.py --run all (rc=-1); python -m pytest tests/unit/ (rc=2); python -m pytest tests/contract/ (rc=1); 6 declared deliverable(s) absent: data/annotations/raw_comments.json; data/derived/human_baseline.json; data/derived/human_confirmations.json
 
 ## Failing / missing run-book commands
 
-- python -m src.cli.main --config config/settings.py --run all -> rc=1
+- python -m src.cli.main --config config/settings.py --run all -> rc=-1
+10-10 09:23:36,762 [INFO] __main__: Global timeout set to 6.00 hours
+2026-10-10 09:23:36,762 [INFO] __main__: Phases to execute: ['extraction', 'detection', 'inference', 'analysis', 'reporting']
+2026-10-10 09:23:36,763 [INFO] __main__: Remaining time budget: 21600.00 seconds
+2026-10-10 09:23:36,763 [INFO] root: === Extraction Phase ===
+2026-10-10 09:23:36,784 [INFO] root: Running src.extraction.fetch_prs.main()
+2026-10-10 09:23:36,784 [INFO] src.extraction.fetch_prs: Target repositories: ['microsoft/vscode', 'pytorch/pytorch', 'tensorflow/tensorflow']
+2026-10-10 09:23:36,784 [INFO] src.extraction.fetch_prs: Fetching PRs for microsoft/vscode...
+2026-10-10 09:23:50,168 [WARNING] src.extraction.fetch_prs: Rate limit hit for https://api.github.com/repos/microsoft/vscode/pulls?state=all&page=6&per_page=100.
+2026-10-10 09:23:50,169 [WARNING] src.extraction.fetch_prs: Rate limit hit. Sleeping for 60 seconds.
+2026-10-10 09:24:50,344 [WARNING] src.extraction.fetch_prs: Rate limit hit for https://api.github.com/repos/microsoft/vscode/pulls?state=all&page=6&per_page=100.
+2026-10-10 09:24:50,344 [WARNING] src.extraction.fetch_prs: Rate limit hit. Sleeping for 60 seconds.
 
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-370-evaluating-the-impact-of-code-generation/src/cli/main.py", line 35, in <module>
-    from src.utils.logger import (
-ImportError: cannot import name 'setup_pipeline_logging' from 'src.utils.logger' (/home/runner/work/llmXive/llmXive/projects/PROJ-370-evaluating-the-impact-of-code-generation/src/utils/logger.py)
 
+[TIMEOUT after 120s]
 - python -m pytest tests/unit/ -> rc=2
-tError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-370-evaluating-the-impact-of-code-generation/tests/unit/test_preprocess_and_ground_truth.py'.
+tils.py ___________________
+ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-370-evaluating-the-impact-of-code-generation/tests/unit/test_utils.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests/unit/test_preprocess_and_ground_truth.py:5: in <module>
-    from src.extraction.preprocess_and_ground_truth import main as preprocess_main
-src/extraction/preprocess_and_ground_truth.py:39: in <module>
-    from src.extraction.fetch_human_comments import main as fetch_comments_main
-code/src/extraction/fetch_human_comments.py:17: in <module>
-    import requests
-E   ModuleNotFoundError: No module named 'requests'
+tests/unit/test_utils.py:6: in <module>
+    from src.utils.timeout_wrapper import check_global_timeout, START_TIME_FILE, TIMEOUT_LOG_PATH, TIMEOUT_LIMIT_SECONDS
+E   ImportError: cannot import name 'check_global_timeout' from 'src.utils.timeout_wrapper' (/home/runner/work/llmXive/llmXive/projects/PROJ-370-evaluating-the-impact-of-code-generation/src/utils/timeout_wrapper.py)
 =========================== short test summary info ============================
 ERROR tests/unit/test_preprocess_and_ground_truth.py
-!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.12s ===============================
+ERROR tests/unit/test_utils.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 2 errors in 0.16s ===============================
 
 
 - python -m pytest tests/contract/ -> rc=1
@@ -48,18 +52,22 @@ FAILED tests/contract/test_yaml_schemas.py::TestYAMLSchemas::test_pr_data_schema
 FAILED tests/contract/test_yaml_schemas.py::TestYAMLSchemas::test_bug_detection_schema_valid_fields
 FAILED tests/contract/test_yaml_schemas.py::TestYAMLSchemas::test_alignment_result_schema_valid_fields
 ERROR tests/contract/test_yaml_schemas.py::test_yaml_syntax_validity
-===================== 5 failed, 3 passed, 1 error in 0.09s =====================
+===================== 5 failed, 3 passed, 1 error in 0.12s =====================
 
 
-- python -m src.cli.main --config config/settings.py --run all --seed 42 -> rc=1
+- python -m src.cli.main --config config/settings.py --run all --seed 42 -> rc=-1
+2026-10-10 09:25:37,797 [INFO] __main__: Global timeout set to 6.00 hours
+2026-10-10 09:25:37,797 [INFO] __main__: Phases to execute: ['extraction', 'detection', 'inference', 'analysis', 'reporting']
+2026-10-10 09:25:37,797 [INFO] __main__: Remaining time budget: 21600.00 seconds
+2026-10-10 09:25:37,797 [INFO] root: === Extraction Phase ===
+2026-10-10 09:25:37,818 [INFO] root: Running src.extraction.fetch_prs.main()
+2026-10-10 09:25:37,818 [INFO] src.extraction.fetch_prs: Target repositories: ['microsoft/vscode', 'pytorch/pytorch', 'tensorflow/tensorflow']
+2026-10-10 09:25:37,819 [INFO] src.extraction.fetch_prs: Fetching PRs for microsoft/vscode...
+2026-10-10 09:26:40,502 [WARNING] src.extraction.fetch_prs: Rate limit hit for https://api.github.com/repos/microsoft/vscode/pulls?state=all&page=26&per_page=100.
+2026-10-10 09:26:40,503 [WARNING] src.extraction.fetch_prs: Rate limit hit. Sleeping for 60 seconds.
 
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-370-evaluating-the-impact-of-code-generation/src/cli/main.py", line 35, in <module>
-    from src.utils.logger import (
-ImportError: cannot import name 'setup_pipeline_logging' from 'src.utils.logger' (/home/runner/work/llmXive/llmXive/projects/PROJ-370-evaluating-the-impact-of-code-generation/src/utils/logger.py)
 
+[TIMEOUT after 120s]
 
 ## Declared deliverables still missing
 

@@ -16,13 +16,13 @@ data‑flow dependency).  `USx` links the task to the corresponding user story
 |------|-------------|
 | Establish a reproducible workspace and enforce coding standards. |  |
 
-- [ ] **T001** Create the required directory layout – `src/`, `src/utils/`, `data/raw/`, `data/derived/`, `data/annotations/`, `results/`, `tests/`, `specs/`, `contracts/`. **Verification:** assert that each directory exists after execution.  
+- [X] **T001** Create the required directory layout – `src/`, `src/utils/`, `data/raw/`, `data/derived/`, `data/annotations/`, `results/`, `tests/`, `specs/`, `contracts/`. **Verification:** assert that each directory exists after execution.  
 - [X] **T002** Add `requirements.txt` (pinned versions of `datasets`, `transformers`, `scikit‑learn`, `scipy`, `pandas`, `pyyaml`, `pytest`, `numpy`) and a `config/settings.py` that defines hyper‑parameters, path constants, random seeds, and the list `TARGET_REPOS = ["microsoft/vscode", "pytorch/pytorch", "tensorflow/tensorflow"]`. **Verification:** check that both files exist and contain the expected entries.  
 - [X] **T003** Add a `pyproject.toml` configuring **ruff** and **black** (including line‑length, exclude patterns) and a GitHub Actions workflow that runs `ruff check` and `black --check`. **Verification:** confirm `pyproject.toml` includes ruff/black sections and `.github/workflows/ci.yml` exists.  
 - [ ] **T004** Implement utility modules in `src/utils/`:  
   - `timeout_wrapper.py` – enforces the global 6 h runtime limit, writes warnings to `logs/timeout.log`, and exits gracefully with code 143.  
   - `logger.py` – provides a structured logger (JSON lines) that records timestamps, task names, and runtime statistics. **Verification:** unit tests verify timeout exit code 143 and logger produces valid JSON lines.  
-- [ ] **T005** Create the CLI entry point `src/cli/main.py` that wires the pipeline (extraction → detection → inference → analysis → reporting) and uses the timeout and logger utilities. **Verification:** running `python -m src.cli.main --config config/settings.py --run sample` succeeds on a small sample dataset.   <!-- FAILED-IN-EXECUTION: src/cli/main.py exit=1 -->
+- [ ] **T005** Create the CLI entry point `src/cli/main.py` that wires the pipeline (extraction → detection → inference → analysis → reporting) and uses the timeout and logger utilities. **Verification:** running `python -m src.cli.main --config config/settings.py --run sample` succeeds on a small sample dataset.   <!-- FAILED-IN-EXECUTION: src/cli/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/cli/main.py exit=-1 (TIMEOUT) -->
 
 ---  
 

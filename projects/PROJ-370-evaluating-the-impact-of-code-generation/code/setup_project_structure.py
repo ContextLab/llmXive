@@ -1,64 +1,34 @@
-"""
-setup_project_structure.py
---------------------------
-
-This script creates the required project directory layout for the
-llmXive research pipeline. It is used by task T001 to ensure that all
-necessary top‑level directories exist before any further processing.
-
-Required directories (all relative to the repository root):
-  - src/
-  - src/utils/
-  - data/raw/
-  - data/derived/
-  - data/annotations/
-  - results/
-  - tests/
-  - specs/
-  - contracts/
-
-The script can be imported and the ``create_directories`` function called
-directly, or executed as a module/script. When run, it creates any missing
-directories and exits with status code ``0``. Errors raise an exception,
-causing a non‑zero exit code.
-"""
-
 import sys
 from pathlib import Path
 from typing import List
 
 def _project_root() -> Path:
     """
-    Return the absolute path to the repository root (the directory that
-    contains the top‑level ``code`` package).
+    Return the absolute path to the repository root.
+    This script is located at <root>/code/setup_project_structure.py.
     """
-    # This file lives in <repo_root>/code/setup_project_structure.py
     return Path(__file__).resolve().parent.parent
 
 def _required_directories(root: Path) -> List[Path]:
     """
-    Return a list of all directories that must exist for the pipeline.
+    Define the required directory layout for the research pipeline as per T001.
     """
     return [
         root / "src",
-        root / "src" / "utils",
-        root / "data" / "raw",
-        root / "data" / "derived",
-        root / "data" / "annotations",
+        root / "src/utils",
+        root / "data/raw",
+        root / "data/derived",
+        root / "data/annotations",
         root / "results",
         root / "tests",
         root / "specs",
         root / "contracts",
+        root / "logs",
     ]
 
 def create_directories() -> List[Path]:
     """
-    Create the required directory layout.
-
-    Returns
-    -------
-    List[Path]
-        The list of directories that were ensured to exist.
+    Create all required directories if they do not already exist.
     """
     root = _project_root()
     dirs = _required_directories(root)
@@ -68,22 +38,21 @@ def create_directories() -> List[Path]:
 
 def main() -> int:
     """
-    Entry point for ``python -m code.setup_project_structure`` or direct
-    execution. Creates the directories and prints a short summary.
-
-    Returns
-    -------
-    int
-        Exit code: ``0`` on success, ``1`` on unexpected error.
+    Entry point for creating and verifying the directory layout.
+    Asserts that each directory exists after creation.
     """
     try:
-        created = create_directories()
-        print("Created/verified the following directories:")
-        for d in created:
-            print(f" - {d}")
+        dirs = create_directories()
+        print("Verifying directory layout...")
+        for d in dirs:
+            if not d.is_dir():
+                print(f"Verification Failed: {d} is not a directory.")
+                return 1
+            print(f"Verified: {d}")
+        print("Project structure verified successfully.")
         return 0
-    except Exception as exc:  # pragma: no cover – unexpected failures are fatal
-        print(f"Error while creating project layout: {exc}", file=sys.stderr)
+    except Exception as e:
+        print(f"Unexpected error during directory setup: {e}")
         return 1
 
 if __name__ == "__main__":
