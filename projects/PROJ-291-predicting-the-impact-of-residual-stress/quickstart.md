@@ -20,26 +20,26 @@ packages). A clean `pip install -r requirements.txt` completes well within the
 
 ## 2. Verify the environment
 
-The repository provides a `make` target that checks that every pinned package is
-importable and records a log to `results/env_check.log`:
+The repository provides an environment‑check script that installs any missing
+dependencies and confirms that every required module can be imported:
 
 ```bash
-make env-check
+bash scripts/env_check.sh
 ```
 
-The command exits with status 0 only when all required modules import without error.
+The command exits with status 0 only when all required modules import without error. [UNRESOLVED-CLAIM: c_2812e31a — status=not_enough_info]
+The log is written to `results/env_check.log`.
 
 ## 3. Run the full pipeline (single command)
 
 ```bash
-bash run_pipeline.sh
+bash scripts/run_pipeline.sh
 ```
 
-This orchestrates every stage — environment check, data ingestion
-(`python -m code.ingest.ingest`), feature‑set construction, model training,
-statistical evaluation, mediation analysis, and report generation. Stages that
-belong to tasks not yet implemented are reported as skipped; implemented stages
-fail loudly on error.
+This orchestrates every stage – data ingestion, preprocessing, feature‑set
+construction, model training, statistical evaluation, mediation analysis, and
+report generation. Stages that belong to tasks not yet implemented are reported
+as *skipped*; implemented stages will fail loudly on error.
 
 ## 4. Inspect results
 

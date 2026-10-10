@@ -268,3 +268,93 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-10T16:19:39Z'
+- artifact_path: projects/PROJ-291-predicting-the-impact-of-residual-stress/quickstart.md
+  attempts: 1
+  canonical: pip install completes within 2 minutes on GitHub Actions ubuntu-latest
+  claim_id: c_496e3ded
+  context: "The requirements.txt pins all package versions ... A clean pip install\
+    \ -r requirements.txt completes well within the 2\u2011minute budget on the GitHub\
+    \ Actions ubuntu\u2011latest runner (CPU\u2011only torch wheel)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "A clean pip install -r requirements.txt completes well within the 2\u2011\
+    minute budget on the GitHub Actions ubuntu\u2011latest runner (CPU\u2011only torch\
+    \ wheel)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T17:13:08Z'
+- artifact_path: projects/PROJ-291-predicting-the-impact-of-residual-stress/quickstart.md
+  attempts: 1
+  canonical: pipeline completes within 6 hours runtime on GitHub Actions free tier
+  claim_id: c_7ace2055
+  context: "All steps complete within the GitHub Actions free\u2011tier limits (\u2264\
+    \u202F6\u202Fh runtime, <\u202F7\u202FGB RAM)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "All steps complete within the GitHub Actions free\u2011tier limits (\u2264\
+    \u202F6\u202Fh runtime)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T17:13:08Z'
+- artifact_path: projects/PROJ-291-predicting-the-impact-of-residual-stress/quickstart.md
+  attempts: 1
+  canonical: pipeline uses less than 7 GB RAM on GitHub Actions free tier
+  claim_id: c_a9151a00
+  context: "All steps complete within the GitHub Actions free\u2011tier limits (\u2264\
+    \u202F6\u202Fh runtime, <\u202F7\u202FGB RAM)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "All steps complete within the GitHub Actions free\u2011tier limits (<\u202F\
+    7\u202FGB RAM)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T17:13:08Z'
+- artifact_path: projects/PROJ-291-predicting-the-impact-of-residual-stress/quickstart.md
+  attempts: 1
+  canonical: env_check script exits with status 0 only if all modules import successfully
+  claim_id: c_2812e31a
+  context: "The repository provides an environment\u2011check script that installs\
+    \ any missing dependencies and confirms that every required module can be imported.\
+    \ The command exits with status\u202F0 only when all required modules import without\
+    \ error."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The command exits with status\u202F0 only when all required modules import\
+    \ without error."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T17:13:08Z'
+- artifact_path: projects/PROJ-291-predicting-the-impact-of-residual-stress/quickstart.md
+  attempts: 1
+  canonical: pipeline uses only real public datasets from canonical version-pinned
+    URLs, never synthetic data
+  claim_id: c_32d2cc75
+  context: "Synthetic data is never used for scientific claims; the pipeline ingests\
+    \ real public datasets from their canonical, version\u2011pinned URLs."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Synthetic data is never used for scientific claims; the pipeline ingests\
+    \ real public datasets from their canonical, version\u2011pinned URLs."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-10T17:13:08Z'

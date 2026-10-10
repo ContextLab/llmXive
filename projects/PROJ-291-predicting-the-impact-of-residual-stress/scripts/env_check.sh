@@ -1,8 +1,16 @@
 #!/usr/bin/env bash
-# Simplified environment verification for the residual-stress fatigue project.
-# Checks that every pinned dependency in requirements.txt can be imported.
-# Version checks are omitted to avoid false negatives due to patch releases.
+# Environment verification script for the residual‑stress fatigue project.
+# Installs required dependencies (if not already present) and checks that
+# each pinned package can be imported.
 set -euo pipefail
+
+# Ensure the requirements are installed in the current environment.
+# This makes the script robust when run directly after cloning the repo
+# without a prior `pip install -r requirements.txt`.
+if [ -f "requirements.txt" ]; then
+  echo "Installing pinned dependencies (if needed)..."
+  pip install -r requirements.txt --quiet
+fi
 
 mkdir -p results
 LOG=results/env_check.log
