@@ -50,6 +50,13 @@ T013:
     `log_file` parameter, so the fixture would'
   task: 7377f92dbbb8461f70c2ac68dbc67d0235a53eacbe56fb060fb6daa722a791ab
 T014-Features:
+  reason: "The required output `data/processed/graphs_with_features.parquet` is MISSING\
+    \ \u2014 the collector confirms it does not exist, so there is no evidence the\
+    \ pipeline was ever run or produced feature data. Additionally, `code/data/preprocess.py`\
+    \ re-applies the >100-atom filter (task explicitly says not to re-filter since\
+    \ T014-Sample already did) and its `process_molecule_2d` performs 3D conformer\
+    \ generation/minimization rather than the ordered 2D-feature-then-MW extraction\
+    \ on the filtered molecules from T014-Sample."
   task: d96e1c6252594ca0afe75218b4d7e6085c8aa87ff9ae0a86300fb05b9df62cf1
 T014-Merge:
   reason: 'declared artifact(s) missing/empty/invalid: data/processed/graphs_with_features.parquet'
@@ -66,8 +73,23 @@ T014-Sample:
 T015a:
   task: 7e358b3e7819d4e82d086d7d140b2fc677da012449e058ea95f64616e9fcab8d
 T015b:
+  reason: "The required output `data/processed/descriptors.parquet` is MISSING, and\
+    \ the shown `code/data/preprocess.py` content contains no SASA calculation or\
+    \ the required 3D descriptors (`radius_of_gyration`, `principal_moment_1/2/3`,\
+    \ `sasa_components`) \u2014 it only covers conformer generation (T015a work).\
+    \ The implementer must add the descriptor computation logic and actually run it\
+    \ to produce the parquet file with SMILES, `surface_area`, and the 3D descriptor\
+    \ columns."
   task: f746532851ac7a607b37d530a734830a465fe76541acb46e8c89168f7ae1ebbc
 T015c:
+  reason: The required output artifacts `data/processed/paired_dataset.parquet` and
+    `data/processed/conformer_params.json` are both MISSING, so the merge and hash-embedding
+    verification cannot be checked at all. The provided `code/data/preprocess.py`
+    excerpt shows conformer-generation code but no evidence of the merge logic (joining
+    T014/T015a/T015b artifacts, computing the SHA-256 of conformer_params.json, or
+    embedding `conformer_config_hash` in Parquet metadata and as a column). The implementer
+    must actually run the merge to produce both files with the `surface_area` column
+    (no NaNs), the 3D descripto
   task: 2a41c5939a21d859cda1e7759fb09adc9af7e97f2c2c5701607f8178da4e1be9
 T015d:
   reason: 'declared artifact(s) missing/empty/invalid: data/processed/conformer_params.json,
@@ -78,6 +100,14 @@ T016:
     data/splits/test_indices.csv, data/splits/split_report.json, data/splits/split_error_report.json'
   task: f264ad7d76e7fe7dc7ccb7c29ae82c2a404e386d9afb6029445ba3127f47f36c
 T016-Gate:
+  reason: "The required input `data/splits/split_report.json` does not exist (collector\
+    \ confirms MISSING), so the gate's core action \u2014 loading the report and verifying\
+    \ `ks_p_value` > 0.05 \u2014 could not have been performed. No gate script implementing\
+    \ the retry logic (seed increment, up to 5 retries, `split_failure_report.json`\
+    \ with `best_p_value`/`seeds_tried`/`final_error`, CRITICAL log, exit code 1)\
+    \ exists anywhere in the evidence; `code/data/split.py` is the T016 splitter and\
+    \ explicitly does not handle retries or accept a `--seed` argument. The implementer\
+    \ must first run the split to produce `split_repo"
   task: 92cdd1e4b6b9f6a1b02b5b119686d9029383e27e39e12e98c831746d14210ccb
 T016-Report:
   reason: 'declared artifact(s) missing/empty/invalid: data/processed/paired_dataset.parquet,
@@ -88,8 +118,22 @@ T017:
 T018:
   task: b56425f69e4c9cabecb9ef1eabfa9d462c191becf8b03f02f8c0ee53e06c7b9b
 T019:
+  reason: "The test file exists and is substantive, but it validates against `data/schemas/model_schema.yaml`\
+    \ instead of the required `specs/001-predicting-molecular-surface-area/contracts/model_schema.yaml`,\
+    \ and its expectations contradict the actual schema: the schema's `required` is\
+    \ only `[model_type, metrics, hyperparameters]` (no `timestamp`/`dataset_checksum`),\
+    \ and `model_type` enum values are lowercase (`gcn`, `baseline_2d`, `baseline_3d`,\
+    \ `geometry_oracle`) while the test demands uppercase values including `RandomForest`,\
+    \ `BaselineGeometry`, `Baseline3D` that don't exist in the schema \u2014 so `test_"
   task: 77a99c242150136151bd1c6bd1fc1c4f1581c9973b1d966dde454d4b78feb2c2
 T020:
+  reason: 'The test file `tests/integration/test_training.py` exists and is substantive,
+    but it is not runnable against the actual codebase: it imports `EarlyStopping`,
+    `train_model`, and `generate_predictions` from `code.models.train`, yet no `code/models/train.py`
+    appears among the resolved artifacts (only `code/models/gcn.py` and `__init__.py`
+    exist), and `code/data/split.py` is likewise absent. Additionally, the test constructs
+    `GCNModel(input_dim=..., hidden_dim=..., output_dim=..., num_layers=...)`, while
+    the actual `GCNModel.__init__` in `code/models/gcn.py` accepts `in_channels/hidden_channels/ou'
   task: b446e3e291774938044369f8af955db7a7db361f23d9292942e1e09e223918d0
 T021a:
   task: bd2c92da1ab5b5ee2768f17c2ff45f51500b2aa985c093ffcc97a50259a9cbbd

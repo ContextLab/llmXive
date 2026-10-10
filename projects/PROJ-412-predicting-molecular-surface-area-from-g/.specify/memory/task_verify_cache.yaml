@@ -195,6 +195,17 @@ T013:
     defines `setup_logging(log_level=logging.INFO)` with no `log_file` parameter,
     so the fixture would '
   sig: 5ebafbd900b36fc02928f5579e5f218e82270195aefd022f937fc9226c6c171d
+T014-Features:
+  c: false
+  h: f1f3476c9e3f7e4505d09e21dc3b87fe4cd173c5b88f41934ee7957edfc11b69
+  r: "The required output `data/processed/graphs_with_features.parquet` is MISSING\
+    \ \u2014 the collector confirms it does not exist, so there is no evidence the\
+    \ pipeline was ever run or produced feature data. Additionally, `code/data/preprocess.py`\
+    \ re-applies the >100-atom filter (task explicitly says not to re-filter since\
+    \ T014-Sample already did) and its `process_molecule_2d` performs 3D conformer\
+    \ generation/minimization rather than the ordered 2D-feature-then-MW extraction\
+    \ on the filtered molecules from T014-Sample."
+  sig: e87b08b95ed3f41c5f4bc8ad81aa829e5065881d8263bc3635566b0ff5b727f6
 T014-Sample:
   c: false
   h: c65f1f71fe7bb35aac7adcd352b1d0d48bca3078063540f962489c996389f3f1
@@ -202,13 +213,39 @@ T014-Sample:
     do not exist, and the dependency `data/processed/pilot_report.json` is also missing.
     Only `code/config.py` exists; no sampling code or artifacts were produced.
   sig: 1a4bc2327616bc5e6965ee0672427c6ab8350f2c5698f31e5d63c35bd72c1ebf
+T015b:
+  c: false
+  h: c4877a91f92298ed82a08944fc3af4741b388197803652f182268e194be072be
+  r: "The required output `data/processed/descriptors.parquet` is MISSING, and the\
+    \ shown `code/data/preprocess.py` content contains no SASA calculation or the\
+    \ required 3D descriptors (`radius_of_gyration`, `principal_moment_1/2/3`, `sasa_components`)\
+    \ \u2014 it only covers conformer generation (T015a work). The implementer must\
+    \ add the descriptor computation logic and actually run it to produce the parquet\
+    \ file with SMILES, `surface_area`, and the 3D descriptor columns."
+  sig: 429a7bb5710e7a4f2ce2ebef02d5d92070b1c2c33d9e80a5c0255ecfe4d95f25
 T015c:
   c: false
-  h: 2532f98fa00dd4d39eb914ef7c48b1670720e5893a830aabecaf297882d8b57e
-  r: The required output files `data/processed/paired_dataset.parquet` and `data/processed/conformer_params.json`
-    are missing, so the merged dataset, surface_area validation, and hash embedding
-    cannot be verified. Additionally, without these files the specified columns and
-    metadata cannot be checked. The task therefore is not completed.
+  h: 9eaa84e3425f122c3f72f7d1d4ccf546e55a5c74f02e8c0f3adeb84a40e5e68a
+  r: The required output artifacts `data/processed/paired_dataset.parquet` and `data/processed/conformer_params.json`
+    are both MISSING, so the merge and hash-embedding verification cannot be checked
+    at all. The provided `code/data/preprocess.py` excerpt shows conformer-generation
+    code but no evidence of the merge logic (joining T014/T015a/T015b artifacts, computing
+    the SHA-256 of conformer_params.json, or embedding `conformer_config_hash` in
+    Parquet metadata and as a column). The implementer must actually run the merge
+    to produce both files with the `surface_area` column (no NaNs), the 3D descripto
+  sig: 0b2ec8b957d5bfaebd28025a636a09d166b122dce01de267b884e5e8e623fb36
+T016-Gate:
+  c: false
+  h: cea169801887ca239cd2554f0eb0bc5fe76b9c37bf98eed49ed49b904bf8f0cd
+  r: "The required input `data/splits/split_report.json` does not exist (collector\
+    \ confirms MISSING), so the gate's core action \u2014 loading the report and verifying\
+    \ `ks_p_value` > 0.05 \u2014 could not have been performed. No gate script implementing\
+    \ the retry logic (seed increment, up to 5 retries, `split_failure_report.json`\
+    \ with `best_p_value`/`seeds_tried`/`final_error`, CRITICAL log, exit code 1)\
+    \ exists anywhere in the evidence; `code/data/split.py` is the T016 splitter and\
+    \ explicitly does not handle retries or accept a `--seed` argument. The implementer\
+    \ must first run the split to produce `split_repo"
+  sig: 06496988606eb17abbe192a76e097390854bea803a884044975f9e3fb292bb72
 T017:
   c: true
   h: 1fe2df62b40ccd341babb4fa12fc109d6da5f422a61580480700dc760e001108
@@ -231,6 +268,28 @@ T018:
     redefinition of `get_project_root` (a minor redundancy, not a defect) still returns
     the c'
   sig: f49f04ea760e6b2dc61f2486a105727e2f252206b93b4aa2c53f774bbc18a907
+T019:
+  c: false
+  h: ca02ad737f239c95037ae8b3c4c8dd5bc2bd0bc3ce153801973d1c7421cf5058
+  r: "The test file exists and is substantive, but it validates against `data/schemas/model_schema.yaml`\
+    \ instead of the required `specs/001-predicting-molecular-surface-area/contracts/model_schema.yaml`,\
+    \ and its expectations contradict the actual schema: the schema's `required` is\
+    \ only `[model_type, metrics, hyperparameters]` (no `timestamp`/`dataset_checksum`),\
+    \ and `model_type` enum values are lowercase (`gcn`, `baseline_2d`, `baseline_3d`,\
+    \ `geometry_oracle`) while the test demands uppercase values including `RandomForest`,\
+    \ `BaselineGeometry`, `Baseline3D` that don't exist in the schema \u2014 so `test_"
+  sig: 8eab582c106a90101da242f0ea2d0d8bf58ea2e4db910a2c931b8f655a283974
+T020:
+  c: false
+  h: 93d08d0a246a4c4db4717779ca6597259bc993554e57cc4690d48c42c80fccd4
+  r: 'The test file `tests/integration/test_training.py` exists and is substantive,
+    but it is not runnable against the actual codebase: it imports `EarlyStopping`,
+    `train_model`, and `generate_predictions` from `code.models.train`, yet no `code/models/train.py`
+    appears among the resolved artifacts (only `code/models/gcn.py` and `__init__.py`
+    exist), and `code/data/split.py` is likewise absent. Additionally, the test constructs
+    `GCNModel(input_dim=..., hidden_dim=..., output_dim=..., num_layers=...)`, while
+    the actual `GCNModel.__init__` in `code/models/gcn.py` accepts `in_channels/hidden_channels/ou'
+  sig: 0ae3033451efe9e6178df80b382abdfd1b24a0fb5299b404894a5fdea6873f82
 T021c:
   c: false
   h: b1fbfbc6ab00b2ee76cb6e79dafd7c1abc53899352c660b3432947a109156d4d
